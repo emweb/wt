@@ -7,8 +7,8 @@
 #ifndef WFIT_LAYOUT_H_
 #define WFIT_LAYOUT_H_
 
-#include <Wt/WLayout>
-#include <Wt/WGridLayout>
+#include <Wt/WLayout.h>
+#include <Wt/WGridLayout.h>
 
 namespace Wt {
 
@@ -23,22 +23,26 @@ class WT_API WFitLayout : public WLayout
 public:
   /*! \brief Creates a new fit layout.
    */
-  WFitLayout(WWidget *parent = 0);
+  WFitLayout();
   ~WFitLayout();
 
-  static void fitWidget(WContainerWidget *container, WWidget *widget);
+  static void fitWidget(WContainerWidget *container,
+			std::unique_ptr<WWidget> widget);
 
-  virtual void addItem(WLayoutItem *);
-  virtual void removeItem(WLayoutItem *);
-  virtual WLayoutItem *itemAt(int index) const;
-  virtual int indexOf(WLayoutItem *item) const;
-  virtual int count() const;
-  virtual void clear();
+  virtual void addItem(std::unique_ptr<WLayoutItem> item) override;
+  virtual std::unique_ptr<WLayoutItem> removeItem(WLayoutItem *item) override;
+  virtual WLayoutItem *itemAt(int index) const override;
+  virtual int indexOf(WLayoutItem *item) const override;
+  virtual int count() const override;
 
-  Impl::Grid& grid() { return grid_; }
+protected:
+  virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
+  virtual void updateImplementation() override;
 
 private:
   Impl::Grid grid_;
+
+  virtual void setParentWidget(WWidget *parent) override;
 };
 
 }

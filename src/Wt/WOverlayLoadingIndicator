@@ -7,8 +7,8 @@
 #ifndef WOVERLAY_LOADING_INDICATOR_H_
 #define WOVERLAY_LOADING_INDICATOR_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WLoadingIndicator>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLoadingIndicator.h>
 
 namespace Wt {
 
@@ -53,8 +53,7 @@ class WText;
  *
  * \sa WApplication::setLoadingIndicator()
  */
-class WT_API WOverlayLoadingIndicator : public WContainerWidget,
-				 public WLoadingIndicator
+class WT_API WOverlayLoadingIndicator : public WLoadingIndicator
 {
 public:
   /*! \brief Construct the loading indicator.
@@ -93,10 +92,7 @@ public:
 			   const WT_USTRING& backgroundStyleClass = WT_USTRING(),
 			   const WT_USTRING& textStyleClass = WT_USTRING());
 
-  virtual WWidget *widget() { return this; }
-  virtual void setMessage(const WString& text);
-
-  using WContainerWidget::widget;
+  virtual void setMessage(const WString& text) override;
 
 private:
   WContainerWidget *cover_;

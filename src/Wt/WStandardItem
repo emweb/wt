@@ -10,8 +10,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <Wt/WModelIndex>
-#include <Wt/WGlobal>
+#include <Wt/WModelIndex.h>
+#include <Wt/WGlobal.h>
 
 namespace Wt {
 
@@ -75,7 +75,7 @@ public:
 
   /*! \brief Sets the text.
    *
-   * The text is stored as \link Wt::DisplayRole DisplayRole\endlink data.
+   * The text is stored as \link Wt::ItemDataRole::Display ItemDataRole::Display\endlink data.
    *
    * The default text is empty ("").
    *
@@ -91,8 +91,8 @@ public:
 
   /*! \brief Sets the icon url.
    *
-   * The icon is stored as \link Wt::DecorationRole
-   * DecorationRole\endlink data.
+   * The icon is stored as \link Wt::ItemDataRole::Decoration
+   * ItemDataRole::Decoration\endlink data.
    *
    * The default icon url is empty ("").
    *
@@ -108,8 +108,8 @@ public:
 
   /*! \brief Sets the CSS style class.
    *
-   * The style class is stored as \link Wt::StyleClassRole
-   * StyleClassRole\endlink data.
+   * The style class is stored as \link Wt::ItemDataRole::StyleClass
+   * ItemDataRole::StyleClass\endlink data.
    *
    * The default style class is empty ("").
    *
@@ -125,7 +125,7 @@ public:
 
   /*! \brief Sets a tool tip.
    *
-   * The tool tip is stored as \link Wt::ToolTipRole ToolTipRole\endlink data.
+   * The tool tip is stored as \link Wt::ItemDataRole::ToolTip ItemDataRole::ToolTip\endlink data.
    *
    * The default tool tip is empty ("").
    *
@@ -141,7 +141,7 @@ public:
 
   /*! \brief Sets a link.
    *
-   * The link is stored as \link Wt::LinkRole LinkRole\endlink data.
+   * The link is stored as \link Wt::ItemDataRole::Link ItemDataRole::Link\endlink data.
    *
    * \sa setData()
    */
@@ -153,42 +153,10 @@ public:
    */
   WLink link() const;
 
-  /*! \brief Sets a link to an internal path (<b>deprecated</b>).
-   *
-   * The internal path is stored as \link Wt::LinkRole LinkRole\endlink data..
-   *
-   * \deprecated Use setLink() instead.
-   */
-  void setInternalPath(const std::string& internalpath);
-
-  /*! \brief Returns the link to an internal path (<b>deprecated</b>).
-   *
-   * \sa setInternalPath()
-   *
-   * \deprecated Use link() instead.
-   */
-  std::string internalPath() const;
-
-  /*! \brief Sets a link to a URL (<b>deprecated</b>).
-   *
-   * The URL is stored as \link Wt::LinkRole LinkRole\endlink data.
-   *
-   * \deprecated Use setLink() instead.
-   */
-  void setUrl(const std::string& url);
-
-  /*! \brief Returns the linked URL (<b>deprecated</b>).
-   *
-   * \sa setUrl()
-   *
-   * \deprecated Use link() instead.
-   */
-  std::string url() const;
-
   /*! \brief Checks or unchecks the item.
    *
-   * The value is stored as \link Wt::CheckStateRole
-   * CheckStateRole\endlink data.
+   * The value is stored as \link Wt::ItemDataRole::CheckState
+   * ItemDataRole::CheckState\endlink data.
    *
    * By default, an item is not checked.
    *
@@ -196,7 +164,7 @@ public:
    *       (see setCheckable()).
    *
    * If the item is tri-state, you may consider using setCheckState() instead
-   * which supports also setting the third Wt::PartiallyChecked state.
+   * which supports also setting the third Wt::CheckState::PartiallyChecked state.
    *
    * \sa setCheckable(), setCheckState()
    */
@@ -211,9 +179,9 @@ public:
   /*! \brief Sets the check state.
    *
    * Like setChecked(), this sets the check state, but allows also setting
-   * the Wt::PartiallyChecked state when the item is tri-state checkable.
+   * the Wt::CheckState::PartiallyChecked state when the item is tri-state checkable.
    *
-   * The value is stored as \link Wt::CheckStateRole CheckStateRole\endlink
+   * The value is stored as \link Wt::ItemDataRole::CheckState ItemDataRole::CheckState\endlink
    * data.
    *
    * \sa setCheckable(), setData()
@@ -228,8 +196,8 @@ public:
 
   /*! \brief Sets the flags.
    *
-   * The default flag value is \link Wt::ItemIsSelectable
-   * ItemIsSelectable\endlink.
+   * The default flag value is \link Wt::ItemFlag::Selectable
+   * ItemFlag::Selectable\endlink.
    *
    * \sa ItemFlag, flags(), setCheckable()
    */
@@ -243,7 +211,7 @@ public:
 
   /*! \brief Makes the item checkable.
    *
-   * Adds \link Wt::ItemIsUserCheckable ItemIsUserCheckable
+   * Adds \link Wt::ItemFlag::UserCheckable ItemFlag::UserCheckable
    * \endlink to the item's flags.
    *
    * \sa setFlags(), setChecked()
@@ -259,7 +227,7 @@ public:
   /*! \brief Makes the item tri-state checkable.
    *
    * When \p tristate is \c true, the item is checkable with three
-   * states: Wt::Unchecked, Wt::Checked, and Wt::PartiallyChecked.
+   * states: Wt::CheckState::Unchecked, Wt::CheckState::Checked, and Wt::CheckState::PartiallyChecked.
    *
    * This requires that the item is also checkable (see setCheckable())
    *
@@ -282,7 +250,7 @@ public:
    *
    * \sa data()
    */
-  virtual void setData(const boost::any& data, int role = UserRole);
+  virtual void setData(const cpp17::any& data, int role = ItemDataRole::User);
 
   /*! \brief Returns item data.
    *
@@ -290,7 +258,7 @@ public:
    *
    * \sa data()
    */
-  virtual boost::any data(int role = UserRole) const;
+  virtual cpp17::any data(int role = ItemDataRole::User) const;
 
   /*! \brief Returns whether the item has any children.
    *
@@ -352,7 +320,7 @@ public:
    *
    * \sa insertColumn(), appendRow()
    */
-  void appendColumn(const std::vector<WStandardItem *>& items);
+  void appendColumn(std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Inserts a single column of items.
    *
@@ -361,7 +329,8 @@ public:
    * 
    * \sa WStandardItem::insertRow()
    */
-  void insertColumn(int column, const std::vector<WStandardItem *>& items);
+  void insertColumn(int column,
+		    std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Add a single row of items.
    *
@@ -375,7 +344,7 @@ public:
    *
    * \sa insertRow(), appendColumn()
    */
-  void appendRow(const std::vector<WStandardItem *>& items);
+  void appendRow(std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Inserts a single row of items.
    *
@@ -384,7 +353,7 @@ public:
    * 
    * \sa insertColumn()
    */
-  void insertRow(int row, const std::vector<WStandardItem *>& items);
+  void insertRow(int row, std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Inserts a number of empty columns.
    *
@@ -414,7 +383,7 @@ public:
    * 
    * \sa insertRow(int, WStandardItem *)
    */
-  void appendRow(WStandardItem *item);
+  void appendRow(std::unique_ptr<WStandardItem> item);
 
   /*! \brief Inserts a row containing one item.
    *
@@ -438,7 +407,7 @@ public:
    * 
    * \sa insertRow(int, const std::vector<WStandardItem *>&)
    */
-  void insertRow(int row, WStandardItem *item);
+  void insertRow(int row, std::unique_ptr<WStandardItem> item);
 
   /*! \brief Appends multiple rows containing one item.
    *
@@ -452,7 +421,7 @@ public:
    * 
    * \sa insertRows(int, const std::vector<WStandardItem *>&)
    */
-  void appendRows(const std::vector<WStandardItem *>& items);
+  void appendRows(std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Inserts multiple rows containing one item.
    *
@@ -469,19 +438,20 @@ public:
    * 
    * \sa insertRow(int, WStandardItem *)
    */
-  void insertRows(int row, const std::vector<WStandardItem *>& items);
+  void insertRows(int row,
+		  std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Sets a child item.
    *
    * Sets a child item <i>item</i> at position (\p row,
-   * \p column). If an item was previously set, it is deleted
-   * first.
+   * \p column).
    *
    * If necessary, the rowCount() and/or the columnCount() is increased.
    *
    * \sa child().
    */
-  void setChild(int row, int column, WStandardItem *item);
+  void setChild(int row, int column,
+		std::unique_ptr<WStandardItem> item);
 
   /*! \brief Sets a child item.
    *
@@ -493,7 +463,7 @@ public:
    *
    * \sa setChild(int, int, WStandardItem *).
    */
-  void setChild(int row, WStandardItem *item);
+  void setChild(int row, std::unique_ptr<WStandardItem> item);
 
   /*! \brief Returns a child item.
    *
@@ -508,12 +478,11 @@ public:
   /*! \brief Takes a child out of the item.
    *
    * Returns the child item at position (<i>row</i>, \p column),
-   * and removes it (by setting \c 0 instead). Ownership of the item is
-   * transferred to the caller.
+   * and removes it (by setting \c 0 instead).
    *
    * \sa child(), setChild(int, int, WStandardItem *)
    */
-  WStandardItem *takeChild(int row, int column);
+  std::unique_ptr<WStandardItem> takeChild(int row, int column);
 
   /*! \brief Takes a column of children out of the item.
    *
@@ -523,7 +492,7 @@ public:
    *
    * \sa takeRow(), removeColumn()
    */
-  std::vector<WStandardItem *> takeColumn(int column);
+  std::vector<std::unique_ptr<WStandardItem>> takeColumn(int column);
 
   /*! \brief Takes a row of children out of the item.
    *
@@ -533,7 +502,7 @@ public:
    *
    * \sa takeColumn(), removeRow()
    */
-  std::vector<WStandardItem *> takeRow(int row);
+  std::vector<std::unique_ptr<WStandardItem>> takeRow(int row);
 
   /*! \brief Removes a single column.
    *
@@ -618,7 +587,7 @@ public:
    *
    * \sa WStandardItemModel::setItemPrototype()
    */
-  virtual WStandardItem *clone() const;
+  virtual std::unique_ptr<WStandardItem> clone() const;
 
   /*! \brief Compares the item with another item.
    *
@@ -660,11 +629,11 @@ protected:
 
 private:
 #ifndef WT_TARGET_JAVA
-  typedef std::map<int, boost::any> DataMap;
+  typedef std::map<int, cpp17::any> DataMap;
 #else
-  typedef std::treemap<int, boost::any> DataMap;
+  typedef std::treemap<int, cpp17::any> DataMap;
 #endif
-  typedef std::vector<WStandardItem *> Column;
+  typedef std::vector<std::unique_ptr<WStandardItem>> Column;
   typedef std::vector<Column> ColumnList;
 
   /*! \brief Compares the item with another item.
@@ -680,13 +649,13 @@ private:
   int compare(const WStandardItem& other) const;
 
   WStandardItemModel *model_;
-  WStandardItem      *parent_;
-  int                 row_, column_;
+  WStandardItem *parent_;
+  int row_, column_;
 
   DataMap          data_;
   WFlags<ItemFlag> flags_;
 
-  ColumnList *columns_;
+  std::unique_ptr<ColumnList> columns_;
 
   void signalModelDataChange();
   void adoptChild(int row, int column, WStandardItem *item);

@@ -7,304 +7,194 @@
 #ifndef WT_DBO_TUPLE_PTR_H_
 #define WT_DBO_TUPLE_PTR_H_
 
-#include <boost/tuple/tuple.hpp>
-#include <Wt/Dbo/Query>
+#include <tuple>
+#include <Wt/Dbo/Query.h>
 
 namespace Wt {
   namespace Dbo {
 
-template <>
-struct persist<boost::tuples::null_type, void>
-{
-  template <class A>
-  static void apply(boost::tuples::null_type& obj, A& action)
-  { }
-};
-
 namespace Impl {
-  template <class T>
-  struct ptr_type
-  {
-    typedef ptr<T> type;
-  };
-
-  template <>
-  struct ptr_type< boost::tuples::null_type >
-  {
-    typedef boost::tuples::null_type type;
-  };
-
-  template <int N, class T>
+  template <int I, typename... Ts>
   struct helper
   {
-    typedef typename boost::tuples::element<N, T>::type ElementType;
+    typedef typename std::tuple<Ts...> TupleType;
+    typedef typename std::tuple_element<I, std::tuple<Ts...>>::type EIType;
 
     static void getFields(Session& session,
 			  std::vector<std::string> *aliases,
 			  std::vector<FieldInfo>& result)
     {
-      helper<N-1, T>::getFields(session, aliases, result);
-      query_result_traits<ElementType>::getFields(session, aliases, result);
+      helper<I-1, Ts...>::getFields(session, aliases, result);
+      query_result_traits<EIType>::getFields(session, aliases, result);
     }
 
     static void load(Session& session, SqlStatement& statement,
-		     int& column, T& result)
+		     int& column, TupleType& result)
     {
-      helper<N-1, T>::load(session, statement, column, result);
+      helper<I-1, Ts...>::load(session, statement, column, result);
 
-      boost::get<N>(result)
-	= query_result_traits<ElementType>::load(session, statement, column);
+      std::get<I>(result)
+	= query_result_traits<EIType>::load(session, statement, column);
     }
 
-    static void getValues(const T& result, std::vector<boost::any>& values)
+    static void getValues(const TupleType& result, std::vector<cpp17::any>& values)
     {
-      helper<N-1, T>::getValues(result, values);
+      helper<I-1, Ts...>::getValues(result, values);
 
-      query_result_traits<ElementType>::getValues(boost::get<N>(result),
-						  values);
+      query_result_traits<EIType>::getValues(std::get<I>(result), values);
     }
 
-    static void setValue(T& result, int& index, const boost::any& value)
+    static void setValue(TupleType& result, int& index, const cpp17::any& value)
     {
       if (index >= 0) {
-	helper<N-1, T>::setValue(result, index, value);
+	helper<I-1, Ts...>::setValue(result, index, value);
 
-	if (index >= 0) {
-	  query_result_traits<ElementType>::setValue(boost::get<N>(result),
-						     index, value);
-	}
+	if (index >= 0)
+	  query_result_traits<EIType>::setValue(std::get<I>(result),
+						index, value);
       }
     }
 
-    static void create(T& result)
+    static void create(TupleType& result)
     {
-      helper<N-1, T>::create(result);
-
-      boost::get<N>(result) = query_result_traits<ElementType>::create();
+      helper<I-1, Ts...>::create(result);
+      std::get<I>(result) = query_result_traits<EIType>::create();
     }
 
-    static void add(Session& session, T& result)
+    static void add(Session& session, TupleType& result)
     {
-      helper<N-1, T>::add(session, result);
+      helper<I-1, Ts...>::add(session, result);
 
-      query_result_traits<ElementType>::add(session, boost::get<N>(result));
+      query_result_traits<EIType>::add(session, std::get<I>(result));
     }
 
-    static void remove(T& result)
+    static void remove(TupleType& result)
     {
-      helper<N-1, T>::remove(result);
+      helper<I-1, Ts...>::remove(result);
 
-      query_result_traits<ElementType>::remove(boost::get<N>(result));
+      query_result_traits<EIType>::remove(std::get<I>(result));
     }
   };
 
-  template <class T>
-  struct helper<-1, T>
+  template <typename... Ts>
+  struct helper<-1, Ts...>
   {
+    typedef typename std::tuple<Ts...> TupleType;
     static void getFields(Session& session,
 			  std::vector<std::string> *aliases,
 			  std::vector<FieldInfo>& result)
     { }
 
     static void load(Session& session, SqlStatement& statement,
-		     int& column, T& result)
+		     int& column, TupleType& result)
     { }
 
-    static void getValues(const T& result, std::vector<boost::any>& values)
+    static void getValues(const TupleType& result, std::vector<cpp17::any>& values)
     { }
 
-    static void setValue(T& result, int& index, const boost::any& value)
+    static void setValue(TupleType& result, int& index, const cpp17::any& value)
     { }
 
-    static void create(T& result)
+    static void create(TupleType& result)
     { }
 
-    static void add(Session& session, T& result)
+    static void add(Session& session, TupleType& result)
     { }
 
-    static void remove(T& result)
+    static void remove(TupleType& result)
     { }
   };
 
 }
 
-/*! \brief A utility class for defining a tuple of database objects.
- *
- * Since C++ (at least prior to C++0x) does not support template
- * typedefs, this class provides a nested \p type that is a typedef
- * for a Boost.Tuple containing one or more Wt::Dbo::ptr.
- *
- * Thus:
- * \code
- * namespace dbo = Wt::Dbo;
- * typedef dbo::ptr_tuple<A, B, C>::type ABC;
- * \endcode
- * Is equivalent to:
- * \code
- * namespace dbo = Wt::Dbo;
- * typedef boost::tuple<dbo::ptr<A>, dbo::ptr<B>, dbo::ptr<C> > ABC;
- * \endcode
- *
- * \note Boost.Tuple (in its general form) is supported as a result for a
- *       Session::query() by a partial template specialization of
- *       query_result_traits.
- *
- * \ingroup dbo
- */
-#ifdef DOXYGEN_ONLY
-template <class T0 = boost::tuples::null_type,
-	  class T1 = boost::tuples::null_type,
-	  ...,
-	  class T9 = boost::tuples::null_type>
-#else
-template <class T0 = boost::tuples::null_type,
-	  class T1 = boost::tuples::null_type,
-	  class T2 = boost::tuples::null_type,
-	  class T3 = boost::tuples::null_type,
-	  class T4 = boost::tuples::null_type,
-	  class T5 = boost::tuples::null_type,
-	  class T6 = boost::tuples::null_type,
-	  class T7 = boost::tuples::null_type,
-	  class T8 = boost::tuples::null_type,
-	  class T9 = boost::tuples::null_type>
-#endif
-struct ptr_tuple
+template <typename... T>
+struct query_result_traits<std::tuple<T...>>
 {
-  /*! \brief A typedef for a Boost.Tuple for ptrs.
-   */
-#ifdef DOXYGEN_ONLY
-  typedef boost::tuple< ptr<T0>, ptr<T1>, ..., ptr<T9> > type;
-#else
-  typedef boost::tuple< typename Impl::ptr_type<T0>::type,
-			typename Impl::ptr_type<T1>::type,
-			typename Impl::ptr_type<T2>::type,
-			typename Impl::ptr_type<T3>::type,
-			typename Impl::ptr_type<T4>::type,
-			typename Impl::ptr_type<T5>::type,
-			typename Impl::ptr_type<T6>::type,
-			typename Impl::ptr_type<T7>::type,
-			typename Impl::ptr_type<T8>::type,
-			typename Impl::ptr_type<T9>::type > type;
-#endif // DOXYGEN_ONLY
-};
-
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-struct query_result_traits< boost::tuple<T0, T1, T2, T3, T4,
-				       T5, T6, T7, T8, T9> >
-{
-  typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
-  typedef Impl::helper<boost::tuples::length<tuple_type>::value - 1, tuple_type>
-    helper;
+  typedef Impl::helper<sizeof...(T) - 1, T...> helper;
 
   static void getFields(Session& session,
 			std::vector<std::string> *aliases,
 			std::vector<FieldInfo>& result);
 
-  static tuple_type load(Session& session, SqlStatement& statement,
+  static std::tuple<T...> load(Session& session, SqlStatement& statement,
 			 int& column);
 
-  static void getValues(const tuple_type& t, std::vector<boost::any>& values);
+  static void getValues(const std::tuple<T...>& t, std::vector<cpp17::any>& values);
 
-  static void setValue(tuple_type& t, int& index, const boost::any& value);
+  static void setValue(std::tuple<T...>& t, int& index, const cpp17::any& value);
 
-  static tuple_type create();
-  static void add(Session& session, tuple_type& t);
-  static void remove(tuple_type& t);
+  static std::tuple<T...> create();
+  static void add(Session& session, std::tuple<T...>& t);
+  static void remove(std::tuple<T...>& t);
 
-  static long long id(const tuple_type& ptr);
-  static tuple_type findById(Session& session, long long id);
+  static long long id(const std::tuple<T...>& ptr);
+  static std::tuple<T...> findById(Session& session, long long id);
 };
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-void query_result_traits< boost::tuple<T0, T1, T2, T3, T4,
-				     T5, T6, T7, T8, T9> >
-::getFields(Session& session,
-	    std::vector<std::string> *aliases,
+template <typename... T>
+void query_result_traits<std::tuple<T...>>
+::getFields(Session& session, std::vector<std::string> *aliases,
 	    std::vector<FieldInfo>& result)
 {
   helper::getFields(session, aliases, result);
 }
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
-query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+template <typename... T>
+std::tuple<T...> query_result_traits<std::tuple<T...>>
 ::load(Session& session, SqlStatement& statement, int& column)
 {
-  tuple_type result;
-
+  std::tuple<T...> result;
   helper::load(session, statement, column, result);
-
   return result;
 }
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-void 
-query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-::getValues(const tuple_type& t, std::vector<boost::any>& values)
+template <typename... T>
+void query_result_traits<std::tuple<T...>>
+::getValues(const std::tuple<T...>& t, std::vector<cpp17::any>& values)
 {
   helper::getValues(t, values);
 }
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-void 
-query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-::setValue(tuple_type& t, int& index, const boost::any& value)
+template <typename... T>
+void query_result_traits<std::tuple<T...>>::setValue(std::tuple<T...>& t,
+						     int& index,
+						     const cpp17::any& value)
 {
   helper::setValue(t, index, value);
 }
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
-query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-::create()
+template <typename... T>
+std::tuple<T...> query_result_traits<std::tuple<T...>>::create()
 {
-  tuple_type result;
-
+  std::tuple<T...> result;
   helper::create(result);
-
   return result;
 }
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-void 
-query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-::add(Session& session, tuple_type& t)
+template <typename... T>
+void query_result_traits<std::tuple<T...>>::add(Session& session,
+						std::tuple<T...>& t)
 {
   helper::add(session, t);
 }
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-void 
-query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-::remove(tuple_type& t)
+template <typename... T>
+void query_result_traits<std::tuple<T...>>::remove(std::tuple<T...>& t)
 {
   helper::remove(t);
 }
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-long long 
-query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-::id(const tuple_type& t)
+template <typename... T>
+long long query_result_traits<std::tuple<T...>>::id(const std::tuple<T...>& t)
 {
   return -1;
 }
 
-template <class T0, class T1, class T2, class T3, class T4,
-	  class T5, class T6, class T7, class T8, class T9>
-boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
-query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+template <typename... T>
+std::tuple<T...> query_result_traits<std::tuple<T...>>
 ::findById(Session& session, long long id)
 {
-  return tuple_type();
+  return std::tuple<T...>();
 }
 
   }

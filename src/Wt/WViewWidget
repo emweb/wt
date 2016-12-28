@@ -7,7 +7,7 @@
 #ifndef WVIEWWIDGET_H_
 #define WVIEWWIDGET_H_
 
-#include <Wt/WWebWidget>
+#include <Wt/WWebWidget.h>
 
 namespace Wt {
 
@@ -88,7 +88,7 @@ namespace Wt {
  *     boost::any d = index_.data(role_);
  *     const std::string& t = boost::any_cast<const std::string&>(d);
  *
- *     result->setTextFormat(Wt::PlainText);
+ *     result->setTextFormat(Wt::TextFormat::Plain);
  *     result->setText(t);
  *
  *     return result;
@@ -108,7 +108,7 @@ class WT_API WViewWidget : public WWebWidget
 public:
   /*! \brief Creates a new view widget.
    */
-  WViewWidget(WContainerWidget *parent = 0);
+  WViewWidget();
 
   /*! \brief Updates the view.
    *
@@ -120,9 +120,9 @@ public:
    */
   void update();
 
-  virtual void load();
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual void refresh();
+  virtual void load() override;
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void refresh() override;
 
 protected:
   /*! \brief Creates a widget that renders the View.
@@ -130,16 +130,16 @@ protected:
    * This method must be reimplemented to return a widget that renders the
    * view. The returned widget will be deleted by %WViewWidget.
    */
-  virtual WWidget *renderView() = 0;
+  virtual std::unique_ptr<WWidget> renderView() = 0;
 
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
-  virtual DomElementType domElementType() const;
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void propagateRenderOk(bool deep) override;
+  virtual DomElementType domElementType() const override;
 
-  virtual void doneRerender();
+  virtual void doneRerender() override;
 
 private:
-  WWidget *contents_;
+  std::unique_ptr<WWidget> contents_;
   bool needContentsUpdate_;
 };
 
@@ -159,12 +159,11 @@ public:
   /*! \brief Creates a new static model view, given a function
    *         object to render the View widget.
    */
-  WStaticModelView(Renderer f, WContainerWidget *parent = 0)
-    : WViewWidget(parent),
-      f_(f) { }
+  WStaticModelView(Renderer f)
+    : f_(f) { }
 
 protected:
-  WWidget *renderView() {
+  std::unique_ptr<WWidget> renderView() {
     return f_();
   }
 
@@ -178,11 +177,10 @@ protected:
  *
  * \relates WStaticModelView
  */
-template <typename Renderer>
-WStaticModelView<Renderer>
-*makeStaticModel(Renderer f, WContainerWidget *parent = 0)
+template <typename R>
+std::unique_ptr<WStaticModelView<R>> makeStaticModel(R f)
 {
-  return new WStaticModelView<Renderer>(f, parent);
+  return std::unique_ptr<WStaticModelView<R>>(new WStaticModelView<R>(f));
 }
 
 }

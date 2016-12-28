@@ -12,6 +12,20 @@
 
 namespace Wt {
 
+/*! \brief CSS length unit type
+ */
+enum class LengthUnit {
+  FontEm,     //!< The relative font size
+  FontEx,     //!< The height of an 'x' in the font
+  Pixel,      //!< Pixel, relative to canvas resolution
+  Inch,       //!< Inch
+  Centimeter, //!< Centimeter
+  Millimeter, //!< Millimeter
+  Point,      //!< Point (1/72 Inch)
+  Pica,       //!< Pica (12 Point)
+  Percentage  //!< Percentage (meaning context-sensitive)
+};
+
 /*! \class WLength Wt/WLength Wt/WLength
  *  \brief A value class that describes a CSS length.
  *
@@ -21,18 +35,8 @@ namespace Wt {
 class WT_API WLength
 {
 public:
-  /*! \brief The unit
-   */
-  enum Unit { FontEm,     //!< The relative font size
-	      FontEx,     //!< The height of an 'x' in the font
-	      Pixel,      //!< Pixel, relative to canvas resolution
-	      Inch,       //!< Inch
-	      Centimeter, //!< Centimeter
-	      Millimeter, //!< Millimeter
-	      Point,      //!< Point (1/72 Inch)
-	      Pica,       //!< Pica (12 Point)
-	      Percentage  //!< Percentage (meaning context-sensitive)
-  };
+  /*! \brief Typedef for enum Wt::LengthUnit */
+  typedef LengthUnit Unit;
 
   /*! \brief An 'auto' length.
    *
@@ -73,7 +77,7 @@ public:
    * This constructor is also used for the implicit conversion of a
    * double to a WLength, assuming a pixel unit.
    */
-  WLength(double value, Unit unit = Pixel);
+  WLength(double value, LengthUnit unit = LengthUnit::Pixel);
 
   /*! \brief Returns whether the length is 'auto'.
    *
@@ -91,7 +95,7 @@ public:
    *
    * \sa value()
    */
-  Unit unit() const { return unit_; }
+  LengthUnit unit() const { return unit_; }
 
   /*! \brief Returns the CSS text.
    */
@@ -114,10 +118,10 @@ public:
   
 private:
   bool auto_;
-  Unit unit_;
+  LengthUnit unit_;
   double value_;
 
-  void setUnit(Unit unit);
+  void setUnit(LengthUnit unit);
   void parseCssString(const char *str);
 };
 

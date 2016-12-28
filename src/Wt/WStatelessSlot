@@ -10,7 +10,7 @@
 #include <Wt/WDllDefs.h>
 #include <vector>
 #include <string>
-#include <Wt/WObject>
+#include <Wt/WObject.h>
 
 namespace Wt {
 
@@ -26,7 +26,7 @@ public:
 
   typedef void (WObject::*WObjectMethod)();
 
-  enum SlotType { 
+  enum class SlotType { 
     AutoLearnStateless,
     PreLearnStateless,
     JavaScriptSpecified

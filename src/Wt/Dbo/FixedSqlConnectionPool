@@ -7,7 +7,7 @@
 #ifndef WT_DBO_FIXED_SQL_CONNECTION_POOL_H_
 #define WT_DBO_FIXED_SQL_CONNECTION_POOL_H_
 
-#include <Wt/Dbo/SqlConnectionPool>
+#include <Wt/Dbo/SqlConnectionPool.h>
 
 #include <vector>
 
@@ -39,16 +39,16 @@ public:
    *
    * The pool thus takes ownership of the given connection.
    */
-  FixedSqlConnectionPool(SqlConnection *connection, int size);
+  FixedSqlConnectionPool(std::unique_ptr<SqlConnection> connection, int size);
 
   virtual ~FixedSqlConnectionPool();
-  virtual SqlConnection *getConnection();
-  virtual void returnConnection(SqlConnection *);
+  virtual std::unique_ptr<SqlConnection> getConnection();
+  virtual void returnConnection(std::unique_ptr<SqlConnection>);
   virtual void prepareForDropTables() const;
 
 private:
   struct Impl;
-  Impl *impl_;
+  std::unique_ptr<Impl> impl_;
 };
 
   }

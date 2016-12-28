@@ -8,13 +8,12 @@
 #define WT_TREEVIEW_H_
 
 #include <set>
+#include <unordered_map>
 #include <vector>
-#include <boost/unordered_map.hpp>
 
-#include <Wt/WAbstractItemView>
-#include <Wt/WJavaScript>
-#include <Wt/WModelIndex>
-#include <Wt/WSignalMapper>
+#include <Wt/WAbstractItemView.h>
+#include <Wt/WJavaScript.h>
+#include <Wt/WModelIndex.h>
 
 namespace Wt {
 
@@ -39,7 +38,7 @@ namespace Wt {
  * including text, icons, checkboxes, and tooltips.
  *
  * The view may support editing of items, if the model indicates
- * support (see the Wt::ItemIsEditable flag). You can define triggers
+ * support (see the Wt::ItemFlag::Editable flag). You can define triggers
  * that initiate editing of an item using setEditTriggers(). The
  * actual editing is provided by the item delegate (you can set an
  * appropriate delegate for one column using
@@ -71,13 +70,13 @@ namespace Wt {
  * of the items in the model. When enabling dragging (see
  * setDragEnabled()), the current selection may be dragged, but only
  * when all items in the selection indicate support for dragging
- * (controlled by the \link Wt::ItemIsDragEnabled
- * ItemIsDragEnabled\endlink flag), and if the model indicates a
+ * (controlled by the \link Wt::ItemFlag::DragEnabled
+ * ItemFlag::DragEnabled\endlink flag), and if the model indicates a
  * mime-type (controlled by WAbstractItemModel::mimeType()). Likewise,
  * by enabling support for dropping (see setDropsEnabled()), the
  * treeview may receive a drop event on a particular item, at least if
  * the item indicates support for drops (controlled by the \link
- * Wt::ItemIsDropEnabled ItemIsDropEnabled\endlink flag).
+ * Wt::ItemFlag::DropEnabled ItemFlag::DropEnabled\endlink flag).
  *
  * You may also react to mouse click events on any item, by connecting
  * to one of the clicked() or doubleClicked() signals.
@@ -93,7 +92,7 @@ namespace Wt {
  * gitView->resize(300, Wt::WLength::Auto);
  * gitView->setSortingEnabled(false);
  * gitView->setModel(model);
- * gitView->setSelectionMode(SingleSelection);
+ * gitView->setSelectionMode(SelectionMode::Single);
  * \endcode
  * \endif
  *
@@ -116,39 +115,9 @@ class WT_API WTreeView : public WAbstractItemView
 public:
   /*! \brief Creates a new tree view.
    */
-  WTreeView(WContainerWidget *parent = 0);
+  WTreeView();
 
   ~WTreeView();
-
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Sets the column format string (<b>deprecated</b>).
-   *
-   * \if cpp
-   * The DisplayRole data for that column is converted to a string using
-   * asString(), with the given format.
-   * \elseif java
-   * The DisplayRole data for that column is converted to a string using
-   * {javadoclink StringUtils#asString(Object)}, with the given format.
-   * \endif
-   *
-   * The default value is "".
-   *
-   * \deprecated use itemDelegateForColumn() to customize the formatting. This
-   *             method will create a new WItemDelegate for the
-   *             column, and configure its format.
-   */
-  void setColumnFormat(int column, const WT_USTRING& format);
-
-  /*! \brief Returns the column format string (<b>deprecated</b>).
-   *
-   * \sa setColumnFormat()
-   *
-   * \deprecated use itemDelegateForColumn() to customize the formatting. This
-   *             method will try to cast the itemDelegateForColumn() to
-   *             a WItemDelegate and return the format.
-   */
-  WT_USTRING columnFormat(int column) const;
-#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Expands or collapses a node.
    *
@@ -204,7 +173,7 @@ public:
    */
   bool rootIsDecorated() const { return rootIsDecorated_; }
 
-  virtual void resize(const WLength& width, const WLength& height);
+  virtual void resize(const WLength& width, const WLength& height) override;
 
   /*! \brief %Signal emitted when a node is collapsed.
    *
@@ -218,8 +187,9 @@ public:
    */
   Signal<WModelIndex>& expanded() { return expanded_; }
 
-  virtual WWidget *itemWidget(const WModelIndex& index) const;
-  virtual void setModel(WAbstractItemModel *model);
+  virtual WWidget *itemWidget(const WModelIndex& index) const override;
+  virtual void setModel(const std::shared_ptr<WAbstractItemModel>& model)
+    override;
 
   /*! \brief Sets the column width.
    *
@@ -233,51 +203,47 @@ public:
    *
    * \sa setRowHeight()
    */
-  virtual void setColumnWidth(int column, const WLength& width);
-  virtual void setAlternatingRowColors(bool enable);
-  virtual void setRowHeight(const WLength& rowHeight);
-  virtual void setHeaderHeight(const WLength& height);
+  virtual void setColumnWidth(int column, const WLength& width) override;
+  virtual void setAlternatingRowColors(bool enable) override;
+  virtual void setRowHeight(const WLength& rowHeight) override;
+  virtual void setHeaderHeight(const WLength& height) override;
 #ifndef WT_CNOR
   using WAbstractItemView::setHeaderHeight;
 #endif
-  virtual void setColumnHidden(int column, bool hidden);
-  virtual void setRowHeaderCount(int count);
+  virtual void setColumnHidden(int column, bool hidden) override;
+  virtual void setRowHeaderCount(int count) override;
 
-  virtual int pageCount() const;
-  virtual int pageSize() const;
-  virtual int currentPage() const;
-  virtual void setCurrentPage(int page);
+  virtual int pageCount() const override;
+  virtual int pageSize() const override;
+  virtual int currentPage() const override;
+  virtual void setCurrentPage(int page) override;
 
   virtual void scrollTo(const WModelIndex& index,
-			ScrollHint hint = EnsureVisible);
-  virtual EventSignal<WScrollEvent>& scrolled();
+			ScrollHint hint = ScrollHint::EnsureVisible) override;
+  virtual EventSignal<WScrollEvent>& scrolled() override;
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual void enableAjax();
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void enableAjax() override;
 
 private:
-  typedef boost::unordered_map<WModelIndex, WTreeViewNode *> NodeMap;
+  typedef std::unordered_map<WModelIndex, WTreeViewNode *> NodeMap;
 
-  bool				   skipNextMouseEvent_;
+  bool skipNextMouseEvent_;
 
-  WModelIndexSet       expandedSet_;
-  NodeMap              renderedNodes_;
-  bool                 renderedNodesAdded_;
-  WTreeViewNode       *rootNode_;
-  WCssTemplateRule    *rowHeightRule_, *rowWidthRule_, 
-                      *rowContentsWidthRule_;
-  WCssRule            *c0StyleRule_;
+  WModelIndexSet expandedSet_;
+  NodeMap renderedNodes_;
+  bool renderedNodesAdded_;
+  WTreeViewNode *rootNode_;
+  WCssTemplateRule *rowHeightRule_, *rowWidthRule_, *rowContentsWidthRule_;
+  WCssRule *c0StyleRule_;
 
-  bool                 rootIsDecorated_;
-  bool                 column1Fixed_;
+  bool rootIsDecorated_, column1Fixed_;
 
-  Signal<WModelIndex>  collapsed_;
-  Signal<WModelIndex>  expanded_;
+  Signal<WModelIndex>  collapsed_, expanded_;
 
   // in rows, as indicated by the current position of the viewport:
-  int viewportTop_;
-  int viewportHeight_;
+  int viewportTop_, viewportHeight_;
 
   // the firstRenderedRow may differ from viewportTop_, because the user
   // adjusted the view port slightly, but not enough to trigger a correction
@@ -286,8 +252,7 @@ private:
   // expanding or collapsing nodes, or inserting and deleting rows.
   // it takes into account that an expanded node may be incomplete, and
   // thus everything beyond is irrelevant
-  int firstRenderedRow_;
-  int validRowCount_;
+  int firstRenderedRow_, validRowCount_;
 
   // rendered nodes in memory (including those collapsed and not included in
   // actualRenderedRowCount_), but excluding nodes that are simply there since
@@ -305,18 +270,18 @@ private:
   JSignal<std::string, std::string, std::string,
 	  std::string, WTouchEvent> itemTouchEvent_;
 
-  ToggleButtonConfig *expandConfig_;
+  std::unique_ptr<ToggleButtonConfig> expandConfig_;
 
   JSlot tieRowsScrollJS_;
   
-  virtual ColumnInfo createColumnInfo(int column) const;
+  virtual ColumnInfo createColumnInfo(int column) const override;
 
   void defineJavaScript();
   void rerenderHeader();
   void rerenderTree();
   void setup();
 
-  virtual void scheduleRerender(RenderState what);
+  virtual void scheduleRerender(RenderState what) override;
 
   void modelColumnsInserted(const WModelIndex& parent, int start, int end);
   void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
@@ -326,9 +291,9 @@ private:
   void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   virtual void modelDataChanged(const WModelIndex& topLeft,
-				const WModelIndex& bottomRight);
-  virtual void modelLayoutAboutToBeChanged();
-  virtual void modelLayoutChanged();
+				const WModelIndex& bottomRight) override;
+  virtual void modelLayoutAboutToBeChanged() override;
+  virtual void modelLayoutChanged() override;
 
   void onViewportChange(WScrollEvent event);
   void contentsSizeChanged(int width, int height);
@@ -345,12 +310,13 @@ private:
 
   void shiftModelIndexes(const WModelIndex& parent, int start, int count);
   static int shiftModelIndexes(const WModelIndex& parent, int start, int count,
-			       WAbstractItemModel *model, WModelIndexSet& set);
+			       const std::shared_ptr<WAbstractItemModel>& model,
+			       WModelIndexSet& set);
 
   void addRenderedNode(WTreeViewNode *node);
   void removeRenderedNode(WTreeViewNode *node);
 
-  void adjustToViewport(WTreeViewNode *changed = 0);
+  void adjustToViewport(WTreeViewNode *changed = nullptr);
 
   int pruneNodes(WTreeViewNode *node, int theNodeRow);
   int adjustRenderedNode(WTreeViewNode *node, int theNodeRow);
@@ -379,8 +345,10 @@ private:
 
   WContainerWidget *headerRow();
 
-  virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
-  virtual void selectRange(const WModelIndex& first, const WModelIndex& last);
+  virtual bool internalSelect(const WModelIndex& index, SelectionFlag option)
+    override;
+  virtual void selectRange(const WModelIndex& first, const WModelIndex& last)
+    override;
 
   bool isExpandedRecursive(const WModelIndex& index) const;
 
@@ -388,9 +356,11 @@ private:
 
   void updateColumnWidth(int columnId, int width);
 
-  virtual WContainerWidget* headerContainer() { return headerContainer_; }
+  virtual WContainerWidget* headerContainer() override {
+    return headerContainer_;
+  }
 
-  virtual WWidget *headerWidget(int column, bool contentsOnly = true) ;
+  virtual WWidget *headerWidget(int column, bool contentsOnly = true) override;
 
   friend class WTreeViewNode;
   friend class ContentsContainer;

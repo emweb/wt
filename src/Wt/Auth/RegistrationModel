@@ -7,12 +7,28 @@
 #ifndef WT_AUTH_REGISTRATION_MODEL_H_
 #define WT_AUTH_REGISTRATION_MODEL_H_
 
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/FormBaseModel>
-#include <Wt/Auth/User>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/FormBaseModel.h>
+#include <Wt/Auth/User.h>
 
 namespace Wt {
   namespace Auth {
+
+/*! \brief Enumeration for an email policy
+ */
+enum class EmailPolicy {
+  Disabled,  //!< The email address is not asked for
+  Optional,  //!< A user may optionally provide an email address
+  Mandatory  //!< A user must provide an email address
+};
+
+/*! \brief Method for confirming to be an existing user.
+ */
+enum class IdentityConfirmationMethod {
+  ConfirmWithPassword,    //!< Confirm using a password prompt
+  ConfirmWithEmail,       //!< Confirm by using an email procedure
+  ConfirmationNotPossible //!< Confirmation is not possible
+};
 
 class Login;
 
@@ -59,22 +75,6 @@ public:
   //! \brief Email field (if login name is not email)
   static const Field EmailField;
 
-  /*! \brief Enumeration for an email policy
-   */
-  enum EmailPolicy {
-    EmailDisabled,  //!< The email address is not asked for
-    EmailOptional,  //!< A user may optionally provide an email address
-    EmailMandatory  //!< A user must provide an email address
-  };
-
-  /*! \brief Method for confirming to be an existing user.
-   */
-  enum IdentityConfirmationMethod {
-    ConfirmWithPassword,    //!< Confirm using a password prompt
-    ConfirmWithEmail,       //!< Confirm by using an email procedure
-    ConfirmationNotPossible //!< Confirmation is not possible
-  };
-
   /*! \brief Constructor.
    *
    * Creates a new registration model, using a basic authentication
@@ -84,7 +84,7 @@ public:
    * re-identified, and thus the registration process may be aborted.
    */
   RegistrationModel(const AuthService& baseAuth, AbstractUserDatabase& users,
-		    Login& login, WObject *parent = 0);
+		    Login& login);
 
   /*! \brief Resets the model.
    *
@@ -115,7 +115,7 @@ public:
    * address.
    *
    * This has no effect when the IdentityPolicy is
-   * EmailAddressIdentity.
+   * IdentityPolicy::EmailAddress.
    *
    * The default policy is:
    * - EmailOptional when email address verification is enabled

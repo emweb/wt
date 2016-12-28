@@ -9,11 +9,10 @@
 #define HTTP_SESSION_PROCESS_MANAGER_HPP
 
 #include <boost/asio.hpp>
-#include <boost/noncopyable.hpp>
 
 #include "../web/Configuration.h"
 #include "SessionProcess.h"
-#include "Wt/WServer"
+#include "Wt/WServer.h"
 
 #if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
 #include <boost/asio/steady_timer.hpp>
@@ -25,22 +24,26 @@ typedef boost::asio::deadline_timer asio_timer;
 namespace http {
 namespace server {
 
-typedef std::map<std::string, boost::shared_ptr<SessionProcess> > SessionMap;
-typedef std::vector<boost::shared_ptr<SessionProcess> > SessionProcessList;
+typedef std::map<std::string, std::shared_ptr<SessionProcess> > SessionMap;
+typedef std::vector<std::shared_ptr<SessionProcess> > SessionProcessList;
 
 /// For dedicated processes: maps session ids to child processes and their sockets
 class SessionProcessManager
-  : private boost::noncopyable
 {
 public:
-  SessionProcessManager(boost::asio::io_service &ioService, const Wt::Configuration& configuration);
+  SessionProcessManager(boost::asio::io_service &ioService,
+			const Wt::Configuration& configuration);
+
+  SessionProcessManager(const SessionProcessManager&) = delete;
+  SessionProcessManager &operator=(const SessionProcessManager&) = delete;
 
   void stop();
 
   bool tryToIncrementSessionCount();
-  const boost::shared_ptr<SessionProcess>& sessionProcess(std::string sessionId);
-  void addPendingSessionProcess(const boost::shared_ptr<SessionProcess>& process);
-  void addSessionProcess(std::string sessionId, const boost::shared_ptr<SessionProcess>& process);
+  const std::shared_ptr<SessionProcess>& sessionProcess(std::string sessionId);
+  void addPendingSessionProcess(const std::shared_ptr<SessionProcess>& process);
+  void addSessionProcess(std::string sessionId,
+			 const std::shared_ptr<SessionProcess>& process);
 
   std::vector<Wt::WServer::SessionInfo> sessions() const;
 
@@ -51,7 +54,7 @@ private:
 #endif
 
 #ifdef WT_THREADED
-  boost::mutex sessionsMutex_;
+  std::mutex sessionsMutex_;
 #endif // WT_THREADED
   SessionProcessList pendingProcesses_; // Processes that have started up, but are not mapped to a session yet
   SessionMap sessions_;

@@ -7,31 +7,13 @@
 #ifndef WDATE_H_
 #define WDATE_H_
 
-#include <Wt/WDateTime>
-#include <Wt/WException>
-#include <Wt/WString>
+#include <Wt/WDateTime.h>
+#include <Wt/WException.h>
+#include <Wt/WString.h>
 #include <exception>
-
-namespace boost {
-  namespace gregorian {
-    class date;
-  }
-}
+#include <chrono>
 
 namespace Wt {
-
-/*! \class InvalidDateException Wt/WDate Wt/WDate
- *  \brief Exception thrown when calculating with an invalid date (<b>deprecated</b>).
- *
- * \sa WDate
- *
- * \deprecated This excepteion is no longer thrown
- */
-class WT_API InvalidDateException : public WException
-{
-public:
-  InvalidDateException();
-};
 
 /*! \class WDate Wt/WDate Wt/WDate
  *  \brief A value class that represents a date on the Gregorian calendar.
@@ -87,9 +69,9 @@ public:
    */
   WDate();
 
-  /*! \brief Construct a date.
+  /*! \brief Construct a date with a time_point.
    */
-  explicit WDate(const boost::gregorian::date& date);
+  explicit WDate(const std::chrono::system_clock::time_point& tp);
 
   /*! \brief Specify a date by year, month, and day.
    *
@@ -109,9 +91,9 @@ public:
    */
   void setDate(int year, int month, int day);
 
-  /*! \brief Sets the date.
+  /*! \brief Sets the date from a time point.
    */
-  void setGregorianDate(const boost::gregorian::date& date);
+  void setTimePoint(const std::chrono::system_clock::time_point& tp);
 
   /*! \brief Adds days.
    *
@@ -280,7 +262,7 @@ public:
    * </table>
    *
    * Any other text is kept literally. String content between single
-   * quotes (') are not interpreted as special codes. Inside a string, a literal
+   * quotes (') are not interpreted as special codes. LabelOption::Inside a string, a literal
    * quote may be specifed using a double quote ('').
    *
    * Examples of format and result:
@@ -296,7 +278,7 @@ public:
    */
   WT_USTRING toString(const WT_USTRING& format) const;
 
-  boost::gregorian::date toGregorianDate() const;
+  std::chrono::system_clock::time_point toTimePoint() const;
 
   /*! \brief Parses a string to a date using a default format.
    *
@@ -357,6 +339,12 @@ public:
    * A leap year has 29 days in February, in case you wondered.
    */
   static bool isLeapYear(int year);
+
+  /*! \brief Returns a date object representing the previous weekday
+   *
+   * Weekday [1 - 7]
+   */
+  static WDate previousWeekday(WDate& d, int weekday);
 
   static bool isValid(int year, int month, int day);
 

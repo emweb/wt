@@ -7,7 +7,7 @@
 #ifndef WABSTRACT_LIST_MODEL_H_
 #define WABSTRACT_LIST_MODEL_H_
 
-#include <Wt/WAbstractItemModel>
+#include <Wt/WAbstractItemModel.h>
 
 namespace Wt {
 
@@ -28,16 +28,16 @@ class WT_API WAbstractListModel : public WAbstractItemModel
 public:
   /*! \brief Create a new abstract list model.
    */
-  WAbstractListModel(WObject *parent = 0);
+  WAbstractListModel();
 
   /*! \brief Destructor.
    */
   ~WAbstractListModel();
 
-  virtual WModelIndex parent(const WModelIndex& index) const;
+  virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column = 0,
-			    const WModelIndex& parent = WModelIndex()) const;
-  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
+                            const WModelIndex& parent = WModelIndex()) const override;
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const override;
 };
 
 }

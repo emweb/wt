@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WPolygonArea"
-#include "Wt/WPointF"
+#include "Wt/WPolygonArea.h"
+#include "Wt/WPointF.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"

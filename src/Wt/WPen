@@ -7,10 +7,10 @@
 #ifndef WPEN_H_
 #define WPEN_H_
 
-#include <Wt/WLength>
-#include <Wt/WColor>
-#include <Wt/WGradient>
-#include <Wt/WJavaScriptExposableObject>
+#include <Wt/WLength.h>
+#include <Wt/WColor.h>
+#include <Wt/WGradient.h>
+#include <Wt/WJavaScriptExposableObject.h>
 
 namespace Wt {
 
@@ -48,19 +48,26 @@ namespace Wt {
 class WT_API WPen : public WJavaScriptExposableObject
 {
 public:
-  /*! \brief Creates a black cosmetic pen.
+  /*! \brief Typedef for enum Wt::PenStyle */
+  typedef PenStyle Style;
+  /*! \brief Typedef for enum Wt::PenCapStyle */
+  typedef PenCapStyle CapStyle;
+  /*! \brief Typedef for enum Wt::PenJoinStyle */
+  typedef PenJoinStyle JoinStyle;
+
+  /*! \brief Creates a StandardColor::Black cosmetic pen.
    *
-   * Constructs a black solid pen of 0 width (i.e. cosmetic single
-   * pixel width), with \link Wt::SquareCap SquareCap\endlink line
-   * ends and \link Wt::BevelJoin BevelJoin\endlink line join style.
+   * Constructs a StandardColor::Black solid pen of 0 width (i.e. cosmetic single
+   * pixel width), with \link Wt::PenCapStyle::Square PenCapStyle::Square\endlink line
+   * ends and \link Wt::PenJoinStyle::Bevel PenJoinStyle::Bevel\endlink line join style.
    */
   WPen();
 
-  /*! \brief Creates a black pen with a particular style.
+  /*! \brief Creates a StandardColor::Black pen with a particular style.
    *
-   * Constructs a black pen of 0 width (i.e. cosmetic single pixel
-   * width), with \link Wt::SquareCap SquareCap\endlink line ends and
-   * \link Wt::BevelJoin BevelJoin\endlink line join style.
+   * Constructs a StandardColor::Black pen of 0 width (i.e. cosmetic single pixel
+   * width), with \link Wt::PenCapStyle::Square PenCapStyle::Square\endlink line ends and
+   * \link Wt::PenJoinStyle::Bevel PenJoinStyle::Bevel\endlink line join style.
    *
    * The line style is set to \p style.
    */
@@ -69,8 +76,8 @@ public:
   /*! \brief Creates a solid pen of a particular color.
    *
    * Constructs a solid pen of 0 width (i.e. cosmetic single pixel
-   * width), with \link Wt::SquareCap SquareCap\endlink line ends and
-   * \link Wt::BevelJoin BevelJoin\endlink line join style.
+   * width), with \link Wt::PenCapStyle::Square PenCapStyle::Square\endlink line ends and
+   * \link Wt::PenJoinStyle::Bevel PenJoinStyle::Bevel\endlink line join style.
    *
    * The pen color is set to \p color.
    */
@@ -79,18 +86,20 @@ public:
   /*! \brief Creates a solid pen of a standard color.
    *
    * Constructs a solid pen of 0 width (i.e. cosmetic single pixel
-   * width), with \link Wt::SquareCap SquareCap\endlink line ends and
-   * \link Wt::BevelJoin BevelJoin\endlink line join style.
+   * width), with \link Wt::PenCapStyle::Square
+   * PenCapStyle::Square\endlink line ends and \link
+   * Wt::PenJoinStyle::Bevel PenJoinStyle::Bevel\endlink line join
+   * style.
    *
    * The pen color is set to \p color.
    */
-  WPen(GlobalColor color);
+  WPen(StandardColor color);
 
   /*! \brief Creates a solid pen with a gradient color.
    *
    * Constructs a solid pen of 0 width (i.e. cosmetic single pixel
-   * width), with \link Wt::SquareCap SquareCap\endlink line ends and
-   * \link Wt::BevelJoin BevelJoin\endlink line join style.
+   * width), with \link Wt::PenCapStyle::Square PenCapStyle::Square\endlink line ends and
+   * \link Wt::PenJoinStyle::Bevel PenJoinStyle::Bevel\endlink line join style.
    *
    * The pen's color is defined by the gradient \p color.
    */
@@ -164,7 +173,7 @@ public:
 
   /*! \brief Sets the pen width.
    *
-   * A pen width \p must be specified using WLength::Pixel units.
+   * A pen width \p must be specified using LengthUnit::Pixel units.
    *
    * \throws WException if the pen \link isJavaScriptBound() is JavaScript bound\endlink
    */
@@ -204,17 +213,17 @@ public:
    */
   const WGradient& gradient() const { return gradient_; }
 
-  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
+  virtual std::string jsValue() const override;
 
 protected:
-  void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;
+  virtual void assignFromJSON(const Json::Value &value) override;
 
 private:
   PenStyle penStyle_;
   PenCapStyle penCapStyle_;
   PenJoinStyle penJoinStyle_;
-  WLength  width_;
-  WColor   color_;
+  WLength width_;
+  WColor color_;
   WGradient gradient_;
 };
 

@@ -1,21 +1,24 @@
-#include <Wt/WPushButton>
-#include <Wt/WResource>
+#include <Wt/WPushButton.h>
+#include <Wt/WResource.h>
 
-class ReportResource : public Wt::WResource
+class ReportResource : public WResource
 {
 public:
-  ReportResource(Wt::WObject *parent = 0);
+  ReportResource();
 };
 
 SAMPLE_BEGIN(PdfRenderer)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-Wt::WText *text = new Wt::WText(Wt::WString::tr("report.example"), container);
+auto container = cpp14::make_unique<WContainerWidget>();
+
+WText *text =
+    container->addWidget(cpp14::make_unique<WText>(WString::tr("report.example")));
 text->setStyleClass("reset");
 
-Wt::WPushButton *button = new Wt::WPushButton("Create pdf", container);
+WPushButton *button =
+    container->addWidget(cpp14::make_unique<WPushButton>("Create pdf"));
 
-Wt::WResource *pdf = new ReportResource(container);
-button->setLink(pdf);
+auto pdf = std::make_shared<ReportResource>();
+button->setLink(WLink(pdf));
 
 SAMPLE_END(return container)

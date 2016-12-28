@@ -7,7 +7,7 @@
 #ifndef WT_UTILS_H_
 #define WT_UTILS_H_
 
-#include <Wt/WGlobal>
+#include <Wt/WGlobal.h>
 #include <string>
 #include <vector>
 
@@ -26,7 +26,7 @@ namespace Wt {
 
 /*! \brief An enumeration for HTML encoding flags.
  */
-enum HtmlEncodingFlag
+enum class HtmlEncodingFlag
 {
   //! \brief Encode new-lines as line breaks (&lt;br&gt;)
   EncodeNewLines = 0x1
@@ -105,18 +105,18 @@ WT_API extern std::string hexDecode(const std::string& data);
  * be embodied verbatim in a HTML text block.
  */
 WT_API extern std::string htmlEncode(const std::string& text,
-				     WFlags<HtmlEncodingFlag> flags = 0);
+				     WFlags<HtmlEncodingFlag> flags = None);
 
 /*! \brief Performs HTML encoding of text.
  *
  * This utility function escapes characters so that the \p text can
  * be embodied verbatim in a HTML text block.
  *
- * By default, newlines are ignored. By passing the EncodeNewLines
+ * By default, newlines are ignored. By passing the HtmlEncodingFlag::EncodeNewLines
  * flag, these may be encoded as line breaks (&lt;br&gt;).
  */
 WT_API extern WString htmlEncode(const WString& text,
-				 WFlags<HtmlEncodingFlag> flags = 0);
+				 WFlags<HtmlEncodingFlag> flags = None);
 
 /*! \brief Performs Url encoding (aka percentage encoding).
  *

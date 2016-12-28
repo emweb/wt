@@ -1,0 +1,1076 @@
+Orientation {
+    Horizontal
+    Vertical
+}
+
+StandardButton {
+    NoButton -> None
+    Ok
+    Cancel
+    Yes
+    No
+    Abort
+    Retry
+    Ignore
+    YesAll
+    NoAll
+}
+
+Icon {
+    NoIcon -> None
+    Information
+    Warning
+    Critical
+    Question
+}
+
+SelectionMode {
+    NoSelection -> None
+    SingleSelection -> Single
+    ExtendedSelection -> Extended
+}
+
+SelectionBehavior {
+    SelectItems -> Items
+    SelectRows -> Rows
+}
+
+SelectionFlag {
+    Select
+    Deselect
+    ToggleSelect
+    ClearAndSelect
+}
+
+Side {
+    Top
+    Bottom
+    Left
+    Right
+    CenterX
+    CenterY
+}
+
+AlignmentFlag {
+    AlignLeft -> Left
+    AlignRight -> Right
+    AlignCenter -> Center
+    AlignJustify -> Justify
+    AlignBaseline -> Baseline
+    AlignSub -> Sub
+    AlignSuper -> Super
+    AlignTop -> Top
+    AlignTextTop -> TextTop
+    AlignMiddle -> Middle
+    AlignBottom -> Bottom
+    AlignTextBottom -> TextBottom
+}
+
+TextFlag {
+    TextSingleLine -> SingleLine
+    TextWordWrap -> WordWrap
+}
+
+PositionScheme {
+    Static
+    Relative
+    Absolute
+    Fixed
+}
+
+Cursor {
+    ArrowCursor -> Arrow
+    AutoCursor -> Auto
+    CrossCursor -> Cross
+    PointingHandCursor -> PointingHand
+    OpenHandCursor -> OpenHand
+    WaitCursor -> Wait
+    IBeamCursor -> IBeam
+    WhatsThisCursor -> WhatsThis
+}
+
+CharEncoding {
+    DefaultEncoding -> Default
+    LocalEncoding -> Local
+    UTF8 -> UTF8
+}
+
+PenStyle {
+    NoPen -> None
+    SolidLine
+    DashLine
+    DotLine
+    DashDotLine
+    DashDotDotLine
+}
+
+PenCapStyle {
+    FlatCap -> Flat
+    SquareCap -> Square
+    RoundCap -> Round
+}
+
+PenJoinStyle {
+    MiterJoin -> Miter
+    BevelJoin -> Bevel
+    RoundJoin -> Round
+}
+
+BrushStyle {
+    NoBrush -> None
+    SolidPattern -> Solid
+    GradientPattern -> Gradient
+}
+
+GradientStyle {
+    LinearGradient -> Linear
+    RadialGradient -> Radial
+}
+
+AnchorTarget -> LinkTarget {
+    TargetSelf -> Self
+    TargetThisWindow -> ThisWindow
+    TargetNewWindow -> NewWindow
+    TargetDownload -> Download
+}
+
+TextFormat {
+    XHTMLText -> XHTML
+    XHTMLUnsafeText -> UnsafeXHTML
+    PlainText -> Plain
+}
+
+GlobalColor -> StandardColor {
+    white -> White
+    black -> Black
+    red -> Red
+    darkRed -> DarkRed
+    green -> Green
+    darkGreen -> DarkGreen
+    blue -> Blue
+    darkBlue -> DarkBlue
+    cyan -> Cyan
+    darkCyan -> DarkCyan
+    magenta -> Magenta
+    darkMagenta -> DarkMagenta
+    yellow -> Yellow
+    darkYellow -> DarkYellow
+    gray -> Gray
+    darkGray -> DarkGray
+    lightGray -> LightGray
+    transparent -> Transparent
+}
+
+KeyboardModifier {
+    NoModifier -> None
+    ShiftModifier -> Shift
+    ControlModifier -> Control
+    AltModifier -> Alt
+    MetaModifier -> Meta
+}
+
+Key {
+    Key_unknown -> Unknown
+    Key_Enter -> Enter
+    Key_Tab -> Tab
+    Key_Backspace -> Backspace
+    Key_Shift -> Shift
+    Key_Control -> Control
+    Key_Alt -> Alt
+    Key_PageUp -> PageUp
+    Key_PageDown -> PageDown
+    Key_End -> End
+    Key_Home -> Home
+    Key_Left -> Left
+    Key_Up -> Up
+    Key_Right -> Right
+    Key_Down -> Down
+    Key_Insert -> Insert
+    Key_Delete -> Delete
+    Key_Escape -> Escape
+    Key_F1 -> F1
+    Key_F2 -> F2
+    Key_F3 -> F3
+    Key_F4 -> F4
+    Key_F5 -> F5
+    Key_F6 -> F6
+    Key_F7 -> F7
+    Key_F8 -> F8
+    Key_F9 -> F9
+    Key_F10 -> F10
+    Key_F11 -> F11
+    Key_F12 -> F12
+    Key_Space -> Space
+    Key_A -> A
+    Key_B -> B
+    Key_C -> C
+    Key_D -> D
+    Key_E -> E
+    Key_F -> F
+    Key_G -> G
+    Key_H -> H
+    Key_I -> I
+    Key_J -> J
+    Key_K -> K
+    Key_L -> L
+    Key_M -> M
+    Key_N -> N
+    Key_O -> O
+    Key_P -> P
+    Key_Q -> Q
+    Key_R -> R
+    Key_S -> S
+    Key_T -> T
+    Key_U -> U
+    Key_V -> V
+    Key_W -> W
+    Key_X -> X
+    Key_Y -> Y
+    Key_Z -> Z
+    Key_1
+    Key_2
+    Key_3
+    Key_4
+    Key_5
+    Key_6
+    Key_7
+    Key_8
+    Key_9
+    Key_0
+}
+
+CheckState {
+    Unchecked
+    PartiallyChecked
+    Checked
+}
+
+PaintFlag {
+    PaintUpdate -> Update
+}
+
+EntryPointType {
+    Application
+    WidgetSet
+    StaticResource
+}
+
+RenderFlag {
+    RenderFull -> Full
+    RenderUpdate -> Update
+}
+
+MatchFlag {
+    MatchExactly -> Exactly
+    MatchStringExactly -> StringExactly
+    MatchStartsWith -> StartsWith
+    MatchEndsWith -> EndsWith
+    MatchRegExp -> RegExp
+    MatchWildCard -> WildCard
+    MatchCaseSensitive -> CaseSensitive
+    MatchWrap -> Wrap
+}
+
+HeaderFlag {
+    ColumnIsCollapsed
+    ColumnIsExpandedLeft
+    ColumnIsExpandedRight
+    HeaderIsUserCheckable -> UserCheckable
+    HeaderIsTristate -> Tristate
+    HeaderIsXHTMLText -> XHTMLText
+}
+
+MetaHeaderType {
+    MetaName -> Meta
+    MetaProperty -> Property
+    MetaHttpHeader -> HttpHeader
+}
+
+EventType {
+    OtherEvent -> Other
+    UserEvent -> User
+    TimerEvent -> Timer
+    ResourceEvent -> Resource
+}
+
+LayoutDirection {
+    LeftToRight
+    RightToLeft
+}
+
+WebWriteEvent {
+    WriteCompleted -> Completed
+    WriteError -> Error
+}
+
+WebReadEvent {
+    ReadError -> Error
+    ReadMessage -> Message
+    ReadPing -> Ping
+}
+
+RepaintFlag {
+    RepaintSizeAffected -> SizeAffected
+    RepaintToAjax -> ToAjax
+}
+
+IdentityPolicy {
+    LoginNameIdentity -> LoginName
+    EmailAddressIdentity -> EmailAddress
+    OptionalIdentity -> Optional
+}
+
+EmailTokenResult::Result -> EmailTokenState {
+    Invalid
+    Expired
+    UpdatePassword
+    EmailConfirmed
+}
+
+AuthTokenResult::Result -> AuthTokenState {
+    Invalid
+    Valid
+}
+
+LoginState {
+    LoggedOut
+    DisabledLogin -> Disabled
+    WeakLogin -> Weak
+    StrongLogin -> Strong
+}
+
+PasswordStrengthValidator::PasswordType -> PasswordStrengthType {
+    OneCharClass
+    TwoCharClass
+    PassPhrase
+    ThreeCharClass
+    FourCharClass    
+}
+
+RegistrationModel::EmailPolicy -> EmailPolicy {
+    Disabled
+    Optional
+    Mandatory
+}
+
+RegistrationModel::IdentityConfirmationMethod -> IdentityConfirmationMethod {
+    ConfirmWithPassword
+    ConfirmWithEmail
+    ConfirmationNotPossible
+}
+
+User::Status -> AccountStatus {
+    Disabled
+    Normal
+}
+
+User::EmailTokenRole -> EmailTokenRole {
+    VerifyEmail
+    LostPassword
+}
+
+Series3DType {
+    PointSeries3D -> Point
+    SurfaceSeries3D -> Surface
+    BarSeries3D -> Bar
+}
+
+Axis {
+    XAxis -> X
+    YAxis -> Y
+    Y1Axis -> Y1
+    Y2Axis -> Y2
+    OrdinateAxis -> Ordinate
+    XAxis_3D -> X3D
+    YAxis_3D -> Y3D
+    ZAxis_3D -> Z3D
+}
+
+AxisValue {
+    MinimumValue -> Minimum
+    MaximumValue -> Maximum
+    ZeroValue -> Zero
+    BothSides -> Both
+}
+
+TickDirection {
+    Outwards
+    Inwards
+}
+
+AxisScale {
+    CategoryScale -> Discrete
+    LinearScale -> Linear
+    LogScale -> Log
+    DateScale -> Date
+    DateTimeScale -> DateTime
+}
+
+Axis::DateTimeUnit -> DateTimeUnit {
+    Seconds
+    Minutes
+    Hours
+    Days
+    Months
+    Years
+}
+
+TickLabel::TickLength -> TickLength {
+    Zero
+    Short
+    Long
+}
+
+Plane {
+    XY_Plane -> XY
+    XZ_Plane -> XZ
+    YZ_Plane -> YZ
+}
+
+ChartUpdates {
+    CameraMatrix
+    GLContext
+    GLTextures
+}
+
+InteractiveAction {
+    ZoomX
+    ZoomY
+    ZoomXY
+    ZoomMatching
+    PanX
+    PanY
+    PanMatching
+}
+
+SeriesType {
+    PointSeries -> Point
+    LineSeries -> Line
+    CurveSeries -> Curve
+    BarSeries -> Bar
+}
+
+MarkerType {
+    NoMarker -> None
+    SquareMarker -> Square
+    CircleMarker -> Circle
+    CrossMarker -> Cross
+    XCrossMarker -> XCross
+    TriangleMarker -> Triangle
+    CustomMarker -> Custom
+    StarMarker -> Star
+    InvertedTriangleMarker -> InvertedTriangle
+    AsteriskMarker -> Asterisk
+    DiamondMarker -> Diamond
+}
+
+FillRangeType {
+    NoFill -> None
+    MinimumValueFill -> MinimumValue
+    MaximumValueFill -> MaximumValue
+    ZeroValueFill -> ZeroValue
+}
+
+ChartType {
+    CategoryChart -> Category
+    ScatterPlot -> Scatter
+}
+
+AxisProperty {
+    Labels
+    Line
+}
+
+LegendLocation {
+    LegendInside -> Inside
+    LegendOutside -> Outside
+}
+
+WDataSeries::CustomFlag -> CustomFlag {
+    CustomPen -> Pen
+    CustomBrush -> Brush
+    CustomMarkerPen -> MarkerPen
+    CustomMarkerBrush -> MarkerBrush
+    CustomLabelColor -> LabelColor
+}
+
+LabelOption {
+    NoLabels -> None
+    Inside
+    Outside
+    TextLabel
+    TextPercentage
+}
+
+WStandardPalette::Flavour -> PaletteFlavour {
+    Neutral
+    Bold
+    Muted
+    GrayScale
+}
+
+Sqlite3::DateTimeStorage -> DateTimeStorage {
+    ISO8601AsText
+    PseudoISO8601AsText
+    JulianDaysAsReal
+    UnixTimeAsInteger
+}
+
+SqlDateTimeType {
+    SqlDate -> Date
+    SqlDateTime -> DateTime
+    SqlTime -> Time
+}
+
+LimitQuery {
+    Limit
+    RowsFromTo
+    Rownum
+    NotSupported
+}
+
+FieldInfo::Flags -> FieldFlags {
+    SurrogateId
+    NaturalId
+    Version
+    Mutable
+    NeedsQuotes
+    ForeignKey
+    FirstDboField
+}
+
+Method {
+    Get
+    Post
+    Put
+    Delete
+}
+
+Type {
+    NullType -> Null
+    StringType -> String
+    BoolType -> Bool
+    NumberType -> Number
+    ObjectType -> Object
+    ArrayType -> Array
+}
+
+PayPalExpressCheckout::PaymentAction -> PaymentAction {
+    SaleAction -> Sale
+    AuthorizationAction -> Authorization
+    OrderAction -> Order
+}
+
+Approval::Outcome -> ApprovalOutcome {
+    Denied
+    Interrupted
+    Accepted
+}
+
+HtmlEncodingFlag {
+    EncodeNewLines
+}
+
+ViewItemRenderFlag {
+    RenderSelected -> Selected
+    RenderEditing -> Editing
+    RenderFocused -> Focused
+    RenderInvalid -> Invalid
+}
+
+WAbstractItemView::EditTrigger -> EditTrigger {
+    NoEditTrigger -> None
+    SingleClicked
+    DoubleClicked
+    SelectedClicked
+}
+
+WAbstractItemView::EditOption -> EditOption {
+    SingleEditor
+    MultipleEditors
+    SaveWhenClosed
+    LeaveEditorsOpen
+}
+
+WAbstractItemView::ScrollHint -> ScrollHint {
+    EnsureVisible
+    PositionAtTop
+    PositionAtBottom
+    PositionAtCenter
+}
+
+WAbstractMedia::Options -> PlayerOption {
+    Autoplay
+    Loop
+    Controls
+}
+
+WAbstractMedia::PreloadMode -> MediaPreloadMode {
+    PreloadNone -> None
+    PreloadAuto -> Auto
+    PreloadMetadata -> Metadata
+}
+
+WAbstractMedia::ReadyState -> MediaReadyState {
+    HaveNothing
+    HaveMetaData
+    HaveCurrentData
+    HaveFutureData
+    HaveEnoughData
+}
+
+WAnimation::AnimationEffect -> AnimationEffect {
+    SlideInFromLeft
+    SlideInFromRight
+    SlideInFromBottom
+    SlideInFromTop
+    Pop
+    Fade
+}
+
+WAnimation::TimingFunction -> TimingFunction {
+    Ease
+    Linear
+    EaseIn
+    EaseOut
+    EaseInOut
+    CubicBezier
+}
+
+WBootstrapTheme::Version -> BootstrapVersion {
+    Version2 -> v2
+    Version3 -> v3
+}
+
+WBorder::Width -> BorderWidth {
+    Thin
+    Medium
+    Thick
+    Explicit
+}
+
+WBorder::Style -> BorderStyle {
+    None
+    Hidden
+    Dotted
+    Dashed
+    Solid
+    Double
+    Groove
+    Ridge
+    Inset
+    Outset
+}
+
+WBorderLayout::Position -> LayoutPosition {
+    North
+    East
+    South
+    West
+    Center
+}
+
+WBoxLayout::Direction -> LayoutDirection {
+    LeftToRight
+    RightToLeft
+    TopToBottom
+    BottomToTop
+}
+
+WCalendar::HorizontalHeaderFormat -> CalendarHeaderFormat {
+    SingleLetterDayNames,
+    ShortDayNames,
+    LongDayNames
+}
+
+WContainerWidget::Overflow -> Overflow {
+    OverflowVisible -> Visible
+    OverflowAuto -> Auto
+    OverflowHidden -> Hidden
+    OverflowScroll -> Scroll
+}
+
+WCssDecorationStyle::Repeat -> Orientation {
+    RepeatXY -> Orientation::Horizontal | Orientation::Vertical
+    RepeatX -> Orientation::Horizontal
+    RepeatY -> Orientation::Vertical
+    NoRepeat -> None
+}
+
+WCssDecorationStyle::TextDecoration -> TextDecoration {
+    Underline
+    Overline
+    LineThrough
+    Blink
+}
+
+WEnvironment::UserAgent -> UserAgent {
+    Unknown
+    IEMobile
+    IE6
+    IE7
+    IE8
+    IE9
+    IE10
+    IE11
+    Edge
+    Opera
+    Opera10
+    WebKit
+    Safari
+    Safari3
+    Safari4
+    Chrome0
+    Chrome1
+    Chrome2
+    Chrome3
+    Chrome4
+    Chrome5
+    Arora
+    MobileWebKit
+    MobileWebKitiPhone
+    MobileWebKitAndroid
+    Konqueror
+    Gecko
+    Firefox
+    Firefox3_0
+    Firefox3_1
+    Firefox3_1b
+    Firefox3_5
+    Firefox3_6
+    Firefox4_0
+    Firefox5_0
+    BotAgent
+}
+
+WEnvironment::ContentType -> HtmlContentType {
+    XHTML1
+    HTML4
+    HTML5
+}
+
+WMouseEvent::Button -> MouseButton {
+    NoButton -> None
+    LeftButton -> Left
+    MiddleButton -> Middle
+    RightButton -> Right
+}
+
+WFont::GenericFamily -> FontFamily {
+    Default
+    Serif
+    SansSerif
+    Cursive
+    Fantasy
+    Monospace
+}
+
+WFont::Style -> FontStyle {
+    NormalStyle -> Normal
+    Italic
+    Oblique
+}
+
+WFont::Variant -> FontVariant {
+    NormalVariant -> Normal
+    SmallCaps
+}
+
+WFont::Weight -> FontWeight {
+    NormalWeight -> Normal
+    Bold
+    Bolder
+    Lighter
+    Value
+}
+
+WFont::Size -> FontSize {
+    XXSmall
+    XSmall
+    Small
+    Medium
+    Large
+    XLarge
+    XXLarge
+    Smaller
+    Larger
+    FixedSize
+}
+
+WGLWidget::RenderOption -> GLRenderOption {
+    ClientSideRendering -> ClientSide
+    ServerSideRendering -> ServerSide
+    AntiAliasing
+}
+
+WGLWidget::ClientSideRenderer -> GLClientSideRenderer {
+    PAINT_GL
+    RESIZE_GL
+    UPDATE_GL
+}
+
+WGoogleMap::ApiVersion -> GoogleMapsVersion {
+    Version2 -> v2
+    Version3 -> v3
+}
+
+WGoogleMap::MapTypeControl -> MapTypeControl {
+    NoControl -> None
+    DefaultControl -> Default
+    MenuControl -> Menu
+    HierarchicalControl -> Hierarchical
+    HorizontalBarControl -> HorizontalBar
+}
+
+WLength::Unit -> LengthUnit {
+    FontEm
+    FontEx
+    Pixel
+    Inch
+    Centimeter
+    Millimeter
+    Point
+    Pica
+    Percentage
+}
+
+WLineEdit::EchoMode -> EchoMode {
+    Normal
+    Password
+}
+
+WLineEdit::InputMaskFlag -> InputMaskFlag {
+    KeepMaskWhileBlurred
+}
+
+WLink::Type -> LinkType {
+    Url
+    Resource
+    InternalPath
+}
+
+WMediaPlayer::ReadyState -> MediaReadyState {
+    HaveNothing
+    HaveMetaData
+    HaveCurrentData
+    HaveFutureData
+    HaveEnoughData
+}
+
+WMediaPlayer::Encoding -> MediaEncoding {
+    PosterImage
+    MP3
+    M4A
+    OGA
+    WAV
+    WEBMA
+    FLA
+    M4V
+    OGV
+    WEBMV
+    FLV
+}
+
+WMediaPlayer::MediaType -> MediaType {
+    Audio
+    Video
+}
+
+WMediaPlayer::ButtonControlId -> MediaPlayerButtonId {
+    VideoPlay
+    Play
+    Pause
+    Stop
+    VolumeMute
+    VolumeUnmute
+    VolumeMax
+    FullScreen
+    RestoreScreen
+    RepeatOn
+    RepeatOff
+}
+
+WMediaPlayer::BarControlId -> MediaPlayerProgressBarId {
+    Time
+    Volume
+}
+
+WMediaPlayer::TextControlId -> MediaPlayerTextId {
+    CurrentTime
+    Duration
+    Title
+}
+
+WMenuItem::LoadPolicy -> ContentLoading {
+    LazyLoading -> Lazy
+    PreLoading -> Eager
+}
+
+ItemDataRole {
+    DisplayRole -> Display
+    DecorationRole -> Decoration
+    EditRole -> Edit
+    StyleClassRole -> StyleClass
+    CheckStateRole -> Checked
+    ToolTipRole -> ToolTip
+    LinkRole -> Link
+    MimeTypeRole -> MimeType
+    LevelRole -> Level
+    MarkerPenColorRole -> MarkerPenColor
+    MarkerBrushColorRole -> MarkerBrushColor
+    MarkerScaleFactorRole -> MarkerScaleFactor
+    BarPenColorRole -> BarPenColor
+    BarBrushColorRole -> BarBrushColor
+    UserRole -> User
+}
+
+ItemFlag {
+    ItemIsSelectable -> Selectable
+    ItemIsEditable -> Editable
+    ItemIsUserCheckable -> UserCheckable
+    ItemIsDragEnabled -> DragEnabled
+    ItemIsDropEnabled -> DropEnabled
+    ItemIsTristate -> Tristate
+    ItemIsXHTMLText -> XHTMLText
+    ItemHasDeferredTooltip -> DeferredTooltip
+    ItemIsDirty -> Dirty
+}
+
+SortOrder {
+    AscendingOrder -> Ascending
+    DescendingOrder -> Descending
+}
+
+DropAction {
+    CopyAction -> Copy
+    MoveAction -> Move
+}
+
+WPaintDevice::ChangeFlag -> PainterChangeFlag {
+    Pen
+    Brush
+    Font
+    Hints
+    Transform
+    Clipping
+    Shadow
+}
+
+WPaintDevice::FeatureFlag -> PaintDeviceFeatureFlag {
+    WordWrap
+    FontMetrics
+}
+
+WPaintedWidget::Method -> RenderMethod {
+    InlineSvgVml
+    HtmlCanvas
+    PngImage
+}
+
+WPainter::RenderHint -> RenderHint {
+    Antialiasing
+    LowQualityShadows
+}
+
+WPainterPath::Segment::Type -> SegmentType {
+    MoveTo
+    LineTo
+    CubicC1
+    CubicC2
+    CubicEnd
+    QuadC
+    QuadEnd
+    ArcC
+    ArcR
+    ArcAngleSweep
+}
+
+WResource::DispositionType -> ContentDisposition {
+    NoDisposition -> None
+    Attachment
+    Inline
+}
+
+WSuggestionPopup::PopupTrigger -> PopupTrigger {
+    Editing
+    DropDownIcon
+}
+
+WTabWidget::LoadPolicy -> ContentLoading {
+    LazyLoading -> Lazy
+    PreLoading -> Eager
+}
+
+WTemplate::WidgetIdMode -> TmplateWidgetIdMode {
+    SetNoWidgetId -> None
+    SetWidgetObjectName -> SetObjectName
+    SetWidgetId -> SetId
+}
+
+WidgetThemeRole {
+    MenuItemIcon
+    MenuItemCheckBox
+    MenuItemClose
+    DialogCover
+    DialogTitleBar
+    DialogBody
+    DialogFooter
+    DialogCloseIcon
+    DialogContent
+    TableViewRowContainer
+    DatePickerPopup
+    TimePickerPopup
+    PanelTitleBar
+    PanelCollapseButton
+    PanelTitle
+    PanelBody
+    AuthWidgets
+    InPlaceEditing
+    Navbar
+    NavCollapse
+    NavBrand
+    NavbarSearch
+    NavbarMenu
+    NavbarBtn
+    NavbarAlignLeft
+    NavbarAlignRight
+}
+
+UtilityCssClassRole {
+    ToolTipInner
+    ToolTipOuter
+}
+
+ElementThemeRole {
+    MainElement
+    ProgressBarBar
+    ProgressBarLabel
+}
+
+ValidationStyleFlag {
+    InvalidStyle
+    ValidStyle
+}
+
+WTreeNode::LoadPolicy -> ContentLoading {
+    LazyLoading -> Lazy
+    PreLoading -> Eager
+    NextLevelLoading -> NextLevel
+}
+
+WTreeNode::ChildCountPolicy -> TreeNodeChildCount {
+    Disabled
+    Enabled
+    Lazy
+}
+
+WValidator::State -> ValidationState {
+    Invalid
+    InvalidEmpty
+    Valid
+}
+
+WDialog::DialogCode -> DialogCode {
+    Rejected
+    Accepted
+}

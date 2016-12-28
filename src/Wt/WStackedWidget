@@ -7,7 +7,7 @@
 #ifndef WSTACKEDWIDGET_H_
 #define WSTACKEDWIDGET_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
 
@@ -37,9 +37,19 @@ class WT_API WStackedWidget : public WContainerWidget
 public:
   /*! \brief Creates a new stack.
    */
-  WStackedWidget(WContainerWidget *parent = 0);
+  WStackedWidget();
 
-  virtual void addWidget(WWidget *widget);
+  virtual void addWidget(std::unique_ptr<WWidget> widget) override;
+
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget)
+  {
+    Widget *result = widget.get();
+    addWidget(std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
+
+  virtual std::unique_ptr<WWidget> removeWidget(WWidget* widget) override;
 
   /*! \brief Returns the index of the widget that is currently shown.
    *
@@ -55,7 +65,8 @@ public:
 
   /*! \brief Insert a widget at a given index
    */
-  void insertWidget(int index, WWidget *widget);
+  virtual void insertWidget(int index, std::unique_ptr<WWidget> widget)
+    override;
 
   /*! \brief Changes the current widget.
    *
@@ -97,8 +108,8 @@ public:
    *
    * When \p autoReverse is set to \c true, then the reverse animation
    * is chosen when the new index precedes the current index. This
-   * only applies to WAnimation::SlideInFromLeft,
-   * WAnimation::SlideInFromRight, WAnimation::SlideInFromUp or
+   * only applies to AnimationEffect::SlideInFromLeft,
+   * AnimationEffect::SlideInFromRight, WAnimation::SlideInFromUp or
    * WAnimation::SlideInFromDown transition effects.
    *
    * \sa setCurrentIndex()
@@ -107,12 +118,10 @@ public:
 			      bool autoReverse = false);
 
 protected:
-  using WWidget::removeChild;
-  virtual void removeChild(WWidget *child);
-  virtual DomElement *createDomElement(WApplication *app);
+  virtual DomElement *createDomElement(WApplication *app) override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
-  virtual void render(WFlags<RenderFlag> flags);
+			     WApplication *app) override;
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
   WAnimation animation_;

@@ -1,345 +1,372 @@
 #include "Tabs.h"
-#include "Wt/WDoubleValidator"
-#include "Wt/WIntValidator"
-#include "Wt/Chart/WAbstractChartImplementation"
-#include "Wt/WPushButton"
-#include "Wt/WSelectionBox"
+#include "Wt/WDoubleValidator.h"
+#include "Wt/WIntValidator.h"
+#include "Wt/Chart/WAbstractChartImplementation.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WSelectionBox.h"
 
 #include <limits>
 #include <functional>
 
-ChartSettings::ChartSettings(WCartesian3DChart *chart,
-			     WContainerWidget * parent)
-  : WContainerWidget(parent)
-{
-  WTemplate* template_ = new WTemplate(Wt::WString::tr("chartconfig-template"), this);
 
-  WCheckBox *autoRangeX_ = new WCheckBox(this);
-  template_->bindWidget("xAuto", autoRangeX_);
-  autoRangeX_->setCheckState(Wt::Checked);
+ChartSettings::ChartSettings(Wt::Chart::WCartesian3DChart *chart)
+  : WContainerWidget()
+{
+  Wt::WTemplate* template_ =
+      this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("chartconfig-template")));
+
+  auto autoRangeX = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto autoRangeX_ = template_->bindWidget("xAuto", std::move(autoRangeX));
+  autoRangeX_->setCheckState(Wt::CheckState::Checked);
   chart->initLayout();
-  WLineEdit *xMin_ = new WLineEdit
-    (Wt::asString(chart->axis(XAxis_3D).minimum()), this);
-  template_->bindWidget("xAxisMin", xMin_);
-  xMin_->setValidator(new Wt::WDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max()));
+
+  auto xMin = Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::asString(chart->axis(Wt::Chart::Axis::X3D).minimum()));
+  auto xMin_ = template_->bindWidget("xAxisMin", std::move(xMin));
+  xMin_->setValidator(std::make_shared<Wt::WDoubleValidator>(
+                        -std::numeric_limits<double>::max(),
+                        std::numeric_limits<double>::max()));
   xMin_->setEnabled(false);
-  WLineEdit *xMax_ = new WLineEdit
-    (Wt::asString(chart->axis(XAxis_3D).maximum()), this);
-  template_->bindWidget("xAxisMax", xMax_);
-  xMax_->setValidator(new Wt::WDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max()));
+
+  auto xMax = Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::asString(chart->axis(Wt::Chart::Axis::X3D).maximum()));
+  auto xMax_ = template_->bindWidget("xAxisMax", std::move(xMax));
+  xMax_->setValidator(std::make_shared<Wt::WDoubleValidator>(
+                        -std::numeric_limits<double>::max(),
+                        std::numeric_limits<double>::max()));
   xMax_->setEnabled(false);
 
-  WCheckBox *autoRangeY_ = new WCheckBox(this);
-  template_->bindWidget("yAuto", autoRangeY_);
-  autoRangeY_->setCheckState(Wt::Checked);
-  WLineEdit *yMin_ = new WLineEdit
-    (Wt::asString(chart->axis(YAxis_3D).minimum()), this);
-  template_->bindWidget("yAxisMin", yMin_);
-  yMin_->setValidator(new Wt::WDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max()));
+  auto autoRangeY = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto autoRangeY_ = template_->bindWidget("yAuto", std::move(autoRangeY));
+  autoRangeY_->setCheckState(Wt::CheckState::Checked);
+
+  auto yMin = Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::asString(chart->axis(Wt::Chart::Axis::Y3D).minimum()));
+  auto yMin_ = template_->bindWidget("yAxisMin", std::move(yMin));
+  yMin_->setValidator(std::make_shared<Wt::WDoubleValidator>(
+                        -std::numeric_limits<double>::max(),
+                        std::numeric_limits<double>::max()));
   yMin_->setEnabled(false);
-  WLineEdit *yMax_ = new WLineEdit
-    (Wt::asString(chart->axis(YAxis_3D).maximum()), this);
-  template_->bindWidget("yAxisMax", yMax_);
-  yMax_->setValidator(new Wt::WDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max()));
+
+  auto yMax = Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::asString(chart->axis(Wt::Chart::Axis::Y3D).maximum()));
+  auto yMax_ = template_->bindWidget("yAxisMax", std::move(yMax));
+  yMax_->setValidator(std::make_shared<Wt::WDoubleValidator>(
+                        -std::numeric_limits<double>::max(),
+                        std::numeric_limits<double>::max()));
   yMax_->setEnabled(false);
 
-  WCheckBox *autoRangeZ_ = new WCheckBox(this);
-  template_->bindWidget("zAuto", autoRangeZ_);
-  autoRangeZ_->setCheckState(Wt::Checked);
-  WLineEdit *zMin_ = new WLineEdit
-    (Wt::asString(chart->axis(ZAxis_3D).minimum()), this);
-  template_->bindWidget("zAxisMin", zMin_);
-  zMin_->setValidator(new Wt::WDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max()));
+  auto autoRangeZ = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto autoRangeZ_ = template_->bindWidget("zAuto", std::move(autoRangeZ));
+  autoRangeZ_->setCheckState(Wt::CheckState::Checked);
+
+  auto zMin = Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::asString(chart->axis(Wt::Chart::Axis::Z3D).minimum()));
+  auto zMin_ = template_->bindWidget("zAxisMin", std::move(zMin));
+  zMin_->setValidator(std::make_shared<Wt::WDoubleValidator>(
+                        -std::numeric_limits<double>::max(),
+                        std::numeric_limits<double>::max()));
   zMin_->setEnabled(false);
-  WLineEdit *zMax_ = new WLineEdit
-    (Wt::asString(chart->axis(ZAxis_3D).maximum()), this);
-  template_->bindWidget("zAxisMax", zMax_);
-  zMax_->setValidator(new Wt::WDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max()));
+
+  auto zMax = Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::asString(chart->axis(Wt::Chart::Axis::Z3D).maximum()));
+  auto zMax_ = template_->bindWidget("zAxisMax", std::move(zMax));
+  zMax_->setValidator(std::make_shared<Wt::WDoubleValidator>(
+                        -std::numeric_limits<double>::max(),
+                        std::numeric_limits<double>::max()));
   zMax_->setEnabled(false);
 
-  WLineEdit *title = new WLineEdit(this);
-  template_->bindWidget("chartTitle", title);
-  WCheckBox *enableLegend = new WCheckBox(this);
-  template_->bindWidget("chartLegend", enableLegend);
-  WComboBox *legendSide = new WComboBox(this);
-  legendSide->addItem("Left");
-  legendSide->addItem("Right");
-  legendSide->addItem("Top");
-  legendSide->addItem("Bottom");
-  template_->bindWidget("legendside", legendSide);
-  switch (chart->legendSide()) {
-  case Left:
-    legendSide->setCurrentIndex(0); break;
-  case Right:
-    legendSide->setCurrentIndex(1); break;
-  case Top:
-    legendSide->setCurrentIndex(2); break;
-  case Bottom:
-    legendSide->setCurrentIndex(3); break;
-  default:
-    break;
-  }
-  WComboBox *legendAlignment = new WComboBox(this);
-  legendAlignment->addItem("Left");
-  legendAlignment->addItem("Center");
-  legendAlignment->addItem("Right");
-  legendAlignment->addItem("Top");
-  legendAlignment->addItem("Middle");
-  legendAlignment->addItem("Bottom");
-  template_->bindWidget("legendalignment", legendAlignment);
-  switch (chart->legendAlignment()) {
-  case AlignLeft:
-    legendAlignment->setCurrentIndex(0); break;
-  case AlignCenter:
-    legendAlignment->setCurrentIndex(1); break;
-  case AlignRight:
-    legendAlignment->setCurrentIndex(2); break;
-  case AlignTop:
-    legendAlignment->setCurrentIndex(3); break;
-  case AlignMiddle:
-    legendAlignment->setCurrentIndex(4); break;
-  case AlignBottom:
-    legendAlignment->setCurrentIndex(5); break;
-  default:
-    break;
-  }
-  WCheckBox *enableGridLines = new WCheckBox(this);
-  template_->bindWidget("gridlines", enableGridLines);
-  WCheckBox *enableIntersectionLines = new WCheckBox(this);
-  template_->bindWidget("intersectionlines", enableIntersectionLines);
-  WComboBox *intersectionLineColor = new WComboBox(this);
-  intersectionLineColor->addItem("red");
-  intersectionLineColor->addItem("green");
-  intersectionLineColor->addItem("blue");
-  intersectionLineColor->addItem("black");
-  intersectionLineColor->addItem("cyan");
-  intersectionLineColor->addItem("magenta");
-  intersectionLineColor->addItem("yellow");
-  intersectionLineColor->setCurrentIndex(intersectionLineColor->count() - 1);
-  template_->bindWidget("intersectionlinecolor", intersectionLineColor);
-  WLineEdit *widgetWidth = new WLineEdit(Wt::asString(chart->width().value()), this);
-  widgetWidth->setValidator(new Wt::WIntValidator(1, 2000));
-  WLineEdit *widgetHeight = new WLineEdit(Wt::asString(chart->height().value()), this);
-  widgetHeight->setValidator(new Wt::WIntValidator(1, 2000));
-  template_->bindWidget("width", widgetWidth);
-  template_->bindWidget("height", widgetHeight);
+  auto title = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  auto title_ = template_->bindWidget("chartTitle", std::move(title));
 
-  WLineEdit *xAxisTitle = new WLineEdit(chart->axis(XAxis_3D).title(), this);
-  WLineEdit *yAxisTitle = new WLineEdit(chart->axis(YAxis_3D).title(), this);
-  WLineEdit *zAxisTitle = new WLineEdit(chart->axis(ZAxis_3D).title(), this);
-  template_->bindWidget("xTitle", xAxisTitle);
-  template_->bindWidget("yTitle", yAxisTitle);
-  template_->bindWidget("zTitle", zAxisTitle);
-    
+  auto enableLegend = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto enableLegend_ = template_->bindWidget("chartLegend", std::move(enableLegend));
+
+  auto legendSide = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto legendSide_ = template_->bindWidget("legendside", std::move(legendSide));
+  legendSide_->addItem("Left");
+  legendSide_->addItem("Right");
+  legendSide_->addItem("Top");
+  legendSide_->addItem("Bottom");
+
+  switch (chart->legendSide()) {
+  case Wt::Side::Left:
+    legendSide_->setCurrentIndex(0); break;
+  case Wt::Side::Right:
+    legendSide_->setCurrentIndex(1); break;
+  case Wt::Side::Top:
+    legendSide_->setCurrentIndex(2); break;
+  case Wt::Side::Bottom:
+    legendSide_->setCurrentIndex(3); break;
+  default:
+    break;
+  }
+
+  auto legendAlignment = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto legendAlignment_ = template_->bindWidget("legendalignment", std::move(legendAlignment));
+  legendAlignment_->addItem("Left");
+  legendAlignment_->addItem("Center");
+  legendAlignment_->addItem("Right");
+  legendAlignment_->addItem("Top");
+  legendAlignment_->addItem("Middle");
+  legendAlignment_->addItem("Bottom");
+
+  switch (chart->legendAlignment()) {
+  case Wt::AlignmentFlag::Left:
+    legendAlignment_->setCurrentIndex(0); break;
+  case Wt::AlignmentFlag::Center:
+    legendAlignment_->setCurrentIndex(1); break;
+  case Wt::AlignmentFlag::Right:
+    legendAlignment_->setCurrentIndex(2); break;
+  case Wt::AlignmentFlag::Top:
+    legendAlignment_->setCurrentIndex(3); break;
+  case Wt::AlignmentFlag::Middle:
+    legendAlignment_->setCurrentIndex(4); break;
+  case Wt::AlignmentFlag::Bottom:
+    legendAlignment_->setCurrentIndex(5); break;
+  default:
+    break;
+  }
+
+  auto enableGridLines = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto enableGridLines_ =
+      template_->bindWidget("gridlines", std::move(enableGridLines));
+
+  auto enableIntersectionLines = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto enableIntersectionLines_ =
+      template_->bindWidget("intersectionlines", std::move(enableIntersectionLines));
+
+  auto intersectionLineColor = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto intersectionLineColor_ =
+      template_->bindWidget("intersectionlinecolor", std::move(intersectionLineColor));
+  intersectionLineColor_->addItem("red");
+  intersectionLineColor_->addItem("green");
+  intersectionLineColor_->addItem("blue");
+  intersectionLineColor_->addItem("black");
+  intersectionLineColor_->addItem("cyan");
+  intersectionLineColor_->addItem("magenta");
+  intersectionLineColor_->addItem("yellow");
+  intersectionLineColor_->setCurrentIndex(intersectionLineColor_->count() - 1);
+
+  auto widgetWidth = Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::asString(chart->width().value()));
+  auto widgetWidth_ = template_->bindWidget("width", std::move(widgetWidth));
+  widgetWidth_->setValidator(std::make_shared<Wt::WIntValidator>(1, 2000));
+  auto widgetHeight = Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::asString(chart->height().value()));
+  auto widgetHeight_ = template_->bindWidget("height", std::move(widgetHeight));
+  widgetHeight_->setValidator(std::make_shared<Wt::WIntValidator>(1, 2000));
+
+  auto xAxisTitle_ = Wt::cpp14::make_unique<Wt::WLineEdit>(chart->axis(Wt::Chart::Axis::X3D).title());
+  auto xAxisTitle = template_->bindWidget("xTitle", std::move(xAxisTitle_));
+  auto yAxisTitle_ = Wt::cpp14::make_unique<Wt::WLineEdit>(chart->axis(Wt::Chart::Axis::Y3D).title());
+  auto yAxisTitle = template_->bindWidget("yTitle", std::move(yAxisTitle_));
+  auto zAxisTitle_ = Wt::cpp14::make_unique<Wt::WLineEdit>(chart->axis(Wt::Chart::Axis::Z3D).title());
+  auto zAxisTitle = template_->bindWidget("zTitle", std::move(zAxisTitle_));
 
   // hook it up
-  autoRangeX_->checked().connect(std::bind([=] () {
-	chart->axis(XAxis_3D).setAutoLimits(Chart::MinimumValue 
-					     | Chart::MaximumValue);
-	xMin_->setEnabled(false); xMax_->setEnabled(false);
-      }));
-  autoRangeX_->unChecked().connect(std::bind([=] () {
-	xMin_->setEnabled(true); xMax_->setEnabled(true);
-	chart->axis(XAxis_3D).setRange(Wt::asNumber(xMin_->text()),
-					Wt::asNumber(xMax_->text()));
-      }));
-  autoRangeY_->checked().connect(std::bind([=] () {
-	chart->axis(YAxis_3D).setAutoLimits(Chart::MinimumValue 
-					     | Chart::MaximumValue);
-	yMin_->setEnabled(false); yMax_->setEnabled(false);
-      }));
-  autoRangeY_->unChecked().connect(std::bind([=] () {
-	yMin_->setEnabled(true); yMax_->setEnabled(true);
-	chart->axis(YAxis_3D).setRange(Wt::asNumber(yMin_->text()),
-					  Wt::asNumber(yMax_->text()));
-      }));
-  autoRangeZ_->checked().connect(std::bind([=] () {
-	chart->axis(ZAxis_3D).setAutoLimits(Chart::MinimumValue 
-					     | Chart::MaximumValue);
-	zMin_->setEnabled(false); zMax_->setEnabled(false);
-      }));
-  autoRangeZ_->unChecked().connect(std::bind([=] () {
-	zMin_->setEnabled(true); zMax_->setEnabled(true);
-	chart->axis(ZAxis_3D).setRange(Wt::asNumber(zMin_->text()),
-					Wt::asNumber(zMax_->text()));
-      }));
+  autoRangeX_->checked().connect([=] () {
+        chart->axis(Wt::Chart::Axis::X3D).setAutoLimits(Wt::Chart::AxisValue::Minimum
+                                                       | Wt::Chart::AxisValue::Maximum);
+        xMin_->setEnabled(false); xMax_->setEnabled(false);
+      });
+  autoRangeX_->unChecked().connect([=] () {
+        xMin_->setEnabled(true); xMax_->setEnabled(true);
+        chart->axis(Wt::Chart::Axis::X3D).setRange(asNumber(xMin_->text()),
+                                        asNumber(xMax_->text()));
+      });
+  autoRangeY_->checked().connect([=] () {
+        chart->axis(Wt::Chart::Axis::Y3D).setAutoLimits(Wt::Chart::AxisValue::Minimum
+                                             | Wt::Chart::AxisValue::Maximum);
+        yMin_->setEnabled(false); yMax_->setEnabled(false);
+      });
+  autoRangeY_->unChecked().connect([=] () {
+        yMin_->setEnabled(true); yMax_->setEnabled(true);
+        chart->axis(Wt::Chart::Axis::Y3D).setRange(asNumber(yMin_->text()),
+                                          asNumber(yMax_->text()));
+      });
+  autoRangeZ_->checked().connect([=] () {
+        chart->axis(Wt::Chart::Axis::Z3D).setAutoLimits(Wt::Chart::AxisValue::Minimum
+                                             | Wt::Chart::AxisValue::Maximum);
+        zMin_->setEnabled(false); zMax_->setEnabled(false);
+      });
+  autoRangeZ_->unChecked().connect([=] () {
+        zMin_->setEnabled(true); zMax_->setEnabled(true);
+        chart->axis(Wt::Chart::Axis::Z3D).setRange(asNumber(zMin_->text()),
+                                        asNumber(zMax_->text()));
+      });
 
-  xMin_->changed().connect(std::bind([=] () {
-	chart->axis(XAxis_3D).setRange(Wt::asNumber(xMin_->text()),
-					Wt::asNumber(xMax_->text()));
-      }));
-  xMax_->changed().connect(std::bind([=] () {
-	chart->axis(XAxis_3D).setRange(Wt::asNumber(xMin_->text()),
-					Wt::asNumber(xMax_->text()));
-      }));
-  yMin_->changed().connect(std::bind([=] () {
-	chart->axis(YAxis_3D).setRange(Wt::asNumber(yMin_->text()),
-					  Wt::asNumber(yMax_->text()));
-      }));
-  yMax_->changed().connect(std::bind([=] () {
-	chart->axis(YAxis_3D).setRange(Wt::asNumber(yMin_->text()),
-					  Wt::asNumber(yMax_->text()));
-      }));
-  zMin_->changed().connect(std::bind([=] () {
-	chart->axis(ZAxis_3D).setRange(Wt::asNumber(zMin_->text()),
-					  Wt::asNumber(zMax_->text()));
-      }));
-  zMax_->changed().connect(std::bind([=] () {
-	chart->axis(ZAxis_3D).setRange(Wt::asNumber(zMin_->text()),
-					  Wt::asNumber(zMax_->text()));
-      }));
+  xMin_->changed().connect([=] () {
+        chart->axis(Wt::Chart::Axis::X3D).setRange(asNumber(xMin_->text()),
+                                        asNumber(xMax_->text()));
+      });
+  xMax_->changed().connect([=] () {
+        chart->axis(Wt::Chart::Axis::X3D).setRange(asNumber(xMin_->text()),
+                                        asNumber(xMax_->text()));
+      });
+  yMin_->changed().connect([=] () {
+        chart->axis(Wt::Chart::Axis::Y3D).setRange(asNumber(yMin_->text()),
+                                          asNumber(yMax_->text()));
+      });
+  yMax_->changed().connect([=] () {
+        chart->axis(Wt::Chart::Axis::Y3D).setRange(asNumber(yMin_->text()),
+                                          asNumber(yMax_->text()));
+      });
+  zMin_->changed().connect([=] () {
+        chart->axis(Wt::Chart::Axis::Z3D).setRange(asNumber(zMin_->text()),
+                                          asNumber(zMax_->text()));
+      });
+  zMax_->changed().connect([=] () {
+        chart->axis(Wt::Chart::Axis::Z3D).setRange(asNumber(zMin_->text()),
+                                          asNumber(zMax_->text()));
+      });
 
-  enableGridLines->checked().connect(std::bind([=]() {
-	chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::XAxis_3D, true);
-	chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::YAxis_3D, true);
-	chart->setGridEnabled(Wt::Chart::XZ_Plane, Wt::Chart::XAxis_3D, true);
-	chart->setGridEnabled(Wt::Chart::XZ_Plane, Wt::Chart::ZAxis_3D, true);
-	chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::YAxis_3D, true);
-	chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::ZAxis_3D, true);
-      }));
-  enableGridLines->unChecked().connect(std::bind([=]() {
-	chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::XAxis_3D, false);
-	chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::YAxis_3D, false);
-	chart->setGridEnabled(Wt::Chart::XZ_Plane, Wt::Chart::XAxis_3D, false);
-	chart->setGridEnabled(Wt::Chart::XZ_Plane, Wt::Chart::ZAxis_3D, false);
-	chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::YAxis_3D, false);
-	chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::ZAxis_3D, false);
-      }));
+  enableGridLines_->checked().connect([=]() {
+        chart->setGridEnabled(Wt::Chart::Plane::XY, Wt::Chart::Axis::X3D, true);
+        chart->setGridEnabled(Wt::Chart::Plane::XY, Wt::Chart::Axis::Y3D, true);
+        chart->setGridEnabled(Wt::Chart::Plane::XZ, Wt::Chart::Axis::X3D, true);
+        chart->setGridEnabled(Wt::Chart::Plane::XZ, Wt::Chart::Axis::Z3D, true);
+        chart->setGridEnabled(Wt::Chart::Plane::YZ, Wt::Chart::Axis::Y3D, true);
+        chart->setGridEnabled(Wt::Chart::Plane::YZ, Wt::Chart::Axis::Z3D, true);
+      });
+  enableGridLines_->unChecked().connect([=]() {
+        chart->setGridEnabled(Wt::Chart::Plane::XY, Wt::Chart::Axis::X3D, false);
+        chart->setGridEnabled(Wt::Chart::Plane::XY, Wt::Chart::Axis::Y3D, false);
+        chart->setGridEnabled(Wt::Chart::Plane::XZ, Wt::Chart::Axis::X3D, false);
+        chart->setGridEnabled(Wt::Chart::Plane::XZ, Wt::Chart::Axis::Z3D, false);
+        chart->setGridEnabled(Wt::Chart::Plane::YZ, Wt::Chart::Axis::Y3D, false);
+        chart->setGridEnabled(Wt::Chart::Plane::YZ, Wt::Chart::Axis::Z3D, false);
+      });
 
-  auto changeIntersectionLinesColor = [=]() {
-	switch (intersectionLineColor->currentIndex()) {
+  const auto changeIntersectionLinesColor = [=]() {
+        switch (intersectionLineColor_->currentIndex()) {
 	case 0:
-	  chart->setIntersectionLinesColor(WColor(255,0,0)); break;
+          chart->setIntersectionLinesColor(Wt::WColor(255,0,0)); break;
 	case 1:
-	  chart->setIntersectionLinesColor(WColor(0,255,0)); break;
+          chart->setIntersectionLinesColor(Wt::WColor(0,255,0)); break;
 	case 2:
-	  chart->setIntersectionLinesColor(WColor(0,0,255)); break;
+          chart->setIntersectionLinesColor(Wt::WColor(0,0,255)); break;
 	case 3:
-	  chart->setIntersectionLinesColor(WColor(0,0,0)); break;
+          chart->setIntersectionLinesColor(Wt::WColor(0,0,0)); break;
 	case 4:
-	  chart->setIntersectionLinesColor(WColor(0,255,255)); break;
+          chart->setIntersectionLinesColor(Wt::WColor(0,255,255)); break;
 	case 5:
-	  chart->setIntersectionLinesColor(WColor(255,0,255)); break;
+          chart->setIntersectionLinesColor(Wt::WColor(255,0,255)); break;
 	case 6:
-	  chart->setIntersectionLinesColor(WColor(255,255,0)); break;
+          chart->setIntersectionLinesColor(Wt::WColor(255,255,0)); break;
 	}
       };
 
-  enableIntersectionLines->checked().connect(std::bind([=]() {
+  enableIntersectionLines_->checked().connect([=]() {
 	chart->setIntersectionLinesEnabled(true);
 	changeIntersectionLinesColor();
-      }));
-  enableIntersectionLines->unChecked().connect(std::bind([=]() {
+      });
+  enableIntersectionLines_->unChecked().connect([=]() {
 	chart->setIntersectionLinesEnabled(false);
-      }));
+      });
 
-  intersectionLineColor->changed().connect(std::bind(changeIntersectionLinesColor));
+  intersectionLineColor_->changed().connect(changeIntersectionLinesColor);
 
-  enableLegend->checked().connect(std::bind([=]() {
+  enableLegend_->checked().connect([=]() {
 	chart->setLegendEnabled(true);
-      }));
-  enableLegend->unChecked().connect(std::bind([=]() {
+      });
+  enableLegend_->unChecked().connect([=]() {
 	chart->setLegendEnabled(false);
-      }));
+      });
 
-  legendSide->changed().connect(std::bind([=]() {
-	switch (legendSide->currentIndex()) {
+  legendSide_->changed().connect([=]() {
+        switch (legendSide_->currentIndex()) {
 	case 0:
-	  chart->setLegendLocation(Left, chart->legendAlignment()); break;
+          chart->setLegendLocation(Wt::Side::Left, chart->legendAlignment()); break;
 	case 1:
-	  chart->setLegendLocation(Right, chart->legendAlignment()); break;
+          chart->setLegendLocation(Wt::Side::Right, chart->legendAlignment()); break;
 	case 2:
-	  chart->setLegendLocation(Top, chart->legendAlignment()); break;
+          chart->setLegendLocation(Wt::Side::Top, chart->legendAlignment()); break;
 	case 3:
-	  chart->setLegendLocation(Bottom, chart->legendAlignment()); break;
+          chart->setLegendLocation(Wt::Side::Bottom, chart->legendAlignment()); break;
 	}
-      }));
-  legendAlignment->changed().connect(std::bind([=]() {
-	switch (legendAlignment->currentIndex()) {
+      });
+  legendAlignment_->changed().connect([=]() {
+        switch (legendAlignment_->currentIndex()) {
 	case 0:
-	  chart->setLegendLocation(chart->legendSide(), AlignLeft); break;
+          chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Left); break;
 	case 1:
-	  chart->setLegendLocation(chart->legendSide(), AlignCenter); break;
+          chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Center); break;
 	case 2:
-	  chart->setLegendLocation(chart->legendSide(), AlignRight); break;
+          chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Right); break;
 	case 3:
-	  chart->setLegendLocation(chart->legendSide(), AlignTop); break;
+          chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Top); break;
 	case 4:
-	  chart->setLegendLocation(chart->legendSide(), AlignMiddle); break;
+          chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Middle); break;
 	case 5:
-	  chart->setLegendLocation(chart->legendSide(), AlignBottom); break;
+          chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Bottom); break;
 	}
-      }));
+      });
 
-  title->changed().connect(std::bind([=] () {
-	chart->setTitle(Wt::asString(title->text()));
-      }));
+  title_->changed().connect([=] () {
+        chart->setTitle(Wt::asString(title_->text()));
+      });
 
-  widgetWidth->changed().connect(std::bind([=] () {
-	chart->resize(Wt::asNumber(widgetWidth->text()),
-		       Wt::asNumber(widgetHeight->text()));
-      }));
-  widgetHeight->changed().connect(std::bind([=] () {
-	chart->resize(Wt::asNumber(widgetWidth->text()),
-		       Wt::asNumber(widgetHeight->text()));
-      }));
+  widgetWidth_->changed().connect([=] () {
+        chart->resize(Wt::asNumber(widgetWidth_->text()),
+                       Wt::asNumber(widgetHeight_->text()));
+      });
+  widgetHeight_->changed().connect([=] () {
+        chart->resize(Wt::asNumber(widgetWidth_->text()),
+                       Wt::asNumber(widgetHeight_->text()));
+      });
 
-  xAxisTitle->changed().connect(std::bind([=]() {
-	chart->axis(XAxis_3D).setTitle(xAxisTitle->text());
-      }));
-  yAxisTitle->changed().connect(std::bind([=]() {
-	chart->axis(YAxis_3D).setTitle(yAxisTitle->text());
-      }));
-  zAxisTitle->changed().connect(std::bind([=]() {
-	chart->axis(ZAxis_3D).setTitle(zAxisTitle->text());
-      }));
-  
+  xAxisTitle->changed().connect([=]() {
+        chart->axis(Wt::Chart::Axis::X3D).setTitle(xAxisTitle->text());
+      });
+  yAxisTitle->changed().connect([=]() {
+        chart->axis(Wt::Chart::Axis::Y3D).setTitle(yAxisTitle->text());
+      });
+  zAxisTitle->changed().connect([=]() {
+        chart->axis(Wt::Chart::Axis::Z3D).setTitle(zAxisTitle->text());
+      });
 }
 
 
 /*
  * Data selection Widget definition
  */
-DataSelection::DataSelection(WCartesian3DChart *chart)
+DataSelection::DataSelection(Wt::Chart::WCartesian3DChart *chart)
 {
-  WTemplate* template_ = new WTemplate(Wt::WString::tr("dataselection-template"), this);
+  Wt::WTemplate* template_ =
+      this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("dataselection-template")));
 
-  notShown = new WSelectionBox(this);
-  template_->bindWidget("notshownselection", notShown);
-  shown = new WSelectionBox(this);
-  template_->bindWidget("shownselection", shown);
+  auto notShown_ = Wt::cpp14::make_unique<Wt::WSelectionBox>();
+  notShown = template_->bindWidget("notshownselection", std::move(notShown_));
 
-  WPushButton *addSelected = new WPushButton("add dataset", this);
-  template_->bindWidget("addbutton", addSelected);
-  WPushButton *removeSelected = new WPushButton("remove dataset", this);
-  template_->bindWidget("removebutton", removeSelected);
+  auto shown_ = Wt::cpp14::make_unique<Wt::WSelectionBox>();
+  shown = template_->bindWidget("shownselection", std::move(shown_));
+
+  auto addSelected_ = Wt::cpp14::make_unique<Wt::WPushButton>("add dataset");
+  auto addSelected = template_->bindWidget("addbutton", std::move(addSelected_));
+
+  auto removeSelected_ = Wt::cpp14::make_unique<Wt::WPushButton>("remove dataset");
+  auto removeSelected = template_->bindWidget("removebutton", std::move(removeSelected_));
 
   // define functionality
-  notShown->sactivated().connect(std::bind([=] (WString selection) {
+  notShown->sactivated().connect([=] (Wt::WString selection) {
 	//WString selection;
   	shown->clearSelection();
-  	for (unsigned i = 0; i < dataCollection_.size(); i++) {
-  	  if (dataCollection_[i].first == selection)
-  	    selectionChange_.emit(dataCollection_[i].second);
+        for (auto& item : dataCollection_) {
+          if (item.first == selection)
+            selectionChange_.emit(item.second);
   	}
-      }, std::placeholders::_1));
-  shown->sactivated().connect(std::bind([=] (WString selection) {
+      });
+  shown->sactivated().connect([=] (Wt::WString selection) {
 	notShown->clearSelection();
-	for (unsigned i = 0; i < dataCollection_.size(); i++) {
-  	  if (dataCollection_[i].first == selection)
-  	    selectionChange_.emit(dataCollection_[i].second);
+	for (auto& item : dataCollection_) {
+	  if (item.first == selection)
+	    selectionChange_.emit(item.second);
   	}
-      }, std::placeholders::_1));
-  addSelected->clicked().connect(std::bind([=] () {
+      });
+  addSelected->clicked().connect([=] () {
 	int index = notShown->currentIndex();
 	if (index == -1)
 	  return;
   
-	const WString currentText = notShown->currentText();
-	for (unsigned i = 0; i < dataCollection_.size(); i++) {
-	  if (dataCollection_[i].first == currentText){
-	      chart->addDataSeries(dataCollection_[i].second);
-	      selectionChange_.emit(dataCollection_[i].second);
+        const Wt::WString currentText = notShown->currentText();
+	for (auto& item : dataCollection_) {
+	  if (item.first == currentText){
+              std::unique_ptr<Wt::Chart::WAbstractDataSeries3D> series(item.second);
+	      chart->addDataSeries(std::move(series));
+	      selectionChange_.emit(item.second);
 	  }
 	}
 	shown->addItem(currentText);
@@ -347,26 +374,26 @@ DataSelection::DataSelection(WCartesian3DChart *chart)
 	notShown->removeItem(index);
 	notShown->clearSelection();
 	
-      }));
-  removeSelected->clicked().connect(std::bind([=] () {
+      });
+  removeSelected->clicked().connect([=] () {
 	int index = shown->currentIndex();
 	if (index == -1)
 	  return;
   
-	const WString currentText = shown->currentText();
-	for (unsigned i = 0; i < dataCollection_.size(); i++) {
-	  if (dataCollection_[i].first == currentText)
-	    chart->removeDataSeries(dataCollection_[i].second);
+        const Wt::WString currentText = shown->currentText();
+	for (auto& item : dataCollection_) {
+	  if (item.first == currentText)
+	    chart->removeDataSeries(item.second).release();
 	}
 	notShown->addItem(currentText);
 	notShown->setCurrentIndex(shown->count()-1);
 	shown->removeItem(index);
 	shown->clearSelection();
-      }));
+      });
 }
 
-void DataSelection::addDataToCollection(WString name,
-					WAbstractDataSeries3D* data)
+void DataSelection::addDataToCollection(Wt::WString name,
+                                        Wt::Chart::WAbstractDataSeries3D *data)
 {
   DataSelectionItem item(name, data);
   dataCollection_.push_back(item);
@@ -374,41 +401,44 @@ void DataSelection::addDataToCollection(WString name,
 }
 
 
-DataConfig::DataConfig(WCartesian3DChart* chart)
+DataConfig::DataConfig(Wt::Chart::WCartesian3DChart* chart)
 {
-  WTemplate *template_ = new WTemplate(Wt::WString::tr("totaldataconfig-template"), this);
+  Wt::WTemplate *template_ = this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("totaldataconfig-template")));
 
-  dataselection_ = new DataSelection(chart);
-  template_->bindWidget("dataselection", dataselection_);
+  auto dataSelection = Wt::cpp14::make_unique<DataSelection>(chart);
+  dataselection_ = template_->bindWidget("dataselection", std::move(dataSelection));
 
-  WStackedWidget *sw = new WStackedWidget(this);
-  sw->addWidget(new WText("Select data to configure it"));
-  numgriddatasettings_ = new NumGridDataSettings();
-  catgriddatasettings_ = new CatGridDataSettings();
-  scatterdatasettings_ = new ScatterDataSettings();
-  sw->addWidget(numgriddatasettings_);
-  sw->addWidget(catgriddatasettings_);
-  sw->addWidget(scatterdatasettings_);
-  template_->bindWidget("dataconfig", sw);
+  auto sw_(Wt::cpp14::make_unique<Wt::WStackedWidget>());
+  sw_->addWidget(Wt::cpp14::make_unique<Wt::WText>("Select data to configure it"));
+  auto numgriddatasettings(Wt::cpp14::make_unique<NumGridDataSettings>());
+  numgriddatasettings_ = numgriddatasettings.get();
+  auto catgriddatasettings(Wt::cpp14::make_unique<CatGridDataSettings>());
+  catgriddatasettings_ = catgriddatasettings.get();
+  auto scatterdatasettings(Wt::cpp14::make_unique<ScatterDataSettings>());
+  scatterdatasettings_ = scatterdatasettings.get();
+  sw_->addWidget(std::move(numgriddatasettings));
+  sw_->addWidget(std::move(catgriddatasettings));
+  sw_->addWidget(std::move(scatterdatasettings));
+  auto sw = template_->bindWidget("dataconfig", std::move(sw_));
 
-  dataselection_->selectionChanged().connect(std::bind([=] (WAbstractDataSeries3D* data) {
-	if (dynamic_cast<WAbstractGridData*>(data)) {
-	  WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(data);
-	  if (gridData->type() == BarSeries3D) {
+  dataselection_->selectionChanged().connect([=] (Wt::Chart::WAbstractDataSeries3D* data) {
+        if (dynamic_cast<Wt::Chart::WAbstractGridData*>(data)) {
+          Wt::Chart::WAbstractGridData *gridData = dynamic_cast<Wt::Chart::WAbstractGridData*>(data);
+          if (gridData->type() == Wt::Chart::Series3DType::Bar) {
 	    catgriddatasettings_->bindDataSet(gridData);
 	    sw->setCurrentIndex(2);
 	  } else {
 	    numgriddatasettings_->bindDataSet(gridData);
 	    sw->setCurrentIndex(1);
 	  }
-	} else if (dynamic_cast<WScatterData*>(data)) {
-	  scatterdatasettings_->bindDataSet(dynamic_cast<WScatterData*>(data));
+        } else if (dynamic_cast<Wt::Chart::WScatterData*>(data)) {
+          scatterdatasettings_->bindDataSet(dynamic_cast<Wt::Chart::WScatterData*>(data));
 	  sw->setCurrentIndex(3);
 	}
-      }, std::placeholders::_1));
+      });
 }
 
-void DataConfig::addDataToCollection(WString name, WAbstractDataSeries3D *data)
+void DataConfig::addDataToCollection(Wt::WString name, Wt::Chart::WAbstractDataSeries3D *data)
 {
   dataselection_->addDataToCollection(name, data);
 }

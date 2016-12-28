@@ -7,7 +7,7 @@
 #ifndef WVIDEO_H_
 #define WVIDEO_H_
 
-#include <Wt/WAbstractMedia>
+#include <Wt/WAbstractMedia.h>
 
 namespace Wt {
 
@@ -60,11 +60,6 @@ namespace Wt {
  * the widget is rendered.
  *
  * \sa WMediaPlayer
- *
- * \if cpp
- * \note Before %Wt 3.1.11, this was called WHTML5Video, which still
- *       exists as a (deprecated) typedef.
- * \endif
  */
 class WT_API WVideo : public WAbstractMedia
 {
@@ -78,7 +73,7 @@ public:
    * sources, has preload mode set to PreloadAuto, and only the
    * Controls flag is set.
    */
-  WVideo(WContainerWidget *parent = 0);
+  WVideo();
   
   /*! \brief Set the poster image
    *
@@ -100,12 +95,12 @@ public:
    */
   std::string jsVideoRef() const;
 
-  virtual void resize(const WLength &width, const WLength &height);
+  virtual void resize(const WLength &width, const WLength &height) override;
 
 protected:
-  virtual DomElement *createMediaDomElement();
-  DomElementType domElementType() const;
-  void updateMediaDom(DomElement& element, bool all);
+  virtual DomElement *createMediaDomElement() override;
+  virtual DomElementType domElementType() const override;
+  virtual void updateMediaDom(DomElement& element, bool all) override;
 
 private:
   std::string posterUrl_;

@@ -6,14 +6,13 @@
 
 #include "EventsDemo.h"
 
-#include <Wt/WText>
-#include <Wt/WBreak>
-#include <Wt/WCssDecorationStyle>
+#include <Wt/WText.h>
+#include <Wt/WBreak.h>
+#include <Wt/WCssDecorationStyle.h>
 #include <sstream>
-#include <boost/lexical_cast.hpp>
-#include <Wt/WLineEdit>
-#include <Wt/WHBoxLayout>
-#include <Wt/Utils>
+#include <Wt/WLineEdit.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/Utils.h>
 #include "DragExample.h"
 
 EventsDemo::EventsDemo(EventDisplayer *ed)
@@ -23,62 +22,63 @@ EventsDemo::EventsDemo(EventDisplayer *ed)
 
 void EventsDemo::populateSubMenu(WMenu *menu)
 {
-  menu->addItem("Overview", addText(tr("events-intro")));
-  menu->addItem("Keyboard Events", wKeyEvent());
-  menu->addItem("Mouse Events", wMouseEvent());
-  menu->addItem("Drag & Drop", wDropEvent());
-  menu->addItem("Other events", addText(tr("other-events")));
+  menu->addItem("Overview", std::move(addText(tr("events-intro"))));
+  menu->addItem("Keyboard Events", std::move(wKeyEvent()));
+  menu->addItem("Mouse Events", std::move(wMouseEvent()));
+  menu->addItem("Drag & Drop", std::move(wDropEvent()));
+  menu->addItem("Other events", std::move(addText(tr("other-events"))));
 }
 
-WWidget *EventsDemo::wKeyEvent()
+std::unique_ptr<WWidget> EventsDemo::wKeyEvent()
 {
-  WContainerWidget *result = new WContainerWidget();
+  auto result = cpp14::make_unique<WContainerWidget>();
 
-  topic("WKeyEvent", result);
-  addText(tr("events-WKeyEvent-1"), result);
-  WLineEdit *l = new WLineEdit(result);
+  topic("WKeyEvent", result.get());
+  result->addWidget(std::move(addText(tr("events-WKeyEvent-1"))));
+  WLineEdit *l = result->addWidget(cpp14::make_unique<WLineEdit>());
   l->setTextSize(50);
   l->keyWentUp().connect(this, &EventsDemo::showKeyWentUp);
   l->keyWentDown().connect(this, &EventsDemo::showKeyWentDown);
   
-  addText(tr("events-WKeyEvent-2"), result);
-  l = new WLineEdit(result);
+  result->addWidget(std::move(addText(tr("events-WKeyEvent-2"))));
+  l = result->addWidget(cpp14::make_unique<WLineEdit>());
   l->setTextSize(50);
   l->keyPressed().connect(this, &EventsDemo::showKeyPressed);
   
-  addText(tr("events-WKeyEvent-3"), result);
-  l = new WLineEdit(result);
+  result->addWidget(std::move(addText(tr("events-WKeyEvent-3"))));
+  l = result->addWidget(cpp14::make_unique<WLineEdit>());
   l->setTextSize(50);
   l->enterPressed().connect(this, &EventsDemo::showEnterPressed);
   l->escapePressed().connect(this, &EventsDemo::showEscapePressed);
-  new WBreak(result);
-  addText("Last event: ", result);
-  keyEventType_ = new WText(result);
-  new WBreak(result);
-  keyEventDescription_ = new WText(result);
+
+  result->addWidget(cpp14::make_unique<WBreak>());
+  result->addWidget(std::move(addText("Last event: ")));
+  keyEventType_ = result->addWidget(cpp14::make_unique<WText>());
+  result->addWidget(cpp14::make_unique<WBreak>());
+  keyEventDescription_ = result->addWidget(cpp14::make_unique<WText>());
 
   return result;
 }
 
 WWidget *EventsDemo::wMouseEvent()
 {
-  WContainerWidget *result = new WContainerWidget();
+  auto result = cpp14::make_unique<WContainerWidget>();
 
-  topic("WMouseEvent", result);
-  addText(tr("events-WMouseEvent"), result);
-  WContainerWidget *c = new WContainerWidget(result);
-  WHBoxLayout *hlayout = new WHBoxLayout;
-  c->setLayout(hlayout);
-  WContainerWidget *l = new WContainerWidget;
-  WContainerWidget *r = new WContainerWidget;
-  new WText("clicked<br/>doubleClicked<br/>mouseWentOut<br/>mouseWentOver",
-	    l);
-  new WText("mouseWentDown<br/>mouseWentUp<br/>mouseMoved<br/>mouseWheel", r);
-  hlayout->addWidget(l);
-  hlayout->addWidget(r);
+  topic("WMouseEvent", result.get());
+  result->addWidget(std::move(addText(tr("events-WMouseEvent"))));
+
+  WContainerWidget *c =
+      result->addWidget(cpp14::make_unique<WContainerWidget>());
+  auto hlayout = c->setLayout(cpp14::make_unique<WHBoxLayout>());
+
+  auto l = hlayout->addWidget(cpp14::make_unique<WContainerWidget>());
+  auto r = hlayout->addWidget(cpp14::make_unique<WContainerWidget>());
+  l->addWidget(cpp14::make_unique<WText>("clicked<br/>doubleClicked<br/>mouseWentOut<br/>mouseWentOver"));
+  r->addWidget(cpp14::make_unique<WText>("mouseWentDown<br/>mouseWentUp<br/>mouseMoved<br/>mouseWheel"));
+
   c->resize(600, 300);
-  l->decorationStyle().setBackgroundColor(Wt::gray);
-  r->decorationStyle().setBackgroundColor(Wt::gray);
+  l->decorationStyle().setBackgroundColor(WColor(StandardColor::Gray));
+  r->decorationStyle().setBackgroundColor(WColor(StandardColor::Gray));
   // prevent that firefox interprets drag as drag&drop action
   l->setStyleClass("unselectable");
   r->setStyleClass("unselectable");
@@ -99,44 +99,44 @@ WWidget *EventsDemo::wMouseEvent()
     ("oncontextmenu",
      "event.cancelBubble = true; event.returnValue = false; return false;");
 
-  new WBreak(result);
-  new WText("Last event: ", result);
-  mouseEventType_ = new WText(result);
-  new WBreak(result);
-  mouseEventDescription_ = new WText(result);
+  result->addWidget(cpp14::make_unique<WBreak>());
+  result->addWidget(cpp14::make_unique<WText>("Last event: "));
+  mouseEventType_ = result->addWidget(cpp14::make_unique<WText>());
+  result->addWidget(cpp14::make_unique<WBreak>());
+  mouseEventDescription_ = result->addwidget(cpp14::make_unique<WText>());
 
   return result;
 }
 
-WWidget *EventsDemo::wDropEvent()
+std::unique_ptr<WWidget> EventsDemo::wDropEvent()
 {
-  WContainerWidget *result = new WContainerWidget();
+  auto result = cpp14::make_unique<WContainerWidget>();
 
-  topic("WDropEvent", result);
-  addText(tr("events-WDropEvent"), result);
-  new DragExample(result);
+  topic("WDropEvent", result.get());
+  result->addWidget(std::move(addText(tr("events-WDropEvent"))));
+  result->addWidget(cpp14::make_unique<DragExample>());
 
   return result;
 }
 
 namespace {
-  std::ostream &operator<<(std::ostream &o, Wt::WMouseEvent::Button b)
+  std::ostream &operator<<(std::ostream &o, WMouseEvent::Button b)
   {
     switch (b) {
-    case WMouseEvent::NoButton:
+    case MouseButton::None:
       return o << "No button";
-    case WMouseEvent::LeftButton:
+    case MouseButton::Left:
       return o << "LeftButton";
-    case WMouseEvent::RightButton:
+    case MouseButton::Right:
       return o << "RightButton";
-    case WMouseEvent::MiddleButton:
+    case MouseButton::Middle:
       return o << "MiddleButton";
     default:
       return o << "Unknown Button";
     }
   }
 
-  std::ostream &operator<<(std::ostream &o, Wt::Key k)
+  std::ostream &operator<<(std::ostream &o, Key k)
   {
     switch(k) {
     default:
@@ -200,7 +200,7 @@ namespace {
     }
   }
 
-  std::ostream &operator<<(std::ostream &o, Wt::WMouseEvent::Coordinates c)
+  std::ostream &operator<<(std::ostream &o, WMouseEvent::Coordinates c)
   {
     return o << c.x << ", " << c.y;
   }
@@ -222,7 +222,7 @@ void EventsDemo::setKeyType(const std::string &type, const WKeyEvent *e)
   if (lastKeyType_ == type) {
     keyEventRepeatCounter_++;
     repeatString = " ("
-      + boost::lexical_cast<std::string>(keyEventRepeatCounter_) + " times)";
+      + asString(keyEventRepeatCounter_) + " times)";
   } else {
     lastKeyType_ = type;
     keyEventRepeatCounter_ = 0;
@@ -260,7 +260,7 @@ void EventsDemo::showEscapePressed()
   setKeyType("escapePressed");
 }
 
-void EventsDemo::describe(const Wt::WKeyEvent &e)
+void EventsDemo::describe(const WKeyEvent &e)
 {
   std::stringstream ss;
   ss << "Key: " << e.key() << "<br/>"
@@ -321,7 +321,7 @@ void EventsDemo::showMouseWentDown(const WMouseEvent &e)
   describe(e);
 }
 
-void EventsDemo::describe(const Wt::WMouseEvent &e)
+void EventsDemo::describe(const WMouseEvent &e)
 {
   std::stringstream ss;
   ss << "Button: " << e.button() << "<br/>"

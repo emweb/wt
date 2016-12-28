@@ -7,7 +7,7 @@
 #ifndef WBREAK_H_
 #define WBREAK_H_
 
-#include <Wt/WWebWidget>
+#include <Wt/WWebWidget.h>
 
 namespace Wt {
 
@@ -27,10 +27,10 @@ class WT_API WBreak : public WWebWidget
 public:
   /*! \brief Construct a line break.
    */
-  WBreak(WContainerWidget *parent = 0);
+  WBreak();
 
 protected:
-  virtual DomElementType domElementType() const;
+  virtual DomElementType domElementType() const override;
 };
 
 }

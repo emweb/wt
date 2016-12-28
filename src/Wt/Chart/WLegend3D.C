@@ -1,9 +1,9 @@
-#include "WLegend3D"
+#include "WLegend3D.h"
 
-#include "Wt/Chart/WAbstractColorMap"
-#include "Wt/WPainter"
-#include "Wt/WPen"
-#include "Wt/WRectF"
+#include "Wt/Chart/WAbstractColorMap.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPen.h"
+#include "Wt/WRectF.h"
 
 namespace {
 static int boxPadding = 5;
@@ -12,8 +12,10 @@ static int boxPadding = 5;
 namespace Wt {
   namespace Chart {
 
-void WLegend3D::renderLegend(WPainter* painter,
-			     const std::vector<WAbstractDataSeries3D*> &dataseries)
+void WLegend3D
+::renderLegend(WPainter* painter,
+	       const std::vector<std::unique_ptr<WAbstractDataSeries3D>>
+	       & dataseries)
 {
   if (!legendEnabled_)
     return;
@@ -22,7 +24,7 @@ void WLegend3D::renderLegend(WPainter* painter,
 
   int nbItems = 0;
   for (unsigned i = 0; i < dataseries.size(); i++) {
-    WAbstractDataSeries3D *series = dataseries[i];
+    WAbstractDataSeries3D *series = dataseries[i].get();
     if (series->isLegendEnabled() && !series->isHidden())
       nbItems++;
   }
@@ -45,7 +47,7 @@ void WLegend3D::renderLegend(WPainter* painter,
 
   int count = 0;
   for (unsigned i = 0; i < dataseries.size(); i++) {
-    WAbstractDataSeries3D *series = dataseries[i];
+    WAbstractDataSeries3D *series = dataseries[i].get();
     if (!series->isLegendEnabled() ||
 	series->isHidden())
       continue;
@@ -62,7 +64,7 @@ void WLegend3D::renderLegend(WPainter* painter,
 
     // draw label
     painter->drawText( labelWidth + 10, 0, 100, lineHeight,
-		       AlignLeft | AlignMiddle,
+		       AlignmentFlag::Left | AlignmentFlag::Middle,
 		       series->title() );
 
     // offset painter
@@ -83,11 +85,12 @@ int WLegend3D::width()
   return (int)(legendColumns_*legendColumnWidth_.value() + 2*boxPadding);
 }
 
-int WLegend3D::height(const std::vector<WAbstractDataSeries3D*> &dataseries)
+int WLegend3D::height(const std::vector<std::unique_ptr<WAbstractDataSeries3D>>
+		      &dataseries)
 {
   int nbItems = 0;
   for (unsigned i = 0; i < dataseries.size(); i++) {
-    WAbstractDataSeries3D *series = dataseries[i];
+    WAbstractDataSeries3D *series = dataseries[i].get();
     if (series->isLegendEnabled())
       nbItems++;
   }

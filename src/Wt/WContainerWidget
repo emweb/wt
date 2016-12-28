@@ -7,9 +7,18 @@
 #ifndef WCONTAINER_WIDGET_H_
 #define WCONTAINER_WIDGET_H_
 
-#include <Wt/WInteractWidget>
+#include <Wt/WInteractWidget.h>
 
 namespace Wt {
+
+/*! \brief How to handle overflow of inner content
+ */
+enum class Overflow {
+  Visible=0x0,//!< Show content that overflows.
+  Auto=0x1,   //!< Show scrollbars when needed.
+  Hidden=0x2, //!< Hide content that overflows.
+  Scroll=0x3  //!< Always show scroll bars.
+};
 
 class WApplication;
 class StdLayoutImpl;
@@ -103,7 +112,7 @@ class StdLayoutImpl;
  * alignment of the layout manager with respect to the container: when
  * the container's height is unconstrained (not specified explicitly
  * using resize() or a style class, and the container is not included
- * in a layout manager), you should pass AlignTop to setLayout().
+ * in a layout manager), you should pass AlignmentFlag::Top to setLayout().
  *
  * <h3>CSS</h3>
  *
@@ -125,18 +134,9 @@ class StdLayoutImpl;
 class WT_API WContainerWidget : public WInteractWidget
 {
 public:
-  /*! \brief How to handle overflow of inner content
+  /*! \brief Creates a container.
    */
-  enum Overflow {
-    OverflowVisible=0x0,//!< Show content that overflows.
-    OverflowAuto=0x1,   //!< Show scrollbars when needed.
-    OverflowHidden=0x2, //!< Hide content that overflows.
-    OverflowScroll=0x3  //!< Always show scroll bars.
-  };
-
-  /*! \brief Creates a container with optional parent.
-   */
-  WContainerWidget(WContainerWidget *parent = 0);
+  WContainerWidget();
 
   /*! \brief Destructor.
    */
@@ -154,41 +154,15 @@ public:
    *
    * \sa layout()
    */
-  void setLayout(WLayout *layout);  
+  void setLayout(std::unique_ptr<WLayout> layout);
 
-  /*! \brief Sets a layout manager for the container (<b>deprecated</b>).
-   *
-   * The \p alignment argument determines how the layout is
-   * aligned inside the container. By default, the layout manager
-   * arranges children over the entire width and height of the
-   * container, corresponding to a value of AlignJustify.
-   *
-   * In general, \p alignment is the logical OR of a horizontal
-   * and a vertical flag:
-   * - The horizontal alignment option may be one of Wt::AlignLeft,
-   *   Wt::AlignCenter, Wt::AlignRight, or Wt::AlignJustify.
-   * - The vertical alignment option may be '0' (corresponding to vertical
-   *   justification to the full height), or Wt::AlignTop.
-   *
-   * When using a horizontal alignment different from
-   * Wt::AlignJustify, and a vertical alignment different from '0',
-   * the widget is sized in that direction to fit the contents,
-   * instead of the contents being adjusted to the widget size. This
-   * is useful when the container does not have a specific size in
-   * that direction and when the layout manager does not contain any
-   * widgets that wish to consume all remaining space in that
-   * direction.
-   *
-   * The widget will take ownership of \p layout.
-   *
-   * \deprecated using setLayout() instead, use spacers or a nested
-   * layout to control the overall alignment of the layout contents
-   * within the container, and use setMaximumSize() (if needed) to let
-   * the layout contents determine the size of the container.
-   *
-   * \sa layout()
-   */
-  void setLayout(WLayout *layout, WFlags<AlignmentFlag> alignment);
+  template <typename Layout>
+    Layout *setLayout(std::unique_ptr<Layout> layout)
+  {
+    Layout *result = layout.get();
+    setLayout(std::unique_ptr<WLayout>(std::move(layout)));
+    return result;
+  }
 
   /*! \brief Returns the layout manager that was set for the container.
    *
@@ -197,7 +171,7 @@ public:
    *
    * \sa setLayout(WLayout *)
    */
-  WLayout *layout() { return layout_; }
+  WLayout *layout() const { return layout_.get(); }
 
   /*! \brief Adds a child widget to this container.
    *
@@ -205,7 +179,15 @@ public:
    * constructing the child. The widget is appended to the list of
    * children, and thus also layed-out at the end.
    */
-  virtual void addWidget(WWidget *widget);
+  virtual void addWidget(std::unique_ptr<WWidget> widget);
+
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget)
+  {
+    Widget *result = widget.get();
+    addWidget(std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
 
   /*! \brief Inserts a child widget in this container, before another
    *         widget.
@@ -215,7 +197,15 @@ public:
    *
    * \sa insertWidget(int index, WWidget *widget);
    */
-  virtual void insertBefore(WWidget *widget, WWidget *before);
+  virtual void insertBefore(std::unique_ptr<WWidget> widget, WWidget *before);
+
+  template <typename Widget>
+    Widget *insertWidget(std::unique_ptr<Widget> widget, WWidget *before)
+  {
+    Widget *result = widget.get();
+    insertWidget(std::unique_ptr<WWidget>(std::move(widget)), before);
+    return result;
+  }
 
   /*! \brief Inserts a child widget in this container at given index.
    *
@@ -224,20 +214,24 @@ public:
    *
    * \sa insertBefore(WWidget *widget, WWidget *before);
    */
-  virtual void insertWidget(int index, WWidget *widget);
+  virtual void insertWidget(int index, std::unique_ptr<WWidget> widget);
+
+  template <typename Widget>
+    Widget *insertWidget(int index, std::unique_ptr<Widget> widget)
+  {
+    Widget *result = widget.get();
+    insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
 
   /*! \brief Removes a child widget from this container.
-   *
-   * This removes the widget from this container, but does not delete
-   * the widget !
    */
-  virtual void removeWidget(WWidget *widget);
+  virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
 
-  /*! \brief Removes and deletes all child widgets.
+  /*! \brief Removes all widgets.
    *
-   * This deletes all children that have been added to this container.
-   *
-   * If a layout was set, also the layout manager is deleted.
+   * This removes all children that have been added to this container.
+   * If a layout was set, also the layout manager is cleared.
    */
   virtual void clear();
 
@@ -261,7 +255,7 @@ public:
    * container.
    *
    * For a WTableCell, this may also specify the vertical alignment.
-   * The default alignment is (Wt::AlignTop | Wt::AlignLeft).
+   * The default alignment is (Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Left).
    */
   void setContentAlignment(WFlags<AlignmentFlag> contentAlignment);
 
@@ -270,7 +264,7 @@ public:
    * Setting padding has the effect of adding distance between the
    * widget children and the border.
    */
-  void setPadding(const WLength& padding, WFlags<Side> sides = All);
+  void setPadding(const WLength& padding, WFlags<Side> sides = AllSides);
 
   /*! \brief Returns the padding set for the widget.
    *
@@ -296,8 +290,8 @@ public:
    *
    * \sa WScrollArea
    */
-  void setOverflow(Overflow overflow,
-		   WFlags<Orientation> orientation = (Horizontal | Vertical));
+  void setOverflow(Overflow overflow, WFlags<Orientation> orientation = 
+		   (Orientation::Horizontal | Orientation::Vertical));
 
   /*! \brief Renders the container as an HTML list.
    *
@@ -385,11 +379,15 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<8>            flags_;
-  WFlags<AlignmentFlag>     contentAlignment_;
-  Overflow        *WT_ARRAY overflow_;
-  WLength	  *WT_ARRAY padding_;
-  WLayout                  *layout_;
+  std::bitset<8> flags_;
+  WFlags<AlignmentFlag> contentAlignment_;
+  Overflow *WT_ARRAY overflow_;
+  WLength *WT_ARRAY padding_;
+  std::vector<WWidget *> children_;
+  std::unique_ptr<WLayout> layout_;
+
+  std::unique_ptr<std::vector<WWidget *>> addedChildren_;
+
   bool globalUnfocused_;
   int scrollTop_, scrollLeft_;
 
@@ -400,38 +398,37 @@ private:
   friend class WebRenderer;
 
 protected:
-  using WWidget::removeChild;
-
-  virtual void removeChild(WWidget *child);
   virtual int firstChildIndex() const;
 
-  virtual void childResized(WWidget *child, WFlags<Orientation> directions);
-  virtual void parentResized(WWidget *parent, WFlags<Orientation> directions);
+  virtual void childResized(WWidget *child, WFlags<Orientation> directions)
+    override;
+  virtual void parentResized(WWidget *parent, WFlags<Orientation> directions)
+    override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
+			     WApplication *app) override;
+  virtual void iterateChildren(const HandleWidgetMethod& method) const override;
+
   DomElement *createDomElement(WApplication *app, bool addChildren);
+
   void createDomChildren(DomElement& parent, WApplication *app);
   void updateDomChildren(DomElement& parent, WApplication *app);
 
-  virtual DomElementType domElementType() const;
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
-  virtual DomElement    *createDomElement(WApplication *app);
+  virtual DomElementType domElementType() const override;
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void propagateRenderOk(bool deep) override;
+  virtual DomElement *createDomElement(WApplication *app) override;
 
-  virtual WLayoutItemImpl *createLayoutItemImpl(WLayoutItem *item);
   StdLayoutImpl *layoutImpl() const;
-  virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override);
+  virtual void setFormData(const FormData& formData) override;
 
   friend class StdLayoutImpl;
-  friend class StdGridLayoutImpl;
   friend class StdGridLayoutImpl2;
+  friend class FlexLayoutImpl;
 
 private:
   void propagateLayoutItemsOk(WLayoutItem *item);
-  void layoutChanged(bool rerender, bool deleted);
-  void removeFromLayout(WWidget *w);
+  void layoutChanged(bool rerender);
 
-  friend class StdWidgetItemImpl;
   friend class WImage;
   friend class WTableCell;
 };

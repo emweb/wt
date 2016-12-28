@@ -4,18 +4,17 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WVideo"
+#include "Wt/WVideo.h"
 #include "DomElement.h"
 
 using namespace Wt;
 
-WVideo::WVideo(WContainerWidget *parent):
-  WAbstractMedia(parent),
-  sizeChanged_(false),
-  posterChanged_(false)
+WVideo::WVideo()
+  : sizeChanged_(false),
+    posterChanged_(false)
 {
   setInline(false);
-  this->setOptions(Controls);
+  this->setOptions(PlayerOption::Controls);
 }
 
 void WVideo::updateMediaDom(DomElement& element, bool all)
@@ -25,12 +24,10 @@ void WVideo::updateMediaDom(DomElement& element, bool all)
   if (all || sizeChanged_) {
     if ((!all) || !width().isAuto())
       element.setAttribute("width",
-        width().isAuto() ? "" :
-          boost::lexical_cast<std::string>((int)width().toPixels()));
+        width().isAuto() ? "" : std::to_string((int)width().toPixels()));
     if ((!all) || !height().isAuto())
       element.setAttribute("height",
-        height().isAuto() ? "" :
-          boost::lexical_cast<std::string>((int)height().toPixels()));
+        height().isAuto() ? "" : std::to_string((int)height().toPixels()));
   }
   if (all || posterChanged_) {
     if ((!all) || posterUrl_ != "") {
@@ -42,7 +39,7 @@ void WVideo::updateMediaDom(DomElement& element, bool all)
 
 DomElement *WVideo::createMediaDomElement()
 {
-  return DomElement::createNew(DomElement_VIDEO);
+  return DomElement::createNew(DomElementType::VIDEO);
 }
 
 std::string WVideo::jsVideoRef() const
@@ -52,7 +49,7 @@ std::string WVideo::jsVideoRef() const
 
 DomElementType WVideo::domElementType() const
 {
-  return DomElement_VIDEO;
+  return DomElementType::VIDEO;
 }
 
 void WVideo::setPoster(const std::string &url)

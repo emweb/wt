@@ -7,8 +7,8 @@
 #ifndef WT_WTABLEVIEW_H_
 #define WT_WTABLEVIEW_H_
 
-#include <Wt/WAbstractItemView>
-#include <Wt/WContainerWidget>
+#include <Wt/WAbstractItemView.h>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
 
@@ -32,7 +32,7 @@ namespace Wt {
  * (with large number of columns and rows).
  *
  * The view may support editing of items, if the model indicates
- * support (see the Wt::ItemIsEditable flag). You can define triggers
+ * support (see the Wt::ItemFlag::Editable flag). You can define triggers
  * that initiate editing of an item using setEditTriggers(). The
  * actual editing is provided by the item delegate (you can set an
  * appropriate delegate for one column using
@@ -56,13 +56,13 @@ namespace Wt {
  * of the items in the model. When enabling dragging (see
  * setDragEnabled()), the current selection may be dragged, but only
  * when all items in the selection indicate support for dragging
- * (controlled by the \link Wt::ItemIsDragEnabled
- * ItemIsDragEnabled\endlink flag), and if the model indicates a
+ * (controlled by the \link Wt::ItemFlag::DragEnabled
+ * ItemFlag::DragEnabled\endlink flag), and if the model indicates a
  * mime-type (controlled by WAbstractItemModel::mimeType()). Likewise,
  * by enabling support for dropping (see setDropsEnabled()), the view
  * may receive a drop event on a particular item, at least if the item
  * indicates support for drops (controlled by the \link
- * Wt::ItemIsDropEnabled ItemIsDropEnabled\endlink flag).
+ * Wt::ItemFlag::DropEnabled ItemFlag::DropEnabled\endlink flag).
  *
  * You may also react to mouse click events on any item, by connecting
  * to one of the clicked() or doubleClicked() signals.
@@ -78,31 +78,32 @@ class WT_API WTableView : public WAbstractItemView
 public:
   /*! \brief Constructor
    */
-  WTableView(WContainerWidget *parent = 0);
+  WTableView();
 
   virtual ~WTableView();
 
-  virtual WWidget *itemWidget(const WModelIndex& index) const;
-  virtual void setModel(WAbstractItemModel* model);
+  virtual WWidget *itemWidget(const WModelIndex& index) const override;
+  virtual void setModel(const std::shared_ptr<WAbstractItemModel>& model)
+    override;
 
-  virtual void setColumnWidth(int column, const WLength& width);
-  virtual void setAlternatingRowColors(bool enable);
-  virtual void setRowHeight(const WLength& rowHeight);
-  virtual void setHeaderHeight(const WLength& height);
+  virtual void setColumnWidth(int column, const WLength& width) override;
+  virtual void setAlternatingRowColors(bool enable) override;
+  virtual void setRowHeight(const WLength& rowHeight) override;
+  virtual void setHeaderHeight(const WLength& height) override;
 #ifndef WT_CNOR
   using WAbstractItemView::setHeaderHeight;
 #endif
-  virtual void resize(const WLength& width, const WLength& height);
-  virtual void setColumnHidden(int column, bool hidden);
-  virtual void setRowHeaderCount(int count);
+  virtual void resize(const WLength& width, const WLength& height) override;
+  virtual void setColumnHidden(int column, bool hidden) override;
+  virtual void setRowHeaderCount(int count) override;
 
-  virtual int pageCount() const;
-  virtual int pageSize() const;
-  virtual int currentPage() const;
-  virtual void setCurrentPage(int page);
+  virtual int pageCount() const override;
+  virtual int pageSize() const override;
+  virtual int currentPage() const override;
+  virtual void setCurrentPage(int page) override;
 
   virtual void scrollTo(const WModelIndex& index,
-			ScrollHint hint = EnsureVisible);
+			ScrollHint hint = ScrollHint::EnsureVisible) override;
 
   /*! \brief Scrolls the view x px left and y px top.
    */
@@ -110,10 +111,12 @@ public:
 
   /*! \brief set css overflow
    */
-  void setOverflow(WContainerWidget::Overflow overflow, WFlags< Orientation > orientation=(Horizontal|Vertical));
+  void setOverflow(Overflow overflow,
+		   WFlags<Orientation> orientation 
+		   = (Orientation::Horizontal | Orientation::Vertical));
 
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
+			 const WAnimation& animation = WAnimation()) override;
 
   /*! \brief Returns the model index corresponding to a widget.
    *
@@ -122,10 +125,10 @@ public:
    */
   WModelIndex modelIndexAt(WWidget *widget) const;
 
-  virtual EventSignal<WScrollEvent>& scrolled();
+  virtual EventSignal<WScrollEvent>& scrolled() override;
 
  protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
   /*! \brief Called when rows or columns are inserted/removed.
    *
@@ -188,10 +191,10 @@ private:
   void modelRowsInserted(const WModelIndex& parent, int start, int end);
   void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
-  void modelDataChanged(const WModelIndex& topLeft,
-			const WModelIndex& bottomRight);
+  virtual void modelDataChanged(const WModelIndex& topLeft,
+				const WModelIndex& bottomRight) override;
 
-  virtual void modelLayoutChanged();
+  virtual void modelLayoutChanged() override;
 
   WWidget* renderWidget(WWidget* w, const WModelIndex& index);
 
@@ -200,7 +203,8 @@ private:
 
   void renderTable(const int firstRow, const int lastRow, 
 		   const int firstColumn, const int lastColumn);
-  void addSection(const Side side, const std::vector<WWidget *>& items);
+  void addSection(const Side side,
+		  std::vector<std::unique_ptr<WWidget>> items);
   void removeSection(const Side side);
   int firstRow() const;
   int lastRow() const;
@@ -213,9 +217,11 @@ private:
   void adjustToViewport();
   void computeRenderedArea();
 
-  WContainerWidget* headerContainer() { return headerContainer_; }
+  virtual WContainerWidget* headerContainer() override { 
+    return headerContainer_;
+  }
 
-  virtual WWidget *headerWidget(int column, bool contentsOnly = true);
+  virtual WWidget *headerWidget(int column, bool contentsOnly = true) override;
 
   void onViewportChange(int left, int top, int width, int height);
   void onColumnResize();
@@ -237,8 +243,10 @@ private:
   void updateItem(const WModelIndex& index,
 		  int renderedRow, int renderedColumn);
 
-  virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
-  virtual void selectRange(const WModelIndex& first, const WModelIndex& last);
+  virtual bool internalSelect(const WModelIndex& index, SelectionFlag option)
+    override;
+  virtual void selectRange(const WModelIndex& first, const WModelIndex& last)
+    override;
   void shiftModelIndexRows(int start, int count);
   void shiftModelIndexColumns(int start, int count);
   void renderSelected(bool selected, const WModelIndex& index);
@@ -259,7 +267,7 @@ private:
 
   void deleteItem(int row, int col, WWidget *widget);
 
-  bool ajaxMode() const { return table_ != 0; }
+  bool ajaxMode() const { return table_ != nullptr; }
   double canvasHeight() const;
   void setRenderedHeight(double th);
 };

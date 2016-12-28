@@ -7,10 +7,10 @@
 #ifndef WTIME_EDIT_H_
 #define WTIME_EDIT_H_
 
-#include <Wt/WLineEdit>
-#include <Wt/WTime>
-#include <Wt/WTimeValidator>
-#include <Wt/WTimePicker>
+#include <Wt/WLineEdit.h>
+#include <Wt/WTime.h>
+#include <Wt/WTimeValidator.h>
+#include <Wt/WTimePicker.h>
 
 namespace Wt {
 
@@ -28,7 +28,7 @@ class WT_API WTimeEdit : public WLineEdit
 public:
     /*! \brief Creates a new time edit.
      */
-    WTimeEdit(WContainerWidget *parent = 0);
+    WTimeEdit();
 
     virtual ~WTimeEdit();
 
@@ -54,7 +54,7 @@ public:
      *
      * \sa WTimeValidator
      */
-    virtual WTimeValidator *validator() const;
+    virtual std::shared_ptr<WTimeValidator> timeValidator() const;
 
     /*! \brief Sets the format of the Time
      */
@@ -64,7 +64,8 @@ public:
      */
     WT_USTRING format() const;
 
-    virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
+    virtual void setHidden(bool hidden,
+			   const WAnimation& animation = WAnimation()) override;
 
     /*! \brief Sets the lower limit of the valid time range
      */
@@ -97,11 +98,11 @@ public:
     void setWrapAroundEnabled(bool rollover);
     bool wrapAroundEnabled() const;
 
-    virtual void load();
+    virtual void load() override;
 
 protected:
-    virtual void render(WFlags<RenderFlag> flags);
-    virtual void propagateSetEnabled(bool enabled);
+    virtual void render(WFlags<RenderFlag> flags) override;
+    virtual void propagateSetEnabled(bool enabled) override;
 
     /*! \brief Sets the value from the time scroller to the line edit.
      */
@@ -112,7 +113,7 @@ protected:
     virtual void setFromLineEdit();
 
 private:
-    WPopupWidget *popup_;
+    std::unique_ptr<WPopupWidget> popup_;
     WTimePicker *timePicker_;
 
     void defineJavaScript();

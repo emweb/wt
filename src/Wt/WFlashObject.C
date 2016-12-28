@@ -3,17 +3,16 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WFlashObject"
-#include "Wt/WAnchor"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WImage"
-#include "Wt/WLength"
-#include "Wt/WLink"
-#include "Wt/Utils"
+#include "Wt/WFlashObject.h"
+#include "Wt/WAnchor.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WImage.h"
+#include "Wt/WLength.h"
+#include "Wt/WLink.h"
+#include "Wt/Utils.h"
 #include "DomElement.h"
 
-#include <boost/lexical_cast.hpp>
 #include <sstream>
 
 namespace {
@@ -21,45 +20,46 @@ namespace {
   {
     if (length.isAuto())
       return "";
-    else if (length.unit() == Wt::WLength::Percentage)
+    else if (length.unit() == Wt::LengthUnit::Percentage)
       return "100%";
     else
-      return boost::lexical_cast<std::string>((int)length.toPixels()) + "px";
+      return std::to_string((int)length.toPixels()) + "px";
   }
 }
 
 namespace Wt {
 
-WFlashObject::WFlashObject(const std::string& url,
-                           WContainerWidget *parent)
-  : WWebWidget(parent),
-    url_(url),
+WFlashObject::WFlashObject(const std::string& url)
+  : url_(url),
     sizeChanged_(false),
-    alternative_(0),
     ieRendersAlternative_(this, "IeAltnernative"),
     replaceDummyIeContent_(false)
 {
   setInline(false);
-  setAlternativeContent(
-    new WAnchor(WLink("http://www.adobe.com/go/getflashplayer"),
-    new WImage(WLink("http://www.adobe.com/images/"
-		     "shared/download_buttons/get_flash_player.gif"))));
+  setAlternativeContent
+    (std::unique_ptr<WWidget>
+     (new WAnchor
+      (WLink("http://www.adobe.com/go/getflashplayer"),
+       std::unique_ptr<WImage>
+       (new WImage(WLink("http://www.adobe.com/images/"
+			 "shared/download_buttons/get_flash_player.gif"))))));
   ieRendersAlternative_.connect(this, &WFlashObject::renderIeAltnerative);
 }
 
 WFlashObject::~WFlashObject()
 {
+  manageWidget(alternative_, std::unique_ptr<WWidget>());
 }
 
 void WFlashObject::setFlashParameter(const std::string &name,
-    const WString &value)
+				     const WString &value)
 {
   WString v = value;
   parameters_[name] = v;
 }
 
 void WFlashObject::setFlashVariable(const std::string &name,
-    const WString &value)
+				    const WString &value)
 {
   WString v = value;
   variables_[name] = v;
@@ -69,15 +69,15 @@ void WFlashObject::updateDom(DomElement& element, bool all)
 {
   if (all) {
     //http://latrine.dgx.cz/how-to-correctly-insert-a-flash-into-xhtml
-    DomElement *obj = DomElement::createNew(DomElement_OBJECT);
+    DomElement *obj = DomElement::createNew(DomElementType::OBJECT);
 
     if (isInLayout()) {
       // Layout-manager managed sizes need some CSS magic to display
       // correctly
-      obj->setProperty(PropertyStylePosition, "absolute");
-      obj->setProperty(PropertyStyleLeft, "0");
-      obj->setProperty(PropertyStyleRight, "0");
-      element.setProperty(PropertyStylePosition, "relative");
+      obj->setProperty(Property::StylePosition, "absolute");
+      obj->setProperty(Property::StyleLeft, "0");
+      obj->setProperty(Property::StyleRight, "0");
+      element.setProperty(Property::StylePosition, "relative");
       std::stringstream ss;
       // Client-side auto-resize function
       ss <<
@@ -118,7 +118,7 @@ void WFlashObject::updateDom(DomElement& element, bool all)
     for(std::map<std::string, WString>::const_iterator i = parameters_.begin();
       i != parameters_.end(); ++i) {
         if (i->first != "flashvars") {
-          DomElement *param = DomElement::createNew(DomElement_PARAM);
+          DomElement *param = DomElement::createNew(DomElementType::PARAM);
           param->setAttribute("name", i->first);
           param->setAttribute("value", i->second.toUTF8());
           obj->addChild(param);
@@ -130,7 +130,7 @@ void WFlashObject::updateDom(DomElement& element, bool all)
       //obj->setAttribute("codebase",
       //"http://download.macromedia.com/pub/shockwave/cabs/flash/
       //swflash.cab#version=6,0,0,0");
-      DomElement *param = DomElement::createNew(DomElement_PARAM);
+      DomElement *param = DomElement::createNew(DomElementType::PARAM);
       param->setAttribute("name", "movie");
       param->setAttribute("value", url_);
       obj->addChild(param);
@@ -144,7 +144,7 @@ void WFlashObject::updateDom(DomElement& element, bool all)
           ss << Wt::Utils::urlEncode(i->first) << "="
             << Wt::Utils::urlEncode(i->second.toUTF8());
       }
-      DomElement *param = DomElement::createNew(DomElement_PARAM);
+      DomElement *param = DomElement::createNew(DomElementType::PARAM);
       param->setAttribute("name", "flashvars");
       param->setAttribute("value", ss.str());
       obj->addChild(param);
@@ -159,7 +159,7 @@ void WFlashObject::updateDom(DomElement& element, bool all)
       // a call to alternative_->createDomElement().
       if (wApp->environment().javaScript() &&
           wApp->environment().agentIsIElt(9)) {
-        DomElement *dummyDiv = DomElement::createNew(DomElement_DIV);
+        DomElement *dummyDiv = DomElement::createNew(DomElementType::DIV);
         dummyDiv->setId(alternative_->id());
         // As if it ain't bad enough, the altnerative content is only
         // inserted in the DOM after 'a while', so we can't test for it with
@@ -205,7 +205,7 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
   }
   if (alternative_ && replaceDummyIeContent_) {
     DomElement *element =
-      DomElement::getForUpdate(alternative_->id(), DomElement_DIV);
+      DomElement::getForUpdate(alternative_->id(), DomElementType::DIV);
     element->replaceWith(alternative_->createSDomElement(app));
     result.push_back(element);
     replaceDummyIeContent_ = false;
@@ -213,13 +213,9 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
 
 }
 
-void WFlashObject::setAlternativeContent(WWidget *alternative)
+void WFlashObject::setAlternativeContent(std::unique_ptr<WWidget> alternative)
 {
-  if (alternative_)
-    delete alternative_;
-  alternative_ = alternative;
-  if (alternative_)
-    addChild(alternative_);
+  manageWidget(alternative_, std::move(alternative));
 }
 
 void WFlashObject::resize(const WLength &width, const WLength &height)
@@ -230,12 +226,12 @@ void WFlashObject::resize(const WLength &width, const WLength &height)
 
 DomElementType WFlashObject::domElementType() const
 {
-  return DomElement_DIV;
+  return DomElementType::DIV;
 }
 void WFlashObject::renderIeAltnerative()
 {
   replaceDummyIeContent_ = true;
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 }

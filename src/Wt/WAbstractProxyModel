@@ -7,7 +7,7 @@
 #ifndef WABSTRACT_PROXY_MODEL_H_
 #define WABSTRACT_PROXY_MODEL_H_
 
-#include <Wt/WAbstractItemModel>
+#include <Wt/WAbstractItemModel.h>
 
 namespace Wt {
 
@@ -33,7 +33,7 @@ class WT_API WAbstractProxyModel : public WAbstractItemModel
 public:
   /*! \brief Constructor.
    */
-  WAbstractProxyModel(WObject *parent = 0);
+  WAbstractProxyModel();
 
   /*! \brief Maps a source model index to the proxy model.
    *
@@ -68,13 +68,16 @@ public:
    * If you want to reimplement data() with no changes to row
    * or column indices, consider the use of WIdentityProxyModel.
    */
-  virtual void setSourceModel(WAbstractItemModel *sourceModel);
+  virtual void setSourceModel(const std::shared_ptr<WAbstractItemModel>&
+			      sourceModel);
 
   /*! \brief Returns the source model.
    *
    * \sa setSourceModel()
    */
-  WAbstractItemModel *sourceModel() const { return sourceModel_; }
+  std::shared_ptr<WAbstractItemModel> sourceModel() const {
+    return sourceModel_;
+  }
 
   using WAbstractItemModel::setData;
   using WAbstractItemModel::data;
@@ -82,82 +85,91 @@ public:
 
   /*! \brief Returns the data at a specific model index.
    *
-   * The default proxy implementation translates the index to the source model, and
-   * calls sourceModel()->data() with this index.
+   * The default proxy implementation translates the index to the
+   * source model, and calls sourceModel()->data() with this index.
    */
-  virtual boost::any data(const WModelIndex& index, int role = DisplayRole) const;
+  virtual cpp17::any data(const WModelIndex& index, 
+		       int role = ItemDataRole::Display) const override;
 
   /*! \brief Returns the row or column header data.
    *
    * The default proxy implementation constructs a dummy
    * WModelIndex with the row set to 0 and column set to \c section
-   * if the orientation is Wt::Horizontal, or with the
+   * if the orientation is Wt::Orientation::Horizontal, or with the
    * row set to \c section and the column set to 0 if the orientation
-   * is Wt::Vertical.
+   * is Wt::Orientation::Vertical.
    *
    * The resulting section that is forwarded to sourceModel()->headerData()
    * depends on how the WModelIndex is transformed with mapToSource().
    */
-  virtual boost::any headerData(int section, Orientation orientation = Horizontal, int role = DisplayRole) const;
+  virtual cpp17::any headerData(int section,
+			     Orientation orientation = Orientation::Horizontal,
+			     int role = ItemDataRole::Display)
+    const override;
 
   /*! \brief Sets the data at the given model index.
    *
    * The default proxy implementation calls sourceModel()->setData(mapToSource(index), value, role)
    */
-  virtual bool setData(const WModelIndex& index, const boost::any& value,
-		       int role = EditRole);
+  virtual bool setData(const WModelIndex& index, const cpp17::any& value,
+		       int role = ItemDataRole::Edit) override;
 
   /*! \brief Sets the data at the given model index.
    *
    * The default proxy implementation calls sourceModel()->setData(mapToSource(index), values)
    */
-  virtual bool setItemData(const WModelIndex& index, const DataMap& values);
+  virtual bool setItemData(const WModelIndex& index, const DataMap& values)
+    override;
 
   /*! \brief Returns the flags for an item.
    *
    * The default proxy implementation calls sourceModel()->flags(mapToSource(index))
    */
-  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
   /*! \brief Returns the flags for a header.
    *
    * The default proxy implementation constructs a dummy
    * WModelIndex with the row set to 0 and column set to \c section
-   * if the orientation is Wt::Horizontal, or with the
+   * if the orientation is Wt::Orientation::Horizontal, or with the
    * row set to \c section and the column set to 0 if the orientation
-   * is Wt::Vertical.
+   * is Wt::Orientation::Vertical.
    *
    * The resulting section that is forwarded to sourceModel()->headerFlags()
    * depends on how the WModelIndex is transformed with mapToSource().
    */
-  virtual WFlags<HeaderFlag> headerFlags(int section, Orientation orientation = Horizontal) const;
+  virtual WFlags<HeaderFlag> headerFlags
+    (int section, Orientation orientation = Orientation::Horizontal)
+    const override;
 
   /*! \brief Inserts one or more columns.
    *
    * The default proxy implementation calls sourceModel()->insertColumns(column, count, parent)
    */
   virtual bool insertColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex());
+			     const WModelIndex& parent = WModelIndex())
+    override;
 
   /*! \brief Removes columns.
    *
    * The default proxy implementation calls sourceModel()->removeColumns(column, count, parent)
    */
   virtual bool removeColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex());
+			     const WModelIndex& parent = WModelIndex())
+    override;
 
   /*! \brief Returns a mime-type for dragging a set of indexes.
    *
    * The default proxy implementation calls sourceModel()->mimeType()
    */
-  virtual std::string mimeType() const;
+  virtual std::string mimeType() const override;
 
   /*! \brief Returns a list of mime-types that could be accepted for a
    *         drop event.
    *
    * The default proxy implementation calls sourceModel()->acceptDropMimeTypes()
    */
-  virtual std::vector<std::string> acceptDropMimeTypes() const;
+  virtual std::vector<std::string> acceptDropMimeTypes() const override;
 
   /*! \brief Handles a drop event.
    *
@@ -166,20 +178,21 @@ public:
    * dropEvent call to the source model.
    */
   virtual void dropEvent(const WDropEvent& e, DropAction action,
-			 int row, int column, const WModelIndex& parent);
+			 int row, int column, const WModelIndex& parent)
+    override;
 
   /*! \brief Converts a model index to a raw pointer that remains valid
    *         while the model's layout is changed.
    *
    * The default proxy implementation calls sourceModel()->toRawIndex(mapToSource(index))
    */
-  virtual void *toRawIndex(const WModelIndex& index) const;
+  virtual void *toRawIndex(const WModelIndex& index) const override;
 
   /*! \brief Converts a raw pointer to a model index.
    *
    * The default proxy implementation calls mapFromSource(sourceModel()->fromRawIndex(rawIndex))
    */
-  virtual WModelIndex fromRawIndex(void *rawIndex) const;
+  virtual WModelIndex fromRawIndex(void *rawIndex) const override;
 
 protected:
   /*! \brief Create a source model index.
@@ -241,7 +254,7 @@ protected:
 			 ItemMap& items);
 
 private:
-  WAbstractItemModel     *sourceModel_;
+  std::shared_ptr<WAbstractItemModel> sourceModel_;
 };
 
 }

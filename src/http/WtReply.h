@@ -28,7 +28,7 @@ class HTTPRequest;
 class WtReply;
 class Configuration;
 
-typedef boost::shared_ptr<WtReply> WtReplyPtr;
+typedef std::shared_ptr<WtReply> WtReplyPtr;
 
 /// A Wt application reply to be sent to a client.
 class WtReply : public Reply
@@ -43,8 +43,8 @@ public:
 
   ~WtReply();
 
-  virtual bool consumeData(Buffer::const_iterator begin,
-			   Buffer::const_iterator end,
+  virtual bool consumeData(const char *begin,
+			   const char *end,
 			   Request::State state);
 
   virtual void consumeWebSocketMessage(ws_opcode opcode,
@@ -97,8 +97,8 @@ protected:
 private:
   void readRestWebSocketHandshake();
 
-  void consumeRequestBody(Buffer::const_iterator begin,
-			  Buffer::const_iterator end,
+  void consumeRequestBody(const char *begin,
+			  const char *end,
 			  Request::State state);
   void formatResponse(std::vector<asio::const_buffer>& result);
 #ifdef WTHTTP_WITH_ZLIB

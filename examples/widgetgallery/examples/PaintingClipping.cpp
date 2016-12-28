@@ -1,35 +1,36 @@
-#include <Wt/WBrush>
-#include <Wt/WCalendar>
-#include <Wt/WColor>
-#include <Wt/WContainerWidget>
-#include <Wt/WPaintDevice>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPainter>
+#include <Wt/WBrush.h>
+#include <Wt/WCalendar.h>
+#include <Wt/WColor.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPainter.h>
 
+#include <algorithm>
 #include <cstdlib>
 
 class ClippingWidget : public Wt::WPaintedWidget
 {
 public:
-    ClippingWidget(Wt::WContainerWidget *parent = 0)
-	: Wt::WPaintedWidget(parent)
+    ClippingWidget()
+        : WPaintedWidget()
     {
 	resize(310, 150);  // Provide a default size.
     }
 
 protected:
     void paintEvent(Wt::WPaintDevice *paintDevice) {
-	Wt::WPainter painter(paintDevice);
+        Wt::WPainter painter(paintDevice);
 
 	for (int i = 0; i < 2; i++) {   // Create two separate drawings.
 	    painter.translate(i*160, 0);
 	    // Draw the background
-	    painter.fillRect(0, 0, 150, 150, Wt::WBrush(Wt::WColor(Wt::black)));
+	    painter.fillRect(0, 0, 150, 150, Wt::WBrush(Wt::WColor(Wt::StandardColor::Black)));
 
 	    // Create a path and fill it with blue.
-	    Wt::WPainterPath path = Wt::WPainterPath();
+	    Wt::WPainterPath path;
 	    path.addEllipse(15, 15, 120, 120);
-	    painter.fillPath(path, Wt::WBrush(Wt::WColor(Wt::blue)));
+	    painter.fillPath(path, Wt::WBrush(Wt::WColor(Wt::StandardColor::Blue)));
 
 	    // Use the previously defined path also for clipping.
 	    painter.setClipPath(path);
@@ -42,15 +43,15 @@ protected:
 private:
     void drawStar(Wt::WPainter& painter, double radius) {
 	painter.save();
-	Wt::WPainterPath circlePath = Wt::WPainterPath();
+	Wt::WPainterPath circlePath;
 	circlePath.addEllipse(0, 0, radius, radius);
 	circlePath.closeSubPath();
-	painter.fillPath(circlePath, Wt::WBrush(Wt::WColor(Wt::white)));
+	painter.fillPath(circlePath, Wt::WBrush(Wt::WColor(Wt::StandardColor::White)));
 	painter.restore();
     }
 
     void drawStars(Wt::WPainter& painter) {
-	std::srand(Wt::WDateTime::currentDateTime().toTime_t());
+        std::srand(Wt::WDateTime::currentDateTime().toTime_t());
 	painter.save();
 	painter.translate(75,75);
 	for (int star = 1; star < 50; star++){
@@ -65,8 +66,9 @@ private:
 };
 
 SAMPLE_BEGIN(PaintingClipping)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-new ClippingWidget(container);
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-SAMPLE_END(return container)
+container->addWidget(Wt::cpp14::make_unique<ClippingWidget>());
+
+SAMPLE_END(return std::move(container))

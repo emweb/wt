@@ -5,6 +5,7 @@
  */
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstring>
 #include <climits>
@@ -16,13 +17,11 @@
 #include "Configuration.h"
 #include "SslUtils.h"
 
-#include "Wt/WSslInfo"
-#include "Wt/WLogger"
+#include "Wt/WSslInfo.h"
+#include "Wt/WLogger.h"
 
 #include "fcgio.h"
 #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
-
-#include <boost/array.hpp>
 
 #ifdef WT_WITH_SSL
 #include <openssl/ssl.h>
@@ -79,10 +78,10 @@ namespace {
     virtual void flush(ResponseState state, const WriteCallback& callback) {
       out().flush();
 
-      if (state == ResponseFlush) {
+      if (state == ResponseState::ResponseFlush) {
         setAsyncCallback(callback);
       } else {
-        setAsyncCallback(0);
+        setAsyncCallback(nullptr);
       }
 
       emulateAsync(state);
@@ -121,7 +120,7 @@ namespace {
 
     virtual void setContentLength(::int64_t length)
     {
-      addHeader("Content-Length", boost::lexical_cast<std::string>(length));
+      addHeader("Content-Length", std::to_string(length));
     }
 
     virtual void setRedirect(const std::string& url)
@@ -164,7 +163,7 @@ namespace {
       if (result)
 	return result;
       else
-	return 0;
+	return nullptr;
     }
 
     std::string cgiEnvName(const char *name) const {
@@ -262,7 +261,7 @@ namespace {
 	  unsigned depth = UINT_MAX;
 	  for (unsigned i = 0; i < depth; i++) {
 	    std::string name = SSL_CLIENT_CERT_CHAIN_PREFIX; 
-	    name += boost::lexical_cast<std::string>(i);
+	    name += std::to_string(i);
 	    char *cc = FCGX_GetParam(name.c_str(), request_->envp);
 	    if (cc) {
               X509 *x509_i = Wt::Ssl::readFromPem(cc);
@@ -273,16 +272,16 @@ namespace {
 	  }
 	  
 	  
-          Wt::WValidator::State state = Wt::WValidator::Invalid;
+          Wt::ValidationState state = Wt::ValidationState::Invalid;
 	  std::string verify = str(envValue("SSL_CLIENT_VERIFY"));
           std::string verifyInfo;
 	  if (verify == "SUCCESS") {
-	    state = Wt::WValidator::Valid;
+	    state = Wt::ValidationState::Valid;
 	  } else if (verify.empty()) {
-	    state = Wt::WValidator::Invalid;
+	    state = Wt::ValidationState::Invalid;
 	    verifyInfo = "SSL_CLIENT_VERIFY variable was empty";
 	  } else {
-	    state = Wt::WValidator::Invalid;
+	    state = Wt::ValidationState::Invalid;
 	    verifyInfo = verify;
 	  }
 	  Wt::WValidator::Result clientVerificationResult(state, verifyInfo);
@@ -294,13 +293,13 @@ namespace {
       }
 #endif
 
-      return 0;
+      return nullptr;
     }
 
   private:
     FCGX_Request *request_;
     fcgi_streambuf *in_streambuf_, *out_streambuf_, *err_streambuf_;
-    boost::array<char, 8> buf_; // Workaround for bug with fcgi_streambuf::underflow()
+    std::array<char, 8> buf_; // Workaround for bug with fcgi_streambuf::underflow()
     std::istream *in_;
     std::ostream *out_, *err_;
     bool headersCommitted_;
@@ -328,10 +327,10 @@ WebRequest *FCGIStream::getNextRequest(int timeoutsec)
   timeout.tv_usec = 0;
 
   for(;;) {
-    int result = select(FD_SETSIZE, &rfds, 0, 0, &timeout);
+    int result = select(FD_SETSIZE, &rfds, nullptr, nullptr, &timeout);
 
     if (result == 0)
-      return 0; // timeout
+      return nullptr; // timeout
     else if (result == -1) {
       if (errno != EINTR) {
 	perror("select");

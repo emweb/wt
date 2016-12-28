@@ -6,19 +6,19 @@
 
 #include "PlannerApplication.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace Wt;
 using namespace Wt::Dbo;
 
-WApplication *createApplication(const WEnvironment& env) 
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new PlannerApplication(env);
+  return cpp14::make_unique<PlannerApplication>(env);
 }
 
 int main(int argc, char **argv)
 {
-  srand(time(0));
+  std::srand(std::time(0));
 
   return WRun(argc, argv, &createApplication);
 }

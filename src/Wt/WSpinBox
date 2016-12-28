@@ -7,7 +7,7 @@
 #ifndef WSPIN_BOX_H_
 #define WSPIN_BOX_H_
 
-#include <Wt/WAbstractSpinBox>
+#include <Wt/WAbstractSpinBox.h>
 
 namespace Wt {
 
@@ -35,7 +35,7 @@ public:
    *
    * The initial value is 0.
    */
-  WSpinBox(WContainerWidget *parent = 0);
+  WSpinBox();
 
   /*! \brief Sets the minimum value.
    *
@@ -115,15 +115,15 @@ public:
 
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void signalConnectionsChanged();
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void signalConnectionsChanged() override;
 
-  virtual std::string jsMinMaxStep() const;
-  virtual int decimals() const;
-  virtual bool parseNumberValue(const std::string& text);
-  virtual WT_USTRING textFromValue() const;
-  virtual WValidator *createValidator();
-  virtual WValidator::Result validateRange() const;
+  virtual std::string jsMinMaxStep() const override;
+  virtual int decimals() const override;
+  virtual bool parseNumberValue(const std::string& text) override;
+  virtual WT_USTRING textFromValue() const override;
+  virtual std::unique_ptr<WValidator> createValidator() override;
+  virtual WValidator::Result validateRange() const override;
 
 private:
   int value_, min_, max_, step_;

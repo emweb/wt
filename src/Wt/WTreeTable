@@ -7,7 +7,7 @@
 #ifndef WTREETABLE_H_
 #define WTREETABLE_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
 
@@ -87,7 +87,7 @@ public:
    * The treeRoot() is \c 0. The table should first be properly dimensioned
    * using addColumn() calls, and then data using setTreeRoot().
    */
-  WTreeTable(WContainerWidget *parent = 0);
+  WTreeTable();
 
   /*! \brief Adds an extra column.
    *
@@ -113,11 +113,11 @@ public:
    * Sets the data for the tree table, and specify the header for the
    * first column.
    *
-   * The initial \p root is \c 0.
+   * The initial \p root is nullptr.
    *
    * \sa treeRoot(), setTree()
    */
-  void setTreeRoot(WTreeTableNode *root, const WString& header);
+  void setTreeRoot(std::unique_ptr<WTreeTableNode> root, const WString& header);
 
   /*! \brief Returns the tree root.
    */
@@ -127,7 +127,7 @@ public:
    *
    * \sa setTreeRoot().
    */
-  void setTree(WTree *tree, const WString& header);
+  void setTree(std::unique_ptr<WTree> tree, const WString& header);
 
   /*! \brief Returns the tree that provides the data this table.
    *
@@ -158,13 +158,13 @@ public:
   WWidget *headerWidget() const;
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
   WContainerWidget *impl_;
   WContainerWidget *headers_;
   WContainerWidget *headerContainer_;
-  WTree            *tree_;
+  WTree *tree_;
 
   std::vector<WLength> columnWidths_;
 

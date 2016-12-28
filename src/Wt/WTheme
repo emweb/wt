@@ -7,9 +7,9 @@
 #ifndef WT_WTHEME_H
 #define WT_WTHEME_H
 
-#include <Wt/WObject>
-#include <Wt/WGlobal>
-#include <Wt/WValidator>
+#include <Wt/WObject.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -21,39 +21,39 @@ class WStringStream;
  * \sa WTheme::apply()
  */
 enum WidgetThemeRole {
-  MenuItemIconRole = 100,
-  MenuItemCheckBoxRole = 101,
-  MenuItemCloseRole = 102,
+  MenuItemIcon = 100,
+  MenuItemCheckBox = 101,
+  MenuItemClose = 102,
 
-  DialogCoverRole = 200,
-  DialogTitleBarRole = 201,
-  DialogBodyRole = 202,
-  DialogFooterRole = 203,
-  DialogCloseIconRole = 204,
+  DialogCoverWidget = 200,
+  DialogTitleBar = 201,
+  DialogBody = 202,
+  DialogFooter = 203,
+  DialogCloseIcon = 204,
   DialogContent = 205, // For bootstrap 3 modal-content style
 
-  TableViewRowContainerRole = 300,
+  TableViewRowContainer = 300,
 
-  DatePickerPopupRole = 400,
-  TimePickerPopupRole = 410,
+  DatePickerPopup = 400,
+  TimePickerPopup = 410,
 
-  PanelTitleBarRole = 500,
-  PanelCollapseButtonRole = 501,
-  PanelTitleRole = 502,
-  PanelBodyRole = 503,
+  PanelTitleBar = 500,
+  PanelCollapseButton = 501,
+  PanelTitle = 502,
+  PanelBody = 503,
 
   AuthWidgets = 600,
 
-  InPlaceEditingRole = 700,
+  InPlaceEditing = 700,
 
-  NavbarRole = 800,
-  NavCollapseRole = 801,
-  NavBrandRole = 802,
-  NavbarSearchRole = 803,
-  NavbarMenuRole = 804,
+  Navbar = 800,
+  NavCollapse = 801,
+  NavBrand = 802,
+  NavbarSearch = 803,
+  NavbarMenu = 804,
   NavbarBtn = 805,
-  NavbarAlignLeftRole = 806,
-  NavbarAlignRightRole = 807
+  NavbarAlignLeft = 806,
+  NavbarAlignRight = 807
 };
 
 /*! \brief Enumeration for the role of a css class (for theme support)
@@ -70,29 +70,25 @@ enum UtilityCssClassRole {
  * \sa WTheme::apply()
  */
 enum ElementThemeRole {
-  MainElementThemeRole = 0,
-
-  ProgressBarBarRole = 100,
-  ProgressBarLabelRole = 101
+  MainElement = 0,
+  ProgressBarBar = 100,
+  ProgressBarLabel = 101
 };
 
 /*! \brief Enumeration that indicates what validation styles are to be applie
  *
  * \sa WTheme::applyValidationStyle()
  */
-enum ValidationStyleFlag {
-  ValidationInvalidStyle = 0x1,
-  ValidationValidStyle = 0x2
+enum class ValidationStyleFlag {
+  InvalidStyle = 0x1,
+  ValidStyle = 0x2
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ValidationStyleFlag)
 
-/** \brief Remove validation styles */
-static const WFlags<ValidationStyleFlag> ValidationNoStyle = 0;
-
 /** \brief All validation styles */
 static const WFlags<ValidationStyleFlag> ValidationAllStyles
-  = ValidationInvalidStyle | ValidationValidStyle;
+  = ValidationStyleFlag::InvalidStyle | ValidationStyleFlag::ValidStyle;
 
 /*! \class WTheme Wt/WTheme Wt/WTheme
  *
@@ -105,7 +101,7 @@ class WT_API WTheme : public WObject
 public:
   /*! \brief Constructor.
    */
-  WTheme(WObject *parent = 0);
+  WTheme();
 
   /*! \brief Destructor.
    */
@@ -140,7 +136,7 @@ public:
    * theme. This list may be tailored to the current user agent, which
    * is read from the application environment.
    */
-  virtual std::vector<WCssStyleSheet> styleSheets() const = 0;
+  virtual std::vector<WLinkedCssStyleSheet> styleSheets() const = 0;
 
   /*! \brief Applies the theme to a child of a composite widget.
    *

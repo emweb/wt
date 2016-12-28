@@ -11,8 +11,8 @@
 #include <map>
 #include <vector>
 
-#include <Wt/WEnvironment>
-#include <Wt/WServer>
+#include <Wt/WEnvironment.h>
+#include <Wt/WServer.h>
 
 namespace Wt {
 
@@ -61,7 +61,7 @@ public:
    * WApplication, you can change any of the environment properties using
    * the setter methods.
    */
-  WTestEnvironment(EntryPointType type = Application);
+  WTestEnvironment(EntryPointType type = EntryPointType::Application);
 
   /*! \brief Constructor with custom configuration
    *
@@ -78,7 +78,7 @@ public:
    */
   WTestEnvironment(const std::string& applicationPath,
 		   const std::string& configurationFile,
-		   EntryPointType type = Application);
+		   EntryPointType type = EntryPointType::Application);
 
 #else
   /*! \brief Default constructor.
@@ -91,7 +91,7 @@ public:
    * the setter methods.
    */
   WTestEnvironment(Configuration *configuration,
-		   EntryPointType type = Application);
+		   EntryPointType type = EntryPointType::Application);
 
   /*! \brief Closes the test environment.
    *
@@ -250,12 +250,6 @@ public:
    */
   void setInternalPath(const std::string& internalPath);
 
-  /*! \brief Sets the content type (<b>deprecated</b>.
-   *
-   * Since contentType is now always HTML5, this setting is ignored.
-   */
-  void setContentType(ContentType contentType);
-
   /*! \brief %Signal used to test a dialog/messagebox reentrant event
    *         loop.
    *
@@ -306,7 +300,7 @@ public:
   void setSessionIdInUrl(bool sessionIdInUrl);
 
 private:
-  boost::shared_ptr<WebSession> theSession_;
+  std::shared_ptr<WebSession> theSession_;
 
 #ifndef WT_TARGET_JAVA
   WServer *server_;

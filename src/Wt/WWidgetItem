@@ -7,9 +7,12 @@
 #ifndef WWIDGET_ITEM_H_
 #define WWIDGET_ITEM_H_
 
-#include <Wt/WLayoutItem>
+#include <Wt/WLayoutItem.h>
+#include <Wt/WWidgetItemImpl.h>
 
 namespace Wt {
+
+class WWidgetItemImpl;
 
 /*! \class WWidgetItem Wt/WWidgetItem Wt/WWidgetItem
  *  \brief A layout item that holds a single widget.
@@ -21,25 +24,31 @@ class WT_API WWidgetItem : public WLayoutItem
 public:
   /*! \brief Creates a new item for the given <i>widget</i>.
    */
-  WWidgetItem(WWidget *widget);
+  WWidgetItem(std::unique_ptr<WWidget> widget);
 
   virtual ~WWidgetItem();
 
-  virtual WWidget *widget() { return widget_; }
-  virtual WLayout *layout() { return 0; }
-  virtual WLayout *parentLayout() const { return parentLayout_; }
+  virtual WWidget *widget() override { return widget_.get(); }
+  virtual WLayout *layout() override { return nullptr; }
+  virtual WLayout *parentLayout() const override { return parentLayout_; }
+  virtual WWidget *parentWidget() const override;
 
-  virtual WWidgetItem *findWidgetItem(WWidget *widget);
+  virtual WWidgetItem *findWidgetItem(WWidget *widget) override;
 
-  WLayoutItemImpl *impl() const { return impl_; }
+  virtual WWidgetItemImpl *impl() const override { return impl_.get(); }
+
+  std::unique_ptr<WWidget> takeWidget();
+
+protected:
+  virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
 
 private:
-  WWidget         *widget_;
-  WLayout         *parentLayout_;
-  WLayoutItemImpl *impl_;
+  std::unique_ptr<WWidget> widget_;
+  WLayout *parentLayout_;
+  std::unique_ptr<WWidgetItemImpl> impl_;
 
-  virtual void setParentWidget(WWidget *parent);
-  virtual void setParentLayout(WLayout *layout);
+  virtual void setParentWidget(WWidget *parent) override;
+  virtual void setParentLayout(WLayout *layout) override;
 };
 
 }

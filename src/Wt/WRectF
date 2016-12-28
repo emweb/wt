@@ -8,11 +8,12 @@
 #define WRECTF_H_
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WJavaScriptExposableObject>
+#include <Wt/WJavaScriptExposableObject.h>
 
 namespace Wt {
 
 class WPointF;
+class WPainterPath;
 
 /*! \class WRectF Wt/WRectF Wt/WRectF
  *  \brief A value class that defines a rectangle.
@@ -255,10 +256,12 @@ public:
    */
   WRectF normalized() const;
 
-  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
+  virtual std::string jsValue() const override;
+
+  WPainterPath toPath() const;
 
 protected:
-  void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;
+  void assignFromJSON(const Json::Value &value) override;
 
 private:
   double x_, y_, width_, height_;

@@ -5,7 +5,7 @@
 #ifndef WT_PAYMENT_CUSTOMER_H
 #define WT_PAYMENT_CUSTOMER_H
 
-#include <Wt/Payment/Address>
+#include <Wt/Payment/Address.h>
 #include <string>
 
 namespace Wt {

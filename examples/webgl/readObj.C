@@ -3,7 +3,7 @@
 #include <iostream>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+#include <Wt/WAny.h>
 #include <stdlib.h>
 
 float str2float(const std::string &s)
@@ -36,9 +36,9 @@ void readObj(const std::string &fname,
         normals.push_back(str2float(splitLine[3]));
       } else if (splitLine[0] == "vt") {
         // texture coordinates are not used at all
-        textures.push_back(boost::lexical_cast<float>(splitLine[1]));
-        textures.push_back(boost::lexical_cast<float>(splitLine[2]));
-        if (splitLine.size()>3) textures.push_back(boost::lexical_cast<float>(splitLine[3]));
+        textures.push_back(Wt::asNumber(splitLine[1]));
+        textures.push_back(Wt::asNumber(splitLine[2]));
+        if (splitLine.size()>3) textures.push_back(Wt::asNumber(splitLine[3]));
       } else if (splitLine[0] == "f") {
         //std::vector<boost::tuple<int, int, int> > face;
         //std::vector<int> face;
@@ -46,14 +46,14 @@ void readObj(const std::string &fname,
           std::vector<std::string> faceLine;
           boost::split(faceLine, splitLine[i], boost::is_any_of("/"), boost::algorithm::token_compress_off);
           int v, t, n;
-          v = boost::lexical_cast<int>(faceLine[0]);
+          v = Wt::asNumber(faceLine[0]);
           if (faceLine[1] != "") {
-            t = boost::lexical_cast<int>(faceLine[1]);
+            t = Wt::asNumber(faceLine[1]);
           } else {
             t = -1;
           }
           if (faceLine[2] != "") {
-            n = boost::lexical_cast<int>(faceLine[2]);
+            n = Wt::asNumber(faceLine[2]);
           } else {
             n = -1;
           }

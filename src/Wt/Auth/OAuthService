@@ -7,14 +7,14 @@
 #ifndef WT_AUTH_OAUTH_H_
 #define WT_AUTH_OAUTH_H_
 
-#include <Wt/WObject>
-#include <Wt/WJavaScript>
-#include <Wt/WString>
+#include <Wt/WObject.h>
+#include <Wt/WJavaScript.h>
+#include <Wt/WString.h>
 
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/User>
-#include <Wt/Http/Message>
-#include <Wt/Http/Method>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/User.h>
+#include <Wt/Http/Message.h>
+#include <Wt/Http/Method.h>
 
 #include <boost/system/error_code.hpp>
 
@@ -139,6 +139,8 @@ private:
 class OAuthProcess : public WObject 
 {
 public:
+  virtual ~OAuthProcess();
+
   /*! \brief Returns the scope for which this process was created.
    *
    * The scope represents how much protected information the web
@@ -319,7 +321,8 @@ private:
   WString error_;
   std::string startInternalPath_;
 
-  OAuthRedirectEndpoint *redirectEndpoint_;
+  std::unique_ptr<OAuthRedirectEndpoint> redirectEndpoint_;
+  std::unique_ptr<Http::Client> httpClient_;
 
   void requestToken(const std::string& authorizationCode);
   void handleToken(boost::system::error_code err,
@@ -439,7 +442,8 @@ public:
    *
    * \sa authenticationScope()
    */
-  virtual OAuthProcess *createProcess(const std::string& scope) const = 0;
+  virtual std::unique_ptr<OAuthProcess>
+    createProcess(const std::string& scope) const = 0;
 
   /*! \brief Returns the provider name.
    *
@@ -562,7 +566,7 @@ public:
    * implementations (like Facebook) use URL-encoding and a GET
    * request.
    *
-   * The default implementation returns Http::Post (corresponding to the
+   * The default implementation returns Http::Method::Post (corresponding to the
    * current draft).
    */
   virtual Http::Method tokenRequestMethod() const;

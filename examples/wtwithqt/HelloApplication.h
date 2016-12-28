@@ -26,7 +26,7 @@
 #ifndef HELLO_APPLICATION_H_
 #define HELLO_APPLICATION_H_
 
-#include "WQApplication"
+#include "WQApplication.h"
 
 class QtObject;
 class QString;
@@ -57,7 +57,7 @@ private:
   WLineEdit *nameEdit_;
   WText     *greeting_;
 
-  QtObject  *qtSender_, *qtReceiver_;
+  std::unique_ptr<QtObject>  qtSender_, qtReceiver_;
 
   void propagateGreet();
 };

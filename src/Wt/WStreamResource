@@ -7,7 +7,7 @@
 #ifndef WSTREAM_RESOURCE_H_
 #define WSTREAM_RESOURCE_H_
 
-#include <Wt/WResource>
+#include <Wt/WResource.h>
 
 #include <string>
 
@@ -62,11 +62,11 @@ public:
    *
    * The mime type defaults to "text/plain".
    */
-  WStreamResource(WObject *parent = 0);
+  WStreamResource();
 
   /*! \brief Creates a new resource with given mime-type.
    */
-  WStreamResource(const std::string& mimeType, WObject *parent = 0);
+  WStreamResource(const std::string& mimeType);
 
   /*! \brief Destructor.
    *
@@ -106,7 +106,7 @@ protected:
 
 private:
   std::string mimeType_;
-  int         bufferSize_;
+  int bufferSize_;
   std::streamsize beyondLastByte_;
 };
 

@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( BlockCssProperty_test1 )
         "</h1>");
 
 
-  Wt::Render::StyleSheet* style = Wt::Render::CssParser().parse(
+  auto style = Wt::Render::CssParser().parse(
         "h1{border: 1px}"
         "h2{border: 2px}"
         "h1 h2{border: 12px }"
@@ -60,28 +60,27 @@ BOOST_AUTO_TEST_CASE( BlockCssProperty_test1 )
         "h1{color: blue}"
         );
 
-  BOOST_REQUIRE( style );
+  BOOST_REQUIRE( style != nullptr );
 
   Wt::Render::Block b(doc, 0);
-  b.setStyleSheet(style);
+  b.setStyleSheet(style.get());
   // h1 color == "blue"
 
   BOOST_REQUIRE(childBlock2(&b, list_of(1))
-                ->cssProperty(Wt::PropertyStyleColor) == "blue");
+                ->cssProperty(Wt::Property::StyleColor) == "blue");
   // h1 border-left == 1px
   BOOST_REQUIRE(childBlock2(&b, list_of(1))
-                ->cssProperty(Wt::PropertyStyleBorderLeft) == "1px");
+                ->cssProperty(Wt::Property::StyleBorderLeft) == "1px");
   // h1/h2 border-left == 12px
   BOOST_REQUIRE(childBlock2(&b, list_of(1)(0))
-                ->cssProperty(Wt::PropertyStyleBorderLeft) == "12px");
+                ->cssProperty(Wt::Property::StyleBorderLeft) == "12px");
   // h2 border-left == 20px
   BOOST_REQUIRE(childBlock2(&b, list_of(0))
-                ->cssProperty(Wt::PropertyStyleBorderLeft) == "20px");
+                ->cssProperty(Wt::Property::StyleBorderLeft) == "20px");
   // h1/h2 border-right == 120px
   BOOST_REQUIRE(childBlock2(&b, list_of(1)(0))
-                ->cssProperty(Wt::PropertyStyleBorderRight) == "120px");
+                ->cssProperty(Wt::Property::StyleBorderRight) == "120px");
 
-  delete style;
   delete doc;
 }
 

@@ -7,7 +7,7 @@
 #ifndef WDOUBLE_SPIN_BOX_H_
 #define WDOUBLE_SPIN_BOX_H_
 
-#include <Wt/WAbstractSpinBox>
+#include <Wt/WAbstractSpinBox.h>
 
 namespace Wt {
 
@@ -37,7 +37,7 @@ public:
    *
    * The initial value is 0.0.
    */
-  WDoubleSpinBox(WContainerWidget *parent = 0);
+  WDoubleSpinBox();
 
   /*! \brief Sets the minimum value.
    *
@@ -93,7 +93,7 @@ public:
    *
    * \sa setDecimals()
    */
-  int decimals() const;
+  int decimals() const override;
 
   /*! \brief Sets the value.
    *
@@ -119,18 +119,18 @@ public:
    */
   Signal<double>& valueChanged() { return valueChanged_; }
 
-  virtual void refresh();
+  virtual void refresh() override;
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual void signalConnectionsChanged();
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void signalConnectionsChanged() override;
 
-  virtual std::string jsMinMaxStep() const;
-  virtual bool parseNumberValue(const std::string& text);
-  virtual WT_USTRING textFromValue() const;
-  virtual WValidator *createValidator();
-  virtual WValidator::Result validateRange() const;
+  virtual std::string jsMinMaxStep() const override;
+  virtual bool parseNumberValue(const std::string& text) override;
+  virtual WT_USTRING textFromValue() const override;
+  virtual std::unique_ptr<WValidator> createValidator() override;
+  virtual WValidator::Result validateRange() const override;
 
 private:
   bool setup_;

@@ -7,9 +7,9 @@
 #ifndef WT_DBO_QUERY_COLUMN_H_
 #define WT_DBO_QUERY_COLUMN_H_
 
-#include <Wt/WModelIndex>
-#include <Wt/WString>
-#include <Wt/Dbo/Dbo>
+#include <Wt/WModelIndex.h>
+#include <Wt/WString.h>
+#include <Wt/Dbo/Dbo.h>
 
 namespace Wt {
 class WAbstractTableModel;
@@ -29,7 +29,7 @@ class QueryColumn
   */
 
 private:
-  typedef std::map<int, boost::any> HeaderData;
+  typedef std::map<int, cpp17::any> HeaderData;
 
   std::string field_;
   WFlags<ItemFlag> flags_;
@@ -52,7 +52,7 @@ inline QueryColumn::QueryColumn(const std::string& field,
     flags_(flags),
     fieldIdx_(-1)
 { 
-  headerData_[DisplayRole] = header;
+  headerData_[ItemDataRole::Display] = header;
 }
 
   }

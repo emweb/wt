@@ -7,7 +7,7 @@
 #ifndef WVECTOR4_H_
 #define WVECTOR4_H_
 
-#include "Wt/WGenericMatrix"
+#include "Wt/WGenericMatrix.h"
 
 namespace Wt {
 class WT_API WVector4: public WGenericMatrix<double, 4, 1>

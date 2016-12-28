@@ -7,8 +7,8 @@
 #ifndef WT_DBO_DBO_WEAK_PTR_H_
 #define WT_DBO_DBO_WEAK_PTR_H_
 
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/Session>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/Session.h>
 
 namespace Wt {
   namespace Dbo {
@@ -230,11 +230,7 @@ public:
    * Since this needs to query the value, you should have an active
    * transaction.
    */
-#ifdef DOXYGEN_ONLY
   explicit operator bool() const;
-#else
-  WT_CXX11ONLY(explicit) operator bool() const;
-#endif
 
   /*! \brief Casting operator to a ptr.
    *

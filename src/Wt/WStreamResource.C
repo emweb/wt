@@ -4,24 +4,22 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WStreamResource"
+#include "Wt/WStreamResource.h"
 
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
 
 #include <boost/scoped_array.hpp>
 
 namespace Wt {
 
-WStreamResource::WStreamResource(WObject *parent)
-  : WResource(parent),
-    mimeType_("text/plain"),
+WStreamResource::WStreamResource()
+  : mimeType_("text/plain"),
     bufferSize_(8192)
 { }
 
-WStreamResource::WStreamResource(const std::string& mimeType, WObject *parent)
-  : WResource(parent),
-    mimeType_(mimeType),
+WStreamResource::WStreamResource(const std::string& mimeType)
+  : mimeType_(mimeType),
     bufferSize_(8192)
 { }
 
@@ -46,8 +44,8 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
                                              std::istream& input)
 {
   Http::ResponseContinuation *continuation = request.continuation();
-  ::uint64_t startByte = continuation ?
-      boost::any_cast< ::uint64_t >(continuation->data()) : 0;
+  ::uint64_t startByte
+      = continuation ? cpp17::any_cast<::uint64_t>(continuation->data()) : 0;
 
   if (startByte == 0) {
     /*

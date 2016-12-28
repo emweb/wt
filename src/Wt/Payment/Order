@@ -5,8 +5,8 @@
 #ifndef WT_PAYMENT_ORDER_H
 #define WT_PAYMENT_ORDER_H
 
-#include <Wt/Payment/OrderItem>
-#include "Wt/Payment/Money"
+#include <Wt/Payment/OrderItem.h>
+#include "Wt/Payment/Money.h"
 
 namespace Wt {
   namespace Payment {

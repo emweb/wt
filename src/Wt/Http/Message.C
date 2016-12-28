@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Http/Message"
+#include "Wt/Http/Message.h"
 
 #include <cstring>
 
@@ -82,7 +82,7 @@ const std::string *Message::getHeader(const std::string& name) const
     if (strcasecmp(headers_[i].name().c_str(),name.c_str()) == 0)
       return &headers_[i].value();
 
-  return 0;
+  return nullptr;
 }
 
 void Message::addBodyText(const std::string& text)

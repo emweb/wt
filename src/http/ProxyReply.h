@@ -27,8 +27,8 @@ public:
 
   virtual void writeDone(bool success);
 
-  virtual bool consumeData(Buffer::const_iterator begin,
-			   Buffer::const_iterator end,
+  virtual bool consumeData(const char *begin,
+			   const char *end,
 			   Request::State state);
 
   void closeClientSocket();
@@ -58,8 +58,8 @@ private:
   bool sendReload();
 
   SessionProcessManager &sessionManager_;
-  boost::shared_ptr<SessionProcess> sessionProcess_;
-  boost::shared_ptr<asio::ip::tcp::socket> socket_;
+  std::shared_ptr<SessionProcess> sessionProcess_;
+  std::shared_ptr<asio::ip::tcp::socket> socket_;
 
   std::string contentType_;
 
@@ -77,8 +77,8 @@ private:
   bool receiving_;
   bool fwCertificates_;
 
-  Buffer::const_iterator beginRequestBuf_;
-  Buffer::const_iterator endRequestBuf_;
+  const char *beginRequestBuf_;
+  const char *endRequestBuf_;
   Request::State state_;
 
   Wt::Http::ParameterMap queryParams_;

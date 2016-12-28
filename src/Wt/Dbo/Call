@@ -33,7 +33,7 @@ public:
    * This executes the call if it wasn't run() yet, and the call has not
    * been copied.
    */
-  ~Call() WT_CXX11ONLY(noexcept(false));
+  ~Call() noexcept(false);
 
   /*! \brief Copy constructor.
    *

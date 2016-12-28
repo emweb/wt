@@ -3,15 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WContainerWidget"
-#include "Wt/WCssDecorationStyle"
-#include "Wt/WImage"
-#include "Wt/WResource"
-#include "Wt/WScrollArea"
-#include "Wt/WVirtualImage"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WCssDecorationStyle.h"
+#include "Wt/WImage.h"
+#include "Wt/WResource.h"
+#include "Wt/WVirtualImage.h"
 #include "WebUtils.h"
 
 namespace Wt {
@@ -21,11 +20,8 @@ const ::int64_t WVirtualImage::Infinite
 
 WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
 			     ::int64_t imageWidth, ::int64_t imageHeight,
-			     int gridImageSize,
-			     WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    viewPortChanged_(this),
-    gridImageSize_(gridImageSize),
+			     int gridImageSize)
+  : gridImageSize_(gridImageSize),
     viewPortWidth_(viewPortWidth),
     viewPortHeight_(viewPortHeight),
     imageWidth_(imageWidth),
@@ -33,21 +29,20 @@ WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
     currentX_(0),
     currentY_(0)
 {
-  setImplementation(impl_ = new WContainerWidget());
+  impl_ = setNewImplementation<WContainerWidget>();
 
   impl_->resize(viewPortWidth_, viewPortHeight_);
-  impl_->setPositionScheme(Relative);
+  impl_->setPositionScheme(PositionScheme::Relative);
 
-  WScrollArea *scrollArea = new WScrollArea(impl_);
-  scrollArea->resize(WLength(100, WLength::Percentage),
-		     WLength(100, WLength::Percentage));
-  scrollArea->setScrollBarPolicy(WScrollArea::ScrollBarAlwaysOff);
-  scrollArea->setPositionScheme(Absolute);
+  WContainerWidget *scrollArea
+    = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
+  scrollArea->resize(WLength(100, LengthUnit::Percentage),
+		     WLength(100, LengthUnit::Percentage));
+  scrollArea->setPositionScheme(PositionScheme::Absolute);
+  scrollArea->setOverflow(Overflow::Hidden);
 
-  contents_ = new WContainerWidget();
-  contents_->setPositionScheme(Absolute);
-
-  scrollArea->setWidget(contents_);
+  contents_ = scrollArea->addWidget(cpp14::make_unique<WContainerWidget>());
+  contents_->setPositionScheme(PositionScheme::Absolute);
 }
 
 void WVirtualImage::enableDragging()
@@ -80,16 +75,11 @@ void WVirtualImage::enableDragging()
      "}");
 
   impl_->mouseWentUp().connect(this, &WVirtualImage::mouseUp);
-  impl_->decorationStyle().setCursor(OpenHandCursor);
+  impl_->decorationStyle().setCursor(Cursor::OpenHand);
 }
 
 WVirtualImage::~WVirtualImage()
-{
-  for (GridMap::iterator it = grid_.begin(); it != grid_.end(); ++it) {
-    delete it->second->imageLink().resource();
-    delete it->second;
-  }
-}
+{ }
 
 void WVirtualImage::mouseUp(const WMouseEvent& e)
 {
@@ -99,11 +89,7 @@ void WVirtualImage::mouseUp(const WMouseEvent& e)
 
 void WVirtualImage::redrawAll()
 {
-  for (GridMap::iterator it = grid_.begin(); it != grid_.end(); ++it) {
-    delete it->second->imageLink().resource();
-    delete it->second;
-  }
-
+  contents_->clear();
   grid_.clear();
 
   generateGridItems(currentX_, currentY_);
@@ -133,8 +119,8 @@ void WVirtualImage::internalScrollTo(::int64_t newX, ::int64_t newY,
 		    std::max((::int64_t)0, newY));
 
   if (moveViewPort) {
-    contents_->setOffsets((double)-newX, Left);
-    contents_->setOffsets((double)-newY, Top);
+    contents_->setOffsets((double)-newX, Side::Left);
+    contents_->setOffsets((double)-newY, Side::Top);
   }
 
   generateGridItems(newX, newY);
@@ -147,15 +133,16 @@ void WVirtualImage::scroll(::int64_t dx, ::int64_t dy)
   scrollTo(currentX_ + dx, currentY_ + dy);
 }
 
-WImage *WVirtualImage::createImage(::int64_t x, ::int64_t y,
-				   int width, int height)
+std::unique_ptr<WImage> WVirtualImage
+::createImage(::int64_t x, ::int64_t y, int width, int height)
 {
-  WResource *r = render(x, y, width, height);
-  return new WImage(r, "");
+  auto r = render(x, y, width, height);
+  return std::unique_ptr<WImage>
+    (new WImage(std::shared_ptr<WResource>(r.release()), ""));
 }
 
-WResource *WVirtualImage::render(::int64_t x, ::int64_t y,
-				 int width, int height)
+std::unique_ptr<WResource> WVirtualImage
+::render(::int64_t x, ::int64_t y, int width, int height)
 {
   throw WException("You should reimplement WVirtualImage::render()");
 }
@@ -187,17 +174,19 @@ void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)
 	    brx = std::min(brx, imageWidth_);
 	    bry = std::min(bry, imageHeight_);
 
-	    WImage *img = createImage(i * gridImageSize_, j * gridImageSize_,
-				      (int)(brx - i * gridImageSize_),
-				      (int)(bry - j * gridImageSize_));
+	    std::unique_ptr<WImage> img
+	      = createImage(i * gridImageSize_, j * gridImageSize_,
+			    (int)(brx - i * gridImageSize_),
+			    (int)(bry - j * gridImageSize_));
 
 	    img->setAttributeValue("onmousedown", "return false;");
-	    contents_->addWidget(img);
-	    img->setPositionScheme(Absolute);
-	    img->setOffsets((double)i * gridImageSize_, Left);
-	    img->setOffsets((double)j * gridImageSize_, Top);
+	    img->setPositionScheme(PositionScheme::Absolute);
+	    img->setOffsets((double)i * gridImageSize_, Side::Left);
+	    img->setOffsets((double)j * gridImageSize_, Side::Top);
 
-	    grid_[key] = img;
+	    grid_[key] = img.get();
+
+	    contents_->addWidget(std::move(img));
 	  }
 	}
       }
@@ -248,8 +237,7 @@ void WVirtualImage::cleanGrid()
 
     if (coordinate.i < i1 || coordinate.i > i2 || 
 	coordinate.j < j1 || coordinate.j > j2) {
-      delete it->second->resource();
-      delete it->second;
+      it->second->removeFromParent();
       Utils::eraseAndNext(grid_, it);
     } else
       ++it;

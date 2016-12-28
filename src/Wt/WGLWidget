@@ -7,9 +7,9 @@
 #ifndef WGLWIDGET_H_
 #define WGLWIDGET_H_
 
-#include <Wt/WInteractWidget>
-#include <Wt/WGenericMatrix>
-#include <Wt/WMatrix4x4>
+#include <Wt/WInteractWidget.h>
+#include <Wt/WGenericMatrix.h>
+#include <Wt/WMatrix4x4.h>
 
 #ifndef WT_TARGET_JAVA
 namespace Wt {
@@ -50,9 +50,27 @@ class WPaintDevice;
 class WHTML5Video;
 class WImage;
 
-enum JsArrayType {
+enum class JsArrayType {
   Array,
   Float32Array
+};
+
+/*! \brief Enumeration for render options
+ *
+ * \sa setRenderOptions()
+ */
+enum class GLRenderOption {
+  ClientSide = 0x1,   //!< Enables client-side rendering
+  ServerSide = 0x2,   //!< Enables server-side rendering
+  AntiAliasing = 0x4  //!< Enables anti-aliasing
+};
+
+/*! \brief Specifies what GL function needs to be updated
+ */
+enum class GLClientSideRenderer {
+  PAINT_GL = 0x1,  //!< refresh paintGL()
+  RESIZE_GL = 0x2, //!< refresh resizeGL()
+  UPDATE_GL = 0x4  //!< refresh updateGL()
 };
 
 /*! \class WGLWidget Wt/WGLWidget Wt/WGLWidget
@@ -199,6 +217,11 @@ class WT_API WGLWidget: public WInteractWidget
 #endif
 
 public:
+  /*! \brief Typedef for enum Wt::GLRenderOption */
+  typedef GLRenderOption RenderOption;
+  /*! \brief Typedef for enum Wt::GLClientSideRenderer */
+  typedef GLClientSideRenderer ClientSideRenderer;
+
 
   //! Abstract base class for all GL objects
   class WT_API GlObject {
@@ -206,6 +229,7 @@ public:
     GlObject(): id_(-1) {}
     GlObject(int id) : 
       id_(id) {}
+    virtual ~GlObject() {}
     
     virtual std::string jsRef() const = 0;
 
@@ -230,7 +254,7 @@ public:
     std::string jsRef() const { 
       if (isNull())
 	throw WException("Shader: is null");
-      return std::string("ctx.WtShader") + boost::lexical_cast<std::string>(getId());
+      return std::string("ctx.WtShader") + std::to_string(getId());
     }
   };
 
@@ -244,7 +268,7 @@ public:
     std::string jsRef() const { 
       if (isNull())
 	throw WException("Program: is null");
-      return std::string("ctx.WtProgram") + boost::lexical_cast<std::string>(getId());
+      return std::string("ctx.WtProgram") + std::to_string(getId());
     }
   };
 
@@ -258,7 +282,7 @@ public:
     std::string jsRef() const {
       if (isNull())
 	throw WException("AttribLocation: is null");
-      return std::string("ctx.WtAttrib") + boost::lexical_cast<std::string>(getId());
+      return std::string("ctx.WtAttrib") + std::to_string(getId());
     }
   };
 
@@ -272,7 +296,7 @@ public:
     std::string jsRef() const {
       if (isNull())
 	throw WException("Buffer: is null");
-      return std::string("ctx.WtBuffer") + boost::lexical_cast<std::string>(getId());
+      return std::string("ctx.WtBuffer") + std::to_string(getId());
     }
   };
 
@@ -286,7 +310,7 @@ public:
     std::string jsRef() const { 
       if (isNull())
 	throw WException("UniformLocation: is null");
-      return std::string("ctx.WtUniform") + boost::lexical_cast<std::string>(getId());
+      return std::string("ctx.WtUniform") + std::to_string(getId());
     }
   };
 
@@ -304,7 +328,7 @@ public:
 	// throw WException("Texture: is null");
 	return "null";
       }
-      return std::string("ctx.WtTexture") + boost::lexical_cast<std::string>(getId());
+      return std::string("ctx.WtTexture") + std::to_string(getId());
     }
 
     void setUrl(std::string url) {
@@ -331,7 +355,7 @@ public:
 	//throw WException("FrameBuffer: is null");
 	return "null";
       }
-      return "ctx.WtFramebuffer" + boost::lexical_cast<std::string>(getId());
+      return "ctx.WtFramebuffer" + std::to_string(getId());
     }
   };
 
@@ -347,7 +371,7 @@ public:
 	//throw WException("RenderBuffer: is null");
 	return "null";
       }
-      return "ctx.WtRenderbuffer" + boost::lexical_cast<std::string>(getId());
+      return "ctx.WtRenderbuffer" + std::to_string(getId());
     }
   };
 
@@ -363,7 +387,7 @@ public:
     std::string jsRef() const {
       if (isNull())
 	throw WException("ArrayBuffer: is null");
-      return "ctx.WtBufferResource" + boost::lexical_cast<std::string>(getId());
+      return "ctx.WtBufferResource" + std::to_string(getId());
     }
   };
 
@@ -401,7 +425,7 @@ public:
     /** \brief Returns whether this %JavaScriptVector has been assigned
      *         to a WGLWidget.
      */
-    bool hasContext() const { return context_ != 0; }
+    bool hasContext() const { return context_ != nullptr; }
 
     /** \brief Returns the length (number of items) of this JavaScriptVector.
      */
@@ -487,7 +511,7 @@ public:
     /** \brief Returns whether this JavaScriptMatrix4x4 has been assigned
      *         to a WGLWidget.
      */
-    bool hasContext() const { return context_ != 0; }
+    bool hasContext() const { return context_ != nullptr; }
 
     /** \brief Returns the JavaScript reference to this JavaScriptMatrix4x4.
      *
@@ -533,7 +557,7 @@ public:
     std::string jsRef_;
     const WGLWidget* context_;
 
-    enum op {TRANSPOSE, INVERT, MULTIPLY};
+    enum class op {TRANSPOSE, INVERT, MULTIPLY};
     std::vector<op> operations_;
     std::vector< WGenericMatrix<double, 4, 4> > matrices_;
 
@@ -544,21 +568,11 @@ public:
     friend class WClientGLWidget;
   };
 
-  /*! \brief Enumeration for render options
-   *
-   * \sa setRenderOptions()
-   */
-  enum RenderOption {
-    ClientSideRendering = 0x1, //!< Enables client-side rendering
-    ServerSideRendering = 0x2, //!< Enables server-side rendering
-    AntiAliasing        = 0x4  //!< Enables anti-aliasing
-  };
-
   /*! \brief Construct a GL widget.
    *
    * Before the first rendering, you must apply a size to the WGLWidget.
    */
-  WGLWidget(WContainerWidget *parent = 0);
+  WGLWidget();
 
   /*! \brief Destructor
    */
@@ -576,7 +590,7 @@ public:
    *
    * \note Options must be set before the widget is being rendered.
    */
-  void setRenderOptions(WFlags<RenderOption> options);
+  void setRenderOptions(WFlags<GLRenderOption> options);
 
 protected:
 
@@ -655,13 +669,6 @@ protected:
 
 public:
 
-  /*! \brief Specifies what GL function needs to be updated
-   */
-  enum ClientSideRenderer {PAINT_GL = 0x1,  //!< refresh paintGL()
-                           RESIZE_GL = 0x2, //!< refresh resizeGL()
-                           UPDATE_GL = 0x4  //!< refresh updateGL()
-  };
-
   /*! \brief Request invocation of resizeGL, paintGL and/or updateGL.
    *
    * If invoked with PAINT_GL, the client-side cached paint function
@@ -671,7 +678,7 @@ public:
    * If invoked with multiple flags set, the order of execution will be
    * updateGL(), resizeGL(), paintGL().
    */
-  void repaintGL(WFlags<ClientSideRenderer> which);
+  void repaintGL(WFlags<GLClientSideRenderer> which);
 
   /*! \brief Returns whether a lost context is in the process of being restored.
    *
@@ -680,7 +687,7 @@ public:
    */
   bool restoringContext() const { return restoringContext_; }
 
-  void resize(const WLength &width, const WLength &height);
+  void resize(const WLength &width, const WLength &height) override;
 
   /*! \brief The enormous GLenum
    *
@@ -1507,18 +1514,6 @@ public:
    */
   Buffer createBuffer();
 
-  /*! \brief Function that creates an ArrayBuffer by loading data from
-   *         a given URL. (<b>deprecated</b>)
-   *
-   * The ArrayBuffer is loaded before executing initGL.
-   * Use it to load binary data for use in bufferData() or bufferSubData().
-   *
-   * \deprecated An ArrayBuffer refers to a javascript object, which cannot be
-   * used for server-side rendering. The new way to accomplish a binary transfer
-   * of buffers is with the added boolean argument in bufferSubDatafv()
-   */
-  ArrayBuffer createAndLoadArrayBuffer(const std::string &url);
-
   /*! \brief GL function that creates a frame buffer object
    *
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glGenFramebuffers.xml">
@@ -1575,8 +1570,8 @@ public:
    * this function returns a {@link WRasterPaintDevice}.
    * \endif
    */
-  WPaintDevice *createPaintDevice(const WLength& width,
-				  const WLength& height);
+  std::unique_ptr<WPaintDevice> createPaintDevice(const WLength& width,
+						  const WLength& height);
 
   /*! \brief GL function that configures the backface culling mode
    *
@@ -1973,7 +1968,8 @@ public:
    * \sa createPaintDevice()
    */
   void texImage2D(GLenum target, int level, GLenum internalformat,
-		  GLenum format, GLenum type, WPaintDevice *paintdevice);
+		  GLenum format, GLenum type,
+		  WPaintDevice *paintdevice);
 
   /*! \brief GL function to load a 2D texture loaded with createTextureAndLoad()
    *
@@ -2980,7 +2976,7 @@ setClientSideMouseHandler("(function(){") +
    * The default is a widget that explains to the user that he has no
    * WebGL support.
    */
-  void setAlternativeContent(WWidget *alternative);
+  void setAlternativeContent(std::unique_ptr<WWidget> alternative);
 
   /*! \brief A JavaScript slot that repaints the widget when triggered.
    *
@@ -3012,24 +3008,24 @@ setClientSideMouseHandler("(function(){") +
   void webglNotAvailable();
 
 protected:
-  virtual DomElementType domElementType() const;
-  virtual DomElement *createDomElement(WApplication *app);
-  virtual void getDomChanges(std::vector<DomElement *>& result, WApplication *app);
-  virtual void updateDom(DomElement &element, bool all);
+  virtual DomElementType domElementType() const override;
+  virtual DomElement *createDomElement(WApplication *app) override;
+  virtual void getDomChanges(std::vector<DomElement *>& result, WApplication *app) override;
+  virtual void updateDom(DomElement &element, bool all) override;
 
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual std::string renderRemoveJs(bool recursive);
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual std::string renderRemoveJs(bool recursive) override;
 
-  virtual void layoutSizeChanged(int width, int height);
+  virtual void layoutSizeChanged(int width, int height) override;
 
-  virtual void setFormData(const FormData& formData);
+  virtual void setFormData(const FormData& formData) override;
 
   virtual void contextRestored();
 
 private:
 
-  WFlags<RenderOption> renderOptions_;
-  WAbstractGLImplementation *pImpl_;
+  WFlags<GLRenderOption> renderOptions_;
+  std::unique_ptr<WAbstractGLImplementation> pImpl_;
   struct jsMatrixMap {
     int id;
     WMatrix4x4 serverSideCopy;
@@ -3054,15 +3050,15 @@ private:
 
   std::string glObjJsRef() const;
 
-  WWidget *alternative_;
+  std::unique_ptr<WWidget> alternative_;
 
   // If client detects that a WebGL context cannot be created, it fires this
   // signal, and the handler sets wegGlNotAvailable_ to true. If this happens,
   // the client side will have deleted the canvas widget.
-  JSignal<void> webglNotAvailable_;
+  JSignal<> webglNotAvailable_;
   bool webGlNotAvailable_;
 
-  JSignal<void> contextRestored_;
+  JSignal<> contextRestored_;
   bool restoringContext_;
 
   bool valueChanged_;
@@ -3090,8 +3086,8 @@ static void renderfv(std::ostream &os, WGenericMatrix<MatrixType, 4, 4> t,
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::GLenum)
-W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::ClientSideRenderer)
-W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::RenderOption)
+W_DECLARE_OPERATORS_FOR_FLAGS(GLClientSideRenderer)
+W_DECLARE_OPERATORS_FOR_FLAGS(GLRenderOption)
 }
 
 #undef WT_WGL_TEMPLATE

@@ -9,8 +9,8 @@
 
 #include <cassert>
 
-#include <Wt/WException>
-#include <Wt/WJavaScriptExposableObject>
+#include <Wt/WException.h>
+#include <Wt/WJavaScriptExposableObject.h>
 
 namespace Wt {
 
@@ -47,7 +47,7 @@ public:
    * is copy-assigned to it.
    */
   WJavaScriptHandle()
-    : value_(0), id_(0)
+    : value_(nullptr), id_(0)
   { }
 
   /*! \brief Copy constructor
@@ -55,14 +55,16 @@ public:
   WJavaScriptHandle(const WJavaScriptHandle &handle)
     : value_(handle.value_), id_(handle.id_)
   {
-    assert(value_ == 0 || value_->clientBinding_ != 0);
+    assert(value_ == nullptr || 
+	   value_->clientBinding_ != nullptr);
   }
 
   /*! \brief Copy assignment operator
    */
   WJavaScriptHandle &operator=(const WJavaScriptHandle &handle)
   {
-    assert(handle.value_ == 0 || handle.value_->clientBinding_ != 0);
+    assert(handle.value_ == nullptr || 
+	   handle.value_->clientBinding_ != nullptr);
 
     value_ = handle.value_;
     id_ = handle.id_;
@@ -72,9 +74,10 @@ public:
 
   /*! \brief Returns whether this is a valid handle
    *
-   * A handle is not valid if it is not connected to a JavaScript representation.
-   * To make a WJavaScriptHandle valid, a valid WJavaScriptHandle has to be copy-assigned
-   * to it. The various createJS... methods in WPaintedWidget return a valid handle.
+   * A handle is not valid if it is not connected to a JavaScript
+   * representation.  To make a WJavaScriptHandle valid, a valid
+   * WJavaScriptHandle has to be copy-assigned to it. The various
+   * createJS... methods in WPaintedWidget return a valid handle.
    */
   bool isValid() const {
     return value_;
@@ -109,7 +112,7 @@ public:
     if (v.isJavaScriptBound()) throw WException("Can not assign a JavaScript bound value to a WJavaScriptHandle!");
     // Rescue the binding from being overridden by the assignment, and deleted
     WJavaScriptExposableObject::JSInfo *binding = value_->clientBinding_;
-    value_->clientBinding_ = 0;
+    value_->clientBinding_ = nullptr;
 
     (*value_) = v;
 
@@ -117,7 +120,7 @@ public:
     value_->clientBinding_->context_->dirty_[id_] = true;
   }
 
-  /*! \brief Get the value for this handle.
+  /*! \brief Method::Get the value for this handle.
    *
    * \warning You should not modify this value or any copy of it on the server side,
    *	      because this will not be synced to the client side. Use setValue() instead.
@@ -137,7 +140,7 @@ private:
   WJavaScriptHandle(int id, T *t)
     : value_(t), id_(id)
   {
-    assert(t != 0 && t->clientBinding_ != 0);
+    assert(t != nullptr && t->clientBinding_ != nullptr);
   }
 
   T *value_;

@@ -7,8 +7,8 @@
 #ifndef WFILEDROPCONTAINER_WIDGET_H_
 #define WFILEDROPCONTAINER_WIDGET_H_
 
-#include "Wt/WContainerWidget"
-#include "Wt/WResource"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WResource.h"
 
 namespace Wt {
 
@@ -81,8 +81,7 @@ public:
     Signal<>& uploaded() { return uploaded_; }
 
     // Wt internal
-    File(int id, const std::string& fileName, const std::string& type,
-	 ::uint64_t size, WObject *parent);
+    File(int id, const std::string& fileName, const std::string& type, ::uint64_t size);
     int uploadId() const { return id_; }
     void setUploadedFile(const Http::UploadedFile& file);
     void cancel();
@@ -104,7 +103,7 @@ public:
 
   /*! \brief Constructor
    */
-  WFileDropWidget(WContainerWidget *parent = 0);
+  WFileDropWidget();
 
   /*! \brief Returns the vector of uploads managed by this widget.
    *

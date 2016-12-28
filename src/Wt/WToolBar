@@ -9,13 +9,12 @@
 
 #include <vector>
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
 
 /*! \class WToolBar Wt/WToolBar Wt/WToolBar
  *  \brief A toolbar
- *
  *
  * By default, a toolbar is rendered as "compact" leaving no margin
  * between buttons. By adding a separator or a split button, the
@@ -26,7 +25,7 @@ class WT_API WToolBar : public WCompositeWidget
 public:
   /*! \brief Constructor.
    */
-  WToolBar(WContainerWidget *parent = 0);
+  WToolBar();
 
   /*! \brief Set vertical or horizontal orientation
    *
@@ -36,8 +35,8 @@ public:
 
   /*! \brief Adds a button.
    */
-  void addButton(WPushButton *button,
-                 AlignmentFlag alignmentFlag = AlignLeft);
+  void addButton(std::unique_ptr<WPushButton> button,
+                 AlignmentFlag alignmentFlag = AlignmentFlag::Left);
 
   /*! \brief Adds a split button.
    *
@@ -47,17 +46,17 @@ public:
    *
    * \sa setCompact()
    */
-  void addButton(WSplitButton *button,
-                 AlignmentFlag alignmentFlag = AlignLeft);
+  void addButton(std::unique_ptr<WSplitButton> button,
+                 AlignmentFlag alignmentFlag = AlignmentFlag::Left);
 
   /*! \brief Adds a widget.
    *
    * The toolbar automatically becomes non-compact.
-   *
    */
-  void addWidget(WWidget *widget, AlignmentFlag alignmentFlag = AlignLeft);
+  void addWidget(std::unique_ptr<WWidget> widget,
+		 AlignmentFlag alignmentFlag = AlignmentFlag::Left);
 
-  void removeWidget(WWidget *widget);
+  virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
 
   /*! \brief Adds a separator.
    *

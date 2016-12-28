@@ -1,21 +1,26 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WSound>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WSound.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(Sound)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WSound *sound = new Wt::WSound("sounds/beep.mp3", container);
+auto soundPtr = Wt::cpp14::make_unique<Wt::WSound>("sounds/beep.mp3");
+auto sound = soundPtr.get();
+container->addChild(std::move(soundPtr));
 sound->setLoops(3);
 
-Wt::WPushButton *playButton = new Wt::WPushButton("Beep!", container);
+auto playButton =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Beep!"));
 playButton->setMargin(5);
 
-Wt::WPushButton *stopButton = new Wt::WPushButton("Stop it!", container);
+auto stopButton =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Stop it!"));
 stopButton->setMargin(5);
 
-Wt::WText *out = new Wt::WText(container);
+Wt::WText *out =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
 playButton->clicked().connect(std::bind([=] () {
     sound->play();
@@ -27,6 +32,6 @@ stopButton->clicked().connect(std::bind([=] () {
     out->setText("<p>Beeping stopped!</p>");
 }));
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))
 
 

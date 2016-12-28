@@ -7,10 +7,9 @@
 #ifndef WT_WFORM_MODEL_H_
 #define WT_WFORM_MODEL_H_
 
-#include <boost/any.hpp>
-
-#include <Wt/WObject>
-#include <Wt/WValidator>
+#include <Wt/WAny.h>
+#include <Wt/WObject.h>
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -60,7 +59,7 @@ namespace Wt {
  *   ...
  * } else {
  *   const Wt::WValidator::Result& rname = model->validation(NameField);
- *   if (rname.state() != Wt::WValidator::Valid) {
+ *   if (rname.state() != Wt::ValidationState::Valid) {
  *     std::cerr <<< "Invalid name: " << rname.message();
  *   }
  *   ...
@@ -111,7 +110,7 @@ public:
    *
    * Creates a new form model.
    */
-  WFormModel(WObject *parent = 0);
+  WFormModel();
 
   /*! \brief Adds a field.
    *
@@ -207,13 +206,13 @@ public:
    *
    * \sa value(), valueText()
    */
-  virtual void setValue(Field field, const boost::any& value);
+  virtual void setValue(Field field, const cpp17::any& value);
 
   /*! \brief Returns the field value.
    *
    * \sa valueText(), setValue()
    */
-  virtual const boost::any& value(Field field) const;
+  virtual const cpp17::any& value(Field field) const;
 
   /*! \brief Returns the field value text.
    *
@@ -230,13 +229,14 @@ public:
    * If the validator has no ownership yet, the form model will take
    * ownership.
    */
-  virtual void setValidator(Field field, WValidator *validator);
+  virtual void setValidator(Field field,
+			    const std::shared_ptr<WValidator>& validator);
 
   /*! \brief Returns a validator.
    *
    * Returns the validator for the field.
    */
-  virtual WValidator *validator(Field field) const;
+  virtual std::shared_ptr<WValidator> validator(Field field) const;
 
   /*! \brief Validates a field.
    *
@@ -285,8 +285,8 @@ private:
   struct FieldData {
     FieldData();
 
-    WValidator *validator;
-    boost::any value;
+    std::shared_ptr<WValidator> validator;
+    cpp17::any value;
     WValidator::Result validation;
     bool visible, readOnly, validated;
   };
@@ -295,7 +295,7 @@ private:
   FieldMap fields_;
 
   static const WValidator::Result Valid;
-  static const boost::any NoValue;
+  static const cpp17::any NoValue;
 };
 
 }

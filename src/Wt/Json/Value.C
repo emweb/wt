@@ -4,11 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Json/Value"
-#include "Wt/Json/Object"
-#include "Wt/Json/Array"
-#include "Wt/WBoostAny"
-#include "Wt/WLogger"
+#include "Wt/Json/Value.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Array.h"
+#include "Wt/WAny.h"
+#include "Wt/WLogger.h"
+
+#include "WebUtils.h"
 
 namespace Wt {
 
@@ -29,16 +31,20 @@ LOGGER("Json.Value");
 
 TypeException::TypeException(const std::string& name,
 			     Type actualType, Type expectedType)
-  : WException("Type error: " + name + " is " + typeNames[actualType]
-	       + ", expected " + typeNames[expectedType]),
+  : WException("Type error: " + name + " is " 
+	       + typeNames[static_cast<unsigned int>(actualType)]
+	       + ", expected " 
+	       + typeNames[static_cast<unsigned int>(expectedType)]),
     name_(name),
     actualType_(actualType),
     expectedType_(expectedType)
 { }
 
 TypeException::TypeException(Type actualType, Type expectedType)
-  : WException(std::string("Type error: value is ") + typeNames[actualType]
-	       + ", expected " + typeNames[expectedType]),
+  : WException(std::string("Type error: value is ") 
+	       + typeNames[static_cast<unsigned int>(actualType)]
+	       + ", expected " 
+	       + typeNames[static_cast<unsigned int>(expectedType)]),
     actualType_(actualType),
     expectedType_(expectedType)
 { }
@@ -49,8 +55,8 @@ TypeException::~TypeException() throw()
 template <typename T> T Value::get(Type requestedType) const
 {
   try {
-    return boost::any_cast<T>(v_);
-  } catch (boost::bad_any_cast& e) {
+    return cpp17::any_cast<T>(v_);
+  } catch (cpp17::bad_any_cast& e) {
     throw TypeException(type(), requestedType);
   }
 }
@@ -58,8 +64,8 @@ template <typename T> T Value::get(Type requestedType) const
 template <typename T> const T& Value::getCR(Type requestedType) const
 {
   try {
-    return boost::any_cast<const T&>(v_);
-  } catch (boost::bad_any_cast& e) {
+    return cpp17::any_cast<const T&>(v_);
+  } catch (cpp17::bad_any_cast& e) {
     throw TypeException(type(), requestedType);
   }
 }
@@ -67,8 +73,8 @@ template <typename T> const T& Value::getCR(Type requestedType) const
 template <typename T> T& Value::getR(Type requestedType)
 {
   try {
-    return boost::any_cast<T&>(v_);
-  } catch (boost::bad_any_cast& e) {
+    return cpp17::any_cast<T&>(v_);
+  } catch (cpp17::bad_any_cast& e) {
     throw TypeException(type(), requestedType);
   }
 }
@@ -107,12 +113,12 @@ Value::Value(const char* value)
 Value::Value(Type type)
 { 
   switch (type) {
-  case NullType: break;
-  case BoolType: v_ = false; break;
-  case NumberType: v_ = double(0.0); break;
-  case StringType: v_ = std::string(); break;
-  case ObjectType: v_ = Object(); break;
-  case ArrayType: v_ = Array(); break;
+  case Type::Null: break;
+  case Type::Bool: v_ = false; break;
+  case Type::Number: v_ = double(0.0); break;
+  case Type::String: v_ = std::string(); break;
+  case Type::Object: v_ = Object(); break;
+  case Type::Array: v_ = Array(); break;
   }
 }
 
@@ -133,22 +139,22 @@ bool Value::operator== (const Value& other) const
   else if (v_.empty() || other.v_.empty())
     return v_.empty() == other.v_.empty();
   else if (v_.type() == typeid(Json::Object))
-    return boost::any_cast<Json::Object>(v_) ==
-      boost::any_cast<Json::Object>(other.v_);
+    return cpp17::any_cast<Json::Object>(v_) ==
+      cpp17::any_cast<Json::Object>(other.v_);
   else if (v_.type() == typeid(Json::Array))
-    return boost::any_cast<Json::Array>(v_) ==
-      boost::any_cast<Json::Array>(other.v_);
+    return cpp17::any_cast<Json::Array>(v_) ==
+      cpp17::any_cast<Json::Array>(other.v_);
   else if (v_.type() == typeid(bool))
-    return boost::any_cast<bool>(v_) == boost::any_cast<bool>(other.v_);
+    return cpp17::any_cast<bool>(v_) == cpp17::any_cast<bool>(other.v_);
   else if (v_.type() == typeid(int))
-    return boost::any_cast<int>(v_) == boost::any_cast<int>(other.v_);
+    return cpp17::any_cast<int>(v_) == cpp17::any_cast<int>(other.v_);
   else if (v_.type() == typeid(long long))
-    return boost::any_cast<long long>(v_) ==
-      boost::any_cast<long long>(other.v_);
+    return cpp17::any_cast<long long>(v_) ==
+      cpp17::any_cast<long long>(other.v_);
   else if (v_.type() == typeid(double))
-    return boost::any_cast<double>(v_) == boost::any_cast<double>(other.v_);
+    return cpp17::any_cast<double>(v_) == cpp17::any_cast<double>(other.v_);
   else if (v_.type() == typeid(Wt::WString))
-    return boost::any_cast<Wt::WString>(v_) == boost::any_cast<Wt::WString>(other.v_);
+    return cpp17::any_cast<Wt::WString>(v_) == cpp17::any_cast<Wt::WString>(other.v_);
   else {
     WStringStream ss;
     ss << "Value::operator== : unknown value type: " << std::string(v_.type().name());
@@ -164,7 +170,7 @@ bool Value::operator!= (const Value& other) const
 Type Value::type() const
 {
   if (v_.empty())
-    return NullType;
+    return Type::Null;
   else {
     return typeOf(v_.type());
   }
@@ -178,15 +184,15 @@ bool Value::hasType(const std::type_info& aType) const
 Type Value::typeOf(const std::type_info& t)
 {
   if (t == typeid(bool))
-    return BoolType;
+    return Type::Bool;
   else if (t == typeid(double) || t == typeid(long long) || t == typeid(int))
-    return NumberType;
+    return Type::Number;
   else if (t == typeid(WT_USTRING))
-    return StringType;
+    return Type::String;
   else if (t == typeid(Object))
-    return ObjectType;
+    return Type::Object;
   else if (t == typeid(Array))
-    return ArrayType;
+    return Type::Array;
   else
     throw WException(std::string("Value::typeOf(): unsupported type ")
 		     + t.name());
@@ -194,7 +200,7 @@ Type Value::typeOf(const std::type_info& t)
 
 Value::operator const WT_USTRING&() const
 {
-  return getCR<WT_USTRING>(StringType);
+  return getCR<WT_USTRING>(Type::String);
 }
 
 Value::operator std::string() const
@@ -204,7 +210,7 @@ Value::operator std::string() const
 
 Value::operator bool() const
 {
-  return get<bool>(BoolType);
+  return get<bool>(Type::Bool);
 }
 
 Value::operator int() const
@@ -212,13 +218,13 @@ Value::operator int() const
   const std::type_info& t = v_.type();
 
   if (t == typeid(double))
-    return static_cast<int>(boost::any_cast<double>(v_));
+    return static_cast<int>(cpp17::any_cast<double>(v_));
   else if (t == typeid(long long))
-    return static_cast<int>(boost::any_cast<long long>(v_));
+    return static_cast<int>(cpp17::any_cast<long long>(v_));
   else if (t == typeid(int))
-    return boost::any_cast<int>(v_);
+    return cpp17::any_cast<int>(v_);
   else
-    throw TypeException(type(), NumberType);
+    throw TypeException(type(), Type::Number);
 }
 
 Value::operator long long() const
@@ -226,13 +232,13 @@ Value::operator long long() const
   const std::type_info& t = v_.type();
 
   if (t == typeid(double))
-    return static_cast<long long>(boost::any_cast<double>(v_));
+    return static_cast<long long>(cpp17::any_cast<double>(v_));
   else if (t == typeid(long long))
-    return boost::any_cast<long long>(v_);
+    return cpp17::any_cast<long long>(v_);
   else if (t == typeid(int))
-    return static_cast<long long>(boost::any_cast<int>(v_));
+    return static_cast<long long>(cpp17::any_cast<int>(v_));
   else
-    throw TypeException(type(), NumberType);
+    throw TypeException(type(), Type::Number);
 }
 
 Value::operator double() const
@@ -240,33 +246,33 @@ Value::operator double() const
   const std::type_info& t = v_.type();
 
   if (t == typeid(double))
-    return boost::any_cast<double>(v_);
+    return cpp17::any_cast<double>(v_);
   else if (t == typeid(long long))
-    return static_cast<double>(boost::any_cast<long long>(v_));
+    return static_cast<double>(cpp17::any_cast<long long>(v_));
   else if (t == typeid(int))
-    return static_cast<double>(boost::any_cast<int>(v_));
+    return static_cast<double>(cpp17::any_cast<int>(v_));
   else
-    throw TypeException(type(), NumberType);
+    throw TypeException(type(), Type::Number);
 }
 
 Value::operator const Array&() const
 {
-  return getCR<Array>(ArrayType);
+  return getCR<Array>(Type::Array);
 }
 
 Value::operator const Object&() const
 {
-  return getCR<Object>(ObjectType);
+  return getCR<Object>(Type::Object);
 }
 
 Value::operator Array&()
 {
-  return getR<Array>(ArrayType);
+  return getR<Array>(Type::Array);
 }
 
 Value::operator Object&()
 {
-  return getR<Object>(ObjectType);
+  return getR<Object>(Type::Object);
 }
 
 const WT_USTRING& Value::orIfNull(const WT_USTRING& v) const
@@ -346,13 +352,15 @@ Value Value::toString() const
     return Null;
   else if (t == typeid(WT_USTRING))
     return *this;
-  else if(type() == NumberType) {
-	WString str = asString(v_);
-	std::string sstr = str.toUTF8();
-	if(sstr.find("nan") != std::string::npos || sstr.find("inf") != std::string::npos)
-	  throw WException(std::string("Value::toString(): Not a Number"));
-	return Value(str);
-  }else return Value(asString(v_));
+  else if(type() == Type::Number) {
+    WString str = asString(v_);
+    std::string sstr = str.toUTF8();
+    if (sstr.find("nan") != std::string::npos || 
+	sstr.find("inf") != std::string::npos)
+      throw WException(std::string("Value::toString(): Not a Number"));
+    return Value(str);
+  } else 
+    return Value(asString(v_));
 }
 
 Value Value::toBool() const
@@ -364,7 +372,7 @@ Value Value::toBool() const
   else if (t == typeid(bool))
     return *this;
   else if (t == typeid(WT_USTRING)) {
-    const WT_USTRING& s = boost::any_cast<const WT_USTRING& >(v_);
+    const WT_USTRING& s = cpp17::any_cast<const WT_USTRING& >(v_);
     if (s == "true")
       return True;
     else if (s == "false")
@@ -384,10 +392,10 @@ Value Value::toNumber() const
   else if (t == typeid(double) || t == typeid(long long) || t == typeid(int))
     return *this;
   else if (t == typeid(WT_USTRING)) {
-    const WT_USTRING& s = boost::any_cast<const WT_USTRING& >(v_);
+    const WT_USTRING& s = cpp17::any_cast<const WT_USTRING& >(v_);
     try {
-      return boost::lexical_cast<double>(s);
-    } catch (boost::bad_lexical_cast& e) {
+      return Utils::stod(s.toUTF8());
+    } catch (std::exception& e) {
       LOG_WARN("toNumber() could not cast '" << s << "'");
       return Null;
     }

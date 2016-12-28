@@ -8,11 +8,11 @@
 #define HTTP_REQUEST_H_
 
 #include <map>
+#include <memory>
 #include <string>
 #include <istream>
 #include <sstream>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 #include <Wt/WDllDefs.h>
 
@@ -62,8 +62,6 @@ typedef std::map<std::string,std::string, ci_comp> HeaderMap;
  */
 class WT_API UploadedFile {
 public:
-  UploadedFile();
-  
   UploadedFile(const std::string& spoolFileName,
 	       const std::string& clientFileName,
 	       const std::string& contentType);
@@ -106,7 +104,7 @@ private:
     void cleanup();
   };
 
-  boost::shared_ptr<Impl> fileInfo_;
+  std::shared_ptr<Impl> fileInfo_;
 };
 
 
@@ -242,15 +240,15 @@ public:
   /*! \brief Returns a query parameter value.
    *
    * Returns the first value defined for a parameter named \p name
-   * or \c 0 if the paramter does not exist.
+   * or \c nullptr if the paramter does not exist.
    */
   const std::string *getParameter(const std::string& name) const;
 
   /*! \brief Returns an uploaded file
    *
-   * Returns the file uploaded for a parameter named \p name
-   * or \c 0 if the parameter does not contain does not exist or was not
-   * associated with a file input field.
+   * Returns the file uploaded for a parameter named \p name or \c
+   * nullptr if the parameter does not contain does not exist or was
+   * not associated with a file input field.
    */
   const UploadedFile *getUploadedFile(const std::string& name) const;
 
@@ -366,7 +364,7 @@ public:
 
   /*! \brief Returns a cookie value.
    *
-   * Returns 0 if no value was set for the given cookie.
+   * Returns \c nullptr if no value was set for the given cookie.
    *
    * \sa cookies()
    */
@@ -407,12 +405,12 @@ public:
    */
    ByteRangeSpecifier getRanges(::int64_t filesize) const;
 
-  /*! \brief Returns information on the SSL client certificate or \c 0
-   *  if no authentication took place.
+  /*! \brief Returns information on the SSL client certificate or \c
+   * nullptr if no authentication took place.
    *
-   * This function will return \c 0 if no verification took place, %Wt
-   * was compiled without SSL support, or the web server was
-   * configured without client SSL certificates.
+   * This function will return \c nullptr if no verification took
+   * place, %Wt was compiled without SSL support, or the web server
+   * was configured without client SSL certificates.
    *
    * This method may return a pointer to a WSslInfo object, while the
    * authentication may have failed. This depends on the configuration
@@ -421,7 +419,7 @@ public:
    *
    * Session-bound resources will probably not use this method, but rely on
    * the validation done at the start of the session (see sslInfo() in
-   * WEnvironment). Static resources on the other hand don't have an
+   * WEnvironment). PositionScheme::Static resources on the other hand don't have an
    * associated session, so using this method you can perform client
    * authentication verification.
    *
@@ -432,14 +430,14 @@ public:
    */
   WSslInfo *sslInfo() const;
 
-   static ByteRangeSpecifier getRanges(const std::string &header,
-    ::int64_t filesize);
+  static ByteRangeSpecifier getRanges(const std::string &header,
+				      ::int64_t filesize);
 
-   static void parseFormUrlEncoded(const std::string& s,
-				   ParameterMap& parameters);
+  static void parseFormUrlEncoded(const std::string& s,
+				  ParameterMap& parameters);
 
-   static void parseCookies(const std::string& cookie,
-			    std::map<std::string, std::string>& result);
+  static void parseCookies(const std::string& cookie,
+			   std::map<std::string, std::string>& result);
 
 private:
   const WebRequest *request_;

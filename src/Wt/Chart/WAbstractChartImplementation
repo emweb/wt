@@ -8,9 +8,9 @@
 #ifndef CHART_WABSTRACTCHARTIMPLEMENTATION_H
 #define CHART_WABSTRACTCHARTIMPLEMENTATION_H
 
-#include <Wt/Chart/WChartGlobal>
-#include <Wt/Chart/WAxis>
-#include <Wt/WString>
+#include <Wt/Chart/WChartGlobal.h>
+#include <Wt/Chart/WAxis.h>
+#include <Wt/WString.h>
 
 namespace Wt {
   namespace Chart {
@@ -28,7 +28,7 @@ public:
   virtual Orientation orientation() const = 0;
   virtual int axisPadding() const = 0;
   
-  virtual int numberOfCategories(Axis axis = XAxis) const = 0;
+  virtual int numberOfCategories(Axis axis = Axis::X) const = 0;
   virtual WString categoryLabel(int u, Axis axis) const = 0;
   
   virtual RenderRange computeRenderRange(Axis axis, AxisScale scale) const = 0;

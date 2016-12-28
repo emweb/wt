@@ -7,19 +7,13 @@
 #ifndef WLABEL_H_
 #define WLABEL_H_
 
-#include <Wt/WInteractWidget>
+#include <Wt/WInteractWidget.h>
 
 namespace Wt {
 
   class WFormWidget;
   class WImage;
   class WText;
-
-  namespace Ext {
-
-    class FormField;
-
-  }
 
 /*! \class WLabel Wt/WLabel Wt/WLabel
  *  \brief A label for a form field.
@@ -64,15 +58,15 @@ class WT_API WLabel : public WInteractWidget
 public:
   /*! \brief Creates a label with empty text and optional parent.
    */
-  WLabel(WContainerWidget *parent = 0);
+  WLabel();
 
   /*! \brief Creates a label with a given text.
    */
-  WLabel(const WString& text, WContainerWidget *parent = 0);
+  WLabel(const WString& text);
 
   /*! \brief Creates a label with an image.
    */
-  WLabel(WImage *image, WContainerWidget *parent = 0);
+  WLabel(std::unique_ptr<WImage> image);
 
   ~WLabel();
 
@@ -80,30 +74,15 @@ public:
    *
    * \sa setBuddy(WFormWidget *)
    */
-  WFormWidget *buddy() const { return buddy_; }
+  WFormWidget *buddy() const { return buddy_.get(); }
 
   /*! \brief Sets the buddy of this label.
    *
    * Sets the buddy FormWidget for which this label acts as a proxy.
    * 
-   * \if cpp
-   * \sa WFormWidget::label(), setBuddy(Ext::FormField *), buddy()
-   * \elseif java
    * \sa WFormWidget::label(), buddy()
-   * \endif 
    */
   void setBuddy(WFormWidget *buddy);
-
-  #ifndef WT_TARGET_JAVA
-  /*! \brief Sets the buddy of this label.
-   *
-   * Sets the buddy Ext::FormField for which this label acts as a proxy.
-   * When using this method, the result of buddy() is not defined.
-   *
-   * \sa Ext::FormField::label(), setBuddy(WFormWidget *)
-   */
-  void setBuddy(Ext::FormField *buddy);
-  #endif //WT_TARGET_JAVA
 
   /*! \brief Sets the label text.
    */
@@ -111,7 +90,7 @@ public:
 
   /*! \brief Returns the label text.
    */
-  const WString& text() const;
+  WString text() const;
 
   /*! \brief Sets the text format.
    *
@@ -119,7 +98,7 @@ public:
    * either as plain text, which is displayed literally, or as
    * XHTML-markup.
    *
-   * When changing the textFormat to Wt::XHTMLText, and the
+   * When changing the textFormat to Wt::TextFormat::XHTML, and the
    * current text is literal (not created using WString::tr()), the
    * current text is parsed using an XML parser which discards
    * malicious tags and attributes silently. When the parser
@@ -128,7 +107,7 @@ public:
    *
    * Returns whether the textFormat could be set for the current text.
    *
-   * The default format is Wt::XHTMLText.
+   * The default format is Wt::TextFormat::XHTML.
    */
   bool setTextFormat(TextFormat format);
 
@@ -140,19 +119,19 @@ public:
 
   /*! \brief Sets the image.
    */
-  void setImage(WImage *image, Side side = Left);
+  void setImage(std::unique_ptr<WImage> image, Side side = Side::Left);
 
   /*! \brief Returns the image.
    */
-  WImage *image() const { return image_; }
+  WImage *image() const { return image_.get(); }
 
   /*! \brief Configures word wrapping.
    *
    * When \p wordWrap is \c true, the widget may break lines, creating a
    * multi-line text. When \p wordWrap is \c false, the text will displayed
    * on a single line, unless the text contains end-of-lines (for
-   * Wt::PlainText) or &lt;br /&gt; tags or other block-level tags
-   * (for Wt::XHTMLText).
+   * Wt::TextFormat::Plain) or &lt;br /&gt; tags or other block-level tags
+   * (for Wt::TextFormat::XHTML).
    *
    * The default value is \c false.
    *
@@ -167,20 +146,22 @@ public:
   bool wordWrap() const;
 
 private:
-  WFormWidget *buddy_;
-  WText  *text_;
-  WImage *image_;
-  Side    imageSide_;
+  observing_ptr<WFormWidget> buddy_;
+  std::unique_ptr<WText> text_;
+  std::unique_ptr<WImage> image_;
+  Side imageSide_;
 
   bool buddyChanged_, newImage_, newText_;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
+  virtual void           updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
   virtual void           getDomChanges(std::vector<DomElement *>& result,
-				       WApplication *app);
-  virtual void           propagateRenderOk(bool deep);
-  virtual void           propagateSetEnabled(bool enabled);
+                                       WApplication *app) override;
+  virtual void           propagateRenderOk(bool deep) override;
+  virtual void           propagateSetEnabled(bool enabled) override;
+
+  virtual void		 iterateChildren(const HandleWidgetMethod &method) const override;
 
   void updateImage(DomElement& element, bool all, WApplication *app, int pos);
   void updateText(DomElement& element, bool all, WApplication *app, int pos);

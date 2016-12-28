@@ -1,63 +1,66 @@
-#include <Wt/Chart/WAxisSliderWidget>
-#include <Wt/Chart/WCartesianChart>
-#include <Wt/Chart/WDataSeries>
-#include <Wt/WAbstractItemModel>
-#include <Wt/WAbstractItemView>
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WDate>
-#include <Wt/WEnvironment>
-#include <Wt/WPaintedWidget>
-#include <Wt/WItemDelegate>
-#include <Wt/WShadow>
-#include <Wt/WStandardItemModel>
+#include <Wt/Chart/WAxisSliderWidget.h>
+#include <Wt/Chart/WCartesianChart.h>
+#include <Wt/Chart/WDataSeries.h>
+#include <Wt/WAbstractItemModel.h>
+#include <Wt/WAbstractItemView.h>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDate.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WItemDelegate.h>
+#include <Wt/WShadow.h>
+#include <Wt/WStandardItemModel.h>
 
 #include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(ScatterPlotInteractive)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = cpp14::make_unique<WContainerWidget>();
 
-Wt::WStandardItemModel *model
-    = csvToModel(Wt::WApplication::appRoot() + "timeseries.csv", container);
+auto model
+    = csvToModel(WApplication::appRoot() + "timeseries.csv");
 
 if (!model)
-  return container;
+  return std::move(container);
 
 /*
  * Parses the first column as dates, to be able to use a date scale
  */
 for (int row = 0; row < model->rowCount(); ++row) {
-  Wt::WString s = Wt::asString(model->data(row, 0));
-  Wt::WDate date = Wt::WDate::fromString(s, "dd/MM/yy");
+  WString s = asString(model->data(row, 0));
+  WDate date = WDate::fromString(s, "dd/MM/yy");
   model->setData(row, 0, date);
 }
 
 /*
  * Creates the scatter plot.
  */
-Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart(container);
-chart->setBackground(Wt::WColor(220, 220, 220));
+Chart::WCartesianChart *chart =
+    container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
+chart->setBackground(WColor(220, 220, 220));
 chart->setModel(model);
 chart->setXSeriesColumn(0);
-chart->setType(Wt::Chart::ScatterPlot);
-chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
-double min = Wt::asNumber(model->data(0, 0));
-double max = Wt::asNumber(model->data(model->rowCount() - 1, 0));
+chart->setType(Chart::ChartType::Scatter);
+chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::Date);
+double min = asNumber(model->data(0, 0));
+double max = asNumber(model->data(model->rowCount() - 1, 0));
 // Set maximum X zoom level to 16x zoom
-chart->axis(Wt::Chart::XAxis).setMinimumZoomRange((max - min) / 16.0);
+chart->axis(Chart::Axis::X).setMinimumZoomRange((max - min) / 16.0);
 
 /*
  * Add the second and the third column as line series.
  */
 {
-  Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(2, Wt::Chart::LineSeries);
-  s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-  chart->addSeries(s);
+  auto s =
+      cpp14::make_unique<Chart::WDataSeries>(2, Chart::SeriesType::Line);
+  s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+  chart->addSeries(std::move(s));
 }
 {
-  Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(3, Wt::Chart::LineSeries);
-  s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-  chart->addSeries(s);
+  auto s =
+      cpp14::make_unique<Chart::WDataSeries>(3, Chart::SeriesType::Line);
+  s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+  chart->addSeries(std::move(s));
 }
 
 chart->resize(800, 400);
@@ -66,6 +69,6 @@ chart->resize(800, 400);
 chart->setPanEnabled(true);
 chart->setZoomEnabled(true);
 
-chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right); // Center horizontally
+chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

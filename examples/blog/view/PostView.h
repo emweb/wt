@@ -7,8 +7,8 @@
 #ifndef POST_VIEW_H_
 #define POST_VIEW_H_
 
-#include <Wt/WTemplate>
-#include <Wt/Dbo/ptr>
+#include <Wt/WTemplate.h>
+#include <Wt/Dbo/ptr.h>
 
 #include "../model/Post.h"
 
@@ -29,7 +29,7 @@ public:
 	   dbo::ptr<Post> post, RenderType type);
 
   virtual void resolveString(const std::string& varName,
-			     const std::vector<Wt::WString>& args,
+                             const std::vector<Wt::WString>& args,
 			     std::ostream& result);
 
 protected:

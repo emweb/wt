@@ -3,12 +3,13 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <algorithm>
 #include <cstring>
-#include <boost/functional/hash.hpp>
+#include <functional>
 
-#include "Wt/WModelIndex"
-#include "Wt/WAbstractItemModel"
-#include "Wt/WLogger"
+#include "Wt/WModelIndex.h"
+#include "Wt/WAbstractItemModel.h"
+#include "Wt/WLogger.h"
 
 namespace Wt {
 
@@ -21,9 +22,9 @@ WModelIndex::WModelIndex()
     internalId_(0)
 { }
 
-boost::any WModelIndex::data(int role) const
+cpp17::any WModelIndex::data(int role) const
 {
-  return model_ ? model_->data(*this, role) : boost::any();
+  return model_ ? model_->data(*this, role) : cpp17::any();
 }
 
 WFlags<ItemFlag> WModelIndex::flags() const
@@ -158,8 +159,8 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
 { }
 
 std::size_t hash_value(const Wt::WModelIndex& index) {
-  boost::hash<int> intHasher;
-  boost::hash< ::uint64_t > longHasher;
+  std::hash<int> intHasher;
+  std::hash< ::uint64_t > longHasher;
 
   return intHasher(index.row()) + intHasher(index.column())
     + longHasher(index.internalId());

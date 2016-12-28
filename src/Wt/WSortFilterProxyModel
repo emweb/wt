@@ -7,11 +7,10 @@
 #ifndef WSORT_FILTER_PROXY_MODEL_H_
 #define WSORT_FILTER_PROXY_MODEL_H_
 
-#include <Wt/WAbstractProxyModel>
+#include <Wt/WAbstractProxyModel.h>
+#include <regex>
 
 namespace Wt {
-
-class WRegExp;
 
 /*! \class WSortFilterProxyModel Wt/WSortFilterProxyModel Wt/WSortFilterProxyModel
  *  \brief A proxy model for %Wt's item models that provides filtering
@@ -58,7 +57,7 @@ class WRegExp;
  * proxy->setSourceModel(model);
  * proxy->setDynamicSortFilter(true);
  * proxy->setFilterKeyColumn(0);
- * proxy->setFilterRole(Wt::UserRole);
+ * proxy->setFilterRole(Wt::ItemDataRole::User);
  * proxy->setFilterRegExp("Wt::.*");
  *
  * // configure a view to use the proxy model instead of the source model
@@ -76,7 +75,7 @@ class WRegExp;
  * proxy.setSourceModel(model);
  * proxy.setDynamicSortFilter(true);
  * proxy.setFilterKeyColumn(0);
- * proxy.setFilterRole(ItemDataRole.UserRole);
+ * proxy.setFilterRole(ItemDataRole.ItemDataRole::User);
  * proxy.setFilterRegExp(".*");
  *		 
  * // configure a view to use the proxy model instead of the source model
@@ -93,14 +92,16 @@ class WT_API WSortFilterProxyModel : public WAbstractProxyModel
 public:
   /*! \brief Constructor.
    */
-  WSortFilterProxyModel(WObject *parent = 0);
+  WSortFilterProxyModel();
 
   /*! \brief Destructor.
    */
   virtual ~WSortFilterProxyModel();
 
-  virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const;
-  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
+  virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex)
+    const override;
+  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex)
+    const override;
 
   /*! \brief Sets the source model.
    *
@@ -112,7 +113,8 @@ public:
    * All signals of the source model are forwarded to the
    * proxy model.
    */
-  virtual void setSourceModel(WAbstractItemModel *sourceModel);
+  virtual void setSourceModel
+    (const std::shared_ptr<WAbstractItemModel>& sourceModel) override;
 
   /*! \brief Specify the column on which the filtering is applied.
    *
@@ -140,28 +142,20 @@ public:
    *
    * \sa setFilterKeyColumn(), setFilterRole()
    */
-  void setFilterRegExp(const WT_USTRING& pattern);
+  void setFilterRegExp(std::unique_ptr<std::regex> pattern);
 
   /*! \brief Return the regular expression used for filtering.
    *
    * \sa setFilterRegExp()
    */
-  WT_USTRING filterRegExp() const;
-
-  /*! \brief Sets the filter regular expression flags.
-   */
-  void setFilterFlags(WFlags<RegExpFlag> flags);
-
-  /*! \brief Returns the filter regular expression flags.
-   */
-  WFlags<RegExpFlag> filterFlags() const;
+  std::regex *filterRegExp() const;
 
   /*! \brief Specify the data role used for filtering.
    *
    * This configures the data role used for filtering on
    * filterKeyColumn().
    *
-   * The default value is \link Wt::DisplayRole DisplayRole\endlink.
+   * The default value is \link Wt::ItemDataRole::Display ItemDataRole::Display\endlink.
    *
    * \sa setFilterKeyColumn(), setFilterRegExp()
    */
@@ -177,7 +171,7 @@ public:
    *
    * This configures the data role used for sorting.
    *
-   * The default value is \link Wt::DisplayRole DisplayRole\endlink.
+   * The default value is \link Wt::ItemDataRole::Display ItemDataRole::Display\endlink.
    *
    * \sa lessThan()
    */
@@ -191,7 +185,8 @@ public:
 
   /*! \brief Returns the current sort column.
    *
-   * When sort() has not been called, the model is unsorted, and this method returns -1.
+   * When sort() has not been called, the model is unsorted, and this
+   * method returns -1.
    *
    * \sa sort()
    */
@@ -231,22 +226,25 @@ public:
    */
   void invalidate();
 
-  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int columnCount(const WModelIndex& parent = WModelIndex())
+    const override;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex())
+    const override;
 
-  virtual WModelIndex parent(const WModelIndex& index) const;
+  virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex()) const;
+			    const WModelIndex& parent = WModelIndex())
+    const override;
 
   virtual bool setHeaderData(int section, Orientation orientation,
-			     const boost::any& value,
-			     int role = EditRole);
-  virtual boost::any headerData(int section,
-				Orientation orientation = Horizontal,
-				int role = DisplayRole) const;
-  virtual WFlags<HeaderFlag> headerFlags(int section,
-					 Orientation orientation = Horizontal)
-    const;
+			     const cpp17::any& value,
+			     int role = ItemDataRole::Edit) override;
+  virtual cpp17::any headerData(int section,
+			     Orientation orientation = Orientation::Horizontal,
+			 int role = ItemDataRole::Display) const override;
+  virtual WFlags<HeaderFlag> headerFlags
+    (int section, Orientation orientation = Orientation::Horizontal)
+    const override;
 
   /*! \brief Inserts a number rows.
    *
@@ -264,16 +262,17 @@ public:
    * row(s) of data.
    */
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex()) override;
 
   /*! \brief Removes a number rows.
    *
    * The rows are removed from the source model.
    */
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex()) override;
 
-  virtual void sort(int column, SortOrder order = AscendingOrder);
+  virtual void sort(int column, SortOrder order = SortOrder::Ascending)
+    override;
 
 protected:
   /*! \brief Returns whether a source row is accepted by the filter.
@@ -344,12 +343,11 @@ private:
     Item *item;
   };
 
-  WRegExp *regex_;
-
-  int       filterKeyColumn_, filterRole_;
-  int       sortKeyColumn_, sortRole_;
+  std::unique_ptr<std::regex> regex_;
+  int filterKeyColumn_, filterRole_;
+  int sortKeyColumn_, sortRole_;
   SortOrder sortOrder_;
-  bool      dynamic_, inserting_;
+  bool dynamic_, inserting_;
 
   std::vector<Wt::Signals::connection> modelConnections_;
   mutable ItemMap mappedIndexes_;

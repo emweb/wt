@@ -1,5 +1,5 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WFileDropWidget>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WFileDropWidget.h>
 
 void errHandler(Wt::WFileDropWidget *dropWidget,
 		Wt::WFileDropWidget::File* file) {
@@ -15,7 +15,8 @@ void errHandler(Wt::WFileDropWidget *dropWidget,
 
 SAMPLE_BEGIN(FileDrop)
 
-Wt::WFileDropWidget *dropWidget = new Wt::WFileDropWidget();
+auto dropWidgetPtr = Wt::cpp14::make_unique<Wt::WFileDropWidget>();
+auto dropWidget = dropWidgetPtr.get();
 
 dropWidget->drop().connect(std::bind([=] (const std::vector<Wt::WFileDropWidget::File*>& files) {
   const int maxFiles = 5;
@@ -26,7 +27,7 @@ dropWidget->drop().connect(std::bind([=] (const std::vector<Wt::WFileDropWidget:
       continue;
     }
     
-    Wt::WContainerWidget *block = new Wt::WContainerWidget(dropWidget);
+    Wt::WContainerWidget *block = dropWidget->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>());
     block->setToolTip(files[i]->clientFileName());
     block->addStyleClass("upload-block spinner");
   }
@@ -49,4 +50,4 @@ dropWidget->uploaded().connect(std::bind([=] (Wt::WFileDropWidget::File* file) {
 dropWidget->tooLarge().connect(std::bind(errHandler, dropWidget, std::placeholders::_1));
 dropWidget->uploadFailed().connect(std::bind(errHandler, dropWidget, std::placeholders::_1));
 
-SAMPLE_END(return dropWidget)
+SAMPLE_END(return std::move(dropWidgetPtr))

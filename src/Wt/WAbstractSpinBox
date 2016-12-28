@@ -7,7 +7,7 @@
 #ifndef WABSTRACT_SPIN_BOX_H_
 #define WABSTRACT_SPIN_BOX_H_
 
-#include <Wt/WLineEdit>
+#include <Wt/WLineEdit.h>
 
 namespace Wt {
 
@@ -82,32 +82,32 @@ public:
    */
   const WString& suffix() const { return suffix_; }
 
-  virtual void setText(const WT_USTRING& text);
+  virtual void setText(const WT_USTRING& text) override;
 
-  virtual WValidator::State validate();
+  virtual ValidationState validate() override;
 
-  virtual void refresh();
+  virtual void refresh() override;
 
   JSignal<int,int> &jsValueChanged() { return jsValueChanged_; }
 
 protected:
   /*! \brief Constructor.
    */
-  WAbstractSpinBox(WContainerWidget *parent = 0);
+  WAbstractSpinBox();
 
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual void setFormData(const FormData& formData);
-  virtual void propagateRenderOk(bool deep);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void setFormData(const FormData& formData) override;
+  virtual void propagateRenderOk(bool deep) override;
 
   virtual std::string jsMinMaxStep() const = 0;
   virtual int decimals() const = 0;
   virtual bool parseNumberValue(const std::string& text) = 0;
   virtual WT_USTRING textFromValue() const = 0;
-  virtual WValidator *createValidator() = 0; // for nativeControl
+  virtual std::unique_ptr<WValidator> createValidator() = 0; // for nativeControl
   virtual WValidator::Result validateRange() const = 0;
 
-  virtual int boxPadding(Orientation orientation) const;
+  virtual int boxPadding(Orientation orientation) const override;
 
   bool changed_;
   bool valueChangedConnection_;

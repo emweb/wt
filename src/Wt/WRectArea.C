@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WRectArea"
+#include "Wt/WRectArea.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"

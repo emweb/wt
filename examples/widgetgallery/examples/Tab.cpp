@@ -1,28 +1,28 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WMenuItem>
-#include <Wt/WTabWidget>
-#include <Wt/WTextArea>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WMenuItem.h>
+#include <Wt/WTabWidget.h>
+#include <Wt/WTextArea.h>
 
 SAMPLE_BEGIN(Tab)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
-tabW->addTab(new Wt::WTextArea("This is the contents of the first tab."),
-	     "First", Wt::WTabWidget::PreLoading);
-tabW->addTab(new Wt::WTextArea("The contents of the tabs are pre-loaded in"
+Wt::WTabWidget *tabW = container->addWidget(Wt::cpp14::make_unique<Wt::WTabWidget>());
+tabW->addTab(Wt::cpp14::make_unique<Wt::WTextArea>("This is the contents of the first tab."),
+             "First", Wt::ContentLoading::Eager);
+tabW->addTab(Wt::cpp14::make_unique<Wt::WTextArea>("The contents of the tabs are pre-loaded in"
 			       " the browser to ensure swift switching."),
-	     "Preload", Wt::WTabWidget::PreLoading);
-tabW->addTab(new Wt::WTextArea("You could change any other style attribute of the"
+             "Preload", Wt::ContentLoading::Eager);
+tabW->addTab(Wt::cpp14::make_unique<Wt::WTextArea>("You could change any other style attribute of the"
 			       " tab widget by modifying the style class."
 			       " The style class 'trhead' is applied to this tab."),
-	     "Style", Wt::WTabWidget::PreLoading)->setStyleClass("trhead");
+             "Style", Wt::ContentLoading::Eager)->setStyleClass("trhead");
 
-Wt::WMenuItem *tab 
-    = tabW->addTab(new Wt::WTextArea("You can close this tab"
+Wt::WMenuItem *tab
+    = tabW->addTab(Wt::cpp14::make_unique<Wt::WTextArea>("You can close this tab"
 				     " by clicking on the close icon."),
 		   "Close");
 tab->setCloseable(true);
 
 tabW->setStyleClass("tabwidget");
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

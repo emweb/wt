@@ -7,9 +7,9 @@
 #ifndef WT_AUTH_LOGIN_H_
 #define WT_AUTH_LOGIN_H_
 
-#include <Wt/WObject>
-#include <Wt/WSignal>
-#include <Wt/Auth/User>
+#include <Wt/WObject.h>
+#include <Wt/WSignal.h>
+#include <Wt/Auth/User.h>
 
 namespace Wt {
   namespace Auth {
@@ -22,18 +22,18 @@ class User;
  *
  * \ingroup auth
  */
-enum LoginState {
-  /*! \brief No user is currently identified.
+enum class LoginState {
+  /*! \brief StandardButton::No user is currently identified.
    */
   LoggedOut,
 
   /*! \brief The identified user was refused to login.
    *
    * This is caused by for example User::status() returning
-   * User::Disabled, or if email verification is required but the
+   * AccountStatus::Disabled, or if email verification is required but the
    * email hasn't been verified yet.
    */
-  DisabledLogin,
+  Disabled,
 
   /*! \brief A user is weakly authenticated.
    *
@@ -42,13 +42,13 @@ enum LoginState {
    * of a primary mechanism (like a password).
    *
    * You may want to allow certain operations, but request to authenticate
-   * fully before more senstive operations.
+   * fully before more sensitive operations.
    */
-  WeakLogin,
+  Weak,
 
   /*! \brief A user is strongly authenticated.
    */
-  StrongLogin
+  Strong
 };
 
 /*! \class Login Wt/Auth/Login
@@ -72,25 +72,28 @@ enum LoginState {
 class WT_API Login : public WObject
 {
 public:
+  /*! \brief Typedef for enum Wt::Auth::LoginState */
+  typedef LoginState State;
+
   /*! \brief Default constructor.
    *
-   * Creates a login object in the LoggedOut state.
+   * Creates a login object in the LoginState::LoggedOut state.
    */
   Login();
 
   /*! \brief Logs a user in.
    *
-   * A user can be logged in using either a DisabledLogin, WeakLogin
-   * or StrongLogin \p state. The login state is forced to DisabledLogin if
+   * A user can be logged in using either a LoginState::Disabled, LoginState::Weak
+   * or LoginState::Strong \p state. The login state is forced to LoginState::Disabled if
    * User::status() returns Disabled.
    *
    * \sa logout(), loggedIn()
    */
-  void login(const User& user, LoginState state = StrongLogin);
+  void login(const User& user, LoginState state = LoginState::Strong);
 
   /*! \brief Logs the current user out.
    *
-   * Sets the state to LoggedOut.
+   * Sets the state to LoginState::LoggedOut.
    */
   void logout();
 
@@ -102,7 +105,7 @@ public:
 
   /*! \brief Returns whether a user has successfully logged in.
    *
-   * This returns \c true only if the state is WeakLogin or StrongLogin.
+   * This returns \c true only if the state is LoginState::Weak or LoginState::Strong.
    *
    * \sa state()
    */
@@ -121,7 +124,7 @@ public:
    * This signal is emitted as a result of login() or logout(). If no
    * user was logged in, then a changed() signal does not necessarily
    * mean that user is loggedIn() as the user may have been identified
-   * correctly but have a DisabledLogin state() for example.
+   * correctly but have a LoginState::Disabled state() for example.
    */
   Signal<>& changed() { return changed_; }
 

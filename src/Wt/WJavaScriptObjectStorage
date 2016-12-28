@@ -7,11 +7,10 @@
 #ifndef WJAVASCRIPT_OBJECT_STORE_H_
 #define WJAVASCRIPT_OBJECT_STORE_H_
 
-#include "Wt/WJavaScriptExposableObject"
-#include "Wt/WJavaScriptHandle"
+#include "Wt/WJavaScriptExposableObject.h"
+#include "Wt/WJavaScriptHandle.h"
 
 #include <string>
-#include <boost/lexical_cast.hpp>
 
 namespace Wt {
 

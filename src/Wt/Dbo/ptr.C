@@ -5,9 +5,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/Exception>
-#include <Wt/Dbo/Session>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/Exception.h>
+#include <Wt/Dbo/Session.h>
 
 namespace Wt {
   namespace Dbo {
@@ -64,7 +64,7 @@ void MetaDboBase::remove()
     session_->needsFlush(this);
   } else if (session_) { // was added to a Session but not yet flushed
     Session *session = session_;
-    setSession(0);
+    setSession(nullptr);
     session->discardChanges(this);
     state_ &= ~NeedsSave;
   } else {

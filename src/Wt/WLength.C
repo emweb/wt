@@ -3,13 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WException"
-#include "Wt/WLength"
-#include "Wt/WLogger"
+#include "Wt/WException.h"
+#include "Wt/WLength.h"
+#include "Wt/WLogger.h"
 
 #include "WebUtils.h"
 
 #include <cstring>
+#include <boost/algorithm/string.hpp>
 
 namespace Wt {
 
@@ -19,7 +20,7 @@ WLength WLength::Auto;
 
 WLength::WLength()
   : auto_(true),
-    unit_(Pixel),
+    unit_(LengthUnit::Pixel),
     value_(-1)
 { }
 
@@ -31,7 +32,7 @@ WLength::WLength(const std::string &str)
 void WLength::parseCssString(const char *s)
 {
   auto_ = false;
-  unit_ = Pixel;
+  unit_ = LengthUnit::Pixel;
   value_ = -1;
 
   if (std::string("auto") == s) {
@@ -39,7 +40,7 @@ void WLength::parseCssString(const char *s)
     return;
   }
 
-  char *end = 0;
+  char *end = nullptr;
 #ifndef WT_TARGET_JAVA
   value_ = std::strtod(s, &end);
 #else
@@ -56,46 +57,41 @@ void WLength::parseCssString(const char *s)
   boost::trim(unit);
   
   if (unit == "em")
-    unit_ = FontEm;
+    unit_ = LengthUnit::FontEm;
   else if (unit == "ex")
-    unit_ = FontEx;
+    unit_ = LengthUnit::FontEx;
   else if (unit.empty() || unit == "px")
-    unit_ = Pixel;
+    unit_ = LengthUnit::Pixel;
   else if (unit == "in")
-    unit_ = Inch; 
+    unit_ = LengthUnit::Inch;
   else if (unit == "cm")
-    unit_ = Centimeter; 
+    unit_ = LengthUnit::Centimeter;
   else if (unit == "mm")
-    unit_ = Millimeter; 
+    unit_ = LengthUnit::Millimeter;
   else if (unit == "pt")
-    unit_ = Point; 
+    unit_ = LengthUnit::Point;
   else if (unit == "pc")
-    unit_ = Pica; 
+    unit_ = LengthUnit::Pica;
   else if (unit == "%")
-    unit_ = Percentage;
+    unit_ = LengthUnit::Percentage;
   else {
     LOG_ERROR("unrecognized unit in '" << s << "'");
     auto_ = true;
     value_ = -1;
-    unit_ = Pixel;
+    unit_ = LengthUnit::Pixel;
   }
 }
 
-WLength::WLength(double value, Unit unit)
+WLength::WLength(double value, LengthUnit unit)
   : auto_(false),
     value_(value)
 { 
   setUnit(unit);
 }
 
-void WLength::setUnit(Unit unit)
+void WLength::setUnit(LengthUnit unit)
 {
   unit_ = unit;
-
-#ifndef WT_TARGET_JAVA
-  if (unit_ < FontEm || unit_ > Percentage)
-    throw WException("WLength: improper unit value.");
-#endif // WT_TARGET_JAVA
 }
 
 bool WLength::operator== (const WLength& other) const
@@ -122,10 +118,10 @@ const std::string WLength::cssText() const
 #ifndef WT_TARGET_JAVA
     char buf[30];
     Utils::round_css_str(value_, 1, buf);
-    std::strcat(buf, unitText[unit_]);
+    std::strcat(buf, unitText[static_cast<unsigned int>(unit_)]);
     return buf;
 #else
-    return boost::lexical_cast<std::string>(value_) + unitText[unit_];
+    return std::to_string(value_) + unitText[static_cast<unsigned int>(unit_)];
 #endif
   }
 }
@@ -144,14 +140,14 @@ double WLength::toPixels(double fontSize) const
   if (auto_)
     return 0;
   else
-    if (unit_ == FontEm)
+    if (unit_ == LengthUnit::FontEm)
       return value_ * fontSize;
-    else if (unit_ == FontEx)
+    else if (unit_ == LengthUnit::FontEx)
       return value_ * fontSize / 2.0; // approximate: ex/em is 0.46 to 0.56...
-    else if (unit_ == Percentage)
+    else if (unit_ == LengthUnit::Percentage)
       return value_ * fontSize / 100.0; // assuming relative to font size...
     else
-      return value_ * unitFactor[unit_ - 2];
+      return value_ * unitFactor[static_cast<unsigned int>(unit_) - 2];
 }
 
 }

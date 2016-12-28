@@ -4,11 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/SqlConnection"
-#include "Wt/Dbo/SqlStatement"
-#include "Wt/Dbo/Exception"
-#include "SqlConnection"
-#include <boost/lexical_cast.hpp>
+#include "Wt/Dbo/SqlConnection.h"
+#include "Wt/Dbo/SqlStatement.h"
+#include "Wt/Dbo/Exception.h"
+#include "SqlConnection.h"
 
 #include <cassert>
 
@@ -90,7 +89,7 @@ bool SqlConnection::usesRowsFromTo() const
 
 LimitQuery SqlConnection::limitQueryMethod() const
 {
-  return Limit;
+  return LimitQuery::Limit;
 }
 
 bool SqlConnection::supportAlterTable() const
@@ -118,7 +117,7 @@ std::string SqlConnection::textType(int size) const
   if (size == -1)
     return "text";
   else{
-    return "varchar(" + boost::lexical_cast<std::string>(size) + ")";
+    return "varchar(" + std::to_string(size) + ")";
   }
 }
 

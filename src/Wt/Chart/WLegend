@@ -7,11 +7,11 @@
 #ifndef CHART_WLEGEND_H
 #define CHART_WLEGEND_H
 
-#include <Wt/Chart/WChartGlobal>
-#include <Wt/WBrush>
-#include <Wt/WFont>
-#include <Wt/WLength>
-#include <Wt/WPen>
+#include <Wt/Chart/WChartGlobal.h>
+#include <Wt/WBrush.h>
+#include <Wt/WFont.h>
+#include <Wt/WLength.h>
+#include <Wt/WPen.h>
 
 namespace Wt {
   namespace Chart {

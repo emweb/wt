@@ -3,16 +3,15 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <cctype>
 #include <exception>
 
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WLogger"
-#include "Wt/WTemplate"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WLogger.h"
+#include "Wt/WTemplate.h"
 
 #include "EscapeOStream.h"
 #include "WebUtils.h"
@@ -155,28 +154,17 @@ bool WTemplate::IdFunction::evaluate(WTemplate *t,
 
 #endif
 
-WTemplate::WTemplate(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    previouslyRendered_(0),
-    newlyRendered_(0),
-    encodeInternalPaths_(false),
-    encodeTemplateText_(true),
-    changed_(false),
-    widgetIdMode_(SetNoWidgetId)
-{
-  plainTextNewLineEscStream_ = new EscapeOStream();
-  plainTextNewLineEscStream_->pushEscape(EscapeOStream::PlainTextNewLines);
-  setInline(false);
-}
+WTemplate::WTemplate()
+  : WTemplate(WString::Empty)
+{ }
 
-WTemplate::WTemplate(const WString& text, WContainerWidget *parent)
-  : WInteractWidget(parent),
-    previouslyRendered_(0),
-    newlyRendered_(0),
+WTemplate::WTemplate(const WString& text)
+  : previouslyRendered_(nullptr),
+    newlyRendered_(nullptr),
     encodeInternalPaths_(false),
     encodeTemplateText_(true),
     changed_(false),
-    widgetIdMode_(SetNoWidgetId)
+    widgetIdMode_(TemplateWidgetIdMode::None)
 {
   plainTextNewLineEscStream_ = new EscapeOStream();
   plainTextNewLineEscStream_->pushEscape(EscapeOStream::PlainTextNewLines);
@@ -186,27 +174,26 @@ WTemplate::WTemplate(const WString& text, WContainerWidget *parent)
 
 WTemplate::~WTemplate()
 {
+  clear();
   delete plainTextNewLineEscStream_;
 }
 
 void WTemplate::clear()
 {
-  setIgnoreChildRemoves(true);
-  /*
-   * We need to copy them first so that removeChild() will not be confused
-   * by it.
-   */
-  WidgetMap toDelete = widgets_;
-  widgets_ = WidgetMap();
-  for (WidgetMap::iterator i = toDelete.begin(); i != toDelete.end(); ++i)
-    delete i->second;
-  setIgnoreChildRemoves(false);
+  // Widgets should be orphaned before they are deleted, because
+  // when WWebWidget calls removeFromParent(), the parent should be null.
+  for (auto& i : widgets_) {
+      if(i.second)
+        widgetRemoved(i.second.get(), false);
+  }
+
+  widgets_.clear();
 
   strings_.clear();
   conditions_.clear();
 
   changed_ = true;
-  repaint(RepaintSizeAffected);  
+  repaint(RepaintFlag::SizeAffected);  
 }
 
 #ifndef WT_TARGET_JAVA
@@ -230,7 +217,7 @@ void WTemplate::setCondition(const std::string& name, bool value)
       conditions_.erase(name);
 
     changed_ = true;
-    repaint(RepaintSizeAffected);
+    repaint(RepaintFlag::SizeAffected);
   }
 }
 
@@ -239,35 +226,38 @@ bool WTemplate::conditionValue(const std::string& name) const
   return conditions_.find(name) != conditions_.end();
 }
 
-void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
+std::unique_ptr<WWidget> WTemplate::removeWidget(WWidget *widget)
 {
-  WidgetMap::iterator i = widgets_.find(varName);
-  if (i != widgets_.end()) {
-    if (i->second == widget)
-      return;
-    else {
-      WWidget *toDelete = i->second;
-#ifndef WT_TARGET_JAVA
-      widgets_.erase(i);
-#else
-      widgets_.erase(varName);
-#endif
-      delete toDelete;
-    }
-  }
+  for (auto& i : widgets_)
+    if (i.second.get() == widget)
+      return removeWidget(i.first);
 
-  if (widget) {
-    widget->setParentWidget(this);
-    widgets_[varName] = widget;
+  return std::unique_ptr<WWidget>();
+}
+
+void WTemplate::iterateChildren(const HandleWidgetMethod& method) const
+{
+  for (auto& i : widgets_) {
+    if (i.second)
+      method(i.second.get());
+  }
+}
+
+void WTemplate::bindWidget(const std::string& varName,
+			   std::unique_ptr<WWidget> widget)
+{
+  bool setNull = !widget;
+
+  if (!setNull) {
     strings_.erase(varName);
 
     switch (widgetIdMode_) {
-    case SetNoWidgetId:
+    case TemplateWidgetIdMode::None:
       break;
-    case SetWidgetObjectName:
+    case TemplateWidgetIdMode::SetObjectName:
       widget->setObjectName(varName);
       break;
-    case SetWidgetId:
+    case TemplateWidgetIdMode::SetId:
       widget->setId(varName);
     }
   } else {
@@ -277,30 +267,36 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
     strings_[varName] = WString();
   }
 
+  removeWidget(varName);
+  manageWidget(widgets_[varName], std::move(widget));
+
   changed_ = true;
-  repaint(RepaintSizeAffected);  
+  repaint(RepaintFlag::SizeAffected);  
 }
 
-WWidget *WTemplate::takeWidget(const std::string& varName)
+std::unique_ptr<WWidget> WTemplate::removeWidget(const std::string& varName)
 {
-  WidgetMap::iterator i = widgets_.find(varName);
+  std::unique_ptr<WWidget> result;
 
+  WidgetMap::iterator i = widgets_.find(varName);
   if (i != widgets_.end()) {
-    WWidget *result = i->second;
-    result->setParentWidget(0);
-    return result;
-  } else
-    return 0;
+    result = manageWidget(i->second, std::unique_ptr<WWidget>());
+    widgets_.erase(i);
+    changed_ = true;
+    repaint(RepaintFlag::SizeAffected);
+  }
+
+  return result;
 }
 
-void WTemplate::setWidgetIdMode(WidgetIdMode mode)
+void WTemplate::setWidgetIdMode(TemplateWidgetIdMode mode)
 {
   widgetIdMode_ = mode;
 }
 
 void WTemplate::bindEmpty(const std::string& varName)
 {
-  bindWidget(varName, 0);
+  bindWidget(varName, nullptr);
 }
 
 void WTemplate::bindString(const std::string& varName, const WString& value,
@@ -308,14 +304,14 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
 {
   WWidget *w = resolveWidget(varName);
   if (w)
-    bindWidget(varName, 0);
+    bindWidget(varName, nullptr);
 
   WString v = value;
 
-  if (textFormat == XHTMLText && v.literal()) {
+  if (textFormat == TextFormat::XHTML && v.literal()) {
     if (!removeScript(v))
       v = escapeText(v, true);
-  } else if (textFormat == PlainText)
+  } else if (textFormat == TextFormat::Plain)
     v = escapeText(v, true);
 
   StringMap::const_iterator i = strings_.find(varName);
@@ -324,13 +320,13 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
     strings_[varName] = v;
 
     changed_ = true;
-    repaint(RepaintSizeAffected);  
+    repaint(RepaintFlag::SizeAffected);  
   }
 }
 
 void WTemplate::bindInt(const std::string& varName, int value)
 {
-  bindString(varName, boost::lexical_cast<std::string>(value), XHTMLUnsafeText);
+  bindString(varName, std::to_string(value), TextFormat::UnsafeXHTML);
 }
 
 bool WTemplate::resolveFunction(const std::string& name,
@@ -408,9 +404,9 @@ WWidget *WTemplate::resolveWidget(const std::string& varName)
 {
   WidgetMap::const_iterator j = widgets_.find(varName);
   if (j != widgets_.end())
-    return j->second;
+    return j->second.get();
   else
-    return 0;
+    return nullptr;
 }
 
 std::vector<WWidget *> WTemplate::widgets() const
@@ -419,7 +415,7 @@ std::vector<WWidget *> WTemplate::widgets() const
 
   for (WidgetMap::const_iterator j = widgets_.begin();
        j != widgets_.end(); ++j)
-    result.push_back(j->second);
+    result.push_back(j->second.get());
 
   return result;
 }
@@ -428,7 +424,7 @@ std::string WTemplate::varName(WWidget *w) const
 {
   for (WidgetMap::const_iterator j = widgets_.begin();
        j != widgets_.end(); ++j)
-    if (j->second == w)
+    if (j->second.get() == w)
       return j->first;
 
   return std::string();
@@ -438,14 +434,14 @@ void WTemplate::setTemplateText(const WString& text, TextFormat textFormat)
 {
   text_ = text;
 
-  if (textFormat == XHTMLText && text_.literal()) {
+  if (textFormat == TextFormat::XHTML && text_.literal()) {
     if (!removeScript(text_))
       text_ = escapeText(text_, true);
-  } else if (textFormat == PlainText)
+  } else if (textFormat == TextFormat::Plain)
     text_ = escapeText(text_, true);
 
   changed_ = true;
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 void WTemplate::updateDom(DomElement& element, bool all)
@@ -456,22 +452,24 @@ void WTemplate::updateDom(DomElement& element, bool all)
 
     for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
 	 ++i) {
-      WWidget *w = i->second;
-      if (w->isRendered() && w->webWidget()->domCanBeSaved()) {
-	previouslyRendered.insert(w);
+      WWidget *w = i->second.get();
+      if (w) {
+        if (w->isRendered() && w->webWidget()->domCanBeSaved()) {
+          previouslyRendered.insert(w);
+        }
       }
     }
 
-    bool saveWidgets = element.mode() == DomElement::ModeUpdate;
+    bool saveWidgets = element.mode() == DomElement::Mode::Update;
 
-    previouslyRendered_ = saveWidgets ? &previouslyRendered : 0;
+    previouslyRendered_ = saveWidgets ? &previouslyRendered : nullptr;
     newlyRendered_ = &newlyRendered;
 
     std::stringstream html;
     renderTemplate(html);
 
-    previouslyRendered_ = 0;
-    newlyRendered_ = 0;
+    previouslyRendered_ = nullptr;
+    newlyRendered_ = nullptr;
 
     for (unsigned i = 0; i < newlyRendered.size(); ++i) {
       WWidget *w = newlyRendered[i];
@@ -483,9 +481,9 @@ void WTemplate::updateDom(DomElement& element, bool all)
     }
 
     if (encodeTemplateText_)
-      element.setProperty(Wt::PropertyInnerHTML, html.str());
+      element.setProperty(Property::InnerHTML, html.str());
     else
-      element.setProperty(Wt::PropertyInnerHTML, encode(html.str()));
+      element.setProperty(Property::InnerHTML, encode(html.str()));
 
     changed_ = false;
 
@@ -497,7 +495,7 @@ void WTemplate::updateDom(DomElement& element, bool all)
       // that the widget is still a child
       for (WidgetMap::const_iterator j = widgets_.begin();
 	   j != widgets_.end(); ++j) {
-	if (j->second == w) {
+	if (j->second.get() == w) {
 	  w->webWidget()->setRendered(false);
 	  break;
 	}
@@ -729,7 +727,7 @@ void WTemplate::format(std::ostream& result, const std::string& s,
 void WTemplate::format(std::ostream& result, const WString& s,
 		       TextFormat textFormat)
 {
-  if (textFormat == XHTMLText) {
+  if (textFormat == TextFormat::XHTML) {
     WString v = s;
     if (removeScript(v)) {
       result << v.toUTF8();
@@ -739,29 +737,13 @@ void WTemplate::format(std::ostream& result, const WString& s,
       sout.append(v.toUTF8(), *plainTextNewLineEscStream_);
       return;
     }
-  } else if (textFormat == PlainText) {
+  } else if (textFormat == TextFormat::Plain) {
     EscapeOStream sout(result);
     sout.append(s.toUTF8(), *plainTextNewLineEscStream_);
     return;
   }
 
   result << s.toUTF8();
-}
-
-void WTemplate::removeChild(WWidget *child)
-{
-  for (WidgetMap::iterator i = widgets_.begin(); i != widgets_.end(); ++i) {
-    if (i->second == child) {
-      Utils::eraseAndNext(widgets_, i);
-
-      changed_ = true;
-      repaint(RepaintSizeAffected);
-
-      break;
-    }
-  }
-
-  WInteractWidget::removeChild(child);
 }
 
 void WTemplate::propagateRenderOk(bool deep)
@@ -778,11 +760,11 @@ void WTemplate::enableAjax()
 
 DomElementType WTemplate::domElementType() const
 {
-  DomElementType type = isInline() ? DomElement_SPAN : DomElement_DIV;
+  DomElementType type = isInline() ? DomElementType::SPAN : DomElementType::DIV;
 
   WContainerWidget *p = dynamic_cast<WContainerWidget *>(parentWebWidget());
   if (p && p->isList())
-    type = DomElement_LI;
+    type = DomElementType::LI;
 
   return type;
 }
@@ -805,7 +787,7 @@ void WTemplate::refresh()
 {
   if (text_.refresh() || !strings_.empty()) {
     changed_ = true;
-    repaint(RepaintSizeAffected);
+    repaint(RepaintFlag::SizeAffected);
   }
 
   WInteractWidget::refresh();

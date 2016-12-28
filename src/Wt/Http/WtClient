@@ -7,7 +7,7 @@
 #ifndef WT_HTTP_WT_CLIENT_H_
 #define WT_HTTP_WT_CLIENT_H_
 
-#include <Wt/WFlags>
+#include <Wt/WFlags.h>
 #include <string>
 
 namespace Wt {
@@ -28,7 +28,7 @@ class WT_API WtClient
 public:
   /*! \brief Enumeration for client user-agent options.
    */
-  enum ClientOption {
+  enum class ClientOption {
     SupportsAjax = 0x1 //!< Flag that indicates supports for AJAX
   };
 
@@ -50,7 +50,8 @@ public:
 			     const std::string& port,
 			     const std::string& path,
 			     const std::string& query = std::string(),
-			     WFlags<ClientOption> flags = SupportsAjax);
+			     WFlags<ClientOption> flags
+			       = ClientOption::SupportsAjax);
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WtClient::ClientOption)

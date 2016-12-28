@@ -13,13 +13,14 @@
 #include <map>
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WServer>
-#include <Wt/WSocketNotifier>
+#include <Wt/WServer.h>
+#include <Wt/WSocketNotifier.h>
 
 #include "SocketNotifier.h"
 
 #if defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 #endif
 
 namespace http {
@@ -50,7 +51,7 @@ typedef Runnable *Function;
 #define WT_CALL_FUNCTION(f) (f)->run();
 
 #else
-typedef boost::function<void ()>  Function;
+typedef std::function<void ()>  Function;
 #define WT_CALL_FUNCTION(f) (f)();
 #endif
 
@@ -96,10 +97,10 @@ class WT_API WebController
 public:
   static bool isAsyncSupported() { return true; }
 
-  WApplication *doCreateApplication(WebSession *session);
+  std::unique_ptr<WApplication> doCreateApplication(WebSession *session);
   Configuration& configuration();
 
-  void addSession(boost::shared_ptr<WebSession> session);
+  void addSession(const std::shared_ptr<WebSession>& session);
   void removeSession(const std::string& sessionId);
   void sessionDeleted();
 
@@ -121,8 +122,8 @@ public:
   int sessionCount() const;
 
   // Returns whether we should continue receiving data.
-  bool requestDataReceived(WebRequest *request, boost::uintmax_t current,
-			   boost::uintmax_t total);
+  bool requestDataReceived(WebRequest *request, std::uintmax_t current,
+			   std::uintmax_t total);
 
   void handleRequest(WebRequest *request);
 
@@ -135,9 +136,9 @@ public:
   void start();
   void shutdown();
 
-  static std::string sessionFromCookie(const char *cookies,
+  static std::string sessionFromCookie(const char * const cookies,
 				       const std::string& scriptName,
-				       int sessionIdLength);
+                                       const int sessionIdLength);
 
   typedef std::map<int, WSocketNotifier *> SocketNotifierMap;
 
@@ -152,7 +153,7 @@ public:
 
   std::string switchSession(WebSession *session,
 			    const std::string& newSessionId);
-  std::string generateNewSessionId(boost::shared_ptr<WebSession> session);
+  std::string generateNewSessionId(const std::shared_ptr<WebSession>& session);
 
 private:
   Configuration& conf_;
@@ -164,23 +165,23 @@ private:
   bool running_;
 
 #ifdef WT_THREADED
-  boost::mutex uploadProgressUrlsMutex_;
+  std::mutex uploadProgressUrlsMutex_;
 #endif // WT_THREADED
   std::set<std::string> uploadProgressUrls_;
 
-  typedef std::map<std::string, boost::shared_ptr<WebSession> > SessionMap;
+  typedef std::map<std::string, std::shared_ptr<WebSession> > SessionMap;
   SessionMap sessions_;
 
 #ifdef WT_THREADED
   // mutex to protect access to the sessions map and plain/ajax session
   // counts
-  boost::recursive_mutex mutex_;
+  std::recursive_mutex mutex_;
 
   SocketNotifier socketNotifier_;
   // mutex to protect access to notifier maps. This cannot be protected
   // by mutex_ as this lock is grabbed while the application lock is
   // being held, which would potentially deadlock if we took mutex_.
-  boost::recursive_mutex notifierMutex_;
+  std::recursive_mutex notifierMutex_;
   SocketNotifierMap socketNotifiersRead_;
   SocketNotifierMap socketNotifiersWrite_;
   SocketNotifierMap socketNotifiersExcept_;
@@ -190,7 +191,7 @@ private:
 #endif
 
   void updateResourceProgress(WebRequest *request,
-			      boost::uintmax_t current, boost::uintmax_t total);
+			      std::uintmax_t current, std::uintmax_t total);
 
   const EntryPoint *getEntryPoint(WebRequest *request);
 

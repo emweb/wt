@@ -6,11 +6,11 @@
 
 #include "HangmanWidget.h"
 
-#include <Wt/WBreak>
-#include <Wt/WComboBox>
-#include <Wt/WPushButton>
-#include <Wt/WText>
-#include <boost/lexical_cast.hpp>
+#include <Wt/WBreak.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
+#include <Wt/WAny.h>
 
 #include "Session.h"
 #include "Dictionary.h"
@@ -24,29 +24,29 @@ namespace {
   const int MaxGuesses = 9;
 }
 
-HangmanWidget::HangmanWidget(const std::string &name, WContainerWidget *parent)
-  : WContainerWidget(parent),
+HangmanWidget::HangmanWidget(const std::string &name)
+  : WContainerWidget(),
     name_(name),
     badGuesses_(0)
 {
-  setContentAlignment(AlignCenter);
+  setContentAlignment(AlignmentFlag::Center);
   
-  title_ = new WText(tr("hangman.readyToPlay"), this);
+  title_ = addWidget(cpp14::make_unique<WText>(tr("hangman.readyToPlay")));
 
-  word_ = new WordWidget(this);
-  statusText_ = new WText(this);
-  images_ = new ImagesWidget(MaxGuesses, this);
+  word_ = addWidget(cpp14::make_unique<WordWidget>());
+  statusText_ = addWidget(cpp14::make_unique<WText>());
+  images_ = addWidget(cpp14::make_unique<ImagesWidget>(MaxGuesses));
 
-  letters_ = new LettersWidget(this);
+  letters_ = addWidget(cpp14::make_unique<LettersWidget>());
   letters_->letterPushed().connect(this, &HangmanWidget::registerGuess);
 
-  language_ = new WComboBox(this);
+  language_ = addWidget(cpp14::make_unique<WComboBox>());
   language_->addItem(tr("hangman.englishWords").arg(18957));
   language_->addItem(tr("hangman.dutchWords").arg(1688));
 
-  new WBreak(this);
+  addWidget(cpp14::make_unique<WBreak>());
 
-  newGameButton_ = new WPushButton(tr("hangman.newGame"), this);
+  newGameButton_ = addWidget(cpp14::make_unique<WPushButton>(tr("hangman.newGame")));
   newGameButton_->clicked().connect(this, &HangmanWidget::newGame);
 
   letters_->hide();
@@ -83,7 +83,7 @@ void HangmanWidget::registerGuess(char c)
   }
 
   if (badGuesses_ == MaxGuesses) {
-    WString status(tr("hangman.youHang"));
+    WString status = tr("hangman.youHang");
     statusText_->setText(status.arg(word_->word()));
 
     letters_->hide();

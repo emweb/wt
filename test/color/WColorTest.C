@@ -6,8 +6,8 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/WException>
-#include <Wt/WColor>
+#include <Wt/WException.h>
+#include <Wt/WColor.h>
 
 BOOST_AUTO_TEST_CASE( color_test_constructors )
 {

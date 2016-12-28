@@ -7,13 +7,20 @@
 #ifndef WDIALOG_H_
 #define WDIALOG_H_
 
-#include <Wt/WPopupWidget>
-#include <Wt/WContainerWidget>
-#include <Wt/WJavaScript>
+#include <Wt/WPopupWidget.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WJavaScript.h>
 
 namespace Wt {
 
 class DialogCover;
+
+/*! \brief The result of a modal dialog execution.
+ */
+enum class DialogCode { 
+  Rejected, //!< Dialog closed with reject()
+  Accepted  //!< Dialog closed with accept()
+};
 
 /*! \class WDialog Wt/WDialog Wt/WDialog
  *  \brief A %WDialog shows a dialog.
@@ -42,7 +49,7 @@ class DialogCover;
  * will block (suspend the thread) until the dialog window is closed,
  * and return the dialog result. Events within dialog are handled
  * using a so-called recursive event loop. Typically, an OK button
- * will be connected to accept(), and in some cases a Cancel button to
+ * will be connected to accept(), and in some cases a StandardButton::Cancel button to
  * reject(). This solution has the drawback that it is not scalable to
  * many concurrent sessions, since for every session with a recursive
  * event loop, a thread is locked until exec() returns. A thread that
@@ -76,7 +83,7 @@ class DialogCover;
  * Wt::WLineEdit edit(dialog.contents());
  * new Wt::WBreak(dialog.contents());
  *
- * Wt::WPushButton ok("Ok", dialog.contents());
+ * Wt::WPushButton ok("StandardButton::Ok", dialog.contents());
  *
  * // these events will accept() the Dialog
  * edit.enterPressed().connect(&dialog, &Wt::WDialog::accept);
@@ -96,7 +103,7 @@ class DialogCover;
  *   Wt::WLineEdit *edit = new Wt::WLineEdit(dialog_->contents());
  *   new Wt::WBreak(dialog_->contents());
  *  
- *   Wt::WPushButton *ok = new Wt::WPushButton("Ok", dialog_->contents());
+ *   Wt::WPushButton *ok = new Wt::WPushButton("StandardButton::Ok", dialog_->contents());
  *
  *   // these events will accept() the Dialog
  *   edit->enterPressed().connect(dialog_, &Wt::WDialog::accept);
@@ -130,29 +137,22 @@ class DialogCover;
 class WT_API WDialog : public WPopupWidget
 {
 public:
-  /*! \brief The result of a modal dialog execution.
-   */
-  enum DialogCode { Rejected, //!< Dialog closed with reject()
-		    Accepted  //!< Dialog closed with accept()
-  };
+  /*! \brief Typedef for enum Wt::DialogCode */
+  typedef DialogCode Code;
 
   /*! \brief Constructs a new dialog.
    *
    * Unlike other widgets, the dialog does not require a parent
-   * container since it is a top-level widget. You may however still
-   * provide a parent object to let the dialog be deleted together
-   * with its parent.
+   * container since it is a top-level widget.
    */
-  WDialog(WObject *parent = 0);
+  WDialog();
 
   /*! \brief Constructs a dialog with a given window title.
    *
    * Unlike other widgets, the dialog does not require a parent
-   * container since it is a top-level widget. You may however still
-   * provide a parent object to let the dialog be deleted together
-   * with its parent.
+   * container since it is a top-level widget.
    */
-  WDialog(const WString& windowTitle, WObject *parent = 0);
+  WDialog(const WString& windowTitle);
 
   /*! \brief Deletes a dialog.
    */
@@ -171,20 +171,6 @@ public:
    * \sa setWindowTitle()
    */
   WString windowTitle() const;
-
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Sets the dialog caption (<b>deprecated</b>).
-   *
-   * \deprecated Use setWindowTitle() instead.
-   */
-  void setCaption(const WString& caption);
-
-  /*! \brief Returns the dialog caption (<b>deprecated</b>).
-   *
-   * \deprecated Use windowTitle() instead.
-   */
-  WString caption() const;
-#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Enables or disables the title bar.
    *
@@ -224,7 +210,7 @@ public:
    * of execution until one of done(DialogCode), accept() or reject()
    * is called.
    *
-   * <i>Warning: using exec() does not scale to many concurrent
+   * <i>Icon::Warning: using exec() does not scale to many concurrent
    * sessions, since the thread is locked until exec returns, so the
    * entire server will be unresponsive when the thread pool is
    * exhausted.</i>
@@ -348,17 +334,18 @@ public:
 
   /*! \brief Returns whether the dialog can be closed.
    */
-  bool closable() const { return closeIcon_ != 0; }
+  bool closable() const { return closeIcon_ != nullptr; }
 
   /*! \brief Set focus on the first widget in the dialog.
    */
   void setAutoFocus(bool enable){ autoFocus_ = enable;}
 
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
+			 const WAnimation& animation = WAnimation()) override;
 
   virtual void positionAt(const WWidget *widget,
-			  Orientation orientation = Vertical);
+			  Orientation orientation = Orientation::Vertical)
+    override;
   
   /*! \brief Set the position of the widget at the mouse position
    */
@@ -368,8 +355,10 @@ public:
    */
   void raiseToFront();
 
-  virtual void setMinimumSize(const WLength& width, const WLength& height);
-  virtual void setMaximumSize(const WLength& width, const WLength& height);
+  virtual void setMinimumSize(const WLength& width, const WLength& height)
+    override;
+  virtual void setMaximumSize(const WLength& width, const WLength& height)
+    override;
 
   /*! \brief %Signal emitted when the dialog is being resized by the user.
    *
@@ -444,7 +433,7 @@ public:
   EventSignal<WTouchEvent>& touchMoved();
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
   WTemplate *impl_;

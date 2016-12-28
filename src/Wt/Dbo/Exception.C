@@ -4,9 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/Exception"
-
-#include <boost/lexical_cast.hpp>
+#include "Wt/Dbo/Exception.h"
 
 namespace Wt {
   namespace Dbo {
@@ -22,7 +20,7 @@ StaleObjectException::StaleObjectException(const std::string& id,
 					   const char *table,
 					   int version)
   : Exception(std::string("Stale object, ") + table + ", id = " + id +
-	      ", version = " + boost::lexical_cast<std::string>(version))
+              ", version = " + std::to_string(version))
 { }
 
 ObjectNotFoundException::ObjectNotFoundException(const char *table,

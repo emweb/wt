@@ -6,12 +6,12 @@
 
 #include "WordWidget.h"
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 using namespace Wt;
 
-WordWidget::WordWidget(WContainerWidget *parent) :
-  WContainerWidget(parent)
+WordWidget::WordWidget() :
+  WContainerWidget()
 {
   addStyleClass("wordcontainer");
 }
@@ -24,7 +24,7 @@ void WordWidget::init(const std::wstring &word)
   clear();
   wordLetters_.clear();
   for(unsigned int i = 0; i < word_.size(); ++i) {
-    WText *c = new WText("-", this);
+    WText *c = this->addWidget(cpp14::make_unique<WText>("-"));
     wordLetters_.push_back(c);
   }
 }

@@ -7,7 +7,7 @@
 #ifndef WSTRING_LIST_MODEL_H_
 #define WSTRING_LIST_MODEL_H_
 
-#include <Wt/WAbstractListModel>
+#include <Wt/WAbstractListModel.h>
 
 namespace Wt {
 
@@ -25,11 +25,7 @@ namespace Wt {
  * retrieve data using the setData() and data() methods, and add or
  * remove data using the insertRows() and removeRows() methods.
  *
- * \if cpp
- * \sa WComboBox, WSelectionBox, Ext::ComboBox
- * \elseif java
  * \sa WComboBox, WSelectionBox
- * \endif
  *
  * \ingroup modelview
  */
@@ -38,11 +34,11 @@ class WT_API WStringListModel : public WAbstractListModel
 public:
   /*! \brief Creates a new empty string list model.
    */
-  WStringListModel(WObject *parent = 0);
+  WStringListModel();
 
   /*! \brief Creates a new string list model.
    */
-  WStringListModel(const std::vector<WString>& strings, WObject *parent = 0);
+  WStringListModel(const std::vector<WString>& strings);
 
   /*! \brief Destructor.
    */
@@ -77,9 +73,9 @@ public:
 
   /*! \brief Sets model flags for an item.
    *
-   * The default item flags are \link Wt::ItemIsSelectable
-   * ItemIsSelectable\endlink | \link Wt::ItemIsEditable
-   * ItemIsEditable\endlink.
+   * The default item flags are \link Wt::ItemFlag::Selectable
+   * ItemFlag::Selectable\endlink | \link Wt::ItemFlag::Editable
+   * ItemFlag::Editable\endlink.
    */
   void setFlags(int index, WFlags<ItemFlag> flags);
 
@@ -89,30 +85,32 @@ public:
    *
    * \sa setFlags()
    */
-  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
   using WAbstractListModel::setData;
-  virtual bool setData(const WModelIndex& index, const boost::any& value,
-		       int role = EditRole);
+  virtual bool setData(const WModelIndex& index, const cpp17::any& value,
+		       int role = ItemDataRole::Edit) override;
 
-  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
-    const;
+  virtual cpp17::any data(const WModelIndex& index, int role = ItemDataRole::Display)
+    const override;
 
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex())
+    const override;
 
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex()) override;
 
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex()) override;
 
-  virtual void sort(int column, SortOrder order = AscendingOrder);
+  virtual void sort(int column,
+		    SortOrder order = SortOrder::Ascending) override;
 
 private:
 #ifndef WT_TARGET_JAVA
-  typedef std::map<int, boost::any> DataMap;
+  typedef std::map<int, cpp17::any> DataMap;
 #else
-  typedef std::treemap<int, boost::any> DataMap;
+  typedef std::treemap<int, cpp17::any> DataMap;
 #endif
 
   std::vector<WString> displayData_;

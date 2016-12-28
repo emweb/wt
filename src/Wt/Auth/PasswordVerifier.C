@@ -6,11 +6,11 @@
 
 #include <string>
 
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 #include "AuthUtils.h"
-#include "HashFunction"
-#include "PasswordHash"
-#include "PasswordVerifier"
+#include "HashFunction.h"
+#include "PasswordHash.h"
+#include "PasswordVerifier.h"
 
 namespace Wt {
 
@@ -23,19 +23,24 @@ PasswordVerifier::PasswordVerifier()
 { }
 
 PasswordVerifier::~PasswordVerifier()
-{ 
-  for (unsigned i = 0; i < hashFunctions_.size(); ++i)
-    delete hashFunctions_[i];
+{ }
+
+void PasswordVerifier::addHashFunction(std::unique_ptr<HashFunction> function)
+{
+  hashFunctions_.push_back(std::move(function));
 }
 
-void PasswordVerifier::addHashFunction(HashFunction *function)
+const std::vector<HashFunction *> PasswordVerifier::hashFunctions() const
 {
-  hashFunctions_.push_back(function);
+  std::vector<HashFunction *> result;
+  for (auto &hashFunction : hashFunctions_)
+    result.push_back(hashFunction.get());
+  return result;
 }
 
 bool PasswordVerifier::needsUpdate(const PasswordHash& hash) const
 {
-  return hash.function() != hashFunctions()[0]->name();
+  return hash.function() != hashFunctions_[0]->name();
 }
 
 PasswordHash PasswordVerifier::hashPassword(const WString& password) const

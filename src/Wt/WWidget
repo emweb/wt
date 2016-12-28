@@ -7,22 +7,22 @@
 #ifndef WWIDGET_H_
 #define WWIDGET_H_
 
-#include <Wt/WObject>
-#include <Wt/WGlobal>
-#include <Wt/WAnimation>
-#include <Wt/WLength>
-#include <Wt/WSignal>
-#include <Wt/WJavaScript>
+#include <Wt/WObject.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WAnimation.h>
+#include <Wt/WLength.h>
+#include <Wt/WSignal.h>
+#include <Wt/WJavaScript.h>
 
-#include <boost/utility.hpp>
+#include <list>
 #include <vector>
 #include <sstream>
 
 namespace Wt {
 
-enum RepaintFlag {
-  RepaintSizeAffected = 0x1,
-  RepaintToAjax = 0x2
+enum class RepaintFlag {
+  SizeAffected = 0x1,
+  ToAjax = 0x2
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag)
@@ -30,9 +30,6 @@ W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag)
 class WContainerWidget;
 class WCssDecorationStyle;
 class WDropEvent;
-class WLayout;
-class WLayoutItemImpl;
-class WLayoutItem;
 class WMouseEvent;
 class WString;
 class WWebWidget;
@@ -68,36 +65,40 @@ class WCssTextRule;
  * use when the widget is not inserted into a layout manager.
  */
 class WT_API WWidget : public WObject
-#ifndef WT_TARGET_JAVA
-  , boost::noncopyable
-#endif // WT_TARGET_JAVA
 {
 public:
   /*! \brief Destructor.
    *
-   * Deletes a widget and all children (recursively). If the widget is
-   * contained in another widget, it is removed first.
+   * Deletes a widget and all contained contents.
    *
-   * \sa WContainerWidget::removeWidget()
+   * \sa WWidget::removeWidget()
    */
   virtual ~WWidget();
 
   /*! \brief Returns the parent widget.
-   *
-   * With a few exceptions, the parent is a WContainerWidget, and has
-   * been set implicitly when adding the widget to a container using
-   * WContainerWidget::addWidget(), by passing a container as a parent
-   * to the constructor, or by inserting the widget into a layout
-   * manager.
    */
-  WWidget *parent() const { return dynamic_cast<WWidget *>(WObject::parent()); }
+  WWidget *parent() const { return parent_; }
 
-  virtual void removeChild(WObject *child);
+  /*! \brief Returns child widgets.
+   *
+   * This returns widgets for which widget->parent() == this.
+   */
+  virtual std::vector<WWidget *> children() const = 0;
+
+  /*! \brief Removes a child widget.
+   */
+  virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget);
+
+  /*! \brief Removes the widget from its parent.
+   *
+   * This is equivalent to parent()->removeWidget(this);
+   */
+  std::unique_ptr<WWidget> removeFromParent();
 
   /*! \brief Sets the CSS position scheme.
    *
    * Establishes how the widget must be layed-out relative to its
-   * siblings. The default position scheme is Static.
+   * siblings. The default position scheme is PositionScheme::Static.
    *
    * This applies to CSS-based layout.
    *
@@ -115,23 +116,23 @@ public:
 
   /*! \brief Sets CSS offsets for a non-statically positioned widget.
    *
-   * The argument \p sides may be a combination of Wt::Left,
-   * Wt::Right, Wt::Top, and Wt::Bottom.
+   * The argument \p sides may be a combination of Wt::Side::Left,
+   * Wt::Side::Right, Wt::Side::Top, and Wt::Side::Bottom.
    *
    * This applies only to widgets that have a position scheme that is
-   * Wt::Relative, Wt::Absolute, or Wt::Fixed, and has a slightly
+   * Wt::PositionScheme::Relative, Wt::PositionScheme::Absolute, or Wt::PositionScheme::Fixed, and has a slightly
    * different meaning for these three cases.
    *
-   * For a \link Wt::Relative relatively positioned\endlink widget, an
+   * For a \link Wt::PositionScheme::Relative relatively positioned\endlink widget, an
    * offset applies relative to the position the widget would have
-   * when layed-out using a \link Wt::Static static\endlink position
+   * when layed-out using a \link Wt::PositionScheme::Static static\endlink position
    * scheme. The widget may be shifted to the left or right by
-   * specifying an offset for the \link Wt::Left left\endlink or \link
-   * Wt::Right right\endlink) side. The widget may be shifted
-   * vertically, by specifying an offset for the \link Wt::AlignTop
-   * top\endlink or \link Wt::Bottom bottom\endlink side.
+   * specifying an offset for the \link Wt::Side::Left left\endlink or \link
+   * Wt::Side::Right right\endlink) side. The widget may be shifted
+   * vertically, by specifying an offset for the \link Wt::AlignmentFlag::Top
+   * top\endlink or \link Wt::Side::Bottom bottom\endlink side.
    *
-   * For an \link Wt::Absolute absolutely positioned\endlink widget,
+   * For an \link Wt::PositionScheme::Absolute absolutely positioned\endlink widget,
    * an offset specifies a distance of the corresponding side of the
    * widget with respect to the corresponding side of the reference
    * parent widget. Thus, setting all offsets to 0 result in a widget
@@ -139,7 +140,7 @@ public:
    * widget is the first ancestor widget that is a table cell, or a
    * widget with a relative, absolute or fixed position scheme.
    *
-   * For an \link Wt::Fixed fixed positioned\endlink widget, an offset
+   * For an \link Wt::PositionScheme::Fixed fixed positioned\endlink widget, an offset
    * specifies a distance of the corresponding side of the widget with
    * respect to the browser window, regardless of scrolling. Thus,
    * setting all offsets to 0 result in a widget that spans the entire
@@ -149,7 +150,8 @@ public:
    *
    * \sa offset(Side) const
    */
-  virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All) = 0;
+  virtual void setOffsets(const WLength& offset,
+			  WFlags<Side> sides = AllSides) = 0;
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Sets CSS offsets for a non-statically positioned widget.
@@ -158,7 +160,7 @@ public:
    *
    * \sa setOffsets(const WLength&, WFlags<Side>)
    */
-  void setOffsets(int pixels, WFlags<Side> sides = All);
+  void setOffsets(int pixels, WFlags<Side> sides = AllSides);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns a CSS offset.
@@ -249,7 +251,7 @@ public:
 
   /*! \brief Sets the height.
    *
-   * This is a convenience method to change only the width of a widget, and
+   * This is a convenience method to change only the height of a widget, and
    * is implemented as:
    * \code
    * resize(width(), height)
@@ -268,7 +270,7 @@ public:
    *
    * The default minimum width and height is 0. The special value
    * WLength::Auto indicates that the initial width is used as minimum
-   * size. A WLength::Percentage size should not be used, as this is
+   * size. A LengthUnit::Percentage size should not be used, as this is
    * (in virtually all cases) undefined behaviour.
    *
    * When the widget is inserted in a layout manager, then the minimum size
@@ -300,7 +302,7 @@ public:
    * and <tt>max-height</tt> properties.
    *
    * The default the maximum width and height are WLength::Auto,
-   * indicating no maximum size. A WLength::Percentage size should not
+   * indicating no maximum size. A LengthUnit::Percentage size should not
    * be used, as this is (in virtually all cases) undefined behaviour.
    *
    * When the widget is a container widget that contains a layout
@@ -336,12 +338,12 @@ public:
    * widget. Both widgets must be visible (including all their
    * ancestors). The current widget is shown automatically if needed.
    *
-   * When \p orientation = Wt::Vertical, the widget is displayed below the
+   * When \p orientation = Wt::Orientation::Vertical, the widget is displayed below the
    * other widget (or above in case there is not enough room
    * below). It is aligned so that the left edges align (or the right
    * edges if there is not enough room to the right).
    *
-   * Conversely, when \p orientation = Wt::Horizontal, the widget is
+   * Conversely, when \p orientation = Wt::Orientation::Horizontal, the widget is
    * displayed to the right of the other widget (or to the left in
    * case there is not enough room to the right). It is aligned so
    * that the top edges align (or the bottom edges if there is not
@@ -350,7 +352,7 @@ public:
    * \note This only works if JavaScript is available.
    */
   virtual void positionAt(const WWidget *widget,
-			  Orientation orientation = Vertical);
+			  Orientation orientation = Orientation::Vertical);
 
   /*! \brief Sets the CSS line height for contained text.
    */
@@ -364,12 +366,12 @@ public:
 
   /*! \brief Specifies a CSS float side.
    *
-   * This only applies to widgets with a Wt::Static positionScheme().
+   * This only applies to widgets with a Wt::PositionScheme::Static positionScheme().
    *
    * This lets the widget float to one of the sides of the parent
    * widget, at the current line. A typical use is to position images
    * within text. Valid values for Side or \if cpp Wt::None \elseif
-   * java {javadoclink Side#None None} \endif, Wt::Left or Wt::Right.
+   * java {javadoclink Side#None None} \endif, Wt::Side::Left or Wt::Side::Right.
    *
    * This applies to CSS-based layout.
    */
@@ -384,8 +386,8 @@ public:
   /*! \brief Sets the sides that should be cleared of floats.
    *
    * This pushes the widget down until it is not surrounded by floats
-   * at the \p sides (which may be a combination of Wt::Left and
-   * Wt::Right).
+   * at the \p sides (which may be a combination of Wt::Side::Left and
+   * Wt::Side::Right).
    * 
    * This applies to CSS-based layout.
    *
@@ -405,13 +407,14 @@ public:
    * and surrounding widgets. The default margin (with an automatic length)
    * is zero.
    *
-   * Use any combination of Wt::Left, Wt::Right, Wt::Bottom, or Wt::Top.
+   * Use any combination of Wt::Side::Left, Wt::Side::Right, Wt::Side::Bottom, or Wt::Side::Top.
    *
    * This applies to CSS-based layout.
    *
    * \sa margin()
    */
-  virtual void setMargin(const WLength& margin, WFlags<Side> sides = All) = 0;
+  virtual void setMargin(const WLength& margin,
+			 WFlags<Side> sides = AllSides) = 0;
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Sets CSS margins around the widget.
@@ -420,7 +423,8 @@ public:
    *
    * \sa setMargin(const WLength&, WFlags<Side>)
    */
-  virtual void setMargin(int pixels, WFlags<Side> sides = All);
+  virtual void setMargin(int pixels,
+			 WFlags<Side> sides = AllSides);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns a CSS margin set.
@@ -538,7 +542,7 @@ public:
    * popup widgets previously added to the container).
    *
    * This will only have an effect when the widgetis either
-   * Wt::Absolute or Wt::Fixed positionScheme().
+   * Wt::PositionScheme::Absolute or Wt::PositionScheme::Fixed positionScheme().
    *
    * This applies to CSS-based layout, and configures the z-index
    * property.
@@ -685,7 +689,7 @@ public:
    *
    * The tooltip is displayed when the cursor hovers over the widget.
    *
-   * When \p textFormat is XHTMLText, the tooltip may contain any valid
+   * When \p textFormat is TextFormat::XHTML, the tooltip may contain any valid
    * XHTML snippet. The tooltip will then be rendered using JavaScript.
    *
    * Note: This will set deferred tooltip to false.
@@ -693,7 +697,7 @@ public:
    * \sa setDeferredTooltip()
    */
   virtual void setToolTip(const WString& text,
-			  TextFormat textFormat = PlainText) = 0;
+			  TextFormat textFormat = TextFormat::Plain) = 0;
 
   /*! \brief Returns the tooltip.
    */
@@ -704,7 +708,7 @@ public:
    *  You may override toolTip() to read data only when the user hovers over
    *  the widget.
    *
-   *  When \p textFormat is XHTMLText, the tooltip may contain any valid
+   *  When \p textFormat is TextFormat::XHTML, the tooltip may contain any valid
    *  XHTML snippet. The tooltip will then be rendered using JavaScript.
    *
    *  Note: To change existing toolTip call setDeferredToolTip() again.
@@ -712,7 +716,8 @@ public:
    *  \sa toolTip
    */
   virtual void setDeferredToolTip(bool enable,
-                                  TextFormat textFormat = PlainText) = 0;
+                                  TextFormat textFormat = TextFormat::Plain)
+    = 0;
 
   /*! \brief Refresh the widget.
    *
@@ -950,7 +955,7 @@ public:
 
   /*! \brief Streams the (X)HTML representation.
    *
-   * Streams the widget as UTF8-encoded (HTML-compatible) XHTML.
+   * Streams the widget as CharEncoding::UTF8-encoded (HTML-compatible) XHTML.
    *
    * This may be useful as a debugging tool for the web-savvy, or in
    * other rare situations. Usually, you will not deal directly with
@@ -1115,8 +1120,9 @@ public:
 
   void addJSignal(EventSignalBase * signal);
 
-protected:
   static const char *WT_RESIZE_JS;
+
+protected:
   static const char *WT_GETPS_JS;
 
   /*! \brief Sets the widget to be aware of its size set by a layout manager.
@@ -1153,11 +1159,8 @@ protected:
   virtual void layoutSizeChanged(int width, int height);
 
   /*! \brief Creates a widget.
-   *
-   * When a parent container is specified, the widget is added to the
-   * container, using WContainerWidget::addWidget().
    */
-  WWidget(WContainerWidget* parent = 0);
+  WWidget();
 
   /*! \brief Handles a drop event.
    *
@@ -1254,11 +1257,7 @@ protected:
   void getDropTouch(const std::string sourceId, const std::string mimeType,
 	       WTouchEvent event);
 
-  virtual void addChild(WWidget *child) = 0;
-  virtual void removeChild(WWidget *child) = 0;
   virtual void setHideWithOffsets(bool how = true) = 0;
-
-  virtual void setParentWidget(WWidget *parent);
 
   virtual bool isStubbed() const = 0;
 
@@ -1272,7 +1271,7 @@ protected:
    *
    * \sa render()
    */
-  void scheduleRender(WFlags<RepaintFlag> flags = 0);
+  void scheduleRender(WFlags<RepaintFlag> flags = None);
 
   /*! \brief Renders the widget.
    *
@@ -1291,13 +1290,7 @@ protected:
 
   WWidget *adam();
 
-  virtual void setLayout(WLayout *layout);
-
-#ifndef WT_NO_BOOST_INTRUSIVE
-  typedef boost::intrusive::list<EventSignalBase> EventSignalList;
-#else
   typedef std::list<EventSignalBase *> EventSignalList;
-#endif
 
   void addEventSignal(EventSignalBase& s);
   EventSignalBase *getEventSignal(const char *name);
@@ -1306,7 +1299,7 @@ protected:
   virtual WStatelessSlot *getStateless(Method method);
 
   void renderOk();
-  void scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags = 0);
+  void scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags = None);
   bool needRerender() const { return flags_.test(BIT_NEED_RERENDER); }
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
@@ -1336,17 +1329,14 @@ private:
   EventSignalList eventSignals_;
   std::vector<EventSignalBase*> jsignals_;
 
-  void setHasParent(bool hasParent);
+  WWidget *parent_;
   void setJsSize();
   void undoHideShow();
   void undoDisableEnable();
+  virtual void setParentWidget(WWidget *parent);
 
   virtual WWebWidget *webWidget() = 0;
 
-  virtual WLayoutItemImpl  *createLayoutItemImpl(WLayoutItem *layout);
-  virtual WLayout          *layout();
-
-  friend class StdWidgetItemImpl;
   friend class WebRenderer;
   friend class WAbstractArea;
   friend class WAbstractItemView;
@@ -1356,7 +1346,6 @@ private:
   friend class WCompositeWidget;
   friend class WFileUpload;
   friend class WGLWidget;
-  friend class WLayout;
   friend class WMenuItem;
   friend class WPaintedWidget;
   friend class WPopupWidget;
@@ -1365,6 +1354,7 @@ private:
   friend class WViewWidget;
   friend class WWebWidget;
   friend class WWidgetItem;
+  friend class StdWidgetItemImpl;
 };
 
 }

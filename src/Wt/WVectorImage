@@ -7,7 +7,7 @@
 #ifndef WVECTOR_IMAGE_H_
 #define WVECTOR_IMAGE_H_
 
-#include <Wt/WPaintDevice>
+#include <Wt/WPaintDevice.h>
 
 namespace Wt {
 

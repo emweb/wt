@@ -7,10 +7,9 @@
 #ifndef WTEXTEDIT_H_
 #define WTEXTEDIT_H_
 
-#include <Wt/WTextArea>
-#include <Wt/WJavaScript>
-
-#include <boost/any.hpp>
+#include <Wt/WAny.h>
+#include <Wt/WTextArea.h>
+#include <Wt/WJavaScript.h>
 
 namespace Wt {
 
@@ -96,13 +95,13 @@ class WT_API WTextEdit : public WTextArea
 public:
   /*! \brief Creates a new text editor.
    */
-  WTextEdit(WContainerWidget *parent = 0);
+  WTextEdit();
 
   /*! \brief Creates a new text editor and initialize with given text.
    *
    * The \p text should be valid XHTML.
    */
-  WTextEdit(const WT_USTRING& text, WContainerWidget *parent = 0);
+  WTextEdit(const WT_USTRING& text);
 
   /*! \brief Destructor.
    */
@@ -120,7 +119,7 @@ public:
    *
    * The default value is "".
    */
-  virtual void setText(const WT_USTRING& text);
+  virtual void setText(const WT_USTRING& text) override;
 
   /*! \brief Sets the stylesheet for displaying the content.
    *
@@ -210,25 +209,25 @@ public:
    * and these may be overridden using this method.
    */
   void setConfigurationSetting(const std::string& name, 
-			       const boost::any& value);
+			       const cpp17::any& value);
 
   /*! \brief Returns a TinyMCE configuration setting's value.
    *
-   * An empty boost::any is returned when no value could be found for the 
+   * An empty Any is returned when no value could be found for the 
    * provided argument.
    */
-  boost::any configurationSetting(const std::string& name) const;
+  cpp17::any configurationSetting(const std::string& name) const;
 
   /*! \brief Sets the placeholder text.
    *
    * This method is not supported on WTextEdit and will thrown an exception
    * instead.
    */
-  virtual void setPlaceholderText(const WString& placeholder);
+  virtual void setPlaceholderText(const WString& placeholder) override;
 
-  virtual void setReadOnly(bool readOnly);
-  virtual void propagateSetEnabled(bool enabled);
-  virtual void resize(const WLength& width, const WLength& height);
+  virtual void setReadOnly(bool readOnly) override;
+  virtual void propagateSetEnabled(bool enabled) override;
+  virtual void resize(const WLength& width, const WLength& height) override;
 
   /*! \brief %Signal emitted when rendered.
    *
@@ -240,21 +239,21 @@ public:
   JSignal<>& rendered() { return onRender_; }
 
 protected:
-  virtual std::string renderRemoveJs(bool recursive);
-  virtual void updateDom(DomElement& element, bool all);
+  virtual std::string renderRemoveJs(bool recursive) override;
+  virtual void updateDom(DomElement& element, bool all) override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
-  virtual bool domCanBeSaved() const;
+			     WApplication *app) override;
+  virtual bool domCanBeSaved() const override;
 
-  virtual int boxPadding(Orientation orientation) const;
-  virtual int boxBorder(Orientation orientation) const;
+  virtual int boxPadding(Orientation orientation) const override;
+  virtual int boxBorder(Orientation orientation) const override;
 
 private:
   JSignal<> onChange_;
   JSignal<> onRender_;
   int version_;
   bool contentChanged_;
-  std::map<std::string, boost::any> configurationSettings_;
+  std::map<std::string, cpp17::any> configurationSettings_;
 
   std::string plugins() const;
 

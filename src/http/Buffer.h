@@ -8,14 +8,12 @@
 #ifndef HTTP_BUFFER_HPP
 #define HTTP_BUFFER_HPP
 
-#include <boost/asio.hpp>
-
-#include <boost/array.hpp>
+#include <array>
 
 namespace http {
 namespace server {
 
-typedef boost::array<char, 8192> Buffer;
+typedef std::array<char, 8192> Buffer;
 
 }
 }

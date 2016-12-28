@@ -59,7 +59,7 @@ IF(ANDROID)
   ENDIF(NOT DEFINED ANDROID_SDK_TARGET_ID)
 
   SET(SHARED_LIBS OFF)
-  add_definitions(-DANDROID -DWT_NO_STD_WSTRING=ON -DWT_NO_STD_LOCALE=ON)
+  add_definitions(-DANDROID) # TODO(Roel): WT_NO_STD_WSTRING/WT_NO_STD_LOCALE?
 ENDIF(ANDROID)
 
 #
@@ -110,31 +110,10 @@ OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
 
-# C++11 vs C++98
-# Binary compatibility is not guaranteed. We give our users the choice on
-# how to compile Wt
-# We're not sure yet if you can safely link Wt compiled in 03 mode against
-# an application compiled in 11 mode. Boost probably causes problems here
-# (specially boost.signals2)
 IF(NOT MSVC)
-  # For now, don't auto-detect
-  #IF(CMAKE_COMPILER_IS_GNUCXX)
-  #  execute_process(COMMAND ${CMAKE_C_COMPILER} "-dumpversion"
-  #                  OUTPUT_VARIABLE GCC_VERSION)
-  #  IF(${GCC_VERSION} VERSION_GREATER "4.5.99")
-  #    SET(HAS_CXX11 ON)
-  #  ENDIF(${GCC_VERSION} VERSION_GREATER "4.5.99")
-  #ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-  SET(WT_CPP_11_MODE "" CACHE STRING "C++ mode to compile Wt in (leave empty for your compiler's default, or set to -std=c++11, -std=c++0x, ...)")
-  IF(WT_CPP_11_MODE)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WT_CPP_11_MODE}")
-    SET(HAS_CXX11 ON)
-  ENDIF(WT_CPP_11_MODE)
-ELSE(NOT MSVC)
-  # For once, msvs is easier than gcc/llvm
-  IF(MSVC_VERSION GREATER 1600)
-    SET(HAS_CXX11 ON)
-  ENDIF(MSVC_VERSION GREATER 1600)
+  #MSVC always enables its c++11 features by default
+  SET(WT_CPP_11_MODE "-std=c++11" CACHE STRING "C++ mode to compile Wt in (defaults to -std=c++11, you can set it to -std=c++11, -std=c++0x, -std=c++14,...)")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WT_CPP_11_MODE}")
 ENDIF(NOT MSVC)
 
 IF(MSVC)
@@ -298,6 +277,7 @@ SET(GM_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of GraphicsMagick library (overrides USERLIB_PREFIX)")
 SET(SKIA_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Prefix of skia library (overrides USERLIB_PREFIX)")
+SET(WT_TZDATA_INSTALL "." CACHE PATH "The location where the time zone data is installed (defaults to current working directory)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 
@@ -387,8 +367,7 @@ IF(NOT BOOST_WT_FOUND)
       "Note 2: the code to discover boost is located in cmake/WtFindBoost.txt\n"
       "Note 3: on windows, set BOOST_PREFIX to the full path, eg "
       "c:/Program Files/boost/boost_1_38\n\n"
-      "Note 4: if you do not have boost.random, set WT_NO_BOOST_RANDOM to ON"
-      "Wt requires the following C++ boost libraries: date_time, regex, program_options, signals, random, and optionally thread")
+      "Wt requires the following C++ boost libraries: program_options and random")
   MESSAGE(FATAL_ERROR ${ERR})
 ENDIF(NOT BOOST_WT_FOUND)
 
@@ -409,34 +388,6 @@ ELSE(BOOST_WT_MT_FOUND)
   MESSAGE("** Disabling multi threading: could not find multi-threaded boost libraries")
   ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
 ENDIF(BOOST_WT_MT_FOUND)
-
-# decide on signals vs signals2
-# boost 1.54 deprecated boost signals -> use signals2
-IF (Boost_VERSION GREATER 105300)
-  MESSAGE(STATUS "Boost ${Boost_VERSION} > 1.53, WT_SIGNALS_IMPLEMENTATION = boost.signals2 recommended")
-  SET(DEFAULT_WT_SIGNALS_IMPLEMENTATION "boost.signals2")
-ELSE (Boost_VERSION GREATER 105300)
-  SET(DEFAULT_WT_SIGNALS_IMPLEMENTATION "boost.signals")
-  MESSAGE(STATUS "Boost ${Boost_VERSION} < 1.54, WT_SIGNALS_IMPLEMENTATION = boost.signals recommended")
-ENDIF (Boost_VERSION GREATER 105300)
-SET(WT_SIGNALS_IMPLEMENTATION ${DEFAULT_WT_SIGNALS_IMPLEMENTATION} CACHE STRING "Select what implementation should be used for Wt signals")
-IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
-  MESSAGE(STATUS "Informational: WT_SIGNALS_IMPLEMENTATION should be either boost.signals or boost.signals2")
-ELSE (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
-  SET_PROPERTY(CACHE WT_SIGNALS_IMPLEMENTATION PROPERTY STRINGS boost.signals boost.signals2)
-ENDIF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
-
-
-IF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
-  MESSAGE(STATUS "Selecting boost.signals")
-  SET(WT_USE_BOOST_SIGNALS ON)
-  SET(WT_USE_BOOST_SIGNALS2 OFF)
-ELSEIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals2")
-  MESSAGE(STATUS "Selecting boost.signals2")
-  SET(WT_USE_BOOST_SIGNALS OFF)
-  SET(WT_USE_BOOST_SIGNALS2 ON)
-ENDIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
-
 
 # decide on GraphicsMagick vs skia
 # todo: set default to whatever was found
@@ -461,6 +412,26 @@ ELSEIF (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "skia")
 ELSE (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "GraphicsMagick")
     MESSAGE("** Disabled WRasterimage support. Set WT_WRASTERIMAGE_IMPLEMENTATION to GraphicsMagick or skia.")
 ENDIF (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "GraphicsMagick")
+
+SET(WT_CPP17_ANY_DEFAULT_IMPLEMENTATION "thelink2012")
+SET(WT_CPP17_ANY_IMPLEMENTATION ${WT_CPP17_ANY_DEFAULT_IMPLEMENTATION} CACHE STRING
+"Implementation for Wt::cpp17::any. Defaults to \"thelink2012\": an included implementation of any by GitHub user thelink2012. Use \"std\" for std::any, or \"experimental\" for std::experimental::any, if compiler support is available. You may have to change WT_CPP_11_MODE to enable C++17 support in the compiler.")
+   
+IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+  MESSAGE(STATUS "Informational: WT_CPP17_ANY_IMPLEMENTATION should be thelink2012, experimental, or std")
+ELSE (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+  SET_PROPERTY(CACHE WT_CPP17_ANY_IMPLEMENTATION PROPERTY STRINGS thelink2012 experimental std)
+ENDIF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+
+IF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
+  SET(WT_ANY_IS_THELINK2012_ANY ON)
+ELSEIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "experimental")
+  SET(WT_ANY_IS_EXPERIMENTAL_ANY ON)
+ELSEIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "std")
+  SET(WT_ANY_IS_STD_ANY ON)
+ELSE (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
+  MESSAGE(FATAL_ERROR "WT_CPP17_ANY_IMPLEMENTATION must be one of thelink2012, experimental, or std")
+ENDIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
 
 FIND_PACKAGE(Doxygen)
 

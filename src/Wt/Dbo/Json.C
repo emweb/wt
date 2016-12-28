@@ -5,9 +5,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Json"
+#include "Json.h"
 
-#include <Wt/WString>
+#include <Wt/WString.h>
 #include <Wt/Dbo/Field_impl.h>
 
 #include "EscapeOStream.h"

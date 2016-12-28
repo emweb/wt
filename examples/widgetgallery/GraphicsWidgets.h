@@ -18,19 +18,19 @@ public:
   virtual void populateSubMenu(Wt::WMenu *menu);
 
 private:
-  Wt::WWidget *painting2d();
-  Wt::WWidget *paintbrush();
-  Wt::WWidget *categoryChart();
-  Wt::WWidget *scatterPlot();
-  Wt::WWidget *axisSliderWidget();
-  Wt::WWidget *pieChart();
-  Wt::WWidget *googleMap();
-  Wt::WWidget *painting3d();
-  Wt::WWidget *numCharts3d();
-  Wt::WWidget *catCharts3d();
+  std::unique_ptr<WWidget> painting2d();
+  std::unique_ptr<WWidget> paintbrush();
+  std::unique_ptr<WWidget> categoryChart();
+  std::unique_ptr<WWidget> scatterPlot();
+  std::unique_ptr<WWidget> axisSliderWidget();
+  std::unique_ptr<WWidget> pieChart();
+  std::unique_ptr<WWidget> googleMap();
+  std::unique_ptr<WWidget> painting3d();
+  std::unique_ptr<WWidget> numCharts3d();
+  std::unique_ptr<WWidget> catCharts3d();
 
   Wt::WAbstractItemModel *readCsvFile(const std::string &fname,
-                  Wt::WContainerWidget *parent);
+		  WContainerWidget *parent);
 };
 
 #endif // GRAPHICS_WIDGETS_H_

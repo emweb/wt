@@ -7,12 +7,11 @@
 #ifndef WABSTRACTITEMDELEGATE_H_
 #define WABSTRACTITEMDELEGATE_H_
 
-#include <Wt/WObject>
-#include <Wt/WFlags>
-#include <Wt/WSignal>
-#include <Wt/WValidator>
-
-#include <boost/any.hpp>
+#include <Wt/WAny.h>
+#include <Wt/WObject.h>
+#include <Wt/WFlags.h>
+#include <Wt/WSignal.h>
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -20,11 +19,11 @@ namespace Wt {
  *
  * \sa WAbstractItemDelegate::update()
  */
-enum ViewItemRenderFlag {
-  RenderSelected = 0x1,  //!< %Render as selected
-  RenderEditing = 0x2,   //!< %Render in editing mode
-  RenderFocused = 0x4,   //!< %Render (the editor) focused
-  RenderInvalid = 0x8    //!< %Render as invalid
+enum class ViewItemRenderFlag {
+  Selected = 0x1,  //!< %Render as selected
+  Editing = 0x2,   //!< %Render in editing mode
+  Focused = 0x4,   //!< %Render (the editor) focused
+  Invalid = 0x8    //!< %Render as invalid
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ViewItemRenderFlag)
@@ -46,7 +45,7 @@ class WModelIndex;
  * not keep state about one specific item.
  *
  * A delegate may provide editing support by instantiating an editor
- * when update() is called with the Wt::RenderEditing flag. In that
+ * when update() is called with the Wt::ViewItemRenderFlag::Editing flag. In that
  * case, you will also need to implement editState() and
  * setEditState() to support virtual scrolling and setModelData() to
  * save the edited value to the model. For an example, see the
@@ -61,7 +60,7 @@ class WT_API WAbstractItemDelegate : public WObject
 public:
   /*! \brief Constructor.
    */
-  WAbstractItemDelegate(WObject *parent = 0);
+  WAbstractItemDelegate();
 
   /*! \brief Destructor.
    */
@@ -76,7 +75,7 @@ public:
    * you are responsible to delete the previous \p widget if it is
    * not reused.
    *
-   * When \p widget is \c 0, a new widget needs to be created.
+   * When \p widget is \c 0, a new widget needs to be created and returned.
    *
    * The returned widget should be a widget that responds properly to
    * be given a height, width and style class. In practice, that means
@@ -88,8 +87,9 @@ public:
    * The \p flags parameter indicates options for rendering the
    * item.
    */
-  virtual WWidget *update(WWidget *widget, const WModelIndex& index,
-			  WFlags<ViewItemRenderFlag> flags) = 0;
+  virtual WWidget *update
+    (WWidget *widget, const WModelIndex& index,
+     WFlags<ViewItemRenderFlag> flags) = 0;
 
   /*! \brief Updates the model index of a widget.
    *
@@ -120,7 +120,7 @@ public:
    *
    * \sa setEditState(), setModelData()
    */
-  virtual boost::any editState(WWidget *widget) const;
+  virtual cpp17::any editState(WWidget *widget, const WModelIndex& index) const;
 
   /*! \brief Sets the editor data from the editor state.
    *
@@ -133,7 +133,8 @@ public:
    *
    * \sa editState()
    */
-  virtual void setEditState(WWidget *widget, const boost::any& value) const;
+  virtual void setEditState(WWidget *widget, const WModelIndex& index,
+			    const cpp17::any& value) const;
 
   /*! \brief Returns whether the edited value is valid.
    *
@@ -141,8 +142,8 @@ public:
    *
    * \sa WValidator::validate()
    */
-  virtual WValidator::State validate(const WModelIndex& index,
-				     const boost::any& editState) const;
+  virtual ValidationState validate(const WModelIndex& index,
+				   const cpp17::any& editState) const;
 
   /*! \brief Saves the edited data to the model.
    *
@@ -152,7 +153,7 @@ public:
    * The default implementation assumes a read-only delegate does
    * nothing.
    */
-  virtual void setModelData(const boost::any& editState,
+  virtual void setModelData(const cpp17::any& editState,
 			    WAbstractItemModel *model,
 			    const WModelIndex& index) const;
 

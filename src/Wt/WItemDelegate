@@ -7,10 +7,10 @@
 #ifndef WITEMDELEGATE_H_
 #define WITEMDELEGATE_H_
 
-#include <Wt/WAbstractItemDelegate>
-#include <Wt/WCheckBox>
-#include <Wt/WLineEdit>
-#include <Wt/WString>
+#include <Wt/WAbstractItemDelegate.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WString.h>
 
 namespace Wt {
   class WAnchor;
@@ -52,39 +52,41 @@ class WT_API WItemDelegate : public WAbstractItemDelegate
 public:
   /*! \brief Create an item delegate.
    */
-  WItemDelegate(WObject *parent = 0);
+  WItemDelegate();
 
   /*! \brief Creates or updates a widget that renders an item.
    *
    * The following properties of an item are rendered:
    *
-   * - text using the Wt::DisplayRole data, with the format specified
+   * - text using the Wt::ItemDataRole::Display data, with the format specified
    *   by setTextFormat()
-   * - a check box depending on the Wt::ItemIsUserCheckable flag and
-   *   Wt::CheckStateRole data
+   * - a check box depending on the Wt::ItemFlag::UserCheckable flag and
+   *   Wt::ItemDataRole::CheckState data
    * - an anchor depending on Wt::InternalPathRole or Wt::UrlRole values
-   * - an icon depending on the value of Wt::DecorationRole
-   * - a tooltip depending on the value of Wt::ToolTipRole
-   * - a custom style class depending on the value of Wt::StyleClassRole
+   * - an icon depending on the value of Wt::ItemDataRole::Decoration
+   * - a tooltip depending on the value of Wt::ItemDataRole::ToolTip
+   * - a custom style class depending on the value of Wt::ItemDataRole::StyleClass
    *
-   * When the flags indicates Wt::RenderEditing, then createEditor() is
+   * When the flags indicates Wt::ViewItemRenderFlag::Editing, then createEditor() is
    * called to create a suitable editor for editing the item.
    */
-  virtual WWidget *update(WWidget *widget, const WModelIndex& index,
-			  WFlags<ViewItemRenderFlag> flags);
+  virtual WWidget *update
+    (WWidget *widget, const WModelIndex& index,
+     WFlags<ViewItemRenderFlag> flags) override;
 
-  virtual void updateModelIndex(WWidget *widget, const WModelIndex& index);
+  virtual void updateModelIndex(WWidget *widget, const WModelIndex& index)
+    override;
 
   /*! \brief Sets the text format string.
    *
    * \if cpp
    *
-   * The DisplayRole data is converted to a string using asString() by passing
+   * The ItemDataRole::Display data is converted to a string using asString() by passing
    * the given format.
    *
    * \elseif java
    *
-   * The DisplayRole data is converted to a string using {javadoclink
+   * The ItemDataRole::Display data is converted to a string using {javadoclink
    * StringUtils#asString(Object)}, passing the given format. If the format is
    * an empty string, this corresponds to {javadoclink Object#toString()}.
    *
@@ -113,22 +115,22 @@ public:
    *                                  Wt::WAbstractItemModel *model,
    *                                  const Wt::WModelIndex& index) const
    * {
-   *   model->setData(index, editState, EditRole);
+   *   model->setData(index, editState, ItemDataRole::Edit);
    * }
    * \endcode
    * \elseif java
    * \code
    * public void setModelData(Object editState, WAbstractItemModel model, WModelIndex index) {
-   *   model.setData(index, editState, ItemDataRole.EditRole);
+   *   model.setData(index, editState, ItemDataRole.ItemDataRole::Edit);
    * }
    * \endcode
    * \endif
    *
    * \sa createEditor(), editState()
    */
-  virtual void setModelData(const boost::any& editState,
+  virtual void setModelData(const cpp17::any& editState,
 			    WAbstractItemModel *model,
-			    const WModelIndex& index) const;
+			    const WModelIndex& index) const override;
 
   /*! \brief Returns the current edit state.
    *
@@ -139,12 +141,12 @@ public:
    * default implementation:
    * \if cpp
    * \code
-   * boost::any WItemDelegate::editState(Wt::WWidget *editor) const
+   * cpp17::any WItemDelegate::editState(Wt::WWidget *editor) const
    * {
    *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
    *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
    *
-   *   return boost::any(lineEdit->text());
+   *   return cpp17::any(lineEdit->text());
    * }
    * \endcode
    * \elseif java
@@ -159,7 +161,8 @@ public:
    *
    * \sa createEditor(), setEditState(), setModelData()
    */
-  virtual boost::any editState(WWidget *editor) const;
+  virtual cpp17::any editState(WWidget *editor, const WModelIndex& index) const
+    override;
 
   /*! \brief Sets the editor data from the editor state.
    *
@@ -170,17 +173,17 @@ public:
    * default implementation:
    * \if cpp
    * \code
-   * void WItemDelegate::setEditState(Wt::WWidget *editor, const boost::any& value) const
+   * void WItemDelegate::setEditState(Wt::WWidget *editor, const WModelIndex& index, const cpp17::any& value) const
    * {
    *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
    *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
    *
-   *   lineEdit->setText(boost::any_cast<Wt::WString>(value));
+   *   lineEdit->setText(cpp17::any_cast<Wt::WString>(value));
    * }
    * \endcode
    * \elseif java
    * \code
-   * public void setEditState(WWidget editor, Object value) {
+   * public void setEditState(WWidget editor, WModelIndex index, Object value) {
    *   WContainerWidget w = (WContainerWidget) editor;
    *   WLineEdit lineEdit = (WLineEdit) w.getWidget(0);
    *   lineEdit.setText((String) value);
@@ -190,13 +193,15 @@ public:
    *
    * \sa createEditor()
    */
-  virtual void setEditState(WWidget *editor, const boost::any& value) const;
+  virtual void setEditState(WWidget *editor, const WModelIndex& index,
+			    const cpp17::any& value) const
+    override;
 
 protected:
   /*! \brief Creates an editor for a data item.
    *
    * The default implementation returns a WLineEdit which edits the
-   * item's Wt::EditRole value.
+   * item's Wt::ItemDataRole::Edit value.
    *
    * You may reimplement this method to provide a suitable editor, or
    * to attach a custom validator. In that case, you will probably
@@ -219,11 +224,11 @@ protected:
    *   result->setSelectable(true);
    *
    *   Wt::WLineEdit *lineEdit = new Wt::WLineEdit();
-   *   lineEdit->setText(asString(index.data(EditRole), textFormat_));
+   *   lineEdit->setText(asString(index.data(ItemDataRole::Edit), textFormat_));
    *   lineEdit->enterPressed().connect(boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
    *   lineEdit->escapePressed().connect(boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
    *
-   *   if (flags & RenderFocused)
+   *   if (flags & ViewItemRenderFlag::Focused)
    *     lineEdit->setFocus();
    *
    *   // We use a layout so that the line edit fills the entire cell.
@@ -245,7 +250,7 @@ protected:
    *  final WContainerWidget result = new WContainerWidget();
    *  result.setSelectable(true);
    *  WLineEdit lineEdit = new WLineEdit();
-   *  lineEdit.setText(StringUtils.asString(index.getData(ItemDataRole.EditRole), this.textFormat_).toString());
+   *  lineEdit.setText(StringUtils.asString(index.getData(ItemDataRole.ItemDataRole::Edit), this.textFormat_).toString());
    *  lineEdit.enterPressed().addListener(this, new Signal.Listener() {
    *    public void trigger() {
    *      WItemDelegate.this.closeEditor().trigger(result, true);
@@ -257,7 +262,7 @@ protected:
    *    }
    *  });
    *
-   *  if (flags.contains(ViewItemRenderFlag.RenderFocused))
+   *  if (flags.contains(ViewItemRenderFlag.ViewItemRenderFlag::Focused))
    *    lineEdit.setFocus();
    *
    *  result.setLayout(new WHBoxLayout());
@@ -268,13 +273,15 @@ protected:
    * \endcode
    * \endif
    */
-  virtual WWidget *createEditor(const WModelIndex& index,
-				WFlags<ViewItemRenderFlag> flags) const;
+  virtual std::unique_ptr<WWidget>
+    createEditor(const WModelIndex& index,
+		 WFlags<ViewItemRenderFlag> flags) const;
 
 private:
   WT_USTRING textFormat_;
 
   struct WidgetRef {
+    std::unique_ptr<WWidget> created;
     WWidget *w;
     WidgetRef(WWidget *widget) : w(widget) { }
   };

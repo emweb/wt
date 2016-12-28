@@ -7,12 +7,12 @@
 #ifndef WPAINTED_WIDGET_H_
 #define WPAINTED_WIDGET_H_
 
-#include <Wt/WInteractWidget>
-#include <Wt/WJavaScript>
-#include <Wt/WJavaScriptExposableObject>
-#include <Wt/WJavaScriptHandle>
+#include <Wt/WInteractWidget.h>
+#include <Wt/WJavaScript.h>
+#include <Wt/WJavaScriptExposableObject.h>
+#include <Wt/WJavaScriptHandle.h>
 
-#include <Wt/WJavaScriptObjectStorage>
+#include <Wt/WJavaScriptObjectStorage.h>
 
 namespace Wt {
 
@@ -20,6 +20,26 @@ class WAbstractArea;
 class WImage;
 class WPaintDevice;
 class WWidgetPainter;
+
+/*! \brief Enumeration that indicates a client-side rendering method for a
+ *         painted widget.
+ *
+ * \sa WPaintedWidget
+ */
+enum class RenderMethod {
+  /*! \brief SVG (Most browsers) or VML (Internet Explorer < 9) embedded in
+   *         the page.
+   */
+  InlineSvgVml,
+
+  /*! \brief The HTML5 canvas element.
+   */
+  HtmlCanvas,
+
+  /*! \brief Using a PNG image resource.
+   */
+  PngImage
+};
 
 /*! \class WPaintedWidget Wt/WPaintedWidget Wt/WPaintedWidget
  *  \brief A widget that is painted using vector graphics.
@@ -120,26 +140,9 @@ class WWidgetPainter;
 class WT_API WPaintedWidget : public WInteractWidget
 {
 public:
-  /*! \brief Enumeration that indicates a rendering method.
-   */
-  enum Method {
-    /*! \brief SVG (Most browsers) or VML (Internet Explorer < 9) embedded in
-     *         the page.
-     */
-    InlineSvgVml,
-
-    /*! \brief The WHATWG HTML 5 canvas element.
-     */
-    HtmlCanvas,
-
-    /*! \brief Using a PNG image resource.
-     */
-    PngImage
-  };
-
   /*! \brief Create a new painted widget.
    */
-  WPaintedWidget(WContainerWidget *parent = 0);
+  WPaintedWidget();
 
   /*! \brief Destructor.
    */
@@ -150,25 +153,25 @@ public:
    * When \p method is supported by the browser, then it is chosen
    * for rendering.
    */
-  void setPreferredMethod(Method method);
+  void setPreferredMethod(RenderMethod method);
 
   /*! \brief Returns the preferred rendering method.
    *
    * \sa setPreferredMethod(Method)
    */
-  Method preferredMethod() const { return preferredMethod_; }
+  RenderMethod preferredMethod() const { return preferredMethod_; }
 
   /*! \brief Lets the widget repaint itself.
    *
    * Repainting is not immediate, but happens after when the event loop
    * is exited.
    *
-   * Unless a Wt::PaintUpdate paint flag is set, the widget is first
+   * Unless a Wt::PaintFlag::Update paint flag is set, the widget is first
    * cleared.
    */
-  void update(WFlags<PaintFlag> flags = 0);
+  void update(WFlags<PaintFlag> flags = None);
 
-  virtual void resize(const WLength& width, const WLength& height);
+  virtual void resize(const WLength& width, const WLength& height) override;
 
   /*! \brief Adds an interactive area.
    *
@@ -176,8 +179,6 @@ public:
    * of the widget. Areas are organized in a list, to which the given
    * \p area is appended. When areas overlap, the area with the
    * lowest index receives the event.
-   *
-   * Ownership of the \p area is transferred to the widget.
    *
    * \note When defining at least one area, no more events will
    * propagate to the widget itself. As a work-around, you can emulate
@@ -187,7 +188,7 @@ public:
    *
    * \sa insertArea(int, WAbstractArea *)
    */
-  void addArea(WAbstractArea *area);
+  void addArea(std::unique_ptr<WAbstractArea> area);
 
   /*! \brief Inserts an interactive area.
    *
@@ -195,8 +196,6 @@ public:
    * coresponding area of the widget. Areas are organized in a list,
    * and the <i>area</i> is inserted at index \p index. When areas
    * overlap, the area with the lowest index receives the event.
-   *
-   * Ownership of the \p Area is transferred to the widget.
    *
    * \note When defining at least one area, no more events will
    * propagate to the widget itself. As a work-around, you can emulate
@@ -206,16 +205,15 @@ public:
    *
    * \sa addArea(WAbstractArea *)
    */
-  void insertArea(int index, WAbstractArea *area);
+  void insertArea(int index, std::unique_ptr<WAbstractArea> area);
 
   /*! \brief Removes an interactive area.
    *
-   * Removes the \p area from this widget, returning the
-   * ownership.
+   * Removes the \p area from this widget.
    *
    * \sa addArea(WAbstractArea *)
    */
-  void removeArea(WAbstractArea *area);
+  std::unique_ptr<WAbstractArea> removeArea(WAbstractArea *area);
 
   /*! \brief Returns the interactive area at the given index.
    *
@@ -277,7 +275,7 @@ protected:
    */
   WJavaScriptHandle<WPointF> createJSPoint();
 
-  virtual void layoutSizeChanged(int width, int height);
+  virtual void layoutSizeChanged(int width, int height) override;
 
   /*! \brief Returns the actual method used for rendering.
    *
@@ -286,7 +284,7 @@ protected:
    *
    * You may want to reimplement this method to override this choice.
    */
-  virtual Method getMethod() const;
+  virtual RenderMethod getMethod() const;
 
   /*! \brief Paints the widget.
    *
@@ -300,25 +298,18 @@ protected:
    * Although it's usually not necessary to call this function, you may
    * want to reimplement this function to customize or specialize the
    * device used for painting the widget.
-   *
-   * \if cpp
-   * Ownership of the device is transferred to the caller.
-   * \endif
    */
-  virtual WPaintDevice *createPaintDevice() const;
+  virtual std::unique_ptr<WPaintDevice> createPaintDevice() const;
 
-  virtual DomElementType domElementType() const;
-  virtual void        updateDom(DomElement& element, bool all);
-  virtual DomElement *createDomElement(WApplication *app);
-  virtual void        getDomChanges(std::vector<DomElement *>& result,
-				    WApplication *app);
-  virtual void        propagateRenderOk(bool deep);
-
-  virtual void enableAjax();
-
-  virtual void render(WFlags<RenderFlag> flags);
-
-  virtual void setFormData(const FormData& formData);
+  virtual DomElementType domElementType() const override;
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual DomElement *createDomElement(WApplication *app) override;
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app) override;
+  virtual void propagateRenderOk(bool deep) override;
+  virtual void enableAjax() override;
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void setFormData(const FormData& formData) override;
 
 protected:
   /*! \brief Returns a JavaScript reference to the client side representation of the WPaintedWidget
@@ -340,16 +331,14 @@ protected:
 private:
   void defineJavaScript();
 
-  Method            preferredMethod_;
-  WWidgetPainter   *painter_;
-  bool              needRepaint_;
-  bool              sizeChanged_;
-  bool              areaImageAdded_;
+  RenderMethod preferredMethod_;
+  std::unique_ptr<WWidgetPainter> painter_;
+  bool needRepaint_, sizeChanged_, areaImageAdded_;
   WFlags<PaintFlag> repaintFlags_;
-  WImage           *areaImage_;
-  int               renderWidth_, renderHeight_;
+  std::unique_ptr<WImage> areaImage_;
+  int renderWidth_, renderHeight_;
 
-  JSlot           repaintSlot_;
+  JSlot repaintSlot_;
   WJavaScriptObjectStorage jsObjects_;
   bool              jsDefined_;
 

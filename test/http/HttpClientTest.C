@@ -9,13 +9,14 @@
 #ifdef WT_THREADED
 
 #include <boost/test/unit_test.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
+#include <thread>
+#include <condition_variable>
+#include <mutex>
 
-#include <Wt/WApplication>
-#include <Wt/WIOService>
-#include <Wt/Http/Client>
-#include <Wt/Test/WTestEnvironment>
+#include <Wt/WApplication.h>
+#include <Wt/WIOService.h>
+#include <Wt/Http/Client.h>
+#include <Wt/Test/WTestEnvironment.h>
 
 using namespace Wt;
 using namespace Wt::Http;
@@ -32,7 +33,7 @@ namespace {
 
     void waitDone()
     {
-      boost::mutex::scoped_lock guard(doneMutex_);
+      std::unique_lock<std::mutex> guard(doneMutex_);
 
       while (!done_)
 	doneCondition_.wait(guard);
@@ -47,7 +48,7 @@ namespace {
     {
       assert (WApplication::instance() == this);
 
-      boost::mutex::scoped_lock guard(doneMutex_);
+      std::unique_lock<std::mutex> guard(doneMutex_);
 
       err_ = err;
       message_ = m;
@@ -71,8 +72,8 @@ namespace {
 
   private:
     bool done_;
-    boost::condition doneCondition_;
-    boost::mutex doneMutex_;
+    std::condition_variable doneCondition_;
+    std::mutex doneMutex_;
 
     boost::system::error_code err_;
     Message message_;
@@ -84,8 +85,10 @@ BOOST_AUTO_TEST_CASE( http_client_test1 )
   Wt::Test::WTestEnvironment environment;
   TestFixture app(environment);
 
-  Client *c = new Client(&app);
-  c->done().connect(boost::bind(&TestFixture::onDone, &app, _1, _2));
+  std::unique_ptr<Client> c(new Client());
+  c->done().connect(std::bind(&TestFixture::onDone, &app,
+			      std::placeholders::_1,
+			      std::placeholders::_2));
 
   std::string ok = "www.google.com/";
 
@@ -101,8 +104,10 @@ BOOST_AUTO_TEST_CASE( http_client_test2 )
   Wt::Test::WTestEnvironment environment;
   TestFixture app(environment);
 
-  Client *c = new Client(&app);
-  c->done().connect(boost::bind(&TestFixture::onDone, &app, _1, _2));
+  std::unique_ptr<Client> c(new Client());
+  c->done().connect(std::bind(&TestFixture::onDone, &app,
+			      std::placeholders::_1,
+			      std::placeholders::_2));
 
   std::string verifyFail = "pause.perl.org/";
 
@@ -119,8 +124,10 @@ BOOST_AUTO_TEST_CASE( http_client_test3 )
   Wt::Test::WTestEnvironment environment;
   TestFixture app(environment);
 
-  Client *c = new Client(&app);
-  c->done().connect(boost::bind(&TestFixture::onDone, &app, _1, _2));
+  std::unique_ptr<Client> c(new Client());
+  c->done().connect(std::bind(&TestFixture::onDone, &app,
+			      std::placeholders::_1,
+			      std::placeholders::_2));
 
   std::string asioFail = "www.google.be/";
 
@@ -139,8 +146,10 @@ BOOST_AUTO_TEST_CASE( http_client_test4 )
 
   environment.server()->ioService().start();
   
-  Client *c = new Client(&app);
-  c->done().connect(boost::bind(&TestFixture::onDone, &app, _1, _2));
+  std::unique_ptr<Client> c(new Client());
+  c->done().connect(std::bind(&TestFixture::onDone, &app,
+			      std::placeholders::_1,
+			      std::placeholders::_2));
 
   std::string ok = "www.google.com/";
 

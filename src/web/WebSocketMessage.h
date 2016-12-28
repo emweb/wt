@@ -19,7 +19,7 @@ class WT_API WebSocketMessage : public WebRequest
 public:
   WebSocketMessage(WebSession *session);
 
-  virtual void flush(ResponseState state = ResponseDone,
+  virtual void flush(ResponseState state = ResponseState::ResponseDone,
 		     const WriteCallback& callback = WriteCallback());
 
   virtual void setWebSocketMessageCallback(const ReadCallback& callback);

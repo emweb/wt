@@ -8,8 +8,8 @@
 #define HTTP_RESPONSE_H_
 
 #include <string>
-#include <Wt/WGlobal>
-#include <Wt/Http/ResponseContinuation>
+#include <Wt/WGlobal.h>
+#include <Wt/Http/ResponseContinuation.h>
 #include <ostream>
 
 namespace Wt {
@@ -99,7 +99,7 @@ public:
   /*! \brief Return the continuation, if one was created for this response.
    *
    * Returns the continuation that was previously created using
-   * createContinuation(), or 0 if no continuation was created yet.
+   * createContinuation(), or \c nullptr if no continuation was created yet.
    *
    * \sa createContinuation()
    */

@@ -7,8 +7,8 @@
 #ifndef WT_AUTH_REGISTRATION_WIDGET_H_
 #define WT_AUTH_REGISTRATION_WIDGET_H_
 
-#include <Wt/WTemplateFormView>
-#include <Wt/Auth/RegistrationModel>
+#include <Wt/WTemplateFormView.h>
+#include <Wt/Auth/RegistrationModel.h>
 
 namespace Wt {
   namespace Auth {
@@ -37,18 +37,18 @@ public:
    *
    * Creates a new authentication.
    */
-  RegistrationWidget(AuthWidget *authWidget = 0);
+  RegistrationWidget(AuthWidget *authWidget = nullptr);
 
   /*! \brief Sets the registration model.
    */
-  void setModel(RegistrationModel *model);
+  void setModel(std::unique_ptr<RegistrationModel> model);
 
   /*! \brief Returns the registration model.
    *
    * This returns the model that is used by the widget to do the actual
    * registration.
    */
-  RegistrationModel *model() const { return model_; }
+  RegistrationModel *model() const { return model_.get(); }
 
   /*! \brief Updates the user-interface.
    *
@@ -94,17 +94,18 @@ protected:
    */
   virtual void registerUserDetails(User& user);
 
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 protected:
-  virtual WWidget *createFormWidget(RegistrationModel::Field field);
+  virtual std::unique_ptr<WWidget> createFormWidget
+    (RegistrationModel::Field field) override;
 
 private:
   AuthWidget *authWidget_;
-  RegistrationModel *model_;
+  std::unique_ptr<RegistrationModel> model_;
 
   bool created_;
-  Login *confirmPasswordLogin_;
+  std::unique_ptr<Login> confirmPasswordLogin_;
 
   void checkLoginName();
   void checkPassword();

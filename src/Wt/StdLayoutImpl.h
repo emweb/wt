@@ -8,43 +8,33 @@
 #define STD_LAYOUT_IMPL_H_
 
 #include "StdLayoutItemImpl.h"
+#include "Wt/WLayoutImpl.h"
 
 namespace Wt {
 
 class WLayout;
 
-class StdLayoutImpl : public StdLayoutItemImpl
+class StdLayoutImpl : public StdLayoutItemImpl, public WLayoutImpl
 {
 public:
   StdLayoutImpl(WLayout *layout);
   virtual ~StdLayoutImpl();
 
-  virtual void updateAddItem(WLayoutItem *);
-  virtual void updateRemoveItem(WLayoutItem *);
-  virtual void update(WLayoutItem *) = 0;
   virtual void updateDom(DomElement& parent) = 0;
 
   // Returns whether updateDom() is needed
   virtual bool itemResized(WLayoutItem *item) = 0;
   virtual bool parentResized() = 0;
 
-  virtual WContainerWidget *container() const;
-  virtual WLayoutItem *layoutItem() const;
+  virtual WLayoutItem *layoutItem() const override;
 
 protected:
-  virtual void containerAddWidgets(WContainerWidget *container);
-
   WLayout *layout() const { return layout_; }
 
   static StdLayoutItemImpl *getImpl(WLayoutItem *item);
 
 private:
-  WLayout          *layout_;
-  WContainerWidget *container_;
-
-  void setContainer(WContainerWidget *c);
-
-  friend class WContainerWidget;
+  WLayout *layout_;
 };
 
 }

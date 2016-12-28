@@ -1,21 +1,24 @@
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WMenuItem>
-#include <Wt/WMessageBox>
-#include <Wt/WPopupMenu>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WMenuItem.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WPopupMenu.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(Popup)
 
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WPopupMenu *popup = new Wt::WPopupMenu();
+auto popupPtr = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+auto popup = popupPtr.get();
 
-Wt::WText *status = new Wt::WText();
-status->setMargin(10, Wt::Left | Wt::Right);
+auto statusPtr = Wt::cpp14::make_unique<Wt::WText>();
+auto status = statusPtr.get();
+status->setMargin(10, Wt::Side::Left | Wt::Side::Right);
 
-Wt::WText *out = new Wt::WText();
+auto outPtr = Wt::cpp14::make_unique<Wt::WText>();
+auto out = outPtr.get();
 
 // Create some menu items for the popup menu
 popup->addItem("Connect")->triggered().connect(std::bind([=] () {
@@ -44,7 +47,8 @@ item->triggered().connect(std::bind([=] () {
 popup->addSeparator();
 
 // Create a submenu for the popup menu.
-Wt::WPopupMenu *subMenu = new Wt::WPopupMenu();
+auto subMenuPtr = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+auto subMenu = subMenuPtr.get();
 
 subMenu->addItem("Contents")->triggered().connect(std::bind([=] () {
     out->setText("<p>This could be a link to /contents.html.</p>");
@@ -56,29 +60,31 @@ subMenu->addItem("Index")->triggered().connect(std::bind([=] () {
 
 subMenu->addSeparator();
 subMenu->addItem("About")->triggered().connect(std::bind([=] () {
-    Wt::WMessageBox *messageBox = new Wt::WMessageBox
+    auto messageBoxPtr = Wt::cpp14::make_unique<Wt::WMessageBox>
         ("About", "<p>This is a program to make connections.</p>",
-	 Wt::Information, Wt::Ok);
+         Wt::Icon::Information, Wt::StandardButton::Ok);
+    auto messageBox = messageBoxPtr.get();
     messageBox->show();
     messageBox->buttonClicked().connect(std::bind([=] () {
-	delete messageBox;
+      subMenu->removeChild(messageBox);
     }));
+    subMenu->addChild(std::move(messageBoxPtr));
 }));
 
 // Assign the submenu to the parent popup menu.
-popup->addMenu("Help", subMenu);
+popup->addMenu("Help", std::move(subMenuPtr));
 
-Wt::WPushButton *button = new Wt::WPushButton(container);
-button->setMenu(popup);
+Wt::WPushButton *button = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>());
+button->setMenu(std::move(popupPtr));
 
 // React to an item selection
 popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
     status->setText
-        (Wt::WString::fromUTF8("Selected menu item: {1}.")
+        (Wt::utf8("Selected menu item: {1}.")
 	 .arg(item->text()));
 }, std::placeholders::_1));
 
-container->addWidget(status);
-container->addWidget(out);
+container->addWidget(std::move(statusPtr));
+container->addWidget(std::move(outPtr));
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

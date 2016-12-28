@@ -9,6 +9,7 @@
 
 #include <Wt/Dbo/WDboDllDefs.h>
 
+#include <memory>
 #include <vector>
 
 namespace Wt {
@@ -43,14 +44,14 @@ public:
    * This method is called by a Session when a new transaction is
    * started.
    */
-  virtual SqlConnection *getConnection() = 0;
+  virtual std::unique_ptr<SqlConnection> getConnection() = 0;
 
   /*! \brief Returns a connection to the pool.
    *
    * This returns a connection to the pool. This method is called by a
    * Session after a transaction has been finished.
    */
-  virtual void returnConnection(SqlConnection *) = 0;  
+  virtual void returnConnection(std::unique_ptr<SqlConnection>) = 0;
   
   /*! \brief Prepares all connections in the pool for dropping the tables.
    */

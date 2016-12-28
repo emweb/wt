@@ -4,7 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
+#include <Wt/WMenu.h>
 
 #include "TreesTables.h"
 #include "TopicTemplate.h"
@@ -20,25 +21,25 @@ TreesTables::TreesTables():
   addText(tr("mvc-intro"), this);
 }
 
-void TreesTables::populateSubMenu(Wt::WMenu *menu)
+void TreesTables::populateSubMenu(WMenu *menu)
 {
   menu->setInternalBasePath("/trees-tables");
 
   menu->addItem("Tables", tables())->setPathComponent("");
   menu->addItem("Trees",
-		deferCreate(boost::bind
+                deferCreate(std::bind
 			    (&TreesTables::trees, this)));
   menu->addItem("Tree Tables",
-		deferCreate(boost::bind
+                deferCreate(std::bind
 			    (&TreesTables::treeTables, this)));
   menu->addItem("MVC Table Views",
-		deferCreate(boost::bind
+                deferCreate(std::bind
 			    (&TreesTables::tableViews, this)));
   menu->addItem("MVC Tree Views",
-		deferCreate(boost::bind
+                deferCreate(std::bind
 			    (&TreesTables::treeViews, this)));
   menu->addItem("MVC Item models",
-		deferCreate(boost::bind
+                deferCreate(std::bind
 			    (&TreesTables::itemModels, this)));
   // menu->addItem("Proxy item models", proxyModels());
 }
@@ -46,36 +47,36 @@ void TreesTables::populateSubMenu(Wt::WMenu *menu)
 #include "examples/PlainTable.cpp"
 #include "examples/StyledTable.cpp"
 
-Wt::WWidget *TreesTables::tables()
+std::unique_ptr<WWidget> TreesTables::tables()
 {
-  Wt::WTemplate *result = new TopicTemplate("treestables-Tables");
+  auto result = cpp14::make_unique<TopicTemplate>("treestables-Tables");
  
   result->bindWidget("PlainTable", PlainTable());
   result->bindWidget("StyledTable", StyledTable());
  
-  return result;
+  return std::move(result);
 }
 
 #include "examples/Tree.cpp"
 
-Wt::WWidget *TreesTables::trees()
+std::unique_ptr<WWidget> TreesTables::trees()
 {
-  Wt::WTemplate *result = new TopicTemplate("treestables-Trees");
+  auto result = cpp14::make_unique<TopicTemplate>("treestables-Trees");
 
   result->bindWidget("Tree", Tree());
 
-  return result;
+  return std::move(result);
 }
 
 #include "examples/TreeTable.cpp"
 
-Wt::WWidget *TreesTables::treeTables()
+std::unique_ptr<WWidget> TreesTables::treeTables()
 {
-  Wt::WTemplate *result = new TopicTemplate("treestables-TreeTables");
+  auto result = cpp14::make_unique<TopicTemplate>("treestables-TreeTables");
 
   result->bindWidget("TreeTable", TreeTable());
 
-  return result;
+  return std::move(result);
 }
 
 #include "examples/VirtualModel.cpp"
@@ -83,20 +84,20 @@ Wt::WWidget *TreesTables::treeTables()
 #include "examples/LargeTableView.cpp"
 #include "examples/ComboDelegateTable.cpp"
 
-Wt::WWidget *TreesTables::tableViews()
+std::unique_ptr<WWidget> TreesTables::tableViews()
 {
-  Wt::WTemplate *result = new TopicTemplate("treestables-TableViews");
+  auto result = cpp14::make_unique<TopicTemplate>("treestables-TableViews");
 
   result->bindWidget("SmallTableView", SmallTableView());
   result->bindWidget("LargeTableView", LargeTableView());
   result->bindWidget("ComboDelegateTable", ComboDelegateTable());
 
-  return result;  
+  return std::move(result);
 }
 
 #ifndef GIT_REPOSITORY
 #ifndef WT_TARGET_JAVA
-#define GIT_REPOSITORY "../../.git"
+#define GIT_REPOSITORY "../.."
 #else
 #define GIT_REPOSITORY "/home/koen/git/jwt"
 #endif
@@ -107,20 +108,20 @@ Wt::WWidget *TreesTables::tableViews()
 #include "examples/TreeView.cpp"
 #endif
 
-Wt::WWidget *TreesTables::treeViews()
+std::unique_ptr<WWidget> TreesTables::treeViews()
 {
-  Wt::WTemplate *result = new TopicTemplate("treestables-TreeViews");
+  auto result = cpp14::make_unique<TopicTemplate>("treestables-TreeViews");
 #ifndef WT_WIN32
   result->bindWidget("TreeView", TreeView());
 #else
   result->bindString("TreeView", "Example not available on windows");
 #endif
-  return result;  
+  return std::move(result);
 }
 
-Wt::WWidget *TreesTables::itemModels()
+std::unique_ptr<WWidget> TreesTables::itemModels()
 {
-  Wt::WTemplate *result = new TopicTemplate("treestables-ItemModels");
+  auto result = cpp14::make_unique<TopicTemplate>("treestables-ItemModels");
 
   result->bindWidget("LargeTableView", LargeTableView());
 #ifndef WT_WIN32
@@ -129,7 +130,7 @@ Wt::WWidget *TreesTables::itemModels()
   result->bindString("TreeView", "Example not available on windows");
 #endif
 
-  return result;
+  return std::move(result);
 }
 
 #if 0
@@ -158,72 +159,73 @@ void TreesTables::changeRegexp()
   }
 }
 
-WWidget *TreesTables::proxyModels()
+std::unique_ptr<WWidget> TreesTables::proxyModels()
 {
-  WContainerWidget *result = new WContainerWidget();
+  auto result = cpp14::make_unique<WContainerWidget>();
 
-  topic("WAbstractProxyModel", "WSortFilterProxyModel", result);
-  addText(tr("mvc-proxymodels"), result);
+  topic("WAbstractProxyModel", "WSortFilterProxyModel", result); // TODO
+  result->addWidget(addText(tr("mvc-proxymodels")));
 
-  WStandardItemModel* cocktails = new WStandardItemModel(result);
-  cocktails->appendRow(new WStandardItem("The Last WordLime Rickey"));
-  cocktails->appendRow(new WStandardItem("Gin pahit"));
-  cocktails->appendRow(new WStandardItem("Alexander"));
-  cocktails->appendRow(new WStandardItem("Montgomery"));
-  cocktails->appendRow(new WStandardItem("Gin Sour"));
-  cocktails->appendRow(new WStandardItem("Hanky-Panky"));
-  cocktails->appendRow(new WStandardItem("Gimlet"));
-  cocktails->appendRow(new WStandardItem("Chocolate Soldier"));
-  cocktails->appendRow(new WStandardItem("Joker"));
-  cocktails->appendRow(new WStandardItem("Mickey Slim"));
-  cocktails->appendRow(new WStandardItem("Long Island Iced Tea"));
-  cocktails->appendRow(new WStandardItem("Old Etonian"));
-  cocktails->appendRow(new WStandardItem("Lorraine"));
-  cocktails->appendRow(new WStandardItem("Bijou"));
-  cocktails->appendRow(new WStandardItem("Bronx"));
-  cocktails->appendRow(new WStandardItem("Gin and tonic"));
-  cocktails->appendRow(new WStandardItem("Pall Mall"));
-  cocktails->appendRow(new WStandardItem("Gin Fizz"));
-  cocktails->appendRow(new WStandardItem("French 75"));
-  cocktails->appendRow(new WStandardItem("Martini"));
-  cocktails->appendRow(new WStandardItem("Negroni"));
-  cocktails->appendRow(new WStandardItem("20th Century"));
-  cocktails->appendRow(new WStandardItem("My Fair Lady"));
-  cocktails->appendRow(new WStandardItem("Gibson"));
+  auto cocktails = std::make_shared<WStandardItemModel>();
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("The Last WordLime Rickey"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Gin pahit"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Alexander"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Montgomery"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Gin Sour"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Hanky-Panky"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Gimlet"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Chocolate Soldier"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Joker"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Mickey Slim"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Long Island Iced Tea"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Old Etonian"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Lorraine"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Bijou"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Bronx"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Gin and tonic"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Pall Mall"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Gin Fizz"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("French 75"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Martini"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Negroni"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("20th Century"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("My Fair Lady"));
+  cocktails->appendRow(cpp14::make_unique<WStandardItem>("Gibson"));
 
-  addText("<b>Filter regular expression: </b>", result);
-  regexpFilter = new WLineEdit(result);
+  result->addWidget(addText("<b>Filter regular expression: </b>"));
+  regexpFilter = result->addWidget(cpp14::make_unique<WLineEdit>());
   regexpFilter->setText("Gi.*");
   regexpFilter->enterPressed().
     connect(this, &TreesTables::changeRegexp);
-  WPushButton *filter = new WPushButton("Apply", result);
+  WPushButton *filter = result->addWidget(cpp14::make_unique<WPushButton>("Apply"));
   filter->clicked().
     connect(this, &TreesTables::changeRegexp);
   
-  std::vector<WAbstractItemModel*> models;
+  std::vector<std::shared_ptr<WAbstractItemModel>> models;
   std::vector<WString> headers;
 
   headers.push_back(WString("<b>Source:</b>"));
   models.push_back(cocktails);
 
   headers.push_back(WString("<b>Sorted proxy:</b>"));
-  WSortFilterProxyModel *sortedCocktails = new WSortFilterProxyModel(this);
+  std::shared_ptr<WSortFilterProxyModel> sortedCocktails =
+      std::make_shared<WSortFilterProxyModel>();
   sortedCocktails->setSourceModel(cocktails);
   sortedCocktails->setDynamicSortFilter(true);
   sortedCocktails->sort(0);
   models.push_back(sortedCocktails);
 
   headers.push_back(WString("<b>Filtered proxy:</b>"));
-  filteredCocktails = new WSortFilterProxyModel(this);
+  filteredCocktails = std::make_shared<WSortFilterProxyModel>();
   filteredCocktails->setSourceModel(cocktails);
   filteredCocktails->setDynamicSortFilter(true);
   filteredCocktails->setFilterKeyColumn(0);
-  filteredCocktails->setFilterRole(Wt::DisplayRole);
+  filteredCocktails->setFilterRole(ItemDataRole::Display);
   filteredCocktails->setFilterRegExp(regexpFilter->text());
   models.push_back(filteredCocktails);
 
   headers.push_back(WString("<b>Sorted and filtered proxy:</b>"));
-  filteredSortedCocktails = new WSortFilterProxyModel(this);
+  filteredSortedCocktails = std::make_shared<WSortFilterProxyModel>();
   filteredSortedCocktails->setSourceModel(cocktails);
   filteredSortedCocktails->setDynamicSortFilter(true);
   filteredSortedCocktails->setFilterKeyColumn(0);
@@ -232,20 +234,21 @@ WWidget *TreesTables::proxyModels()
   filteredSortedCocktails->sort(0);
   models.push_back(filteredSortedCocktails);
 
-  WTable *layout = new WTable(result);
+  WTable *layout = result->addWidget(cpp14::make_unique<WTable>());
 
   for (unsigned i = 0; i < headers.size(); ++i) {
-    layout->columnAt(i)->setWidth(WLength(25, WLength::Percentage));
+    layout->columnAt(i)->setWidth(WLength(25, LengthUnit::Percentage));
     layout->elementAt(0, i)->setPadding(4);
-    layout->elementAt(0, i)->setContentAlignment(AlignCenter);
+    layout->elementAt(0, i)->setContentAlignment(AligmentFlag::Center);
 
-    addText(headers[i], layout->elementAt(0, i));
-    new WBreak(layout->elementAt(0, i));
+    layout->elementAt(0, i)->addWidget(addText(headers[i]));
+    latout->elementAt(0, i)->addWidget(cpp14::make_unique<WBreak>());
 
-    WSelectionBox *view = new WSelectionBox(layout->elementAt(0, i));
+    WSelectionBox *view =
+        layout->elementAt(0, i)->addWidget(cpp14::make_unique<WSelectionBox>());
     view->setModel(models[i]);
     view->setVerticalSize(cocktails->rowCount());
-    view->resize(WLength(90, WLength::Percentage), WLength::Auto);
+    view->resize(WLength(90, LengthUnit::Percentage), WLength::Auto);
   }
 
   return result;

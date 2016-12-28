@@ -8,12 +8,11 @@
 #define WLOCAL_DATE_TIME_H_
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WException>
-#include <Wt/WLocale>
-#include <Wt/WString>
+#include <Wt/WException.h>
+#include <Wt/WLocale.h>
+#include <Wt/WString.h>
 #include <exception>
-
-#include <boost/date_time/local_time/local_time.hpp>
+#include <chrono>
 
 namespace Wt {
 
@@ -132,7 +131,7 @@ public:
    *
    * \sa WLocale::setTimeZone()
    */
-  std::string timeZone() const;
+  const date::time_zone *timeZone() const;
 
   /*! \brief Converts to UTC.
    *
@@ -187,17 +186,23 @@ public:
   bool operator!= (const WLocalDateTime& other) const;
 
 private:
-  boost::local_time::local_date_time datetime_;
+  std::chrono::system_clock::time_point datetime_; // UTC clock
   WT_USTRING format_;
+  const date::time_zone *zone_;
+  std::shared_ptr<date::time_zone> customZone_;
+  bool valid_, null_;
 
-  WLocalDateTime(const boost::local_time::local_date_time& dt,
-		 const WT_USTRING& format);
+  WLocalDateTime(const std::chrono::system_clock::time_point& dt,
+                 const date::time_zone *zone, const WT_USTRING& format);
+  WLocalDateTime(const std::chrono::system_clock::time_point& dt,
+                 const std::shared_ptr<date::time_zone>& zone, const WT_USTRING& format);
 
   friend class WDateTime;
 
   void setInvalid();
 
-  static WLocalDateTime currentTime(int offset);
+  static WLocalDateTime currentTime(std::chrono::minutes offset, const WT_USTRING& format);
+
 };
 
 }

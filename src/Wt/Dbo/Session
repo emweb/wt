@@ -16,11 +16,11 @@
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/member.hpp>
 
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/Field>
-#include <Wt/Dbo/Query>
-#include <Wt/Dbo/Transaction>
-#include <Wt/Dbo/SqlConnection>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/Field.h>
+#include <Wt/Dbo/Query.h>
+#include <Wt/Dbo/Transaction.h>
+#include <Wt/Dbo/SqlConnection.h>
 
 namespace Wt {
   namespace Dbo {
@@ -80,15 +80,15 @@ namespace Wt {
       };
     }
 
-struct NullType {
-  static NullType null_;
+struct Null {
+  static Null null_;
 };
 
 /*! \brief Enumeration that indicates the flush mode.
  *
  * \sa setFlushMode(), discardUnflushed()
  */
-enum FlushMode {
+enum class FlushMode {
   Auto,    //!< Dbo decides when to flush changes to a transaction
   Manual   //!< Changes are never automatically flushed
 };
@@ -144,7 +144,7 @@ public:
    *
    * \sa setConnectionPool()
    */
-  void setConnection(SqlConnection& connection);
+  void setConnection(std::unique_ptr<SqlConnection> connection);
 
   /*! \brief Sets a connection pool.
    *
@@ -194,12 +194,22 @@ public:
    *
    * This is an overloaded method for convenience, and is implemented as:
    * \code
-   * return add(ptr<C>(obj));
+   * return add(ptr<C>(std::move(obj)));
    * \endcode
    *
    * The method returns a database pointer to the object.
    */
-  template <class C> ptr<C> add(C *obj);
+  template <class C> ptr<C> add(std::unique_ptr<C> obj);
+
+  /*! \brief Persists a transient object.
+   *
+   * TODO(Roel): doc!
+   */
+  template<typename T, typename ...Args>
+  ptr<T> addNew( Args&& ...args )
+  {
+    return add(std::unique_ptr<T>(new T(std::forward<Args>(args)...)));
+  }
 
   /*! \brief Loads a persisted object.
    *
@@ -444,7 +454,7 @@ public:
    *
    * \sa ptr::reread()
    */
-  void rereadAll(const char *tableName = 0);
+  void rereadAll(const char *tableName = nullptr);
 
   /*! \brief Discards all unflushed changes.
    *
@@ -466,7 +476,7 @@ public:
 
   /*! \brief Sets the flushMode.
    *
-   * The default flushMode is Auto. Inside a transaction this means that
+   * The default flushMode is Auto. LabelOption::Inside a transaction this means that
    * changes are flushed when a query is affected by them. When flushMode is
    * set to Manual, changes are only flushed when the user manually calls
    * flush(), or resets the mode to Auto. Query's wil possibly return an
@@ -547,12 +557,12 @@ private:
   ClassRegistry classRegistry_;
   TableRegistry tableRegistry_;
   bool schemaInitialized_;
-  mutable  LimitQuery limitQueryMethod_;
+  mutable LimitQuery limitQueryMethod_;
   mutable bool requireSubqueryAlias_;
 
   MetaDboBaseSet dirtyObjects_;
   std::vector<MetaDboBase*> objectsToAdd_;
-  SqlConnection  *connection_;
+  std::unique_ptr<SqlConnection> connection_;
   SqlConnectionPool *connectionPool_;
   Transaction::Impl *transaction_;
   FlushMode flushMode_;
@@ -639,8 +649,8 @@ private:
   template <class C> std::string manyToManyJoinId(const std::string& joinName,
 						  const std::string& notId);
 
-  SqlConnection *useConnection();
-  void returnConnection(SqlConnection *connection);
+  std::unique_ptr<SqlConnection> useConnection();
+  void returnConnection(std::unique_ptr<SqlConnection> connection);
   SqlConnection *connection(bool openTransaction);
 
   MetaDboBase *createDbo(Impl::MappingInfo *mapping);

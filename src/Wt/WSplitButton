@@ -9,8 +9,8 @@
 
 #include <vector>
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WMenuItem>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WMenuItem.h>
 
 namespace Wt {
 
@@ -29,11 +29,11 @@ class WT_API WSplitButton : public WCompositeWidget
 public:
   /*! \brief Constructor.
    */
-  WSplitButton(WContainerWidget *parent = 0);
+  WSplitButton();
 
   /*! \brief Constructor passing the label.
    */
-  WSplitButton(const WString& label, WContainerWidget *parent = 0);
+  WSplitButton(const WString& label);
 
   /*! \brief Returns the action button.
    *
@@ -49,7 +49,7 @@ public:
 
   /*! \brief Sets the menu for the drop-down button.
    */
-  void setMenu(WPopupMenu *menu);
+  void setMenu(std::unique_ptr<WPopupMenu> menu);
 
   /*! \brief Returns the menu for the drop-down button.
    */

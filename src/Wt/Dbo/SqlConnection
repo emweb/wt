@@ -8,6 +8,7 @@
 #define WT_DBO_SQL_CONNECTION_H_
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include <Wt/Dbo/WDboDllDefs.h>
@@ -17,22 +18,22 @@ namespace Wt {
 
 /*! \brief Enum that defines a date time type.
  */
-enum SqlDateTimeType {
-  SqlDate,    //!< Date only
-  SqlDateTime,//!< Date and time
-  SqlTime     //!< Time duration
+enum class SqlDateTimeType {
+  Date,    //!< Date only
+  DateTime,//!< Date and time
+  Time     //!< Time duration
 };
 
 /*! \brief Enum that defines a limit query type.
  *
- * Oracle is using Rownum and Firebeard is using RowsFromTo instead of limit and
+ * Oracle is using LimitQuery::Rownum and Firebeard is using LimitQuery::RowsFromTo instead of limit and
  * offset in sql
  */
-enum LimitQuery{
-      Limit,
-      RowsFromTo,
-      Rownum,
-      NotSupported
+enum class LimitQuery{
+  Limit,
+  RowsFromTo,
+  Rownum,
+  NotSupported
 };
 
 class SqlStatement;
@@ -64,7 +65,7 @@ public:
    * object. This is used by connection pool implementations to create
    * its connections.
    */
-  virtual SqlConnection *clone() const = 0;
+  virtual std::unique_ptr<SqlConnection> clone() const = 0;
 
   /*! \brief Executes an SQL statement.
    *
@@ -93,7 +94,7 @@ public:
   
   /*! \brief Returns the statement with the given id.
    *
-   * Returns 0 if no such statement was already added.
+   * Returns \c nullptr if no such statement was already added.
    *
    * \sa saveStatement()
    */
@@ -186,7 +187,7 @@ public:
 
   /*! \brief Returns the date/time type.
    *
-   * \sa SqlStatement::bind(int, const boost::posix_time::ptime&, SqlDateTimeType)
+   * \sa SqlStatement::bind(int, const std::chrono::system_clock::time_point&, SqlDateTimeType)
    */
   virtual const char *dateTimeType(SqlDateTimeType type) const = 0;
 
@@ -244,7 +245,7 @@ public:
    * This is an alternative SQL dialect option to the (non-standard) 'OFFSET ?
    * LIMIT ?' syntax.
    *
-   * The default implementation returns \c Limit.
+   * The default implementation returns \c LimitQuery::Limit.
    */
   virtual bool usesRowsFromTo() const;
 

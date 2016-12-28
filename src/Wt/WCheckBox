@@ -7,18 +7,18 @@
 #ifndef WCHECKBOX_H_
 #define WCHECKBOX_H_
 
-#include <Wt/WAbstractToggleButton>
+#include <Wt/WAbstractToggleButton.h>
 
 namespace Wt {
 
 /*! \class WCheckBox Wt/WCheckBox Wt/WCheckBox
  *  \brief A user control that represents a check box.
  *
- * By default, a checkbox can have two states: Wt::Checked or
- * Wt::Unchecked, which can be inspected using isChecked(), and set
+ * By default, a checkbox can have two states: Wt::CheckState::Checked or
+ * Wt::CheckState::Unchecked, which can be inspected using isChecked(), and set
  * using setChecked().
  *
- * A checkbox may also provide a third state, Wt::PartiallyChecked,
+ * A checkbox may also provide a third state, Wt::CheckState::PartiallyChecked,
  * which is useful to indicate that it is neither checked nor
  * unchecked. %Wt will use native browser support for this HTML5
  * extension when available (Safari and MS IE), and use an image-based
@@ -26,7 +26,7 @@ namespace Wt {
  * using setTristate(), and use setCheckState() and checkState() to
  * read all three states.
  * Once a tri-state checkbox is clicked, it cycles through the states
- * Wt::Checked and Wt::Unchecked.
+ * Wt::CheckState::Checked and Wt::CheckState::Unchecked.
  *
  * A label is added as a sibling of the checkbox to the same parent.
  *
@@ -83,11 +83,11 @@ public:
    * for a label, and therefore it is not possible to assign a label to it
    * later through setText().
    */
-  WCheckBox(WContainerWidget *parent = 0);
+  WCheckBox();
 
   /*! \brief Creates a checkbox with given label.
    */
-  WCheckBox(const WString& text, WContainerWidget *parent = 0);
+  WCheckBox(const WString& text);
 
   /*! \brief Makes a tristate checkbox.
    *
@@ -116,7 +116,7 @@ public:
 
   /*! \brief Sets the check state.
    *
-   * Unless it is a tri-state checkbox, only Wt::Checked and Wt::Unchecked are
+   * Unless it is a tri-state checkbox, only Wt::CheckState::Checked and Wt::CheckState::Unchecked are
    * valid states.
    */
   void setCheckState(CheckState state);
@@ -128,7 +128,7 @@ public:
   CheckState checkState() const { return state_; }
 
 protected:
-  virtual void updateInput(DomElement& input, bool all);
+  virtual void updateInput(DomElement& input, bool all) override;
   void updateJSlot();
   void updateNextState();
 

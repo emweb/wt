@@ -15,7 +15,7 @@
 #include <pango/pango.h>
 #endif // HAVE_PANGO
 
-#include <Wt/WPaintDevice>
+#include <Wt/WPaintDevice.h>
 
 namespace Wt {
 
@@ -118,7 +118,7 @@ public:
    * Draws the text, using pango for font choices, but delegating the actual
    * drawing to the device
    *
-   * Precondition: device_ != 0
+   * Precondition: device_ != nullptr
    */
   void drawText(const WFont& f,
 		const WRectF& rect,
@@ -144,7 +144,7 @@ public:
   /*
    * Draws the text, using pango and libfreetype to do the actual rendering
    *
-   * Precondition: device_ == 0
+   * Precondition: device_ == nullptr
    */
   void drawText(const WFont& f,
 		const WRectF& rect,
@@ -171,7 +171,7 @@ private:
     WFont font;
     PangoFont *match;
 
-    Matched() : font(), match(0) { }
+    Matched() : font(), match(nullptr) { }
     Matched(const WFont& f, PangoFont *m) : font(f), match(m) { }
   };
 

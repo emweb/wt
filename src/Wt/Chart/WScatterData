@@ -8,10 +8,10 @@
 #ifndef CHART_SCATTERDATA_H
 #define CHART_SCATTERDATA_H
 
-#include <Wt/WModelIndex>
-#include <Wt/Chart/WAbstractDataSeries3D>
-#include <Wt/Chart/WCartesian3DChart>
-#include <Wt/Chart/WSelection>
+#include <Wt/WModelIndex.h>
+#include <Wt/Chart/WAbstractDataSeries3D.h>
+#include <Wt/Chart/WCartesian3DChart.h>
+#include <Wt/Chart/WSelection.h>
 
 namespace Wt {
 class WMemoryResource;
@@ -29,8 +29,8 @@ class WMemoryResource;
  * color for each point. The same is possible for the size. Color-information 
  * in the model should be present as a WColor.
  *
- * If these extra columns are not included, the MarkerBrushColorRole and 
- * MarkerScaleFactorRole can still be used to style individual points. These 
+ * If these extra columns are not included, the ItemDataRole::MarkerBrushColor and 
+ * ItemDataRole::MarkerScaleFactor can still be used to style individual points. These 
  * dataroles should be set on the values in the column containing the z-values.
  *
  * The figure below shows an upward spiral of points, with droplines enabled 
@@ -44,7 +44,7 @@ class WT_API WScatterData : public WAbstractDataSeries3D {
 public:
   /*! \brief Constructor
    */
-  WScatterData(WAbstractItemModel *model);
+  WScatterData(std::shared_ptr<WAbstractItemModel> model);
 
   /*! \brief Enables or disables droplines for all points.
    *
@@ -111,8 +111,8 @@ public:
    *
    * The default Z column index is 2.
    *
-   * Note that this column is also used to check for a MarkerBrushColorRole 
-   * and a MarkerScaleFactorRole is no color-column or size-column are set.
+   * Note that this column is also used to check for a ItemDataRole::MarkerBrushColor 
+   * and a ItemDataRole::MarkerScaleFactor is no color-column or size-column are set.
    *
    * \sa setColorColumn(), setSizeColumn()
    */
@@ -131,27 +131,27 @@ public:
    *
    * By default, the color-column is set to -1. This means there is no column 
    * which specifies color-values. Also, the basic mechanism of using the 
-   * MarkerBrushColorRole (if present) is then active. The Z-seriescolumn is 
+   * ItemDataRole::MarkerBrushColor (if present) is then active. The Z-seriescolumn is 
    * checked for the presence of this Role.
    *
    * /sa setZSeriesColumn()
    */
-  void setColorColumn(int columnNumber, ItemDataRole role = DisplayRole);
+  void setColorColumn(int columnNumber, ItemDataRole role = ItemDataRole::Display);
 
   /*! \brief Configure a column in the model to be used for the size of the 
    * points.
    *
    * By default, the size-column is set to -1. This means there is no column 
    * which specifies size-values. Also, the basic mechanism of using the 
-   * MarkerScaleFactorRole (if present) is then active. The Z-seriescolumn is 
+   * ItemDataRole::MarkerScaleFactor (if present) is then active. The Z-seriescolumn is 
    * checked for the presence of this Role.
    *
    * /sa setZSeriesColumn()
    */
-  void setSizeColumn(int columnNumber, ItemDataRole role = DisplayRole);
+  void setSizeColumn(int columnNumber, ItemDataRole role = ItemDataRole::Display);
 #else
-  void setColorColumn(int columnNumber, int role = DisplayRole); 
-  void setSizeColumn(int columnNumber, int role = DisplayRole);
+  void setColorColumn(int columnNumber, int role = ItemDataRole::Display); 
+  void setSizeColumn(int columnNumber, int role = ItemDataRole::Display);
 #endif
 
   /*! \brief Pick points on this WScatterData using a single pixel.
@@ -170,17 +170,17 @@ public:
    */
   std::vector<WPointSelection> pickPoints(int x1, int y1, int x2, int y2) const;
 
-  virtual double minimum(Axis axis) const;
+  virtual double minimum(Axis axis) const override;
 
-  virtual double maximum(Axis axis) const;
+  virtual double maximum(Axis axis) const override;
 
-  virtual std::vector<boost::any> getGlObjects();
+  virtual std::vector<cpp17::any> getGlObjects() override;
 
-  virtual void initializeGL() {}
-  virtual void paintGL() const;
-  virtual void updateGL();
-  virtual void resizeGL();
-  virtual void deleteAllGLResources();
+  virtual void initializeGL() override {}
+  virtual void paintGL() const override;
+  virtual void updateGL() override;
+  virtual void resizeGL() override;
+  virtual void deleteAllGLResources() override;
 
 private:
   int countSimpleData() const;

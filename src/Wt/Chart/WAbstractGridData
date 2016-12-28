@@ -8,10 +8,10 @@
 #ifndef CHART_WABSTRACTGRIDDATA_H
 #define CHART_WABSTRACTGRIDDATA_H
 
-#include <Wt/Chart/WAbstractDataSeries3D>
-#include <Wt/Chart/WCartesian3DChart>
-#include <Wt/Chart/WSelection>
-#include <Wt/WPen>
+#include <Wt/Chart/WAbstractDataSeries3D.h>
+#include <Wt/Chart/WCartesian3DChart.h>
+#include <Wt/Chart/WSelection.h>
+#include <Wt/WPen.h>
 
 namespace Wt {
 class WAbstractItemModel;
@@ -25,21 +25,21 @@ class WVector3;
  *
  * \ingroup charts
  */
-enum Series3DType {
-  PointSeries3D,   //!< Series rendered as points
-  SurfaceSeries3D, //!< Series rendered as a surface
-  BarSeries3D      //!< Series rendered as bars
+enum class Series3DType {
+  Point,   //!< Series rendered as points
+  Surface, //!< Series rendered as a surface
+  Bar      //!< Series rendered as bars
 };
 
 /*! \class WAbstractGridData
  *  \brief Class representing grid-based data for on a 3D chart.
  *
-* General information can be found at WAbstractDataSeries3D. Information on
+* General information can be found at WAbstractDataSeries3D. Icon::Information on
  * how the model is structured is provided in the subclasses. GridData can be
  * represented in three ways. This is indicated by \ref Series3DType and can be
- * either PointSeries3D, SurfaceSeries3D or BarSeries3D. Note that points and
- * surfaces can only be added to charts of type \ref ScatterPlot, while bars
- * can only be added to charts of type \ref CategoryChart.
+ * either Series3DType::Point, Series3DType::Surface or Series3DType::Bar. Note that points and
+ * surfaces can only be added to charts of type \ref ChartType::Scatter, while bars
+ * can only be added to charts of type \ref ChartType::Category.
  *
  * When the data is shown as a surface, a mesh can be added to the surface.
  * This draws lines over the surface at the positions of the x- and y-values.
@@ -56,22 +56,22 @@ class WT_API WAbstractGridData : public WAbstractDataSeries3D {
 public:
   /*! \brief Constructor
    */
-  WAbstractGridData(WAbstractItemModel *model);
+  WAbstractGridData(std::shared_ptr<WAbstractItemModel> model);
 
   virtual ~WAbstractGridData();
 
-  virtual double minimum(Axis axis) const = 0;
+  virtual double minimum(Axis axis) const override = 0;
 
-  virtual double maximum(Axis axis) const = 0;
+  virtual double maximum(Axis axis) const override = 0;
 
   /*! \brief Sets the type of representation that will be used for the data.
    *
    * All representations in \ref Series3DType are possible for the data. Note
-   * that \ref PointSeries3D and \ref SurfaceSeries3D can only be used on a
-   * chart that is configured as a \ref ScatterPlot and \ref BarSeries3D can
-   * only be used on a chart that is configured to be a \ref CategoryChart.
+   * that \ref Series3DType::Point and \ref Series3DType::Surface can only be used on a
+   * chart that is configured as a \ref ChartType::Scatter and \ref Series3DType::Bar can
+   * only be used on a chart that is configured to be a \ref ChartType::Category.
    *
-   * The default value is PointSeries3D.
+   * The default value is Series3DType::Point.
    */
   void setType(Series3DType type);
 
@@ -84,7 +84,7 @@ public:
   /*! \brief Enables or disables a mesh for when a surface is drawn.
    *
    * The default value is false. This option only takes effect when the type of
-   * this WGridData is \ref SurfaceSeries3D. The mesh is drawn at the position
+   * this WGridData is \ref Series3DType::Surface. The mesh is drawn at the position
    * of the x-axis and y-axis values.
    */
   void setSurfaceMeshEnabled(bool enabled = true);
@@ -98,7 +98,7 @@ public:
   /*! \brief Sets the bar-width.
    *
    * This option only takes effect when the type of this WGridData is
-   * BarSeries3D. The values provided should be between 0 and 1, where 1 lets
+   * Series3DType::Bar. The values provided should be between 0 and 1, where 1 lets
    * the bars each take up 1/(nb of x/y-values) of the axis.
    *
    * The default bar-width is 0.5 in both directions.
@@ -120,7 +120,7 @@ public:
   /*! \brief Sets the WPen that is used for drawing the mesh.
    *
    * Used when drawing the mesh on a surface or the lines around bars. The
-   * default is a default constructed WPen (black and one pixel wide).
+   * default is a default constructed WPen (StandardColor::Black and one pixel wide).
    *
    * Note: only the width and color of this WPen are used.
    *
@@ -163,13 +163,13 @@ public:
   /*! \brief Set isoline levels.
    *
    * Isolines are drawn on the top or ground plane of the chart.
-   * Only applies if the type is SurfaceSeries3D.
+   * Only applies if the type is Series3DType::Surface.
    *
    * The isoline levels are set in the coordinate system of the item model.
    */
   void setIsoLevels(const std::vector<double> &isoLevels);
 
-  /*! \brief Get all of the isoline levels.
+  /*! \brief Method::Get all of the isoline levels.
    *
    * \sa addIsoLevel()
    */
@@ -180,27 +180,22 @@ public:
    * When no color map is defined for the isolines, i.e. isoColorMap()
    * is set to NULL, the color map of this WAbstractGridData will be used.
    *
-   * The isolines are only drawn if the type is SurfaceSeries3D.
-   *
-   * \if cpp
-   * If the colormap has no parent yet, then ownership is transferred to this
-   * %WAbstractGridData, and thus the validator will be deleted together with
-   * the %WAbstractGridData.
-   * \endif
+   * The isolines are only drawn if the type is Series3DType::Surface.
    *
    * \sa addIsoLevel(), setColorMap()
    */
-  void setIsoColorMap(WAbstractColorMap *colormap);
+  void setIsoColorMap(const std::shared_ptr<WAbstractColorMap>& colormap);
 
-  /*! \brief Get the color map for the isolines.
+  /*! \brief Method::Get the color map for the isolines.
    *
    * \sa setIsoColorMap()
    */
-  const WAbstractColorMap *isoColorMap() const { return isoLineColorMap_; }
+  std::shared_ptr<WAbstractColorMap> isoColorMap() const
+    { return isoLineColorMap_; }
 
   /*! \brief Set the value below which the data series will be clipped on the given axis.
    *
-   * This only affects data series whose type is SurfaceSeries3D.
+   * This only affects data series whose type is Series3DType::Surface.
    */
   void setClippingMin(Axis axis, float v);
 
@@ -224,7 +219,7 @@ public:
 
   /*! \brief Set the value above which the data series will be clipped on the given axis.
    *
-   * This only affects data series whose type is SurfaceSeries3D.
+   * This only affects data series whose type is Series3DType::Surface.
    */
   void setClippingMax(Axis axis, float v);
 
@@ -278,17 +273,17 @@ public:
   virtual int nbXPoints() const = 0;
   virtual int nbYPoints() const = 0;
   virtual WString axisLabel(int u, Axis axis) const = 0;
-  virtual boost::any data(int i, int j) const = 0;
+  virtual cpp17::any data(int i, int j) const = 0;
 
-  virtual void setChart(WCartesian3DChart *chart);
+  virtual void setChart(WCartesian3DChart *chart) override;
 
-  virtual std::vector<boost::any> getGlObjects();
+  virtual std::vector<cpp17::any> getGlObjects() override;
 
-  virtual void initializeGL();
-  virtual void paintGL() const;
-  virtual void updateGL();
-  virtual void resizeGL();
-  virtual void deleteAllGLResources();
+  virtual void initializeGL() override;
+  virtual void paintGL() const override;
+  virtual void updateGL() override;
+  virtual void resizeGL() override;
+  virtual void deleteAllGLResources() override;
 
 protected:
   virtual void pointDataFromModel(FloatBuffer& simplePtsArray,
@@ -355,7 +350,7 @@ private:
   std::vector<int> isoLineBufferSizes_;
 
   std::vector<double> isoLineHeights_;
-  WAbstractColorMap *isoLineColorMap_;
+  std::shared_ptr<WAbstractColorMap> isoLineColorMap_;
 
   std::vector<WGLWidget::Buffer> vertexPosBuffers_;
   std::vector<WGLWidget::Buffer> vertexPosBuffers2_;

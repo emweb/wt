@@ -5,18 +5,15 @@
  *
  * Contributed by: Hilary Cheng
  */
-#include "Wt/Dbo/backend/Postgres"
-#include "Wt/Dbo/Exception"
+#include "Wt/Dbo/backend/Postgres.h"
+#include "Wt/Dbo/Exception.h"
 
 #include <libpq-fe.h>
-#include <boost/lexical_cast.hpp>
+#include <stdio.h>
 #include <iostream>
 #include <vector>
 #include <sstream>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/posix_time/time_parsers.hpp> 
+#include <cstring>
 
 #ifdef WT_WIN32
 #define snprintf _snprintf
@@ -55,10 +52,10 @@ public:
 
     lastId_ = -1;
     row_ = affectedRows_ = 0;
-    result_ = 0;
+    result_ = nullptr;
 
-    paramValues_ = 0;
-    paramTypes_ = paramLengths_ = paramFormats_ = 0;
+    paramValues_ = nullptr;
+    paramTypes_ = paramLengths_ = paramFormats_ = nullptr;
  
     snprintf(name_, 64, "SQL%p%08X", (void*)this, rand());
 
@@ -97,51 +94,73 @@ public:
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    setValue(column, boost::lexical_cast<std::string>(value));
+    setValue(column, std::to_string(value));
   }
 
   virtual void bind(int column, long long value)
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    setValue(column, boost::lexical_cast<std::string>(value));
+    setValue(column, std::to_string(value));
   }
 
   virtual void bind(int column, float value)
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    setValue(column, boost::lexical_cast<std::string>(value));
+    setValue(column, std::to_string(value));
   }
 
   virtual void bind(int column, double value)
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    setValue(column, boost::lexical_cast<std::string>(value));
+    setValue(column, std::to_string(value));
   }
 
-  virtual void bind(int column, const boost::posix_time::time_duration & value)
+  virtual void bind(int column, const std::chrono::duration<int, std::milli> & value)
   {
-    DEBUG(std::cerr << this << " bind " << column << " " << boost::posix_time::to_simple_string(value) << std::endl);
+    std::chrono::system_clock::time_point tp(value);
+    std::time_t t = std::chrono::system_clock::to_time_t(tp);
+    std::tm *tm = std::gmtime(&t);
+    char mbstr[100];
+    std::strftime(mbstr, sizeof(mbstr), "%H:%M:%S", tm);
+    DEBUG(std::cerr << this << " bind " << column << " " << mbstr << std::endl);
 
-    std::string v = boost::posix_time::to_simple_string(value);   
+    std::string v = mbstr;
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+    std::stringstream ss;
+    ss << "." << ms.count()%1000;
+    v.append(ss.str());
 
     setValue(column, v);
   }
 
-  virtual void bind(int column, const boost::posix_time::ptime& value,
+  virtual void bind(int column, const std::chrono::system_clock::time_point& value,
 		    SqlDateTimeType type)
   {
+    std::time_t t = std::chrono::system_clock::to_time_t(value);
+    std::tm *tm = std::gmtime(&t);
+    char mbstr[100];
+    std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
+
     DEBUG(std::cerr << this << " bind " << column << " "
-	  << boost::posix_time::to_simple_string(value) << std::endl);
+      << mbstr << std::endl);
 
     std::string v;
-    if (type == SqlDate)
-      v = boost::gregorian::to_iso_extended_string(value.date());
+    char str[100];
+    if (type == SqlDateTimeType::Date){
+      std::strftime(str, sizeof(str), "%Y-%m-%d", tm);
+      v = str;
+    }
     else {
-      v = boost::posix_time::to_iso_extended_string(value);
-      v[v.find('T')] = ' ';
+      std::strftime(str, sizeof(str), "%Y-%m-%d %H:%M:%S", tm);
+      v = str;
+      std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch());
+      std::stringstream ss;
+      ss << "." << ms.count()%1000;
+      v.append(ss.str());
+
       /*
        * Add explicit timezone offset. Postgres will ignore this for a TIMESTAMP
        * column, but will treat the timestamp as UTC in a TIMESTAMP WITH TIME
@@ -164,7 +183,7 @@ public:
     Param& p = params_[column];
     p.value.resize(value.size());
     if (value.size() > 0)
-      memcpy(const_cast<char *>(p.value.data()), &(*value.begin()),
+      std::memcpy(const_cast<char *>(p.value.data()), &(*value.begin()),
 	     value.size());
     p.isbinary = true;
     p.isnull = false;
@@ -213,7 +232,7 @@ public:
 
     for (unsigned i = 0; i < params_.size(); ++i) {
       if (params_[i].isnull)
-	paramValues_[i] = 0;
+	paramValues_[i] = nullptr;
       else
 	if (params_[i].isbinary) {
 	  paramValues_[i] = const_cast<char *>(params_[i].value.data());
@@ -230,7 +249,7 @@ public:
     if (PQresultStatus(result_) == PGRES_COMMAND_OK) {
       std::string s = PQcmdTuples(result_);
       if (!s.empty())
-	affectedRows_ = boost::lexical_cast<int>(s);
+	affectedRows_ = std::stoi(s);
       else
 	affectedRows_ = 0;
     } else if (PQresultStatus(result_) == PGRES_TUPLES_OK)
@@ -248,7 +267,7 @@ public:
     if (isInsertReturningId) {
       state_ = NoFirstRow;
       if (PQntuples(result_) == 1 && PQnfields(result_) == 1) {
-	lastId_ = boost::lexical_cast<long long>(PQgetvalue(result_, 0, 0));
+	lastId_ = std::stoll(PQgetvalue(result_, 0, 0));
       }
     } else {
       if (PQntuples(result_) == 0) {
@@ -335,7 +354,7 @@ public:
     else if (*v == 't')
 	*value = 1;
     else
-      *value = boost::lexical_cast<int>(v);
+      *value = std::stoi(v);
 
     DEBUG(std::cerr << this 
 	  << " result int " << column << " " << *value << std::endl);
@@ -348,8 +367,7 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value
-      = boost::lexical_cast<long long>(PQgetvalue(result_, row_, column));
+    *value = std::stoll(PQgetvalue(result_, row_, column));
 
     DEBUG(std::cerr << this 
 	  << " result long long " << column << " " << *value << std::endl);
@@ -362,7 +380,7 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = boost::lexical_cast<float>(PQgetvalue(result_, row_, column));
+    *value = std::stof(PQgetvalue(result_, row_, column));
 
     DEBUG(std::cerr << this 
 	  << " result float " << column << " " << *value << std::endl);
@@ -375,7 +393,7 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = boost::lexical_cast<double>(PQgetvalue(result_, row_, column));
+    *value = std::stod(PQgetvalue(result_, row_, column));
 
     DEBUG(std::cerr << this 
 	  << " result double " << column << " " << *value << std::endl);
@@ -383,7 +401,8 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, boost::posix_time::ptime *value,
+  virtual bool getResult(int column,
+			 std::chrono::system_clock::time_point *value,
 			 SqlDateTimeType type)
   {
     if (PQgetisnull(result_, row_, column))
@@ -391,40 +410,58 @@ public:
 
     std::string v = PQgetvalue(result_, row_, column);
 
-    if (type == SqlDate)
-      *value = boost::posix_time::ptime(boost::gregorian::from_string(v),
-					boost::posix_time::hours(0));
-    else {
+    if (type == SqlDateTimeType::Date){
+      int year, month, day;
+      std::sscanf(v.c_str(), "%d-%d-%d", &year, &month, &day);
+
+      std::tm tm = std::tm();
+      tm.tm_year = year - 1900;
+      tm.tm_mon = month - 1;
+      tm.tm_mday = day;
+      std::time_t t = timegm(&tm);
+      *value = std::chrono::system_clock::from_time_t(t);
+    } else {
       /*
        * Handle timezone offset. Postgres will append a timezone offset [+-]dd
        * if a column is defined as TIMESTAMP WITH TIME ZONE -- possibly
        * in a legacy table. If offset is present, subtract it for UTC output.
        */
-      if (v.size() >= 3 && std::strchr("+-", v[v.size() - 3])) {
-	int hours = boost::lexical_cast<int>(v.substr(v.size() - 3));
-	boost::posix_time::time_duration offset
-	  = boost::posix_time::hours(hours);
-        *value = boost::posix_time::time_from_string(v.substr(0, v.size() - 3))
-	  - offset;
-      } else
-        *value = boost::posix_time::time_from_string(v);
-    }
+      int offsetHour = 0;
+      if(v.size() >= 3 && std::strchr("+-", v[v.size() - 3])){
+          offsetHour = std::stoi(v.substr(v.size() - 3));
+          v = v.substr(0, v.size() - 3);
+      }
+      int year, month, day, hour, min, sec, ms = 0;
+      std::sscanf(v.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &min, &sec, &ms);
 
-    DEBUG(std::cerr << this 
-	  << " result time_duration " << column << " " << *value << std::endl);
+      std::tm tm = std::tm();
+      tm.tm_year = year - 1900;
+      tm.tm_mon = month - 1;
+      tm.tm_mday = day;
+      tm.tm_hour = hour - offsetHour;
+      tm.tm_min = min;
+      tm.tm_sec = sec;
+      std::time_t t = timegm(&tm);
+      *value = std::chrono::system_clock::from_time_t(t);
+      *value += std::chrono::milliseconds(ms);
+    }
 
     return true;
   }
 
-  virtual bool getResult(int column, boost::posix_time::time_duration *value)
+  virtual bool getResult(int column, std::chrono::duration<int, std::milli> *value)
   {
     if (PQgetisnull(result_, row_, column))
       return false;
 
     std::string v = PQgetvalue(result_, row_, column);
 
-    *value = boost::posix_time::time_duration
-      (boost::posix_time::duration_from_string(v));
+    int hour, min, sec, ms = 0;
+    std::sscanf(v.c_str(), "%d:%d:%d.%d", &hour, &min, &sec, &ms);
+
+    *value = std::chrono::duration<int, std::milli>(std::chrono::hours(hour) + std::chrono::minutes(min)
+                                                    + std::chrono::seconds(sec)
+                                                    + std::chrono::milliseconds(ms));
 
     return true;
   }
@@ -546,11 +583,11 @@ private:
 };
 
 Postgres::Postgres()
-  : conn_(NULL)
+  : conn_(nullptr)
 { }
 
 Postgres::Postgres(const std::string& db)
-  : conn_(NULL)
+  : conn_(nullptr)
 {
   if (!db.empty())
     connect(db);
@@ -570,9 +607,9 @@ Postgres::~Postgres()
     PQfinish(conn_);
 }
 
-Postgres *Postgres::clone() const
+std::unique_ptr<SqlConnection> Postgres::clone() const
 {
-  return new Postgres(*this);
+  return std::unique_ptr<SqlConnection>(new Postgres(*this));
 }
 
 bool Postgres::connect(const std::string& db)
@@ -583,11 +620,11 @@ bool Postgres::connect(const std::string& db)
   if (PQstatus(conn_) != CONNECTION_OK) {
     std::string error = PQerrorMessage(conn_);
     PQfinish(conn_);
-    conn_ = 0;
+    conn_ = nullptr;
     throw PostgresException("Could not connect to: " + error);
   }
 
-  PQsetClientEncoding(conn_, "UTF8");
+  PQsetClientEncoding(conn_, "CharEncoding::UTF8");
 
   return true;
 }
@@ -646,11 +683,11 @@ std::string Postgres::autoincrementInsertSuffix(const std::string& id) const
 const char *Postgres::dateTimeType(SqlDateTimeType type) const
 {
   switch (type) {
-  case SqlDate:
+  case SqlDateTimeType::Date:
     return "date";
-  case SqlDateTime:
+  case SqlDateTimeType::DateTime:
     return "timestamp";
-  case SqlTime:
+  case SqlDateTimeType::Time:
     return "interval";
   }
 

@@ -4,7 +4,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WMatrix4x4"
+#include "Wt/WMatrix4x4.h"
 #include <boost/numeric/ublas/lu.hpp>
 
 

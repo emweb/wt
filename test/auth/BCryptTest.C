@@ -3,11 +3,13 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/WRandom>
-#include <Wt/Auth/HashFunction>
+#include <Wt/WRandom.h>
+#include <Wt/Auth/HashFunction.h>
+
+#include <chrono>
+#include <iostream>
 
 using namespace Wt;
 
@@ -22,16 +24,16 @@ BOOST_AUTO_TEST_CASE( bcrypt_test )
 
   std::cerr << "bcrypted password: " << hash << std::endl;
 
-  boost::posix_time::ptime
-    start = boost::posix_time::microsec_clock::local_time();
+  std::chrono::system_clock::time_point
+    start = std::chrono::system_clock::now();
 
   BOOST_REQUIRE(f.verify(msg, salt, hash));
 
-  boost::posix_time::ptime
-    end = boost::posix_time::microsec_clock::local_time();
+  std::chrono::system_clock::time_point
+    end = std::chrono::system_clock::now();
 
-  boost::posix_time::time_duration d = end - start;
+  double ms = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000;
 
-  std::cerr << "verify() took: " << (double)d.total_microseconds() / 1000
+  std::cerr << "verify() took: " << ms
 	    << "ms" << std::endl;
 }

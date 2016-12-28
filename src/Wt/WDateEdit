@@ -7,8 +7,8 @@
 #ifndef WDATE_EDIT_H_
 #define WDATE_EDIT_H_
 
-#include <Wt/WDateValidator>
-#include <Wt/WLineEdit>
+#include <Wt/WDateValidator.h>
+#include <Wt/WLineEdit.h>
 
 namespace Wt {
 
@@ -30,7 +30,7 @@ class WT_API WDateEdit : public WLineEdit
 public:
   /*! \brief Creates a new date edit.
    */
-  WDateEdit(WContainerWidget *parent = 0);
+  WDateEdit();
 
   virtual ~WDateEdit();
 
@@ -64,7 +64,7 @@ public:
    * Most of the configuration of the date edit is stored in the
    * validator.
    */
-  virtual WDateValidator *validator() const;
+  virtual std::shared_ptr<WDateValidator> dateValidator() const;
 
   /*! \brief Sets the format used for representing the date.
    *
@@ -122,14 +122,14 @@ public:
   /*! \brief Hide/unhide the widget.
    */
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
+                         const WAnimation& animation = WAnimation()) override;
 
-  virtual void load();
-  virtual void refresh();
+  virtual void load() override;
+  virtual void refresh() override;
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual void propagateSetEnabled(bool enabled);
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void propagateSetEnabled(bool enabled) override;
 
   /*! \brief Sets the value from the calendar to the line edit.
    */
@@ -140,12 +140,14 @@ protected:
   virtual void setFromLineEdit();
 
 private:
-  WPopupWidget *popup_;
+  std::unique_ptr<WPopupWidget> popup_;
+  std::unique_ptr<WCalendar> uCalendar_;
   WCalendar *calendar_;
   bool customFormat_;
 
   void defineJavaScript();
   void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);
+  void setFocusTrue();
 };
 
 }

@@ -14,7 +14,7 @@
  *  Changing or disabling the surrogate primary key "id" field
  *****/
 
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 
 class Post;
 

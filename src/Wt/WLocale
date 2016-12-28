@@ -7,10 +7,12 @@
 #ifndef WLOCALE_H_
 #define WLOCALE_H_
 
-#include <Wt/WGlobal>
-#include <Wt/WString>
+#include <Wt/WGlobal.h>
+#include <Wt/WString.h>
 
-#include <boost/date_time/local_time/local_time.hpp>
+namespace date {
+  class time_zone;
+}
 
 namespace Wt {
 
@@ -59,6 +61,10 @@ public:
    * (for UK English).
    */
   WLocale(const char *locale);
+
+  /*! \brief Assignment operator.
+   */
+  WLocale& operator=(const WLocale& locale);
 
   /*! \brief Sets the decimal point.
    *
@@ -117,13 +123,13 @@ public:
    *
    * \sa WEnvironment::timeZoneOffset()
    */
-  void setTimeZone(const std::string& posixTimeZone);
+  void setTimeZone(const date::time_zone *zone);
 
   /*! \brief Returns the user's time zone.
    *
    * \sa setTimeZone()
    */
-  std::string timeZone() const;
+  const date::time_zone *timeZone() const { return timeZone_; }
 
   /*! \brief Sets the date format.
    *
@@ -178,12 +184,6 @@ public:
    */
   std::string name() const { return name_; }
 
-  /*! \brief Casts to the locale string (for pre-3.3.0 compatibility).
-   *
-   * \deprecated Use name() instead.
-   */
-  operator std::string() const { return name(); }
-
   /*! \brief Returns the current (user) locale.
    *
    * This returns WApplication::instance()->locale() if the
@@ -227,14 +227,14 @@ public:
    */
   WT_USTRING toFixedString(double value, int precision) const;
 
-  boost::local_time::time_zone_ptr time_zone_ptr() const { return time_zone_; }
+  //boost::local_time::time_zone_ptr time_zone_ptr() const;
 
 private:
   std::string name_;
   WT_UCHAR decimalPoint_, groupSeparator_;
   WT_USTRING dateFormat_, timeFormat_, dateTimeFormat_;
 
-  boost::local_time::time_zone_ptr time_zone_;
+  const date::time_zone *timeZone_;
 
   bool isDefaultNumberLocale() const;
 

@@ -7,7 +7,7 @@
 #ifndef BLOG_VIEW_H_
 #define BLOG_VIEW_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
   class WContainerWidget;
@@ -19,7 +19,7 @@ class BlogView : public Wt::WCompositeWidget
 {
 public:
   BlogView(const std::string& basePath, Wt::Dbo::SqlConnectionPool& db,
-	   const std::string& rssFeedUrl, Wt::WContainerWidget *parent = 0);
+           const std::string& rssFeedUrl);
 
   void setInternalBasePath(const std::string& basePath);
 

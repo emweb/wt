@@ -7,8 +7,8 @@
 #ifndef WRECT_AREA_H_
 #define WRECT_AREA_H_
 
-#include <Wt/WAbstractArea>
-#include <Wt/WRectF>
+#include <Wt/WAbstractArea.h>
+#include <Wt/WRectF.h>
 
 namespace Wt {
 
@@ -95,8 +95,8 @@ private:
   double x_, y_, width_, height_;
 
 protected:
-  virtual bool updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
-  virtual std::string updateAreaCoordsJS() WT_CXX11ONLY(override);
+  virtual bool updateDom(DomElement& element, bool all) override;
+  virtual std::string updateAreaCoordsJS() override;
 };
 
 }

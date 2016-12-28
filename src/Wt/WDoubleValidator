@@ -9,7 +9,7 @@
 
 #include <limits>
 
-#include <Wt/WValidator>
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -47,7 +47,7 @@ public:
    *
    * \sa WLocale::currentLocale()
    */
-  WDoubleValidator(WObject *parent = 0);
+  WDoubleValidator();
 
   /*! \brief Creates a new double validator that accepts double
    *         within the given range.
@@ -56,7 +56,7 @@ public:
    *
    * \sa WLocale::currentLocale()
    */
-  WDoubleValidator(double minimum, double maximum, WObject *parent = 0);
+  WDoubleValidator(double minimum, double maximum);
 
   /*! \brief Returns the bottom of the valid double range.
    */
@@ -87,9 +87,7 @@ public:
    * The input is considered valid only when it is blank for a non-mandatory
    * field, or represents a double within the valid range.
    */
-  virtual Result validate(const WT_USTRING& input) const;
-
-  virtual void createExtConfig(std::ostream& config) const;
+  virtual Result validate(const WT_USTRING& input) const override;
 
   /*! \brief Sets the message to display when the input is not a number.
    *
@@ -142,7 +140,7 @@ public:
    */
   bool ignoreTrailingSpaces() { return ignoreTrailingSpaces_; }
 
-  virtual std::string javaScriptValidate() const;
+  virtual std::string javaScriptValidate() const override;
 
 private:
   double bottom_;

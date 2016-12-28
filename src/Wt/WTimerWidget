@@ -7,7 +7,7 @@
 #ifndef WTIMERWIDGET_
 #define WTIMERWIDGET_
 
-#include <Wt/WInteractWidget>
+#include <Wt/WInteractWidget.h>
 
 namespace Wt {
 
@@ -33,11 +33,11 @@ private:
   bool jsRepeat_;
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual std::string renderRemoveJs(bool recursive);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual std::string renderRemoveJs(bool recursive) override;
 
-  virtual void enableAjax();
+  virtual void enableAjax() override;
 
   friend class WebSession;
 };

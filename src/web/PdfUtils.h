@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "Wt/WFont"
+#include "Wt/WFont.h"
 
 namespace Wt {
   namespace Pdf {

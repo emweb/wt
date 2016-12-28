@@ -7,21 +7,7 @@
 #ifndef WT_AUTH_ABSTRACT_USER_DATABASE_H_
 #define WT_AUTH_ABSTRACT_USER_DATABASE_H_
 
-#include <Wt/Auth/User>
-
-#ifndef WT_CX11
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-#define WT_CXX11
-#endif
-
-#ifdef WT_CXX11
-#define WT_CXX11ONLY(x) x
-#else
-#define WT_CXX11ONLY(x)
-#endif
-
-#endif
+#include <Wt/Auth/User.h>
 
 namespace Wt {
   namespace Auth {
@@ -83,7 +69,7 @@ public:
      *
      * \sa rollback()
      */
-    virtual ~Transaction() WT_CXX11ONLY(noexcept(false));
+    virtual ~Transaction() noexcept(false);
 
     /*! \brief Commits the transaction.
      *
@@ -105,12 +91,12 @@ public:
   /*! \brief Creates a new database transaction.
    *
    * If the underlying database does not support transactions, you can
-   * return \c 0.
+   * return \c nullptr.
    *
    * Ownership of the transaction is transferred, and the transaction must
    * be deleted after it has been committed or rolled back.
    *
-   * The default implementation returns \c 0 (no transaction support).
+   * The default implementation returns \c nullptr (no transaction support).
    */
   virtual Transaction *startTransaction();
 
@@ -182,7 +168,7 @@ public:
    */
   virtual User registerNew(); 
 
-  /*! \brief Delete a user.
+  /*! \brief Method::Delete a user.
    *
    * This deletes a user from the database.
    */
@@ -193,17 +179,17 @@ public:
    * If there is support for suspending accounts, then this method may
    * be implemented to return whether a user account is disabled.
    *
-   * The default implementation always returns User::Normal.
+   * The default implementation always returns AccountStatus::Normal.
    *
    * \sa Login::loginState()
    */
-  virtual User::Status status(const User& user) const;
+  virtual AccountStatus status(const User& user) const;
 
   /*! \brief Sets the user status.
    *
    * This sets the status for a user (if supported).
    */
-  virtual void setStatus(const User& user, User::Status status);
+  virtual void setStatus(const User& user, AccountStatus status);
 
   /** @name Password authentication
    */
@@ -285,7 +271,7 @@ public:
    * password functionality.
    */
   virtual void setEmailToken(const User& user, const Token& token,
-			     User::EmailTokenRole role);
+			     EmailTokenRole role);
 
   /*! \brief Returns an email token.
    *
@@ -301,7 +287,7 @@ public:
    * password functionality. It should return the role previously set
    * with setEailToken().
    */
-  virtual User::EmailTokenRole emailTokenRole(const User& user) const;
+  virtual EmailTokenRole emailTokenRole(const User& user) const;
 
   /*! \brief Finds a user with a given email token.
    *

@@ -6,15 +6,15 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/Login"
-#include "Wt/Auth/Identity"
-#include "Wt/Auth/PasswordService"
-#include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/Dbo/AuthInfo"
-#include "Wt/Auth/Dbo/UserDatabase"
+#include <Wt/Dbo/Dbo.h>
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/HashFunction.h"
+#include "Wt/Auth/Login.h"
+#include "Wt/Auth/Identity.h"
+#include "Wt/Auth/PasswordService.h"
+#include "Wt/Auth/PasswordVerifier.h"
+#include "Wt/Auth/Dbo/AuthInfo.h"
+#include "Wt/Auth/Dbo/UserDatabase.h"
 
 #include "DboFixture.h"
 
@@ -49,19 +49,20 @@ struct AuthDboFixture : DboFixtureBase
   AuthDboFixture(const char* tablenames[], const char* schema = "") :
     DboFixtureBase(), schema_(schema)
   {
-    myAuthService_ = new Auth::AuthService();
-    myPasswordService_ = new Auth::PasswordService(*myAuthService_);
+    myAuthService_ = cpp14::make_unique<Auth::AuthService>();
+    myPasswordService_ = cpp14::make_unique<Auth::PasswordService>(*myAuthService_);
 
-    Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
-    verifier->addHashFunction(new Auth::BCryptHashFunction(7));
-    myPasswordService_->setVerifier(verifier);
+    std::unique_ptr<Auth::PasswordVerifier> verifier
+      (new Auth::PasswordVerifier());
+    verifier->addHashFunction(cpp14::make_unique<Auth::BCryptHashFunction>(7));
+    myPasswordService_->setVerifier(std::move(verifier));
 
     session_->mapClass<TestUser>(tablenames[0]);
     session_->mapClass<AuthInfo>(tablenames[1]);
     session_->mapClass<AuthInfo::AuthIdentityType>(tablenames[2]);
     session_->mapClass<AuthInfo::AuthTokenType>(tablenames[3]);
 
-    users_ = new UserDatabase(*session_);
+    users_ = cpp14::make_unique<UserDatabase>(*session_);
 
     try {
       dbo::Transaction transaction(*session_);
@@ -89,10 +90,6 @@ struct AuthDboFixture : DboFixtureBase
         session_->execute("drop schema \"" + schema_ + "\" cascade");
     } catch (...) {
     }
-
-    delete users_;
-    delete myPasswordService_;
-    delete myAuthService_;
   }
 
   Auth::AbstractUserDatabase& users() { return *users_; }
@@ -108,7 +105,7 @@ struct AuthDboFixture : DboFixtureBase
       dbo::ptr<AuthInfo> authInfo = users_->find(login_.user());
       dbo::ptr<TestUser> testUser = authInfo->user();
       if (!testUser) {
-        testUser = session_->add(new TestUser());
+        testUser = session_->add(Wt::cpp14::make_unique<TestUser>());
         authInfo.modify()->setUser(testUser);
       }
       return testUser;
@@ -116,11 +113,11 @@ struct AuthDboFixture : DboFixtureBase
       return dbo::ptr<TestUser>();
   }
 
-  Auth::AuthService *myAuthService_;
-  Auth::PasswordService *myPasswordService_;
+  std::unique_ptr<Auth::AuthService> myAuthService_;
+  std::unique_ptr<Auth::PasswordService> myPasswordService_;
   std::vector<const Auth::OAuthService *> myOAuthServices;
 
-  UserDatabase *users_;
+  std::unique_ptr<UserDatabase> users_;
   Auth::Login login_;
   std::string schema_;
 };

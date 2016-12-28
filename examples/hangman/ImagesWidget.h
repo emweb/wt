@@ -10,14 +10,16 @@
 
 #include <vector>
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
-class ImagesWidget : public Wt::WContainerWidget
+using namespace Wt;
+
+class ImagesWidget : public WContainerWidget
 {
 public:
   static const int HURRAY;
 
-  ImagesWidget(int maxGuesses, Wt::WContainerWidget *parent = 0);
+  ImagesWidget(int maxGuesses);
 
   /*
    * 0 - maxGuesses: corresponds to 0 up to maxGuesses guesses
@@ -27,10 +29,10 @@ public:
   int currentImage() const { return image_; }
 
 private:
-  std::vector<Wt::WImage *> images_;
+  std::vector<WImage *> images_;
   int image_;
 
-  Wt::WImage *image(int index) const;
+  WImage *image(int index) const;
 };
 
 #endif // IMAGES_WIDGET_H_

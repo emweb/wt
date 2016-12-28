@@ -11,9 +11,9 @@
 #include <vector>
 #include <set>
 
-#include "Wt/WDateTime"
-#include "Wt/WEnvironment"
-#include "Wt/WStatelessSlot"
+#include "Wt/WDateTime.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WStatelessSlot.h"
 
 namespace Wt {
 
@@ -135,14 +135,14 @@ private:
 
   void collectJavaScriptUpdate(WStringStream& out);
   void loadStyleSheet(WStringStream& out, WApplication *app,
-		      const WCssStyleSheet& sheet);
+		      const WLinkedCssStyleSheet& sheet);
   void loadStyleSheets(WStringStream& out, WApplication *app);
   void removeStyleSheets(WStringStream& out, WApplication *app);
   int loadScriptLibraries(WStringStream& out, WApplication *app,
 			  int count = -1);
   void updateLoadIndicator(WStringStream& out, WApplication *app, bool all);
   void renderSetServerPush(WStringStream& out);
-  void renderStyleSheet(WStringStream& out, const WCssStyleSheet& sheet,
+  void renderStyleSheet(WStringStream& out, const WLinkedCssStyleSheet& sheet,
 			WApplication *app);
 
   std::string createFormObjectsList(WApplication *app);

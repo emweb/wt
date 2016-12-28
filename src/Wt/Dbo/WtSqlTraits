@@ -8,16 +8,18 @@
 #define WT_DBO_WT_TYPE_TRAITS_H_
 
 #include <string>
+#include <iostream>
 
-#include <Wt/WDate>
-#include <Wt/WDateTime>
-#include <Wt/WTime>
-#include <Wt/WString>
+#include <Wt/WDate.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WTime.h>
+#include <Wt/WString.h>
+#include <Wt/cpp17/any.hpp>
 
-#include <Wt/Dbo/SqlTraits>
-#include <Wt/Dbo/SqlStatement>
+#include <Wt/Date/date.h>
 
-#include <boost/lexical_cast.hpp>
+#include <Wt/Dbo/SqlTraits.h>
+#include <Wt/Dbo/SqlStatement.h>
 
 namespace Wt {
   namespace Dbo {
@@ -76,7 +78,7 @@ struct sql_value_traits<WString, void>
 inline const char *sql_value_traits<WDate, void>::type(SqlConnection *conn,
 						       int size)
 {
-  return conn->dateTimeType(SqlDate);
+  return conn->dateTimeType(SqlDateTimeType::Date);
 }
 
 inline void sql_value_traits<WDate, void>
@@ -85,17 +87,16 @@ inline void sql_value_traits<WDate, void>
   if (v.isNull())
     statement->bindNull(column);
   else
-    statement->bind(column, Wt::WDateTime(v).toPosixTime(), SqlDate);
+    statement->bind(column, v.toTimePoint(), SqlDateTimeType::Date);
 }
 
 inline bool sql_value_traits<WDate, void>
 ::read(WDate& v, SqlStatement *statement, int column, int size)
 {
-  boost::posix_time::ptime t;
+  std::chrono::system_clock::time_point tp;
 
-  if (statement->getResult(column, &t, SqlDate)) {
-    boost::gregorian::date d = t.date();
-    v.setDate(d.year(), d.month(), d.day());
+  if (statement->getResult(column, &tp, SqlDateTimeType::Date)) {
+    v = WDate(tp);
     return true;
   } else {
     v = WDate();
@@ -110,7 +111,7 @@ inline bool sql_value_traits<WDate, void>
 inline const char *sql_value_traits<WTime, void>::type(SqlConnection *conn,
 						       int size)
 {
-  return conn->dateTimeType(SqlTime);
+  return conn->dateTimeType(SqlDateTimeType::Time);
 }
 
 inline void sql_value_traits<WTime, void>
@@ -118,29 +119,22 @@ inline void sql_value_traits<WTime, void>
 {
   if (v.isNull())
     statement->bindNull(column);
-  else {
-    boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
-      boost::posix_time::time_duration::ticks_per_second() / 1000;
-
-    statement->bind
-      (column,
-       boost::posix_time::time_duration(v.hour(), v.minute(), v.second(),
-					v.msec() * ticks_per_msec));
-  }
+  else
+    statement->bind(column, v.toTimeDuration());
 }
 
 inline bool sql_value_traits<WTime, void>
 ::read(WTime& v, SqlStatement *statement, int column, int size)
 {
-  boost::posix_time::time_duration t;
+  std::chrono::duration<int, std::milli> t;
  
   if (statement->getResult(column, &t)) {
-    int h = t.hours();
-    int m = t.minutes();
-    int s = t.seconds();
-    int ms = static_cast<int>(t.total_milliseconds() % 1000);
-
-    if (!v.setHMS (h, m, s, ms)) {
+    auto time = date::make_time(t);
+    int h = time.hours().count();
+    int m = time.minutes().count();
+    int s = time.seconds().count();
+    std::chrono::duration<int, std::milli> ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.subseconds());
+    if (!v.setHMS (h, m, s, ms.count())) {
       std::cerr << "Wt::Dbo: WTime can only hold durations < 24h"
 		<< std::endl;
       return true;
@@ -160,7 +154,7 @@ inline bool sql_value_traits<WTime, void>
 inline const char *sql_value_traits<WDateTime, void>::type(SqlConnection *conn,
 							   int size)
 {
-  return conn->dateTimeType(SqlDateTime);
+  return conn->dateTimeType(SqlDateTimeType::DateTime);
 }
 
 inline void sql_value_traits<WDateTime, void>
@@ -169,16 +163,16 @@ inline void sql_value_traits<WDateTime, void>
   if (v.isNull())
     statement->bindNull(column);
   else
-    statement->bind(column, v.toPosixTime(), SqlDateTime);
+    statement->bind(column, v.toTimePoint(), SqlDateTimeType::DateTime);
 }
 
 inline bool sql_value_traits<WDateTime, void>
 ::read(WDateTime& v, SqlStatement *statement, int column, int size)
 {
-  boost::posix_time::ptime t;
+  std::chrono::system_clock::time_point t;
 
-  if (statement->getResult(column, &t, SqlDateTime)) {
-    v = WDateTime::fromPosixTime(t);
+  if (statement->getResult(column, &t, SqlDateTimeType::DateTime)) {
+    v = WDateTime::fromTimePoint(t);
     return true;
   } else {
     v = WDateTime();

@@ -10,8 +10,8 @@
 #include "Tag.h"
 #include "Token.h"
 
-#include <Wt/Dbo/Impl>
-#include <Wt/WWebWidget>
+#include <Wt/Dbo/Impl.h>
+#include <Wt/WWebWidget.h>
 
 DBO_INSTANTIATE_TEMPLATES(Comment);
 
@@ -81,7 +81,7 @@ void Comment::setText(const Wt::WString& src)
   // <div class="vspace"></div>
   replace(html, "<br /><br />", "<div class=\"vspace\"></div>");
 
-  textHtml_ = Wt::WString::fromUTF8(html);
+  textHtml_ = Wt::utf8(html);
 }
 
 void Comment::setDeleted()

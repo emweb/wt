@@ -259,7 +259,12 @@ WT_DECLARE_WT_MEMBER
        var r = WT.getCssRule('#' + el.id + ' .Wt-tv-rowc');
        r.style.width = allw_1 + 'px';
 
-       APP.layouts2.adjust();
+       // if the WTreeView is rendered using StdGridLayoutImpl2,
+       // the call to wtResize() is not necessary, because APP.layouts2.adjust()
+       // already does that. It doesn't hurt, though.
+       self.wtResize();
+       if (APP.layouts2)
+	 APP.layouts2.adjust();
 
        if (WT.isIE) {
 	 setTimeout(function() {

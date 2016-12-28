@@ -10,7 +10,7 @@
 
 #include "Sample.h"
 
-#include <Wt/WTemplate>
+#include <Wt/WTemplate.h>
 
 class TopicTemplate : public Wt::WTemplate
 {

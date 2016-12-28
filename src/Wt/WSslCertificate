@@ -8,7 +8,7 @@
 #define WT_WSSL_CERTIFICATE_H_
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WDateTime>
+#include <Wt/WDateTime.h>
 
 #include <string>
 #include <vector>

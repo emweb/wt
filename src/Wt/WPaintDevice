@@ -7,11 +7,34 @@
 #ifndef WPAINTDEVICE_H_
 #define WPAINTDEVICE_H_
 
-#include <Wt/WLength>
-#include <Wt/WString>
-#include <Wt/WGlobal>
+#include <Wt/WLength.h>
+#include <Wt/WString.h>
+#include <Wt/WGlobal.h>
 
 namespace Wt {
+
+/*! \brief Enumeration to communicate painter state changes.
+ *
+ * \sa setChanged(WFlags<ChangeFlag>)
+ */
+enum class PainterChangeFlag {
+  Pen = 0x1,         //!< Properties of the pen have changed
+  Brush = 0x2,       //!< Properties of the brush have changed
+  Font = 0x4,        //!< Properties of the font have changed
+  Hints = 0x8,       //!< Some render hints have changed
+  Transform = 0x10,  //!< The transformation has changed
+  Clipping = 0x20,   //!< The clipping has changed
+  Shadow = 0x40      //!< Properties of the shadow have changed
+};
+
+/*! \brief Enumeration to indicate paint device features.
+ *
+ * \sa features()
+ */
+enum class PaintDeviceFeatureFlag {
+  WordWrap = 0x1,    //!< Implements drawText() with Wt::TextFlag::WordWrap
+  FontMetrics = 0x2  //!< Implements fontMetrics() and measureText()
+};
 
 class WFontMetrics;
 class WPainter;
@@ -81,28 +104,8 @@ private:
 class WT_API WPaintDevice
 {
 public:
-  /*! \brief Enumeration to communicate painter state changes.
-   *
-   * \sa setChanged(WFlags<ChangeFlag>)
-   */
-  enum ChangeFlag {
-    Pen = 0x1,         //!< Properties of the pen have changed
-    Brush = 0x2,       //!< Properties of the brush have changed
-    Font = 0x4,        //!< Properties of the font have changed
-    Hints = 0x8,       //!< Some render hints have changed
-    Transform = 0x10,  //!< The transformation has changed
-    Clipping = 0x20,   //!< The clipping has changed
-    Shadow = 0x40      //!< Properties of the shadow have changed
-  };
-
-  /*! \brief Enumeration to indicate paint device features.
-   *
-   * \sa features()
-   */
-  enum FeatureFlag {
-    CanWordWrap = 0x1,    //!< Implements drawText() with Wt::TextWordWrap
-    HasFontMetrics = 0x2  //!< Implements fontMetrics() and measureText()
-  };
+  /*! \brief Typedef for enum Wt::PaintDeviceFeatureFlag */
+  typedef PaintDeviceFeatureFlag FeatureFlag;
 
   /*! \brief Destructor.
    *
@@ -112,7 +115,7 @@ public:
 
   /*! \brief Returns device features.
    */
-  virtual WFlags<FeatureFlag> features() const = 0;
+  virtual WFlags<PaintDeviceFeatureFlag> features() const = 0;
 
   /*! \brief Returns the device width.
    *
@@ -134,7 +137,7 @@ public:
    *
    * \sa ChangeFlag
    */
-  virtual void setChanged(WFlags<ChangeFlag> flags) = 0;
+  virtual void setChanged(WFlags<PainterChangeFlag> flags) = 0;
 
   /*! \brief Draws an arc.
    *
@@ -174,6 +177,13 @@ public:
    * current painter settings.
    */
   virtual void drawPath(const WPainterPath& path) = 0;
+
+  /*! \brief Draws a rectangle.
+   *
+   * The rect must be stroked, filled, and transformed using the
+   * current painter settings.
+   */
+  virtual void drawRect(const WRectF& rectangle) = 0;
 
   /*! \brief Draws text.
    *
@@ -257,8 +267,8 @@ protected:
   friend class WMeasurePaintDevice;
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WPaintDevice::ChangeFlag)
-W_DECLARE_OPERATORS_FOR_FLAGS(WPaintDevice::FeatureFlag)
+W_DECLARE_OPERATORS_FOR_FLAGS(PainterChangeFlag)
+W_DECLARE_OPERATORS_FOR_FLAGS(PaintDeviceFeatureFlag)
 
 }
 

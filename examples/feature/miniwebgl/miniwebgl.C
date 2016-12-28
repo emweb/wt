@@ -4,10 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WText>
-#include <Wt/WGLWidget>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WText.h>
+#include <Wt/WGLWidget.h>
+#include <Wt/WContainerWidget.h>
 
 using namespace Wt;
 
@@ -32,11 +33,11 @@ const char *vertexShaderSrc =
 class PaintWidget: public WGLWidget
 {
 public:
-  PaintWidget(WContainerWidget *root):
-    WGLWidget(root)
+  PaintWidget():
+    WGLWidget()
   {
   }
-  
+
   void initializeGL()
   {
     // Create a shader
@@ -102,7 +103,6 @@ class MiniWebGL: public WApplication
 {
 public:
   MiniWebGL(const WEnvironment& env);
-
 };
 
 MiniWebGL::MiniWebGL(const WEnvironment& env)
@@ -110,24 +110,23 @@ MiniWebGL::MiniWebGL(const WEnvironment& env)
 {
   setTitle("Minimalistic WebGL Demo");
 
-  new WText("This is a minimalistic demonstration "
+  root()->addWidget(cpp14::make_unique<WText>("This is a minimalistic demonstration "
     "application for WebGL. If your browser supports WebGL, or if Wt is built "
     "with OpenGL support, you will "
-    "see a black square with a triangle inside.", root());
+    "see a black square with a triangle inside."));
 
-  new WBreak(root());
+  root()->addWidget(cpp14::make_unique<WBreak>());
 
-  PaintWidget *gl = new PaintWidget(root());
+  PaintWidget *gl = root()->addWidget(cpp14::make_unique<PaintWidget>());
   gl->resize(640, 640);
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new MiniWebGL(env);
+  return cpp14::make_unique<MiniWebGL>(env);
 }
 
 int main(int argc, char **argv)
 {
   return WRun(argc, argv, &createApplication);
 }
-

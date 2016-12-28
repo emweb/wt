@@ -3,13 +3,13 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WInteractWidget"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WFormWidget"
-#include "Wt/WPopupWidget"
-#include "Wt/WServer"
-#include "Wt/WTheme"
+#include "Wt/WInteractWidget.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WFormWidget.h"
+#include "Wt/WPopupWidget.h"
+#include "Wt/WServer.h"
+#include "Wt/WTheme.h"
 
 #include "Configuration.h"
 #include "DomElement.h"
@@ -46,20 +46,12 @@ const char *WInteractWidget::GESTURE_START_SIGNAL = "gesturestart";
 const char *WInteractWidget::GESTURE_CHANGE_SIGNAL = "gesturechange";
 const char *WInteractWidget::GESTURE_END_SIGNAL = "gestureend";
 
-WInteractWidget::WInteractWidget(WContainerWidget *parent)
-  : WWebWidget(parent),
-    dragSlot_(0),
-    dragTouchSlot_(0),
-    dragTouchEndSlot_(0),
-    mouseOverDelay_(0)
+WInteractWidget::WInteractWidget()
+  : mouseOverDelay_(0)
 { }
 
 WInteractWidget::~WInteractWidget()
-{
-  delete dragSlot_;
-  delete dragTouchSlot_;
-  delete dragTouchEndSlot_;
-}
+{ }
 
 void WInteractWidget::setPopup(bool popup)
 {
@@ -146,7 +138,8 @@ EventSignal<WMouseEvent>& WInteractWidget::mouseDragged()
 EventSignal<WMouseEvent>& WInteractWidget::mouseWheel()
 {
   if (WApplication::instance()->environment().agentIsIElt(9) ||
-      WApplication::instance()->environment().agent() == WEnvironment::Edge) {
+      WApplication::instance()->environment().agent() 
+      == UserAgent::Edge) {
     return *mouseEventSignal(MOUSE_WHEEL_SIGNAL, true);
   } else {
     return *mouseEventSignal(WHEEL_SIGNAL, true);
@@ -609,7 +602,7 @@ void WInteractWidget::setMouseOverDelay(int delay)
   EventSignal<WMouseEvent> *mouseOver
     = mouseEventSignal(MOUSE_OVER_SIGNAL, false);
   if (mouseOver)
-    mouseOver->senderRepaint();
+    mouseOver->ownerRepaint();
 }
 
 int WInteractWidget::mouseOverDelay() const
@@ -622,11 +615,7 @@ void WInteractWidget::updateEventSignals(DomElement& element, bool all)
   EventSignalList& other = eventSignals();
 
   for (EventSignalList::iterator i = other.begin(); i != other.end(); ++i) {
-#ifndef WT_NO_BOOST_INTRUSIVE
-    EventSignalBase& s = *i;
-#else
     EventSignalBase& s = **i;
-#endif
 
     if (s.name() == WInteractWidget::M_CLICK_SIGNAL
 	&& flags_.test(BIT_REPAINT_TO_AJAX))
@@ -641,11 +630,7 @@ void WInteractWidget::propagateRenderOk(bool deep)
   EventSignalList& other = eventSignals();
 
   for (EventSignalList::iterator i = other.begin(); i != other.end(); ++i) {
-#ifndef WT_NO_BOOST_INTRUSIVE
-    EventSignalBase& s = *i;
-#else
     EventSignalBase& s = **i;
-#endif
     s.updateOk();
   }
 
@@ -685,10 +670,10 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
 				   WWidget *dragWidget, bool isDragWidgetOnly,
 				   WObject *sourceObject)
 {
-  if (dragWidget == 0)
+  if (dragWidget == nullptr)
     dragWidget = this;
 
-  if (sourceObject == 0)
+  if (sourceObject == nullptr)
     sourceObject = this;
 
   if (isDragWidgetOnly) {
@@ -702,19 +687,19 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
   setAttributeValue("dsid", app->encodeObject(sourceObject));
 
   if (!dragSlot_) {
-    dragSlot_ = new JSlot();
+    dragSlot_.reset(new JSlot());
     dragSlot_->setJavaScript("function(o,e){" + app->javaScriptClass()
 			     + "._p_.dragStart(o,e);" + "}");
   }
 
   if (!dragTouchSlot_) {
-    dragTouchSlot_ = new JSlot();
+    dragTouchSlot_.reset(new JSlot());
     dragTouchSlot_->setJavaScript("function(o,e){" + app->javaScriptClass()
 				+ "._p_.touchStart(o,e);" + "}");
   }
 
   if (!dragTouchEndSlot_) {
-    dragTouchEndSlot_ = new JSlot();
+    dragTouchEndSlot_.reset(new JSlot());
     dragTouchEndSlot_->setJavaScript("function(){" + app->javaScriptClass()
 				+ "._p_.touchEnded();" + "}");
   }
@@ -729,20 +714,17 @@ void WInteractWidget::unsetDraggable()
 {
   if (dragSlot_) {
     mouseWentDown().disconnect(*dragSlot_);
-    delete dragSlot_;
-    dragSlot_ = 0;
+    dragSlot_.reset();
   }
 
   if (dragTouchSlot_) {
     touchStarted().disconnect(*dragTouchSlot_);
-    delete dragTouchSlot_;
-    dragTouchSlot_ = 0;
+    dragTouchSlot_.reset();
   }
 
   if (dragTouchEndSlot_) {
     touchEnded().disconnect(*dragTouchEndSlot_);
-    delete dragTouchEndSlot_;
-    dragTouchEndSlot_ = 0;
+    dragTouchEndSlot_.reset();
   }
 }
 

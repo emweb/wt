@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WText>
-#include <Wt/WPushButton>
-#include <Wt/WContainerWidget>
-#include <Wt/WStringUtil>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WText.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WStringUtil.h>
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
@@ -18,26 +18,26 @@
 #include "ComposeExample.h"
 #include "Contact.h"
 
-ComposeExample::ComposeExample(WContainerWidget *parent)
-  : WContainerWidget(parent)
+ComposeExample::ComposeExample()
+  : WContainerWidget()
 {
-  composer_ = new Composer(this);
+  composer_ = this->addWidget(cpp14::make_unique<Composer>());
 
   std::vector<Contact> addressBook;
-  addressBook.push_back(Contact(L"Koen Deforche",
-				L"koen.deforche@gmail.com"));
-  addressBook.push_back(Contact(L"Koen alias1",
-				L"koen.alias1@yahoo.com"));
-  addressBook.push_back(Contact(L"Koen alias2",
-				L"koen.alias2@yahoo.com"));
-  addressBook.push_back(Contact(L"Koen alias3",
-				L"koen.alias3@yahoo.com"));
-  addressBook.push_back(Contact(L"Bartje",
-				L"jafar@hotmail.com"));
+  addressBook.push_back(Contact(U"Koen Deforche",
+                                U"koen.deforche@gmail.com"));
+  addressBook.push_back(Contact(U"Koen alias1",
+                                U"koen.alias1@yahoo.com"));
+  addressBook.push_back(Contact(U"Koen alias2",
+                                U"koen.alias2@yahoo.com"));
+  addressBook.push_back(Contact(U"Koen alias3",
+                                U"koen.alias3@yahoo.com"));
+  addressBook.push_back(Contact(U"Bartje",
+                                U"jafar@hotmail.com"));
   composer_->setAddressBook(addressBook);
 
   std::vector<Contact> contacts;
-  contacts.push_back(Contact(L"Koen Deforche", L"koen.deforche@gmail.com"));
+  contacts.push_back(Contact(U"Koen Deforche", U"koen.deforche@gmail.com"));
 
   composer_->setTo(contacts);
   composer_->setSubject("That's cool! Want to start your own google?");
@@ -45,101 +45,104 @@ ComposeExample::ComposeExample(WContainerWidget *parent)
   composer_->send.connect(this, &ComposeExample::send);
   composer_->discard.connect(this, &ComposeExample::discard);
 
-  details_ = new WContainerWidget(this);
+  details_ = this->addWidget(cpp14::make_unique<WContainerWidget>());
 
-  new WText(tr("example.info"), details_);
+  details_->addWidget(cpp14::make_unique<WText>(tr("example.info")));
 }
 
 void ComposeExample::send()
 {
-  WContainerWidget *feedback = new WContainerWidget(this);
-  feedback->setStyleClass(L"feedback");
+  WContainerWidget *feedback = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  feedback->setStyleClass(U"feedback");
 
-  WContainerWidget *horiz = new WContainerWidget(feedback);
-  new WText(L"<p>We could have, but did not send the following email:</p>",
-	    horiz);
+  WContainerWidget *horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
+  horiz->addWidget(cpp14::make_unique<WText>(U"<p>We could have, but did not send the following email:</p>"));
 
   std::vector<Contact> contacts = composer_->to();
   if (!contacts.empty())
-    horiz = new WContainerWidget(feedback);
+    horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < contacts.size(); ++i) {
-    new WText(L"To: \"" + contacts[i].name + L"\" <"
-	      + contacts[i].email + L">", PlainText, horiz);
-    new WBreak(horiz);
+    horiz->addWidget(cpp14::make_unique<WText>(U"To: \"" + contacts[i].name + U"\" <"
+              + contacts[i].email + U">", TextFormat::Plain));
+    horiz->addWidget(cpp14::make_unique<WBreak>());
   }
 
   contacts = composer_->cc();
   if (!contacts.empty())
-    horiz = new WContainerWidget(feedback);
+    horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < contacts.size(); ++i) {
-    new WText(L"Cc: \"" + contacts[i].name + L"\" <"
-	      + contacts[i].email + L">", PlainText, horiz);
-    new WBreak(horiz);
+    horiz->addWidget(cpp14::make_unique<WText>(U"Cc: \"" + contacts[i].name + U"\" <"
+              + contacts[i].email + U">", TextFormat::Plain));
+    horiz->addWidget(cpp14::make_unique<WBreak>());
   }
   
   contacts = composer_->bcc();
   if (!contacts.empty())
-    horiz = new WContainerWidget(feedback);
+    horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < contacts.size(); ++i) {
-    new WText(L"Bcc: \"" + contacts[i].name + L"\" <"
-	      + contacts[i].email + L">", PlainText, horiz);
-    new WBreak(horiz);
+      horiz->addWidget(cpp14::make_unique<WText>(U"Bcc: \"" + contacts[i].name + U"\" <"
+                + contacts[i].email + U">", TextFormat::Plain));
+      horiz->addWidget(cpp14::make_unique<WBreak>());
   }
 
-  horiz = new WContainerWidget(feedback);
-  new WText("Subject: \"" + composer_->subject() + "\"", PlainText, horiz);
+  horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
+  horiz->addWidget(cpp14::make_unique<WText>("Subject: \"" + composer_->subject() + "\"", TextFormat::Plain));
 
   std::vector<Attachment> attachments = composer_->attachments();
   if (!attachments.empty())
-    horiz = new WContainerWidget(feedback);
+    horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < attachments.size(); ++i) {
-    new WText(L"Attachment: \""
+    horiz->addWidget(cpp14::make_unique<WText>(U"Attachment: \""
 	      + attachments[i].fileName
-	      + L"\" (" + attachments[i].contentDescription
-	      + L")", PlainText, horiz);
+              + U"\" (" + attachments[i].contentDescription
+              + U")", TextFormat::Plain));
 
     unlink(attachments[i].spoolFileName.c_str());
 
-    new WText(", was in spool file: "
-	      + attachments[i].spoolFileName, horiz);
-    new WBreak(horiz);
+    horiz->addWidget(cpp14::make_unique<WText>(", was in spool file: "
+              + attachments[i].spoolFileName));
+    horiz->addWidget(cpp14::make_unique<WBreak>());
   }
 
-  std::wstring message = composer_->message();
+  std::u32string message = composer_->message();
 
-  horiz = new WContainerWidget(feedback);
-  new WText("Message body: ", horiz);
-  new WBreak(horiz);
+  horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
+  horiz->addWidget(cpp14::make_unique<WText>("Message body: "));
+  horiz->addWidget(cpp14::make_unique<WBreak>());
 
   if (!message.empty()) {
-    new WText(message, PlainText, horiz);
+    horiz->addWidget(cpp14::make_unique<WText>(message, TextFormat::Plain));
   } else
-    new WText("<i>(empty)</i>", horiz);
+    horiz->addWidget(cpp14::make_unique<WText>("<i>(empty)</i>"));
 
-  delete composer_;
-  delete details_;
+  removeWidget(composer_);
+  composer_ = nullptr;
+  removeWidget(details_);
+  details_ = nullptr;
 
   wApp->quit();
 }
 
 void ComposeExample::discard()
 {
-  WContainerWidget *feedback = new WContainerWidget(this);
+  WContainerWidget *feedback = this->addWidget(cpp14::make_unique<WContainerWidget>());
   feedback->setStyleClass("feedback");
 
-  WContainerWidget *horiz = new WContainerWidget(feedback);
-  new WText("<p>Wise decision! Everyone's mailbox is already full anyway.</p>",
-	    horiz);
+  WContainerWidget *horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
+  horiz->addWidget(cpp14::make_unique<WText>("<p>Wise decision! Everyone's mailbox is already full anyway.</p>"));
 
-  delete composer_;
-  delete details_;
+  removeWidget(composer_);
+  composer_ = nullptr;
+  removeWidget(details_);
+  details_ = nullptr;
 
   wApp->quit();
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new WApplication(env);
+  std::unique_ptr<WApplication> app
+      = cpp14::make_unique<WApplication>(env);
 
   // The following assumes composer.xml is in the webserver working directory
   // (but does not need to be deployed within docroot):
@@ -151,7 +154,7 @@ WApplication *createApplication(const WEnvironment& env)
 
   app->setTitle("Composer example");
 
-  app->root()->addWidget(new ComposeExample());
+  app->root()->addWidget(cpp14::make_unique<ComposeExample>());
 
   return app;
 }

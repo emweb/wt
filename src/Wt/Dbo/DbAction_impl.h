@@ -7,9 +7,9 @@
 #ifndef WT_DBO_DBACTION_IMPL_H_
 #define WT_DBO_DBACTION_IMPL_H_
 
-#include <Wt/Dbo/Exception>
+#include <Wt/Dbo/Exception.h>
 #include <iostream>
-#include <boost/lexical_cast.hpp>
+#include <type_traits>
 
 namespace Wt {
   namespace Dbo {
@@ -76,17 +76,17 @@ void InitSchema::actId(ptr<C>& value, const std::string& name, int size,
 template<typename V>
 void InitSchema::act(const FieldRef<V>& field)
 {
-  int flags = FieldInfo::Mutable | FieldInfo::NeedsQuotes;
+  int flags = FieldFlags::Mutable | FieldFlags::NeedsQuotes;
 
   if (idField_)
-    flags |= FieldInfo::NaturalId; // Natural id
+    flags |= FieldFlags::NaturalId; // Natural id
 
   if (!foreignKeyName_.empty())
     // Foreign key
     mapping_.fields.push_back
       (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
 		 foreignKeyTable_, foreignKeyName_,
-		 flags | FieldInfo::ForeignKey, fkConstraints_));
+		 flags | FieldFlags::ForeignKey, fkConstraints_));
   else
     // Normal field
     mapping_.fields.push_back
@@ -295,8 +295,8 @@ void LoadDbAction<C>::visit(C& obj)
     statement_->execute();
 
     if (!statement_->nextRow()) {
-      throw ObjectNotFoundException(session->template tableName<C>(), 
-				    boost::lexical_cast<std::string>(dbo_.id()));
+      throw ObjectNotFoundException(session->template tableName<C>(),
+                                    dbo_.idStr());
     }
   }
 
@@ -305,8 +305,7 @@ void LoadDbAction<C>::visit(C& obj)
   persist<C>::apply(obj, *this);
 
   if (!continueStatement && statement_->nextRow())
-    throw Exception("Dbo load: multiple rows for id "
-		    + boost::lexical_cast<std::string>(dbo_.id()) + " ??");
+    throw Exception("Dbo load: multiple rows for id " + dbo_.idStr());
 
   if (continueStatement)
     use(0);
@@ -514,12 +513,9 @@ void SaveDbAction<C>::visit(C& obj)
     if (!isInsert_) {
       int modifiedCount = statement_->affectedRowCount();
       if (modifiedCount != 1 && mapping().versionFieldName) {
-	MetaDbo<C>& dbo = static_cast< MetaDbo<C>& >(dbo_);
-	std::string idString = boost::lexical_cast<std::string>(dbo.id());
-
-	throw StaleObjectException(idString, 
-				   dbo_.session()->template tableName<C>(), 
-				   dbo_.version());
+        throw StaleObjectException(dbo_.idStr(),
+                                   dbo_.session()->template tableName<C>(),
+                                   dbo_.version());
       }
     }
   }
@@ -739,21 +735,21 @@ void ToAnysAction::visit(const ptr<C>& obj)
 template <typename V, class Enable = void>
 struct ToAny
 {
-  static boost::any convert(const V& v) {
+  static cpp17::any convert(const V& v) {
     return v;
   }  
 };
 
 template <typename Enum>
-struct ToAny<Enum, typename boost::enable_if<boost::is_enum<Enum> >::type> 
+struct ToAny<Enum, typename std::enable_if<std::is_enum<Enum>::value>::type> 
 {
-  static boost::any convert(const Enum& v) {
+  static cpp17::any convert(const Enum& v) {
     return static_cast<int>(v);
   }
 };
 
 template <typename V>
-boost::any convertToAny(const V& v) {
+cpp17::any convertToAny(const V& v) {
   return ToAny<V>::convert(v);
 }
 
@@ -774,7 +770,7 @@ template<typename V>
 void ToAnysAction::act(const FieldRef<V>& field)
 { 
   if (allEmpty_)
-    result_.push_back(boost::any());
+    result_.push_back(cpp17::any());
   else
     result_.push_back(convertToAny(field.value()));
 }
@@ -826,16 +822,16 @@ void FromAnyAction::visit(const ptr<C>& obj)
 template <typename V, class Enable = void>
 struct FromAny
 {
-  static V convert(const boost::any& v) {
-    return boost::any_cast<V>(v);
+  static V convert(const cpp17::any& v) {
+    return cpp17::any_cast<V>(v);
   }  
 };
 
 template <typename Enum>
-struct FromAny<Enum, typename boost::enable_if<boost::is_enum<Enum> >::type>
+struct FromAny<Enum, typename std::enable_if<std::is_enum<Enum>::value>::type>
 {
-  static Enum convert(const boost::any& v) {
-    return static_cast<Enum>(boost::any_cast<int>(v));
+  static Enum convert(const cpp17::any& v) {
+    return static_cast<Enum>(cpp17::any_cast<int>(v));
   }
 };
 

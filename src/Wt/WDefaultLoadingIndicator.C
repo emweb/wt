@@ -4,15 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WDefaultLoadingIndicator"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WDefaultLoadingIndicator.h"
 
 namespace Wt {
 
 WDefaultLoadingIndicator::WDefaultLoadingIndicator()
-  : WText(tr("Wt.WDefaultLoadingIndicator.Loading"))
 {
+  setImplementation(std::unique_ptr<WWidget>
+		    (new WText(tr("Wt.WDefaultLoadingIndicator.Loading"))));
   setInline(false);
   setStyleClass("Wt-loading");
 
@@ -42,7 +43,7 @@ WDefaultLoadingIndicator::WDefaultLoadingIndicator()
 
 void WDefaultLoadingIndicator::setMessage(const WString& text)
 {
-  setText(text);
+  dynamic_cast<WText *>(implementation())->setText(text);
 }
 
 }

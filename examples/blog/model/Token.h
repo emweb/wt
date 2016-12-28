@@ -7,10 +7,10 @@
 #ifndef TOKEN_H_
 #define TOKEN_H_
 
-#include <Wt/WDate>
+#include <Wt/WDate.h>
 
-#include <Wt/Dbo/Types>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/Types.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 class User;
 
@@ -24,7 +24,7 @@ public:
   dbo::ptr<User> user;
 
   std::string    value;
-  Wt::WDateTime  expires;
+  Wt::WDateTime     expires;
 
   template<class Action>
   void persist(Action& a)
@@ -36,6 +36,6 @@ public:
   }
 };
 
-DBO_EXTERN_TEMPLATES(Token);
+DBO_EXTERN_TEMPLATES(Token)
 
 #endif // TOKEN_H_

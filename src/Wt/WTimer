@@ -7,14 +7,12 @@
 #ifndef WTIMER_H_
 #define WTIMER_H_
 
-#include <Wt/WApplication>
-#include <Wt/WObject>
-#include <Wt/WSignal>
-#include <Wt/WEvent>
+#include <Wt/WApplication.h>
+#include <Wt/WObject.h>
+#include <Wt/WSignal.h>
+#include <Wt/WEvent.h>
 
-#ifndef WT_TARGET_JAVA
-#include <boost/bind.hpp>
-#endif // WT_TARGET_JAVA
+#include <chrono>
 
 namespace Wt {
 
@@ -73,7 +71,7 @@ class WT_API WTimer : public WObject
 public:
   /*! \brief Construct a new timer with the given parent.
    */
-  WTimer(WObject *parent = 0);
+  WTimer();
 
   /*! \brief Destuctor.
    */
@@ -81,11 +79,11 @@ public:
 
   /*! \brief Returns the interval (msec).
    */
-  int interval() const { return interval_; }
+  std::chrono::milliseconds interval() const { return interval_; }
 
   /*! \brief Sets the interval (msec).
    */
-  void setInterval(int msec);
+  void setInterval(std::chrono::milliseconds msec);
 
   /*! \brief Returns if the timer is running.
    */
@@ -116,7 +114,7 @@ public:
    * \endcode
    */
   template <class T, class V>
-  static void singleShot(int msec, T *receiver, void (V::*method)());
+  static void singleShot(std::chrono::milliseconds msec, T *receiver, void (V::*method)());
 
   /*! \brief This static function calls a function after a given time interval.
    *
@@ -124,7 +122,7 @@ public:
    * template function object (which supports operator ()).
    */
   template <class F>
-  static void singleShot(int msec, const F& f);
+  static void singleShot(std::chrono::milliseconds msec, const F& f);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Starts the timer.
@@ -155,16 +153,13 @@ private:
   WTimerWidget *timerWidget_;
 
   bool singleShot_;
-  bool selfDestruct_;
-  int  interval_;
+  std::chrono::milliseconds  interval_;
   bool active_;
   bool timeoutConnected_;
 
-  Time *timeout_;
+  std::unique_ptr<Time> timeout_;
 
   void gotTimeout();
-
-  void setSelfDestruct();
   int getRemainingInterval() const;
 
   friend class WTimerWidget;
@@ -172,20 +167,20 @@ private:
 
 #ifndef WT_TARGET_JAVA
 template <class T, class V>
-void WTimer::singleShot(int msec, T *receiver, void (V::*method)())
+void WTimer::singleShot(std::chrono::milliseconds msec, T *receiver, void (V::*method)())
 {
-  singleShot(msec, boost::bind(method, receiver));
+  singleShot(msec, std::bind(method, receiver));
 }
 
 template <class F>
-void WTimer::singleShot(int msec, const F& f)
+void WTimer::singleShot(std::chrono::milliseconds msec, const F& f)
 {
-  WTimer *timer = new WTimer(WApplication::instance());
+  WTimer *timer = new WTimer();
   timer->setSingleShot(true);
   timer->setInterval(msec);
-  timer->setSelfDestruct();
   timer->start();
   timer->timeout().connect(f);
+  timer->timeout().connect([=]() { delete timer; });
 }
 #endif // WT_TARGET_JAVA
 

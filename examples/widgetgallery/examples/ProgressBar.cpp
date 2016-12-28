@@ -1,30 +1,36 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WProgressBar>
-#include <Wt/WPushButton>
-#include <Wt/WTimer>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WProgressBar.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTimer.h>
 
 SAMPLE_BEGIN(ProgressBar)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 container->setStyleClass("inline-buttons");
 
-Wt::WProgressBar *bar = new Wt::WProgressBar(container);
+Wt::WProgressBar *bar =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WProgressBar>());
 bar->setRange(0, 10);
 
-Wt::WPushButton *startButton = new Wt::WPushButton("Start", container);
-Wt::WPushButton *stopButton = new Wt::WPushButton("Stop", container);
-Wt::WPushButton *resetButton = new Wt::WPushButton("Reset", container);
+Wt::WPushButton *startButton =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Start"));
+Wt::WPushButton *stopButton =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Stop"));
+Wt::WPushButton *resetButton =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Reset"));
 
 // Initially, only the start button is enabled.
 stopButton->disable();
 resetButton->disable();
 
 // setup an interval timer which generates a timeout() signal every second.
-Wt::WTimer *intervalTimer = new Wt::WTimer(container);
-intervalTimer->setInterval(1000);
+auto intervalTimerPtr = Wt::cpp14::make_unique<Wt::WTimer>();
+auto intervalTimer = intervalTimerPtr.get();
+container->addChild(std::move(intervalTimerPtr));
+intervalTimer->setInterval(std::chrono::milliseconds{1000});
 
 startButton->clicked().connect(std::bind([=] () {
     if (bar->value() < 10) {
-	intervalTimer->start();
+        intervalTimer->start();
 	startButton->setText("Resume");
     }
 
@@ -53,9 +59,9 @@ resetButton->clicked().connect(std::bind([=] () {
 intervalTimer->timeout().connect(std::bind([=] () {
     bar->setValue(bar->value() + 1);
     if (bar->value() == 10) {
-	stopButton->clicked().emit(Wt::WMouseEvent());
+        stopButton->clicked().emit(Wt::WMouseEvent());
 	startButton->disable();
     }
 }));
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

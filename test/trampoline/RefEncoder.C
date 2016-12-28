@@ -6,11 +6,11 @@
 #include <boost/test/unit_test.hpp>
 
 #include <sstream>
-#include <Wt/WAnchor>
-#include <Wt/WImage>
-#include <Wt/WText>
-#include <Wt/Test/WTestEnvironment>
-#include <Wt/WApplication>
+#include <Wt/WAnchor.h>
+#include <Wt/WImage.h>
+#include <Wt/WText.h>
+#include <Wt/Test/WTestEnvironment.h>
+#include <Wt/WApplication.h>
 
 using namespace Wt;
 

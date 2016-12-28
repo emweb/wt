@@ -7,7 +7,7 @@
 #ifndef WFILE_RESOURCE_H_
 #define WFILE_RESOURCE_H_
 
-#include <Wt/WStreamResource>
+#include <Wt/WStreamResource.h>
 
 namespace Wt {
 
@@ -46,18 +46,17 @@ public:
    * You need to set a file name (and mime type) for the resource
    * using setFileName() and setMimeType().
    */
-  WFileResource(WObject *parent = 0);
+  WFileResource();
 
   /*! \brief Creates a new resource for a file.
    *
    * The mime type defaults to "text/plain".
    */
-  WFileResource(const std::string& fileName, WObject *parent = 0);
+  WFileResource(const std::string& fileName);
 
   /*! \brief Creates a new resource with given mime-type for a file.
    */
-  WFileResource(const std::string& mimeType, const std::string& fileName,
-		WObject *parent = 0);
+  WFileResource(const std::string& mimeType, const std::string& fileName);
 
   /*! \brief Destructor.
    *
@@ -99,7 +98,7 @@ public:
    * \endif
    */
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response);
+			     Http::Response& response) override;
 
 private:
   std::string fileName_;

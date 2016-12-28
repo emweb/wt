@@ -7,9 +7,9 @@
 #ifndef WCOLOR_H_
 #define WCOLOR_H_
 
-#include <Wt/WString>
+#include <Wt/WString.h>
 #include <Wt/WDllDefs.h>
-#include <Wt/WGlobal>
+#include <Wt/WGlobal.h>
 
 /*! \brief The namespace for %Wt.
  */
@@ -68,7 +68,7 @@ public:
    *
    * Constructs one of the 16 predefined %Wt colors constants.
    */
-  WColor(GlobalColor name);
+  WColor(StandardColor name);
 
   /*! \brief Sets the red/green/blue/alpha components.
    *

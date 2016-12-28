@@ -24,12 +24,8 @@
 	</div>
   </message>
   
-  <message id="calendar.entry.ok">
-  	Ok
-  </message>
-  <message id="calendar.entry.cancel">
-  	Cancel
-  </message>
+  <message id="calendar.entry.ok">Ok</message>
+  <message id="calendar.entry.cancel">Cancel</message>
   <message id="calendar.cell.extra">+{1} extra</message>
   <message id="calendar.cell.tooltip">Click the cell to add a new entry.</message>
   <message id="calendar.cell.all-entries.title">

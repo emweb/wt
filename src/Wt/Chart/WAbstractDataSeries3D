@@ -8,11 +8,11 @@
 #ifndef CHART_WPLOTDATA_H
 #define CHART_WPLOTDATA_H
 
-#include <Wt/Chart/WAxis>
-#include <Wt/WColor>
-#include <Wt/WObject>
-#include <Wt/WMatrix4x4>
-#include <Wt/WGLWidget>
+#include <Wt/Chart/WAxis.h>
+#include <Wt/WColor.h>
+#include <Wt/WObject.h>
+#include <Wt/WMatrix4x4.h>
+#include <Wt/WGLWidget.h>
 
 namespace Wt {
   class WAbstractItemModel;
@@ -31,8 +31,8 @@ namespace Wt {
  * data of a dataseries. Implementations of this class format the data for 
  * representation on the chart and perform all necessary drawing operations. 
  * Note that if a dataseries holds numerical data it should be added to a chart 
- * of type \ref ScatterPlot, if it holds categorical data it should be added to 
- * a chart of type \ref CategoryChart.
+ * of type \ref ChartType::Scatter, if it holds categorical data it should be added to 
+ * a chart of type \ref ChartType::Category.
  *
  * <h3>Color</h3>
  *
@@ -40,7 +40,7 @@ namespace Wt {
  * The priority of this is as follows (1 being the highest):
  *
  * <ol>
- * <li>\c MarkerBrushColorRole set on a value in the model</li>
+ * <li>\c ItemDataRole::MarkerBrushColor set on a value in the model</li>
  * <li>WAbstractColorMap set on the dataseries</li>
  * <li>WChartPalette present in the chart</li>
  * </ol>
@@ -55,8 +55,8 @@ namespace Wt {
  *
  * The roles on the model which are taken into account are:\n
  * <ul>
- * <li>\c MarkerBrushColorRole: this determines the color of a datapoint and overrides the default</li>
- * <li>\c MarkerScaleFactorRole: this determines the size of a datapoint and overrides the default</li>
+ * <li>\c ItemDataRole::MarkerBrushColor: this determines the color of a datapoint and overrides the default</li>
+ * <li>\c ItemDataRole::MarkerScaleFactor: this determines the size of a datapoint and overrides the default</li>
  * </ul> 
  *
  * Some representations of the data ignore these roles. For example, when a 
@@ -94,7 +94,7 @@ public:
    * is dependent on the implementation. Therefore this information is 
    * found in the documentation of classes deriving from this one.
    */
-  WAbstractDataSeries3D(WAbstractItemModel *model);
+  WAbstractDataSeries3D(std::shared_ptr<WAbstractItemModel> model);
 
   virtual ~WAbstractDataSeries3D();
 
@@ -123,13 +123,13 @@ public:
    *
    * \sa model(), WAbstractDataSeries3D()
    */
-  void setModel(WAbstractItemModel *model);
+  void setModel(const std::shared_ptr<WAbstractItemModel>& model);
 
   /*! \brief Returns a pointer to the model used by this dataseries.
    *
    * \sa setModel()
    */
-  WAbstractItemModel * model() const { return model_; }
+  std::shared_ptr<WAbstractItemModel> model() const { return model_; }
 
   /*! \brief Returns the computed minimum value of this dataseries along the 
    * given axis.
@@ -204,7 +204,7 @@ public:
    *
    * \sa setColorMapVisible(), setColorMapSide()
    */
-  void setColorMap(WAbstractColorMap* colormap);
+  void setColorMap(const std::shared_ptr<WAbstractColorMap>& colormap);
 
   /*! \brief Returns the colormap used by this dataseries.
    *
@@ -212,7 +212,7 @@ public:
    *
    * \sa setColorMap(), setColorMapVisible(), setColorMapSide()
    */
-  const WAbstractColorMap * colorMap() const { return colormap_; }
+  const WAbstractColorMap * colorMap() const { return colormap_.get(); }
 
   /*! \brief Sets whether the colormap that is used should be shown alongside
    * the chart in the form of a legend.
@@ -232,9 +232,9 @@ public:
 
   /*! \brief Sets whether the colormap is shown on the left or right.
    *
-   * The default side is Right.
+   * The default side is Side::Right.
    *
-   * Note: only Left and Right are valid values for this function. 
+   * Note: only Side::Left and Side::Right are valid values for this function. 
    *
    * \sa setColorMap(), setColorMapVisible()
    */
@@ -282,7 +282,7 @@ public:
   virtual void setChart(WCartesian3DChart *chart);
 
   // internal api: only for use in WCartesian3DChart::removeDataSeries
-  virtual std::vector<boost::any> getGlObjects();
+  virtual std::vector<cpp17::any> getGlObjects();
 
   /*! \brief Initialize GL resources
    *
@@ -315,7 +315,7 @@ public:
    */
   virtual void resizeGL() = 0;
 
-  /*! \brief Delete GL resources
+  /*! \brief Method::Delete GL resources
    *
    * This function is called by updateGL() in the chart to which this 
    * dataseries was added.
@@ -329,7 +329,7 @@ protected:
 
   WString name_;
 
-  WAbstractItemModel *model_;
+  std::shared_ptr<WAbstractItemModel> model_;
   WCartesian3DChart *chart_;
 
   mutable double zMin_, zMax_;
@@ -339,7 +339,7 @@ protected:
 
   std::string pointSprite_;
 
-  WAbstractColorMap* colormap_;
+  std::shared_ptr<WAbstractColorMap> colormap_;
   bool showColorMap_;
   Side colorMapSide_;
 

@@ -7,8 +7,7 @@
 #ifndef WCOMBOBOX_H_
 #define WCOMBOBOX_H_
 
-#include <Wt/WAbstractItemModel>
-#include <Wt/WFormWidget>
+#include <Wt/WFormWidget.h>
 #include <string>
 
 namespace Wt {
@@ -65,11 +64,14 @@ namespace Wt {
 class WT_API WComboBox : public WFormWidget
 {
 public:
-  /*! \brief Creates an empty combo-box with optional <i>parent</i>.
+  /*! \brief Creates an empty combo-box..
    */
-  WComboBox(WContainerWidget *parent = 0);
+  WComboBox();
 
   /*! \brief Adds an option item.
+   *
+   * This adds an item to the underlying model. This requires that the
+   * model() is editable.
    *
    * Equivalent to
    * \link insertItem(int, const WString&) insertItem\endlink (count(),
@@ -85,9 +87,7 @@ public:
    *
    * If no item is currently selected, the method returns -1.
    *
-   * By default, for a combo box, the first item is selected,
-   * and thus currentIndex() = 0, while for a selection box no item is
-   * selected.
+   * \sa setNoSelectionEnabled()
    */
   int currentIndex() const;
 
@@ -138,18 +138,16 @@ public:
 
   /*! \brief Sets the model to be used for the items.
    *
-   * The \p model may not be 0, and ownership of the model is not
-   * transferred.
+   * The default model is a WStringListModel.
    *
-   * The default value is a WStringListModel that is owned by the
-   * combo box. Items in the model can be grouped by setting the
-   * \ref LevelRole. The contents is interpreted by \ref Wt::asString, and
-   * subsequent items of the same group are rendered as children of a HTML
-   * <tt> <optgroup> </tt>element.
+   * Items in the model can be grouped by setting the \ref
+   * ItemDataRole::Level. The contents is interpreted by \ref Wt::asString, and
+   * subsequent items of the same group are rendered as children of a
+   * HTML <tt> <optgroup> </tt>element.
    *
    * \sa setModelColumn(int)
    */
-  void setModel(WAbstractItemModel *model);
+  void setModel(const std::shared_ptr<WAbstractItemModel> model);
 
   /*! \brief Sets the column in the model to be used for the items.
    *
@@ -165,35 +163,38 @@ public:
    *
    * \sa setModel()
    */
-  WAbstractItemModel *model() const { return model_; }
+  std::shared_ptr<WAbstractItemModel> model() const { return model_; }
 
   /*! \brief Returns the index of the first item that matches a text.
    */
   int findText(const WString& text,
-	       WFlags<MatchFlag> flags = MatchExactly | MatchCaseSensitive);
+	       WFlags<MatchFlag> flags 
+	       = MatchFlag::Exactly | MatchFlag::CaseSensitive);
 
   /*! \brief Returns the selection mode.
    *
-   * Always returns SingleSelection for a combo box, but may return
-   * ExtendedSelection for a selection box
+   * Always returns SelectionMode::Single for a combo box, but may return
+   * SelectionMode::Extended for a selection box
    *
    * \sa WSelectionBox::setSelectionMode()
    */
-  virtual SelectionMode selectionMode() const { return SingleSelection; }   
+  virtual SelectionMode selectionMode() const { 
+    return SelectionMode::Single;
+  }
 
   /*! \brief Returns the current value.
    *
    * Returns currentText() converted from a WString to a string.
    */
-  virtual WT_USTRING valueText() const;
+  virtual WT_USTRING valueText() const override;
 
   /*! \brief Sets the current value.
    *
    * Sets the current index to the item corresponding to \p value.
    */
-  virtual void setValueText(const WT_USTRING& value);
+  virtual void setValueText(const WT_USTRING& value) override;
 
-  virtual void refresh();
+  virtual void refresh() override;
 
   /*! \brief Clears all items.
    *
@@ -237,7 +238,7 @@ public:
   bool noSelectionEnabled() const { return noSelectionEnabled_; }
 
 private:
-  WAbstractItemModel *model_;
+  std::shared_ptr<WAbstractItemModel> model_;
   int modelColumn_;
   int currentIndex_;
   void *currentIndexRaw_;
@@ -249,7 +250,7 @@ private:
 
   std::vector<Wt::Signals::connection> modelConnections_;
 
-  Signal<int>     activated_;
+  Signal<int> activated_;
   Signal<WString> sactivated_;
 
   void layoutChanged();
@@ -264,11 +265,11 @@ private:
   virtual bool supportsNoSelection() const;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual void propagateRenderOk(bool deep);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual void propagateRenderOk(bool deep) override;
 
-  virtual void setFormData(const FormData& formData);
+  virtual void setFormData(const FormData& formData) override;
 
   virtual bool isSelected(int index) const;
 

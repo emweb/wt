@@ -7,10 +7,61 @@
 #ifndef WFONT_H_
 #define WFONT_H_
 
-#include <Wt/WLength>
-#include <Wt/WString>
+#include <Wt/WLength.h>
+#include <Wt/WString.h>
 
 namespace Wt {
+
+/*! \brief The generic font family.
+ */
+enum class FontFamily {
+  Default,   //!< Browser-dependent default
+  Serif,     //!< for example: Times
+  SansSerif, //!< for example: Helvetica
+  Cursive,   //!< for example: Zapf-Chancery
+  Fantasy,   //!< for example: Western
+  Monospace  //!< for example: Courier
+};
+
+/*! \brief The font style.
+ */
+enum class FontStyle { 
+  Normal,   //!< Normal (default)
+  Italic,   //!< Italic
+  Oblique   //!< Oblique
+};
+
+/*! \brief The font variant.
+ */
+enum class FontVariant {
+  Normal,    //!< Normal (default)
+  SmallCaps  //!< Small Capitals 
+};
+
+/*! \brief The font weight.
+ */
+enum class FontWeight {
+  Normal,  //!< Normal (default) (Value == 400)
+  Bold,    //!< Bold (Value == 700)
+  Bolder,  //!< Bolder than the parent widget
+  Lighter, //!< Lighter than the parent widget
+  Value    //!< Specify a value (100 - 900)
+};
+
+/*! \brief The font size.
+ */
+enum class FontSize {
+  XXSmall,  //!< Extra Extra small
+  XSmall,   //!< Extra small
+  Small,    //!< Small
+  Medium,   //!< Medium, default
+  Large,    //!< Large
+  XLarge,   //!< Extra large
+  XXLarge,  //!< Extra Extra large
+  Smaller,  //!< Relatively smaller than the parent widget
+  Larger,   //!< Relatively larger than the parent widget
+  FixedSize //!< Explicit size, See also fontFixedSize()
+};
 
 class DomElement;
 class WWebWidget;
@@ -23,51 +74,16 @@ class WWebWidget;
 class WT_API WFont
 {
 public:
-  /*! \brief The generic font family.
-   */
-  enum GenericFamily { Default,   //!< Browser-dependent default
-		       Serif,     //!< for example: Times
-		       SansSerif, //!< for example: Helvetica
-		       Cursive,   //!< for example: Zapf-Chancery
-		       Fantasy,   //!< for example: Western
-		       Monospace  //!< for example: Courier
-  };
-
-  /*! \brief The font style.
-   */
-  enum Style { NormalStyle, //!< Normal (default)
-	       Italic,      //!< Italic
-	       Oblique      //!< Oblique
-  };
-
-  /*! \brief The font variant.
-   */
-  enum Variant { NormalVariant, //!< Normal (default)
-		 SmallCaps      //!< Small Capitals 
-  };
-
-  /*! \brief The font weight.
-   */
-  enum Weight { NormalWeight, //!< Normal (default) (Value == 400)
-		Bold,         //!< Bold (Value == 700)
-		Bolder,       //!< Bolder than the parent widget
-		Lighter,      //!< Lighter than the parent widget
-		Value         //!< Specify a value (100 - 900)
-  };
-
-  /*! \brief The font size.
-   */
-  enum Size { XXSmall,  //!< Extra Extra small
-	      XSmall,   //!< Extra small
-	      Small,    //!< Small
-	      Medium,   //!< Medium, default
-	      Large,    //!< Large
-	      XLarge,   //!< Extra large
-	      XXLarge,  //!< Extra Extra large
-	      Smaller,  //!< Relatively smaller than the parent widget
-	      Larger,   //!< Relatively larger than the parent widget
-	      FixedSize //!< Explicit size, See also fontFixedSize()
-  };
+  /*! \brief Typedef for enum Wt::FontFamily */
+  typedef FontFamily Family;
+  /*! \brief Typedef for enum Wt::FontStyle */
+  typedef FontStyle Style;
+  /*! \brief Typedef for enum Wt::FontVariant */
+  typedef FontVariant Variant;
+  /*! \brief Typedef for enum Wt::FontWeight */
+  typedef FontWeight Weight;
+  /*! \brief Typedef for enum Wt::FontSize */
+  typedef FontSize Size;
 
   /*! \brief A default font (dependent on the user agent).
    */
@@ -77,7 +93,7 @@ public:
    *
    * Creates a Medium font of the given family.
    */
-  WFont(GenericFamily family);
+  WFont(FontFamily family);
 
   /*! \brief Comparison operator.
    */
@@ -97,16 +113,16 @@ public:
    *
    * \code
    * WFont mono;
-   * mono.setFamily(WFont::Monospace, "'Courier New'");
+   * mono.setFamily(FontFamily::Monospace, "'Courier New'");
    * mono.setSize(18);
    * \endcode
    */
-  void setFamily(GenericFamily genericFamily,
+  void setFamily(FontFamily genericFamily,
 		 const WString& specificFamilies = WString());
 
   /*! \brief Returns the font generic family.
    */
-  GenericFamily genericFamily() const { return genericFamily_; }
+  FontFamily genericFamily() const { return genericFamily_; }
 
   /*! \brief Returns the font specific family names.
    */
@@ -114,19 +130,19 @@ public:
 
   /*! \brief Sets the font style.
    */
-  void setStyle(Style style);
+  void setStyle(FontStyle style);
 
   /*! \brief Returns the font style.
    */
-  Style style() const { return style_; }
+  FontStyle style() const { return style_; }
 
   /*! \brief Sets the font variant.
    */
-  void setVariant(Variant variant);
+  void setVariant(FontVariant variant);
 
   /*! \brief Returns the font variant.
    */
-  Variant variant() const { return variant_; }
+  FontVariant variant() const { return variant_; }
 
   /*! \brief Sets the font weight.
    *
@@ -135,27 +151,21 @@ public:
    * Valid values are between 100 and 900, and are rounded to multiples of
    * 100.
    */
-  void setWeight(Weight weight, int value = 400);
+  void setWeight(FontWeight weight, int value = 400);
 
   /*! \brief Returns the font weight.
    */
-  Weight weight() const;
+  FontWeight weight() const;
 
   /*! \brief Returns the font weight value.
    */
   int weightValue() const;
 
-  /*! \brief Sets the font size (<b>deprecated</b>)
-   *
-   * Use setSize(Size) or setSize(const WLength&) instead.
-   */
-  void setSize(Size size, const WLength& length);
-
   /*! \brief Sets the font size.
    *
    * Sets the font size using a predefined CSS size.
    */
-  void setSize(Size size);
+  void setSize(FontSize size);
 
   /*! \brief Sets the font size.
    *
@@ -165,17 +175,11 @@ public:
 
   /*! \brief Returns the font size.
    */
-  Size size(double mediumSize = 16) const;
-
-  /*! \brief Returns the font size as a numerical value (<b>deprecated</b>).
-   *
-   * \deprecated This method has been renamed to sizeLength()
-   */
-  WLength fixedSize() const;
+  FontSize size(double mediumSize = 16) const;
 
   /*! \brief Returns the font size as a numerical value.
    *
-   * Absolute size enumerations are converted to a length assuming a
+   * PositionScheme::Absolute size enumerations are converted to a length assuming a
    * Medium font size of 16 px.
    */
   WLength sizeLength(double mediumSize = 16) const;
@@ -186,13 +190,13 @@ public:
 
 private:
   WWebWidget    *widget_;
-  GenericFamily genericFamily_;
+  FontFamily    genericFamily_;
   WString       specificFamilies_;
-  Style         style_;
-  Variant       variant_;
-  Weight        weight_;
+  FontStyle     style_;
+  FontVariant   variant_;
+  FontWeight    weight_;
   int           weightValue_;
-  Size          size_;
+  FontSize      size_;
   WLength       sizeLength_;
 
   bool familyChanged_;

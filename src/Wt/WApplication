@@ -19,18 +19,14 @@ namespace boost {
   class pool;
 }
 
-#include <boost/any.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include <Wt/WObject>
-#include <Wt/WCssStyleSheet>
-#include <Wt/WEvent>
-#include <Wt/WJavaScriptPreamble>
-#include <Wt/WLocale>
-#include <Wt/WMessageResourceBundle>
-#include <Wt/WSignal>
-#include <Wt/WString>
-#include <boost/function.hpp>
+#include <Wt/WObject.h>
+#include <Wt/WCssStyleSheet.h>
+#include <Wt/WEvent.h>
+#include <Wt/WJavaScriptPreamble.h>
+#include <Wt/WLocale.h>
+#include <Wt/WMessageResourceBundle.h>
+#include <Wt/WSignal.h>
+#include <Wt/WString.h>
 
 namespace Wt {
 
@@ -53,12 +49,8 @@ class WLogEntry;
 class WResource;
 class WText;
 
-namespace Ext {
-  class Dialog;
-  class MessageBox;
-}
-
 class WebSession;
+class RootContainer;
 class UpdateLockImpl;
 class SoundManager;
 
@@ -69,7 +61,8 @@ class SoundManager;
  *
  * \relates WApplication
  */
-typedef boost::function<WApplication* (const WEnvironment&)> ApplicationCreator;
+  typedef std::function<std::unique_ptr<WApplication> (const WEnvironment&)>
+    ApplicationCreator;
 #endif // !WT_TARGET_JAVA
 
 #ifdef WT_TARGET_JAVA
@@ -195,7 +188,7 @@ public:
  * - inline and external JavaScript using doJavaScript() and require().
  * - the top-level widget in root(), representing the entire browser window,
  *   or multiple top-level widgets using bindWidget() when deployed in
- *   %WidgetSet mode to manage a number of widgets within a 3rd party page.
+ *   %EntryPointType::WidgetSet mode to manage a number of widgets within a 3rd party page.
  * - definition of cookies using setCookie() to persist information across
  *   sessions, which may be read using WEnvironment::getCookie() in a future
  *   session.
@@ -213,16 +206,6 @@ public:
 class WT_API WApplication : public WObject
 {
 public:
-  /*! \brief Enumeration that indicates the method for dynamic (AJAX-alike)
-   *         updates ((<b>deprecated</b>).
-   *
-   * \sa setAjaxMethod()
-   */
-  enum AjaxMethod {
-    XMLHttpRequest,  //!< Using the XMLHttpRequest object (real AJAX)
-    DynamicScriptTag //!< Using dynamic script tags (for cross-domain AJAX)
-  };
-
 #ifndef WT_TARGET_JAVA
   /*! \brief Typedef for a function that creates WApplication objects.
    *
@@ -283,8 +266,8 @@ public:
    * \if cpp
    *
    * The %root() widget is only defined when the application manages
-   * the entire window. When deployed as a \link Wt::WidgetSet
-   * WidgetSet\endlink application, there is no %root() container, and
+   * the entire window. When deployed as a \link Wt::EntryPointType::WidgetSet
+   * EntryPointType::WidgetSet\endlink application, there is no %root() container, and
    * \c 0 is returned.  Instead, use bindWidget() to bind one or more
    * root widgets to existing HTML &lt;div&gt; (or other) elements on
    * the page.
@@ -292,8 +275,8 @@ public:
    * \elseif java
    *
    * The root() widget is only defined when the application manages
-   * the entire window. When deployed as a \link Wt::WidgetSet
-   * WidgetSet\endlink application, there is no %root() container, and
+   * the entire window. When deployed as a \link Wt::EntryPointType::WidgetSet
+   * EntryPointType::WidgetSet\endlink application, there is no %root() container, and
    * <code>null</code> is returned. Instead, use bindWidget() to bind
    * one or more root widgets to existing HTML &lt;div&gt; (or other)
    * elements on the page.
@@ -351,7 +334,7 @@ public:
    *
    * This is an overloaded method for convenience, equivalent to:
    * \code
-   * useStyleSheet(Wt::WCssStyleSheet(link, media), condition)
+   * useStyleSheet(Wt::WLinkedCssStyleSheet(link, media), condition)
    * \endcode
    */
   void useStyleSheet(const WLink& link, const std::string& condition,
@@ -382,7 +365,7 @@ public:
    *  removeStyleSheet(const WLink& link)
    * \sa WWidget::setStyleClass()
    */
-  void useStyleSheet(const WCssStyleSheet& styleSheet,
+  void useStyleSheet(const WLinkedCssStyleSheet& styleSheet,
 		     const std::string& condition = "");
 
   /*! \brief Removes an external stylesheet.
@@ -400,11 +383,11 @@ public:
    *
    * The default theme is "default" CSS theme.
    */
-  void setTheme(const WTheme *theme);
+  void setTheme(const std::shared_ptr<WTheme>& theme);
 
   /*! \brief Returns the theme.
    */
-  const WTheme *theme() const { return theme_; }
+  std::shared_ptr<WTheme> theme() const { return theme_; }
 
   /*! \brief Sets a CSS theme.
    *
@@ -421,23 +404,26 @@ public:
 
   /*! \brief Sets the layout direction.
    * 
-   * The default direction is LeftToRight.
+   * The default direction is LayoutDirection::LeftToRight.
    *
    * This sets the language text direction, which by itself sets the
    * default text alignment and reverse the column orders of &lt;table&gt;
    * elements.
    *
-   * In addition, %Wt will take this setting into account in WTextEdit,
-   * WTableView and WTreeView (so that columns are reverted), and swap
-   * the behaviour of WWidget::setFloatSide() and
-   * WWidget::setOffsets() for RightToLeft languages. Note that CSS
-   * settings themselves are not affected by this setting, and thus
-   * for example <tt>"float: right"</tt> will move a box to the right,
-   * irrespective of the layout direction.
+   * In addition, %Wt will take this setting into account in
+   * WTextEdit, WTableView and WTreeView (so that columns are
+   * reverted), and swap the behaviour of WWidget::setFloatSide() and
+   * WWidget::setOffsets() for LayoutDirection::RightToLeft
+   * languages. Note that CSS settings themselves are not affected by
+   * this setting, and thus for example <tt>"float: right"</tt> will
+   * move a box to the right, irrespective of the layout direction.
    *
    * The library sets <tt>"Wt-ltr"</tt> or <tt>"Wt-rtl"</tt> as style
    * classes for the document body. You may use this if to override
-   * certain style rules for a Right-to-Left document.
+   * certain style rules for a Side::Right-to-Side::Left document.
+   *
+   * The only valid values are LayoutDirection::LeftToRight or
+   * LayoutDirection::RightToLeft.
    *
    * For example:
    * \code
@@ -523,7 +509,7 @@ public:
    * \sa WString::tr()
    * \endif
    */
-  WLocalizedStrings *localizedStrings();
+  std::shared_ptr<WLocalizedStrings> localizedStrings();
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Accesses the built-in resource bundle.
@@ -547,7 +533,8 @@ public:
    *
    * \sa localizedStrings(), WString::tr(const char *key)
    */
-  void setLocalizedStrings(WLocalizedStrings *stringResolver);
+  void setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>&
+			   stringResolver);
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Returns the message resource bundle.
@@ -619,7 +606,7 @@ public:
    */
   virtual void refresh();
 
-  /*! \brief Binds a top-level widget for a WidgetSet deployment.
+  /*! \brief Binds a top-level widget for a EntryPointType::WidgetSet deployment.
    *
    * This method binds a \p widget to an existing element with DOM id
    * \p domId on the page. The element type should correspond with
@@ -627,9 +614,9 @@ public:
    * WContainerWidget, or a &lt;table&gt; for a WTable).
    *
    * \sa root()
-   * \sa Wt::WidgetSet
+   * \sa Wt::EntryPointType::WidgetSet
    */
-  void bindWidget(WWidget *widget, const std::string& domId);
+  void bindWidget(std::unique_ptr<WWidget> widget, const std::string& domId);
 
   /** @name URLs and internal paths
    */
@@ -756,7 +743,7 @@ public:
    * \sa url(), bookmarkUrl()
    *
    * \if cpp
-   * \note the \p internalPath should be UTF8 encoded (we may fix the API
+   * \note the \p internalPath should be CharEncoding::UTF8 encoded (we may fix the API
    *       to use WString in the future).
    * \endif
    */
@@ -830,7 +817,7 @@ public:
    * \sa bookmarkUrl(), internalPath(), internalPathChanged()
    *
    * \if cpp
-   * \note the \p path should be UTF8 encoded (we may fix the API
+   * \note the \p path should be CharEncoding::UTF8 encoded (we may fix the API
    *       to use WString in the future).
    * \endif
    */
@@ -884,7 +871,7 @@ public:
    * \sa setInternalPath(), internalPathNextPart(), internalPathMatches()
    *
    * \if cpp
-   * \note the \p returned path is UTF8 (we may fix the API
+   * \note the \p returned path is CharEncoding::UTF8 (we may fix the API
    *       to use WString in the future).
    * \endif
    */
@@ -907,7 +894,7 @@ public:
    * \sa internalPath(), internalPathChanged()
    *
    * \if cpp
-   * \note the \p internal path is UTF8 encoded (we may fix the API
+   * \note the \p internal path is CharEncoding::UTF8 encoded (we may fix the API
    *       to use WString in the future).
    * \endif
    */
@@ -930,7 +917,7 @@ public:
    * \sa setInternalPath(), internalPath()
    *
    * \if cpp
-   * \note the \p internal path is UTF8 encoded (we may fix the API
+   * \note the \p internal path is CharEncoding::UTF8 encoded (we may fix the API
    *       to use WString in the future).
    * \endif
    */
@@ -947,7 +934,7 @@ public:
    * \sa setInternalPath()
    *
    * \if cpp
-   * \note the \p internal path is UTF8 encoded (we may fix the API
+   * \note the \p internal path is CharEncoding::UTF8 encoded (we may fix the API
    *       to use WString in the future).
    * \endif
    */
@@ -1244,7 +1231,7 @@ public:
    *         application and its widgets outside of the event loop.
    *
    * You can use this lock to manipulate widgets outside of the event
-   * loop. Inside the event loop (including events posted using
+   * loop. LabelOption::Inside the event loop (including events posted using
    * WServer::post()), this lock is already held by the library itself.
    *
    * The lock is recursive, so trying to take a lock, while already
@@ -1255,7 +1242,7 @@ public:
    *         application and its widgets outside of the event loop.
    *
    * You need to take this lock only when you want to manipulate
-   * widgets outside of the event loop. Inside the event loop, this
+   * widgets outside of the event loop. LabelOption::Inside the event loop, this
    * lock is already held by the library itself.
    *
    * \sa getUpdateLock()
@@ -1286,17 +1273,6 @@ public:
      */
     UpdateLock(WApplication *app);
 
-    /*! \brief Copy constructor (<b>deprecated</b>).
-     *
-     * By copying the lock, lock ownership is transferred. The original
-     * object becomes empty, and its destructor has no longer the
-     * effect of releasing the lock.
-     *
-     * \deprecated use UpdateLock(WApplication *) instead of getUpdateLock()
-     *             which requires this copy.
-     */
-    UpdateLock(const UpdateLock&);
-
     /*! \brief Tests whether the update lock was succesfully taken.
      *
      * This may return \c false when the library has already decided
@@ -1323,27 +1299,14 @@ public:
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
-    mutable UpdateLockImpl *impl_;
+    mutable std::unique_ptr<UpdateLockImpl> impl_;
     bool ok_;
 #endif // !WT_TARGET_JAVA
 
     friend class WApplication;
   };
 
-#ifndef WT_TARGET_JAVA
-  /*! \brief Grabs and returns the lock for manipulating widgets outside
-   *         the event loop (<b>deprecated</b>).
-   *
-   * You need to keep this lock in scope while manipulating widgets
-   * outside of the event loop. In normal cases, inside the %Wt event
-   * loop, you do not need to care about it.
-   *
-   * \sa enableUpdates(), triggerUpdate()
-   *
-   * \deprecated Use the RAII-style UpdateLock(WApplication *) constructor
-   *             instead.
-   */
-#else
+#ifdef WT_TARGET_JAVA
   /*! \brief Grabs and returns the lock for manipulating widgets outside
    *         the event loop.
    *
@@ -1353,8 +1316,8 @@ public:
    *
    * \sa enableUpdates(), triggerUpdate()
    */
-#endif // WT_TARGET_JAVA
   UpdateLock getUpdateLock();
+#endif // WT_TARGET_JAVA
 
   /*! \brief Attach an auxiliary thread to this application.
    *
@@ -1435,7 +1398,7 @@ public:
    * loaded, and will load a library only once. In addition, you may
    * provide a \p symbol which if already defined will also indicate
    * that the library was already loaded (possibly outside of %Wt when
-   * in WidgetSet mode).
+   * in EntryPointType::WidgetSet mode).
    *
    * This method returns \c true only when the library is loaded
    * for the first time.
@@ -1473,7 +1436,7 @@ public:
   /*! \brief Sets the name of the application JavaScript class.
    *
    * This should be called right after construction of the application, and
-   * changing the JavaScript class is only supported for WidgetSet mode
+   * changing the JavaScript class is only supported for EntryPointType::WidgetSet mode
    * applications. The \p className should be a valid JavaScript identifier, and
    * should also be unique in a single page.
    */
@@ -1538,35 +1501,17 @@ public:
 						const std::string& value);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Sets the Ajax communication method (<b>deprecated</b>).
-   *
-   * This method has no effect.
-   *
-   * Since %Wt 3.1.8, a communication method that works is detected at
-   * run time. For widget set mode, cross-domain Ajax is chosen if
-   * available.
-   *
-   * \deprecated this setting is no longer needed.
-   */
-  void setAjaxMethod(AjaxMethod method);
-
-  /*! \brief Returns the Ajax communication method (<b>deprecated</b>).
-   *
-   * \sa setAjaxMethod()
-   */
-  AjaxMethod ajaxMethod() const { return ajaxMethod_; }
-
   /*
    * The DOM root object. This contains not only the application root but
    * also other invisible objects (timers, dialog covers, ...).
    */
-  WContainerWidget *domRoot() const { return domRoot_; }
+  WWebWidget *domRoot() const;
 
   /*
    * A phony DOM root object, used to logically contain all widgets bound
    * in widgetset mode.
    */
-  WContainerWidget *domRoot2() const { return domRoot2_; }
+  WContainerWidget *domRoot2() const { return domRoot2_.get(); }
 
   /*
    * Encode an object to a string, to make it referencable from JavaScript.
@@ -1723,7 +1668,7 @@ public:
    *   used, you can set meta headers for any type of session, from
    *   within the application constructor (which corresponds to the
    *   initial request).
-   * - but never for a Wt::WidgetSet mode application since then the
+   * - but never for a Wt::EntryPointType::WidgetSet mode application since then the
    *   application is hosted within a foreign HTML page.
    *
    * These situations coincide with WEnvironment::ajax() returning \c
@@ -1787,11 +1732,8 @@ public:
    * the server is pending or JavaScript is being evaluated.
    *
    * The default loading indicator is a WDefaultLoadingIndicator.
-   *
-   * When setting a new loading indicator, the previous one is
-   * deleted.
    */
-  void setLoadingIndicator(WLoadingIndicator *indicator);
+  void setLoadingIndicator(std::unique_ptr<WLoadingIndicator> indicator);
 
   /*! \brief Returns the loading indicator.
    *
@@ -1837,14 +1779,6 @@ public:
    */
   void quit(const WString& restartMessage);
 
-  /*! \brief Returns whether the application has quit. (<b>deprecated</b>)
-   *
-   * \sa quit()
-   *
-   * \deprecated hasQuit() is proper English
-   */
-  bool isQuited() const { return quitted_; }
-
   /*! \brief Returns whether the application has quit.
    *
    * \sa quit()
@@ -1869,13 +1803,7 @@ public:
    *
    * The integer parameter is the request size that was received in bytes.
    */
-  Signal< ::int64_t >& requestTooLarge() { return requestTooLarge_; }
-
-  /*
-   * For persistent sessions only: return whether the persistent session
-   * is connected to a browser.
-   */
-  bool isConnected() const { return connected_; }
+  Signal<::int64_t>& requestTooLarge() { return requestTooLarge_; }
 
   /** @name Global keyboard and mouse events
    */
@@ -2042,7 +1970,6 @@ public:
    * As with the signal/slot connection tracking mechanism, this
    * requires that the object is a WObject.
    */
-  template <typename F> boost::function<void()> bind(const F& f);
 #endif // WT_CNOR
 
   /*! \brief Encodes an untrusted URL to prevent referer leaks.
@@ -2063,8 +1990,9 @@ public:
    */
   void pushExposedConstraint(WWidget *w);
   void popExposedConstraint(WWidget *w);
-  void addGlobalWidget(WWidget *w);
-  void removeGlobalWidget(WWidget *w);
+
+  void addGlobalWidget(WWidget *w); // from within constructor
+  void removeGlobalWidget(WWidget *w); // from within destructor
 
 protected:
   /*! \brief Notifies an event to the application.
@@ -2216,69 +2144,62 @@ private:
   /*
    * Basic application stuff
    */
-  WebSession            *session_;     // session owning this application
+  WebSession *session_; // session owning this application
 #ifndef WT_CNOR
-  boost::weak_ptr<WebSession> weakSession_; // used to sense destruction
+  std::weak_ptr<WebSession> weakSession_; // used to sense destruction
 #endif // WT_CNOR
-  WString                title_;
-  WString                closeMessage_;
-  bool                   titleChanged_, closeMessageChanged_, localeChanged_;
-  WContainerWidget      *widgetRoot_;  // widgets in main DOM root
-  WContainerWidget      *domRoot_;     // main DOM root
-  WContainerWidget      *domRoot2_;    // other virtual root for WidgetSet mode
-  WContainerWidget      *timerRoot_;   // timers in main DOM root
-  WCssStyleSheet         styleSheet_;  // internal stylesheet
-  WCombinedLocalizedStrings *localizedStrings_;
-  WLocale                locale_;
-  std::string            renderedInternalPath_, newInternalPath_;
-  Signal<std::string>    internalPathChanged_, internalPathInvalid_;
-  bool                   internalPathIsChanged_;
-  bool                   internalPathDefaultValid_, internalPathValid_;
-  int                    serverPush_;
-  bool                   serverPushChanged_;
+  WString title_, closeMessage_;
+  bool titleChanged_, closeMessageChanged_, localeChanged_;
+  std::unique_ptr<WContainerWidget> domRoot_; // main DOM root
+  WContainerWidget *widgetRoot_;  // widgets in main DOM root
+  WContainerWidget *timerRoot_;   // timers in main DOM root
+  std::unique_ptr<WContainerWidget> domRoot2_; // other virtual root
+  WCssStyleSheet styleSheet_;  // internal stylesheet
+  std::unique_ptr<WCombinedLocalizedStrings> localizedStrings_;
+  WLocale locale_;
+  std::string renderedInternalPath_, newInternalPath_;
+  Signal<std::string> internalPathChanged_, internalPathInvalid_;
+  bool internalPathIsChanged_, internalPathDefaultValid_, internalPathValid_;
+  int serverPush_;
+  bool serverPushChanged_;
 #ifndef WT_TARGET_JAVA
   boost::pool<boost::default_user_allocator_new_delete> *eventSignalPool_;
 #endif // WT_TARGET_JAVA
-  std::string            javaScriptClass_;
-  AjaxMethod             ajaxMethod_;
-  bool                   quitted_;
-  WString                quittedMessage_;
-  WResource             *onePixelGifR_;
-  bool                   internalPathsEnabled_;
-  WWidget               *exposedOnly_;
-  WLoadingIndicator     *loadingIndicator_;
-  WWidget               *loadingIndicatorWidget_;
-  bool                   connected_;
-  std::string            htmlClass_, bodyClass_;
-  bool                   bodyHtmlClassChanged_;
-  bool                   enableAjax_;
+  std::string javaScriptClass_;
+  bool quitted_;
+  WString quittedMessage_;
+  std::unique_ptr<WResource> onePixelGifR_;
+  bool internalPathsEnabled_;
+  WWidget *exposedOnly_;
+  WLoadingIndicator *loadingIndicator_;
+  std::string htmlClass_, bodyClass_;
+  bool bodyHtmlClassChanged_, enableAjax_;
 #ifndef WT_TARGET_JAVA
-  bool                   initialized_;
+  bool initialized_;
 #endif // WT_TARGET_JAVA
-  std::string            focusId_;
-  int                    selectionStart_, selectionEnd_;
-  LayoutDirection        layoutDirection_;
+  std::string focusId_;
+  int selectionStart_, selectionEnd_;
+  LayoutDirection layoutDirection_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
-  int                        scriptLibrariesAdded_;
+  int scriptLibrariesAdded_;
 
-  const WTheme *theme_;
-  std::vector<WCssStyleSheet> styleSheets_;
-  std::vector<WCssStyleSheet> styleSheetsToRemove_;
+  std::shared_ptr<WTheme> theme_;
+  std::vector<WLinkedCssStyleSheet> styleSheets_;
+  std::vector<WLinkedCssStyleSheet> styleSheetsToRemove_;
 
   int styleSheetsAdded_;
 
   std::vector<MetaHeader> metaHeaders_;
-  std::vector<MetaLink>   metaLinks_;
+  std::vector<MetaLink> metaLinks_;
 
-  SignalMap   exposedSignals_;   // signals that may be accessed
+  SignalMap exposedSignals_;   // signals that may be accessed
   ResourceMap exposedResources_; // resources that may be accessed
-  ObjectMap   encodedObjects_;   // objects encoded for internal purposes
+  ObjectMap encodedObjects_;   // objects encoded for internal purposes
                                  // like 'virtual pointers' (see D&D)
   std::set<std::string> justRemovedSignals_;
 
-  bool exposeSignals_;           // if we are currently exposing signals
-                                 // (see WViewWidget)
+  bool exposeSignals_; // if we are currently exposing signals (see WViewWidget)
 
   std::string afterLoadJavaScript_, beforeLoadJavaScript_;
   int newBeforeLoadJavaScript_;
@@ -2297,21 +2218,19 @@ private:
   EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
   JSignal<> unloaded_;
 
-  std::map<const char *, boost::any> objectStore_;
-
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WEnvironment& env(); // short-hand for session_->env()
 
   /*
    * Functions for exposed signals, resources, and objects
    */
-  void              addExposedSignal(EventSignalBase* signal);
-  void              removeExposedSignal(EventSignalBase* signal);
+  void addExposedSignal(EventSignalBase* signal);
+  void removeExposedSignal(EventSignalBase* signal);
   EventSignalBase  *decodeExposedSignal(const std::string& signalName) const;
-  std::string       encodeSignal(const std::string& objectId,
-				 const std::string& name) const;
+  std::string encodeSignal(const std::string& objectId,
+			   const std::string& name) const;
 
-  SignalMap&  exposedSignals() { return exposedSignals_; }
+  SignalMap& exposedSignals() { return exposedSignals_; }
   std::set<std::string>& justRemovedSignals() { return justRemovedSignals_; }
 
   std::string resourceMapKey(WResource *resource);
@@ -2352,6 +2271,8 @@ private:
   int selectionStart() const { return selectionStart_; }
   int selectionEnd() const { return selectionEnd_; }
 
+  WLocalizedStrings *localizedStringsPack();
+
   /*
    * Methods for audio handling
    */
@@ -2386,8 +2307,6 @@ private:
   friend class WViewWidget;
   friend class WWidget;
   friend class WWebWidget;
-  friend class Ext::Dialog;
-  friend class Ext::MessageBox;
 };
 
 #ifndef WT_TARGET_JAVA
@@ -2397,10 +2316,10 @@ private:
  * This function runs the application server, and should be called
  * only once (e.g. from within your main function).
  *
- * The \p createApplication parameter is a <tt>boost::function</tt>
+ * The \p createApplication parameter is a <tt>std::function</tt>
  * object that should create a new application instance for a new user
  * visiting the application. It is of type:
- * <tt>boost::function<Wt::WApplication* (const
+ * <tt>std::function<Wt::WApplication* (const
  * Wt::WEnvironment&)></tt>, and thus you can pass to it a function
  * like:
  *
@@ -2422,8 +2341,9 @@ private:
 extern int WRun(int argc, char** argv,
 		ApplicationCreator createApplication = 0);
 #else // DOXYGEN_ONLY
-extern int WTCONNECTOR_API WRun(int argc, char** argv,
-				ApplicationCreator createApplication = 0);
+extern int WTCONNECTOR_API 
+WRun(int argc, char** argv,
+     ApplicationCreator createApplication = ApplicationCreator());
 
 #endif // DOXYGEN_ONLY
 #endif // WT_TARGET_JAVA
@@ -2436,25 +2356,6 @@ extern int WTCONNECTOR_API WRun(int argc, char** argv,
  * \relates WApplication
  */
 #define wApp Wt::WApplication::instance()
-
-#ifndef WT_CNOR
-extern void WT_API WtEmitBindSignal(const boost::shared_ptr< Wt::Signals::signal<void()> >& s);
-#else
-extern void WT_API WtEmitBindSignal(const boost::shared_ptr< Wt::Signals::signal0<void> >& s);
-#endif
-
-#ifndef WT_CNOR
-template <typename F>
-boost::function<void()> Wt::WApplication::bind(const F& f)
-{
-  typedef boost::shared_ptr< Wt::Signals::signal<void()> > SignalPtr;
-  SignalPtr s(new Wt::Signals::signal<void()>());
-
-  s->connect(f);
-
-  return boost::bind(&WtEmitBindSignal, s);
-}
-#endif // WT_CNOR
 
 }
 

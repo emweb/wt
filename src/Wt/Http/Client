@@ -7,12 +7,12 @@
 #ifndef WT_HTTP_CLIENT_H_
 #define WT_HTTP_CLIENT_H_
 
-#include <Wt/WFlags>
-#include <Wt/WObject>
-#include <Wt/WSignal>
+#include <Wt/WFlags.h>
+#include <Wt/WObject.h>
+#include <Wt/WSignal.h>
 
-#include <Wt/Http/Message>
-#include <Wt/Http/Method>
+#include <Wt/Http/Message.h>
+#include <Wt/Http/Method.h>
 
 #include <boost/system/error_code.hpp>
 #include <string>
@@ -68,7 +68,7 @@ class WIOService;
  *    Http::Client *client = new Http::Client(this);
  *    client->setTimeout(15);
  *    client->setMaximumResponseSize(10 * 1024);
- *    client->done().connect(boost::bind(&MyWidget::handleHttpResponse, this, _1, _2));
+ *    client->done().connect(std::bind(&MyWidget::handleHttpResponse, this, _1, _2));
  *    if (client->get("http://www.webtoolkit.eu/wt/blog/feed/"))
  *      WApplication::instance()->deferRendering();
  *    } else {
@@ -76,7 +76,7 @@ class WIOService;
  *    }
  * }
  *
- * void handleHttpResponse(boost::system::error_code err, const Http::Message& response)
+ * void handleHttpResponse(std::system::error_code err, const Http::Message& response)
  * {
  *    WApplication::instance()->resumeRendering();
  *
@@ -108,7 +108,7 @@ public:
    * The client uses the I/O service and thread-pool from the current
    * WApplication::instance().
    */
-  Client(WObject *parent = 0);
+  Client();
 
   /*! \brief Constructor.
    *
@@ -116,7 +116,7 @@ public:
    * useful to use the client outside the context of a web
    * application.
    */
-  Client(WIOService& ioService, WObject *parent = 0);
+  Client(WIOService& ioService);
 
   /*! \brief Destructor.
    *
@@ -415,7 +415,7 @@ public:
 private:
   WIOService *ioService_;
   class Impl;
-  boost::shared_ptr<Impl> impl_;
+  std::shared_ptr<Impl> impl_;
   int timeout_;
   std::size_t maximumResponseSize_;
   bool verifyEnabled_;

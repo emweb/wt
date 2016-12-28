@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WServer>
-#include <Wt/Dbo/SqlConnectionPool>
+#include <Wt/WServer.h>
+#include <Wt/Dbo/SqlConnectionPool.h>
 
 #include "BlogRSSFeed.h"
 #include "model/BlogSession.h"
@@ -14,6 +14,8 @@
 #include "WtHome.h"
 #include "JWtHome.h"
 
+using namespace Wt;
+
 int main(int argc, char **argv)
 {
   try {
@@ -21,7 +23,7 @@ int main(int argc, char **argv)
 
     BlogSession::configureAuth();
 
-    Wt::Dbo::SqlConnectionPool *blogDb
+    std::unique_ptr<Dbo::SqlConnectionPool> blogDb
       = BlogSession::createConnectionPool(server.appRoot() + "blog.db");
 
     BlogRSSFeed rssFeed(*blogDb, "Wt and JWt blog",
@@ -30,16 +32,15 @@ int main(int argc, char **argv)
 
     server.addResource(&rssFeed, "/wt/blog/feed/");
 
-    server.addEntryPoint(Application,
-			 boost::bind(&createJWtHomeApplication, _1, blogDb),
-			 "/jwt", "/css/jwt/favicon.ico");
-    server.addEntryPoint(Application,
-			 boost::bind(&createWtHomeApplication, _1, blogDb),
-			 "", "/css/wt/favicon.ico");
+    server.addEntryPoint(EntryPointType::Application,
+                         std::bind(&createJWtHomeApplication, std::placeholders::_1, blogDb.get()),
+                         "/jwt", "/css/jwt/favicon.ico");
+    server.addEntryPoint(EntryPointType::Application,
+                         std::bind(&createWtHomeApplication, std::placeholders::_1, blogDb.get()),
+                         "", "/css/wt/favicon.ico");
 
     server.run();
 
-    delete blogDb;
   } catch (Wt::WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {

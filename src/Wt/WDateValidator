@@ -8,8 +8,8 @@
 #ifndef WDATE_VALIDATOR_H_
 #define WDATE_VALIDATOR_H_
 
-#include <Wt/WDate>
-#include <Wt/WValidator>
+#include <Wt/WDate.h>
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -55,7 +55,7 @@ public:
    *
    * \sa WLocale::currentLocale()
    */
-  WDateValidator(WObject *parent = 0);
+  WDateValidator();
 
   /*! \brief Creates a date validator.
    *
@@ -64,7 +64,7 @@ public:
    *
    * \sa WLocale::currentLocale()
    */
-  WDateValidator(const WDate& bottom, const WDate& top, WObject *parent = 0);
+  WDateValidator(const WDate& bottom, const WDate& top);
 
   /*! \brief Creates a date validator.
    *
@@ -74,7 +74,7 @@ public:
    * The syntax for \p format is as in WDate::fromString()
    * \endif
    */
-  WDateValidator(const WT_USTRING& format, WObject *parent = 0);
+  WDateValidator(const WT_USTRING& format);
 
   /*! \brief Creates a date validator.
    *
@@ -87,7 +87,7 @@ public:
    */
   WDateValidator(const WT_USTRING& format,
 		 const WDate& bottom,
-		 const WDate& top, WObject *parent = 0);
+		 const WDate& top);
 
   /*! \brief Sets the bottom of the valid date range.
    *
@@ -119,7 +119,7 @@ public:
    *
    * \sa setFormat()
    */
-  virtual WT_USTRING format() const { return formats_[0]; }
+  virtual WT_USTRING format() const override { return formats_[0]; }
 
   /*! \brief Sets the date formats used to parse date strings.
    */
@@ -135,9 +135,7 @@ public:
    * non-mandatory field, or represents a date in the given format,
    * and within the valid range.
    */
-  virtual Result validate(const WT_USTRING& input) const;
-
-  virtual void createExtConfig(std::ostream& config) const;
+  virtual Result validate(const WT_USTRING& input) const override;
 
   /*! \brief Sets the message to display when the input is not a date.
    *
@@ -194,7 +192,7 @@ public:
    */
   WString invalidTooLateText() const;
 
-  virtual std::string javaScriptValidate() const;
+  virtual std::string javaScriptValidate() const override;
 
 private:
   std::vector<WT_USTRING> formats_;

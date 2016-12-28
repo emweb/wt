@@ -7,8 +7,8 @@
 #ifndef WTEXT_H_
 #define WTEXT_H_
 
-#include <Wt/WInteractWidget>
-#include <Wt/WString>
+#include <Wt/WInteractWidget.h>
+#include <Wt/WString.h>
 
 namespace Wt {
 
@@ -20,7 +20,7 @@ namespace Wt {
  * locale dependent XML files (see WString::tr()).
  *
  * Use setTextFormat() to configure the textFormat of the text. The
- * default textFormat is Wt::XHTMLText, which allows XHMTL markup to
+ * default textFormat is Wt::TextFormat::XHTML, which allows XHMTL markup to
  * be included in the text. Tags and attributes that indicate "active"
  * content are not allowed and stripped out, to avoid security risks
  * exposed by JavaScript such as the common web-based <a
@@ -33,14 +33,14 @@ namespace Wt {
  * %WText is intended to be passive, and not contain any scripting
  * elements.
  *
- * The Wt::PlainText format will display the text literally
+ * The Wt::TextFormat::Plain format will display the text literally
  * (escaping any HTML special characters).
  *
- * In some situations, Wt::XHTMLUnsafeText may be useful to explicitly
- * allow scripting content. Like XHTMLText, it allows XHTML markup,
+ * In some situations, Wt::TextFormat::UnsafeXHTML may be useful to explicitly
+ * allow scripting content. Like TextFormat::XHTML, it allows XHTML markup,
  * but it also allows potentially dangerous tags and attributes. Use
  * this if you're sure that a user cannot interfere with the text set,
- * and XHTMLText is too limiting.
+ * and TextFormat::XHTML is too limiting.
  *
  * %WText is by default \link WWidget::setInline()
  * inline\endlink, unless the XHTML contents starts with an
@@ -57,7 +57,7 @@ namespace Wt {
  * container->addWidget(new Wt::WText("Hello <i>dear</i> visitor."));
  *
  * // display a plain text:
- * container->addWidget(new Wt::WText("The <i> tag displays italic text.", Wt::PlainText));
+ * container->addWidget(new Wt::WText("The <i> tag displays italic text.", Wt::TextFormat::Plain));
  *
  * // display an XHTML fragment from a resource bundle:
  * container->addWidget(new Wt::WText(tr("introduction")));
@@ -82,41 +82,40 @@ class WT_API WText : public WInteractWidget
 public:
   /*! \brief Creates a text widget with an empty text.
    */
-  WText(WContainerWidget *parent = 0);
+  WText();
 
   /*! \brief Creates a text widget with given text.
    *
-   * The textFormat is set to Wt::XHTMLText, unless the \p text is
+   * The textFormat is set to Wt::TextFormat::XHTML, unless the \p text is
    * literal (not created using WString::tr()) and it could not be
    * parsed as valid XML. In that case the textFormat is set to
-   * Wt::PlainText.
+   * Wt::TextFormat::Plain.
    *
-   * Therefore, if you wish to use Wt::XHTMLText, 
+   * Therefore, if you wish to use Wt::TextFormat::XHTML, 
    * but cannot be sure about \p text being valid XML, 
-   * you should verify that the textFormat() is Wt::XHTMLText
+   * you should verify that the textFormat() is Wt::TextFormat::XHTML
    * after construction.
    *
    * The XML parser will silently discard malicious tags and
-   * attributes for literal Wt::XHTMLText text.
+   * attributes for literal Wt::TextFormat::XHTML text.
    */
-  WText(const WString& text, WContainerWidget *parent = 0);
+  WText(const WString& text);
 
   /*! \brief Creates a text widget with given text and format
    *
-   * If <i>textFormat</i> is Wt::XHTMLText and \p text is not
+   * If <i>textFormat</i> is Wt::TextFormat::XHTML and \p text is not
    * literal (not created using WString::tr()), then if the
    * \p text could not be parsed as valid XML, the textFormat is
-   * changed to Wt::PlainText.
+   * changed to Wt::TextFormat::Plain.
    *
-   * Therefore, if you wish to use Wt::XHTMLText, but cannot be sure
+   * Therefore, if you wish to use Wt::TextFormat::XHTML, but cannot be sure
    * about \p text being valid XML, you should verify that the
-   * textFormat() is Wt::XHTMLText after construction.
+   * textFormat() is Wt::TextFormat::XHTML after construction.
    *
    * The XML parser will silently discard malicious tags and
-   * attributes for literal Wt::XHTMLText text.
+   * attributes for literal Wt::TextFormat::XHTML text.
    */
-  WText(const WString& text, TextFormat textFormat,
-	WContainerWidget *parent = 0);
+  WText(const WString& text, TextFormat textFormat);
 
   /*! \brief Destructor.
    */
@@ -134,11 +133,11 @@ public:
 
   /*! \brief Sets the text.
    *
-   * When the current format is Wt::XHTMLText, and
+   * When the current format is Wt::TextFormat::XHTML, and
    * \p text is literal (not created using WString::tr()), it is
    * parsed using an XML parser which discards malicious tags and
    * attributes silently. When the parser encounters an XML parse
-   * error, the textFormat is changed to Wt::PlainText.
+   * error, the textFormat is changed to Wt::TextFormat::Plain.
    *
    * Returns whether the text could be set using the current
    * textFormat. A return value of \c false indicates that the textFormat
@@ -154,7 +153,7 @@ public:
    * either as plain text, which is displayed literally, or as
    * XHTML-markup.
    *
-   * When changing the textFormat to Wt::XHTMLText, and the
+   * When changing the textFormat to Wt::TextFormat::XHTML, and the
    * current text is literal (not created using WString::tr()), the
    * current text is parsed using an XML parser which discards
    * malicious tags and attributes silently. When the parser
@@ -163,7 +162,7 @@ public:
    *
    * Returns whether the textFormat could be set for the current text.
    *
-   * The default format is Wt::XHTMLText.
+   * The default format is Wt::TextFormat::XHTML.
    */
   bool setTextFormat(TextFormat format);
 
@@ -178,8 +177,8 @@ public:
    * When \p wordWrap is \c true, the widget may break lines, creating a
    * multi-line text. When \p wordWrap is \c false, the text will displayed
    * on a single line, unless the text contains end-of-lines (for
-   * Wt::PlainText) or &lt;br /&gt; tags or other block-level tags
-   * (for Wt::XHTMLText).
+   * Wt::TextFormat::Plain) or &lt;br /&gt; tags or other block-level tags
+   * (for Wt::TextFormat::XHTML).
    *
    * The default value is \c true.
    *
@@ -214,7 +213,8 @@ public:
    * widget children and the border, for a WText padding is only supported
    * on the left and/or right.
    */
-  void setPadding(const WLength& padding, WFlags<Side> sides = Left | Right);
+  void setPadding(const WLength& padding, 
+		  WFlags<Side> sides = Side::Left | Side::Right);
 
   /*! \brief Returns the padding set for the widget.
    *
@@ -231,7 +231,7 @@ public:
    * <tt>href="#/..."</tt>), are re-encoded to link to the internal
    * path.
    *
-   * When using Wt::XHTMLText (or Wt::XHTMLUnsafeText) formatted text,
+   * When using Wt::TextFormat::XHTML (or Wt::TextFormat::UnsafeXHTML) formatted text,
    * the text is pasted verbatim in the browser (with the exception of
    * XSS filtering if applicable). With this option, however, the
    * XHTML text may be transformed at the cost of an additional XML
@@ -250,7 +250,7 @@ public:
   bool hasInternalPathEncoding() const
     { return flags_.test(BIT_ENCODE_INTERNAL_PATHS); }
 
-  virtual void refresh();
+  virtual void refresh() override;
 
 private:
   struct RichText {
@@ -285,10 +285,10 @@ private:
   WLength *WT_ARRAY padding_;
 
 protected:
-  virtual void           render(WFlags<RenderFlag> flags);
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual void           propagateRenderOk(bool deep);
+  virtual void           render(WFlags<RenderFlag> flags) override;
+  virtual void           updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual void           propagateRenderOk(bool deep) override;
 
   friend class WAbstractToggleButton;
   friend class WLabel;

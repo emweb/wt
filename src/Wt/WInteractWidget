@@ -7,8 +7,8 @@
 #ifndef WINTERACT_WIDGET_H_
 #define WINTERACT_WIDGET_H_
 
-#include <Wt/WWebWidget>
-#include <Wt/WEvent>
+#include <Wt/WWebWidget.h>
+#include <Wt/WEvent.h>
 
 namespace Wt {
 
@@ -30,9 +30,9 @@ class JSlot;
 class WT_API WInteractWidget : public WWebWidget
 {
 public:
-  /*! \brief Create an InteractWidget with optional parent.
+  /*! \brief Create an InteractWidget.
    */
-  WInteractWidget(WContainerWidget *parent = 0);
+  WInteractWidget();
 
   ~WInteractWidget();
 
@@ -100,7 +100,7 @@ public:
    * To capture an enter press when no element has focus, see
    * WApplication::globalEnterPressed()
    *
-   * \sa keyPressed(), Key_Enter
+   * \sa keyPressed(), Key::Enter
    */
   EventSignal<>& enterPressed();
 
@@ -115,7 +115,7 @@ public:
    * To capture an escape press when no element has focus, see
    * WApplication::globalEscapePressed()
    *
-   * \sa keyPressed(), Key_Escape
+   * \sa keyPressed(), Key::Escape
    */
   EventSignal<>& escapePressed();
 
@@ -314,8 +314,10 @@ public:
    *
    * \sa WWidget::dropEvent(), WWidget::acceptDrops(), WDropEvent
    */
-  void setDraggable(const std::string& mimeType, WWidget *dragWidget = 0,
-		    bool isDragWidgetOnly = false, WObject *sourceWidget = 0);
+  void setDraggable(const std::string& mimeType,
+		    WWidget *dragWidget = nullptr,
+		    bool isDragWidgetOnly = false,
+		    WObject *sourceWidget = nullptr);
 
   /*! \brief Disable drag & drop for this widget.
    *
@@ -340,20 +342,20 @@ public:
    */
   int mouseOverDelay() const;
 
-  virtual void setPopup(bool popup);
-  virtual void load();
-  virtual bool isEnabled() const;
+  virtual void setPopup(bool popup) override;
+  virtual void load() override;
+  virtual bool isEnabled() const override;
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
-  virtual void propagateSetEnabled(bool enabled);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void propagateRenderOk(bool deep) override;
+  virtual void propagateSetEnabled(bool enabled) override;
 
   void updateEventSignals(DomElement& element, bool all);
 
-  JSlot *dragSlot_;
-  JSlot *dragTouchSlot_;
-  JSlot *dragTouchEndSlot_;
+  std::unique_ptr<JSlot> dragSlot_;
+  std::unique_ptr<JSlot> dragTouchSlot_;
+  std::unique_ptr<JSlot> dragTouchEndSlot_;
 
 protected:
   // also used in WAbstractToggleButton

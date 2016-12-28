@@ -7,12 +7,12 @@
 #ifndef CHART_WDATA_SERIES_H_
 #define CHART_WDATA_SERIES_H_
 
-#include <Wt/Chart/WAxis>
-#include <Wt/WBrush>
-#include <Wt/WPen>
-#include <Wt/WShadow>
-#include <Wt/Chart/WChartGlobal>
-#include <Wt/WPainterPath>
+#include <Wt/Chart/WAxis.h>
+#include <Wt/WBrush.h>
+#include <Wt/WPen.h>
+#include <Wt/WShadow.h>
+#include <Wt/Chart/WChartGlobal.h>
+#include <Wt/WPainterPath.h>
 
 namespace Wt {
 
@@ -21,6 +21,22 @@ namespace Wt {
   namespace Chart {
 
     class WAbstractChartModel;
+
+/*! \brief Enumeration that indicates an aspect of the look.
+ *
+ * These flags are used to keep track of which aspects of the look
+ * that are overridden from the values provided by the chart palette,
+ * using one of the methods in this class.
+ *
+ * \sa setPen(), setBrush(), setMarkerPen(), setMarkerBrush(), setLabelColor()
+ */
+enum class CustomFlag {
+  Pen = 0x1,         //!< A custom pen is set.
+  Brush = 0x2,       //!< A custom brush is set.
+  MarkerPen = 0x4,   //!< A custom marker pen is set.
+  MarkerBrush = 0x8, //!< A custom marker brush is set.
+  LabelColor = 0x10  //!< A custom label color is set.
+};
 
 /*! \class WDataSeries Wt/Chart/WDataSeries Wt/Chart/WDataSeries
  *  \brief A single data series in a cartesian chart.
@@ -63,22 +79,6 @@ namespace Wt {
 class WT_API WDataSeries
 {
 public:
-  /*! \brief Enumeration that indicates an aspect of the look.
-   *
-   * These flags are used to keep track of which aspects of the look
-   * that are overridden from the values provided by the chart palette,
-   * using one of the methods in this class.
-   *
-   * \sa setPen(), setBrush(), setMarkerPen(), setMarkerBrush(), setLabelColor()
-   */
-  enum CustomFlag {
-    CustomPen = 0x1,         //!< A custom pen is set.
-    CustomBrush = 0x2,       //!< A custom brush is set.
-    CustomMarkerPen = 0x4,   //!< A custom marker pen is set.
-    CustomMarkerBrush = 0x8, //!< A custom marker brush is set.
-    CustomLabelColor = 0x10  //!< A custom label color is set.
-  };
-
   /*! \brief Constructs a new data series.
    *
    * Creates a new data series which plots the Y values from the
@@ -88,24 +88,8 @@ public:
    *
    * \sa WCartesianChart::addSeries()
    */
-  WDataSeries(int modelColumn, SeriesType seriesType = PointSeries,
-	      Axis axis = Y1Axis);
-
-  /*! \brief Copy constructor
-   *
-   * This does not copy over the associated chart.
-   *
-   * \deprecated
-   */
-  WDataSeries(const WDataSeries &other);
-
-  /*! \brief Copy assignment operator
-   *
-   * This does not copy over the associated chart.
-   *
-   * \deprecated
-   */
-  WDataSeries &operator=(const WDataSeries &other);
+  WDataSeries(int modelColumn, SeriesType seriesType = SeriesType::Point,
+	      Axis axis = Axis::Y1);
 
   /*! \brief Sets the bar width.
    *
@@ -286,15 +270,15 @@ public:
 
   /*! \brief Sets the fill range for line or curve series.
    *
-   * Line or curve series may be filled under or above the curve,
+   * AxisProperty::Line or curve series may be filled under or above the curve,
    * using the brush(). This setting specifies the range that is
-   * filled. The default value for all but BarSeries is NoFill.
+   * filled. The default value for all but SeriesType::Bar is FillRangeType::None.
    *
-   * Bar series may use MinimumValueFill to configure the chart to
+   * Bar series may use FillRangeType::MinimumValue to configure the chart to
    * render its bars from the data point to the bottom of the chart or
-   * MaximumValueFill to render the bars from the data point to the
-   * top of the chart. The default value for BarSeries is
-   * ZeroValueFill, which render bars from zero to the data value.
+   * FillRangeType::MaximumValue to render the bars from the data point to the
+   * top of the chart. The default value for SeriesType::Bar is
+   * FillRangeType::ZeroValue, which render bars from zero to the data value.
    */
   void setFillRange(FillRangeType fillRange);
 
@@ -309,7 +293,7 @@ public:
    * Specifies a marker that is displayed at the (X,Y) coordinate for each
    * series data point.
    *
-   * The default value is a CircleMarker for a PointSeries, or NoMarker
+   * The default value is a MarkerType::Circle for a SeriesType::Point, or MarkerType::None
    * otherwise.
    *
    * \sa setMarkerPen(), setMarkerBrush(), setCustomMarker()
@@ -318,7 +302,7 @@ public:
 
   /*! \brief Sets the custom marker.
    *
-   * This will also changes the marker type to CustomMarker.
+   * This will also changes the marker type to MarkerType::Custom.
    *
    * \sa setMarker()
    */
@@ -399,7 +383,7 @@ public:
 
   /*! \brief Enables a label that is shown at the series data points.
    *
-   * You may enable labels for the XAxis, YAxis or both axes. The
+   * You may enable labels for the Axis::X, Axis::Y or both axes. The
    * label that is displayed is the corresponding value on that
    * axis. If both labels are enabled then they are combined in a
    * single text using the format: "<x-value>: <y-value>".
@@ -474,7 +458,7 @@ public:
    *
    * \sa mapFromDevice()
    */ 
-  WPointF mapToDevice(const boost::any& xValue, const boost::any& yValue,
+  WPointF mapToDevice(const cpp17::any& xValue, const cpp17::any& yValue,
 		      int segment = 0) const;
 
   /*! \brief Set an offset to draw the data series at.
@@ -493,7 +477,7 @@ public:
    */
   void setOffset(double offset);
 
-  /*! \brief Get the offset for this data series.
+  /*! \brief Method::Get the offset for this data series.
    *
    * \sa setOffset()
    */
@@ -516,7 +500,7 @@ public:
    */
   void setScale(double scale);
 
-  /*! \brief Get the scale for this data series.
+  /*! \brief Method::Get the scale for this data series.
    *
    * \sa setScale()
    */
@@ -528,13 +512,13 @@ public:
    * the chart will be used.
    *
    * \note Individual models per data series are only supported for
-   * ScatterPlot type charts.
+   * ChartType::Scatter type charts.
    *
    * \sa WCartesianChart::setModel()
    */
-  void setModel(const WAbstractChartModel *model);
+  void setModel(const std::shared_ptr<WAbstractChartModel>& model);
 
-  /*! \brief Get the model for this data series.
+  /*! \brief Method::Get the model for this data series.
    *
    * This will return the model set for this data series,
    * if it is set.
@@ -548,13 +532,13 @@ public:
    * \sa setModel()
    * \sa WCartesianChart::setModel()
    */
-  const WAbstractChartModel *model() const;
+  std::shared_ptr<WAbstractChartModel> model() const;
 
   WCartesianChart *chart() { return chart_; }
 
 private:
   WCartesianChart   *chart_;
-  const WAbstractChartModel *model_;
+  std::shared_ptr<WAbstractChartModel> model_;
   int                modelColumn_;
   int                XSeriesColumn_;
   bool               stacked_;

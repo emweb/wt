@@ -7,10 +7,10 @@
 #ifndef WTABLE_H_
 #define WTABLE_H_
 
-#include <Wt/WInteractWidget>
-#include <Wt/WTableCell>
-#include <Wt/WTableColumn>
-#include <Wt/WTableRow>
+#include <Wt/WInteractWidget.h>
+#include <Wt/WTableCell.h>
+#include <Wt/WTableColumn.h>
+#include <Wt/WTableRow.h>
 
 namespace Wt {
 
@@ -63,7 +63,7 @@ class WT_API WTable : public WInteractWidget
 public:
   /*! \brief Creates an empty table.
    */
-  WTable(WContainerWidget *parent = 0);
+  WTable();
 
   /*! \brief Deletes the table and its entire contents.
    */
@@ -83,7 +83,7 @@ public:
    *
    * \sa elementAt(int, int), columnAt(int)
    */
-  WTableRow    *rowAt(int row);
+  WTableRow *rowAt(int row);
 
   /*! \brief Returns the column object for the given column.
    *
@@ -108,23 +108,30 @@ public:
    */
   virtual void removeCell(int row, int column);
 
-  /*! \brief Inserts an empty row.
+  /*! \brief Inserts a row.
    */
-  virtual WTableRow* insertRow(int row, WTableRow *tableRow = 0);
+  virtual WTableRow* insertRow
+    (int row, std::unique_ptr<WTableRow> tableRow = nullptr);
 
-  /*! \brief Deletes a row and all its contents.
+  /*! \brief Removes a row.
    *
-   * Rows below the given row are shifted up.
+   * Rows below the given row are shifted up. Returns a WTableRow that is
+   * not associated with a WTable. Unlinke removeColumn(), the cells in the
+   * row will not be deleted, because they are owned by the WTableRow.
    */
-  virtual void deleteRow(int row);
+  virtual std::unique_ptr<WTableRow> removeRow(int row);
 
   /*! \brief Inserts an empty column.
    */
-  virtual WTableColumn* insertColumn(int column, WTableColumn *tableColumn = 0);
+  virtual WTableColumn* insertColumn
+    (int column, std::unique_ptr<WTableColumn> tableColumn = nullptr);
 
-  /*! \brief Delete a column and all its contents.
+  /*! \brief Remove a column and all its contents.
+   *
+   * The contents of the column will be deleted, because a WTableColumn
+   * does not own its cells.
    */
-  virtual void deleteColumn(int column);
+  virtual std::unique_ptr<WTableColumn> removeColumn(int column);
 
   /*! \brief Clears the entire table.
    *
@@ -148,13 +155,14 @@ public:
    * \note This must be set before the initial rendering and cannot
    *       be changed later.
    */
-  void setHeaderCount(int count, Orientation orientation = Horizontal);
+  void setHeaderCount(int count, 
+		      Orientation orientation = Orientation::Horizontal);
 
   /*! \brief Returns the number of header rows or columns.
    *
    * \sa setHeaderCount()
    */
-  int headerCount(Orientation orientation = Horizontal);
+  int headerCount(Orientation orientation = Orientation::Horizontal);
 
   /*! \brief Move a table row from its original position to a new position.
    *
@@ -178,16 +186,17 @@ private:
   static const int BIT_GRID_CHANGED = 0;
   static const int BIT_COLUMNS_CHANGED = 1;
 
-  std::bitset<3>               flags_;
+  std::bitset<3> flags_;
 
-  std::vector<WTableRow *>     rows_;
-  std::vector<WTableColumn *>  columns_;
-  std::set<WTableRow *>       *rowsChanged_;
-  unsigned                     rowsAdded_;
-  int                          headerRowCount_, headerColumnCount_;
+  std::vector<std::unique_ptr<WTableRow>> rows_;
+  std::vector<std::unique_ptr<WTableColumn>> columns_;
+  std::set<WTableRow *> rowsChanged_;
+  unsigned rowsAdded_;
+  int headerRowCount_, headerColumnCount_;
 
   void expand(int row, int column, int rowSpan, int columnSpan);
-  WTableRow::TableData& itemAt(int row, int column);
+  WTableCell *itemAt(int row, int column);
+  void setItemAt(int row, int column, std::unique_ptr<WTableCell> cell);
 
   void repaintRow(WTableRow *row);
   void repaintColumn(WTableColumn *col);
@@ -202,28 +211,30 @@ protected:
    * You may want to override this method if you want your table to
    * contain specialized cells.
    */
-  virtual WTableCell* createCell(int row, int column);
+  virtual std::unique_ptr<WTableCell> createCell(int row, int column);
 
   /*! \brief Creates a table row.
    *
    * You may want to override this method if you want your table to
    * contain specialized rows.
    */
-  virtual WTableRow*    createRow(int row);
+  virtual std::unique_ptr<WTableRow> createRow(int row);
 
   /*! \brief Creates a table column.
    *
    * You may want to override this method if you want your table to
    * contain specialized columns.
    */
-  virtual WTableColumn* createColumn(int column);
+  virtual std::unique_ptr<WTableColumn> createColumn(int column);
 
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual DomElement    *createDomElement(WApplication *app);
-  virtual void           getDomChanges(std::vector<DomElement *>& result,
-				       WApplication *app);
-  virtual void           propagateRenderOk(bool deep);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual DomElement *createDomElement(WApplication *app) override;
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app) override;
+  virtual void propagateRenderOk(bool deep) override;
+
+  virtual void iterateChildren(const HandleWidgetMethod &method) const override;
 
 private:
   DomElement *createRowDomElement(int row, bool withIds, WApplication *app);

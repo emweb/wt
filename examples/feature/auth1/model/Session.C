@@ -6,31 +6,24 @@
 
 #include "Session.h"
 
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/PasswordService"
-#include "Wt/Auth/PasswordStrengthValidator"
-#include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/GoogleService"
-#include "Wt/Auth/FacebookService"
-#include "Wt/Auth/Dbo/AuthInfo"
-#include "Wt/Auth/Dbo/UserDatabase"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/HashFunction.h"
+#include "Wt/Auth/PasswordService.h"
+#include "Wt/Auth/PasswordStrengthValidator.h"
+#include "Wt/Auth/PasswordVerifier.h"
+#include "Wt/Auth/GoogleService.h"
+#include "Wt/Auth/FacebookService.h"
+#include "Wt/Auth/Dbo/AuthInfo.h"
+
+#include "Wt/Dbo/backend/Sqlite3.h"
+
+using namespace Wt;
 
 namespace {
 
-  class MyOAuth : public std::vector<const Wt::Auth::OAuthService *>
-  {
-  public:
-    ~MyOAuth()
-    {
-      for (unsigned i = 0; i < size(); ++i)
-	delete (*this)[i];
-    }
-  };
-
-  Wt::Auth::AuthService myAuthService;
-  Wt::Auth::PasswordService myPasswordService(myAuthService);
-  MyOAuth myOAuthServices;
+  Auth::AuthService myAuthService;
+  Auth::PasswordService myPasswordService(myAuthService);
+  std::vector<std::unique_ptr<Auth::OAuthService>> myOAuthServices;
 
 }
 
@@ -40,29 +33,30 @@ void Session::configureAuth()
   myAuthService.setEmailVerificationEnabled(true);
   myAuthService.setEmailVerificationRequired(true);
 
-  Wt::Auth::PasswordVerifier *verifier = new Wt::Auth::PasswordVerifier();
-  verifier->addHashFunction(new Wt::Auth::BCryptHashFunction(7));
-  myPasswordService.setVerifier(verifier);
+  std::unique_ptr<Auth::PasswordVerifier> verifier
+      = cpp14::make_unique<Auth::PasswordVerifier>();
+  verifier->addHashFunction(cpp14::make_unique<Auth::BCryptHashFunction>(7));
+  myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setAttemptThrottlingEnabled(true);
-  myPasswordService.setStrengthValidator
-    (new Wt::Auth::PasswordStrengthValidator());
+  myPasswordService.setStrengthValidator(cpp14::make_unique<Auth::PasswordStrengthValidator>());
 
-  if (Wt::Auth::GoogleService::configured())
-    myOAuthServices.push_back(new Wt::Auth::GoogleService(myAuthService));
+  if (Auth::GoogleService::configured())
+    myOAuthServices.push_back(cpp14::make_unique<Auth::GoogleService>(myAuthService));
 
-  if (Wt::Auth::FacebookService::configured())
-    myOAuthServices.push_back(new Wt::Auth::FacebookService(myAuthService));
+  if (Auth::FacebookService::configured())
+    myOAuthServices.push_back(cpp14::make_unique<Auth::FacebookService>(myAuthService));
 
   for (unsigned i = 0; i < myOAuthServices.size(); ++i)
     myOAuthServices[i]->generateRedirectEndpoint();
 }
 
 Session::Session(const std::string& sqliteDb)
-  : connection_(sqliteDb)
 {
-  connection_.setProperty("show-queries", "true");
+  auto connection = cpp14::make_unique<Dbo::backend::Sqlite3>(sqliteDb);
 
-  setConnection(connection_);
+  connection->setProperty("show-queries", "true");
+
+  setConnection(std::move(connection));
 
   mapClass<User>("user");
   mapClass<AuthInfo>("auth_info");
@@ -77,15 +71,10 @@ Session::Session(const std::string& sqliteDb)
     std::cerr << "Using existing database";
   }
 
-  users_ = new UserDatabase(*this);
+  users_ = cpp14::make_unique<UserDatabase>(*this);
 }
 
-Session::~Session()
-{
-  delete users_;
-}
-
-Wt::Auth::AbstractUserDatabase& Session::users()
+Auth::AbstractUserDatabase& Session::users()
 {
   return *users_;
 }
@@ -99,17 +88,21 @@ dbo::ptr<User> Session::user() const
     return dbo::ptr<User>();
 }
 
-const Wt::Auth::AuthService& Session::auth()
+const Auth::AuthService& Session::auth()
 {
   return myAuthService;
 }
 
-const Wt::Auth::PasswordService& Session::passwordAuth()
+const Auth::PasswordService& Session::passwordAuth()
 {
   return myPasswordService;
 }
 
-const std::vector<const Wt::Auth::OAuthService *>& Session::oAuth()
+const std::vector<const Auth::OAuthService *> Session::oAuth()
 {
-  return myOAuthServices;
+  std::vector<const Auth::OAuthService *> result;
+  for (auto &auth : myOAuthServices) {
+    result.push_back(auth.get());
+  }
+  return result;
 }

@@ -8,13 +8,29 @@
 #ifndef WT_AUTH_USER_H_
 #define WT_AUTH_USER_H_
 
-#include <Wt/WDateTime>
-#include <Wt/WString>
-#include <Wt/Auth/Token>
-#include <Wt/Auth/PasswordHash>
+#include <Wt/WDateTime.h>
+#include <Wt/WString.h>
+#include <Wt/Auth/Token.h>
+#include <Wt/Auth/PasswordHash.h>
 
 namespace Wt {
   namespace Auth {
+
+/*! \brief Enumeration for a user's account status.
+ *
+ * \sa status()
+ */
+enum class AccountStatus {
+  Disabled, //!< Successfully identified but not allowed to log in.
+  Normal    //!< Normal status
+};
+
+/*! \brief Enumeration for an email token stored for the user.
+   */
+enum class EmailTokenRole {
+  VerifyEmail, //!< Token is used to verify his email address
+  LostPassword //!< Token is used to allow the user to enter a new password
+};
 
 class AbstractUserDatabase;
 
@@ -39,21 +55,8 @@ class AbstractUserDatabase;
 class WT_API User
 {
 public:
-  /*! \brief Enumeration for a user's account status.
-   *
-   * \sa status()
-   */
-  enum Status {
-    Disabled, //!< Successfully identified but not allowed to log in.
-    Normal    //!< Normal status
-  };
-
-  /*! \brief Enumeration for an email token stored for the user.
-   */
-  enum EmailTokenRole {
-    VerifyEmail, //!< Token is used to verify his email address
-    LostPassword //!< Token is used to allow the user to enter a new password
-  };
+  /*! \brief Typedef for enum Wt::Auth::AccountStatus */
+  typedef AccountStatus Status;
 
   /*! \brief Default constructor.
    *
@@ -94,7 +97,7 @@ public:
    * A invalid user is a sentinel value returned by methods that query
    * the database but could not identify a matching user.
    */
-  bool isValid() const { return db_ != 0; }
+  bool isValid() const { return db_ != nullptr; }
 
   /*! \brief Returns the user id.
    *
@@ -176,13 +179,13 @@ public:
    *
    * \sa AbstractUserDatabase::status()
    */
-  Status status() const;
+  AccountStatus status() const;
 
   /*! \brief Sets the account status.
    *
    * \sa AbstractUserDatabase::setStatus()
    */
-  void setStatus(Status status);
+  void setStatus(AccountStatus status);
 
   /*! \brief Returns the email token.
    *

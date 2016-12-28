@@ -4,19 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WItemDelegate"
+#include "Wt/WItemDelegate.h"
 
-#include "Wt/WAbstractItemModel"
-#include "Wt/WAnchor"
-#include "Wt/WApplication"
-#include "Wt/WCheckBox"
-#include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
-#include "Wt/WImage"
-#include "Wt/WModelIndex"
-#include "Wt/WHBoxLayout"
-#include "Wt/WText"
-#include "Wt/WTheme"
+#include "Wt/WAbstractItemModel.h"
+#include "Wt/WAnchor.h"
+#include "Wt/WApplication.h"
+#include "Wt/WCheckBox.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WImage.h"
+#include "Wt/WModelIndex.h"
+#include "Wt/WHBoxLayout.h"
+#include "Wt/WText.h"
+#include "Wt/WTheme.h"
 
 namespace Wt {
 
@@ -37,8 +37,8 @@ public:
   }
 
   virtual WString toolTip() const {
-    if (index_.flags() & ItemHasDeferredTooltip)
-      return asString(index_.data(ToolTipRole));
+    if (index_.flags().test(ItemFlag::DeferredToolTip))
+      return asString(index_.data(ItemDataRole::ToolTip));
     else
       return Widget::toolTip();
   }
@@ -89,8 +89,7 @@ public:
 };
 #endif // WT_CNOR
 
-WItemDelegate::WItemDelegate(WObject *parent)
-  : WAbstractItemDelegate(parent)
+WItemDelegate::WItemDelegate()
 { }
 
 void WItemDelegate::setTextFormat(const WT_USTRING& format)
@@ -101,11 +100,11 @@ void WItemDelegate::setTextFormat(const WT_USTRING& format)
 WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 			       WFlags<ViewItemRenderFlag> flags)
 {
-  bool editing = widget && widget->find("t") == 0;
+  bool editing = widget && widget->find("t") == nullptr;
 
-  if (flags & RenderEditing) {
+  if (flags.test(ViewItemRenderFlag::Editing)) {
     if (!editing) {
-      widget = createEditor(index, flags);
+      widget = createEditor(index, flags).release();
       WInteractWidget *iw = dynamic_cast<WInteractWidget *>(widget);
       if (iw) {
 	// Disable drag & drop and selection behaviour
@@ -115,20 +114,20 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     }
   } else {
     if (editing)
-      widget = 0;
+      widget = nullptr;
   }
 
   WidgetRef widgetRef(widget);
 
   bool isNew = false;
 
-  if (!(flags & RenderEditing)) {
+  if (!(flags & ViewItemRenderFlag::Editing)) {
     if (!widgetRef.w) {
       isNew = true;
       IndexText *t = new IndexText(index);
       t->setObjectName("t");
-      if (index.isValid() && !(index.flags() & ItemIsXHTMLText))
-	t->setTextFormat(PlainText);
+      if (index.isValid() && !(index.flags() & ItemFlag::XHTMLText))
+	t->setTextFormat(TextFormat::Plain);
       t->setWordWrap(true);
       widgetRef.w = t;
     }
@@ -138,27 +137,28 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
     bool haveCheckBox = false;
 
-    boost::any checkedData = index.data(CheckStateRole);
+    cpp17::any checkedData = index.data(ItemDataRole::Checked);
     if (!checkedData.empty()) {
       haveCheckBox = true;
       CheckState state =
 	(checkedData.type() == typeid(bool) ?
-	   (boost::any_cast<bool>(checkedData) ? Checked : Unchecked)
-	   : (checkedData.type() == typeid(CheckState) ?
-	      boost::any_cast<CheckState>(checkedData) : Unchecked));
+	 (cpp17::any_cast<bool>(checkedData) ? 
+	  CheckState::Checked : CheckState::Unchecked)
+	 : (checkedData.type() == typeid(CheckState) ?
+	    cpp17::any_cast<CheckState>(checkedData) :
+	    CheckState::Unchecked));
       IndexCheckBox *icb =
-        checkBox(widgetRef, index, true, index.flags() & ItemIsTristate);
+        checkBox(widgetRef, index, true, index.flags().test(ItemFlag::Tristate));
       icb->setCheckState(state);
-      icb->setEnabled(index.flags() & ItemIsUserCheckable);
+      icb->setEnabled(index.flags().test(ItemFlag::UserCheckable));
     } else if (!isNew)
       delete checkBox(widgetRef, index, false);
 
-    boost::any linkData = index.data(LinkRole);
+    cpp17::any linkData = index.data(ItemDataRole::Link);
     if (!linkData.empty()) {
-      WLink link = boost::any_cast<WLink>(linkData);
+      WLink link = cpp17::any_cast<WLink>(linkData);
       IndexAnchor *a = anchorWidget(widgetRef, index);
       a->setLink(link);
-	  a->setTarget(link.target());
     }
 
     IndexText *t = textWidget(widgetRef, index);
@@ -168,36 +168,38 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
       label = WString::fromUTF8(" ");
     t->setText(label);
 
-    std::string iconUrl = asString(index.data(DecorationRole)).toUTF8();
+    std::string iconUrl = asString(index.data(ItemDataRole::Decoration)).toUTF8();
     if (!iconUrl.empty()) {
       iconWidget(widgetRef, index, true)->setImageLink(WLink(iconUrl));
     } else if (!isNew)
       delete iconWidget(widgetRef, index, false);
   }
 
-  if (index.flags() & ItemHasDeferredTooltip){
-    widgetRef.w->setDeferredToolTip(true, (index.flags() & ItemIsXHTMLText) ?
-				    XHTMLText : PlainText);
+  if (index.flags().test(ItemFlag::DeferredToolTip)) {
+    widgetRef.w->setDeferredToolTip(true,
+				    index.flags().test(ItemFlag::XHTMLText) ?
+				    TextFormat::XHTML : 
+				    TextFormat::Plain);
   } else {
-  WString tooltip = asString(index.data(ToolTipRole));
-  if (!tooltip.empty() || !isNew)
-    widgetRef.w->setToolTip(tooltip,
-			    (index.flags() & ItemIsXHTMLText) ? 
-			    XHTMLText : PlainText);
+    WString tooltip = asString(index.data(ItemDataRole::ToolTip));
+    if (!tooltip.empty() || !isNew)
+      widgetRef.w->setToolTip(tooltip,
+			      index.flags().test(ItemFlag::XHTMLText) ? 
+			      TextFormat::XHTML : TextFormat::Plain);
   }
 
-  WT_USTRING sc = asString(index.data(StyleClassRole));
+  WT_USTRING sc = asString(index.data(ItemDataRole::StyleClass));
 
-  if (flags & RenderSelected)
+  if (flags.test(ViewItemRenderFlag::Selected))
     sc += WT_USTRING::fromUTF8
       (" " + WApplication::instance()->theme()->activeClass());
 
-  if (flags & RenderEditing)
+  if (flags.test(ViewItemRenderFlag::Editing))
     sc += WT_USTRING::fromUTF8(" Wt-delegate-edit");
 
   widgetRef.w->setStyleClass(sc);
 
-  if (index.flags() & ItemIsDropEnabled)
+  if (index.flags().test(ItemFlag::DropEnabled))
     widgetRef.w->setAttributeValue("drop", WString::fromUTF8("true"));
   else
     if (!widgetRef.w->attributeValue("drop").empty())
@@ -224,8 +226,8 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
 
   if (!checkBox) {
     if (autoCreate) {
-      IndexCheckBox * const result = checkBox = new IndexCheckBox(index);
-
+      std::unique_ptr<IndexCheckBox> newBox
+	(checkBox = new IndexCheckBox(index));
       checkBox->setObjectName("c");
       checkBox->clicked().preventPropagation();
 
@@ -238,20 +240,18 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
 	w.w->setStyleClass(WString::Empty);
 
 	/* We first remove to avoid reparenting warnings */
-        IndexContainerWidget *p =
-            dynamic_cast<IndexContainerWidget *>(w.w->parent());
-	if (p)
-	  p->removeWidget(w.w);
+	if (w.w->parent())
+	  w.w->parent()->removeWidget(w.w).release();
 
-	wc->addWidget(w.w);
+	wc->addWidget(std::unique_ptr<WWidget>(w.w));
 	w.w = wc;
       }
       
-      wc->insertWidget(0, checkBox);
+      wc->insertWidget(0, std::move(newBox));
       checkBox->changed().connect
-	(boost::bind(&WItemDelegate::onCheckedChange, this, result));
+	(this, std::bind(&WItemDelegate::onCheckedChange, this, checkBox));
     } else
-      return 0;
+      return nullptr;
   }
 
   checkBox->setTristate(triState);
@@ -280,21 +280,21 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w,
   if (!wc) {
     wc = new IndexContainerWidget(index);
     wc->setObjectName("o");
-    wc->addWidget(w.w);
+    wc->addWidget(std::unique_ptr<WWidget>(w.w));
     w.w = wc;
   }
 
   image = new WImage();
   image->setObjectName("i");
   image->setStyleClass("icon");
-  wc->insertWidget(wc->count() - 1, image);
+  wc->insertWidget(wc->count() - 1, std::unique_ptr<WWidget>(image));
 
   // IE does not want to center vertically without this:
   if (wApp->environment().agentIsIE()) {
-    WImage *inv = new WImage(wApp->onePixelGifUrl());
+    std::unique_ptr<WImage>inv(new WImage(wApp->onePixelGifUrl()));
     inv->setStyleClass("rh w0 icon");
     inv->resize(0, WLength::Auto);
-    wc->insertWidget(wc->count() -1, inv);
+    wc->insertWidget(wc->count() -1, std::move(inv));
   }
 
   return image;
@@ -302,8 +302,7 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w,
 
 IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index)
 {
-  IndexAnchor *anchor =
-      dynamic_cast<IndexAnchor *>(w.w->find("a"));
+  IndexAnchor *anchor = dynamic_cast<IndexAnchor *>(w.w->find("a"));
   if (anchor)
     return anchor;
 
@@ -311,7 +310,7 @@ IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index)
   anchor->setObjectName("a");
 
   IndexContainerWidget *wc =
-      dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
+    dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
   if (wc) {
     /*
      * Convert (2) -> (4)
@@ -322,18 +321,18 @@ IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index)
     if (cb)
       firstToMove = 1;
 
-    wc->insertWidget(firstToMove, anchor);
+    wc->insertWidget(firstToMove, std::unique_ptr<WWidget>(anchor));
 
     while (wc->count() > firstToMove + 1) { 
       WWidget *c = wc->widget(firstToMove + 1);
-      wc->removeWidget(c);
-      anchor->addWidget(c);
+      auto uc = wc->removeWidget(c);
+      anchor->addWidget(std::move(uc));
     }
   } else {
     /*
      * Convert (1) -> (3)
      */
-    anchor->addWidget(w.w);
+    anchor->addWidget(std::unique_ptr<WWidget>(w.w));
     w.w = anchor;
   }
 
@@ -344,13 +343,13 @@ void WItemDelegate::updateModelIndex(WWidget *widget, const WModelIndex& index)
 {
   WidgetRef w(widget);
 
-  if (index.flags() & ItemIsUserCheckable) {
+  if (index.flags().test(ItemFlag::UserCheckable)) {
     IndexCheckBox *cb = checkBox(w, index, false, false);
     if (cb)
       cb->setIndex(index);
   }
 
-  if (index.flags() & ItemHasDeferredTooltip) {
+  if (index.flags().test(ItemFlag::DeferredToolTip)) {
     IndexText *text = dynamic_cast<IndexText *>(widget);
     if (text)
       text->setIndex(index);
@@ -371,44 +370,37 @@ void WItemDelegate::onCheckedChange(IndexCheckBox *cb) const
     = const_cast<WAbstractItemModel *>(cb->index().model());
 
   if (cb->isTristate())
-    model->setData(cb->index(), boost::any(cb->checkState()), CheckStateRole);
+    model->setData(cb->index(), cpp17::any(cb->checkState()), 
+		   ItemDataRole::Checked);
   else
-    model->setData(cb->index(), boost::any(cb->isChecked()), CheckStateRole);
+    model->setData(cb->index(), cpp17::any(cb->isChecked()),
+		   ItemDataRole::Checked);
 }
 
-WWidget *WItemDelegate::createEditor(const WModelIndex& index,
-				     WFlags<ViewItemRenderFlag> flags) const
+std::unique_ptr<WWidget> WItemDelegate
+::createEditor(const WModelIndex& index,
+	       WFlags<ViewItemRenderFlag> flags) const
 {
-  IndexContainerWidget *const result =
-      new IndexContainerWidget(index);
+  std::unique_ptr<IndexContainerWidget> result(new IndexContainerWidget(index));
   result->setSelectable(true);
 
-  WLineEdit *lineEdit = new WLineEdit();
-  lineEdit->setText(asString(index.data(EditRole), textFormat_));
+  std::unique_ptr<WLineEdit> lineEdit(new WLineEdit());
+  lineEdit->setText(asString(index.data(ItemDataRole::Edit), textFormat_));
   lineEdit->enterPressed().connect
-    (boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
+    (this, std::bind(&WItemDelegate::doCloseEditor, this, result.get(), true));
   lineEdit->escapePressed().connect
-    (boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
+    (this, std::bind(&WItemDelegate::doCloseEditor, this, result.get(), false));
   lineEdit->escapePressed().preventPropagation();
 
-  if (flags & RenderFocused)
+  if (flags.test(ViewItemRenderFlag::Focused))
     lineEdit->setFocus(true);
 
-  // We use a layout so that the line edit fills the entire cell.
-  // Somehow, this does not work with konqueror, but it does respond
-  // properly to width, height being set to 100% !
   WApplication *app = WApplication::instance();
-  if (app->environment().agent() != WEnvironment::Konqueror) {
-    result->setLayout(new WHBoxLayout());
-    result->layout()->setContentsMargins(1, 1, 1, 1);
-    result->layout()->addWidget(lineEdit);
-  } else {
-    lineEdit->resize(WLength(100, WLength::Percentage),
-		     WLength(100, WLength::Percentage));
-    result->addWidget(lineEdit);
-  }
+  lineEdit->resize(WLength(100, LengthUnit::Percentage),
+                     WLength(100, LengthUnit::Percentage)); //for Konqueror
+  result->addWidget(std::move(lineEdit));
 
-  return result;
+  return std::move(result);
 }
 
 void WItemDelegate::doCloseEditor(WWidget *editor, bool save) const
@@ -416,29 +408,31 @@ void WItemDelegate::doCloseEditor(WWidget *editor, bool save) const
   closeEditor().emit(editor, save);
 }
 
-boost::any WItemDelegate::editState(WWidget *editor) const
+cpp17::any WItemDelegate::editState(WWidget *editor, const WModelIndex& index)
+  const
 {
   IndexContainerWidget *w =
       dynamic_cast<IndexContainerWidget *>(editor);
   WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
 
-  return boost::any(lineEdit->text());
+  return cpp17::any(lineEdit->text());
 }
 
-void WItemDelegate::setEditState(WWidget *editor, const boost::any& value) const
+void WItemDelegate::setEditState(WWidget *editor, const WModelIndex& index,
+				 const cpp17::any& value) const
 {
   IndexContainerWidget *w =
       dynamic_cast<IndexContainerWidget *>(editor);
   WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
 
-  lineEdit->setText(boost::any_cast<WT_USTRING>(value));
+  lineEdit->setText(cpp17::any_cast<WT_USTRING>(value));
 }
 
-void WItemDelegate::setModelData(const boost::any& editState,
+void WItemDelegate::setModelData(const cpp17::any& editState,
 				 WAbstractItemModel *model,
 				 const WModelIndex& index) const
 {
-  model->setData(index, editState, EditRole);
+  model->setData(index, editState, ItemDataRole::Edit);
 }
 
 }

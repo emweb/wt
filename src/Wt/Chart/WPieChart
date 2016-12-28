@@ -7,9 +7,9 @@
 #ifndef CHART_WPIE_CHART_H_
 #define CHART_WPIE_CHART_H_
 
-#include <Wt/Chart/WAbstractChart>
+#include <Wt/Chart/WAbstractChart.h>
 
-#include <Wt/WRectF>
+#include <Wt/WRectF.h>
 
 namespace Wt {
 
@@ -25,8 +25,8 @@ namespace Wt {
  *
  * \ingroup charts
  */
-enum LabelOption {
-  NoLabels       = 0x00, //!< Do not display labels (default).
+enum class LabelOption {
+  None           = 0x00, //!< Do not display labels (default).
   Inside         = 0x01, //!< Display labels inside each segment.
   Outside        = 0x02, //!< Display labels outside each segment.
   TextLabel      = 0x10, //!< Display the label text
@@ -68,12 +68,12 @@ class WT_API WPieChart : public WAbstractChart
 public:
   /*! \brief Creates a new pie chart.
    */
-  WPieChart(WContainerWidget *parent = 0);
+  WPieChart();
 
   /*! \brief Sets the model column that holds the labels.
    *
    * The labels are used only when setDisplayLabels() is called with
-   * the \link Chart::TextLabel TextLabel\endlink option.
+   * the \link Chart::LabelOption::TextLabel LabelOption::TextLabel\endlink option.
    *
    * The default value is -1 (not defined).
    *
@@ -203,14 +203,14 @@ public:
   /*! \brief Configures if and how labels should be displayed
    *
    * The <i>options</i> must be the logical OR of a placement option
-   * (\link Chart::Inside Inside\endlink or \link
-   * Chart::Outside Outside\endlink) and \link
-   * Chart::TextLabel TextLabel\endlink and/or \link
-   * Chart::TextPercentage TextPercentage\endlink. If both
-   * TextLabel and TextPercentage are specified, then these are
+   * (\link Chart::LabelOption::Inside LabelOption::Inside\endlink or \link
+   * Chart::LabelOption::Outside LabelOption::Outside\endlink) and \link
+   * Chart::LabelOption::TextLabel LabelOption::TextLabel\endlink and/or \link
+   * Chart::LabelOption::TextPercentage LabelOption::TextPercentage\endlink. If both
+   * LabelOption::TextLabel and LabelOption::TextPercentage are specified, then these are
    * combined as "<label>: <percentage>".
    *
-   * The default value is \link Chart::NoLabels NoLabels\endlink.
+   * The default value is \link Chart::LabelOption::None LabelOption::None\endlink.
    */
   void setDisplayLabels(WFlags<LabelOption> options);
 
@@ -247,18 +247,19 @@ public:
    * will contain a text (with or without the percentage) and/or a span with
    * the segment's color.
    */
-  WWidget* createLegendItemWidget(int index, WFlags<LabelOption> options);
+  std::unique_ptr<WWidget> createLegendItemWidget(int index,
+						  WFlags<LabelOption> options);
 
   /*! \brief Adds a data point area (used for displaying e.g. tooltips).
    *
    * You may want to specialize this is if you wish to modify (or delete)
    * the area.
    *
-   * \note Currently, an area is only created if the ToolTipRole data at the
+   * \note Currently, an area is only created if the ItemDataRole::ToolTip data at the
    *       data point is not empty.
    */
-  virtual void addDataPointArea(int row, int column, WAbstractArea *area)
-    const;
+  virtual void addDataPointArea(int row, int column,
+                                std::unique_ptr<WAbstractArea> area) const;
 
   /**
    * @brief createLabelWidget possition textWidget where the text would be
@@ -302,15 +303,15 @@ public:
    * };
    * \endcode
    */
-  virtual WContainerWidget *createLabelWidget(WWidget *textWidget,
+  virtual WContainerWidget *createLabelWidget(std::unique_ptr<WWidget> textWidget,
       WPainter* painter, const WRectF& rect,
       Wt::WFlags<AlignmentFlag> alignmentFlags) const;
 
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
-    const;
+    const override;
 
 protected:
-  void paintEvent(Wt::WPaintDevice *paintDevice);
+  void paintEvent(Wt::WPaintDevice *paintDevice) override;
 
   /**
    * @brief drawLabel draw a label on the chart. Will be called by paint.
@@ -345,8 +346,8 @@ private:
   std::vector<PieData> pie_;
 
 protected:
-  virtual void modelChanged();
-  virtual void modelReset();
+  virtual void modelChanged() override;
+  virtual void modelReset() override;
 
 private:
   void drawPie(WPainter& painter, double cx, double cy, double r, double h,

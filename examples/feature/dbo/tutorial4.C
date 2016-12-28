@@ -14,7 +14,7 @@
  *  Changing or disabling the "version" field
  *****/
 
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 
 class Post;
 

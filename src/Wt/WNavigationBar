@@ -9,8 +9,8 @@
 
 #include <vector>
 
-#include <Wt/WLink>
-#include <Wt/WTemplate>
+#include <Wt/WLink.h>
+#include <Wt/WTemplate.h>
 
 namespace Wt {
 
@@ -27,7 +27,7 @@ class WT_API WNavigationBar : public WTemplate
 public:
   /*! \brief Constructor.
    */
-  WNavigationBar(WContainerWidget *parent = 0);
+  WNavigationBar();
 
   /*! \brief Sets a title.
    *
@@ -52,14 +52,16 @@ public:
    * The menu may be aligned to the left or to the right of the
    * navigation bar.
    */
-  void addMenu(WMenu *menu, AlignmentFlag alignment = AlignLeft);
+  WMenu *addMenu(std::unique_ptr<WMenu> menu,
+               AlignmentFlag alignment = AlignmentFlag::Left);
 
   /*! \brief Adds a form field to the navigation bar.
    *
    * In some cases, one may want to add a few form fields to the navigation
    * bar (e.g. for a compact login option).
    */
-  void addFormField(WWidget *widget, AlignmentFlag alignment = AlignLeft);
+  void addFormField(std::unique_ptr<WWidget> widget,
+		    AlignmentFlag alignment = AlignmentFlag::Left);
 
   /*! \brief Adds a search widget to the navigation bar.
    *
@@ -67,27 +69,29 @@ public:
    * form field may be styled differently to indicate a search
    * function.
    */
-  void addSearch(WLineEdit *field, AlignmentFlag alignment = AlignLeft);
+  void addSearch(std::unique_ptr<WLineEdit> field,
+		 AlignmentFlag alignment = AlignmentFlag::Left);
 
   /*! \brief Adds a widget to the navigation bar.
    *
    * Any other widget may be added to the navigation bar, although they may
    * require special CSS style to blend well with the navigation bar style.
    */
-  void addWidget(WWidget *widget, AlignmentFlag alignment = AlignLeft);
+  void addWidget(std::unique_ptr<WWidget> widget,
+		 AlignmentFlag alignment = AlignmentFlag::Left);
 
 protected:
-  WInteractWidget *createCollapseButton();
-  WInteractWidget *createExpandButton();
+  std::unique_ptr<WInteractWidget> createCollapseButton();
+  std::unique_ptr<WInteractWidget> createExpandButton();
 
 private:
   void expandContents();
   void collapseContents();
   void undoExpandContents();
 
-  void addWrapped(WWidget *widget, AlignmentFlag alignment,
+  void addWrapped(std::unique_ptr<WWidget> widget, AlignmentFlag alignment,
 		  const char *wrapClass);
-  void addWrapped(WWidget *widget, WWidget* parent, int role,
+  void addWrapped(std::unique_ptr<WWidget> widget, WWidget* parent, int role,
                   AlignmentFlag alignment);
   void align(WWidget *widget, AlignmentFlag alignment);
 

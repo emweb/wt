@@ -9,15 +9,13 @@
 
 #include <ostream>
 #include <sstream>
+#include <type_traits>
 
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/weak_ptr>
-#include <Wt/Dbo/collection>
-#include <Wt/Dbo/Field>
-#include <Wt/Dbo/Session>
-
-#include <boost/type_traits/is_enum.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/weak_ptr.h>
+#include <Wt/Dbo/collection.h>
+#include <Wt/Dbo/Field.h>
+#include <Wt/Dbo/Session.h>
 
 namespace Wt {
   namespace Dbo {
@@ -39,7 +37,7 @@ namespace Wt {
  *  and serialized, for \ref ptr fields only the \link Wt::Dbo::ptr::id() id\endlink
  *  is output.
  *
- *  No extraneous whitespace is output.
+ *  StandardButton::No extraneous whitespace is output.
  *
  * \ingroup dbo
  */

@@ -26,16 +26,16 @@
 #ifndef WQAPPLICATION_H_
 #define WQAPPLICATION_H_
 
-#include <Wt/WApplication>
-#include <boost/thread.hpp>
+#include <Wt/WApplication.h>
+#include <thread>
+
+#include "DispatchThread.h"
 
 /*! \file WQApplication */
 
 class QString;
 
 namespace Wt {
-
-class DispatchThread;
 
 /*! \class WQApplication WQApplication WQApplication
  *  \brief An application class that provides interopability between
@@ -134,10 +134,10 @@ protected:
   virtual void waitForEvent();
 
 private:
-  bool            withEventLoop_;
-  DispatchThread *thread_;
-  bool            finalized_;
-  bool            recursiveEvent_;
+  bool withEventLoop_;
+  std::unique_ptr<DispatchThread> thread_;
+  bool finalized_;
+  bool recursiveEvent_;
 
   friend class DispatchThread;
 };

@@ -8,8 +8,8 @@
 #define WVIRTUALIMAGE_H_
 
 #include <limits>
-#include <Wt/WCompositeWidget>
-#include <Wt/WJavaScriptSlot>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WJavaScriptSlot.h>
 
 namespace Wt {
 
@@ -66,7 +66,7 @@ public:
    */
   WVirtualImage(int viewPortWidth, int viewPortHeight,
 		::int64_t imageWidth, ::int64_t imageHeight,
-		int gridImageSize = 256, WContainerWidget *parent = 0);
+		int gridImageSize = 256);
 
   /*! \brief Destructor.
    */
@@ -187,7 +187,8 @@ protected:
    *
    * \sa render()
    */
-  virtual WImage *createImage(::int64_t x, ::int64_t y, int width, int height);
+  virtual std::unique_ptr<WImage>
+    createImage(::int64_t x, ::int64_t y, int width, int height);
 
   /*! \brief %Render a grid image for the given rectangle.
    *
@@ -203,7 +204,8 @@ protected:
    *
    * \sa createImage()
    */
-  virtual WResource *render(::int64_t x, ::int64_t y, int width, int height);
+  virtual std::unique_ptr<WResource>
+    render(::int64_t x, ::int64_t y, int width, int height);
 
   using WCompositeWidget::render;
 
@@ -220,7 +222,7 @@ private:
       : x1(x1_), y1(y1_), x2(x2_), y2(y2_) { }
   };
 
-  typedef std::map< ::int64_t, WImage * > GridMap;
+  typedef std::map<::int64_t, WImage *> GridMap;
   GridMap grid_;
 
   int gridImageSize_;

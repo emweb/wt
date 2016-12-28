@@ -7,9 +7,9 @@
 #ifndef WBRUSH_H_
 #define WBRUSH_H_
 
-#include <Wt/WColor>
-#include <Wt/WGradient>
-#include <Wt/WJavaScriptExposableObject>
+#include <Wt/WColor.h>
+#include <Wt/WGradient.h>
+#include <Wt/WJavaScriptExposableObject.h>
 
 namespace Wt {
 
@@ -43,9 +43,12 @@ namespace Wt {
 class WT_API WBrush : public WJavaScriptExposableObject
 {
 public:
+  /*! \brief Typedef for enum Wt::BrushStyle */
+  typedef BrushStyle Style;
+
   /*! \brief Creates a brush.
    *
-   * Creates a brush with a \link Wt::NoBrush NoBrush\endlink fill style.
+   * Creates a brush with a \link Wt::BrushStyle::None BrushStyle::None\endlink fill style.
    */
   WBrush();
 
@@ -63,7 +66,7 @@ public:
    *
    * Creates a solid brush with the indicated \p color.
    */
-  WBrush(GlobalColor color);
+  WBrush(StandardColor color);
 
   /*! \brief Creates a gradient brush.
    */
@@ -108,7 +111,7 @@ public:
   /*! \brief Sets the brush color.
    *
    * If the current style is a gradient style, then it is reset to
-   * \link Wt::SolidPattern SolidPattern\endlink.
+   * \link Wt::BrushStyle::Solid BrushStyle::Solid\endlink.
    *
    * \throws WException if the brush \link isJavaScriptBound() is JavaScript bound\endlink
    *
@@ -125,7 +128,7 @@ public:
   /*! \brief Sets the brush gradient.
    *
    * This also sets the style to
-   * \link Wt::GradientPattern GradientPattern\endlink.
+   * \link Wt::BrushStyle::Gradient BrushStyle::Gradient\endlink.
    *
    * \throws WException if the brush \link isJavaScriptBound() is JavaScript bound\endlink
    */
@@ -135,14 +138,13 @@ public:
    */
   const WGradient& gradient() const { return gradient_; }
 
-  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
+  virtual std::string jsValue() const override;
 
 protected:
-  void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;
+  virtual void assignFromJSON(const Json::Value &value) override;
 
 private:
   BrushStyle style_;
-
   WColor color_;
   WGradient gradient_;
 };

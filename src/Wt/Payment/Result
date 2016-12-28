@@ -5,7 +5,7 @@
 #ifndef WT_PAYMENT_RESULT_H
 #define WT_PAYMENT_RESULT_H
 
-#include <Wt/WString>
+#include <Wt/WString.h>
 #include <map>
 
 namespace Wt {
@@ -76,6 +76,14 @@ private:
 
 };
 
+/*! \brief Enumeration for a payment approval outcome.
+ */
+enum class ApprovalOutcome {
+  Denied = 0,      //!< The user denied the payment.
+  Interrupted = 1, //!< The payment process was interrupted.
+  Accepted = 2     //!< The user accepted the payment.
+};
+
 /*! \class Approval Wt/Payment/Result Wt/Payment/Result
  *  \brief A class that represents the result of a payment.
  *
@@ -84,17 +92,12 @@ private:
 class Approval : public Result
 {
 public:
-  /*! \brief Enumeration for a payment approval outcome.
-   */
-  enum Outcome {
-    Denied = 0,      //!< The user denied the payment.
-    Interrupted = 1, //!< The payment process was interrupted.
-    Accepted = 2     //!< The user accepted the payment.
-  };
+  /*! \brief Typedef for enum Wt::Payment::ApprovalOutcome */
+  typedef ApprovalOutcome Outcome;
 
   /*! \brief Constructor.
    */
-  Approval(Outcome outcome);
+  Approval(ApprovalOutcome outcome);
 
   /*! \brief Constructor for an interrupted payment.
    */
@@ -102,10 +105,10 @@ public:
 
   /*! \brief Returns the outcome.
    */
-  Outcome outcome() const { return outcome_; }
+  ApprovalOutcome outcome() const { return outcome_; }
 
 private:
-  Outcome outcome_;
+  ApprovalOutcome outcome_;
 };
 
   }

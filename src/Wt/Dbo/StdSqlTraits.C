@@ -4,10 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/StdSqlTraits"
-#include "Wt/Dbo/SqlStatement"
+#include "Wt/Dbo/StdSqlTraits.h"
+#include "Wt/Dbo/SqlStatement.h"
 
-#include <boost/lexical_cast.hpp>
 #include <string>
 
 #ifndef DOXYGEN_ONLY
@@ -216,65 +215,62 @@ bool sql_value_traits<double>::read(double& v, SqlStatement *statement,
 }
 
   /*
-   * boost::posix_time::ptime
+   * std::chrono::system_clock::time_point
    */
 
-const char *sql_value_traits<boost::posix_time::ptime>
+const char *sql_value_traits<std::chrono::system_clock::time_point>
 ::type(SqlConnection *conn, int size)
 {
-  return conn->dateTimeType(SqlDateTime);
+  return conn->dateTimeType(SqlDateTimeType::DateTime);
 }
 
-void sql_value_traits<boost::posix_time::ptime>
-::bind(const boost::posix_time::ptime& v, SqlStatement *statement,
+void sql_value_traits<std::chrono::system_clock::time_point>
+::bind(const std::chrono::system_clock::time_point& v, SqlStatement *statement,
        int column, int size)
 {
-  if (v.is_special())
-    statement->bindNull(column);
-  else
-    statement->bind(column, v, SqlDateTime);
+    statement->bind(column, v, SqlDateTimeType::DateTime);
 }
 
-bool sql_value_traits<boost::posix_time::ptime>
-::read(boost::posix_time::ptime& v, SqlStatement *statement, int column,
+bool sql_value_traits<std::chrono::system_clock::time_point>
+::read(std::chrono::system_clock::time_point& v, SqlStatement *statement, int column,
        int size)
 {
-  if (statement->getResult(column, &v, SqlDateTime))
+  if (statement->getResult(column, &v, SqlDateTimeType::DateTime))
     return true;
   else {
-    v = boost::posix_time::ptime();
+    v = std::chrono::system_clock::time_point();
     return false;
   }
 }
 
   /*
-   * boost::posix_time::time_duration
+   * std::chrono::duration<int, std::milli>
    */
 
-const char *sql_value_traits<boost::posix_time::time_duration>
+const char *sql_value_traits<std::chrono::duration<int, std::milli>>
 ::type(SqlConnection *conn, int size)
 {
-  return conn->dateTimeType(SqlTime);
+  return conn->dateTimeType(SqlDateTimeType::Time);
 }
 
-void sql_value_traits<boost::posix_time::time_duration>
-::bind(const boost::posix_time::time_duration& v, SqlStatement *statement,
+void sql_value_traits<std::chrono::duration<int, std::milli>>
+::bind(const std::chrono::duration<int, std::milli>& v, SqlStatement *statement,
        int column, int size)
 {
-  if (v.is_special())
+  if(v == std::chrono::duration<int, std::milli>::zero())
     statement->bindNull(column);
   else
     statement->bind(column, v);
 }
 
-bool sql_value_traits<boost::posix_time::time_duration>
-::read(boost::posix_time::time_duration& v, SqlStatement *statement,
+bool sql_value_traits<std::chrono::duration<int, std::milli>>
+::read(std::chrono::duration<int, std::milli>& v, SqlStatement *statement,
        int column, int size)
 {
   if (statement->getResult(column, &v))
     return true;
   else {
-    v = boost::posix_time::time_duration(boost::posix_time::not_a_date_time);
+    v = std::chrono::duration<int, std::milli>::zero();
     return false;
   }
 }

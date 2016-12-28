@@ -1272,7 +1272,7 @@ this.IEwidth = function(c, min, max) {
 this.hide = function(o) { WT.getElement(o).style.display = 'none'; };
 this.inline = function(o) { WT.getElement(o).style.display = 'inline'; };
 this.block = function(o) { WT.getElement(o).style.display = 'block'; };
-this.show = function(o) { WT.getElement(o).style.display = ''; };
+this.show = function(o, s) { WT.getElement(o).style.display = s; };
 
 var captureElement = null;
 this.firedTarget = null;

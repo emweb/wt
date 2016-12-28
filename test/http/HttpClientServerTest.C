@@ -8,16 +8,19 @@
 #ifdef WT_THREADED
 
 #include <boost/test/unit_test.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
 
-#include <Wt/WResource>
-#include <Wt/WServer>
-#include <Wt/WIOService>
-#include <Wt/Http/Client>
-#include <Wt/Http/Response>
-#include <Wt/Http/ResponseContinuation>
-#include <Wt/Http/Request>
+#include <Wt/WResource.h>
+#include <Wt/WServer.h>
+#include <Wt/WIOService.h>
+#include <Wt/Http/Client.h>
+#include <Wt/Http/Response.h>
+#include <Wt/Http/ResponseContinuation.h>
+#include <Wt/Http/Request.h>
+
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 using namespace Wt;
 
@@ -120,7 +123,7 @@ namespace {
 
     std::string address() 
     {
-      return "127.0.0.1:" + boost::lexical_cast<std::string>(httpPort());
+      return "127.0.0.1:" + std::to_string(httpPort());
     }
 
     TestResource& resource() { return resource_; }
@@ -148,7 +151,7 @@ namespace {
 
     void waitDone()
     {
-      boost::mutex::scoped_lock guard(doneMutex_);
+      std::unique_lock<std::mutex> guard(doneMutex_);
 
       while (!done_)
 	doneCondition_.wait(guard);
@@ -166,7 +169,7 @@ namespace {
 
     void onDone(boost::system::error_code err, const Http::Message& m)
     {
-      boost::mutex::scoped_lock guard(doneMutex_);
+      std::unique_lock<std::mutex> guard(doneMutex_);
 
       err_ = err;
       message_ = m;
@@ -191,8 +194,8 @@ namespace {
   private:
     bool done_;
     bool abortAfterHeaders_;
-    boost::condition doneCondition_;
-    boost::mutex doneMutex_;
+    std::condition_variable doneCondition_;
+    std::mutex doneMutex_;
 
     boost::system::error_code err_;
     Http::Message message_;
@@ -250,7 +253,7 @@ BOOST_AUTO_TEST_CASE( http_client_server_test3 )
   }
 
   server.resource().haveMoreData();
-  boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+  std::this_thread::sleep_for(std::chrono::milliseconds{50});
   BOOST_REQUIRE(server.resource().abortedCount() == 1);
 }
 

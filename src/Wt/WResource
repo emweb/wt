@@ -7,19 +7,15 @@
 #ifndef WRESOURCE_H_
 #define WRESOURCE_H_
 
-#include <Wt/WObject>
-#include <Wt/WGlobal>
-#include <Wt/WSignal>
-#include <Wt/WString>
+#include <Wt/WObject.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WSignal.h>
+#include <Wt/WString.h>
 
 #include <iostream>
-
+#include <condition_variable>
 #ifdef WT_THREADED
-#include <boost/thread/condition.hpp>
-
-namespace boost {
-  class recursive_mutex;
-}
+#include <mutex>
 #endif // WT_THREADED
 
 namespace Wt {
@@ -33,8 +29,16 @@ namespace Wt {
     class Response;
     class ResponseContinuation;
 
-    typedef boost::shared_ptr<ResponseContinuation> ResponseContinuationPtr;
+    typedef std::shared_ptr<ResponseContinuation> ResponseContinuationPtr;
   }
+
+/*! \brief Values for the disposition type in the Content-Disposition header
+ */
+enum class ContentDisposition {
+  None,       //!< Do not specify a disposition type
+  Attachment, //!< Open with a helper application or show 'Save As' dialog
+  Inline      //!< View with a browser plugin
+};
 
 /*! \class WResource Wt/WResource Wt/WResource
  *  \brief An object which can be rendered in the HTTP protocol.
@@ -64,8 +68,7 @@ namespace Wt {
  * class MyResource : public Wt::WResource
  * {
  * public:
- *   MyResource(Wt::WObject *parent = 0)
- *     : Wt::WResource(parent)
+ *   MyResource()
  *   {
  *     suggestFileName("data.txt");
  *   }
@@ -113,9 +116,8 @@ namespace Wt {
 class MyResource : public Wt::WResource
 {
 public:
-  MyResource(int iterations, Wt::WObject *parent = 0)
-    : Wt::WResource(parent),
-      iterations_(iterations)
+  MyResource(int iterations)
+    : iterations_(iterations)
   {
     suggestFileName("data.txt");
   }
@@ -174,17 +176,9 @@ private:
 class WT_API WResource : public WObject
 {
 public:
-  /*! \brief Values for the disposition type in the Content-Disposition header
-   */
-  enum DispositionType {
-    NoDisposition, //!< Do not specify a disposition type
-    Attachment,    //!< Open with a helper application or show 'Save As' dialog
-    Inline         //!< View with a browser plugin
-  };
-
   /*! \brief Creates a new resource.
    */
-  WResource(WObject* parent = 0);
+  WResource();
 
   /*! \brief Destroys the resource.
    *
@@ -209,7 +203,8 @@ public:
    * \sa setDispositionType().
    */
   void suggestFileName(const Wt::WString &name,
-                       DispositionType dispositionType = Attachment);
+                       ContentDisposition disposition
+		         = ContentDisposition::Attachment);
 
   /*! \brief Returns the suggested file name.
    *
@@ -229,13 +224,13 @@ public:
    *
    * \sa suggestFilename().
    */
-  void setDispositionType(DispositionType cd);
+  void setDispositionType(ContentDisposition cd);
 
   /*! \brief Returns the currently configured content disposition
    *
    * \sa setDispositionType()
    */
-  DispositionType dispositionType() const { return dispositionType_; }
+  ContentDisposition dispositionType() const { return dispositionType_; }
 
   /*! \brief Generates a new URL for this resource and emits the changed signal
    *
@@ -326,7 +321,7 @@ public:
    *
    * \sa setUploadProgress()
    */
-  Signal< ::uint64_t, ::uint64_t >& dataReceived() { return dataReceived_; }
+  Signal<::uint64_t, ::uint64_t>& dataReceived() { return dataReceived_; }
 
   /*! \brief Stream the resource to a stream.
    *
@@ -412,14 +407,14 @@ private:
   };
 
 #ifdef WT_THREADED
-  boost::shared_ptr<boost::recursive_mutex> mutex_;
+  std::shared_ptr<std::recursive_mutex> mutex_;
   bool beingDeleted_;
   int useCount_;
-  boost::condition useDone_;
+  std::condition_variable_any useDone_;
 #endif
 
-  Signal<void> dataChanged_;
-  Signal< ::uint64_t, ::uint64_t > dataReceived_;
+  Signal<> dataChanged_;
+  Signal<::uint64_t, ::uint64_t> dataReceived_;
 
   bool trackUploadProgress_;
 
@@ -433,7 +428,7 @@ private:
 	        = Http::ResponseContinuationPtr());
 
   Wt::WString suggestedFileName_;
-  DispositionType dispositionType_;
+  ContentDisposition dispositionType_;
   std::string currentUrl_;
   std::string internalPath_;
 

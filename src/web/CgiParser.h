@@ -11,7 +11,6 @@
 #include <map>
 #include <iostream>
 #include <vector>
-#include <boost/cstdint.hpp>
 
 #include <Wt/WDllDefs.h>
 

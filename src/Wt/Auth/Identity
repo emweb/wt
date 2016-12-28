@@ -7,7 +7,7 @@
 #ifndef WT_AUTH_IDENTITY_H_
 #define WT_AUTH_IDENTITY_H_
 
-#include <Wt/WString>
+#include <Wt/WString.h>
 
 namespace Wt {
   namespace Auth {

@@ -5,20 +5,19 @@
  */
 #include "WebUtils.h"
 
-#include "Wt/WButtonGroup"
-#include "Wt/WRadioButton"
+#include "Wt/WButtonGroup.h"
+#include "Wt/WRadioButton.h"
 
 namespace Wt {
 
-WButtonGroup::WButtonGroup(WObject* parent)
-  : WObject(parent),
-    checkedChangedConnected_(false)
+WButtonGroup::WButtonGroup()
+  : checkedChangedConnected_(false)
 { }
 
 WButtonGroup::~WButtonGroup()
 {
   for (unsigned i = 0; i < buttons_.size(); ++i)
-    buttons_[i].button->setGroup(0);
+    buttons_[i].button->setGroup(nullptr);
 }
 
 void WButtonGroup::addButton(WRadioButton *button, int id)
@@ -28,7 +27,7 @@ void WButtonGroup::addButton(WRadioButton *button, int id)
   b.id = id != -1 ? id : generateId();
   buttons_.push_back(b);
 
-  button->setGroup(this);
+  button->setGroup(this->shared_from_this());
 
   if (checkedChangedConnected_)
     button->changed().connect(this, &WButtonGroup::onButtonChange);
@@ -39,7 +38,7 @@ void WButtonGroup::removeButton(WRadioButton *button)
   for (unsigned i = 0; i < buttons_.size(); ++i)
     if (buttons_[i].button == button) {
       buttons_.erase(buttons_.begin() + i);
-      button->setGroup(0);
+      button->setGroup(nullptr);
       return;
     }
 }
@@ -50,7 +49,7 @@ WRadioButton *WButtonGroup::button(int id) const
     if (buttons_[i].id == id)
       return buttons_[i].button;
 
-  return 0;
+  return nullptr;
 }
 
 int WButtonGroup::id(WRadioButton *button) const
@@ -99,12 +98,12 @@ WRadioButton *WButtonGroup::checkedButton() const
 {
   int idx = selectedButtonIndex();
 
-  return idx != -1 ? buttons_[idx].button : 0;
+  return idx != -1 ? buttons_[idx].button : nullptr;
 }
 
 void WButtonGroup::setSelectedButtonIndex(int idx)
 {
-  setCheckedButton(idx != -1 ? buttons_[idx].button : 0);
+  setCheckedButton(idx != -1 ? buttons_[idx].button : nullptr);
 }
 
 int WButtonGroup::selectedButtonIndex() const
@@ -115,13 +114,6 @@ int WButtonGroup::selectedButtonIndex() const
   return -1;
 }
 
-#ifndef WT_TARGET_JAVA
-WRadioButton* WButtonGroup::selectedButton() const
-{
-  return checkedButton();
-}
-#endif // WT_TARGET_JAVA
-
 void WButtonGroup::setFormData(const FormData& formData)
 {
   if (!Utils::isEmpty(formData.values)) {
@@ -129,11 +121,12 @@ void WButtonGroup::setFormData(const FormData& formData)
 
     for (unsigned i = 0; i < buttons_.size(); ++i) {
       if (value == buttons_[i].button->id()) {
-	if (buttons_[i].button->flags_.test(WAbstractToggleButton::BIT_STATE_CHANGED))
+	if (buttons_[i].button->flags_.test
+	    (WAbstractToggleButton::BIT_STATE_CHANGED))
 	  return;
 
 	uncheckOthers(buttons_[i].button);
-	buttons_[i].button->state_ = Checked;
+	buttons_[i].button->state_ = CheckState::Checked;
 
 	return;
       }
@@ -151,7 +144,7 @@ void WButtonGroup::uncheckOthers(WRadioButton *button)
 {
   for (unsigned i = 0; i < buttons_.size(); ++i)
     if (buttons_[i].button != button)
-      buttons_[i].button->state_ = Unchecked;
+      buttons_[i].button->state_ = CheckState::Unchecked;
 }
 
 int WButtonGroup::generateId() const

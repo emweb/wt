@@ -5,9 +5,9 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include "Wt/Test/WTestEnvironment"
-#include "Wt/WApplication"
-#include "Wt/WString"
+#include "Wt/Test/WTestEnvironment.h"
+#include "Wt/WApplication.h"
+#include "Wt/WString.h"
 
 #include "web/FileUtils.h"
 

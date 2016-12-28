@@ -7,19 +7,19 @@
 // bugfix for https://svn.boost.org/trac/boost/ticket/5722
 #include <boost/asio.hpp>
 
-#include "Wt/Http/Client"
-#include "Wt/WApplication"
-#include "Wt/WIOService"
-#include "Wt/WEnvironment"
-#include "Wt/WLogger"
-#include "Wt/WServer"
-#include "Wt/Utils"
+#include "Wt/Http/Client.h"
+#include "Wt/WApplication.h"
+#include "Wt/WIOService.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
+#include "Wt/WServer.h"
+#include "Wt/Utils.h"
+
+#include "WebUtils.h"
 
 #include <sstream>
-#include <boost/lexical_cast.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 #ifdef WT_WITH_SSL
 #include <boost/asio/ssl.hpp>
@@ -50,11 +50,11 @@ LOGGER("Http.Client");
 
   namespace Http {
 
-class Client::Impl : public boost::enable_shared_from_this<Client::Impl>
+class Client::Impl : public std::enable_shared_from_this<Client::Impl>
 {
 public:
   struct ChunkState {
-    enum State { Size, Data, Complete, Error } state;
+    enum class State { Size, Data, Complete, Error } state;
     std::size_t size;
     int parsePos;
   };
@@ -89,7 +89,7 @@ public:
     std::ostream request_stream(&requestBuf_);
     request_stream << method << " " << path << " HTTP/1.1\r\n";
     request_stream << "Host: " << server << ":" 
-		   << boost::lexical_cast<std::string>(port) << "\r\n";
+		   << std::to_string(port) << "\r\n";
 
     if (!auth.empty())
       request_stream << "Authorization: Basic " 
@@ -113,34 +113,34 @@ public:
     if (method == "POST" || method == "PUT" || method == "DELETE")
       request_stream << message.body();
 
-    tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
+    tcp::resolver::query query(server, std::to_string(port));
 
     startTimer();
     resolver_.async_resolve
       (query,
-       strand_.wrap(boost::bind(&Impl::handleResolve,
-				shared_from_this(),
-				boost::asio::placeholders::error,
-				boost::asio::placeholders::iterator)));
+       strand_.wrap(std::bind(&Impl::handleResolve,
+			      shared_from_this(),
+			      std::placeholders::_1,
+			      std::placeholders::_2)));
   }
 
-  void asyncStop(boost::shared_ptr<Impl> *impl)
+  void asyncStop(std::shared_ptr<Impl> *impl)
   {
     ioService_.post
-      (strand_.wrap(boost::bind(&Impl::stop, shared_from_this(), impl)));
+      (strand_.wrap(std::bind(&Impl::stop, shared_from_this(), impl)));
   }
 
   Signal<boost::system::error_code, Message>& done() { return done_; }
   Signal<Message>& headersReceived() { return headersReceived_; }
   Signal<std::string>& bodyDataReceived() { return bodyDataReceived_; }
 
-  bool hasServer() { return server_ != 0; }
+  bool hasServer() { return server_ != nullptr; }
 
 protected:
-  typedef boost::function<void(const boost::system::error_code&)>
+  typedef std::function<void(const boost::system::error_code&)>
     ConnectHandler;
-  typedef boost::function<void(const boost::system::error_code&,
-			       const std::size_t&)> IOHandler;
+  typedef std::function<void(const boost::system::error_code&,
+			     const std::size_t&)> IOHandler;
 
   virtual tcp::socket& socket() = 0;
   virtual void asyncConnect(tcp::endpoint& endpoint,
@@ -152,7 +152,7 @@ protected:
   virtual void asyncRead(const IOHandler& handler) = 0;
 
 private:
-  void stop(boost::shared_ptr<Impl> *impl)
+  void stop(std::shared_ptr<Impl> *impl)
   {
     /* Within strand */
 
@@ -176,8 +176,8 @@ private:
   {
     timer_.expires_from_now(asio_timer_seconds(timeout_));
     timer_.async_wait
-      (strand_.wrap(boost::bind(&Impl::timeout, shared_from_this(),
-				boost::asio::placeholders::error)));
+      (strand_.wrap(std::bind(&Impl::timeout, shared_from_this(),
+			      std::placeholders::_1)));
   }
 
   void cancelTimer()
@@ -215,10 +215,10 @@ private:
 
       startTimer();
       asyncConnect(endpoint,
-		   strand_.wrap(boost::bind(&Impl::handleConnect,
-					    shared_from_this(),
-					    boost::asio::placeholders::error,
-					    ++endpoint_iterator)));
+		   strand_.wrap(std::bind(&Impl::handleConnect,
+					  shared_from_this(),
+					  std::placeholders::_1,
+					  ++endpoint_iterator)));
     } else {
       err_ = err;
       complete();
@@ -236,9 +236,9 @@ private:
       // The connection was successful. Do the handshake (SSL only)
       startTimer();
       asyncHandshake
-	(strand_.wrap(boost::bind(&Impl::handleHandshake,
-				  shared_from_this(),
-				  boost::asio::placeholders::error)));
+	(strand_.wrap(std::bind(&Impl::handleHandshake,
+				shared_from_this(),
+				std::placeholders::_1)));
     } else if (endpoint_iterator != tcp::resolver::iterator()) {
       // The connection failed. Try the next endpoint in the list.
       socket().close();
@@ -261,10 +261,10 @@ private:
       startTimer();
       asyncWriteRequest
 	(strand_.wrap
-	 (boost::bind(&Impl::handleWriteRequest,
+	 (std::bind(&Impl::handleWriteRequest,
 		      shared_from_this(),
-		      boost::asio::placeholders::error,
-		      boost::asio::placeholders::bytes_transferred)));
+		      std::placeholders::_1,
+		      std::placeholders::_2)));
     } else {
       err_ = err;
       complete();
@@ -284,10 +284,10 @@ private:
       asyncReadUntil
 	("\r\n",
 	 strand_.wrap
-	 (boost::bind(&Impl::handleReadStatusLine,
+	 (std::bind(&Impl::handleReadStatusLine,
 		      shared_from_this(),
-		      boost::asio::placeholders::error,
-		      boost::asio::placeholders::bytes_transferred)));
+		      std::placeholders::_1,
+		      std::placeholders::_2)));
     } else {
       err_ = err;
       complete();
@@ -342,10 +342,10 @@ private:
       asyncReadUntil
 	("\r\n\r\n",
 	 strand_.wrap
-	 (boost::bind(&Impl::handleReadHeaders,
+	 (std::bind(&Impl::handleReadHeaders,
 		      shared_from_this(),
-		      boost::asio::placeholders::error,
-		      boost::asio::placeholders::bytes_transferred)));
+		      std::placeholders::_1,
+		      std::placeholders::_2)));
     } else {
       err_ = err;
       complete();
@@ -380,7 +380,7 @@ private:
 	    chunkedResponse_ = true;
 	    chunkState_.size = 0;
 	    chunkState_.parsePos = 0;
-	    chunkState_.state = ChunkState::Size;
+	    chunkState_.state = ChunkState::State::Size;
 	  }
 	}
       }
@@ -388,8 +388,8 @@ private:
       if (headersReceived_.isConnected()) {
 	if (server_)
 	  server_->post(sessionId_,
-			boost::bind(&Impl::emitHeadersReceived,
-				    shared_from_this()));
+			std::bind(&Impl::emitHeadersReceived,
+				  shared_from_this()));
 	else
 	  emitHeadersReceived();
       }
@@ -404,10 +404,10 @@ private:
       // Start reading remaining data until EOF.
       startTimer();
       asyncRead(strand_.wrap
-		(boost::bind(&Impl::handleReadContent,
-			     shared_from_this(),
-			     boost::asio::placeholders::error,
-			     boost::asio::placeholders::bytes_transferred)));
+		(std::bind(&Impl::handleReadContent,
+			   shared_from_this(),
+			   std::placeholders::_1,
+			   std::placeholders::_2)));
     } else {
       err_ = err;
       complete();
@@ -435,10 +435,10 @@ private:
 	startTimer();
 	asyncRead
 	  (strand_.wrap
-	   (boost::bind(&Impl::handleReadContent,
-			shared_from_this(),
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred)));
+	   (std::bind(&Impl::handleReadContent,
+		      shared_from_this(),
+		      std::placeholders::_1,
+		      std::placeholders::_2)));
       }
     } else if (err != boost::asio::error::eof
 	       && err != boost::asio::error::shut_down
@@ -456,9 +456,9 @@ private:
   {
     if (chunkedResponse_) {
       chunkedDecode(text);
-      if (chunkState_.state == ChunkState::Error) {
+      if (chunkState_.state == ChunkState::State::Error) {
 	protocolError(); return;
-      } else if (chunkState_.state == ChunkState::Complete) {
+      } else if (chunkState_.state == ChunkState::State::Complete) {
 	complete(); return;
       }
     } else {
@@ -475,13 +475,13 @@ private:
     std::string::const_iterator pos = text.begin();
     while (pos != text.end()) {
       switch (chunkState_.state) {
-      case ChunkState::Size: {
+      case ChunkState::State::Size: {
 	unsigned char ch = *(pos++);
 
 	switch (chunkState_.parsePos) {
 	case -2:
 	  if (ch != '\r') {
-	    chunkState_.state = ChunkState::Error; return;
+	    chunkState_.state = ChunkState::State::Error; return;
 	  }
 
 	  chunkState_.parsePos = -1;
@@ -489,7 +489,7 @@ private:
 	  break;
 	case -1:
 	  if (ch != '\n') {
-	    chunkState_.state = ChunkState::Error; return;
+	    chunkState_.state = ChunkState::State::Error; return;
 	  }
 
 	  chunkState_.parsePos = 0;
@@ -510,7 +510,7 @@ private:
 	  } else if (ch == ';') {
 	    chunkState_.parsePos = 1;
 	  } else {
-	     chunkState_.state = ChunkState::Error; return;
+	     chunkState_.state = ChunkState::State::Error; return;
 	  }
 
 	  break;
@@ -522,19 +522,19 @@ private:
 	  break;
 	case 2:
 	  if (ch != '\n') {
-	    chunkState_.state = ChunkState::Error; return;
+	    chunkState_.state = ChunkState::State::Error; return;
 	  }
 
 	  if (chunkState_.size == 0) {
-	    chunkState_.state = ChunkState::Complete; return;
+	    chunkState_.state = ChunkState::State::Complete; return;
 	  }
 	    
-	  chunkState_.state = ChunkState::Data;
+	  chunkState_.state = ChunkState::State::Data;
 	}
 
 	break;
       }
-      case ChunkState::Data: {
+      case ChunkState::State::Data: {
 	std::size_t thisChunk
 	  = std::min(std::size_t(text.end() - pos), chunkState_.size);
 	std::string text = std::string(pos, pos + thisChunk);
@@ -548,7 +548,7 @@ private:
 
 	if (chunkState_.size == 0) {
 	  chunkState_.parsePos = -2;
-	  chunkState_.state = ChunkState::Size;
+	  chunkState_.state = ChunkState::State::Size;
 	}
 	break;
       }
@@ -567,10 +567,10 @@ private:
 
   void complete()
   {
-    stop(0);
+    stop(nullptr);
     if (server_)
       server_->post(sessionId_,
-		    boost::bind(&Impl::emitDone, shared_from_this()));
+		    std::bind(&Impl::emitDone, shared_from_this()));
     else
       emitDone();
   }
@@ -580,7 +580,7 @@ private:
     if (bodyDataReceived_.isConnected()) {
       if (server_)
 	server_->post(sessionId_,
-		      boost::bind(&Impl::emitBodyReceived, shared_from_this(),
+		      std::bind(&Impl::emitBodyReceived, shared_from_this(),
 				  text));
       else
 	emitBodyReceived(text);
@@ -740,9 +740,8 @@ private:
 };
 #endif // WT_WITH_SSL
 
-Client::Client(WObject *parent)
-  : WObject(parent),
-    ioService_(0),
+Client::Client()
+  : ioService_(0),
     timeout_(10),
     maximumResponseSize_(64*1024),
 #ifdef VERIFY_CERTIFICATE
@@ -755,9 +754,8 @@ Client::Client(WObject *parent)
     maxRedirects_(20)
 { }
 
-Client::Client(WIOService& ioService, WObject *parent)
-  : WObject(parent),
-    ioService_(&ioService),
+Client::Client(WIOService& ioService)
+  : ioService_(&ioService),
     timeout_(10),
     maximumResponseSize_(64*1024),
 #ifdef VERIFY_CERTIFICATE
@@ -782,11 +780,11 @@ void Client::setSslCertificateVerificationEnabled(bool enabled)
 
 void Client::abort()
 {
-  boost::shared_ptr<Impl> impl = impl_;
+  std::shared_ptr<Impl> impl = impl_;
   if (impl) {
     if (impl->hasServer()) {
       // handling of redirect happens in the WApplication
-      impl->asyncStop(0);
+      impl->asyncStop(nullptr);
       impl_.reset();
     } else {
       // handling of redirect happens in the strand of impl
@@ -817,29 +815,29 @@ void Client::setSslVerifyPath(const std::string& path)
 
 bool Client::get(const std::string& url)
 {
-  return request(Get, url, Message());
+  return request(Http::Method::Get, url, Message());
 }
 
 bool Client::get(const std::string& url, 
 		 const std::vector<Message::Header> headers)
 {
   Message m(headers);
-  return request(Get, url, m);
+  return request(Http::Method::Get, url, m);
 }
 
 bool Client::post(const std::string& url, const Message& message)
 {
-  return request(Post, url, message);
+  return request(Http::Method::Post, url, message);
 }
 
 bool Client::put(const std::string& url, const Message& message)
 {
-  return request(Put, url, message);
+  return request(Http::Method::Put, url, message);
 }
 
 bool Client::deleteRequest(const std::string& url, const Message& message)
 {
-  return request(Delete, url, message);
+  return request(Http::Method::Delete, url, message);
 }
 
 bool Client::request(Http::Method method, const std::string& url,
@@ -848,7 +846,7 @@ bool Client::request(Http::Method method, const std::string& url,
   std::string sessionId;
 
   WIOService *ioService = ioService_;
-  WServer *server = 0;
+  WServer *server = nullptr;
 
   WApplication *app = WApplication::instance();
 
@@ -871,7 +869,7 @@ bool Client::request(Http::Method method, const std::string& url,
       return false;
     }
 
-    server = 0;
+    server = nullptr;
   }
 
   URL parsedUrl;
@@ -915,8 +913,9 @@ bool Client::request(Http::Method method, const std::string& url,
   }
 
   if (followRedirect()) {
-    impl_->done().connect(boost::bind(&Client::handleRedirect,
-				      this, method, _1, _2, message));
+    impl_->done().connect(std::bind(&Client::handleRedirect,
+				    this, method, std::placeholders::_1,
+				    std::placeholders::_2, message));
   } else {
     impl_->done().connect(this, &Client::emitDone);
   }
@@ -932,9 +931,9 @@ bool Client::request(Http::Method method, const std::string& url,
 
   const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE" };
 
-  LOG_DEBUG(methodNames_[method] << " " << url);
+  LOG_DEBUG(methodNames_[static_cast<unsigned int>(method)] << " " << url);
 
-  impl_->request(methodNames_[method], 
+  impl_->request(methodNames_[static_cast<unsigned int>(method)], 
 		 parsedUrl.auth,
 		 parsedUrl.host, 
 		 parsedUrl.port, 
@@ -964,7 +963,9 @@ void Client::setMaxRedirects(int maxRedirects)
   maxRedirects_ = maxRedirects;
 }
 
-void Client::handleRedirect(Http::Method method, boost::system::error_code err, const Message& response, const Message& request)
+void Client::handleRedirect(Http::Method method,
+			    boost::system::error_code err,
+			    const Message& response, const Message& request)
 {
   if (!impl_) {
     emitDone(err, response);
@@ -972,7 +973,8 @@ void Client::handleRedirect(Http::Method method, boost::system::error_code err, 
   }
   impl_.reset();
   int status = response.status();
-  if (!err && (((status == 301 || status == 302 || status == 307) && method == Get) || status == 303)) {
+  if (!err && (((status == 301 || status == 302 || status == 307) &&
+		method == Http::Method::Get) || status == 303)) {
     const std::string *newUrl = response.getHeader("Location");
     ++ redirectCount_;
     if (newUrl) {
@@ -980,7 +982,8 @@ void Client::handleRedirect(Http::Method method, boost::system::error_code err, 
 	get(*newUrl, request.headers());
 	return;
       } else {
-	LOG_WARN("Redirect count of " << maxRedirects_ << " exceeded! Redirect URL: " << *newUrl);
+	LOG_WARN("Redirect count of " << maxRedirects_ 
+		 << " exceeded! Redirect URL: " << *newUrl);
       }
     }
   }
@@ -1036,8 +1039,8 @@ bool Client::parseUrl(const std::string &url, URL &parsedUrl)
   std::size_t k = parsedUrl.host.find(':');
   if (k != std::string::npos) {
     try {
-      parsedUrl.port = boost::lexical_cast<int>(parsedUrl.host.substr(k + 1));
-    } catch (boost::bad_lexical_cast& e) {
+      parsedUrl.port = Utils::stoi(parsedUrl.host.substr(k + 1));
+    } catch (std::exception& e) {
       LOG_ERROR("invalid port: " << parsedUrl.host.substr(k + 1));
       return false;
     }

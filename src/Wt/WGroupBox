@@ -7,7 +7,7 @@
 #ifndef WGROUP_BOX_H_
 #define WGROUP_BOX_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
 
@@ -20,7 +20,7 @@ namespace Wt {
  * Usage example:
  * \if cpp
  * \code
- * enum Vote { Republican = 1, Democrate = 2, NoVote = 10 };
+ * enum class Vote { Republican = 1, Democrate = 2, NoVote = 10 };
  *
  * // use a group box as widget container for 3 radio buttons, with a title
  * Wt::WGroupBox *container = new Wt::WGroupBox("USA elections vote");
@@ -87,11 +87,11 @@ class WT_API WGroupBox : public WContainerWidget
 public:
   /*! \brief Creates a groupbox with empty title.
    */
-  WGroupBox(WContainerWidget *parent = 0);
+  WGroupBox();
   
   /*! \brief Creates a groupbox with given title message.
    */
-  WGroupBox(const WString& title, WContainerWidget *parent = 0);
+  WGroupBox(const WString& title);
 
   /*! \brief Returns the title.
    */
@@ -101,14 +101,14 @@ public:
    */
   void setTitle(const WString& title);
 
-  virtual void refresh();
+  virtual void refresh() override;
 
 protected:
-  virtual DomElementType domElementType() const;
+  virtual DomElementType domElementType() const override;
 
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
-  virtual int firstChildIndex() const;
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void propagateRenderOk(bool deep) override;
+  virtual int firstChildIndex() const override;
 
 private:
   WString title_;

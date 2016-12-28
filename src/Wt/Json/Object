@@ -9,8 +9,8 @@
 
 #include <map>
 #include <set>
-#include <Wt/WException>
-#include <Wt/Json/Value>
+#include <Wt/WException.h>
+#include <Wt/Json/Value.h>
 
 namespace Wt {
   namespace Json {
@@ -71,7 +71,7 @@ public:
   /*! \brief Returns the type of a given member.
    *
    * This method returns the type of the value for members that are included,
-   * or returns \link Wt::Json::NullType Json::NullType\endlink for when no
+   * or returns \link Wt::Json::Type::Null Json::Type::Null\endlink for when no
    * value is associated with \p name.
    */
   Type type(const std::string& name) const;

@@ -7,7 +7,7 @@
 #ifndef OPTIONLIST_H_
 #define OPTIONLIST_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 using namespace Wt;
 
@@ -42,11 +42,11 @@ class OptionList : public WContainerWidget
 public:
   /*! \brief Create an OptionList.
    */
-  OptionList(WContainerWidget *parent = 0);
+  OptionList();
 
   /*! \brief Add an Option to the list.
    */
-  void add(Option *option);
+  void add(std::unique_ptr<Option> option);
 
   /*! \brief Updates the stateless implementations after an Option has been
    *         hidden or shown.

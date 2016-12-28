@@ -7,17 +7,21 @@
 #ifndef WLINK_H_
 #define WLINK_H_
 
-#ifndef WT_CNOR
-#include <boost/variant.hpp>
-#else
-#include <boost/any.hpp>
-#endif
-
-#include <Wt/WGlobal>
+#include <Wt/WGlobal.h>
 
 #include <string>
 
 namespace Wt {
+
+/*! \brief An enumeration for a link type.
+ *
+ * \sa type()
+ */
+enum class LinkType {
+  Url,          //!< A static URL.
+  Resource,     //!< A dynamic resource.
+  InternalPath  //!< An internal path.
+};
 
 /*! \brief A value class that defines a hyperlink target.
  *
@@ -30,15 +34,10 @@ namespace Wt {
 class WT_API WLink
 {
 public:
-  /*! \brief An enumeration for a link type.
-   *
-   * \sa type()
-   */
-  enum Type {
-    Url,          //!< A static URL.
-    Resource,     //!< A dynamic resource.
-    InternalPath  //!< An internal path.
-  };
+  /*! \brief Typedef for enum Wt::LinkType */
+  typedef LinkType Type;
+  /*! \brief Typedef for enum Wt::LinkTarget */
+  typedef LinkTarget Target;
 
   /*! \brief Default constructor.
    *
@@ -61,33 +60,28 @@ public:
   /*! \brief Creates a link to a (static) URL or an internal path.
    *
    * Using this constructor, you can create a link to a static URL (\p
-   * type == WLink::Url) or an internal path (\p type ==
-   * WLink::InternalPath). For an internal path, the \p value will
-   * be interpreted as a UTF8 encoded string.
+   * type == LinkType::Url) or an internal path (\p type ==
+   * LinkType::InternalPath). For an internal path, the \p value will
+   * be interpreted as a CharEncoding::UTF8 encoded string.
    *
    * \sa setUrl(), setInternalPath()
    */
-  WLink(Type type, const std::string& value);
+  WLink(LinkType type, const std::string& value);
 
   /*! \brief Creates a link to a resource.
    *
-   * \if cpp
-   * Ownership of the \p resource is not transferred to the link (or to
-   * the widget that deals with it), to allow resources to be shared.
-   * \endif
-   *
    * \sa setResource()
    */
-  WLink(WResource *resource);
+  WLink(const std::shared_ptr<WResource>& resource);
 
   /*! \brief Returns the link type.
    *
    * The type is implicitly set depending on the constructor or after
    * calling setUrl(), setResource() or setInternalPath().
    *
-   * The default type for a null link is WLink::Url.
+   * The default type for a null link is LinkType::Url.
    */
-  Type type() const { return type_; }
+  LinkType type() const { return type_; }
 
   /*! \brief Returns whether the link is unspecified.
    *
@@ -100,7 +94,7 @@ public:
 
   /*! \brief Sets the link URL.
    *
-   * This sets the type to WLink::Url.
+   * This sets the type to LinkType::Url.
    */
   void setUrl(const std::string& url);
 
@@ -114,14 +108,9 @@ public:
 
   /*! \brief Sets the link resource.
    *
-   * This sets the type to WLink::Resource.
-   *
-   * \if cpp
-   * Ownership of the \p resource is not transferred to the link (or to
-   * the widget that deals with it), to allow resources to be shared.
-   * \endif
+   * This sets the type to LinkType::Resource.
    */
-  void setResource(WResource *resource);
+  void setResource(const std::shared_ptr<WResource>& resource);
 
   /*! \brief Returns the link resource.
    *
@@ -129,7 +118,7 @@ public:
    *
    * \sa setResource()
    */
-  WResource *resource() const;
+  std::shared_ptr<WResource> resource() const;
 
   /*! \brief Sets the link internal path.
    *
@@ -150,25 +139,25 @@ public:
    *         displayed.
    *
    * By default, the linked content is displayed in the application
-   * (Wt::TargetSelf). When the destination is an HTML document, the
+   * (Wt::LinkTarget::Self). When the destination is an HTML document, the
    * application is replaced with the new document. When the link is
    * to a document that cannot be displayed in the browser, it is
    * offered for download or opened using an external program,
    * depending on browser settings.
    *
-   * By setting \p target to Wt::TargetNewWindow, the destination
+   * By setting \p target to Wt::LinkTarget::NewWindow, the destination
    * is displayed in a new browser window or tab.
    *
    * \sa target()
    */
-  void setTarget(AnchorTarget target);
+  void setTarget(LinkTarget target);
 
   /*! \brief Returns the location where the linked content should be
    *         displayed.
    *
    * \sa setTarget()
    */
-  AnchorTarget target() const { return target_; }
+  LinkTarget target() const { return target_; }
 
   /*! \brief Comparison operator.
    */
@@ -181,14 +170,11 @@ public:
   std::string resolveUrl(WApplication *app) const;
 
 private:
-  Type type_;
-#ifndef WT_CNOR
-  boost::variant<std::string, WResource *> value_;
-#else
-  boost::any value_;
-#endif
+  LinkType type_;
+  std::string stringValue_;
+  std::shared_ptr<WResource> resource_;
 
-  AnchorTarget  target_;
+  LinkTarget  target_;
 
   JSlot *manageInternalPathChange(WApplication *app, WInteractWidget *widget,
 				  JSlot *slot) const;

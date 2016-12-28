@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include <Wt/WDateTime>
-#include <Wt/WSslCertificate>
+#include <Wt/WDateTime.h>
+#include <Wt/WSslCertificate.h>
 
 #ifdef WT_WITH_SSL
 #include <openssl/ssl.h>

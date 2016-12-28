@@ -7,7 +7,7 @@
 #ifndef WEVENT_H_
 #define WEVENT_H_
 
-#include <Wt/WGlobal>
+#include <Wt/WGlobal.h>
 #include <string>
 #include <vector>
 
@@ -151,6 +151,16 @@ public:
 };
 #endif // WT_TARGET_JAVA
 
+
+/*! \brief Enumeration for the mouse button.
+ */
+enum class MouseButton {
+  None = 0,      //!< No button
+  Left = 1,    //!< Left button
+  Middle = 2,  //!< Middle button
+  Right = 4    //!< Right button
+};
+
 /*! \class WMouseEvent Wt/WEvent Wt/WEvent
  *  \brief A class providing details for a mouse event.
  *
@@ -166,21 +176,12 @@ class WT_API WMouseEvent
 #endif // WT_TARGET_JAVA
 {
 public:
+  /*! \brief Typedef for enum Wt::MouseButton */
+  typedef MouseButton Button;
+
   /*! \brief Default constructor
    */
   WMouseEvent();
-
-  /*! \brief Enumeration for the mouse button.
-   */
-  enum Button { NoButton = 0,      //!< No button
-		LeftButton = 1,    //!< Left button
-		MiddleButton = 2,  //!< Middle button
-		RightButton = 4    //!< Right button
-  };
-
-  /*! \brief Mouse coordinates.
-   */
-  typedef Wt::Coordinates Coordinates;
 
   /*! \brief Returns the button.
    *
@@ -188,7 +189,7 @@ public:
    * mouse dragged event, then the one with the smallest numerical value
    * is returned.
    */
-  Button button() const;
+  MouseButton button() const;
 
   /*! \brief Returns keyboard modifiers.
    *
@@ -234,32 +235,6 @@ public:
    * This is only defined for a WInteractWidget::mouseWheel() event.
    */
   int wheelDelta() const { return jsEvent_.wheelDelta; }
-
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Returns whether the alt key is pressed (<b>deprecated</b>).
-   *
-   * \deprecated Use modifiers() instead.
-   */
-  bool altKey() const { return (jsEvent_.modifiers & AltModifier) != 0; }
-
-  /*! \brief Returns whether the meta key is pressed (<b>deprecated</b>).
-   *
-   * \deprecated Use modifiers() instead.
-   */
-  bool metaKey() const { return (jsEvent_.modifiers & MetaModifier) != 0; }
-
-  /*! \brief Returns whether the control key is pressed (<b>deprecated</b>).
-   *
-   * \deprecated Use modifiers() instead.
-   */
-  bool ctrlKey() const { return (jsEvent_.modifiers & ControlModifier) != 0; }
-
-  /*! \brief Returns whether the shift key is pressed (<b>deprecated</b>).
-   *
-   * \deprecated Use modifiers() instead.
-   */
-  bool shiftKey() const { return (jsEvent_.modifiers & ShiftModifier) != 0; }
-#endif // WT_DEPRECATED_3_0_0
 
 #ifdef WT_TARGET_JAVA
   virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
@@ -328,7 +303,7 @@ public:
    * '0' is returned.
    *
    * The charCode() may be different from key(). For example, a \link
-   * Wt::Key_M Key_M\endlink key may correspond to 'm' or 'M'
+   * Wt::Key::M Key::M\endlink key may correspond to 'm' or 'M'
    * character, depending on whether the shift key is pressed
    * simultaneously.
    *
@@ -349,41 +324,6 @@ public:
    * \sa charCode()
    */
   WT_USTRING text() const;
-
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Returns the raw key code (<b>deprecated</b>).
-   *
-   * \deprecated The value returned is somewhat browser-specific, and
-   * it is therefore recommended to use the key() method instead.
-   *
-   * \sa key()
-   */
-  int keyCode() const { return jsEvent_.keyCode; }
-
-  /*! \brief Returns whether the alt key is pressed (<b>deprecated</b>).
-   *
-   * \deprecated Use modifiers() instead.
-   */
-  bool altKey() const { return (jsEvent_.modifiers & AltModifier) != 0; }
-
-  /*! \brief Returns whether the meta key is pressed (<b>deprecated</b>).
-   *
-   * \deprecated Use modifiers() instead.
-   */
-  bool metaKey() const { return (jsEvent_.modifiers & MetaModifier) != 0; }
-
-  /*! \brief Returns whether the control key is pressed (<b>deprecated</b>).
-   *
-   * \deprecated Use modifiers() instead.
-   */
-  bool ctrlKey() const { return (jsEvent_.modifiers & ControlModifier) != 0; }
-
-  /*! \brief Returns whether the shift key is pressed (<b>deprecated</b>).
-   *
-   * \deprecated Use modifiers() instead.
-   */
-  bool shiftKey() const { return (jsEvent_.modifiers & ShiftModifier) != 0; }
-#endif // WT_DEPRECATED_3_0_0
 
 #ifdef WT_TARGET_JAVA
   virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
@@ -412,9 +352,9 @@ class WT_API WDropEvent
 public:
   /*! \brief The type of the original event.
    */
-  enum OriginalEventType {
-    MouseEvent, //!< The original event was a WMouseEvent
-    TouchEvent //!< The original event was a WTouchEvent
+  enum class OriginalEventType {
+    Mouse, //!< The original event was a WMouseEvent
+    Touch //!< The original event was a WTouchEvent
   };
 
   /*! \brief Constructor.
@@ -430,7 +370,6 @@ public:
 #ifndef WT_TARGET_JAVA
   WDropEvent(const WDropEvent &other);
   WDropEvent &operator=(const WDropEvent &other);
-  ~WDropEvent();
 #endif
 
   /*! \brief Returns the source of the drag&drop operation.
@@ -446,27 +385,27 @@ public:
 
   /*! \brief Returns the original mouse event.
    *
-   * If eventType() == MouseEvent, this returns the original mouse event,
+   * If eventType() == OriginalEventType::Mouse, this returns the original mouse event,
    * otherwise this returns null.
    */
-  const WMouseEvent *mouseEvent() const { return mouseEvent_; }
+  const WMouseEvent *mouseEvent() const { return mouseEvent_.get(); }
 
   /*! \brief Returns the original touch event.
    *
-   * If eventType() == TouchEvent, this returns the original touch event,
+   * If eventType() == OriginalEventType::Touch, this returns the original touch event,
    * otherwise this returns null.
    */
-  const WTouchEvent *touchEvent() const { return touchEvent_; }
+  const WTouchEvent *touchEvent() const { return touchEvent_.get(); }
 
   /*! \brief Returns the type of the original event.
    */
-  OriginalEventType originalEventType() const { return mouseEvent_ ? MouseEvent : TouchEvent; }
+  OriginalEventType originalEventType() const { return mouseEvent_ ? OriginalEventType::Mouse : OriginalEventType::Touch; }
 
 private:
   WObject            *dropSource_;
   std::string         dropMimeType_;
-  const WMouseEvent  *mouseEvent_;
-  const WTouchEvent  *touchEvent_;
+  std::unique_ptr<const WMouseEvent> mouseEvent_;
+  std::unique_ptr<const WTouchEvent> touchEvent_;
 };
 
 /*! \class WScrollEvent Wt/WEvent Wt/WEvent

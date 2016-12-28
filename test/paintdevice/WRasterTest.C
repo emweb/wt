@@ -13,11 +13,11 @@
 #include <iostream>
 #include <fstream>
 
-#include <Wt/WRasterImage>
-#include <Wt/WPainter>
-#include <Wt/WPointF>
-#include <Wt/Test/WTestEnvironment>
-#include <Wt/Render/WTextRenderer>
+#include <Wt/WRasterImage.h>
+#include <Wt/WPainter.h>
+#include <Wt/WPointF.h>
+#include <Wt/Test/WTestEnvironment.h>
+#include <Wt/Render/WTextRenderer.h>
 
 namespace {
   using namespace Wt;
@@ -40,8 +40,8 @@ namespace {
     
     virtual double margin(Side side) const {
       switch (side) {
-    case Top: return rect_.top(); break;
-      case Left: return rect_.left(); break;
+      case Side::Top: return rect_.top(); break;
+      case Side::Left: return rect_.left(); break;
       default:
       return 0;
       }

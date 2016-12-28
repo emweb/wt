@@ -4,15 +4,17 @@
  * All rights reserved.
  */
 
-#include "Wt/WServer"
-#include "Wt/WLogger"
-#include "Wt/WRegExp"
-#include "Wt/WResource"
+#include "Wt/WServer.h"
+#include "Wt/WLogger.h"
+#include "Wt/WResource.h"
 
 #include "Configuration.h"
+#include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+#ifdef WT_CONF_LOCK
+#include <boost/thread.hpp>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -20,6 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#include <regex>
 
 #include "3rdparty/rapidxml/rapidxml.hpp"
 
@@ -46,9 +49,9 @@ bool regexMatchAny(const std::string& agent,
 		   const std::vector<std::string>& regexList) {
   WT_USTRING s = WT_USTRING::fromUTF8(agent);
   for (unsigned i = 0; i < regexList.size(); ++i) {
-    WRegExp expr(WT_USTRING::fromUTF8(regexList[i]));
+    std::regex expr(regexList[i]);
 
-    if (expr.exactMatch(s))
+    if (std::regex_match(s.toUTF8(), expr))
       return true;
   }
 
@@ -127,8 +130,8 @@ void setInt(xml_node<> *element, const char *tagName, int& result)
 
   if (!v.empty()) {
     try {
-      result = boost::lexical_cast<int>(v);
-    } catch (boost::bad_lexical_cast& e) {
+      result = Utils::stoi(v);
+    } catch (std::exception& e) {
       throw WServer::Exception("<" + std::string(tagName)
 			       + ">: expecting integer value");
     }
@@ -163,9 +166,9 @@ EntryPoint::EntryPoint(EntryPointType type, ApplicationCreator appCallback,
 { }
 
 EntryPoint::EntryPoint(WResource *resource, const std::string& path)
-  : type_(StaticResource),
+  : type_(EntryPointType::StaticResource),
     resource_(resource),
-    appCallback_(0),
+    appCallback_(nullptr),
     path_(path)
 { }
 
@@ -542,7 +545,7 @@ std::string Configuration::locateConfigFile(const std::string& appRoot)
 
 void Configuration::addEntryPoint(const EntryPoint& ep)
 {
-  if (ep.type() == StaticResource)
+  if (ep.type() == EntryPointType::StaticResource)
     ep.resource()->currentUrl_ = ep.path();
 
   entryPoints_.push_back(ep);
@@ -654,7 +657,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   std::string maxRequestStr
     = singleChildElementValue(app, "max-request-size", "");
   if (!maxRequestStr.empty())
-    maxRequestSize_ = boost::lexical_cast< ::int64_t >(maxRequestStr) * 1024;
+    maxRequestSize_ = Utils::stol(maxRequestStr) * 1024;
 
   std::string debugStr = singleChildElementValue(app, "debug", "");
 
@@ -692,8 +695,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   std::string maxMemoryRequestSizeStr =
     singleChildElementValue(isapi, "max-memory-request-size", "");
   if (!maxMemoryRequestSizeStr.empty()) {
-    isapiMaxMemoryRequestSize_ = boost::lexical_cast< ::int64_t >
-      (maxMemoryRequestSizeStr) * 1024;
+    isapiMaxMemoryRequestSize_ = Utils::stol(maxMemoryRequestSizeStr) * 1024;
   }
 
   setInt(app, "session-id-length", sessionIdLength_);
@@ -766,8 +768,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     = singleChildElementValue(app, "plain-ajax-sessions-ratio-limit", "");
 
   if (!plainAjaxSessionsRatioLimit.empty())
-    maxPlainSessionsRatio_
-      = boost::lexical_cast<float>(plainAjaxSessionsRatioLimit);
+    maxPlainSessionsRatio_ = Utils::stof(plainAjaxSessionsRatioLimit);
 
   setBoolean(app, "ajax-puzzle", ajaxPuzzle_);
   setInt(app, "indicator-timeout", indicatorTimeout_);
@@ -855,12 +856,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
       MetaHeaderType type;
       if (!name.empty())
-	type = MetaName;
+	type = MetaHeaderType::Meta;
       else if (!httpEquiv.empty()) {
-	type = MetaHttpHeader;
+	type = MetaHeaderType::HttpHeader;
 	name = httpEquiv;
       } else if (!property.empty()) {
-	type = MetaProperty;
+	type = MetaHeaderType::Property;
 	name = property;
       } else {
 	throw WServer::Exception
@@ -878,7 +879,7 @@ void Configuration::rereadConfiguration()
 
   try {
     LOG_INFO("Rereading configuration...");
-    Configuration conf(applicationPath_, appRoot_, configurationFile_, 0);
+    Configuration conf(applicationPath_, appRoot_, configurationFile_, nullptr);
     reset();
     readConfiguration(true);
     LOG_INFO("New configuration read.");
@@ -903,7 +904,7 @@ void Configuration::readConfiguration(bool silent)
   int length = s.tellg();
   s.seekg(0, std::ios::beg);
 
-  boost::scoped_array<char> text(new char[length + 1]);
+  std::unique_ptr<char[]> text(new char[length + 1]);
   s.read(text.get(), length);
   s.close();
   text[length] = 0;

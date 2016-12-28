@@ -2,7 +2,7 @@
 #ifndef WTIME_VALIDATOR_H_
 #define WTIME_VALIDATOR_H_
 
-#include "Wt/WRegExpValidator"
+#include "Wt/WRegExpValidator.h"
 
 namespace Wt {
 
@@ -19,11 +19,11 @@ class WT_API WTimeValidator : public WRegExpValidator
 public:
 	/*! \brief Creates a new WTimeValidator
 	 */
-    WTimeValidator(WObject *parent = 0);
+    WTimeValidator();
 
 	/*! \brief Creates a new WTimeValidator
 	 */
-    WTimeValidator(const WT_USTRING &format, WObject *parent = 0);
+    WTimeValidator(const WT_USTRING &format);
 
     /*! \brief Creates a new WTimeValidator
      *
@@ -31,7 +31,7 @@ public:
      * <i>bottom</i> to <i>top</i>, in the time formate \p format
      */
     WTimeValidator(const WT_USTRING &format, const WTime &bottom,
-                   const WTime &top, WObject *parent = 0);
+                   const WTime &top);
 
     /*! \brief Sets the validator format
 	 * \sa WTime::toString()
@@ -40,7 +40,7 @@ public:
 
     /*! \brief Returns the validator current format
 	 */
-    virtual WT_USTRING format() const { return formats_[0]; }
+    virtual WT_USTRING format() const override { return formats_[0]; }
 
     /*! \brief Sets the time formats used to parse time strings
      */
@@ -100,9 +100,9 @@ public:
      * non-mandatory field, or represents a time in the given format,
      * and within the valid range.
      */
-    virtual Result validate(const WT_USTRING &input) const;
+    virtual Result validate(const WT_USTRING &input) const override;
 
-    virtual std::string javaScriptValidate() const;
+    virtual std::string javaScriptValidate() const override;
 
 private:
 

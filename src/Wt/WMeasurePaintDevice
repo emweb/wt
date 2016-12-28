@@ -7,8 +7,8 @@
 #ifndef WMEASURE_PAINT_DEVICE_H_
 #define WMEASURE_PAINT_DEVICE_H_
 
-#include <Wt/WPaintDevice>
-#include <Wt/WRectF>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WRectF.h>
 
 namespace Wt {
 
@@ -35,31 +35,34 @@ public:
    */
   WRectF boundingRect() const { return bounds_; }
 
-  virtual WFlags<FeatureFlag> features() const;
-  virtual void setChanged(WFlags<ChangeFlag> flags);
-  virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle);
+  virtual WFlags<PaintDeviceFeatureFlag> features() const override;
+  virtual void setChanged(WFlags<PainterChangeFlag> flags) override;
+  virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle)
+    override;
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,
-			 int imgWidth, int imgHeight, const WRectF& sourceRect);
-  virtual void drawLine(double x1, double y1, double x2, double y2);
-  virtual void drawPath(const WPainterPath& path);
+			 int imgWidth, int imgHeight, const WRectF& sourceRect)
+    override;
+  virtual void drawLine(double x1, double y1, double x2, double y2) override;
+  virtual void drawRect(const WRectF& rectangle) override;
+  virtual void drawPath(const WPainterPath& path) override;
   virtual void drawText(const WRectF& rect, 
 			WFlags<AlignmentFlag> alignmentFlags,
 			TextFlag textFlag,
 			const WString& text,
-			const WPointF *clipPoint);
+			const WPointF *clipPoint) override;
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
-				bool wordWrap = false);
-  virtual WFontMetrics fontMetrics();
-  virtual void init();
-  virtual void done();
-  virtual bool paintActive() const { return painter_ != 0; }
+				bool wordWrap = false) override;
+  virtual WFontMetrics fontMetrics() override;
+  virtual void init() override;
+  virtual void done() override;
+  virtual bool paintActive() const override { return painter_ != nullptr; }
 
-  virtual WLength width() const;
-  virtual WLength height() const;
+  virtual WLength width() const override;
+  virtual WLength height() const override;
 
 protected:
-  virtual WPainter *painter() const { return painter_; }
-  virtual void setPainter(WPainter *painter) { painter_ = painter; }
+  virtual WPainter *painter() const override { return painter_; }
+  virtual void setPainter(WPainter *painter) override { painter_ = painter; }
 
 private:
   WPainter *painter_;

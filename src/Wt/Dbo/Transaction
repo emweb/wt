@@ -7,6 +7,7 @@
 #ifndef WT_DBO_TRANSACTION_H_
 #define WT_DBO_TRANSACTION_H_
 
+#include <memory>
 #include <vector>
 #include <Wt/Dbo/WDboDllDefs.h>
 
@@ -82,7 +83,7 @@ public:
    *
    * If the transaction is still active, it is rolled back.
    */
-  ~Transaction() WT_CXX11ONLY(noexcept(false));
+  ~Transaction() noexcept(false);
 
   /*! \brief Returns whether the transaction is still active.
    *
@@ -135,7 +136,7 @@ private:
     int transactionCount_;
     std::vector<ptr_base *> objects_;
 
-    SqlConnection *connection_;
+    std::unique_ptr<SqlConnection> connection_;
 
     void open();
     void commit();

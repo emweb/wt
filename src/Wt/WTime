@@ -7,31 +7,11 @@
 #ifndef WTIME_H_
 #define WTIME_H_
 
-#include <Wt/WDateTime>
-#include <Wt/WString>
+#include <Wt/WDateTime.h>
+#include <Wt/WString.h>
 #include <exception>
 
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-
 namespace Wt {
-
-/*! \class InvalidTimeException Wt/WTime Wt/WTime
- *  \brief Exception thrown when calculating with an invalid time (<b>deprecated</b>).
- *
- * \sa WTime
- *
- * \deprecated This exception is never thrown.
- */
-class WT_API InvalidTimeException : public std::exception
-{
-public:
-  InvalidTimeException();
-  ~InvalidTimeException() throw();
-
-  /*! \brief Returns a message describing the error.
-   */
-  const char *what() const throw();
-};
 
 /*! \class WTime Wt/WTime Wt/WTime
  *  \brief A value class that defines a clock time.
@@ -201,7 +181,7 @@ public:
    * </table>
    *
    * Any other text is kept literally. String content between single
-   * quotes (') are not interpreted as special codes. Inside a string, a literal
+   * quotes (') are not interpreted as special codes. LabelOption::Inside a string, a literal
    * quote may be specifed using a double quote ('').
    *
    * Examples of format and result:
@@ -273,7 +253,8 @@ public:
 
   static RegExpInfo formatToRegExp(const WT_USTRING& format);
 
-  boost::posix_time::time_duration toTimeDuration() const;
+  std::chrono::duration<int, std::milli> toTimeDuration() const;
+  static WTime fromTimeDuration(const std::chrono::duration<int, std::milli>& duration);
 
 private:
   bool valid_, null_;

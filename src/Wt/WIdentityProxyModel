@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#include <Wt/WAbstractProxyModel>
+#include <Wt/WAbstractProxyModel.h>
 
 namespace Wt {
 
@@ -26,7 +26,7 @@ class WT_API WIdentityProxyModel : public WAbstractProxyModel
 public:
   /*! \brief Constructor.
    */
-  WIdentityProxyModel(WObject *parent = 0);
+  WIdentityProxyModel();
 
   virtual ~WIdentityProxyModel();
 
@@ -80,7 +80,7 @@ public:
    * All signals of the source model are forwarded to the
    * proxy model.
    */
-  void setSourceModel(WAbstractItemModel *sourceModel);
+  void setSourceModel(const std::shared_ptr<WAbstractItemModel>& sourceModel);
 
   /*! \brief Inserts one or more columns.
    *
@@ -89,7 +89,8 @@ public:
    *
    * Forwards the result indicating success from the source model.
    */
-  bool insertColumns(int column, int count, const WModelIndex &parent = WModelIndex());
+  bool insertColumns(int column, int count,
+		     const WModelIndex &parent = WModelIndex());
 
   /*! \brief Inserts one or more rows.
    *
@@ -97,7 +98,8 @@ public:
    *
    * Forwards the result indicating success from the source model.
    */
-  bool insertRows(int row, int count, const WModelIndex &parent = WModelIndex());
+  bool insertRows(int row, int count,
+		  const WModelIndex &parent = WModelIndex());
 
   /*! \brief Removes columns.
    *
@@ -105,7 +107,8 @@ public:
    *
    * Forwards the result indicating success from the source model.
    */
-  bool removeColumns(int column, int count, const WModelIndex &parent = WModelIndex());
+  bool removeColumns(int column, int count,
+		     const WModelIndex &parent = WModelIndex());
 
   /*! \brief Removes rows.
    *
@@ -113,7 +116,8 @@ public:
    *
    * Forwards the result indicating success from the source model.
    */
-  bool removeRows(int row, int count, const WModelIndex &parent = WModelIndex());
+  bool removeRows(int row, int count,
+		  const WModelIndex &parent = WModelIndex());
 
   using WAbstractProxyModel::setHeaderData;
 
@@ -123,20 +127,26 @@ public:
    *
    * Forwards the result indicating success from the source model.
    */
-  bool setHeaderData(int section, Orientation orientation, const boost::any& value, int role = EditRole);
+  bool setHeaderData(int section, Orientation orientation,
+		     const cpp17::any& value, int role = ItemDataRole::Edit);
 
 private:
   std::vector<Wt::Signals::connection> modelConnections_;
 
-  void sourceColumnsAboutToBeInserted(const WModelIndex &parent, int start, int end);
-  void sourceColumnsAboutToBeRemoved(const WModelIndex &parent, int start, int end);
+  void sourceColumnsAboutToBeInserted(const WModelIndex &parent,
+				      int start, int end);
+  void sourceColumnsAboutToBeRemoved(const WModelIndex &parent,
+				     int start, int end);
   void sourceColumnsInserted(const WModelIndex &parent, int start, int end);
   void sourceColumnsRemoved(const WModelIndex &parent, int start, int end);
-  void sourceRowsAboutToBeInserted(const WModelIndex &parent, int start, int end);
-  void sourceRowsAboutToBeRemoved(const WModelIndex &parent, int start, int end);
+  void sourceRowsAboutToBeInserted(const WModelIndex &parent,
+				   int start, int end);
+  void sourceRowsAboutToBeRemoved(const WModelIndex &parent,
+				  int start, int end);
   void sourceRowsInserted(const WModelIndex &parent, int start, int end);
   void sourceRowsRemoved(const WModelIndex &parent, int start, int end);
-  void sourceDataChanged(const WModelIndex &topLeft, const WModelIndex &bottomRight);
+  void sourceDataChanged(const WModelIndex &topLeft,
+			 const WModelIndex &bottomRight);
   void sourceHeaderDataChanged(Orientation orientation, int start, int end);
   void sourceLayoutAboutToBeChanged();
   void sourceLayoutChanged();

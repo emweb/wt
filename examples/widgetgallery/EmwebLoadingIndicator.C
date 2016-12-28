@@ -6,10 +6,10 @@
 
 #include "EmwebLoadingIndicator.h"
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WImage"
-#include "Wt/WText"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WImage.h"
+#include "Wt/WText.h"
 
 EmwebLoadingIndicator::EmwebLoadingIndicator()
 {
@@ -17,15 +17,16 @@ EmwebLoadingIndicator::EmwebLoadingIndicator()
 
   WApplication *app = WApplication::instance();
 
-  cover_ = new WContainerWidget(this);
-  center_ = new WContainerWidget(this);
+  cover_ = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  center_ = this->addWidget(cpp14::make_unique<WContainerWidget>());
 
-  WImage *img = new WImage(WLink("icons/emweb.jpg"), center_);
-  img->setMargin(7, Top | Bottom);
+  WImage *img =
+      center_->addWidget(cpp14::make_unique<WImage>(WLink("icons/emweb.jpg")));
+  img->setMargin(7, Side::Top | Side::Bottom);
 
-  text_ = new WText("Loading...", center_);
+  text_ = center_->addWidget(cpp14::make_unique<WText>("Loading..."));
   text_->setInline(false);
-  text_->setMargin(WLength::Auto, Left | Right);
+  text_->setMargin(WLength::Auto, Side::Left | Side::Right);
 
   if (app->environment().agentIsIE())
     app->styleSheet().addRule("body", "height: 100%; margin: 0;");

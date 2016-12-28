@@ -1,5 +1,3 @@
-IF(NOT WT_NO_STD_WSTRING)
-
 WT_ADD_EXAMPLE(composer.wt 
   AddresseeEdit.C
   AttachmentEdit.C
@@ -23,5 +21,3 @@ INCLUDE_DIRECTORIES(
 )
 
 ADD_DEPENDENCIES(composer.wt wt ${EXAMPLES_CONNECTOR})
-
-ENDIF(NOT WT_NO_STD_WSTRING)

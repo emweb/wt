@@ -15,7 +15,7 @@ namespace Wt {
  * This enumeration is currently limited to only a few of the most
  * used HTTP methods.
  */
-enum Method {
+enum class Method {
   Get,   //!< a HTTP GET
   Post,  //!< a HTTP POST
   Put,   //!< a HTTP PUT

@@ -4,25 +4,25 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/OAuthService"
+#include "Wt/Auth/OAuthService.h"
 
-#include "Wt/Json/Parser"
-#include "Wt/Json/Object"
+#include "Wt/Json/Parser.h"
+#include "Wt/Json/Object.h"
 
-#include "Wt/Http/Client"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
+#include "Wt/Http/Client.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
 #include "Wt/Http/HttpUtils.h"
 
-#include "Wt/Utils"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WLogger"
-#include "Wt/WRandom"
-#include "Wt/WResource"
-#include "Wt/WStringStream"
-#include "Wt/WServer"
+#include "Wt/Utils.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
+#include "Wt/WRandom.h"
+#include "Wt/WResource.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WServer.h"
 
 #include "Wt/Auth/AuthUtils.h"
 #include "Wt/PopupWindow.h"
@@ -32,7 +32,7 @@
 #include "WebRequest.h"
 
 #ifdef WT_THREADED
-#include <boost/thread.hpp>
+#include <mutex>
 #endif // WT_THREADED
 
 #include <boost/algorithm/string.hpp>
@@ -49,8 +49,7 @@ class OAuthRedirectEndpoint : public WResource
 {
 public:
   OAuthRedirectEndpoint(OAuthProcess *process)
-    : WResource(process),
-      process_(process)
+    : process_(process)
   { }
 
   void sendError(Http::Response& response)
@@ -130,7 +129,7 @@ public:
       "function load() { "
       """if (window.opener." << appJs << ") {"
       ""  "var " << appJs << "= window.opener." << appJs << ";"
-      <<  process_->redirected_.createCall() << ";"
+      <<  process_->redirected_.createCall({}) << ";"
       ""  "window.close();"
       "}\n"
       "}\n"
@@ -160,11 +159,9 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
   : service_(service),
     scope_(scope),
     authenticate_(false),
-    authorized_(this),
-    authenticated_(this),
     redirected_(this, "redirected")
 {
-  redirectEndpoint_ = new OAuthRedirectEndpoint(this);
+  redirectEndpoint_.reset(new OAuthRedirectEndpoint(this));
   WApplication *app = WApplication::instance();
 
   PopupWindow::loadJavaScript(app);
@@ -188,6 +185,9 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
   if (!app->environment().javaScript())
     app->internalPathChanged().connect(this, &OAuthProcess::handleRedirectPath);
 }
+
+OAuthProcess::~OAuthProcess()
+{ }
 
 std::string OAuthProcess::authorizeUrl() const
 {
@@ -316,20 +316,22 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
      << Wt::Utils::urlEncode(service_.generateRedirectEndpoint())
      << "&code=" << authorizationCode;
 
-  Http::Client *client = new Http::Client(this);
-  client->setTimeout(15);
-  client->done().connect(boost::bind(&OAuthProcess::handleToken, this, _1, _2));
+  httpClient_.reset(new Http::Client());
+  httpClient_->setTimeout(15);
+  httpClient_->done().connect
+    (this, std::bind(&OAuthProcess::handleToken, this,
+		     std::placeholders::_1, std::placeholders::_2));
 
   Http::Method m = service_.tokenRequestMethod();
-  if (m == Http::Get) {
+  if (m == Http::Method::Get) {
     bool hasQuery = url.find('?') != std::string::npos;
     url += (hasQuery ? '&' : '?') + ss.str();
-    client->get(url);
+    httpClient_->get(url);
   } else {
     Http::Message post;
     post.setHeader("Content-Type", "application/x-www-form-urlencoded");
     post.addBodyText(ss.str());
-    client->post(url, post);
+    httpClient_->post(url, post);
   }
 }
 
@@ -405,8 +407,8 @@ OAuthAccessToken OAuthProcess::parseUrlEncodedToken(const Http::Message& respons
       const std::string *expiresE 
 	= Http::Utils::getParamValue(params, "expires");
       if (expiresE)
-	expires = WDateTime::currentDateTime()
-	  .addSecs(boost::lexical_cast<int>(*expiresE));
+	expires = WDateTime::currentDateTime().addSecs
+	  (Wt::Utils::stoi(*expiresE));
 
       // FIXME refresh token
       
@@ -469,7 +471,7 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 struct OAuthService::Impl
 { 
   Impl()
-    : redirectResource_(0)
+    : redirectResource_(nullptr)
   {
     try {
       secret_ = configurationProperty("oauth2-secret");
@@ -479,7 +481,7 @@ struct OAuthService::Impl
   }
 
 #ifdef WT_THREADED
-  boost::mutex mutex_;
+  std::mutex mutex_;
 #endif // WT_THREADED
 
   class RedirectEndpoint : public WResource
@@ -636,7 +638,7 @@ void OAuthService::configureRedirectEndpoint() const
 {
   if (!impl_->redirectResource_) {
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock guard(impl_->mutex_);
+    std::unique_lock<std::mutex> guard(impl_->mutex_);
 #endif
     if (!impl_->redirectResource_) {
       Impl::RedirectEndpoint *r = new Impl::RedirectEndpoint(*this);
@@ -687,7 +689,7 @@ std::string OAuthService::configurationProperty(const std::string& property)
 
 Http::Method OAuthService::tokenRequestMethod() const
 {
-  return Http::Post;
+  return Http::Method::Post;
 }
 
   }

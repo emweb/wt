@@ -8,39 +8,43 @@
  *
  */
 
-#include "Wt/WCompositeWidget"
-#include "Wt/WContainerWidget"
-#include "Wt/WException"
-#include "Wt/WLogger"
+#include "Wt/WCompositeWidget.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
 
 namespace Wt {
 
 LOGGER("WCompositeWidget");
 
-WCompositeWidget::WCompositeWidget(WContainerWidget *parent)
-  : WWidget(parent),
-    impl_(0)
+WCompositeWidget::WCompositeWidget()
+{ }
+
+WCompositeWidget::WCompositeWidget(std::unique_ptr<WWidget> implementation)
 {
-  if (parent)
-    parent->addWidget(this);
+  setImplementation(std::move(implementation));
 }
 
-WCompositeWidget::WCompositeWidget(WWidget *implementation,
-				   WContainerWidget *parent)
-  : WWidget(parent),
-    impl_(0)
+std::vector<WWidget *> WCompositeWidget::children() const
 {
-  if (parent)
-    parent->addWidget(this);
+  std::vector<WWidget *> result;
+  result.push_back(impl_.get());
+  return result;
+}
 
-  setImplementation(implementation);
+std::unique_ptr<WWidget> WCompositeWidget::removeWidget(WWidget *child)
+{
+  child->setParentWidget(nullptr);
+  if(impl_)
+    impl_->removeFromParent();
+  return std::unique_ptr<WWidget>();
 }
 
 WCompositeWidget::~WCompositeWidget()
 {
-  setParentWidget(0);
-
-  delete impl_;
+  if(impl_)
+    impl_->removeFromParent();
+  removeFromParent();
 }
 
 void WCompositeWidget::setObjectName(const std::string& name)
@@ -91,7 +95,9 @@ void WCompositeWidget::setPositionScheme(PositionScheme scheme)
 
 PositionScheme WCompositeWidget::positionScheme() const
 {
-  return impl_->positionScheme();
+  if(impl_)
+    return impl_->positionScheme();
+  else return PositionScheme::Static;
 }
 
 void WCompositeWidget::setOffsets(const WLength& offset, WFlags<Side> sides)
@@ -324,9 +330,9 @@ bool WCompositeWidget::hasStyleClass(const WT_USTRING& styleClass) const
 void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
 					    const WLength& length)
 {
-  if (AlignHorizontalMask & alignment) {
+  if (AlignHorizontalMask.test(alignment)) {
     LOG_ERROR("setVerticalAlignment(): alignment "
-	      << alignment << "is not vertical");
+	      << static_cast<unsigned int>(alignment) << "is not vertical");
   }
   impl_->setVerticalAlignment(alignment, length);
 }
@@ -343,7 +349,7 @@ WLength WCompositeWidget::verticalAlignmentLength() const
 
 WWebWidget *WCompositeWidget::webWidget()
 {
-  return impl_ ? impl_->webWidget() : 0;
+  return impl_ ? impl_->webWidget() : nullptr;
 }
 
 void WCompositeWidget::setToolTip(const WString& text, TextFormat textFormat)
@@ -371,22 +377,6 @@ void WCompositeWidget::refresh()
 void WCompositeWidget::enableAjax()
 {
   impl_->enableAjax();
-}
-
-void WCompositeWidget::addChild(WWidget *child)
-{
-  if (child != impl_)
-    impl_->addChild(child);
-  else
-    impl_->setParent(this);
-}
-
-void WCompositeWidget::removeChild(WWidget *child)
-{
-  if (child != impl_)
-    impl_->removeChild(child);
-  else
-    impl_->setParent(0);
 }
 
 void WCompositeWidget::setHideWithOffsets(bool hideWithOffsets)
@@ -486,52 +476,19 @@ int WCompositeWidget::zIndex() const
   return impl_->zIndex();
 }
 
-void WCompositeWidget::setImplementation(WWidget *widget)
+void WCompositeWidget::setImplementation(std::unique_ptr<WWidget> widget)
 {
-  if (widget->parent())
-    throw WException("WCompositeWidget implementation widget "
-		     "cannot have a parent");
+  impl_ = std::move(widget);
+  impl_->setParentWidget(this);
 
-  delete impl_;
-
-  impl_ = widget;
-  if (parent()) {
-    WWebWidget *ww = impl_->webWidget();
-    if (ww)
-      ww->gotParent();
-
-    if (parent()->loaded())
-      impl_->load();
-  }
-
-  widget->setParentWidget(this);
+  WWidget *p = parent();
+  if (p && p->loaded())
+    impl_->load();
 }
 
-WWidget *WCompositeWidget::takeImplementation()
+std::unique_ptr<WWidget> WCompositeWidget::takeImplementation()
 {
-  WWidget *result = impl_;
-
-  if (result) {
-    removeChild(result);
-    impl_ = 0;
-  }
-
-  return result;
-}
-
-void WCompositeWidget::setLayout(WLayout *layout)
-{
-  impl_->setLayout(layout);
-}
-
-WLayout *WCompositeWidget::layout()
-{
-  return impl_->layout();
-}
-
-WLayoutItemImpl *WCompositeWidget::createLayoutItemImpl(WLayoutItem *item)
-{
-  return impl_->createLayoutItemImpl(item);
+  return std::move(impl_);
 }
 
 void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
@@ -539,7 +496,7 @@ void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
 {
   if (needsToBeRendered())
     render(impl_->isRendered() || !WWebWidget::canOptimizeUpdates()
-	   ? RenderUpdate : RenderFull);
+	   ? RenderFlag::Update : RenderFlag::Full);
 
   impl_->getSDomChanges(result, app);
 }

@@ -7,7 +7,7 @@
 #ifndef JWT_HOME_H_
 #define JWT_HOME_H_
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
 
 #include "Home.h"
 
@@ -16,31 +16,31 @@ using namespace Wt;
 class JWtHome : public Home 
 {
 public:
-  JWtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb);
+  JWtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb);
 
 protected:
-  virtual WWidget *examples();
-  virtual WWidget *createQuoteForm();
-  virtual WWidget *sourceViewer(const std::string& deployPath);
+  virtual std::unique_ptr<WWidget> examples();
+  virtual std::unique_ptr<WWidget> createQuoteForm();
+  virtual std::unique_ptr<WWidget> sourceViewer(const std::string& deployPath);
   virtual std::string filePrefix() const { return "jwt-"; }
 
-  WWidget *wrapView(WWidget *(JWtHome::*createFunction)());
+  std::unique_ptr<WWidget> wrapView(std::unique_ptr<WWidget> (JWtHome::*createFunction)());
 
 private:
-  WWidget *example(const char *textKey, const std::string& sourceDir);
+  std::unique_ptr<WWidget> example(const char *textKey, const std::string& sourceDir);
 
-  WWidget *helloWorldExample();
-  WWidget *chartExample();
-  WWidget *composerExample();
-  WWidget *treeviewExample();
-  WWidget *chatExample();
-  WWidget *figtreeExample();
-  WWidget *widgetGalleryExample();
+  std::unique_ptr<WWidget> helloWorldExample();
+  std::unique_ptr<WWidget> chartExample();
+  std::unique_ptr<WWidget> composerExample();
+  std::unique_ptr<WWidget> treeviewExample();
+  std::unique_ptr<WWidget> chatExample();
+  std::unique_ptr<WWidget> figtreeExample();
+  std::unique_ptr<WWidget> widgetGalleryExample();
 
   std::string jwtExamplePath_;
 };
 
-WApplication *createJWtHomeApplication(const WEnvironment& env,
-				       Wt::Dbo::SqlConnectionPool *blogDb);
+std::unique_ptr<WApplication> createJWtHomeApplication(const WEnvironment& env,
+                                       Dbo::SqlConnectionPool *blogDb);
 
 #endif // JWT_HOME_H_

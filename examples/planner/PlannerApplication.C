@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WLogger>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WLogger.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 #include "PlannerApplication.h"
 
@@ -18,14 +18,14 @@
 #include "PlannerCalendar.h"
 #include "UserAccount.h"
 
-using namespace Wt;
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 PlannerApplication::PlannerApplication(const WEnvironment& env)
-  : WApplication(env),
-    sqlite3_(Wt::WApplication::appRoot() + "planner.db")
+  : WApplication(env)
 {
-  session.setConnection(sqlite3_);
-  sqlite3_.setProperty("show-queries", "true");
+  auto sqlite3 = cpp14::make_unique<Dbo::backend::Sqlite3>(WApplication::appRoot() + "planner.db");
+  sqlite3->setProperty("show-queries", "true");
+  session.setConnection(std::move(sqlite3));
 
   session.mapClass<UserAccount>("user_account");
   session.mapClass<Entry>("entry");
@@ -46,7 +46,7 @@ PlannerApplication::PlannerApplication(const WEnvironment& env)
 
   useStyleSheet("planner.css");
 
-  Login *login = new Login(root());
+  Login *login = root()->addWidget(cpp14::make_unique<Login>());
   login->loggedIn().connect(this, &PlannerApplication::login);
 }
 
@@ -55,6 +55,6 @@ void PlannerApplication::login(const WString& user)
   root()->clear();
 
   dbo::ptr<UserAccount> ua = UserAccount::login(session, user);
-  new PlannerCalendar(root(), ua);
+  root()->addWidget(cpp14::make_unique<PlannerCalendar>(ua));
 }
 

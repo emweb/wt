@@ -5,14 +5,14 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "WStandardColorMap"
+#include "WStandardColorMap.h"
 
-#include "Wt/WBoostAny"
-#include "Wt/WPainter"
-#include "Wt/WPaintDevice"
-#include "Wt/WPen"
-#include "Wt/WException"
-#include "Wt/WRasterImage"
+#include "Wt/WAny.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPaintDevice.h"
+#include "Wt/WPen.h"
+#include "Wt/WException.h"
+#include "Wt/WRasterImage.h"
 
 #include <algorithm>
 #include <iostream>
@@ -110,7 +110,7 @@ WColor WStandardColorMap::toColor(double value) const
 void WStandardColorMap::createStrip(WPainter *painter, const WRectF& area) const
 {
   painter->save();
-  painter->setRenderHint(WPainter::Antialiasing, false);
+  painter->setRenderHint(RenderHint::Antialiasing, false);
 
   int width, height;
   if (area.isNull()) {
@@ -143,7 +143,7 @@ void WStandardColorMap::paintLegend(WPainter *painter,
 {
   painter->save();
   WPainterPath clipPath;
-  painter->setRenderHint(WPainter::Antialiasing, false);
+  painter->setRenderHint(RenderHint::Antialiasing, false);
   painter->setFont(labelFont_);
   int height;
   if (area.isNull()) {
@@ -182,7 +182,8 @@ void WStandardColorMap::paintLegend(WPainter *painter,
     for (int i=0; i < nbTicks; i++) {
       painter->drawLine(0, 0.5, 4, 0.5);
       painter->drawText(10, -textHeight/2, 40, textHeight,
-			AlignLeft | AlignMiddle, Wt::asString(value, format_));
+			AlignmentFlag::Left | AlignmentFlag::Middle, 
+			Wt::asString(value, format_));
       value -= valDiff;
 
       if (rest > 0) {
@@ -197,7 +198,7 @@ void WStandardColorMap::paintLegend(WPainter *painter,
     // first paint tick for maximum value
     painter->drawLine(0, 0.5, 4, 0.5);
     painter->drawText(10, -textHeight/2, 100, textHeight,
-		      AlignLeft | AlignMiddle,
+		      AlignmentFlag::Left | AlignmentFlag::Middle,
 		      Wt::asString(max_, format_));
     // paint the rest of the ticks
     int nbTicks = colors_.size();
@@ -209,7 +210,7 @@ void WStandardColorMap::paintLegend(WPainter *painter,
       painter->translate(0, roundedDiff-prevDiff);
       painter->drawLine(0, 0.5, 4, 0.5);
       painter->drawText(10, -textHeight/2, 40, textHeight,
-			AlignLeft | AlignMiddle,
+			AlignmentFlag::Left | AlignmentFlag::Middle,
 			Wt::asString(colors_[i].value(), format_));
       prevDiff = roundedDiff;
     }

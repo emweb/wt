@@ -8,16 +8,13 @@
 #include "CalendarCell.h"
 #include "Entry.h"
 
-using namespace Wt;
-
-PlannerCalendar::PlannerCalendar(WContainerWidget* parent, 
-				 dbo::ptr<UserAccount> user)
-  : WCalendar(parent),
+PlannerCalendar::PlannerCalendar(dbo::ptr<UserAccount> user)
+  : WCalendar(),
     user_(user)
 {
   setStyleClass(styleClass() + " calendar");
   
-  setSelectionMode(NoSelection);
+  setSelectionMode(SelectionMode::None);
 }
 
 WWidget* PlannerCalendar::renderCell(WWidget* widget, const WDate& date)

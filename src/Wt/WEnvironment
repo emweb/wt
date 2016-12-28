@@ -7,16 +7,68 @@
 #ifndef WENVIRONMENT_H_
 #define WENVIRONMENT_H_
 
+#include <chrono>
 #include <string>
 #include <map>
 #include <vector>
 
 #include <Wt/WDllDefs.h>
-#include <Wt/Http/Request>
-#include <Wt/WLocale>
-#include <Wt/WSignal>
+#include <Wt/Http/Request.h>
+#include <Wt/WLocale.h>
+#include <Wt/WSignal.h>
 
 namespace Wt {
+
+/*! \brief An enumeration type for specific user agent.
+ *
+ * \sa agent()
+ */
+enum class UserAgent {
+  Unknown = 0,                //!< Unknown user agent
+  IEMobile = 1000,            //!< Internet Explorer Mobile, 5 or older
+  IE6 = 1001,                 //!< Internet Explorer 6
+  IE7 = 1002,                 //!< Internet Explorer 7
+  IE8 = 1003,                 //!< Internet Explorer 8
+  IE9 = 1004,                 //!< Internet Explorer 9
+  IE10 = 1005,                //!< Internet Explorer 10
+  IE11 = 1006,                //!< Internet Explorer 11
+  Edge = 1100,		      //!< Edge
+  Opera = 3000,               //!< Opera
+  Opera10 = 3010,             //!< Opera 10 or later
+  WebKit = 4000,              //!< WebKit
+  Safari = 4100,              //!< Safari 2 or older
+  Safari3 = 4103,             //!< Safari 3
+  Safari4 = 4104,             //!< Safari 4 or later
+  Chrome0 = 4200,             //!< Chrome 0
+  Chrome1 = 4201,             //!< Chrome 1
+  Chrome2 = 4202,             //!< Chrome 2
+  Chrome3 = 4203,             //!< Chrome 3
+  Chrome4 = 4204,             //!< Chrome 4
+  Chrome5 = 4205,             //!< Chrome 5 or later
+  Arora = 4300,               //!< Arora
+  MobileWebKit = 4400,        //!< Mobile WebKit
+  MobileWebKitiPhone = 4450,  //!< Mobile WebKit iPhone/iPad
+  MobileWebKitAndroid = 4500, //!< Mobile WebKit Android
+  Konqueror = 5000,           //!< Konqueror
+  Gecko = 6000,               //!< Gecko
+  Firefox = 6100,             //!< Firefox 2 or older
+  Firefox3_0 = 6101,          //!< Firefox 3.0
+  Firefox3_1 = 6102,          //!< Firefox 3.1
+  Firefox3_1b = 6103,         //!< Firefox 3.1b
+  Firefox3_5 = 6104,          //!< Firefox 3.5
+  Firefox3_6 = 6105,          //!< Firefox 3.6
+  Firefox4_0 = 6106,          //!< Firefox 4.0
+  Firefox5_0 = 6107,          //!< Firefox 5.0 or later
+  BotAgent = 10000            //!< Bot user agent
+};
+
+/*! \brief Enumeration for HTML content type.
+ */
+enum class HtmlContentType {
+  XHTML1, //!< XHTML1.x
+  HTML4,  //!< HTML4
+  HTML5   //!< HTML5
+}; 
 
 class WSslInfo;
 class WAbstractServer;
@@ -76,57 +128,6 @@ class WebSession;
 class WT_API WEnvironment
 {
 public:
-  /*! \brief An enumeration type for specific user agent.
-   *
-   * \sa agent()
-   */
-  enum UserAgent {
-    Unknown = 0,                //!< Unknown user agent
-    IEMobile = 1000,            //!< Internet Explorer Mobile, or Internet Explorer 5 or older
-    IE6 = 1001,                 //!< Internet Explorer 6
-    IE7 = 1002,                 //!< Internet Explorer 7
-    IE8 = 1003,                 //!< Internet Explorer 8
-    IE9 = 1004,                 //!< Internet Explorer 9
-    IE10 = 1005,                //!< Internet Explorer 10
-    IE11 = 1006,                //!< Internet Explorer 11
-    Edge = 1100,		//!< Edge
-    Opera = 3000,               //!< Opera
-    Opera10 = 3010,             //!< Opera 10 or later
-    WebKit = 4000,              //!< WebKit
-    Safari = 4100,              //!< Safari 2 or older
-    Safari3 = 4103,             //!< Safari 3
-    Safari4 = 4104,             //!< Safari 4 or later
-    Chrome0 = 4200,             //!< Chrome 0
-    Chrome1 = 4201,             //!< Chrome 1
-    Chrome2 = 4202,             //!< Chrome 2
-    Chrome3 = 4203,             //!< Chrome 3
-    Chrome4 = 4204,             //!< Chrome 4
-    Chrome5 = 4205,             //!< Chrome 5 or later
-    Arora = 4300,               //!< Arora
-    MobileWebKit = 4400,        //!< Mobile WebKit
-    MobileWebKitiPhone = 4450,  //!< Mobile WebKit iPhone/iPad
-    MobileWebKitAndroid = 4500, //!< Mobile WebKit Android
-    Konqueror = 5000,           //!< Konqueror
-    Gecko = 6000,               //!< Gecko
-    Firefox = 6100,             //!< Firefox 2 or older
-    Firefox3_0 = 6101,          //!< Firefox 3.0
-    Firefox3_1 = 6102,          //!< Firefox 3.1
-    Firefox3_1b = 6103,         //!< Firefox 3.1b
-    Firefox3_5 = 6104,          //!< Firefox 3.5
-    Firefox3_6 = 6105,          //!< Firefox 3.6
-    Firefox4_0 = 6106,          //!< Firefox 4.0
-    Firefox5_0 = 6107,          //!< Firefox 5.0 or later
-    BotAgent = 10000            //!< Bot user agent
-  };
-
-  /*! \brief Enumeration for HTML content type.
-   */
-  enum ContentType {
-    XHTML1, //!< XHTML1.x
-    HTML4,  //!< HTML4
-    HTML5   //!< HTML5
-  }; 
-
   /*! \brief Cookie map.
    *
    * A std::map which associates a cookie name with a cookie value.
@@ -314,7 +315,7 @@ public:
    *
    * \sa WLocalDateTime::timeZoneOffset()
    */
-  int timeZoneOffset() const { return timeZoneOffset_; }
+  std::chrono::minutes timeZoneOffset() const { return timeZoneOffset_; }
 
   /*! \brief Returns the server host name that is used by the client.
    *
@@ -376,7 +377,7 @@ public:
    *   from DOM nodes. In this way, the generated page is always exactly the
    *   same.
    */
-  bool agentIsSpiderBot() const { return agent_ == BotAgent; }
+  bool agentIsSpiderBot() const { return agent_ == UserAgent::BotAgent; }
 
   /*! \brief Returns the web server signature.
    *
@@ -413,31 +414,6 @@ public:
    * the remote socket IP address is used. 
    */
   const std::string& clientAddress() const { return clientAddress_; }
-
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Returns the path info of the original request (<b>deprecated</b>)
-   *
-   * \deprecated Use internalPath() instead, which is consistent with the
-   *             internal paths generated by %Wt.
-   *
-   * This is the equivalent of the CGI PATH_INFO environment variable.
-   *
-   * Assume for example that the application was deployed at
-   * <tt>"stuff/app.wt"</tt>. When the user accesses the application
-   * using the URL
-   * <tt>"http://www.mydomain.com/stuff/app.wt"</tt>, this
-   * method would return an empty string (<tt>""</tt>). When the user
-   * accesses the site using
-   * <tt>"http://www.mydomain.com/stuff/app.wt/this/there"</tt>, the
-   * result would be <tt>"/this/there"</tt>.
-   *
-   * Together with getParameter(), this allows you to supply the
-   * application with initial information.
-   *
-   * \sa getParameter(), internalPath()
-   */
-  const std::string& pathInfo() const { return pathInfo_; }
-#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Returns the initial internal path.
    *
@@ -488,16 +464,6 @@ public:
    */
   void libraryVersion(int& series, int& major, int& minor) const;
 
-  /*! \brief Returns the %Wt session id (<b>deprecated</b>).
-   *
-   * Retrieves the session id for this session. This is an
-   * auto-generated random alpha-numerical id, whose length is
-   * determined by settings in the configuration file.
-   *
-   * \deprecated Use WApplication::sessionId() instead
-   */
-  std::string sessionId() const;
-
   /*! \brief Returns a raw CGI environment variable.
    *
    * Retrieves the value for the given CGI environment variable (like
@@ -513,7 +479,7 @@ public:
    * This is here for backwards compatibility, but the implementation now
    * alwasy returns HTML5.
    */
-  ContentType contentType() const { return HTML5; }
+  HtmlContentType contentType() const { return HtmlContentType::HTML5; }
 
   /*! \brief Returns the user agent type.
    *
@@ -531,7 +497,10 @@ public:
    * \sa agent()
    */
   bool agentIsIE() const {
-    return agent_ >= IEMobile && agent_ < Opera;
+    return static_cast<unsigned int>(agent_) >=
+      static_cast<unsigned int>(UserAgent::IEMobile) &&
+      static_cast<unsigned int>(agent_) <
+	static_cast<unsigned int>(UserAgent::Opera);
   }
 
   /*! \brief Returns whether the user agent is an older version of IE
@@ -542,7 +511,8 @@ public:
    */
   bool agentIsIElt(int version) const {
     if (agentIsIE())
-      return agent_ < IEMobile + (version - 5);
+      return static_cast<unsigned int>(agent_) <
+	static_cast<unsigned int>(UserAgent::IEMobile) + (version - 5);
     else
       return false;
   }
@@ -554,7 +524,7 @@ public:
    * \sa agent()
    */
   bool agentIsIEMobile() const {
-    return agent_ == IEMobile;
+    return agent_ == UserAgent::IEMobile;
   }
 
   /*! \brief Returns whether the user agent is Opera.
@@ -562,7 +532,10 @@ public:
    * \sa agent()
    */
   bool agentIsOpera() const {
-    return agent_ >= Opera && agent_ < Safari;
+    return static_cast<unsigned int>(agent_) >=
+      static_cast<unsigned int>(UserAgent::Opera) &&
+      static_cast<unsigned int>(agent_) <
+	static_cast<unsigned int>(UserAgent::Safari);
   }
 
   /*! \brief Returns whether the user agent is WebKit-based.
@@ -573,7 +546,10 @@ public:
    * \sa agent()
    */
   bool agentIsWebKit() const {
-    return agent_ >= WebKit && agent_ < Konqueror;
+    return static_cast<unsigned int>(agent_) >= 
+      static_cast<unsigned int>(UserAgent::WebKit) && 
+      static_cast<unsigned int>(agent_) < 
+	static_cast<unsigned int>(UserAgent::Konqueror);
   }
 
    /*! \brief Returns whether the user agent is Mobile WebKit-based.
@@ -584,7 +560,10 @@ public:
    * \sa agent()
    */
   bool agentIsMobileWebKit() const {
-    return agent_ >= MobileWebKit && agent_ < Konqueror;
+    return static_cast<unsigned int>(agent_) >= 
+      static_cast<unsigned int>(UserAgent::MobileWebKit) &&  
+      static_cast<unsigned int>(agent_) < 
+	static_cast<unsigned int>(UserAgent::Konqueror);
   }
 
   /*! \brief Returns whether the user agent is Safari.
@@ -592,7 +571,10 @@ public:
    * \sa agent()
    */
   bool agentIsSafari() const {
-    return agent_ >= Safari && agent_ < Chrome0;
+    return static_cast<unsigned int>(agent_) >= 
+      static_cast<unsigned int>(UserAgent::Safari) &&  
+      static_cast<unsigned int>(agent_) < 
+	static_cast<unsigned int>(UserAgent::Chrome0);
   }
 
   /*! \brief Returns whether the user agent is Chrome.
@@ -600,7 +582,10 @@ public:
    * \sa agent()
    */
   bool agentIsChrome() const {
-    return agent_ >= Chrome0 && agent_ < Konqueror;
+    return static_cast<unsigned int>(agent_) >= 
+      static_cast<unsigned int>(UserAgent::Chrome0) &&  
+      static_cast<unsigned int>(agent_) < 
+	static_cast<unsigned int>(UserAgent::Konqueror);
   }
   
   /*! \brief Returns whether the user agent is Gecko-based.
@@ -610,7 +595,10 @@ public:
    * \sa agent()
    */
   bool agentIsGecko() const {
-    return agent_ >= Gecko && agent_ < BotAgent;
+    return static_cast<unsigned int>(agent_) >= 
+      static_cast<unsigned int>(UserAgent::Gecko) &&  
+      static_cast<unsigned int>(agent_) < 
+	static_cast<unsigned int>(UserAgent::BotAgent);
   }
 
 #ifndef WT_TARGET_JAVA
@@ -690,7 +678,7 @@ protected:
   CookieMap   cookies_;
 
   WLocale locale_;
-  int timeZoneOffset_;
+  std::chrono::minutes timeZoneOffset_;
   std::string host_;
   std::string userAgent_;
   std::string urlScheme_;

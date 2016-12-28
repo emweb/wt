@@ -136,7 +136,7 @@ void MetaDbo<C>::doTransactionDone(bool success)
   if (success) {
     if (deletedInTransaction()) {
       prune();
-      setSession(0);
+      setSession(nullptr);
     } else if (savedInTransaction()) {
       setVersion(version() + 1);
       setState(Persisted);
@@ -175,7 +175,7 @@ void MetaDbo<C>::purge()
   checkNotOrphaned();
   if (isPersisted() && !isDirty() && !inTransaction()) {
     delete obj_;
-    obj_ = 0;
+    obj_ = nullptr;
     setVersion(-1);
   }
 }
@@ -188,7 +188,7 @@ void MetaDbo<C>::reread()
     session()->discardChanges(this);
 
     delete obj_;
-    obj_ = 0;
+    obj_ = nullptr;
     setVersion(-1);
 
     state_ = Persisted;
@@ -223,7 +223,7 @@ int MetaDbo<C>::version() const
 
 template <class C>
 MetaDbo<C>::MetaDbo(C *obj)
-  : MetaDboBase(-1, New | NeedsSave, 0),
+  : MetaDboBase(-1, New | NeedsSave, nullptr),
     obj_(obj),
     id_(dbo_traits<C>::invalidId())
 { 
@@ -244,7 +244,7 @@ MetaDbo<C>::MetaDbo(const IdType& id, int version, int state,
 template <class C>
 MetaDbo<C>::MetaDbo(Session& session)
   : MetaDboBase(-1, Persisted, &session),
-    obj_(0),
+    obj_(nullptr),
     id_(dbo_traits<C>::invalidId())
 { }
 
@@ -294,15 +294,20 @@ ptr<C>::mutator::operator C*() const
 
 template <class C>
 ptr<C>::ptr()
-  : obj_(0)
+  : obj_(nullptr)
 { }
 
 template <class C>
-ptr<C>::ptr(C *obj)
-  : obj_(0)
+ptr<C>::ptr(std::nullptr_t)
+  : obj_(nullptr)
+{ }
+
+template <class C>
+ptr<C>::ptr(std::unique_ptr<C> obj)
+  : obj_(nullptr)
 {
   if (obj) {
-    obj_ = new MetaDbo<MutC>(const_cast<MutC*>(obj));
+    obj_ = new MetaDbo<MutC>(const_cast<MutC*>(obj.release()));
     takeObj();
   }
 }
@@ -320,7 +325,7 @@ ptr<C>::ptr(const ptr<D>& other)
   : obj_(other.obj_)
 {
   // Check if we can convert D* to C*
-  D *d = 0;
+  D *d = nullptr;
   C *c = d;
   (void)(c);
 
@@ -334,11 +339,11 @@ ptr<C>::~ptr()
 }
 
 template <class C>
-void ptr<C>::reset(C *obj)
+void ptr<C>::reset(std::unique_ptr<C> obj)
 {
   freeObj();
   if (obj) {
-    obj_ = new MetaDbo<MutC>(const_cast<MutC*>(obj));
+    obj_ = new MetaDbo<MutC>(const_cast<MutC*>(obj.release()));
     takeObj();
   }
 }
@@ -360,7 +365,7 @@ template <class D>
 ptr<C>& ptr<C>::operator= (const ptr<D>& other)
 {
   // Check if we can convert D* to C*
-  D *d = 0;
+  D *d = nullptr;
   C *c = d;
   (void)(c);
 
@@ -390,7 +395,7 @@ const C *ptr<C>::get() const
   if (obj_)
     return obj_->obj();
   else
-    return 0;
+    return nullptr;
 }
 
 template <class C>
@@ -474,7 +479,7 @@ bool ptr<C>::operator< (const ptr<const C>& other) const
 template <class C>
 ptr<C>::operator bool() const
 {
-  return obj_ != 0;
+  return obj_ != nullptr;
 }
 
 template <class C>
@@ -547,7 +552,7 @@ Session *ptr<C>::session() const
   if (obj_)
     return obj_->session();
   else
-    return 0;
+    return nullptr;
 }
 
 template <class C>
@@ -583,7 +588,7 @@ void ptr<C>::freeObj()
 {
   if (obj_) {
     obj_->decRef();
-    obj_ = 0;
+    obj_ = nullptr;
   }
 }
 
@@ -601,12 +606,12 @@ std::ostream& operator<< (std::ostream& o, const ptr<C>& ptr)
 
 template <class C>
 Dbo<C>::Dbo()
-  : meta_(0)
+  : meta_(nullptr)
 { }
 
 template <class C>
 Dbo<C>::Dbo(const Dbo<C>& other)
-  : meta_(0)
+  : meta_(nullptr)
 { }
 
 template <class C>
@@ -621,7 +626,7 @@ typename dbo_traits<C>::IdType Dbo<C>::id() const
 template <class C>
 Session *Dbo<C>::session() const
 {
-  return meta_ ? meta_->session() : 0;
+  return meta_ ? meta_->session() : nullptr;
 }
 
 template <class C>
@@ -678,7 +683,7 @@ ptr<C> query_result_traits< ptr<C> >
 
 template <class C>
 void query_result_traits< ptr<C> >
-::getValues(const ptr<C>& ptr, std::vector<boost::any>& values)
+::getValues(const ptr<C>& ptr, std::vector<cpp17::any>& values)
 {
   ToAnysAction action(values);
 
@@ -687,7 +692,7 @@ void query_result_traits< ptr<C> >
 
 template <class C>
 void query_result_traits< ptr<C> >
-::setValue(const ptr<C>& ptr, int& index, const boost::any& value)
+::setValue(const ptr<C>& ptr, int& index, const cpp17::any& value)
 {
   FromAnyAction action(index, value);
   action.visit(ptr);
@@ -696,7 +701,7 @@ void query_result_traits< ptr<C> >
 template <class C>
 ptr<C> query_result_traits< ptr<C> >::create()
 {
-  return ptr<C>(new C());
+  return ptr<C>(std::unique_ptr<C>(new C()));
 }
 
 template <class C>

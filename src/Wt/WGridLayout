@@ -8,9 +8,9 @@
 #define WGRID_LAYOUT_H_
 
 #include <vector>
-#include <Wt/WLayout>
-#include <Wt/WLength>
-#include <Wt/WGlobal>
+#include <Wt/WLayout.h>
+#include <Wt/WLength.h>
+#include <Wt/WWidget.h>
 
 namespace Wt {
 
@@ -28,18 +28,22 @@ struct Grid {
   };
 
   struct Item {
-    WLayoutItem *item_;
+    std::unique_ptr<WLayoutItem> item_;
     int rowSpan_;
     int colSpan_;
     bool update_;
     WFlags<AlignmentFlag> alignment_;
 
-    Item(WLayoutItem *item = 0, WFlags<AlignmentFlag> alignment = 0);
+    Item(std::unique_ptr<WLayoutItem> item = nullptr,
+	 WFlags<AlignmentFlag> alignment = None);
+    Item(Item&& other) = default;
+    Item& operator=(Item&& other) = default;
+    ~Item();
   };
 
   std::vector<Section> rows_;
   std::vector<Section> columns_;
-  std::vector<std::vector<Item> > items_; // [row][column]
+  std::vector<std::vector<Item>> items_; // [row][column]
 
   Grid();
   ~Grid();
@@ -55,7 +59,7 @@ struct Grid {
  * This layout manager arranges widgets in a grid.
  *
  * Each grid cell (row, column) may contain one widget or nested
- * layout. Horizontal and vertical space are divided so that each
+ * layout. Orientation::Horizontal and vertical space are divided so that each
  * non-stretchable column/row is given its preferred size (if
  * possible) and the remaining space is divided according to stretch
  * factors among the columns/rows. If not all columns/rows can be
@@ -139,12 +143,6 @@ struct Grid {
  * \endcode
  * \endif
  *
- * \if cpp
- * \note This layout manager is applicable only to WContainerWidget
- * container widgets. You may use it within an Ext::Container
- * indirectly by first setting a WContainerWidget using a WFitLayout.
- * \endif
- *
  * \note When JavaScript support is not available, not all functionality
  * of the layout is available. In particular, vertical size management is
  * not available.
@@ -165,13 +163,12 @@ public:
    * nested inside other layout managers or if you use
    * WContainerWidget::setLayout() to add specify the container later.
    */
-  WGridLayout(WWidget *parent = 0);
+  WGridLayout();
 
-  virtual void addItem(WLayoutItem *item);
-  virtual void removeItem(WLayoutItem *item);
-  virtual WLayoutItem *itemAt(int index) const;
-  virtual int count() const;
-  virtual void clear();
+  virtual void addItem(std::unique_ptr<WLayoutItem> item) override;
+  virtual std::unique_ptr<WLayoutItem> removeItem(WLayoutItem *item) override;
+  virtual WLayoutItem *itemAt(int index) const override;
+  virtual int count() const override;
 
   /*! \brief Adds a layout item to the grid.
    *
@@ -186,15 +183,15 @@ public:
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
-   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
-   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
-   * Wt::AlignBottom).
+   * (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or Wt::AlignmentFlag::Right) and a
+   * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
+   * Wt::AlignmentFlag::Bottom).
    *
    * \sa addLayout(), addWidget() 
    */
-  void addItem(WLayoutItem *item, int row, int column,
+  void addItem(std::unique_ptr<WLayoutItem> item, int row, int column,
 	       int rowSpan = 1, int columnSpan = 1,
-	       WFlags<AlignmentFlag> alignment = 0);
+	       WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Adds a nested layout item to the grid.
    *
@@ -206,14 +203,14 @@ public:
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
-   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
-   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
-   * Wt::AlignBottom).
+   * (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or Wt::AlignmentFlag::Right) and a
+   * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
+   * Wt::AlignmentFlag::Bottom).
    *
    * \sa addLayout(WLayout *, int, int, int, int, WFlags<AlignmentFlag>) 
    */
-  void addLayout(WLayout *layout, int row, int column,
-		 WFlags<AlignmentFlag> alignment = 0);
+  void addLayout(std::unique_ptr<WLayout> layout, int row, int column,
+		 WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Adds a nested layout item to the grid.
    *
@@ -228,15 +225,15 @@ public:
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
-   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
-   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
-   * Wt::AlignBottom).
+   * (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or Wt::AlignmentFlag::Right) and a
+   * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
+   * Wt::AlignmentFlag::Bottom).
    *
    * \sa addLayout(WLayout *, int, int, WFlags<AlignmentFlag>) 
    */
-  void addLayout(WLayout *layout, int row, int column,
+  void addLayout(std::unique_ptr<WLayout> layout, int row, int column,
 		 int rowSpan, int columnSpan,
-		 WFlags<AlignmentFlag> alignment = 0);
+		 WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Adds a widget to the grid.
    *
@@ -248,14 +245,23 @@ public:
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
-   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
-   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
-   * Wt::AlignBottom).
+   * (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or Wt::AlignmentFlag::Right) and a
+   * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
+   * Wt::AlignmentFlag::Bottom).
    *
    * \sa addWidget(WWidget *, int, int, int, int, WFlags<AlignmentFlag>) 
    */
-  void addWidget(WWidget *widget, int row, int column,
-		 WFlags<AlignmentFlag> alignment = 0);
+  void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
+                 WFlags<AlignmentFlag> alignment);
+
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
+                      WFlags<AlignmentFlag> alignment = None)
+  {
+    Widget *result = widget.get();
+    addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column, alignment);
+    return result;
+  }
 
   /*! \brief Adds a widget to the grid.
    *
@@ -270,15 +276,26 @@ public:
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
-   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
-   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
-   * Wt::AlignBottom).
+   * (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or Wt::AlignmentFlag::Right) and a
+   * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
+   * Wt::AlignmentFlag::Bottom).
    *
    * \sa addWidget(WWidget *, int, int, WFlags<AlignmentFlag>)
    */
-  void addWidget(WWidget *widget, int row, int column,
+  void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
 		 int rowSpan, int columnSpan,
-		 WFlags<AlignmentFlag> alignment = 0);
+		 WFlags<AlignmentFlag> alignment);
+
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
+                      int rowSpan, int columnSpan,
+                      WFlags<AlignmentFlag> alignment = None)
+  {
+    Widget *result = widget.get();
+    addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column,
+              rowSpan, columnSpan, alignment);
+    return result;
+  }
 
   /*! \brief Sets the horizontal spacing.
    *
@@ -402,12 +419,15 @@ public:
    */
   bool rowIsResizable(int row) const;
 
-  Impl::Grid& grid() { return grid_; }
+protected:
+  virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
 
 private:
   Impl::Grid grid_;
 
   void expand(int row, int column, int rowSpan, int columnSpan);
+
+  virtual void setParentWidget(WWidget *parent) override;
 };
 
 }

@@ -8,9 +8,9 @@
 #ifndef CHART_WGRIDDATA_H
 #define CHART_WGRIDDATA_H
 
-#include <Wt/Chart/WAbstractGridData>
-#include <Wt/Chart/WCartesian3DChart>
-#include <Wt/WPen>
+#include <Wt/Chart/WAbstractGridData.h>
+#include <Wt/Chart/WCartesian3DChart.h>
+#include <Wt/WPen.h>
 
 namespace Wt {
 class WAbstractItemModel;
@@ -35,13 +35,13 @@ class WT_API WGridData : public WAbstractGridData {
 public:
   /*! \brief Constructor
    */
-  WGridData(WAbstractItemModel *model);
+  WGridData(std::shared_ptr<WAbstractItemModel> model);
 
   virtual ~WGridData();
 
-  virtual double minimum(Axis axis) const;
+  virtual double minimum(Axis axis) const override;
 
-  virtual double maximum(Axis axis) const;
+  virtual double maximum(Axis axis) const override;
   
   /*! \brief Set which column in the model is used as x-axis.
    *
@@ -68,23 +68,23 @@ public:
   int YSeriesRow() const { return YAbscisRow_; }
   
   // below = internal API
-  virtual int nbXPoints() const;
-  virtual int nbYPoints() const;
-  virtual WString axisLabel(int u, Axis axis) const;
-  virtual boost::any data(int i, int j) const;
+  virtual int nbXPoints() const override;
+  virtual int nbYPoints() const override;
+  virtual WString axisLabel(int u, Axis axis) const override;
+  virtual cpp17::any data(int i, int j) const override;
 
 protected:
-  virtual int countSimpleData() const;
+  virtual int countSimpleData() const override;
   virtual void pointDataFromModel(FloatBuffer& simplePtsArray,
 				  FloatBuffer& simplePtsSize,
 				  FloatBuffer& coloredPtsArray,
 				  FloatBuffer& coloredPtsSize,
-				  FloatBuffer& coloredPtsColor) const;
-  virtual void surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const;
-  virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const;
+				  FloatBuffer& coloredPtsColor) const override;
+  virtual void surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const override;
+  virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const override;
   virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
 				std::vector<FloatBuffer>& coloredPtsArrays,
-				std::vector<FloatBuffer>& coloredPtsColors) const;
+				std::vector<FloatBuffer>& coloredPtsColors) const override;
 
 private:
   void findRange() const;

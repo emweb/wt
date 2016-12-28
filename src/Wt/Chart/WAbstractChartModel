@@ -7,11 +7,11 @@
 #ifndef WABSTRACT_CHART_MODEL_H_
 #define WABSTRACT_CHART_MODEL_H_
 
-#include "Wt/WObject"
-#include "Wt/WColor"
-#include "Wt/WModelIndex"
-#include "Wt/WSignal"
-#include "Wt/WString"
+#include "Wt/WObject.h"
+#include "Wt/WColor.h"
+#include "Wt/WModelIndex.h"
+#include "Wt/WSignal.h"
+#include "Wt/WString.h"
 
 namespace Wt {
   namespace Chart {
@@ -23,11 +23,12 @@ namespace Wt {
  *
  * \ingroup charts
  */
-class WT_API WAbstractChartModel : public WObject {
+class WT_API WAbstractChartModel : public WObject
+{
 public:
   /*! \brief Creates a new chart model.
    */
-  WAbstractChartModel(WObject *parent = 0);
+  WAbstractChartModel();
 
   virtual ~WAbstractChartModel();
 
@@ -90,7 +91,7 @@ public:
   /*!\brief Returns the marker pen color to use for a given row and column.
    *
    * This is used as the color of the outline of markers when drawing
-   * a PointSeries. The default is null, indicating that the default color,
+   * a SeriesType::Point. The default is null, indicating that the default color,
    * as determined by WDataSeries::markerPen(), should be used.
    *
    * \sa WDataSeries::setMarkerPen()
@@ -100,7 +101,7 @@ public:
   /*!\brief Returns the marker brush color to use for a given row and column.
    *
    * This is used as the color of the brush used when drawing a
-   * PointSeries. The default is null, indicating that the default color,
+   * SeriesType::Point. The default is null, indicating that the default color,
    * as determined by WDataSeries::markerBrush(), should be used.
    *
    * \sa WDataSeries::setMarkerBrush()
@@ -110,7 +111,7 @@ public:
   /*!\brief Returns the bar pen color to use for a given row and column.
    *
    * This is used as the color of the outline of bars when drawing a
-   * BarSeries. The default is null, indicating that the default color,
+   * SeriesType::Bar. The default is null, indicating that the default color,
    * as determined by WDataSeries::pen(), should be used.
    *
    * \sa WDataSeries::setPen()
@@ -120,7 +121,7 @@ public:
   /*!\brief Returns the bar brush color to use for a given row and column.
    *
    * This is used as the color of the brush used when drawing a
-   * BarSeries. The default is null, indicating that the default color,
+   * SeriesType::Bar. The default is null, indicating that the default color,
    * as determined by WDataSeries::brush(), should be used.
    *
    * \sa WDataSeries::setBrush()
@@ -130,7 +131,7 @@ public:
   /*!\brief Returns the marker scale factor to use for a given row and column.
    *
    * This is used to scale the size of the marker when drawing a
-   * PointSeries. The default is null, indicating that the default scale should be used.
+   * SeriesType::Point. The default is null, indicating that the default scale should be used.
    */
   virtual const double *markerScaleFactor(int row, int column) const;
 

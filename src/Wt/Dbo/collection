@@ -11,8 +11,8 @@
 #include <iterator>
 #include <set>
 
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/Session>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/Session.h>
 
 namespace Wt {
   namespace Dbo {
@@ -159,7 +159,7 @@ namespace Wt {
        */
       iterator& operator++ ();
 
-      /*! \brief Post increment operator.
+      /*! \brief Method::Post increment operator.
        */
       iterator  operator++ (int);
 
@@ -236,7 +236,7 @@ namespace Wt {
        */
       const_iterator& operator++ ();
 
-      /*! \brief Post increment operator.
+      /*! \brief Method::Post increment operator.
        */
       const_iterator  operator++ (int);
 

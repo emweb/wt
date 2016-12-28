@@ -9,7 +9,7 @@
 
 #include <limits>
 
-#include <Wt/WValidator>
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -47,14 +47,14 @@ public:
    *
    * \sa WLocale::currentLocale()
    */
-  WIntValidator(WObject *parent = 0);
+  WIntValidator();
 
   /*! \brief Creates a new integer validator that accepts integer input
    *         within the given range.
    *
    * \sa WLocale::currentLocale()
    */
-  WIntValidator(int minimum, int maximum, WObject *parent = 0);
+  WIntValidator(int minimum, int maximum);
 
   /*! \brief Returns the bottom of the valid integer range.
    */
@@ -85,9 +85,7 @@ public:
    * The input is considered valid only when it is blank for a non-mandatory
    * field, or represents an integer within the valid range.
    */
-  virtual Result validate(const WT_USTRING& input) const;
-
-  virtual void createExtConfig(std::ostream& config) const;
+  virtual Result validate(const WT_USTRING& input) const override;
 
   /*! \brief Sets the message to display when the input is not a number.
    *
@@ -140,10 +138,9 @@ public:
    */
   bool ignoreTrailingSpaces() { return ignoreTrailingSpaces_; }
 
+  virtual std::string javaScriptValidate() const override;
 
-  virtual std::string javaScriptValidate() const;
-
-  virtual std::string inputFilter() const;
+  virtual std::string inputFilter() const override;
 
 private:
   int bottom_;

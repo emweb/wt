@@ -4,34 +4,34 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WAbstractMedia"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WResource"
+#include "Wt/WAbstractMedia.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WResource.h"
 #include "DomElement.h"
+
+#include "StringUtils.h"
 #include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WAbstractMedia.min.js"
 #endif
 
-#include <boost/lexical_cast.hpp>
-
 namespace {
-  Wt::WAbstractMedia::ReadyState intToReadyState(int i) 
+  Wt::MediaReadyState intToReadyState(int i) 
   {
     switch (i) {
     case 0:
-      return Wt::WAbstractMedia::HaveNothing;
+      return Wt::MediaReadyState::HaveNothing;
     case 1:
-      return Wt::WAbstractMedia::HaveMetaData;
+      return Wt::MediaReadyState::HaveMetaData;
     case 2:
-      return Wt::WAbstractMedia::HaveCurrentData;
+      return Wt::MediaReadyState::HaveCurrentData;
     case 3:
-      return Wt::WAbstractMedia::HaveFutureData;
+      return Wt::MediaReadyState::HaveFutureData;
     case 4:
-      return Wt::WAbstractMedia::HaveEnoughData;
+      return Wt::MediaReadyState::HaveEnoughData;
     default:
       throw Wt::WException("Invalid readystate");
     }
@@ -45,12 +45,10 @@ const char *WAbstractMedia::ENDED_SIGNAL = "ended";
 const char *WAbstractMedia::TIMEUPDATED_SIGNAL = "timeupdate";
 const char *WAbstractMedia::VOLUMECHANGED_SIGNAL = "volumechange";
 
-WAbstractMedia::WAbstractMedia(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    sourcesRendered_(0),
-    flags_(0),
-    preloadMode_(PreloadAuto),
-    alternative_(0),
+WAbstractMedia::WAbstractMedia()
+  : sourcesRendered_(0),
+    flags_(None),
+    preloadMode_(MediaPreloadMode::Auto),
     flagsChanged_(false),
     preloadChanged_(false),
     sourcesChanged_(false),
@@ -59,7 +57,7 @@ WAbstractMedia::WAbstractMedia(WContainerWidget *parent)
     current_(-1),
     duration_(-1),
     ended_(false),
-    readyState_(HaveNothing)
+    readyState_(MediaReadyState::HaveNothing)
 {
   setInline(false);
   setFormObject(true);
@@ -72,8 +70,7 @@ WAbstractMedia::WAbstractMedia(WContainerWidget *parent)
 
 WAbstractMedia::~WAbstractMedia()
 {
-  for (std::size_t i = 0; i < sources_.size(); ++i)
-    delete sources_[i];
+  manageWidget(alternative_, std::unique_ptr<WWidget>());
 }
 
 EventSignal<>& WAbstractMedia::playbackStarted()
@@ -108,29 +105,30 @@ void WAbstractMedia::setFormData(const FormData& formData)
     boost::split(attributes, formData.values[0], boost::is_any_of(";"));
     if (attributes.size() == 6) {
       try {
-	volume_ = boost::lexical_cast<double>(attributes[0]);
+	volume_ = Utils::stod(attributes[0]);
       } catch (const std::exception& e) {
         volume_ = -1;
       }
       try {
-	current_ = boost::lexical_cast<double>(attributes[1]);
+	current_ = Utils::stod(attributes[1]);
       } catch (const std::exception& e) {
         current_ = -1;
       }
       try {
-        duration_ = boost::lexical_cast<double>(attributes[2]);
+        duration_ = Utils::stod(attributes[2]);
       } catch (const std::exception& e) {
         duration_ = -1;
       }
       playing_ = (attributes[3] == "0");
       ended_ = (attributes[4] == "1");
       try {
-        readyState_ = intToReadyState(boost::lexical_cast<int>(attributes[5]));
+        readyState_ = intToReadyState(Utils::stoi(attributes[5]));
       } catch (const std::exception& e) {
-        readyState_ = HaveNothing;
+        readyState_ = MediaReadyState::HaveNothing;
       }
     } else
-      throw WException("WAbstractMedia: error parsing: " + formData.values[0]);
+      throw WException("WAbstractMedia: error parsing: " 
+		       + formData.values[0]);
   }
 }
 
@@ -195,25 +193,28 @@ void WAbstractMedia::updateMediaDom(DomElement& element, bool all)
       );
   }
   if (all || flagsChanged_) {
-    if ((!all) || flags_ & Controls)
-      element.setAttribute("controls", flags_ & Controls ? "controls" : "");
-    if ((!all) || flags_ & Autoplay)
-      element.setAttribute("autoplay", flags_ & Autoplay ? "autoplay" : "");
-    if ((!all) || flags_ & Loop)
-      element.setAttribute("loop", flags_ & Loop ? "loop" : "");
+    if ((!all) || flags_.test(PlayerOption::Controls))
+      element.setAttribute("controls",
+			   flags_.test(PlayerOption::Controls) ? "controls" : "");
+    if ((!all) || flags_.test(PlayerOption::Autoplay))
+      element.setAttribute("autoplay",
+			   flags_.test(PlayerOption::Autoplay) ? "autoplay" : "");
+    if ((!all) || flags_.test(PlayerOption::Loop))
+      element.setAttribute("loop",
+			   flags_.test(PlayerOption::Loop) ? "loop" : "");
   }
   if (all || preloadChanged_) {
     switch (preloadMode_) {
-      case PreloadNone:
-        element.setAttribute("preload", "none");
-        break;
-      default:
-      case PreloadAuto:
-        element.setAttribute("preload", "auto");
-        break;
-      case PreloadMetadata:
-        element.setAttribute("preload", "metadata");
-        break;
+    case MediaPreloadMode::None:
+      element.setAttribute("preload", "none");
+      break;
+    default:
+    case MediaPreloadMode::Auto:
+      element.setAttribute("preload", "auto");
+      break;
+    case MediaPreloadMode::Metadata:
+      element.setAttribute("preload", "metadata");
+      break;
     }
   }
 
@@ -243,7 +244,7 @@ DomElement *WAbstractMedia::createDomElement(WApplication *app)
 {
   loadJavaScript();
 
-  DomElement *result = 0;
+  DomElement *result = nullptr;
 
   if (isInLayout()) {
     // It's easier to set WT_RESIZE_JS after the following code,
@@ -255,18 +256,18 @@ DomElement *WAbstractMedia::createDomElement(WApplication *app)
 
   if (app->environment().agentIsIElt(9)) {
     // Shortcut: IE misbehaves when it encounters a media element
-    result = DomElement::createNew(DomElement_DIV);
+    result = DomElement::createNew(DomElementType::DIV);
     if (alternative_)
       result->addChild(alternative_->createSDomElement(app));
   } else {
     DomElement *media = createMediaDomElement();
-    DomElement *wrap = 0;
+    DomElement *wrap = nullptr;
     if (isInLayout()) {
-      media->setProperty(PropertyStylePosition, "absolute");
-      media->setProperty(PropertyStyleLeft, "0");
-      media->setProperty(PropertyStyleRight, "0");
-      wrap = DomElement::createNew(DomElement_DIV);
-      wrap->setProperty(PropertyStylePosition, "relative");
+      media->setProperty(Property::StylePosition, "absolute");
+      media->setProperty(Property::StyleLeft, "0");
+      media->setProperty(Property::StyleRight, "0");
+      wrap = DomElement::createNew(DomElementType::DIV);
+      wrap->setProperty(Property::StylePosition, "relative");
     }
     result = wrap ? wrap : media;
     if (wrap) {
@@ -279,8 +280,8 @@ DomElement *WAbstractMedia::createDomElement(WApplication *app)
     updateMediaDom(*media, true);
     // Create the 'source' elements
     for (std::size_t i = 0; i < sources_.size(); ++i) {
-      DomElement *src = DomElement::createNew(DomElement_SOURCE);
-      src->setId(mediaId_ + "s" + boost::lexical_cast<std::string>(i));
+      DomElement *src = DomElement::createNew(DomElementType::SOURCE);
+      src->setId(mediaId_ + "s" + std::to_string(i));
       renderSource(src, *sources_[i], i + 1 >= sources_.size());
       media->addChild(src);
     }
@@ -346,21 +347,20 @@ void WAbstractMedia::getDomChanges(std::vector<DomElement *>& result,
 				   WApplication *app)
 {
   if (!mediaId_.empty()) {
-    DomElement *media = DomElement::getForUpdate(mediaId_, DomElement_DIV);
+    DomElement *media = DomElement::getForUpdate(mediaId_, DomElementType::DIV);
     updateMediaDom(*media, false);
     if (sourcesChanged_) {
       // Updating source elements seems to be ill-supported in at least FF,
       // so we delete them all and reinsert them.
-      // Delete source elements that are no longer required
+      // Method::Delete source elements that are no longer required
       for (std::size_t i = 0; i < sourcesRendered_; ++i)
 	media->callJavaScript
-	  (WT_CLASS ".remove('" + mediaId_ + "s"
-	   + boost::lexical_cast<std::string>(i) + "');",
+	  (WT_CLASS ".remove('" + mediaId_ + "s" + std::to_string(i) + "');",
 	   true);
       sourcesRendered_ = 0;
       for (std::size_t i = 0; i < sources_.size(); ++i) {
-        DomElement *src = DomElement::createNew(DomElement_SOURCE);
-        src->setId(mediaId_ + "s" + boost::lexical_cast<std::string>(i));
+        DomElement *src = DomElement::createNew(DomElementType::SOURCE);
+        src->setId(mediaId_ + "s" + std::to_string(i));
         renderSource(src, *sources_[i], i + 1 >= sources_.size());
         media->addChild(src);
       }
@@ -375,35 +375,32 @@ void WAbstractMedia::getDomChanges(std::vector<DomElement *>& result,
   WInteractWidget::getDomChanges(result, app);
 }
 
-void WAbstractMedia::setOptions(const WFlags<Options>& flags)
+void WAbstractMedia::setOptions(const WFlags<PlayerOption>& flags)
 {
   flags_ = flags;
   flagsChanged_ = true;
   repaint();
 }
 
-WFlags<WAbstractMedia::Options> WAbstractMedia::getOptions() const
+WFlags<PlayerOption> WAbstractMedia::getOptions() const
 {
   return flags_;
 }
 
-void WAbstractMedia::setPreloadMode(PreloadMode mode)
+void WAbstractMedia::setPreloadMode(MediaPreloadMode mode)
 {
   preloadMode_ = mode;
   preloadChanged_ = true;
   repaint();
 }
 
-WAbstractMedia::PreloadMode WAbstractMedia::preloadMode() const
+MediaPreloadMode WAbstractMedia::preloadMode() const
 {
   return preloadMode_;
 }
 
 void WAbstractMedia::clearSources()
 {
-  for (std::size_t i = 0; i < sources_.size(); ++i) {
-    delete sources_[i];
-  }
   sources_.clear();
   repaint();
 }
@@ -411,27 +408,31 @@ void WAbstractMedia::clearSources()
 void WAbstractMedia::addSource(const WLink& link, const std::string &type,
 			       const std::string& media)
 {
-  sources_.push_back(new Source(this, link, type, media));
+  sources_.push_back
+    (std::unique_ptr<Source>(new Source(this, link, type, media)));
   sourcesChanged_ = true;
   repaint();
 }
 
-void WAbstractMedia::setAlternativeContent(WWidget *alternative)
+void WAbstractMedia::setAlternativeContent(std::unique_ptr<WWidget> alternative)
+{
+  manageWidget(alternative_, std::move(alternative));
+}
+
+void WAbstractMedia::iterateChildren(const HandleWidgetMethod& method) const
 {
   if (alternative_)
-    delete alternative_;
-  alternative_ = alternative;
-  if (alternative_)
-    addChild(alternative_);
+    method(alternative_.get());
 }
 
 void WAbstractMedia::enableAjax() 
 {
   WWebWidget::enableAjax();
-  if(flags_ & Autoplay) {
-	// chrome stops playing as soon as the widget tree is changed
-	// We therefore restart the play manually
-	play();
+
+  if (flags_.test(PlayerOption::Autoplay)) {
+    // chrome stops playing as soon as the widget tree is changed
+    // We therefore restart the play manually
+    play();
   }
 }	
 
@@ -443,9 +444,14 @@ WAbstractMedia::Source::Source(WAbstractMedia *parent,
      media(media),
      link(link)
 {
-  if (link.type() == WLink::Resource)
+  if (link.type() == LinkType::Resource) {
+    /*
     connection = link.resource()->dataChanged().connect
-      (this, &Source::resourceChanged);
+      ([=]() { this->resourceChanged(); });
+    */
+    connection = link.resource()->dataChanged().connect
+      (std::bind(&Source::resourceChanged, this));
+  }
 }
 
 WAbstractMedia::Source::~Source()

@@ -6,18 +6,14 @@
 
 #include "ShapesWidget.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <cstdlib>
 
-#include <Wt/WPainter>
-#include <Wt/WGlobal>
+#include <Wt/WPainter.h>
+#include <Wt/WGlobal.h>
 
-using namespace Wt;
-
-ShapesWidget::ShapesWidget(WContainerWidget* parent) 
-  : WPaintedWidget(parent),
-    toSelect_(0)
+ShapesWidget::ShapesWidget()
+  : WPaintedWidget(),
+    toSelect_(nullptr)
 {}
 
 ShapesWidget::~ShapesWidget()
@@ -42,21 +38,18 @@ bool ShapesWidget::correctlyClicked(const WMouseEvent& me)
   
 double ShapesWidget::randomDouble()
 {
-  return rand() / (double(RAND_MAX) + 1); 
+  return std::rand() / (double(RAND_MAX) + 1);
 }
 
 int ShapesWidget::randomInt(const unsigned max) 
 {
-  return (rand() % max);
+  return (std::rand() % max);
 }
 
 void ShapesWidget::cleanupShapes() 
 {
-  for (unsigned i = 0; i < shapes_.size(); i++) {
-    delete shapes_[i];
-  }
   shapes_.clear();
-  toSelect_ = 0;
+  toSelect_ = nullptr;
 }
 
 void ShapesWidget::initShapes()
@@ -67,28 +60,25 @@ void ShapesWidget::initShapes()
 
   unsigned i = 1;
 	
-  toSelect_ = createRandomShape();
+
+  auto toSelectPtr = createRandomShape();
+  toSelect_ = toSelectPtr.get();
   while (i < numberOfShapes) {
-    Shape* s = createRandomShape();
-    if (!sameShapeAndColor(s, toSelect_)) {
-      shapes_.push_back(s);
+    std::unique_ptr<Shape> s = createRandomShape();
+    if (!sameShapeAndColor(s.get(), toSelect_)) {
+      shapes_.push_back(std::move(s));
       i++;
-    } else {
-      delete s;
     }
   }
-
-  shapes_.insert(shapes_.begin() + randomInt((int)shapes_.size()), toSelect_);
+  shapes_.insert(shapes_.begin() + randomInt((int)shapes_.size()), std::move(toSelectPtr));
 }
 
 void ShapesWidget::paintEvent(WPaintDevice *paintDevice) 
 {
   WPainter painter(paintDevice);
 
-  for (unsigned i = 0; i < shapes_.size(); i++) {
-    Shape* s = shapes_[i];
-    s->paint(painter);
-  }
+  for (auto& shape : shapes_)
+    shape->paint(painter);
 }
 
 bool ShapesWidget::sameShapeAndColor(const Shape* s1, const Shape* s2)
@@ -103,19 +93,19 @@ ShapeColor ShapesWidget::createRandomColor()
   
   switch (randomInt(amountOfColors)) {
   case 0:
-    return ShapeColor(red, WString::tr("captcha.red")); 
+    return ShapeColor(WColor(StandardColor::Red), WString::tr("captcha.red"));
   case 1:
-    return ShapeColor(green, WString::tr("captcha.green")); 
+    return ShapeColor(WColor(StandardColor::Green), WString::tr("captcha.green"));
   case 2:
-    return ShapeColor(blue, WString::tr("captcha.blue")); 
+    return ShapeColor(WColor(StandardColor::Blue), WString::tr("captcha.blue"));
   case 3:
-    return ShapeColor(yellow, WString::tr("captcha.yellow")); 
+    return ShapeColor(WColor(StandardColor::Yellow), WString::tr("captcha.yellow"));
   default:
-    return ShapeColor(black, WString("Invalid color")); 
+    return ShapeColor(WColor(StandardColor::Black), WString("Invalid color"));
   }
 }
 
-Shape* ShapesWidget::createRandomShape()
+std::unique_ptr<Shape> ShapesWidget::createRandomShape()
 {
   double size = 6 + randomDouble() * 6;
 
@@ -128,7 +118,7 @@ Shape* ShapesWidget::createRandomShape()
   
   unsigned shapeId = randomInt(amountOfShapes);
   if (shapeId == 0)
-    return new Circle(WPointF(x, y), c, size);
+    return cpp14::make_unique<Circle>(WPointF(x, y), c, size);
   else
-    return new Rectangle(WPointF(x, y), c, size);
+    return cpp14::make_unique<Rectangle>(WPointF(x, y), c, size);
 }

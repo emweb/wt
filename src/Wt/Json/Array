@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include <Wt/Json/Value>
+#include <Wt/Json/Value.h>
 
 namespace Wt {
   namespace Json {

@@ -7,20 +7,15 @@
 #ifndef CHART_WAXIS_H_
 #define CHART_WAXIS_H_
 
-#include <Wt/Chart/WChartGlobal>
-#include <Wt/WDateTime>
-#include <Wt/WFont>
-#include <Wt/WPainterPath>
-#include <Wt/WPen>
-#include <Wt/WSignal>
-#include <Wt/WString>
-#include <Wt/WTransform>
+#include <Wt/Chart/WChartGlobal.h>
+#include <Wt/WAny.h>
+#include <Wt/WFont.h>
+#include <Wt/WPainterPath.h>
+#include <Wt/WPen.h>
+#include <Wt/WSignal.h>
+#include <Wt/WString.h>
+#include <Wt/WTransform.h>
 
-#include <boost/any.hpp>
-#ifndef WT_TARGET_JAVA
-#include <boost/function.hpp>
-#endif
-#include <boost/unordered_map.hpp>
 #include <cfloat>
 
 namespace Wt {
@@ -35,15 +30,15 @@ class WAbstractChartImplementation;
  *
  * \ingroup charts
  */
-enum Axis {
-  XAxis = 0,             //!< X axis.
-  YAxis = 1,             //!< First Y axis (== Y1Axis).
-  Y1Axis = YAxis,        //!< First Y axis (== YAxis).
-  Y2Axis = 2,            //!< Second Y Axis.
-  OrdinateAxis = YAxis,  //!< Ordinate axis (== Y1Axis for a 2D plot).
-  XAxis_3D = 0,          //!< X axis on 3D chart.
-  YAxis_3D = 3,          //!< Y axis on 3D chart.
-  ZAxis_3D = 1 /* = Y */ //!< Z axis on 3D chart.
+enum class Axis {
+  X = 0,             //!< X axis.
+  Y = 1,             //!< First Y axis (== Y1).
+  Y1 = Y,            //!< First Y axis (== Y).
+  Y2 = 2,            //!< Second Y Axis.
+  Ordinate = Y,      //!< Ordinate axis (== Y1 for a 2D plot).
+  X3D = 0,          //!< X axis on 3D chart.
+  Y3D = 3,          //!< Y axis on 3D chart.
+  Z3D = 1 /* = Y */ //!< Z axis on 3D chart.
 };
 
 /*! \brief Enumeration that indicates a logical location for an axis.
@@ -54,12 +49,14 @@ enum Axis {
  *
  * \ingroup charts
  */
-enum AxisValue {
-  MinimumValue = 0x1,  //!< At the minimum value.
-  MaximumValue = 0x2,  //!< At the maximum value.
-  ZeroValue = 0x4,     //!< At the zero value (if displayed).
-  BothSides = 0x8      //!< At both sides (MinimumValue and MaximumValue).
+enum class AxisValue {
+  Minimum = 0x1,    //!< The minimum value.
+  Maximum = 0x2,    //!< The maximum value.
+  Zero = 0x4,       //!< The zero value (if displayed).
+  Both = 0x8   //!< At both sides (Minimum and Maximum).
 };
+
+W_DECLARE_OPERATORS_FOR_FLAGS(AxisValue)
 
 /*! \brief Axis configuration.
  * 
@@ -68,26 +65,30 @@ enum AxisValue {
  */
 struct AxisConfig {
   AxisConfig()
-    : side(MinimumValue), zoomLevel(1)
+    : side(AxisValue::Minimum), zoomLevel(1)
   { }
 
-  AxisValue side; //!< The side the axis is drawn on, should be MinimumValue, MaximumValue, or ZeroValue
-  int zoomLevel; //!< The zoom level. Different axis labels can be drawn depending on the zoom level. These are requested by WCartesianChart in powers of 2 (1, 2, 4, 8,...)
+  /*! \brief The side the axis is drawn on, should be Minimum, Maximum, or Zero
+   */
+  AxisValue side;
+
+  /*! \brief The zoom level.
+   *
+   * Different axis labels can be drawn depending on the zoom
+   * level. These are requested by WCartesianChart in powers of 2 (1,
+   * 2, 4, 8,...)
+   */
+  int zoomLevel; 
 };
 
 /*! \brief Enumeration that indicates which way the axis ticks point.
  *
  * \sa WAxis::setTickDirection(TickDirection)
  */
-enum TickDirection {
+enum class TickDirection {
   Outwards, //!< Towards of the outside of the chart.
   Inwards   //!< Pointing inwards to the chart.
 };
-
-// for < 3.0.1 compatibility
-typedef AxisValue AxisLocation;
-
-W_DECLARE_OPERATORS_FOR_FLAGS(AxisValue)
 
 /*! \brief Enumeration that indicates a scale for an axis.
  *
@@ -97,49 +98,56 @@ W_DECLARE_OPERATORS_FOR_FLAGS(AxisValue)
  *
  * \ingroup charts
  */
-enum AxisScale {
-  /*! A category scale is set as the scale for the X axis in a \link
-   * Chart::CategoryChart CategoryChart\endlink, and is only
+enum class AxisScale {
+  /*! A discrete scale is set as the scale for the X axis in a \link
+   * Chart::ChartType::Category ChartType::Category\endlink, and is only
    * applicable there. It lists all values, evenly spaced, and
    * consecutively in the order of the model. The categories are
    * converted to numbers using their ordinal (first category = 0,
    * second = 1, ...).
    */
-  CategoryScale = 0,
+  Discrete = 0,
 
   /*! A linear scale is the default scale for all axes, except for the
-   * X scale in a CategoryScale. It maps values in a linear
+   * X scale in a AxisScale::Discrete. It maps values in a linear
    * fashion on the axis.
    */
-  LinearScale = 1,
+  Linear = 1,
 
   /*! A logarithmic scale is useful for plotting values with of a
    * large range, but only works for positive values.
    */
-  LogScale = 2,
+  Log = 2,
 
   /*! A date scale is a special linear scale, which is useful for the
-   * X axis in a ScatterPlot, when the X series contain dates (of type
+   * X axis in a ChartType::Scatter, when the X series contain dates (of type
    * WDate). The dates are converted to numbers, as Julian Days.
    */
-  DateScale = 3,
+  Date = 3,
 
   /*! A datetime scale is a special linear scale, which is useful for
-   * the X axis in a ScatterPlot, when the X series contain timedates
+   * the X axis in a ChartType::Scatter, when the X series contain timedates
    * (of type WDateTime). The dates are converted to numbers, as the
    * number of seconds since the Unix Epoch (midnight Coordinated
    * Universal Time (UTC) of January 1, 1970).
    */
-  DateTimeScale = 4
+  DateTime = 4
 };
+
+/*! \brief Represents a Date time unit
+ */
+enum class DateTimeUnit { Seconds, Minutes, Hours, Days, Months, Years };
+
+/*! \brief Enumeration for a tick type */
+enum class TickLength { Zero, Short, Long };
 
 /*! \class WAxis Wt/Chart/WAxis Wt/Chart/WAxis
  *  \brief Class which represents an axis of a cartesian chart.
  *
  * A cartesian chart has two or three axes: an X axis (\link
- * Chart::XAxis XAxis\endlink), a Y axis (\link Chart::YAxis
- * YAxis\endlink) and optionally a second Y axis (\link Chart::Y2Axis
- * Y2Axis\endlink). Each of the up to three axes in a cartesian
+ * Chart::Axis::X Axis::X\endlink), a Y axis (\link Chart::Axis::Y
+ * Axis::Y\endlink) and optionally a second Y axis (\link Chart::Axis::Y2
+ * Axis::Y2\endlink). Each of the up to three axes in a cartesian
  * chart has a unique id() that identifies which of these three axes
  * it is in the enclosing chart().
  *
@@ -163,8 +171,8 @@ enum AxisScale {
  * omission is rendered in the axis and in bars that cross the break.
  *
  * The labels are shown using a "%.4g" format string for numbers, and
- * a suitable format for \link Chart::DateScale DateScale\endlink or
- * \link Chart::DateTimeScale DateTimeScale\endlink scales, based on
+ * a suitable format for \link Chart::AxisScale::Date AxisScale::Date\endlink or
+ * \link Chart::AxisScale::DateTime AxisScale::DateTime\endlink scales, based on
  * heuristics. The format may be customized using
  * setLabelFormat(). The angle of the label text may be changed using
  * setLabelAngle(). By default, all labels are printed horizontally.
@@ -223,7 +231,7 @@ public:
    * other axis (i.e. Y values for the X axis, and X values for the
    * Y axis).
    *
-   * The default value is Chart::MinimumValue.
+   * The default value is Chart::AxisValue::Minimum.
    *
    * \sa location()
    */
@@ -237,15 +245,15 @@ public:
 
   /*! \brief Sets the scale of the axis.
    *
-   * For the X scale in a \link Chart::CategoryChart
-   * CategoryChart\endlink, the scale should be left unchanged to
-   * \link Chart::CategoryScale CategoryScale\endlink.
+   * For the X scale in a \link Chart::ChartType::Category
+   * ChartType::Category\endlink, the scale should be left unchanged to
+   * \link Chart::AxisScale::Discrete AxisScale::Discrete\endlink.
    *
-   * For all other axes, the default value is \link Chart::LinearScale
-   * LinearScale\endlink, but this may be changed to \link
-   * Chart::LogScale LogScale\endlink or \link Chart::DateScale
-   * DateScale\endlink. \link Chart::DateScale DateScale\endlink is
-   * only useful for the X axis in a ScatterPlot which contains WDate
+   * For all other axes, the default value is \link Chart::AxisScale::Linear
+   * AxisScale::Linear\endlink, but this may be changed to \link
+   * Chart::AxisScale::Log AxisScale::Log\endlink or \link Chart::AxisScale::Date
+   * AxisScale::Date\endlink. \link Chart::AxisScale::Date AxisScale::Date\endlink is
+   * only useful for the X axis in a ChartType::Scatter which contains WDate
    * values.
    *
    * \sa scale()
@@ -343,16 +351,16 @@ public:
    * automatic limits, rather than limits set manually using
    * setMinimum() or setMaximum().
    *
-   * \p locations can be Chart::MinimumValue and/or Chart::MaximumValue.
+   * \p locations can be Chart::AxisValue::Minimum and/or Chart::AxisValue::Maximum.
    *
-   * The default value is Chart::MinimumValue | Chart::MaximumValue.
+   * The default value is Chart::AxisValue::Minimum | Chart::AxisValue::Maximum.
    */
   void setAutoLimits(WFlags<AxisValue> locations);
 
   /*! \brief Returns the limits that are calculated automatically.
    *
-   * This returns the limits (Chart::MinimumValue and/or
-   * Chart::MaximumValue) that are calculated automatically from the
+   * This returns the limits (Chart::AxisValue::Minimum and/or
+   * Chart::AxisValue::Maximum) that are calculated automatically from the
    * data, rather than being specified manually using setMinimum()
    * and/or setMaximum().
    *
@@ -385,7 +393,7 @@ public:
    * otherwise swamp the chart. This is not done automatically, but
    * instead you need to use setBreak() to specify the value range
    * that needs to be omitted from the axis. The omission is rendered
-   * in the axis and in BarSeries that cross the break.
+   * in the axis and in SeriesType::Bar that cross the break.
    *
    * \note This feature is incompatible with the interactive features
    *       of WCartesianChart.
@@ -435,19 +443,19 @@ public:
    * axis labels as well as data series values
    * (see WDataSeries::setLabelsEnabled()).
    *
-   * For an axis with a \link Chart::LinearScale LinearScale\endlink
-   * or \link Chart::LogScale LogScale\endlink scale, the format string
+   * For an axis with a \link Chart::AxisScale::Linear AxisScale::Linear\endlink
+   * or \link Chart::AxisScale::Log AxisScale::Log\endlink scale, the format string
    * must be a format string that is accepted by snprintf() and which
    * formats one double. If the format string is an empty string,
    * then WLocale::toString() is used.
    *
-   * For an axis with a \link Chart::DateScale DateScale\endlink
+   * For an axis with a \link Chart::AxisScale::Date AxisScale::Date\endlink
    * scale, the format string must be a format string accepted by
    * WDate::toString(), to format a date. If the format string is an
    * empty string, a suitable format is chosen based on heuristics.
    *
-   * For an axis with a \link Chart::DateTimeScale
-   * DateTimeScale\endlink scale, the format string must be a format
+   * For an axis with a \link Chart::AxisScale::DateTime
+   * AxisScale::DateTime\endlink scale, the format string must be a format
    * string accepted by WDateTime::toString(), to format a date. If
    * the format string is an empty string, a suitable format is chosen
    * based on heuristics.
@@ -487,7 +495,7 @@ public:
    *
    * Sets the orientation used for displaying the title.
    *
-   * The default value is Horizontal
+   * The default value is Orientation::Horizontal
    *
    * \sa titleOrientation()
    */
@@ -519,7 +527,7 @@ public:
 
   /*! \brief Changes the pen used for rendering the axis and ticks.
    *
-   * The default value is a black pen of 0 width.
+   * The default value is a StandardColor::Black pen of 0 width.
    *
    * \sa setGridLinesPen().
    */
@@ -533,7 +541,7 @@ public:
 
   /*! \brief Changes the pen used for rendering labels for this axis
    *
-   * The default value is a black pen of 0 width.
+   * The default value is a StandardColor::Black pen of 0 width.
    *
    * \sa setGridLinesPen().
    * \sa setPen().
@@ -549,7 +557,7 @@ public:
 
   /*! \brief Changes the pen used for rendering the grid lines.
    *
-   * The default value is a gray pen of 0 width.
+   * The default value is a StandardColor::Gray pen of 0 width.
    *
    * \sa setPen(), gridLinesPen().
    */
@@ -654,7 +662,7 @@ public:
    */
   void setZoomRange(double minimum, double maximum);
 
-  /*! \brief Get the zoom range minimum for this axis.
+  /*! \brief Method::Get the zoom range minimum for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -662,7 +670,7 @@ public:
    */
   double zoomMinimum() const;
 
-  /*! \brief Get the zoom range maximum for this axis.
+  /*! \brief Method::Get the zoom range maximum for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -690,7 +698,7 @@ public:
    */
   void setZoom(double zoom);
 
-  /*! \brief Get the zoom level for this axis.
+  /*! \brief Method::Get the zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -711,7 +719,7 @@ public:
    */
   void setMaxZoom(double maxZoom);
 
-  /*! \brief Get the maximum zoom level for this axis.
+  /*! \brief Method::Get the maximum zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -732,7 +740,7 @@ public:
    */
   void setMinimumZoomRange(double size);
 
-  /*! \brief Get the minimum zoom range for this axis.
+  /*! \brief Method::Get the minimum zoom range for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -758,7 +766,7 @@ public:
    */
   void setPan(double pan);
 
-  /*! \brief Get the value to pan to for this axis, when pan is enabled on the chart.
+  /*! \brief Method::Get the value to pan to for this axis, when pan is enabled on the chart.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -782,10 +790,10 @@ public:
 
   /*! \brief Sets the direction that the axis ticks should point to.
    *
-   * If set to Outwards, the axis ticks will point outside of
+   * If set to TickDirection::Outwards, the axis ticks will point outside of
    * the chart, and the labels will be on the outside.
    *
-   * If set to Inwards, the axis ticks will point inside of
+   * If set to TickDirection::Inwards, the axis ticks will point inside of
    * the chart, and the labels will be on the inside. Also,
    * the padding() will be set to 25.
    *
@@ -846,10 +854,12 @@ public:
 	      double tickStart, double tickEnd, double labelPos,
 	      WFlags<AlignmentFlag> labelFlags,
 	      const WTransform &transform = WTransform(),
-	      AxisValue side = MinimumValue) const {
+	      AxisValue side = AxisValue::Minimum) const {
     std::vector<WPen> pens;
     std::vector<WPen> textPens;
-    render(painter, properties, axisStart, axisEnd, tickStart, tickEnd, labelPos, labelFlags, transform, side, pens, textPens);
+    render(painter, properties, axisStart, axisEnd, 
+	   tickStart, tickEnd, labelPos, labelFlags, 
+	   transform, side, pens, textPens);
   }
 
   void render(WPainter& painter,
@@ -873,7 +883,7 @@ public:
    */
   void setInverted(bool inverted = true);
 
-  /*! \brief Get whether this axis is inverted.
+  /*! \brief Method::Get whether this axis is inverted.
    *
    * \sa setInverted()
    */
@@ -886,7 +896,7 @@ public:
    *
    * \sa WAxis::setLabelTransform()
    */
-  typedef boost::function<double (double)> LabelTransform;
+  typedef std::function<double (double)> LabelTransform;
 #else
   /*! \brief A label transform function.
    *
@@ -920,20 +930,20 @@ public:
    * ticks, only change the labels displayed at the ticks.
    *
    * This can be useful in combination with a location() set to
-   * BothSides, to show different labels on each side.
+   * AxisValue::Both, to show different labels on each side.
    *
-   * If DateScale or DateTimeScale are used, the double value will be
+   * If AxisScale::Date or AxisScale::DateTime are used, the double value will be
    * in seconds since the Epoch (00:00:00 UTC, January 1, 1970).
    *
-   * Only MinimumValue, ZeroValue and MaximumValue are accepted for
+   * Only AxisValue::Minimum, AxisValue::Zero and AxisValue::Maximum are accepted for
    * side. If you set a label transform for another side, the label
    * transform will not be used.
    *
-   * The label transform will not be used if the scale() is CategoryScale.
+   * The label transform will not be used if the scale() is AxisScale::Discrete.
    */
   void setLabelTransform(const LabelTransform& transform, AxisValue side);
 
-  /*! \brief Get the label transform configured for the given side.
+  /*! \brief Method::Get the label transform configured for the given side.
    *
    * If no transform is configured for the given side, the identity
    * function is returned.
@@ -947,16 +957,9 @@ public:
   double calcMaxTickLabelSize(WPaintDevice *device, Orientation orientation) const;
 
 protected:
-  /*! \brief Represents a Date time unit
-   */
-  enum DateTimeUnit { Seconds, Minutes, Hours, Days, Months, Years };
-  
   /*! \brief Represents a label/tick on the axis.
    */
   struct WT_API TickLabel {
-    /*! \brief Enumeration for a tick type */
-    enum TickLength { Zero, Short, Long };
-
     /*! \brief Position on the axis. */
     double u;
 
@@ -1012,7 +1015,7 @@ private:
   TickDirection    tickDirection_;
   bool             partialLabelClipping_;
   bool		   inverted_;
-  boost::unordered_map<AxisValue, LabelTransform > labelTransforms_;
+  std::map<AxisValue, LabelTransform > labelTransforms_;
 
   // for 3D charts, don't call update when the labelangle is tempor. changed
   bool             renderingMirror_;
@@ -1042,15 +1045,15 @@ private:
 
   void computeRange(const Segment& segment) const;
 
-  double getValue(const boost::any& v) const;
-  static double getDateValue(const boost::any& value);
+  double getValue(const cpp17::any& v) const;
+  static double getDateValue(const cpp17::any& value);
 
   double calcAutoNumLabels(Orientation orientation, const Segment& s) const;
   WString defaultDateTimeFormat(const Segment& s) const;
 
   double mapFromDevice(double d) const;
-  double mapToDevice(const boost::any &value) const;
-  double mapToDevice(const boost::any& value, int segment) const;
+  double mapToDevice(const cpp17::any &value) const;
+  double mapToDevice(const cpp17::any& value, int segment) const;
   double mapToDevice(double value) const;
   double mapToDevice(double value, int segment) const;
   // Check whether the given point is within the limits of this axis
@@ -1064,7 +1067,7 @@ private:
   // (larger than maximum())
   double drawnMaximum() const;
 
-  long long getDateNumber(Wt::WDateTime dt) const;
+  long long getDateNumber(const Wt::WDateTime& dt) const;
   void setZoomRangeFromClient(double minimum, double maximum);
 
   bool hasLabelTransformOnSide(AxisValue side) const;

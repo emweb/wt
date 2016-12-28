@@ -7,7 +7,7 @@
 #ifndef WFILEUPLOAD_H_
 #define WFILEUPLOAD_H_
 
-#include <Wt/WWebWidget>
+#include <Wt/WWebWidget.h>
 
 namespace Wt {
 
@@ -103,7 +103,7 @@ class WT_API WFileUpload : public WWebWidget
 public:
   /*! \brief Creates a file upload widget
    */
-  WFileUpload(WContainerWidget *parent = 0);
+  WFileUpload();
 
   ~WFileUpload();
 
@@ -178,15 +178,6 @@ public:
    */
   bool empty() const;
 
-  /*! \brief Checks if no filename was given and thus no file uploaded.
-   *         (<b>Deprecated</b>)
-   *
-   * Return whether a non-empty filename was given.
-   *
-   * \deprecated This method was renamed to empty()
-   */
-  bool emptyFileName() const;
-
   /*! \brief Returns the uploaded files.
    */
   const std::vector<Http::UploadedFile>& uploadedFiles() const
@@ -197,23 +188,8 @@ public:
    * A call to upload() will only start a new file upload if there is
    * no JavaScript support. Otherwise, the most recent file will
    * already be uploaded.
-   *
-   * \if cpp
-   * \note This method was renamed, and its result inverted, from the
-   *       now deprecated method isUploaded()
-   * \endif
    */
-  bool canUpload() const { return fileUploadTarget_ != 0; }
-
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Returns whether the upload() slot will not start a new
-   *         upload. (<b>Deprecated</b>)
-   *
-   * \deprecated use canUpload() instead -- canUpload() == !isUploaded().
-   *             the name was confusing.
-   */
-  bool isUploaded() const { return !canUpload(); }
-#endif // WT_DEPRECATED_3_0_0
+  bool canUpload() const { return fileUploadTarget_ != nullptr; }
 
   /*! \brief %Signal emitted when a new file was uploaded.
    *
@@ -237,7 +213,7 @@ public:
    * \sa uploaded()
    * \sa WApplication::requestTooLarge()
    */
-  JSignal< ::int64_t >& fileTooLarge() { return fileTooLarge_; }
+  JSignal<::int64_t>& fileTooLarge() { return fileTooLarge_; }
 
   /*! \brief %Signal emitted when the user selected a new file.
    *
@@ -267,11 +243,7 @@ public:
    * using the provided progress bar. Both the progress bar range and
    * values are configured when the upload starts.
    *
-   * If the provided progress bar already has a parent, then the file
-   * upload itself is hidden as soon as the upload starts. If the
-   * provided progress bar does not yet have a parent, then the bar
-   * becomes part of the file upload, and replaces the file prompt
-   * when the upload is started.
+   * The file upload itself is hidden as soon as the upload starts.
    *
    * The default progress bar is 0 (no upload progress is indicated).
    *
@@ -285,6 +257,27 @@ public:
    */
   void setProgressBar(WProgressBar *progressBar);
 
+  /*! \brief Sets a progress bar to indicate upload progress.
+   *
+   * When the file is being uploaded, upload progress is indicated
+   * using the provided progress bar. Both the progress bar range and
+   * values are configured when the upload starts.
+   *
+   * The bar becomes part of the file upload, and replaces the file
+   * prompt when the upload is started.
+   *
+   * The default progress bar is 0 (no upload progress is indicated).
+   *
+   * \if java
+   * To update the progess bar server push is used, you should only
+   * use this functionality when using a Servlet 3.0 compatible servlet 
+   * container.
+   * \endif
+   *
+   * \sa dataReceived()
+   */
+  void setProgressBar(std::unique_ptr<WProgressBar> progressBar);
+
   /*! \brief Returns the progress bar.
    *
    * \sa setProgressBar()
@@ -296,9 +289,9 @@ public:
    * When supported by the connector library, you can track the
    * progress of the file upload by listening to this signal.
    */
-  Signal< ::uint64_t, ::uint64_t >& dataReceived() { return dataReceived_; }
+  Signal<::uint64_t, ::uint64_t>& dataReceived() { return dataReceived_; }
 
-  virtual void enableAjax();
+  virtual void enableAjax() override;
 
   ///
   /// \brief Sets input accept attributes
@@ -331,11 +324,12 @@ private:
 
   std::vector<Http::UploadedFile> uploadedFiles_;
 
-  JSignal< ::int64_t > fileTooLarge_;
+  JSignal<::int64_t> fileTooLarge_;
 
-  Signal< ::uint64_t, ::uint64_t > dataReceived_;
+  Signal<::uint64_t, ::uint64_t> dataReceived_;
 
-  WResource *fileUploadTarget_;
+  std::unique_ptr<WResource> fileUploadTarget_;
+  std::unique_ptr<WProgressBar> containedProgressBar_;
   WProgressBar *progressBar_;
 
   std::string acceptAttributes_;
@@ -343,24 +337,24 @@ private:
 
   void onData(::uint64_t current, ::uint64_t total);
 
-  virtual void setRequestTooLarge(::int64_t size);
+  virtual void setRequestTooLarge(::int64_t size) override;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElement    *createDomElement(WApplication *app);
-  virtual DomElementType domElementType() const;
-  virtual void           propagateRenderOk(bool deep);
+  virtual void           updateDom(DomElement& element, bool all) override;
+  virtual DomElement    *createDomElement(WApplication *app) override;
+  virtual DomElementType domElementType() const override;
+  virtual void           propagateRenderOk(bool deep) override;
   virtual void           getDomChanges(std::vector<DomElement *>& result,
-				       WApplication *app);
-  virtual void propagateSetEnabled(bool enabled);
-  virtual std::string renderRemoveJs(bool recursive);
+                                       WApplication *app) override;
+  virtual void propagateSetEnabled(bool enabled) override;
+  virtual std::string renderRemoveJs(bool recursive) override;
 
 private:
   void handleFileTooLarge(::int64_t fileSize);
 
   void onUploaded();
 
-  virtual void setFormData(const FormData& formData);
+  virtual void setFormData(const FormData& formData) override;
   void setFiles(const std::vector<Http::UploadedFile>& files);
 
   friend class WFileUploadResource;

@@ -7,8 +7,8 @@
 #ifndef WT_DBO_QUERY_MODEL_H_
 #define WT_DBO_QUERY_MODEL_H_
 
-#include <Wt/WAbstractTableModel>
-#include <Wt/Dbo/Dbo>
+#include <Wt/WAbstractTableModel.h>
+#include <Wt/Dbo/Dbo.h>
 
 namespace Wt {
   namespace Dbo {
@@ -80,7 +80,7 @@ public:
    *
    * You need to seed the model with a query using setQuery().
    */
-  QueryModel(WObject *parent = 0);
+  QueryModel();
 
   /*! \brief Sets the query.
    *
@@ -108,18 +108,18 @@ public:
    * name. The list of available fields can be inspected using
    * fields().
    *
-   * The \p header is used as Wt::DisplayRole for the column header
+   * The \p header is used as Wt::ItemDataRole::Display for the column header
    * data.
    *
    * For the column items, flags() will returned the given \p
    * flags. For example, to indicate that a field is editable, you can
-   * set the Wt::ItemIsEditable flag.
+   * set the Wt::ItemFlag::Editable flag.
    *
    * \sa fields()
    */
   int addColumn(const std::string& field,
 		const WString& header,
-		WFlags<ItemFlag> flags = ItemIsSelectable);
+		WFlags<ItemFlag> flags = ItemFlag::Selectable);
 
   /*! \brief Adds a column.
    *
@@ -129,13 +129,13 @@ public:
    * \sa setHeaderData()
    */
   int addColumn(const std::string& field,
-		WFlags<ItemFlag> flags = ItemIsSelectable);
+		WFlags<ItemFlag> flags = ItemFlag::Selectable);
 
   /*! \brief Sets column item flags.
    *
    * For items in column \p column, flags() will returned the given \p
    * flags. For example, to indicate that a field is editable, you can
-   * set the Wt::ItemIsEditable flag.
+   * set the Wt::ItemFlag::Editable flag.
    */
   void setColumnFlags(int column, WFlags<ItemFlag> flags);
 
@@ -266,7 +266,7 @@ public:
 
   /*! \brief Returns the data for an item.
    *
-   * Returns data of type Wt::DisplayRole or Wt::EditRole based on the
+   * Returns data of type Wt::ItemDataRole::Display or Wt::ItemDataRole::Edit based on the
    * field value corresponding to the index. If necessary, this
    * fetches a batch of results from the underlying database.
    *
@@ -275,18 +275,20 @@ public:
    * define your own data presentation using the underlying \p Result by
    * specializing data() and accessing data from resultRow().
    */
-  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
+  virtual cpp17::any data(const WModelIndex& index, 
+		          int role = ItemDataRole::Display)
     const;
 
   /*! \brief Sets data at the given model index.
    *
-   * If \p role = Wt::EditRole, sets the value for the field
+   * If \p role = Wt::ItemDataRole::Edit, sets the value for the field
    * corresponding to the index. All other editing is ignored.
    *
    * \sa setCachedResult()
    */
   virtual bool setData(const WModelIndex& index,
-		       const boost::any& value, int role = EditRole);
+		       const cpp17::any& value,
+		       int role = ItemDataRole::Edit);
 
   /*! \brief Sorts the model according to a particular column.
    *
@@ -295,7 +297,8 @@ public:
    *
    * \sa createOrderBy()
    */
-  virtual void sort(int column, SortOrder order = AscendingOrder);
+  virtual void sort(int column, 
+		    SortOrder order = SortOrder::Ascending);
 
   /*! \brief Create specialized orderBy clause for sort
    *
@@ -330,19 +333,19 @@ public:
   /*! \brief Sets header data for a column.
    *
    * The model will return this data in headerData(). Only column headers
-   * are supported (orientation == Wt::Horizontal).
+   * are supported (orientation == Wt::Orientation::Horizontal).
    */
   virtual bool setHeaderData(int column, Orientation orientation,
-			     const boost::any& value,
-			     int role = EditRole);
+			     const cpp17::any& value,
+			     int role = ItemDataRole::Edit);
 
   /*! \brief Returns header data.
    *
    * \sa setHeaderData()
    */
-  virtual boost::any headerData(int section,
-				Orientation orientation = Horizontal,
-				int role = DisplayRole) const;
+  virtual cpp17::any headerData(int section,
+			     Orientation orientation = Orientation::Horizontal,
+			     int role = ItemDataRole::Display) const;
 
   virtual void *toRawIndex(const WModelIndex& index) const;
   virtual WModelIndex fromRawIndex(void *rawIndex) const;
@@ -399,7 +402,7 @@ protected:
 private:
   void cacheRow(int row) const;
 
-  typedef std::vector<boost::any> AnyList;
+  typedef std::vector<cpp17::any> AnyList;
   typedef std::map<int, long long> StableResultIdMap;
 
   std::vector<QueryColumn> columns_;

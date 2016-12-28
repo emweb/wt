@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<messages>
+<messages nplurals="2"
+	  plural="n == 1 ? 0 : 1">
   <message id="Wt.QuittedMessage">
     The application has stopped running, would you like to restart?
   </message>
@@ -56,20 +57,34 @@
   <message id="Wt.WDatePicker.Close">Close</message>
 
   <message id="Wt.WDateTime.LessThanASecond">less than a second</message>
-  <message id="Wt.WDateTime.second">one second</message>
-  <message id="Wt.WDateTime.seconds">{1} seconds</message>
-  <message id="Wt.WDateTime.minute">one minute</message>
-  <message id="Wt.WDateTime.minutes">{1} minutes</message>
-  <message id="Wt.WDateTime.hour">one hour</message>
-  <message id="Wt.WDateTime.hours">{1} hours</message>
-  <message id="Wt.WDateTime.day">one day</message>
-  <message id="Wt.WDateTime.days">{1} days</message>
-  <message id="Wt.WDateTime.week">one week</message>
-  <message id="Wt.WDateTime.weeks">{1} weeks</message>
-  <message id="Wt.WDateTime.month">one month</message>
-  <message id="Wt.WDateTime.months">{1} months</message>
-  <message id="Wt.WDateTime.year">one year</message>
-  <message id="Wt.WDateTime.years">{1} years</message>
+  <message id="Wt.WDateTime.seconds">
+    <plural case="0">one second</plural>
+    <plural case="1">{1} seconds</plural>
+  </message>
+  <message id="Wt.WDateTime.minutes">
+    <plural case="0">one minute</plural>
+    <plural case="1">{1} minutes</plural>
+  </message>
+  <message id="Wt.WDateTime.hours">
+    <plural case="0">one hour</plural>
+    <plural case="1">{1} hours</plural>
+  </message>
+  <message id="Wt.WDateTime.days">
+    <plural case="0">one day</plural>
+    <plural case="1">{1} days</plural>
+  </message>
+  <message id="Wt.WDateTime.weeks">
+    <plural case="0">one week</plural>
+    <plural case="1">{1} weeks</plural>
+  </message>
+  <message id="Wt.WDateTime.months">
+    <plural case="0">one month</plural>
+    <plural case="1">{1} months</plural>
+  </message>
+  <message id="Wt.WDateTime.years">
+    <plural case="0">one year</plural>
+    <plural case="1">{1} years</plural>
+  </message>
   <message id="Wt.WDateTime.null"></message>
 
   <message id="Wt.WDateValidator.DateTooEarly">The date must be after {1}</message>
@@ -246,7 +261,7 @@
 
   <message id="Wt.WTreeNode.template">
     <div class="Wt-item ${trunk-class} ${selected}">
-      ${cols-row}${expand}${label-area}
+      ${cols-row}${expand}${no-expand}${label-area}
     </div>
     <div style="clear: both"></div>
     ${children}

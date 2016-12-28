@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include <Wt/WPoint>
+#include <Wt/WPoint.h>
 
 namespace Wt {
   class ImageUtils {

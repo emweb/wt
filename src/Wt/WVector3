@@ -7,8 +7,8 @@
 #ifndef WVECTOR3_H_
 #define WVECTOR3_H_
 
-#include "Wt/WGenericMatrix"
-#include "Wt/WVector4"
+#include "Wt/WGenericMatrix.h"
+#include "Wt/WVector4.h"
 
 namespace Wt {
 class WT_API WVector3: public WGenericMatrix<double, 3, 1>

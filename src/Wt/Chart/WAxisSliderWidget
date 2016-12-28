@@ -7,11 +7,11 @@
 #ifndef CHART_WAXIS_SLIDER_WIDGET_H_
 #define CHART_WAXIS_SLIDER_WIDGET_H_
 
-#include <Wt/WBrush>
-#include <Wt/WJavaScriptHandle>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPen>
-#include <Wt/WRectF>
+#include <Wt/WBrush.h>
+#include <Wt/WJavaScriptHandle.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPen.h>
+#include <Wt/WRectF.h>
 
 namespace Wt {
 
@@ -36,14 +36,14 @@ public:
    * Before it is used, a chart should be assigned with setChart(),
    * and a series column chosen with setSeriesColumn().
    */
-  WAxisSliderWidget(WContainerWidget *parent = 0);
+  WAxisSliderWidget();
 
   /*! \brief Creates an axis slider widget.
    *
    * Creates an axis slider widget associated with the given data series
    * of the given chart.
    */
-  WAxisSliderWidget(WDataSeries *series, WContainerWidget *parent = 0);
+  WAxisSliderWidget(WDataSeries *series);
   
   /*! \brief Destructor
    */
@@ -102,7 +102,7 @@ public:
    *
    * \sa setAutoLayoutEnabled()
    */
-  void setSelectionAreaPadding(int padding, WFlags<Side> sides = All);
+  void setSelectionAreaPadding(int padding, WFlags<Side> sides = AllSides);
 
   /*! \brief Returns the internal margin for the selection area.
    *
@@ -126,7 +126,7 @@ public:
 
   /*! \brief Set whether to draw the X axis tick labels on the slider widget.
    *
-   * Labels are enabled by default.
+   * AxisProperty::Labels are enabled by default.
    */
   void setLabelsEnabled(bool enabled = true);
 
@@ -152,8 +152,8 @@ public:
   const WDataSeries *series() const { return series_; }
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
-  virtual void paintEvent(WPaintDevice *paintDevice) WT_CXX11ONLY(override) ;
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void paintEvent(WPaintDevice *paintDevice) override;
 
 private:
   void init();

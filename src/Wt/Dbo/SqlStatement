@@ -9,9 +9,9 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <Wt/Dbo/SqlConnection>
+#include <Wt/Dbo/SqlConnection.h>
 
 namespace Wt {
   namespace Dbo {
@@ -83,12 +83,12 @@ public:
 
   /*! \brief Binds a value to a column.
    */
-  virtual void bind(int column, const boost::posix_time::ptime& value,
+  virtual void bind(int column, const std::chrono::system_clock::time_point& value,
 		    SqlDateTimeType type) = 0;
 
   /*! \brief Binds a value to a column.
    */
-  virtual void bind(int column, const boost::posix_time::time_duration& value)
+  virtual void bind(int column, const std::chrono::duration<int, std::milli>& value)
     = 0;
 
   /*! \brief Binds a value to a column.
@@ -162,14 +162,14 @@ public:
    *
    * Returns \c true when the value was not \c null.
    */
-  virtual bool getResult(int column, boost::posix_time::ptime *value,
+  virtual bool getResult(int column, std::chrono::system_clock::time_point *value,
 			 SqlDateTimeType type) = 0;
 
   /*! \brief Fetches a result value.
    *
    * Returns \c true when the value was not \c null.
    */
-  virtual bool getResult(int column, boost::posix_time::time_duration *value)
+  virtual bool getResult(int column, std::chrono::duration<int, std::milli> *value)
     = 0;
 
   /*! \brief Fetches a result value.
@@ -195,7 +195,7 @@ private:
 class WTDBO_API ScopedStatementUse
 {
 public:
-  ScopedStatementUse(SqlStatement *statement = 0);
+  ScopedStatementUse(SqlStatement *statement = nullptr);
   void operator()(SqlStatement *statement);
   ~ScopedStatementUse();
 

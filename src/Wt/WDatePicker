@@ -7,9 +7,9 @@
 #ifndef WDATEPICKER_H_
 #define WDATEPICKER_H_
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WDate>
-#include <Wt/WJavaScriptSlot>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WDate.h>
+#include <Wt/WJavaScriptSlot.h>
 #include <set>
 
 namespace Wt {
@@ -56,7 +56,7 @@ public:
    * This constructor creates a line edit with an icon that leads to a
    * popup calendar. A WDateValidator is configured for the line edit.
    */
-  WDatePicker(WContainerWidget *parent = 0);
+  WDatePicker();
 
   /*! \brief Create a new date picker for a line edit.
    *
@@ -66,27 +66,30 @@ public:
    * with the date picker. This widget does not become part of the
    * date picker, and may be located anywhere else.
    */
-  WDatePicker(WLineEdit *forEdit,
-	      WContainerWidget *parent = 0);
+  WDatePicker(WLineEdit *forEdit);
 
   /*! \brief Create a new date picker for existing line edit and with custom
    *         display widget.
    *
    * The \p displayWidget is a button or image which much be
-   * clicked to open the date picker. This widget will become owned by
-   * the picker.
+   * clicked to open the date picker.
    *
    * The \p forEdit argument is the lineEdit that works in
-   * conjunction with the date picker. This widget does not become
-   * part of the date picker, and may be located anywhere else.
+   * conjunction with the date picker.
    */
-  WDatePicker(WInteractWidget *displayWidget,
-	      WLineEdit *forEdit,
-	      WContainerWidget *parent = 0);
+  WDatePicker(std::unique_ptr<WInteractWidget> displayWidget,
+	      WLineEdit *forEdit);
 
   /*! \brief Destructor.
    */
   ~WDatePicker();
+
+  /*! \brief Returns the validator.
+   *
+   * Most of the configuration of the date edit is stored in the
+   * validator.
+   */
+  virtual std::shared_ptr<WDateValidator> dateValidator() const;
 
   /*! \brief Sets the format used for parsing or writing the date in
    *         the line edit.
@@ -130,7 +133,7 @@ public:
    *
    * Returns the popup widget that contains the calendar. 
    */
-  WPopupWidget *popupWidget() const { return popup_; }
+  WPopupWidget *popupWidget() const { return popup_.get(); }
 
   /*! \brief The current date.
    *
@@ -163,12 +166,12 @@ public:
    */
   void setEnabled(bool enabled);
 
-  virtual void setDisabled(bool disabled);
+  virtual void setDisabled(bool disabled) override;
 
   /*! \brief Hide/unhide the widget.
    */
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
+                         const WAnimation& animation = WAnimation()) override;
 
   /*! \brief Sets the bottom of the valid date range.
    */
@@ -217,7 +220,7 @@ public:
   Signal<>& popupClosed() { return popupClosed_; }
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
   WT_USTRING format_;
@@ -225,14 +228,15 @@ private:
   WLineEdit *forEdit_;
 
   WContainerWidget *layout_;
-  WPopupWidget *popup_;
+  std::unique_ptr<WPopupWidget> popup_;
   WCalendar *calendar_;
 
   Signal<> popupClosed_, changed_;
   JSlot positionJS_;
 
   void createDefault(WLineEdit *forEdit);
-  void create(WInteractWidget *displayWidget, WLineEdit *forEdit);
+  void create(std::unique_ptr<WInteractWidget> displayWidget,
+	      WLineEdit *forEdit);
 
   void setFromCalendar();
   void setFromLineEdit();

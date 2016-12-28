@@ -4,13 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WException"
-#include "Wt/WFontMetrics"
-#include "Wt/WPaintDevice"
-#include "Wt/WPainter"
+#include "Wt/WException.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WPaintDevice.h"
+#include "Wt/WPainter.h"
 
 #ifdef WT_HAS_WPDFIMAGE
-#include "Wt/WPdfImage"
+#include "Wt/WPdfImage.h"
 #endif // WT_HAS_WPDFIMAGE
 
 #include "ServerSideFontMetrics.h"
@@ -18,22 +18,15 @@
 namespace Wt {
 
 ServerSideFontMetrics::ServerSideFontMetrics()
-  : img_(0),
-    painter_(0)
 {
 #ifdef WT_HAS_WPDFIMAGE
-  img_ = new WPdfImage(100, 100);
-  painter_ = new WPainter(img_);
+  img_.reset(new WPdfImage(100, 100));
+  painter_.reset(new WPainter(img_.get()));
 #endif // WT_HAS_WPDFIMAGE
 }
 
 ServerSideFontMetrics::~ServerSideFontMetrics()
-{
-#ifdef WT_HAS_WPDFIMAGE
-  delete painter_;
-  delete img_;
-#endif // WT_HAS_WPDFIMAGE
-}
+{ }
 
 WFontMetrics ServerSideFontMetrics::fontMetrics(const WFont& font)
 {

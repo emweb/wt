@@ -10,12 +10,12 @@
 #include <set>
 #include <bitset>
 
-#include <Wt/WString>
-#include <Wt/WWidget>
-#include <Wt/WEvent>
+#include <Wt/WString.h>
+#include <Wt/WWidget.h>
+#include <Wt/WEvent.h>
 
 #ifdef WT_CNOR
-#include <Wt/WJavaScript>
+#include <Wt/WJavaScript.h>
 #endif // WT_CNOR
 
 namespace Wt {
@@ -27,31 +27,31 @@ class WApplication;
  *
  * For internal use only.
  */
-enum DomElementType {
-  DomElement_A, DomElement_BR, DomElement_BUTTON, DomElement_COL,
-  DomElement_COLGROUP,
-  DomElement_DIV, DomElement_FIELDSET, DomElement_FORM,
-  DomElement_H1, DomElement_H2, DomElement_H3, DomElement_H4,
+enum class DomElementType {
+  A, BR, BUTTON, COL,
+  COLGROUP,
+  DIV, FIELDSET, FORM,
+  H1, H2, H3, H4,
 
-  DomElement_H5, DomElement_H6, DomElement_IFRAME, DomElement_IMG,
-  DomElement_INPUT, DomElement_LABEL, DomElement_LEGEND, DomElement_LI,
-  DomElement_OL,
+  H5, H6, IFRAME, IMG,
+  INPUT, LABEL, LEGEND, LI,
+  OL,
 
-  DomElement_OPTION, DomElement_UL, DomElement_SCRIPT, DomElement_SELECT,
-  DomElement_SPAN, DomElement_TABLE, DomElement_TBODY, DomElement_THEAD,
-  DomElement_TFOOT, DomElement_TH, DomElement_TD, DomElement_TEXTAREA,
-  DomElement_OPTGROUP,
+  OPTION, UL, SCRIPT, SELECT,
+  SPAN, TABLE, TBODY, THEAD,
+  TFOOT, TH, TD, TEXTAREA,
+  OPTGROUP,
 
-  DomElement_TR, DomElement_P, DomElement_CANVAS,
-  DomElement_MAP, DomElement_AREA, DomElement_STYLE,
+  TR, P, CANVAS,
+  MAP, AREA, STYLE,
 
-  DomElement_OBJECT, DomElement_PARAM,
+  OBJECT, PARAM,
   
-  DomElement_AUDIO, DomElement_VIDEO, DomElement_SOURCE,
+  AUDIO, VIDEO, SOURCE,
 
-  DomElement_B, DomElement_STRONG, DomElement_EM, DomElement_I, DomElement_HR,
-  DomElement_UNKNOWN,
-  DomElement_OTHER
+  B, STRONG, EM, I, HR,
+  UNKNOWN,
+  OTHER
 };
 
 class WCssDecorationStyle;
@@ -59,8 +59,7 @@ class WContainerWidget;
 class DomElement;
 
 #ifndef WT_CNOR
-template <typename A1, typename A2, typename A3, typename A4,
-	  typename A5, typename A6> class JSignal;
+template <typename... A> class JSignal;
 #endif
 
 /*! \class WWebWidget Wt/WWebWidget Wt/WWebWidget
@@ -76,89 +75,97 @@ template <typename A1, typename A2, typename A3, typename A4,
 class WT_API WWebWidget : public WWidget
 {
 public:
-  /*! \brief Construct a WebWidget with a given parent.
-   *
-   * \sa WWidget::WWidget
+  /*! \brief Construct a WebWidget.
    */
-  WWebWidget(WContainerWidget *parent = 0);
-  virtual ~WWebWidget();
+  WWebWidget();
+  virtual ~WWebWidget() override;
 
-  using WWidget::removeChild;
+  virtual std::vector<WWidget *> children() const override;
 
-  virtual void setPositionScheme(PositionScheme scheme);
-  virtual PositionScheme positionScheme() const;
-  virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All);
-  virtual WLength offset(Side s) const;
-  virtual void resize(const WLength& width, const WLength& height);
-  virtual WLength width() const;
-  virtual WLength height() const;
-  virtual void setMinimumSize(const WLength& width, const WLength& height);
-  virtual WLength minimumWidth() const;
-  virtual WLength minimumHeight() const;
-  virtual void setMaximumSize(const WLength& width, const WLength& height);
-  virtual WLength maximumWidth() const;
-  virtual WLength maximumHeight() const;
-  virtual void setLineHeight(const WLength& height);
-  virtual WLength lineHeight() const;
-  virtual void setFloatSide(Side s);
-  virtual Side floatSide() const;
-  virtual void setClearSides(WFlags<Side> sides);
-  virtual WFlags<Side> clearSides() const;
-  virtual void setMargin(const WLength& margin, WFlags<Side> sides = All);
-  virtual WLength margin(Side side) const;
-  virtual void setHiddenKeepsGeometry(bool enabled);
-  virtual bool hiddenKeepsGeometry() const;
-  virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
-  virtual bool isHidden() const;
-  virtual bool isVisible() const;
-  virtual void setDisabled(bool disabled);
-  virtual bool isDisabled() const;
-  virtual bool isEnabled() const;
-  virtual void setPopup(bool popup);
-  virtual bool isPopup() const;
-  virtual void setInline(bool isInline);
-  virtual bool isInline() const;
-  virtual void setDecorationStyle(const WCssDecorationStyle& style);
-  virtual WCssDecorationStyle& decorationStyle();
-  virtual const WCssDecorationStyle& decorationStyle() const;
-  virtual void setStyleClass(const WT_USTRING& styleClass);
+  /*! \brief %Signal emitted when children have been added or removed.
+   *
+   * \sa children()
+   */
+  Signal<>& childrenChanged();
+
+  virtual void setPositionScheme(PositionScheme scheme) override;
+  virtual PositionScheme positionScheme() const override;
+  virtual void setOffsets(const WLength& offset,
+			  WFlags<Side> sides = AllSides) override;
+  virtual WLength offset(Side s) const override;
+  virtual void resize(const WLength& width, const WLength& height) override;
+  virtual WLength width() const override;
+  virtual WLength height() const override;
+  virtual void setMinimumSize(const WLength& width, const WLength& height) override;
+  virtual WLength minimumWidth() const override;
+  virtual WLength minimumHeight() const override;
+  virtual void setMaximumSize(const WLength& width, const WLength& height) override;
+  virtual WLength maximumWidth() const override;
+  virtual WLength maximumHeight() const override;
+  virtual void setLineHeight(const WLength& height) override;
+  virtual WLength lineHeight() const override;
+  virtual void setFloatSide(Side s) override;
+  virtual Side floatSide() const override;
+  virtual void setClearSides(WFlags<Side> sides) override;
+  virtual WFlags<Side> clearSides() const override;
+  virtual void setMargin(const WLength& margin, WFlags<Side> sides = AllSides)
+    override;
+  virtual WLength margin(Side side) const override;
+  virtual void setHiddenKeepsGeometry(bool enabled) override;
+  virtual bool hiddenKeepsGeometry() const override;
+  virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation()) override;
+  virtual bool isHidden() const override;
+  virtual bool isVisible() const override;
+  virtual void setDisabled(bool disabled) override;
+  virtual bool isDisabled() const override;
+  virtual bool isEnabled() const override;
+  virtual void setPopup(bool popup) override;
+  virtual bool isPopup() const override;
+  virtual void setInline(bool isInline) override;
+  virtual bool isInline() const override;
+  virtual void setDecorationStyle(const WCssDecorationStyle& style) override;
+  virtual WCssDecorationStyle& decorationStyle() override;
+  virtual const WCssDecorationStyle& decorationStyle() const override;
+  virtual void setStyleClass(const WT_USTRING& styleClass) override;
   void setStyleClass(const char *styleClass);
-  virtual WT_USTRING styleClass() const;
+  virtual WT_USTRING styleClass() const override;
   virtual void addStyleClass(const WT_USTRING& styleClass,
-			     bool force = false);
+			     bool force = false) override;
   void addStyleClass(const char *styleClass, bool force = false);
   virtual void removeStyleClass(const WT_USTRING& styleClass,
-				bool force = false);
+				bool force = false) override;
   void removeStyleClass(const char *styleClass, bool force = false);
-  virtual bool hasStyleClass(const WT_USTRING& styleClass) const;
+  virtual bool hasStyleClass(const WT_USTRING& styleClass) const override;
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length = WLength());
-  virtual AlignmentFlag verticalAlignment() const;
-  virtual WLength verticalAlignmentLength() const;
+				    const WLength& length = WLength()) override;
+  virtual AlignmentFlag verticalAlignment() const override;
+  virtual WLength verticalAlignmentLength() const override;
   virtual void setToolTip(const WString& text,
-			  TextFormat textFormat = PlainText);
+			  TextFormat textFormat = TextFormat::Plain)
+    override;
   virtual void setDeferredToolTip(bool enable,
-                                  TextFormat textFormat=PlainText);
-  virtual WString toolTip() const;
-  virtual void refresh();
+                                  TextFormat textFormat = TextFormat::Plain)
+    override;
+  virtual WString toolTip() const override;
+  virtual void refresh() override;
   virtual void setAttributeValue(const std::string& name,
-				 const WT_USTRING& value);
-  virtual WT_USTRING attributeValue(const std::string& name) const;
+				 const WT_USTRING& value) override;
+  virtual WT_USTRING attributeValue(const std::string& name) const override;
   virtual void setJavaScriptMember(const std::string& name,
-				   const std::string& value);
-  virtual std::string javaScriptMember(const std::string& name) const;
+				   const std::string& value) override;
+  virtual std::string javaScriptMember(const std::string& name) const override;
   virtual void callJavaScriptMember(const std::string& name,
-				    const std::string& args);
-  virtual void load();
-  virtual bool loaded() const;
-  virtual int zIndex() const;
+				    const std::string& args) override;
+  virtual void load() override;
+  virtual bool loaded() const override;
+  virtual int zIndex() const override;
 
-  virtual void setId(const std::string& id);
-  virtual WWidget *find(const std::string& name);
-  virtual WWidget *findById(const std::string& id);
-  virtual void setSelectable(bool selectable);
-  virtual void doJavaScript(const std::string& javascript);
-  virtual const std::string id() const;
+  virtual void setId(const std::string& id) override;
+  virtual WWidget *find(const std::string& name) override;
+  virtual WWidget *findById(const std::string& id) override;
+  virtual void setSelectable(bool selectable) override;
+  virtual void doJavaScript(const std::string& javascript) override;
+  virtual const std::string id() const override;
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Create DOM element for widget
@@ -169,7 +176,7 @@ public:
 #endif
   virtual DomElement *createDomElement(WApplication *app);
 #ifdef WT_TARGET_JAVA
-  /*! \brief Get DOM changes for this widget
+  /*! \brief Method::Get DOM changes for this widget
    *
    * This is an internal function, and should not be called directly,
    * or be overridden!
@@ -220,49 +227,11 @@ public:
    */
   void setHtmlTagName(const std::string & tag);
 
-  /*! \brief Escape HTML control characters in the text, to display literally (<b>deprecated</b>).
-   *
-   * \if cpp
-   * \deprecated use Wt::Utils::htmlEncode() instead.
-   * \elseif java
-   * \deprecated use {@link Utils#htmlEncode(WString text, EnumSet flags)} instead.
-   * \endif
-   */
   static WString escapeText(const WString& text, bool newlinesToo = false);
-
-  /*! \brief Escape HTML control characters in the text, to display literally (<b>deprecated</b>).
-   *
-   * \if cpp
-   * \deprecated use Wt::Utils::htmlEncode() instead.
-   * \elseif java
-   * \deprecated use {@link Utils#htmlEncode(String text, EnumSet flags)} instead.
-   * \endif
-   */
   static std::string& escapeText(std::string& text, bool newlinestoo = false);
-
-  /*! \brief Remove tags/attributes from text that are not passive (<b>deprecated</b>).
-   *
-   * This removes tags and attributes from XHTML-formatted text that
-   * do not simply display something but may trigger scripting, and
-   * could have been injected by a malicious user for Cross-Site
-   * Scripting (XSS).
-   *
-   * This method is used by the library to sanitize XHTML-formatted
-   * text set in WText, but it may also be useful outside the library
-   * to sanitize user content when direcly using JavaScript.
-   *
-   * Modifies the \p text if needed. When the text is not proper
-   * XML, returns \c false.
-   *
-   * \if cpp
-   * \deprecated use Wt::Utils::removeScript() instead.
-   * \elseif java
-   * \deprecated use {@link Utils#removeScript(CharSequence text)} instead.
-   * \endif
-   */
   static bool removeScript(WString& text);
 
-  /*! \brief Turn a UTF8 encoded string into a JavaScript string literal
+  /*! \brief Turn a CharEncoding::UTF8 encoded string into a JavaScript string literal
    *
    * The \p delimiter may be a single or double quote.
    */
@@ -270,18 +239,6 @@ public:
 				     char delimiter = '\'');
   static std::string jsStringLiteral(const WString& v,
 				     char delimiter = '\'');
-
-  /*! \brief Returns contained widgets.
-   *
-   * \sa WContainerWidget::addWidget()
-   */
-  const std::vector<WWidget *>& children() const;
-
-  /*! \brief %Signal emitted when children have been added or removed.
-   *
-   * \sa children()
-   */
-  Signal<>& childrenChanged();
 
   static std::string resolveRelativeUrl(const std::string& url);
 
@@ -291,13 +248,13 @@ public:
 
   bool isRendered() const;
 
-  virtual void setCanReceiveFocus(bool enabled);
-  virtual bool canReceiveFocus() const;
-  virtual bool setFirstFocus();
-  virtual void setFocus(bool focus);
-  virtual bool hasFocus() const;
-  virtual void setTabIndex(int index);
-  virtual int tabIndex() const;
+  virtual void setCanReceiveFocus(bool enabled) override;
+  virtual bool canReceiveFocus() const override;
+  virtual bool setFirstFocus() override;
+  virtual void setFocus(bool focus) override;
+  virtual bool hasFocus() const override;
+  virtual void setTabIndex(int index) override;
+  virtual int tabIndex() const override;
 
   /*! \brief %Signal emitted when the widget lost focus.
    *
@@ -315,18 +272,20 @@ public:
   using WWidget::setFocus;
 #endif
 
-  virtual bool scrollVisibilityEnabled() const WT_CXX11ONLY(final override);
-  virtual void setScrollVisibilityEnabled(bool enabled) WT_CXX11ONLY(final override);
-  virtual int scrollVisibilityMargin() const WT_CXX11ONLY(final override);
-  virtual void setScrollVisibilityMargin(int margin) WT_CXX11ONLY(final override);
-  virtual Signal<bool> &scrollVisibilityChanged() WT_CXX11ONLY(final override);
-  virtual bool isScrollVisible() const WT_CXX11ONLY(final override);
+  virtual bool scrollVisibilityEnabled() const final override;
+  virtual void setScrollVisibilityEnabled(bool enabled) final override;
+  virtual int scrollVisibilityMargin() const final override;
+  virtual void setScrollVisibilityMargin(int margin) final override;
+  virtual Signal<bool> &scrollVisibilityChanged() final override;
+  virtual bool isScrollVisible() const final override;
 
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
+  typedef std::function<void (WWidget *)> HandleWidgetMethod;
 
-  void repaint(WFlags<RepaintFlag> flags = 0);
+  void repaint(WFlags<RepaintFlag> flags = None);
 
+  virtual void iterateChildren(const HandleWidgetMethod& method) const;
   virtual void getFormObjects(FormObjectsMap& formObjects);
   virtual void doneRerender();
   virtual void updateDom(DomElement& element, bool all);
@@ -334,24 +293,37 @@ protected:
   virtual void propagateRenderOk(bool deep = true);
   virtual std::string renderRemoveJs(bool recursive);
 
-  virtual void propagateSetEnabled(bool enabled);
-  virtual void propagateSetVisible(bool visible);
-  virtual bool isStubbed() const;
-  virtual void enableAjax();
+  virtual void propagateSetEnabled(bool enabled) override;
+  virtual void propagateSetVisible(bool visible) override;
+  virtual bool isStubbed() const override;
+  virtual void enableAjax() override;
 
-  virtual void addChild(WWidget *child);
-  virtual void removeChild(WWidget *child);
-  virtual void setHideWithOffsets(bool how = true);
-  virtual WStatelessSlot *getStateless(Method method);
+  virtual void setHideWithOffsets(bool how = true) override;
+  virtual WStatelessSlot *getStateless(Method method) override;
 
   WWidget *selfWidget();
 
   void doLoad(WWidget *w);
-  void childAdded(WWidget *child);
+  void widgetAdded(WWidget *child);
+  void widgetRemoved(WWidget *child, bool renderRemove);
 
-  virtual void render(WFlags<RenderFlag> flags);
+  template <class Widget>
+  std::unique_ptr<WWidget> manageWidget(std::unique_ptr<Widget>& managed,
+					std::unique_ptr<Widget> w) {
+    if (managed)
+      widgetRemoved(managed.get(), true);
+    std::unique_ptr<WWidget> result = std::move(managed);
+    managed = std::move(w);
+    if (managed)
+      widgetAdded(managed.get());
+    return result;
+  }
 
-  virtual void signalConnectionsChanged();
+  virtual void render(WFlags<RenderFlag> flags) override;
+
+  virtual void signalConnectionsChanged() override;
+
+  void beingDeleted();
 
 private:
   /*
@@ -363,7 +335,7 @@ private:
   static const int BIT_RENDERED = 3;
   static const int BIT_STUBBED = 4;
   static const int BIT_FORM_OBJECT = 5;
-  static const int BIT_IGNORE_CHILD_REMOVES = 6;
+  static const int BIT_FLEX_BOX = 6;
   static const int BIT_GEOMETRY_CHANGED = 7;
   static const int BIT_HIDE_WITH_OFFSETS = 8;
   static const int BIT_BEING_DELETED = 9;
@@ -400,8 +372,6 @@ private:
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
-  std::string elementTagName_;
-
 #ifndef WT_TARGET_JAVA
   static const std::bitset<35> AllChangeFlags;
 #endif // WT_TARGET_JAVA
@@ -412,18 +382,18 @@ private:
    * Frequently used attributes.
    */
   std::bitset<35> flags_;
-  WLength *width_;
-  WLength *height_;
+  std::unique_ptr<WLength> width_;
+  std::unique_ptr<WLength> height_;
 
   /*
    * Data only stored transiently, during event handling.
    */
   struct TransientImpl {
     std::vector<std::string> childRemoveChanges_;
-    std::vector<WWidget *>   addedChildren_;
-    std::vector<WT_USTRING>  addedStyleClasses_, removedStyleClasses_;
+    std::vector<WT_USTRING> addedStyleClasses_, removedStyleClasses_;
     std::vector<std::string> attributesSet_;
 
+    int addedChildren_;
     bool specialChildRemove_;
     WAnimation animation_;
 
@@ -431,40 +401,35 @@ private:
     ~TransientImpl();
   };
 
-  TransientImpl *transientImpl_;
+  std::unique_ptr<TransientImpl> transientImpl_;
 
   struct LayoutImpl {
-    PositionScheme	    positionScheme_;
-    Side		    floatSide_;
-    WFlags<Side>	    clearSides_;
-    WLength		    offsets_[4]; // left, right, top, bottom
-    WLength		    minimumWidth_;
-    WLength		    minimumHeight_;
-    WLength		    maximumWidth_;
-    WLength		    maximumHeight_;
-    int			    zIndex_; // -1 = wants popup
-    AlignmentFlag	    verticalAlignment_;
-    WLength		    verticalAlignmentLength_;
-    WLength		    margin_[4];
-    WLength                 lineHeight_;
+    PositionScheme positionScheme_;
+    Side floatSide_;
+    WFlags<Side> clearSides_;
+    WLength offsets_[4]; // left, right, top, bottom
+    WLength minimumWidth_, minimumHeight_, maximumWidth_, maximumHeight_;
+    int	zIndex_; // -1 = wants popup
+    AlignmentFlag verticalAlignment_;
+    WLength verticalAlignmentLength_, margin_[4], lineHeight_;
 
     LayoutImpl();
   };
 
-  LayoutImpl *layoutImpl_;
+  std::unique_ptr<LayoutImpl> layoutImpl_;
 
   struct LookImpl {
-    WCssDecorationStyle    *decorationStyle_;
-    WT_USTRING              styleClass_;
-    WString                *toolTip_;
-    TextFormat              toolTipTextFormat_;
-    JSignal<>               loadToolTip_;
+    std::unique_ptr<WCssDecorationStyle> decorationStyle_;
+    WT_USTRING styleClass_;
+    std::unique_ptr<WString> toolTip_;
+    TextFormat toolTipTextFormat_;
+    JSignal<> loadToolTip_;
 
     LookImpl(WWebWidget *w);
     ~LookImpl();
   };
 
-  mutable LookImpl *lookImpl_;
+  mutable std::unique_ptr<LookImpl> lookImpl_;
 
   struct DropMimeType {
     WT_USTRING hoverStyleClass;
@@ -473,7 +438,7 @@ private:
     DropMimeType(const WT_USTRING& hoverStyleClass);
   };
 
-  enum JavaScriptStatementType { 
+  enum class JavaScriptStatementType { 
     SetMember, 
     CallMethod,
     Statement
@@ -493,23 +458,20 @@ private:
       std::string data;
     };
 
-    std::string                         *id_;
-
-    std::map<std::string, WT_USTRING>   *attributes_;
-    std::vector<Member>                 *jsMembers_;
-    std::vector<JavaScriptStatement>    *jsStatements_;
-    JSignal<int, int>                   *resized_;
-    int                                  tabIndex_;
+    std::unique_ptr<std::string> elementTagName_;
+    std::unique_ptr<std::string> id_;
+    std::unique_ptr<std::map<std::string, WT_USTRING>> attributes_;
+    std::unique_ptr<std::vector<Member>> jsMembers_;
+    std::unique_ptr<std::vector<JavaScriptStatement>> jsStatements_;
+    std::unique_ptr<JSignal<int, int>> resized_;
+    int tabIndex_;
 
     // drag source id, drag mime type
-    JSignal<std::string, std::string, WMouseEvent,
-	    struct NoClass, struct NoClass, struct NoClass> *dropSignal_;
-    JSignal<std::string, std::string, WTouchEvent,
-	    struct NoClass, struct NoClass, struct NoClass> *dropSignal2_;
+    std::unique_ptr<JSignal<std::string, std::string, WMouseEvent>> dropSignal_;
+    std::unique_ptr<JSignal<std::string, std::string, WTouchEvent>> dropSignal2_;
 
-    typedef std::map<std::string, DropMimeType>   MimeTypesMap;
-    MimeTypesMap                                 *acceptedDropMimeTypes_;
-
+    typedef std::map<std::string, DropMimeType> MimeTypesMap;
+    std::unique_ptr<MimeTypesMap> acceptedDropMimeTypes_;
     Signal<> childrenChanged_;
 
     int scrollVisibilityMargin_;
@@ -520,31 +482,24 @@ private:
     ~OtherImpl();
   };
 
-  OtherImpl *otherImpl_;
-  std::vector<WWidget *>    *children_;
-  static std::vector<WWidget *> emptyWidgetList_;
+  std::unique_ptr<OtherImpl> otherImpl_;
 
   void renderOk();
   void calcZIndex();
 
-  virtual bool needsToBeRendered() const;
+  virtual bool needsToBeRendered() const override;
   virtual void getSDomChanges(std::vector<DomElement *>& result,
-			      WApplication *app);
-  void         getSFormObjects(FormObjectsMap& formObjects);
+			      WApplication *app) override;
+  void getSFormObjects(FormObjectsMap& formObjects);
 
   WWebWidget *parentWebWidget() const;
-  void gotParent();
 
   /*
    * Drag & drop stuff.
    */
-  bool          setAcceptDropsImpl(const std::string& mimeType,
-				   bool accept,
-				   const WT_USTRING& hoverStyleClass);
-
-  void setIgnoreChildRemoves(bool how);
-  bool ignoreChildRemoves() const;
-  void beingDeleted();
+  bool setAcceptDropsImpl(const std::string& mimeType,
+			  bool accept,
+			  const WT_USTRING& hoverStyleClass);
   void setImplementLayoutSizeAware(bool aware);
   JSignal<int, int>& resized();
 
@@ -560,10 +515,11 @@ private:
   void jsScrollVisibilityChanged(bool visible);
 
 protected:
+  virtual void setParentWidget(WWidget *parent) override;
   void setRendered(bool rendered);
 
   void setId(DomElement *element, WApplication *app);
-  virtual WWebWidget *webWidget() { return this; }
+  virtual WWebWidget *webWidget() override { return this; }
 
   EventSignal<> *voidEventSignal(const char *name, bool create);
   EventSignal<WKeyEvent> *keyEventSignal(const char *name, bool create);
@@ -577,6 +533,7 @@ protected:
 
   virtual void parentResized(WWidget *parent, WFlags<Orientation> directions);
   void containsLayout();
+  void setFlexBox(bool enabled);
 
   /*
    * WWebWidget ended up with more friends than me...
@@ -597,6 +554,8 @@ protected:
   friend class WViewWidget;
   friend class WWidget;
   friend class WTemplate;
+  friend class WWidgetItem;
+  friend class FlexLayoutImpl;
 };
 
 }

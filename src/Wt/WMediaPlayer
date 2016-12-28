@@ -7,11 +7,84 @@
 #ifndef WMEDIA_PLAYER_H_
 #define WMEDIA_PLAYER_H_
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WJavaScript>
-#include <Wt/WLink>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WJavaScript.h>
+#include <Wt/WLink.h>
 
 namespace Wt {
+
+/*! \brief An enumeration for a media encoding.
+ *
+ * \sa addSource()
+ * \sa http://www.jplayer.org/latest/developer-guide/#jPlayer-media-encoding
+ */
+enum class MediaEncoding {
+  PosterImage, //!< The poster image (e.g. JPG/PNG) for a video
+
+  MP3,         //!< Audio: MP3 encoding (<b>essential audio</b> format)
+  M4A,         //!< Audio: MP4 encoding (<b>essential audio</b> format)
+  OGA,         //!< Audio: OGG encoding
+  WAV,         //!< Audio: WAV (uncompressed) format
+  WEBMA,       //!< Audio: WebM encoding
+  FLA,         //!< Audio: Flash format
+
+  M4V,         //!< Video: MP4 encoding (<b>essential video</b> format)
+  OGV,         //!< Video: OGG encoding
+  WEBMV,       //!< Video: WebM encoding
+  FLV          //!< Video: Flash format
+};
+
+/*! \brief An enumeration for a media type.
+ */
+enum class MediaType {
+  Audio,       //!< Defines an audio player
+  Video        //!< Defines a video player
+};
+
+/*! \brief An enumeration for a button function.
+ *
+ * \sa setButton(), button()
+ */
+enum class MediaPlayerButtonId {
+  VideoPlay,     //!< Play button which overlays the video (for Video only)
+  Play,          //!< Play button, is hidden while playing
+  Pause,         //!< Pause button, is hidden while paused
+  Stop,          //!< Stop button
+  VolumeMute,    //!< Volume mute button
+  VolumeUnmute,  //!< Volume unmute button
+  VolumeMax,     //!< Volume max button
+
+  /*! Toggle button for full screen, is hidden while full screen
+   * (for Video only) */
+  FullScreen,
+  /*! Toggle button to restore the screen, is shown only in full screen
+   * (for Video only) */
+  RestoreScreen,
+
+  /*! Toggle button to enable looping, is hidden while repeating is on */
+  RepeatOn,
+  /*! Toggle button to disable looping, is hidden while repeat is off */
+  RepeatOff
+};
+
+/*! \brief An enumeration for a progressbar function.
+ *
+ * \sa setProgressBar(), progressBar()
+ */
+enum class MediaPlayerProgressBarId {
+  Time,  //!< The time bar
+  Volume //!< The volume bar
+};
+
+/*! \brief An enumeration for a text.
+ *
+ * \sa setText(), text()
+ */
+enum class MediaPlayerTextId {
+  CurrentTime, //!< Displays the current time
+  Duration,    //!< Displays the total duration
+  Title        //!< Displays the title set in setTitle()
+};
 
 /*! \class WMediaPlayer Wt/WMediaPlayer Wt/WMediaPlayer
  *  \brief A media player
@@ -56,11 +129,11 @@ namespace Wt {
  * \code
  *   useStyleSheet(WApplication::relativeRsourcesUrl() + "jPlayer/skin/jplayer.blue.monday.css");
  *
- *   WMediaPlayer *player = new WMediaPlayer(WMediaPlayer::Video);
+ *   WMediaPlayer *player = new WMediaPlayer(MediaType::Video);
  *
- *   player->addSource(WMediaPlayer::M4V, "video.m4v");
- *   player->addSource(WMediaPlayer::OGV, "video.ogv");
- *   player->addSource(WMediaPlayer::PosterImage, "poster.png");
+ *   player->addSource(MediaEncoding::M4V, "video.m4v");
+ *   player->addSource(MediaEncoding::OGV, "video.ogv");
+ *   player->addSource(MediaEncoding::PosterImage, "poster.png");
  *
  * \endcode
  * \elseif java
@@ -87,90 +160,16 @@ namespace Wt {
 class WT_API WMediaPlayer : public WCompositeWidget
 {
 public:
-  /*! \brief An enumeration for a media encoding.
-   *
-   * \sa addSource()
-   * \sa http://www.jplayer.org/latest/developer-guide/#jPlayer-media-encoding
-   */
-  enum Encoding {
-    PosterImage, //!< The poster image (e.g. JPG/PNG) for a video
-
-    MP3,         //!< Audio: MP3 encoding (<b>essential audio</b> format)
-    M4A,         //!< Audio: MP4 encoding (<b>essential audio</b> format)
-    OGA,         //!< Audio: OGG encoding
-    WAV,         //!< Audio: WAV (uncompressed) format
-    WEBMA,       //!< Audio: WebM encoding
-    FLA,         //!< Audio: Flash format
-
-    M4V,         //!< Video: MP4 encoding (<b>essential video</b> format)
-    OGV,         //!< Video: OGG encoding
-    WEBMV,       //!< Video: WebM encoding
-    FLV          //!< Video: Flash format
-  };
-
-  /*! \brief An enumeration for a media type.
-   */
-  enum MediaType {
-    Audio,       //!< Defines an audio player
-    Video        //!< Defines a video player
-  };
-
-  /*! \brief An enumeration for a button function.
-   *
-   * \sa setButton(), button()
-   */
-  enum ButtonControlId {
-    VideoPlay,     //!< Play button which overlays the video (for Video only)
-    Play,          //!< Play button, is hidden while playing
-    Pause,         //!< Pause button, is hidden while paused
-    Stop,          //!< Stop button
-    VolumeMute,    //!< Volume mute button
-    VolumeUnmute,  //!< Volume unmute button
-    VolumeMax,     //!< Volume max button
-
-    /*! Toggle button for full screen, is hidden while full screen
-     * (for Video only) */
-    FullScreen,
-    /*! Toggle button to restore the screen, is shown only in full screen
-     * (for Video only) */
-    RestoreScreen,
-
-    /*! Toggle button to enable looping, is hidden while repeating is on */
-    RepeatOn,
-    /*! Toggle button to disable looping, is hidden while repeat is off */
-    RepeatOff
-  };
-
-  /*! \brief An enumeration for a progressbar function.
-   *
-   * \sa setProgressBar(), progressBar()
-   */
-  enum BarControlId {
-    Time,  //!< The time bar
-    Volume //!< The volume bar
-  };
-
-  /*! \brief An enumeration for a text.
-   *
-   * \sa setText(), text()
-   */
-  enum TextId {
-    CurrentTime, //!< Displays the current time
-    Duration,    //!< Displays the total duration
-    Title        //!< Displays the title set in setTitle()
-  };
-
-  /*! \brief An enumeration for the player state.
-   *
-   * \sa readyState()
-   */
-  enum ReadyState {
-    HaveNothing = 0,     //!< No information available
-    HaveMetaData = 1,    //!< Metadata loaded: duration, width, height
-    HaveCurrentData = 2, //!< Data at playback position is available
-    HaveFutureData = 3,  //!< Have data to play for a while
-    HaveEnoughData = 4   //!< Enough to reach the end without stalling
-  };
+  /*! \brief Typedef for enum Wt::MediaEncoding */
+  typedef MediaEncoding Encoding;
+  /*! \brief Typedef for enum Wt::MediaType */
+  typedef MediaType Type;
+  /*! \brief Typedef for enum Wt::MediaPlayerButtonId */
+  typedef MediaPlayerButtonId ButtonId;
+  /*! \brief Typedef for enum Wt::MediaPlayerProgressBarId */
+  typedef MediaPlayerProgressBarId ProgressBarId;
+  /*! \brief Typedef for enum Wt::MediaPlayerTextId */
+  typedef MediaPlayerTextId TextId;
 
   /*! \brief Creates a new media player.
    *
@@ -178,7 +177,7 @@ public:
    *
    * \sa setControlsWidget()
    */
-  WMediaPlayer(MediaType mediaType, WContainerWidget *parent = 0);
+  WMediaPlayer(MediaType mediaType);
 
   /*! \brief Destructor.
    */
@@ -225,7 +224,7 @@ public:
    * The default controls widget is a widget that can be styled using
    * a jPlayer CSS theme.
    */
-  void setControlsWidget(WWidget *controls);
+  void setControlsWidget(std::unique_ptr<WWidget> controls);
 
   /*! \brief Returns the user-interface controls widget.
    *
@@ -235,7 +234,7 @@ public:
 
   /*! \brief Sets the media title.
    *
-   * \sa WMediaPlayer::Title
+   * \sa MediaPlayerTextId::Title
    */
   void setTitle(const WString& title);
 
@@ -247,14 +246,14 @@ public:
    * You may pass a null \p link if you want to indicate the media types
    * you will use (later) without already loading data.
    */
-  void addSource(Encoding encoding, const WLink& link);
+  void addSource(MediaEncoding encoding, const WLink& link);
 
   /*! \brief Returns a source.
    *
    * Returns the media source for the given \p encoding, which must have
    * previously been added using addSource().
    */
-  WLink getSource(Encoding encoding) const;
+  WLink getSource(MediaEncoding encoding) const;
 
   /*! \brief Clears all sources.
    *
@@ -274,34 +273,34 @@ public:
    * The default control widget implements all buttons using a
    * WAnchor.
    */
-  void setButton(ButtonControlId id, WInteractWidget *btn);
+  void setButton(MediaPlayerButtonId id, WInteractWidget *btn);
 
   /*! \brief Returns a control button.
    *
    * \sa setButton()
    */
-  WInteractWidget *button(ButtonControlId id) const;
+  WInteractWidget *button(MediaPlayerButtonId id) const;
 
   /*! \brief Binds a control progress bar.
    *
-   * The progress bar for the WMediaPlayer::Time indication should be
-   * contained in a WContainerWidget which bounds the width of the
-   * progress bar, rather than setting a width on the progress
-   * bar. This is because the progress bar may, in some cases, also be
-   * used to indicate which part of the media can be seeked, and for
-   * this its width is being manipulated.
+   * The progress bar for the MediaPlayerProgressBarId::Time
+   * indication should be contained in a WContainerWidget which bounds
+   * the width of the progress bar, rather than setting a width on the
+   * progress bar. This is because the progress bar may, in some
+   * cases, also be used to indicate which part of the media can be
+   * seeked, and for this its width is being manipulated.
    *
    * You should use this method in conjunction with
    * setControlsWidget() to bind progress bars in a custom control
    * interface to media player functions.
    */
-  void setProgressBar(BarControlId id, WProgressBar *progressBar);
+  void setProgressBar(MediaPlayerProgressBarId id, WProgressBar *progressBar);
 
   /*! \brief Returns a control progress bar.
    *
    * \sa setProgressBar()
    */
-  WProgressBar *progressBar(BarControlId id) const;
+  WProgressBar *progressBar(MediaPlayerProgressBarId id) const;
 
   /*! \brief Sets a text place-holder widget.
    *
@@ -312,13 +311,13 @@ public:
    * setControlsWidget() to bind progress bars in a custom control
    * interface to media player functions.
    */
-  void setText(TextId id, WText *text);
+  void setText(MediaPlayerTextId id, WText *text);
 
   /*! \brief Returns a text place-holder widget.
    *
    * \sa setText()
    */
-  WText *text(TextId id) const;
+  WText *text(MediaPlayerTextId id) const;
 
   /*! \brief Pauses the player.
    *
@@ -393,7 +392,7 @@ public:
    * media, and has determined its characteristics.
    *
    */
-  ReadyState readyState() const { return status_.readyState; }
+  MediaReadyState readyState() const { return status_.readyState; }
 
   /*! \brief Returns the duration.
    *
@@ -451,15 +450,15 @@ public:
 
   std::string jsPlayerRef() const;
 
-  virtual void refresh();
+  virtual void refresh() override;
 
 protected:
-  virtual void setFormData(const FormData& formData);
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void setFormData(const FormData& formData) override;
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
   struct Source {
-    Encoding encoding;
+    MediaEncoding encoding;
     WLink link;
   };
 
@@ -478,18 +477,18 @@ private:
   std::vector<Source> media_;
   std::string initialJs_;
  
-  WInteractWidget *control_[11];
+  observing_ptr<WInteractWidget> control_[11];
   WText *display_[3];
   WProgressBar *progressBar_[2];
 
-  WWidget *gui_;
+  observing_ptr<WWidget> gui_;
   unsigned boundSignals_, boundSignalsDouble_;
 
   bool mediaUpdated_;
 
   struct State {
     bool playing, ended;
-    ReadyState readyState;
+    MediaReadyState readyState;
     double seekPercent, volume, duration, currentTime, playbackRate;
 
     State();
@@ -499,19 +498,20 @@ private:
 
   void createDefaultGui();
 
-  void addAnchor(WTemplate *t, ButtonControlId id, const char *bindId,
+  void addAnchor(WTemplate *t, MediaPlayerButtonId id, const char *bindId,
 		 const std::string& styleClass,
 		 const std::string& altText = std::string());
-  void addText(WTemplate *t, TextId id, const char *bindId,
+  void addText(WTemplate *t, MediaPlayerTextId id, const char *bindId,
 	       const std::string& styleClass);
-  void addProgressBar(WTemplate *t, BarControlId id, const char *bindId,
+  void addProgressBar(WTemplate *t, MediaPlayerProgressBarId id,
+		      const char *bindId,
 		      const std::string& styleClass,
 		      const std::string& valueStyleClass);
   JSignal<>& signal(const char *name);
   JSignal<double>& signalDouble(const char *name, const std::string& expr);
 
-  void updateProgressBarState(BarControlId id);
-  void updateFromProgressBar(BarControlId id, double value);
+  void updateProgressBarState(MediaPlayerProgressBarId id);
+  void updateFromProgressBar(MediaPlayerProgressBarId id, double value);
 
   void playerDo(const std::string& method,
 		const std::string& args = std::string());

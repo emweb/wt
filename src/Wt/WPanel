@@ -7,7 +7,7 @@
 #ifndef WPANEL_H_
 #define WPANEL_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
 
@@ -40,7 +40,7 @@ class WT_API WPanel : public WCompositeWidget
 public:
   /*! \brief Creates a panel.
    */
-  WPanel(WContainerWidget *parent = 0);
+  WPanel();
 
   /*! \brief Sets a title.
    *
@@ -106,7 +106,7 @@ public:
    *
    * \sa setCollapsible(bool)
    */
-  bool isCollapsible() const { return collapseIcon_ != 0; } 
+  bool isCollapsible() const { return collapseIcon_ != nullptr; } 
 
   /*! \brief Sets the panel expanded or collapsed.
    *
@@ -152,12 +152,19 @@ public:
 
   /*! \brief Sets the central widget.
    *
-   * Sets the widget that is the contents of the panel. When a widget was
-   * previously set, the old widget is deleted first.
+   * Sets the widget that is the contents of the panel.
    *
    * The default value is \c 0 (no widget set).
    */
-  void setCentralWidget(WWidget *);
+  void setCentralWidget(std::unique_ptr<WWidget> widget);
+
+  template <typename Widget>
+    Widget *setCentralWidget(std::unique_ptr<Widget> widget)
+  {
+    Widget *result = widget.get();
+    setCentralWidget(std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
 
   /*! \brief Returns the central widget.
    *
@@ -192,12 +199,12 @@ public:
   WIconPair *collapseIcon() const { return collapseIcon_; }
 
 private:
-  WIconPair        *collapseIcon_;
-  WText 	   *title_;
+  WIconPair *collapseIcon_;
+  WText *title_;
 
-  WTemplate        *impl_;
-  WWidget          *centralWidget_;
-  WAnimation       animation_;
+  WTemplate *impl_;
+  WWidget *centralWidget_;
+  WAnimation animation_;
 
   Signal<> collapsed_, expanded_;
   Signal<bool> collapsedSS_, expandedSS_;

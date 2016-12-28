@@ -7,9 +7,9 @@
 #ifndef WGRADIENT_H_
 #define WGRADIENT_H_
 
-#include <Wt/WColor>
-#include <Wt/WLineF>
-#include <Wt/WPointF>
+#include <Wt/WColor.h>
+#include <Wt/WLineF.h>
+#include <Wt/WPointF.h>
 
 namespace Wt {
 

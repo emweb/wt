@@ -7,15 +7,15 @@
 #ifndef WICON_H_
 #define WICON_H_
 
-#include <Wt/WInteractWidget>
+#include <Wt/WInteractWidget.h>
 
 namespace Wt {
 
 class WIcon : public WInteractWidget
 {
 public:
-  WIcon(WContainerWidget *parent = 0);
-  WIcon(const std::string& name, WContainerWidget *parent = 0);
+  WIcon();
+  WIcon(const std::string& name);
 
   void setName(const std::string& name);
   std::string name() const { return name_; }
@@ -26,9 +26,9 @@ public:
   static void loadIconFont();
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual void propagateRenderOk(bool deep);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual void propagateRenderOk(bool deep) override;
 
 private:
   std::string name_;

@@ -7,7 +7,7 @@
 #ifndef WFONTMETRICS_H_
 #define WFONTMETRICS_H_
 
-#include <Wt/WFont>
+#include <Wt/WFont.h>
 
 namespace Wt {
 

@@ -6,7 +6,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <boost/version.hpp>
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 
 namespace dbo = Wt::Dbo;
 

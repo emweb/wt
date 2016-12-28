@@ -3,11 +3,11 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WDate"
-#include "Wt/WException"
-#include "Wt/WLogger"
+#include "Wt/WDate.h"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
 
-#include "AbstractUserDatabase"
+#include "AbstractUserDatabase.h"
 
 namespace {
   const char *EMAIL_VERIFICATION = "email verification";
@@ -36,7 +36,7 @@ public:
   { }
 };
 
-AbstractUserDatabase::Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
+AbstractUserDatabase::Transaction::~Transaction() noexcept(false)
 { }
 
 AbstractUserDatabase::AbstractUserDatabase()
@@ -47,15 +47,15 @@ AbstractUserDatabase::~AbstractUserDatabase()
 
 AbstractUserDatabase::Transaction *AbstractUserDatabase::startTransaction()
 {
-  return 0;
+  return nullptr;
 }
 
-User::Status AbstractUserDatabase::status(const User& user) const
+AccountStatus AbstractUserDatabase::status(const User& user) const
 {
-  return User::Normal;
+  return AccountStatus::Normal;
 }
 
-void AbstractUserDatabase::setStatus(const User& user, User::Status status)
+void AbstractUserDatabase::setStatus(const User& user, AccountStatus status)
 {
   LOG_ERROR(Require("setStatus()").what());
 }
@@ -134,16 +134,16 @@ Token AbstractUserDatabase::emailToken(const User& user) const
   return Token();
 }
 
-User::EmailTokenRole AbstractUserDatabase::emailTokenRole(const User& user)
+EmailTokenRole AbstractUserDatabase::emailTokenRole(const User& user)
   const
 {
   LOG_ERROR(Require("emailTokenRole()", EMAIL_VERIFICATION).what());
 
-  return User::VerifyEmail;
+  return EmailTokenRole::VerifyEmail;
 }
 
 void AbstractUserDatabase::setEmailToken(const User& user, const Token& token,
-					 User::EmailTokenRole role)
+					 EmailTokenRole role)
 {
   LOG_ERROR(Require("setEmailToken()", EMAIL_VERIFICATION).what());
 }

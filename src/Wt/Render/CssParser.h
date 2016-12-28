@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WString>
+#include <Wt/WString.h>
 #include "Wt/Render/CssData.h"
 
 namespace Wt {
@@ -21,8 +21,8 @@ class WT_API CssParser
 public:
   CssParser();
 
-  StyleSheet* parse(const WString& styleSheetContents);
-  StyleSheet* parseFile(const WString& filename);
+  std::unique_ptr<StyleSheet> parse(const WString& styleSheetContents);
+  std::unique_ptr<StyleSheet> parseFile(const WString& filename);
   std::string getLastError() const;
 
 private:

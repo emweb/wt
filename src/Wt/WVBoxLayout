@@ -7,7 +7,7 @@
 #ifndef WVBOX_LAYOUT_H_
 #define WVBOX_LAYOUT_H_
 
-#include <Wt/WBoxLayout>
+#include <Wt/WBoxLayout.h>
 
 namespace Wt {
 
@@ -43,11 +43,8 @@ class WT_API WVBoxLayout : public WBoxLayout
 {
 public:
   /*! \brief Create a new vertical box layout.
-   *
-   * Use \p parent=0 to created a layout manager that can be
-   * nested inside other layout managers.
    */
-  WVBoxLayout(WWidget *parent = 0);
+  WVBoxLayout();
 };
 
 }

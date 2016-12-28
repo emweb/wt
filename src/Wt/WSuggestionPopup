@@ -7,8 +7,8 @@
 #ifndef WSUGGESTION_POPUP_H_
 #define WSUGGESTION_POPUP_H_
 
-#include <Wt/WPopupWidget>
-#include <Wt/WJavaScript>
+#include <Wt/WPopupWidget.h>
+#include <Wt/WJavaScript.h>
 
 namespace Wt {
 
@@ -16,6 +16,27 @@ class WAbstractItemModel;
 class WModelIndex;
 class WFormWidget;
 class WTemplate;
+
+/*! \brief Enumeration that defines a trigger for showing the popup.
+ *
+ * \sa forEdit()
+ */
+enum class PopupTrigger {
+  /*! \brief Shows popup when the user starts editing.
+   *
+   * The popup is shown when the currently edited text has a length
+   * longer than the \link setFilterLength() filter length\endlink.
+   */
+  Editing = 0x1,
+
+  /*! \brief Shows popup when user clicks a drop down icon.
+   *
+   * The lineedit is modified to show a drop down icon, and clicking
+   * the icon shows the suggestions, very much like a WComboCox.
+   * line edit.
+   */
+  DropDownIcon = 0x2
+};
 
 /*! \class WSuggestionPopup Wt/WSuggestionPopup Wt/WSuggestionPopup
  *  \brief A widget which popups to assist in editing a textarea or lineedit.
@@ -38,7 +59,7 @@ class WTemplate;
  * %WSuggestionPopup is an MVC view class, using a simple
  * WStringListModel by default. You can set a custom model using
  * setModel(). The model can provide different text for the suggestion
- * text (Wt::DisplayRole) and value (editRole()). The member methods
+ * text (Wt::ItemDataRole::Display) and value (editRole()). The member methods
  * clearSuggestions() and addSuggestion() manipulate this model.
  *
  * By default, the popup implements all filtering client-side. To
@@ -161,26 +182,8 @@ class WTemplate;
 class WT_API WSuggestionPopup : public WPopupWidget
 {
 public:
-  /*! \brief Enumeration that defines a trigger for showing the popup.
-   *
-   * \sa forEdit()
-   */
-  enum PopupTrigger {
-    /*! \brief Shows popup when the user starts editing.
-     *
-     * The popup is shown when the currently edited text has a length
-     * longer than the \link setFilterLength() filter length\endlink.
-     */
-    Editing = 0x1,
-
-    /*! \brief Shows popup when user clicks a drop down icon.
-     *
-     * The lineedit is modified to show a drop down icon, and clicking
-     * the icon shows the suggestions, very much like a WComboCox.
-     * line edit.
-     */
-    DropDownIcon = 0x2
-  };
+  /*! \brief Typedef for enum Wt::PopupTrigger */
+  typedef PopupTrigger Trigger;
 
   /*! \brief A configuration object to generate a matcher and replacer
    *         JavaScript function.
@@ -263,15 +266,14 @@ public:
    *
    * \sa generateMatcherJS(), generateReplacerJS()
    */
-  WSuggestionPopup(const Options& options, WObject *parent = 0);
+  WSuggestionPopup(const Options& options);
 
   /*! \brief Creates a suggestion popup with given matcherJS and replacerJS.
    *
    * See supra for the expected signature of the matcher and replace
    * JavaScript functions.
    */
-  WSuggestionPopup(const std::string& matcherJS, const std::string& replacerJS,
-		   WObject *parent = 0);
+  WSuggestionPopup(const std::string& matcherJS, const std::string& replacerJS);
 
   /*! \brief Lets this suggestion popup assist in editing an edit field.
    *
@@ -284,7 +286,8 @@ public:
    *
    * \sa removeEdit()
    */
-  void forEdit(WFormWidget *edit, WFlags<PopupTrigger> popupTriggers = Editing);
+  void forEdit(WFormWidget *edit,
+	       WFlags<PopupTrigger> popupTriggers = PopupTrigger::Editing);
 
   /*! \brief Removes the edit field from the list of assisted editors.
    *
@@ -312,7 +315,7 @@ public:
   /*! \brief Adds a new suggestion.
    *
    * This adds an entry to the underlying model. The \p suggestionText
-   * is set as Wt::DisplayRole and the \p suggestionValue (which is
+   * is set as Wt::ItemDataRole::Display and the \p suggestionValue (which is
    * inserted into the edit field on selection) is set as editRole().
    *
    * \sa clearSuggestions(), setModel()
@@ -328,19 +331,19 @@ public:
    * The default value is a WStringListModel that is owned by the
    * suggestion popup.
    *
-   * The Wt::DisplayRole is used for the suggestion text. The
+   * The Wt::ItemDataRole::Display is used for the suggestion text. The
    * editRole() is used for the suggestion value, unless empty, in
    * which case the suggestion text is used as value.
    *
    * \sa setModelColumn(int)
    */
-  void setModel(WAbstractItemModel *model);
+  void setModel(const std::shared_ptr<WAbstractItemModel>& model);
 
   /*! \brief Returns the data model.
    *
    * \sa setModel()
    */
-  WAbstractItemModel *model() const { return model_; }
+  std::shared_ptr<WAbstractItemModel> model() const { return model_; }
 
   /*! \brief Sets the column in the model to be used for the items.
    *
@@ -388,7 +391,7 @@ public:
    * When the user has typed this much characters, filterModel() is
    * emitted which allows you to filter the model based on the initial
    * input. The filtering is done as long as the model indicates that
-   * results are partial by setting a StyleClassRole of "Wt-more-data"
+   * results are partial by setting a ItemDataRole::StyleClass of "Wt-more-data"
    * on the last item.
    *
    * The default value is 0.
@@ -410,9 +413,9 @@ public:
   /*! \brief %Signal that indicates that the model should be filtered.
    *
    * The argument is the initial input. When \link
-   * WSuggestionPopup::Editing Editing\endlink is used as edit
+   * PopupTrigger::Editing Editing\endlink is used as edit
    * trigger, its length will always equal the filterLength(). When
-   * \link WSuggestionPopup::DropDownIcon DropDownIcon\endlink is used
+   * \link PopupTrigger::DropDownIcon DropDownIcon\endlink is used
    * as edit trigger, the input length may be less than
    * filterLength(), and the the signal will be called repeatedly as
    * the user provides more input.
@@ -443,13 +446,6 @@ public:
    */
   Signal<int, WFormWidget *>& activated() { return activated_; }
 
-  /*! \brief Controls how the popup is positioned (<b>deprecated</b>).
-   *
-   * \deprecated this option is now ignored, since the popup is automatically
-   *             positioned to behave properly.
-   */
-  void setGlobalPopup(bool global) {};
-
   /*! \brief When drop down icon is clicked the popup content will be
    *   unfiltered.
    *  \sa forEdit() and enum PopupTrigger
@@ -466,7 +462,7 @@ public:
 
   /*! \brief Sets the role used for editing the line edit with a chosen item.
    *
-   * The default value is UserRole.
+   * The default value is ItemDataRole::User.
    */
   void setEditRole(int role) { editRole_ = role; }
 
@@ -477,8 +473,8 @@ public:
   int editRole() const { return editRole_; }
 
 private:
-  WContainerWidget   *impl_;
-  WAbstractItemModel *model_;
+  WContainerWidget *impl_;
+  std::shared_ptr<WAbstractItemModel> model_;
   int modelColumn_;
   int filterLength_;
   bool filtering_;
@@ -515,10 +511,10 @@ private:
   void defineJavaScript();
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WSuggestionPopup::PopupTrigger)
+W_DECLARE_OPERATORS_FOR_FLAGS(PopupTrigger)
 
 }
 

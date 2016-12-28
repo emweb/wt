@@ -7,8 +7,8 @@
 #ifndef WTABLE_COLUMN_H_
 #define WTABLE_COLUMN_H_
 
-#include <Wt/WObject>
-#include <Wt/WString>
+#include <Wt/WObject.h>
+#include <Wt/WString.h>
 
 namespace Wt {
 
@@ -107,10 +107,11 @@ public:
 private:
   WTable *table_;
 
-  WLength *width_;
-  std::string *id_;
+  std::unique_ptr<WLength> width_;
+  std::unique_ptr<std::string> id_;
   WT_USTRING styleClass_;
 
+  void setTable(WTable *table);
   void updateDom(DomElement& element, bool all);
 
   friend class WTable;

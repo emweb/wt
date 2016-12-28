@@ -3,9 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WLogger"
-#include "Wt/WString"
-#include "Wt/WStringStream"
+#include "Wt/WLogger.h"
+#include "Wt/WString.h"
+#include "Wt/WStringStream.h"
 
 #include "DomElement.h"
 #include "XSSUtils.h"
@@ -27,7 +27,8 @@ void XSSSanitize(xml_node<> *x_node)
     if (Wt::XSS::isBadAttribute(x_attr->name())
 	|| Wt::XSS::isBadAttributeValue(x_attr->name(), x_attr->value())) {
       LOG_SECURE("discarding invalid attribute: "
-		 << x_attr->name() << ": " << x_attr->value());
+		 << (const char *)x_attr->name() << ": "
+		 << (const char *)x_attr->value());
       x_node->remove_attribute(x_attr);
     }
 
@@ -38,7 +39,7 @@ void XSSSanitize(xml_node<> *x_node)
     xml_node<> *x_next_child = x_child->next_sibling();
 
     if (Wt::XSS::isBadTag(x_child->name())) {
-      LOG_SECURE("discarding invalid tag: " << x_child->name());
+      LOG_SECURE("discarding invalid tag: " << (const char *)x_child->name());
       x_node->remove_node(x_child);
     } else
       XSSSanitize(x_child);

@@ -7,8 +7,8 @@
 #ifndef WICONPAIR_H_
 #define WICONPAIR_H_
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WEvent>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WEvent.h>
 
 namespace Wt {
 
@@ -39,7 +39,7 @@ public:
    * switch state.
    */
   WIconPair(const std::string& icon1URL, const std::string& icon2URL,
-	    bool clickIsSwitch = true, WContainerWidget *parent = 0);
+	    bool clickIsSwitch = true);
 
   /*! \brief Sets the state, which determines the visible icon.
    *

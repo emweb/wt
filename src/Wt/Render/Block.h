@@ -7,10 +7,10 @@
 #ifndef RENDER_BLOCK_H_
 #define RENDER_BLOCK_H_
 
-#include <Wt/WFont>
-#include <Wt/WGlobal>
-#include <Wt/WWebWidget>
-#include <Wt/WPainter>
+#include <Wt/WFont.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WWebWidget.h>
+#include <Wt/WPainter.h>
 
 #include "web/DomElement.h"
 #include "LayoutBox.h"
@@ -68,7 +68,7 @@ public:
   bool normalizeWhitespace(bool haveWhitespace,
 			   Wt::rapidxml::xml_document<> &doc);
 
-  bool isFloat() const { return float_ != 0; }
+  bool isFloat() const { return static_cast<int>(float_) != 0; }
   bool isInline() const { return inline_; }
   DomElementType type() const { return type_; }
   bool isText() const;
@@ -79,10 +79,10 @@ public:
   Side floatSide() const { return float_; }
 
   bool isTableCell() const
-    { return type_ == DomElement_TD || type_ == DomElement_TH; }
+    { return type_ == DomElementType::TD || type_ == DomElementType::TH; }
 
   bool isTable() const
-    { return type_ == DomElement_TABLE; }
+    { return type_ == DomElementType::TABLE; }
 
   Block *table() const;
   bool tableCollapseBorders() const;
@@ -124,7 +124,7 @@ private:
     bool defined;
   };
 
-  enum PercentageRule {
+  enum class PercentageRule {
     PercentageOfFontSize,
     PercentageOfParentSize,
     IgnorePercentage
@@ -142,7 +142,7 @@ private:
 
   enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
 
-  enum WidthType {
+  enum class WidthType {
     AsSetWidth,
     MinimumWidth,
     MaximumWidth
@@ -152,7 +152,7 @@ private:
     const Block *block;
     Side side;
 
-    BorderElement() : block(0), side(Left) { }
+    BorderElement() : block(nullptr), side(Side::Left) { }
     BorderElement(const Block *aBlock, Side aSide)
       : block(aBlock), side(aSide) { }
   };
@@ -211,13 +211,14 @@ private:
   double cssLineHeight(double fontLineHeight, double fontScale) const;
   double cssFontSize(double fontScale = 1) const;
   std::string cssPosition() const;
-  WFont::Style cssFontStyle() const;
+  FontStyle cssFontStyle() const;
   int cssFontWeight() const;
   WFont cssFont(double fontScale) const;
   std::string cssTextDecoration() const;
   double cssDecodeLength(const std::string& length, double fontScale,
 			 double defaultValue,
-			 PercentageRule percentage = PercentageOfFontSize,
+			 PercentageRule percentage =
+			   PercentageRule::PercentageOfFontSize,
 			 double parentSize = 0)
     const;
   static bool isPercentageLength(const std::string& length);
@@ -228,9 +229,9 @@ private:
 
   void pageBreak(PageState& ps);
   void inlinePageBreak(const std::string& pageBreak,
-                              Line& line, BlockList& floats,
-                              double minX, double maxX,
-                              const WTextRenderer& renderer);
+		       Line& line, BlockList& floats,
+		       double minX, double maxX,
+		       const WTextRenderer& renderer);
   double layoutInline(Line& line, BlockList& floats,
 		      double minX, double maxX, bool canIncreaseWidth,
 		      const WTextRenderer& renderer);

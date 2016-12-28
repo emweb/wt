@@ -8,14 +8,13 @@
 #define WT_DBO_STD_SQL_TRAITS_H_
 
 #include <string>
+#include <type_traits>
 #include <vector>
-#include <Wt/Dbo/SqlTraits>
-#include <Wt/Dbo/SqlStatement>
+#include <chrono>
+#include <Wt/Dbo/SqlTraits.h>
+#include <Wt/Dbo/SqlStatement.h>
 
 #include <boost/optional.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_enum.hpp>
 
 namespace Wt {
   namespace Dbo {
@@ -103,32 +102,32 @@ struct WTDBO_API sql_value_traits<double, void>
 };
 
 template<>
-struct WTDBO_API sql_value_traits<boost::posix_time::ptime, void>
+struct WTDBO_API sql_value_traits<std::chrono::system_clock::time_point, void>
 {
   static const bool specialized = true;
 
   static const char *type(SqlConnection *conn, int size);
-  static void bind(const boost::posix_time::ptime& v, SqlStatement *statement,
+  static void bind(const std::chrono::system_clock::time_point& v, SqlStatement *statement,
 		   int column, int size);
-  static bool read(boost::posix_time::ptime& v, SqlStatement *statement,
+  static bool read(std::chrono::system_clock::time_point& v, SqlStatement *statement,
 		   int column, int size);
 };
 
 template<>
-struct WTDBO_API sql_value_traits<boost::posix_time::time_duration, void>
+struct WTDBO_API sql_value_traits<std::chrono::duration<int, std::milli>, void>
 {
   static const bool specialized = true;
 
   static const char *type(SqlConnection *conn, int size);
-  static void bind(const boost::posix_time::time_duration& v,
+  static void bind(const std::chrono::duration<int, std::milli>& v,
 		   SqlStatement *statement, int column, int size);
-  static bool read(boost::posix_time::time_duration& v,
+  static bool read(std::chrono::duration<int, std::milli>& v,
 		   SqlStatement *statement, int column, int size);
 };
 
 template <typename Enum>
 struct WTDBO_API sql_value_traits<Enum,
-			typename boost::enable_if<boost::is_enum<Enum> >::type> 
+	         typename std::enable_if<std::is_enum<Enum>::value>::type> 
 : public sql_value_traits<int>
 {
   static void bind(Enum v, SqlStatement *statement, int column, int size) {

@@ -8,41 +8,38 @@
 #ifndef CATEGORYEXAMPLE_H
 #define CATEGORYEXAMPLE_H
 
-#include <Wt/WContainerWidget>
-#include <Wt/WStandardItem>
-#include <Wt/WStandardItemModel>
-#include <Wt/WText>
-#include <Wt/WCheckBox>
-#include <Wt/WTabWidget>
-#include <Wt/Chart/WCartesian3DChart>
-#include <Wt/Chart/WGridData>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WStandardItem.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WText.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WTabWidget.h>
+#include <Wt/Chart/WCartesian3DChart.h>
+#include <Wt/Chart/WGridData.h>
 
 #include "Tabs.h"
 
-using namespace Wt;
-using namespace Wt::Chart;
-
-class CategoryExample: public WContainerWidget
+class CategoryExample: public Wt::WContainerWidget
 {
 public:
-  CategoryExample(WContainerWidget *parent = 0);
+  CategoryExample();
   ~CategoryExample();
   
 private:
   void setUpData();
 
-  WText *title_;
-  WCartesian3DChart *chart_;
+  Wt::WText *title_;
+  Wt::Chart::WCartesian3DChart *chart_;
 
-  WAbstractItemModel *isotopeModel_;
-  WAbstractItemModel *planeModel_;
-  WAbstractItemModel *randomModel_;
-  WAbstractItemModel *yPlaneModel0_;
-  WAbstractItemModel *yPlaneModel_;
-  WAbstractItemModel *xPlaneModel_;
-  WAbstractItemModel *xPlaneModelColor_;
+  std::shared_ptr<Wt::WAbstractItemModel> isotopeModel_;
+  std::shared_ptr<Wt::WAbstractItemModel> planeModel_;
+  std::shared_ptr<Wt::WAbstractItemModel> randomModel_;
+  std::shared_ptr<Wt::WAbstractItemModel> yPlaneModel0_;
+  std::shared_ptr<Wt::WAbstractItemModel> yPlaneModel_;
+  std::shared_ptr<Wt::WAbstractItemModel> xPlaneModel_;
+  std::shared_ptr<Wt::WAbstractItemModel> xPlaneModelColor_;
 
-  std::vector<WAbstractDataSeries3D*> series_;
+  std::vector<Wt::Chart::WAbstractDataSeries3D*> series_;
 };
 
 #endif

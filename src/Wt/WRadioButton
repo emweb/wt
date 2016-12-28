@@ -7,7 +7,8 @@
 #ifndef WRADIOBUTTON_H_
 #define WRADIOBUTTON_H_
 
-#include <Wt/WAbstractToggleButton>
+#include <Wt/WAbstractToggleButton.h>
+#include <Wt/WButtonGroup.h>
 
 namespace Wt {
 
@@ -22,7 +23,7 @@ class WButtonGroup;
  * Usage example:
  * \if cpp
  * \code
- * enum Vote { Republican = 1, Democrate = 2, NoVote = 10 };
+ * enum class Vote { Republican = 1, Democrate = 2, NoVote = 10 };
  *
  * // use a group box as widget container for 3 radio buttons, with a title
  * Wt::WGroupBox *container = new Wt::WGroupBox("USA elections vote");
@@ -90,12 +91,12 @@ public:
   /*! \brief Creates an unchecked radio button with empty label and optional
    *         parent.
    */
-  WRadioButton(WContainerWidget *parent = 0);
+  WRadioButton();
 
   /*! \brief Creates an unchecked radio button with given text and optional
    *         parent.
    */
-  WRadioButton(const WString& text, WContainerWidget *parent = 0);
+  WRadioButton(const WString& text);
 
   /*! \brief Destructor.
    */
@@ -107,19 +108,19 @@ public:
    *
    * \sa WButtonGroup::addButton(WRadioButton *, int)
    */
-  WButtonGroup *group() const { return buttonGroup_; }
+  WButtonGroup *group() const { return buttonGroup_.get(); }
 
 private:
-  WButtonGroup *buttonGroup_;
+  std::shared_ptr<WButtonGroup> buttonGroup_;
 
-  void setGroup(WButtonGroup *buttonGroup);
+  void setGroup(std::shared_ptr<WButtonGroup> buttonGroup);
   friend class WButtonGroup;
 
 protected:
-  virtual void updateInput(DomElement& input, bool all);
-  virtual void getFormObjects(FormObjectsMap& formObjects);
+  virtual void updateInput(DomElement& input, bool all) override;
+  virtual void getFormObjects(FormObjectsMap& formObjects) override;
 
-  virtual void setFormData(const FormData& formData);
+  virtual void setFormData(const FormData& formData) override;
 };
 
 }

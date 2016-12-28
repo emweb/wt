@@ -24,8 +24,6 @@ namespace asio = boost::asio;
 #endif // HTTP_WITH_SSL
 
 #include <string>
-#include <boost/noncopyable.hpp>
-#include <boost/version.hpp>
 
 #include "TcpConnection.h"
 
@@ -37,9 +35,9 @@ namespace asio = boost::asio;
 #include "ConnectionManager.h"
 #include "RequestHandler.h"
 
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#if BOOST_VERSION >= 104900
 #include <boost/asio/steady_timer.hpp>
 typedef boost::asio::steady_timer asio_timer;
 #else
@@ -53,12 +51,13 @@ class Configuration;
 
 /// The top-level class of the HTTP server.
 class Server
-  : private boost::noncopyable
 {
 public:
   /// Construct the server to listen on the specified TCP address and port, and
   /// serve up files from the given directory.
   explicit Server(const Configuration& config, Wt::WServer& wtServer);
+
+  Server(const Server& other) = delete;
 
   ~Server();
 
@@ -88,15 +87,16 @@ private:
 
   /// Start to connect to a listening TCP socket of the parent
   /// Used for dedicated processes.
-  void startConnect(const boost::shared_ptr<asio::ip::tcp::socket>& socket);
+  void startConnect(const std::shared_ptr<asio::ip::tcp::socket>& socket);
 
   /// Connected to the parent, sends the listening port back
-  void handleConnected(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
+  void handleConnected(const std::shared_ptr<asio::ip::tcp::socket>& socket,
 		       const asio_error_code& e);
 
   /// The port has been sent to the parent, close the socket.
-  void handlePortSent(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
-		      const asio_error_code& e, const boost::shared_ptr<std::string>& /* buf */);
+  void handlePortSent(const std::shared_ptr<asio::ip::tcp::socket>& socket,
+		      const asio_error_code& e,
+		      const std::shared_ptr<std::string>& /* buf */);
 
   /// Handle completion of an asynchronous accept operation.
   void handleTcpAccept(const asio_error_code& e);
@@ -140,7 +140,7 @@ private:
 #endif // HTTP_WITH_SSL
 
 void handleTimeout(asio_timer *timer,
-		   const boost::function<void ()>& function,
+		   const std::function<void ()>& function,
 		   const asio_error_code& err);
 
   /// The connection manager which owns all live connections.

@@ -5,11 +5,12 @@
  */
 
 #include "Wt/WConfig.h"
-#include "Wt/WLogger"
-#include "Wt/WServer"
+#include "Wt/WLogger.h"
+#include "Wt/WServer.h"
 
 #include "Configuration.h"
 #include "WebUtils.h"
+#include "StringUtils.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

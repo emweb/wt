@@ -5,31 +5,19 @@
  */
 
 #include <math.h>
+#include <cstdio>
 
-#include "Wt/WException"
-#include "Wt/WLocalDateTime"
-#include "Wt/WTime"
-#include "Wt/WLogger"
+#include "Wt/WException.h"
+#include "Wt/WLocalDateTime.h"
+#include "Wt/WTime.h"
+#include "Wt/WLogger.h"
+#include "Wt/Date/date.h"
 
 #include "WebUtils.h"
-
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace Wt {
 
 LOGGER("WTime");
-
-InvalidTimeException::InvalidTimeException()
-{ }
-
-InvalidTimeException::~InvalidTimeException() throw()
-{ }
-
-const char *InvalidTimeException::what() const throw()
-{
-  return "Error: Attempted operation on an invalid WTime";
-}
 
 WTime::WTime()
   : valid_(false),
@@ -48,7 +36,6 @@ WTime::WTime(int h, int m, int s, int ms)
 bool WTime::setHMS(int h, int m, int s, int ms)
 {
   null_ = false;
-
   if (   m >= 0 && m <= 59
          && s >= 0 && s <= 59
          && ms >= 0 && ms <= 999) {
@@ -64,7 +51,6 @@ bool WTime::setHMS(int h, int m, int s, int ms)
       time_ = -time_;
   } else {
     LOG_WARN("Invalid time: " << h << ":" << m << ":" << s << "." << ms);
-    valid_ = false;
   }
 
   return valid_;
@@ -156,8 +142,11 @@ WTime WTime::currentTime()
 
 WTime WTime::currentServerTime()
 {
-  return WTime((long)boost::posix_time::microsec_clock::local_time()
-               .time_of_day().total_milliseconds());
+  std::chrono::system_clock::time_point utc = std::chrono::system_clock::now();
+  date::sys_days dp = date::floor<date::days>(utc);
+  auto time = date::make_time(utc - dp);
+  std::chrono::duration<int, std::milli> ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.subseconds());
+  return WTime(time.hours().count(), time.minutes().count(), time.seconds().count(), ms.count());
 }
 
 WString WTime::defaultFormat()
@@ -180,7 +169,7 @@ WTime::ParseState::ParseState()
 WTime WTime::fromString(const WString& s, const WString& format)
 {
   WTime result;
-  WDateTime::fromString(0, &result, s, format);
+  WDateTime::fromString(nullptr, &result, s, format);
   return result;
 }
 
@@ -195,59 +184,59 @@ WDateTime::CharState WTime::handleSpecial(char c, const std::string& v,
 
       if (parse.h == 0)
         if (!parseLast(v, vi, parse, format))
-          return WDateTime::CharInvalid;
+          return WDateTime::CharState::CharInvalid;
 
       ++parse.h;
-      return WDateTime::CharHandled;
+      return WDateTime::CharState::CharHandled;
 
     case 'm':
       if (parse.m == 0)
         if (!parseLast(v, vi, parse, format))
-          return WDateTime::CharInvalid;
+          return WDateTime::CharState::CharInvalid;
 
       ++parse.m;
-      return WDateTime::CharHandled;
+      return WDateTime::CharState::CharHandled;
 
     case 's':
       if (parse.s == 0)
         if (!parseLast(v, vi, parse, format))
-          return WDateTime::CharInvalid;
+          return WDateTime::CharState::CharInvalid;
 
       ++parse.s;
-      return WDateTime::CharHandled;
+      return WDateTime::CharState::CharHandled;
 
     case 'z':
       if (parse.z == 0)
         if (!parseLast(v, vi, parse, format))
-          return WDateTime::CharInvalid;
+          return WDateTime::CharState::CharInvalid;
 
       ++parse.z;
-      return WDateTime::CharHandled;
+      return WDateTime::CharState::CharHandled;
 
     case 'A':
     case 'a':
       if (!parseLast(v, vi, parse, format))
-        return WDateTime::CharInvalid;
+        return WDateTime::CharState::CharInvalid;
 
       parse.a = 1;
-      return WDateTime::CharHandled;
+      return WDateTime::CharState::CharHandled;
 
     case 'P':
     case 'p':
       if (parse.a == 1) {
         if (!parseLast(v, vi, parse, format))
-          return WDateTime::CharInvalid;
+          return WDateTime::CharState::CharInvalid;
 
-        return WDateTime::CharHandled;
+        return WDateTime::CharState::CharHandled;
       }
 
     /* fall through */
 
     default:
       if (!parseLast(v, vi, parse, format))
-        return WDateTime::CharInvalid;
+        return WDateTime::CharState::CharInvalid;
 
-      return WDateTime::CharUnhandled;
+      return WDateTime::CharState::CharUnhandled;
   }
 }
 
@@ -314,8 +303,8 @@ bool WTime::parseLast(const std::string& v, unsigned& vi,
               str += v[vi++];
 
         try {
-          *value = boost::lexical_cast<int>(str);
-        } catch (boost::bad_lexical_cast&) {
+          *value = Utils::stoi(str);
+        } catch (std::exception&) {
           return false;
         }
       } else if (*count == maxCount) {
@@ -326,8 +315,8 @@ bool WTime::parseLast(const std::string& v, unsigned& vi,
         vi += maxCount;
 
         try {
-          *value = boost::lexical_cast<int>(str);
-        } catch (boost::bad_lexical_cast&) {
+          *value = Utils::stoi(str);
+        } catch (std::exception&) {
           return false;
         }
       } else
@@ -365,19 +354,22 @@ WString WTime::toString() const
 
 WString WTime::toString(const WString& format) const
 {
-  return WDateTime::toString(0, this, format, true, 0);
+  return WDateTime::toString(nullptr, this, format, true, 0);
 }
 
-boost::posix_time::time_duration WTime::toTimeDuration() const
+std::chrono::duration<int, std::milli> WTime::toTimeDuration() const
 {
-  if (isValid()) {
-    boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
-      boost::posix_time::time_duration::ticks_per_second() / 1000;
-    return boost::posix_time::time_duration(hour(), minute(),
-                                            second(),
-                                            msec() * ticks_per_msec);
-  } else
-    return boost::posix_time::time_duration(boost::date_time::not_a_date_time);
+  if(isValid())
+      return std::chrono::duration<int, std::milli>(std::chrono::hours(hour()) + std::chrono::minutes(minute()) + std::chrono::seconds(second())
+              + std::chrono::milliseconds(msec()));
+  return std::chrono::duration<int, std::milli>(0);
+}
+
+WTime WTime::fromTimeDuration(const std::chrono::duration<int, std::milli>& duration)
+{
+    auto time = date::make_time(duration);
+    std::chrono::duration<int, std::milli> ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.subseconds());
+    return WTime(time.hours().count(), time.minutes().count(), time.seconds().count(), ms.count());
 }
 
 int WTime::pmhour() const
@@ -519,8 +511,8 @@ WTime::RegExpInfo WTime::formatHourToRegExp(WTime::RegExpInfo& result,
   } else if (sf == "h" && ap) {                  //Hour without leading 0 0-12
     result.regexp += "([1-9]|1[012])";
   }
-  result.hourGetJS = "return parseInt(results["
-          + boost::lexical_cast<std::string>(currentGroup++) + "], 10);";
+  result.hourGetJS = "return parseInt(results[" + 
+    std::to_string(currentGroup++) + "], 10);";
   return result;
 }
 
@@ -546,7 +538,7 @@ WTime::RegExpInfo WTime::formatMinuteToRegExp(WTime::RegExpInfo& result,
     result.regexp += "([0-5][0-9])";
 
   result.minuteGetJS = "return parseInt(results["
-          + boost::lexical_cast<std::string>(currentGroup++) + "], 10);";
+          + std::to_string(currentGroup++) + "], 10);";
 
   return result;
 }
@@ -574,7 +566,7 @@ WTime::RegExpInfo WTime::formatSecondToRegExp(WTime::RegExpInfo& result,
     result.regexp += "([0-5][0-9])";
 
   result.secGetJS = "return parseInt(results["
-          + boost::lexical_cast<std::string>(currentGroup++) + "], 10);";
+          + std::to_string(currentGroup++) + "], 10);";
 
   return result;
 }
@@ -606,7 +598,7 @@ WTime::RegExpInfo WTime::formatMSecondToRegExp(WTime::RegExpInfo& result,
     result.regexp += "([0-9]{3})";
 
   result.msecGetJS = "return parseInt(results["
-          + boost::lexical_cast<std::string>(currentGroup++) + "], 10);";
+          + std::to_string(currentGroup++) + "], 10);";
 
   return result;
 }

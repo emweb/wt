@@ -4,15 +4,15 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WBrush"
-#include "Wt/WException"
-#include "Wt/WFontMetrics"
-#include "Wt/WLogger"
-#include "Wt/WPainter"
-#include "Wt/WPen"
-#include "Wt/WRasterImage"
-#include "Wt/WTransform"
-#include "Wt/Http/Response"
+#include "Wt/WBrush.h"
+#include "Wt/WException.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WLogger.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPen.h"
+#include "Wt/WRasterImage.h"
+#include "Wt/WTransform.h"
+#include "Wt/Http/Response.h"
 
 #include "Wt/FontSupport.h"
 #include "WebUtils.h"
@@ -20,7 +20,6 @@
 
 #include <cstdio>
 #include <cmath>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <SkBitmap.h>
@@ -73,16 +72,13 @@ class WRasterImage::Impl {
 public:
   Impl():
     w_(0),
-    h_(0),
-    bitmap_(0),
-    device_(0),
-    canvas_(0)
+    h_(0)
   {}
   unsigned w_, h_;
   std::string type_;
-  SkBitmap *bitmap_;
-  SkBitmapDevice *device_;
-  SkCanvas *canvas_;
+  std::unique_ptr<SkBitmap> bitmap_;
+  std::unique_ptr<SkBitmapDevice> device_;
+  std::unique_ptr<SkCanvas> canvas_;
   SkPaint strokePaint_;
   SkPaint fillPaint_;
   SkPaint textPaint_;
@@ -93,10 +89,8 @@ public:
 };
 
 WRasterImage::WRasterImage(const std::string& type,
-			   const WLength& width, const WLength& height,
-			   WObject *parent)
-  : WResource(parent),
-    width_(width),
+			   const WLength& width, const WLength& height)
+  : width_(width),
     height_(height),
     painter_(0),
     impl_(new Impl)
@@ -117,12 +111,12 @@ WRasterImage::WRasterImage(const std::string& type,
   impl_->device_ = new SkBitmapDevice(*impl_->bitmap_);
   impl_->canvas_ = new SkCanvas(impl_->device_);
 #else
-  impl_->bitmap_ = new SkBitmap();
+  impl_->bitmap_ = cpp14::make_unique<SkBitmap>();
   SkImageInfo ii = SkImageInfo::MakeN32Premul(impl_->w_, impl_->h_);
   impl_->bitmap_->allocPixels(ii);
   impl_->bitmap_->eraseARGB(0, 0, 0, 0);
-  impl_->device_ = new SkBitmapDevice(*impl_->bitmap_);
-  impl_->canvas_ = new SkCanvas(impl_->device_);
+  impl_->device_ = cpp14::make_unique<SkBitmapDevice>(*impl_->bitmap_);
+  impl_->canvas_ = cpp14::make_unique<SkCanvas>(impl_->device_.get());
 #endif
 
   impl_->textPaint_.setStyle(SkPaint::kStrokeAndFill_Style);
@@ -140,10 +134,6 @@ void WRasterImage::clear()
 WRasterImage::~WRasterImage()
 {
   beingDeleted();
-  delete impl_->canvas_;
-  delete impl_->device_;
-  delete impl_->bitmap_;
-  delete impl_;
 }
 
 void WRasterImage::addFontCollection(const std::string& directory,
@@ -154,7 +144,7 @@ void WRasterImage::addFontCollection(const std::string& directory,
 #endif
 }
   
-WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
+WFlags<PaintDeviceFeatureFlag> WRasterImage::features() const
 {
   return HasFontMetrics;
 }
@@ -228,7 +218,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
   }
 
   if (flags & Hints) {
-    if (!(painter()->renderHints() & WPainter::Antialiasing)) {
+    if (!(painter()->renderHints() & RenderHint::Antialiasing)) {
       impl_->strokePaint_.setAntiAlias(false);
       impl_->fillPaint_.setAntiAlias(false);
       impl_->textPaint_.setAntiAlias(false);
@@ -242,7 +232,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
   if (flags & Pen) {
     const WPen& pen = painter()->pen();
 
-    if (pen.style() != NoPen) {
+    if (pen.style() != PenStyle::None) {
       const WColor& color = pen.color();
 
       impl_->strokePaint_.setColor(fromWColor(color));
@@ -251,25 +241,25 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       impl_->strokePaint_.setStrokeWidth(SkIntToScalar(w.toPixels()));
 
       switch (pen.capStyle()) {
-      case FlatCap:
+      case PenCapStyle::Flat:
 	impl_->strokePaint_.setStrokeCap(SkPaint::kButt_Cap);
 	break;
-      case SquareCap:
+      case PenCapStyle::Square:
 	impl_->strokePaint_.setStrokeCap(SkPaint::kSquare_Cap);
 	break;
-      case RoundCap:
+      case PenCapStyle::Round:
 	impl_->strokePaint_.setStrokeCap(SkPaint::kRound_Cap);
 	break;
       }
 
       switch (pen.joinStyle()) {
-      case MiterJoin:
+      case PenJoinStyle::Miter:
 	impl_->strokePaint_.setStrokeJoin(SkPaint::kMiter_Join);
 	break;
-      case BevelJoin:
+      case PenJoinStyle::Bevel:
 	impl_->strokePaint_.setStrokeJoin(SkPaint::kBevel_Join);
 	break;
-      case RoundJoin:
+      case PenJoinStyle::Round:
 	impl_->strokePaint_.setStrokeJoin(SkPaint::kRound_Join);
 	break;
       }
@@ -282,11 +272,11 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       impl_->strokePaint_.setPathEffect(0);
 #endif
       switch (pen.style()) {
-      case NoPen:
+      case PenStyle::None:
 	break;
-      case SolidLine:
+      case PenStyle::SolidLine:
 	break;
-      case DashLine: {
+      case PenStyle::DashLine: {
 	const SkScalar dasharray[] = { SkIntToScalar(4), SkIntToScalar(2) };
 #ifdef WT_SKIA_OLD
 	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 2,
@@ -297,7 +287,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 #endif
 	break;
       }
-      case DotLine: {
+      case PenStyle::DotLine: {
 	const SkScalar dasharray[] = { SkIntToScalar(1), SkIntToScalar(2) };
 #ifdef WT_SKIA_OLD
 	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 2,
@@ -308,7 +298,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 #endif
 	break;
       }
-      case DashDotLine: {
+      case PenStyle::DashDotLine: {
 	const SkScalar dasharray[] = {
 	  SkIntToScalar(4),
 	  SkIntToScalar(2),
@@ -324,7 +314,7 @@ impl_->strokePaint_.setPathEffect(
 #endif
 break;
       }
-      case DashDotDotLine: {
+      case PenStyle::DashDotDotLine: {
 	const SkScalar dasharray[] = {
 	  SkIntToScalar(4),
 	  SkIntToScalar(2),
@@ -349,7 +339,7 @@ break;
 
   if (flags & Brush) {
     const WBrush& brush = painter()->brush();
-    if (brush.style() != NoBrush) {
+    if (brush.style() != BrushStyle::None) {
       const WColor& color = painter()->brush().color();
       impl_->fillPaint_.setColor(fromWColor(color));
     }
@@ -360,28 +350,28 @@ break;
 
     const char *base = 0;
     switch (font.genericFamily()) {
-    case WFont::Default:
-    case WFont::Serif:
+    case FontFamily::Default:
+    case FontFamily::Serif:
       base = "Times";
       break;
-    case WFont::SansSerif:
+    case FontFamily::SansSerif:
       base = "Helvetica";
       break;
-    case WFont::Monospace:
+    case FontFamily::Monospace:
       base = "Courier";
       break;
-    case WFont::Fantasy: // Not really !
+    case FontFamily::Fantasy: // Not really !
       base = "Symbol";
       break;
-    case WFont::Cursive: // Not really !
+    case FontFamily::Cursive: // Not really !
       base = "ZapfDingbats";
     }
 
     int style = SkTypeface::kNormal;
-    if (font.style() != WFont::NormalStyle)
+    if (font.style() != FontStyle::Normal)
       style |= SkTypeface::kItalic;
-    if (font.weight() == WFont::Bold ||
-	font.weight() == WFont::Bolder)
+    if (font.weight() == FontWeight::Bold ||
+	font.weight() == FontWeight::Bolder)
       style |= SkTypeface::kBold;
 
     impl_->textPaint_.setTypeface(SkTypeface::CreateFromName(base,
@@ -397,13 +387,13 @@ void WRasterImage::drawArc(const WRectF& rect,
 			      SkDoubleToScalar(rect.top()),
 			      SkDoubleToScalar(rect.right()),
 			      SkDoubleToScalar(rect.bottom()));
-  if (painter()->brush().style() != NoBrush) {
+  if (painter()->brush().style() != BrushStyle::None) {
     impl_->canvas_->drawArc(r,
       SkDoubleToScalar(-startAngle),
       SkDoubleToScalar(-spanAngle),
       false, impl_->fillPaint_);
   }
-  if (painter()->pen().style() != NoPen) {
+  if (painter()->pen().style() != PenStyle::None) {
     impl_->canvas_->drawArc(r,
       SkDoubleToScalar(-startAngle),
       SkDoubleToScalar(-spanAngle),
@@ -492,10 +482,10 @@ void WRasterImage::drawPath(const WPainterPath& path)
     SkPath p;
     impl_->drawPlainPath(p, path);
     
-    if (painter()->brush().style() != NoBrush) {
+    if (painter()->brush().style() != BrushStyle::None) {
       impl_->canvas_->drawPath(p, impl_->fillPaint_);
     }
-    if (painter()->pen().style() != NoPen) {
+    if (painter()->pen().style() != PenStyle::None) {
       impl_->canvas_->drawPath(p, impl_->strokePaint_);
     }
   }
@@ -544,20 +534,20 @@ void WRasterImage::Impl::drawPlainPath(SkPath &p, const WPainterPath& path)
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (segments.size() > 0
-      && segments[0].type() != WPainterPath::Segment::MoveTo)
+      && segments[0].type() != SegmentType::MoveTo)
     p.moveTo(SkDoubleToScalar(0), SkDoubleToScalar(0));
 
   for (unsigned i = 0; i < segments.size(); ++i) {
     const WPainterPath::Segment s = segments[i];
 
     switch (s.type()) {
-    case WPainterPath::Segment::MoveTo:
+    case SegmentType::MoveTo:
       p.moveTo(SkDoubleToScalar(s.x()), SkDoubleToScalar(s.y()));
       break;
-    case WPainterPath::Segment::LineTo:
+    case SegmentType::LineTo:
       p.lineTo(SkDoubleToScalar(s.x()), SkDoubleToScalar(s.y()));
       break;
-    case WPainterPath::Segment::CubicC1: {
+    case SegmentType::CubicC1: {
       const double x1 = s.x();
       const double y1 = s.y();
       const double x2 = segments[i+1].x();
@@ -570,10 +560,10 @@ void WRasterImage::Impl::drawPlainPath(SkPath &p, const WPainterPath& path)
       i += 2;
       break;
     }
-    case WPainterPath::Segment::CubicC2:
-    case WPainterPath::Segment::CubicEnd:
+    case SegmentType::CubicC2:
+    case SegmentType::CubicEnd:
       assert(false);
-    case WPainterPath::Segment::ArcC: {
+    case SegmentType::ArcC: {
       const double x = s.x();
       const double y = s.y();
       const double width = segments[i+1].x();
@@ -594,10 +584,10 @@ void WRasterImage::Impl::drawPlainPath(SkPath &p, const WPainterPath& path)
       i += 2;
       break;
     }
-    case WPainterPath::Segment::ArcR:
-    case WPainterPath::Segment::ArcAngleSweep:
+    case SegmentType::ArcR:
+    case SegmentType::ArcAngleSweep:
       assert(false);
-    case WPainterPath::Segment::QuadC: {
+    case SegmentType::QuadC: {
       const double x1 = s.x();
       const double y1 = s.y();
       const double x2 = segments[i+1].x();
@@ -610,7 +600,7 @@ void WRasterImage::Impl::drawPlainPath(SkPath &p, const WPainterPath& path)
 
       break;
     }
-    case WPainterPath::Segment::QuadEnd:
+    case SegmentType::QuadEnd:
       assert(false);
     }
   }
@@ -650,16 +640,16 @@ void WRasterImage::drawText(const WRectF& rect,
   double descent = SkScalarToFloat(metrics.fDescent);
   
   switch (verticalAlign) {
-  case AlignTop:
+  case AlignmentFlag::Top:
     p = rect.topLeft();
     p.setY(p.y() - ascent);
     break;
-  case AlignMiddle:
+  case AlignmentFlag::Middle:
     p = rect.center();
     //p.setY(p.y() + SkScalarToFloat(textPaint_.getTextSize())/2);
     p.setY(p.y() - ascent/2);
     break;
-  case AlignBottom:
+  case AlignmentFlag::Bottom:
     p = rect.bottomLeft();
     p.setY(p.y() - descent);
     break;
@@ -668,15 +658,15 @@ void WRasterImage::drawText(const WRectF& rect,
   }
   
   switch (horizontalAlign) {
-  case AlignLeft:
+  case AlignmentFlag::Left:
     impl_->textPaint_.setTextAlign(SkPaint::kLeft_Align);
     p.setX(rect.left());
     break;
-  case AlignCenter:
+  case AlignmentFlag::Center:
     impl_->textPaint_.setTextAlign(SkPaint::kCenter_Align);
     p.setX(rect.center().x());
     break;
-  case AlignRight:
+  case AlignmentFlag::Right:
     impl_->textPaint_.setTextAlign(SkPaint::kRight_Align);
     p.setX(rect.right());
     break;

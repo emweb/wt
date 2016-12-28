@@ -7,13 +7,13 @@
 #ifndef WSERVER_H_
 #define WSERVER_H_
 
-#include <Wt/WApplication>
-#include <Wt/WException>
-#include <Wt/WLogger>
+#include <Wt/WApplication.h>
+#include <Wt/WException.h>
+#include <Wt/WLogger.h>
 
 namespace http {
   namespace server {
-	class Server;
+    class Server;
   }
 }
 namespace Wt {
@@ -53,7 +53,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
     // add a single entry point, at the default location (as determined
     // by the server configuration's deploy-path)
-    server.addEntryPoint(Wt::Application, createApplication);
+    server.addEntryPoint(Wt::EntryPointType::Application, createApplication);
     if (server.start()) {
       int sig = WServer::waitForShutdown(argv[0]);
 
@@ -73,9 +73,12 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 }
  * \endcode
  */
-class WServer: private boost::noncopyable
+class WServer
 {
 public:
+  typedef std::function<std::string (std::size_t max_length, int purpose)>
+    SslPasswordCallback;
+
   /*! \class Exception
    *  \brief Server %Exception class.
    */
@@ -118,6 +121,8 @@ public:
   WTCONNECTOR_API
     WServer(const std::string& wtApplicationPath = std::string(),
 	    const std::string& wtConfigurationFile = std::string());
+
+  WServer(const WServer &) = delete;
 
   /*! \brief Creates a new server instance and configures it.
    *
@@ -217,7 +222,7 @@ public:
    * contain the host part!) to a favicon, which is the icon displayed
    * in the browser for your application. Alternatively, you may
    * specify a favicon using the "favicon" property in the
-   * configuration file (see als \ref config_general "Application
+   * configuration file (see als \ref config_general "EntryPointType::Application
    * settings (wt_config.xml)").
    *
    * \sa removeEntryPoint()
@@ -315,11 +320,8 @@ public:
    * server that cleanly terminates on interruption.
    *
    * This will also catch SIGHUP, to reread the configuration file.
-   *
-   * The optional \p restartWatchFile parameter is deprecated and no
-   * longer used.
    */
-  WT_API static int waitForShutdown(const char *restartWatchFile = 0);
+  WT_API static int waitForShutdown();
 
   /*! \brief A utility method to restart.
    *
@@ -374,21 +376,21 @@ public:
    * yourself from this by using WApplication::bind().
    */
   WT_API void post(const std::string& sessionId,
-	           const boost::function<void ()>& function,
-	           const boost::function<void ()>& fallBackFunction
-	             = boost::function<void ()>());
+	           const std::function<void ()>& function,
+	           const std::function<void ()>& fallBackFunction
+	             = std::function<void ()>());
 
   /*! \brief Posts a function to all currently active sessions.
    *
    * \sa post()
    */
-  WT_API void postAll(const boost::function<void ()>& function);
+  WT_API void postAll(const std::function<void ()>& function);
 
   WT_API void schedule(int milliSeconds,
 		       const std::string& sessionId,
-		       const boost::function<void ()>& function,
-		       const boost::function<void ()>& fallBackFunction
-		         = boost::function<void ()>());
+		       const std::function<void ()>& function,
+		       const std::function<void ()>& fallBackFunction
+		         = std::function<void ()>());
 
   /*! \brief Change input method for server certificate passwords (http backend)
    *
@@ -402,8 +404,7 @@ public:
    * The max_length parameter is informational and indicates that the
    * underlying implementation will truncate the password to this length.
    */
-  WTCONNECTOR_API void setSslPasswordCallback(
-    boost::function<std::string (std::size_t max_length, int purpose)> cb);
+  WTCONNECTOR_API void setSslPasswordCallback(const SslPasswordCallback& cb);
 
 #endif // WT_TARGET_JAVA
 
@@ -440,13 +441,14 @@ public:
    *
    * The default value is 0.
    */
-  WT_API void setLocalizedStrings(WLocalizedStrings *stringResolver);
+  WT_API void setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>&
+				  stringResolver);
   
   /*! \brief Sets the resource object that provides localized strings.
    *
    * \sa setLocalizedStrings()
    */
-  WT_API WLocalizedStrings *localizedStrings();
+  WT_API std::shared_ptr<WLocalizedStrings> localizedStrings() const;
 
 #ifndef WT_TARGET_JAVA
 
@@ -506,7 +508,7 @@ private:
 
   std::string application_, configurationFile_, appRoot_, description_;
   Configuration *configuration_;
-  WLocalizedStrings *localizedStrings_;
+  std::shared_ptr<WLocalizedStrings> localizedStrings_;
 
   bool ownsIOService_;
   WIOService *ioService_;
@@ -530,9 +532,9 @@ private:
   WT_API void setCatchSignals(bool catchSignals);
 
   WT_API static WServer *instance_;
-  boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
+  std::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
 #ifndef WT_TARGET_JAVA
-  boost::function<void ()> stopCallback_;
+  std::function<void ()> stopCallback_;
   friend class http::server::Server;
 #endif // WT_TARGET_JAVA
 };

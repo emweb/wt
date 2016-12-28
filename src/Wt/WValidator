@@ -9,12 +9,20 @@
 
 #include <iostream>
 
-#include <Wt/WObject>
-#include <Wt/WString>
+#include <Wt/WObject.h>
+#include <Wt/WString.h>
 
 namespace Wt {
 
 class WFormWidget;
+
+/*! \brief The state in which validated input can exist.
+ */
+enum class ValidationState {
+  Invalid,	//!< The input is invalid.
+  InvalidEmpty, //!< The input is invalid (empty and mandatory).
+  Valid	        //!< The input is valid.
+};
 
 /*! \class WValidator Wt/WValidator Wt/WValidator
  *  \brief A validator is used to validate user input according to
@@ -51,16 +59,11 @@ class WFormWidget;
  *
  * \sa WFormWidget
  */
-class WT_API WValidator : public WObject
+class WT_API WValidator
 {
 public:
-  /*! \brief The state in which validated input can exist.
-   */
-  enum State {
-    Invalid,	  //!< The input is invalid.
-    InvalidEmpty, //!< The input is invalid (empty and mandatory).
-    Valid	  //!< The input is valid.
-  };
+  /*! \brief Typedef for enum Wt::ValidationState */
+  typedef ValidationState State;
 
   /*! \brief A class that holds a validation result.
    *
@@ -79,31 +82,27 @@ public:
      *
      * Creates a result with given \p state and \p message.
      */
-    Result(State state, const WString& message);
+    Result(ValidationState state, const WString& message);
 
     /*! \brief Constructor.
      *
      * Creates a result with given \p state and initalizes the message field to
      * an empty WString.
      */
-    explicit Result(State state);
+    explicit Result(ValidationState state);
 
     /*! \brief Returns the validation state.
      */
-    State state() const { return state_; }
+    ValidationState state() const { return state_; }
 
     /*! \brief Returns the validation message.
      */
     const WString& message() const { return message_; }
 
   private:
-    State state_;
+    ValidationState state_;
     WString message_;
   };
-
-  /*! \brief Creates a new validator.
-   */
-  WValidator(WObject *parent = 0);
 
   /*! \brief Creates a new validator.
    *
@@ -111,7 +110,7 @@ public:
    *
    * \sa setMandatory(bool)
    */
-  WValidator(bool mandatory, WObject *parent = 0);
+  WValidator(bool mandatory = false);
 
   /*! \brief Destructor.
    *
@@ -154,10 +153,6 @@ public:
    * The default implementation returns an empty string.
    */
   virtual WT_USTRING format() const;
-
-  /*! \brief Provides Ext-compatible config options for client-side validation.
-   */
-  virtual void createExtConfig(std::ostream& config) const;
 
   /*! \brief Creates a Javascript object that validates the input.
    *

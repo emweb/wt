@@ -7,7 +7,7 @@
 #ifndef TAG_H_
 #define TAG_H_
 
-#include <Wt/Dbo/Types>
+#include <Wt/Dbo/Types.h>
 
 class Post;
 
@@ -34,6 +34,6 @@ public:
   }
 };
 
-DBO_EXTERN_TEMPLATES(Tag);
+DBO_EXTERN_TEMPLATES(Tag)
 
 #endif // TAG_H_

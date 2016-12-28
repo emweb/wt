@@ -7,8 +7,7 @@
 #ifndef WMESSAGEBOX_
 #define WMESSAGEBOX_
 
-#include <Wt/WDialog>
-#include <Wt/WSignalMapper>
+#include <Wt/WDialog.h>
 
 namespace Wt {
 
@@ -43,7 +42,7 @@ class WText;
  * \code
  * StandardButton
  *   result = WMessageBox::show("Confirm", "About to wreak havoc... Continue ?",
- *                              Ok | Cancel);
+ *                              StandardButton::Ok | StandardButton::Cancel);
  * \endcode
  * \endif
  *
@@ -59,15 +58,15 @@ class WText;
  *
  * The strings used in the WMessageBox buttons can be translated by overriding
  * the default values for the following localization keys:
- * - Wt.WMessageBox.Abort: Abort
- * - Wt.WMessageBox.Cancel: Cancel
- * - Wt.WMessageBox.Ignore: Ignore
- * - Wt.WMessageBox.No: No
- * - Wt.WMessageBox.NoToAll: No to All
- * - Wt.WMessageBox.Ok: Ok
- * - Wt.WMessageBox.Retry: Retry
- * - Wt.WMessageBox.Yes: Yes
- * - Wt.WMessageBox.YesToAll: Yes to All
+ * - Wt.WMessageBox.StandardButton::Abort: StandardButton::Abort
+ * - Wt.WMessageBox.StandardButton::Cancel: StandardButton::Cancel
+ * - Wt.WMessageBox.StandardButton::Ignore: StandardButton::Ignore
+ * - Wt.WMessageBox.StandardButton::No: StandardButton::No
+ * - Wt.WMessageBox.NoToAll: StandardButton::No to All
+ * - Wt.WMessageBox.StandardButton::Ok: StandardButton::Ok
+ * - Wt.WMessageBox.StandardButton::Retry: StandardButton::Retry
+ * - Wt.WMessageBox.StandardButton::Yes: StandardButton::Yes
+ * - Wt.WMessageBox.YesToAll: StandardButton::Yes to All
  */
 class WT_API WMessageBox : public WDialog
 {
@@ -76,13 +75,13 @@ public:
 
   /*! \brief Creates an empty message box.
    */
-  WMessageBox(WObject *parent = 0);
+  WMessageBox();
 
   /*! \brief Creates a message box with given caption, text, icon, and
    *         buttons.
    */
   WMessageBox(const WString& caption, const WString& text, Icon icon,
-	      WFlags<StandardButton> buttons, WObject *parent = 0);
+	      WFlags<StandardButton> buttons);
 
   /*! \brief Sets the text for the message box.
    */
@@ -111,7 +110,7 @@ public:
    *
    * When the button is clicked, the associated result will be returned.
    */
-  void addButton(WPushButton *button, StandardButton result);
+  void addButton(std::unique_ptr<WPushButton> button, StandardButton result);
 
   /*! \brief Adds a custom button with given text.
    *
@@ -122,12 +121,6 @@ public:
   /*! \brief Adds a standard button.
    */
   WPushButton *addButton(StandardButton result);
-
-  /*! \brief Sets standard buttons for the message box (<b>deprecated</b>).
-   *
-   * \deprecated this method has been renamed to setStandardButtons().
-   */
-  void setButtons(WFlags<StandardButton> buttons);
 
   /*! \brief Sets standard buttons for the message box.
    */
@@ -160,7 +153,7 @@ public:
    * button can be the default button.
    *
    * If no default button is set, %Wt will take a button that is associated
-   * with a Wt::Ok or Wt::Yes result.
+   * with a Wt::StandardButton::Ok or Wt::StandardButton::Yes result.
    */
   void setDefaultButton(WPushButton *button);
 
@@ -184,7 +177,7 @@ public:
    * The escape button is pressed when the user presses escapes.
    *
    * If no escape button is set, %Wt will take a button that is associated
-   * with a Wt::Cancel or Wt::No result.
+   * with a Wt::StandardButton::Cancel or Wt::StandardButton::No result.
    */
   void setEscapeButton(WPushButton *button);
 
@@ -193,7 +186,7 @@ public:
    * The escape button is pressed when the user presses escapes.
    *
    * If no escape button is set, %Wt will take a button that is associated
-   * with a Wt::Cancel or Wt::No result.
+   * with a Wt::StandardButton::Cancel or Wt::StandardButton::No result.
    */
   void setEscapeButton(StandardButton button);
 
@@ -232,7 +225,7 @@ public:
   Signal<StandardButton>& buttonClicked() { return buttonClicked_; }
 
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
+			 const WAnimation& animation = WAnimation()) override;
 
 private:
   struct Button {
@@ -248,8 +241,6 @@ private:
 
   WText *text_;
   WIcon *iconW_;
-
-  WSignalMapper<StandardButton, NoClass> *buttonMapper_;
 
   void create();
 

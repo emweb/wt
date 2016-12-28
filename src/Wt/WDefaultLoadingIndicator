@@ -7,8 +7,8 @@
 #ifndef WDEFAULT_LOADING_INDICATOR_H_
 #define WDEFAULT_LOADING_INDICATOR_H_
 
-#include <Wt/WText>
-#include <Wt/WLoadingIndicator>
+#include <Wt/WText.h>
+#include <Wt/WLoadingIndicator.h>
 
 namespace Wt {
 
@@ -33,7 +33,7 @@ namespace Wt {
  *
  * \sa WApplication::setLoadingIndicator()
  */
-class WT_API WDefaultLoadingIndicator : public WText, public WLoadingIndicator
+class WT_API WDefaultLoadingIndicator : public WLoadingIndicator
 {
 public:
   /*! \brief Constructor.

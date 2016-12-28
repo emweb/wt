@@ -7,16 +7,12 @@
 #ifndef WBUTTONGROUP_H_
 #define WBUTTONGROUP_H_
 
-#include <Wt/WObject>
-#include <Wt/WSignal>
+#include <Wt/WObject.h>
+#include <Wt/WSignal.h>
 
 namespace Wt {
 
 class WRadioButton;
-
-  namespace Ext {
-    class RadioButton;
-  }
 
 /*! \class WButtonGroup Wt/WButtonGroup Wt/WButtonGroup
  *  \brief A class for grouping radio buttons logically together.
@@ -36,7 +32,7 @@ class WRadioButton;
  * \if cpp
  * Usage example:
  * \code
- * enum Vote { Republican = 1, Democrate = 2, NoVote = 10 };
+ * enum class Vote { Republican = 1, Democrate = 2, NoVote = 10 };
  *
  * // use a group box as widget container for 3 radio buttons, with a title
  * Wt::WGroupBox *container = new Wt::WGroupBox("USA elections vote");
@@ -61,59 +57,39 @@ class WRadioButton;
  * \endcode
  * \endif
  *
- * \if cpp
- * \sa WRadioButton, Ext::RadioButton
- * \elseif java
  * \sa WRadioButton
- * \endif
  */
-class WT_API WButtonGroup : public WObject
+class WT_API WButtonGroup : public WObject, public std::enable_shared_from_this<WButtonGroup>
 {
 public:
   /*! \brief Creates a new empty button group.
-   */
-  WButtonGroup(WObject* parent = 0);
-
-  /*! \brief Destructor.
    *
-   * This does not delete the radio buttons, but simply removes them
-   * from the group.
+   * \note The \link WRadioButton WRadioButtons\endlink associated with this
+   *       WButtonGroup keep a shared_ptr to this WButtonGroup. Therefore, you
+   *       should store a WButtonGroup in a shared_ptr (e.g. construct it with
+   * 	   make_shared) before adding any radio buttons to it.
    */
-  ~WButtonGroup();
+  WButtonGroup();
+
+  virtual ~WButtonGroup();
 
   /*! \brief Adds a radio button to the group.
    *
    * You can assign an id to the button. If \p id is -1, then a
    * unique id will be generated.
+   *
+   * \note WButtonGroup should be owned by a shared_ptr before addButton is
+   *       called on it!
    *
    * \sa removeButton(WRadioButton *)
    */
   void addButton(WRadioButton *button, int id = -1);
-
-#ifndef WT_TARGET_JAVA
-  /*! \brief Adds a radio button to the group.
-   *
-   * You can assign an id to the button. If \p id is -1, then a
-   * unique id will be generated.
-   *
-   * \sa removeButton(Ext::RadioButton *)
-   */
-  void addButton(Ext::RadioButton *button, int id = -1);
-#endif // WT_TARGET_JAVA
 
   /*! \brief Removes a radio button from the group.
    *
    * \sa addButton(WRadioButton *, int)
    */
   void removeButton(WRadioButton *button);
-
-  /*! \brief Removes a radio button from the group.
-   *
-   * \if cpp
-   * \sa addButton(Ext::RadioButton *, int)
-   * \endif
-   */
-  void removeButton(Ext::RadioButton *button);
 
   /*! \brief Returns the button for the given id.
    *
@@ -127,7 +103,7 @@ public:
    */
   int id(WRadioButton *button) const;
 
-  virtual const std::string id() const { return WObject::id(); }
+  virtual const std::string id() const override { return WObject::id(); }
 
   /*! \brief Returns the buttons in this group.
    */
@@ -163,10 +139,6 @@ public:
    * \sa setCheckedButton(), selectedButtonIndex()
    */
   WRadioButton* checkedButton() const;
-
-#ifndef WT_TARGET_JAVA
-  WRadioButton* selectedButton() const; // deprecated
-#endif // WT_TARGET_JAVA
 
   /*! \brief Sets the currently checked radiobutton.
    *
@@ -207,7 +179,7 @@ private:
   void uncheckOthers(WRadioButton *button);
   int  generateId() const;
   void onButtonChange();
-  virtual void setFormData(const FormData& formData);
+  virtual void setFormData(const FormData& formData) override;
 
   friend class WRadioButton;
 };

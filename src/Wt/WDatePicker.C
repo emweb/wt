@@ -4,105 +4,101 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WDatePicker"
+#include "Wt/WDatePicker.h"
 
-#include "Wt/WApplication"
-#include "Wt/WCalendar"
-#include "Wt/WContainerWidget"
-#include "Wt/WDateValidator"
-#include "Wt/WImage"
-#include "Wt/WInteractWidget"
-#include "Wt/WPopupWidget"
-#include "Wt/WLineEdit"
-#include "Wt/WPushButton"
-#include "Wt/WTemplate"
-#include "Wt/WTheme"
+#include "Wt/WApplication.h"
+#include "Wt/WCalendar.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WDateValidator.h"
+#include "Wt/WImage.h"
+#include "Wt/WInteractWidget.h"
+#include "Wt/WPopupWidget.h"
+#include "Wt/WLineEdit.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WTemplate.h"
+#include "Wt/WTheme.h"
 
 #include "WebUtils.h"
 
 namespace Wt {
 
-WDatePicker::WDatePicker(WContainerWidget *parent)
-  : WCompositeWidget(parent)
+WDatePicker::WDatePicker()
 {
-  createDefault(0);
+  createDefault(nullptr);
 }
 
-WDatePicker::WDatePicker(WInteractWidget *displayWidget,
-			 WLineEdit *forEdit, WContainerWidget *parent)
-  : WCompositeWidget(parent)
+WDatePicker::WDatePicker(std::unique_ptr<WInteractWidget> displayWidget,
+			 WLineEdit *forEdit)
 {
-  create(displayWidget, forEdit);
+  create(std::move(displayWidget), forEdit);
 }
 
-WDatePicker::WDatePicker(WLineEdit *forEdit, WContainerWidget *parent)
-  : WCompositeWidget(parent)
+WDatePicker::WDatePicker(WLineEdit *forEdit)
 {
   createDefault(forEdit);
 }
 
 WDatePicker::~WDatePicker()
-{
-  WApplication::instance()->doJavaScript
-    (WT_CLASS ".remove('" + popup_->id() + "');");
-}
+{ }
 
 void WDatePicker::createDefault(WLineEdit *forEdit)
 {
-  WImage *icon = new WImage(WApplication::relativeResourcesUrl() 
-			    + "calendar_edit.png");
+  std::unique_ptr<WImage> icon
+    (new WImage(WApplication::relativeResourcesUrl() + "calendar_edit.png"));
   icon->resize(16, 16);
-  icon->setVerticalAlignment(AlignMiddle);
+  icon->setVerticalAlignment(AlignmentFlag::Middle);
 
   if (!forEdit) {
-    forEdit = new WLineEdit();
-    create(icon, forEdit);
-    layout_->insertWidget(0, forEdit);
+    std::unique_ptr<WLineEdit> edit(new WLineEdit());
+    create(std::move(icon), edit.get());
+    layout_->insertWidget(0, std::move(edit));
   } else
-    create(icon, forEdit);
+    create(std::move(icon), forEdit);
 }
 
-void WDatePicker::create(WInteractWidget *displayWidget,
+void WDatePicker::create(std::unique_ptr<WInteractWidget> displayWidget,
 			 WLineEdit *forEdit)
 {
-  setImplementation(layout_ = new WContainerWidget());
+  layout_ = new WContainerWidget();
+  setImplementation(std::unique_ptr<WContainerWidget>(layout_));
 
-  displayWidget_ = displayWidget;
+  displayWidget_ = displayWidget.get();
   forEdit_ = forEdit;
-  forEdit_->setVerticalAlignment(AlignMiddle);
+  forEdit_->setVerticalAlignment(AlignmentFlag::Middle);
   forEdit_->changed().connect(this, &WDatePicker::setFromLineEdit);
 
   format_ = "dd/MM/yyyy";
 
   layout_->setInline(true);
-  layout_->addWidget(displayWidget);
+  layout_->addWidget(std::move(displayWidget));
   layout_->setAttributeValue("style", "white-space: nowrap");
-
-  const char *TEMPLATE = "${calendar}";
-
-  WTemplate *t = new WTemplate(WString::fromUTF8(TEMPLATE));
-  popup_ = new WPopupWidget(t, this);
-  popup_->setAnchorWidget(displayWidget_, Horizontal);
-  popup_->setTransient(true);
 
   calendar_ = new WCalendar();
   calendar_->setSingleClickSelect(true);
-  calendar_->activated().connect(popup_, &WWidget::hide);
   calendar_->activated().connect(this, &WDatePicker::onPopupHidden);
   calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
 
-  t->escapePressed().connect(popup_, &WTemplate::hide);
-  t->escapePressed().connect(forEdit_, &WWidget::setFocus);
+  const char *TEMPLATE = "${calendar}";
 
-  t->bindWidget("calendar", calendar_);
+  WTemplate *temp;
+  std::unique_ptr<WTemplate> t(temp = new WTemplate(WString::fromUTF8(TEMPLATE)));
+  popup_.reset(new WPopupWidget(std::move(t)));
+  temp->escapePressed().connect(popup_.get(), &WTemplate::hide);
+  temp->escapePressed().connect(forEdit_, &WWidget::setFocus);
+  temp->bindWidget("calendar", std::unique_ptr<WWidget>(calendar_));
 
-  WApplication::instance()->theme()->apply(this, popup_, DatePickerPopupRole);
+  popup_->setAnchorWidget(displayWidget_, Orientation::Horizontal);
+  popup_->setTransient(true);
+  calendar_->activated().connect(popup_.get(), &WWidget::hide);
 
-  displayWidget->clicked().connect(popup_, &WWidget::show);
-  displayWidget->clicked().connect(this, &WDatePicker::setFromLineEdit);
+  WApplication::instance()->theme()->apply(this, popup_.get(),
+					   WidgetThemeRole::DatePickerPopup);
+
+  displayWidget_->clicked().connect(popup_.get(), &WWidget::show);
+  displayWidget_->clicked().connect(this, &WDatePicker::setFromLineEdit);
 
   if (!forEdit_->validator())
-    forEdit_->setValidator(new WDateValidator(format_, this));
+    forEdit_->setValidator(std::make_shared<WDateValidator>(format_));
 }
 
 void WDatePicker::setPopupVisible(bool visible)
@@ -127,7 +123,7 @@ void WDatePicker::setFormat(const WT_USTRING& format)
 
   format_ = format;
 
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv)
     dv->setFormat(format);
 
@@ -149,6 +145,11 @@ void WDatePicker::setFromCalendar()
 WDate WDatePicker::date() const
 {
   return WDate::fromString(forEdit_->text(), format_);
+}
+
+std::shared_ptr<WDateValidator> WDatePicker::dateValidator() const
+{
+  return std::dynamic_pointer_cast<WDateValidator>(forEdit_->validator());
 }
 
 void WDatePicker::setDate(const WDate& date)
@@ -202,7 +203,7 @@ void WDatePicker::setHidden(bool hidden, const WAnimation& animation)
 
 void WDatePicker::setBottom(const WDate& bottom)
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv) {
     dv->setBottom(bottom);
     calendar_->setBottom(bottom);
@@ -211,7 +212,7 @@ void WDatePicker::setBottom(const WDate& bottom)
 
 WDate WDatePicker::bottom() const
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv)
     return dv->bottom();
   else 
@@ -220,7 +221,7 @@ WDate WDatePicker::bottom() const
   
 void WDatePicker::setTop(const WDate& top) 
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv) {
     dv->setTop(top);
     calendar_->setTop(top);
@@ -229,7 +230,7 @@ void WDatePicker::setTop(const WDate& top)
 
 WDate WDatePicker::top() const
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv)
     return dv->top();
   else 
@@ -238,8 +239,8 @@ WDate WDatePicker::top() const
 
 void WDatePicker::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
-    WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  if (flags.test(RenderFlag::Full)) {
+    std::shared_ptr<WDateValidator> dv = dateValidator();
 
     if (dv) {
       setTop(dv->top());

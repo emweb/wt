@@ -7,7 +7,7 @@
 #ifndef WT_AUTH_FACEBOOK_AUTH_H_
 #define WT_AUTH_FACEBOOK_AUTH_H_
 
-#include <Wt/Auth/OAuthService>
+#include <Wt/Auth/OAuthService.h>
 
 namespace Wt {
   namespace Auth {
@@ -75,21 +75,22 @@ public:
    */
   static bool configured();
 
-  virtual std::string name() const;
-  virtual WString description() const;
-  virtual int popupWidth() const;
-  virtual int popupHeight() const;
+  virtual std::string name() const override;
+  virtual WString description() const override;
+  virtual int popupWidth() const override;
+  virtual int popupHeight() const override;
 
-  virtual std::string authenticationScope() const;
-  virtual std::string redirectEndpoint() const;
-  virtual std::string redirectEndpointPath() const;
-  virtual std::string authorizationEndpoint() const;
-  virtual std::string tokenEndpoint() const;
-  virtual std::string clientId() const;
-  virtual std::string clientSecret() const;
+  virtual std::string authenticationScope() const override;
+  virtual std::string redirectEndpoint() const override;
+  virtual std::string redirectEndpointPath() const override;
+  virtual std::string authorizationEndpoint() const override;
+  virtual std::string tokenEndpoint() const override;
+  virtual std::string clientId() const override;
+  virtual std::string clientSecret() const override;
 
-  virtual Http::Method tokenRequestMethod() const;
-  virtual OAuthProcess *createProcess(const std::string& scope) const;
+  virtual Http::Method tokenRequestMethod() const override;
+  virtual std::unique_ptr<OAuthProcess>
+    createProcess(const std::string& scope) const override;
 };
 
   }

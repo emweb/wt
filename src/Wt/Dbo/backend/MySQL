@@ -9,8 +9,8 @@
 #ifndef WT_DBO_BACKEND_MYSQL_H_
 #define WT_DBO_BACKEND_MYSQL_H_
 
-#include <Wt/Dbo/SqlConnection>
-#include <Wt/Dbo/SqlStatement>
+#include <Wt/Dbo/SqlConnection.h>
+#include <Wt/Dbo/SqlStatement.h>
 #include <Wt/Dbo/backend/WDboMySQLDllDefs.h>
 
 namespace Wt {
@@ -71,7 +71,7 @@ public:
 
   /*! \brief Returns a copy of the connection.
    */
-  virtual MySQL *clone() const;
+  virtual std::unique_ptr<SqlConnection> clone() const override;
 
   /*! \brief Tries to connect.
    *
@@ -97,32 +97,32 @@ public:
 
   void checkConnection();
 
-  virtual void executeSql(const std::string &sql);
+  virtual void executeSql(const std::string &sql) override;
 
-  virtual void startTransaction();
-  virtual void commitTransaction();
-  virtual void rollbackTransaction();
+  virtual void startTransaction() override;
+  virtual void commitTransaction() override;
+  virtual void rollbackTransaction() override;
 
-  virtual SqlStatement *prepareStatement(const std::string& sql);
+  virtual SqlStatement *prepareStatement(const std::string& sql) override;
 
   /** @name Methods that return dialect information
    */
   //@{
-  virtual std::string autoincrementSql() const;
-  virtual std::string autoincrementType() const;
-  virtual std::string autoincrementInsertSuffix(const std::string& id) const;
+  virtual std::string autoincrementSql() const override;
+  virtual std::string autoincrementType() const override;
+  virtual std::string autoincrementInsertSuffix(const std::string& id) const override;
   virtual std::vector<std::string>
     autoincrementCreateSequenceSql(const std::string &table,
-                                   const std::string &id) const;
+                                   const std::string &id) const override;
   virtual std::vector<std::string>
     autoincrementDropSequenceSql(const std::string &table,
-                                 const std::string &id) const;
+                                 const std::string &id) const override;
 
-  virtual const char *dateTimeType(SqlDateTimeType type) const;
-  virtual const char *blobType() const;
-  virtual bool supportAlterTable() const;
-  virtual const char *alterTableConstraintString() const;
-  virtual bool requireSubqueryAlias() const {return true;}
+  virtual const char *dateTimeType(SqlDateTimeType type) const override;
+  virtual const char *blobType() const override;
+  virtual bool supportAlterTable() const override;
+  virtual const char *alterTableConstraintString() const override;
+  virtual bool requireSubqueryAlias() const override {return true;}
   //@}
 
   /*! \brief Returns the supported fractional seconds part

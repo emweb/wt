@@ -8,7 +8,7 @@
 #define WTRANSFORM_H_
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WJavaScriptExposableObject>
+#include <Wt/WJavaScriptExposableObject.h>
 
 namespace Wt {
 
@@ -360,10 +360,10 @@ public:
    */
   static const WTransform Identity;
 
-  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
+  virtual std::string jsValue() const override;
 
 protected:
-  void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;
+  virtual void assignFromJSON(const Json::Value &value) override;
 
 private:
   // we use row,column indices; prepend transformations to the left,

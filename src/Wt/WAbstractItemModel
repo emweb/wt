@@ -7,12 +7,11 @@
 #ifndef WABSTRACT_ITEM_MODEL_H_
 #define WABSTRACT_ITEM_MODEL_H_
 
-#include <Wt/WObject>
-#include <Wt/WModelIndex>
-#include <Wt/WSignal>
-#include <Wt/WGlobal>
-#include <boost/any.hpp>
-#include <Wt/WBoostAny>
+#include <Wt/WObject.h>
+#include <Wt/WModelIndex.h>
+#include <Wt/WSignal.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WAny.h>
 
 namespace Wt {
 
@@ -38,20 +37,21 @@ namespace Wt {
  * the View on possible interactivity.
  *
  * \if cpp
- * Top level data have an \link WModelIndex::isValid() invalid\endlink
+ * Side::Top level data have an \link WModelIndex::isValid() invalid\endlink
  * parent WModelIndex.
  * \endif
  * \if java
- * Top level data have a \c null parent WModelIndex.
+ * Side::Top level data have a \c null parent WModelIndex.
  * \endif
  *
  * \if cpp
- * The data itself is of type <b>boost::any</b>, which can either be
+ * The data itself is of type <b>Wt::any</b>, which can either be
  * empty, or hold any type of data. Depending on the role however,
  * view classes may expect certain types of data (e.g. a string for
- * Wt::StyleClassRole).
+ * Wt::ItemDataRole::StyleClass).
  *
- * Wt's standard view classes can display (Wt::DisplayRole) the following data:
+ * Wt's standard view classes can display (Wt::ItemDataRole::Display)
+ * the following data:
  *
  *  - strings of type WString or std::string
  *  - WDate, WTime, WDateTime, WLocalDateTime
@@ -67,43 +67,43 @@ namespace Wt {
  * The data itself is of type Object, which can either be \c null, or be
  * any type of data. Depending on the role however, view classes may
  * expect certain types of data (e.g. numerical types for charts) or
- * will convert the data to a string (e.g. for Wt::DisplayRole).
+ * will convert the data to a string (e.g. for Wt::ItemDataRole::Display).
  *
  * \endif
  * 
  * \if cpp
- * Conversion between native types and boost::any is done like this:
+ * Conversion between native types and Wt::any is done like this:
  * <ul>
- *  <li>Conversion from <i>v</i> (of type <i>Type</i>) to boost::any <i>a</i>
+ *  <li>Conversion from <i>v</i> (of type <i>Type</i>) to Wt::any <i>a</i>
  *   (for setData() and setHeaderData())
  *    <pre>
- * boost::any <i>a</i> = boost::any(<i>v</i>);
+ * Wt::any <i>a</i> = Wt::any(<i>v</i>);
  *    </pre>
  *   For example:
  *    <pre>
  * WDate d(1976,6,14);
- * model->setData(row, column, boost::any(d));
+ * model->setData(row, column, Wt::any(d));
  *    </pre>
  * 
  *  </li>
- *  <li>Conversion from boost::any <i>a</i> to <i>v</i> (of type <i>Type</i>)
+ *  <li>Conversion from Wt::any <i>a</i> to <i>v</i> (of type <i>Type</i>)
      (for data() and headerData()):
  *    <pre>
- * <i>Type v</i> = boost::any_cast<<i>Type</i>>(<i>a</i>);
+ * <i>Type v</i> = Wt::any_cast<<i>Type</i>>(<i>a</i>);
  *    </pre>
  *   For example:
  *    <pre>
- * WDate d = boost::any_cast<WDate>(model->data(row, column));
+ * WDate d = Wt::any_cast<WDate>(model->data(row, column));
  *    </pre>
  *  </li>
- *  <li>Checking if a boost::any <i>a</i> holds a value:</li>
+ *  <li>Checking if a Wt::any <i>a</i> holds a value:</li>
  *    <pre>
  * if (!<i>a</i>.empty()) {
  *   ...
  * }
  *    </pre>
  *  </li>
- *  <li>Determining the value type of a boost::any <i>a</i>, for example:</li>
+ *  <li>Determining the value type of a Wt::any <i>a</i>, for example:</li>
  *    <pre>
  * if (<i>a</i>.type() == typeid(double)) {
  *   ...
@@ -146,9 +146,10 @@ namespace Wt {
  * \endif
  *
  * If you want to support editing of the model, then you need to
- * indicate this support using a Wt::ItemIsEditable flag, and
- * reimplement setData(). View classes will use the \link Wt::EditRole
- * EditRole\endlink to read and update the data for the editor.
+ * indicate this support using a Wt::ItemFlag::Editable flag, and
+ * reimplement setData(). View classes will use the
+ * \link Wt::ItemDataRole::Edit ItemDataRole::Edit\endlink to read and update
+ * the data for the editor.
  *
  * When the model's data has been changed, the model must emit the
  * dataChanged() signal.
@@ -173,21 +174,19 @@ namespace Wt {
 class WT_API WAbstractItemModel : public WObject
 {
 public:
-  using WObject::parent;
-
   /*! \brief Data map.
    *
    * A map of data, indexed by a role.
    */
 #ifndef WT_TARGET_JAVA
-  typedef std::map<int, boost::any> DataMap;
+  typedef std::map<int, cpp17::any> DataMap;
 #else
-  typedef std::treemap<int, boost::any> DataMap;
+  typedef std::treemap<int, cpp17::any> DataMap;
 #endif
 
   /*! \brief Creates a new data model.
    */
-  WAbstractItemModel(WObject *parent = 0);
+  WAbstractItemModel();
 
   virtual ~WAbstractItemModel();
 
@@ -215,8 +214,8 @@ public:
 
   /*! \brief Returns the flags for an item.
    *
-   * The default implementation returns \link Wt::ItemIsSelectable
-   * ItemIsSelectable\endlink.
+   * The default implementation returns \link Wt::ItemFlag::Selectable
+   * ItemFlag::Selectable\endlink.
    *
    * \sa Wt::ItemFlag
    */
@@ -228,9 +227,8 @@ public:
    *
    * \sa Wt::HeaderFlag
    */
-  virtual WFlags<HeaderFlag> headerFlags(int section,
-					 Orientation orientation = Horizontal)
-    const;
+  virtual WFlags<HeaderFlag> headerFlags
+    (int section, Orientation orientation = Orientation::Horizontal) const;
 
   /*! \brief Returns if there are children at an index.
    *
@@ -263,14 +261,17 @@ public:
    *
    * You should check the \p role to decide what data to
    * return. Usually a View class will ask for data for several roles
-   * which affect not only the contents (Wt::DisplayRole) but also
-   * icons (Wt::DecorationRole), URLs (Wt::LinkRole), and other visual
-   * aspects. If your item does not specify data for a particular
-   * role, it should simply return a boost::any().
+   * which affect not only the contents
+   * (Wt::ItemDataRole::Display) but also icons
+   * (Wt::ItemDataRole::Decoration), URLs
+   * (Wt::ItemDataRole::Link), and other visual aspects. If your
+   * item does not specify data for a particular role, it should
+   * simply return a Wt::cpp17::any().
    *
    * \sa flags(), headerData(), setData()
    */
-  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
+  virtual cpp17::any data(const WModelIndex& index, 
+		       int role = ItemDataRole::Display)
     const = 0;
 
   /*! \brief Returns all data at a specific index.
@@ -284,16 +285,16 @@ public:
 
   /*! \brief Returns the row or column header data.
    *
-   * When \p orientation is \link Wt::Horizontal
-   * Horizontal\endlink, \p section is a column number, when
-   * \p orientation is \link Wt::Vertical Vertical\endlink,
+   * When \p orientation is \link Wt::Orientation::Horizontal
+   * Orientation::Horizontal\endlink, \p section is a column number, when
+   * \p orientation is \link Wt::Orientation::Vertical Orientation::Vertical\endlink,
    * \p section is a row number.
    *
    * \sa data(), setHeaderData()
    */
-  virtual boost::any headerData(int section,
-				Orientation orientation = Horizontal,
-				int role = DisplayRole) const;
+  virtual cpp17::any headerData(int section,
+			     Orientation orientation = Orientation::Horizontal,
+			     int role = ItemDataRole::Display) const;
 
   /*! \brief Returns the child index for the given row and column.
    *
@@ -314,17 +315,17 @@ public:
    *
    * Returns an index list of data items that match, starting at
    * start, and searching further in that column. If flags specifies
-   * \link Wt::MatchWrap MatchWrap \endlink then the search wraps around 
+   * \link Wt::MatchFlag::Wrap MatchFlag::Wrap \endlink then the search wraps around 
    * from the start. If hits is not -1, then at most that number of 
    * hits are returned.
    */
   virtual WModelIndexList match(const WModelIndex& start,
 				int role,
-				const boost::any& value,
+				const cpp17::any& value,
 				int hits = -1,
 				WFlags<MatchFlag> flags
-				  = WFlags<MatchFlag>(MatchStartsWith
-						      | MatchWrap))
+				= WFlags<MatchFlag>(MatchFlag::StartsWith
+						    | MatchFlag::Wrap))
     const;
 
   /*! \brief Returns the data item at the given column and row.
@@ -336,8 +337,9 @@ public:
    *
    * \sa index(), data()
    */
-  boost::any data(int row, int column, int role = DisplayRole,
-		  const WModelIndex& parent = WModelIndex()) const;
+  cpp17::any data(int row, int column, 
+	       int role = ItemDataRole::Display,
+	       const WModelIndex& parent = WModelIndex()) const;
 
   /*! \brief Returns if an index at the given position is valid
    *         (i.e. falls within the column-row bounds).
@@ -436,8 +438,8 @@ public:
    *
    * \sa data()
    */
-  virtual bool setData(const WModelIndex& index, const boost::any& value,
-		       int role = EditRole);
+  virtual bool setData(const WModelIndex& index, const cpp17::any& value,
+		       int role = ItemDataRole::Edit);
 
   /*! \brief Sets data at the given model index.
    *
@@ -454,16 +456,16 @@ public:
    * \sa headerData()
    */
   virtual bool setHeaderData(int section, Orientation orientation,
-			     const boost::any& value,
-			     int role = EditRole);
+			     const cpp17::any& value,
+			     int role = ItemDataRole::Edit);
 
   /*! \brief Sets column header data.
    *
    * Returns \c true if the operation was successful.
    *
-   * \sa setHeaderData(int, Orientation, const boost::any&, int)
+   * \sa setHeaderData(int, Orientation, const cpp17::any&, int)
    */
-  bool setHeaderData(int section, const boost::any& value);
+  bool setHeaderData(int section, const cpp17::any& value);
 
   /*! \brief Sorts the model according to a particular column.
    *
@@ -473,12 +475,12 @@ public:
    *
    * \sa layoutAboutToBeChanged(), layoutChanged()
    */
-  virtual void sort(int column, SortOrder order = AscendingOrder);
+  virtual void sort(int column, SortOrder order = SortOrder::Ascending);
 
   /*! \brief Expands a column.
    *
    * Expands a column. This may only be called by a view when the
-   * Wt::ColumnIsCollapsed flag is set.
+   * Wt::MatchFlag::ColumnIsCollapsed flag is set.
    *
    * The default implementation does nothing.
    *
@@ -489,7 +491,7 @@ public:
   /*! \brief Collapses a column.
    *
    * Collapses a column. This may only be called by a view when the
-   * Wt::ColumnIsExpandedLeft or Wt::ColumnIsExpandedRight flag is set.
+   * Wt::MatchFlag::ColumnIsExpandedLeft or Wt::MatchFlag::ColumnIsExpandedRight flag is set.
    *
    * The default implementation does nothing.
    *
@@ -559,8 +561,8 @@ public:
    * \p column within the \p parent index. If \p row is
    * -1, then the item is appended to the \p parent. Otherwise,
    * the item is inserted at or copied over the indicated item (and
-   * subsequent rows). When \p action is a \link Wt::MoveAction
-   * MoveAction\endlink, the original items are deleted from the
+   * subsequent rows). When \p action is a \link Wt::DropAction::Move
+   * DropAction::Move\endlink, the original items are deleted from the
    * source model.
    *
    * You may want to reimplement this method if you want to handle
@@ -642,8 +644,9 @@ public:
    *
    * \sa setData(), index()
    */
-  bool setData(int row, int column, const boost::any& value,
-	       int role = EditRole, const WModelIndex& parent = WModelIndex());
+  bool setData(int row, int column, const cpp17::any& value,
+	       int role = ItemDataRole::Edit,
+	       const WModelIndex& parent = WModelIndex());
 
   /*! \brief %Signal emitted before a number of columns will be inserted.
    *

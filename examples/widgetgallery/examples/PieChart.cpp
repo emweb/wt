@@ -1,83 +1,84 @@
-#include <Wt/Chart/WPieChart>
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WStandardItemModel>
-#include <Wt/WStandardItem>
-#include <Wt/WTableView>
+#include <Wt/Chart/WPieChart.h>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WStandardItem.h>
+#include <Wt/WTableView.h>
 
 namespace {
     /*
      * A standard item which converts text edits to numbers
      */
-    class NumericItem : public Wt::WStandardItem {
+    class NumericItem : public WStandardItem {
     public:
-	virtual NumericItem *clone() const {
-	    return new NumericItem();
+        virtual std::unique_ptr<WStandardItem> clone() const {
+            return cpp14::make_unique<NumericItem>();
 	}
 
-	virtual void setData(const boost::any &data, int role = Wt::UserRole) {
-    if (role == Wt::EditRole) {
-      boost::any dt;
+        virtual void setData(const cpp17::any &data, int role = ItemDataRole::User) {
+    if (role == ItemDataRole::Edit) {
+      cpp17::any dt;
 
-      double d = Wt::asNumber(data);
+      double d = asNumber(data);
 
       if (d != d)
         dt = data;
       else
-        dt = boost::any(d);
-      Wt::WStandardItem::setData(dt, role);
+        dt = cpp17::any(d);
+      WStandardItem::setData(dt, role);
 
     } else {
-      Wt::WStandardItem::setData(data, role);
+      WStandardItem::setData(data, role);
     }
 	}
     };
 }
 
 SAMPLE_BEGIN(PieChart)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = cpp14::make_unique<WContainerWidget>();
 
-Wt::WStandardItemModel *model = new Wt::WStandardItemModel(container);
-model->setItemPrototype(new NumericItem());
+auto model = std::make_shared<WStandardItemModel>();
+model->setItemPrototype(cpp14::make_unique<NumericItem>());
 
 // Configure the header.
 model->insertColumns(model->columnCount(), 2);
-model->setHeaderData(0, Wt::WString("Item"));
-model->setHeaderData(1, Wt::WString("Sales"));
+model->setHeaderData(0, WString("Item"));
+model->setHeaderData(1, WString("Sales"));
 
 // Set data in the model.
 model->insertRows(model->rowCount(), 6);
 int row = 0;
 
-model->setData(  row, 0, Wt::WString("Blueberry"));
-model->setData(  row, 1, Wt::WString("Blueberry"), Wt::ToolTipRole);
+model->setData(  row, 0, WString("Blueberry"));
+model->setData(  row, 1, WString("Blueberry"), ItemDataRole::ToolTip);
 model->setData(  row, 1, 120);
 
-model->setData(++row, 0, Wt::WString("Cherry"));
+model->setData(++row, 0, WString("Cherry"));
 model->setData(  row, 1, 30);
 
-model->setData(++row, 0, Wt::WString("Apple"));
+model->setData(++row, 0, WString("Apple"));
 model->setData(  row, 1, 260);
 
-model->setData(++row, 0, Wt::WString("Boston Cream"));
+model->setData(++row, 0, WString("Boston Cream"));
 model->setData(  row, 1, 160);
 
-model->setData(++row, 0, Wt::WString("Other"));
+model->setData(++row, 0, WString("Other"));
 model->setData(  row, 1, 40);
 
-model->setData(++row, 0, Wt::WString("Vanilla Cream"));
+model->setData(++row, 0, WString("Vanilla Cream"));
 model->setData(  row, 1, 120);
 
 // Set all items to be editable.
 for (row = 0; row < model->rowCount(); ++row)
     for (int col = 0; col < model->columnCount(); ++col)
-	model->item(row, col)->setFlags(Wt::ItemIsEditable);
+        model->item(row, col)->setFlags(ItemFlag::Editable);
 
-Wt::WTableView* table = new Wt::WTableView(container);
+WTableView* table =
+    container->addWidget(cpp14::make_unique<WTableView>());
 
-table->setMargin(10, Wt::Top | Wt::Bottom);
-table->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+table->setMargin(10, Side::Top | Side::Bottom);
+table->setMargin(WLength::Auto, Side::Left | Side::Right);
 table->setSortingEnabled(true);
 table->setModel(model);
 table->setColumnWidth(1, 100);
@@ -85,23 +86,24 @@ table->setRowHeight(28);
 table->setHeaderHeight(28);
 table->setWidth(150 + 100 + 14 + 2);
 
-if (Wt::WApplication::instance()->environment().ajax())
-    table->setEditTriggers(Wt::WAbstractItemView::SingleClicked);
+if (WApplication::instance()->environment().ajax())
+    table->setEditTriggers(EditTrigger::SingleClicked);
 else
-    table->setEditTriggers(Wt::WAbstractItemView::NoEditTrigger);
+    table->setEditTriggers(EditTrigger::None);
 
 /*
  * Create the pie chart.
  */
-Wt::Chart::WPieChart *chart = new Wt::Chart::WPieChart(container);
+Chart::WPieChart *chart =
+    container->addWidget(cpp14::make_unique<Chart::WPieChart>());
 chart->setModel(model);       // Set the model.
 chart->setLabelsColumn(0);    // Set the column that holds the labels.
 chart->setDataColumn(1);      // Set the column that holds the data.
 
 // Configure location and type of labels.
-chart->setDisplayLabels(Wt::Chart::Outside |
-                        Wt::Chart::TextLabel |
-                        Wt::Chart::TextPercentage);
+chart->setDisplayLabels(Chart::LabelOption::Outside |
+                        Chart::LabelOption::TextLabel |
+                        Chart::LabelOption::TextPercentage);
 
 // Enable a 3D and shadow effect.
 chart->setPerspectiveEnabled(true, 0.2);
@@ -109,7 +111,7 @@ chart->setShadowEnabled(true);
 
 chart->setExplode(0, 0.3);  // Explode the first item.
 chart->resize(800, 300);    // WPaintedWidget must be given an explicit size.
-chart->setMargin(10, Wt::Top | Wt::Bottom); // Add margin vertically.
-chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right); // Center horizontally.
+chart->setMargin(10, Side::Top | Side::Bottom); // Add margin vertically.
+chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally.
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

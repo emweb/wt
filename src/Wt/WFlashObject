@@ -7,7 +7,7 @@
 #ifndef WFLASHOBJECT_H_
 #define WFLASHOBJECT_H_
 
-#include <Wt/WWebWidget>
+#include <Wt/WWebWidget.h>
 
 namespace Wt {
 
@@ -50,7 +50,7 @@ class WT_API WFlashObject : public WWebWidget
 public:
   /*! \brief Constructs a Flash widget.
    */
-  WFlashObject(const std::string &url, WContainerWidget *parent = 0);
+  WFlashObject(const std::string &url);
 
   /*! \brief Destructor
    *
@@ -58,7 +58,7 @@ public:
    */
   ~WFlashObject();
 
-  virtual void resize(const WLength &width, const WLength &height);
+  virtual void resize(const WLength &width, const WLength &height) override;
 
   /*! \brief Sets a Flash parameter.
    *
@@ -109,20 +109,20 @@ public:
    *
    * Call this method with a NULL pointer to remove the alternative content.
    */
-  void setAlternativeContent(WWidget *alternative);
+  void setAlternativeContent(std::unique_ptr<WWidget> alternative);
 
 protected:
-  void updateDom(DomElement& element, bool all);
-  void getDomChanges(std::vector<DomElement *>& result,
-                     WApplication *app);
-  DomElementType domElementType() const;
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app) override;
+  virtual DomElementType domElementType() const override;
 
 private:
   std::string url_;
   bool sizeChanged_;
   std::map<std::string, WString> parameters_;
   std::map<std::string, WString> variables_;
-  WWidget *alternative_;
+  std::unique_ptr<WWidget> alternative_;
   JSignal<> ieRendersAlternative_;
   bool replaceDummyIeContent_;
   void renderIeAltnerative();

@@ -7,9 +7,20 @@
 #ifndef WBORDER_LAYOUT_H_
 #define WBORDER_LAYOUT_H_
 
-#include <Wt/WGridLayout>
+#include <Wt/WGridLayout.h>
 
 namespace Wt {
+
+/*! \brief Enumeration of possible positions in the layout.
+ */
+enum class LayoutPosition {
+    North,  //!< North (top)
+    East,   //!< East (right)
+    South,  //!< South (bottom)
+    West,   //!< West (left)
+    Center  //!< Center
+  };
+
 
 /*! \class WBorderLayout Wt/WBorderLayout Wt/WBorderLayout
  *  \brief A layout manager which divides the container region in five regions.
@@ -38,31 +49,24 @@ namespace Wt {
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
  * Wt::WBorderLayout *layout = new Wt::WBorderLayout();
- * layout->addWidget(new Wt::WText("West-side is best"), Wt::WBorderLayout::West);
- * layout->addWidget(new Wt::WText("East-side is best"), Wt::WBorderLayout::East);
- * layout->addWidget(contents, Wt::WBorderLayout::Center);
+ * layout->addWidget(new Wt::WText("West-side is best"), Wt::LayoutPosition::West);
+ * layout->addWidget(new Wt::WText("East-side is best"), Wt::LayoutPosition::East);
+ * layout->addWidget(contents, Wt::LayoutPosition::Center);
  *
  * // use layout but do not justify vertically
- * w->setLayout(layout, Wt::AlignTop | Wt::AlignJustify);
+ * w->setLayout(layout, Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Justify);
  * \endcode
  * \endif
  */
 class WT_API WBorderLayout : public WLayout
 {
 public:
-  /*! \brief Enumeration of possible positions in the layout.
-   */
-  enum Position {
-    North,  //!< North (top)
-    East,   //!< East (right)
-    South,  //!< South (bottom)
-    West,   //!< West (left)
-    Center  //!< Center
-  };
+  /*! \brief Typedef for enum Wt::LayoutPosition */
+  typedef LayoutPosition Position;
 
   /*! \brief Creates a new border layout.
    */
-  WBorderLayout(WWidget *parent = 0);
+  WBorderLayout();
 
   /*! \brief Destructor.
    */
@@ -80,11 +84,10 @@ public:
    */
   int spacing() const { return grid_.horizontalSpacing_; }
 
-  virtual void addItem(WLayoutItem *item);
-  virtual void removeItem(WLayoutItem *item);
-  virtual WLayoutItem *itemAt(int index) const;
-  virtual int count() const;
-  virtual void clear();
+  virtual void addItem(std::unique_ptr<WLayoutItem> item) override;
+  virtual std::unique_ptr<WLayoutItem> removeItem(WLayoutItem *item) override;
+  virtual WLayoutItem *itemAt(int index) const override;
+  virtual int count() const override;
 
   /*! \brief Adds a widget to the given position.
    *
@@ -92,38 +95,49 @@ public:
    *
    * \sa add(WLayoutItem *, Position)
    */
-  void addWidget(WWidget *widget, Position position);
+  void addWidget(std::unique_ptr<WWidget> widget, LayoutPosition position);
+
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget, LayoutPosition position)
+  {
+    Widget *result = widget.get();
+    addWidget(std::unique_ptr<WWidget>(std::move(widget)), position);
+    return result;
+  }
 
   /*! \brief Adds a layout item to the given position.
    *
    * Only one widget per position is supported.
    */
-  void add(WLayoutItem *item, Position position);
+  void add(std::unique_ptr<WLayoutItem> item, LayoutPosition position);
 
   /*! \brief Returns the widget at a position.
    *
    * Returns \c 0 if no widget was set for that position.
    */
-  WWidget *widgetAt(Position position) const;
+  WWidget *widgetAt(LayoutPosition position) const;
 
   /*! \brief Returns the item at a position.
    *
    * Returns \c 0 if no item was set for that position.
    */
-  WLayoutItem *itemAt(Position position) const;
+  WLayoutItem *itemAt(LayoutPosition position) const;
 
   /*! \brief Returns the position at which the given layout item is set.
    */
-  Position position(WLayoutItem *item) const;
+  LayoutPosition position(WLayoutItem *item) const;
 
-  Impl::Grid& grid() { return grid_; }
+protected:
+  virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
 
 private:
   Impl::Grid grid_;
 
-  const Impl::Grid::Item& itemAtPosition(Position position) const;
+  const Impl::Grid::Item& itemAtPosition(LayoutPosition position) const;
 
-  Impl::Grid::Item& itemAtPosition(Position position);
+  Impl::Grid::Item& itemAtPosition(LayoutPosition position);
+
+  virtual void setParentWidget(WWidget *parent) override;
 };
 
 }

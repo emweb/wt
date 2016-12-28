@@ -3,22 +3,24 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WServer>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WServer.h>
 
-#include <Wt/Auth/AuthModel>
-#include <Wt/Auth/AuthWidget>
-#include <Wt/Auth/PasswordService>
+#include <Wt/Auth/AuthModel.h>
+#include <Wt/Auth/AuthWidget.h>
+#include <Wt/Auth/PasswordService.h>
 
 #include "model/Session.h"
 #include "AuthWidget.h"
 
-class AuthApplication : public Wt::WApplication
+using namespace Wt;
+
+class AuthApplication : public WApplication
 {
 public:
-  AuthApplication(const Wt::WEnvironment& env)
-    : Wt::WApplication(env),
+  AuthApplication(const WEnvironment& env)
+    : WApplication(env),
       session_(appRoot() + "auth.db")
   {
     session_.login().changed().connect(this, &AuthApplication::authEvent);
@@ -27,7 +29,7 @@ public:
     messageResourceBundle().use("strings");
     messageResourceBundle().use("templates");
 
-    AuthWidget *authWidget = new AuthWidget(session_);
+    auto authWidget = cpp14::make_unique<AuthWidget>(session_);
 
     authWidget->model()->addPasswordAuth(&Session::passwordAuth());
     authWidget->model()->addOAuth(Session::oAuth());
@@ -35,40 +37,40 @@ public:
 
     authWidget->processEnvironment();
 
-    root()->addWidget(authWidget);
+    root()->addWidget(std::move(authWidget));
   }
 
   void authEvent() {
     if (session_.login().loggedIn()) {
-      Wt::log("notice") << "User " << session_.login().user().id()
+      log("notice") << "User " << session_.login().user().id()
 			<< " logged in.";
-      Wt::Dbo::Transaction t(session_);
+      Dbo::Transaction t(session_);
       dbo::ptr<User> user = session_.user();
-      Wt::log("notice") << "(Favourite pet: " << user->favouritePet << ")";
+      log("notice") << "(Favourite pet: " << user->favouritePet << ")";
     } else
-      Wt::log("notice") << "User logged out.";
+      log("notice") << "User logged out.";
   }
 
 private:
   Session session_;
 };
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new AuthApplication(env);
+  return cpp14::make_unique<AuthApplication>(env);
 }
 
 int main(int argc, char **argv)
 {
   try {
-    Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
+    WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
-    server.addEntryPoint(Wt::Application, createApplication);
+    server.addEntryPoint(EntryPointType::Application, createApplication);
 
     Session::configureAuth();
 
     server.run();
-  } catch (Wt::WServer::Exception& e) {
+  } catch (WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;

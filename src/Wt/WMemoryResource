@@ -8,11 +8,9 @@
 #define WMEMORY_RESOURCE_H_
 
 #include <string>
-#include <Wt/WResource>
+#include <thread>
 
-namespace boost {
-  class mutex;
-}
+#include <Wt/WResource.h>
 
 namespace Wt {
 
@@ -52,19 +50,18 @@ public:
    *
    * You must call setMimeType() and setData() before using the resource.
    */
-  WMemoryResource(WObject *parent = 0);
+  WMemoryResource();
 
   /*! \brief Creates a new resource with given mime-type.
    *
    * You must call setData() before using the resource.
    */
-  WMemoryResource(const std::string& mimeType, WObject *parent = 0);
+  WMemoryResource(const std::string& mimeType);
 
   /*! \brief Creates a new resource with given mime-type and data
    */
   WMemoryResource(const std::string& mimeType,
-		  const std::vector<unsigned char> &data,
-		  WObject *parent = 0);
+		  const std::vector<unsigned char>& data);
 
   ~WMemoryResource();
 
@@ -92,15 +89,15 @@ public:
   void setMimeType(const std::string& mimeType);
 
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response);
+                             Http::Response& response) override;
 
 private:
-  typedef boost::shared_ptr< const std::vector<unsigned char> > DataPtr;
+  typedef std::shared_ptr< const std::vector<unsigned char> > DataPtr;
 
   std::string mimeType_;
   DataPtr data_;
 
-  boost::shared_ptr<boost::mutex> dataMutex_;
+  std::shared_ptr<std::mutex> dataMutex_;
 
   void create();
 };

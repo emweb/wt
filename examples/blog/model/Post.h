@@ -7,11 +7,11 @@
 #ifndef POST_H_
 #define POST_H_
 
-#include <Wt/WDate>
-#include <Wt/WString>
+#include <Wt/WDate.h>
+#include <Wt/WString.h>
 
-#include <Wt/Dbo/Types>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/Types.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 #include "Comment.h"
 #include "Tag.h"
@@ -66,6 +66,6 @@ public:
   }
 };
 
-DBO_EXTERN_TEMPLATES(Post);
+DBO_EXTERN_TEMPLATES(Post)
 
 #endif // POST_H_

@@ -8,20 +8,23 @@
 #ifndef CHART_WLEGEND3D
 #define CHART_WLEGEND3D
 
-#include "WLegend"
+#include "WLegend.h"
 
-#include <Wt/Chart/WAbstractDataSeries3D>
+#include <Wt/Chart/WAbstractDataSeries3D.h>
 
 namespace Wt {
   namespace Chart {
    
-class WLegend3D : public WLegend {
+class WLegend3D : public WLegend 
+{
 public:
-  void renderLegend(WPainter* painter,
-		    const std::vector<WAbstractDataSeries3D*> &dataseries);
+  void renderLegend
+    (WPainter* painter,
+     const std::vector<std::unique_ptr<WAbstractDataSeries3D>>& dataseries);
 
   int width();
-  int height(const std::vector<WAbstractDataSeries3D*> &dataseries);
+  int height
+    (const std::vector<std::unique_ptr<WAbstractDataSeries3D>>& dataseries);
 };
  
   }

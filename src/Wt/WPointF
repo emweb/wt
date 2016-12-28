@@ -8,8 +8,8 @@
 #define WPOINTF_H_
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WEvent>
-#include <Wt/WJavaScriptExposableObject>
+#include <Wt/WEvent.h>
+#include <Wt/WJavaScriptExposableObject.h>
 
 namespace Wt {
 
@@ -55,7 +55,7 @@ public:
 
   /*! \brief Creates a point from mouse coordinates.
    */
-  WPointF(const WMouseEvent::Coordinates& other)
+  WPointF(const Coordinates& other)
     : x_(other.x), y_(other.y) { }
 
   WPointF& operator= (const WPointF& rhs);
@@ -96,13 +96,13 @@ public:
 
   WPointF& operator+= (const WPointF& other);
 
-  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
+  virtual std::string jsValue() const override;
 
   WPointF swapHV(double width) const;
   WPointF inverseSwapHV(double width) const;
 
 protected:
-  void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;
+  virtual void assignFromJSON(const Json::Value &value) override;
 
 private:
   double x_, y_;

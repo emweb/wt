@@ -8,21 +8,22 @@
 #include "model/QRAuthService.h"
 #include "model/QRTokenDatabase.h"
 
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WImage>
-#include <Wt/WText>
-#include <Wt/WMessageBox>
-#include <Wt/WPushButton>
-#include <Wt/Utils>
-#include <Wt/Auth/Login>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WImage.h>
+#include <Wt/WText.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/Utils.h>
+#include <Wt/Auth/Login.h>
+#include <Wt/WResource.h>
 
 const std::string GOOGLE_QR_CHART_URL
   = "http://chart.apis.google.com/chart?cht=qr&chs=300x300&chld=H|0&&chl=";
 
-QRAuthWidget::QRAuthWidget(Wt::Auth::Login& login, Wt::WContainerWidget *parent)
-  : Wt::Auth::AuthWidget(login, parent),
-    dialog_(0)
+QRAuthWidget::QRAuthWidget(Auth::Login& login)
+  : Auth::AuthWidget(login),
+    dialog_(nullptr)
 { }
 
 void QRAuthWidget::configureQRAuth(const QRAuthService& service,
@@ -34,9 +35,9 @@ void QRAuthWidget::configureQRAuth(const QRAuthService& service,
 
 void QRAuthWidget::processEnvironment()
 {
-  Wt::Auth::AuthWidget::processEnvironment();
+  Auth::AuthWidget::processEnvironment();
 
-  const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
+  const WEnvironment& env = WApplication::instance()->environment();
 
   qrToken_ = qrService_->parseQRToken(env);
 
@@ -51,60 +52,59 @@ void QRAuthWidget::processEnvironment()
 void QRAuthWidget::confirmRemoteLogin()
 {
   if (!qrToken_.empty() && login().loggedIn()) {
-    Wt::WMessageBox *mb
-      = new Wt::WMessageBox("Remote login",
+    auto mb
+      = cpp14::make_unique<WMessageBox>("Remote login",
 			    "<p>Do you want to login the desktop user too ?</p>"
 			    "<p><b>WARNING !</b><br/>"
 			    "You should only do this if you arrived here "
 			    "by scanning a QR code.</p>",
-			    Wt::NoIcon, Wt::Yes | Wt::No);
+			    Icon::None, StandardButton::Yes | StandardButton::No);
     mb->animateShow
-      (Wt::WAnimation(Wt::WAnimation::Pop | Wt::WAnimation::Fade,
-		      Wt::WAnimation::Linear, 300));
+      (WAnimation(AnimationEffect::Pop | AnimationEffect::Fade,
+                      TimingFunction::Linear, 300));
     mb->setWidth("70%");
     mb->buttonClicked().connect(this, &QRAuthWidget::doRemoteLogin);
-    dialog_ = mb;
+    dialog_ = std::move(mb);
   }
 }
 
-void QRAuthWidget::doRemoteLogin(Wt::StandardButton button)
+void QRAuthWidget::doRemoteLogin(StandardButton button)
 {
-  if (button == Wt::Yes)
+  if (button == StandardButton::Yes)
     qrService_->remoteLogin(*qrDatabase_, login().user(), qrToken_);
 
   qrToken_.clear();
 
-  delete dialog_;
-  dialog_ = 0;
+  dialog_.reset();
 }
 
 void QRAuthWidget::createLoginView()
 {
-  Wt::Auth::AuthWidget::createLoginView();
+  Auth::AuthWidget::createLoginView();
 
-  Wt::WImage *button = new Wt::WImage("css/QRcode.png");
+  auto button = cpp14::make_unique<WImage>("css/QRcode.png");
   button->setToolTip("Sign in using your mobile phone");
-  button->setVerticalAlignment(Wt::AlignMiddle);
+  button->setVerticalAlignment(AlignmentFlag::Middle);
   button->clicked().connect(this, &QRAuthWidget::showQRDialog);
 
-  bindWidget("qrauth", button);
+  bindWidget("qrauth", std::move(button));
 }
 
 void QRAuthWidget::showQRDialog()
 {
-  delete dialog_;
-  dialog_ = new Wt::WDialog("Sign in with your mobile phone.");
+  dialog_ = cpp14::make_unique<WDialog>("Sign in with your mobile phone.");
   dialog_->animateShow
-    (Wt::WAnimation(Wt::WAnimation::Pop | Wt::WAnimation::Fade,
-		    Wt::WAnimation::Linear, 300));
-  dialog_->contents()->setContentAlignment(Wt::AlignCenter);
+    (WAnimation(AnimationEffect::Pop | AnimationEffect::Fade,
+                    TimingFunction::Linear, 300));
+  dialog_->contents()->setContentAlignment(AlignmentFlag::Center);
 
-  Wt::WResource *resource
+  std::unique_ptr<WResource> resource
     = qrService_->createLoginResource(*qrDatabase_, model()->users(),
-				      login(), dialog_);
-  std::string qrToken = qrService_->createQRToken(*qrDatabase_, resource);
+                                      login());
+  std::string qrToken = qrService_->createQRToken(*qrDatabase_, resource.get());
+  dialog_->addChild(std::move(resource));
 
-  Wt::WApplication *app = Wt::WApplication::instance();
+  WApplication *app = Wt::WApplication::instance();
 
   std::string qrUrl = app->bookmarkUrl("/");
   if (qrUrl.find("?") != std::string::npos)
@@ -113,22 +113,20 @@ void QRAuthWidget::showQRDialog()
     qrUrl += "?";
 
   qrUrl += qrService_->redirectParameter()
-    + "=" + Wt::Utils::urlEncode(qrToken);
+    + "=" + Utils::urlEncode(qrToken);
 
   qrUrl = app->makeAbsoluteUrl(qrUrl);
 
-  new Wt::WText("Use the barcode scanner to scan the QR code below.",
-		dialog_->contents());
+  dialog_->contents()->addWidget(cpp14::make_unique<WText>("Use the barcode scanner to scan the QR code below."));
 
-  Wt::WImage *image = new Wt::WImage(GOOGLE_QR_CHART_URL
-				     + Wt::Utils::urlEncode(qrUrl),
-				     dialog_->contents());
+  auto image = dialog_->contents()->addWidget(cpp14::make_unique<WImage>(GOOGLE_QR_CHART_URL
+                                     + Utils::urlEncode(qrUrl)));
   image->resize(300, 300);
   image->setMargin(20);
   image->setInline(false);
 
-  Wt::WPushButton *cancel = new Wt::WPushButton("Cancel", dialog_->contents());
-  cancel->clicked().connect(dialog_, &Wt::WDialog::reject);
+  auto cancel = dialog_->contents()->addWidget(cpp14::make_unique<WPushButton>("Cancel"));
+  cancel->clicked().connect(dialog_.get(), &WDialog::reject);
 
   dialog_->finished().connect(this, &QRAuthWidget::dialogDone);
   login().changed().connect(this, &QRAuthWidget::dialogDone);
@@ -139,10 +137,9 @@ void QRAuthWidget::showQRDialog()
 void QRAuthWidget::dialogDone()
 {
   if (dialog_) {
-    delete dialog_;
-    dialog_ = 0;
+    dialog_.reset();
 
-    Wt::WApplication *app = Wt::WApplication::instance();
+    WApplication *app = WApplication::instance();
     qrDatabase_->removeToken(app->sessionId());
 
     app->triggerUpdate();

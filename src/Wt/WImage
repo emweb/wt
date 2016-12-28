@@ -7,8 +7,8 @@
 #ifndef WIMAGE_H_
 #define WIMAGE_H_
 
-#include <Wt/WInteractWidget>
-#include <Wt/WLink>
+#include <Wt/WInteractWidget.h>
+#include <Wt/WLink.h>
 
 namespace Wt {
 
@@ -55,44 +55,19 @@ class WT_API WImage : public WInteractWidget
 public:
   /*! \brief Creates an empty image widget.
    */
-  WImage(WContainerWidget *parent = 0);
+  WImage();
 
   /*! \brief Creates an image widget with a given image link.
    *
    * The \p imageLink may link to a URL or resource.
    */
-  WImage(const WLink& imageLink, WContainerWidget *parent = 0);
+  WImage(const WLink& imageLink);
 
   /*! \brief Creates an image widget with a given image link and alternate text.
    *
    * The \p imageLink may link to a URL or resource.
    */
-  WImage(const WLink& imageLink, const WString& altText,
-	 WContainerWidget *parent = 0);
-
-#ifdef WT_TARGET_JAVA
-  /*! \brief Creates an image widget with given image URL (<b>deprecated</b>).
-   *
-   * \deprecated Use WImage(const WLink&, WContainerWidget *) instead.
-   */
-  WImage(const std::string& imageRef, WContainerWidget *parent = 0);
-
-  /*! \brief Creates an image widget with given image URL and alternate text
-   *         (<b>deprecated</b>).
-   *
-   * \deprecated Use WImage(const WLink&, const WString&, WContainerWidget *) instead.
-   */
-  WImage(const std::string& imageRef, const WString& altText,
-	 WContainerWidget *parent = 0);
-
-  /*! \brief Creates an image widget with given image resource and alternate
-   *         text (<b>deprecated</b>).
-   *
-   * \deprecated Use WImage(const WLink&, const WString&, WContainerWidget *) instead.
-   */
-  WImage(WResource *resource, const WString& altText,
-	 WContainerWidget *parent = 0);
-#endif // WT_TARGET_JAVA
+  WImage(const WLink& imageLink, const WString& altText);
 
   ~WImage();
 
@@ -132,35 +107,6 @@ public:
    */
   const WLink& imageLink() const { return imageLink_; }
 
-  /*! \brief Sets the image URL (<b>deprecated</b>).
-   *
-   * \deprecated Use setImageLink() instead.
-   */
-  void setImageRef(const std::string& url);
-
-  /*! \brief Returns the image URL (<b>deprecated</b>).
-   *
-   * When the image is specified as a resource, this returns the current
-   * resource URL.
-   *
-   * \deprecated Use imageLink() instead.
-   */
-  const std::string imageRef() const;
-
-  /*! \brief Sets the image resource (<b>deprecated</b>).
-   *
-   * \deprecated Use setImageLink() instead.
-   */
-  void setResource(WResource *resource);
-
-  /*! \brief Returns the image resource (<b>deprecated</b>.
-   *
-   * Returns \c 0 if no image resource was set.
-   *
-   * \deprecated Use setImageLink() instead.
-   */
-  WResource *resource() const;
-
   /*! \brief Adds an interactive area.
    *
    * Adds the \p area which listens to events in a specific region
@@ -176,7 +122,7 @@ public:
    *       has been rendered. If you want to use interactive areas you need
    *       to add one immediately.
    */
-  void addArea(WAbstractArea *area);
+  void addArea(std::unique_ptr<WAbstractArea> area);
 
   /*! \brief Inserts an interactive area.
    *
@@ -193,16 +139,15 @@ public:
    *       has been rendered. If you want to use interactive areas you need
    *       to add one immediately.
    */
-  void insertArea(int index, WAbstractArea *area);
+  void insertArea(int index, std::unique_ptr<WAbstractArea> area);
 
   /*! \brief Removes an interactive area.
    *
-   * Removes the \p area from this widget, and also returns the
-   * ownership.
+   * Removes the \p area from this widget.
    *
    * \sa addArea(WAbstractArea *)
    */
-  void removeArea(WAbstractArea *area);
+  std::unique_ptr<WAbstractArea> removeArea(WAbstractArea *area);
 
   /*! \brief Returns the interactive area at the given index.
    *
@@ -233,28 +178,26 @@ private:
   static const int BIT_IMAGE_LINK_CHANGED = 1;
   static const int BIT_MAP_CREATED = 2;
 
-  WString          altText_;
-  WLink            imageLink_;
-  Impl::MapWidget *map_;
-  std::bitset<3>   flags_;
-  std::string      targetJS_;
+  WString altText_;
+  WLink imageLink_;
+  std::unique_ptr<Impl::MapWidget> map_;
+  std::bitset<3> flags_;
+  std::string targetJS_;
 
   void resourceChanged();
 
 protected:
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
-  virtual void updateDom(DomElement& element, bool all);
+                             WApplication *app) override;
+  virtual void updateDom(DomElement& element, bool all) override;
   virtual void defineJavaScript();
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual DomElementType domElementType() const;
-  virtual void propagateRenderOk(bool deep);
+  virtual void render(WFlags<RenderFlag> flags) override;
+  virtual DomElementType domElementType() const override;
+  virtual void propagateRenderOk(bool deep) override;
   virtual std::string updateAreaCoordsJSON() const;
 
   friend class WLabel;
   friend class Impl::MapWidget;
-
-  static std::vector<WAbstractArea *> noAreas_;
 };
 
 }

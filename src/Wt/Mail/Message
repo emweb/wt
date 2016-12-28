@@ -7,8 +7,8 @@
 #ifndef WT_MAIL_MESSAGE_H_
 #define WT_MAIL_MESSAGE_H_
 
-#include <Wt/WLocalDateTime>
-#include <Wt/Mail/Mailbox>
+#include <Wt/WLocalDateTime.h>
+#include <Wt/Mail/Mailbox.h>
 
 namespace Wt {
 
@@ -20,7 +20,7 @@ namespace Wt {
  *
  * \sa Message::addRecipient()
  */
-enum RecipientType {
+enum class RecipientType {
   To, //!< To: recipient
   Cc, //!< Cc: recipient
   Bcc //!< Bcc: recipient (is omitted from the recipients in the message itself)

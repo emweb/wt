@@ -7,15 +7,10 @@
 #ifndef HTTP_RESPONSE_CONTINUATION_H_
 #define HTTP_RESPONSE_CONTINUATION_H_
 
-#include <Wt/WGlobal>
-#include <boost/any.hpp>
+#include <Wt/WGlobal.h>
+#include <Wt/WAny.h>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
-namespace boost {
-  class recursive_mutex;
-}
+#include <mutex>
 
 namespace Wt {
 
@@ -50,7 +45,7 @@ namespace Wt {
  * \ingroup http
  */
 class WT_API ResponseContinuation 
-  : public boost::enable_shared_from_this<ResponseContinuation>
+  : public std::enable_shared_from_this<ResponseContinuation>
 {
 public:
   ~ResponseContinuation();
@@ -60,13 +55,13 @@ public:
    * You could do this to keep track of the state of sending the data
    * for a WResource.
    */
-  void setData(const boost::any& data);
+  void setData(const cpp17::any& data);
 
   /*! \brief Return data associated with the continuation.
    *
    * \sa setData()
    */
-  boost::any data() { return data_; }
+  cpp17::any data() { return data_; }
 
   /*! \brief Return the resource.
    */
@@ -95,12 +90,12 @@ public:
 
 private:
 #ifdef WT_THREADED
-  boost::shared_ptr<boost::recursive_mutex> mutex_;
+  std::shared_ptr<std::recursive_mutex> mutex_;
 #endif
 
   WResource *resource_;
   WebResponse *response_;
-  boost::any data_;
+  cpp17::any data_;
   bool waiting_, readyToContinue_;
 
   ResponseContinuation(WResource *resource, WebResponse *response);
@@ -117,7 +112,7 @@ private:
   friend class Response;
 };
 
-typedef boost::shared_ptr<ResponseContinuation> ResponseContinuationPtr;
+typedef std::shared_ptr<ResponseContinuation> ResponseContinuationPtr;
 
   }
 }

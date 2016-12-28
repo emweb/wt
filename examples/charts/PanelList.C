@@ -4,50 +4,51 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WPanel>
+#include <Wt/WPanel.h>
 
 #include "PanelList.h"
 
 using namespace Wt;
 
-PanelList::PanelList(WContainerWidget *parent)
-  : WContainerWidget(parent)
+PanelList::PanelList()
+  : WContainerWidget()
 { }
 
-WPanel *PanelList::addWidget(const WString& text, WWidget *w)
+WPanel *PanelList::addWidget(const WString& text, std::unique_ptr<WWidget> w)
 {
-  WPanel *p = new WPanel();
+  std::unique_ptr<WPanel> p
+      = cpp14::make_unique<WPanel>();
+  WPanel *result = p.get();
   p->setTitle(text);
-  p->setCentralWidget(w);
+  p->setCentralWidget(std::move(w));
 
-  addPanel(p);
+  addPanel(std::move(p));
 
-  return p;
+  return result;
 }
 
-void PanelList::addPanel(WPanel *panel)
+void PanelList::addPanel(std::unique_ptr<WPanel> panel)
 {
   panel->setCollapsible(true);
   panel->collapse();
 
-  panel->expandedSS().connect(this, &PanelList::onExpand);
+  panel->expandedSS().connect(std::bind(&PanelList::onExpand, this, std::placeholders::_1, panel.get()));
 
-  WContainerWidget::addWidget(panel);
+  WContainerWidget::addWidget(std::move(panel));
 }
 
-void PanelList::onExpand(bool notUndo)
-{
-  WPanel *panel = dynamic_cast<WPanel *>(sender());
 
+void PanelList::onExpand(bool notUndo, WPanel *panel)
+{
   if (notUndo) {
     wasExpanded_ = -1;
 
     for (unsigned i = 0; i < children().size(); ++i) {
       WPanel *p = dynamic_cast<WPanel *>(children()[i]);
       if (p != panel) {
-	if (!p->isCollapsed())
-	  wasExpanded_ = i;
-	p->collapse();
+        if (!p->isCollapsed())
+          wasExpanded_ = i;
+        p->collapse();
       }
     }
   } else {

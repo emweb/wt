@@ -6,3 +6,7 @@
  */
 
 #include "FileItem.h"
+
+const int FileItem::ContentsRole = ItemDataRole::User;
+const int FileItem::FilePathRole = ItemDataRole::User + 1;
+const int FileItem::FileNameRole = ItemDataRole::User + 2;

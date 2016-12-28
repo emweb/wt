@@ -11,8 +11,8 @@
 #include <set>
 #include <string>
 
-#include <Wt/WBreak>
-#include <Wt/WCssDecorationStyle>
+#include <Wt/WBreak.h>
+#include <Wt/WCssDecorationStyle.h>
 
 namespace Wt {
 
@@ -72,10 +72,10 @@ public:
 protected:
   /*! \brief Creates a new CSS rule with given selector.
    */
-  WCssRule(const std::string& selector, WObject* parent = 0);
+  WCssRule(const std::string& selector);
 
 private:
-  std::string  selector_;
+  std::string selector_;
   WCssStyleSheet *sheet_;
 
   friend class WCssStyleSheet;
@@ -96,7 +96,7 @@ private:
  * Wt::WApplication::instance()->styleSheet().addRule(styleRule);
  *
  * styleRule->templateWidget()->resize(100, WLength::Auto);
- * styleRule->templateWidget()->decorationStyle().setCursor(PointingHandCursor);
+ * styleRule->templateWidget()->decorationStyle().setCursor(Cursor::PointingHand);
  * \endcode
  * \endif
  *
@@ -115,7 +115,7 @@ public:
    * unique and not contain commas, since this is not supported by
    * Microsoft Internet Explorer.
    */
-  WCssTemplateRule(const std::string& selector, WObject* parent = 0);
+  WCssTemplateRule(const std::string& selector);
 
   ~WCssTemplateRule();
 
@@ -141,7 +141,7 @@ public:
   bool updateDomElement(DomElement& cssRuleElement, bool all);
 
 private:
-  WCssTemplateWidget *widget_;
+  std::unique_ptr<WCssTemplateWidget> widget_;
 };
 
 /*! \class WCssTextRule Wt/WCssStyleSheet Wt/WCssStyleSheet
@@ -165,8 +165,7 @@ public:
   /*! \brief Creates a CSS rule with a given selector and declarations.
    */
   WCssTextRule(const std::string& selector, 
-	       const WT_USTRING& declarations,
-	       WObject* parent = 0);
+	       const WT_USTRING& declarations);
 
   std::string declarations();
 
@@ -195,16 +194,9 @@ public:
    */
   WCssStyleSheet();
 
-  /*! \brief Creates a new (external) style sheet reference.
-   */
-  WCssStyleSheet(const WLink& link, const std::string& media = "all");
-
   /*! \brief Destroys a style sheet, and all rules in it.
    */
   ~WCssStyleSheet();
-
-  const WLink& link() const { return link_; }
-  const std::string& media() const { return media_; }
 
   /*! \brief Adds a CSS rule.
    *
@@ -255,8 +247,16 @@ public:
    *
    * \sa isDefined()
    */
-  WCssRule *addRule(WCssRule *rule,
+  WCssRule *addRule(std::unique_ptr<WCssRule> rule,
 		    const std::string& ruleName = std::string());
+
+  template <typename Rule>
+  Rule *addRule(std::unique_ptr<Rule> rule)
+  {
+    Rule *result = rule.get();
+    addRule(std::unique_ptr<WCssRule>(std::move(rule)));
+    return result;
+  }
 
   /*! \brief Returns if a rule was already defined in this style sheet.
    *
@@ -268,7 +268,7 @@ public:
 
   /*! \brief Removes a rule.
    */
-  void removeRule(WCssRule *rule);
+  std::unique_ptr<WCssRule> removeRule(WCssRule *rule);
 
   void ruleModified(WCssRule *rule);
 
@@ -276,17 +276,12 @@ public:
 
   void javaScriptUpdate(WApplication *app, WStringStream& js, bool all);
 
-  void clear();
-
 private:
-  typedef std::vector<WCssRule *> RuleList;
+  typedef std::vector<std::unique_ptr<WCssRule>> RuleList;
   typedef std::set<WCssRule *> RuleSet;
 
-  WLink link_;
-  std::string media_;
-
   RuleList rules_;
-  RuleList rulesAdded_;
+  std::vector<WCssRule *> rulesAdded_;
 
   RuleSet rulesModified_;
   std::vector<std::string> rulesRemoved_;

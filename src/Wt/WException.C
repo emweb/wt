@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WException"
+#include "Wt/WException.h"
 
 namespace Wt {
 

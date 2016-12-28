@@ -7,13 +7,22 @@
 #ifndef WCSSDECORATIONSTYLE_H_
 #define WCSSDECORATIONSTYLE_H_
 
-#include <Wt/WBorder>
-#include <Wt/WColor>
-#include <Wt/WFont>
-#include <Wt/WLink>
-#include <Wt/WWidget>
+#include <Wt/WBorder.h>
+#include <Wt/WColor.h>
+#include <Wt/WFont.h>
+#include <Wt/WLink.h>
+#include <Wt/WWidget.h>
 
 namespace Wt {
+
+/*! \brief Text decoration options
+ */
+enum class TextDecoration {
+  Underline   = 0x1, //!< Underline
+  Overline    = 0x2, //!< Overline
+  LineThrough = 0x4, //!< LineThrough
+  Blink       = 0x8  //!< Blink
+};
 
 class DomElement;
 class WWebWidget;
@@ -43,34 +52,15 @@ class WWebWidget;
  * Usage example:
  * \code
  * Wt::WWidget *widget = ...
- * widget->decorationStyle().setCursor(PointingHandCursor);
+ * widget->decorationStyle().setCursor(Cursor::PointingHand);
  * \endcode
  * \endif
  *
  * \ingroup style
  */
-class WT_API WCssDecorationStyle
-#ifdef WT_TARGET_JAVA
-  : WObject
-#endif
+class WT_API WCssDecorationStyle : public WObject
 {
 public:
-  /*! \brief How a background image must be repeated.
-   */
-  enum Repeat { RepeatXY,  //!< Repeat horizontally and vertically, default
-		RepeatX,   //!< Repeat horizontally
-		RepeatY,   //!< Repeat vertically
-		NoRepeat   //!< Do not repeat
-  };
-
-  /*! \brief Text decoration options
-   */
-  enum TextDecoration { Underline   = 0x1, //!< Underline
-			Overline    = 0x2, //!< Overline
-			LineThrough = 0x4, //!< LineThrough
-			Blink       = 0x8  //!< Blink
-  };
-
   /*! \brief Creates a default style.
    */
   WCssDecorationStyle();
@@ -102,7 +92,8 @@ public:
    * The Url should point to a .cur file (this shoul be a real .cur file, 
    * renaming an .ico is not enough for Internet Explorer).
    */
-  void setCursor(std::string cursorImage, Cursor fallback = ArrowCursor);
+  void setCursor(std::string cursorImage,
+		 Cursor fallback = Cursor::Arrow);
 
   /*! \brief Returns the cursor image.
    *
@@ -125,21 +116,23 @@ public:
    * The \p link may be a URL or a resource.
    *
    * The image may be placed in a particular location by specifying
-   * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
+   * sides by OR'ing Wt::Side values together, e.g. (Side::Right | Side::Top).
    */
   void setBackgroundImage(const WLink& link,
-			  Repeat repeat = RepeatXY,
-			  WFlags<Side> sides = 0);
+			  WFlags<Orientation> repeat
+			    = Orientation::Horizontal | Orientation::Vertical,
+			  WFlags<Side> sides = None);
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Sets a background image.
    *
    * The image may be placed in a particular location by specifying
-   * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
+   * sides by OR'ing Wt::Side values together, e.g. (Side::Right | Side::Top).
    */
   void setBackgroundImage(const std::string& url,
-			  Repeat repeat = RepeatXY,
-			  WFlags<Side> sides = 0);
+			  WFlags<Orientation> repeat
+			    = Orientation::Horizontal | Orientation::Vertical, 
+			  WFlags<Side> sides = None);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns the background image URL.
@@ -152,7 +145,7 @@ public:
    *
    * \sa setBackgroundImage()
    */
-  Repeat backgroundImageRepeat() const { return backgroundImageRepeat_; }
+  WFlags<Orientation> backgroundImageRepeat() const { return backgroundImageRepeat_; }
 
   /*! \brief Sets the text color.
    */
@@ -171,7 +164,7 @@ public:
    * A different border style may be specified for each of the four
    * sides.
    */
-  void setBorder(WBorder border, WFlags<Side> sides = All);
+  void setBorder(WBorder border, WFlags<Side> sides = AllSides);
 
   /*! \brief Returns the border style.
    *
@@ -183,7 +176,7 @@ public:
    * \note Prior to version 3.1.9 it was not possible to pass a side
    *       and only one border could be configured.
    */
-  WBorder border(Side side = Top) const;
+  WBorder border(Side side = Side::Top) const;
 
   /*! \brief Sets the text font.
    */
@@ -222,7 +215,7 @@ private:
   WColor                    backgroundColor_;
   WColor	            foregroundColor_;
   WLink	                    backgroundImage_;
-  Repeat	            backgroundImageRepeat_;
+  WFlags<Orientation>       backgroundImageRepeat_;
   WFlags<Side>              backgroundImageLocation_;
   WFont		            font_;
   WFlags<TextDecoration>    textDecoration_;
@@ -235,7 +228,7 @@ private:
   bool		            fontChanged_;
   bool                      textDecorationChanged_;
 
-  void changed(WFlags<RepaintFlag> flags = 0);
+  void changed(WFlags<RepaintFlag> flags = None);
   void backgroundImageResourceChanged();
   WBorder borderI(unsigned i) const;
 
@@ -245,7 +238,7 @@ private:
   friend class WWebWidget;
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WCssDecorationStyle::TextDecoration)
+W_DECLARE_OPERATORS_FOR_FLAGS(TextDecoration)
 
 }
 

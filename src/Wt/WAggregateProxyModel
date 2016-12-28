@@ -7,7 +7,7 @@
 #ifndef WAGGREGATE_PROXY_MODEL_H_
 #define WAGGREGATE_PROXY_MODEL_H_
 
-#include <Wt/WAbstractProxyModel>
+#include <Wt/WAbstractProxyModel.h>
 
 namespace Wt {
 
@@ -56,13 +56,13 @@ class WRegExp;
     };
 
     for (unsigned i = 0; i < COLS; ++i) {
-      model_->setHeaderData(i, Horizontal, columns[i]);
+      model_->setHeaderData(i, Orientation::Horizontal, columns[i]);
     }
 
     for (unsigned i = 0; i < ROWS; ++i) {
       model_->insertRow(i);
       for (unsigned j = 0; j < COLS; ++j)
-	model_->setData(i, j, "col " + boost::lexical_cast<std::string>(j));
+	model_->setData(i, j, "col " + std::to_string(j));
     }
 
     // set up the proxy model
@@ -79,7 +79,7 @@ class WRegExp;
 
     // define a view
     treeView_ = new WTreeView(root());
-    treeView_->setColumnBorder(Wt::black);
+    treeView_->setColumnBorder(Wt::StandardColor::Black);
     treeView_->setModel(proxy);
     treeView_->setColumnWidth(0, 160);
     treeView_->setColumnResizeEnabled(true);
@@ -104,7 +104,7 @@ public:
    *
    * Sets up the proxy without aggregation functionality.
    */
-  WAggregateProxyModel(WObject *parent = 0);
+  WAggregateProxyModel();
 
   /*! \brief Destructor.
    */
@@ -132,33 +132,40 @@ public:
    */
   void addAggregate(int parentColumn, int firstColumn, int lastColumn);
 
-  virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const;
-  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
+  virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex)
+    const override;
+  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex)
+    const override;
 
-  virtual void setSourceModel(WAbstractItemModel *sourceModel);
+  virtual void setSourceModel(const std::shared_ptr<WAbstractItemModel>&
+			      sourceModel) override;
 
-  virtual void expandColumn(int column);
-  virtual void collapseColumn(int column);
+  virtual void expandColumn(int column) override;
+  virtual void collapseColumn(int column) override;
 
-  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int columnCount(const WModelIndex& parent = WModelIndex())
+    const override;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex())
+    const override;
 
-  virtual WFlags<HeaderFlag> headerFlags(int section,
-					 Orientation orientation = Horizontal)
-    const;
+  virtual WFlags<HeaderFlag> headerFlags
+    (int section, Orientation orientation = Orientation::Horizontal)
+    const override;
 
-  virtual bool setHeaderData(int section, Orientation orientation,
-			     const boost::any& value,
-			     int role = EditRole);
-  virtual boost::any headerData(int section,
-				Orientation orientation = Horizontal,
-				int role = DisplayRole) const;
+  virtual bool setHeaderData
+    (int section, Orientation orientation, const cpp17::any& value,
+     int role = ItemDataRole::Edit) override;
+  virtual cpp17::any headerData
+    (int section, Orientation orientation = Orientation::Horizontal,
+     int role = ItemDataRole::Display) const override;
 
-  virtual WModelIndex parent(const WModelIndex& index) const;
+  virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex()) const;
+			    const WModelIndex& parent = WModelIndex())
+    const override;
 
-  virtual void sort(int column, SortOrder order = AscendingOrder);
+  virtual void sort(int column, 
+		    SortOrder order = SortOrder::Ascending) override;
 
 private:
   struct Aggregate {

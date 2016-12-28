@@ -7,8 +7,8 @@
 #ifndef WTABLE_ROW_H_
 #define WTABLE_ROW_H_
 
-#include <Wt/WObject>
-#include <Wt/WString>
+#include <Wt/WObject.h>
+#include <Wt/WString.h>
 
 namespace Wt {
 
@@ -133,35 +133,26 @@ public:
    */
   void setId(const std::string& id);
 
-  virtual const std::string id() const;
+  virtual const std::string id() const override;
 
 protected:
-  virtual WTableCell* createCell(int column);
+  virtual std::unique_ptr<WTableCell> createCell(int column);
 
 private:
   void expand(int numCells);
 
-  struct TableData {
-    WTableCell *cell;
-
-    /* used during rendering */
-    bool overSpanned;
-
-    TableData();
-  };
-
   WTable *table_;
-  std::vector<TableData> cells_;
+  std::vector<std::unique_ptr<WTableCell>> cells_;
 
-  WLength *height_;
-  std::string *id_;
+  WLength height_;
+  std::string id_;
   WT_USTRING styleClass_;
   bool hidden_, hiddenChanged_, wasHidden_;
 
   void updateDom(DomElement& element, bool all);
-
+  void setTable(WTable *table);
   void insertColumn(int column);
-  void deleteColumn(int column);
+  std::unique_ptr<WTableCell> removeColumn(int column);
 
   void undoHide();
 

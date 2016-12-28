@@ -8,8 +8,8 @@
 #ifndef CHART_WCHART2DIMPLEMENTATION_H
 #define CHART_WCHART2DIMPLEMENTATION_H
 
-#include <Wt/Chart/WCartesianChart>
-#include <Wt/Chart/WAbstractChartImplementation>
+#include <Wt/Chart/WCartesianChart.h>
+#include <Wt/Chart/WAbstractChartImplementation.h>
 
 namespace Wt {
   namespace Chart {
@@ -45,15 +45,15 @@ class WChart2DImplementation : public WAbstractChartImplementation
 public:
   WChart2DImplementation(WCartesianChart *chart);
 
-  virtual ChartType chartType() const;
-  virtual Orientation orientation() const;
-  virtual int axisPadding() const;
+  virtual ChartType chartType() const override;
+  virtual Orientation orientation() const override;
+  virtual int axisPadding() const override;
 
-  virtual int numberOfCategories(Axis axis = XAxis) const;
-  virtual WString categoryLabel(int u, Axis axis = XAxis) const;
-  virtual RenderRange computeRenderRange(Axis axis, AxisScale scale) const;
+  virtual int numberOfCategories(Axis axis = Axis::X) const override;
+  virtual WString categoryLabel(int u, Axis axis = Axis::X) const override;
+  virtual RenderRange computeRenderRange(Axis axis, AxisScale scale) const override;
 
-  virtual void update();
+  virtual void update() override;
   
 private:
   WCartesianChart *chart_;

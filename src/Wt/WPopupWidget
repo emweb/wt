@@ -7,7 +7,7 @@
 #ifndef WPOPUP_WIDGET_H_
 #define WPOPUP_WIDGET_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
 
@@ -24,6 +24,16 @@ namespace Wt {
  * positioning itself under the anchor widget, but it may also choose
  * to position itself above the anchor widget if space is lacking
  * below.
+ *
+ * Before Wt 4, WPopupWidget had a setDeleteWhenHidden(bool) function,
+ * causing the WPopupWidget to be deleted when it's hidden. This function
+ * has been removed. To achieve the same effect, the following code can be used:
+ *
+ * \code
+// Assuming that popupWidget_ is a std::unique_ptr<WPopupWidget>, and a
+// member of "this".
+popupWidget_->hidden().connect([this](){ popupWidget_.reset(); });
+\endcode
  */
 class WT_API WPopupWidget : public WCompositeWidget
 {
@@ -33,11 +43,10 @@ public:
    * You need to pass in a widget that provides the main contents of the
    * widget (e.g. a WTemplate or WContainerWidget).
    *
-   * Unlike other widgets, a popup widget does not need a parent
-   * widget (it acts like a pseudo top-level widget), but it can be
-   * given a parent object which is used to scope its lifetime.
+   * Unlike other widgets, a popup widget is a top-level widget that should
+   * not be added to another container.
    */
-  WPopupWidget(WWidget *impl, WObject *parent = 0);
+  WPopupWidget(std::unique_ptr<WWidget> impl);
 
   /*! \brief Destructor.
    */
@@ -48,13 +57,14 @@ public:
    * A vertical popup will show below (or above) the widget, while a
    * horizontal popup will show right (or left) of the widget.
    */
-  void setAnchorWidget(WWidget *widget, Orientation orientation = Vertical);
+  void setAnchorWidget(WWidget *widget,
+                       Orientation orientation = Orientation::Vertical);
 
   /* \brief Returns the anchor widget.
    *
    * \sa setAnchorWidget()
    */
-  WWidget *anchorWidget() const { return anchorWidget_; }
+  WWidget *anchorWidget() const { return anchorWidget_.get(); }
 
   /*! \brief Returns the orientation.
    *
@@ -83,25 +93,8 @@ public:
    */
   int autoHideDelay() const { return autoHideDelay_; }
 
-  /*! \brief Lets the popup delete itself when hidden.
-   *
-   * When this is enabled, the popup will delete itself when
-   * hidden. You need to take care that when overriding setHidden(),
-   * the popup may thus be deleted from within
-   * WPopupWidget::setHidden().
-   *
-   * The default value is \c false.
-   */
-  void setDeleteWhenHidden(bool enabled);
-
-  /*! \brief Returns whether auto delete is enabled.
-   *
-   * \sa setDeleteWhenHidden()
-   */
-  bool isDeleteWhenHidden() const { return deleteWhenHidden_; }
-
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
+                         const WAnimation& animation = WAnimation()) override;
 
   /*! \brief %Signal emitted when the popup is hidden.
    *
@@ -118,16 +111,13 @@ public:
   Signal<>& shown() { return shown_; }
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual void setParent(WObject *parent);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
-  WObject *fakeParent_;
-  WWidget *anchorWidget_;
+  observing_ptr<WWidget> anchorWidget_;
   Orientation orientation_;
   bool transient_;
   int autoHideDelay_;
-  bool deleteWhenHidden_;
   Signal<> hidden_, shown_;
   JSignal<> jsHidden_, jsShown_;
 

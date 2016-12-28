@@ -4,11 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "HashFunction"
+#include "HashFunction.h"
 #include "AuthUtils.h"
 
-#include "Wt/Utils"
-#include "Wt/WException"
+#include "Wt/Utils.h"
+#include "Wt/WException.h"
 
 #ifndef WT_TARGET_JAVA
 // for htonl():

@@ -7,9 +7,26 @@
 #ifndef WLINEEDIT_H_
 #define WLINEEDIT_H_
 
-#include <Wt/WFormWidget>
+#include <Wt/WFormWidget.h>
 
 namespace Wt {
+
+/*! \brief Enumeration that describes how the contents is displayed.
+ *
+ * \sa setEchoMode(EchoMode)
+ */
+enum class EchoMode {
+  Normal,   //!< Characters are shown.
+  Password  //!< Hide the contents as for a password.
+};
+
+/*! \brief Enumeration that describes options for input masks.
+ *
+ * \sa setInputMask()
+ */
+enum class InputMaskFlag {
+  KeepMaskWhileBlurred = 0x1 //!< Keep the input mask when blurred
+};
 
 /*! \class WLineEdit Wt/WLineEdit Wt/WLineEdit
  *  \brief A widget that provides a single line edit.
@@ -58,30 +75,13 @@ namespace Wt {
 class WT_API WLineEdit : public WFormWidget
 {
 public:
-  /*! \brief Enumeration that describes how the contents is displayed.
-   *
-   * \sa setEchoMode(EchoMode)
+  /*! \brief Creates a line edit with empty content.
    */
-  enum EchoMode {
-    Normal,   //!< Characters are shown.
-    Password  //!< Hide the contents as for a password.
-  };
+  WLineEdit();
 
-  /*! \brief Enumeration that describes options for input masks.
-   *
-   * \sa setInputMask()
+  /*! \brief Creates a line edit with given content.
    */
-  enum InputMaskFlag {
-    KeepMaskWhileBlurred = 0x1 //!< Keep the input mask when blurred
-  };
-
-  /*! \brief Creates a line edit with empty content and optional parent.
-   */
-  WLineEdit(WContainerWidget *parent = 0);
-
-  /*! \brief Creates a line edit with given content and optional parent.
-   */
-  WLineEdit(const WT_USTRING& content, WContainerWidget *parent = 0);
+  WLineEdit(const WT_USTRING& content);
 
   /*! \brief Specifies the width of the line edit in number of characters.
    *
@@ -208,13 +208,13 @@ public:
    *
    * Returns text().
    */
-  virtual WT_USTRING valueText() const;
+  virtual WT_USTRING valueText() const override;
 
   /*! \brief Sets the current value.
    *
    * Calls setText().
    */
-  virtual void setValueText(const WT_USTRING& value);
+  virtual void setValueText(const WT_USTRING& value) override;
 
   /*! \brief Returns the input mask.
    *
@@ -294,9 +294,9 @@ public:
    * action will be logged.
    */
   void setInputMask(const WT_USTRING &mask = "",
-		    WFlags<InputMaskFlag> flags = 0);
+		    WFlags<InputMaskFlag> flags = None);
 
-  virtual WValidator::State validate();
+  virtual ValidationState validate() override;
 
   /*! \brief Event signal emitted when the text in the input field changed.
    *
@@ -332,10 +332,10 @@ private:
 
   bool maskChanged_;
   std::string  mask_;
-#if !defined(WT_NO_STD_WSTRING) && !defined(WT_TARGET_JAVA)
-  std::wstring inputMask_;
-  std::wstring raw_;
-  wchar_t      spaceChar_;
+#if !defined(WT_TARGET_JAVA)
+  std::u32string inputMask_;
+  std::u32string raw_;
+  char32_t       spaceChar_;
 #else
   std::string inputMask_;
   std::string raw_;
@@ -348,8 +348,8 @@ private:
   WT_USTRING removeSpaces(const WT_USTRING& text) const;
   WT_USTRING inputText(const WT_USTRING& text) const;
   void processInputMask();
-#if !defined(WT_NO_STD_WSTRING) && !defined(WT_TARGET_JAVA)
-  bool acceptChar(wchar_t chr, size_t position) const;
+#if !defined(WT_TARGET_JAVA)
+  bool acceptChar(char32_t chr, size_t position) const;
 #else
   bool acceptChar(char chr, size_t position) const;
 #endif
@@ -358,17 +358,17 @@ private:
   bool validateInputMask() const;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual void           propagateRenderOk(bool deep);
+  virtual void           updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual void           propagateRenderOk(bool deep) override;
   virtual void           getDomChanges(std::vector<DomElement *>& result,
-				       WApplication *app);
-  virtual void setFormData(const FormData& formData);
+                                       WApplication *app) override;
+  virtual void setFormData(const FormData& formData) override;
 
-  virtual int boxPadding(Orientation orientation) const;
-  virtual int boxBorder(Orientation orientation) const;
+  virtual int boxPadding(Orientation orientation) const override;
+  virtual int boxBorder(Orientation orientation) const override;
 
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 };
 
 }

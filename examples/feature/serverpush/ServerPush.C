@@ -3,13 +3,16 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WProgressBar>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WProgressBar.h>
 
 #include <iostream>
-#include <boost/thread.hpp>
+#include <thread>
+#include <chrono>
+
+using namespace Wt;
 
 /*
  * This is a minimal server push example, which is used to update the GUI
@@ -24,18 +27,18 @@
  * to post an event to a session. This approach is illustrated in the
  * simplechat example.
  */
-class BigWorkWidget : public Wt::WContainerWidget
+class BigWorkWidget : public WContainerWidget
 {
 public:
-  BigWorkWidget(Wt::WContainerWidget *parent)
-    : WContainerWidget(parent)
+  BigWorkWidget()
+    : WContainerWidget()
   {
-    startButton_ = new Wt::WPushButton("Start", this);
-    startButton_->clicked().connect(startButton_, &Wt::WPushButton::disable);
+    startButton_ = this->addWidget(cpp14::make_unique<WPushButton>("Start"));
+    startButton_->clicked().connect(startButton_, &WPushButton::disable);
     startButton_->clicked().connect(this, &BigWorkWidget::startBigWork);
     startButton_->setMargin(2);
 
-    progress_ = new Wt::WProgressBar(this);
+    progress_ = this->addWidget(cpp14::make_unique<WProgressBar>());
     progress_->setInline(false);
     progress_->setMinimum(0);
     progress_->setMaximum(20);
@@ -43,24 +46,27 @@ public:
   }
 
   virtual ~BigWorkWidget() {
-    if (workThread_.get_id() != boost::this_thread::get_id())
+    if (workThread_.get_id() != std::this_thread::get_id() &&
+	workThread_.joinable())
       workThread_.join();
   }
 
 private:
-  Wt::WPushButton *startButton_;
-  Wt::WProgressBar *progress_;
+  WPushButton *startButton_;
+  WProgressBar *progress_;
 
-  boost::thread workThread_;
+  std::thread workThread_;
 
   void startBigWork() {
-    Wt::WApplication *app = Wt::WApplication::instance();
+    WApplication *app = WApplication::instance();
 
     // Enable server push
     app->enableUpdates(true);
 
-    workThread_ 
-      = boost::thread(boost::bind(&BigWorkWidget::doBigWork, this, app));
+    if (workThread_.joinable())
+      workThread_.join();
+    workThread_
+      = std::thread(std::bind(&BigWorkWidget::doBigWork, this, app));
 
     progress_->setValue(0);
     startButton_->setText("Busy...");
@@ -73,23 +79,23 @@ private:
    * since that use thread-local storage. We can only access
    * WApplication::instance() after we have grabbed its update-lock.
    */
-  void doBigWork(Wt::WApplication *app)
+  void doBigWork(WApplication *app)
   {
     for (unsigned i = 0; i < 20; ++i) {
       // Do 50 ms of hard work.
-      boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
       // Get the application update lock to update the user-interface
       // with a progress indication.
-      Wt::WApplication::UpdateLock uiLock(app);
+      WApplication::UpdateLock uiLock(app);
       if (uiLock) {
-	progress_->setValue(i + 1);
-	app->triggerUpdate();
+        progress_->setValue(i + 1);
+        app->triggerUpdate();
       } else
-	return;
+        return;
     }
 
-    Wt::WApplication::UpdateLock uiLock(app);
+    WApplication::UpdateLock uiLock(app);
 
     if (uiLock) {
       startButton_->enable();
@@ -104,11 +110,11 @@ private:
   }
 };
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  Wt::WApplication *app = new Wt::WApplication(env);
+  std::unique_ptr<WApplication> app = cpp14::make_unique<WApplication>(env);
   app->setCssTheme("polished");
-  new BigWorkWidget(app->root());
+  app->root()->addWidget(cpp14::make_unique<BigWorkWidget>());
 
   return app;
 }

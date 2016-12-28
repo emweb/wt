@@ -7,7 +7,7 @@
 #ifndef WT_HTTP_MESSAGE_H_
 #define WT_HTTP_MESSAGE_H_
 
-#include <Wt/WStringStream>
+#include <Wt/WStringStream.h>
 
 namespace Wt {
   namespace Http {

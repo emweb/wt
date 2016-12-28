@@ -7,7 +7,7 @@
 #ifndef WT_WCSS_THEME_H
 #define WT_WCSS_THEME_H
 
-#include <Wt/WTheme>
+#include <Wt/WTheme.h>
 
 namespace Wt {
 
@@ -386,7 +386,7 @@ public:
    * Creates a classic %Wt theme. %Wt comes with two CSS themes: "polished" and
    * default. For the bootstrap theme, use WBootstrapTheme.
    */
-  WCssTheme(const std::string& name, WObject *parent = 0);
+  WCssTheme(const std::string& name);
 
   virtual ~WCssTheme();
 
@@ -398,7 +398,7 @@ public:
    * style sheets are located in the theme directory in the resources
    * folder.
    */
-  virtual std::vector<WCssStyleSheet> styleSheets() const;
+  virtual std::vector<WLinkedCssStyleSheet> styleSheets() const;
 
   virtual void apply(WWidget *widget, WWidget *child, int widgetRole) const;
   virtual void apply(WWidget *widget, DomElement& element, int elementRole)
@@ -426,8 +426,8 @@ public:
   virtual bool canStyleAnchorAsButton() const;
 
   virtual void applyValidationStyle(WWidget *widget,
-				    const Wt::WValidator::Result& validation,
-				    WFlags<ValidationStyleFlag> styles) const;
+                                    const Wt::WValidator::Result& validation,
+                                    WFlags<ValidationStyleFlag> styles) const;
 
   virtual bool canBorderBoxElement(const DomElement& element) const;
 

@@ -8,16 +8,20 @@
 #ifndef USER_H_
 #define USER_H_
 
-#include <Wt/WDateTime>
-#include <Wt/Dbo/Types>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Auth/Dbo/AuthInfo>
+#include <Wt/WDateTime.h>
+#include <Wt/Dbo/Types.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
 
 #include <string>
 
+using namespace Wt;
+
+namespace dbo = Wt::Dbo;
+
 class User;
-typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;
-typedef Wt::Dbo::collection< Wt::Dbo::ptr<User> > Users;
+typedef Auth::Dbo::AuthInfo<User> AuthInfo;
+typedef dbo::collection< dbo::ptr<User> > Users;
 
 class User
 {
@@ -27,17 +31,17 @@ public:
   std::string name; /* a copy of auth info's user name */
   int gamesPlayed;
   long long score;
-  Wt::WDateTime lastGame;
-  Wt::Dbo::collection< Wt::Dbo::ptr<AuthInfo> > authInfos;
+  WDateTime lastGame;
+  dbo::collection<dbo::ptr<AuthInfo>> authInfos;
 
   template<class Action>
   void persist(Action& a)
   {
-    Wt::Dbo::field(a, gamesPlayed, "gamesPlayed");
-    Wt::Dbo::field(a, score, "score");
-    Wt::Dbo::field(a, lastGame, "lastGame");
+    dbo::field(a, gamesPlayed, "gamesPlayed");
+    dbo::field(a, score, "score");
+    dbo::field(a, lastGame, "lastGame");
 
-    Wt::Dbo::hasMany(a, authInfos, Wt::Dbo::ManyToOne, "user");
+    dbo::hasMany(a, authInfos, dbo::ManyToOne, "user");
   }
 };
 

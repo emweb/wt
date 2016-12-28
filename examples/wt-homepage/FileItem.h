@@ -10,12 +10,14 @@
 
 #include <string.h>
 
-#include "Wt/WStandardItem"
-#include "Wt/WStandardItemModel"
-#include "Wt/WString"
+#include "Wt/WStandardItem.h"
+#include "Wt/WStandardItemModel.h"
+#include "Wt/WString.h"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/exception.hpp>
+
+using namespace Wt;
 
 /*! \class FileItem
  *  \brief WStandardItem which stores a file.
@@ -28,9 +30,9 @@
 class FileItem : public Wt::WStandardItem
 {
 public:
-  static const int ContentsRole = Wt::UserRole;
-  static const int FilePathRole = Wt::UserRole + 1;
-  static const int FileNameRole = Wt::UserRole + 2;
+  static const int ContentsRole;
+  static const int FilePathRole;
+  static const int FileNameRole;
   
   FileItem(const std::string& iconUri, const Wt::WString& text,
 	   const std::string& fileName)

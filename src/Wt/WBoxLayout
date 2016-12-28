@@ -7,7 +7,7 @@
 #ifndef WBOX_LAYOUT_H_
 #define WBOX_LAYOUT_H_
 
-#include <Wt/WGridLayout>
+#include <Wt/WGridLayout.h>
 
 namespace Wt {
 
@@ -76,7 +76,7 @@ namespace Wt {
  * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
  * w->resize(WLength(), 600);
  *
- * Wt::WBoxLayout *layout = new Wt::WBoxLayout(Wt::WBoxLayout::TopToBottom);
+ * Wt::WBoxLayout *layout = new Wt::WBoxLayout(Wt::LayoutDirection::TopToBottom);
  * layout->addWidget(new Wt::WText("One"));
  * layout->addWidget(new Wt::WText("Two"));
  * layout->addWidget(new Wt::WText("Three"));
@@ -84,12 +84,6 @@ namespace Wt {
  *
  * w->setLayout(layout);
  * \endcode
- * \endif
- *
- * \if cpp
- * \note This layout manager is applicable only to WContainerWidget
- * container widgets. You may use it within an Ext::Container
- * indirectly by first setting a WContainerWidget using a WFitLayout.
  * \endif
  *
  * \note When JavaScript support is not available, not all functionality
@@ -104,15 +98,6 @@ namespace Wt {
 class WT_API WBoxLayout : public WLayout
 {
 public:
-  /*! \brief Enumeration of the direction in which widgets are layed out.
-   */
-  enum Direction {
-    LeftToRight, //!< Horizontal layout, widgets are arranged from left to right
-    RightToLeft, //!< Horizontal layout, widgets are arranged from right to left
-    TopToBottom, //!< Vertical layout, widgets are arranged from top to bottom
-    BottomToTop  //!< Vertical layout, widgets are arranged from bottom to top
-  };
-
   /*! \brief Creates a new box layout.
    *
    * This constructor is rarely used. Instead, use the convenient
@@ -121,25 +106,27 @@ public:
    * Use \p parent = \c 0 to created a layout manager that can be
    * nested inside other layout managers.
    */
-  WBoxLayout(Direction dir, WWidget *parent = 0);
+  WBoxLayout(LayoutDirection dir);
 
-  virtual void addItem(WLayoutItem *item);
-  virtual void removeItem(WLayoutItem *item);
-  virtual WLayoutItem *itemAt(int index) const;
-  virtual int count() const;
-  virtual void clear();
+  virtual void addItem(std::unique_ptr<WLayoutItem> item) override;
+  virtual std::unique_ptr<WLayoutItem> removeItem(WLayoutItem *item) override;
+  virtual WLayoutItem *itemAt(int index) const override;
+  virtual int count() const override;
 
   /*! \brief Sets the layout direction.
    *
+   * \note Changing the layout direction after something (a widget or nested layout)
+   *       has been added is not supported.
+   *
    * \sa direction()
    */
-  void setDirection(Direction direction);
+  void setDirection(LayoutDirection direction);
 
   /*! \brief Returns the layout direction.
    *
    * \sa setDirection()
    */
-  Direction direction() const { return direction_; }
+  LayoutDirection direction() const { return direction_; }
 
   /*! \brief Sets spacing between each item.
    *
@@ -166,14 +153,23 @@ public:
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire column or row. The alignment can
    * be specified as a logical combination of a horizontal alignment
-   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
-   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
-   * Wt::AlignBottom).
+   * (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or Wt::AlignmentFlag::Right) and a
+   * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
+   * Wt::AlignmentFlag::Bottom).
    *
    * \sa addLayout(), insertWidget()
    */
-  void addWidget(WWidget *widget, int stretch = 0,
-		 WFlags<AlignmentFlag> alignment = 0);
+  void addWidget(std::unique_ptr<WWidget> widget, int stretch,
+                 WFlags<AlignmentFlag> alignment);
+
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget, int stretch = 0,
+                      WFlags<AlignmentFlag> alignment = None)
+  {
+    Widget *result = widget.get();
+    addWidget(std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
+    return result;
+  }
 
   /*! \brief Adds a nested layout to the layout.
    *
@@ -181,8 +177,17 @@ public:
    *
    * \sa addWidget(WWidget *, int, WFlags<AlignmentFlag>), insertLayout()
    */
-  void addLayout(WLayout *layout, int stretch = 0,
-		 WFlags<AlignmentFlag> alignment = 0);
+  void addLayout(std::unique_ptr<WLayout> layout, int stretch,
+                 WFlags<AlignmentFlag> alignment);
+
+  template <typename Layout>
+    Layout *addLayout(std::unique_ptr<Layout> layout, int stretch = 0,
+                      WFlags<AlignmentFlag> alignment = None)
+  {
+    Layout *result = layout.get();
+    addLayout(std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
+    return result;
+  }
 
   /*! \brief Adds extra spacing.
    *
@@ -208,18 +213,19 @@ public:
    * not be resized by the layout manager (stretched to take excess
    * space).
    *
-   * The \p alignment specifies the vertical and horizontal
-   * alignment of the item. The default value 0 indicates that the
-   * item is stretched to fill the entire column or row. The alignment can
-   * be specified as a logical combination of a horizontal alignment
-   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
-   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
-   * Wt::AlignBottom).
+   * The \p alignment specifies the vertical and horizontal alignment
+   * of the item. The default value None indicates that the item is
+   * stretched to fill the entire column or row. The alignment can be
+   * specified as a logical combination of a horizontal alignment
+   * (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or
+   * Wt::AlignmentFlag::Right) and a vertical alignment
+   * (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
+   * Wt::AlignmentFlag::AlignBottom).
    *
    * \sa insertLayout(), addWidget(WWidget *, int, WFlags<AlignmentFlag>)
    */
-  void insertWidget(int index, WWidget *widget, int stretch = 0,
-		    WFlags<AlignmentFlag> alignment = 0);
+  void insertWidget(int index, std::unique_ptr<WWidget> widget, int stretch = 0,
+		    WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Inserts a nested layout in the layout.
    *
@@ -228,8 +234,8 @@ public:
    *
    * \sa insertWidget(), addLayout()
    */
-  void insertLayout(int index, WLayout *layout, int stretch = 0,
-		    WFlags<AlignmentFlag> alignment = 0);
+  void insertLayout(int index, std::unique_ptr<WLayout> layout, int stretch = 0,
+		    WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Inserts extra spacing in the layout.
    *
@@ -290,18 +296,24 @@ public:
    */
   bool isResizable(int index) const;
 
-  Impl::Grid& grid() { return grid_; }
-
 protected:
-  void insertItem(int index, WLayoutItem *item, int stretch,
+  virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
+
+  void insertItem(int index, std::unique_ptr<WLayoutItem> item, int stretch,
 		  WFlags<AlignmentFlag> alignment);
 
+  virtual void updateImplementation() override;
+
 private:
-  Direction  direction_;
+  LayoutDirection direction_;
   Impl::Grid grid_;
 
   void setStretchFactor(int index, int stretch);
-  WWidget *createSpacer(const WLength& size);
+  std::unique_ptr<WWidget> createSpacer(const WLength& size);
+
+  virtual void setParentWidget(WWidget *parent) override;
+
+  bool implementationIsFlexLayout() const;
 };
 
 }

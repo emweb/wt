@@ -7,11 +7,11 @@
 #ifndef USER_H_
 #define USER_H_
 
-#include <Wt/Dbo/Types>
-#include <Wt/WDate>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/WGlobal>
-#include <Wt/Auth/Dbo/AuthInfo>
+#include <Wt/Dbo/Types.h>
+#include <Wt/WDate.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/WGlobal.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
 
 namespace dbo = Wt::Dbo;
 

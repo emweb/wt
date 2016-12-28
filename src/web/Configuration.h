@@ -17,13 +17,14 @@
 #endif
 
 #ifdef WT_CONF_LOCK
-#include <boost/thread.hpp>
+#include <thread>
+#include <boost/thread/shared_mutex.hpp>
 #endif // WT_CONF_LOCK
 
-#include "Wt/WApplication"
+#include "Wt/WApplication.h"
 
 #include "WebSession.h"
-#include "Wt/WRandom"
+#include "Wt/WRandom.h"
 
 namespace boost {
   namespace program_options {

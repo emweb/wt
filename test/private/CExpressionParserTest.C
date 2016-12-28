@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WMessageResources>
+#include <Wt/WMessageResources.h>
 #include <boost/test/unit_test.hpp>
 
 namespace {

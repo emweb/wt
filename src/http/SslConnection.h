@@ -22,7 +22,6 @@
 #include <boost/asio/ssl.hpp>
 
 #include <boost/array.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
@@ -76,7 +75,7 @@ private:
   asio_timer sslShutdownTimer_;
 };
 
-typedef boost::shared_ptr<SslConnection> SslConnectionPtr;
+typedef std::shared_ptr<SslConnection> SslConnectionPtr;
 
 } // namespace server
 } // namespace http

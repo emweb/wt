@@ -16,7 +16,7 @@
 #endif //WT_HAVE_POSIX_FILEIO
 
 #include "web/WebUtils.h"
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 
 #ifdef WT_WIN32
 #include <windows.h>

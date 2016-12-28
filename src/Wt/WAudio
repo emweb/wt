@@ -7,7 +7,7 @@
 #ifndef WAUDIO_H_
 #define WAUDIO_H_
 
-#include <Wt/WAbstractMedia>
+#include <Wt/WAbstractMedia.h>
 
 namespace Wt {
 
@@ -57,11 +57,6 @@ namespace Wt {
  * the widget is rendered.
  *
  * \sa WMediaPlayer
- *
- * \if cpp
- * \note Before %Wt 3.1.11, this was called WHTML5Audio, which still
- *       exists as a (deprecated) typedef.
- * \endif
  */
 class WT_API WAudio : public WAbstractMedia
 {
@@ -71,7 +66,7 @@ public:
    * A freshly constructed Audio widget has no media sources,
    * no options, and has preload mode set to PreloadAuto.
    */
-  WAudio(WContainerWidget *parent = 0);
+  WAudio();
 
   /*! \brief Returns the JavaScript reference to the audio object, or null.
    *
@@ -84,8 +79,8 @@ public:
   std::string jsAudioRef() const;
 
 protected:
-  virtual DomElement *createMediaDomElement();
-  DomElementType domElementType() const;
+  virtual DomElement *createMediaDomElement() override;
+  DomElementType domElementType() const override;
 
 };
 

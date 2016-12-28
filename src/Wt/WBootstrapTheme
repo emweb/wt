@@ -7,11 +7,21 @@
 #ifndef WT_WBOOTSTRAP_THEME_H
 #define WT_WBOOTSTRAP_THEME_H
 
-#include <Wt/WTheme>
+#include <Wt/WTheme.h>
 
 #include <string>
 
 namespace Wt {
+
+/*!
+ * \brief Enumeration to select a bootstrap version.
+ *
+ * \sa setVersion()
+ */
+enum class BootstrapVersion {
+  v2 = 2, //!< Bootstrap 2
+  v3 = 3  //!< Bootstrap 3
+};
 
 /*! \class WBootstrapTheme Wt/WBootstrapTheme Wt/WBootstrapTheme
  *  \brief Theme based on the Twitter Bootstrap CSS framework.
@@ -45,19 +55,12 @@ namespace Wt {
 class WT_API WBootstrapTheme : public WTheme
 {
 public:
-  /*!
-   * \brief Enumeration to select a bootstrap version.
-   *
-   * \sa setVersion()
-   */
-  enum Version {
-    Version2 = 2, //!< Bootstrap 2
-    Version3 = 3  //!< Bootstrap 3
-  };
+  /*! \brief Typedef for enum Wt::BootstrapVersion */
+  typedef BootstrapVersion Version;
 
   /*! \brief Constructor.
    */
-  WBootstrapTheme(WObject *parent = 0);
+  WBootstrapTheme();
 
   virtual ~WBootstrapTheme();
 
@@ -91,13 +94,13 @@ public:
    * Apache 2.0 for Bootstrap version 2.2.2, and MIT for version
    * 3.1. See these licenses for details.
    */
-  void setVersion(Version version);
+  void setVersion(BootstrapVersion version);
 
   /*! \brief Returns the bootstrap version.
    *
    * \sa setVersion()
    */
-  Version version() const { return version_; }
+  BootstrapVersion version() const { return version_; }
 
   /*! \brief Enables form-control on all applicable form widgets.
    *
@@ -111,23 +114,24 @@ public:
    */
   void setFormControlStyleEnabled(bool enabled);
 
-  virtual std::string name() const;
-  virtual std::vector<WCssStyleSheet> styleSheets() const;
+  virtual std::string name() const override;
+  virtual std::vector<WLinkedCssStyleSheet> styleSheets() const override;
   virtual void apply(WWidget *widget, WWidget *child, int widgetRole)
-    const;
+    const override;
   virtual void apply(WWidget *widget, DomElement& element, int elementRole)
-    const;
-  virtual std::string disabledClass() const;
-  virtual std::string activeClass() const;
-  virtual std::string utilityCssClass(int utilityCssClassRole) const;
-  virtual bool canStyleAnchorAsButton() const;
+    const override;
+  virtual std::string disabledClass() const override;
+  virtual std::string activeClass() const override;
+  virtual std::string utilityCssClass(int utilityCssClassRole) const override;
+  virtual bool canStyleAnchorAsButton() const override;
   virtual void applyValidationStyle(WWidget *widget,
 				    const Wt::WValidator::Result& validation,
-				    WFlags<ValidationStyleFlag> styles) const;
-  virtual bool canBorderBoxElement(const DomElement& element) const;
+				    WFlags<ValidationStyleFlag> styles)
+    const override;
+  virtual bool canBorderBoxElement(const DomElement& element) const override;
 
 private:
-  Version version_;
+  BootstrapVersion version_;
   bool responsive_, formControlStyle_;
 
   std::string classBtn() const;

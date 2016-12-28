@@ -3,24 +3,28 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WLineEdit>
-#include <Wt/WTemplate>
+#include <Wt/WApplication.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WContainerWidget.h>
 
 #include "WidgetFunction.h"
 
+using namespace Wt;
+
 WidgetFunction widgetFunction; 
 
-Wt::WWidget *createLineEdit(const std::vector<Wt::WString>& args)
+std::unique_ptr<WWidget> createLineEdit(const std::vector<WString>& args)
 {
-  return new Wt::WLineEdit();
+  return cpp14::make_unique<WLineEdit>();
 }
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  Wt::WApplication *app = new Wt::WApplication(env);
+  auto app = cpp14::make_unique<WApplication>(env);
 
-  Wt::WTemplate *t = new Wt::WTemplate("${widget:line-edit}", app->root());
+  WTemplate *t =
+      app->root()->addWidget(cpp14::make_unique<WTemplate>("${widget:line-edit}"));
   t->addFunction("widget", widgetFunction);
   return app;
 }

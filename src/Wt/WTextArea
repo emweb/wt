@@ -7,7 +7,7 @@
 #ifndef WTEXTAREA_H_
 #define WTEXTAREA_H_
 
-#include <Wt/WFormWidget>
+#include <Wt/WFormWidget.h>
 
 namespace Wt {
 
@@ -48,11 +48,11 @@ class WT_API WTextArea : public WFormWidget
 public:
   /*! \brief Creates a text area with empty content and optional parent.
    */
-  WTextArea(WContainerWidget *parent = 0);
+  WTextArea();
 
   /*! \brief Creates a text area with given content and optional parent.
    */
-  WTextArea(const WT_USTRING& content, WContainerWidget *parent = 0);
+  WTextArea(const WT_USTRING& content);
 
   /*! \brief Sets the number of columns.
    *
@@ -70,13 +70,13 @@ public:
    *
    * \sa setColumns()
    */
-  int  columns() const { return cols_; }
+  int columns() const { return cols_; }
 
   /*! \brief Returns the number of rows.
    *
    * \sa setRows()
    */
-  int  rows() const { return rows_; }
+  int rows() const { return rows_; }
 
   /*! \brief Returns the current content.
    */
@@ -120,13 +120,13 @@ public:
    *
    * Returns text().
    */
-  virtual WT_USTRING valueText() const;
+  virtual WT_USTRING valueText() const override;
 
   /*! \brief Sets the current value.
    *
    * Calls setText().
    */
-  virtual void setValueText(const WT_USTRING& text);
+  virtual void setValueText(const WT_USTRING& text) override;
 
   /*! \brief Event signal emitted when the text in the input field changed.
    *
@@ -150,14 +150,14 @@ private:
   bool attributesChanged_;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual void           propagateRenderOk(bool deep);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual void propagateRenderOk(bool deep) override;
 
-  virtual void           setFormData(const FormData& formData);
+  virtual void setFormData(const FormData& formData) override;
 
-  virtual int boxPadding(Orientation orientation) const;
-  virtual int boxBorder(Orientation orientation) const;
+  virtual int boxPadding(Orientation orientation) const override;
+  virtual int boxBorder(Orientation orientation) const override;
 
   void resetContentChanged();
 };

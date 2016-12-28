@@ -8,7 +8,7 @@
 #define WT_MAIL_MAILBOX_H_
 
 #include <string>
-#include <Wt/WString>
+#include <Wt/WString.h>
 
 namespace Wt {
   namespace Mail {

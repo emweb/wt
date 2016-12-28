@@ -10,14 +10,21 @@
 #include <string>
 #include <vector>
 
-#include <Wt/WGlobal>
-#include <Wt/WLayoutItem>
-#include <Wt/WObject>
+#include <Wt/WGlobal.h>
+#include <Wt/WLayoutImpl.h>
+#include <Wt/WLayoutItem.h>
+#include <Wt/WObject.h>
 
 namespace Wt {
 
 class WWidgetItem;
-class WLayoutItemImpl;
+class WLayoutImpl;
+
+// TODO(Roel): document
+enum class LayoutImplementation {
+  Flex,
+  Classic // TODO(Roel): what should we call this?
+};
 
 /*! \class WLayout Wt/WLayout Wt/WLayout
  *  \brief An abstract base class for layout managers.
@@ -25,14 +32,6 @@ class WLayoutItemImpl;
  * This class is the abstract base class for any layout manager. A layout
  * manager is associated with a container widget, and manages the layout of
  * children inside the whole space available to the container widget.
- *
- * \if cpp
- * Layout managers may be used with WContainerWidget and
- * Ext::Container container widgets. A suitable implementation for all
- * layout classes is not yet available for both containers, and thus
- * you need to refer to the documentation of a layout manager to
- * see if it is applicable to your situation.
- * \endif
  *
  * The implementation of the layout manager depends on the container widget
  * to which it is set, and is therefore deferred to WLayoutImpl.
@@ -54,6 +53,9 @@ public:
    */
   virtual ~WLayout();
 
+  // TODO(Roel): document
+  void setPreferredImplementation(LayoutImplementation implementation);
+
   /*! \brief Adds a layout <i>item</i>.
    *
    * The item may be a widget or nested layout.
@@ -65,7 +67,7 @@ public:
    *
    * \sa removeItem(WLayoutItem *), addWidget(WWidget *)
    */
-  virtual void addItem(WLayoutItem *item) = 0;
+  virtual void addItem(std::unique_ptr<WLayoutItem> item) = 0;
 
   /*! \brief Adds the given <i>widget</i> to the layout.
    *
@@ -79,24 +81,22 @@ public:
    *
    * \sa removeWidget(WWidget *), addItem(WLayoutItem *)
    */
-  void addWidget(WWidget *widget);
+  void addWidget(std::unique_ptr<WWidget> widget);
 
   /*! \brief Removes a layout <i>item</i> (widget or nested layout).
    *
    * \sa addItem(WLayoutItem *), removeWidget(WWidget *)
    */
-  virtual void removeItem(WLayoutItem *item) = 0;
+  virtual std::unique_ptr<WLayoutItem> removeItem(WLayoutItem *item) = 0;
 
   /*! \brief Removes the given <i>widget</i> from the layout.
    *
    * This method finds the corresponding WWidgetItem and calls
-   * removeItem(WLayoutItem *). The widget itself is not destroyed.
-   *
-   * Returns \c true if succesful.
+   * removeItem(WLayoutItem *), and returns the widget.
    *
    * \sa addWidget(WWidget *), removeItem(WLayoutItem *)
    */
-  bool removeWidget(WWidget *widget);
+  std::unique_ptr<WWidget> removeWidget(WWidget *widget);
 
   /*! \brief Returns the number of items in this layout.
    *
@@ -125,21 +125,14 @@ public:
 
   /*! \brief Finds the widget item associated with the given <i>widget</i>.
    */
-  virtual WWidgetItem *findWidgetItem(WWidget *widget);
+  virtual WWidgetItem *findWidgetItem(WWidget *widget) override;
 
-  /*! \brief Provides a hint to the layout implementation.
-   *
-   * In some cases, a layout implementation may require some hints for
-   * rendering its contents. Possible hints are indicated in the
-   * reference documentation for each layout manager.
-   */
-  void setLayoutHint(const std::string& name, const std::string& value);
+  virtual WWidget *widget() override { return nullptr; }
+  virtual WLayout *layout() override { return this; }
+  virtual WLayout *parentLayout() const override;
+  virtual WWidget *parentWidget() const override;
 
-  virtual WWidget *widget() { return 0; }
-  virtual WLayout *layout() { return this; }
-  virtual WLayout *parentLayout() const;
-
-  WLayoutItemImpl *impl() const { return impl_; }
+  virtual WLayoutImpl *impl() const override { return impl_.get(); }
 
   /*! \brief Set contents margins (in pixels).
    *
@@ -165,13 +158,6 @@ public:
   int getContentsMargin(Side side) const;
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Removes and deletes all child widgets and nested layouts.
-   *
-   * This is similar to WContainerWidget::clear(), with the exception that
-   * the layout itself is not deleted.
-   */
-  virtual void clear() = 0;
-
 protected:
   /*! \brief Create a layout.
    */
@@ -181,53 +167,29 @@ protected:
    *
    * Must be called whenever some properties of the layout have changed.
    */
-  void update(WLayoutItem *item = 0);
+  void update(WLayoutItem *item = nullptr);
 
-  /*! \brief Update the layout, adding the given layout <i>item</i>.
-   *
-   * Must be called from the implementation of addItem(WLayoutItem *)
-   */
-  void updateAddItem(WLayoutItem *item);
+  void itemAdded(WLayoutItem *item);
+  void itemRemoved(WLayoutItem *item);
 
-  /*! \brief Update the layout, remove the given layout <i>item</i>.
-   *
-   * Must be called from the implementation of removeItem(WLayoutItem *)
-   */
-  void updateRemoveItem(WLayoutItem *item);
+  virtual void setParentWidget(WWidget *parent) override;
+  void setImpl(std::unique_ptr<WLayoutImpl> impl);
 
-  /*! \brief Set the layout in the <i>parent</i>.
-   *
-   * Must be called from the constructor after the layout has been fully
-   * created (since it will call virtual methods count() and itemAt()).
-   */
-  void setLayoutInParent(WWidget *parent);
-
-  /*! \brief Clears and deletes an item.
-   *
-   * This also deletes nested widgets and layouts.
-   *
-   * \sa clear()
-   */
-  void clearLayoutItem(WLayoutItem *item);
+  LayoutImplementation implementation() const;
+  LayoutImplementation preferredImplementation() const;
+  virtual void updateImplementation();
 
 private:
-  struct Hint {
-    Hint(const std::string& aName, const std::string& aValue)
-      : name(aName), value(aValue) { }
-    std::string name;
-    std::string value;
-  };
+  WLayout *parentLayout_;
+  WWidget *parentWidget_;
+  std::unique_ptr<int[]> margins_;
+  std::unique_ptr<WLayoutImpl> impl_;
+  LayoutImplementation preferredImplementation_;
 
-  typedef std::vector<Hint> HintsList;
-
-  int    *WT_ARRAY margins_;
-  WLayoutItemImpl *impl_;
-  HintsList       *hints_;
-
-  virtual void setParentWidget(WWidget *parent);
-  virtual void setParentLayout(WLayout *parentLayout);
+  virtual void setParentLayout(WLayout *parentLayout) override;
 
   friend class WWidget;
+  friend class WContainerWidget;
 };
 
 }

@@ -7,8 +7,8 @@
 #ifndef RENDER_WTEXT_RENDERER_H_
 #define RENDER_WTEXT_RENDERER_H_
 
-#include <Wt/WString>
-#include <Wt/WWebWidget>
+#include <Wt/WString.h>
+#include <Wt/WWebWidget.h>
 
 namespace Wt {
   /*! \brief Namespace for the \ref render
@@ -55,8 +55,8 @@ struct LayoutBox;
  * - only "display: inline" or "display: block" elements are supported.
  *   "display: none" and "display: inline-block" are not (yet) recognized. 
  * - only colors defined in terms of RGB values are supported: CSS named colors
- *   (e.g. 'blue') are not allowed.
- * - Bidi (Right-to-Left) text rendering is not supported
+ *   (e.g. 'StandardColor::Blue') are not allowed.
+ * - Bidi (Side::Right-to-Side::Left) text rendering is not supported
  *
  * The renderer is not CSS compliant (simply because it is still lacking
  * alot of features), but the subset of CSS that is supported is a pragmatic
@@ -222,7 +222,7 @@ public:
    *
    * setStyleSheetText stores all parse errors inside. Use
    * getStyleSheetParseErrors to access information about them.
-   * Information is newline(\ n) seperated.
+   * Icon::Information is newline(\ n) seperated.
    *
    * \sa setStyleSheetText(const WString& contents)
   */
@@ -322,7 +322,7 @@ private:
   WPaintDevice *device_;
   double fontScale_;
   WString styleSheetText_;
-  StyleSheet* styleSheet_;
+  std::unique_ptr<StyleSheet> styleSheet_;
   std::string error_;
 
   WPainter *painter() const { return painter_; }

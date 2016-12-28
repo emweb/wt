@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Http/WtClient"
-#include "Wt/WException"
+#include "Wt/Http/WtClient.h"
+#include "Wt/WException.h"
 
 #include <sstream>
-#include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
+#include <regex>
+
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 
@@ -37,7 +37,7 @@ namespace {
 
     boost::asio::io_service io_service;
 
-    // Get a list of endpoints corresponding to the server name.
+    // Method::Get a list of endpoints corresponding to the server name.
     tcp::resolver resolver(io_service);
 
     tcp::resolver::query query(host, port);
@@ -126,29 +126,27 @@ void WtClient::startWtSession(const std::string& host,
   int status = doGet(host, port, url, &result);
 
   if (status != 200)
-    throw WException("Http status != 200: "
-		     + boost::lexical_cast<std::string>(status));    
+    throw WException("Http status != 200: " + std::to_string(status));    
 
-  static const boost::regex session_e(".*\\?wtd=([a-zA-Z0-9]+)&amp;.*");
+  static const std::regex session_e(".*\\?wtd=([a-zA-Z0-9]+)&amp;.*");
 
   std::string sessionId;
-  boost::smatch what;
-  if (boost::regex_match(result, what, session_e))
+  std::smatch what;
+  if (std::regex_match(result, what, session_e))
     sessionId = what[1];
   else
     throw WException("Unexpected response");
 
   url = path + "?wtd=" + sessionId;
-  if (flags & SupportsAjax)
+  if (flags.test(ClientOption::SupportsAjax))
     url += "&request=script";
   else
     url += "&js=no";
 
-  status = doGet(host, port, url, 0);
+  status = doGet(host, port, url, nullptr);
 
   if (status != 200)
-    throw WException("Http status != 200: "
-		      + boost::lexical_cast<std::string>(status));
+    throw WException("Http status != 200: " + std::to_string(status));
 }
 
   }

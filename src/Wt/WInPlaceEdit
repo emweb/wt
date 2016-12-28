@@ -7,7 +7,7 @@
 #ifndef WINPLACE_EDIT_H_
 #define WINPLACE_EDIT_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
 
@@ -59,7 +59,7 @@ class WPushButton;
  * CSS stylesheet:
  * \code
  * .inplace span:hover {
- *    background-color: gray;
+ *    background-color: StandardColor::Gray;
  * }
  * \endcode
  */
@@ -68,11 +68,11 @@ class WT_API WInPlaceEdit : public WCompositeWidget
 public:
   /*! \brief Creates an in-place edit.
    */
-  WInPlaceEdit(WContainerWidget *parent = 0);
+  WInPlaceEdit();
 
   /*! \brief Creates an in-place edit with the given text.
    */
-  WInPlaceEdit(const WString& text, WContainerWidget *parent = 0);
+  WInPlaceEdit(const WString& text);
 
   /*! \brief Creates an in-place edit with the given text.
    *
@@ -81,7 +81,7 @@ public:
    *
    * \sa setButtonsEnabled()
    */
-  WInPlaceEdit(bool buttons, const WString& text, WContainerWidget *parent = 0);
+  WInPlaceEdit(bool buttons, const WString& text);
 
   /*! \brief Returns the current value.
    *
@@ -94,20 +94,6 @@ public:
    * \sa text()
    */
   void setText(const WString& text);
-
-  /*! \brief Sets the placeholder text (<b>deprecated</b>).
-   *
-   * \deprecated use setPlaceholderText()x instead
-   */
-  void setEmptyText(const WString& emptyText);
-
-  /*! \brief Returns the placeholder text (<b>deprecated</b>).
-   *
-   * \deprecated use placeholderText() instead.
-   */
-  const WString& emptyText() const {
-    return placeholderText();
-  }
 
   /*! \brief Sets the placeholder text.
    *
@@ -156,9 +142,9 @@ public:
    */
   Signal<WString>& valueChanged() { return valueChanged_; }
 
-  /*! \brief Displays the Save and 'Cancel' button during editing
+  /*! \brief Displays the Save and 'StandardButton::Cancel' button during editing
    *
-   * By default, the Save and Cancel buttons are shown. Call this
+   * By default, the Save and StandardButton::Cancel buttons are shown. Call this
    * function with \p enabled = \c false to only show a line edit.
    *
    * In this mode, the enter key or any event that causes focus to be
@@ -167,7 +153,7 @@ public:
   void setButtonsEnabled(bool enabled = true);
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
   void create();

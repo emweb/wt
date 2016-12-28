@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WAbstractProxyModel"
+#include "Wt/WAbstractProxyModel.h"
 
 namespace Wt {
 
@@ -13,23 +13,23 @@ namespace Wt {
 WAbstractProxyModel::BaseItem::~BaseItem()
 { }
 
-WAbstractProxyModel::WAbstractProxyModel(WObject *parent)
-  : WAbstractItemModel(parent),
-    sourceModel_(0)
+WAbstractProxyModel::WAbstractProxyModel()
+  : sourceModel_(nullptr)
 { }
 
-void WAbstractProxyModel::setSourceModel(WAbstractItemModel *sourceModel)
+void WAbstractProxyModel
+::setSourceModel(const std::shared_ptr<WAbstractItemModel>& sourceModel)
 {
   sourceModel_ = sourceModel;
 }
 
-boost::any WAbstractProxyModel::data(const WModelIndex& index, int role) const
+cpp17::any WAbstractProxyModel::data(const WModelIndex& index, int role) const
 {
   return sourceModel_->data(mapToSource(index), role);
 }
 
 bool WAbstractProxyModel::setData(const WModelIndex& index,
-				  const boost::any& value, int role)
+				  const cpp17::any& value, int role)
 {
   return sourceModel_->setData(mapToSource(index), value, role);
 }
@@ -92,9 +92,11 @@ WModelIndex WAbstractProxyModel::fromRawIndex(void *rawIndex) const
   return mapFromSource(sourceModel_->fromRawIndex(rawIndex));
 }
 
-WFlags<HeaderFlag> WAbstractProxyModel::headerFlags(int section, Orientation orientation) const
+WFlags<HeaderFlag> WAbstractProxyModel::headerFlags(int section, 
+						    Orientation orientation)
+  const
 {
-  if (orientation == Wt::Horizontal) {
+  if (orientation == Wt::Orientation::Horizontal) {
     section = mapToSource(index(0, section, Wt::WModelIndex())).column();
   } else {
     section = mapToSource(index(section, 0, Wt::WModelIndex())).row();
@@ -102,9 +104,10 @@ WFlags<HeaderFlag> WAbstractProxyModel::headerFlags(int section, Orientation ori
   return sourceModel_->headerFlags(section, orientation);
 }
 
-boost::any WAbstractProxyModel::headerData(int section, Orientation orientation, int role) const
+cpp17::any WAbstractProxyModel::headerData(int section, Orientation orientation,
+					int role) const
 {
-  if (orientation == Wt::Horizontal) {
+  if (orientation == Wt::Orientation::Horizontal) {
     section = mapToSource(index(0, section, Wt::WModelIndex())).column();
   } else {
     section = mapToSource(index(section, 0, Wt::WModelIndex())).row();
@@ -195,7 +198,7 @@ void WAbstractProxyModel::shiftModelIndexes(const WModelIndex& sourceParent,
 	 sourceParent);
     } else {
       delete item;
-      shifted[i] = 0;
+      shifted[i] = nullptr;
     }
   }
 

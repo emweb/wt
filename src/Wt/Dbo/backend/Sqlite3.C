@@ -4,17 +4,21 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/backend/Sqlite3"
-#include "Wt/Dbo/Exception"
+#include "Wt/Dbo/backend/Sqlite3.h"
+#include "Wt/Dbo/Exception.h"
 
 #ifdef SQLITE3_BDB
 #include <db.h>
 #endif // SQLITE3_BDB
 #include <sqlite3.h>
+#include <ctime>
 #include <iostream>
+#include <sstream>
 #include <math.h>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
+
+#ifdef WT_WIN32
+#define timegm _mkgmtime
+#endif
 
 //#define DEBUG(x) x
 #define DEBUG(x)
@@ -53,10 +57,12 @@ public:
 
 #if SQLITE_VERSION_NUMBER >= 3003009
     int err = sqlite3_prepare_v2(db_.connection(), sql.c_str(),
-				 static_cast<int>(sql.length() + 1), &st_, 0);
+				 static_cast<int>(sql.length() + 1), &st_, 
+				 nullptr);
 #else
     int err = sqlite3_prepare(db_.connection(), sql.c_str(),
-			      static_cast<int>(sql.length() + 1), &st_, 0);
+			      static_cast<int>(sql.length() + 1), &st_, 
+			      nullptr);
 #endif
 
     handleErr(err);
@@ -138,52 +144,86 @@ public:
     handleErr(err);
   }
 
-  virtual void bind(int column, const boost::posix_time::time_duration & value)
+  virtual void bind(int column, const std::chrono::duration<int, std::milli> & value)
   {
+    std::chrono::system_clock::time_point tp(value);
+    std::time_t t = std::chrono::system_clock::to_time_t(tp);
+    std::tm *tm = std::gmtime(&t);
+    char mbstr[100];
+    std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+    std::string v = mbstr;
+    std::stringstream ss;
+    ss << "." << ms.count()%1000;
+    v.append(ss.str());
     DEBUG(std::cerr << this << " bind " << column << " "
-	  << boost::posix_time::to_simple_string(value) << std::endl);
+          << v << std::endl);
 
-    long long msec = value.total_milliseconds();   
-
+    long long msec = (tm->tm_hour * 3600 + tm->tm_min * 60 + tm->tm_sec)*1000 + ms.count()%1000;
     int err = sqlite3_bind_int64(st_, column + 1, msec);
 
     handleErr(err);
   }
 
-  virtual void bind(int column, const boost::posix_time::ptime& value,
+  virtual void bind(int column, const std::chrono::system_clock::time_point& value,
 		    SqlDateTimeType type)
   {
-    Sqlite3::DateTimeStorage storageType = db_.dateTimeStorage(type);
+    DateTimeStorage storageType = db_.dateTimeStorage(type);
+    std::time_t t = std::chrono::system_clock::to_time_t(value);
+    std::tm *tm = std::gmtime(&t);
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch());
 
     switch (storageType) {
-    case Sqlite3::ISO8601AsText:
-    case Sqlite3::PseudoISO8601AsText: {
+    case DateTimeStorage::ISO8601AsText:
+    case DateTimeStorage::PseudoISO8601AsText: {
       std::string v;
-      if (type == SqlDate)
-	v = boost::gregorian::to_iso_extended_string(value.date());
+      char str[100];
+      if (type == SqlDateTimeType::Date){
+        std::strftime(str, sizeof(str), "%Y-%m-%d", tm);
+        v = str;
+      }
       else {
-	v = boost::posix_time::to_iso_extended_string(value);
+        std::strftime(str, sizeof(str), "%Y-%m-%dT%H:%M:%S", tm);
+        v = str;
+        std::stringstream ss;
+        ss << "." << ms.count()%1000;
+        v.append(ss.str());
 
-	if (storageType == Sqlite3::PseudoISO8601AsText)
+	if (storageType == DateTimeStorage::PseudoISO8601AsText)
 	  v[v.find('T')] = ' ';
       }
 
       bind(column, v);
       break;
     }
-    case Sqlite3::JulianDaysAsReal:
-      if (type == SqlDate)
-	bind(column, static_cast<double>(value.date().julian_day()));
+    case DateTimeStorage::JulianDaysAsReal: {
+      int a = floor((14 - tm->tm_mon + 1)/12);
+      int nyears = tm->tm_year + 1900 + 4800 - a;
+      int nmonths = tm->tm_mon + 1 + 12*a - 3;
+      int julianday = tm->tm_mday + floor((153*nmonths + 2)/5) + 365*nyears + floor(nyears/4) - floor(nyears/100) + floor(nyears/400) - 32045;
+      if (type == SqlDateTimeType::Date)
+        bind(column, static_cast<double>(julianday));
       else {
-	bind(column, value.date().julian_day()
-	     + value.time_of_day().total_microseconds() / USEC_PER_DAY);
+        long long msec = (tm->tm_hour * 3600 + tm->tm_min * 60 + tm->tm_sec)*1000 + ms.count()%1000;
+        bind(column, julianday
+         + msec / USEC_PER_DAY);
       }
       break;
-    case Sqlite3::UnixTimeAsInteger:
+    }
+    case DateTimeStorage::UnixTimeAsInteger:
+      std::tm tmEpoch = std::tm();
+      tmEpoch.tm_mday = 1;
+      tmEpoch.tm_mon = 0;
+      tmEpoch.tm_year = 70;
+      std::time_t tEpoch = timegm(&tmEpoch);
+      std::chrono::system_clock::time_point tpEpoch = std::chrono::system_clock::from_time_t(tEpoch);
+      std::chrono::system_clock::time_point diff = std::chrono::system_clock::time_point(value - tpEpoch);
+      std::time_t tdiff = std::chrono::system_clock::to_time_t(diff);
+      std::tm *tmDiff = std::gmtime(&tdiff);
+      std::chrono::milliseconds millis = std::chrono::duration_cast<std::chrono::milliseconds>(diff.time_since_epoch());
       bind(column,
 	   static_cast<long long>
-	   ((value - boost::posix_time::ptime
-	     (boost::gregorian::date(1970, 1, 1))).total_seconds()));
+       ((tmDiff->tm_hour * 3600 + tmDiff->tm_min * 60 + tmDiff->tm_sec)*1000 + millis.count()%1000));
       break;
     };
   }
@@ -349,43 +389,44 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, boost::posix_time::time_duration *value)
+  virtual bool getResult(int column, std::chrono::duration<int, std::milli> *value)
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
 
     long long msec = sqlite3_column_int64(st_, column);
-    boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
-      boost::posix_time::time_duration::ticks_per_second() / 1000;
 
-    *value = boost::posix_time::time_duration(0, 0, 0,
-					      msec * ticks_per_msec);
+    *value = std::chrono::hours(0) + std::chrono::milliseconds(msec);
 
     DEBUG(std::cerr << this 
-	  << " result time_duration " << column << " " << *value << std::endl);
+      << " result time_duration " << column << " " << *value.count() << std::endl);
 
     return true;
   }
 
-  virtual bool getResult(int column, boost::posix_time::ptime *value,
+  virtual bool getResult(int column, std::chrono::system_clock::time_point *value,
 			 SqlDateTimeType type)
   {
-    Sqlite3::DateTimeStorage storageType = db_.dateTimeStorage(type);
-
-    *value = boost::posix_time::not_a_date_time;
+    DateTimeStorage storageType = db_.dateTimeStorage(type);
 
     switch (storageType) {
-    case Sqlite3::ISO8601AsText:
-    case Sqlite3::PseudoISO8601AsText: {
+    case DateTimeStorage::ISO8601AsText:
+    case DateTimeStorage::PseudoISO8601AsText: {
       std::string v;
       if (!getResult(column, &v, -1))
 	return false;
 
       try {
-	if (type == SqlDate)
-	  *value = boost::posix_time::ptime(boost::gregorian::from_string(v),
-					    boost::posix_time::hours(0));
-	else {
+    if (type == SqlDateTimeType::Date){
+      int year, month, day;
+      std::sscanf(v.c_str(), "%d-%d-%d", &year, &month, &day);
+      std::tm tm = std::tm();
+      tm.tm_year = year - 1900;
+      tm.tm_mon = month - 1;
+      tm.tm_mday = day;
+      std::time_t t = timegm(&tm);
+      *value = std::chrono::system_clock::from_time_t(t);
+    } else {
 	  std::size_t t = v.find('T');
 
 	  if (t != std::string::npos)
@@ -393,7 +434,18 @@ public:
 	  if (v.length() > 0 && v[v.length() - 1] == 'Z')
 	    v.erase(v.length() - 1);
 
-	  *value = boost::posix_time::time_from_string(v);
+      int year, month, day, hour, min, sec, ms;
+      std::sscanf(v.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &min, &sec, &ms);
+      std::tm tm = std::tm();
+      tm.tm_year = year - 1900;
+      tm.tm_mon = month - 1;
+      tm.tm_mday = day;
+      tm.tm_hour = hour;
+      tm.tm_min = min;
+      tm.tm_sec = sec;
+      std::time_t timet = timegm(&tm);
+      *value = std::chrono::system_clock::from_time_t(timet);
+      *value += std::chrono::milliseconds(ms);
 	}
       } catch (std::exception& e) {
 	std::cerr << "Sqlite3::getResult(ptime): " << e.what() << std::endl;
@@ -402,39 +454,43 @@ public:
 
       return true;
     }
-    case Sqlite3::JulianDaysAsReal: {
+    case DateTimeStorage::JulianDaysAsReal: {
       double v;
       if (!getResult(column, &v))
 	return false;
 
       int vi = static_cast<int>(v);
 
-      if (type == SqlDate)
-	*value = boost::posix_time::ptime(fromJulianDay(vi),
-					  boost::posix_time::hours(0));
+      if (type == SqlDateTimeType::Date)
+        *value = fromJulianDay(vi);
       else {
-	double vf = modf(v, &v);
-	boost::gregorian::date d = fromJulianDay(vi);
-	boost::posix_time::time_duration t
-          = boost::posix_time::microseconds((long long)(vf * USEC_PER_DAY));
-	*value = boost::posix_time::ptime(d, t);
+        double vf = modf(v, &v);
+        std::chrono::system_clock::time_point d = fromJulianDay(vi);
+        d += std::chrono::microseconds((int)(vf * USEC_PER_DAY));
+        *value = d;
       }
 
       return true;
     }
-    case Sqlite3::UnixTimeAsInteger: {
+    case DateTimeStorage::UnixTimeAsInteger: {
       long long v;
 
       if (!getResult(column, &v))
-	return false;
-
-      boost::posix_time::ptime t
-	= boost::posix_time::from_time_t(static_cast<std::time_t>(v));
-      if (type == SqlDate)
-	*value = boost::posix_time::ptime(t.date(),
-					  boost::posix_time::hours(0));
+        return false;
+      std::chrono::system_clock::time_point tp =
+	std::chrono::system_clock::from_time_t(static_cast<std::time_t>(v));
+      if (type == SqlDateTimeType::Date){
+        std::time_t t = std::chrono::system_clock::to_time_t(tp);
+        std::tm *tm = std::gmtime(&t);
+        std::tm time = std::tm();
+        time.tm_year = tm->tm_year;
+        time.tm_mon = tm->tm_mon;
+        time.tm_mday = tm->tm_mday;
+        std::time_t t2 = timegm(&time);
+        *value = std::chrono::system_clock::from_time_t(t2);
+      }
       else
-	*value = t;
+        *value = tp;
 
       return true;
     }
@@ -488,7 +544,7 @@ private:
     }
   }
 
-  boost::gregorian::date fromJulianDay(int julian) {
+  std::chrono::system_clock::time_point fromJulianDay(int julian) {
     int day, month, year;
 
     if (julian < 0) {
@@ -524,15 +580,23 @@ private:
     --year;
   }
 
-  return boost::gregorian::date(year, month, day);
+  std::tm tm = std::tm();
+  tm.tm_year = year - 1900;
+  tm.tm_mon = month - 1;
+  tm.tm_mday = day;
+  std::time_t t = timegm(&tm);
+
+  return std::chrono::system_clock::from_time_t(t);
   }
 };
 
 Sqlite3::Sqlite3(const std::string& db)
   : conn_(db)
 {
-  dateTimeStorage_[SqlDate] = ISO8601AsText;
-  dateTimeStorage_[SqlDateTime] = ISO8601AsText;
+  dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::Date)]
+    = DateTimeStorage::ISO8601AsText;
+  dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::DateTime)]
+    = DateTimeStorage::ISO8601AsText;
 
   int err = sqlite3_open(conn_.c_str(), &db_);
 
@@ -546,8 +610,12 @@ Sqlite3::Sqlite3(const Sqlite3& other)
   : SqlConnection(other),
     conn_(other.conn_)
 {
-  dateTimeStorage_[SqlDate] = other.dateTimeStorage_[SqlDate];
-  dateTimeStorage_[SqlDateTime] = other.dateTimeStorage_[SqlDateTime];
+  dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::Date)] 
+    = other
+    .dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::Date)];
+  dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::DateTime)] 
+    = other
+    .dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::DateTime)];
 
   int err = sqlite3_open(conn_.c_str(), &db_);
 
@@ -571,9 +639,9 @@ Sqlite3::~Sqlite3()
   sqlite3_close(db_);
 }
 
-Sqlite3 *Sqlite3::clone() const
+std::unique_ptr<SqlConnection> Sqlite3::clone() const
 {
-  return new Sqlite3(*this);
+  return std::unique_ptr<SqlConnection>(new Sqlite3(*this));
 }
 
 SqlStatement *Sqlite3::prepareStatement(const std::string& sql)
@@ -612,16 +680,16 @@ std::string Sqlite3::autoincrementInsertSuffix(const std::string& id) const
 
 const char *Sqlite3::dateTimeType(SqlDateTimeType type) const
 {
-  if (type == SqlTime)
+  if (type == SqlDateTimeType::Time)
     return "integer";
   else
     switch (dateTimeStorage(type)) {
-    case ISO8601AsText:
-    case PseudoISO8601AsText:
+    case DateTimeStorage::ISO8601AsText:
+    case DateTimeStorage::PseudoISO8601AsText:
       return "text";
-    case JulianDaysAsReal:
+    case DateTimeStorage::JulianDaysAsReal:
       return "real";
-    case UnixTimeAsInteger:
+    case DateTimeStorage::UnixTimeAsInteger:
       return "integer";
     }
 
@@ -643,12 +711,12 @@ bool Sqlite3::supportDeferrableFKConstraint() const
 void Sqlite3::setDateTimeStorage(SqlDateTimeType type,
 				 DateTimeStorage storage)
 {
-  dateTimeStorage_[type] = storage;
+  dateTimeStorage_[static_cast<unsigned>(type)] = storage;
 }
 
-Sqlite3::DateTimeStorage Sqlite3::dateTimeStorage(SqlDateTimeType type) const
+DateTimeStorage Sqlite3::dateTimeStorage(SqlDateTimeType type) const
 {
-  return dateTimeStorage_[type];
+  return dateTimeStorage_[static_cast<unsigned>(type)];
 }
 
 void Sqlite3::startTransaction() 

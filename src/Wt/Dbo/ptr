@@ -8,12 +8,12 @@
 #define WT_DBO_DBO_PTR_H_
 
 #include <string>
-#include <Wt/Dbo/SqlTraits>
+#include <Wt/cpp17/any.hpp>
+#include <Wt/Dbo/SqlTraits.h>
 
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_base_of.hpp>
-#include <boost/type_traits/remove_const.hpp>
-#include <boost/type_traits/is_const.hpp>
+#include <memory>
+#include <sstream>
+#include <type_traits>
 
 namespace Wt {
 
@@ -314,7 +314,7 @@ struct dbo_traits : public dbo_default_traits
    * corresponding to the object's id.
    *
    * You can disable this auto-incrementing surrogate id by returning
-   * \c 0 instead. In that case you will need to define a natural id
+   * \c nullptr instead. In that case you will need to define a natural id
    * for your class using Wt::Dbo::id().
    */
   static const char *surrogateIdField();
@@ -332,7 +332,7 @@ struct dbo_traits : public dbo_default_traits
    * version field.
    *
    * You can disable optimistic locking using a version field all
-   * together for your class by returning \c 0 instead.
+   * together for your class by returning \c nullptr instead.
    */
   static const char *versionField();
 #endif // DOXYGEN_ONLY
@@ -360,12 +360,17 @@ public:
   void reread();
   virtual void doTransactionDone(bool success);
 
-  bool isLoaded() const { return obj_ != 0; }
+  bool isLoaded() const { return obj_ != nullptr; }
   C *obj();
   void setObj(C *obj);
 
   void setId(const IdType& id) { id_ = id; }
   IdType id() const { return id_; }
+  std::string idStr() const {
+    std::stringstream s;
+    s << id();
+    return s.str();
+  }
 
   int version() const;
 
@@ -449,8 +454,8 @@ public:
 
   /*! \brief Returns the session.
    *
-   * Returns the session to which this object belongs, or 0 if the object
-   * is not associated with a session.
+   * Returns the session to which this object belongs, or \c nullptr
+   * if the object is not associated with a session.
    */
   Session *session() const;
 
@@ -491,7 +496,7 @@ private:
 };
 
 template <class C>
-struct DboHelper<C, typename boost::enable_if<boost::is_base_of<Dbo<C>, C> >::type>
+struct DboHelper<C, typename std::enable_if<std::is_base_of<Dbo<C>, C>::value>::type>
 {
   static void setMeta(C& obj, MetaDbo<C> *m) { obj.meta_ = m; }
 };
@@ -558,7 +563,7 @@ template <class C>
 class ptr : public ptr_base
 {
 private:
-  typedef typename boost::remove_const<C>::type MutC;
+  typedef typename std::remove_const<C>::type MutC;
 public:
   typedef C pointed;
 
@@ -578,12 +583,15 @@ public:
 
   ptr();
 
+  ptr(std::nullptr_t);
+
   /*! \brief Creates a new pointer.
    *
-   * When \p obj is not 0, the pointer points to the new unpersisted
-   * object. Use Session::add() to persist the newly created object.
+   * When \p obj is not \c nullptr, the pointer points to the new
+   * unpersisted object. Use Session::add() to persist the newly
+   * created object.
    */
-  ptr(C *obj);
+  ptr(std::unique_ptr<C> obj);
 
   /*! \brief Copy constructor.
    */
@@ -606,7 +614,7 @@ public:
    * p = ptr<C>(obj);
    * \endcode
    */
-  void reset(C *obj = 0);
+  void reset(std::unique_ptr<C> obj = nullptr);
 
   /*! \brief Assignment operator.
    */
@@ -739,11 +747,7 @@ public:
    *
    * Returns true if the pointer is pointing to a non-null object.
    */
-#ifdef DOXYGEN_ONLY
   explicit operator bool() const;
-#else
-  WT_CXX11ONLY(explicit) operator bool() const;
-#endif
 
   /*! \brief Flushes the object.
    *
@@ -820,7 +824,8 @@ public:
 
   /*! \brief Returns the session with which this pointer is associated.
    *
-   * This may return 0 if the pointer is null or not added to a session.
+   * This may return \c nullptr if the pointer is null or not added to
+   * a session.
    */
   Session *session() const;
 
@@ -851,6 +856,16 @@ private:
   friend std::ostream& operator<< <> (std::ostream& o, const ptr<C>& ptr);
 };
 
+/*! \brief Make a new ptr
+ *
+ * TODO(Roel): doc!
+ */
+template<typename T, typename ...Args>
+ptr<T> make_ptr( Args&& ...args )
+{
+  return ptr<T>(std::unique_ptr<T>(new T(std::forward<Args>(args)...)));
+}
+
 template <class C>
 struct query_result_traits< ptr<C> >
 {
@@ -861,8 +876,8 @@ struct query_result_traits< ptr<C> >
   static ptr<C> load(Session& session, SqlStatement& statement,
 		     int& column);
 
-  static void getValues(const ptr<C>& ptr, std::vector<boost::any>& values);
-  static void setValue(const ptr<C>& ptr, int& index, const boost::any& value);
+  static void getValues(const ptr<C>& ptr, std::vector<cpp17::any>& values);
+  static void setValue(const ptr<C>& ptr, int& index, const cpp17::any& value);
 
   static ptr<C> create();
   static void add(Session& session, ptr<C>& ptr);

@@ -7,7 +7,7 @@
 #ifndef STD_GRID_LAYOUT_IMPL2_H_
 #define STD_GRID_LAYOUT_IMPL2_H_
 
-#include <Wt/WGridLayout>
+#include <Wt/WGridLayout.h>
 #include "StdLayoutImpl.h"
 
 namespace Wt {
@@ -22,28 +22,25 @@ public:
   StdGridLayoutImpl2(WLayout *layout, Impl::Grid& grid);
   virtual ~StdGridLayoutImpl2();
 
-  virtual int minimumWidth() const;
-  virtual int minimumHeight() const;
+  virtual int minimumWidth() const override;
+  virtual int minimumHeight() const override;
 
-  virtual void updateAddItem(WLayoutItem *);
-  virtual void updateRemoveItem(WLayoutItem *);
-  virtual void update(WLayoutItem *);
-  virtual DomElement *createDomElement(bool fitWidth, bool fitHeight,
-				       WApplication *app);
-  virtual void updateDom(DomElement& parent);
+  virtual void itemAdded(WLayoutItem *) override;
+  virtual void itemRemoved(WLayoutItem *) override;
 
-  static bool useJavaScriptHeights(WApplication *app);
+  virtual void updateDom(DomElement& parent) override;
 
-  virtual void setHint(const std::string& name, const std::string& value);
+  virtual void update(WLayoutItem *) override;
+
+  virtual DomElement *createDomElement(DomElement *parent,
+				       bool fitWidth, bool fitHeight,
+				       WApplication *app) override;
 
   // Does not really belong here, but who cares ?
   static const char* childrenResizeJS();
 
-  virtual bool itemResized(WLayoutItem *item);
-  virtual bool parentResized();
-
-protected:
-  virtual void containerAddWidgets(WContainerWidget *container);
+  virtual bool itemResized(WLayoutItem *item) override;
+  virtual bool parentResized() override;
 
 private:
   Impl::Grid& grid_;

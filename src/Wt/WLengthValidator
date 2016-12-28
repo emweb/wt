@@ -9,7 +9,7 @@
 
 #include <limits>
 
-#include <Wt/WValidator>
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -45,11 +45,12 @@ class WT_API WLengthValidator : public WValidator
 public:
   /*! \brief Creates a length validator that accepts input of any length.
    */
-  WLengthValidator(WObject *parent = 0);
+  WLengthValidator();
 
-  /*! \brief Creates a length validator that accepts input within a length range.
+  /*! \brief Creates a length validator that accepts input within a length
+   *         range.
    */
-  WLengthValidator(int minLength, int maxLength, WObject *parent = 0);
+  WLengthValidator(int minLength, int maxLength);
 
   /*! \brief Sets the minimum length.
    *
@@ -80,9 +81,7 @@ public:
    * The input is considered valid only when it is blank for a non-mandatory
    * field, or has a length within the valid range.
    */
-  virtual Result validate(const WT_USTRING& input) const;
-
-  virtual void createExtConfig(std::ostream& config) const;
+  virtual Result validate(const WT_USTRING& input) const override;
 
   /*! \brief Sets the message to display when the input is too short.
    *
@@ -113,7 +112,7 @@ public:
    */
   WString invalidTooLongText() const;
 
-  std::string javaScriptValidate() const;
+  virtual std::string javaScriptValidate() const override;
 
 private:
   int minLength_;

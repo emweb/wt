@@ -4,91 +4,50 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WGlobal.h>
 #include <memory>
 #include <stdexcept>
-
-#include "Wt/WRandom"
-
-#ifdef WT_NO_BOOST_RANDOM
-#if WT_WIN32
-
-// Don't link to boost_random
-#define BOOST_RANDOM_NO_LIB
-
-// And when compiling, don't add declspec to the classnames.
-// We have our own implementation of random_device.cpp (older boosts
-// didn't support windows well)
-#ifdef BOOST_ALL_DYN_LINK
-#undef BOOST_ALL_DYN_LINK
-#endif
-#ifdef BOOST_RANDOM_DYN_LINK
-#undef BOOST_RANDOM_DYN_LINK
-#endif
-
-#endif
-#endif // WT_NO_BOOST_RANDOM
-
-#include <boost/nondet_random.hpp>
-
-#if defined(__linux__) || defined(__APPLE_CC__)
-#define USE_NDT_RANDOM_DEVICE
-#endif
-
-#if defined(WT_WIN32) || defined(__CYGWIN__)
-#define USE_NDT_RANDOM_DEVICE
-#include <process.h> // for getpid()
-#include <stdlib.h>
-#include <windows.h>
-#endif
+#include <sys/types.h>
+#include <random>
 
 #ifdef WT_THREADED
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 #endif
 
-#ifndef USE_NDT_RANDOM_DEVICE
-#include <stdlib.h>
-#endif
+#include "Wt/WRandom.h"
 
 #include "Wt/WDllDefs.h"
-
-#ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
-#else
-#define AUTO_PTR std::auto_ptr
-#endif
 
 namespace {
   class RandomDevice
   {
   public:
-#ifdef USE_NDT_RANDOM_DEVICE
-    boost::random_device rnd;
-#else
+    std::random_device rnd;
     RandomDevice()
     {
-      srand48(getpid());
     }
-#endif
   };
 
 #ifdef WT_THREADED
-  boost::mutex randomInstanceMutex;
+  std::mutex randomInstanceMutex;
 #endif // WT_THREADED
 
-  AUTO_PTR<RandomDevice> instance;
+  std::unique_ptr<RandomDevice> instance;
 }
 
 namespace Wt {
   
 unsigned int WRandom::get()
 {
-#ifdef USE_NDT_RANDOM_DEVICE
   if (!instance.get()) {
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock l(randomInstanceMutex);
+    std::unique_lock<std::mutex> l(randomInstanceMutex);
     if (!instance.get())
-#endif
       instance.reset(new RandomDevice);
+#else
+    instance.reset(new RandomDevice);
+#endif
   }
   try {
     return instance->rnd();
@@ -96,15 +55,12 @@ unsigned int WRandom::get()
     // Some people fork and reported that random_device does stop working
     // after the fork.
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock l(randomInstanceMutex);
+    std::unique_lock<std::mutex> l(randomInstanceMutex);
 #endif
     instance.reset(new RandomDevice);
     // If this still fails, something is really wrong.
     return instance->rnd();
   }
-#else
-  return lrand48();
-#endif
 }
 
 std::string WRandom::generateId(int length)
@@ -123,6 +79,5 @@ std::string WRandom::generateId(int length)
 
   return result;
 }
-
 
 }

@@ -4,13 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WPointF"
+#include "Wt/WPointF.h"
 
-#include "Wt/WLogger"
-#include "Wt/WStringStream"
+#include "Wt/WLogger.h"
+#include "Wt/WStringStream.h"
 
-#include "Wt/Json/Array"
-#include "Wt/Json/Value"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Value.h"
 
 #include "web/WebUtils.h"
 

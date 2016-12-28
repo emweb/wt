@@ -8,7 +8,9 @@
 #define WREGEXPVALIDATOR_H_
 
 #include <limits>
-#include <Wt/WValidator>
+#include <regex>
+
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -17,18 +19,12 @@ class WRegExp;
 /*! \class WRegExpValidator Wt/WRegExpValidator Wt/WRegExpValidator
  *  \brief A validator that checks user input against a regular expression.
  *
- * This validator checks whether user input matches the given (perl-like)
- * regular expression. It checks the complete input; prefix ^ and suffix $
- * are not needed.
+ * This validator checks whether user input matches the given regular
+ * expression. It checks the complete input; prefix ^ and suffix $ are
+ * not needed.
  *
- * The following perl features are not supported (since client-side validation
- * cannot handle them):
- * <ul>
- *   <li>No Lookbehind support, i.e. the constructs (?<=text) and (?<!text).
- *     </li>
- *   <li>No atomic grouping, i.e. the construct (?>group).</li>
- *   <li>No conditional expressions, i.e. the consturct (?ifthen|else).</li>
- * </ul>
+ * The regex should be specified using ECMAScript syntax
+ * (http://en.cppreference.com/w/cpp/regex/ecmascript)
  *
  * Usage example:
  * \if cpp
@@ -50,7 +46,7 @@ class WRegExp;
  * \endif
  *
  * \note This validator does not fully support unicode: it matches on the
- * UTF8-encoded representation of the string.
+ * CharEncoding::UTF8-encoded representation of the string.
  *
  * <h3>i18n</h3>
  *
@@ -63,15 +59,23 @@ class WT_API WRegExpValidator : public WValidator
 public:
   /*! \brief Sets a new regular expression validator.
    */
-  WRegExpValidator(WObject *parent = 0);
+  WRegExpValidator();
 
   /*! \brief Sets a new regular expression validator that accepts input
    *         that matches the given regular expression.
    *
-   * This constructs a validator that matches the perl regular
-   * expression \p expr.
+   * This constructs a validator that matches the regular expression
+   * \p expr.
    */
-  WRegExpValidator(const WT_USTRING& pattern, WObject *parent = 0);
+  WRegExpValidator(const WT_USTRING& pattern);
+
+  /*! \brief Sets a new regular expression validator that accepts input
+   *         that matches the given regular expression.
+   *
+   * This constructs a validator that matches the regular expression
+   * \p expr.
+   */
+  WRegExpValidator(const std::regex& pattern);
 
   /*! \brief Destructor.
    */
@@ -83,28 +87,28 @@ public:
    */
   void setRegExp(const WT_USTRING& pattern);
 
+  /*! \brief Sets the regular expression for valid input.
+   */
+  void setRegExp(const std::regex& pattern);
+
   /*! \brief Returns the regular expression for valid input.
    *
    * Returns the perl regular expression.
    */
-  WT_USTRING regExp() const;
+  WT_USTRING regExpPattern() const { return pattern_; }
 
-  /*! \brief Sets regular expression matching flags.
+  /*! \brief Returns the regular expression for valid input.
+   *1
+   * Returns the perl regular expression.
    */
-  void setFlags(WFlags<RegExpFlag> flags);
-
-  /*! \brief Returns regular expression matching flags.
-   */
-  WFlags<RegExpFlag> flags() const;
+  std::regex regExp() const { return regex_; }
 
   /*! \brief Validates the given input.
    *
    * The input is considered valid only when it is blank for a
    * non-mandatory field, or matches the regular expression.
    */
-  virtual Result validate(const WT_USTRING& input) const;
-
-  virtual void createExtConfig(std::ostream& config) const;
+  virtual Result validate(const WT_USTRING& input) const override;
 
   /*! \brief Sets the text to be shown if no match can be found.
    *
@@ -124,12 +128,12 @@ public:
    */
   WString invalidNoMatchText() const;
 
-  virtual std::string javaScriptValidate() const;
+  virtual std::string javaScriptValidate() const override;
 
 private:
-  WRegExp *regexp_;
-  WString  noMatchText_;
-
+  WT_USTRING pattern_;
+  std::regex regex_;
+  WString noMatchText_;
   static void loadJavaScript(WApplication *app);
 };
 

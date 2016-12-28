@@ -1,29 +1,29 @@
-#include <Wt/WBrush>
-#include <Wt/WColor>
-#include <Wt/WContainerWidget>
-#include <Wt/WPaintDevice>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPainter>
+#include <Wt/WBrush.h>
+#include <Wt/WColor.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPainter.h>
 
 class StyleWidget : public Wt::WPaintedWidget
 {
 public:
-    StyleWidget(Wt::WContainerWidget *parent = 0)
-	: Wt::WPaintedWidget(parent)
+    StyleWidget()
+        : WPaintedWidget()
     {
 	resize(310, 1140);  // Provide a default size.
     }
 
 protected:
     void paintEvent(Wt::WPaintDevice *paintDevice) {
-	Wt::WPainter painter(paintDevice);
+        Wt::WPainter painter(paintDevice);
 
 	// Draw a grid of rectangles; each one in a different color.
 	for (int row = 0; row < 6; row++)
 	    for (int col = 0; col < 6; col++) {
 		// Generate a unique RGB color for each square. Only the red and
 		// green values are modified; the blue channel has a fixed value.
-		Wt::WBrush brush(Wt::WColor(255 - 42*row, 255 - 42*col, 0));
+	        Wt::WBrush brush(Wt::WColor(255 - 42*row, 255 - 42*col, 0));
 		painter.fillRect(row*25, col*25, 25, 25, brush);
 	    }
 
@@ -36,7 +36,7 @@ protected:
 	    for (int col = 0; col < 6; col++) {
 		// Generate a unique RGB color for each circle. Only the green and
 		// blue values are modified; the red channel has a fixed value.
-		Wt::WPainterPath path;
+	        Wt::WPainterPath path;
 		path.addEllipse(3 + col*25, 3 + row*25, 20, 20);
 		pen.setColor(Wt::WColor(0, 255 - 42*row, 255 - 42*col));
 		painter.strokePath(path, pen);
@@ -46,15 +46,15 @@ protected:
 	painter.translate(0, 160);
 	// Transparency example with rectangles
 	// Create a background composed of 4 stacked rectangles.
-	painter.fillRect(0, 0, 150, 37.5, Wt::WBrush(Wt::yellow));
-	painter.fillRect(0, 37.5, 150, 37.5, Wt::WBrush(Wt::green));
-	painter.fillRect(0, 75, 150, 37.5, Wt::WBrush(Wt::blue));
-	painter.fillRect(0, 112.5, 150, 37.5, Wt::WBrush(Wt::red));
+	painter.fillRect(0, 0, 150, 37.5, Wt::WBrush(Wt::WColor(Wt::StandardColor::Yellow)));
+	painter.fillRect(0, 37.5, 150, 37.5, Wt::WBrush(Wt::WColor(Wt::StandardColor::Green)));
+	painter.fillRect(0, 75, 150, 37.5, Wt::WBrush(Wt::WColor(Wt::StandardColor::Blue)));
+	painter.fillRect(0, 112.5, 150, 37.5, Wt::WBrush(Wt::WColor(Wt::StandardColor::Red)));
 	// On top of these draw semi transparent rectangles with increasing opacity
 	for (int i = 0; i < 10; i++) {
 	    Wt::WBrush brush = Wt::WBrush(Wt::WColor(255, 255, 255, 255/10*i));
 	    for (int j = 0; j < 4; j++) {
-		Wt::WPainterPath path;
+	        Wt::WPainterPath path;
 		path.addRect(5 + i*14, 5 + j*37.5, 14, 27.5);
 		painter.fillPath(path, brush);
 	    }
@@ -63,10 +63,10 @@ protected:
 	painter.translate(0, 160);
 	// Transparency example with circles
 	// Create a square composed of four different colored squares.
-	painter.fillRect(0, 0, 75, 75, Wt::WBrush(Wt::yellow));
-	painter.fillRect(75, 0, 75, 75, Wt::WBrush(Wt::green));
-	painter.fillRect(0, 75, 75, 75, Wt::WBrush(Wt::blue));
-	painter.fillRect(75, 75, 75, 75, Wt::WBrush(Wt::red));
+	painter.fillRect(0, 0, 75, 75, Wt::WBrush(Wt::WColor(Wt::StandardColor::Yellow)));
+	painter.fillRect(75, 0, 75, 75, Wt::WBrush(Wt::WColor(Wt::StandardColor::Green)));
+	painter.fillRect(0, 75, 75, 75, Wt::WBrush(Wt::WColor(Wt::StandardColor::Blue)));
+	painter.fillRect(75, 75, 75, 75,Wt::WBrush(Wt::WColor(Wt::StandardColor::Red)));
 
 	// On top of these draw a set of semi-transparant white circles with
 	// increasing diameter. The final result is a radial gradient.
@@ -80,7 +80,7 @@ protected:
 	painter.translate(0, 170);
 	// Gradient Brush example
 	// Rectangle with a linear gradient from left top to right bottom
-	painter.setPen(Wt::WPen(Wt::NoPen));
+	painter.setPen(Wt::WPen(Wt::PenStyle::None));
 	Wt::WGradient linGrad;
 	linGrad.setLinearGradient(0, 0, 100, 150);
 	linGrad.addColorStop(0, Wt::WColor(255, 0, 0, 255));
@@ -140,7 +140,7 @@ protected:
 	    }
 
 	    pen = Wt::WPen();
-	    pen.setCapStyle(Wt::FlatCap);   // Now, all lines will have equal length.
+	    pen.setCapStyle(Wt::PenCapStyle::Flat);   // Now, all lines will have equal length.
 	    pen.setWidth(i+1);
 	    painter.strokePath(path, pen);
 	}
@@ -155,7 +155,7 @@ protected:
 	guidePath.lineTo(150,10);
 	guidePath.moveTo(0,140);
 	guidePath.lineTo(150,140);
-	pen = Wt::WPen(Wt::blue);
+	pen = Wt::WPen(Wt::WColor(Wt::StandardColor::Blue));
 	painter.strokePath(guidePath, pen);
 
 	// Draw lines with different cap styles
@@ -170,17 +170,17 @@ protected:
 
 	pen = Wt::WPen();
 	pen.setWidth(20);
-	pen.setCapStyle(Wt::FlatCap);
+	pen.setCapStyle(Wt::PenCapStyle::Flat);
 	painter.strokePath(paths[0], pen);
 
 	pen = Wt::WPen();
 	pen.setWidth(20);
-	pen.setCapStyle(Wt::SquareCap);
+	pen.setCapStyle(Wt::PenCapStyle::Square);
 	painter.strokePath(paths[1], pen);
 
 	pen = Wt::WPen();
 	pen.setWidth(20);
-	pen.setCapStyle(Wt::RoundCap);
+	pen.setCapStyle(Wt::PenCapStyle::Round);
 	painter.strokePath(paths[2], pen);
 
 	painter.translate(0, 170);
@@ -205,7 +205,7 @@ protected:
 	// connect at a single point.
 	pen = Wt::WPen();
 	pen.setWidth(20);
-	pen.setJoinStyle(Wt::MiterJoin);
+	pen.setJoinStyle(Wt::PenJoinStyle::Miter);
 	painter.strokePath(paths[0], pen);
 
 	// Draw the second path with bevel joins.
@@ -214,7 +214,7 @@ protected:
 	// segment.
 	pen = Wt::WPen();
 	pen.setWidth(20);
-	pen.setJoinStyle(Wt::BevelJoin);
+	pen.setJoinStyle(Wt::PenJoinStyle::Bevel);
 	painter.strokePath(paths[1], pen);
 
 	// Draw the third path with round joins.
@@ -223,14 +223,14 @@ protected:
 	// radius of the rounded corners is equal to the line width.
 	pen = Wt::WPen();
 	pen.setWidth(20);
-	pen.setJoinStyle(Wt::RoundJoin);
+	pen.setJoinStyle(Wt::PenJoinStyle::Round);
 	painter.strokePath(paths[2], pen);
     }
 };
 
 SAMPLE_BEGIN(PaintingStyle)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-new StyleWidget(container);
+container->addWidget(Wt::cpp14::make_unique<StyleWidget>());
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

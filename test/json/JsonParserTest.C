@@ -6,9 +6,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/version.hpp>
 
-#include <Wt/Json/Parser>
-#include <Wt/Json/Object>
-#include <Wt/Json/Array>
+#include <Wt/Json/Parser.h>
+#include <Wt/Json/Object.h>
+#include <Wt/Json/Array.h>
 
 #include <fstream>
 #include <streambuf>
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE( json_parse_empty_test )
   Json::Value result;
   Json::parse("{}", result);
 
-  BOOST_REQUIRE(result.type() == Json::ObjectType);
+  BOOST_REQUIRE(result.type() == Json::Type::Object);
   BOOST_REQUIRE(((const Json::Object&) result).empty());
 }
 
@@ -77,9 +77,7 @@ BOOST_AUTO_TEST_CASE( json_parse_strings_test )
   const WString& s2 = result.get("s2");
   BOOST_REQUIRE(s2 == "escaped: \\ \t \n \b \r");
   const WString& s3 = result.get("s3");
-#ifndef WT_NO_STD_WSTRING
   BOOST_REQUIRE(s3 == L"unicode: \x0194");
-#endif
 }
 
 BOOST_AUTO_TEST_CASE( json_structure_test )
@@ -156,37 +154,35 @@ BOOST_AUTO_TEST_CASE( json_utf8_test )
   WString s10 = result.get("U-0000FFFD = ef bf bd");
   WString s11 = result.get("U-0010FFFF = f4 8f bf bf");
 
-#ifndef WT_NO_STD_WSTRING
-  std::wstring ws1 = s1.value();
-  std::wstring ws2 = s2.value();
-  std::wstring ws3 = s3.value();
-  std::wstring ws4 = s4.value();
-  std::wstring ws5 = s5.value();
-  std::wstring ws6 = s6.value();
-  std::wstring ws7 = s7.value();
-  std::wstring ws8 = s8.value();
-  std::wstring ws9 = s9.value();
-  std::wstring ws10 = s10.value();
-  std::wstring ws11 = s11.value();
+  std::u32string u32s1 = s1.toUTF32();
+  std::u32string u32s2 = s2.toUTF32();
+  std::u32string u32s3 = s3.toUTF32();
+  std::u32string u32s4 = s4.toUTF32();
+  std::u32string u32s5 = s5.toUTF32();
+  std::u32string u32s6 = s6.toUTF32();
+  std::u32string u32s7 = s7.toUTF32();
+  std::u32string u32s8 = s8.toUTF32();
+  std::u32string u32s9 = s9.toUTF32();
+  std::u32string u32s10 = s10.toUTF32();
+  std::u32string u32s11 = s11.toUTF32();
 
-  BOOST_REQUIRE(ws1[0] == 954);
-  BOOST_REQUIRE(ws1[1] == 8057);
-  BOOST_REQUIRE(ws1[2] == 963);
-  BOOST_REQUIRE(ws1[3] == 956);
-  BOOST_REQUIRE(ws1[4] == 949);
-  BOOST_REQUIRE(ws2[0] == 128);
-  BOOST_REQUIRE(ws3[0] == 2048);
-  BOOST_REQUIRE(ws4[0] == 65533 || ws4[0] == 65536);
-  BOOST_REQUIRE(ws5[0] == 127);
-  BOOST_REQUIRE(ws6[0] == 2047);
-  BOOST_REQUIRE(ws7[0] == 65535);
-  BOOST_REQUIRE(ws8[0] == 55295);
-  BOOST_REQUIRE(ws9[0] == 57344);
-  BOOST_REQUIRE(ws10[0] == 65533);
-  BOOST_REQUIRE(ws11[0] == '?'); // should this really be rejected?
+  BOOST_REQUIRE(u32s1[0] == 954);
+  BOOST_REQUIRE(u32s1[1] == 8057);
+  BOOST_REQUIRE(u32s1[2] == 963);
+  BOOST_REQUIRE(u32s1[3] == 956);
+  BOOST_REQUIRE(u32s1[4] == 949);
+  BOOST_REQUIRE(u32s2[0] == 128);
+  BOOST_REQUIRE(u32s3[0] == 2048);
+  BOOST_REQUIRE(u32s4[0] == 65533 || u32s4[0] == 65536);
+  BOOST_REQUIRE(u32s5[0] == 127);
+  BOOST_REQUIRE(u32s6[0] == 2047);
+  BOOST_REQUIRE(u32s7[0] == 65535);
+  BOOST_REQUIRE(u32s8[0] == 55295);
+  BOOST_REQUIRE(u32s9[0] == 57344);
+  BOOST_REQUIRE(u32s10[0] == 65533);
+  BOOST_REQUIRE(u32s11[0] == '?'); // should this really be rejected?
 
   BOOST_REQUIRE(result.size() == 11);
-#endif
 }
 
 

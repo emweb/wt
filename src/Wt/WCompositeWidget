@@ -7,7 +7,7 @@
 #ifndef WCOMPOSITE_WIDGET_H_
 #define WCOMPOSITE_WIDGET_H_
 
-#include <Wt/WWidget>
+#include <Wt/WWidget.h>
 
 namespace Wt {
 
@@ -53,122 +53,129 @@ public:
    * You need to set an implemetation using setImplementation() directly
    * after construction.
    */
-  WCompositeWidget(WContainerWidget* parent = 0);
+  WCompositeWidget();
 
   /*! \brief Creates a %WCompositeWidget with given implementation.
    *
    * \sa setImplementation()
    */
-  WCompositeWidget(WWidget *implementation, WContainerWidget* parent);
+  WCompositeWidget(std::unique_ptr<WWidget> implementation);
 
   ~WCompositeWidget();
 
-  using WWidget::removeChild;
+  virtual std::vector<WWidget *> children() const override;
+  virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
+  virtual void setObjectName(const std::string& name) override;
+  virtual std::string objectName() const override;
+  virtual const std::string id() const override;
 
-  virtual void setObjectName(const std::string& name);
-  virtual std::string objectName() const;
-  virtual const std::string id() const;
-
-  virtual void setPositionScheme(PositionScheme scheme);
-  virtual PositionScheme positionScheme() const;
-  virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All);
-  virtual WLength offset(Side s) const;
-  virtual void resize(const WLength& width, const WLength& height);
-  virtual WLength width() const;
-  virtual WLength height() const;
-  virtual void setMinimumSize(const WLength& width, const WLength& height);
-  virtual WLength minimumWidth() const;
-  virtual WLength minimumHeight() const;
-  virtual void setMaximumSize(const WLength& width, const WLength& height);
-  virtual WLength maximumWidth() const;
-  virtual WLength maximumHeight() const;
-  virtual void setLineHeight(const WLength& height);
-  virtual WLength lineHeight() const;
-  virtual void setFloatSide(Side s);
-  virtual Side floatSide() const;
-  virtual void setClearSides(WFlags<Side> sides);
-  virtual WFlags<Side> clearSides() const;
-  virtual void setMargin(const WLength& margin, WFlags<Side> sides = All);
-  virtual WLength margin(Side side) const;
-  virtual void setHiddenKeepsGeometry(bool enabled);
-  virtual bool hiddenKeepsGeometry() const;
-  virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
-  virtual bool isHidden() const;
-  virtual bool isVisible() const;
-  virtual void setDisabled(bool disabled);
-  virtual bool isDisabled() const;
-  virtual bool isEnabled() const;
-  virtual void setPopup(bool popup);
-  virtual bool isPopup() const;
-  virtual void setInline(bool isInline);
-  virtual bool isInline() const;
-  virtual void setDecorationStyle(const WCssDecorationStyle& style);
-  virtual WCssDecorationStyle& decorationStyle();
-  virtual const WCssDecorationStyle& decorationStyle() const;
-  virtual void setStyleClass(const WT_USTRING& styleClass);
+  virtual void setPositionScheme(PositionScheme scheme) override;
+  virtual PositionScheme positionScheme() const override;
+  virtual void setOffsets(const WLength& offset, WFlags<Side> sides = AllSides)
+    override;
+  virtual WLength offset(Side s) const override;
+  virtual void resize(const WLength& width, const WLength& height) override;
+  virtual WLength width() const override;
+  virtual WLength height() const override;
+  virtual void setMinimumSize(const WLength& width, const WLength& height)
+    override;
+  virtual WLength minimumWidth() const override;
+  virtual WLength minimumHeight() const override;
+  virtual void setMaximumSize(const WLength& width, const WLength& height)
+    override;
+  virtual WLength maximumWidth() const override;
+  virtual WLength maximumHeight() const override;
+  virtual void setLineHeight(const WLength& height) override;
+  virtual WLength lineHeight() const override;
+  virtual void setFloatSide(Side s) override;
+  virtual Side floatSide() const override;
+  virtual void setClearSides(WFlags<Side> sides) override;
+  virtual WFlags<Side> clearSides() const override;
+  virtual void setMargin(const WLength& margin, WFlags<Side> sides = AllSides)
+    override;
+  virtual WLength margin(Side side) const override;
+  virtual void setHiddenKeepsGeometry(bool enabled) override;
+  virtual bool hiddenKeepsGeometry() const override;
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation()) override;
+  virtual bool isHidden() const override;
+  virtual bool isVisible() const override;
+  virtual void setDisabled(bool disabled) override;
+  virtual bool isDisabled() const override;
+  virtual bool isEnabled() const override;
+  virtual void setPopup(bool popup) override;
+  virtual bool isPopup() const override;
+  virtual void setInline(bool isInline) override;
+  virtual bool isInline() const override;
+  virtual void setDecorationStyle(const WCssDecorationStyle& style) override;
+  virtual WCssDecorationStyle& decorationStyle() override;
+  virtual const WCssDecorationStyle& decorationStyle() const override;
+  virtual void setStyleClass(const WT_USTRING& styleClass) override;
   void setStyleClass(const char *styleClass);
-  virtual WT_USTRING styleClass() const;
-  virtual void addStyleClass(const WT_USTRING& styleClass, bool force = false);
+  virtual WT_USTRING styleClass() const override;
+  virtual void addStyleClass(const WT_USTRING& styleClass, bool force = false)
+    override;
   void addStyleClass(const char *styleClass, bool force = false);
   virtual void removeStyleClass(const WT_USTRING& styleClass,
-				bool force = false);
+				bool force = false) override;
   void removeStyleClass(const char *styleClass, bool force = false);
-  virtual bool hasStyleClass(const WT_USTRING& styleClass) const;
+  virtual bool hasStyleClass(const WT_USTRING& styleClass) const override;
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length = WLength::Auto);
-  virtual AlignmentFlag verticalAlignment() const;
-  virtual WLength verticalAlignmentLength() const;
-  virtual WWebWidget *webWidget();
+				    const WLength& length = WLength::Auto)
+    override;
+  virtual AlignmentFlag verticalAlignment() const override;
+  virtual WLength verticalAlignmentLength() const override;
+  virtual WWebWidget *webWidget() override;
   virtual void setToolTip(const WString& text,
-			  TextFormat textFormat = PlainText);
-  virtual WString toolTip() const;
+			  TextFormat textFormat = TextFormat::Plain)
+    override;
+  virtual WString toolTip() const override;
   virtual void setDeferredToolTip(bool enable,
-                                  TextFormat textFormat = PlainText);
-  virtual void refresh();
+                                  TextFormat textFormat = TextFormat::Plain)
+    override;
+  virtual void refresh() override;
   virtual void setAttributeValue(const std::string& name,
-				 const WT_USTRING& value);
-  virtual WT_USTRING attributeValue(const std::string& name) const;
+				 const WT_USTRING& value) override;
+  virtual WT_USTRING attributeValue(const std::string& name) const override;
   virtual void setJavaScriptMember(const std::string& name,
-				   const std::string& value);
-  virtual std::string javaScriptMember(const std::string& name) const;
+				   const std::string& value) override;
+  virtual std::string javaScriptMember(const std::string& name) const override;
   virtual void callJavaScriptMember(const std::string& name,
-				    const std::string& args);
-  virtual void load();
-  virtual bool loaded() const;
-  virtual void setCanReceiveFocus(bool enabled);
-  virtual bool canReceiveFocus() const;
-  virtual void setFocus(bool focus);
-  virtual bool setFirstFocus();
-  virtual bool hasFocus() const;
-  virtual void setTabIndex(int index);
-  virtual int tabIndex() const;
-  virtual int zIndex() const;
-  virtual void setId(const std::string& id);
-  virtual WWidget *find(const std::string& name);
-  virtual WWidget *findById(const std::string& name);
-  virtual void setSelectable(bool selectable);  
-  virtual void doJavaScript(const std::string& js);
-  virtual void propagateSetEnabled(bool enabled);
-  virtual void propagateSetVisible(bool visible);
+				    const std::string& args) override;
+  virtual void load() override;
+  virtual bool loaded() const override;
+  virtual void setCanReceiveFocus(bool enabled) override;
+  virtual bool canReceiveFocus() const override;
+  virtual void setFocus(bool focus) override;
+  virtual bool setFirstFocus() override;
+  virtual bool hasFocus() const override;
+  virtual void setTabIndex(int index) override;
+  virtual int tabIndex() const override;
+  virtual int zIndex() const override;
+  virtual void setId(const std::string& id) override;
+  virtual WWidget *find(const std::string& name) override;
+  virtual WWidget *findById(const std::string& name) override;
+  virtual void setSelectable(bool selectable) override;
+  virtual void doJavaScript(const std::string& js) override;
+  virtual void propagateSetEnabled(bool enabled) override;
+  virtual void propagateSetVisible(bool visible) override;
 
 #ifndef WT_TARGET_JAVA
   using WWidget::setFocus;
 #endif
 
-  virtual bool scrollVisibilityEnabled() const WT_CXX11ONLY(final override);
-  virtual void setScrollVisibilityEnabled(bool enabled) WT_CXX11ONLY(final override);
-  virtual int scrollVisibilityMargin() const WT_CXX11ONLY(final override);
-  virtual void setScrollVisibilityMargin(int margin) WT_CXX11ONLY(final override);
-  virtual Signal<bool> &scrollVisibilityChanged() WT_CXX11ONLY(final override);
-  virtual bool isScrollVisible() const WT_CXX11ONLY(final override);
+  virtual bool scrollVisibilityEnabled() const final override;
+  virtual void setScrollVisibilityEnabled(bool enabled) final override;
+  virtual int scrollVisibilityMargin() const final override;
+  virtual void setScrollVisibilityMargin(int margin) final override;
+  virtual Signal<bool> &scrollVisibilityChanged() final override;
+  virtual bool isScrollVisible() const final override;
 
 protected:
-  virtual void addChild(WWidget *child);
-  virtual void removeChild(WWidget *child);
-  virtual void setHideWithOffsets(bool how);
+  virtual void setHideWithOffsets(bool how) override;
 
-  virtual bool isStubbed() const;
-  virtual void enableAjax();
+  virtual bool isStubbed() const override;
+  virtual void enableAjax() override;
 
   /*! \brief Set the implementation widget
    *
@@ -178,30 +185,43 @@ protected:
    * \note You cannot change the implementation of a composite widget after
    *       it has been rendered.
    */
-  void setImplementation(WWidget *widget);
+  void setImplementation(std::unique_ptr<WWidget> widget);
+
+  template <typename Widget>
+    Widget *setImplementation(std::unique_ptr<Widget> widget)
+  {
+    Widget *result = widget.get();
+    setImplementation(std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
+
+  template <typename W, typename... Args>
+  W *setNewImplementation(Args&&... args)
+  {
+    std::unique_ptr<W> w(new W(std::forward<Args>(args)...));
+    W *result = w.get();
+    setImplementation(std::move(w));
+    return result;
+  }
  
-  /*! \brief Get the implementation widget
+  /*! \brief Method::Get the implementation widget
    *
    * This returns the widget that implements this compositeWidget.
    */
-  WWidget* implementation() { return impl_; };
+  WWidget* implementation() { return impl_.get(); }
 
-  WWidget *takeImplementation();
+  std::unique_ptr<WWidget> takeImplementation();
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
-			      WApplication *app);
-  virtual bool needsToBeRendered() const;
+			      WApplication *app) override;
+  virtual bool needsToBeRendered() const override;
 
-  virtual int boxPadding(Orientation orientation) const;
-  virtual int boxBorder(Orientation orientation) const;
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual int boxPadding(Orientation orientation) const override;
+  virtual int boxBorder(Orientation orientation) const override;
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
-  WWidget *impl_;
-
-  virtual void setLayout(WLayout *layout);
-  virtual WLayout *layout();
-  virtual WLayoutItemImpl *createLayoutItemImpl(WLayoutItem *layoutItem);
+  std::unique_ptr<WWidget> impl_;
 };
 
 }

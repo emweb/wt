@@ -14,7 +14,7 @@
 
 namespace boost {
   namespace asio {
-class const_buffer;
+    class const_buffer;
   }
 }
 

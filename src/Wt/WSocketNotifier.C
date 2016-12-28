@@ -4,22 +4,20 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WSocketNotifier"
-#include "Wt/WApplication"
+#include "Wt/WSocketNotifier.h"
+#include "Wt/WApplication.h"
 
 #include "WebController.h"
 #include "WebSession.h"
 
 namespace Wt {
 
-WSocketNotifier::WSocketNotifier(int socket, Type type, WObject *parent)
-  : WObject(parent),
-    socket_(socket),
+WSocketNotifier::WSocketNotifier(int socket, Type type)
+  : socket_(socket),
     type_(type),
     enabled_(false),
     beingNotified_(false),
-    sessionId_(WApplication::instance()->sessionId()),
-    activated_(this)
+    sessionId_(WApplication::instance()->sessionId())
 {
   setEnabled(true);
 }
@@ -53,18 +51,11 @@ void WSocketNotifier::notify()
 {
   beingNotified_ = true;
 
-  /*
-   * use this connection to know if the notifier was killed while
-   * processing the notification
-   */
-  Wt::Signals::connection alive
-    = activated_.connect(this, &WSocketNotifier::dummy);
+  observing_ptr<WSocketNotifier> self(this);
 
   activated_.emit(socket_);
 
-  if (alive.connected()) {
-    alive.disconnect();
-
+  if (self) {
     beingNotified_ = false;
 
     if (enabled_)

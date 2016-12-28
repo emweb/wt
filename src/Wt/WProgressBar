@@ -8,7 +8,7 @@
 #ifndef WPROGRESSBAR_H_
 #define WPROGRESSBAR_H_
 
-#include <Wt/WInteractWidget>
+#include <Wt/WInteractWidget.h>
 
 namespace Wt {
 
@@ -31,7 +31,7 @@ class WT_API WProgressBar : public WInteractWidget
 public:
   /*! \brief Creates a progress bar.
    */
-  WProgressBar(WContainerWidget *parent = 0);
+  WProgressBar();
 
   /*! \brief Sets the minimum value.
    *
@@ -116,7 +116,7 @@ public:
    */
   Signal<>& progressCompleted() { return progressCompleted_; }
 
-  virtual void resize(const WLength& width, const WLength& height);
+  virtual void resize(const WLength& width, const WLength& height) override;
 
   void setValueStyleClass(const std::string& valueClass);
   void setState(double minimum, double maximum, double value);
@@ -134,9 +134,9 @@ protected:
    */
   virtual void updateBar(DomElement& bar);
 
-  virtual void updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual void           propagateRenderOk(bool deep);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual void           propagateRenderOk(bool deep) override;
 
 private:
   double min_, max_, value_;

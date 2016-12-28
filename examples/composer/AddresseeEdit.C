@@ -7,30 +7,30 @@
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WStringUtil.h>
 
 #include "AddresseeEdit.h"
 #include "Label.h"
 
-AddresseeEdit::AddresseeEdit(const WString& label, WContainerWidget *parent,
-			     WContainerWidget *labelParent)
-  : WTextArea(parent)
+AddresseeEdit::AddresseeEdit(const WString& label, WContainerWidget *labelParent)
+  : WTextArea()
 {
-  label_ = new Label(label, labelParent);
+  label_ = labelParent->addWidget(cpp14::make_unique<Label>(label, labelParent));
 
   setRows(3); setColumns(55);
-  resize(WLength(99, WLength::Percentage), WLength::Auto);
+  resize(WLength(99, LengthUnit::Percentage), WLength::Auto);
 
   setInline(false); // for IE to position the suggestions well
 }
 
 void AddresseeEdit::setAddressees(const std::vector<Contact>& contacts)
 {
-  std::wstring text;
+  std::u32string text;
 
   for (unsigned i = 0; i < contacts.size(); ++i) {
     if (i != 0)
-      text += L", ";
+      text += U", ";
     text += contacts[i].formatted();
   }
 
@@ -39,14 +39,14 @@ void AddresseeEdit::setAddressees(const std::vector<Contact>& contacts)
 
 bool AddresseeEdit::parse(std::vector<Contact>& contacts) const
 {
-  typedef boost::tokenizer<boost::escaped_list_separator<wchar_t>,
+  typedef boost::tokenizer<boost::escaped_list_separator<char32_t>,
                            std::wstring::const_iterator, std::wstring>
     CsvTokenizer;
 
   std::wstring t = text();
   CsvTokenizer tok(t);
   
-  for (CsvTokenizer::iterator i = tok.begin(); i != tok.end(); ++i) {
+ for (CsvTokenizer::iterator i = tok.begin(); i != tok.end(); ++i) {
     std::wstring addressee = *i;
 
     boost::trim(addressee);
@@ -63,10 +63,10 @@ bool AddresseeEdit::parse(std::vector<Contact>& contacts) const
 	email = email.substr(0, email.length() - 1);
 
       if (!email.empty())
-	contacts.push_back(Contact(name, email));
+	contacts.push_back(Contact(Wt::toUTF32(name), Wt::toUTF32(email)));
     } else
       if (!addressee.empty())
-	contacts.push_back(Contact(L"", addressee));
+        contacts.push_back(Contact(U"", Wt::toUTF32(addressee)));
   }
   return true;
 }

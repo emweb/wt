@@ -21,7 +21,6 @@
 
 #include <time.h>
 #include <string>
-#include <boost/lexical_cast.hpp>
 
 #ifdef WT_WIN32
 // gmtime_r can be defined by mingw
@@ -483,8 +482,8 @@ void Reply::setConnection(ConnectionPtr connection)
 void Reply::receive()
 {
   connection_->strand().post
-    (boost::bind(&Connection::readMore, connection_,
-		 shared_from_this(), 120));
+    (std::bind(&Connection::readMore, connection_,
+	       shared_from_this(), 120));
 }
 
 void Reply::send()
@@ -492,17 +491,17 @@ void Reply::send()
   if (connection_->waitingResponse())
     connection_->setHaveResponse();
   else {
-    LOG_DEBUG(this << ": Reply: send(): scheduling write response.");
+    LOG_DEBUG("Reply: send(): scheduling write response.");
 
     // We post this since we want to avoid growing the stack indefinitely
     connection_->server()->service().post
       (connection_->strand().wrap
-       (boost::bind(&Connection::startWriteResponse, connection_,
-		    shared_from_this())));
+       (std::bind(&Connection::startWriteResponse, connection_,
+		  shared_from_this())));
   }
 }
 
-void Reply::detectDisconnect(const boost::function<void()>& callback)
+void Reply::detectDisconnect(const std::function<void()>& callback)
 {
   connection_->detectDisconnect(shared_from_this(), callback);
 }

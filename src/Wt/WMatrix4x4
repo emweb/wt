@@ -7,7 +7,7 @@
 #ifndef WMATRIX4X4_H_
 #define WMATRIX4X4_H_
 
-#include <Wt/WGenericMatrix>
+#include <Wt/WGenericMatrix.h>
 
 namespace Wt {
 
@@ -131,7 +131,7 @@ public:
    * the operation succeeded and the inverse matrix is returned. Else,
    * this method returns the unit matrix.
    */
-  WMatrix4x4 inverted(bool *invertible = 0) const;
+  WMatrix4x4 inverted(bool *invertible = nullptr) const;
 
   /*! \brief Apply a transformation to position a camera
    *

@@ -7,7 +7,7 @@
 #ifndef WT_JAVASCRIPT_PREAMBLE_H_
 #define WT_JAVASCRIPT_PREAMBLE_H_
 
-#include <Wt/WObject>
+#include <Wt/WObject.h>
 
 #define WT_JS(...) #__VA_ARGS__
 

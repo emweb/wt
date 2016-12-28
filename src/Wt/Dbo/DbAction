@@ -10,16 +10,14 @@
 #include <set>
 #include <string>
 #include <sstream>
+#include <type_traits>
 #include <vector>
 
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/collection>
-#include <Wt/Dbo/Field>
-#include <Wt/Dbo/SqlStatement>
-#include <Wt/Dbo/Session>
-
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_base_of.hpp>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/collection.h>
+#include <Wt/Dbo/Field.h>
+#include <Wt/Dbo/SqlStatement.h>
+#include <Wt/Dbo/Session.h>
 
 namespace Wt {
   namespace Dbo {
@@ -178,7 +176,7 @@ public:
   SaveBaseAction(Session *session, SqlStatement *statement, int column);
 
   SaveBaseAction(MetaDboBase& dbo, Impl::MappingInfo& mapping,
-		 SqlStatement *statement = 0, int column = 0);
+		 SqlStatement *statement = nullptr, int column = 0);
 
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
@@ -301,7 +299,7 @@ struct action_sets_value<SetReciproceAction> : boost::true_type { };
 class WTDBO_API ToAnysAction
 {
 public:
-  ToAnysAction(std::vector<boost::any>& result);
+  ToAnysAction(std::vector<cpp17::any>& result);
 
   template<class C> void visit(const ptr<C>& obj);
 
@@ -322,14 +320,14 @@ public:
 
 private:
   Session *session_;
-  std::vector<boost::any>& result_;
+  std::vector<cpp17::any>& result_;
   bool allEmpty_;
 };
 
 class WTDBO_API FromAnyAction
 {
 public:
-  FromAnyAction(int& index, const boost::any& value);
+  FromAnyAction(int& index, const cpp17::any& value);
 
   template<class C> void visit(const ptr<C>& obj);
 
@@ -351,7 +349,7 @@ public:
 private:
   Session *session_;
   int& index_;
-  const boost::any& value_;
+  const cpp17::any& value_;
 };
 
 template <>

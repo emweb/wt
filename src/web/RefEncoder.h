@@ -7,7 +7,7 @@
 #ifndef REF_ENCODER_H_
 #define REF_ENCODER_H_
 
-#include <Wt/WFlags>
+#include <Wt/WFlags.h>
 
 namespace Wt {
 

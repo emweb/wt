@@ -4,24 +4,23 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WRadioButton"
-#include "Wt/WButtonGroup"
+#include "Wt/WRadioButton.h"
+#include "Wt/WButtonGroup.h"
 
 #include "WebUtils.h"
 #include "DomElement.h"
 
 namespace Wt {
 
-WRadioButton::WRadioButton(WContainerWidget *parent)
-  : WAbstractToggleButton(parent),
-    buttonGroup_(0)
+WRadioButton::WRadioButton()
+  : buttonGroup_(nullptr)
 {
   setFormObject(true);
 }
 
-WRadioButton::WRadioButton(const WString& text, WContainerWidget *parent)
-  : WAbstractToggleButton(text, parent),
-    buttonGroup_(0)
+WRadioButton::WRadioButton(const WString& text)
+  : WAbstractToggleButton(text),
+    buttonGroup_(nullptr)
 {
   setFormObject(true);
 }
@@ -47,12 +46,12 @@ void WRadioButton::updateInput(DomElement& input, bool all)
 void WRadioButton::getFormObjects(FormObjectsMap& formObjects)
 {
   if (buttonGroup_)
-    formObjects[buttonGroup_->id()] = buttonGroup_;
+    formObjects[buttonGroup_->id()] = buttonGroup_.get();
 
   WAbstractToggleButton::getFormObjects(formObjects);
 }
 
-void WRadioButton::setGroup(WButtonGroup *group)
+void WRadioButton::setGroup(std::shared_ptr<WButtonGroup> group)
 {
   buttonGroup_ = group;
 }
@@ -68,7 +67,7 @@ void WRadioButton::setFormData(const FormData& formData)
     if (value == id()) {
       if (buttonGroup_) {
 	buttonGroup_->uncheckOthers(this);
-	state_ = Checked;
+	state_ = CheckState::Checked;
       }
     } else
       if (!buttonGroup_)

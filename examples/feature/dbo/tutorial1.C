@@ -9,8 +9,8 @@
  * http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html
  *****/
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 #include <string>
 
 namespace dbo = Wt::Dbo;
@@ -19,14 +19,14 @@ namespace dbo = Wt::Dbo;
  * Dbo tutorial section 2. Mapping a single class
  *****/
 
+enum class Role {
+  Visitor = 0,
+  Admin = 1,
+  Alien = 42
+};
+
 class User {
 public:
-  enum Role {
-    Visitor = 0,
-    Admin = 1,
-    Alien = 42
-  };
-
   std::string name;
   std::string password;
   Role        role;
@@ -54,10 +54,10 @@ void run()
    * For testing, we'll be using Sqlite3's special :memory: database. You
    * can replace this with an actual filename for actual persistence.
    */
-  dbo::backend::Sqlite3 sqlite3(":memory:");
-  sqlite3.setProperty("show-queries", "true");
+  std::unique_ptr<dbo::backend::Sqlite3> sqlite3(new dbo::backend::Sqlite3(":memory:"));
+  sqlite3->setProperty("show-queries", "true");
   dbo::Session session;
-  session.setConnection(sqlite3);
+  session.setConnection(std::move(sqlite3));
 
   session.mapClass<User>("user");
 
@@ -69,13 +69,13 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    User *user = new User();
+    std::unique_ptr<User> user{new User()};
     user->name = "Joe";
     user->password = "Secret";
-    user->role = User::Visitor;
+    user->role = Role::Visitor;
     user->karma = 13;
 
-    dbo::ptr<User> userPtr = session.add(user);
+    dbo::ptr<User> userPtr = session.add(std::move(user));
   }
 
   /*****
@@ -91,6 +91,9 @@ void run()
 
     dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >
       ("select u from user u").where("name = ?").bind("Joe");
+
+    int count = session.query<int>("select count(1) from user")
+      .where("name = ?").bind("Joe");
   }
 
   {
@@ -102,9 +105,9 @@ void run()
 
     std::cerr << "We have " << users.size() << " users:" << std::endl;
 
-    for (Users::const_iterator i = users.begin(); i != users.end(); ++i)
-      std::cerr << " user " << (*i)->name
-		<< " with karma of " << (*i)->karma << std::endl;
+    for (const dbo::ptr<User> &user : users)
+      std::cerr << " user " << user->name
+		<< " with karma of " << user->karma << std::endl;
   }
 
   /*****
@@ -130,7 +133,7 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    dbo::ptr<User> silly = session.add(new User());
+    dbo::ptr<User> silly = session.add(std::unique_ptr<User>{new User()});
     silly.modify()->name = "Silly";
     silly.remove();
   }

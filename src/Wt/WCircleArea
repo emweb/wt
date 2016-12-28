@@ -7,7 +7,7 @@
 #ifndef WCIRCLE_AREA_H_
 #define WCIRCLE_AREA_H_
 
-#include <Wt/WAbstractArea>
+#include <Wt/WAbstractArea.h>
 
 namespace Wt {
 
@@ -82,8 +82,8 @@ private:
   double x_, y_, r_;
 
 protected:
-  virtual bool updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
-  virtual std::string updateAreaCoordsJS() WT_CXX11ONLY(override);
+  virtual bool updateDom(DomElement& element, bool all) override;
+  virtual std::string updateAreaCoordsJS() override;
 };
 
 }

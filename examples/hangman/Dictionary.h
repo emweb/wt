@@ -10,6 +10,8 @@
 
 #include <string>
 
+using namespace Wt;
+
 enum Dictionary {
   DICT_EN = 0,
   DICT_NL = 1

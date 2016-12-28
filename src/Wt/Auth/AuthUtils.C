@@ -11,7 +11,7 @@
 #include "AuthUtils.h"
 #include "base64.h"
 
-#include "Wt/WRandom"
+#include "Wt/WRandom.h"
 
 namespace Wt {
   namespace Auth {

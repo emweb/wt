@@ -3,10 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Query"
+#include "Query.h"
 #include "Query_impl.h"
-#include "SqlTraits"
-#include "ptr"
+#include "SqlTraits.h"
+#include "ptr.h"
 
 #include <string>
 #include <boost/algorithm/string.hpp>
@@ -77,7 +77,7 @@ std::string addLimitQuery(const std::string& sql, int limit, int offset,
   std::string result = sql;
 
   switch (limitQueryMethod) {
-  case Limit:
+  case LimitQuery::Limit:
     if (limit != -1)
       result += " limit ?";
 
@@ -86,21 +86,21 @@ std::string addLimitQuery(const std::string& sql, int limit, int offset,
 
     break;
 
-  case RowsFromTo:
+  case LimitQuery::RowsFromTo:
     if (limit != -1 || offset != -1) {
       result += " rows ? to ?";
     }
 
     break;
 
-  case Rownum:
+  case LimitQuery::Rownum:
     if (limit != -1 && offset == -1)
       result = " select * from ( " + result + " ) where rownum <= ?";
     else if (limit != -1 && offset != -1)
       result = " select * from ( select row_.*, rownum rownum2 from ( " +
 	result + " ) row_ where rownum <= ?) where rownum2 > ?";
 
-  case NotSupported:
+  case LimitQuery::NotSupported:
     break;
   }
 

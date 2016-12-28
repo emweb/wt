@@ -6,9 +6,9 @@
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
-#include <Wt/WStandardItemModel>
-#include <Wt/WStandardItem>
-#include <Wt/WBatchEditProxyModel>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WStandardItem.h>
+#include <Wt/WBatchEditProxyModel.h>
 
 using namespace Wt;
 
@@ -18,15 +18,15 @@ namespace {
   std::string d(WAbstractItemModel *model, int row, int column,
 		const WModelIndex& parent = WModelIndex())
   {
-    return boost::any_cast<std::string>
-      (model->data(row, column, DisplayRole, parent));
+    return cpp17::any_cast<std::string>
+      (model->data(row, column, ItemDataRole::Display, parent));
   }
 }
 
 struct BatchEditFixture {
   BatchEditFixture() {
-    sourceModel_ = new WStandardItemModel(0, 4);
-    proxyModel_ = new WBatchEditProxyModel();
+    sourceModel_ = std::make_shared<WStandardItemModel>(0, 4);
+    proxyModel_ = std::make_shared<WBatchEditProxyModel>();
     proxyModel_->setSourceModel(sourceModel_);
 
     proxyModel_->setNewRowData(0, std::string("New column 0"));
@@ -38,13 +38,8 @@ struct BatchEditFixture {
     connectEvents(proxyModel_, ProxyModel);
   }
 
-  ~BatchEditFixture() {
-    delete proxyModel_;
-    delete sourceModel_;
-  }
-
-  Wt::WStandardItemModel *sourceModel_;
-  Wt::WBatchEditProxyModel *proxyModel_;
+  std::shared_ptr<Wt::WStandardItemModel> sourceModel_;
+  std::shared_ptr<Wt::WBatchEditProxyModel> proxyModel_;
 
   enum EventType { 
     RowsInserted,
@@ -63,37 +58,38 @@ struct BatchEditFixture {
 
   std::vector<ModelEvent> modelEvents_[2];
 
-  void connectEvents(WAbstractItemModel *model,
+  void connectEvents(std::shared_ptr<WAbstractItemModel> model,
 		     ModelType modelType)
   {
     typedef BatchEditFixture This;
+    using namespace std::placeholders;
 
     model->rowsAboutToBeInserted().connect
-      (boost::bind(&This::geometryChanged, this, _1, _2, _3,
+      (std::bind(&This::geometryChanged, this, _1, _2, _3,
 		   modelType, RowsInserted, false));
     model->rowsInserted().connect
-      (boost::bind(&This::geometryChanged, this, _1, _2, _3,
+      (std::bind(&This::geometryChanged, this, _1, _2, _3,
 		   modelType, RowsInserted, true));
 
     model->rowsAboutToBeRemoved().connect
-      (boost::bind(&This::geometryChanged, this, _1, _2, _3,
+      (std::bind(&This::geometryChanged, this, _1, _2, _3,
 		   modelType, RowsRemoved, false));
     model->rowsRemoved().connect
-      (boost::bind(&This::geometryChanged, this, _1, _2, _3,
+      (std::bind(&This::geometryChanged, this, _1, _2, _3,
 		   modelType, RowsRemoved, true));
 
     model->columnsAboutToBeInserted().connect
-      (boost::bind(&This::geometryChanged, this, _1, _2, _3,
+      (std::bind(&This::geometryChanged, this, _1, _2, _3,
 		   modelType, ColumnsInserted, false));
     model->columnsInserted().connect
-      (boost::bind(&This::geometryChanged, this, _1, _2, _3,
+      (std::bind(&This::geometryChanged, this, _1, _2, _3,
 		   modelType, ColumnsInserted, true));
 
     model->columnsAboutToBeRemoved().connect
-      (boost::bind(&This::geometryChanged, this, _1, _2, _3,
+      (std::bind(&This::geometryChanged, this, _1, _2, _3,
 		   modelType, ColumnsRemoved, false));
     model->columnsRemoved().connect
-      (boost::bind(&This::geometryChanged, this, _1, _2, _3,
+      (std::bind(&This::geometryChanged, this, _1, _2, _3,
 		   modelType, ColumnsRemoved, true));
   }
 
@@ -141,8 +137,8 @@ BOOST_AUTO_TEST_CASE( batchedit_test1 )
 {
   BatchEditFixture f;
 
-  WAbstractItemModel *sm = f.sourceModel_;
-  WAbstractItemModel *pm = f.proxyModel_;
+  auto sm = f.sourceModel_.get();
+  auto pm = f.proxyModel_.get();
 
   BOOST_REQUIRE(sm->columnCount() == 4);
   BOOST_REQUIRE(pm->columnCount() == 4);
@@ -165,10 +161,10 @@ BOOST_AUTO_TEST_CASE( batchedit_test1 )
   BOOST_REQUIRE(d(pm, 0, 2) == "New column 2");
   BOOST_REQUIRE(d(pm, 0, 3) == "New column 3");
 
-  pm->setData(1, 0, std::string("Column 0"), DisplayRole);
-  pm->setData(1, 1, std::string("Column 1"), DisplayRole);
-  pm->setData(1, 2, std::string("Column 2"), DisplayRole);
-  pm->setData(1, 3, std::string("Column 3"), DisplayRole);
+  pm->setData(1, 0, std::string("Column 0"), ItemDataRole::Display);
+  pm->setData(1, 1, std::string("Column 1"), ItemDataRole::Display);
+  pm->setData(1, 2, std::string("Column 2"), ItemDataRole::Display);
+  pm->setData(1, 3, std::string("Column 3"), ItemDataRole::Display);
 
   BOOST_REQUIRE(d(pm, 1, 0) == "Column 0");
   BOOST_REQUIRE(d(pm, 1, 1) == "Column 1");
@@ -215,7 +211,7 @@ BOOST_AUTO_TEST_CASE( batchedit_test1 )
 
   f.clearEvents();
 
-  pm->setData(1, 0, std::string("sm(1, 0)"), EditRole);
+  pm->setData(1, 0, std::string("sm(1, 0)"), ItemDataRole::Edit);
   BOOST_REQUIRE(d(pm, 1, 0) == "sm(1, 0)");
 
   f.proxyModel_->commitAll();
@@ -242,8 +238,8 @@ BOOST_AUTO_TEST_CASE( batchedit_test2 )
 {
   BatchEditFixture f;
 
-  WAbstractItemModel *sm = f.sourceModel_;
-  WAbstractItemModel *pm = f.proxyModel_;
+  auto sm = f.sourceModel_.get();
+  auto pm = f.proxyModel_.get();
 
   BOOST_REQUIRE(sm->columnCount() == 4);
   BOOST_REQUIRE(pm->columnCount() == 4);
@@ -258,13 +254,13 @@ BOOST_AUTO_TEST_CASE( batchedit_test2 )
 
   f.clearEvents();
 
-  pm->setData(0, 0, std::string("sm(1, 0)"), EditRole);
-  pm->setData(1, 0, std::string("sm(2, 0)"), EditRole);
+  pm->setData(0, 0, std::string("sm(1, 0)"), ItemDataRole::Edit);
+  pm->setData(1, 0, std::string("sm(2, 0)"), ItemDataRole::Edit);
   BOOST_REQUIRE(d(pm, 0, 0) == "sm(1, 0)");
   BOOST_REQUIRE(d(pm, 1, 0) == "sm(2, 0)");
 
   pm->insertRows(2, 1);
-  pm->setData(2, 0, std::string("sm(3, 0)"), EditRole);
+  pm->setData(2, 0, std::string("sm(3, 0)"), ItemDataRole::Edit);
 
   BOOST_REQUIRE(sm->rowCount() == 2);
   BOOST_REQUIRE(pm->rowCount() == 3);
@@ -293,21 +289,21 @@ BOOST_AUTO_TEST_CASE( batchedit_test3 )
   // Test flags
   BatchEditFixture f;
 
-  WStandardItemModel *sm = f.sourceModel_;
-  WBatchEditProxyModel *pm = f.proxyModel_;
+  WStandardItemModel *sm = f.sourceModel_.get();
+  WBatchEditProxyModel *pm = f.proxyModel_.get();
 
   pm->insertRows(0, 3);
   pm->commitAll();
 
-  sm->item(0)->setFlags(ItemIsSelectable);
-  sm->item(1)->setFlags(ItemIsEditable);
-  sm->item(2)->setFlags(ItemIsUserCheckable);
+  sm->item(0)->setFlags(ItemFlag::Selectable);
+  sm->item(1)->setFlags(ItemFlag::Editable);
+  sm->item(2)->setFlags(ItemFlag::UserCheckable);
 
-  pm->setNewRowFlags(0, ItemIsDragEnabled);
+  pm->setNewRowFlags(0, ItemFlag::DragEnabled);
   pm->insertRows(1, 1);
 
-  BOOST_REQUIRE(pm->flags(pm->index(0, 0)) == ItemIsSelectable);
-  BOOST_REQUIRE(pm->flags(pm->index(1, 0)) == ItemIsDragEnabled);
-  BOOST_REQUIRE(pm->flags(pm->index(2, 0)) == ItemIsEditable);
-  BOOST_REQUIRE(pm->flags(pm->index(3, 0)) == ItemIsUserCheckable);
+  BOOST_REQUIRE(pm->flags(pm->index(0, 0)) == ItemFlag::Selectable);
+  BOOST_REQUIRE(pm->flags(pm->index(1, 0)) == ItemFlag::DragEnabled);
+  BOOST_REQUIRE(pm->flags(pm->index(2, 0)) == ItemFlag::Editable);
+  BOOST_REQUIRE(pm->flags(pm->index(3, 0)) == ItemFlag::UserCheckable);
 }

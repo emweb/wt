@@ -1,8 +1,8 @@
-#include "Wt/WApplication"
-#include "Wt/Auth/GoogleService"
-#include "Wt/Json/Object"
-#include "Wt/Json/Parser"
-#include "Wt/Http/Client"
+#include "Wt/WApplication.h"
+#include "Wt/Auth/GoogleService.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Parser.h"
+#include "Wt/Http/Client.h"
 
 #define ERROR_MSG(e) WString::tr("Wt.Auth.GoogleService." e)
 
@@ -35,18 +35,21 @@ public:
 
   virtual void getIdentity(const OAuthAccessToken& token)
   {
-    Http::Client *client = new Http::Client(this);
-    client->setTimeout(15);
-    client->setMaximumResponseSize(10 * 1024);
+    httpClient_.reset(new Http::Client());
+    httpClient_->setTimeout(15);
+    httpClient_->setMaximumResponseSize(10 * 1024);
 
-    client->done().connect(boost::bind(&GoogleProcess::handleMe, this, _1, _2));
+    httpClient_->done().connect
+      (this, std::bind(&GoogleProcess::handleMe, this,
+		       std::placeholders::_1,
+		       std::placeholders::_2));
 
     std::vector<Http::Message::Header> headers;
     headers.push_back(Http::Message::Header("Authorization", 
 					    "OAuth " + token.value()));
 
     const char *UserInfoUrl = "https://www.googleapis.com/oauth2/v1/userinfo";
-    client->get(UserInfoUrl, headers);
+    httpClient_->get(UserInfoUrl, headers);
 
 #ifndef WT_TARGET_JAVA
     WApplication::instance()->deferRendering();
@@ -54,6 +57,8 @@ public:
   }
 
 private:
+  std::unique_ptr<Http::Client> httpClient_;
+
   void handleMe(boost::system::error_code err, const Http::Message& response)
   {
 #ifndef WT_TARGET_JAVA
@@ -186,9 +191,10 @@ std::string GoogleService::clientSecret() const
   return configurationProperty(ClientSecretProperty);
 }
 
-OAuthProcess *GoogleService::createProcess(const std::string& scope) const
+std::unique_ptr<OAuthProcess> GoogleService
+::createProcess(const std::string& scope) const
 {
-  return new GoogleProcess(*this, scope);
+  return std::unique_ptr<OAuthProcess>(new GoogleProcess(*this, scope));
 }
 
   }

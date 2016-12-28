@@ -1,4 +1,4 @@
-#include "Wt/WAbstractGLImplementation"
+#include "Wt/WAbstractGLImplementation.h"
 
 namespace Wt {
 
@@ -15,13 +15,13 @@ WAbstractGLImplementation::WAbstractGLImplementation(WGLWidget *glInterface)
   webglNotAvailable_.connect(glInterface_, &WGLWidget::webglNotAvailable);
 }
 
-void WAbstractGLImplementation::repaintGL(WFlags<WGLWidget::ClientSideRenderer> which)
+void WAbstractGLImplementation::repaintGL(WFlags<GLClientSideRenderer> which)
 {
-  if (which & WGLWidget::PAINT_GL)
+  if (which.test(GLClientSideRenderer::PAINT_GL))
     updatePaintGL_ = true;
-  if (which & WGLWidget::RESIZE_GL)
+  if (which.test(GLClientSideRenderer::RESIZE_GL))
     updateResizeGL_ = true;
-  if (which & WGLWidget::UPDATE_GL)
+  if (which.test(GLClientSideRenderer::UPDATE_GL))
     updateGL_ = true;
 }
 

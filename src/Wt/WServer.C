@@ -16,9 +16,9 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WIOService"
-#include "Wt/WResource"
-#include "Wt/WServer"
+#include "Wt/WIOService.h"
+#include "Wt/WResource.h"
+#include "Wt/WServer.h"
 
 #include "Configuration.h"
 #include "WebController.h"
@@ -48,7 +48,6 @@ void WServer::init(const std::string& wtApplicationPath,
   ioService_ = 0;
   webController_ = 0;
   configuration_ = 0;
-  localizedStrings_ = 0;
 
   logger_.addField("datetime", false);
   logger_.addField("app", false);
@@ -68,18 +67,17 @@ void WServer::destroy()
 
   delete webController_;
   delete configuration_;
-  delete localizedStrings_;
 
   instance_ = 0;
 }
 
-void WServer::setLocalizedStrings(WLocalizedStrings *stringResolver)
+void WServer
+::setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>& stringResolver)
 {
-  delete localizedStrings_;
   localizedStrings_ = stringResolver;
 }
 
-WLocalizedStrings *WServer::localizedStrings()
+std::shared_ptr<WLocalizedStrings> WServer::localizedStrings() const
 {
   return localizedStrings_;
 }
@@ -196,13 +194,13 @@ bool WServer::readConfigurationProperty(const std::string& name,
 }
 
 void WServer::post(const std::string& sessionId,
-		   const boost::function<void ()>& function,
-		   const boost::function<void ()>& fallbackFunction)
+		   const std::function<void ()>& function,
+		   const std::function<void ()>& fallbackFunction)
 {
   schedule(0, sessionId, function, fallbackFunction);
 }
 
-void WServer::postAll(const boost::function<void ()>& function)
+void WServer::postAll(const std::function<void ()>& function)
 {
   if(!webController_) return;
 
@@ -215,14 +213,14 @@ void WServer::postAll(const boost::function<void ()>& function)
 
 void WServer::schedule(int milliSeconds,
 		       const std::string& sessionId,
-		       const boost::function<void ()>& function,
-		       const boost::function<void ()>& fallbackFunction)
+		       const std::function<void ()>& function,
+		       const std::function<void ()>& fallbackFunction)
 {
   ApplicationEvent event(sessionId, function, fallbackFunction);
 
   ioService().schedule(milliSeconds,
-		       boost::bind(&WebController::handleApplicationEvent,
-				   webController_, event));
+		       std::bind(&WebController::handleApplicationEvent,
+				 webController_, event));
 }
 
 void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
@@ -284,13 +282,13 @@ void WServer::setCatchSignals(bool catchSignals)
 
 #if defined(WT_WIN32) && defined(WT_THREADED)
 
-boost::mutex     terminationMutex;
-bool             terminationRequested = false;
-boost::condition terminationCondition;
+std::mutex terminationMutex;
+bool terminationRequested = false;
+std::condition_variable terminationCondition;
 
 void WServer::terminate()
 {
-  boost::mutex::scoped_lock terminationLock(terminationMutex);
+  std::unique_lock<std::mutex> terminationLock(terminationMutex);
   terminationRequested = true;
   terminationCondition.notify_all(); // should be just 1
 }
@@ -314,7 +312,7 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 
 #endif
 
-int WServer::waitForShutdown(const char *restartWatchFile)
+int WServer::waitForShutdown()
 {
 #if !defined(WT_WIN32)
   if (!CatchSignals) {
@@ -373,7 +371,7 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 
 #else  // WIN32
 
-  boost::mutex::scoped_lock terminationLock(terminationMutex);
+  std::unique_lock<std::mutex> terminationLock(terminationMutex);
   SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
   while (!terminationRequested)
     terminationCondition.wait(terminationLock);
@@ -400,7 +398,7 @@ void WServer::scheduleStop()
     terminate();
   #endif // WT_WIN32
 #else // !WT_THREADED
-  if (!stopCallback_.empty())
+  if (stopCallback_)
     stopCallback_();
 #endif // WT_THREADED
 }

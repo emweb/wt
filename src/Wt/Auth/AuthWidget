@@ -7,9 +7,12 @@
 #ifndef WT_AUTH_AUTH_WIDGET_H_
 #define WT_AUTH_AUTH_WIDGET_H_
 
-#include <Wt/WTemplateFormView>
-#include <Wt/Auth/AuthModel>
-#include <Wt/Auth/OAuthService>
+#include <Wt/WTemplateFormView.h>
+#include <Wt/Auth/AuthModel.h>
+#include <Wt/Auth/OAuthService.h>
+#include <Wt/Auth/RegistrationModel.h>
+#include <Wt/WDialog.h>
+#include <Wt/WMessageBox.h>
 
 namespace Wt {
   namespace Auth {
@@ -73,7 +76,7 @@ public:
    * Authentication services need to be configured in the model().
    */
   AuthWidget(const AuthService& baseAuth, AbstractUserDatabase& users,
-	     Login& login, WContainerWidget *parent = 0);
+	     Login& login);
 
   /*! \brief Constructor.
    *
@@ -84,13 +87,15 @@ public:
    *
    * You need to call setModel() to configure a model for this view.
    */
-  AuthWidget(Login& login, WContainerWidget *parent = 0);
+  AuthWidget(Login& login);
+
+  ~AuthWidget();
 
   /*! \brief Sets a model.
    *
    * This sets a model to be used for authentication.
    */
-  void setModel(AuthModel *model);
+  void setModel(std::unique_ptr<AuthModel> model);
 
   /*! \brief Returns the model.
    *
@@ -98,7 +103,7 @@ public:
    *
    * \sa setModel()
    */
-  AuthModel *model() const { return model_; }
+  AuthModel *model() const { return model_.get(); }
 
   /*! \brief Returns the login object.
    *
@@ -214,7 +219,7 @@ public:
    *
    * \sa handleLostPassword()
    */
-  virtual WWidget *createLostPasswordView();
+  virtual std::unique_ptr<WWidget> createLostPasswordView();
 
   /*! \brief Creates a registration view.
    * 
@@ -227,7 +232,7 @@ public:
    *
    * \sa registerNewUser()
    */
-  virtual WWidget *createRegistrationView(const Identity& id);
+  virtual std::unique_ptr<WWidget> createRegistrationView(const Identity& id);
 
   /*! \brief Creates a view to update a user's password.
    *
@@ -240,8 +245,8 @@ public:
    *
    * \sa letUpdatePassword()
    */
-  virtual WWidget *createUpdatePasswordView(const User& user,
-					    bool promptPassword);
+  virtual std::unique_ptr<WWidget>
+    createUpdatePasswordView(const User& user, bool promptPassword);
 
   /*! \brief Creates a password prompt dialog.
    *
@@ -328,15 +333,8 @@ protected:
    *
    * When the central widget is deleted, it deletes the dialog.
    */
-  virtual WDialog *showDialog(const WString& title, WWidget *contents);
-
-  /*! \brief Returns the registration model.
-   *
-   * Calls createRegistrationModel() or resets a previously created one.
-   *
-   * \sa registerNewUser()
-   */
-  RegistrationModel *registrationModel();
+  virtual WDialog *showDialog(const WString& title,
+			      std::unique_ptr<WWidget> contents);
 
   /*! \brief Creates a registration model.
    *
@@ -347,21 +345,23 @@ protected:
    *
    * \sa registerNewUser()
    */
-  virtual RegistrationModel *createRegistrationModel();
+  virtual std::unique_ptr<RegistrationModel> createRegistrationModel();
 
-  virtual WWidget *createFormWidget(AuthModel::Field field);
+  virtual std::unique_ptr<WWidget> createFormWidget(AuthModel::Field field)
+    override;
 
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
-  AuthModel *model_;
-  RegistrationModel *registrationModel_;
+  std::shared_ptr<AuthModel> model_;
+  std::unique_ptr<RegistrationModel> registrationModel_;
   Login& login_;
   std::string basePath_;
   bool registrationEnabled_;
 
   bool created_;
-  WDialog *dialog_, *messageBox_;
+  std::unique_ptr<WDialog> dialog_;
+  std::unique_ptr<WMessageBox> messageBox_;
 
   void init();
   void logout();
@@ -374,6 +374,8 @@ private:
   void oAuthStateChange(OAuthProcess *process);
   void oAuthDone(OAuthProcess *process, const Identity& identity);
   void updatePasswordLoginView();
+
+  std::unique_ptr<RegistrationModel> registrationModel();
 };
 
   }

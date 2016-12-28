@@ -6,12 +6,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDate>
-#include <Wt/WDateTime>
-#include <Wt/WTime>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/ptr_tuple>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/ptr_tuple.h>
 
 #include "DboFixture.h"
 

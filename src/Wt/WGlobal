@@ -7,11 +7,23 @@
 #ifndef WGLOBAL_H_
 #define WGLOBAL_H_
 
-#include <Wt/WFlags>
+#include <Wt/WFlags.h>
+#include <Wt/Core/observing_ptr.hpp>
+#include <memory>
 
 /*! \file */
 
 namespace Wt {
+
+  /* Since we target C++11, we're sorely missing std::make_unique */
+  namespace cpp14 {
+    template<typename T, typename ...Args>
+    std::unique_ptr<T> make_unique( Args&& ...args )
+    {
+      return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+  }
+
   class EventSignalBase;
   class JSlot;
   class WAbstractArea;
@@ -25,7 +37,6 @@ namespace Wt {
   class WAbstractTableModel;
   class WAbstractToggleButton;
   class WAggregateProxyModel;
-  class WAccordionLayout;
   class WAnimation;
   class WAnchor;
   class WApplication;
@@ -45,7 +56,6 @@ namespace Wt {
   class WCombinedLocalizedStrings;
   class WComboBox;
   class WCompositeWidget;
-  class WCoreServer;
   class WContainerWidget;
   class WCssDecorationStyle;
   class WCssRule;
@@ -99,6 +109,7 @@ namespace Wt {
   class WLineEdit;
   class WLineF;
   class WLink;
+  class WLinkedCssStyleSheet;
   class WLocale;
   class WLocalDateTime;
   class WLoadingIndicator;
@@ -130,7 +141,6 @@ namespace Wt {
   class WPolygonArea;
   class WPopupMenu;
   class WPopupWidget;
-  typedef WMenuItem WPopupMenuItem;
   class WProgressBar;
   class WPushButton;
   class WRadioButton;
@@ -139,11 +149,8 @@ namespace Wt {
   class WRasterImage;
   class WRectArea;
   class WRectF;
-  class WRegExp;
   class WRegExpValidator;
   class WResource;
-  class WScrollArea;
-  class WScrollBar;
   class WScrollEvent;
   class WSelectionBox;
   class WServer;
@@ -160,7 +167,6 @@ namespace Wt {
   class WStreamResource;
   class WString;
   class WStringListModel;
-  typedef class WMenuItem WSubMenuItem;
   class WSuggestionPopup;
   class WSvgImage;
   class WTabWidget;
@@ -307,11 +313,15 @@ namespace Wt {
     class WPdfRenderer;
   }
 
+using Core::observing_ptr;
+
 /*! \brief Enumeration that indicates a direction.
  */
-enum Orientation { Horizontal = 0x1, //!< Horizontal
-		   Vertical   = 0x2  //!< Vertical
+enum class Orientation {
+  Horizontal = 0x1, //!< Horizontal
+  Vertical   = 0x2  //!< Vertical
 };
+
 W_DECLARE_OPERATORS_FOR_FLAGS(Orientation)
 
 /*! \brief Enumeration that indicates a standard button.
@@ -319,13 +329,13 @@ W_DECLARE_OPERATORS_FOR_FLAGS(Orientation)
  * Multiple buttons may be specified by logically or'ing these values
  * together, e.g.
  * \code
- * Ok | Cancel
+ * StandardButton::Ok | StandardButton::Cancel
  * \endcode
  *
  * \sa WMessageBox
  */
-enum StandardButton {
-  NoButton = 0x00,  //!< No button
+enum class StandardButton {
+  None = 0x00,      //!< No button
   Ok = 0x01,        //!< An OK button.
   Cancel = 0x02,    //!< A Cancel button.
   Yes = 0x04,       //!< A Yes button.
@@ -342,8 +352,8 @@ W_DECLARE_OPERATORS_FOR_FLAGS(StandardButton)
  *
  * \sa WMessageBox
  */
-enum Icon {
-  NoIcon = 0,       //!< No icon.
+enum class Icon {
+  None = 0,         //!< No icon.
   Information = 1,  //!< An information icon.
   Warning = 2,      //!< A warning icon.
   Critical = 3,     //!< A critical icon.
@@ -354,25 +364,27 @@ enum Icon {
  *
  * \sa WTreeView::setSelectionMode()
  */
-enum SelectionMode { NoSelection = 0,      //!< No selections
-		     SingleSelection = 1,  //!< Single selection only
-		     ExtendedSelection = 3 //!< Multiple selection
+enum class SelectionMode {
+  None = 0,    //!< No selections
+  Single = 1,  //!< Single selection only
+  Extended = 3 //!< Multiple selection
 };
 
 /*! \brief Enumeration that indicates what is being selected.
  *
  * \sa WTreeView::setSelectionBehavior()
  */
-enum SelectionBehavior { SelectItems = 0,    //!< Select single items
-			 SelectRows = 1      //!< Select only rows
-			 /*, SelectColumns */
+enum class SelectionBehavior {
+  Items = 0,    //!< SelectionFlag::Select single items
+  Rows = 1      //!< SelectionFlag::Select only rows
+    /*, SelectColumns */
 };
 
 /*! \brief Enumeration that indicates how to change a selection.
  *
  * \sa WTreeView::select()
  */
-enum SelectionFlag {
+enum class SelectionFlag {
   Select = 1,          //!< Add to selection
   Deselect = 2,        //!< Remove from selection
   ToggleSelect = 3,    //!< Toggle in selection
@@ -381,7 +393,7 @@ enum SelectionFlag {
 
 /*! \brief Enumeration that indicates a relative location.
  *
- * Values of CenterX, CenterY, and CenterXY are only valid for
+ * Values of Side::CenterX, Side::CenterY, and CenterXY are only valid for
  * WCssDecorationStyle::setBackgroundImage()
  *
  * \sa WWidget::setMargin(const WLength& x, WFlags<Side> sides)
@@ -391,34 +403,30 @@ enum SelectionFlag {
  * \sa WContainerWidget::setPadding(const WLength& x, WFlags<Side> sides)
  * \sa WCssDecorationStyle::setBackgroundImage()
  */
-enum Side {
-  Top = 0x1,                          //!< Top side
-  Bottom = 0x2,                       //!< Bottom side
-  Left = 0x4,                         //!< Left side
-  Right = 0x8,                        //!< Right side
+enum class Side {
+  Top = 0x1,                          //!< Side::Top side
+  Bottom = 0x2,                       //!< Side::Bottom side
+  Left = 0x4,                         //!< Side::Left side
+  Right = 0x8,                        //!< Side::Right side
   CenterX = 0x10,                     //!< Center horiziontally
   CenterY = 0x20                      //!< Center vertically
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(Side)
 
-/** \brief No side */
-static const WFlags<Side> None = 0;
-/** \brief (CenterX | CenterY) */
-static const WFlags<Side> CenterXY = CenterX | CenterY;
-/** \brief (Left | Right) */
-static const WFlags<Side> Horizontals = Left | Right;
-/** \brief (Top | Bottom) */
-static const WFlags<Side> Verticals = Top | Bottom;
-/** \brief All sides */
-static const WFlags<Side> All = Top | Bottom | Left | Right;
+static const WFlags<Side> AllSides = 
+  Side::Left | Side::Right | Side::Top | Side::Bottom;
 
 /*! \brief Enumeration that specifies a horizontal or a vertical alignment.
  *
- * The vertical alignment flags are AlignBaseline, AlignSub, AlignSuper,
- * AlignTop, AlignTextTop, AlignMiddle, AlignBottom and AlignTextBottom.
- * The horizontal alignment flags are AlignLeft, AlignRight, AlignCenter
- * and AlignJustify.
+ * The vertical alignment flags are AlignmentFlag::Baseline,
+ * AlignmentFlag::Sub, AlignmentFlag::super, AlignmentFlag::Top,
+ * AlignmentFlag::TextTop, AlignmentFlag::Middle,
+ * AlignmentFlag::Bottom and AlignmentFlag::TextBottom.
+ *
+ * The horizontal alignment flags are AlignmentFlag::Left,
+ * AlignmentFlag::Right, AlignmentFlag::Center and
+ * AlignmentFlag::Justify.
  *
  * When used with setVerticalAlignment(), this applies only
  * to inline widgets and determines how to position itself on the
@@ -434,66 +442,70 @@ static const WFlags<Side> All = Top | Bottom | Left | Right;
  * contents should be aligned horizontally within the container.
  *
  * Not all values are applicable in all situations. The most commonly
- * used values are AlignLeft, AlignCenter, AlignRight, AlignBottom,
- * AlignMiddle and AlignTop.
+ * used values are AlignmentFlag::Left, AlignmentFlag::Center,
+ * AlignmentFlag::Right, AlignmentFlag::Bottom, AlignmentFlag::Middle
+ * and AlignmentFlag::Top.
  */
-enum AlignmentFlag {
+enum class AlignmentFlag {
   /*! \brief Align to the left
    */
-  AlignLeft=0x1,
+  Left=0x1,
   /*! \brief Align to the right
    */
-  AlignRight=0x2,
+  Right=0x2,
   /*! \brief Align horizontally in the center
    */
-  AlignCenter=0x4,
+  Center=0x4,
   /*! \brief Justify left and right
    */
-  AlignJustify=0x8,
+  Justify=0x8,
   /*! \brief Align at baseline (default alignment).
    */
-  AlignBaseline=0x10,
+  Baseline=0x10,
   /*! \brief Align below the baseline (as if subscript).
    */
-  AlignSub=0x20,
+  Sub=0x20,
   /*! \brief Align above the baseline (as if superscript).
    */
-  AlignSuper=0x40,
+  Super=0x40,
   /*! \brief Align top of widget with top of tallest sibling widget.
    */
-  AlignTop=0x80,
+  Top=0x80,
   /*! \brief Align top of widget with the top of the parent widget's font.
    */
-  AlignTextTop=0x100,
+  TextTop=0x100,
   /*! \brief Align vertically the middle to the middle of the parent widget.
    */
-  AlignMiddle=0x200,
+  Middle=0x200,
   /*! \brief Align bottom of widget to the bottom of the lowest sigling widget.
    */
-  AlignBottom=0x400,
+  Bottom=0x400,
   /*! \brief Align bottom of widget to the bottom of parent widget's font.
    */
-  AlignTextBottom=0x800
+  TextBottom=0x800
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(AlignmentFlag)
 
 /*! \brief Combination of all horizontal alignment flags */
 static const WFlags<AlignmentFlag> AlignHorizontalMask
-  = AlignLeft | AlignRight | AlignCenter | AlignJustify;
+= AlignmentFlag::Left | AlignmentFlag::Right | 
+  AlignmentFlag::Center | AlignmentFlag::Justify;
 
 /*! \brief Combination of all vertical alignment flags */
 static const WFlags<AlignmentFlag> AlignVerticalMask
-  = AlignBaseline | AlignSub | AlignSuper | AlignTop | AlignTextTop
-  | AlignMiddle | AlignBottom | AlignTextBottom;
+= AlignmentFlag::Baseline | AlignmentFlag::Sub | 
+  AlignmentFlag::Super | AlignmentFlag::Top | 
+  AlignmentFlag::TextTop | AlignmentFlag::Middle |
+  AlignmentFlag::Bottom | AlignmentFlag::TextBottom;
 
 /*! \brief Enumeration that specifies the way text should be printed.
  *
  * \sa WPainter::drawText(const WRectF& rect, WFlags<AlignmentFlag> alignmentFlags, TextFlag textFlag, const WString& text)
  */
-enum TextFlag {
-  TextSingleLine,   //!< Text will be printed on just one line
-  TextWordWrap      //!< Lines will break at word boundaries
+enum class TextFlag {
+  SingleLine,   //!< Text will be printed on just one line
+  WordWrap      //!< Lines will break at word boundaries
 };
 
 /*! \brief Enumeration that specifies a layout mechanism for a widget.
@@ -503,31 +515,33 @@ enum TextFlag {
  *
  * \sa WWidget::setPositionScheme(PositionScheme scheme)
  */
-enum PositionScheme {
+enum class PositionScheme {
   /*! \brief Static position scheme.
    *
-   *  The widget is layed-out with other \link Wt::Static
-   *  Static \endlink and \link Wt::Relative Relative \endlink
-   *  sibling widgets, one after another.
+   *  The widget is layed-out with other \link
+   *  Wt::PositionScheme::Static PositionScheme::Static \endlink and
+   *  \link Wt::PositionScheme::Relative PositionScheme::Relative
+   *  \endlink sibling widgets, one after another.
    *
    *  Inline widgets are layed out in horizontal lines (like text),
    *  wrapping around at the end of the line to continue on the next
    *  line. Block widgets are stacked vertically.
    *
-   *  Static widgets may also float to the left or right border,
-   *  using setFloatSide().
+   *  PositionScheme::Static widgets may also float to the left or
+   *  right border, using setFloatSide().
    */
   Static,
 
   /*! \brief Relative position scheme.
    *
-   *  The widget is first layed out according to Static layout
-   *  rules, but after layout, the widget may be offset relative to
-   *  where it would be in a static layout, using setOffsets().
+   *  The widget is first layed out according to
+   *  PositionScheme::Static layout rules, but after layout, the
+   *  widget may be offset relative to where it would be in a static
+   *  layout, using setOffsets().
    *
-   *  Another common use of a Relative position scheme (even with no
-   *  specified offsets) is to provide a new reference coordinate
-   *  system for Absolutely positioned widgets.
+   *  Another common use of a PositionScheme::Relative position scheme
+   *  (even with no specified offsets) is to provide a new reference
+   *  coordinate system for Absolutely positioned widgets.
    */
   Relative,
 
@@ -537,33 +551,34 @@ enum PositionScheme {
    *  with respect to the nearest ancestor widget that is either:
    *  <ul>
    *    <li> a WTableCell </li>
-   *    <li> or has a position scheme that is \link Wt::Relative
-   *  Relative\endlink or \link Wt::Absolute Absolute\endlink. </li>
+   *    <li> or has a position scheme that is
+   *     \link Wt::PositionScheme::Relative PositionScheme::Relative\endlink
+   *     or \link Wt::PositionScheme::Absolute PositionScheme::Absolute\endlink. </li>
    *  </ul>
    */
-  Absolute,
+   Absolute,
 
   /*! \brief Fixed position scheme.
    *
    *  The widget is positioned at fixed position with respect to
    *  the browser's view-pane.
    */
-  Fixed
+   Fixed
 };
 
 /*! \brief Enumeration for a cursor style
  *
  * \sa WCssDecorationStyle::setCursor(), WAbstractArea::setCursor()
  */
-enum Cursor {
-  ArrowCursor,        //!< Arrow, CSS 'default' cursor
-  AutoCursor,         //!< Cursor chosen by the browser, CSS 'auto' cursor.
-  CrossCursor,        //!< Crosshair, CSS 'cross' cursor
-  PointingHandCursor, //!< Pointing hand, CSS 'pointer' cursor
-  OpenHandCursor,     //!< Open hand, CSS 'move' cursor
-  WaitCursor,         //!< Wait, CSS 'wait' cursor
-  IBeamCursor,        //!< Text edit, CSS 'text' cursor
-  WhatsThisCursor     //!< Help, CSS 'help' cursor
+enum class Cursor {
+  Arrow,        //!< Arrow, CSS 'default' cursor
+  Auto,         //!< Cursor chosen by the browser, CSS 'auto' cursor.
+  Cross,        //!< Crosshair, CSS 'cross' cursor
+  PointingHand, //!< Pointing hand, CSS 'pointer' cursor
+  OpenHand,     //!< Open hand, CSS 'move' cursor
+  Wait,         //!< Wait, CSS 'wait' cursor
+  IBeam,        //!< Text edit, CSS 'text' cursor
+  WhatsThis     //!< Help, CSS 'help' cursor
 };
 
 /*! \brief Enumeration that indicates a character encoding.
@@ -573,20 +588,20 @@ enum Cursor {
  *
  * \relates WString
  */
-enum CharEncoding {
+enum class CharEncoding {
   /*! \brief Wt's default encoding
    *
    * Wt's global default encoding, as set through WString::setDefaultEncoding()
    *
    */
-  DefaultEncoding,
+  Default,
 
   /*! \brief The (server) system locale.
    *
    * Each byte represents a character, according to the locale
    * of the server-side system.
    */
-  LocalEncoding,
+  Local,
 
   /*! \brief UTF-8 unicode encoding.
    *
@@ -602,8 +617,8 @@ enum CharEncoding {
  *
  * \relates WPen
  */
-enum PenStyle {
-  NoPen,          //!< Do not stroke
+enum class PenStyle {
+  None,           //!< Do not stroke
   SolidLine,      //!< Stroke with a solid line
   DashLine,       //!< Stroked with a dashed line
   DotLine,        //!< Stroke with a dotted line
@@ -617,10 +632,10 @@ enum PenStyle {
  *
  * \relates WPen
  */
-enum PenCapStyle {
-  FlatCap,        //!< Flat ends
-  SquareCap,      //!< Square ends (prolongs line with half width)
-  RoundCap        //!< Round ends (terminates with a half circle)
+enum class PenCapStyle {
+  Flat,        //!< Flat ends
+  Square,      //!< Square ends (prolongs line with half width)
+  Round        //!< Rounded ends (terminates with a half circle)
 };
 
 /*! \brief Enumeration that indicates how line joins are rendered.
@@ -629,10 +644,10 @@ enum PenCapStyle {
  *
  * \relates WPen
  */
-enum PenJoinStyle {
-  MiterJoin,      //!< Pointy joins
-  BevelJoin,      //!< Squared-off joins
-  RoundJoin       //!< Rounded joins
+enum class PenJoinStyle {
+  Miter,      //!< Pointy joins
+  Bevel,      //!< Squared-off joins
+  Round       //!< Rounded joins
 };
 
 /*! \brief Enumeration that indicates a fill style.
@@ -641,10 +656,10 @@ enum PenJoinStyle {
  *
  * \relates WBrush
  */
-enum BrushStyle {
-  NoBrush,        //!< Do not fill
-  SolidPattern,   //!< Fill with a solid color
-  GradientPattern //!< Fill with a color gradient
+enum class BrushStyle {
+  None,    //!< Do not fill
+  Solid,   //!< Fill with a solid color
+  Gradient //!< Fill with a color gradient
 };
 
 /*! \brief Enumeration that indicates a gradient style.
@@ -653,9 +668,9 @@ enum BrushStyle {
  *
  * \relates WGradient
  */
-enum GradientStyle {
-  LinearGradient,
-  RadialGradient
+enum class GradientStyle {
+  Linear,
+  Radial
 };
 
 /*! \brief Enumeration that specifies where the target of an anchor should
@@ -663,82 +678,82 @@ enum GradientStyle {
  *
  * \sa WAnchor::setTarget()
  */
-enum AnchorTarget {
-  TargetSelf,      //!< Show Instead of the application
-  TargetThisWindow,//!< Show in the top level frame of the application window
-  TargetNewWindow, //!< Show in a separate new tab or window
-  TargetDownload   //!< Useful only for a downloadable resource
+enum class LinkTarget {
+  Self,      //!< Show Instead of the application
+  ThisWindow,//!< Show in the top level frame of the application window
+  NewWindow, //!< Show in a separate new tab or window
+  Download   //!< Useful only for a downloadable resource
 };
 
 /*! \brief Enumeration that indicates the text format.
  *
  * \sa WText::setTextFormat()
  */
-enum TextFormat {
-  XHTMLText,       //!< Format text as XSS-safe XHTML markup'ed text
-  XHTMLUnsafeText, //!< Format text as XHTML markup'ed text
-  PlainText        //!< Format text as plain text
+enum class TextFormat {
+  XHTML,       //!< Format text as XSS-safe XHTML markup'ed text
+  UnsafeXHTML, //!< Format text as XHTML markup'ed text
+  Plain        //!< Format text as plain text
 };
 
 /*! \brief Enumeration for predefined colors
  *
  * \ingroup style
  */
-enum GlobalColor {
+enum class StandardColor {
   /*! \brief Color white.
    */
-  white,
+  White,
   /*! \brief Color black.
    */
-  black,
+  Black,
   /*! \brief Color red.
    */
-  red,
+  Red,
   /*! \brief Color dark red.
    */
-  darkRed,
+  DarkRed,
   /*! \brief Color green.
    */
-  green,
+  Green,
   /*! \brief Color dark green.
    */
-  darkGreen,
+  DarkGreen,
   /*! \brief Color blue.
    */
-  blue,
+  Blue,
   /*! \brief Color dark blue.
    */
-  darkBlue,
+  DarkBlue,
   /*! \brief Color cyan.
    */
-  cyan,
+  Cyan,
   /*! \brief Color dark cyan.
    */
-  darkCyan,
+  DarkCyan,
   /*! \brief Color magenta.
    */
-  magenta,
+  Magenta,
   /*! \brief Color dark magenta.
    */
-  darkMagenta,
+  DarkMagenta,
   /*! \brief Color yellow.
    */
-  yellow,
+  Yellow,
   /*! \brief Color dark yellow.
    */
-  darkYellow,
+  DarkYellow,
   /*! \brief Color medium gray.
    */
-  gray,
+  Gray,
   /*! \brief Color dark gray.
    */
-  darkGray,
+  DarkGray,
   /*! \brief Color light gray.
    */
-  lightGray,
+  LightGray,
   /*! \brief Color transparent.
    */
-  transparent
+  Transparent
 };
 
 /*! \brief Enumeration for keyboard modifiers
@@ -747,12 +762,12 @@ enum GlobalColor {
  *
  * \ingroup signalslot
  */
-enum KeyboardModifier {
-  NoModifier = 0x0,       //!< No modifiers
-  ShiftModifier = 0x1,    //!< Shift key pressed
-  ControlModifier = 0x2,  //!< Control key pressed
-  AltModifier = 0x4,      //!< Alt key pressed
-  MetaModifier = 0x8      //!< Meta key pressed ("Windows" or "Command" (Mac) key)
+enum class KeyboardModifier {
+  None = 0x0,     //!< No modifiers
+  Shift = 0x1,    //!< Shift key pressed
+  Control = 0x2,  //!< Control key pressed
+  Alt = 0x4,      //!< Alt key pressed
+  Meta = 0x8      //!< Meta key pressed ("Windows" or "Command" (Mac) key)
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(KeyboardModifier)
@@ -769,64 +784,64 @@ W_DECLARE_OPERATORS_FOR_FLAGS(KeyboardModifier)
  *
  * \ingroup signalslot
  */
-enum Key {
-  Key_unknown = 0,     //!< Unknown key.
-  Key_Enter = 13,      //!< Enter key.
-  Key_Tab = 9,         //!< Tab key.
-  Key_Backspace = 8,   //!< Backspace key.
-  Key_Shift = 16,      //!< Shift key.
-  Key_Control = 17,    //!< Control key.
-  Key_Alt = 18,        //!< Alt key.
-  Key_PageUp = 33,     //!< Page up key.
-  Key_PageDown = 34,   //!< Page down key.
-  Key_End = 35,        //!< End key.
-  Key_Home = 36,       //!< Home key.
-  Key_Left = 37,       //!< Left arrow key.
-  Key_Up = 38,         //!< Up arrow key.
-  Key_Right = 39,      //!< Right arrow key.
-  Key_Down = 40,       //!< Down arrow key.
-  Key_Insert = 45,     //!< Insert key.
-  Key_Delete = 46,     //!< Delete key.
-  Key_Escape = 27,     //!< Escape key.
-  Key_F1 = 112,        //!< F1 function key.
-  Key_F2 = 113,        //!< F2 function key.
-  Key_F3 = 114,        //!< F3 function key.
-  Key_F4 = 115,        //!< F4 function key.
-  Key_F5 = 116,        //!< F5 function key.
-  Key_F6 = 117,        //!< F6 function key.
-  Key_F7 = 118,        //!< F7 function key.
-  Key_F8 = 119,        //!< F8 function key.
-  Key_F9 = 120,        //!< F9 function key.
-  Key_F10 = 121,       //!< F10 function key.
-  Key_F11 = 122,       //!< F11 function key.
-  Key_F12 = 123,       //!< F12 function key.
-  Key_Space = ' ',     //!< Space
-  Key_A = 'A',         //!< 'A' key
-  Key_B = 'B',         //!< 'B' key
-  Key_C = 'C',         //!< 'C' key
-  Key_D = 'D',         //!< 'D' key
-  Key_E = 'E',         //!< 'E' key
-  Key_F = 'F',         //!< 'F' key
-  Key_G = 'G',         //!< 'G' key
-  Key_H = 'H',         //!< 'H' key
-  Key_I = 'I',         //!< 'I' key
-  Key_J = 'J',         //!< 'J' key
-  Key_K = 'K',         //!< 'K' key
-  Key_L = 'L',         //!< 'L' key
-  Key_M = 'M',         //!< 'M' key
-  Key_N = 'N',         //!< 'N' key
-  Key_O = 'O',         //!< 'O' key
-  Key_P = 'P',         //!< 'P' key
-  Key_Q = 'Q',         //!< 'Q' key
-  Key_R = 'R',         //!< 'R' key
-  Key_S = 'S',         //!< 'S' key
-  Key_T = 'T',         //!< 'T' key
-  Key_U = 'U',         //!< 'U' key
-  Key_V = 'V',         //!< 'V' key
-  Key_W = 'W',         //!< 'W' key
-  Key_X = 'X',         //!< 'X' key
-  Key_Y = 'Y',         //!< 'Y' key
-  Key_Z = 'Z',         //!< 'Z' key
+enum class Key {
+  Unknown = 0,     //!< Unknown key.
+  Enter = 13,      //!< Enter key.
+  Tab = 9,         //!< Tab key.
+  Backspace = 8,   //!< Backspace key.
+  Shift = 16,      //!< Shift key.
+  Control = 17,    //!< Control key.
+  Alt = 18,        //!< Alt key.
+  PageUp = 33,     //!< Page up key.
+  PageDown = 34,   //!< Page down key.
+  End = 35,        //!< End key.
+  Home = 36,       //!< Home key.
+  Left = 37,       //!< Side::Left arrow key.
+  Up = 38,         //!< Up arrow key.
+  Right = 39,      //!< Side::Right arrow key.
+  Down = 40,       //!< Down arrow key.
+  Insert = 45,     //!< Insert key.
+  Delete = 46,     //!< Method::Delete key.
+  Escape = 27,     //!< Escape key.
+  F1 = 112,        //!< F1 function key.
+  F2 = 113,        //!< F2 function key.
+  F3 = 114,        //!< F3 function key.
+  F4 = 115,        //!< F4 function key.
+  F5 = 116,        //!< F5 function key.
+  F6 = 117,        //!< F6 function key.
+  F7 = 118,        //!< F7 function key.
+  F8 = 119,        //!< F8 function key.
+  F9 = 120,        //!< F9 function key.
+  F10 = 121,       //!< F10 function key.
+  F11 = 122,       //!< F11 function key.
+  F12 = 123,       //!< F12 function key.
+  Space = ' ',     //!< Space
+  A = 'A',         //!< 'A' key
+  B = 'B',         //!< 'B' key
+  C = 'C',         //!< 'C' key
+  D = 'D',         //!< 'D' key
+  E = 'E',         //!< 'E' key
+  F = 'F',         //!< 'F' key
+  G = 'G',         //!< 'G' key
+  H = 'H',         //!< 'H' key
+  I = 'I',         //!< 'I' key
+  J = 'J',         //!< 'J' key
+  K = 'K',         //!< 'K' key
+  L = 'L',         //!< 'L' key
+  M = 'M',         //!< 'M' key
+  N = 'N',         //!< 'N' key
+  O = 'O',         //!< 'O' key
+  P = 'P',         //!< 'P' key
+  Q = 'Q',         //!< 'Q' key
+  R = 'R',         //!< 'R' key
+  S = 'S',         //!< 'S' key
+  T = 'T',         //!< 'T' key
+  U = 'U',         //!< 'U' key
+  V = 'V',         //!< 'V' key
+  W = 'W',         //!< 'W' key
+  X = 'X',         //!< 'X' key
+  Y = 'Y',         //!< 'Y' key
+  Z = 'Z',         //!< 'Z' key
   Key_1 = '1',         //!< '1' key
   Key_2 = '2',         //!< '2' key
   Key_3 = '3',         //!< '3' key
@@ -843,7 +858,7 @@ enum Key {
  *
  * \sa WCheckBox
  */
-enum CheckState {
+enum class CheckState {
   Unchecked,        //!< Unchecked
   PartiallyChecked, //!< Partially checked (for a tri-state checkbox)
   Checked           //!< Checked
@@ -853,37 +868,18 @@ enum CheckState {
  *
  * \sa WPaintedWidget::update(), WPaintDevice::paintFlags()
  */
-enum PaintFlag {
-  PaintUpdate = 0x1 //!< The canvas is not cleared, but further painted on.
+enum class PaintFlag {
+  Update = 0x1 //!< The canvas is not cleared, but further painted on.
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(PaintFlag)
-
-#ifndef WT_TARGET_JAVA
-
-/*! \brief Enumeration that indicates a regular expression option.
- *
- * \sa WSortFilterProxyModel::setFilterOptions(), WRegExpValidator::setOptions()
- */
-enum RegExpFlag {
-  MatchCaseInsensitive = 0x1 //!< Case insensitive matching
-};
-
-W_DECLARE_OPERATORS_FOR_FLAGS(RegExpFlag)
-
-#else // WT_TARGET_JAVA
-
-enum RegExpFlag { };
-const int MatchCaseInsensitive = 0x1;
-
-#endif // WT_TARGET_JAVA
 
 /*! \brief Enumeration that indicates a %Wt entrypoint type.
  *
  * An entry point binds a behavior to a public URL. Only the wthttpd
  * connector currently supports multiple entry points.
  */
-enum EntryPointType {
+enum class EntryPointType {
   /*! \brief Specifies a full-screen application.
    *
    * A full screen application manages the entire browser window and
@@ -904,7 +900,7 @@ enum EntryPointType {
    * &lt;script&gt; tag, from within the &lt;body&gt; (since it needs
    * access to the &lt;body&gt;).
    *
-   * \note A WidgetSet application requires JavaScript support
+   * \note A EntryPointType::WidgetSet application requires JavaScript support
    *
    * \sa WServer::addEntryPoint(), WApplication::bindWidget()
    */
@@ -927,38 +923,39 @@ enum EntryPointType {
 
 /*! \brief Enum for internal use.
  */
-enum RenderFlag {
-  RenderFull    = 0x1,
-  RenderUpdate  = 0x2
+enum class RenderFlag {
+  Full    = 0x1,
+  Update  = 0x2
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RenderFlag)
 
 /*! \brief Flags that specify how to match two values.
  *
- * Except when MatchExactly, the lexical matching is done (by comparing
+ * Except when MatchFlag::Exactly, the lexical matching is done (by comparing
  * string representations of the value with the query). This is by default
- * case insensitive, unless MatchCaseSensitive is OR'ed.
+ * case insensitive, unless MatchFlag::CaseSensitive is OR'ed.
  *
  * \ingroup modelview
  */
-enum MatchFlag {
-  MatchExactly = 0x0,       //!< Same type and value
-  MatchStringExactly = 0x1, //!< Lexical match
-  MatchStartsWith = 0x2,    //!< Match start with query
-  MatchEndsWith = 0x3,      //!< Match end with query
-  MatchRegExp = 0x4,        //!< Regular expression match
-  MatchWildCard = 0x5,      //!< Wildcard match
-  MatchCaseSensitive = 0x10,//!< Case sensitive
-  MatchWrap = 0x20          //!< Wrap around whole model
+enum class MatchFlag {
+  Exactly = 0x0,       //!< Same type and value
+  StringExactly = 0x1, //!< Lexical match
+  StartsWith = 0x2,    //!< Match start with query
+  EndsWith = 0x3,      //!< Match end with query
+  RegExp = 0x4,        //!< Regular expression match
+  WildCard = 0x5,      //!< Wildcard match
+  CaseSensitive = 0x10,//!< Case sensitive
+  Wrap = 0x20          //!< Wrap around whole model
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(MatchFlag)
 
 /*! \brief Type part of MatchFlags */
 static const WFlags<MatchFlag> MatchTypeMask = 
-  MatchExactly | MatchStringExactly | MatchStartsWith | MatchEndsWith |
-  MatchRegExp | MatchWildCard;
+  MatchFlag::Exactly | MatchFlag::StringExactly |
+  MatchFlag::StartsWith | MatchFlag::EndsWith |
+  MatchFlag::RegExp | MatchFlag::WildCard;
 
 /*! \brief Flags that indicate table header options
  *
@@ -966,7 +963,7 @@ static const WFlags<MatchFlag> MatchTypeMask =
  *
  * \ingroup modelview
  */
-enum HeaderFlag {
+enum class HeaderFlag {
   /*! \brief Flag that indicates that the column can be expanded.
    *
    * \sa WAbstractItemModel::expandColumn()
@@ -987,18 +984,18 @@ enum HeaderFlag {
 
   /*! \brief Flag that indicates that the header can be checked.
    */
-  HeaderIsUserCheckable = 0x8,
+  UserCheckable = 0x8,
 
   /*! \brief Flag that indicates that the item has three states.
    *
-   * When set, Wt::CheckStateRole data is of type Wt::CheckState
+   * When set, Wt::ItemDataRole::CheckState data is of type Wt::CheckState
    */
-  HeaderIsTristate = 0x10,
+  Tristate = 0x10,
 
-  /*! \brief Flag that indicates that the item text (DisplayRole, ToolTipRole)
+  /*! \brief Flag that indicates that the item text (ItemDataRole::Display, ItemDataRole::ToolTip)
    * is HTML
    */
-  HeaderIsXHTMLText = 0x40
+  XHTMLText = 0x40
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)
@@ -1007,39 +1004,59 @@ W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)
  *
  * \sa WApplication::addMetaHeader()
  */
-enum MetaHeaderType {
-  MetaName,       //!< Of the form &lt;meta name=... content=... &gt;
-  MetaProperty,   //!< Of the form &lt;meta property=... content=... &gt; 
-  MetaHttpHeader  //!< Of the form &lt;meta http-equiv=... content=... &gt;
+enum class MetaHeaderType {
+  Meta,       //!< Of the form &lt;meta name=... content=... &gt;
+  Property,   //!< Of the form &lt;meta property=... content=... &gt; 
+  HttpHeader  //!< Of the form &lt;meta http-equiv=... content=... &gt;
 };
 
 /*! \brief An enumeration describing an event's type.
  *
  * \sa WEvent::eventType()
  */
-enum EventType {
-  OtherEvent,   //!< An event which is not user- or timer-initiated
-  UserEvent,    //!< A user-initiated event
-  TimerEvent,   //!< A timer-initiated event
-  ResourceEvent //!< An event which is a resource request
+enum class EventType {
+  Other,   //!< An event which is not user- or timer-initiated
+  User,    //!< A user-initiated event
+  Timer,   //!< A timer-initiated event
+  Resource //!< An event which is a resource request
 };
 
 /*! \brief An enumeration describing a layout direction.
  */
-enum LayoutDirection {
-  LeftToRight, //!< Left-to-Right (Western and other languages)
-  RightToLeft  //!< Right-to-Left (Many Middle Eastern and Arabic languages)
+enum class LayoutDirection {
+  LeftToRight, //!< Left-to-Right layout
+  RightToLeft, //!< Right-to-left layout
+  TopToBottom, //!< Top-to-bottom layout
+  BottomToTop  //!< Bottom-to-top layout
 };
 
-enum WebWriteEvent {
-  WriteCompleted, // Write was successful
-  WriteError      // Write failed
+enum class WebWriteEvent {
+  Completed, // Write was successful
+  Error      // Write failed
 };
 
-enum WebReadEvent {
-  ReadError,   // Read failed
-  ReadMessage, // Read a WebSocket message
-  ReadPing     // Read Ping message
+enum class WebReadEvent {
+  Error,   // Read failed
+  Message, // Read a WebSocket message
+  Ping     // Read Ping message
+};
+
+/*! \brief Enumeration that determines when contents should be loaded.
+ */
+enum class ContentLoading {
+  Lazy,  //!< Lazy loading: on first use
+  Eager, //!< Pre-loading: before first use
+  NextLevel, //!< Pre-load also next level (if applicable, e.g. for WTreeNode)
+};
+
+/*! \brief Enumeration that indicates how much of (a media) is loaded.
+ */
+enum class MediaReadyState {
+  HaveNothing = 0,     //!< No information available
+  HaveMetaData = 1,    //!< Metadata loaded: duration, width, height
+  HaveCurrentData = 2, //!< Data at playback position is available
+  HaveFutureData = 3,  //!< Have data to play for a while
+  HaveEnoughData = 4   //!< Enough to reach the end without stalling
 };
 
 }

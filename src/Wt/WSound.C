@@ -3,26 +3,26 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "WSound"
-#include "WApplication"
+#include "WSound.h"
+#include "WApplication.h"
 #include "SoundManager.h"
 
 namespace Wt {
 
-WSound::WSound(WObject *parent)
-  : WObject(parent),
+WSound::WSound()
+  : manager_(WApplication::instance()->getSoundManager()),
     loops_(1)
 { }
 
-WSound::WSound(const std::string &url, WObject *parent)
-  : WObject(parent),
+WSound::WSound(const std::string &url)
+  : manager_(WApplication::instance()->getSoundManager()),
     loops_(1)
 {
-  addSource(WMediaPlayer::MP3, WLink(url));
+  addSource(MediaEncoding::MP3, WLink(url));
 }
 
-WSound::WSound(WMediaPlayer::Encoding encoding, const WLink& link, WObject *parent)
-  : WObject(parent),
+WSound::WSound(MediaEncoding encoding, const WLink& link)
+  : manager_(WApplication::instance()->getSoundManager()),
     loops_(1)
 {
   addSource(encoding, link);
@@ -33,14 +33,14 @@ WSound::~WSound()
   stop();
 }
 
-void WSound::addSource(WMediaPlayer::Encoding encoding, const WLink& link)
+void WSound::addSource(MediaEncoding encoding, const WLink& link)
 {
   media_.push_back(Source(encoding, link));
-
-  wApp->getSoundManager()->add(this);
+  if (manager_)
+    manager_->add(this);
 }
 
-WLink WSound::getSource(WMediaPlayer::Encoding encoding) const
+WLink WSound::getSource(MediaEncoding encoding) const
 {
   for (unsigned i = 0; i < media_.size(); ++i) {
     if (media_[i].encoding == encoding)
@@ -48,11 +48,6 @@ WLink WSound::getSource(WMediaPlayer::Encoding encoding) const
   }
 
   return WLink();
-}
-
-std::string WSound::url() const
-{
-  return getSource(WMediaPlayer::MP3).url();
 }
 
 //bool isFinished() const;
@@ -71,12 +66,14 @@ void WSound::setLoops(int number)
 
 void WSound::play()
 {  
-  wApp->getSoundManager()->play(this, loops_);
+  if (manager_)
+    manager_->play(this, loops_);
 }
 
 void WSound::stop()
 {
-  wApp->getSoundManager()->stop(this);
+  if (manager_)
+    manager_->stop(this);
 }
 
 }

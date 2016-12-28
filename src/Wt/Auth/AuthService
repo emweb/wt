@@ -7,9 +7,9 @@
 #ifndef WT_AUTH_BASE_AUTH_H_
 #define WT_AUTH_BASE_AUTH_H_
 
-#include <Wt/WString>
+#include <Wt/WString.h>
 
-#include <Wt/Auth/User>
+#include <Wt/Auth/User.h>
 
 namespace Wt {
   namespace Mail {
@@ -42,7 +42,7 @@ class AbstractUserDatabase;
  *
  * \ingroup auth
  */
-enum IdentityPolicy {
+enum class IdentityPolicy {
   /*! \brief A unique login name chosen by the user.
    *
    * Even if not really required for authentication, a user still
@@ -51,7 +51,7 @@ enum IdentityPolicy {
    *
    * This may be useful for sites which have a social aspect.
    */
-  LoginNameIdentity,
+  LoginName,
 
   /*! \brief The email address serves as the identity.
    *
@@ -61,7 +61,7 @@ enum IdentityPolicy {
    * display the email address of other users, but instead a
    * user-chosen login name.
    */
-  EmailAddressIdentity,
+  EmailAddress,
 
   /*! \brief An identity is optional, and only asked if needed for
    *         authentication.
@@ -73,7 +73,40 @@ enum IdentityPolicy {
    * This may be useful for sites which do not have any social
    * character, but instead render a service to individual users.
    */ 
-  OptionalIdentity
+  Optional
+};
+
+/*! \brief A token validation state
+ */
+enum class EmailTokenState {
+  Invalid,        //!< The token was invalid
+  Expired,        //!< The token has expired
+
+  /*! \brief A token was presented which requires the user to enter a new
+   *         password.
+   *
+   * The presented token was a token sent by the
+   * AuthService::lostPassword() function.  When this is returned as
+   * result of AuthService::processEmailToken(), you should present the
+   * user with a dialog where he can enter a new password.
+   */
+  UpdatePassword,
+
+  /*! \brief A The token was presented which verifies the email address.
+   *
+   * The presented token was a token sent by the
+   * AuthService::verifyEmailAddress() function. When this is returned
+   * as result of processEmailToken(), you can indicate to the user
+   * that his email address is now confirmed.
+   */
+  EmailConfirmed
+};
+
+/*! \brief Enumeration that describes an auth token validation state.
+ */
+enum class AuthTokenState { 
+  Invalid, //!< The presented auth token could be used to identify a user.
+  Valid    //!< The presented auth token was invalid
 };
 
 /*! \class EmailTokenResult Wt/Auth/AuthService Wt/Auth/AuthService
@@ -94,45 +127,22 @@ enum IdentityPolicy {
 class WT_API EmailTokenResult
 {
 public:
-  /*! \brief Enumeration that describes the result.
-   */
-  enum Result {
-    Invalid,        //!< The token was invalid
-    Expired,        //!< The token has expired
-
-    /*! \brief A token was presented which requires the user to enter a new
-     *         password.
-     *
-     * The presented token was a token sent by the
-     * AuthService::lostPassword() function.  When this is returned as
-     * result of AuthService::processEmailToken(), you should present the
-     * user with a dialog where he can enter a new password.
-     */
-    UpdatePassword,
-
-    /*! \brief A The token was presented which verifies the email address.
-     *
-     * The presented token was a token sent by the
-     * AuthService::verifyEmailAddress() function. When this is returned
-     * as result of processEmailToken(), you can indicate to the user
-     * that his email address is now confirmed.
-     */
-    EmailConfirmed
-  };
+  /*! \brief Typedef for enum Wt::Auth::EmailTokenState */
+  typedef EmailTokenState State;
 
   /*! \brief Constructor
    *
    * Creates an email token result.
    */
-  EmailTokenResult(Result result, const User& user = User());
+  EmailTokenResult(EmailTokenState state, const User& user = User());
 
   /*! \brief Returns the result.
    */
-  Result result() const { return result_; }
+  EmailTokenState state() const { return state_; }
 
   /*! \brief Returns the user, if any.
    *
-   * The identified user is only valid when the token result is
+   * The identified user is only valid when the token state is
    * UpdatePassword or EmailConfirmed. In that case, you may login the
    * user as strongly authenticated since he presented a random token
    * that was sent to his own email address.
@@ -140,7 +150,7 @@ public:
   const User& user() const;
 
 private:
-  Result result_;
+  EmailTokenState state_;
   User user_;
 };
 
@@ -159,28 +169,24 @@ private:
 class WT_API AuthTokenResult
 {
 public:
-  /*! \brief Enumeration that describes the result.
-   */
-  enum Result { 
-    Invalid, //!< The presented auth token could be used to identify a user.
-    Valid    //!< The presented auth token was invalid
-  };
+  /*! \brief Typedef for enum Wt::Auth::AuthTokenState */
+  typedef AuthTokenState State;
 
   /*! \brief Constructor
    *
    * Creates an authentication token result.
    */
-  AuthTokenResult(Result result, const User& user = User(),
+  AuthTokenResult(AuthTokenState state, const User& user = User(),
 		  const std::string& newToken = std::string(),
 		  int newTokenValidity = -1);
 
   /*! \brief Returns the result.
    */
-  Result result() const { return result_; }
+  AuthTokenState state() const { return state_; }
 
   /*! \brief Returns the identified user.
    *
-   * The user is valid only if the the result() == Valid.
+   * The user is valid only if the the state() == AuthTokenState::Valid.
    */
   const User& user() const;
 
@@ -189,7 +195,7 @@ public:
    * An authentication token can be used only once, and needs to be
    * replaced by a new token.
    *
-   * The returned token is valid only if the result() == Valid.
+   * The returned token is valid only if the state() == AuthTokenState::Valid.
    */
   std::string newToken() const;
 
@@ -202,7 +208,7 @@ public:
   int newTokenValidity() const;
 
 private:
-  Result result_;
+  AuthTokenState state_;
   User user_;
   std::string newToken_;
   int newTokenValidity_;
@@ -482,9 +488,9 @@ public:
    * token is removed from the database.
    *
    * This may return two successful results:
-   * - EmailTokenResult::EmailConfirmed: a token was presented which proves
+   * - EmailTokenState::EmailConfirmed: a token was presented which proves
    *   that the user is tied to the email address.
-   * - EmailTokenResult::UpdatePassword: a token was presented which requires
+   * - EmailTokenState::UpdatePassword: a token was presented which requires
    *   the user to enter a new password.
    *
    * \sa verifyEmailAddress()

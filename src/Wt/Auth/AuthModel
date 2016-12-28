@@ -7,10 +7,10 @@
 #ifndef WT_AUTH_AUTH_MODEL_H_
 #define WT_AUTH_AUTH_MODEL_H_
 
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/FormBaseModel>
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/User>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/FormBaseModel.h>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/User.h>
 
 namespace Wt {
   namespace Auth {
@@ -66,13 +66,12 @@ public:
    * Creates a new authentication model, using a basic authentication
    * service and user database.
    */
-  AuthModel(const AuthService& baseAuth, AbstractUserDatabase& users,
-	    WObject *parent = 0);
+  AuthModel(const AuthService& baseAuth, AbstractUserDatabase& users);
 
-  virtual void reset();
-  virtual bool isVisible(Field field) const;
-  virtual bool validateField(Field field);
-  virtual bool validate();
+  virtual void reset() override;
+  virtual bool isVisible(Field field) const override;
+  virtual bool validateField(Field field) override;
+  virtual bool validate() override;
 
   /*! \brief Initializes client-side login throttling.
    *

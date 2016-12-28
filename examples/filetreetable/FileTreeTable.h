@@ -7,7 +7,7 @@
 #ifndef FILETREETABLE_H_
 #define FILETREETABLE_H_
 
-#include <Wt/WTreeTable>
+#include <Wt/WTreeTable.h>
 
 #include <boost/filesystem/path.hpp>
 
@@ -37,8 +37,7 @@ public:
    *
    * Create a new FileTreeTable to browse the given path.
    */
-  FileTreeTable(const boost::filesystem::path& path,
-		Wt::WContainerWidget *parent = 0);
+  FileTreeTable(const boost::filesystem::path& path);
 };
 
 /*@}*/

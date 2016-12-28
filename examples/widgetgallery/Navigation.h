@@ -18,15 +18,15 @@ public:
   void populateSubMenu(Wt::WMenu *menu);
 
 private:
-  Wt::WWidget *internalPaths();
-  Wt::WWidget *anchor();
-  Wt::WWidget *stackedWidget();
-  Wt::WWidget *tabWidget();
-  Wt::WWidget *menuWidget();
-  Wt::WWidget *navigationBar();
-  Wt::WWidget *popupMenu();
-  Wt::WWidget *splitButton();
-  Wt::WWidget *toolBar();
+  std::unique_ptr<WWidget> internalPaths();
+  std::unique_ptr<WWidget> anchor();
+  std::unique_ptr<WWidget> stackedWidget();
+  std::unique_ptr<WWidget> tabWidget();
+  std::unique_ptr<WWidget> menuWidget();
+  std::unique_ptr<WWidget> navigationBar();
+  std::unique_ptr<WWidget> popupMenu();
+  std::unique_ptr<WWidget> splitButton();
+  std::unique_ptr<WWidget> toolBar();
 };
 
 #endif // NAVIGATION_H_

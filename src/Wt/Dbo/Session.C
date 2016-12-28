@@ -5,18 +5,17 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/Call"
-#include "Wt/Dbo/Exception"
-#include "Wt/Dbo/Session"
-#include "Wt/Dbo/SqlConnection"
-#include "Wt/Dbo/SqlConnectionPool"
-#include "Wt/Dbo/SqlStatement"
-#include "Wt/Dbo/StdSqlTraits"
+#include "Wt/Dbo/Call.h"
+#include "Wt/Dbo/Exception.h"
+#include "Wt/Dbo/Session.h"
+#include "Wt/Dbo/SqlConnection.h"
+#include "Wt/Dbo/SqlConnectionPool.h"
+#include "Wt/Dbo/SqlStatement.h"
+#include "Wt/Dbo/StdSqlTraits.h"
 
 #include <iostream>
 #include <vector>
 #include <string>
-#include <boost/lexical_cast.hpp>
 
 namespace Wt {
   namespace Dbo {
@@ -126,16 +125,16 @@ Session::Session()
   : schemaInitialized_(false),
     //useRowsFromTo_(false),
     requireSubqueryAlias_(false),
-    connection_(0),
-    connectionPool_(0),
-    transaction_(0),
-    flushMode_(Auto)
+    connection_(nullptr),
+    connectionPool_(nullptr),
+    transaction_(nullptr),
+    flushMode_(FlushMode::Auto)
 { }
 
 Session::~Session()
 {
   if (!dirtyObjects_.empty())
-    std::cerr << "Warning: Wt::Dbo::Session exiting with "
+    std::cerr << "Icon::Warning: Wt::Dbo::Session exiting with "
 	      << dirtyObjects_.size() << " dirty objects" << std::endl;
 
   while (!dirtyObjects_.empty()) {
@@ -150,12 +149,12 @@ Session::~Session()
     delete i->second;
 }
 
-void Session::setConnection(SqlConnection& connection)
+void Session::setConnection(std::unique_ptr<SqlConnection> connection)
 {
-  connection_ = &connection;
+  connection_ = std::move(connection);
 }
 
-void Session::setConnectionPool(SqlConnectionPool& pool)
+void Session::setConnectionPool(SqlConnectionPool &pool)
 {
   connectionPool_ = &pool;
 }
@@ -168,21 +167,23 @@ SqlConnection *Session::connection(bool openTransaction)
   if (openTransaction)
     transaction_->open();
 
-  return transaction_->connection_;
+  return transaction_->connection_.get();
 }
 
-SqlConnection *Session::useConnection()
+std::unique_ptr<SqlConnection> Session::useConnection()
 {
   if (connectionPool_)
     return connectionPool_->getConnection();
   else
-    return connection_;
+    return std::move(connection_);
 }
 
-void Session::returnConnection(SqlConnection *connection)
+void Session::returnConnection(std::unique_ptr<SqlConnection> connection)
 {
   if (connectionPool_)
-    connectionPool_->returnConnection(connection);
+    connectionPool_->returnConnection(std::move(connection));
+  else
+    connection_ = std::move(connection);
 }
 
 void Session::discardChanges(MetaDboBase *obj)
@@ -279,18 +280,21 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
 
   sql << ")";
 
+  std::unique_ptr<SqlConnection> connPtr;
   SqlConnection *conn;
   if (transaction_)
-    conn = transaction_->connection_;
-  else
-    conn = useConnection();
+    conn = transaction_->connection_.get();
+  else {
+    connPtr = useConnection();
+    conn = connPtr.get();
+  }
 
   if (mapping->surrogateIdFieldName) {
     sql << conn->autoincrementInsertSuffix(mapping->surrogateIdFieldName);
   }
 
   if (!transaction_)
-    returnConnection(conn);
+    returnConnection(std::move(connPtr));
 
   mapping->statements.push_back(sql.str()); // SqlInsert
 
@@ -682,11 +686,11 @@ void Session::createTables()
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createTable(i->second, tablesCreated, 0, false);
+    createTable(i->second, tablesCreated, nullptr, false);
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createRelations(i->second, tablesCreated, 0);
+    createRelations(i->second, tablesCreated, nullptr);
 
   t.commit();
 }
@@ -907,8 +911,8 @@ void Session::createJoinTable(const std::string& joinName,
   Impl::MappingInfo joinTableMapping;
 
   joinTableMapping.tableName = joinName.c_str();
-  joinTableMapping.versionFieldName = 0;
-  joinTableMapping.surrogateIdFieldName = 0;
+  joinTableMapping.versionFieldName = nullptr;
+  joinTableMapping.surrogateIdFieldName = nullptr;
 
   addJoinTableFields(joinTableMapping, mapping1, joinId1, "key1",
 		     fkConstraints1, literalJoinId1);
@@ -997,7 +1001,7 @@ Session::getJoinIds(Impl::MappingInfo *mapping, const std::string& joinId, bool 
     }
     if (literalJoinId && nbNaturalIdFields != 1) {
       throw Exception(std::string("The literal join id >") + joinId + " was used,"
-		      " but there are " + boost::lexical_cast<std::string>(nbNaturalIdFields) +
+                      " but there are " + std::to_string(nbNaturalIdFields) +
 		      " natural id fields. There may only be one natural id field.");
     }
   }
@@ -1019,7 +1023,7 @@ void Session::addJoinTableFields(Impl::MappingInfo& result,
       (FieldInfo(joinIds[i].joinIdName, &typeid(long long),
 		 joinIds[i].sqlType,
 		 mapping->tableName, keyName,
-		 FieldInfo::NaturalId | FieldInfo::ForeignKey,
+		 FieldFlags::NaturalId | FieldFlags::ForeignKey,
 		 fkConstraints));
 }
 
@@ -1056,7 +1060,7 @@ void Session::dropTables()
 
           j = findLastForeignKeyField(mapping, field, j);
 
-	  executeSql(sql, 0);
+	  executeSql(sql, nullptr);
         }
       }
     }
@@ -1077,7 +1081,7 @@ Impl::MappingInfo *Session::getMapping(const char *tableName) const
   if (i != tableRegistry_.end())
     return i->second;
   else
-    return 0;
+    return nullptr;
 }
 
 void Session::needsFlush(MetaDboBase *obj)
@@ -1143,8 +1147,7 @@ void Session::discardUnflushed()
 
 std::string Session::statementId(const char *tableName, int statementIdx)
 {  
-  return std::string(tableName) + ":"
-    + boost::lexical_cast<std::string>(statementIdx);
+  return std::string(tableName) + ":" + std::to_string(statementIdx);
 }
 
 SqlStatement *Session::getStatement(const std::string& id)
@@ -1203,13 +1206,13 @@ void Session::getFields(const char *tableName,
     result.push_back(FieldInfo(mapping->surrogateIdFieldName,
 			       &typeid(long long),
 			       longlongType_,
-			       FieldInfo::SurrogateId |
-			       FieldInfo::NeedsQuotes));
+			       FieldFlags::SurrogateId |
+			       FieldFlags::NeedsQuotes));
 
   if (mapping->versionFieldName)
     result.push_back(FieldInfo(mapping->versionFieldName, &typeid(int),
 			       intType_,
-			       FieldInfo::Version | FieldInfo::NeedsQuotes));
+			       FieldFlags::Version | FieldFlags::NeedsQuotes));
 
   result.insert(result.end(), mapping->fields.begin(), mapping->fields.end());
 }

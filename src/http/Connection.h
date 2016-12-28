@@ -18,6 +18,7 @@
 #define HTTP_CONNECTION_HPP
 
 #include <boost/asio.hpp>
+
 namespace asio = boost::asio;
 typedef boost::system::error_code asio_error_code;
 typedef boost::system::system_error asio_system_error;
@@ -28,18 +29,13 @@ typedef boost::asio::steady_timer asio_timer;
 typedef boost::asio::deadline_timer asio_timer;
 #endif
 
-#include <boost/array.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 #include "Buffer.h"
 #include "Reply.h"
 #include "Request.h"
 #include "RequestHandler.h"
 #include "RequestParser.h"
 
-#include "Wt/WFlags"
+#include "Wt/WFlags.h"
 
 namespace http {
 namespace server {
@@ -48,14 +44,14 @@ class ConnectionManager;
 class Server;
 
 /// Represents a single connection from a client.
-class Connection
-  : public boost::enable_shared_from_this<Connection>,
-    private boost::noncopyable
+class Connection : public std::enable_shared_from_this<Connection>
 {
 public:
   /// Construct a connection with the given io_service.
-  explicit Connection(asio::io_service& io_service, Server *server,
-      ConnectionManager& manager, RequestHandler& handler);
+  Connection(asio::io_service& io_service, Server *server,
+	     ConnectionManager& manager, RequestHandler& handler);
+
+  Connection(const Connection& other) = delete;
 
   /// Get the socket associated with the connection.
   virtual asio::ip::tcp::socket& socket() = 0;
@@ -92,20 +88,20 @@ public:
   // NOTE: detectDisconnect will only register one callback at a time,
   //       further calls to detectDisconnect are ignored
   void detectDisconnect(ReplyPtr reply,
-			const boost::function<void()>& callback);
+			const std::function<void()>& callback);
 
 protected:
-  void handleWriteResponse(ReplyPtr reply,
-			   const asio_error_code& e,
-			   std::size_t bytes_transferred);
+  void handleWriteResponse0(ReplyPtr reply,
+			    const asio_error_code& e,
+			    std::size_t bytes_transferred);
   void handleWriteResponse(ReplyPtr reply);
   void handleReadRequest(const asio_error_code& e,
 			 std::size_t bytes_transferred);
   /// Process read buffer, reading request.
   void handleReadRequest0();
-  void handleReadBody(ReplyPtr reply,
-		      const asio_error_code& e,
-		      std::size_t bytes_transferred);
+  void handleReadBody0(ReplyPtr reply,
+		       const asio_error_code& e,
+		       std::size_t bytes_transferred);
 
   void setReadTimeout(int seconds);
   void setWriteTimeout(int seconds);
@@ -168,7 +164,7 @@ private:
 
   /// Size of last buffer and iterator for next request in last buffer
   std::size_t rcv_buffer_size_;
-  Buffer::iterator rcv_remaining_;
+  char *rcv_remaining_;
   bool rcv_body_buffer_;
 
   /// The incoming request.
@@ -195,10 +191,10 @@ private:
   /// current write operation)
   bool responseDone_;
 
-  boost::function<void()> disconnectCallback_;
+  std::function<void()> disconnectCallback_;
 };
 
-typedef boost::shared_ptr<Connection> ConnectionPtr;
+typedef std::shared_ptr<Connection> ConnectionPtr;
 
 } // namespace server
 } // namespace http

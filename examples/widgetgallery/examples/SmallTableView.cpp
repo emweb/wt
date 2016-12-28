@@ -1,21 +1,20 @@
-#include <Wt/WApplication>
-#include <Wt/WStandardItemModel>
-#include <Wt/WTableView>
+#include <Wt/WApplication.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WTableView.h>
 #include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(SmallTableView)
-Wt::WTableView *tableView = new Wt::WTableView();
-tableView->setModel(csvToModel(Wt::WApplication::appRoot() + "table.csv",
-			       tableView));
+auto tableView = cpp14::make_unique<WTableView>();
+tableView->setModel(csvToModel(WApplication::appRoot() + "table.csv"));
 
 tableView->setColumnResizeEnabled(false);
-tableView->setColumnAlignment(0, Wt::AlignCenter);
-tableView->setHeaderAlignment(0, Wt::AlignCenter);
+tableView->setColumnAlignment(0, AlignmentFlag::Center);
+tableView->setHeaderAlignment(0, AlignmentFlag::Center);
 tableView->setAlternatingRowColors(true);
 tableView->setRowHeight(28);
 tableView->setHeaderHeight(28);
-tableView->setSelectionMode(Wt::SingleSelection);
-tableView->setEditTriggers(Wt::WAbstractItemView::NoEditTrigger);
+tableView->setSelectionMode(SelectionMode::Single);
+tableView->setEditTriggers(EditTrigger::None);
 
 /*
  * Configure column widths and matching table width
@@ -30,4 +29,4 @@ for (int i = 0; i < tableView->model()->columnCount(); ++i)
  */
 tableView->setWidth((WIDTH + 7) * tableView->model()->columnCount() + 2);
 
-SAMPLE_END(return tableView)
+SAMPLE_END(return std::move(tableView))

@@ -12,7 +12,7 @@
 namespace asio = boost::asio;
 #endif
 
-#include "Wt/WStringStream"
+#include "Wt/WStringStream.h"
 
 #include "WebUtils.h"
 

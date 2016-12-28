@@ -7,8 +7,8 @@
 #ifndef WSOCKETNOTIFIER_H_
 #define WSOCKETNOTIFIER_H_
 
-#include <Wt/WObject>
-#include <Wt/WSignal>
+#include <Wt/WObject.h>
+#include <Wt/WSignal.h>
 
 namespace Wt {
 
@@ -67,9 +67,10 @@ class WT_API WSocketNotifier : public WObject
 public:
   /*! \brief Enumeration that event type.
    */
-  enum Type { Read,      //!< Ready to read
-	      Write,     //!< Ready to write
-	      Exception  //!< Exception
+  enum class Type {
+    Read,      //!< Ready to read
+    Write,     //!< Ready to write
+    Exception  //!< Exception
   };
 
   /*! \brief Creates a new socket notifier.
@@ -78,7 +79,7 @@ public:
    * on a socket with file descriptor \p socket. The WSocketNotifier is
    * enabled after construction.
    */
-  WSocketNotifier(int socket, Type type, WObject *parent = 0);
+  WSocketNotifier(int socket, Type type);
 
   /*! \brief Destructor.
    */

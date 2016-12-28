@@ -9,17 +9,12 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
-#include <boost/function.hpp>
 
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#if BOOST_VERSION >= 104900
 #include <boost/asio/steady_timer.hpp>
 #else
 #include <boost/asio/deadline_timer.hpp>
 #endif
-
-namespace boost {
-  class thread;
-}
 
 #include <Wt/WDllDefs.h>
 
@@ -75,14 +70,14 @@ public:
    *
    * This method returns immediately.
    */
-  void post(const boost::function<void ()>& function);
+  void post(const std::function<void ()>& function);
 
   /*! \brief Schedules a function on the thread-pool.
    *
    * The function will be executed after a time out, specified in
    * milli-seconds, on the thread pool.
    */
-  void schedule(int milliSeconds, const boost::function<void()>& function);
+  void schedule(int milliSeconds, const std::function<void()>& function);
 
   /*! \brief Initializes a thread.
    *
@@ -103,13 +98,13 @@ public:
 private:
   WIOServiceImpl *impl_;
   strand strand_;
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#if BOOST_VERSION >= 104900
   void handleTimeout(boost::asio::steady_timer *timer,
-		     const boost::function<void ()>& function,
+		     const std::function<void ()>& function,
 		     const boost::system::error_code& e);
 #else
   void handleTimeout(boost::asio::deadline_timer *timer,
-                     const boost::function<void ()>& function,
+                     const std::function<void ()>& function,
                      const boost::system::error_code& e);
 #endif
   void run();

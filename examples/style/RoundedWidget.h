@@ -8,7 +8,9 @@
 #ifndef ROUNDED_WIDGET_H_
 #define ROUNDED_WIDGET_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
+
+#include <array>
 
 #include "CornerImage.h"
 
@@ -41,22 +43,13 @@ namespace Wt {
 class RoundedWidget : public WCompositeWidget
 {
 public:
-  /*! \brief One of the four corners of a widget.
-   */
-  enum Corner { TopLeft = CornerImage::TopLeft,         //!< Top left
-		TopRight = CornerImage::TopRight,       //!< Top right
-		BottomLeft = CornerImage::BottomLeft,   //!< Bottom left
-		BottomRight = CornerImage::BottomRight, //!< Bottom right
-                All = 0xF};                             //!< All
-
   /*! \brief Construct a widget with any combination of its corners
    *         rounded.
    */
-  RoundedWidget(int corners = All, WContainerWidget *parent = 0);
-
-  /*! \brief Destruct a RoundedWidget
-   */
-  ~RoundedWidget();
+  RoundedWidget(WFlags<Corner> corners = WFlags<Corner>(Corner::TopLeft) |
+							Corner::TopRight |
+							Corner::BottomLeft |
+							Corner::BottomRight);
 
   /*! \brief Set the widget background color.
    *
@@ -111,7 +104,7 @@ private:
   int radius_;
 
   //! OR'ed specification of the corners which are to be rounded.
-  int corners_;
+  WFlags<Corner> corners_;
 
   //! The container widget in which to store the contents.
   WContainerWidget *contents_;
@@ -126,7 +119,7 @@ private:
   WContainerWidget *bottom_;
 
   //! Up to four CornerImages for each corner.
-  CornerImage *images_[4];
+  std::array<Wt::Core::observing_ptr<CornerImage>, 4> images_;
 
   //! Create the implementation.
   void create();

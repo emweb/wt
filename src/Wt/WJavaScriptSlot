@@ -7,7 +7,7 @@
 #ifndef WJAVASCRIPTSLOT_H_
 #define WJAVASCRIPTSLOT_H_
 
-#include "Wt/WObject"
+#include "Wt/WObject.h"
 
 namespace Wt {
 
@@ -94,7 +94,7 @@ public:
    *
    * The slot will have no extra arguments.
    */
-  JSlot(WWidget *parent = 0);
+  JSlot(WWidget *parent = nullptr);
 
   /*! \brief Constructs a JavaScript-only slot and sets the JavaScript code.
    *
@@ -102,7 +102,7 @@ public:
    *
    * \sa JSlot(WWidget *), setJavaScript()
    */
-  JSlot(const std::string& javaScript, WWidget *parent = 0);
+  JSlot(const std::string& javaScript, WWidget *parent = nullptr);
 
   /*! \brief Constructs a JavaScript-only slot and set the number of arguments.
    *
@@ -115,7 +115,7 @@ public:
    *
    * \sa JSlot(WWidget *), setJavaScript()
    */
-  JSlot(const std::string& javaScript, int nbArgs, WWidget *parent = 0);
+  JSlot(const std::string& javaScript, int nbArgs, WWidget *parent = nullptr);
 
   /*! \brief Destructor.
    */

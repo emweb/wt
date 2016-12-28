@@ -7,6 +7,6 @@
 #ifndef WSUB_MENU_ITEM_H_
 #define WSUB_MENU_ITEM_H_
 
-#include <Wt/WMenuItem>
+#include <Wt/WMenuItem.h>
 
 #endif // WSUB_MENU_ITEM_H_

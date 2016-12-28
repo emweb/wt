@@ -6,9 +6,9 @@
 #include "../model/Token.h"
 #include "../model/Comment.h"
 
-#include <Wt/Dbo/ptr>
-#include <Wt/WStackedWidget>
-#include <Wt/WTemplate>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/WStackedWidget.h>
+#include <Wt/WTemplate.h>
 
 namespace Wt {
   class WLineEdit;
@@ -26,9 +26,9 @@ private:
   void onUserClicked(Wt::Dbo::dbo_traits<User>::IdType id);
   void limitList();
 
-  Wt::Dbo::Session& session_;
-  std::string basePath_;
-  Wt::WLineEdit* limitEdit_;
+  Wt::Dbo::Session  &session_;
+  std::string    basePath_;
+  Wt::WLineEdit     *limitEdit_;
 };
 
 class EditUser : public Wt::WTemplate
@@ -40,9 +40,9 @@ private:
   void bindTemplate();
   void switchRole();
 
-  Wt::Dbo::Session& session_;
-  Wt::Dbo::ptr<User> target_;
-  Wt::WPushButton* roleButton_;
+  Wt::Dbo::Session   &session_;
+  Wt::Dbo::ptr<User>  target_;
+  Wt::WPushButton    *roleButton_;
 };
 
 #endif

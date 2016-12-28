@@ -8,7 +8,7 @@
 #ifndef MANDELBROT_IMAGE_H_
 #define MANDELBROT_IMAGE_H_
 
-#include <Wt/WVirtualImage>
+#include <Wt/WVirtualImage.h>
 
 using namespace Wt;
 
@@ -22,8 +22,7 @@ public:
   MandelbrotImage(int width, int height,
 		  int64_t virtualWidth, int64_t virtualHeight,
 		  double bx1, double by1,
-		  double bx2, double by2,
-		  WContainerWidget *parent = 0);
+		  double bx2, double by2);
 
   void zoomIn();
   void zoomOut();
@@ -40,7 +39,7 @@ private:
   int maxDepth_;
   double bailOut2_;
 
-  virtual WResource *render(int64_t x, int64_t y, int w, int h);
+  virtual std::unique_ptr<WResource> render(int64_t x, int64_t y, int w, int h);
   double calcPixel(double x, double y);
 
   double convertPixelX(int64_t x) const;

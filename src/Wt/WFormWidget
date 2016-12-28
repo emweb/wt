@@ -7,8 +7,8 @@
 #ifndef WFORM_WIDGET_H_
 #define WFORM_WIDGET_H_
 
-#include <Wt/WInteractWidget>
-#include <Wt/WValidator>
+#include <Wt/WInteractWidget.h>
+#include <Wt/WValidator.h>
 
 namespace Wt {
 
@@ -34,13 +34,11 @@ class WLabel;
 class WT_API WFormWidget : public WInteractWidget
 {
 public:
-  /*! \brief Creates a %WFormWidget with an optional parent.
+  /*! \brief Creates a %WFormWidget.
    */
-  WFormWidget(WContainerWidget *parent = 0);
+  WFormWidget();
 
   /*! \brief Destructor.
-   *
-   * If a label was associated with the widget, its buddy is reset to \c 0.
    */
   ~WFormWidget();
 
@@ -59,7 +57,7 @@ public:
    * this widget.
    */
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
+			 const WAnimation& animation = WAnimation()) override;
 
   /*! \brief Returns the current value.
    *
@@ -85,17 +83,17 @@ public:
    *
    * \sa validate()
    */
-  void setValidator(WValidator *validator);
+  void setValidator(const std::shared_ptr<WValidator>& validator);
 
   /*! \brief Returns the validator.
    */
-  virtual WValidator *validator() const { return validator_; }
+  virtual std::shared_ptr<WValidator> validator() const { return validator_; }
 
   /*! \brief Validates the field.
    *
    * \sa validated()
    */
-  virtual WValidator::State validate();
+  virtual ValidationState validate();
 
   /*! \brief Sets whether the widget is enabled.
    *
@@ -122,20 +120,6 @@ public:
    */
   bool isReadOnly() const;
 
-  /*! \brief Sets the placeholder text (<b>deprecated</b>).
-   *
-   * \deprecated use setPlaceholderText() instead
-   */
-  void setEmptyText(const WString& emptyText);
-
-  /*! \brief Returns the placeholder text (<b>deprecated</b>).
-   *
-   * \deprecated use placeholderText() instead.
-   */
-  const WString& emptyText() const {
-    return placeholderText();
-  }
-
   /*! \brief Sets the placeholder text.
    *
    * This sets the text that is shown when the field is empty.
@@ -146,19 +130,13 @@ public:
    *
    * \sa setPlaceholderText()
    */
-  const WString& placeholderText() const {
-    return emptyText_;
-  }
+  const WString& placeholderText() const { return emptyText_; }
 
   /*! \brief %Signal emitted when the value was changed.
    *
    * For a keyboard input, the signal is only emitted when the focus is lost
    */
   EventSignal<>& changed();
-
-  /*! \brief %Signal emitted when ??
-   */
-  EventSignal<>& selected();
 
   /*! \brief %Signal emitted when the widget is being validated.
    *
@@ -168,30 +146,29 @@ public:
    */
   Signal<WValidator::Result>& validated() { return validated_; }
 
-  virtual void refresh();
+  virtual void refresh() override;
 
   virtual void setToolTip(const WString& text,
-			  TextFormat textFormat = PlainText);
+			  TextFormat textFormat = TextFormat::Plain)
+    override;
 
-  virtual bool canReceiveFocus() const;
-  virtual int tabIndex() const;
+  virtual bool canReceiveFocus() const override;
+  virtual int tabIndex() const override;
 
 protected:
-  WLabel     *label_;
-  WValidator *validator_;
-  JSlot      *validateJs_, *filterInput_, *removeEmptyText_;
-  WString     emptyText_;
+  WLabel *label_;
+  std::shared_ptr<WValidator> validator_;
+  std::unique_ptr<JSlot> validateJs_, filterInput_, removeEmptyText_;
+  WString emptyText_;
 
   // also used in WAbstractToggleButton
   static const char *CHANGE_SIGNAL;
 
   void applyEmptyText();
 
-  virtual void enableAjax();
+  virtual void enableAjax() override;
 
 private:
-  static const char *SELECT_SIGNAL;
-
   static const int BIT_ENABLED_CHANGED  = 0;
   static const int BIT_READONLY         = 1;
   static const int BIT_READONLY_CHANGED = 2;
@@ -210,12 +187,12 @@ private:
   void updateEmptyText();
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void propagateRenderOk(bool deep) override;
 
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
-  virtual void propagateSetEnabled(bool enabled);
+  virtual void propagateSetEnabled(bool enabled) override;
 
   virtual std::string formName() const;
 

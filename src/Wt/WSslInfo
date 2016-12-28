@@ -8,8 +8,8 @@
 #define WT_WSSL_INFO_H_
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WSslCertificate>
-#include <Wt/WValidator>
+#include <Wt/WSslCertificate.h>
+#include <Wt/WValidator.h>
 
 #include <string>
 #include <vector>
@@ -62,7 +62,7 @@ public:
 
   /*! \brief Returns the certificate chain used for client authentication.
    *
-   * Warning: for the ISAPI connector, the certificate chain will always be
+   * Icon::Warning: for the ISAPI connector, the certificate chain will always be
    * empty.
    */
   const std::vector<WSslCertificate> &clientPemCertificateChain() const {

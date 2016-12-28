@@ -7,9 +7,9 @@
 #ifndef WPOLYGON_AREA_H_
 #define WPOLYGON_AREA_H_
 
-#include <Wt/WAbstractArea>
-#include <Wt/WPoint>
-#include <Wt/WPointF>
+#include <Wt/WAbstractArea.h>
+#include <Wt/WPoint.h>
+#include <Wt/WPointF.h>
 
 namespace Wt {
 
@@ -117,8 +117,8 @@ private:
   mutable std::vector<WPoint> pointsIntCompatibility_;
 
 protected:
-  virtual bool updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
-  virtual std::string updateAreaCoordsJS() WT_CXX11ONLY(override);
+  virtual bool updateDom(DomElement& element, bool all) override;
+  virtual std::string updateAreaCoordsJS() override;
 };
 
 }

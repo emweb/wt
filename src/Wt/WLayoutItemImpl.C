@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2016 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WLayoutItemImpl"
+#include "Wt/WLayoutItemImpl.h"
 
 namespace Wt {
 

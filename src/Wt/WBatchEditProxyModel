@@ -7,7 +7,7 @@
 #ifndef WBATCH_EDIT_PROXY_MODEL_H_
 #define WBATCH_EDIT_PROXY_MODEL_H_
 
-#include <Wt/WAbstractProxyModel>
+#include <Wt/WAbstractProxyModel.h>
 
 namespace Wt {
 
@@ -39,7 +39,7 @@ class WT_API WBatchEditProxyModel : public WAbstractProxyModel
 public:
   /*! \brief Constructor.
    */
-  WBatchEditProxyModel(WObject *parent = 0);
+  WBatchEditProxyModel();
 
   /*! \brief Destructor.
    */
@@ -73,12 +73,12 @@ public:
    * You can use this method to initialize data for a newly inserted
    * row.
    */
-  void setNewRowData(int column, const boost::any& data,
-		     int role = DisplayRole);
+  void setNewRowData(int column, const cpp17::any& data,
+		     int role = ItemDataRole::Display);
 
   /*! \brief Sets the item flags for items in a newly inserted row.
    *
-   * By default, flags() will return ItemIsSelectable.
+   * By default, flags() will return ItemFlag::Selectable.
    */
   void setNewRowFlags(int column, WFlags<ItemFlag> flags);
 
@@ -89,16 +89,19 @@ public:
    * newly inserted row/column, or because new data has been set for
    * it.
    *
-   * When \p role is Wt::StyleClassRole, the style class is appended
+   * When \p role is Wt::ItemDataRole::StyleClass, the style class is appended
    * to any style already returned by the source model or set by
    * setNewRowData().
    *
    * By default there is no dirty indication.
    */
-  void setDirtyIndication(int role, const boost::any& data);
+  void setDirtyIndication(int role, const cpp17::any& data);
 
-  virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const;
-  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
+  virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex)
+    const override;
+
+  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex)
+    const override;
 
   /*! \brief Sets the source model.
    *
@@ -110,50 +113,57 @@ public:
    * All signals of the source model are propagated to the
    * proxy model.
    */
-  virtual void setSourceModel(WAbstractItemModel *sourceModel);
+  virtual void setSourceModel
+    (const std::shared_ptr<WAbstractItemModel>& sourceModel) override;
 
-  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int columnCount(const WModelIndex& parent = WModelIndex())
+    const override;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex())
+    const override;
 
-  virtual WModelIndex parent(const WModelIndex& index) const;
+  virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex()) const;
+			    const WModelIndex& parent = WModelIndex())
+    const override;
 
   using WAbstractItemModel::setData;
   using WAbstractItemModel::data;
   using WAbstractItemModel::setHeaderData;
 
-  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
-    const;
+  virtual cpp17::any data(const WModelIndex& index, int role = ItemDataRole::Display)
+    const override;
 
   /*! \brief Sets item data.
    *
-   * The default implementation will copy Wt::EditRole data to
-   * Wt::DisplayRole. You may want to specialize the model to provide
+   * The default implementation will copy Wt::ItemDataRole::Edit data to
+   * Wt::ItemDataRole::Display. You may want to specialize the model to provide
    * a more specialized editing behaviour.
    */
-  virtual bool setData(const WModelIndex& index, const boost::any& value,
-		       int role = EditRole);
+  virtual bool setData(const WModelIndex& index, const cpp17::any& value,
+		       int role = ItemDataRole::Edit) override;
 
-  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
-  virtual boost::any headerData(int section,
-				Orientation orientation = Horizontal,
-				int role = DisplayRole) const;
+  virtual cpp17::any headerData(int section,
+			     Orientation orientation = Orientation::Horizontal,
+			     int role = ItemDataRole::Display) const override;
 
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex()) override;
 
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex()) override;
 
   virtual bool insertColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex());
+			     const WModelIndex& parent = WModelIndex())
+    override;
 
   virtual bool removeColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex());
+			     const WModelIndex& parent = WModelIndex())
+    override;
 
-  virtual void sort(int column, SortOrder order = AscendingOrder);
+  virtual void sort(int column, 
+		    SortOrder order = SortOrder::Ascending) override;
 
 private:
   struct Cell {
@@ -190,7 +200,7 @@ private:
   std::map<int, DataMap> newRowData_;
   std::map<int, WFlags<ItemFlag> > newRowFlags_;
   int dirtyIndicationRole_;
-  boost::any dirtyIndicationData_;
+  cpp17::any dirtyIndicationData_;
 
   std::vector<Wt::Signals::connection> modelConnections_;
   mutable ItemMap mappedIndexes_;
@@ -254,7 +264,7 @@ private:
 
   void resetMappings();
 
-  boost::any indicateDirty(int role, const boost::any& value) const;
+  cpp17::any indicateDirty(int role, const cpp17::any& value) const;
 };
 
 }

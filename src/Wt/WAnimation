@@ -7,9 +7,45 @@
 #ifndef WANIMATION_H_
 #define WANIMATION_H_
 
-#include <Wt/WGlobal>
+#include <Wt/WGlobal.h>
 
 namespace Wt {
+
+/*! \brief An enumeration describing an animation effect
+ *
+ * An animation effect can be the combination of a motion and an optional
+ * fade effect, e.g:
+ * \code
+ *  SlideInFromRight
+ *  SlideInFromTop | Fade
+ * \endcode
+ *
+ * You can specify only one motion effect.
+ *
+ * \sa setEffects()
+ */
+enum class AnimationEffect {
+  SlideInFromLeft = 0x1,   //!< Slides right to show, left to hide
+  SlideInFromRight = 0x2,  //!< Slides left to show, right to hide
+  SlideInFromBottom = 0x3, //!< Slides up to show, down to hide
+  SlideInFromTop = 0x4,    //!< Slides down to show, up to hide
+  Pop = 0x5,               //!< Pops up to show, pops away to hide
+  Fade = 0x100             //!< Fade effect
+};
+
+/*! \brief A timing function
+ *
+ * The timing function defines how the animation effects are animated
+ * during the total duration of the animation.
+ */
+enum class TimingFunction {
+  Ease,        //!< Slow start and slow finish
+  Linear,      //!< Linear throughout
+  EaseIn,      //!< Slow start
+  EaseOut,     //!< Slow finish
+  EaseInOut,   //!< Slow start and even slower finish
+  CubicBezier  //!< (Currently unsupported)
+};
 
 /*! \class WAnimation Wt/WAnimation Wt/WAnimation
  *  \brief A value class that defines a transition effect.
@@ -27,41 +63,8 @@ namespace Wt {
 class WT_API WAnimation
 {
 public:
-  /*! \brief An enumeration describing an animation effect
-   *
-   * An animation effect can be the combination of a motion and an optional
-   * fade effect, e.g:
-   * \code
-   *  SlideInFromRight
-   *  SlideInFromTop | Fade
-   * \endcode
-   *
-   * You can specify only one motion effect.
-   *
-   * \sa setEffects()
-   */
-  enum AnimationEffect {
-    SlideInFromLeft = 0x1,   //!< Slides right to show, left to hide
-    SlideInFromRight = 0x2,  //!< Slides left to show, right to hide
-    SlideInFromBottom = 0x3, //!< Slides up to show, down to hide
-    SlideInFromTop = 0x4,    //!< Slides down to show, up to hide
-    Pop = 0x5,               //!< Pops up to show, pops away to hide
-    Fade = 0x100             //!< Fade effect
-  };
-
-  /*! \brief A timing function
-   *
-   * The timing function defines how the animation effects are animated
-   * during the total duration of the animation.
-   */
-  enum TimingFunction {
-    Ease,        //!< Slow start and slow finish
-    Linear,      //!< Linear throughout
-    EaseIn,      //!< Slow start
-    EaseOut,     //!< Slow finish
-    EaseInOut,   //!< Slow start and even slower finish
-    CubicBezier  //!< (Currently unsupported)
-  };
+  /*! \brief Typedef for enum Wt::AnimationEffect */
+  typedef AnimationEffect Effect;
 
   /*! \brief Default constructor.
    *
@@ -74,7 +77,8 @@ public:
    *
    * An animation is created with given effects, timing and duration.
    */
-  WAnimation(WFlags<AnimationEffect> effects, TimingFunction timing = Linear,
+  WAnimation(WFlags<AnimationEffect> effects,
+	     TimingFunction timing = TimingFunction::Linear,
 	     int duration = 250);
 
 #ifdef WT_TARGET_JAVA
@@ -82,7 +86,8 @@ public:
    *
    * An animation is created with one effect, timing and duration.
    */
-  WAnimation(AnimationEffect effect, TimingFunction timing = Linear,
+  WAnimation(AnimationEffect effect, 
+	     TimingFunction timing = TimingFunction::Linear,
 	     int duration = 250);
 
   /*! \brief Creates an animation.
@@ -90,7 +95,8 @@ public:
    * An animation is created with two effects (a motion and Fade).
    */
   WAnimation(AnimationEffect effect1, AnimationEffect effect2,
-	     TimingFunction timing = Linear, int duration = 250);
+	     TimingFunction timing = TimingFunction::Linear,
+	     int duration = 250);
   
   /*! \brief Clone method.
    *
@@ -101,12 +107,12 @@ public:
 
   /*! \brief Sets the animation effects.
    *
-   * A motion effect (\link WAnimation::SlideInFromLeft
-   * SlideInFromLeft\endlink, \link WAnimation::SlideInFromRight
-   * SlideInFromRight\endlink, \link WAnimation::SlideInFromBottom
-   * SlideInFromBottom\endlink, \link WAnimation::SlideInFromTop
-   * SlideInFromTop\endlink or \link WAnimation::Pop Pop\endlink) can be combined
-   * with a fade effect (\link WAnimation::Fade Fade\endlink).
+   * A motion effect (\link AnimationEffect::SlideInFromLeft
+   * SlideInFromLeft\endlink, \link AnimationEffect::SlideInFromRight
+   * SlideInFromRight\endlink, \link AnimationEffect::SlideInFromBottom
+   * SlideInFromBottom\endlink, \link AnimationEffect::SlideInFromTop
+   * SlideInFromTop\endlink or \link AnimationEffect::Pop Pop\endlink) can be combined
+   * with a fade effect (\link AnimationEffect::Fade Fade\endlink).
    *
    * When effects are 0, the animation does not actually specify an
    * animation, but instead an instant transition.
@@ -147,7 +153,7 @@ public:
 
   /*! \brief Sets a timing function.
    *
-   * The default timinig function is WAnimation::Linear.
+   * The default timinig function is TimingFunction::Linear.
    */
   void setTimingFunction(TimingFunction function);
 
@@ -175,7 +181,7 @@ private:
   int                     duration_;
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WAnimation::AnimationEffect)
+W_DECLARE_OPERATORS_FOR_FLAGS(AnimationEffect)
 
 }
 

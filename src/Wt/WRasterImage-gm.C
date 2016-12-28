@@ -4,15 +4,15 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WBrush"
-#include "Wt/WException"
-#include "Wt/WFontMetrics"
-#include "Wt/WLogger"
-#include "Wt/WPainter"
-#include "Wt/WPen"
-#include "Wt/WRasterImage"
-#include "Wt/WTransform"
-#include "Wt/Http/Response"
+#include "Wt/WBrush.h"
+#include "Wt/WException.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WLogger.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPen.h"
+#include "Wt/WRasterImage.h"
+#include "Wt/WTransform.h"
+#include "Wt/Http/Response.h"
 
 #include "Wt/FontSupport.h"
 #include "WebUtils.h"
@@ -21,7 +21,6 @@
 #include <cstdio>
 #include <cmath>
 #include <magick/api.h>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 #if MagickLibVersion < 0x020002
@@ -114,15 +113,13 @@ public:
 };
 
 WRasterImage::WRasterImage(const std::string& type,
-			   const WLength& width, const WLength& height,
-			   WObject *parent)
-  : WResource(parent),
-    width_(width),
+			   const WLength& width, const WLength& height)
+  : width_(width),
     height_(height),
-    painter_(0),
+    painter_(nullptr),
     impl_(new Impl)
 {
-  InitializeMagick(0);
+  InitializeMagick(nullptr);
 
   impl_->rasterImage_ = this;
   impl_->type_ = type;
@@ -132,12 +129,12 @@ WRasterImage::WRasterImage(const std::string& type,
   impl_->w_ = static_cast<unsigned long>(width.toPixels());
   impl_->h_ = static_cast<unsigned long>(height.toPixels());
 
-  impl_->context_ = 0;
-  impl_->fontSupport_ = 0;
+  impl_->context_ = nullptr;
+  impl_->fontSupport_ = nullptr;
 
   if (!impl_->w_ || !impl_->h_) {
-    impl_->pixels_ = 0;
-    impl_->image_ = 0;
+    impl_->pixels_ = nullptr;
+    impl_->image_ = nullptr;
     return;
   }
 
@@ -151,12 +148,12 @@ WRasterImage::WRasterImage(const std::string& type,
   ExceptionInfo exception;
   GetExceptionInfo(&exception);
   impl_->image_ = ConstituteImage(impl_->w_, impl_->h_, "RGBA", CharPixel,
-    impl_->pixels_, &exception);
+				  impl_->pixels_, &exception);
   DestroyExceptionInfo(&exception);
 
   SetImageType(impl_->image_, TrueColorMatteType);
   SetImageOpacity(impl_->image_, 254); // 255 seems a special value...
-                                // 254 will have to do
+                                       // 254 will have to do
 
   std::string magick = type;
   std::transform(magick.begin(), magick.end(), magick.begin(), toupper);
@@ -184,8 +181,6 @@ WRasterImage::~WRasterImage()
   }
 
   delete impl_->fontSupport_;
-
-  delete impl_;
   // DestroyMagick(); apparently should be called only once ?
 }
 
@@ -195,12 +190,12 @@ void WRasterImage::addFontCollection(const std::string& directory,
   impl_->fontSupport_->addFontCollection(directory, recursive);
 }
 
-WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
+WFlags<PaintDeviceFeatureFlag> WRasterImage::features() const
 {
   if (impl_->fontSupport_->canRender())
-    return HasFontMetrics;
+    return PaintDeviceFeatureFlag::FontMetrics;
   else
-    return 0;
+    return None;
 }
 
 void WRasterImage::init()
@@ -212,7 +207,7 @@ void WRasterImage::init()
 
   /* If the font support can actually render fonts to bitmaps, we use that */
   if (impl_->fontSupport_->canRender())
-    impl_->fontSupport_->setDevice(0);
+    impl_->fontSupport_->setDevice(nullptr);
 
   impl_->internalInit(true);
 }
@@ -221,9 +216,9 @@ void WRasterImage::Impl::internalInit(bool applyChanges)
 {
   if (!context_) {
     currentClipPathRendered_ = -1;
-    SetImageClipMask(image_, 0);
+    SetImageClipMask(image_, nullptr);
 
-    context_ = DrawAllocateContext(0, image_);
+    context_ = DrawAllocateContext(nullptr, image_);
 
     DrawPushGraphicContext(context_);
 
@@ -234,7 +229,12 @@ void WRasterImage::Impl::internalInit(bool applyChanges)
     DrawPushGraphicContext(context_); // for painter->combinedTransform()
 
     if (applyChanges)
-      rasterImage_->setChanged(Clipping | Transform | Pen | Brush | Font | Hints);
+      rasterImage_->setChanged(PainterChangeFlag::Clipping | 
+			       PainterChangeFlag::Transform |
+			       PainterChangeFlag::Pen | 
+			       PainterChangeFlag::Brush |
+			       PainterChangeFlag::Font | 
+			       PainterChangeFlag::Hints);
   }
 }
 
@@ -243,7 +243,7 @@ void WRasterImage::done()
   impl_->internalDone();
 
   delete impl_->fontSupport_;
-  impl_->fontSupport_ = 0;
+  impl_->fontSupport_ = nullptr;
 }
 
 void WRasterImage::Impl::internalDone()
@@ -257,9 +257,9 @@ void WRasterImage::Impl::internalDone()
 
     DrawDestroyContext(context_);
 
-    context_ = 0;
+    context_ = nullptr;
 
-    SetImageClipMask(image_, 0);
+    SetImageClipMask(image_, nullptr);
     currentClipPathRendered_ = -1;
   }
 }
@@ -285,16 +285,16 @@ void WRasterImage::Impl::setTransform(const WTransform& t)
   applyTransform(t);
 }
 
-void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
+void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
 {
   /*
    * If it is only Clipping that changes, we may not need to manipulate
    * the context_, since some clipping paths are cached.
    */
-  if (flags != Clipping)
+  if (flags != PainterChangeFlag::Clipping)
     impl_->internalInit();
 
-  if (flags & Clipping) {
+  if (flags.test(PainterChangeFlag::Clipping)) {
     if (painter()->hasClipping()) {
       if (impl_->clipPathCache_.empty())
 	impl_->clipPathCache_.resize(3); // keep 3
@@ -306,7 +306,8 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 	   i != impl_->clipPathCache_.end(); ++i) {
 	if (i->first == painter()->clipPath()) {
 	  index = i->second;
-	  impl_->clipPathCache_.splice(impl_->clipPathCache_.begin(), impl_->clipPathCache_, i);
+	  impl_->clipPathCache_.splice(impl_->clipPathCache_.begin(),
+				       impl_->clipPathCache_, i);
 	  break;
 	} else {
 	  nextIndex = std::max(i->second, nextIndex);
@@ -322,12 +323,13 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
 	index = nextIndex + 1;
 	DrawPushClipPath
-	  (impl_->context_,("clip" + boost::lexical_cast<std::string>(index)).c_str());
+	  (impl_->context_,("clip" + std::to_string(index)).c_str());
 	drawPath(painter()->clipPath());
 	DrawPopClipPath(impl_->context_);
 
 	impl_->clipPathCache_.pop_back(); // implement LRU
-	impl_->clipPathCache_.push_front(std::make_pair(painter()->clipPath(), index));
+	impl_->clipPathCache_.push_front(std::make_pair(painter()->clipPath(),
+							index));
       } else if (impl_->context_) {
 	DrawPopGraphicContext(impl_->context_);
 	DrawPopGraphicContext(impl_->context_);
@@ -358,29 +360,30 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
     if (impl_->context_) {
       DrawPushGraphicContext(impl_->context_);
-      flags = Transform;
+      flags = PainterChangeFlag::Transform;
     }
   }
 
-  if (flags != Clipping)
+  if (flags != PainterChangeFlag::Clipping)
     impl_->internalInit();
 
-  if (flags & Transform) {
+  if (flags.test(PainterChangeFlag::Transform)) {
     impl_->setTransform(painter()->combinedTransform());
-    flags = Pen | Brush | Font | Hints;
+    flags = PainterChangeFlag::Pen | PainterChangeFlag::Brush | 
+      PainterChangeFlag::Font | PainterChangeFlag::Hints;
   }
 
-  if (flags & Hints) {
-    if (!(painter()->renderHints() & WPainter::Antialiasing))
+  if (flags.test(PainterChangeFlag::Hints)) {
+    if (!(painter()->renderHints() & RenderHint::Antialiasing))
       DrawSetStrokeAntialias(impl_->context_, 0);
     else
       DrawSetStrokeAntialias(impl_->context_, 1);
   }
 
-  if (flags & Pen) {
+  if (flags.test(PainterChangeFlag::Pen)) {
     const WPen& pen = painter()->pen();
 
-    if (pen.style() != NoPen) {
+    if (pen.style() != PenStyle::None) {
       const WColor& color = pen.color();
 
       PixelPacket pp;
@@ -394,54 +397,54 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       DrawSetStrokeWidth(impl_->context_, w.toPixels());
 
       switch (pen.capStyle()) {
-      case FlatCap:
+      case PenCapStyle::Flat:
 	DrawSetStrokeLineCap(impl_->context_, ::ButtCap);
 	break;
-      case SquareCap:
+      case PenCapStyle::Square:
 	DrawSetStrokeLineCap(impl_->context_, ::SquareCap);
 	break;
-      case RoundCap:
+      case PenCapStyle::Round:
 	DrawSetStrokeLineCap(impl_->context_, ::RoundCap);
 	break;
       }
 
       /*
       switch (pen.joinStyle()) {
-      case MiterJoin:
-	DrawSetStrokeLineJoin(context_, ::MiterJoin);
+      case PenJoinStyle::Miter:
+	DrawSetStrokeLineJoin(context_, ::PenJoinStyle::Miter);
 	DrawSetStrokeMiterLimit(context_, 3);
 	break;
-      case BevelJoin:
-	DrawSetStrokeLineJoin(context_, ::BevelJoin);
+      case PenJoinStyle::Bevel:
+	DrawSetStrokeLineJoin(context_, ::PenJoinStyle::Bevel);
 	break;
-      case RoundJoin:
-	DrawSetStrokeLineJoin(context_, ::RoundJoin);
+      case PenJoinStyle::Round:
+	DrawSetStrokeLineJoin(context_, ::PenJoinStyle::Round);
 	break;
       }
       */
 
       switch (pen.style()) {
-      case NoPen:
+      case PenStyle::None:
 	break;
-      case SolidLine:
-	DrawSetStrokeDashArray(impl_->context_, 0, 0);
+      case PenStyle::SolidLine:
+	DrawSetStrokeDashArray(impl_->context_, 0, nullptr);
 	break;
-      case DashLine: {
+      case PenStyle::DashLine: {
 	const double dasharray[] = { 4, 2 };
 	DrawSetStrokeDashArray(impl_->context_, 2, dasharray);
 	break;
       }
-      case DotLine: {
+      case PenStyle::DotLine: {
 	const double dasharray[] = { 1, 2 };
 	DrawSetStrokeDashArray(impl_->context_, 2, dasharray);
 	break;
       }
-      case DashDotLine: {
+      case PenStyle::DashDotLine: {
 	const double dasharray[] = { 4, 2, 1, 2 };
 	DrawSetStrokeDashArray(impl_->context_, 4, dasharray);
 	break;
       }
-      case DashDotDotLine: {
+      case PenStyle::DashDotDotLine: {
 	const double dasharray[] = { 4, 2, 1, 2, 1, 2 };
 	DrawSetStrokeDashArray(impl_->context_, 6, dasharray);
 	break;
@@ -454,10 +457,10 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
     }
   }
 
-  if (flags & Brush) {
+  if (flags.test(PainterChangeFlag::Brush)) {
     const WBrush& brush = painter()->brush();
 
-    if (brush.style() != NoBrush) {
+    if (brush.style() != BrushStyle::None) {
       const WColor& color = painter()->brush().color();
       PixelPacket pp;
       WColorToPixelPacket(color, &pp);
@@ -468,7 +471,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       DrawSetFillOpacity(impl_->context_, 0);
   }
 
-  if (flags & Font) {
+  if (flags.test(PainterChangeFlag::Font)) {
     const WFont& font = painter()->font();
 
     std::string name;
@@ -481,7 +484,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
        * We have a resolved true type font.
        */
       name = impl_->fontSupport_->drawingFontPath();
-    } else if (font.genericFamily() != WFont::Default) {
+    } else if (font.genericFamily() != FontFamily::Default) {
       FontSupport::FontMatch match = impl_->fontSupport_->matchFont(font);
 
       if (match.matched())
@@ -494,37 +497,37 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 	 * FIXME, does this actually make any sense ?
 	 */
 	const char *base;
-	const char *italic = 0;
-	const char *bold = 0;
+	const char *italic = nullptr;
+	const char *bold = nullptr;
 
 	switch (font.genericFamily()) {
-	case WFont::Default:
-	case WFont::Serif:
+	case FontFamily::Default:
+	case FontFamily::Serif:
 	  base = "Times";
 	  italic = "Italic";
 	  bold = "Bold";
 	  break;
-	case WFont::SansSerif:
+	case FontFamily::SansSerif:
 	  base = "Helvetica";
 	  italic = "Olbique";
 	  bold = "Bold";
 	  break;
-	case WFont::Monospace:
+	case FontFamily::Monospace:
 	  base = "Courier";
 	  italic = "Oblique";
 	  bold = "Bold";
 	  break;
-	case WFont::Fantasy: // Not really !
+	case FontFamily::Fantasy: // Not really !
 	  base = "Symbol";
 	  break;
-	case WFont::Cursive: // Not really !
+	case FontFamily::Cursive: // Not really !
 	  base = "ZapfDingbats";
 	}
 
 	if (italic)
 	  switch (font.style()) {
-	  case WFont::NormalStyle:
-	    italic = 0;
+	  case FontStyle::Normal:
+	    italic = nullptr;
 	    break;
 	  default:
 	    break;
@@ -532,14 +535,14 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
 	if (bold)
 	  switch (font.weight()) {
-	  case WFont::NormalWeight:
-	    bold = 0;
+	  case FontWeight::Normal:
+	    bold = nullptr;
 	    break;
-	  case WFont::Bold:
-	  case WFont::Bolder:
+	  case FontWeight::Bold:
+	  case FontWeight::Bolder:
 	    break;
 	  default:
-	    bold = 0;
+	    bold = nullptr;
 	  }
 
 	std::string name = base;
@@ -568,7 +571,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
 std::string WRasterImage::Impl::currentClipPathName() const
 {
-  return "clip" + boost::lexical_cast<std::string>(currentClipPath_);
+  return "clip" + std::to_string(currentClipPath_);
 }
 
 void WRasterImage::drawArc(const WRectF& rect,
@@ -610,7 +613,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     cImage = ReadImage(&info, &exception);
   }
 
-  if (cImage == 0) {
+  if (cImage == nullptr) {
     LOG_ERROR("drawImage failed: "
 	      << (exception.reason ? exception.reason :
 		  "(unknown reason)") << ", "
@@ -656,6 +659,11 @@ void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
   impl_->internalInit();
 
   DrawLine(impl_->context_, x1-0.5, y1-0.5, x2-0.5, y2-0.5);
+}
+
+void WRasterImage::drawRect(const WRectF& rectangle)
+{
+  drawPath(rectangle.toPath());
 }
 
 void WRasterImage::drawPath(const WPainterPath& path)
@@ -719,20 +727,20 @@ void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (segments.size() > 0
-      && segments[0].type() != WPainterPath::Segment::MoveTo)
+      && segments[0].type() != SegmentType::MoveTo)
     DrawPathMoveToAbsolute(context_, -0.5, -0.5);
 
   for (unsigned i = 0; i < segments.size(); ++i) {
     const WPainterPath::Segment s = segments[i];
 
     switch (s.type()) {
-    case WPainterPath::Segment::MoveTo:
+    case SegmentType::MoveTo:
       DrawPathMoveToAbsolute(context_, s.x() - 0.5, s.y() - 0.5);
       break;
-    case WPainterPath::Segment::LineTo:
+    case SegmentType::LineTo:
       DrawPathLineToAbsolute(context_, s.x() - 0.5, s.y() - 0.5);
       break;
-    case WPainterPath::Segment::CubicC1: {
+    case SegmentType::CubicC1: {
       const double x1 = s.x();
       const double y1 = s.y();
       const double x2 = segments[i+1].x();
@@ -747,10 +755,10 @@ void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)
       i += 2;
       break;
     }
-    case WPainterPath::Segment::CubicC2:
-    case WPainterPath::Segment::CubicEnd:
+    case SegmentType::CubicC2:
+    case SegmentType::CubicEnd:
       assert(false);
-    case WPainterPath::Segment::ArcC: {
+    case SegmentType::ArcC: {
       WPointF current = path.positionAtSegment(i);
       // See also WSvgImage arc drawing
 
@@ -778,10 +786,10 @@ void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)
       i += 2;
       break;
     }
-    case WPainterPath::Segment::ArcR:
-    case WPainterPath::Segment::ArcAngleSweep:
+    case SegmentType::ArcR:
+    case SegmentType::ArcAngleSweep:
       assert(false);
-    case WPainterPath::Segment::QuadC: {
+    case SegmentType::QuadC: {
       const double x1 = s.x();
       const double y1 = s.y();
       const double x2 = segments[i+1].x();
@@ -794,7 +802,7 @@ void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)
 
       break;
     }
-    case WPainterPath::Segment::QuadEnd:
+    case SegmentType::QuadEnd:
       assert(false);
     }
   }
@@ -806,8 +814,8 @@ void WRasterImage::drawText(const WRectF& rect,
 			    const WString& text,
 			    const WPointF *clipPoint)
 {
-  if (textFlag == TextWordWrap)
-    throw WException("WRasterImage::drawText() TextWordWrap is not supported");
+  if (textFlag == TextFlag::WordWrap)
+    throw WException("WRasterImage::drawText() TextFlag::WordWrap is not supported");
 
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
@@ -835,15 +843,15 @@ void WRasterImage::drawText(const WRectF& rect,
     double descent = impl_->fontSize_ - ascent;
 
     switch (verticalAlign) {
-    case AlignTop:
+    case AlignmentFlag::Top:
       p = rect.topLeft();
       p.setY(p.y() + ascent);
       break;
-    case AlignMiddle:
+    case AlignmentFlag::Middle:
       p = rect.center();
       p.setY(p.y() + ascent - impl_->fontSize_/2);
       break;
-    case AlignBottom:
+    case AlignmentFlag::Bottom:
       p = rect.bottomLeft();
       p.setY(p.y() - descent);
       break;
@@ -852,11 +860,11 @@ void WRasterImage::drawText(const WRectF& rect,
     }
 
     switch (horizontalAlign) {
-    case AlignLeft:
+    case AlignmentFlag::Left:
       gravity = NorthWestGravity;
       p.setX(rect.left());
       break;
-    case AlignCenter:
+    case AlignmentFlag::Center:
       gravity = NorthGravity;
       p.setX(rect.center().x());
 
@@ -864,7 +872,7 @@ void WRasterImage::drawText(const WRectF& rect,
       p.setX(p.x() - impl_->w_/2);
       p = t.inverted().map(p);
       break;
-    case AlignRight:
+    case AlignmentFlag::Right:
       gravity = NorthEastGravity;
       p.setX(rect.right());
 
@@ -894,12 +902,12 @@ void WRasterImage::drawText(const WRectF& rect,
 
     DrawPopGraphicContext(impl_->context_);
 
-    setChanged(Transform);
+    setChanged(PainterChangeFlag::Transform);
   } else {
     WTransform t = painter()->combinedTransform();
 
     if (painter()->hasClipping())
-      setChanged(Clipping);
+      setChanged(PainterChangeFlag::Clipping);
 
     impl_->internalDone();
 
@@ -923,7 +931,7 @@ void WRasterImage::drawText(const WRectF& rect,
 
 	DestroyDrawInfo(drawInfo);	
       } else {
-	SetImageClipMask(impl_->image_, 0);
+	SetImageClipMask(impl_->image_, nullptr);
       }
 
       impl_->currentClipPathRendered_ = impl_->currentClipPath_;

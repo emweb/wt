@@ -7,7 +7,7 @@
 #ifndef WSTANDARD_ITEM_MODEL_H_
 #define WSTANDARD_ITEM_MODEL_H_
 
-#include <Wt/WAbstractItemModel>
+#include <Wt/WAbstractItemModel.h>
 
 namespace Wt {
 
@@ -56,8 +56,8 @@ class WStandardItem;
  * for (int row = 0; row < rows; ++row) {
  *   for (int column = 0; column < columns; ++column) {
  *     Wt::WStandardItem *item = new Wt::WStandardItem();
- *     item->setText("Item " + boost::lexical_cast<std::string>(row)
- *                   + ", " + boost::lexical_cast<std::string>(column));
+ *     item->setText("Item " + std::to_string(row)
+ *                   + ", " + std::to_string(column));
  *     model->setItem(row, column, item);
  *   }
  * }
@@ -73,11 +73,11 @@ class WStandardItem;
  *
  * for (int row = 0; row < topLevelRows; ++row) {
  *   Wt::WStandardItem *topLevel = new Wt::WStandardItem();
- *   topLevel->setText("Item " + boost::lexical_cast<std::string>(row));
+ *   topLevel->setText("Item " + std::to_string(row));
  *   for (int row2 = 0; row2 < secondLevelRows; ++row2) {
  *     Wt::WStandardItem *item = new Wt::WStandardItem();
- *     item->setText("Item " + boost::lexical_cast<std::string>(row)
- *                   + ": " + boost::lexical_cast<std::string>(row2));
+ *     item->setText("Item " + std::to_string(row)
+ *                   + ": " + std::to_string(row2));
  *     topLevel->appendRow(item);
  *   }
  *   root->appendRow(topLevel);
@@ -92,14 +92,14 @@ class WT_API WStandardItemModel : public WAbstractItemModel
 public:
   /*! \brief Creates a new standard item model.
    */
-  WStandardItemModel(WObject *parent = 0);
+  WStandardItemModel();
 
   /*! \brief Creates a new standard item model with an initial geometry.
    *
    * Creates a standard item model with a geometry of
    * <i>rows</i> x \p columns. All items are set to \c 0.
    */
-  WStandardItemModel(int rows, int columns, WObject *parent = 0);
+  WStandardItemModel(int rows, int columns);
 
   /*! \brief Destructor.
    */
@@ -116,7 +116,9 @@ public:
    * The invisible root item is a special item that is not rendered
    * itself, but holds the top level data.
    */
-  WStandardItem *invisibleRootItem() const { return invisibleRootItem_; }
+  WStandardItem *invisibleRootItem() const {
+    return invisibleRootItem_.get();
+  }
 
   /*! \brief Returns the model index for a particular item.
    *
@@ -148,7 +150,7 @@ public:
    *
    * \sa insertColumn(), appendRow()
    */
-  void appendColumn(const std::vector<WStandardItem *>& items);
+  void appendColumn(std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Inserts a single column of top level items.
    *
@@ -162,7 +164,8 @@ public:
    *
    * \sa WStandardItem::insertColumn()
    */
-  void insertColumn(int column, const std::vector<WStandardItem *>& items);
+  void insertColumn(int column,
+		    std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Adds a single row of top level items.
    *
@@ -176,7 +179,7 @@ public:
    *
    * \sa insertRow(), appendColumn()
    */
-  void appendRow(const std::vector<WStandardItem *>& items);
+  void appendRow(std::vector<std::unique_ptr<WStandardItem>> items);
 
   using WAbstractItemModel::insertRow;
   using WAbstractItemModel::insertColumn;
@@ -193,7 +196,7 @@ public:
    *
    * \sa WStandardItem::insertRow()
    */
-  void insertRow(int row, const std::vector<WStandardItem *>& items);
+  void insertRow(int row, std::vector<std::unique_ptr<WStandardItem>> items);
 
   /*! \brief Appends a single row containing a single item.
    *
@@ -206,7 +209,7 @@ public:
    *
    * \sa WStandardItem::insertRow(int, WStandardItem *)
    */
-  void appendRow(WStandardItem *item);
+  void appendRow(std::unique_ptr<WStandardItem> item);
 
   /*! \brief Inserts a single row containing a single item.
    *
@@ -219,7 +222,7 @@ public:
    *
    * \sa WStandardItem::insertRow(int, WStandardItem *)
    */
-  void insertRow(int row, WStandardItem *item);
+  void insertRow(int row, std::unique_ptr<WStandardItem> item);
 
   /*! \brief Returns a toplevel item.
    *
@@ -251,7 +254,7 @@ public:
    *
    * \sa WStandardItem::setChild(int, int, WStandardItem *item)
    */
-  void setItem(int row, int column, WStandardItem *item);
+  void setItem(int row, int column, std::unique_ptr<WStandardItem> item);
 
   /*! \brief Returns the item prototype.
    *
@@ -273,13 +276,12 @@ public:
    *
    * \sa setItemPrototype()
    */
-  void setItemPrototype(WStandardItem *item);
+  void setItemPrototype(std::unique_ptr<WStandardItem> item);
 
   /*! \brief Takes a column out of the model.
    *
    * Removes a column from the model, and returns the items that it
-   * contained. Ownership of the items is transferred out of the
-   * model.
+   * contained.
    *
    * Equivalent to:
    * \code
@@ -288,13 +290,12 @@ public:
    *
    * \sa WStandardItem::takeColumn(), WStandardItem::takeRow()
    */
-  std::vector<WStandardItem *> takeColumn(int column);
+  std::vector<std::unique_ptr<WStandardItem>> takeColumn(int column);
 
   /*! \brief Takes a row out of the model.
    *
    * Removes a row from the model, and returns the items that it
-   * contained. Ownership of the items is transferred out of the
-   * model.
+   * contained.
    *
    * Equivalent to:
    * \code
@@ -303,12 +304,11 @@ public:
    *
    * \sa WStandardItem::takeRow(), takeColumn()
    */
-  std::vector<WStandardItem *> takeRow(int row);
+  std::vector<std::unique_ptr<WStandardItem>> takeRow(int row);
 
   /*! \brief Takes an item out of the model.
    *
-   * Removes an item from the model, and returns it. Ownership of the
-   * item is transferred out of the model.
+   * Removes an item from the model, and returns it.
    *
    * Equivalent to:
    * \code
@@ -317,7 +317,7 @@ public:
    *
    * \sa takeItem(), WStandardItem::takeRow(), WStandardItem::takeColumn()
    */
-  WStandardItem *takeItem(int row, int column = 0);
+  std::unique_ptr<WStandardItem> takeItem(int row, int column = 0);
 
   /*! \brief Sets header flags.
    *
@@ -332,47 +332,59 @@ public:
   using WAbstractItemModel::data;
   using WAbstractItemModel::setHeaderData;
 
-  virtual WFlags<HeaderFlag> headerFlags(int section,
-					 Orientation orientation = Horizontal)
-    const;
-  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
+  virtual WFlags<HeaderFlag> headerFlags
+    (int section, Orientation orientation = Orientation::Horizontal) 
+    const override;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
-  virtual WModelIndex parent(const WModelIndex& index) const;
+  virtual WModelIndex parent(const WModelIndex& index) const override;
 
-  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
-    const;
-  virtual boost::any headerData(int section,
-				Orientation orientation = Horizontal,
-				int role = DisplayRole) const;
+  virtual cpp17::any data(const WModelIndex& index,
+		       int role = ItemDataRole::Display)
+    const override;
+  virtual cpp17::any headerData(int section,
+			     Orientation orientation = Orientation::Horizontal,
+			     int role = ItemDataRole::Display)
+    const override;
 
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex()) const;
+			    const WModelIndex& parent = WModelIndex())
+    const override;
 
-  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int columnCount(const WModelIndex& parent = WModelIndex())
+    const override;
 
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex())
+    const override;
 
   virtual bool insertColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex());
+			     const WModelIndex& parent = WModelIndex())
+    override;
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex())
+    override;
   virtual bool removeColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex());
+			     const WModelIndex& parent = WModelIndex())
+    override;
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
-  virtual bool setData(const WModelIndex& index, const boost::any& value,
-		       int role = EditRole);
+			  const WModelIndex& parent = WModelIndex())
+    override;
+  virtual bool setData(const WModelIndex& index, const cpp17::any& value,
+		       int role = ItemDataRole::Edit)
+    override;
   virtual bool setHeaderData(int section, Orientation orientation,
-			     const boost::any& value, int role = EditRole);
+			     const cpp17::any& value,
+			     int role = ItemDataRole::Edit)
+    override;
 
-  virtual void *toRawIndex(const WModelIndex& index) const;
-  virtual WModelIndex fromRawIndex(void *rawIndex) const;
+  virtual void *toRawIndex(const WModelIndex& index) const override;
+  virtual WModelIndex fromRawIndex(void *rawIndex) const override;
 
 #endif // DOXYGEN_ONLY
 
   /*! \brief Set the role used to sort the model.
    *
-   * The default role is \link Wt::DisplayRole DisplayRole\endlink.
+   * The default role is \link Wt::ItemDataRole::Display ItemDataRole::Display\endlink.
    *
    * \sa sort().
    */
@@ -384,7 +396,8 @@ public:
    */
   int sortRole() const { return sortRole_; }
 
-  virtual void sort(int column, SortOrder order = AscendingOrder);
+  virtual void sort(int column, SortOrder order = SortOrder::Ascending)
+    override;
 
   /*! \brief %Signal emitted when an item is changed.
    *
@@ -404,17 +417,18 @@ protected:
 #endif // DOXYGEN_ONLY
 
 private:
-  typedef std::map<int, boost::any> HeaderData;
+  typedef std::map<int, cpp17::any> HeaderData;
   int sortRole_;
 
   std::vector<HeaderData> columnHeaderData_, rowHeaderData_;
   std::vector<WFlags<HeaderFlag> > columnHeaderFlags_, rowHeaderFlags_;
-  WStandardItem *invisibleRootItem_, *itemPrototype_;
+  std::unique_ptr<WStandardItem> invisibleRootItem_, itemPrototype_;
 
   Signal<WStandardItem *> itemChanged_;
 
   void init();
-  WStandardItem *itemFromIndex(const WModelIndex& index, bool lazyCreate) const;
+  WStandardItem *itemFromIndex(const WModelIndex& index, bool lazyCreate)
+    const;
   void insertHeaderData(std::vector<HeaderData>& headerData,
 			std::vector<WFlags<HeaderFlag> >& fl,
 			WStandardItem *item, int index,	int count);

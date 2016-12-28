@@ -1,14 +1,16 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WTextEdit>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WTextEdit.h>
 
 SAMPLE_BEGIN(TextEditors)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = cpp14::make_unique<WContainerWidget>();
 
-Wt::WLineEdit *le = new Wt::WLineEdit(container);
+WLineEdit *le =
+    container->addWidget(cpp14::make_unique<WLineEdit>());
 le->setEmptyText("Edit me");
 
-Wt::WLineEdit *out = new Wt::WLineEdit(container);
+WLineEdit *out =
+    container->addWidget(cpp14::make_unique<WLineEdit>());
 out->setReadOnly(true);
 
 le->keyWentUp().connect(std::bind([=] () {

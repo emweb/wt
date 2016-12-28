@@ -7,7 +7,7 @@
 #ifndef WABSTRACT_TABLE_MODEL_H_
 #define WABSTRACT_TABLE_MODEL_H_
 
-#include <Wt/WAbstractItemModel>
+#include <Wt/WAbstractItemModel.h>
 
 namespace Wt {
 
@@ -27,15 +27,15 @@ class WT_API WAbstractTableModel : public WAbstractItemModel
 public:
   /*! \brief Creates a new abstract list model.
    */
-  WAbstractTableModel(WObject *parent = 0);
+  WAbstractTableModel();
 
   /*! \brief Destructor.
    */
   ~WAbstractTableModel();
 
-  virtual WModelIndex parent(const WModelIndex& index) const;
+  virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex()) const;
+                            const WModelIndex& parent = WModelIndex()) const override;
 };
 
 }

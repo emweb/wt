@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/SqlStatement"
+#include "Wt/Dbo/SqlStatement.h"
 
 namespace Wt {
   namespace Dbo {

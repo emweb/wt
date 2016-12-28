@@ -62,7 +62,7 @@ extern "C" {
 ** These no-op macros are used in front of interfaces to mark those
 ** interfaces as either deprecated or experimental.  New applications
 ** should not use deprecated interfaces - they are supported for backwards
-** compatibility only.  Application writers should be aware that
+** compatibility only.  EntryPointType::Application writers should be aware that
 ** experimental interfaces are subject to change in point releases.
 **
 ** These macros used to resolve to various kinds of compiler magic that
@@ -796,7 +796,7 @@ struct sqlite3_io_methods {
 ** additional information.
 **
 ** <li>[[SQLITE_FCNTL_SYNC_OMITTED]]
-** No longer in use.
+** StandardButton::No longer in use.
 **
 ** <li>[[SQLITE_FCNTL_SYNC]]
 ** The [SQLITE_FCNTL_SYNC] opcode is generated internally by SQLite and
@@ -918,7 +918,7 @@ struct sqlite3_io_methods {
 ** current operation.
 **
 ** <li>[[SQLITE_FCNTL_TEMPFILENAME]]
-** ^Application can invoke the [SQLITE_FCNTL_TEMPFILENAME] file-control
+** ^EntryPointType::Application can invoke the [SQLITE_FCNTL_TEMPFILENAME] file-control
 ** to have SQLite generate a
 ** temporary filename using the same algorithm that is followed to generate
 ** temporary filenames for TEMP tables and other internal uses.  The
@@ -2021,7 +2021,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_total_changes(sqlite3*);
 **
 ** ^This function causes any pending database operation to abort and
 ** return at its earliest opportunity. This routine is typically
-** called in response to a user action such as pressing "Cancel"
+** called in response to a user action such as pressing "StandardButton::Cancel"
 ** or Ctrl-C where the user wants a long query operation to halt
 ** immediately.
 **
@@ -2725,7 +2725,7 @@ SQLITE_API SQLITE_EXPERIMENTAL void *SQLITE_STDCALL sqlite3_profile(sqlite3*,
 **
 ** ^If the progress callback returns non-zero, the operation is
 ** interrupted.  This feature can be used to implement a
-** "Cancel" button on a GUI progress dialog box.
+** "StandardButton::Cancel" button on a GUI progress dialog box.
 **
 ** The progress handler callback must not do anything that will modify
 ** the database connection that invoked the progress handler.
@@ -3137,7 +3137,7 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 SQLITE_API int SQLITE_STDCALL sqlite3_limit(sqlite3*, int id, int newVal);
 
 /*
-** CAPI3REF: Run-Time Limit Categories
+** CAPI3REF: Run-Time LimitQuery::Limit Categories
 ** KEYWORDS: {limit category} {*limit categories}
 **
 ** These constants define various performance limits
@@ -3984,7 +3984,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_data_count(sqlite3_stmt *pStmt);
 ** <tr><td>  FLOAT   <td>   BLOB    <td> [CAST] to BLOB
 ** <tr><td>  TEXT    <td> INTEGER   <td> [CAST] to INTEGER
 ** <tr><td>  TEXT    <td>  FLOAT    <td> [CAST] to REAL
-** <tr><td>  TEXT    <td>   BLOB    <td> No change
+** <tr><td>  TEXT    <td>   BLOB    <td> StandardButton::No change
 ** <tr><td>  BLOB    <td> INTEGER   <td> [CAST] to INTEGER
 ** <tr><td>  BLOB    <td>  FLOAT    <td> [CAST] to REAL
 ** <tr><td>  BLOB    <td>   TEXT    <td> Add a zero terminator if needed
@@ -4206,7 +4206,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_reset(sqlite3_stmt *pStmt);
 ** match than a function where the encoding is different.  
 ** ^A function where the encoding difference is between UTF16le and UTF16be
 ** is a closer match than a function where the encoding difference is
-** between UTF8 and UTF16.
+** between CharEncoding::UTF8 and UTF16.
 **
 ** ^Built-in functions may be overloaded by new application-defined functions.
 **
@@ -5192,7 +5192,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_release_memory(int);
 SQLITE_API int SQLITE_STDCALL sqlite3_db_release_memory(sqlite3*);
 
 /*
-** CAPI3REF: Impose A Limit On Heap Size
+** CAPI3REF: Impose A LimitQuery::Limit On Heap Size
 **
 ** ^The sqlite3_soft_heap_limit64() interface sets and/or queries the
 ** soft limit on the amount of heap memory that may be allocated by SQLite.
@@ -5244,7 +5244,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_db_release_memory(sqlite3*);
 SQLITE_API sqlite3_int64 SQLITE_STDCALL sqlite3_soft_heap_limit64(sqlite3_int64 N);
 
 /*
-** CAPI3REF: Deprecated Soft Heap Limit Interface
+** CAPI3REF: Deprecated Soft Heap LimitQuery::Limit Interface
 ** DEPRECATED
 **
 ** This is a deprecated version of the [sqlite3_soft_heap_limit64()]
@@ -5373,7 +5373,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_load_extension(
   sqlite3 *db,          /* Load the extension into this database connection */
   const char *zFile,    /* Name of the shared library containing extension */
   const char *zProc,    /* Entry point.  Derived from zFile if 0 */
-  char **pzErrMsg       /* Put error message here if not 0 */
+  char **pzErrMsg       /* Method::Put error message here if not 0 */
 );
 
 /*
@@ -5422,7 +5422,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_enable_load_extension(sqlite3 *db, int ono
 ** or [sqlite3_open_v2()] call that provoked the xEntryPoint() will fail.
 **
 ** ^Calling sqlite3_auto_extension(X) with an entry point X that is already
-** on the list of automatic extensions is a harmless no-op. ^No entry point
+** on the list of automatic extensions is a harmless no-op. ^StandardButton::No entry point
 ** will be called more than once for each database connection that is opened.
 **
 ** See also: [sqlite3_reset_auto_extension()]
@@ -5431,7 +5431,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_enable_load_extension(sqlite3 *db, int ono
 SQLITE_API int SQLITE_STDCALL sqlite3_auto_extension(void (*xEntryPoint)(void));
 
 /*
-** CAPI3REF: Cancel Automatic Extension Loading
+** CAPI3REF: StandardButton::Cancel Automatic Extension Loading
 **
 ** ^The [sqlite3_cancel_auto_extension(X)] interface unregisters the
 ** initialization routine X that was registered using a prior call to
@@ -5519,7 +5519,7 @@ struct sqlite3_module {
 };
 
 /*
-** CAPI3REF: Virtual Table Indexing Information
+** CAPI3REF: Virtual Table Indexing Icon::Information
 ** KEYWORDS: sqlite3_index_info
 **
 ** The sqlite3_index_info structure and its substructures is used as part
@@ -5547,7 +5547,7 @@ struct sqlite3_module {
 ** ^The aConstraint[] array only reports WHERE clause terms that are
 ** relevant to the particular virtual table being queried.
 **
-** ^Information about the ORDER BY clause is stored in aOrderBy[].
+** ^Icon::Information about the ORDER BY clause is stored in aOrderBy[].
 ** ^Each term of aOrderBy records a column of the ORDER BY clause.
 **
 ** The [xBestIndex] method must fill aConstraintUsage[] with information
@@ -6085,7 +6085,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_vfs_unregister(sqlite3_vfs*);
 ** than SQLITE_MUTEX_FAST and SQLITE_MUTEX_RECURSIVE) each return
 ** a pointer to a static preexisting mutex.  ^Nine static mutexes are
 ** used by the current version of SQLite.  Future versions of SQLite
-** may add additional static mutexes.  Static mutexes are for internal
+** may add additional static mutexes.  PositionScheme::Static mutexes are for internal
 ** use by SQLite only.  Applications that use SQLite mutexes should
 ** use only the dynamic mutexes returned by SQLITE_MUTEX_FAST or
 ** SQLITE_MUTEX_RECURSIVE.
@@ -6726,7 +6726,7 @@ struct sqlite3_pcache_page {
 };
 
 /*
-** CAPI3REF: Application Defined Page Cache.
+** CAPI3REF: EntryPointType::Application Defined Page Cache.
 ** KEYWORDS: {page cache}
 **
 ** ^(The [sqlite3_config]([SQLITE_CONFIG_PCACHE2], ...) interface can
@@ -7685,7 +7685,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_vtab_on_conflict(sqlite3 *);
 SQLITE_API SQLITE_EXPERIMENTAL int SQLITE_STDCALL sqlite3_stmt_scanstatus(
   sqlite3_stmt *pStmt,      /* Prepared statement for which info desired */
   int idx,                  /* Index of loop to report on */
-  int iScanStatusOp,        /* Information desired.  SQLITE_SCANSTAT_* */
+  int iScanStatusOp,        /* Icon::Information desired.  SQLITE_SCANSTAT_* */
   void *pOut                /* Result written here */
 );     
 

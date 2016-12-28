@@ -7,11 +7,11 @@
 #ifndef WT_DBO_FIELD_IMPL_H_
 #define WT_DBO_FIELD_IMPL_H_
 
-#include <Wt/Dbo/Session>
-#include <Wt/Dbo/Exception>
-#include <Wt/Dbo/SqlStatement>
-#include <Wt/Dbo/SqlTraits>
-#include <Wt/Dbo/DbAction>
+#include <Wt/Dbo/Session.h>
+#include <Wt/Dbo/Exception.h>
+#include <Wt/Dbo/SqlStatement.h>
+#include <Wt/Dbo/SqlTraits.h>
+#include <Wt/Dbo/DbAction.h>
 
 namespace Wt {
   namespace Dbo {

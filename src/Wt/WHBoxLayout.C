@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WHBoxLayout"
+#include "Wt/WHBoxLayout.h"
 
 namespace Wt {
 
-WHBoxLayout::WHBoxLayout(WWidget *parent)
-  : WBoxLayout(LeftToRight, parent)
+WHBoxLayout::WHBoxLayout()
+  : WBoxLayout(LayoutDirection::LeftToRight)
 { }
 
 }

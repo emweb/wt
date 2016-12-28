@@ -7,14 +7,38 @@
 #ifndef WTEMPLATE_H_
 #define WTEMPLATE_H_
 
-#include <boost/function.hpp>
-
-#include <Wt/WInteractWidget>
-#include <Wt/WString>
+#include <Wt/WInteractWidget.h>
+#include <Wt/WString.h>
 
 namespace Wt {
 
 class EscapeOStream;
+
+/*! \brief Enumeration that indicates how a widget's ID may be set.
+ *
+ * \sa setWidgetIdMode()
+ */
+enum class TemplateWidgetIdMode {
+  /*!
+   * Do not set the widget ID.
+   */
+  None,
+
+  /*!
+   * Use setObjectName() to prefix the ID with the varName. This is
+   * a safe choice since %Wt still guarantees that the IDs are
+   * unique.
+   */
+  SetObjectName,
+
+  /*!
+   * Use setId() to set the ID as the varName.
+   *
+   * \warning You must be careful that there are no two widgets with
+   *          the same ID in yor application.
+   */
+  SetId
+};
 
 /*! \class WTemplate Wt/WTemplate Wt/WTemplate
  *  \brief A widget that renders an XHTML template.
@@ -39,7 +63,7 @@ class EscapeOStream;
  * WTemplate *t = new WTemplate();
  * t->setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
  *
- * t->bindString("friend", userName, PlainText);
+ * t->bindString("friend", userName, TextFormat::Plain);
  * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
  * \endcode
  * \elseif java
@@ -49,7 +73,7 @@ class EscapeOStream;
  * WTemplate t = new WTemplate();
  * t.setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
  *
- * t.bindString("friend", userName, PlainText);
+ * t.bindString("friend", userName, TextFormat::Plain);
  * t.bindWidget("age-input", ageEdit_ = new WLineEdit());
  * \endcode
  * \endif
@@ -175,14 +199,17 @@ private:
 	   std::ostream& result);
 
 public:
+  /*! \brief Typedef for enum Wt::TemplateWidgetIdMode */
+  typedef TemplateWidgetIdMode WidgetIdMode;
+
 #ifndef WT_TARGET_JAVA
   /*! \brief A function type
    *
    * \sa addFunction()
    * \sa Functions::tr, Functions::id, Functions::block, Functions::while_f
    */
-  typedef boost::function<bool(WTemplate *t, const std::vector<WString>& args,
-			       std::ostream& result)> Function;
+  typedef std::function<bool(WTemplate *t, const std::vector<WString>& args,
+			     std::ostream& result)> Function;
 
 #else
   /*! \brief A function interface type
@@ -333,44 +360,18 @@ public:
 #endif // WT_TARGET_JAVA
   };
 
-  /*! \brief Enumeration that indicates how a widget's ID may be set.
-   *
-   * \sa setWidgetIdMode()
-   */
-  enum WidgetIdMode {
-    /*!
-     * Do not set the widget ID.
-     */
-    SetNoWidgetId,
-
-    /*!
-     * Use setObjectName() to prefix the ID with the varName. This is
-     * a safe choice since %Wt still guarantees that the IDs are
-     * unique.
-     */
-    SetWidgetObjectName,
-
-    /*!
-     * Use setId() to set the ID as the varName.
-     *
-     * \warning You must be careful that there are no two widgets with
-     *          the same ID in yor application.
-     */
-    SetWidgetId
-  };
-
   /*! \brief Creates a template widget.
    */
-  WTemplate(WContainerWidget *parent = 0);
+  WTemplate();
 
   /*! \brief Creates a template widget with given template.
    *
    * The \p templateText must be proper XHTML, and this is checked
    * unless the XHTML is resolved from a message resource bundle. This
    * behavior is similar to a WText when configured with the
-   * Wt::XHTMLText textformat.
+   * Wt::TextFormat::XHTML textformat.
    */
-  WTemplate(const WString& text, WContainerWidget *parent = 0);
+  WTemplate(const WString& text);
 
   virtual ~WTemplate();
 
@@ -384,15 +385,16 @@ public:
    *
    * The \p text must be proper XHTML, and this is checked unless the
    * XHTML is resolved from a message resource bundle or TextFormat is
-   * Wt::XHTMLUnsafeText. This behavior is similar to a WText when
-   * configured with the Wt::XHTMLText textformat.
+   * Wt::TextFormat::UnsafeXHTML. This behavior is similar to a WText when
+   * configured with the Wt::TextFormat::XHTML textformat.
    *
    * Changing the template text does not clear() bound widgets or
    * values.
    *
    * \sa clear()
    */
-  void setTemplateText(const WString& text, TextFormat textFormat = XHTMLText);
+  void setTemplateText(const WString& text, 
+		       TextFormat textFormat = TextFormat::XHTML);
 
   /*! \brief Sets how the varName should be reflected on bound widgets.
    *
@@ -403,13 +405,13 @@ public:
    * The default value is SetNoWidgetId which does not reflect the
    * varName on the bound widget.
    */
-  void setWidgetIdMode(WidgetIdMode mode);
+  void setWidgetIdMode(TemplateWidgetIdMode mode);
 
   /*! \brief Returns how the varName is reflected on a bound widget.
    *
    * \sa setWidgetIdMode()
    */
-  WidgetIdMode widgetIdMode() const { return widgetIdMode_; }
+  TemplateWidgetIdMode widgetIdMode() const { return widgetIdMode_; }
 
   /*! \brief Binds a string value to a variable.
    *
@@ -417,14 +419,14 @@ public:
    * substituted by its value.
    *
    * \note Depending on the \p textFormat, the \p value is validated according
-   * as for a WText. The default (XHTMLText) filters "active" content, to avoid
+   * as for a WText. The default (TextFormat::XHTML) filters "active" content, to avoid
    * XSS-based security risks.
    *
    * \sa bindWidget(), bindInt()
    * \sa resolveString()
    */
   virtual void bindString(const std::string& varName, const WString& value,
-			  TextFormat textFormat = XHTMLText);
+                          TextFormat textFormat = TextFormat::XHTML);
 
   /*! \brief Binds an integer value to a variable.
    *
@@ -453,19 +455,27 @@ public:
    * \sa bindString()
    * \sa resolveWidget()
    */
-  virtual void bindWidget(const std::string& varName, WWidget *widget);
+  virtual void bindWidget(const std::string& varName,
+			  std::unique_ptr<WWidget> widget);
+
+  template <typename Widget>
+    Widget *bindWidget(const std::string& varName,
+                       std::unique_ptr<Widget> widget)
+  {
+    Widget *result = widget.get();
+    bindWidget(varName, std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
 
   /*! \brief Unbinds a widget.
    *
    * This removes a previously bound widget and unbinds the
    * corresponding variable, effectively undoing the effect of
    * bindWidget().
-   *
-   * \if cpp
-   * The widget is not deleted, but returned instead.
-   * \endif cpp
    */
-  WWidget *takeWidget(const std::string& varName);
+  std::unique_ptr<WWidget> removeWidget(const std::string& varName);
+
+  virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
 
   /*! \brief Binds an empty string to a variable.
    *
@@ -686,7 +696,7 @@ public:
    */
   bool encodeTemplateText() const { return encodeTemplateText_; }
 
-  virtual void refresh();
+  virtual void refresh() override;
 
   /*! \brief Renders the template into the given result stream.
    *
@@ -723,11 +733,10 @@ protected:
    */
   virtual void applyArguments(WWidget *w, const std::vector<WString>& args);
 
-  using WWidget::removeChild;
-  virtual void removeChild(WWidget *child);
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual void           propagateRenderOk(bool deep);
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual void propagateRenderOk(bool deep) override;
+  virtual void iterateChildren(const HandleWidgetMethod& method) const override;
 
   /*! \brief Utility method to safely format an XHTML string.
    *
@@ -736,7 +745,7 @@ protected:
    * specializing resolveString() to avoid security risks.
    */
   void format(std::ostream& result, const std::string& s,
-	      TextFormat textFormat = PlainText);
+	      TextFormat textFormat = TextFormat::Plain);
 
   /*! \brief Utility method to safely format an XHTML string.
    *
@@ -745,14 +754,14 @@ protected:
    * specializing resolveString() to avoid security risks.
    */
   void format(std::ostream& result, const WString& s,
-	      TextFormat textFormat = PlainText);
+	      TextFormat textFormat = TextFormat::Plain);
 
-  virtual void enableAjax();
+  virtual void enableAjax() override;
 
 private:
   typedef std::map<std::string, Function> FunctionMap;
   typedef std::map<std::string, WString> StringMap;
-  typedef std::map<std::string, WWidget *> WidgetMap;
+  typedef std::map<std::string, std::unique_ptr<WWidget>> WidgetMap;
   typedef std::set<std::string> ConditionSet;
 
   std::set<WWidget *> *previouslyRendered_;
@@ -767,7 +776,7 @@ private:
   std::string errorText_;
 
   bool encodeInternalPaths_, encodeTemplateText_, changed_;
-  WidgetIdMode widgetIdMode_;
+  TemplateWidgetIdMode widgetIdMode_;
 
   std::string encode(const std::string& text) const;
   static std::size_t parseArgs(const std::string& text,

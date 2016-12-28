@@ -6,9 +6,9 @@
 #define WT_PAYMENT_ORDER_ITEM_H
 
 #include <string>
-#include <Wt/WString>
+#include <Wt/WString.h>
 
-#include "Wt/Payment/Money"
+#include "Wt/Payment/Money.h"
 
 namespace Wt {
   namespace Payment {

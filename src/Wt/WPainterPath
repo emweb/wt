@@ -7,14 +7,65 @@
 #ifndef WPAINTERPATH_H_
 #define WPAINTERPATH_H_
 
-#include <Wt/WJavaScriptExposableObject>
-#include <Wt/WPointF>
-#include <Wt/WRectF>
-#include <Wt/WTransform>
+#include <Wt/WJavaScriptExposableObject.h>
+#include <Wt/WPointF.h>
+#include <Wt/WRectF.h>
+#include <Wt/WTransform.h>
 
 #include <vector>
 
 namespace Wt {
+
+/*! The segment type
+ */
+enum SegmentType {
+  /*! \brief moveTo segment */
+  MoveTo = 0,
+
+  /*! \brief lineTo segment */
+  LineTo = 1,
+
+  /*! \brief first control point of cubic bezier curve.
+   *
+   * Always followed by a CubicC2 and CubicEnd segment 
+   */
+  CubicC1 = 2,
+
+  /*! \brief second control point of cubic bezier curve
+   *
+   * Always followed by a CubicEnd segment
+   */
+  CubicC2 = 3,
+
+  /*! \brief end point of cubic bezier curve
+   */
+  CubicEnd = 4,
+
+  /*! \brief control point of quadratic bezier curve
+   */
+  QuadC = 5,
+
+  /*! \brief end point of quadratic bezier curve
+   */
+  QuadEnd = 6,
+
+  /*! \brief center of an arc
+   *
+   * Always followed by an ArcR and ArcAngleSweep segment
+   */
+  ArcC = 7,
+
+  /*! \brief radius of an arc
+   * Always followed by an ArcAngleSweep segment
+   */
+  ArcR = 8,
+
+  /*! \brief the sweep of an arc
+   *
+   * x = startAngle, y = spanAngle
+   */
+  ArcAngleSweep = 9
+};
 
 /*! \class WPainterPath Wt/WPainterPath Wt/WPainterPath
  *  \brief A path defining a shape.
@@ -47,8 +98,8 @@ namespace Wt {
  * path.lineTo(30, 20);
  * path.closeSubPath();
  *
- * painter.setPen(Wt::red);
- * painter.setBrush(Wt::blue);
+ * painter.setPen(Wt::StandardColor::Red);
+ * painter.setBrush(Wt::StandardColor::Blue);
  * painter.drawPath(path);
  * \endcode
  * \elseif java
@@ -60,8 +111,8 @@ namespace Wt {
  * path.lineTo(30, 20);
  * path.closeSubPath();
  *		 
- * painter.setPen(new WPen(WColor.red));
- * painter.setBrush(new WBrush(WColor.blue));
+ * painter.setPen(new WPen(WColor.StandardColor::Red));
+ * painter.setBrush(new WBrush(WColor.StandardColor::Blue));
  * painter.drawPath(path);
  * \endcode
  * \endif
@@ -388,23 +439,9 @@ public:
 
   /*! \brief A segment.
    */
-  class Segment {
+  class Segment 
+  {
   public:
-    /*! The segment type
-     */
-    enum Type {
-      MoveTo = 0,  //!< moveTo segment
-      LineTo = 1,  //!< lineTo segment
-      CubicC1 = 2, //!< first control point of cubic bezier curve, always followed by a CubicC2 and CubicEnd segment
-      CubicC2 = 3, //!< second control point of cubic bezier curve, always followed by a CubicEnd segment
-      CubicEnd = 4, //!< end point of cubic bezier curve
-      QuadC = 5, //!< control point of quadratic bezier curve
-      QuadEnd = 6, //!< end point of quadratic bezier curve
-      ArcC = 7, //!< center of an arc, always followed by an ArcR and ArcAngleSweep segment
-      ArcR = 8, //!< radius of an arc, always followed by an ArcAngleSweep segment
-      ArcAngleSweep = 9 //!< the sweep of an arc, x = startAngle, y = spanAngle
-    };
-
     /*! The x parameter
      *
      * Depending on the type(), this is either
@@ -423,16 +460,16 @@ public:
     
     /*! The type of the segment
      */
-    Type   type() const { return type_; }
+    SegmentType type() const { return type_; }
 
     bool operator== (const Segment& other) const;
     bool operator!= (const Segment& other) const;
 
   private:
-    Segment(double x, double y, Type type);
+    Segment(double x, double y, SegmentType type);
 
     double x_, y_;
-    Type   type_;
+    SegmentType type_;
 
     friend class WPainterPath;
     friend WPainterPath WTransform::map(const WPainterPath& path) const;
@@ -483,10 +520,10 @@ public:
 
   bool isPointInPath(const WPointF &p) const;
 
-  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
+  virtual std::string jsValue() const override;
 
 protected:
-  void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;
+  virtual void assignFromJSON(const Json::Value &value) override;
 
 private:
   bool isRect_;
@@ -499,17 +536,6 @@ private:
   static WPointF getArcPosition(double cx, double cy, double rx, double ry,
 				double angle);
 
-  /* Draws an arc (<b>deprecated</b>).
-   *
-   * Draws an arc which is a segment of an ellipse, which fits in the
-   * rectangle defined by top left position (\p x,
-   * <i>y</i>), and size <i>width</i> x \p height. The segment starts at
-   * \p startAngle, and spans an angle given by
-   * \p spanAngle. These angles are expressed in degrees, and are
-   * measured counter-clockwise starting from the 3 o'clock position.
-   *
-   * \sa arcMoveTo(double cx, double cy, double radius, double startAngle, double sweepLength)
-   */
   void arcTo(double x, double y, double width, double height,
 	     double startAngle, double sweepLength);
 

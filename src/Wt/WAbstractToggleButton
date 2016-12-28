@@ -7,8 +7,8 @@
 #ifndef WABSTRACTTOGGLEBUTTON_H_
 #define WABSTRACTTOGGLEBUTTON_H_
 
-#include <Wt/WFormWidget>
-#include <Wt/WText>
+#include <Wt/WFormWidget.h>
+#include <Wt/WText.h>
 
 namespace Wt {
 
@@ -30,13 +30,13 @@ class WT_API WAbstractToggleButton : public WFormWidget
 protected:
   /*! \brief Creates an unchecked toggle button without label.
    */
-  WAbstractToggleButton(WContainerWidget *parent = 0);
+  WAbstractToggleButton();
 
   /*! \brief Creates an unchecked toggle button with given text label.
    *
    * The text label is rendered to the right side of the button.
    */
-  WAbstractToggleButton(const WString& text, WContainerWidget *parent = 0);
+  WAbstractToggleButton(const WString& text);
 
 public:
   /*! \brief Destructor.
@@ -61,7 +61,7 @@ public:
    * either as plain text, which is displayed literally, or as
    * XHTML-markup.
    *
-   * When changing the textFormat to Wt::XHTMLText, and the
+   * When changing the textFormat to Wt::TextFormat::XHTML, and the
    * current text is literal (not created using WString::tr()), the
    * current text is parsed using an XML parser which discards
    * malicious tags and attributes silently. When the parser
@@ -70,7 +70,7 @@ public:
    *
    * Returns whether the textFormat could be set for the current text.
    *
-   * The default format is Wt::PlainText.
+   * The default format is Wt::TextFormat::Plain.
    */
   bool setTextFormat(TextFormat format);
 
@@ -84,7 +84,7 @@ public:
    *
    * \sa setChecked()
    */
-  bool isChecked() const { return state_ == Checked; }
+  bool isChecked() const { return state_ == CheckState::Checked; }
 
   /*! \brief Sets the button state.
    *
@@ -116,13 +116,13 @@ public:
    * Returns "yes" when checked, "maybe" when partially checked, and 
    * "no" when unchecked.
    */
-  virtual WT_USTRING valueText() const;
+  virtual WT_USTRING valueText() const override;
 
   /*! \brief Sets the current value.
    *
    * This interprets text values of "yes", "maybe" or "no".
    */
-  virtual void setValueText(const WT_USTRING& text);
+  virtual void setValueText(const WT_USTRING& text) override;
 
   /*! \brief %Signal emitted when the button gets checked.
    *
@@ -142,15 +142,15 @@ public:
    */
   EventSignal<>& unChecked();
 
-  virtual void refresh();
+  virtual void refresh() override;
   
   /*! \brief Configures word wrapping.
    *
    * When \p wordWrap is \c true, the widget may break lines, creating a
    * multi-line text. When \p wordWrap is \c false, the text will displayed
    * on a single line, unless the text contains end-of-lines (for
-   * Wt::PlainText) or &lt;br /&gt; tags or other block-level tags
-   * (for Wt::XHTMLText).
+   * Wt::TextFormat::Plain) or &lt;br /&gt; tags or other block-level tags
+   * (for Wt::TextFormat::XHTML).
    *
    * The default value is \c false.
    *
@@ -168,15 +168,15 @@ protected:
   CheckState state_;
 
   virtual void updateInput(DomElement& input, bool all) = 0;
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void getFormObjects(FormObjectsMap& formObjects);
-  virtual void setFormData(const FormData& formData);
-  virtual void propagateRenderOk(bool deep);
-  virtual DomElementType domElementType() const;
+  virtual void updateDom(DomElement& element, bool all) override;
+  virtual void getFormObjects(FormObjectsMap& formObjects) override;
+  virtual void setFormData(const FormData& formData) override;
+  virtual void propagateRenderOk(bool deep) override;
+  virtual DomElementType domElementType() const override;
   virtual bool supportsIndeterminate(const WEnvironment& env) const;
-  virtual std::string formName() const;
+  virtual std::string formName() const override;
 
-  virtual WStatelessSlot *getStateless(Method method);
+  virtual WStatelessSlot *getStateless(Method method) override;
 
 private:
   static const char *CHECKED_SIGNAL;

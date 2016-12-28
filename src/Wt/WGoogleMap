@@ -9,16 +9,33 @@
 #ifndef WGOOGLEMAP_H_
 #define WGOOGLEMAP_H_
 
-#include <Wt/WColor>
-#include <Wt/WCompositeWidget>
-#include <Wt/WJavaScript>
-#include <Wt/WSignal>
+#include <Wt/WColor.h>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WJavaScript.h>
+#include <Wt/WSignal.h>
 
 #include <vector>
 #include <string>
 
 namespace Wt
 {
+
+enum class GoogleMapsVersion {
+  v2, //!< API Version 2.x
+  v3  //!< API Version 3.x
+};
+  
+enum class MapTypeControl {
+  None,         //!< Show no maptype control
+  Default,      //!< Show the default maptype control 
+                // (the behaviour depends on the Google Maps 
+                // API version)
+  Menu,         //!< Show the dropdown menu maptype control
+  Hierarchical, //!< Show the hierarchical maptype control 
+                // (only availble in Google Maps API v2)
+  HorizontalBar //!< Show the horizontal bar maptype control
+                // (only availble in Google Maps API v3)
+};
 
 /*! \class WGoogleMap Wt/WGoogleMap Wt/WGoogleMap
  *  \brief A widget that displays a google map.
@@ -44,26 +61,8 @@ namespace Wt
 class WT_API WGoogleMap : public WCompositeWidget
 {
 public:
-  /*! \brief ApiVersion
-   */
-  enum ApiVersion {
-    Version2, //!< API Version 2.x
-    Version3  //!< API Version 3.x
-  };
-  
-  /*! \brief MapTypeControl
-   */
-  enum MapTypeControl {
-    NoControl,           //!< Show no maptype control
-    DefaultControl,      //!< Show the default maptype control 
-                         // (the behaviour depends on the Google Maps 
-                         // API version)
-    MenuControl,         //!< Show the dropdown menu maptype control
-    HierarchicalControl, //!< Show the hierarchical maptype control 
-                         // (only availble in Google Maps API v2)
-    HorizontalBarControl //!< Show the horizontal bar maptype control
-                         // (only availble in Google Maps API v3)
-  };
+  /*! \brief Typedef for enum Wt::GoogleMapsVersion */
+  typedef GoogleMapsVersion Version;
 
   /*! \class Coordinate
    *  \brief A geographical coordinate (latitude/longitude)
@@ -115,13 +114,9 @@ public:
     double lat_, lon_;
   };
 
-  /*! \brief Creates a map widget with a version and optionally a parent argument.
+  /*! \brief Creates a map widget with a version.
    */
-  WGoogleMap(ApiVersion version, WContainerWidget *parent = 0);
-  
-  /*! \brief Creates a map widget with optionally a parent argument.
-   */
-  WGoogleMap(WContainerWidget *parent = 0);
+  WGoogleMap(GoogleMapsVersion version = GoogleMapsVersion::v3);
 
   /*! \brief Destructor.
    */
@@ -137,8 +132,8 @@ public:
    *  value in the color.
    */
   void addPolyline(const std::vector<Coordinate>& points,
-		   const WColor& color = WColor(red), int width = 2,
-		   double opacity = 1.0);
+		   const WColor& color = WColor(StandardColor::Red),
+		   int width = 2, double opacity = 1.0);
 
   /*! \brief Adds a circle to the map.
    *
@@ -209,15 +204,6 @@ public:
   /*! \brief Restores the map view that was saved by savePosition().
    */
   void returnToSavedPosition();
-
-  /*! \brief Notifies the map of a change of the size of its container.
-   *
-   * Call this method after the size of the container DOM object has changed,
-   * so that the map can adjust itself to fit the new size.
-   *
-   * \deprecated the map is resized automatically when necessary
-   */
-  void checkResize();
 
   /*! \brief Enables the dragging of the map (enabled by default).
    */
@@ -293,7 +279,7 @@ public:
 
   /*! \brief Return the used Google Maps API version.
    */
-  ApiVersion apiVersion() { return apiVersion_; }
+  GoogleMapsVersion apiVersion() { return apiVersion_; }
 
 private:
   JSignal<Coordinate> clicked_;
@@ -301,7 +287,7 @@ private:
   JSignal<Coordinate> *mouseMoved_;
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
   /*! \brief Execute a piece of JavaScript that manipulates the map.
    *
@@ -321,7 +307,7 @@ private:
 		    const std::string &state);
 
 private:
-  ApiVersion apiVersion_;
+  GoogleMapsVersion apiVersion_;
 };
 
 #ifndef WT_TARGET_JAVA

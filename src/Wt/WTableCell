@@ -7,7 +7,7 @@
 #ifndef WTABLECELL_H_
 #define WTABLECELL_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
 
@@ -94,23 +94,22 @@ public:
    */
   WTableColumn *tableColumn() const;
 
-  virtual bool isVisible() const;
+  virtual bool isVisible() const override;
 
 private:
-  WTableCell(WTableRow *row, int column);
-
   WTableRow *row_;
   int  column_;
   int  rowSpan_, columnSpan_;
   bool spanChanged_;
+  bool overSpanned_; // Used during rendering
 
   friend class WTableRow;
   friend class WTable;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
-  virtual void           propagateRenderOk(bool deep);
+  virtual void           updateDom(DomElement& element, bool all) override;
+  virtual DomElementType domElementType() const override;
+  virtual void           propagateRenderOk(bool deep) override;
 };
 
 }

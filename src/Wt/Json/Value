@@ -7,9 +7,9 @@
 #ifndef WT_JSON_VALUE_H_
 #define WT_JSON_VALUE_H_
 
-#include <Wt/WException>
-#include <Wt/WString>
-#include <boost/any.hpp>
+#include <Wt/WAny.h>
+#include <Wt/WException.h>
+#include <Wt/WString.h>
 
 namespace Wt {
   /*! \brief Namespace for the \ref json
@@ -47,13 +47,13 @@ class Array;
  *
  * \ingroup json
  */
-enum Type {
-  NullType,   //!< "null" or missing value
-  StringType, //!< a (unicode) string
-  BoolType,   //!< "true" or "false"
-  NumberType, //!< a number (integer or floating point)
-  ObjectType, //!< an Object
-  ArrayType,  //!< an Array
+enum class Type {
+  Null,   //!< "null" or missing value
+  String, //!< a (unicode) string
+  Bool,   //!< "true" or "false"
+  Number, //!< a number (integer or floating point)
+  Object, //!< an Object
+  Array,  //!< an Array
 };
 
 /*! \class TypeException Wt/Json/Value Wt/Json/Value
@@ -109,36 +109,36 @@ public:
 
   /*! \brief Creates a value from a string.
    *
-   * This creates a \link Wt::Json::StringType
-   * Json::StringType\endlink value.
+   * This creates a \link Wt::Json::Type::String
+   * Json::Type::String\endlink value.
    */
   Value(const WT_USTRING& value);
 
   /*! \brief Creates a value from a boolean.
    *
-   * This creates a \link Wt::Json::BoolType
-   * Json::BoolType\endlink value.
+   * This creates a \link Wt::Json::Type::Bool
+   * Json::Type::Bool\endlink value.
    */
   Value(bool value);
 
   /*! \brief Creates a value from an integer.
    *
-   * This creates a \link Wt::Json::NumberType
-   * Json::NumberType\endlink value.
+   * This creates a \link Wt::Json::Type::Number
+   * Json::Type::Number\endlink value.
    */
   Value(int value);
 
   /*! \brief Creates a value from a long.
    *
-   * This creates a \link Wt::Json::NumberType
-   * Json::NumberType\endlink value.
+   * This creates a \link Wt::Json::Type::Number
+   * Json::Type::Number\endlink value.
    */
   Value(long long value);
 
   /*! \brief Creates a value from a double.
    *
-   * This creates a \link Wt::Json::NumberType
-   * Json::NumberType\endlink value.
+   * This creates a \link Wt::Json::Type::Number
+   * Json::Type::Number\endlink value.
    */
   Value(double value);
 
@@ -160,11 +160,11 @@ public:
    *
    * This creates a value of the given type, using a default constructed value
    * of that type:
-   * - \link Wt::Json::BoolType Json::BoolType\endlink: false
-   * - \link Wt::Json::NumberType Json::NumberType\endlink: 0
-   * - \link Wt::Json::StringType Json::StringType\endlink: ""
-   * - \link Wt::Json::ArrayType Json::ArrayType\endlink: an empty array
-   * - \link Wt::Json::ObjectType Json::ObjectType\endlink: an empty object
+   * - \link Wt::Json::Type::Bool Json::Type::Bool\endlink: false
+   * - \link Wt::Json::Type::Number Json::Type::Number\endlink: 0
+   * - \link Wt::Json::Type::String Json::Type::String\endlink: ""
+   * - \link Wt::Json::Type::Array Json::Type::Array\endlink: an empty array
+   * - \link Wt::Json::Type::Object Json::Type::Object\endlink: an empty object
    */
   Value(Type type);
 
@@ -199,10 +199,10 @@ public:
 
   /*! \brief Returns whether the value is #Null.
    *
-   * This returns \c true when the type is \link Wt::Json::NullType
-   * Json::NullType\endlink.
+   * This returns \c true when the type is \link Wt::Json::Type::Null
+   * Json::Type::Null\endlink.
    */
-  bool isNull() const { return type() == NullType; }
+  bool isNull() const { return type() == Type::Null; }
 
   /*! \brief Returns whether the value is compatible with a given C++ type.
    *
@@ -223,7 +223,7 @@ public:
 
   /*! \brief Extracts the string value.
    *
-   * This returns the value of a \link Wt::Json::StringType
+   * This returns the value of a \link Wt::Json::Type::String
    * string\endlink JSON value.
    *
    * For example:
@@ -247,14 +247,14 @@ public:
    * const WString& occupation = person.get("occupation").toString().orIfNull(WString("manager"));
    * \endcode
    *
-   * \throws TypeException if the value type is not \link Wt::Json::StringType
-   * Json::StringType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::String
+   * Json::Type::String\endlink
    */
   operator const WT_USTRING&() const;
 
   /*! \brief Extracts the string value (UTF-8 encoded).
    *
-   * This returns the value of a \link Wt::Json::StringType
+   * This returns the value of a \link Wt::Json::Type::String
    * string\endlink JSON value.
    *
    * For example:
@@ -278,14 +278,14 @@ public:
    * const std::string occupation = person.get("occupation").toString().orIfNull("manager");
    * \endcode
    *
-   * \throws TypeException if the value type is not \link Wt::Json::StringType
-   * Json::StringType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::String
+   * Json::Type::String\endlink
    */
   operator std::string() const;
 
   /*! \brief Extracts the boolean value.
    *
-   * This returns the value of a \link Wt::Json::BoolType
+   * This returns the value of a \link Wt::Json::Type::Bool
    * boolean \endlink JSON value.
    *
    * For example:
@@ -309,14 +309,14 @@ public:
    * bool happy = person.get("happy").toBool().orIfNull(false);
    * \endcode
    *
-   * \throws TypeException if the value type is not \link Wt::Json::BoolType
-   * Json::BoolType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Bool
+   * Json::Type::Bool\endlink
    */
   operator bool() const;
 
   /*! \brief Extracts the integer number value.
    *
-   * This returns the value of a \link Wt::Json::NumberType
+   * This returns the value of a \link Wt::Json::Type::Number
    * number \endlink JSON value.
    *
    * For example:
@@ -340,14 +340,14 @@ public:
    * int cost = person.get("cost").toNumber().orIfNull(0);
    * \endcode
    *
-   * \throws TypeException if the value type is not \link Wt::Json::NumberType
-   * Json::NumberType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Number
+   * Json::Type::Number\endlink
    */
   operator int() const;
 
   /*! \brief Extracts the integer number value.
    *
-   * This returns the value of a \link Wt::Json::NumberType
+   * This returns the value of a \link Wt::Json::Type::Number
    * number \endlink JSON value.
    *
    * For example:
@@ -371,14 +371,14 @@ public:
    * long long cost = person.get("cost").toNumber().orIfNull(0LL);
    * \endcode
    *
-   * \throws TypeException if the value type is not \link Wt::Json::NumberType
-   * Json::NumberType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Number
+   * Json::Type::Number\endlink
    */
   operator long long() const;
 
   /*! \brief Extracts the floating point number value.
    *
-   * This returns the value of a \link Wt::Json::NumberType
+   * This returns the value of a \link Wt::Json::Type::Number
    * number \endlink JSON value.
    *
    * For example:
@@ -402,14 +402,14 @@ public:
    * double cost = person.get("cost").toNumber().orIfNull(0.0);
    * \endcode
    *
-   * \throws TypeException if the value type is not \link Wt::Json::NumberType
-   * Json::NumberType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Number
+   * Json::Type::Number\endlink
    */
   operator double() const;
 
   /*! \brief Extracts the array value.
    *
-   * This returns the value of a \link Wt::Json::ArrayType
+   * This returns the value of a \link Wt::Json::Type::Array
    * array \endlink JSON value.
    *
    * For example:
@@ -425,14 +425,14 @@ public:
    *
    * To provide a fallback in case the value is null, use orIfNull().
    *
-   * \throws TypeException if the value type is not \link Wt::Json::ArrayType
-   * Json::ArrayType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Array
+   * Json::Type::Array\endlink
    */
   operator const Array&() const;
 
   /*! \brief Extracts the object value.
    *
-   * This returns the value of a \link Wt::Json::ObjectType
+   * This returns the value of a \link Wt::Json::Type::Object
    * object \endlink JSON value.
    *
    * For example:
@@ -448,14 +448,14 @@ public:
    *
    * To provide a fallback in case the value is null, use orIfNull().
    *
-   * \throws TypeException if the value type is not \link Wt::Json::ObjectType
-   * Json::ObjectType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Object
+   * Json::Type::Object\endlink
    */
   operator const Object&() const;
 
   /*! \brief Accesses the array value.
    *
-   * This returns the value of a \link Wt::Json::ArrayType
+   * This returns the value of a \link Wt::Json::Type::Array
    * array \endlink JSON value.
    *
    * Use this method to modify the contained array in-place.
@@ -463,19 +463,19 @@ public:
    * For example:
    * \code
    * Json::Object person;
-   * person["children"] = Json::Value(Json::ArrayType);
+   * person["children"] = Json::Value(Json::Type::Array);
    * Json::Array& children = person.get("children");
    * // add children ...
    * \endcode
    *
-   * \throws TypeException if the value type is not \link Wt::Json::ArrayType
-   * Json::ArrayType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Array
+   * Json::Type::Array\endlink
    */
   operator Array&();
 
   /*! \brief Accesses the object value.
    *
-   * This returns the value of a \link Wt::Json::ObjectType
+   * This returns the value of a \link Wt::Json::Type::Object
    * object \endlink JSON value.
    *
    * Use this method to modify the contained object in-place.
@@ -484,14 +484,14 @@ public:
    * \code
    * Json::Array& children = ...;
    * for (unsigned i = 0; i < 3; ++i) {
-   *   children.push_back(Json::Value(Json::ObjectType));
+   *   children.push_back(Json::Value(Json::Type::Object));
    *   Json::Object& child = children.back();
    *   ...
    * }
    * \endcode
    *
-   * \throws TypeException if the value type is not \link Wt::Json::ObjectType
-   * Json::ObjectType\endlink
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Object
+   * Json::Type::Object\endlink
    */
   operator Object&();
 
@@ -502,8 +502,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::StringType
-   *                       Json::StringType\endlink
+   *                       other than \link Wt::Json::Type::String
+   *                       Json::Type::String\endlink
    */
   const WT_USTRING& orIfNull(const WT_USTRING& v) const;
 
@@ -514,8 +514,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::StringType
-   *                       Json::StringType\endlink
+   *                       other than \link Wt::Json::Type::String
+   *                       Json::Type::String\endlink
    */
   std::string orIfNull(const char *v) const;
 
@@ -527,8 +527,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::StringType
-   *                       Json::StringType\endlink
+   *                       other than \link Wt::Json::Type::String
+   *                       Json::Type::String\endlink
    */
   std::string orIfNull(const std::string& v) const;
 #endif
@@ -540,8 +540,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::BoolType
-   *                       Json::BoolType\endlink
+   *                       other than \link Wt::Json::Type::Bool
+   *                       Json::Type::Bool\endlink
    */
   bool orIfNull(bool v) const;
 
@@ -552,8 +552,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::NumberType
-   *                       Json::NumberType\endlink
+   *                       other than \link Wt::Json::Type::Number
+   *                       Json::Type::Number\endlink
    */
   int orIfNull(int v) const;
 
@@ -564,8 +564,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::NumberType
-   *                       Json::NumberType\endlink
+   *                       other than \link Wt::Json::Type::Number
+   *                       Json::Type::Number\endlink
    */
   long long orIfNull(long long v) const;
 
@@ -576,8 +576,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::NumberType
-   *                       Json::NumberType\endlink
+   *                       other than \link Wt::Json::Type::Number
+   *                       Json::Type::Number\endlink
    */
   double orIfNull(double v) const;
 
@@ -588,8 +588,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::ArrayType
-   *                       Json::ArrayType\endlink
+   *                       other than \link Wt::Json::Type::Array
+   *                       Json::Type::Array\endlink
    */
   const Array& orIfNull(const Array& v) const;
 
@@ -600,8 +600,8 @@ public:
    * exception.
    *
    * \throws TypeException if the value is not null and has a type
-   *                       other than \link Wt::Json::ObjectType
-   *                       Json::ObjectType\endlink
+   *                       other than \link Wt::Json::Type::Object
+   *                       Json::Type::Object\endlink
    */
   const Object& orIfNull(const Object& v) const;
 
@@ -631,36 +631,30 @@ public:
 
   /*! \brief Null constant.
    *
-   * A constant value with type \link Wt::Json::NullType
-   * Json::NullType\endlink, i.e. as constructed by
+   * A constant value with type \link Wt::Json::Type::Null
+   * Json::Type::Null\endlink, i.e. as constructed by
    * <tt>Json::Value()</tt>.
    */
   static const Value Null;
 
   /*! \brief True constant.
    *
-   * A constant value of type \link Wt::Json::BoolType
-   * Json::BoolType\endlink with value \c true, i.e. as
+   * A constant value of type \link Wt::Json::Type::Bool
+   * Json::Type::Bool\endlink with value \c true, i.e. as
    * constructed by <tt>Json::Value(true)</tt>.
    */
   static const Value True;
 
   /*! \brief False constant.
    *
-   * A constant value of type \link Wt::Json::BoolType
-   * Json::BoolType\endlink with value \c false, i.e. as
+   * A constant value of type \link Wt::Json::Type::Bool
+   * Json::Type::Bool\endlink with value \c false, i.e. as
    * constructed by <tt>Json::Value(false)</tt>
    */
   static const Value False;
 
-#ifdef WT_TARGET_JAVA
-  std::string getAsString();
-  long getAsLong();
-  int getAsInt();
-#endif
-
 private:
-  boost::any v_;
+  cpp17::any v_;
 
   template <typename T> T get(Type type) const;
   template <typename T> const T& getCR(Type type) const;

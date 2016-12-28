@@ -8,8 +8,8 @@
 #ifndef MEMBERSHIPID_H
 #define	MEMBERSHIPID_H
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 class Person;
 class Organisation;

@@ -1,6 +1,7 @@
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 SAMPLE_BEGIN(Painting3D)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-SAMPLE_END(return container)
+auto container = cpp14::make_unique<WContainerWidget>();
+
+SAMPLE_END(return std::move(container))

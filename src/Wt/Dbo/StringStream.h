@@ -18,7 +18,7 @@ namespace Wt {
 
 #undef WT_API
 #define WT_API
-#include "../WStringStream"
+#include "../WStringStream.h"
 
   }
 }

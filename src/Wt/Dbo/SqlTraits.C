@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/SqlTraits"
+#include "Wt/Dbo/SqlTraits.h"
 
 namespace Wt {
   namespace Dbo {

@@ -8,10 +8,10 @@
 
 #include "TopicTemplate.h"
 
-#include <Wt/WStringStream>
+#include <Wt/WStringStream.h>
 
 TopicTemplate::TopicTemplate(const char *trKey)
-  : Wt::WTemplate(tr(trKey))
+  : WTemplate(tr(trKey))
 {
   setInternalPathEncoding(true);
   addFunction("tr", &Functions::tr);

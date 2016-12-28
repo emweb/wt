@@ -81,15 +81,16 @@ public:
 
   ::int64_t maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
 
+  typedef std::function<std::string (std::size_t max_length, int purpose)>
+    SslPasswordCallback;
+
   // ssl Password callback is not configurable from a file but we store it
   // here because it's used in the Server constructor (inside start())
-  void setSslPasswordCallback(
-          boost::function<std::string (std::size_t max_length, int purpose)> cb)
-  { sslPasswordCallback_ = cb; }
-  boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback()
-  { return sslPasswordCallback_; }
-  bool hasSslPasswordCallback()
-  { return sslPasswordCallback_; }
+  void setSslPasswordCallback(const SslPasswordCallback& cb) {
+    sslPasswordCallback_ = cb;
+  }
+  SslPasswordCallback sslPasswordCallback() { return sslPasswordCallback_; }
+  bool hasSslPasswordCallback() { return (bool)sslPasswordCallback_; }
 
 private:
 #ifndef WT_WIN32
@@ -132,9 +133,10 @@ private:
 
   ::int64_t maxMemoryRequestSize_;
 
-  boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
+  SslPasswordCallback sslPasswordCallback_;
 
-  void createOptions(po::options_description& options, po::options_description& visible_options);
+  void createOptions(po::options_description& options,
+		     po::options_description& visible_options);
   void readOptions(const po::variables_map& vm);
 
   void checkPath(const boost::program_options::variables_map& vm,

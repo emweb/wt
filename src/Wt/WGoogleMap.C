@@ -7,14 +7,11 @@
  * Contributed by: Richard Ulrich.
  */
 
-#include <Wt/WGoogleMap>
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
+#include <Wt/WGoogleMap.h>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
 
 #include "web/WebUtils.h"
-
-#include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <string>
 #include <utility>
@@ -66,7 +63,7 @@ void WGoogleMap::Coordinate::setLatitude(double latitude)
 {
   if (latitude < -90.0 || latitude > 90.0)
     throw std::out_of_range("invalid latitude: "
-			    + boost::lexical_cast<std::string>(latitude));
+			    + std::to_string(latitude));
 
   lat_ = latitude;
 }
@@ -75,7 +72,7 @@ void WGoogleMap::Coordinate::setLongitude(double longitude)
 {
   if (longitude < -180.0 || longitude > 180.0)
     throw std::out_of_range("invalid longitude: "
-			    + boost::lexical_cast<std::string>(longitude));
+			    + std::to_string(longitude));
 
   lon_ = longitude;
 }
@@ -113,28 +110,13 @@ std::istream& operator>> (std::istream& i, WGoogleMap::Coordinate& c)
 // example javascript code from :
 // http://code.google.com/apis/maps/documentation/
 
-WGoogleMap::WGoogleMap(ApiVersion version, WContainerWidget *parent)
+WGoogleMap::WGoogleMap(GoogleMapsVersion version)
  : clicked_(this, "click"),
    doubleClicked_(this, "dblclick"),
-   mouseMoved_(0),
+   mouseMoved_(nullptr),
    apiVersion_(version)
 {
-  setImplementation(new WContainerWidget());
-
-  if (parent)
-    parent->addWidget(this);
-}
-
-WGoogleMap::WGoogleMap(WContainerWidget *parent)
- : clicked_(this, "click"),
-   doubleClicked_(this, "dblclick"),
-   mouseMoved_(0),
-   apiVersion_(Version2)
-{
-  setImplementation(new WContainerWidget());
-
-  if (parent)
-    parent->addWidget(this);
+  setImplementation(std::unique_ptr<WWidget>(new WContainerWidget()));
 }
 
 WGoogleMap::~WGoogleMap()
@@ -146,12 +128,12 @@ void WGoogleMap::streamJSListener(const JSignal<Coordinate> &signal,
 				  std::string signalName,
 				  Wt::WStringStream &strm) 
 {
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     strm <<
       """google.maps.Event.addListener(map, \"" << signalName << "\", "
       ""                              "function(overlay, latlng) {"
       ""  "if (latlng) {"
-	<< signal.createCall("latlng.lat() +' '+ latlng.lng()") << ";"
+	<< signal.createCall({"latlng.lat() +' '+ latlng.lng()"}) << ";"
       ""  "}"
       """});";
   } else {
@@ -159,7 +141,7 @@ void WGoogleMap::streamJSListener(const JSignal<Coordinate> &signal,
       """google.maps.event.addListener(map, \"" << signalName << "\", "
       ""                              "function(event) {"
       ""  "if (event && event.latLng) {"
-	 << signal.createCall("event.latLng.lat() +' '+ event.latLng.lng()") 
+	 << signal.createCall({"event.latLng.lat() +' '+ event.latLng.lng()"}) 
 	 << ";"
       ""  "}"
       """});";
@@ -176,7 +158,7 @@ JSignal<WGoogleMap::Coordinate>& WGoogleMap::mouseMoved()
 
 void WGoogleMap::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
+  if (flags.test(RenderFlag::Full)) {
     WApplication *app = WApplication::instance();
 
     std::string googlekey = localhost_key;
@@ -199,7 +181,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
       ""   "return;"
       "}";
 
-    if (apiVersion_ == Version2) {
+    if (apiVersion_ == GoogleMapsVersion::v2) {
       strm << 
 	"var map = new google.maps.Map(self);"
 	"map.setCenter(new google.maps.LatLng(47.01887777, 8.651888), 13);";
@@ -246,7 +228,8 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
       strm << additions_[i];
 
     strm << "setTimeout(function(){ delete " << initFunction << ";}, 0)};"
-	 << "google.load(\"maps\", \"" << (apiVersion_ == Version2 ? '2' : '3')
+	 << "google.load(\"maps\", \"" 
+	 << (apiVersion_ == GoogleMapsVersion::v2 ? '2' : '3')
 	 << "\", {other_params:\"sensor=false\", callback: "
 	 << initFunction << "});"
 	 << "}"; // private scope
@@ -261,7 +244,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
 
 void WGoogleMap::clearOverlays()
 {
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     doGmJavaScript(jsRef() + ".map.clearOverlays();");
   } else {
     std::stringstream strm;
@@ -296,7 +279,7 @@ void WGoogleMap::addMarker(const Coordinate& pos)
 {
   std::stringstream strm;
 
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     strm << "var marker = ";
     write(strm, pos);
     strm << ";"
@@ -320,7 +303,7 @@ void WGoogleMap::addIconMarker(const Coordinate &pos,
 {
   std::stringstream strm;
   
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     throw std::logic_error("WGoogleMap::addIconMarker is not supported "
                            "in the Google Maps API v2.");
   } else {
@@ -343,7 +326,7 @@ void WGoogleMap::addCircle(const Coordinate& center, double radius,
 			   const WColor& strokeColor, int strokeWidth,
 			   const WColor& fillColor)
 {
-  if ( apiVersion_ == Version2 ) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     throw std::logic_error("WGoogleMap::addCircle is not supported " 
 			   "in the Google Maps API v2.");
     //we could support this by rendering the circle by rendering 
@@ -394,7 +377,7 @@ void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
     strm << ";";
   }
 
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     strm << "var poly = new google.maps.Polyline(waypoints, \""
 	 << color.cssText() << "\", " << width << ", " << opacity << ");"
 	 << jsRef() << ".map.addOverlay(poly);";
@@ -421,7 +404,7 @@ void WGoogleMap::openInfoWindow(const Coordinate& pos,
   write(strm, pos);
   strm << ";";
   
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     strm << jsRef() << ".map.openInfoWindow(pos, "
 	 << WWebWidget::jsStringLiteral(myHtml) << ");";
   } else {
@@ -468,8 +451,7 @@ void WGoogleMap::panTo(const Coordinate& center)
 
 void WGoogleMap::setZoom(int level)
 {
-  doGmJavaScript(jsRef() + ".map.setZoom("
-		 + boost::lexical_cast<std::string>(level) + ");");
+  doGmJavaScript(jsRef() + ".map.setZoom(" + std::to_string(level) + ");");
 }
 
 void WGoogleMap::zoomIn()
@@ -492,7 +474,7 @@ void WGoogleMap::zoomOut()
 
 void WGoogleMap::savePosition()
 {
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     doGmJavaScript(jsRef() + ".map.savePosition();");
   } else {
     std::stringstream strm;
@@ -505,7 +487,7 @@ void WGoogleMap::savePosition()
 
 void WGoogleMap::returnToSavedPosition()
 {
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     doGmJavaScript(jsRef() + ".map.returnToSavedPosition();");
   } else {
     std::stringstream strm;
@@ -514,11 +496,6 @@ void WGoogleMap::returnToSavedPosition()
       << jsRef() << ".map.setCenter(" << jsRef() << ".map.savedPosition);";
     doGmJavaScript(strm.str());
   }
-}
-
-void WGoogleMap::checkResize()
-{
-  doGmJavaScript(jsRef() + ".map.checkResize();");
 }
 
 void WGoogleMap::setMapOption(const std::string &option, 
@@ -536,7 +513,7 @@ void WGoogleMap::setMapOption(const std::string &option,
 
 void WGoogleMap::enableDragging()
 {
-  if (apiVersion_ == Version2)
+  if (apiVersion_ == GoogleMapsVersion::v2)
     doGmJavaScript(jsRef() + ".map.enableDragging();");
   else
     setMapOption("draggable", "true");
@@ -544,7 +521,7 @@ void WGoogleMap::enableDragging()
 
 void WGoogleMap::disableDragging()
 {
-  if (apiVersion_ == Version2)
+  if (apiVersion_ == GoogleMapsVersion::v2)
     doGmJavaScript(jsRef() + ".map.disableDragging();");
   else
     setMapOption("draggable", "false");
@@ -552,7 +529,7 @@ void WGoogleMap::disableDragging()
 
 void WGoogleMap::enableDoubleClickZoom()
 {
-  if (apiVersion_ == Version2)
+  if (apiVersion_ == GoogleMapsVersion::v2)
     doGmJavaScript(jsRef() + ".map.enableDoubleClickZoom();");
   else
     setMapOption("disableDoubleClickZoom", "false");
@@ -560,7 +537,7 @@ void WGoogleMap::enableDoubleClickZoom()
 
 void WGoogleMap::disableDoubleClickZoom()
 {
-  if (apiVersion_ == Version2)
+  if (apiVersion_ == GoogleMapsVersion::v2)
     doGmJavaScript(jsRef() + ".map.disableDoubleClickZoom();");
   else
     setMapOption("disableDoubleClickZoom", "true");
@@ -568,7 +545,7 @@ void WGoogleMap::disableDoubleClickZoom()
 
 void WGoogleMap::enableGoogleBar()
 {
-  if (apiVersion_ == Version2)
+  if (apiVersion_ == GoogleMapsVersion::v2)
     doGmJavaScript(jsRef() + ".map.enableGoogleBar();");
   else
     throw std::logic_error("WGoogleMap::enableGoogleBar is not supported " 
@@ -577,7 +554,7 @@ void WGoogleMap::enableGoogleBar()
 
 void WGoogleMap::disableGoogleBar()
 {
-  if (apiVersion_ == Version2)
+  if (apiVersion_ == GoogleMapsVersion::v2)
     doGmJavaScript(jsRef() + ".map.disableGoogleBar();");
   else
     throw std::logic_error("WGoogleMap::disableGoogleBar is not supported " 
@@ -586,7 +563,7 @@ void WGoogleMap::disableGoogleBar()
 
 void WGoogleMap::enableScrollWheelZoom()
 {
-  if (apiVersion_ == Version2)
+  if (apiVersion_ == GoogleMapsVersion::v2)
     doGmJavaScript(jsRef() + ".map.enableScrollWheelZoom();");
   else 
     setMapOption("scrollwheel", "true");
@@ -594,7 +571,7 @@ void WGoogleMap::enableScrollWheelZoom()
 
 void WGoogleMap::disableScrollWheelZoom()
 {
-  if (apiVersion_ == Version2)
+  if (apiVersion_ == GoogleMapsVersion::v2)
     doGmJavaScript(jsRef() + ".map.disableScrollWheelZoom();");
   else 
     setMapOption("scrollwheel", "false");
@@ -627,7 +604,7 @@ void WGoogleMap::zoomWindow(const Coordinate& topLeft,
   write(strm, rightBottomC);
   strm << ");";
 
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     strm 
       << "var zooml = " << jsRef() << ".map.getBoundsZoomLevel(bbox);"
       << jsRef() << ".map.setCenter(";
@@ -645,19 +622,19 @@ void WGoogleMap::setMapTypeControl(MapTypeControl type)
 {
   std::stringstream strm;
 
-  if (apiVersion_ == Version2) {
+  if (apiVersion_ == GoogleMapsVersion::v2) {
     std::string control;
     switch (type) {
-    case DefaultControl:
+    case MapTypeControl::Default:
       control = "google.maps.MapTypeControl";
       break;
-    case MenuControl:
+    case MapTypeControl::Menu:
       control = "google.maps.MenuMapTypeControl";
       break;
-    case HierarchicalControl:
+    case MapTypeControl::Hierarchical:
       control = "google.maps.HierarchicalMapTypeControl";
       break;
-    case HorizontalBarControl:
+    case MapTypeControl::HorizontalBar:
       throw std::logic_error("WGoogleMap::setMapTypeControl: "
 			     "HorizontalBarControl is not supported when using "
 			     "Google Maps API v2.");
@@ -667,23 +644,23 @@ void WGoogleMap::setMapTypeControl(MapTypeControl type)
 
     strm << jsRef() << ".map.removeControl(" << jsRef() << ".mtc);";
        
-    if(control != "")
+    if (control != "")
       strm << "var mtc = new " << control << "();"
 	   << jsRef() << ".mtc = mtc;"
 	   << jsRef() << ".map.addControl(mtc);";
   } else {
     std::string control;
     switch (type) {
-    case DefaultControl:
+    case MapTypeControl::Default:
       control = "DEFAULT";
       break;
-    case MenuControl:
+    case MapTypeControl::Menu:
       control = "DROPDOWN_MENU";
       break;
-    case HorizontalBarControl:
+    case MapTypeControl::HorizontalBar:
       control = "HORIZONTAL_BAR";
       break;
-    case HierarchicalControl:
+    case MapTypeControl::Hierarchical:
       throw std::logic_error("WGoogleMap::setMapTypeControl: "
 			     "HierarchicalControl is not supported when using "
 			     "Google Maps API v3.");

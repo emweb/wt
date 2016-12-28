@@ -9,8 +9,7 @@
 
 #include <set>
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WSignalMapper>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
 
@@ -41,18 +40,18 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WIconPair *folderIcon = new Wt::WIconPair("icons/yellow-folder-closed.png",
- *				               "icons/yellow-folder-open.png", false);
+ * Wt::WIconPair *folderIcon = new Wt::WIconPair("icons/StandardColor::Yellow-folder-closed.png",
+ *				               "icons/StandardColor::Yellow-folder-open.png", false);
  *
  * Wt::WTree *tree = new Wt::WTree();
- * tree->setSelectionMode(Wt::SingleSelection);
+ * tree->setSelectionMode(Wt::SelectionMode::Single);
  *
  * Wt::WTreeNode *root = new Wt::WTreeNode("Tree root", folderIcon);
  * root->setStyleClass("example-tree");
  * tree->setTreeRoot(root);
- * root->label()->setTextFormat(Wt::PlainText);
+ * root->label()->setTextFormat(Wt::TextFormat::Plain);
  * root->setImagePack("resources/");
- * root->setLoadPolicy(Wt::WTreeNode::NextLevelLoading);
+ * root->setLoadPolicy(Wt::ContentLoading::NextLevel);
  * root->addChildNode(new Wt::WTreeNode("one"));
  * root->addChildNode(new Wt::WTreeNode("two"));
  *
@@ -79,13 +78,13 @@ class WT_API WTree : public WCompositeWidget
 public:
   /*! \brief Creates a new tree.
    */
-  WTree(WContainerWidget *parent = 0);
+  WTree();
 
   /*! \brief Sets the tree root node.
    *
    * The initial value is \c 0.
    */
-  void setTreeRoot(WTreeNode *root);
+  void setTreeRoot(std::unique_ptr<WTreeNode> root);
 
   /*! \brief Returns the root node.
    *
@@ -95,7 +94,7 @@ public:
 
   /*! \brief Sets the selection mode.
    *
-   * The default selection mode is Wt::NoSelection.
+   * The default selection mode is Wt::SelectionMode::None.
    */
   void setSelectionMode(SelectionMode mode);
 
@@ -132,12 +131,12 @@ public:
   Signal<>& itemSelectionChanged() { return itemSelectionChanged_; }
 
 private:
-  WTreeNode                 *treeRoot_;
-  Impl::SentinelTreeNode    *sentinelRoot_;
+  WTreeNode *treeRoot_;
+  Impl::SentinelTreeNode *sentinelRoot_;
 
-  SelectionMode              selectionMode_;
-  WTreeNodeSet               selection_;
-  Signal<>                   itemSelectionChanged_;
+  SelectionMode selectionMode_;
+  WTreeNodeSet selection_;
+  Signal<> itemSelectionChanged_;
 
   void onClick(WTreeNode *node, WMouseEvent event);
 

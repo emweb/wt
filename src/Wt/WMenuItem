@@ -7,8 +7,8 @@
 #ifndef WMENU_ITEM_H_
 #define WMENU_ITEM_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WString>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WString.h>
 
 namespace Wt {
 
@@ -30,13 +30,6 @@ namespace Wt {
 class WT_API WMenuItem : public WContainerWidget
 {
 public:
-  /*! \brief Enumeration that determines when contents should be loaded.
-   */
-  enum LoadPolicy {
-    LazyLoading, //!< Lazy loading: on first use
-    PreLoading   //!< Pre-loading: before first use
-  };
-
   /*! \brief Creates a new item with given label.
    *
    * The optional contents is a widget that will be shown in the WMenu
@@ -49,8 +42,8 @@ public:
    * pathComponent() will be derived from the \p label, and can be
    * customized using setPathComponent().
    */
-  WMenuItem(const WString& label, WWidget *contents = 0,
-	    LoadPolicy policy = LazyLoading);
+  WMenuItem(const WString& label, std::unique_ptr<WWidget> contents = nullptr,
+	    ContentLoading policy = ContentLoading::Lazy);
 
   /*
    * The icon is displayed left to the text.
@@ -58,7 +51,8 @@ public:
    * \note The icon should have a width of 16 pixels.
    */
   WMenuItem(const std::string& iconPath, const WString& label,
-	    WWidget *contents = 0, LoadPolicy policy = LazyLoading);
+	    std::unique_ptr<WWidget> contents = nullptr,
+	    ContentLoading policy = ContentLoading::Lazy);
 
   /* !\brief Destructor.
    *
@@ -84,7 +78,7 @@ public:
    *
    * \sa setText();
    */
-  const WString& text() const;
+  WString text() const;
 
   /*! \brief Sets the item icon path.
    *
@@ -113,7 +107,7 @@ public:
    *
    * \sa setCheckable()
    */
-  bool isCheckable() const { return checkBox_ != 0; }
+  bool isCheckable() const { return checkBox_ != nullptr; }
 
   /*! \brief Sets the path component for this item.
    *
@@ -134,12 +128,12 @@ public:
    * \link WString::literal() literal text\endlink is used, the path
    * is based on the text itself, otherwise on the \link
    * WString::key() key\endlink. It is converted to lower case, and
-   * replacing white space and special characters with '_'.
+   * replacing StandardColor::White space and special characters with '_'.
    *
    * \sa setText(), WMenu::setInternalPathEnabled()
    *
    * \if cpp
-   * \note the \p path should be UTF8 encoded (we may fix the API
+   * \note the \p path should be CharEncoding::UTF8 encoded (we may fix the API
    *       to use WString in the future).
    * \endif
    */
@@ -153,7 +147,7 @@ public:
    * \sa setPathComponent()
    *
    * \if cpp
-   * \note the \p path component is UTF8 encoded (we may fix the API
+   * \note the \p path component is CharEncoding::UTF8 encoded (we may fix the API
    *       to use WString in the future).
    * \endif
    */
@@ -189,31 +183,12 @@ public:
    */
   WLink link() const;
 
-  /*! \brief Sets the link target.
-   *
-   * \sa setLink()
-   */
-  void setLinkTarget(AnchorTarget target);
-
-  /*! \brief Returns the link target.
-   *
-   * \sa setLinkTarget()
-   */
-  AnchorTarget linkTarget() const;
-
   /*! \brief Sets a sub menu.
    *
-   * Ownership of the \p subMenu is transferred to the item. In
-   * most cases, the sub menu would use the same contents stack as the
-   * parent menu.
+   * In most cases, the sub menu would use the same contents stack as
+   * the parent menu.
    */
-  void setMenu(WMenu *menu);
-
-  /*! \brief Sets a sub menu (<b>deprecated</b>)
-   *
-   * \deprecated use setMenu() instead
-   */
-  void setSubMenu(WMenu *menu);
+  void setMenu(std::unique_ptr<WMenu> menu);
 
   /*! \brief Returns the submenu.
    *
@@ -248,7 +223,7 @@ public:
    * An item that is selectable but is disabled can still not be
    * selected.
    */
-  void setSelectable(bool selectable);
+  void setSelectable(bool selectable) override;
 
   /*! \brief Returns whether the menu item can be selected.
    *
@@ -307,7 +282,8 @@ public:
    * when it the item is activated for the first time (LazyLoading) or
    * transmitted prior to first rendering.
    */
-  void setContents(WWidget *contents, LoadPolicy policy = LazyLoading);
+  void setContents(std::unique_ptr<WWidget> contents,
+		   ContentLoading policy = ContentLoading::Lazy);
 
   /*! \brief Returns the contents widget for this item.
    *
@@ -315,16 +291,9 @@ public:
    */
   WWidget *contents() const;
 
-  WWidget *takeContents();
-
-  /*! \brief Returns the widget that represents the item (<b>deprecated</b>).
-   *
-   * This returns this.
-   *
-   * \deprecated This is a pre-Wt 3.3.0 artifact which has lost its value
-   *             since WMenuItem is now a widget.
+  /*! \brief Removes the contents widget from this item.
    */
-  WWidget *itemWidget();
+  std::unique_ptr<WWidget> removeContents();
 
   /*! \brief Selects this item.
    *
@@ -374,21 +343,25 @@ public:
 
   virtual void setFromInternalPath(const std::string& path);
 
-  virtual void enableAjax();
+  virtual void enableAjax() override;
 
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
-  virtual void setDisabled(bool disabled);
+                         const WAnimation& animation = WAnimation()) override;
+  virtual void setDisabled(bool disabled) override;
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
   // Constructs a separator or header
   WMenuItem(bool separator, const WString& text);
 
-  WContainerWidget *contentsContainer_;
-  WWidget *contents_;
+  ContentLoading loadPolicy_;
+  std::unique_ptr<WWidget> uContents_; // contents not added to the widget tree
+  observing_ptr<WWidget> oContents_;   // contents in widget tree
+  std::unique_ptr<WContainerWidget> uContentsContainer_;
+  observing_ptr<WContainerWidget> oContentsContainer_;
+
   WMenu *menu_, *subMenu_;
   WText *icon_;
   WLabel *text_;
@@ -397,14 +370,13 @@ private:
   bool separator_, selectable_, signalsConnected_, customLink_;
 
   Signal<WMenuItem *> triggered_;
-  Wt::Signals::connection contentsDestroyedConnection_;
 
   std::string pathComponent_;
   bool customPathComponent_, internalPathEnabled_;
   bool closeable_;
 
   void create(const std::string& iconPath, const WString& text,
-	      WWidget *contents, LoadPolicy policy);
+	      std::unique_ptr<WWidget> contents, ContentLoading policy);
   void purgeContents();
   void updateInternalPath();
   bool contentsLoaded() const;
@@ -419,6 +391,10 @@ private:
   void contentsDestroyed();
   void setCheckBox();
   void setUnCheckBox();
+
+  std::unique_ptr<WWidget> takeContentsForStack();
+  WWidget *contentsInStack() const;
+  void returnContentsInStack(std::unique_ptr<WWidget> widget);
 
   friend class WMenu;
   friend class WPopupMenu;

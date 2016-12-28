@@ -7,10 +7,10 @@
 #ifndef COMMENT_H_
 #define COMMENT_H_
 
-#include <Wt/WDateTime>
+#include <Wt/WDateTime.h>
 
-#include <Wt/Dbo/Types>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/Types.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 class Comment;
 class Post;
@@ -26,7 +26,7 @@ public:
   dbo::ptr<Post>    post;
   dbo::ptr<Comment> parent;
 
-  Wt::WDateTime     date;
+  Wt::WDateTime         date;
 
   void setText(const Wt::WString& text);
   void setDeleted();
@@ -55,6 +55,6 @@ private:
   Wt::WString textHtml_;
 };
 
-DBO_EXTERN_TEMPLATES(Comment);
+DBO_EXTERN_TEMPLATES(Comment)
 
 #endif // COMMENT_H_

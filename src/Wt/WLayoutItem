@@ -8,6 +8,7 @@
 #define WLAYOUT_ITEM_H_
 
 #include <Wt/WDllDefs.h>
+#include <functional>
 
 namespace Wt {
 
@@ -50,12 +51,12 @@ public:
    */
   virtual WLayout *parentLayout() const = 0;
 
-  /*! \brief Returns the implementation for this layout item.
-   *
-   * The implementation of a layout item depends on the kind of
-   * container for which the layout does layout management.
-   */
+  virtual WWidget *parentWidget() const = 0;
+
   virtual WLayoutItemImpl *impl() const = 0;
+
+  typedef std::function<void (WWidget *)> HandleWidgetMethod;
+  virtual void iterateWidgets(const HandleWidgetMethod& method) const = 0;
 
 private:
   /*! \brief Internal method.

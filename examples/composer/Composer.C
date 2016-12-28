@@ -13,21 +13,25 @@
 #include "Option.h"
 #include "OptionList.h"
 
-#include <Wt/WContainerWidget>
-#include <Wt/WImage>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WText>
-#include <Wt/WTable>
-#include <Wt/WTableCell>
-#include <Wt/WStringUtil>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WImage.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
+#include <Wt/WTable.h>
+#include <Wt/WTableCell.h>
+#include <Wt/WStringUtil.h>
+#include <algorithm>
 
-Composer::Composer(WContainerWidget *parent)
-  : WCompositeWidget(parent),
+Composer::Composer()
+  : WCompositeWidget(),
     saving_(false),
     sending_(false)
 {
-  setImplementation(layout_ = new WContainerWidget());
+  std::unique_ptr<WContainerWidget> layout
+      = cpp14::make_unique<WContainerWidget>();
+  layout_ = layout.get();
+  setImplementation(std::move(layout));
 
   createUi();
 }
@@ -100,16 +104,16 @@ void Composer::createUi()
   /*
    * Top buttons
    */
-  horiz = new WContainerWidget(layout_);
+  horiz = layout_->addWidget(cpp14::make_unique<WContainerWidget>());
   horiz->setPadding(5);
-  topSendButton_ = new WPushButton(tr("msg.send"), horiz);
+  topSendButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.send")));
   topSendButton_->setStyleClass("default"); // default action
-  topSaveNowButton_ = new WPushButton(tr("msg.savenow"), horiz);
-  topDiscardButton_ = new WPushButton(tr("msg.discard"), horiz);
+  topSaveNowButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.savenow")));
+  topDiscardButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.discard")));
 
   // Text widget which shows status messages, next to the top buttons.
-  statusMsg_ = new WText(horiz);
-  statusMsg_->setMargin(15, Left);
+  statusMsg_ = horiz->addWidget(cpp14::make_unique<WText>());
+  statusMsg_->setMargin(15, Side::Left);
 
   /*
    * To, Cc, Bcc, Subject, Attachments
@@ -117,23 +121,20 @@ void Composer::createUi()
    * They are organized in a two-column table: left column for
    * labels, and right column for the edit.
    */
-  edits_ = new WTable(layout_);
+  edits_ = layout_->addWidget(cpp14::make_unique<WTable>());
   edits_->setStyleClass("lighter");
-  edits_->resize(WLength(100, WLength::Percentage), WLength::Auto);
-  edits_->elementAt(0, 0)->resize(WLength(1, WLength::Percentage),
+  edits_->resize(WLength(100, LengthUnit::Percentage), WLength::Auto);
+  edits_->elementAt(0, 0)->resize(WLength(1, LengthUnit::Percentage),
 				  WLength::Auto);
 
   /*
    * To, Cc, Bcc
    */
-  toEdit_ = new AddresseeEdit(tr("msg.to"), edits_->elementAt(0, 1),
-			      edits_->elementAt(0, 0));
+  toEdit_ = edits_->elementAt(0,1)->addWidget(cpp14::make_unique<AddresseeEdit>(tr("msg.to"), edits_->elementAt(0, 0)));
   // add some space above To:
-  edits_->elementAt(0, 1)->setMargin(5, Top);
-  ccEdit_ = new AddresseeEdit(tr("msg.cc"), edits_->elementAt(1, 1),
-			      edits_->elementAt(1, 0));
-  bccEdit_ = new AddresseeEdit(tr("msg.bcc"), edits_->elementAt(2, 1),
-			       edits_->elementAt(2, 0));
+  edits_->elementAt(0, 1)->setMargin(5, Side::Top);
+  ccEdit_ = edits_->elementAt(1,1)->addWidget(cpp14::make_unique<AddresseeEdit>(tr("msg.cc"), edits_->elementAt(1, 0)));
+  bccEdit_ = edits_->elementAt(2,1)->addWidget(cpp14::make_unique<AddresseeEdit>(tr("msg.bcc"), edits_->elementAt(2, 0)));
 
   ccEdit_->hide();
   bccEdit_->hide();
@@ -141,7 +142,7 @@ void Composer::createUi()
   /*
    * Addressbook suggestions popup
    */
-  contactSuggestions_ = new ContactSuggestions(layout_);
+  contactSuggestions_ = layout_->addWidget(cpp14::make_unique<ContactSuggestions>());
 
   contactSuggestions_->forEdit(toEdit_);
   contactSuggestions_->forEdit(ccEdit_);
@@ -152,44 +153,47 @@ void Composer::createUi()
    * ccEdit_ and bccEdit_ nicely next to each other, separated
    * by pipe characters.
    */
-  options_ = new OptionList(edits_->elementAt(3, 1));
+  options_ = edits_->elementAt(3, 1)->addWidget(cpp14::make_unique<OptionList>());
+  std::unique_ptr<Option> addcc(new Option(tr("msg.addcc")));
+  addcc_ = addcc.get();
+  std::unique_ptr<Option> addbcc(new Option(tr("msg.addbcc")));
+  addbcc_ = addbcc.get();
 
-  options_->add(addcc_ = new Option(tr("msg.addcc")));
-  options_->add(addbcc_ = new Option(tr("msg.addbcc")));
+  options_->add(std::move(addcc));
+  options_->add(std::move(addbcc));
 
   /*
    * Subject
    */
-  new Label(tr("msg.subject"), edits_->elementAt(4, 0));
-  subject_ = new WLineEdit(edits_->elementAt(4, 1));
-  subject_->resize(WLength(99, WLength::Percentage), WLength::Auto);
+  edits_->elementAt(4, 0)->addWidget(cpp14::make_unique<Label>(tr("msg.subject"), edits_->elementAt(4, 0)));
+  subject_ = edits_->elementAt(4, 1)->addWidget(cpp14::make_unique<WLineEdit>());
+  subject_->resize(WLength(99, LengthUnit::Percentage), WLength::Auto);
 
   /*
    * Attachments
    */
-  new WImage("icons/paperclip.png", edits_->elementAt(5, 0));
-  edits_->elementAt(5, 0)->setContentAlignment(AlignRight | AlignTop);
+  edits_->elementAt(5, 0)->addWidget(cpp14::make_unique<WImage>("icons/paperclip.png"));
+  edits_->elementAt(5, 0)->setContentAlignment(AlignmentFlag::Right | AlignmentFlag::Top);
   edits_->elementAt(5, 0)->setPadding(3);
   
   // Attachment edits: we always have the next attachmentedit ready
   // but hidden. This improves the response time, since the show()
   // and hide() slots are stateless.
-  attachments_.push_back(new AttachmentEdit(this, edits_->elementAt(5, 1)));
+  AttachmentEdit *attachmentEdit = edits_->elementAt(5, 1)->addWidget(cpp14::make_unique<AttachmentEdit>(this));
+  attachments_.push_back(attachmentEdit);
   attachments_.back()->hide();
 
   /*
    * Two options for attaching files. The first does not say 'another'.
    */
-  attachFile_ = new Option(tr("msg.attachfile"),
-			   edits_->elementAt(5, 1));
-  attachOtherFile_ = new Option(tr("msg.attachanother"),
-				edits_->elementAt(5, 1));
+  attachFile_ = edits_->elementAt(5, 1)->addWidget(cpp14::make_unique<Option>(tr("msg.attachfile")));
+  attachOtherFile_ = edits_->elementAt(5, 1)->addWidget(cpp14::make_unique<Option>(tr("msg.attachanother")));
   attachOtherFile_->hide();
 
   /*
    * Message
    */
-  message_ = new WTextArea(layout_);
+  message_ = layout_->addWidget(cpp14::make_unique<WTextArea>());
   message_->setColumns(80);
   message_->setRows(10); // should be 20, but let's keep it smaller
   message_->setMargin(10);
@@ -197,12 +201,12 @@ void Composer::createUi()
   /*
    * Bottom buttons
    */
-  horiz = new WContainerWidget(layout_);
+  horiz = layout_->addWidget(cpp14::make_unique<WContainerWidget>());
   horiz->setPadding(5);
-  botSendButton_ = new WPushButton(tr("msg.send"), horiz);
+  botSendButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.send")));
   botSendButton_->setStyleClass("default");
-  botSaveNowButton_ = new WPushButton(tr("msg.savenow"), horiz);
-  botDiscardButton_ = new WPushButton(tr("msg.discard"), horiz);
+  botSaveNowButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.savenow")));
+  botDiscardButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.discard")));
 
   /*
    * Button events.
@@ -251,9 +255,11 @@ void Composer::attachMore()
   /*
    * Create and append the next AttachmentEdit, that will be hidden.
    */
-  AttachmentEdit *edit = new AttachmentEdit(this);
-  edits_->elementAt(5, 1)->insertBefore(edit, attachOtherFile_);
-  attachments_.push_back(edit);
+  std::unique_ptr<AttachmentEdit> edit
+        = cpp14::make_unique<AttachmentEdit>(this);
+  AttachmentEdit *editPtr = edit.get();
+  edits_->elementAt(5, 1)->insertBefore(std::move(edit), attachOtherFile_);
+  attachments_.push_back(editPtr);
   attachments_.back()->hide();
 
   // Connect the attachOtherFile_ option to show this attachment.
@@ -267,11 +273,11 @@ void Composer::removeAttachment(AttachmentEdit *attachment)
    * Remove the given attachment from the attachments list.
    */
   std::vector<AttachmentEdit *>::iterator i
-    = std::find(attachments_.begin(), attachments_.end(), attachment);
+      = std::find(attachments_.begin(), attachments_.end(), attachment);
 
   if (i != attachments_.end()) {
     attachments_.erase(i);
-    delete attachment;
+    attachment->removeFromParent();
 
     if (attachments_.size() == 1) {
       /*

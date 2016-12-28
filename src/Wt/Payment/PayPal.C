@@ -2,28 +2,26 @@
  * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
  */
 
-#include <Wt/Payment/PayPal>
-#include <Wt/Payment/Customer>
-#include <Wt/Payment/Order>
-#include <Wt/Payment/Money>
+#include <Wt/Payment/PayPal.h>
+#include <Wt/Payment/Customer.h>
+#include <Wt/Payment/Order.h>
+#include <Wt/Payment/Money.h>
 
-#include <Wt/WEnvironment>
-#include <Wt/WLogger>
-#include <Wt/WResource>
-#include <Wt/WServer>
-#include <Wt/WString>
-#include <Wt/WStringStream>
-#include <Wt/Http/Client>
-#include <Wt/Http/Response>
+#include <Wt/WEnvironment.h>
+#include <Wt/WLogger.h>
+#include <Wt/WResource.h>
+#include <Wt/WServer.h>
+#include <Wt/WString.h>
+#include <Wt/WStringStream.h>
+#include <Wt/Http/Client.h>
+#include <Wt/Http/Response.h>
 #include <Wt/Http/HttpUtils.h>
-#include <Wt/Utils>
+#include <Wt/Utils.h>
 
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <map>
-
-#include "boost/lexical_cast.hpp"
 
 #include "Wt/PopupWindow.h"
 
@@ -47,7 +45,7 @@ class PayPalRedirectResource : public Wt::WResource
 {
 public:
   PayPalRedirectResource(PayPalExpressCheckout *checkout)
-    : WResource(checkout),
+    : WResource(),
       checkout_(checkout)
   { }
 
@@ -85,7 +83,7 @@ public:
       "function load() { "
       """if (window.opener." << appJs << ") {"
       ""  "var " << appJs << "= window.opener." << appJs << ";"
-      <<  checkout_->redirected().createCall("-1") << ";"
+      <<  checkout_->redirected().createCall({"-1"}) << ";"
       ""  "window.closedAfterRedirect=true;"
       ""  "window.close();"
       "}\n"
@@ -106,12 +104,8 @@ struct PayPalExpressCheckout::Impl
     service_(service),
     usePopup_(true),
     accepted_(false),
-    setupSignal_(checkout),
-    updatedCustomerDetailsSignal_(checkout),
-    paymentApprovedSignal_(checkout),
-    completePaymentSignal_(checkout),
     redirected_(checkout, "redirected"),
-    paymentAction_(SaleAction)
+    paymentAction_(PaymentAction::Sale)
   { }
 
   PayPalService& service_;
@@ -125,11 +119,12 @@ struct PayPalExpressCheckout::Impl
   JSignal<int> redirected_;
   Customer customer_;
   Order order_;
+  std::unique_ptr<Http::Client> httpClient_;
   std::map<std::string, std::string> editedParameters_;
 
   PaymentAction paymentAction_;
 
-  PayPalRedirectResource *redirectResource_;
+  std::unique_ptr<PayPalRedirectResource> redirectResource_;
   std::string token_;
   std::string startInternalPath_;
 
@@ -148,10 +143,10 @@ PayPalExpressCheckout::PayPalExpressCheckout(
   PayPalService &service, const Customer &customer,  const Order &order)
 {
   impl_ = new Impl(service, this);
-  impl_->paymentAction_ = SaleAction;
+  impl_->paymentAction_ = PaymentAction::Sale;
   impl_->order_ = order;
   impl_->customer_ = customer;
-  impl_->redirectResource_ = new PayPalRedirectResource(this);
+  impl_->redirectResource_.reset(new PayPalRedirectResource(this));
 
   impl_->usePopup_ = WApplication::instance()->environment().ajax();
 
@@ -173,7 +168,7 @@ void PayPalExpressCheckout::setPaymentAction(PaymentAction action)
   impl_->paymentAction_ = action;
 }
 
-PayPalExpressCheckout::PaymentAction
+PaymentAction
 PayPalExpressCheckout::paymentAction() const
 {
   return impl_->paymentAction_;
@@ -187,9 +182,13 @@ void PayPalExpressCheckout::setParameter( const std::string& name,
 
 Signal<Result>& PayPalExpressCheckout::setup()
 {
-  Http::Client *client = impl_->service_.createHttpClient(this);
+  impl_->httpClient_ = impl_->service_.createHttpClient();
+  auto client = impl_->httpClient_.get();
+
   client->done().connect
-    (boost::bind(&PayPalExpressCheckout::handleSetup, this, _1, _2));
+    (this, std::bind(&PayPalExpressCheckout::handleSetup, this,
+		     std::placeholders::_1,
+		     std::placeholders::_2));
 
   std::map<std::string, std::string> map;
   createSetupMessage(map);
@@ -288,7 +287,7 @@ void PayPalExpressCheckout::createSetupMessage(
 
     text.clear();
     text << "L_PAYMENTREQUEST_0_QTY" << (int)m;
-    std::string quantity = boost::lexical_cast<std::string>(item.quantity());
+    std::string quantity = std::to_string(item.quantity());
     map[text.str()] = quantity;
   }
 
@@ -331,9 +330,9 @@ PayPalExpressCheckout::parametersMapToMap(Http::ParameterMap &map)
 std::string PayPalExpressCheckout::toString(PaymentAction action)
 {
   switch (action) {
-  case SaleAction:          return "Sale";
-  case AuthorizationAction: return "Authorization";
-  case OrderAction:         return "Order";
+  case PaymentAction::Sale:          return "Sale";
+  case PaymentAction::Authorization: return "Authorization";
+  case PaymentAction::Order:         return "Order";
   default:
     throw WException("Unknown payment action");
   }
@@ -370,7 +369,7 @@ void PayPalExpressCheckout::setToken(const std::string& token)
        << impl_->service_.popupWidth() << ","
        << impl_->service_.popupHeight() << ","
        << "function(w) { if (!w.closedAfterRedirect) {"
-       << ""          <<  impl_->redirected_.createCall("2")
+       << ""          <<  impl_->redirected_.createCall({"2"})
        << "} });";
 
 #ifndef WT_TARGET_JAVA
@@ -408,12 +407,13 @@ void PayPalExpressCheckout::setPaymentAccepted(bool accepted,
 
 void PayPalExpressCheckout::onRedirect(int result)
 {
-  Approval::Outcome outcome;
+  ApprovalOutcome outcome;
 
   if (result == -1) {
-    outcome = impl_->accepted_ ? Approval::Accepted : Approval::Denied;
+    outcome = impl_->accepted_ 
+      ? ApprovalOutcome::Accepted : ApprovalOutcome::Denied;
   } else {
-    outcome = Approval::Interrupted;
+    outcome = ApprovalOutcome::Interrupted;
   }
 
   paymentApproved().emit(Approval(outcome));
@@ -421,9 +421,13 @@ void PayPalExpressCheckout::onRedirect(int result)
 
 Signal<Result>& PayPalExpressCheckout::updateCustomerDetails()
 {
-  Http::Client *client = impl_->service_.createHttpClient(this);
+  impl_->httpClient_ = impl_->service_.createHttpClient();
+  auto client = impl_->httpClient_.get();
+
   client->done().connect
-    (boost::bind(&PayPalExpressCheckout::handleCustomerDetails, this, _1, _2));
+    (this, std::bind(&PayPalExpressCheckout::handleCustomerDetails, this,
+		     std::placeholders::_1,
+		     std::placeholders::_2));
 
   std::map<std::string, std::string> map;
 
@@ -506,9 +510,13 @@ void PayPalExpressCheckout::saveCustomerDetails(Http::ParameterMap &params)
 
 Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
 {
-  Http::Client *client = impl_->service_.createHttpClient(this);
+  impl_->httpClient_ = impl_->service_.createHttpClient();
+  auto client = impl_->httpClient_.get();
+
   client->done().connect
-    (boost::bind(&PayPalExpressCheckout::handleCompletePayment, this, _1, _2));
+    (this, std::bind(&PayPalExpressCheckout::handleCompletePayment, this,
+		     std::placeholders::_1,
+		     std::placeholders::_2));
 
   std::map<std::string, std::string> map;
 
@@ -753,9 +761,9 @@ int PayPalService::popupHeight() const
   return 600;
 }
 
-Http::Client *PayPalService::createHttpClient(WObject *parent)
+std::unique_ptr<Http::Client> PayPalService::createHttpClient()
 {
-  Http::Client *result = new Http::Client(parent);
+  std::unique_ptr<Http::Client> result(new Http::Client());
   result->setTimeout(15);
   return result;
 }

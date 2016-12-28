@@ -7,12 +7,12 @@
 #ifndef WTIME_PICKER_H_
 #define WTIME_PICKER_H_
 
-#include "WCompositeWidget"
-#include "WContainerWidget"
-#include "WTime"
-#include "WSpinBox"
-#include "WStringStream"
-#include "WComboBox"
+#include "WCompositeWidget.h"
+#include "WContainerWidget.h"
+#include "WTime.h"
+#include "WSpinBox.h"
+#include "WStringStream.h"
+#include "WComboBox.h"
 
 namespace Wt {
 
@@ -33,21 +33,19 @@ class WT_API WTimePicker : public WCompositeWidget
 public:
     /*! \brief Creates a new time picker.
      */
-    WTimePicker(WContainerWidget *parent = 0);
+    WTimePicker();
     
 	/*! \brief Creates a new time picker.
      */
-    WTimePicker(const WTime &time, WContainerWidget *parent = 0);
+    WTimePicker(const WTime &time);
 
     /*! \brief Creates a new time picker.
      */
-    WTimePicker(WTimeEdit *timeEdit, WContainerWidget *parent = 0);
+    WTimePicker(WTimeEdit *timeEdit);
 
     /*! \brief Creates a new time picker.
      */
-    WTimePicker(const WTime &time, WTimeEdit *timeEdit, WContainerWidget *parent = 0);
-
-    virtual ~WTimePicker();
+    WTimePicker(const WTime &time, WTimeEdit *timeEdit);
 
     /*! \brief Returns the time
      */
@@ -92,7 +90,6 @@ private:
 
     WTimeEdit *timeEdit_;
 
-    void createWidgets();
     void hourValueChanged();
     void minuteValueChanged();
     void secondValueChanged();

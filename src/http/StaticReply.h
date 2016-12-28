@@ -39,8 +39,8 @@ public:
   virtual void reset(const Wt::EntryPoint *ep);
   virtual void writeDone(bool success);
 
-  virtual bool consumeData(Buffer::const_iterator begin,
-			   Buffer::const_iterator end,
+  virtual bool consumeData(const char *begin,
+			   const char *end,
 			   Request::State state);
 
 protected:

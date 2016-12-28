@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WCombinedLocalizedStrings"
+#include "Wt/WCombinedLocalizedStrings.h"
 
 #include "WebUtils.h"
 
@@ -14,50 +14,52 @@ WCombinedLocalizedStrings::WCombinedLocalizedStrings()
 { }
 
 WCombinedLocalizedStrings::~WCombinedLocalizedStrings()
+{ }
+
+void WCombinedLocalizedStrings
+::add(const std::shared_ptr<WLocalizedStrings>& resolver)
 {
-  for (unsigned i = 0; i < localizedStrings_.size(); ++i)
-    delete localizedStrings_[i];
+  insert(localizedStrings_.size(), resolver);
 }
 
-void WCombinedLocalizedStrings::add(WLocalizedStrings* resolver)
-{
-  localizedStrings_.push_back(resolver);
-}
-
-void WCombinedLocalizedStrings::insert(int index, WLocalizedStrings* resolver)
+void WCombinedLocalizedStrings
+::insert(int index, const std::shared_ptr<WLocalizedStrings>& resolver)
 {
   localizedStrings_.insert(localizedStrings_.begin() + index, resolver);
 }
 
-void WCombinedLocalizedStrings::remove(WLocalizedStrings *resolver)
+void WCombinedLocalizedStrings
+::remove(const std::shared_ptr<WLocalizedStrings>& resolver)
 {
   Utils::erase(localizedStrings_, resolver);
 }
 
-const std::vector<WLocalizedStrings *> &
+const std::vector<std::shared_ptr<WLocalizedStrings>> &
 WCombinedLocalizedStrings::items() const
 {
   return localizedStrings_;
 }
 
 #ifndef WT_TARGET_JAVA
-bool WCombinedLocalizedStrings::resolveKey(const std::string& key,
+bool WCombinedLocalizedStrings::resolveKey(const WLocale& locale,
+					   const std::string& key,
 					   std::string& result)
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
-    if (localizedStrings_[i]->resolveKey(key, result))
+    if (localizedStrings_[i]->resolveKey(locale, key, result))
       return true;
   }
 
   return false;
 }
 #else
-std::string *WCombinedLocalizedStrings::resolveKey(const std::string& key)
+std::string *WCombinedLocalizedStrings::resolveKey(const WLocale& locale, 
+						   const std::string& key)
 {
   std::string *result = 0; 
 
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
-    result = localizedStrings_[i]->resolveKey(key);
+    result = localizedStrings_[i]->resolveKey(locale, key);
     if (result)
       return result;
   }
@@ -67,12 +69,13 @@ std::string *WCombinedLocalizedStrings::resolveKey(const std::string& key)
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
-bool WCombinedLocalizedStrings::resolvePluralKey(const std::string& key,
+bool WCombinedLocalizedStrings::resolvePluralKey(const WLocale& locale,
+						 const std::string& key,
 						 std::string& result,
 						 ::uint64_t amount)
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
-    if (localizedStrings_[i]->resolvePluralKey(key, result, amount))
+    if (localizedStrings_[i]->resolvePluralKey(locale, key, result, amount))
       return true;
   }
 
@@ -81,13 +84,6 @@ bool WCombinedLocalizedStrings::resolvePluralKey(const std::string& key,
 #else
   //TODO
 #endif // WT_TARGET_JAVA
-
-void WCombinedLocalizedStrings::refresh()
-{
-  for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
-    localizedStrings_[i]->refresh();
-  }
-}
 
 void WCombinedLocalizedStrings::hibernate()
 {

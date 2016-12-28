@@ -5,9 +5,9 @@
  */
 
 #include "UriUtils.h"
-#include "Wt/Utils"
+#include "Wt/Utils.h"
 
-#include "Wt/WException"
+#include "Wt/WException.h"
 
 #include <boost/algorithm/string.hpp>
 

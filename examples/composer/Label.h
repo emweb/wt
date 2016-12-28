@@ -7,7 +7,7 @@
 #ifndef LABEL_H_
 #define LABEL_H_
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 using namespace Wt;
 

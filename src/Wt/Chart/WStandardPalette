@@ -8,13 +8,22 @@
 #define CHART_WSTANDARD_PALETTE_H_
 
 #include <Wt/WDllDefs.h>
-#include <Wt/Chart/WChartPalette>
+#include <Wt/Chart/WChartPalette.h>
 
 namespace Wt {
 
 class WColor;
 
   namespace Chart {
+
+/*! \brief Enumeration that indicates the palette flavour.
+ */
+enum class PaletteFlavour {
+  Neutral = 0,     //!< Neutral palette
+  Bold = 1,        //!< Bold palette
+  Muted = 2,       //!< Muted palette
+  GrayScale = 255  //!< Grayscale palette
+};
 
 /*! \class WStandardPalette Wt/Chart/WStandardPalette Wt/Chart/WStandardPalette
  *  \brief Standard styling for rendering series in charts.
@@ -93,30 +102,24 @@ class WColor;
 class WT_API WStandardPalette : public WChartPalette
 {
 public:
-  /*! \brief Enumeration that indicates the palette flavour.
-   */
-  enum Flavour {
-    Neutral = 0,     //!< Neutral palette
-    Bold = 1,        //!< Bold palette
-    Muted = 2,       //!< Muted palette
-    GrayScale = 255  //!< Grayscale palette
-  };
+  /*! \brief Typedef for enum Wt::Chart::PaletteFlavour */
+  typedef PaletteFlavour Flavour;
 
   /*! \brief Creates a standard palette of a particular flavour.
    */
-  WStandardPalette(Flavour flavour);
+  WStandardPalette(PaletteFlavour flavour);
 
-  virtual WBrush brush(int index) const;
-  virtual WPen   borderPen(int index) const;
-  virtual WPen   strokePen(int index) const;
-  virtual WColor fontColor(int index) const;
+  virtual WBrush brush(int index) const override;
+  virtual WPen   borderPen(int index) const override;
+  virtual WPen   strokePen(int index) const override;
+  virtual WColor fontColor(int index) const override;
 
   /*! \brief Returns the color for the given index.
    */
   virtual WColor color(int index) const;
 
 private:
-  Flavour flavour_;
+  PaletteFlavour flavour_;
 };
 
   }

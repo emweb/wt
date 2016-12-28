@@ -7,9 +7,9 @@
 #ifndef WITEM_SELECTION_MODEL_H_
 #define WITEM_SELECTION_MODEL_H_
 
-#include <Wt/WObject>
-#include <Wt/WModelIndex>
-#include <Wt/WGlobal>
+#include <Wt/WObject.h>
+#include <Wt/WModelIndex.h>
+#include <Wt/WGlobal.h>
 
 #include <string>
 
@@ -44,14 +44,14 @@ class WT_API WItemSelectionModel : public WObject
 public:
   /*! \brief Returns the WAbstractItemModel.
    */
-  WAbstractItemModel *model() const { return model_; }
+  std::shared_ptr<WAbstractItemModel> model() const { return model_; }
 
   /*! \brief Returns the set of selected items.
    *
    * The model indexes are returned as a set, topologically ordered (in
    * the order they appear in the view).
    *
-   * When selection operates on rows (\link Wt::SelectRows SelectRows\endlink),
+   * When selection operates on rows (\link Wt::SelectionBehavior::Rows SelectionBehavior::Rows\endlink),
    * this method only returns the model index of first column's element of the 
    * selected rows.
    */
@@ -59,7 +59,7 @@ public:
 
   /*! \brief Returns wheter an item is selected.
    *
-   * When selection operates on rows (\link Wt::SelectRows SelectRows\endlink),
+   * When selection operates on rows (\link Wt::SelectionBehavior::Rows SelectionBehavior::Rows\endlink),
    * this method returns true for each element in a selected row.
    *
    * \sa selectedIndexes()
@@ -68,12 +68,12 @@ public:
 
   /*! \brief Sets the selection behaviour.
    *
-   * By default, the selection contains rows (\link Wt::SelectRows
-   * SelectRows\endlink), in which case model indexes will always be
+   * By default, the selection contains rows (\link Wt::SelectionBehavior::Rows
+   * SelectionBehavior::Rows\endlink), in which case model indexes will always be
    * have column 0, but represent the whole row.
    *
    * Alternatively, you can allow selection for individual items
-   * (\link Wt::SelectItems SelectItems\endlink).
+   * (\link Wt::SelectionBehavior::Items SelectionBehavior::Items\endlink).
    */
   void setSelectionBehavior(SelectionBehavior behavior);
 
@@ -88,7 +88,7 @@ public:
    * This should return the mime type for the current selection, or an emtpy
    * string if the selection cannot be dragged.
    *
-   * The default implementation returns the mime type based on MimeTypeRole data
+   * The default implementation returns the mime type based on ItemDataRole::MimeType data
    * if all selected items indicate the same mime type, or the model mimeType()
    * otherwise.
    *
@@ -98,11 +98,12 @@ public:
   virtual std::string mimeType();
 
 private:
-  WModelIndexSet      selection_;
-  WAbstractItemModel *model_;
-  SelectionBehavior   selectionBehavior_;
+  WModelIndexSet selection_;
+  std::shared_ptr<WAbstractItemModel> model_;
+  SelectionBehavior selectionBehavior_;
 
-  WItemSelectionModel(WAbstractItemModel *model, WObject *parent = 0);
+  WItemSelectionModel();
+  WItemSelectionModel(const std::shared_ptr<WAbstractItemModel>& model);
 
   void modelLayoutAboutToBeChanged();
   void modelLayoutChanged();

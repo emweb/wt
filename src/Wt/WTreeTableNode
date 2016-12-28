@@ -7,7 +7,7 @@
 #ifndef WTREETABLENODE_H_
 #define WTREETABLENODE_H_
 
-#include <Wt/WTreeNode>
+#include <Wt/WTreeNode.h>
 
 namespace Wt {
 
@@ -29,8 +29,7 @@ public:
    * \sa WTreeNode::WTreeNode()
    */
   WTreeTableNode(const WString& labelText,
-		 WIconPair *labelIcon = 0,
-		 WTreeTableNode *parentNode = 0);
+		 std::unique_ptr<WIconPair> labelIcon = nullptr);
 
   /*! \brief Sets a widget to be displayed in the given column for this node.
    *
@@ -41,7 +40,7 @@ public:
    * To set a custom widget in column 0, you can add a widget to the
    * labelArea().
    */
-  void setColumnWidget(int column, WWidget *item);
+  void setColumnWidget(int column, std::unique_ptr<WWidget> item);
 
   /*! \brief Returns the widget set for a column.
    *
@@ -56,7 +55,8 @@ public:
    */
   WTreeTable *table() const { return table_; }
 
-  virtual void insertChildNode(int index, WTreeNode *node);
+  virtual void insertChildNode(int index,
+			       std::unique_ptr<WTreeNode> node) override;
 
 protected:
 
@@ -75,8 +75,8 @@ protected:
   virtual void setTable(WTreeTable *table);
 
 private:
-  WTreeTable                               *table_;
-  WContainerWidget                         *row_;
+  WTreeTable *table_;
+  WContainerWidget *row_;
 
   struct ColumnWidget {
     WWidget *widget;
@@ -91,12 +91,12 @@ private:
   /*
    * the number of columns, besides the the tree itself
    */
-  void                      createExtraColumns(int numColumns);
+  void createExtraColumns(int numColumns);
 
   /*
    * The width for the column, counting from 1
    */
-  WLength                  columnWidth(int column);
+  WLength columnWidth(int column);
 
   friend class WTreeTable;
 };

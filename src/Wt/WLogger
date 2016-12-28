@@ -7,8 +7,8 @@
 #ifndef WLOGGER_H_
 #define WLOGGER_H_
 
-#include <Wt/WStringStream>
-#include <boost/lexical_cast.hpp>
+#include <Wt/WStringStream.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -285,6 +285,10 @@ public:
    */
   WLogEntry& operator<< (const WString&);
 
+  /*! \brief Writes a char value in the current field.
+   */
+  WLogEntry& operator<< (char);
+
   /*! \brief Writes a number value in the current field.
    */
   WLogEntry& operator<< (int);
@@ -297,13 +301,26 @@ public:
    */
   WLogEntry& operator<< (double);
 
+  /*! \brief Writes a pointer value in the current field.
+   */
+  template <typename T>
+  WLogEntry& operator<< (T *t) {
+    startField();
+    if (impl_) {
+      char buf[100];
+      std::sprintf(buf, "%p", t);
+      impl_->line_ << buf;
+    }
+    return *this;
+  }
+
   /*! \brief Writes a value in the current field.
    */
   template <typename T>
   WLogEntry& operator<< (T t) {
     startField();
     if (impl_)
-      impl_->line_ << boost::lexical_cast<std::string>(t);
+      impl_->line_ << std::to_string(t);
     return *this;
   }
 

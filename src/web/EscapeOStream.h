@@ -7,7 +7,7 @@
 #ifndef WT_ESCAPE_OSTREAM_H_
 #define WT_ESCAPE_OSTREAM_H_
 
-#include <Wt/WStringStream>
+#include <Wt/WStringStream.h>
 
 namespace Wt {
 
@@ -16,7 +16,7 @@ class WT_API EscapeOStream
 public:
   enum RuleSet { Empty = 0, HtmlAttribute = 1,
 		 JsStringLiteralSQuote = 2, JsStringLiteralDQuote = 3, 
-                 PlainText = 4, PlainTextNewLines = 5 };
+                 Plain = 4, PlainTextNewLines = 5 };
 
   EscapeOStream();
   EscapeOStream(std::ostream& sink);

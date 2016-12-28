@@ -7,8 +7,8 @@
 #ifndef WTABWIDGET_H_
 #define WTABWIDGET_H_
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WContainerWidget>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
 
@@ -69,30 +69,23 @@ namespace Wt {
 class WT_API WTabWidget : public WCompositeWidget
 {
 public:
-  /*! \brief Enumeration to indicate when the contents should be loaded
-   */
-  enum LoadPolicy { LazyLoading, //!< Lazy loading: on first use
-		    PreLoading   //!< Pre-loading: before first use
-  };
-
   /*! \brief Creates a new tab widget
    */
-  WTabWidget(WContainerWidget *parent = 0);
+  WTabWidget();
 
   /*! \brief Adds a new tab, with <i>child</i> as content, and the given label.
    *
    * Returns the menu item that implements the tab item.
    */
-  WMenuItem *addTab(WWidget *child, const WString& label,
-		    LoadPolicy = LazyLoading);
+  WMenuItem *addTab(std::unique_ptr<WWidget> child,
+		    const WString& label,
+		    ContentLoading loadPolicy = ContentLoading::Lazy);
 
   /*! \brief Removes a tab item.
    *
-   * The widget itself is not deleted.
-   *
    * \sa WMenu::removeItem()
    */
-  void removeTab(WWidget *widget);
+  std::unique_ptr<WWidget> removeTab(WWidget *widget);
 
   /*! \brief Returns the number of tabs.
    */
@@ -171,7 +164,7 @@ public:
    *
    * \sa setTabText()
    */
-  const WString& tabText(int index) const;
+  WString tabText(int index) const;
 
   /*! \brief Sets the tooltip for a tab.
    *
@@ -252,8 +245,9 @@ public:
    *
    * \sa WScrollArea
    */
-  void setOverflow(WContainerWidget::Overflow overflow,
-		   WFlags<Orientation> orientation = (Horizontal | Vertical));
+  void setOverflow(Overflow overflow,
+		   WFlags<Orientation> orientation 
+		   = (Orientation::Horizontal | Orientation::Vertical));
 
 
 private:

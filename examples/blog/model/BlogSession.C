@@ -12,15 +12,15 @@
 #include "User.h"
 #include "../asciidoc/asciidoc.h"
 
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/HashFunction>
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/PasswordService>
-#include <Wt/Auth/PasswordStrengthValidator>
-#include <Wt/Auth/PasswordVerifier>
-#include <Wt/Auth/GoogleService>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/PasswordStrengthValidator.h>
+#include <Wt/Auth/PasswordVerifier.h>
+#include <Wt/Auth/GoogleService.h>
 
-#include <Wt/Dbo/FixedSqlConnectionPool>
+#include <Wt/Dbo/FixedSqlConnectionPool.h>
 
 #ifndef WT_WIN32
 #include <unistd.h>
@@ -30,14 +30,12 @@
 #define HAVE_CRYPT
 #endif
 
-using namespace Wt;
-
 namespace {
   const std::string ADMIN_USERNAME = "admin";
   const std::string ADMIN_PASSWORD = "admin";
 
 #ifdef HAVE_CRYPT
-  class UnixCryptHashFunction : public Auth::HashFunction
+  class UnixCryptHashFunction : public Wt::Auth::HashFunction
   {
   public:
     virtual std::string compute(const std::string& msg, 
@@ -60,18 +58,18 @@ namespace {
   };
 #endif // HAVE_CRYPT
 
-  class BlogOAuth : public std::vector<const Auth::OAuthService *>
+  class BlogOAuth : public std::vector<const Wt::Auth::OAuthService *>
   {
   public:
     ~BlogOAuth()
     {
       for (unsigned i = 0; i < size(); ++i)
-	delete (*this)[i];
+        delete (*this)[i];
     }
   };
 
-  Auth::AuthService blogAuth;
-  Auth::PasswordService blogPasswords(blogAuth);
+  Wt::Auth::AuthService blogAuth;
+  Wt::Auth::PasswordService blogPasswords(blogAuth);
   BlogOAuth blogOAuth;
 }
 
@@ -81,32 +79,32 @@ void BlogSession::configureAuth()
 {
   blogAuth.setAuthTokensEnabled(true, "bloglogin");
 
-  Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
-  verifier->addHashFunction(new Auth::BCryptHashFunction(7));
+  std::unique_ptr<Wt::Auth::PasswordVerifier> verifier
+      = Wt::cpp14::make_unique<Wt::Auth::PasswordVerifier>();
+  verifier->addHashFunction(Wt::cpp14::make_unique<Wt::Auth::BCryptHashFunction>(7));
 #ifdef WT_WITH_SSL
-  verifier->addHashFunction(new Auth::SHA1HashFunction());
+  verifier->addHashFunction(Wt::cpp14::make_unique<Wt::Auth::SHA1HashFunction>());
 #endif
 #ifdef HAVE_CRYPT
-  verifier->addHashFunction(new UnixCryptHashFunction());
+  verifier->addHashFunction(Wt::cpp14::make_unique<UnixCryptHashFunction>());
 #endif
-  blogPasswords.setVerifier(verifier);
+  blogPasswords.setVerifier(std::move(verifier));
   blogPasswords.setAttemptThrottlingEnabled(true);
   blogPasswords.setStrengthValidator
-    (new Auth::PasswordStrengthValidator());
+    (Wt::cpp14::make_unique<Wt::Auth::PasswordStrengthValidator>());
 
-  if (Auth::GoogleService::configured())
-    blogOAuth.push_back(new Auth::GoogleService(blogAuth));
+  if (Wt::Auth::GoogleService::configured())
+    blogOAuth.push_back(new Wt::Auth::GoogleService(blogAuth));
 }
 
-dbo::SqlConnectionPool *BlogSession::createConnectionPool(const std::string& sqliteDb)
+std::unique_ptr<dbo::SqlConnectionPool> BlogSession::createConnectionPool(const std::string& sqliteDb)
 {
-  dbo::backend::Sqlite3 *connection = new dbo::backend::Sqlite3(sqliteDb);
+  auto connection = Wt::cpp14::make_unique<dbo::backend::Sqlite3>(sqliteDb);
 
   connection->setProperty("show-queries", "true");
-  connection->setDateTimeStorage(Wt::Dbo::SqlDateTime,
-				 Wt::Dbo::backend::Sqlite3::PseudoISO8601AsText);
+  connection->setDateTimeStorage(Wt::Dbo::SqlDateTimeType::DateTime, Wt::Dbo::backend::DateTimeStorage::PseudoISO8601AsText);
 
-  return new dbo::FixedSqlConnectionPool(connection, 10);
+  return Wt::cpp14::make_unique<dbo::FixedSqlConnectionPool>(std::move(connection), 10);
 }
 
 BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
@@ -125,16 +123,16 @@ BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
     dbo::Transaction t(*this);
     createTables();
 
-    dbo::ptr<User> admin = add(new User());
+    dbo::ptr<User> admin = add(Wt::cpp14::make_unique<User>());
     User *a = admin.modify();
     a->name = ADMIN_USERNAME;
     a->role = User::Admin;
 
-    Auth::User authAdmin
-      = users_.findWithIdentity(Auth::Identity::LoginName, a->name);
+    Wt::Auth::User authAdmin
+      = users_.findWithIdentity(Wt::Auth::Identity::LoginName, a->name);
     blogPasswords.updatePassword(authAdmin, ADMIN_PASSWORD);
 
-    dbo::ptr<Post> post = add(new Post());
+    dbo::ptr<Post> post = add(Wt::cpp14::make_unique<Post>());
     Post *p = post.modify();
 
     p->state = Post::Published;
@@ -145,9 +143,9 @@ BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
       " user with password " + ADMIN_PASSWORD;
     p->briefHtml = asciidoc(p->briefSrc);
     p->bodyHtml = asciidoc(p->bodySrc);
-    p->date = WDateTime::currentDateTime();
+    p->date = Wt::WDateTime::currentDateTime();
 
-    dbo::ptr<Comment> rootComment = add(new Comment());
+    dbo::ptr<Comment> rootComment = add(Wt::cpp14::make_unique<Comment>());
     rootComment.modify()->post = post;
 
     t.commit();
@@ -168,12 +166,12 @@ dbo::ptr<User> BlogSession::user() const
     return dbo::ptr<User>();
 }
 
-Auth::PasswordService *BlogSession::passwordAuth() const
+Wt::Auth::PasswordService *BlogSession::passwordAuth() const
 {
   return &blogPasswords;
 }
 
-const std::vector<const Auth::OAuthService *>& BlogSession::oAuth() const
+const std::vector<const Wt::Auth::OAuthService *>& BlogSession::oAuth() const
 {
   return blogOAuth;
 }

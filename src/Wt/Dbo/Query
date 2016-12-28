@@ -9,8 +9,8 @@
 
 #include <vector>
 
-#include <Wt/Dbo/SqlTraits>
-#include <Wt/Dbo/ptr>
+#include <Wt/Dbo/SqlTraits.h>
+#include <Wt/Dbo/ptr.h>
 
 namespace Wt {
   namespace Dbo {

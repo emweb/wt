@@ -11,9 +11,13 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <Wt/WFlags>
-#include <Wt/WMessageResourceBundle>
+#include <Wt/WFlags.h>
+#include <Wt/WMessageResourceBundle.h>
 #include <Wt/WDllDefs.h>
+
+#ifdef WT_THREADED
+#include <mutex>
+#endif
 
 namespace Wt {
 
@@ -30,24 +34,19 @@ public:
   bool isBuiltin(const char *data) const { return builtin_ == data; }
   const std::string& path() const { return path_; }
 
-  bool resolveKey(const std::string& key, std::string& result);
-  bool resolvePluralKey(const std::string& key, 
+  bool resolveKey(const WLocale& locale,
+		  const std::string& key, std::string& result) const;
+  bool resolvePluralKey(const WLocale& locale,
+			const std::string& key, 
 			std::string& result, 
-			::uint64_t amount);
+			::uint64_t amount) const;
 
   static int evalPluralCase(const std::string &expression, ::uint64_t n);
- 
-  void refresh();
 
-  std::set<std::string> keys(WFlags<WMessageResourceBundle::Scope> scope) const;
-
-  typedef std::map<std::string, std::vector<std::string> > KeyValuesMap;
+  std::set<std::string> keys(const WLocale& locale) const;
 
 private:
-  const bool loadInMemory_;
-  bool loaded_;
-  const std::string path_;
-  const char *builtin_;
+  typedef std::map<std::string, std::vector<std::string>> KeyValuesMap;
 
   struct Resource {
     KeyValuesMap map_;
@@ -55,19 +54,29 @@ private:
     unsigned pluralCount_;
   };
 
-  Resource local_;
-  Resource defaults_;
+  typedef std::map<std::string, Resource> ResourceMap;
 
-  bool readResourceFile(const std::string& locale, Resource& resource);
+  bool loadInMemory_;
+  std::string path_;
+  const char *builtin_;
+#ifdef WT_THREADED
+  std::mutex resourceMutex_;
+#endif
+  mutable ResourceMap resources_;
+
+  void load(const WLocale& locale) const;
+  bool resolve(const std::string& locale,
+	       const std::string& key, std::string& result) const;
+  bool resolvePlural(const std::string& locale, const std::string& key, 
+		     std::string& result, ::uint64_t amount) const;
+  bool readResourceFile(const std::string& locale, Resource& resource) const;
   bool readResourceStream(std::istream &s, Resource& resource,
-                          const std::string &fileName);
+                          const std::string &fileName) const;
 
   std::string findCase(const std::vector<std::string> &cases,
 		       std::string pluralExpression,
-		       ::uint64_t amount);
+		       ::uint64_t amount) const;
 };
-
-
 
 }
 

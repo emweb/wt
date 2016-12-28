@@ -8,16 +8,16 @@
 #ifndef CHART_WCARTESIAN_3DCHART_H
 #define CHART_WCARTESIAN_3DCHART_H
 
-#include <Wt/Chart/WAbstractDataSeries3D>
-#include <Wt/Chart/WAxis>
-#include <Wt/Chart/WChartGlobal>
-#include <Wt/Chart/WChartPalette>
-#include <Wt/Chart/WLegend3D>
-#include <Wt/WBrush>
-#include <Wt/WFont>
-#include <Wt/WGLWidget>
-#include <Wt/WMatrix4x4>
-#include <Wt/WPaintedWidget>
+#include <Wt/Chart/WAbstractDataSeries3D.h>
+#include <Wt/Chart/WAxis.h>
+#include <Wt/Chart/WChartGlobal.h>
+#include <Wt/Chart/WChartPalette.h>
+#include <Wt/Chart/WLegend3D.h>
+#include <Wt/WBrush.h>
+#include <Wt/WFont.h>
+#include <Wt/WGLWidget.h>
+#include <Wt/WMatrix4x4.h>
+#include <Wt/WPaintedWidget.h>
 
 namespace Wt {
 
@@ -33,10 +33,10 @@ class WAbstractGridData;
  *
  * \ingroup charts
  */
-enum Plane {
-  XY_Plane, //!< X/Y Plane
-  XZ_Plane, //!< X/Z Plane
-  YZ_Plane  //!< Y/Z Plane
+enum class Plane {
+  XY, //!< X/Y Plane
+  XZ, //!< X/Z Plane
+  YZ  //!< Y/Z Plane
 };
 
 /*! \enum ChartUpdates
@@ -44,7 +44,7 @@ enum Plane {
  *
  * \ingroup charts
  */
-enum ChartUpdates {
+enum class ChartUpdates {
   CameraMatrix = 0x1, //!< Camera matrix
   GLContext = 0x2, //!< GL context
   GLTextures = 0x4 //!< GL textures
@@ -56,7 +56,7 @@ enum ChartUpdates {
  * The chart consists of a plotcube, which is always open on the front, and 
  * adapts to the data which is shown on the chart. The plotcube has three axes 
  * of type WAxis. Each of these can be manually configured as in the 2D case. 
- * The chart can be either a \ref ScatterPlot or a \ref CategoryChart. This influences 
+ * The chart can be either a \ref ChartType::Scatter or a \ref ChartType::Category. This influences 
  * how the data is positioned in relation to the x/y-axis. Gridlines can also 
  * be drawn on each of the plotcube-planes. The chart has a mouse-handler which 
  * allows rotation of the chart around the center of the plotcube. Zooming in 
@@ -111,17 +111,17 @@ public:
 
   /*! \brief Constructor
    *
-   * Constructs a cartesian 3D chart, with the type set to ScatterPlot, a 
-   transparent background, a WStandardPalette::Muted palette and no gridlines.
+   * Constructs a cartesian 3D chart, with the type set to ChartType::Scatter, a 
+   * transparent background, a PaletteFlavour::Muted palette and no gridlines.
    */
-  WCartesian3DChart(WContainerWidget *parent=0);
+  WCartesian3DChart();
 
   /*! \brief Constructor
    *
    * Construct a cartesian 3D chart with the specified type , a transparent  
-   * background, a WStandardPalette::Muted palette and no gridlines.
+   * background, a PaletteFlavour::Muted palette and no gridlines.
    */
-  WCartesian3DChart(ChartType type, WContainerWidget *parent=0);
+  WCartesian3DChart(ChartType type);
 
   /*! \brief Destructor
    */
@@ -129,18 +129,14 @@ public:
 
   /*! \brief Add a dataseries to the chart
    *
-   * Ownership of the dataseries is transferred to the chart.
-   *
-   * If the chart is of type ScatterPlot only numerical dataseries should
-   * be added and if it is of type CategoryChart only categorical dataseries 
+   * If the chart is of type ChartType::Scatter only numerical dataseries should
+   * be added and if it is of type ChartType::Category only categorical dataseries 
    * should be added. If multiple categorical datasets are added, the 
    * axis-labels of the first dataseries will be used on the chart.
-   *
-   * Note that a dataseries can only be added once.
    * 
    * \sa removeDataSeries()
    */
-  void addDataSeries(WAbstractDataSeries3D * dataseries);
+  void addDataSeries(std::unique_ptr<WAbstractDataSeries3D> dataseries);
   
   /*! \brief Removes a dataseries from a chart.
    *
@@ -149,13 +145,14 @@ public:
    *
    * \sa addDataSeries()
    */
-  void removeDataSeries(WAbstractDataSeries3D * dataseries);
+  std::unique_ptr<WAbstractDataSeries3D> removeDataSeries
+    (WAbstractDataSeries3D * dataseries);
 
   /*! \brief Returns all dataseries that were added to this chart.
    *
    * \sa addDataSeries(), removeDataSeries()
    */
-  const std::vector<WAbstractDataSeries3D*>& dataSeries() const { return dataSeriesVector_; }
+  std::vector<WAbstractDataSeries3D *> dataSeries() const;
 
   /*! \brief Returns the specified axis belonging to the chart.
    */
@@ -198,7 +195,9 @@ public:
    *
    * \sa setIntersectionLinesColor()
    */
-  const WColor &intersectionLinesColor() const { return intersectionLinesColor_; }
+  const WColor &intersectionLinesColor() const {
+    return intersectionLinesColor_;
+  }
 
   /*! \brief Set the invisible planes with which intersections are drawn.
    *
@@ -208,9 +207,10 @@ public:
    * Note that render times will take increasingly longer as you add more
    * intersection planes.
    */
-  void setIntersectionPlanes(const std::vector<IntersectionPlane> &intersectionPlanes);
+  void setIntersectionPlanes
+    (const std::vector<IntersectionPlane> &intersectionPlanes);
 
-  /*! \brief Get the invisible planes with which intersections are drawn.
+  /*! \brief Method::Get the invisible planes with which intersections are drawn.
    *
    * \sa setIntersectionPlanes()
    */
@@ -218,7 +218,7 @@ public:
 
   /*! \brief Sets the pen used for drawing the gridlines.
    *
-   * The default pen for drawing gridlines is a black pen of width 0.
+   * The default pen for drawing gridlines is a StandardColor::Black pen of width 0.
    *
    * \sa gridLinesPen()
    */
@@ -232,7 +232,7 @@ public:
 
   /*! \brief Sets the pen used to draw the edges of the plotcube.
    *
-   * The default pen for drawing cubelines is a black pen of width 0.
+   * The default pen for drawing cubelines is a StandardColor::Black pen of width 0.
    *
    * Note: Only width and color of the pen are used, all other styling is 
    * ignored.
@@ -251,8 +251,8 @@ public:
 
   /*! \brief Sets the type of this chart.
    *
-   * Sets the type of this chart to either ScatterPlot (for drawing numerical 
-   * data) or to CategoryChart (for drawing categorical data).
+   * Sets the type of this chart to either ChartType::Scatter (for drawing numerical 
+   * data) or to ChartType::Category (for drawing categorical data).
    */
   void setType(ChartType type);
 
@@ -270,13 +270,13 @@ public:
    * If a dataseries has a colormap set, then the palette is not used for this
    * data.
    */
-  void setPalette(WChartPalette * palette);
+  void setPalette(const std::shared_ptr<WChartPalette>& palette);
 
   /*! \brief Returns the palette used for this chart.
    *
    * \sa setPalette()
    */
-  WChartPalette * palette() const { return chartPalette_; }
+  std::shared_ptr<WChartPalette> palette() const { return chartPalette_; }
 
   /*! \brief Sets the background color for this chart.
    *
@@ -348,17 +348,17 @@ public:
 
   /*! \brief Configures the location of the legend
    *
-   * The provided \p side can either be Wt::Left, Wt::Right, Wt::Top,
-   * Wt::Bottom and configures the side of the chart at which the
+   * The provided \p side can either be Wt::Side::Left, Wt::Side::Right, Wt::Side::Top,
+   * Wt::Side::Bottom and configures the side of the chart at which the
    * legend is displayed.
    *
    * The \p alignment specifies how the legend is aligned. This can be
-   * a horizontal alignment flag (Wt::AlignLeft, Wt::AlignCenter, or
-   * Wt::AlignRight), when the \p side is Bottom or Top, or a vertical
-   * alignment flag (Wt::AlignTop, Wt::AlignMiddle, or Wt::AlignBottom)
-   * when the \p side is Left or Right.
+   * a horizontal alignment flag (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or
+   * Wt::AlignmentFlag::Right), when the \p side is Side::Bottom or Side::Top, or a vertical
+   * alignment flag (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or Wt::AlignmentFlag::Bottom)
+   * when the \p side is Side::Left or Side::Right.
    *
-   * The default location is Wt::Right and Wt::AlignMiddle.
+   * The default location is Wt::Side::Right and Wt::AlignmentFlag::Middle.
    *
    * \sa setLegendEnabled()
    */
@@ -370,8 +370,8 @@ public:
    *
    * The default font is a 10pt sans serif font (the same as the
    * default axis label font), the default \p border is \link
-   * Wt::NoPen NoPen\endlink and the default \p background is \link
-   * Wt::NoBrush NoBrush\endlink.
+   * Wt::PenStyle::None PenStyle::None\endlink and the default \p background is \link
+   * Wt::BrushStyle::None BrushStyle::None\endlink.
    *
    * \sa setLegendEnabled()
    */
@@ -460,7 +460,7 @@ public:
    */
   void setCameraMatrix(const WMatrix4x4& matrix);
 
-  /*! \brief Get the current camera-matrix.
+  /*! \brief Method::Get the current camera-matrix.
    *
    * The matrix represents the current view on the scene. It corresponds to
    * a coordinate system where the chart's axes run from 0 to 1 in all three
@@ -470,7 +470,7 @@ public:
    */
   WMatrix4x4 cameraMatrix() const;
 
-  /*! \brief Get the current camera matrix as a JavaScriptMatrix4x4.
+  /*! \brief Method::Get the current camera matrix as a JavaScriptMatrix4x4.
    *
    * This JavaScriptMatrix4x4 can be used to implement a custom mouse
    * handler using setClientSideMouseHandler().
@@ -489,25 +489,25 @@ protected:
    *
    * Specialized for chart rendering.
    */
-  void initializeGL();
+  void initializeGL() override;
 
   /*! \brief Update the client-side painting function.
    *
    * Specialized for chart rendering.
    */
-  void paintGL();
+  void paintGL() override;
 
   /*! \brief Update state set in initializeGL()
    *
    * Specialized for chart rendering.
    */
-  void updateGL();
+  void updateGL() override;
 
   /*! \brief Act on resize events.
    *
    * Specialized for chart rendering.
    */
-  void resizeGL(int width, int height);
+  void resizeGL(int width, int height) override;
 
 public:
 
@@ -515,7 +515,7 @@ public:
    */
   void updateChart(WFlags<ChartUpdates> flags);
 
-  void resize(const WLength &width, const WLength &height);
+  void resize(const WLength &width, const WLength &height) override;
 
   void createRay(double x, double y, WVector3 &eye, WVector3 &direction) const;
 private:
@@ -549,7 +549,7 @@ private:
 
   WMatrix4x4 worldTransform_;
   bool isViewSet_;
-  std::vector<WAbstractDataSeries3D*> dataSeriesVector_;
+  std::vector<std::unique_ptr<WAbstractDataSeries3D>> dataSeriesVector_;
   WAxis XAxis_, YAxis_, ZAxis_;
   ChartType chartType_;
 
@@ -558,13 +558,13 @@ private:
   WPen gridLinesPen_;
   
   WColor background_;
-  WChartPalette * chartPalette_;
+  std::shared_ptr<WChartPalette> chartPalette_;
   WString title_;
   WFont titleFont_;
 
   WLegend3D legend_;
 
-  WChart3DImplementation *interface_;
+  std::unique_ptr<WChart3DImplementation> interface_;
   int axisRenderWidth_, axisRenderHeight_;
   int gridRenderWidth_;
   int textureScaling_;
@@ -728,7 +728,7 @@ private:
   Framebuffer intersectionLinesFramebuffer_;
   Renderbuffer offscreenDepthbuffer_;
 
-  std::vector<boost::any> objectsToDelete;
+  std::vector<cpp17::any> objectsToDelete;
 
   friend class WAbstractGridData;
   friend class WGridData;

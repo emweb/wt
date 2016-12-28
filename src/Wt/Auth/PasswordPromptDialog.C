@@ -4,75 +4,77 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/Identity"
-#include "Wt/Auth/Login"
-#include "Wt/Auth/AuthModel"
-#include "Wt/Auth/PasswordPromptDialog"
+#include "Wt/Auth/Identity.h"
+#include "Wt/Auth/Login.h"
+#include "Wt/Auth/AuthModel.h"
+#include "Wt/Auth/PasswordPromptDialog.h"
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WLineEdit"
-#include "Wt/WPushButton"
-#include "Wt/WTemplateFormView"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WLineEdit.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WTemplateFormView.h"
 
 namespace Wt {
   namespace Auth {
 
-PasswordPromptDialog::PasswordPromptDialog(Login& login, AuthModel *model)
+PasswordPromptDialog
+::PasswordPromptDialog(Login& login, const std::shared_ptr<AuthModel>& model)
   : WDialog(tr("Wt.Auth.enter-password")),
     login_(login),
     model_(model)
 {
-  impl_ = new WTemplateFormView(tr("Wt.Auth.template.password-prompt"));
+  impl_ = contents()->addWidget(cpp14::make_unique<WTemplateFormView>
+				(tr("Wt.Auth.template.password-prompt")));
 
   model_->reset();
   model_->setValue(AuthModel::LoginNameField,
 		   login_.user().identity(Identity::LoginName));
   model_->setReadOnly(AuthModel::LoginNameField, true);
 
-  WLineEdit *nameEdit = new WLineEdit();
-  impl_->bindWidget(AuthModel::LoginNameField, nameEdit);
-  impl_->updateViewField(model_, AuthModel::LoginNameField);
+  std::unique_ptr<WLineEdit> nameEdit(new WLineEdit());
+  impl_->bindWidget(AuthModel::LoginNameField, std::move(nameEdit));
+  impl_->updateViewField(model_.get(), AuthModel::LoginNameField);
 
-  WLineEdit *passwordEdit = new WLineEdit();
-  passwordEdit->setEchoMode(WLineEdit::Password);
+  std::unique_ptr<WLineEdit> passwordEdit(new WLineEdit());
+  passwordEdit->setEchoMode(EchoMode::Password);
   passwordEdit->setFocus(true);
-  impl_->bindWidget(AuthModel::PasswordField, passwordEdit);
-  impl_->updateViewField(model_, AuthModel::PasswordField);
+  impl_->bindWidget(AuthModel::PasswordField, std::move(passwordEdit));
+  impl_->updateViewField(model_.get(), AuthModel::PasswordField);
 
-  WPushButton *okButton = new WPushButton(tr("Wt.WMessageBox.Ok"));
-  WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
+  WPushButton *okButton =
+    impl_->bindWidget("ok-button",
+                      cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Ok")));
+  WPushButton *cancelButton =
+    impl_->bindWidget("cancel-button",
+		      cpp14::make_unique<WPushButton>
+		      (tr("Wt.WMessageBox.Cancel")));
 
   model_->configureThrottling(okButton);
 
-  impl_->bindWidget("ok-button", okButton);
-  impl_->bindWidget("cancel-button", cancelButton);
-
   okButton->clicked().connect(this, &PasswordPromptDialog::check);
   cancelButton->clicked().connect(this, &PasswordPromptDialog::reject);
-
-  contents()->addWidget(impl_);
 
   if (!WApplication::instance()->environment().ajax()) {
     /*
      * try to center it better, we need to set the half width and
      * height as negative margins.
      */
-     setMargin(WLength("-21em"), Left); // .Wt-form width
-     setMargin(WLength("-200px"), Top); // ???
+     setMargin(WLength("-21em"), Side::Left); // .Wt-form width
+     setMargin(WLength("-200px"), Side::Top); // ???
   }
 }
 
 void PasswordPromptDialog::check()
 {
-  impl_->updateModelField(model_, AuthModel::PasswordField);
+  impl_->updateModelField(model_.get(), AuthModel::PasswordField);
 
   if (model_->validate()) {
     Login *login = &login_;
     accept();
-    login->login(login->user(), StrongLogin);    
+    login->login(login->user(), LoginState::Strong);    
   } else {
-    impl_->updateViewField(model_, AuthModel::PasswordField);
+    impl_->updateViewField(model_.get(), AuthModel::PasswordField);
     WPushButton *okButton = impl_->resolve<WPushButton *>("ok-button");
     model_->updateThrottling(okButton);
   }

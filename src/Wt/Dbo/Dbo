@@ -7,7 +7,7 @@
 #ifndef WT_DBO_DBO_H_
 #define WT_DBO_DBO_H_
 
-#include <Wt/Dbo/Types>
-#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Types.h>
+#include <Wt/Dbo/Impl.h>
 
 #endif // WT_DBO_H_

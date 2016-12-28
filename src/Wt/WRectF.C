@@ -4,16 +4,17 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WRectF"
+#include "Wt/WRectF.h"
 
 #include <algorithm>
 
-#include "Wt/WLogger"
-#include "Wt/WPointF"
-#include "Wt/WStringStream"
+#include "Wt/WLogger.h"
+#include "Wt/WPainterPath.h"
+#include "Wt/WPointF.h"
+#include "Wt/WStringStream.h"
 
-#include "Wt/Json/Array"
-#include "Wt/Json/Value"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Value.h"
 
 #include "web/WebUtils.h"
 
@@ -249,6 +250,18 @@ void WRectF::assignFromJSON(const Json::Value &value)
   } catch (std::exception &e) {
     LOG_ERROR("Couldn't convert JSON to WRectF: " + std::string(e.what()));
   }
+}
+
+WPainterPath WRectF::toPath() const
+{
+  WPainterPath path(WPointF(x_, y_));
+
+  path.lineTo(x_ + width_, y_);
+  path.lineTo(x_ + width_, y_ + height_);
+  path.lineTo(x_, y_ + height_);
+  path.closeSubPath();
+
+  return path;
 }
 
 }

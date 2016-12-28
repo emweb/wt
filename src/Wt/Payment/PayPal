@@ -5,10 +5,10 @@
 #ifndef WT_PAYMENT_PAYPAL_H
 #define WT_PAYMENT_PAYPAL_H
 
-#include <Wt/WObject>
-#include <Wt/WSignal>
-#include <Wt/WJavaScript>
-#include <Wt/Payment/Result>
+#include <Wt/WObject.h>
+#include <Wt/WSignal.h>
+#include <Wt/WJavaScript.h>
+#include <Wt/Payment/Result.h>
 
 #include <boost/system/error_code.hpp>
 
@@ -20,6 +20,20 @@ namespace Wt {
   /*! \brief Namespace for the \ref Payment
    */
   namespace Payment {
+
+/*! \brief Enumeration for payment actions.
+ *
+ * See more information at PayPal:
+ * 
+ * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_SetExpressCheckout
+ *
+ * \sa setPaymentAction()
+ */
+enum class PaymentAction {
+  Sale,          //!< A Sale action
+  Authorization, //!< An Authorization action
+  Order          //!< An Order action
+};
 
 class Customer;
 class Money;
@@ -59,20 +73,6 @@ class PayPalService;
 class WT_API PayPalExpressCheckout : public WObject
 {
 public:
-  /*! \brief Enumeration for payment actions.
-   *
-   * See more information at PayPal:
-   * 
-   * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_SetExpressCheckout
-   *
-   * \sa setPaymentAction()
-   */
-  enum PaymentAction {
-    SaleAction,          //!< A Sale action
-    AuthorizationAction, //!< An Authorization action
-    OrderAction          //!< An Order action
-  };
-
   virtual ~PayPalExpressCheckout();
 
   /*! \brief Sets the payment action
@@ -352,7 +352,7 @@ public:
 					       const Order& order);
 
 protected:
-  virtual Http::Client *createHttpClient(WObject *parent);
+  virtual std::unique_ptr<Http::Client> createHttpClient();
 
 private:
   std::string user_;

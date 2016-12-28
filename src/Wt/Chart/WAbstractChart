@@ -7,10 +7,10 @@
 #ifndef CHART_WABSTRACT_CHART_H_
 #define CHART_WABSTRACT_CHART_H_
 
-#include <Wt/WBrush>
-#include <Wt/WFont>
-#include <Wt/WPaintedWidget>
-#include <Wt/WRectF>
+#include <Wt/WBrush.h>
+#include <Wt/WFont.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WRectF.h>
 
 namespace Wt {
 
@@ -63,11 +63,9 @@ public:
 
   /*! \brief Sets the model.
    *
-   * The model is used by the chart to get its data. Ownership of the
-   * model is not transferred, and if a previous model was set it is
-   * not deleted.
+   * The model is used by the chart to get its data.
    *
-   * The default model is a \c 0 model.
+   * The default model is \c nullptr.
    *
    * This creates an internal proxy model that presents the
    * WAbstractItemModel as a WAbstractChartModel. Use
@@ -76,25 +74,23 @@ public:
    *
    * \sa model()
    */
-  void setModel(WAbstractItemModel *model);
+  void setModel(const std::shared_ptr<WAbstractItemModel>& model);
 
   /*! \brief Sets the model.
    *
-   * The model is used by the chart to get its data. Ownership of the
-   * model is not transferred, and if a previous model was set it is
-   * not deleted.
+   * The model is used by the chart to get its data.
    *
-   * The default model is a \c 0 model.
+   * The default model is a \c nullptr.
    *
    * \sa model()
    */
-  void setModel(WAbstractChartModel *model);
+  void setModel(const std::shared_ptr<WAbstractChartModel>& model);
 
   /*! \brief Returns the model.
    *
    * \sa setModel(WAbstractChartModel *)
    */
-  WAbstractChartModel *model() const { return model_; }
+  std::shared_ptr<WAbstractChartModel> model() const { return model_; }
 
   /*! \brief Returns the model.
    *
@@ -103,7 +99,7 @@ public:
    *
    * \sa setModel(WAbstractChartModel *)
    */
-  WAbstractItemModel *itemModel() const;
+  std::shared_ptr<WAbstractItemModel> itemModel() const;
 
   /*! \brief Sets a background for the chart.
    *
@@ -124,19 +120,19 @@ public:
   /*! \brief Set a palette for the chart.
    *
    * A palette is used to provide the style information to render the
-   * chart series. Ownership of the palette is transferred to the chart.
+   * chart series.
    *
    * The default palette is dependent on the chart type.
    *
    * \sa palette()
    */
-  void setPalette(WChartPalette *palette);
+  void setPalette(const std::shared_ptr<WChartPalette>& palette);
 
   /*! \brief Returns the palette for the chart.
    *
    * \sa setPalette(WChartPalette *palette)
    */
-  WChartPalette *palette() const { return palette_; }
+  std::shared_ptr<WChartPalette> palette() const { return palette_; }
 
   /*! \brief Set an internal margin for the main plot area.
    *
@@ -150,7 +146,7 @@ public:
    *
    * \sa setAutoLayoutEnabled()
    */
-  void setPlotAreaPadding(int padding, WFlags<Side> sides = All);
+  void setPlotAreaPadding(int padding, WFlags<Side> sides = AllSides);
 
   /*! \brief Returns the internal margin for the main plot area.
    *
@@ -224,17 +220,17 @@ public:
     const = 0;
 
 protected:
-  WAbstractChart(WContainerWidget *parent);
+  WAbstractChart();
 
 private:
-  WAbstractChartModel *model_;
-  WBrush              background_;
-  WChartPalette      *palette_;
-  bool                autoPadding_;
-  int                 padding_[4];
-  WString             title_;
-  WFont               titleFont_;
-  WFont               axisTitleFont_;
+  std::shared_ptr<WAbstractChartModel> model_;
+  std::shared_ptr<WChartPalette> palette_;
+  WBrush background_;
+  bool autoPadding_;
+  int padding_[4];
+  WString title_;
+  WFont titleFont_;
+  WFont axisTitleFont_;
 
   // connections with the current model, used to disconnect from a model
   // when the model changes.

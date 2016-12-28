@@ -7,8 +7,8 @@
 #ifndef WPDF_RENDERER_H_
 #define WPDF_RENDERER_H_
 
-#include <Wt/Render/WTextRenderer>
-#include <Wt/WPdfImage>
+#include <Wt/Render/WTextRenderer.h>
+#include <Wt/WPdfImage.h>
 
 namespace Wt {
   namespace Render {
@@ -72,7 +72,7 @@ public:
    *
    * Default margins are 0, and the default DPI is 72.
    */
-  WPdfRenderer(HPDF_Doc pdf, HPDF_Page page = 0);
+  WPdfRenderer(HPDF_Doc pdf, HPDF_Page page = nullptr);
 
   virtual ~WPdfRenderer();
 
@@ -80,7 +80,7 @@ public:
    *
    * This sets page margins, in \p cm, for one or more \p sides.
    */
-  void setMargin(double cm, WFlags<Side> sides = All);
+  void setMargin(double cm, WFlags<Side> sides = AllSides);
 
   /*! \brief Sets the resolution.
    *

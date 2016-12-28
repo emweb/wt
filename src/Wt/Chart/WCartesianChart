@@ -7,13 +7,13 @@
 #ifndef CHART_WCARTESIAN_CHART_H_
 #define CHART_WCARTESIAN_CHART_H_
 
-#include <Wt/Chart/WAbstractChart>
-#include <Wt/Chart/WAbstractChartModel>
-#include <Wt/Chart/WAxis>
-#include <Wt/Chart/WDataSeries>
-#include <Wt/Chart/WLegend>
-#include <Wt/WPaintDevice>
-#include <Wt/WContainerWidget>
+#include <Wt/Chart/WAbstractChart.h>
+#include <Wt/Chart/WAbstractChartModel.h>
+#include <Wt/Chart/WAxis.h>
+#include <Wt/Chart/WDataSeries.h>
+#include <Wt/Chart/WLegend.h>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
 
@@ -266,14 +266,14 @@ class WChartPalette;
  *
  * \ingroup charts
  */
-enum InteractiveAction {
-  ZoomX,                //!< Zoom x-axis
-  ZoomY,                //!< Zoom y-axis
-  ZoomXY,               //!< Zoom along both x and y-axes
-  ZoomMatching,         //!< Zoom y-axis on vertical scroll, x-axis on horizontal scroll
-  PanX,                 //!< Pan x-axis
-  PanY,                 //!< Pan y-axis
-  PanMatching           //!< Pan y-axis on vertical scroll, x-axis on horizontal scroll
+enum class InteractiveAction {
+  ZoomX,        //!< Zoom x-axis
+  ZoomY,        //!< Zoom y-axis
+  ZoomXY,       //!< Zoom along both x and y-axes
+  ZoomMatching, //!< Zoom y-axis on vertical scroll, x-axis on horizontal scroll
+  PanX,         //!< Pan x-axis
+  PanY,         //!< Pan y-axis
+  PanMatching   //!< Pan y-axis on vertical scroll, x-axis on horizontal scroll
 };
 
 /*! \brief A map of mouse wheel actions for interactive charts, indexed by WFlags<KeyboardModifier>
@@ -295,31 +295,31 @@ typedef std::map<WFlags<KeyboardModifier>, InteractiveAction> WheelActions;
  * To use a cartesian chart, the minimum you need to do is set a model
  * using setModel(), set the model column that holds the X data using
  * setXSeriesColumn(int modelColumn), and add one or more series using
- * addSeries(WDataSeries*). Each series corresponds to one data
- * column that holds Y data.
+ * addSeries(std::unique_ptr<WDataSeries>). Each series corresponds to
+ * one data column that holds Y data.
  *
- * A cartesian chart is either a \link Chart::CategoryChart
- * CategoryChart\endlink or a \link Chart::ScatterPlot
- * ScatterPlot\endlink.
+ * A cartesian chart is either a \link Chart::ChartType::Category
+ * ChartType::Category\endlink or a \link Chart::ChartType::Scatter
+ * ChartType::Scatter\endlink.
  *
- * In a <b>CategoryChart</b>, the X series represent different
+ * In a <b>ChartType::Category</b>, the X series represent different
  * categories, which are listed consecutively in model row order. The
- * X axis scale is set to \link Chart::CategoryScale
- * CategoryScale\endlink.
+ * X axis scale is set to \link Chart::AxisScale::Discrete
+ * AxisScale::Discrete\endlink.
  *
  * \image html ChartWCartesianChart-1.png "A category chart with bar series"
  *
  * Each series may be rendered differently, and this is configured in
  * the data series (see WDataSeries for more information).
  *
- * In a <b>ScatterPlot</b>, the X series data are interpreted as
+ * In a <b>ChartType::Scatter</b>, the X series data are interpreted as
  * numbers on a numerical scale. The scale for the X axis defaults to
- * a \link Chart::LinearScale LinearScale\endlink, but this may be
- * changed to a \link Chart::DateScale DateScale\endlink when the X
+ * a \link Chart::AxisScale::Linear AxisScale::Linear\endlink, but this may be
+ * changed to a \link Chart::AxisScale::Date AxisScale::Date\endlink when the X
  * series contains dates (of type WDate) to create a time series
- * chart, or to a \link Chart::LogScale LogScale\endlink. A
- * ScatterPlot supports the same types of data series as a
- * CategoryChart, but does not support stacking. In a scatter plot,
+ * chart, or to a \link Chart::AxisScale::Log AxisScale::Log\endlink. A
+ * ChartType::Scatter supports the same types of data series as a
+ * ChartType::Category, but does not support stacking. In a scatter plot,
  * the X series do not need to be ordered in increasing values, and
  * may be set differently for each dataseries using
  * WDataSeries::setXSeriesColumn(int modelColumn).
@@ -336,14 +336,14 @@ typedef std::map<WFlags<KeyboardModifier>, InteractiveAction> WheelActions;
  * 
  * \if cpp
  * \code
- * chart->axis(Y2Axis).setVisible(true);
+ * chart->axis(Axis::Y2).setVisible(true);
  * \endcode
  * \endif
  *
  * By default a chart has a horizontal X axis and a vertical Y axis,
- * which corresponds to a \link Wt::Vertical Vertical\endlink
- * orientation. The orientation may be changed to \link Wt::Horizontal
- * Horizontal\endlink using setOrientation().
+ * which corresponds to a \link Wt::Orientation::Vertical Orientation::Vertical\endlink
+ * orientation. The orientation may be changed to \link Wt::Orientation::Horizontal
+ * Orientation::Horizontal\endlink using setOrientation().
  *
  * The styling of the series data are dictated by a palette which may
  * be set using setPalette(WChartPalette *), but may be overridden by
@@ -365,7 +365,7 @@ typedef std::map<WFlags<KeyboardModifier>, InteractiveAction> WheelActions;
  *       modern browsers, see WPaintedWidget::setPreferredMethod()
  *
  * \note Some features are currently not supported in interactive mode:
- *       - Axes set at ZeroValue position will not always be drawn correctly.
+ *       - Axes set at AxisValue::Zero position will not always be drawn correctly.
  *	     They may be clipped off outside of the chart area, and when
  *         zooming, the axis ticks will change size.
  *       - WAxis::setBreak() is incompatible with interactive mode
@@ -383,30 +383,30 @@ class WT_API WCartesianChart : public WAbstractChart
 public:
   /*! \brief Creates a new cartesian chart.
    *
-   * Creates a cartesian chart of type \link Wt::Chart::CategoryChart
-   * CategoryChart\endlink.
+   * Creates a cartesian chart of type \link Wt::Chart::ChartType::Category
+   * ChartType::Category\endlink.
    */
-  WCartesianChart(WContainerWidget *parent = 0);
+  WCartesianChart();
 
   /*! \brief Creates a new cartesian chart.
    *
    * Creates a cartesian chart of the indicated \p type.
    */
-  WCartesianChart(ChartType type, WContainerWidget *parent = 0);
+  WCartesianChart(ChartType type);
 
   ~WCartesianChart();
 
   /*! \brief Sets the chart type.
    *
    * The chart type determines how (x,y) data are interpreted. In a
-   * \link Wt::Chart::CategoryChart CategoryChart\endlink, the X
+   * \link Wt::Chart::ChartType::Category ChartType::Category\endlink, the X
    * values are categories, and these are plotted consecutively,
    * evenly spaced, and in row order. In a \link
-   * Wt::Chart::ScatterPlot ScatterPlot\endlink, the X values are
+   * Wt::Chart::ChartType::Scatter ChartType::Scatter\endlink, the X values are
    * interpreted numerically (as for Y values).
    *
-   * The default chart type is a \link Wt::Chart::CategoryChart
-   * CategoryChart\endlink.
+   * The default chart type is a \link Wt::Chart::ChartType::Category
+   * ChartType::Category\endlink.
    *
    * \sa type()
    * \sa WAxis::setScale(), axis(Axis)
@@ -422,11 +422,11 @@ public:
   /*! \brief Sets the chart orientation.
    *
    * Sets the chart orientation, which corresponds to the orientation of
-   * the Y axis: a Wt::Vertical orientation corresponds to the conventional
-   * way of a horizontal X axis and vertical Y axis. A Wt::Horizontal
+   * the Y axis: a Wt::Orientation::Vertical orientation corresponds to the conventional
+   * way of a horizontal X axis and vertical Y axis. A Wt::Orientation::Horizontal
    * orientation is the other way around.
    *
-   * The default orientation is Wt::Vertical.
+   * The default orientation is Wt::Orientation::Vertical.
    *
    * \sa orientation()
    */
@@ -441,10 +441,10 @@ public:
   /*! \brief Sets the the model column for the X series.
    *
    * Use this method to specify the default data for the X series.
-   * For a \link Wt::Chart::ScatterPlot ScatterPlot\endlink this is
+   * For a \link Wt::Chart::ChartType::Scatter ChartType::Scatter\endlink this is
    * mandatory if an X series is not specified for every
    * \link Wt::Chart::WDataSeries WDataSeries\endlink. For a
-   * \link Wt::Chart::CategoryChart CategoryChart\endlink, if not
+   * \link Wt::Chart::ChartType::Category ChartType::Category\endlink, if not
    * specified, an increasing series of integer numbers will be
    * used (1, 2, ...).
    *
@@ -479,24 +479,6 @@ public:
   //void setXYData(int modelColumnX, int modelColumnY);
   //bool is3D() const;
 
-#ifndef WT_TARGET_JAVA
-  /*! \brief Adds a data series.
-   *
-   * A single chart may display one or more data series. Each data series
-   * displays data from a single model column in the chart. Series are
-   * plotted in the order that they have been added to the chart.
-   *
-   * The series column is reset to -1 when the model is set (or
-   * changed). Thus you need to set a model before configuring the
-   * series.
-   *
-   * \sa removeSeries(), setSeries()
-   *
-   * \deprecated Use addSeries(WDataSeries *) instead
-   */
-  void addSeries(const WDataSeries& series);
-#endif
-
   /*! \brief Adds a data series.
    *
    * A single chart may display one or more data series. Each data series
@@ -513,58 +495,23 @@ public:
    *
    * \sa removeSeries(), setSeries()
    */
-  void addSeries(WDataSeries *series);
+  void addSeries(std::unique_ptr<WDataSeries> series);
 
   /*! \brief Removes a data series.
-   *
-   * This removes the first data series which plots the given
-   * \p modelColumn.
-   *
-   * \sa addSeries(), setSeries()
-   *
-   * \deprecated Use removeSeries(WDataSeries *) instead
-   */
-  void removeSeries(int modelColumn);
-
-  /*! \brief Removes a data series.
-   *
-   * \if cpp
-   * The series will be deleted.
-   * \endif
    *
    * This will disassociate the given series from any WAxisSliderWidgets.
    *
    * \sa addSeries(), setSeries()
    */
-  void removeSeries(WDataSeries *series);
-
-#ifndef WT_TARGET_JAVA
-  /*! \brief Sets all data series.
-   *
-   * Replaces the current list of series with the new list.
-   *
-   * \sa series(), addSeries(), removeSeries()
-   *
-   * \deprecated Use setSeries(const std::vector<WDataSeries *> &series) instead
-   */
-  void setSeries(const std::vector<WDataSeries>& series);
-#endif
-
+  std::unique_ptr<WDataSeries> removeSeries(WDataSeries *series);
 
   /*! \brief Sets all data series.
    *
    * Replaces the current list of series with the new list.
-   * \if cpp
-   * The chart takes ownership of all of the series.
-   * \endif
-   *
-   * \note All series currently associated with the chart will be deleted.
-   *       Hence, these series should be distinct from the currently associated
-   *       series of this chart!
    *
    * \sa series(), addSeries(WDataSeries *), removeSeries(WDataSeries *)
    */
-  void setSeries(const std::vector<WDataSeries *> &series);
+  void setSeries(std::vector<std::unique_ptr<WDataSeries>> series);
 
   /*! \brief Returns a data series corresponding to a data column.
    *
@@ -586,7 +533,7 @@ public:
    *
    * \sa setSeries(const std::vector<WDataSeries>&)
    */
-  const std::vector<WDataSeries *>& series() const { return series_; }
+  const std::vector<std::unique_ptr<WDataSeries>>& series() const { return series_; }
 
   /*! \brief Returns a chart axis.
    *
@@ -602,14 +549,9 @@ public:
 
   /*! \brief Sets an axis
    *
-   * \if cpp
-   * Ownership is transferred and a previously set (default) axis is deleted
-   * first.
-   * \endif
-   *
    * \sa axis(Axis axis)
    */
-  void setAxis(WAxis *waxis, Axis axis);
+  void setAxis(std::unique_ptr<WAxis> waxis, Axis axis);
 
   /*! \brief Sets the margin between bars of different series.
    *
@@ -651,24 +593,24 @@ public:
   /*! \brief Configures the legend location.
    *
    * The legend can be renderd either inside or outside of the chart
-   * area. When \p location is \link Wt::Chart::LegendInside
-   * Chart::LegendInside\endlink, the legend will be rendered inside
-   * the chart. When \p location is \link Wt::Chart::LegendOutside
+   * area. When \p location is \link Wt::Chart::LegendLocation::Inside
+   * Chart::LegendLocation::Inside\endlink, the legend will be rendered inside
+   * the chart. When \p location is \link Wt::Chart::LegendLocation::Outside
    * Chart::Legendoutside\endlink, the legend is rendered outside the
    * chart, in the chart padding area.
    *
-   * The provided \p side can either be Wt::Left, Wt::Right, Wt::Top,
-   * Wt::Bottom and configures the side of the chart at which the
+   * The provided \p side can either be Wt::Side::Left, Wt::Side::Right, Wt::Side::Top,
+   * Wt::Side::Bottom and configures the side of the chart at which the
    * legend is displayed.
    *
    * The \p alignment specifies how the legend is aligned. This can be
-   * a horizontal alignment flag (Wt::AlignLeft, Wt::AlignCenter, or
-   * Wt::AlignRight), when the \p side is Bottom or Top, or a vertical
-   * alignment flag (Wt::AlignTop, Wt::AlignMiddle, or Wt::AlignBottom)
-   * when the \p side is Left or Right.
+   * a horizontal alignment flag (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or
+   * Wt::AlignmentFlag::Right), when the \p side is Side::Bottom or Side::Top, or a vertical
+   * alignment flag (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or Wt::AlignmentFlag::Bottom)
+   * when the \p side is Side::Left or Side::Right.
    *
-   * The default location is \link Wt::Chart::LegendOutside
-   * Chart::LegendOutside\endlink, Wt::Right and Wt::AlignMiddle.
+   * The default location is \link Wt::Chart::LegendLocation::Outside
+   * Chart::LegendLocation::Outside\endlink, Wt::Side::Right and Wt::AlignmentFlag::Middle.
    *
    * To have more control over the legend, you could reimplement the
    * renderLegendItem() method to customize how one item in the legend
@@ -688,8 +630,8 @@ public:
    *
    * The default font is a 10pt sans serif font (the same as the
    * default axis label font), the default \p border is \link
-   * Wt::NoPen NoPen\endlink and the default \p background is \link
-   * Wt::NoBrush NoBrush\endlink.
+   * Wt::PenStyle::None PenStyle::None\endlink and the default \p background is \link
+   * Wt::BrushStyle::None BrushStyle::None\endlink.
    *
    * \sa setLegendEnabled()
    */
@@ -759,7 +701,7 @@ public:
   void setLegendColumns(int columns, const WLength& width);
   
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
-    const WT_CXX11ONLY(override);
+    const override;
 
   /*! \brief Draws the marker for a given data series.
    *
@@ -819,7 +761,7 @@ public:
    * \sa mapToDevice()
    */
   WPointF mapFromDevice(const WPointF& point,
-			Axis ordinateAxis = OrdinateAxis) const;
+			Axis ordinateAxis = Axis::Ordinate) const;
 
   /*! \brief Maps from device coordinates to model coordinates, ignoring the current zoom range
    *
@@ -838,7 +780,7 @@ public:
    * \sa mapToDeviceWithoutTransform()
    */
   WPointF mapFromDeviceWithoutTransform(const WPointF& point,
-			Axis ordinateAxis = OrdinateAxis) const;
+			Axis ordinateAxis = Axis::Ordinate) const;
 
   /*! \brief Maps model values onto chart coordinates.
    *
@@ -860,8 +802,8 @@ public:
    *
    * \sa mapFromDevice()
    */
-  WPointF mapToDevice(const boost::any& xValue, const boost::any& yValue,
-		      Axis axis = OrdinateAxis, int xSegment = 0,
+  WPointF mapToDevice(const cpp17::any& xValue, const cpp17::any& yValue,
+		      Axis axis = Axis::Ordinate, int xSegment = 0,
 		      int ySegment = 0) const;
 
   /*! \brief Maps model values onto chart coordinates, ignoring the current zoom range
@@ -885,8 +827,8 @@ public:
    *
    * \sa mapFromDeviceWithoutTransform()
    */
-  WPointF mapToDeviceWithoutTransform(const boost::any& xValue, const boost::any& yValue,
-		      Axis axis = OrdinateAxis, int xSegment = 0,
+  WPointF mapToDeviceWithoutTransform(const cpp17::any& xValue, const cpp17::any& yValue,
+		      Axis axis = Axis::Ordinate, int xSegment = 0,
 		      int ySegment = 0) const;
 
   /*! \brief Initializes the chart layout.
@@ -901,27 +843,27 @@ public:
    * Unless a specific chart rectangle is specified, the entire widget
    * area is assumed.
    */
-  bool initLayout(const WRectF& rectangle = WRectF(), WPaintDevice *device = 0)
-    const;
+  bool initLayout(const WRectF& rectangle = WRectF(),
+		  WPaintDevice *device = nullptr) const;
 
   /*! \brief Creates a widget which renders the a legend item.
    * 
    * The legend item widget will contain a text and a WPaintedWidget 
    * which draws the series' symbol.
    */
-  WWidget* createLegendItemWidget(int index);
+  std::unique_ptr<WWidget> createLegendItemWidget(int index);
 
   /*! \brief Adds a data point area (used for displaying e.g. tooltips).
    *
    * You may want to specialize this is if you wish to modify (or
-   * delete) the area.
+   * ignore) the area.
    *
-   * \note Currently, an area is only created if the Wt::ToolTipRole data
+   * \note Currently, an area is only created if the Wt::ItemDataRole::ToolTip data
    *       at the data point is not empty.
    */
   virtual void addDataPointArea(const WDataSeries& series,
 				int xRow, int xColumn,
-				WAbstractArea *area);
+				std::unique_ptr<WAbstractArea> area);
 
   /*! \brief Sets the padding between the chart area and the axes.
    *
@@ -948,7 +890,7 @@ public:
 
   /*! \brief Returns the pen used to draw the border around the chart area.
    *
-   * Defaults to NoPen.
+   * Defaults to PenStyle::None.
    *
    * \sa setBorderPen()
    */
@@ -988,7 +930,7 @@ public:
    *       modern browsers, see WPaintedWidget::setPreferredMethod()
    *
    * \note Some features are currently not supported in interactive mode:
-   *       - Axes set at ZeroValue position will not always be drawn correctly.
+   *       - Axes set at AxisValue::Zero position will not always be drawn correctly.
    *	     They may be clipped off outside of the chart area, and when
    *         zooming, the axis ticks will change size.
    *       - WAxis::setBreak() is incompatible with interactive mode
@@ -1089,7 +1031,7 @@ public:
    * This enables follow curve functionality for the data series
    * corresponding to the given column.
    *
-   * If the data series is of type LineSeries or CurveSeries, the
+   * If the data series is of type SeriesType::Line or SeriesType::Curve, the
    * crosshair can only be moved in the x direction. The y position of
    * the crosshair will be determined by the value of the data
    * series. The crosshair will snap to the nearest point that is
@@ -1114,7 +1056,7 @@ public:
    * This enables follow curve functionality for the data series
    * corresponding to the given column.
    *
-   * If the data series is of type LineSeries or CurveSeries, the
+   * If the data series is of type SeriesType::Line or SeriesType::Curve, the
    * crosshair can only be moved in the x direction. The y position of
    * the crosshair will be determined by the value of the data
    * series. The crosshair will snap to the nearest point that is
@@ -1178,7 +1120,7 @@ public:
   /*! \brief Sets whether series selection is enabled.
    *
    * If series selection is enabled, series can be selected with a mouse
-   * click or long press. If the selected series is a LineSeries or CurveSeries,
+   * click or long press. If the selected series is a SeriesType::Line or SeriesType::Curve,
    * it can be manipulated if \link setCurveManipulationEnabled()
    * curve manipulation\endlink is enabled. The series that are not selected,
    * will be shown in a lighter color.
@@ -1207,7 +1149,7 @@ public:
    * The series with the given model column will be selected. The other
    * series will be shown in a lighter color. The series that is currently
    * selected is the one that can be manipulated if \link setCurveManipulationEnabled()
-   * curve manipulation\endlink is enabled, and it is a LineSeries or CurveSeries.
+   * curve manipulation\endlink is enabled, and it is a SeriesType::Line or SeriesType::Curve.
    *
    * The selected series can be changed using a long touch or mouse click.
    *
@@ -1257,13 +1199,13 @@ public:
   void removeAxisSliderWidget(WAxisSliderWidget *slider);
 
 private:
-  WChart2DImplementation *interface_;
+  std::unique_ptr<WChart2DImplementation> interface_;
 
   Orientation orientation_;
   int XSeriesColumn_;
   ChartType type_;
-  std::vector<WDataSeries *> series_;
-  WAxis *axes_[3];
+  std::vector<std::unique_ptr<WDataSeries>> series_;
+  std::unique_ptr<WAxis> axes_[3];
   double barMargin_;
   WLegend legend_;
   int axisPadding_;
@@ -1303,8 +1245,11 @@ private:
 
   mutable WTransform xTransform_;
   mutable WTransform yTransform_;
-  WJavaScriptHandle<WTransform> xTransformHandle_; // Scales and translates X axis
-  WJavaScriptHandle<WTransform> yTransformHandle_; // Scales and translates Y axis
+
+  // Scales and translates X axis
+  WJavaScriptHandle<WTransform> xTransformHandle_;
+  // Scales and translates Y axis
+  WJavaScriptHandle<WTransform> yTransformHandle_;
 
   struct PenAssignment {
     WJavaScriptHandle<WPen> pen;
@@ -1319,7 +1264,7 @@ private:
   };
   typedef std::map<Axis,std::vector<PenAssignment> > PenMap;
   PenMap pens_;
-  std::vector<WJavaScriptHandle<WPen> > freePens_;
+  std::vector<WJavaScriptHandle<WPen>> freePens_;
 
   std::vector<CurveLabel> curveLabels_;
 
@@ -1350,8 +1295,8 @@ private:
   static WColor lightenColor(const WColor &in);
 
 protected:
-  virtual void modelChanged() WT_CXX11ONLY(override);
-  virtual void modelReset() WT_CXX11ONLY(override);
+  virtual void modelChanged() override;
+  virtual void modelReset() override;
 
   /** @name Rendering logic
    */
@@ -1360,7 +1305,7 @@ protected:
    *
    * This calls render() to paint on the paint device.
    */
-  virtual void paintEvent(WPaintDevice *paintDevice) WT_CXX11ONLY(override);
+  virtual void paintEvent(WPaintDevice *paintDevice) override;
 
   /*! \brief Renders the chart.
    *
@@ -1377,12 +1322,12 @@ protected:
    *
    * if (initLayout(rectangle)) {
    *   renderBackground(painter);
-   *   renderGrid(painter, axis(XAxis));
-   *   renderGrid(painter, axis(Y1Axis));
-   *   renderGrid(painter, axis(Y2Axis));
-   *   renderAxes(painter, Line);
+   *   renderGrid(painter, axis(Axis::X));
+   *   renderGrid(painter, axis(Axis::Y1));
+   *   renderGrid(painter, axis(Axis::Y2));
+   *   renderAxes(painter, AxisProperty::Line);
    *   renderSeries(painter);
-   *   renderAxes(painter, Labels);
+   *   renderAxes(painter, AxisProperty::Labels);
    *   renderBorder(painter);
    *   renderCurveLabels(painter);
    *   renderLegend(painter);
@@ -1400,9 +1345,9 @@ protected:
    * The result needs further transformation using hv() to painter
    * coordinates.
    */
-  virtual WPointF map(double xValue, double yValue, Axis yAxis = OrdinateAxis,
-		      int currentXSegment = 0, int currentYSegment = 0)
-    const;
+  virtual WPointF map(double xValue, double yValue, 
+		      Axis yAxis = Axis::Ordinate,
+		      int currentXSegment = 0, int currentYSegment = 0) const;
 
   /*! \brief Utility function for rendering text.
    *
@@ -1548,9 +1493,8 @@ protected:
 
   //@}
 
-  virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
-
-  virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override) ;
+  virtual void render(WFlags<RenderFlag> flags) override ;
+  virtual void setFormData(const FormData& formData) override ;
 
   /*! \brief Returns the current zoom range transform.
    *
@@ -1585,7 +1529,7 @@ private:
   void freeAllJSTransforms();
   void updateJSPens(WStringStream& js) const;
   void updateJSPensForAxis(WStringStream& js, Axis axis) const;
-  void updateJSConfig(const std::string &key, boost::any value);
+  void updateJSConfig(const std::string &key, cpp17::any value);
   WPainterPath pathForSeries(const WDataSeries &series) const; // For use in WAxisSliderWidget
   WTransform zoomRangeTransform(WTransform xTransform, WTransform yTransform) const;
   WTransform calculateCurveTransform(const WDataSeries &series) const;
@@ -1606,12 +1550,10 @@ private:
 
   class IconWidget : public WPaintedWidget {
   public:
-    IconWidget(WCartesianChart *chart, 
-	       int index, 
-	       WContainerWidget *parent = 0);
+    IconWidget(WCartesianChart *chart, int index);
     
   protected:
-    virtual void paintEvent(WPaintDevice *paintDevice);
+    virtual void paintEvent(WPaintDevice *paintDevice) override;
     
   private:
     WCartesianChart* chart_;

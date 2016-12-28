@@ -50,8 +50,11 @@ FILE_TO_STRING(xml/auth_css_theme.xml
     AuthCssTheme_xml.C AuthCssTheme_xml)
 
 SET(libsources
+Wt/FlexLayoutImpl.C
+Wt/FlexItemImpl.C
 Wt/PopupWindow.C
 Wt/Resizable.C
+Wt/ResizeSensor.C
 Wt/ServerSideFontMetrics.C
 Wt/SizeHandle.C
 Wt/StdGridLayoutImpl2.C
@@ -69,14 +72,13 @@ Wt/WAbstractProxyModel.C
 Wt/WAbstractSpinBox.C
 Wt/WAbstractTableModel.C
 Wt/WAbstractToggleButton.C
-Wt/WAccordionLayout.C
 Wt/WAggregateProxyModel.C
 Wt/WAnchor.C
 Wt/WAnimation.C
+Wt/WAny.C
 Wt/WApplication.C
 Wt/WAudio.C
 Wt/WBatchEditProxyModel.C
-Wt/WBoostAny.C
 Wt/WBootstrapTheme.C
 Wt/WBorder.C
 Wt/WBorderLayout.C
@@ -101,7 +103,6 @@ Wt/WDateEdit.C
 Wt/WDatePicker.C
 Wt/WDateTime.C
 Wt/WDateValidator.C
-Wt/WDefaultLayout.C
 Wt/WDefaultLoadingIndicator.C
 Wt/WDialog.C
 Wt/WDoubleSpinBox.C
@@ -146,6 +147,7 @@ Wt/WJavaScriptPreamble.C
 Wt/WJavaScriptSlot.C
 Wt/WLabel.C
 Wt/WLayout.C
+Wt/WLayoutImpl.C
 Wt/WLayoutItem.C
 Wt/WLayoutItemImpl.C
 Wt/WLength.C
@@ -153,6 +155,7 @@ Wt/WLengthValidator.C
 Wt/WLineEdit.C
 Wt/WLineF.C
 Wt/WLink.C
+Wt/WLinkedCssStyleSheet.C
 Wt/WLoadingIndicator.C
 Wt/WLocalizedStrings.C
 Wt/WLogger.C
@@ -187,11 +190,8 @@ Wt/WRandom.C
 Wt/WReadOnlyProxyModel.C
 Wt/WRectArea.C
 Wt/WRectF.C
-Wt/WRegExp.C
 Wt/WRegExpValidator.C
 Wt/WResource.C
-Wt/WScrollArea.C
-Wt/WScrollBar.C
 Wt/WSelectionBox.C
 Wt/WServer.C
 Wt/WShadow.C
@@ -240,7 +240,6 @@ Wt/WTreeNode.C
 Wt/WTreeTable.C
 Wt/WTreeTableNode.C
 Wt/WTreeView.C
-Wt/WValidationStatus.C
 Wt/WValidator.C
 Wt/WVBoxLayout.C
 Wt/WVector3.C
@@ -253,6 +252,7 @@ Wt/WVirtualImage.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
+Wt/WWidgetItemImpl.C
 Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.C
 Wt/Auth/AuthModel.C
@@ -266,6 +266,7 @@ Wt/Auth/Identity.C
 Wt/Auth/Login.C
 Wt/Auth/LostPasswordWidget.C
 Wt/Auth/OAuthService.C
+Wt/Auth/OAuthWidget.C
 Wt/Auth/passwdqc_check.c
 Wt/Auth/PasswordHash.C
 Wt/Auth/PasswordPromptDialog.C
@@ -302,6 +303,9 @@ Wt/Chart/WGridData.C
 Wt/Chart/WEquidistantGridData.C
 Wt/Chart/WScatterData.C
 Wt/Chart/WSelection.C
+Wt/Core/observable.cpp
+Wt/Core/observing_ptr.cpp
+Wt/Date/tz.cpp
 Wt/Json/Array.C
 Wt/Json/Object.C
 Wt/Json/Parser.C
@@ -333,6 +337,7 @@ Wt/Render/LayoutBox.C
 Wt/Render/RenderUtils.C
 Wt/Render/Specificity.C
 Wt/Render/WTextRenderer.C
+Wt/Signals/signals.cpp
 web/md5.c
 web/sha1.c
 web/CgiParser.C
@@ -354,13 +359,14 @@ web/WebRenderer.C
 web/WebUtils.C
 web/FileUtils.C
 web/PdfUtils.C
+web/StringUtils.cpp
 web/TimeUtil.C
 web/XSSFilter.C
 web/XSSUtils.C
 web/SslUtils.C
 web/UriUtils.C
-web/random_device.cpp
 web/base64.cpp
+#experimental/any.cpp
 Plain_html.C
 Boot_html.C
 Hybrid_html.C
@@ -372,6 +378,12 @@ BootstrapTheme_xml.C
 Bootstrap3Theme_xml.C
 AuthCssTheme_xml.C
 JQuery_js.C
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+  Wt/Date/tz.cpp
+  PROPERTIES COMPILE_FLAGS
+  "-DHAS_REMOTE_API=0 -DAUTO_DOWNLOAD=0 -DINSTALL=\"${WT_TZDATA_INSTALL}\""
 )
 
 ADD_DEFINITIONS(-DWT_BUILDING)

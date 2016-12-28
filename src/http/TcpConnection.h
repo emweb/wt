@@ -21,7 +21,6 @@
 namespace asio = boost::asio;
 
 #include <boost/array.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
@@ -59,7 +58,7 @@ protected:
   asio::ip::tcp::socket socket_;
 };
 
-typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 } // namespace server
 } // namespace http

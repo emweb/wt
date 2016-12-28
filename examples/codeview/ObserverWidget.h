@@ -8,7 +8,7 @@
 #ifndef OBSERVER_WIDGET_H_
 #define OBSERVER_WIDGET_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 #include "CodeSession.h"
 
@@ -19,7 +19,7 @@ public:
   virtual ~ObserverWidget();
 
 private:
-  CodeSession *session_;
+  std::shared_ptr<CodeSession> session_;
 
   void updateBuffer(int buffer, CodeSession::BufferUpdate update);
   void insertBuffer(const CodeSession::Buffer& buffer, int index);

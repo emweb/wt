@@ -1,13 +1,13 @@
-#include "Wt/Chart/WGridData"
+#include "Wt/Chart/WGridData.h"
 
-#include "Wt/WAbstractItemModel"
-#include "Wt/WException"
+#include "Wt/WAbstractItemModel.h"
+#include "Wt/WException.h"
 #include "WebUtils.h"
 
 namespace Wt {
   namespace Chart {
 
-WGridData::WGridData(WAbstractItemModel *model)
+WGridData::WGridData(std::shared_ptr<WAbstractItemModel> model)
   : WAbstractGridData(model),
     XAbscisColumn_(0),
     YAbscisRow_(0)
@@ -40,11 +40,11 @@ int WGridData::nbYPoints() const
 
 WString WGridData::axisLabel(int u, Axis axis) const
 {
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     if (u >= YAbscisRow_)
       u++;
     return asString(model_->data(u, XAbscisColumn_));
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     if (u >= XAbscisColumn_)
       u++;
     return asString(model_->data(YAbscisRow_, u));
@@ -65,7 +65,7 @@ int WGridData::countSimpleData() const
       if (j == XAbscisColumn_)
 	continue;
 
-      if (model_->data(i,j,MarkerBrushColorRole).empty()) {
+      if (model_->data(i,j,ItemDataRole::MarkerBrushColor).empty()) {
 	result++;
       }
     }
@@ -74,7 +74,7 @@ int WGridData::countSimpleData() const
   return result;
 }
 
-boost::any WGridData::data(int i, int j) const
+cpp17::any WGridData::data(int i, int j) const
 {
   if (i >= XAbscisColumn_) {
     i++;
@@ -88,19 +88,19 @@ boost::any WGridData::data(int i, int j) const
 
 double WGridData::minimum(Axis axis) const
 {
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     if (YAbscisRow_ != 0) {
       return Wt::asNumber(model_->data(0, XAbscisColumn_));
     } else {
       return Wt::asNumber(model_->data(1, XAbscisColumn_));
     }
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     if (XAbscisColumn_ != 0) {
       return Wt::asNumber(model_->data(YAbscisRow_, 0));
     } else {
       return Wt::asNumber(model_->data(YAbscisRow_, 1));
     }
-  } else if (axis == ZAxis_3D) {
+  } else if (axis == Axis::Z3D) {
     if (!rangeCached_) {
       findRange();
     }
@@ -112,8 +112,8 @@ double WGridData::minimum(Axis axis) const
 
 double WGridData::maximum(Axis axis) const
 {
-  if (axis == XAxis_3D) {
-    if (seriesType_ == BarSeries3D) {
+  if (axis == Axis::X3D) {
+    if (seriesType_ == Series3DType::Bar) {
       return model_->rowCount() - 1 - 0.5;
     }
     if (YAbscisRow_ != model_->rowCount()) {
@@ -121,8 +121,8 @@ double WGridData::maximum(Axis axis) const
     } else {
       return Wt::asNumber(model_->data(model_->rowCount()-2, XAbscisColumn_));
     }
-  } else if (axis == YAxis_3D) {
-    if (seriesType_ == BarSeries3D) {
+  } else if (axis == Axis::Y3D) {
+    if (seriesType_ == Series3DType::Bar) {
       return model_->columnCount() - 1 - 0.5;
     }
     if (XAbscisColumn_ != model_->columnCount()) {
@@ -130,7 +130,7 @@ double WGridData::maximum(Axis axis) const
     } else {
       return Wt::asNumber(model_->data(YAbscisRow_, model_->columnCount()-2));
     }
-  } else if (axis == ZAxis_3D) {
+  } else if (axis == Axis::Z3D) {
     if (!rangeCached_) {
       findRange();
     }
@@ -181,12 +181,12 @@ void WGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
   FloatBuffer scaledXAxis = Utils::createFloatBuffer(nbModelRows-1);
   FloatBuffer scaledYAxis = Utils::createFloatBuffer(nbModelCols-1);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
 
   for (int i=0; i<nbModelRows; i++) {
     if (i == YAbscisRow_)
@@ -213,12 +213,12 @@ void WGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
 	colOffset = 1;
 	continue;
       }
-      if (model_->data(i,j,MarkerBrushColorRole).empty()) {
+      if (model_->data(i,j,ItemDataRole::MarkerBrushColor).empty()) {
 	simplePtsArray.push_back(scaledXAxis[i-rowOffset]);
 	simplePtsArray.push_back(scaledYAxis[j-colOffset]);
-	simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,j,DisplayRole))-zMin)/(zMax-zMin)));
-	if (!model_->data(i,j,MarkerScaleFactorRole).empty()) {
-	  simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,MarkerScaleFactorRole))));
+	simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,j,ItemDataRole::Display))-zMin)/(zMax-zMin)));
+	if (!model_->data(i,j,ItemDataRole::MarkerScaleFactor).empty()) {
+	  simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
 	} else {
 	  simplePtsSize.push_back((float)pointSize());
 	}
@@ -227,14 +227,16 @@ void WGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
 	coloredPtsArray.push_back(scaledYAxis[j-colOffset]);
 	coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)
 					  /(zMax-zMin)));
-	WColor color = boost::any_cast<WColor>(model_->data(i,j,MarkerBrushColorRole));
+	WColor color = cpp17::any_cast<WColor>(model_->data(i,j,ItemDataRole::MarkerBrushColor));
 	coloredPtsColor.push_back((float)color.red());
 	coloredPtsColor.push_back((float)color.green());
 	coloredPtsColor.push_back((float)color.blue());
 	coloredPtsColor.push_back((float)color.alpha());
 
-	if (!model_->data(i,j,MarkerScaleFactorRole).empty()) {
-	  coloredPtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,MarkerScaleFactorRole))));
+	if (!model_->data(i,j,ItemDataRole::MarkerScaleFactor).empty()) {
+	  coloredPtsSize.push_back
+	    ((float)(Wt::asNumber
+		     (model_->data(i,j, ItemDataRole::MarkerScaleFactor))));
 	} else {
 	  coloredPtsSize.push_back((float)pointSize());
 	}
@@ -251,12 +253,12 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
   FloatBuffer scaledXAxis = Utils::createFloatBuffer(nbModelRows-1);
   FloatBuffer scaledYAxis = Utils::createFloatBuffer(nbModelCols-1);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
 
   for (int i=0; i<nbModelRows; i++) {
     if (i == YAbscisRow_)
@@ -378,10 +380,10 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) cons
   bool first = true;
   int xDim = 0, yDim = 0;
   for (unsigned i = 0; i < dataseries.size(); i++) {
-    if ( dynamic_cast<WAbstractGridData*>(dataseries[i]) != 0) {
+    if (dynamic_cast<WAbstractGridData*>(dataseries[i]) != nullptr) {
       WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
       if (griddata == this ||
-	  griddata->type() != BarSeries3D) {
+	  griddata->type() != Series3DType::Bar) {
 	break;
       }
       if (first) {
@@ -407,12 +409,12 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) cons
   FloatBuffer scaledXAxis = Utils::createFloatBuffer(nbModelRows-1);
   FloatBuffer scaledYAxis = Utils::createFloatBuffer(nbModelCols-1);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
 
   for (int i=0; i<nbModelRows-1; i++) {
     scaledXAxis.push_back((float)((xMin + 0.5 + i - xMin)/(xMax-xMin)));
@@ -465,7 +467,7 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
     if ( dynamic_cast<WAbstractGridData*>(dataseries[i]) != 0) {
       WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
       if (griddata == this ||
-	  griddata->type() != BarSeries3D) {
+	  griddata->type() != Series3DType::Bar) {
 	break;
       }
       if (first) {
@@ -491,12 +493,12 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
   FloatBuffer scaledXAxis = Utils::createFloatBuffer(nbModelRows-1);
   FloatBuffer scaledYAxis = Utils::createFloatBuffer(nbModelCols-1);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
 
   for (int i=0; i<nbModelRows-1; i++) {
     scaledXAxis.push_back((float)((xMin + 0.5 + i - xMin)/(xMax-xMin)));
@@ -520,7 +522,7 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
       }
       float z0 = stackAllValues(prevDataseries, i,j);
 
-      if (model_->data(i+rowOffset,j+colOffset,MarkerBrushColorRole).empty()) {
+      if (model_->data(i+rowOffset,j+colOffset,ItemDataRole::MarkerBrushColor).empty()) {
 	if (simpleCount == BAR_BUFFER_LIMIT) {
 	  simpleBufferIndex++;
 	  simpleCount = 0;
@@ -545,7 +547,7 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
 	float delta = (modelVal <= 0) ? zeroBarCompensation : 0;
 	coloredPtsArrays[coloredBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin))+delta);
 
-	WColor color = boost::any_cast<WColor>(model_->data(i+rowOffset,j+colOffset,MarkerBrushColorRole));
+	WColor color = cpp17::any_cast<WColor>(model_->data(i+rowOffset,j+colOffset,ItemDataRole::MarkerBrushColor));
 	for (int k=0; k < 8; k++) {
 	  coloredPtsColors[coloredBufferIndex].push_back((float)color.red());
 	  coloredPtsColors[coloredBufferIndex].push_back((float)color.green());

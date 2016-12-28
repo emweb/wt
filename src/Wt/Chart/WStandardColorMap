@@ -8,7 +8,7 @@
 #ifndef CHART_WSTANDARDCOLORMAP_H
 #define CHART_WSTANDARDCOLORMAP_H
 
-#include "WAbstractColorMap"
+#include "WAbstractColorMap.h"
 #include <map>
 
 namespace Wt {
@@ -32,7 +32,7 @@ namespace Wt {
  * createStrip() or paintLegend().
  *
  * The figure below illustrates the possible colormaps that can be constructed 
- * from the list {"0.0 - darkRed", "1.0 - red", "2.0 - gray"}. The discrete map 
+ * from the list {"0.0 - StandardColor::DarkRed", "1.0 - StandardColor::Red", "2.0 - StandardColor::Gray"}. The discrete map 
  * (on the left) has the range [0, 3], the continuous map (on the right) has  
  * the range [0, 2]. The utility-method \ref discretise() is also applied to 
  * the continuous colormap to obtain a colormap with 5 bands in the same range.
@@ -97,13 +97,13 @@ public:
   const std::vector<WStandardColorMap::Pair>& colorValuePairs() const 
   { return colors_;}
 
-  virtual WColor toColor(double value) const;
+  virtual WColor toColor(double value) const override;
 
   virtual void createStrip(WPainter *painter,
-			   const WRectF& area = WRectF()) const;
+                           const WRectF& area = WRectF()) const override;
 
   virtual void paintLegend(WPainter *painter,
-			   const WRectF& area = WRectF()) const;
+                           const WRectF& area = WRectF()) const override;
 
 private:
   WColor interpolate(const WColor& color1,const WColor& color2,

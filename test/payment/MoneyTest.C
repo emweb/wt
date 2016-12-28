@@ -6,8 +6,8 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/WException>
-#include <Wt/Payment/Money>
+#include <Wt/WException.h>
+#include <Wt/Payment/Money.h>
 
 BOOST_AUTO_TEST_CASE(money_test)
 {

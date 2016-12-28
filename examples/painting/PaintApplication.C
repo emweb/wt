@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
 
 #include "PaintExample.h"
 
@@ -18,13 +18,13 @@ public:
     
     useStyleSheet("painting.css");
     
-    new PaintExample(root());
+    root()->addWidget(cpp14::make_unique<PaintExample>());
   }
 };
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new PaintApplication(env);
+  return cpp14::make_unique<PaintApplication>(env);
 }
 
 int main(int argc, char **argv)

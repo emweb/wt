@@ -1,5 +1,5 @@
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
 
 // Main application class
 class ThemeExample : public Wt::WApplication
@@ -7,7 +7,7 @@ class ThemeExample : public Wt::WApplication
 public:
     // Constructor
     ThemeExample(const Wt::WEnvironment &env)
-	: Wt::WApplication(env)
+        : Wt::WApplication(env)
     {
 	setCssTheme("polished");
 

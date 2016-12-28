@@ -16,7 +16,6 @@
 #define DEBUG
 
 #include <vector>
-#include <boost/bind.hpp>
 
 #include "Connection.h"
 #include "ConnectionManager.h"
@@ -29,7 +28,7 @@ namespace Wt {
   LOGGER("wthttp/async");
 }
 
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#if BOOST_VERSION >= 104900
 typedef std::chrono::seconds asio_timer_seconds;
 #else
 typedef boost::posix_time::seconds asio_timer_seconds;
@@ -74,7 +73,7 @@ void Connection::finishReply()
 void Connection::scheduleStop()
 {
   server_->service()
-    .post(strand_.wrap(boost::bind(&Connection::stop, shared_from_this())));
+    .post(strand_.wrap(std::bind(&Connection::stop, shared_from_this())));
 }
 
 void Connection::start()
@@ -112,8 +111,8 @@ void Connection::setReadTimeout(int seconds)
     state_ |= Reading;
 
     readTimer_.expires_from_now(asio_timer_seconds(seconds));
-    readTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
-				      asio::placeholders::error));
+    readTimer_.async_wait(std::bind(&Connection::timeout, shared_from_this(),
+				    std::placeholders::_1));
   }
 }
 
@@ -124,8 +123,8 @@ void Connection::setWriteTimeout(int seconds)
   state_ |= Writing;
 
   writeTimer_.expires_from_now(asio_timer_seconds(seconds));
-  writeTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
-				      asio::placeholders::error));
+  writeTimer_.async_wait(std::bind(&Connection::timeout, shared_from_this(),
+				   std::placeholders::_1));
 }
 
 void Connection::cancelReadTimer()
@@ -147,7 +146,7 @@ void Connection::cancelWriteTimer()
 void Connection::timeout(const asio_error_code& e)
 {
   if (e != asio::error::operation_aborted)
-    strand_.post(boost::bind(&Connection::doTimeout, shared_from_this()));
+    strand_.post(std::bind(&Connection::doTimeout, shared_from_this()));
 }
 
 void Connection::doTimeout()
@@ -178,7 +177,7 @@ void Connection::handleReadRequest0()
   boost::tribool result;
   boost::tie(result, rcv_remaining_)
     = request_parser_.parse(request_,
-			    rcv_remaining_, buffer.data() + rcv_buffer_size_);
+			    &*rcv_remaining_, buffer.data() + rcv_buffer_size_);
 
   if (result) {
     Reply::status_type status = request_parser_.validate(request_);
@@ -325,7 +324,7 @@ bool Connection::readAvailable()
 }
 
 void Connection::detectDisconnect(ReplyPtr reply,
-				  const boost::function<void()>& callback)
+				  const std::function<void()>& callback)
 {
   if (disconnectCallback_)
     return; // We're already detecting the disconnect
@@ -335,11 +334,11 @@ void Connection::detectDisconnect(ReplyPtr reply,
   readMore(reply, 0);
 }
 
-void Connection::handleReadBody(ReplyPtr reply,
-				const asio_error_code& e,
-				std::size_t bytes_transferred)
+void Connection::handleReadBody0(ReplyPtr reply,
+				 const asio_error_code& e,
+				 std::size_t bytes_transferred)
 {
-  LOG_DEBUG(socket().native() << ": handleReadBody(): " << e.message());
+  LOG_DEBUG(socket().native() << ": handleReadBody0(): " << e.message());
 
   if (disconnectCallback_) {
     rcv_body_buffer_ = false;
@@ -383,7 +382,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
     LOG_ERROR("Connection::startWriteResponse(): connection already writing");
     close();
     server_->service()
-      .post(strand_.wrap(boost::bind(&Reply::writeDone, reply, false)));
+      .post(strand_.wrap(std::bind(&Reply::writeDone, reply, false)));
     return;
   }
 
@@ -447,11 +446,11 @@ void Connection::handleWriteResponse(ReplyPtr reply)
   }
 }
 
-void Connection::handleWriteResponse(ReplyPtr reply,
-				     const asio_error_code& e,
-				     std::size_t bytes_transferred)
+void Connection::handleWriteResponse0(ReplyPtr reply,
+				      const asio_error_code& e,
+				      std::size_t bytes_transferred)
 {
-  LOG_DEBUG(socket().native() << ": handleWriteResponse(): "
+  LOG_DEBUG(socket().native() << ": handleWriteResponse0(): "
 	    << bytes_transferred << " ; " << e.message());
 
   cancelWriteTimer();

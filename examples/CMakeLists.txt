@@ -215,6 +215,7 @@ ENDMACRO(WT_ADD_EXAMPLE)
 SUBDIRS(
   blog
   charts
+  chart3D
   codeview
   composer
   dialog
@@ -239,15 +240,7 @@ SUBDIRS(
   treeview
   treeview-dragdrop
   webgl
+  widgetgallery
   wt-homepage
   wtwithqt
 )
-
-IF(HAS_CXX11)
-  SUBDIRS(
-    chart3D
-    widgetgallery
-  )
-ELSE(HAS_CXX11)
-  MESSAGE("*** Not building widget gallery; C++11 required (gcc > 4.6 + set WT_CPP_11_MODE=-std=c++0x or MSVS >= 2012)")
-ENDIF(HAS_CXX11)

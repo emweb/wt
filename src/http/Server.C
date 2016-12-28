@@ -15,15 +15,13 @@
 
 #include <boost/asio.hpp>
 
-#include <Wt/WIOService>
-#include <Wt/WServer>
+#include <Wt/WIOService.h>
+#include <Wt/WServer.h>
 
 #include "Server.h"
 #include "Configuration.h"
 #include "WebController.h"
 #include "WebUtils.h"
-
-#include <boost/bind.hpp>
 
 #ifdef HTTP_WITH_SSL
 
@@ -31,7 +29,7 @@
 
 #endif // HTTP_WITH_SSL
 
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#if BOOST_VERSION >= 104900
 typedef std::chrono::seconds asio_timer_seconds;
 #else
 typedef boost::posix_time::seconds asio_timer_seconds;
@@ -128,9 +126,10 @@ Wt::WebController *Server::controller()
 void Server::start()
 {
   if (config_.parentPort() != -1) {
-    expireSessionsTimer_.expires_from_now(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
-    expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
-	  asio::placeholders::error));
+    expireSessionsTimer_.expires_from_now
+      (asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
+    expireSessionsTimer_.async_wait
+      (std::bind(&Server::expireSessions, this, std::placeholders::_1));
   }
 
   asio::ip::tcp::resolver resolver(wt_.ioService());
@@ -265,14 +264,15 @@ void Server::start()
   // accept exits. To avoid that this happens when called within the
   // WServer context, we post the action of calling accept to one of
   // the threads in the threadpool.
-  wt_.ioService().post(boost::bind(&Server::startAccept, this));
+  wt_.ioService().post(std::bind(&Server::startAccept, this));
 
   if (config_.parentPort() != -1) {
     // This is a child process, connect to parent to
     // announce the listening port.
-    boost::shared_ptr<asio::ip::tcp::socket> parentSocketPtr
+    std::shared_ptr<asio::ip::tcp::socket> parentSocketPtr
       (new asio::ip::tcp::socket(wt_.ioService()));
-    wt_.ioService().post(boost::bind(&Server::startConnect, this, parentSocketPtr));
+    wt_.ioService().post
+      (std::bind(&Server::startConnect, this, parentSocketPtr));
   }
 }
 
@@ -293,56 +293,62 @@ void Server::startAccept()
    * need to access the ConnectionManager mutex in any case).
    */
   if (new_tcpconnection_) {
-    tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
-			accept_strand_.wrap(
-			       boost::bind(&Server::handleTcpAccept, this,
-					   asio::placeholders::error)));
+    tcp_acceptor_.async_accept
+      (new_tcpconnection_->socket(),
+       accept_strand_.wrap(std::bind(&Server::handleTcpAccept, this,
+				     std::placeholders::_1)));
   }
 
 #ifdef HTTP_WITH_SSL
   if (new_sslconnection_) {
-    ssl_acceptor_.async_accept(new_sslconnection_->socket(),
-	                accept_strand_.wrap(
-			       boost::bind(&Server::handleSslAccept, this,
-					   asio::placeholders::error)));
+    ssl_acceptor_.async_accept
+      (new_sslconnection_->socket(),
+       accept_strand_.wrap(std::bind(&Server::handleSslAccept, this,
+				     std::placeholders::_1)));
   }
 #endif // HTTP_WITH_SSL
 }
 
-void Server::startConnect(const boost::shared_ptr<asio::ip::tcp::socket>& socket)
+void Server::startConnect(const std::shared_ptr<asio::ip::tcp::socket>& socket)
 {
-  socket->async_connect(
-      asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(), config_.parentPort()),
-	boost::bind(&Server::handleConnected, this,
-		    socket,
-		    asio::placeholders::error));
+  socket->async_connect
+    (asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(),
+			     config_.parentPort()),
+     std::bind(&Server::handleConnected, this, socket,
+	       std::placeholders::_1));
 }
 
-void Server::handleConnected(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
-			     const asio_error_code& err)
+void Server
+::handleConnected(const std::shared_ptr<asio::ip::tcp::socket>& socket,
+		  const asio_error_code& err)
 {
   if (!err) {
-    boost::shared_ptr<std::string> buf(new std::string(
-      boost::lexical_cast<std::string>(tcp_acceptor_.local_endpoint().port())));
+    std::shared_ptr<std::string> buf
+      (new std::string(std::to_string(tcp_acceptor_.local_endpoint().port())));
     socket->async_send(asio::buffer(*buf),
-      boost::bind(&Server::handlePortSent, this, socket, err, buf));
+		       std::bind(&Server::handlePortSent, this, 
+				 socket, err, buf));
   } else {
-    LOG_ERROR_S(&wt_, "child process couldn't connect to parent to send listening port: " << err.message());
+    LOG_ERROR_S(&wt_, "child process couldn't connect to parent to "
+		"send listening port: " << err.message());
   }
 }
 
-void Server::handlePortSent(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
-			    const asio_error_code& err, const boost::shared_ptr<std::string>& /*buf*/)
+void Server
+::handlePortSent(const std::shared_ptr<asio::ip::tcp::socket>& socket,
+		 const asio_error_code& err,
+		 const std::shared_ptr<std::string>& /*buf*/)
 {
   if (err) {
-    LOG_ERROR_S(&wt_, "child process couldn't send listening port: " << err.message());
-  }
-  boost::system::error_code ignored_ec;
-  if(socket.get()) {
-	socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-	socket->close();
+    LOG_ERROR_S(&wt_, "child process couldn't send listening port: " 
+		<< err.message());
   }
 
+  boost::system::error_code ignored_ec;
+  if (socket.get()) {
+    socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    socket->close();
+  }
 }
 
 Server::~Server()
@@ -356,13 +362,13 @@ void Server::stop()
   // Post a call to the stop function so that server::stop() is safe
   // to call from any thread, and not simultaneously with waiting for
   // a new async_accept() call.
-  wt_.ioService().post(accept_strand_.wrap
-		   (boost::bind(&Server::handleStop, this)));
+  wt_.ioService().post
+    (accept_strand_.wrap(std::bind(&Server::handleStop, this)));
 }
 
 void Server::resume()
 {
-  wt_.ioService().post(boost::bind(&Server::handleResume, this));
+  wt_.ioService().post(std::bind(&Server::handleResume, this));
 }
 
 void Server::handleResume()
@@ -380,12 +386,13 @@ void Server::handleTcpAccept(const asio_error_code& e)
 {
   if (!e) {
     connection_manager_.start(new_tcpconnection_);
-    new_tcpconnection_.reset(new TcpConnection(wt_.ioService(), this,
-	  connection_manager_, request_handler_));
-    tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
-			accept_strand_.wrap(
-		    boost::bind(&Server::handleTcpAccept, this,
-				asio::placeholders::error)));
+    new_tcpconnection_.reset
+      (new TcpConnection(wt_.ioService(), this,
+			 connection_manager_, request_handler_));
+    tcp_acceptor_.async_accept
+      (new_tcpconnection_->socket(),
+       accept_strand_.wrap(std::bind(&Server::handleTcpAccept, this,
+				     std::placeholders::_1)));
   }
 }
 
@@ -395,12 +402,13 @@ void Server::handleSslAccept(const asio_error_code& e)
   if (!e)
   {
     connection_manager_.start(new_sslconnection_);
-    new_sslconnection_.reset(new SslConnection(wt_.ioService(), this,
-          ssl_context_, connection_manager_, request_handler_));
-    ssl_acceptor_.async_accept(new_sslconnection_->socket(),
-	                accept_strand_.wrap(
-	           boost::bind(&Server::handleSslAccept, this,
-			       asio::placeholders::error)));
+    new_sslconnection_.reset
+      (new SslConnection(wt_.ioService(), this, ssl_context_,
+			 connection_manager_, request_handler_));
+    ssl_acceptor_.async_accept
+      (new_sslconnection_->socket(),
+       accept_strand_.wrap(std::bind(&Server::handleSslAccept, this,
+				     std::placeholders::_1)));
   }
 }
 #endif // HTTP_WITH_SSL
@@ -432,9 +440,10 @@ void Server::expireSessions(boost::system::error_code ec)
     if (!wt_.expireSessions())
       wt_.scheduleStop();
     else {
-      expireSessionsTimer_.expires_from_now(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
-      expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
-						  asio::placeholders::error));
+      expireSessionsTimer_.expires_from_now
+	(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
+      expireSessionsTimer_.async_wait
+	(std::bind(&Server::expireSessions, this, std::placeholders::_1));
     }
   } else if (ec != asio::error::operation_aborted) {
     LOG_ERROR_S(&wt_, "session expiration timer got an error: " << ec.message());

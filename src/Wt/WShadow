@@ -7,7 +7,7 @@
 #ifndef WSHADOW_H_
 #define WSHADOW_H_
 
-#include <Wt/WColor>
+#include <Wt/WColor.h>
 
 namespace Wt {
 

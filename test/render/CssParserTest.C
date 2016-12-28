@@ -12,29 +12,28 @@
 
 #ifdef CSS_PARSER
 
-bool isValid(Wt::Render::StyleSheet *s)
+bool isValid(std::unique_ptr<Wt::Render::StyleSheet> s)
 {
-  bool result = s;
-  delete s;
-  return result;
+  return s != nullptr;
 }
 
 BOOST_AUTO_TEST_CASE( CssParser_test1 )
 {
   Wt::Render::CssParser parser;
-  Wt::Render::StyleSheet* s  = parser.parse(
-        "h1 { color: green }  h1 h2, h1 h3{color: red}");
-  BOOST_REQUIRE( s );
-  BOOST_REQUIRE( s->rulesetSize() == 3 );
-  BOOST_REQUIRE( s->rulesetAt(1).selector().size() == 2 );
-  BOOST_REQUIRE( s->rulesetAt(2).selector().size() == 2 );
-  delete s;
+  {
+    auto s  = parser.parse("h1 { color: green }  h1 h2, h1 h3{color: red}");
+    BOOST_REQUIRE( s );
+    BOOST_REQUIRE( s->rulesetSize() == 3 );
+    BOOST_REQUIRE( s->rulesetAt(1).selector().size() == 2 );
+    BOOST_REQUIRE( s->rulesetAt(2).selector().size() == 2 );
+  }
 
-  Wt::Render::StyleSheet* s2 = parser.parse("h1 h2 h3 h4 {color: green}");
-  BOOST_REQUIRE( s2 );
-  BOOST_REQUIRE( s2->rulesetSize() == 1 );
-  BOOST_REQUIRE( s2->rulesetAt(0).selector().size()  == 4 );
-  delete s2;
+  {
+    auto s2 = parser.parse("h1 h2 h3 h4 {color: green}");
+    BOOST_REQUIRE( s2 );
+    BOOST_REQUIRE( s2->rulesetSize() == 1 );
+    BOOST_REQUIRE( s2->rulesetAt(0).selector().size()  == 4 );
+  }
 
   BOOST_REQUIRE( !isValid(parser.parse("h1 h2 h3 & h4 {inside: ok}")) );
   BOOST_REQUIRE(  isValid(parser.parse("h1{}")) );
@@ -46,39 +45,43 @@ BOOST_AUTO_TEST_CASE( CssParser_test1 )
   BOOST_REQUIRE( !isValid(parser.parse("#1id{}")) );
   BOOST_REQUIRE( !isValid(parser.parse("{}")) );
   BOOST_REQUIRE(  isValid(parser.parse("id_{id_:boo}")) );
-  Wt::Render::StyleSheet* s6 = parser.parse("a{inside:\"}b{\"}");
-  BOOST_REQUIRE(  s6 );
-  BOOST_REQUIRE(  s6->rulesetSize() == 1 );
-  BOOST_REQUIRE(  isValid(parser.parse("h1{ a: a; b: b }")) );
-  BOOST_REQUIRE(  isValid(parser.parse("h1{ a: a; b: b; }")) );
-  BOOST_REQUIRE(  isValid(parser.parse("h1{ a: 2em }")) );
-  delete s6;
+  {
+    auto s6 = parser.parse("a{inside:\"}b{\"}");
+    BOOST_REQUIRE(  s6 );
+    BOOST_REQUIRE(  s6->rulesetSize() == 1 );
+    BOOST_REQUIRE(  isValid(parser.parse("h1{ a: a; b: b }")) );
+    BOOST_REQUIRE(  isValid(parser.parse("h1{ a: a; b: b; }")) );
+    BOOST_REQUIRE(  isValid(parser.parse("h1{ a: 2em }")) );
+  }
 
-  Wt::Render::StyleSheet* s3 = parser.parse(".class1.class2{}");
-  BOOST_REQUIRE( s3 );
-  BOOST_REQUIRE( s3->rulesetSize() == 1 );
-  BOOST_REQUIRE( s3->rulesetAt(0).selector().size() == 1 );
-  delete s3;
-  Wt::Render::StyleSheet* s4 = parser.parse(".class1 .class2{}");
-  BOOST_REQUIRE( s4 );
-  BOOST_REQUIRE( s4->rulesetSize() == 1 );
-  BOOST_REQUIRE( s4->rulesetAt(0).selector().size() == 2 );
-  delete s4;
+  {
+    auto s3 = parser.parse(".class1.class2{}");
+    BOOST_REQUIRE( s3 );
+    BOOST_REQUIRE( s3->rulesetSize() == 1 );
+    BOOST_REQUIRE( s3->rulesetAt(0).selector().size() == 1 );
+  }
 
-  Wt::Render::StyleSheet* s5 = parser.parse(
-        "h1{color: 20px; something: blue; something_else: \"bla\" }");
-  BOOST_REQUIRE( s5 );
-  BOOST_REQUIRE( s5->rulesetSize() == 1 );
-  /*BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("color").value_
-                                  == 20.0 );
-  BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("color").unit_
-                                  == Wt::Render::Term::Px );
-  BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("something")
-                                 .identifier_ == "blue" );
-  BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("something_else")
-                                 .quotedString_ == "bla" );*/
+  {
+    auto s4 = parser.parse(".class1 .class2{}");
+    BOOST_REQUIRE( s4 );
+    BOOST_REQUIRE( s4->rulesetSize() == 1 );
+    BOOST_REQUIRE( s4->rulesetAt(0).selector().size() == 2 );
+  }
 
-  delete s5;
+  {
+    auto s5 = parser.parse(
+	  "h1{color: 20px; something: blue; something_else: \"bla\" }");
+    BOOST_REQUIRE( s5 );
+    BOOST_REQUIRE( s5->rulesetSize() == 1 );
+    /*BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("color").value_
+				    == 20.0 );
+    BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("color").unit_
+				    == Wt::Render::Term::Px );
+    BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("something")
+				   .identifier_ == "blue" );
+    BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("something_else")
+				   .quotedString_ == "bla" );*/
+  }
 
   // Test hex color
   BOOST_REQUIRE(  isValid(parser.parse("h1{color:#123}")) );

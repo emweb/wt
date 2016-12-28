@@ -7,8 +7,8 @@
 #ifndef WPOPUP_MENU_H_
 #define WPOPUP_MENU_H_
 
-#include <Wt/WMenu>
-#include <Wt/WJavaScript>
+#include <Wt/WMenu.h>
+#include <Wt/WJavaScript.h>
 
 namespace Wt {
 
@@ -113,7 +113,7 @@ public:
    * The menu is hidden, by default, and must be shown using popup()
    * or exec().
    */
-  WPopupMenu(WStackedWidget *contentsStack = 0);
+  WPopupMenu(WStackedWidget *contentsStack = nullptr);
 
   virtual ~WPopupMenu();
 
@@ -144,7 +144,8 @@ public:
    *
    * \sa positionAt(), popup(const WPointF&)
    */
-  void popup(WWidget *location, Orientation orientation = Vertical);
+  void popup(WWidget *location, 
+	     Orientation orientation = Orientation::Vertical);
 
   /*! \brief Executes the the popup at a position.
    *
@@ -172,7 +173,8 @@ public:
    *
    * \sa positionAt(), popup(const WPointF&)
    */
-  WMenuItem *exec(WWidget *location, Orientation orientation = Vertical);
+  WMenuItem *exec(WWidget *location, 
+		  Orientation orientation = Orientation::Vertical);
 
   /*! \brief Returns the last triggered menu item.
    *
@@ -181,10 +183,10 @@ public:
   WMenuItem *result() const { return result_; }
 
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
+                         const WAnimation& animation = WAnimation()) override;
 
-  virtual void setMaximumSize(const WLength& width, const WLength& height);
-  virtual void setMinimumSize(const WLength& width, const WLength& height);
+  virtual void setMaximumSize(const WLength& width, const WLength& height) override;
+  virtual void setMinimumSize(const WLength& width, const WLength& height) override;
 
   /*! \brief %Signal emitted when the popup is hidden.
    *
@@ -219,9 +221,9 @@ public:
   void setAutoHide(bool enabled, int autoHideDelay = 0);
 
 protected:
-  virtual void renderSelected(WMenuItem *item, bool selected);
-  virtual void setCurrent(int index);
-  virtual void getSDomChanges(std::vector<DomElement *>& result, WApplication *app);
+  virtual void renderSelected(WMenuItem *item, bool selected) override;
+  virtual void setCurrent(int index) override;
+  virtual void getSDomChanges(std::vector<DomElement *>& result, WApplication *app) override;
 
 private:
   WPopupMenu *topLevel_;

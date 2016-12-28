@@ -7,18 +7,20 @@
 #ifndef WCALENDAR_H_
 #define WCALENDAR_H_
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WDate>
-#include <Wt/WSignalMapper>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WDate.h>
 #include <set>
 
-namespace boost {
-  namespace gregorian {
-    class date;
-  }
-}
-
 namespace Wt {
+
+/*! \brief The calendar header format.
+ */
+enum class CalendarHeaderFormat { 
+  SingleLetterDayNames,  //!< First letter of a day (e.g. 'M' for Monday)
+  ShortDayNames,         //!< First 3 letters of a day (e.g. 'Mon' for Monday)
+  LongDayNames           //!< Full day name
+    // NoHorizontalHeader  //No horizontal header (not yet implemented)
+};
 
 class WComboBox;
 class WInPlaceEdit;
@@ -69,21 +71,15 @@ class WTemplate;
 class WT_API WCalendar : public WCompositeWidget
 {
 public:
-  /*! \brief The format of the horizontal header.
-   */
-  enum HorizontalHeaderFormat { 
-    SingleLetterDayNames,  //!< First letter of a day (e.g. 'M' for Monday)
-    ShortDayNames,         //!< First 3 letters of a day (e.g. 'Mon' for Monday)
-    LongDayNames           //!< Full day name
-    // NoHorizontalHeader  //No horizontal header (not yet implemented)
-  };
+  /*! \brief Typedef for enum Wt::CalendarHeaderFormat */
+  typedef CalendarHeaderFormat HeaderFormat;
 
   /*! \brief Creates a new calendar.
    *
    * Constructs a new calendar with English day/month names.  The
    * calendar shows the current day, and has an empty selection.
    */
-  WCalendar(WContainerWidget *parent = 0);
+  WCalendar();
 
   /*! \brief Sets the selection mode.
    *
@@ -174,13 +170,13 @@ public:
    *
    * The default horizontal header format is WCalendar::ShortDayNames.
    */
-  void setHorizontalHeaderFormat(HorizontalHeaderFormat format);
+  void setHorizontalHeaderFormat(CalendarHeaderFormat format);
 
   /*! \brief Returns the horizontal header format.
    *
    * \sa setHorizontalHeaderFormat()
    */
-  HorizontalHeaderFormat horizontalHeaderFormat() {
+  CalendarHeaderFormat horizontalHeaderFormat() {
     return horizontalHeaderFormat_;
   }
 
@@ -225,24 +221,6 @@ public:
    */
   Signal<int, int>& currentPageChanged() { return currentPageChanged_; }
 
-  /*! \brief Configures single or multiple selection mode (<b> deprecated </b>).
-   *
-   * In single selection mode, only one date may be selected: the selection()
-   * will be empty or contain exactly one item. 
-   *
-   * \deprecated use setSelectionMode() instead.
-   */
-  void setMultipleSelection(bool multiple);
-
-  /*! \brief %Signal emitted when the user has double clicked on a date (<b>deprecated</b>).
-    * 
-    * This signal indicates that he user has selected a new date, which 
-    * is only available when in single selection mode.
-    *
-    * \deprecated use activated() instead.
-    */
-  Signal<WDate>& selected() { return activated_; }
-  
   /*! \brief Configures the calendar to use single click for activation
    *
    * By default, double click will trigger activate(). Use this method
@@ -259,17 +237,6 @@ public:
    * \sa setSelectionMode()
    */
   void setSingleClickSelect(bool single);
-
-  /*! \brief Sets the length for the abbreviated day of week (<b> deprecated </b>).
-   *
-   * The \p chars may be 1 or 3, which render "Monday" as
-   * respectively "M" or "Mon".
-   *
-   * The default length is 3.
-   *
-   * \deprecated use setHorizontalHeaderFormat() instead.
-   */
-  void setDayOfWeekLength(int chars);
 
   /*! \brief Sets the bottom of the valid date range.
    *
@@ -300,7 +267,7 @@ public:
   const WDate& top() const { return top_; }
 
 protected:
-  virtual void render(WFlags<RenderFlag> renderFlags);
+  virtual void render(WFlags<RenderFlag> renderFlags) override;
   
   /*! \brief Creates or updates a widget that renders a cell.
    *
@@ -321,14 +288,14 @@ protected:
    */
   bool isSelected(const WDate& date) const;
 
-  virtual void enableAjax();
+  virtual void enableAjax() override;
 
 private:
   SelectionMode     selectionMode_;
   bool              singleClickSelect_;
   int               currentYear_;
   int               currentMonth_;
-  HorizontalHeaderFormat horizontalHeaderFormat_;
+  CalendarHeaderFormat horizontalHeaderFormat_;
   int               firstDayOfWeek_;
   std::set<WDate>   selection_;
   bool              needRenderMonth_;
@@ -347,12 +314,9 @@ private:
     Coordinate(int x, int y) { i = x; j = y; }
   };
 
-  WTemplate			      *impl_;
-  WComboBox                           *monthEdit_;
-  WInPlaceEdit                        *yearEdit_;
-
-  WSignalMapper<Coordinate, NoClass>  *cellClickMapper_;
-  WSignalMapper<Coordinate, NoClass>  *cellDblClickMapper_;
+  WTemplate *impl_;
+  WComboBox *monthEdit_;
+  WInPlaceEdit *yearEdit_;
 
   void create();
   void renderMonth();
@@ -361,7 +325,7 @@ private:
 
   void monthChanged(int newMonth);
   void yearChanged(WString newYear);
-  boost::gregorian::date dateForCell(int week, int dayOfWeek);
+  WDate dateForCell(int week, int dayOfWeek);
 
   void selectInCurrentMonth(const WDate& d);
 

@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Render/WTextRenderer>
+#include <Wt/Render/WTextRenderer.h>
 #include <iostream>
 #include <boost/version.hpp>
 

@@ -9,8 +9,8 @@
 
 #include <vector>
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WMenuItem>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WMenuItem.h>
 
 namespace Wt {
 
@@ -37,7 +37,7 @@ namespace Wt {
  * Wt::WStackedWidget *contents = new Wt::WStackedWidget(contentsParent);
  *
  * // create a menu
- * Wt::WMenu *menu = new Wt::WMenu(contents, menuParent);
+ * Wt::WMenu *menu = new Wt::WMenu(contents);
  *
  * // add four items using the default lazy loading policy.
  * menu->addItem("Introduction", new Wt::WText("intro"));
@@ -51,7 +51,7 @@ namespace Wt {
  * WStackedWidget contents = new WStackedWidget(contentsParent);
  *		 
  * // create a menu
- * WMenu menu = new WMenu(contents, menuParent);
+ * WMenu menu = new WMenu(contents);
  *		 
  * // add four items using the default lazy loading policy.
  * menu.addItem("Introduction", new WText("intro"));
@@ -81,7 +81,7 @@ namespace Wt {
  * which lets menu items correspond to internal URLs, see
  * setInternalPathEnabled().
  *
- * The layout of the menu may be Horizontal or Vertical. The look of
+ * The layout of the menu may be Orientation::Horizontal or Orientation::Vertical. The look of
  * the items may be defined through style sheets. The default
  * WMenuItem implementation uses four style classes to distinguish
  * between inactivated, activated, closeable inactivated and closeable
@@ -104,44 +104,13 @@ namespace Wt {
 class WT_API WMenu : public WCompositeWidget
 {
 public:
-  /*! \brief Creates a new menu (<b>deprecated</b>).
-   *
-   * Construct a menu with given \p orientation. The menu is not
-   * associated with a contents stack, and thus you will want to react
-   * to the itemSelected() signal to react to menu changes.
-   *
-   * \deprecated the \p orientation parameter is ignored, since menus
-   *             are now always rendered using &lt;ul&gt; elements,
-   *             and CSS will determine the orientation.
-   *             Use WMenu(WContainerWidget *) instead.
-   */
-  WMenu(Orientation orientation, WContainerWidget *parent = 0);
-
   /*! \brief Creates a new menu.
    *
    * The menu is not associated with a contents stack, and thus you
    * will want to react to the itemSelected() signal to react to menu
    * changes.
    */
-  WMenu(WContainerWidget *parent = 0);
-
-  /*! \brief Creates a new menu (<b>deprecated</b>).
-   *
-   * Construct a menu to manage the widgets in \p contentsStack,
-   * and sets the menu \p orientation.
-   *
-   * Each menu item will manage a single widget in the
-   * \p contentsStack, making it the current widget when the menu
-   * item is activated.
-   *
-   * \deprecated the \p orientation parameter is ignored, since menus
-   *             are now always rendered using &lt;ul&gt; elements,
-   *             and CSS will determine the orientation.
-   *             Use WMenu(WStackedWidget *contentsStack, WContainerWidget *)
-   *             instead.
-   */
-  WMenu(WStackedWidget *contentsStack, Orientation orientation,
-	WContainerWidget *parent = 0);
+  WMenu();
 
   /*! \brief Creates a new menu.
    *
@@ -151,7 +120,7 @@ public:
    * \p contentsStack, making it the current widget when the menu
    * item is activated.
    */
-  WMenu(WStackedWidget *contentsStack, WContainerWidget *parent = 0);
+  WMenu(WStackedWidget *contentsStack);
 
   /*! \brief Destructor.
    */
@@ -164,11 +133,13 @@ public:
    *
    * Returns the corresponding WMenuItem.
    *
-   * \sa addItem(const std::string&, const WString&, WWidget *, WMenuItem::LoadPolicy)
+   * \sa addItem(const std::string&, const WString&, WWidget *, ContentLoading)
    * \sa addItem(WMenuItem *)
    */
-  WMenuItem *addItem(const WString& label, WWidget *contents = 0,
-		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+  WMenuItem *addItem(const WString& label,
+		     std::unique_ptr<WWidget> contents = nullptr,
+		     ContentLoading policy 
+		       = ContentLoading::Lazy);
 
   /*! \brief Adds an item.
    *
@@ -186,8 +157,9 @@ public:
    * \sa addItem(WMenuItem *)
    */
   WMenuItem *addItem(const std::string& iconPath, const WString& label,
-		     WWidget *contents = 0,
-		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+		     std::unique_ptr<WWidget> contents = nullptr,
+		     ContentLoading policy 
+		       = ContentLoading::Lazy);
 
     /*! \brief Adds an item with given text, and specify a slot method to be
    *         called when the item is triggered.
@@ -221,7 +193,7 @@ public:
    *
    * \sa add(WMenuItem *)
    */
-  WMenuItem *addMenu(const WString& text, WMenu *menu);
+  WMenuItem *addMenu(const WString& text, std::unique_ptr<WMenu> menu);
 
   /*! \brief Adds a submenu, with given icon and text.
    *
@@ -231,16 +203,16 @@ public:
    * \sa add(WMenuItem *)
    */
   WMenuItem *addMenu(const std::string& iconPath, const WString& text,
-		     WMenu *menu);
+		     std::unique_ptr<WMenu> menu);
 
   /*! \brief Adds an item.
    *
    * Adds a menu item. Use this form to add specialized WMenuItem
    * implementations.
    *
-   * \sa addItem(const WString&, WWidget *, WMenuItem::LoadPolicy)
+   * \sa addItem(const WString&, WWidget *, ContentLoading)
    */
-  virtual void addItem(WMenuItem *item);
+  virtual WMenuItem *addItem(std::unique_ptr<WMenuItem> item);
 
   /*! \brief inserts an item.
    *
@@ -249,11 +221,13 @@ public:
    *
    * Returns the corresponding WMenuItem.
    *
-   * \sa insertItem(int index, const std::string&, const WString&, WWidget *, WMenuItem::LoadPolicy)
+   * \sa insertItem(int index, const std::string&, const WString&, WWidget *, ContentLoading)
    * \sa insertItem(int index, WMenuItem *)
    */
-  WMenuItem *insertItem(int index, const WString& label, WWidget *contents = 0,
-                     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+  WMenuItem *insertItem(int index, const WString& label,
+			std::unique_ptr<WWidget> contents = nullptr,
+			ContentLoading policy
+			  = ContentLoading::Lazy);
 
   /*! \brief inserts an item.
    *
@@ -271,8 +245,10 @@ public:
    * \sa insertItem(int index, WMenuItem *)
    */
   WMenuItem *insertItem(int index, const std::string& iconPath,
-                        const WString& label, WWidget *contents = 0,
-                     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+                        const WString& label,
+			std::unique_ptr<WWidget> contents = nullptr,
+			ContentLoading policy
+			  = ContentLoading::Lazy);
 
     /*! \brief inserts an item with given text, and specify a slot method to be
    *         called when the item is triggered.
@@ -307,7 +283,8 @@ public:
    *
    * \sa insert(int index, WMenuItem *)
    */
-  WMenuItem *insertMenu(int index, const WString& text, WMenu *menu);
+  WMenuItem *insertMenu(int index, const WString& text,
+			std::unique_ptr<WMenu> menu);
 
   /*! \brief inserts a submenu, with given icon and text.
    *
@@ -317,7 +294,9 @@ public:
    * \sa insert(int index, WMenuItem *)
    */
   WMenuItem *insertMenu(int index, const std::string& iconPath,
-                        const WString& text, WMenu *menu);
+                        const WString& text,
+			std::unique_ptr<WMenu> menu);
+
   /*! \brief Inserts an item.
    *
    * Inserts a menu item. Use this form to insert specialized WMenuItem
@@ -325,7 +304,7 @@ public:
    *
    * \sa insertItem(WMenuItem *item)
    */
-  virtual void insertItem(int index, WMenuItem *item);
+  virtual WMenuItem *insertItem(int index, std::unique_ptr<WMenuItem> item);
 
   /*! \brief Adds a separator to the menu.
    *
@@ -339,15 +318,15 @@ public:
 
   /*! \brief Removes an item.
    *
-   * Removes the given item. The item and its contents is not deleted.
+   * Removes the given item.
    *
    * \sa addItem()
    */
-  virtual void removeItem(WMenuItem *item);
+  virtual std::unique_ptr<WMenuItem> removeItem(WMenuItem *item);
 
   /*! \brief Selects an item.
    *
-   * Select the menu item \p item.
+   * SelectionFlag::Select the menu item \p item.
    *
    * When \p item is \c 0, the current selection is removed.
    *
@@ -505,30 +484,6 @@ public:
    */
   int currentIndex() const { return current_; }
 
-  /*! \brief Returns the orientation (<b>deprecated</b>).
-   *
-   * The orientation is set at time of construction.
-   *
-   * \deprecated this function no longer has any use and will be removed.
-   */
-  Orientation orientation() const { return Horizontal; }
-
-  /*! \brief Renders using an HTML list (<b>deprecated</b>)
-   *
-   * This function no longer has an effect, as a menu is now always rendered
-   * as a list.
-   *
-   * \deprecated this function no longer has any use and will be removed.
-   */
-  void setRenderAsList(bool enable);
-
-  /*! \brief Returns whether the menu is rendered as an HTML list
-   *         (<b>deprecated</b>).
-   *
-   * \deprecated this function no longer has any use and will be removed.
-   */
-  bool renderAsList() const { return true; }
-
   /*! \brief Enables internal paths for items.
    *
    * The menu participates in the internal path by changing the
@@ -664,8 +619,6 @@ private:
   Signal<WMenuItem *> itemSelected_, itemSelectRendered_;
   Signal<WMenuItem *> itemClosed_;
 
-  Wt::Signals::connection contentsStackConnection_;
-  void contentsDestroyed();
   void handleInternalPathChange(const std::string& path);
 
   int current_;

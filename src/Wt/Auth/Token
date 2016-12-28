@@ -7,7 +7,7 @@
 #ifndef WT_AUTH_TOKEN_H_
 #define WT_AUTH_TOKEN_H_
 
-#include <Wt/WDateTime>
+#include <Wt/WDateTime.h>
 
 namespace Wt {
   namespace Auth {

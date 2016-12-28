@@ -7,7 +7,7 @@
 #ifndef WSOUND_H_
 #define WSOUND_H_
 
-#include <Wt/WMediaPlayer>
+#include <Wt/WMediaPlayer.h>
 
 namespace Wt {
 
@@ -41,7 +41,7 @@ public:
    *
    * \sa addSource()
    */
-  WSound(WObject *parent = 0);
+  WSound();
 
   /*! \brief Constructs a sound object for an MP3 media source.
    *
@@ -49,13 +49,13 @@ public:
    *
    * \sa addSource()
    */
-  WSound(const std::string& url, WObject *parent = 0);
+  WSound(const std::string& url);
 
   /*! \brief Constructs a sound object.
    *
    * \sa addSource()
    */
-  WSound(WMediaPlayer::Encoding encoding, const WLink& link, WObject *parent = 0);
+  WSound(MediaEncoding encoding, const WLink& link);
 
   /*! \brief Destructor.
    *
@@ -68,20 +68,14 @@ public:
    * You may add multiple media sources (with different encodings) to allow the
    * file to be played in more browsers without needing Flash plugins.
    */
-  void addSource(WMediaPlayer::Encoding encoding, const WLink& link);
-
-  /*! \brief Returns the media source (<b>deprecated</b>).
-   *
-   * \deprecated use getSource(WMediaPlayer::Encoding) instead.
-   */
-  std::string url() const;
+  void addSource(MediaEncoding encoding, const WLink& link);
 
   /*! \brief Returns the media source.
    *
-   * This returns the link set for a specific encoding, or an empty link if no URL
-   * was set for that encoding.
+   * This returns the link set for a specific encoding, or an empty
+   * link if no URL was set for that encoding.
    */
-  WLink getSource(WMediaPlayer::Encoding encoding) const;
+  WLink getSource(MediaEncoding encoding) const;
 
   /*! \brief Sets the amount of times the sound has to be repeated.
    *
@@ -118,12 +112,14 @@ public:
 
 private:
   struct Source {
-    Source(WMediaPlayer::Encoding anEncoding, WLink aLink) : encoding(anEncoding), link(aLink) { }
+    Source(MediaEncoding anEncoding, WLink aLink)
+      : encoding(anEncoding), link(aLink) { }
 
-    WMediaPlayer::Encoding encoding;
+    MediaEncoding encoding;
     WLink link;
   };
 
+  observing_ptr<SoundManager> manager_;
   std::vector<Source> media_;
   int loops_;
 
