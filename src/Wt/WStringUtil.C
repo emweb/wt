@@ -55,18 +55,8 @@ namespace {
       
       if (myresult == Cvt::error) {
 	result += '?';
-#ifdef TWO_BYTE_CHAR
-        if (*next_to_convert >= 0xD800 &&
-            *next_to_convert < 0xDC00)
-          ++ next_to_convert; // skip low surrogate too
-#endif
-	error = true;
-#ifdef TWO_BYTE_CHAR
-        // should be highly unusual
-        if (next_to_convert == to_convert_end)
-          break;
-#endif
 	++ next_to_convert;
+	error = true;
       }
     }
 
@@ -112,8 +102,15 @@ namespace {
 
         if (myresult == cvt::error) {
           *pc++ = '?';
-          pwc++;
           error = true;
+#ifdef TWO_BYTE_CHAR
+          if (*pwc >= 0xD800 &&
+              *pwc < 0xDC00)
+            ++pwc; // skip low surrogate too
+          if (pwc == pwend)
+            break; // highly unusual
+#endif
+          ++pwc;
         }
       }
     }
