@@ -55,8 +55,18 @@ namespace {
       
       if (myresult == Cvt::error) {
 	result += '?';
-	++ next_to_convert;
+#ifdef TWO_BYTE_CHAR
+        if (*next_to_convert >= 0xD800 &&
+            *next_to_convert < 0xDC00)
+          ++ next_to_convert; // skip low surrogate too
+#endif
 	error = true;
+#ifdef TWO_BYTE_CHAR
+        // should be highly unusual
+        if (next_to_convert == to_convert_end)
+          break;
+#endif
+	++ next_to_convert;
       }
     }
 
