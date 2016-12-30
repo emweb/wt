@@ -70,7 +70,7 @@ protected:
   std::stringstream in_mem_;
   std::iostream *in_;
   std::string requestFileName_;
-  boost::asio::streambuf out_buf_;
+  asio::streambuf out_buf_;
   std::ostream out_;
   std::string contentType_;
   std::string location_;

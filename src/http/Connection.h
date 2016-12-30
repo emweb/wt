@@ -17,17 +17,8 @@
 #ifndef HTTP_CONNECTION_HPP
 #define HTTP_CONNECTION_HPP
 
-#include <boost/asio.hpp>
-
-namespace asio = boost::asio;
-typedef boost::system::error_code asio_error_code;
-typedef boost::system::system_error asio_system_error;
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
-#include <boost/asio/steady_timer.hpp>
-typedef boost::asio::steady_timer asio_timer;
-#else
-typedef boost::asio::deadline_timer asio_timer;
-#endif
+#include <Wt/Asio/asio.hpp>
+#include <Wt/Asio/steady_timer.hpp>
 
 #include "Buffer.h"
 #include "Reply.h"
@@ -39,6 +30,8 @@ typedef boost::asio::deadline_timer asio_timer;
 
 namespace http {
 namespace server {
+
+namespace asio = Wt::Asio::asio;
 
 class ConnectionManager;
 class Server;
@@ -92,15 +85,15 @@ public:
 
 protected:
   void handleWriteResponse0(ReplyPtr reply,
-			    const asio_error_code& e,
+                            const Wt::Asio::error_code& e,
 			    std::size_t bytes_transferred);
   void handleWriteResponse(ReplyPtr reply);
-  void handleReadRequest(const asio_error_code& e,
+  void handleReadRequest(const Wt::Asio::error_code& e,
 			 std::size_t bytes_transferred);
   /// Process read buffer, reading request.
   void handleReadRequest0();
   void handleReadBody0(ReplyPtr reply,
-		       const asio_error_code& e,
+                       const Wt::Asio::error_code& e,
 		       std::size_t bytes_transferred);
 
   void setReadTimeout(int seconds);
@@ -139,11 +132,11 @@ private:
    * Asynchronoulsy writing a response
    */
   virtual void startAsyncWriteResponse(ReplyPtr reply,
-			      const std::vector<asio::const_buffer>& buffers, 
+                              const std::vector<asio::const_buffer>& buffers,
 				       int timeout) = 0;
 
   /// Generic I/O error handling: closes the connection and cancels timers
-  void handleError(const asio_error_code& e);
+  void handleError(const Wt::Asio::error_code& e);
 
   void sendStockReply(Reply::status_type code);
 
@@ -153,11 +146,11 @@ private:
   void cancelReadTimer();
   void cancelWriteTimer();
 
-  void timeout(const asio_error_code& e);
+  void timeout(const Wt::Asio::error_code& e);
   void doTimeout();
 
   /// Timer for reading data.
-  asio_timer readTimer_, writeTimer_;
+  asio::steady_timer readTimer_, writeTimer_;
 
   /// Current request buffer data
   std::list<Buffer> rcv_buffers_;

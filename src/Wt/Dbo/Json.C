@@ -10,6 +10,8 @@
 #include <Wt/WString.h>
 #include <Wt/Dbo/Field_impl.h>
 
+#include <cstring>
+
 #include "EscapeOStream.h"
 
 namespace Wt {

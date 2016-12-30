@@ -50,7 +50,7 @@ template <class C>
 class weak_ptr
 {
 private:
-  typedef typename boost::remove_const<C>::type MutC;
+  typedef typename std::remove_const<C>::type MutC;
 public:
   typedef C pointed;
 

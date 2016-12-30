@@ -25,12 +25,6 @@ namespace Wt {
   LOGGER("wthttp/async");
 }
 
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
-typedef std::chrono::seconds asio_timer_seconds;
-#else
-typedef boost::posix_time::seconds asio_timer_seconds;
-#endif
-
 namespace http {
 namespace server {
 
@@ -43,11 +37,7 @@ SslConnection::SslConnection(asio::io_service& io_service, Server *server,
 {
   // avoid CRIME attack, get A rating on SSL analysis tools
 #ifdef SSL_OP_NO_COMPRESSION
-#if BOOST_VERSION >= 104700
   SSL_set_options(socket_.native_handle(), SSL_OP_NO_COMPRESSION);
-#else
-  SSL_set_options(socket_.impl()->ssl, SSL_OP_NO_COMPRESSION);
-#endif
 #endif
 }
 
@@ -68,15 +58,9 @@ void SslConnection::start()
 				     std::placeholders::_1)));
 }
 
-void SslConnection::handleHandshake(const asio_error_code& error)
+void SslConnection::handleHandshake(const Wt::Asio::error_code& error)
 {
-  SSL* ssl = 0;
-#if BOOST_VERSION >= 104700
-  ssl = socket_.native_handle();
-#else //BOOST_VERSION < 104700
-  if(socket_.impl())
-    ssl = socket_.impl()->ssl;
-#endif //BOOST_VERSION >= 104700
+  SSL* ssl = socket_.native_handle();
 
   if (!error) {
     Connection::start();
@@ -106,7 +90,7 @@ void SslConnection::stop()
   std::shared_ptr<SslConnection> sft 
     = std::dynamic_pointer_cast<SslConnection>(shared_from_this());
 
-  sslShutdownTimer_.expires_from_now(asio_timer_seconds(1));
+  sslShutdownTimer_.expires_from_now(std::chrono::seconds(1));
   sslShutdownTimer_.async_wait
     (strand_.wrap(std::bind(&SslConnection::stopNextLayer,
 			    sft, std::placeholders::_1)));
@@ -117,7 +101,7 @@ void SslConnection::stop()
 				    std::placeholders::_1)));
 }
 
-void SslConnection::stopNextLayer(const boost::system::error_code& ec)
+void SslConnection::stopNextLayer(const Wt::Asio::error_code& ec)
 {
   // We may get here either because of sslShutdownTimer_ timing out, or because
   // shutdown is complete. In both cases, closing next layer socket is the thing to do.
@@ -129,14 +113,14 @@ void SslConnection::stopNextLayer(const boost::system::error_code& ec)
   }
   try {
     if (socket().is_open()) {
-      boost::system::error_code ignored_ec;
+      Wt::Asio::error_code ignored_ec;
       LOG_DEBUG(socket().native() << ": socket shutdown");
-      socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, 
+      socket().shutdown(asio::ip::tcp::socket::shutdown_both, 
 			ignored_ec);
       LOG_DEBUG(socket().native() << "closing socket");
       socket().close();
     }
-  } catch (asio_system_error& e) {
+  } catch (Wt::Asio::system_error& e) {
     LOG_DEBUG(socket().native() << ": error " << e.what());
   }
 }
@@ -160,7 +144,7 @@ void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 				     std::placeholders::_2)));
 }
 
-void SslConnection::handleReadRequestSsl(const asio_error_code& e,
+void SslConnection::handleReadRequestSsl(const Wt::Asio::error_code& e,
                                          std::size_t bytes_transferred)
 {
   // Asio SSL does not perform a write until the read handler
@@ -198,7 +182,7 @@ void SslConnection::startAsyncReadBody(ReplyPtr reply,
 }
 
 void SslConnection::handleReadBodySsl(ReplyPtr reply,
-				      const asio_error_code& e,
+                                      const Wt::Asio::error_code& e,
                                       std::size_t bytes_transferred)
 {
   // See handleReadRequestSsl for explanation

@@ -17,12 +17,6 @@
 #ifndef HTTP_SERVER_HPP
 #define HTTP_SERVER_HPP
 
-#ifdef HTTP_WITH_SSL
-#include <boost/asio.hpp>
-#include <boost/asio/ssl.hpp>
-namespace asio = boost::asio;
-#endif // HTTP_WITH_SSL
-
 #include <string>
 
 #include "TcpConnection.h"
@@ -36,13 +30,6 @@ namespace asio = boost::asio;
 #include "RequestHandler.h"
 
 #include "Wt/WLogger.h"
-
-#if BOOST_VERSION >= 104900
-#include <boost/asio/steady_timer.hpp>
-typedef boost::asio::steady_timer asio_timer;
-#else
-typedef boost::asio::deadline_timer asio_timer;
-#endif
 
 namespace http {
 namespace server {
@@ -91,15 +78,15 @@ private:
 
   /// Connected to the parent, sends the listening port back
   void handleConnected(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-		       const asio_error_code& e);
+                       const Wt::Asio::error_code& e);
 
   /// The port has been sent to the parent, close the socket.
   void handlePortSent(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-		      const asio_error_code& e,
+                      const Wt::Asio::error_code& e,
 		      const std::shared_ptr<std::string>& /* buf */);
 
   /// Handle completion of an asynchronous accept operation.
-  void handleTcpAccept(const asio_error_code& e);
+  void handleTcpAccept(const Wt::Asio::error_code& e);
 
   /// Handle a request to stop the server.
   void handleStop();
@@ -108,7 +95,7 @@ private:
   void handleResume();
 
   /// Expire sessions periodically for dedicated processes
-  void expireSessions(boost::system::error_code ec);
+  void expireSessions(Wt::Asio::error_code ec);
 
   /// The server's configuration
   Configuration config_;
@@ -133,15 +120,15 @@ private:
   asio::ip::tcp::acceptor ssl_acceptor_;
 
   /// Handle completion of an asynchronous SSL accept operation.
-  void handleSslAccept(const asio_error_code& e);
+  void handleSslAccept(const Wt::Asio::error_code& e);
 
   /// The next SSL connection to be accepted.
   SslConnectionPtr new_sslconnection_;
 #endif // HTTP_WITH_SSL
 
-void handleTimeout(asio_timer *timer,
+void handleTimeout(asio::steady_timer *timer,
 		   const std::function<void ()>& function,
-		   const asio_error_code& err);
+                   const Wt::Asio::error_code& err);
 
   /// The connection manager which owns all live connections.
   ConnectionManager connection_manager_;
@@ -157,7 +144,7 @@ void handleTimeout(asio_timer *timer,
 
   /// For dedicated process deployment: timer to periodically
   /// call WebController::expireSessions()
-  asio_timer expireSessionsTimer_;
+  asio::steady_timer expireSessionsTimer_;
 };
 
 } // namespace server

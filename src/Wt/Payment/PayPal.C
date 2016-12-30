@@ -339,7 +339,7 @@ std::string PayPalExpressCheckout::toString(PaymentAction action)
 }
 
 
-void PayPalExpressCheckout::handleSetup(boost::system::error_code err,
+void PayPalExpressCheckout::handleSetup(Wt::Asio::error_code err,
 					const Http::Message& response)
 {
   Result result;
@@ -453,7 +453,7 @@ Signal<Result>& PayPalExpressCheckout::updateCustomerDetails()
 }
 
 void PayPalExpressCheckout::handleCustomerDetails(
-  boost::system::error_code err,
+  Wt::Asio::error_code err,
   const Http::Message& response)
 {
   Result result;
@@ -547,7 +547,7 @@ Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
 }
 
 void PayPalExpressCheckout::handleCompletePayment(
-  boost::system::error_code err, const Http::Message& response)
+  Wt::Asio::error_code err, const Http::Message& response)
 {
 
   LOG_DEBUG("handleCompletePayment ::Received response: "
@@ -585,7 +585,7 @@ JSignal<int>& PayPalExpressCheckout::redirected()
   return impl_->redirected_;
 }
 
-Result PayPalExpressCheckout::testMessage(boost::system::error_code err,
+Result PayPalExpressCheckout::testMessage(Wt::Asio::error_code err,
                    const Http::Message& response)
 {
   Result result;

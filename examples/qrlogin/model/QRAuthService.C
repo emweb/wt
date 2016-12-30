@@ -122,7 +122,7 @@ void QRAuthService::remoteLogin(QRTokenDatabase& database,
   }
 }
 
-void QRAuthService::handleHttpResponse(boost::system::error_code err,
+void QRAuthService::handleHttpResponse(Wt::Asio::error_code err,
 				       const Http::Message& response,
 				       Http::Client *client) const
 {

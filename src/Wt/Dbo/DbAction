@@ -29,7 +29,7 @@ struct persist
 };
 
 template <class A>
-struct action_sets_value : boost::false_type { };
+struct action_sets_value : std::false_type { };
 
 class SqlStatement;
 
@@ -144,7 +144,7 @@ protected:
 };
 
 template <>
-struct action_sets_value<LoadBaseAction> : boost::true_type { };
+struct action_sets_value<LoadBaseAction> : std::true_type { };
 
 template <class C>
 class LoadDbAction : public LoadBaseAction
@@ -164,7 +164,7 @@ private:
 };
 
 template <class C>
-struct action_sets_value<LoadDbAction<C> > : boost::true_type { };
+struct action_sets_value<LoadDbAction<C> > : std::true_type { };
 
 class WTDBO_API SaveBaseAction : public DboAction
 {
@@ -294,7 +294,7 @@ private:
 };
 
 template <>
-struct action_sets_value<SetReciproceAction> : boost::true_type { };
+struct action_sets_value<SetReciproceAction> : std::true_type { };
 
 class WTDBO_API ToAnysAction
 {
@@ -353,7 +353,7 @@ private:
 };
 
 template <>
-struct action_sets_value<FromAnyAction> : boost::true_type { };
+struct action_sets_value<FromAnyAction> : std::true_type { };
 
 template<typename V>
 void SaveBaseAction::act(const FieldRef<V>& field)

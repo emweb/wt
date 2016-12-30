@@ -23,8 +23,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/asio.hpp>
-namespace asio = boost::asio;
+#include <Wt/Asio/asio.hpp>
 
 #ifdef WTHTTP_WITH_ZLIB
 #include <zlib.h>
@@ -40,6 +39,8 @@ namespace asio = boost::asio;
 
 namespace http {
 namespace server {
+
+namespace asio = Wt::Asio::asio;
 
 class Configuration;
 class Connection;

@@ -59,7 +59,7 @@ public:
 private:
   std::unique_ptr<Http::Client> httpClient_;
 
-  void handleMe(boost::system::error_code err, const Http::Message& response)
+  void handleMe(Wt::Asio::error_code err, const Http::Message& response)
   {
 #ifndef WT_TARGET_JAVA
     WApplication::instance()->resumeRendering();

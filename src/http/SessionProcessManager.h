@@ -8,18 +8,11 @@
 #ifndef HTTP_SESSION_PROCESS_MANAGER_HPP
 #define HTTP_SESSION_PROCESS_MANAGER_HPP
 
-#include <boost/asio.hpp>
-
 #include "../web/Configuration.h"
 #include "SessionProcess.h"
 #include "Wt/WServer.h"
 
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
-#include <boost/asio/steady_timer.hpp>
-typedef boost::asio::steady_timer asio_timer;
-#else
-typedef boost::asio::deadline_timer asio_timer;
-#endif
+#include "Wt/Asio/steady_timer.hpp"
 
 namespace http {
 namespace server {
@@ -31,7 +24,7 @@ typedef std::vector<std::shared_ptr<SessionProcess> > SessionProcessList;
 class SessionProcessManager
 {
 public:
-  SessionProcessManager(boost::asio::io_service &ioService,
+  SessionProcessManager(asio::io_service &ioService,
 			const Wt::Configuration& configuration);
 
   SessionProcessManager(const SessionProcessManager&) = delete;
@@ -48,7 +41,7 @@ public:
   std::vector<Wt::WServer::SessionInfo> sessions() const;
 
 private:
-  void processDeadChildren(boost::system::error_code ec);
+  void processDeadChildren(Wt::Asio::error_code ec);
 #ifndef WT_WIN32
   void removeSessionForPid(pid_t cpid);
 #endif
@@ -59,9 +52,9 @@ private:
   SessionProcessList pendingProcesses_; // Processes that have started up, but are not mapped to a session yet
   SessionMap sessions_;
 #if !defined(WT_WIN32) && BOOST_VERSION >= 104700
-  boost::asio::signal_set signals_;
+  asio::signal_set signals_;
 #else
-  asio_timer timer_;
+  asio::steady_timer timer_;
 #endif
 
   int numSessions_;

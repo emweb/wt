@@ -3370,18 +3370,20 @@ void WCartesianChart::renderCurveLabels(WPainter &painter) const
 
 	// Find the right x and y segment
 	int xSegment = 0;
-	while (xSegment < axis(Axis::X).segmentCount() && 
-	       (axis(Axis::X).segments_[xSegment].renderMinimum > label.point().x() || 
-		axis(Axis::X).segments_[xSegment].renderMaximum < label.point().x())) {
-	  ++xSegment;
-	}
+	if (!isInteractive())
+	  while (xSegment < axis(Axis::X).segmentCount() && 
+		 (axis(Axis::X).segments_[xSegment].renderMinimum > label.point().x() || 
+		  axis(Axis::X).segments_[xSegment].renderMaximum < label.point().x())) {
+	    ++xSegment;
+	  }
 
 	int ySegment = 0;
-	while (ySegment < axis(series.axis()).segmentCount() && 
-	       (axis(series.axis()).segments_[ySegment].renderMinimum > label.point().y() || 
-		axis(series.axis()).segments_[ySegment].renderMaximum < label.point().y())) {
-	  ++ySegment;
-	}
+	if (!isInteractive())
+	  while (ySegment < axis(series.axis()).segmentCount() && 
+		 (axis(series.axis()).segments_[ySegment].renderMinimum > label.point().y() || 
+		  axis(series.axis()).segments_[ySegment].renderMaximum < label.point().y())) {
+	    ++ySegment;
+	  }
 
 	// Only draw the label if it is actually on a segment
 	if (xSegment < axis(Axis::X).segmentCount() && 

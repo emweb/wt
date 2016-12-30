@@ -8,6 +8,8 @@
 #include <Wt/WIOService.h>
 #include <Wt/WServer.h>
 
+#include <Wt/Asio/asio.hpp>
+
 #include "WebController.h"
 #include "WebStream.h"
 
@@ -64,7 +66,7 @@ void WebMain::run()
       // simultaneously. Additionally, this breaks recursive event loops.
       // Asio's io_service::post does no such thing, so calling the function
       // of the superclass if fine.
-      static_cast<boost::asio::io_service&>(server_->ioService())
+      static_cast<Wt::Asio::asio::io_service&>(server_->ioService())
 	.post(std::bind(&WebController::handleRequest,
 	      &controller(), request));
     }

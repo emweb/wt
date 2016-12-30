@@ -20,8 +20,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <boost/asio.hpp>
-namespace asio = boost::asio;
 
 #include "Reply.h"
 

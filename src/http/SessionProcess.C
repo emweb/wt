@@ -42,8 +42,8 @@ SessionProcess::SessionProcess(asio::io_service &io_service)
 void SessionProcess::closeClientSocket()
 {
   if (socket_.get()) {
-    boost::system::error_code ignored_ec;
-    socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    Wt::Asio::error_code ignored_ec;
+    socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket_->close();
     socket_.reset();
   }
@@ -71,7 +71,7 @@ void SessionProcess::asyncExec(const Configuration &config,
 			       const std::function<void (bool)>& onReady)
 {
   asio::ip::tcp::endpoint endpoint(asio::ip::address_v4::loopback(), 0);
-  boost::system::error_code ec;
+  Wt::Asio::error_code ec;
   acceptor_->open(endpoint.protocol(), ec);
   if (!ec)
     acceptor_->set_option(asio::ip::tcp::acceptor::reuse_address(true), ec);
@@ -98,7 +98,7 @@ void SessionProcess::asyncExec(const Configuration &config,
   exec(config, onReady);
 }
 
-void SessionProcess::acceptHandler(const boost::system::error_code& err,
+void SessionProcess::acceptHandler(const Wt::Asio::error_code& err,
 				   const std::function<void (bool)>& onReady)
 {
   if (!err) {
@@ -112,7 +112,7 @@ void SessionProcess::acceptHandler(const boost::system::error_code& err,
   }
 }
 
-void SessionProcess::readPortHandler(const boost::system::error_code& err,
+void SessionProcess::readPortHandler(const Wt::Asio::error_code& err,
 				     std::size_t transferred,
 				     const std::function<void (bool)>& onReady)
 {
@@ -154,7 +154,7 @@ void SessionProcess::exec(const Configuration& config,
   c_options[i] = 0;
 
 #if BOOST_VERSION >= 104700
-  io_service_.notify_fork(boost::asio::io_service::fork_prepare);
+  io_service_.notify_fork(asio::io_service::fork_prepare);
 #endif
 
   pid_ = fork();
@@ -197,7 +197,7 @@ void SessionProcess::exec(const Configuration& config,
   } else {
     /* parent process */
 #if BOOST_VERSION >= 104700
-    io_service_.notify_fork(boost::asio::io_service::fork_parent);
+    io_service_.notify_fork(asio::io_service::fork_parent);
 #endif
   }
 

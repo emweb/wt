@@ -44,7 +44,7 @@ namespace {
       done_ = false;
     }
 
-    void onDone(boost::system::error_code err, const Message& m)
+    void onDone(Wt::Asio::error_code err, const Message& m)
     {
       assert (WApplication::instance() == this);
 
@@ -75,7 +75,7 @@ namespace {
     std::condition_variable doneCondition_;
     std::mutex doneMutex_;
 
-    boost::system::error_code err_;
+    Wt::Asio::error_code err_;
     Message message_;
   };
 }

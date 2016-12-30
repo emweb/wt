@@ -18,6 +18,8 @@
 
 #include <iomanip>
 
+#include <boost/optional.hpp>
+
 //#define SCHEMA "test."
 #define SCHEMA ""
 

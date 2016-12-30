@@ -19,7 +19,7 @@
 
 #ifdef HTTP_WITH_SSL
 
-#include <boost/asio/ssl.hpp>
+#include "Wt/Asio/ssl.hpp"
 
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -61,18 +61,18 @@ protected:
        int timeout);
 
 private:
-  void handleReadRequestSsl(const asio_error_code& e,
+  void handleReadRequestSsl(const Wt::Asio::error_code& e,
                             std::size_t bytes_transferred);
-  void handleReadBodySsl(ReplyPtr reply, const asio_error_code& e,
+  void handleReadBodySsl(ReplyPtr reply, const Wt::Asio::error_code& e,
                          std::size_t bytes_transferred);
-  void handleHandshake(const asio_error_code& error);
-  void stopNextLayer(const boost::system::error_code& ec);
+  void handleHandshake(const Wt::Asio::error_code& error);
+  void stopNextLayer(const Wt::Asio::error_code& ec);
 
   /// Socket for the connection.
   ssl_socket socket_;
 
   // SSL shutdown takes many seconds sometimes. Put a limit on it.
-  asio_timer sslShutdownTimer_;
+  asio::steady_timer sslShutdownTimer_;
 };
 
 typedef std::shared_ptr<SslConnection> SslConnectionPtr;

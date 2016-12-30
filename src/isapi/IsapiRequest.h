@@ -47,7 +47,7 @@ public:
 
   virtual const char *headerValue(const char *name) const;
 
-  virtual Wt::Http::HeaderMap headers() const;
+  virtual std::vector<Wt::Http::Message::Header> headers() const;
 
   virtual const char *envValue(const char *name) const;
 

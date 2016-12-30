@@ -89,7 +89,7 @@ void Connection::start()
     LOG_ERROR("remote_endpoint() threw: " << e.what());
   }
 
-  asio_error_code ignored_ec;
+  Wt::Asio::error_code ignored_ec;
   socket().set_option(asio::ip::tcp::no_delay(true), ignored_ec);
 
   rcv_buffers_.push_back(Buffer());
@@ -143,7 +143,7 @@ void Connection::cancelWriteTimer()
   writeTimer_.cancel();
 }
 
-void Connection::timeout(const asio_error_code& e)
+void Connection::timeout(const Wt::Asio::error_code& e)
 {
   if (e != asio::error::operation_aborted)
     strand_.post(std::bind(&Connection::doTimeout, shared_from_this()));
@@ -151,7 +151,7 @@ void Connection::timeout(const asio_error_code& e)
 
 void Connection::doTimeout()
 {
-  asio_error_code ignored_ec;
+  Wt::Asio::error_code ignored_ec;
   socket().shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
   readTimer_.cancel();
   writeTimer_.cancel();
@@ -208,7 +208,7 @@ void Connection::handleReadRequest0()
 	reply = request_handler_.handleRequest
 	  (request_, lastWtReply_, lastProxyReply_, lastStaticReply_);
 	reply->setConnection(shared_from_this());
-      } catch (asio_system_error& e) {
+      } catch (Wt::Asio::system_error& e) {
 	LOG_ERROR("Error in handleRequest0(): " << e.what());
 	handleError(e.code());
 	return;
@@ -239,7 +239,7 @@ void Connection::sendStockReply(StockReply::status_type status)
   startWriteResponse(reply);
 }
 
-void Connection::handleReadRequest(const asio_error_code& e,
+void Connection::handleReadRequest(const Wt::Asio::error_code& e,
 				   std::size_t bytes_transferred)
 {
   LOG_DEBUG(socket().native() << ": handleReadRequest(): " << e.message());
@@ -272,7 +272,7 @@ bool Connection::closed() const
   return !self->socket().is_open();
 }
 
-void Connection::handleError(const asio_error_code& e)
+void Connection::handleError(const Wt::Asio::error_code& e)
 {
   LOG_DEBUG(socket().native() << ": error: " << e.message());
 
@@ -318,7 +318,7 @@ bool Connection::readAvailable()
   try {
     return (rcv_remaining_ < rcv_buffers_.back().data() + rcv_buffer_size_)
       || socket().available();
-  } catch (asio_system_error& e) {
+  } catch (Wt::Asio::system_error& e) {
     return false; // socket(): bad file descriptor
   }
 }
@@ -335,7 +335,7 @@ void Connection::detectDisconnect(ReplyPtr reply,
 }
 
 void Connection::handleReadBody0(ReplyPtr reply,
-				 const asio_error_code& e,
+                                 const Wt::Asio::error_code& e,
 				 std::size_t bytes_transferred)
 {
   LOG_DEBUG(socket().native() << ": handleReadBody0(): " << e.message());
@@ -447,7 +447,7 @@ void Connection::handleWriteResponse(ReplyPtr reply)
 }
 
 void Connection::handleWriteResponse0(ReplyPtr reply,
-				      const asio_error_code& e,
+                                      const Wt::Asio::error_code& e,
 				      std::size_t bytes_transferred)
 {
   LOG_DEBUG(socket().native() << ": handleWriteResponse0(): "

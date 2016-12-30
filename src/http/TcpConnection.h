@@ -17,9 +17,6 @@
 #ifndef HTTP_TCP_CONNECTION_HPP
 #define HTTP_TCP_CONNECTION_HPP
 
-#include <boost/asio.hpp>
-namespace asio = boost::asio;
-
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>

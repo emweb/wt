@@ -13,8 +13,6 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <boost/asio.hpp>
-
 #include <Wt/WIOService.h>
 #include <Wt/WServer.h>
 
@@ -23,21 +21,9 @@
 #include "WebController.h"
 #include "WebUtils.h"
 
-#ifdef HTTP_WITH_SSL
-
-#include <boost/asio/ssl.hpp>
-
-#endif // HTTP_WITH_SSL
-
-#if BOOST_VERSION >= 104900
-typedef std::chrono::seconds asio_timer_seconds;
-#else
-typedef boost::posix_time::seconds asio_timer_seconds;
-#endif
-
 namespace {
-  std::string bindError(asio::ip::tcp::endpoint ep, 
-			boost::system::system_error e) {
+  std::string bindError(Wt::Asio::asio::ip::tcp::endpoint ep,
+			Wt::Asio::system_error e) {
     std::stringstream ss;
     ss << "Error occurred when binding to " 
        << ep.address().to_string() 
@@ -49,13 +35,9 @@ namespace {
   }
 
 #ifdef HTTP_WITH_SSL
-  SSL_CTX *nativeContext(asio::ssl::context& context)
+  SSL_CTX *nativeContext(Wt::Asio::asio::ssl::context& context)
   {
-#if BOOST_VERSION >= 104700
     return context.native_handle();
-#else //BOOST_VERSION < 104700
-    return context.impl();
-#endif //BOOST_VERSION >= 104700
   }
 #endif //HTTP_WITH_SSL
 
@@ -127,7 +109,7 @@ void Server::start()
 {
   if (config_.parentPort() != -1) {
     expireSessionsTimer_.expires_from_now
-      (asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
+      (std::chrono::seconds(SESSION_EXPIRE_INTERVAL));
     expireSessionsTimer_.async_wait
       (std::bind(&Server::expireSessions, this, std::placeholders::_1));
   }
@@ -164,7 +146,7 @@ void Server::start()
     tcp_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
     try {
       tcp_acceptor_.bind(tcp_endpoint);
-    } catch (boost::system::system_error e) {
+    } catch (Wt::Asio::system_error e) {
       LOG_ERROR_S(&wt_, bindError(tcp_endpoint, e));
       throw;
     }
@@ -244,7 +226,7 @@ void Server::start()
     ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
     try {
       ssl_acceptor_.bind(ssl_endpoint);
-    } catch (boost::system::system_error e) {
+    } catch (Wt::Asio::system_error e) {
       LOG_ERROR_S(&wt_, bindError(ssl_endpoint, e);)
       throw;
     }
@@ -320,7 +302,7 @@ void Server::startConnect(const std::shared_ptr<asio::ip::tcp::socket>& socket)
 
 void Server
 ::handleConnected(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-		  const asio_error_code& err)
+                  const Wt::Asio::error_code& err)
 {
   if (!err) {
     std::shared_ptr<std::string> buf
@@ -336,7 +318,7 @@ void Server
 
 void Server
 ::handlePortSent(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-		 const asio_error_code& err,
+                 const Wt::Asio::error_code& err,
 		 const std::shared_ptr<std::string>& /*buf*/)
 {
   if (err) {
@@ -344,9 +326,9 @@ void Server
 		<< err.message());
   }
 
-  boost::system::error_code ignored_ec;
+  Wt::Asio::error_code ignored_ec;
   if (socket.get()) {
-    socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    socket->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket->close();
   }
 }
@@ -382,7 +364,7 @@ void Server::handleResume()
   start();
 }
 
-void Server::handleTcpAccept(const asio_error_code& e)
+void Server::handleTcpAccept(const Wt::Asio::error_code& e)
 {
   if (!e) {
     connection_manager_.start(new_tcpconnection_);
@@ -397,7 +379,7 @@ void Server::handleTcpAccept(const asio_error_code& e)
 }
 
 #ifdef HTTP_WITH_SSL
-void Server::handleSslAccept(const asio_error_code& e)
+void Server::handleSslAccept(const Wt::Asio::error_code& e)
 {
   if (!e)
   {
@@ -432,7 +414,7 @@ void Server::handleStop()
   connection_manager_.stopAll();
 }
 
-void Server::expireSessions(boost::system::error_code ec)
+void Server::expireSessions(Wt::Asio::error_code ec)
 {
   LOG_DEBUG_S(&wt_, "expireSession()" << ec.message());
 
@@ -441,7 +423,7 @@ void Server::expireSessions(boost::system::error_code ec)
       wt_.scheduleStop();
     else {
       expireSessionsTimer_.expires_from_now
-	(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
+        (std::chrono::seconds(SESSION_EXPIRE_INTERVAL));
       expireSessionsTimer_.async_wait
 	(std::bind(&Server::expireSessions, this, std::placeholders::_1));
     }

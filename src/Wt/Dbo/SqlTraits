@@ -15,6 +15,10 @@
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+      // Hiding boost usage
+      extern WTDBO_API std::string::const_iterator ifind_last_as(const std::string &name);
+    }
 
 class Session;
 class SqlStatement;

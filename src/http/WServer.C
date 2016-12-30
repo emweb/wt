@@ -4,8 +4,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/asio.hpp>
-
 #include "Wt/WIOService.h"
 #include "Wt/WServer.h"
 
@@ -170,7 +168,7 @@ bool WServer::start()
 					      *this);
 
 #ifndef WT_THREADED
-    LOG_WARN("No boost thread support, running in main thread.");
+    LOG_WARN("No thread support, running in main thread.");
 #endif // WT_THREADED
 
     webController_->start();
@@ -188,7 +186,7 @@ bool WServer::start()
     return true;
 #endif // WT_THREADED
 
-  } catch (asio_system_error& e) {
+  } catch (Wt::Asio::system_error& e) {
     throw Exception(std::string("Error (asio): ") + e.what());
   } catch (std::exception& e) {
     throw Exception(std::string("Error: ") + e.what());
@@ -231,7 +229,7 @@ void WServer::stop()
 
     delete impl_->server_;
     impl_->server_ = 0;
-  } catch (asio_system_error& e) {
+  } catch (Wt::Asio::system_error& e) {
     throw Exception(std::string("Error (asio): ") + e.what());
   } catch (std::exception& e) {
     throw Exception(std::string("Error: ") + e.what());

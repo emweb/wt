@@ -467,12 +467,12 @@ const char *IsapiRequest::headerValue(const char *name) const
   return retval ? retval->c_str() : 0;
 }
 
-Wt::Http::HeaderMap IsapiRequest::headers() const
+std::vector<Wt::Http::Message::Header> IsapiRequest::headers() const
 {
-  Wt::Http::HeaderMap headerMap;
+  std::vector<Wt::Http::Message::Header> headerVec;
   std::string *pAllRaw = persistentEnvValue("ALL_RAW");
   if (!pAllRaw)
-    return headerMap;
+    return headerVec;
   std::string all_raw = *pAllRaw;
 
   std::size_t headerStart = 0;
@@ -481,13 +481,13 @@ Wt::Http::HeaderMap IsapiRequest::headers() const
     std::size_t colonPos = all_raw.find(':', headerStart);
     std::string name = all_raw.substr(headerStart, colonPos - headerStart);
     std::string value = all_raw.substr(colonPos + 2, headerEnd - (colonPos + 2));
-    headerMap[name] = value;
+    headerVec.push_back(Wt::Http::Message::Header(name, value));
 
     headerStart = headerEnd + 2;
     headerEnd = all_raw.find("\r\n", headerEnd + 2);
   }
 
-  return headerMap;
+  return headerVec;
 }
 
 std::string *IsapiRequest::persistentEnvValue(const char *hdr) const

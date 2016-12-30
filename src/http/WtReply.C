@@ -4,10 +4,6 @@
  * All rights reserved.
  */
 
-// work-around for:
-// http://groups.google.com/group/boost-list/browse_thread/thread/8eb0cc99bcda9d41?fwc=2&pli=1
-#include <boost/asio.hpp>
-
 #include "Wt/WServer.h"
 #include "WtReply.h"
 #include "StockReply.h"
@@ -532,7 +528,7 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
   bool webSocket = request().type == Request::WebSocket;
   if (webSocket) {
     std::size_t size = sending_;
-	std::vector<boost::asio::const_buffer> buffers;
+	std::vector<asio::const_buffer> buffers;
 
     LOG_DEBUG("ws: sending a message, length = " << size);
 
@@ -556,8 +552,8 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
 #ifdef WTHTTP_WITH_ZLIB
 	} else  {
 	  result.push_back(asio::buffer(&misc_strings::char0xC1, 1)); // RSV1 = 1
-	  const unsigned char* data = boost::asio::buffer_cast<const unsigned char*>(out_buf_.data());
-	  int size = boost::asio::buffer_size(out_buf_.data());
+	  const unsigned char* data = asio::buffer_cast<const unsigned char*>(out_buf_.data());
+	  int size = asio::buffer_size(out_buf_.data());
 	  bool hasMore = false;
 	  payloadLength = 0;
 	  do {

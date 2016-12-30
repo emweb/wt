@@ -28,7 +28,6 @@ WFileDropWidget::File::File(int id, const std::string& fileName,
     clientFileName_(fileName),
     type_(type),
     size_(size),
-    uploadedFile_("","",""),
     uploadFinished_(false),
     cancelled_(false)
 { }
@@ -67,7 +66,11 @@ NestedResource::WFileDropUploadResource(WFileDropWidget *fileDropWidget)
 void NestedResource::handleRequest(const Http::Request& request,
 				   Http::Response& response)
 {
+#ifndef WT_TARGET_JAVA
   WApplication::UpdateLock lock(WApplication::instance());
+#else
+  WApplication::UpdateLock lock = WApplication::instance()->getUpdateLock();
+#endif
   const std::string *fileId = request.getParameter("file-id");
   if (fileId == 0 || (*fileId).empty()) {
     response.setStatus(404);
@@ -91,6 +94,9 @@ void NestedResource::handleRequest(const Http::Request& request,
   // WServer::instance()->post(app_->sessionId(),
   // 			    boost::bind(&WFileDropWidget::setUploadedFile,
   // 					parent_, files[0]));
+#ifdef WT_TARGET_JAVA
+  lock.release();
+#endif  
 }
 
 
@@ -129,7 +135,11 @@ WFileDropWidget::WFileDropWidget()
 
 void WFileDropWidget::handleDrop(const std::string& newDrops)
 {
+#ifndef WT_TARGET_JAVA
   Json::Value dropdata;
+#else
+  Json::Value& dropdata;
+#endif
   Json::parse(newDrops, dropdata);
 
   std::vector<File*> drops;
@@ -142,6 +152,7 @@ void WFileDropWidget::handleDrop(const std::string& newDrops)
     std::string name, type;
     for (Json::Object::iterator it = upload.begin(); it != upload.end();
 	 it++) {
+#ifndef WT_TARGET_JAVA
       if (it->first == "id")
 	id = it->second;
       else if (it->first == "filename")
@@ -150,6 +161,16 @@ void WFileDropWidget::handleDrop(const std::string& newDrops)
 	type = (std::string)it->second;
       else if (it->first == "size")
 	size = (long long)it->second;
+#else
+      if (it->first == "id")
+	id = it->second.getAsInt();
+      else if (it->first == "filename")
+	name = it->second.getAsString();
+      else if (it->first == "type")
+	type = it->second.getAsString();
+      else if (it->first == "size")
+	size = it->second.getAsLong();
+#endif
       else
 	throw std::exception();
     }
@@ -255,16 +276,14 @@ void WFileDropWidget::cancelUpload(File *file)
   
 bool WFileDropWidget::remove(File *file)
 {
-  std::vector<File*>::iterator last = uploads_.begin() + currentFileIdx_;
-  std::vector<File*>::iterator it = std::find(uploads_.begin(), last, file);
-
-  if (it != last) {
-    uploads_.erase(it);
-    currentFileIdx_--;
-    return true;
-  } else {
-    return false;
+  for (unsigned i=0; i < currentFileIdx_; i++) {
+    if (uploads_[i] == file) {
+      uploads_.erase(uploads_.begin()+i);
+      currentFileIdx_--;
+      return true;
+    }
   }
+  return false;
 }
 
 void WFileDropWidget::onData(::uint64_t current, ::uint64_t total)

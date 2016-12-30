@@ -5,8 +5,6 @@
  */
 
 #ifndef WT_TARGET_JAVA
-// bugfix for https://svn.boost.org/trac/boost/ticket/5722
-#include <boost/asio.hpp>
 #include "Wt/WIOService.h"
 #endif // WT_TARGET_JAVA
 

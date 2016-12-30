@@ -7,14 +7,10 @@
 #ifndef WCORE_SERVER_H_
 #define WCORE_SERVER_H_
 
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/strand.hpp>
-
-#if BOOST_VERSION >= 104900
-#include <boost/asio/steady_timer.hpp>
-#else
-#include <boost/asio/deadline_timer.hpp>
-#endif
+#include <Wt/Asio/io_service.hpp>
+#include <Wt/Asio/steady_timer.hpp>
+#include <Wt/Asio/strand.hpp>
+#include <Wt/Asio/system_error.hpp>
 
 #include <Wt/WDllDefs.h>
 
@@ -25,9 +21,9 @@ class WIOServiceImpl;
 /**! \class WIOService Wt/WIOService Wt/WIOService
  *   \brief An I/O service.
  *
- * An I/O service combines a boost::asio::io_service with a thread pool.
+ * An I/O service combines (boost::)asio::io_service with a thread pool.
  */
-class WT_API WIOService : public boost::asio::io_service
+class WT_API WIOService : public Wt::Asio::asio::io_service
 {
 public:
   /*! \brief Creates a new IO service.
@@ -98,15 +94,9 @@ public:
 private:
   WIOServiceImpl *impl_;
   strand strand_;
-#if BOOST_VERSION >= 104900
-  void handleTimeout(boost::asio::steady_timer *timer,
+  void handleTimeout(Wt::Asio::asio::steady_timer *timer,
 		     const std::function<void ()>& function,
-		     const boost::system::error_code& e);
-#else
-  void handleTimeout(boost::asio::deadline_timer *timer,
-                     const std::function<void ()>& function,
-                     const boost::system::error_code& e);
-#endif
+		     const Wt::Asio::error_code& e);
   void run();
 };
 

@@ -17,9 +17,24 @@
 #include <vector>
 #include <string>
 
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index/member.hpp>
+
 namespace Wt {
   namespace Dbo {
     namespace Impl {
+
+struct MetaDboBaseSet : public boost::multi_index::multi_index_container<
+    MetaDboBase *,
+    boost::multi_index::indexed_by<
+      boost::multi_index::sequenced<>,
+      boost::multi_index::hashed_unique
+      <boost::multi_index::identity<MetaDboBase *> >
+    >
+  >
+{ };
 
 std::string& replace(std::string& s, char c, const std::string& r)
 {
@@ -125,6 +140,7 @@ Session::Session()
   : schemaInitialized_(false),
     //useRowsFromTo_(false),
     requireSubqueryAlias_(false),
+    dirtyObjects_(new Impl::MetaDboBaseSet()),
     connection_(nullptr),
     connectionPool_(nullptr),
     transaction_(nullptr),
@@ -133,16 +149,17 @@ Session::Session()
 
 Session::~Session()
 {
-  if (!dirtyObjects_.empty())
+  if (!dirtyObjects_->empty())
     std::cerr << "Icon::Warning: Wt::Dbo::Session exiting with "
-	      << dirtyObjects_.size() << " dirty objects" << std::endl;
+	      << dirtyObjects_->size() << " dirty objects" << std::endl;
 
-  while (!dirtyObjects_.empty()) {
-    MetaDboBase *b = *dirtyObjects_.begin();
+  while (!dirtyObjects_->empty()) {
+    MetaDboBase *b = *dirtyObjects_->begin();
     b->decRef();
   }
 
-  dirtyObjects_.clear();
+  dirtyObjects_->clear();
+  delete dirtyObjects_;
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
@@ -188,7 +205,7 @@ void Session::returnConnection(std::unique_ptr<SqlConnection> connection)
 
 void Session::discardChanges(MetaDboBase *obj)
 {
-  MetaDboBaseSet::nth_index<1>::type& setIndex = dirtyObjects_.get<1>();
+  Impl::MetaDboBaseSet::nth_index<1>::type& setIndex = dirtyObjects_->get<1>();
 
   if (setIndex.erase(obj) > 0)
     obj->decRef();
@@ -1086,8 +1103,8 @@ Impl::MappingInfo *Session::getMapping(const char *tableName) const
 
 void Session::needsFlush(MetaDboBase *obj)
 {
-  typedef MetaDboBaseSet::nth_index<1>::type Set;
-  Set& setIndex = dirtyObjects_.get<1>();
+  typedef Impl::MetaDboBaseSet::nth_index<1>::type Set;
+  Set& setIndex = dirtyObjects_->get<1>();
 
   std::pair<Set::iterator, bool> inserted = setIndex.insert(obj);
 
@@ -1106,10 +1123,10 @@ void Session::needsFlush(MetaDboBase *obj)
   // objects are being deleted
   if (obj->isDeleted()) {
     // was an existing entry, move to back
-    typedef MetaDboBaseSet::nth_index<0>::type List;
-    List& listIndex = dirtyObjects_.get<0>();
+    typedef Impl::MetaDboBaseSet::nth_index<0>::type List;
+    List& listIndex = dirtyObjects_->get<0>();
 
-    List::iterator i = dirtyObjects_.project<0>(inserted.first);
+    List::iterator i = dirtyObjects_->project<0>(inserted.first);
 
     listIndex.splice(listIndex.end(), listIndex, i);
   }
@@ -1122,11 +1139,11 @@ void Session::flush()
 
   objectsToAdd_.clear();
 
-  while (!dirtyObjects_.empty()) {
-    MetaDboBaseSet::iterator i = dirtyObjects_.begin();
+  while (!dirtyObjects_->empty()) {
+    Impl::MetaDboBaseSet::iterator i = dirtyObjects_->begin();
     MetaDboBase *dbo = *i;
     dbo->flush();
-    dirtyObjects_.erase(i);
+    dirtyObjects_->erase(i);
     dbo->decRef();
   }
 }

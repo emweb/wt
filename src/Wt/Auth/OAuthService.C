@@ -335,7 +335,7 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
   }
 }
 
-void OAuthProcess::handleToken(boost::system::error_code err,
+void OAuthProcess::handleToken(Wt::Asio::error_code err,
 			       const Http::Message& response)
 {
   if (!err)

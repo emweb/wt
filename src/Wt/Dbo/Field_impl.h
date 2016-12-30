@@ -101,7 +101,7 @@ struct LoadLazyHelper
 };
 
 template <class C, class A>
-struct LoadLazyHelper<C, A, typename boost::enable_if<action_sets_value<A> >::type>
+struct LoadLazyHelper<C, A, typename std::enable_if<action_sets_value<A>::value >::type>
 {
   static void loadLazy(ptr<C>& p, typename dbo_traits<C>::IdType id,
 		       Session *session) {

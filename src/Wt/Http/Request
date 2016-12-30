@@ -14,6 +14,8 @@
 #include <sstream>
 #include <vector>
 
+#include <Wt/Http/Message.h>
+
 #include <Wt/WDllDefs.h>
 
 namespace Wt {
@@ -62,6 +64,8 @@ typedef std::map<std::string,std::string, ci_comp> HeaderMap;
  */
 class WT_API UploadedFile {
 public:
+  UploadedFile();
+  
   UploadedFile(const std::string& spoolFileName,
 	       const std::string& clientFileName,
 	       const std::string& contentType);
@@ -386,7 +390,7 @@ public:
    * \note Use headerValue() if you need to know the value of certain known headers.
    *       This method is not written to be efficient, but can be useful for debugging.
    */
-  HeaderMap headers() const;
+  std::vector<Message::Header> headers() const;
 #endif
 
   /*! \brief Returns the request method.

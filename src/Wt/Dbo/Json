@@ -59,11 +59,11 @@ public:
     Session *session() { return session_; }
 
     template<typename T>
-    typename boost::disable_if< boost::is_enum<T>, void>::type
+    typename std::enable_if< !std::is_enum<T>::value, void>::type
     act(FieldRef<T> field);
 
     template<typename T>
-    typename boost::enable_if< boost::is_enum<T>, void>::type
+    typename std::enable_if< std::is_enum<T>::value, void>::type
     act(FieldRef<T> field) {
       writeFieldName(field.name());
       out(static_cast<int>(field.value()));

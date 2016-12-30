@@ -53,8 +53,8 @@ ProxyReply::~ProxyReply()
 void ProxyReply::closeClientSocket()
 {
   if (socket_) {
-    boost::system::error_code ignored_ec;
-    socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    Wt::Asio::error_code ignored_ec;
+    socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket_->close();
     socket_.reset();
   }
@@ -222,7 +222,7 @@ void ProxyReply::connectToChild(bool success)
 }
 
 
-void ProxyReply::handleChildConnected(const boost::system::error_code& ec)
+void ProxyReply::handleChildConnected(const Wt::Asio::error_code& ec)
 {
   if (ec) {
     LOG_ERROR("error connecting to child: " << ec.message());
@@ -329,7 +329,7 @@ void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
 #endif
 }
 
-void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
+void ProxyReply::handleDataWritten(const Wt::Asio::error_code &ec,
 				   std::size_t transferred)
 {
   if (!ec) {
@@ -353,7 +353,7 @@ void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
   }
 }
 
-void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
+void ProxyReply::handleStatusRead(const Wt::Asio::error_code &ec)
 {
   if (!ec) {
     std::istream response_stream(&responseBuf_);
@@ -384,7 +384,7 @@ void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
   }
 }
 
-void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
+void ProxyReply::handleHeadersRead(const Wt::Asio::error_code &ec)
 {
   if (ec) {
     LOG_ERROR("error reading headers: " << ec.message());
@@ -458,7 +458,7 @@ void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
   send();
 }
 
-void ProxyReply::handleResponseRead(const boost::system::error_code &ec)
+void ProxyReply::handleResponseRead(const Wt::Asio::error_code &ec)
 {
   LOG_DEBUG(this << ": async_read done.");
 
@@ -468,10 +468,10 @@ void ProxyReply::handleResponseRead(const boost::system::error_code &ec)
     }
 
     send();
-  } else if (ec == boost::asio::error::eof
-	     || ec == boost::asio::error::shut_down
-	     || ec == boost::asio::error::operation_aborted
-	     || ec == boost::asio::error::connection_reset) {
+  } else if (ec == asio::error::eof
+	     || ec == asio::error::shut_down
+	     || ec == asio::error::operation_aborted
+	     || ec == asio::error::connection_reset) {
     closeClientSocket();
 
     more_ = false;

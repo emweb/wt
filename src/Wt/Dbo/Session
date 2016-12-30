@@ -11,10 +11,6 @@
 #include <set>
 #include <string>
 #include <typeinfo>
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/hashed_index.hpp>
-#include <boost/multi_index/sequenced_index.hpp>
-#include <boost/multi_index/member.hpp>
 
 #include <Wt/Dbo/ptr.h>
 #include <Wt/Dbo/Field.h>
@@ -25,6 +21,8 @@
 namespace Wt {
   namespace Dbo {
     namespace Impl {
+      struct MetaDboBaseSet;
+
       extern WTDBO_API std::string quoteSchemaDot(const std::string& table);
       template <class C, typename T> struct LoadHelper;
 
@@ -499,15 +497,6 @@ private:
   mutable bool haveSupportUpdateCascade_;
   Session(const Session& s);
 
-  typedef boost::multi_index::multi_index_container<
-    MetaDboBase *,
-    boost::multi_index::indexed_by<
-      boost::multi_index::sequenced<>,
-      boost::multi_index::hashed_unique
-      <boost::multi_index::identity<MetaDboBase *> >
-    >
-  > MetaDboBaseSet;
-
   enum { SqlInsert = 0,
 	 SqlUpdate = 1,
 	 SqlDelete = 2,
@@ -560,7 +549,7 @@ private:
   mutable LimitQuery limitQueryMethod_;
   mutable bool requireSubqueryAlias_;
 
-  MetaDboBaseSet dirtyObjects_;
+  Impl::MetaDboBaseSet *dirtyObjects_;
   std::vector<MetaDboBase*> objectsToAdd_;
   std::unique_ptr<SqlConnection> connection_;
   SqlConnectionPool *connectionPool_;

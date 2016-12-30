@@ -21,12 +21,6 @@ namespace Wt {
   LOGGER("wthttp/proxy");
 }
 
-#if BOOST_VERSION >= 104900
-typedef std::chrono::seconds asio_timer_seconds;
-#else
-typedef boost::posix_time::seconds asio_timer_seconds;
-#endif
-
 namespace http {
 namespace server {
 
@@ -38,7 +32,7 @@ namespace {
 #endif // SIGNAL_SET
 }
 
-SessionProcessManager::SessionProcessManager(boost::asio::io_service &ioService,
+SessionProcessManager::SessionProcessManager(asio::io_service &ioService,
 					     const Wt::Configuration &configuration)
   : 
 #ifdef SIGNAL_SET
@@ -54,7 +48,7 @@ SessionProcessManager::SessionProcessManager(boost::asio::io_service &ioService,
     (std::bind(&SessionProcessManager::processDeadChildren, this,
 	       std::placeholders::_1));
 #else // !SIGNAL_SET
-  timer_.expires_from_now(asio_timer_seconds(CHECK_CHILDREN_INTERVAL));
+  timer_.expires_from_now(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
   timer_.async_wait
     (std::bind(&SessionProcessManager::processDeadChildren, this,
 	       std::placeholders::_1));
@@ -77,7 +71,7 @@ bool SessionProcessManager::tryToIncrementSessionCount()
 #endif // SIGNAL_SET
   // Reap dead children, in case there are dead children,
   // and processDeadChildren hasn't been run yet.
-  processDeadChildren(boost::system::error_code());
+  processDeadChildren(Wt::Asio::error_code());
 #ifdef WT_THREADED
   std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
@@ -152,11 +146,16 @@ std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
   return result;
 }
 
-void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
+void SessionProcessManager::processDeadChildren(Wt::Asio::error_code ec)
 {
   if (ec) {
-    if (ec != boost::system::errc::operation_canceled)
+#ifdef WT_ASIO_IS_BOOST_ASIO
+    if (ec != boost::system::errc::operation_canceled) {
+#else
+    if (ec != std::errc::operation_canceled) {
+#endif
       LOG_ERROR("Error processing dead children: " << ec.message());
+    }
     return;
   }
 
@@ -216,7 +215,7 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
     (std::bind(&SessionProcessManager::processDeadChildren, this,
 	       std::placeholders::_1));
 #else // !SIGNAL_SET
-  timer_.expires_from_now(asio_timer_seconds(CHECK_CHILDREN_INTERVAL));
+  timer_.expires_from_now(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
   timer_.async_wait
     (std::bind(&SessionProcessManager::processDeadChildren, this,
 	       std::placeholders::_1));

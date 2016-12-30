@@ -8,9 +8,12 @@
 #define QR_AUTH_SERVICE_H_
 
 #include <string>
-#include <system_error>
 #include <Wt/WGlobal.h>
 #include <Wt/Http/Client.h>
+
+// #include <system_error> for standalone Asio
+// #include <boost/system/system_error.hpp> for Boost.Asio
+#include <Wt/Asio/system_error.hpp>
 
 using namespace Wt;
 
@@ -42,7 +45,7 @@ private:
   const Auth::AuthService& baseAuth_;
   std::string redirectParameter_;
 
-  void handleHttpResponse(boost::system::error_code err,
+  void handleHttpResponse(Wt::Asio::error_code err,
                           const Http::Message& response,
                           Http::Client *client) const;
 };

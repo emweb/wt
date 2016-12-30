@@ -5,7 +5,7 @@
  */
 
 // bugfix for https://svn.boost.org/trac/boost/ticket/5722
-#include <boost/asio.hpp>
+#include <Wt/Asio/asio.hpp>
 
 #include "Wt/Http/Client.h"
 #include "Wt/WApplication.h"
@@ -18,15 +18,13 @@
 #include "WebUtils.h"
 
 #include <sstream>
-#include <boost/system/error_code.hpp>
 #include <boost/algorithm/string.hpp>
 
 #ifdef WT_WITH_SSL
-#include <boost/asio/ssl.hpp>
 
-#if BOOST_VERSION >= 104700
+#include <Wt/Asio/ssl.hpp>
+
 #define VERIFY_CERTIFICATE
-#endif
 
 #endif // WT_WITH_SSL
 
@@ -34,17 +32,11 @@
 #define strcasecmp _stricmp
 #endif
 
-using boost::asio::ip::tcp;
-
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
-typedef boost::asio::steady_timer asio_timer;
-typedef std::chrono::seconds asio_timer_seconds;
-#else
-typedef boost::asio::deadline_timer asio_timer;
-typedef boost::posix_time::seconds asio_timer_seconds;
-#endif
+using Wt::Asio::asio::ip::tcp;
 
 namespace Wt {
+
+namespace asio = Asio::asio;
 
 LOGGER("Http.Client");
 
@@ -130,16 +122,16 @@ public:
       (strand_.wrap(std::bind(&Impl::stop, shared_from_this(), impl)));
   }
 
-  Signal<boost::system::error_code, Message>& done() { return done_; }
+  Signal<Wt::Asio::error_code, Message>& done() { return done_; }
   Signal<Message>& headersReceived() { return headersReceived_; }
   Signal<std::string>& bodyDataReceived() { return bodyDataReceived_; }
 
   bool hasServer() { return server_ != nullptr; }
 
 protected:
-  typedef std::function<void(const boost::system::error_code&)>
+  typedef std::function<void(const Wt::Asio::error_code&)>
     ConnectHandler;
-  typedef std::function<void(const boost::system::error_code&,
+  typedef std::function<void(const Wt::Asio::error_code&,
 			     const std::size_t&)> IOHandler;
 
   virtual tcp::socket& socket() = 0;
@@ -160,7 +152,7 @@ private:
 
     try {
       if (socket().is_open()) {
-	boost::system::error_code ignored_ec;
+	Wt::Asio::error_code ignored_ec;
 	socket().shutdown(tcp::socket::shutdown_both, ignored_ec);
 	socket().close();
       }
@@ -174,7 +166,7 @@ private:
 
   void startTimer()
   {
-    timer_.expires_from_now(asio_timer_seconds(timeout_));
+    timer_.expires_from_now(std::chrono::seconds(timeout_));
     timer_.async_wait
       (strand_.wrap(std::bind(&Impl::timeout, shared_from_this(),
 			      std::placeholders::_1)));
@@ -187,20 +179,20 @@ private:
     timer_.cancel();
   }
 
-  void timeout(const boost::system::error_code& e)
+  void timeout(const Wt::Asio::error_code& e)
   {
     /* Within strand */
 
-    if (e != boost::asio::error::operation_aborted) {
-      boost::system::error_code ignored_ec;
-      socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both,
+    if (e != asio::error::operation_aborted) {
+      Wt::Asio::error_code ignored_ec;
+      socket().shutdown(asio::ip::tcp::socket::shutdown_both,
 			ignored_ec);
 
-      err_ = boost::asio::error::timed_out;
+      err_ = asio::error::timed_out;
     }
   }
 
-  void handleResolve(const boost::system::error_code& err,
+  void handleResolve(const Wt::Asio::error_code& err,
 		     tcp::resolver::iterator endpoint_iterator)
   {
     /* Within strand */
@@ -225,7 +217,7 @@ private:
     }
   }
  
-  void handleConnect(const boost::system::error_code& err,
+  void handleConnect(const Wt::Asio::error_code& err,
 		     tcp::resolver::iterator endpoint_iterator)
   {
     /* Within strand */
@@ -243,14 +235,14 @@ private:
       // The connection failed. Try the next endpoint in the list.
       socket().close();
 
-      handleResolve(boost::system::error_code(), endpoint_iterator);
+      handleResolve(Wt::Asio::error_code(), endpoint_iterator);
     } else {
       err_ = err;
       complete();
     }
   }
 
-  void handleHandshake(const boost::system::error_code& err)
+  void handleHandshake(const Wt::Asio::error_code& err)
   {
     /* Within strand */
 
@@ -271,7 +263,7 @@ private:
     }
   }
 
-  void handleWriteRequest(const boost::system::error_code& err,
+  void handleWriteRequest(const Wt::Asio::error_code& err,
 			  const std::size_t&)
   {
     /* Within strand */
@@ -299,7 +291,7 @@ private:
     responseSize_ += s;
 
     if (maximumResponseSize_ && responseSize_ > maximumResponseSize_) {
-      err_ = boost::asio::error::message_size;
+      err_ = asio::error::message_size;
       complete();
       return false;
     }
@@ -307,7 +299,7 @@ private:
     return true;
   }
 
-  void handleReadStatusLine(const boost::system::error_code& err,
+  void handleReadStatusLine(const Wt::Asio::error_code& err,
 			    const std::size_t& s)
   {
     /* Within strand */
@@ -327,8 +319,12 @@ private:
       std::string status_message;
       std::getline(response_stream, status_message);
       if (!response_stream || http_version.substr(0, 5) != "HTTP/") {
+#ifdef WT_ASIO_IS_BOOST_ASIO
 	err_ = boost::system::errc::make_error_code
 	  (boost::system::errc::protocol_error);
+#else
+	err_ = std::make_error_code(std::errc::protocol_error);
+#endif
 	complete();
 	return;
       }
@@ -352,7 +348,7 @@ private:
     }
   }
 
-  void handleReadHeaders(const boost::system::error_code& err,
+  void handleReadHeaders(const Wt::Asio::error_code& err,
 			 const std::size_t& s)
   {
     /* Within strand */
@@ -414,7 +410,7 @@ private:
     }
   }
 
-  void handleReadContent(const boost::system::error_code& err,
+  void handleReadContent(const Wt::Asio::error_code& err,
 			 const std::size_t& s)
   {
     /* Within strand */
@@ -440,10 +436,10 @@ private:
 		      std::placeholders::_1,
 		      std::placeholders::_2)));
       }
-    } else if (err != boost::asio::error::eof
-	       && err != boost::asio::error::shut_down
-	       && err != boost::asio::error::bad_descriptor
-	       && err != boost::asio::error::operation_aborted
+    } else if (err != asio::error::eof
+               && err != asio::error::shut_down
+               && err != asio::error::bad_descriptor
+               && err != asio::error::operation_aborted
 	       && err.value() != 335544539) {
       err_ = err;
       complete();
@@ -560,8 +556,12 @@ private:
 
   void protocolError()
   {
+#ifdef WT_ASIO_IS_BOOST_ASIO
     err_ = boost::system::errc::make_error_code
       (boost::system::errc::protocol_error);
+#else
+    err_ = std::make_error_code(std::errc::protocol_error);
+#endif
     complete();
   } 
 
@@ -602,22 +602,22 @@ private:
 
 protected:
   WIOService& ioService_;
-  boost::asio::strand strand_;
+  asio::strand strand_;
   tcp::resolver resolver_;
-  boost::asio::streambuf requestBuf_;
-  boost::asio::streambuf responseBuf_;
+  asio::streambuf requestBuf_;
+  asio::streambuf responseBuf_;
 
 private:
-  asio_timer timer_;
+  asio::steady_timer timer_;
   WServer *server_;
   std::string sessionId_;
   int timeout_;
   std::size_t maximumResponseSize_, responseSize_;
   bool chunkedResponse_;
   ChunkState chunkState_;
-  boost::system::error_code err_;
+  Wt::Asio::error_code err_;
   Message response_;
-  Signal<boost::system::error_code, Message> done_;
+  Signal<Wt::Asio::error_code, Message> done_;
   Signal<Message> headersReceived_;
   Signal<std::string> bodyDataReceived_;
   bool aborted_;
@@ -645,24 +645,24 @@ protected:
 
   virtual void asyncHandshake(const ConnectHandler& handler)
   {
-    handler(boost::system::error_code());
+    handler(Wt::Asio::error_code());
   }
 
   virtual void asyncWriteRequest(const IOHandler& handler)
   {
-    boost::asio::async_write(socket_, requestBuf_, handler);
+    asio::async_write(socket_, requestBuf_, handler);
   }
 
   virtual void asyncReadUntil(const std::string& s,
 			      const IOHandler& handler)
   {
-    boost::asio::async_read_until(socket_, responseBuf_, s, handler);
+    asio::async_read_until(socket_, responseBuf_, s, handler);
   }
 
   virtual void asyncRead(const IOHandler& handler)
   {
-    boost::asio::async_read(socket_, responseBuf_,
-			    boost::asio::transfer_at_least(1), handler);
+    asio::async_read(socket_, responseBuf_,
+                            asio::transfer_at_least(1), handler);
   }
 
 private:
@@ -675,7 +675,7 @@ class Client::SslImpl : public Client::Impl
 {
 public:
   SslImpl(WIOService& ioService, bool verifyEnabled, WServer *server,
-	  boost::asio::ssl::context& context, const std::string& sessionId,
+          asio::ssl::context& context, const std::string& sessionId,
 	  const std::string& hostName)
     : Impl(ioService, server, sessionId),
       socket_(ioService_, context),
@@ -705,34 +705,34 @@ protected:
   {
 #ifdef VERIFY_CERTIFICATE
     if (verifyEnabled_) {
-      socket_.set_verify_mode(boost::asio::ssl::verify_peer);
+      socket_.set_verify_mode(asio::ssl::verify_peer);
       LOG_DEBUG("verifying that peer is " << hostName_);
       socket_.set_verify_callback
-	(boost::asio::ssl::rfc2818_verification(hostName_));
+        (asio::ssl::rfc2818_verification(hostName_));
     }
 #endif // VERIFY_CERTIFICATE
-    socket_.async_handshake(boost::asio::ssl::stream_base::client, handler);
+    socket_.async_handshake(asio::ssl::stream_base::client, handler);
   }
 
   virtual void asyncWriteRequest(const IOHandler& handler)
   {
-    boost::asio::async_write(socket_, requestBuf_, handler);
+    asio::async_write(socket_, requestBuf_, handler);
   }
 
   virtual void asyncReadUntil(const std::string& s,
 			      const IOHandler& handler)
   {
-    boost::asio::async_read_until(socket_, responseBuf_, s, handler);
+    asio::async_read_until(socket_, responseBuf_, s, handler);
   }
 
   virtual void asyncRead(const IOHandler& handler)
   {
-    boost::asio::async_read(socket_, responseBuf_,
-			    boost::asio::transfer_at_least(1), handler);
+    asio::async_read(socket_, responseBuf_,
+                            asio::transfer_at_least(1), handler);
   }
 
 private:
-  typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
+  typedef asio::ssl::stream<tcp::socket> ssl_socket;
 
   ssl_socket socket_;
   bool verifyEnabled_;
@@ -882,9 +882,9 @@ bool Client::request(Http::Method method, const std::string& url,
 
 #ifdef WT_WITH_SSL
   } else if (parsedUrl.protocol == "https") {
-    boost::asio::ssl::context context
-      (*ioService, boost::asio::ssl::context::sslv23);
-    long sslOptions = boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3;
+    asio::ssl::context context
+      (*ioService, asio::ssl::context::sslv23);
+    long sslOptions = asio::ssl::context::no_sslv2 | asio::ssl::context::no_sslv3;
     context.set_options(sslOptions);
 
 
@@ -964,7 +964,7 @@ void Client::setMaxRedirects(int maxRedirects)
 }
 
 void Client::handleRedirect(Http::Method method,
-			    boost::system::error_code err,
+			    Wt::Asio::error_code err,
 			    const Message& response, const Message& request)
 {
   if (!impl_) {
@@ -990,7 +990,7 @@ void Client::handleRedirect(Http::Method method,
   emitDone(err, response);
 }
 
-void Client::emitDone(boost::system::error_code err, const Message& response)
+void Client::emitDone(Wt::Asio::error_code err, const Message& response)
 {
   impl_.reset();
   redirectCount_ = 0;

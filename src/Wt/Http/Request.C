@@ -15,6 +15,7 @@
 #include "Wt/WSslInfo.h"
 #include "WebUtils.h"
 #include "WebRequest.h"
+#include "Message"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
@@ -30,6 +31,9 @@ namespace {
 namespace Wt {
   namespace Http {
 
+UploadedFile::UploadedFile()
+{}
+    
 UploadedFile::UploadedFile(const std::string& spoolName,
 			   const std::string& clientFileName,
 			   const std::string& contentType)
@@ -167,7 +171,7 @@ std::string Request::headerValue(const std::string& field) const
 }
 
 #ifndef WT_TARGET_JAVA
-HeaderMap Request::headers() const
+std::vector<Message::Header> Request::headers() const
 {
   return request_->headers();
 }

@@ -45,13 +45,13 @@ private:
   std::string getSessionId() const;
 
   void connectToChild(bool success);
-  void handleChildConnected(const boost::system::error_code& ec);
+  void handleChildConnected(const Wt::Asio::error_code& ec);
   void assembleRequestHeaders();
-  void handleDataWritten(const boost::system::error_code& ec,
+  void handleDataWritten(const Wt::Asio::error_code& ec,
 			 std::size_t transferred);
-  void handleStatusRead(const boost::system::error_code& ec);
-  void handleHeadersRead(const boost::system::error_code& ec);
-  void handleResponseRead(const boost::system::error_code& ec);
+  void handleStatusRead(const Wt::Asio::error_code& ec);
+  void handleHeadersRead(const Wt::Asio::error_code& ec);
+  void handleResponseRead(const Wt::Asio::error_code& ec);
 
   void appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os);
 

@@ -2,8 +2,9 @@ SUBDIRS(Auth Core Chart Dbo Json Http Mail Payment Render Signals Test)
 
 INSTALL_FILES(/include/Wt "^W.*[^C~]$")
 INSTALL_FILES(/include/Wt "^Date$")
-INSTALL_FILES(/include/Wt "^Utils$")
+INSTALL_FILES(/include/Wt "^Utils([.]h)?$")
 INSTALL_FILES(/include/Wt "^cpp17$")
+INSTALL_FILES(/include/Wt "^Asio$")
 #INSTALL(
 #  FILES
 #    "^W.*[^C~]$"

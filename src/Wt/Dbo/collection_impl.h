@@ -11,6 +11,8 @@
 #include <Wt/Dbo/Exception.h>
 #include <Wt/Dbo/SqlStatement.h>
 
+#include <algorithm>
+
 namespace Wt {
   namespace Dbo {
     namespace Impl {

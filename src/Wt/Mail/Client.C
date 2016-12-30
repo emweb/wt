@@ -5,7 +5,8 @@
  */
 
 // bugfix for https://svn.boost.org/trac/boost/ticket/5722
-#include <boost/asio.hpp>
+#include <Wt/Asio/asio.hpp>
+#include <Wt/Asio/system_error.hpp>
 
 #include "Client.h"
 #include "Message.h"
@@ -21,10 +22,12 @@ LOGGER("Mail.Client");
 namespace {
   bool logged = false;
 }
+
+namespace asio = Asio::asio;
 		
   namespace Mail {
 
-using boost::asio::ip::tcp;
+using asio::ip::tcp;
 
 class Client::Impl
 {
@@ -47,7 +50,7 @@ public:
     tcp::resolver::iterator end;
 
     // Try each endpoint until we successfully establish a connection.
-    boost::system::error_code error = boost::asio::error::host_not_found;
+    Wt::Asio::error_code error = asio::error::host_not_found;
     while (error && endpoint_iterator != end) {
       socket_.close();
       socket_.connect(*endpoint_iterator++, error);
@@ -105,12 +108,12 @@ public:
       send("DATA\r\n");
       failIfReplyCodeNot(ReplyCode::StartMailInput);
 
-      boost::asio::streambuf buf;
+      asio::streambuf buf;
       std::ostream data(&buf);
       message.write(data);
       data << ".\r\n";
 
-      boost::asio::write(socket_, buf);
+      asio::write(socket_, buf);
 
       failIfReplyCodeNot(ReplyCode::Ok);
     } catch (std::exception& e) {
@@ -125,8 +128,8 @@ private:
   void send(const std::string& s)
   {
     LOG_DEBUG("C " << s);
-    // boost::asio::const_buffer request = boost::asio::buffer(s);
-    boost::asio::write(socket_, boost::asio::buffer(s));
+    // asio::const_buffer request = asio::buffer(s);
+    asio::write(socket_, asio::buffer(s));
 
     // FIXME error handling ?
   }
@@ -142,9 +145,9 @@ private:
   int readResponse() {
     int replyCode = -1;
 
-    boost::asio::streambuf response;
+    asio::streambuf response;
     for (;;) {
-      boost::asio::read_until(socket_, response, "\r\n");
+      asio::read_until(socket_, response, "\r\n");
 
       std::istream in(&response);
       int code;
@@ -173,7 +176,7 @@ private:
   }
 
 private:
-  boost::asio::io_service io_service_;
+  asio::io_service io_service_;
   tcp::socket socket_;
 };
 

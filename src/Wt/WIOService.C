@@ -7,8 +7,6 @@
 #include "Wt/WIOService.h"
 #include "Wt/WLogger.h"
 
-#include <boost/asio.hpp>
-
 #ifdef WT_THREADED
 #include <thread>
 #include <mutex>
@@ -20,15 +18,9 @@
 #endif // !_WIN32
 #endif // WT_THREADED
 
-#if BOOST_VERSION >= 104900
-typedef boost::asio::steady_timer asio_timer;
-typedef std::chrono::milliseconds asio_timer_milliseconds;
-#else
-typedef boost::asio::deadline_timer asio_timer;
-typedef boost::posix_time::milliseconds asio_timer_milliseconds;
-#endif
-
 namespace Wt {
+
+  namespace asio = Wt::Asio::asio;
 
 LOGGER("WIOService");
 
@@ -43,7 +35,7 @@ public:
   {
   }
   int threadCount_;
-  boost::asio::io_service::work *work_;
+  asio::io_service::work *work_;
 
 #ifdef WT_THREADED
   std::mutex blockedThreadMutex_;
@@ -78,7 +70,7 @@ int WIOService::threadCount() const
 void WIOService::start()
 {
   if (!impl_->work_) {
-    impl_->work_ = new boost::asio::io_service::work(*this);
+    impl_->work_ = new asio::io_service::work(*this);
 
 #ifdef WT_THREADED
 
@@ -135,17 +127,17 @@ void WIOService::schedule(int millis, const std::function<void()>& function)
   if (millis == 0)
     strand_.post(function); // guarantees execution order
   else {
-    asio_timer *timer = new asio_timer(*this);
-    timer->expires_from_now(asio_timer_milliseconds(millis));
+    asio::steady_timer *timer = new asio::steady_timer(*this);
+    timer->expires_from_now(std::chrono::milliseconds(millis));
     timer->async_wait
       (std::bind(&WIOService::handleTimeout, this, timer, function,
 		 std::placeholders::_1));
   }
 }
 
-void WIOService::handleTimeout(asio_timer *timer,
+void WIOService::handleTimeout(asio::steady_timer *timer,
 			       const std::function<void ()>& function,
-			       const boost::system::error_code& e)
+			       const Wt::Asio::error_code& e)
 {
   if (!e)
     function();
@@ -185,7 +177,7 @@ void WIOService::releaseBlockedThread()
 void WIOService::run()
 {
   initializeThread();
-  boost::asio::io_service::run();
+  asio::io_service::run();
 }
 
 }
