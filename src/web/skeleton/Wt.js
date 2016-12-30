@@ -3389,7 +3389,11 @@ function sendUpdate() {
     data.result += '&ackPuzzle=' + encodeURIComponent(solution);
   }
 
-  var params = "_$_PARAMS_$_";
+  function getParams() {
+    // Prevent minifier from optimizing away the length check.
+    return "_$_PARAMS_$_";
+  }
+  var params = getParams();
   if (params.length > 0)
     data.result += '&Wt-params=' + encodeURIComponent(params);
 

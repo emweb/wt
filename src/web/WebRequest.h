@@ -162,7 +162,7 @@ public:
   const char *referer() const;
 
 #ifndef WT_TARGET_JAVA
-  virtual Http::HeaderMap headers() const = 0;
+  virtual std::vector<Wt::Http::Message::Header> headers() const = 0;
 #endif
 
   virtual const char *contentType() const;

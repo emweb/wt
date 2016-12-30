@@ -108,7 +108,7 @@
 
 
 @-webkit-keyframes slideinfromtop {
-    from { -webkit-transform: translate3d(0,-100%,); }
+    from { -webkit-transform: translate3d(0,-100%,0); }
     to { -webkit-transform: translate3d(0,0,0); }
 }
 

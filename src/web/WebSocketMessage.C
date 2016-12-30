@@ -154,7 +154,7 @@ const char *WebSocketMessage::headerValue(const char *name) const
   return webSocket()->headerValue(name);
 }
 
-Http::HeaderMap WebSocketMessage::headers() const
+std::vector<Wt::Http::Message::Header> WebSocketMessage::headers() const
 {
   return webSocket()->headers();
 }

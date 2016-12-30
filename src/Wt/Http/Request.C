@@ -15,6 +15,7 @@
 #include "Wt/WSslInfo"
 #include "WebUtils.h"
 #include "WebRequest.h"
+#include "Message"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -171,7 +172,7 @@ std::string Request::headerValue(const std::string& field) const
 }
 
 #ifndef WT_TARGET_JAVA
-HeaderMap Request::headers() const
+std::vector<Message::Header> Request::headers() const
 {
   return request_->headers();
 }

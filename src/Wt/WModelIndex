@@ -25,6 +25,8 @@ class WModelIndex;
   }
 
 #ifndef WT_TARGET_JAVA
+ /*! \brief A set of WModelIndexes
+ */
 typedef std::set<WModelIndex> WModelIndexSet;
 
 extern std::size_t hash_value(const Wt::WModelIndex& index);

@@ -13,6 +13,7 @@
 #include <sstream>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <Wt/Http/Message>
 
 #include <Wt/WDllDefs.h>
 
@@ -388,7 +389,7 @@ public:
    * \note Use headerValue() if you need to know the value of certain known headers.
    *       This method is not written to be efficient, but can be useful for debugging.
    */
-  HeaderMap headers() const;
+  std::vector<Message::Header> headers() const;
 #endif
 
   /*! \brief Returns the request method.

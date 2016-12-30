@@ -2217,7 +2217,7 @@ void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 	  // at the back. This is not affected by widgetForModelRow() returning
 	  // accurate information of rows just deleted and indexes not yet
 	  // shifted
-	  if (end == model()->rowCount(parent) - 1 && start >= 1) {
+	  if (end >= model()->rowCount(parent) && start >= 1) {
 	    WTreeViewNode *n = dynamic_cast<WTreeViewNode *>
 	      (parentNode->widgetForModelRow(start - 1));
 
