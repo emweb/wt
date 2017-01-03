@@ -1,1 +1,1 @@
-INSTALL_FILES(/include/Wt/Payment "^[^.]+[^C~]$")
+INSTALL_FILES(/include/Wt/Payment "^[^.]+([.][^C~])?$")

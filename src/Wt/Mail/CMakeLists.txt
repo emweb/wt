@@ -1,1 +1,1 @@
-INSTALL_FILES(/include/Wt/Mail "^[^.]+[^hC~]$")
+INSTALL_FILES(/include/Wt/Mail "^[^.]+([.][^C~])?$")

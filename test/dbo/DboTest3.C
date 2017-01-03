@@ -15,6 +15,8 @@
 
 #include "DboFixture.h"
 
+#include <cmath>
+
 #include <string>
 namespace dbo = Wt::Dbo;
 

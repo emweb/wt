@@ -15,7 +15,7 @@
 #include <Wt/Dbo/SqlStatement.h>
 
 namespace boost {
-  template<typename T> struct optional;
+  template<typename T> class optional;
 }
 
 namespace Wt {

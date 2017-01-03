@@ -1,1 +1,1 @@
-INSTALL_FILES(/include/Wt/Json "^[^.]+[^hC~]$")
+INSTALL_FILES(/include/Wt/Json "^[^.]+([.][^C~])?$")

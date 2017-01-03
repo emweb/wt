@@ -51,7 +51,6 @@
 // https://msdn.microsoft.com/en-nz/library/windows/desktop/aa383745(v=vs.85).aspx
 // that "If you define NTDDI_VERSION, you must also define _WIN32_WINNT."
 // So we declare we require Vista or greater.
-#ifdef __MINGW32__
 
 #ifndef NTDDI_VERSION
 #define NTDDI_VERSION 0x06000000
@@ -59,6 +58,8 @@
 #elif NTDDI_VERSION < 0x06000000
 #warning "If this fails to compile NTDDI_VERSION may be to low. See comments above."
 #endif
+
+#ifdef __MINGW32__
 // But once we define the values above we then get this linker error:
 // "tz.cpp:(.rdata$.refptr.FOLDERID_Downloads[.refptr.FOLDERID_Downloads]+0x0): "
 //     "undefined reference to `FOLDERID_Downloads'"
@@ -87,6 +88,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <vector>
 #include <sys/stat.h>
 
