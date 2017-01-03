@@ -181,7 +181,7 @@ WModelIndex WStandardItemModel::parent(const WModelIndex& index) const
   return indexFromItem(parent);
 }
 
-cpp17::any WStandardItemModel::data(const WModelIndex& index, int role) const
+cpp17::any WStandardItemModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   WStandardItem *item = itemFromIndex(index, false);
 
@@ -189,7 +189,7 @@ cpp17::any WStandardItemModel::data(const WModelIndex& index, int role) const
 }
 
 cpp17::any WStandardItemModel::headerData(int section, Orientation orientation,
-				   int role) const
+                                   ItemDataRole role) const
 {
   if (role == ItemDataRole::Level)
     return 0;
@@ -343,7 +343,7 @@ void WStandardItemModel::removeHeaderData(std::vector<HeaderData>& headerData,
 }
 
 bool WStandardItemModel::setData(const WModelIndex& index,
-				 const cpp17::any& value, int role)
+                                 const cpp17::any& value, ItemDataRole role)
 {
   WStandardItem *item = itemFromIndex(index);
 
@@ -354,7 +354,7 @@ bool WStandardItemModel::setData(const WModelIndex& index,
 }
 
 bool WStandardItemModel::setHeaderData(int section, Orientation orientation,
-				       const cpp17::any& value, int role)
+                                       const cpp17::any& value, ItemDataRole role)
 {
   std::vector<HeaderData>& header
     = (orientation == Orientation::Horizontal)
@@ -406,7 +406,7 @@ WModelIndex WStandardItemModel::fromRawIndex(void *rawIndex) const
   return indexFromItem(static_cast<WStandardItem *>(rawIndex));
 }
 
-void WStandardItemModel::setSortRole(int role)
+void WStandardItemModel::setSortRole(ItemDataRole role)
 {
   sortRole_ = role;
 }

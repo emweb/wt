@@ -6,8 +6,8 @@
 
 #include "GitModel.h"
 
-const int GitModel::ContentsRole = Wt::ItemDataRole::User;
-const int GitModel::FilePathRole = Wt::ItemDataRole::User + 1;
+const ItemDataRole GitModel::ContentsRole = Wt::ItemDataRole::User;
+const ItemDataRole GitModel::FilePathRole = Wt::ItemDataRole::User + 1;
 
 GitModel::GitModel()
   : WAbstractItemModel()
@@ -133,7 +133,7 @@ int GitModel::rowCount(const WModelIndex& index) const
   return treeData_[treeId].rowCount();
 }
 
-cpp17::any GitModel::data(const WModelIndex& index, int role) const
+cpp17::any GitModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   if (!index.isValid())
     return cpp17::any();
@@ -167,7 +167,7 @@ cpp17::any GitModel::data(const WModelIndex& index, int role) const
 }
 
 cpp17::any GitModel::headerData(int section, Orientation orientation,
-				int role) const
+                                ItemDataRole role) const
 {
   if (orientation == Orientation::Horizontal && role == ItemDataRole::Display)
     return static_cast<const char*>("File");

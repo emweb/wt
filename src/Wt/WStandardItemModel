@@ -340,11 +340,11 @@ public:
   virtual WModelIndex parent(const WModelIndex& index) const override;
 
   virtual cpp17::any data(const WModelIndex& index,
-		       int role = ItemDataRole::Display)
+                       ItemDataRole role = ItemDataRole::Display)
     const override;
   virtual cpp17::any headerData(int section,
 			     Orientation orientation = Orientation::Horizontal,
-			     int role = ItemDataRole::Display)
+                             ItemDataRole role = ItemDataRole::Display)
     const override;
 
   virtual WModelIndex index(int row, int column,
@@ -370,11 +370,11 @@ public:
 			  const WModelIndex& parent = WModelIndex())
     override;
   virtual bool setData(const WModelIndex& index, const cpp17::any& value,
-		       int role = ItemDataRole::Edit)
+                       ItemDataRole role = ItemDataRole::Edit)
     override;
   virtual bool setHeaderData(int section, Orientation orientation,
 			     const cpp17::any& value,
-			     int role = ItemDataRole::Edit)
+                             ItemDataRole role = ItemDataRole::Edit)
     override;
 
   virtual void *toRawIndex(const WModelIndex& index) const override;
@@ -388,13 +388,13 @@ public:
    *
    * \sa sort().
    */
-  void setSortRole(int role);
+  void setSortRole(ItemDataRole role);
 
   /*! \brief Returns the role used to sort the model.
    *
    * \sa setSortRole()
    */
-  int sortRole() const { return sortRole_; }
+  ItemDataRole sortRole() const { return sortRole_; }
 
   virtual void sort(int column, SortOrder order = SortOrder::Ascending)
     override;
@@ -417,8 +417,8 @@ protected:
 #endif // DOXYGEN_ONLY
 
 private:
-  typedef std::map<int, cpp17::any> HeaderData;
-  int sortRole_;
+  typedef std::map<ItemDataRole, cpp17::any> HeaderData;
+  ItemDataRole sortRole_;
 
   std::vector<HeaderData> columnHeaderData_, rowHeaderData_;
   std::vector<WFlags<HeaderFlag> > columnHeaderFlags_, rowHeaderFlags_;

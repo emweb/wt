@@ -13,6 +13,22 @@
 
 namespace Wt {
 
+const int ItemDataRole::Display;
+const int ItemDataRole::Decoration;
+const int ItemDataRole::Edit;
+const int ItemDataRole::StyleClass;
+const int ItemDataRole::Checked;
+const int ItemDataRole::ToolTip;
+const int ItemDataRole::Link;
+const int ItemDataRole::MimeType;
+const int ItemDataRole::Level;
+const int ItemDataRole::MarkerPenColor;
+const int ItemDataRole::MarkerBrushColor;
+const int ItemDataRole::MarkerScaleFactor;
+const int ItemDataRole::BarPenColor;
+const int ItemDataRole::BarBrushColor;
+const int ItemDataRole::User;
+
 LOGGER("WModelIndex");
 
 WModelIndex::WModelIndex()
@@ -22,7 +38,7 @@ WModelIndex::WModelIndex()
     internalId_(0)
 { }
 
-cpp17::any WModelIndex::data(int role) const
+cpp17::any WModelIndex::data(ItemDataRole role) const
 {
   return model_ ? model_->data(*this, role) : cpp17::any();
 }

@@ -276,8 +276,8 @@ public:
    * specializing data() and accessing data from resultRow().
    */
   virtual cpp17::any data(const WModelIndex& index, 
-		          int role = ItemDataRole::Display)
-    const;
+                          ItemDataRole role = ItemDataRole::Display)
+    const override;
 
   /*! \brief Sets data at the given model index.
    *
@@ -288,7 +288,7 @@ public:
    */
   virtual bool setData(const WModelIndex& index,
 		       const cpp17::any& value,
-		       int role = ItemDataRole::Edit);
+                       ItemDataRole role = ItemDataRole::Edit) override;
 
   /*! \brief Sorts the model according to a particular column.
    *
@@ -337,7 +337,7 @@ public:
    */
   virtual bool setHeaderData(int column, Orientation orientation,
 			     const cpp17::any& value,
-			     int role = ItemDataRole::Edit);
+                             ItemDataRole role = ItemDataRole::Edit) override;
 
   /*! \brief Returns header data.
    *
@@ -345,7 +345,7 @@ public:
    */
   virtual cpp17::any headerData(int section,
 			     Orientation orientation = Orientation::Horizontal,
-			     int role = ItemDataRole::Display) const;
+                             ItemDataRole role = ItemDataRole::Display) const override;
 
   virtual void *toRawIndex(const WModelIndex& index) const;
   virtual WModelIndex fromRawIndex(void *rawIndex) const;

@@ -159,13 +159,13 @@ public:
    *
    * \sa setFilterKeyColumn(), setFilterRegExp()
    */
-  void setFilterRole(int role);
+  void setFilterRole(ItemDataRole role);
 
   /*! \brief Return the data role used for filtering.
    *
    * \sa setFilterRole()
    */
-  int filterRole() const { return filterRole_; }
+  ItemDataRole filterRole() const { return filterRole_; }
 
   /*! \brief Specify the data role used used for sorting.
    *
@@ -175,13 +175,13 @@ public:
    *
    * \sa lessThan()
    */
-  void setSortRole(int role);
+  void setSortRole(ItemDataRole role);
 
   /*! \brief Return the data role used for sorting.
    *
    * \sa setSortRole()
    */
-  int sortRole() const { return sortRole_; }
+  ItemDataRole sortRole() const { return sortRole_; }
 
   /*! \brief Returns the current sort column.
    *
@@ -238,10 +238,10 @@ public:
 
   virtual bool setHeaderData(int section, Orientation orientation,
 			     const cpp17::any& value,
-			     int role = ItemDataRole::Edit) override;
+                             ItemDataRole role = ItemDataRole::Edit) override;
   virtual cpp17::any headerData(int section,
 			     Orientation orientation = Orientation::Horizontal,
-			 int role = ItemDataRole::Display) const override;
+                         ItemDataRole role = ItemDataRole::Display) const override;
   virtual WFlags<HeaderFlag> headerFlags
     (int section, Orientation orientation = Orientation::Horizontal)
     const override;
@@ -344,8 +344,10 @@ private:
   };
 
   std::unique_ptr<std::regex> regex_;
-  int filterKeyColumn_, filterRole_;
-  int sortKeyColumn_, sortRole_;
+  int filterKeyColumn_;
+  ItemDataRole filterRole_;
+  int sortKeyColumn_;
+  ItemDataRole sortRole_;
   SortOrder sortOrder_;
   bool dynamic_, inserting_;
 

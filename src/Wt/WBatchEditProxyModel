@@ -74,7 +74,7 @@ public:
    * row.
    */
   void setNewRowData(int column, const cpp17::any& data,
-		     int role = ItemDataRole::Display);
+                     ItemDataRole role = ItemDataRole::Display);
 
   /*! \brief Sets the item flags for items in a newly inserted row.
    *
@@ -95,7 +95,7 @@ public:
    *
    * By default there is no dirty indication.
    */
-  void setDirtyIndication(int role, const cpp17::any& data);
+  void setDirtyIndication(ItemDataRole role, const cpp17::any& data);
 
   virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex)
     const override;
@@ -130,7 +130,7 @@ public:
   using WAbstractItemModel::data;
   using WAbstractItemModel::setHeaderData;
 
-  virtual cpp17::any data(const WModelIndex& index, int role = ItemDataRole::Display)
+  virtual cpp17::any data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display)
     const override;
 
   /*! \brief Sets item data.
@@ -140,13 +140,13 @@ public:
    * a more specialized editing behaviour.
    */
   virtual bool setData(const WModelIndex& index, const cpp17::any& value,
-		       int role = ItemDataRole::Edit) override;
+                       ItemDataRole role = ItemDataRole::Edit) override;
 
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
   virtual cpp17::any headerData(int section,
 			     Orientation orientation = Orientation::Horizontal,
-			     int role = ItemDataRole::Display) const override;
+                             ItemDataRole role = ItemDataRole::Display) const override;
 
   virtual bool insertRows(int row, int count,
 			  const WModelIndex& parent = WModelIndex()) override;
@@ -199,7 +199,7 @@ private:
   bool submitting_;
   std::map<int, DataMap> newRowData_;
   std::map<int, WFlags<ItemFlag> > newRowFlags_;
-  int dirtyIndicationRole_;
+  ItemDataRole dirtyIndicationRole_;
   cpp17::any dirtyIndicationData_;
 
   std::vector<Wt::Signals::connection> modelConnections_;
@@ -264,7 +264,7 @@ private:
 
   void resetMappings();
 
-  cpp17::any indicateDirty(int role, const cpp17::any& value) const;
+  cpp17::any indicateDirty(ItemDataRole role, const cpp17::any& value) const;
 };
 
 }

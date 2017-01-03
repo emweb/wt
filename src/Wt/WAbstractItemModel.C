@@ -77,14 +77,14 @@ WAbstractItemModel::itemData(const WModelIndex& index) const
   return result;
 }
 
-cpp17::any WAbstractItemModel::data(int row, int column, int role,
+cpp17::any WAbstractItemModel::data(int row, int column, ItemDataRole role,
 				 const WModelIndex& parent) const
 {
   return data(index(row, column, parent), role);
 }
 
 cpp17::any WAbstractItemModel::headerData(int section, Orientation orientation,
-				       int role) const
+                                       ItemDataRole role) const
 {
   if (role == ItemDataRole::Level)
     return cpp17::any((int)0);
@@ -126,13 +126,13 @@ bool WAbstractItemModel::removeRows(int row, int count,
 }
 
 bool WAbstractItemModel::setData(const WModelIndex& index,
-				 const cpp17::any& value, int role)
+                                 const cpp17::any& value, ItemDataRole role)
 {
   return false;
 }
 
 bool WAbstractItemModel::setHeaderData(int section, Orientation orientation,
-				       const cpp17::any& value, int role)
+                                       const cpp17::any& value, ItemDataRole role)
 {
   return false;
 }
@@ -182,7 +182,7 @@ bool WAbstractItemModel::removeRow(int row, const WModelIndex& parent)
 }
 
 bool WAbstractItemModel::setData(int row, int column, const cpp17::any& value,
-				 int role, const WModelIndex& parent)
+                                 ItemDataRole role, const WModelIndex& parent)
 {
   WModelIndex i = index(row, column, parent);
 
@@ -372,7 +372,7 @@ void WAbstractItemModel::endRemoveRows()
 }
 
 WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
-					  int role,
+                                          ItemDataRole role,
 					  const cpp17::any& value,
 					  int hits,
 					  WFlags<MatchFlag> flags)

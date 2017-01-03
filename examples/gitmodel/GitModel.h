@@ -40,8 +40,8 @@ class GitModel : public Wt::WAbstractItemModel
 public:
   /*! \brief The role which may be used on a file to retrieve its contents.
    */
-  static const int ContentsRole;
-  static const int FilePathRole;
+  static const ItemDataRole ContentsRole;
+  static const ItemDataRole FilePathRole;
 
   /*! \brief Constructor.
    */
@@ -93,13 +93,13 @@ public:
    * Returns only data corresponding to DisplayRole and ContentsRole.
    */
   virtual cpp17::any
-  data(const WModelIndex& index, int role = ItemDataRole::Display) const;
+  data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display) const;
   
   /*! \brief Returns header data.
    */
   virtual cpp17::any
   headerData(int section, Orientation orientation = Orientation::Horizontal,
-             int role = ItemDataRole::Display) const;
+             ItemDataRole role = ItemDataRole::Display) const;
 
   using WAbstractItemModel::data;
 

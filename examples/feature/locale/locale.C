@@ -28,7 +28,7 @@
 class TimeZoneModel : public Wt::WAbstractTableModel
 {
 public:
-  static const int NameTimeZoneRole = Wt::ItemDataRole::User + 1;
+  static constexpr Wt::ItemDataRole NameTimeZoneRole = Wt::ItemDataRole::User + 1;
 
   TimeZoneModel()
     : showOffset_(true)
@@ -99,11 +99,11 @@ public:
   }
 
   virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
-                          int role = Wt::ItemDataRole::Display) const
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override
   {
     std::string id = ids_[index.row()];
 
-    switch (role) {
+    switch (role.value()) {
     case Wt::ItemDataRole::Display: {
       if (showOffset_) {
           const date::time_zone * zone = date::locate_zone(id);
@@ -120,7 +120,7 @@ public:
     }
     case Wt::ItemDataRole::Level:
       return id.substr(0, id.find('/'));
-    case NameTimeZoneRole:
+    case NameTimeZoneRole.value():
       return id;
     default:
       return Wt::cpp17::any();
@@ -129,10 +129,10 @@ public:
 
   virtual Wt::cpp17::any headerData(int section,
                                 Wt::Orientation orientation = Wt::Orientation::Horizontal,
-                                int role = Wt::ItemDataRole::Display) const
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const
   {
     if (orientation == Wt::Orientation::Horizontal) {
-      switch (role) {
+      switch (role.value()) {
       case Wt::ItemDataRole::Display:
 	return std::string("locality");
       default:
@@ -172,6 +172,8 @@ private:
   std::vector<std::string> ids_;
   bool showOffset_;
 };
+
+constexpr Wt::ItemDataRole TimeZoneModel::NameTimeZoneRole;
 
 std::shared_ptr<TimeZoneModel> timeZones = std::make_shared<TimeZoneModel>();
 

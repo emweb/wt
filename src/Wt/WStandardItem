@@ -250,7 +250,7 @@ public:
    *
    * \sa data()
    */
-  virtual void setData(const cpp17::any& data, int role = ItemDataRole::User);
+  virtual void setData(const cpp17::any& data, ItemDataRole role = ItemDataRole::User);
 
   /*! \brief Returns item data.
    *
@@ -258,7 +258,7 @@ public:
    *
    * \sa data()
    */
-  virtual cpp17::any data(int role = ItemDataRole::User) const;
+  virtual cpp17::any data(ItemDataRole role = ItemDataRole::User) const;
 
   /*! \brief Returns whether the item has any children.
    *
@@ -629,7 +629,7 @@ protected:
 
 private:
 #ifndef WT_TARGET_JAVA
-  typedef std::map<int, cpp17::any> DataMap;
+  typedef std::map<ItemDataRole, cpp17::any> DataMap;
 #else
   typedef std::treemap<int, cpp17::any> DataMap;
 #endif

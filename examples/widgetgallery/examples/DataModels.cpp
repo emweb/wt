@@ -9,7 +9,7 @@ SombreroData::SombreroData(unsigned nbXpts, unsigned nbYpts)
     xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
 {}
 
-Wt::cpp17::any SombreroData::data(const Wt::WModelIndex& index, int role) const
+Wt::cpp17::any SombreroData::data(const Wt::WModelIndex& index, Wt::ItemDataRole role) const
 {
   if (role != Wt::ItemDataRole::Display) {
     return WStandardItemModel::data(index, role);
@@ -41,7 +41,7 @@ PlaneData::PlaneData(unsigned nbXpts, unsigned nbYpts)
     xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
 {}
 
-Wt::cpp17::any PlaneData::data(const Wt::WModelIndex& index, int role) const
+Wt::cpp17::any PlaneData::data(const Wt::WModelIndex& index, Wt::ItemDataRole role) const
 {
   if (role != Wt::ItemDataRole::Display) {
     return WStandardItemModel::data(index, role);
@@ -60,7 +60,7 @@ HorizontalPlaneData::HorizontalPlaneData(unsigned nbXpts, unsigned nbYpts)
     xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
 {}
 
-Wt::cpp17::any HorizontalPlaneData::data(const Wt::WModelIndex& index, int role) const
+Wt::cpp17::any HorizontalPlaneData::data(const Wt::WModelIndex& index, Wt::ItemDataRole role) const
 {
   if (role != Wt::ItemDataRole::Display) {
     return WStandardItemModel::data(index, role);
@@ -73,7 +73,7 @@ SpiralData::SpiralData(unsigned nbPts)
   : WStandardItemModel(nbPts, 3), nbPts_(nbPts)
 {}
 
-Wt::cpp17::any SpiralData::data(const Wt::WModelIndex& index, int role) const
+Wt::cpp17::any SpiralData::data(const Wt::WModelIndex& index, Wt::ItemDataRole role) const
 {
   if (role != Wt::ItemDataRole::Display) {
     return WStandardItemModel::data(index, role);

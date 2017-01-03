@@ -89,9 +89,9 @@ public:
 
   using WAbstractListModel::setData;
   virtual bool setData(const WModelIndex& index, const cpp17::any& value,
-		       int role = ItemDataRole::Edit) override;
+                       ItemDataRole role = ItemDataRole::Edit) override;
 
-  virtual cpp17::any data(const WModelIndex& index, int role = ItemDataRole::Display)
+  virtual cpp17::any data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display)
     const override;
 
   virtual int rowCount(const WModelIndex& parent = WModelIndex())
@@ -108,7 +108,7 @@ public:
 
 private:
 #ifndef WT_TARGET_JAVA
-  typedef std::map<int, cpp17::any> DataMap;
+  typedef std::map<ItemDataRole, cpp17::any> DataMap;
 #else
   typedef std::treemap<int, cpp17::any> DataMap;
 #endif

@@ -29,7 +29,7 @@ class QueryColumn
   */
 
 private:
-  typedef std::map<int, cpp17::any> HeaderData;
+  typedef std::map<ItemDataRole, cpp17::any> HeaderData;
 
   std::string field_;
   WFlags<ItemFlag> flags_;

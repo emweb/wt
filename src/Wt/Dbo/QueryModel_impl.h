@@ -139,7 +139,7 @@ WFlags<ItemFlag> QueryModel<Result>::flags(const WModelIndex& index) const
 }
 
 template <class Result>
-cpp17::any QueryModel<Result>::data(const WModelIndex& index, int role) const
+cpp17::any QueryModel<Result>::data(const WModelIndex& index, ItemDataRole role) const
 {
   setCurrentRow(index.row());
 
@@ -167,7 +167,7 @@ void QueryModel<Result>::setCurrentRow(int row) const
 
 template <class Result>
 bool QueryModel<Result>::setData(const WModelIndex& index,
-				 const cpp17::any& value, int role)
+                                 const cpp17::any& value, ItemDataRole role)
 {
   if (role == ItemDataRole::Edit) {
     {
@@ -440,7 +440,7 @@ bool QueryModel<Result>::removeRows(int row, int count,
 template <class Result>
 bool QueryModel<Result>::setHeaderData(int section, Orientation orientation,
 				       const cpp17::any& value,
-				       int role)
+                                       ItemDataRole role)
 {
   if (orientation == Orientation::Horizontal) {
     if (role == ItemDataRole::Edit)
@@ -458,7 +458,7 @@ bool QueryModel<Result>::setHeaderData(int section, Orientation orientation,
 
 template <class Result>
 cpp17::any QueryModel<Result>::headerData(int section, Orientation orientation,
-					  int role) const
+                                          ItemDataRole role) const
 {
   if (orientation == Orientation::Horizontal) {
     if (role == ItemDataRole::Level)

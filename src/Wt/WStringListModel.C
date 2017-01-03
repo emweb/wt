@@ -106,7 +106,7 @@ int WStringListModel::rowCount(const WModelIndex& parent) const
   return parent.isValid() ? 0 : displayData_.size();
 }
 
-cpp17::any WStringListModel::data(const WModelIndex& index, int role) const
+cpp17::any WStringListModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   if (role == ItemDataRole::Display)
     return cpp17::any(displayData_[index.row()]);
@@ -117,7 +117,7 @@ cpp17::any WStringListModel::data(const WModelIndex& index, int role) const
 }
 
 bool WStringListModel::setData(const WModelIndex& index,
-			       const cpp17::any& value, int role)
+                               const cpp17::any& value, ItemDataRole role)
 {
   if (role == ItemDataRole::Edit)
     role = ItemDataRole::Display;

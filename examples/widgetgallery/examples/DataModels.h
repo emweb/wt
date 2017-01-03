@@ -13,7 +13,7 @@ public:
   SombreroData(unsigned nbXpts, unsigned nbYpts);
 
   Wt::cpp17::any data(const Wt::WModelIndex& index,
-		  int role = Wt::ItemDataRole::Display) const override;
+                  Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   const double xStart_, xEnd_, yStart_, yEnd_;
@@ -24,7 +24,7 @@ public:
   PlaneData(unsigned nbXpts, unsigned nbYpts);
 
   Wt::cpp17::any data(const Wt::WModelIndex& index,
-		  int role = Wt::ItemDataRole::Display) const override;
+                  Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   const double xStart_, xEnd_, yStart_, yEnd_;
@@ -35,7 +35,7 @@ public:
   HorizontalPlaneData(unsigned nbXpts, unsigned nbYpts);
 
   Wt::cpp17::any data(const Wt::WModelIndex& index,
-		  int role = Wt::ItemDataRole::Display) const override;
+                  Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   const double xStart_, xEnd_, yStart_, yEnd_;
@@ -46,7 +46,7 @@ public:
   SpiralData(unsigned nbPts);
 
   Wt::cpp17::any data(const Wt::WModelIndex& index,
-		  int role = Wt::ItemDataRole::Display) const override;
+                  Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   unsigned nbPts_;

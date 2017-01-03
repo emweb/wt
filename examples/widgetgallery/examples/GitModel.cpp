@@ -8,7 +8,7 @@ public:
     /*
      * A custom role for the file contents of a Git BLOB object.
      */
-    static const int ContentsRole = ItemDataRole::User + 1;
+    static constexpr ItemDataRole ContentsRole = ItemDataRole::User + 1;
 
     GitModel(const std::string& repository)
         : WAbstractItemModel()
@@ -78,7 +78,7 @@ public:
 	return treeData_[treeId].rowCount();
     }
 
-    virtual cpp17::any data(const WModelIndex& index, int role = ItemDataRole::Display) const {
+    virtual cpp17::any data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display) const {
 	if (!index.isValid())
 	    return cpp17::any();
 
@@ -135,7 +135,7 @@ public:
   
     virtual cpp17::any headerData(int section,
                                   Orientation orientation = Orientation::Horizontal,
-                                  int role = ItemDataRole::Display) const {
+                                  ItemDataRole role = ItemDataRole::Display) const {
         if (orientation == Orientation::Horizontal && role == ItemDataRole::Display) {
 	    switch (section) {
 	    case 0:
@@ -261,6 +261,8 @@ private:
 	return !parent(index).isValid();
     }
 };
+
+constexpr Wt::ItemDataRole GitModel::ContentsRole;
 
 SAMPLE_BEGIN(gitModel)
 SAMPLE_END(return 0)

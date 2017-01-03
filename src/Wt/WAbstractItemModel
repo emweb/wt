@@ -179,7 +179,7 @@ public:
    * A map of data, indexed by a role.
    */
 #ifndef WT_TARGET_JAVA
-  typedef std::map<int, cpp17::any> DataMap;
+  typedef std::map<ItemDataRole, cpp17::any> DataMap;
 #else
   typedef std::treemap<int, cpp17::any> DataMap;
 #endif
@@ -271,7 +271,7 @@ public:
    * \sa flags(), headerData(), setData()
    */
   virtual cpp17::any data(const WModelIndex& index, 
-		       int role = ItemDataRole::Display)
+                       ItemDataRole role = ItemDataRole::Display)
     const = 0;
 
   /*! \brief Returns all data at a specific index.
@@ -294,7 +294,7 @@ public:
    */
   virtual cpp17::any headerData(int section,
 			     Orientation orientation = Orientation::Horizontal,
-			     int role = ItemDataRole::Display) const;
+                             ItemDataRole role = ItemDataRole::Display) const;
 
   /*! \brief Returns the child index for the given row and column.
    *
@@ -320,7 +320,7 @@ public:
    * hits are returned.
    */
   virtual WModelIndexList match(const WModelIndex& start,
-				int role,
+                                ItemDataRole role,
 				const cpp17::any& value,
 				int hits = -1,
 				WFlags<MatchFlag> flags
@@ -338,7 +338,7 @@ public:
    * \sa index(), data()
    */
   cpp17::any data(int row, int column, 
-	       int role = ItemDataRole::Display,
+               ItemDataRole role = ItemDataRole::Display,
 	       const WModelIndex& parent = WModelIndex()) const;
 
   /*! \brief Returns if an index at the given position is valid
@@ -439,7 +439,7 @@ public:
    * \sa data()
    */
   virtual bool setData(const WModelIndex& index, const cpp17::any& value,
-		       int role = ItemDataRole::Edit);
+                       ItemDataRole role = ItemDataRole::Edit);
 
   /*! \brief Sets data at the given model index.
    *
@@ -457,7 +457,7 @@ public:
    */
   virtual bool setHeaderData(int section, Orientation orientation,
 			     const cpp17::any& value,
-			     int role = ItemDataRole::Edit);
+                             ItemDataRole role = ItemDataRole::Edit);
 
   /*! \brief Sets column header data.
    *
@@ -645,7 +645,7 @@ public:
    * \sa setData(), index()
    */
   bool setData(int row, int column, const cpp17::any& value,
-	       int role = ItemDataRole::Edit,
+               ItemDataRole role = ItemDataRole::Edit,
 	       const WModelIndex& parent = WModelIndex());
 
   /*! \brief %Signal emitted before a number of columns will be inserted.

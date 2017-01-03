@@ -106,7 +106,7 @@ void WBatchEditProxyModel
 }
 
 void WBatchEditProxyModel::setNewRowData(int column, const cpp17::any& data,
-					 int role)
+                                         ItemDataRole role)
 {
   newRowData_[column][role] = data;
 }
@@ -675,7 +675,7 @@ void WBatchEditProxyModel::sourceLayoutChanged()
   layoutChanged().emit();
 }
 
-cpp17::any WBatchEditProxyModel::data(const WModelIndex& index, int role) const
+cpp17::any WBatchEditProxyModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   Item *item = itemFromIndex(index.parent());
 
@@ -697,13 +697,13 @@ cpp17::any WBatchEditProxyModel::data(const WModelIndex& index, int role) const
     return indicateDirty(role, cpp17::any());
 }
 
-void WBatchEditProxyModel::setDirtyIndication(int role, const cpp17::any& data)
+void WBatchEditProxyModel::setDirtyIndication(ItemDataRole role, const cpp17::any& data)
 {
   dirtyIndicationRole_ = role;
   dirtyIndicationData_ = data;
 }
 
-cpp17::any WBatchEditProxyModel::indicateDirty(int role, const cpp17::any& value) const
+cpp17::any WBatchEditProxyModel::indicateDirty(ItemDataRole role, const cpp17::any& value) const
 {
   if (role == dirtyIndicationRole_) {
     if (role == ItemDataRole::StyleClass) {
@@ -720,7 +720,7 @@ cpp17::any WBatchEditProxyModel::indicateDirty(int role, const cpp17::any& value
 }
 
 bool WBatchEditProxyModel::setData(const WModelIndex& index,
-				   const cpp17::any& value, int role)
+                                   const cpp17::any& value, ItemDataRole role)
 {
   Item *item = itemFromIndex(index.parent());
 
@@ -769,7 +769,7 @@ WFlags<ItemFlag> WBatchEditProxyModel::flags(const WModelIndex& index) const
 
 cpp17::any WBatchEditProxyModel::headerData(int section,
 					    Orientation orientation,
-					    int role) const
+                                            ItemDataRole role) const
 {
   if (orientation == Orientation::Vertical)
     return cpp17::any(); // nobody cares

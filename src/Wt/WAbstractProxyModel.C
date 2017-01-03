@@ -23,13 +23,13 @@ void WAbstractProxyModel
   sourceModel_ = sourceModel;
 }
 
-cpp17::any WAbstractProxyModel::data(const WModelIndex& index, int role) const
+cpp17::any WAbstractProxyModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   return sourceModel_->data(mapToSource(index), role);
 }
 
 bool WAbstractProxyModel::setData(const WModelIndex& index,
-				  const cpp17::any& value, int role)
+                                  const cpp17::any& value, ItemDataRole role)
 {
   return sourceModel_->setData(mapToSource(index), value, role);
 }
@@ -105,7 +105,7 @@ WFlags<HeaderFlag> WAbstractProxyModel::headerFlags(int section,
 }
 
 cpp17::any WAbstractProxyModel::headerData(int section, Orientation orientation,
-					int role) const
+                                        ItemDataRole role) const
 {
   if (orientation == Wt::Orientation::Horizontal) {
     section = mapToSource(index(0, section, Wt::WModelIndex())).column();

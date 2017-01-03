@@ -126,12 +126,12 @@ void WSortFilterProxyModel::setFilterKeyColumn(int column)
   filterKeyColumn_ = column;
 }
 
-void WSortFilterProxyModel::setFilterRole(int role)
+void WSortFilterProxyModel::setFilterRole(ItemDataRole role)
 {
   filterRole_ = role;
 }
 
-void WSortFilterProxyModel::setSortRole(int role)
+void WSortFilterProxyModel::setSortRole(ItemDataRole role)
 {
   sortRole_ = role;
 }
@@ -367,7 +367,7 @@ int WSortFilterProxyModel::rowCount(const WModelIndex& parent) const
 }
 
 bool WSortFilterProxyModel::setHeaderData(int section, Orientation orientation,
-					  const cpp17::any& value, int role)
+                                          const cpp17::any& value, ItemDataRole role)
 {
   if (orientation == Orientation::Vertical)
     section = mapToSource(index(section, 0)).row();
@@ -376,7 +376,7 @@ bool WSortFilterProxyModel::setHeaderData(int section, Orientation orientation,
 }
 
 cpp17::any WSortFilterProxyModel::headerData(int section,
-				      Orientation orientation, int role) const
+                                      Orientation orientation, ItemDataRole role) const
 {
   if (orientation == Orientation::Vertical)
     section = mapToSource(index(section, 0)).row();

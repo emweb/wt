@@ -73,7 +73,7 @@ void FolderView::dropEvent(const WDropEvent& event,
 	 * will also result in the removal of the file from the
 	 * current view.
 	 */
-	std::map<int, cpp17::any> data = model()->itemData(target);
+        std::map<ItemDataRole, cpp17::any> data = model()->itemData(target);
 	data[ItemDataRole::Decoration] = index.data(ItemDataRole::Decoration);
 	sourceModel->setItemData(index, data);
       }

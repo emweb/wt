@@ -154,10 +154,10 @@ public:
 
   virtual bool setHeaderData
     (int section, Orientation orientation, const cpp17::any& value,
-     int role = ItemDataRole::Edit) override;
+     ItemDataRole role = ItemDataRole::Edit) override;
   virtual cpp17::any headerData
     (int section, Orientation orientation = Orientation::Horizontal,
-     int role = ItemDataRole::Display) const override;
+     ItemDataRole role = ItemDataRole::Display) const override;
 
   virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column,

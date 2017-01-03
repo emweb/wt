@@ -111,11 +111,40 @@ typedef std::treeset<WModelIndex> WModelIndexSet;
  *
  * \ingroup modelview
  */
-enum ItemDataRole {
-  Display = 0,       //!< Role for textual representation
-  Decoration = 1,    //!< Role for the url of an icon
-  Edit = 2,          //!< Role for the edited value
-  StyleClass = 3,    //!< Role for the style class
+class WT_API ItemDataRole final {
+public:
+  /*! \brief Create a new role with a certain int value.
+   */
+  constexpr ItemDataRole(int role) noexcept
+    : role_{role}
+  { }
+
+  /*! \brief Returns the underlying int of this role.
+   */
+  constexpr int value() const noexcept
+  {
+    return role_;
+  }
+
+  constexpr bool operator== (const ItemDataRole &rhs) const noexcept
+  {
+    return role_ == rhs.role_;
+  }
+
+  constexpr bool operator!= (const ItemDataRole &rhs) const noexcept
+  {
+    return role_ != rhs.role_;
+  }
+
+  constexpr bool operator< (const ItemDataRole &rhs) const noexcept
+  {
+    return role_ < rhs.role_;
+  }
+
+  static constexpr int Display = 0;       //!< Role for textual representation
+  static constexpr int Decoration = 1;    //!< Role for the url of an icon
+  static constexpr int Edit = 2;          //!< Role for the edited value
+  static constexpr int StyleClass = 3;    //!< Role for the style class
 
   /*! Role that indicates the check state.
    *
@@ -123,19 +152,22 @@ enum ItemDataRole {
    * Wt::ItemIsTristate flag is set for the item, data for this role
    * should be of type Wt::CheckState.
    */
-  Checked = 4,   
-  ToolTip = 5,         //!< Role for a (plain) tooltip
-  Link = 6,            //!< Role for a link
-  MimeType = 7,        //!< Role for mime type information
-  Level = 8,           //!< Level in aggregation, for header data.
+  static constexpr int Checked = 4;
+  static constexpr int ToolTip = 5;         //!< Role for a (plain) tooltip
+  static constexpr int Link = 6;            //!< Role for a link
+  static constexpr int MimeType = 7;        //!< Role for mime type information
+  static constexpr int Level = 8;           //!< Level in aggregation, for header data.
 
-  MarkerPenColor = 16,    //!< Marker pen color (for Chart::WCartesianChart)
-  MarkerBrushColor = 17,  //!< Marker brush color (for Chart::WCartesianChart)
-  MarkerScaleFactor = 20, //!< Marker size (for Chart::WCartesianChart)
-  BarPenColor = 18,   //!< Bar pen color (for Chart::WCartesianChart)
-  BarBrushColor = 19, //!< Bar brush color (for Chart::WCartesianChart)
+  static constexpr int MarkerPenColor = 16;    //!< Marker pen color (for Chart::WCartesianChart)
+  static constexpr int MarkerBrushColor = 17;  //!< Marker brush color (for Chart::WCartesianChart)
+  static constexpr int MarkerScaleFactor = 20; //!< Marker size (for Chart::WCartesianChart)
+  static constexpr int BarPenColor = 18;   //!< Bar pen color (for Chart::WCartesianChart)
+  static constexpr int BarBrushColor = 19; //!< Bar brush color (for Chart::WCartesianChart)
 
-  User = 32           //!< First role reserved for user purposes
+  static constexpr int User = 32;           //!< First role reserved for user purposes
+
+private:
+  int role_;
 };
 
 /*! \brief Flags that indicate data item options
@@ -309,7 +341,7 @@ public:
    * \sa WAbstractItemModel::data()
    * \sa ItemDataRole
    */
-  cpp17::any data(int role = ItemDataRole::Display) const;
+  cpp17::any data(ItemDataRole role = ItemDataRole::Display) const;
 
   /*! \brief Returns the flags for this item.
    *

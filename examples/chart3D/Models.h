@@ -12,14 +12,14 @@ public:
   virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
   virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-  Wt::cpp17::any data(int row, int column, int role = Wt::ItemDataRole::Display, const Wt::WModelIndex &parent = Wt::WModelIndex()) const;
+  Wt::cpp17::any data(int row, int column, Wt::ItemDataRole role = Wt::ItemDataRole::Display, const Wt::WModelIndex &parent = Wt::WModelIndex()) const;
 
   virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
-                          int role = Wt::ItemDataRole::Display) const override;
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   virtual Wt::cpp17::any headerData(int section,
                                 Wt::Orientation orientation = Wt::Orientation::Horizontal,
-                                int role = Wt::ItemDataRole::Display) const override;
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   void update(double xStart, double xEnd, double yStart, double yEnd,
 	      int nbXPts, int nbYPts) {
@@ -47,15 +47,15 @@ public:
   virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
   virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-  Wt::cpp17::any data(int row, int column, int role = Wt::ItemDataRole::Display,
+  Wt::cpp17::any data(int row, int column, Wt::ItemDataRole role = Wt::ItemDataRole::Display,
                   const Wt::WModelIndex &parent = Wt::WModelIndex()) const;
 
   virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
-                          int role = Wt::ItemDataRole::Display) const override;
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   virtual Wt::cpp17::any headerData(int section,
                                 Wt::Orientation orientation = Wt::Orientation::Horizontal,
-                                int role = Wt::ItemDataRole::Display) const override;
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   void update(double xStart, double xDelta, double yStart, double yDelta,
 	      int nbXPts, int nbYPts) {
@@ -82,15 +82,15 @@ public:
   virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
   virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-  Wt::cpp17::any data(int row, int column, int role = Wt::ItemDataRole::Display,
+  Wt::cpp17::any data(int row, int column, Wt::ItemDataRole role = Wt::ItemDataRole::Display,
                   const Wt::WModelIndex &parent = Wt::WModelIndex()) const ;
 
   virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
-                          int role = Wt::ItemDataRole::Display) const override;
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   virtual Wt::cpp17::any headerData(int section,
                                 Wt::Orientation orientation = Wt::Orientation::Horizontal,
-                                int role = Wt::ItemDataRole::Display) const override;
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   int nbPts_;
@@ -105,15 +105,15 @@ public:
   virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
   virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-  Wt::cpp17::any data(int row, int column, int role = Wt::ItemDataRole::Display,
+  Wt::cpp17::any data(int row, int column, Wt::ItemDataRole role = Wt::ItemDataRole::Display,
                   const Wt::WModelIndex &parent = Wt::WModelIndex()) const ;
 
   virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
-                          int role = Wt::ItemDataRole::Display) const override;
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   virtual Wt::cpp17::any headerData(int section,
                                 Wt::Orientation orientation = Wt::Orientation::Horizontal,
-                                int role = Wt::ItemDataRole::Display) const override;
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   double xMin_, deltaX_;

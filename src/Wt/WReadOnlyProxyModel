@@ -75,7 +75,7 @@ public:
    *
    */
   virtual bool setData(const WModelIndex& index,
-		       const cpp17::any& value, int role = ItemDataRole::Edit) override;
+                       const cpp17::any& value, ItemDataRole role = ItemDataRole::Edit) override;
 
   /*! \brief Always returns \c false and has no effect.
    *
@@ -89,7 +89,7 @@ public:
    *
    */
   virtual bool setHeaderData(int section, Orientation orientation,
-			     const cpp17::any& value, int role = ItemDataRole::Edit)
+                             const cpp17::any& value, ItemDataRole role = ItemDataRole::Edit)
     override;
 
   /*! \brief Always returns \c false and has no effect.

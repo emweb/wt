@@ -21,14 +21,14 @@ int SombreroData::columnCount(const Wt::WModelIndex&) const
   return nbYPts_+1;
 }
 
-Wt::cpp17::any SombreroData::data(int row, int column, int role,
+Wt::cpp17::any SombreroData::data(int row, int column, Wt::ItemDataRole role,
                               const Wt::WModelIndex &parent) const
 {
   return data(createIndex(row, column, (void*)0), role);
 }
 
 Wt::cpp17::any SombreroData::data(const Wt::WModelIndex& index,
-                              int role) const
+                              Wt::ItemDataRole role) const
 { 
   double delta_y = (yEnd_ - yStart_)/(nbYPts_-1);
   if (index.row() == 0) { // give back y-abscis
@@ -59,7 +59,7 @@ Wt::cpp17::any SombreroData::data(const Wt::WModelIndex& index,
 
 Wt::cpp17::any SombreroData::headerData(int section,
                                  Wt::Orientation orientation,
-                                 int role) const
+                                 Wt::ItemDataRole role) const
 {
   return 0.0; // unimplemented
 }
@@ -86,14 +86,14 @@ int PlaneData::columnCount(const Wt::WModelIndex& parent) const
   return nbYPts_;
 }
 
-Wt::cpp17::any PlaneData::data(int row, int column, int role,
+Wt::cpp17::any PlaneData::data(int row, int column, Wt::ItemDataRole role,
                            const Wt::WModelIndex &parent) const
 {
   return data(createIndex(row, column, (void*)0), role);
 }
 
 Wt::cpp17::any PlaneData::data(const Wt::WModelIndex& index,
-			   int role) const
+                           Wt::ItemDataRole role) const
 {
 
 
@@ -124,7 +124,7 @@ Wt::cpp17::any PlaneData::data(const Wt::WModelIndex& index,
 
 Wt::cpp17::any PlaneData::headerData(int section,
                                  Wt::Orientation orientation,
-				 int role) const
+                                 Wt::ItemDataRole role) const
 {
   return 0.0; // unimplemented
 }
@@ -143,14 +143,14 @@ int PointsData::columnCount(const Wt::WModelIndex& parent) const
   return 3;
 }
 
-Wt::cpp17::any PointsData::data(int row, int column, int role,
+Wt::cpp17::any PointsData::data(int row, int column, Wt::ItemDataRole role,
                             const Wt::WModelIndex &parent) const
 {
   return data(createIndex(row, column, (void*)0), role);
 }
 
 Wt::cpp17::any PointsData::data(const Wt::WModelIndex& index,
-			    int role) const
+                            Wt::ItemDataRole role) const
 {
   if (role != Wt::ItemDataRole::Display) {
     return Wt::cpp17::any();
@@ -173,7 +173,7 @@ Wt::cpp17::any PointsData::data(const Wt::WModelIndex& index,
 
 Wt::cpp17::any PointsData::headerData(int section,
                                   Wt::Orientation orientation,
-				  int role) const
+                                  Wt::ItemDataRole role) const
 {
   return 0.0; // unimplemented
 }
@@ -198,14 +198,14 @@ int Parabola::columnCount(const Wt::WModelIndex& parent) const
   return 41;
 }
 
-Wt::cpp17::any Parabola::data(int row, int column, int role,
+Wt::cpp17::any Parabola::data(int row, int column, Wt::ItemDataRole role,
                           const Wt::WModelIndex &parent) const
 {
   return data(createIndex(row, column, (void*)0), role);
 }
 
 Wt::cpp17::any Parabola::data(const Wt::WModelIndex& index,
-			  int role) const
+                          Wt::ItemDataRole role) const
 {
   // double value = factor_ * (xMin_+index.row()*deltaX_)*(yMin_+index.column()*deltaY_);
   double value = factor_ * ( (xMin_+index.row()*deltaX_)*(xMin_+index.row()*deltaX_) + (yMin_+index.column()*deltaY_)*(yMin_+index.column()*deltaY_) ) + minimum_;
@@ -224,7 +224,7 @@ Wt::cpp17::any Parabola::data(const Wt::WModelIndex& index,
 
 Wt::cpp17::any Parabola::headerData(int section,
                                   Wt::Orientation orientation,
-				  int role) const
+                                  Wt::ItemDataRole role) const
 {
   return 0.0; // unimplemented
 }

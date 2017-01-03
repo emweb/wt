@@ -127,13 +127,13 @@ public:
   }
 
   virtual cpp17::any data(const WModelIndex& index,
-		       int role = ItemDataRole::Display) const override
+                       ItemDataRole role = ItemDataRole::Display) const override
   {
     return model_->headerData(index.column(), Orientation::Horizontal, role);
   }
 
   virtual bool setData(const WModelIndex& index, const cpp17::any& value,
-		       int role = ItemDataRole::Edit) override
+                       ItemDataRole role = ItemDataRole::Edit) override
   {
     return model_->setHeaderData(index.column(), Orientation::Horizontal,
 				 value, role);

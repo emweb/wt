@@ -137,7 +137,7 @@ WStandardItem::WStandardItem(int rows, int columns)
 WStandardItem::~WStandardItem()
 { }
 
-void WStandardItem::setData(const cpp17::any& d, int role)
+void WStandardItem::setData(const cpp17::any& d, ItemDataRole role)
 {
   if (role == ItemDataRole::Edit)
     role = ItemDataRole::Display;
@@ -151,7 +151,7 @@ void WStandardItem::setData(const cpp17::any& d, int role)
   }
 }
 
-cpp17::any WStandardItem::data(int role) const
+cpp17::any WStandardItem::data(ItemDataRole role) const
 {
   DataMap::const_iterator i = data_.find(role);
 
@@ -772,7 +772,7 @@ bool WStandardItem::operator< (const WStandardItem& other) const
 
 int WStandardItem::compare(const WStandardItem& other) const
 {
-  int role = model_ ? model_->sortRole() : ItemDataRole::Display;
+  ItemDataRole role = model_ ? model_->sortRole() : ItemDataRole::Display;
 
   cpp17::any d1 = data(role);
   cpp17::any d2 = other.data(role);

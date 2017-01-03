@@ -89,7 +89,7 @@ public:
    * source model, and calls sourceModel()->data() with this index.
    */
   virtual cpp17::any data(const WModelIndex& index, 
-		       int role = ItemDataRole::Display) const override;
+                       ItemDataRole role = ItemDataRole::Display) const override;
 
   /*! \brief Returns the row or column header data.
    *
@@ -104,7 +104,7 @@ public:
    */
   virtual cpp17::any headerData(int section,
 			     Orientation orientation = Orientation::Horizontal,
-			     int role = ItemDataRole::Display)
+                             ItemDataRole role = ItemDataRole::Display)
     const override;
 
   /*! \brief Sets the data at the given model index.
@@ -112,7 +112,7 @@ public:
    * The default proxy implementation calls sourceModel()->setData(mapToSource(index), value, role)
    */
   virtual bool setData(const WModelIndex& index, const cpp17::any& value,
-		       int role = ItemDataRole::Edit) override;
+                       ItemDataRole role = ItemDataRole::Edit) override;
 
   /*! \brief Sets the data at the given model index.
    *

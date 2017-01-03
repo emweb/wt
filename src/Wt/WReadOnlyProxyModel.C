@@ -45,7 +45,7 @@ WModelIndex WReadOnlyProxyModel::index(int row, int column,
 }
 
 bool WReadOnlyProxyModel::setData(const WModelIndex& index, const cpp17::any& value,
-				  int role)
+                                  ItemDataRole role)
 {
   return false;
 }
@@ -57,7 +57,7 @@ bool WReadOnlyProxyModel::setItemData(const WModelIndex& index,
 }
 
 bool WReadOnlyProxyModel::setHeaderData(int section, Orientation orientation,
-					const cpp17::any& value, int role)
+                                        const cpp17::any& value, ItemDataRole role)
 {
   return false;
 }

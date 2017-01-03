@@ -25,9 +25,9 @@ public:
       return 0;
   }
 
-  virtual cpp17::any data(const WModelIndex& index, int role = ItemDataRole::Display) const
+  virtual cpp17::any data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display) const
   {
-    switch (role) {
+    switch (role.value()) {
     case ItemDataRole::Display:
       if (index.column() == 0)
         return WString("Row {1}").arg(index.row());
@@ -41,10 +41,10 @@ public:
 
   virtual cpp17::any headerData(int section,
                                 Orientation orientation = Orientation::Horizontal,
-                                int role = ItemDataRole::Display) const
+                                ItemDataRole role = ItemDataRole::Display) const
   {
     if (orientation == Orientation::Horizontal) {
-      switch (role) {
+      switch (role.value()) {
       case ItemDataRole::Display:
         return WString("Column {1}").arg(section);
       default:

@@ -478,7 +478,7 @@ void WAggregateProxyModel::sort(int column, Wt::SortOrder order)
 }
 
 cpp17::any WAggregateProxyModel::headerData(int section,
-				     Orientation orientation, int role) const
+                                     Orientation orientation, ItemDataRole role) const
 {
   if (orientation == Orientation::Horizontal) {
     section = topLevel_.mapToSource(section);
@@ -492,7 +492,7 @@ cpp17::any WAggregateProxyModel::headerData(int section,
 }
 
 bool WAggregateProxyModel::setHeaderData(int section, Orientation orientation,
-					 const cpp17::any& value, int role)
+                                         const cpp17::any& value, ItemDataRole role)
 {
   if (orientation == Orientation::Horizontal)
     section = topLevel_.mapToSource(section);

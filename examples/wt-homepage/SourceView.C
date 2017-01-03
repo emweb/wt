@@ -17,7 +17,9 @@
 using namespace Wt;
 namespace fs = boost::filesystem;
 
-SourceView::SourceView(int fileNameRole, int contentRole, int filePathRole)
+SourceView::SourceView(ItemDataRole fileNameRole,
+                       ItemDataRole contentRole,
+                       ItemDataRole filePathRole)
     : fileNameRole_(fileNameRole),
       contentRole_(contentRole),
       filePathRole_(filePathRole),

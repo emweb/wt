@@ -30,9 +30,9 @@ using namespace Wt;
 class FileItem : public Wt::WStandardItem
 {
 public:
-  static const int ContentsRole;
-  static const int FilePathRole;
-  static const int FileNameRole;
+  static const Wt::ItemDataRole ContentsRole;
+  static const Wt::ItemDataRole FilePathRole;
+  static const Wt::ItemDataRole FileNameRole;
   
   FileItem(const std::string& iconUri, const Wt::WString& text,
 	   const std::string& fileName)

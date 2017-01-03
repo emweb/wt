@@ -34,7 +34,9 @@ public:
    * to be displayed. If no data is set for this role, then
    * <i>contentRole</i> should hold the data as a string.
    */
-  SourceView(int fileNameRole, int contentRole, int filePathRole);
+  SourceView(ItemDataRole fileNameRole,
+             ItemDataRole contentRole,
+             ItemDataRole filePathRole);
  
   /*! \brief Destructor
    */
@@ -59,9 +61,9 @@ private:
   WModelIndex index_;
 
   /// The role that is currently displayed.
-  int fileNameRole_;
-  int contentRole_;
-  int filePathRole_;
+  Wt::ItemDataRole fileNameRole_;
+  Wt::ItemDataRole contentRole_;
+  Wt::ItemDataRole filePathRole_;
 
   std::shared_ptr<WMemoryResource> imageResource_;
 
