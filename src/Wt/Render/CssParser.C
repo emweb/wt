@@ -372,7 +372,7 @@ CssGrammer<Iterator>::CssGrammer()
   on_error<qi::fail>
   (
     rulesetArray_,
-    error_report(qi::_2, qi::_3, qi::_4, "styleSheetText()", fs_error_tag())
+    error_report(qi::_2, qi::_3, qi::_4, phoenix::val("styleSheetText()"), fs_error_tag())
   );
 
 }
