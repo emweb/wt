@@ -7,9 +7,16 @@
 #include "Wt/Auth/LostPasswordWidget.h"
 #include "Wt/Auth/AuthService.h"
 
+#include "Wt/WApplication.h"
 #include "Wt/WLineEdit.h"
 #include "Wt/WMessageBox.h"
 #include "Wt/WPushButton.h"
+
+namespace {
+  void deleteBox(Wt::WMessageBox *box) {
+    Wt::WApplication::instance()->removeChild(box);
+  }
+}
 
 namespace Wt {
   namespace Auth {
@@ -52,13 +59,8 @@ void LostPasswordWidget::send()
                      Icon::None, StandardButton::Ok));
   box->show();
 
-  box->buttonClicked().connect(std::bind(&LostPasswordWidget::deleteBox, this, box.get()));
-  addChild(std::move(box));
-}
-
-void LostPasswordWidget::deleteBox(WMessageBox *box)
-{
-  removeChild(box);
+  box->buttonClicked().connect(std::bind(&deleteBox, box.get()));
+  WApplication::instance()->addChild(std::move(box));
 }
 
 void LostPasswordWidget::cancel()

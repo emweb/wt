@@ -17,30 +17,11 @@ namespace Wt {
 
 LOGGER("WTimePicker");
 
-WTimePicker::WTimePicker()
-  : toggleAmPm_(2, this)
-{
-  init();
-}
-
-WTimePicker::WTimePicker(const WTime &time)
-  : toggleAmPm_(2, this)
-{
-  init(time);
-}
-
 WTimePicker::WTimePicker(WTimeEdit *timeEdit)
   : timeEdit_(timeEdit),
     toggleAmPm_(2, this)
 {
   init();
-}
-
-WTimePicker::WTimePicker(const WTime &time, WTimeEdit *timeEdit)
-  : timeEdit_(timeEdit),
-    toggleAmPm_(2, this)
-{
-    init(time);
 }
 
 void WTimePicker::init(const WTime &time)

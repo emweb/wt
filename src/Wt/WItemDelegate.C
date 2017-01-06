@@ -121,7 +121,17 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
   bool isNew = false;
 
+  bool haveCheckBox = index.isValid() ? !index.data(ItemDataRole::Checked).empty() : false;
+  bool haveLink = index.isValid() ? !index.data(ItemDataRole::Link).empty() : false;
+  bool haveIcon = index.isValid() ? !index.data(ItemDataRole::Decoration).empty(): false;
   if (!(flags & ViewItemRenderFlag::Editing)) {
+    if (widgetRef.w) {
+      if (haveCheckBox != (checkBox(widgetRef, index, false) != 0) ||
+          haveLink != (anchorWidget(widgetRef, index, false) != 0) ||
+          haveIcon != (iconWidget(widgetRef, index, false) != 0))
+        widgetRef.w = 0;
+    }
+
     if (!widgetRef.w) {
       isNew = true;
       IndexText *t = new IndexText(index);
@@ -135,11 +145,8 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     if (!index.isValid())
       return widgetRef.w;
 
-    bool haveCheckBox = false;
-
     cpp17::any checkedData = index.data(ItemDataRole::Checked);
     if (!checkedData.empty()) {
-      haveCheckBox = true;
       CheckState state =
 	(checkedData.type() == typeid(bool) ?
 	 (cpp17::any_cast<bool>(checkedData) ? 
@@ -148,7 +155,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 	    cpp17::any_cast<CheckState>(checkedData) :
 	    CheckState::Unchecked));
       IndexCheckBox *icb =
-        checkBox(widgetRef, index, true, index.flags().test(ItemFlag::Tristate));
+        checkBox(widgetRef, index, true, true, index.flags().test(ItemFlag::Tristate));
       icb->setCheckState(state);
       icb->setEnabled(index.flags().test(ItemFlag::UserCheckable));
     } else if (!isNew)
@@ -220,7 +227,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
  */
 
 IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
-				      bool autoCreate, bool triState)
+				      bool autoCreate, bool update, bool triState)
 {
   IndexCheckBox *checkBox = dynamic_cast<IndexCheckBox *>(w.w->find("c"));
 
@@ -254,7 +261,8 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
       return nullptr;
   }
 
-  checkBox->setTristate(triState);
+  if (update)
+    checkBox->setTristate(triState);
 
   return checkBox;
 }
@@ -271,8 +279,8 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w,
   if (image || !autoCreate)
     return image;
 
-  IndexContainerWidget *wc =
-      dynamic_cast<IndexContainerWidget *>(w.w->find("a"));
+  WContainerWidget *wc =
+      dynamic_cast<IndexAnchor *>(w.w->find("a"));
 
   if (!wc)
     wc = dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
@@ -300,10 +308,10 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w,
   return image;
 }
 
-IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index)
+IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index, bool autoCreate)
 {
   IndexAnchor *anchor = dynamic_cast<IndexAnchor *>(w.w->find("a"));
-  if (anchor)
+  if (anchor || !autoCreate)
     return anchor;
 
   anchor = new IndexAnchor(index);
@@ -344,7 +352,7 @@ void WItemDelegate::updateModelIndex(WWidget *widget, const WModelIndex& index)
   WidgetRef w(widget);
 
   if (index.flags().test(ItemFlag::UserCheckable)) {
-    IndexCheckBox *cb = checkBox(w, index, false, false);
+    IndexCheckBox *cb = checkBox(w, index, false);
     if (cb)
       cb->setIndex(index);
   }
@@ -395,7 +403,6 @@ std::unique_ptr<WWidget> WItemDelegate
   if (flags.test(ViewItemRenderFlag::Focused))
     lineEdit->setFocus(true);
 
-  WApplication *app = WApplication::instance();
   lineEdit->resize(WLength(100, LengthUnit::Percentage),
                      WLength(100, LengthUnit::Percentage)); //for Konqueror
   result->addWidget(std::move(lineEdit));

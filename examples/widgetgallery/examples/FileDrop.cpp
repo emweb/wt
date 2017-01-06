@@ -1,18 +1,6 @@
 #include <Wt/WContainerWidget.h>
 #include <Wt/WFileDropWidget.h>
 
-void errHandler(Wt::WFileDropWidget *dropWidget,
-		Wt::WFileDropWidget::File* file) {
-  std::vector<Wt::WFileDropWidget::File*> uploads =dropWidget->uploads();
-  std::vector<Wt::WFileDropWidget::File*>::iterator it =
-    std::find(uploads.begin(), uploads.end(), file);
-  std::size_t idx = it - uploads.begin();
-  if (idx < dropWidget->count()) {
-    dropWidget->widget(idx)->removeStyleClass("spinner");
-    dropWidget->widget(idx)->addStyleClass("failed");
-  }
-};
-
 SAMPLE_BEGIN(FileDrop)
 
 auto dropWidgetPtr = Wt::cpp14::make_unique<Wt::WFileDropWidget>();
@@ -37,17 +25,30 @@ dropWidget->drop().connect(std::bind([=] (const std::vector<Wt::WFileDropWidget:
 }, std::placeholders::_1));
 
 dropWidget->uploaded().connect(std::bind([=] (Wt::WFileDropWidget::File* file) {
-  std::vector<Wt::WFileDropWidget::File*> uploads =dropWidget->uploads();
+  std::vector<Wt::WFileDropWidget::File*> uploads = dropWidget->uploads();
   std::vector<Wt::WFileDropWidget::File*>::iterator it =
     std::find(uploads.begin(), uploads.end(), file);
   std::size_t idx = it - uploads.begin();
-  if (idx < uploads.size()) {
-    dropWidget->widget(idx)->removeStyleClass("spinner");
-    dropWidget->widget(idx)->addStyleClass("ready");
-  }
+  dropWidget->widget(idx)->removeStyleClass("spinner");
+  dropWidget->widget(idx)->addStyleClass("ready");
 }, std::placeholders::_1));
 
-dropWidget->tooLarge().connect(std::bind(errHandler, dropWidget, std::placeholders::_1));
-dropWidget->uploadFailed().connect(std::bind(errHandler, dropWidget, std::placeholders::_1));
+dropWidget->tooLarge().connect(std::bind([=] (Wt::WFileDropWidget::File *file) {
+  std::vector<Wt::WFileDropWidget::File*> uploads = dropWidget->uploads();
+  std::vector<Wt::WFileDropWidget::File*>::iterator it =
+    std::find(uploads.begin(), uploads.end(), file);
+  std::size_t idx = it - uploads.begin();
+  dropWidget->widget(idx)->removeStyleClass("spinner");
+  dropWidget->widget(idx)->addStyleClass("failed");
+}, std::placeholders::_1));
+
+dropWidget->uploadFailed().connect(std::bind([=] (Wt::WFileDropWidget::File *file) {
+  std::vector<Wt::WFileDropWidget::File*> uploads = dropWidget->uploads();
+  std::vector<Wt::WFileDropWidget::File*>::iterator it =
+    std::find(uploads.begin(), uploads.end(), file);
+  std::size_t idx = it - uploads.begin();
+  dropWidget->widget(idx)->removeStyleClass("spinner");
+  dropWidget->widget(idx)->addStyleClass("failed");
+}, std::placeholders::_1));
 
 SAMPLE_END(return std::move(dropWidgetPtr))

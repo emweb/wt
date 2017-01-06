@@ -17,7 +17,6 @@ namespace Wt {
 /*! \class WTimeEdit Wt/WTimeEdit Wt/WTimeEdit
  *  \brief A Time field editor
  *
- *  \sa WTimePicker
  *  \sa WTime
  *  \sa WTimeValidator
  *
@@ -104,18 +103,12 @@ protected:
     virtual void render(WFlags<RenderFlag> flags) override;
     virtual void propagateSetEnabled(bool enabled) override;
 
-    /*! \brief Sets the value from the time scroller to the line edit.
-     */
-    virtual void setFromTimePicker();
-
-    /*! \brief Sets the value from the line edit to the time scroller.
-     */
-    virtual void setFromLineEdit();
-
 private:
     std::unique_ptr<WPopupWidget> popup_;
     WTimePicker *timePicker_;
 
+    void setFromTimePicker();
+    void setFromLineEdit();
     void defineJavaScript();
     void connectJavaScript(Wt::EventSignalBase& s,
 			   const std::string& methodName);

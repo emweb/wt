@@ -34,35 +34,29 @@ public:
     view_->addStyleClass("Wt-itemview-paged");
     setStyleClass("Wt-pagingbar");
 
-    std::unique_ptr<WPushButton> firstButton
-      (new WPushButton(tr("Wt.WAbstractItemView.PageBar.First")));
-    firstButton_ = firstButton.get();
-    firstButton->clicked().connect(this, &DefaultPagingBar::showFirstPage);
+    firstButton_ = addWidget(
+          cpp14::make_unique<WPushButton>(
+            tr("Wt.WAbstractItemView.PageBar.First")));
+    firstButton_->clicked().connect(this, &DefaultPagingBar::showFirstPage);
 
-    std::unique_ptr<WPushButton> prevButton
-      (new WPushButton(tr("Wt.WAbstractItemView.PageBar.Previous")));
-    prevButton_ = prevButton.get();
-    prevButton->clicked().connect(this, &DefaultPagingBar::showPreviousPage);
+    prevButton_ = addWidget(
+          cpp14::make_unique<WPushButton>(
+            tr("Wt.WAbstractItemView.PageBar.Previous")));
+    prevButton_->clicked().connect(this, &DefaultPagingBar::showPreviousPage);
 
-    std::unique_ptr<WText> current(new WText());
-    current_ = current.get();
+    current_ = addWidget(cpp14::make_unique<WText>());
 
-    std::unique_ptr<WPushButton> nextButton
-      (new WPushButton(tr("Wt.WAbstractItemView.PageBar.Next")));
-    nextButton_ = nextButton.get();
-    nextButton->clicked().connect(this, &DefaultPagingBar::showNextPage);
+    nextButton_ = addWidget(
+          cpp14::make_unique<WPushButton>(
+            tr("Wt.WAbstractItemView.PageBar.Next")));
+    nextButton_->clicked().connect(this, &DefaultPagingBar::showNextPage);
 
-    std::unique_ptr<WPushButton> lastButton
-      (new WPushButton(tr("Wt.WAbstractItemView.PageBar.Next")));
-    lastButton_ = lastButton.get();
-    lastButton->clicked().connect(this, &DefaultPagingBar::showLastPage);
+    lastButton_ = addWidget(
+          cpp14::make_unique<WPushButton>(
+            tr("Wt.WAbstractItemView.PageBar.Last")));
+    lastButton_->clicked().connect(this, &DefaultPagingBar::showLastPage);
 
     view_->pageChanged().connect(this, &DefaultPagingBar::update);
-
-    addWidget(std::move(firstButton));
-    addWidget(std::move(prevButton));
-    addWidget(std::move(nextButton));
-    addWidget(std::move(lastButton));
 
     update();
   }
