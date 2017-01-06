@@ -97,7 +97,7 @@ public:
    */
   const WString& title() const { return title_; }
 
-  /*! \brief Returns the title.
+  /*! \brief Sets the title.
    */
   void setTitle(const WString& title);
 

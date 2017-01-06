@@ -1500,7 +1500,8 @@ void WTableView::updateItem(const WModelIndex& index,
   WWidget *w = renderWidget(current, index);
 
   if (!w->parent()) {
-    delete current;
+    if (!w->findById(current->id()))
+      delete current;
     parentWidget->insertWidget(wIndex, w);
 
     if (!ajaxMode() && !isEditing(index)) {

@@ -280,11 +280,11 @@ private:
   };
 
   IndexCheckBox *checkBox(WidgetRef& w, const WModelIndex& index,
-			 bool autoCreate, bool triState = false);
+			 bool autoCreate, bool update = false, bool triState = false);
 
   IndexText *textWidget(WidgetRef& w, const WModelIndex& index);
   WImage *iconWidget(WidgetRef& w, const WModelIndex& index, bool autoCreate = false);
-  IndexAnchor *anchorWidget(WidgetRef& w, const WModelIndex& index);
+  IndexAnchor *anchorWidget(WidgetRef& w, const WModelIndex& index, bool autoCreate = false);
 
   void onCheckedChange(IndexCheckBox *checkBox) const;
   void doCloseEditor(WWidget *editor, bool save) const;
