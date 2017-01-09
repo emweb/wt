@@ -133,6 +133,31 @@ namespace {
       return envValue(cgiEnvName(name).c_str());
     }
 
+    std::vector<Wt::Http::Message::Header> headers() const {
+      std::vector<Wt::Http::Message::Header> headerVector;
+      std::string header_prefix("HTTP_");
+      int prefix_length = header_prefix.length();
+
+      for(int i=0; request_->envp[i];++i){
+	std::string env_string(request_->envp[i]);
+	if (env_string.compare(0,prefix_length, header_prefix) == 0){
+	  std::string name = env_string.substr(prefix_length, env_string.find("=") - prefix_length);
+	  std::string value = env_string.substr(env_string.find("=") + 1);
+          headerVector.push_back(Wt::Http::Message::Header(name, value));
+        }
+      }
+      const char *contentLength = envValue("CONTENT_LENGTH");
+      if (contentLength) {
+	headerVector.push_back(Wt::Http::Message::Header("CONTENT_LENGTH", contentLength));
+      }
+      const char *contentType = envValue("CONTENT_TYPE");
+      if (contentType){
+	headerVector.push_back(Wt::Http::Message::Header("CONTENT_TYPE", contentType));
+      }
+      return headerVector;
+    }
+
+
     virtual const char *envValue(const char *name) const {
       char *result = FCGX_GetParam(name, request_->envp);
       if (result)

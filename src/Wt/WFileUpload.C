@@ -6,7 +6,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WFileUpload"
-#include "Wt/WFileDropWidget"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
@@ -131,14 +130,11 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
   : WWebWidget(parent),
     textSize_(20),
     fileTooLarge_(this, "fileTooLarge"),
-    startUpload_(this, "startUpload"),
     dataReceived_(this),
     progressBar_(0)
 {
   setInline(true);
   create();
-
-  startUpload_.connect(this, &WFileUpload::upload);
 }
 
 void WFileUpload::create()
@@ -223,6 +219,8 @@ void WFileUpload::enableAjax()
 void WFileUpload::setFilters(const std::string& acceptAttributes)
 {
   acceptAttributes_ = acceptAttributes;
+  flags_.set(BIT_ACCEPT_ATTRIBUTE_CHANGED, true);
+  repaint();
 }
 
 void WFileUpload::setProgressBar(WProgressBar *bar)
@@ -303,27 +301,6 @@ bool WFileUpload::empty() const
   return uploadedFiles_.empty();
 }
 
-void WFileUpload::registerDropWidget(WFileDropWidget *dropWidget)
-{
-  dropWidget->setFileUpload(this);
-}
-  
-void WFileUpload::registerDropWidgetInternal(WFileDropWidget *dropWidget)
-{
-  std::string setupDropHandler =
-    dropWidget->jsRef() + ".ondrop = function(e) {"
-    "e.preventDefault();"
-    "if (e.dataTransfer.files != null && e.dataTransfer.files.length > 0) {"
-    "" "var x = " WT_CLASS ".$('in" + id() + "');"
-    "" "x.files = e.dataTransfer.files;"
-    "" + startUpload_.createCall() +
-    "}" +
-    dropWidget->jsRef() + ".setHoverStyle(false);"
-    "};";
-
-    dropWidget->doJavaScript(setupDropHandler);
-}
-
 void WFileUpload::updateDom(DomElement& element, bool all)
 {
   bool containsProgress = progressBar_ && progressBar_->parent() == this;
@@ -381,11 +358,17 @@ void WFileUpload::updateDom(DomElement& element, bool all)
       inputE->callMethod("disabled=false");
     else
       inputE->callMethod("disabled=true");
+  }
+
+  if (flags_.test(BIT_ACCEPT_ATTRIBUTE_CHANGED) || flags_.test(BIT_ENABLED_CHANGED)){
+    if (!inputE)
+      inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
 
     inputE->setAttribute("accept", acceptAttributes_);
-
-    flags_.reset(BIT_ENABLED_CHANGED);
   }
+
+  flags_.reset(BIT_ENABLED_CHANGED);
+  flags_.reset(BIT_ACCEPT_ATTRIBUTE_CHANGED);
 
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
   if (change && change->needsUpdate(all)) {

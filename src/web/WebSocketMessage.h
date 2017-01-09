@@ -51,6 +51,10 @@ public:
 
   virtual const char * headerValue(const char *name) const;
 
+#ifndef WT_TARGET_JAVA
+  virtual std::vector<Wt::Http::Message::Header> headers() const;
+#endif
+
   virtual bool isWebSocketMessage() const { return true; }
 
   virtual const char *contentType() const;

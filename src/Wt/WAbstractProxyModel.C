@@ -125,6 +125,9 @@ void WAbstractProxyModel::shiftModelIndexes(const WModelIndex& sourceParent,
   /*
    * We must shift all indexes within sourceParent >= start with count
    * and delete items when count < 0.
+   *
+   * If count > 0 : rows inserted, after insertion
+   * If count < 0 : rows to be removed, before removal
    */
   std::vector<BaseItem *> shifted;
   std::vector<BaseItem *> erased;
@@ -159,14 +162,19 @@ void WAbstractProxyModel::shiftModelIndexes(const WModelIndex& sourceParent,
 	break;
 
       if (p == sourceParent) {
-	shifted.push_back(it->second);
+	if (count < 0 &&
+	    i.row() >= start &&
+	    i.row() < start + (-count))
+	  erased.push_back(it->second);
+	else
+	  shifted.push_back(it->second);
       } else if (count < 0) {
 	// delete indexes that are about to be deleted, if they are within
 	// the range of deleted indexes
 	do {
 	  if (p.parent() == sourceParent
 	      && p.row() >= start
-	      && p.row() < start - count) {
+	      && p.row() < start + (-count)) {
 	    erased.push_back(it->second);
 	    break;
 	  } else
@@ -188,6 +196,7 @@ void WAbstractProxyModel::shiftModelIndexes(const WModelIndex& sourceParent,
   for (unsigned i = 0; i < shifted.size(); ++i) {
     BaseItem *item = shifted[i];
     items.erase(item->sourceIndex_);
+
     if (item->sourceIndex_.row() + count >= start) {
       item->sourceIndex_ = sourceModel()->index
 	(item->sourceIndex_.row() + count,

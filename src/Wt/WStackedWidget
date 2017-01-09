@@ -101,6 +101,16 @@ public:
    * WAnimation::SlideInFromRight, WAnimation::SlideInFromUp or
    * WAnimation::SlideInFromDown transition effects.
    *
+   * \note If you intend to use a transition animation with a WStackedWidget
+   * you should set it before it is first rendered. Otherwise, transition
+   * animations caused by setCurrentIndex() may not be correctly performed.
+   * If you do want to force this change you can use WApplication::processEvents
+   * before calling setCurrentIndex().
+   *
+   * \note It is also not supported to use a WAnimation::Pop animation on a WStackedWidget.
+   *
+   *
+   *
    * \sa setCurrentIndex()
    */
   void setTransitionAnimation(const WAnimation& animation,

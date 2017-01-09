@@ -111,6 +111,9 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->mouseWentUp()
       .connect(boost::bind(&WTableView::handleMouseWentUp, this, false, _1)); 
     canvas_->mouseWentUp().preventPropagation();
+    canvas_->mouseWentUp().connect("function(o, e) { "
+                                     "$(document).trigger($.event.fix(e));"
+                                     "}");
     canvas_->addWidget(table_);
 
     contentsContainer_ = new WContainerWidget();
@@ -1497,7 +1500,8 @@ void WTableView::updateItem(const WModelIndex& index,
   WWidget *w = renderWidget(current, index);
 
   if (!w->parent()) {
-    delete current;
+    if (!w->findById(current->id()))
+      delete current;
     parentWidget->insertWidget(wIndex, w);
 
     if (!ajaxMode() && !isEditing(index)) {

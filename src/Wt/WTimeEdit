@@ -17,7 +17,6 @@ namespace Wt {
 /*! \class WTimeEdit Wt/WTimeEdit Wt/WTimeEdit
  *  \brief A Time field editor
  *
- *  \sa WTimePicker
  *  \sa WTime
  *  \sa WTimeValidator
  *
@@ -103,15 +102,9 @@ protected:
     virtual void render(WFlags<RenderFlag> flags);
     virtual void propagateSetEnabled(bool enabled);
 
-    /*! \brief Sets the value from the time scroller to the line edit.
-     */
-    virtual void setFromTimePicker();
-
-    /*! \brief Sets the value from the line edit to the time scroller.
-     */
-    virtual void setFromLineEdit();
-
 private:
+    void setFromTimePicker();
+    void setFromLineEdit();
     WPopupWidget *popup_;
     WTimePicker *timePicker_;
 

@@ -47,6 +47,8 @@ public:
 
   virtual const char *headerValue(const char *name) const;
 
+  virtual std::vector<Wt::Http::Message::Header> headers() const;
+
   virtual const char *envValue(const char *name) const;
 
   virtual const std::string &scriptName() const;

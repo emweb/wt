@@ -1,0 +1,198 @@
+/*
+ * Copyright (C) 2016 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+/* Note: this is at the same time valid JavaScript and C++. */
+
+WT_DECLARE_WT_MEMBER
+(1, JavaScriptConstructor, "WFileDropWidget",
+ function(APP, dropwidget, url, maxFileSize) {
+
+   jQuery.data(dropwidget, 'lobj', this);
+   
+   var self = this, WT = APP.WT;
+   var hoverClassName = 'Wt-filedropzone-hover';
+
+   var uploads = [];
+   var sending = false;
+   var acceptDrops = true;
+
+   this.eventContainsFile = function(e) {
+     var items = (e.dataTransfer.items != null &&
+		  e.dataTransfer.items.length > 0 &&
+		  e.dataTransfer.items[0].kind == 'file');
+     var types = (e.dataTransfer.types != null &&
+		  e.dataTransfer.types.length > 0 &&
+		  e.dataTransfer.types[0] == 'Files');
+     return items || types;
+   };
+
+   this.validFileCheck = function(file, callback) {
+     var reader = new FileReader();
+     reader.onload = function() {
+       callback(true);
+     }
+     reader.onerror = function() {
+       callback(false);
+     }
+     reader.readAsText(file); // try reading first 10 bytes
+   }
+
+   dropwidget.setAcceptDrops = function(enable) {
+     acceptDrops = enable
+   };
+
+   dropwidget.ondragenter = function(e) {
+     if (!acceptDrops)
+       return;
+     else if (self.eventContainsFile(e))
+       self.setHoverStyle(true);
+   };
+
+   dropwidget.ondragleave = function(e) {
+     if (!acceptDrops)
+       return;
+     self.setHoverStyle(false);
+   };
+
+   dropwidget.ondragover = function(e) {
+     e.preventDefault();
+     if (!acceptDrops)
+       return;
+   };
+
+   dropwidget.ondrop = function(e) {
+     e.preventDefault();
+     if (!acceptDrops)
+       return;
+     
+     self.setHoverStyle(false);
+     if (window.FormData === undefined ||
+	 e.dataTransfer.files == null ||
+	 e.dataTransfer.files.length == 0)
+       return;
+
+     var newId = Math.floor(Math.random() * 32768);
+     var newKeys = [];
+     for (var i=0; i < e.dataTransfer.files.length; i++) {
+       var xhr = new XMLHttpRequest();
+       xhr.id = Math.floor(Math.random() * Math.pow(2, 31));
+       xhr.file = e.dataTransfer.files[i];
+       
+       uploads.push(xhr);
+       
+       var newUpload = {};
+       newUpload['id'] = xhr.id;
+       newUpload['filename'] = xhr.file.name;
+       newUpload['type'] = xhr.file.type;
+       newUpload['size'] = xhr.file.size;
+       
+       //newUpload[xhr.id] = xhr.file.name
+       newKeys.push(newUpload);
+     }
+
+     console.log(newKeys);
+     Wt.emit(dropwidget, 'dropsignal', JSON.stringify(newKeys));
+   };
+   
+   dropwidget.markForSending = function(files) {
+     for (var j=0; j < files.length; j++) {
+       var id = files[j]['id'];
+       for (var i=0; i < uploads.length; i++) {
+	 if (uploads[i].id == id) {
+	   uploads[i].ready = true;
+	   break;
+	 }
+       }
+     }
+
+     if (!sending) {
+       if (uploads[0].ready) {
+	 self.requestSend();
+       }
+     }
+   }
+
+   this.requestSend = function() {
+     if (uploads[0].skip) {
+       self.uploadFinished(null);
+       return;
+     }
+     
+     sending = true;
+     Wt.emit(dropwidget, 'requestsend', uploads[0].id);
+   }
+   
+   dropwidget.send = function() {
+     console.log('sending file');
+     xhr = uploads[0]
+     if (xhr.file.size > maxFileSize) {
+       Wt.emit(dropwidget, 'filetoolarge', xhr.file.size);
+       self.uploadFinished(null);
+       return;
+     } else {
+       self.validFileCheck(xhr.file, self.actualSend);
+     }
+   }
+
+   this.actualSend = function(isValid) {
+     if (!isValid) {
+       self.uploadFinished(null);
+       return;
+     }
+       
+     xhr = uploads[0]
+     xhr.addEventListener("load", self.uploadFinished);
+     xhr.addEventListener("error", self.uploadFinished);
+     xhr.addEventListener("abort", self.uploadFinished);
+     xhr.addEventListener("timeout", self.uploadFinished);
+     //xhr.upload.addEventListener("error", self.uploadFinished);
+     xhr.open("POST", url);
+
+     var fd = new FormData();
+     fd.append("file-id", xhr.id);
+     fd.append("data", xhr.file);
+     xhr.send(fd);
+   }
+
+   this.uploadFinished = function(e) {
+     console.log('finished sending (type = ' + e + ')');
+     if (e != null &&
+	 e.type == 'load' &&
+	 e.currentTarget.status == 200)
+       Wt.emit(dropwidget, 'uploadfinished', uploads[0].id);
+     uploads.splice(0,1);
+     if (uploads[0] && uploads[0].ready)
+       self.requestSend();
+     else {
+       sending = false;
+       Wt.emit(dropwidget, 'donesending');
+     }
+   }
+
+   dropwidget.cancelUpload = function(id) {
+     if (uploads[0].id == id)
+       uploads[0].abort();
+     else {
+       for (var i=1; i < uploads.length; i++) {
+	 if (uploads[i].id == id) {
+	   uploads[i].skip = true;
+	 }
+       }
+     }
+   };
+   
+   this.setHoverStyle = function(enable) {
+     if (enable)
+       $(dropwidget).addClass(hoverClassName);
+     else
+       $(dropwidget).removeClass(hoverClassName);
+   };
+
+   dropwidget.configureHoverClass = function(className) {
+     hoverClassName = className;
+   };
+
+ });

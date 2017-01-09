@@ -211,6 +211,7 @@ bool WebRenderer::ackUpdate(int updateId)
    * If web socket request -> we assume last AJAX request got
    * delivered ?
    */
+  LOG_DEBUG("ackUpdate: expecting " << expectedAckId_ << ", received " << updateId);
   if (updateId == expectedAckId_) {
     LOG_DEBUG("jsSynced(false) after ackUpdate okay");
     setJSSynced(false);
@@ -730,8 +731,12 @@ void WebRenderer::addResponseAckPuzzle(WStringStream& out)
    * client-side: only when libraries have been loaded, the application can
    * continue. TO BE DONE.
    */
+
+  ++expectedAckId_;
+  LOG_DEBUG("addResponseAckPuzzle: incremented expectedAckId to " << expectedAckId_);
+
   out << session_.app()->javaScriptClass()
-      << "._p_.response(" << ++expectedAckId_;
+      << "._p_.response(" << expectedAckId_;
   if (!puzzle.empty())
     out << "," << puzzle;
   out << ");";

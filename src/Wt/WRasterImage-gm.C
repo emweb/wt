@@ -152,6 +152,7 @@ WRasterImage::WRasterImage(const std::string& type,
   GetExceptionInfo(&exception);
   impl_->image_ = ConstituteImage(impl_->w_, impl_->h_, "RGBA", CharPixel,
     impl_->pixels_, &exception);
+  DestroyExceptionInfo(&exception);
 
   SetImageType(impl_->image_, TrueColorMatteType);
   SetImageOpacity(impl_->image_, 254); // 255 seems a special value...
@@ -615,6 +616,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 		  "(unknown reason)") << ", "
 	      << (exception.description ? exception.description :
 		  "(unknown description)") );
+    DestroyExceptionInfo(&exception);
     return;
   }
 
@@ -624,6 +626,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   tocrop.x = srect.x();
   tocrop.y = srect.y();
   Image *croppedImage = CropImage(cImage, &tocrop, &exception);
+  DestroyExceptionInfo(&exception);
 
   const WTransform& t = painter()->combinedTransform();
 
@@ -696,9 +699,11 @@ void WRasterImage::getPixels(void *data)
 	pixel++;
       }
   } else {
-    throw WException(std::string("WRasterImage::getPixels(): error: ") +
-      ei.description);
+    std::string desc = std::string("WRasterImage::getPixels(): error: ") + ei.description;
+    DestroyExceptionInfo(&ei);
+    throw WException(desc);
   }
+  DestroyExceptionInfo(&ei);
 }
 
 WColor WRasterImage::getPixel(int x, int y) 
@@ -1014,14 +1019,17 @@ void WRasterImage::handleRequest(const Http::Request& request,
     std::size_t size;
     void *data = ImageToBlob(&info, impl_->image_, &size, &exception);
 
-    if(!data)
+    if(!data) {
+      DestroyExceptionInfo(&exception);
       throw WException("WRasterImage::handleRequest() image could not be "
                        "converted to blob - is your image type supported "
 		       "by graphicsmagick?");
+    }
 
     response.out().write((const char *)data, size);
  
     free(data);
+    DestroyExceptionInfo(&exception);
   }
 }
 

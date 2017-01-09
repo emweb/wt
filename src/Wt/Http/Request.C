@@ -15,6 +15,7 @@
 #include "Wt/WSslInfo"
 #include "WebUtils.h"
 #include "WebRequest.h"
+#include "Message"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -31,6 +32,9 @@ namespace {
 namespace Wt {
   namespace Http {
 
+UploadedFile::UploadedFile()
+{}
+    
 UploadedFile::UploadedFile(const std::string& spoolName,
 			   const std::string& clientFileName,
 			   const std::string& contentType)
@@ -166,6 +170,13 @@ std::string Request::headerValue(const std::string& field) const
 {
   return request_ ? str(request_->headerValue(field.c_str())) : std::string();
 }
+
+#ifndef WT_TARGET_JAVA
+std::vector<Message::Header> Request::headers() const
+{
+  return request_->headers();
+}
+#endif
 
 ::int64_t Request::tooLarge() const
 {

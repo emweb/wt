@@ -2217,7 +2217,7 @@ void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 	  // at the back. This is not affected by widgetForModelRow() returning
 	  // accurate information of rows just deleted and indexes not yet
 	  // shifted
-	  if (end == model()->rowCount(parent) - 1 && start >= 1) {
+	  if (end >= model()->rowCount(parent) && start >= 1) {
 	    WTreeViewNode *n = dynamic_cast<WTreeViewNode *>
 	      (parentNode->widgetForModelRow(start - 1));
 
@@ -2229,7 +2229,7 @@ void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 	  */
 
 	// Update graphics for parent when all rows have been removed
-	if (model()->rowCount(parent) == count)
+        if (model()->rowCount(parent) == 0 && count != 0)
 	  parentNode->updateGraphics(parentNode->isLast(), true);
       } else {
 	/*

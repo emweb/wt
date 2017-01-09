@@ -549,6 +549,8 @@ void WBatchEditProxyModel::sourceRowsAboutToBeRemoved
       item->removedRows_.erase(item->removedRows_.begin() + remi);
     }
   }
+  
+  shiftModelIndexes(parent, start, -(end - start + 1), mappedIndexes_);
 }
 
 void WBatchEditProxyModel::deleteItemsUnder(Item *item, int row)
@@ -570,8 +572,6 @@ void WBatchEditProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 { 
   if (isRemoved(parent))
     return;
-
-  shiftModelIndexes(parent, start, -(end - start + 1), mappedIndexes_);
 }
 
 void WBatchEditProxyModel::sourceRowsAboutToBeInserted

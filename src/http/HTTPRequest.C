@@ -9,6 +9,7 @@
 #include "HTTPRequest.h"
 #include "Configuration.h"
 #include "WtReply.h"
+#include "Wt/Http/Message"
 
 namespace http {
 namespace server {
@@ -99,6 +100,24 @@ const char *HTTPRequest::headerValue(const char *name) const
     return cstr(i->value);
   else
     return 0;
+}
+
+std::vector<Wt::Http::Message::Header> HTTPRequest::headers() const
+{
+  std::vector<Wt::Http::Message::Header> headerVector;
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return headerVector;
+
+  const std::list<Request::Header> &headers = p->request().headers;
+
+  for (std::list<Request::Header>::const_iterator it=headers.begin(); it != headers.end(); ++it){
+    if (cstr(it->name)) {
+      headerVector.push_back(Wt::Http::Message::Header(it->name.str(), it->value.str()));
+    }
+  }
+
+  return headerVector;
 }
 
 const char *HTTPRequest::cstr(const buffer_string& bs) const {

@@ -170,7 +170,7 @@ WT_DECLARE_WT_MEMBER
 		elcStyle);
 	  }
 
-	  $el.one(transitionEventEnd, function() {
+      $el.one(transitionEventEnd, function() {
 	      if (hide)
 		el.style.display = display;
 
@@ -183,7 +183,7 @@ WT_DECLARE_WT_MEMBER
 
 	      onEnd();
 	    });
-	}, 0);
+    }, 0);
     }
 
     function animateAbsolute(cssSize, cssOffset, topleft, U) {

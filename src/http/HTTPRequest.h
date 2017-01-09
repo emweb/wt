@@ -11,6 +11,7 @@
 
 #include "WebRequest.h"
 #include "WtReply.h"
+#include "Wt/Http/Message"
 
 namespace http {
 namespace server {
@@ -43,6 +44,7 @@ public:
 
   virtual const char *envValue(const char *name) const;
   virtual const char *headerValue(const char *name) const;
+  virtual std::vector<Wt::Http::Message::Header> headers() const;
   virtual const std::string& serverName() const;
   virtual const std::string& serverPort() const;
   virtual const std::string& scriptName() const;

@@ -24,7 +24,7 @@ public:
     session_.login().changed().connect(this, &AuthApplication::authEvent);
 
     root()->addStyleClass("container");
-    setTheme(new Wt::WBootstrapTheme());
+    setTheme(new Wt::WBootstrapTheme(this));
 
     useStyleSheet("css/style.css");
 

@@ -67,6 +67,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   app->useStyleSheet("style/combostyle.css");
   app->useStyleSheet("style/pygments.css");
   app->useStyleSheet("style/layout.css");
+  app->useStyleSheet("style/filedrop.css");
 
   return app;
 }

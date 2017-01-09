@@ -13,6 +13,7 @@
 #include <sstream>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <Wt/Http/Message>
 
 #include <Wt/WDllDefs.h>
 
@@ -24,6 +25,30 @@ class WebRequest;
 class WebSession;
 
   namespace Http {
+
+#ifndef WT_TARGET_JAVA
+struct ci_comp : std::binary_function<std::string, std::string, bool>{
+  struct nocase_compare : public std::binary_function<unsigned char,unsigned char,bool>
+  {
+    bool operator() (const unsigned char& c1, const unsigned char& c2) const {
+      return tolower(c1) < tolower(c2);
+    }
+  };
+  bool operator() (const std::string & s1, const std::string & s2) const {
+    return std::lexicographical_compare
+      (s1.begin(), s1.end(),
+       s2.begin(), s2.end(),
+       nocase_compare());
+  }
+};
+
+/*! \brief A map for storing headers and their value
+ *
+ * This map uses a case insensitive comparison, as HTTP header
+ * names are case insensitive.
+ */
+typedef std::map<std::string,std::string, ci_comp> HeaderMap;
+#endif
 
 /*! \class UploadedFile Wt/Http/Request Wt/Http/Request
  *  \brief Details about a file uploaded with a request to a resource.
@@ -38,6 +63,8 @@ class WebSession;
  */
 class WT_API UploadedFile {
 public:
+  UploadedFile();
+  
   UploadedFile(const std::string& spoolFileName,
 	       const std::string& clientFileName,
 	       const std::string& contentType);
@@ -355,6 +382,15 @@ public:
    * not be the case according to RFC2616
    */
   std::string headerValue(const std::string& field) const;
+
+#ifndef WT_TARGET_JAVA
+  /*! \brief Returns all headers.
+   * 
+   * \note Use headerValue() if you need to know the value of certain known headers.
+   *       This method is not written to be efficient, but can be useful for debugging.
+   */
+  std::vector<Message::Header> headers() const;
+#endif
 
   /*! \brief Returns the request method.
    *

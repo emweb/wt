@@ -73,20 +73,7 @@ this.button = function(e)
     return 0;
   }
 
-  if (!WT.isGecko && 
-      typeof e.which !== UNDEFINED && 
-      typeof e.which !== UNKNOWN) {
-    if (e.which == 3)
-      return 4;
-    else if (e.which == 2)
-      return 2;
-    else if (e.which == 1)
-      return 1;
-    else
-      return 0;
-  } else if (WT.isIE && 
-	     typeof e.which !== UNDEFINED &&
-	     typeof e.which !== UNKNOWN) {
+  if (WT.isIElt9) {
     if (e.button == 2)
       return 4;
     else if (e.button == 4)
@@ -95,16 +82,15 @@ this.button = function(e)
       return 1;
     else
       return 0;
-  } else if (typeof e.which !== UNDEFINED &&
-	     typeof e.which !== UNKNOWN) {
-    if (e.button == 2)
-      return 4;
+  } else {
+    if (e.button == 0)
+      return 1;
     else if (e.button == 1)
       return 2;
+    else if (e.button == 2)
+      return 4;
     else
-      return 1;
-  } else {
-    return 0;
+      return 0;
   }
 };
 
@@ -3403,7 +3389,11 @@ function sendUpdate() {
     data.result += '&ackPuzzle=' + encodeURIComponent(solution);
   }
 
-  var params = "_$_PARAMS_$_";
+  function getParams() {
+    // Prevent minifier from optimizing away the length check.
+    return "_$_PARAMS_$_";
+  }
+  var params = getParams();
   if (params.length > 0)
     data.result += '&Wt-params=' + encodeURIComponent(params);
 

@@ -154,6 +154,11 @@ const char *WebSocketMessage::headerValue(const char *name) const
   return webSocket()->headerValue(name);
 }
 
+std::vector<Wt::Http::Message::Header> WebSocketMessage::headers() const
+{
+  return webSocket()->headers();
+}
+
 void WebSocketMessage::error(const std::string& msg) const
 {
   LOG_ERROR("WebSocketMessage error: " + msg);
