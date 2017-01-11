@@ -256,6 +256,20 @@ public:
    */
   void setContentType(ContentType contentType);
 
+#ifndef WT_TARGET_JAVA
+  /*! \brief Sets the server's appRoot
+   *
+   * \sa WServer::appRoot()
+   */
+  void setAppRoot(const std::string& appRoot);
+
+  /*! \brief Sets the docRoot
+   *
+   * \sa WApplication::docRoot()
+   */
+  void setDocRoot(const std::string& docRoot);
+#endif // WT_TARGET_JAVA
+
   /*! \brief %Signal used to test a dialog/messagebox reentrant event
    *         loop.
    *

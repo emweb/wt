@@ -231,6 +231,18 @@ void WTestEnvironment::setInternalPath(const std::string& internalPath)
 void WTestEnvironment::setContentType(ContentType contentType)
 { }
 
+#ifndef WT_TARGET_JAVA
+void WTestEnvironment::setAppRoot(const std::string &appRoot)
+{
+  server_->setAppRoot(appRoot);
+}
+
+void WTestEnvironment::setDocRoot(const std::string &docRoot)
+{
+  session_->setDocRoot(docRoot);
+}
+#endif // WT_TARGET_JAVA
+
 void WTestEnvironment::setUserAgent(const std::string& userAgent)
 {
   WEnvironment::setUserAgent(userAgent);
