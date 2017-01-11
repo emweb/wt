@@ -1806,7 +1806,6 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
   
     for (p = pp.parentNode; p != domRoot; p = p.parentNode) {
       if (p.wtResize) {
-	p = pp;
 	break;
       }
 

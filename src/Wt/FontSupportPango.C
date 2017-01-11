@@ -87,8 +87,8 @@ FontSupport::Bitmap::~Bitmap()
   delete[] buffer_;
 }
 
-FontSupport::FontMatch::FontMatch(PangoFont *font)
-  : font_(font)
+FontSupport::FontMatch::FontMatch(PangoFont *font, PangoFontDescription *desc)
+  : font_(font), desc_(desc)
 { }
 
 std::string FontSupport::FontMatch::fileName() const
@@ -197,7 +197,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
   for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
     if (i->font == f) {
       cache_.splice(cache_.begin(), cache_, i); // implement LRU
-      return FontMatch(i->match);
+      return FontMatch(i->match, i->desc);
     }
   }
 
@@ -209,15 +209,16 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 
   PangoFont *match = pango_font_map_load_font(pangoFontMap, context_, desc);
   pango_context_set_font_description(context_, desc); // for layoutText()
-  pango_font_description_free(desc);
 
-  if (cache_.back().match)
+  if (cache_.back().match) {
     g_object_unref(cache_.back().match);
+    pango_font_description_free(cache_.back().desc);
+  }
 
   cache_.pop_back();
-  cache_.push_front(Matched(f, match));
+  cache_.push_front(Matched(f, match, desc));
 
-  return FontMatch(match);
+  return FontMatch(match, desc);
 }
 
 void FontSupport::addFontCollection(const std::string& directory,
@@ -260,9 +261,10 @@ GList *FontSupport::layoutText(const WFont& font,
 
   enabledFontFormats = enabledFontFormats_;
 
-  matchFont(font);
+  FontMatch match = matchFont(font);
   PangoAttrList *attrs = pango_attr_list_new();
 
+  pango_context_set_font_description(context_, match.pangoFontDescription());
   GList *items
     = pango_itemize(context_, utf8.c_str(), 0, utf8.length(), attrs, NULL);
 
@@ -347,7 +349,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
      * same selection !
      */
     WString s = WString::fromUTF8(utf8.substr(item->offset,
-					      item->length));
+                                              item->length));
 
     device_->drawText(WRectF(x, rect.y(),
 			     1000, rect.height()),

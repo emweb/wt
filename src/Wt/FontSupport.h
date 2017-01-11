@@ -60,11 +60,12 @@ public:
   public:
 #ifdef HAVE_PANGO
 
-    FontMatch(PangoFont *font);
+    FontMatch(PangoFont *font, PangoFontDescription *desc);
 
     bool matched() const { return true; }
     std::string fileName() const;
     PangoFont *pangoFont() const { return font_; }
+    PangoFontDescription *pangoFontDescription() const { return desc_; }
 
 #else
 
@@ -84,6 +85,7 @@ public:
 
 #ifdef HAVE_PANGO
     mutable PangoFont *font_;
+    PangoFontDescription *desc_;
 #else
     std::string file_;
     double quality_;
@@ -170,9 +172,10 @@ private:
   struct Matched {
     WFont font;
     PangoFont *match;
+    PangoFontDescription *desc;
 
-    Matched() : font(), match(0) { }
-    Matched(const WFont& f, PangoFont *m) : font(f), match(m) { }
+    Matched() : font(), match(0), desc(0) { }
+    Matched(const WFont& f, PangoFont *m, PangoFontDescription *d) : font(f), match(m), desc(d) { }
   };
 
   typedef std::list<Matched> MatchCache;

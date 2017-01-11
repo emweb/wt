@@ -63,10 +63,9 @@ namespace Wt {
  *
  * The <i>element</i> can be a \link Wt::WWidget::jsRef() DOM
  * element\endlink, or the \link Wt::WObject::id() object ID\endlink of a
- * WObject, or the constant <tt>"Wt"</tt> which is an alias for
- * Wt::WApplication::instance()->id(). The conversion between the
- * JavaScript arguments (ax) and the C++ type Ax uses
- * <tt>boost::lexical_cast<Ax>(ax)</tt>.
+ * WObject, or the constant <tt>Wt</tt> which refers to the Wt::WApplication
+ * instance. The conversion between the JavaScript arguments (ax) and the
+ * C++ type Ax uses <tt>boost::lexical_cast<Ax>(ax)</tt>.
  *
  * You can use the methods createCall() to let the signal itself
  * generate this JavaScript call for you:
@@ -415,6 +414,7 @@ public:
 #ifndef WT_CNOR
 
 void WT_API addSignalToWidget(WObject* o, EventSignalBase* signal);
+std::string WT_API senderId(WObject *sender);
 
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
@@ -443,8 +443,9 @@ template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 const std::string JSignal<A1, A2, A3, A4, A5, A6>::encodeCmd() const
 {
-  if (senderId_.empty())
-    senderId_ = sender()->id();
+  if (senderId_.empty()) {
+    senderId_ = senderId(sender());
+  }
 
   return senderId_ + "." + name_;
 }
