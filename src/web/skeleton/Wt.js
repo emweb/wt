@@ -263,13 +263,9 @@ this.initAjaxComm = function(url, handler) {
 	  if (!sessionUrl)
 	    return;
 
-	  if (good) {
-	    handled = true;
-	    handler(0, request.responseText, userData);
-	  } else {
-	    handler(1, null, userData); 
-	  }
+	  handled = true;
 
+	  var rq = request;
 	  if (request) {
 	    request.onreadystatechange = new Function;
 	    try {
@@ -282,7 +278,11 @@ this.initAjaxComm = function(url, handler) {
 	    request = null;
 	  }
 
-	  handled = true;
+	  if (good) {
+	    handler(0, rq.responseText, userData);
+	  } else {
+	    handler(1, null, userData); 
+	  }
 	}
 
 	function recvCallback() {
@@ -297,6 +297,9 @@ this.initAjaxComm = function(url, handler) {
 	}
 
 	function handleTimeout() {
+	  if (handled)
+	    return;
+
 	  if (!sessionUrl)
 	    return;
 
@@ -3410,6 +3413,20 @@ function sendUpdate() {
       websocket.socket.send(data.result);
     }
   } else {
+    if (responsePending) {
+      try {
+	throw new Error("responsePending is true before comm.sendUpdate");
+      } catch (e) {
+	var stack = e.stack || e.stacktrace;
+	var description = e.description || e.message;
+	var err = { "exception_description" : description };
+	err.stack = stack;
+	sendError(err, "Wt internal error; description: " + description);
+	throw e;
+      }
+    }
+
+    responsePending = 1;
     responsePending = comm.sendUpdate
       ('request=jsupdate' + data.result, tm, ackUpdateId, -1);
 
