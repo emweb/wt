@@ -40,9 +40,7 @@ public:
 
   void setOptions(int argc, char **argv, const std::string& configurationFile);
 
-#ifndef WT_WIN32
   std::vector<std::string> options() const;
-#endif // !WT_WIN32
 
   int threads() const { return threads_; }
   const std::string& docRoot() const { return docRoot_; }
@@ -92,9 +90,7 @@ public:
   { return sslPasswordCallback_; }
 
 private:
-#ifndef WT_WIN32
   std::vector<std::string> options_;
-#endif // WT_WIN32
 
   Wt::WLogger& logger_;
   bool silent_;

@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WJavaScript"
+#include <Wt/WApplication>
 #include <Wt/WWidget>
 
 namespace Wt {
@@ -21,6 +22,14 @@ void addSignalToWidget(WObject* object, EventSignalBase* signal) {
   if(w)
     w->addJSignal(signal);
   
+}
+
+std::string senderId(WObject *sender)
+{
+  if (sender == WApplication::instance())
+    return "app";
+  else
+    return sender->id();
 }
 
 }

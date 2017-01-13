@@ -112,7 +112,7 @@ WPoint ImageUtils::getSize(const std::string& fileName)
 
 WPoint ImageUtils::getJpegSize(const std::string& fileName){
   std::vector<unsigned char> header =
-      FileUtils::fileHeader(fileName, 1000);
+      FileUtils::fileHeader(fileName, 2048);
 
   int pos = 2;
   while (toUnsigned(header[pos])==0xFF) {
@@ -124,8 +124,8 @@ WPoint ImageUtils::getJpegSize(const std::string& fileName){
         toUnsigned(header[pos + 1])==0xCA ||
         toUnsigned(header[pos + 1])==0xCB)
       break;
-    pos += 2+(toUnsigned(header[pos + 2])<<8) + toUnsigned(header[pos + 3]);
-    if (pos +12 > (int)header.size())
+    pos += 2+ (toUnsigned(header[pos + 2])<<8) + toUnsigned(header[pos + 3]);
+    if (pos + 12 > (int)header.size())
       break;
   }
 

@@ -135,6 +135,58 @@ asio::ip::tcp::endpoint SessionProcess::endpoint() const
   return asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(), port_);
 }
 
+#ifdef WT_WIN32
+namespace {
+
+// Quoting argument function, modified from
+// https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
+void appendArgToCmdLine(const std::string &arg, std::wstring &commandLine)
+{
+  const int argwSize = MultiByteToWideChar(CP_THREAD_ACP, MB_PRECOMPOSED, arg.c_str(), arg.size(), (LPWSTR)0, 0);
+  std::wstring argw(argwSize, L'\0');
+  MultiByteToWideChar(CP_THREAD_ACP, MB_PRECOMPOSED, arg.c_str(), arg.size(), &argw[0], argw.size());
+
+  if (!argw.empty() &&
+      argw.find_first_of(L" \t\n\v\"") == std::wstring::npos)
+    commandLine.append(argw);
+  else {
+    commandLine.push_back(L'"');
+
+    for (std::wstring::const_iterator it = argw.begin(); ; ++it) {
+      int number_backslashes = 0;
+
+      while (it != argw.end() && *it == L'\\') {
+        ++it;
+        ++number_backslashes;
+      }
+
+      if (it == argw.end()) {
+        // Escape all backslashes, but let the terminating
+        // double quotation mark we add below be interpreted
+        // as a metacharacter.
+        commandLine.append(number_backslashes * 2, L'\\');
+        break;
+      } else if (*it == L'"') {
+        // Escape all backslashes and the following
+        // double quotation mark.
+        commandLine.append(number_backslashes * 2 + 1, L'\\');
+        commandLine.push_back(*it);
+      } else {
+        // Backslashes aren't special here.
+        commandLine.append(number_backslashes, L'\\');
+        commandLine.push_back(*it);
+      }
+    }
+
+    commandLine.push_back(L'"');
+  }
+
+  commandLine.push_back(L' ');
+}
+
+}
+#endif // WT_WIN32
+
 void SessionProcess::exec(const Configuration& config,
 			  boost::function<void (bool)> onReady)
 {
@@ -202,15 +254,23 @@ void SessionProcess::exec(const Configuration& config,
 
   delete[] c_options;
 #else // WT_WIN32
+  std::wstring commandLine;
+
+  const std::vector<std::string> &options = config.options();
+  for (std::size_t i = 0; i < options.size(); ++i) {
+    appendArgToCmdLine(options[i], commandLine);
+  }
+
+  std::wstring parentPortOption = std::wstring(L"--parent-port=")
+    + boost::lexical_cast<std::wstring>(acceptor_->local_endpoint().port());
+  commandLine += parentPortOption;
+
+  LPWSTR c_commandLine = new wchar_t[commandLine.size() + 1];
+  wcscpy(c_commandLine, commandLine.c_str());
+
   STARTUPINFOW startupInfo;
   ZeroMemory(&startupInfo, sizeof(startupInfo));
   startupInfo.cb = sizeof(startupInfo);
-
-
-  std::wstring commandLine = GetCommandLineW();
-  commandLine += L" --parent-port=" + boost::lexical_cast<std::wstring>(acceptor_->local_endpoint().port());
-  LPWSTR c_commandLine = new wchar_t[commandLine.size() + 1];
-  wcscpy(c_commandLine, commandLine.c_str());
 
   if(!CreateProcessW(0, c_commandLine, 0, 0, true,
       0, 0, 0, &startupInfo, &processInfo_)) {
@@ -220,7 +280,7 @@ void SessionProcess::exec(const Configuration& config,
       onReady(false);
     }
   }
-  delete c_commandLine;
+  delete[] c_commandLine;
 #endif // WT_WIN32
 }
 

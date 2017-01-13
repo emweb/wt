@@ -25,27 +25,38 @@ dropWidget->drop().connect(std::bind([=] (const std::vector<Wt::WFileDropWidget:
 
 dropWidget->uploaded().connect(std::bind([=] (Wt::WFileDropWidget::File* file) {
   std::vector<Wt::WFileDropWidget::File*> uploads = dropWidget->uploads();
-  std::vector<Wt::WFileDropWidget::File*>::iterator it =
-    std::find(uploads.begin(), uploads.end(), file);
-  std::size_t idx = it - uploads.begin();
+  std::size_t idx = 0;
+  for (; idx != uploads.size(); ++idx)
+    if (uploads[idx] == file)
+      break;
   dropWidget->widget(idx)->removeStyleClass("spinner");
   dropWidget->widget(idx)->addStyleClass("ready");
 }, std::placeholders::_1));
 
+#ifndef WT_TARGET_JAVA
 dropWidget->tooLarge().connect(std::bind([=] (Wt::WFileDropWidget::File *file) {
+#else
+dropWidget->tooLarge().connect(std::bind([=] (Wt::WFileDropWidget::File *file, uint64_t size) {
+#endif
   std::vector<Wt::WFileDropWidget::File*> uploads = dropWidget->uploads();
-  std::vector<Wt::WFileDropWidget::File*>::iterator it =
-    std::find(uploads.begin(), uploads.end(), file);
-  std::size_t idx = it - uploads.begin();
+  std::size_t idx = 0;
+  for (; idx != uploads.size(); ++idx)
+    if (uploads[idx] == file)
+      break;
   dropWidget->widget(idx)->removeStyleClass("spinner");
   dropWidget->widget(idx)->addStyleClass("failed");
+#ifndef WT_TARGET_JAVA
 }, std::placeholders::_1));
+#else
+}, std::placeholders::_1, std::placeholders::_2));
+#endif
 
 dropWidget->uploadFailed().connect(std::bind([=] (Wt::WFileDropWidget::File *file) {
   std::vector<Wt::WFileDropWidget::File*> uploads = dropWidget->uploads();
-  std::vector<Wt::WFileDropWidget::File*>::iterator it =
-    std::find(uploads.begin(), uploads.end(), file);
-  std::size_t idx = it - uploads.begin();
+  std::size_t idx = 0;
+  for (; idx != uploads.size(); ++idx)
+    if (uploads[idx] == file)
+      break;
   dropWidget->widget(idx)->removeStyleClass("spinner");
   dropWidget->widget(idx)->addStyleClass("failed");
 }, std::placeholders::_1));

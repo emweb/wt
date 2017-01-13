@@ -130,4 +130,52 @@ BOOST_AUTO_TEST_CASE( json_test_double_dim )
 }
 #endif
 
+BOOST_AUTO_TEST_CASE( json_test_nan )
+{
+  Json::Value v(std::numeric_limits<double>::quiet_NaN());
+  Json::Object obj;
+  obj["test"] = v;
+  std::string generated = Json::serialize(obj);
+
+  Json::Object reconstructed;
+  Json::parse(generated, reconstructed);
+
+  Json::Object obj2;
+  obj2["test"] = Json::Value::Null;
+
+  BOOST_REQUIRE(obj2 == reconstructed);
+}
+
+BOOST_AUTO_TEST_CASE( json_test_infinity )
+{
+  Json::Value v(std::numeric_limits<double>::infinity());
+  Json::Object obj;
+  obj["test"] = v;
+  std::string generated = Json::serialize(obj);
+
+  Json::Object reconstructed;
+  Json::parse(generated, reconstructed);
+
+  Json::Object obj2;
+  obj2["test"] = Json::Value::Null;
+
+  BOOST_REQUIRE(obj2 == reconstructed);
+}
+
+BOOST_AUTO_TEST_CASE( json_test_negative_infinity )
+{
+  Json::Value v(-std::numeric_limits<double>::infinity());
+  Json::Object obj;
+  obj["test"] = v;
+  std::string generated = Json::serialize(obj);
+
+  Json::Object reconstructed;
+  Json::parse(generated, reconstructed);
+
+  Json::Object obj2;
+  obj2["test"] = Json::Value::Null;
+
+  BOOST_REQUIRE(obj2 == reconstructed);
+}
+
 #endif // JSON_PARSER

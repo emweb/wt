@@ -237,11 +237,14 @@ protected:
    * model has inserted or removed rows. When removing rows (count < 0),
    * items may possibly be removed and deleted.
    */
-  void shiftModelIndexes(const WModelIndex& sourceParent, int start, int count,
-			 ItemMap& items);
+  void startShiftModelIndexes(const WModelIndex& sourceParent, int start, int count,
+			      ItemMap& items);
+  void endShiftModelIndexes(const WModelIndex& sourceParent, int start, int count,
+			    ItemMap& items);
 
 private:
-  WAbstractItemModel     *sourceModel_;
+  std::vector<BaseItem *> itemsToShift_;
+  WAbstractItemModel *sourceModel_;
 };
 
 }

@@ -794,7 +794,7 @@ WApplication::decodeExposedSignal(const std::string& signalName) const
 std::string WApplication::encodeSignal(const std::string& objectId,
 				       const std::string& name) const
 {
-  return (objectId == "app" ? id() : objectId) + '.' + name;
+  return objectId + '.' + name;
 }
 
 std::string WApplication::resourceMapKey(WResource *resource)

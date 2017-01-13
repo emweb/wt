@@ -29,25 +29,25 @@ typedef Wt::Dbo::collection< Wt::Dbo::ptr<Page> > PageCollections;
 class Module
 {
 public:
-	PageCollections PageCollection;
+  PageCollections PageCollection;
 
-	template<class Action>void persist(Action &a)
-	{
-		Wt::Dbo::hasMany(a, PageCollection, Wt::Dbo::ManyToOne, "Module");
-	}
+  template<class Action>void persist(Action &a)
+  {
+    Wt::Dbo::hasMany(a, PageCollection, Wt::Dbo::ManyToOne, "Module");
+  }
 };
 
 //Page Dbo
 struct PageKeys
 {
-	long long id;
-	Wt::Dbo::ptr<Module> ModulePtr;
+  long long id;
+  Wt::Dbo::ptr<Module> ModulePtr;
 
-	PageKeys();
-	PageKeys(long long id, Wt::Dbo::ptr<Module> ModulePtr);
+  PageKeys();
+  PageKeys(long long id, Wt::Dbo::ptr<Module> ModulePtr);
 
-	bool operator< (const PageKeys &other) const;
-	bool operator== (const PageKeys &other) const;
+  bool operator< (const PageKeys &other) const;
+  bool operator== (const PageKeys &other) const;
 };
 std::ostream &operator<< (std::ostream &o, const PageKeys &c);
 
@@ -55,112 +55,112 @@ std::ostream &operator<< (std::ostream &o, const PageKeys &c);
 //Mapping for PageKeys composite key
 namespace Wt
 {
-	namespace Dbo
-	{
-		template<class Action>
-		void field(Action &action, PageKeys &Keys, const std::string &name, int size = -1)
-		{
-			field(action, Keys.id, name + "_page_id");
-			belongsTo(action, Keys.ModulePtr, name + "_Module", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade | Wt::Dbo::NotNull);
-		}
-		template<>
-		struct dbo_traits<Page> : public dbo_default_traits
-		{
-			typedef PageKeys IdType;
-			static IdType invalidId();
-			static const char *surrogateIdField();
-		};
-	}
+  namespace Dbo
+  {
+    template<class Action>
+      void field(Action &action, PageKeys &Keys, const std::string &name, int size = -1)
+      {
+	field(action, Keys.id, name + "_page_id");
+	belongsTo(action, Keys.ModulePtr, name + "_Module", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade | Wt::Dbo::NotNull);
+      }
+    template<>
+      struct dbo_traits<Page> : public dbo_default_traits
+      {
+	typedef PageKeys IdType;
+	static IdType invalidId();
+	static const char *surrogateIdField();
+      };
+  }
 }
 
 class Page
 {
 public:
-	PageCollections ChildrenPages;
-	Wt::Dbo::ptr<Page> ParentPage;
+  PageCollections ChildrenPages;
+  Wt::Dbo::ptr<Page> ParentPage;
 
-	Page();
-	Page(long long id, Wt::Dbo::ptr<Module> ModulePtr = Wt::Dbo::ptr<Module>());
+  Page();
+  Page(long long id, Wt::Dbo::ptr<Module> ModulePtr = Wt::Dbo::ptr<Module>());
 
-	template<class Action>void persist(Action &a)
-	{
-		Wt::Dbo::id(a, _Id, "Page");
+  template<class Action>void persist(Action &a)
+  {
+    Wt::Dbo::id(a, _Id, "Page");
 
-		Wt::Dbo::hasMany(a, ChildrenPages, Wt::Dbo::ManyToOne, "Parent_Page");
-		Wt::Dbo::belongsTo(a, ParentPage, "Parent_Page", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade);
-	}
+    Wt::Dbo::hasMany(a, ChildrenPages, Wt::Dbo::ManyToOne, "Parent_Page");
+    Wt::Dbo::belongsTo(a, ParentPage, "Parent_Page", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade);
+  }
 
 private:
-	PageKeys _Id;
+  PageKeys _Id;
 };
 
 PageKeys::PageKeys()
-	: id(-1)
+  : id(-1)
 { }
 PageKeys::PageKeys(long long id, Wt::Dbo::ptr<Module> ModulePtr)
-	: id(id), ModulePtr(ModulePtr)
+  : id(id), ModulePtr(ModulePtr)
 { }
 bool PageKeys::operator== (const PageKeys &other) const
 {
-	return id == other.id && ModulePtr == other.ModulePtr;
+  return id == other.id && ModulePtr == other.ModulePtr;
 }
 bool PageKeys::operator< (const PageKeys &other) const
 {
-	if(id < other.id)
-	{
-		return true;
-	}
-	else if(id == other.id)
-	{
-		return ModulePtr < other.ModulePtr;
-	}
-	else
-	{
-		return false;
-	}
+  if(id < other.id)
+  {
+    return true;
+  }
+  else if(id == other.id)
+  {
+    return ModulePtr < other.ModulePtr;
+  }
+  else
+  {
+    return false;
+  }
 }
 std::ostream &operator<< (std::ostream &o, const PageKeys &c)
 {
-	return o << "(" << c.id << ", " << c.ModulePtr << ")";
+  return o << "(" << c.id << ", " << c.ModulePtr << ")";
 }
 
 Wt::Dbo::dbo_traits<Page>::IdType Wt::Dbo::dbo_traits<Page>::invalidId()
 {
-	return Wt::Dbo::dbo_traits<Page>::IdType();
+  return Wt::Dbo::dbo_traits<Page>::IdType();
 }
 const char* Wt::Dbo::dbo_traits<Page>::surrogateIdField()
 {
-	return 0;
+  return 0;
 }
 
 Page::Page()
 { }
 Page::Page(long long id, Wt::Dbo::ptr<Module> ModulePtr)
-	: _Id(id, ModulePtr)
+  : _Id(id, ModulePtr)
 { }
 //------------------------------- End of DBOs ----------------------------------
 
-struct Dbo4Fixture : DboFixtureBase
+struct DboCompositeKeyFixture : DboFixtureBase
 {
-	Dbo4Fixture() :
-		DboFixtureBase()
-	{
-		session_->mapClass<Module>("modules");
-		session_->mapClass<Page>("pages");
+  DboCompositeKeyFixture() :
+    DboFixtureBase()
+  {
+    session_->mapClass<Module>("modules");
+    session_->mapClass<Page>("pages");
 
-		//Drop/Create
-		try
-		{
-			session_->dropTables(); //todo:remove
-		}
-		catch(...)
-		{ }
-		std::cout << "-------------------------- end of drop ----------------------*********" << std::endl;
-		session_->createTables();
-	}
+    //Drop/Create
+    try
+    {
+      session_->dropTables(); //todo:remove
+    }
+    catch(...)
+    { }
+    std::cout << "-------------------------- end of drop ----------------------*********" << std::endl;
+    session_->createTables();
+  }
 };
 
 BOOST_AUTO_TEST_CASE( dbo_test_composite_concat )
 {
-	Dbo4Fixture f;
+  DboCompositeKeyFixture f;
 }

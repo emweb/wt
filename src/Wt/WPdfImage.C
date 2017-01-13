@@ -257,8 +257,6 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
     if (font == currentFont_ && !trueTypeFonts_->busy())
       return;
 
-    currentFont_ = font;
-
     /*
      * First, try a true type font.
      */
@@ -277,8 +275,12 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 
     LOG_DEBUG("font: " << ttfFont);
 
-    if (!ttfFont.empty() && currentTtfFont_ == ttfFont)
+    if (font == currentFont_ &&
+        !ttfFont.empty() &&
+        currentTtfFont_ == ttfFont)
       return;
+
+    currentFont_ = font;
 
     const char *font_name = 0;
     font_ = 0;
