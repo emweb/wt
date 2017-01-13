@@ -572,14 +572,12 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
   /* For JWt: setHidden() is called from WPopupWidget constructor. */
   if (contents_ && isHidden() != hidden) {
     if (!hidden) {
-      WApplication *app = WApplication::instance();
-
       if (footer_) {
 	for (int i = 0; i < footer()->count(); ++i) {
 	  WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));
 	  if (b && b->isDefault()) {
-	    enterConnection1_ = app->globalEnterPressed()
-	      .connect(this, &WDialog::onDefaultPressed);
+            enterConnection1_ = enterPressed()
+              .connect(this, &WDialog::onDefaultPressed);
 
 	    enterConnection2_ = impl_->enterPressed()
 	      .connect(this, &WDialog::onDefaultPressed);
@@ -589,8 +587,13 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
       }
 
       if (escapeIsReject_) {
-	escapeConnection1_ = app->globalEscapePressed()
-	  .connect(this, &WDialog::onEscapePressed);
+        if (isModal()) {
+          escapeConnection1_ = escapePressed()
+            .connect(this, &WDialog::onEscapePressed);
+        } else {
+          escapeConnection1_ = WApplication::instance()->globalEscapePressed()
+            .connect(this, &WDialog::onEscapePressed);
+        }
 
 	escapeConnection2_ = impl_->escapePressed()
 	  .connect(this, &WDialog::onEscapePressed);

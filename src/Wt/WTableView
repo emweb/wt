@@ -138,6 +138,8 @@ public:
    */
   virtual void adjustSize() {}
 
+  virtual void enableAjax();
+
 private:
   class ColumnWidget : public WContainerWidget
   {
@@ -211,6 +213,7 @@ private:
   int firstColumn() const;
   int lastColumn() const;
 
+  void setup();
   void reset();
   void rerenderHeader();
   void rerenderData();

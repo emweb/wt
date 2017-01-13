@@ -29,7 +29,7 @@ class WFileDropUploadResource;
  * style class is applied when files are hovered over the widget. This can be
  * configured using the method setHoverStyleClass().
  */
-class WFileDropWidget : public WContainerWidget {
+class WT_API WFileDropWidget : public WContainerWidget {
 public:
   /*! \class File
    *  \brief A nested class of WFileDropWidget representing a file

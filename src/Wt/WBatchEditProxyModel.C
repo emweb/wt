@@ -548,7 +548,7 @@ void WBatchEditProxyModel::sourceRowsAboutToBeRemoved
     }
   }
   
-  shiftModelIndexes(parent, start, -(end - start + 1), mappedIndexes_);
+  startShiftModelIndexes(parent, start, -(end - start + 1), mappedIndexes_);
 }
 
 void WBatchEditProxyModel::deleteItemsUnder(Item *item, int row)
@@ -570,6 +570,8 @@ void WBatchEditProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 { 
   if (isRemoved(parent))
     return;
+  
+  endShiftModelIndexes(parent, start, -(end - start + 1), mappedIndexes_);
 }
 
 void WBatchEditProxyModel::sourceRowsAboutToBeInserted
@@ -581,6 +583,8 @@ void WBatchEditProxyModel::sourceRowsInserted(const WModelIndex& parent,
 {
   if (isRemoved(parent))
     return;
+  
+  startShiftModelIndexes(parent, start, (end - start + 1), mappedIndexes_);
 
   WModelIndex pparent = mapFromSource(parent);
   Item *item = itemFromIndex(pparent);
@@ -627,8 +631,6 @@ void WBatchEditProxyModel::sourceRowsInserted(const WModelIndex& parent,
       endInsertRows();
     }
   }
-
-  shiftModelIndexes(parent, start, (end - start + 1), mappedIndexes_);
 }
 
 void WBatchEditProxyModel::sourceDataChanged(const WModelIndex& topLeft,

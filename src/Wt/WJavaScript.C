@@ -5,7 +5,8 @@
  */
 
 #include "Wt/WJavaScript.h"
-#include <Wt/WWidget.h>
+#include "Wt/WApplication.h"
+#include "Wt/WWidget.h"
 
 namespace Wt {
 
@@ -60,6 +61,14 @@ void unMarshal(const JavaScriptEvent& jse, int, WTouchEvent& e) {
   e = WTouchEvent(jse);
 }
 
+}
+
+std::string senderId(WObject *sender)
+{
+  if (sender == WApplication::instance())
+    return "app";
+  else
+    return sender->id();
 }
 
 }

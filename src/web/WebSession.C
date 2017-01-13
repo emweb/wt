@@ -2976,4 +2976,11 @@ void WebSession::generateNewSessionId()
 }
 #endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
+void WebSession::setDocRoot(const std::string &docRoot)
+{
+  docRoot_ = docRoot;
+}
+#endif // WT_TARGET_JAVA
+
 }

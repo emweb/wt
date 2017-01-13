@@ -70,6 +70,13 @@ WTableView::WTableView()
 
   setStyleClass("Wt-itemview Wt-tableview");
 
+  setup();
+}
+
+void WTableView::setup()
+{
+  impl_->clear();
+
   WApplication *app = WApplication::instance();
 
   if (app->environment().ajax()) {
@@ -199,6 +206,13 @@ WTableView::WTableView()
   setRowHeight(rowHeight());
 
   updateTableBackground();
+}
+
+void WTableView::enableAjax()
+{
+  plainTable_ = 0;
+  setup();
+  defineJavaScript();
 }
 
 void WTableView::resize(const WLength& width, const WLength& height)

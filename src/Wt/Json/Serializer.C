@@ -7,6 +7,7 @@
 #include "EscapeOStream.h"
 #include "WebUtils.h"
 
+#include <limits>
 #include <set>
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string/replace.hpp"
@@ -46,8 +47,13 @@ void serialize(const Value& val, int indentation, EscapeOStream &result)
       double intpart;
       if (fabs(std::modf(val, &intpart)) == 0.0 && fabs(intpart) < 9.22E18)
 	result << (long long)intpart;
-      else 
-	result << Utils::round_js_str(static_cast<double>(val), 16, buf);
+      else {
+        double d = val;
+        if (Utils::isNaN(d) || fabs(d) == std::numeric_limits<double>::infinity())
+          result << ("null");
+        else
+          result << Utils::round_js_str(d, 16, buf);
+      }
       return;
     }
     break;

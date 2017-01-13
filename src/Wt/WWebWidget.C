@@ -300,6 +300,11 @@ void WWebWidget::widgetRemoved(WWidget *child, bool renderRemove)
   }
 
   child->setParentWidget(nullptr);
+
+  if (transientImpl_ &&
+      !child->webWidget()->isRendered() &&
+      !child->webWidget()->isStubbed())
+    --transientImpl_->addedChildren_;
     
   /*
    * When the child is about to be deleted, all of its descendants

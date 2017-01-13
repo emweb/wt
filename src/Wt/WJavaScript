@@ -62,8 +62,8 @@ namespace Wt {
  *
  * The <i>element</i> can be a \link Wt::WWidget::jsRef() DOM
  * element\endlink, or the \link Wt::WObject::id() object ID\endlink of a
- * WObject, or the constant <tt>"Wt"</tt> which is an alias for
- * Wt::WApplication::instance()->id(). The conversion between the
+ * WObject, or the constant <tt>Wt</tt> which refers to the Wt::WApplication
+ * instance. The conversion between the
  * JavaScript arguments (ax) and the C++ type Ax uses stream operators.
  *
  * You can use the methods createCall() to let the signal itself
@@ -294,6 +294,7 @@ public:
 #ifndef WT_CNOR
 
 void WT_API addSignalToWidget(WObject* o, EventSignalBase* signal);
+std::string WT_API senderId(WObject *sender);
 
 template <typename... A>
 JSignal<A...>::JSignal(WObject *object,
@@ -314,8 +315,9 @@ JSignal<A...>::~JSignal()
 template <typename... A>
 const std::string JSignal<A...>::encodeCmd() const
 {
-  if (senderId_.empty())
-    senderId_ = owner()->id();
+  if (senderId_.empty()) {
+    senderId_ = senderId(owner());
+  }
 
   return senderId_ + "." + name_;
 }

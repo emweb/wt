@@ -256,6 +256,11 @@ public:
   void handleWebSocketMessage(Handler& handler);
 #endif
 
+#ifndef WT_TARGET_JAVA
+  // For use in WTestEnvironment
+  void setDocRoot(const std::string &docRoot);
+#endif
+
 private:
 #ifndef WT_TARGET_JAVA
   void handleWebSocketRequest(Handler& handler);
