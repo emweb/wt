@@ -11,6 +11,7 @@ WT_DECLARE_WT_MEMBER
  function(APP, widget) {
    jQuery.data(widget, 'obj', this);
 
+   this.images = [];
    this.canvas = document.getElementById('c' + widget.id);
    this.repaint = function() {};
    this.widget = widget;

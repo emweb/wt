@@ -206,6 +206,10 @@ public:
    * Ownership of the \p subMenu is transferred to the item. In
    * most cases, the sub menu would use the same contents stack as the
    * parent menu.
+   *
+   * Note that adding a submenu makes this item not \link isSelectable() selectable\endlink by default.
+   *
+   * \sa setSelectable()
    */
   void setMenu(WMenu *menu);
 

@@ -644,35 +644,28 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
   DomElement *el = text ? text : result;
   bool hasJsObjects = widget_->jsObjects_.size() > 0;
 
+  WApplication *app = WApplication::instance();
+  {
+    WStringStream ss;
+    ss << "new " WT_CLASS ".WPaintedWidget("
+       << app->javaScriptClass() << "," << widget_->jsRef() << ");";
+    el->callJavaScript(ss.str());
+  }
+
+  std::string updateAreasJs;
   if (hasJsObjects) {
     WStringStream ss;
-    WApplication *app = WApplication::instance();
-    ss << "new " WT_CLASS ".WPaintedWidget("
-      << app->javaScriptClass() << "," << widget_->jsRef() << ");";
     ss << "new " WT_CLASS ".WJavaScriptObjectStorage("
        << app->javaScriptClass() << "," << widget_->jsRef() << ");";
     widget_->jsObjects_.updateJs(ss);
     el->callJavaScript(ss.str());
-  }
-
-  canvasDevice->render('c' + widget_->id(), el);
-
-  if (hasJsObjects) {
-    WStringStream ss;
-    ss << widget_->objJsRef() << ".repaint=function(){";
-    ss << canvasDevice->recordedJs_.str();
     if (widget_->areaImage_) {
       widget_->areaImage_->setTargetJS(widget_->objJsRef());
-      ss << widget_->areaImage_->updateAreasJS();
+      updateAreasJs = widget_->areaImage_->updateAreasJS();
     }
-    ss << "};";
-    ss << widget_->objJsRef() << ".repaint();";
-    el->callJavaScript(ss.str());
-  } else {
-    WStringStream ss;
-    ss << canvasDevice->recordedJs_.str();
-    el->callJavaScript(ss.str());
   }
+
+  canvasDevice->render(widget_->objJsRef(), 'c' + widget_->id(), el, updateAreasJs);
 
   if (text)
     result->addChild(text);
@@ -707,30 +700,18 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
 
   bool hasJsObjects = widget_->jsObjects_.size() > 0;
 
+  std::string updateAreasJs;
   if (hasJsObjects) {
     WStringStream ss;
     widget_->jsObjects_.updateJs(ss);
     el->callJavaScript(ss.str());
-  }
-
-  canvasDevice->render('c' + widget_->id(), el);
-
-  if (hasJsObjects) {
-    WStringStream ss;
-    ss << widget_->objJsRef() << ".repaint=function(){";
-    ss << canvasDevice->recordedJs_.str();
     if (widget_->areaImage_) {
       widget_->areaImage_->setTargetJS(widget_->objJsRef());
-      ss << widget_->areaImage_->updateAreasJS();
+      updateAreasJs = widget_->areaImage_->updateAreasJS();
     }
-    ss << "};";
-    ss << widget_->objJsRef() << ".repaint();";
-    el->callJavaScript(ss.str());
-  } else {
-    WStringStream ss;
-    ss << canvasDevice->recordedJs_.str();
-    el->callJavaScript(ss.str());
   }
+
+  canvasDevice->render(widget_->objJsRef(), 'c' + widget_->id(), el, updateAreasJs);
 
   result.push_back(el);
 

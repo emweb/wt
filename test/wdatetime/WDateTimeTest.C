@@ -40,10 +40,32 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDate2 )
   BOOST_REQUIRE(wd.isNull());
 }
 
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDate3 )
+{
+  Wt::WDate wd = Wt::WDate::fromString("31/07/9999/not-valid", "dd/MM/yyyy");
+  BOOST_REQUIRE(!wd.isValid());
+  BOOST_REQUIRE(wd.isNull());
+}
+
 BOOST_AUTO_TEST_CASE( WDateTime_test_WTime )
 {
   Wt::WTime wt(12, 11, 31);
   BOOST_REQUIRE(wt.toString() == "12:11:31");
+}
+
+BOOST_AUTO_TEST_CASE( WDateTime_test_WTime2 )
+{
+  Wt::WTime wt = Wt::WTime::fromString("13:05:12", "hh:mm:ss");
+  BOOST_REQUIRE(wt.hour() == 13);
+  BOOST_REQUIRE(wt.minute() == 05);
+  BOOST_REQUIRE(wt.second() == 12);
+}
+
+BOOST_AUTO_TEST_CASE( WDateTime_test_WTime3 )
+{
+  Wt::WTime wt = Wt::WTime::fromString("13:05:12:not-valid", "hh:mm:ss");
+  BOOST_REQUIRE(!wt.isValid());
+  BOOST_REQUIRE(wt.isNull());
 }
 
 BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
@@ -154,6 +176,33 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
 		== "Wed, Jun 14, 2000; 13:05:12 a");
   BOOST_REQUIRE(d.toString("ddd, MMM dd, yyyy; hh:mm:ss")
 		== "Wed, Jun 14, 2000; 13:05:12");
+}
+
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime2 )
+{
+  Wt::WDateTime wdt;
+
+  BOOST_REQUIRE(!wdt.isValid());
+  BOOST_REQUIRE(wdt.isNull());
+}
+
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime3 )
+{
+  Wt::WDateTime wdt = Wt::WDateTime::fromString("2000-06-14 13:05:12:invalid",
+					        "yyyy-MM-dd hh:mm:ss");
+
+  BOOST_REQUIRE(!wdt.isValid());
+  /*
+   * NOTE: This verifies that datetime is not null, matching current behavior
+   * as checked in WDateTime_testspecial_WDateTime for construction from a
+   * null date and null time....
+   */
+  BOOST_REQUIRE(!wdt.isNull());
+
+  wdt = Wt::WDateTime::fromString("2000-06-14-invalid 13:05:12",
+			          "yyyy-MM-dd hh:mm:ss");
+  BOOST_REQUIRE(!wdt.isValid());
+  BOOST_REQUIRE(!wdt.isNull());
 }
 
 BOOST_AUTO_TEST_CASE( WDateTime_testspecial_WDateTime )

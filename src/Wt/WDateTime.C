@@ -427,6 +427,9 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
     }
   }
 
+  if (vi < v.length())
+    return;
+
   if (date)
     *date = WDate(dateParse.year, dateParse.month, dateParse.day);
 
