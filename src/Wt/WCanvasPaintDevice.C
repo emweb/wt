@@ -165,8 +165,10 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
   tmp << "};";
 
   if (!images_.empty()) {
+    tmp << "var o=" << paintedWidgetJsRef << ";";
+    tmp << "o.cancelPreloader();";
     tmp << "if(" << canvasVar << ".getContext){";
-    tmp << "new Wt._p_.ImagePreloader([";
+    tmp << "o.imagePreloader=new Wt._p_.ImagePreloader([";
 
     for (unsigned i = 0; i < images_.size(); ++i) {
       if (i != 0)
