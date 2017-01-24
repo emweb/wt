@@ -1539,11 +1539,21 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
   scheduleRerender(NeedAdjustViewPort);  
 }
 
-void WTableView::onColumnResize()
+void WTableView::onColumnResize(int col, WLength length)
 {
-  computeRenderedArea();
+  assert(ajaxMode());
 
-  scheduleRerender(NeedAdjustViewPort);
+  ColumnWidget *w = 0;
+  if (col < rowHeaderCount())
+    w = columnContainer(col);
+  else
+    w = columnContainer(rowHeaderCount() + col - firstColumn());
+  // Only rerender if column was made smaller
+  if (w && length.toPixels() < w->width().toPixels()) {
+    computeRenderedArea();
+
+    scheduleRerender(NeedAdjustViewPort);
+  }
 }
 
 void WTableView::computeRenderedArea()
