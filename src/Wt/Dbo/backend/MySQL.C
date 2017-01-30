@@ -968,7 +968,7 @@ bool MySQL::connect(const std::string &db,  const std::string &dbuser,
 void MySQL::init()
 {
   executeSql("SET sql_mode='ANSI_QUOTES,REAL_AS_FLOAT'");
-  executeSql("SET storage_engine=INNODB;");
+  executeSql("SET default_storage_engine=INNODB;");
   executeSql("SET NAMES 'utf8';");
 }
 
