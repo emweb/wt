@@ -14,12 +14,10 @@ Requirements
    you can have both of them.
 
    The built-in web server is more convenient during development and is
-   easier to setup.
+   easier to setup. It also allows you to use WebSockets.
 
-   The FastCGI based solution provides more flexibility for deployment of
-   the application. The built-in web server runs all sessions in a single
-   process, while the FastCGI based solution allows different deployment
-   schemes including dedicated processes per sessions.
+   The FastCGI based solution can be more convenient for deployment behind
+   another web server.
 
    Each of these two choices correspond to a library, a so-called
    connector library. Below it is outlined how to configure the build
@@ -38,7 +36,7 @@ Requirements
        Preferably CMake 2.6, which comes with a usable script for finding
        boost libraries, but CMake 2.4 is still supported using Wt's own
        boost find script.
-     * [5]C++ boost library (preferably version 1.41 or higher), with or
+     * [5]C++ boost library (preferably version 1.46.1 or higher), with or
        without thread support. You can verify you have a thread-enabled
        boost installation by locating the libboost_thread library. Thread
        support is not essential: Wt functionality is not affected except
@@ -49,10 +47,8 @@ Requirements
        features will be disabled that depend on the revised versions of
        spirit, namely JSON parsing and improved SQL parsing (for Wt::Dbo).
      * Optionally, [6]OpenSSL, which is used to support the HTTPS protocol
-       in the web client, the HTTPS protocol in the built-in wthttpd
-       connector, additional cryptographic hash functions in the Auth
-       library, and WebSockets (which requires a SHA-1 hash
-       implementation).
+       in the web client, and the HTTPS protocol in the built-in wthttpd
+       connector.
      * Optionally, [7]Haru Free PDF Library, which is used to provide
        support for painting to PDF (WPdfImage).
      * Optionally, [8]GraphicsMagick, for supporting painting to raster
@@ -80,8 +76,7 @@ Requirements
    to enable optional features (you can also build without them), but
    otherwise no extra dependencies are required.
      * Optionally, zlib (libz), for compression over HTTP.
-     * Optionally, OpenSSL (libopenssl), for HTTPS and WebSockets (which
-       requires a SHA-1 hash implementation).
+     * Optionally, OpenSSL (libopenssl), for HTTPS.
 
   2 Additional and optional requirements for some of the examples
 
@@ -124,10 +119,14 @@ Building and installing the Wt library
    may help CMake by setting some variables to help CMake locate the
    libraries. This may be done on the command-line using -Dvar=value or
    using the interactive program:
-    $ ccmake .
+    $ ccmake ../
 
-   Variables that you may set to configure Wt's built-in boost finding
-   method:
+   or
+    $ cmake-gui ../
+
+   The GUI lists all variables that are configurable in Wt's build
+   process. Variables that you may set to configure Wt's built-in boost
+   finding method:
 
    BOOST_COMPILER
           The boost compiler signature. For a library
@@ -142,7 +141,8 @@ Building and installing the Wt library
           lib/ and include/ are located for your boost installation.
 
    Other variables specify several build and configuration aspects of Wt,
-   of which the most relevant ones are:
+   of which the most relevant ones are (there are many more visible in the
+   GUI):
 
    CMAKE_INSTALL_PREFIX
           Installation prefix for the library and include files)
@@ -333,9 +333,9 @@ HTTPS server options:
 
 References
 
-   1. file://localhost/home/koen/project/wt/git/wt/INSTALL.html#requirements
-   2. file://localhost/home/koen/project/wt/git/wt/INSTALL.html#build
-   3. file://localhost/home/koen/project/wt/git/wt/INSTALL.html#examples
+   1. file:///home/roel/project/wt/git/wt/INSTALL.html#requirements
+   2. file:///home/roel/project/wt/git/wt/INSTALL.html#build
+   3. file:///home/roel/project/wt/git/wt/INSTALL.html#examples
    4. http://www.cmake.org/
    5. http://www.boost.org/
    6. http://www.openssl.org/

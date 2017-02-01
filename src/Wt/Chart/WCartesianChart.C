@@ -46,6 +46,7 @@ namespace {
 const int TICK_LENGTH = 5;
 const int CURVE_LABEL_PADDING = 10;
 const int DEFAULT_CURVE_LABEL_WIDTH = 100;
+const int CURVE_SELECTION_DISTANCE_SQUARED = 400; // Maximum selection distance in pixels, squared
 
 inline int toZoomLevel(double zoomFactor)
 {
@@ -4064,11 +4065,14 @@ void WCartesianChart::yTransformChanged()
 
 void WCartesianChart::jsSeriesSelected(double x, double y)
 {
-  if (!seriesSelectionEnabled()) return;
-  WPointF p = zoomRangeTransform(xTransformHandle_.value(), yTransformHandle_.value()).inverted().map(WPointF(x,y));
+  if (!seriesSelectionEnabled())
+    return;
+  WTransform transform = zoomRangeTransform(xTransformHandle_.value(), yTransformHandle_.value());
+  WPointF p = transform.inverted().map(WPointF(x,y));
   double smallestSqDistance = std::numeric_limits<double>::infinity();
   const WDataSeries *closestSeries = 0;
-  WPointF closestPoint;
+  WPointF closestPointPx;
+  WPointF closestPointBeforeSeriesTransform;
   for (std::size_t i = 0; i < series_.size(); ++i) {
     const WDataSeries &series = *series_[i];
     if (!series.isHidden() && (series.type() == LineSeries || series.type() == CurveSeries)) {
@@ -4082,22 +4086,32 @@ void WCartesianChart::jsSeriesSelected(double x, double y)
 	  WPointF segP = t.map(WPointF(seg.x(), seg.y()));
 	  double dx = p.x() - segP.x();
 	  double dy = p.y() - segP.y();
-	  double d = dx * dx + dy * dy;
-	  if (d < smallestSqDistance) {
-	    smallestSqDistance = d;
+          double d2 = dx * dx + dy * dy;
+          if (d2 < smallestSqDistance) {
+            smallestSqDistance = d2;
 	    closestSeries = &series;
-	    closestPoint = p;
+            closestPointPx = segP;
+            closestPointBeforeSeriesTransform = WPointF(seg.x(), seg.y());
 	  }
 	}
       }
     }
   }
+  {
+    WPointF closestDisplayPoint = transform.map(closestPointPx);
+    double dx = closestDisplayPoint.x() - x;
+    double dy = closestDisplayPoint.y() - y;
+    double d2 = dx * dx + dy * dy;
+    if (d2 > CURVE_SELECTION_DISTANCE_SQUARED) {
+      return;
+    }
+  }
   setSelectedSeries(closestSeries);
   if (closestSeries) {
     seriesSelected_.emit(closestSeries,
-		   mapFromDeviceWithoutTransform(closestPoint, closestSeries->axis()));
+                   mapFromDeviceWithoutTransform(closestPointBeforeSeriesTransform, closestSeries->axis()));
   } else {
-    seriesSelected_.emit(0, mapFromDeviceWithoutTransform(closestPoint, YAxis));
+    seriesSelected_.emit(0, mapFromDeviceWithoutTransform(closestPointBeforeSeriesTransform, YAxis));
   }
 }
 

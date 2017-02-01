@@ -104,7 +104,7 @@ void NestedResource::handleRequest(const Http::Request& request,
 
 WFileDropWidget::WFileDropWidget(WContainerWidget *parent)
   : WContainerWidget(parent),
-    resource_(new WFileDropUploadResource(this)),
+    resource_(0),
     currentFileIdx_(0),
     dropSignal_(this, "dropsignal"),
     requestSend_(this, "requestsend"),
@@ -116,15 +116,26 @@ WFileDropWidget::WFileDropWidget(WContainerWidget *parent)
   if (!app->environment().ajax())
     return;
   
+  setup();
+}
+
+void WFileDropWidget::enableAjax()
+{
+  setup();
+}
+
+void WFileDropWidget::setup()
+{
+  WApplication *app = WApplication::instance();
+
   LOAD_JAVASCRIPT(app, "js/WFileDropWidget.js", "WFileDropWidget", wtjs1);
 
   std::string maxFileSize =
     boost::lexical_cast<std::string>(
 	WApplication::instance()->maximumRequestSize());
   setJavaScriptMember(" WFileDropWidget", "new " WT_CLASS ".WFileDropWidget("
-		      + app->javaScriptClass() + "," + jsRef() + ",'"
-		      + resource_->generateUrl() + "', "
-		      + maxFileSize + ");");
+                      + app->javaScriptClass() + "," + jsRef() + ","
+                      + maxFileSize + ");");
 
 
   dropSignal_.connect(this, &WFileDropWidget::handleDrop);
@@ -133,8 +144,6 @@ WFileDropWidget::WFileDropWidget(WContainerWidget *parent)
   uploadFinished_.connect(this, &WFileDropWidget::emitUploaded);
   doneSending_.connect(this, &WFileDropWidget::stopReceiving);
 
-  resource_->dataReceived().connect(this, &WFileDropWidget::onData);
-  
   addStyleClass("Wt-filedropzone");
 }
 
@@ -200,10 +209,15 @@ void WFileDropWidget::handleSendRequest(int id)
     if (uploads_[i]->uploadId() == id) {
       fileFound = true;
       currentFileIdx_ = i;
-      doJavaScript(jsRef() + ".send();");
+      delete resource_;
+      resource_ = new WFileDropUploadResource(this);
+      resource_->dataReceived().connect(this, &WFileDropWidget::onData);
+      resource_->dataExceeded().connect(this, &WFileDropWidget::onDataExceeded);
+      doJavaScript(jsRef() + ".send('" + resource_->url() + "');");
       uploadStart_.emit(uploads_[currentFileIdx_]);
       break;
     } else {
+      // If a previous upload was not cancelled, it must have failed
       if (!uploads_[i]->cancelled())
 	uploadFailed_.emit(uploads_[i]);
     }
@@ -219,6 +233,12 @@ void WFileDropWidget::handleSendRequest(int id)
 
 void WFileDropWidget::handleTooLarge(::uint64_t size)
 {
+  if (currentFileIdx_ >= uploads_.size()) {
+    // This shouldn't happen, but a mischievous client might emit
+    // this signal a few times, causing currentFileIdx_
+    // to go out of bounds
+    return;
+  }
   tooLarge_.emit(uploads_[currentFileIdx_], size);
   currentFileIdx_++;
 }
@@ -240,6 +260,13 @@ void WFileDropWidget::stopReceiving()
 // Note: args by value, since this is handled after handleRequest is finished
 void WFileDropWidget::setUploadedFile(Http::UploadedFile file)
 {
+  if (currentFileIdx_ >= uploads_.size()) {
+    // This shouldn't happen, but a mischievous client might emit
+    // the filetoolarge signal too many times, causing currentFileIdx_
+    // to go out of bounds
+    return;
+  }
+
   File *f = uploads_[currentFileIdx_];
   currentFileIdx_++;
   
@@ -255,7 +282,7 @@ void WFileDropWidget::setUploadedFile(Http::UploadedFile file)
 
 void WFileDropWidget::emitUploaded(int id)
 {
-  for (unsigned i=0; i < currentFileIdx_; i++) {
+  for (unsigned i=0; i < currentFileIdx_ && i < uploads_.size(); i++) {
     File *f = uploads_[i];
     if (f->uploadId() == id) {
       f->uploaded().emit();
@@ -266,6 +293,12 @@ void WFileDropWidget::emitUploaded(int id)
 
 bool WFileDropWidget::incomingIdCheck(int id)
 {
+  if (currentFileIdx_ >= uploads_.size()) {
+    // This shouldn't happen, but a mischievous client might emit
+    // the filetoolarge signal too many times, causing currentFileIdx_
+    // to go out of bounds
+    return false;
+  }
   if (uploads_[currentFileIdx_]->uploadId() == id)
     return true;
   else {
@@ -283,7 +316,7 @@ void WFileDropWidget::cancelUpload(File *file)
   
 bool WFileDropWidget::remove(File *file)
 {
-  for (unsigned i=0; i < currentFileIdx_; i++) {
+  for (unsigned i=0; i < currentFileIdx_ && i < uploads_.size(); i++) {
     if (uploads_[i] == file) {
       uploads_.erase(uploads_.begin()+i);
       currentFileIdx_--;
@@ -295,15 +328,30 @@ bool WFileDropWidget::remove(File *file)
 
 void WFileDropWidget::onData(::uint64_t current, ::uint64_t total)
 {
-  WebSession::Handler *h = WebSession::Handler::instance();
-
-  ::int64_t dataExceeded = h->request()->postDataExceeded();
-  h->setRequest(0, 0); // so that triggerUpdate() will work
-  
+  if (currentFileIdx_ >= uploads_.size()) {
+    // This shouldn't happen, but a mischievous client might emit
+    // the filetoolarge signal too many times, causing currentFileIdx_
+    // to go out of bounds
+    return;
+  }
   File *file = uploads_[currentFileIdx_];
   file->dataReceived().emit(current, total);
 
   WApplication::instance()->triggerUpdate();
+}
+
+void WFileDropWidget::onDataExceeded(::uint64_t dataExceeded)
+{
+  if (currentFileIdx_ >= uploads_.size()) {
+    // This shouldn't happen, but a mischievous client might emit
+    // the filetoolarge signal too many times, causing currentFileIdx_
+    // to go out of bounds
+    return;
+  }
+  tooLarge_.emit(uploads_[currentFileIdx_], dataExceeded);
+
+  WApplication *app = WApplication::instance();
+  app->triggerUpdate();
 }
 
 void WFileDropWidget::setHoverStyleClass(const std::string& className)

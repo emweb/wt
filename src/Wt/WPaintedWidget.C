@@ -204,16 +204,15 @@ void WPaintedWidget::defineJavaScript()
   if (getMethod() == HtmlCanvas) {
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs10);
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs11);
-  }
+    if (jsObjects_.size() > 0) {
+      setFormObject(true);
 
-  if (app && getMethod() == HtmlCanvas && jsObjects_.size() > 0) {
-    setFormObject(true);
+      LOAD_JAVASCRIPT(app, "js/WJavaScriptObjectStorage.js", "WJavaScriptObjectStorage", wtjs20);
 
-    LOAD_JAVASCRIPT(app, "js/WJavaScriptObjectStorage.js", "WJavaScriptObjectStorage", wtjs20);
-
-    jsDefined_ = true;
-  } else {
-    jsDefined_ = false;
+      jsDefined_ = true;
+    } else {
+      jsDefined_ = false;
+    }
   }
 }
 

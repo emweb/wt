@@ -81,19 +81,46 @@ public:
      */
     WTime top() const;
 
+    /*! \brief Sets the step size for the hours
+     */
     void setHourStep(int step);
+
+    /*! \brief Returns the step size for the hours
+     */
     int hourStep() const;
 
+    /*! \brief Sets the step size for the minutes
+     */
     void setMinuteStep(int step);
+
+    /*! \brief Returns the step size for the minutes
+     */
     int minuteStep() const;
 
+    /*! \brief Sets the step size for the seconds
+     */
     void setSecondStep(int step);
+
+    /*! \brief Returns the step size for the seconds
+     */
     int secondStep() const;
 
+    /*! \brief Sets the step size for the milliseconds
+     */
     void setMillisecondStep(int step);
+
+    /*! \brief Returns the step size for the milliseconds
+     */
     int millisecondStep() const;
 
+    /*! \brief Enables or disables wraparound
+     *
+     * Wraparound is enabled by default
+     */
     void setWrapAroundEnabled(bool rollover);
+
+    /*! \brief Returns whether wraparound is enabled
+     */
     bool wrapAroundEnabled() const;
 
     virtual void load();

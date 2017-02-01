@@ -342,6 +342,7 @@ private:
   void create();
 
   void onData(::uint64_t current, ::uint64_t total);
+  void onDataExceeded(::uint64_t dataExceeded);
 
   virtual void setRequestTooLarge(::int64_t size);
 

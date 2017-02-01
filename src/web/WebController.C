@@ -482,7 +482,6 @@ void WebController::updateResourceProgress(WebRequest *request,
 					   boost::uintmax_t current,
 					   boost::uintmax_t total)
 {
-  WebSession::Handler::instance()->setRequest(request, (WebResponse *)request);
   WApplication *app = WApplication::instance();
 
   const std::string *requestE = request->getParameter("request");
@@ -496,8 +495,13 @@ void WebController::updateResourceProgress(WebRequest *request,
     resource = app->decodeExposedResource(*resourceE);
   }
 
-  if (resource)
-    resource->dataReceived().emit(current, total);
+  if (resource) {
+    ::int64_t dataExceeded = request->postDataExceeded();
+    if (dataExceeded)
+      resource->dataExceeded().emit(dataExceeded);
+    else
+      resource->dataReceived().emit(current, total);
+  }
 }
 
 bool WebController::handleApplicationEvent(const ApplicationEvent& event)

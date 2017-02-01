@@ -1194,7 +1194,7 @@ public:
   /*! \brief A signal that notifies the selection of a new curve.
    *
    * This signal is emitted if a series is selected using a mouse
-   * click or long press. The first argument is the model column of the selected
+   * click or long press. The first argument is the selected
    * series. The second argument is the point that was selected, in model
    * coordinates.
    *

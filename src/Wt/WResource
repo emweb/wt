@@ -328,6 +328,8 @@ public:
    */
   Signal< ::uint64_t, ::uint64_t >& dataReceived() { return dataReceived_; }
 
+  Signal< ::uint64_t >& dataExceeded() { return dataExceeded_; }
+
   /*! \brief Stream the resource to a stream.
    *
    * This is a convenience method to serialize to a stream (for
@@ -420,6 +422,7 @@ private:
 
   Signal<void> dataChanged_;
   Signal< ::uint64_t, ::uint64_t > dataReceived_;
+  Signal< ::uint64_t > dataExceeded_;
 
   bool trackUploadProgress_;
 

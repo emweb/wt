@@ -84,7 +84,8 @@ public:
     internal_server_error = 500,
     not_implemented = 501,
     bad_gateway = 502,
-    service_unavailable = 503
+    service_unavailable = 503,
+    version_not_supported = 505
   };
 
   enum ws_opcode {
