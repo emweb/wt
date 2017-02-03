@@ -20,6 +20,7 @@
 
 #include "StdWidgetItemImpl.h"
 
+#include <algorithm>
 #include <cctype>
 
 namespace Wt {
@@ -498,6 +499,11 @@ void WMenuItem::setParentMenu(WMenu *menu)
   menu_ = menu;
 
   updateInternalPath();
+
+  if (menu && menu->isPopup() &&
+      subMenu_ && subMenu_->isPopup()) {
+    subMenu_->webWidget()->setZIndex(std::max(menu->zIndex() + 100, subMenu_->zIndex()));
+  }
 }
 
 WWidget *WMenuItem::contents() const
@@ -581,6 +587,10 @@ void WMenuItem::setMenu(WMenu *menu)
     sparent->removeWidget(subMenu_);
 
   addWidget(subMenu_);
+  if (subMenu_->isPopup() &&
+      parentMenu() && parentMenu()->isPopup()) {
+    subMenu_->webWidget()->setZIndex(std::max(parentMenu()->zIndex() + 100, subMenu_->zIndex()));
+  }
 
   WPopupMenu *popup = dynamic_cast<WPopupMenu *>(subMenu_);
   if (popup) {

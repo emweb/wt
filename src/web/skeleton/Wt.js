@@ -3630,9 +3630,20 @@ ImagePreloader.prototype.preload = function(uri) {
 };
 
 ImagePreloader.prototype.onload = function() {
+  // Called from the image: this = the image
   var preloader = this.imagePreloader;
   if (--preloader.work == 0)
     preloader.callback(preloader.images);
+};
+
+ImagePreloader.prototype.cancel = function() {
+  var images = this.images;
+  for (var i = 0; i < images.length; ++i) {
+    images[i].onload = function(){};
+    images[i].onerror = function(){};
+    images[i].onabort = function(){};
+  }
+  this.callback = function(){};
 };
 
 /////////////////////////////////////////////////////////////////////

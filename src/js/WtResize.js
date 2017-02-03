@@ -53,7 +53,7 @@ WT_DECLARE_WT_MEMBER
   for (j = 0, jl = self.childNodes.length; j < jl; ++j) {
     c = self.childNodes[j];
 
-    if (c.nodeType == 1) {
+    if (c.nodeType == 1 && !$(c).hasClass("wt-reparented")) {
       if (defined) {
 	var ch = h - marginV(c);
 
@@ -110,6 +110,10 @@ WT_DECLARE_WT_MEMBER
   else
     self.style.height = '';
   var t = self.lastChild;
+  while (t && t.nodeType == 1 && $(t).hasClass("wt-reparented"))
+    t = t.previousSibling;
+  if (!t)
+    return;
   var c = t.previousSibling;
 
   if (defined) {

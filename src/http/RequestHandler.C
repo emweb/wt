@@ -105,7 +105,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
   if ((req.http_version_major != 1)
       || (req.http_version_minor != 0 
 	  && req.http_version_minor != 1))
-    return ReplyPtr(new StockReply(req, Reply::not_implemented, "", config_));
+    return ReplyPtr(new StockReply(req, Reply::version_not_supported, "", config_));
 
   // Decode url to path.
   if (!url_decode(req.uri, req.request_path, req.request_query)) {

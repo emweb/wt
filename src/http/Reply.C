@@ -159,6 +159,9 @@ void toText(S& stream, Reply::status_type status)
   case Reply::service_unavailable:
     stream << "503 Service Unavailable\r\n";
     break;
+  case Reply::version_not_supported:
+    stream << "505 HTTP Version Not Supported\r\n";
+    break;
   case Reply::no_status:
   case Reply::internal_server_error:
     stream << "500 Internal Server Error\r\n";
@@ -329,12 +332,11 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
        * Status line.
        */
 
-      buf_ << "HTTP/";
-      buf_ << request_.http_version_major;
-      buf_ << '.';
-      buf_ << request_.http_version_minor;
-
-      buf_ << ' ';
+      if (http10) {
+        buf_ << "HTTP/1.0 ";
+      } else {
+        buf_ << "HTTP/1.1 ";
+      }
 
       status_strings::toText(buf_, status_);
 

@@ -82,7 +82,10 @@ public:
   virtual void done();
   virtual bool paintActive() const { return painter_ != 0; }
 
-  void render(const std::string& canvasId, DomElement* text);
+  void render(const std::string &paintedWidgetJsRef,
+              const std::string& canvasId,
+              DomElement* text,
+              const std::string& updateAreasJs);
   void renderPaintCommands(std::stringstream& js, const std::string& element);
 
   virtual WLength width() const { return width_; }
@@ -116,7 +119,6 @@ private:
   ServerSideFontMetrics *fontMetrics_;
 
   std::stringstream js_;
-  std::stringstream recordedJs_;
   std::vector<DomElement *> textElements_;
   std::vector<std::string> images_;
 

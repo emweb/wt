@@ -178,6 +178,9 @@ public:
    */
   Signal<File*>& uploadFailed() { return uploadFailed_; }
 
+protected:
+  virtual void enableAjax() WT_CXX11ONLY(override);
+
 private:
   class WFileDropUploadResource : public WResource {
   public:
@@ -194,12 +197,14 @@ private:
     File *currentFile_;
   };
 
+  void setup();
   void handleDrop(const std::string& newDrops);
   void handleTooLarge(::uint64_t size);
   void handleSendRequest(int id);
   void emitUploaded(int id);
   void stopReceiving();
   void onData(::uint64_t current, ::uint64_t total);
+  void onDataExceeded(::uint64_t dataExceeded);
 
   // Functions for handling incoming requests
   void setUploadedFile(Http::UploadedFile file);

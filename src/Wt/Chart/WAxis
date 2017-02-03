@@ -188,6 +188,10 @@ public:
    */
   static const double AUTO_MAXIMUM;
 
+  /*! \brief Constructor
+   */
+  WAxis();
+
   /*! \brief Destructor
    */
   virtual ~WAxis();
@@ -969,8 +973,6 @@ protected:
     /*! \brief Creates a label tick. */
     TickLabel(double v, TickLength length, const WString& l = WString());
   };
-
-  WAxis();
 
   /*! \brief Returns the label (and ticks) information for this axis.
    */

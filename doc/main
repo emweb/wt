@@ -512,6 +512,10 @@ namespace Wt {
 $ ../../build/examples/wt-homepage/Home.wt --docroot=".;/favicon.ico,/css,/resources,/style,/icons" ...
   \endcode
 
+  If a static file (e.g. \c style.css) is requested, and the static file with \c .gz extension (e.g. \c style.css.gz)
+  exists, then the built-in httpd will assume that the \c .gz file is the gzipped version of the file without \c .gz,
+  and will serve the \c .gz file instead of applying compression.
+
   \subsection wtisapi 9.3 ISAPI
 
   When linking your application against <tt>wtisapi</tt>, the

@@ -11,6 +11,7 @@
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
 #include "Wt/WRectF"
+#include "Wt/WStringStream"
 #include "Wt/WWebWidget"
 
 #include "DomElement.h"
@@ -126,31 +127,24 @@ WFlags<WPaintDevice::FeatureFlag> WCanvasPaintDevice::features() const
     return 0;
 }
 
-void WCanvasPaintDevice::render(const std::string& canvasId,
-				DomElement *text)
+void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
+                                const std::string& canvasId,
+                                DomElement *text,
+                                const std::string& updateAreasJs)
 {
   std::string canvasVar = WT_CLASS ".getElement('" + canvasId + "')";
 
-  recordedJs_.str("");
-  std::stringstream &tmp = recordedJs_;
+  WStringStream tmp;
+
+  tmp << paintedWidgetJsRef << ".repaint=function(){";
 
   tmp <<
     "if(" << canvasVar << ".getContext){";
 
   if (!images_.empty()) {
-    tmp << "new Wt._p_.ImagePreloader([";
-
-    for (unsigned i = 0; i < images_.size(); ++i) {
-      if (i != 0)
-	tmp << ',';
-      tmp << '\'' << images_[i] << '\'';
-    }
-
-    tmp <<
-      "],function(images)";
+    tmp << "var images=" << paintedWidgetJsRef << ".images;";
   }
-
-  tmp << "{var ctx=" << canvasVar << ".getContext('2d');";
+  tmp << "var ctx=" << canvasVar << ".getContext('2d');";
   // Older browsers don't have setLineDash
   tmp << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
 
@@ -162,13 +156,36 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
   lastTransformWasIdentity_ = true;
 
   tmp << "ctx.save();" << js_.str()
-      << "ctx.restore();}";
-
-  if (!images_.empty()) {
-    tmp << ");";
-  }
+      << "ctx.restore();";
 
   tmp << "}";
+
+  tmp << updateAreasJs;
+
+  tmp << "};";
+
+  if (!images_.empty()) {
+    tmp << "var o=" << paintedWidgetJsRef << ";";
+    tmp << "o.cancelPreloader();";
+    tmp << "if(" << canvasVar << ".getContext){";
+    tmp << "o.imagePreloader=new Wt._p_.ImagePreloader([";
+
+    for (unsigned i = 0; i < images_.size(); ++i) {
+      if (i != 0)
+        tmp << ',';
+      tmp << '\'' << images_[i] << '\'';
+    }
+
+    tmp << "],function(images){";
+    tmp << "var o=" << paintedWidgetJsRef << ";";
+    tmp << "o.images=images;";
+    tmp << "o.repaint();";
+    tmp << "});}";
+  } else {
+    tmp << paintedWidgetJsRef << ".repaint();";
+  }
+
+  text->callJavaScript(tmp.str());
 
   for (unsigned i = 0; i < textElements_.size(); ++i)
     text->addChild(textElements_[i]);
