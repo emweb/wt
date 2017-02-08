@@ -195,7 +195,7 @@ void WebRenderer::discardChanges()
   collectJS(0);
 }
 
-bool WebRenderer::ackUpdate(int updateId)
+WebRenderer::AckState WebRenderer::ackUpdate(int updateId)
 {
   /*
    * If we are using an unreliable transport, then we remember
@@ -216,13 +216,13 @@ bool WebRenderer::ackUpdate(int updateId)
     LOG_DEBUG("jsSynced(false) after ackUpdate okay");
     setJSSynced(false);
     ackErrs_ = 0;
-    return true;
+    return CorrectAck;
   } else if ((updateId < expectedAckId_ && expectedAckId_ - updateId < 5)
 	     || (expectedAckId_ - 5 < updateId)) {
     ++ackErrs_;
-    return ackErrs_ < 3; // That's still acceptible but no longer plausible
+    return ackErrs_ < 3 ? ReasonableAck : BadAck; // That's still acceptible but no longer plausible
   } else
-    return false;
+    return BadAck;
 }
 
 void WebRenderer::letReloadJS(WebResponse& response, bool newSession,

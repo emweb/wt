@@ -2392,9 +2392,11 @@ void WebSession::notify(const WEvent& event)
 	  bool invalidAckId = env_->ajax() 
 	    && !request.isWebSocketMessage();
 
+	  WebRenderer::AckState ackState = WebRenderer::CorrectAck;
 	  if (invalidAckId && ackIdE) {
 	    try {
-	      if (renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE)))
+	      ackState = renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE));
+	      if (ackState != WebRenderer::BadAck)
 		invalidAckId = false;
 	    } catch (const boost::bad_lexical_cast& e) {
 	    }
@@ -2409,6 +2411,12 @@ void WebSession::notify(const WEvent& event)
 	    return;
 	  }
 
+	  if (*signalE == "poll" && ackState != WebRenderer::CorrectAck) {
+	    LOG_DEBUG("Ignoring poll with incorrect ack -- was rescheduled in browser?");
+	    handler.flushResponse();
+	    return;
+	  }
+	  
 	  /*
 	   * In case we are not using websocket but long polling, the client
 	   * aborts the previous poll request to indicate a client-side event.

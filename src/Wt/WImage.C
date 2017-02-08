@@ -232,13 +232,13 @@ void WImage::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_IMAGE_LINK_CHANGED) || all) {
     std::string url;
-    if (!imageLink_.isNull())
-      url = resolveRelativeUrl(imageLink_.url());
-    else
-      url = WApplication::relativeResourcesUrl() + "1pxtrans.gif";
-
     WApplication *app = WApplication::instance();
-    url = app->encodeUntrustedUrl(url);
+    if (!imageLink_.isNull()) {
+      url = resolveRelativeUrl(imageLink_.url());
+      url = app->encodeUntrustedUrl(url);
+    } else {
+      url = app->onePixelGifUrl();
+    }
 
     img->setProperty(Wt::PropertySrc, url);
 
