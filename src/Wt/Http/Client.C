@@ -973,6 +973,12 @@ void Client::setMaxRedirects(int maxRedirects)
   maxRedirects_ = maxRedirects;
 }
 
+// 301 Moved Permanently  = new request with same method if idomponent or rewritten to GET otherwise
+// 302 Found              = new request with same method if idomponent or rewritten to GET otherwise
+// 303 See Other          = new request with GET method
+// 307 Temporary Redirect = new request with same method / body
+// 308 Permanent Redirect = new request with same method / body
+
 void Client::handleRedirect(Http::Method method, boost::system::error_code err, const Message& response, const Message& request)
 {
   if (!impl_) {
@@ -981,17 +987,21 @@ void Client::handleRedirect(Http::Method method, boost::system::error_code err, 
   }
   impl_.reset();
   int status = response.status();
-  if (!err && (((status == 301 || status == 302 || status == 307) && method == Get) || status == 303)) {
+  if (!err && (status == 301 || status == 302 || status == 303 || status == 307 || status == 308)) {
+    if(status == 303 || (status < 307 && (method == Put || method == Patch || method == Delete || method == Post))) {
+        method = Get;
+    }
     const std::string *newUrl = response.getHeader("Location");
     ++ redirectCount_;
-    if (newUrl) {
-      if (redirectCount_ <= maxRedirects_) {
-	get(*newUrl, request.headers());
-	return;
-      } else {
-	LOG_WARN("Redirect count of " << maxRedirects_ << " exceeded! Redirect URL: " << *newUrl);
-      }
+    if (newUrl && redirectCount_ <= maxRedirects_) {
+       request(method, *newUrl, request);
+       return;
     }
+    if(!newUrl) {
+       LOG_WARN("No 'Location' header for redirect : " << redirectCount_ << " redirects");
+      } else {
+       LOG_WARN("Redirect count of " << maxRedirects_ << " exceeded! Redirect URL: " << *newUrl);
+      }
   }
   emitDone(err, response);
 }
