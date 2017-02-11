@@ -994,7 +994,7 @@ void Client::handleRedirect(Http::Method method, boost::system::error_code err, 
     const std::string *newUrl = response.getHeader("Location");
     ++ redirectCount_;
     if (newUrl && redirectCount_ <= maxRedirects_) {
-       request(method, *newUrl, request);
+       this->request(method, *newUrl, request);
        return;
     }
     if(!newUrl) {
