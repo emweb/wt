@@ -811,4 +811,10 @@ void WTemplate::refresh()
   WInteractWidget::refresh();
 }
 
+void WTemplate::reset()
+{
+  changed_ = true;
+  repaint(RepaintSizeAffected);
+}
+
 }

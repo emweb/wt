@@ -259,9 +259,9 @@ void WebRenderer::streamRedirectJS(WStringStream& out,
 	<< ", false);\n";
   out <<
     "if (window.location.replace)"
-    " window.location.replace('" << redirect << "');"
+    " window.location.replace(" << WWebWidget::jsStringLiteral(redirect) << ");"
     "else"
-    " window.location.href='" << redirect << "';\n";
+    " window.location.href=" << WWebWidget::jsStringLiteral(redirect) << ";\n";
 }
 
 void WebRenderer::serveResponse(WebResponse& response)
@@ -929,6 +929,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     if (!redirect.empty()) {
       streamRedirectJS(out, redirect);
+      out.spool(response.out());
       return;
     }
   } else {

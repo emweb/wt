@@ -78,7 +78,7 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
     break;
 
   case DialogCoverRole:
-    child->setStyleClass("Wt-dialogcover");
+    child->setStyleClass("Wt-dialogcover in");
     break;
   case DialogTitleBarRole:
     child->addStyleClass("titlebar");
