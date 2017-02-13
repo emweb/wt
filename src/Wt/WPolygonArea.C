@@ -67,6 +67,8 @@ void WPolygonArea::setPoints(const std::vector<WPoint>& points)
 void WPolygonArea::setPoints(const std::vector<WPointF>& points)
 {
   points_ = points;
+
+  repaint();
 }
 #endif // WT_TARGET_JAVA
 
