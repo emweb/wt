@@ -239,6 +239,9 @@ WT_DECLARE_WT_MEMBER
     function animateTransition() {
       set(el, { animationDuration: duration + 'ms' }, elStyle);
 
+      if (hide)
+	$el.removeClass("in");
+
       var cl;
 
       switch (effect) {
@@ -257,6 +260,8 @@ WT_DECLARE_WT_MEMBER
 
       $el.addClass(cl);
       $el.one(animationEventEnd, function() {
+          if (!hide)
+	    cl = cl.replace(' in', '');
 	  $el.removeClass(cl);
 	  if (hide)
 	    el.style.display = display;

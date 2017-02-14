@@ -130,7 +130,7 @@ private:
   Version version_;
   bool responsive_, formControlStyle_;
 
-  std::string classBtn() const;
+  std::string classBtn(WWidget *widget) const;
   std::string classBar() const;
   std::string classAccordion() const;
   std::string classAccordionGroup() const;
@@ -145,6 +145,8 @@ private:
   std::string classNavbarRight() const;
   std::string classNavbarMenu() const;
   std::string classNavbarBtn() const;
+  bool hasButtonStyleClass(WWidget *widget) const;
+
 };
 
 }

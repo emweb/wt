@@ -136,6 +136,26 @@
     to { opacity: 0; }
 }
 
+@keyframes halffadein {
+    from { opacity: 0; }
+    to { opacity: 0.5; }
+}
+
+@keyframes halffadeout {
+    from { opacity: 0.5; }
+    to { opacity: 0; }
+}
+
+@keyframes bootstrap2fadein {
+    from { opacity: 0; }
+    to { opacity: 0.8; }
+}
+
+@keyframes bootstrap2fadeout {
+    from { opacity: 0.8; }
+    to { opacity: 0; }
+}
+
 .fade.in {
 	opacity: 1;
 	animation-name: fadein;
@@ -143,6 +163,26 @@
 
 .fade.out {
 	animation-name: fadeout;
+}
+
+.Wt-dialogcover.fade.in,
+.modal-backdrop.fade.in {
+	opacity: 0.5;
+	animation-name: halffadein;
+}
+
+.Wt-dialogcover.fade.out,
+.modal-backdrop.fade.out {
+	animation-name: halffadeout;
+}
+
+.modal-backdrop.Wt-bootstrap2.fade.in {
+	opacity: 0.8;
+	animation-name: bootstrap2fadein;
+}
+
+.modal-backdrop.Wt-bootstrap2.fade.out {
+	animation-name: bootstrap2fadeout;
 }
 
 /* The properties in this body rule are only necessary for the 'flip' transition.

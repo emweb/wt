@@ -749,6 +749,18 @@ protected:
 
   virtual void enableAjax();
 
+  /*! \brief Notifies the template that it has changed and must be rerendered.
+   *
+   * If you update a WTemplate with e.g bindWidget or setCondition,
+   * or change the template text, the template will automatically be
+   * rerendered.
+   *
+   * However, if you create a subclass of WTemplate and override resolveString or
+   * resolveWidget, you will have to notify the WTemplate if it has changed with
+   * a call to reset().
+   */
+  void reset();
+
 private:
   typedef std::map<std::string, Function> FunctionMap;
   typedef std::map<std::string, WString> StringMap;

@@ -78,7 +78,13 @@ public:
 
   void updateLayout() { updateLayout_ = true; }
 
-  bool ackUpdate(int updateId);
+  enum AckState {
+    CorrectAck,
+    ReasonableAck,
+    BadAck
+  };
+  
+  AckState ackUpdate(int updateId);
 
   void streamRedirectJS(WStringStream& out, const std::string& redirect);
 
