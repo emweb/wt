@@ -236,6 +236,7 @@ WT_DECLARE_WT_MEMBER
 
      if (changed || dragStartXY != null) {
        dragStartXY = null;
+       changed = false;
        o.onchange();
      }
 
