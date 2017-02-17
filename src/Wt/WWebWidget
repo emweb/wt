@@ -322,6 +322,9 @@ public:
   virtual Signal<bool> &scrollVisibilityChanged() WT_CXX11ONLY(final override);
   virtual bool isScrollVisible() const WT_CXX11ONLY(final override);
 
+  virtual void setThemeStyleEnabled(bool enabled = true);
+  virtual bool isThemeStyleEnabled() const;
+
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
 
@@ -396,6 +399,7 @@ private:
   // Tracks whether scroll visibility is enabled/disabled, and whether the
   // scroll visibility margin has been modified.
   static const int BIT_SCROLL_VISIBILITY_CHANGED = 34;
+  static const int BIT_THEME_STYLE_DISABLED = 35;
 
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
@@ -403,7 +407,7 @@ private:
   std::string elementTagName_;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<35> AllChangeFlags;
+  static const std::bitset<36> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -411,7 +415,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<35> flags_;
+  std::bitset<36> flags_;
   WLength *width_;
   WLength *height_;
 

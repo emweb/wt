@@ -40,7 +40,7 @@ public:
 
     client->done().connect
       (boost::bind(&FacebookProcess::handleMe, this, _1, _2));
-    client->get("https://graph.facebook.com/me?access_token=" + token.value());
+    client->get("https://graph.facebook.com/me?fields=name,id,email&access_token=" + token.value());
 
 #ifndef WT_TARGET_JAVA
     WApplication::instance()->deferRendering();
@@ -76,7 +76,7 @@ private:
 	std::string id = me.get("id");
 	WT_USTRING userName = me.get("name");
 	std::string email = me.get("email").orIfNull("");
-	bool emailVerified = me.get("verified").orIfNull(false);
+        bool emailVerified = !me.get("email").isNull();
 
 	authenticated().emit(Identity(service().name(), id, userName,
 				      email, emailVerified));
