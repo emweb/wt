@@ -84,14 +84,14 @@ void WPopupMenu::popupAtButton()
 }
 
 void WPopupMenu::setMaximumSize(const WLength& width,
-				const WLength& height)
+                                const WLength& height)
 {
   WCompositeWidget::setMaximumSize(width, height);
   ul()->setMaximumSize(width, height);
 }
 
 void WPopupMenu::setMinimumSize(const WLength& width,
-				const WLength& height)
+                                const WLength& height)
 {
   WCompositeWidget::setMinimumSize(width, height);
   ul()->setMinimumSize(width, height);
@@ -104,7 +104,7 @@ void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
   if (cancel_.isConnected() ||
       WApplication::instance()->session()->renderer().preLearning())
     doJavaScript("jQuery.data(" + jsRef() + ", 'obj').setHidden("
-		 + (hidden ? "1" : "0") + ");");
+                 + (hidden ? "1" : "0") + ");");
 }
 
 void WPopupMenu::done(WMenuItem *result)
@@ -147,7 +147,7 @@ void WPopupMenu::popup(WWidget *location, Orientation orientation)
   popupImpl();
 
   doJavaScript("jQuery.data(" + jsRef() + ", 'obj').popupAt("
-	       + location->jsRef() + ");");
+               + location->jsRef() + ");");
 
   positionAt(location, orientation);
 }
@@ -179,8 +179,8 @@ void WPopupMenu::popup(const WPoint& p)
   setOffsets(-10000, Left | Top);
 
   doJavaScript(WT_CLASS ".positionXY('" + id() + "',"
-	       + boost::lexical_cast<std::string>(p.x()) + ","
-	       + boost::lexical_cast<std::string>(p.y()) + ");");
+               + boost::lexical_cast<std::string>(p.x()) + ","
+               + boost::lexical_cast<std::string>(p.y()) + ");");
 }
 
 void WPopupMenu::prepareRender(WApplication *app)
@@ -287,7 +287,7 @@ WMenuItem *WPopupMenu::exec(WWidget *location, Orientation orientation)
 
   popup(location, orientation);
   exec();
- 
+
   return result_;
 }
 
@@ -305,6 +305,11 @@ void WPopupMenu::renderSelected(WMenuItem *item, bool selected)
 void WPopupMenu::getSDomChanges(std::vector<DomElement *> &result, WApplication *app)
 {
   WMenu::getSDomChanges(result, app);
+  willPopup_ = false;
+}
+void WPopupMenu::render(WFlags<RenderFlag> flags)
+{
+  WMenu::render(flags);
   willPopup_ = false;
 }
 

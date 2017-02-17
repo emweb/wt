@@ -606,4 +606,14 @@ bool WCompositeWidget::isScrollVisible() const
   return impl_->webWidget()->isScrollVisible();
 }
 
+void WCompositeWidget::setThemeStyleEnabled(bool enabled)
+{
+  impl_->setThemeStyleEnabled(enabled);
+}
+
+bool WCompositeWidget::isThemeStyleEnabled() const
+{
+  return impl_->isThemeStyleEnabled();
+}
+
 }

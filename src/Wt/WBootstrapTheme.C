@@ -116,6 +116,9 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
 void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
   const
 {
+  if (!widget->isThemeStyleEnabled())
+    return;
+
   switch (widgetRole) {
   case MenuItemIconRole:
     child->addStyleClass("Wt-icon");
@@ -218,6 +221,9 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
 void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 			    int elementRole) const
 {
+  if (!widget->isThemeStyleEnabled())
+    return;
+
   bool creating = element.mode() == DomElement::ModeCreate;
 
   {
@@ -252,7 +258,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
   }
 
   case DomElement_BUTTON: {
-    if (creating)
+    if (creating && !widget->hasStyleClass("list-group-item"))
       element.addPropertyWord(PropertyClass, classBtn(widget));
 
     WPushButton *button = dynamic_cast<WPushButton *>(widget);
