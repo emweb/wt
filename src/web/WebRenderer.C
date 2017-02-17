@@ -197,7 +197,7 @@ void WebRenderer::discardChanges()
   collectJS(nullptr);
 }
 
-bool WebRenderer::ackUpdate(int updateId)
+WebRenderer::AckState WebRenderer::ackUpdate(int updateId)
 {
   /*
    * If we are using an unreliable transport, then we remember
@@ -218,13 +218,13 @@ bool WebRenderer::ackUpdate(int updateId)
     LOG_DEBUG("jsSynced(false) after ackUpdate okay");
     setJSSynced(false);
     ackErrs_ = 0;
-    return true;
+    return CorrectAck;
   } else if ((updateId < expectedAckId_ && expectedAckId_ - updateId < 5)
 	     || (expectedAckId_ - 5 < updateId)) {
     ++ackErrs_;
-    return ackErrs_ < 3; // That's still acceptible but no longer plausible
+    return ackErrs_ < 3 ? ReasonableAck : BadAck; // That's still acceptible but no longer plausible
   } else
-    return false;
+    return BadAck;
 }
 
 void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
@@ -261,9 +261,9 @@ void WebRenderer::streamRedirectJS(WStringStream& out,
 	<< ", false);\n";
   out <<
     "if (window.location.replace)"
-    " window.location.replace('" << redirect << "');"
+    " window.location.replace(" << WWebWidget::jsStringLiteral(redirect) << ");"
     "else"
-    " window.location.href='" << redirect << "';\n";
+    " window.location.href=" << WWebWidget::jsStringLiteral(redirect) << ";\n";
 }
 
 void WebRenderer::serveResponse(WebResponse& response)
@@ -933,6 +933,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     if (!redirect.empty()) {
       streamRedirectJS(out, redirect);
+      out.spool(response.out());
       return;
     }
   } else {
@@ -1946,6 +1947,8 @@ std::string WebRenderer::headDeclarations() const
 	metaHeaders.push_back(m);
     }
   }
+
+  result << conf.headMatter();
 
   for (unsigned i = 0; i < metaHeaders.size(); ++i) {
     const MetaHeader& m = metaHeaders[i];

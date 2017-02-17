@@ -325,11 +325,23 @@ public:
 
   /*! \brief Returns the value as a UTF-8 encoded string.
    *
-   * For a localized string, returns the current localized value.
+   * For a localized string, returns the current localized value. If
+   * the localized string is formatted as XML, this will unescape all
+   * XML escapes. Literal strings will remain unchanged.
    *
-   * \sa fromUTF8()
+   * \sa fromUTF8(), toXhtmlUTF8()
    */
   std::string toUTF8() const;
+
+  /*! \brief Returns the value as a UTF-8 encoded XHTML string.
+   *
+   * For a localized string, returns the current localized value. If
+   * the localized string is formatted as plaintext, the localized string
+   * will be escaped. Literal strings will remain unchanged.
+   *
+   * \sa toUTF8()
+   */
+  std::string toXhtmlUTF8() const;
 
   /*! \brief Creates a localized string from a key.
    *
@@ -662,7 +674,7 @@ private:
 
   std::string utf8_;
 
-  std::string resolveKey() const;
+  std::string resolveKey(TextFormat format) const;
 
   void makeLiteral();
 

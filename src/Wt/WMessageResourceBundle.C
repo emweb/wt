@@ -39,16 +39,16 @@ void WMessageResourceBundle::useBuiltin(const char *xmlbundle)
 }
 
 #ifndef WT_TARGET_JAVA
-  bool WMessageResourceBundle::resolveKey(const WLocale& locale,
-					  const std::string& key,
-					  std::string& result)
+  LocalizedString WMessageResourceBundle::resolveKey(const WLocale& locale,
+                                          const std::string& key)
 {
   for (unsigned i = 0; i < messageResources_.size(); ++i) {
-    if (messageResources_[i]->resolveKey(locale, key, result))
-      return true;
+    LocalizedString result = messageResources_[i]->resolveKey(locale, key);
+    if (result)
+      return result;
   }
 
-  return false;
+  return LocalizedString{};
 }
 #else
 std::string *WMessageResourceBundle::resolveKey(const WLocale& locale,
@@ -59,17 +59,17 @@ std::string *WMessageResourceBundle::resolveKey(const WLocale& locale,
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
-bool WMessageResourceBundle::resolvePluralKey(const WLocale& locale,
+LocalizedString WMessageResourceBundle::resolvePluralKey(const WLocale& locale,
 					      const std::string& key,
-					      std::string& result,
 					      ::uint64_t amount)
 {
   for (unsigned i = 0; i < messageResources_.size(); ++i) {
-    if (messageResources_[i]->resolvePluralKey(locale, key, result, amount))
-      return true;
+    LocalizedString result = messageResources_[i]->resolvePluralKey(locale, key, amount);
+    if (result)
+      return result;
   }
 
-  return false;
+  return LocalizedString{};
 }
 #else
 std::string *WMessageResourceBundle::resolvePluralKey(const WLocale& locale,

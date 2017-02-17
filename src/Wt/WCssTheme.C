@@ -66,6 +66,9 @@ std::vector<WLinkedCssStyleSheet> WCssTheme::styleSheets() const
 
 void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
 {
+  if (!widget->isThemeStyleEnabled())
+    return;
+
   switch (widgetRole) {
   case WidgetThemeRole::MenuItemIcon:
     child->addStyleClass("Wt-icon");
@@ -79,7 +82,7 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
     break;
 
   case WidgetThemeRole::DialogCoverWidget:
-    child->setStyleClass("Wt-dialogcover");
+    child->setStyleClass("Wt-dialogcover in");
     break;
   case WidgetThemeRole::DialogTitleBar:
     child->addStyleClass("titlebar");
@@ -136,6 +139,9 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
   const
 {
   bool creating = element.mode() == DomElement::Mode::Create;
+
+  if (!widget->isThemeStyleEnabled())
+    return;
 
   {
     WPopupWidget *popup = dynamic_cast<WPopupWidget *>(widget);

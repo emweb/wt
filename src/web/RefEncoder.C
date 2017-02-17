@@ -162,7 +162,7 @@ WString EncodeRefs(const WString& text, WFlags<RefEncoderOption> options)
   if (text.empty())
     return text;
 
-  std::string result = "<span>" + text.toUTF8() + "</span>";
+  std::string result = "<span>" + text.toXhtmlUTF8() + "</span>";
   char *ctext = const_cast<char *>(result.c_str()); // Shhht it's okay !
 
   WApplication *app = WApplication::instance();

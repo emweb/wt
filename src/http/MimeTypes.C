@@ -42,6 +42,7 @@ struct mapping
   { "svg", "image/svg+xml" },
   { "webm", "video/webm" },
   { "xml", "application/xml" },
+  { "pdf", "application/pdf" },
   { 0, 0 } // Marks end of list.
 };
 

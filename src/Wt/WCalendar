@@ -289,6 +289,7 @@ protected:
   bool isSelected(const WDate& date) const;
 
   virtual void enableAjax() override;
+  virtual void load() override;
 
 private:
   SelectionMode     selectionMode_;

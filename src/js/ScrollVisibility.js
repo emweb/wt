@@ -120,6 +120,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    var mutObserver = null;
+   var intervalObserver = null;
    if (window.hasOwnProperty('MutationObserver')) {
      mutObserver = new MutationObserver(visibilityChecker);
    }
@@ -137,7 +138,7 @@ WT_DECLARE_WT_MEMBER
        }
      } else {
        // IE < 11 does not have MutationObserver, so use 100 ms polling instead.
-       mutObserver = setInterval(visibilityChecker, 100);
+       intervalObserver = setInterval(visibilityChecker, 100);
      }
    }
 
@@ -148,10 +149,10 @@ WT_DECLARE_WT_MEMBER
          window.removeEventListener('resize', visibilityChecker, {capture:true});
          window.removeEventListener('scroll', visibilityChecker, {capture:true});
        }
-     } else {
+     } else if (intervalObserver) {
        // IE < 11 does not have MutationObserver, so use 100 ms polling instead.
-       clearInterval(mutObserver);
-       mutObserver = null;
+       clearInterval(intervalObserver);
+       intervalObserver = null;
      }
    }
 

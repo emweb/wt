@@ -41,16 +41,16 @@ WCombinedLocalizedStrings::items() const
 }
 
 #ifndef WT_TARGET_JAVA
-bool WCombinedLocalizedStrings::resolveKey(const WLocale& locale,
-					   const std::string& key,
-					   std::string& result)
+LocalizedString WCombinedLocalizedStrings::resolveKey(const WLocale& locale,
+                                           const std::string& key)
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
-    if (localizedStrings_[i]->resolveKey(locale, key, result))
-      return true;
+    LocalizedString result = localizedStrings_[i]->resolveKey(locale, key);
+    if (result)
+      return result;
   }
 
-  return false;
+  return LocalizedString{};
 }
 #else
 std::string *WCombinedLocalizedStrings::resolveKey(const WLocale& locale, 
@@ -69,17 +69,17 @@ std::string *WCombinedLocalizedStrings::resolveKey(const WLocale& locale,
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
-bool WCombinedLocalizedStrings::resolvePluralKey(const WLocale& locale,
+LocalizedString WCombinedLocalizedStrings::resolvePluralKey(const WLocale& locale,
 						 const std::string& key,
-						 std::string& result,
 						 ::uint64_t amount)
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
-    if (localizedStrings_[i]->resolvePluralKey(locale, key, result, amount))
-      return true;
+    LocalizedString result = localizedStrings_[i]->resolvePluralKey(locale, key, amount);
+    if (result)
+      return result;
   }
 
-  return false;
+  return LocalizedString{};
 }
 #else
   //TODO

@@ -146,7 +146,7 @@ void appendArgToCmdLine(const std::string &arg, std::wstring &commandLine)
 {
   const int argwSize = MultiByteToWideChar(CP_THREAD_ACP, MB_PRECOMPOSED, arg.c_str(), arg.size(), (LPWSTR)0, 0);
   std::wstring argw(argwSize, L'\0');
-  MultiByteToWideChar(CP_THREAD_ACP, MB_PRECOMPOSED, arg.c_str(), arg.size(), &argw.front(), argw.size());
+  MultiByteToWideChar(CP_THREAD_ACP, MB_PRECOMPOSED, arg.c_str(), arg.size(), &argw[0], argw.size());
 
   if (!argw.empty() &&
       argw.find_first_of(L" \t\n\v\"") == std::wstring::npos)

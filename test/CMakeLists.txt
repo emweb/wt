@@ -12,6 +12,7 @@ IF(ENABLE_LIBWTTEST)
     mail/MailClientTest.C
     models/WBatchEditProxyModelTest.C
     models/WStandardItemModelTest.C
+    private/EscapeTest.C
     private/HttpTest.C
     private/CExpressionParserTest.C
     private/I18n.C

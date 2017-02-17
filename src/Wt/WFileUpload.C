@@ -144,6 +144,7 @@ void WFileUpload::create()
     fileUploadTarget_.reset(new WFileUploadResource(this));
     fileUploadTarget_->setUploadProgress(true);
     fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
+    fileUploadTarget_->dataExceeded().connect(this, &WFileUpload::onDataExceeded);
 
     setJavaScriptMember(WT_RESIZE_JS,
 			"function(self, w, h) {"
@@ -177,32 +178,26 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
 {
   dataReceived_.emit(current, total);
 
-  WebSession::Handler *h = WebSession::Handler::instance();
-
-  ::int64_t dataExceeded = h->request()->postDataExceeded();
-  h->setRequest(nullptr, nullptr); // so that triggerUpdate() will work
-
-  if (dataExceeded) {
-    doJavaScript(WT_CLASS ".$('if" + id() + "').src='"
-                  + fileUploadTarget_->url() + "';");
-    if (flags_.test(BIT_UPLOADING)) {
-      flags_.reset(BIT_UPLOADING);
-      handleFileTooLarge(dataExceeded);
-
-      WApplication *app = WApplication::instance();
-      app->triggerUpdate();
-      app->enableUpdates(false);
-    }
-
-    return;
-  }
-
   if (progressBar_ && flags_.test(BIT_UPLOADING)) {
     progressBar_->setRange(0, (double)total);
     progressBar_->setValue((double)current);
 
     WApplication *app = WApplication::instance();
     app->triggerUpdate();
+  }
+}
+
+void WFileUpload::onDataExceeded(::uint64_t dataExceeded)
+{
+  doJavaScript(WT_CLASS ".$('if" + id() + "').src='"
+	       + fileUploadTarget_->url() + "';");
+  if (flags_.test(BIT_UPLOADING)) {
+    flags_.reset(BIT_UPLOADING);
+    handleFileTooLarge(dataExceeded);
+
+    WApplication *app = WApplication::instance();
+    app->triggerUpdate();
+    app->enableUpdates(false);
   }
 }
 

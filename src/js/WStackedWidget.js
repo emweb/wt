@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER
   var WT = APP.WT, scrollTops = [], scrollLefts = [];
 
   function isProperChild(el) {
-    return el.nodeType == 1;
+    return el.nodeType == 1 && !$(el).hasClass("wt-reparented");
   }
 
   this.wtResize = function(self, w, h, layout) {

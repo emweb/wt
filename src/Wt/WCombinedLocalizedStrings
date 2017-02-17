@@ -62,18 +62,11 @@ public:
 
   virtual void hibernate();
 
-#ifndef WT_TARGET_JAVA
-  virtual bool resolveKey(const WLocale& locale, const std::string& key,
-			  std::string& result);
-#else // WT_TARGET_JAVA
-  virtual std::string *resolveKey(const WLocale& locale,
-				  const std::string& key) = 0;
-#endif // WT_TARGET_JAVA
+  virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key);
 
 #ifndef WT_TARGET_JAVA
-  virtual bool resolvePluralKey(const WLocale& locale, 
+  virtual LocalizedString resolvePluralKey(const WLocale& locale,
 				const std::string& key, 
-				std::string& result,
 				::uint64_t amount);
 #else // WT_TARGET_JAVA
   //TODO make this work for java

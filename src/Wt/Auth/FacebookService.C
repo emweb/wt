@@ -42,7 +42,7 @@ public:
       (this, std::bind(&FacebookProcess::handleMe, this,
 		       std::placeholders::_1,
 		       std::placeholders::_2));
-    httpClient_->get("https://graph.facebook.com/me?access_token=" 
+    httpClient_->get("https://graph.facebook.com/me?fields=name,id,email&access_token="
 		     + token.value());
 
 #ifndef WT_TARGET_JAVA
@@ -81,7 +81,7 @@ private:
 	std::string id = me.get("id");
 	WT_USTRING userName = me.get("name");
 	std::string email = me.get("email").orIfNull("");
-	bool emailVerified = me.get("verified").orIfNull(false);
+        bool emailVerified = !me.get("email").isNull();
 
 	authenticated().emit(Identity(service().name(), id, userName,
 				      email, emailVerified));

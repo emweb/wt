@@ -60,7 +60,7 @@ std::string WText::RichText::formattedText() const
   if (format == TextFormat::Plain)
     return escapeText(text, true).toUTF8();
   else
-    return text.toUTF8();
+    return text.toXhtmlUTF8();
 }
 
 WText::WText()
@@ -279,9 +279,9 @@ std::string WText::formattedText() const
 	options |= EncodeInternalPaths;
       if (app->session()->hasSessionIdInUrl())
 	options |= EncodeRedirectTrampoline;
-      return EncodeRefs(text_.text, options).toUTF8();
+      return EncodeRefs(text_.text, options).toXhtmlUTF8();
     } else
-      return text_.text.toUTF8();
+      return text_.text.toXhtmlUTF8();
   }
 }
 

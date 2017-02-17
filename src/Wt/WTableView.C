@@ -456,32 +456,19 @@ int WTableView::lastColumn() const
     return columnCount() - 1;
 }
 
-void WTableView::addSection(const Side side,
-			    std::vector<std::unique_ptr<WWidget>> items)
+void WTableView::addSection(const Side side)
 {
   assert(ajaxMode());
 
   switch (side) {
   case Side::Top:
-    for (unsigned i = 0; i < items.size(); ++i) {
-      ColumnWidget *w = columnContainer(i);
-      w->insertWidget(0, std::move(items[i]));
-    }
-
     setSpannerCount(side, spannerCount(side) - 1);
     break;
   case Side::Bottom:
-    for (unsigned i = 0; i < items.size(); ++i) {
-      ColumnWidget *w = columnContainer(i);
-      w->addWidget(std::move(items[i]));
-    }
-
     setSpannerCount(side, spannerCount(side) - 1);
     break;
   case Side::Left: {
     ColumnWidget *w = new ColumnWidget(this, firstColumn() - 1);
-    for (unsigned i = 0; i < items.size(); ++i)
-      w->addWidget(std::move(items[i]));
 
     if (!columnInfo(w->column()).hidden)
       table_->setOffsets(table_->offset(Side::Left).toPixels()
@@ -494,8 +481,7 @@ void WTableView::addSection(const Side side,
   }
   case Side::Right: {
     ColumnWidget *w = new ColumnWidget(this, lastColumn() + 1);
-    for (unsigned i = 0; i < items.size(); ++i)
-      w->addWidget(std::move(items[i]));
+
     if (columnInfo(w->column()).hidden)
       w->hide();
 
@@ -623,69 +609,69 @@ void WTableView::renderTable(const int fr, const int lr,
   for (int i = 0; i < -bottomRowsToAdd; ++i)
     removeSection(Side::Bottom);
 
-  // Add rows
-  for (int i = 0; i < topRowsToAdd; i++) {
-    int row = firstRow() - 1;
+  // Add (empty) columns
+  for (int i = 0; i < leftColsToAdd; ++i)
+    addSection(Side::Left);
+  for (int i = 0; i < rightColsToAdd; ++i)
+    addSection(Side::Right);
 
-    std::vector<std::unique_ptr<WWidget>> items;
-    for (int j = 0; j < rowHeaderCount(); ++j)
-      items.push_back
-	(std::unique_ptr<WWidget>
-	 (renderWidget(nullptr, model()->index(row, j, rootIndex()))));
-    for (int j = firstColumn(); j <= lastColumn(); ++j)
-      items.push_back
-	(std::unique_ptr<WWidget>
-	 (renderWidget(nullptr, model()->index(row, j, rootIndex()))));
-
-    addSection(Side::Top, std::move(items));
+  // Add new top rows
+  for (int i = 0; i < topRowsToAdd; ++i) {
+    int row = fr + i;
+    for (int col = 0; col < rowHeaderCount(); ++col) {
+      ColumnWidget *w = columnContainer(col);
+      w->insertWidget(i, std::unique_ptr<WWidget>{
+	    renderWidget(nullptr, model()->index(row, col, rootIndex()))});
+    }
+    for (int col = fc; col <= lc; ++col) {
+      ColumnWidget *w = columnContainer(col - fc + rowHeaderCount());
+      w->insertWidget(i, std::unique_ptr<WWidget>{
+	    renderWidget(nullptr, model()->index(row, col, rootIndex()))});
+    }
+    addSection(Side::Top);
   }
-
+  // Populate new columns of existing rows
+  if (oldLastRow != -1 &&
+      (leftColsToAdd > 0 ||
+       rightColsToAdd > 0)) {
+    for (int row = std::max(oldFirstRow, fr); row <= std::min(oldLastRow, lr); ++row) {
+      // Populate left columns
+      for (int j = 0; j < leftColsToAdd; ++j) {
+        int col = fc + j;
+        int renderCol = rowHeaderCount() + j;
+        ColumnWidget *w = columnContainer(renderCol);
+        w->addWidget(std::unique_ptr<WWidget>{
+	    renderWidget(0, model()->index(row, col, rootIndex()))});
+      }
+      // Populate right columns
+      for (int j = 0; j < rightColsToAdd; ++j) {
+        int col = lc - rightColsToAdd + 1 + j;
+        ColumnWidget *w = columnContainer(col - fc + rowHeaderCount());
+        w->addWidget(std::unique_ptr<WWidget>{
+	    renderWidget(0, model()->index(row, col, rootIndex()))});
+      }
+    }
+  }
+  // Add new bottom rows
   for (int i = 0; i < bottomRowsToAdd; ++i) {
-    int row = lastRow() + 1;
-
-    std::vector<std::unique_ptr<WWidget>> items;
-    for (int j = 0; j < rowHeaderCount(); ++j)
-      items.push_back
-	(std::unique_ptr<WWidget>
-	 (renderWidget(nullptr, model()->index(row, j, rootIndex()))));
-    for (int j = firstColumn(); j <= lastColumn(); ++j)
-      items.push_back
-	(std::unique_ptr<WWidget>
-	 (renderWidget(nullptr, model()->index(row, j, rootIndex()))));
-
-    addSection(Side::Bottom, std::move(items));
-  }
-
-  // Add columns
-  for (int i = 0; i < leftColsToAdd; ++i) {
-    int col = firstColumn() - 1;
-
-    std::vector<std::unique_ptr<WWidget>> items;
-    int nfr = firstRow(), nlr = lastRow();
-    for (int j = nfr; j <= nlr; ++j)
-      items.push_back
-	(std::unique_ptr<WWidget>
-	 (renderWidget(nullptr, model()->index(j, col, rootIndex()))));
-
-    addSection(Side::Left, std::move(items));
-  }
-
-  for (int i = 0; i < rightColsToAdd; ++i) {
-    int col = lastColumn() + 1;
-
-    std::vector<std::unique_ptr<WWidget>> items;
-    int nfr = firstRow(), nlr = lastRow();
-    for (int j = nfr; j <= nlr; ++j)
-      items.push_back
-	(std::unique_ptr<WWidget>
-	 (renderWidget(nullptr, model()->index(j, col, rootIndex()))));
-
-    addSection(Side::Right, std::move(items));
+    int row = oldLastRow == -1 ? fr + i : oldLastRow + 1 + i;
+    for (int col = 0; col < rowHeaderCount(); ++col) {
+      ColumnWidget *w = columnContainer(col);
+      w->addWidget(std::unique_ptr<WWidget>{
+	  renderWidget(0, model()->index(row, col, rootIndex()))});
+    }
+    for (int col = fc; col <= lc; ++col) {
+      ColumnWidget *w = columnContainer(col - fc + rowHeaderCount());
+      w->addWidget(std::unique_ptr<WWidget>{
+	  renderWidget(0, model()->index(row, col, rootIndex()))});
+    }
+    addSection(Side::Bottom);
   }
 
   updateColumnOffsets();
 
-  // assert(lastRow() == lr && firstRow() == fr);
+  assert(lastRow() == lr && firstRow() == fr);
+  assert(lastColumn() == lc && firstColumn() == fc);
 
   int scrollX1 = std::max(0, viewportLeft_ - viewportWidth_ / 2);
   int scrollX2 = viewportLeft_ + viewportWidth_ / 2;
@@ -1593,11 +1579,21 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
   scheduleRerender(RenderState::NeedAdjustViewPort);  
 }
 
-void WTableView::onColumnResize()
+void WTableView::onColumnResize(int col, WLength length)
 {
-  computeRenderedArea();
+  assert(ajaxMode());
 
-  scheduleRerender(RenderState::NeedAdjustViewPort);
+  ColumnWidget *w = 0;
+  if (col < rowHeaderCount())
+    w = columnContainer(col);
+  else
+    w = columnContainer(rowHeaderCount() + col - firstColumn());
+  // Only rerender if column was made smaller
+  if (w && length.toPixels() < w->width().toPixels()) {
+    computeRenderedArea();
+
+    scheduleRerender(RenderState::NeedAdjustViewPort);
+  }
 }
 
 void WTableView::computeRenderedArea()

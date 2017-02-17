@@ -229,6 +229,7 @@ public:
 
   static WString escapeText(const WString& text, bool newlinesToo = false);
   static std::string& escapeText(std::string& text, bool newlinestoo = false);
+  static std::string& unescapeText(std::string& text);
   static bool removeScript(WString& text);
 
   /*! \brief Turn a CharEncoding::UTF8 encoded string into a JavaScript string literal
@@ -278,6 +279,9 @@ public:
   virtual void setScrollVisibilityMargin(int margin) final override;
   virtual Signal<bool> &scrollVisibilityChanged() final override;
   virtual bool isScrollVisible() const final override;
+
+  virtual void setThemeStyleEnabled(bool enabled = true);
+  virtual bool isThemeStyleEnabled() const;
 
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
@@ -368,12 +372,13 @@ private:
   // Tracks whether scroll visibility is enabled/disabled, and whether the
   // scroll visibility margin has been modified.
   static const int BIT_SCROLL_VISIBILITY_CHANGED = 34;
+  static const int BIT_THEME_STYLE_DISABLED = 35;
 
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<35> AllChangeFlags;
+  static const std::bitset<36> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -381,7 +386,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<35> flags_;
+  std::bitset<36> flags_;
   std::unique_ptr<WLength> width_;
   std::unique_ptr<WLength> height_;
 

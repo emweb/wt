@@ -144,6 +144,12 @@ const std::string service_unavailable =
   "<body><h1>503 Service Unavailable</h1></body>"
   "</html>";
 const std::string service_unavailable_name ="503-service-unavailable.html";
+const std::string version_not_supported =
+  "<html>"
+  "<head><title>HTTP Version Not Supported</title></head>"
+  "<body><h1>505 HTTP Version Not Supported</h1></body>"
+  "</html>";
+const std::string version_not_supported_name = "505-version-not-supported.html";
 
 const std::string& toText(Reply::status_type status)
 {
@@ -189,6 +195,8 @@ const std::string& toText(Reply::status_type status)
     return bad_gateway;
   case Reply::service_unavailable:
     return service_unavailable;
+  case Reply::version_not_supported:
+    return version_not_supported;
   default:
     return internal_server_error;
   }
@@ -238,6 +246,8 @@ const std::string& toName(Reply::status_type status)
     return bad_gateway_name;
   case Reply::service_unavailable:
     return service_unavailable_name;
+  case Reply::version_not_supported:
+    return version_not_supported_name;
   default:
     return internal_server_error_name;
   }

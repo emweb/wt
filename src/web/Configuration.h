@@ -132,6 +132,7 @@ public:
 #endif // WT_TARGET_JAVA
 
   const std::vector<MetaHeader>& metaHeaders() const { return metaHeaders_; }
+  const std::string &headMatter() const { return headMatter_; }
   SessionPolicy sessionPolicy() const;
   int numProcesses() const;
   int numThreads() const;
@@ -252,6 +253,7 @@ private:
 
   std::vector<BootstrapEntry> bootstrapConfig_;
   std::vector<MetaHeader> metaHeaders_;
+  std::string headMatter_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

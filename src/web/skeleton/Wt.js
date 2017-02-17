@@ -2806,7 +2806,7 @@ function quit(hasQuitMessage) {
     keepAliveTimer = null;
   }
   if (pollTimer) {
-    clearInterval(pollTimer);
+    clearTimeout(pollTimer);
     pollTimer = null;
   }
   comm.cancel();
@@ -3030,7 +3030,7 @@ _$_$endif_$_();
     if (status == 1) {
       var ms = Math.min(120000, Math.exp(commErrors) * 500);
       updateTimeout = setTimeout(function() { sendUpdate(); }, ms);
-    } else
+    } else if (updateTimeout == null)
       sendUpdate();
   }
 };
@@ -3195,6 +3195,7 @@ _$_$if_WEB_SOCKETS_$_();
 	      if (event.data == "connect") {
 		if (responsePending != null && pollTimer != null) {
 		  clearTimeout(pollTimer);
+		  pollTimer = null;
 		  responsePending.abort();
 		  responsePending = null;
 		}
@@ -3281,6 +3282,7 @@ _$_$endif_$_();
 
   if (responsePending != null && pollTimer != null) {
     clearTimeout(pollTimer);
+    pollTimer = null;
     responsePending.abort();
     responsePending = null;
   }
@@ -3291,11 +3293,13 @@ _$_$endif_$_();
       updateTimeoutStart = (new Date).getTime();
     } else if (commErrors) {
       clearTimeout(updateTimeout);
+      updateTimeout = null;
       sendUpdate();
     } else {
       var diff = (new Date).getTime() - updateTimeoutStart;
       if (diff > WT.updateDelay) {
 	clearTimeout(updateTimeout);
+	updateTimeout = null;
 	sendUpdate();
       }
     }
@@ -3426,12 +3430,12 @@ function sendUpdate() {
       }
     }
 
+    pollTimer
+     = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;
+
     responsePending = 1;
     responsePending = comm.sendUpdate
       ('request=jsupdate' + data.result, tm, ackUpdateId, -1);
-
-    pollTimer
-     = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;
   }
 }
 
@@ -3630,9 +3634,20 @@ ImagePreloader.prototype.preload = function(uri) {
 };
 
 ImagePreloader.prototype.onload = function() {
+  // Called from the image: this = the image
   var preloader = this.imagePreloader;
   if (--preloader.work == 0)
     preloader.callback(preloader.images);
+};
+
+ImagePreloader.prototype.cancel = function() {
+  var images = this.images;
+  for (var i = 0; i < images.length; ++i) {
+    images[i].onload = function(){};
+    images[i].onerror = function(){};
+    images[i].onabort = function(){};
+  }
+  this.callback = function(){};
 };
 
 /////////////////////////////////////////////////////////////////////

@@ -3,7 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <boost/algorithm/string.hpp>
 
 #include "Wt/WApplication.h"
@@ -21,6 +23,9 @@
 #include "WebUtils.h"
 #include "StringUtils.h"
 #include "XSSFilter.h"
+
+#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml_xhtml.hpp"
 
 #ifndef WT_DEBUG_JS
 #include "js/WWebWidget.min.js"
@@ -51,7 +56,7 @@ const char *WWebWidget::FOCUS_SIGNAL = "focus";
 const char *WWebWidget::BLUR_SIGNAL = "blur";
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<35> WWebWidget::AllChangeFlags = std::bitset<35>()
+const std::bitset<36> WWebWidget::AllChangeFlags = std::bitset<36>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -2322,6 +2327,63 @@ std::string& WWebWidget::escapeText(std::string& text, bool newlinestoo)
 #endif // WT_TARGET_JAVA
 }
 
+std::string& WWebWidget::unescapeText(std::string &text)
+{
+  char *inP = &text[0];
+  char *const inEndP = &text[text.size()];
+  char *outP = &text[0];
+  char *ampP = nullptr;
+  do {
+    assert(inP >= outP);
+    ampP = std::find(inP, inEndP, '&');
+    if (inP == outP) {
+      inP = ampP;
+      outP = ampP;
+    } else {
+      while (inP != ampP) {
+        *(outP++) = *(inP++);
+      }
+    }
+    assert(inP >= outP);
+    if (inP != inEndP) {
+      char *semiP = std::find(inP, inEndP, ';');
+      if (semiP == inEndP)
+        *(outP++) = *(inP++);
+      else {
+        if (*(ampP + 1) == '#') {
+          unsigned long codept = 0;
+          bool valid = false;
+          if (*(ampP + 2) == 'x') {
+            char *end = nullptr;
+            codept = std::strtoul(ampP + 3, &end, 16);
+            valid = end == semiP;
+          } else {
+            char *end = nullptr;
+            codept = std::strtoul(ampP + 2, &end, 10);
+            valid = end == semiP;
+          }
+          if (valid) {
+            Wt::rapidxml::xml_document<>::insert_coded_character<0>(outP, codept);
+            inP = semiP + 1;
+          } else {
+            *(outP++) = *(inP++);
+          }
+        } else {
+          if (!rapidxml::translate_xhtml_entity(inP, outP)) {
+            *(outP++) = *(inP++);
+          }
+        }
+      }
+    }
+  } while (inP < inEndP);
+  assert(inP >= outP);
+  *outP = '\0';
+  std::size_t s = (std::size_t)(outP - (&text[0]));
+  assert(s <= text.size());
+  text.resize(s);
+  return text;
+}
+
 std::string WWebWidget::jsStringLiteral(const std::string& value,
 					char delimiter)
 {
@@ -2640,4 +2702,13 @@ void WWebWidget::jsScrollVisibilityChanged(bool visible)
     otherImpl_->scrollVisibilityChanged_.emit(visible);
 }
 
+void WWebWidget::setThemeStyleEnabled(bool enabled)
+{
+  flags_.set(BIT_THEME_STYLE_DISABLED, !enabled);
+}
+
+bool WWebWidget::isThemeStyleEnabled() const
+{
+  return !flags_.test(BIT_THEME_STYLE_DISABLED);
+}
 }

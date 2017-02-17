@@ -89,6 +89,8 @@ public:
 #ifdef HTTP_WITH_SSL
     ssl = nullptr;
 #endif
+    http_version_major = -1;
+    http_version_minor = -1;
   }
   enum State { Partial, Complete, Error };
 

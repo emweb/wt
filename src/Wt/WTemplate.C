@@ -29,7 +29,7 @@ bool WTemplate::_tr(const std::vector<WString>& args,
     WString s = WString::tr(args[0].toUTF8());
     for (unsigned j = 1; j < args.size(); ++j)
       s.arg(args[j]);
-    result << s.toUTF8(); // FIXME formatting / escaping ?
+    result << s.toXhtmlUTF8();
     return true;
   } else {
     LOG_ERROR("Functions::tr(): expects at least one argument");
@@ -535,9 +535,9 @@ bool WTemplate::renderTemplateText(std::ostream& result, const WString& template
 
   std::string text;
   if (encodeTemplateText_)
-    text = encode(templateText.toUTF8());
+    text = encode(templateText.toXhtmlUTF8());
   else
-    text = templateText.toUTF8();
+    text = templateText.toXhtmlUTF8();
 
   std::size_t lastPos = 0;
   std::vector<WString> args;
@@ -791,6 +791,12 @@ void WTemplate::refresh()
   }
 
   WInteractWidget::refresh();
+}
+
+void WTemplate::reset()
+{
+  changed_ = true;
+  repaint(RepaintFlag::SizeAffected);
 }
 
 }

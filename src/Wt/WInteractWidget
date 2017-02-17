@@ -310,6 +310,9 @@ public:
    * The widget to be identified as source in the dropEvent may be given
    * explicitly, and will default to this widget otherwise.
    *
+   * When using a touch interface, the widget can also be dragged after
+   * a long press.
+   *
    * \note When JavaScript is disabled, drag&drop does not work.
    *
    * \sa WWidget::dropEvent(), WWidget::acceptDrops(), WDropEvent

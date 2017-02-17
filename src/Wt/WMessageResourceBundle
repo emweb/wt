@@ -153,11 +153,9 @@ public:
   virtual void hibernate();
 
 #ifndef WT_TARGET_JAVA
-  virtual bool resolveKey(const WLocale& locale,
-			  const std::string& key, std::string& result);
-  virtual bool resolvePluralKey(const WLocale& locale,
+  virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key);
+  virtual LocalizedString resolvePluralKey(const WLocale& locale,
 				const std::string& key,
-				std::string& result,
 				::uint64_t amount);
 #else // WT_TARGET_JAVA
   virtual std::string *resolveKey(const WLocale& locale,

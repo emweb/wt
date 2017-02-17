@@ -34,11 +34,9 @@ public:
   bool isBuiltin(const char *data) const { return builtin_ == data; }
   const std::string& path() const { return path_; }
 
-  bool resolveKey(const WLocale& locale,
-		  const std::string& key, std::string& result) const;
-  bool resolvePluralKey(const WLocale& locale,
+  LocalizedString resolveKey(const WLocale& locale, const std::string& key) const;
+  LocalizedString resolvePluralKey(const WLocale& locale,
 			const std::string& key, 
-			std::string& result, 
 			::uint64_t amount) const;
 
   static int evalPluralCase(const std::string &expression, ::uint64_t n);
@@ -65,10 +63,8 @@ private:
   mutable ResourceMap resources_;
 
   void load(const WLocale& locale) const;
-  bool resolve(const std::string& locale,
-	       const std::string& key, std::string& result) const;
-  bool resolvePlural(const std::string& locale, const std::string& key, 
-		     std::string& result, ::uint64_t amount) const;
+  LocalizedString resolve(const std::string& locale, const std::string& key) const;
+  LocalizedString resolvePlural(const std::string& locale, const std::string& key, ::uint64_t amount) const;
   bool readResourceFile(const std::string& locale, Resource& resource) const;
   bool readResourceStream(std::istream &s, Resource& resource,
                           const std::string &fileName) const;

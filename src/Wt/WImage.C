@@ -202,15 +202,16 @@ void WImage::updateDom(DomElement& element, bool all)
   }
 
   if (flags_.test(BIT_IMAGE_LINK_CHANGED) || all) {
+    std::string url;
+    WApplication *app = WApplication::instance();
     if (!imageLink_.isNull()) {
-      std::string url = resolveRelativeUrl(imageLink_.url());
-
-      WApplication *app = WApplication::instance();
+      url = resolveRelativeUrl(imageLink_.url());
       url = app->encodeUntrustedUrl(url);
+    } else {
+      url = app->onePixelGifUrl();
+    }
 
-      img->setProperty(Wt::Property::Src, url);
-    } else
-      img->setProperty(Wt::Property::Src, "#");
+    img->setProperty(Wt::Property::Src, url);
 
     flags_.reset(BIT_IMAGE_LINK_CHANGED);
   }

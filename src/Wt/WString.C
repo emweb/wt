@@ -266,9 +266,9 @@ void WString::checkUTF8Encoding(std::string& value)
   }
 }
 
-std::string WString::resolveKey() const
+std::string WString::resolveKey(TextFormat format) const
 {
-  std::string result;
+  LocalizedString result;
   WLocalizedStrings *ls = nullptr;
   const WLocale *locale = nullptr;
 
@@ -288,15 +288,23 @@ std::string WString::resolveKey() const
 
   if (ls) {
     if (impl_->n_ == -1) {
-      if (ls->resolveKey(*locale, impl_->key_, result))
-	return result;
+      result = ls->resolveKey(*locale, impl_->key_);
     } else {
-      if (ls->resolvePluralKey(*locale, impl_->key_, result, impl_->n_))
-	return result;
+      result = ls->resolvePluralKey(*locale, impl_->key_, impl_->n_);
     }
   }
 
-  return "??" + impl_->key_ + "??";
+  if (!result) {
+    result = LocalizedString{"??" + impl_->key_ + "??", TextFormat::Plain};
+  }
+
+  if (result.format == format)
+    return result.value;
+  else if (result.format == TextFormat::Plain && format != TextFormat::Plain) {
+    return Wt::WWebWidget::escapeText(result.value);
+  } else {
+    return Wt::WWebWidget::unescapeText(result.value);
+  }
 }
 
 std::string WString::toUTF8() const
@@ -305,7 +313,7 @@ std::string WString::toUTF8() const
     std::string result = utf8_;
 
     if (!impl_->key_.empty())
-      result = resolveKey();
+      result = resolveKey(TextFormat::Plain);
 
     for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
       std::string key = '{' + std::to_string(i+1) + '}';
@@ -315,6 +323,25 @@ std::string WString::toUTF8() const
     return result;
   } else
     return utf8_;
+}
+
+std::string WString::toXhtmlUTF8() const
+{
+  if (impl_) {
+    std::string result = utf8_;
+
+    if (!impl_->key_.empty())
+      result = resolveKey(TextFormat::XHTML);
+
+    for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
+      std::string key = '{' + std::to_string(i+1) + '}';
+      Wt::Utils::replace(result, key, impl_->arguments_[i].toXhtmlUTF8());
+    }
+
+    return result;
+  } else {
+    return utf8_;
+  }
 }
 
 WString WString::tr(const char *key)
@@ -725,7 +752,7 @@ bool operator!= (const char32_t *lhs, const WString& rhs)
 void WString::makeLiteral()
 {
   if (!literal()) {
-    utf8_ = resolveKey();
+    utf8_ = resolveKey(TextFormat::Plain);
     impl_->key_ = std::string();
   }
 }

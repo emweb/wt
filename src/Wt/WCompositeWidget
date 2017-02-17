@@ -171,6 +171,9 @@ public:
   virtual Signal<bool> &scrollVisibilityChanged() final override;
   virtual bool isScrollVisible() const final override;
 
+  virtual void setThemeStyleEnabled(bool enabled = true);
+  virtual bool isThemeStyleEnabled() const;
+
 protected:
   virtual void setHideWithOffsets(bool how) override;
 

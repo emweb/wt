@@ -14,14 +14,14 @@ BOOST_AUTO_TEST_CASE( Xml_test )
   Wt::WMessageResourceBundle bundle;
   bundle.use("test");
 
-  std::string result;
-
-  if (!bundle.resolveKey(locale, "test1", result))
+  if (!bundle.resolveKey(locale, "test1"))
     return; // test.xml file not found
 
-  BOOST_REQUIRE(bundle.resolveKey(locale, "test1", result));
-  BOOST_REQUIRE(result == "<br/>");
+  Wt::LocalizedString result = bundle.resolveKey(locale, "test1");
+  BOOST_REQUIRE(result);
+  BOOST_REQUIRE(result.value == "<br/>");
 
-  BOOST_REQUIRE(bundle.resolveKey(locale, "test2", result));
-  BOOST_REQUIRE(result == "<div></div>");
+  result = bundle.resolveKey(locale, "test2");
+  BOOST_REQUIRE(result);
+  BOOST_REQUIRE(result.value == "<div></div>");
 }

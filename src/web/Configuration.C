@@ -25,6 +25,7 @@
 #include <regex>
 
 #include "3rdparty/rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml_print.hpp"
 
 #ifdef WT_WIN32
 #include <io.h>
@@ -837,6 +838,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     }
   }
 
+  // deprecated
   std::vector<xml_node<> *> metaHeaders = childElements(app, "meta-headers");
   for (unsigned i = 0; i < metaHeaders.size(); ++i) {
     xml_node<> *metaHeader = metaHeaders[i];
@@ -870,6 +872,18 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
       metaHeaders_.push_back(MetaHeader(type, name, content, "", userAgent));
     }
+  }
+
+  std::vector<xml_node<> *> headMatters = childElements(app, "head-matter");
+  for (unsigned i = 0; i < headMatters.size(); ++i) {
+    xml_node<> *headMatter = headMatters[i];
+
+    std::stringstream ss;
+    for (xml_node<> *r = headMatter->first_node(); r;
+         r = r->next_sibling()) {
+      rapidxml::print(static_cast<std::ostream&>(ss), *r);
+    }
+    headMatter_ = ss.str();
   }
 }
 

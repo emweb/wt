@@ -347,18 +347,17 @@ void WMessageResources::hibernate()
   }
 }
 
-bool WMessageResources::resolveKey(const WLocale& locale,
-				   const std::string& key, std::string& result)
+LocalizedString WMessageResources::resolveKey(const WLocale& locale, const std::string& key)
   const
 {
-  if (resolve(locale.name(), key, result))
-    return true;
+  LocalizedString result = resolve(locale.name(), key);
+  if (result)
+    return result;
 
-  return resolve(std::string(), key, result);
+  return resolve(std::string(), key);
 }
 
-bool WMessageResources::resolve(const std::string& locale,
-				const std::string& key, std::string& result)
+LocalizedString WMessageResources::resolve(const std::string& locale, const std::string& key)
   const
 {
   if (resources_.find(locale) == resources_.end())
@@ -369,12 +368,11 @@ bool WMessageResources::resolve(const std::string& locale,
   KeyValuesMap::const_iterator j = res.map_.find(key);
   if (j != res.map_.end()) {
     if (j->second.size() > 1 )
-      return false;
-    result = j->second[0];
-    return true;
+      return LocalizedString{};
+    return LocalizedString{j->second[0], TextFormat::XHTML};
   }
 
-  return false;
+  return LocalizedString{};
 }
 
 std::string WMessageResources::findCase(const std::vector<std::string> &cases, 
@@ -405,20 +403,19 @@ std::string WMessageResources::findCase(const std::vector<std::string> &cases,
 #endif // WT_NO_SPIRIT
 }
 
-bool WMessageResources::resolvePluralKey(const WLocale& locale,
+LocalizedString WMessageResources::resolvePluralKey(const WLocale& locale,
 					 const std::string& key, 
-					 std::string& result, 
 					 ::uint64_t amount) const
 {
-  if (resolvePlural(locale.name(), key, result, amount))
-    return true;
+  LocalizedString result = resolvePlural(locale.name(), key, amount);
+  if (result)
+    return result;
 
-  return resolvePlural(std::string(), key, result, amount);
+  return resolvePlural(std::string(), key, amount);
 }
 
-bool WMessageResources::resolvePlural(const std::string& locale,
+LocalizedString WMessageResources::resolvePlural(const std::string& locale,
 				      const std::string& key,
-				      std::string& result,
 				      ::uint64_t amount) const
 {
   if (resources_.find(locale) == resources_.end())
@@ -429,11 +426,11 @@ bool WMessageResources::resolvePlural(const std::string& locale,
   KeyValuesMap::const_iterator j = res.map_.find(key);
   if (j != res.map_.end()) {
     if (j->second.size() != res.pluralCount_ )
-      return false;
-    result = findCase(j->second, res.pluralExpression_, amount);
-    return true;
+      return LocalizedString{};
+    std::string result = findCase(j->second, res.pluralExpression_, amount);
+    return LocalizedString{result, TextFormat::XHTML};
   } else
-    return false;
+    return LocalizedString{};
 }
 
 bool WMessageResources::readResourceFile(const std::string& locale,

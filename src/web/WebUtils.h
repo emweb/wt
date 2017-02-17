@@ -341,6 +341,7 @@ int sizeofFunction(const T &t) { return sizeof(t)/sizeof(*t); }
 int sizeofFunction(const double[]);
 int sizeofFunction(const float[]);
 int sizeofFunction(const int[]);
+int sizeofFunction(const std::string[]);
 #endif
 
 extern long stol(const std::string& v);
