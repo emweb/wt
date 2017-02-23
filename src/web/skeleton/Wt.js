@@ -2779,6 +2779,10 @@ function encodePendingEvents() {
   for (var i = 0; i < pendingEvents.length; ++i) {
     feedback = feedback || pendingEvents[i].feedback;
     result += pendingEvents[i].data;
+    var se = i > 0 ? '&e' + i : '&';
+    if (pendingEvents[i].evAckId < ackUpdateId) {
+      result += se + 'evAckId=' + pendingEvents[i].evAckId;
+    }
   }
 
   sentEvents = pendingEvents;
@@ -3095,6 +3099,7 @@ _$_$endif_$_();
   pendingEvent.signal = signalName;
   pendingEvent.event = window.fakeEvent || e;
   pendingEvent.feedback = feedback;
+  pendingEvent.evAckId = ackUpdateId;
 
   pendingEvents[i] = encodeEvent(pendingEvent, i);
 
@@ -3494,6 +3499,7 @@ function emit(object, config) {
     userEvent.args[i-2] = r;
   }
   userEvent.feedback = true;
+  userEvent.evAckId = ackUpdateId;
 
   pendingEvents[ei] = encodeEvent(userEvent, ei);
 

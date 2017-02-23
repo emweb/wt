@@ -299,6 +299,8 @@ public:
    */
   const WDate& top() const { return top_; }
 
+  virtual void load();
+
 protected:
   virtual void render(WFlags<RenderFlag> renderFlags);
   

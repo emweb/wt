@@ -436,14 +436,29 @@ void EventSignalBase::processNonLearnedStateless() const
   }
 }
 
-void EventSignalBase::processLearnedStateless() const
+void EventSignalBase::processLearnedStateless(bool checkWasStubbed) const
 {
   std::vector<StatelessConnection> copy = connections_;
 
   for (unsigned i = 0; i < copy.size(); ++i) {
     StatelessConnection& c = copy[i];
 
-    if (c.ok() && c.slot->learned())
+    if (c.ok() && c.slot->learned() &&
+        (!checkWasStubbed ||
+         !WApplication::instance()->session()->renderer().wasStubbed(c.target)))
+      c.slot->trigger();
+  }
+}
+
+void EventSignalBase::processStubbedStateless() const
+{
+  std::vector<StatelessConnection> copy = connections_;
+
+  for (unsigned i = 0; i < copy.size(); ++i) {
+    StatelessConnection& c = copy[i];
+
+    if (c.ok() && c.slot->learned() &&
+        WApplication::instance()->session()->renderer().wasStubbed(c.target))
       c.slot->trigger();
   }
 }
