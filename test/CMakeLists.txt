@@ -14,6 +14,7 @@ IF(ENABLE_LIBWTTEST)
     private/HttpTest.C
     private/CExpressionParserTest.C
     private/I18n.C
+    private/UrlManipTest.C
     render/BlockCssPropertyTest.C
     render/CssParserTest.C
     render/CssSelectorTest.C
@@ -40,11 +41,11 @@ IF(ENABLE_LIBWTTEST)
      )
   ENDIF(WT_HAS_WRASTERIMAGE)
 
-  ADD_EXECUTABLE(test
+  ADD_EXECUTABLE(test.wt
     ${TEST_SOURCES}
   )
 
-  TARGET_LINK_LIBRARIES(test wt wttest ${BOOST_FS_LIB})
+  TARGET_LINK_LIBRARIES(test.wt wt wttest ${BOOST_FS_LIB})
 
   IF(ENABLE_LIBWTDBO)
     # Test all dbo backends

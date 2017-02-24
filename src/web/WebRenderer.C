@@ -539,7 +539,10 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
       header << " Domain=" << cookie.domain << ';';
 
     if (cookie.path.empty())
-      header << " Path=" << session_.env().deploymentPath() << ';';
+      if (!session_.env().publicDeploymentPath_.empty())
+	header << " Path=" << session_.env().publicDeploymentPath_ << ';';
+      else
+        header << " Path=" << session_.env().deploymentPath() << ';';
     else
       header << " Path=" << cookie.path << ';';
 
@@ -647,7 +650,7 @@ void WebRenderer::updateMultiSessionCookie(const WebRequest &request)
   setCookie("ms" + request.scriptName(),
             session_.multiSessionId(),
             WDateTime::currentDateTime().addSecs(conf.sessionTimeout()),
-            "", session_.env().deploymentPath(),
+            "", "",
             session_.env().urlScheme() == "https");
 }
 
@@ -814,11 +817,6 @@ void WebRenderer::collectJavaScript()
   collectedJS1_ << invisibleJS_.str();
   invisibleJS_.clear();
 
-  if (conf.inlineCss())
-    app->styleSheet().javaScriptUpdate(app, collectedJS1_, false);
-
-  loadStyleSheets(collectedJS1_, app);
-
   if (app->bodyHtmlClassChanged_) {
     bool widgetset = session_.type() == WidgetSet;
     std::string op = widgetset ? "+=" : "=";
@@ -882,6 +880,11 @@ void WebRenderer::collectJavaScript()
       collectedJS1_ << app->javaScriptClass()
 		    << "._p_.update(null, 'none', null, false);";
   }
+
+  if (conf.inlineCss())
+    app->styleSheet().javaScriptUpdate(app, collectedJS1_, false);
+
+  loadStyleSheets(collectedJS1_, app);
 
   if (app->autoJavaScriptChanged_) {
     collectedJS1_ << app->javaScriptClass()

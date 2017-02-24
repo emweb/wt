@@ -522,11 +522,26 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
       return url;
     else if (!env_->publicDeploymentPath_.empty()) {
       std::string dp = env_->publicDeploymentPath_;
-      if (url[0] != '?') {
+
+      if (url == ".") {
+        return dp;
+      } else if (url.size() >= 2 && url[0] == '.' && url[1] == '/') {
+        if (dp[dp.size() - 1] == '/') {
+          // url starts with "./" and dp ends with '/',
+          // remove "./" from url and append rest to dp
+          return dp + url.substr(2);
+        } else {
+          // url starts with "./" and dp does not end with '/',
+          // remove '.' from url and append rest to dp
+          return dp + url.substr(1);
+        }
+      } else if (url[0] == '?') {
+        return dp + url;
+      } else {
+        // take off everything in dp after the last '/'
 	std::size_t s = dp.rfind('/');
-	dp = dp.substr(0, s + 1);
+        return dp.substr(0, s + 1) + url;
       }
-      return dp + url;
     } else {
       /*
        * The public deployment path may lack if:
