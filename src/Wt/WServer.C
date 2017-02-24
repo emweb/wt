@@ -218,9 +218,9 @@ void WServer::schedule(int milliSeconds,
 {
   ApplicationEvent event(sessionId, function, fallbackFunction);
 
-  ioService().schedule(milliSeconds,
-		       std::bind(&WebController::handleApplicationEvent,
-				 webController_, event));
+  ioService().schedule(milliSeconds, [this, event] () {
+          webController_->handleApplicationEvent(event);
+  });
 }
 
 void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,

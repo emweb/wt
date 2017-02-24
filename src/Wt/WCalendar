@@ -266,6 +266,8 @@ public:
    */
   const WDate& top() const { return top_; }
 
+  virtual void load() override;
+
 protected:
   virtual void render(WFlags<RenderFlag> renderFlags) override;
   
@@ -289,7 +291,6 @@ protected:
   bool isSelected(const WDate& date) const;
 
   virtual void enableAjax() override;
-  virtual void load() override;
 
 private:
   SelectionMode     selectionMode_;

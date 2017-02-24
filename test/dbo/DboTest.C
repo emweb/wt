@@ -2428,7 +2428,7 @@ BOOST_AUTO_TEST_CASE( dbo_test26 )
      * in a second session when model->dataChanged() is emitted
      */
     model->dataChanged().connect
-      (std::bind<bool>(std::ref(checkExpected), std::ref(ExpectedFirstName)));
+      ([&checkExpected, &ExpectedFirstName] () {checkExpected(ExpectedFirstName); });
     
     /*
      * The setItemData() convenience method commits

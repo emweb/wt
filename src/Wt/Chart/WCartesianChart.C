@@ -2152,8 +2152,8 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 {
 
-  while (!areas().empty())
-    delete const_cast<WCartesianChart *>(this)->areas().front();
+  for (auto area: areas())
+    const_cast<WCartesianChart *>(this)->removeArea(area);
 
   if (!painter.isActive())
     throw WException("WCartesianChart::paint(): painter is not active.");

@@ -94,6 +94,15 @@ public:
 
   void setStatelessSlotNotStateless() { currentStatelessSlotIsActuallyStateless_ = false; }
 
+  // Keep stubbed widget in vector marking it as stubbed,
+  // so we don't discard the JavaScript effects of a stateless
+  // slot executed before the widget was unstubbed.
+  void markAsStubbed(const WWidget *widget);
+
+  // Check whether the given object (which should be a widget)
+  // was marked as stubbed.
+  bool wasStubbed(const WObject *widget) const;
+
 private:
   struct CookieValue {
     std::string value;
@@ -125,6 +134,11 @@ private:
 
   std::vector<int> wsRequestsToHandle_;
   bool multiSessionCookieUpdateNeeded_;
+
+  // A vector of all widgets that were stubbed.
+  // Kept around until the first event after they're unstubbed,
+  // then the vector is cleared.
+  std::vector<const WWidget*> stubbedWidgets_;
 
   void setHeaders(WebResponse& request, const std::string mimeType);
   void setCaching(WebResponse& response, bool allowCache);
@@ -180,6 +194,11 @@ private:
 
   void updateMultiSessionCookie(const WebRequest &request);
   void renderMultiSessionCookieUpdate(WStringStream &out);
+
+  // If we're already past the loading phase, and the first non-load
+  // event was handled, we can clear the vector of stubbed widgets
+  void clearStubbedWidgets();
+
 public:
   std::string       learn(WStatelessSlot* slot);
 
