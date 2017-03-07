@@ -522,11 +522,26 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
       return url;
     else if (!env_->publicDeploymentPath_.empty()) {
       std::string dp = env_->publicDeploymentPath_;
-      if (url[0] != '?') {
+
+      if (url == ".") {
+        return dp;
+      } else if (url.size() >= 2 && url[0] == '.' && url[1] == '/') {
+        if (dp[dp.size() - 1] == '/') {
+          // url starts with "./" and dp ends with '/',
+          // remove "./" from url and append rest to dp
+          return dp + url.substr(2);
+        } else {
+          // url starts with "./" and dp does not end with '/',
+          // remove '.' from url and append rest to dp
+          return dp + url.substr(1);
+        }
+      } else if (url[0] == '?') {
+        return dp + url;
+      } else {
+        // take off everything in dp after the last '/'
 	std::size_t s = dp.rfind('/');
-	dp = dp.substr(0, s + 1);
+        return dp.substr(0, s + 1) + url;
       }
-      return dp + url;
     } else {
       /*
        * The public deployment path may lack if:
@@ -2922,6 +2937,10 @@ void WebSession::notifySignal(const WEvent& e)
 
       handler.nextSignal = i + 1;
 
+      const std::string *evAckIdE = request.getParameter(se + "evAckId");
+      bool checkWasStubbed = evAckIdE &&
+          boost::lexical_cast<int>(*evAckIdE) <= renderer_.scriptId() + 1;
+
       if (*signalE == "hash") {
 	const std::string *hashE = request.getParameter(se + "_");
 	if (hashE) {
@@ -2931,7 +2950,7 @@ void WebSession::notifySignal(const WEvent& e)
 	} else
 	  changeInternalPath("", handler.response());
       } else {
-	for (unsigned k = 0; k < 3; ++k) {
+        for (unsigned k = 0; k < 4; ++k) {
 	  SignalKind kind = (SignalKind)k;
 
 	  if (kind == AutoLearnStateless && request.postDataExceeded())
@@ -2949,7 +2968,7 @@ void WebSession::notifySignal(const WEvent& e)
 	  } else
 	    s = decodeSignal(*signalE, k == 0);
 
-	  processSignal(s, se, request, kind);
+          processSignal(s, se, request, kind, checkWasStubbed);
 
 	  if (kind == LearnedStateless && discardStateless)
 	    renderer_.discardChanges();
@@ -2962,14 +2981,20 @@ void WebSession::notifySignal(const WEvent& e)
 }
 
 void WebSession::processSignal(EventSignalBase *s, const std::string& se,
-			       const WebRequest& request, SignalKind kind)
+                               const WebRequest& request, SignalKind kind,
+                               bool checkWasStubbed)
 {
   if (!s)
     return;
 
   switch (kind) {
   case LearnedStateless:
-    s->processLearnedStateless();
+    s->processLearnedStateless(checkWasStubbed);
+    break;
+  case StubbedStateless:
+    if (checkWasStubbed) {
+      s->processStubbedStateless();
+    }
     break;
   case AutoLearnStateless:
     s->processAutoLearnStateless(&renderer_);

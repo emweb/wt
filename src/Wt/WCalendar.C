@@ -146,6 +146,15 @@ void WCalendar::enableAjax()
 {
   WCompositeWidget::enableAjax();
   monthEdit_->enable();
+
+}
+
+void WCalendar::load()
+{
+  WCompositeWidget::load();
+  if(WApplication::instance()->environment().ajax()){
+    monthEdit_->enable();
+  }
 }
 
 void WCalendar::setFirstDayOfWeek(int dayOfWeek)

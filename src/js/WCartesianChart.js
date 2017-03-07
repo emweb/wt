@@ -1028,15 +1028,13 @@ WT_DECLARE_WT_MEMBER
 	    animating = true;
 	    rqAnimFrame(animate);
 	 } else {
-	    self.mouseUp(null, null);
+	    if (mode === CROSSHAIR_MODE)
+	      self.mouseUp(null, null);
 	    touches = [];
 	    zoomAngle = null;
 	    zoomMiddle = null;
 	    zoomProjection = null;
-	    if (lastDate != null) {
-	       var now = Date.now();
-	       lastDate = null;
-	    }
+	    lastDate = null;
 	 }
 	 mode = null;
       } else if (singleTouch || doubleTouch)

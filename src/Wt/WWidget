@@ -1117,7 +1117,7 @@ public:
    * \note This should be changed after the construction but before the rendering 
    * of the widget.
    */
-  virtual void setThemeStyleEnabled(bool enabled = true) = 0;
+  virtual void setThemeStyleEnabled(bool enabled) = 0;
 
   /*!
    * \brief Returns whether this widget is currently styled by 

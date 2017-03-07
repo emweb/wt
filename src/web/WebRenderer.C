@@ -539,7 +539,10 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
       header << " Domain=" << cookie.domain << ';';
 
     if (cookie.path.empty())
-      header << " Path=" << session_.env().deploymentPath() << ';';
+      if (!session_.env().publicDeploymentPath_.empty())
+	header << " Path=" << session_.env().publicDeploymentPath_ << ';';
+      else
+        header << " Path=" << session_.env().deploymentPath() << ';';
     else
       header << " Path=" << cookie.path << ';';
 
@@ -647,7 +650,7 @@ void WebRenderer::updateMultiSessionCookie(const WebRequest &request)
   setCookie("ms" + request.scriptName(),
             session_.multiSessionId(),
             WDateTime::currentDateTime().addSecs(conf.sessionTimeout()),
-            "", session_.env().deploymentPath(),
+            "", "",
             session_.env().urlScheme() == "https");
 }
 
@@ -814,11 +817,6 @@ void WebRenderer::collectJavaScript()
   collectedJS1_ << invisibleJS_.str();
   invisibleJS_.clear();
 
-  if (conf.inlineCss())
-    app->styleSheet().javaScriptUpdate(app, collectedJS1_, false);
-
-  loadStyleSheets(collectedJS1_, app);
-
   if (app->bodyHtmlClassChanged_) {
     bool widgetset = session_.type() == WidgetSet;
     std::string op = widgetset ? "+=" : "=";
@@ -882,6 +880,11 @@ void WebRenderer::collectJavaScript()
       collectedJS1_ << app->javaScriptClass()
 		    << "._p_.update(null, 'none', null, false);";
   }
+
+  if (conf.inlineCss())
+    app->styleSheet().javaScriptUpdate(app, collectedJS1_, false);
+
+  loadStyleSheets(collectedJS1_, app);
 
   if (app->autoJavaScriptChanged_) {
     collectedJS1_ << app->javaScriptClass()
@@ -1106,6 +1109,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
     currentFormObjectsList_.clear();
     collectJavaScript();
     updateLoadIndicator(collectedJS1_, app, true);
+
+    clearStubbedWidgets();
 
     LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
@@ -2035,6 +2040,27 @@ std::string WebRenderer::headDeclarations() const
 void WebRenderer::addWsRequestId(int wsRqId)
 {
   wsRequestsToHandle_.push_back(wsRqId);
+}
+
+void WebRenderer::markAsStubbed(const WWidget *widget)
+{
+  stubbedWidgets_.push_back(widget);
+}
+
+bool WebRenderer::wasStubbed(const WObject *widget) const
+{
+  for (std::size_t i = 0; i < stubbedWidgets_.size(); ++i) {
+    if (stubbedWidgets_[i] == widget)
+      return true;
+  }
+  return false;
+}
+
+void WebRenderer::clearStubbedWidgets()
+{
+  if (expectedAckId_ - scriptId_ > 1) {
+    stubbedWidgets_.clear();
+  }
 }
 
 }

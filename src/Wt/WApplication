@@ -1468,6 +1468,10 @@ public:
    */
   bool requireJQuery(const std::string& url);
 
+  /*! \brief Returns whether a custom JQuery library is used.
+   *
+   * \sa requireJQuery(const std::string& url)
+   */
   bool customJQuery() const { return customJQuery_; }
 
   /*! \brief Sets the name of the application JavaScript class.

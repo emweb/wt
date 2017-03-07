@@ -102,7 +102,10 @@ public:
    * matching and character selection is done by libpango, which is
    * seeded with information on installed fonts by fontconfig. In that
    * case, invocations for this method is ignored. Only TrueType fonts
-   * are supported, and thus you need to configure fontconfig (which
+   * are supported.
+   *
+   * As of %Wt 3.3.7, only TrueType fonts will be selected by default.
+   * Prior to %Wt 3.3.7, you needed to configure fontconfig (which
    * is used by pango) to only return TrueType fonts. This can be
    * done using a fonts.conf configuration %file:
    *
@@ -128,7 +131,7 @@ public:
    * fonts. The main drawback compared to libpango is that font
    * selection is not steered by the need for particular characters,
    * i.e. font selection is independent from the text's need for
-   * specific characters. Most TrueType fonts provided only partial
+   * specific characters. Most TrueType fonts provide only partial
    * unicode support. The provided \p directory will be searched for
    * fonts (currently only TrueType ".ttf" or ".ttc" fonts). TrueType
    * fonts are preferable over Base-14 fonts (which are PDF's default

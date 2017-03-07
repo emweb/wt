@@ -1613,6 +1613,9 @@ WT_DECLARE_WT_MEMBER
 
 	 parentMargin = [0, 0];
 	 for (;p != document;) {
+	   if ($(c).hasClass('wt-reparented'))
+	     break;
+
 	   parentMargin[HORIZONTAL] += boxMargin(p, HORIZONTAL);
 	   parentMargin[VERTICAL] += boxMargin(p, VERTICAL);
 
