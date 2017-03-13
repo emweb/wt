@@ -209,6 +209,9 @@ public:
    *
    * Note that adding a submenu makes this item not \link isSelectable() selectable\endlink by default.
    *
+   * \note If the \link parentMenu() parent menu\endlink is a WPopupMenu, the submenu should also be a
+   *       WPopupMenu.
+   *
    * \sa setSelectable()
    */
   void setMenu(WMenu *menu);

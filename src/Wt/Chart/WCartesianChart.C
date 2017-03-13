@@ -2451,9 +2451,13 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
   for (int i = 0; i < 3; ++i)
     location_[i] = MinimumValue;
 
+  WPaintDevice *d = device;
+  if (!d)
+    d = createPaintDevice();
+
   bool autoLayout = isAutoLayoutEnabled();
   if (autoLayout &&
-      (!device || (device->features() & WPaintDevice::HasFontMetrics) == 0)) {
+      ((d->features() & WPaintDevice::HasFontMetrics) == 0)) {
     LOG_ERROR("setAutoLayout(): device does not have font metrics "
       "(not even server-side font metrics).");
     autoLayout = false;
@@ -2477,9 +2481,6 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
       return false;
     }
 
-    WPaintDevice *d = device;
-    if (!d)
-      d = createPaintDevice();
     {
       WMeasurePaintDevice md(d);
       WPainter painter(&md);
@@ -2502,10 +2503,10 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
       self->setPlotAreaPadding(plotAreaPadding(Top) + corrTop, Top);
       self->setPlotAreaPadding(plotAreaPadding(Bottom) + corrBottom, Bottom);
     }
-
-    if (!device)
-      delete d;
   }
+
+  if (!device)
+    delete d;
 
   calcChartArea();
 

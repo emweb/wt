@@ -71,7 +71,7 @@ class WIOService;
  *    client->done().connect(boost::bind(&MyWidget::handleHttpResponse, this, _1, _2));
  *    if (client->get("http://www.webtoolkit.eu/wt/blog/feed/"))
  *      WApplication::instance()->deferRendering();
- *    } else {
+ *    else {
  *      // in case of an error in the %URL
  *    }
  * }

@@ -558,13 +558,13 @@ private:
  *
  * \relates WString
  */
-extern WString utf8(const char *value);
+extern WT_API WString utf8(const char *value);
 
 /*! \brief Short hand for WString(const std::string& value, UTF8)
  *
  * \relates WString
  */
-extern WString utf8(const std::string& value);
+extern WT_API WString utf8(const std::string& value);
 
 /*! \brief Concatenate two WStrings
  *

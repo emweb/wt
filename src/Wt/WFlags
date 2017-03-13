@@ -113,7 +113,7 @@ public:
    *
    * Returns flags that are the bitwise XOR of this and \p other.
    */
- inline WFlags<EnumType> operator^(EnumType other) const;
+  inline WFlags<EnumType> operator^(EnumType other) const;
 
   /*! \brief Modifying bitwise XOR operator.
    *
