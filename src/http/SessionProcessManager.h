@@ -51,7 +51,7 @@ private:
 #endif
 
 #ifdef WT_THREADED
-  boost::mutex sessionsMutex_;
+  mutable boost::mutex sessionsMutex_;
 #endif // WT_THREADED
   SessionProcessList pendingProcesses_; // Processes that have started up, but are not mapped to a session yet
   SessionMap sessions_;
