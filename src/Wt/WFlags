@@ -178,8 +178,6 @@ private:
 
 };
 
-#ifndef DOXYGEN_ONLY
-
 template<typename EnumType>
 WFlags<EnumType>::WFlags(const WFlags<EnumType>& other):
   flags_(other.flags_)
@@ -352,8 +350,6 @@ bool operator==(EnumType l, Wt::WFlags<EnumType> r);                    \
 bool operator==(EnumType l, int zero);
 #endif
 }
-
-#endif // DOXYGEN_ONLY
 
 #endif // WFLAGS_H_
 
