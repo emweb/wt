@@ -2227,7 +2227,15 @@ void WebSession::notify(const WEvent& event)
    * Capture JavaScript error server-side.
    */
   if (requestE && *requestE == "jserror") {
-    app_->handleJavaScriptError(*request.getParameter("err"));
+    const std::string *err = request.getParameter("err");
+    if (err) {
+      app_->handleJavaScriptError(*err);
+    } else {
+      // Forming a custom request with missing err parameter should not crash the server,
+      // but our JavaScript should not produce these requests.
+      LOG_ERROR("malformed jserror request: missing err parameter");
+      app_->handleJavaScriptError("unknown error");
+    }
     renderer_.setJSSynced(false);
     render(handler);
     return;

@@ -16,7 +16,39 @@ WT_DECLARE_WT_MEMBER
        hideTimeout = null,
        isTransient = tr,
        autoHideDelay = ahd,
+       touch = null,
        showF = null, hideF = null;
+
+   function doEvent(f) {
+     if (WT.isIOS) {
+       f("touchstart",startTouch);
+       f("touchend",endTouch);
+     }
+     else
+       f("click",onDocumentClick);
+   }
+   function bindDocumentClick() { doEvent($(document).bind); }
+   function unbindDocumentClick() { doEvent($(document).unbind); }
+
+   function startTouch(event) {
+     var l = event.originalEvent.touches;
+     if (l.length > 1)
+       touch = null;
+     else {
+       touch = {
+         x: l[0].screenX,
+         y: l[0].screenY
+       }
+     }
+   }
+
+   function endTouch(event) {
+     if (touch) {
+       var t = event.originalEvent.changedTouches[0];
+       if (Math.abs(touch.x - t.screenX) < 20 && Math.abs(touch.y - t.screenY) < 20)
+         onDocumentClick(event);
+     }
+   }
 
    function mouseLeave() {
      clearTimeout(hideTimeout);
@@ -64,7 +96,7 @@ WT_DECLARE_WT_MEMBER
    this.shown = function(f) {
      if (isTransient) {
        setTimeout(function() {
- 		    $(document).bind('click', onDocumentClick);
+ 		    bindDocumentClick();
 		  }, 0);
      }
 
@@ -86,7 +118,7 @@ WT_DECLARE_WT_MEMBER
      if (hideF) hideF();
 
      if (isTransient)
-       $(document).unbind('click', onDocumentClick);     
+       unbindDocumentClick();
    };
 
    this.hide = function() {
@@ -104,7 +136,7 @@ WT_DECLARE_WT_MEMBER
 
      if (isTransient && !isHidden())
        setTimeout(function() {
-		    $(document).bind('click', onDocumentClick);
+		    bindDocumentClick();
 		  }, 0);
    };
 
