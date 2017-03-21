@@ -70,6 +70,19 @@ typedef std::vector<EntryPoint> EntryPointList;
 
 #endif // WT_TARGET_JAVA
 
+class WT_API HeadMatter {
+public:
+  HeadMatter(std::string contents,
+             std::string userAgent);
+
+  const std::string& contents() const { return contents_; }
+  const std::string& userAgent() const { return userAgent_; }
+
+private:
+  std::string contents_;
+  std::string userAgent_;
+};
+
 class WT_API Configuration
 {
 public:
@@ -132,7 +145,7 @@ public:
 #endif // WT_TARGET_JAVA
 
   const std::vector<MetaHeader>& metaHeaders() const { return metaHeaders_; }
-  const std::string &headMatter() const { return headMatter_; }
+  const std::vector<HeadMatter>& headMatter() const { return headMatter_; }
   SessionPolicy sessionPolicy() const;
   int numProcesses() const;
   int numThreads() const;
@@ -253,7 +266,7 @@ private:
 
   std::vector<BootstrapEntry> bootstrapConfig_;
   std::vector<MetaHeader> metaHeaders_;
-  std::string headMatter_;
+  std::vector<HeadMatter> headMatter_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

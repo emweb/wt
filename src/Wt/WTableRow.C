@@ -69,7 +69,7 @@ std::unique_ptr<WTableCell> WTableRow::removeColumn(int column)
     cells_[i]->column_ = i;
 
   if (table_)
-    table_->widgetRemoved(result.get(), false); // TODO(Roel): why false?
+    table_->widgetRemoved(result.get(), false);
 
   return result;
 }

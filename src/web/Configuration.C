@@ -182,6 +182,12 @@ void EntryPoint::setPath(const std::string& path)
   path_ = path;
 }
 
+HeadMatter::HeadMatter(std::string contents,
+		       std::string userAgent)
+  : contents_(contents),
+    userAgent_(userAgent)
+{ }
+
 Configuration::Configuration(const std::string& applicationPath,
 			     const std::string& appRoot,
 			     const std::string& configurationFile,
@@ -878,12 +884,15 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   for (unsigned i = 0; i < headMatters.size(); ++i) {
     xml_node<> *headMatter = headMatters[i];
 
+    std::string userAgent;
+    attributeValue(headMatter, "user-agent", userAgent);
+
     std::stringstream ss;
     for (xml_node<> *r = headMatter->first_node(); r;
          r = r->next_sibling()) {
       rapidxml::print(static_cast<std::ostream&>(ss), *r);
     }
-    headMatter_ = ss.str();
+    headMatter_.push_back(HeadMatter(ss.str(), userAgent));
   }
 }
 

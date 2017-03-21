@@ -145,7 +145,7 @@ std::unique_ptr<WTableRow> WTable::removeRow(int row)
   result->setTable(nullptr);
 
   for (auto &cell : result->cells_)
-    widgetRemoved(cell.get(), false); // TODO(Roel): why false?
+    widgetRemoved(cell.get(), false);
 
   return result;
 }

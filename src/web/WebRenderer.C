@@ -1912,6 +1912,22 @@ std::string WebRenderer::headDeclarations() const
  
   const Configuration& conf = session_.env().server()->configuration();
 
+  const std::vector<HeadMatter>& headMatters = conf.headMatter();
+  for (unsigned i = 0; i < headMatters.size(); ++i) {
+    const HeadMatter& m = headMatters[i];
+
+    bool add = true;
+    if (!m.userAgent().empty()) {
+      std::string s = session_.env().userAgent();
+      std::regex expr(m.userAgent());
+      if (!std::regex_search(s, expr))
+	add = false;
+    }
+
+    if (add)
+      result << m.contents();
+  }
+
   const std::vector<MetaHeader>& confMetaHeaders = conf.metaHeaders();
   std::vector<MetaHeader> metaHeaders;
 
@@ -1952,8 +1968,6 @@ std::string WebRenderer::headDeclarations() const
 	metaHeaders.push_back(m);
     }
   }
-
-  result << conf.headMatter();
 
   for (unsigned i = 0; i < metaHeaders.size(); ++i) {
     const MetaHeader& m = metaHeaders[i];

@@ -518,10 +518,26 @@
          user-agent, using a regular expression. You can have multiple
          set-meta-headers definitions.
 
-	 -->
+	 Deprecated: use <head-matter> instead.
+
 	<meta-headers user-agent=".*MSIE.*">
 	  <meta name="robots" content="noindex" />
 	</meta-headers>
+	 -->
+
+	<!-- Configure <head> matter
+
+	  The user-agent allows optional filtering based on the
+	  user-agent, using a regular expression. You can have multiple
+	  head-matter definitions.
+
+	  All contents will be inserted into the <head> tag
+	  verbatim. This could be useful for setting <meta> tags or
+	  <link> tags that are global for the entire application.
+	-->
+	<head-matter user-agent=".*MSIE.*">
+	  <meta name="robots" content="noindex" />
+	</head-matter>
 
 	<!-- Runtime Properties
      
