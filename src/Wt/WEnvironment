@@ -201,7 +201,7 @@ public:
    *
    * \sa getCookieValue()
    */
-  const std::string getCookie(const std::string& cookieNname) const;
+  const std::string getCookie(const std::string& cookieName) const;
 
   /*! \brief Returns a cookie value.
    *

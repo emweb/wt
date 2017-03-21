@@ -1439,10 +1439,10 @@ void WebSession::handleRequest(Handler& handler)
 	  /*
 	   * We can simply bootstrap.
 	   */
-	  try {
-	    std::string internalPath = env_->getCookie("WtInternalPath");
-	    env_->setInternalPath(internalPath);
-	  } catch (std::exception& e) {
+	  {
+	    const std::string *internalPath = env_->getCookieValue("WtInternalPath");
+	    if (internalPath)
+	      env_->setInternalPath(*internalPath);
 	  }
 
 	  bool forcePlain
