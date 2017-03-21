@@ -2430,9 +2430,16 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
   for (int i = 0; i < 3; ++i)
     location_[i] = AxisValue::Minimum;
 
+  std::unique_ptr<WPaintDevice> created;
+  WPaintDevice *d = device;
+  if (!d) {
+    created = createPaintDevice();
+    d = created.get();
+  }
+
   bool autoLayout = isAutoLayoutEnabled();
-  if (autoLayout && 
-      (!device || (device->features() & PaintDeviceFeatureFlag::FontMetrics).empty())) {
+  if (autoLayout &&
+      ((d->features() & PaintDeviceFeatureFlag::FontMetrics).empty())) {
     LOG_ERROR("setAutoLayout(): device does not have font metrics "
       "(not even server-side font metrics).");
     autoLayout = false;
@@ -2454,13 +2461,6 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
 	yTransform_ = yTransformHandle_.value();
       }
       return false;
-    }
-
-    std::unique_ptr<WPaintDevice> created;
-    WPaintDevice *d = device;
-    if (!d) {
-      created = createPaintDevice();
-      d = created.get();
     }
 
     {
@@ -2492,6 +2492,8 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
 			       Side::Bottom);
     }
   }
+
+  created.reset();
 
   calcChartArea();
 
@@ -2660,7 +2662,10 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
 #else
   painter.setPen(fontPen);
 #endif
-  painter.drawText(pos.x() + 23, pos.y() - 9, 100, 20,
+  int width = (int)legendColumnWidth().toPixels();
+  if (width < 100)
+    width = 100;
+  painter.drawText(pos.x() + 23, pos.y() - 0, width, 20,
 		   AlignmentFlag::Left | AlignmentFlag::Middle,
 		   series.model()->headerData(series.modelColumn()));
 }

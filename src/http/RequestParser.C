@@ -522,6 +522,10 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
       break;
     case ws00_binary_length:
+      if (remainder_ >= (0x01 << 56)) {
+        LOG_ERROR("ws: oversized binary frame: overflows 64-bit signed integer");
+        return Request::Error;
+      }
       remainder_ = remainder_ << 7 | (*begin & 0x7F);
       if ((*begin & 0x80) == 0) {
 	if (remainder_ == 0 || remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH) {
@@ -639,6 +643,11 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
       break;
     case ws13_extended_payload_length:
+      if (wsCount_ == 8 &&
+          (unsigned char)(*begin) > 127) {
+        LOG_ERROR("ws: malformed 8-byte frame length, MSB is not 0");
+        return Request::Error;
+      }
       remainder_ <<= 8;
       remainder_ |= (unsigned char)(*begin);
       --wsCount_;

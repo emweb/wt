@@ -230,7 +230,7 @@ User AuthModel::processAuthToken()
 
   if (baseAuth()->authTokensEnabled()) {
     const std::string *token =
-      env.getCookieValue(baseAuth()->authTokenCookieName());
+      env.getCookie(baseAuth()->authTokenCookieName());
 
     if (token) {
       AuthTokenResult result = baseAuth()->processAuthToken(*token, users());

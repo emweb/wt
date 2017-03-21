@@ -201,6 +201,11 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 #endif // WT_THREADED
   }
 
+  if (!handler) {
+    WLocale locale = webRequest->parseLocale();
+    WLocale::setCurrentLocale(locale);
+  }
+
   Http::Request request(*webRequest, continuation.get());
   Http::Response response(this, webResponse, continuation);
 

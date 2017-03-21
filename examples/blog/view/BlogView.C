@@ -35,15 +35,12 @@
 namespace dbo = Wt::Dbo;
 
 namespace {
-  struct ConversionException : public std::exception {
-  };
-
   static int try_stoi(const std::string &v)
   {
     std::size_t pos;
     auto result = std::stoi(v, &pos);
     if (pos != v.length())
-      throw ConversionException{};
+      throw std::invalid_argument("stoi() of " + v + " failed");
     return result;
   }
 }
@@ -403,7 +400,7 @@ private:
         lower.setDate(year, 1, 1);
         upper = lower.addYears(1);
       }
-    } catch (ConversionException &) {
+    } catch (std::invalid_argument &) {
       showError(tr("blog-no-post"));
       return;
     }

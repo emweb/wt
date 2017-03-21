@@ -131,6 +131,9 @@ void SessionProcessManager
 
 std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
 {
+#ifdef WT_THREADED
+  std::unique_lock<std::mutex> lock(sessionsMutex_);
+#endif // WT_THREADED
   std::vector<Wt::WServer::SessionInfo> result;
   for (SessionMap::const_iterator it = sessions_.begin();
        it != sessions_.end(); ++it) {

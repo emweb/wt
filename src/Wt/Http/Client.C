@@ -74,14 +74,17 @@ public:
     maximumResponseSize_ = bytes;
   }
 
-  void request(const std::string& method, const std::string& auth, 
+  void request(const std::string& method, const std::string& protocol, const std::string& auth,
 	       const std::string& server, int port, const std::string& path,
 	       const Message& message)
   {
     std::ostream request_stream(&requestBuf_);
     request_stream << method << " " << path << " HTTP/1.1\r\n";
-    request_stream << "Host: " << server << ":" 
-		   << std::to_string(port) << "\r\n";
+    if ((protocol == "http" && port == 80) || (protocol == "https" && port == 443))
+      request_stream << "Host: " << server << "\r\n";
+    else
+      request_stream << "Host: " << server << ":"
+                     << std::to_string(port) << "\r\n";
 
     if (!auth.empty())
       request_stream << "Authorization: Basic " 
@@ -934,6 +937,7 @@ bool Client::request(Http::Method method, const std::string& url,
   LOG_DEBUG(methodNames_[static_cast<unsigned int>(method)] << " " << url);
 
   impl_->request(methodNames_[static_cast<unsigned int>(method)], 
+		 parsedUrl.protocol,
 		 parsedUrl.auth,
 		 parsedUrl.host, 
 		 parsedUrl.port, 

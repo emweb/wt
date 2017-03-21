@@ -31,7 +31,7 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   IF(WIN32)
     # preamble to make this a toplevel CMakeLists.txt for Windows, intended
     # for being used 
-    CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+    CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
     Project(WtExamples)
 

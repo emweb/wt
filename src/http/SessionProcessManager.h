@@ -47,7 +47,7 @@ private:
 #endif
 
 #ifdef WT_THREADED
-  std::mutex sessionsMutex_;
+  mutable std::mutex sessionsMutex_;
 #endif // WT_THREADED
   SessionProcessList pendingProcesses_; // Processes that have started up, but are not mapped to a session yet
   SessionMap sessions_;

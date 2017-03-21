@@ -3,14 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WFileUpload"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WLogger"
-#include "Wt/WProgressBar"
-#include "Wt/WResource"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
+#include "Wt/WFileUpload.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
+#include "Wt/WProgressBar.h"
+#include "Wt/WResource.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
 
 #include "DomElement.h"
 #include "WebSession.h"

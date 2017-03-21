@@ -275,14 +275,14 @@ std::string WString::resolveKey(TextFormat format) const
   WApplication *app = WApplication::instance();
   if (app) {
     ls = app->localizedStringsPack();
-    locale = &app->locale();
+    locale = &WLocale::currentLocale();
   }
 
   if (!ls) {
     WServer *server = WServer::instance();
     if (server) {
       ls = server->localizedStrings().get();
-      locale = nullptr; // FIXME -- from current request ?
+      locale = &WLocale::currentLocale();
     }
   }
 

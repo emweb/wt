@@ -229,6 +229,16 @@ public:
 
   //boost::local_time::time_zone_ptr time_zone_ptr() const;
 
+  /*! \brief Sets the current (user) locale.
+   *
+   * This calls WApplication::setLocale().
+   *
+   * When there is no session (e.i. WApplication::instance() == 0),
+   * for example in WResource::handleRequest(), then this sets the locale
+   * for the current request.
+   */
+  static void setCurrentLocale(const WLocale &locale);
+
 private:
   std::string name_;
   WT_UCHAR decimalPoint_, groupSeparator_;

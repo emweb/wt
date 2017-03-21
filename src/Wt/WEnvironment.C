@@ -516,17 +516,7 @@ const std::string *WEnvironment::getParameter(const std::string& name) const
     return nullptr;
 }
 
-const std::string WEnvironment::getCookie(const std::string& cookieName) const
-{
-  CookieMap::const_iterator i = cookies_.find(cookieName);
-
-  if (i == cookies_.end())
-    throw std::runtime_error("Missing cookie: " + cookieName);
-  else
-    return i->second;
-}
-
-const std::string *WEnvironment::getCookieValue(const std::string& cookieName)
+const std::string *WEnvironment::getCookie(const std::string& cookieName)
   const
 {
   CookieMap::const_iterator i = cookies_.find(cookieName);

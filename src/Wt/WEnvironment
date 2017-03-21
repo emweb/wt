@@ -192,25 +192,11 @@ public:
 
   /*! \brief Returns a cookie value.
    *
-   * \if cpp
-   * Throws a <tt>std::runtime_error("Missing cookie: ...")</tt> when
-   * the cookie is missing, or returns cookie value otherwise.
-   * \elseif java
-   * Throws a <tt>RuntimeException("Missing cookie: ...")</tt> when
-   * the cookie is missing, or returns cookie value otherwise.
-   * \endif
-   *
-   * \sa getCookieValue()
-   */
-  const std::string getCookie(const std::string& cookieNname) const;
-
-  /*! \brief Returns a cookie value.
-   *
    * Returns 0 if no value was set for the given cookie.
    *
    * \sa getCookie()
    */
-  const std::string *getCookieValue(const std::string& cookieName) const;
+  const std::string *getCookie(const std::string& cookieName) const;
 
   /*! \brief Returns a header value.
    *

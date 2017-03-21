@@ -234,7 +234,7 @@ private:
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) override;
 
   void onViewportChange(int left, int top, int width, int height);
-  void onColumnResize(int col, WLength length);
+  void onColumnResize();
   void resetGeometry();
   
   void handleSingleClick(bool headerColumns, const WMouseEvent& event);

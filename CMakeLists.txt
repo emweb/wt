@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 SET(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE true)
 
@@ -109,12 +109,11 @@ OPTION(ENABLE_LIBWTDBO "Build Wt::Dbo" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
+OPTION(WT_WARN_HEADER_MISSING_H "Output a warning if a Wt header without .h extension is included (deprecated since Wt 4.0.0)" ON)
 
-IF(NOT MSVC)
-  #MSVC always enables its c++11 features by default
-  SET(WT_CPP_11_MODE "-std=c++11" CACHE STRING "C++ mode to compile Wt in (defaults to -std=c++11, you can set it to -std=c++11, -std=c++0x, -std=c++14,...)")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WT_CPP_11_MODE}")
-ENDIF(NOT MSVC)
+IF(NOT CMAKE_CXX_STANDARD)
+  SET(CMAKE_CXX_STANDARD 11)
+ENDIF(NOT CMAKE_CXX_STANDARD)
 
 IF(MSVC)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
@@ -417,7 +416,7 @@ ENDIF (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "GraphicsMagick")
 
 SET(WT_CPP17_ANY_DEFAULT_IMPLEMENTATION "thelink2012")
 SET(WT_CPP17_ANY_IMPLEMENTATION ${WT_CPP17_ANY_DEFAULT_IMPLEMENTATION} CACHE STRING
-"Implementation for Wt::cpp17::any. Defaults to \"thelink2012\": an included implementation of any by GitHub user thelink2012. Use \"std\" for std::any, or \"experimental\" for std::experimental::any, if compiler support is available. You may have to change WT_CPP_11_MODE to enable C++17 support in the compiler.")
+  "Implementation for Wt::cpp17::any. Defaults to \"thelink2012\": an included implementation of any by GitHub user thelink2012. Use \"std\" for std::any, or \"experimental\" for std::experimental::any, if compiler support is available. You may have to change CMAKE_CXX_STANDARD to enable C++17 support in the compiler.")
    
 IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
   MESSAGE(STATUS "Informational: WT_CPP17_ANY_IMPLEMENTATION should be thelink2012, experimental, or std")

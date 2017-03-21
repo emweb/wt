@@ -423,7 +423,7 @@ long stol(const std::string& v)
   std::size_t pos;
   auto result = std::stol(v, &pos);
   if (pos != v.length())
-    throw std::runtime_error("stol() of " + v + " failed");
+    throw std::invalid_argument("stol() of " + v + " failed");
   return result;
 }
 
@@ -432,7 +432,7 @@ unsigned long stoul(const std::string& v)
   std::size_t pos;
   auto result = std::stoul(v, &pos);
   if (pos != v.length())
-    throw std::runtime_error("stoul() of " + v + " failed");
+    throw std::invalid_argument("stoul() of " + v + " failed");
   return result;
 }
 
@@ -441,7 +441,7 @@ long long stoll(const std::string& v)
   std::size_t pos;
   auto result = std::stoll(v, &pos);
   if (pos != v.length())
-    throw std::runtime_error("stoul() of " + v + " failed");
+    throw std::invalid_argument("stoul() of " + v + " failed");
   return result;
 }
 
@@ -450,7 +450,7 @@ unsigned long long stoull(const std::string& v)
   std::size_t pos;
   auto result = std::stoull(v, &pos);
   if (pos != v.length())
-    throw std::runtime_error("stoull() of " + v + " failed");
+    throw std::invalid_argument("stoull() of " + v + " failed");
   return result;
 }
 
@@ -459,7 +459,7 @@ int stoi(const std::string& v)
   std::size_t pos;
   auto result = std::stoi(v, &pos);
   if (pos != v.length())
-    throw std::runtime_error("stoi() of " + v + " failed");
+    throw std::invalid_argument("stoi() of " + v + " failed");
   return result;
 }
 
@@ -468,7 +468,7 @@ double stod(const std::string& v)
   std::size_t pos;
   auto result = std::stod(v, &pos);
   if (pos != v.length())
-    throw std::runtime_error("stod() of " + v + " failed");
+    throw std::invalid_argument("stod() of " + v + " failed");
   return result;
 }
 
@@ -477,7 +477,7 @@ float stof(const std::string& v)
   std::size_t pos;
   auto result = std::stof(v, &pos);
   if (pos != v.length())
-    throw std::runtime_error("stof() of " + v + " failed");
+    throw std::invalid_argument("stof() of " + v + " failed");
   return result;
 }
 

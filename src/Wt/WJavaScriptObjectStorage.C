@@ -81,7 +81,7 @@ void WJavaScriptObjectStorage::assignFromJSON(const std::string &json)
     LOG_ERROR("Failed to parse JSON: " + std::string(e.what()));
   } catch (const WException &e) {
     LOG_ERROR("Failed to assign value from JSON: " + std::string(e.what()));
-  } catch (const std::runtime_error &e) {
+  } catch (const std::invalid_argument &e) {
     LOG_ERROR("Failed to assign value from JSON, couldn't cast index: " + std::string(e.what()));
   }
 }

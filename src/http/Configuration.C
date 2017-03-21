@@ -124,7 +124,7 @@ void Configuration::createOptions(po::options_description& options,
 
     ("session-id-prefix",
      po::value<std::string>(&sessionIdPrefix_)->default_value(sessionIdPrefix_),
-     "prefix for session-id's (overrides wt_config.xml setting)")
+     "prefix for session IDs (overrides wt_config.xml setting)")
 
     ("pid-file,p",
      po::value<std::string>(&pidPath_)->default_value(pidPath_),
@@ -150,7 +150,8 @@ void Configuration::createOptions(po::options_description& options,
   po::options_description http("HTTP/WebSocket server options");
   http.add_options()
     ("http-address", po::value<std::string>(),
-     "IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)")
+     "IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0). You must specify either "
+     "this option or --https-address (or both)")
     ("http-port", po::value<std::string>(&httpPort_)->default_value(httpPort_),
      "HTTP port (e.g. 80)")
     ;
@@ -158,7 +159,8 @@ void Configuration::createOptions(po::options_description& options,
   po::options_description https("HTTPS/Secure WebSocket server options");
   https.add_options()
     ("https-address", po::value<std::string>(),
-     "IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)")
+     "IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0). You must specify either "
+     "this option or --http-address (or both)")
     ("https-port",
      po::value<std::string>(&httpsPort_)->default_value(httpsPort_),
      "HTTPS port (e.g. 443)")

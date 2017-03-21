@@ -59,6 +59,11 @@ namespace Wt {
  * \endcode
  * \endif
  *
+ * Font information is embedded in the PDF. Fonts supported are native
+ * PostScript fonts (Base-14) (only ASCII-7), or true type fonts
+ * (Unicode). See addFontCollection() for more information on how
+ * fonts are located.
+ *
  * \ingroup render
  */
 class WT_API WPdfRenderer : public WTextRenderer
@@ -99,6 +104,21 @@ public:
   void setDpi(int dpi);
 
   /*! \brief Adds a font collection.
+   *
+   * If %Wt has been configured to use <tt>libpango</tt>, then font
+   * matching and character selection is done by libpango, and calls
+   * to this method are ignored. See WPdfImage::addFontCollection()
+   * for more details.
+   *
+   * If %Wt was not configured to use <tt>libpango</tt>, you will have
+   * to add the directories where %Wt should look for fonts. You will
+   * also have to specify the required font in the HTML source, e.g.:
+   *
+   * \code
+   * Render::WPdfRenderer renderer(pdf, page);
+   * // ...
+   * renderer.render("<p style=\"font-family: 'DejaVuSans', Arial\">élève, fenêtre, âme</p>");
+   * \endcode
    *
    * \sa WPdfImage::addFontCollection()
    */

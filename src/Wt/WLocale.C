@@ -9,6 +9,7 @@
 namespace Wt {
 
 namespace {
+thread_local WLocale currentLocale_;
 const WLocale systemLocale;
 }
 
@@ -95,7 +96,7 @@ const WLocale& WLocale::currentLocale()
   if (app)
     return app->locale();
   else
-    return systemLocale;
+    return currentLocale_;
 }
 
 bool WLocale::isDefaultNumberLocale() const
@@ -212,6 +213,17 @@ std::string WLocale::addGrouping(const std::string& v, unsigned decimalPoint)
   result += v.substr(decimalPoint);
 
   return result;
+}
+
+void WLocale::setCurrentLocale(const WLocale &locale)
+{
+  WApplication *app = WApplication::instance();
+  if (app) {
+    app->setLocale(locale);
+  }
+  else {
+    currentLocale_ = locale;
+  }
 }
 
 }

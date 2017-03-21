@@ -42,6 +42,8 @@
 #cmakedefine WT_ASIO_IS_BOOST_ASIO
 #cmakedefine WT_ASIO_IS_STANDALONE_ASIO
 
+#cmakedefine WT_WARN_HEADER_MISSING_H
+
 // our win32: WIN32 (gcc) or _WIN32 (MSC)
 #if defined(WIN32) || defined(_WIN32)
 #define WT_WIN32 1
