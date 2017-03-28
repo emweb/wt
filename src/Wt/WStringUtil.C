@@ -208,7 +208,7 @@ std::wstring fromUTF8(const std::string& s)
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          if (cp >= 0xD800 && cp < 0xF000)
+          if (cp >= 0xD800 && cp < 0xE000)
             legal = false;
           else if (sizeof(wchar_t) == 4)
             result += (wchar_t)cp;
@@ -241,7 +241,7 @@ std::wstring fromUTF8(const std::string& s)
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          if (cp >= 0xD800 && cp < 0xF000)
+          if (cp >= 0xD800 && cp < 0xE000)
             legal = false;
           else if (sizeof(wchar_t) == 4)
             result += (wchar_t)cp;
@@ -267,7 +267,7 @@ std::wstring fromUTF8(const std::string& s)
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          if (cp >= 0xD800 && cp < 0xF000)
+          if (cp >= 0xD800 && cp < 0xE000)
             legal = false;
           else if (sizeof(wchar_t) == 4)
             result += (wchar_t)cp;
