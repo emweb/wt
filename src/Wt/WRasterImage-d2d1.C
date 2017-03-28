@@ -136,7 +136,7 @@ public:
   ID2D1SolidColorBrush *fillBrush_;
   ID2D1SolidColorBrush *strokeBrush_;
   ID2D1StrokeStyle *stroke_;
-  float lineWidth_;
+  FLOAT lineWidth_;
   ID2D1PathGeometry *clipGeometry_;
   ID2D1Layer *clipLayer_;
   bool clipLayerActive_;
@@ -424,14 +424,26 @@ void WRasterImage::Impl::applyTransform(const WTransform& t)
   GUARD_TAG_IMPL(APPLY_TRANSFORM);
   D2D1_MATRIX_3X2_F currentMatrix;
   rt_->GetTransform(&currentMatrix);
-  D2D1::Matrix3x2F matrix(t.m11(), t.m12(), t.m21(), t.m22(), t.dx(), t.dy());
+  D2D1::Matrix3x2F matrix(
+    static_cast<FLOAT>(t.m11()),
+    static_cast<FLOAT>(t.m12()),
+    static_cast<FLOAT>(t.m21()),
+    static_cast<FLOAT>(t.m22()),
+    static_cast<FLOAT>(t.dx()),
+    static_cast<FLOAT>(t.dy()));
   rt_->SetTransform(currentMatrix * matrix);
 }
 
 void WRasterImage::Impl::setTransform(const WTransform& t)
 {
   GUARD_TAG_IMPL(SET_TRANSFORM);
-  D2D1::Matrix3x2F matrix(t.m11(), t.m12(), t.m21(), t.m22(), t.dx(), t.dy());
+  D2D1::Matrix3x2F matrix(
+    static_cast<FLOAT>(t.m11()),
+    static_cast<FLOAT>(t.m12()),
+    static_cast<FLOAT>(t.m21()),
+    static_cast<FLOAT>(t.m22()),
+    static_cast<FLOAT>(t.dx()),
+    static_cast<FLOAT>(t.dy()));
   rt_->SetTransform(matrix);
 }
 
@@ -491,7 +503,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       impl_->strokeBrush_->SetColor(fromWColor(color));
 
       WLength w = pen.width();
-      impl_->lineWidth_ = painter()->normalizedPenWidth(w, w.value() == 0).toPixels();
+      impl_->lineWidth_ = static_cast<FLOAT>(painter()->normalizedPenWidth(w, w.value() == 0).toPixels());
 
       switch (pen.capStyle()) {
       case FlatCap:
@@ -655,7 +667,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 					   weight,
 					   style,
 					   DWRITE_FONT_STRETCH_NORMAL,
-					   font.sizeLength(12).toPixels(),
+					   static_cast<FLOAT>(font.sizeLength(12).toPixels()),
 					   L"",
 					   &impl_->textFormat_);
 
@@ -687,26 +699,26 @@ void WRasterImage::drawArc(const WRectF& rect,
   const double midAngle = startAngleRad + spanAngleRad / 2.0;
   const double endAngle = startAngleRad + spanAngleRad;
   D2D1_POINT_2F startPoint = D2D1::Point2F(
-    cos(-startAngleRad) * rx + cx,
-    sin(-startAngleRad) * ry + cy);
+    static_cast<FLOAT>(cos(-startAngleRad) * rx + cx),
+    static_cast<FLOAT>(sin(-startAngleRad) * ry + cy));
   D2D1_POINT_2F midPoint = D2D1::Point2F(
-    cos(-midAngle) * rx + cx,
-    sin(-midAngle) * ry + cy);
+    static_cast<FLOAT>(cos(-midAngle) * rx + cx),
+    static_cast<FLOAT>(sin(-midAngle) * ry + cy));
   D2D1_POINT_2F endPoint = D2D1::Point2F(
-    cos(-endAngle) * rx + cx,
-    sin(-endAngle) * ry + cy);
+    static_cast<FLOAT>(cos(-endAngle) * rx + cx),
+    static_cast<FLOAT>(sin(-endAngle) * ry + cy));
 
   D2D1_ARC_SEGMENT arc1 = D2D1::ArcSegment(
     midPoint,
-    D2D1::SizeF(rx, ry),
-    0,
+    D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
+    0.f,
     D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
     D2D1_ARC_SIZE_SMALL
   );
   D2D1_ARC_SEGMENT arc2 = D2D1::ArcSegment(
     endPoint,
-    D2D1::SizeF(rx, ry),
-    0,
+    D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
+    0.f,
     D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
     D2D1_ARC_SIZE_SMALL
   );
@@ -752,8 +764,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
       &decoder);
     SafeRelease(istream);
     if (!SUCCEEDED(hr)) {
-      LOG_ERROR("drawImage failed: HRESULT " << hr << ", data uri: " << imgUri);
-      return;
+      throw WException("drawImage failed to read data: HRESULT " + boost::lexical_cast<std::string>(hr) + ", mime type: " + uri.mimeType);
     }
   } else {
     std::wstring wUri = WString::fromUTF8(imgUri);
@@ -765,11 +776,9 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
       &decoder
     );
     if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
-      LOG_ERROR("drawImage failed: file not found: " << imgUri);
-      return;
+      throw WException("drawImage failed: file not found: " + imgUri);
     } else if (!SUCCEEDED(hr)) {
-      LOG_ERROR("drawImage failed: HRESULT " << hr << ", uri: " << imgUri);
-      return;
+      throw WException("drawImage failed: HRESULT " + boost::lexical_cast<std::string>(hr) + ", uri: " + imgUri);
     }
   }
   hr = decoder->GetFrame(0, &source);
@@ -795,10 +804,16 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   GUARD_TAG(DRAW_BITMAP);
   impl_->rt_->DrawBitmap(
     bitmap,
-    D2D1::RectF(rect.left(), rect.top(), rect.right(), rect.bottom()),
+    D2D1::RectF(static_cast<FLOAT>(rect.left()),
+                static_cast<FLOAT>(rect.top()),
+                static_cast<FLOAT>(rect.right()),
+                static_cast<FLOAT>(rect.bottom())),
     1.f,
     D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
-    D2D1::RectF(srect.left(), srect.top(), srect.right(), srect.bottom())
+    D2D1::RectF(static_cast<FLOAT>(srect.left()),
+                static_cast<FLOAT>(srect.top()),
+                static_cast<FLOAT>(srect.right()),
+                static_cast<FLOAT>(srect.bottom()))
   );
   SafeRelease(bitmap);
 }
@@ -806,7 +821,10 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
 {
   GUARD_TAG(DRAW_LINE);
-  impl_->rt_->DrawLine(D2D1::Point2F(x1, y1), D2D1::Point2F(x2, y2),
+  impl_->rt_->DrawLine(D2D1::Point2F(static_cast<FLOAT>(x1),
+                                     static_cast<FLOAT>(y1)),
+                       D2D1::Point2F(static_cast<FLOAT>(x2),
+                                     static_cast<FLOAT>(y2)),
 		       impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
 }
 
@@ -898,18 +916,18 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
 	sink->EndFigure(D2D1_FIGURE_END_OPEN);
 	started = false;
       }
-      startPoint = D2D1::Point2F(s.x(), s.y());
+      startPoint = D2D1::Point2F(static_cast<FLOAT>(s.x()), static_cast<FLOAT>(s.y()));
       break;
     case WPainterPath::Segment::LineTo:
-      sink->AddLine(D2D1::Point2F(s.x(), s.y()));
+      sink->AddLine(D2D1::Point2F(static_cast<FLOAT>(s.x()), static_cast<FLOAT>(s.y())));
       break;
     case WPainterPath::Segment::CubicC1: {
-      const double x1 = s.x();
-      const double y1 = s.y();
-      const double x2 = segments[i+1].x();
-      const double y2 = segments[i+1].y();
-      const double x3 = segments[i+2].x();
-      const double y3 = segments[i+2].y();
+      const FLOAT x1 = static_cast<FLOAT>(s.x());
+      const FLOAT y1 = static_cast<FLOAT>(s.y());
+      const FLOAT x2 = static_cast<FLOAT>(segments[i + 1].x());
+      const FLOAT y2 = static_cast<FLOAT>(segments[i + 1].y());
+      const FLOAT x3 = static_cast<FLOAT>(segments[i + 2].x());
+      const FLOAT y3 = static_cast<FLOAT>(segments[i + 2].y());
       sink->AddBezier(D2D1::BezierSegment(D2D1::Point2F(x1, y1), D2D1::Point2F(x2, y2), D2D1::Point2F(x3, y3)));
       i += 2;
       break;
@@ -928,29 +946,29 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
       const double startAngle = segments[i+2].x() / 180.0 * M_PI;
       const double sweepAngle = min(segments[i+2].y() / 180.0 * M_PI, 2 * M_PI);
 
-      double endAngle = startAngle + sweepAngle;
-      double midAngle = startAngle + sweepAngle / 2.0;
+      const double endAngle = startAngle + sweepAngle;
+      const double midAngle = startAngle + sweepAngle / 2.0;
       D2D1_POINT_2F startPoint = D2D1::Point2F(
-	cos(-startAngle) * rx + cx,
-	sin(-startAngle) * ry + cy);
+	static_cast<FLOAT>(cos(-startAngle) * rx + cx),
+	static_cast<FLOAT>(sin(-startAngle) * ry + cy));
       D2D1_POINT_2F midPoint = D2D1::Point2F(
-        cos(-midAngle) * rx + cx,
-	sin(-midAngle) * ry + cy);
+        static_cast<FLOAT>(cos(-midAngle) * rx + cx),
+	static_cast<FLOAT>(sin(-midAngle) * ry + cy));
       D2D1_POINT_2F endPoint = D2D1::Point2F(
-	cos(-endAngle) * rx + cx,
-	sin(-endAngle) * ry + cy);
+	static_cast<FLOAT>(cos(-endAngle) * rx + cx),
+	static_cast<FLOAT>(sin(-endAngle) * ry + cy));
 
       if (!fequal(startPoint.x, current.x()) || !fequal(startPoint.y, current.y()))
 	sink->AddLine(startPoint);
 
       sink->AddArc(D2D1::ArcSegment(midPoint,
-				    D2D1::SizeF(rx, ry),
-				    0,
+				    D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
+				    0.f,
 				    sweepAngle > 0 ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE : D2D1_SWEEP_DIRECTION_CLOCKWISE,
 				    D2D1_ARC_SIZE_SMALL));
       sink->AddArc(D2D1::ArcSegment(endPoint,
-				    D2D1::SizeF(rx, ry),
-				    0,
+				    D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
+				    0.f,
 				    sweepAngle > 0 ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE : D2D1_SWEEP_DIRECTION_CLOCKWISE,
 				    D2D1_ARC_SIZE_SMALL));
 
@@ -962,10 +980,10 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
       assert(false);
       break;
     case WPainterPath::Segment::QuadC: {
-      const double x1 = s.x();
-      const double y1 = s.y();
-      const double x2 = segments[i+1].x();
-      const double y2 = segments[i+1].y();
+      const FLOAT x1 = static_cast<FLOAT>(s.x());
+      const FLOAT y1 = static_cast<FLOAT>(s.y());
+      const FLOAT x2 = static_cast<FLOAT>(segments[i + 1].x());
+      const FLOAT y2 = static_cast<FLOAT>(segments[i + 1].y());
       sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(D2D1::Point2F(x1, y1), D2D1::Point2F(x2, y2)));
 
       i += 1;
@@ -991,7 +1009,10 @@ void WRasterImage::drawText(const WRectF& rect,
 			    const WString& text,
 			    const WPointF *clipPoint)
 {
-  D2D1_RECT_F textRect = D2D1::RectF(rect.left(), rect.top(), rect.right(), rect.bottom());
+  D2D1_RECT_F textRect = D2D1::RectF(static_cast<FLOAT>(rect.left()),
+                                     static_cast<FLOAT>(rect.top()),
+                                     static_cast<FLOAT>(rect.right()),
+                                     static_cast<FLOAT>(rect.bottom()));
 
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
