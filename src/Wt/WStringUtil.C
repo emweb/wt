@@ -208,11 +208,14 @@ std::wstring fromUTF8(const std::string& s)
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          wchar_t wc = cp;
-          if ((uint32_t)wc == cp)
-            result += wc;
-          else
+          if (cp >= 0xD800 && cp < 0xF000)
             legal = false;
+          else if (sizeof(wchar_t) == 4)
+            result += (wchar_t)cp;
+          else {
+            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
+            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
+          }
 	}
       }
       i += 3;
@@ -238,11 +241,14 @@ std::wstring fromUTF8(const std::string& s)
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          wchar_t wc = cp;
-          if (wc == cp)
-            result += wc;
-          else
+          if (cp >= 0xD800 && cp < 0xF000)
             legal = false;
+          else if (sizeof(wchar_t) == 4)
+            result += (wchar_t)cp;
+          else {
+            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
+            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
+          }
 	}
       }
       i += 2;
@@ -261,11 +267,14 @@ std::wstring fromUTF8(const std::string& s)
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          wchar_t wc = cp;
-          if (wc == cp)
-            result += wc;
-          else
+          if (cp >= 0xD800 && cp < 0xF000)
             legal = false;
+          else if (sizeof(wchar_t) == 4)
+            result += (wchar_t)cp;
+          else {
+            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
+            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
+          }
 	}
       }
       i += 1;
