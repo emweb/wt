@@ -2261,33 +2261,17 @@ void WTreeView::modelDataChanged(const WModelIndex& topLeft,
     return;
   
   WModelIndex parent = topLeft.parent();  
-  WWidget *parentWidget = widgetForIndex(parent);
+  WTreeViewNode *parentNode = nodeForIndex(parent);
 
-  if (parentWidget) {
-    WTreeViewNode *parentNode = dynamic_cast<WTreeViewNode *>(parentWidget);
+  if (parentNode && parentNode->childrenLoaded()) {
+    for (int r = topLeft.row(); r <= bottomRight.row(); ++r) {
+      WModelIndex index = model()->index(r, 0, parent);
 
-    if (parentNode) {
-      if (parentNode->childrenLoaded()) {
-	for (int r = topLeft.row(); r <= bottomRight.row(); ++r) {
-	  WModelIndex index = model()->index(r, 0, parent);
+      WTreeViewNode *n = nodeForIndex(index);
 
-	  WTreeViewNode *n
-	    = dynamic_cast<WTreeViewNode *>(widgetForIndex(index));
-
-	  if (n)
-	    n->update(topLeft.column(), bottomRight.column());
-	}
-      } /* else:
-	   children not loaded -- so we do not need to bother
-	 */
-    } /* else:
-	 parentWidget is a spacer -- we do not need to bother
-       */
-  } else {
-    /*
-      parent is not displayed
-      FIXME: but it could still be rendered, yet (somehow) not expanded ?
-    */
+      if (n)
+	n->update(topLeft.column(), bottomRight.column());
+    }
   }
 }
 
@@ -2811,7 +2795,7 @@ WTreeViewNode *WTreeView::nodeForIndex(const WModelIndex& index) const
   if (index == rootIndex())
     return rootNode_;
   else {
-    WModelIndex column0Index = model()->index(index.row(), 0, index.parent());
+    WModelIndex column0Index = index.column() == 0 ? index : model()->index(index.row(), 0, index.parent());
     NodeMap::const_iterator i = renderedNodes_.find(column0Index);
     return i != renderedNodes_.end() ? i->second : 0;
   }
