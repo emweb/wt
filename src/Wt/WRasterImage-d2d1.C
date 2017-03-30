@@ -608,7 +608,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
         &gradientStopCollection
       );
       SafeRelease(impl_->fillBrush_);
-      iml_->fillBrushStyle_ = GradientPattern;
+      impl_->fillBrushStyle_ = GradientPattern;
       if (gradient.style() == LinearGradient) {
         const WLineF &vector = gradient.linearGradientVector();
         D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES properties;
