@@ -103,7 +103,6 @@ public:
     bitmap_(NULL),
     fillBrush_(NULL),
     fillBrushStyle_(SolidPattern),
-    fillBrushGradientStyle_(LinearGradient),
     strokeBrush_(NULL),
     stroke_(NULL),
     lineWidth_(0.f),
@@ -142,7 +141,6 @@ public:
   IWICBitmap* bitmap_;
   ID2D1Brush *fillBrush_;
   BrushStyle fillBrushStyle_;
-  GradientStyle fillBrushGradientStyle_;
   ID2D1SolidColorBrush *strokeBrush_;
   ID2D1StrokeStyle *stroke_;
   FLOAT lineWidth_;
@@ -610,6 +608,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
         &gradientStopCollection
       );
       SafeRelease(impl_->fillBrush_);
+      iml_->fillBrushStyle_ = GradientPattern;
       if (gradient.style() == LinearGradient) {
         const WLineF &vector = gradient.linearGradientVector();
         D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES properties;
