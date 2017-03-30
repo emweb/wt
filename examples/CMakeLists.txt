@@ -51,6 +51,9 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     # We ship libharu as DLL. Compiling/linking against libharu DLL requires
     # this definition to be set.
     ADD_DEFINITIONS(-DHPDF_DLL)
+    # Windows SDK is always multithreaded
+    SET(BOOST_WT_MT_FOUND true)
+    SET(MULTI_THREADED true)
   ENDIF(WIN32)
 ENDIF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   

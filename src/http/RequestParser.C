@@ -522,7 +522,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
       break;
     case ws00_binary_length:
-      if (remainder_ >= (0x01 << 56)) {
+      if (remainder_ >= (((int64_t)0x01) << 56)) {
         LOG_ERROR("ws: oversized binary frame: overflows 64-bit signed integer");
         return Request::Error;
       }

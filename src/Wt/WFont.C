@@ -318,7 +318,7 @@ std::string WFont::cssFamily(bool all) const
   case FontFamily::Cursive:
     family += "cursive"; break;
   case FontFamily::Fantasy:
-    family += "fantasay"; break;
+    family += "fantasy"; break;
   case FontFamily::Monospace:
     family += "monospace"; break;
   }

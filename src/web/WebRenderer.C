@@ -589,8 +589,8 @@ std::string WebRenderer::sessionUrl() const
   if (isAbsoluteUrl(result))
     return session_.appendSessionQuery(result);
   else {
-    // Wt.js will prepand the correct deployment path
-    return session_.appendSessionQuery(".").substr(1);
+    // Wt.js will prepend the correct deployment path
+    return session_.appendSessionQuery(".");
   }
 }
 

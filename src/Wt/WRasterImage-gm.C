@@ -152,8 +152,7 @@ WRasterImage::WRasterImage(const std::string& type,
   DestroyExceptionInfo(&exception);
 
   SetImageType(impl_->image_, TrueColorMatteType);
-  SetImageOpacity(impl_->image_, 254); // 255 seems a special value...
-                                       // 254 will have to do
+  SetImageOpacity(impl_->image_, TransparentOpacity);
 
   std::string magick = type;
   std::transform(magick.begin(), magick.end(), magick.begin(), toupper);
@@ -509,7 +508,7 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
 	  break;
 	case FontFamily::SansSerif:
 	  base = "Helvetica";
-	  italic = "Olbique";
+	  italic = "Oblique";
 	  bold = "Bold";
 	  break;
 	case FontFamily::Monospace:
@@ -694,16 +693,17 @@ void WRasterImage::getPixels(void *data)
   int h = (int)height_.value();
   unsigned char *d = (unsigned char *)data;
   ExceptionInfo ei;
+  GetExceptionInfo(&ei);
   const PixelPacket *pixel = AcquireImagePixels(impl_->image_,
     0, 0, w, h, &ei);
   if (pixel) {
     int i = 0;
     for (int r = 0; r < h; r++)
       for (int c = 0; c < w; c++) {
-	d[i++] = pixel->red;
-	d[i++] = pixel->green;
-	d[i++] = pixel->blue;
-	d[i++] = 254-pixel->opacity;
+        d[i++] = ScaleQuantumToChar(pixel->red);
+        d[i++] = ScaleQuantumToChar(pixel->green);
+        d[i++] = ScaleQuantumToChar(pixel->blue);
+        d[i++] = ScaleQuantumToChar(TransparentOpacity - pixel->opacity);
 	pixel++;
       }
   } else {
@@ -717,7 +717,10 @@ void WRasterImage::getPixels(void *data)
 WColor WRasterImage::getPixel(int x, int y) 
 {
   PixelPacket pixel = GetOnePixel(impl_->image_, x, y);
-  return WColor(pixel.red, pixel.green, pixel.blue, 254-pixel.opacity);
+  return WColor(ScaleQuantumToChar(pixel.red),
+                ScaleQuantumToChar(pixel.green),
+                ScaleQuantumToChar(pixel.blue),
+                ScaleQuantumToChar(TransparentOpacity - pixel.opacity));
 }
 
 void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)

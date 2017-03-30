@@ -157,7 +157,7 @@ public:
 
   /*! \brief Clears the image.
    *
-   * Fills the image with a StandardColor::White background.
+   * Fills the image with a white background, or transparent if possible.
    */
   void clear();
 

@@ -320,7 +320,7 @@ void WLineEdit::setInputMask(const WT_USTRING &mask,
     }
 
     if (isRendered() && javaScriptDefined_) {
-      std::wstring space;
+      std::u32string space;
       space += spaceChar_;
 
       doJavaScript("jQuery.data(" + jsRef() + ", 'lobj')"

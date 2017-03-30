@@ -551,9 +551,11 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
 	std::string rel = "";
 	std::string pi = pagePathInfo_;
 
-	for (unsigned i = 0; i < pi.length(); ++i) {
-	  if (pi[i] == '/')
-	    rel += "../";
+        unsigned i = 0;
+        for (; i < pi.length(); ++i) {
+          if ((pi[i] == '/' || i == pi.length() - 1) &&
+              i != 0 && pi[i-1] != '/')
+            rel += "../";
 	}
 
 	return rel + url;
@@ -593,7 +595,10 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
   std::size_t questionPos = result.find('?');
 
   if (questionPos == std::string::npos)
-    result += sessionQuery();
+    if (result == ".")
+      result = sessionQuery();
+    else
+      result += sessionQuery();
   else if (questionPos == result.length() - 1)
     result += sessionQuery().substr(1);
   else
