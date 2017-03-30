@@ -9,6 +9,7 @@
 #include "Wt/WBrush"
 #include "Wt/WException"
 #include "Wt/WFontMetrics"
+#include "Wt/WGradient"
 #include "Wt/WLogger"
 #include "Wt/WPainter"
 #include "Wt/WPen"
@@ -49,9 +50,14 @@ template <class T> void SafeRelease(T *&ppT)
   }
 }
 
-D2D1_COLOR_F fromWColor(Wt::WColor color)
+D2D1_COLOR_F fromWColor(const Wt::WColor &color)
 {
-    return D2D1::ColorF(color.red()/255.0f, color.green()/255.0f, color.blue()/255.0f, color.alpha()/255.0f);
+  return D2D1::ColorF(color.red()/255.0f, color.green()/255.0f, color.blue()/255.0f, color.alpha()/255.0f);
+}
+
+D2D1_POINT_2F fromPointF(const Wt::WPointF &point)
+{
+  return D2D1::Point2F(static_cast<FLOAT>(point.x()), static_cast<FLOAT>(point.y()));
 }
 
 bool fequal(double d1, double d2)
@@ -80,7 +86,6 @@ enum DrawTag2 {
 
 // FIXME: word wrap
 // FIXME: make FontSupportDirectWrite and use it
-// FIXME: gradients
 
 namespace Wt {
 
@@ -97,6 +102,8 @@ public:
     wicFactory_(NULL),
     bitmap_(NULL),
     fillBrush_(NULL),
+    fillBrushStyle_(SolidPattern),
+    fillBrushGradientStyle_(LinearGradient),
     strokeBrush_(NULL),
     stroke_(NULL),
     lineWidth_(0.f),
@@ -133,7 +140,9 @@ public:
   ID2D1RenderTarget *rt_;
   IWICImagingFactory* wicFactory_;
   IWICBitmap* bitmap_;
-  ID2D1SolidColorBrush *fillBrush_;
+  ID2D1Brush *fillBrush_;
+  BrushStyle fillBrushStyle_;
+  GradientStyle fillBrushGradientStyle_;
   ID2D1SolidColorBrush *strokeBrush_;
   ID2D1StrokeStyle *stroke_;
   FLOAT lineWidth_;
@@ -300,7 +309,7 @@ WRasterImage::WRasterImage(const std::string& type,
 
   if (SUCCEEDED(hr))
     hr = impl_->rt_->CreateSolidColorBrush(D2D1::ColorF(0, 0, 0, 0),
-					   &impl_->fillBrush_);
+                     reinterpret_cast<ID2D1SolidColorBrush**>(&impl_->fillBrush_));
 
   if (SUCCEEDED(hr))
     hr = impl_->rt_->CreateSolidColorBrush(D2D1::ColorF(0, 0, 0, 0),
@@ -576,9 +585,49 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
   if (flags & Brush) {
     const WBrush& brush = painter()->brush();
-    if (brush.style() != NoBrush) {
-      const WColor& color = painter()->brush().color();
-      impl_->fillBrush_->SetColor(fromWColor(color));
+    if (brush.style() == SolidPattern) {
+      const WColor &color = painter()->brush().color();
+      if (impl_->fillBrushStyle_ != SolidPattern) {
+        SafeRelease(impl_->fillBrush_);
+        hr = impl_->rt_->CreateSolidColorBrush(fromWColor(color),
+          reinterpret_cast<ID2D1SolidColorBrush**>(&impl_->fillBrush_));
+        impl_->fillBrushStyle_ = SolidPattern;
+      } else {
+        reinterpret_cast<ID2D1SolidColorBrush*>(impl_->fillBrush_)->SetColor(fromWColor(color));
+      }
+    } else if (brush.style() == GradientPattern) {
+      const WGradient &gradient = painter()->brush().gradient();
+      const std::vector<WGradient::ColorStop> &colorstops = gradient.colorstops();
+      std::vector<D2D1_GRADIENT_STOP> gradientStops;
+      gradientStops.reserve(colorstops.size());
+      for (std::size_t i = 0; i < colorstops.size(); ++i) {
+        gradientStops.push_back(D2D1::GradientStop(static_cast<FLOAT>(colorstops[i].position()), fromWColor(colorstops[i].color())));
+      }
+      ID2D1GradientStopCollection *gradientStopCollection = NULL;
+      hr = impl_->rt_->CreateGradientStopCollection(
+        &gradientStops[0],
+        gradientStops.size(),
+        &gradientStopCollection
+      );
+      SafeRelease(impl_->fillBrush_);
+      if (gradient.style() == LinearGradient) {
+        const WLineF &vector = gradient.linearGradientVector();
+        D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES properties;
+        properties.startPoint = D2D1::Point2F(static_cast<FLOAT>(vector.x1()), static_cast<FLOAT>(vector.y1()));
+        properties.endPoint = D2D1::Point2F(static_cast<FLOAT>(vector.x2()), static_cast<FLOAT>(vector.y2()));
+        hr = impl_->rt_->CreateLinearGradientBrush(properties, gradientStopCollection,
+          reinterpret_cast<ID2D1LinearGradientBrush**>(&impl_->fillBrush_));
+      } else if (gradient.style() == RadialGradient) {
+        D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES properties;
+        properties.center = fromPointF(gradient.radialCenterPoint());
+        const WPointF &focalPoint = gradient.radialFocalPoint();
+        properties.gradientOriginOffset = D2D1::Point2F(static_cast<FLOAT>(focalPoint.x()) - properties.center.x,
+                                                        static_cast<FLOAT>(focalPoint.y()) - properties.center.y);
+        properties.radiusX = properties.radiusY = static_cast<FLOAT>(gradient.radialRadius());
+        hr = impl_->rt_->CreateRadialGradientBrush(properties, gradientStopCollection,
+          reinterpret_cast<ID2D1RadialGradientBrush**>(&impl_->fillBrush_));
+      }
+      SafeRelease(gradientStopCollection);
     }
   }
 

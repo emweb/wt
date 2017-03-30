@@ -907,9 +907,7 @@ can be used only in conjunction with a Commercial License for Wt::Dbo.
   then you can save yourself some hassle to build Wt with its optional
   dependencies from source, and download one of the <a
   href="https://github.com/kdeforche/wt/releases">binary builds
-  instead</a> (<a
-  href="http://sourceforge.net/projects/witty/files/wt/">old releases</a>)
-  which allow you to quickly experiment with the examples
+  instead</a> which allow you to quickly experiment with the examples
   that ship with Wt.
 </p>
 
@@ -935,10 +933,6 @@ $ sudo apt-get install witty witty-dev witty-doc witty-dbg witty-examples</pre>
 <div class="fragment">
   <pre class="fragment">$ /usr/lib/Wt/examples/hello/hello</pre>
 </div>
-
-<p>Older releases are still available at
-<a href="http://sourceforge.net/projects/witty/files/wt/">sourceforge.net</a>.
-</p>
 
 <h4>The Wt installer: winst</h4>
 
@@ -1100,14 +1094,7 @@ Alternatively checkout the repository using:
 <p>
   Community help is available in the <a
   href="http://redmine.webtoolkit.eu/projects/wt/boards">public
-  forums</a>. Until September 2009, there was only a <a
-  href="mailto:witty-interest@lists.sourceforge.net">mailing list</a>
-  (<a
-  href="http://lists.sourceforge.net/lists/listinfo/witty-interest">how
-  to join</a>), and the old dogs haven't left yet. You may search or
-  browse the mailing list archives using the <a
-  href="http://gmane.org/info.php?group=gmane.comp.web.witty.general">Gmane
-  gateway</a> (kudos to Pau Garcia i Quiles for setting this up).
+  forums</a>.
 </p>
 
 <p>
@@ -1196,10 +1183,9 @@ accepting the contribution.</p>
 
 The Chinese translation of the homepage was provided by Zhimin Song.
 
-<h4>Sourceforge</h4>
+<h4>GitHub</h4>
 
-<a href="http://sourceforge.net"><img src="https://sflogo.sourceforge.net/sflogo.php?group_id=153710&amp;type=1" style="vertical-align:middle" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
-The Wt project is hosted at sourceforge <a href="http://sourceforge.net/projects/witty/">here</a>.
+The Wt project is hosted at GitHub <a href="https://github.com/emweb/wt">here</a>.
   </message>
   <message id="home.other-language">
 
