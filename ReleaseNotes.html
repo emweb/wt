@@ -84,6 +84,14 @@ behaviour.
     WSpinBox will now wrap around from its maximum to its minimum if you <a href="classWt_1_1WSpinBox.html#a08413e777fefab00e36dc8d6c492bda5">enable wraparound</a>. WTimeEdit will take advantage of this feature by default.
   </dd>
   <dt>
+    On Windows: Direct2D implementation of WRasterImage
+  </dt>
+  <dd>
+    We've added another implementation for WRasterImage on Windows: Direct2D. When building Wt, this
+    implementation will be enabled by default. This allows to remove the dependency on GraphicsMagick or
+    Skia on Windows, simplifying the build process.
+  </dd>
+  <dt>
     Some minor extra features:
   </dt>
   <dd>
