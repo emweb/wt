@@ -4,7 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <math.h>
+#include <algorithm>
+#include <cmath>
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
