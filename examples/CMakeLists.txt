@@ -158,7 +158,9 @@ MACRO(WT_ADD_EXAMPLE name)
   IF(MSVC)
     SET_TARGET_PROPERTIES(${name} PROPERTIES COMPILE_FLAGS "/W3 /Wp64 /wd4251 /wd4275")
   ENDIF(MSVC)
-  TARGET_LINK_LIBRARIES(${name} ${EXAMPLES_CONNECTOR} wt)
+
+  SET(EXAMPLES_WT_LIB debug wtd optimized wt)
+  TARGET_LINK_LIBRARIES(${name} ${EXAMPLES_CONNECTOR} ${EXAMPLES_WT_LIB})
 
   IF(INSTALL_EXAMPLES)
     # Finding the directory where to install the binary and the wrapper/runner script is tricky 
