@@ -556,9 +556,11 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
 	std::string rel = "";
 	std::string pi = pagePathInfo_;
 
-	for (unsigned i = 0; i < pi.length(); ++i) {
-	  if (pi[i] == '/')
-	    rel += "../";
+        unsigned i = 0;
+        for (; i < pi.length(); ++i) {
+          if ((pi[i] == '/' || i == pi.length() - 1) &&
+              i != 0 && pi[i-1] != '/')
+            rel += "../";
 	}
 
 	return rel + url;
@@ -598,7 +600,10 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
   std::size_t questionPos = result.find('?');
 
   if (questionPos == std::string::npos)
-    result += sessionQuery();
+    if (result == ".")
+      result = sessionQuery();
+    else
+      result += sessionQuery();
   else if (questionPos == result.length() - 1)
     result += sessionQuery().substr(1);
   else
@@ -1439,10 +1444,10 @@ void WebSession::handleRequest(Handler& handler)
 	  /*
 	   * We can simply bootstrap.
 	   */
-	  try {
-	    std::string internalPath = env_->getCookie("WtInternalPath");
-	    env_->setInternalPath(internalPath);
-	  } catch (std::exception& e) {
+	  {
+	    const std::string *internalPath = env_->getCookieValue("WtInternalPath");
+	    if (internalPath)
+	      env_->setInternalPath(*internalPath);
 	  }
 
 	  bool forcePlain
@@ -2227,7 +2232,15 @@ void WebSession::notify(const WEvent& event)
    * Capture JavaScript error server-side.
    */
   if (requestE && *requestE == "jserror") {
-    app_->handleJavaScriptError(*request.getParameter("err"));
+    const std::string *err = request.getParameter("err");
+    if (err) {
+      app_->handleJavaScriptError(*err);
+    } else {
+      // Forming a custom request with missing err parameter should not crash the server,
+      // but our JavaScript should not produce these requests.
+      LOG_ERROR("malformed jserror request: missing err parameter");
+      app_->handleJavaScriptError("unknown error");
+    }
     renderer_.setJSSynced(false);
     render(handler);
     return;

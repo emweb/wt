@@ -1539,21 +1539,11 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
   scheduleRerender(NeedAdjustViewPort);  
 }
 
-void WTableView::onColumnResize(int col, WLength length)
+void WTableView::onColumnResize()
 {
-  assert(ajaxMode());
+  computeRenderedArea();
 
-  ColumnWidget *w = 0;
-  if (col < rowHeaderCount())
-    w = columnContainer(col);
-  else
-    w = columnContainer(rowHeaderCount() + col - firstColumn());
-  // Only rerender if column was made smaller
-  if (w && length.toPixels() < w->width().toPixels()) {
-    computeRenderedArea();
-
-    scheduleRerender(NeedAdjustViewPort);
-  }
+  scheduleRerender(NeedAdjustViewPort);
 }
 
 void WTableView::computeRenderedArea()
@@ -1596,7 +1586,12 @@ void WTableView::computeRenderedArea()
     int left
       = std::max(0, viewportLeft_ - viewportWidth_ - borderColumnPixels);
     int right
-      = std::min(static_cast<int>(canvas_->width().toPixels()),
+      = std::min(std::max(static_cast<int>(canvas_->width().toPixels()),
+                          viewportWidth_), // When a column was made wider, and the
+                                           // canvas is narrower than the viewport,
+                                           // the size of the canvas will not have
+                                           // been updated yet, so we use the viewport
+                                           // width instead.
 		 viewportLeft_ + 2 * viewportWidth_ + borderColumnPixels);
 
     int total = 0;

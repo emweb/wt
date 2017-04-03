@@ -163,6 +163,7 @@ this.isAndroid = (agent.indexOf("safari") != -1)
 		  && (agent.indexOf("android") != -1);
 this.isWebKit = (agent.indexOf("applewebkit") != -1);
 this.isGecko = agent.indexOf("gecko") != -1 && !this.isWebKit;
+this.isIOS = agent.indexOf("ipod") != -1 || agent.indexOf("ipad") != -1;
 
 this.updateDelay = this.isIE ? 10 : 51;
 

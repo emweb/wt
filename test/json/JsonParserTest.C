@@ -176,7 +176,8 @@ BOOST_AUTO_TEST_CASE( json_utf8_test )
   BOOST_REQUIRE(ws1[4] == 949);
   BOOST_REQUIRE(ws2[0] == 128);
   BOOST_REQUIRE(ws3[0] == 2048);
-  BOOST_REQUIRE(ws4[0] == 65533 || ws4[0] == 65536);
+  BOOST_REQUIRE((ws4.size() == 1 && ws4[0] == 0x10000) ||
+    (ws4.size() == 2 && ws4[0] == 0xD800 && ws4[1] == 0xDC00));
   BOOST_REQUIRE(ws5[0] == 127);
   BOOST_REQUIRE(ws6[0] == 2047);
   BOOST_REQUIRE(ws7[0] == 65535);

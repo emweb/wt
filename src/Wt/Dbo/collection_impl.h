@@ -89,7 +89,7 @@ collection<C>::iterator::operator* ()
   if (impl_ && !impl_->ended_)
     return impl_->current();
   else
-    throw Exception("set< ptr<C> >::operator* : read beyond end.");
+    throw Exception("collection< ptr<C> >::iterator::operator* : read beyond end.");
 }
 
 template <class C>

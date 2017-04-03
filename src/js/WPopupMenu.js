@@ -16,6 +16,7 @@ WT_DECLARE_WT_MEMBER
        hideTimeout = null,
        entered = false,
        current = null,
+       touch = null,
        haveMouseDown = false;
 
    function doHide() {
@@ -158,8 +159,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function onDocumentClick(event) {
-     /* Only if we've recorded a mousedown ? This is not needed actually? */ 
-     if (haveMouseDown && stillExist()) {
+     if (stillExist()) {
        haveMouseDown = false;
        doHide();
      }
@@ -189,12 +189,12 @@ WT_DECLARE_WT_MEMBER
        el.style.left = '';
        el.style.top = '';
        $(document).unbind('mousedown', onDocumentDown);     
-       $(document).unbind('click', onDocumentClick);     
+       unbindDocumentClick();
        $(document).unbind('keydown', onDocumentKeyDown);     
      } else {
        setTimeout(function() {
 	   $(document).bind('mousedown', onDocumentDown);
-	   $(document).bind('click', onDocumentClick);     
+           bindDocumentClick();
 	   $(document).bind('keydown', onDocumentKeyDown);
 	 }, 0);
        el.style.display = 'block';
@@ -206,6 +206,37 @@ WT_DECLARE_WT_MEMBER
    this.popupAt = function(widget) {
      bindOverEvents(widget);
    };
+
+   function doEvent(f) {
+     if (WT.isIOS) {
+       f("touchstart",startTouch);
+       f("touchend",endTouch);
+     }
+     else
+       f("click",onDocumentClick);
+   }
+   function bindDocumentClick() { doEvent($(document).bind); }
+   function unbindDocumentClick() { doEvent($(document).unbind); }
+
+   function startTouch(event) {
+     var l = event.originalEvent.touches;
+     if (l.length > 1)
+       touch = null;
+     else {
+       touch = {
+         x: l[0].screenX,
+         y: l[0].screenY
+       }
+     }
+   }
+
+   function endTouch(event) {
+     if (touch) {
+       var t = event.originalEvent.changedTouches[0];
+       if (Math.abs(touch.x - t.screenX) < 20 && Math.abs(touch.y - t.screenY) < 20)
+         onDocumentClick(event);
+     }
+   }
 
    setTimeout(function() { bindOverEvents(el); }, 0);
 

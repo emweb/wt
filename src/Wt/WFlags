@@ -113,7 +113,7 @@ public:
    *
    * Returns flags that are the bitwise XOR of this and \p other.
    */
- inline WFlags<EnumType> operator^(EnumType other) const;
+  inline WFlags<EnumType> operator^(EnumType other) const;
 
   /*! \brief Modifying bitwise XOR operator.
    *
@@ -177,8 +177,6 @@ private:
   }
 
 };
-
-#ifndef DOXYGEN_ONLY
 
 template<typename EnumType>
 WFlags<EnumType>::WFlags(const WFlags<EnumType>& other):
@@ -352,8 +350,6 @@ bool operator==(EnumType l, Wt::WFlags<EnumType> r);                    \
 bool operator==(EnumType l, int zero);
 #endif
 }
-
-#endif // DOXYGEN_ONLY
 
 #endif // WFLAGS_H_
 

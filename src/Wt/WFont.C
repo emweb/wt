@@ -342,7 +342,7 @@ std::string WFont::cssFamily(bool all) const
   case Cursive:
     family += "cursive"; break;
   case Fantasy:
-    family += "fantasay"; break;
+    family += "fantasy"; break;
   case Monospace:
     family += "monospace"; break;
   }

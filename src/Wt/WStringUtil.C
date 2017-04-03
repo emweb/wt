@@ -208,11 +208,14 @@ std::wstring fromUTF8(const std::string& s)
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          wchar_t wc = cp;
-          if ((uint32_t)wc == cp)
-            result += wc;
-          else
+          if (cp >= 0xD800 && cp < 0xE000)
             legal = false;
+          else if (sizeof(wchar_t) == 4 || cp < 0x10000)
+            result += (wchar_t)cp;
+          else {
+            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
+            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
+          }
 	}
       }
       i += 3;
@@ -232,17 +235,20 @@ std::wstring fromUTF8(const std::string& s)
 	     )) {
 	  legal = true;
 
-	  wchar_t cp = ((unsigned char)s[i]) & 0x1F;
+	  uint32_t cp = ((unsigned char)s[i]) & 0x1F;
 	  for (unsigned j = 1; j < 3; ++j) {
 	    cp <<= 6;
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          wchar_t wc = cp;
-          if (wc == cp)
-            result += wc;
-          else
+          if (cp >= 0xD800 && cp < 0xE000)
             legal = false;
+          else if (sizeof(wchar_t) == 4 || cp < 0x10000)
+            result += (wchar_t)cp;
+          else {
+            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
+            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
+          }
 	}
       }
       i += 2;
@@ -255,17 +261,20 @@ std::wstring fromUTF8(const std::string& s)
 	    ) {
 	  legal = true;
 
-	  wchar_t cp = ((unsigned char)s[i]) & 0x3F;
+	  uint32_t cp = ((unsigned char)s[i]) & 0x3F;
 	  for (unsigned j = 1; j < 2; ++j) {
 	    cp <<= 6;
 	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-          wchar_t wc = cp;
-          if (wc == cp)
-            result += wc;
-          else
+          if (cp >= 0xD800 && cp < 0xE000)
             legal = false;
+          else if (sizeof(wchar_t) == 4 || cp < 0x10000)
+            result += (wchar_t)cp;
+          else {
+            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
+            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
+          }
 	}
       }
       i += 1;

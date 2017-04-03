@@ -133,6 +133,9 @@ void SessionProcessManager::addSessionProcess(std::string sessionId, const boost
 
 std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
 {
+#ifdef WT_THREADED
+  boost::mutex::scoped_lock lock(sessionsMutex_);
+#endif // WT_THREADED
   std::vector<Wt::WServer::SessionInfo> result;
   for (SessionMap::const_iterator it = sessions_.begin();
        it != sessions_.end(); ++it) {
