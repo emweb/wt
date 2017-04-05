@@ -12,6 +12,18 @@ statement from your version.
 Wt is licensed under the GNU GPL Version 2. Other versions of the GPL do
 not apply.
 
+Because Wt is dual-licensed under an Open Source and commercial license,
+and to legally protect the code base of Wt as a whole by one entity without
+having to worry about the copyrights for different pieces, the following
+contribution policy applies:
+
+You irrevocably transfer and assign to Emweb bvba, located in Herent (Belgium),
+its successors and assigns, in perpetuity, all right (whether now known or
+hereinafter invented), title, and interest, throughout the world, including any
+copyrights and renewals or extensions thereto, in all Contributions (such as
+bug fixes, patches, pull requests, new functionality, improvements, and other)
+sent to Emweb for the purpose of inclusion in the project.
+
 ======================================================================
 
 		    GNU GENERAL PUBLIC LICENSE

@@ -13,9 +13,6 @@ INSTALL_FILES(/include/Wt "^Asio$")
 #)
 
 IF (ASCIIDOC_FOUND)
-  IF(NOT WIN32)
-    ADD_CUSTOM_TARGET(doc)
-  ENDIF(NOT WIN32)
   ASCIIDOC_FILE(wt-tutorial
     ${CMAKE_SOURCE_DIR}/doc/tutorial/wt.doc
     ${CMAKE_SOURCE_DIR}/doc/tutorial/wt.html)

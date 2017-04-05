@@ -124,8 +124,10 @@ FontSupport::~FontSupport()
   PANGO_LOCK;
 
   for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
-    if (i->match)
+    if (i->match) {
       g_object_unref(i->match);
+      pango_font_description_free(i->desc);
+    }
   }
 
   g_object_unref(context_);
