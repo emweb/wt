@@ -83,7 +83,7 @@ IF(ENABLE_SQLITE)
     PROPERTIES
       COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4267"
     )
-
+	SET_TARGET_PROPERTIES(wtdbosqlite3 PROPERTIES FOLDER "dbo")
   ENDIF(MSVC)
 
   INSTALL_FILES(/include/Wt/Dbo/backend "^Sqlite3$")
@@ -195,6 +195,7 @@ IF(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
     PROPERTIES
       COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4267"
     )
+	SET_TARGET_PROPERTIES(wtdbofirebird PROPERTIES FOLDER "dbo")
   ENDIF(MSVC)
 
   INSTALL(TARGETS wtdbofirebird
@@ -261,6 +262,9 @@ IF(ENABLE_MYSQL AND MYSQL_FOUND)
   )
   INSTALL_FILES(/include/Wt/Dbo/backend "^MySQL$")
   INSTALL_FILES(/include/Wt/Dbo/backend "^.*MySQL.*h$")
+  IF(MSVC)
+    SET_TARGET_PROPERTIES(wtdbomysql PROPERTIES FOLDER "dbo")
+  ENDIF(MSVC)
 ELSE(ENABLE_MYSQL AND MYSQL_FOUND)
   MESSAGE("** Wt::Dbo: not building MySQL backend.")
 
