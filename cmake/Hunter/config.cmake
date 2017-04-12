@@ -1,0 +1,4 @@
+hunter_config(Boost VERSION 1.61.0
+CMAKE_ARGS 
+    BUILD_SHARED_LIBS=ON 
+)
