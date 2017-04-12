@@ -71,6 +71,7 @@ public:
   int sslVerifyDepth() const { return sslVerifyDepth_; }
   const std::string& sslCaCertificates() const { return sslCaCertificates_; }
   const std::string& sslCipherList() const { return sslCipherList_; }
+  const bool sslPreferServerCiphers() const { return sslPreferServerCiphers_; }
 
   const std::string& sessionIdPrefix() const { return sessionIdPrefix_; }
   const std::string& accessLog() const { return accessLog_; }
@@ -120,6 +121,7 @@ private:
   int sslVerifyDepth_;
   std::string sslCaCertificates_;
   std::string sslCipherList_;
+  bool sslPreferServerCiphers_;
 
   std::string sessionIdPrefix_;
   std::string accessLog_;

@@ -57,6 +57,7 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
     sslVerifyDepth_(1),
     sslCaCertificates_(),
     sslCipherList_(),
+    sslPreferServerCiphers_(false),
     sessionIdPrefix_(),
     accessLog_(),
     parentPort_(-1),
@@ -200,6 +201,12 @@ void Configuration::createOptions(po::options_description& options,
      "layer, so see openssl for the proper syntax. When empty, the default "
      "acceptable cipher list will be used. Example cipher list string: "
      "\"TLSv1+HIGH:!SSLv2\"\n")
+    ("ssl-prefer-server-ciphers",
+     po::value<bool>(&sslPreferServerCiphers_)
+       ->default_value(sslPreferServerCiphers_),
+     "By default, the client's preference is used for determining the cipher "
+     "that is choosen during a SSL or TLS handshake. By enabling this option, "
+     "the server's preference will be used." )
     ;
 
   po::options_description hidden("Hidden options");

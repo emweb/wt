@@ -218,12 +218,19 @@ void Server::start()
     ssl_context_.use_tmp_dh_file(config_.sslTmpDHFile());
     
     SSL_CTX *native_ctx = nativeContext(ssl_context_);
+
+#if defined(SSL_CTX_set_ecdh_auto)
+    SSL_CTX_set_ecdh_auto(native_ctx, 1);
+# endif
     
-    if (config_.sslCipherList().size()) {
+    if (!config_.sslCipherList().empty()) {
       if (!SSL_CTX_set_cipher_list(native_ctx, config_.sslCipherList().c_str())) {
         throw Wt::WServer::Exception(
           "failed to select ciphers for cipher list "
           + config_.sslCipherList());
+      }
+      if (config_.sslPreferServerCiphers()) {
+        SSL_CTX_set_options(native_ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
       }
     }
 
