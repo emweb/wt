@@ -63,6 +63,7 @@ IF(ENABLE_LIBWTDBO)
     PROPERTIES
       COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4267"
     )
+	SET_TARGET_PROPERTIES(wtdbo PROPERTIES FOLDER "dbo")
   ENDIF(MSVC)
 
   SUBDIRS(backend)
@@ -73,9 +74,6 @@ IF(ENABLE_LIBWTDBO)
   INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
 
   IF (ASCIIDOC_FOUND)
-    IF(NOT WIN32)
-      ADD_CUSTOM_TARGET(doc)
-    ENDIF(NOT WIN32)
     ASCIIDOC_FILE(dbo-tutorial
       ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo.doc
       ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo.html)
