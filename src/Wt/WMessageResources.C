@@ -634,7 +634,7 @@ bool WMessageResources::readResourceStream(std::istream &s,
 
 int WMessageResources::evalPluralCase(const std::string &expression, ::uint64_t n)
 {
-  int result;
+  int result = 0;
 
 #ifndef WT_NO_SPIRIT
   CExpressionParser::ParseState state;
