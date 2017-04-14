@@ -15,7 +15,9 @@
 
 #ifdef WT_WIN32
 #define snprintf _snprintf
+#define timegm _mkgmtime
 #include <winsock2.h>
+#include <ctime>
 #endif
 #include <mysql.h>
 #include <errmsg.h>
