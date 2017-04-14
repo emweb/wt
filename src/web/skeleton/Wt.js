@@ -1817,10 +1817,14 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
       // with only absolutely positioned children. We are a bit more liberal
       // here to catch other simular situations, and 100px seems like space
       // needed anyway?
+      //
+      // We need to check whether overflowX or overflowY is not visible, because
+      // of an issue on Firefox where clientWidth !== scrollWidth and
+      // clientHeight !== scrollHeight when using the border-collapse CSS property.
       if (WT.css(p, 'display') != 'inline' &&
 	  p.clientHeight > 100 &&
-	  (p.scrollHeight > p.clientHeight ||
-	   p.scrollWidth > p.clientWidth)) {
+	  ((p.scrollHeight > p.clientHeight && getComputedStyle(p).overflowY !== 'visible') ||
+	   (p.scrollWidth > p.clientWidth && getComputedStyle(p).overflowX !== 'visible'))) {
 	break;
       }
 

@@ -53,6 +53,8 @@ class SqlStatement;
  *  - WDateTime
  *  - WTime
  *  - WString
+ *  - Json::Object
+ *  - Json::Array
  *
  * \sa query_result_traits
  *

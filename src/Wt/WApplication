@@ -667,6 +667,21 @@ public:
 
   /*! \brief "Resolves" a relative URL taking into account internal paths.
    *
+   * This resolves the relative URL against the base path of the application,
+   * so that it will point to the correct path regardless of the current internal
+   * path, e.g. if the application is deployed at <tt>%http://example.com/one</tt>
+   * and we're at the internal path <tt>/two/</tt>, so that the full URL is
+   * <tt>%http://example.com/one/two/</tt>, the output of the input URL <tt>three</tt>
+   * will point to <tt>%http://example.com/three</tt>, and not
+   * <tt>%http://example.com/one/two/three</tt>.
+   *
+   * If the given url is the empty string, the result will point to the base path
+   * of the application.
+   *
+   * See the table below for more examples.
+   *
+   * <h3>When you would want to use resolveRelativeUrl:</h3>
+   *
    * Using HTML5 History API or in a plain HTML session (without ugly
    * internal paths), the internal path is present as a full part of
    * the URL. This has a consequence that relative URLs, if not dealt
@@ -688,9 +703,30 @@ public:
    * unchanged.
    *
    * For URLs passed to the %Wt API (and of which the library knows it
-   * is represents a URL) this method is called internally by the
+   * represents a URL) this method is called internally by the
    * library. But it may be useful for URLs which are set e.g. inside
    * a WTemplate.
+   *
+   * <h3>Examples</h3>
+   *
+   * Note that whether the deployment path and entry point ends with a slash is significant.
+   * Below are some examples with the
+   * <span style="color:red;">deployment path</span> in <span style="color:red;">red</span>
+   * and the <span style="color:blue;">internal path</span> in <span style="color:blue;">blue</span>.
+   *
+   * <table>
+   * <tr><th>Current full path</th><th>url argument</th><th>Result points to</th></tr>
+   * <tr><td rowspan="4"><tt>%http://example.com</tt><tt style="color:red;">/foo/bar</tt><tt style="color:blue;">/internal/path</tt><br />Deployment path: <tt style="color:red;">/foo/bar</tt> (no slash at the end)<br />Internal path: <tt style="color:blue;">/internal/path</tt></td>
+   * <td><i>(empty string)</i></td><td><tt>%http://example.com/foo/bar</tt></tr>
+   * <tr><td><tt>.</tt></td><td><tt>%http://example.com/foo/</tt></td></tr>
+   * <tr><td><tt>./</tt></td><td><tt>%http://example.com/foo/</tt></td></tr>
+   * <tr><td><tt>../</tt></td><td><tt>%http://example.com/</tt></td></tr>
+   * <tr><td rowspan="4"><tt>%http://example.com</tt><tt style="color:red;">/foo/bar</tt><tt style="color:magenta;font-weight:bold;">/</tt><tt style="color:blue;">internal/path</tt><br />Deployment path: <tt style="color:red;">/foo/bar/</tt> (with slash at the end)<br />Internal path: <tt style="color:blue;">/internal/path</tt><br />Note that the slash between the deployment path and the internal path is shared</td>
+   * <td><i>(empty string)</i></td><td><tt>%http://example.com/foo/bar/</tt></tr>
+   * <tr><td><tt>.</tt></td><td><tt>%http://example.com/foo/bar/</tt></td></tr>
+   * <tr><td><tt>./</tt></td><td><tt>%http://example.com/foo/bar/</tt></td></tr>
+   * <tr><td><tt>../</tt></td><td><tt>%http://example.com/foo/</tt></td></tr>
+   * </table>
    */
   std::string resolveRelativeUrl(const std::string& url) const;
 

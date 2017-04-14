@@ -68,7 +68,8 @@ public:
    * Constructs a test environment that resembles FireFox 3.0 with default
    * settings.
    *
-   * The <i>applicationPath</i> is the simulated deployment path. The
+   * The <i>applicationPath</i> is the simulated application path used to
+   * match <tt><application-settings></tt> in the configuration file. The
    * configuration file points to a wt_config.xml configuration file.
    * The <i>type</i> indicates the application type.
    *

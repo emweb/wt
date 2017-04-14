@@ -98,14 +98,14 @@ public:
       request_stream << h.name() << ": " << h.value() << "\r\n";
     }
 
-    if ((method == "POST" || method == "PUT" || method == "DELETE") &&
+    if ((method == "POST" || method == "PUT" || method == "DELETE" || method == "PATCH") &&
 	!haveContentLength)
       request_stream << "Content-Length: " << message.body().length() 
 		     << "\r\n";
 
     request_stream << "Connection: close\r\n\r\n";
 
-    if (method == "POST" || method == "PUT" || method == "DELETE")
+    if (method == "POST" || method == "PUT" || method == "DELETE" || method == "PATCH")
       request_stream << message.body();
 
     tcp::resolver::query query(server, std::to_string(port));
@@ -843,6 +843,11 @@ bool Client::deleteRequest(const std::string& url, const Message& message)
   return request(Http::Method::Delete, url, message);
 }
 
+bool Client::patch(const std::string& url, const Message& message)
+{
+  return request(Http::Method::Patch, url, message);
+}
+
 bool Client::request(Http::Method method, const std::string& url,
 		     const Message& message)
 {
@@ -932,7 +937,7 @@ bool Client::request(Http::Method method, const std::string& url,
   impl_->setTimeout(timeout_);
   impl_->setMaximumResponseSize(maximumResponseSize_);
 
-  const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE" };
+  const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE", "PATCH" };
 
   LOG_DEBUG(methodNames_[static_cast<unsigned int>(method)] << " " << url);
 

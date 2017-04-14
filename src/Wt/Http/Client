@@ -287,6 +287,22 @@ public:
    */
   bool deleteRequest(const std::string& url, const Message& message);
   
+  /*! \brief Starts a PATCH request.
+   *
+   * The function starts an asynchronous PATCH request, and returns
+   * immediately.
+   *
+   * The function returns \c true when the PATCH request has been
+   * scheduled, and thus done() will be emitted eventually.
+   *
+   * The function returns \p false if the client could not schedule
+   * the request, for example if the \p url is invalid or if the %URL
+   * scheme is not supported.
+   *
+   * \sa request(), done()
+   */
+  bool patch(const std::string& url, const Message& message);
+  
   /*! \brief Starts a request.
    *
    * The function starts an asynchronous HTTP request, and returns

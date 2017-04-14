@@ -110,6 +110,22 @@ Value::Value(const char* value)
   : v_(WString(value))
 { }
 
+Value::Value(const Array& value)
+  : v_(value)
+{ }
+
+Value::Value(Array &&value)
+  : v_(value)
+{ }
+
+Value::Value(const Object& value)
+  : v_(value)
+{ }
+
+Value::Value(Object &&value)
+  : v_(value)
+{ }
+
 Value::Value(Type type)
 { 
   switch (type) {
@@ -126,9 +142,19 @@ Value::Value(const Value& other)
   : v_(other.v_)
 { }
 
+Value::Value(Value &&other)
+  : v_(std::move(other.v_))
+{ }
+
 Value& Value::operator= (const Value& other)
 {
   v_ = other.v_;
+  return *this;
+}
+
+Value& Value::operator= (Value &&other)
+{
+  v_ = std::move(other.v_);
   return *this;
 }
 

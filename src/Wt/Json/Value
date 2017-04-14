@@ -156,6 +156,35 @@ public:
 
 #endif
 
+  /*! \brief Creates a value from a Json::Object.
+   *
+   * This creates a \link Wt::Json::ArrayType
+   * Json::ArrayType\endlink value.
+   */
+  Value(const Array& value);
+
+  /*! \brief Creates a value from a Json::Object.
+   *
+   * This creates a \link Wt::Json::ArrayType
+   * Json::ArrayType\endlink value.
+   */
+  Value(Array &&value);
+
+  /*! \brief Creates a value from a Json::Object.
+   *
+   * This creates a \link Wt::Json::ObjectType
+   * Json::ObjectType\endlink value.
+   */
+  Value(const Object& value);
+
+  /*! \brief Creates a value from a Json::Object.
+   *
+   * This creates a \link Wt::Json::ObjectType
+   * Json::ObjectType\endlink value.
+   */
+  Value(Object &&value);
+
+
   /*! \brief Creates a value with a given type.
    *
    * This creates a value of the given type, using a default constructed value
@@ -172,12 +201,20 @@ public:
    */
   Value(const Value& other);
 
-  /*! \brief Assignment operator.
+  /*! \brief Move constructor.
+   */
+  Value(Value &&other);
+
+  /*! \brief Copy assignment operator.
    *
    * As a result of an assignment, both value and type are set to the value and
    * type of the \p other value.
    */
   Value& operator= (const Value& other);
+
+  /*! \brief Move assigment operator.
+   */
+  Value& operator= (Value &&other);
 
   /*! \brief Comparison operator.
    *

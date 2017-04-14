@@ -563,7 +563,7 @@ std::string OAuthService::encodeState(const std::string& url) const
 {
   std::string msg = impl_->secret_ + url;
 
-  std::string hash(Wt::Utils::sha1(msg));
+  std::string hash(Wt::Utils::base64Encode(Wt::Utils::sha1(msg)));
   
   std::string b = Wt::Utils::base64Encode(hash + "|" + url);
 

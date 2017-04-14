@@ -24,6 +24,8 @@
 #include "base64.h"
 #include "ImageUtils.h"
 
+#include <cstring>
+
 extern "C" {
   #include "sha1.h"
 }
@@ -212,6 +214,53 @@ std::string createDataUrl(std::vector<unsigned char>& data, std::string mimeType
   std::string url = "data:"+mimeType+";"+"base64,";
   std::string datab64 = base64Encode(std::string(data.begin(), data.end()));
   return url+datab64;
+}
+
+std::string hmac(const std::string& text,
+                 const std::string& key,
+                 std::string (*hashfunction)(const std::string&),
+                 size_t blocksize,
+                 size_t keysize)
+{
+  unsigned char ipad[256];
+  unsigned char opad[256];
+
+  std::memset(ipad, 0, sizeof(unsigned char) * blocksize);
+
+  if (key.size() > blocksize) {
+    std::memcpy(ipad, (unsigned char*) hashfunction(key).c_str(), keysize);
+  }
+  else {
+    keysize = key.size();
+    std::memcpy(ipad, (unsigned char*) key.c_str(), keysize);
+  }
+  std::memcpy(opad, ipad, blocksize);
+
+  for (size_t i=0; i<blocksize; ++i) {
+    ipad[i] ^= 0x36;
+    opad[i] ^= 0x5c;
+  }
+
+  return hashfunction(std::string((char*) opad,blocksize)
+       + hashfunction(std::string((char*) ipad,blocksize) + text));
+}
+
+std::string hmac_md5(const std::string& text, const std::string& key)
+{
+  return hmac(text,
+              key,
+              &md5,
+              64,
+              16);
+}
+
+std::string hmac_sha1(const std::string& text, const std::string& key)
+{
+  return hmac(text,
+              key,
+              &sha1,
+              64,
+              20);
 }
 
 }
