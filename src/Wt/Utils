@@ -187,6 +187,40 @@ WT_API extern std::string guessImageMimeType(const std::string& file);
 
 WT_API extern std::string createDataUrl(std::vector<unsigned char>& data, std::string mimeType);
 
+/*! \brief Computes a hash-based message authentication code.
+ *
+ * This utility function computes a HMAC, and returns the raw
+ * (binary) hash value. Takes as arguments the text to be hashed, a
+ * secret key, a function pointer to a hashfunction, the internal
+ * block size of the hashfunction in bytes and the size of the
+ * resulting hash value the function produces. A maximum blocksize of
+ * 2048 bits (256 bytes) is supported.
+ *
+ * \sa hmac_sha1()
+ * \sa hmac_md5()
+ */
+WT_API extern std::string hmac(const std::string& text,
+                               const std::string& key,
+                               std::string (*hashfunction)(const std::string&),
+                               size_t blocksize,
+                               size_t keysize);
+
+/*! \brief Computes a hash-based message authentication code.
+ *
+ * Uses the md5 hashfunction, returns a raw (binary) hash value.
+ *
+ * \sa hmac()
+ */
+WT_API extern std::string hmac_md5(const std::string& text, const std::string& key);
+
+/*! \brief Computes a hash-based message authentication code.
+ *
+ * Uses the sha1 hashfunction, returns a raw (binary) hash value.
+ *
+ * \sa hmac()
+ */
+WT_API extern std::string hmac_sha1(const std::string& text, const std::string& key);
+
 }
 
 }

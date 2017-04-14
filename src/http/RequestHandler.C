@@ -99,7 +99,8 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
       && (req.method != "OPTIONS")
       && (req.method != "POST")
       && (req.method != "PUT")
-      && (req.method != "DELETE"))
+      && (req.method != "DELETE")
+      && (req.method != "PATCH"))
     return ReplyPtr(new StockReply(req, Reply::not_implemented, "", config_));
 
   if ((req.http_version_major != 1)

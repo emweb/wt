@@ -153,8 +153,8 @@ public:
 			      const std::string& salt) const;
 
   virtual bool verify(const std::string& msg,
-		      const std::string& hash,
-		      const std::string& salt) const;
+		      const std::string& salt,
+		      const std::string& hash) const;
 
 private:
   int count_;

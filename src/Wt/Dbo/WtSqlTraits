@@ -14,6 +14,11 @@
 #include <Wt/WTime>
 #include <Wt/WString>
 
+#include <Wt/Json/Object>
+#include <Wt/Json/Array>
+#include <Wt/Json/Parser>
+#include <Wt/Json/Serializer>
+
 #include <Wt/Dbo/SqlTraits>
 #include <Wt/Dbo/SqlStatement>
 
@@ -67,6 +72,28 @@ struct sql_value_traits<WString, void>
   static void bind(const WString& v, SqlStatement *statement, int column,
 		   int size);
   static bool read(WString& v, SqlStatement *statement, int column, int size);
+};
+
+template<>
+struct sql_value_traits<Json::Object, void>
+{
+  static const bool specialized = true;
+
+  static std::string type(SqlConnection *conn, int size);
+  static void bind(const Json::Object& v, SqlStatement *statement, int column,
+		   int size);
+  static bool read(Json::Object& v, SqlStatement *statement, int column, int size);
+};
+
+template<>
+struct sql_value_traits<Json::Array, void>
+{
+  static const bool specialized = true;
+
+  static std::string type(SqlConnection *conn, int size);
+  static void bind(const Json::Array& v, SqlStatement *statement, int column,
+		   int size);
+  static bool read(Json::Array& v, SqlStatement *statement, int column, int size);
 };
 
     /*
@@ -213,6 +240,68 @@ inline bool sql_value_traits<WString, void>
     v = WString::Empty;
     return false;
   }
+}
+
+    /*
+     * Json::Object
+     */
+
+inline std::string sql_value_traits<Json::Object, void>::type(
+    SqlConnection *conn,
+    int size)
+{
+  return conn->textType(size) + " not null";
+}
+
+inline void sql_value_traits<Json::Object, void>
+::bind(const Json::Object& v, SqlStatement *statement, int column, int size)
+{
+  statement->bind(column, Json::serialize(v,false));
+}
+
+inline bool sql_value_traits<Json::Object, void>
+::read(Json::Object& v, SqlStatement *statement, int column, int size)
+{
+  std::string d;
+  if (statement->getResult(column, &d, size)) {
+    Json::ParseError e;
+    if (Json::parse(d,v,e,false)) {
+      return true;
+    }
+  }
+  v = Json::Object::Empty;
+  return false;
+}
+
+    /*
+     * Json::Array
+     */
+
+inline std::string sql_value_traits<Json::Array, void>::type(
+    SqlConnection *conn,
+    int size)
+{
+  return conn->textType(size) + " not null";
+}
+
+inline void sql_value_traits<Json::Array, void>
+::bind(const Json::Array& v, SqlStatement *statement, int column, int size)
+{
+  statement->bind(column, Json::serialize(v,false));
+}
+
+inline bool sql_value_traits<Json::Array, void>
+::read(Json::Array& v, SqlStatement *statement, int column, int size)
+{
+  std::string d;
+  if (statement->getResult(column, &d, size)) {
+    Json::ParseError e;
+    if (Json::parse(d,v,e,false)) {
+      return true;
+    }
+  }
+  v = Json::Array::Empty;
+  return false;
 }
 
   }

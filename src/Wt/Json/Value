@@ -156,6 +156,21 @@ public:
 
 #endif
 
+  /*! \brief Creates a value from a Json::Object.
+   *
+   * This creates a \link Wt::Json::ArrayType
+   * Json::ArrayType\endlink value.
+   */
+  Value(const Array& value);
+
+  /*! \brief Creates a value from a Json::Object.
+   *
+   * This creates a \link Wt::Json::ObjectType
+   * Json::ObjectType\endlink value.
+   */
+  Value(const Object& value);
+
+
   /*! \brief Creates a value with a given type.
    *
    * This creates a value of the given type, using a default constructed value

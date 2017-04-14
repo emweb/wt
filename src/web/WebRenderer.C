@@ -586,7 +586,7 @@ std::string WebRenderer::sessionUrl() const
     return session_.appendSessionQuery(result);
   else {
     // Wt.js will prepend the correct deployment path
-    return session_.appendSessionQuery(".");
+    return session_.appendSessionQuery(".").substr(1);
   }
 }
 

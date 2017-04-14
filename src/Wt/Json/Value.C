@@ -104,6 +104,14 @@ Value::Value(const char* value)
   : v_(WString(value))
 { }
 
+Value::Value(const Array& value)
+  : v_(value)
+{ }
+
+Value::Value(const Object& value)
+  : v_(value)
+{ }
+
 Value::Value(Type type)
 { 
   switch (type) {
