@@ -823,8 +823,8 @@ bool Client::get(const std::string& url)
   return request(Get, url, Message());
 }
 
-bool Client::get(const std::string& url, 
-		 const std::vector<Message::Header> headers)
+bool Client::get(const std::string& url,
+		 const std::vector<Message::Header> & headers)
 {
   Message m(headers);
   return request(Get, url, m);
