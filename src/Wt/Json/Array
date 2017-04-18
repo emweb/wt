@@ -9,6 +9,9 @@
 
 #include <string>
 #include <vector>
+#ifdef WT_CXX11
+#include <initializer_list>
+#endif // WT_CXX11
 
 #include <Wt/Json/Value>
 
@@ -29,6 +32,33 @@ class Value;
 class WT_API Array : public std::vector<Value>
 {
 public:
+
+  /*! \brief Constructor.
+   */
+  Array();
+
+  /*! \brief Copy constructor.
+   */
+  Array(const Array& other);
+
+  /*! \brief Assignment operator.
+   */
+  Array& operator= (const Array& other);
+
+#ifdef WT_CXX11
+  /*! \brief Move constructor
+   */
+  Array(Array&& other);
+
+  /*! \brief Initializer list constructor.
+   */
+  Array(std::initializer_list<Value> list);
+
+  /*! \brief Assignment operator.
+   */
+  Array& operator= (Array&& other);
+#endif
+
   /*! \brief Empty array constant.
    */
   static Array Empty;

@@ -113,7 +113,7 @@ Value::Value(const Object& value)
 { }
 
 Value::Value(Type type)
-{ 
+{
   switch (type) {
   case NullType: break;
   case BoolType: v_ = false; break;
@@ -127,6 +127,38 @@ Value::Value(Type type)
 Value::Value(const Value& other)
   : v_(other.v_)
 { }
+
+#ifdef WT_CXX11
+Value::Value(Value&& other)
+  : v_(std::move(other.v_))
+{ }
+
+Value::Value(Object&& other)
+  : v_(std::move(other))
+{ }
+
+Value::Value(Array&& other)
+  : v_(std::move(other))
+{ }
+
+Value& Value::operator= (Value&& other)
+{
+  v_ = std::move(other.v_);
+  return *this;
+}
+
+Value& Value::operator= (Object&& other)
+{
+  v_ = std::move(other);
+  return *this;
+}
+
+Value& Value::operator= (Array&& other)
+{
+  v_ = std::move(other);
+  return *this;
+}
+#endif
 
 Value& Value::operator= (const Value& other)
 {
