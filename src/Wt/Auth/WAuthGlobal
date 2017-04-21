@@ -1,0 +1,25 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WAUTHGLOBAL_H_
+#define WAUTHGLOBAL_H_
+
+#include <Wt/WGlobal>
+
+namespace Wt {
+  namespace Auth {
+
+enum ClientSecretMethod
+{
+  HttpAuthorizationBasic,
+  PlainUrlParameter, // not available in combination with Post method
+  RequestBodyParameter
+};
+
+  }
+}
+
+#endif // WAUTHGLOBAL_H_

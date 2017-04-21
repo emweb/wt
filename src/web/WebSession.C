@@ -2185,18 +2185,24 @@ void WebSession::notify(const WEvent& event)
     try {
       renderer_.serveResponse(*event.impl_.response);
     } catch (std::exception& e) {
-      LOG_ERROR("Exception in WApplication::notify()" << e.what());
+      LOG_ERROR("Exception in WApplication::notify(): " << e.what());
     } catch (...) {
+      LOG_ERROR("Exception in WApplication::notify()");
     }
     return;
   }
 
   if (event.impl_.function) {
-    WT_CALL_FUNCTION(event.impl_.function);
+    try {
+      WT_CALL_FUNCTION(event.impl_.function);
 
-    if (event.impl_.handler->request())
-      render(*event.impl_.handler);
-
+      if (event.impl_.handler->request())
+	render(*event.impl_.handler);
+    } catch (std::exception& e) {
+      LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+    } catch (...) {
+      LOG_ERROR("Exception in WApplication::notify()");
+    }
     return;
   }
 

@@ -1,0 +1,15 @@
+<server>
+    <application-settings location="*">
+	<properties>
+	    <property name="application-url">
+		http://localhost:8080
+	    </property>
+	    <property name="oauth2-client-id">
+                example_client_id
+	    </property>
+	    <property name="oauth2-client-secret">
+                example_client_secret
+	    </property>
+	</properties>
+    </application-settings>
+</server>

@@ -125,14 +125,13 @@ WWebWidget::OtherImpl::OtherImpl(WWebWidget *const self)
     childrenChanged_(self),
     scrollVisibilityMargin_(0),
     scrollVisibilityChanged_(self),
-    jsScrollVisibilityChanged_(self, "scrollVisibilityChanged")
+    jsScrollVisibilityChanged_(new JSignal<bool>(self, "scrollVisibilityChanged"))
 {
-  jsScrollVisibilityChanged_.connect(self, &WWebWidget::jsScrollVisibilityChanged);
+  jsScrollVisibilityChanged_->connect(self, &WWebWidget::jsScrollVisibilityChanged);
 }
 
 WWebWidget::OtherImpl::~OtherImpl()
 {
-  delete id_;
   delete attributes_;
   delete jsMembers_;
   delete jsStatements_;
@@ -140,6 +139,8 @@ WWebWidget::OtherImpl::~OtherImpl()
   delete dropSignal2_;
   delete acceptedDropMimeTypes_;
   delete resized_;
+  delete jsScrollVisibilityChanged_;
+  delete id_;
 }
 
 WWebWidget::WWebWidget(WContainerWidget *parent)

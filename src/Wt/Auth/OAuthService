@@ -11,6 +11,7 @@
 #include <Wt/WJavaScript>
 #include <Wt/WString>
 
+#include <Wt/Auth/WAuthGlobal>
 #include <Wt/Auth/Identity>
 #include <Wt/Auth/User>
 #include <Wt/Http/Message>
@@ -41,6 +42,7 @@ class OAuthRedirectEndpoint;
 class OAuthAccessToken
 {
 public:
+
   /*! \brief Default constructor.
    *
    * Creates an invalid access token.
@@ -52,6 +54,13 @@ public:
   OAuthAccessToken(const std::string& value,
 		   const WDateTime& expires,
 		   const std::string& refreshToken);
+
+  /*! \brief Constructor with an OpenID Connect ID token.
+   */
+  OAuthAccessToken(const std::string& value,
+		   const WDateTime& expires,
+		   const std::string& refreshToken,
+                   const std::string& idToken);
 
   /*! \brief Returns whether the token is valid.
    *
@@ -85,6 +94,8 @@ public:
    */
   const std::string& refreshToken() const { return refreshToken_; }
 
+  const std::string& idToken() const { return idToken_; }
+
   /*! \brief An invalid token constant
    *
    * This is a token that is not isValid().
@@ -92,7 +103,7 @@ public:
   static const OAuthAccessToken Invalid;
     
 private:
-  std::string accessToken_, refreshToken_;
+  std::string accessToken_, refreshToken_, idToken_;
   WDateTime expires_;
 };
 
@@ -432,7 +443,7 @@ public:
    */
   const AuthService& baseAuth() const { return baseAuth_; }
 
-  /*! \brief Creates a new authorizaiton process.
+  /*! \brief Creates a new authorization process.
    *
    * This creates a new authorization process for the indicated scope.
    * Valid names for the scope are service provider dependent.
@@ -522,6 +533,8 @@ public:
    */
   virtual std::string tokenEndpoint() const = 0;
 
+  virtual std::string userInfoEndpoint() const;
+
   /*! \brief Returns the client ID.
    *
    * This is the identification for this web application with the
@@ -566,6 +579,17 @@ public:
    * current draft).
    */
   virtual Http::Method tokenRequestMethod() const;
+
+  /*! \brief Returns the method to transfer the client secret.
+  *
+  * Some implementations (like Facebook) encode the secret in the GET
+  * request parameters, while this is explicitly not allowed in the
+  * OAuth 2.0 specification.
+  *
+  * The default implementation returns HttpAuthorizationBasic
+  * (the recommended method).
+  */
+  virtual enum ClientSecretMethod clientSecretMethod() const = 0;
 
   std::string generateRedirectEndpoint() const;
 

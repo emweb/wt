@@ -153,6 +153,16 @@ OAuthAccessToken::OAuthAccessToken(const std::string& accessToken,
     expires_(expires)
 { }
 
+OAuthAccessToken::OAuthAccessToken(const std::string& accessToken,
+				   const WDateTime& expires,
+				   const std::string& refreshToken,
+                                   const std::string& idToken)
+  : accessToken_(accessToken),
+    refreshToken_(refreshToken),
+    idToken_(idToken),
+    expires_(expires)
+{ }
+
 const OAuthAccessToken OAuthAccessToken::Invalid;
 
 OAuthProcess::OAuthProcess(const OAuthService& service,
@@ -307,11 +317,10 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
    * does
    */
   std::string url = service_.tokenEndpoint();
+  Http::Method m = service_.tokenRequestMethod();
 
   WStringStream ss;
   ss << "grant_type=authorization_code"
-     << "&client_id=" << Wt::Utils::urlEncode(service_.clientId())
-     << "&client_secret=" << Wt::Utils::urlEncode(service_.clientSecret())
      << "&redirect_uri=" 
      << Wt::Utils::urlEncode(service_.generateRedirectEndpoint())
      << "&code=" << authorizationCode;
@@ -320,14 +329,35 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
   client->setTimeout(15);
   client->done().connect(boost::bind(&OAuthProcess::handleToken, this, _1, _2));
 
-  Http::Method m = service_.tokenRequestMethod();
+  std::string clientId = Wt::Utils::urlEncode(service_.clientId());
+  std::string clientSecret = Wt::Utils::urlEncode(service_.clientSecret());
+
   if (m == Http::Get) {
+    std::vector<Http::Message::Header> headers;
+    if (service_.clientSecretMethod() == HttpAuthorizationBasic) {
+      headers.push_back(Http::Message::Header("Authorization",
+        "Basic " + Wt::Utils::base64Encode(
+	  clientId + ":" + clientSecret, false)));
+    } else if (service_.clientSecretMethod() == PlainUrlParameter) {
+      ss << "&client_id=" << clientId
+	<< "&client_secret=" << clientSecret;
+    }
+
     bool hasQuery = url.find('?') != std::string::npos;
     url += (hasQuery ? '&' : '?') + ss.str();
-    client->get(url);
+
+    client->get(url, headers);
   } else {
     Http::Message post;
     post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+    if (service_.clientSecretMethod() == HttpAuthorizationBasic) {
+      post.setHeader("Authorization",
+		     "Basic " + Wt::Utils::base64Encode(clientId + ":" + clientSecret,
+							false));
+    } else if (service_.clientSecretMethod() == RequestBodyParameter) {
+      ss << "&client_id=" << clientId
+	<< "&client_secret=" << clientSecret;
+    }
     post.addBodyText(ss.str());
     client->post(url, post);
   }
@@ -374,12 +404,28 @@ OAuthAccessToken OAuthProcess::parseTokenResponse(const Http::Message& response)
      * OAuth 2.0 states this should be application/json
      * but Facebook uses text/plain; charset=UTF-8 body
      */
-    const std::string *type = response.getHeader("Content-Type");
+    const std::string *contenttype = response.getHeader("Content-Type");
 
-    if (type) {
-      if (boost::starts_with(*type, "text/plain; charset=UTF-8"))
-	return parseUrlEncodedToken(response);
-      else if (boost::starts_with(*type, "application/json"))
+    if (contenttype) {
+      std::string mimetype = boost::trim_copy(*contenttype);
+      std::vector<std::string> tokens;
+      boost::split(tokens, mimetype, boost::is_any_of(";"));
+      std::string combinedType; // type/subtype
+      std::string params;
+      if (tokens.size() > 0) {
+	combinedType = tokens[0];
+	boost::trim(combinedType);
+      }
+      if (tokens.size() > 1) {
+	params = tokens[1];
+	boost::trim(params);
+      }
+      if (combinedType == "text/plain") {
+	if (boost::starts_with(params, "charset=UTF-8"))
+	  return parseUrlEncodedToken(response);
+	else
+	  throw TokenError(ERROR_MSG("badresponse"));
+      } else if (combinedType == "application/json")
 	return parseJsonToken(response);
       else
 	throw TokenError(ERROR_MSG("badresponse"));
@@ -453,8 +499,9 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 	  expires = WDateTime::currentDateTime().addSecs(secs);
 
 	std::string refreshToken = root.get("refreshToken").orIfNull("");
+        std::string idToken = root.get("id_token").orIfNull("");
 
-	return OAuthAccessToken(accessToken, expires, refreshToken);
+	return OAuthAccessToken(accessToken, expires, refreshToken, idToken);
       } catch (std::exception& e) {
 	LOG_ERROR("token response error: " << e.what());
 	throw TokenError(ERROR_MSG("badresponse"));
@@ -559,11 +606,9 @@ std::string OAuthService::generateRedirectEndpoint() const
 
 std::string OAuthService::encodeState(const std::string& url) const
 {
-  std::string msg = impl_->secret_ + url;
+  std::string hash(Wt::Utils::base64Encode(Wt::Utils::hmac_sha1(url,impl_->secret_)));
 
-  std::string hash(Wt::Utils::base64Encode(Wt::Utils::sha1(msg)));
-  
-  std::string b = Wt::Utils::base64Encode(hash + "|" + url);
+  std::string b = Wt::Utils::base64Encode(hash + "|" + url, false);
 
   /* Variant of base64 encoding which is resistant to broken OAuth2 peers
    * that do not properly re-encode the state */
@@ -655,6 +700,11 @@ void OAuthService::configureRedirectEndpoint() const
       impl_->redirectResource_ = r;
     }
   }
+}
+
+std::string OAuthService::userInfoEndpoint() const
+{
+  throw WException("OAuth::Process::userInfoEndpoint(): not specialized");
 }
 
 std::string OAuthService::configurationProperty(const std::string& property)

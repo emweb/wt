@@ -128,6 +128,7 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
     using qi::fail;
     using ascii::char_;
     using ascii::graph;
+    using ascii::space;
 
     using phoenix::construct;
     using phoenix::val;
@@ -180,11 +181,11 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
       ;
 
     field
-      = *(sql_word - (no_case["from"] | lit(',')))
+      = +(sub_expression | (identifier - lexeme[no_case["from"] >> +space]))
       ;
 
     sql_word
-      = ',' | identifier | sub_expression
+      = ',' | sub_expression | identifier
       ;
 
     sub_expression
@@ -278,4 +279,3 @@ void parseSql(const std::string& sql, SelectFieldLists& fieldLists,
     }
   }
 }
-				 

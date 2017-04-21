@@ -279,6 +279,12 @@ Wt/Auth/UpdatePasswordWidget.C
 Wt/Auth/User.C
 Wt/Auth/AuthUtils.C
 Wt/Auth/MailUtils.C
+Wt/Auth/OAuthClient.C
+Wt/Auth/OAuthTokenEndpoint.C
+Wt/Auth/OidcUserInfoEndpoint.C
+Wt/Auth/OAuthAuthorizationEndpointProcess.C
+Wt/Auth/IssuedToken.C
+Wt/Auth/OidcService.C
 Wt/Chart/WAbstractChart.C
 Wt/Chart/WAbstractChartModel.C
 Wt/Chart/WAxis.C

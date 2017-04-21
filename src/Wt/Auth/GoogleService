@@ -1,13 +1,13 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WT_AUTH_GOOGLE_AUTH_H_
-#define WT_AUTH_GOOGLE_AUTH_H_
+#ifndef GOOGLE_SERVICE_H_
+#define GOOGLE_SERVICE_H_
 
-#include <Wt/Auth/OAuthService>
+#include <Wt/Auth/OidcService>
 
 namespace Wt {
   namespace Auth {
@@ -44,15 +44,17 @@ namespace Wt {
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. 
+ * read-only.
  * \if cpp
  * A "const GoogleService" object is thus thread-safe.
  * \endif
  *
  * \if cpp
- * \sa http://code.google.com/apis/accounts/docs/OAuth2.html
+ * \sa https://developers.google.com/identity/protocols/OAuth2
+ * \sa https://developers.google.com/identity/protocols/OpenIDConnect
  * \elseif java
- * See also: http://code.google.com/apis/accounts/docs/OAuth2.html
+ * See also: https://developers.google.com/identity/protocols/OAuth2
+ *           https://developers.google.com/identity/protocols/OpenIDConnect
  * \endif
  *
  * \if cpp
@@ -61,7 +63,7 @@ namespace Wt {
  *
  * \ingroup auth
  */
-class WT_API GoogleService : public OAuthService
+class WT_API GoogleService : public OidcService
 {
 public:
   /*! \brief Constructor.
@@ -75,23 +77,10 @@ public:
    */
   static bool configured();
 
-  virtual std::string name() const;
-  virtual WString description() const;
-  virtual int popupWidth() const;
-  virtual int popupHeight() const;
-
-  virtual std::string authenticationScope() const;
-  virtual std::string redirectEndpoint() const;
   virtual std::string redirectEndpointPath() const;
-  virtual std::string authorizationEndpoint() const;
-  virtual std::string tokenEndpoint() const;
-  virtual std::string clientId() const;
-  virtual std::string clientSecret() const;
-
-  virtual OAuthProcess *createProcess(const std::string& scope) const;
 };
 
   }
 }
 
-#endif // WT_AUTH_PASSWORD_AUTH
+#endif // GOOGLE_SERVICE_H_

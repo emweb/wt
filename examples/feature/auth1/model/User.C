@@ -9,4 +9,3 @@
 #include <Wt/Auth/Dbo/AuthInfo>
 
 DBO_INSTANTIATE_TEMPLATES(User);
-

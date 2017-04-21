@@ -7,7 +7,13 @@
 #ifndef WT_AUTH_ABSTRACT_USER_DATABASE_H_
 #define WT_AUTH_ABSTRACT_USER_DATABASE_H_
 
+#include <set>
+
 #include <Wt/Auth/User>
+#include <Wt/Auth/IssuedToken>
+#include <Wt/Auth/OAuthClient>
+#include <Wt/Auth/WAuthGlobal>
+#include <Wt/Json/Value>
 
 #ifndef WT_CX11
 
@@ -26,20 +32,23 @@
 namespace Wt {
   namespace Auth {
 
+class OAuthClient;
+class IssuedToken;
+
 /*! \class AbstractUserDatabase Wt/Auth/AbstractUserDatabase
  *  \brief Abstract interface for an authentication user database
  *
  * This class defines the interface for managing user data related to
  * authentication. You need to implement this interface to allow the
- * authentication service classes (AuthService, PasswordService, and OAuthService)
- * to locate and update user credentials. Except for functions which
- * do work on a single user, it is more convenient to use the User
- * API. Obviously, you may have more data associated with a user,
- * including roles for access control, other personal information,
- * address information. This information cannot be accessed through
- * the Auth::User class, but you should make it available through your
- * own User class, which is then als the basis of this user database
- * implementation.
+ * authentication service classes (AuthService, PasswordService,
+ * OAuthService, and OidcService) to locate and update user
+ * credentials. Except for functions which do work on a single user,
+ * it is more convenient to use the User API.  Obviously, you may have
+ * more data associated with a user, including roles for access
+ * control, other personal information, address information. This
+ * information cannot be accessed through the Auth::User class, but
+ * you should make it available through your own User class, which is
+ * then als the basis of this user database implementation.
  *
  * The only assumption made by the authentication system is that an id
  * uniquely defines the user. This is usually an internal identifier,
@@ -59,6 +68,11 @@ namespace Wt {
  * instance of the database for each different session, and will try
  * to wrap database access within a transaction. Transaction support
  * can thus be optionally provided by a database implementation.
+ *
+ * This class is also used by OAuthAuthorizationEndpoint,
+ * OAuthTokenEndpoint, and OidcUserInfoEndpoint when implementing an
+ * OAuth/OpenID Connect provider to retrieve information not only
+ * about the User, but also the OAuthClient, and an IssuedToken.
  *
  * \sa User
  *
@@ -383,6 +397,97 @@ public:
   virtual WDateTime lastLoginAttempt(const User& user) const;
   //@}
 
+  /** @name Identity provider support
+   */
+  //@{
+  /*! \brief Returns the value of a claim for a user.
+   *
+   * Should return a null Json value when the claim is unavailable.
+   */
+  virtual Json::Value idpJsonClaim(const User& user, const std::string& claim) const;
+
+  /*! \brief Adds a new Wt::Auth::IssuedToken to the database and returns it.
+   S*/
+  virtual Wt::Auth::IssuedToken idpTokenAdd(const std::string& value,
+                                            const WDateTime& expirationTime,
+                                            const std::string& purpose,
+                                            const std::string& scope,
+                                            const std::string& redirectUri,
+                                            const User& user,
+                                            const OAuthClient& authClient);
+
+  /*! \brief Removes an issued token from the database.
+   */
+  virtual void idpTokenRemove(const IssuedToken& token);
+
+  /*! \brief Finds a token in the database with a given value.
+   */
+  virtual IssuedToken idpTokenFindWithValue(const std::string& purpose, const std::string& value) const;
+
+  /*! \brief Gets the expiration time for a token.
+   */
+  virtual WDateTime idpTokenExpirationTime(const IssuedToken& token) const;
+
+  /*! \brief Gets the value for a token.
+   */
+  virtual std::string idpTokenValue(const IssuedToken& token) const;
+
+  /*! \brief Gets the token purpose (authorization_code, access_token, id_token, refresh_token).
+   */
+  virtual std::string idpTokenPurpose(const IssuedToken& token) const;
+
+  /*! \brief Gets the scope associated with the token.
+   */
+  virtual std::string idpTokenScope(const IssuedToken& token) const;
+
+  /*! \brief Returns the redirect URI that was used with the token request.
+   */
+  virtual std::string idpTokenRedirectUri(const IssuedToken& token) const;
+
+  /*! \brief Returns the user associated with the token.
+   */
+  virtual User idpTokenUser(const IssuedToken &token) const;
+
+  /*! \brief Returns the authorization client (relying party) that is associated with the token.
+   */
+  virtual OAuthClient idpTokenOAuthClient(const IssuedToken &token) const;
+
+  /*! \brief Finds the authorization client (relying party) with this identifier.
+   */
+  virtual OAuthClient idpClientFindWithId(const std::string& clientId) const;
+
+  /*! \brief Returns the secret for this client.
+   */
+  virtual std::string idpClientSecret(const OAuthClient& client) const;
+
+  /*! \brief Returns true if the given secret is correct for the given client.
+   */
+  virtual bool idpVerifySecret(const OAuthClient& client, const std::string& secret) const;
+
+  /*! \brief Returns the redirect URI for this client.
+   */
+  virtual std::set<std::string> idpClientRedirectUris(const OAuthClient& client) const;
+
+  /*! \brief Returns the identifier for this client.
+   */
+  virtual std::string idpClientId(const OAuthClient& client) const;
+
+  /*! \brief Returns whether the client is confidential or public.
+   */
+  virtual bool idpClientConfidential(const OAuthClient& client) const;
+
+  /*! \brief Returns the client authentication method (see OIDC Core chapter 9)
+   */
+  virtual ClientSecretMethod idpClientAuthMethod(const OAuthClient& client) const;
+
+  /*! \brief Add a new client to the database and returns it.
+   */
+  virtual Wt::Auth::OAuthClient idpClientAdd(const std::string &clientId,
+                                            bool confidential,
+                                            const std::set<std::string> &redirectUris,
+                                            ClientSecretMethod authMethod,
+                                            const std::string &secret);
+  //@}
 protected:
   AbstractUserDatabase();
 

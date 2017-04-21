@@ -267,6 +267,9 @@ public:
    * All active application sessions are terminated cleanly, and the
    * HTTP(S) server is shut down.
    *
+   * \note This will also stop the underlying ioService(), and will block
+   *       until all pending tasks have completed.
+   *
    * \throw Exception : indicates a problem while stopping the server.
    *
    * \sa isRunning(), start()
