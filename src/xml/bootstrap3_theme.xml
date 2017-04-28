@@ -59,6 +59,7 @@
       ${collapse-button}
       <div class="navbar-header">
 	${expand-button}
+	${logo-link}
 	${title-link}
       </div>
       ${contents}

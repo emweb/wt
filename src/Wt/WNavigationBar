@@ -35,6 +35,18 @@ public:
    */
   void setTitle(const WString& title, const WLink& link = WLink());
 
+   /*! \brief Sets a an image as 'title'. The image size should be 34x34 pixels;
+   *
+   * The title may optionally link to a 'homepage'.
+   */
+  void setLogo(WImage* logo, const WLink& link = WLink());
+  
+  /*! \brief Sets a an image as 'title'. The image size should be 34x34 pixels;
+   *
+   * The title may optionally link to a 'homepage'.
+   */
+  void setLogo(const std::string &imageRef, const WLink &link = WLink());
+
   /*! \brief Sets whether the navigation bar will respond to screen size.
    *
    * For screens that are less wide, the navigation bar can be
