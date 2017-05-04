@@ -189,10 +189,22 @@ void WWebWidget::setId(const std::string& id)
   if (!otherImpl_)
     otherImpl_ = new OtherImpl(this);
 
+  WApplication* app = WApplication::instance();
+  for (std::size_t i = 0; i < jsignals_.size(); ++i) {
+    EventSignalBase* signal = jsignals_[i];
+    if (signal->isExposedSignal())
+      app->removeExposedSignal(signal);
+  }
+
   if (!otherImpl_->id_)
     otherImpl_->id_ = new std::string();
-
   *otherImpl_->id_ = id;
+
+  for (std::size_t i = 0; i < jsignals_.size(); ++i) {
+    EventSignalBase* signal = jsignals_[i];
+    if (signal->isExposedSignal())
+      app->addExposedSignal(signal);
+  }
 }
 
 void WWebWidget::setSelectable(bool selectable)

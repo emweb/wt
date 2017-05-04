@@ -632,7 +632,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     if (dedicated) {
       sessionPolicy_ = DedicatedProcess;
       setInt(dedicated, "max-num-sessions", maxNumSessions_);
-      setInt(sess, "session-thread-pool", numSessionThreads_);
+      setInt(dedicated, "num-session-threads", numSessionThreads_);
     }
 
     if (shared) {

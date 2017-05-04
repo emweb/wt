@@ -34,13 +34,21 @@
 
 	       Note: currently only supported by the wtfcgi and wthttp
 	       connectors.
+
+	       max-num-sessions determines the maximum number of sessions
+
+	       num-session-threads determines the number of threads for every
+	       session process. If not specified, the number of threads for every
+	       session process is the same as the number of threads for the parent
+	       process.
               -->
 
 	    <!--
 	       <dedicated-process>
 		 <max-num-sessions>100</max-num-sessions>
+		 <num-session-threads>10</num-session-threads>
 	       </dedicated-process>
-	      -->
+	    -->
 
 	    <!-- Multiple sessions within one process.
 
@@ -136,25 +144,6 @@
 	      -->
 	    <run-directory>${RUNDIR}</run-directory>
 
-	    <!-- Number of threads per process
-
-               This configures the size of the thread pool. You may
-               want to change this value if you would like to support
-               reentrant event loops, where you block one event loop
-               using WDialog::exec() or related static
-               methods. Everytime you enter such an event loop, one
-               thread is blocked, and therefore the total number of
-               sessions that reliably can do this is limited to the
-               number of thread you have (minus one to unblock).
-
-	       For the built-in http connector, there is a similar
-	       config option that is specified in the whttpd config
-	       file or on the command line (-t).
-
-               The default value is 1.
-	      -->
-	    <num-threads>1</num-threads>
-
 	</connector-fcgi>
 
 	<!-- Settings that apply only to the MS IIS ISAPI connector.
@@ -163,39 +152,6 @@
 	   configure default options in /etc/wt/wthttpd
 	  -->
 	<connector-isapi>
-	    <!-- Number of threads per process
-
-               This configures the number of threads that will be used
-               to handle Wt requests. The IIS internal threads are never
-               used to do any processing; all requests are forwarded to
-               be handled in this threadpool. Rather than to configure a
-               so-called 'web-garden' in IIS, increase this number. The
-               ISAPI connector will not work correctly when a web-garden
-               is configured.
-
-               You may want to change this value if you would like to
-               support more reentrant event loops, where you block one
-               event loop using WDialog::exec() or related static
-               methods. Everytime you enter such an event loop, one
-               thread is blocked, and therefore the total number of
-               sessions that reliably can do this is limited to the
-               number of thread you have (minus one to unblock).
-
-               You may also want to increase this number if your Wt
-               application is regularly waiting for IO (databases, network,
-               files, ...). If this number is too low, all threads could
-               be waiting for IO operations to complete while your CPU
-               is idle. Increasing the number of threads may help.
-
-               Computing intensive applications may also increase this number,
-               even though it is better to offload computations to a helper
-               thread and user server push or a WTimer to check for
-               completion of the task in order to keep your GUI responsive
-               during the computations.
-
-               The default value is 10.
-	      -->
-	    <num-threads>10</num-threads>
 
 	    <!-- Maximum Request Size spooled in memory (Kb)
         
@@ -277,6 +233,41 @@
            increased when the user is allowed to upload files.
          -->
 	<max-request-size>128</max-request-size>
+
+        <!-- Number of threads per process
+
+           You may want to change this value if you would like to
+           support more reentrant event loops, where you block one
+           event loop using WDialog::exec() or related static
+           methods. Everytime you enter such an event loop, one
+           thread is blocked, and therefore the total number of
+           sessions that reliably can do this is limited to the
+           number of thread you have (minus one to unblock).
+
+           You may also want to increase this number if your Wt
+           application is regularly waiting for IO (databases, network,
+           files, ...). If this number is too low, all threads could
+           be waiting for IO operations to complete while your CPU
+           is idle. Increasing the number of threads may help.
+
+           Computing intensive applications may also increase this number,
+           even though it is better to offload computations to a helper
+           thread and user server push or a WTimer to check for
+           completion of the task in order to keep your GUI responsive
+           during the computations.
+
+           When using the MS IIS ISAPI connector, this configures the
+           number of threads that will be used to handle Wt requests.
+           The IIS internal threads are never used to do any
+           processing; all requests are forwarded to be handled in
+           this threadpool. Rather than to configure a so-called
+           'web-garden' in IIS, increase this number. The ISAPI
+           connector will not work correctly when a web-garden is
+           configured.
+
+           The default value is 10.
+              -->
+        <num-threads>10</num-threads>
 
 	<!-- Session id length (number of characters) -->
 	<session-id-length>16</session-id-length>

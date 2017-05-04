@@ -194,8 +194,7 @@ bool WServer::start()
 	     (impl_->sessionId_.empty() ? "shared" : "dedicated") <<
 	     " wtfcgi session process");
 
-  if (!impl_->sessionId_.empty() && configuration().numSessionThreads() != -1)
-    configuration().setNumThreads(configuration().numSessionThreads());
+  dedicatedProcessEnabled_ = !impl_->sessionId_.empty();
 
   if (configuration().webSockets()) {
     LOG_ERROR_S(this, "FastCGI does not support web-sockets, disabling");

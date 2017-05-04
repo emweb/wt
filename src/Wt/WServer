@@ -536,7 +536,6 @@ private:
   boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
 #ifndef WT_TARGET_JAVA
   boost::function<void ()> stopCallback_;
-  friend class http::server::Server;
 #endif // WT_TARGET_JAVA
 };
 

@@ -163,9 +163,7 @@ bool WServer::start()
 
   if (impl_->serverConfiguration_->parentPort() != -1) {
     configuration().setBehindReverseProxy(true);
-    int sessionThreads = configuration().numSessionThreads();
-    if (sessionThreads != -1)
-      configuration().setNumThreads(sessionThreads);
+    dedicatedProcessEnabled_ = true;
   }
 
   try {
