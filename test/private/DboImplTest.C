@@ -91,5 +91,14 @@ BOOST_AUTO_TEST_CASE( DboImplTest_test1 )
       intersect
       select b, c from bar),
      2, 3, false);
+
+  parseSql("select from_a, from_b from table",1,2,true);
+  parseSql("select a_from, b_from from table",1,2,true);
+
+  parseSql("select from_a, from_b",1,2,true);
+  parseSql("select a_from, b_from",1,2,true);
+
+  parseSql("select from_a, SUM(SELECT from_b from table) from other_table",1,2,true);
+
 #endif // BOOST_VERSION
 }

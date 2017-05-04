@@ -184,7 +184,6 @@ public:
    */
   Value(Object &&value);
 
-
   /*! \brief Creates a value with a given type.
    *
    * This creates a value of the given type, using a default constructed value
@@ -203,18 +202,29 @@ public:
 
   /*! \brief Move constructor.
    */
-  Value(Value &&other);
+  Value(Value&& other);
 
-  /*! \brief Copy assignment operator.
+  /*! \brief Assignment operator.
    *
    * As a result of an assignment, both value and type are set to the value and
    * type of the \p other value.
    */
   Value& operator= (const Value& other);
 
-  /*! \brief Move assigment operator.
+  /*! \brief Move Assignment operator.
+   *
+   * As a result of an assignment, both value and type are set to the value and
+   * type of the \p other value.
    */
-  Value& operator= (Value &&other);
+  Value& operator= (Value&& other);
+
+  /*! \brief Move assignment operator.
+   */
+  Value& operator= (Object&& other);
+
+  /*! \brief Move assignment operator.
+   */
+  Value& operator= (Array&& other);
 
   /*! \brief Comparison operator.
    *

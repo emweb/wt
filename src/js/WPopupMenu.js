@@ -207,16 +207,21 @@ WT_DECLARE_WT_MEMBER
      bindOverEvents(widget);
    };
 
-   function doEvent(f) {
+   function bindDocumentClick() {
      if (WT.isIOS) {
-       f("touchstart",startTouch);
-       f("touchend",endTouch);
-     }
-     else
-       f("click",onDocumentClick);
+       $(document).bind("touchstart", startTouch);
+       $(document).bind("touchend", endTouch);
+     } else
+       $(document).bind("click", onDocumentClick);
    }
-   function bindDocumentClick() { doEvent($(document).bind); }
-   function unbindDocumentClick() { doEvent($(document).unbind); }
+
+   function unbindDocumentClick() {
+     if (WT.isIOS) {
+       $(document).unbind("touchstart", startTouch);
+       $(document).unbind("touchend", endTouch);
+     } else
+       $(document).unbind("click", onDocumentClick);
+   }
 
    function startTouch(event) {
      var l = event.originalEvent.touches;

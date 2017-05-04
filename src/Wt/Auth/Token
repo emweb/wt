@@ -39,9 +39,10 @@ public:
    */
   Token();
 
+  Token(const std::string& hash, const WDateTime& expirationTime);
   /*! \brief Constructor.
    */
-  Token(const std::string& hash, const WDateTime& expirationTime);
+  Token(const std::string& hash, const WDateTime& expirationTime, const std::string &purpose, const std::string &scope, const std::string &redirectUri);
 
   /*! \brief Returns whether the token is empty.
    *

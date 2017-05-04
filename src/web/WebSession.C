@@ -2171,18 +2171,24 @@ void WebSession::notify(const WEvent& event)
     try {
       renderer_.serveResponse(*event.impl_.response);
     } catch (std::exception& e) {
-      LOG_ERROR("Exception in WApplication::notify()" << e.what());
+      LOG_ERROR("Exception in WApplication::notify(): " << e.what());
     } catch (...) {
+      LOG_ERROR("Exception in WApplication::notify()");
     }
     return;
   }
 
   if (event.impl_.function) {
-    WT_CALL_FUNCTION(event.impl_.function);
+    try {
+      WT_CALL_FUNCTION(event.impl_.function);
 
-    if (event.impl_.handler->request())
-      render(*event.impl_.handler);
-
+      if (event.impl_.handler->request())
+	render(*event.impl_.handler);
+    } catch (std::exception& e) {
+      LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+    } catch (...) {
+      LOG_ERROR("Exception in WApplication::notify()");
+    }
     return;
   }
 
@@ -2421,7 +2427,9 @@ void WebSession::notify(const WEvent& event)
 	    return;
 	  }
 
-	  if (*signalE == "poll" && ackState != WebRenderer::CorrectAck) {
+	  if (*signalE == "poll" &&
+	      ackState != WebRenderer::CorrectAck &&
+	      renderer_.jsSynced()) {
 	    LOG_DEBUG("Ignoring poll with incorrect ack -- was rescheduled in browser?");
 	    handler.flushResponse();
 	    return;
@@ -2451,7 +2459,7 @@ void WebSession::notify(const WEvent& event)
 	     */
 	    if (!WebController::isAsyncSupported()) {
 	      updatesPendingEvent_.notify_one();
-	      if (!updatesPending_) {
+              if (!updatesPending_ && renderer_.jsSynced()) {
 #ifndef WT_TARGET_JAVA
 		updatesPendingEvent_.wait(handler.lock());
 #else
@@ -2461,7 +2469,7 @@ void WebSession::notify(const WEvent& event)
 		} catch (InterruptedException& e) { }
 #endif // WT_TARGET_JAVA
 	      }
-	      if (!updatesPending_) {
+              if (!updatesPending_ && renderer_.jsSynced()) {
 		handler.flushResponse();
 		return;
 	      }
@@ -2469,7 +2477,7 @@ void WebSession::notify(const WEvent& event)
 #endif // WT_BOOST_THREADS
 
 	    // LOG_DEBUG("poll: " << updatesPending_ << ", " << (asyncResponse_ ? "async" : "no async"));
-	    if (!updatesPending_) {
+            if (!updatesPending_ && renderer_.jsSynced()) {
 	      /*
 	       * If we are ignoring many poll requests (because we are
 	       * assuming to have a websocket), we will need to assume

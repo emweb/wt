@@ -6,6 +6,8 @@
 
 #include "Wt/WStandardItem.h"
 #include "Wt/WStandardItemModel.h"
+#include "Wt/WEvent.h"
+#include "Wt/WItemSelectionModel.h"
 
 #ifndef DOXYGEN_ONLY
 
@@ -414,6 +416,39 @@ void WStandardItemModel::setSortRole(ItemDataRole role)
 void WStandardItemModel::sort(int column, SortOrder order)
 {
   invisibleRootItem_->sortChildren(column, order);
+}
+
+void WStandardItemModel::dropEvent(const WDropEvent& e, DropAction action,
+				   int row, int column,
+				   const WModelIndex& parent)
+{
+  // In case of a move within the model, we simply move the WStandardItem,
+  // this preserves the item-flags
+  WItemSelectionModel *selectionModel
+    = dynamic_cast<WItemSelectionModel *>(e.source());
+  if (selectionModel != 0 &&
+      selectionModel->model().get() == this &&
+      selectionModel->selectionBehavior() == SelectionBehavior::Rows &&
+      action == DropAction::Move) {
+    WModelIndexSet selection = selectionModel->selectedIndexes();
+    int r = row;
+    std::vector< std::vector<std::unique_ptr<WStandardItem>> > rows;
+    for (WModelIndexSet::const_iterator i = selection.begin();
+	 i != selection.end(); ++i) {
+      WModelIndex sourceIndex = *i;
+
+      // remove the row
+      if (sourceIndex.row() < row)
+	r--;
+      rows.push_back(takeRow(sourceIndex.row()));
+    }
+
+    for (unsigned i=0; i < rows.size(); i++) {
+      insertRow(r+i, std::move(rows[i]));
+    }
+  } else {
+    WAbstractItemModel::dropEvent(e, action, row, column, parent);
+  }
 }
 
 }

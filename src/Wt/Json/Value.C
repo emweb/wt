@@ -114,20 +114,12 @@ Value::Value(const Array& value)
   : v_(value)
 { }
 
-Value::Value(Array &&value)
-  : v_(value)
-{ }
-
 Value::Value(const Object& value)
   : v_(value)
 { }
 
-Value::Value(Object &&value)
-  : v_(value)
-{ }
-
 Value::Value(Type type)
-{ 
+{
   switch (type) {
   case Type::Null: break;
   case Type::Bool: v_ = false; break;
@@ -142,8 +134,16 @@ Value::Value(const Value& other)
   : v_(other.v_)
 { }
 
-Value::Value(Value &&other)
+Value::Value(Value&& other)
   : v_(std::move(other.v_))
+{ }
+
+Value::Value(Object&& other)
+  : v_(std::move(other))
+{ }
+
+Value::Value(Array&& other)
+  : v_(std::move(other))
 { }
 
 Value& Value::operator= (const Value& other)
@@ -155,6 +155,18 @@ Value& Value::operator= (const Value& other)
 Value& Value::operator= (Value &&other)
 {
   v_ = std::move(other.v_);
+  return *this;
+}
+
+Value& Value::operator= (Object&& other)
+{
+  v_ = std::move(other);
+  return *this;
+}
+
+Value& Value::operator= (Array&& other)
+{
+  v_ = std::move(other);
   return *this;
 }
 

@@ -31,6 +31,22 @@ Object& Object::operator= (const Object& other)
   return *this;
 }
 
+#ifdef WT_CXX11
+Object::Object(Object&& other)
+  : Impl(std::move(other))
+{ }
+
+Object::Object(std::initializer_list<std::pair<const std::string,Value>> list)
+  : Impl(list)
+{ }
+
+Object& Object::operator= (Object&& other)
+{
+  Impl::operator=(std::move(other));
+  return *this;
+}
+#endif
+
 std::set<std::string> Object::names() const
 {
   std::set<std::string> result;

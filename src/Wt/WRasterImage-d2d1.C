@@ -4,18 +4,18 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WRasterImage"
+#include "Wt/WRasterImage.h"
 
-#include "Wt/WBrush"
-#include "Wt/WException"
-#include "Wt/WFontMetrics"
-#include "Wt/WGradient"
-#include "Wt/WLogger"
-#include "Wt/WPainter"
-#include "Wt/WPen"
-#include "Wt/WString"
-#include "Wt/WTransform"
-#include "Wt/Http/Response"
+#include "Wt/WBrush.h"
+#include "Wt/WException.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WGradient.h"
+#include "Wt/WLogger.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPen.h"
+#include "Wt/WString.h"
+#include "Wt/WTransform.h"
+#include "Wt/Http/Response.h"
 
 #include "UriUtils.h"
 

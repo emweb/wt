@@ -796,12 +796,12 @@ enum class Key {
   PageDown = 34,   //!< Page down key.
   End = 35,        //!< End key.
   Home = 36,       //!< Home key.
-  Left = 37,       //!< Side::Left arrow key.
+  Left = 37,       //!< Left arrow key.
   Up = 38,         //!< Up arrow key.
-  Right = 39,      //!< Side::Right arrow key.
+  Right = 39,      //!< Right arrow key.
   Down = 40,       //!< Down arrow key.
   Insert = 45,     //!< Insert key.
-  Delete = 46,     //!< Method::Delete key.
+  Delete = 46,     //!< Delete key.
   Escape = 27,     //!< Escape key.
   F1 = 112,        //!< F1 function key.
   F2 = 113,        //!< F2 function key.

@@ -90,6 +90,8 @@ public:
 
   bool checkResponsePuzzle(const WebRequest& request);
 
+  bool jsSynced() const;
+
   void setJSSynced(bool invisibleToo);
 
   void setStatelessSlotNotStateless() { currentStatelessSlotIsActuallyStateless_ = false; }

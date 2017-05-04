@@ -263,7 +263,6 @@ private:
   typedef Signals::Signal<A...> SignalType;
 
   std::string name_;
-  mutable std::string senderId_;
   SignalType impl_;
 
   virtual void processDynamic(const JavaScriptEvent& e) const override;
@@ -315,11 +314,7 @@ JSignal<A...>::~JSignal()
 template <typename... A>
 const std::string JSignal<A...>::encodeCmd() const
 {
-  if (senderId_.empty()) {
-    senderId_ = senderId(owner());
-  }
-
-  return senderId_ + "." + name_;
+  return senderId(owner()) + "." + name_;
 }
 
 template <typename... A>

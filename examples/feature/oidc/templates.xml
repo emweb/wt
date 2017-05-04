@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages xmlns:if="Wt.WTemplate.conditions">
+  <message id="template.registration">
+    <div class="Wt-form Wt-auth-registration">
+      <h2>${tr:Wt.Auth.registration-form-title}</h2>
+      <p>${tr:Wt.Auth.registration-form-info}</p>
+
+      ${password-description}
+
+      <div class="Wt-fields">
+        ${<if:user-name>}
+          <label for="${id:user-name}">${user-name-label}
+            ${user-name-info class="Wt-info"}
+            ${confirm-is-you class="Wt-info"}
+          </label>
+          ${user-name}
+        ${</if:user-name>}
+
+        ${<if:choose-password>}
+          <label for="${id:choose-password}">${tr:Wt.Auth.choose-password}
+            ${choose-password-info class="Wt-info"}
+          </label>
+          ${choose-password}
+
+          <label for="${id:repeat-password}">${tr:Wt.Auth.repeat-password}
+            ${repeat-password-info class="Wt-info"}
+          </label>
+          ${repeat-password}
+        ${</if:choose-password>}
+
+        ${<if:email>}
+          <label for="${id:email}">${tr:Wt.Auth.email}
+            ${email-info class="Wt-info"}
+          </label>
+          ${email}
+        ${</if:email>}
+
+	<label for="${id:name}">Full name
+	  ${name-info class="Wt-info"}
+	</label>
+	${name}
+      </div>
+
+      ${<if:oauth>}
+        <br clear="both" />
+        ${oauth-description}
+        <label>${tr:Wt.Auth.oauth}
+          <span class="Wt-info">${tr:Wt.Auth.oauth-info}</span>
+        </label>
+        ${icons}
+      ${</if:oauth>}
+
+      <div class="Wt-buttons">
+        ${ok-button} ${cancel-button}
+      </div>
+    </div>
+  </message>
+</messages>

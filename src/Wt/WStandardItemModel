@@ -380,6 +380,9 @@ public:
   virtual void *toRawIndex(const WModelIndex& index) const override;
   virtual WModelIndex fromRawIndex(void *rawIndex) const override;
 
+  virtual void dropEvent(const WDropEvent& e, DropAction action,
+			 int row, int column, const WModelIndex& parent);
+
 #endif // DOXYGEN_ONLY
 
   /*! \brief Set the role used to sort the model.

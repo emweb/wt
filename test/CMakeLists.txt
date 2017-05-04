@@ -66,6 +66,7 @@ IF(ENABLE_LIBWTTEST)
       dbo/Benchmark.C
       dbo/Benchmark2.C
       dbo/JsonTest.C
+      dbo/JsonTest2.C
       dbo/AuthDboTest.C
       dbo/DboTestCompositeKey.C
       private/DboImplTest.C

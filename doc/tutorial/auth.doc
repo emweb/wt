@@ -456,6 +456,11 @@ void Session::configureAuth()
     myOAuthServices[i]->generateRedirectEndpoint();
 }
 
+Wt::Auth::AbstractUserDatabase& Session::users()
+{
+  return *users_;
+}
+
 const Wt::Auth::AuthService& Session::auth()
 {
   return myAuthService;

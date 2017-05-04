@@ -87,6 +87,7 @@ public:
   virtual std::string tokenEndpoint() const override;
   virtual std::string clientId() const override;
   virtual std::string clientSecret() const override;
+  virtual ClientSecretMethod clientSecretMethod() const override;
 
   virtual Http::Method tokenRequestMethod() const override;
   virtual std::unique_ptr<OAuthProcess>

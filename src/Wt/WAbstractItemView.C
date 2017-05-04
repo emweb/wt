@@ -277,6 +277,8 @@ void WAbstractItemView::setObjectName(const std::string& name)
 {
   WCompositeWidget::setObjectName(name);
 
+  bindObjJS(resizeHandleMDownJS_, "resizeHandleMDown");
+
   headerHeightRule_->setSelector("#" + id() + " .headerrh");
 
   for (unsigned i = 0; i < columns_.size(); ++i) {
