@@ -245,6 +245,8 @@ public:
    * \sa objJsRef()
    */
   JSlot &repaintSlot() { return repaintSlot_; }
+  
+  WImage* areaImage() { return areaImage_; }
 
 protected:
   /*! \brief Create a WTransform that is accessible from JavaScript,

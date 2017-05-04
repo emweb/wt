@@ -154,6 +154,12 @@ EventSignal<WMouseEvent>& WAbstractArea::mouseWheel()
   return impl_->mouseWheel();
 }
 
+void WAbstractArea::setAttributeValue(const std::string& name,
+			 const WT_USTRING& value)
+{
+    impl_->setAttributeValue(name, value);
+}
+
 void WAbstractArea::setImage(WImage *image)
 {
   impl_->setParent(image);
