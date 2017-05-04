@@ -1,13 +1,10 @@
 #ifndef REGISTRATION_VIEW_H
 #define REGISTRATION_VIEW_H
 
-#include "model/Session.h"
-#include "model/UserDetailsModel.h"
-
 #include <Wt/Auth/RegistrationWidget>
-#include <Wt/Auth/User>
-#include <Wt/Auth/AbstractUserDatabase>
-#include <Wt/Auth/AuthWidget>
+
+class UserDetailsModel;
+class Session;
 
 class RegistrationView : public Wt::Auth::RegistrationWidget
 {

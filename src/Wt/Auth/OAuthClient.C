@@ -43,7 +43,7 @@ std::string OAuthClient::clientId() const
 bool OAuthClient::verifySecret(const std::string &secret) const
 {
   if (db_)
-    return db_->idpVerifySecret(*this,secret);
+    return db_->idpVerifySecret(*this, secret);
   else
     throw WException(INVALID_ERROR);
 }

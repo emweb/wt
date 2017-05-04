@@ -18,14 +18,14 @@ public:
               std::string redirectUri,
               Wt::Dbo::ptr<User> user,
               Wt::Dbo::ptr<OAuthClient> authClient);
-  Wt::Dbo::ptr<User> user;
-  Wt::Dbo::ptr<OAuthClient> authClient;
 
   std::string   value;
   Wt::WDateTime expires;
   std::string   purpose;
   std::string   scope;
   std::string   redirectUri;
+  Wt::Dbo::ptr<User> user;
+  Wt::Dbo::ptr<OAuthClient> authClient;
 
   template<class Action>
   void persist(Action& a)

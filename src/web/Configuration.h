@@ -151,6 +151,7 @@ public:
   std::string runDirectory() const;
   int sessionIdLength() const;
   std::string sessionIdPrefix() const;
+  int numSessionThreads() const;
 
 #ifndef WT_TARGET_JAVA
   bool readConfigurationProperty(const std::string& name, std::string& value)
@@ -248,6 +249,7 @@ private:
   bool            sessionIdCookie_;
   bool            cookieChecks_;
   bool            webglDetection_;
+  int             numSessionThreads_;
 
   std::vector<BootstrapEntry> bootstrapConfig_;
   std::vector<MetaHeader> metaHeaders_;

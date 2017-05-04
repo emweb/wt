@@ -55,7 +55,7 @@ LOGGER("Auth.OidcService");
     std::string email = claims.get("email").orIfNull("");
     bool emailVerified = claims.get("email_verified").orIfNull(false);
     std::string providerName = this->service().name();
-    return Identity(providerName,id,name,email,emailVerified);
+    return Identity(providerName, id, name, email, emailVerified);
   }
 
   void OidcProcess::handleResponse(boost::system::error_code err, const Http::Message& response)
@@ -103,7 +103,7 @@ LOGGER("Auth.OidcService");
 Identity OidcProcess::parseIdToken(const std::string& idToken)
 {
   std::vector<std::string> parts;
-  boost::split(parts,idToken,boost::is_any_of("."));
+  boost::split(parts, idToken, boost::is_any_of("."));
   if (parts.size() != 3) {
     LOG_ERROR("malformed id_token: '" << idToken << "'");
     return Identity::Invalid;
@@ -111,7 +111,7 @@ Identity OidcProcess::parseIdToken(const std::string& idToken)
   Json::Object payloadJson;
 #ifndef WT_TARGET_JAVA
   Json::ParseError err;
-  bool ok = Json::parse(Utils::base64Decode(parts[1]),payloadJson,err,false);
+  bool ok = Json::parse(Utils::base64Decode(parts[1]), payloadJson, err, false);
 #else
   try {
     payloadJson = (Json::Object)Json::Parser().parse(

@@ -1290,6 +1290,13 @@ void WebRenderer::serveMainAjax(WStringStream& out)
   loadScriptLibraries(out, app, librariesLoaded);
 }
 
+bool WebRenderer::jsSynced() const
+{
+  return collectedJS1_.empty() &&
+         collectedJS2_.empty() &&
+	 invisibleJS_.empty();
+}
+
 void WebRenderer::setJSSynced(bool invisibleToo)
 {
   LOG_DEBUG("setJSSynced: " << invisibleToo);

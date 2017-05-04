@@ -2443,7 +2443,9 @@ void WebSession::notify(const WEvent& event)
 	    return;
 	  }
 
-	  if (*signalE == "poll" && ackState != WebRenderer::CorrectAck) {
+	  if (*signalE == "poll" &&
+	      ackState != WebRenderer::CorrectAck &&
+	      renderer_.jsSynced()) {
 	    LOG_DEBUG("Ignoring poll with incorrect ack -- was rescheduled in browser?");
 	    handler.flushResponse();
 	    return;
@@ -2473,7 +2475,7 @@ void WebSession::notify(const WEvent& event)
 	     */
 	    if (!WebController::isAsyncSupported()) {
 	      updatesPendingEvent_.notify_one();
-	      if (!updatesPending_) {
+              if (!updatesPending_ && renderer_.jsSynced()) {
 #ifndef WT_TARGET_JAVA
 		updatesPendingEvent_.wait(handler.lock());
 #else
@@ -2483,7 +2485,7 @@ void WebSession::notify(const WEvent& event)
 		} catch (InterruptedException& e) { }
 #endif // WT_TARGET_JAVA
 	      }
-	      if (!updatesPending_) {
+              if (!updatesPending_ && renderer_.jsSynced()) {
 		handler.flushResponse();
 		return;
 	      }
@@ -2491,7 +2493,7 @@ void WebSession::notify(const WEvent& event)
 #endif // WT_BOOST_THREADS
 
 	    // LOG_DEBUG("poll: " << updatesPending_ << ", " << (asyncResponse_ ? "async" : "no async"));
-	    if (!updatesPending_) {
+            if (!updatesPending_ && renderer_.jsSynced()) {
 	      /*
 	       * If we are ignoring many poll requests (because we are
 	       * assuming to have a websocket), we will need to assume

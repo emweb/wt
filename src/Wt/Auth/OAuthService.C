@@ -606,7 +606,7 @@ std::string OAuthService::generateRedirectEndpoint() const
 
 std::string OAuthService::encodeState(const std::string& url) const
 {
-  std::string hash(Wt::Utils::base64Encode(Wt::Utils::hmac_sha1(url,impl_->secret_)));
+  std::string hash(Wt::Utils::base64Encode(Wt::Utils::hmac_sha1(url, impl_->secret_)));
 
   std::string b = Wt::Utils::base64Encode(hash + "|" + url, false);
 

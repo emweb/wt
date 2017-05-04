@@ -10,8 +10,8 @@
 #include <set>
 #include <string>
 
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/WAuthGlobal"
+#include <Wt/Auth/AbstractUserDatabase>
+#include <Wt/Auth/WAuthGlobal>
 
 namespace Wt {
 namespace Auth {

@@ -8,6 +8,7 @@
 #define WT_AUTH_OIDC_USER_INFO_ENDPOINT_H_
 
 #include <Wt/WResource>
+
 #include <Wt/Auth/User>
 #include <Wt/Auth/AbstractUserDatabase>
 

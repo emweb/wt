@@ -164,7 +164,7 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
 #endif // WT_WITH_SSL
 #endif // WT_TARGET_JAVA
       header    = Utils::base64Encode("{\n\"typ\": \"JWT\",\n\"alg\": \"none\"\n}", false);
-      signature = Utils::base64Encode("",false);
+      signature = Utils::base64Encode("", false);
 #ifndef WT_TARGET_JAVA
 #ifdef WT_WITH_SSL
     }
@@ -242,7 +242,7 @@ void OAuthTokenEndpoint::setRSAKey(const std::string &path)
   if (privateKey)
     RSA_free(privateKey);
   RSA* rsa = RSA_new();
-  privateKey = PEM_read_RSAPrivateKey(fopen(path.c_str(),"rb"),&rsa,NULL,NULL);
+  privateKey = PEM_read_RSAPrivateKey(fopen(path.c_str(), "rb"), &rsa, NULL, NULL);
   if (!privateKey) {
     throw WException("OAuthTokenEndpoint: invalid RSA key \"" + path + "\"");
   }

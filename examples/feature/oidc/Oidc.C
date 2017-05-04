@@ -1,39 +1,38 @@
-#include <Wt/Http/Client>
 #include <Wt/WText>
 #include <Wt/WApplication>
-#include <Wt/Auth/OAuthService>
-#include <Wt/Auth/AuthService>
+#include <Wt/WServer>
 #include <Wt/WContainerWidget>
 #include <Wt/WImage>
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/GoogleService>
-#include <Wt/Auth/OidcService>
 
-#include <Wt/Json/Serializer>
-#include <Wt/Json/Object>
+#include <Wt/Auth/AuthService>
+#include <Wt/Auth/Identity>
+#include <Wt/Auth/OAuthTokenEndpoint>
+#include <Wt/Auth/OidcService>
+#include <Wt/Auth/OidcUserInfoEndpoint>
 
 #include "model/Session.h"
 #include "OAuthAuthorizationEndpoint.h"
 
-const Wt::Auth::AuthService authService;
-const Wt::Auth::OidcService* oidcservice_ = 0;
+namespace {
+  const Wt::Auth::AuthService authService;
+  const Wt::Auth::OidcService* oidcService = 0;
+  std::string deployUrl;
+}
 
-class myOidcService : public Wt::Auth::OidcService
+class MyOidcService : public Wt::Auth::OidcService
 {
 public:
 
-  myOidcService()
+  MyOidcService()
     : Wt::Auth::OidcService(authService)
   {
-    std::string url = configurationProperty("application-url");
-
-    setRedirectEndpoint(url + "/oauth2/callback");
+    setRedirectEndpoint(deployUrl + "/oauth2/callback");
     setClientId(configurationProperty("oauth2-client-id"));
     setClientSecret(configurationProperty("oauth2-client-secret"));
 
-    setAuthEndpoint(url + "/oauth2/authorize");
-    setTokenEndpoint(url + "/oauth2/token");
-    setUserInfoEndpoint(url + "/oidc/userinfo");
+    setAuthEndpoint(deployUrl + "/oauth2");
+    setTokenEndpoint(deployUrl + "/oauth2/token");
+    setUserInfoEndpoint(deployUrl + "/oidc/userinfo");
 
     setName("oidc");
     setDescription("OpenID Connect");
@@ -49,15 +48,12 @@ public:
   {
     setTitle("OIDC Client Example");
 
-    if (!oidcservice_)
-      oidcservice_ = new myOidcService;
+    process_ = oidcService->createProcess("email profile");
 
-    process_ = oidcservice_->createProcess("email profile");
+    Wt::WImage* image = new Wt::WImage("img/Wt_vol_gradient.png", root());
+    image->clicked().connect(process_, &Wt::Auth::OAuthProcess::startAuthenticate);
 
-    Wt::WImage* image = new Wt::WImage("img/Wt_vol_gradient.png",root());
-    image->clicked().connect(process_,&Wt::Auth::OAuthProcess::startAuthenticate);
-
-    process_->authenticated().connect(this,&OidcClient::authenticated);
+    process_->authenticated().connect(this, &OidcClient::authenticated);
   }
 
 
@@ -67,7 +63,7 @@ private:
   void authenticated(Wt::Auth::Identity id)
   {
     root()->clear();
-    new Wt::WText("Welcome, " + id.name(),root());
+    new Wt::WText("Welcome, " + id.name(), root());
   }
 
   virtual ~OidcClient()
@@ -83,11 +79,7 @@ Wt::WApplication *createAuthEndpoint(const Wt::WEnvironment& env, std::string db
   // add an example client
   if (!session->users().idpClientFindWithId("example_client_id").checkValid()) {
     std::set<std::string> uris;
-    std::string uri;
-    Wt::WServer::instance()->readConfigurationProperty(
-        "application-url",
-        uri);
-    uris.insert(uri + "/oauth2/callback");
+    uris.insert(deployUrl + "/oauth2/callback");
     session->users().idpClientAdd(
         "example_client_id",
         true,
@@ -107,14 +99,20 @@ Wt::WApplication *createClient(const Wt::WEnvironment& env)
 int main(int argc, char** argv)
 {
   Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
+  server.readConfigurationProperty("application-url",deployUrl);
+
+  MyOidcService myOidcService;
+  oidcService = &myOidcService;
+
   std::string dbPath = server.appRoot() + "auth.db";
   Wt::ApplicationCreator callback = boost::bind(&createAuthEndpoint, _1, dbPath);
-  server.addEntryPoint(Wt::Application, callback, "/oauth2/authorize");
+  server.addEntryPoint(Wt::Application, callback, "/oauth2");
 
   server.addEntryPoint(Wt::Application, createClient);
 
   Session tokenSession(dbPath);
-  Wt::Auth::OAuthTokenEndpoint *tokenEndpoint = new Wt::Auth::OAuthTokenEndpoint(tokenSession.users(), "https://localhost:8080/");
+  Wt::Auth::OAuthTokenEndpoint *tokenEndpoint =
+    new Wt::Auth::OAuthTokenEndpoint(tokenSession.users(), deployUrl);
   server.addResource(tokenEndpoint, "/oauth2/token");
 
   Session userInfoSession(dbPath);

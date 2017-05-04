@@ -1,10 +1,8 @@
+#include <Wt/WLineEdit>
+
 #include "RegistrationView.h"
-#include "model/User.h"
 #include "model/Session.h"
 #include "model/UserDetailsModel.h"
-
-#include <Wt/Auth/RegistrationWidget>
-#include <Wt/WLineEdit>
 
 typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;
 

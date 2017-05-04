@@ -9,16 +9,17 @@
 
 #include <string>
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/Login"
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/PasswordService"
-#include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/AuthWidget"
-#include "Wt/Auth/OAuthClient"
-#include "Wt/WSignal"
+#include <Wt/WApplication>
+#include <Wt/WEnvironment>
+#include <Wt/WSignal>
+
+#include <Wt/Auth/AbstractUserDatabase>
+#include <Wt/Auth/Login>
+#include <Wt/Auth/AuthService>
+#include <Wt/Auth/PasswordService>
+#include <Wt/Auth/PasswordVerifier>
+#include <Wt/Auth/AuthWidget>
+#include <Wt/Auth/OAuthClient>
 
 namespace Wt {
 namespace Auth {

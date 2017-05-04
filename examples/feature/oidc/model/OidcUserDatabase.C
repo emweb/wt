@@ -149,14 +149,16 @@ std::string OidcUserDatabase::idpClientSecret(const Wt::Auth::OAuthClient& clien
 bool OidcUserDatabase::idpVerifySecret(const Wt::Auth::OAuthClient& client,
                                        const std::string& secret) const
 {
-  return Wt::Auth::BCryptHashFunction(7).verify(secret,"",idpClientSecret(client));
+  return Wt::Auth::BCryptHashFunction(7).verify(secret,
+                                                "",
+                                                idpClientSecret(client));
 }
 
 std::set<std::string> OidcUserDatabase::idpClientRedirectUris(const Wt::Auth::OAuthClient& client) const
 {
   WithOAuthClient find(*this, client);
   std::set<std::string> result;
-  boost::split(result,authClient_->redirectUris,boost::is_any_of(" "));
+  boost::split(result, authClient_->redirectUris, boost::is_any_of(" "));
   return result;
 }
 
@@ -274,8 +276,11 @@ Wt::Auth::OAuthClient OidcUserDatabase::idpClientAdd(const std::string &clientId
   }
   client->redirectUris = uris;
   client->authMethod = authMethod;
-  client->secret = Wt::Auth::BCryptHashFunction(7).compute(secret,Wt::WRandom::generateId());
+  client->secret = Wt::Auth::BCryptHashFunction(7)
+    .compute(secret,
+             Wt::WRandom::generateId());
   Wt::Dbo::ptr<OAuthClient> client_ = session_.add(client);
   t.commit();
-  return Wt::Auth::OAuthClient(boost::lexical_cast<std::string>(client_.id()),*this);
+  return Wt::Auth::OAuthClient(boost::lexical_cast<std::string>(client_.id()),
+                               *this);
 }

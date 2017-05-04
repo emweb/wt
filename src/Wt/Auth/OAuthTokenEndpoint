@@ -8,11 +8,11 @@
 #define WT_OAUTH_TOKEN_ENDPOINT_H_
 
 #include <string>
-#include "Wt/WResource"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/User"
+#include <Wt/WResource>
+#include <Wt/Http/Request>
+#include <Wt/Http/Response>
+#include <Wt/Auth/AbstractUserDatabase>
+#include <Wt/Auth/User>
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_WITH_SSL

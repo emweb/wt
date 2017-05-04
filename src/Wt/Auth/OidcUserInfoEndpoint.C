@@ -30,11 +30,11 @@ OidcUserInfoEndpoint::OidcUserInfoEndpoint(AbstractUserDatabase &db)
 {
   std::set<std::string> s1;
   s1.insert("name");
-  setScopeToken("profile",s1);
+  setScopeToken("profile", s1);
   std::set<std::string> s2;
   s2.insert("email");
   s2.insert("email_verified");
-  setScopeToken("email",s2);
+  setScopeToken("email", s2);
 }
 
 void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Response& response)
@@ -57,11 +57,11 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   User user = accessToken.user();
   std::string scope = accessToken.scope();
   std::set<std::string> scopeSet;
-  boost::split(scopeSet,scope,boost::is_any_of(" "));
+  boost::split(scopeSet, scope, boost::is_any_of(" "));
 #ifdef WT_TARGET_JAVA
   try {
 #endif
-    response.out() << Json::serialize(generateUserInfo(user,scopeSet)) << std::endl;
+    response.out() << Json::serialize(generateUserInfo(user, scopeSet)) << std::endl;
 #ifdef WT_TARGET_JAVA
   } catch (std::io_exception ioe) {
     LOG_ERROR(ioe.message());
@@ -80,7 +80,7 @@ Json::Object OidcUserInfoEndpoint::generateUserInfo(const User& user, const std:
       claims.insert(*s2);
   }
   for (std::set<std::string>::iterator claim = claims.begin(); claim != claims.end(); ++claim) {
-    Json::Value claimValue = db_->idpJsonClaim(user,*claim);
+    Json::Value claimValue = db_->idpJsonClaim(user, *claim);
     if (!claimValue.isNull())
       root[*claim] = claimValue;
   }
