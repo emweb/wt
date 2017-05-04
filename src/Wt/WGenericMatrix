@@ -15,6 +15,7 @@
 #pragma warning( disable : 4267 )
 #endif
 #define BOOST_SERIALIZATION_NO_LIB
+#include <boost/serialization/array_wrapper.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #ifdef _MSC_VER
 #pragma warning( pop )
