@@ -12,7 +12,7 @@
 namespace Wt {
   namespace Http {
 
-/*! \class Message Wt/Http/Message Wt/Http/Message
+/*! \class Message Wt/Http/Message.h Wt/Http/Message.h
  *  \brief An HTTP client message (request or response).
  *
  * This class implements a message that is sent or received by the

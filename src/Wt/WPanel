@@ -16,7 +16,7 @@ namespace Wt {
   class WTemplate;
   class WText;
 
-/*! \class WPanel Wt/WPanel Wt/WPanel
+/*! \class WPanel Wt/WPanel.h Wt/WPanel.h
  *  \brief A %WPanel provides a container with a title bar.
  *
  * The panel provides a container with an optional title bar, and an

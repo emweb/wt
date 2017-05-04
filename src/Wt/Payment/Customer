@@ -12,7 +12,7 @@ namespace Wt {
   class WString;
   namespace Payment {
 
-/*! \class Customer Wt/Payment/Customer Wt/Payment/Customer
+/*! \class Customer Wt/Payment/Customer.h Wt/Payment/Customer.h
  *  \brief Contains customer information.
  *
  * \if cpp

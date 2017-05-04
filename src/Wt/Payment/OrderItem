@@ -13,7 +13,7 @@
 namespace Wt {
   namespace Payment {
 
-/*! \class OrderItem Wt/Payment/OrderItem Wt/Payment/OrderItem
+/*! \class OrderItem Wt/Payment/OrderItem.h Wt/Payment/OrderItem.h
  *  \brief Describes an item in an order
  *
  * \if cpp

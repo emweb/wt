@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WComboBox Wt/WComboBox Wt/WComboBox
+/*! \class WComboBox Wt/WComboBox.h Wt/WComboBox.h
  *  \brief A widget that provides a drop-down combo-box control.
  *
  * A combo box provides the user with a set of options, from which one

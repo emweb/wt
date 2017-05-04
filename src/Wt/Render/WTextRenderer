@@ -26,7 +26,7 @@ struct LayoutBox;
  * XHTML/CSS layout engine.
  */
 
-/*! \class WTextRenderer Wt/Render/WTextRenderer Wt/Render/WTextRenderer
+/*! \class WTextRenderer Wt/Render/WTextRenderer.h Wt/Render/WTextRenderer.h
  *  \brief An XHTML renderering engine.
  *
  * This class implements a rendering engine for a (subset of)

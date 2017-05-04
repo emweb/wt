@@ -40,7 +40,7 @@ class WWebWidget;
  * using WWidget::decorationStyle().
  */
 
-/*! \class WCssDecorationStyle Wt/WCssDecorationStyle Wt/WCssDecorationStyle
+/*! \class WCssDecorationStyle Wt/WCssDecorationStyle.h Wt/WCssDecorationStyle.h
  *  \brief A style class for a single widget or style sheet rule.
  *
  * You can manipulate the decoration style of a single widget using

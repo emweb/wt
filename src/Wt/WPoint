@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WPoint Wt/WPoint Wt/WPoint
+/*! \class WPoint Wt/WPoint.h Wt/WPoint.h
  *  \brief A value class that defines a 2D point with integer coordinates.
  *
  * \sa WPolygonArea

@@ -53,7 +53,7 @@ struct Grid {
 
   }
 
-/*! \class WGridLayout Wt/WGridLayout Wt/WGridLayout
+/*! \class WGridLayout Wt/WGridLayout.h Wt/WGridLayout.h
  *  \brief A layout manager which arranges widgets in a grid
  *
  * This layout manager arranges widgets in a grid.

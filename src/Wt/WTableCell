@@ -14,7 +14,7 @@ namespace Wt {
 class WTable;
 class WTableRow;
 
-/*! \class WTableCell Wt/WTableCell Wt/WTableCell
+/*! \class WTableCell Wt/WTableCell.h Wt/WTableCell.h
  *  \brief A container widget that represents a cell in a table.
  *
  * A WTable provides a table of %WTableCell container widgets. A

@@ -14,7 +14,7 @@ namespace Wt {
 
 class PaintedSlider;
 
-/*! \class WSlider Wt/WSlider Wt/WSlider
+/*! \class WSlider Wt/WSlider.h Wt/WSlider.h
  *  \brief A horizontal or vertical slider control.
  *
  * A slider allows the user to specify an integer value within a particular

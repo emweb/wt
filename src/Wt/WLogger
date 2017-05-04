@@ -20,7 +20,7 @@ namespace Wt {
 class WLogEntry;
 class WString;
 
-/*! \class WLogger Wt/WLogger Wt/WLogger
+/*! \class WLogger Wt/WLogger.h Wt/WLogger.h
  *  \brief A simple logging class.
  *
  * This class logs events to a stream in a flexible way. It allows to
@@ -240,7 +240,7 @@ private:
   friend class WLogEntry;
 };
 
-/*! \class WLogEntry Wt/WLogger Wt/WLogger
+/*! \class WLogEntry Wt/WLogger.h Wt/WLogger.h
  *  \brief A stream-like object for creating an entry in a log file.
  *
  * This class is returned by WLogger::entry() and creates a log entry using

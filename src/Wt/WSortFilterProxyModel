@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WSortFilterProxyModel Wt/WSortFilterProxyModel Wt/WSortFilterProxyModel
+/*! \class WSortFilterProxyModel Wt/WSortFilterProxyModel.h Wt/WSortFilterProxyModel.h
  *  \brief A proxy model for %Wt's item models that provides filtering
  *         and/or sorting.
  *

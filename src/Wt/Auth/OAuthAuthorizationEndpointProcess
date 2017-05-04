@@ -24,7 +24,7 @@
 namespace Wt {
 namespace Auth {
 
-/*! \class OAuthAuthorizationEndpointProcess Wt/Auth/OAuthAuthorizationEndpointProcess
+/*! \class OAuthAuthorizationEndpointProcess Wt/Auth/OAuthAuthorizationEndpointProcess.h
  *  \brief Allows clients to authorize users according to the OAuth
  *  2.0 protocol.
  *

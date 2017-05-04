@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WLengthValidator Wt/WLengthValidator Wt/WLengthValidator
+/*! \class WLengthValidator Wt/WLengthValidator.h Wt/WLengthValidator.h
  *  \brief A validator that checks the string length of user input.
  *
  * This validator checks whether user input is within the specified range

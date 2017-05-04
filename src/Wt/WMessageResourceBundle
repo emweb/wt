@@ -16,7 +16,7 @@ namespace Wt {
 
 class WMessageResources;
 
-/*! \class WMessageResourceBundle Wt/WMessageResourceBundle Wt/WMessageResourceBundle
+/*! \class WMessageResourceBundle Wt/WMessageResourceBundle.h Wt/WMessageResourceBundle.h
  *  \brief Support for localized strings using XML files.
  *
  * The resource bundle manages a number of resource files, which allow

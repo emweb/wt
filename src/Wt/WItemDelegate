@@ -33,7 +33,7 @@ namespace Wt {
   class IndexText;
 #endif // WT_CNOR
 
-/*! \class WItemDelegate Wt/WItemDelegate Wt/WItemDelegate
+/*! \class WItemDelegate Wt/WItemDelegate.h Wt/WItemDelegate.h
  *  \brief Standard delegate class for rendering a view item.
  *
  * This class provides the standard implementation for rendering an

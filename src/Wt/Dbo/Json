@@ -23,7 +23,7 @@ namespace Wt {
       class EscapeOStream;
     }
 
-/*! \class JsonSerializer Wt/Dbo/Json Wt/Dbo/Json
+/*! \class JsonSerializer Wt/Dbo/Json.h Wt/Dbo/Json.h
  *  \brief An action to serialize objects to JSON.
  *
  *  This class is an \p Action that serializes objects to an ostream.

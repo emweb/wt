@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WBreak Wt/WBreak Wt/WBreak
+/*! \class WBreak Wt/WBreak.h Wt/WBreak.h
  *  \brief A widget that provides a line break between inline widgets.
  *
  * This is an \link WWidget::setInline(bool) inline \endlink widget

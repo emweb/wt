@@ -62,7 +62,7 @@ class DomElement;
 template <typename... A> class JSignal;
 #endif
 
-/*! \class WWebWidget Wt/WWebWidget Wt/WWebWidget
+/*! \class WWebWidget Wt/WWebWidget.h Wt/WWebWidget.h
  *  \brief A base class for widgets with an HTML counterpart.
  *
  * All descendants of %WWebWidget implement a widget which corresponds

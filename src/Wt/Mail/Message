@@ -26,7 +26,7 @@ enum class RecipientType {
   Bcc //!< Bcc: recipient (is omitted from the recipients in the message itself)
 };
 
-/*! \class Message Wt/Mail/Message Wt/Mail/Message
+/*! \class Message Wt/Mail/Message.h Wt/Mail/Message.h
  *  \brief A mail message.
  *
  * This class represents a MIME-compliant mail message.

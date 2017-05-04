@@ -14,7 +14,7 @@ namespace Wt {
 
 class WText;
 
-/*! \class WOverlayLoadingIndicator Wt/WOverlayLoadingIndicator Wt/WOverlayLoadingIndicator
+/*! \class WOverlayLoadingIndicator Wt/WOverlayLoadingIndicator.h Wt/WOverlayLoadingIndicator.h
  *  \brief A more obvious loading indicator that grays the window.
  *
  * This loading indicator uses a gray semi-transparent overlay to

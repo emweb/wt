@@ -16,7 +16,7 @@
 
 namespace Wt {
 
-/*! \class WLocalDateTime Wt/WLocalDateTime Wt/WLocalDateTime
+/*! \class WLocalDateTime Wt/WLocalDateTime.h Wt/WLocalDateTime.h
  *  \brief A localized calendar date and clock time.
  *
  * This presents a localized date time, which represents a date time

@@ -51,7 +51,7 @@ enum class LoginState {
   Strong
 };
 
-/*! \class Login Wt/Auth/Login
+/*! \class Login Wt/Auth/Login.h
  *  \brief A class that manages the current login state.
  *
  * This is a model class which is typically associated with a single

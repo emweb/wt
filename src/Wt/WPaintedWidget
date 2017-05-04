@@ -41,7 +41,7 @@ enum class RenderMethod {
   PngImage
 };
 
-/*! \class WPaintedWidget Wt/WPaintedWidget Wt/WPaintedWidget
+/*! \class WPaintedWidget Wt/WPaintedWidget.h Wt/WPaintedWidget.h
  *  \brief A widget that is painted using vector graphics.
  *
  * A painted widget is rendered from basic drawing

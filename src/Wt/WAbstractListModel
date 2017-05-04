@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WAbstractListModel Wt/WAbstractListModel Wt/WAbstractListModel
+/*! \class WAbstractListModel Wt/WAbstractListModel.h Wt/WAbstractListModel.h
  *  \brief An abstract list model for use with %Wt's view classes.
  *
  * An abstract list model specializes WAbstractItemModel for

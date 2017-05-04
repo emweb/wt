@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WFlags Wt/WFlags Wt/WFlags
+/*! \class WFlags Wt/WFlags.h Wt/WFlags.h
  *  \brief Utility class for type-safe combinations of enumeration flags.
  *
  * This type is used in %Wt API whenever one or more flag options are

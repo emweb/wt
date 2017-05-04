@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WPopupWidget Wt/WPopupWidget Wt/WPopupWidget
+/*! \class WPopupWidget Wt/WPopupWidget.h Wt/WPopupWidget.h
  *  \brief Base class for popup widgets.
  *
  * A popup widget anchors to another widget, for which it usually

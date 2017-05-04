@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WFileUpload Wt/WFileUpload Wt/WFileUpload
+/*! \class WFileUpload Wt/WFileUpload.h Wt/WFileUpload.h
  *  \brief A widget that allows a file to be uploaded.
  *
  * This widget is displayed as a box in which a filename can be

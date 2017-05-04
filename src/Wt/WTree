@@ -19,7 +19,7 @@ namespace Wt {
 
   class WTreeNode;
 
-/*! \class WTree Wt/WTree Wt/WTree
+/*! \class WTree Wt/WTree.h Wt/WTree.h
  *  \brief A widget that represents a navigatable tree
  *
  * %WTree provides a tree widget, and coordinates selection

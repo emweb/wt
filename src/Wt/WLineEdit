@@ -28,7 +28,7 @@ enum class InputMaskFlag {
   KeepMaskWhileBlurred = 0x1 //!< Keep the input mask when blurred
 };
 
-/*! \class WLineEdit Wt/WLineEdit Wt/WLineEdit
+/*! \class WLineEdit Wt/WLineEdit.h Wt/WLineEdit.h
  *  \brief A widget that provides a single line edit.
  *
  * To act upon text changes, connect a slot to the changed()

@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WFormModel Wt/WFormModel
+/*! \class WFormModel Wt/WFormModel.h
  *  \brief A basic model class for forms.
  *
  * This implements field data and validation handling for (simple)

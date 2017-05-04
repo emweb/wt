@@ -14,7 +14,7 @@ namespace Wt {
 
 class WLabel;
 
-/*! \class WFormWidget Wt/WFormWidget Wt/WFormWidget
+/*! \class WFormWidget Wt/WFormWidget.h Wt/WFormWidget.h
  *  \brief An abstract widget that corresponds to an HTML form element.
  *
  * A %WFormWidget may receive focus (see canReceiveFocus()), can be

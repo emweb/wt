@@ -15,7 +15,7 @@
 
 namespace Wt {
 
-/*! \class WDate Wt/WDate Wt/WDate
+/*! \class WDate Wt/WDate.h Wt/WDate.h
  *  \brief A value class that represents a date on the Gregorian calendar.
  *
  * Class which holds a date on the gregorian calendar, specified as

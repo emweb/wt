@@ -14,7 +14,7 @@ namespace Wt {
 
 class WButtonGroup;
 
-/*! \class WRadioButton Wt/WRadioButton Wt/WRadioButton
+/*! \class WRadioButton Wt/WRadioButton.h Wt/WRadioButton.h
  *  \brief A user control that represents a radio button.
  *
  * Use a WButtonGroup to group together radio buttons that reflect

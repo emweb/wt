@@ -22,7 +22,7 @@ enum class LayoutPosition {
   };
 
 
-/*! \class WBorderLayout Wt/WBorderLayout Wt/WBorderLayout
+/*! \class WBorderLayout Wt/WBorderLayout.h Wt/WBorderLayout.h
  *  \brief A layout manager which divides the container region in five regions.
  *
  * The five regions are composed of:

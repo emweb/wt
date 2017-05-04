@@ -22,7 +22,7 @@ class Message;
  *  \brief An SMTP client implementation.
  */
 
-/*! \class Client Wt/Mail/Client Wt/Mail/Client
+/*! \class Client Wt/Mail/Client.h Wt/Mail/Client.h
  *  \brief An SMTP mail client.
  *
  * The SMTP client can send one or more mail messages to an SMTP host.

@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WDateValidator Wt/WDateValidator Wt/WDateValidator
+/*! \class WDateValidator Wt/WDateValidator.h Wt/WDateValidator.h
  *  \brief A validator for date input.
  *
  * This validator accepts input in the given date format, and

@@ -25,7 +25,7 @@ namespace Wt {
   class WTreeViewNode;
   class ToggleButtonConfig;
 
-/*! \class WTreeView Wt/WTreeView Wt/WTreeView
+/*! \class WTreeView Wt/WTreeView.h Wt/WTreeView.h
  *  \brief A view class that displays a model as a tree or tree table.
  *
  * The view displays data from a WAbstractItemModel in a tree or tree

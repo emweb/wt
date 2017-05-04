@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WMatrix4x4 Wt/WMatrix4x4 Wt/WMatrix4x4
+/*! \class WMatrix4x4 Wt/WMatrix4x4.h Wt/WMatrix4x4.h
  *  \brief A value class that describes a 3D affine transformation matrix.
  *
  * The matrix is a 4x4 matrix encoded using 16 parameters. The matrix

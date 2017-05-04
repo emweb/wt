@@ -38,7 +38,7 @@ enum class LimitQuery{
 
 class SqlStatement;
 
-/*! \class SqlConnection Wt/Dbo/SqlConnection Wt/Dbo/SqlConnection
+/*! \class SqlConnection Wt/Dbo/SqlConnection.h Wt/Dbo/SqlConnection.h
  *  \brief Abstract base class for an SQL connection.
  *
  * An sql connection manages a single connection to a database. It

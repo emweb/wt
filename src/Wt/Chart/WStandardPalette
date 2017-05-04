@@ -25,7 +25,7 @@ enum class PaletteFlavour {
   GrayScale = 255  //!< Grayscale palette
 };
 
-/*! \class WStandardPalette Wt/Chart/WStandardPalette Wt/Chart/WStandardPalette
+/*! \class WStandardPalette Wt/Chart/WStandardPalette.h Wt/Chart/WStandardPalette.h
  *  \brief Standard styling for rendering series in charts.
  *
  * This class provides four standard palettes, each composed of eight

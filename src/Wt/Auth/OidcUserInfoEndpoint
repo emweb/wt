@@ -17,7 +17,7 @@
 namespace Wt {
 namespace Auth {
 
-/*! \class OidcUserInfoEndpoint Wt/Auth/OidcUserInfoEndpoint
+/*! \class OidcUserInfoEndpoint Wt/Auth/OidcUserInfoEndpoint.h
  *  \brief Endpoint at which user info can be requested.
  *
  * The UserInfo Endpoint is an OAuth 2.0 Protected Resource that

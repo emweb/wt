@@ -14,7 +14,7 @@ namespace Wt {
 
 class JSlot;
 
-/*! \class WInteractWidget Wt/WInteractWidget Wt/WInteractWidget
+/*! \class WInteractWidget Wt/WInteractWidget.h Wt/WInteractWidget.h
  *  \brief An abstract widget that can receive user-interface interaction
  *
  * This abstract widget provides access to event signals that

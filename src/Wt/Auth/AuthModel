@@ -20,7 +20,7 @@ class AbstractUserDatabase;
 class Login;
 class OAuthService;
 
-/*! \class AuthModel Wt/Auth/AuthModel
+/*! \class AuthModel Wt/Auth/AuthModel.h
  *  \brief Model for implementing an authentication view.
  *
  * This model implements the logic for authenticating a user (the

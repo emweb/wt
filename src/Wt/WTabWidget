@@ -16,7 +16,7 @@ namespace Wt {
   class WMenuItem;
   class WStackedWidget;
 
-/*! \class WTabWidget Wt/WTabWidget Wt/WTabWidget
+/*! \class WTabWidget Wt/WTabWidget.h Wt/WTabWidget.h
  *  \brief A widget that organizes contents in tab panes.
  *
  * This widget combines a horizontal WMenu with a WStackedWidget, and a

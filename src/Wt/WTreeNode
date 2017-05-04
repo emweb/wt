@@ -20,7 +20,7 @@ enum ChildCountPolicy {
   Lazy      //!< Only display a child count when the node is populated
 };
 
-/*! \class WTreeNode Wt/WTreeNode Wt/WTreeNode
+/*! \class WTreeNode Wt/WTreeNode.h Wt/WTreeNode.h
  *  \brief A single node in a tree.
  *
  * A tree list is constructed by combining several tree node objects

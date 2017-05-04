@@ -66,7 +66,7 @@ enum class FontSize {
 class DomElement;
 class WWebWidget;
 
-/*! \class WFont Wt/WFont Wt/WFont
+/*! \class WFont Wt/WFont.h Wt/WFont.h
  *  \brief A value class that describes a font.
  *
  * \ingroup style painting

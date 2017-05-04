@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WException Wt/WException
+/*! \class WException Wt/WException.h
  *  \brief Base class for exceptions thrown by %Wt.
  */
 class WT_API WException : public std::exception

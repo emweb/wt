@@ -15,7 +15,7 @@ namespace Wt {
 class WPointF;
 class WRectF;
 
-/*! \class WTransform Wt/WTransform Wt/WTransform
+/*! \class WTransform Wt/WTransform.h Wt/WTransform.h
  *  \brief A value class that defines a 2D affine transformation matrix.
  *
  * The matrix is encoded using 6 parameters:

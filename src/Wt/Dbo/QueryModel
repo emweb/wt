@@ -15,7 +15,7 @@ namespace Wt {
 
 class QueryColumn;
 
-/*! \class QueryModel Wt/Dbo/QueryModel Wt/Dbo/QueryModel
+/*! \class QueryModel Wt/Dbo/QueryModel.h Wt/Dbo/QueryModel.h
  *  \brief A %Wt MVC Model to view/edit query results.
  *
  * The model fetches results from the query and presents the data in a

@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WSelectionBox Wt/WSelectionBox Wt/WSelectionBox
+/*! \class WSelectionBox Wt/WSelectionBox.h Wt/WSelectionBox.h
  *  \brief A selection box allows selection from a list of options.
  *
  * By default, a selection box may be used to let the user select one

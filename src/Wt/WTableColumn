@@ -16,7 +16,7 @@ class DomElement;
 class WLength;
 class WTable;
 
-/*! \class WTableColumn Wt/WTableColumn Wt/WTableColumn
+/*! \class WTableColumn Wt/WTableColumn.h Wt/WTableColumn.h
  *  \brief A table column.
  *
  * A %WTableColumn is returned by WTable::columnAt() and managing

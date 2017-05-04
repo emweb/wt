@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WGroupBox Wt/WGroupBox Wt/WGroupBox
+/*! \class WGroupBox Wt/WGroupBox.h Wt/WGroupBox.h
  *  \brief A widget which group widgets into a frame with a title.
  *
  * This is typically used in a form to group certain form elements

@@ -55,14 +55,14 @@ namespace Wt {
       };
     }
 
-/*! \class DirectBinding Wt/Dbo/Query Wt/Dbo/Query
+/*! \class DirectBinding Wt/Dbo/Query.h Wt/Dbo/Query.h
  *
  * Bind strategy indicating that parameters are bound directly to an underlying
  * prepared statement.
  */
 struct DirectBinding { };
 
-/*! \class DynamicBinding Wt/Dbo/Query Wt/Dbo/Query
+/*! \class DynamicBinding Wt/Dbo/Query.h Wt/Dbo/Query.h
  *
  * Bind strategy indicating that binding to the underlying prepared statement
  * is deferred and parameter values are temporarily stored first in a dynamic
@@ -72,7 +72,7 @@ struct DynamicBinding { };
 
 class Session;
 
-/*! \class Query Wt/Dbo/Query Wt/Dbo/Query
+/*! \class Query Wt/Dbo/Query.h Wt/Dbo/Query.h
  *  \brief A database query.
  *
  * The query fetches results of type \p Result from the database. This

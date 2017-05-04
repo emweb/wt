@@ -21,7 +21,7 @@ namespace Wt {
 
     class WDataSeries;
 
-/*! \class WAxisSliderWidget Wt/Chart/WAxisSliderWidget Wt/Chart/WAxisSliderWidget
+/*! \class WAxisSliderWidget Wt/Chart/WAxisSliderWidget.h Wt/Chart/WAxisSliderWidget.h
  *  \brief A widget for selecting an X axis range to display on an associated WCartesianChart.
  *
  *  \note This widget currently only works with the HtmlCanvas rendering method.

@@ -32,7 +32,7 @@ class WAbstractItemModel;
 class WWidget;
 class WModelIndex;
 
-/*! \class WAbstractItemDelegate Wt/WAbstractItemDelegate Wt/WAbstractItemDelegate
+/*! \class WAbstractItemDelegate Wt/WAbstractItemDelegate.h Wt/WAbstractItemDelegate.h
  *  \brief Abstract delegate class for rendering an item in an item view.
  *
  * Rendering of an item in a WAbstractItemView is delegated to an

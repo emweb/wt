@@ -67,7 +67,7 @@ enum SegmentType {
   ArcAngleSweep = 9
 };
 
-/*! \class WPainterPath Wt/WPainterPath Wt/WPainterPath
+/*! \class WPainterPath Wt/WPainterPath.h Wt/WPainterPath.h
  *  \brief A path defining a shape.
  *
  * A painter path represents a (complex) path that may be composed of

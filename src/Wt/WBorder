@@ -36,7 +36,7 @@ enum class BorderStyle {
   Outset   //!< Relief border letting contents come out of the canvas
 };
 
-/*! \class WBorder Wt/WBorder Wt/WBorder
+/*! \class WBorder Wt/WBorder.h Wt/WBorder.h
  *  \brief A value class that defines the CSS border style of a widget.
  *
  * \ingroup style

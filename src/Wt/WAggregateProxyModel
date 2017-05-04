@@ -13,7 +13,7 @@ namespace Wt {
 
 class WRegExp;
 
-/*! \class WAggregateProxyModel Wt/WAggregateProxyModel Wt/WAggregateProxyModel
+/*! \class WAggregateProxyModel Wt/WAggregateProxyModel.h Wt/WAggregateProxyModel.h
  *  \brief A proxy model for %Wt's item models that provides column aggregation.
  *
  * This proxy model does not store data itself, but presents data from

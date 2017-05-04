@@ -109,7 +109,7 @@ enum class AuthTokenState {
   Valid    //!< The presented auth token was invalid
 };
 
-/*! \class EmailTokenResult Wt/Auth/AuthService Wt/Auth/AuthService
+/*! \class EmailTokenResult Wt/Auth/AuthService.h Wt/Auth/AuthService.h
  *  \brief The result of processing an email-sent token.
  *
  * An email token can be used for two purposes:
@@ -154,7 +154,7 @@ private:
   User user_;
 };
 
-/*! \class AuthTokenResult Wt/Auth/AuthService Wt/Auth/AuthService
+/*! \class AuthTokenResult Wt/Auth/AuthService.h Wt/Auth/AuthService.h
  *  \brief The result of processing an authentication token.
  *
  * An authentication token is usually taken from a browser cookie, and
@@ -214,7 +214,7 @@ private:
   int newTokenValidity_;
 };
 
-/*! \class AuthService Wt/Auth/AuthService Wt/Auth/AuthService
+/*! \class AuthService Wt/Auth/AuthService.h Wt/Auth/AuthService.h
  *  \brief Basic authentication service
  *
  * This class presents an basic authentication service, which offers

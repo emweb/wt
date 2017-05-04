@@ -17,7 +17,7 @@ namespace Wt {
 class WStackedWidget;
 class WTable;
 
-/*! \class WSplitButton Wt/WSplitButton Wt/WSplitButton
+/*! \class WSplitButton Wt/WSplitButton.h Wt/WSplitButton.h
  *  \brief A split button
  *
  * A split button combines a button and a drop down menu. Typically,

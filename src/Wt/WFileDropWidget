@@ -14,7 +14,7 @@ namespace Wt {
 
 class WFileDropUploadResource;
   
-/*! \class WFileDropWidget Wt/WFileDropWidget Wt/WFileDropWidget
+/*! \class WFileDropWidget Wt/WFileDropWidget.h Wt/WFileDropWidget.h
  *  \brief A widget that allows dropping files for upload.
  *
  * This widget accepts files that are dropped into it. A signal is triggered

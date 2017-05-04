@@ -11,7 +11,7 @@
 namespace Wt {
   namespace Payment {
 
-/*! \class Result Wt/Payment/Result Wt/Payment/Result
+/*! \class Result Wt/Payment/Result.h Wt/Payment/Result.h
  *  \brief A class that represents the result of a payment API call.
  * 
  * This class indicates the result of an asynchronous call: error()
@@ -84,7 +84,7 @@ enum class ApprovalOutcome {
   Accepted = 2     //!< The user accepted the payment.
 };
 
-/*! \class Approval Wt/Payment/Result Wt/Payment/Result
+/*! \class Approval Wt/Payment/Result.h Wt/Payment/Result.h
  *  \brief A class that represents the result of a payment.
  *
  * \ingroup payment

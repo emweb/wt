@@ -112,7 +112,7 @@ public:
   JavaScriptEvent();
 };
 
-/*! \class WEvent Wt/WEvent Wt/WEvent
+/*! \class WEvent Wt/WEvent.h Wt/WEvent.h
  *  \brief An application event.
  *
  * The application is notified of an event (like a user interaction, a
@@ -141,7 +141,7 @@ private:
 };
 
 #ifdef WT_TARGET_JAVA
-/*! \class WAbstractEvent Wt/WEvent Wt/WEvent
+/*! \class WAbstractEvent Wt/WEvent.h Wt/WEvent.h
  *  \brief Internal class WAbstractEvent.
  */
 class WAbstractEvent
@@ -161,7 +161,7 @@ enum class MouseButton {
   Right = 4    //!< Right button
 };
 
-/*! \class WMouseEvent Wt/WEvent Wt/WEvent
+/*! \class WMouseEvent Wt/WEvent.h Wt/WEvent.h
  *  \brief A class providing details for a mouse event.
  *
  * \sa WInteractWidget::clicked(), WInteractWidget::doubleClicked(),
@@ -251,7 +251,7 @@ protected:
   JavaScriptEvent jsEvent_;
 };
 
-/*! \class WKeyEvent Wt/WEvent Wt/WEvent
+/*! \class WKeyEvent Wt/WEvent.h Wt/WEvent.h
  *  \brief A class providing details for a keyboard event.
  *
  * A key event is associated with the WInteractWidget::keyWentDown(),
@@ -340,7 +340,7 @@ private:
   JavaScriptEvent jsEvent_;
 };
 
-/*! \class WDropEvent Wt/WEvent Wt/WEvent
+/*! \class WDropEvent Wt/WEvent.h Wt/WEvent.h
  *  \brief A class providing details for a drop event.
  *
  * \sa WWidget::dropEvent(WDropEvent)
@@ -408,7 +408,7 @@ private:
   std::unique_ptr<const WTouchEvent> touchEvent_;
 };
 
-/*! \class WScrollEvent Wt/WEvent Wt/WEvent
+/*! \class WScrollEvent Wt/WEvent.h Wt/WEvent.h
  *  \brief A class providing details for a scroll event.
  *
  * \sa WContainerWidget::scrolled()
@@ -470,7 +470,7 @@ private:
   friend class EventSignal<WScrollEvent>;
 };
 
-/*! \class WTouchEvent Wt/WEvent Wt/WEvent
+/*! \class WTouchEvent Wt/WEvent.h Wt/WEvent.h
  *  \brief A class providing details for a touch event.
  *
  * \sa WInteractWidget::touchStarted(), WInteractWidget::touchMoved(),
@@ -521,7 +521,7 @@ protected:
   JavaScriptEvent jsEvent_;
 };
 
-/*! \class WGestureEvent Wt/WEvent Wt/WEvent
+/*! \class WGestureEvent Wt/WEvent.h Wt/WEvent.h
  *  \brief A class providing details for a gesture event.
  *
  * \sa WInteractWidget::gestureStarted(), WInteractWidget::gestureChanged(),

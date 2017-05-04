@@ -17,7 +17,7 @@ namespace Wt {
 class WStackedWidget;
 class WTable;
 
-/*! \class WNavigationBar Wt/WNavigationBar Wt/WNavigationBar
+/*! \class WNavigationBar Wt/WNavigationBar.h Wt/WNavigationBar.h
  *  \brief A navigation bar
  *
  * \note WNavigationBar is currently only styled in the Bootstrap themes.

@@ -41,7 +41,7 @@ class WPainter;
 class WPainterPath;
 class WRectF;
 
-/*! \class WTextItem Wt/WPaintDevice Wt/WPaintDevice
+/*! \class WTextItem Wt/WPaintDevice.h Wt/WPaintDevice.h
  *  \brief The result of a font metrics computation.
  *
  * \sa WPaintDevice::measureText()
@@ -78,7 +78,7 @@ private:
   double width_, nextWidth_;
 };
 
-/*! \class WPaintDevice Wt/WPaintDevice Wt/WPaintDevice
+/*! \class WPaintDevice Wt/WPaintDevice.h Wt/WPaintDevice.h
  *  \brief The abstract base class for a paint device
  *
  * A %WPaintDevice is a device on which may be painted using a

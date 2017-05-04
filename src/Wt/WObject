@@ -20,7 +20,7 @@ namespace Wt {
 
 class WStatelessSlot;
 
-/*! \class WObject Wt/WObject Wt/WObject
+/*! \class WObject Wt/WObject.h Wt/WObject.h
  *  \brief A base class for objects that participate in the signal/slot system.
  *
  * The main feature offered by %WObject is automated object life-time

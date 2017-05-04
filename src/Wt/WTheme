@@ -90,7 +90,7 @@ W_DECLARE_OPERATORS_FOR_FLAGS(ValidationStyleFlag)
 static const WFlags<ValidationStyleFlag> ValidationAllStyles
   = ValidationStyleFlag::InvalidStyle | ValidationStyleFlag::ValidStyle;
 
-/*! \class WTheme Wt/WTheme Wt/WTheme
+/*! \class WTheme Wt/WTheme.h Wt/WTheme.h
  *
  * Abstract base class for themes in %Wt.
  *

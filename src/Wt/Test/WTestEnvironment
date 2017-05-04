@@ -20,7 +20,7 @@ class WebController;
 
 namespace Test {
 
-/*! \class WTestEnvironment Wt/Test/WTestEnvironment Wt/Test/WTestEnvironment
+/*! \class WTestEnvironment Wt/Test/WTestEnvironment.h Wt/Test/WTestEnvironment.h
  *  \brief An environment for testing purposes.
  *
  * This environment is useful for use in automated (integration/unit)

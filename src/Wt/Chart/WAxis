@@ -141,7 +141,7 @@ enum class DateTimeUnit { Seconds, Minutes, Hours, Days, Months, Years };
 /*! \brief Enumeration for a tick type */
 enum class TickLength { Zero, Short, Long };
 
-/*! \class WAxis Wt/Chart/WAxis Wt/Chart/WAxis
+/*! \class WAxis Wt/Chart/WAxis.h Wt/Chart/WAxis.h
  *  \brief Class which represents an axis of a cartesian chart.
  *
  * A cartesian chart has two or three axes: an X axis (\link

@@ -14,7 +14,7 @@ namespace Wt {
 
   namespace Http {
 
-/*! \class WtClient Wt/Http/WtClient Wt/Http/WtClient
+/*! \class WtClient Wt/Http/WtClient.h Wt/Http/WtClient.h
  *  \brief Support for a %Wt web application client.
  *
  * \note This class provides a utility to bootstrap a %Wt session, but does not

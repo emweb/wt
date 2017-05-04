@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WVBoxLayout Wt/WVBoxLayout Wt/WVBoxLayout
+/*! \class WVBoxLayout Wt/WVBoxLayout.h Wt/WVBoxLayout.h
  *  \brief A layout manager which arranges widgets vertically
  *
  * This convenience class creates a vertical box layout, laying contained

@@ -16,7 +16,7 @@ namespace Wt {
 
 class WRegExp;
 
-/*! \class WRegExpValidator Wt/WRegExpValidator Wt/WRegExpValidator
+/*! \class WRegExpValidator Wt/WRegExpValidator.h Wt/WRegExpValidator.h
  *  \brief A validator that checks user input against a regular expression.
  *
  * This validator checks whether user input matches the given regular

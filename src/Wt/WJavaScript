@@ -16,7 +16,7 @@
 
 namespace Wt {
 
-/*! \class JSignal Wt/WJavaScript Wt/WJavaScript
+/*! \class JSignal Wt/WJavaScript.h Wt/WJavaScript.h
  *  \brief A signal to relay JavaScript to C++ calls.
  *
  * A JSignal, like an EventSignal, provides communicates events from

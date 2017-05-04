@@ -14,7 +14,7 @@
 namespace Wt {
   namespace Dbo {
 
-/*! \class FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool
+/*! \class FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool.h Wt/Dbo/FixedSqlConnectionPool.h
  *  \brief A connection pool of fixed size.
  *
  * This provides a connection pool of fixed size: its size is determined at

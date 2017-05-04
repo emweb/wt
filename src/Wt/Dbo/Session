@@ -99,7 +99,7 @@ template <typename Result, typename BindStrategy> class Query;
 struct DirectBinding;
 struct DynamicBinding;
 
-/*! \class Session Wt/Dbo/Session Wt/Dbo/Session
+/*! \class Session Wt/Dbo/Session.h Wt/Dbo/Session.h
  *  \brief A database session.
  *
  * A database session manages meta data about the mapping of C++

@@ -25,7 +25,7 @@ class DomElement;
 class WTransform;
 class ServerSideFontMetrics;
 
-/*! \class WCanvasPaintDevice Wt/WCanvasPaintDevice Wt/WCanvasPaintDevice
+/*! \class WCanvasPaintDevice Wt/WCanvasPaintDevice.h Wt/WCanvasPaintDevice.h
  *  \brief A paint device for rendering using the HTML 5 &lt;canvas&gt; element.
  *
  * The %WCanvasPaintDevice is used by WPaintedWidget to render to the

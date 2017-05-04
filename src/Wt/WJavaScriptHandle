@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-/*! \class WJavaScriptHandle Wt/WJavaScriptHandle Wt/WJavaScriptHandle
+/*! \class WJavaScriptHandle Wt/WJavaScriptHandle.h Wt/WJavaScriptHandle.h
  *  \brief A handle to a JavaScript representation of an object.
  * 
  *  A %WJavaScriptHandle allows to access and modify an object in JavaScript.

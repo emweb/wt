@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WFitLayout Wt/WFitLayout Wt/WFitLayout
+/*! \class WFitLayout Wt/WFitLayout.h Wt/WFitLayout.h
  *  \brief A layout manager which spans a single widget to all available space.
  *
  * This layout manager may manage only a single child widget, and sizes that

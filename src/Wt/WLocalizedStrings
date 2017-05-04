@@ -56,7 +56,7 @@ struct LocalizedString
   inline bool operator!() const { return !success; }
 };
 
-/*! \class WLocalizedStrings Wt/WLocalizedStrings Wt/WLocalizedStrings
+/*! \class WLocalizedStrings Wt/WLocalizedStrings.h Wt/WLocalizedStrings.h
  *  \brief An abstract class that provides support for localized strings.
  *
  * This abstract class provides the content to localized WStrings, by

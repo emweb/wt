@@ -13,7 +13,7 @@ namespace Wt {
 
 class WTreeTable;
 
-/*! \class WTreeTableNode Wt/WTreeTableNode Wt/WTreeTableNode
+/*! \class WTreeTableNode Wt/WTreeTableNode.h Wt/WTreeTableNode.h
  *  \brief A specialized tree node which allows additional data to be
  *         associated with each node.
  *

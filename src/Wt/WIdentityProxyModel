@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WIdentityProxyModel Wt/WIdentityProxyModel Wt/WIdentityProxyModel
+/*! \class WIdentityProxyModel Wt/WIdentityProxyModel.h Wt/WIdentityProxyModel.h
  * \brief A proxy model that proxies its source model unmodified.
  *
  * A WIdentityProxyModel simply forwards the structure of the source model,

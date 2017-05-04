@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-/*! \class WPen Wt/WPen Wt/WPen
+/*! \class WPen Wt/WPen.h Wt/WPen.h
  *  \brief A value class that defines the style for pen strokes
  *
  * A pen defines the properties of how lines (that may surround

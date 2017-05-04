@@ -18,7 +18,7 @@ namespace Wt {
 
   class WAbstractArea;
 
-/*! \class WImage Wt/WImage Wt/WImage
+/*! \class WImage Wt/WImage.h Wt/WImage.h
  *  \brief A widget that displays an image.
  *
  * The image may be specified either as a URL, or may be dynamically

@@ -13,7 +13,7 @@
 namespace Wt {
   namespace Auth {
 
-/*! \class HashFunction Wt/Auth/HashFunction
+/*! \class HashFunction Wt/Auth/HashFunction.h
  *  \brief An abstract cryptographic hash function interface.
  *
  * A cryptographic hash function computes a hash value from a message,
@@ -70,7 +70,7 @@ public:
 		      const std::string& hash) const;
 };
 
-/*! \class MD5HashFunction Wt/Auth/HashFunction
+/*! \class MD5HashFunction Wt/Auth/HashFunction.h
  *  \brief A cryptograhpic hash function implemented using MD5.
  *
  * This hash function is useful for creating token hashes, but
@@ -92,7 +92,7 @@ public:
 };
 
 #ifndef WT_TARGET_JAVA
-/*! \class SHA1HashFunction Wt/Auth/HashFunction
+/*! \class SHA1HashFunction Wt/Auth/HashFunction.h
  *  \brief A cryptographic hash function implemented using SHA1.
  *
  * This hash function is only available if %Wt was compiled with
@@ -117,7 +117,7 @@ public:
 };
 #endif
 
-/*! \class BCryptHashFunction Wt/Auth/HashFunction
+/*! \class BCryptHashFunction Wt/Auth/HashFunction.h
  *  \brief An cryptographic hash function that implements bcrypt.
  *
  * This hashing function is intended for password hashes. In addition

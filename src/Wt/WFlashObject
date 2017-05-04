@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WFlashObject Wt/WFlashObject Wt/WFlashObject
+/*! \class WFlashObject Wt/WFlashObject.h Wt/WFlashObject.h
  *  \brief A widget that renders a Flash object (also known as Flash movie).
  *
  * This class loads a .swf Flash file in the browser.

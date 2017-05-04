@@ -33,7 +33,7 @@ namespace Wt {
  * for drawing simple to complex charts.
  */
 
-/*! \class WAbstractChart Wt/Chart/WAbstractChart Wt/Chart/WAbstractChart
+/*! \class WAbstractChart Wt/Chart/WAbstractChart.h Wt/Chart/WAbstractChart.h
  *  \brief Abstract base class for MVC-based charts.
  *
  * This is an abstract class and should not be used directly.

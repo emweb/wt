@@ -10,7 +10,7 @@
 
 namespace Wt {
   namespace Payment {
-/*! \class Order Wt/Payment/Order Wt/Payment/Order
+/*! \class Order Wt/Payment/Order.h Wt/Payment/Order.h
  *  \brief Contains information of a sales order.
  *
  * \if cpp

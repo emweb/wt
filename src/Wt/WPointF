@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WPointF Wt/WPointF Wt/WPointF
+/*! \class WPointF Wt/WPointF.h Wt/WPointF.h
  *  \brief A value class that defines a 2D point.
  *
  * <h3>JavaScript exposability</h3>

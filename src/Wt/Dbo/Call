@@ -17,7 +17,7 @@ namespace Wt {
 class Session;
 class SqlStatement;
 
-/*! \class Call Wt/Dbo/Call Wt/Dbo/Call
+/*! \class Call Wt/Dbo/Call.h Wt/Dbo/Call.h
  *  \brief A database call.
  *
  * A call can be used to execute a database command (e.g. an update,

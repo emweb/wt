@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-/*! \class WTable Wt/WTable Wt/WTable
+/*! \class WTable Wt/WTable.h Wt/WTable.h
  *  \brief A container widget which provides layout of children in a table grid.
  *
  * A %WTable arranges its children in a table.

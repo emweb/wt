@@ -16,7 +16,7 @@ class WImage;
 class WPushButton;
 class WText;
 
-/*! \class WMessageBox Wt/WMessageBox Wt/WMessageBox
+/*! \class WMessageBox Wt/WMessageBox.h Wt/WMessageBox.h
  *  \brief A standard dialog for confirmation or to get simple user input
  *
  * The messagebox shows a message in a dialog window, with a number

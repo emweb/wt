@@ -77,7 +77,7 @@ class WServer;
 class WebRequest;
 class WebSession;
 
-/*! \class WEnvironment Wt/WEnvironment Wt/WEnvironment
+/*! \class WEnvironment Wt/WEnvironment.h Wt/WEnvironment.h
  *  \brief A class that captures information on the application environment.
  *
  * The environment provides information on the client, and gives access

@@ -86,7 +86,7 @@ enum class MediaPlayerTextId {
   Title        //!< Displays the title set in setTitle()
 };
 
-/*! \class WMediaPlayer Wt/WMediaPlayer Wt/WMediaPlayer
+/*! \class WMediaPlayer Wt/WMediaPlayer.h Wt/WMediaPlayer.h
  *  \brief A media player
  *
  * This widget implements a media player, suitable to play video or

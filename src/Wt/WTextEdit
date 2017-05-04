@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WTextEdit Wt/WTextEdit Wt/WTextEdit
+/*! \class WTextEdit Wt/WTextEdit.h Wt/WTextEdit.h
  *  \brief A rich-text XHTML editor.
  *
  * The editor provides interactive editing of XHTML text. By default

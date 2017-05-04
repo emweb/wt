@@ -16,7 +16,7 @@
 namespace Wt {
   namespace Chart {
 
-/*! \class WAbstractChartModel Wt/Chart/WAbstractChartModel Wt/Chart/WAbstractChartModel
+/*! \class WAbstractChartModel Wt/Chart/WAbstractChartModel.h Wt/Chart/WAbstractChartModel.h
  *  \brief An abstract model for use with %Wt's charts.
  *
  * This abstract model is used by WAbstractChart as data model.

@@ -15,7 +15,7 @@
  */
 namespace Wt {
 
-/*! \class WColor Wt/WColor Wt/WColor
+/*! \class WColor Wt/WColor.h Wt/WColor.h
  *  \brief A value class that defines a color.
  *
  * A color corresponds to a CSS color. You can specify a color either using

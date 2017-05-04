@@ -40,7 +40,7 @@ enum class TemplateWidgetIdMode {
   SetId
 };
 
-/*! \class WTemplate Wt/WTemplate Wt/WTemplate
+/*! \class WTemplate Wt/WTemplate.h Wt/WTemplate.h
  *  \brief A widget that renders an XHTML template.
  *
  * The XHTML template may contain references to variables which

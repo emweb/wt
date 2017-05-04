@@ -21,7 +21,7 @@ namespace Wt {
 class Configuration;
 class WebController;
 class WIOService;
-/*! \class WServer Wt/WServer Wt/WServer
+/*! \class WServer Wt/WServer.h Wt/WServer.h
  *  \brief A class encapsulating a web application server.
  *
  * This server class represents an instance of an application server.
@@ -538,7 +538,6 @@ private:
   std::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
 #ifndef WT_TARGET_JAVA
   std::function<void ()> stopCallback_;
-  friend class http::server::Server;
 #endif // WT_TARGET_JAVA
 };
 

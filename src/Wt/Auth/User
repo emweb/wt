@@ -33,7 +33,7 @@ enum class EmailTokenRole {
 
 class AbstractUserDatabase;
 
-/*! \class User Wt/Auth/User
+/*! \class User Wt/Auth/User.h
  *  \brief A user
  *
  * This class represents a user. It is a value class that stores only

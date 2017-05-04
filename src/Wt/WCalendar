@@ -26,7 +26,7 @@ class WComboBox;
 class WInPlaceEdit;
 class WTemplate;
 
-/*! \class WCalendar Wt/WCalendar Wt/WCalendar
+/*! \class WCalendar Wt/WCalendar.h Wt/WCalendar.h
  *  \brief A calendar.
  *
  * The calendar provides navigation by month and year, and indicates the

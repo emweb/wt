@@ -17,7 +17,7 @@ namespace Wt {
 
   class WDropEvent;
 
-/*! \class WAbstractItemModel Wt/WAbstractItemModel Wt/WAbstractItemModel
+/*! \class WAbstractItemModel Wt/WAbstractItemModel.h Wt/WAbstractItemModel.h
  *  \brief An abstract model for use with %Wt's view classes.
  *
  * This abstract model is used by several %Wt view widgets as data models.

@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-/*! \class WTimeEdit Wt/WTimeEdit Wt/WTimeEdit
+/*! \class WTimeEdit Wt/WTimeEdit.h Wt/WTimeEdit.h
  *  \brief A Time field editor
  *
  *  \sa WTime

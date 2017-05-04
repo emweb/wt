@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WTemplateFormView Wt/WTemplateFormView
+/*! \class WTemplateFormView Wt/WTemplateFormView.h
  *  \brief A template-based View class form models.
  *
  * This implements a View to be used in conjunction with WFormModel

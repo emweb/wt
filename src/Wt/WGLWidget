@@ -73,7 +73,7 @@ enum class GLClientSideRenderer {
   UPDATE_GL = 0x4  //!< refresh updateGL()
 };
 
-/*! \class WGLWidget Wt/WGLWidget Wt/WGLWidget
+/*! \class WGLWidget Wt/WGLWidget.h Wt/WGLWidget.h
  *  \brief GL support class
  *
  * The WGLWidget class is an interface to the HTML5 WebGL infrastructure

@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WSpinBox Wt/WSpinBox Wt/WSpinBox
+/*! \class WSpinBox Wt/WSpinBox.h Wt/WSpinBox.h
  *  \brief An input control for integer numbers.
  *
  * The spin box provides a control for entering an integer number. It

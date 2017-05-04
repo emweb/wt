@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WStackedWidget Wt/WStackedWidget Wt/WStackedWidget
+/*! \class WStackedWidget Wt/WStackedWidget.h Wt/WStackedWidget.h
  *  \brief A container widget that stacks its widgets on top of each
  *         other.
  *

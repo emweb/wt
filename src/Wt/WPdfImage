@@ -21,7 +21,7 @@ namespace Wt {
   class FontSupport;
   class WTransform;
 
-/*! \class WPdfImage Wt/WPdfImage Wt/WPdfImage
+/*! \class WPdfImage Wt/WPdfImage.h Wt/WPdfImage.h
  *  \brief A paint device for rendering to a PDF.
  *
  * A %WPdfImage paint device should be used in conjunction with a

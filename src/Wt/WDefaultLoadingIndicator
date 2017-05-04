@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator
+/*! \class WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator.h Wt/WDefaultLoadingIndicator.h
  *  \brief A default loading indicator.
  *
  * The default loading indicator displays the text message <span

@@ -35,7 +35,7 @@ enum class LabelOption {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption)
 
-/*! \class WPieChart Wt/Chart/WPieChart Wt/Chart/WPieChart
+/*! \class WPieChart Wt/Chart/WPieChart.h Wt/Chart/WPieChart.h
  *  \brief A pie chart.
  *
  * A pie chart renders a single data series as segments of a circle, so that

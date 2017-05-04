@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WIntValidator Wt/WIntValidator Wt/WIntValidator
+/*! \class WIntValidator Wt/WIntValidator.h Wt/WIntValidator.h
  *  \brief A validator that validates integer user input.
  *
  * This validator checks whether user input is an integer number in a

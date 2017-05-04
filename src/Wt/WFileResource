@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WFileResource Wt/WFileResource Wt/WFileResource
+/*! \class WFileResource Wt/WFileResource.h Wt/WFileResource.h
  *  \brief A resource which streams the data from a local file.
  *
  * To update the resource, either use setFileName() to point it to a

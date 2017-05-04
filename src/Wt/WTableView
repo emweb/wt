@@ -15,7 +15,7 @@ namespace Wt {
   class WContainerWidget;
   class WModelIndex;
 
-/*! \class WTableView Wt/WTableView Wt/WTableView
+/*! \class WTableView Wt/WTableView.h Wt/WTableView.h
  *  \brief An MVC View widget for tabular data.
  *
  * The view displays data from a WAbstractItemModel in a table. It

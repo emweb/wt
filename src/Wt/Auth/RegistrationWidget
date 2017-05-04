@@ -17,7 +17,7 @@ class AuthWidget;
 class Login;
 class OAuthProcess;
 
-/*! \class RegistrationWidget Wt/Auth/RegistrationWidget
+/*! \class RegistrationWidget Wt/Auth/RegistrationWidget.h
  *  \brief A registration widget.
  *
  * This implements a widget which allows a new user to register.  The

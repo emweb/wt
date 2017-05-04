@@ -70,7 +70,7 @@ private:
   std::unique_ptr<Http::Client> httpClient_;
 };
 
-/*! \class OidcService Wt/Auth/OidcService
+/*! \class OidcService Wt/Auth/OidcService.h
  *  \brief An OpenId Connect authentication service provider.
  *
  * This class implements an OpenID Connect client (<a

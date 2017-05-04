@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WText Wt/WText Wt/WText
+/*! \class WText Wt/WText.h Wt/WText.h
  *  \brief A widget that renders (XHTML) text.
  *
  * The text is provided through a WString, which may either hold a

@@ -20,7 +20,7 @@ namespace Wt {
   namespace Dbo {
     namespace backend {
 
-/*! \class Postgres Wt/Dbo/backend/Postgres Wt/Dbo/backend/Postgres
+/*! \class Postgres Wt/Dbo/backend/Postgres.h Wt/Dbo/backend/Postgres.h
  *  \brief A PostgreSQL connection
  *
  * This class provides the backend implementation for PostgreSQL databases.

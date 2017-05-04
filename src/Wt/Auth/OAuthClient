@@ -18,7 +18,7 @@ namespace Auth {
 
 class AbstractUserDatabase;
 
-/*! \class OAuthClient Wt/Auth/OAuthClient \brief OAuth 2.0 client
+/*! \class OAuthClient Wt/Auth/OAuthClient.h \brief OAuth 2.0 client
  * implementing OpenID Connect, a.k.a. relying party.
  *
  * This class represents a client. It is a value class that stores

@@ -26,7 +26,7 @@
 
 namespace Wt {
 
-/*! \class WGenericMatrix Wt/WGenericMatrix Wt/WGenericMatrix
+/*! \class WGenericMatrix Wt/WGenericMatrix.h Wt/WGenericMatrix.h
  * \brief A value class that describes a matrix
  *
  * This class represents a fixed-size dense (!= sparse) matrix. It

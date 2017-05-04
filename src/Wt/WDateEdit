@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WDateEdit Wt/WDateEdit Wt/WDateEdit
+/*! \class WDateEdit Wt/WDateEdit.h Wt/WDateEdit.h
  *  \brief A date edit.
  *
  * A date picker is a line edit with support for date entry (using an

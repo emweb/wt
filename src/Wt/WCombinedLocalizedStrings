@@ -14,7 +14,7 @@ namespace Wt {
 
 class WMessageResources;
 
-/*! \class WCombinedLocalizedStrings Wt/WCombinedLocalizedStrings Wt/WCombinedLocalizedStrings
+/*! \class WCombinedLocalizedStrings Wt/WCombinedLocalizedStrings.h Wt/WCombinedLocalizedStrings.h
  *  \brief A localized string resolver that bundles multiple string resolvers.
  *
  * This class implements the localized strings interface and delegates

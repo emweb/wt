@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WHBoxLayout Wt/WHBoxLayout Wt/WHBoxLayout
+/*! \class WHBoxLayout Wt/WHBoxLayout.h Wt/WHBoxLayout.h
  *  \brief A layout manager which arranges widgets horizontally
  *
  * This convenience class creates a horizontal box layout, laying contained

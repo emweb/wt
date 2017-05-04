@@ -14,7 +14,7 @@
 namespace Wt {
   namespace Dbo {
 
-/*! \class Exception Wt/Dbo/Exception Wt/Dbo/Exception
+/*! \class Exception Wt/Dbo/Exception.h Wt/Dbo/Exception.h
  *  \brief %Exception base class for %Wt::%Dbo.
  *
  * \ingroup dbo
@@ -42,7 +42,7 @@ private:
   std::string code_;
 };
 
-/*! \class StaleObjectException Wt/Dbo/Exception Wt/Dbo/Exception
+/*! \class StaleObjectException Wt/Dbo/Exception.h Wt/Dbo/Exception.h
  *  \brief %Exception thrown when %Wt::%Dbo detects a concurrent modification
  *
  * %Wt::%Dbo uses optimistic locking for detecting and preventing
@@ -69,7 +69,7 @@ public:
   StaleObjectException(const std::string& id, const char *table, int version);
 };
 
-/*! \class ObjectNotFoundException Wt/Dbo/Exception Wt/Dbo/Exception
+/*! \class ObjectNotFoundException Wt/Dbo/Exception.h Wt/Dbo/Exception.h
  *  \brief %Exception thrown when trying to load a non-existing object.
  *
  * This %Exception is thrown by Session::load() when trying to load an object
@@ -85,7 +85,7 @@ public:
   ObjectNotFoundException(const char *table, const std::string& id);
 };
 
-/*! \class NoUniqueResultException Wt/Dbo/Exception Wt/Dbo/Exception
+/*! \class NoUniqueResultException Wt/Dbo/Exception.h Wt/Dbo/Exception.h
  *  \brief %Exception thrown when a query unexpectedly finds a non-unique result.
  *
  * This %Exception is thrown by Query::resultValue() when the query has

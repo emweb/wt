@@ -22,7 +22,7 @@ enum class DialogCode {
   Accepted  //!< Dialog closed with accept()
 };
 
-/*! \class WDialog Wt/WDialog Wt/WDialog
+/*! \class WDialog Wt/WDialog.h Wt/WDialog.h
  *  \brief A %WDialog shows a dialog.
  *
  * By default, the dialog is <i>modal</i>. A modal window blocks the

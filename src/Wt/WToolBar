@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WToolBar Wt/WToolBar Wt/WToolBar
+/*! \class WToolBar Wt/WToolBar.h Wt/WToolBar.h
  *  \brief A toolbar
  *
  * By default, a toolbar is rendered as "compact" leaving no margin

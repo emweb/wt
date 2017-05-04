@@ -15,7 +15,7 @@ class WText;
 class WLineEdit;
 class WPushButton;
 
-/*! \class WInPlaceEdit Wt/WInPlaceEdit Wt/WInPlaceEdit
+/*! \class WInPlaceEdit Wt/WInPlaceEdit.h Wt/WInPlaceEdit.h
  *  \brief A widget that provides in-place-editable text.
  *
  * The %WInPlaceEdit provides a text that may be edited in place by

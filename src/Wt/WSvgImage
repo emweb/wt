@@ -22,7 +22,7 @@ namespace Wt {
 
 class ServerSideFontMetrics;
 
-/*! \class WSvgImage Wt/WSvgImage Wt/WSvgImage
+/*! \class WSvgImage Wt/WSvgImage.h Wt/WSvgImage.h
  *  \brief A paint device for rendering using Scalable Vector Graphics (SVG).
  *
  * The %WSvgImage is primarily used by WPaintedWidget to render to the

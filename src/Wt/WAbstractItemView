@@ -52,7 +52,7 @@ enum class ScrollHint {
   class WApplication;
   class WCssTemplateRule;
 
-/*! \class WAbstractItemView Wt/WAbstractItemView Wt/WAbstractItemView
+/*! \class WAbstractItemView Wt/WAbstractItemView.h Wt/WAbstractItemView.h
  *  \brief An abstract base class for item Views.
  *
  * See WTableView or WTreeView for a description.

@@ -13,7 +13,7 @@
 namespace Wt {
   namespace Mail {
 
-/*! \class Mailbox Wt/Mail/Mailbox Wt/Mail/Mailbox
+/*! \class Mailbox Wt/Mail/Mailbox.h Wt/Mail/Mailbox.h
  *  \brief An email sender or recipient mailbox
  *
  * \ingroup mail

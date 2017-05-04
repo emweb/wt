@@ -25,7 +25,7 @@ namespace Wt {
     namespace backend {
       class Firebird_impl;
 
-      /*! \class Firebird Wt/Dbo/backend/Firebird
+      /*! \class Firebird Wt/Dbo/backend/Firebird.h
        *  \brief A %Firebird connection
        *
        * This class provides the backend implementation for %Firebird

@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WSocketNotifier Wt/WSocketNotifier Wt/WSocketNotifier
+/*! \class WSocketNotifier Wt/WSocketNotifier.h Wt/WSocketNotifier.h
  *  \brief A utility class for asynchronous notification of socket activity.
  *
  * Use a socket notifier to integrate listening for socket events into

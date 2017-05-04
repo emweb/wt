@@ -32,7 +32,7 @@ enum class IdentityConfirmationMethod {
 
 class Login;
 
-/*! \class RegistrationModel Wt/Auth/RegistrationModel
+/*! \class RegistrationModel Wt/Auth/RegistrationModel.h
  *  \brief Model for implementing a registration view.
  *
  * This model implements the logic for the registration of a new user.

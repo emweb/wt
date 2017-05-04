@@ -26,7 +26,7 @@ enum class LengthUnit {
   Percentage  //!< Percentage (meaning context-sensitive)
 };
 
-/*! \class WLength Wt/WLength Wt/WLength
+/*! \class WLength Wt/WLength.h Wt/WLength.h
  *  \brief A value class that describes a CSS length.
  *
  * The class combines a value with a unit. There is a special value

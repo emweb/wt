@@ -26,7 +26,7 @@ class AuthService;
 class OAuthService;
 class OAuthRedirectEndpoint;
 
-/*! \class OAuthAccessToken Wt/Auth/OAuthService
+/*! \class OAuthAccessToken Wt/Auth/OAuthService.h
  *  \brief An OAuth access token.
  *
  * A access token is the result of an authorization process, and
@@ -349,7 +349,7 @@ private:
   friend class OAuthRedirectEndpoint;
 };
 
-/*! \class OAuthService Wt/Auth/OAuthService
+/*! \class OAuthService Wt/Auth/OAuthService.h
  *  \brief An %OAuth authorization (and authentication) service provider.
  *
  * This class implements an %OAuth client (<a

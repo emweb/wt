@@ -13,7 +13,7 @@
 namespace Wt {
   namespace Dbo {
 
-/*! \class weak_ptr Wt/Dbo/weak_ptr Wt/Dbo/weak_ptr
+/*! \class weak_ptr Wt/Dbo/weak_ptr.h Wt/Dbo/weak_ptr.h
  *  \brief A weak pointer for a database object.
  *
  * A weak_ptr has similar API and capabilities as a ptr, but does not

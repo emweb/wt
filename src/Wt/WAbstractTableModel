@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WAbstractTableModel Wt/WAbstractTableModel Wt/WAbstractTableModel
+/*! \class WAbstractTableModel Wt/WAbstractTableModel.h Wt/WAbstractTableModel.h
  *  \brief An abstract table model for use with %Wt's view classes.
  *
  * An abstract table model specializes WAbstractItemModel for

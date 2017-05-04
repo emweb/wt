@@ -18,7 +18,7 @@ namespace Wt {
 class WStandardItemModel;
 class WString;
 
-/*! \class WStandardItem Wt/WStandardItem Wt/WStandardItem
+/*! \class WStandardItem Wt/WStandardItem.h Wt/WStandardItem.h
  *  \brief An item in a WStandardItemModel.
  *
  * The item provides access to various data properties: \link

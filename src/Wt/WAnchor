@@ -18,7 +18,7 @@ namespace Wt {
     class AreaWidget;
   }
 
-/*! \class WAnchor Wt/WAnchor Wt/WAnchor
+/*! \class WAnchor Wt/WAnchor.h Wt/WAnchor.h
  *  \brief A widget that represents an HTML anchor (to link to other documents).
  *
  * Use an anchor to link to another web page, document, internal

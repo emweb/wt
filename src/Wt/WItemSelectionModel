@@ -18,7 +18,7 @@ namespace Wt {
 class WAbstractItemModel;
 class WAbstractItemView;
 
-/*! \class WItemSelectionModel Wt/WItemSelectionModel Wt/WItemSelectionModel
+/*! \class WItemSelectionModel Wt/WItemSelectionModel.h Wt/WItemSelectionModel.h
  *  \brief A class that represents a selection for a WAbstractItemView.
  *
  * This model is currently only used by WTreeView, and plays only

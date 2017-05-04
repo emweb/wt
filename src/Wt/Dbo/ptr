@@ -519,7 +519,7 @@ std::ostream& operator<< (std::ostream& o, const ptr<C>& ptr);
  * For an introduction, see the <a href="../../tutorial/dbo.html">tutorial</a>.
  */
 
-/*! \class ptr Wt/Dbo/ptr Wt/Dbo/ptr
+/*! \class ptr Wt/Dbo/ptr.h Wt/Dbo/ptr.h
  *  \brief A smart pointer for a database object.
  *
  * This smart pointer class implements a reference counted shared

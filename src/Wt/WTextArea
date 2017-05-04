@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WTextArea Wt/WTextArea Wt/WTextArea
+/*! \class WTextArea Wt/WTextArea.h Wt/WTextArea.h
  *  \brief A widget that provides a multi-line edit.
  *
  * To act upon text changes, connect a slot to the changed() signal.

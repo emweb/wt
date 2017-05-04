@@ -23,7 +23,7 @@ namespace Wt {
 class Session;
 class SqlStatement;
 
-/*! \class sql_value_traits Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits
+/*! \class sql_value_traits Wt/Dbo/SqlTraits.h Wt/Dbo/SqlTraits.h
  *  \brief Traits class for value types.
  *
  * This traits class may be specialized for a custom type \p V, to add
@@ -117,7 +117,7 @@ enum FieldFlags {
   LiteralJoinId = 0x80
 };
 
-/*! \class FieldInfo Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits
+/*! \class FieldInfo Wt/Dbo/SqlTraits.h Wt/Dbo/SqlTraits.h
  *  \brief Description of a field.
  *
  * \sa query_result_traits::getFields(), Query::fields()
@@ -204,7 +204,7 @@ private:
   int fkConstraints_;
 };
 
-/*! \class query_result_traits Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits
+/*! \class query_result_traits Wt/Dbo/SqlTraits.h Wt/Dbo/SqlTraits.h
  *  \brief Traits class for result types.
  *
  * This traits class may be used to add support for using classes or structs

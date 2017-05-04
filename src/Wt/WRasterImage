@@ -17,7 +17,7 @@ namespace Wt {
 class FontSupport;
 class WTransform;
 
-/*! \class WRasterImage Wt/WRasterImage Wt/WRasterImage
+/*! \class WRasterImage Wt/WRasterImage.h Wt/WRasterImage.h
  *  \brief A paint device for rendering to a raster image.
  *
  * A %WRasterImage paint device provides support for creating raster

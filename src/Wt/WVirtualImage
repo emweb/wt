@@ -16,7 +16,7 @@ namespace Wt {
 class WImage;
 class WMouseEvent;
 
-/*! \class WVirtualImage Wt/WVirtualImage Wt/WVirtualImage
+/*! \class WVirtualImage Wt/WVirtualImage.h Wt/WVirtualImage.h
  *  \brief An abstract widget that shows a viewport to a virtually large image.
  *
  * %WVirtualImage is an abstract class which renders a large image in

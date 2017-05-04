@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WRandom Wt/WRandom Wt/WRandom
+/*! \class WRandom Wt/WRandom.h Wt/WRandom.h
  *  \brief Random number generator.
  *
  * If an implementation is available for your OS, this class generates

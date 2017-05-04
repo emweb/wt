@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WShadow Wt/WShadow Wt/WShadow
+/*! \class WShadow Wt/WShadow.h Wt/WShadow.h
  *  \brief A value class that defines a shadow style
  *
  * \sa WPainter::setShadow()

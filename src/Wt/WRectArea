@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WRectArea Wt/WRectArea Wt/WRectArea
+/*! \class WRectArea Wt/WRectArea.h Wt/WRectArea.h
  *  \brief A interactive area in a widget, specified by a rectangle.
  *
  * The area may be added to a WImage or WPaintedWidget to provide

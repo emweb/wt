@@ -14,7 +14,7 @@ namespace Wt {
 
 class WWidgetItemImpl;
 
-/*! \class WWidgetItem Wt/WWidgetItem Wt/WWidgetItem
+/*! \class WWidgetItem Wt/WWidgetItem.h Wt/WWidgetItem.h
  *  \brief A layout item that holds a single widget.
  *
  * \sa WLayout::addWidget(WWidget *)

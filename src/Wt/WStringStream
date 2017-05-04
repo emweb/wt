@@ -24,7 +24,7 @@ namespace asio {
 
 namespace Wt {
 
-/*! \class WStringStream Wt/WStringStream Wt/WStringStream
+/*! \class WStringStream Wt/WStringStream.h Wt/WStringStream.h
  *
  * This is an efficient std::stringstream replacement. It is in
  * particular more efficient when a relatively short string is being

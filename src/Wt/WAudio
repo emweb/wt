@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WAudio Wt/WAudio Wt/WAudio
+/*! \class WAudio Wt/WAudio.h Wt/WAudio.h
  *  \brief A widget that plays audio.
  *
  * This is a low-level widget, mapping directly onto a

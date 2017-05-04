@@ -40,7 +40,7 @@ enum class ContentDisposition {
   Inline      //!< View with a browser plugin
 };
 
-/*! \class WResource Wt/WResource Wt/WResource
+/*! \class WResource Wt/WResource.h Wt/WResource.h
  *  \brief An object which can be rendered in the HTTP protocol.
  *
  * <h3>Usage</h3>

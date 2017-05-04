@@ -22,7 +22,7 @@ namespace Wt {
 
     class Response;
 
-/*! \class ResponseContinuation Wt/Http/ResponseContinuation Wt/Http/ResponseContinuation
+/*! \class ResponseContinuation Wt/Http/ResponseContinuation.h Wt/Http/ResponseContinuation.h
  *  \brief A resource response continuation object.
  *
  * A response continuation object is used to keep track of a response

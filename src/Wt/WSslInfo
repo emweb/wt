@@ -18,7 +18,7 @@
 
 namespace Wt {
 
-/*! \class WSslInfo Wt/WSslInfo Wt/WSslInfo.C
+/*! \class WSslInfo Wt/WSslInfo.h Wt/WSslInfo.h.C
  *  \brief Provides SSL information about the current session.
  *  
  * This class provides an interface to the SSL information related

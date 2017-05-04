@@ -24,7 +24,7 @@ enum class ValidationState {
   Valid	        //!< The input is valid.
 };
 
-/*! \class WValidator Wt/WValidator Wt/WValidator
+/*! \class WValidator Wt/WValidator.h Wt/WValidator.h
  *  \brief A validator is used to validate user input according to
  *         pre-defined rules.
  *

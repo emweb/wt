@@ -42,7 +42,7 @@ class WIOService;
  *   - Message: a message to be sent with the client, or received from the client.
  */
 
-/*! \class Client Wt/Http/Client Wt/Http/Client
+/*! \class Client Wt/Http/Client.h Wt/Http/Client.h
  *  \brief An HTTP client.
  *
  * This class implements an HTTP client. It can be used to interact with

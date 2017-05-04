@@ -19,7 +19,7 @@ namespace Wt {
 
   namespace Http {
 
-/*! \class Response Wt/Http/Response Wt/Http/Response
+/*! \class Response Wt/Http/Response.h Wt/Http/Response.h
  *  \brief A resource response.
  *
  * This class defines the HTTP response for a WResource request.

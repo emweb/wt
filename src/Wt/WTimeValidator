@@ -6,7 +6,7 @@
 
 namespace Wt {
 
-/*! \class WTimeValidator Wt/WTimeValidator Wt/WTimeValidator
+/*! \class WTimeValidator Wt/WTimeValidator.h Wt/WTimeValidator.h
  *  \brief A time validator
  *
  *  \sa WTimeEdit

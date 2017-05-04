@@ -26,7 +26,7 @@ enum class LayoutImplementation {
   Classic // TODO(Roel): what should we call this?
 };
 
-/*! \class WLayout Wt/WLayout Wt/WLayout
+/*! \class WLayout Wt/WLayout.h Wt/WLayout.h
  *  \brief An abstract base class for layout managers.
  *
  * This class is the abstract base class for any layout manager. A layout

@@ -13,7 +13,7 @@ namespace Wt {
 
 class WStandardItem;
 
-/*! \class WStandardItemModel Wt/WStandardItemModel Wt/WStandardItemModel
+/*! \class WStandardItemModel Wt/WStandardItemModel.h Wt/WStandardItemModel.h
  *  \brief A standard data model, which stores its data in memory.
  *
  * The standard item model supports all features of

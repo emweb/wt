@@ -15,7 +15,7 @@ namespace Wt {
   class WImage;
   class WText;
 
-/*! \class WLabel Wt/WLabel Wt/WLabel
+/*! \class WLabel Wt/WLabel.h Wt/WLabel.h
  *  \brief A label for a form field.
  *
  * The label may contain an image and/or text. It acts like a proxy

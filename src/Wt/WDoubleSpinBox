@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WDoubleSpinBox Wt/WDoubleSpinBox Wt/WDoubleSpinBox
+/*! \class WDoubleSpinBox Wt/WDoubleSpinBox.h Wt/WDoubleSpinBox.h
  *  \brief An input control for fixed point numbers.
  *
  * The spin box provides a control for entering a fixed point

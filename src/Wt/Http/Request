@@ -51,7 +51,7 @@ struct ci_comp : std::binary_function<std::string, std::string, bool>{
 typedef std::map<std::string,std::string, ci_comp> HeaderMap;
 #endif
 
-/*! \class UploadedFile Wt/Http/Request Wt/Http/Request
+/*! \class UploadedFile Wt/Http/Request.h Wt/Http/Request.h
  *  \brief Details about a file uploaded with a request to a resource.
  * 
  * \if cpp
@@ -139,7 +139,7 @@ typedef std::multimap<std::string, UploadedFile> UploadedFileMap;
 
 class ResponseContinuation;
 
-/*! \class Request Wt/Http/Request Wt/Http/Request
+/*! \class Request Wt/Http/Request.h Wt/Http/Request.h
  *  \brief A resource request.
  *
  * The request provides information of parameters, including uploaded

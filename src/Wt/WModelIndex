@@ -215,7 +215,7 @@ enum class DropAction {
   Move = 0x2  //!< Move the selection (deleting originals)
 };
 
-/*! \class WModelIndex Wt/WModelIndex Wt/WModelIndex
+/*! \class WModelIndex Wt/WModelIndex.h Wt/WModelIndex.h
  *  \brief A value class that describes an index to an item in a data model.
  *
  * Indexes are used to indicate a particular item in a

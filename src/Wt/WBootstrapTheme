@@ -23,7 +23,7 @@ enum class BootstrapVersion {
   v3 = 3  //!< Bootstrap 3
 };
 
-/*! \class WBootstrapTheme Wt/WBootstrapTheme Wt/WBootstrapTheme
+/*! \class WBootstrapTheme Wt/WBootstrapTheme.h Wt/WBootstrapTheme.h
  *  \brief Theme based on the Twitter Bootstrap CSS framework.
  *
  * This theme implements support for building a %Wt web application

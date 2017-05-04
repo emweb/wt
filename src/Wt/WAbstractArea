@@ -16,7 +16,7 @@ namespace Wt {
     class MapWidget;
   }
 
-/*! \class WAbstractArea Wt/WAbstractArea Wt/WAbstractArea
+/*! \class WAbstractArea Wt/WAbstractArea.h Wt/WAbstractArea.h
  *  \brief Abstract base class for interactive areas in a widget.
  *
  * Use an %WAbstractArea (or rather, one of its concrete

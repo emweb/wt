@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WCssTheme Wt/WCssTheme Wt/WCssTheme
+/*! \class WCssTheme Wt/WCssTheme.h Wt/WCssTheme.h
  *
  * CSS-based theme support. This implements the classic %Wt themes, which
  * were available before theme support was customized with the addition of

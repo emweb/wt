@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-/*! \class WMenu Wt/WMenu Wt/WMenu
+/*! \class WMenu Wt/WMenu.h Wt/WMenu.h
  *  \brief A widget that shows a menu of options.
  *
  * The %WMenu widget offers menu navigation.

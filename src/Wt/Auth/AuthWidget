@@ -22,7 +22,7 @@ class AuthModel;
 class Login;
 class User;
 
-/*! \class AuthWidget Wt/Auth/AuthWidget
+/*! \class AuthWidget Wt/Auth/AuthWidget.h
  *  \brief An authentication widget.
  *
  * The authentication widget is a widget that provides a login or

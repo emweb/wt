@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WStreamResource Wt/WStreamResource Wt/WStreamResource
+/*! \class WStreamResource Wt/WStreamResource.h Wt/WStreamResource.h
  *  \brief An object which streams the data from a std::istream.
  *
  * This class can be useful base for implementing resources which streams

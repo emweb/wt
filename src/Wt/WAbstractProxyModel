@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WAbstractProxyModel Wt/WAbstractProxyModel Wt/WAbstractProxyModel
+/*! \class WAbstractProxyModel Wt/WAbstractProxyModel.h Wt/WAbstractProxyModel.h
  *  \brief An abstract proxy model for %Wt's item models.
  *
  * A proxy model does not store data, but presents data from a source

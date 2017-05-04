@@ -16,7 +16,7 @@ namespace date {
 
 namespace Wt {
 
-/*! \class WLocale Wt/WLocale Wt/WLocale
+/*! \class WLocale Wt/WLocale.h Wt/WLocale.h
  *  \brief A locale
  *
  * This class provides localization support for an application.

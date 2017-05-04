@@ -52,7 +52,7 @@ enum class RenderHint {
   LowQualityShadows = 0x2 //!< Use low-quality shadows (applies only to VML)
 };
 
-/*! \class WPainter Wt/WPainter Wt/WPainter
+/*! \class WPainter Wt/WPainter.h Wt/WPainter.h
  *  \brief Vector graphics painting class.
  *
  * The painter class provides a vector graphics interface for

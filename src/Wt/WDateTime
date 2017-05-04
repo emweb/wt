@@ -16,7 +16,7 @@
 
 namespace Wt {
 
-/*! \class WDateTime Wt/WDateTime Wt/WDateTime
+/*! \class WDateTime Wt/WDateTime.h Wt/WDateTime.h
  *  \brief A calendar date and clock time.
  *
  * The date time class combines the functionality of a WDate (for a

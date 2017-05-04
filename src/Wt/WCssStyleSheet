@@ -20,7 +20,7 @@ class WApplication;
 class WCssStyleSheet;
 class WCssTemplateWidget;
 
-/*! \class WCssRule Wt/WCssStyleSheet Wt/WCssStyleSheet
+/*! \class WCssRule Wt/WCssStyleSheet.h Wt/WCssStyleSheet.h
  *  \brief Abstract rule in a CSS style sheet.
  *
  * A rule presents CSS style properties that are applied to a selected
@@ -81,7 +81,7 @@ private:
   friend class WCssStyleSheet;
 };
 
-/*! \class WCssTemplateRule Wt/WCssStyleSheet Wt/WCssStyleSheet
+/*! \class WCssTemplateRule Wt/WCssStyleSheet.h Wt/WCssStyleSheet.h
  *  \brief A CSS rule based on a template widget.
  *
  * This is a CSS rule whose CSS style properties are defined based on
@@ -144,7 +144,7 @@ private:
   std::unique_ptr<WCssTemplateWidget> widget_;
 };
 
-/*! \class WCssTextRule Wt/WCssStyleSheet Wt/WCssStyleSheet
+/*! \class WCssTextRule Wt/WCssStyleSheet.h Wt/WCssStyleSheet.h
  *  \brief A CSS rule specified directly using CSS declarations
  *
  * \if cpp
@@ -173,7 +173,7 @@ private:
   WT_USTRING declarations_;
 };
 
-/*! \class WCssStyleSheet Wt/WCssStyleSheet Wt/WCssStyleSheet
+/*! \class WCssStyleSheet Wt/WCssStyleSheet.h Wt/WCssStyleSheet.h
  *  \brief A CSS style sheet.
  *
  * \if cpp

@@ -21,7 +21,7 @@ namespace Json {
   class Value;
 }
 
-/*! \class WJavaScriptExposableObject Wt/WJavaScriptExposableObject
+/*! \class WJavaScriptExposableObject Wt/WJavaScriptExposableObject.h
  *  \brief A JavaScript exposable object
  *
  * A JavaScript bound object (as opposed to being mostly

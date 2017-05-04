@@ -15,7 +15,7 @@ namespace Wt {
 class WPointF;
 class WPainterPath;
 
-/*! \class WRectF Wt/WRectF Wt/WRectF
+/*! \class WRectF Wt/WRectF.h Wt/WRectF.h
  *  \brief A value class that defines a rectangle.
  *
  * The rectangle is defined by a top-left point and a width and height.

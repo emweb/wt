@@ -36,7 +36,7 @@ class WWebWidget;
 class DomElement;
 class WCssTextRule;
 
-/*! \class WWidget Wt/WWidget Wt/WWidget
+/*! \class WWidget Wt/WWidget.h Wt/WWidget.h
  *  \brief The abstract base class for a user-interface component.
  *
  * The user-interface is organized in a tree structure, in which each

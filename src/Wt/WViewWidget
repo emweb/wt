@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WViewWidget Wt/WViewWidget Wt/WViewWidget
+/*! \class WViewWidget Wt/WViewWidget.h Wt/WViewWidget.h
  *  \brief An abstract base class for an MVC view that is rendered using a
  *         widget.
  *
@@ -143,7 +143,7 @@ private:
   bool needContentsUpdate_;
 };
 
-/*! \class WStaticModelView Wt/WViewWidget Wt/WViewWidget
+/*! \class WStaticModelView Wt/WViewWidget.h Wt/WViewWidget.h
  *  \brief A widget that implements a view for a non-changing model.
  *
  * This model uses a function object which is passed in the

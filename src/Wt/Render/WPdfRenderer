@@ -13,7 +13,7 @@
 namespace Wt {
   namespace Render {
 
-/*! \class WPdfRenderer Wt/Render/WPdfRenderer Wt/Render/WPdfRenderer
+/*! \class WPdfRenderer Wt/Render/WPdfRenderer.h Wt/Render/WPdfRenderer.h
  *  \brief An XHTML to PDF renderer.
  *
  * This class implements an XHTML to PDF renderer. The rendering engine

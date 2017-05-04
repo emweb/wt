@@ -21,7 +21,7 @@ namespace Wt {
     template <class Result, typename BindStrategy> class Query;
     class SqlStatement;
 
-  /*! \class collection Wt/Dbo/collection Wt/Dbo/collection
+  /*! \class collection Wt/Dbo/collection.h Wt/Dbo/collection.h
    *  \brief An STL container for iterating query results.
    *
    * This is an STL-compatible container that is backed by an SQL

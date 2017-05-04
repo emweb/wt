@@ -17,7 +17,7 @@
 
 namespace Wt {
 
-/*! \class WSslCertificate Wt/WSslCertificate Wt/WSslCertificate.C
+/*! \class WSslCertificate Wt/WSslCertificate.h Wt/WSslCertificate.h.C
  *  \brief An interface to an SSL certificate
  *  
  * This class provides an interface to an X.509 certificate, as used

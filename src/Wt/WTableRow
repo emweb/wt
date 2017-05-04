@@ -16,7 +16,7 @@ class DomElement;
 class WTable;
 class WTableCell;
 
-/*! \class WTableRow Wt/WTableRow Wt/WTableRow
+/*! \class WTableRow Wt/WTableRow.h Wt/WTableRow.h
  *  \brief A table row.
  *
  * A %WTableRow is returned by WTable::rowAt() and managing various

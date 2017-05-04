@@ -19,7 +19,7 @@ namespace Wt {
 
 class MySQL_impl;
 
-/*! \class MySQL Wt/Dbo/backend/MySQL
+/*! \class MySQL Wt/Dbo/backend/MySQL.h
  *  \brief A MySQL connection
  *
  * This class provides the backend implementation for mariadb databases.

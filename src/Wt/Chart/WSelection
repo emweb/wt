@@ -14,7 +14,7 @@
 namespace Wt {
   namespace Chart {
 
-/*! \class WSelection Wt/Chart/WSelection
+/*! \class WSelection Wt/Chart/WSelection.h
  *  \brief Represents a selection on a chart.
  *
  *  \ingroup charts
@@ -32,7 +32,7 @@ public:
   {}
 };
 
-/*! \class WPointSelection Wt/Chart/WSelection
+/*! \class WPointSelection Wt/Chart/WSelection.h
  *  \brief Represents a single point selection on a WScatterData
  */
 class WT_API WPointSelection : public WSelection {
@@ -48,7 +48,7 @@ public:
   {}
 };
 
-/*! \class WSurfaceSelection Wt/Chart/WSelection
+/*! \class WSurfaceSelection Wt/Chart/WSelection.h
     \brief Represents a selection on a surface plot.
  */
 class WT_API WSurfaceSelection : public WSelection {
@@ -66,7 +66,7 @@ public:
   {}
 };
 
-/*! \class WBarSelection Wt/Chart/WSelection
+/*! \class WBarSelection Wt/Chart/WSelection.h
  *  \brief Represents a selection of a bar.
  */
 class WT_API WBarSelection : public WSelection {

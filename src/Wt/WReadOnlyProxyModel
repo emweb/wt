@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WReadOnlyProxyModel Wt/WReadOnlyProxyModel
+/*! \class WReadOnlyProxyModel Wt/WReadOnlyProxyModel.h
  *  \brief A read-only wrapper for a source model
  *
  * This is a simple proxy model which provides a read-only view on a

@@ -12,7 +12,7 @@
 namespace Wt {
   namespace Auth {
 
-/*! \class Token Wt/Auth/Token
+/*! \class Token Wt/Auth/Token.h
  *  \brief An authentication token hash.
  *
  * An authentication token is a surrogate for identification or

@@ -29,7 +29,7 @@ enum class MediaPreloadMode {
   Metadata //!< Hints that retrieving metadata is a good option
 };
 
-/*! \class WAbstractMedia Wt/WAbstractMedia Wt/WAbstractMedia
+/*! \class WAbstractMedia Wt/WAbstractMedia.h Wt/WAbstractMedia.h
  *  \brief Abstract baseclass for native media elements.
  *
  * This class is an abstract base class for HTML5 media elements

@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WCompositeWidget Wt/WCompositeWidget Wt/WCompositeWidget
+/*! \class WCompositeWidget Wt/WCompositeWidget.h Wt/WCompositeWidget.h
  *  \brief A widget that hides the implementation of composite widgets.
  *
  * Composite widgets, built on top of the WebWidgets, should derive

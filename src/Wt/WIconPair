@@ -14,7 +14,7 @@ namespace Wt {
 
 class WImage;
 
-/*! \class WIconPair Wt/WIconPair Wt/WIconPair
+/*! \class WIconPair Wt/WIconPair.h Wt/WIconPair.h
  *  \brief A widget that shows one of two icons depending on its state.
  *
  * This is a utility class that simply manages two images, only one of

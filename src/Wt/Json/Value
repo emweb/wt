@@ -56,7 +56,7 @@ enum class Type {
   Array,  //!< an Array
 };
 
-/*! \class TypeException Wt/Json/Value Wt/Json/Value
+/*! \class TypeException Wt/Json/Value.h Wt/Json/Value.h
  *  \brief Exception that indicates a type error.
  *
  * This exception is thrown when a Value is being casted to an

@@ -17,7 +17,7 @@ class AbstractPasswordService;
 class AbstractUserDatabase;
 class OAuthService;
 
-/*! \class FormBaseModel Wt/Auth/FormBaseModel
+/*! \class FormBaseModel Wt/Auth/FormBaseModel.h
  *  \brief A base model class for authentication-related forms
  *
  * This class manages the the auth services and the user database which

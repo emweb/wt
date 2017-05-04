@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-/*! \class WPopupMenu Wt/WPopupMenu Wt/WPopupMenu
+/*! \class WPopupMenu Wt/WPopupMenu.h Wt/WPopupMenu.h
  *  \brief A menu presented in a popup window.
  *
  * The menu implements a typical context menu, with support for

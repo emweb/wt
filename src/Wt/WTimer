@@ -19,7 +19,7 @@ namespace Wt {
 class WTimerWidget;
 class Time;
 
-/*! \class WTimer Wt/WTimer Wt/WTimer
+/*! \class WTimer Wt/WTimer.h Wt/WTimer.h
  *  \brief A utility class which provides timer signals and single-shot timers.
  *
  * To use a timer, create a %WTimer instance, set the timer

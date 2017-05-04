@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WAbstractSpinBox Wt/WAbstractSpinBox Wt/WAbstractSpinBox
+/*! \class WAbstractSpinBox Wt/WAbstractSpinBox.h Wt/WAbstractSpinBox.h
  *  \brief An abstract spin box.
  *
  * Although the element can be rendered using a native HTML5 control,

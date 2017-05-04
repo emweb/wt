@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WVectorImage Wt/WVectorImage Wt/WVectorImage
+/*! \class WVectorImage Wt/WVectorImage.h Wt/WVectorImage.h
  *  \brief An abstract paint device for rendering using native vector graphics.
  *
  * \ingroup painting

@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-/*! \class WMemoryResource Wt/WMemoryResource Wt/WMemoryResource
+/*! \class WMemoryResource Wt/WMemoryResource.h Wt/WMemoryResource.h
  *  \brief A resource which streams data from memory
  *
  * Use this resource if you want to serve resource data from memory. This

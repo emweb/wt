@@ -122,7 +122,7 @@ private:
  * Normal signals wrap simply around boost signals
  */
 
-/*! \class Signal Wt/WSignal Wt/WSignal
+/*! \class Signal Wt/WSignal.h Wt/WSignal.h
  *  \brief A signal that propagates events to listeners.
  *
  * Use Signal/slots to let one object (<i>A</i>) listen to events
@@ -443,7 +443,7 @@ struct WT_API NoClass
   static NoClass none;
 };
 
-/*! \class EventSignal Wt/WSignal Wt/WSignal
+/*! \class EventSignal Wt/WSignal.h Wt/WSignal.h
  *  \brief A signal that conveys user-interface events.
  *
  * An %EventSignal is a special %Signal that may be triggered by user

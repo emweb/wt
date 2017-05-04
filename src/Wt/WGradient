@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WGradient Wt/WGradient Wt/WGradient
+/*! \class WGradient Wt/WGradient.h Wt/WGradient.h
  *  \brief A linear or radial gradient.
  *
  * \sa WPen::setGradient(), WBrush::setGradient()

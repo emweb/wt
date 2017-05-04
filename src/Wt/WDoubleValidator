@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WDoubleValidator Wt/WDoubleValidator Wt/WDoubleValidator
+/*! \class WDoubleValidator Wt/WDoubleValidator.h Wt/WDoubleValidator.h
  *  \brief A validator for validating floating point user input.
  *
  * This validator checks whether user input is a double in the pre-defined

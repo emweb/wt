@@ -11,7 +11,7 @@
 namespace Wt {
   namespace Payment {
 
-/*! \class Money Wt/Payment/Money Wt/Payment/Money
+/*! \class Money Wt/Payment/Money.h Wt/Payment/Money.h
  *  \brief A value class which describes a monetary value.
  *
  * The money is stored in cents as a 64-bit number, which allows for

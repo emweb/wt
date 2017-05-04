@@ -40,7 +40,7 @@ class Money;
 class Order;
 class PayPalService;
 
-/*! \class PayPalExpressCheckout Wt/Payment/PayPal Wt/Payment/Paypal
+/*! \class PayPalExpressCheckout Wt/Payment/PayPal.h Wt/Payment/Paypal
  *  \brief A paypal express checkout process.
  *
  * This implements the PayPal Express Checkout process.
@@ -227,7 +227,7 @@ private:
 };
 
 
-/*! \class PayPalService Wt/Payment/PayPal Wt/Payment/PayPal
+/*! \class PayPalService Wt/Payment/PayPal.h Wt/Payment/PayPal.h
  *  \brief This is a PayPal service class.
  *
  * This class holds the PayPal configuration, and is usually shared between

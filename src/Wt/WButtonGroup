@@ -14,7 +14,7 @@ namespace Wt {
 
 class WRadioButton;
 
-/*! \class WButtonGroup Wt/WButtonGroup Wt/WButtonGroup
+/*! \class WButtonGroup Wt/WButtonGroup.h Wt/WButtonGroup.h
  *  \brief A class for grouping radio buttons logically together.
  *
  * A button group manages a set of \link WRadioButton radio

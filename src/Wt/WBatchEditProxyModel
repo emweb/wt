@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WBatchEditProxyModel Wt/WBatchEditProxyModel Wt/WBatchEditProxyModel
+/*! \class WBatchEditProxyModel Wt/WBatchEditProxyModel.h Wt/WBatchEditProxyModel.h
  *  \brief A proxy model for %Wt's item models that provides batch editing.
  *
  * This proxy model presents data from a source model, and caches any

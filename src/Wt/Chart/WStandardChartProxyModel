@@ -16,7 +16,7 @@ class WAbstractItemModel;
 
   namespace Chart {
 
-/*! \class WStandardChartProxyModel Wt/Chart/WStandardChartProxyModel Wt/Chart/WStandardChartProxyModel
+/*! \class WStandardChartProxyModel Wt/Chart/WStandardChartProxyModel.h Wt/Chart/WStandardChartProxyModel.h
  *  \brief A WAbstractChartModel implementation that wraps a WAbstractItemModel
  *
  * This model delegates all functions to an underlying WAbstractItemModel,

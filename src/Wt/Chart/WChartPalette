@@ -17,7 +17,7 @@ class WPen;
 
   namespace Chart {
 
-/*! \class WChartPalette Wt/Chart/WChartPalette Wt/Chart/WChartPalette
+/*! \class WChartPalette Wt/Chart/WChartPalette.h Wt/Chart/WChartPalette.h
  *  \brief Abstract base class for styling rendered data series in charts.
  *
  * This class provides an interface for a palette which sets strokes

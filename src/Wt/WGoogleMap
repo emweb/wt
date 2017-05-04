@@ -37,7 +37,7 @@ enum class MapTypeControl {
                 // (only availble in Google Maps API v3)
 };
 
-/*! \class WGoogleMap Wt/WGoogleMap Wt/WGoogleMap
+/*! \class WGoogleMap Wt/WGoogleMap.h Wt/WGoogleMap.h
  *  \brief A widget that displays a google map.
  *
  * This widget uses the online Google Maps server to display a map. It

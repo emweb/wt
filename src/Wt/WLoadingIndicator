@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WLoadingIndicator Wt/WLoadingIndicator Wt/WLoadingIndicator
+/*! \class WLoadingIndicator Wt/WLoadingIndicator.h Wt/WLoadingIndicator.h
  *  \brief An abstract interface for a loading indicator.
  *
  * The loading indicator displays a message while a response from the

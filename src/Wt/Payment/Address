@@ -11,7 +11,7 @@
 
 namespace Wt {
   namespace Payment {
-/*! \class Address Wt/Payment/Address Wt/Payment/Address
+/*! \class Address Wt/Payment/Address.h Wt/Payment/Address.h
  *  \brief Contains address information.
  *
  * \if cpp

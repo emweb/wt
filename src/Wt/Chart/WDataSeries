@@ -38,7 +38,7 @@ enum class CustomFlag {
   LabelColor = 0x10  //!< A custom label color is set.
 };
 
-/*! \class WDataSeries Wt/Chart/WDataSeries Wt/Chart/WDataSeries
+/*! \class WDataSeries Wt/Chart/WDataSeries.h Wt/Chart/WDataSeries.h
  *  \brief A single data series in a cartesian chart.
  *
  * This class configures all aspects for rendering a single data series

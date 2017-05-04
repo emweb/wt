@@ -17,7 +17,7 @@ namespace Wt {
 
 class SqlConnection;
 
-/*! \class SqlConnectionPool Wt/Dbo/SqlConnectionPool Wt/Dbo/SqlConnectionPool
+/*! \class SqlConnectionPool Wt/Dbo/SqlConnectionPool.h Wt/Dbo/SqlConnectionPool.h
  *  \brief Abstract base class for a SQL connection pool.
  *
  * An sql connection pool manages a pool of connections. It is shared

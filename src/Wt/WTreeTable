@@ -15,7 +15,7 @@ class WTree;
 class WTreeTableNode;
 class WText;
 
-/*! \class WTreeTable Wt/WTreeTable Wt/WTreeTable
+/*! \class WTreeTable Wt/WTreeTable.h Wt/WTreeTable.h
  *  \brief A table with a navigatable tree in the first column.
  *
  * A %WTreeTable implements a tree table, where additional data

@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WCheckBox Wt/WCheckBox Wt/WCheckBox
+/*! \class WCheckBox Wt/WCheckBox.h Wt/WCheckBox.h
  *  \brief A user control that represents a check box.
  *
  * By default, a checkbox can have two states: Wt::CheckState::Checked or

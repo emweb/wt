@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WVideo Wt/WVideo Wt/WVideo
+/*! \class WVideo Wt/WVideo.h Wt/WVideo.h
  *  \brief A video-playing widget.
  *
  * This is a low-level widget, mapping directly onto a

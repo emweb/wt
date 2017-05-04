@@ -57,7 +57,7 @@ enum class DateTimeStorage {
   UnixTimeAsInteger
 };
 
-/*! \class Sqlite3 Wt/Dbo/backend/Sqlite3 Wt/Dbo/backend/Sqlite3
+/*! \class Sqlite3 Wt/Dbo/backend/Sqlite3.h Wt/Dbo/backend/Sqlite3.h
  *  \brief An SQLite3 connection
  *
  * This class provides the backend implementation for SQLite3 databases.

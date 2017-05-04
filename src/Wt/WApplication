@@ -85,7 +85,7 @@ public:
   WString content;
 };
 
-/*! \class WApplication Wt/WApplication Wt/WApplication
+/*! \class WApplication Wt/WApplication.h Wt/WApplication.h
  *  \brief Represents an application instance for a single session.
  *
  * \if cpp

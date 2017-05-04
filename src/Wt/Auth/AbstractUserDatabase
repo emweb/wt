@@ -21,7 +21,7 @@ namespace Wt {
 class IssuedToken;
 class OAuthClient;
 
-/*! \class AbstractUserDatabase Wt/Auth/AbstractUserDatabase
+/*! \class AbstractUserDatabase Wt/Auth/AbstractUserDatabase.h
  *  \brief Abstract interface for an authentication user database
  *
  * This class defines the interface for managing user data related to

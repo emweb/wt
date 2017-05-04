@@ -17,7 +17,7 @@ namespace Wt {
   class WWidgetItem;
   class WLayoutItemImpl;
 
-/*! \class WLayoutItem Wt/WLayoutItem Wt/WLayoutItem
+/*! \class WLayoutItem Wt/WLayoutItem.h Wt/WLayoutItem.h
  *  \brief An abstract base class for items that can participate in a layout.
  *
  * \sa WLayout

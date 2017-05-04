@@ -15,7 +15,7 @@
 
 namespace Wt {
 
-/*! \class WPushButton Wt/WPushButton Wt/WPushButton
+/*! \class WPushButton Wt/WPushButton.h Wt/WPushButton.h
  *  \brief A widget that represents a push button.
  *
  * To act on a button click, connect a slot to the clicked() signal.

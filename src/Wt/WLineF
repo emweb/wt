@@ -13,7 +13,7 @@ namespace Wt {
 
 class WPointF;
 
-/*! \class WLineF Wt/WLineF Wt/WLineF
+/*! \class WLineF Wt/WLineF.h Wt/WLineF.h
  *  \brief Utility class that defines a single line.
  *
  * \ingroup painting

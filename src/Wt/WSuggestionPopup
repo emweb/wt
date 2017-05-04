@@ -38,7 +38,7 @@ enum class PopupTrigger {
   DropDownIcon = 0x2
 };
 
-/*! \class WSuggestionPopup Wt/WSuggestionPopup Wt/WSuggestionPopup
+/*! \class WSuggestionPopup Wt/WSuggestionPopup.h Wt/WSuggestionPopup.h
  *  \brief A widget which popups to assist in editing a textarea or lineedit.
  *
  * This widget may be associated with one or more \link WFormWidget

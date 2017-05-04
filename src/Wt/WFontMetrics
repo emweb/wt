@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WFontMetrics Wt/WFontMetrics Wt/WFontMetrics
+/*! \class WFontMetrics Wt/WFontMetrics.h Wt/WFontMetrics.h
  *  \brief A value class that describes font metrics for a font.
  *
  * This class provides font metrics for a given font. It is returned

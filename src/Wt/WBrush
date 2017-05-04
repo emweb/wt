@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-/*! \class WBrush Wt/WBrush Wt/WBrush
+/*! \class WBrush Wt/WBrush.h Wt/WBrush.h
  *  \brief A value class that defines the style for filling a path
  *
  * A brush defines the properties of how areas (the interior of

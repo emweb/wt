@@ -19,7 +19,7 @@ class WInteractWidget;
 class WLineEdit;
 class WTemplate;
 
-/*! \class WDatePicker Wt/WDatePicker Wt/WDatePicker
+/*! \class WDatePicker Wt/WDatePicker.h Wt/WDatePicker.h
  *  \brief A date picker.
  *
  * A date picker shows a line edit and an icon which when clicked

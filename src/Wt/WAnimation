@@ -47,7 +47,7 @@ enum class TimingFunction {
   CubicBezier  //!< (Currently unsupported)
 };
 
-/*! \class WAnimation Wt/WAnimation Wt/WAnimation
+/*! \class WAnimation Wt/WAnimation.h Wt/WAnimation.h
  *  \brief A value class that defines a transition effect.
  *
  * This class defines an animation used as a transition to show or

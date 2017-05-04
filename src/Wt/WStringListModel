@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-/*! \class WStringListModel Wt/WStringListModel Wt/WStringListModel
+/*! \class WStringListModel Wt/WStringListModel.h Wt/WStringListModel.h
  *  \brief An model that manages a list of strings.
  *
  * This model only manages a unidimensional list of items and is

@@ -23,7 +23,7 @@ enum class Overflow {
 class WApplication;
 class StdLayoutImpl;
 
-/*! \class WContainerWidget Wt/WContainerWidget Wt/WContainerWidget
+/*! \class WContainerWidget Wt/WContainerWidget.h Wt/WContainerWidget.h
  *  \brief A widget that holds and manages child widgets.
  *
  * A %WContainerWidget acts as a container for child widgets. Child

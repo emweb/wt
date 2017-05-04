@@ -17,7 +17,7 @@
 
 namespace Wt {
 
-/*! \class WString Wt/WString Wt/WString
+/*! \class WString Wt/WString.h Wt/WString.h
  *  \brief A value class which describes a locale-aware unicode string.
  *
  * %Wt offers this string to facilitate handling of unicode text
