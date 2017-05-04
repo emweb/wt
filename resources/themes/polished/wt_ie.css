@@ -39,10 +39,6 @@
     padding-bottom: 2px; /* should be 1px when we have close icons ... */
 }
 
-.Wt-tabs li a, .Wt-tabs li button {
-    color: white;
-}
-
 .Wt-tabs li .citemselected a {
     color: black;
 }
