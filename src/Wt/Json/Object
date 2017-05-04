@@ -7,9 +7,7 @@
 #ifndef WT_JSON_OBJECT_H_
 #define WT_JSON_OBJECT_H_
 
-#ifdef WT_CXX11
 #include <initializer_list>
-#endif // WT_CXX11
 #include <map>
 #include <set>
 #include <Wt/WException.h>
@@ -55,7 +53,6 @@ public:
   Object& operator= (const Object& other);
   //bool operator== (const Object& other) const;
   //bool operator!= (const Object& other) const;
-#ifdef WT_CXX11
   /*! \brief Move constructor.
    */
   Object(Object&& other);
@@ -67,7 +64,6 @@ public:
   /*! \brief Move assignment operator.
    */
   Object& operator= (Object&& other);
-#endif
 
   /*! \brief Returns the key set.
    *

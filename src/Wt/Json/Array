@@ -9,9 +9,7 @@
 
 #include <string>
 #include <vector>
-#ifdef WT_CXX11
 #include <initializer_list>
-#endif // WT_CXX11
 
 #include <Wt/Json/Value.h>
 
@@ -45,7 +43,6 @@ public:
    */
   Array& operator= (const Array& other);
 
-#ifdef WT_CXX11
   /*! \brief Move constructor
    */
   Array(Array&& other);
@@ -57,7 +54,6 @@ public:
   /*! \brief Assignment operator.
    */
   Array& operator= (Array&& other);
-#endif
 
   /*! \brief Empty array constant.
    */
