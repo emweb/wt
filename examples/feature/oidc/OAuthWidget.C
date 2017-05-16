@@ -26,5 +26,5 @@ std::unique_ptr<Wt::WWidget> OAuthWidget::createRegistrationView(const Wt::Auth:
   if (id.isValid())
     model->registerIdentified(id);
   w->setModel(std::move(model));
-  return w;
+  return std::unique_ptr<Wt::WWidget>(w.release());
 }
