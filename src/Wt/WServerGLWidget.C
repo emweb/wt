@@ -1729,7 +1729,7 @@ void WServerGLWidget::render(const std::string& jsRef,
     glInterface_->initializeGL();
     ss << js_.str().c_str();
     ss << "obj.paintGL = function(){\n"
-       << "Wt.emit(" << jsRef << ", " << WWebWidget::jsStringLiteral(std::string("repaintSignal")) << ");"
+       << Wt::WApplication::instance()->javaScriptClass() << ".emit(" << jsRef << ", " << WWebWidget::jsStringLiteral(std::string("repaintSignal")) << ");"
        << "}";
     ss << "}";
 

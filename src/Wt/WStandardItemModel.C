@@ -437,13 +437,16 @@ void WStandardItemModel::dropEvent(const WDropEvent& e, DropAction action,
       WModelIndex sourceIndex = *i;
 
       // remove the row
-      if (sourceIndex.row() < row)
+      if (sourceIndex.parent() == parent &&
+	  sourceIndex.row() < row)
 	r--;
-      rows.push_back(takeRow(sourceIndex.row()));
+      WStandardItem* parentItem = itemFromIndex(sourceIndex.parent());
+      rows.push_back(parentItem->takeRow(sourceIndex.row()));
     }
 
     for (unsigned i=0; i < rows.size(); i++) {
-      insertRow(r+i, rows[i]);
+      WStandardItem* parentItem = itemFromIndex(parent);
+      parentItem->insertRow(r+i, rows[i]);
     }
   } else {
     WAbstractItemModel::dropEvent(e, action, row, column, parent);

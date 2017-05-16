@@ -1799,7 +1799,9 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	 * Not using visibility: delay changing the display property
 	 */
 	WStringStream ss;
-	ss << WT_CLASS << ".animateDisplay('" << id()
+	ss << WT_CLASS << ".animateDisplay("
+	   << app->javaScriptClass()
+	   << ",'" << id()
 	   << "'," << transientImpl_->animation_.effects().value()
 	   << "," << (int)transientImpl_->animation_.timingFunction()
 	   << "," << transientImpl_->animation_.duration()

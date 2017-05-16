@@ -241,6 +241,7 @@ SUBDIRS(
   qrlogin
   simplechat
   style
+  te-benchmark
   treelist
   treeview
   treeview-dragdrop
