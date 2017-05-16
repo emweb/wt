@@ -202,7 +202,7 @@ private:
   void clearStubbedWidgets();
 
 public:
-  std::string       learn(WStatelessSlot* slot);
+  virtual std::string learn(WStatelessSlot* slot) final override;
 
   friend class WApplication;
   friend class WebSession;

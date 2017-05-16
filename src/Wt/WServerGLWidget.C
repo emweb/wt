@@ -54,13 +54,13 @@ namespace {
 namespace Wt {
 
   namespace {
-    class WGLImageResource : public WMemoryResource {
+    class WGLImageResource final : public WMemoryResource {
     public:
       WGLImageResource() : WMemoryResource()
       { }
 
       virtual void handleRequest(const Http::Request &request,
-				 Http::Response &response)
+				 Http::Response &response) override
       {
 	response.addHeader("Cache-Control", "max-age=60");
 	WMemoryResource::handleRequest(request, response);
@@ -1729,7 +1729,7 @@ void WServerGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
     glInterface_->initializeGL();
     ss << js_.str().c_str();
     ss << "obj.paintGL = function(){\n"
-       << "Wt.emit(" << jsRef << ", " << WWebWidget::jsStringLiteral(std::string("repaintSignal")) << ");"
+       << Wt::WApplication::instance()->javaScriptClass() << ".emit(" << jsRef << ", " << WWebWidget::jsStringLiteral(std::string("repaintSignal")) << ");"
        << "}";
     ss << "}";
 

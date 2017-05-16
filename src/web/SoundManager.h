@@ -24,7 +24,7 @@ public:
   void stop(WSound *sound);
 
   bool isFinished(WSound *sound) const;
-  virtual void refresh();
+  virtual void refresh() override;
 
 private:
   WSound *current_;

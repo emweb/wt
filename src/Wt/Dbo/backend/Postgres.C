@@ -41,7 +41,7 @@ public:
   { }
 };
 
-class PostgresStatement : public SqlStatement
+class PostgresStatement final : public SqlStatement
 {
 public:
   PostgresStatement(Postgres& conn, const std::string& sql)
@@ -71,54 +71,54 @@ public:
     delete[] paramTypes_;
   }
 
-  virtual void reset()
+  virtual void reset() override
   {
     params_.clear();
 
     state_ = Done;
   }
 
-  virtual void bind(int column, const std::string& value)
+  virtual void bind(int column, const std::string& value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
     setValue(column, value);
   }
 
-  virtual void bind(int column, short value)
+  virtual void bind(int column, short value) override
   {
     bind(column, static_cast<int>(value));
   }
 
-  virtual void bind(int column, int value)
+  virtual void bind(int column, int value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
     setValue(column, std::to_string(value));
   }
 
-  virtual void bind(int column, long long value)
+  virtual void bind(int column, long long value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
     setValue(column, std::to_string(value));
   }
 
-  virtual void bind(int column, float value)
+  virtual void bind(int column, float value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
     setValue(column, std::to_string(value));
   }
 
-  virtual void bind(int column, double value)
+  virtual void bind(int column, double value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
     setValue(column, std::to_string(value));
   }
 
-  virtual void bind(int column, const std::chrono::duration<int, std::milli> & value)
+  virtual void bind(int column, const std::chrono::duration<int, std::milli> & value) override
   {
     std::chrono::system_clock::time_point tp(value);
     std::time_t t = std::chrono::system_clock::to_time_t(tp);
@@ -137,7 +137,7 @@ public:
   }
 
   virtual void bind(int column, const std::chrono::system_clock::time_point& value,
-		    SqlDateTimeType type)
+		    SqlDateTimeType type) override
   {
     std::time_t t = std::chrono::system_clock::to_time_t(value);
     std::tm *tm = std::gmtime(&t);
@@ -172,7 +172,7 @@ public:
     setValue(column, v);
   }
 
-  virtual void bind(int column, const std::vector<unsigned char>& value)
+  virtual void bind(int column, const std::vector<unsigned char>& value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " (blob, size=" <<
 	  value.size() << ")" << std::endl);
@@ -192,7 +192,7 @@ public:
     // statement if necessary because the type changes
   }
 
-  virtual void bindNull(int column)
+  virtual void bindNull(int column) override
   {
     DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
 
@@ -202,7 +202,7 @@ public:
     params_[column].isnull = true;
   }
 
-  virtual void execute()
+  virtual void execute() override
   {
     if (conn_.showQueries())
       std::cerr << sql_ << std::endl;
@@ -280,17 +280,17 @@ public:
     handleErr(PQresultStatus(result_), result_);
   }
 
-  virtual long long insertedId()
+  virtual long long insertedId() override
   {
     return lastId_;
   }
 
-  virtual int affectedRowCount()
+  virtual int affectedRowCount() override
   {
     return affectedRows_;
   }
   
-  virtual bool nextRow()
+  virtual bool nextRow() override
   {
     switch (state_) {
     case NoFirstRow:
@@ -316,7 +316,7 @@ public:
     return false;
   }
 
-  virtual bool getResult(int column, std::string *value, int size)
+  virtual bool getResult(int column, std::string *value, int size) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -329,7 +329,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, short *value)
+  virtual bool getResult(int column, short *value) override
   {
     int intValue;
     if (getResult(column, &intValue)) {
@@ -339,7 +339,7 @@ public:
       return false;
   }
 
-  virtual bool getResult(int column, int *value)
+  virtual bool getResult(int column, int *value) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -362,7 +362,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, long long *value)
+  virtual bool getResult(int column, long long *value) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -375,7 +375,7 @@ public:
     return true;
   }
   
-  virtual bool getResult(int column, float *value)
+  virtual bool getResult(int column, float *value) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -388,7 +388,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, double *value)
+  virtual bool getResult(int column, double *value) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -403,7 +403,7 @@ public:
 
   virtual bool getResult(int column,
 			 std::chrono::system_clock::time_point *value,
-			 SqlDateTimeType type)
+			 SqlDateTimeType type) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -449,7 +449,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, std::chrono::duration<int, std::milli> *value)
+  virtual bool getResult(int column, std::chrono::duration<int, std::milli> *value) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -467,7 +467,7 @@ public:
   }
 
   virtual bool getResult(int column, std::vector<unsigned char> *value,
-			 int size)
+			 int size) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -488,7 +488,7 @@ public:
     return true;
   }
 
-  virtual std::string sql() const {
+  virtual std::string sql() const override {
     return sql_;
   }
 

@@ -85,10 +85,10 @@ public:
    *
    * Returns <tt>"MD5"</tt>.
    */
-  virtual std::string name() const;
+  virtual std::string name() const override;
 
   virtual std::string compute(const std::string& msg,
-			      const std::string& salt) const;
+			      const std::string& salt) const override;
 };
 
 #ifndef WT_TARGET_JAVA
@@ -103,17 +103,17 @@ public:
  *
  * \ingroup auth
  */
-class WT_API SHA1HashFunction : public HashFunction
+class WT_API SHA1HashFunction final : public HashFunction
 {
 public:
   /*! \brief Returns the name for this hash function.
    *
    * Returns <tt>"SHA1"</tt>.
    */
-  virtual std::string name() const;
+  virtual std::string name() const override;
 
   virtual std::string compute(const std::string& msg,
-			      const std::string& salt) const;
+			      const std::string& salt) const override;
 };
 #endif
 
@@ -128,7 +128,7 @@ public:
  *
  * \ingroup auth
  */
-class WT_API BCryptHashFunction : public HashFunction
+class WT_API BCryptHashFunction final : public HashFunction
 {
 public:
   /*! \brief Constructor.
@@ -148,14 +148,14 @@ public:
    *
    * Returns <tt>"bcrypt"</tt>.
    */
-  virtual std::string name() const;
+  virtual std::string name() const override;
 
   virtual std::string compute(const std::string& msg,
-			      const std::string& salt) const;
+			      const std::string& salt) const override;
 
   virtual bool verify(const std::string& msg,
 		      const std::string& salt,
-		      const std::string& hash) const;
+		      const std::string& hash) const override;
 
 private:
   int count_;

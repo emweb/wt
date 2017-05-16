@@ -42,9 +42,9 @@ public:
   FixedSqlConnectionPool(std::unique_ptr<SqlConnection> connection, int size);
 
   virtual ~FixedSqlConnectionPool();
-  virtual std::unique_ptr<SqlConnection> getConnection();
-  virtual void returnConnection(std::unique_ptr<SqlConnection>);
-  virtual void prepareForDropTables() const;
+  virtual std::unique_ptr<SqlConnection> getConnection() override;
+  virtual void returnConnection(std::unique_ptr<SqlConnection>) override;
+  virtual void prepareForDropTables() const override;
 
 private:
   struct Impl;

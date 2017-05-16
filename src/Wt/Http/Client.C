@@ -626,7 +626,7 @@ private:
   bool aborted_;
 };
 
-class Client::TcpImpl : public Client::Impl
+class Client::TcpImpl final : public Client::Impl
 {
 public:
   TcpImpl(WIOService& ioService, WServer *server, const std::string& sessionId)
@@ -635,34 +635,34 @@ public:
   { }
 
 protected:
-  virtual tcp::socket& socket()
+  virtual tcp::socket& socket() override
   {
     return socket_;
   }
 
   virtual void asyncConnect(tcp::endpoint& endpoint,
-			    const ConnectHandler& handler)
+			    const ConnectHandler& handler) override
   {
     socket_.async_connect(endpoint, handler);
   }
 
-  virtual void asyncHandshake(const ConnectHandler& handler)
+  virtual void asyncHandshake(const ConnectHandler& handler) override
   {
     handler(Wt::Asio::error_code());
   }
 
-  virtual void asyncWriteRequest(const IOHandler& handler)
+  virtual void asyncWriteRequest(const IOHandler& handler) override
   {
     asio::async_write(socket_, requestBuf_, handler);
   }
 
   virtual void asyncReadUntil(const std::string& s,
-			      const IOHandler& handler)
+			      const IOHandler& handler) override
   {
     asio::async_read_until(socket_, responseBuf_, s, handler);
   }
 
-  virtual void asyncRead(const IOHandler& handler)
+  virtual void asyncRead(const IOHandler& handler) override
   {
     asio::async_read(socket_, responseBuf_,
                             asio::transfer_at_least(1), handler);
@@ -674,7 +674,7 @@ private:
 
 #ifdef WT_WITH_SSL
 
-class Client::SslImpl : public Client::Impl
+class Client::SslImpl final : public Client::Impl
 {
 public:
   SslImpl(WIOService& ioService, bool verifyEnabled, WServer *server,
@@ -693,18 +693,18 @@ public:
   }
 
 protected:
-  virtual tcp::socket& socket()
+  virtual tcp::socket& socket() override
   {
     return socket_.next_layer();
   }
 
   virtual void asyncConnect(tcp::endpoint& endpoint,
-			    const ConnectHandler& handler)
+			    const ConnectHandler& handler) override
   {
     socket_.lowest_layer().async_connect(endpoint, handler);
   }
 
-  virtual void asyncHandshake(const ConnectHandler& handler)
+  virtual void asyncHandshake(const ConnectHandler& handler) override
   {
 #ifdef VERIFY_CERTIFICATE
     if (verifyEnabled_) {
@@ -717,18 +717,18 @@ protected:
     socket_.async_handshake(asio::ssl::stream_base::client, handler);
   }
 
-  virtual void asyncWriteRequest(const IOHandler& handler)
+  virtual void asyncWriteRequest(const IOHandler& handler) override
   {
     asio::async_write(socket_, requestBuf_, handler);
   }
 
   virtual void asyncReadUntil(const std::string& s,
-			      const IOHandler& handler)
+			      const IOHandler& handler) override
   {
     asio::async_read_until(socket_, responseBuf_, s, handler);
   }
 
-  virtual void asyncRead(const IOHandler& handler)
+  virtual void asyncRead(const IOHandler& handler) override
   {
     asio::async_read(socket_, responseBuf_,
                             asio::transfer_at_least(1), handler);

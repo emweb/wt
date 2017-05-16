@@ -25,7 +25,7 @@ namespace Wt {
 
 LOGGER("WFileUpload");
 
-class WFileUploadResource : public WResource {
+class WFileUploadResource final : public WResource {
 public:
   WFileUploadResource(WFileUpload *fileUpload)
     : fileUpload_(fileUpload)
@@ -33,7 +33,8 @@ public:
 
 protected:
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response) {
+			     Http::Response& response) override
+  {
     bool triggerUpdate = false;
 
     std::vector<Http::UploadedFile> files;

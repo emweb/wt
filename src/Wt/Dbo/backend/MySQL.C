@@ -72,7 +72,7 @@ namespace {
  * \brief MySQL prepared statement.
  * @todo should the getResult requests all be type checked...
  */
-class MySQLStatement : public SqlStatement
+class MySQLStatement final : public SqlStatement
 {
   public:
     MySQLStatement(MySQL& conn, const std::string& sql)
@@ -128,13 +128,13 @@ class MySQLStatement : public SqlStatement
       stmt_ = nullptr;
     }
 
-    virtual void reset()
+    virtual void reset() override
     {
       state_ = Done;
       has_truncation_ = false;
     }
 
-    virtual void bind(int column, const std::string& value)
+    virtual void bind(int column, const std::string& value) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -159,7 +159,7 @@ class MySQLStatement : public SqlStatement
       in_pars_[column].is_null = nullptr;
     }
 
-    virtual void bind(int column, short value)
+    virtual void bind(int column, short value) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -176,7 +176,7 @@ class MySQLStatement : public SqlStatement
 
     }
 
-    virtual void bind(int column, int value)
+    virtual void bind(int column, int value) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -192,7 +192,7 @@ class MySQLStatement : public SqlStatement
       in_pars_[column].is_null = nullptr;
     }
 
-    virtual void bind(int column, long long value)
+    virtual void bind(int column, long long value) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -208,7 +208,7 @@ class MySQLStatement : public SqlStatement
       in_pars_[column].is_null = nullptr;
     }
 
-    virtual void bind(int column, float value)
+    virtual void bind(int column, float value) override
     {
       DEBUG(std::cerr << this << " bind " << column << " "
             << value << std::endl);
@@ -221,7 +221,7 @@ class MySQLStatement : public SqlStatement
       in_pars_[column].is_null = nullptr;
    }
 
-    virtual void bind(int column, double value)
+    virtual void bind(int column, double value) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -238,7 +238,7 @@ class MySQLStatement : public SqlStatement
     }
 
     virtual void bind(int column, const std::chrono::system_clock::time_point& value,
-                      SqlDateTimeType type)
+                      SqlDateTimeType type) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -282,7 +282,7 @@ class MySQLStatement : public SqlStatement
 
      }
 
-    virtual void bind(int column, const std::chrono::duration<int, std::milli>& value)
+    virtual void bind(int column, const std::chrono::duration<int, std::milli>& value) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -323,7 +323,7 @@ class MySQLStatement : public SqlStatement
       in_pars_[column].is_null = nullptr;
     }
 
-    virtual void bind(int column, const std::vector<unsigned char>& value)
+    virtual void bind(int column, const std::vector<unsigned char>& value) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -351,7 +351,7 @@ class MySQLStatement : public SqlStatement
       // statement if necessary because the type changes
     }
 
-    virtual void bindNull(int column)
+    virtual void bindNull(int column) override
     {
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
@@ -367,7 +367,7 @@ class MySQLStatement : public SqlStatement
       in_pars_[column].length = len;
     }
 
-    virtual void execute()
+    virtual void execute() override
     {
       if (conn_.showQueries())
         std::cerr << sql_ << std::endl;
@@ -419,17 +419,17 @@ class MySQLStatement : public SqlStatement
       }
     }
 
-    virtual long long insertedId()
+    virtual long long insertedId() override
     {
       return lastId_;
     }
 
-    virtual int affectedRowCount()
+    virtual int affectedRowCount() override
     {
       return (int)affectedRows_;
     }
 
-    virtual bool nextRow()
+    virtual bool nextRow() override
     {
       int status = 0;
       switch (state_) {
@@ -469,7 +469,7 @@ class MySQLStatement : public SqlStatement
       return false;
     }
 
-    virtual bool getResult(int column, std::string *value, int size)
+    virtual bool getResult(int column, std::string *value, int size) override
     {
       if (*(out_pars_[column].is_null) == 1)
         return false;
@@ -500,7 +500,7 @@ class MySQLStatement : public SqlStatement
         return false;
     }
 
-    virtual bool getResult(int column, short *value)
+    virtual bool getResult(int column, short *value) override
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for "
@@ -514,7 +514,7 @@ class MySQLStatement : public SqlStatement
       return true;
     }
 
-    virtual bool getResult(int column, int *value)
+    virtual bool getResult(int column, int *value) override
     {
 
       if (*(out_pars_[column].is_null) == 1)
@@ -578,7 +578,7 @@ class MySQLStatement : public SqlStatement
       return true;
     }
 
-    virtual bool getResult(int column, long long *value)
+    virtual bool getResult(int column, long long *value) override
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
@@ -610,7 +610,7 @@ class MySQLStatement : public SqlStatement
       return true;
     }
 
-    virtual bool getResult(int column, float *value)
+    virtual bool getResult(int column, float *value) override
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
@@ -627,7 +627,7 @@ class MySQLStatement : public SqlStatement
       return true;
     }
 
-    virtual bool getResult(int column, double *value)
+    virtual bool getResult(int column, double *value) override
     {
 
       if (*(out_pars_[column].is_null) == 1)
@@ -671,7 +671,7 @@ class MySQLStatement : public SqlStatement
     }
 
     virtual bool getResult(int column, std::chrono::system_clock::time_point *value,
-                           SqlDateTimeType type)
+                           SqlDateTimeType type) override
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
@@ -709,7 +709,7 @@ class MySQLStatement : public SqlStatement
       return true;
     }
 
-    virtual bool getResult(int column, std::chrono::duration<int, std::milli>* value)
+    virtual bool getResult(int column, std::chrono::duration<int, std::milli>* value) override
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
@@ -729,7 +729,7 @@ class MySQLStatement : public SqlStatement
     }
 
     virtual bool getResult(int column, std::vector<unsigned char> *value,
-                           int size)
+                           int size) override
     {
       if (*(out_pars_[column].is_null) == 1)
         return false;
@@ -764,7 +764,7 @@ class MySQLStatement : public SqlStatement
         return false;
     }
 
-    virtual std::string sql() const {
+    virtual std::string sql() const override {
       return sql_;
     }
 

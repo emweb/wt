@@ -21,7 +21,7 @@
 namespace Wt {
 
 template <class Widget>
-class IndexEdit : public Widget
+class IndexEdit final : public Widget
 {
 public:
   IndexEdit(const WModelIndex& index)
@@ -36,7 +36,8 @@ public:
     return index_;
   }
 
-  virtual WString toolTip() const {
+  virtual WString toolTip() const override
+  {
     if (index_.flags().test(ItemFlag::DeferredToolTip))
       return asString(index_.data(ItemDataRole::ToolTip));
     else

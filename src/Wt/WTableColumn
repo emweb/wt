@@ -102,7 +102,7 @@ public:
    */
   void setId(const std::string& id);
 
-  virtual const std::string id() const;
+  virtual const std::string id() const override;
 
 private:
   WTable *table_;

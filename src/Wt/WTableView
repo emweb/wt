@@ -146,7 +146,7 @@ public:
    */
   virtual void adjustSize() {}
 
-  virtual void enableAjax();
+  virtual void enableAjax() override;
 
 private:
   class ColumnWidget : public WContainerWidget

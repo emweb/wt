@@ -48,7 +48,7 @@ public:
    *       windows are blocked in most web browsers unless they are
    *       the direct consequence of an event.
    */
-  virtual void startAuthenticate() { OAuthProcess::startAuthenticate(); }
+  virtual void startAuthenticate() override { OAuthProcess::startAuthenticate(); }
   // TODO fix
 
   /*! \brief Obtains an authenticated identity.
@@ -60,10 +60,10 @@ public:
    * The authentication process ends with the authenticated() signal
    * which signals the obtained identity.
    */
-  virtual void getIdentity(const OAuthAccessToken& token);
+  virtual void getIdentity(const OAuthAccessToken& token) override;
 
 private:
-  void handleResponse(boost::system::error_code err, const Http::Message& response);
+  void handleResponse(Wt::Asio::error_code err, const Http::Message& response);
   Identity parseIdToken(const std::string& idToken);
   Identity parseClaims(const Json::Object& claims);
 
@@ -119,7 +119,7 @@ public:
    * \sa description()
    * \sa setName()
    */
-  virtual std::string name() const { return name_; };
+  virtual std::string name() const override { return name_; };
 
   /*! \brief Returns the provider description.
    *
@@ -129,7 +129,7 @@ public:
    * \sa name()
    * \sa setDescription()
    */
-  virtual WString description() const { return description_; };
+  virtual WString description() const override { return description_; };
 
   /*! \brief Returns the desired width for the popup window.
    *
@@ -137,7 +137,7 @@ public:
    *
    * \sa setPopupWidth()
    */
-  virtual int popupWidth() const { return popupWidth_; };
+  virtual int popupWidth() const override { return popupWidth_; };
 
   /*! \brief Returns the desired height of the popup window.
    *
@@ -145,7 +145,7 @@ public:
    *
    * \sa setPopupHeight()
    */
-  virtual int popupHeight() const { return popupHeight_; };
+  virtual int popupHeight() const override { return popupHeight_; };
 
   /*! \brief Returns the scope needed for authentication.
    *
@@ -159,7 +159,7 @@ public:
    * \sa OidcService::createProcess()
    * \sa OidcService::setAuthenticationScope()
    */
-  virtual std::string authenticationScope() const { return scope_; };
+  virtual std::string authenticationScope() const override { return scope_; };
 
   /*! \brief Returns the redirection endpoint URL.
    *
@@ -176,7 +176,7 @@ public:
    * @see WtServlet#addResource(WResource r, String path)
    * \endif
    */
-  virtual std::string redirectEndpoint() const { return redirectEndpoint_; };
+  virtual std::string redirectEndpoint() const override { return redirectEndpoint_; };
 
   /*! \brief Returns the authorization endpoint URL.
    *
@@ -186,7 +186,7 @@ public:
    *
    * \sa setAuthEndpoint()
    */
-  virtual std::string authorizationEndpoint() const { return authorizationEndpoint_; };
+  virtual std::string authorizationEndpoint() const override { return authorizationEndpoint_; };
 
   /*! \brief Returns the token endpoint URL.
    *
@@ -195,7 +195,7 @@ public:
    *
    * \sa setTokenEndpoint()
    */
-  virtual std::string tokenEndpoint() const { return tokenEndpoint_; };
+  virtual std::string tokenEndpoint() const override { return tokenEndpoint_; };
 
   /*! \brief Returns the user info endpoint URL.
    *
@@ -204,7 +204,7 @@ public:
    *
    * \sa setTokenEndpoint()
    */
-  virtual std::string userInfoEndpoint() const { return userInfoEndpoint_; };
+  virtual std::string userInfoEndpoint() const override { return userInfoEndpoint_; };
 
   /*! \brief Returns the client ID.
    *
@@ -213,7 +213,7 @@ public:
    *
    * \sa setClientId()
    */
-  virtual std::string clientId() const { return clientId_; };
+  virtual std::string clientId() const override { return clientId_; };
 
   /*! \brief Returns the client secret.
    *
@@ -222,14 +222,14 @@ public:
    *
    * \sa setClientSecret()
    */
-  virtual std::string clientSecret() const { return clientSecret_; };
+  virtual std::string clientSecret() const override { return clientSecret_; };
 
   /*! \brief Returns the method to transfer the client secret.
   *
   * The default implementation returns HttpAuthorizationBasic
   * (the recommended method).
   */
-  virtual ClientSecretMethod clientSecretMethod() const { return method_; };
+  virtual ClientSecretMethod clientSecretMethod() const override { return method_; };
 
   /*! \brief Creates a new authentication process.
    *

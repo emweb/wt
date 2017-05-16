@@ -58,7 +58,7 @@ LOGGER("Auth.OidcService");
     return Identity(providerName, id, name, email, emailVerified);
   }
 
-  void OidcProcess::handleResponse(boost::system::error_code err, const Http::Message& response)
+  void OidcProcess::handleResponse(Wt::Asio::error_code err, const Http::Message& response)
   {
 #ifndef WT_TARGET_JAVA
     WApplication::instance()->resumeRendering();

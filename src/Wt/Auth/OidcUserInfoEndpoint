@@ -58,7 +58,7 @@ public:
   OidcUserInfoEndpoint(AbstractUserDatabase& db);
 
   virtual void handleRequest(const Http::Request& request,
-                             Http::Response& response);
+                             Http::Response& response) override;
 
 
   /*! \brief Maps the given scope token to the given set of claims.

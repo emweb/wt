@@ -24,12 +24,13 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks = None;
 const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
   = WSlider::TickPosition::TicksAbove | WSlider::TickPosition::TicksBelow;
 
-class PaintedSlider : public WPaintedWidget
+class PaintedSlider final : public WPaintedWidget
 {
 public:
   PaintedSlider(WSlider *slider);
   virtual ~PaintedSlider();
 
+  void connectSlots();
   void updateState();
   void updateSliderPosition();
   void doUpdateDom(DomElement& element, bool all);
@@ -37,7 +38,7 @@ public:
   void sliderResized(const WLength& width, const WLength& height);
 
 protected:
-  void paintEvent(WPaintDevice *paintDevice);
+  virtual void paintEvent(WPaintDevice *paintDevice) override;
 
 private:
   WSlider *slider_;
@@ -127,16 +128,24 @@ PaintedSlider::PaintedSlider(WSlider *slider)
   handle_->setPositionScheme(PositionScheme::Absolute);
   handle_->setStyleClass("handle");
 
-  handle_->mouseWentDown().connect(mouseDownJS_);
-  handle_->touchStarted().connect(mouseDownJS_);
-  handle_->mouseMoved().connect(mouseMovedJS_);
-  handle_->touchMoved().connect(mouseMovedJS_);
-  handle_->mouseWentUp().connect(mouseUpJS_);
-  handle_->touchEnded().connect(mouseUpJS_);
-  handle_->clicked().connect(handleClickedJS_);
+  connectSlots();
+}
 
-  slider->clicked().connect(this, &PaintedSlider::onSliderClick);
-  sliderReleased_.connect(this, &PaintedSlider::onSliderReleased);
+void PaintedSlider::connectSlots()
+{
+  if (Wt::WApplication::instance()->environment().ajax()) {
+    handle_->mouseWentDown().connect(mouseDownJS_);
+    handle_->touchStarted().connect(mouseDownJS_);
+    handle_->mouseMoved().connect(mouseMovedJS_);
+    handle_->touchMoved().connect(mouseMovedJS_);
+    handle_->mouseWentUp().connect(mouseUpJS_);
+    handle_->touchEnded().connect(mouseUpJS_);
+    handle_->clicked().connect(handleClickedJS_);
+
+    slider_->clicked().connect(this, &PaintedSlider::onSliderClick);
+
+    sliderReleased_.connect(this, &PaintedSlider::onSliderReleased);
+  }
 }
 
 PaintedSlider::~PaintedSlider()
@@ -190,6 +199,8 @@ void PaintedSlider::updateState()
   double max = l - slider_->handleWidth();
   bool horizontal = o == Orientation::Horizontal;
 
+  char buf[30]; // Buffer for round_js_str
+
   /*
    * Note: cancelling the mouseDown event prevents the selection behaviour
    */
@@ -208,25 +219,26 @@ void PaintedSlider::updateState()
 	   <<     "pos = page_u - widget_page_u,"
 	   <<     "rtl = " << rtl << ","
 	   <<     "horizontal = " << horizontal << ";"
-	   <<     "if (rtl && horizontal)"
-	   <<       "pos = " << l << " - pos;"
-	   <<     "var d = pos - down;";
+	   <<     "if (rtl && horizontal)";
+  computeD <<       "pos = " << Utils::round_js_str(l, 3, buf) << " - pos;";
+  computeD <<     "var d = pos - down;";
   
   WStringStream mouseMovedJS;
   mouseMovedJS << "var down = obj.getAttribute('down');"
 	       << "var WT = " WT_CLASS ";"
 	       << "if (down != null && down != '') {"
-	       <<    computeD.str()
-	       <<   "d = Math.max(0, Math.min(d, " << max << "));"
-	       <<   "var v = Math.round(d/" << pixelsPerUnit << ");"
-	       <<   "var intd = v*" << pixelsPerUnit << ";"
-	       <<   "if (Math.abs(WT.pxself(objh, '" << dir
+	       <<    computeD.str();
+  mouseMovedJS <<   "d = Math.max(0, Math.min(d, " << Utils::round_js_str(max, 3, buf) << "));";
+  mouseMovedJS <<   "var v = Math.round(d/" << Utils::round_js_str(pixelsPerUnit, 3, buf) << ");";
+  mouseMovedJS <<   "var intd = v*" << Utils::round_js_str(pixelsPerUnit, 3, buf) << ";";
+  mouseMovedJS <<   "if (Math.abs(WT.pxself(objh, '" << dir
 	       <<                 "') - intd) > 1) {"
 	       <<     "objf.style." << size << " = ";
-  if (o == Orientation::Vertical)
-    mouseMovedJS << '(' << max << " - intd + " << (slider_->handleWidth() / 2)
+  if (o == Orientation::Vertical) {
+    mouseMovedJS << '(' << Utils::round_js_str(max, 3, buf);
+    mouseMovedJS << " - intd + " << (slider_->handleWidth() / 2)
 		 << ")";
-  else
+  } else
     mouseMovedJS << "intd + " << (slider_->handleWidth() / 2);
   mouseMovedJS <<       " + 'px';" 
 	       <<     "objh.style." << dir << " = intd + 'px';"
@@ -393,6 +405,12 @@ WSlider::WSlider(Orientation orientation)
 WSlider::~WSlider()
 {
   manageWidget(paintedSlider_, std::unique_ptr<PaintedSlider>());
+}
+
+void WSlider::enableAjax()
+{
+  if (paintedSlider_)
+    paintedSlider_->connectSlots();
 }
 
 void WSlider::setNativeControl(bool nativeControl)

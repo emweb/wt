@@ -85,7 +85,7 @@ public:
    */
   std::vector<const OAuthService *> oAuth() const { return oAuth_; }
 
-  virtual WString label(Field field) const;
+  virtual WString label(Field field) const override;
 
   /*! \brief Logs the user in.
    *

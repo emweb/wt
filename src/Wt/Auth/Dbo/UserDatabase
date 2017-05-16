@@ -64,7 +64,7 @@ public:
     newUserStatus_ = status;
   }
 
-  virtual Transaction *startTransaction() {
+  virtual Transaction *startTransaction() override {
     return new TransactionImpl(session_);
   }
 
@@ -82,7 +82,7 @@ public:
     return User(std::to_string(user_->id()), *this);
   }
 
-  virtual User findWithId(const std::string& id) const {
+  virtual User findWithId(const std::string& id) const override {
     getUser(id, false);
 
     if (user_)
@@ -92,7 +92,7 @@ public:
   }
 
   virtual User findWithIdentity(const std::string& provider,
-				const WString& identity) const {
+				const WString& identity) const override {
     if (userProvider_ != provider || userIdentity_ != identity) {
       Wt::Dbo::Transaction t(session_);
       Wt::Dbo::Query<Wt::Dbo::ptr<DboType> > query =
@@ -119,7 +119,7 @@ public:
   }
 
   virtual WString identity(const User& user,
-			   const std::string& provider) const {
+			   const std::string& provider) const override {
     WithUser find(*this, user);
 
     AuthIdentities c
@@ -134,7 +134,7 @@ public:
   }
 
   virtual void removeIdentity(const User& user,
-			      const std::string& provider) {
+			      const std::string& provider) override {
     Wt::Dbo::Transaction t(session_);
 
     session_.execute
@@ -146,7 +146,7 @@ public:
     t.commit();
   }
 
-  virtual User registerNew() {
+  virtual User registerNew() override {
     auto user = Wt::cpp14::make_unique<DboType>();
     user->setStatus(newUserStatus_);
     setUser(session_.add(std::move(user)));
@@ -154,38 +154,38 @@ public:
     return User(std::to_string(user_.id()), *this);
   }
 
-  virtual void deleteUser(const User& user) {
+  virtual void deleteUser(const User& user) override {
     Wt::Dbo::Transaction t(session_);
     Wt::Dbo::ptr<DboType> u = find(user);
     u.remove();
     t.commit();
   }
 
-  virtual AccountStatus status(const User& user) const {
+  virtual AccountStatus status(const User& user) const override {
     WithUser find(*this, user);
     return user_->status();
   }
 
-  virtual void setStatus(const User& user, AccountStatus status) {
+  virtual void setStatus(const User& user, AccountStatus status) override {
     WithUser find(*this, user);
     user_.modify()->setStatus(status);
   }
 
-  virtual void setPassword(const User& user, const PasswordHash& password) {
+  virtual void setPassword(const User& user, const PasswordHash& password) override {
     WithUser find(*this, user);
     user_.modify()->setPassword(password.value(),
 				password.function(),
 				password.salt());
   }
 
-  virtual PasswordHash password(const User& user) const {
+  virtual PasswordHash password(const User& user) const override {
     WithUser find(*this, user);
     return PasswordHash(user_->passwordMethod(), user_->passwordSalt(),
 			user_->passwordHash());
   }
 
   virtual void addIdentity(const User& user, const std::string& provider,
-			   const WT_USTRING& identity) {
+			   const WT_USTRING& identity) override {
     WithUser find(*this, user);
 
     if (session_.find<AuthIdentityType>()
@@ -205,7 +205,7 @@ public:
   }
 
   virtual void setIdentity(const User& user, const std::string& provider,
-			   const WT_USTRING& identity) {
+			   const WT_USTRING& identity) override {
     WithUser find(*this, user);
 
     AuthIdentities c
@@ -221,7 +221,7 @@ public:
            Wt::cpp14::make_unique<AuthIdentityType>(provider, identity)));
   }
 
-  virtual bool setEmail(const User& user, const std::string& address) {
+  virtual bool setEmail(const User& user, const std::string& address) override {
     WithUser find(*this, user);
 
     if (session_.find<DboType>().where("lower(\"email\") = lower(?)")
@@ -233,23 +233,23 @@ public:
     return true;
   }
 
-  virtual std::string email(const User& user) const {
+  virtual std::string email(const User& user) const override {
     WithUser find(*this, user);
     return user_->email();
   }
 
   virtual void setUnverifiedEmail(const User& user,
-				  const std::string& address) {
+				  const std::string& address) override {
     WithUser find(*this, user);
     user_.modify()->setUnverifiedEmail(address);
   }
 
-  virtual std::string unverifiedEmail(const User& user) const {
+  virtual std::string unverifiedEmail(const User& user) const override {
     WithUser find(*this, user);
     return user_->unverifiedEmail();
   }
 
-  virtual User findWithEmail(const std::string& address) const {
+  virtual User findWithEmail(const std::string& address) const override {
     Wt::Dbo::Transaction t(session_);
     setUser(session_.find<DboType>().where("lower(\"email\") = lower(?)").bind(address));
     t.commit();
@@ -261,22 +261,22 @@ public:
   }
 
   virtual void setEmailToken(const User& user, const Token& token,
-			     EmailTokenRole role) {
+			     EmailTokenRole role) override {
     WithUser find(*this, user);
     user_.modify()->setEmailToken(token.hash(), token.expirationTime(), role);
   }
 
-  virtual Token emailToken(const User& user) const {
+  virtual Token emailToken(const User& user) const override {
     WithUser find(*this, user);
     return Token(user_->emailToken(), user_->emailTokenExpires());
   }
 
-  virtual EmailTokenRole emailTokenRole(const User& user) const {
+  virtual EmailTokenRole emailTokenRole(const User& user) const override {
     WithUser find(*this, user);
     return user_->emailTokenRole();
   }
 
-  virtual User findWithEmailToken(const std::string& hash) const {
+  virtual User findWithEmailToken(const std::string& hash) const override {
     Wt::Dbo::Transaction t(session_);
     setUser(session_.find<DboType>()
 	    .where("\"email_token\" = ?").bind(hash));
@@ -288,7 +288,7 @@ public:
       return User();
   }
  
-  virtual void addAuthToken(const User& user, const Token& token) {
+  virtual void addAuthToken(const User& user, const Token& token) override {
     WithUser find(*this, user);
 
     /*
@@ -323,7 +323,7 @@ public:
        (Wt::cpp14::make_unique<AuthTokenType>(token.hash(), token.expirationTime())));
   }
 
-  virtual void removeAuthToken(const User& user, const std::string& hash) {
+  virtual void removeAuthToken(const User& user, const std::string& hash) override {
     WithUser find(*this, user);
 
     for (typename AuthTokens::const_iterator i = user_->authTokens().begin();
@@ -337,7 +337,7 @@ public:
   }
 
   virtual int updateAuthToken(const User& user, const std::string& hash,
-			      const std::string& newHash) {
+			      const std::string& newHash) override {
     WithUser find(*this, user);
 
     for (typename AuthTokens::const_iterator i = user_->authTokens().begin();
@@ -352,7 +352,7 @@ public:
     return 0;
   }
 
-  virtual User findWithAuthToken(const std::string& hash) const {
+  virtual User findWithAuthToken(const std::string& hash) const override {
     Wt::Dbo::Transaction t(session_);
     setUser(session_.query< Wt::Dbo::ptr<DboType> >
 	    (std::string() +
@@ -369,22 +369,22 @@ public:
       return User();
   }
 
-  virtual void setFailedLoginAttempts(const User& user, int count) {
+  virtual void setFailedLoginAttempts(const User& user, int count) override {
     WithUser find(*this, user, true);
     return user_.modify()->setFailedLoginAttempts(count);
   }
 
-  virtual int failedLoginAttempts(const User& user) const {
+  virtual int failedLoginAttempts(const User& user) const override {
     WithUser find(*this, user, true);
     return user_->failedLoginAttempts();    
   }
 
-  virtual void setLastLoginAttempt(const User& user, const WDateTime& t) {
+  virtual void setLastLoginAttempt(const User& user, const WDateTime& t) override {
     WithUser find(*this, user, true);
     return user_.modify()->setLastLoginAttempt(t);
   }
 
-  virtual WDateTime lastLoginAttempt(const User& user) const {
+  virtual WDateTime lastLoginAttempt(const User& user) const override {
     WithUser find(*this, user, true);
     return user_->lastLoginAttempt();    
   }
@@ -445,7 +445,7 @@ private:
     userIdentity_ = WString::Empty;
   }
 
-  struct TransactionImpl : public Transaction, public Wt::Dbo::Transaction
+  struct TransactionImpl final : public Transaction, public Wt::Dbo::Transaction
   {
     TransactionImpl(Wt::Dbo::Session& session)
       : Wt::Dbo::Transaction(session)
@@ -454,12 +454,12 @@ private:
     virtual ~TransactionImpl()
     { }
 
-    virtual void commit()
+    virtual void commit() override
     {
       Wt::Dbo::Transaction::commit();
     }
 
-    virtual void rollback()
+    virtual void rollback() override
     {
       Wt::Dbo::Transaction::rollback();
     }

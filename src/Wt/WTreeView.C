@@ -58,7 +58,7 @@ namespace Wt {
 
 LOGGER("WTreeView");
 
-class ContentsContainer : public WContainerWidget
+class ContentsContainer final : public WContainerWidget
 {
 public:
   ContentsContainer(WTreeView *treeView)
@@ -68,7 +68,7 @@ public:
   }
 
 protected:
-  virtual void layoutSizeChanged(int width, int height)
+  virtual void layoutSizeChanged(int width, int height) override
   {
     treeView_->contentsSizeChanged(width, height);
   }
@@ -173,7 +173,7 @@ private:
   }
 };
 
-class RowSpacer : public Wt::WWebWidget
+class RowSpacer final : public Wt::WWebWidget
 {
 public:
   RowSpacer(Wt::WTreeViewNode *node, int height)
@@ -194,7 +194,8 @@ public:
 		  int upperBound = std::numeric_limits<int>::max());
 
 protected:
-  virtual Wt::DomElementType domElementType() const {
+  virtual Wt::DomElementType domElementType() const override
+  {
     return Wt::DomElementType::DIV;
   }
 

@@ -289,23 +289,23 @@ void SeriesIterator::setBrushColor(WBrush& brush, const WDataSeries &series,
 
 class SeriesRenderer;
 
-class SeriesRenderIterator : public SeriesIterator
+class SeriesRenderIterator final : public SeriesIterator
 {
 public:
   SeriesRenderIterator(const WCartesianChart& chart, WPainter& painter);
 
   virtual void startSegment(int currentXSegment, int currentYSegment,
-			    const WRectF& currentSegmentArea);
-  virtual void endSegment();
+			    const WRectF& currentSegmentArea) override;
+  virtual void endSegment() override;
 
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
-			   int numBarGroups, int currentBarGroup);
-  virtual void endSeries();
+			   int numBarGroups, int currentBarGroup) override;
+  virtual void endSeries() override;
 
   virtual void newValue(const WDataSeries& series, double x, double y,
 			double stackY,
 			int xRow, int xColumn,
-			int yRow, int yColumn);
+			int yRow, int yColumn) override;
 
   double breakY(double y);
 
@@ -353,7 +353,7 @@ protected:
   }
 };
 
-class LineSeriesRenderer : public SeriesRenderer {
+class LineSeriesRenderer final : public SeriesRenderer {
 public:
   LineSeriesRenderer(const WCartesianChart& chart, WPainter& painter,
 		     const WDataSeries& series,
@@ -366,7 +366,7 @@ public:
   }
 
   virtual void addValue(double x, double y, double stacky,
-			int xRow, int xColumn, int yRow, int yColumn) {
+			int xRow, int xColumn, int yRow, int yColumn) override {
     WPointF p = chart_.map(x, y, series_.axis(),
 			   it_.currentXSegment(), it_.currentYSegment());
 
@@ -402,7 +402,7 @@ public:
     ++curveFragmentLength_;
   }
 
-  virtual void addBreak()
+  virtual void addBreak() override
   {
     if (curveFragmentLength_ > 1) {
       if (series_.type() == SeriesType::Curve) {
@@ -421,7 +421,7 @@ public:
     curveFragmentLength_ = 0;
   }
 
-  virtual void paint() {
+  virtual void paint() override {
     WCartesianChart::PainterPathMap::iterator curveHandle = const_cast<WCartesianChart&>(chart_).curvePaths_.find(&series_);
     WCartesianChart::TransformMap::iterator transformHandle = const_cast<WCartesianChart&>(chart_).curveTransforms_.find(&series_);
 
@@ -558,7 +558,7 @@ private:
   }
 };
 
-class BarSeriesRenderer : public SeriesRenderer {
+class BarSeriesRenderer final : public SeriesRenderer {
 public:
   BarSeriesRenderer(const WCartesianChart& chart, WPainter& painter,
 		    const WDataSeries& series,
@@ -571,7 +571,7 @@ public:
   { }
 
   virtual void addValue(double x, double y, double stacky,
-			int xRow, int xColumn, int yRow, int yColumn) {
+			int xRow, int xColumn, int yRow, int yColumn) override {
     WPainterPath bar;
     const WAxis& yAxis = chart_.axis(series_.axis());
 
@@ -731,8 +731,8 @@ public:
     }
   }
 
-  void addBreak() { }
-  void paint() { }
+  virtual void addBreak() override { }
+  virtual void paint() override { }
 
 private:
   static Wt::WPointF segmentPoint(const Wt::WPainterPath& path, int segment)
@@ -851,7 +851,7 @@ public:
   { }
 
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
-			   int numBarGroups, int currentBarGroup)
+			   int numBarGroups, int currentBarGroup) override
   {
     if (series.isLabelsEnabled(Axis::X) || 
 	series.isLabelsEnabled(Axis::Y)) {
@@ -866,7 +866,7 @@ public:
   virtual void newValue(const WDataSeries& series, double x, double y,
 			double stackY,
 			int xRow, int xColumn,
-			int yRow, int yColumn)
+			int yRow, int yColumn) override
   {
     if (Utils::isNaN(x) || Utils::isNaN(y))
       return;
@@ -942,7 +942,7 @@ private:
   int group_;
 };
 
-class MarkerRenderIterator : public SeriesIterator
+class MarkerRenderIterator final : public SeriesIterator
 {
 public:
   MarkerRenderIterator(const WCartesianChart& chart, WPainter& painter)
@@ -953,7 +953,7 @@ public:
   { }
 
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
-			   int numBarGroups, int currentBarGroup)
+			   int numBarGroups, int currentBarGroup) override
   {
     marker_ = WPainterPath();
 
@@ -967,7 +967,7 @@ public:
     return true;
   }
 
-  virtual void endSeries()
+  virtual void endSeries() override
   {
     finishPathFragment(*series_);
     series_ = 0;
@@ -979,7 +979,7 @@ public:
   virtual void newValue(const WDataSeries& series, double x, double y,
 			double stackY,
 			int xRow, int xColumn,
-			int yRow, int yColumn)
+			int yRow, int yColumn) override
   {
     if (!Utils::isNaN(x) && !Utils::isNaN(y)) {
       WPointF p = chart_.map(x, y, series.axis(),
@@ -1124,7 +1124,7 @@ private:
 };
 
 // Used to find if a given point matches a marker, for tooltips
-class MarkerMatchIterator : public SeriesIterator {
+class MarkerMatchIterator final : public SeriesIterator {
 public:
   static const double MATCH_RADIUS;
 
@@ -1141,13 +1141,13 @@ public:
       matchedYColumn_(-1)
   { }
 
-  bool startSeries(const WDataSeries &series, double groupWidth, int numBarGroups, int currentBarGroup)
+  bool startSeries(const WDataSeries &series, double groupWidth, int numBarGroups, int currentBarGroup) override
   {
     return matchedSeries_ == nullptr &&
         (series.type() == SeriesType::Point || series.type() == SeriesType::Point || series.type() == SeriesType::Curve);
   }
 
-  void newValue(const WDataSeries &series, double x, double y, double stackY, int xRow, int xColumn, int yRow, int yColumn)
+  void newValue(const WDataSeries &series, double x, double y, double stackY, int xRow, int xColumn, int yRow, int yColumn) override
   {
     if (matchedSeries_)
       return; // we already have a match

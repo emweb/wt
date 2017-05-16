@@ -27,7 +27,7 @@ namespace http {
 namespace server {
 
 /// A stock reply to be sent to a client.
-class WTHTTP_API StockReply : public Reply
+class WTHTTP_API StockReply final : public Reply
 {
 public:
   StockReply(Request& request, status_type status,
@@ -37,17 +37,17 @@ public:
 	     std::string extraContent,
 	     const Configuration& configuration);
 
-  virtual void reset(const Wt::EntryPoint *ep);
+  virtual void reset(const Wt::EntryPoint *ep) override;
 
   virtual bool consumeData(const char *begin,
 			   const char *end,
-			   Request::State state);
+			   Request::State state) override;
 
 protected:
-  virtual std::string contentType();
-  virtual ::int64_t contentLength();
+  virtual std::string contentType() override;
+  virtual ::int64_t contentLength() override;
 
-  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result);
+  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result) override;
 
 private:
   std::string content_;

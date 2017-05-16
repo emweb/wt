@@ -41,7 +41,7 @@ LOGGER("Payment.PayPal");
 
   namespace Payment {
 
-class PayPalRedirectResource : public Wt::WResource
+class PayPalRedirectResource final : public Wt::WResource
 {
 public:
   PayPalRedirectResource(PayPalExpressCheckout *checkout)
@@ -50,7 +50,7 @@ public:
   { }
 
   virtual void handleRequest(const Wt::Http::Request& request,
-                             Wt::Http::Response& response)
+                             Wt::Http::Response& response) override
   {
 #ifndef WT_TARGET_JAVA
     std::ostream& o = response.out();

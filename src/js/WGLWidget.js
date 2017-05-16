@@ -60,7 +60,7 @@ WT_DECLARE_WT_MEMBER
 	 }, false);
      canvas.addEventListener("webglcontextrestored",
 	 function(event) {
-	   Wt.emit(canvas, 'contextRestored');
+	   APP.emit(canvas, 'contextRestored');
 	 }, false);
    }
 

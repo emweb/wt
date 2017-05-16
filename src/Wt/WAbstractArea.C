@@ -34,7 +34,7 @@ namespace Wt {
       WAbstractArea *facade_;
 
     protected:
-      virtual void updateDom(DomElement& element, bool all)
+      virtual void updateDom(DomElement& element, bool all) override
       {
 	bool needsUrlResolution = facade_->updateDom(element, all);
 
@@ -49,7 +49,8 @@ namespace Wt {
 	  WAnchor::renderUrlResolution(this, element, all);
       }
 
-      virtual DomElementType domElementType() const {
+      virtual DomElementType domElementType() const override
+      {
 	return DomElementType::AREA;
       }
 

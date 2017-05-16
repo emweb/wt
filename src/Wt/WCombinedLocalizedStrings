@@ -60,14 +60,14 @@ public:
 
   const std::vector<std::shared_ptr<WLocalizedStrings>>& items() const;
 
-  virtual void hibernate();
+  virtual void hibernate() override;
 
-  virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key);
+  virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key) override;
 
 #ifndef WT_TARGET_JAVA
   virtual LocalizedString resolvePluralKey(const WLocale& locale,
 				const std::string& key, 
-				::uint64_t amount);
+				::uint64_t amount) override;
 #else // WT_TARGET_JAVA
   //TODO make this work for java
   //virtual std::string *resolveKey(const std::string& key) = 0;

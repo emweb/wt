@@ -41,7 +41,7 @@ public:
   WDefaultLoadingIndicator();
 
   virtual WWidget *widget() { return this; }
-  virtual void setMessage(const WString& text);
+  virtual void setMessage(const WString& text) override;
 };
 
 }

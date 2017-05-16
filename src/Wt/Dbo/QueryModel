@@ -247,7 +247,7 @@ public:
    * Since the query model implements a flat table model, this returns
    * 0 when \p parent is valid.
    */
-  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const override;
 
   /*! \brief Returns the number of rows.
    *
@@ -256,13 +256,13 @@ public:
    * Since the query model implements a flat table model, this returns
    * 0 when \p parent is valid.
    */
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const override;
 
   /*! \brief Returns the flags for an item.
    *
    * Returns the flags set for the column using setColumnFlags().
    */
-  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
   /*! \brief Returns the data for an item.
    *
@@ -298,7 +298,7 @@ public:
    * \sa createOrderBy()
    */
   virtual void sort(int column, 
-		    SortOrder order = SortOrder::Ascending);
+		    SortOrder order = SortOrder::Ascending) override;
 
   /*! \brief Create specialized orderBy clause for sort
    *
@@ -321,14 +321,14 @@ public:
    * underlying database.
    */
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex()) override;
 
   /*! \brief Removes one or more rows.
    *
    * For each removed row, the result is removed from the underlying database.
    */
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+			  const WModelIndex& parent = WModelIndex()) override;
 
   /*! \brief Sets header data for a column.
    *
@@ -347,8 +347,8 @@ public:
 			     Orientation orientation = Orientation::Horizontal,
                              ItemDataRole role = ItemDataRole::Display) const override;
 
-  virtual void *toRawIndex(const WModelIndex& index) const;
-  virtual WModelIndex fromRawIndex(void *rawIndex) const;
+  virtual void *toRawIndex(const WModelIndex& index) const override;
+  virtual WModelIndex fromRawIndex(void *rawIndex) const override;
 
 protected:
   /*! \brief Creates a new row.

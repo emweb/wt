@@ -32,7 +32,7 @@ public:
 
   /*! \brief Returns the message.
    */
-  virtual const char *what() const throw();
+  virtual const char *what() const throw() override;
 
   /*! \brief Sets the message.
    */

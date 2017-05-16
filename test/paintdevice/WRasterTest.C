@@ -30,15 +30,15 @@ namespace {
 	rect_(rect)
     { }
     
-    virtual double pageWidth(int page) const {
+    virtual double pageWidth(int page) const override {
       return rect_.right();
     }
     
-    virtual double pageHeight(int page) const {
+    virtual double pageHeight(int page) const override {
       return 1E9;
     }
     
-    virtual double margin(Side side) const {
+    virtual double margin(Side side) const override {
       switch (side) {
       case Side::Top: return rect_.top(); break;
       case Side::Left: return rect_.left(); break;
@@ -47,17 +47,17 @@ namespace {
       }
     }
 
-    virtual WPaintDevice *startPage(int page) {
+    virtual WPaintDevice *startPage(int page) override {
       if (page > 0)
 	assert(false);
       
       return painter_.device();
     }
     
-    virtual void endPage(WPaintDevice *device) {
+    virtual void endPage(WPaintDevice *device) override {
     }
 
-    virtual WPainter *getPainter(WPaintDevice *device) {
+    virtual WPainter *getPainter(WPaintDevice *device) override {
       return &painter_;
     }
     

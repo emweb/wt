@@ -91,7 +91,7 @@ public:
    * This resets the model to initial values, clearing any entered information
    * (login name, password, pre-identified identity).
    */
-  virtual void reset();
+  virtual void reset() override;
 
   /*! \brief Returns the login object.
    */
@@ -196,9 +196,9 @@ public:
    */
   virtual User doRegister();
 
-  virtual bool isVisible(Field field) const;
-  virtual bool isReadOnly(Field field) const;
-  virtual bool validateField(Field field);
+  virtual bool isVisible(Field field) const override;
+  virtual bool isReadOnly(Field field) const override;
+  virtual bool validateField(Field field) override;
 
   /*! \brief Returns whether an existing user needs to be confirmed.
    *

@@ -381,7 +381,7 @@ public:
   virtual WModelIndex fromRawIndex(void *rawIndex) const override;
 
   virtual void dropEvent(const WDropEvent& e, DropAction action,
-			 int row, int column, const WModelIndex& parent);
+			 int row, int column, const WModelIndex& parent) override;
 
 #endif // DOXYGEN_ONLY
 

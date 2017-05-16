@@ -82,7 +82,7 @@ namespace {
 namespace Wt {
 
   namespace Impl {
-    class SentinelTreeNode : public WTreeNode
+    class SentinelTreeNode final : public WTreeNode
     {
     public:
       SentinelTreeNode(WTree *tree)
@@ -94,15 +94,15 @@ namespace Wt {
 	expand();
      }
       
-     virtual WTree *tree() const { return tree_; }
+     virtual WTree *tree() const override { return tree_; }
 
     protected:
-      virtual void descendantRemoved(WTreeNode *node)
+      virtual void descendantRemoved(WTreeNode *node) override
       {
 	tree_->nodeRemoved(node);
       }
 
-      virtual void descendantAdded(WTreeNode *node)
+      virtual void descendantAdded(WTreeNode *node) override
       {
 	tree_->nodeAdded(node);
       }

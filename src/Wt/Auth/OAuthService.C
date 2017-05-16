@@ -45,7 +45,7 @@ LOGGER("Auth.OAuthService");
 
   namespace Auth {
 
-class OAuthRedirectEndpoint : public WResource
+class OAuthRedirectEndpoint final : public WResource
 {
 public:
   OAuthRedirectEndpoint(OAuthProcess *process)
@@ -66,7 +66,7 @@ public:
   }
 
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response)
+			     Http::Response& response) override
   {
 #ifndef WT_TARGET_JAVA
     if (!request.continuation()) {
@@ -531,7 +531,7 @@ struct OAuthService::Impl
   std::mutex mutex_;
 #endif // WT_THREADED
 
-  class RedirectEndpoint : public WResource
+  class RedirectEndpoint final : public WResource
   {
   public:
     RedirectEndpoint(const OAuthService& service)
@@ -539,7 +539,7 @@ struct OAuthService::Impl
     { }
 
     virtual void handleRequest(const Http::Request& request,
-			       Http::Response& response)
+			       Http::Response& response) override
     {
       const std::string *stateE = request.getParameter("state");
 

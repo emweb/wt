@@ -174,16 +174,16 @@ namespace Impl {
   };
 
   template <typename T>
-  class TypeHandler : public AbstractTypeHandler {
-    virtual WString asString(const cpp17::any& v, const WString& format) {
+  class TypeHandler final : public AbstractTypeHandler {
+    virtual WString asString(const cpp17::any& v, const WString& format) override {
       return any_traits<T>::asString(cpp17::any_cast<T>(v), format);
     }
 
-    virtual double asNumber(const cpp17::any& v) {
+    virtual double asNumber(const cpp17::any& v) override {
       return any_traits<T>::asNumber(cpp17::any_cast<T>(v));
     }
 
-    virtual int compare(const cpp17::any& v1, const cpp17::any& v2) {
+    virtual int compare(const cpp17::any& v1, const cpp17::any& v2) override {
       return any_traits<T>::compare(cpp17::any_cast<T>(v1),
 					  cpp17::any_cast<T>(v2));
     }

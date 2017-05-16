@@ -36,7 +36,7 @@ class Server;
 typedef asio::ssl::stream<asio::ip::tcp::socket> ssl_socket;
 
 /// Represents a single connection from a client.
-class SslConnection : public Connection
+class SslConnection final : public Connection
 {
 public:
   /// Construct a connection with the given io_service.
@@ -45,20 +45,20 @@ public:
       ConnectionManager& manager, RequestHandler& handler);
 
   /// Get the socket associated with the connection.
-  virtual asio::ip::tcp::socket& socket();
+  virtual asio::ip::tcp::socket& socket() override;
 
-  virtual void start();
-  virtual const char *urlScheme() { return "https"; }
+  virtual void start() override;
+  virtual const char *urlScheme() override { return "https"; }
 
 protected:
 
-  virtual void stop();
+  virtual void stop() override;
 
-  virtual void startAsyncReadRequest(Buffer& buffer, int timeout);
-  virtual void startAsyncReadBody(ReplyPtr reply, Buffer& buffer, int timeout);
+  virtual void startAsyncReadRequest(Buffer& buffer, int timeout) override;
+  virtual void startAsyncReadBody(ReplyPtr reply, Buffer& buffer, int timeout) override;
   virtual void startAsyncWriteResponse
       (ReplyPtr reply, const std::vector<asio::const_buffer>& buffers,
-       int timeout);
+       int timeout) override;
 
 private:
   void handleReadRequestSsl(const Wt::Asio::error_code& e,

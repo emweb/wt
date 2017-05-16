@@ -29,23 +29,23 @@ namespace server {
 class StockReply;
 class Request;
 
-class StaticReply : public Reply
+class StaticReply final : public Reply
 {
 public:
   StaticReply(Request& request, const Configuration& config);
 
-  virtual void reset(const Wt::EntryPoint *ep);
-  virtual void writeDone(bool success);
+  virtual void reset(const Wt::EntryPoint *ep) override;
+  virtual void writeDone(bool success) override;
 
   virtual bool consumeData(const char *begin,
 			   const char *end,
-			   Request::State state);
+			   Request::State state) override;
 
 protected:
-  virtual std::string contentType();
-  virtual ::int64_t contentLength();
+  virtual std::string contentType() override;
+  virtual ::int64_t contentLength() override;
 
-  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result);
+  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result) override;
 
 private:
   std::string path_;

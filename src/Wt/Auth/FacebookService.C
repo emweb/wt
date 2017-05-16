@@ -25,14 +25,14 @@ LOGGER("Auth.FacebookService");
 
   namespace Auth {
 
-class FacebookProcess : public OAuthProcess
+class FacebookProcess final : public OAuthProcess
 {
 public:
   FacebookProcess(const FacebookService& auth, const std::string& scope)
     : OAuthProcess(auth, scope)
   { }
 
-  virtual void getIdentity(const OAuthAccessToken& token)
+  virtual void getIdentity(const OAuthAccessToken& token) override
   {
     httpClient_.reset(new Http::Client());
     httpClient_->setTimeout(15);

@@ -150,13 +150,13 @@ public:
    */
   const std::set<std::string> keys(const WLocale& locale) const;
 
-  virtual void hibernate();
+  virtual void hibernate() override;
 
 #ifndef WT_TARGET_JAVA
-  virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key);
+  virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key) override;
   virtual LocalizedString resolvePluralKey(const WLocale& locale,
 				const std::string& key,
-				::uint64_t amount);
+				::uint64_t amount) override;
 #else // WT_TARGET_JAVA
   virtual std::string *resolveKey(const WLocale& locale,
 				  const std::string& key) = 0;

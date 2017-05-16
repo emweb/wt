@@ -6,7 +6,7 @@
 SAMPLE_BEGIN(Slider)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-container->addWidget(Wt::cpp14::make_unique<Wt::WText>("In which year are you born?"));
+container->addWidget(Wt::cpp14::make_unique<Wt::WText>("In which year were you born?"));
 container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
 
 Wt::WSlider *slider =
@@ -23,7 +23,7 @@ Wt::WText *out =
     container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
 slider->valueChanged().connect(std::bind([=] () {
-    out->setText("I'm born in the year " + slider->valueText() + ".");
+    out->setText("I was born in the year " + slider->valueText() + ".");
 }));
 
 SAMPLE_END(return std::move(container))

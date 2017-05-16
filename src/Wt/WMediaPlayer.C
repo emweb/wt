@@ -50,7 +50,7 @@ const char *WMediaPlayer::PLAYBACK_PAUSED_SIGNAL = "jPlayer_pause.Wt";
 const char *WMediaPlayer::ENDED_SIGNAL = "jPlayer_ended.Wt";
 const char *WMediaPlayer::VOLUME_CHANGED_SIGNAL = "jPlayer_volumechange.Wt";
 
-class WMediaPlayerImpl : public WTemplate
+class WMediaPlayerImpl final : public WTemplate
 {
 public:
   WMediaPlayerImpl(WMediaPlayer *player, const WString& text)
@@ -61,7 +61,7 @@ public:
   }
 
 protected:
-  virtual std::string renderRemoveJs(bool recursive)
+  virtual std::string renderRemoveJs(bool recursive) override
   {
     if (isRendered()) {
       std::string result = player_->jsPlayerRef() + ".jPlayer('destroy');";
@@ -74,7 +74,7 @@ protected:
       return WTemplate::renderRemoveJs(recursive);
   }
 
-  virtual void setFormData(const FormData& formData)
+  virtual void setFormData(const FormData& formData) override
   {
     player_->setFormData(formData);
   }

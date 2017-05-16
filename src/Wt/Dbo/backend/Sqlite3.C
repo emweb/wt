@@ -46,7 +46,7 @@ public:
   { }
 };
 
-class Sqlite3Statement : public SqlStatement
+class Sqlite3Statement final : public SqlStatement
 {
 public:
   Sqlite3Statement(Sqlite3& db, const std::string& sql)
@@ -75,7 +75,7 @@ public:
     sqlite3_finalize(st_);
   }
 
-  virtual void reset()
+  virtual void reset() override
   {
     if (st_) {
       int err = sqlite3_reset(st_);
@@ -88,7 +88,7 @@ public:
     state_ = Done;
   }
 
-  virtual void bind(int column, const std::string& value)
+  virtual void bind(int column, const std::string& value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
@@ -99,7 +99,7 @@ public:
     handleErr(err);
   }
 
-  virtual void bind(int column, short value)
+  virtual void bind(int column, short value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
@@ -108,7 +108,7 @@ public:
     handleErr(err);
   }
 
-  virtual void bind(int column, int value)
+  virtual void bind(int column, int value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
@@ -117,7 +117,7 @@ public:
     handleErr(err);
   }
 
-  virtual void bind(int column, long long value)
+  virtual void bind(int column, long long value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
@@ -126,12 +126,12 @@ public:
     handleErr(err);
   }
 
-  virtual void bind(int column, float value)
+  virtual void bind(int column, float value) override
   {
     bind(column, static_cast<double>(value));
   }
 
-  virtual void bind(int column, double value)
+  virtual void bind(int column, double value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
@@ -144,7 +144,7 @@ public:
     handleErr(err);
   }
 
-  virtual void bind(int column, const std::chrono::duration<int, std::milli> & value)
+  virtual void bind(int column, const std::chrono::duration<int, std::milli> & value) override
   {
     std::chrono::system_clock::time_point tp(value);
     std::time_t t = std::chrono::system_clock::to_time_t(tp);
@@ -166,7 +166,7 @@ public:
   }
 
   virtual void bind(int column, const std::chrono::system_clock::time_point& value,
-		    SqlDateTimeType type)
+		    SqlDateTimeType type) override
   {
     DateTimeStorage storageType = db_.dateTimeStorage(type);
     std::time_t t = std::chrono::system_clock::to_time_t(value);
@@ -228,7 +228,7 @@ public:
     };
   }
 
-  virtual void bind(int column, const std::vector<unsigned char>& value)
+  virtual void bind(int column, const std::vector<unsigned char>& value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " (blob, size=" <<
 	  value.size() << ")" << std::endl);
@@ -244,7 +244,7 @@ public:
     handleErr(err);
   }
 
-  virtual void bindNull(int column)
+  virtual void bindNull(int column) override
   {
     DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
 
@@ -253,7 +253,7 @@ public:
     handleErr(err);
   }
 
-  virtual void execute()
+  virtual void execute() override
   {
     if (db_.showQueries())
       std::cerr << sql_ << std::endl;
@@ -271,17 +271,17 @@ public:
     }
   }
 
-  virtual long long insertedId()
+  virtual long long insertedId() override
   {
     return sqlite3_last_insert_rowid(db_.connection());
   }
 
-  virtual int affectedRowCount()
+  virtual int affectedRowCount() override
   {
     return sqlite3_changes(db_.connection());
   }
   
-  virtual bool nextRow()
+  virtual bool nextRow() override
   {
     switch (state_) {
     case NoFirstRow:
@@ -313,7 +313,7 @@ public:
     return false;
   }
 
-  virtual bool getResult(int column, std::string *value, int size)
+  virtual bool getResult(int column, std::string *value, int size) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -326,7 +326,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, short *value)
+  virtual bool getResult(int column, short *value) override
   {
     int intValue;
     if (getResult(column, &intValue)) {
@@ -336,7 +336,7 @@ public:
       return false;
   }
 
-  virtual bool getResult(int column, int *value)
+  virtual bool getResult(int column, int *value) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -350,7 +350,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, long long *value)
+  virtual bool getResult(int column, long long *value) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -363,7 +363,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, float *value)
+  virtual bool getResult(int column, float *value) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -376,7 +376,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, double *value)
+  virtual bool getResult(int column, double *value) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -389,7 +389,7 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, std::chrono::duration<int, std::milli> *value)
+  virtual bool getResult(int column, std::chrono::duration<int, std::milli> *value) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -405,7 +405,7 @@ public:
   }
 
   virtual bool getResult(int column, std::chrono::system_clock::time_point *value,
-			 SqlDateTimeType type)
+			 SqlDateTimeType type) override
   {
     DateTimeStorage storageType = db_.dateTimeStorage(type);
 
@@ -502,7 +502,7 @@ public:
 
 
   virtual bool getResult(int column, std::vector<unsigned char> *value,
-			 int size)
+			 int size) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -521,7 +521,7 @@ public:
   }
 
  
-  virtual std::string sql() const {
+  virtual std::string sql() const override {
     return sql_;
   }
 

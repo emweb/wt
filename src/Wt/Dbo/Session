@@ -521,21 +521,19 @@ private:
     Registry registry_;
 
     virtual ~Mapping();
-    virtual void init(Session& session);
+    virtual void init(Session& session) override;
     virtual void dropTable(Session& session,
-			   std::set<std::string>& tablesDropped);
-    virtual void rereadAll();
-    virtual MetaDbo<C> *create(Session& session);
-    virtual void load(Session& session, MetaDboBase *obj);
+			   std::set<std::string>& tablesDropped) override;
+    virtual void rereadAll() override;
+    virtual MetaDbo<C> *create(Session& session) override;
+    virtual void load(Session& session, MetaDboBase *obj) override;
     virtual MetaDbo<C> *load(Session& session, SqlStatement *statement,
-			     int& column);
+			     int& column) override;
   };
   
   typedef const std::type_info * const_typeinfo_ptr;
   struct typecomp {
-    bool operator() (const const_typeinfo_ptr& lhs, const const_typeinfo_ptr& rhs) const 
-	{
-	  return lhs->before(*rhs) != 0;
+    bool operator() (const const_typeinfo_ptr& lhs, const const_typeinfo_ptr& rhs) const { return lhs->before(*rhs) != 0;
 	}
   };
   

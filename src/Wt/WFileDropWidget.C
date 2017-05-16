@@ -18,9 +18,61 @@
 #include "js/WFileDropWidget.min.js"
 #endif
 
-#define NestedResource Wt::WFileDropWidget::WFileDropUploadResource
-
 namespace Wt {
+
+class WFileDropWidget::WFileDropUploadResource final : public WResource {
+public:
+  WFileDropUploadResource(WFileDropWidget *fileDropWidget)
+    : WResource(),
+      parent_(fileDropWidget),
+      app_(WApplication::instance())
+  {
+    setUploadProgress(true);
+  }
+
+  virtual void handleRequest(const Http::Request &request,
+			     Http::Response &response) override
+  {
+#ifndef WT_TARGET_JAVA
+    WApplication::UpdateLock lock(WApplication::instance());
+#else
+    WApplication::UpdateLock lock = WApplication::instance()->getUpdateLock();
+#endif
+    const std::string *fileId = request.getParameter("file-id");
+    if (fileId == 0 || (*fileId).empty()) {
+      response.setStatus(404);
+      return;
+    }
+    int id = Utils::stoi(*fileId);
+    bool validId = parent_->incomingIdCheck(id);
+    if (!validId) {
+      response.setStatus(404);
+      return;
+    }
+    
+    std::vector<Http::UploadedFile> files;
+    Utils::find(request.uploadedFiles(), "data", files);
+    if (files.empty()) {
+      response.setStatus(404);
+      return;
+    }
+  
+    parent_->setUploadedFile(files[0]);
+    // WServer::instance()->post(app_->sessionId(),
+    // 			    boost::bind(&WFileDropWidget::setUploadedFile,
+    // 					parent_, files[0]));
+#ifdef WT_TARGET_JAVA
+    lock.release();
+#endif  
+  }
+
+  void setCurrentFile(File *file) { currentFile_ = file; }
+
+private:
+  WFileDropWidget *parent_;
+  WApplication *app_;
+  File *currentFile_;
+};
 
 WFileDropWidget::File::File(int id, const std::string& fileName,
                             const std::string& type, ::uint64_t size)
@@ -54,51 +106,6 @@ bool WFileDropWidget::File::cancelled() const
 {
   return cancelled_;
 }
-  
-NestedResource::WFileDropUploadResource(WFileDropWidget *fileDropWidget)
-  : WResource(),
-    parent_(fileDropWidget),
-    app_(WApplication::instance())
-{
-  setUploadProgress(true);
-}
-
-void NestedResource::handleRequest(const Http::Request& request,
-				   Http::Response& response)
-{
-#ifndef WT_TARGET_JAVA
-  WApplication::UpdateLock lock(WApplication::instance());
-#else
-  WApplication::UpdateLock lock = WApplication::instance()->getUpdateLock();
-#endif
-  const std::string *fileId = request.getParameter("file-id");
-  if (fileId == 0 || (*fileId).empty()) {
-    response.setStatus(404);
-    return;
-  }
-  int id = Utils::stoi(*fileId);
-  bool validId = parent_->incomingIdCheck(id);
-  if (!validId) {
-    response.setStatus(404);
-    return;
-  }
-  
-  std::vector<Http::UploadedFile> files;
-  Utils::find(request.uploadedFiles(), "data", files);
-  if (files.empty()) {
-    response.setStatus(404);
-    return;
-  }
-
-  parent_->setUploadedFile(files[0]);
-  // WServer::instance()->post(app_->sessionId(),
-  // 			    boost::bind(&WFileDropWidget::setUploadedFile,
-  // 					parent_, files[0]));
-#ifdef WT_TARGET_JAVA
-  lock.release();
-#endif  
-}
-
 
 WFileDropWidget::WFileDropWidget()
   : resource_(nullptr),

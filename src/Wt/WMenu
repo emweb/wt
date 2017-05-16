@@ -562,10 +562,10 @@ public:
    */
   WMenuItem *parentItem() const { return parentItem_; }
 
-  virtual void load();
+  virtual void load() override;
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags) override;
 
   /*! \brief Handling of internal path changes.
    *

@@ -14,7 +14,7 @@
 namespace http {
 namespace server {
 
-class ProxyReply : public Reply
+class ProxyReply final : public Reply
 {
 public:
   ProxyReply(Request& request,
@@ -23,21 +23,21 @@ public:
 
   virtual ~ProxyReply();
 
-  virtual void reset(const Wt::EntryPoint *ep);
+  virtual void reset(const Wt::EntryPoint *ep) override;
 
-  virtual void writeDone(bool success);
+  virtual void writeDone(bool success) override;
 
   virtual bool consumeData(const char *begin,
 			   const char *end,
-			   Request::State state);
+			   Request::State state) override;
 
   void closeClientSocket();
 
 protected:
-  virtual std::string contentType();
-  virtual ::int64_t contentLength();
+  virtual std::string contentType() override;
+  virtual ::int64_t contentLength() override;
 
-  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result);
+  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result) override;
 
 private:
   void error(status_type status);

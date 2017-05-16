@@ -135,14 +135,14 @@ public:
    */
   HPDF_Page currentPage() const { return page_; }
 
-  virtual double pageWidth(int page) const;
-  virtual double pageHeight(int page) const;
+  virtual double pageWidth(int page) const override;
+  virtual double pageHeight(int page) const override;
 
-  virtual double margin(Side side) const;
+  virtual double margin(Side side) const override;
 
-  virtual WPaintDevice *startPage(int page);
-  virtual void endPage(WPaintDevice *device);
-  virtual WPainter *getPainter(WPaintDevice *device);
+  virtual WPaintDevice *startPage(int page) override;
+  virtual void endPage(WPaintDevice *device) override;
+  virtual WPainter *getPainter(WPaintDevice *device) override;
 
   /*! \brief Creates a new page.
    *

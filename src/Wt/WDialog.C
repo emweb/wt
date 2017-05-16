@@ -69,7 +69,7 @@ public:
       scheduleRender();
   }
 
-  virtual bool isExposed(WWidget *w) {
+  virtual bool isExposed(WWidget *w) final override {
     for (unsigned i = dialogs_.size(); i > 0; --i) {
       unsigned j = i - 1;
 
@@ -95,7 +95,7 @@ public:
   }
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags) {
+  virtual void render(WFlags<RenderFlag> flags) final override {
     if (dialogs_.empty())
       topDialogId_.clear();
     else

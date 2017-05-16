@@ -174,7 +174,7 @@ public:
    *
    * \sa isSelectable(), WTree::select(WTreeNode *, bool)
    */
-  void setSelectable(bool selectable);
+  virtual void setSelectable(bool selectable) override;
 
   /*! \brief Returns if this node may be selected.
    *
@@ -251,7 +251,7 @@ public:
   Signal<bool>& selected() { return selected_; }
 
 #ifndef WT_TARGET_JAVA
-  virtual bool hasParent() const;
+  virtual bool hasParent() const override;
 #endif //WT_TARGET_JAVA
 
 protected:

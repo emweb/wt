@@ -136,9 +136,9 @@ public:
    */
   WWidget *templateWidget();
 
-  std::string declarations();
+  virtual std::string declarations() override;
 
-  bool updateDomElement(DomElement& cssRuleElement, bool all);
+  virtual bool updateDomElement(DomElement& cssRuleElement, bool all) override;
 
 private:
   std::unique_ptr<WCssTemplateWidget> widget_;
@@ -167,7 +167,7 @@ public:
   WCssTextRule(const std::string& selector, 
 	       const WT_USTRING& declarations);
 
-  std::string declarations();
+  virtual std::string declarations() override;
 
 private:
   WT_USTRING declarations_;

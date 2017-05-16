@@ -103,7 +103,7 @@ void ProxyReply::writeDone(bool success)
        asio::transfer_at_least(1),
        connection()->strand().wrap
        (std::bind(&ProxyReply::handleResponseRead,
-		  std::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
 		  std::placeholders::_1)));
   }
 }
@@ -132,7 +132,7 @@ bool ProxyReply::consumeData(const char *begin,
 	 connection()->strand().wrap
 	 (std::bind
 	  (&ProxyReply::handleDataWritten,
-	   std::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+	   std::static_pointer_cast<ProxyReply>(shared_from_this()),
 	   std::placeholders::_1,
 	   std::placeholders::_2)));
     } else {
@@ -189,7 +189,7 @@ bool ProxyReply::consumeData(const char *begin,
 	    connection()->strand().wrap
 	    (std::bind
 	     (&ProxyReply::connectToChild,
-	      std::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+	      std::static_pointer_cast<ProxyReply>(shared_from_this()),
 	      std::placeholders::_1)));
 	sessionManager_.addPendingSessionProcess(sessionProcess_);
       } else {
@@ -214,7 +214,7 @@ void ProxyReply::connectToChild(bool success)
       (sessionProcess_->endpoint(),
        connection()->strand().wrap
        (std::bind(&ProxyReply::handleChildConnected,
-		  std::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
 		  std::placeholders::_1)));
   } else {
     error(service_unavailable);
@@ -241,7 +241,7 @@ void ProxyReply::handleChildConnected(const Wt::Asio::error_code& ec)
      connection()->strand().wrap
      (std::bind
       (&ProxyReply::handleDataWritten,
-       std::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+       std::static_pointer_cast<ProxyReply>(shared_from_this()),
        std::placeholders::_1, std::placeholders::_2)));
 }
 
@@ -343,7 +343,7 @@ void ProxyReply::handleDataWritten(const Wt::Asio::error_code &ec,
 	 connection()->strand().wrap
 	 (std::bind
 	  (&ProxyReply::handleStatusRead,
-	   std::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+	   std::static_pointer_cast<ProxyReply>(shared_from_this()),
 	   std::placeholders::_1)));
     }
   } else {
@@ -375,7 +375,7 @@ void ProxyReply::handleStatusRead(const Wt::Asio::error_code &ec)
       (*socket_, responseBuf_, "\r\n\r\n",
        connection()->strand().wrap
        (std::bind(&ProxyReply::handleHeadersRead,
-		  std::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
 		  std::placeholders::_1)));
   } else {
     LOG_ERROR("error reading status line: " << ec.message());

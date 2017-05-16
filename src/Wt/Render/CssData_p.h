@@ -11,14 +11,14 @@
 namespace Wt {
 namespace Render {
 
-struct SimpleSelectorImpl : public SimpleSelector
+struct SimpleSelectorImpl final : public SimpleSelector
 {
 public:
   SimpleSelectorImpl(){}
-  virtual const std::string& elementName() const { return elementName_; }
-  virtual DomElementType elementType() const { return elementType_; }
-  virtual const std::string& hashId()      const { return hashid_; }
-  virtual const std::vector<std::string>& classes() const { return classes_; }
+  virtual const std::string& elementName() const override { return elementName_; }
+  virtual DomElementType elementType() const override { return elementType_; }
+  virtual const std::string& hashId()      const override { return hashid_; }
+  virtual const std::vector<std::string>& classes() const override { return classes_; }
 
   void setElementName(const std::string& name) {
     elementName_ = name; 
@@ -35,13 +35,13 @@ public:
   std::string hashid_;
 };
 
-class SelectorImpl : public Selector
+class SelectorImpl final : public Selector
 {
 public:
   SelectorImpl(){}
-  virtual unsigned int size()      const { return simpleSelectors_.size(); }
-  virtual const SimpleSelector& at(int i) const{ return simpleSelectors_[i];}
-  virtual Specificity specificity() const
+  virtual unsigned int size()      const override { return simpleSelectors_.size(); }
+  virtual const SimpleSelector& at(int i) const override { return simpleSelectors_[i];}
+  virtual Specificity specificity() const override
   {
     // http://www.w3.org/TR/CSS21/cascade.html#specificity
     int a = 0, b = 0, c = 0, d = 0;
@@ -75,8 +75,8 @@ class DeclarationBlockImpl : public DeclarationBlock
 {
 public:
   DeclarationBlockImpl() { }
-  virtual Term value(const std::string& property) const;
-  virtual const std::string& declarationString() const
+  virtual Term value(const std::string& property) const override;
+  virtual const std::string& declarationString() const override
     { return declarationString_; }
 
   std::map<std::string, Term > properties_;
@@ -87,8 +87,8 @@ class RulesetImpl : public Ruleset
 {
 public:
   RulesetImpl() { }
-  virtual const Selector&         selector        () const { return selector_; }
-  virtual const DeclarationBlock& declarationBlock() const { return block_; }
+  virtual const Selector&         selector        () const override { return selector_; }
+  virtual const DeclarationBlock& declarationBlock() const override { return block_; }
 
   void setBlock(const DeclarationBlockImpl& b){ block_ = b; }
 
@@ -100,8 +100,8 @@ class StyleSheetImpl : public StyleSheet
 {
 public:
   StyleSheetImpl() { }
-  virtual unsigned int   rulesetSize()    const { return rulesetArray_.size(); }
-  virtual const Ruleset& rulesetAt(int i) const { return rulesetArray_[i]; }
+  virtual unsigned int   rulesetSize()    const override { return rulesetArray_.size(); }
+  virtual const Ruleset& rulesetAt(int i) const override { return rulesetArray_[i]; }
 
   std::vector<RulesetImpl> rulesetArray_;
 };

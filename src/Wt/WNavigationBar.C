@@ -18,7 +18,7 @@ namespace Wt {
 
 LOGGER("WNavigationBar");
 
-class NavContainer : public WContainerWidget
+class NavContainer final : public WContainerWidget
 {
 public:
   NavContainer()
@@ -29,7 +29,7 @@ public:
   }
 
   virtual void setHidden(bool hidden,
-                         const WAnimation& animation = WAnimation())
+                         const WAnimation& animation = WAnimation()) override
   {
     if (isBootstrap2Responsive()) {
       if (animation.empty()) {

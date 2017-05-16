@@ -91,7 +91,7 @@ void WtReply::reset(const Wt::EntryPoint *ep)
   readMessageCallback_ = nullptr;
 
   if (httpRequest_)
-    httpRequest_->reset(std::dynamic_pointer_cast<WtReply>
+    httpRequest_->reset(std::static_pointer_cast<WtReply>
 			(shared_from_this()), ep);
 
   if (&in_mem_ != in_) {
@@ -174,7 +174,7 @@ void WtReply::consumeRequestBody(const char *begin,
        * the web application is interested in knowing upload progress
        */
       if (!httpRequest_)
-	httpRequest_ = new HTTPRequest(std::dynamic_pointer_cast<WtReply>
+	httpRequest_ = new HTTPRequest(std::static_pointer_cast<WtReply>
 				       (shared_from_this()), entryPoint_);
 
       if (end - begin > 0) {
@@ -280,7 +280,7 @@ void WtReply::consumeRequestBody(const char *begin,
        * We already create the HTTP request because waitMoreData() depends
        * on it.
        */
-      httpRequest_ = new HTTPRequest(std::dynamic_pointer_cast<WtReply>
+      httpRequest_ = new HTTPRequest(std::static_pointer_cast<WtReply>
                                      (shared_from_this()), entryPoint_);
       httpRequest_->setWebSocketRequest(true);
       
@@ -299,7 +299,7 @@ void WtReply::consumeRequestBody(const char *begin,
       in_mem_.write(begin, static_cast<std::streamsize>(end - begin));
 
       if (!httpRequest_) {
-	httpRequest_ = new HTTPRequest(std::dynamic_pointer_cast<WtReply>
+	httpRequest_ = new HTTPRequest(std::static_pointer_cast<WtReply>
 				       (shared_from_this()), entryPoint_);
 	httpRequest_->setWebSocketRequest(true);
       }

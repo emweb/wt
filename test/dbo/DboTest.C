@@ -2298,7 +2298,7 @@ BOOST_AUTO_TEST_CASE( dbo_test25 )
     public:
       custom_sort_model() : dbo::QueryModel<dbo::ptr<F>>() { }
 
-      virtual std::string createOrderBy(int column, Wt::SortOrder order)
+      virtual std::string createOrderBy(int column, Wt::SortOrder order) override
       {
         std::string dir 
 	  = (order == Wt::SortOrder::Ascending ? "asc" : "desc");

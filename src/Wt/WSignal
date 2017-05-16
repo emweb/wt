@@ -203,7 +203,7 @@ public:
   Signal();
 
   virtual Wt::Signals::connection connect(WObject *target,
-					  WObject::Method method);
+					  WObject::Method method) override;
 
   /*! \brief Connects to a function.
    *
@@ -262,7 +262,7 @@ public:
    */
   void operator()(A... args) const;
 
-  virtual bool isConnected() const;
+  virtual bool isConnected() const override;
 
 private:
   typedef Signals::Signal<A...> SignalType;
@@ -305,7 +305,7 @@ public:
 
   bool needsUpdate(bool all) const;
   void updateOk();
-  virtual bool isConnected() const;
+  virtual bool isConnected() const override;
 
   virtual const std::string encodeCmd() const;
   const std::string javaScript() const;
@@ -480,7 +480,7 @@ public:
 
   /*! \brief Returns whether the signal is connected.
    */
-  virtual bool isConnected() const;
+  virtual bool isConnected() const override;
 
   /*! \brief Connects to a function.
    *
@@ -585,16 +585,16 @@ public:
   void operator()(E e) const;
 
   virtual Wt::Signals::connection connect(WObject *target,
-					  WObject::Method method);
+					  WObject::Method method) override;
 
 protected:
-  virtual int argumentCount() const;
+  virtual int argumentCount() const override;
 
 private:
   typedef Signals::Signal<E> SignalType;
   SignalType dynamic_;
 
-  void processDynamic(const JavaScriptEvent& e) const;
+  void processDynamic(const JavaScriptEvent& e) const override;
 };
 
 #ifdef WT_CNOR
@@ -605,7 +605,7 @@ public:
   EventSignal0(const char *name, WObject *owner);
   ~EventSignal0();
 
-  virtual bool isConnected() const;
+  virtual bool isConnected() const override;
 
   Wt::Signals::connection connect(const boost::bound& f);
   void connect(const std::string& function);

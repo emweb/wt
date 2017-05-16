@@ -28,7 +28,7 @@ LOGGER("Render.WTextRenderer");
 
   namespace Render {
 
-class CombinedStyleSheet : public StyleSheet
+class CombinedStyleSheet final : public StyleSheet
 {
 public:
   CombinedStyleSheet() { }
@@ -43,14 +43,16 @@ public:
     sheets_owned_.push_back(std::move(sh));
   }
 
-  virtual unsigned int rulesetSize() const {
+  virtual unsigned int rulesetSize() const override
+  {
     unsigned int result = 0;
     for (unsigned i = 0; i < sheets_.size(); ++i)
       result += sheets_[i]->rulesetSize();
     return result;
   }
 
-  virtual const Ruleset& rulesetAt(int j) const {
+  virtual const Ruleset& rulesetAt(int j) const override
+  {
     for (unsigned i = 0; i < sheets_.size(); ++i) {
       if ((unsigned)j < sheets_[i]->rulesetSize())
 	return sheets_[i]->rulesetAt(j);

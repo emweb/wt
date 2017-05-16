@@ -62,7 +62,7 @@ namespace {
     }
 
     virtual void handleRequest(const Http::Request& request,
-			       Http::Response& response) 
+			       Http::Response& response) override
     {
       if (continuation_)
 	handleWithContinuation(request, response);
@@ -70,7 +70,7 @@ namespace {
 	handleSimple(request, response);
     }
 
-    virtual void handleAbort(const Http::Request& request)
+    virtual void handleAbort(const Http::Request& request) override
     {
       ++aborted_;
     }

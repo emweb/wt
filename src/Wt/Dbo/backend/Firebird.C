@@ -60,7 +60,7 @@ namespace Wt
 	{ }
       };
 
-      class FirebirdStatement : public SqlStatement
+      class FirebirdStatement final : public SqlStatement
       {
       public:
 	FirebirdStatement(Firebird& conn, const std::string& sql)
@@ -91,46 +91,46 @@ namespace Wt
 	virtual ~FirebirdStatement()
 	{ }
 
-	virtual void reset()
+	virtual void reset() override
 	{ }
 
 	// The first column index is 1!
-	virtual void bind(int column, const std::string& value)
+	virtual void bind(int column, const std::string& value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, value);
 	}
 
-	virtual void bind(int column, short value)
+	virtual void bind(int column, short value) override
 	{
 	  DEBUG(bindErr(column, value));
 
 	  m_stmt->Set(column + 1, value);
 	}
 
-	virtual void bind(int column, int value)
+	virtual void bind(int column, int value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, value);
 	}
 
-	virtual void bind(int column, long long value)
+	virtual void bind(int column, long long value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, (int64_t) value);
 	}
 
-	virtual void bind(int column, float value)
+	virtual void bind(int column, float value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, value);
 	}
 
-	virtual void bind(int column, double value)
+	virtual void bind(int column, double value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
@@ -144,7 +144,7 @@ namespace Wt
     }
 
 	virtual void bind(int column, 
-              const std::chrono::duration<int, std::milli> & value)
+              const std::chrono::duration<int, std::milli> & value) override
     {
       std::chrono::system_clock::time_point tp(value);
       std::time_t time = std::chrono::system_clock::to_time_t(tp);
@@ -164,7 +164,7 @@ namespace Wt
 
 	virtual void bind(int column, 
               const std::chrono::system_clock::time_point& value,
-			  SqlDateTimeType type)
+			  SqlDateTimeType type) override
 	{
       std::time_t t = std::chrono::system_clock::to_time_t(value);
       std::tm *tm = std::gmtime(&t);
@@ -189,7 +189,7 @@ namespace Wt
 	  }
 	}
 
-	virtual void bind(int column, const std::vector<unsigned char>& value)
+	virtual void bind(int column, const std::vector<unsigned char>& value) override
     {
 
 	  IBPP::Blob b = IBPP::BlobFactory(conn_.impl_->m_db, 
@@ -201,14 +201,14 @@ namespace Wt
 	  m_stmt->Set(column + 1, b);
 	}
 
-	virtual void bindNull(int column)
+	virtual void bindNull(int column) override
 	{
 	  DEBUG(bindErr(column, "null"));
 	  
 	  m_stmt->SetNull(column + 1);
 	}
 
-	virtual void execute()
+	virtual void execute() override
 	{
 	  if (conn_.showQueries())
 	    std::cerr << sql_ << std::endl;
@@ -235,17 +235,17 @@ namespace Wt
 	  }
 	}
 	
-	virtual long long insertedId()
+	virtual long long insertedId() override
 	{
 	  return lastId_;
 	}
 
-	virtual int affectedRowCount()
+	virtual int affectedRowCount() override
 	{
 	  return affectedRows_;
 	}
 
-	virtual bool nextRow()
+	virtual bool nextRow() override
 	{
 	  try {
 	    return m_stmt->Fetch();
@@ -259,7 +259,7 @@ namespace Wt
 	  m_stmt->Get(column, *value);
 	}
 
-	virtual bool getResult(int column, std::string *value, int size)
+	virtual bool getResult(int column, std::string *value, int size) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -271,7 +271,7 @@ namespace Wt
 	  return true;
 	}
 
-	virtual bool getResult(int column, short *value)
+	virtual bool getResult(int column, short *value) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -283,7 +283,7 @@ namespace Wt
 	  return true;
 	}
 
-	virtual bool getResult(int column, int *value)
+	virtual bool getResult(int column, int *value) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -295,7 +295,7 @@ namespace Wt
 	  return true;
 	}
 
-	virtual bool getResult(int column, long long *value)
+	virtual bool getResult(int column, long long *value) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -307,7 +307,7 @@ namespace Wt
 	  return true;
 	}
 
-	virtual bool getResult(int column, float *value)
+	virtual bool getResult(int column, float *value) override
 	{
           if (m_stmt->IsNull(++column))
             return false;
@@ -319,7 +319,7 @@ namespace Wt
 	  return true;
 	}
 	
-	virtual bool getResult(int column, double *value)
+	virtual bool getResult(int column, double *value) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -333,7 +333,7 @@ namespace Wt
 
 	virtual bool getResult(int column, 
 			       std::chrono::system_clock::time_point *value,
-			       SqlDateTimeType type)
+			       SqlDateTimeType type) override
     {
 
 	  if (m_stmt->IsNull(++column))
@@ -380,7 +380,7 @@ namespace Wt
 	
 
 	virtual bool getResult(int column, 
-			       std::chrono::duration<int, std::milli> *value)
+			       std::chrono::duration<int, std::milli> *value) override
     {
 	  
 	  if (m_stmt->IsNull(++column))
@@ -398,7 +398,7 @@ namespace Wt
 
 	virtual bool getResult(int column, 
 			       std::vector<unsigned char> *value,
-			       int size)
+			       int size) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -416,7 +416,7 @@ namespace Wt
 	  return true;
 	}
 
-	virtual std::string sql() const 
+	virtual std::string sql() const override
 	{
 	  return sql_;
 	}

@@ -22,7 +22,8 @@ namespace {
     Spacer() { setInline(false); }
 
   protected:
-    virtual Wt::DomElementType domElementType() const {
+    virtual Wt::DomElementType domElementType() const override
+    {
       return Wt::DomElementType::DIV;
     }
   };

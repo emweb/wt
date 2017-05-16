@@ -276,7 +276,7 @@ public:
    * signal, (calling done() directly or indirectly) so that the main
    * event loop can continue.
    */
-  virtual Signal<WDialog *>& dialogExecuted() const;
+  virtual Signal<WDialog *>& dialogExecuted() const override;
 
   /*! \brief %Signal used to test a popup menu reentrant event loop.
    *
@@ -286,7 +286,7 @@ public:
    *
    * \sa dialogExecuted()
    */
-  virtual Signal<WPopupMenu *>& popupExecuted() const;
+  virtual Signal<WPopupMenu *>& popupExecuted() const override;
 
   /*! \brief Simulates the end of a request by the main event loop.
    *
@@ -326,7 +326,7 @@ private:
   mutable Signal<WDialog *> dialogExecuted_;
   mutable Signal<WPopupMenu *> popupExecuted_;
 
-  virtual bool isTest() const;
+  virtual bool isTest() const override;
 
   void init(EntryPointType type);
 };

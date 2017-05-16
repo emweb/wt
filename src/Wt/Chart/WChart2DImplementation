@@ -14,7 +14,7 @@
 namespace Wt {
   namespace Chart {
 
-class ExtremesIterator : public SeriesIterator
+class ExtremesIterator final : public SeriesIterator
 {
 public:
   ExtremesIterator(Axis axis, AxisScale scale)
@@ -24,11 +24,11 @@ public:
   { }
   
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
-			   int numBarGroups, int currentBarGroup);
+			   int numBarGroups, int currentBarGroup) override;
   
   virtual void newValue(const WDataSeries& series, double x, double y,
 			double stackY, int xRow, int xColumn,
-			int yRow, int yColumn);
+			int yRow, int yColumn) override;
   
   double minimum() { return minimum_; }
   double maximum() { return maximum_; }

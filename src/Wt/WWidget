@@ -947,7 +947,7 @@ public:
    *
    * \sa id()
    */
-  virtual void setObjectName(const std::string& name);
+  virtual void setObjectName(const std::string& name) override;
 
   /*! \brief Finds a descendent widget by id.
    */
@@ -1318,7 +1318,7 @@ protected:
   EventSignalBase *getEventSignal(const char *name);
   EventSignalList& eventSignals() { return eventSignals_; }
 
-  virtual WStatelessSlot *getStateless(Method method);
+  virtual WStatelessSlot *getStateless(Method method) override;
 
   void renderOk();
   void scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags = None);

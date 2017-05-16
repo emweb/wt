@@ -181,21 +181,6 @@ protected:
   virtual void enableAjax() override;
 
 private:
-  class WFileDropUploadResource : public WResource {
-  public:
-    WFileDropUploadResource(WFileDropWidget *fileDropWidget);
-    
-    virtual void handleRequest(const Http::Request& request,
-			       Http::Response& response);
-
-    void setCurrentFile(File *file) { currentFile_ = file; }
-    
-  private:
-    WFileDropWidget *parent_;
-    WApplication *app_;
-    File *currentFile_;
-  };
-
   void setup();
   void handleDrop(const std::string& newDrops);
   void handleTooLarge(::uint64_t size);
@@ -209,6 +194,7 @@ private:
   void setUploadedFile(Http::UploadedFile file);
   bool incomingIdCheck(int id);
   
+  class WFileDropUploadResource;
   WFileDropUploadResource *resource_;
   unsigned currentFileIdx_;
 

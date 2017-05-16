@@ -251,7 +251,8 @@ public:
     explicit Shader(int i) : 
       GlObject(i) {}
     
-    std::string jsRef() const { 
+    virtual std::string jsRef() const override
+    {
       if (isNull())
 	throw WException("Shader: is null");
       return std::string("ctx.WtShader") + std::to_string(getId());
@@ -265,7 +266,8 @@ public:
     explicit Program(int i) : 
       GlObject(i) {}
     
-    std::string jsRef() const { 
+    virtual std::string jsRef() const override
+    {
       if (isNull())
 	throw WException("Program: is null");
       return std::string("ctx.WtProgram") + std::to_string(getId());
@@ -279,7 +281,8 @@ public:
     explicit AttribLocation(int i) : 
       GlObject(i) {}
     
-    std::string jsRef() const {
+    virtual std::string jsRef() const override
+    {
       if (isNull())
 	throw WException("AttribLocation: is null");
       return std::string("ctx.WtAttrib") + std::to_string(getId());
@@ -293,7 +296,8 @@ public:
     explicit Buffer(int i) : 
       GlObject(i) {}
     
-    std::string jsRef() const {
+    virtual std::string jsRef() const override
+    {
       if (isNull())
 	throw WException("Buffer: is null");
       return std::string("ctx.WtBuffer") + std::to_string(getId());
@@ -307,7 +311,8 @@ public:
     explicit UniformLocation(int i) : 
       GlObject(i) {}
     
-    std::string jsRef() const { 
+    virtual std::string jsRef() const override
+    {
       if (isNull())
 	throw WException("UniformLocation: is null");
       return std::string("ctx.WtUniform") + std::to_string(getId());
@@ -323,7 +328,8 @@ public:
     explicit Texture(int i) : 
       GlObject(i) {}
 
-    virtual std::string jsRef() const {
+    virtual std::string jsRef() const override
+    {
       if (isNull()) {
 	// throw WException("Texture: is null");
 	return "null";
@@ -350,7 +356,8 @@ public:
     Framebuffer(int i) :
       GlObject(i) {}
 
-    std::string jsRef() const { 
+    virtual std::string jsRef() const override
+    {
       if (isNull()) {
 	//throw WException("FrameBuffer: is null");
 	return "null";
@@ -366,7 +373,8 @@ public:
     Renderbuffer(int i) :
       GlObject(i) {}
 
-    std::string jsRef() const {
+    virtual std::string jsRef() const override
+    {
       if (isNull()) {
 	//throw WException("RenderBuffer: is null");
 	return "null";
@@ -384,7 +392,8 @@ public:
     ArrayBuffer(int i) :
       GlObject(i) {}
 
-    std::string jsRef() const {
+    virtual std::string jsRef() const override
+    {
       if (isNull())
 	throw WException("ArrayBuffer: is null");
       return "ctx.WtBufferResource" + std::to_string(getId());
@@ -436,7 +445,8 @@ public:
      * In order to get a valid JavaScript reference, this vector
      * should have been added to a WGLWidget.
      */
-    std::string jsRef() const {
+    std::string jsRef() const
+    {
       if (!hasContext())
 	throw WException("JavaScriptVector: does not belong to a "
 			 "WGLWidget yet");
@@ -518,7 +528,8 @@ public:
      * In order to get a valid JavaScript reference, this matrix should
      * have been added to a WGLWidget.
      */
-    std::string jsRef() const {
+    std::string jsRef() const
+    {
       if (!hasContext())
 	throw WException("JavaScriptMatrix4x4: does not belong to a WGLWidget yet");
       return jsRef_;
