@@ -173,6 +173,11 @@ std::string FacebookService::clientSecret() const
   return configurationProperty(ClientSecretProperty);
 }
 
+ClientSecretMethod FacebookService::clientSecretMethod() const
+{
+  return PlainUrlParameter;
+}
+
 Http::Method FacebookService::tokenRequestMethod() const
 {
   return Http::Get;

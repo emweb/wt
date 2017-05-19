@@ -586,7 +586,7 @@ std::string WebRenderer::sessionUrl() const
     return session_.appendSessionQuery(result);
   else {
     // Wt.js will prepend the correct deployment path
-    return session_.appendSessionQuery(".");
+    return session_.appendSessionQuery(".").substr(1);
   }
 }
 
@@ -1288,6 +1288,13 @@ void WebRenderer::serveMainAjax(WStringStream& out)
       << app->javaScriptClass() << "._p_.load(" << !widgetset << ");});\n";
 
   loadScriptLibraries(out, app, librariesLoaded);
+}
+
+bool WebRenderer::jsSynced() const
+{
+  return collectedJS1_.empty() &&
+         collectedJS2_.empty() &&
+	 invisibleJS_.empty();
 }
 
 void WebRenderer::setJSSynced(bool invisibleToo)

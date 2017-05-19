@@ -165,7 +165,8 @@ WAxis::WAxis()
     tickDirection_(Outwards),
     partialLabelClipping_(true),
     inverted_(false),
-    renderingMirror_(false)
+    renderingMirror_(false),
+    renderInterval_(0.0)
 {
   titleFont_.setFamily(WFont::SansSerif, "Arial");
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));

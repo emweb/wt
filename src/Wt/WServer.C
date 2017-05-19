@@ -99,7 +99,11 @@ WIOService& WServer::ioService()
 {
   if (!ioService_) {
     ioService_ = new WIOService();
-    ioService_->setThreadCount(configuration().numThreads());
+    int numSessionThreads = configuration().numSessionThreads();
+    if (dedicatedProcessEnabled_&& numSessionThreads != -1)
+      ioService_->setThreadCount(numSessionThreads);
+    else
+      ioService_->setThreadCount(configuration().numThreads());
   }
 
   return *ioService_;

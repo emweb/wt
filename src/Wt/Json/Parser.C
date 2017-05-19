@@ -344,5 +344,28 @@ bool parse(const std::string& input, Object& result, ParseError& error, bool val
   }
 }
 
+void parse(const std::string& input, Array& result, bool validateUTF8)
+{
+  Value value;
+
+  parse(input, value, validateUTF8);
+
+  Array& parsedObject = value;
+
+  parsedObject.swap(result);
+}
+
+bool parse(const std::string& input, Array& result, ParseError& error, bool validateUTF8)
+{
+  try {
+    parse(input, result, validateUTF8);
+    return true;
+  } catch (std::exception& e) {
+    error.setError(e.what());
+    return false;
+  }
+}
+
+
   }
 }

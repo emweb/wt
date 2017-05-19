@@ -7,6 +7,9 @@
 #ifndef WT_JSON_OBJECT_H_
 #define WT_JSON_OBJECT_H_
 
+#ifdef WT_CXX11
+#include <initializer_list>
+#endif // WT_CXX11
 #include <map>
 #include <set>
 #include <Wt/WException>
@@ -52,6 +55,19 @@ public:
   Object& operator= (const Object& other);
   //bool operator== (const Object& other) const;
   //bool operator!= (const Object& other) const;
+#ifdef WT_CXX11
+  /*! \brief Move constructor.
+   */
+  Object(Object&& other);
+
+  /*! \brief Initializer list constructor.
+   */
+  Object(std::initializer_list<std::pair<const std::string,Value>> list);
+
+  /*! \brief Move assignment operator.
+   */
+  Object& operator= (Object&& other);
+#endif
 
   /*! \brief Returns the key set.
    *
@@ -95,6 +111,7 @@ public:
 
 #ifdef WT_TARGET_JAVA
   bool isNull() const;
+  Value& operator[](const std::string& name);
 #endif
 };
 

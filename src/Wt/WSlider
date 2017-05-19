@@ -245,6 +245,7 @@ public:
   virtual void resize(const WLength& width, const WLength& height);
   virtual WT_USTRING valueText() const;
   virtual void setValueText(const WT_USTRING& value);
+  virtual void enableAjax();
 
 protected:
   /*! \brief Paints a slider ticks (for a non-native widget)

@@ -30,7 +30,7 @@ namespace Wt {
    *
    * \sa WTouchEvent
    */
-  class Touch {
+  class WT_API Touch {
   public:
     /*! \brief Constructor.
      */

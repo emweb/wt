@@ -6,6 +6,10 @@
 #include "Wt/WDate"
 #include "Wt/WException"
 #include "Wt/WLogger"
+#include "Wt/WDateTime"
+#include "Wt/Auth/User"
+#include "Wt/Auth/IssuedToken"
+#include "Wt/Auth/OAuthClient"
 
 #include "AbstractUserDatabase"
 
@@ -15,6 +19,7 @@ namespace {
   const char *PASSWORDS = "password handling";
   const char *THROTTLING = "password attempt throttling";
   const char *REGISTRATION = "user registration";
+  const char *IDP_SUPPORT = "identity provider support";
 }
 
 namespace Wt {
@@ -30,7 +35,7 @@ public:
     : WException("You need to specialize " + method)
   { }
 
-  Require(const std::string& method, const std::string function)
+  Require(const std::string& method, const std::string& function)
     : WException("You need to specialize "
 		 + method + " for " + function)
   { }
@@ -207,5 +212,131 @@ void AbstractUserDatabase::setLastLoginAttempt(const User& user,
   LOG_ERROR(Require("setLastLoginAttempt()", THROTTLING).what());
 }
 
+// ...
+Auth::IssuedToken AbstractUserDatabase::idpTokenAdd(const std::string& value,
+                                                    const WDateTime& expirationTime,
+                                                    const std::string& purpose,
+                                                    const std::string& scope,
+                                                    const std::string& redirectUri,
+                                                    const User& user,
+                                                    const OAuthClient& authClient)
+{
+	LOG_ERROR(Require("idpTokenAdd()", IDP_SUPPORT).what());
+	return IssuedToken();
+}
+
+void AbstractUserDatabase::idpTokenRemove(const IssuedToken& token)
+{
+  LOG_ERROR(Require("idpTokenRemove()", IDP_SUPPORT).what());
+}
+
+IssuedToken AbstractUserDatabase::idpTokenFindWithValue(
+  const std::string& purpose, const std::string& value) const
+{
+  LOG_ERROR(Require("idpTokenFindWithValue()", IDP_SUPPORT).what());
+  return IssuedToken();
+}
+
+WDateTime AbstractUserDatabase::idpTokenExpirationTime(const IssuedToken &token) const
+{
+  LOG_ERROR(Require("idpTokenExpirationTime)", IDP_SUPPORT).what());
+  return WDateTime(WDate(1970, 1, 1));
+}
+
+std::string AbstractUserDatabase::idpTokenValue(const IssuedToken &token) const
+{
+  LOG_ERROR(Require("idpTokenValue()", IDP_SUPPORT).what());
+  return std::string();
+}
+
+std::string AbstractUserDatabase::idpTokenPurpose(const IssuedToken &token) const
+{
+  LOG_ERROR(Require("idpTokenPurpose()", IDP_SUPPORT).what());
+  return std::string();
+}
+
+std::string AbstractUserDatabase::idpTokenScope(const IssuedToken &token) const
+{
+  LOG_ERROR(Require("idpTokenScope()", IDP_SUPPORT).what());
+  return std::string();
+}
+
+std::string AbstractUserDatabase::idpTokenRedirectUri(const IssuedToken &token) const
+{
+  LOG_ERROR(Require("idpTokenRedirectUri()", IDP_SUPPORT).what());
+  return std::string();
+}
+
+User AbstractUserDatabase::idpTokenUser(const IssuedToken &token) const
+{
+  LOG_ERROR(Require("idpTokenUser()", IDP_SUPPORT).what());
+  return User();
+}
+
+OAuthClient AbstractUserDatabase::idpTokenOAuthClient(const IssuedToken &token) const
+{
+  LOG_ERROR(Require("idpTokenOAuthClient()", IDP_SUPPORT).what());
+  return OAuthClient();
+}
+
+Json::Value AbstractUserDatabase::idpJsonClaim(const User& user, const std::string& claim) const
+{
+  LOG_ERROR(Require("idpClaim()", IDP_SUPPORT).what());
+  return Wt::Json::Value::Null; // full namespace for cnor
+}
+
+OAuthClient AbstractUserDatabase::idpClientFindWithId(const std::string &clientId) const
+{
+  LOG_ERROR(Require("idpClientFindWithId()", IDP_SUPPORT).what());
+  return OAuthClient();
+}
+
+std::string AbstractUserDatabase::idpClientSecret(const OAuthClient &client) const
+{
+  LOG_ERROR(Require("idpClientSecret()", IDP_SUPPORT).what());
+  return std::string();
+}
+
+bool AbstractUserDatabase::idpVerifySecret(const OAuthClient &client, const std::string& secret) const
+{
+  LOG_ERROR(Require("idpVerifySecret()", IDP_SUPPORT).what());
+  return false;
+}
+
+std::set<std::string> AbstractUserDatabase::idpClientRedirectUris(const OAuthClient &client) const
+{
+  LOG_ERROR(Require("idpClientRedirectUris()", IDP_SUPPORT).what());
+  return std::set<std::string>();
+}
+
+std::string AbstractUserDatabase::idpClientId(const OAuthClient &client) const
+{
+  LOG_ERROR(Require("idpClientId()", IDP_SUPPORT).what());
+  return std::string();
+}
+
+bool AbstractUserDatabase::idpClientConfidential(const OAuthClient &client) const
+{
+  LOG_ERROR(Require("idpClientConfidential()", IDP_SUPPORT).what());
+  return false;
+}
+
+ClientSecretMethod AbstractUserDatabase::idpClientAuthMethod(const OAuthClient &client) const
+{
+  LOG_ERROR(Require("idpClientAuthMethod()", IDP_SUPPORT).what());
+  return HttpAuthorizationBasic;
+}
+
+OAuthClient AbstractUserDatabase::idpClientAdd(const std::string& clientId,
+    bool confidential,
+    const std::set<std::string> &redirectUris,
+    ClientSecretMethod authMethod,
+    const std::string &secret)
+{
+  LOG_ERROR(Require("idpTokenAdd()", IDP_SUPPORT).what());
+  return OAuthClient();
+}
+
   }
 }
+

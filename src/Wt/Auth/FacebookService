@@ -87,6 +87,7 @@ public:
   virtual std::string tokenEndpoint() const;
   virtual std::string clientId() const;
   virtual std::string clientSecret() const;
+  virtual ClientSecretMethod clientSecretMethod() const;
 
   virtual Http::Method tokenRequestMethod() const;
   virtual OAuthProcess *createProcess(const std::string& scope) const;

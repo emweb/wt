@@ -437,6 +437,11 @@ void Session::configureAuth()
     myOAuthServices.push_back(new Wt::Auth::GoogleService(myAuthService));
 }
 
+Wt::Auth::AbstractUserDatabase& Session::users()
+{
+  return *users_;
+}
+
 const Wt::Auth::AuthService& Session::auth()
 {
   return myBaseAuth;

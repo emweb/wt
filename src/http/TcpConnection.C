@@ -67,7 +67,7 @@ void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
   setReadTimeout(timeout);
 
   boost::shared_ptr<TcpConnection> sft 
-    = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
+    = boost::static_pointer_cast<TcpConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
 			  strand_.wrap
 			  (boost::bind(&TcpConnection::handleReadRequest,
@@ -90,7 +90,7 @@ void TcpConnection::startAsyncReadBody(ReplyPtr reply,
   setReadTimeout(timeout);
 
   boost::shared_ptr<TcpConnection> sft 
-    = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
+    = boost::static_pointer_cast<TcpConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
 			  strand_.wrap
 			  (boost::bind(&TcpConnection::handleReadBody,
@@ -116,7 +116,7 @@ void TcpConnection::startAsyncWriteResponse
   setWriteTimeout(timeout);
 
   boost::shared_ptr<TcpConnection> sft 
-    = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
+    = boost::static_pointer_cast<TcpConnection>(shared_from_this());
   asio::async_write(socket_, buffers,
 		    strand_.wrap
 		    (boost::bind(&TcpConnection::handleWriteResponse,

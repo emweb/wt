@@ -358,7 +358,6 @@ private:
   JSignal(const JSignal<A1, A2, A3, A4, A5, A6>&);
 
   std::string name_;
-  mutable std::string senderId_;
   void processDynamic(const JavaScriptEvent& e);
 #ifdef WT_CNOR
   typedef Wt::Signals::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
@@ -443,11 +442,7 @@ template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 const std::string JSignal<A1, A2, A3, A4, A5, A6>::encodeCmd() const
 {
-  if (senderId_.empty()) {
-    senderId_ = senderId(sender());
-  }
-
-  return senderId_ + "." + name_;
+  return senderId(sender()) + "." + name_;
 }
 
 template <typename A1, typename A2, typename A3,

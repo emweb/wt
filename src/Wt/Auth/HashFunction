@@ -115,6 +115,7 @@ public:
   virtual std::string compute(const std::string& msg,
 			      const std::string& salt) const;
 };
+#endif
 
 /*! \class BCryptHashFunction Wt/Auth/HashFunction
  *  \brief An cryptographic hash function that implements bcrypt.
@@ -153,13 +154,12 @@ public:
 			      const std::string& salt) const;
 
   virtual bool verify(const std::string& msg,
-		      const std::string& hash,
-		      const std::string& salt) const;
+		      const std::string& salt,
+		      const std::string& hash) const;
 
 private:
   int count_;
 };
-#endif
 
   } 
 }

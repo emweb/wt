@@ -94,7 +94,7 @@ WT_DECLARE_WT_MEMBER
      }
 
      console.log(newKeys);
-     Wt.emit(dropwidget, 'dropsignal', JSON.stringify(newKeys));
+     APP.emit(dropwidget, 'dropsignal', JSON.stringify(newKeys));
    };
    
    dropwidget.markForSending = function(files) {
@@ -122,14 +122,14 @@ WT_DECLARE_WT_MEMBER
      }
      
      sending = true;
-     Wt.emit(dropwidget, 'requestsend', uploads[0].id);
+     APP.emit(dropwidget, 'requestsend', uploads[0].id);
    }
    
    dropwidget.send = function(url) {
      console.log('sending file');
      xhr = uploads[0]
      if (xhr.file.size > maxFileSize) {
-       Wt.emit(dropwidget, 'filetoolarge', xhr.file.size);
+       APP.emit(dropwidget, 'filetoolarge', xhr.file.size);
        self.uploadFinished(null);
        return;
      } else {
@@ -162,13 +162,13 @@ WT_DECLARE_WT_MEMBER
      if (e != null &&
 	 e.type == 'load' &&
 	 e.currentTarget.status == 200)
-       Wt.emit(dropwidget, 'uploadfinished', uploads[0].id);
+       APP.emit(dropwidget, 'uploadfinished', uploads[0].id);
      uploads.splice(0,1);
      if (uploads[0] && uploads[0].ready)
        self.requestSend();
      else {
        sending = false;
-       Wt.emit(dropwidget, 'donesending');
+       APP.emit(dropwidget, 'donesending');
      }
    }
 

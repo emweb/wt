@@ -130,5 +130,5 @@ std::string BCryptHashFunction::name() const
   return "bcrypt"; 
 }
 #endif
-  }
+	}
 }

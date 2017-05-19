@@ -518,29 +518,26 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
   }
 
   if (!isAbsoluteUrl(applicationUrl_)) {
-    if (url.empty() || url[0] == '/')
+    if (!url.empty() && url[0] == '/')
       return url;
     else if (!env_->publicDeploymentPath_.empty()) {
       std::string dp = env_->publicDeploymentPath_;
 
-      if (url == ".") {
+      if (url.empty())
         return dp;
-      } else if (url.size() >= 2 && url[0] == '.' && url[1] == '/') {
-        if (dp[dp.size() - 1] == '/') {
-          // url starts with "./" and dp ends with '/',
-          // remove "./" from url and append rest to dp
-          return dp + url.substr(2);
-        } else {
-          // url starts with "./" and dp does not end with '/',
-          // remove '.' from url and append rest to dp
-          return dp + url.substr(1);
-        }
-      } else if (url[0] == '?') {
+      else if (url[0] == '?')
         return dp + url;
-      } else {
-        // take off everything in dp after the last '/'
-	std::size_t s = dp.rfind('/');
-        return dp.substr(0, s + 1) + url;
+      else {
+        std::size_t s = dp.rfind('/');
+        std::string parentDir = dp.substr(0, s + 1);
+        if (url[0] == '.' && (url.size() == 1 || url[1] == '?' || url[1] == '#' || url[1] == ';'))
+          return parentDir + url.substr(1);
+        else if (url.size() >= 2 && url[0] == '.' && url[1] == '/') {
+          // Note: deployment path is guaranteed to start with /
+          //       WEnvironment checks this!
+          return parentDir + url.substr(2);
+        } else
+          return parentDir + url;
       }
     } else {
       /*
@@ -556,14 +553,15 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
 	std::string rel = "";
 	std::string pi = pagePathInfo_;
 
-        unsigned i = 0;
-        for (; i < pi.length(); ++i) {
-          if ((pi[i] == '/' || i == pi.length() - 1) &&
-              i != 0 && pi[i-1] != '/')
-            rel += "../";
+	for (unsigned i = 0; i < pi.length(); ++i) {
+	  if (pi[i] == '/')
+	    rel += "../";
 	}
 
-	return rel + url;
+        if (url.empty())
+          return rel + applicationName_;
+        else
+          return rel + url;
       }
     }
   } else
@@ -600,10 +598,7 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
   std::size_t questionPos = result.find('?');
 
   if (questionPos == std::string::npos)
-    if (result == ".")
-      result = sessionQuery();
-    else
-      result += sessionQuery();
+    result += sessionQuery();
   else if (questionPos == result.length() - 1)
     result += sessionQuery().substr(1);
   else
@@ -650,7 +645,10 @@ std::string WebSession::appendInternalPath(const std::string& baseUrl,
 {
   if (internalPath.empty() || internalPath == "/")
     if (baseUrl.empty())
-      return ".";
+      if (applicationName_.empty())
+	return ".";
+      else
+        return applicationName_;
     else
       return baseUrl;
   else {
@@ -2187,18 +2185,24 @@ void WebSession::notify(const WEvent& event)
     try {
       renderer_.serveResponse(*event.impl_.response);
     } catch (std::exception& e) {
-      LOG_ERROR("Exception in WApplication::notify()" << e.what());
+      LOG_ERROR("Exception in WApplication::notify(): " << e.what());
     } catch (...) {
+      LOG_ERROR("Exception in WApplication::notify()");
     }
     return;
   }
 
   if (event.impl_.function) {
-    WT_CALL_FUNCTION(event.impl_.function);
+    try {
+      WT_CALL_FUNCTION(event.impl_.function);
 
-    if (event.impl_.handler->request())
-      render(*event.impl_.handler);
-
+      if (event.impl_.handler->request())
+	render(*event.impl_.handler);
+    } catch (std::exception& e) {
+      LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+    } catch (...) {
+      LOG_ERROR("Exception in WApplication::notify()");
+    }
     return;
   }
 
@@ -2439,7 +2443,9 @@ void WebSession::notify(const WEvent& event)
 	    return;
 	  }
 
-	  if (*signalE == "poll" && ackState != WebRenderer::CorrectAck) {
+	  if (*signalE == "poll" &&
+	      ackState != WebRenderer::CorrectAck &&
+	      renderer_.jsSynced()) {
 	    LOG_DEBUG("Ignoring poll with incorrect ack -- was rescheduled in browser?");
 	    handler.flushResponse();
 	    return;
@@ -2469,7 +2475,7 @@ void WebSession::notify(const WEvent& event)
 	     */
 	    if (!WebController::isAsyncSupported()) {
 	      updatesPendingEvent_.notify_one();
-	      if (!updatesPending_) {
+              if (!updatesPending_ && renderer_.jsSynced()) {
 #ifndef WT_TARGET_JAVA
 		updatesPendingEvent_.wait(handler.lock());
 #else
@@ -2479,7 +2485,7 @@ void WebSession::notify(const WEvent& event)
 		} catch (InterruptedException& e) { }
 #endif // WT_TARGET_JAVA
 	      }
-	      if (!updatesPending_) {
+              if (!updatesPending_ && renderer_.jsSynced()) {
 		handler.flushResponse();
 		return;
 	      }
@@ -2487,7 +2493,7 @@ void WebSession::notify(const WEvent& event)
 #endif // WT_BOOST_THREADS
 
 	    // LOG_DEBUG("poll: " << updatesPending_ << ", " << (asyncResponse_ ? "async" : "no async"));
-	    if (!updatesPending_) {
+            if (!updatesPending_ && renderer_.jsSynced()) {
 	      /*
 	       * If we are ignoring many poll requests (because we are
 	       * assuming to have a websocket), we will need to assume

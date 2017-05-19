@@ -163,6 +163,7 @@ bool WServer::start()
 
   if (impl_->serverConfiguration_->parentPort() != -1) {
     configuration().setBehindReverseProxy(true);
+    dedicatedProcessEnabled_ = true;
   }
 
   try {

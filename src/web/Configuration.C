@@ -233,6 +233,7 @@ void Configuration::reset()
   cookieChecks_ = true;
   webglDetection_ = true;
   bootstrapConfig_.clear();
+  numSessionThreads_ = -1;
 
   if (!appRoot_.empty())
     setAppRoot(appRoot_);
@@ -472,6 +473,12 @@ bool Configuration::webglDetect() const
   return webglDetection_;
 }
 
+int Configuration::numSessionThreads() const
+{
+  READ_LOCK;
+  return numSessionThreads_;
+}
+
 bool Configuration::agentIsBot(const std::string& agent) const
 {
   READ_LOCK;
@@ -625,6 +632,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     if (dedicated) {
       sessionPolicy_ = DedicatedProcess;
       setInt(dedicated, "max-num-sessions", maxNumSessions_);
+      setInt(dedicated, "num-session-threads", numSessionThreads_);
     }
 
     if (shared) {

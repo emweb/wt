@@ -15,6 +15,15 @@
 #pragma warning( disable : 4267 )
 #endif
 #define BOOST_SERIALIZATION_NO_LIB
+// Include array_wrapper.hpp in Boost 1.64.0 as a workaround
+//
+// See Boost issues:
+//  - https://svn.boost.org/trac/boost/ticket/12978
+//  - https://svn.boost.org/trac/boost/ticket/12982
+#include <boost/version.hpp>
+#if BOOST_VERSION == 106400
+#include <boost/serialization/array_wrapper.hpp>
+#endif
 #include <boost/numeric/ublas/matrix.hpp>
 #ifdef _MSC_VER
 #pragma warning( pop )

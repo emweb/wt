@@ -559,10 +559,30 @@ appRoot=C:\Program Files\MyApplications\AppRoot
 
     <dd>Every session is mapped a dedicated process, allowing maximal
       session isolation, but at an increased session cost. This is
-	  not supported by the ISAPI connector. Note: when using the
-	  <tt>wthttp</tt> adapter, this will create a listening socket
-	  on the loopback interface (<tt>127.0.0.1</tt>) for every session,
-	  with the parent process acting as a proxy.</dd>
+      not supported by the ISAPI connector. Note: when using the
+      <tt>wthttp</tt> adapter, this will create a listening socket
+      on the loopback interface (<tt>127.0.0.1</tt>) for every session,
+      with the parent process acting as a proxy. The following options
+      can be put in the <b>&lt;dedicated-process&gt;</b> subsection.
+      <dl>
+
+        <dt><strong>max-num-sessions</strong></dt>
+        <dd>
+        Limits the amount of session processes.
+        </dd>
+
+        <dt><strong>num-session-threads</strong></dt>
+        <dd>
+        Usually the dedicated session processes uses the same amount
+        of threads as the parent process. This option changes the
+        amount of threads the session processes use independently of
+        the parent process. When this option is set the
+        <strong>num-threads</strong> configuration option and the <strong>-t</strong>
+        command line argument will only affect the parent process.
+        </dd>
+
+      </dl>
+    </dd>
 
     <dt><strong>shared-process</strong></dt>
 
@@ -639,6 +659,12 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dd>The maximum HTTP request size (Kb) that is accepted. An oversized
       request will result in a WApplication::requestTooLarge() signal.
       </dd>
+
+    <dt><strong>num-threads</strong></dt>
+
+    <dd>Sets the number of threads to be used to handle %Wt traffic.
+      Depending on your application, you may want to increase the
+      default size of 10 threads. </dd>
 
     <dt><strong>session-id-length</strong></dt>
 
@@ -919,14 +945,6 @@ Settings may be set in the configuration file /etc/wt/wthttpd
   are specified inside a <b>&lt;connector-isapi&gt;</b> subsection.
 
   <dl>
-    <dt><strong>num-threads</strong></dt>
-
-    <dd>Sets the number of threads to be used to handle %Wt traffic. The
-    connector will never use IIS threads to do any processing, but will
-    forward the requests to a thread pool of the size given in this variable.
-    Depending on your application, you may want to increase the default size
-    of 10 threads.</dd>
-
     <dt><strong>max-memory-request-size</strong></dt>
 
     <dd>Every HTTP request whose size is smaller than this parameter will
