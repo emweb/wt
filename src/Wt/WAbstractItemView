@@ -813,8 +813,6 @@ public:
    * \sa setRowHeaderCount()
    */
   int rowHeaderCount() const { return rowHeaderCount_; }
-
-  virtual void setObjectName(const std::string& name) override;
   
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    *

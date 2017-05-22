@@ -43,7 +43,7 @@ bool WidgetFunction::operator()(WTemplate *t,
 
     t->bindWidget(id, std::move(w));
 
-    WString text = WString::fromUTF8("${" + id + "}");
+    WString text = WString("${" + id + "}");
     t->renderTemplateText(result, text);
   }
 

@@ -858,7 +858,10 @@ private:
 
 /*! \brief Make a new ptr
  *
- * TODO(Roel): doc!
+ * This is a shorthand for
+ * \code ptr<T>(std::unique_ptr<T>(new T(...))) \endcode
+ *
+ * \sa Wt::Dbo::Session::addNew()
  */
 template<typename T, typename ...Args>
 ptr<T> make_ptr( Args&& ...args )

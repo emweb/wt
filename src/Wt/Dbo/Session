@@ -201,7 +201,12 @@ public:
 
   /*! \brief Persists a transient object.
    *
-   * TODO(Roel): doc!
+   * This an overloaded method for convenience, and is implemented as:
+   * \code
+   * return add(ptr<C>(std::unique_ptr<T>(new T(...))))
+   * \endcode
+   *
+   * \sa Wt::Dbo::make_ptr()
    */
   template<typename T, typename ...Args>
   ptr<T> addNew( Args&& ...args )

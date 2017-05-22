@@ -206,7 +206,7 @@ private:
 
   virtual void modelLayoutChanged() override;
 
-  WWidget* renderWidget(WWidget* w, const WModelIndex& index);
+  std::unique_ptr<WWidget> renderWidget(WWidget* w, const WModelIndex& index);
 
   int spannerCount(const Side side) const;
   void setSpannerCount(const Side side, const int count);

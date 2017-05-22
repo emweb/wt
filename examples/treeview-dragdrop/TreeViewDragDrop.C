@@ -69,8 +69,8 @@ public:
   static WString dateEditFormat;
 };
 
-WString FileModel::dateDisplayFormat(WString::fromUTF8("MMM dd, yyyy"));
-WString FileModel::dateEditFormat(WString::fromUTF8("dd-MM-yyyy"));
+WString FileModel::dateDisplayFormat(WString("MMM dd, yyyy"));
+WString FileModel::dateEditFormat(WString("dd-MM-yyyy"));
 
 /*! \class FileEditDialog
  *  \brief A dialog for editing a 'file'.
@@ -649,7 +649,7 @@ private:
     level1->appendRow(createFolderItem("Advisors", "ny-advisors"));
     folderModel_->appendRow(std::move(level1));
 
-    level1 = createFolderItem(WString::fromUTF8("Frankfürt"));
+    level1 = createFolderItem(WString(u8"Frankf\u00DCrt"));
     level1->appendRow(createFolderItem("Sales", "frank-sales"));
     folderModel_->appendRow(std::move(level1));
 

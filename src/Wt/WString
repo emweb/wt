@@ -28,7 +28,7 @@ namespace Wt {
  * c-style strings (const char * and const wchar_t *), and converted
  * to each of these strings taking into account the locale in which
  * the %Wt application runs on the web server. Independent of the
- * locale on the web server, you may convert from and to CharEncoding::UTF8 unicode
+ * locale on the web server, you may convert from and to UTF8 unicode
  * encoded std::strings.
  *
  * By using the static functions WString::tr() (or WWidget::tr()), one
@@ -56,11 +56,11 @@ namespace Wt {
  * manipulations. Instead, you should convert to a standard library
  * string class to manipulate the string contents and perform string
  * algorithms on them. In particular, we recommend to use the
- * conversion methods toUTF8(), fromUTF8() to convert from and to CharEncoding::UTF8
+ * conversion methods toUTF8(), fromUTF8() to convert from and to UTF8
  * encoded std::strings. In this way, you can support the whole
  * unicode character set, with backward compatible support for the
  * standard 7-bit ASCII set. Since %WString internally uses
- * CharEncoding::UTF8-encoding, and CharEncoding::UTF8-encoding is used by the library for
+ * UTF8-encoding, and UTF8-encoding is used by the library for
  * communication with the browser, there is no actual conversion
  * overhead. Only when you need to run string algorithms that require
  * the actual length of the string in number of characters, you would

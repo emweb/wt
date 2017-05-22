@@ -83,9 +83,9 @@ Wt::WString asciidoc(const Wt::WString& src)
   Wt::WString result;
 
   if (ok) {
-    result = Wt::utf8(readFileToString(htmlFileName));
+    result = Wt::WString(readFileToString(htmlFileName));
   } else
-    result = Wt::utf8("<i>Could not execute asciidoc</i>");
+    result = Wt::WString("<i>Could not execute asciidoc</i>");
 
   unlink(srcFileName.c_str());
   unlink(htmlFileName.c_str());

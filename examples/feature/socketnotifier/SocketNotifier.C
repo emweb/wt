@@ -261,7 +261,7 @@ private:
     startButton_->setText("Again");
     startButton_->enable();
     rssText_->setText("<pre>" +
-        escapeText(WString::fromUTF8(inStream_.str())) + "</pre>");
+        escapeText(inStream_.str()) + "</pre>");
     addText("Finished!<br/>Run again?<br/>");
     inStream_.str("");
     wApp->enableUpdates(false);

@@ -65,7 +65,7 @@ private:
   {
     root()->clear();
     root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(
-          Wt::utf8("Welcome, {1}").arg(id.name()), Wt::TextFormat::Plain));
+          Wt::WString("Welcome, {1}").arg(id.name()), Wt::TextFormat::Plain));
   }
 };
 

@@ -510,22 +510,6 @@ WCssTextRule *WWidget::addCssRule(const std::string& selector,
   return result;
 }
 
-void WWidget::setObjectName(const std::string& name)
-{
-  WApplication *app = WApplication::instance();
-  for (std::size_t i = 0; i < jsignals_.size(); ++i) {
-    EventSignalBase *signal = jsignals_[i];
-    if (signal->isExposedSignal())
-      app->removeExposedSignal(signal);
-  }
-  WObject::setObjectName(name);
-  for (std::size_t i = 0; i < jsignals_.size(); ++i) {
-    EventSignalBase *signal = jsignals_[i];
-    if (signal->isExposedSignal())
-      app->addExposedSignal(signal);
-  }
-}
-
 void WWidget::addJSignal(EventSignalBase* signal) 
 {
   jsignals_.push_back(signal);

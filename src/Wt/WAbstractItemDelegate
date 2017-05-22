@@ -71,11 +71,15 @@ public:
    * The item is specified by its model \p index, which also
    * indicates the model. If an existing widget already renders the
    * item, but needs to be updated, it is passed as the \p widget
-   * parameter. You may decide to create a new widget, in which case
-   * you are responsible to delete the previous \p widget if it is
-   * not reused.
+   * parameter.
    *
-   * When \p widget is \c 0, a new widget needs to be created and returned.
+   * When \p widget is \c nullptr, a new widget needs to be created and returned.
+   *
+   * If you want to replace the \p widget with a new one,
+   * return the new widget. The old \p widget will be removed.
+   * Return \c nullptr if you do not want to replace the \p widget.
+   *
+   * You can remove the \p widget from its parent for reuse with WWidget::removeFromParent().
    *
    * The returned widget should be a widget that responds properly to
    * be given a height, width and style class. In practice, that means
@@ -87,7 +91,7 @@ public:
    * The \p flags parameter indicates options for rendering the
    * item.
    */
-  virtual WWidget *update
+  virtual std::unique_ptr<WWidget> update
     (WWidget *widget, const WModelIndex& index,
      WFlags<ViewItemRenderFlag> flags) = 0;
 

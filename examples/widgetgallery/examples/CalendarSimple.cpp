@@ -18,7 +18,7 @@ c1->selectionChanged().connect(std::bind([=] () {
 	d = (*selection.begin());
 	Wt::WDate toDate(d.year() + 1, 1, 1);
 	int days = d.daysTo(toDate);
-	out->setText(Wt::utf8("<p>That's {1} days until New Year's Day!</p>")
+	out->setText(Wt::WString("<p>That's {1} days until New Year's Day!</p>")
 		     .arg(days));
     }
 }));

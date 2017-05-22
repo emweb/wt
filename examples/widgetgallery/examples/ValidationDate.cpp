@@ -22,10 +22,10 @@ dv->setInvalidBlankText("A birthdate is mandatory!");
 dv->setInvalidNotADateText("You should enter a date in the format "
 			   "\"dd/MM/yyyy\"!");
 dv->setInvalidTooEarlyText
-    (Wt::utf8("That's too early... The date must be {1} or later!"
+    (Wt::WString("That's too early... The date must be {1} or later!"
 		 "").arg(dv->bottom().toString("dd/MM/yyyy")));
 dv->setInvalidTooLateText
-    (Wt::utf8("That's too late... The date must be {1} or earlier!"
+    (Wt::WString("That's too late... The date must be {1} or earlier!"
 		 "").arg(dv->top().toString("dd/MM/yyyy")));
 
 dateEdit->setValidator(dv);

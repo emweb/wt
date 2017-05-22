@@ -53,13 +53,13 @@ for (unsigned i = 0; i < 3; ++i) {
     int row = i + 1;
 
     table_->elementAt(row,0)->
-        addWidget(cpp14::make_unique<WText>(WString::fromUTF8("{1}").arg(row)));
+        addWidget(cpp14::make_unique<WText>(WString("{1}").arg(row)));
     table_->elementAt(row,1)->
         addWidget(cpp14::make_unique<WText>(employee.firstName));
     table_->elementAt(row,2)->
         addWidget(cpp14::make_unique<WText>(employee.lastName));
     table_->elementAt(row,3)->
-        addWidget(cpp14::make_unique<WLineEdit>(WString::fromUTF8("{1}").arg(employee.pay)));
+        addWidget(cpp14::make_unique<WLineEdit>(WString("{1}").arg(employee.pay)));
 }
 
 table_->addStyleClass("table form-inline");

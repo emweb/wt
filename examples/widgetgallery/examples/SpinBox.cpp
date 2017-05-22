@@ -25,10 +25,10 @@ out->addStyleClass("help-block");
 
 sb->changed().connect(std::bind([=] () {
     if (sb->validate() == Wt::ValidationState::Valid) {
-        out->setText(Wt::WString::fromUTF8("Spin box value changed to {1}")
+        out->setText(Wt::WString("Spin box value changed to {1}")
 		     .arg(sb->text()));
     } else {
-        out->setText(Wt::WString::fromUTF8("Invalid spin box value!"));
+        out->setText(Wt::WString("Invalid spin box value!"));
     }
 }));
 

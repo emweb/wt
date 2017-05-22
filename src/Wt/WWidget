@@ -932,23 +932,6 @@ public:
    */
   virtual WWidget *find(const std::string& name) = 0;
 
-  /*! \brief Sets an object name.
-   *
-   * The object name can be used to easily identify a type of object
-   * in the DOM, and does not need to be unique. It will usually
-   * reflect the widget type or role. The object name is prepended to
-   * the auto-generated object id().
-   *
-   * The default object name is empty.
-   *
-   * \note Only letters ([A-Za-z]), digits ([0-9]), hyphens ("-"),
-   * underscores ("_"), colons (":"), and periods (".") are allowed in
-   * the id.
-   *
-   * \sa id()
-   */
-  virtual void setObjectName(const std::string& name) override;
-
   /*! \brief Finds a descendent widget by id.
    */
   virtual WWidget *findById(const std::string& id) = 0;

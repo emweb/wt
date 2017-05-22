@@ -81,7 +81,7 @@ void Comment::setText(const Wt::WString& src)
   // <div class="vspace"></div>
   replace(html, "<br /><br />", "<div class=\"vspace\"></div>");
 
-  textHtml_ = Wt::utf8(html);
+  textHtml_ = Wt::WString(html);
 }
 
 void Comment::setDeleted()

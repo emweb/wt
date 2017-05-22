@@ -207,13 +207,12 @@ int WDateTime::daysTo(const WDateTime& other) const
   return date().daysTo(other.date());
 }
 
-WString WDateTime::timeTo(const WDateTime& other, int minValue) const
+WString WDateTime::timeTo(const WDateTime& other, std::chrono::seconds minValue) const
 {
   if (!isValid() || !other.isValid())
     return WString::Empty;
 
   int secs = secsTo(other);
-  // TODO(Roel): what if secs is less than 1?
 
   if (abs(secs) < 1)
     if (WApplication::instance()) {
@@ -221,7 +220,7 @@ WString WDateTime::timeTo(const WDateTime& other, int minValue) const
     } else {
       return "less than a second";
     }
-  else if (abs(secs) < 60 * minValue)
+  else if (abs(secs) < 60 * minValue.count())
     if (WApplication::instance()) {
       return trn("Wt.WDateTime.seconds", secs > 1 ? secs : 1).arg(secs);
     } else {
@@ -229,7 +228,7 @@ WString WDateTime::timeTo(const WDateTime& other, int minValue) const
     }
   else {
     int minutes = secs / 60;
-    if (abs(minutes) < 60 * minValue)
+    if (abs(minutes) < 60 * minValue.count())
       if (WApplication::instance()) {
 	return trn("Wt.WDateTime.minutes", minutes > 1 ? minutes : 1).arg(minutes);
       } else {
@@ -237,7 +236,7 @@ WString WDateTime::timeTo(const WDateTime& other, int minValue) const
       }
     else {
       int hours = minutes / 60;
-      if (abs(hours) < 24 * minValue)
+      if (abs(hours) < 24 * minValue.count())
         if (WApplication::instance()) {
 	  return trn("Wt.WDateTime.hours", hours > 1 ? hours : 1).arg(hours);
         } else {
@@ -245,14 +244,14 @@ WString WDateTime::timeTo(const WDateTime& other, int minValue) const
         }
       else {
 	int days = hours / 24;
-        if (abs(days) < 7 * minValue)
+        if (abs(days) < 7 * minValue.count())
           if (WApplication::instance()) {
 	    return trn("Wt.WDateTime.days", days > 1 ? days : 1).arg(days);
 	  } else {
             return std::to_string(days) + " day" + multiple(days, "s");
           }
 	else {
-	  if (abs(days) < 31 * minValue) {
+	  if (abs(days) < 31 * minValue.count()) {
 	    int weeks = days / 7;
             if (WApplication::instance()) {
 	      return trn("Wt.WDateTime.weeks", weeks > 1 ? weeks : 1).arg(weeks);
@@ -260,7 +259,7 @@ WString WDateTime::timeTo(const WDateTime& other, int minValue) const
               return std::to_string(weeks) + " week" + multiple(weeks, "s");
             }
 	  } else {
-	    if (abs(days) < 365 * minValue) {
+	    if (abs(days) < 365 * minValue.count()) {
 	      int months = days / 30;
               if (WApplication::instance()) {
 		return trn("Wt.WDateTime.months", months > 1 ? months : 1).arg(months);

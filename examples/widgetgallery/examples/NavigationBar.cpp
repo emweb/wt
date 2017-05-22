@@ -49,7 +49,7 @@ popup->addItem("About");
 popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
     auto messageBoxPtr = Wt::cpp14::make_unique<Wt::WMessageBox>
 	("Help",
-         Wt::utf8("<p>Showing Help: {1}</p>").arg(item->text()),
+         Wt::WString("<p>Showing Help: {1}</p>").arg(item->text()),
          Wt::Icon::Information, Wt::StandardButton::Ok);
     auto messageBox = messageBoxPtr.get();
 

@@ -34,5 +34,5 @@ OAuthAuthorizationEndpoint::OAuthAuthorizationEndpoint(const Wt::WEnvironment& e
   if (process_->validRequest()) {
     root()->addWidget(std::move(authwidget));
   } else
-    root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::utf8("The request was invalid.")));
+    root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString("The request was invalid.")));
 }

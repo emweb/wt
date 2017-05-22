@@ -15,12 +15,12 @@ const Wt::WString ChatEvent::formattedHTML(const Wt::WString& user,
 {
   switch (type_) {
   case Login:
-    return Wt::WString::fromUTF8("<span class='chat-info'>")
+    return Wt::WString("<span class='chat-info'>")
       + Wt::WWebWidget::escapeText(user_) + " joined.</span>";
   case Logout:
-    return Wt::WString::fromUTF8("<span class='chat-info'>")
+    return Wt::WString("<span class='chat-info'>")
       + ((user == user_) ?
-	 Wt::utf8("You") :
+	 Wt::WString("You") :
 	 Wt::WWebWidget::escapeText(user_))
       + " logged out.</span>";
   case Rename:

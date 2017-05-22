@@ -118,9 +118,9 @@ WT_DECLARE_WT_MEMBER
        return;
      }
 
-     // TODO(Roel): figure out the visibility story. The stdlayoutimpl sets
-     //             itself to visible, seemingly by accident? It seems like
-     //             a hack that centerDialog() causes the dialog to be visible?
+     // FIXME: figure out the visibility story. The stdlayoutimpl sets
+     //        itself to visible, seemingly by accident? It seems like
+     //        a hack that centerDialog() causes the dialog to be visible?
      if ((el.style.display != 'none')/* && (el.style.visibility != 'hidden')*/) {
        var ws = WT.windowSize();
        var w = el.offsetWidth, h = el.offsetHeight;

@@ -114,5 +114,5 @@ Wt::WString TopicWidget::reindent(const Wt::WString& text)
       result += skipSpaces(line, indent);
     }
   }
-  return Wt::utf8(result);
+  return Wt::WString(result);
 }

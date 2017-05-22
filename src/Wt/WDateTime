@@ -254,7 +254,7 @@ public:
    *
    * \sa daysTo(), secsTo()
    */
-  WString timeTo(const WDateTime& other, int minValue = 1) const;
+  WString timeTo(const WDateTime& other, std::chrono::seconds minValue = std::chrono::seconds{1}) const;
 
   /*! \brief Compares two datetime values.
    */

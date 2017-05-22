@@ -56,7 +56,7 @@ const char *WWebWidget::FOCUS_SIGNAL = "focus";
 const char *WWebWidget::BLUR_SIGNAL = "blur";
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<36> WWebWidget::AllChangeFlags = std::bitset<36>()
+const std::bitset<37> WWebWidget::AllChangeFlags = std::bitset<37>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -69,7 +69,8 @@ const std::bitset<36> WWebWidget::AllChangeFlags = std::bitset<36>()
   .set(BIT_DISABLED_CHANGED)
   .set(BIT_ZINDEX_CHANGED)
   .set(BIT_TABINDEX_CHANGED)
-  .set(BIT_SCROLL_VISIBILITY_CHANGED);
+  .set(BIT_SCROLL_VISIBILITY_CHANGED)
+  .set(BIT_OBJECT_NAME_CHANGED);
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
@@ -1872,6 +1873,15 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     }
     flags_.reset(BIT_SCROLL_VISIBILITY_CHANGED);
   }
+
+  if (all || flags_.test(BIT_OBJECT_NAME_CHANGED)) {
+    if (!objectName().empty()) {
+      element.setAttribute("data-object-name", objectName());
+    } else if (!all) {
+      element.removeAttribute("data-object-name");
+    }
+    flags_.reset(BIT_OBJECT_NAME_CHANGED);
+  }
   
   renderOk();
 
@@ -2096,6 +2106,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_ZINDEX_CHANGED);
   flags_.reset(BIT_TABINDEX_CHANGED);
   flags_.reset(BIT_SCROLL_VISIBILITY_CHANGED);
+  flags_.reset(BIT_OBJECT_NAME_CHANGED);
 #endif
 
   renderOk();
@@ -2726,4 +2737,14 @@ bool WWebWidget::isThemeStyleEnabled() const
 {
   return !flags_.test(BIT_THEME_STYLE_DISABLED);
 }
+
+void WWebWidget::setObjectName(const std::string& name)
+{
+  if (objectName() != name) {
+    WWidget::setObjectName(name);
+    flags_.set(BIT_OBJECT_NAME_CHANGED);
+    repaint();
+  }
+}
+
 }

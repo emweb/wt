@@ -273,20 +273,6 @@ WAbstractItemView::~WAbstractItemView()
     app->styleSheet().removeRule(columns_[i].styleRule.get());
 }
 
-void WAbstractItemView::setObjectName(const std::string& name)
-{
-  WCompositeWidget::setObjectName(name);
-
-  bindObjJS(resizeHandleMDownJS_, "resizeHandleMDown");
-
-  headerHeightRule_->setSelector("#" + id() + " .headerrh");
-
-  for (unsigned i = 0; i < columns_.size(); ++i) {
-    ColumnInfo& ci = columns_[i];
-    ci.styleRule->setSelector("#" + id() + " ." + ci.styleClass());
-  }
-}
-
 void WAbstractItemView
 ::setModel(const std::shared_ptr<WAbstractItemModel>& model)
 {

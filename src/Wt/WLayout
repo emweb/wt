@@ -20,10 +20,13 @@ namespace Wt {
 class WWidgetItem;
 class WLayoutImpl;
 
-// TODO(Roel): document
+/*! \brief Enumeration to indicate which layout implementation to use.
+ *
+ * \sa WLayout::setPreferredImplementation()
+ */
 enum class LayoutImplementation {
-  Flex,
-  Classic // TODO(Roel): what should we call this?
+  Flex, //!< Use CSS flex layout (if supported by the browser)
+  JavaScript //!< Uses the classic JavaScript-based method. In some cases flex layout may fail when nesting multiple layouts, so this method can be used instead
 };
 
 /*! \class WLayout Wt/WLayout.h Wt/WLayout.h
@@ -53,7 +56,14 @@ public:
    */
   virtual ~WLayout();
 
-  // TODO(Roel): document
+  /*! \brief Set the preferred layout implementation.
+   *
+   * The default implementation for box layouts and fit layouts is
+   * \link LayoutImplementation::Flex Flex\endlink
+   * (if supported by the browser). Otherwise a fallback to
+   * \link LayoutImplementation::JavaScript JavaScript\endlink
+   * is used.
+   */
   void setPreferredImplementation(LayoutImplementation implementation);
 
   /*! \brief Adds a layout <i>item</i>.

@@ -127,7 +127,7 @@ Wt::WString BlogUserDatabase::identity(const Wt::Auth::User& user,
   if (provider == Wt::Auth::Identity::LoginName)
     return user_->name;
   else if (provider == user_->oAuthProvider)
-    return Wt::utf8(user_->oAuthId);
+    return Wt::WString(user_->oAuthId);
   else
     return Wt::WString::Empty;
 }

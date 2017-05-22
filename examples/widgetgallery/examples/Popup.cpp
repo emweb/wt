@@ -39,7 +39,7 @@ Wt::WMenuItem *item = popup->addItem("Don't disturb");
 item->setCheckable(true);
 
 item->triggered().connect(std::bind([=] () {
-    out->setText(Wt::WString::fromUTF8("<p>{1} item is {2}.</p>")
+    out->setText(Wt::WString("<p>{1} item is {2}.</p>")
 		 .arg(item->text())
 		 .arg(item->isChecked() ? "checked" : "unchecked"));
 }));
@@ -80,7 +80,7 @@ button->setMenu(std::move(popupPtr));
 // React to an item selection
 popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
     status->setText
-        (Wt::utf8("Selected menu item: {1}.")
+        (Wt::WString("Selected menu item: {1}.")
 	 .arg(item->text()));
 }, std::placeholders::_1));
 

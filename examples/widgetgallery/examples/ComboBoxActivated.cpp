@@ -17,7 +17,7 @@ auto out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
 cb->changed().connect(std::bind([=] () {
-    out->setText(Wt::utf8("You selected {1}.")
+    out->setText(Wt::WString("You selected {1}.")
 		 .arg(cb->currentText()));
 }));
 

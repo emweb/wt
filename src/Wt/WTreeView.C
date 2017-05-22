@@ -406,13 +406,15 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
       renderFlags |= ViewItemRenderFlag::Invalid;
     }
     
-    w = view_->itemDelegate(i)->update(w, child, renderFlags);
+    std::unique_ptr<WWidget> wAfter = view_->itemDelegate(i)->update(w, child, renderFlags);
+    if (wAfter)
+      w = wAfter.get();
 
     if (renderFlags.test(ViewItemRenderFlag::Editing))
       view_->setEditorWidget(child, w);
 
-    if (!w->parent()) {
-      setCellWidget(i, std::unique_ptr<WWidget>(w));
+    if (wAfter) {
+      setCellWidget(i, std::move(wAfter));
 
       /*
        * If we are creating a new editor, then reset its current edit

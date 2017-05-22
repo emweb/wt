@@ -171,7 +171,7 @@ std::unique_ptr<WStandardItem> TreeViewExample::countryItem(const std::string& c
 					    const std::string& code)
 {
   std::unique_ptr<WStandardItem> result
-      = cpp14::make_unique<WStandardItem>(WString::fromUTF8(country));
+      = cpp14::make_unique<WStandardItem>(WString(country));
   result->setIcon("icons/flag_" + code + ".png");
   return result;
 }
@@ -186,7 +186,7 @@ TreeViewExample::cityItems(const std::string& city,
   std::unique_ptr<WStandardItem> item;
   
   // column 0: country
-  item = cpp14::make_unique<WStandardItem>(WString::fromUTF8(city));
+  item = cpp14::make_unique<WStandardItem>(WString(city));
   result.push_back(std::move(item));
   
   // column 1: weather

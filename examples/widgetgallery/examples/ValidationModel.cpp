@@ -50,7 +50,7 @@ private:
             // Udate the view: Delete any validation message in the view, etc.
             updateView(model_.get());
             bindString("age-info",
-                       Wt::utf8("Age of {1} is saved!")
+                       Wt::WString("Age of {1} is saved!")
                        .arg(Wt::asString(model_->value(AgeFormModel::AgeField))));
         } else {
             updateView(model_.get());

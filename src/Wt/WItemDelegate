@@ -70,7 +70,7 @@ public:
    * When the flags indicates Wt::ViewItemRenderFlag::Editing, then createEditor() is
    * called to create a suitable editor for editing the item.
    */
-  virtual WWidget *update
+  virtual std::unique_ptr<WWidget> update
     (WWidget *widget, const WModelIndex& index,
      WFlags<ViewItemRenderFlag> flags) override;
 

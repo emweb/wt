@@ -36,7 +36,7 @@ void WLayout::setPreferredImplementation(LayoutImplementation implementation)
 LayoutImplementation WLayout::implementation() const
 {
   if (dynamic_cast<StdGridLayoutImpl2*>(impl_.get()))
-    return LayoutImplementation::Classic;
+    return LayoutImplementation::JavaScript;
   if (dynamic_cast<FlexLayoutImpl*>(impl_.get()))
     return LayoutImplementation::Flex;
   return preferredImplementation_;

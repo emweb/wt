@@ -74,7 +74,7 @@ void readFromCsv(std::istream& f, std::shared_ptr<WAbstractItemModel> model,
 			       col + 1 - model->columnCount());
 
 	if (firstLineIsHeaders && csvRow == 0)
-	  model->setHeaderData(col, cpp17::any(WString::fromUTF8(*i)));
+	  model->setHeaderData(col, cpp17::any{WString{*i}});
 	else {
 	  int dataRow = firstLineIsHeaders ? csvRow - 1 : csvRow;
 
@@ -85,7 +85,7 @@ void readFromCsv(std::istream& f, std::shared_ptr<WAbstractItemModel> model,
 	    model->insertRows(model->rowCount(),
 			      dataRow + 1 - model->rowCount());
 
-	  cpp17::any data(WString::fromUTF8(*i));
+	  cpp17::any data{WString{*i}};
 	  model->setData(dataRow, col, data);
 	}
       }

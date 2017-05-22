@@ -41,9 +41,6 @@ std::unique_ptr<WObject> WObject::removeChild(WObject *child)
 
 void WObject::setObjectName(const std::string& name)
 {
-  // We could optimize this so that id() does not have to
-  // concatenate on the fly by appending internally already the
-  // uniqueId()
   name_ = name;
 }
 
@@ -62,12 +59,7 @@ const std::string WObject::uniqueId() const
 
 const std::string WObject::id() const
 {
-  std::string result = objectName();
-
-  if (!result.empty())
-    return result + '_' + uniqueId();
-  else
-    return uniqueId();
+  return uniqueId();
 }
 
 void WObject::setFormData(const FormData& formData)

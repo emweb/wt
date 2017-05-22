@@ -36,26 +36,26 @@ group->checkedChanged().connect(std::bind([=] (Wt::WRadioButton *selection) {
     Wt::WString text;
 
     switch (rawGroup->id(selection)) {
-    case 1: text = Wt::utf8("You checked button {1}.")
+    case 1: text = Wt::WString("You checked button {1}.")
             .arg(rawGroup->checkedId());
 	break;
 
-    case 2: text = Wt::utf8("You selected button {1}.")
+    case 2: text = Wt::WString("You selected button {1}.")
             .arg(rawGroup->checkedId());
 	break;
 
-    case 3: text = Wt::utf8("You clicked button {1}.")
+    case 3: text = Wt::WString("You clicked button {1}.")
             .arg(rawGroup->checkedId());
 	break;
     }
 
-    text += Wt::utf8("... Are your really {1} now?")
+    text += Wt::WString("... Are your really {1} now?")
 	.arg(selection->text());
 
     if (rawGroup->id(selection) == 4)
-        text = Wt::utf8("That's what I expected!");
+        text = Wt::WString("That's what I expected!");
 
-    out->setText(Wt::utf8("<p>") + text + "</p>");
+    out->setText(Wt::WString("<p>") + text + "</p>");
 }, std::placeholders::_1));
 
 SAMPLE_END(return std::move(container))

@@ -54,10 +54,10 @@ AttachmentEdit::UploadInfo::UploadInfo(const Http::UploadedFile& f)
       + U"kb";
 
   std::u32string fn = static_cast<std::u32string>
-    (escapeText(WString::fromUTF8(info_.clientFileName())));
+    (escapeText(WString(info_.clientFileName())));
 
   downloadLink_
-    = this->addWidget(cpp14::make_unique<WAnchor>("", fn + U" (<i>" + WString::fromUTF8(info_.contentType())
+    = this->addWidget(cpp14::make_unique<WAnchor>("", fn + U" (<i>" + WString(info_.contentType())
                   + U"</i>) " + size));
 
   auto res = std::make_shared<WFileResource>(info_.contentType(),info_.spoolFileName());
@@ -195,8 +195,8 @@ std::vector<Attachment> AttachmentEdit::attachments()
       Http::UploadedFile& f = uploadInfo_[i]->info_;
       f.stealSpoolFile();
       result.push_back(Attachment
-		       (WString::fromUTF8(f.clientFileName()),
-			WString::fromUTF8(f.contentType()),
+		       (WString(f.clientFileName()),
+			WString(f.contentType()),
 			f.spoolFileName()));
     }
   }

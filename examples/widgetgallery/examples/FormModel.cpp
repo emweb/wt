@@ -320,7 +320,7 @@ private:
         if (model->validate()) {
             // Do something with the data in the model: show it.
             bindString("submit-info",
-                       Wt::WString::fromUTF8("Saved user data for ")
+                       Wt::WString("Saved user data for ")
                        + model->userData(), Wt::TextFormat::Plain);
             // Udate the view: Delete any validation message in the view, etc.
             updateView(model.get());

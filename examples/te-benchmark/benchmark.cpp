@@ -233,7 +233,7 @@ public:
     if (varName == "id")
       result << it_->id();
     else if (varName == "message")
-      format(result, Wt::WString::fromUTF8((*it_)->message));
+      format(result, Wt::WString((*it_)->message));
     else
       Wt::WTemplate::resolveString(varName, vars, result);
   }

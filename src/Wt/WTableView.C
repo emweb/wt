@@ -303,7 +303,7 @@ void WTableView::setModel(const std::shared_ptr<WAbstractItemModel>& model)
   adjustSize();
 }
 
-WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index) 
+std::unique_ptr<WWidget> WTableView::renderWidget(WWidget* widget, const WModelIndex& index) 
 {
   auto itemDelegate = this->itemDelegate(index.column());
 
@@ -326,7 +326,9 @@ WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index)
 
   bool initial = !widget;
 
-  widget = itemDelegate->update(widget, index, renderFlags);
+  std::unique_ptr<WWidget> wAfter = itemDelegate->update(widget, index, renderFlags);
+  if (wAfter)
+    widget = wAfter.get();
   widget->setInline(false);
   widget->addStyleClass("Wt-tv-c");
   widget->setHeight(rowHeight());
@@ -349,7 +351,7 @@ WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index)
     }
   }
 
-  return widget;
+  return wAfter;
 }
 
 int WTableView::spannerCount(const Side side) const
@@ -620,13 +622,11 @@ void WTableView::renderTable(const int fr, const int lr,
     int row = fr + i;
     for (int col = 0; col < rowHeaderCount(); ++col) {
       ColumnWidget *w = columnContainer(col);
-      w->insertWidget(i, std::unique_ptr<WWidget>{
-	    renderWidget(nullptr, model()->index(row, col, rootIndex()))});
+      w->insertWidget(i, renderWidget(nullptr, model()->index(row, col, rootIndex())));
     }
     for (int col = fc; col <= lc; ++col) {
       ColumnWidget *w = columnContainer(col - fc + rowHeaderCount());
-      w->insertWidget(i, std::unique_ptr<WWidget>{
-	    renderWidget(nullptr, model()->index(row, col, rootIndex()))});
+      w->insertWidget(i, renderWidget(nullptr, model()->index(row, col, rootIndex())));
     }
     addSection(Side::Top);
   }
@@ -640,15 +640,13 @@ void WTableView::renderTable(const int fr, const int lr,
         int col = fc + j;
         int renderCol = rowHeaderCount() + j;
         ColumnWidget *w = columnContainer(renderCol);
-        w->addWidget(std::unique_ptr<WWidget>{
-	    renderWidget(0, model()->index(row, col, rootIndex()))});
+        w->addWidget(renderWidget(nullptr, model()->index(row, col, rootIndex())));
       }
       // Populate right columns
       for (int j = 0; j < rightColsToAdd; ++j) {
         int col = lc - rightColsToAdd + 1 + j;
         ColumnWidget *w = columnContainer(col - fc + rowHeaderCount());
-        w->addWidget(std::unique_ptr<WWidget>{
-	    renderWidget(0, model()->index(row, col, rootIndex()))});
+        w->addWidget(renderWidget(nullptr, model()->index(row, col, rootIndex())));
       }
     }
   }
@@ -657,13 +655,11 @@ void WTableView::renderTable(const int fr, const int lr,
     int row = oldLastRow == -1 ? fr + i : oldLastRow + 1 + i;
     for (int col = 0; col < rowHeaderCount(); ++col) {
       ColumnWidget *w = columnContainer(col);
-      w->addWidget(std::unique_ptr<WWidget>{
-	  renderWidget(0, model()->index(row, col, rootIndex()))});
+      w->addWidget(renderWidget(nullptr, model()->index(row, col, rootIndex())));
     }
     for (int col = fc; col <= lc; ++col) {
       ColumnWidget *w = columnContainer(col - fc + rowHeaderCount());
-      w->addWidget(std::unique_ptr<WWidget>{
-	  renderWidget(0, model()->index(row, col, rootIndex()))});
+      w->addWidget(renderWidget(nullptr, model()->index(row, col, rootIndex())));
     }
     addSection(Side::Bottom);
   }
@@ -961,7 +957,7 @@ void WTableView::rerenderData()
 	int renderedCol = j - firstColumn();
 
 	WModelIndex index = model()->index(i, j, rootIndex());
-	std::unique_ptr<WWidget> w(renderWidget(nullptr, index));
+	std::unique_ptr<WWidget> w = renderWidget(nullptr, index);
 	WTableCell *cell = plainTable_->elementAt
 	  (renderedRow + 1, renderedCol);
 	if (columnInfo(j).hidden)
@@ -1543,11 +1539,16 @@ void WTableView::updateItem(const WModelIndex& index,
 
   WWidget *current = parentWidget->widget(wIndex);
 
-  WWidget *w = renderWidget(current, index);
+  std::unique_ptr<WWidget> wAfter = renderWidget(current, index);
+  WWidget *w = nullptr;
+  if (wAfter)
+    w = wAfter.get();
+  else
+    w = current;
 
-  if (!w->parent()) {
-    parentWidget->removeWidget(current);
-    parentWidget->insertWidget(wIndex, std::unique_ptr<WWidget>(w));
+  if (wAfter) {
+    parentWidget->removeWidget(current); // current may or may not be dangling at this point
+    parentWidget->insertWidget(wIndex, std::move(wAfter));
 
     if (!ajaxMode() && !isEditing(index)) {
       WInteractWidget *wi = dynamic_cast<WInteractWidget *>(w);

@@ -185,12 +185,12 @@ std::unique_ptr<WWidget> SourceView::renderView()
   } else if (lang != "") {
     auto text = cpp14::make_unique<WText>();
     text->setTextFormat(TextFormat::UnsafeXHTML);
-    text->setText(WString::fromUTF8(content));
+    text->setText(content);
     result = std::move(text);
   } else {
     auto text = cpp14::make_unique<WText>();
     text->setTextFormat(TextFormat::Plain);
-    text->setText(WString::fromUTF8(content));
+    text->setText(content);
     result = std::move(text);
   }
 

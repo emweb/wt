@@ -22,10 +22,6 @@
 #include <vector>
 
 namespace {
-#ifdef WT_THREADED
-  std::mutex fontRegistryMutex_; // TODO(Roel): fontRegistryMutex_ is unused?
-#endif // WT_THREADED
-
   // Maps TrueType file names to font names
   std::map<std::string, std::string> fontRegistry_;
 }

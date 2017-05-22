@@ -18,7 +18,7 @@
 using namespace Wt;
 using namespace Wt::Dbo;
 
-WString EntryDialog::timeFormat = WString::fromUTF8("HH:mm");
+WString EntryDialog::timeFormat = WString("HH:mm");
 
 EntryDialog::EntryDialog(const WString& title, CalendarCell* cell) 
   : WDialog(title)

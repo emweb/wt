@@ -24,7 +24,7 @@ c2->selectionChanged().connect(std::bind([=] () {
         selected += date.toString("dd/MM/yyyy");
     }
 
-    out->setText(Wt::utf8("<p>You selected the following dates: {1}</p>")
+    out->setText(Wt::WString("<p>You selected the following dates: {1}</p>")
 		 .arg(selected));
 }));
 

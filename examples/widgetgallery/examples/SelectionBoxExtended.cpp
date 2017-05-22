@@ -38,7 +38,7 @@ sb2->activated().connect(std::bind([=] () {
 	selected += sb2->itemText(*it);
     }
 
-    out->setText(Wt::utf8("You choose {1}.").arg(selected));
+    out->setText(Wt::WString("You choose {1}.").arg(selected));
 }));
 
 SAMPLE_END(return std::move(container))

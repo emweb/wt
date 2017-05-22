@@ -98,8 +98,8 @@ void WItemDelegate::setTextFormat(const WT_USTRING& format)
   textFormat_ = format;
 }
 
-WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
-			       WFlags<ViewItemRenderFlag> flags)
+std::unique_ptr<WWidget> WItemDelegate::update(WWidget *widget, const WModelIndex& index,
+                                               WFlags<ViewItemRenderFlag> flags)
 {
   bool editing = widget && widget->find("t") == nullptr;
 
@@ -108,9 +108,9 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
       widget = createEditor(index, flags).release();
       WInteractWidget *iw = dynamic_cast<WInteractWidget *>(widget);
       if (iw) {
-	// Disable drag & drop and selection behaviour
-	iw->mouseWentDown().preventPropagation();
-	iw->clicked().preventPropagation();
+        // Disable drag & drop and selection behaviour
+        iw->mouseWentDown().preventPropagation();
+        iw->clicked().preventPropagation();
       }
     }
   } else {
@@ -129,43 +129,54 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     if (widgetRef.w) {
       if (haveCheckBox != (checkBox(widgetRef, index, false) != 0) ||
           haveLink != (anchorWidget(widgetRef, index, false) != 0) ||
-          haveIcon != (iconWidget(widgetRef, index, false) != 0))
-        widgetRef.w = 0;
+          haveIcon != (iconWidget(widgetRef, index, false) != 0)) {
+        widgetRef.w->removeFromParent();
+        widgetRef.w = nullptr;
+      }
     }
 
     if (!widgetRef.w) {
       isNew = true;
-      IndexText *t = new IndexText(index);
+      widgetRef.created = std::unique_ptr<WWidget>{new IndexText(index)};
+      IndexText *t = static_cast<IndexText*>(widgetRef.created.get());
       t->setObjectName("t");
       if (index.isValid() && !(index.flags() & ItemFlag::XHTMLText))
-	t->setTextFormat(TextFormat::Plain);
+        t->setTextFormat(TextFormat::Plain);
       t->setWordWrap(true);
       widgetRef.w = t;
     }
 
-    if (!index.isValid())
-      return widgetRef.w;
+    if (!index.isValid()) {
+      if (isNew)
+        return std::move(widgetRef.created);
+      else
+        return nullptr;
+    }
 
     cpp17::any checkedData = index.data(ItemDataRole::Checked);
     if (!checkedData.empty()) {
       CheckState state =
-	(checkedData.type() == typeid(bool) ?
-	 (cpp17::any_cast<bool>(checkedData) ? 
-	  CheckState::Checked : CheckState::Unchecked)
-	 : (checkedData.type() == typeid(CheckState) ?
-	    cpp17::any_cast<CheckState>(checkedData) :
-	    CheckState::Unchecked));
+        (checkedData.type() == typeid(bool) ?
+         (cpp17::any_cast<bool>(checkedData) ?
+          CheckState::Checked : CheckState::Unchecked)
+         : (checkedData.type() == typeid(CheckState) ?
+            cpp17::any_cast<CheckState>(checkedData) :
+            CheckState::Unchecked));
       IndexCheckBox *icb =
         checkBox(widgetRef, index, true, true, index.flags().test(ItemFlag::Tristate));
       icb->setCheckState(state);
       icb->setEnabled(index.flags().test(ItemFlag::UserCheckable));
-    } else if (!isNew)
-      delete checkBox(widgetRef, index, false);
+    } else if (!isNew) {
+      IndexCheckBox *icb =
+        checkBox(widgetRef, index, false);
+      if (icb)
+        icb->removeFromParent();
+    }
 
     cpp17::any linkData = index.data(ItemDataRole::Link);
     if (!linkData.empty()) {
       WLink link = cpp17::any_cast<WLink>(linkData);
-      IndexAnchor *a = anchorWidget(widgetRef, index);
+      IndexAnchor *a = anchorWidget(widgetRef, index, true);
       a->setLink(link);
     }
 
@@ -179,21 +190,24 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     std::string iconUrl = asString(index.data(ItemDataRole::Decoration)).toUTF8();
     if (!iconUrl.empty()) {
       iconWidget(widgetRef, index, true)->setImageLink(WLink(iconUrl));
-    } else if (!isNew)
-      delete iconWidget(widgetRef, index, false);
+    } else if (!isNew) {
+      auto icw = iconWidget(widgetRef, index, false);
+      if (icw)
+        icw->removeFromParent();
+    }
   }
 
   if (index.flags().test(ItemFlag::DeferredToolTip)) {
     widgetRef.w->setDeferredToolTip(true,
-				    index.flags().test(ItemFlag::XHTMLText) ?
-				    TextFormat::XHTML : 
-				    TextFormat::Plain);
+                                    index.flags().test(ItemFlag::XHTMLText) ?
+                                    TextFormat::XHTML :
+                                    TextFormat::Plain);
   } else {
     WString tooltip = asString(index.data(ItemDataRole::ToolTip));
     if (!tooltip.empty() || !isNew)
       widgetRef.w->setToolTip(tooltip,
-			      index.flags().test(ItemFlag::XHTMLText) ? 
-			      TextFormat::XHTML : TextFormat::Plain);
+                              index.flags().test(ItemFlag::XHTMLText) ?
+                              TextFormat::XHTML : TextFormat::Plain);
   }
 
   WT_USTRING sc = asString(index.data(ItemDataRole::StyleClass));
@@ -213,7 +227,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     if (!widgetRef.w->attributeValue("drop").empty())
       widgetRef.w->setAttributeValue("drop", WString::fromUTF8("f"));
 
-  return widgetRef.w;
+  return std::move(widgetRef.created);
 }
 
 /*
@@ -228,36 +242,42 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
  */
 
 IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
-				      bool autoCreate, bool update, bool triState)
+                                      bool autoCreate, bool update, bool triState)
 {
   IndexCheckBox *checkBox = dynamic_cast<IndexCheckBox *>(w.w->find("c"));
 
   if (!checkBox) {
     if (autoCreate) {
       std::unique_ptr<IndexCheckBox> newBox
-	(checkBox = new IndexCheckBox(index));
+        (checkBox = new IndexCheckBox(index));
       checkBox->setObjectName("c");
       checkBox->clicked().preventPropagation();
 
       IndexContainerWidget *wc =
           dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
       if (!wc) {
-        wc = new IndexContainerWidget(index);
-	wc->setObjectName("o");
-	w.w->setInline(true);
-	w.w->setStyleClass(WString::Empty);
+        std::unique_ptr<WWidget> oldW;
+        if (w.created)
+          oldW = std::move(w.created);
+        w.created = std::unique_ptr<WWidget>{new IndexContainerWidget(index)};
+        wc = static_cast<IndexContainerWidget*>(w.created.get());
+        wc->setObjectName("o");
+        w.w->setInline(true);
+        w.w->setStyleClass(WString::Empty);
 
-	/* We first remove to avoid reparenting warnings */
-	if (w.w->parent())
-	  w.w->parent()->removeWidget(w.w).release();
+        /* We first remove to avoid reparenting warnings */
+        if (w.w->parent()) {
+          assert(!oldW);
+          oldW = w.w->removeFromParent();
+        }
 
-	wc->addWidget(std::unique_ptr<WWidget>(w.w));
-	w.w = wc;
+        wc->addWidget(std::move(oldW));
+        w.w = wc;
       }
-      
+
       wc->insertWidget(0, std::move(newBox));
       checkBox->changed().connect
-	(this, std::bind(&WItemDelegate::onCheckedChange, this, checkBox));
+        (this, std::bind(&WItemDelegate::onCheckedChange, this, checkBox));
     } else
       return nullptr;
   }
@@ -287,16 +307,19 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w,
     wc = dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
 
   if (!wc) {
-    wc = new IndexContainerWidget(index);
+    std::unique_ptr<WWidget> newWc{new IndexContainerWidget(index)};
+    wc = static_cast<IndexContainerWidget*>(newWc.get());
     wc->setObjectName("o");
-    wc->addWidget(std::unique_ptr<WWidget>(w.w));
+    wc->addWidget(w.created ? std::move(w.created) : w.w->removeFromParent());
+    w.created = std::move(newWc);
     w.w = wc;
   }
 
-  image = new WImage();
+  std::unique_ptr<WWidget> newImage{new WImage()};
+  image = static_cast<WImage*>(newImage.get());
   image->setObjectName("i");
   image->setStyleClass("icon");
-  wc->insertWidget(wc->count() - 1, std::unique_ptr<WWidget>(image));
+  wc->insertWidget(wc->count() - 1, std::move(newImage));
 
   // IE does not want to center vertically without this:
   if (wApp->environment().agentIsIE()) {
@@ -315,7 +338,8 @@ IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index,
   if (anchor || !autoCreate)
     return anchor;
 
-  anchor = new IndexAnchor(index);
+  std::unique_ptr<WWidget> newAnchor{new IndexAnchor(index)};
+  anchor = static_cast<IndexAnchor*>(newAnchor.get());
   anchor->setObjectName("a");
 
   IndexContainerWidget *wc =
@@ -330,9 +354,9 @@ IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index,
     if (cb)
       firstToMove = 1;
 
-    wc->insertWidget(firstToMove, std::unique_ptr<WWidget>(anchor));
+    wc->insertWidget(firstToMove, std::move(newAnchor));
 
-    while (wc->count() > firstToMove + 1) { 
+    while (wc->count() > firstToMove + 1) {
       WWidget *c = wc->widget(firstToMove + 1);
       auto uc = wc->removeWidget(c);
       anchor->addWidget(std::move(uc));
@@ -341,7 +365,8 @@ IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index,
     /*
      * Convert (1) -> (3)
      */
-    anchor->addWidget(std::unique_ptr<WWidget>(w.w));
+    anchor->addWidget(w.created ? std::move(w.created) : w.w->removeFromParent());
+    w.created = std::move(newAnchor);
     w.w = anchor;
   }
 
@@ -379,16 +404,16 @@ void WItemDelegate::onCheckedChange(IndexCheckBox *cb) const
     = const_cast<WAbstractItemModel *>(cb->index().model());
 
   if (cb->isTristate())
-    model->setData(cb->index(), cpp17::any(cb->checkState()), 
-		   ItemDataRole::Checked);
+    model->setData(cb->index(), cpp17::any(cb->checkState()),
+                   ItemDataRole::Checked);
   else
     model->setData(cb->index(), cpp17::any(cb->isChecked()),
-		   ItemDataRole::Checked);
+                   ItemDataRole::Checked);
 }
 
 std::unique_ptr<WWidget> WItemDelegate
 ::createEditor(const WModelIndex& index,
-	       WFlags<ViewItemRenderFlag> flags) const
+               WFlags<ViewItemRenderFlag> flags) const
 {
   std::unique_ptr<IndexContainerWidget> result(new IndexContainerWidget(index));
   result->setSelectable(true);
@@ -427,7 +452,7 @@ cpp17::any WItemDelegate::editState(WWidget *editor, const WModelIndex& index)
 }
 
 void WItemDelegate::setEditState(WWidget *editor, const WModelIndex& index,
-				 const cpp17::any& value) const
+                                 const cpp17::any& value) const
 {
   IndexContainerWidget *w =
       dynamic_cast<IndexContainerWidget *>(editor);
@@ -437,8 +462,8 @@ void WItemDelegate::setEditState(WWidget *editor, const WModelIndex& index,
 }
 
 void WItemDelegate::setModelData(const cpp17::any& editState,
-				 WAbstractItemModel *model,
-				 const WModelIndex& index) const
+                                 WAbstractItemModel *model,
+                                 const WModelIndex& index) const
 {
   model->setData(index, editState, ItemDataRole::Edit);
 }

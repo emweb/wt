@@ -464,7 +464,9 @@ adjustments. It is for this purpose that layout managers have been
 added to Wt. These layout managers use JavaScript to compute the width
 and/or height of widgets based on dimensions of other widgets.
 
-TODO(Roel): what about flexbox?
+Since Wt 4, some layouts use CSS and flexbox by default, which works
+in many cases, but in some situations, you may want to opt for the
+JavaScript implementation instead.
 ****
 
 The +LetterWidget+ exposes a signal that indicates that the user chose

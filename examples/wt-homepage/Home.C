@@ -120,14 +120,13 @@ void Home::createHome()
   languagesDiv->setId("top_languages");
 
   for (unsigned i = 0; i < languages.size(); ++i) {
-      if (i != 0)
-        languagesDiv->addWidget(cpp14::make_unique<WText>("- "));
+    if (i != 0)
+      languagesDiv->addWidget(cpp14::make_unique<WText>("- "));
 
-      const Lang& l = languages[i];
+    const Lang& l = languages[i];
 
-      languagesDiv->addWidget(cpp14::make_unique<WAnchor>(WLink(LinkType::InternalPath, l.path_),
-                  WString::fromUTF8(l.longDescription_)));
-    }
+    languagesDiv->addWidget(cpp14::make_unique<WAnchor>(WLink(LinkType::InternalPath, l.path_), l.longDescription_));
+  }
 
   auto contents = cpp14::make_unique<WStackedWidget>();
   WAnimation fade(AnimationEffect::Fade, TimingFunction::Linear, 250);

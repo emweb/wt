@@ -32,7 +32,7 @@ cb->changed().connect(std::bind([=] () {
     Wt::WString countryName = cb->currentText();
     int row = cb->currentIndex();
     Wt::WString countryCode = Wt::asString(model->data(model->index(row,0), Wt::ItemDataRole::User));
-    out->setText(Wt::utf8("You selected {1} with key {2}.").
+    out->setText(Wt::WString("You selected {1} with key {2}.").
 		 arg(countryName).arg(countryCode));
 }));
 

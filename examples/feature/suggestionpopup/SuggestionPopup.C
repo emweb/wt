@@ -70,7 +70,7 @@ private:
         = std::make_shared<WStringListModel>();
 
     for (auto &drug : hivDrugs) {
-      model->addString(WString::fromUTF8(drug));
+      model->addString(drug);
     }
 
     return model;

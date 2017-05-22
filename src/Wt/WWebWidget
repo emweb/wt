@@ -283,6 +283,8 @@ public:
   virtual void setThemeStyleEnabled(bool enabled) final override;
   virtual bool isThemeStyleEnabled() const final override;
 
+  virtual void setObjectName(const std::string& name) override;
+
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
   typedef std::function<void (WWidget *)> HandleWidgetMethod;
@@ -373,12 +375,13 @@ private:
   // scroll visibility margin has been modified.
   static const int BIT_SCROLL_VISIBILITY_CHANGED = 34;
   static const int BIT_THEME_STYLE_DISABLED = 35;
+  static const int BIT_OBJECT_NAME_CHANGED = 36;
 
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<36> AllChangeFlags;
+  static const std::bitset<37> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -386,7 +389,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<36> flags_;
+  std::bitset<37> flags_;
   std::unique_ptr<WLength> width_;
   std::unique_ptr<WLength> height_;
 

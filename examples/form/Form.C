@@ -187,7 +187,7 @@ void Form::submit()
 {
   if (validate()) {
     // do something useful with the data...
-    WString name = WString::fromUTF8("{1} {2}")
+    WString name = WString("{1} {2}")
 	.arg(firstNameEdit_->text())
 	.arg(nameEdit_->text());
 
@@ -197,12 +197,12 @@ void Form::submit()
     clear();
 
     elementAt(0,0)->addWidget(cpp14::make_unique<WText>(
-                                WString::fromUTF8("<p>Thank you, {1}, "
+                                WString("<p>Thank you, {1}, "
                                "for all this precious data.</p>").arg(name)));
 
     if (!remarks.empty())
       elementAt(0,0)->addWidget(cpp14::make_unique<WText>(
-				  WString::fromUTF8("<p>You had some remarks. Splendid !</p>")));
+				  WString("<p>You had some remarks. Splendid !</p>")));
 
     wApp->quit();
   }
