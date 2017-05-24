@@ -377,9 +377,6 @@ public:
    *
    * Returns a header value, or an empty string if the header was 
    * present.
-   *
-   * \note Currently, the header name is case sensitive, although this should
-   * not be the case according to RFC2616
    */
   std::string headerValue(const std::string& field) const;
 
@@ -391,6 +388,14 @@ public:
    */
   std::vector<Message::Header> headers() const;
 #endif
+
+  /*! \brief Returns a raw CGI environment variable.
+   *
+   * Retrieves the value for the given CGI environment variable (like
+   * <tt>"SSL_CLIENT_S_DN_CN"</tt>), if it is defined, otherwise an
+   * empty string.
+   */
+  std::string getCgiValue(const std::string& varName) const;
 
   /*! \brief Returns the request method.
    *
