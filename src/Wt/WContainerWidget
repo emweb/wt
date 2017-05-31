@@ -68,21 +68,21 @@ class StdLayoutImpl;
  * // Example 1:
  * // Instantiate a container widget and add some children whose layout 
  * // is governed based on HTML/CSS rules.
- * Wt::WContainerWidget *container1 = new Wt::WContainerWidget();
- * container1->addWidget(new Wt::WText("Some text"));
- * container1->addWidget(new Wt::WImage("images/img.png"));
- * Wt::WContainerWidget *child3 = new Wt::WContainerWidget(container1);
+ * auto container1 = std::make_unique<Wt::WContainerWidget>();
+ * container1->addWidget(std::make_unique<Wt::WText>("Some text"));
+ * container1->addWidget(std::make_unique<Wt::WImage>("images/img.png"));
+ * Wt::WContainerWidget *child3 = container1->addWidget(std::make_unique<Wt::WContainerWidget>());
  *
  * // Example 2:
  * // Instantiate a container widget which uses a layout manager
- * Wt::WContainerWidget *container2 = new Wt::WContainerWidget();
- * container2->resize(WLength::Auto, 600); // give the container a fixed height.
+ * auto container2 = std::make_unique<Wt::WContainerWidget>();
+ * container2->resize(Wt::WLength::Auto, 600); // give the container a fixed height.
  *
- * Wt::WVBoxLayout *layout = new Wt::WVBoxLayout();
- * layout->addWidget(new Wt::WText("Some text"));
- * layout->addWidget(new Wt::WImage("images/img.png"));
+ * auto layout = std::make_unique<Wt::WVBoxLayout>();
+ * layout->addWidget(std::make_unique<Wt::WText>("Some text"));
+ * layout->addWidget(std::make_unique<Wt::WImage>("images/img.png"));
  *
- * container2->setLayout(layout);      // set the layout to the container.
+ * container2->setLayout(std::move(layout));      // set the layout to the container.
  * \endcode
  * \elseif java
  * \code
@@ -175,12 +175,34 @@ public:
 
   /*! \brief Adds a child widget to this container.
    *
-   * This is equivalent to passing this container as the parent when
-   * constructing the child. The widget is appended to the list of
+   * The widget is appended to the list of
    * children, and thus also layed-out at the end.
+   *
+   * The container takes ownership of the widget (it calls WObject::addChild())
+   *
+   * If, for some reason, you want to be in control of the lifetime
+   * of the widget, you can retrieve a unique_ptr with WObject::removeChild()
    */
   virtual void addWidget(std::unique_ptr<WWidget> widget);
 
+  /*! \brief Adds a child widget to this container, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Widget *result = widget.get();
+   * addWidget(std::unique_ptr<WWidget>(std::move(widget)));
+   * return result;
+   * \endcode
+   *
+   * This is a useful shorthand to add a widget and get a raw pointer to
+   * it, e.g.:
+   *
+   * \code
+   * Wt::WPushButton *button = container->addWidget(std::make_unique<Wt::WPushButton>("Click me!"));
+   * // do something with button, including safely using it in a lambda function
+   * \endcode
+   */
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget)
   {
@@ -195,10 +217,25 @@ public:
    * The <i>widget</i> is inserted at the place of the \p before
    * widget, and subsequent widgets are shifted.
    *
+   * The container takes ownership of the widget (it calls WObject::addChild())
+   *
+   * If, for some reason, you want to be in control of the lifetime
+   * of the widget, you can retrieve a unique_ptr with WObject::removeChild()
+   *
    * \sa insertWidget(int index, WWidget *widget);
    */
   virtual void insertBefore(std::unique_ptr<WWidget> widget, WWidget *before);
 
+  /*! \brief Inserts a child widget to this container, before another widget, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Widget *result = widget.get();
+   * insertWidget(std::unique_ptr<WWidget>(std::move(widget)), before);
+   * return result;
+   * \endcode
+   */
   template <typename Widget>
     Widget *insertWidget(std::unique_ptr<Widget> widget, WWidget *before)
   {
@@ -212,10 +249,25 @@ public:
    * The <i>widget</i> is inserted at the given \p index, and
    * subsequent widgets are shifted.
    *
+   * The container takes ownership of the widget (it calls WObject::addChild())
+   *
+   * If, for some reason, you want to be in control of the lifetime
+   * of the widget, you can retrieve a unique_ptr with WObject::removeChild()
+   *
    * \sa insertBefore(WWidget *widget, WWidget *before);
    */
   virtual void insertWidget(int index, std::unique_ptr<WWidget> widget);
 
+  /*! \brief Inserts a child widget to this container at given index, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Widget *result = widget.get();
+   * insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)));
+   * return result;
+   * \endcode
+   */
   template <typename Widget>
     Widget *insertWidget(int index, std::unique_ptr<Widget> widget)
   {
@@ -225,6 +277,10 @@ public:
   }
 
   /*! \brief Removes a child widget from this container.
+   *
+   * If the WContainerWidget owns the given widget (i.e. if it was added
+   * with addWidget() or insertWidget() and not removed with WObject::removeChild()),
+   * a unique_ptr to this widget is returned. Otherwise, this returns nullptr.
    */
   virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
 

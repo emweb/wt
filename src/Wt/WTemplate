@@ -449,7 +449,7 @@ public:
    * first. If previously a string or other value was bound to the
    * variable, it is removed.
    *
-   * You may also pass a \c 0 \p widget, which will resolve to an empty
+   * You may also pass a \c nullptr \p widget, which will resolve to an empty
    * string.
    *
    * \sa bindString()
@@ -458,6 +458,16 @@ public:
   virtual void bindWidget(const std::string& varName,
 			  std::unique_ptr<WWidget> widget);
 
+  /*! \brief Binds a widget to a variable, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Widget *result = widget.get();
+   * bindWidget(varName, std::unique_ptr<WWidget>(std::move(widget)));
+   * return result;
+   * \endcode
+   */
   template <typename Widget>
     Widget *bindWidget(const std::string& varName,
                        std::unique_ptr<Widget> widget)
@@ -467,14 +477,26 @@ public:
     return result;
   }
 
-  /*! \brief Unbinds a widget.
+  /*! \brief Unbinds a widget by variable name.
    *
    * This removes a previously bound widget and unbinds the
    * corresponding variable, effectively undoing the effect of
    * bindWidget().
+   *
+   * If this template does not contain a widget for the given
+   * \p varName, \c nullptr is returned.
    */
   std::unique_ptr<WWidget> removeWidget(const std::string& varName);
 
+  /*! \brief Unbinds a widget by widget pointer.
+   *
+   * This removes a previously bound widget and unbinds the
+   * corresponding variable, effectively undoing the effect of
+   * bindWidget().
+   *
+   * If this template does not contain the given widget,
+   * \c nullptr is returned.
+   */
   virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
 
   /*! \brief Binds an empty string to a variable.

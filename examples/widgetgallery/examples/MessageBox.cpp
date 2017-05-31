@@ -16,11 +16,11 @@ auto c = container.get();
 button->clicked().connect(std::bind([=] () {
     out->setText("The status button is clicked.");
 
-    auto messageBoxPtr = Wt::cpp14::make_unique<Wt::WMessageBox>("Status",
-	 "<p>Ready to launch the rocket...</p>"
-	 "<p>Launch the rocket immediately?</p>",
-         Wt::Icon::Information, Wt::StandardButton::Yes | Wt::StandardButton::No);
-    auto messageBox = messageBoxPtr.get();
+    auto messageBox = c->addChild(
+	    Wt::cpp14::make_unique<Wt::WMessageBox>("Status",
+	          "<p>Ready to launch the rocket...</p>"
+	          "<p>Launch the rocket immediately?</p>",
+                  Wt::Icon::Information, Wt::StandardButton::Yes | Wt::StandardButton::No));
 
     messageBox->setModal(false);
 
@@ -34,7 +34,6 @@ button->clicked().connect(std::bind([=] () {
     }));
 
     messageBox->show();
-    c->addChild(std::move(messageBoxPtr));
 }));
 
 SAMPLE_END(return std::move(container))

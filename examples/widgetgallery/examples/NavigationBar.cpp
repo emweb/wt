@@ -47,18 +47,17 @@ popup->addSeparator();
 popup->addItem("About");
 
 popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
-    auto messageBoxPtr = Wt::cpp14::make_unique<Wt::WMessageBox>
-	("Help",
-         Wt::WString("<p>Showing Help: {1}</p>").arg(item->text()),
-         Wt::Icon::Information, Wt::StandardButton::Ok);
-    auto messageBox = messageBoxPtr.get();
+    auto messageBox = popup->addChild(
+            Wt::cpp14::make_unique<Wt::WMessageBox>
+            ("Help",
+             Wt::WString("<p>Showing Help: {1}</p>").arg(item->text()),
+             Wt::Icon::Information, Wt::StandardButton::Ok));
 
     messageBox->buttonClicked().connect(std::bind([=] () {
         popup->removeChild(messageBox);
     }));
 
     messageBox->show();
-    popup->addChild(std::move(messageBoxPtr));
 }, std::placeholders::_1));
 
 auto item = Wt::cpp14::make_unique<Wt::WMenuItem>("Help");

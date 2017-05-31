@@ -119,16 +119,16 @@ void WIOService::stop()
 
 void WIOService::post(const std::function<void ()>& function)
 {
-  schedule(0, function);
+  schedule(std::chrono::milliseconds{0}, function);
 }
 
-void WIOService::schedule(int millis, const std::function<void()>& function)
+void WIOService::schedule(std::chrono::milliseconds millis, const std::function<void()>& function)
 {
-  if (millis == 0)
+  if (millis.count() == 0)
     strand_.post(function); // guarantees execution order
   else {
     asio::steady_timer *timer = new asio::steady_timer(*this);
-    timer->expires_from_now(std::chrono::milliseconds(millis));
+    timer->expires_from_now(millis);
     timer->async_wait
       (std::bind(&WIOService::handleTimeout, this, timer, function,
 		 std::placeholders::_1));

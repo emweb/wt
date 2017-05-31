@@ -11,6 +11,8 @@
 #include <Wt/WException.h>
 #include <Wt/WLogger.h>
 
+#include <chrono>
+
 namespace http {
   namespace server {
     class Server;
@@ -389,7 +391,7 @@ public:
    */
   WT_API void postAll(const std::function<void ()>& function);
 
-  WT_API void schedule(int milliSeconds,
+  WT_API void schedule(std::chrono::milliseconds millis,
 		       const std::string& sessionId,
 		       const std::function<void ()>& function,
 		       const std::function<void ()>& fallBackFunction

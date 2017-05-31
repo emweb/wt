@@ -95,7 +95,30 @@ public:
 
   virtual ~WObject();  
 
+  /*! \brief Add a child WObject whose lifetime is determined by this WObject
+   */
   void addChild(std::unique_ptr<WObject> child);
+
+  /*! \brief Add a child WObject, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Child *result = child.get();
+   * addChild(std::unique_ptr<WObject>(std::move(child)));
+   * return result;
+   * \endcode
+   */
+  template <typename Child>
+    Child *addChild(std::unique_ptr<Child> child)
+  {
+    Child *result = child.get();
+    addChild(std::unique_ptr<WObject>(std::move(child)));
+    return result;
+  }
+
+  /*! \brief Remove a child WObject, so its lifetime is no longer determined by this WObject
+   */
   std::unique_ptr<WObject> removeChild(WObject *child);
 
   /*
@@ -112,8 +135,7 @@ public:
    * id as its implementation.
    *
    * By default, the id is auto-generated, unless a custom id is set
-   * for a widget using WWidget::setId(). The auto-generated id is created
-   * by concatenating objectName() with a unique number.
+   * for a widget using WWidget::setId().
    *
    * \sa WWidget::jsRef()
    */
@@ -123,16 +145,16 @@ public:
    *
    * The object name can be used to easily identify a type of object
    * in the DOM, and does not need to be unique. It will usually
-   * reflect the widget type or role. The object name is prepended to
-   * the auto-generated object id().
+   * reflect the widget type or role.
    *
-   * The default object name is empty.
+   * The object name is present in the DOM in the 'data-object-name'
+   * attribute.
+   *
+   * The default object name is empty (no object name).
    *
    * \note Only letters ([A-Za-z]), digits ([0-9]), hyphens ("-"),
    * underscores ("_"), colons (":"), and periods (".") are allowed in
-   * the id.
-   *
-   * \sa id()
+   * the object name.
    */
   virtual void setObjectName(const std::string& name);
 

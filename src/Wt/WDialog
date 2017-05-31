@@ -100,13 +100,13 @@ enum class DialogCode {
  *   dialog_ = new WDialog("Personalia");
  *  
  *   new Wt::WText("Enter your name: ", dialog_->contents());
- *   Wt::WLineEdit *edit = new Wt::WLineEdit(dialog_->contents());
+ *   edit_ = new Wt::WLineEdit(dialog_->contents());
  *   new Wt::WBreak(dialog_->contents());
  *  
  *   Wt::WPushButton *ok = new Wt::WPushButton("StandardButton::Ok", dialog_->contents());
  *
  *   // these events will accept() the Dialog
- *   edit->enterPressed().connect(dialog_, &Wt::WDialog::accept);
+ *   edit_->enterPressed().connect(dialog_, &Wt::WDialog::accept);
  *   ok->clicked().connect(dialog_, &Wt::WDialog::accept);
  *  
  *   dialog_->finished().connect(this, &MyClass::dialogDone);

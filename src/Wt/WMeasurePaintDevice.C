@@ -80,6 +80,9 @@ void WMeasurePaintDevice::drawImage(const WRectF& rect,
 
 void WMeasurePaintDevice::drawPath(const WPainterPath& path)
 {
+  if (path.isEmpty())
+    return;
+
   expandBounds(path.controlPointRect());
 }
 

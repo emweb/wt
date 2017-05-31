@@ -70,9 +70,7 @@ SAMPLE_BEGIN(AxisSliderWidgetDifferentDataSeries)
 
 auto container = cpp14::make_unique<WContainerWidget>();
 
-auto statePtr = cpp14::make_unique<ChartState>();
-auto state = statePtr.get();
-container->addChild(std::move(statePtr));
+auto state = container->addChild(cpp14::make_unique<ChartState>());
 
 /*
  * Start with a rough model for the fully zoomed out position.

@@ -201,7 +201,7 @@ void WServer::post(const std::string& sessionId,
 		   const std::function<void ()>& function,
 		   const std::function<void ()>& fallbackFunction)
 {
-  schedule(0, sessionId, function, fallbackFunction);
+  schedule(std::chrono::milliseconds{0}, sessionId, function, fallbackFunction);
 }
 
 void WServer::postAll(const std::function<void ()>& function)
@@ -211,18 +211,18 @@ void WServer::postAll(const std::function<void ()>& function)
   std::vector<std::string> sessions = webController_->sessions();
   for (std::vector<std::string>::const_iterator i = sessions.begin();
       i != sessions.end(); ++i) {
-    schedule(0, *i, function);
+    schedule(std::chrono::milliseconds{0}, *i, function);
   }
 }
 
-void WServer::schedule(int milliSeconds,
+void WServer::schedule(std::chrono::milliseconds millis,
 		       const std::string& sessionId,
 		       const std::function<void ()>& function,
 		       const std::function<void ()>& fallbackFunction)
 {
   ApplicationEvent event(sessionId, function, fallbackFunction);
 
-  ioService().schedule(milliSeconds, [this, event] () {
+  ioService().schedule(millis, [this, event] () {
           webController_->handleApplicationEvent(event);
   });
 }

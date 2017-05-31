@@ -13,8 +13,7 @@ RegistrationView::RegistrationView(Session& session,
 {
   setTemplateText(tr("template.registration"));
   auto detailsModel = Wt::cpp14::make_unique<UserDetailsModel>(session_);
-  detailsModel_ = detailsModel.get();
-  addChild(std::move(detailsModel));
+  detailsModel_ = addChild(std::move(detailsModel));
   updateView(detailsModel_);
 }
 

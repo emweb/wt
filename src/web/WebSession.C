@@ -1554,7 +1554,7 @@ void WebSession::handleRequest(Handler& handler)
 		handler.setRequest(nullptr, nullptr);
 
 		controller_->server()
-		  ->schedule(2000, sessionId_,
+		  ->schedule(std::chrono::seconds{2000}, sessionId_,
 			     std::bind(&WebSession::flushBootStyleResponse,
 				       this));
 	      } else {

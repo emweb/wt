@@ -60,15 +60,14 @@ subMenu->addItem("Index")->triggered().connect(std::bind([=] () {
 
 subMenu->addSeparator();
 subMenu->addItem("About")->triggered().connect(std::bind([=] () {
-    auto messageBoxPtr = Wt::cpp14::make_unique<Wt::WMessageBox>
-        ("About", "<p>This is a program to make connections.</p>",
-         Wt::Icon::Information, Wt::StandardButton::Ok);
-    auto messageBox = messageBoxPtr.get();
+    auto messageBox = subMenu->addChild(
+	    Wt::cpp14::make_unique<Wt::WMessageBox>
+	    ("About", "<p>This is a program to make connections.</p>",
+	     Wt::Icon::Information, Wt::StandardButton::Ok));
     messageBox->show();
     messageBox->buttonClicked().connect(std::bind([=] () {
       subMenu->removeChild(messageBox);
     }));
-    subMenu->addChild(std::move(messageBoxPtr));
 }));
 
 // Assign the submenu to the parent popup menu.

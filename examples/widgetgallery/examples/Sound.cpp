@@ -6,9 +6,8 @@
 SAMPLE_BEGIN(Sound)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-auto soundPtr = Wt::cpp14::make_unique<Wt::WSound>("sounds/beep.mp3");
-auto sound = soundPtr.get();
-container->addChild(std::move(soundPtr));
+auto sound = container->addChild(
+	Wt::cpp14::make_unique<Wt::WSound>("sounds/beep.mp3"));
 sound->setLoops(3);
 
 auto playButton =

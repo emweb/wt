@@ -13,8 +13,7 @@ namespace {
 
 extern void showDialog(Wt::WObject *owner, Wt::WText *out)
 {
-    auto dialogPtr = Wt::cpp14::make_unique<Wt::WDialog>("Go to cell");
-    auto dialog = dialogPtr.get();
+    auto dialog = owner->addChild(Wt::cpp14::make_unique<Wt::WDialog>("Go to cell"));
 
     Wt::WLabel *label =
         dialog->contents()->addWidget(Wt::cpp14::make_unique<Wt::WLabel>("Cell location (A1..Z999)"));
@@ -69,7 +68,6 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
     }));
 
     dialog->show();
-    owner->addChild(std::move(dialogPtr));
 }
 
 }

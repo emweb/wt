@@ -317,10 +317,8 @@ private:
        }
        );
 
-    auto popup = cpp14::make_unique<WSuggestionPopup>(matcherJS, replacerJS);
-    auto result = popup.get();
-    parent->addChild(std::move(popup));
-    return result;
+    return parent->addChild(
+	cpp14::make_unique<WSuggestionPopup>(matcherJS, replacerJS));
   }
 };
 

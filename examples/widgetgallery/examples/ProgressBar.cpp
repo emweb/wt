@@ -23,9 +23,7 @@ stopButton->disable();
 resetButton->disable();
 
 // setup an interval timer which generates a timeout() signal every second.
-auto intervalTimerPtr = Wt::cpp14::make_unique<Wt::WTimer>();
-auto intervalTimer = intervalTimerPtr.get();
-container->addChild(std::move(intervalTimerPtr));
+auto intervalTimer = container->addChild(Wt::cpp14::make_unique<Wt::WTimer>());
 intervalTimer->setInterval(std::chrono::milliseconds{1000});
 
 startButton->clicked().connect(std::bind([=] () {
