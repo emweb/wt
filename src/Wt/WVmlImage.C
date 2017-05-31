@@ -178,6 +178,9 @@ void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
 
 void WVmlImage::drawPath(const WPainterPath& path)
 {
+  if (path.isEmpty())
+    return;
+
   if (penBrushShadowChanged_)
     if ((currentPen_ != painter()->pen())
 	|| (currentBrush_ != painter()->brush())

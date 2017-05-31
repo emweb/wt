@@ -491,6 +491,9 @@ void WSvgImage::finishPath()
 
 void WSvgImage::drawPath(const WPainterPath& path)
 {
+  if (path.isEmpty())
+    return;
+
   WRectF bbox = painter()->worldTransform().map(path.controlPointRect());
   if (busyWithPath_) {
     if (pathBoundingBox_.intersects(bbox))
