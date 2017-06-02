@@ -6,71 +6,87 @@
 # Taking into account:
 # - MYSQL_PREFIX
 
-FIND_PATH(MYSQL_INCLUDE mysql.h
-    ${MYSQL_PREFIX}/mariadbclient/include
-    ${MYSQL_PREFIX}/include/mariadb
-    ${MYSQL_PREFIX}/include
-    ${MYSQL_PREFIX}/include/mysql
-    /usr/include
-    /usr/local/include
-    /usr/include/mysql
-    /opt/local/include/mysql5/mysql
-    /usr/local/include/mysql
-)
+if(USE_HUNTER)
+    hunter_add_package(MySQL-client)
+    find_package(MySQL-client REQUIRED)
 
-SET(MYSQL_LIBRARY mariadb libmariadb mariadbclient mysqlclient libmysql CACHE STRING "Library that provides MySQL/MariaDB API (set to mysqlclient for mysql on unix; libmysql on windows)")
-FOREACH(l ${MYSQL_LIBRARY})
-  LIST(APPEND MYSQL_DEBUG_LIBRARY "${l}d")
-ENDFOREACH()
+#    set(MYSQL_INCLUDE_DIRS "$<MySQL::client, INTERFACE_INCLUDE_DIRECTORIES>")
+#    set(MYSQL_LIBRARIES "$<MySQL::client, INTERFACE_LINK_LIBRARIES>")
+    
+    set(MYSQL_LIB ${MYSQL-CLIENT_LIBRARY})
+    set(MYSQL_FOUND ${MYSQL-CLIENT_FOUND})
+    set(MYSQL_INCLUDE ${MYSQL-CLIENT_INCLUDE_DIR})
 
-FIND_LIBRARY(MYSQL_LIB
-    NAMES
-	${MYSQL_LIBRARY}
-    PATHS
-    ${MYSQL_PREFIX}/lib
-    ${MYSQL_PREFIX}/lib/opt
-    ${MYSQL_PREFIX}/lib/mysql
-    ${MYSQL_PREFIX}/lib64/mysql
-    /usr/lib
-    /usr/local/lib
-    /opt/local/lib
-    ${MYSQL_PREFIX}/lib/mariadb
-)
-
-FIND_LIBRARY(MYSQL_DEBUG_LIB
-    NAMES
-	${MYSQL_DEBUG_LIBRARY}
-    PATHS
-    ${MYSQL_PREFIX}/lib
-    ${MYSQL_PREFIX}/lib/opt
-    /usr/lib
-    /usr/local/lib
-    /opt/local/lib
-)
-
-SET(MYSQL_FOUND OFF)
-
-IF(WIN32)
-  IF (MYSQL_INCLUDE AND MYSQL_LIB)
-    SET(MYSQL_FOUND ON)
-    SET(MYSQL_INCLUDE_DIRS ${MYSQL_INCLUDE})
-    IF (MYSQL_DEBUG_LIB)
-      SET(MYSQL_LIBRARIES optimized ${MYSQL_LIB} debug ${MYSQL_DEBUG_LIB})
-    ELSE (MYSQL_DEBUG_LIB)
-      SET(MYSQL_LIBRARIES ${MYSQL_LIB})
-    ENDIF (MYSQL_DEBUG_LIB)
-  ENDIF (MYSQL_INCLUDE AND MYSQL_LIB)
-ELSE(WIN32)
-  IF (MYSQL_INCLUDE AND MYSQL_LIB)
-    SET(MYSQL_FOUND ON)
-    SET(MYSQL_LIBRARIES ${MYSQL_LIB})
-    SET(MYSQL_INCLUDE_DIRS ${MYSQL_INCLUDE})
-  ELSE (MYSQL_INCLUDE AND MYSQL_LIB)
+    message(STATUS "MYSQL_FOUND: ${MYSQL_FOUND}")
+    message(STATUS "MYSQL_LIB: ${MYSQL_LIB}")
+    message(STATUS "MYSQL_INCLUDE: ${MYSQL_INCLUDE}")
+#    message(FATA_ERROR "MYSQL_DEFINITIONS: ${MYSQL_DEFINITIONS}")
+else(USE_HUNTER)
+    FIND_PATH(MYSQL_INCLUDE mysql.h
+        ${MYSQL_PREFIX}/mariadbclient/include
+        ${MYSQL_PREFIX}/include/mariadb
+        ${MYSQL_PREFIX}/include
+        ${MYSQL_PREFIX}/include/mysql
+        /usr/include
+        /usr/local/include
+        /usr/include/mysql
+        /opt/local/include/mysql5/mysql
+        /usr/local/include/mysql
+    )
+    
+    SET(MYSQL_LIBRARY mariadb libmariadb mariadbclient mysqlclient libmysql CACHE STRING "Library that provides MySQL/MariaDB API (set to mysqlclient for mysql on unix; libmysql on windows)")
+    FOREACH(l ${MYSQL_LIBRARY})
+      LIST(APPEND MYSQL_DEBUG_LIBRARY "${l}d")
+    ENDFOREACH()
+    
+    FIND_LIBRARY(MYSQL_LIB
+        NAMES
+    	${MYSQL_LIBRARY}
+        PATHS
+        ${MYSQL_PREFIX}/lib
+        ${MYSQL_PREFIX}/lib/opt
+        ${MYSQL_PREFIX}/lib/mysql
+        ${MYSQL_PREFIX}/lib64/mysql
+        /usr/lib
+        /usr/local/lib
+        /opt/local/lib
+        ${MYSQL_PREFIX}/lib/mariadb
+    )
+    
+    FIND_LIBRARY(MYSQL_DEBUG_LIB
+        NAMES
+    	${MYSQL_DEBUG_LIBRARY}
+        PATHS
+        ${MYSQL_PREFIX}/lib
+        ${MYSQL_PREFIX}/lib/opt
+        /usr/lib
+        /usr/local/lib
+        /opt/local/lib
+    )
+    
     SET(MYSQL_FOUND OFF)
-    SET(MYSQL_LIBRARIES)
-  ENDIF (MYSQL_INCLUDE AND MYSQL_LIB)
-ENDIF(WIN32)
-
+    
+    IF(WIN32)
+      IF (MYSQL_INCLUDE AND MYSQL_LIB)
+        SET(MYSQL_FOUND ON)
+        SET(MYSQL_INCLUDE_DIRS ${MYSQL_INCLUDE})
+        IF (MYSQL_DEBUG_LIB)
+          SET(MYSQL_LIBRARIES optimized ${MYSQL_LIB} debug ${MYSQL_DEBUG_LIB})
+        ELSE (MYSQL_DEBUG_LIB)
+          SET(MYSQL_LIBRARIES ${MYSQL_LIB})
+        ENDIF (MYSQL_DEBUG_LIB)
+      ENDIF (MYSQL_INCLUDE AND MYSQL_LIB)
+    ELSE(WIN32)
+      IF (MYSQL_INCLUDE AND MYSQL_LIB)
+        SET(MYSQL_FOUND ON)
+        SET(MYSQL_LIBRARIES ${MYSQL_LIB})
+        SET(MYSQL_INCLUDE_DIRS ${MYSQL_INCLUDE})
+      ELSE (MYSQL_INCLUDE AND MYSQL_LIB)
+        SET(MYSQL_FOUND OFF)
+        SET(MYSQL_LIBRARIES)
+      ENDIF (MYSQL_INCLUDE AND MYSQL_LIB)
+    ENDIF(WIN32)
+endif(USE_HUNTER)
 
 INCLUDE (CheckSymbolExists)
 # mariadb 1.0.0 does not have mysql_library_init

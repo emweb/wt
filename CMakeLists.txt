@@ -8,6 +8,17 @@ IF(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0005 OLD)
 ENDIF(COMMAND CMAKE_POLICY)
 
+option(USE_HUNTER "Enable Hunter CMake package handler, auto downloads and compiles require packages" OFF)
+
+if(USE_HUNTER)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/hunter/HunterGate.cmake)
+    
+    HunterGate(
+        URL "https://github.com/ruslo/hunter/archive/v0.18.40.tar.gz"
+        SHA1 "39689f3082701a9036b865561ae4f60d83db1465"
+    )
+endif()
+
 PROJECT(WT)
 
 SET(CMAKE_MODULE_PATH
@@ -479,6 +490,10 @@ FIND_PACKAGE(Doxygen)
 INCLUDE_DIRECTORIES(${BOOST_INCLUDE_DIRS})
 LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 IF(WIN32)
+  if(USE_HUNTER)
+    #disable auto link for hunter
+    ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
+  endif(USE_HUNTER)
   IF(BOOST_DYNAMIC)
     ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
   ELSE(BOOST_DYNAMIC)

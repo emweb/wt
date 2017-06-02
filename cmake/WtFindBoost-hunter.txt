@@ -1,0 +1,49 @@
+# This file sets:
+# - BOOST_INCLUDE_DIRS
+# - BOOST_LIB_DIRS
+# - BOOST_WT_FOUND  // All dependencies for wt found
+# - BOOST_WT_MT_FOUND
+# - BOOST_WTHTTP_FOUND // All dependencies for wthttp found
+# - BOOST_WTHTTP_MT_FOUND
+# - BOOST_SUPPORT_LIBRARIES (should always be added to the boost libs)
+# - BOOST_WT_LIBRARIES
+#
+# Separate compiled boost libraries are also discovered:
+# - BOOST_FS_LIB
+# - BOOST_PO_LIB
+# - BOOST_SYSTEM_LIB
+# - BOOST_THREAD_LIB (only if BOOST_MT_FOUND)
+# Boost will try to find the same kind (mt or not) of library for all three
+# of these libraries. Boost is considered to be found successfully only
+# when the libraries are all of the same kind (mt or not). If the mt
+# libraries exits, the mt versions will be used unless MULTI_THREADED is
+# set to OFF. Otherwise, the non-mt versions will be used.
+#
+
+hunter_add_package(Boost COMPONENTS system filesystem thread program_options)
+find_package(Boost CONFIG REQUIRED system filesystem thread program_options)
+
+IF (Boost_FOUND)
+# Translate variables from official hunter names to internally used names
+    SET(BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+    SET(BOOST_LIB_DIRS ${Boost_LIBRARY_DIRS})
+    SET(BOOST_FS_LIB ${Boost_FILESYSTEM_LIBRARY})
+    SET(BOOST_PO_LIB ${Boost_PROGRAM_OPTIONS_LIBRARY})
+    SET(BOOST_SYSTEM_LIB ${Boost_SYSTEM_LIBRARY})
+    SET(BOOST_THREAD_LIB ${Boost_THREAD_LIBRARY})
+    
+    SET(BOOST_WT_MT_FOUND TRUE)
+    SET(BOOST_WT_FOUND TRUE)
+    SET(BOOST_WTHTTP_MT_FOUND TRUE)
+    SET(BOOST_WTHTTP_FOUND TRUE)
+    
+    SET(BOOST_WT_LIBRARIES
+        ${Boost_THREAD_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_FILESYSTEM_LIBRARY})
+    SET(BOOST_WTHTTP_LIBRARIES
+        ${Boost_THREAD_LIBRARY}
+        ${Boost_PROGRAM_OPTIONS_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_FILESYSTEM_LIBRARY})
+ENDIF (Boost_FOUND)
