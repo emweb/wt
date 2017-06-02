@@ -343,14 +343,14 @@ public:
    */
   int mouseOverDelay() const;
 
-  virtual void setPopup(bool popup);
-  virtual void load();
-  virtual bool isEnabled() const;
+  virtual void setPopup(bool popup) WT_CXX11ONLY(override);
+  virtual void load() WT_CXX11ONLY(override);
+  virtual bool isEnabled() const WT_CXX11ONLY(override);
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
-  virtual void propagateSetEnabled(bool enabled);
+  virtual void updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
+  virtual void propagateRenderOk(bool deep) WT_CXX11ONLY(override);
+  virtual void propagateSetEnabled(bool enabled) WT_CXX11ONLY(override);
 
   void updateEventSignals(DomElement& element, bool all);
 
