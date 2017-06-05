@@ -592,13 +592,42 @@ bool Postgres::connect(const std::string& db)
   return true;
 }
 
+bool Postgres::reconnect()
+{
+  if (conn_) {
+    if (PQstatus(conn_) == CONNECTION_OK) {
+      PQfinish(conn_);
+    }
+    conn_ = 0;
+  }
+
+  if (!connInfo_.empty())
+    return connect(connInfo_);
+  else
+    return false;
+}
+
 SqlStatement *Postgres::prepareStatement(const std::string& sql)
 {
+  if (PQstatus(conn_) != CONNECTION_OK)  {
+    std::cerr << "Postgres: connection lost to server, trying to reconnect..." << std::endl;
+    if (!reconnect()) {
+      throw PostgresException("Could not reconnect to server...");
+    }
+  }
+
   return new PostgresStatement(*this, sql);
 }
 
 void Postgres::executeSql(const std::string &sql)
 {
+  if (PQstatus(conn_) != CONNECTION_OK)  {
+    std::cerr << "Postgres: connection lost to server, trying to reconnect..." << std::endl;
+    if (!reconnect()) {
+      throw PostgresException("Could not reconnect to server...");
+    }
+  }
+
   PGresult *result;
   int err;
 
@@ -681,6 +710,12 @@ bool Postgres::requireSubqueryAlias() const
 
 void Postgres::startTransaction()
 {
+  if (PQstatus(conn_) != CONNECTION_OK)  {
+    std::cerr << "Postgres: connection lost to server, trying to reconnect..." << std::endl;
+    if (!reconnect()) {
+      throw PostgresException("Could not reconnect to server...");
+    }
+  }
   PGresult *result = PQexec(conn_, "start transaction");
   PQclear(result);
 }

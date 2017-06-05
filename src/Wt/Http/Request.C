@@ -171,6 +171,11 @@ std::string Request::headerValue(const std::string& field) const
   return request_ ? str(request_->headerValue(field.c_str())) : std::string();
 }
 
+std::string Request::getCgiValue(const std::string& varName) const
+{
+  return request_ ? str(request_->envValue(varName.c_str())) : std::string();
+}
+
 #ifndef WT_TARGET_JAVA
 std::vector<Message::Header> Request::headers() const
 {

@@ -73,6 +73,8 @@ public:
    */
   bool connect(const std::string& db);
 
+  bool reconnect();
+
   /*! \brief Returns the underlying connection.
    */
   PGconn *connection() { return conn_; }

@@ -1072,7 +1072,7 @@ this.setSelectionRange = function(elem, start, end, unicode) {
 this.isKeyPress = function(e) {
   if (!e) e = window.event;
 
-  if (e.altKey || e.ctrlKey || e.metaKey)
+  if (e.ctrlKey || e.metaKey)
     return false;
 
   var charCode = (typeof e.charCode !== UNDEFINED) ? e.charCode : 0;
