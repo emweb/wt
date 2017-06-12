@@ -404,13 +404,15 @@ private:
 	addBodyText(ss.str());
       }
 
-      // Start reading remaining data until EOF.
-      startTimer();
-      asyncRead(strand_.wrap
-		(boost::bind(&Impl::handleReadContent,
-			     shared_from_this(),
-			     boost::asio::placeholders::error,
-			     boost::asio::placeholders::bytes_transferred)));
+      if (!aborted_) {
+        // Start reading remaining data until EOF.
+        startTimer();
+        asyncRead(strand_.wrap
+                  (boost::bind(&Impl::handleReadContent,
+                               shared_from_this(),
+                               boost::asio::placeholders::error,
+                               boost::asio::placeholders::bytes_transferred)));
+      }
     } else {
       err_ = err;
       complete();
