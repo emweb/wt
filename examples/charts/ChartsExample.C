@@ -37,7 +37,7 @@ namespace {
    */
   class NumericItem : public WStandardItem {
   public:
-    virtual std::unique_ptr<WStandardItem> clone() const {
+    virtual std::unique_ptr<WStandardItem> clone() const override {
       return cpp14::make_unique<NumericItem>();
     }
 

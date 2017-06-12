@@ -75,7 +75,7 @@ public:
   }
 
   virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex())
-    const
+    const override
   {
     if (!parent.isValid())
       return ids_.size();
@@ -84,7 +84,7 @@ public:
   }
 
   virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex())
-    const
+    const override
   {
     if (!parent.isValid())
       return 1;
@@ -129,7 +129,7 @@ public:
 
   virtual Wt::cpp17::any headerData(int section,
                                 Wt::Orientation orientation = Wt::Orientation::Horizontal,
-                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override
   {
     if (orientation == Wt::Orientation::Horizontal) {
       switch (role.value()) {

@@ -1297,8 +1297,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
 bool WebRenderer::jsSynced() const
 {
   return collectedJS1_.empty() &&
-         collectedJS2_.empty() &&
-	 invisibleJS_.empty();
+         collectedJS2_.empty();
 }
 
 void WebRenderer::setJSSynced(bool invisibleToo)

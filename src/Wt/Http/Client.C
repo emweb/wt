@@ -400,13 +400,15 @@ private:
 	addBodyText(ss.str());
       }
 
-      // Start reading remaining data until EOF.
-      startTimer();
-      asyncRead(strand_.wrap
-		(std::bind(&Impl::handleReadContent,
-			   shared_from_this(),
-			   std::placeholders::_1,
-			   std::placeholders::_2)));
+      if (!aborted_) {
+	// Start reading remaining data until EOF.
+	startTimer();
+	asyncRead(strand_.wrap
+	    (std::bind(&Impl::handleReadContent,
+		       shared_from_this(),
+		       std::placeholders::_1,
+		       std::placeholders::_2)));
+      }
     } else {
       err_ = err;
       complete();

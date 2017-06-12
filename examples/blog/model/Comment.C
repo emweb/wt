@@ -13,7 +13,7 @@
 #include <Wt/Dbo/Impl.h>
 #include <Wt/WWebWidget.h>
 
-DBO_INSTANTIATE_TEMPLATES(Comment);
+DBO_INSTANTIATE_TEMPLATES(Comment)
 
 namespace {
   std::string& replace(std::string& s, const std::string& k,

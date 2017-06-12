@@ -22,7 +22,7 @@ protected:
   virtual std::unique_ptr<WWidget> examples() override;
   virtual std::unique_ptr<WWidget> createQuoteForm() override;
   virtual std::unique_ptr<WWidget> sourceViewer(const std::string &internalPath) override;
-  virtual std::string filePrefix() const { return "wt-"; }
+  virtual std::string filePrefix() const override { return "wt-"; }
 
 private:
   std::string wtExamplePath_;
