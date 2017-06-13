@@ -3035,7 +3035,7 @@ _$_$endif_$_();
   if (websocket.state == WebSocketAckConnect)
     webSocketAckConnect();
 
-  if (serverPush || pendingEvents.length > 0) {
+  if ((serverPush && !waitingForJavaScript) || pendingEvents.length > 0) {
     if (status == 1) {
       var ms = Math.min(120000, Math.exp(commErrors) * 500);
       updateTimeout = setTimeout(function() { sendUpdate(); }, ms);
@@ -3542,6 +3542,8 @@ function onJsLoad(path, f) {
     if (jsLibsLoaded[path] === true) {
       waitingForJavaScript = false;
       f();
+      if (!waitingForJavaScript && serverPush)
+        sendUpdate();
     } else
       jsLibsLoaded[path] = f;
     }, 20);
@@ -3557,6 +3559,8 @@ function jsLoaded(path)
     if (typeof jsLibsLoaded[path] !== UNDEFINED) {
       waitingForJavaScript = false;
       jsLibsLoaded[path]();
+      if (!waitingForJavaScript && serverPush)
+	sendUpdate();
     }
     jsLibsLoaded[path] = true;
   }
