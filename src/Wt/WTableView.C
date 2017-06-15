@@ -198,6 +198,7 @@ void WTableView::enableAjax()
   plainTable_ = 0;
   setup();
   defineJavaScript();
+  scheduleRerender(NeedRerenderHeader);
 }
 
 void WTableView::resize(const WLength& width, const WLength& height)
@@ -808,6 +809,13 @@ void WTableView::defineJavaScript()
 
 void WTableView::render(WFlags<RenderFlag> flags)
 {
+  if (flags & RenderFull && !ajaxMode() &&
+      Wt::WApplication::instance()->environment().ajax()) {
+    // Was not rendered when Ajax was enabled, issue #5470
+    plainTable_ = 0;
+    setup();
+  }
+
   if (ajaxMode()) {
     if (flags & RenderFull)
       defineJavaScript();

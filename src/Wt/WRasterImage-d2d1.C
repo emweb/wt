@@ -6,6 +6,7 @@
 
 #include "Wt/WRasterImage"
 
+#include "Wt/FontSupport.h"
 #include "Wt/WBrush"
 #include "Wt/WException"
 #include "Wt/WFontMetrics"
@@ -84,9 +85,6 @@ enum DrawTag2 {
 };
 }
 
-// FIXME: word wrap
-// FIXME: make FontSupportDirectWrite and use it
-
 namespace Wt {
 
 LOGGER("WRasterImage");
@@ -109,9 +107,7 @@ public:
     clipGeometry_(NULL),
     clipLayer_(NULL),
     clipLayerActive_(false),
-    writeFactory_(NULL),
-    textFormat_(NULL),
-    font_(NULL)
+    fontSupport_(0)
   {}
 
   ~Impl()
@@ -126,9 +122,8 @@ public:
     SafeRelease(rt_);
     SafeRelease(factory_);
 
-    SafeRelease(textFormat_);
-    SafeRelease(font_);
-    SafeRelease(writeFactory_);
+    currentFontMatch_ = FontSupport::FontMatch();
+    delete fontSupport_;
   }
 
   unsigned w_, h_;
@@ -148,9 +143,8 @@ public:
   ID2D1Layer *clipLayer_;
   bool clipLayerActive_;
 
-  IDWriteFactory *writeFactory_;
-  IDWriteTextFormat *textFormat_;
-  IDWriteFont *font_;
+  FontSupport *fontSupport_;
+  FontSupport::FontMatch currentFontMatch_;
 
   void applyTransform(const WTransform& t);
   void setTransform(const WTransform& t);
@@ -326,47 +320,15 @@ WRasterImage::WRasterImage(const std::string& type,
 
   if (SUCCEEDED(hr))
     hr = impl_->rt_->CreateLayer(&impl_->clipLayer_);
-  
-  // not clear from documentation: do we have to share the factory created
-  // by this call in order to benefit from shared font caching etc, or will
-  // a shared font cache be used by specifying the SHARED option? When
-  // specifying the SHARED option, is the factory thread-safe? We take the
-  // safe approach, and assume that each specifying SHARED will cause state
-  // to be shared in a thread-safe manner
-  if (SUCCEEDED(hr))
-    hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
-      __uuidof(impl_->writeFactory_),
-      reinterpret_cast<IUnknown **>(&impl_->writeFactory_)
-    );
 
-  if (SUCCEEDED(hr))
-    hr = impl_->writeFactory_->CreateTextFormat(L"Times New Roman", 0,
-					        DWRITE_FONT_WEIGHT_NORMAL,
-					        DWRITE_FONT_STYLE_NORMAL,
-					        DWRITE_FONT_STRETCH_NORMAL,
-					        12.0,
-					        L"",
-					        &impl_->textFormat_);
-
-  IDWriteFontCollection *sysFontCollection = NULL;
-  if (SUCCEEDED(hr))
-    hr = impl_->textFormat_->GetFontCollection(&sysFontCollection);
-  UINT32 fontIndex = UINT32_MAX;
-  BOOL fontExists = FALSE;
-  if (SUCCEEDED(hr))
-    hr = sysFontCollection->FindFamilyName(L"Times New Roman", &fontIndex, &fontExists);
-  if (SUCCEEDED(hr) && !fontExists) {
-    // Should not happen, something's horribly wrong
-    throw WException("Could not locate default Times New Roman font in system font collection");
+  try {
+    impl_->fontSupport_ = new FontSupport(this, FontSupport::AnyFont);
+  } catch (...) {
+    delete impl_;
+    throw;
   }
-  IDWriteFontFamily *fontFamily = NULL;
-  if (SUCCEEDED(hr))
-    hr = sysFontCollection->GetFontFamily(fontIndex, &fontFamily);
-  if (SUCCEEDED(hr))
-    hr = fontFamily->GetFirstMatchingFont(DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE_NORMAL, &impl_->font_);
 
-  SafeRelease(fontFamily);
-  SafeRelease(sysFontCollection);
+  impl_->currentFontMatch_ = impl_->fontSupport_->matchFont(WFont());
 
   if (!SUCCEEDED(hr)) {
     delete impl_;
@@ -394,14 +356,12 @@ WRasterImage::~WRasterImage()
 void WRasterImage::addFontCollection(const std::string& directory,
 				     bool recursive)
 {
-#if 0
-  fontSupport_->addFontCollection(directory, recursive);
-#endif
+  impl_->fontSupport_->addFontCollection(directory, recursive);
 }
   
 WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 {
-  return HasFontMetrics;
+  return HasFontMetrics | CanWordWrap;
 }
 
 void WRasterImage::init()
@@ -631,106 +591,6 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
   }
 
   if (flags & Font) {
-    const WFont& font = painter()->font();
-
-    IDWriteFontCollection *sysFontCollection;
-    hr = impl_->writeFactory_->GetSystemFontCollection(&sysFontCollection);
-
-    if (!SUCCEEDED(hr))
-      LOG_ERROR("DirectWrite error: failed to get system font collection");
-
-    std::wstring fontFamilyName;
-    WString families = font.specificFamilies();
-    if (!families.empty()) {
-      std::wstring wFamilies = families;
-      std::vector<std::wstring> splitFamilies;
-      boost::split(splitFamilies, wFamilies, boost::is_any_of(L","));
-      for (std::size_t i = 0; i < splitFamilies.size(); ++i) {
-        boost::trim_if(splitFamilies[i], boost::is_any_of(L"\"' "));
-        const std::wstring &family = splitFamilies[i];
-        UINT32 familyIndex = UINT32_MAX;
-        BOOL found = false;
-        sysFontCollection->FindFamilyName(family.c_str(), &familyIndex, &found);
-        if (found) {
-          fontFamilyName = family;
-          break;
-        }
-      }
-    }
-
-    if (fontFamilyName.empty()) {
-      switch (font.genericFamily()) {
-      case WFont::Default:
-      case WFont::Serif:
-        fontFamilyName = L"Times New Roman";
-        break;
-      case WFont::SansSerif:
-        fontFamilyName = L"Arial";
-        break;
-      case WFont::Monospace:
-        fontFamilyName = L"Consolas";
-        break;
-      case WFont::Fantasy:
-        fontFamilyName = L"Gabriola"; // IE/Edge on Windows choose Gabriola, so let's use that
-        break;
-      case WFont::Cursive:
-        fontFamilyName = L"Comic Sans MS"; // Apparently, all browsers on Windows choose Comic Sans
-      }
-    }
-
-    DWRITE_FONT_WEIGHT weight = DWRITE_FONT_WEIGHT_NORMAL;
-    switch (font.weight()) {
-    case WFont::Lighter:
-      weight = DWRITE_FONT_WEIGHT_LIGHT;
-      break;
-    case WFont::NormalWeight:
-      weight = DWRITE_FONT_WEIGHT_NORMAL;
-      break;
-    case WFont::Bold:
-      weight = DWRITE_FONT_WEIGHT_BOLD;
-      break;
-    case WFont::Bolder:
-      weight = DWRITE_FONT_WEIGHT_EXTRA_BOLD;
-      break;
-    default:
-      weight = (DWRITE_FONT_WEIGHT)font.weightValue();
-    }
-
-    DWRITE_FONT_STYLE style = DWRITE_FONT_STYLE_NORMAL;
-    switch (font.style()) {
-    case WFont::NormalStyle:
-      style = DWRITE_FONT_STYLE_NORMAL;
-      break;
-    case WFont::Oblique:
-      style = DWRITE_FONT_STYLE_OBLIQUE;
-      break;
-    case WFont::Italic:
-      style = DWRITE_FONT_STYLE_ITALIC;
-      break;
-    }
-
-    SafeRelease(impl_->textFormat_);
-    hr = impl_->writeFactory_->CreateTextFormat(fontFamilyName.c_str(),
-                                           NULL,
-					   weight,
-					   style,
-					   DWRITE_FONT_STRETCH_NORMAL,
-					   static_cast<FLOAT>(font.sizeLength(12).toPixels()),
-					   L"",
-					   &impl_->textFormat_);
-
-    SafeRelease(impl_->font_);
-    UINT32 fontIndex = UINT32_MAX;
-    BOOL fontExists = FALSE;
-    hr = sysFontCollection->FindFamilyName(fontFamilyName.c_str(), &fontIndex, &fontExists);
-    if (!fontExists) {
-      throw WException("Could not locate font " + WString(fontFamilyName).toUTF8());
-    }
-    IDWriteFontFamily *fontFamily = NULL;
-    hr = sysFontCollection->GetFontFamily(fontIndex, &fontFamily);
-    hr = fontFamily->GetFirstMatchingFont(weight, DWRITE_FONT_STRETCH_NORMAL, style, &impl_->font_);
-
-    SafeRelease(sysFontCollection);
   }
 }
 
@@ -1057,11 +917,6 @@ void WRasterImage::drawText(const WRectF& rect,
 			    const WString& text,
 			    const WPointF *clipPoint)
 {
-  D2D1_RECT_F textRect = D2D1::RectF(static_cast<FLOAT>(rect.left()),
-                                     static_cast<FLOAT>(rect.top()),
-                                     static_cast<FLOAT>(rect.right()),
-                                     static_cast<FLOAT>(rect.bottom()));
-
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
 	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
@@ -1075,71 +930,61 @@ void WRasterImage::drawText(const WRectF& rect,
   
   const WTransform& t = painter()->combinedTransform();
   
-  WPointF p;
-
+  FontSupport::FontMatch &match = impl_->currentFontMatch_;
   switch (verticalAlign) {
   default:
   case AlignTop:
-    impl_->textFormat_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+    match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
     break;
   case AlignMiddle:
-    impl_->textFormat_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+    match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
     break;
   case AlignBottom:
-    impl_->textFormat_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
+    match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
     break;
   }
   
   switch (horizontalAlign) {
   default:
   case AlignLeft:
-    impl_->textFormat_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+    match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
     break;
   case AlignCenter:
-    impl_->textFormat_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+    match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
     break;
   case AlignRight:
-    impl_->textFormat_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+    match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
     break;
   }
 
-  impl_->rt_->DrawText(txt.c_str(),
-    txt.size(), impl_->textFormat_, &textRect, impl_->strokeBrush_, D2D1_DRAW_TEXT_OPTIONS_NONE, DWRITE_MEASURING_MODE_NATURAL);
+  IDWriteFactory *writeFactory = impl_->fontSupport_->writeFactory();
+  IDWriteTextLayout *textLayout = NULL;
+  writeFactory->CreateTextLayout(
+    txt.c_str(),
+    txt.size(),
+    match.textFormat(),
+    static_cast<FLOAT>(rect.width()),
+    static_cast<FLOAT>(rect.height()),
+    &textLayout);
+  if (textFlag == TextSingleLine)
+    textLayout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+  impl_->rt_->DrawTextLayout(
+    D2D1::Point2F(static_cast<FLOAT>(rect.left()), static_cast<FLOAT>(rect.top())),
+    textLayout,
+    impl_->strokeBrush_,
+    D2D1_DRAW_TEXT_OPTIONS_NONE);
+  SafeRelease(textLayout);
 }
 
 WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
 				    bool wordWrap)
 {
-  HRESULT hr = S_OK;
-  std::wstring txt = text;
-  IDWriteTextLayout *textLayout = NULL;
-  hr = impl_->writeFactory_->CreateTextLayout(
-    txt.c_str(),
-    txt.size(),
-    impl_->textFormat_,
-    maxWidth == -1.0 ?
-      std::numeric_limits<FLOAT>::infinity() :
-      static_cast<FLOAT>(maxWidth),
-    std::numeric_limits<FLOAT>::infinity(),
-    &textLayout);
-  DWRITE_TEXT_METRICS textMetrics;
-  hr = textLayout->GetMetrics(&textMetrics);
-  SafeRelease(textLayout);
-  return WTextItem(text, textMetrics.width);
+  return impl_->fontSupport_->measureText(painter()->font(), text, maxWidth, wordWrap);
 }
 
 WFontMetrics WRasterImage::fontMetrics()
 {
-  DWRITE_FONT_METRICS metrics;
-  impl_->font_->GetMetrics(&metrics);
-  double unitsPerEm = metrics.designUnitsPerEm;
-  double ems = impl_->textFormat_->GetFontSize();
-  double pxs = painter()->font().sizeLength().toPixels();
-  double pxsPerEm = pxs / ems;
-  double ascent = metrics.ascent / unitsPerEm * pxsPerEm;
-  double descent = metrics.descent / unitsPerEm * pxsPerEm;
-  double leading = metrics.lineGap / unitsPerEm * pxsPerEm;
-  return WFontMetrics(painter()->font(), leading, ascent, descent);
+  return impl_->fontSupport_->fontMetrics(painter()->font());
 }
 
 class IStreamToOStream : public IStream

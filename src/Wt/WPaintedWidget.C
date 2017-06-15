@@ -743,7 +743,7 @@ WPaintDevice
 #ifdef WT_HAS_WRASTERIMAGE
   return new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
 #else
-  throw WException("Wt was built without WRasterImage (graphicsmagick)");
+  throw WException("Wt was built without WRasterImage (graphicsmagick, skia or Direct2D)");
 #endif
 }
 
@@ -754,7 +754,7 @@ WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
     delete device_;
     device_ = createPaintDevice(paintUpdate);
 #else
-    throw WException("Wt was built without WRasterImage (graphicsmagick)");
+    throw WException("Wt was built without WRasterImage (graphicsmagick, skia or Direct2D)");
 #endif
   }
 
