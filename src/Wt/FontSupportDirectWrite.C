@@ -26,6 +26,9 @@
 
 namespace {
 
+// This enum value is not always available when building
+const int WORD_WRAPPING_WHOLE_WORD = 3;
+
 const double EPSILON = 1e-4;
 
 bool isEpsilonMore(double x, double limit) {
@@ -735,7 +738,7 @@ void FontSupport::layoutText(const WFont &f,
     static_cast<FLOAT>(maxWidth),
     std::numeric_limits<FLOAT>::infinity(),
     &layout);
-  hr = layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WHOLE_WORD);
+  hr = layout->SetWordWrapping(WORD_WRAPPING_WHOLE_WORD);
   bool wholeWordWrapping = SUCCEEDED(hr);
   if (wholeWordWrapping)
     hr = layout->Draw(NULL, &textFragmentRenderer, 0.0f, 0.0f);

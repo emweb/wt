@@ -27,7 +27,6 @@ class SaveBaseAction;
 template <class C> class collection;
 
 namespace Impl {
-
   struct MappingInfo;
 
   extern WTDBO_API std::size_t ifind(const std::string& s,

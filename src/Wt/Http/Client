@@ -17,9 +17,13 @@
 #include <boost/system/error_code.hpp>
 #include <string>
 
-namespace Wt {
+namespace boost {
+  namespace asio {
+    class io_service;
+  }
+}
 
-class WIOService;
+namespace Wt {
 
   /*! \brief Namespace for \ref http handling
    */
@@ -116,7 +120,7 @@ public:
    * useful to use the client outside the context of a web
    * application.
    */
-  Client(WIOService& ioService, WObject *parent = 0);
+  Client(boost::asio::io_service& ioService, WObject *parent = 0);
 
   /*! \brief Destructor.
    *
@@ -429,7 +433,7 @@ public:
   void setMaxRedirects(int maxRedirects);
 
 private:
-  WIOService *ioService_;
+  boost::asio::io_service *ioService_;
   class Impl;
   boost::shared_ptr<Impl> impl_;
   int timeout_;
