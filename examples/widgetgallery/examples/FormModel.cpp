@@ -242,20 +242,20 @@ public:
 	auto countryCB_ = countryCB.get();
 	countryCB->setModel(model->countryModel());
 
-	countryCB_->activated().connect(std::bind([=] () {
+	countryCB_->activated().connect([=] {
 	    std::string code = model->countryCode(countryCB_->currentIndex());
 	    model->updateCityModel(code);
-	}));
+	});
 
         setFormWidget(UserFormModel::CountryField, std::move(countryCB),
-            [=] () { // updateViewValue()
+            [=] { // updateViewValue()
                 std::string code =
                     Wt::asString(model->value(UserFormModel::CountryField)).toUTF8();
 		int row = model->countryModelRow(code);
 		countryCB_->setCurrentIndex(row);
 	    },
 
-            [=] () { // updateModelValue()
+            [=] { // updateModelValue()
                 std::string code = model->countryCode(countryCB_->currentIndex());
 		model->setValue(UserFormModel::CountryField, code);
             });
@@ -273,13 +273,13 @@ public:
 	auto dateEdit = Wt::cpp14::make_unique<Wt::WDateEdit>();
 	auto dateEdit_ = dateEdit.get();
 	setFormWidget(UserFormModel::BirthField, std::move(dateEdit),
-	    [=] () { // updateViewValue()
+	    [=] { // updateViewValue()
 	        Wt::WDate date = Wt::cpp17::any_cast<Wt::WDate>
 		    (model->value(UserFormModel::BirthField));
 		dateEdit_->setDate(date);
 	    }, 
 
-            [=] () { // updateModelValue()
+            [=] { // updateModelValue()
                 Wt::WDate date = dateEdit_->date();
                 model->setValue(UserFormModel::BirthField, date);
 	    });

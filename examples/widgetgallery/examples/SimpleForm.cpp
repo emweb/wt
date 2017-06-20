@@ -14,10 +14,10 @@ auto button = result->bindWidget("button", Wt::cpp14::make_unique<Wt::WPushButto
 
 auto out = result->bindWidget("out", Wt::cpp14::make_unique<Wt::WText>());
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->setText("Hello, " + name->text() + "! I just want to help you... You"
                  + " could complete this simple form by adding validation.");
-}));
+});
 
 SAMPLE_END(return std::move(result))
 

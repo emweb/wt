@@ -41,9 +41,9 @@ out->setInline(false);
 
 Wt::WApplication *app = Wt::WApplication::instance();
 
-app->internalPathChanged().connect(std::bind([=] () {
+app->internalPathChanged().connect([=] {
      handlePathChange(out);
-}));
+});
 
 handlePathChange(out);
         

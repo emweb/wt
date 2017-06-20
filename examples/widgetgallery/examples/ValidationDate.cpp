@@ -36,7 +36,7 @@ auto out = t->bindWidget("info", Wt::cpp14::make_unique<Wt::WText>());
 out->setInline(false);
 out->hide();
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->show();
 
     Wt::WValidator::Result result = dv->validate(dateEdit->text());
@@ -54,10 +54,10 @@ button->clicked().connect(std::bind([=] () {
         out->setText(result.message());
         out->setStyleClass("alert alert-danger");
     }
-}));
+});
 
-dateEdit->enterPressed().connect(std::bind([=] () {
+dateEdit->enterPressed().connect([=] {
     button->clicked().emit(Wt::WMouseEvent());
-}));
+});
 
 SAMPLE_END(return std::move(t))

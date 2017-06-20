@@ -28,12 +28,12 @@ cb->setModel(model);
 auto out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
-cb->changed().connect(std::bind([=] () {
+cb->changed().connect([=] {
     Wt::WString countryName = cb->currentText();
     int row = cb->currentIndex();
     Wt::WString countryCode = Wt::asString(model->data(model->index(row,0), Wt::ItemDataRole::User));
     out->setText(Wt::WString("You selected {1} with key {2}.").
 		 arg(countryName).arg(countryCode));
-}));
+});
 
 SAMPLE_END(return std::move(container))

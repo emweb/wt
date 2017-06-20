@@ -33,17 +33,17 @@ public:
 	auto zoomIn_ = controls_->bindWidget("zoom-in", std::move(zoomIn));
 	zoomIn_->addStyleClass("zoom");
 
-	zoomIn_->clicked().connect(std::bind([=] () {
+	zoomIn_->clicked().connect([=] {
 	    map_->zoomIn();
-	}));
+	});
 
 	auto zoomOut = cpp14::make_unique<WPushButton>("-");
 	auto zoomOut_ = controls_->bindWidget("zoom-out", std::move(zoomOut));
 	zoomOut_->addStyleClass("zoom");
 
-        zoomOut_->clicked().connect(std::bind([=] () {
+        zoomOut_->clicked().connect([=] {
             map_->zoomOut();
-	}));
+	});
 
 	std::string cityNames[] = { "Brussels", "Lisbon", "Paris" };
 	WGoogleMap::Coordinate cityCoords[] = {
@@ -57,33 +57,33 @@ public:
 	    auto city_ = controls_->bindWidget(cityNames[i], std::move(city));
 
 	    WGoogleMap::Coordinate coord = cityCoords[i];
-	    city_->clicked().connect(std::bind([=] () {
+	    city_->clicked().connect([=] {
 		map_->panTo(coord);
-	    }));
+	    });
 	}
 
 	auto reset = cpp14::make_unique<WPushButton>("Reset");
 	auto reset_ = controls_->bindWidget("emweb", std::move(reset));
 
-        reset_->clicked().connect(std::bind([=] () {
+        reset_->clicked().connect([=] {
             this->panToEmWeb();
-        }));
+        });
 
 	auto savePosition =
 	    cpp14::make_unique<WPushButton>("Save current position");
 	auto savePosition_ = controls_->bindWidget("save-position", std::move(savePosition));
 
-        savePosition_->clicked().connect(std::bind([=] () {
+        savePosition_->clicked().connect([=] {
             this->savePosition();
-        }));
+        });
 
 	auto returnToPosition = cpp14::make_unique<WPushButton>("Return to saved position");
 	returnToPosition_ = controls_->bindWidget("return-to-saved-position", std::move(returnToPosition));
 	returnToPosition_->setEnabled(false);
 
-	returnToPosition_->clicked().connect(std::bind([=] () {
+	returnToPosition_->clicked().connect([=] {
             map_->returnToSavedPosition();
-        }));
+        });
 
 	mapTypeModel_ = std::make_shared<WStringListModel>();
 	addMapTypeControl("No control", MapTypeControl::None);
@@ -101,22 +101,22 @@ public:
 	menuControls_->setModel(mapTypeModel_);
 	menuControls_->setCurrentIndex(1);
 
-        menuControls_->activated().connect(std::bind([=] (int mapType) {
+        menuControls_->activated().connect([=] (int mapType) {
             this->setMapTypeControl(mapType);
-        }, std::placeholders::_1));
+        });
 
 	auto draggingCB = cpp14::make_unique<WCheckBox>("Enable dragging");
 	auto draggingCB_ = controls_->bindWidget("dragging-cb", std::move(draggingCB));
 	draggingCB_->setChecked(true);
 	map_->enableDragging();
 
-        draggingCB_->checked().connect(std::bind([=] () {
+        draggingCB_->checked().connect([=] {
             map_->enableDragging();
-        }));
+        });
 
-        draggingCB_->unChecked().connect(std::bind([=] () {
+        draggingCB_->unChecked().connect([=] {
             map_->disableDragging();
-        }));
+        });
 
         auto enableDoubleClickZoomCB =
             cpp14::make_unique<WCheckBox>("Enable double click zoom");
@@ -125,13 +125,13 @@ public:
         enableDoubleClickZoomCB_->setChecked(false);
 	map_->disableDoubleClickZoom();
 
-        enableDoubleClickZoomCB_->checked().connect(std::bind([=] () {
+        enableDoubleClickZoomCB_->checked().connect([=] {
             map_->enableDoubleClickZoom();
-	}));
+	});
 
-        enableDoubleClickZoomCB_->unChecked().connect(std::bind([=] () {
+        enableDoubleClickZoomCB_->unChecked().connect([=] {
             map_->disableDoubleClickZoom();
-        }));
+        });
 
         auto enableScrollWheelZoomCB =
             cpp14::make_unique<WCheckBox>("Enable scroll wheel zoom");
@@ -140,13 +140,13 @@ public:
         enableScrollWheelZoomCB_->setChecked(true);
 	map_->enableScrollWheelZoom();
 
-        enableScrollWheelZoomCB_->checked().connect(std::bind([=] () {
+        enableScrollWheelZoomCB_->checked().connect([=] {
             map_->enableScrollWheelZoom();
-        }));
+        });
 
-        enableScrollWheelZoomCB_->unChecked().connect(std::bind([=] () {
+        enableScrollWheelZoomCB_->unChecked().connect([=] {
             map_->disableScrollWheelZoom();
-        }));
+        });
 
         std::vector<WGoogleMap::Coordinate> road = roadDescription();
 
@@ -161,14 +161,13 @@ public:
            "<img src=\"http://www.emweb.be/css/emweb_small.jpg\" />"
            "<p><strong>Emweb office</strong></p>");
 
-        map_->clicked().connect(std::bind([=] (WGoogleMap::Coordinate c) {
+        map_->clicked().connect([=] (WGoogleMap::Coordinate c) {
             this->googleMapClicked(c);
-        }, std::placeholders::_1));
+        });
 
-	map_->doubleClicked().connect
-	    (std::bind([=] (WGoogleMap::Coordinate c) {
+	map_->doubleClicked().connect([=] (WGoogleMap::Coordinate c) {
             this->googleMapDoubleClicked(c);
-        }, std::placeholders::_1));
+        });
     }
 
 private:

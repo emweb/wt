@@ -16,9 +16,9 @@ sb1->setMargin(10, Wt::Side::Right);
 Wt::WText *out =
     container->addWidget(Wt::cpp14::make_unique<Wt::WText>(""));
 
-sb1->activated().connect(std::bind([=] () {
+sb1->activated().connect([=] {
     out->setText(Wt::WString("You selected {1}.")
 		 .arg(sb1->currentText()));
-}));
+});
 
 SAMPLE_END(return std::move(container))

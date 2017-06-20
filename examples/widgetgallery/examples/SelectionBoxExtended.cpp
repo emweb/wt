@@ -26,7 +26,7 @@ sb2->setMargin(10, Wt::Side::Right);
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
-sb2->activated().connect(std::bind([=] () {
+sb2->activated().connect([=] {
     Wt::WString selected;
 
     std::set<int> selection = sb2->selectedIndexes();
@@ -39,6 +39,6 @@ sb2->activated().connect(std::bind([=] () {
     }
 
     out->setText(Wt::WString("You choose {1}.").arg(selected));
-}));
+});
 
 SAMPLE_END(return std::move(container))

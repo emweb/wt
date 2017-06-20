@@ -46,19 +46,19 @@ popup->addItem("Index");
 popup->addSeparator();
 popup->addItem("About");
 
-popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
+popup->itemSelected().connect([=] (Wt::WMenuItem *item) {
     auto messageBox = popup->addChild(
             Wt::cpp14::make_unique<Wt::WMessageBox>
             ("Help",
              Wt::WString("<p>Showing Help: {1}</p>").arg(item->text()),
              Wt::Icon::Information, Wt::StandardButton::Ok));
 
-    messageBox->buttonClicked().connect(std::bind([=] () {
+    messageBox->buttonClicked().connect([=] {
         popup->removeChild(messageBox);
-    }));
+    });
 
     messageBox->show();
-}, std::placeholders::_1));
+});
 
 auto item = Wt::cpp14::make_unique<Wt::WMenuItem>("Help");
 item->setMenu(std::move(popupPtr));
@@ -69,11 +69,11 @@ auto editPtr = Wt::cpp14::make_unique<Wt::WLineEdit>();
 auto edit = editPtr.get();
 edit->setPlaceholderText("Enter a search item");
 
-edit->enterPressed().connect(std::bind([=] () {
+edit->enterPressed().connect([=] {
     leftMenu_->select(2); // is the index of the "Sales"
     searchResult_->setText(Wt::WString("Nothing found for {1}.")
                           .arg(edit->text()));
-}));
+});
 
 navigation->addSearch(std::move(editPtr), Wt::AlignmentFlag::Right);
 

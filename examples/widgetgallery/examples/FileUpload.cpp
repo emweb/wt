@@ -23,26 +23,26 @@ uploadButton->setMargin(10, Wt::Side::Left | Wt::Side::Right);
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
 // Upload when the button is clicked.
-uploadButton->clicked().connect(std::bind([=] () {
+uploadButton->clicked().connect([=] {
     fu->upload();
     uploadButton->disable();
-}));
+});
 
 // Upload automatically when the user entered a file.
-fu->changed().connect(std::bind([=] () {
+fu->changed().connect([=] {
     fu->upload();
     uploadButton->disable();
     out->setText("File upload is changed.");
-}));
+});
 
 // React to a succesfull upload.
-fu->uploaded().connect(std::bind([=] () {
+fu->uploaded().connect([=] {
     out->setText("File upload is finished.");
-}));
+});
 
 // React to a file upload problem.
-fu->fileTooLarge().connect(std::bind([=] () {
+fu->fileTooLarge().connect([=] {
     out->setText("File is too large.");
-}));
+});
 
 SAMPLE_END(return std::move(container))

@@ -21,7 +21,7 @@ auto out = t->bindWidget("age-info", Wt::cpp14::make_unique<Wt::WText>());
 out->setInline(false);
 out->hide();
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->show();
     if (ageEdit->validate() == Wt::ValidationState::Valid) {
         out->setText("Age of " + ageEdit->text() + " is saved!");
@@ -30,10 +30,10 @@ button->clicked().connect(std::bind([=] () {
         out->setText("The number must be in the range 0 to 150");
         out->setStyleClass("alert alert-danger");
     }
-}));
+});
 
-ageEdit->enterPressed().connect(std::bind([=] () {
+ageEdit->enterPressed().connect([=] {
     button->clicked().emit(Wt::WMouseEvent());
-}));
+});
 
 SAMPLE_END(return std::move(t))

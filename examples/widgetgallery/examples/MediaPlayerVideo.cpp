@@ -24,21 +24,21 @@ player->setTitle("<a href=\"http://durian.blender.org/\""
 
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-player->playbackStarted().connect(std::bind([=] () {
+player->playbackStarted().connect([=] {
     out->setText("<p>Video playing</p>");
-}));
+});
 
-player->playbackPaused().connect(std::bind([=] () {
+player->playbackPaused().connect([=] {
     out->setText("<p>Video paused</p>");
-}));
+});
 
-player->ended().connect(std::bind([=] () {
+player->ended().connect([=] {
     out->setText("<p>Video ended</p>");
-}));
+});
 
-player->volumeChanged().connect(std::bind([=] () {
+player->volumeChanged().connect([=] {
     out->setText("<p>Volume changed</p>");
-}));
+});
 
 SAMPLE_END(return std::move(container))
 

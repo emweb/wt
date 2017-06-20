@@ -16,9 +16,9 @@ cb->setMargin(10, Wt::Side::Right);
 auto out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
-cb->changed().connect(std::bind([=] () {
+cb->changed().connect([=] {
     out->setText(Wt::WString("You selected {1}.")
 		 .arg(cb->currentText()));
-}));
+});
 
 SAMPLE_END(return std::move(container))

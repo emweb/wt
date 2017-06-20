@@ -21,21 +21,21 @@ player->setTitle("La Sera - Never Come Around");
 
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-player->playbackStarted().connect(std::bind([=] () {
+player->playbackStarted().connect([=] {
     out->setText("<p>Song playing</p>");
-}));
+});
 
-player->playbackPaused().connect(std::bind([=] () {
+player->playbackPaused().connect([=] {
     out->setText("<p>Song paused</p>");
-}));
+});
 
-player->ended().connect(std::bind([=] () {
+player->ended().connect([=] {
     out->setText("<p>Song ended</p>");
-}));
+});
 
-player->volumeChanged().connect(std::bind([=] () {
+player->volumeChanged().connect([=] {
     out->setText("<p>Volume changed</p>");
-}));
+});
 
 SAMPLE_END(return std::move(container))
 

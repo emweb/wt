@@ -32,9 +32,9 @@ extern
         WCheckBox *checkBox =
             parent->addWidget(cpp14::make_unique<WCheckBox>(option));
 	checkBox->setInline(false);
-	checkBox->changed().connect(std::bind([=] () {
+	checkBox->changed().connect([=] {
 	      widget->toggleStyleClass(styleClass, checkBox->isChecked());
-	}));
+	});
     }
 }
 

@@ -25,17 +25,17 @@ auto button = form->bindWidget("save", Wt::cpp14::make_unique<Wt::WPushButton>("
 
 auto out = form->bindWidget("out", Wt::cpp14::make_unique<Wt::WText>());
 
-dp1->lineEdit()->changed().connect(std::bind([=] () {
+dp1->lineEdit()->changed().connect([=] {
     dp2->setBottom(dp1->date());
     out->setText("Date picker 1 is changed.");
-}));
+});
 
-dp2->lineEdit()->changed().connect(std::bind([=] () {
+dp2->lineEdit()->changed().connect([=] {
     dp1->setTop(dp2->date());
     out->setText("Date picker 2 is changed.");
-}));
+});
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     if (dp1->lineEdit()->text().empty() || dp2->lineEdit()->text().empty())
         out->setText("You should enter two dates!");
     else {
@@ -48,7 +48,7 @@ button->clicked().connect(std::bind([=] () {
 	else
 	    out->setText("Invalid period!");
    }
-}));
+});
 
 SAMPLE_END(return std::move(form))
 

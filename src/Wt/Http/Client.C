@@ -15,7 +15,7 @@
 #include "Wt/WServer.h"
 #include "Wt/Utils.h"
 
-#include "WebUtils.h"
+#include "web/WebUtils.h"
 
 #include <sstream>
 #include <boost/algorithm/string.hpp>
@@ -51,7 +51,8 @@ public:
     int parsePos;
   };
 
-  Impl(WIOService& ioService, WServer *server, const std::string& sessionId)
+  Impl(asio::io_service& ioService, WServer *server,
+       const std::string& sessionId)
     : ioService_(ioService),
       strand_(ioService),
       resolver_(ioService_),
@@ -606,7 +607,7 @@ private:
   }
 
 protected:
-  WIOService& ioService_;
+  asio::io_service& ioService_;
   asio::strand strand_;
   tcp::resolver resolver_;
   asio::streambuf requestBuf_;
@@ -631,7 +632,8 @@ private:
 class Client::TcpImpl final : public Client::Impl
 {
 public:
-  TcpImpl(WIOService& ioService, WServer *server, const std::string& sessionId)
+  TcpImpl(asio::io_service& ioService, WServer *server,
+	  const std::string& sessionId)
     : Impl(ioService, server, sessionId),
       socket_(ioService_)
   { }
@@ -679,8 +681,9 @@ private:
 class Client::SslImpl final : public Client::Impl
 {
 public:
-  SslImpl(WIOService& ioService, bool verifyEnabled, WServer *server,
-          asio::ssl::context& context, const std::string& sessionId,
+  SslImpl(asio::io_service& ioService, bool verifyEnabled,
+	  WServer *server,
+	  asio::ssl::context& context, const std::string& sessionId,
 	  const std::string& hostName)
     : Impl(ioService, server, sessionId),
       socket_(ioService_, context),
@@ -759,7 +762,7 @@ Client::Client()
     maxRedirects_(20)
 { }
 
-Client::Client(WIOService& ioService)
+Client::Client(asio::io_service& ioService)
   : ioService_(&ioService),
     timeout_(10),
     maximumResponseSize_(64*1024),
@@ -855,7 +858,7 @@ bool Client::request(Http::Method method, const std::string& url,
 {
   std::string sessionId;
 
-  WIOService *ioService = ioService_;
+  asio::io_service *ioService = ioService_;
   WServer *server = nullptr;
 
   WApplication *app = WApplication::instance();

@@ -21,12 +21,12 @@ popup_->addItem("Save Template");
 
 sb->dropDownButton()->setMenu(std::move(popup));
 
-sb->actionButton()->clicked().connect(std::bind([=] () {
+sb->actionButton()->clicked().connect([=] {
     out->setText("Saved!");
-}));
+});
 
-popup_->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
+popup_->itemSelected().connect([=] (Wt::WMenuItem *item) {
     out->setText(item->text());
-}, std::placeholders::_1));
+});
 
 SAMPLE_END(return std::move(container))

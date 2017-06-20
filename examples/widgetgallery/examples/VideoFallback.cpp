@@ -36,20 +36,20 @@ video->resize(640, 360);
 
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-video->playbackStarted().connect(std::bind([=] () {
+video->playbackStarted().connect([=] {
         out->setText("<p>Video playing</p>");
-}));
+});
 
-video->playbackPaused().connect(std::bind([=] () {
+video->playbackPaused().connect([=] {
         out->setText("<p>Video paused</p>");
-}));
+});
 
-video->ended().connect(std::bind([=] () {
+video->ended().connect([=] {
         out->setText("<p>Video ended</p>");
-}));
+});
 
-video->volumeChanged().connect(std::bind([=] () {
+video->volumeChanged().connect([=] {
         out->setText("<p>Volume changed</p>");
-}));
+});
 
 SAMPLE_END(return std::move(container))

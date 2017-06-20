@@ -103,13 +103,13 @@ struct sql_value_traits<Json::Array, void>
      */
 
 inline const char *sql_value_traits<WDate, void>::type(SqlConnection *conn,
-						       int size)
+						       int /* size */)
 {
   return conn->dateTimeType(SqlDateTimeType::Date);
 }
 
 inline void sql_value_traits<WDate, void>
-::bind(const WDate& v, SqlStatement *statement, int column, int size)
+::bind(const WDate& v, SqlStatement *statement, int column, int /* size */)
 {
   if (v.isNull())
     statement->bindNull(column);
@@ -118,7 +118,7 @@ inline void sql_value_traits<WDate, void>
 }
 
 inline bool sql_value_traits<WDate, void>
-::read(WDate& v, SqlStatement *statement, int column, int size)
+::read(WDate& v, SqlStatement *statement, int column, int /* size */)
 {
   std::chrono::system_clock::time_point tp;
 
@@ -136,13 +136,13 @@ inline bool sql_value_traits<WDate, void>
      */
 
 inline const char *sql_value_traits<WTime, void>::type(SqlConnection *conn,
-						       int size)
+						       int /* size */)
 {
   return conn->dateTimeType(SqlDateTimeType::Time);
 }
 
 inline void sql_value_traits<WTime, void>
-::bind(const WTime& v, SqlStatement *statement, int column, int size)
+::bind(const WTime& v, SqlStatement *statement, int column, int /* size */)
 {
   if (v.isNull())
     statement->bindNull(column);
@@ -151,7 +151,7 @@ inline void sql_value_traits<WTime, void>
 }
 
 inline bool sql_value_traits<WTime, void>
-::read(WTime& v, SqlStatement *statement, int column, int size)
+::read(WTime& v, SqlStatement *statement, int column, int /* size */)
 {
   std::chrono::duration<int, std::milli> t;
  
@@ -179,13 +179,13 @@ inline bool sql_value_traits<WTime, void>
      */
 
 inline const char *sql_value_traits<WDateTime, void>::type(SqlConnection *conn,
-							   int size)
+							   int /* size */)
 {
   return conn->dateTimeType(SqlDateTimeType::DateTime);
 }
 
 inline void sql_value_traits<WDateTime, void>
-::bind(const WDateTime& v, SqlStatement *statement, int column, int size)
+::bind(const WDateTime& v, SqlStatement *statement, int column, int /* size */)
 {
   if (v.isNull())
     statement->bindNull(column);
@@ -194,7 +194,7 @@ inline void sql_value_traits<WDateTime, void>
 }
 
 inline bool sql_value_traits<WDateTime, void>
-::read(WDateTime& v, SqlStatement *statement, int column, int size)
+::read(WDateTime& v, SqlStatement *statement, int column, int /* size */)
 {
   std::chrono::system_clock::time_point t;
 
@@ -218,7 +218,7 @@ inline std::string sql_value_traits<WString, void>::type(SqlConnection *conn,
 }
 
 inline void sql_value_traits<WString, void>
-::bind(const WString& v, SqlStatement *statement, int column, int size)
+::bind(const WString& v, SqlStatement *statement, int column, int /* size */)
 {
   statement->bind(column, v.toUTF8());
 }

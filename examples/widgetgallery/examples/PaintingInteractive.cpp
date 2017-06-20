@@ -104,18 +104,18 @@ slider->setRange(0, 360);
 // This will not cause a server roundtrip
 slider->sliderMoved().connect(widget->rotateSlot);
 
-sb->valueChanged().connect(std::bind([=](){
+sb->valueChanged().connect([=] {
     slider->setValue(sb->value());
     widget->rotate(sb->value());
-}));
-sb->enterPressed().connect(std::bind([=](){
+});
+sb->enterPressed().connect([=] {
     slider->setValue(sb->value());
     widget->rotate(sb->value());
-}));
+});
 
-slider->valueChanged().connect(std::bind([=](){
+slider->valueChanged().connect([=] {
     sb->setValue(slider->value());
     widget->rotate(slider->value());
-}));
+});
 
 SAMPLE_END(return std::move(container))

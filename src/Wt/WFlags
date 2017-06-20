@@ -189,7 +189,7 @@ WFlags<EnumType>::WFlags(enum_type flag):
 }
 
 template<typename EnumType>
-WFlags<EnumType>::WFlags(NoFlagsType noFlags)
+WFlags<EnumType>::WFlags(NoFlagsType /* noFlags */)
   : flags_(0)
 { }
 

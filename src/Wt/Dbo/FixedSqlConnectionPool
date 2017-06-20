@@ -9,6 +9,7 @@
 
 #include <Wt/Dbo/SqlConnectionPool.h>
 
+#include <chrono>
 #include <vector>
 
 namespace Wt {
@@ -41,11 +42,40 @@ public:
    */
   FixedSqlConnectionPool(std::unique_ptr<SqlConnection> connection, int size);
 
+  /*! \brief Set a timeout to get a connection.
+   *
+   * When the connection pool has no available connection,
+   * it will wait the given duration.
+   *
+   * On timeout, handleTimeout() is called, which throws an exception
+   * by default.
+   *
+   * By default, there is no timeout.
+   */
+  void setTimeout(std::chrono::steady_clock::duration timeout);
+
+  /*! \brief Get the timeout to get a connection.
+   *
+   * \sa setTimeout()
+   */
+  std::chrono::steady_clock::duration timeout() const;
+  
   virtual ~FixedSqlConnectionPool();
   virtual std::unique_ptr<SqlConnection> getConnection() override;
   virtual void returnConnection(std::unique_ptr<SqlConnection>) override;
   virtual void prepareForDropTables() const override;
 
+protected:
+  /*! \brief Handle a timeout that occured while getting a connection.
+   *
+   * The default implementation throws an Exception.
+   *
+   * If the function returns cleanly, it is assumed that something has been done to fix
+   * the situation (e.g. connections have been added to the pool): the timeout is reset
+   * and another attempt is made to obtain a connection.
+   */
+  virtual void handleTimeout();
+  
 private:
   struct Impl;
   std::unique_ptr<Impl> impl_;

@@ -95,9 +95,9 @@ Wt::WPushButton *createColorToggle(const char *className, const Wt::WColor& colo
     button->setCheckable(true);
     button->addStyleClass(className);
     button->setWidth(30);
-    button->checked().connect(std::bind([=] () {
+    button->checked().connect([=] {
 	canvas->setColor(color);
-    }));
+    });
 
     return button;
 }
@@ -149,9 +149,9 @@ for (unsigned i = 0; i < colorButtons.size(); ++i) {
 
 auto clearButton = Wt::cpp14::make_unique<Wt::WPushButton>("Clear");
 
-clearButton->clicked().connect(std::bind([=] () {
+clearButton->clicked().connect([=] {
     canvas_->clear();
-}));
+});
 
 toolBar->addSeparator();
 toolBar->addButton(std::move(clearButton));

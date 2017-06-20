@@ -178,8 +178,6 @@ public:
    * The widget is appended to the list of
    * children, and thus also layed-out at the end.
    *
-   * The container takes ownership of the widget (it calls WObject::addChild())
-   *
    * If, for some reason, you want to be in control of the lifetime
    * of the widget, you can retrieve a unique_ptr with WObject::removeChild()
    */

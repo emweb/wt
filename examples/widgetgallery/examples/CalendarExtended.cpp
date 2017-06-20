@@ -13,7 +13,7 @@ c2->setSelectionMode(Wt::SelectionMode::Extended);
 Wt::WText* out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
-c2->selectionChanged().connect(std::bind([=] () {
+c2->selectionChanged().connect([=] {
     Wt::WString selected;
     std::set<Wt::WDate> selection = c2->selection();
 
@@ -26,6 +26,6 @@ c2->selectionChanged().connect(std::bind([=] () {
 
     out->setText(Wt::WString("<p>You selected the following dates: {1}</p>")
 		 .arg(selected));
-}));
+});
 
 SAMPLE_END(return std::move(container))

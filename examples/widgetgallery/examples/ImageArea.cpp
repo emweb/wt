@@ -40,24 +40,24 @@ polygon->setToolTip("person");
 polygon->setCursor(Wt::Cursor::Cross);
 image->addArea(std::move(polygonPtr));
 
-circle->clicked().connect(std::bind([=] () {
+circle->clicked().connect([=] {
     out->setText("You clicked the tree.");
-}));
+});
 
-rect->clicked().connect(std::bind([=] () {
+rect->clicked().connect([=] {
     out->setText("You clicked the title.");
-}));
+});
 
-polygon->clicked().connect(std::bind([=] () {
+polygon->clicked().connect([=] {
     out->setText("You clicked the person.");
-}));
+});
 
-image->mouseMoved().connect(std::bind([=] (const Wt::WMouseEvent& e) {
+image->mouseMoved().connect([=] (const Wt::WMouseEvent& e) {
     out->setText("You're pointing the background at "
                  "(" + std::to_string(e.widget().x) +
                  "," + std::to_string(e.widget().y) +
 		 ").");
-}, std::placeholders::_1));
+});
 
 
 SAMPLE_END(return std::move(container))

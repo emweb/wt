@@ -26,7 +26,7 @@ resetButton->disable();
 auto intervalTimer = container->addChild(Wt::cpp14::make_unique<Wt::WTimer>());
 intervalTimer->setInterval(std::chrono::milliseconds{1000});
 
-startButton->clicked().connect(std::bind([=] () {
+startButton->clicked().connect([=] {
     if (bar->value() < 10) {
         intervalTimer->start();
 	startButton->setText("Resume");
@@ -35,31 +35,31 @@ startButton->clicked().connect(std::bind([=] () {
     startButton->disable();
     stopButton->enable();
     resetButton->disable();
-}));
+});
 
-stopButton->clicked().connect(std::bind([=] () {
+stopButton->clicked().connect([=] {
     intervalTimer->stop();
 
     startButton->enable();
     stopButton->disable();
     resetButton->enable();
-}));
+});
 
-resetButton->clicked().connect(std::bind([=] () {
+resetButton->clicked().connect([=] {
     bar->setValue(0.0);
     startButton->setText("Start");
 
     startButton->enable();
     stopButton->disable();
     resetButton->disable();
-}));
+});
 
-intervalTimer->timeout().connect(std::bind([=] () {
+intervalTimer->timeout().connect([=] {
     bar->setValue(bar->value() + 1);
     if (bar->value() == 10) {
         stopButton->clicked().emit(Wt::WMouseEvent());
 	startButton->disable();
     }
-}));
+});
 
 SAMPLE_END(return std::move(container))

@@ -22,21 +22,21 @@ audio->setAlternativeContent
 
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-audio->playbackStarted().connect(std::bind([=] () {
+audio->playbackStarted().connect([=] {
         out->setText("<p>Audio playing</p>");
-}));
+});
 
-audio->playbackPaused().connect(std::bind([=] () {
+audio->playbackPaused().connect([=] {
         out->setText("<p>Audio paused</p>");
-}));
+});
 
-audio->ended().connect(std::bind([=] () {
+audio->ended().connect([=] {
         out->setText("<p>Audio ended</p>");
-}));
+});
 
-audio->volumeChanged().connect(std::bind([=] () {
+audio->volumeChanged().connect([=] {
         out->setText("<p>Volume changed</p>");
-}));
+});
 
 SAMPLE_END(return std::move(container))
 

@@ -22,8 +22,8 @@ container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
 Wt::WText *out =
     container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-slider->valueChanged().connect(std::bind([=] () {
+slider->valueChanged().connect([=] {
     out->setText("I was born in the year " + slider->valueText() + ".");
-}));
+});
 
 SAMPLE_END(return std::move(container))

@@ -156,24 +156,24 @@ void DropSchema::visit(C& obj)
 }
 
 template<typename V>
-void DropSchema::actId(V& value, const std::string& name, int size)
+void DropSchema::actId(V& /* value */, const std::string& /* name */, int /* size */)
 { }
 
 template<class C>
-void DropSchema::actId(ptr<C>& value, const std::string& name, int size,
-		       int fkConstraints)
+void DropSchema::actId(ptr<C>& /* value */, const std::string& /* name */, int /* size */,
+		       int /* fkConstraints */)
 { }
 
 template<typename V>
-void DropSchema::act(const FieldRef<V>& field)
+void DropSchema::act(const FieldRef<V>& /* field */)
 { }
 
 template<class C>
-void DropSchema::actPtr(const PtrRef<C>& field)
+void DropSchema::actPtr(const PtrRef<C>& /* field */)
 { }
 
 template<class C>
-void DropSchema::actWeakPtr(const WeakPtrRef<C>& field)
+void DropSchema::actWeakPtr(const WeakPtrRef<C>& /* field */)
 { 
   const char *tableName = session_.tableName<C>();
   if (tablesDropped_.count(tableName) == 0) {
@@ -580,11 +580,11 @@ void TransactionDoneAction::actId(ptr<C>& value, const std::string& name,
 }
 
 template<typename V>
-void TransactionDoneAction::act(const FieldRef<V>& field)
+void TransactionDoneAction::act(const FieldRef<V>& /* field */)
 { }
 
 template<class C>
-void TransactionDoneAction::actPtr(const PtrRef<C>& field)
+void TransactionDoneAction::actPtr(const PtrRef<C>& /* field */)
 { }
 
 template<class C>
@@ -641,11 +641,11 @@ void SessionAddAction::actId(ptr<C>& value, const std::string& name,
 }
 
 template<typename V>
-void SessionAddAction::act(const FieldRef<V>& field)
+void SessionAddAction::act(const FieldRef<V>& /* field */)
 { }
 
 template<class C>
-void SessionAddAction::actPtr(const PtrRef<C>& field)
+void SessionAddAction::actPtr(const PtrRef<C>& /* field */)
 { }
 
 template<class C>
@@ -686,7 +686,7 @@ void SetReciproceAction::actId(ptr<C>& value, const std::string& name,
 }
 
 template<typename V>
-void SetReciproceAction::act(const FieldRef<V>& field)
+void SetReciproceAction::act(const FieldRef<V>& /* field */)
 { }
 
 template<class C>
@@ -697,12 +697,12 @@ void SetReciproceAction::actPtr(const PtrRef<C>& field)
 }
 
 template<class C>
-void SetReciproceAction::actWeakPtr(const WeakPtrRef<C>& field)
+void SetReciproceAction::actWeakPtr(const WeakPtrRef<C>& /* field */)
 {
 }
 
 template<class C>
-void SetReciproceAction::actCollection(const CollectionRef<C>& field)
+void SetReciproceAction::actCollection(const CollectionRef<C>& /* field */)
 {
 }
 
@@ -782,11 +782,11 @@ void ToAnysAction::actPtr(const PtrRef<C>& field)
 }
 
 template<class C>
-void ToAnysAction::actWeakPtr(const WeakPtrRef<C>& field)
+void ToAnysAction::actWeakPtr(const WeakPtrRef<C>& /* field */)
 { }
 
 template<class C>
-void ToAnysAction::actCollection(const CollectionRef<C>& field)
+void ToAnysAction::actCollection(const CollectionRef<C>& /* field */)
 { }
 
     /*
@@ -866,11 +866,11 @@ void FromAnyAction::actPtr(const PtrRef<C>& field)
 }
 
 template<class C>
-void FromAnyAction::actWeakPtr(const WeakPtrRef<C>& field)
+void FromAnyAction::actWeakPtr(const WeakPtrRef<C>& /* field */)
 { }
 
 template<class C>
-void FromAnyAction::actCollection(const CollectionRef<C>& field)
+void FromAnyAction::actCollection(const CollectionRef<C>& /* field */)
 { }
 
   }

@@ -16,9 +16,9 @@ ta->setText("Change this text... \n"
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>("<p></p>"));
 out->addStyleClass("help-block");
 
-ta->changed().connect(std::bind([=] () {
+ta->changed().connect([=] {
     out->setText("<p>Text area changed at " +
                  Wt::WDateTime::currentDateTime().toString() + ".</p>");
-}));
+});
 
 SAMPLE_END(return std::move(container))

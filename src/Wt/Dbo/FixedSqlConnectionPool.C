@@ -6,15 +6,15 @@
 
 #include "Wt/Dbo/FixedSqlConnectionPool.h"
 #include "Wt/Dbo/SqlConnection.h"
+#include "Wt/Dbo/Exception.h"
 
 #ifdef WT_THREADED
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#else
-#include "Wt/Dbo/Exception.h"
 #endif // WT_THREADED
 
+#include <iostream>
 #include <memory>
 
 namespace Wt {
@@ -26,6 +26,7 @@ struct FixedSqlConnectionPool::Impl {
   std::condition_variable connectionAvailable;
 #endif // WT_THREADED
 
+  std::chrono::steady_clock::duration timeout;
   std::vector<std::unique_ptr<SqlConnection>> freeList;
 };
 
@@ -45,13 +46,30 @@ FixedSqlConnectionPool::~FixedSqlConnectionPool()
   impl_->freeList.clear();
 }
 
+void FixedSqlConnectionPool::setTimeout(std::chrono::steady_clock::duration timeout)
+{
+  impl_->timeout = timeout;
+}
+
+std::chrono::steady_clock::duration FixedSqlConnectionPool::timeout() const
+{
+  return impl_->timeout;
+}
+  
 std::unique_ptr<SqlConnection> FixedSqlConnectionPool::getConnection()
 {
 #ifdef WT_THREADED
   std::unique_lock<std::mutex> lock(impl_->mutex);
 
-  while (impl_->freeList.empty())
-    impl_->connectionAvailable.wait(lock);
+  while (impl_->freeList.empty()) {
+    std::cerr << "Warning: FixedSqlConnectionPool: waiting for connection" << std::endl;
+    if (impl_->timeout > std::chrono::steady_clock::duration::zero()) {
+      if (impl_->connectionAvailable.wait_for(lock, impl_->timeout) == std::cv_status::timeout) {
+	handleTimeout();
+      }
+    } else
+      impl_->connectionAvailable.wait(lock);
+  }
 #else
   if (impl_->freeList.empty())
     throw Exception("FixedSqlConnectionPool::getConnection(): "
@@ -64,6 +82,11 @@ std::unique_ptr<SqlConnection> FixedSqlConnectionPool::getConnection()
   return result;
 }
 
+void FixedSqlConnectionPool::handleTimeout()
+{
+  throw Exception("FixedSqlConnectionPool::getConnection(): timeout");
+}
+  
 void FixedSqlConnectionPool::returnConnection(std::unique_ptr<SqlConnection> connection)
 {
 #ifdef WT_THREADED

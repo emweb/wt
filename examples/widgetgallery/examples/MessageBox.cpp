@@ -13,7 +13,7 @@ Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->setMargin(10, Wt::Side::Left);
 
 auto c = container.get();
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->setText("The status button is clicked.");
 
     auto messageBox = c->addChild(
@@ -24,16 +24,16 @@ button->clicked().connect(std::bind([=] () {
 
     messageBox->setModal(false);
 
-    messageBox->buttonClicked().connect(std::bind([=] () {
+    messageBox->buttonClicked().connect([=] {
         if (messageBox->buttonResult() == Wt::StandardButton::Yes)
 	    out->setText("The rocket is launched!");
 	else
 	    out->setText("The rocket is ready for launch...");
 
         c->removeChild(messageBox);
-    }));
+    });
 
     messageBox->show();
-}));
+});
 
 SAMPLE_END(return std::move(container))

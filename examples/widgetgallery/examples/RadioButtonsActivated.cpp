@@ -32,7 +32,7 @@ Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
 // Use a raw pointer inside the lambda to prevent memory leak
 auto rawGroup = group.get();
-group->checkedChanged().connect(std::bind([=] (Wt::WRadioButton *selection) {
+group->checkedChanged().connect([=] (Wt::WRadioButton *selection) {
     Wt::WString text;
 
     switch (rawGroup->id(selection)) {
@@ -56,6 +56,6 @@ group->checkedChanged().connect(std::bind([=] (Wt::WRadioButton *selection) {
         text = Wt::WString("That's what I expected!");
 
     out->setText(Wt::WString("<p>") + text + "</p>");
-}, std::placeholders::_1));
+});
 
 SAMPLE_END(return std::move(container))

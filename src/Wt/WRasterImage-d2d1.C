@@ -4,18 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WRasterImage.h"
+#include "Wt/WRasterImage"
 
-#include "Wt/WBrush.h"
-#include "Wt/WException.h"
-#include "Wt/WFontMetrics.h"
-#include "Wt/WGradient.h"
-#include "Wt/WLogger.h"
-#include "Wt/WPainter.h"
-#include "Wt/WPen.h"
-#include "Wt/WString.h"
-#include "Wt/WTransform.h"
-#include "Wt/Http/Response.h"
+#include "Wt/FontSupport.h"
+#include "Wt/WBrush"
+#include "Wt/WException"
+#include "Wt/WFontMetrics"
+#include "Wt/WGradient"
+#include "Wt/WLogger"
+#include "Wt/WPainter"
+#include "Wt/WPen"
+#include "Wt/WString"
+#include "Wt/WTransform"
+#include "Wt/Http/Response"
 
 #include "UriUtils.h"
 
@@ -74,8 +75,7 @@ enum DrawTag1 {
   PUSH_LAYER = 5,
   POP_LAYER = 6,
   DRAW_BITMAP = 7,
-  SET_ANTIALIAS_MODE = 8,
-  DRAW_RECT = 9
+  SET_ANTIALIAS_MODE = 8
 };
 
 enum DrawTag2 {
@@ -84,9 +84,6 @@ enum DrawTag2 {
   DRAW_PLAIN_PATH = 3
 };
 }
-
-// FIXME: word wrap
-// FIXME: make FontSupportDirectWrite and use it
 
 namespace Wt {
 
@@ -103,16 +100,14 @@ public:
     wicFactory_(NULL),
     bitmap_(NULL),
     fillBrush_(NULL),
-    fillBrushStyle_(BrushStyle::Solid),
+    fillBrushStyle_(SolidPattern),
     strokeBrush_(NULL),
     stroke_(NULL),
     lineWidth_(0.f),
     clipGeometry_(NULL),
     clipLayer_(NULL),
     clipLayerActive_(false),
-    writeFactory_(NULL),
-    textFormat_(NULL),
-    font_(NULL)
+    fontSupport_(0)
   {}
 
   ~Impl()
@@ -127,9 +122,8 @@ public:
     SafeRelease(rt_);
     SafeRelease(factory_);
 
-    SafeRelease(textFormat_);
-    SafeRelease(font_);
-    SafeRelease(writeFactory_);
+    currentFontMatch_ = FontSupport::FontMatch();
+    delete fontSupport_;
   }
 
   unsigned w_, h_;
@@ -149,9 +143,8 @@ public:
   ID2D1Layer *clipLayer_;
   bool clipLayerActive_;
 
-  IDWriteFactory *writeFactory_;
-  IDWriteTextFormat *textFormat_;
-  IDWriteFont *font_;
+  FontSupport *fontSupport_;
+  FontSupport::FontMatch currentFontMatch_;
 
   void applyTransform(const WTransform& t);
   void setTransform(const WTransform& t);
@@ -252,8 +245,10 @@ public:
 #endif // DEBUG_D2D
 
 WRasterImage::WRasterImage(const std::string& type,
-			   const WLength& width, const WLength& height)
-  : width_(width),
+			   const WLength& width, const WLength& height,
+			   WObject *parent)
+  : WResource(parent),
+    width_(width),
     height_(height),
     painter_(0),
     impl_(new Impl)
@@ -275,7 +270,7 @@ WRasterImage::WRasterImage(const std::string& type,
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
     if (!SUCCEEDED(hr)) {
-      impl_.reset();
+      delete impl_;
       throw WException("D2D: Error initializing COM: HRESULT " + boost::lexical_cast<std::string>(hr));
     }
   }
@@ -325,50 +320,18 @@ WRasterImage::WRasterImage(const std::string& type,
 
   if (SUCCEEDED(hr))
     hr = impl_->rt_->CreateLayer(&impl_->clipLayer_);
-  
-  // not clear from documentation: do we have to share the factory created
-  // by this call in order to benefit from shared font caching etc, or will
-  // a shared font cache be used by specifying the SHARED option? When
-  // specifying the SHARED option, is the factory thread-safe? We take the
-  // safe approach, and assume that each specifying SHARED will cause state
-  // to be shared in a thread-safe manner
-  if (SUCCEEDED(hr))
-    hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
-      __uuidof(impl_->writeFactory_),
-      reinterpret_cast<IUnknown **>(&impl_->writeFactory_)
-    );
 
-  if (SUCCEEDED(hr))
-    hr = impl_->writeFactory_->CreateTextFormat(L"Times New Roman", 0,
-					        DWRITE_FONT_WEIGHT_NORMAL,
-					        DWRITE_FONT_STYLE_NORMAL,
-					        DWRITE_FONT_STRETCH_NORMAL,
-					        12.0,
-					        L"",
-					        &impl_->textFormat_);
-
-  IDWriteFontCollection *sysFontCollection = NULL;
-  if (SUCCEEDED(hr))
-    hr = impl_->textFormat_->GetFontCollection(&sysFontCollection);
-  UINT32 fontIndex = UINT32_MAX;
-  BOOL fontExists = FALSE;
-  if (SUCCEEDED(hr))
-    hr = sysFontCollection->FindFamilyName(L"Times New Roman", &fontIndex, &fontExists);
-  if (SUCCEEDED(hr) && !fontExists) {
-    // Should not happen, something's horribly wrong
-    throw WException("Could not locate default Times New Roman font in system font collection");
+  try {
+    impl_->fontSupport_ = new FontSupport(this, FontSupport::AnyFont);
+  } catch (...) {
+    delete impl_;
+    throw;
   }
-  IDWriteFontFamily *fontFamily = NULL;
-  if (SUCCEEDED(hr))
-    hr = sysFontCollection->GetFontFamily(fontIndex, &fontFamily);
-  if (SUCCEEDED(hr))
-    hr = fontFamily->GetFirstMatchingFont(DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE_NORMAL, &impl_->font_);
 
-  SafeRelease(fontFamily);
-  SafeRelease(sysFontCollection);
+  impl_->currentFontMatch_ = impl_->fontSupport_->matchFont(WFont());
 
   if (!SUCCEEDED(hr)) {
-    impl_.reset();
+    delete impl_;
     throw WException(std::string("Error when initializing D2D: HRESULT ") + boost::lexical_cast<std::string>(hr));
   }
 }
@@ -385,7 +348,7 @@ WRasterImage::~WRasterImage()
 {
   beingDeleted();
 
-  impl_.reset();
+  delete impl_;
 
   CoUninitialize();
 }
@@ -393,14 +356,12 @@ WRasterImage::~WRasterImage()
 void WRasterImage::addFontCollection(const std::string& directory,
 				     bool recursive)
 {
-#if 0
-  fontSupport_->addFontCollection(directory, recursive);
-#endif
+  impl_->fontSupport_->addFontCollection(directory, recursive);
 }
   
 WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 {
-  return FeatureFlag::FontMetrics;
+  return HasFontMetrics | CanWordWrap;
 }
 
 void WRasterImage::init()
@@ -413,12 +374,7 @@ void WRasterImage::init()
 
   impl_->beginDraw();
 
-  setChanged(PainterChangeFlag::Clipping |
-             PainterChangeFlag::Transform |
-             PainterChangeFlag::Pen |
-             PainterChangeFlag::Brush | 
-             PainterChangeFlag::Font |
-             PainterChangeFlag::Hints);
+  setChanged(Clipping | Transform | Pen | Brush | Font | Hints);
 }
 
 void WRasterImage::done()
@@ -458,10 +414,10 @@ void WRasterImage::Impl::setTransform(const WTransform& t)
   rt_->SetTransform(matrix);
 }
 
-void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
+void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 {
   HRESULT hr = S_OK;
-  if (flags.test(PainterChangeFlag::Clipping)) {
+  if (flags & Clipping) {
     GUARD_TAG(DRAW_CLIP_PATH);
     if (impl_->clipLayerActive_) {
       GUARD_TAG(POP_LAYER);
@@ -490,24 +446,24 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
     }
   }
 
-  if (flags.test(PainterChangeFlag::Transform)) {
+  if (flags & Transform) {
     impl_->setTransform(painter()->combinedTransform());
-    flags = PainterChangeFlag::Pen | PainterChangeFlag::Brush | PainterChangeFlag::Font;
+    flags = Pen | Brush | Font | Hints;
   }
 
-  if (flags.test(PainterChangeFlag::Hints)) {
+  if (flags & Hints) {
     GUARD_TAG(SET_ANTIALIAS_MODE);
-    if (!painter()->renderHints().test(RenderHint::Antialiasing)) {
+    if (!(painter()->renderHints() & WPainter::Antialiasing)) {
       impl_->rt_->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
     } else {
       impl_->rt_->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
     }
   }
 
-  if (flags.test(PainterChangeFlag::Pen)) {
+  if (flags & Pen) {
     const WPen& pen = painter()->pen();
 
-    if (pen.style() != PenStyle::None) {
+    if (pen.style() != NoPen) {
       const WColor& color = pen.color();
 
       D2D1_STROKE_STYLE_PROPERTIES strokeProperties = D2D1::StrokeStyleProperties();
@@ -517,25 +473,25 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
       impl_->lineWidth_ = static_cast<FLOAT>(painter()->normalizedPenWidth(w, w.value() == 0).toPixels());
 
       switch (pen.capStyle()) {
-      case PenCapStyle::Flat:
+      case FlatCap:
 	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_FLAT;
 	break;
-      case PenCapStyle::Square:
+      case SquareCap:
 	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_SQUARE;
 	break;
-      case PenCapStyle::Round:
+      case RoundCap:
 	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_ROUND;
 	break;
       }
 
       switch (pen.joinStyle()) {
-      case PenJoinStyle::Miter:
+      case MiterJoin:
 	strokeProperties.lineJoin = D2D1_LINE_JOIN_MITER;
 	break;
-      case PenJoinStyle::Bevel:
+      case BevelJoin:
 	strokeProperties.lineJoin = D2D1_LINE_JOIN_BEVEL;
 	break;
-      case PenJoinStyle::Round:
+      case RoundJoin:
 	strokeProperties.lineJoin = D2D1_LINE_JOIN_ROUND;
 	break;
       }
@@ -544,29 +500,29 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
       int numdashes = 0;
 
       switch (pen.style()) {
-      case PenStyle::None:
+      case NoPen:
 	break;
-      case PenStyle::SolidLine:
+      case SolidLine:
 	break;
-      case PenStyle::DashLine: {
+      case DashLine: {
 	const float dasharray[] = {4, 2};
 	memcpy(dashes, dasharray, sizeof(dasharray));
 	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
 	break;
       }
-      case PenStyle::DotLine: {
+      case DotLine: {
 	const float dasharray[] = {1, 2};
 	memcpy(dashes, dasharray, sizeof(dasharray));
 	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
 	break;
       }
-      case PenStyle::DashDotLine: {
+      case DashDotLine: {
 	const float dasharray[] = {4, 2, 1, 2};
 	memcpy(dashes, dasharray, sizeof(dasharray));
 	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
 	break;
       }
-      case PenStyle::DashDotDotLine: {
+      case DashDotDotLine: {
 	const float dasharray[] = {4, 2, 1, 2, 1, 2};
 	memcpy(dashes, dasharray, sizeof(dasharray));
 	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
@@ -585,19 +541,19 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
     }
   }
 
-  if (flags.test(PainterChangeFlag::Brush)) {
+  if (flags & Brush) {
     const WBrush& brush = painter()->brush();
-    if (brush.style() == BrushStyle::Solid) {
+    if (brush.style() == SolidPattern) {
       const WColor &color = painter()->brush().color();
-      if (impl_->fillBrushStyle_ != BrushStyle::Solid) {
+      if (impl_->fillBrushStyle_ != SolidPattern) {
         SafeRelease(impl_->fillBrush_);
         hr = impl_->rt_->CreateSolidColorBrush(fromWColor(color),
           reinterpret_cast<ID2D1SolidColorBrush**>(&impl_->fillBrush_));
-        impl_->fillBrushStyle_ = BrushStyle::Solid;
+        impl_->fillBrushStyle_ = SolidPattern;
       } else {
         reinterpret_cast<ID2D1SolidColorBrush*>(impl_->fillBrush_)->SetColor(fromWColor(color));
       }
-    } else if (brush.style() == BrushStyle::Gradient) {
+    } else if (brush.style() == GradientPattern) {
       const WGradient &gradient = painter()->brush().gradient();
       const std::vector<WGradient::ColorStop> &colorstops = gradient.colorstops();
       std::vector<D2D1_GRADIENT_STOP> gradientStops;
@@ -612,15 +568,15 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
         &gradientStopCollection
       );
       SafeRelease(impl_->fillBrush_);
-      impl_->fillBrushStyle_ = BrushStyle::Gradient;
-      if (gradient.style() == GradientStyle::Linear) {
+      impl_->fillBrushStyle_ = GradientPattern;
+      if (gradient.style() == LinearGradient) {
         const WLineF &vector = gradient.linearGradientVector();
         D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES properties;
         properties.startPoint = D2D1::Point2F(static_cast<FLOAT>(vector.x1()), static_cast<FLOAT>(vector.y1()));
         properties.endPoint = D2D1::Point2F(static_cast<FLOAT>(vector.x2()), static_cast<FLOAT>(vector.y2()));
         hr = impl_->rt_->CreateLinearGradientBrush(properties, gradientStopCollection,
           reinterpret_cast<ID2D1LinearGradientBrush**>(&impl_->fillBrush_));
-      } else if (gradient.style() == GradientStyle::Radial) {
+      } else if (gradient.style() == RadialGradient) {
         D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES properties;
         properties.center = fromPointF(gradient.radialCenterPoint());
         const WPointF &focalPoint = gradient.radialFocalPoint();
@@ -634,107 +590,7 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
     }
   }
 
-  if (flags.test(PainterChangeFlag::Font)) {
-    const WFont& font = painter()->font();
-
-    IDWriteFontCollection *sysFontCollection;
-    hr = impl_->writeFactory_->GetSystemFontCollection(&sysFontCollection);
-
-    if (!SUCCEEDED(hr))
-      LOG_ERROR("DirectWrite error: failed to get system font collection");
-
-    std::wstring fontFamilyName;
-    WString families = font.specificFamilies();
-    if (!families.empty()) {
-      std::wstring wFamilies = families;
-      std::vector<std::wstring> splitFamilies;
-      boost::split(splitFamilies, wFamilies, boost::is_any_of(L","));
-      for (std::size_t i = 0; i < splitFamilies.size(); ++i) {
-        boost::trim_if(splitFamilies[i], boost::is_any_of(L"\"' "));
-        const std::wstring &family = splitFamilies[i];
-        UINT32 familyIndex = UINT32_MAX;
-        BOOL found = false;
-        sysFontCollection->FindFamilyName(family.c_str(), &familyIndex, &found);
-        if (found) {
-          fontFamilyName = family;
-          break;
-        }
-      }
-    }
-
-    if (fontFamilyName.empty()) {
-      switch (font.genericFamily()) {
-      case FontFamily::Default:
-      case FontFamily::Serif:
-        fontFamilyName = L"Times New Roman";
-        break;
-      case FontFamily::SansSerif:
-        fontFamilyName = L"Arial";
-        break;
-      case FontFamily::Monospace:
-        fontFamilyName = L"Consolas";
-        break;
-      case FontFamily::Fantasy:
-        fontFamilyName = L"Gabriola"; // IE/Edge on Windows choose Gabriola, so let's use that
-        break;
-      case FontFamily::Cursive:
-        fontFamilyName = L"Comic Sans MS"; // Apparently, all browsers on Windows choose Comic Sans
-      }
-    }
-
-    DWRITE_FONT_WEIGHT weight = DWRITE_FONT_WEIGHT_NORMAL;
-    switch (font.weight()) {
-    case FontWeight::Lighter:
-      weight = DWRITE_FONT_WEIGHT_LIGHT;
-      break;
-    case FontWeight::Normal:
-      weight = DWRITE_FONT_WEIGHT_NORMAL;
-      break;
-    case FontWeight::Bold:
-      weight = DWRITE_FONT_WEIGHT_BOLD;
-      break;
-    case FontWeight::Bolder:
-      weight = DWRITE_FONT_WEIGHT_EXTRA_BOLD;
-      break;
-    default:
-      weight = (DWRITE_FONT_WEIGHT)font.weightValue();
-    }
-
-    DWRITE_FONT_STYLE style = DWRITE_FONT_STYLE_NORMAL;
-    switch (font.style()) {
-    case FontStyle::Normal:
-      style = DWRITE_FONT_STYLE_NORMAL;
-      break;
-    case FontStyle::Oblique:
-      style = DWRITE_FONT_STYLE_OBLIQUE;
-      break;
-    case FontStyle::Italic:
-      style = DWRITE_FONT_STYLE_ITALIC;
-      break;
-    }
-
-    SafeRelease(impl_->textFormat_);
-    hr = impl_->writeFactory_->CreateTextFormat(fontFamilyName.c_str(),
-                                           NULL,
-					   weight,
-					   style,
-					   DWRITE_FONT_STRETCH_NORMAL,
-					   static_cast<FLOAT>(font.sizeLength(12).toPixels()),
-					   L"",
-					   &impl_->textFormat_);
-
-    SafeRelease(impl_->font_);
-    UINT32 fontIndex = UINT32_MAX;
-    BOOL fontExists = FALSE;
-    hr = sysFontCollection->FindFamilyName(fontFamilyName.c_str(), &fontIndex, &fontExists);
-    if (!fontExists) {
-      throw WException("Could not locate font " + WString(fontFamilyName).toUTF8());
-    }
-    IDWriteFontFamily *fontFamily = NULL;
-    hr = sysFontCollection->GetFontFamily(fontIndex, &fontFamily);
-    hr = fontFamily->GetFirstMatchingFont(weight, DWRITE_FONT_STRETCH_NORMAL, style, &impl_->font_);
-
-    SafeRelease(sysFontCollection);
+  if (flags & Font) {
   }
 }
 
@@ -780,7 +636,7 @@ void WRasterImage::drawArc(const WRectF& rect,
   impl_->factory_->CreatePathGeometry(&path);
   path->Open(&sink);
   sink->BeginFigure(startPoint,
-		    painter()->brush().style() != BrushStyle::None ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
+		    painter()->brush().style() != NoBrush ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
   sink->AddArc(arc1);
   sink->AddArc(arc2);
   sink->EndFigure(D2D1_FIGURE_END_OPEN);
@@ -788,10 +644,10 @@ void WRasterImage::drawArc(const WRectF& rect,
 
   SafeRelease(sink);
 
-  if (painter()->brush().style() != BrushStyle::None) {
+  if (painter()->brush().style() != NoBrush) {
     impl_->rt_->FillGeometry(path, impl_->fillBrush_);
   }
-  if (painter()->pen().style() != PenStyle::None) {
+  if (painter()->pen().style() != NoPen) {
     impl_->rt_->DrawGeometry(path, impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
   }
   SafeRelease(path);
@@ -880,23 +736,18 @@ void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
 		       impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
 }
 
-void WRasterImage::drawRect(const WRectF &rect)
-{
-  drawPath(rect.toPath());
-}
-
 void WRasterImage::drawPath(const WPainterPath& path)
 {
   GUARD_TAG(DRAW_PATH);
   if (!path.isEmpty()) {
     ID2D1PathGeometry *p;
     impl_->factory_->CreatePathGeometry(&p);
-    impl_->drawPlainPath(p, path, painter()->brush().style() != BrushStyle::None);
+    impl_->drawPlainPath(p, path, painter()->brush().style() != NoBrush);
     
-    if (painter()->brush().style() != BrushStyle::None) {
+    if (painter()->brush().style() != NoBrush) {
       impl_->rt_->FillGeometry(p, impl_->fillBrush_);
     }
-    if (painter()->pen().style() != PenStyle::None) {
+    if (painter()->pen().style() != NoPen) {
       impl_->rt_->DrawGeometry(p, impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
     }
   }
@@ -962,23 +813,23 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
   for (unsigned i = 0; i < segments.size(); ++i) {
     const WPainterPath::Segment s = segments[i];
 
-    if (s.type() != SegmentType::MoveTo && !started) {
+    if (s.type() != WPainterPath::Segment::MoveTo && !started) {
       sink->BeginFigure(startPoint,
 			filled ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
       started = true;
     }
     switch (s.type()) {
-    case SegmentType::MoveTo:
+    case WPainterPath::Segment::MoveTo:
       if (started) {
 	sink->EndFigure(D2D1_FIGURE_END_OPEN);
 	started = false;
       }
       startPoint = D2D1::Point2F(static_cast<FLOAT>(s.x()), static_cast<FLOAT>(s.y()));
       break;
-    case SegmentType::LineTo:
+    case WPainterPath::Segment::LineTo:
       sink->AddLine(D2D1::Point2F(static_cast<FLOAT>(s.x()), static_cast<FLOAT>(s.y())));
       break;
-    case SegmentType::CubicC1: {
+    case WPainterPath::Segment::CubicC1: {
       const FLOAT x1 = static_cast<FLOAT>(s.x());
       const FLOAT y1 = static_cast<FLOAT>(s.y());
       const FLOAT x2 = static_cast<FLOAT>(segments[i + 1].x());
@@ -989,11 +840,11 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
       i += 2;
       break;
     }
-    case SegmentType::CubicC2:
-    case SegmentType::CubicEnd:
+    case WPainterPath::Segment::CubicC2:
+    case WPainterPath::Segment::CubicEnd:
       assert(false);
       break;
-    case SegmentType::ArcC: {
+    case WPainterPath::Segment::ArcC: {
       WPointF current = path.positionAtSegment(i);
 
       const double cx = s.x();
@@ -1032,11 +883,11 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
       i += 2;
       break;
     }
-    case SegmentType::ArcR:
-    case SegmentType::ArcAngleSweep:
+    case WPainterPath::Segment::ArcR:
+    case WPainterPath::Segment::ArcAngleSweep:
       assert(false);
       break;
-    case SegmentType::QuadC: {
+    case WPainterPath::Segment::QuadC: {
       const FLOAT x1 = static_cast<FLOAT>(s.x());
       const FLOAT y1 = static_cast<FLOAT>(s.y());
       const FLOAT x2 = static_cast<FLOAT>(segments[i + 1].x());
@@ -1047,7 +898,7 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
 
       break;
     }
-    case SegmentType::QuadEnd:
+    case WPainterPath::Segment::QuadEnd:
       assert(false);
       break;
     }
@@ -1066,11 +917,6 @@ void WRasterImage::drawText(const WRectF& rect,
 			    const WString& text,
 			    const WPointF *clipPoint)
 {
-  D2D1_RECT_F textRect = D2D1::RectF(static_cast<FLOAT>(rect.left()),
-                                     static_cast<FLOAT>(rect.top()),
-                                     static_cast<FLOAT>(rect.right()),
-                                     static_cast<FLOAT>(rect.bottom()));
-
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
 	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
@@ -1084,71 +930,61 @@ void WRasterImage::drawText(const WRectF& rect,
   
   const WTransform& t = painter()->combinedTransform();
   
-  WPointF p;
-
+  FontSupport::FontMatch &match = impl_->currentFontMatch_;
   switch (verticalAlign) {
   default:
-  case AlignmentFlag::Top:
-    impl_->textFormat_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+  case AlignTop:
+    match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
     break;
-  case AlignmentFlag::Middle:
-    impl_->textFormat_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+  case AlignMiddle:
+    match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
     break;
-  case AlignmentFlag::Bottom:
-    impl_->textFormat_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
+  case AlignBottom:
+    match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
     break;
   }
   
   switch (horizontalAlign) {
   default:
-  case AlignmentFlag::Left:
-    impl_->textFormat_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+  case AlignLeft:
+    match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
     break;
-  case AlignmentFlag::Center:
-    impl_->textFormat_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+  case AlignCenter:
+    match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
     break;
-  case AlignmentFlag::Right:
-    impl_->textFormat_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+  case AlignRight:
+    match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
     break;
   }
 
-  impl_->rt_->DrawText(txt.c_str(),
-    txt.size(), impl_->textFormat_, &textRect, impl_->strokeBrush_, D2D1_DRAW_TEXT_OPTIONS_NONE, DWRITE_MEASURING_MODE_NATURAL);
+  IDWriteFactory *writeFactory = impl_->fontSupport_->writeFactory();
+  IDWriteTextLayout *textLayout = NULL;
+  writeFactory->CreateTextLayout(
+    txt.c_str(),
+    txt.size(),
+    match.textFormat(),
+    static_cast<FLOAT>(rect.width()),
+    static_cast<FLOAT>(rect.height()),
+    &textLayout);
+  if (textFlag == TextSingleLine)
+    textLayout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+  impl_->rt_->DrawTextLayout(
+    D2D1::Point2F(static_cast<FLOAT>(rect.left()), static_cast<FLOAT>(rect.top())),
+    textLayout,
+    impl_->strokeBrush_,
+    D2D1_DRAW_TEXT_OPTIONS_NONE);
+  SafeRelease(textLayout);
 }
 
 WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
 				    bool wordWrap)
 {
-  HRESULT hr = S_OK;
-  std::wstring txt = text;
-  IDWriteTextLayout *textLayout = NULL;
-  hr = impl_->writeFactory_->CreateTextLayout(
-    txt.c_str(),
-    txt.size(),
-    impl_->textFormat_,
-    maxWidth == -1.0 ?
-      std::numeric_limits<FLOAT>::infinity() :
-      static_cast<FLOAT>(maxWidth),
-    std::numeric_limits<FLOAT>::infinity(),
-    &textLayout);
-  DWRITE_TEXT_METRICS textMetrics;
-  hr = textLayout->GetMetrics(&textMetrics);
-  SafeRelease(textLayout);
-  return WTextItem(text, textMetrics.width);
+  return impl_->fontSupport_->measureText(painter()->font(), text, maxWidth, wordWrap);
 }
 
 WFontMetrics WRasterImage::fontMetrics()
 {
-  DWRITE_FONT_METRICS metrics;
-  impl_->font_->GetMetrics(&metrics);
-  double unitsPerEm = metrics.designUnitsPerEm;
-  double ems = impl_->textFormat_->GetFontSize();
-  double pxs = painter()->font().sizeLength().toPixels();
-  double pxsPerEm = pxs / ems;
-  double ascent = metrics.ascent / unitsPerEm * pxsPerEm;
-  double descent = metrics.descent / unitsPerEm * pxsPerEm;
-  double leading = metrics.lineGap / unitsPerEm * pxsPerEm;
-  return WFontMetrics(painter()->font(), leading, ascent, descent);
+  return impl_->fontSupport_->fontMetrics(painter()->font());
 }
 
 class IStreamToOStream : public IStream

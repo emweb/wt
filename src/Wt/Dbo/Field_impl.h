@@ -54,7 +54,7 @@ void FieldRef<V>::bindValue(SqlStatement *statement, int column) const
 }
 
 template <typename V>
-void FieldRef<V>::setValue(Session& session, SqlStatement *statement,
+void FieldRef<V>::setValue(Session& /* session */, SqlStatement *statement,
 			   int column) const
 {
   sql_value_traits<V>::read(value_, statement, column, size_);
@@ -96,8 +96,8 @@ PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name,
 template <class C, class A, class Enable = void>
 struct LoadLazyHelper
 {
-  static void loadLazy(ptr<C>& p, typename dbo_traits<C>::IdType id,
-		       Session *session) { }
+  static void loadLazy(ptr<C>& /* p */, typename dbo_traits<C>::IdType /* id */,
+		       Session * /* session */) { }
 };
 
 template <class C, class A>

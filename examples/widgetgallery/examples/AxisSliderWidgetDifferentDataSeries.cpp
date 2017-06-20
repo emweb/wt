@@ -106,7 +106,7 @@ series->setXSeriesColumn(0);
 series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
 chart->addSeries(std::move(seriesPtr));
 
-chart->axis(Chart::Axis::X).zoomRangeChanged().connect(std::bind([=] () {
+chart->axis(Chart::Axis::X).zoomRangeChanged().connect([=] {
   double minX = chart->axis(Chart::Axis::X).zoomMinimum();
   double maxX = chart->axis(Chart::Axis::X).zoomMaximum();
   /*
@@ -124,7 +124,7 @@ chart->axis(Chart::Axis::X).zoomRangeChanged().connect(std::bind([=] () {
     state->model = std::make_shared<SinModel>(minX, maxX);
     series->setModel(state->model);
   }
-}));
+});
 
 chart->axis(Chart::Axis::X).setMinimumZoomRange(M_PI / 8.0);
 chart->axis(Chart::Axis::X).setMinimum(-3.5);

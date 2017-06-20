@@ -14,13 +14,24 @@
 #include <Wt/Http/Message.h>
 #include <Wt/Http/Method.h>
 
+#include <Wt/Asio/namespace.hpp>
 #include <Wt/Asio/system_error.hpp>
 
 #include <string>
 
-namespace Wt {
+#ifdef WT_ASIO_IS_BOOST_ASIO
+namespace boost {
+  namespace asio {
+    class io_service;
+  }
+}
+#else // WT_ASIO_IS_STANDALONE_ASIO
+namespace asio {
+  class io_service;
+}
+#endif // WT_ASIO_IS_BOOST_ASIO
 
-class WIOService;
+namespace Wt {
 
   /*! \brief Namespace for \ref http handling
    */
@@ -117,7 +128,7 @@ public:
    * useful to use the client outside the context of a web
    * application.
    */
-  Client(WIOService& ioService);
+  Client(Wt::Asio::asio::io_service& ioService);
 
   /*! \brief Destructor.
    *
@@ -430,7 +441,7 @@ public:
   void setMaxRedirects(int maxRedirects);
 
 private:
-  WIOService *ioService_;
+  Wt::Asio::asio::io_service *ioService_;
   class Impl;
   std::shared_ptr<Impl> impl_;
   int timeout_;

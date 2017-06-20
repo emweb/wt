@@ -21,15 +21,15 @@ stopButton->setMargin(5);
 Wt::WText *out =
     container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-playButton->clicked().connect(std::bind([=] () {
+playButton->clicked().connect([=] {
     sound->play();
     out->setText("<p>Beeping started!</p>");
-}));
+});
 
-stopButton->clicked().connect(std::bind([=] () {
+stopButton->clicked().connect([=] {
     sound->stop();
     out->setText("<p>Beeping stopped!</p>");
-}));
+});
 
 SAMPLE_END(return std::move(container))
 

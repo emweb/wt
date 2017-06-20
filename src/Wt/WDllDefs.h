@@ -45,7 +45,9 @@
 #if defined(wthttp_EXPORTS) || defined(wttest_EXPORTS)
   #define WTCONNECTOR_API WT_EXPORT
 #else
-  #ifdef WTHTTP_STATIC
+  #if defined(WTHTTP_STATIC) || defined(WTISAPI_STATIC)
+    // WTISAPI_STATIC is defined when building WTISAPI,
+    // when using ISAPI, the user should also define WTISAPI_STATIC
     #define WTCONNECTOR_API 
   #else
     #define WTCONNECTOR_API WT_IMPORT

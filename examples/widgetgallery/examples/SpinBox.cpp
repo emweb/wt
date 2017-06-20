@@ -23,13 +23,13 @@ Wt::WText *out =
     container->addWidget(Wt::cpp14::make_unique<Wt::WText>(""));
 out->addStyleClass("help-block");
 
-sb->changed().connect(std::bind([=] () {
+sb->changed().connect([=] {
     if (sb->validate() == Wt::ValidationState::Valid) {
         out->setText(Wt::WString("Spin box value changed to {1}")
 		     .arg(sb->text()));
     } else {
         out->setText(Wt::WString("Invalid spin box value!"));
     }
-}));
+});
 
 SAMPLE_END(return std::move(container))

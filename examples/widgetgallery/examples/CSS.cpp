@@ -47,7 +47,7 @@ table->elementAt(4, 0)->addWidget(
 table->elementAt(4, 1)->addWidget(
                         Wt::cpp14::make_unique<Wt::WText>("Toggles a CSS style class"));
 
-allB->clicked().connect(std::bind([=] () {
+allB->clicked().connect([=] {
     // Set style classes for the complete table.
     table->setStyleClass("table table-bordered");
     // Set the info style class for the first row after the header.
@@ -57,14 +57,14 @@ allB->clicked().connect(std::bind([=] () {
         table->elementAt(i,0)->setStyleClass("code");
     removeB->enable();
     toggleB->enable();
-}));
+});
 
-removeB->clicked().connect(std::bind([=] () {
+removeB->clicked().connect([=] {
     table->rowAt(1)->removeStyleClass("info");
     removeB->disable();
-}));
+});
 
-toggleB->clicked().connect(std::bind([=] () {
+toggleB->clicked().connect([=] {
     if (toggleB->text() == "Toggle condensed") {
         table->toggleStyleClass("table-condensed", true);
         toggleB->setText("Toggle expanded");
@@ -72,6 +72,6 @@ toggleB->clicked().connect(std::bind([=] () {
         table->toggleStyleClass("table-condensed", false);
         toggleB->setText("Toggle condensed");
     }
-}));
+});
 
 SAMPLE_END(return std::move(container))

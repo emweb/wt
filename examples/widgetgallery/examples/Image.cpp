@@ -13,11 +13,11 @@ image->setAlternateText("Wt logo");
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->setMargin(10, Wt::Side::Left);
 
-image->clicked().connect(std::bind([=] (const Wt::WMouseEvent& e) {
+image->clicked().connect([=] (const Wt::WMouseEvent& e) {
     out->setText("You clicked the Wt logo at "
                  "(" + std::to_string(e.widget().x) +
                  "," + std::to_string(e.widget().y) +
 		 ").");
-}, std::placeholders::_1));
+});
 
 SAMPLE_END(return std::move(container))

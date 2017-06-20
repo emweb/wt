@@ -33,8 +33,8 @@ Wt::WText *out =
     container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->setStyleClass("xhtml-output");
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->setText("<pre>" + Wt::Utils::htmlEncode(edit->text()) + "</pre>");
-}));
+});
 
 SAMPLE_END(return std::move(container))

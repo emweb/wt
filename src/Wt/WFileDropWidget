@@ -168,7 +168,7 @@ public:
    *
    * This signal is triggered when the widget attempts to upload the file.
    */
-  Signal< File*, ::uint64_t >& tooLarge() { return tooLarge_; }
+  Signal<File*, ::uint64_t>& tooLarge() { return tooLarge_; }
 
   /*! \brief The signal triggers when an upload failed.
    *

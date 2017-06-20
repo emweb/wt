@@ -38,17 +38,17 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
         dialog->footer()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Cancel"));
     dialog->rejectWhenEscapePressed();
 
-    edit->keyWentUp().connect(std::bind([=] () {
+    edit->keyWentUp().connect([=] {
         ok->setDisabled(edit->validate() != Wt::ValidationState::Valid);
-    }));
+    });
 
     /*
      * Accept the dialog
      */
-    ok->clicked().connect(std::bind([=] () {
+    ok->clicked().connect([=] {
         if (edit->validate() == Wt::ValidationState::Valid)
             dialog->accept();
-    }));
+    });
 
     /*
      * Reject the dialog
@@ -58,14 +58,14 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
     /*
      * Process the dialog result.
      */
-    dialog->finished().connect(std::bind([=] () {
+    dialog->finished().connect([=] {
         if (dialog->result() == Wt::DialogCode::Accepted)
 	    out->setText("New location: " + edit->text());
 	else
 	    out->setText("No location selected.");
 
         owner->removeChild(dialog);
-    }));
+    });
 
     dialog->show();
 }
@@ -80,8 +80,8 @@ Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->setStyleClass("help-block");
 
 auto c = container.get();
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
   showDialog(c, out);
-}));
+});
 
 SAMPLE_END(return std::move(container))

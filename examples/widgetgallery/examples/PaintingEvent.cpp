@@ -40,8 +40,8 @@ Wt::WSpinBox *sb =
 sb->setRange(10,200);
 sb->setValue(100);
 
-sb->changed().connect(std::bind([=] () {
+sb->changed().connect([=] {
     painting->setEnd(sb->value());
-}));
+});
 
 SAMPLE_END(return std::move(container))

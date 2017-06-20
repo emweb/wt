@@ -34,11 +34,11 @@ Optionally, you may want to add:
   hashes in the authentication module
 - [Haru PDF library](http://libharu.org) which is used for painting to PDF
 - [GraphicsMagick](http://www.graphicsmagick.org/) which is used for painting
-  to PNG, GIF
+  to PNG, GIF (on Windows, Direct2D can be used instead)
 - [PostgreSQL](http://www.posgresql.org/) for a PostgreSQL backend
 - [Firebird](http://www.firebirdsql.org/) for a Firebird backend
 - [Pango](http://www.pango.org/) for improved font support in PDF and raster
-  image painting
+  image painting (on Windows, DirectWrite can be used instead)
 - [ZLib](http://zlib.net/) for compression in the built-in httpd.
 
 For the FastCGI connector, you also need:

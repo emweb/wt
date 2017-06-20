@@ -29,20 +29,20 @@ text4->setStyleClass("reactive");
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
 // Assign a signal/slot mechanism to the text controls.
-text1->clicked().connect(std::bind([=] () {
+text1->clicked().connect([=] {
     out->setText("<p>Text was clicked.</p>");
-}));
+});
 
-text2->doubleClicked().connect(std::bind([=] () {
+text2->doubleClicked().connect([=] {
     out->setText("<p>Text was double clicked.</p>");
-}));
+});
 
-text3->mouseWentOver().connect(std::bind([=] () {
+text3->mouseWentOver().connect([=] {
     out->setText("<p>Mouse went over text.</p>");
-}));
+});
 
-text4->mouseWentOut().connect(std::bind([=] () {
+text4->mouseWentOut().connect([=] {
     out->setText("<p>Mouse went out text.</p>");
-}));
+});
 
 SAMPLE_END(return std::move(container))

@@ -28,19 +28,19 @@ auto button = form->bindWidget("save", Wt::cpp14::make_unique<Wt::WPushButton>("
 
 auto out = form->bindWidget("out", Wt::cpp14::make_unique<Wt::WText>());
 
-te1->changed().connect(std::bind([=] () {
+te1->changed().connect([=] {
     if (te1->validate() == Wt::ValidationState::Valid) {
       out->setText("Time picker 1 is changed.");
     }
-}));
+});
 
-te2->changed().connect(std::bind([=] () {
+te2->changed().connect([=] {
     if (te2->validate() == Wt::ValidationState::Valid) {
       out->setText("Time picker 2 is changed.");
     }
-}));
+});
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     if (te1->text().empty() || te2->text().empty())
         out->setText("You should enter two times!");
     else {
@@ -54,7 +54,7 @@ button->clicked().connect(std::bind([=] () {
 	     .arg(te1->time().toString())
 	     .arg(te2->time().toString()));
     }  
-}));
+});
 
 SAMPLE_END(return std::move(form))
 

@@ -13,8 +13,8 @@ edit->setPlaceholderText("Edit me");
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>(""));
 out->addStyleClass("help-block");
 
-edit->keyPressed().connect(std::bind([=] (const Wt::WKeyEvent& e) {
+edit->keyPressed().connect([=] (const Wt::WKeyEvent& e) {
     out->setText("You pressed the '" + e.text() + "' key.");
-}, std::placeholders::_1));
+});
 
 SAMPLE_END(return std::move(container))

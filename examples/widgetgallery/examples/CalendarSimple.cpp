@@ -11,7 +11,7 @@ Wt::WCalendar *c1 = container->addWidget(Wt::cpp14::make_unique<Wt::WCalendar>()
 Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
-c1->selectionChanged().connect(std::bind([=] () {
+c1->selectionChanged().connect([=] {
     std::set<Wt::WDate> selection = c1->selection();
     if (selection.size() != 0) {
         Wt::WDate d;
@@ -21,6 +21,6 @@ c1->selectionChanged().connect(std::bind([=] () {
 	out->setText(Wt::WString("<p>That's {1} days until New Year's Day!</p>")
 		     .arg(days));
     }
-}));
+});
 
 SAMPLE_END(return std::move(container))

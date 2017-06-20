@@ -19,9 +19,9 @@ stack->addWidget(Wt::cpp14::make_unique<Wt::WText>("<strong>Stacked widget-index
 stack->addWidget(Wt::cpp14::make_unique<Wt::WText>("<strong>Stacked widget-index 2</strong>"
                                "<p>Do you like it?</p>"));
 
-sb->changed().connect(std::bind([=] () {
+sb->changed().connect([=] {
     if (sb->validate() == Wt::ValidationState::Valid)
 	stack->setCurrentIndex(sb->value());
-}));
+});
 
 SAMPLE_END(return std::move(container))

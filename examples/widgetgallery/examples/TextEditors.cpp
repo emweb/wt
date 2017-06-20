@@ -13,12 +13,12 @@ WLineEdit *out =
     container->addWidget(cpp14::make_unique<WLineEdit>());
 out->setReadOnly(true);
 
-le->keyWentUp().connect(std::bind([=] () {
+le->keyWentUp().connect([=] {
     out->setText("Line edit: key up event");
-}));
+});
 
-le->enterPressed().connect(std::bind([=] () {
+le->enterPressed().connect([=] {
     out->setText("Line edit: enter pressed event");
-}));
+});
 
 SAMPLE_END(return container)

@@ -57,11 +57,11 @@ protected:
 	combo->setCurrentIndex((int)asNumber(index.data(ItemDataRole::User)));
 
 	combo->changed().connect(std::bind(&ComboDelegate::doCloseEditor, this,
-					     container.get(), true));
+					   container.get(), true));
 	combo->enterPressed().connect(std::bind(&ComboDelegate::doCloseEditor,
-					      this, container.get(), true));
+						this, container.get(), true));
 	combo->escapePressed().connect(std::bind(&ComboDelegate::doCloseEditor,
-						   this, container.get(), false));
+						 this, container.get(), false));
 
         return std::move(container);
     }
