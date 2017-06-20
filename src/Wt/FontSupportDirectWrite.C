@@ -27,7 +27,7 @@
 namespace {
 
 // This enum value is not always available when building
-const int WORD_WRAPPING_WHOLE_WORD = 3;
+const DWRITE_WORD_WRAPPING WORD_WRAPPING_WHOLE_WORD = (DWRITE_WORD_WRAPPING)3;
 
 const double EPSILON = 1e-4;
 
