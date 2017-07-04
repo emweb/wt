@@ -53,7 +53,7 @@ ProxyReply::~ProxyReply()
 void ProxyReply::closeClientSocket()
 {
   if (socket_) {
-    Wt::Asio::error_code ignored_ec;
+    Wt::AsioWrapper::error_code ignored_ec;
     socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket_->close();
     socket_.reset();
@@ -222,7 +222,7 @@ void ProxyReply::connectToChild(bool success)
 }
 
 
-void ProxyReply::handleChildConnected(const Wt::Asio::error_code& ec)
+void ProxyReply::handleChildConnected(const Wt::AsioWrapper::error_code& ec)
 {
   if (ec) {
     LOG_ERROR("error connecting to child: " << ec.message());
@@ -329,7 +329,7 @@ void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
 #endif
 }
 
-void ProxyReply::handleDataWritten(const Wt::Asio::error_code &ec,
+void ProxyReply::handleDataWritten(const Wt::AsioWrapper::error_code &ec,
 				   std::size_t transferred)
 {
   if (!ec) {
@@ -353,7 +353,7 @@ void ProxyReply::handleDataWritten(const Wt::Asio::error_code &ec,
   }
 }
 
-void ProxyReply::handleStatusRead(const Wt::Asio::error_code &ec)
+void ProxyReply::handleStatusRead(const Wt::AsioWrapper::error_code &ec)
 {
   if (!ec) {
     std::istream response_stream(&responseBuf_);
@@ -384,7 +384,7 @@ void ProxyReply::handleStatusRead(const Wt::Asio::error_code &ec)
   }
 }
 
-void ProxyReply::handleHeadersRead(const Wt::Asio::error_code &ec)
+void ProxyReply::handleHeadersRead(const Wt::AsioWrapper::error_code &ec)
 {
   if (ec) {
     LOG_ERROR("error reading headers: " << ec.message());
@@ -458,7 +458,7 @@ void ProxyReply::handleHeadersRead(const Wt::Asio::error_code &ec)
   send();
 }
 
-void ProxyReply::handleResponseRead(const Wt::Asio::error_code &ec)
+void ProxyReply::handleResponseRead(const Wt::AsioWrapper::error_code &ec)
 {
   LOG_DEBUG(this << ": async_read done.");
 

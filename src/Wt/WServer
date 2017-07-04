@@ -391,7 +391,7 @@ public:
    */
   WT_API void postAll(const std::function<void ()>& function);
 
-  WT_API void schedule(std::chrono::milliseconds millis,
+  WT_API void schedule(std::chrono::steady_clock::duration millis,
 		       const std::string& sessionId,
 		       const std::function<void ()>& function,
 		       const std::function<void ()>& fallBackFunction

@@ -31,7 +31,7 @@ LOGGER("Auth.OidcService");
     }
 
     httpClient_.reset(new Http::Client());
-    httpClient_->setTimeout(15);
+    httpClient_->setTimeout(std::chrono::seconds{15});
     httpClient_->setMaximumResponseSize(10 * 1024);
 
     httpClient_->done().connect(std::bind(&OidcProcess::handleResponse,
@@ -58,7 +58,7 @@ LOGGER("Auth.OidcService");
     return Identity(providerName, id, name, email, emailVerified);
   }
 
-  void OidcProcess::handleResponse(Wt::Asio::error_code err, const Http::Message& response)
+  void OidcProcess::handleResponse(AsioWrapper::error_code err, const Http::Message& response)
   {
 #ifndef WT_TARGET_JAVA
     WApplication::instance()->resumeRendering();

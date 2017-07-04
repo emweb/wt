@@ -10,7 +10,7 @@
 #include <Wt/WJavaScript.h>
 #include <Wt/Payment/Result.h>
 
-#include <Wt/Asio/system_error.hpp>
+#include <Wt/AsioWrapper/system_error.hpp>
 
 #include <map>
 namespace Wt {
@@ -191,7 +191,7 @@ private:
   std::map<std::string, std::string> parametersMapToMap
   (Http::ParameterMap &map);
 
-  void handleSetup(Wt::Asio::error_code err,
+  void handleSetup(Wt::AsioWrapper::error_code err,
                    const Http::Message& response);
 
   void setToken(const std::string& url);
@@ -204,17 +204,17 @@ private:
   void onRedirect(int result);
 
   void handleInternalPath(const std::string& internalPath);
-  void handleCustomerDetails(Wt::Asio::error_code err,
+  void handleCustomerDetails(Wt::AsioWrapper::error_code err,
                    const Http::Message& response);
   std::string prameterValue(const std::string &parameterName,
                             Http::ParameterMap &params);
   void saveCustomerDetails(Http::ParameterMap &params);
 
-  void handleCompletePayment(Wt::Asio::error_code err,
+  void handleCompletePayment(Wt::AsioWrapper::error_code err,
                              const Http::Message& response);
 
   //test the msg and saves the token.
-  Result testMessage(Wt::Asio::error_code err,
+  Result testMessage(Wt::AsioWrapper::error_code err,
                      const Http::Message& response);
 
   void printMessage(Http::ParameterMap &params) const;

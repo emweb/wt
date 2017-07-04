@@ -7,14 +7,15 @@
 #ifndef WCORE_SERVER_H_
 #define WCORE_SERVER_H_
 
-#include <Wt/Asio/io_service.hpp>
-#include <Wt/Asio/steady_timer.hpp>
-#include <Wt/Asio/strand.hpp>
-#include <Wt/Asio/system_error.hpp>
+#include <Wt/AsioWrapper/io_service.hpp>
+#include <Wt/AsioWrapper/steady_timer.hpp>
+#include <Wt/AsioWrapper/strand.hpp>
+#include <Wt/AsioWrapper/system_error.hpp>
 
 #include <Wt/WDllDefs.h>
 
 #include <chrono>
+#include <functional>
 
 namespace Wt {
 
@@ -25,7 +26,7 @@ class WIOServiceImpl;
  *
  * An I/O service combines (boost::)asio::io_service with a thread pool.
  */
-class WT_API WIOService : public Wt::Asio::asio::io_service
+class WT_API WIOService : public AsioWrapper::asio::io_service
 {
 public:
   /*! \brief Creates a new IO service.
@@ -75,7 +76,7 @@ public:
    * The function will be executed after a time out, specified in
    * milli-seconds, on the thread pool.
    */
-  void schedule(std::chrono::milliseconds millis, const std::function<void()>& function);
+  void schedule(std::chrono::steady_clock::duration millis, const std::function<void()>& function);
 
   /*! \brief Initializes a thread.
    *
@@ -96,9 +97,9 @@ public:
 private:
   WIOServiceImpl *impl_;
   strand strand_;
-  void handleTimeout(Wt::Asio::asio::steady_timer *timer,
+  void handleTimeout(AsioWrapper::asio::steady_timer *timer,
 		     const std::function<void ()>& function,
-		     const Wt::Asio::error_code& e);
+		     const AsioWrapper::error_code& e);
   void run();
 };
 

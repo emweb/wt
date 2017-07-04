@@ -63,7 +63,7 @@ public:
   virtual void getIdentity(const OAuthAccessToken& token) override;
 
 private:
-  void handleResponse(Wt::Asio::error_code err, const Http::Message& response);
+  void handleResponse(AsioWrapper::error_code err, const Http::Message& response);
   Identity parseIdToken(const std::string& idToken);
   Identity parseClaims(const Json::Object& claims);
 

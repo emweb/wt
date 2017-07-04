@@ -5,7 +5,7 @@
  */
 
 // bugfix for https://svn.boost.org/trac/boost/ticket/5722
-#include <Wt/Asio/asio.hpp>
+#include <Wt/AsioWrapper/asio.hpp>
 
 #include "Wt/Http/Client.h"
 #include "Wt/WApplication.h"
@@ -22,7 +22,7 @@
 
 #ifdef WT_WITH_SSL
 
-#include <Wt/Asio/ssl.hpp>
+#include <Wt/AsioWrapper/ssl.hpp>
 
 #define VERIFY_CERTIFICATE
 
@@ -32,11 +32,11 @@
 #define strcasecmp _stricmp
 #endif
 
-using Wt::Asio::asio::ip::tcp;
+using Wt::AsioWrapper::asio::ip::tcp;
 
 namespace Wt {
 
-namespace asio = Asio::asio;
+namespace asio = AsioWrapper::asio;
 
 LOGGER("Http.Client");
 
@@ -67,7 +67,7 @@ public:
 
   virtual ~Impl() { }
 
-  void setTimeout(int timeout) { 
+  void setTimeout(std::chrono::steady_clock::duration timeout) { 
     timeout_ = timeout; 
   }
 
@@ -126,16 +126,16 @@ public:
       (strand_.wrap(std::bind(&Impl::stop, shared_from_this(), impl)));
   }
 
-  Signal<Wt::Asio::error_code, Message>& done() { return done_; }
+  Signal<AsioWrapper::error_code, Message>& done() { return done_; }
   Signal<Message>& headersReceived() { return headersReceived_; }
   Signal<std::string>& bodyDataReceived() { return bodyDataReceived_; }
 
   bool hasServer() { return server_ != nullptr; }
 
 protected:
-  typedef std::function<void(const Wt::Asio::error_code&)>
+  typedef std::function<void(const AsioWrapper::error_code&)>
     ConnectHandler;
-  typedef std::function<void(const Wt::Asio::error_code&,
+  typedef std::function<void(const AsioWrapper::error_code&,
 			     const std::size_t&)> IOHandler;
 
   virtual tcp::socket& socket() = 0;
@@ -156,7 +156,7 @@ private:
 
     try {
       if (socket().is_open()) {
-	Wt::Asio::error_code ignored_ec;
+	AsioWrapper::error_code ignored_ec;
 	socket().shutdown(tcp::socket::shutdown_both, ignored_ec);
 	socket().close();
       }
@@ -170,7 +170,7 @@ private:
 
   void startTimer()
   {
-    timer_.expires_from_now(std::chrono::seconds(timeout_));
+    timer_.expires_from_now(timeout_);
     timer_.async_wait
       (strand_.wrap(std::bind(&Impl::timeout, shared_from_this(),
 			      std::placeholders::_1)));
@@ -183,12 +183,12 @@ private:
     timer_.cancel();
   }
 
-  void timeout(const Wt::Asio::error_code& e)
+  void timeout(const AsioWrapper::error_code& e)
   {
     /* Within strand */
 
     if (e != asio::error::operation_aborted) {
-      Wt::Asio::error_code ignored_ec;
+      AsioWrapper::error_code ignored_ec;
       socket().shutdown(asio::ip::tcp::socket::shutdown_both,
 			ignored_ec);
 
@@ -196,7 +196,7 @@ private:
     }
   }
 
-  void handleResolve(const Wt::Asio::error_code& err,
+  void handleResolve(const AsioWrapper::error_code& err,
 		     tcp::resolver::iterator endpoint_iterator)
   {
     /* Within strand */
@@ -221,7 +221,7 @@ private:
     }
   }
  
-  void handleConnect(const Wt::Asio::error_code& err,
+  void handleConnect(const AsioWrapper::error_code& err,
 		     tcp::resolver::iterator endpoint_iterator)
   {
     /* Within strand */
@@ -239,14 +239,14 @@ private:
       // The connection failed. Try the next endpoint in the list.
       socket().close();
 
-      handleResolve(Wt::Asio::error_code(), endpoint_iterator);
+      handleResolve(AsioWrapper::error_code(), endpoint_iterator);
     } else {
       err_ = err;
       complete();
     }
   }
 
-  void handleHandshake(const Wt::Asio::error_code& err)
+  void handleHandshake(const AsioWrapper::error_code& err)
   {
     /* Within strand */
 
@@ -267,7 +267,7 @@ private:
     }
   }
 
-  void handleWriteRequest(const Wt::Asio::error_code& err,
+  void handleWriteRequest(const AsioWrapper::error_code& err,
 			  const std::size_t&)
   {
     /* Within strand */
@@ -303,7 +303,7 @@ private:
     return true;
   }
 
-  void handleReadStatusLine(const Wt::Asio::error_code& err,
+  void handleReadStatusLine(const AsioWrapper::error_code& err,
 			    const std::size_t& s)
   {
     /* Within strand */
@@ -352,7 +352,7 @@ private:
     }
   }
 
-  void handleReadHeaders(const Wt::Asio::error_code& err,
+  void handleReadHeaders(const AsioWrapper::error_code& err,
 			 const std::size_t& s)
   {
     /* Within strand */
@@ -416,7 +416,7 @@ private:
     }
   }
 
-  void handleReadContent(const Wt::Asio::error_code& err,
+  void handleReadContent(const AsioWrapper::error_code& err,
 			 const std::size_t& s)
   {
     /* Within strand */
@@ -617,13 +617,13 @@ private:
   asio::steady_timer timer_;
   WServer *server_;
   std::string sessionId_;
-  int timeout_;
+  std::chrono::steady_clock::duration timeout_;
   std::size_t maximumResponseSize_, responseSize_;
   bool chunkedResponse_;
   ChunkState chunkState_;
-  Wt::Asio::error_code err_;
+  AsioWrapper::error_code err_;
   Message response_;
-  Signal<Wt::Asio::error_code, Message> done_;
+  Signal<AsioWrapper::error_code, Message> done_;
   Signal<Message> headersReceived_;
   Signal<std::string> bodyDataReceived_;
   bool aborted_;
@@ -652,7 +652,7 @@ protected:
 
   virtual void asyncHandshake(const ConnectHandler& handler) override
   {
-    handler(Wt::Asio::error_code());
+    handler(AsioWrapper::error_code());
   }
 
   virtual void asyncWriteRequest(const IOHandler& handler) override
@@ -801,7 +801,7 @@ void Client::abort()
   }
 }
 
-void Client::setTimeout(int seconds)
+void Client::setTimeout(std::chrono::steady_clock::duration seconds)
 {
   timeout_ = seconds;
 }
@@ -978,7 +978,7 @@ void Client::setMaxRedirects(int maxRedirects)
 }
 
 void Client::handleRedirect(Http::Method method,
-			    Wt::Asio::error_code err,
+			    AsioWrapper::error_code err,
 			    const Message& response, const Message& request)
 {
   if (!impl_) {
@@ -1004,7 +1004,7 @@ void Client::handleRedirect(Http::Method method,
   emitDone(err, response);
 }
 
-void Client::emitDone(Wt::Asio::error_code err, const Message& response)
+void Client::emitDone(AsioWrapper::error_code err, const Message& response)
 {
   impl_.reset();
   redirectCount_ = 0;

@@ -42,7 +42,7 @@ SessionProcess::SessionProcess(asio::io_service &io_service)
 void SessionProcess::closeClientSocket()
 {
   if (socket_.get()) {
-    Wt::Asio::error_code ignored_ec;
+    Wt::AsioWrapper::error_code ignored_ec;
     socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket_->close();
     socket_.reset();
@@ -71,7 +71,7 @@ void SessionProcess::asyncExec(const Configuration &config,
 			       const std::function<void (bool)>& onReady)
 {
   asio::ip::tcp::endpoint endpoint(asio::ip::address_v4::loopback(), 0);
-  Wt::Asio::error_code ec;
+  Wt::AsioWrapper::error_code ec;
   acceptor_->open(endpoint.protocol(), ec);
   if (!ec)
     acceptor_->set_option(asio::ip::tcp::acceptor::reuse_address(true), ec);
@@ -98,7 +98,7 @@ void SessionProcess::asyncExec(const Configuration &config,
   exec(config, onReady);
 }
 
-void SessionProcess::acceptHandler(const Wt::Asio::error_code& err,
+void SessionProcess::acceptHandler(const Wt::AsioWrapper::error_code& err,
 				   const std::function<void (bool)>& onReady)
 {
   if (!err) {
@@ -112,7 +112,7 @@ void SessionProcess::acceptHandler(const Wt::Asio::error_code& err,
   }
 }
 
-void SessionProcess::readPortHandler(const Wt::Asio::error_code& err,
+void SessionProcess::readPortHandler(const Wt::AsioWrapper::error_code& err,
 				     std::size_t transferred,
 				     const std::function<void (bool)>& onReady)
 {

@@ -8,9 +8,15 @@ How to run
 
 See the README in the parent directory.
 
-This example requires the uncompressed IANA time zone data to be installed in
-the directory WT_TZDATA_INSTALL/tzdata. WT_TZDATA_INSTALL is a compile time
-option of Wt, and defaults to '.' (the current working directory).
+This example requires the uncompressed IANA time zone data to be installed.
+
+On Linux or Mac OS X, the time zone information in /usr/share/zoneinfo is
+used, and you don't need to do anything.
+
+On Windows, you can specify the tzdata directory with `date::set_install`.
+This example sets it to `./tzdata`. The default on Windows is in the users's
+Downloads folder: `Downloads/tzdata`. You will also need to add the windowsZones.xml
+file (see http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml).
 
 What it illustrates
 -------------------

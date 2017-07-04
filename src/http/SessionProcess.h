@@ -9,8 +9,8 @@
 
 #include "Wt/WConfig.h"
 
-#include "Wt/Asio/asio.hpp"
-#include "Wt/Asio/system_error.hpp"
+#include "Wt/AsioWrapper/asio.hpp"
+#include "Wt/AsioWrapper/system_error.hpp"
 
 #include "Configuration.h"
 
@@ -21,7 +21,7 @@
 namespace http {
 namespace server {
 
-namespace asio = Wt::Asio::asio;
+namespace asio = Wt::AsioWrapper::asio;
 
 class SessionProcess
   : public std::enable_shared_from_this<SessionProcess>
@@ -59,9 +59,9 @@ public:
 private:
   void exec(const Configuration& config,
 	    const std::function<void (bool)>& onReady);
-  void acceptHandler(const Wt::Asio::error_code& err,
+  void acceptHandler(const Wt::AsioWrapper::error_code& err,
 		     const std::function<void (bool)>& onReady);
-  void readPortHandler(const Wt::Asio::error_code& err,
+  void readPortHandler(const Wt::AsioWrapper::error_code& err,
 		       std::size_t transferred,
 		       const std::function<void (bool)>& onReady);
 

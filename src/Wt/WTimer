@@ -77,13 +77,13 @@ public:
    */
   ~WTimer();
 
-  /*! \brief Returns the interval (msec).
+  /*! \brief Returns the interval
    */
-  std::chrono::milliseconds interval() const { return interval_; }
+  std::chrono::steady_clock::duration interval() const { return interval_; }
 
-  /*! \brief Sets the interval (msec).
+  /*! \brief Sets the interval
    */
-  void setInterval(std::chrono::milliseconds msec);
+  void setInterval(std::chrono::steady_clock::duration interval);
 
   /*! \brief Returns if the timer is running.
    */
@@ -114,7 +114,7 @@ public:
    * \endcode
    */
   template <class T, class V>
-  static void singleShot(std::chrono::milliseconds msec, T *receiver, void (V::*method)());
+  static void singleShot(std::chrono::steady_clock::duration interval, T *receiver, void (V::*method)());
 
   /*! \brief This static function calls a function after a given time interval.
    *
@@ -122,7 +122,7 @@ public:
    * template function object (which supports operator ()).
    */
   template <class F>
-  static void singleShot(std::chrono::milliseconds msec, const F& f);
+  static void singleShot(std::chrono::steady_clock::duration interval, const F& f);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Starts the timer.
@@ -153,7 +153,7 @@ private:
   WTimerWidget *timerWidget_;
 
   bool singleShot_;
-  std::chrono::milliseconds  interval_;
+  std::chrono::steady_clock::duration  interval_;
   bool active_;
   bool timeoutConnected_;
 
@@ -167,17 +167,17 @@ private:
 
 #ifndef WT_TARGET_JAVA
 template <class T, class V>
-void WTimer::singleShot(std::chrono::milliseconds msec, T *receiver, void (V::*method)())
+void WTimer::singleShot(std::chrono::steady_clock::duration interval, T *receiver, void (V::*method)())
 {
-  singleShot(msec, std::bind(method, receiver));
+  singleShot(interval, std::bind(method, receiver));
 }
 
 template <class F>
-void WTimer::singleShot(std::chrono::milliseconds msec, const F& f)
+void WTimer::singleShot(std::chrono::steady_clock::duration interval, const F& f)
 {
   WTimer *timer = new WTimer();
   timer->setSingleShot(true);
-  timer->setInterval(msec);
+  timer->setInterval(interval);
   timer->start();
   timer->timeout().connect(f);
   timer->timeout().connect([=]() { delete timer; });

@@ -17,8 +17,8 @@
 #ifndef HTTP_CONNECTION_HPP
 #define HTTP_CONNECTION_HPP
 
-#include <Wt/Asio/asio.hpp>
-#include <Wt/Asio/steady_timer.hpp>
+#include <Wt/AsioWrapper/asio.hpp>
+#include <Wt/AsioWrapper/steady_timer.hpp>
 
 #include "Buffer.h"
 #include "Reply.h"
@@ -31,7 +31,7 @@
 namespace http {
 namespace server {
 
-namespace asio = Wt::Asio::asio;
+namespace asio = Wt::AsioWrapper::asio;
 
 class ConnectionManager;
 class Server;
@@ -85,15 +85,15 @@ public:
 
 protected:
   void handleWriteResponse0(ReplyPtr reply,
-                            const Wt::Asio::error_code& e,
+                            const Wt::AsioWrapper::error_code& e,
 			    std::size_t bytes_transferred);
   void handleWriteResponse(ReplyPtr reply);
-  void handleReadRequest(const Wt::Asio::error_code& e,
+  void handleReadRequest(const Wt::AsioWrapper::error_code& e,
 			 std::size_t bytes_transferred);
   /// Process read buffer, reading request.
   void handleReadRequest0();
   void handleReadBody0(ReplyPtr reply,
-                       const Wt::Asio::error_code& e,
+                       const Wt::AsioWrapper::error_code& e,
 		       std::size_t bytes_transferred);
 
   void setReadTimeout(int seconds);
@@ -136,7 +136,7 @@ private:
 				       int timeout) = 0;
 
   /// Generic I/O error handling: closes the connection and cancels timers
-  void handleError(const Wt::Asio::error_code& e);
+  void handleError(const Wt::AsioWrapper::error_code& e);
 
   void sendStockReply(Reply::status_type code);
 
@@ -146,7 +146,7 @@ private:
   void cancelReadTimer();
   void cancelWriteTimer();
 
-  void timeout(const Wt::Asio::error_code& e);
+  void timeout(const Wt::AsioWrapper::error_code& e);
   void doTimeout();
 
   /// Timer for reading data.

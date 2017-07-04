@@ -120,6 +120,9 @@ public:
    */
   WMessageResourceBundle();
 
+  WMessageResourceBundle &operator=(const WMessageResourceBundle &) = delete;
+  WMessageResourceBundle(const WMessageResourceBundle &) = delete;
+
   virtual ~WMessageResourceBundle();
 
   /*! \brief Adds a (series) of message resource files to be used.

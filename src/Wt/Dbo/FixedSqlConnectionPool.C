@@ -15,7 +15,6 @@
 #endif // WT_THREADED
 
 #include <iostream>
-#include <memory>
 
 namespace Wt {
   namespace Dbo {

@@ -5,8 +5,8 @@
  */
 
 // bugfix for https://svn.boost.org/trac/boost/ticket/5722
-#include <Wt/Asio/asio.hpp>
-#include <Wt/Asio/system_error.hpp>
+#include <Wt/AsioWrapper/asio.hpp>
+#include <Wt/AsioWrapper/system_error.hpp>
 
 #include "Client.h"
 #include "Message.h"
@@ -23,7 +23,7 @@ namespace {
   bool logged = false;
 }
 
-namespace asio = Asio::asio;
+namespace asio = AsioWrapper::asio;
 		
   namespace Mail {
 
@@ -50,7 +50,7 @@ public:
     tcp::resolver::iterator end;
 
     // Try each endpoint until we successfully establish a connection.
-    Wt::Asio::error_code error = asio::error::host_not_found;
+    AsioWrapper::error_code error = asio::error::host_not_found;
     while (error && endpoint_iterator != end) {
       socket_.close();
       socket_.connect(*endpoint_iterator++, error);

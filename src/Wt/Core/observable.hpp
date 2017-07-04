@@ -7,6 +7,8 @@
 #ifndef WT_CORE_OBSERVABLE_H_
 #define WT_CORE_OBSERVABLE_H_
 
+#include <Wt/WDllDefs.h>
+
 #include <memory>
 #include <functional>
 
@@ -31,7 +33,7 @@ namespace Impl {
  *
  * \sa Signal
  */
-class observable
+class WT_API observable
 {
 public:
   /*! \brief Default constructor.

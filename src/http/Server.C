@@ -22,8 +22,8 @@
 #include "WebUtils.h"
 
 namespace {
-  std::string bindError(Wt::Asio::asio::ip::tcp::endpoint ep,
-			Wt::Asio::system_error e) {
+  std::string bindError(Wt::AsioWrapper::asio::ip::tcp::endpoint ep,
+			Wt::AsioWrapper::system_error e) {
     std::stringstream ss;
     ss << "Error occurred when binding to " 
        << ep.address().to_string() 
@@ -35,7 +35,7 @@ namespace {
   }
 
 #ifdef HTTP_WITH_SSL
-  SSL_CTX *nativeContext(Wt::Asio::asio::ssl::context& context)
+  SSL_CTX *nativeContext(Wt::AsioWrapper::asio::ssl::context& context)
   {
     return context.native_handle();
   }
@@ -145,7 +145,7 @@ void Server::start()
     tcp_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
     try {
       tcp_acceptor_.bind(tcp_endpoint);
-    } catch (Wt::Asio::system_error e) {
+    } catch (Wt::AsioWrapper::system_error e) {
       LOG_ERROR_S(&wt_, bindError(tcp_endpoint, e));
       throw;
     }
@@ -233,7 +233,7 @@ void Server::start()
     ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
     try {
       ssl_acceptor_.bind(ssl_endpoint);
-    } catch (Wt::Asio::system_error e) {
+    } catch (Wt::AsioWrapper::system_error e) {
       LOG_ERROR_S(&wt_, bindError(ssl_endpoint, e);)
       throw;
     }
@@ -309,7 +309,7 @@ void Server::startConnect(const std::shared_ptr<asio::ip::tcp::socket>& socket)
 
 void Server
 ::handleConnected(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-                  const Wt::Asio::error_code& err)
+                  const Wt::AsioWrapper::error_code& err)
 {
   if (!err) {
     std::shared_ptr<std::string> buf
@@ -325,7 +325,7 @@ void Server
 
 void Server
 ::handlePortSent(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-                 const Wt::Asio::error_code& err,
+                 const Wt::AsioWrapper::error_code& err,
 		 const std::shared_ptr<std::string>& /*buf*/)
 {
   if (err) {
@@ -333,7 +333,7 @@ void Server
 		<< err.message());
   }
 
-  Wt::Asio::error_code ignored_ec;
+  Wt::AsioWrapper::error_code ignored_ec;
   if (socket.get()) {
     socket->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket->close();
@@ -371,7 +371,7 @@ void Server::handleResume()
   start();
 }
 
-void Server::handleTcpAccept(const Wt::Asio::error_code& e)
+void Server::handleTcpAccept(const Wt::AsioWrapper::error_code& e)
 {
   if (!e) {
     connection_manager_.start(new_tcpconnection_);
@@ -386,7 +386,7 @@ void Server::handleTcpAccept(const Wt::Asio::error_code& e)
 }
 
 #ifdef HTTP_WITH_SSL
-void Server::handleSslAccept(const Wt::Asio::error_code& e)
+void Server::handleSslAccept(const Wt::AsioWrapper::error_code& e)
 {
   if (!e)
   {
@@ -421,7 +421,7 @@ void Server::handleStop()
   connection_manager_.stopAll();
 }
 
-void Server::expireSessions(Wt::Asio::error_code ec)
+void Server::expireSessions(Wt::AsioWrapper::error_code ec)
 {
   LOG_DEBUG_S(&wt_, "expireSession()" << ec.message());
 

@@ -13,7 +13,7 @@
 
 // #include <system_error> for standalone Asio
 // #include <boost/system/system_error.hpp> for Boost.Asio
-#include <Wt/Asio/system_error.hpp>
+#include <Wt/AsioWrapper/system_error.hpp>
 
 using namespace Wt;
 
@@ -45,7 +45,7 @@ private:
   const Auth::AuthService& baseAuth_;
   std::string redirectParameter_;
 
-  void handleHttpResponse(Wt::Asio::error_code err,
+  void handleHttpResponse(Wt::AsioWrapper::error_code err,
                           const Http::Message& response,
                           Http::Client *client) const;
 };

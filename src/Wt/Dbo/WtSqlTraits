@@ -16,8 +16,6 @@
 #include <Wt/WString.h>
 #include <Wt/cpp17/any.hpp>
 
-#include <Wt/Date/date.h>
-
 #include <Wt/Json/Object.h>
 #include <Wt/Json/Array.h>
 #include <Wt/Json/Parser.h>
@@ -28,6 +26,9 @@
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+      extern void WTDBO_API msecsToHMS(std::chrono::duration<int, std::milli> msecs, int &h, int &m, int &s, int &ms);
+    }
 
 template<>
 struct sql_value_traits<WDate, void>
@@ -156,12 +157,9 @@ inline bool sql_value_traits<WTime, void>
   std::chrono::duration<int, std::milli> t;
  
   if (statement->getResult(column, &t)) {
-    auto time = date::make_time(t);
-    int h = time.hours().count();
-    int m = time.minutes().count();
-    int s = time.seconds().count();
-    std::chrono::duration<int, std::milli> ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.subseconds());
-    if (!v.setHMS (h, m, s, ms.count())) {
+    int h = -1, m = -1, s = -1, ms = -1;
+    Impl::msecsToHMS(t, h, m, s, ms);
+    if (!v.setHMS(h, m, s, ms)) {
       std::cerr << "Wt::Dbo: WTime can only hold durations < 24h"
 		<< std::endl;
       return true;

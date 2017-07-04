@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include <Wt/Asio/asio.hpp>
+#include <Wt/AsioWrapper/asio.hpp>
 
 #ifdef WTHTTP_WITH_ZLIB
 #include <zlib.h>
@@ -40,7 +40,7 @@
 namespace http {
 namespace server {
 
-namespace asio = Wt::Asio::asio;
+namespace asio = Wt::AsioWrapper::asio;
 
 class Configuration;
 class Connection;

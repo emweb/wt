@@ -339,7 +339,7 @@ std::string PayPalExpressCheckout::toString(PaymentAction action)
 }
 
 
-void PayPalExpressCheckout::handleSetup(Wt::Asio::error_code err,
+void PayPalExpressCheckout::handleSetup(AsioWrapper::error_code err,
 					const Http::Message& response)
 {
   Result result;
@@ -453,7 +453,7 @@ Signal<Result>& PayPalExpressCheckout::updateCustomerDetails()
 }
 
 void PayPalExpressCheckout::handleCustomerDetails(
-  Wt::Asio::error_code err,
+  AsioWrapper::error_code err,
   const Http::Message& response)
 {
   Result result;
@@ -547,7 +547,7 @@ Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
 }
 
 void PayPalExpressCheckout::handleCompletePayment(
-  Wt::Asio::error_code err, const Http::Message& response)
+  AsioWrapper::error_code err, const Http::Message& response)
 {
 
   LOG_DEBUG("handleCompletePayment ::Received response: "
@@ -585,7 +585,7 @@ JSignal<int>& PayPalExpressCheckout::redirected()
   return impl_->redirected_;
 }
 
-Result PayPalExpressCheckout::testMessage(Wt::Asio::error_code err,
+Result PayPalExpressCheckout::testMessage(AsioWrapper::error_code err,
                    const Http::Message& response)
 {
   Result result;
@@ -764,7 +764,7 @@ int PayPalService::popupHeight() const
 std::unique_ptr<Http::Client> PayPalService::createHttpClient()
 {
   std::unique_ptr<Http::Client> result(new Http::Client());
-  result->setTimeout(15);
+  result->setTimeout(std::chrono::seconds{15});
   return result;
 }
 

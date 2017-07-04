@@ -238,6 +238,10 @@ std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
 
 int main(int argc, char **argv)
 {
+#if !USE_OS_TZDB
+  date::set_install("./tzdata");
+#endif
+
   timeZones->load();
 
   return Wt::WRun(argc, argv, &createApplication);

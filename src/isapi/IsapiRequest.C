@@ -629,8 +629,8 @@ WSslInfo *IsapiRequest::sslInfo() const {
         std::vector<WSslCertificate> clientCertChain;
 	
         Wt::WValidator::Result
-          clientVerificationResult(invalid ? Wt::WValidator::Invalid
-				   : Wt::WValidator::Valid);
+          clientVerificationResult(invalid ? Wt::ValidationState::Invalid
+				   : Wt::ValidationState::Valid);
 
         return new Wt::WSslInfo(clientCert, 
 			        clientCertChain, 

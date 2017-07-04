@@ -35,7 +35,7 @@ public:
   virtual void getIdentity(const OAuthAccessToken& token) override
   {
     httpClient_.reset(new Http::Client());
-    httpClient_->setTimeout(15);
+    httpClient_->setTimeout(std::chrono::seconds{15});
     httpClient_->setMaximumResponseSize(10*1024);
 
     httpClient_->done().connect
@@ -53,7 +53,7 @@ public:
 private:
   std::unique_ptr<Http::Client> httpClient_;
 
-  void handleMe(Wt::Asio::error_code err, const Http::Message& response)
+  void handleMe(AsioWrapper::error_code err, const Http::Message& response)
   {
 #ifndef WT_TARGET_JAVA
     WApplication::instance()->resumeRendering();

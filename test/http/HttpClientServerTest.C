@@ -167,7 +167,7 @@ namespace {
       return done_;
     }
 
-    void onDone(Wt::Asio::error_code err, const Http::Message& m)
+    void onDone(Wt::AsioWrapper::error_code err, const Http::Message& m)
     {
       std::unique_lock<std::mutex> guard(doneMutex_);
 
@@ -188,7 +188,7 @@ namespace {
     {
     }
 
-    Wt::Asio::error_code err() { return err_; }
+    Wt::AsioWrapper::error_code err() { return err_; }
     const Http::Message& message() { return message_; }
 
   private:
@@ -197,7 +197,7 @@ namespace {
     std::condition_variable doneCondition_;
     std::mutex doneMutex_;
 
-    Wt::Asio::error_code err_;
+    Wt::AsioWrapper::error_code err_;
     Http::Message message_;
   };
 
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( http_client_server_test3 )
     client.get("http://" + server.address() + "/test");
     client.waitDone();
 
-    BOOST_REQUIRE(client.err() == Wt::Asio::asio::error::bad_descriptor);
+    BOOST_REQUIRE(client.err() == Wt::AsioWrapper::asio::error::bad_descriptor);
   }
 
   server.resource().haveMoreData();

@@ -58,7 +58,7 @@ namespace Wt {
 
     template <class Action>
     void field(Action& action, MembershipId& mid, const std::string& name,
-	       int size = -1)
+	       int /*size*/ = -1)
     {
       /*
        * Note: here we ignore name because MembershipId is used only

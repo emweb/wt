@@ -71,7 +71,7 @@ bool SessionProcessManager::tryToIncrementSessionCount()
 #endif // SIGNAL_SET
   // Reap dead children, in case there are dead children,
   // and processDeadChildren hasn't been run yet.
-  processDeadChildren(Wt::Asio::error_code());
+  processDeadChildren(Wt::AsioWrapper::error_code());
 #ifdef WT_THREADED
   std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
@@ -149,7 +149,7 @@ std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
   return result;
 }
 
-void SessionProcessManager::processDeadChildren(Wt::Asio::error_code ec)
+void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
 {
   if (ec) {
 #ifdef WT_ASIO_IS_BOOST_ASIO

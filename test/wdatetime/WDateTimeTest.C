@@ -328,9 +328,8 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WLocalDateTime )
 
   Wt::WLocale loc;
   //loc.setTimeZone("EST-5EDT,M4.1.0,M10.5.0");
-  auto zone = Wt::cpp14::make_unique<date::time_zone>("Zone Unknown -4:00 - LOC",
-                                                      date::detail::undocumented());
-  zone->adjust_infos({});
+  auto zone = Wt::cpp14::make_unique<date::time_zone>(std::chrono::hours{-4},
+						      date::detail::undocumented{});
   loc.setTimeZone(zone.get());
 
   Wt::WLocalDateTime wldt = wdt.toLocalTime(loc);
@@ -350,9 +349,8 @@ BOOST_AUTO_TEST_CASE( WDateTime_testspecial_WLocalDateTime )
   Wt::WDateTime wdt;
 
   Wt::WLocale loc;
-  auto zone = Wt::cpp14::make_unique<date::time_zone>("Zone Unknown -4:00 - LOC",
-                                                      date::detail::undocumented{});
-  zone->adjust_infos({});
+  auto zone = Wt::cpp14::make_unique<date::time_zone>(std::chrono::hours{-4},
+						      date::detail::undocumented{});
   loc.setTimeZone(zone.get());
 
   Wt::WLocalDateTime wldt = wdt.toLocalTime(loc);

@@ -256,35 +256,8 @@ WLocalDateTime WLocalDateTime::currentDateTime(const WLocale& locale)
 
 WLocalDateTime WLocalDateTime::currentTime(std::chrono::minutes offset, const WT_USTRING& format)
 {
-  /*
-   * Fabricate a time zone that reflects the time zone offset.
-   * This is entirely accurate for the 'current' date time.
-   */
-  WStringStream tz;
-  tz << "Zone Unknown "; //Identifier 'Zone' is needed followed by Name of zone
-  if (offset < std::chrono::minutes::zero()) {
-    offset = -offset;
-    tz << '-';
-  }
-
-  WTime t(0, 0, 0);
-  t = t.addSecs(std::chrono::seconds{offset}.count());
-  tz << t.hour();
-  if (t.minute() != 0)
-    tz << ':' << t.minute();
-  else
-    tz << ":00";
-  if(t.second() != 0)
-    tz << ':' << t.second();
-
-  tz << " - "; //Rules
-  tz << "LOC"; //Format
-
-  //Zone expects a string in the form "Zone [name_zone] [offset_zone] [rule] [format]"
-  std::shared_ptr<date::time_zone> z = std::make_shared<date::time_zone>(tz.str(),
-                                                                         date::detail::undocumented());
-  z->adjust_infos({});
-    
+  std::shared_ptr<date::time_zone> z =
+      std::make_shared<date::time_zone>(offset, date::detail::undocumented());
   return WLocalDateTime(std::chrono::system_clock::now(), z, format);
 }
 

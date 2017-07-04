@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <mutex>
 
 #include <Wt/WServer>
 #include <Wt/WResource>
@@ -353,8 +352,10 @@ int main(int argc, char** argv) {
       std::cerr << "Shutdown (signal = " << sig << ")" << std::endl;
       server.stop();
 
+#ifndef WT_WIN32
       if (sig == SIGHUP)
         Wt::WServer::restart(argc, argv, environ);
+#endif // WT_WIN32
     }
   } catch (Wt::WServer::Exception& e) {
     std::cerr << e.what() << "\n";

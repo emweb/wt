@@ -7,12 +7,14 @@
 #ifndef WT_CORE_OBSERVING_PTR_H_
 #define WT_CORE_OBSERVING_PTR_H_
 
+#include <Wt/WDllDefs.h>
+
 namespace Wt { namespace Core {
 
 class observable;
 
 namespace Impl {
-  struct observing_ptr_base
+  struct WT_API observing_ptr_base
   {
     observing_ptr_base();
     ~observing_ptr_base();

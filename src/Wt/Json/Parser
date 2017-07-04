@@ -23,7 +23,7 @@ class Array;
  *
  * \ingroup json
  */
-class ParseError : public WException
+class WT_API ParseError : public WException
 {
 public:
   ParseError();

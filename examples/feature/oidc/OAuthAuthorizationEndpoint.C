@@ -24,8 +24,8 @@ OAuthAuthorizationEndpoint::OAuthAuthorizationEndpoint(const Wt::WEnvironment& e
   authwidget->processEnvironment();
 
   process_ = Wt::cpp14::make_unique<Wt::Auth::OAuthAuthorizationEndpointProcess>(
-      session->login(),
-      session->users());
+      session_->login(),
+      session_->users());
   process_->authorized().connect(
       process_.get(),
       &Wt::Auth::OAuthAuthorizationEndpointProcess::authorizeScope);

@@ -4,7 +4,7 @@ INSTALL_FILES(/include/Wt "^W.*[^C~]$")
 INSTALL_FILES(/include/Wt "^Date$")
 INSTALL_FILES(/include/Wt "^Utils([.]h)?$")
 INSTALL_FILES(/include/Wt "^cpp17$")
-INSTALL_FILES(/include/Wt "^Asio$")
+INSTALL_FILES(/include/Wt "^AsioWrapper$")
 #INSTALL(
 #  FILES
 #    "^W.*[^C~]$"

@@ -58,7 +58,7 @@ void SslConnection::start()
 				     std::placeholders::_1)));
 }
 
-void SslConnection::handleHandshake(const Wt::Asio::error_code& error)
+void SslConnection::handleHandshake(const Wt::AsioWrapper::error_code& error)
 {
   SSL* ssl = socket_.native_handle();
 
@@ -101,7 +101,7 @@ void SslConnection::stop()
 				    std::placeholders::_1)));
 }
 
-void SslConnection::stopNextLayer(const Wt::Asio::error_code& ec)
+void SslConnection::stopNextLayer(const Wt::AsioWrapper::error_code& ec)
 {
   // We may get here either because of sslShutdownTimer_ timing out, or because
   // shutdown is complete. In both cases, closing next layer socket is the thing to do.
@@ -113,14 +113,14 @@ void SslConnection::stopNextLayer(const Wt::Asio::error_code& ec)
   }
   try {
     if (socket().is_open()) {
-      Wt::Asio::error_code ignored_ec;
+      Wt::AsioWrapper::error_code ignored_ec;
       LOG_DEBUG(socket().native() << ": socket shutdown");
       socket().shutdown(asio::ip::tcp::socket::shutdown_both, 
 			ignored_ec);
       LOG_DEBUG(socket().native() << "closing socket");
       socket().close();
     }
-  } catch (Wt::Asio::system_error& e) {
+  } catch (Wt::AsioWrapper::system_error& e) {
     LOG_DEBUG(socket().native() << ": error " << e.what());
   }
 }
@@ -144,7 +144,7 @@ void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 				     std::placeholders::_2)));
 }
 
-void SslConnection::handleReadRequestSsl(const Wt::Asio::error_code& e,
+void SslConnection::handleReadRequestSsl(const Wt::AsioWrapper::error_code& e,
                                          std::size_t bytes_transferred)
 {
   // Asio SSL does not perform a write until the read handler
@@ -182,7 +182,7 @@ void SslConnection::startAsyncReadBody(ReplyPtr reply,
 }
 
 void SslConnection::handleReadBodySsl(ReplyPtr reply,
-                                      const Wt::Asio::error_code& e,
+                                      const Wt::AsioWrapper::error_code& e,
                                       std::size_t bytes_transferred)
 {
   // See handleReadRequestSsl for explanation

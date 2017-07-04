@@ -346,9 +346,9 @@ int sizeofFunction(const std::string[]);
 
 extern long stol(const std::string& v);
 extern unsigned long stoul(const std::string& v);
-extern long long stoll(const std::string& v);
+extern long long WT_API stoll(const std::string& v);
 extern unsigned long long stoull(const std::string& v);
-extern int stoi(const std::string& v);
+extern int WT_API stoi(const std::string& v);
 extern double stod(const std::string& v);
 extern float stof(const std::string& v);
 

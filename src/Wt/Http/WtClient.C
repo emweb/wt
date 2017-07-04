@@ -4,19 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Asio/asio.hpp"
-#include "Wt/Asio/system_error.hpp"
+#include "Wt/AsioWrapper/asio.hpp"
+#include "Wt/AsioWrapper/system_error.hpp"
 #include "Wt/Http/WtClient.h"
 #include "Wt/WException.h"
 
 #include <sstream>
 #include <regex>
 
-using Wt::Asio::asio::ip::tcp;
+using Wt::AsioWrapper::asio::ip::tcp;
 
 namespace Wt {
 
-namespace asio = Asio::asio;
+namespace asio = AsioWrapper::asio;
 
   namespace Http {
 
@@ -48,7 +48,7 @@ namespace {
 
     // Try each endpoint until we successfully establish a connection.
     tcp::socket socket(io_service);
-    Wt::Asio::error_code error = asio::error::host_not_found;
+    Wt::AsioWrapper::error_code error = asio::error::host_not_found;
     while (error && endpoint_iterator != end) {
       socket.close();
       socket.connect(*endpoint_iterator++, error);
@@ -104,7 +104,7 @@ namespace {
 	  content << &response;
 
       if (error != asio::error::eof)
-	throw Wt::Asio::system_error(error);
+	throw Wt::AsioWrapper::system_error(error);
 
       if (result)
 	*result = content.str();

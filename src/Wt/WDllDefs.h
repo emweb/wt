@@ -77,4 +77,18 @@ typedef unsigned __int32 uint32_t;  /* 32 bit unsigned */
 #include <stdint.h>
 #endif // _MSC_VER
 
+#ifdef wt_EXPORTS
+  #define DATE_BUILD_DLL
+#else
+  #ifdef WT_STATIC
+    #define DATE_BUILD_LIB
+  #endif
+#endif
+
+#ifdef WT_WIN32
+#define USE_OS_TZDB 0
+#else
+#define USE_OS_TZDB 1
+#endif
+
 #endif // DLLDEFS_H_

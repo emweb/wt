@@ -194,9 +194,13 @@ public:
    */
   WCssStyleSheet();
 
+  WCssStyleSheet(const WCssStyleSheet &) = delete;
+  WCssStyleSheet& operator=(const WCssStyleSheet &) = delete;
+
   /*! \brief Destroys a style sheet, and all rules in it.
    */
   ~WCssStyleSheet();
+
 
   /*! \brief Adds a CSS rule.
    *

@@ -131,9 +131,9 @@ protected:
 private:
   void sendResponse(const std::string& param);
   int authCodeExpSecs_;
-  const std::string *redirectUri_;
-  const std::string *state_;
-  const std::string *scope_;
+  std::string redirectUri_;
+  std::string state_;
+  std::string scope_;
   OAuthClient client_;
   bool validRequest_;
   Login& login_;

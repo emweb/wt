@@ -43,11 +43,11 @@ void TcpConnection::stop()
   finishReply();
 
   try {
-    Wt::Asio::error_code ignored_ec;
+    Wt::AsioWrapper::error_code ignored_ec;
     socket_.shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     LOG_DEBUG(socket().native() << ": closing socket");
     socket_.close();
-  } catch (Wt::Asio::system_error& e) {
+  } catch (Wt::AsioWrapper::system_error& e) {
     LOG_DEBUG(socket().native() << ": error " << e.what());
   }
 

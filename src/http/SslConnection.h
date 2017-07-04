@@ -19,7 +19,7 @@
 
 #ifdef HTTP_WITH_SSL
 
-#include "Wt/Asio/ssl.hpp"
+#include "Wt/AsioWrapper/ssl.hpp"
 
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -61,12 +61,12 @@ protected:
        int timeout) override;
 
 private:
-  void handleReadRequestSsl(const Wt::Asio::error_code& e,
+  void handleReadRequestSsl(const Wt::AsioWrapper::error_code& e,
                             std::size_t bytes_transferred);
-  void handleReadBodySsl(ReplyPtr reply, const Wt::Asio::error_code& e,
+  void handleReadBodySsl(ReplyPtr reply, const Wt::AsioWrapper::error_code& e,
                          std::size_t bytes_transferred);
-  void handleHandshake(const Wt::Asio::error_code& error);
-  void stopNextLayer(const Wt::Asio::error_code& ec);
+  void handleHandshake(const Wt::AsioWrapper::error_code& error);
+  void stopNextLayer(const Wt::AsioWrapper::error_code& ec);
 
   /// Socket for the connection.
   ssl_socket socket_;

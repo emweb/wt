@@ -187,7 +187,7 @@ bool WServer::start()
     return true;
 #endif // WT_THREADED
 
-  } catch (Wt::Asio::system_error& e) {
+  } catch (Wt::AsioWrapper::system_error& e) {
     throw Exception(std::string("Error (asio): ") + e.what());
   } catch (std::exception& e) {
     throw Exception(std::string("Error: ") + e.what());
@@ -230,7 +230,7 @@ void WServer::stop()
 
     delete impl_->server_;
     impl_->server_ = 0;
-  } catch (Wt::Asio::system_error& e) {
+  } catch (Wt::AsioWrapper::system_error& e) {
     throw Exception(std::string("Error (asio): ") + e.what());
   } catch (std::exception& e) {
     throw Exception(std::string("Error: ") + e.what());

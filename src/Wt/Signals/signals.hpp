@@ -13,6 +13,7 @@
 
 #include <Wt/Core/observable.hpp>
 #include <Wt/Core/observing_ptr.hpp>
+#include <Wt/WDllDefs.h>
 
 #include <cassert>
 #include <cstdint>
@@ -23,7 +24,7 @@ namespace Wt { namespace Signals { namespace Impl {
 
 class Connection;
 
-class SignalLinkBase
+class WT_API SignalLinkBase
 {
 public:
   SignalLinkBase();
@@ -42,7 +43,7 @@ protected:
   friend class Connection;
 };
 
-class Connection
+class WT_API Connection
 {
 public:
   Connection();

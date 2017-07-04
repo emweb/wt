@@ -27,7 +27,6 @@ IF(ENABLE_LIBWTTEST)
     utf8/XmlTest.C
     utils/Base64Test.C
     utils/EraseWord.C
-    wdatetime/WDateTimeTest.C
     widgets/WSpinBoxTest.C
     length/WLengthTest.C
     color/WColorTest.C
@@ -37,6 +36,7 @@ IF(ENABLE_LIBWTTEST)
     trampoline/RefEncoder.C
     testenvironment/TestEnvironmentTest.C
     signals/SignalTest.C
+    wdatetime/WDateTimeTest.C
   )
 
   IF (WT_HAS_WRASTERIMAGE)
@@ -53,7 +53,7 @@ IF(ENABLE_LIBWTTEST)
 	SET_TARGET_PROPERTIES(test.wt PROPERTIES FOLDER "test")
   ENDIF(MSVC)
 
-  TARGET_LINK_LIBRARIES(test.wt wt wttest ${BOOST_FS_LIB})
+  TARGET_LINK_LIBRARIES(test.wt wt wttest ${BOOST_FS_LIB} ${CMAKE_THREAD_LIBS_INIT})
 
   IF(ENABLE_LIBWTDBO)
     # Test all dbo backends

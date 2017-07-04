@@ -215,7 +215,7 @@ void WServer::postAll(const std::function<void ()>& function)
   }
 }
 
-void WServer::schedule(std::chrono::milliseconds millis,
+void WServer::schedule(std::chrono::steady_clock::duration millis,
 		       const std::string& sessionId,
 		       const std::function<void ()>& function,
 		       const std::function<void ()>& fallbackFunction)

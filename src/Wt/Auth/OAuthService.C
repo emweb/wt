@@ -326,7 +326,7 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
      << "&code=" << authorizationCode;
 
   httpClient_.reset(new Http::Client());
-  httpClient_->setTimeout(15);
+  httpClient_->setTimeout(std::chrono::seconds{15});
   httpClient_->done().connect
     (this, std::bind(&OAuthProcess::handleToken, this,
 		     std::placeholders::_1, std::placeholders::_2));
@@ -365,7 +365,7 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
   }
 }
 
-void OAuthProcess::handleToken(Wt::Asio::error_code err,
+void OAuthProcess::handleToken(AsioWrapper::error_code err,
 			       const Http::Message& response)
 {
   if (!err)

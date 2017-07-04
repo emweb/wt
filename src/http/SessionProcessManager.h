@@ -12,7 +12,7 @@
 #include "SessionProcess.h"
 #include "Wt/WServer.h"
 
-#include "Wt/Asio/steady_timer.hpp"
+#include "Wt/AsioWrapper/steady_timer.hpp"
 
 namespace http {
 namespace server {
@@ -41,7 +41,7 @@ public:
   std::vector<Wt::WServer::SessionInfo> sessions() const;
 
 private:
-  void processDeadChildren(Wt::Asio::error_code ec);
+  void processDeadChildren(Wt::AsioWrapper::error_code ec);
 #ifndef WT_WIN32
   void removeSessionForPid(pid_t cpid);
 #endif

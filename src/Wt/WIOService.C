@@ -20,7 +20,7 @@
 
 namespace Wt {
 
-  namespace asio = Wt::Asio::asio;
+  namespace asio = AsioWrapper::asio;
 
 LOGGER("WIOService");
 
@@ -122,7 +122,7 @@ void WIOService::post(const std::function<void ()>& function)
   schedule(std::chrono::milliseconds{0}, function);
 }
 
-void WIOService::schedule(std::chrono::milliseconds millis, const std::function<void()>& function)
+void WIOService::schedule(std::chrono::steady_clock::duration millis, const std::function<void()>& function)
 {
   if (millis.count() == 0)
     strand_.post(function); // guarantees execution order
@@ -137,7 +137,7 @@ void WIOService::schedule(std::chrono::milliseconds millis, const std::function<
 
 void WIOService::handleTimeout(asio::steady_timer *timer,
 			       const std::function<void ()>& function,
-			       const Wt::Asio::error_code& e)
+			       const AsioWrapper::error_code& e)
 {
   if (!e)
     function();

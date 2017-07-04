@@ -14,9 +14,10 @@
 #include <Wt/Http/Message.h>
 #include <Wt/Http/Method.h>
 
-#include <Wt/Asio/namespace.hpp>
-#include <Wt/Asio/system_error.hpp>
+#include <Wt/AsioWrapper/namespace.hpp>
+#include <Wt/AsioWrapper/system_error.hpp>
 
+#include <chrono>
 #include <string>
 
 #ifdef WT_ASIO_IS_BOOST_ASIO
@@ -78,7 +79,7 @@ namespace Wt {
  * \code
  *    ...
  *    Http::Client *client = new Http::Client(this);
- *    client->setTimeout(15);
+ *    client->setTimeout(std::chrono::seconds{15});
  *    client->setMaximumResponseSize(10 * 1024);
  *    client->done().connect(std::bind(&MyWidget::handleHttpResponse, this, _1, _2));
  *    if (client->get("http://www.webtoolkit.eu/wt/blog/feed/"))
@@ -128,7 +129,7 @@ public:
    * useful to use the client outside the context of a web
    * application.
    */
-  Client(Wt::Asio::asio::io_service& ioService);
+  Client(Wt::AsioWrapper::asio::io_service& ioService);
 
   /*! \brief Destructor.
    *
@@ -146,13 +147,13 @@ public:
    *
    * The default timeout is 10 seconds.
    */
-  void setTimeout(int seconds);
+  void setTimeout(std::chrono::steady_clock::duration seconds);
 
   /*! \brief Returns the I/O timeout.
    *
    * \sa setTimeout()
    */
-  int timeout() const { return timeout_; }
+  std::chrono::steady_clock::duration timeout() const { return timeout_; }
 
   /*! \brief Sets a maximum response size.
    *
@@ -348,7 +349,7 @@ public:
    *
    * Typical code to process the result is:
    * \code
-   * void handle(Wt::Asio::error_code err, const Http::Message& response)
+   * void handle(Wt::AsioWrapper::error_code err, const Http::Message& response)
    * {
    *   if (!err) {
    *     if (response.status() == 200) {
@@ -360,7 +361,7 @@ public:
    * }
    * \endcode
    */
-  Signal<Wt::Asio::error_code, Message>& done() {
+  Signal<Wt::AsioWrapper::error_code, Message>& done() {
     return done_;
   }
 
@@ -441,14 +442,14 @@ public:
   void setMaxRedirects(int maxRedirects);
 
 private:
-  Wt::Asio::asio::io_service *ioService_;
+  Wt::AsioWrapper::asio::io_service *ioService_;
   class Impl;
   std::shared_ptr<Impl> impl_;
-  int timeout_;
+  std::chrono::steady_clock::duration timeout_;
   std::size_t maximumResponseSize_;
   bool verifyEnabled_;
   std::string verifyFile_, verifyPath_;
-  Signal<Wt::Asio::error_code, Message> done_;
+  Signal<Wt::AsioWrapper::error_code, Message> done_;
   Signal<Message> headersReceived_;
   Signal<std::string> bodyDataReceived_;
   bool followRedirect_;
@@ -458,10 +459,10 @@ private:
   class TcpImpl;
   class SslImpl;
 
-  void handleRedirect(Http::Method method, Wt::Asio::error_code err,
+  void handleRedirect(Http::Method method, Wt::AsioWrapper::error_code err,
 		      const Message& response, const Message& request);
 
-  void emitDone(Wt::Asio::error_code err, const Message& response);
+  void emitDone(Wt::AsioWrapper::error_code err, const Message& response);
   void emitHeadersReceived(const Message& response);
   void emitBodyReceived(const std::string& data);
 };

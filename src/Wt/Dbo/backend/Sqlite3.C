@@ -24,6 +24,22 @@
 #define DEBUG(x)
 #define USEC_PER_DAY (24.0 * 60 * 60 * 1000 * 1000)
 
+namespace {
+#ifndef WT_WIN32
+  thread_local std::tm local_tm;
+#endif
+
+  std::tm *thread_local_gmtime(const time_t *timep)
+  {
+#ifdef WT_WIN32
+    return std::gmtime(timep); // Already returns thread-local pointer
+#else // !WT_WIN32
+    gmtime_r(timep, &local_tm);
+    return &local_tm;
+#endif // WT_WIN32
+  }
+}
+
 namespace Wt {
   namespace Dbo {
     namespace backend {
@@ -148,7 +164,7 @@ public:
   {
     std::chrono::system_clock::time_point tp(value);
     std::time_t t = std::chrono::system_clock::to_time_t(tp);
-    std::tm *tm = std::gmtime(&t);
+    std::tm *tm = thread_local_gmtime(&t);
     char mbstr[100];
     std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
     std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
@@ -170,7 +186,7 @@ public:
   {
     DateTimeStorage storageType = db_.dateTimeStorage(type);
     std::time_t t = std::chrono::system_clock::to_time_t(value);
-    std::tm *tm = std::gmtime(&t);
+    std::tm *tm = thread_local_gmtime(&t);
     std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch());
 
     switch (storageType) {
@@ -219,7 +235,7 @@ public:
       std::chrono::system_clock::time_point tpEpoch = std::chrono::system_clock::from_time_t(tEpoch);
       std::chrono::system_clock::time_point diff = std::chrono::system_clock::time_point(value - tpEpoch);
       std::time_t tdiff = std::chrono::system_clock::to_time_t(diff);
-      std::tm *tmDiff = std::gmtime(&tdiff);
+      std::tm *tmDiff = thread_local_gmtime(&tdiff);
       std::chrono::milliseconds millis = std::chrono::duration_cast<std::chrono::milliseconds>(diff.time_since_epoch());
       bind(column,
 	   static_cast<long long>
@@ -481,7 +497,7 @@ public:
 	std::chrono::system_clock::from_time_t(static_cast<std::time_t>(v));
       if (type == SqlDateTimeType::Date){
         std::time_t t = std::chrono::system_clock::to_time_t(tp);
-        std::tm *tm = std::gmtime(&t);
+        std::tm *tm = thread_local_gmtime(&t);
         std::tm time = std::tm();
         time.tm_year = tm->tm_year;
         time.tm_mon = tm->tm_mon;

@@ -17,7 +17,7 @@
 #include <Wt/Http/Message.h>
 #include <Wt/Http/Method.h>
 
-#include <Wt/Asio/system_error.hpp>
+#include <Wt/AsioWrapper/system_error.hpp>
 
 namespace Wt {
   namespace Auth {
@@ -336,7 +336,7 @@ private:
   std::unique_ptr<Http::Client> httpClient_;
 
   void requestToken(const std::string& authorizationCode);
-  void handleToken(Wt::Asio::error_code err,
+  void handleToken(AsioWrapper::error_code err,
 		   const Http::Message& response);
   OAuthAccessToken parseUrlEncodedToken(const Http::Message& response);
   OAuthAccessToken parseJsonToken(const Http::Message& response);

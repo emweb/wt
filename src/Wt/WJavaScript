@@ -479,12 +479,12 @@ void unMarshal(const JavaScriptEvent& jse, int argi, T& t) {
                      << typeid(T).name() << "'";
 }
 
-extern void unMarshal(const JavaScriptEvent &jse, int argi, std::string& s);
-extern void unMarshal(const JavaScriptEvent& jse, int argi, WString& s);
-extern void unMarshal(const JavaScriptEvent& jse, int argi, NoClass& nc);
-extern void unMarshal(const JavaScriptEvent& jse, int, WMouseEvent& e);
-extern void unMarshal(const JavaScriptEvent& jse, int, WKeyEvent& e);
-extern void unMarshal(const JavaScriptEvent& jse, int, WTouchEvent& e);
+extern WT_API void unMarshal(const JavaScriptEvent &jse, int argi, std::string& s);
+extern WT_API void unMarshal(const JavaScriptEvent& jse, int argi, WString& s);
+extern WT_API void unMarshal(const JavaScriptEvent& jse, int argi, NoClass& nc);
+extern WT_API void unMarshal(const JavaScriptEvent& jse, int, WMouseEvent& e);
+extern WT_API void unMarshal(const JavaScriptEvent& jse, int, WKeyEvent& e);
+extern WT_API void unMarshal(const JavaScriptEvent& jse, int, WTouchEvent& e);
 
 /*
  * Recursive functions to unmarshal all arguments to a tuple

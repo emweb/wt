@@ -78,15 +78,15 @@ private:
 
   /// Connected to the parent, sends the listening port back
   void handleConnected(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-                       const Wt::Asio::error_code& e);
+                       const Wt::AsioWrapper::error_code& e);
 
   /// The port has been sent to the parent, close the socket.
   void handlePortSent(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-                      const Wt::Asio::error_code& e,
+                      const Wt::AsioWrapper::error_code& e,
 		      const std::shared_ptr<std::string>& /* buf */);
 
   /// Handle completion of an asynchronous accept operation.
-  void handleTcpAccept(const Wt::Asio::error_code& e);
+  void handleTcpAccept(const Wt::AsioWrapper::error_code& e);
 
   /// Handle a request to stop the server.
   void handleStop();
@@ -95,7 +95,7 @@ private:
   void handleResume();
 
   /// Expire sessions periodically for dedicated processes
-  void expireSessions(Wt::Asio::error_code ec);
+  void expireSessions(Wt::AsioWrapper::error_code ec);
 
   /// The server's configuration
   Configuration config_;
@@ -120,7 +120,7 @@ private:
   asio::ip::tcp::acceptor ssl_acceptor_;
 
   /// Handle completion of an asynchronous SSL accept operation.
-  void handleSslAccept(const Wt::Asio::error_code& e);
+  void handleSslAccept(const Wt::AsioWrapper::error_code& e);
 
   /// The next SSL connection to be accepted.
   SslConnectionPtr new_sslconnection_;
@@ -128,7 +128,7 @@ private:
 
 void handleTimeout(asio::steady_timer *timer,
 		   const std::function<void ()>& function,
-                   const Wt::Asio::error_code& err);
+                   const Wt::AsioWrapper::error_code& err);
 
   /// The connection manager which owns all live connections.
   ConnectionManager connection_manager_;

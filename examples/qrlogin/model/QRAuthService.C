@@ -114,7 +114,7 @@ void QRAuthService::remoteLogin(QRTokenDatabase& database,
 
   if (!url.empty()) {
     Http::Client *client = new Http::Client();
-    client->setTimeout(15);
+    client->setTimeout(std::chrono::seconds{15});
     client->setMaximumResponseSize(1024);
     client->done().connect(std::bind(&QRAuthService::handleHttpResponse,
                                        this, std::placeholders::_1, std::placeholders::_2, client));
@@ -122,7 +122,7 @@ void QRAuthService::remoteLogin(QRTokenDatabase& database,
   }
 }
 
-void QRAuthService::handleHttpResponse(Wt::Asio::error_code err,
+void QRAuthService::handleHttpResponse(Wt::AsioWrapper::error_code err,
 				       const Http::Message& response,
 				       Http::Client *client) const
 {

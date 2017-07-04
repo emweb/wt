@@ -10,11 +10,13 @@
 #include "Wt/Dbo/Exception.h"
 
 #include <cstdio>
+#include <ctime>
 #include <iostream>
 #include <sstream>
 
 #ifdef WT_WIN32
 #define snprintf _snprintf
+#define timegm _mkgmtime
 #endif
 
 //#define DEBUG(x) x
@@ -27,6 +29,22 @@
   std::cerr << this << " getResult " << x << " " << y << std::endl;
 
 #include <ibpp.h>
+
+namespace {
+#ifndef WT_WIN32
+  thread_local std::tm local_tm;
+#endif
+
+  std::tm *thread_local_gmtime(const time_t *timep)
+  {
+#ifdef WT_WIN32
+    return std::gmtime(timep); // Already returns thread-local pointer
+#else // !WT_WIN32
+    gmtime_r(timep, &local_tm);
+    return &local_tm;
+#endif // WT_WIN32
+  }
+}
 
 namespace Wt
 {
@@ -148,7 +166,7 @@ namespace Wt
     {
       std::chrono::system_clock::time_point tp(value);
       std::time_t time = std::chrono::system_clock::to_time_t(tp);
-      std::tm *tm = std::gmtime(&time);
+      std::tm *tm = thread_local_gmtime(&time);
       char mbstr[100];
       std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
       DEBUG(bindErr(column, mbstr));
@@ -167,7 +185,7 @@ namespace Wt
 			  SqlDateTimeType type) override
 	{
       std::time_t t = std::chrono::system_clock::to_time_t(value);
-      std::tm *tm = std::gmtime(&t);
+      std::tm *tm = thread_local_gmtime(&t);
       char mbstr[100];
       std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
       DEBUG(bindErr(column, mbstr));

@@ -27,6 +27,22 @@
 #define DEBUG(x)
 //#define DEBUG(x) x
 
+namespace {
+#ifndef WT_WIN32
+  thread_local std::tm local_tm;
+#endif
+
+  std::tm *thread_local_gmtime(const time_t *timep)
+  {
+#ifdef WT_WIN32
+    return std::gmtime(timep); // Already returns thread-local pointer
+#else // !WT_WIN32
+    gmtime_r(timep, &local_tm);
+    return &local_tm;
+#endif // WT_WIN32
+  }
+}
+
 namespace Wt {
   namespace Dbo {
     namespace backend {
@@ -244,7 +260,7 @@ class MySQLStatement final : public SqlStatement
         throw MySQLException(std::string("Try to bind too much?"));
 
       std::time_t t = std::chrono::system_clock::to_time_t(value);
-      std::tm *tm = std::gmtime(&t);
+      std::tm *tm = thread_local_gmtime(&t);
       char mbstr[100];
       std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
       DEBUG(std::cerr << this << " bind " << column << " "
@@ -289,7 +305,7 @@ class MySQLStatement final : public SqlStatement
 
       std::chrono::system_clock::time_point tp(value);
       std::time_t t = std::chrono::system_clock::to_time_t(tp);
-      std::tm *tm = std::gmtime(&t);
+      std::tm *tm = thread_local_gmtime(&t);
       char mbstr[100];
       std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
       DEBUG(std::cerr << this << " bind " << column << " "
