@@ -10,7 +10,7 @@ ELSE(NOT MULTI_THREADED_BUILD)
    CoderApplication.C CodeSession.C CoderWidget.C ObserverWidget.C
  )
 
- TARGET_LINK_LIBRARIES(codingview.wt ${BOOST_THREAD_LIB})
+ TARGET_LINK_LIBRARIES(codingview.wt ${BOOST_THREAD_LIB} ${CMAKE_THREAD_LIBS_INIT})
 
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 

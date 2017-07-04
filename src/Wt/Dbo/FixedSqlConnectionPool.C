@@ -14,6 +14,8 @@
 #else
 #endif // WT_THREADED
 
+#include <iostream>
+
 namespace Wt {
   namespace Dbo {
 

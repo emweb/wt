@@ -11,7 +11,7 @@ ELSE(NOT MULTI_THREADED_BUILD)
    SimpleChatServer.C
 )
 
- TARGET_LINK_LIBRARIES(simplechat.wt ${BOOST_THREAD_LIB})
+ TARGET_LINK_LIBRARIES(simplechat.wt ${BOOST_THREAD_LIB} ${CMAKE_THREAD_LIBS_INIT})
 
  #
  # If you have Wt installed somehwere, you should use the

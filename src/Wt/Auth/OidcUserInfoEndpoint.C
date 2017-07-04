@@ -75,7 +75,12 @@ Json::Object OidcUserInfoEndpoint::generateUserInfo(const User& user, const std:
   root["sub"] = Json::Value(user.id());
   std::set<std::string> claims;
   for (std::set<std::string>::iterator s = scope.begin(); s != scope.end(); ++s) {
-    const std::set<std::string>& c = claimMap_.find(*s)->second;
+    std::map<std::string,std::set<std::string> >::const_iterator it
+      = claimMap_.find(*s);
+    if (it == claimMap_.end())
+      continue;
+    
+    const std::set<std::string>& c = it->second;
     for (std::set<std::string>::iterator s2 = c.begin(); s2 != c.end(); ++s2)
       claims.insert(*s2);
   }
