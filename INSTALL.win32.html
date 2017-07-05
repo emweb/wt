@@ -20,6 +20,8 @@ It is organized in 3 sections:
 Wt for Windows uses the built-in web server connector or the ISAPI connector.
 The fastcgi connector is not supported. The built-in web server is more
 convenient during development and is easier to setup than the ISAPI connector.
+It is also designed for production environments, where it is often used in
+combination with a reverse proxy server.
 To use the built-in server, you have to link your projects against libwt
 and libwthttp. To use the ISAPI connector, you have to link to libwtisapi
 instead of libwthttp.</p>
@@ -41,8 +43,6 @@ instead of libwthttp.</p>
 <li>Postgres, mysql, firebird client libraries for Dbo database backends</li>
 <li><a href="http://libharu.org/">Haru Free PDF Library</a>, which is used to
 provide support for rendering PDF (WPdfImage, WPdfRenderer).</li>
-<li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>, for
-supporting painting to raster images (PNG, GIF, ...) (WRasterImage).</li>
 </ul>
 </p>
 
@@ -99,26 +99,102 @@ with --help to see the most recent list of available options):
 
 <pre>
 General options:
-  -h [ --help ]              produce help message
-  -t [ --threads ] arg (=10) number of threads
-  --docroot arg              document root for static files
-  --no-compression           do not compress dynamic text/html and text/plain 
-                             responses
-  --deploy-path arg (=/)     location for deployment
+  -h [ --help ]                         produce help message
+  -t [ --threads ] arg (=-1)            number of threads (-1 indicates that
+                                        num_threads from wt_config.xml is to be
+                                        used, which defaults to 10)
+  --servername arg (=diffie)            servername (IP address or DNS name)
+  --docroot arg                         document root for static files,
+                                        optionally followed by a
+                                        comma-separated list of paths with
+                                        static files (even if they are within a
+                                        deployment path), after a ';'
 
-HTTP server options:
-  --http-address arg    IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
-  --http-port arg (=80) HTTP port (e.g. 80)
+                                        e.g. --docroot=".;/favicon.ico,/resourc
+                                        es,/style"
 
-HTTPS server options:
-  --https-address arg     IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
-  --https-port arg (=443) HTTPS port (e.g. 443)
-  --ssl-certificate arg   SSL server certificate chain file
-                          e.g. "/etc/ssl/certs/vsign1.pem"
-  --ssl-private-key arg   SSL server private key file
-                          e.g. "/etc/ssl/private/company.pem"
-  --ssl-tmp-dh arg        File for temporary Diffie-Hellman parameters
-                          e.g. "/etc/ssl/dh512.pem"
+  --approot arg                         application root for private support
+                                        files; if unspecified, the value of the
+                                        environment variable $WT_APP_ROOT is
+                                        used, or else the current working
+                                        directory
+  --errroot arg                         root for error pages
+  --accesslog arg                       access log file (defaults to stdout),
+                                        to disable access logging completely,
+                                        use --accesslog=-
+  --no-compression                      do not use compression
+  --deploy-path arg (=/)                location for deployment
+  --session-id-prefix arg               prefix for session IDs (overrides
+                                        wt_config.xml setting)
+  -p [ --pid-file ] arg                 path to pid file (optional)
+  -c [ --config ] arg                   location of wt_config.xml; if
+                                        unspecified, the value of the
+                                        environment variable $WT_CONFIG_XML is
+                                        used, or else the built-in default
+                                        (c:/witty/wt_config.xml) is tried, or
+                                        else built-in defaults are used
+  --max-memory-request-size arg (=131072)
+                                        threshold for request size (bytes), for
+                                        spooling the entire request to disk, to
+                                        avoid DoS
+  --gdb                                 do not shutdown when receiving Ctrl-C
+                                        (and let gdb break instead)
+
+HTTP/WebSocket server options:
+  --http-address arg                    IPv4 (e.g. 0.0.0.0) or IPv6 Address
+                                        (e.g. 0::0). You must specify either
+                                        this option or --https-address (or
+                                        both)
+  --http-port arg (=80)                 HTTP port (e.g. 80)
+
+HTTPS/Secure WebSocket server options:
+  --https-address arg                   IPv4 (e.g. 0.0.0.0) or IPv6 Address
+                                        (e.g. 0::0). You must specify either
+                                        this option or --http-address (or both)
+  --https-port arg (=443)               HTTPS port (e.g. 443)
+  --ssl-certificate arg                 SSL server certificate chain file
+                                        e.g. "/etc/ssl/certs/vsign1.pem"
+  --ssl-private-key arg                 SSL server private key file
+                                        e.g. "/etc/ssl/private/company.pem"
+  --ssl-tmp-dh arg                      File for temporary Diffie-Hellman
+                                        parameters
+                                        e.g. "/etc/ssl/dh512.pem"
+  --ssl-enable-v3                       Switch on SSLv3 support (not
+                                        recommended; disabled by default)
+  --ssl-client-verification arg (=none) The verification mode for client
+                                        certificates.
+                                        This is either 'none', 'optional' or
+                                        'required'. When 'none', the server
+                                        will not request a client certificate.
+                                        When 'optional', the server will
+                                        request a certificate, but the client
+                                        does not have to supply one. With
+                                        'required', the connection will be
+                                        terminated if the client does not
+                                        provide a valid certificate.
+  --ssl-verify-depth arg (=1)           Specifies the maximum length of the
+                                        server certificate chain.
+
+  --ssl-ca-certificates arg             Path to a file containing the
+                                        concatenated trusted CA certificates,
+                                        which can be used to authenticate the
+                                        client. The file should contains a a
+                                        number of PEM-encoded certificates.
+
+  --ssl-cipherlist arg                  List of acceptable ciphers for SSL.
+                                        This list is passed as-is to the SSL
+                                        layer, so see openssl for the proper
+                                        syntax. When empty, the default
+                                        acceptable cipher list will be used.
+                                        Example cipher list string:
+                                        "TLSv1+HIGH:!SSLv2"
+
+  --ssl-prefer-server-ciphers arg (=0)  By default, the client's preference is
+                                        used for determining the cipher that is
+                                        choosen during a SSL or TLS handshake.
+                                        By enabling this option, the server's
+                                        preference will be used.
+
 </pre>
 </p>
 

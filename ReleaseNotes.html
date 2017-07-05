@@ -22,6 +22,77 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.8 (July 2017)</h2>
+<p>
+  This release consists of bug fixes and some new features:
+</p>
+<dl>
+  <dt>
+    OpenID Connect support
+  </dt>
+  <dd>
+    As we've previously announced
+    <a href="https://www.webtoolkit.eu/wt/blog/2017/06/20/announcing_openid_connect_support_in_wt">on our blog</a>,
+    Wt now supports OpenID Connect. All you need to do to use any OpenID Connect based service is
+    configure a <a href="classWt_1_1Auth_1_1OidcService.html">Wt::Auth::OidcService</a>. You can also make your
+    own OpenID Connect identity provider. Check out the accompanying
+    <a href="https://github.com/emweb/wt/tree/master/examples/feature/oidc">OpenID Connect feature example</a>.
+  </dd>
+  <dt>
+    On Windows: font support based on DirectWrite
+  </dt>
+  <dd>
+  <p>Wt 3.3.7 already introduced the Direct2D backend for <a href="classWt_1_1WRasterImage.html">WRasterImage</a>.
+    Wt 3.3.8 further expands
+    on this by adding DirectWrite-based font support. This means that Wt 3.3.8 will be able to
+    select the appropriate fonts for every glyph, without requiring Pango. Pango was always
+    difficult to distribute on Windows, so we never included Pango in the binary distribution, relying on
+    very basic font support instead, replacing unknown characters by question marks. Now, you
+    can expect much better Unicode support with DirectWrite on Windows.</p>
+    <p>This means that the binary release of Wt on Windows is now built with Direct2D and DirectWrite.</p>
+  </dd>
+  <dt>
+    Wt::Dbo: added <a href="structWt_1_1Dbo_1_1sql__value__traits.html">sql_value_traits</a> for
+    <a href="classWt_1_1Json_1_1Object.html">Wt::Json::Object</a> and
+    <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a>.
+  </dt>
+  <dd>
+    <p>Quite often, the need arises to store some unindexed data with arbitrary structure in a database.
+       A common solution is to store JSON as a string. To facilitate this, we've included implementations
+       of <a href="structWt_1_1Dbo_1_1sql_value_traits.html">sql_value_traits</a> for
+       <a href="classWt_1_1Json_1_1Object.html">Wt::Json::Object</a> and
+       <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a> in
+       <tt>Wt/Dbo/WtSqlTraits</tt>. This allows you to store <tt>Wt::Json</tt> Objects and Arrays
+       just like you any other field.</p>
+    <p>Additionally, we've made the <tt>Wt::Json</tt> API a bit more friendly, by adding support
+    for initializer lists (when using C++11), and implicit constructors for
+    <a href="classWt_1_1Json_1_1Value.html">Wt::Json::Value</a>
+    from 
+    <a href="classWt_1_1Json_1_1Object.html">Wt::Json::Object</a> and
+    <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a>.</p>
+  </dd>
+  <dt>
+    Other small improvements:
+  </dt>
+  <dd>
+    <ul>
+      <li>Any <tt>boost::asio::io_service</tt> can now be used with <a href="classWt_1_1Http_1_1Client.html">Wt::Http::Client</a>,
+	  instead of just <a href="classWt_1_1WIOService.html">Wt::WIOService</a>.</li>
+      <li>Added support for <tt>PATCH</tt> requests in <a href="classWt_1_1WResource.html">WResource</a> and
+	<a href="classWt_1_1Http_1_1Client.html">Wt::Http::Client</a>,
+	next to <tt>GET</tt>, <tt>POST</tt>, <tt>PUT</tt>, and <tt>DELETE</tt>.
+      <li>wthttp connector: added support for forward secrecy with the <tt>--ssl-prefer-server-ciphers</tt> option.</li>
+      <li>Added the <tt>num-session-threads</tt> configuration parameter, to set the amount of threads per session when
+	  using dedicated process mode. By default, the main process and the session threads use the same amount of threads.</li>
+      <li>The <a href="https://github.com/emweb/wt/tree/master/examples/te-benchmark">te-benchmark</a>
+	  example was added, implementing the TechEmpower framework benchmarks.
+          This example also demonstrates how Wt can be used to write RESTful services. Improved, less verbose, support for
+          RESTful services is planned in a future release.</li>
+      <li>Added <a href="classWt_1_1Dbo_1_1FixedSqlConnectionPool.html#a955e2ce03d8d45e8738f6ff718614601">Wt::Dbo::FixedSqlConnectionPool::setTimeout()</a>, to set a timeout for obtaining a connection.</li>
+    </ul>
+  </dd>
+</dl>
+
 <h2>Release 3.3.7 (March 31, 2017)</h2>
 <p>
   This release fixes many bugs, but also introduces some new features:

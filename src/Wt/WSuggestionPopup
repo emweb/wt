@@ -213,7 +213,7 @@ public:
     /*! \brief When editing a list of values, the separator used
      *         for different items.
      *
-     * For example, ',' to separate different values on komma. Specify
+     * For example, ',' to separate different values on comma. Specify
      * 0 ('\\0') for no list separation.
      *
      * Used during matching and replacing.

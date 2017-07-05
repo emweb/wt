@@ -6,13 +6,15 @@
 
 #include "Wt/Dbo/FixedSqlConnectionPool"
 #include "Wt/Dbo/SqlConnection"
+#include "Wt/Dbo/Exception"
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 #else
-#include "Wt/Dbo/Exception"
 #endif // WT_THREADED
+
+#include <iostream>
 
 namespace Wt {
   namespace Dbo {
@@ -23,7 +25,12 @@ struct FixedSqlConnectionPool::Impl {
   boost::condition connectionAvailable;
 #endif // WT_THREADED
 
+  int timeout;
   std::vector<SqlConnection *> freeList;
+
+  Impl()
+    : timeout(0)
+  { }
 };
 
 FixedSqlConnectionPool::FixedSqlConnectionPool(SqlConnection *connection,
@@ -45,13 +52,34 @@ FixedSqlConnectionPool::~FixedSqlConnectionPool()
   delete impl_;
 }
 
+void FixedSqlConnectionPool::setTimeout(int timeout)
+{
+  impl_->timeout = timeout;
+}
+
+int FixedSqlConnectionPool::timeout() const
+{
+  return impl_->timeout;
+}
+  
 SqlConnection *FixedSqlConnectionPool::getConnection()
 {
 #ifdef WT_THREADED
   boost::mutex::scoped_lock lock(impl_->mutex);
 
-  while (impl_->freeList.empty())
-    impl_->connectionAvailable.wait(impl_->mutex);
+  boost::system_time timeout
+    = boost::get_system_time() + boost::posix_time::milliseconds(impl_->timeout);
+
+  while (impl_->freeList.empty()) {
+    std::cerr << "Warning: FixedSqlConnectionPool: waiting for connection" << std::endl;
+    if (impl_->timeout > 0) {
+      if (!impl_->connectionAvailable.timed_wait(impl_->mutex, timeout)) {
+	handleTimeout();
+	timeout = boost::get_system_time() + boost::posix_time::milliseconds(impl_->timeout);
+      }
+    } else
+      impl_->connectionAvailable.wait(impl_->mutex);
+  }
 #else
   if (impl_->freeList.empty())
     throw Exception("FixedSqlConnectionPool::getConnection(): "
@@ -64,6 +92,11 @@ SqlConnection *FixedSqlConnectionPool::getConnection()
   return result;
 }
 
+void FixedSqlConnectionPool::handleTimeout()
+{
+  throw Exception("FixedSqlConnectionPool::getConnection(): timeout");
+}
+  
 void FixedSqlConnectionPool::returnConnection(SqlConnection *connection)
 {
 #ifdef WT_THREADED

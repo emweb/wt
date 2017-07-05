@@ -41,11 +41,40 @@ public:
    */
   FixedSqlConnectionPool(SqlConnection *connection, int size);
 
+  /*! \brief Set a timeout to get a connection.
+   *
+   * When the connection pool has no available connection,
+   * it will wait the given amount of milliseconds.
+   *
+   * On timeout, handleTimeout() is called, which throws an exception
+   * by default.
+   *
+   * By default, there is no timeout.
+   */
+  void setTimeout(int millis);
+
+  /*! \brief Get the timeout to get a connection.
+   *
+   * \sa setTimeout()
+   */
+  int timeout() const;
+  
   virtual ~FixedSqlConnectionPool();
   virtual SqlConnection *getConnection();
   virtual void returnConnection(SqlConnection *);
   virtual void prepareForDropTables() const;
 
+protected:
+  /*! \brief Handle a timeout that occured while getting a connection.
+   *
+   * The default implementation throws an Exception.
+   *
+   * If the function returns cleanly, it is assumed that something has been done to fix
+   * the situation (e.g. connections have been added to the pool): the timeout is reset
+   * and another attempt is made to obtain a connection.
+   */
+  virtual void handleTimeout();
+  
 private:
   struct Impl;
   Impl *impl_;

@@ -32,13 +32,20 @@ class WTransform;
  *  - It also provides a low-level API to color individual pixels using
  *    setPixel(), which directly sets the raster pixels.
  *
- * The rendering is provided by <a
+ * On Linux, the rendering is provided by <a
  * href="http://www.graphicsmagick.org/">GraphicsMagick</a>, and this
  * class is included in the library only if <tt>libgraphicsmagick</tt>
- * was found during the build of the library. If %Wt is built to use
- * <tt>libpango</tt> for font support, then text rendering is done
- * using this library. Otherwise, you may want to configure TrueType
- * font search directories using addFontCollection().
+ * was found during the build of the library. As an alternative, Wt
+ * supports certain versions of <a href="https://skia.org/">skia</a>. In
+ * general skia is a good and performant renderer, but since it does not
+ * have releases, and a not very stable API, we don't recommend it. On
+ * Windows, Direct2D is used for rendering, which means that no extra
+ * dependencies have to be installed.
+ *
+ * If %Wt is built to use <tt>libpango</tt> for font support, then text
+ * rendering is done using this library. On Windows, DirectWrite is used
+ * for font support functions. In other cases, you may want to configure
+ * TrueType font search directories using addFontCollection().
  *
  * You can use the image as a resource and specialize handleRequest()
  * to paint the contents on the fly. Alternatively can also use

@@ -146,6 +146,13 @@ public:
    * Arguments passed to the application, either in the URL for a
    * http GET, or in both the URL and data submitted in a http POST.
    *
+   * \if cpp
+   * \note The parameter map will be updated when the page is refreshed
+   * (e.g. in non-Ajax sessions and when reload-is-new-session is false),
+   * so you will have to make a copy of values in the parameter map if you want
+   * to preserve them across different requests.
+   * \endif
+   *
    * \sa getParameterValues()
    */
   const Http::ParameterMap& getParameterMap() const { return parameters_; }
@@ -161,6 +168,13 @@ public:
    * both values <tt>"Hello"</tt> and <tt>"World"</tt> to be
    * associated with the argument <tt>"hello"</tt>.
    *
+   * \if cpp
+   * \note The parameter map will be updated when the page is refreshed
+   * (e.g. in non-Ajax sessions and when reload-is-new-session is false),
+   * so you will have to make a copy of these values to preserve it across
+   * different requests.
+   * \endif
+   *
    * \sa getParameterMap()
    */
   const Http::ParameterValues& getParameterValues(const std::string& name)
@@ -170,6 +184,13 @@ public:
    *
    * Returns the first value for a parameter, or \c 0 if the parameter is
    * not found.
+   *
+   * \if cpp
+   * \note The parameter map will be updated when the page is refreshed
+   * (e.g. in non-Ajax sessions and when reload-is-new-session is false),
+   * so you will have to make a copy of the returned string if you want to
+   * preserve this parameter across different requests.
+   * \endif
    *
    * \sa getParameterValues()
    */

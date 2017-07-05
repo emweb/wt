@@ -9,17 +9,18 @@
 
 #include "Wt/Http/Client"
 #include "Wt/WApplication"
-#include "Wt/WIOService"
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
 #include "Wt/WServer"
 #include "Wt/Utils"
+#include "Wt/WIOService"
 
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/asio.hpp>
 
 #ifdef WT_WITH_SSL
 #include <boost/asio/ssl.hpp>
@@ -37,6 +38,7 @@
 using boost::asio::ip::tcp;
 
 #if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#include <boost/asio/steady_timer.hpp>
 typedef boost::asio::steady_timer asio_timer;
 typedef std::chrono::seconds asio_timer_seconds;
 #else
@@ -59,7 +61,8 @@ public:
     int parsePos;
   };
 
-  Impl(WIOService& ioService, WServer *server, const std::string& sessionId)
+  Impl(boost::asio::io_service& ioService, WServer *server,
+       const std::string& sessionId)
     : ioService_(ioService),
       strand_(ioService),
       resolver_(ioService_),
@@ -404,13 +407,15 @@ private:
 	addBodyText(ss.str());
       }
 
-      // Start reading remaining data until EOF.
-      startTimer();
-      asyncRead(strand_.wrap
-		(boost::bind(&Impl::handleReadContent,
-			     shared_from_this(),
-			     boost::asio::placeholders::error,
-			     boost::asio::placeholders::bytes_transferred)));
+      if (!aborted_) {
+        // Start reading remaining data until EOF.
+        startTimer();
+        asyncRead(strand_.wrap
+                  (boost::bind(&Impl::handleReadContent,
+                               shared_from_this(),
+                               boost::asio::placeholders::error,
+                               boost::asio::placeholders::bytes_transferred)));
+      }
     } else {
       err_ = err;
       complete();
@@ -604,7 +609,7 @@ private:
   }
 
 protected:
-  WIOService& ioService_;
+  boost::asio::io_service& ioService_;
   boost::asio::strand strand_;
   tcp::resolver resolver_;
   boost::asio::streambuf requestBuf_;
@@ -629,7 +634,8 @@ private:
 class Client::TcpImpl : public Client::Impl
 {
 public:
-  TcpImpl(WIOService& ioService, WServer *server, const std::string& sessionId)
+  TcpImpl(boost::asio::io_service& ioService, WServer *server,
+	  const std::string& sessionId)
     : Impl(ioService, server, sessionId),
       socket_(ioService_)
   { }
@@ -677,7 +683,8 @@ private:
 class Client::SslImpl : public Client::Impl
 {
 public:
-  SslImpl(WIOService& ioService, bool verifyEnabled, WServer *server,
+  SslImpl(boost::asio::io_service& ioService, bool verifyEnabled,
+	  WServer *server,
 	  boost::asio::ssl::context& context, const std::string& sessionId,
 	  const std::string& hostName)
     : Impl(ioService, server, sessionId),
@@ -758,7 +765,7 @@ Client::Client(WObject *parent)
     maxRedirects_(20)
 { }
 
-Client::Client(WIOService& ioService, WObject *parent)
+Client::Client(boost::asio::io_service& ioService, WObject *parent)
   : WObject(parent),
     ioService_(&ioService),
     timeout_(10),
@@ -855,7 +862,7 @@ bool Client::request(Http::Method method, const std::string& url,
 {
   std::string sessionId;
 
-  WIOService *ioService = ioService_;
+  boost::asio::io_service *ioService = ioService_;
   WServer *server = 0;
 
   WApplication *app = WApplication::instance();

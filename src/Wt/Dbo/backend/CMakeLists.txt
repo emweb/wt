@@ -47,7 +47,10 @@ IF(ENABLE_SQLITE)
 
   MESSAGE("** Wt::Dbo: building SQLite3 backend.")
 
-  TARGET_LINK_LIBRARIES(wtdbosqlite3 wtdbo
+  TARGET_LINK_LIBRARIES(wtdbosqlite3
+    PUBLIC
+      wtdbo
+    PRIVATE
       ${SQLITE3_LIBRARIES}
       ${BOOST_DT_LIB}
       ${WT_THREAD_LIB}
@@ -60,7 +63,7 @@ IF(ENABLE_SQLITE)
       dl
       )
     IF(DL_LIB)
-      TARGET_LINK_LIBRARIES(wtdbosqlite3 ${DL_LIB})
+      TARGET_LINK_LIBRARIES(wtdbosqlite3 PRIVATE ${DL_LIB})
     ENDIF(DL_LIB)
   ENDIF(NOT WIN32)
 
@@ -112,7 +115,13 @@ IF(ENABLE_POSTGRES AND POSTGRES_FOUND)
     Postgres.C
     ${postgres_SRCS}
     )
-  TARGET_LINK_LIBRARIES(wtdbopostgres wtdbo ${POSTGRES_LIBRARIES} ${BOOST_DT_LIB})
+  TARGET_LINK_LIBRARIES(wtdbopostgres
+    PUBLIC
+      wtdbo
+    PRIVATE
+      ${POSTGRES_LIBRARIES}
+      ${BOOST_DT_LIB}
+  )
 
   INCLUDE_DIRECTORIES(${POSTGRES_INCLUDE})
 
@@ -184,9 +193,11 @@ IF(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
     ${firebird_SRCS}
   )
   TARGET_LINK_LIBRARIES(wtdbofirebird
-    wtdbo
-    ${FIREBIRD_LIBRARIES}
-    ${BOOST_DT_LIB}
+    PUBLIC
+      wtdbo
+    PRIVATE
+      ${FIREBIRD_LIBRARIES}
+      ${BOOST_DT_LIB}
   )
 
   IF(MSVC)
@@ -244,7 +255,13 @@ IF(ENABLE_MYSQL AND MYSQL_FOUND)
     MySQL.C
     ${mysql_SRCS}
     )
-  TARGET_LINK_LIBRARIES(wtdbomysql wtdbo ${MYSQL_LIBRARIES} ${BOOST_DT_LIB})
+  TARGET_LINK_LIBRARIES(wtdbomysql
+    PUBLIC
+      wtdbo
+    PRIVATE
+      ${MYSQL_LIBRARIES}
+      ${BOOST_DT_LIB}
+  )
 
   INCLUDE_DIRECTORIES(${MYSQL_INCLUDE})
 

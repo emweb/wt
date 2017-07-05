@@ -72,7 +72,7 @@ WT_DECLARE_WT_MEMBER
      if ((w - currentWidth) > (scrollX2 - scrollX1)/2 ||
          (h - currentHeight) > (scrollY2 - scrollY1)/2) {
        currentWidth = w; currentHeight = h;
-       var height = o.clientHeight == o.firstChild.clientHeight
+       var height = o.clientHeight == o.firstChild.offsetHeight
          ? -1
          : o.clientHeight;
        APP.emit(el, 'scrolled',

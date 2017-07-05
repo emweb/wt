@@ -2473,9 +2473,9 @@ void WebSession::notify(const WEvent& event)
 	     * for a push update. We wait at most twice as long as the client
 	     * will renew this poll connection.
 	     */
-	    if (!WebController::isAsyncSupported()) {
+	    if (!WebController::isAsyncSupported() && renderer_.jsSynced()) {
 	      updatesPendingEvent_.notify_one();
-              if (!updatesPending_ && renderer_.jsSynced()) {
+              if (!updatesPending_) {
 #ifndef WT_TARGET_JAVA
 		updatesPendingEvent_.wait(handler.lock());
 #else
@@ -2485,7 +2485,7 @@ void WebSession::notify(const WEvent& event)
 		} catch (InterruptedException& e) { }
 #endif // WT_TARGET_JAVA
 	      }
-              if (!updatesPending_ && renderer_.jsSynced()) {
+              if (!updatesPending_) {
 		handler.flushResponse();
 		return;
 	      }

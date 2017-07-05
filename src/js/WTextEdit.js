@@ -38,7 +38,7 @@ WT_DECLARE_WT_MEMBER
 		 });
 	   }
      }
-     APP.emit(el, 'render');
+     setTimeout(function() {APP.emit(el, 'render');}, 0);
    };
 
    this.init = function() {
