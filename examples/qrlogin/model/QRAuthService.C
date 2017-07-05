@@ -43,8 +43,7 @@ public:
     WApplication *app = WApplication::instance();
 
     app->environment().server()
-      ->post(app->sessionId(),
-	     bindSafe(&QRLoginResource::doLogin));
+      ->post(app->sessionId(), bindSafe(&QRLoginResource::doLogin));
 
     response.setMimeType("plain/text");
     response.out() << "ok";

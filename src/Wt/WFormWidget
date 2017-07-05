@@ -75,10 +75,6 @@ public:
    *
    * The validator is used to validate the current input.
    *
-   * If the validator has no parent yet, then ownership is transferred
-   * to the form field, and thus the validator will be deleted
-   * together with the form field.
-   *
    * The default value is \c 0.
    *
    * \sa validate()

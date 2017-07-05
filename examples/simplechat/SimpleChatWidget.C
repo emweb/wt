@@ -133,6 +133,9 @@ void SimpleChatWidget::createLayout(std::unique_ptr<WWidget> messages, std::uniq
   // Create a horizontal layout for the messages | userslist.
   auto hLayout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
 
+  // Choose JavaScript implementation explicitly to avoid log warning (needed for resizable layout)
+  hLayout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
+
   // Add widget to horizontal layout with stretch = 1
   messages->setStyleClass("chat-msgs");
   hLayout->addWidget(std::move(messages), 1);

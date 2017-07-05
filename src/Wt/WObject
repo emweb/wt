@@ -67,10 +67,8 @@ class WStatelessSlot;
  * A second feature of %WObject is that they allow ownership
  * organization in ownership object trees. When an object is created
  * with another object as parent, it's ownership is transferred to the
- * parent. If not deleted explicitly, the child object will be deleted
- * together with the parent. Child objects may also be deleted
- * manually: they will remove themselves from their parent in the
- * process.
+ * parent. The child object will be deleted together with the
+ * parent, unless they are removed first, in which owernship is released.
  *
  * In conjunction with EventSignal, %WObject also facilitates learning
  * of client-side event handling (in JavaScript) through invocation of

@@ -113,8 +113,7 @@ struct DynamicBinding;
  * You can provide the session with a dedicated database connection
  * using setConnection(), or with a connection pool (from which it
  * will take a connection while processing a transaction) using
- * setConnectionPool(). In either case, the session does not take
- * ownership of the connection or connection pool.
+ * setConnectionPool().
  *
  * A session will typically be a long-lived object in your
  * application.

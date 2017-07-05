@@ -39,9 +39,6 @@ enum class LayoutImplementation {
  * The implementation of the layout manager depends on the container widget
  * to which it is set, and is therefore deferred to WLayoutImpl.
  *
- * A layout never assumes ownership of contained items, instead these
- * are owned by the parent widget to which the layout is applied.
- *
  * \note When applying a layout manager to a WContainerWidget, you may
  * not define any padding for the container widget. Instead, use
  * setContentsMargins().

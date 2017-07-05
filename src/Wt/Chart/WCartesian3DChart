@@ -140,9 +140,6 @@ public:
   
   /*! \brief Removes a dataseries from a chart.
    *
-   * This removes the data from the chart and transfers ownership back. The 
-   * data can then be added to another chart.
-   *
    * \sa addDataSeries()
    */
   std::unique_ptr<WAbstractDataSeries3D> removeDataSeries

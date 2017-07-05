@@ -37,8 +37,6 @@ public:
    *
    * The pool is initialized with the provided \p connection, which is
    * cloned (\p size - 1) times.
-   *
-   * The pool thus takes ownership of the given connection.
    */
   FixedSqlConnectionPool(std::unique_ptr<SqlConnection> connection, int size);
 

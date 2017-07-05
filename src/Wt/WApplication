@@ -526,11 +526,6 @@ public:
    * The \p translator resolves localized strings within the current
    * application locale.
    *
-   * \if cpp
-   * The previous resource is deleted, and ownership of the new resource
-   * passes to the application.
-   * \endif
-   *
    * \sa localizedStrings(), WString::tr(const char *key)
    */
   void setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>&
@@ -1985,32 +1980,6 @@ public:
    */
   void resumeRendering();
 #endif
-
-#ifndef WT_CNOR
-  /*! \brief Protects a function against deletion of the target object.
-   *
-   * When posting an event using WServer::post(), it is convenient to
-   * bind an object method to be called. However, while
-   * WServer::post() guarantees that the application to which an event
-   * is posted is still alive, it may be that the targeted widget (or
-   * WObject in general) has been deleted.
-   *
-   * This function wraps such an object method with a protection layer
-   * which guarantees that the method is only called when the targeted
-   * object is alive, in the same way as how a signal automatically
-   * disconnects slots from objects that are being deleted.
-   *
-   * You typically will bind the function immediately within the event
-   * loop where you register the "callback", and pass this bound
-   * function to (typically an external thread) which calls post()
-   * later on. What you cannot do is bind the function only later on,
-   * since at that time the target object may already have been
-   * destroyed.
-   *
-   * As with the signal/slot connection tracking mechanism, this
-   * requires that the object is a WObject.
-   */
-#endif // WT_CNOR
 
   /*! \brief Encodes an untrusted URL to prevent referer leaks.
    *

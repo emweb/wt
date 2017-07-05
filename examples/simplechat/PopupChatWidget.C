@@ -36,8 +36,6 @@ PopupChatWidget::PopupChatWidget(SimpleChatServer& server,
      "{"
      """var s = $('#" + id + "');"
      """s.toggleClass('chat-maximized chat-minimized');"
-     + Wt::WApplication::instance()->javaScriptClass()
-     + ".layouts2.scheduleAdjust(true);"
      "}");
 
   online_ = false;

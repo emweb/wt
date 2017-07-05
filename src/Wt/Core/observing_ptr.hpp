@@ -31,7 +31,9 @@ namespace Impl {
  * 
  * This smart pointer can point only to objects that are
  * observable. They are safe in the sense that they are aware of the
- * life-time of the observed object, and thus cannot dangle.
+ * life-time of the observed object, and thus cannot dangle. When
+ * dereferencing a pointer to an already destroyed object, an
+ * exception is thrown.
  *
  * \sa observable
  */

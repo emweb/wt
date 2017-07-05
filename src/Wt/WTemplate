@@ -78,10 +78,6 @@ enum class TemplateWidgetIdMode {
  * \endcode
  * \endif
  *
- * The ownership of the widgets bound to a WTemplate widget are transfered
- * to the WTemplate widdget, and they are deleted when the WTemplate is
- * deleted.
- *
  * There are currently three syntactic constructs defined: variable
  * place holders, functions and conditional blocks.
  *

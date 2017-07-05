@@ -225,9 +225,6 @@ public:
   virtual WT_USTRING valueText(Field field) const;
 
   /*! \brief Sets a validator.
-   *
-   * If the validator has no ownership yet, the form model will take
-   * ownership.
    */
   virtual void setValidator(Field field,
 			    const std::shared_ptr<WValidator>& validator);

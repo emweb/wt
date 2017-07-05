@@ -29,7 +29,9 @@ namespace Impl {
  * This class provides the ability to be observed by a observing_ptr,
  * which is a smart pointer that is aware of the deletion of this
  * object. It is used by the signal/slot system to automatically
- * disconnect a slot when the receiving object has been deleted.
+ * disconnect a slot when the receiving object has been deleted, and
+ * can wrap itself inside a function that guards against deletion of
+ * the object using bindSafe().
  *
  * \sa Signal
  */
@@ -41,6 +43,9 @@ public:
   observable();
 
   /*! \brief Destructor.
+   *
+   * Destruction may result in automatic disconnects from signal
+   * connections.
    */
   virtual ~observable();
   

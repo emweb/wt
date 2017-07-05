@@ -489,10 +489,6 @@ public:
    * changed). Thus you need to set a model before configuring the
    * series.
    *
-   * \if cpp
-   * The chart will take ownership of the given series.
-   * \endif
-   *
    * \sa removeSeries(), setSeries()
    */
   void addSeries(std::unique_ptr<WDataSeries> series);

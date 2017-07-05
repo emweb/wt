@@ -196,12 +196,6 @@ public:
    * z-value of the data. If the colormap is set to 0, the value of the palette 
    * will be used again.
    *
-   * \if cpp
-   * If the colormap has no parent yet, then ownership is transferred to this
-   * %WAbstractDataSeries3D, and thus the validator will be deleted together with
-   * the %WAbstractDataSeries3D.
-   * \endif
-   *
    * \sa setColorMapVisible(), setColorMapSide()
    */
   void setColorMap(const std::shared_ptr<WAbstractColorMap>& colormap);

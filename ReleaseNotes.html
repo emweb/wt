@@ -52,7 +52,7 @@ or:
 You can now do:
 <div class="fragment">
   <div class="line"><span class="comment"><tt>// Wt 4 (with C++14's std::make_unique)</tt></span></div>
-  <div class="line"><tt>Wt::WPushButton *button = parent->addWidget(std::make_unique<Wt::WPushButton>("Click me"));</tt></div>
+  <div class="line"><tt>Wt::WPushButton *button = parent-&gt;addWidget(std::make_unique&lt;Wt::WPushButton&gt;("Click me"));</tt></div>
 </div>
 <tt>Wt::cpp14::make_unique</tt> can be used instead of <tt>std::make_unique</tt> if C++14 support is unavailable.
 </p>

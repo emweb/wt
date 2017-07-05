@@ -325,8 +325,7 @@ public:
 
   /*! \brief Sets the model to be used for the suggestions.
    *
-   * The \p model may not be \c 0, and ownership of the model is not
-   * transferred.
+   * The \p model may not be \c 0.
    *
    * The default value is a WStringListModel that is owned by the
    * suggestion popup.
