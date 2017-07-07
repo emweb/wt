@@ -112,10 +112,10 @@ void WCssDecorationStyle::changed(WFlags<RepaintFlag> flags)
 void WCssDecorationStyle::setCursor(Cursor c)
 {
   if (!WWebWidget::canOptimizeUpdates()
-	  || !cursorImage_.empty()
+      || !cursorImage_.empty()
       || cursor_ != c) {
-	cursorImage_.clear();
-	cursor_ = c;
+    cursorImage_.clear();
+    cursor_ = c;
     cursorChanged_ = true;
     changed();
   }
