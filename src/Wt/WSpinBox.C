@@ -27,7 +27,7 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
 
 void WSpinBox::setValue(int value)
 {
-  if (value_ != value) {
+  if (value_ != value || text() != textFromValue()) {
     value_ = value;
     setText(textFromValue());
   }

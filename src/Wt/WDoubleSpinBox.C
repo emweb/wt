@@ -28,7 +28,7 @@ WDoubleSpinBox::WDoubleSpinBox(WContainerWidget *parent)
 
 void WDoubleSpinBox::setValue(double value)
 {
-  if (value_ != value) {
+  if (value_ != value || text() != textFromValue()) {
     value_ = value;
     setText(textFromValue());
   }

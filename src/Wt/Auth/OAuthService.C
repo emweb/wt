@@ -104,7 +104,7 @@ public:
       cont->waitForMoreData();
 #endif
 
-      process_->requestToken(*codeE);
+      process_->requestToken(*codeE); // Blocking in JWt, so no continuation necessary
 #ifndef WT_TARGET_JAVA
     } else
 #endif
@@ -120,22 +120,36 @@ public:
 #endif // WT_TARGET_JAVA
 
     WApplication *app = WApplication::instance();
-    std::string appJs = app->javaScriptClass();
 
-    o <<
-      "<!DOCTYPE html>"
-      "<html lang=\"en\" dir=\"ltr\">\n"
-      "<head><title></title>\n"
-      "<script type=\"text/javascript\">\n"
-      "function load() { "
-      """if (window.opener." << appJs << ") {"
-      ""  "var " << appJs << "= window.opener." << appJs << ";"
-      <<  process_->redirected_.createCall() << ";"
-      ""  "window.close();"
-      "}\n"
-      "}\n"
-      "</script></head>"
-      "<body onload=\"load();\"></body></html>";
+    if (app->environment().ajax()) {
+      std::string appJs = app->javaScriptClass();
+      o <<
+        "<!DOCTYPE html>"
+        "<html lang=\"en\" dir=\"ltr\">\n"
+        "<head><title></title>\n"
+        "<script type=\"text/javascript\">\n"
+        "function load() { "
+        """if (window.opener." << appJs << ") {"
+        ""  "var " << appJs << "= window.opener." << appJs << ";"
+        <<  process_->redirected_.createCall() << ";"
+        ""  "window.close();"
+        "}\n"
+        "}\n"
+        "</script></head>"
+        "<body onload=\"load();\"></body></html>";
+    } else {
+      // FIXME: it would be way cleaner if we can send a 302 response, but at
+      //        the moment there's no way to stall sending of status code and headers
+      //        when using continuations
+      std::string redirectTo = app->makeAbsoluteUrl(app->url(process_->startInternalPath_));
+      o <<
+	"<!DOCTYPE html>"
+	"<html lang=\"en\" dir=\"ltr\">\n"
+	"<head><meta http-equiv=\"refresh\" content=\"0; url="
+	<< redirectTo << "\" /></head>\n"
+	"<body><p><a href=\"" << redirectTo
+	<< "\"> Click here to continue</a></p></body></html>";
+    }
   }
 
 private:
@@ -195,8 +209,10 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
   implementJavaScript(&OAuthProcess::startAuthenticate, js.str());
 #endif
 
+#ifndef WT_TARGET_JAVA
   if (!app->environment().javaScript())
-    app->internalPathChanged().connect(this, &OAuthProcess::handleRedirectPath);
+    authenticated().connect(this, &OAuthProcess::handleAuthComplete);
+#endif // WT_TARGET_JAVA
 }
 
 std::string OAuthProcess::authorizeUrl() const
@@ -254,39 +270,6 @@ void OAuthProcess::connectStartAuthenticate(EventSignalBase &s)
 }
 #endif
 
-void OAuthProcess::handleRedirectPath(const std::string& internalPath)
-{
-  if (internalPath == service_.redirectInternalPath()) {
-    WApplication *app = WApplication::instance();
-
-    const WEnvironment& env = app->environment();
-
-    if (!env.ajax()) {
-      const std::string *stateE = env.getParameter("state");
-      if (!stateE || *stateE != oAuthState_)
-	setError(ERROR_MSG("invalid-state"));
-      else {
-	const std::string *errorE = env.getParameter("error");
-	if (errorE)
-	  setError(ERROR_MSG(+ *errorE));
-	else {
-	  const std::string *codeE = env.getParameter("code");
-	  if (!codeE)
-	    setError(ERROR_MSG("missing-code"));
-	  else {
-	    requestToken(*codeE);
-#ifndef WT_TARGET_JAVA
-	    app->deferRendering();
-#endif
-	  }
-	}
-      }
-
-      onOAuthDone();
-    }
-  }
-}
-
 void OAuthProcess::getIdentity(const OAuthAccessToken& token)
 {
   throw WException("OAuth::Process::Identity(): not specialized");
@@ -307,7 +290,18 @@ void OAuthProcess::onOAuthDone()
     authenticate_ = false;
     getIdentity(token_);
   }
+#ifndef WT_TARGET_JAVA
+  else if (!WApplication::instance()->environment().javaScript())
+    redirectEndpoint_->haveMoreData();
+#endif // WT_TARGET_JAVA
 }
+
+#ifndef WT_TARGET_JAVA
+void OAuthProcess::handleAuthComplete()
+{
+  redirectEndpoint_->haveMoreData();
+}
+#endif // WT_TARGET_JAVA
 
 void OAuthProcess::requestToken(const std::string& authorizationCode)
 {
@@ -380,11 +374,7 @@ void OAuthProcess::handleToken(boost::system::error_code err,
     redirectEndpoint_->haveMoreData();
 #endif
   } else {
-#ifndef WT_TARGET_JAVA
-    app->resumeRendering();
-#endif
     onOAuthDone();
-    app->redirect(app->url(startInternalPath_));
   }
 }
 
@@ -547,7 +537,7 @@ struct OAuthService::Impl
 	if (!redirectUrl.empty()) {
 	  bool hasQuery = redirectUrl.find('?') != std::string::npos;
 	  redirectUrl += (hasQuery ? '&' : '?');
-	  redirectUrl += "&state=" + Wt::Utils::urlEncode(*stateE);
+	  redirectUrl += "state=" + Wt::Utils::urlEncode(*stateE);
 
 	  const std::string *errorE = request.getParameter("error");
 	  if (errorE)
