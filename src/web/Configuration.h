@@ -65,7 +65,7 @@ private:
   std::string favicon_;
 };
 
-typedef std::vector<EntryPoint> EntryPointList;
+typedef std::deque<EntryPoint> EntryPointList;
 
 #endif // WT_TARGET_JAVA
 
@@ -124,9 +124,17 @@ public:
 
 #ifndef WT_TARGET_JAVA
   void addEntryPoint(const EntryPoint& entryPoint);
+  bool tryAddResource(const EntryPoint& entryPoint); // Returns bool indicating success:
+						     // false if entry point existed already
   void removeEntryPoint(const std::string& path);
   void setDefaultEntryPoint(const std::string& path);
-  const EntryPointList& entryPoints() const { return entryPoints_; }
+  // Returns matching entry point and match length
+  const EntryPoint *matchEntryPoint(const std::string &scriptName,
+                                    const std::string &path,
+                                    bool matchAfterSlash) const;
+  static bool matchesPath(const std::string &path,
+                          const std::string &prefix,
+		          bool matchAfterSlash);
   void setNumThreads(int threads);
 #endif // WT_TARGET_JAVA
 

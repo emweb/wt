@@ -245,19 +245,17 @@ void WServer::addResource(WResource *resource, const std::string& path)
     throw WServer::Exception("WServer::addResource() error: "
 			     "static resource path should start with \'/\'");
 
-  std::vector<EntryPoint> entryPoints = configuration().entryPoints();
-  for (unsigned i = 0; i < entryPoints.size(); ++i) {
-    if (entryPoints[i].resource() &&
-	entryPoints[i].resource()->internalPath() == path) {
-      WString error("WServer::addResource() error: "
-		    "a static resource was already deployed on path '{1}'");
-      throw WServer::Exception(error.arg(path).toUTF8());
-    }
-  }
-
+  std::string oldInternalPath = resource->internalPath();
   resource->setInternalPath(path);
 
-  configuration().addEntryPoint(EntryPoint(resource, path));
+  bool success = configuration().tryAddResource(EntryPoint(resource, path));
+
+  if (!success) {
+    resource->setInternalPath(oldInternalPath);
+    WString error(Wt::utf8("WServer::addResource() error: "
+	                   "a static resource was already deployed on path '{1}'"));
+    throw WServer::Exception(error.arg(path).toUTF8());
+  }
 }
 
 void WServer::removeEntryPoint(const std::string& path){
