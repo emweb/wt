@@ -10,6 +10,7 @@ IF(ENABLE_LIBWTTEST)
     json/JsonValueTest.C
     http/HttpClientTest.C
     mail/MailClientTest.C
+    matrix/MatrixTest.C
     models/WBatchEditProxyModelTest.C
     models/WStandardItemModelTest.C
     private/EscapeTest.C
@@ -136,7 +137,7 @@ IF(ENABLE_LIBWTTEST)
     )
 
     ADD_EXECUTABLE(test.http ${HTTP_TEST_SOURCES})
-    TARGET_LINK_LIBRARIES(test.http wt wthttp)  
+    TARGET_LINK_LIBRARIES(test.http wt wthttp ${CMAKE_THREAD_LIBS_INIT})
 	IF(MSVC)
 	  SET_TARGET_PROPERTIES(test.http PROPERTIES FOLDER "test")
     ENDIF(MSVC)  

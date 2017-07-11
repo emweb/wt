@@ -73,7 +73,7 @@ public:
   WMatrix4x4(const WGenericMatrix<double, 4, 4>::MatrixType &m) {
     impl() = m;
   }
-  
+
   /*! \brief Construct for a WGenericMatrix
    *
    * Creates the identity transformation matrix. As we inherit from
@@ -95,9 +95,9 @@ public:
    * Creates a matrix from the specified parameters.
    */
   WMatrix4x4(double m11, double m12, double m13, double m14,
-	     double m21, double m22, double m23, double m24,
-	     double m31, double m32, double m33, double m34,
-	     double m41, double m42, double m43, double m44);
+             double m21, double m22, double m23, double m24,
+             double m31, double m32, double m33, double m34,
+             double m41, double m42, double m43, double m44);
 
   /*! \brief Returns the determinant.
    */
@@ -123,7 +123,7 @@ public:
    * the identity matrix when using this method.
    */
   void frustum(double left, double right, double bottom, double top,
-	       double nearPlane, double farPlane);
+               double nearPlane, double farPlane);
 
   /*! \brief Returns the inversion of this matrix, if invertible
    *
@@ -164,8 +164,8 @@ public:
    *
    */
   void lookAt(double eyeX, double eyeY, double eyeZ,
-	      double centerX, double centerY, double centerZ,
-	      double upX, double upY, double upZ);
+              double centerX, double centerY, double centerZ,
+              double upX, double upY, double upZ);
 
   /*! \brief Create an orhtographic projection matrix for use in OpenGL
    *
@@ -178,7 +178,7 @@ public:
    * the identity matrix when using this method.
    */
   void ortho(double left, double right, double bottom, double top,
-	     double nearPlane, double farPlane);
+             double nearPlane, double farPlane);
 
   /*! \brief Construct a perspective projection matrix for use in OpenGL
    *
@@ -194,8 +194,8 @@ public:
    * the identity matrix when using this method.
    */
   void perspective(double angle, double aspect,
-		   double nearPlane, double farPlane);
-  
+                   double nearPlane, double farPlane);
+
   /*! \brief Rotates the transformation around a random axis.
    *
    * Applies a rotation to the current transformation
@@ -269,12 +269,15 @@ public:
    */
   WMatrix4x4 operator*(const WGenericMatrix<double, 4, 4> &r) const
   {
-    using namespace boost::numeric::ublas;
-    return 
 #ifndef WT_TARGET_JAVA
-      (WMatrix4x4)prod(impl(), r.impl());
+#ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+    using namespace boost::numeric::ublas;
+    return (WMatrix4x4)prod(impl(), r.impl());
+#else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+    return WMatrix4x4(*static_cast<const WGenericMatrix<double, 4, 4>*>(this) * r);
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
 #else
-    0;
+    return 0;
 #endif
   }
 

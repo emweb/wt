@@ -87,6 +87,17 @@ WString::WString(const std::string& value, CharEncoding encoding)
     utf8_ = Wt::toUTF8(value);
 }
 
+WString::WString(std::string&& value, CharEncoding encoding)
+  : impl_(nullptr)
+{
+  if (realEncoding(encoding) == CharEncoding::UTF8)
+    utf8_ = std::move(value);
+  else {
+    utf8_ = Wt::toUTF8(value);
+    value.clear();
+  }
+}
+
 WString::WString(const char *value, const std::locale& loc)
   : impl_(nullptr)
 {
@@ -105,6 +116,13 @@ WString::WString(const WString& other)
 {
   if (other.impl_)
     impl_ = new Impl(*other.impl_);
+}
+
+WString::WString(WString&& other)
+  : utf8_(std::move(other.utf8_)),
+    impl_(other.impl_)
+{
+  other.impl_ = nullptr;
 }
 
 WString::Impl::Impl()
@@ -136,6 +154,16 @@ WString& WString::operator= (const WString& rhs)
   if (this != &rhs) {
     this->WString::~WString();
     new (this) WString(rhs);
+  }
+
+  return *this;
+}
+
+WString& WString::operator= (WString&& rhs)
+{
+  if (this != &rhs) {
+    this->WString::~WString();
+    new (this) WString(std::move(rhs));
   }
 
   return *this;
@@ -233,6 +261,14 @@ WString WString::trim() const
 WString WString::fromUTF8(const std::string& value, bool checkValid)
 {
   WString result(value, CharEncoding::UTF8);
+  if (checkValid)
+    checkUTF8Encoding(result.utf8_);
+  return result;
+}
+
+WString WString::fromUTF8(std::string&& value, bool checkValid)
+{
+  WString result(std::move(value), CharEncoding::UTF8);
   if (checkValid)
     checkUTF8Encoding(result.utf8_);
   return result;

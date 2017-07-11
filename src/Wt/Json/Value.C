@@ -94,6 +94,10 @@ Value::Value(const WT_USTRING& value)
   : v_(value)
 { }
 
+Value::Value(WT_USTRING&& value)
+  : v_(std::move(value))
+{ }
+
 Value::Value(int value)
   : v_(value)
 { }

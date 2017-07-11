@@ -104,6 +104,10 @@ public:
    */
   WString(const WString& other);
 
+  /*! \brief Move constructor
+   */
+  WString(WString&& other);
+
   /*! \brief Creates a %WString from a wide C++ string
    *
    * The wide string is implicitly converted to proper unicode. Note
@@ -176,6 +180,22 @@ public:
 
   /*! \brief Creates a %WString from a C++ string.
    *
+   * The C++ string is implicitly converted to unicode. When
+   * \p encoding is \link Wt::CharEncoding::Local CharEncoding::Local\endlink,
+   * the current locale is used to interpret the C++ string. When
+   * encoding is \link Wt::CharEncoding::UTF8 CharEncoding::UTF8\endlink, the C++ string is
+   * interpreted as a CharEncoding::UTF8 encoded unicode string.
+   *
+   * WString::setDefaultEncoding() controls the behaviour of
+   * \link Wt::CharEncoding::Default CharEncoding::Default\endlink. Use it to set a
+   * system-wide default format for C style strings (e.g. to UTF-8).
+
+   */
+  WString(std::string&& value,
+	  CharEncoding encoding = CharEncoding::Default);
+
+  /*! \brief Creates a %WString from a C++ string.
+   *
    * The C++ string is implicitly converted to unicode. The
    * string is interpreted within the character set of the given locale.
    */
@@ -187,11 +207,17 @@ public:
 
   WString trim() const;
 
-  /*! \brief Assignment operator
+  /*! \brief Copy assignment operator
    *
    * Copy another string into this string.
    */
   WString& operator= (const WString& rhs);
+
+  /*! \brief Move assignment operator
+   *
+   * Move another string into this string.
+   */
+  WString& operator= (WString&& rhs);
 
   /*! \brief Comparison operator
    *
@@ -310,6 +336,18 @@ public:
    * browser (in UTF-8 format).
    */
   static WString fromUTF8(const std::string& value, bool checkValid = false);
+
+  /*! \brief Creates a %WString from a UTF-8 encoded string.
+   *
+   * This is equivalent to using the constructor WString(\p value,
+   * CharEncoding::UTF8).
+   *
+   * When \p checkValid is \c true, the UTF-8 encoding is validated. You
+   * should enable this only if you cannot trust the origin of the string.
+   * The library uses this internally whenever it receives data from the
+   * browser (in UTF-8 format).
+   */
+  static WString fromUTF8(std::string&& value, bool checkValid = false);
 
   /*! \brief Creates a %WString from a UTF-8 unicode encoded string.
    *

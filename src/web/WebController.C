@@ -40,27 +40,6 @@
 #include <algorithm>
 #include <csignal>
 
-namespace {
-
-bool matchesPath(const std::string& path, const std::string& prefix)
-{
-  if (boost::starts_with(path, prefix)) {
-    unsigned prefixLength = prefix.length();
-
-    if (path.length() > prefixLength) {
-      char next = path[prefixLength];
-
-      if (next == '/')
-	return true; 
-    } else
-      return true;
-  }
-
-  return false;
-}
-
-}
-
 namespace Wt {
 
 LOGGER("WebController");
@@ -804,36 +783,7 @@ const EntryPoint *WebController::getEntryPoint(WebRequest *request)
   const std::string& scriptName = request->scriptName();
   const std::string& pathInfo = request->pathInfo();
 
-  // Only one default entry point.
-  if (conf_.entryPoints().size() == 1
-      && conf_.entryPoints()[0].path().empty())
-    return &conf_.entryPoints()[0];
-
-  // Multiple entry points.
-  int bestMatch = -1;
-  std::size_t bestLength = 0;
-
-  for (unsigned i = 0; i < conf_.entryPoints().size(); ++i) {
-    const Wt::EntryPoint& ep = conf_.entryPoints()[i];
-
-    if (ep.path().empty()) {
-      if (bestLength == 0)
-	bestMatch = i;
-    } else {
-      if (ep.path().length() > bestLength) {
-	if (matchesPath(scriptName + pathInfo, ep.path()) ||
-	    matchesPath(pathInfo, ep.path())) {
-	  bestLength = ep.path().length();
-	  bestMatch = i;
-	}
-      }
-    }
-  }
-
-  if (bestMatch >= 0)
-    return &conf_.entryPoints()[bestMatch];
-  else
-    return nullptr;
+  return conf_.matchEntryPoint(scriptName, pathInfo, false);
 }
 
 std::string

@@ -114,6 +114,13 @@ public:
    */
   Value(const WT_USTRING& value);
 
+  /*! \brief Creates a value from a string.
+   *
+   * This creates a \link Wt::Json::Type::String
+   * Json::Type::String\endlink value.
+   */
+  Value(WT_USTRING&& value);
+
   /*! \brief Creates a value from a boolean.
    *
    * This creates a \link Wt::Json::Type::Bool
