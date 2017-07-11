@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 
 SET(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE true)
 
@@ -6,6 +6,13 @@ IF(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0002 OLD)
   CMAKE_POLICY(SET CMP0003 OLD)
   CMAKE_POLICY(SET CMP0005 OLD)
+  # Use the NEW behavior for the following policies:
+  FOREACH(_policy
+      CMP0022) # To export relocatable Config-file package
+    IF(POLICY ${_policy})
+      CMAKE_POLICY(SET ${_policy} NEW)
+    ENDIF(POLICY ${_policy})
+  ENDFOREACH(_policy)
 ENDIF(COMMAND CMAKE_POLICY)
 
 PROJECT(WT)
@@ -216,6 +223,9 @@ SET(DEBUG_LIB_POSTFIX "d" CACHE STRING "String appended to debug libraries")
 
 SET(LIB_INSTALL_DIR "lib" CACHE STRING
   "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
+
+SET(CMAKE_INSTALL_DIR "${LIB_INSTALL_DIR}/cmake" CACHE STRING
+  "Name for CMake package configuration directory within ${CMAKE_INSTALL_PREFIX}")
 
 IF(WIN32)
 
@@ -636,4 +646,12 @@ CONFIGURE_FILE(
   ${WT_SOURCE_DIR}/wt_config.xml.in
   ${WT_BINARY_DIR}/wt_config.xml
 )
-
+# CMake package configuration
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/wt-config.cmake.in
+  ${WT_BINARY_DIR}/wt-config.cmake
+  @ONLY
+)
+INSTALL(FILES
+  ${WT_BINARY_DIR}/wt-config.cmake
+  DESTINATION ${CMAKE_INSTALL_DIR}/wt)

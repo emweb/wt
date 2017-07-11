@@ -81,6 +81,16 @@ FIND_PACKAGE(Boost 1.35
   REQUIRED
 )
 
+# Use IMPORTED targets if defined
+FOREACH(_target ${Boost_COMPONENTS})
+  IF(TARGET Boost::${_target})
+    STRING(TOUPPER ${_target} _TARGET)
+    SET(Boost_${_TARGET}_LIBRARY Boost::${_target})
+  ENDIF(TARGET Boost::${_target})
+ENDFOREACH(_target ${Boost_COMPONENTS})
+UNSET(_target)
+UNSET(_TARGET)
+
 IF (Boost_FOUND)
   # Translate variables from official cmake names to internally used names
   SET(BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
