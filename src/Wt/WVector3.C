@@ -8,6 +8,8 @@
 #include "Wt/WVector3.h"
 #include "Wt/WVector4.h"
 
+#include <cmath>
+
 using namespace Wt;
 
 WVector3::WVector3()
