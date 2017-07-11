@@ -114,7 +114,7 @@ public:
 #ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
     return m_.data();
 #else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
-    return *m_.data();
+    return m_;
 #endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
   }
 
