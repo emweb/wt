@@ -3,6 +3,8 @@
 #include <Wt/WGenericMatrix.h>
 #include <Wt/WMatrix4x4.h>
 
+#include <cmath>
+
 using namespace Wt;
 
 BOOST_AUTO_TEST_CASE( matrix_test_identity )
