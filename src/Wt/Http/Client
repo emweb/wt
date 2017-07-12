@@ -147,7 +147,7 @@ public:
    *
    * The default timeout is 10 seconds.
    */
-  void setTimeout(std::chrono::steady_clock::duration seconds);
+  void setTimeout(std::chrono::steady_clock::duration timeout);
 
   /*! \brief Returns the I/O timeout.
    *

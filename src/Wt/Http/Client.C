@@ -750,7 +750,7 @@ private:
 
 Client::Client()
   : ioService_(0),
-    timeout_(10),
+    timeout_(std::chrono::seconds{10}),
     maximumResponseSize_(64*1024),
 #ifdef VERIFY_CERTIFICATE
     verifyEnabled_(true),
@@ -764,7 +764,7 @@ Client::Client()
 
 Client::Client(asio::io_service& ioService)
   : ioService_(&ioService),
-    timeout_(10),
+    timeout_(std::chrono::seconds{10}),
     maximumResponseSize_(64*1024),
 #ifdef VERIFY_CERTIFICATE
     verifyEnabled_(true),
@@ -801,9 +801,9 @@ void Client::abort()
   }
 }
 
-void Client::setTimeout(std::chrono::steady_clock::duration seconds)
+void Client::setTimeout(std::chrono::steady_clock::duration timeout)
 {
-  timeout_ = seconds;
+  timeout_ = timeout;
 }
 
 void Client::setMaximumResponseSize(std::size_t bytes)
