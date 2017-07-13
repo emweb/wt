@@ -339,9 +339,11 @@ private:
   OAuthAccessToken parseJsonToken(const Http::Message& response);
 
   std::string authorizeUrl() const;
-  void handleRedirectPath(const std::string& internalPath);
   void doParseTokenResponse(const Http::Message& response);
   void onOAuthDone();
+#ifndef WT_TARGET_JAVA
+  void handleAuthComplete(); // For non-Ajax sessions
+#endif // WT_TARGET_JAVA
 
   friend class OAuthRedirectEndpoint;
 };

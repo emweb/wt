@@ -552,7 +552,26 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
   if (ep.type() == StaticResource)
     ep.resource()->currentUrl_ = ep.path();
 
+  WRITE_LOCK;
   entryPoints_.push_back(ep);
+}
+
+bool Configuration::tryAddResource(const EntryPoint& ep)
+{
+  WRITE_LOCK;
+  for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
+    if (entryPoints_[i].resource() &&
+	entryPoints_[i].resource()->internalPath() == ep.path()) {
+      return false;
+    }
+  }
+
+  if (ep.type() == StaticResource)
+    ep.resource()->currentUrl_ = ep.path();
+
+  entryPoints_.push_back(ep);
+
+  return true;
 }
 
 void Configuration::removeEntryPoint(const std::string& path)
@@ -571,6 +590,73 @@ void Configuration::setDefaultEntryPoint(const std::string& path)
   for (unsigned i = 0; i < entryPoints_.size(); ++i)
     if (entryPoints_[i].path().empty())
       entryPoints_[i].setPath(path);
+}
+
+const EntryPoint *Configuration::matchEntryPoint(const std::string &scriptName,
+                                                                          const std::string &path,
+                                                                          bool matchAfterSlash) const
+{
+  READ_LOCK;
+  // Only one default entry point.
+  if (entryPoints_.size() == 1
+      && entryPoints_[0].path().empty())
+    return &entryPoints_[0];
+
+  // Multiple entry points.
+  const Wt::EntryPoint *bestMatch = 0;
+  std::size_t bestLength = std::string::npos;
+
+  for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
+    const Wt::EntryPoint &ep = entryPoints_[i];
+
+    if (ep.path().empty()) {
+      if (bestLength == std::string::npos)
+	bestMatch = &ep;
+    } else {
+      // Don't even try to match if the length won't be longer than
+      // the existing match
+      if (bestLength == std::string::npos ||
+	  ep.path().length() > bestLength) {
+
+        bool matches = matchesPath(path, ep.path(), matchAfterSlash);
+	if (!scriptName.empty()) {
+	  matches = matchesPath(scriptName + path, ep.path(), matchAfterSlash);
+	}
+
+        if (matches) {
+          bestLength = ep.path().length();
+          bestMatch = &ep;
+        }
+      }
+    }
+  }
+
+  return bestMatch;
+}
+
+bool Configuration::matchesPath(const std::string &path,
+                                const std::string &prefix,
+				bool matchAfterSlash)
+{
+  if (boost::starts_with(path, prefix)) {
+    std::size_t prefixLength = prefix.length();
+
+    if (path.length() > prefixLength) {
+      char next = path[prefixLength];
+
+      if (next == '/')
+	return true;
+      else if (matchAfterSlash) {
+	char last = prefix[prefixLength - 1];
+
+	if (last == '/')
+	  return true;
+      }
+    } else
+      return true;
+  }
+
+  return false;
 }
 
 void Configuration::setSessionTimeout(int sessionTimeout)

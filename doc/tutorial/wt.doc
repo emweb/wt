@@ -263,7 +263,7 @@ equivalent).
 .Inside +WRun()+
 ****
 +WRun()+ is actually a convenience function which creates and
-configures a +{doc}:classWt_1_1WServer[WServer]+ instance. If you want
+configures a +{doc}classWt_1_1WServer.html[WServer]+ instance. If you want
 more control, for example if you have multiple “entry points”, or want
 to control the server starting and stopping, you can use the +WServer+
 API directly instead.

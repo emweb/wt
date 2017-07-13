@@ -1395,6 +1395,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
   if (!redirect.empty()) {
     response.setStatus(302); // Should be 303 in fact ?
     response.setRedirect(redirect);
+    setHeaders(response, "text/html; charset=UTF-8");
     return;
   }
 
