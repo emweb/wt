@@ -207,9 +207,11 @@ void WNavigationBar::collapseContents()
   if (!animatedResponsive())
     contents->hide();
   else {
+#ifndef WT_TARGET_JAVA
     if (canOptimizeUpdates())
       contents->show(); /* We are collapsed only in appearance */
     else
+#endif // WT_TARGET_JAVA
       contents->animateHide
         (WAnimation(AnimationEffect::SlideInFromTop,
                     TimingFunction::Ease));
@@ -230,9 +232,11 @@ void WNavigationBar::expandContents()
   if (!animatedResponsive())
     contents->show();
   else {
+#ifndef WT_TARGET_JAVA
     if (canOptimizeUpdates())
       contents->show();
     else
+#endif // WT_TARGET_JAVA
       contents->animateShow
         (WAnimation(AnimationEffect::SlideInFromTop,
                     TimingFunction::Ease));

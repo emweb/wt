@@ -200,6 +200,9 @@ SET(DEBUG_LIB_POSTFIX "d" CACHE STRING "String appended to debug libraries")
 SET(LIB_INSTALL_DIR "lib" CACHE STRING
   "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
 
+SET(CMAKE_INSTALL_DIR "${LIB_INSTALL_DIR}/cmake" CACHE STRING
+  "Name for CMake package configuration directory within ${CMAKE_INSTALL_PREFIX}")
+
 IF(WIN32)
 
   SET(RUNDIR "c:/witty") # Does not apply to win32
@@ -638,3 +641,18 @@ CONFIGURE_FILE(
   ${WT_BINARY_DIR}/wt_config.xml
 )
 
+# CMake package configuration
+IF (${WT_ASIO_IMPLEMENTATION} STREQUAL "boost" OR (${Boost_USE_STATIC_LIBS}))
+  SET(_WTCONFIG_CMAKE_FIND_BOOST TRUE)
+ELSE()
+  SET(_WTCONFIG_CMAKE_FIND_BOOST FALSE)
+ENDIF()
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/wt-config.cmake.in
+  ${WT_BINARY_DIR}/wt-config.cmake
+  @ONLY
+)
+UNSET(_WTCONFIG_CMAKE_FIND_BOOST)
+INSTALL(FILES
+  ${WT_BINARY_DIR}/wt-config.cmake
+  DESTINATION ${CMAKE_INSTALL_DIR}/wt)
