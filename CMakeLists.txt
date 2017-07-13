@@ -100,7 +100,6 @@ OPTION(BUILD_EXAMPLES "Build examples" ON)
 OPTION(INSTALL_DOCUMENTATION "Install documentation (tutorials and reference)" OFF)
 OPTION(INSTALL_EXAMPLES "Install examples (binaries and source)" OFF)
 OPTION(INSTALL_RESOURCES "Install resources directory" ON)
-OPTION(INSTALL_FINDWT_CMAKE_FILE "Install FindWt.cmake in systemwide cmake dir (in addition to CMAKE_INSTALL_PREFIX/cmake)" OFF)
 OPTION(ENABLE_SSL "Enable cryptography functions, using OpenSSL" ON)
 OPTION(ENABLE_HARU "Enable Haru Free PDF Library, which is used to provide support for painting to PDF (WPdfImage)" ON)
 OPTION(ENABLE_PANGO "Enable Pango Library, which is used for improved font support (WPdfImage and WRasterImage)" ON)
@@ -571,15 +570,6 @@ ENDIF(BUILD_EXAMPLES)
 IF(BUILD_TESTS)
   SUBDIRS(test)
 ENDIF(BUILD_TESTS)
-
-IF (INSTALL_FINDWT_CMAKE_FILE)
-  IF( NOT DEFINED WT_CMAKE_FINDER_INSTALL_DIR )
-    SET( WT_CMAKE_FINDER_INSTALL_DIR "${CMAKE_ROOT}/Modules" )
-  ENDIF( NOT DEFINED WT_CMAKE_FINDER_INSTALL_DIR)
-  
-  INSTALL(FILES ${PROJECT_SOURCE_DIR}/cmake/FindWt.cmake DESTINATION
-    ${WT_CMAKE_FINDER_INSTALL_DIR} )
-ENDIF (INSTALL_FINDWT_CMAKE_FILE)
 
 IF(INSTALL_RESOURCES)
 INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION
