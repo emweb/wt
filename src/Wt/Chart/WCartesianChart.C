@@ -2404,10 +2404,14 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     doJavaScript(ss.str());
 
     cObjCreated_ = true;
+  }
+}
 
-    for (std::size_t i = 0; i < axisSliderWidgets_.size(); ++i) {
-      axisSliderWidgets_[i]->update();
-    }
+void WCartesianChart::getDomChanges(std::vector<DomElement *>& result, WApplication *app)
+{
+  WAbstractChart::getDomChanges(result, app);
+  for (std::size_t i = 0; i < axisSliderWidgets_.size(); ++i) {
+    axisSliderWidgets_[i]->update();
   }
 }
 
