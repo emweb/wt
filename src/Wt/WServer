@@ -500,6 +500,10 @@ public:
   WT_API static void terminate();
 #endif // WT_WIN32
 
+#ifdef WT_TARGET_JAVA
+  std::string getContextPath();
+#endif
+
 private:
   WebController *webController_;
 
