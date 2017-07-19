@@ -297,6 +297,9 @@ void WAggregateProxyModel::setSourceModel(WAbstractItemModel *model)
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
      (this, &WAggregateProxyModel::sourceLayoutChanged));
 
+  modelConnections_.push_back(sourceModel()->modelReset().connect
+     (this, &WAggregateProxyModel::sourceModelReset));
+
   topLevel_ = Aggregate();
 }
 
@@ -646,6 +649,12 @@ void WAggregateProxyModel::sourceLayoutAboutToBeChanged()
 void WAggregateProxyModel::sourceLayoutChanged()
 {
   layoutChanged().emit();
+}
+
+void WAggregateProxyModel::sourceModelReset()
+{
+  topLevel_ = Aggregate();
+  reset();
 }
 
 }

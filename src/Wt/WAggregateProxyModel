@@ -230,6 +230,8 @@ private:
 
   void sourceLayoutAboutToBeChanged();
   void sourceLayoutChanged();
+
+  void sourceModelReset();
 };
 
 }
