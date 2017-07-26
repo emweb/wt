@@ -234,6 +234,7 @@ void Configuration::reset()
   webglDetection_ = true;
   bootstrapConfig_.clear();
   numSessionThreads_ = -1;
+  allowedOrigins_.clear();
 
   if (!appRoot_.empty())
     setAppRoot(appRoot_);
@@ -479,6 +480,21 @@ int Configuration::numSessionThreads() const
   return numSessionThreads_;
 }
 
+bool Configuration::isAllowedOrigin(const std::string &origin) const
+{
+  READ_LOCK;
+  if (allowedOrigins_.size() == 1 &&
+      allowedOrigins_[0] == "*")
+    return true;
+  else {
+    for (std::size_t i = 0; i < allowedOrigins_.size(); ++i) {
+      if (origin == allowedOrigins_[i])
+        return true;
+    }
+    return false;
+  }
+}
+
 bool Configuration::agentIsBot(const std::string& agent) const
 {
   READ_LOCK;
@@ -560,8 +576,7 @@ bool Configuration::tryAddResource(const EntryPoint& ep)
 {
   WRITE_LOCK;
   for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
-    if (entryPoints_[i].resource() &&
-	entryPoints_[i].resource()->internalPath() == ep.path()) {
+    if (entryPoints_[i].path() == ep.path()) {
       return false;
     }
   }
@@ -964,6 +979,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
       metaHeaders_.push_back(MetaHeader(type, name, content, "", userAgent));
     }
   }
+
+  std::string allowedOrigins
+    = singleChildElementValue(app, "allowed-origins", "");
+  boost::split(allowedOrigins_, allowedOrigins, boost::is_any_of(","));
+  for (std::size_t i = 0; i < allowedOrigins_.size(); ++i)
+    boost::trim(allowedOrigins_[i]);
 }
 
 void Configuration::rereadConfiguration()

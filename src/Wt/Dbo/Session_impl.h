@@ -329,7 +329,7 @@ void Session::implDelete(MetaDbo<C>& dbo)
   ScopedStatementUse use(statement);
 
   int column = 0;
-  dbo.bindId(statement, column);
+  dbo.bindModifyId(statement, column);
 
   int version = -1;
   if (versioned) {

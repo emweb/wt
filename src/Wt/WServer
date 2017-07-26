@@ -502,6 +502,7 @@ public:
 
 #ifdef WT_TARGET_JAVA
   std::string getContextPath();
+  int servletMajorVersion();
 #endif
 
 private:

@@ -59,6 +59,7 @@ IF(ENABLE_LIBWTTEST)
       dbo/DboTest2.C
       dbo/DboTest3.C
       dbo/DboTest4.C
+      dbo/DboTest5.C
       dbo/Benchmark.C
       dbo/Benchmark2.C
       dbo/JsonTest.C

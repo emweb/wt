@@ -276,6 +276,8 @@ protected:
   SqlConnection(const SqlConnection& other);
   void clearStatementCache();
 
+  std::vector<SqlStatement *> getStatements() const;
+  
 private:
   typedef std::map<std::string, SqlStatement *> StatementMap;
 

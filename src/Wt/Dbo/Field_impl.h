@@ -17,10 +17,11 @@ namespace Wt {
   namespace Dbo {
 
 template <typename V>
-FieldRef<V>::FieldRef(V& value, const std::string& name, int size)
+FieldRef<V>::FieldRef(V& value, const std::string& name, int size, int flags)
   : value_(value),
     name_(name),
-    size_(size)
+    size_(size),
+    flags_(flags)
 { }
 
 template <typename V>
@@ -33,6 +34,12 @@ template <typename V>
 int FieldRef<V>::size() const
 {
   return size_;
+}
+
+template <typename V>
+int FieldRef<V>::flags() const
+{
+  return flags_;
 }
 
 template <typename V>
@@ -81,11 +88,12 @@ CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
 
 template <class C>
 PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name,
-		  int fkConstraints)
+		  int fkConstraints, int flags)
   : value_(value),
     name_(name),
     literalForeignKey_(false),
-    fkConstraints_(fkConstraints)
+    fkConstraints_(fkConstraints),
+    flags_(flags)
 {
   if (!name.empty() && name[0] == '>') {
     name_ = std::string(name.c_str() + 1, name.size() - 1);
@@ -176,6 +184,20 @@ void id(A& action, ptr<C>& value, const std::string& name,
   action.actId(value, name, size, constraint.value());
 }
 
+template <class Action, typename V>
+void auxId(Action& action, V& value, const std::string& name,
+	   int size)
+{
+  action.act(FieldRef<V>(value, name, size, FieldRef<V>::AuxId));
+}
+
+template <class Action, class C>
+void auxId(Action& action, ptr<C>& value, const std::string& name,
+	   ForeignKeyConstraint constraint, int size)
+{
+  action.actPtr(PtrRef<C>(value, name, constraint.value(), PtrRef<C>::AuxId));
+}
+  
 template <class A, typename V>
 void field(A& action, V& value, const std::string& name, int size)
 {

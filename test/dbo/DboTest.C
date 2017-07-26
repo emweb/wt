@@ -2439,3 +2439,32 @@ BOOST_AUTO_TEST_CASE( dbo_test27 )
   }
 #endif
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test28 )
+{
+#ifdef POSTGRES
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  try {
+    dbo::Transaction t(*session_);
+    dbo::ptr<B> b(new B());
+    b.modify()->name = "b";
+    session_->add(b);
+    session_->flush();
+    session_->execute("select pg_sleep(10)");
+  } catch (...) {
+
+  }
+
+  {
+    dbo::Transaction t(*session_);
+    dbo::ptr<B> b(new B());
+    b.modify()->name = "b";
+    session_->add(b);
+    session_->flush();
+  }
+
+#endif
+}

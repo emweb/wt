@@ -442,7 +442,22 @@ std::string WApplication::relativeResourcesUrl()
   const Configuration& conf = app->environment().server()->configuration(); 
   const std::string* path = conf.property(WApplication::RESOURCES_URL);
 
-  return app->environment().server()->getContextPath() + *path;
+  if (app->environment().server()->servletMajorVersion() < 3) {
+      /*
+       * Arghll... we should in fact know when we need the absolute URL: only
+       * when we are having a request.pathInfo().
+       */
+    if (path == "/wt-resources/") {
+      std::string result = app->environment().deploymentPath();
+      if (!result.empty() && result[result.length() - 1] == '/')
+	return result + path->substr(1);
+      else
+	return result + *path;
+    } else 
+      return *path;
+  } else { // from v3.0, resources can be deployed in META-INF of a jar-file
+    return app->environment().server()->getContextPath() + *path;
+  }
 #endif // WT_TARGET_JAVA
 }
 
