@@ -341,6 +341,7 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
   sql << " where ";
 
   std::string idCondition;
+  std::string modifyIdCondition;
 
   if (!mapping->surrogateIdFieldName) {
     firstField = true;
@@ -362,9 +363,17 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
     idCondition
       += std::string() + "\"" + mapping->surrogateIdFieldName + "\" = ?";
 
+  modifyIdCondition = idCondition;
+  for (unsigned i = 0; i < mapping->fields.size(); ++i) {
+    if (mapping->fields[i].isAuxIdField()) {
+      modifyIdCondition += " and ";
+      modifyIdCondition += "\"" + mapping->fields[i].name() + "\" = ?";
+    }
+  }
+
   mapping->idCondition = idCondition;
 
-  sql << idCondition;
+  sql << modifyIdCondition;
 
   if (mapping->versionFieldName)
     sql << " and \"" << mapping->versionFieldName << "\" = ?";
@@ -377,7 +386,7 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
 
   sql.str("");
 
-  sql << "delete from \"" << table << "\" where " << idCondition;
+  sql << "delete from \"" << table << "\" where " << modifyIdCondition;
 
   mapping->statements.push_back(sql.str()); // SqlDelete
 

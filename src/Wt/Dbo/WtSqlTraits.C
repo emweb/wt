@@ -18,7 +18,7 @@ void msecsToHMS(std::chrono::duration<int, std::milli> msecs, int &h, int &m, in
   h = time.hours().count();
   m = time.minutes().count();
   s = time.seconds().count();
-  s = std::chrono::duration_cast<std::chrono::duration<int, std::milli>>(time.subseconds()).count();
+  ms = std::chrono::duration_cast<std::chrono::duration<int, std::milli>>(time.subseconds()).count();
 }
 
     }

@@ -1252,22 +1252,29 @@ void WebSession::handleRequest(Handler& handler)
 
   const std::string *wtdE = request.getParameter("wtd");
 
+  Configuration& conf = controller_->configuration();
+
   /*
-   * Cross-Origin Resource Sharing
+   * CORS (Cross-Origin Resource Sharing)
    */
   const char *origin = request.headerValue("Origin");
   if (origin) {
     /*
      * Do we allow this XMLHttpRequest or WebSocketRequest?
      *
-     * Only if it's proven itself by a correct (existing) wtd, and thus
-     * not for a new session.
+     * Only if all of the conditions below are met:
+     *  - this is a WidgetSet sessions
+     *  - the Origin is allowed according to the configuration
+     *  - this is a new session or the session id matches
      */
-    if ((wtdE && *wtdE == sessionId_) || state_ == State::JustCreated) {
+    if (type() == EntryPointType::WidgetSet &&
+        ((wtdE && *wtdE == sessionId_) || state_ == State::JustCreated) &&
+        conf.isAllowedOrigin(origin)) {
       if (isEqual(origin, "null"))
 	origin = "*";
       handler.response()->addHeader("Access-Control-Allow-Origin", origin);
       handler.response()->addHeader("Access-Control-Allow-Credentials", "true");
+      handler.response()->addHeader("Vary", "Origin");
 
       if (isEqual(request.requestMethod(), "OPTIONS")) {
 	WebResponse *response = handler.response();
@@ -1275,7 +1282,10 @@ void WebSession::handleRequest(Handler& handler)
 	response->setStatus(200);
 	response->addHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
 	response->addHeader("Access-Control-Max-Age", "1728000");
-	handler.flushResponse();
+        const char *requestHeaders = request.headerValue("Access-Control-Request-Headers");
+        if (requestHeaders)
+          response->addHeader("Access-Control-Allow-Headers", requestHeaders);
+        handler.flushResponse();
 
 	return;
       }
@@ -1295,8 +1305,6 @@ void WebSession::handleRequest(Handler& handler)
   }
 
   const std::string *requestE = request.getParameter("request");
-
-  Configuration& conf = controller_->configuration();
 
 
   if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {

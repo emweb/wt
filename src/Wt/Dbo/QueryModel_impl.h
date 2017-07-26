@@ -286,6 +286,7 @@ void QueryModel<Result>::cacheRow(int row) const
 
     Transaction transaction(query_.session());
 
+    std::cerr << "Fetching offset=" << qOffset << ", limit=" << qLimit << std::endl;
     collection<Result> results = query_.resultList();
     cache_.clear();
     cache_.insert(cache_.end(), results.begin(), results.end());   

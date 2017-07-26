@@ -326,12 +326,23 @@ bool Connection::readAvailable()
 void Connection::detectDisconnect(ReplyPtr reply,
 				  const std::function<void()>& callback)
 {
+  server_->service()
+    .post(strand_.wrap(std::bind(&Connection::asyncDetectDisconnect, this, reply, callback)));
+}
+
+void Connection::asyncDetectDisconnect(ReplyPtr reply,
+				       const std::function<void()>& callback)
+{
   if (disconnectCallback_)
     return; // We're already detecting the disconnect
 
   disconnectCallback_ = callback;
 
-  readMore(reply, 0);
+  /*
+   * We do not actually expect to receive anything, and if we do, we'll close
+   * anyway (see below).
+   */
+  startAsyncReadBody(reply, rcv_buffers_.back(), 0);
 }
 
 void Connection::handleReadBody0(ReplyPtr reply,
@@ -341,9 +352,6 @@ void Connection::handleReadBody0(ReplyPtr reply,
   LOG_DEBUG(socket().native() << ": handleReadBody0(): " << e.message());
 
   if (disconnectCallback_) {
-    rcv_body_buffer_ = false;
-    rcv_buffers_.pop_back();
-
     if (e && e != asio::error::operation_aborted) {
       boost::function<void()> f = disconnectCallback_;
       disconnectCallback_ = boost::function<void()>();

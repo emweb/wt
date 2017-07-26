@@ -1290,6 +1290,8 @@ private:
 
   static WColor lightenColor(const WColor &in);
 
+  virtual void getDomChanges(std::vector<DomElement *>& result, WApplication *app) override;
+
 protected:
   virtual void modelChanged() override;
   virtual void modelReset() override;

@@ -378,6 +378,7 @@ private:
 
   void sourceLayoutAboutToBeChanged();
   void sourceLayoutChanged();
+  void sourceModelReset();
 
   Item *itemFromSourceIndex(const WModelIndex& sourceIndex) const;
   Item *parentItemFromIndex(const WModelIndex& index) const;

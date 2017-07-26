@@ -176,6 +176,8 @@ public:
   std::string sessionIdPrefix() const;
   int numSessionThreads() const;
 
+  bool isAllowedOrigin(const std::string &origin) const;
+
 #ifndef WT_TARGET_JAVA
   bool readConfigurationProperty(const std::string& name, std::string& value)
     const;
@@ -273,6 +275,8 @@ private:
   bool            cookieChecks_;
   bool            webglDetection_;
   int             numSessionThreads_;
+
+  std::vector<std::string> allowedOrigins_;
 
   std::vector<BootstrapEntry> bootstrapConfig_;
   std::vector<MetaHeader> metaHeaders_;

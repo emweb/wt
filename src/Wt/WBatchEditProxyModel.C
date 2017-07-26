@@ -102,6 +102,9 @@ void WBatchEditProxyModel
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
      (this, &WBatchEditProxyModel::sourceLayoutChanged));
 
+  modelConnections_.push_back(sourceModel()->modelReset().connect
+     (this, &WBatchEditProxyModel::sourceModelReset));
+
   resetMappings();
 }
 
@@ -675,6 +678,12 @@ void WBatchEditProxyModel::sourceLayoutAboutToBeChanged()
 void WBatchEditProxyModel::sourceLayoutChanged()
 {
   layoutChanged().emit();
+}
+
+void WBatchEditProxyModel::sourceModelReset()
+{
+  resetMappings();
+  reset();
 }
 
 cpp17::any WBatchEditProxyModel::data(const WModelIndex& index, ItemDataRole role) const

@@ -61,7 +61,7 @@ private:
 
   bool idField_;
   std::string foreignKeyTable_, foreignKeyName_;
-  int fkConstraints_;
+  int fkConstraints_, fkFlags_;
 };
 
 class WTDBO_API DropSchema
@@ -174,7 +174,7 @@ public:
    * to simply bind values to a statement using field().
    */
   SaveBaseAction(Session *session, SqlStatement *statement, int column);
-
+  
   SaveBaseAction(MetaDboBase& dbo, Impl::MappingInfo& mapping,
 		 SqlStatement *statement = nullptr, int column = 0);
 
@@ -182,6 +182,11 @@ public:
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
+  template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class D> void actId(ptr<D>& value, const std::string& name, int size,
+			       int fkConstraints);
+
+  template<class C> void visitAuxIds(C& obj);
 
   bool getsValue() const;
 
@@ -192,6 +197,7 @@ protected:
   bool isInsert_;
   int column_;
   bool bindNull_;
+  bool auxIdOnly_;
 
   enum { Dependencies, Self, Sets } pass_;
   bool needSetsPass_;
@@ -358,6 +364,9 @@ struct action_sets_value<FromAnyAction> : std::true_type { };
 template<typename V>
 void SaveBaseAction::act(const FieldRef<V>& field)
 {
+  if (auxIdOnly_ && !(field.flags() & FieldRef<V>::AuxId))
+    return;
+
   if (pass_ == Self) {
     if (bindNull_)
       statement_->bindNull(column_++);

@@ -82,6 +82,8 @@ public:
   //       further calls to detectDisconnect are ignored
   void detectDisconnect(ReplyPtr reply,
 			const std::function<void()>& callback);
+  void asyncDetectDisconnect(ReplyPtr reply,
+			     const std::function<void()>& callback);
 
 protected:
   void handleWriteResponse0(ReplyPtr reply,

@@ -12,6 +12,7 @@
 #include "Wt/WText.h"
 #include "Wt/WTemplate.h"
 #include "Wt/WTheme.h"
+#include "Wt/WTree.h"
 #include "Wt/WTreeNode.h"
 
 namespace Wt {
@@ -528,7 +529,11 @@ void WTreeNode::update()
     layout_->bindString("selected", "Wt-root");
     childContainer()->addStyleClass("Wt-root");
   } else {
-    layout_->bindEmpty("selected");
+    const WTree::WTreeNodeSet &s = tree()->selectedNodes();
+    if (s.find(this) != s.end())
+      layout_->bindString("selected", WApplication::instance()->theme()->activeClass());
+    else
+      layout_->bindEmpty("selected");
     childContainer()->removeStyleClass("Wt-root");
   }
 

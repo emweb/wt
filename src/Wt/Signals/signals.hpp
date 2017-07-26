@@ -5,6 +5,12 @@
  * See the LICENSE file for terms of use.
  */
 
+// FIXME: find a way to disconnect a signal where it is actually removed from
+//        the ring of SignalLinks! The problem: Connection is not templated on the
+//        callback function type, while SignalLink is! Can we do this in a way where
+//        Connection stays non-templated? We'll probably have to either do it in a
+//        hacky way, or use virtual methods.
+
 // Based on: https://testbit.eu/cpp11-signal-system-performance/
 //   CC0 Public Domain: http://creativecommons.org/publicdomain/zero/1.0/
 
@@ -112,15 +118,20 @@ private:
       // leave intact ->next, ->prev for stale iterators
     }
 
-    Connection add_before (const CbFunction &cb,
-			   const Wt::Core::observable *object)
+    void add_before(SignalLink *link)
     {
-      SignalLink *link = new SignalLink ();
       link->prev = prev; // link to last
       link->next = this;
       prev->next = link; // link from last
       prev = link;
       static_assert (sizeof (link) == sizeof (size_t), "sizeof size_t");
+    }
+
+    Connection add_before (const CbFunction &cb,
+			   const Wt::Core::observable *object)
+    {
+      SignalLink *link = new SignalLink ();
+      add_before(link);
       link->function = cb;
       return link->connect(object);
     }
@@ -225,35 +236,59 @@ public:
     if (!callback_ring_)
       return;
 
+
     // this ProtoSignal may be deleted in a callback,
     // so take a defensive copy of the callback_ring pointer
     SignalLink *const callback_ring = callback_ring_;
+
     callback_ring->incref();
     SignalLink *link = callback_ring_;
     link->incref();
-   
-    do {
-      if (link->active()) {
-	try {
-	  link->function(args...);
-	} catch (...) {
-	  link->decref();
-	  if (callback_ring->ref_count < 2) {
-	    assert(callback_ring->ref_count == 1);
-	    while (callback_ring->next != callback_ring)
-	      callback_ring->next->unlink();
-	  }
-	  callback_ring->decref();
-	  throw;
-	}
-      }
 
-      SignalLink *old = link;
-      link = old->next;
-      if (link != callback_ring)
-	link->incref();
-      old->decref();
-    } while (link != callback_ring);
+    {
+      SignalLink end_link; // Marks the last slot to execute, any slots added while
+                           // executing this signal will not be executed during this
+                           // emit. If emit is called again while the signal is already
+                           // being emitted, those slots added before the second emit will
+                           // be executed.
+      callback_ring->add_before(&end_link);
+      end_link.incref(); // Refcount = 2, see call to unlink() below for reason
+
+      do {
+        if (link->active()) {
+          try {
+            link->function(args...);
+          } catch (...) {
+            link->decref();
+
+            end_link.unlink();
+            assert(end_link.ref_count == 1);
+            end_link.ref_count = 0;
+
+            if (callback_ring->ref_count < 2) {
+              assert(callback_ring->ref_count == 1);
+              while (callback_ring->next != callback_ring)
+                callback_ring->next->unlink();
+            }
+            callback_ring->decref();
+            throw;
+          }
+        }
+
+        SignalLink *old = link;
+        link = old->next;
+        if (link != &end_link)
+          link->incref();
+        old->decref();
+      } while (link != &end_link);
+
+      end_link.unlink(); // Refcount goes from 2 to 1 (if it were to go from 1 to 0,
+                         // delete this would be called, which we don't want, because
+                         // end_link is on the stack
+      assert(end_link.ref_count == 1);
+      end_link.ref_count = 0;
+    }
+
     if (callback_ring->ref_count < 2) {
       assert(callback_ring->ref_count == 1);
       while (callback_ring->next != callback_ring)

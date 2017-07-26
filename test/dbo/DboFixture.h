@@ -48,6 +48,7 @@ struct DboFixtureBase
     connection = std::unique_ptr<dbo::SqlConnection>(new dbo::backend::Postgres
         ("user=postgres_test password=postgres_test port=5432 dbname=wt_test"));
     // use host=vendetta for testing.
+
 #endif // POSTGRES");
 
 #ifdef MYSQL

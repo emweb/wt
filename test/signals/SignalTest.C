@@ -239,3 +239,63 @@ BOOST_AUTO_TEST_CASE( test_signals9 )
     BOOST_REQUIRE(i == 4);
   }
 }
+
+BOOST_AUTO_TEST_CASE( test_signals10 )
+{
+  int i = 0;
+
+  Wt::Signal<> signal;
+  signal.connect([&i,&signal]{
+    signal.connect([&i]{
+      ++i;
+    });
+  });
+
+  signal();
+  BOOST_REQUIRE(i == 0); // Still one (++i is a slot once)
+  signal();
+  BOOST_REQUIRE(i == 1); // ++i called once, ++i is a slot twice now
+  signal();
+  BOOST_REQUIRE(i == 3); // ++i called twice. ++i is a slot three times
+}
+
+BOOST_AUTO_TEST_CASE( test_signals11 )
+{
+  int i = 0;
+
+  Wt::Signal<> signal;
+  signal.connect([&i,&signal]{
+    ++i;
+    signal.connect([&i]{
+      ++i;
+    });
+    if (i == 1)
+      signal();
+  });
+
+  signal();
+  // Sequence of events:
+  // - ++i is called (-> i == 1)
+  // - ++i slot is connected (once now)
+  // - i == 1, so signal is emitted again
+  //   - ++i is called (-> i == 2)
+  //   - ++i slot is connected (twice now)
+  //   - i != 1, so signal is NOT emitted again
+  //   - first ++i slot is executed (-> i == 3)
+  BOOST_REQUIRE_EQUAL(i, 3);
+  i = 0;
+  signal();
+  // Sequence of events:
+  // - ++i is called (-> i == 1)
+  // - ++i slot is connected (three times now)
+  // - i == 1, so signal is emitted again
+  //   - ++i is called (-> i == 2)
+  //   - ++i slot is connected (four times now)
+  //   - i != 1, so signal is NOT emitted again
+  //   - first i++ slot is executed (-> i == 3)
+  //   - second i++ slot is executed (-> i == 4)
+  //   - third i++ slot is executed (-> i == 5)
+  // - first i++ slot is executed (-> i == 6)
+  // - second i++ slot is executed (-> i == 7)
+  BOOST_REQUIRE_EQUAL(i, 7);
+}

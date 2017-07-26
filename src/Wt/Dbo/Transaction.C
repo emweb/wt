@@ -41,7 +41,7 @@ Transaction::~Transaction() noexcept(false)
       bool canThrow = !std::uncaught_exception();
       try {
 	rollback();
-      } catch (std::exception&) {
+      } catch (...) {
 	release();
 	if (canThrow)
 	  throw;
@@ -49,11 +49,11 @@ Transaction::~Transaction() noexcept(false)
     } else {
       try {
 	commit();
-      } catch (std::exception&) {
+      } catch (...) {
 	try {
 	  if (impl_->transactionCount_ == 1)
 	    rollback();
-	} catch (std::exception&) {
+	} catch (...) {
 	  std::cerr << "Unexpected transaction during Transaction::rollback()"
 		    << std::endl;
 	}

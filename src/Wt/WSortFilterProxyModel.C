@@ -118,6 +118,9 @@ void WSortFilterProxyModel
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
      (this, &WSortFilterProxyModel::sourceLayoutChanged));
 
+  modelConnections_.push_back(sourceModel()->modelReset().connect
+     (this, &WSortFilterProxyModel::sourceModelReset));
+
   resetMappings();
 }
 
@@ -616,6 +619,12 @@ void WSortFilterProxyModel::sourceLayoutAboutToBeChanged()
 void WSortFilterProxyModel::sourceLayoutChanged()
 {
   layoutChanged().emit();
+}
+
+void WSortFilterProxyModel::sourceModelReset()
+{
+  resetMappings();
+  reset();
 }
 
 bool WSortFilterProxyModel::insertRows(int row, int count,
