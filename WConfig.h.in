@@ -45,6 +45,15 @@
 #cmakedefine WT_USE_BOOST_SIGNALS
 #cmakedefine WT_USE_BOOST_SIGNALS2
 
+/* Number of bits in a file offset, on hosts where this is settable. */
+#cmakedefine _FILE_OFFSET_BITS @_FILE_OFFSET_BITS@
+
+/* Define to 1 to make fseeko visible on some hosts (e.g. glibc 2.2). */
+#cmakedefine _LARGEFILE_SOURCE @_LARGEFILE_SOURCE@
+
+/* Define for large files, on AIX-style hosts. */
+#cmakedefine _LARGE_FILES @_LARGE_FILES@
+
 // our win32: WIN32 (gcc) or _WIN32 (MSC)
 #if defined(WIN32) || defined(_WIN32)
 #define WT_WIN32 1
