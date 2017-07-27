@@ -22,6 +22,8 @@
 #define snprintf _snprintf
 #define strcasecmp _stricmp
 #define timegm _mkgmtime
+
+#include <WinSock2.h>
 #endif
 
 #define BYTEAOID 17
