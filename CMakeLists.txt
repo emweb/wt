@@ -116,6 +116,7 @@ OPTION(ENABLE_LIBWTDBO "Build Wt::Dbo" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
+OPTION(WT_FORCE_BOOST_DYN_LINK "Force BOOST_ALL_DYN_LINK when compiling Wt" OFF)
 
 # C++11 vs C++98
 # Binary compatibility is not guaranteed. We give our users the choice on
@@ -185,6 +186,11 @@ ENDIF(NOT SHARED_LIBS)
 IF(NOT MULTI_THREADED)
   OPTION(MULTI_THREADED "Build multi-threaded httpd deamon (if possible)" ON)
 ENDIF(NOT MULTI_THREADED)
+
+# Force dynamic linkage for all Boost libs if requested
+IF(WT_FORCE_BOOST_DYN_LINK)
+  ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+ENDIF(WT_FORCE_BOOST_DYN_LINK)
 
 SET(BUILD_SHARED_LIBS ${SHARED_LIBS})
 
