@@ -21,6 +21,8 @@
 #ifdef WT_WIN32
 #define snprintf _snprintf
 #define strcasecmp _stricmp
+
+#include <WinSock2.h>
 #endif
 
 #define BYTEAOID 17
