@@ -407,6 +407,8 @@ private:
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
+  static const int DEFAULT_BASE_Z_INDEX;
+
   std::string elementTagName_;
 
 #ifndef WT_TARGET_JAVA

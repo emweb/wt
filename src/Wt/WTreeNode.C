@@ -529,10 +529,13 @@ void WTreeNode::update()
     layout_->bindString("selected", "Wt-root");
     childContainer()->addStyleClass("Wt-root");
   } else {
-    const WTree::WTreeNodeSet &s = tree()->selectedNodes();
-    if (s.find(this) != s.end())
-      layout_->bindString("selected", WApplication::instance()->theme()->activeClass());
-    else
+    if (tree()) {
+      const WTree::WTreeNodeSet &s = tree()->selectedNodes();
+      if (s.find(this) != s.end())
+        layout_->bindString("selected", WApplication::instance()->theme()->activeClass());
+      else
+        layout_->bindEmpty("selected");
+    } else
       layout_->bindEmpty("selected");
     childContainer()->removeStyleClass("Wt-root");
   }
