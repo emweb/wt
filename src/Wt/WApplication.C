@@ -14,6 +14,7 @@
 #include "Wt/WDate"
 #include "Wt/WDefaultLoadingIndicator"
 #include "Wt/WException"
+#include "Wt/WFileUpload"
 #include "Wt/WMemoryResource"
 #include "Wt/WServer"
 #include "Wt/WTimer"
@@ -517,13 +518,11 @@ void WApplication::removeGlobalWidget(WWidget *)
 
 bool WApplication::isExposed(WWidget *w) const
 {
-  /*
-   * This not right: for example a file upload is usually hidden while
-   * uploading, but then could not receive the upload event
-
-  if (!w->isVisible())
+  // File uploads may be hidden when emitting a signal.
+  // Other hidden widgets should not emit signals.
+  if (!w->isVisible() && !dynamic_cast<WFileUpload*>(w))
     return false;
-  */
+
   if (!w->isEnabled())
     return false;
 
