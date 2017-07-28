@@ -2848,9 +2848,12 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
     std::string formName = i->first;
     WObject *obj = i->second;
 
-    if (!request.postDataExceeded())
+    if (!request.postDataExceeded()) {
+      WWidget *w = dynamic_cast<WWidget*>(obj);
+      if (w && !w->isEnabled())
+	continue; // Do not update form data of a disabled widget
       obj->setFormData(getFormData(request, se + formName));
-    else
+    } else
       obj->setRequestTooLarge(request.postDataExceeded());
   }
 }

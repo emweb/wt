@@ -524,6 +524,8 @@ bool WApplication::isExposed(WWidget *w) const
   if (!w->isVisible())
     return false;
   */
+  if (!w->isEnabled())
+    return false;
 
   if (w == domRoot_)
     return true;
