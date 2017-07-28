@@ -383,6 +383,10 @@ private:
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
+  static const int DEFAULT_BASE_Z_INDEX;
+
+  std::string elementTagName_;
+
 #ifndef WT_TARGET_JAVA
   static const std::bitset<37> AllChangeFlags;
 #endif // WT_TARGET_JAVA

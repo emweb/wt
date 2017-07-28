@@ -50,12 +50,11 @@ namespace {
       return WLength(std::fabs(w.value()), w.unit());
   }
 
-  static const int DEFAULT_BASE_Z_INDEX = 100;
-
 }
 
 const char *WWebWidget::FOCUS_SIGNAL = "focus";
 const char *WWebWidget::BLUR_SIGNAL = "blur";
+const int WWebWidget::DEFAULT_BASE_Z_INDEX = 100;
 
 #ifndef WT_TARGET_JAVA
 const std::bitset<37> WWebWidget::AllChangeFlags = std::bitset<37>()
