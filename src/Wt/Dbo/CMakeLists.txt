@@ -31,6 +31,10 @@ IF(ENABLE_LIBWTDBO)
     StringStream.C
   )
 
+  IF(HAVE_UNWIND)
+    TARGET_LINK_LIBRARIES(wtdbo PRIVATE ${UNWIND_LIBRARIES})
+  ENDIF(HAVE_UNWIND)
+
   IF(MSVC)
     #win32 links automatically against boost libs; specifying too much causes
     #trouble

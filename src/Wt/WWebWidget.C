@@ -50,6 +50,8 @@ namespace {
       return WLength(std::fabs(w.value()), w.unit());
   }
 
+  static const int DEFAULT_BASE_Z_INDEX = 100;
+
 }
 
 const char *WWebWidget::FOCUS_SIGNAL = "focus";
@@ -87,6 +89,7 @@ WWebWidget::LayoutImpl::LayoutImpl()
     clearSides_(None),
     minimumWidth_(0),
     minimumHeight_(0),
+    baseZIndex_(DEFAULT_BASE_Z_INDEX),
     zIndex_(0),
     verticalAlignment_(AlignmentFlag::Baseline)
 { 
@@ -675,15 +678,19 @@ void WWebWidget::calcZIndex()
 
   WWebWidget *ww = parentWebWidget();
   if (ww) {
-    const std::vector<WWidget *>& children = ww->children();
+    if (ww == Wt::WApplication::instance()->domRoot()) {
+      layoutImpl_->zIndex_ = baseZIndex();
+    } else {
+      const std::vector<WWidget *>& children = ww->children();
 
-    int maxZ = 0;
-    for (unsigned i = 0; i < children.size(); ++i) {
-      WWebWidget *wi = children[i]->webWidget();
-      maxZ = std::max(maxZ, wi->zIndex());
+      int maxZ = 0;
+      for (unsigned i = 0; i < children.size(); ++i) {
+        WWebWidget *wi = children[i]->webWidget();
+        maxZ = std::max(maxZ, wi->zIndex());
+      }
+
+      layoutImpl_->zIndex_ = maxZ + 100;
     }
-
-    layoutImpl_->zIndex_ = maxZ + 100;
   }
 }
 
@@ -2745,6 +2752,22 @@ void WWebWidget::setObjectName(const std::string& name)
     flags_.set(BIT_OBJECT_NAME_CHANGED);
     repaint();
   }
+}
+
+int WWebWidget::baseZIndex() const
+{
+  if (!layoutImpl_)
+    return DEFAULT_BASE_Z_INDEX;
+  else
+    return layoutImpl_->baseZIndex_;
+}
+
+void WWebWidget::setBaseZIndex(int zIndex)
+{
+  if (!layoutImpl_)
+    layoutImpl_.reset(new LayoutImpl());
+
+  layoutImpl_->baseZIndex_ = zIndex;
 }
 
 }

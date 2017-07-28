@@ -10,6 +10,7 @@
 #include <Wt/Auth/AbstractUserDatabase.h>
 #include <Wt/Auth/AuthService.h>
 #include <Wt/Auth/Dbo/AuthInfo.h>
+#include <Wt/WException.h>
 #include <Wt/WLogger.h>
 
 namespace Wt {
@@ -298,7 +299,7 @@ public:
     if (session_.find<AuthTokenType>().where("\"value\" = ?")
 	.bind(token.hash())
 	.resultList().size() > 0)
-      throw std::runtime_error("Token hash collision");
+      throw WException("Token hash collision");
 
     /*
      * Prevent a user from piling up the database with tokens

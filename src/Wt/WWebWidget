@@ -285,6 +285,9 @@ public:
 
   virtual void setObjectName(const std::string& name) override;
 
+  virtual int baseZIndex() const final override;
+  void setBaseZIndex(int zIndex);
+
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
   typedef std::function<void (WWidget *)> HandleWidgetMethod;
@@ -417,6 +420,7 @@ private:
     WFlags<Side> clearSides_;
     WLength offsets_[4]; // left, right, top, bottom
     WLength minimumWidth_, minimumHeight_, maximumWidth_, maximumHeight_;
+    int baseZIndex_;
     int	zIndex_; // -1 = wants popup
     AlignmentFlag verticalAlignment_;
     WLength verticalAlignmentLength_, margin_[4], lineHeight_;

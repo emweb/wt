@@ -115,6 +115,7 @@ OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
 OPTION(WT_WARN_HEADER_MISSING_H "Output a warning if a Wt header without .h extension is included (deprecated since Wt 4.0.0)" ON)
+OPTION(ENABLE_UNWIND "Build Wt with stacktrace support using libunwind" OFF)
 
 IF(NOT CMAKE_CXX_STANDARD)
   SET(CMAKE_CXX_STANDARD 11)
@@ -290,6 +291,8 @@ SET(SKIA_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Prefix of skia library (overrides USERLIB_PREFIX)")
 SET(ASIO_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Prefix of Asio (overrides USERLIB_PREFIX), only used when WT_ASIO_IMPLEMENTATION is standalone")
+SET(UNWIND_PREFIX ${UNWIND_PREFIX} CACHE PATH
+  "Prefix of unwind library (overrides USERLIB_PREFIX)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 
@@ -337,6 +340,10 @@ INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
 INCLUDE(cmake/WtFindGL.txt)
 INCLUDE(cmake/WtFindSkia.txt)
+
+IF (ENABLE_UNWIND)
+  INCLUDE(cmake/WtFindUnwind.txt)
+ENDIF (ENABLE_UNWIND)
 
 IF (ENABLE_PANGO)
   INCLUDE(cmake/WtFindPangoFt2.txt)
@@ -614,6 +621,10 @@ IF(ENABLE_OPENGL AND GL_FOUND AND WT_HAS_WRASTERIMAGE)
   SET(WT_USE_OPENGL TRUE)
   SET(HAVE_GL TRUE)
 ENDIF(ENABLE_OPENGL AND GL_FOUND AND WT_HAS_WRASTERIMAGE)
+
+IF(ENABLE_UNWIND AND UNWIND_FOUND)
+  SET(HAVE_UNWIND ON)
+ENDIF(ENABLE_UNWIND AND UNWIND_FOUND)
 
 # Compile time constants & make sure our build finds it
 FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Wt)

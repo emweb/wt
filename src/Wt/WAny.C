@@ -611,8 +611,8 @@ extern WT_API cpp17::any convertAnyToAny(const cpp17::any& v,
     else if (b == "false" || b == "0")
       return false;
     else
-      throw std::runtime_error(std::string("Source string cannot be "
-					   "converted to a bool value!"));
+      throw WException(std::string("Source string cannot be "
+				   "converted to a bool value!"));
   }
 
   else if (type == typeid(short))
