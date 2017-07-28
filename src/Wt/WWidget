@@ -1137,6 +1137,8 @@ public:
 
   void addJSignal(EventSignalBase * signal);
 
+  virtual int baseZIndex() const = 0;
+
 protected:
   static const char *WT_RESIZE_JS;
   static const char *WT_GETPS_JS;

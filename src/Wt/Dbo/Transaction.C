@@ -54,7 +54,7 @@ Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
 	  if (impl_->transactionCount_ == 1)
 	    rollback();
 	} catch (...) {
-	  std::cerr << "Unexpected transaction during Transaction::rollback()"
+	  std::cerr << "Unexpected exception during Transaction::rollback()"
 		    << std::endl;
 	}
 

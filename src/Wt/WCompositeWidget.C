@@ -616,4 +616,9 @@ bool WCompositeWidget::isThemeStyleEnabled() const
   return impl_->isThemeStyleEnabled();
 }
 
+int WCompositeWidget::baseZIndex() const
+{
+  return impl_->baseZIndex();
+}
+
 }
