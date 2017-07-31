@@ -1277,11 +1277,28 @@ void WebSession::handleRequest(Handler& handler)
 
   Configuration& conf = controller_->configuration();
 
-  /*
-   * CORS (Cross-Origin Resource Sharing)
-   */
   const char *origin = request.headerValue("Origin");
-  if (origin) {
+  if (request.isWebSocketRequest()) {
+    std::string trustedOrigin = env_->urlScheme() + "://" + env_->hostName();
+    // Allow new WebSocket connection:
+    // - Origin is OK if:
+    //  - It is the same as the current host
+    //  - or we are using WidgetSet mode and the origin is allowed
+    // - Wt session id matches
+    if (origin && (trustedOrigin == origin ||
+                   (type() == WidgetSet && conf.isAllowedOrigin(origin))) &&
+        wtdE && *wtdE == sessionId_) {
+      // OK
+    } else {
+      // Not OK
+      handler.response()->setStatus(403);
+      handler.flushResponse();
+      return;
+    }
+  } else if (origin) {
+    /*
+     * CORS (Cross-Origin Resource Sharing)
+     */
     /*
      * Do we allow this XMLHttpRequest or WebSocketRequest?
      *
@@ -1312,19 +1329,7 @@ void WebSession::handleRequest(Handler& handler)
 
 	return;
       }
-    } else
-      if (request.isWebSocketRequest()) {
-	/*
-	 * FIXME: not so for new WebSocket protocol versions
-	 *
-	 * We are already passed the websocket hand-shake so it is too late
-	 * to indicate it by omitting the Access-Control-Allow-Origin header.
-	 *
-	 * But we close the socket nevertheless.
-	 */
-	handler.flushResponse();
-	return;
-      }
+    }
   }
 
   const std::string *requestE = request.getParameter("request");
