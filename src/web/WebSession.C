@@ -1263,7 +1263,7 @@ void WebSession::handleRequest(Handler& handler)
     //  - or we are using WidgetSet mode and the origin is allowed
     // - Wt session id matches
     if (origin && (trustedOrigin == origin ||
-                   (type() == WidgetSet && conf.isAllowedOrigin(origin))) &&
+                   (type() == EntryPointType::WidgetSet && conf.isAllowedOrigin(origin))) &&
         wtdE && *wtdE == sessionId_) {
       // OK
     } else {
