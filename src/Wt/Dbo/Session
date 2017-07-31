@@ -136,7 +136,17 @@ public:
    * through it, and will warning during this destructor if there are
    * still database objects that are being referenced from a ptr.
    */
-  ~Session();
+  virtual ~Session();
+
+#ifdef WT_CXX11
+  // Sessions are not copyable
+  Session(const Session &) = delete;
+  Session& operator=(const Session &) = delete;
+
+  // Sessions are not movable
+  Session(Session &&) = delete;
+  Session& operator=(Session &&) = delete;
+#endif // WT_CXX11
 
   /*! \brief Sets a dedicated connection.
    *
@@ -483,11 +493,15 @@ public:
   void setFlushMode(FlushMode mode) { flush(); flushMode_ = mode; }
 
 private:
-
   mutable std::string longlongType_;
   mutable std::string intType_;
   mutable bool haveSupportUpdateCascade_;
+
+#ifndef WT_CXX11
+  // Sessions are not copyable
   Session(const Session& s);
+  Session& operator=(const Session& s);
+#endif // WT_CXX11
 
   typedef boost::multi_index::multi_index_container<
     MetaDboBase *,

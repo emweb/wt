@@ -82,7 +82,17 @@ public:
    *
    * If the transaction is still active, it is rolled back.
    */
-  ~Transaction() WT_CXX11ONLY(noexcept(false));
+  virtual ~Transaction() WT_CXX11ONLY(noexcept(false));
+
+#ifdef WT_CXX11
+  // Transactions are not copyable
+  Transaction(const Transaction&) = delete;
+  Transaction& operator=(const Transaction&) = delete;
+
+  // Transactions are not movable
+  Transaction(Transaction&&) = delete;
+  Transaction& operator=(Transaction&&) = delete;
+#endif // WT_CXX11
 
   /*! \brief Returns whether the transaction is still active.
    *
@@ -126,6 +136,12 @@ public:
   SqlConnection *connection() const;
 
 private:
+#ifndef WT_CXX11
+  // Transactions should not be copied
+  Transaction(const Transaction& other);
+  Transaction& operator=(const Transaction& other);
+#endif // WT_CXX11
+
   struct Impl {
     Session& session_;
     bool active_;
