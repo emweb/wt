@@ -133,7 +133,15 @@ public:
    * through it, and will warning during this destructor if there are
    * still database objects that are being referenced from a ptr.
    */
-  ~Session();
+  virtual ~Session();
+
+  // Sessions are not copyable
+  Session(const Session &) = delete;
+  Session& operator=(const Session &) = delete;
+
+  // Sessions are not movable
+  Session(Session &&) = delete;
+  Session& operator=(Session &&) = delete;
 
   /*! \brief Sets a dedicated connection.
    *
@@ -495,11 +503,9 @@ public:
   void setFlushMode(FlushMode mode) { flush(); flushMode_ = mode; }
 
 private:
-
   mutable std::string longlongType_;
   mutable std::string intType_;
   mutable bool haveSupportUpdateCascade_;
-  Session(const Session& s);
 
   enum { SqlInsert = 0,
 	 SqlUpdate = 1,

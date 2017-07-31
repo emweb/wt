@@ -83,7 +83,15 @@ public:
    *
    * If the transaction is still active, it is rolled back.
    */
-  ~Transaction() noexcept(false);
+  virtual ~Transaction() noexcept(false);
+
+  // Transactions are not copyable
+  Transaction(const Transaction&) = delete;
+  Transaction& operator=(const Transaction&) = delete;
+
+  // Transactions are not movable
+  Transaction(Transaction&&) = delete;
+  Transaction& operator=(Transaction&&) = delete;
 
   /*! \brief Returns whether the transaction is still active.
    *

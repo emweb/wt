@@ -677,19 +677,16 @@ void WWebWidget::calcZIndex()
 
   WWebWidget *ww = parentWebWidget();
   if (ww) {
-    if (ww == Wt::WApplication::instance()->domRoot()) {
-      layoutImpl_->zIndex_ = baseZIndex();
-    } else {
-      const std::vector<WWidget *>& children = ww->children();
+    const std::vector<WWidget *>& children = ww->children();
 
-      int maxZ = 0;
-      for (unsigned i = 0; i < children.size(); ++i) {
-        WWebWidget *wi = children[i]->webWidget();
+    int maxZ = 0;
+    for (unsigned i = 0; i < children.size(); ++i) {
+      WWebWidget *wi = children[i]->webWidget();
+      if (wi->baseZIndex() <= baseZIndex())
         maxZ = std::max(maxZ, wi->zIndex());
-      }
-
-      layoutImpl_->zIndex_ = maxZ + 100;
     }
+
+    layoutImpl_->zIndex_ = std::max(baseZIndex(), maxZ + 100);
   }
 }
 

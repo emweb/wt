@@ -705,7 +705,8 @@ void Postgres::disconnect()
   /* Evict also the statements -- the statements themselves can stay,
      only running statements behavior is affected (but we are dealing with
      that while calling disconnect) */
-  for (auto s : statements) {
+  for (std::size_t i = 0; i < statements.size(); ++i) {
+    SqlStatement *s = statements[i];
     PostgresStatement *ps = dynamic_cast<PostgresStatement *>(s);
     ps->rebuild();
   }

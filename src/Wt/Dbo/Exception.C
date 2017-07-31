@@ -13,6 +13,7 @@
 #include <libunwind.h>
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
 
 namespace Wt {
   namespace Dbo {

@@ -1022,12 +1022,14 @@ void MySQL::checkConnection()
     err_nb = mysql_errno(impl_->mysql);
     err = std::string(mysql_error(impl_->mysql));
   }
-  if (err_nb == CR_SERVER_GONE_ERROR) {
+  if (err_nb == CR_SERVER_GONE_ERROR ||
+      err_nb == CR_SERVER_LOST) {
     clearStatementCache();
     mysql_close(impl_->mysql);
     impl_->mysql = nullptr;
     try {
       connect(dbname_, dbuser_, dbpasswd_, dbhost_, dbport_, dbsocket_);
+      return;
     } catch (MySQLException e) {
       throw MySQLException("checkConnection: Error when reconnecting: " + std::string(e.what()));
     }
