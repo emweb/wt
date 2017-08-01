@@ -37,7 +37,7 @@ WTimer::~WTimer()
     delete timerWidget_;
 }
 
-void WTimer::setInterval(std::chrono::steady_clock::duration msec)
+void WTimer::setInterval(std::chrono::milliseconds msec)
 {
   interval_ = msec;
 }

@@ -103,9 +103,12 @@ std::unique_ptr<WWidget> WItemDelegate::update(WWidget *widget, const WModelInde
 {
   bool editing = widget && widget->find("t") == nullptr;
 
+  WidgetRef widgetRef(widget);
+
   if (flags.test(ViewItemRenderFlag::Editing)) {
     if (!editing) {
-      widget = createEditor(index, flags).release();
+      widgetRef.created = createEditor(index, flags);
+      widgetRef.w = widgetRef.created.get();
       WInteractWidget *iw = dynamic_cast<WInteractWidget *>(widget);
       if (iw) {
         // Disable drag & drop and selection behaviour
@@ -115,10 +118,8 @@ std::unique_ptr<WWidget> WItemDelegate::update(WWidget *widget, const WModelInde
     }
   } else {
     if (editing)
-      widget = nullptr;
+      widgetRef.w = nullptr;
   }
-
-  WidgetRef widgetRef(widget);
 
   bool isNew = false;
 
