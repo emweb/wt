@@ -601,8 +601,8 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
     else if (b == "false" || b == "0")
       return false;
     else
-      throw std::runtime_error(std::string("Source string cannot be "
-					   "converted to a bool value!"));
+      throw WException(std::string("Source string cannot be "
+				   "converted to a bool value!"));
   }
 
 #define ELSE_LEXICAL_ANY(TYPE)						\

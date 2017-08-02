@@ -299,6 +299,31 @@ BOOST_AUTO_TEST_CASE( http_client_server_test4 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( http_client_server_test5 )
+{
+  Server server;
+  server.resource().useContinuation();
+  server.resource().delaySendingBody();
+
+  Http::Message msg;
+  msg.addHeader("connection", "keep-alive");
+
+  if (server.start()) {
+    Client client;
+
+    for (int i = 0; i < 1000; ++i) {
+      client.post("http://" + server.address() + "/test", msg);
+
+      boost::this_thread::sleep(boost::posix_time::milliseconds(i == 0 ? 500 : 100));
+      server.resource().haveMoreData();
+
+      client.waitDone();
+
+      client.reset();
+    }
+  }
+}
+
 #endif // WT_THREADED
 
 

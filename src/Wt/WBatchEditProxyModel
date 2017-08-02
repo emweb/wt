@@ -219,6 +219,8 @@ private:
   void sourceLayoutAboutToBeChanged();
   void sourceLayoutChanged();
 
+  void sourceModelReset();
+
   Item *itemFromSourceIndex(const WModelIndex& sourceIndex,
 			    bool autoCreate = true) const;
   Item *itemFromInsertedRow(Item *parentItem, const WModelIndex& index,

@@ -14,6 +14,8 @@
 namespace Wt {
   namespace Dbo {
 
+extern WTDBO_API std::string backtrace();
+  
 /*! \class Exception Wt/Dbo/Exception Wt/Dbo/Exception
  *  \brief %Exception base class for %Wt::%Dbo.
  *

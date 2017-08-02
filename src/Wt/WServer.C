@@ -245,13 +245,10 @@ void WServer::addResource(WResource *resource, const std::string& path)
     throw WServer::Exception("WServer::addResource() error: "
 			     "static resource path should start with \'/\'");
 
-  std::string oldInternalPath = resource->internalPath();
-  resource->setInternalPath(path);
-
   bool success = configuration().tryAddResource(EntryPoint(resource, path));
-
-  if (!success) {
-    resource->setInternalPath(oldInternalPath);
+  if (success)
+    resource->setInternalPath(path);
+  else {
     WString error(Wt::utf8("WServer::addResource() error: "
 	                   "a static resource was already deployed on path '{1}'"));
     throw WServer::Exception(error.arg(path).toUTF8());

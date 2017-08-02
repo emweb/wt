@@ -104,6 +104,9 @@ void WBatchEditProxyModel::setSourceModel(WAbstractItemModel *model)
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
      (this, &WBatchEditProxyModel::sourceLayoutChanged));
 
+  modelConnections_.push_back(sourceModel()->modelReset().connect
+     (this, &WBatchEditProxyModel::sourceModelReset));
+
   resetMappings();
 }
 
@@ -677,6 +680,12 @@ void WBatchEditProxyModel::sourceLayoutAboutToBeChanged()
 void WBatchEditProxyModel::sourceLayoutChanged()
 {
   layoutChanged().emit();
+}
+
+void WBatchEditProxyModel::sourceModelReset()
+{
+  resetMappings();
+  reset();
 }
 
 boost::any WBatchEditProxyModel::data(const WModelIndex& index, int role) const

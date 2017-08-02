@@ -222,15 +222,14 @@ WTransform WAxisSliderWidget::hv(const WTransform& t) const
 
 void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 {
-  // Don't paint anything, unless we're associated to a chart,
-  // and the chart has been painted.
-  if (chart() && !chart()->cObjCreated_) {
-    return;
-  }
   if (!chart()) {
     LOG_ERROR("Attempted to draw a slider widget not associated with a chart.");
     return;
   }
+  // Don't paint anything, unless we're associated to a chart,
+  // and the chart has been painted.
+  if (!chart()->cObjCreated_ || chart()->needRerender())
+    return;
 
   if (series_->type() != LineSeries &&
       series_->type() != CurveSeries) {

@@ -93,6 +93,8 @@ public:
   //       further calls to detectDisconnect are ignored
   void detectDisconnect(ReplyPtr reply,
 			const boost::function<void()>& callback);
+  void asyncDetectDisconnect(ReplyPtr reply,
+			     const boost::function<void()>& callback);
 
 protected:
   void handleWriteResponse(ReplyPtr reply,

@@ -145,5 +145,16 @@ bool SqlConnection::requireSubqueryAlias() const
 void SqlConnection::prepareForDropTables()
 { }
 
+std::vector<SqlStatement *> SqlConnection::getStatements() const
+{
+  std::vector<SqlStatement *> result;
+
+  for (StatementMap::const_iterator i = statementCache_.begin();
+       i != statementCache_.end(); ++i)
+    result.push_back(i->second);
+
+  return result;
+}
+  
   }
 }

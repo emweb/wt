@@ -22,7 +22,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 3.3.8 (July 2017)</h2>
+<h2>Release 3.3.8 (August 2017)</h2>
 <p>
   This release consists of bug fixes and some new features:
 </p>
@@ -72,6 +72,18 @@ behaviour.
     <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a>.</p>
   </dd>
   <dt>
+    Added <tt>&lt;allowed-hosts&gt;</tt> configuration option for CORS
+  </dt>
+  <dd>
+    Wt used to allow almost any origin, to allow Wt applications to be embedded in any page using
+    WidgetSet mode. Although Wt encodes session IDs in URLs rather than cookies by default, this
+    could still pose a security risk in some cases. In Wt 3.3.8, CORS support has been updated:
+    Wt now only allows cross-origin resource sharing for WidgetSet entry points, and trusts no
+    host by default. You can specify the allowed hosts using the <tt>&lt;allowed-hosts&gt;</tt>
+    tag in the configuration file. Using <tt>&lt;allowed-hosts&gt;*&lt;/allowed-hosts&gt;</tt> 
+    restores the old behaviour.
+  </dd>
+  <dt>
     Other small improvements:
   </dt>
   <dd>
@@ -89,6 +101,8 @@ behaviour.
           This example also demonstrates how Wt can be used to write RESTful services. Improved, less verbose, support for
           RESTful services is planned in a future release.</li>
       <li>Added <a href="classWt_1_1Dbo_1_1FixedSqlConnectionPool.html#a955e2ce03d8d45e8738f6ff718614601">Wt::Dbo::FixedSqlConnectionPool::setTimeout()</a>, to set a timeout for obtaining a connection.</li>
+      <li>Added <a href="classWt_1_1Dbo_1_1backend_1_1Postgres.html#acb13461474cc43bc9e8a51b844a051f3">Wt::Dbo::backend::Postgres::setTimeout()</a>, to set a timeout for queries.</li>
+      <li>Added libunwind support for printing stacktraces. Enable this with the <tt>ENABLE_UNWIND</tt> CMake option.</li>
     </ul>
   </dd>
 </dl>

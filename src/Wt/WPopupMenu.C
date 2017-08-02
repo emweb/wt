@@ -45,6 +45,8 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
       (".Wt-notselected .Wt-popupmenu", "visibility: hidden;", CSS_RULES_NAME);
 
   app->addGlobalWidget(this);
+  // Set high ZIndex so WPopupMenu is above pretty much every dialog by default
+  webWidget()->setBaseZIndex(10000);
   setPopup(true);
 
   hide();

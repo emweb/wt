@@ -325,6 +325,9 @@ public:
   virtual void setThemeStyleEnabled(bool enabled);
   virtual bool isThemeStyleEnabled() const;
 
+  virtual int baseZIndex() const WT_CXX11ONLY(final override);
+  void setBaseZIndex(int zIndex);
+
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
 
@@ -404,6 +407,8 @@ private:
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
+  static const int DEFAULT_BASE_Z_INDEX;
+
   std::string elementTagName_;
 
 #ifndef WT_TARGET_JAVA
@@ -446,6 +451,7 @@ private:
     WLength		    minimumHeight_;
     WLength		    maximumWidth_;
     WLength		    maximumHeight_;
+    int                     baseZIndex_;
     int			    zIndex_; // -1 = wants popup
     AlignmentFlag	    verticalAlignment_;
     WLength		    verticalAlignmentLength_;

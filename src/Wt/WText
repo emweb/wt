@@ -33,6 +33,13 @@ namespace Wt {
  * %WText is intended to be passive, and not contain any scripting
  * elements.
  *
+ * The Wt::XHTMLText format will automatically change to Wt::PlainText
+ * if the text is not valid XML. Properly formatted HTML, which is not
+ * valid XHTML (e.g. a <br> tag without closing tag) will thus be shown
+ * literally, since the HTML markup will be escaped. Wt does this as
+ * a safety measure, since it cannot reliably run the XSS filter
+ * without parsing the XML successfully.
+ *
  * The Wt::PlainText format will display the text literally
  * (escaping any HTML special characters).
  *

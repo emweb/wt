@@ -165,6 +165,8 @@ public:
   virtual void setThemeStyleEnabled(bool enabled);
   virtual bool isThemeStyleEnabled() const;
 
+  virtual int baseZIndex() const WT_CXX11ONLY(final override);
+
 protected:
   virtual void addChild(WWidget *child);
   virtual void removeChild(WWidget *child);

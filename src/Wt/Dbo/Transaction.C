@@ -41,7 +41,7 @@ Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
       bool canThrow = !std::uncaught_exception();
       try {
 	rollback();
-      } catch (std::exception&) {
+      } catch (...) {
 	release();
 	if (canThrow)
 	  throw;
@@ -49,12 +49,12 @@ Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
     } else {
       try {
 	commit();
-      } catch (std::exception&) {
+      } catch (...) {
 	try {
 	  if (impl_->transactionCount_ == 1)
 	    rollback();
-	} catch (std::exception&) {
-	  std::cerr << "Unexpected transaction during Transaction::rollback()"
+	} catch (...) {
+	  std::cerr << "Unexpected exception during Transaction::rollback()"
 		    << std::endl;
 	}
 

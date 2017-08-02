@@ -514,6 +514,36 @@
 	  <meta name="robots" content="noindex" />
 	</meta-headers>
 
+	<!-- Configure allowed origins for CORS (only for WidgetSet entry points)
+
+	 Since Wt 3.3.8, cross-origin requests are disallowed by default.
+
+	 <allowed-origins> allows to selectively allow cross-origin requests
+	 for WidgetSet entry points (cross-origin requests are always disallowed
+	 for normal applications).
+
+	 Use <allowed-origins> to determine which origins should be allowed.
+	 Wt will only allow requests with an Origin header if it is an exact
+	 match for one of the origins in the list.
+
+	 "null" can be included in the list of allowed origins. In that case,
+	 Wt responds with "Access-Control-Allow-Origin: *".
+
+	 If <allowed-origins> is omitted or empty, no origins are allowed.
+
+	 If <allowed-origins> contains * (the asterisk character),
+	 all origins are allowed.
+	  -->
+	<allowed-origins>
+	  <!-- Leave empty to disallow all origins. -->
+
+	  <!-- To allow any origin: -->
+	  <!-- * -->
+
+	  <!-- To allow only http://example.com and http://example.org: -->
+	  <!-- http://example.com,http://example.org -->
+	</allowed-origins>
+
 	<!-- Runtime Properties
      
            These properties may be used to adapt applications to their

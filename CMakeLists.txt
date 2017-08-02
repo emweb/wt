@@ -116,6 +116,7 @@ OPTION(ENABLE_LIBWTDBO "Build Wt::Dbo" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
+OPTION(ENABLE_UNWIND "Build Wt with stacktrace support using libunwind" OFF)
 
 # C++11 vs C++98
 # Binary compatibility is not guaranteed. We give our users the choice on
@@ -309,6 +310,8 @@ SET(GM_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of GraphicsMagick library (overrides USERLIB_PREFIX)")
 SET(SKIA_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Prefix of skia library (overrides USERLIB_PREFIX)")
+SET(UNWIND_PREFIX ${UNWIND_PREFIX} CACHE PATH
+  "Prefix of unwind library (overrides USERLIB_PREFIX)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 
@@ -356,6 +359,10 @@ INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
 INCLUDE(cmake/WtFindGL.txt)
 INCLUDE(cmake/WtFindSkia.txt)
+
+IF (ENABLE_UNWIND)
+  INCLUDE(cmake/WtFindUnwind.txt)
+ENDIF (ENABLE_UNWIND)
 
 IF (ENABLE_PANGO)
   INCLUDE(cmake/WtFindPangoFt2.txt)
@@ -626,6 +633,10 @@ IF(ENABLE_OPENGL AND GL_FOUND AND WT_HAS_WRASTERIMAGE)
   SET(WT_USE_OPENGL TRUE)
   SET(HAVE_GL TRUE)
 ENDIF(ENABLE_OPENGL AND GL_FOUND AND WT_HAS_WRASTERIMAGE)
+
+IF(ENABLE_UNWIND AND UNWIND_FOUND)
+  SET(HAVE_UNWIND ON)
+ENDIF(ENABLE_UNWIND AND UNWIND_FOUND)
 
 # Compile time constants & make sure our build finds it
 FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Wt)

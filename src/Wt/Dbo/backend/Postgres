@@ -73,12 +73,47 @@ public:
    */
   bool connect(const std::string& db);
 
+  /*! \brief Disconnects.
+   *
+   * This disconnects from the server. Any subsequent action on the connection
+   * will result in an automatic reconnect.
+   *
+   * \sa reconnect()
+   */
+  void disconnect();
+
+  /*! \brief Reconnect.
+   *
+   * This will try to reconnect a previously disconnected connection. If the connection
+   * is still open, it will first disconnect.
+   */
   bool reconnect();
 
   /*! \brief Returns the underlying connection.
    */
   PGconn *connection() { return conn_; }
 
+  /*! \brief Sets a timeout.
+   *
+   * Sets a timeout for queries. When the query exceeds this timeout, the connection
+   * is closed using disconnect() and an exception is thrown.
+   *
+   * In practice, as a result, the connection (and statements) can still be used again
+   * when a successful reconnect() is performed.
+   *
+   * A value of 0 disables the timeout handling, allowing operations
+   * to take as much time is they require.
+   *
+   * The default value is 0.
+   */
+  void setTimeout(int millis);
+
+  /*! \brief Returns the timeout.
+   *
+   * \sa setTimeout()
+   */
+  int timeout() const { return timeout_; }
+  
   virtual void executeSql(const std::string &sql);
 
   virtual void startTransaction();
@@ -109,6 +144,9 @@ public:
 private:
   std::string connInfo_;
   PGconn *conn_;
+  int timeout_;
+
+  void exec(const std::string& sql, bool showQuery);
 };
 
     }

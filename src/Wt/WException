@@ -12,6 +12,8 @@
 
 namespace Wt {
 
+extern WT_API std::string backtrace();
+
 /*! \class WException Wt/WException
  *  \brief Base class for exceptions thrown by %Wt.
  */

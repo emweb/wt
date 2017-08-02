@@ -14,6 +14,7 @@
 #include "Wt/WDate"
 #include "Wt/WDefaultLoadingIndicator"
 #include "Wt/WException"
+#include "Wt/WFileUpload"
 #include "Wt/WMemoryResource"
 #include "Wt/WServer"
 #include "Wt/WTimer"
@@ -441,18 +442,23 @@ std::string WApplication::relativeResourcesUrl()
   WApplication *app = WApplication::instance(); 
   const Configuration& conf = app->environment().server()->configuration(); 
   const std::string* path = conf.property(WApplication::RESOURCES_URL);
-  /*
-   * Arghll... we should in fact know when we need the absolute URL: only
-   * when we are having a request.pathInfo().
-   */
-  if (path == "/wt-resources/") {
-    std::string result = app->environment().deploymentPath();
-    if (!result.empty() && result[result.length() - 1] == '/')
-      return result + path->substr(1);
-    else
-      return result + *path;
-  } else 
-    return *path;
+
+  if (app->environment().server()->servletMajorVersion() < 3) {
+      /*
+       * Arghll... we should in fact know when we need the absolute URL: only
+       * when we are having a request.pathInfo().
+       */
+    if (path == "/wt-resources/") {
+      std::string result = app->environment().deploymentPath();
+      if (!result.empty() && result[result.length() - 1] == '/')
+	return result + path->substr(1);
+      else
+	return result + *path;
+    } else 
+      return *path;
+  } else { // from v3.0, resources can be deployed in META-INF of a jar-file
+    return app->environment().server()->getContextPath() + *path;
+  }
 #endif // WT_TARGET_JAVA
 }
 
@@ -512,13 +518,13 @@ void WApplication::removeGlobalWidget(WWidget *)
 
 bool WApplication::isExposed(WWidget *w) const
 {
-  /*
-   * This not right: for example a file upload is usually hidden while
-   * uploading, but then could not receive the upload event
-
-  if (!w->isVisible())
+  // File uploads may be hidden when emitting a signal.
+  // Other hidden widgets should not emit signals.
+  if (!w->isVisible() && !dynamic_cast<WFileUpload*>(w))
     return false;
-  */
+
+  if (!w->isEnabled())
+    return false;
 
   if (w == domRoot_)
     return true;

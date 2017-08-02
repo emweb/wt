@@ -1275,22 +1275,46 @@ void WebSession::handleRequest(Handler& handler)
 
   const std::string *wtdE = request.getParameter("wtd");
 
-  /*
-   * Cross-Origin Resource Sharing
-   */
+  Configuration& conf = controller_->configuration();
+
   const char *origin = request.headerValue("Origin");
-  if (origin) {
+  if (request.isWebSocketRequest()) {
+    std::string trustedOrigin = env_->urlScheme() + "://" + env_->hostName();
+    // Allow new WebSocket connection:
+    // - Origin is OK if:
+    //  - It is the same as the current host
+    //  - or we are using WidgetSet mode and the origin is allowed
+    // - Wt session id matches
+    if (origin && (trustedOrigin == origin ||
+                   (type() == WidgetSet && conf.isAllowedOrigin(origin))) &&
+        wtdE && *wtdE == sessionId_) {
+      // OK
+    } else {
+      // Not OK
+      handler.response()->setStatus(403);
+      handler.flushResponse();
+      return;
+    }
+  } else if (origin) {
+    /*
+     * CORS (Cross-Origin Resource Sharing)
+     */
     /*
      * Do we allow this XMLHttpRequest or WebSocketRequest?
      *
-     * Only if it's proven itself by a correct (existing) wtd, and thus
-     * not for a new session.
+     * Only if all of the conditions below are met:
+     *  - this is a WidgetSet sessions
+     *  - the Origin is allowed according to the configuration
+     *  - this is a new session or the session id matches
      */
-    if ((wtdE && *wtdE == sessionId_) || state_ == JustCreated) {
+    if (type() == WidgetSet &&
+        ((wtdE && *wtdE == sessionId_) || state_ == JustCreated) &&
+        conf.isAllowedOrigin(origin)) {
       if (isEqual(origin, "null"))
 	origin = "*";
       handler.response()->addHeader("Access-Control-Allow-Origin", origin);
       handler.response()->addHeader("Access-Control-Allow-Credentials", "true");
+      handler.response()->addHeader("Vary", "Origin");
 
       if (isEqual(request.requestMethod(), "OPTIONS")) {
 	WebResponse *response = handler.response();
@@ -1298,28 +1322,17 @@ void WebSession::handleRequest(Handler& handler)
 	response->setStatus(200);
 	response->addHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
 	response->addHeader("Access-Control-Max-Age", "1728000");
-	handler.flushResponse();
+        const char *requestHeaders = request.headerValue("Access-Control-Request-Headers");
+        if (requestHeaders)
+          response->addHeader("Access-Control-Allow-Headers", requestHeaders);
+        handler.flushResponse();
 
 	return;
       }
-    } else
-      if (request.isWebSocketRequest()) {
-	/*
-	 * FIXME: not so for new WebSocket protocol versions
-	 *
-	 * We are already passed the websocket hand-shake so it is too late
-	 * to indicate it by omitting the Access-Control-Allow-Origin header.
-	 *
-	 * But we close the socket nevertheless.
-	 */
-	handler.flushResponse();
-	return;
-      }
+    }
   }
 
   const std::string *requestE = request.getParameter("request");
-
-  Configuration& conf = controller_->configuration();
 
 
   if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {
@@ -2840,9 +2853,12 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
     std::string formName = i->first;
     WObject *obj = i->second;
 
-    if (!request.postDataExceeded())
+    if (!request.postDataExceeded()) {
+      WWidget *w = dynamic_cast<WWidget*>(obj);
+      if (w && (!w->isEnabled() || !w->isVisible()))
+	continue; // Do not update form data of a disabled or invisible widget
       obj->setFormData(getFormData(request, se + formName));
-    else
+    } else
       obj->setRequestTooLarge(request.postDataExceeded());
   }
 }

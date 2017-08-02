@@ -32,7 +32,8 @@ namespace Wt {
 InitSchema::InitSchema(Session& session, Impl::MappingInfo& mapping)
   : session_(session),
     mapping_(mapping),
-    idField_(false)
+    idField_(false),
+    fkFlags_(0)
 { }
 
 void InitSchema::actMapping(Impl::MappingInfo *mapping)
@@ -125,7 +126,8 @@ SaveBaseAction::SaveBaseAction(Session *session, SqlStatement *statement,
   : DboAction(session),
     statement_(statement),
     column_(column),
-    bindNull_(false)
+    bindNull_(false),
+    auxIdOnly_(false)
 {
   pass_ = Self;
 }
@@ -135,7 +137,8 @@ SaveBaseAction::SaveBaseAction(MetaDboBase& dbo, Impl::MappingInfo& mapping,
   : DboAction(dbo, mapping),
     statement_(statement),
     column_(column),
-    bindNull_(false)
+    bindNull_(false),
+    auxIdOnly_(false)
 {
   pass_ = Self;
 }

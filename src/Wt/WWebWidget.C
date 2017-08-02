@@ -51,6 +51,7 @@ std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 const char *WWebWidget::FOCUS_SIGNAL = "focus";
 const char *WWebWidget::BLUR_SIGNAL = "blur";
+const int WWebWidget::DEFAULT_BASE_Z_INDEX = 100;
 
 #ifndef WT_TARGET_JAVA
 const std::bitset<36> WWebWidget::AllChangeFlags = std::bitset<36>()
@@ -82,6 +83,7 @@ WWebWidget::LayoutImpl::LayoutImpl()
     clearSides_(0),
     minimumWidth_(0),
     minimumHeight_(0),
+    baseZIndex_(DEFAULT_BASE_Z_INDEX),
     zIndex_(0),
     verticalAlignment_(AlignBaseline)
 { 
@@ -712,10 +714,11 @@ void WWebWidget::calcZIndex()
     int maxZ = 0;
     for (unsigned i = 0; i < children.size(); ++i) {
       WWebWidget *wi = children[i]->webWidget();
-      maxZ = std::max(maxZ, wi->zIndex());
+      if (wi->baseZIndex() <= baseZIndex())
+        maxZ = std::max(maxZ, wi->zIndex());
     }
 
-    layoutImpl_->zIndex_ = maxZ + 100;
+    layoutImpl_->zIndex_ = std::max(baseZIndex(), maxZ + 100);
   }
 }
 
@@ -2697,4 +2700,21 @@ bool WWebWidget::isThemeStyleEnabled() const
 {
   return !flags_.test(BIT_THEME_STYLE_DISABLED);
 }
+
+int WWebWidget::baseZIndex() const
+{
+  if (!layoutImpl_)
+    return DEFAULT_BASE_Z_INDEX;
+  else
+    return layoutImpl_->baseZIndex_;
+}
+
+void WWebWidget::setBaseZIndex(int zIndex)
+{
+  if (!layoutImpl_)
+    layoutImpl_ = new LayoutImpl();
+
+  layoutImpl_->baseZIndex_ = zIndex;
+}
+
 }

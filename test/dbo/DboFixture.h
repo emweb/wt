@@ -46,9 +46,11 @@ struct DboFixtureBase
       logged = true;
     }
 
-    connection = new dbo::backend::Postgres
-        ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
+    dbo::backend::Postgres *postgres = new dbo::backend::Postgres
+      ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
+    connection = postgres;
     // use host=vendetta for testing.
+
 #endif // POSTGRES");
 
 #ifdef MYSQL
