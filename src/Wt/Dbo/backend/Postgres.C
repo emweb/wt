@@ -14,6 +14,7 @@
 #include <libpq-fe.h>
 #include <sstream>
 #include <stdio.h>
+#include <sys/select.h>
 #include <vector>
 
 #include "Wt/Date/date.h"
