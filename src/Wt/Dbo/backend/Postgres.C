@@ -8,13 +8,13 @@
 #include "Wt/Dbo/backend/Postgres.h"
 #include "Wt/Dbo/Exception.h"
 
-#include <libpq-fe.h>
-#include <stdio.h>
-#include <iostream>
-#include <vector>
-#include <sstream>
 #include <cstring>
 #include <ctime>
+#include <iostream>
+#include <libpq-fe.h>
+#include <sstream>
+#include <stdio.h>
+#include <vector>
 
 #include "Wt/Date/date.h"
 
