@@ -38,7 +38,7 @@ class PaintedSlider;
  * \endcode
  * \endif
  *
- * \image html WSlider-1.png "Orientation::Horizontal slider with ticks on both sides."
+ * \image html WSlider-1.png "Horizontal slider with ticks on both sides."
  *
  * <h3>CSS</h3>
  *

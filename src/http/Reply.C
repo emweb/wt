@@ -23,9 +23,11 @@
 #include <string>
 
 #ifdef WT_WIN32
+#ifndef __MINGW32__
 // gmtime_r can be defined by mingw
 #ifndef gmtime_r
-static struct tm* gmtime_r(const time_t* t, struct tm* r)
+namespace {
+struct tm* gmtime_r(const time_t* t, struct tm* r)
 {
   // gmtime is threadsafe in windows because it uses TLS
   struct tm *theTm = gmtime(t);
@@ -36,7 +38,9 @@ static struct tm* gmtime_r(const time_t* t, struct tm* r)
     return 0;
   }
 }
+}
 #endif // gmtime_r
+#endif
 #endif
 
 namespace Wt {

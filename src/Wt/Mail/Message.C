@@ -182,7 +182,7 @@ void Message::write(std::ostream& out) const
     out << "Date: " << date_.toString("ddd, dd MMM yyyy HH:mm:ss Z") << "\r\n";
 
   if (!replyTo_.empty())
-    replyTo_.write("Reply-RecipientType::To", out);
+    replyTo_.write("Reply-To", out);
 
   if (!subject_.empty()) {
     out << "Subject: ";
@@ -192,7 +192,7 @@ void Message::write(std::ostream& out) const
 
   for (unsigned i = 0; i < recipients_.size(); ++i) {
     static const char *recipients[] = {
-      "RecipientType::To", "RecipientType::Cc"
+      "To", "Cc"
     };
 
     const Recipient& r = recipients_[i];

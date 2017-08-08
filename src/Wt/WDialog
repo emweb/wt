@@ -83,7 +83,7 @@ enum class DialogCode {
  * Wt::WLineEdit edit(dialog.contents());
  * new Wt::WBreak(dialog.contents());
  *
- * Wt::WPushButton ok("StandardButton::Ok", dialog.contents());
+ * Wt::WPushButton ok("Ok", dialog.contents());
  *
  * // these events will accept() the Dialog
  * edit.enterPressed().connect(&dialog, &Wt::WDialog::accept);
@@ -103,7 +103,7 @@ enum class DialogCode {
  *   edit_ = new Wt::WLineEdit(dialog_->contents());
  *   new Wt::WBreak(dialog_->contents());
  *  
- *   Wt::WPushButton *ok = new Wt::WPushButton("StandardButton::Ok", dialog_->contents());
+ *   Wt::WPushButton *ok = new Wt::WPushButton("Ok", dialog_->contents());
  *
  *   // these events will accept() the Dialog
  *   edit_->enterPressed().connect(dialog_, &Wt::WDialog::accept);

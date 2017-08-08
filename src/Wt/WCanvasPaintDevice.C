@@ -455,7 +455,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 {
   if (textFlag == TextFlag::WordWrap)
     throw WException("WCanvasPaintDevice::drawText() "
-		     "TextFlag::WordWrap is not supported");
+		     "WordWrap is not supported");
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;

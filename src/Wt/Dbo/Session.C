@@ -150,7 +150,7 @@ Session::Session()
 Session::~Session()
 {
   if (!dirtyObjects_->empty())
-    std::cerr << "Icon::Warning: Wt::Dbo::Session exiting with "
+    std::cerr << "Warning: Wt::Dbo::Session exiting with "
 	      << dirtyObjects_->size() << " dirty objects" << std::endl;
 
   while (!dirtyObjects_->empty()) {

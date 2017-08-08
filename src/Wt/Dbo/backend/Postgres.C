@@ -734,7 +734,7 @@ bool Postgres::connect(const std::string& db)
     throw PostgresException("Could not connect to: " + error);
   }
 
-  PQsetClientEncoding(conn_, "CharEncoding::UTF8");
+  PQsetClientEncoding(conn_, "UTF8");
 
   return true;
 }

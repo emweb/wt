@@ -475,7 +475,7 @@ void WApplication::bindWidget(std::unique_ptr<WWidget> widget,
 {
   if (session_->type() != EntryPointType::WidgetSet)
     throw WException("WApplication::bindWidget() can be used only "
-		     "in EntryPointType::WidgetSet mode.");
+		     "in WidgetSet mode.");
 
   widget->setId(domId);
   domRoot2_->addWidget(std::move(widget));

@@ -108,7 +108,7 @@ int WColor::green() const
 int WColor::blue() const
 {
   if (blue_ == -1) {
-    LOG_ERROR("StandardColor::Blue(): color component not available.");
+    LOG_ERROR("blue(): color component not available.");
     return 0;
   }
 

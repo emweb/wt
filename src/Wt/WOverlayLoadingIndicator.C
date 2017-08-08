@@ -69,7 +69,7 @@ WOverlayLoadingIndicator
 
   if (styleClass.empty())
     app->styleSheet().addRule("div#" + center_->id(),
-			      "background: StandardColor::White;"
+			      "background: white;"
 			      "border: 3px solid #333333;"
 			      "z-index: 10001; visibility: visible;"
 			      "position: " + position + "; left: 50%; top: 50%;"

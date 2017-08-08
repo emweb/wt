@@ -14,7 +14,8 @@ WTableCell::WTableCell()
     column_(0),
     rowSpan_(1),
     columnSpan_(1),
-    spanChanged_(false)
+    spanChanged_(false),
+    overSpanned_(false)
 {
   contentAlignment_ = AlignmentFlag::Left | AlignmentFlag::Top;
 }

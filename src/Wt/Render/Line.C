@@ -10,7 +10,7 @@
 
 namespace Wt {
 
-LOGGER("Render.AxisProperty::Line");
+LOGGER("Render.Line");
 
   namespace Render {
 

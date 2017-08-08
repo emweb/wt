@@ -40,8 +40,8 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WIconPair *folderIcon = new Wt::WIconPair("icons/StandardColor::Yellow-folder-closed.png",
- *				               "icons/StandardColor::Yellow-folder-open.png", false);
+ * Wt::WIconPair *folderIcon = new Wt::WIconPair("icons/yellow-folder-closed.png",
+ *				               "icons/yellow-folder-open.png", false);
  *
  * Wt::WTree *tree = new Wt::WTree();
  * tree->setSelectionMode(Wt::SelectionMode::Single);

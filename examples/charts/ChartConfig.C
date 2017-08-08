@@ -8,7 +8,6 @@
 #include "PanelList.h"
 
 #include <iostream>
-#include <boost/date_time/gregorian/greg_year.hpp>
 
 #include <Wt/WAbstractItemModel.h>
 #include <Wt/WApplication.h>

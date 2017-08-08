@@ -4,6 +4,11 @@
  *
  * See the LICENSE file for terms of use.
  */
+#ifdef __MINGW32__
+// compile fix for boost 1.64 on mingw. Must be included before other includes.
+#include <boost/serialization/array_wrapper.hpp>
+#endif
+
 #include "Wt/WMatrix4x4.h"
 
 #include <boost/numeric/ublas/lu.hpp>

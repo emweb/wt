@@ -129,11 +129,11 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
     break;
   case WidgetThemeRole::MenuItemClose:
     {
-      WText *txt = dynamic_cast<WText *>(child);
-      if (txt)
-        txt->setText("<button class='close'>&times;</button>");
+      child->addStyleClass("close");
+      WText *t = dynamic_cast<WText *>(child);
+      t->setText("&times;");
+      break;
     }
-    break;
   case WidgetThemeRole::DialogContent:
     if (version_ == BootstrapVersion::v3)
       child->addStyleClass("modal-content");

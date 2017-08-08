@@ -641,7 +641,7 @@ void WPainter::drawText(const WRectF& rectangle,
 #endif // WT_TARGET_JAVA
     } else
       throw WException("WPainter::drawText(): device does not support "
-		       "TextFlag::WordWrap or FontMetrics");
+		       "WordWrap or FontMetrics");
   }
 }
 

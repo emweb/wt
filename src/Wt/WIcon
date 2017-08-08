@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-class WIcon : public WInteractWidget
+class WT_API WIcon : public WInteractWidget
 {
 public:
   WIcon();
