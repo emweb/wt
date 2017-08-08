@@ -24,6 +24,7 @@
 #include <boost/lexical_cast.hpp>
 
 #ifdef WT_WIN32
+#ifndef __MINGW32__
 // gmtime_r can be defined by mingw
 #ifndef gmtime_r
 static struct tm* gmtime_r(const time_t* t, struct tm* r)
@@ -38,6 +39,7 @@ static struct tm* gmtime_r(const time_t* t, struct tm* r)
   }
 }
 #endif // gmtime_r
+#endif
 #endif
 
 namespace Wt {

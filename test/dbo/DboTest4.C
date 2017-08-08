@@ -199,9 +199,11 @@ BOOST_AUTO_TEST_CASE( dbo4_test1 )
 
   // None of the following should throw!
   Wt::Dbo::SqlConnection *connection = f.connectionPool_->getConnection();
+  connection->startTransaction();
   connection->executeSql("SELECT side1_name,side2_name FROM \"friends1\"");
   connection->executeSql("SELECT side1,side2 FROM \"friends2\"");
   connection->executeSql("SELECT side1_id,side2_id FROM \"car_friends1\"");
   connection->executeSql("SELECT side1,side2 FROM \"car_friends2\"");
+  connection->rollbackTransaction();
   f.connectionPool_->returnConnection(connection);
 }
