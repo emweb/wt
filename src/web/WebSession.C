@@ -2985,8 +2985,7 @@ void WebSession::notifySignal(const WEvent& e)
 	const std::string *hashE = request.getParameter(se + "_");
 	if (hashE) {
 	  changeInternalPath(*hashE, handler.response());
-	  app_->doJavaScript(WT_CLASS ".scrollIntoView("
-			     + WWebWidget::jsStringLiteral(*hashE) + ");");
+	  app_->doJavaScript(WT_CLASS ".scrollHistory();");
 	} else
 	  changeInternalPath("", handler.response());
       } else {
