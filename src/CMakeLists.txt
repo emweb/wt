@@ -476,7 +476,11 @@ IF(ENABLE_LIBWTTEST)
     Wt/Test/WTestEnvironment.C
   )
 
-  TARGET_LINK_LIBRARIES(wttest wt)
+  TARGET_LINK_LIBRARIES(wttest
+    PUBLIC
+      wt
+    PRIVATE
+      ${WT_SOCKET_LIBRARY})
 
   INSTALL(TARGETS wttest
 	  RUNTIME DESTINATION bin
