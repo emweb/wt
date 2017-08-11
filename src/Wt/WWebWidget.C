@@ -2229,7 +2229,11 @@ DomElement *WWebWidget::createDomElement(WApplication *app)
 
 bool WWebWidget::domCanBeSaved() const
 {
-  return true;
+  bool canBeSaved = true;
+  iterateChildren([&canBeSaved](WWidget *child){
+    canBeSaved = canBeSaved && child->webWidget()->domCanBeSaved();
+  });
+  return canBeSaved;
 }
 
 bool WWebWidget::isRendered() const
