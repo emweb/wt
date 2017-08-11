@@ -930,7 +930,7 @@ this.scrollHistory = function() {
         // Scroll to the top, which may be overriden by scrollIntoView (if the hash
         // exists somewhere as an object ID)
         //console.log("scrollHistory: new page scroll strategy");
-        // window.scrollTo(0, 0);
+        window.scrollTo(0, 0);
         WT.scrollIntoView(window.history.state.state);
       }
     }
