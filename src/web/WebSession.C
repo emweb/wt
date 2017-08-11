@@ -1291,6 +1291,11 @@ void WebSession::handleRequest(Handler& handler)
       // OK
     } else {
       // Not OK
+      if (origin) {
+        LOG_ERROR("WebSocket request refused: Origin '" << origin << "' not allowed");
+      } else {
+        LOG_ERROR("WebSocket request refused: missing Origin");
+      }
       handler.response()->setStatus(403);
       handler.flushResponse();
       return;
@@ -2980,8 +2985,7 @@ void WebSession::notifySignal(const WEvent& e)
 	const std::string *hashE = request.getParameter(se + "_");
 	if (hashE) {
 	  changeInternalPath(*hashE, handler.response());
-	  app_->doJavaScript(WT_CLASS ".scrollIntoView("
-			     + WWebWidget::jsStringLiteral(*hashE) + ");");
+	  app_->doJavaScript(WT_CLASS ".scrollHistory();");
 	} else
 	  changeInternalPath("", handler.response());
       } else {

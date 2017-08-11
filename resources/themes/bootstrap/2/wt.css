@@ -125,7 +125,7 @@
 /*
  * Show pointer even if anchor has no href
  */
-.navbar .nav > li > a {
+.nav > li > a {
   cursor: pointer;
 }
 /*

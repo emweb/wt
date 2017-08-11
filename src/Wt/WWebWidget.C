@@ -2235,6 +2235,12 @@ DomElement *WWebWidget::createDomElement(WApplication *app)
 
 bool WWebWidget::domCanBeSaved() const
 {
+  if (children_ != 0) {
+    for (unsigned i = 0; i < children_->size(); ++i)
+      if (!((*children_)[i]->webWidget()->domCanBeSaved()))
+	return false;
+  }
+  
   return true;
 }
 

@@ -461,9 +461,9 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
     form->addChild(input);
 
-    doJavaScript("var a" + id() + "=" + jsRef() + ".action;"
+    doJavaScript("var a =" + jsRef() + ".action;"
 		 "var f = function(event) {"
-		 """if (a" + id() + ".indexOf(event.origin) === 0) {"
+		 """if (a.indexOf(event.origin) === 0) {"
 		 ""  "var data = JSON.parse(event.data);"
      ""  "if (data.type === 'upload') {"
      ""    "if (data.fu == '" + id() + "')"

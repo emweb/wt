@@ -98,8 +98,8 @@ public:
  * This hash function is only available if %Wt was compiled with
  * OpenSSL support.
  *
- * This hashing function is useful for creating token hashes, and is
- * also considered adequate for password hashes.
+ * This hash function is useful for creating token hashes, but
+ * should not be used for password hashes.
  *
  * \ingroup auth
  */
