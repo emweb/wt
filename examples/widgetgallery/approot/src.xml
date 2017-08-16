@@ -3972,6 +3972,11 @@
 	<span class="n">suggestFileName</span><span class="p">(</span><span class="s">&quot;report.pdf&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">ReportResource</span><span class="p">()</span>
+    <span class="p">{</span>
+	<span class="n">beingDeleted</span><span class="p">();</span>
+    <span class="p">}</span>
+
     <span class="k">virtual</span> <span class="kt">void</span> <span class="n">handleRequest</span><span class="p">(</span><span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Http</span><span class="o">::</span><span class="n">Request</span><span class="o">&amp;</span> <span class="n">request</span><span class="p">,</span>
 			       <span class="n">Wt</span><span class="o">::</span><span class="n">Http</span><span class="o">::</span><span class="n">Response</span><span class="o">&amp;</span> <span class="n">response</span><span class="p">)</span>
     <span class="p">{</span>
@@ -5096,7 +5101,7 @@
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
 
-<span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(</span><span class="s">&quot;In which year are you born?&quot;</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+<span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(</span><span class="s">&quot;In which year were you born?&quot;</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
 <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WBreak</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WSlider</span> <span class="o">*</span><span class="n">slider</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WSlider</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
@@ -5111,7 +5116,7 @@
 <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span> <span class="o">*</span><span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
 
 <span class="n">slider</span><span class="o">-&gt;</span><span class="n">valueChanged</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;I&#39;m born in the year &quot;</span> <span class="o">+</span> <span class="n">slider</span><span class="o">-&gt;</span><span class="n">valueText</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
+    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;I was born in the year &quot;</span> <span class="o">+</span> <span class="n">slider</span><span class="o">-&gt;</span><span class="n">valueText</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
 <span class="p">}));</span>
 </pre></div>
   </message>
