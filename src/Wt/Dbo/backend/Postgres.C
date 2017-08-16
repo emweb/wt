@@ -23,7 +23,9 @@
 #define strcasecmp _stricmp
 
 #include <WinSock2.h>
-#endif
+#else // WT_WIN32
+#include <sys/select.h>
+#endif // WT_WIN32
 
 #define BYTEAOID 17
 
