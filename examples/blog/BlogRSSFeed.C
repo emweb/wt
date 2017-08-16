@@ -29,7 +29,9 @@ BlogRSSFeed::BlogRSSFeed(dbo::SqlConnectionPool& connectionPool,
 { }
 
 BlogRSSFeed::~BlogRSSFeed()
-{ }
+{
+  beingDeleted();
+}
 
 void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
 				Wt::Http::Response &response)

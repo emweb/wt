@@ -65,6 +65,11 @@ NestedResource::WFileDropUploadResource(WFileDropWidget *fileDropWidget)
   setUploadProgress(true);
 }
 
+NestedResource::~WFileDropUploadResource()
+{
+  beingDeleted();
+}
+
 void NestedResource::handleRequest(const Http::Request& request,
 				   Http::Response& response)
 {

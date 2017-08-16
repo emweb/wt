@@ -37,6 +37,11 @@ OidcUserInfoEndpoint::OidcUserInfoEndpoint(AbstractUserDatabase &db)
   setScopeToken("email", s2);
 }
 
+OidcUserInfoEndpoint::~OidcUserInfoEndpoint()
+{
+  beingDeleted();
+}
+
 void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Response& response)
 {
   std::string authHeader = request.headerValue("Authorization");

@@ -190,7 +190,9 @@ public:
    *
    * When specializing a resource, you MUST call beingDeleted() from
    * within the specialized destructor, in order to stop any further
-   * requests to the resource.
+   * requests to the resource, unless it is guaranteed that no requests
+   * will arrive for this resource when it is being deleted, e.g. if
+   * the server is already stopped.
    */
   ~WResource();
 
@@ -371,7 +373,7 @@ public:
    * The base implementation is empty.
    *
    * Note that because this function could be called from within the
-   * destructor, you should not forget to call beginDeleted() from the
+   * destructor, you should not forget to call beingDeleted() from the
    * specialized destructor of your resource.
    */
   virtual void handleAbort(const Http::Request& request);
