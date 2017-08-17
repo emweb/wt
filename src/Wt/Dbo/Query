@@ -51,7 +51,6 @@ namespace Wt {
 	Session *session_;
 	std::string sql_;
 	SelectFieldLists selectFieldLists_;
-	bool simpleCount_;
       };
     }
 

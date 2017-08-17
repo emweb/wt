@@ -1,0 +1,43 @@
+# This file defines:
+# - ODBC_LIBRARIES
+# - ODBC_INCLUDE_DIRS
+# - ODBC_FOUND
+# Taking into account:
+# - ODBC_PREFIX
+
+IF(WIN32)
+SET(ODBC_LIBRARY Odbc32)
+SET(ODBC_LIBRARIES ${ODBC_LIBRARY})
+SET(ODBC_INCLUDE "")
+SET(ODBC_FOUND TRUE)
+ELSE(WIN32)
+SET(ODBC_LIBRARY odbc)
+
+FIND_LIBRARY(ODBC_LIB
+  NAMES
+    ${ODBC_LIBRARY}
+  PATHS
+    ${ODBC_PREFIX}/lib
+    ${ODBC_PREFIX}
+    /usr/lib
+    /usr/lib64
+    /usr/local/lib
+    /opt/local/lib
+)
+
+SET(ODBC_LIBRARIES ${ODBC_LIB})
+
+FIND_PATH(ODBC_INCLUDE sql.h
+    ${ODBC_PREFIX}/include
+    /usr/include
+    /usr/local/include
+    /opt/local/include	
+)
+
+SET(ODBC_FOUND FALSE)
+
+IF(ODBC_LIBRARIES AND ODBC_INCLUDE)
+  SET(ODBC_FOUND TRUE)
+  SET(ODBC_INCLUDE_DIRS ${ODBC_INCLUDE})
+ENDIF(ODBC_LIBRARIES AND ODBC_INCLUDE)
+ENDIF(WIN32)

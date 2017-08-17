@@ -298,3 +298,59 @@ ELSE(ENABLE_MYSQL AND MYSQL_FOUND)
   SET(HAVE_MYSQL OFF CACHE INTERNAL "building mysql backend" FORCE)
 ENDIF(ENABLE_MYSQL AND MYSQL_FOUND)
 
+IF(ENABLE_MSSQLSERVER AND ODBC_FOUND AND (WIN32 OR HAS_CXX11))
+
+  SET(HAVE_MSSQLSERVER ON CACHE INTERNAL "building Microsoft SQL Server backend" FORCE)
+
+  MESSAGE("** Wt::Dbo: building Microsoft SQL Server backend.")
+
+  IF(WIN32)
+    IF(SHARED_LIBS)
+      CONFIGURE_FILE(wtdbomssqlserver-version.rc.in
+                     ${CMAKE_CURRENT_BINARY_DIR}/wtdbomssqlserver-version.rc)
+      SET(mssqlserver_SRCS ${mssqlserver_SRCS}
+          ${CMAKE_CURRENT_BINARY_DIR}/wtdbomssqlserver-version.rc)
+    ENDIF(SHARED_LIBS)
+  ENDIF(WIN32)
+
+  ADD_LIBRARY(wtdbomssqlserver
+    MSSQLServer.C
+    ${mssqlserver_SRCS}
+  )
+  TARGET_LINK_LIBRARIES(wtdbomssqlserver
+    PUBLIC
+      wtdbo
+    PRIVATE
+      ${ODBC_LIBRARIES}
+  )
+
+  INCLUDE_DIRECTORIES(${ODBC_INCLUDE})
+
+  INSTALL(TARGETS wtdbomssqlserver
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
+
+  SET_TARGET_PROPERTIES(
+    wtdbomssqlserver
+  PROPERTIES
+    VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
+    SOVERSION ${WTDBOMSSQLSERVER_SOVERSION}
+    DEBUG_POSTFIX ${DEBUG_LIB_POSTFIX}
+    )
+
+  IF(MSVC)
+    SET_TARGET_PROPERTIES(
+      wtdbomssqlserver
+    PROPERTIES
+      COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4267"
+    )
+    SET_TARGET_PROPERTIES(wtdbomssqlserver PROPERTIES FOLDER "dbo")
+  endif(MSVC)
+
+  INSTALL_FILES(/include/Wt/Dbo/backend "^MSSQLServer$")
+  INSTALL_FILES(/include/Wt/Dbo/backend "^.*MSSQLServer.*h$")
+ELSE(ENABLE_MSSQLSERVER AND ODBC_FOUND AND (WIN32 OR HAS_CXX11))
+  MESSAGE("** Wt::Dbo: not building Microsoft SQL Server backend.")
+  SET(HAVE_MSSQLSERVER OFF CACHE INTERNAL "building Microsoft SQL Server backend" FORCE)
+ENDIF(ENABLE_MSSQLSERVER AND ODBC_FOUND AND (WIN32 OR HAS_CXX11))

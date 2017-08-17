@@ -262,7 +262,19 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
     firstField = false;
   }
 
-  sql << ") values (";
+  sql << ")";
+
+  SqlConnection *conn;
+  if (transaction_)
+    conn = transaction_->connection_;
+  else
+    conn = useConnection();
+
+  if (mapping->surrogateIdFieldName) {
+    sql << conn->autoincrementInsertInfix(mapping->surrogateIdFieldName);
+  }
+
+  sql << " values (";
 
   firstField = true;
   if (mapping->versionFieldName) {
@@ -278,12 +290,6 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
   }
 
   sql << ")";
-
-  SqlConnection *conn;
-  if (transaction_)
-    conn = transaction_->connection_;
-  else
-    conn = useConnection();
 
   if (mapping->surrogateIdFieldName) {
     sql << conn->autoincrementInsertSuffix(mapping->surrogateIdFieldName);

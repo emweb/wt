@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( performance_test2 )
    */
   std::string query_post_with_sum =
       "SELECT \"p1\", (SELECT sum(\"p2\".\"counter\") * (avg(\"p2\".\"counter\")) \"sum_total\" "
-                  "FROM \"post\" \"p2\" WHERE \"p2\".\"id\" <= \"p1\".\"id\") "
+                  "FROM \"post\" \"p2\" WHERE \"p2\".\"id\" <= \"p1\".\"id\") AS \"subq1\" "
       "FROM \"post\" \"p1\" "
       "WHERE (SELECT sum(\"p2\".\"counter\") * (avg(\"p2\".\"counter\")) \"sum_total\" "
                   "FROM \"post\" \"p2\" WHERE \"p2\".\"id\" <= \"p1\".\"id\") > 0";

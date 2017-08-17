@@ -36,6 +36,7 @@ SET(WTDBOSQLITE3_SOVERSION 42)
 SET(WTDBOPOSTGRES_SOVERSION 42)
 SET(WTDBOFIREBIRD_SOVERSION 42)
 SET(WTDBOMYSQL_SOVERSION 42)
+SET(WTDBOMSSQLSERVER_SOVERSION 42)
 SET(WTTEST_SOVERSION 12)
 
 IF(NOT SHARED_LIBS)
@@ -110,6 +111,7 @@ OPTION(ENABLE_SQLITE "Build SQLite3 backend for Wt::Dbo" ON)
 OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_FIREBIRD "Build FirebirdSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_MYSQL "Build mariadb/mysql backend for Wt::Dbo" ON)
+OPTION(ENABLE_MSSQLSERVER "Build Microsoft SQL Server backend for Wt::Dbo" ON)
 OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(ENABLE_LIBWTTEST "Build Wt::Test" ON)
 OPTION(ENABLE_LIBWTDBO "Build Wt::Dbo" ON)
@@ -292,6 +294,8 @@ SET(FCGI_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of fcgi library (overrides USERLIB_PREFIX)")
 SET(POSTGRES_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of postgresql library (overrides USERLIB_PREFIX)")
+SET(ODBC_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of ODBC (unixODBC), required for MS SQL Server, not necessary on Windows (overrides USERLIB_PREFIX)")
 SET(FIREBIRD_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of FirebirdSql library. (overrides USERLIB_PREFIX)")
 SET(IBPP_SRC_DIRECTORY CACHE PATH
@@ -354,6 +358,7 @@ INCLUDE(cmake/WtFindPng.txt)
 INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysql.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
+INCLUDE(cmake/WtFindOdbc.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
