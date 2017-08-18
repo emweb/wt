@@ -13,16 +13,15 @@ WT_DECLARE_WT_MEMBER
 
    var self = this;
 
-   this.imagePreloader = null;
+   this.imagePreloaders = [];
    this.images = [];
    this.canvas = document.getElementById('c' + widget.id);
    this.repaint = function() {};
    this.widget = widget;
-   this.cancelPreloader = function() {
-      var preloader = self.imagePreloader;
-      if (preloader)
-	 preloader.cancel();
-      self.imagePreloader = null;
+   this.cancelPreloaders = function() {
+      for (var i = 0; i < self.imagePreloaders.length; ++i)
+	 self.imagePreloaders[i].cancel();
+      self.imagePreloaders = [];
    };
  });
 

@@ -93,17 +93,21 @@ struct MSSQLServer::Impl {
     : env(NULL),
       dbc(NULL),
       stmt(NULL),
-      connectionString(str),
-      resultBuffer({(char*)malloc(256), 256})
-  { }
+      connectionString(str)
+  {
+    resultBuffer.buf = (char*)malloc(256);
+    resultBuffer.size = 256;
+  }
 
   Impl(const Impl &other)
     : env(NULL),
       dbc(NULL),
       stmt(NULL),
-      connectionString(other.connectionString),
-      resultBuffer({(char*)malloc(256), 256})
-  { }
+      connectionString(other.connectionString)
+  {
+    resultBuffer.buf = (char*)malloc(256);
+    resultBuffer.size = 256;
+  }
 
   ~Impl()
   {
