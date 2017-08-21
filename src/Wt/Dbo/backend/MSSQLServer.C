@@ -5,7 +5,6 @@
  */
 #include "Wt/Dbo/backend/MSSQLServer"
 
-#include "Wt/Dbo/WDboDllDefs.h"
 #include "Wt/Dbo/Exception"
 
 #ifdef WT_WIN32

@@ -34,11 +34,14 @@ void query_result_traits<Result>::getFields(Session& session,
 
   std::string sqlType = "??"; // FIXME, get from session ?
 
+  int flags = 0;
   std::string::iterator as = boost::ifind_last(name, " as ").end();
-  if (as != name.end())
+  if (as != name.end()) {
+    flags = flags | FieldInfo::AliasedName;
     name = name.substr(as - name.begin());
+  }
 
-  result.push_back(FieldInfo(name, &typeid(Result), sqlType, 0));
+  result.push_back(FieldInfo(name, &typeid(Result), sqlType, flags));
 }
 
 template <typename Result>

@@ -2202,6 +2202,35 @@ BOOST_AUTO_TEST_CASE( dbo_test24c )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test24d )
+{
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<E> e1(new E("e1"));
+    dbo::ptr<C> c1(new C("c1"));
+    session_->add(e1);
+    session_->add(c1);
+
+    typedef dbo::ptr_tuple<E, C>::type EC;
+    dbo::collection<EC> ecs = session_->query< EC >
+      ("select E, C from  " SCHEMA "\"table_e\" E, " SCHEMA "\"table_c\" C");
+
+    // Calling size() forces the count query to be executed, tests
+    // whether adding aliases works properly, because some systems, like
+    // MySQL and SQL Server disallow queries like
+    // select count(1) from (select e."id", ..., c."id", ... from ...) dbocount
+    // because that would cause there to be two dbocount."id"s
+    BOOST_REQUIRE(ecs.size() == 1);
+
+    EC ec = *ecs.begin();
+    BOOST_REQUIRE(ec.get<0>()->name == "e1");
+    BOOST_REQUIRE(ec.get<1>()->name == "c1");
+  }
+}
+
 BOOST_AUTO_TEST_CASE( dbo_test25 )
 {
 #ifndef FIREBIRD // Cannot order by on blobs in Firebird...
@@ -2528,4 +2557,32 @@ BOOST_AUTO_TEST_CASE( dbo_test29 )
   BOOST_REQUIRE(*it3 == 10);
   ++it3;
   BOOST_REQUIRE(*it3 == 5);
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test30 )
+{
+  // Up until Wt 3.3.8, calling .size() on the result of a count(*) query
+  // returned the wrong result. 
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  dbo::Transaction t(*session_);
+  dbo::ptr<A> a1 = session_->add(new A());
+  a1.modify()->string = "B";
+  a1.modify()->i = 1;
+  dbo::ptr<A> a2 = session_->add(new A());
+  a2.modify()->string = "A";
+  a2.modify()->i = 2;
+
+  dbo::collection<int> counts = session_->query<int>("select count(*) from \"table_a\"");
+  BOOST_REQUIRE(counts.size() == 1);
+  // counts.size() returned 2 in Wt <= 3.3.8, because instead of executing the query
+  // select count(1) from (select count(*) from "table_a")
+  // the query
+  // select count(1) from "table_a"
+  // was executed instead
+  
+  int count = *counts.begin();
+  BOOST_REQUIRE(count == 2);
 }

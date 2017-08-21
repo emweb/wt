@@ -121,7 +121,8 @@ public:
     ForeignKey = 0x20, //!< Field is (part of) a foreign key
     FirstDboField = 0x40,
     LiteralJoinId = 0x80,
-    AuxId = 0x81
+    AuxId = 0x81,
+    AliasedName = 0x100 // there is an AS in the field, so the name is aliased
   };
 
   /*! \brief Creates a field description.
@@ -188,6 +189,7 @@ public:
   bool isFirstDboField() const { return (flags_ & FirstDboField) != 0; }
   bool literalJoinId() const { return (flags_ & LiteralJoinId) != 0; }
   bool isAuxIdField() const { return (flags_ & AuxId) != 0; }
+  bool isAliasedName() const { return (flags_ & AliasedName) != 0; }
   std::string foreignKeyName() const { return foreignKeyName_; }
   std::string foreignKeyTable() const { return foreignKeyTable_; }
   int fkConstraints() const { return fkConstraints_; }

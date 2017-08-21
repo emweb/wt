@@ -26,6 +26,7 @@
 #cmakedefine WTDBOSQLITE3_STATIC
 #cmakedefine WTDBOFIREBIRD_STATIC
 #cmakedefine WTDBOMYSQL_STATIC
+#cmakedefine WTDBOMSSQLSERVER_STATIC
 #cmakedefine WTHTTP_STATIC
 #cmakedefine WT_EXT_STATIC
 #cmakedefine WT_EXT_STATIC

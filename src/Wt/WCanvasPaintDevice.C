@@ -187,22 +187,23 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
     tmp << '\'' << images_[i] << '\'';
   }
 
-  tmp << "],function(images){";
-  tmp << "this.done = true;";
-  tmp << "var o=" << paintedWidgetJsRef << ";";
-  tmp << "if(o.imagePreloaders.length===0||"
-         "" "this===o.imagePreloaders[0]){";
-  tmp << "" "o.images=images;";
-  tmp << "" "pF();";
-  tmp << "" "o.imagePreloaders.shift();";
-  tmp << "}else{";
-  tmp << "" "while(o.imagePreloaders.length>0&&"
-                  "o.imagePreloaders[0].done){";
-  tmp << ""   "o.imagePreloaders[0].callback(o.imagePreloaders[0].images);";
-  tmp << "" "}";
-  tmp << "}";
-  tmp << "}));}";
-  tmp << "})();";
+  tmp << "],function(images){"
+           "this.done = true;"
+           "var o=" << paintedWidgetJsRef << ";"
+           "if(o.imagePreloaders.length===0||"
+             "this===o.imagePreloaders[0]){"
+             "o.images=images;"
+             "pF();"
+             "o.imagePreloaders.shift();"
+           "}else{"
+             "o.handlePreloaders();"
+             "while(o.imagePreloaders.length>0&&"
+                   "o.imagePreloaders[0].done){"
+               "o.imagePreloaders[0].callback(o.imagePreloaders[0].images);"
+             "}"
+           "}"
+         "}));}"
+       "})();";
 
   text->callJavaScript(tmp.str());
 

@@ -10,6 +10,7 @@
 
 #include <string>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace Wt {
   namespace Dbo {
@@ -34,6 +35,7 @@ std::string selectColumns(const std::vector<FieldInfo>& fields) {
       result += ", ";
 
     result += field.sql();
+    // We don't need to add aliases in this case, normally
   }
 
   return result;
@@ -201,6 +203,7 @@ void substituteFields(const SelectFieldList& list,
 	  dboFields += ", ";
 
 	dboFields += fs[i].sql();
+        dboFields += " as col" + boost::lexical_cast<std::string>(i);
 
 	++i;
 	if (i >= fs.size()
@@ -215,12 +218,19 @@ void substituteFields(const SelectFieldList& list,
       sql.replace(start, count, dboFields);
 
       offset += (dboFields.length() - (list[j].end - list[j].begin));
-    } else
+    } else {
+      if (!fs[i].isAliasedName()) {
+        int start = list[j].end + offset;
+        std::string col = " as col" + boost::lexical_cast<std::string>(i);
+        sql.insert(start, col);
+        offset += col.size();
+      }
       ++i;
+    }
   }
 }
 
     }
   }
 }
-				 
+
