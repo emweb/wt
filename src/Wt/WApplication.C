@@ -520,8 +520,12 @@ bool WApplication::isExposed(WWidget *w) const
 {
   // File uploads may be hidden when emitting a signal.
   // Other hidden widgets should not emit signals.
+  // FIXME: fix all of the regressions caused by this check
+  //        before reenabling it
+#if 0
   if (!w->isVisible() && !dynamic_cast<WFileUpload*>(w))
     return false;
+#endif
 
   if (!w->isEnabled())
     return false;

@@ -30,6 +30,12 @@ namespace Wt {
 
     template<>
     struct dbo_traits<Person> : public dbo_default_traits {
+      typedef int IdType;
+
+      static IdType invalidId() {
+        return -1;
+      }
+
       static const char *surrogateIdField() {
 	return 0;
       }
@@ -55,10 +61,10 @@ public:
   void persist(Action &action)
   {
     Wt::Dbo::id(action, name, "name");
-    Wt::Dbo::hasMany(action, friends1_side1, Wt::Dbo::ManyToMany, "friends1", "side1");
-    Wt::Dbo::hasMany(action, friends1_side2, Wt::Dbo::ManyToMany, "friends1", "side2");
-    Wt::Dbo::hasMany(action, friends2_side1, Wt::Dbo::ManyToMany, "friends2", ">side1");
-    Wt::Dbo::hasMany(action, friends2_side2, Wt::Dbo::ManyToMany, "friends2", ">side2");
+    Wt::Dbo::hasMany(action, friends1_side1, Wt::Dbo::ManyToMany, "friends1", "side1", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends1_side2, Wt::Dbo::ManyToMany, "friends1", "side2", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends2_side1, Wt::Dbo::ManyToMany, "friends2", ">side1", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends2_side2, Wt::Dbo::ManyToMany, "friends2", ">side2", Wt::Dbo::ForeignKeyConstraint(0));
     Wt::Dbo::hasMany(action, cars1, Wt::Dbo::ManyToOne, "owner1");
     Wt::Dbo::hasMany(action, cars2, Wt::Dbo::ManyToOne, ">owner2");
     Wt::Dbo::hasOne(action, leftShoe, "owner1");
@@ -85,10 +91,10 @@ public:
     Wt::Dbo::belongsTo(action, owner2, ">owner2");
     Wt::Dbo::hasMany(action, doors1, Wt::Dbo::ManyToOne, "car1");
     Wt::Dbo::hasMany(action, doors2, Wt::Dbo::ManyToOne, ">car2");
-    Wt::Dbo::hasMany(action, friends1_side1, Wt::Dbo::ManyToMany, "car_friends1", "side1");
-    Wt::Dbo::hasMany(action, friends1_side2, Wt::Dbo::ManyToMany, "car_friends1", "side2");
-    Wt::Dbo::hasMany(action, friends2_side1, Wt::Dbo::ManyToMany, "car_friends2", ">side1");
-    Wt::Dbo::hasMany(action, friends2_side2, Wt::Dbo::ManyToMany, "car_friends2", ">side2");
+    Wt::Dbo::hasMany(action, friends1_side1, Wt::Dbo::ManyToMany, "car_friends1", "side1", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends1_side2, Wt::Dbo::ManyToMany, "car_friends1", "side2", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends2_side1, Wt::Dbo::ManyToMany, "car_friends2", ">side1", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends2_side2, Wt::Dbo::ManyToMany, "car_friends2", ">side2", Wt::Dbo::ForeignKeyConstraint(0));
   }
 };
 
@@ -200,10 +206,10 @@ BOOST_AUTO_TEST_CASE( dbo4_test1 )
   // None of the following should throw!
   Wt::Dbo::SqlConnection *connection = f.connectionPool_->getConnection();
   connection->startTransaction();
-  connection->executeSql("SELECT side1_name,side2_name FROM \"friends1\"");
-  connection->executeSql("SELECT side1,side2 FROM \"friends2\"");
-  connection->executeSql("SELECT side1_id,side2_id FROM \"car_friends1\"");
-  connection->executeSql("SELECT side1,side2 FROM \"car_friends2\"");
+  connection->executeSql("SELECT \"side1_name\",\"side2_name\" FROM \"friends1\"");
+  connection->executeSql("SELECT \"side1\",\"side2\" FROM \"friends2\"");
+  connection->executeSql("SELECT \"side1_id\",\"side2_id\" FROM \"car_friends1\"");
+  connection->executeSql("SELECT \"side1\",\"side2\" FROM \"car_friends2\"");
   connection->rollbackTransaction();
   f.connectionPool_->returnConnection(connection);
 }

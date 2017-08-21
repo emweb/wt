@@ -185,6 +185,7 @@ private:
   class WFileDropUploadResource : public WResource {
   public:
     WFileDropUploadResource(WFileDropWidget *fileDropWidget);
+    virtual ~WFileDropUploadResource();
     
     virtual void handleRequest(const Http::Request& request,
 			       Http::Response& response);

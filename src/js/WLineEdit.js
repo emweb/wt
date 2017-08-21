@@ -34,7 +34,11 @@ WT_DECLARE_WT_MEMBER
 
     var self = this, WT = APP.WT, $edit = $(edit);
 
-    this.getValue = function() {
+    function inputSignal() {
+      $edit.trigger('input');
+    }
+
+    function getValue() {
       if (mask === "") return edit.value;
       var value = edit.value;
       var result = "";
@@ -56,6 +60,7 @@ WT_DECLARE_WT_MEMBER
 	return "";
       }
     };
+    this.getValue = getValue;
 
     this.setValue = function(newValue) {
       displayValue = newValue;
@@ -99,7 +104,7 @@ WT_DECLARE_WT_MEMBER
       raw = newRaw;
       caseMap = newCaseMap;
       spaceChar = newSpaceChar;
-      this.setValue(newDisplayValue);
+      self.setValue(newDisplayValue);
     };
 
     if (mask !== "") {
@@ -208,6 +213,7 @@ WT_DECLARE_WT_MEMBER
 
     this.keyDown = function(o, event) {
       if (mask === "" || edit.readOnly) return;
+      var valueBefore = getValue();
       var selection;
       switch(event.keyCode) {
       case RIGHT_KEY:
@@ -271,10 +277,13 @@ WT_DECLARE_WT_MEMBER
 	}
 	break;
       }
+      if (valueBefore !== getValue())
+        inputSignal();
     };
 
     this.keyPressed = function(o, event) {
       if (mask === "" || edit.readOnly) return;
+      var valueBefore = getValue();
       var charCode = event.charCode || event.keyCode;
       if (charCode === 0 || charCode === CR_CHAR || charCode === LF_CHAR)
 	return;
@@ -286,6 +295,8 @@ WT_DECLARE_WT_MEMBER
       var currentPosition = insertChar(String.fromCharCode(charCode),
 				       selection.start);
       moveForward(currentPosition);
+      if (valueBefore !== getValue())
+        inputSignal();
     };
 
     var previousValue = this.getValue();
@@ -316,6 +327,7 @@ WT_DECLARE_WT_MEMBER
     function paste(event) {
       if (mask === "" || edit.readOnly) return;
       WT.cancelEvent(event, WT.CancelDefaultAction);
+      var valueBefore = getValue();
       var selection = WT.getSelectionRange(edit);
       if (selection.start !== selection.end) {
 	clearSelection(selection);
@@ -326,6 +338,8 @@ WT_DECLARE_WT_MEMBER
       } else if (event.clipboardData && event.clipboardData.getData) {
 	pasteData = event.clipboardData.getData("text/plain");
       } else {
+        if (edit.value !== valueBefore)
+          inputSignal();
 	return;
       }
       var text = edit.value;
@@ -336,6 +350,8 @@ WT_DECLARE_WT_MEMBER
 	j = insertChar(charToInsert, j, true);
       }
       moveForward(j);
+      if (valueBefore !== getValue())
+        inputSignal();
     }
 
     if (edit.addEventListener) {
@@ -347,6 +363,7 @@ WT_DECLARE_WT_MEMBER
     function cut(event) {
       if (mask === "" || edit.readOnly) return;
       WT.cancelEvent(event, WT.CancelDefaultAction);
+      var valueBefore = getValue();
       var selection = WT.getSelectionRange(edit);
       if (selection.start !== selection.end) {
 	var cutData = edit.value.substring(selection.start, selection.end);
@@ -357,6 +374,8 @@ WT_DECLARE_WT_MEMBER
 	}
 	clearSelection(selection);
       }
+      if (valueBefore !== getValue())
+        inputSignal();
     }
 
     if (edit.addEventListener) {

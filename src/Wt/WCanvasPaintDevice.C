@@ -136,7 +136,8 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 
   WStringStream tmp;
 
-  tmp << paintedWidgetJsRef << ".repaint=function(){";
+  tmp << "(function(){";
+  tmp << "var pF=function(){";
 
   tmp <<
     "if(" << canvasVar << ".getContext){";
@@ -164,27 +165,45 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 
   tmp << "};";
 
-  if (!images_.empty()) {
-    tmp << "var o=" << paintedWidgetJsRef << ";";
-    tmp << "o.cancelPreloader();";
-    tmp << "if(" << canvasVar << ".getContext){";
-    tmp << "o.imagePreloader=new ";
-    tmp << wApp->javaScriptClass() << "._p_.ImagePreloader([";
-
-    for (unsigned i = 0; i < images_.size(); ++i) {
-      if (i != 0)
-        tmp << ',';
-      tmp << '\'' << images_[i] << '\'';
-    }
-
-    tmp << "],function(images){";
-    tmp << "var o=" << paintedWidgetJsRef << ";";
-    tmp << "o.images=images;";
-    tmp << "o.repaint();";
-    tmp << "});}";
-  } else {
-    tmp << paintedWidgetJsRef << ".repaint();";
+  if (paintUpdate_)
+    tmp << paintedWidgetJsRef << ".repaint=function(){}";
+  else {
+    tmp << paintedWidgetJsRef << ".repaint=pF;";
+    tmp << "pF=function(){"
+        << paintedWidgetJsRef << ".repaint();"
+        << "};";
   }
+
+  tmp << "var o=" << paintedWidgetJsRef << ";";
+  if (!paintUpdate_)
+    tmp << "o.cancelPreloaders();";
+  tmp << "if(" << canvasVar << ".getContext){";
+  tmp << "o.imagePreloaders.push(new ";
+  tmp << wApp->javaScriptClass() << "._p_.ImagePreloader([";
+
+  for (unsigned i = 0; i < images_.size(); ++i) {
+    if (i != 0)
+      tmp << ',';
+    tmp << '\'' << images_[i] << '\'';
+  }
+
+  tmp << "],function(images){"
+           "this.done = true;"
+           "var o=" << paintedWidgetJsRef << ";"
+           "if(o.imagePreloaders.length===0||"
+             "this===o.imagePreloaders[0]){"
+             "o.images=images;"
+             "pF();"
+             "o.imagePreloaders.shift();"
+           "}else{"
+             "o.handlePreloaders();"
+             "while(o.imagePreloaders.length>0&&"
+                   "o.imagePreloaders[0].done){"
+               "o.imagePreloaders[0].callback(o.imagePreloaders[0].images);"
+             "}"
+           "}"
+         "}));}"
+       "})();";
 
   text->callJavaScript(tmp.str());
 

@@ -51,13 +51,13 @@ OAuthTokenEndpoint::OAuthTokenEndpoint(AbstractUserDatabase& db,
 
 OAuthTokenEndpoint::~OAuthTokenEndpoint()
 {
+  beingDeleted();
 #ifndef WT_TARGET_JAVA
 #ifdef WT_WITH_SSL
   if (privateKey)
     RSA_free(privateKey);
 #endif // WT_WITH_SSL
 #endif // WT_TARGET_JAVA
-  beingDeleted();
 }
 
 void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Response &response)

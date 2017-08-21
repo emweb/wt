@@ -34,6 +34,11 @@ public:
       fileUpload_(fileUpload)
   { }
 
+  virtual ~WFileUploadResource()
+  {
+    beingDeleted();
+  }
+
 protected:
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) {

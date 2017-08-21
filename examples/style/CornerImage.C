@@ -17,6 +17,11 @@ public:
     : WResource(parent)
   { }
 
+  virtual ~CornerResource()
+  {
+    beingDeleted();
+  }
+
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) {
     CornerImage *img = dynamic_cast<CornerImage *>(parent());

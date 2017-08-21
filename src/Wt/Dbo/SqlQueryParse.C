@@ -39,11 +39,9 @@ namespace Wt {
     namespace Impl {
 
 #ifndef SPIRIT_QUERY_PARSE
-void parseSql(const std::string& sql, SelectFieldLists& fieldLists,
-	      bool& simpleSelectCount)
+void parseSql(const std::string& sql, SelectFieldLists& fieldLists)
 {
   fieldLists.clear();
-  simpleSelectCount = true;
 
   std::string::const_iterator i = sql.begin();
 
@@ -56,12 +54,10 @@ void parseSql(const std::string& sql, SelectFieldLists& fieldLists,
 
   std::size_t distinctPos = ifind(sql.substr(i - sql.begin()), "distinct ");
   if (distinctPos == 0) {
-    simpleSelectCount = false;
     i += 9;
   } else {
     std::size_t allPos = ifind(sql.substr(i - sql.begin()), "all ");
     if (allPos == 0) {
-      simpleSelectCount = false;
       i += 4;
     }
   }
@@ -113,12 +109,10 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
 {
   typedef sql_query_grammar<Iterator> Self;
 
-  sql_query_grammar(Iterator parseBegin, SelectFieldLists& fieldLists,
-		    bool& simpleSelectCount)
+  sql_query_grammar(Iterator parseBegin, SelectFieldLists& fieldLists)
     : sql_query_grammar::base_type(query_expression),
       parseBegin_(parseBegin),
-      fieldLists_(fieldLists),
-      simpleSelectCount_(simpleSelectCount)
+      fieldLists_(fieldLists)
   {
     using qi::lit;
     using qi::lexeme;
@@ -135,9 +129,7 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
     using phoenix::throw_;
 
     query_expression 
-      = select_expression % compound_operator[
-					      boost::bind(&Self::notSimple,this)
-					      ]
+      = select_expression % compound_operator
       ;
 
     select_expression 
@@ -146,12 +138,8 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
 			     boost::bind(&Self::handleSelect, this)
 			     ]
 	>> -( (no_case["distinct"] >>
-	      -(no_case["on"] >> '(' >> (raw[field] % ',') >>  ')'))[
-				  boost::bind(&Self::notSimple,this)
-				  ]
-	      | no_case["all"][
-			       boost::bind(&Self::notSimple,this)
-			       ]
+	      -(no_case["on"] >> '(' >> (raw[field] % ',') >>  ')'))
+	      | no_case["all"]
 	      )
 	>> fields
 	>> -( no_case["from"] > from_clause )
@@ -164,9 +152,7 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
       ;
 
     with_clause
-      = *(sql_word[
-		   boost::bind(&Self::notSimple, this)
-		   ] - no_case["select"])
+      = *(sql_word - no_case["select"])
       ;
 
     from_clause
@@ -221,13 +207,10 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
        << construct<std::string>(boost::spirit::_3, boost::spirit::_2)
        << val("\"")
        << std::endl);
-
-    simpleSelectCount_ = true;
   }
 
   Iterator parseBegin_;
   SelectFieldLists& fieldLists_;
-  bool& simpleSelectCount_;
 
   qi::rule<Iterator, ascii::space_type> query_expression,
     select_expression, compound_operator, with_clause, from_clause,
@@ -235,11 +218,6 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
     other;
 
   qi::rule<Iterator> special;
-
-  void notSimple()
-  {
-    simpleSelectCount_ = false;
-  }
 
   void handleSelect()
   {
@@ -255,14 +233,13 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
   }
 };
 
-void parseSql(const std::string& sql, SelectFieldLists& fieldLists,
-	      bool& simpleSelectCount)
+void parseSql(const std::string& sql, SelectFieldLists& fieldLists)
 {
   std::string::const_iterator iter = sql.begin();
   std::string::const_iterator end = sql.end();
 
   sql_query_grammar<std::string::const_iterator>
-    sql_grammar(iter, fieldLists, simpleSelectCount);
+    sql_grammar(iter, fieldLists);
 
   bool success = qi::phrase_parse(iter, end, sql_grammar, ascii::space);
 

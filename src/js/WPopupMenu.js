@@ -19,6 +19,11 @@ WT_DECLARE_WT_MEMBER
        touch = null,
        haveMouseDown = false;
 
+   if (WT.isIOS) {
+     $(el).bind('touchstart', startElTouch);
+     $(el).bind('touchend', endElTouch);
+   }
+
    function doHide() {
      setOthersInactive(el, null);
      el.style.display = 'none';
@@ -63,6 +68,11 @@ WT_DECLARE_WT_MEMBER
      var margin =  WT.px(menu, 'paddingTop') + WT.px(menu, 'borderTopWidth')
      WT.positionAtWidget(menu.id, menu.parentItem.id, WT.Horizontal, -margin);
      setOthersInactive(menu, null);
+
+     if (WT.isIOS) {
+       $(menu).unbind('touchstart', startElTouch).bind('touchstart', startElTouch);
+       $(menu).unbind('touchend', endElTouch).bind('touchend', endElTouch);
+     }
    }
 
    function setOthersInactive(topLevelMenu, activeItem) {
@@ -183,7 +193,6 @@ WT_DECLARE_WT_MEMBER
      current = null;
 
      if (hidden) {
-	  
        el.style.position = '';
        el.style.display = '';
        el.style.left = '';
@@ -235,12 +244,21 @@ WT_DECLARE_WT_MEMBER
      }
    }
 
+   function startElTouch(event) {
+     event.stopPropagation();
+   }
+
    function endTouch(event) {
      if (touch) {
        var t = event.originalEvent.changedTouches[0];
        if (Math.abs(touch.x - t.screenX) < 20 && Math.abs(touch.y - t.screenY) < 20)
          onDocumentClick(event);
+       touch = null;
      }
+   }
+
+   function endElTouch(event) {
+     event.stopPropagation();
    }
 
    setTimeout(function() { bindOverEvents(el); }, 0);

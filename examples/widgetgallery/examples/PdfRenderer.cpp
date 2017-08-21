@@ -24,6 +24,11 @@ public:
 	suggestFileName("report.pdf");
     }
 
+    virtual ~ReportResource()
+    {
+	beingDeleted();
+    }
+
     virtual void handleRequest(const Wt::Http::Request& request,
 			       Wt::Http::Response& response)
     {

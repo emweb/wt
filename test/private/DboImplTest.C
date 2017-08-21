@@ -15,13 +15,11 @@ namespace dbo = Wt::Dbo;
 namespace {
 
 void parseSql(const std::string& sql,  int listsCount,
-	      int fieldsCount,
-	      bool simpleSelect)
+	      int fieldsCount)
 {
   dbo::Impl::SelectFieldLists result;
-  bool simpleSelectCount;
 
-  dbo::Impl::parseSql(sql, result, simpleSelectCount);
+  dbo::Impl::parseSql(sql, result);
 
   BOOST_REQUIRE(result.size() == (unsigned)listsCount);
 
@@ -36,27 +34,26 @@ void parseSql(const std::string& sql,  int listsCount,
   }
 
   BOOST_REQUIRE(fields == fieldsCount);
-  BOOST_REQUIRE(simpleSelect == simpleSelectCount);
 }
 
 }
 
 BOOST_AUTO_TEST_CASE( DboImplTest_test1 )
 {
-  parseSql("select 1", 1, 1, true);
-  parseSql("select a, b from foo", 1, 2, true);
-  parseSql("select distinct a, b from foo", 1, 2, false);
-  parseSql("select '1'", 1, 1, true);
-  parseSql("select distinct '1'", 1, 1, false);
-  parseSql("select 'Barts'' car'", 1, 1, true);
+  parseSql("select 1", 1, 1);
+  parseSql("select a, b from foo", 1, 2);
+  parseSql("select distinct a, b from foo", 1, 2);
+  parseSql("select '1'", 1, 1);
+  parseSql("select distinct '1'", 1, 1);
+  parseSql("select 'Barts'' car'", 1, 1);
 
 #if BOOST_VERSION >= 104100
   // These ones only work correctly with our new spirit-based parser
 
-  parseSql("select 'Barts'', car', bike from depot", 1, 2, true);
+  parseSql("select 'Barts'', car', bike from depot", 1, 2);
 
   parseSql("SELECT cast(round(number, 2) as text) AS column_number FROM table",
-	   1, 1, true);
+	   1, 1);
 
   parseSql
     (SQL
@@ -82,7 +79,7 @@ BOOST_AUTO_TEST_CASE( DboImplTest_test1 )
       WHERE region IN (SELECT region FROM top_regions)
       GROUP BY region, product, result, simpleSelectCount
       ),
-     1, 4, false
+     1, 4
      );
 
   parseSql
@@ -90,15 +87,15 @@ BOOST_AUTO_TEST_CASE( DboImplTest_test1 )
      (select a from foo
       intersect
       select b, c from bar),
-     2, 3, false);
+     2, 3);
 
-  parseSql("select from_a, from_b from table",1,2,true);
-  parseSql("select a_from, b_from from table",1,2,true);
+  parseSql("select from_a, from_b from table",1,2);
+  parseSql("select a_from, b_from from table",1,2);
 
-  parseSql("select from_a, from_b",1,2,true);
-  parseSql("select a_from, b_from",1,2,true);
+  parseSql("select from_a, from_b",1,2);
+  parseSql("select a_from, b_from",1,2);
 
-  parseSql("select from_a, SUM(SELECT from_b from table) from other_table",1,2,true);
+  parseSql("select from_a, SUM(SELECT from_b from table) from other_table",1,2);
 
 #endif // BOOST_VERSION
 }

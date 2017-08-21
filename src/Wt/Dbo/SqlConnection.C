@@ -142,6 +142,11 @@ bool SqlConnection::requireSubqueryAlias() const
   return false;
 }
 
+std::string SqlConnection::autoincrementInsertInfix(const std::string &) const
+{
+  return "";
+}
+
 void SqlConnection::prepareForDropTables()
 { }
 

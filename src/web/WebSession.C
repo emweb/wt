@@ -2860,7 +2860,8 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
 
     if (!request.postDataExceeded()) {
       WWidget *w = dynamic_cast<WWidget*>(obj);
-      if (w && (!w->isEnabled() || !w->isVisible()))
+      // FIXME: reenable isVisible() check once we've fixed all of the regressions
+      if (w && (!w->isEnabled()/* || !w->isVisible()*/))
 	continue; // Do not update form data of a disabled or invisible widget
       obj->setFormData(getFormData(request, se + formName));
     } else
