@@ -11,6 +11,7 @@
 #include <libpq-fe.h>
 #include <stdio.h>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <sstream>
 #include <cstring>
@@ -21,10 +22,11 @@
 #ifdef WT_WIN32
 #define snprintf _snprintf
 #define strcasecmp _stricmp
-#define timegm _mkgmtime
 
 #include <WinSock2.h>
-#endif
+#else // WT_WIN32
+#include <sys/select.h>
+#endif // WT_WIN32
 
 #define BYTEAOID 17
 
@@ -32,9 +34,6 @@
 #define DEBUG(x)
 
 namespace {
-#ifndef WT_WIN32
-  thread_local std::tm local_tm;
-#endif
 
   inline struct timeval toTimeval(std::chrono::microseconds ms)
   {
@@ -45,15 +44,6 @@ namespace {
     return result;
   }
 
-  std::tm *thread_local_gmtime(const time_t *timep)
-  {
-#ifdef WT_WIN32
-    return std::gmtime(timep); // Already returns thread-local pointer
-#else // !WT_WIN32
-    gmtime_r(timep, &local_tm);
-    return &local_tm;
-#endif // WT_WIN32
-  }
 }
 
 namespace Wt {
@@ -160,56 +150,55 @@ public:
 
   virtual void bind(int column, const std::chrono::duration<int, std::milli> & value) override
   {
-    std::chrono::system_clock::time_point tp(value);
-    std::time_t t = std::chrono::system_clock::to_time_t(tp);
-    std::tm *tm = thread_local_gmtime(&t);
-    char mbstr[100];
-    std::strftime(mbstr, sizeof(mbstr), "%H:%M:%S", tm);
-    DEBUG(std::cerr << this << " bind " << column << " " << mbstr << std::endl);
+    auto absValue = value < std::chrono::milliseconds::zero() ? -value : value;
+    auto hours = date::floor<std::chrono::hours>(absValue);
+    auto minutes = date::floor<std::chrono::minutes>(absValue) - hours;
+    auto seconds = date::floor<std::chrono::seconds>(absValue) - hours - minutes;
+    auto milliseconds = date::floor<std::chrono::milliseconds>(absValue) - hours - minutes - seconds;
 
-    std::string v = mbstr;
-    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
     std::stringstream ss;
-    ss << "." << ms.count()%1000;
-    v.append(ss.str());
+    ss.imbue(std::locale::classic());
+    if (absValue != value)
+      ss << '-';
+    ss << std::setfill('0')
+       << std::setw(2) << hours.count() << ':'
+       << std::setw(2) << minutes.count() << ':'
+       << std::setw(2) << seconds.count() << '.'
+       << std::setw(3) << milliseconds.count();
 
-    setValue(column, v);
+    DEBUG(std::cerr << this << " bind " << column << " " << ss.str() << std::endl);
+
+    setValue(column, ss.str());
   }
 
   virtual void bind(int column, const std::chrono::system_clock::time_point& value,
 		    SqlDateTimeType type) override
   {
-    std::time_t t = std::chrono::system_clock::to_time_t(value);
-    std::tm *tm = thread_local_gmtime(&t);
-    char mbstr[100];
-    std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
-
-    DEBUG(std::cerr << this << " bind " << column << " "
-      << mbstr << std::endl);
-
-    std::string v;
-    char str[100];
-    if (type == SqlDateTimeType::Date){
-      std::strftime(str, sizeof(str), "%Y-%m-%d", tm);
-      v = str;
-    }
-    else {
-      std::strftime(str, sizeof(str), "%Y-%m-%d %H:%M:%S", tm);
-      v = str;
-      std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch());
-      std::stringstream ss;
-      ss << "." << ms.count()%1000;
-      v.append(ss.str());
-
+    std::stringstream ss;
+    ss.imbue(std::locale::classic());
+    if (type == SqlDateTimeType::Date) {
+      auto daypoint = date::floor<date::days>(value);
+      auto ymd = date::year_month_day(daypoint);
+      ss << (int)ymd.year() << '-' << (unsigned)ymd.month() << '-' << (unsigned)ymd.day();
+    } else {
+      auto daypoint = date::floor<date::days>(value);
+      auto ymd = date::year_month_day(daypoint);
+      auto tod = date::make_time(value - daypoint);
+      ss << (int)ymd.year() << '-' << (unsigned)ymd.month() << '-' << (unsigned)ymd.day() << ' ';
+      ss << std::setfill('0')
+         << std::setw(2) << tod.hours().count() << ':'
+         << std::setw(2) << tod.minutes().count() << ':'
+         << std::setw(2) << tod.seconds().count() << '.'
+         << std::setw(3) << date::floor<std::chrono::milliseconds>(tod.subseconds()).count();
       /*
        * Add explicit timezone offset. Postgres will ignore this for a TIMESTAMP
        * column, but will treat the timestamp as UTC in a TIMESTAMP WITH TIME
        * ZONE column -- possibly in a legacy table.
        */
-      v.append("+00");
+      ss << "+00";
     }
-
-    setValue(column, v);
+    DEBUG(std::cerr << this << " bind " << column << " " << ss.str() << std::endl);
+    setValue(column, ss.str());
   }
 
   virtual void bind(int column, const std::vector<unsigned char>& value) override
@@ -493,15 +482,9 @@ public:
     std::string v = PQgetvalue(result_, row_, column);
 
     if (type == SqlDateTimeType::Date){
-      int year, month, day;
-      std::sscanf(v.c_str(), "%d-%d-%d", &year, &month, &day);
-
-      std::tm tm = std::tm();
-      tm.tm_year = year - 1900;
-      tm.tm_mon = month - 1;
-      tm.tm_mday = day;
-      std::time_t t = timegm(&tm);
-      *value = std::chrono::system_clock::from_time_t(t);
+      std::istringstream in(v);
+      in.imbue(std::locale::classic());
+      in >> date::parse("%F", *value);
     } else {
       /*
        * Handle timezone offset. Postgres will append a timezone offset [+-]dd
@@ -513,19 +496,10 @@ public:
           offsetHour = std::stoi(v.substr(v.size() - 3));
           v = v.substr(0, v.size() - 3);
       }
-      int year, month, day, hour, min, sec, ms = 0;
-      std::sscanf(v.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &min, &sec, &ms);
-
-      std::tm tm = std::tm();
-      tm.tm_year = year - 1900;
-      tm.tm_mon = month - 1;
-      tm.tm_mday = day;
-      tm.tm_hour = hour - offsetHour;
-      tm.tm_min = min;
-      tm.tm_sec = sec;
-      std::time_t t = timegm(&tm);
-      *value = std::chrono::system_clock::from_time_t(t);
-      *value += std::chrono::milliseconds(ms);
+      std::istringstream in(v);
+      in.imbue(std::locale::classic());
+      in >> date::parse("%F %T", *value);
+      *value -= std::chrono::hours{ offsetHour };
     }
 
     return true;
@@ -537,13 +511,17 @@ public:
       return false;
 
     std::string v = PQgetvalue(result_, row_, column);
+    bool neg = false;
+    if (!v.empty() && v[0] == '-') {
+      neg = true;
+      v = v.substr(1);
+    }
 
-    int hour, min, sec, ms = 0;
-    std::sscanf(v.c_str(), "%d:%d:%d.%d", &hour, &min, &sec, &ms);
-
-    *value = std::chrono::duration<int, std::milli>(std::chrono::hours(hour) + std::chrono::minutes(min)
-                                                    + std::chrono::seconds(sec)
-                                                    + std::chrono::milliseconds(ms));
+    std::istringstream in(v);
+    in.imbue(std::locale::classic());
+    in >> date::parse("%T", *value);
+    if (neg)
+      *value = -(*value);
 
     return true;
   }
@@ -759,7 +737,7 @@ bool Postgres::reconnect()
     return false;
 }
 
-SqlStatement *Postgres::prepareStatement(const std::string& sql)
+std::unique_ptr<SqlStatement> Postgres::prepareStatement(const std::string& sql)
 {
   if (PQstatus(conn_) != CONNECTION_OK)  {
     std::cerr << "Postgres: connection lost to server, trying to reconnect..."
@@ -769,7 +747,7 @@ SqlStatement *Postgres::prepareStatement(const std::string& sql)
     }
   }
 
-  return new PostgresStatement(*this, sql);
+  return std::unique_ptr<SqlStatement>(new PostgresStatement(*this, sql));
 }
 
 void Postgres::executeSql(const std::string &sql)

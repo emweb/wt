@@ -4,8 +4,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifdef __MINGW32__
-// compile fix for boost 1.64 on mingw. Must be included before other includes.
+#include <boost/version.hpp>
+#if BOOST_VERSION == 106400
+// compile fix for boost 1.64. Must be included before other includes.
 #include <boost/serialization/array_wrapper.hpp>
 #endif
 

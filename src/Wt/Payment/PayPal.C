@@ -49,6 +49,11 @@ public:
       checkout_(checkout)
   { }
 
+  virtual ~PayPalRedirectResource()
+  {
+    beingDeleted();
+  }
+
   virtual void handleRequest(const Wt::Http::Request& request,
                              Wt::Http::Response& response) override
   {

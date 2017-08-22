@@ -19,6 +19,11 @@ public:
     img_(img)
   { }
 
+  virtual ~CornerResource()
+  {
+    beingDeleted();
+  }
+
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) {
     WRasterImage device("png", img_->radius(), img_->radius());

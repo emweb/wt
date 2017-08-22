@@ -33,11 +33,14 @@ void query_result_traits<Result>::getFields(Session& session,
 
   std::string sqlType = "??"; // FIXME, get from session ?
 
+  int flags = 0;
   std::string::const_iterator as = Impl::ifind_last_as(name);
-  if (as != name.end())
+  if (as != name.end()) {
+    flags = flags | FieldFlags::AliasedName;
     name = name.substr(as - name.begin());
+  }
 
-  result.push_back(FieldInfo(name, &typeid(Result), sqlType, 0));
+  result.push_back(FieldInfo(name, &typeid(Result), sqlType, flags));
 }
 
 template <typename Result>

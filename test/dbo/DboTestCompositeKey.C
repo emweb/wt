@@ -87,7 +87,11 @@ public:
     Wt::Dbo::id(a, _Id, "Page");
 
     Wt::Dbo::hasMany(a, ChildrenPages, Wt::Dbo::ManyToOne, "Parent_Page");
+#ifndef MSSQLSERVER
     Wt::Dbo::belongsTo(a, ParentPage, "Parent_Page", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade);
+#else
+    Wt::Dbo::belongsTo(a, ParentPage, "Parent_Page");
+#endif
   }
 
 private:

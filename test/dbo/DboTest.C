@@ -512,7 +512,7 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
 
   a1.wstring = "Hello";
 
-  a1.wstring2 = Wt::WString::fromUTF8("Kitty euro\xe2\x82\xac greek \xc6\x94");
+  a1.wstring2 = Wt::WString::fromUTF8("Kitty euro\xe2\x82\xac greek \xc6\x94 \xf0\x9f\x90\xb1");
   a1.string = "There";
   a1.string2 = "Big Owl";
   std::tm timeInfo = std::tm();
@@ -829,9 +829,9 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     //   select count(1) from ( select B."id", B."name", A."id" as id2, A."date",
     //   A."b_id" from "table_b" B join "table_a" A on A."b_id" = B."id");
     //
-    // Firebird & mysql are not able to execute this query.
+    // Firebird, MySQL and SQL Server are not able to execute this query.
 
-#if !defined(FIREBIRD) && !defined(MYSQL)
+#if !defined(FIREBIRD) && !defined(MYSQL) && !defined(MSSQLSERVER)
     dbo::Query<BA> q = session_->query<BA>
       ("select B, A "
        "from " SCHEMA "\"table_b\" B join " SCHEMA "\"table_a\" A on A.\"b_id\" = B.\"id\"")
@@ -864,7 +864,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     }
 
     BOOST_REQUIRE(ii == 2);
-#endif //FIREBIRD && MYSQL
+#endif // !defined(FIREBIRD) && !defined(MYSQL) && !defined(MSSQLSERVER)
   }
 }
 
@@ -2246,6 +2246,36 @@ BOOST_AUTO_TEST_CASE( dbo_test24c )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test24d )
+{
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<E> e1 = dbo::make_ptr<E>("e1");
+    dbo::ptr<C> c1 = dbo::make_ptr<C>("c1");
+    session_->add(e1);
+    session_->add(c1);
+
+    typedef std::tuple<dbo::ptr<E>, dbo::ptr<C>> EC;
+    dbo::collection<EC> ecs = session_->query< EC >
+      ("select E, C from  " SCHEMA "\"table_e\" E, " SCHEMA "\"table_c\" C");
+
+    // Calling size() forces the count query to be executed, tests
+    // whether adding aliases works properly, because some systems, like
+    // MySQL and SQL Server disallow queries like
+    // select count(1) from (select e."id", ..., c."id", ... from ...) dbocount
+    // because that would cause there to be two dbocount."id"s
+    BOOST_REQUIRE(ecs.size() == 1);
+
+    EC ec = *ecs.begin();
+
+    BOOST_REQUIRE(std::get<0>(ec)->name == "e1");
+    BOOST_REQUIRE(std::get<1>(ec)->name == "c1");
+  }
+}
+
 BOOST_AUTO_TEST_CASE( dbo_test25 )
 {
 #ifndef FIREBIRD // Cannot order by on blobs in Firebird...
@@ -2510,4 +2540,173 @@ BOOST_AUTO_TEST_CASE( dbo_test28 )
   }
 
 #endif
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test29 )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  dbo::Transaction t(*session_);
+
+  dbo::ptr<A> a1 = session_->addNew<A>();
+  a1.modify()->string = "B";
+  a1.modify()->i = 1;
+  dbo::ptr<A> a2 = session_->addNew<A>();
+  a2.modify()->string = "A";
+  a2.modify()->i = 2;
+  dbo::ptr<A> a3 = session_->addNew<A>();
+  a3.modify()->string = "B";
+  a3.modify()->i = 4;
+  dbo::ptr<A> a4 = session_->addNew<A>();
+  a4.modify()->string = "A";
+  a4.modify()->i = 8;
+
+  // Should not throw
+  // Test case for PostgreSQL and SQL Server:
+  //  - PostgreSQL needs a subquery for the "select count(1)"
+  //  - SQL Server needs an offset when using "order by" in a subquery
+  dbo::collection<dbo::ptr<A> > as1 = session_->find<A>().orderBy("\"string\"");
+
+  BOOST_REQUIRE(as1.size() == 4);
+  dbo::collection<dbo::ptr<A> >::iterator it1 = as1.begin();
+  BOOST_REQUIRE((*it1)->string == "A");
+  ++it1;
+  BOOST_REQUIRE((*it1)->string == "A");
+  ++it1;
+  BOOST_REQUIRE((*it1)->string == "B");
+  ++it1;
+  BOOST_REQUIRE((*it1)->string == "B");
+
+  dbo::collection<std::string> as2 =
+    session_->query<std::string>("SELECT \"string\" FROM \"table_a\"").orderBy("\"string\"").groupBy("\"string\"");
+
+  BOOST_REQUIRE(as2.size() == 2);
+  dbo::collection<std::string>::iterator it2 = as2.begin();
+  BOOST_REQUIRE(*it2 == "A");
+  ++it2;
+  BOOST_REQUIRE(*it2 == "B");
+  ++it2;
+
+  dbo::collection<int> i_total = session_->query<int>("select SUM(\"i\") as \"my_sum\" from \"table_a\"");
+
+  BOOST_REQUIRE(i_total.size() == 1);
+  BOOST_REQUIRE(*i_total.begin() == 15);
+
+  dbo::collection<int> is = session_->query<int>("select SUM(\"i\") as \"my_sum\" from \"table_a\"").orderBy("\"string\"").groupBy("\"string\"");
+
+  BOOST_REQUIRE(is.size() == 2);
+  dbo::collection<int>::iterator it3 = is.begin();
+  BOOST_REQUIRE(*it3 == 10);
+  ++it3;
+  BOOST_REQUIRE(*it3 == 5);
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test30 )
+{
+  // Up until Wt 3.3.8, calling .size() on the result of a count(*) query
+  // returned the wrong result. 
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  dbo::Transaction t(*session_);
+  dbo::ptr<A> a1 = session_->addNew<A>();
+  a1.modify()->string = "B";
+  a1.modify()->i = 1;
+  dbo::ptr<A> a2 = session_->addNew<A>();
+  a2.modify()->string = "A";
+  a2.modify()->i = 2;
+
+  dbo::collection<int> counts = session_->query<int>("select count(*) from \"table_a\"");
+  BOOST_REQUIRE(counts.size() == 1);
+  // counts.size() returned 2 in Wt <= 3.3.8, because instead of executing the query
+  // select count(1) from (select count(*) from "table_a")
+  // the query
+  // select count(1) from "table_a"
+  // was executed instead
+  
+  int count = *counts.begin();
+  BOOST_REQUIRE(count == 2);
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test31 )
+{
+  // Test long and negative durations
+  std::chrono::milliseconds longDuration =
+    std::chrono::hours(42) +
+    std::chrono::minutes(10) +
+    std::chrono::seconds(11) +
+    std::chrono::milliseconds(123);
+  auto negDuration = -longDuration;
+  // Test whether Postgres properly serializes/deserializes
+  // time when the last digit of milliseconds is 0
+  std::chrono::milliseconds anotherDuration =
+    std::chrono::hours(42) +
+    std::chrono::minutes(10) +
+    std::chrono::seconds(11) +
+    std::chrono::milliseconds(120);
+  // Test whether Postgres properly serializes/deserializes
+  // time when the first digit of milliseconds is 0
+  std::chrono::milliseconds anotherDuration2 =
+    std::chrono::hours(42) +
+    std::chrono::minutes(10) +
+    std::chrono::seconds(11) +
+    std::chrono::milliseconds(12);
+
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+  {
+    // Store
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->addNew<A>();
+    a.modify()->timeduration = longDuration;
+  }
+  {
+    // Retrieve
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->timeduration == longDuration);
+    a.remove();
+  }
+  {
+    // Store
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->addNew<A>();
+    a.modify()->timeduration = negDuration;
+  }
+  {
+    // Retrieve
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->timeduration == negDuration);
+    a.remove();
+  }
+  {
+    // Store
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->addNew<A>();
+    a.modify()->timeduration = anotherDuration;
+  }
+  {
+    // Retrieve
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->timeduration == anotherDuration);
+    a.remove();
+  }
+  {
+    // Store
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->addNew<A>();
+    a.modify()->timeduration = anotherDuration2;
+  }
+  {
+    // Retrieve
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->timeduration == anotherDuration2);
+  }
 }

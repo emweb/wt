@@ -576,6 +576,13 @@ void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
     setSelectable(false);
     popup->setButton(anchor());
     updateInternalPath();
+    // WPopupMenus are hidden by default, 'show' this WPopupMenu
+    // but not really, since the parent is still hidden. This fixes
+    // an issue where child widgets would remain unexposed, even
+    // though this submenu was open (e.g. in a submenu where items
+    // are checkable)
+    if (dynamic_cast<WPopupMenu*>(menu_))
+      popup->show();
   }
 }
 

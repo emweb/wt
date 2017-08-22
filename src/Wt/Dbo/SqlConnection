@@ -26,14 +26,16 @@ enum class SqlDateTimeType {
 
 /*! \brief Enum that defines a limit query type.
  *
- * Oracle is using LimitQuery::Rownum and Firebeard is using LimitQuery::RowsFromTo instead of limit and
- * offset in sql
+ * Oracle is using Rownum, Firebird is using RowsFromTo,
+ * and Microsoft SQL Server is using Top instead of limit and
+ * offset in SQL
  */
 enum class LimitQuery{
-  Limit,
-  RowsFromTo,
-  Rownum,
-  NotSupported
+  Limit, //!< Use LIMIT and OFFSET
+  RowsFromTo, //!< Use ROWS ? TO ? (for Firebird)
+  Rownum, //!< Use rownum (for Oracle)
+  OffsetFetch, //!< Use OFFSET (?) ROWS FETCH FIRST (?) ROWS ONLY (adding ORDER BY (SELECT NULL) for SQL Server)
+  NotSupported // !< Not supported
 };
 
 class SqlStatement;
@@ -105,13 +107,13 @@ public:
    * Saves the statement for future reuse using getStatement()
    */
   virtual void saveStatement(const std::string& id,
-			     SqlStatement *statement);
+			     std::unique_ptr<SqlStatement> statement);
 
   /*! \brief Prepares a statement.
    *
    * Returns the prepared statement.
    */
-  virtual SqlStatement *prepareStatement(const std::string& sql) = 0;
+  virtual std::unique_ptr<SqlStatement> prepareStatement(const std::string& sql) = 0;
 
   /*! \brief Sets a property.
    *
@@ -171,6 +173,16 @@ public:
    */
   virtual std::string autoincrementType() const = 0;
 
+  /*! \brief Returns the infix for an 'autoincrement' insert statement.
+   *
+   * This is inserted before the <tt>values</tt> part of the <tt>insert</tt>
+   * statement, since Microsoft SQL Server requires that the autoincrement id
+   * is returned with <tt>OUTPUT</tt>.
+   *
+   * Returns an empty string by default.
+   */
+  virtual std::string autoincrementInsertInfix(const std::string& id) const;
+
   /*! \brief Returns the suffix for an 'autoincrement' insert statement.
    *
    * This is appended to the <tt>insert</tt> statement, since some back-ends
@@ -224,13 +236,14 @@ public:
    */
   virtual const char *booleanType() const;
 
-  /*! \brief Returns the true if the database supports Update Cascade.
+  /*! \brief Returns true if the database supports Update Cascade.
    *
    * This method will return true by default.
    * Was created for the oracle database which does not support
    * Update Cascade.
    */
   virtual bool supportUpdateCascade() const;
+
   /*! \brief Returns the true if the database require subquery alias.
    *
    * This method will return false by default.
@@ -275,12 +288,14 @@ public:
 protected:
   SqlConnection();
   SqlConnection(const SqlConnection& other);
+  SqlConnection& operator=(const SqlConnection&) = delete;
+
   void clearStatementCache();
 
   std::vector<SqlStatement *> getStatements() const;
   
 private:
-  typedef std::map<std::string, SqlStatement *> StatementMap;
+  typedef std::map<std::string, std::unique_ptr<SqlStatement>> StatementMap;
 
   StatementMap statementCache_;
   std::map<std::string, std::string> properties_;

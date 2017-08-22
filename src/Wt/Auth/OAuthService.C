@@ -52,6 +52,11 @@ public:
     : process_(process)
   { }
 
+  virtual ~OAuthRedirectEndpoint()
+  {
+    beingDeleted();
+  }
+
   void sendError(Http::Response& response)
   {
     response.setStatus(500);
@@ -526,6 +531,11 @@ struct OAuthService::Impl
     RedirectEndpoint(const OAuthService& service)
       : service_(service)
     { }
+
+    virtual ~RedirectEndpoint()
+    {
+      beingDeleted();
+    }
 
     virtual void handleRequest(const Http::Request& request,
 			       Http::Response& response) override

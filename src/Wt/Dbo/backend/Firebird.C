@@ -537,9 +537,10 @@ namespace Wt
 	return std::unique_ptr<SqlConnection>(new Firebird(*this));
       }
       
-      SqlStatement *Firebird::prepareStatement(const std::string& sql)
+      std::unique_ptr<SqlStatement> Firebird::prepareStatement(const std::string& sql)
       {
-	return new FirebirdStatement(*this, sql);
+	return std::unique_ptr<SqlStatement>(
+	    new FirebirdStatement(*this, sql));
       }
 
       std::string Firebird::autoincrementType() const

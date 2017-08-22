@@ -28,25 +28,20 @@ SqlConnection::~SqlConnection()
 
 void SqlConnection::clearStatementCache()
 {
-  for (StatementMap::iterator i = statementCache_.begin();
-       i != statementCache_.end(); ++i)
-    delete i->second;
-
   statementCache_.clear();
 }
 
 void SqlConnection::executeSql(const std::string& sql)
 {
-  SqlStatement *s = prepareStatement(sql);
+  std::unique_ptr<SqlStatement> s = prepareStatement(sql);
   s->execute();
-  delete s;
 }
 
 SqlStatement *SqlConnection::getStatement(const std::string& id) const
 {
   StatementMap::const_iterator i = statementCache_.find(id);
   if (i != statementCache_.end()) {
-    SqlStatement *result = i->second;
+    SqlStatement *result = i->second.get();
     /*
      * Later, if already in use, manage reentrant use by cloning the statement
      * and adding it to a linked list in the statementCache_
@@ -61,9 +56,9 @@ SqlStatement *SqlConnection::getStatement(const std::string& id) const
 }
 
 void SqlConnection::saveStatement(const std::string& id,
-				  SqlStatement *statement)
+				  std::unique_ptr<SqlStatement> statement)
 {
-  statementCache_[id] = statement;
+  statementCache_[id] = std::move(statement);
 }
 
 std::string SqlConnection::property(const std::string& name) const
@@ -141,6 +136,11 @@ bool SqlConnection::requireSubqueryAlias() const
   return false;
 }
 
+std::string SqlConnection::autoincrementInsertInfix(const std::string &) const
+{
+  return "";
+}
+
 void SqlConnection::prepareForDropTables()
 { }
 
@@ -150,7 +150,7 @@ std::vector<SqlStatement *> SqlConnection::getStatements() const
 
   for (StatementMap::const_iterator i = statementCache_.begin();
        i != statementCache_.end(); ++i)
-    result.push_back(i->second);
+    result.push_back(i->second.get());
 
   return result;
 }

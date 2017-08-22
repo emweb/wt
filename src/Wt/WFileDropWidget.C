@@ -30,6 +30,11 @@ public:
     setUploadProgress(true);
   }
 
+  virtual ~WFileDropUploadResource()
+  {
+    beingDeleted();
+  }
+
   virtual void handleRequest(const Http::Request &request,
 			     Http::Response &response) override
   {

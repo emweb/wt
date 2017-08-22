@@ -8,6 +8,8 @@
 #include "Wt/Dbo/backend/MySQL.h"
 #include "Wt/Dbo/Exception.h"
 
+#include "Wt/Date/date.h"
+
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -303,11 +305,12 @@ class MySQLStatement final : public SqlStatement
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
-      std::chrono::system_clock::time_point tp(value);
-      std::time_t t = std::chrono::system_clock::to_time_t(tp);
-      std::tm *tm = thread_local_gmtime(&t);
-      char mbstr[100];
-      std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
+      auto absValue = value < std::chrono::duration<int, std::milli>::zero() ? -value : value;
+      auto hours = date::floor<std::chrono::hours>(absValue);
+      auto minutes = date::floor<std::chrono::minutes>(absValue) - hours;
+      auto seconds = date::floor<std::chrono::seconds>(absValue) - hours - minutes;
+      auto msecs = date::floor<std::chrono::milliseconds>(absValue) - hours - minutes - seconds;
+
       DEBUG(std::cerr << this << " bind " << column << " "
                 << mbstr << std::endl);
 
@@ -320,18 +323,16 @@ class MySQLStatement final : public SqlStatement
       ts->year = 0;
       ts->month = 0;
       ts->day = 0;
-      ts->neg = 0;
+      ts->neg = absValue != value;
 
-      ts->hour = tm->tm_hour;
-      ts->minute = tm->tm_min;
-      ts->second = tm->tm_sec;
+      ts->hour = hours.count();
+      ts->minute = minutes.count();
+      ts->second = seconds.count();
 
-      if(conn_.getFractionalSecondsPart() > 0){
-          std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
-          ts->second_part = (unsigned long) ms.count()%1000;
-
-      } else
-          ts->second_part = 0;
+      if (conn_.getFractionalSecondsPart() > 0)
+        ts->second_part = std::chrono::microseconds(msecs).count();
+      else
+        ts->second_part = 0;
 
       freeColumn(column);
       in_pars_[column].buffer = ts;
@@ -735,8 +736,11 @@ class MySQLStatement final : public SqlStatement
          return false;
 
        MYSQL_TIME* ts = static_cast<MYSQL_TIME*>(out_pars_[column].buffer);
-       *value = std::chrono::hours(ts->hour) + std::chrono::minutes(ts->minute)
-               + std::chrono::seconds(ts->second) + std::chrono::milliseconds(ts->second_part);
+       auto msecs = date::floor<std::chrono::milliseconds>(
+         std::chrono::microseconds(ts->second_part));
+       auto absValue = std::chrono::hours(ts->hour) + std::chrono::minutes(ts->minute)
+                     + std::chrono::seconds(ts->second) + msecs;
+       *value = ts->neg ? -absValue : absValue;
 
        DEBUG(std::cerr << this
              << " result time " << column << " " << *value.count() << std::endl);
@@ -997,7 +1001,7 @@ void MySQL::init()
 {
   executeSql("SET sql_mode='ANSI_QUOTES,REAL_AS_FLOAT'");
   executeSql("SET default_storage_engine=INNODB;");
-  executeSql("SET NAMES 'utf8';");
+  executeSql("SET NAMES 'utf8mb4';");
 }
 
 void MySQL::checkConnection()
@@ -1039,9 +1043,9 @@ void MySQL::checkConnection()
   }
 }
 
-SqlStatement *MySQL::prepareStatement(const std::string& sql)
+std::unique_ptr<SqlStatement> MySQL::prepareStatement(const std::string& sql)
 {
-  return new MySQLStatement(*this, sql);
+  return std::unique_ptr<SqlStatement>(new MySQLStatement(*this, sql));
 }
 
 void MySQL::executeSql(const std::string &sql)

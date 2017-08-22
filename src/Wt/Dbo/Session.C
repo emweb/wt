@@ -280,7 +280,22 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
     firstField = false;
   }
 
-  sql << ") values (";
+  sql << ")";
+
+  std::unique_ptr<SqlConnection> connPtr;
+  SqlConnection *conn;
+  if (transaction_)
+    conn = transaction_->connection_.get();
+  else {
+    connPtr = useConnection();
+    conn = connPtr.get();
+  }
+
+  if (mapping->surrogateIdFieldName) {
+    sql << conn->autoincrementInsertInfix(mapping->surrogateIdFieldName);
+  }
+
+  sql << " values (";
 
   firstField = true;
   if (mapping->versionFieldName) {
@@ -296,15 +311,6 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
   }
 
   sql << ")";
-
-  std::unique_ptr<SqlConnection> connPtr;
-  SqlConnection *conn;
-  if (transaction_)
-    conn = transaction_->connection_.get();
-  else {
-    connPtr = useConnection();
-    conn = connPtr.get();
-  }
 
   if (mapping->surrogateIdFieldName) {
     sql << conn->autoincrementInsertSuffix(mapping->surrogateIdFieldName);
@@ -1212,8 +1218,9 @@ SqlStatement *Session::prepareStatement(const std::string& id,
 					const std::string& sql)
 {
   SqlConnection *conn = connection(false);
-  SqlStatement *result = conn->prepareStatement(sql);
-  conn->saveStatement(id, result);
+  std::unique_ptr<SqlStatement> stmt = conn->prepareStatement(sql);
+  SqlStatement *result = stmt.get();
+  conn->saveStatement(id, std::move(stmt));
   result->use();
 
   return result;

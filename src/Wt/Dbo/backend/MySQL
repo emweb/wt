@@ -103,7 +103,7 @@ public:
   virtual void commitTransaction() override;
   virtual void rollbackTransaction() override;
 
-  virtual SqlStatement *prepareStatement(const std::string& sql) override;
+  virtual std::unique_ptr<SqlStatement> prepareStatement(const std::string& sql) override;
 
   /** @name Methods that return dialect information
    */

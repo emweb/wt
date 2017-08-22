@@ -12,6 +12,7 @@
 #endif // SQLITE3_BDB
 #include <sqlite3.h>
 #include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <math.h>
@@ -162,20 +163,10 @@ public:
 
   virtual void bind(int column, const std::chrono::duration<int, std::milli> & value) override
   {
-    std::chrono::system_clock::time_point tp(value);
-    std::time_t t = std::chrono::system_clock::to_time_t(tp);
-    std::tm *tm = thread_local_gmtime(&t);
-    char mbstr[100];
-    std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
-    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
-    std::string v = mbstr;
-    std::stringstream ss;
-    ss << "." << ms.count()%1000;
-    v.append(ss.str());
     DEBUG(std::cerr << this << " bind " << column << " "
-          << v << std::endl);
+          << value.count() << "ms" << std::endl);
 
-    long long msec = (tm->tm_hour * 3600 + tm->tm_min * 60 + tm->tm_sec)*1000 + ms.count()%1000;
+    long long msec = value.count();
     int err = sqlite3_bind_int64(st_, column + 1, msec);
 
     handleErr(err);
@@ -202,7 +193,8 @@ public:
         std::strftime(str, sizeof(str), "%Y-%m-%dT%H:%M:%S", tm);
         v = str;
         std::stringstream ss;
-        ss << "." << ms.count()%1000;
+        ss.imbue(std::locale::classic());
+        ss << "." << std::setfill('0') << std::setw(3) << ms.count()%1000;
         v.append(ss.str());
 
 	if (storageType == DateTimeStorage::PseudoISO8601AsText)
@@ -412,10 +404,10 @@ public:
 
     long long msec = sqlite3_column_int64(st_, column);
 
-    *value = std::chrono::hours(0) + std::chrono::milliseconds(msec);
+    *value = std::chrono::milliseconds(msec);
 
     DEBUG(std::cerr << this 
-      << " result time_duration " << column << " " << *value.count() << std::endl);
+      << " result time_duration " << column << " " << value->count() << "ms" << std::endl);
 
     return true;
   }
@@ -660,9 +652,10 @@ std::unique_ptr<SqlConnection> Sqlite3::clone() const
   return std::unique_ptr<SqlConnection>(new Sqlite3(*this));
 }
 
-SqlStatement *Sqlite3::prepareStatement(const std::string& sql)
+std::unique_ptr<SqlStatement> Sqlite3::prepareStatement(const std::string& sql)
 {
-  return new Sqlite3Statement(*this, sql);
+  return std::unique_ptr<SqlStatement>(
+      new Sqlite3Statement(*this, sql));
 }
 
 std::string Sqlite3::autoincrementType() const

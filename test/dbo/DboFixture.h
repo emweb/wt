@@ -5,6 +5,7 @@
 #include <Wt/Dbo/backend/MySQL.h>
 #include <Wt/Dbo/backend/Sqlite3.h>
 #include <Wt/Dbo/backend/Firebird.h>
+#include <Wt/Dbo/backend/MSSQLServer.h>
 #include <Wt/Dbo/FixedSqlConnectionPool.h>
 #include <Wt/WDate.h>
 #include <Wt/WDateTime.h>
@@ -57,8 +58,10 @@ struct DboFixtureBase
       logged = true;
     }
 
-    connection = std::unique_ptr<dbo::SqlConnection>(
-          new dbo::backend::MySQL("wt_test_db", "test_user", "test_pw", "vendetta", 3306));
+    std::unique_ptr<dbo::backend::MySQL> mysql(
+        new dbo::backend::MySQL("wt_test_db", "test_user", "test_pw", "vendetta", 3306));
+    mysql->setFractionalSecondsPart(3);
+    connection = std::move(mysql);
 #endif // MYSQL
 
 #ifdef FIREBIRD
@@ -79,11 +82,26 @@ struct DboFixtureBase
     }
 
     connection = std::unique_ptr<dbo::SqlConnection>(
-          new dbo::backend::Firebird ("vendetta",
+          new dbo::backend::Firebird ("localhost",
                                       file,
                                       "test_user", "test_pwd",
                                       "", "", ""));
 #endif // FIREBIRD
+
+#ifdef MSSQLSERVER
+    if (!logged) {
+      std::cerr << "DboTest.C created a Microsoft SQL Server connector" << std::endl;
+      logged = true;
+    }
+
+    connection = std::unique_ptr<dbo::SqlConnection>(
+	new dbo::backend::MSSQLServer(
+	"Driver={ODBC Driver 13 for SQL Server};"
+	"Server=vendetta;"
+	"UID=test_user;"
+	"PWD=test_pwd;"
+	"Database=wt_test;"));
+#endif // MSSQLSERVER
 
     if (showQueries)
       connection->setProperty("show-queries", "true");
