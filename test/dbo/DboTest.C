@@ -2523,7 +2523,7 @@ BOOST_AUTO_TEST_CASE( dbo_test29 )
   // Test case for PostgreSQL and SQL Server:
   //  - PostgreSQL needs a subquery for the "select count(1)"
   //  - SQL Server needs an offset when using "order by" in a subquery
-  dbo::collection<dbo::ptr<A> > as1 = session_->find<A>().orderBy("string");
+  dbo::collection<dbo::ptr<A> > as1 = session_->find<A>().orderBy("\"string\"");
 
   BOOST_REQUIRE(as1.size() == 4);
   dbo::collection<dbo::ptr<A> >::iterator it1 = as1.begin();
@@ -2536,7 +2536,7 @@ BOOST_AUTO_TEST_CASE( dbo_test29 )
   BOOST_REQUIRE((*it1)->string == "B");
 
   dbo::collection<std::string> as2 =
-    session_->query<std::string>("SELECT \"string\" FROM \"table_a\"").orderBy("string").groupBy("string");
+    session_->query<std::string>("SELECT \"string\" FROM \"table_a\"").orderBy("\"string\"").groupBy("\"string\"");
 
   BOOST_REQUIRE(as2.size() == 2);
   dbo::collection<std::string>::iterator it2 = as2.begin();
@@ -2550,7 +2550,7 @@ BOOST_AUTO_TEST_CASE( dbo_test29 )
   BOOST_REQUIRE(i_total.size() == 1);
   BOOST_REQUIRE(*i_total.begin() == 15);
 
-  dbo::collection<int> is = session_->query<int>("select SUM(\"i\") as \"my_sum\" from \"table_a\"").orderBy("string").groupBy("string");
+  dbo::collection<int> is = session_->query<int>("select SUM(\"i\") as \"my_sum\" from \"table_a\"").orderBy("\"string\"").groupBy("\"string\"");
 
   BOOST_REQUIRE(is.size() == 2);
   dbo::collection<int>::iterator it3 = is.begin();
@@ -2585,4 +2585,82 @@ BOOST_AUTO_TEST_CASE( dbo_test30 )
   
   int count = *counts.begin();
   BOOST_REQUIRE(count == 2);
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test31 )
+{
+  // Test long and negative durations
+  boost::posix_time::time_duration longDuration =
+    boost::posix_time::hours(42) +
+    boost::posix_time::minutes(10) +
+    boost::posix_time::seconds(11) +
+    boost::posix_time::milliseconds(123);
+  boost::posix_time::time_duration negDuration = -longDuration;
+  // Test for serialization/deserialization when time
+  // is stored as a string (milliseconds with leading/trailing zero)
+  boost::posix_time::time_duration otherDuration =
+    boost::posix_time::hours(42) +
+    boost::posix_time::minutes(10) +
+    boost::posix_time::seconds(11) +
+    boost::posix_time::milliseconds(120);
+  boost::posix_time::time_duration otherDuration2 =
+    boost::posix_time::hours(42) +
+    boost::posix_time::minutes(10) +
+    boost::posix_time::seconds(11) +
+    boost::posix_time::milliseconds(12);
+
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+  {
+    // Store
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->add(new A());
+    a.modify()->pduration = longDuration;
+  }
+  {
+    // Retrieve
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->pduration == longDuration);
+    a.remove();
+  }
+  {
+    // Store
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->add(new A());
+    a.modify()->pduration = negDuration;
+  }
+  {
+    // Retrieve
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->pduration == negDuration);
+    a.remove();
+  }
+  {
+    // Store
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->add(new A());
+    a.modify()->pduration = otherDuration;
+  }
+  {
+    // Retrieve
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->pduration == otherDuration);
+    a.remove();
+  }
+  {
+    // Store
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->add(new A());
+    a.modify()->pduration = otherDuration2;
+  }
+  {
+    // Retrieve
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->pduration == otherDuration2);
+  }
 }

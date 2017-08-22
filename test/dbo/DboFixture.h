@@ -60,8 +60,10 @@ struct DboFixtureBase
       logged = true;
     }
 
-    connection = new dbo::backend::MySQL("wt_test_db", "test_user",
-                                            "test_pw", "vendetta", 3306);
+    dbo::backend::MySQL *mysql = new dbo::backend::MySQL("wt_test_db", "test_user",
+                                                         "test_pw", "vendetta", 3306);
+    mysql->setFractionalSecondsPart(3);
+    connection = mysql;
 #endif // MYSQL
 
 #ifdef FIREBIRD
