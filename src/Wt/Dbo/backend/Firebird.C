@@ -44,6 +44,8 @@ namespace {
     return &local_tm;
 #endif // WT_WIN32
   }
+
+  static constexpr int MAX_VARCHAR_LENGTH = 32765;
 }
 
 namespace Wt
@@ -659,7 +661,10 @@ namespace Wt
       
       std::string Firebird::textType(int size) const
       {
-        return std::string("blob sub_type text");
+        if (size != -1 && size <= MAX_VARCHAR_LENGTH)
+          return std::string("varchar (") + std::to_string(size) + ")";
+        else
+          return std::string("blob sub_type text");
       }
 
       const char *Firebird::booleanType() const
