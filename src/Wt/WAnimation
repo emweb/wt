@@ -16,8 +16,8 @@ namespace Wt {
  * An animation effect can be the combination of a motion and an optional
  * fade effect, e.g:
  * \code
- *  SlideInFromRight
- *  SlideInFromTop | Fade
+ *  AnimationEffect::SlideInFromRight
+ *  AnimationEffect::SlideInFromTop | AnimationEffect::Fade
  * \endcode
  *
  * You can specify only one motion effect.

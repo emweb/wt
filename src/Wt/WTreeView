@@ -86,10 +86,10 @@ namespace Wt {
  * Usage example:
  * \code
  * // WTreeView will display the data of a model
- * Wt::WAbstractItemModel *model = ...
+ * std::shared_ptr<Wt::WAbstractItemModel> model = ...
  *
  * // Create the WTreeView
- * Wt::WTreeView *gitView = new Wt::WTreeView();
+ * auto gitView = std::make_unique<Wt::WTreeView>();
  * gitView->resize(300, Wt::WLength::Auto);
  * gitView->setSortingEnabled(false);
  * gitView->setModel(model);

@@ -77,9 +77,9 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget();
- * Wt::WLabel *label = new Wt::WLabel("Comments:", w);
- * Wt::WTextEdit *edit = new Wt::WTextEdit("", w);
+ * auto w = std::make_unique<Wt::WContainerWidget>();
+ * Wt::WLabel *label = w->addWidget(std::make_unique<Wt::WLabel>("Comments:"));
+ * Wt::WTextEdit *edit = w->addWidget(std::make_unique<Wt::WTextEdit>(""));
  * label->setBuddy(edit);
  * \endcode
  * \endif

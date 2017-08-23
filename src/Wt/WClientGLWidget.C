@@ -1844,7 +1844,7 @@ void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
 	preloadArrayBuffers_.clear();
       }
     } else {
-      // StandardButton::No textures or buffers to load - go and paint
+      // No textures or buffers to load - go and paint
       tmp << "o.handlePreload();";
     }
     WApplication::instance()->doJavaScript(tmp.str());

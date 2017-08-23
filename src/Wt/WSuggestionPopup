@@ -133,8 +133,8 @@ enum class PopupTrigger {
  *     ", "           // appendReplacedText (prepare next email address)
  *    };
  *
- * Wt::WSuggestionPopup *popup = new Wt::WSuggestionPopup(contactOptions, this);
- * Wt::WTextArea *textEdit = new Wt::WTextArea(this);
+ * Wt::WSuggestionPopup *popup = addWidget(std::make_unique<Wt::WSuggestionPopup>(contactOptions));
+ * Wt::WTextArea *textEdit = addWidget(std::make_unique<Wt::WTextArea>());
  * popup->forEdit(textEdit);
  *
  * // load popup data

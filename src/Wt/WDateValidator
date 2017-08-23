@@ -25,8 +25,8 @@ namespace Wt {
  *
  * Usage example:
  * \code
- * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
- * Wt::WDateValidator *validator = new Wt::WDateValidator();
+ * Wt::WLineEdit *lineEdit = addWidget(std::make_unique<Wt::WLineEdit>());
+ * auto validator = std::make_shared<Wt::WDateValidator>();
  * validator->setFormat("dd-MM-yyyy");
  * lineEdit->setValidator(validator);
  * lineEdit->setText("01-03-2008");

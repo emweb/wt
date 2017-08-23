@@ -78,7 +78,7 @@ namespace Wt {
  * Usage example:
  * \code
  *    ...
- *    Http::Client *client = new Http::Client(this);
+ *    auto client = addChild(std::make_unique<Http::Client>());
  *    client->setTimeout(std::chrono::seconds{15});
  *    client->setMaximumResponseSize(10 * 1024);
  *    client->done().connect(std::bind(&MyWidget::handleHttpResponse, this, _1, _2));

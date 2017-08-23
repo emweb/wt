@@ -60,7 +60,7 @@ std::string WJavaScriptExposableObject::jsRef() const
 
 bool WJavaScriptExposableObject::sameBindingAs(const WJavaScriptExposableObject &rhs) const
 {
-  if (!clientBinding_ && !rhs.clientBinding_) return true; // StandardButton::No binding
+  if (!clientBinding_ && !rhs.clientBinding_) return true; // No binding
   else if (clientBinding_ && rhs.clientBinding_) return (*clientBinding_) == (*rhs.clientBinding_);
   else return false; // One is bound, the other is not
 }

@@ -111,7 +111,7 @@ public:
    * default implementation:
    * \if cpp
    * \code
-   * void WItemDelegate::setModelData(const boost::any& editState,
+   * void WItemDelegate::setModelData(const Wt::cpp17::any& editState,
    *                                  Wt::WAbstractItemModel *model,
    *                                  const Wt::WModelIndex& index) const
    * {
@@ -218,23 +218,23 @@ protected:
    * default implementation, which returns a WLineEdit:
    * \if cpp
    * \code
-   * Wt::WWidget *WItemDelegate::createEditor(const Wt::WModelIndex& index, WFlags<ViewItemRenderFlag> flags) const
+   * std::unique_ptr<Wt::WWidget> WItemDelegate::createEditor(const Wt::WModelIndex& index, WFlags<ViewItemRenderFlag> flags) const
    * {
-   *   Wt::WContainerWidget *result = new Wt::WContainerWidget();
+   *   auto result = std::make_unique<Wt::WContainerWidget>();
    *   result->setSelectable(true);
    *
-   *   Wt::WLineEdit *lineEdit = new Wt::WLineEdit();
+   *   auto lineEdit = std::make_unique<Wt::WLineEdit>();
    *   lineEdit->setText(asString(index.data(ItemDataRole::Edit), textFormat_));
-   *   lineEdit->enterPressed().connect(boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
-   *   lineEdit->escapePressed().connect(boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
+   *   lineEdit->enterPressed().connect(std::bind(&WItemDelegate::doCloseEditor, this, result, true));
+   *   lineEdit->escapePressed().connect(std::bind(&WItemDelegate::doCloseEditor, this, result, false));
    *
-   *   if (flags & ViewItemRenderFlag::Focused)
+   *   if (flags.test(ViewItemRenderFlag::Focused))
    *     lineEdit->setFocus();
    *
    *   // We use a layout so that the line edit fills the entire cell.
-   *   result->setLayout(new WHBoxLayout());
+   *   result->setLayout(std::make_unique<WHBoxLayout>());
    *   result->layout()->setContentsMargins(1, 1, 1, 1);
-   *   result->layout()->addWidget(lineEdit);
+   *   result->layout()->addWidget(std::move(lineEdit));
    *
    *   return result;
    * }

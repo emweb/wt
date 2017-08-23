@@ -40,25 +40,28 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WIconPair *folderIcon = new Wt::WIconPair("icons/yellow-folder-closed.png",
- *				               "icons/yellow-folder-open.png", false);
+ * auto folderIcon = std::make_unique<Wt::WIconPair>(
+ *                     "icons/yellow-folder-closed.png",
+ *                     "icons/yellow-folder-open.png",
+ *                     false);
  *
- * Wt::WTree *tree = new Wt::WTree();
+ * auto tree = std::make_unique<Wt::WTree>();
  * tree->setSelectionMode(Wt::SelectionMode::Single);
  *
- * Wt::WTreeNode *root = new Wt::WTreeNode("Tree root", folderIcon);
+ * auto rootPtr = std::make_unique<Wt::WTreeNode>("Tree root", std::move(folderIcon));
+ * Wt::WTreeNode *root = rootPtr.get();
  * root->setStyleClass("example-tree");
- * tree->setTreeRoot(root);
+ * tree->setTreeRoot(std::move(rootPtr));
  * root->label()->setTextFormat(Wt::TextFormat::Plain);
  * root->setImagePack("resources/");
  * root->setLoadPolicy(Wt::ContentLoading::NextLevel);
- * root->addChildNode(new Wt::WTreeNode("one"));
- * root->addChildNode(new Wt::WTreeNode("two"));
+ * root->addChildNode(std::make_unique<Wt::WTreeNode>("one"));
+ * root->addChildNode(std::make_unique<Wt::WTreeNode>("two"));
  *
- * Wt::WTreeNode *three = new Wt::WTreeNode("three");
- * three->addChildNode(new WTreeNode("three: one"));
- * three->addChildNode(new WTreeNode("three: two"));
- * root->addChildNode(three);
+ * auto three = std::make_unique<Wt::WTreeNode>("three");
+ * three->addChildNode(std::make_unique<Wt::WTreeNode>("three: one"));
+ * three->addChildNode(std::make_unique<Wt::WTreeNode>("three: two"));
+ * root->addChildNode(std::move(three));
  *
  * root->expand();
  * \endcode

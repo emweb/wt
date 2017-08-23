@@ -28,11 +28,11 @@ namespace Wt {
  * Usage example:
  * \if cpp
  * \code
- * Wt::WTabWidget *examples = new Wt::WTabWidget(this);
+ * Wt::WTabWidget *examples = addWidget(std::make_unique<Wt::WTabWidget>());
  *
  * examples->addTab(helloWorldExample(), "Hello World");
  * examples->addTab(chartExample(), "Charts");
- * examples->addTab(new Wt::WText("A WText"), "WText");
+ * examples->addTab(std::make_unique<Wt::WText>("A WText"), "WText");
  *
  * examples->currentChanged().connect(this, &MyClass::logInternalPath);
  * examples->setInternalPathEnabled();

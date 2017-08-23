@@ -29,7 +29,7 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * WVideo *v = new WVideo(parent);
+ * WVideo *v = addWidget(std::make_unique<WVideo>());
  * v->setOptions(WVideo::Autoplay | WVideo::Controls);
  * // Addsources may be called multiple times for different formats:
  * // Firefox only plays ogg
@@ -41,11 +41,11 @@ namespace Wt {
  * // You may display a simple text to explain that you need html5 support...
  * // v->setAlternativeContent(new WText("You have no HTML5 Video!"));
  * // ... or provide an alternative player, e.g. Flash-based
- * WFlashObject *f = new WFlashObject("player.swf", root());
+ * auto f = std::make_unique<WFlashObject>("player.swf");
  * f->setFlashVariable("startimage", "wt.jpg");
  * f->setFlashVariable("flv", "wt.mp4");
  * f->resize(640, 384);
- * v->setAlternativeContent(f);
+ * v->setAlternativeContent(std::move(f));
  * \endcode
  * \endif
  *

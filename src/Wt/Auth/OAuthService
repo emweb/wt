@@ -398,7 +398,7 @@ private:
  * const OAuthService *oauth = ...;
  *
  * // Creates an icon which prompts for authentication using this OAuth service.
- * WImage *icon = new WImage("css/oauth-" + auth->name() + ".png", icons);
+ * WImage *icon = icons->addWidget(std::make_unique<WImage>("css/oauth-" + auth->name() + ".png"));
  * icon->setToolTip(auth->description());
  *
  * // Creates a new process for authentication, which is started by a click on the icon

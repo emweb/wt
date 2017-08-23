@@ -27,7 +27,7 @@ class PaintedSlider;
  * \if cpp
  * Usage example:
  * \code
- * Wt::WSlider *scaleSlider = new Wt::WSlider(Wt::Orientation::Horizontal);
+ * auto scaleSlider = std::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
  * scaleSlider->setMinimum(0);
  * scaleSlider->setMaximum(20);
  * scaleSlider->setValue(10);

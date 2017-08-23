@@ -42,16 +42,17 @@ namespace Wt {
  * WAnchor *a;
  *
  * // Create an anchor that links to a URL
- * a = new WAnchor("http://www.webtoolkit.eu/", "Wt web toolkit", this);
+ * a = addWidget(std::make_unique<Wt::WAnchor>("https://www.webtoolkit.eu/", "Wt web toolkit"));
  *
  * // Create an anchor that links to an internal path
- * a = new WAnchor(WLink(LinkType::InternalPath, "/docs/" + myDocName()), "Doc", this);
+ * a = addWidget(std::make_unique<Wt::WAnchor>(
+ *       WLink(LinkType::InternalPath, "/docs/" + myDocName()), "Doc"));
  * //   and listen to the corresponding change in internal path
  * WApplication::instance()->internalPathChanged().connect(this, &DocsListWidget::onInternalPathChange);
  *
  * // Create an anchor that links to a resource
- * WResource *r = new PdfResource(this); // serializes to a PDF file.
- * a = new WAnchor(r, "PDF version", this);
+ * WResource *r = addChild(std::make_unique<PdfResource>()); // serializes to a PDF file.
+ * a = addWidget(std::make_unique<Wt::WAnchor>(r, "PDF version"));
  * \endcode
  * \endif
  *

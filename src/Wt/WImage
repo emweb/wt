@@ -35,7 +35,7 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WImage *img = new Wt::WImage("images/johnny_cash.png", this);
+ * Wt::WImage *img = addWidget(std::make_unique<Wt::WImage>("images/johnny_cash.png"));
  * img->setAlternateText("Johnny Cash sings a song");
  * \endcode
  * \endif
@@ -124,6 +124,24 @@ public:
    */
   void addArea(std::unique_ptr<WAbstractArea> area);
 
+  /*! \brief Adds an interactive area, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Area *result = area.get();
+   * addArea(std::unique_ptr<WAbstractArea>(std::move(area)));
+   * return result;
+   * \encode
+   */
+  template <typename Area>
+    Area *addArea(std::unique_ptr<Area> area)
+  {
+    Area *result = area.get();
+    addArea(std::unique_ptr<WAbstractArea>(std::move(area)));
+    return result;
+  }
+
   /*! \brief Inserts an interactive area.
    *
    * Inserts the \p area which listens to events in the
@@ -133,13 +151,31 @@ public:
    *
    * Ownership of the \p area is transferred to the image.
    *
-   * \sa addArea(WAbstractArea *)
+   * \sa addArea(std::unique_ptr<WAbstractArea>);
    *
    * \note Currently it is not possible to add a first area after the image
    *       has been rendered. If you want to use interactive areas you need
    *       to add one immediately.
    */
   void insertArea(int index, std::unique_ptr<WAbstractArea> area);
+
+  /*! \brief Inserts an interactive area, returning a raw pointer.
+   *
+   * This is implemented as:
+   * 
+   * \code
+   * Area *result = area.get();
+   * insertArea(index, std::unique_ptr<WAbstractArea>(std::move(area)));
+   * return result;
+   * \encode
+   */
+  template <typename Area>
+    Area *insertArea(int index, std::unique_ptr<Area> area)
+  {
+    Area *result = area.get();
+    insertArea(index, std::unique_ptr<WAbstractArea>(std::move(area)));
+    return result;
+  }
 
   /*! \brief Removes an interactive area.
    *

@@ -127,9 +127,9 @@ enum class MediaPlayerTextId {
  * The following code creates a video using the default controls:
  * \if cpp
  * \code
- *   useStyleSheet(WApplication::relativeRsourcesUrl() + "jPlayer/skin/jplayer.blue.monday.css");
+ *   useStyleSheet(WApplication::relativeResourcesUrl() + "jPlayer/skin/jplayer.blue.monday.css");
  *
- *   WMediaPlayer *player = new WMediaPlayer(MediaType::Video);
+ *   auto player = std::make_unique<WMediaPlayer>(MediaType::Video);
  *
  *   player->addSource(MediaEncoding::M4V, "video.m4v");
  *   player->addSource(MediaEncoding::OGV, "video.ogv");

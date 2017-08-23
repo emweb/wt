@@ -22,16 +22,15 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
- * w->resize(WLength::Auto, 600);
+ * Wt::WContainerWidget *w = addWidget(std::make_unique<Wt::WContainerWidget>());
  *
- * Wt::WVBoxLayout *layout = new Wt::WVBoxLayout();
- * layout->addWidget(new Wt::WText("One"));
- * layout->addWidget(new Wt::WText("Two"));
- * layout->addWidget(new Wt::WText("Three"));
- * layout->addWidget(new Wt::WText("Four"));
+ * auto layout = std::make_unique<Wt::WVBoxLayout>();
+ * layout->addWidget(std::make_unique<Wt::WText>("One"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Two"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Three"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Four"));
  *
- * w->setLayout(layout);
+ * w->setLayout(std::move(layout));
  * \endcode
  * \endif
  *

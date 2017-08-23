@@ -52,10 +52,10 @@ enum class InputMaskFlag {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget();
- * Wt::WLabel *label = new Wt::WLabel("Age:", w);
- * Wt::WLineEdit *edit = new Wt::WLineEdit("13", w);
- * edit->setValidator(new Wt::WIntValidator(0, 200));
+ * auto w = std::make_unique<Wt::WContainerWidget>();
+ * Wt::WLabel *label = w->addWidget(std::make_unique<Wt::WLabel>("Age:"));
+ * Wt::WLineEdit *edit = w->addWidget(std::make_unique<Wt::WLineEdit>("13"));
+ * edit->setValidator(std::make_shared<Wt::WIntValidator>(0, 200));
  * label->setBuddy(edit);
  * \endcode
  * \endif

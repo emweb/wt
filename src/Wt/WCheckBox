@@ -33,13 +33,13 @@ namespace Wt {
  * Usage example:
  * \if cpp
  * \code
- * Wt::WGroupBox *box = new Wt::WGroupBox("In-flight options");
+ * auto box = std::make_unique<Wt::WGroupBox>("In-flight options");
  *
- * Wt::WCheckBox *w1 = new Wt::WCheckBox("Vegetarian diet", box);
- * box->addWidget(new WBreak());
- * Wt::WCheckBox *w2 = new Wt::WCheckBox("WIFI access", box);
- * box->addWidget(new WBreak());
- * Wt::WCheckBox *w3 = new Wt::WCheckBox("AC plug", box);
+ * Wt::WCheckBox *w1 = box->addWidget(std::make_unique<Wt::WCheckBox>("Vegetarian diet"));
+ * box->addWidget(std::make_unique<Wt::WBreak>());
+ * Wt::WCheckBox *w2 = box->addWidget(std::make_unique<Wt::WCheckBox>("WIFI access"));
+ * box->addWidget(std::make_unique<Wt::WBreak>());
+ * Wt::WCheckBox *w3 = box->addWidget(std::make_unique<Wt::WCheckBox>("AC plug"));
  *
  * w1->setChecked(false);
  * w2->setChecked(true);

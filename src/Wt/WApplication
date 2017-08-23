@@ -112,21 +112,21 @@ public:
  *
  * \if cpp
  * \code
- * WApplication *createApplication(const WEnvironment& env)
+ * std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
  * {
  *   //
  *   // Optionally, check the environment and redirect to an error page.
  *   //
  *   bool valid = ...;
  *
- *   WApplication *app;
+ *   std::unique_ptr<WApplication> app;
  *   if (!valid) {
- *     app = new WApplication(env);
+ *     app = std::make_unique<WApplication>(env);
  *     app->redirect("error.html");
  *     app->quit();
  *   } else {
  *     // usually you will specialize your application class
- *     app = new WApplication(env);
+ *     app = std::make_unique<WApplication>(env);
  *
  *     //
  *     // Add widgets to app->root() and return the application object.
@@ -1038,7 +1038,7 @@ public:
    * messageResourceBundle().use(appRoot() + "text");
    * messageResourceBundle().use(appRoot() + "charts");
    *
-   * Wt::Dbo::backend::Sqlite3 sqlite3_(appRoot() + "planner.db");
+   * auto sqlite3_ = std::make_unique<Wt::Dbo::backend::Sqlite3>(appRoot() + "planner.db");
    * \endcode
    * \endif
    *
@@ -1191,7 +1191,7 @@ public:
    *
    *   if (lock) {
    *     // We now have exclusive access to the application: we can safely modify the widget tree for example.
-   *     app->root()->addWidget(new Wt::WText("Something happened!"));
+   *     app->root()->addWidget(std::make_unique<Wt::WText>("Something happened!"));
    *
    *     // Push the changes to the browser
    *     app->triggerUpdate();

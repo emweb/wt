@@ -132,7 +132,7 @@ public:
     Wt::Http::ResponseContinuation *continuation = request.continuation();
 
     // calculate the current start
-    int iteration = continuation ? boost::any_cast<int>(continuation->data()) : 0;
+    int iteration = continuation ? Wt::cpp17::any_cast<int>(continuation->data()) : 0;
     if (iteration == 0)
       response.setMimeType("plain/text");
 

@@ -92,8 +92,9 @@ private:
  * \if cpp
  * Usage example:
  * \code
- * Wt::WCssTemplateRule *styleRule = new Wt::WCssTemplateRule("#" + id() + " .item");
- * Wt::WApplication::instance()->styleSheet().addRule(styleRule);
+ * Wt::WCssTemplateRule *styleRule =
+ *   Wt::WApplication::instance()->styleSheet().addRule(
+ *     std::make_unique<Wt::WCssTemplateRule>("#" + id() + " .item"));
  *
  * styleRule->templateWidget()->resize(100, WLength::Auto);
  * styleRule->templateWidget()->decorationStyle().setCursor(Cursor::PointingHand);
@@ -150,8 +151,8 @@ private:
  * \if cpp
  * Usage example:
  * \code
- * Wt::WCssTextRule *styleRule = new Wt::WCssTextRule(".MyWidget .item", "width: 100px; cursor: pointer;");
- * Wt::WApplication::instance()->styleSheet().addRule(styleRule);
+ * auto styleRule = std::make_unique<Wt::WCssTextRule>(".MyWidget .item", "width: 100px; cursor: pointer;");
+ * Wt::WApplication::instance()->styleSheet().addRule(std::move(styleRule));
  * \endcode
  * \endif
  *

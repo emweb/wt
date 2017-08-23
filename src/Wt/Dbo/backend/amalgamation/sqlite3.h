@@ -5763,7 +5763,7 @@ SQLITE_API int sqlite3_enable_load_extension(sqlite3 *db, int onoff);
 ** or [sqlite3_open_v2()] call that provoked the xEntryPoint() will fail.
 **
 ** ^Calling sqlite3_auto_extension(X) with an entry point X that is already
-** on the list of automatic extensions is a harmless no-op. ^StandardButton::No entry point
+** on the list of automatic extensions is a harmless no-op. ^No entry point
 ** will be called more than once for each database connection that is opened.
 **
 ** See also: [sqlite3_reset_auto_extension()]
@@ -5772,7 +5772,7 @@ SQLITE_API int sqlite3_enable_load_extension(sqlite3 *db, int onoff);
 SQLITE_API int sqlite3_auto_extension(void(*xEntryPoint)(void));
 
 /*
-** CAPI3REF: StandardButton::Cancel Automatic Extension Loading
+** CAPI3REF: Cancel Automatic Extension Loading
 **
 ** ^The [sqlite3_cancel_auto_extension(X)] interface unregisters the
 ** initialization routine X that was registered using a prior call to

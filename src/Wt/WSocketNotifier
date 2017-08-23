@@ -37,12 +37,12 @@ namespace Wt {
  * need to take the WApplication::UpdateLock).
  *
  * \code
- * Wt::WSocketNotifier *notifier_;
+ * std::unique_ptr<Wt::WSocketNotifier> notifier_;
  *
  * void init() {
  *   ...
  *   int sock = ...
- *   notifier_ = new Wt::WSocketNotifier(sock, Wt::WSocketNotifier::Read, this);
+ *   notifier_ = std::make_unique<Wt::WSocketNotifier>(sock, Wt::WSocketNotifier::Read);
  *   notifier_->activated().connect(this, &HelloApplication::readData);
  * }
  *

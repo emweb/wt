@@ -26,13 +26,13 @@ namespace Wt {
  * \if cpp
  * Usage examples:
  * \code
- * Wt::WFileResource *csvFile = new Wt::WFileResource("text/csv", "/opt/files/afile.csv");
+ * auto csvFile = std::make_unique<Wt::WFileResource>("text/csv", "/opt/files/afile.csv");
  * csvFile->suggestFileName("data.csv");
- * Wt::WAnchor *anchor = new Wt::WAnchor(csvFile, "CSV data");
+ * auto anchor = std::make_unique<Wt::WAnchor>(csvFile.get(), "CSV data");
  *
- * Wt::WFileResource *imageFile = new Wt::WFileResource("image/png", "/opt/files/image.png");
+ * auto imageFile = std::make_unique<Wt::WFileResource>("image/png", "/opt/files/image.png");
  * imageFile->suggestFileName("data.png");
- * Wt::WImage *image = new Wt::WImage(imageFile, "PNG version");
+ * auto image = std::make_unique<Wt::WImage>(imageFile.get(), "PNG version");
  * \endcode
  * \endif
  *

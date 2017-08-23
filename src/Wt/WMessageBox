@@ -58,15 +58,15 @@ class WText;
  *
  * The strings used in the WMessageBox buttons can be translated by overriding
  * the default values for the following localization keys:
- * - Wt.WMessageBox.StandardButton::Abort: StandardButton::Abort
- * - Wt.WMessageBox.StandardButton::Cancel: StandardButton::Cancel
- * - Wt.WMessageBox.StandardButton::Ignore: StandardButton::Ignore
- * - Wt.WMessageBox.StandardButton::No: StandardButton::No
- * - Wt.WMessageBox.NoToAll: StandardButton::No to All
- * - Wt.WMessageBox.StandardButton::Ok: StandardButton::Ok
- * - Wt.WMessageBox.StandardButton::Retry: StandardButton::Retry
- * - Wt.WMessageBox.StandardButton::Yes: StandardButton::Yes
- * - Wt.WMessageBox.YesToAll: StandardButton::Yes to All
+ * - Wt.WMessageBox.Abort: Abort
+ * - Wt.WMessageBox.Cancel: Cancel
+ * - Wt.WMessageBox.Ignore: Ignore
+ * - Wt.WMessageBox.No: No
+ * - Wt.WMessageBox.NoToAll: No To All
+ * - Wt.WMessageBox.Ok: Ok
+ * - Wt.WMessageBox.Retry: Retry
+ * - Wt.WMessageBox.Yes: Yes
+ * - Wt.WMessageBox.YesToAll: Yes to All
  */
 class WT_API WMessageBox : public WDialog
 {

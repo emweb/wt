@@ -40,7 +40,7 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WComboBox *combo = new Wt::WComboBox(this);
+ * Wt::WComboBox *combo = addWidget(std::make_unique<Wt::WComboBox>());
  * combo->addItem("Clint Eastwood");
  * combo->addItem("Mick Jagger");
  * combo->addItem("Johnny Depp");

@@ -58,16 +58,19 @@ namespace Wt {
  * \if cpp
  * Usage examples:
  * \code
- * Wt::WContainerWidget *container = new Wt::WContainerWidget();
+ * auto container = std::make_unique<Wt::WContainerWidget>();
  *
  * // display an XHTML text:
- * container->addWidget(new Wt::WText("Hello <i>dear</i> visitor."));
+ * container->addWidget(
+ *   std::make_unique<Wt::WText>("Hello <i>dear</i> visitor."));
  *
  * // display a plain text:
- * container->addWidget(new Wt::WText("The <i> tag displays italic text.", Wt::TextFormat::Plain));
+ * container->addWidget(
+ *   std::make_unique<Wt::WText>("The <i> tag displays italic text.", Wt::TextFormat::Plain));
  *
  * // display an XHTML fragment from a resource bundle:
- * container->addWidget(new Wt::WText(tr("introduction")));
+ * container->addWidget(
+ *   std::make_unique<Wt::WText>(tr("introduction")));
  * \endcode
  * \endif
  *

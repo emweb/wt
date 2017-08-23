@@ -52,7 +52,7 @@ class WTemplate;
  * \code
  * Wt::WDate today = Wt::WDate::currentDate();
  *
- * Wt::WCalendar *calendar = new Wt::WCalendar(this);
+ * Wt::WCalendar *calendar = addWidget(std::make_unique<Wt::WCalendar>());
  * calendar->browseTo(today.addMonths(1));
  * calendar->select(today.addMonths(1).addDays(3));
  * calendar->selected().connect(this, &MyWidget::daySelected);

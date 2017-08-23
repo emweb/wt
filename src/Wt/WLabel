@@ -25,9 +25,9 @@ namespace Wt {
  * Usage example:
  * \if cpp
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget();
- * Wt::WLabel *label = new Wt::WLabel("Favourite Actress: ", w);
- * Wt::WLineEdit *edit = new Wt::WLineEdit("Renee Zellweger", w);
+ * auto w = std::make_unique<Wt::WContainerWidget>();
+ * Wt::WLabel *label = w->addWidget(std::make_unique<Wt::WLabel>("Favourite Actress: "));
+ * Wt::WLineEdit *edit = w->addWidget(std::make_unique<Wt::WLineEdit>("Renee Zellweger"));
  * label->setBuddy(edit);
  * \endcode
  * \elseif java

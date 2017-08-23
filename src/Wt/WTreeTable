@@ -43,7 +43,7 @@ class WText;
  * \if cpp
  * Usage example:
  * \code
- * Wt::WTreeTable *treeTable = new Wt::WTreeTable();
+ * auto treeTable = std::make_unique<Wt::WTreeTable>();
  * treeTable->resize(650, 300);
  *
  * // Add 3 extra columns
@@ -52,22 +52,27 @@ class WText;
  * treeTable->addColumn("Favorite Item", 125);
  *
  * // Create and set the root node
- * Wt::WTreeTableNode *root = new Wt::WTreeTableNode("All Personnel");
+ * auto rootPtr = std::make_unique<Wt::WTreeTableNode>("All Personnel");
+ * Wt::WTreeTableNode *root = rootPtr.get();
  * root->setImagePack("resources/");
- * treeTable->setTreeRoot(root, "Emweb Organigram");
+ * treeTable->setTreeRoot(std::move(rootPtr), "Emweb Organigram");
  *
  * // Populate the tree with data nodes.
- * Wt::WTreeTableNode *node1 = new Wt::WTreeTableNode("Upper Management", 0, root);
- * Wt::WTreeTableNode *node2;
- * node2 = new Wt::WTreeTableNode("Chief Anything Officer", 0, node1);
- * node2->setColumnWidget(1, new Wt::WText("-2.8"));
- * node2->setColumnWidget(2, new Wt::WText("20"));
- * node2->setColumnWidget(3, new Wt::WText("Scepter"));
+ * auto node1 = std::make_unique<Wt::WTreeTableNode>("Upper Management");
+ * std::unique_ptr<Wt::WTreeTableNode> node2;
+ * node2 = std::make_unique<Wt::WTreeTableNode>("Chief Anything Officer");
+ * node2->setColumnWidget(1, std::make_unique<Wt::WText>("-2.8"));
+ * node2->setColumnWidget(2, std::make_unique<Wt::WText>("20"));
+ * node2->setColumnWidget(3, std::make_unique<Wt::WText>("Scepter"));
+ * node1->addChildNode(std::move(node2));
  *
- * node2 = new WTreeTableNode("Vice President of Parties", 0, node1);
- * node2->setColumnWidget(1, new Wt::WText("13.57"));
- * node2->setColumnWidget(2, new Wt::WText("365"));
- * node2->setColumnWidget(3, new Wt::WText("Flag"));
+ * node2 = std::make_unique<Wt::WTreeTableNode>("Vice President of Parties");
+ * node2->setColumnWidget(1, std::make_unique<Wt::WText>("13.57"));
+ * node2->setColumnWidget(2, std::make_unique<Wt::WText>("365"));
+ * node2->setColumnWidget(3, std::make_unique<Wt::WText>("Flag"));
+ * node1->addChildNode(std::move(node2));
+ *
+ * root->addChildNode(std::move(node1));
  *
  * root->expand();
  * \endcode

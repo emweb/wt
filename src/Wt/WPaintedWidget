@@ -94,8 +94,8 @@ enum class RenderMethod {
  * class MyPaintedWidget : public Wt::WPaintedWidget
  * {
  * public:
- *   MyPaintedWidget(Wt::WContainerWidget *parent = 0)
- *     : Wt::WPaintedWidget(parent),
+ *   MyPaintedWidget()
+ *     : Wt::WPaintedWidget()
  *       foo_(100)
  *   {
  *      resize(200, 200); // provide a default size

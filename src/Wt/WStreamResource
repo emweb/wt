@@ -30,8 +30,8 @@ namespace Wt {
 class MyStreamResource : public Wt::WStreamResource
 {
 public:
-  MyStreamResource(const std::string& fileName, Wt::WObject *parent = 0)
-    : Wt::WStreamResource(parent),
+  MyStreamResource(const std::string& fileName)
+    : Wt::WStreamResource(),
       fileName_(fileName)
   {
     suggestFileName("data.txt");

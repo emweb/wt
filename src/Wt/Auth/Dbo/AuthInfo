@@ -46,7 +46,7 @@ template <class AuthIdentityType> class AuthIdentity;
  *
  * \code
  * class User; // your user Dbo type
- * typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;
+ * using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
  *
  * session->mapClass<User>("user");
  *

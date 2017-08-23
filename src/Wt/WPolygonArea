@@ -23,13 +23,13 @@ namespace Wt {
  * 
  * \if cpp
  * \code
- * Wt::WImage *image = new Wt::WImage("images/family.jpg");
- * Wt::WPolygonArea *face = new Wt::WPolygonArea();
+ * auto image = std::make_unique<Wt::WImage>("images/family.jpg");
+ * auto face = std::make_unique<Wt::WPolygonArea>();
  * face->addPoint(100, 120);
  * face->addPoint(300, 120);
  * face->addPoint (200, 250);
  * face->setToolTip("Uncle Frank");
- * image->addArea(face);
+ * image->addArea(std::move(face));
  * \endcode
  * \endif
  *

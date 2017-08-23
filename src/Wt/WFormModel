@@ -49,7 +49,7 @@ namespace Wt {
  * Wt::WFormModel::Field NameField = "name";
  * Wt::WFormModel::Field TelField = "telephone";
  *
- * Wt::WFormModel *model = new Wt::WFormModel();
+ * auto model = std::make_shared<Wt::WFormModel>();
  * model->addField(NameField, "Enter your name");
  * model->addField(TelField, "Phone number");
  *

@@ -25,9 +25,9 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WPanel *panel = new Wt::WPanel();
+ * auto panel = std::make_unique<Wt::WPanel>();
  * panel->setTitle("A panel");
- * panel->setCentralWidget(new Wt::WText("This is the panel contents"));
+ * panel->setCentralWidget(std::make_unique<Wt::WText>("This is the panel contents"));
  * panel->setCollapsible(true);
  * \endcode
  * \endif

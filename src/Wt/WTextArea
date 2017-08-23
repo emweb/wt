@@ -26,9 +26,9 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget();
- * Wt::WLabel *label = new Wt::WLabel("Comments:", w);
- * Wt::WTextArea *edit = new Wt::WTextArea("", w);
+ * auto w = std::make_unique<Wt::WContainerWidget>();
+ * Wt::WLabel *label = w->addWidget(std::make_unique<Wt::WLabel>("Comments:"));
+ * Wt::WTextArea *edit = w->addWidget(std::make_unique<Wt::WTextArea>(""));
  * label->setBuddy(edit);
  * \endcode
  * \endif

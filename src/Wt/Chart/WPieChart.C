@@ -310,7 +310,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   painter.restore();
 }
 
-WContainerWidget *WPieChart::createLabelWidget(std::unique_ptr<WWidget> textWidget,
+std::unique_ptr<WContainerWidget> WPieChart::createLabelWidget(std::unique_ptr<WWidget> textWidget,
     WPainter* painter, const WRectF& rect,
     Wt::WFlags<Wt::AlignmentFlag> alignmentFlags) const
 {
@@ -318,7 +318,7 @@ WContainerWidget *WPieChart::createLabelWidget(std::unique_ptr<WWidget> textWidg
   AlignmentFlag horizontalAlign = alignmentFlags & AlignHorizontalMask;
 
   // style parent container
-  WContainerWidget *c = new WContainerWidget();
+  auto c = cpp14::make_unique<WContainerWidget>();
   WWidget *tw = c->addWidget<WWidget>(std::move(textWidget));
   c->setPositionScheme(PositionScheme::Absolute);
   c->setAttributeValue("style", "display: flex;");

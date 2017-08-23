@@ -22,8 +22,9 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
- * Wt::WIntValidator *validator = new Wt::WIntValidator(0, 100);
+ * Wt::WLineEdit *lineEdit = addWidget(std::make_unique<Wt::WLineEdit>());
+ * std::shared_ptr<Wt::WIntValidator> validator =
+ *   std::make_shared<Wt::WIntValidator>(0, 100);
  * lineEdit->setValidator(validator);
  * lineEdit->setText("50");
  * \endcode

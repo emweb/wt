@@ -51,14 +51,15 @@ class WStandardItem;
  * int rows = 5;
  * int columns = 4;
  *
- * Wt::WStandardItemModel *model = new Wt::WStandardItemModel(rows, columns, this);
+ * std::shared_ptr<Wt::WStandardItemModel> model =
+ *   std::make_shared<Wt::WStandardItemModel>(rows, columns);
  *
  * for (int row = 0; row < rows; ++row) {
  *   for (int column = 0; column < columns; ++column) {
- *     Wt::WStandardItem *item = new Wt::WStandardItem();
+ *     auto item = std::make_unique<Wt::WStandardItem>();
  *     item->setText("Item " + std::to_string(row)
  *                   + ", " + std::to_string(column));
- *     model->setItem(row, column, item);
+ *     model->setItem(row, column, std::move(item));
  *   }
  * }
  * \endcode
@@ -68,19 +69,19 @@ class WStandardItem;
  * int topLevelRows = 5;
  * int secondLevelRows = 7;
  *
- * Wt::WStandardItemModel *model = new Wt::WStandardItemModel();
+ * auto model = std::make_shared<Wt::WStandardItemModel>();
  * Wt::WStandardItem *root = model->invisibleRootItem();
  *
  * for (int row = 0; row < topLevelRows; ++row) {
- *   Wt::WStandardItem *topLevel = new Wt::WStandardItem();
+ *   auto topLevel = std::make_unique<Wt::WStandardItem>();
  *   topLevel->setText("Item " + std::to_string(row));
  *   for (int row2 = 0; row2 < secondLevelRows; ++row2) {
- *     Wt::WStandardItem *item = new Wt::WStandardItem();
+ *     auto item = std::make_unique<Wt::WStandardItem>();
  *     item->setText("Item " + std::to_string(row)
  *                   + ": " + std::to_string(row2));
- *     topLevel->appendRow(item);
+ *     topLevel->appendRow(std::move(item));
  *   }
- *   root->appendRow(topLevel);
+ *   root->appendRow(std::move(topLevel));
  * }
  * \endcode
  * \endif 
@@ -145,7 +146,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * insertColumn(columnCount(), items);
+   * insertColumn(columnCount(), std::move(items));
    * \endcode
    *
    * \sa insertColumn(), appendRow()
@@ -159,7 +160,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * invisibleRootItem()->insertColumn(column, items);
+   * invisibleRootItem()->insertColumn(column, std::move(items));
    * \endcode
    *
    * \sa WStandardItem::insertColumn()
@@ -174,7 +175,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * insertRow(rowCount(), items);
+   * insertRow(rowCount(), std::move(items));
    * \endcode
    *
    * \sa insertRow(), appendColumn()
@@ -191,7 +192,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * invisibleRootItem()->insertRow(row, items);
+   * invisibleRootItem()->insertRow(row, std::move(items));
    * \endcode
    *
    * \sa WStandardItem::insertRow()
@@ -204,10 +205,10 @@ public:
    *
    * Equivalent to:
    * \code
-   * insertRow(rowCount(), item);
+   * insertRow(rowCount(), std::move(item));
    * \endcode
    *
-   * \sa WStandardItem::insertRow(int, WStandardItem *)
+   * \sa WStandardItem::insertRow(int, std::unique_ptr<WStandardItem>)
    */
   void appendRow(std::unique_ptr<WStandardItem> item);
 
@@ -217,10 +218,10 @@ public:
    *
    * Equivalent to:
    * \code
-   * invisibleRootItem()->insertRow(row, item);
+   * invisibleRootItem()->insertRow(row, std::move(item));
    * \endcode
    *
-   * \sa WStandardItem::insertRow(int, WStandardItem *)
+   * \sa WStandardItem::insertRow(int, std::unique_ptr<WStandardItem>)
    */
   void insertRow(int row, std::unique_ptr<WStandardItem> item);
 
@@ -249,10 +250,10 @@ public:
    *
    * Equivalent to:
    * \code
-   * invisibleRootItem()->setChild(row, column, item);
+   * invisibleRootItem()->setChild(row, column, std::move(item));
    * \endcode
    *
-   * \sa WStandardItem::setChild(int, int, WStandardItem *item)
+   * \sa WStandardItem::setChild(int, int, std::unique_ptr<WStandardItem>)
    */
   void setItem(int row, int column, std::unique_ptr<WStandardItem> item);
 

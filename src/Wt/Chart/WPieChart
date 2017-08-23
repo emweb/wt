@@ -279,31 +279,28 @@ public:
    *   Wt::WContainerWidget *widgetsLayer_;
    * public:
    *   PChart(Wt::WContainerWidget *widgetsLayer) :
-   *     Wt::Chart::WPieChart(widgetsLayer),
    *     widgetsLayer_(widgetsLayer)
    *   {
    *     widgetsLayer_->resize(800, 300);
    *     resize(800, 300);
-   *     widgetsLayer_->setPositionScheme(Wt::Relative);
+   *     widgetsLayer_->setPositionScheme(Wt::PositionScheme::Relative);
    *   }
    *   virtual void drawLabel(Wt::WPainter* painter, const Wt::WRectF& rect,
    *                            Wt::WFlags<Wt::AlignmentFlag> alignmentFlags,
    *                            const Wt::WString& text, int row) const
    *   {
-   *     if (model()->link(row, dataColumn()) == 0){
-   *       Wt::Chart::WPieChart::drawLabel(painter, rect, alignmentFlags,
-   *                                     text, row);
-   *   } else {
-   *      Wt::WAnchor *a = new Wt::WAnchor(*model()->link(row, dataColumn()),
-   *                                        text);
-   *       widgetsLayer_->addWidget(createLabelWidget(a, painter, rect,
-   *                                                  alignmentFlags));
+   *     if (model()->link(row, dataColumn()) == 0) {
+   *       WPieChart::drawLabel(painter, rect, alignmentFlags, text, row);
+   *     } else {
+   *       auto a = std::make_unique<Wt::WAnchor>(
+   *                  *model()->link(row, dataColumn()), text);
+   *       widgetsLayer_->addWidget(createLabelWidget(std::move(a), painter, rect, alignmentFlags));
    *     }
    *   }
    * };
    * \endcode
    */
-  virtual WContainerWidget *createLabelWidget(std::unique_ptr<WWidget> textWidget,
+  virtual std::unique_ptr<WContainerWidget> createLabelWidget(std::unique_ptr<WWidget> textWidget,
       WPainter* painter, const WRectF& rect,
       Wt::WFlags<AlignmentFlag> alignmentFlags) const;
 

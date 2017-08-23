@@ -24,7 +24,7 @@ enum class BorderWidth {
 /*! \brief Enumeration for border style
  */
 enum class BorderStyle {
-  None,    //!< StandardButton::No border (width ignored), default.
+  None,    //!< No border (width ignored), default.
   Hidden,  //!< Invisible border (of specified width). 
   Dotted,  //!< Dotted border
   Dashed,  //!< Dashed border

@@ -25,8 +25,8 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
- * Wt::WLengthValidator *validator = new Wt::WLengthValidator(5, 15);
+ * Wt::WLineEdit *lineEdit = addWidget(std::make_unique<Wt::WLineEdit>());
+ * auto validator = std::make_shared<Wt::WLengthValidator>(5, 15);
  * lineEdit->setValidator(validator);
  * lineEdit->setText("abcdef");
  * \endcode

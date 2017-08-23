@@ -21,10 +21,10 @@ namespace Wt {
  * 
  * \if cpp
  * \code
- * Wt::WImage *image = new Wt::WImage("images/family.jpg");
- * Wt::WRectArea *face = new Wt::WRectArea(100, 120, 200, 130);
+ * auto image = std::make_unique<Wt::WImage>("images/family.jpg");
+ * auto face = std::make_unique<Wt::WRectArea>(100, 120, 200, 130);
  * face->setToolTip("Uncle Frank");
- * image->addArea(face);
+ * image->addArea(std::move(face));
  * \endcode
  * \endif
  *

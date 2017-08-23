@@ -354,16 +354,16 @@ public:
    * session.query<int>("select count(1) from ...");
    * \endcode
    *
-   * Or Boost.Tuple for an arbitrary combination of result values:
+   * Or std::tuple for an arbitrary combination of result values:
    *
    * \code
-   * session.query< boost::tuple<int, int> >("select A.id, B.id from table_a A, table_b B").where("...");
+   * session.query< std::tuple<int, int> >("select A.id, B.id from table_a A, table_b B").where("...");
    * \endcode
    *
    * A tuple may combine any kind of object that is supported as a result,
    * including database objects (see also ptr_tuple):
    * \code
-   * session.query< boost::tuple<ptr<A>, ptr<B> > >("select A, B from table_a A, table_b B").where("...");
+   * session.query< std::tuple<ptr<A>, ptr<B> > >("select A, B from table_a A, table_b B").where("...");
    * \endcode
    *
    * The \p BindStrategy specifies how you want to bind parameters to

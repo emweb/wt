@@ -47,14 +47,14 @@ enum class LayoutPosition {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
- * Wt::WBorderLayout *layout = new Wt::WBorderLayout();
- * layout->addWidget(new Wt::WText("West-side is best"), Wt::LayoutPosition::West);
- * layout->addWidget(new Wt::WText("East-side is best"), Wt::LayoutPosition::East);
- * layout->addWidget(contents, Wt::LayoutPosition::Center);
+ * auto w = addWidget(std::make_unique<Wt::WContainerWidget>());
+ * auto layout = std::make_unique<Wt::WBorderLayout>();
+ * layout->addWidget(std::make_unique<Wt::WText>("West-side is best"), Wt::LayoutPosition::West);
+ * layout->addWidget(std::make_unique<Wt::WText>("East-side is best"), Wt::LayoutPosition::East);
+ * layout->addWidget(std::move(contents), Wt::LayoutPosition::Center);
  *
  * // use layout but do not justify vertically
- * w->setLayout(layout, Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Justify);
+ * w->setLayout(std::move(layout), Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Justify);
  * \endcode
  * \endif
  */

@@ -73,16 +73,16 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
- * w->resize(WLength(), 600);
+ * Wt::WContainerWidget *w = addWidget(std::make_unique<Wt::WContainerWidget>());
+ * w->resize(Wt::WLength(), 600);
  *
- * Wt::WBoxLayout *layout = new Wt::WBoxLayout(Wt::LayoutDirection::TopToBottom);
- * layout->addWidget(new Wt::WText("One"));
- * layout->addWidget(new Wt::WText("Two"));
- * layout->addWidget(new Wt::WText("Three"));
- * layout->addWidget(new Wt::WText("Four"));
+ * auto layout = std::make_unique<Wt::WBoxLayout>(Wt::LayoutDirection::TopToBottom);
+ * layout->addWidget(std::make_unique<Wt::WText>("One"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Two"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Three"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Four"));
  *
- * w->setLayout(layout);
+ * w->setLayout(std::move(layout));
  * \endcode
  * \endif
  *

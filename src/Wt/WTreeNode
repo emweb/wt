@@ -120,7 +120,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * insertChildNode(childNodes().size(), node);
+   * insertChildNode(childNodes().size(), std::move(node));
    * \endcode
    *
    * \sa insertChildNode()

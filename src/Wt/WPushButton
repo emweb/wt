@@ -23,7 +23,9 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WPushButton *ok = new Wt::WPushButton("Okay");
+ * // container is a WContainerWidget*
+ * Wt::WPushButton *ok =
+ *   container->addWidget(std::make_unique<Wt::WPushButton>("Okay"));
  * ok->clicked().connect(ok, &Wt::WPushButton::disable);
  * ok->clicked().connect(this, &MyClass::processData);
  * \endcode

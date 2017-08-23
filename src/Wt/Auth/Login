@@ -23,7 +23,7 @@ class User;
  * \ingroup auth
  */
 enum class LoginState {
-  /*! \brief StandardButton::No user is currently identified.
+  /*! \brief No user is currently identified.
    */
   LoggedOut,
 

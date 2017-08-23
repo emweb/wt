@@ -61,10 +61,10 @@ namespace Wt {
  * popup.addItem("Item 6");
  * popup.addSeparator();
  *
- * WPopupMenu *subMenu = new WPopupMenu();
+ * auto subMenu = std::make_unique<Wt::WPopupMenu>();
  * subMenu->addItem("Sub Item 1");
  * subMenu->addItem("Sub Item 2");
- * popup.addMenu("Item 7", subMenu);
+ * popup.addMenu("Item 7", std::move(subMenu));
  *
  * WMenuItem *item = popup.exec(event);
  *

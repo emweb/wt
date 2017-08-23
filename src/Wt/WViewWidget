@@ -78,15 +78,15 @@ namespace Wt {
  *   int             role_;
  *
  * protected:
- *   virtual Wt::WWidget *renderView() {
- *     Wt::WText *result = new Wt::WText();
+ *   virtual std::unique_ptr<Wt::WWidget> renderView() {
+ *     auto result = std::make_unique<Wt::WText>();
  *     result->setInline(false);
  *
  *     if (!index_.isValid())
  *       return result;
  *
- *     boost::any d = index_.data(role_);
- *     const std::string& t = boost::any_cast<const std::string&>(d);
+ *     cpp17::any d = index_.data(role_);
+ *     const std::string& t = cpp17::any_cast<const std::string&>(d);
  *
  *     result->setTextFormat(Wt::TextFormat::Plain);
  *     result->setText(t);

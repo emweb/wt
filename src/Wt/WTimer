@@ -59,7 +59,7 @@ class Time;
  * Usage example:
  * \code
  * // setup a timer which calls MyClass::timeout() every 2 seconds, until timer->stop() is called.
- * Wt::WTimer *timer = new Wt::WTimer();
+ * auto timer = std::make_unique<Wt::WTimer>();
  * timer->setInterval(2000);
  * timer->timeout().connect(this, &MyClass::timeout);
  * timer->start();

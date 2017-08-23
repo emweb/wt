@@ -25,7 +25,7 @@ class WText;
  * \if cpp
  * \code
  * Wt::WApplication *app = Wt::WApplication::instance();
- * app->setLoadingIndicator(new Wt::WOverlayLoadingIndicator());
+ * app->setLoadingIndicator(std::make_unique<Wt::WOverlayLoadingIndicator>());
  * \endcode
  * \endif
  *

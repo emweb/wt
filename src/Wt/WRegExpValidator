@@ -29,9 +29,9 @@ class WRegExp;
  * Usage example:
  * \if cpp
  * \code
- * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
+ * Wt::WLineEdit *lineEdit = addWidget(std::make_unique<Wt::WLineEdit>());
  * // an email address validator
- * Wt::WRegExpValidator *validator = new Wt::WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}");
+ * auto validator = std::make_unique<Wt::WRegExpValidator>("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}");
  * lineEdit->setValidator(validator);
  * lineEdit->setText("koen@emweb.be");
  * \endcode

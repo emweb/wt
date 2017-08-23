@@ -24,9 +24,8 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WImage *image = new Wt::WImage("images/events.png", this);
- * Wt::WCircleArea *area = new Wt::WCircleArea(20, 30, 15);
- * image->addArea(area);
+ * Wt::WImage *image = addWidget(std::make_unique<Wt::WImage>("images/events.png"));
+ * Wt::WCircleArea *area = image->addArea(std::make_unique<Wt::WCircleArea>(20, 30, 15));
  *
  * area->clicked().connect(this, &MyWidget::areaClicked);
  * \endcode

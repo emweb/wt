@@ -28,9 +28,9 @@ class WPushButton;
  * Usage example:
  * \if cpp
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget();
- * new Wt::WText("Name: ", w);
- * Wt::WInPlaceEdit *edit = new Wt::WInPlaceEdit("Bob Smith", w);
+ * auto w = std::make_unique<Wt::WContainerWidget>();
+ * w->addWidget(std::make_unique<Wt::WText>("Name: "));
+ * w->addWidget(std::make_unique<Wt::WInPlaceEdit>("Bob Smith"));
  * edit->setStyleClass("inplace");
  * \endcode
  * \elseif java
@@ -142,9 +142,9 @@ public:
    */
   Signal<WString>& valueChanged() { return valueChanged_; }
 
-  /*! \brief Displays the Save and 'StandardButton::Cancel' button during editing
+  /*! \brief Displays the Save and 'Cancel' button during editing
    *
-   * By default, the Save and StandardButton::Cancel buttons are shown. Call this
+   * By default, the Save and Cancel buttons are shown. Call this
    * function with \p enabled = \c false to only show a line edit.
    *
    * In this mode, the enter key or any event that causes focus to be

@@ -26,7 +26,7 @@ class SoundManager;
  * \if cpp
  * Usage example:
  * \code
- * WSound *s = new WSound("djing.mp3", parent);
+ * WSound *s = parent->addChild(std::make_unique<WSound>("djing.mp3"));
  * s->setLoops(3);
  * s->play();
  * playButton->clicked().connect(s, &WSound::play);

@@ -66,11 +66,12 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WFileUpload *upload = new Wt::WFileUpload(this);
+ * Wt::WFileUpload *upload = addWidget(std::make_unique<Wt::WFileUpload>());
  * upload->setFileTextSize(40);
  *
  * // Provide a button
- * Wt::WPushButton *uploadButton = new Wt::WPushButton("Send", this);
+ * Wt::WPushButton *uploadButton =
+ *   addWidget(std::make_unique<Wt::WPushButton>("Send"));
 
  * // Upload when the button is clicked.
  * uploadButton->clicked().connect(upload, &Wt::WFileUpload::upload);

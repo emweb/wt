@@ -315,7 +315,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * insertColumn(columnCount(), items);
+   * insertColumn(columnCount(), std::move(items));
    * \endcode
    *
    * \sa insertColumn(), appendRow()
@@ -339,7 +339,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * insertRow(rowCount(), items);
+   * insertRow(rowCount(), std::move(items));
    * \endcode
    *
    * \sa insertRow(), appendColumn()
@@ -378,10 +378,10 @@ public:
    * is equivalent to:
    *
    * \code
-   * insertRow(rowCount(), item);
+   * insertRow(rowCount(), std::move(item));
    * \endcode
    * 
-   * \sa insertRow(int, WStandardItem *)
+   * \sa insertRow(int, std::unique_ptr<WStandardItem>)
    */
   void appendRow(std::unique_ptr<WStandardItem> item);
 
@@ -393,9 +393,9 @@ public:
    *
    * \if cpp
    * \code
-   * std::vector<WStandardItem *> r;
-   * r.push_back(item);
-   * insertRow(row, r);
+   * std::vector<std::unique_ptr<WStandardItem>> r;
+   * r.emplace_back(std::move(item));
+   * insertRow(row, std::move(r));
    * \endcode
    * \elseif java
    * \code 
@@ -416,7 +416,7 @@ public:
    * containing a single item, and is equivalent to:
    *
    * \code
-   * insertRows(rowCount(), items);
+   * insertRows(rowCount(), std::move(items));
    * \endcode
    * 
    * \sa insertRows(int, const std::vector<WStandardItem *>&)
@@ -432,11 +432,11 @@ public:
    * \if cpp
    * \code
    * for (unsigned i = 0; i < items.size(); ++i)
-   *   insertRow(row + i, items[i]);
+   *   insertRow(row + i, std::move(items[i]));
    * \endcode
    * \endif
    * 
-   * \sa insertRow(int, WStandardItem *)
+   * \sa insertRow(int, std::unique_ptr<WStandardItem>)
    */
   void insertRows(int row,
 		  std::vector<std::unique_ptr<WStandardItem>> items);
@@ -458,7 +458,7 @@ public:
    * This is a convenience method for nodes with a single column
    * (e.g. tree nodes), and is equivalent to:
    * \code
-   * setChild(row, 0, item);
+   * setChild(row, 0, std::move(item));
    * \endcode
    *
    * \sa setChild(int, int, WStandardItem *).

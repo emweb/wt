@@ -37,7 +37,7 @@ namespace Wt {
  *  and serialized, for \ref ptr fields only the \link Wt::Dbo::ptr::id() id\endlink
  *  is output.
  *
- *  StandardButton::No extraneous whitespace is output.
+ *  No extraneous whitespace is output.
  *
  * \ingroup dbo
  */

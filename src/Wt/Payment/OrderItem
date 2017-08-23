@@ -19,7 +19,7 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- *  Wt::Payment::OrderItem item1, item2;
+ * Wt::Payment::OrderItem item1, item2;
  *
  * item1.setName("Waffle Maker");
  * item1.setNumber("00001");

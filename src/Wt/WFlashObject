@@ -19,7 +19,7 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * WFlashObject *player = new WFlashObject("dummy.swf", parent);
+ * WFlashObject *player = parent->addWidget(std::make_unique<WFlashObject>("dummy.swf"));
  * player->resize(300, 600);
  * player->setFlashParameter("allowScriptAccess", "always");
  * player->setFlashParameter("quality", "high");

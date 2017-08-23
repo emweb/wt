@@ -56,7 +56,8 @@ class WMessageResources;
  * app->messageResourceBundle().use("general");
  *
  * // resolve a string using the resource bundle
- * Wt::WText *welcome = new Wt::WText(tr("welcome-visitor").arg("Bart"));
+ * auto welcome = std::make_unique<Wt::WText>(
+ *                  tr("welcome-visitor").arg("Bart"));
  * \endcode
  * \endif
  *

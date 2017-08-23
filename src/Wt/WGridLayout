@@ -117,16 +117,16 @@ struct Grid {
  * Usage example:
  * \if cpp
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
+ * Wt::WContainerWidget *w = addWidget(std::make_unique<Wt::WContainerWidget>());
  * w->resize(WLength::Auto, 600);
  *
- * Wt::WGridLayout *layout = new Wt::WGridLayout();
- * layout->addWidget(new Wt::WText("Item 0 0"), 0, 0);
- * layout->addWidget(new Wt::WText("Item 0 1"), 0, 1);
- * layout->addWidget(new Wt::WText("Item 1 0"), 1, 0);
- * layout->addWidget(new Wt::WText("Item 1 1"), 1, 1);
+ * auto layout = std::make_unique<Wt::WGridLayout>();
+ * layout->addWidget(std::make_unique<Wt::WText>("Item 0 0"), 0, 0);
+ * layout->addWidget(std::make_unique<Wt::WText>("Item 0 1"), 0, 1);
+ * layout->addWidget(std::make_unique<Wt::WText>("Item 1 0"), 1, 0);
+ * layout->addWidget(std::make_unique<Wt::WText>("Item 1 1"), 1, 1);
  *
- * w->setLayout(layout);
+ * w->setLayout(std::move(layout));
  * \endcode
  * \elseif java
  * \code

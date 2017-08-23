@@ -79,11 +79,11 @@ enum class DialogCode {
  * \code
  * Wt::WDialog dialog("Personalia");
  *
- * new Wt::WText("Enter your name: ", dialog.contents());
- * Wt::WLineEdit edit(dialog.contents());
- * new Wt::WBreak(dialog.contents());
+ * dialog.contents()->addWidget(std::make_unique<Wt::WText>("Enter your name: "));
+ * dialog.contents()->addWidget(std::make_unique<Wt::WLineEdit>());
+ * dialog.contents()->addWidget(std::make_unique<Wt::WBreak>());
  *
- * Wt::WPushButton ok("Ok", dialog.contents());
+ * dialog.contents()->addWidget(std::make_unique<Wt::WPushButton>("Ok"));
  *
  * // these events will accept() the Dialog
  * edit.enterPressed().connect(&dialog, &Wt::WDialog::accept);
@@ -97,13 +97,13 @@ enum class DialogCode {
  * \code
  * void MyClass::showDialog()
  * {
- *   dialog_ = new WDialog("Personalia");
+ *   dialog_ = addChild(std::make_unique<Wt::WDialog>("Personalia"));
  *  
- *   new Wt::WText("Enter your name: ", dialog_->contents());
- *   edit_ = new Wt::WLineEdit(dialog_->contents());
- *   new Wt::WBreak(dialog_->contents());
+ *   dialog_->contents()->addWidget(std::make_unique<Wt::WText>("Enter your name: "));
+ *   edit_ = dialog_->contents()->addWidget(std::make_unique<Wt::WLineEdit>());
+ *   dialog_->contents()->addWidget(std::make_unique<Wt::WBreak>());
  *  
- *   Wt::WPushButton *ok = new Wt::WPushButton("Ok", dialog_->contents());
+ *   Wt::WPushButton *ok = dialog_->contents()->addWidget(std::make_unique<Wt::WPushButton>("Ok"));
  *
  *   // these events will accept() the Dialog
  *   edit_->enterPressed().connect(dialog_, &Wt::WDialog::accept);
@@ -117,7 +117,7 @@ enum class DialogCode {
  * {
  *   if (code == Wt::WDialog::Accepted)
  *     setStatus("Welcome, " + edit_->text());
- *   delete dialog_;
+ *   dialog_->removeFromParent();
  * }
  * \endcode
  * \endif

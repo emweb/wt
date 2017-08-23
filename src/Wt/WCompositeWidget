@@ -30,11 +30,11 @@ namespace Wt {
  * class MyWidget : public Wt::WCompositeWidget
  * {
  * public:
- *   MyWidget(WContainerWidget *parent = 0)
- *     : WCompositeWidget(parent)
+ *   MyWidget()
+ *     : WCompositeWidget()
  *       // initialize members ...
  *   {
- *     setImplementation(impl_ = new WContainerWidget());
+ *     impl_ = setImplementation(std::make_unique<Wt::WContainerWidget>());
  *
  *     // further initialization code ...
  *   }

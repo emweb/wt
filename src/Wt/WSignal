@@ -55,7 +55,7 @@ class JavaScriptEvent;
    self-defined or already existing slot to such a signal.
 
    To connect a signal from multiple senders to a single slot, we
-   recommend the use of boost::bind() to identify the sender (or
+   recommend the use of std::bind() to identify the sender (or
    otherwise the intention) of the signal.
 
    \if cpp
@@ -63,7 +63,7 @@ class JavaScriptEvent;
    \code
    std::vector<Wt::WPushButton*> buttons = ...;
    for(unsigned i = 0; i < buttons.size(); ++i) {
-     buttons[i]->clicked().connect(boost::bind(&Keyboard::handleClick, i));
+     buttons[i]->clicked().connect(std::bind(&Keyboard::handleClick, i));
    }
 
    void Keyboard::handleClick(int i) {
@@ -149,12 +149,12 @@ private:
  * class MyWidget : public Wt::WContainerWidget
  * {
  * public:
- *   MyWidget(Wt::WContainerWidget *parent = 0)
- *     : Wt::WContainerWidget(parent),
+ *   MyWidget()
+ *     : Wt::WContainerWidget()
  *       done_(this)
  *   {
  *      ...
- *      Wt::WPushButton *button = new Wt::WPushButton("Okay");
+ *      Wt::WPushButton *button = addWidget(std::make_unique<Wt::WPushButton>("Okay"));
  *      button->clicked().connect(this, &MyWidget::process);
  *   }
  *
@@ -181,7 +181,7 @@ private:
  *
  * private:
  *   void init() {
- *     MyWidget *widget = new MyWidget(this);
+ *     MyWidget *widget = addWidget(std::make_unique<MyWidget>());
  *     widget->done().connect(this, &GUIClass::whenDone);
  *   }
  *
@@ -215,7 +215,7 @@ public:
    * as the object inherits from WObject (or Wt::Core::observable).
    *
    * The function may leave up to <i>N</i> parameters unbound
-   * (e.g. using boost::bind placeholders _1 to _N) that may be bound
+   * (e.g. using std::bind placeholders _1 to _N) that may be bound
    * to values passed by the signal.
    */
 #ifndef WT_CNOR

@@ -38,7 +38,7 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * Wt::WSelectionBox *selectionBox = new Wt::WSelectionBox(this);
+ * Wt::WSelectionBox *selectionBox = addWidget(std::make_unique<Wt::WSelectionBox>());
  * selectionBox->addItem("Clint Eastwood");
  * selectionBox->addItem("Mick Jagger");
  * selectionBox->addItem("Johnny Depp");

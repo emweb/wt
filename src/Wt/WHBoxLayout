@@ -23,15 +23,15 @@ namespace Wt {
  * Usage example:
  * \if cpp
  * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
+ * Wt::WContainerWidget *w = addWidget(std::make_unique<Wt::WContainerWidget>());
  *
- * Wt::WHBoxLayout *layout = new Wt::WHBoxLayout();
- * layout->addWidget(new Wt::WText("One"));
- * layout->addWidget(new Wt::WText("Two"));
- * layout->addWidget(new Wt::WText("Three"));
- * layout->addWidget(new Wt::WText("Four"));
+ * auto layout = std::make_unique<Wt::WHBoxLayout>();
+ * layout->addWidget(std::make_unique<Wt::WText>("One"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Two"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Three"));
+ * layout->addWidget(std::make_unique<Wt::WText>("Four"));
  *
- * w->setLayout(layout, AlignmentFlag::Top | AlignmentFlag::Justify);
+ * w->setLayout(std::move(layout), AlignmentFlag::Top | AlignmentFlag::Justify);
  * \endcode
  * \elseif java
  * \code

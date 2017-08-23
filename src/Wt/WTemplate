@@ -60,11 +60,11 @@ enum class TemplateWidgetIdMode {
  * \code
  * WString userName = ...;
  *
- * WTemplate *t = new WTemplate();
+ * auto t = std::make_unique<WTemplate>();
  * t->setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
  *
  * t->bindString("friend", userName, TextFormat::Plain);
- * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * ageEdit_ = t->bindWidget("age-input", std::make_unique<WLineEdit>());
  * \endcode
  * \elseif java
  * \code
@@ -136,10 +136,10 @@ enum class TemplateWidgetIdMode {
  *
  * \if cpp
  * \code
- * WTemplate *t = new WTemplate();
+ * auto t = std::make_unique<WTemplate>();
  * t->addFunction("tr", &WTemplate::Functions::tr);
  * t->setTemplateText("<div> ${tr:age-label} ${age-input} </div>");
- * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * ageEdit_ = t->bindWidget("age-input", std::make_unique<WLineEdit>());
  * \endcode
  * \elseif java
  * \code
@@ -158,7 +158,7 @@ enum class TemplateWidgetIdMode {
  * For example:
  * \if cpp
  * \code
- * WTemplate *t = new WTemplate();
+ * auto t = std::make_unique<WTemplate>();
  * t->setTemplateText("<div> ${<if-register>} Register ... ${</if-register>}</div>");
  * t->setCondition("if-register", true);
  * \endcode
@@ -618,10 +618,10 @@ public:
    *   return known;
    * } else {
    *   if (varName == "age-input") {
-   *     Wt::WWidget *w = new Wt::WLineEdit(); // widget only created when used
-   *     bindWidget(varName, w);
-   *     return w;
+   *     // widget only created when used
+   *     return bindWidget(varName, std::make_unique<Wt::WLineEdit>());
    *   }
+   *   return nullptr;
    * }
    * \endcode
    * \elseif java

@@ -97,11 +97,11 @@ class WebSession;
  *
  * // Check for JavaScript/AJAX availability before using AJAX-only
  * // widgets
- * Wt::WTextArea *textEdit;
+ * std::unique_ptr<Wt::WTextArea> textEdit;
  * if (!env.ajax())
- *   textEdit = new Wt::WTextEdit(); // provide an HTML text editor
+ *   textEdit = std::make_unique<Wt::WTextEdit>(); // provide an HTML text editor
  * else
- *   textEdit = new Wt::WTextArea(); // fall-back to a plain old text area.
+ *   textEdit = std::make_unique<Wt::WTextArea>(); // fall-back to a plain old text area.
  *
  * \endcode
  * \elseif java

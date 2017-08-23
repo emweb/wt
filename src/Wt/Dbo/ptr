@@ -612,7 +612,7 @@ public:
    *
    * This is equivalent to:
    * \code
-   * p = ptr<C>(obj);
+   * p = ptr<C>(std::move(obj));
    * \endcode
    */
   void reset(std::unique_ptr<C> obj = nullptr);

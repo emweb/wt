@@ -50,10 +50,10 @@ namespace Wt {
  * \if cpp
  * \code
  * // model is the source model
- * Wt::WAbstractItemModel *model = ...
+ * std::shared_ptr<Wt::WAbstractItemModel> model = ...
  *
  * // we setup a proxy to filter the source model
- * Wt::WSortFilterProxyModel *proxy = new Wt::WSortFilterProxyModel(this);
+ * auto proxy = std::make_shared<Wt::WSortFilterProxyModel>();
  * proxy->setSourceModel(model);
  * proxy->setDynamicSortFilter(true);
  * proxy->setFilterKeyColumn(0);
@@ -61,7 +61,7 @@ namespace Wt {
  * proxy->setFilterRegExp("Wt::.*");
  *
  * // configure a view to use the proxy model instead of the source model
- * Wt::WTreeView *view = new Wt::WTreeView(this);
+ * Wt::WTreeView *view = addWidget(std::make_unique<Wt::WTreeView>());
  * view->setModel(proxy);
  * ...
  * \endcode

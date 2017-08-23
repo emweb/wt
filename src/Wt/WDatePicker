@@ -37,7 +37,7 @@ class WTemplate;
  * \if cpp
  * Usage example:
  * \code
- * Wt::WDatePicker *picker = new Wt::WDatePicker(this);
+ * Wt::WDatePicker *picker = addWidget(std::make_unique<Wt::WDatePicker>());
  * picker->setFormat("dd-MM-yyyy");
  * picker->setDate(Wt::WDate(1976, 6, 14));
  * \endcode

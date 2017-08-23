@@ -30,8 +30,8 @@ namespace Wt {
  * \if cpp
  * Usage example:
  * \code
- * WAudio *a = new WAudio(parent);
- * v->setOptions(WAudio::Controls);
+ * WAudio *a = parent->addChild(std::make_unique<WAudio>());
+ * a->setOptions(WAudio::Controls);
  * // Addsources may be called multiple times for different formats:
  * // Firefox only plays ogg
  * a->addSource("the_wt_song.ogg");
@@ -40,9 +40,9 @@ namespace Wt {
  * // You may display a simple text to explain that you need html5 support...
  * // a->setAlternativeContent(new WText("You have no HTML5 Audio!"));
  * // ... or provide an alternative player, e.g. Flash-based
- * WFlashObject *f = new WFlashObject("player.swf");
+ * auto f = std::make_unique<WFlashObject>("player.swf");
  * f->setFlashVariable("src", "the_wt_song.mp3");
- * v->setAlternativeContent(f);
+ * v->setAlternativeContent(std::move(f));
  * \endcode
  * \endif
  *
