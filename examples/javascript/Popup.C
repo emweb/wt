@@ -35,15 +35,15 @@ void Popup::setJavaScript()
   case Confirm:
     show.setJavaScript
       ("function(){ if (confirm('" + message_.narrow() + "')) {"
-       + okPressed_.createCall(std::initializer_list<std::string>{"''"}) +
+       + okPressed_.createCall({"''"}) +
        "} else {"
-       + cancelPressed_.createCall(std::initializer_list<std::string>{}) +
+       + cancelPressed_.createCall({}) +
        "}}");
     break;
   case Alert:
     show.setJavaScript
       ("function(){ alert('" + message_.narrow() + "');"
-       + okPressed_.createCall(std::initializer_list<std::string>{"''"}) +
+       + okPressed_.createCall({"''"}) +
        "}");
     break;
   case Prompt:
@@ -51,9 +51,9 @@ void Popup::setJavaScript()
       ("function(){var n = prompt('" + message_.narrow() + "', '"
        + defaultValue_ + "');"
        "if (n != null) {"
-       + okPressed_.createCall(std::initializer_list<std::string>{"n"}) +
+       + okPressed_.createCall({"n"}) +
        "} else {"
-       + cancelPressed_.createCall(std::initializer_list<std::string>{}) +
+       + cancelPressed_.createCall({}) +
        "}}");
   }
 }
