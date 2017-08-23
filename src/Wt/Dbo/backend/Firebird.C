@@ -29,6 +29,10 @@
 
 #include <ibpp.h>
 
+namespace {
+  static const int MAX_VARCHAR_LENGTH = 32765;
+}
+
 namespace Wt
 {
   namespace Dbo
@@ -640,7 +644,12 @@ namespace Wt
       
       std::string Firebird::textType(int size) const
       {
-        return std::string("blob sub_type text");
+        if (size != -1 && size <= MAX_VARCHAR_LENGTH)
+          return std::string("varchar (") +
+              boost::lexical_cast<std::string>(size) +
+              ")";
+        else
+          return std::string("blob sub_type text");
       }
 
       const char *Firebird::booleanType() const

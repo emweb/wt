@@ -2507,36 +2507,36 @@ BOOST_AUTO_TEST_CASE( dbo_test29 )
   dbo::Transaction t(*session_);
 
   dbo::ptr<A> a1 = session_->add(new A());
-  a1.modify()->string = "B";
+  a1.modify()->string2 = "B";
   a1.modify()->i = 1;
   dbo::ptr<A> a2 = session_->add(new A());
-  a2.modify()->string = "A";
+  a2.modify()->string2 = "A";
   a2.modify()->i = 2;
   dbo::ptr<A> a3 = session_->add(new A());
-  a3.modify()->string = "B";
+  a3.modify()->string2 = "B";
   a3.modify()->i = 4;
   dbo::ptr<A> a4 = session_->add(new A());
-  a4.modify()->string = "A";
+  a4.modify()->string2 = "A";
   a4.modify()->i = 8;
 
   // Should not throw
   // Test case for PostgreSQL and SQL Server:
   //  - PostgreSQL needs a subquery for the "select count(1)"
   //  - SQL Server needs an offset when using "order by" in a subquery
-  dbo::collection<dbo::ptr<A> > as1 = session_->find<A>().orderBy("\"string\"");
+  dbo::collection<dbo::ptr<A> > as1 = session_->find<A>().orderBy("\"string2\"");
 
   BOOST_REQUIRE(as1.size() == 4);
   dbo::collection<dbo::ptr<A> >::iterator it1 = as1.begin();
-  BOOST_REQUIRE((*it1)->string == "A");
+  BOOST_REQUIRE((*it1)->string2 == "A");
   ++it1;
-  BOOST_REQUIRE((*it1)->string == "A");
+  BOOST_REQUIRE((*it1)->string2 == "A");
   ++it1;
-  BOOST_REQUIRE((*it1)->string == "B");
+  BOOST_REQUIRE((*it1)->string2 == "B");
   ++it1;
-  BOOST_REQUIRE((*it1)->string == "B");
+  BOOST_REQUIRE((*it1)->string2 == "B");
 
   dbo::collection<std::string> as2 =
-    session_->query<std::string>("SELECT \"string\" FROM \"table_a\"").orderBy("\"string\"").groupBy("\"string\"");
+    session_->query<std::string>("SELECT \"string2\" FROM \"table_a\"").orderBy("\"string2\"").groupBy("\"string2\"");
 
   BOOST_REQUIRE(as2.size() == 2);
   dbo::collection<std::string>::iterator it2 = as2.begin();
@@ -2550,7 +2550,7 @@ BOOST_AUTO_TEST_CASE( dbo_test29 )
   BOOST_REQUIRE(i_total.size() == 1);
   BOOST_REQUIRE(*i_total.begin() == 15);
 
-  dbo::collection<int> is = session_->query<int>("select SUM(\"i\") as \"my_sum\" from \"table_a\"").orderBy("\"string\"").groupBy("\"string\"");
+  dbo::collection<int> is = session_->query<int>("select SUM(\"i\") as \"my_sum\" from \"table_a\"").orderBy("\"string2\"").groupBy("\"string2\"");
 
   BOOST_REQUIRE(is.size() == 2);
   dbo::collection<int>::iterator it3 = is.begin();
@@ -2587,6 +2587,9 @@ BOOST_AUTO_TEST_CASE( dbo_test30 )
   BOOST_REQUIRE(count == 2);
 }
 
+// The Firebird backend uses a time type limited to time of day, so negative
+// times and times longer than a day are not supported.
+#ifndef FIREBIRD
 BOOST_AUTO_TEST_CASE( dbo_test31 )
 {
   // Test long and negative durations
@@ -2664,3 +2667,4 @@ BOOST_AUTO_TEST_CASE( dbo_test31 )
     BOOST_REQUIRE(a->pduration == otherDuration2);
   }
 }
+#endif // !FIREBIRD
