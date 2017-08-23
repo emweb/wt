@@ -79,7 +79,7 @@ void TopicTemplate::resolveString(const std::string& varName,
     std::string exampleName = args[0].toUTF8();
     result << "<fieldset class=\"src\">"
 	   << "<legend>source</legend>"
-           << tr("src-" + exampleName).toUTF8()
+           << tr("src-" + exampleName).toXhtmlUTF8()
 	   << "</fieldset>";
   } else
     WTemplate::resolveString(varName, args, result);
