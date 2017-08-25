@@ -155,10 +155,19 @@ std::string toUTF8(const std::wstring& s)
   result.reserve(s.length() * 3);
 
   char buf[4];
+  uint32_t cp = 0;
   for (std::wstring::const_iterator i = s.begin(); i != s.end(); ++i) {
+    wchar_t c = *i;
+    if (sizeof(wchar_t) == 2 && c >= 0xD800 && c < 0xDC00) {
+      cp = (((uint32_t)(c - 0xD800)) << 10) + 0x10000;
+      continue;
+    } else if (sizeof(wchar_t) == 2 && c >= 0xDC00 && c < 0xE000)
+      cp += (c - 0xDC00);
+    else
+      cp = c;
     char *end = buf;
     try {
-      Wt::rapidxml::xml_document<>::insert_coded_character<0>(end, *i);
+      Wt::rapidxml::xml_document<>::insert_coded_character<0>(end, cp);
       for (char *b = buf; b != end; ++b)
 	result += *b;
     } catch (Wt::rapidxml::parse_error& e) {

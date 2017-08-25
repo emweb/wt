@@ -21,19 +21,20 @@ BOOST_AUTO_TEST_CASE( Utf8_test1 )
 {
 #ifndef WT_NO_STD_WSTRING
 #ifndef WT_WIN32
-  std::wstring w = L"This costs 100\x20AC (greek \x0194 special \x103A7)";
+  std::wstring w = L"This costs 100\x20AC (greek \x0194 special \x1F431)";
+#else // WT_WIN32
+  std::wstring w = L"This costs 100\x20AC (greek \x0194 special \xD83D\xDC31)";
+#endif // WT_WIN32
   Wt::WString ws = w;
   // std::cerr << ws.toUTF8() << std::endl;
+  BOOST_REQUIRE(ws.toUTF8() == "This costs 100\xE2\x82\xAC (greek \xC6\x94 special \xF0\x9F\x90\xB1)");
   BOOST_REQUIRE(ws.value() == w);
+#ifndef WT_WIN32
   BOOST_REQUIRE(ws.toUTF8().length() == w.length() + 2 + 1 + 3);
-#else
-  std::wstring w = L"This costs 100\x20AC (greek \x0194)";
-  Wt::WString ws = w;
-  // std::cerr << ws.toUTF8() << std::endl;
-  BOOST_REQUIRE(ws.value() == w);
-  BOOST_REQUIRE(ws.toUTF8().length() == w.length() + 2 + 1);
-#endif
-#endif
+#else // WT_WIN32
+  BOOST_REQUIRE(ws.toUTF8().length() == w.length() + 2 + 1 + 2);
+#endif // WT_WIN32
+#endif // WT_NO_STD_WSTRING
 }
 
 BOOST_AUTO_TEST_CASE( Utf8_test2 )
