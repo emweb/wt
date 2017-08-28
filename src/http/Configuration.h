@@ -56,9 +56,11 @@ public:
   bool gdb() const { return gdb_; }
   const std::string& configPath() const { return configPath_; }
 
+  const std::vector<std::string>& httpListen() const { return httpListen_; }
   const std::string& httpAddress() const { return httpAddress_; }
   const std::string& httpPort() const { return httpPort_; }
 
+  const std::vector<std::string>& httpsListen() const { return httpsListen_; }
   const std::string& httpsAddress() const { return httpsAddress_; }
   const std::string& httpsPort() const { return httpsPort_; }
   const std::string& sslCertificateChainFile() const 
@@ -109,9 +111,11 @@ private:
   bool gdb_;
   std::string configPath_;
 
+  std::vector<std::string> httpListen_;
   std::string httpAddress_;
   std::string httpPort_;
 
+  std::vector<std::string> httpsListen_;
   std::string httpsAddress_;
   std::string httpsPort_;
   std::string sslCertificateChainFile_;

@@ -339,6 +339,9 @@ public:
    *
    * Returns -1 if the port is not known (i.e. because the connector is
    * not aware of how the http server is configured).
+   *
+   * \note If the server listens on multiple ports, only the first
+   *       port is returned.
    */
   WTCONNECTOR_API int httpPort() const;
 
