@@ -47,53 +47,53 @@ std::unique_ptr<WWidget> WtHome::example(const char *textKey, const std::string&
   auto result = cpp14::make_unique<WContainerWidget>();
   WText *w = result->addWidget(cpp14::make_unique<WText>(tr(textKey)));
   w->setInternalPathEncoding(true);
-  result->addWidget(std::move(linkSourceBrowser(sourceDir)));
-  return std::move(result);
+  result->addWidget(linkSourceBrowser(sourceDir));
+  return result;
 }
 
 std::unique_ptr<WWidget> WtHome::helloWorldExample()
 {
-  return std::move(example("home.examples.hello", "hello"));
+  return example("home.examples.hello", "hello");
 }
 
 std::unique_ptr<WWidget> WtHome::chartExample()
 {
-  return std::move(example("home.examples.chart", "charts"));
+  return example("home.examples.chart", "charts");
 }
 
 std::unique_ptr<WWidget> WtHome::homepageExample()
 {
-  return std::move(example("home.examples.wt", "wt-homepage"));
+  return example("home.examples.wt", "wt-homepage");
 }
 
 std::unique_ptr<WWidget> WtHome::treeviewExample()
 {
-  return std::move(example("home.examples.treeview", "treeview-dragdrop"));
+  return example("home.examples.treeview", "treeview-dragdrop");
 }
 
 std::unique_ptr<WWidget> WtHome::gitExample()
 {
-  return std::move(example("home.examples.git", "gitmodel"));
+  return example("home.examples.git", "gitmodel");
 }
 
 std::unique_ptr<WWidget> WtHome::chatExample()
 {
-  return std::move(example("home.examples.chat", "simplechat"));
+  return example("home.examples.chat", "simplechat");
 }
 
 std::unique_ptr<WWidget> WtHome::composerExample()
 {
-  return std::move(example("home.examples.composer", "composer"));
+  return example("home.examples.composer", "composer");
 }
 
 std::unique_ptr<WWidget> WtHome::widgetGalleryExample()
 {
-  return std::move(example("home.examples.widgetgallery", "widgetgallery"));
+  return example("home.examples.widgetgallery", "widgetgallery");
 }
 
 std::unique_ptr<WWidget> WtHome::hangmanExample()
 {
-  return std::move(example("home.examples.hangman", "hangman"));
+  return example("home.examples.hangman", "hangman");
 }
 
 std::unique_ptr<WWidget> WtHome::examples()
@@ -147,7 +147,7 @@ std::unique_ptr<WWidget> WtHome::examples()
   examplesMenu_->setInternalPathEnabled("/examples");
   examplesMenu_->currentChanged().connect(this, &Home::googleAnalyticsLogger);
 
-  return std::move(result);
+  return result;
 }
 
 std::unique_ptr<WWidget> WtHome::createQuoteForm()
@@ -166,7 +166,7 @@ std::unique_ptr<WWidget> WtHome::sourceViewer(const std::string& deployPath)
 
 std::unique_ptr<WWidget> WtHome::wrapView(std::unique_ptr<WWidget> (WtHome::*createWidget)())
 {
-  return std::move(makeStaticModel(std::bind(createWidget, this)));
+  return makeStaticModel(std::bind(createWidget, this));
 }
 
 std::unique_ptr<WApplication> createWtHomeApplication(const WEnvironment& env,

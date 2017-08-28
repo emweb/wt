@@ -120,6 +120,14 @@ public:
   typedef std::list<std::pair<std::string, std::string> > Cache;
 
 private:
+  /*! \brief The git base command after which extra arguments are added.
+   */
+  std::string baseCmd() const;
+
+  /*! \brief Whether the repositoy is a bare repository.
+   */
+  bool is_bare_;
+
   /*! \brief The path to the repository.
    */
   std::string repository_;

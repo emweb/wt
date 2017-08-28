@@ -15,6 +15,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+#include <sys/stat.h>
+
 using namespace Wt;
 
 /*
@@ -197,11 +199,15 @@ Git::Object::Object(const ObjectId& anId, ObjectType aType)
 { }
 
 Git::Git()
-  : cache_(3) // cache of 3 git results
+  : is_bare_(false),
+    cache_(3) // cache of 3 git results
 { }
 
 void Git::setRepositoryPath(const std::string& repositoryPath)
 { 
+  struct stat sb;
+  is_bare_ = !(stat((repositoryPath + "/.git").c_str(), &sb) == 0 &&
+               S_ISDIR(sb.st_mode));
   repository_ = repositoryPath;
   checkRepository();
 }
@@ -283,11 +289,19 @@ int Git::treeSize(const ObjectId& tree) const
   return getCmdResultLineCount("cat-file -p " + tree.toString());
 }
 
+std::string Git::baseCmd() const
+{
+  if (is_bare_)
+    return "git --git-dir=" + repository_;
+  else
+    return "git --git-dir=" + repository_ + "/.git"
+           " --work-tree=" + repository_;
+}
+
 bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
 		       int index) const
 {
-  POpenWrapper p("git --git-dir=" + repository_ + "/.git" +
-                 " --work-tree=" + repository_ + " " + gitCmd, cache_);
+  POpenWrapper p(baseCmd() + " " + gitCmd, cache_);
 
   if (p.exitStatus() != 0)
     throw Exception("Git error: " + p.readLine(result));
@@ -310,8 +324,7 @@ bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
 bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
 		       const std::string& tag) const
 {
-  POpenWrapper p("git --git-dir=" + repository_ + "/.git" +
-                 " --work-tree=" + repository_ + " " + gitCmd, cache_);
+  POpenWrapper p(baseCmd() + " " + gitCmd, cache_);
 
   if (p.exitStatus() != 0)
     throw Exception("Git error: " + p.readLine(result));
@@ -327,8 +340,7 @@ bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
 
 int Git::getCmdResultLineCount(const std::string& gitCmd) const
 {
-  POpenWrapper p("git --git-dir=" + repository_ + "/.git" +
-                 " --work-tree=" + repository_ + " " + gitCmd, cache_);
+  POpenWrapper p(baseCmd() + " " + gitCmd, cache_);
 
   std::string r;
 
@@ -346,8 +358,7 @@ int Git::getCmdResultLineCount(const std::string& gitCmd) const
 
 void Git::checkRepository() const
 {
-  POpenWrapper p("git --git-dir=" + repository_ + "/.git" +
-                  " --work-tree=" + repository_ + " branch", cache_);
+  POpenWrapper p(baseCmd() + " branch", cache_);
 
   std::string r;
   if (p.exitStatus() != 0)
