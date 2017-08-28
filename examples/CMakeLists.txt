@@ -35,11 +35,6 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
 
     Project(WtExamples)
 
-    # build widgetgallery, if supported
-    IF(MSVC_VERSION GREATER 1600)
-      SET(HAS_CXX11 ON)
-    ENDIF(MSVC_VERSION GREATER 1600)
-
     SET(EXAMPLES_CONNECTOR
       debug wthttpd optimized wthttp
       debug libhpdfd optimized libhpdf

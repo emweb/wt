@@ -182,10 +182,10 @@ public:
     if (sql.empty()) {
       // Empty query, should be an error, but we'll leave the reporting
       // of that error to ODBC
-      SQLWCHAR *wstr = L"";
+      SQLWCHAR wstr[] = L"";
       rc = SQLPrepareW(stmt_, wstr, 0);
     } else {
-      int wstrlen = MultiByteToWideChar(CP_UTF8, 0, &sql[0], sql.size(), NULL, NULL);
+      int wstrlen = MultiByteToWideChar(CP_UTF8, 0, &sql[0], sql.size(), NULL, 0);
       assert(wstrlen != 0);
       SQLWCHAR *wstr = new SQLWCHAR[wstrlen + 1];
       wstrlen = MultiByteToWideChar(CP_UTF8, 0, &sql[0], sql.size(), wstr, wstrlen);
@@ -931,7 +931,8 @@ void MSSQLServer::executeSql(const std::string &sql)
   }
 #ifdef WT_WIN32
   if (sql.empty()) {
-    rc = SQLExecDirectW(impl_->stmt, L"", 0);
+    SQLWCHAR wstr[] = L"";
+    rc = SQLExecDirectW(impl_->stmt, wstr, 0);
   } else {
     int wstrlen = MultiByteToWideChar(CP_UTF8, 0, &sql[0], sql.size(), 0, 0);
     assert(wstrlen != 0);

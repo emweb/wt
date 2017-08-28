@@ -5,6 +5,13 @@
  *
  * Contributed by: Paul Harrison
  */
+#include "Wt/WConfig.h"
+
+#ifdef WT_WIN32
+ // WinSock2.h warns that it should be included before windows.h
+#include <WinSock2.h>
+#endif // WT_WIN32
+
 #include "Wt/Dbo/backend/MySQL.h"
 #include "Wt/Dbo/Exception.h"
 
@@ -18,7 +25,6 @@
 #ifdef WT_WIN32
 #define snprintf _snprintf
 #define timegm _mkgmtime
-#include <winsock2.h>
 #include <ctime>
 #endif
 #include <mysql.h>
