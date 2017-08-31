@@ -1,12 +1,12 @@
 #include "Session.h"
 
-#include <Wt/Auth/Dbo/AuthInfo>
-#include <Wt/Auth/Dbo/UserDatabase>
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/PasswordService>
-#include <Wt/Auth/PasswordVerifier>
-#include <Wt/Auth/HashFunction>
-#include <Wt/Auth/PasswordStrengthValidator>
+#include <Wt/Auth/Dbo/AuthInfo.h>
+#include <Wt/Auth/Dbo/UserDatabase.h>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/PasswordVerifier.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/Auth/PasswordStrengthValidator.h>
 
 #include "User.h"
 #include "IssuedToken.h"

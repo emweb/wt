@@ -117,6 +117,7 @@ OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
 OPTION(WT_WARN_HEADER_MISSING_H "Output a warning if a Wt header without .h extension is included (deprecated since Wt 4.0.0)" ON)
+OPTION(INSTALL_EXTENSIONLESS_HEADERS "Extensionless headers were deprecated in Wt 4.0.0. Disabling this option will cause extensionless headers not to be installed" ON)
 OPTION(ENABLE_UNWIND "Build Wt with stacktrace support using libunwind" OFF)
 
 IF(NOT CMAKE_CXX_STANDARD)

@@ -1,46 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WLAYOUT_IMPL_H_
-#define WLAYOUT_IMPL_H_
-
-#include <Wt/WLayoutItemImpl.h>
-
-namespace Wt {
-
-class WLayoutItem;
-class WWidget;
-
-/*! \class WLayoutImpl Wt/WLayoutImpl.h Wt/WLayoutImpl.h
- *  \brief An abstract base class for implementing layout managers.
- *
- * \sa WLayoutItem, WLayout
- */
-class WT_API WLayoutImpl : public WLayoutItemImpl
-{
-public:
-  /*! \brief Destructor.
-   */
-  virtual ~WLayoutImpl();
-
-  /*! \brief Adds a layout <i>item</i>.
-   *
-   * The \p item already has an implementation set.
-   */
-  virtual void itemAdded(WLayoutItem *item) = 0;
-
-  /*! \brief Removes a layout <i>item</i>.
-   */
-  virtual void itemRemoved(WLayoutItem *item) = 0;
-
-  /*! \brief Updates the layout.
-   */
-  virtual void update(WLayoutItem *item) = 0;
-};
-
-}
-
-#endif // WLAYOUT_IMPL_H_
+#ifndef WT_WLAYOUTIMPL_EXTENSIONLESS_H_
+#define WT_WLAYOUTIMPL_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WLayoutImpl.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WLayoutImpl.h instead"
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WLayoutImpl.h"
+#endif // WT_WLAYOUTIMPL_EXTENSIONLESS_H_

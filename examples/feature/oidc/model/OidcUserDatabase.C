@@ -3,12 +3,12 @@
 #include <string>
 #include <set>
 
-#include <Wt/WDateTime>
-#include <Wt/Auth/User>
-#include <Wt/Auth/OAuthClient>
-#include <Wt/Dbo/Dbo>
-#include <Wt/Auth/HashFunction>
-#include <Wt/WRandom>
+#include <Wt/WDateTime.h>
+#include <Wt/Auth/User.h>
+#include <Wt/Auth/OAuthClient.h>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/WRandom.h>
 #include <boost/algorithm/string.hpp>
 
 #include "IssuedToken.h"

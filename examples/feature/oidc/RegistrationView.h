@@ -1,7 +1,7 @@
 #ifndef REGISTRATION_VIEW_H
 #define REGISTRATION_VIEW_H
 
-#include <Wt/Auth/RegistrationWidget>
+#include <Wt/Auth/RegistrationWidget.h>
 
 class UserDetailsModel;
 class Session;

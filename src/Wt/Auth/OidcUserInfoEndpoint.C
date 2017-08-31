@@ -1,4 +1,10 @@
-#include "OidcUserInfoEndpoint"
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include "OidcUserInfoEndpoint.h"
+
 #include <string>
 #include <boost/algorithm/string.hpp>
 

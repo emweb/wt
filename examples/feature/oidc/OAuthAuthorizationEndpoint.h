@@ -1,9 +1,9 @@
 #include <string>
 
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
 
-#include <Wt/Auth/OAuthAuthorizationEndpointProcess>
+#include <Wt/Auth/OAuthAuthorizationEndpointProcess.h>
 
 #include "model/OidcUserDatabase.h"
 #include "model/User.h"

@@ -1,7 +1,7 @@
 #ifndef USERDETAILSMODEL_H
 #define USERDETAILSMODEL_H
 
-#include <Wt/WFormModel>
+#include <Wt/WFormModel.h>
 
 class Session;
 

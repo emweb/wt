@@ -1,4 +1,10 @@
-#include "OAuthClient"
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include "OAuthClient.h"
+
 #include <string>
 #include <set>
 

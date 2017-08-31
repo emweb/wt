@@ -1,11 +1,11 @@
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/AbstractUserDatabase>
-#include <Wt/Auth/AuthWidget>
-#include <Wt/Auth/Login>
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/RegistrationModel>
-#include <Wt/WWidget>
-#include <Wt/WContainerWidget>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/AbstractUserDatabase.h>
+#include <Wt/Auth/AuthWidget.h>
+#include <Wt/Auth/Login.h>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/RegistrationModel.h>
+#include <Wt/WWidget.h>
+#include <Wt/WContainerWidget.h>
 
 #include "OAuthWidget.h"
 #include "RegistrationView.h"

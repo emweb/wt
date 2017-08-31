@@ -6,8 +6,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 #include "DboFixture.h"
 

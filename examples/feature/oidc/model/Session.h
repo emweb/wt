@@ -1,11 +1,11 @@
 #ifndef SESSION_H
 #define SESSION_H
 
-#include <Wt/Auth/Dbo/UserDatabase>
-#include <Wt/Auth/Login>
-#include <Wt/Auth/User>
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Auth/Dbo/UserDatabase.h>
+#include <Wt/Auth/Login.h>
+#include <Wt/Auth/User.h>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 #include "User.h"
 

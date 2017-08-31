@@ -84,6 +84,7 @@ Wt/Dbo/backend/Firebird,Wt/Dbo/backend/Firebird.h
 Wt/Dbo/backend/MySQL,Wt/Dbo/backend/MySQL.h
 Wt/Dbo/backend/Postgres,Wt/Dbo/backend/Postgres.h
 Wt/Dbo/backend/Sqlite3,Wt/Dbo/backend/Sqlite3.h
+Wt/Dbo/backend/MSSQLServer,Wt/Dbo/backend/MSSQLServer.h
 Wt/Dbo/collection,Wt/Dbo/collection.h
 Wt/Dbo/ptr,Wt/Dbo/ptr.h
 Wt/Dbo/ptr_tuple,Wt/Dbo/ptr_tuple.h

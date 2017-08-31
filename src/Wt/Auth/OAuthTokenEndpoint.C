@@ -1,4 +1,9 @@
-#include "OAuthTokenEndpoint"
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include "OAuthTokenEndpoint.h"
 
 #include <string>
 #include <boost/lexical_cast.hpp>

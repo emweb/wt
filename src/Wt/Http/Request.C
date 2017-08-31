@@ -15,7 +15,7 @@
 #include "Wt/WSslInfo.h"
 #include "WebUtils.h"
 #include "WebRequest.h"
-#include "Message"
+#include "Message.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>

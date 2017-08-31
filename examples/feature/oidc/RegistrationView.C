@@ -1,4 +1,4 @@
-#include <Wt/WLineEdit>
+#include <Wt/WLineEdit.h>
 
 #include "RegistrationView.h"
 #include "model/Session.h"

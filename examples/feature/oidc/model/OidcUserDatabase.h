@@ -4,12 +4,12 @@
 #include <string>
 #include <set>
 
-#include <Wt/WDateTime>
-#include <Wt/Auth/Dbo/AuthInfo>
-#include <Wt/Auth/Dbo/UserDatabase>
-#include <Wt/Auth/IssuedToken>
-#include <Wt/Auth/OAuthClient>
-#include <Wt/Auth/OAuthService>
+#include <Wt/WDateTime.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
+#include <Wt/Auth/Dbo/UserDatabase.h>
+#include <Wt/Auth/IssuedToken.h>
+#include <Wt/Auth/OAuthClient.h>
+#include <Wt/Auth/OAuthService.h>
 
 #include "User.h"
 #include "IssuedToken.h"

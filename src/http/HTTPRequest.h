@@ -11,7 +11,7 @@
 
 #include "WebRequest.h"
 #include "WtReply.h"
-#include "Wt/Http/Message"
+#include "Wt/Http/Message.h"
 
 namespace http {
 namespace server {

@@ -1,14 +1,14 @@
-#include <Wt/WText>
-#include <Wt/WApplication>
-#include <Wt/WServer>
-#include <Wt/WContainerWidget>
-#include <Wt/WImage>
+#include <Wt/WText.h>
+#include <Wt/WApplication.h>
+#include <Wt/WServer.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WImage.h>
 
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/OAuthTokenEndpoint>
-#include <Wt/Auth/OidcService>
-#include <Wt/Auth/OidcUserInfoEndpoint>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/OAuthTokenEndpoint.h>
+#include <Wt/Auth/OidcService.h>
+#include <Wt/Auth/OidcUserInfoEndpoint.h>
 
 #include "model/Session.h"
 #include "OAuthAuthorizationEndpoint.h"

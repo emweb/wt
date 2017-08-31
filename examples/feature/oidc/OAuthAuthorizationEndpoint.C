@@ -1,10 +1,10 @@
 #include <string>
 
-#include <Wt/WContainerWidget>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WText.h>
 
-#include <Wt/Auth/AuthModel>
-#include <Wt/Auth/AuthService>
+#include <Wt/Auth/AuthModel.h>
+#include <Wt/Auth/AuthService.h>
 
 #include "OAuthAuthorizationEndpoint.h"
 
