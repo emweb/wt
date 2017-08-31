@@ -15,6 +15,7 @@ class OAuthWidget : public Wt::Auth::AuthWidget
 {
 public:
   OAuthWidget(Session& session);
+  virtual void createLoggedInView();
   virtual Wt::WWidget *createRegistrationView(const Wt::Auth::Identity& id);
 private:
   Session& session_;

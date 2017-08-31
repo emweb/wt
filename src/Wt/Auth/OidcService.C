@@ -130,7 +130,7 @@ Identity OidcProcess::parseIdToken(const std::string& idToken)
 OidcService::OidcService(const AuthService& baseAuth)
   : OAuthService(baseAuth),
     scope_("openid"),
-    popupWidth_(550),
+    popupWidth_(670),
     popupHeight_(400),
     method_(HttpAuthorizationBasic),
     configured_(false)

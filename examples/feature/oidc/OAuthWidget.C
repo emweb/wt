@@ -18,6 +18,12 @@ OAuthWidget::OAuthWidget(Session& session)
 {
 }
 
+void OAuthWidget::createLoggedInView()
+{
+  setTemplateText(Wt::WString("Logged in as: {1}").arg(
+                    login().user().identity(Wt::Auth::Identity::LoginName)));
+}
+
 Wt::WWidget* OAuthWidget::createRegistrationView(const Wt::Auth::Identity& id)
 {
   RegistrationView *w = new RegistrationView(session_, this);

@@ -32,6 +32,7 @@ GoogleService::GoogleService(const AuthService& baseAuth)
 
   setName("google");
   setDescription("Google Account");
+  setPopupWidth(550);
 }
 
 bool GoogleService::configured()
