@@ -48,7 +48,7 @@ std::unique_ptr<WWidget> WtHome::example(const char *textKey, const std::string&
   WText *w = result->addWidget(cpp14::make_unique<WText>(tr(textKey)));
   w->setInternalPathEncoding(true);
   result->addWidget(linkSourceBrowser(sourceDir));
-  return result;
+  return std::move(result);
 }
 
 std::unique_ptr<WWidget> WtHome::helloWorldExample()
@@ -147,7 +147,7 @@ std::unique_ptr<WWidget> WtHome::examples()
   examplesMenu_->setInternalPathEnabled("/examples");
   examplesMenu_->currentChanged().connect(this, &Home::googleAnalyticsLogger);
 
-  return result;
+  return std::move(result);
 }
 
 std::unique_ptr<WWidget> WtHome::createQuoteForm()
