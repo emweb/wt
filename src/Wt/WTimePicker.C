@@ -58,7 +58,9 @@ WTime WTimePicker::time() const
     try {
         hours = Utils::stoi(sbhour_->text().toUTF8());
         minutes = Utils::stoi(sbminute_->text().toUTF8());
-        seconds = Utils::stoi(sbsecond_->text().toUTF8());
+
+        if (formatS())
+          seconds = Utils::stoi(sbsecond_->text().toUTF8());
 
         if (formatMs())
             milliseconds = Utils::stoi(sbmillisecond_->text().toUTF8());
@@ -102,7 +104,9 @@ void WTimePicker::setTime(const WTime& time)
 
     sbhour_->setValue(hours);
     sbminute_->setValue(minutes);
-    sbsecond_->setValue(seconds);
+
+    if (formatS())
+      sbsecond_->setValue(seconds);
 
     if (formatMs()) {
         sbmillisecond_->setValue(millisecond);

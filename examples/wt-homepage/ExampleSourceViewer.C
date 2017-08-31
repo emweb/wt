@@ -302,13 +302,14 @@ void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
 {
   fs::directory_iterator end_itr;
 
-  std::unique_ptr<FileItem> packageItem = nullptr;
+  FileItem *packageItem = nullptr;
   for (fs::directory_iterator i(srcPath); i != end_itr; ++i) {
     fs::path p = *i;
     if (fs::is_regular(p)) {
       if (!packageItem) {
-        packageItem = cpp14::make_unique<FileItem>("/icons/package.png", packageName, "");
-        parent->appendRow(std::move(packageItem));
+        auto item = cpp14::make_unique<FileItem>("/icons/package.png", packageName, "");
+        packageItem = item.get();
+        parent->appendRow(std::move(item));
       }
 
       auto file
