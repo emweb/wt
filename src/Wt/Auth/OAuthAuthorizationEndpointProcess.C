@@ -113,6 +113,7 @@ void OAuthAuthorizationEndpointProcess::sendResponse(const std::string& param)
   if (!state_.empty())
     redirectParam += "&state=" + Utils::urlEncode(state_);
   WApplication::instance()->redirect(redirectUri_ + redirectParam);
+  WApplication::instance()->quit();
 }
 
 void OAuthAuthorizationEndpointProcess::setAuthCodeExpSecs(int seconds)

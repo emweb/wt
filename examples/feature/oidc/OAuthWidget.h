@@ -15,7 +15,8 @@ class OAuthWidget : public Wt::Auth::AuthWidget
 {
 public:
   OAuthWidget(Session& session);
-  virtual std::unique_ptr<WWidget> createRegistrationView(const Wt::Auth::Identity& id);
+  virtual void createLoggedInView() override;
+  virtual std::unique_ptr<WWidget> createRegistrationView(const Wt::Auth::Identity& id) override;
 private:
   Session& session_;
 };

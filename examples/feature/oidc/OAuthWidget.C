@@ -18,6 +18,12 @@ OAuthWidget::OAuthWidget(Session& session)
 {
 }
 
+void OAuthWidget::createLoggedInView()
+{
+  setTemplateText(Wt::WString("Logged in as: {1}").arg(
+                    login().user().identity(Wt::Auth::Identity::LoginName)));
+}
+
 std::unique_ptr<Wt::WWidget> OAuthWidget::createRegistrationView(const Wt::Auth::Identity& id)
 {
   auto w = Wt::cpp14::make_unique<RegistrationView>(session_, this);
