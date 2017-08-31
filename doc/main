@@ -935,6 +935,11 @@ HTTPS/Secure WebSocket server options:
                                         Example cipher list string:
                                         "TLSv1+HIGH:!SSLv2"
 
+  --ssl-prefer-server-ciphers arg (=0)  By default, the client's preference is
+                                        used for determining the cipher that is
+                                        choosen during a SSL or TLS handshake.
+                                        By enabling this option, the server's
+                                        preference will be used.
 
 Settings may be set in the configuration file /etc/wt/wthttpd
 \endcode
