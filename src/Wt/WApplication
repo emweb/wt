@@ -863,6 +863,9 @@ public:
    * initiated in the browser to paths that do not start with a '/'
    * are ignored.
    *
+   * The \p emitChange parameter determines whether calling this
+   * method causes the internalPathChanged() signal to be emitted.
+   *
    * \sa bookmarkUrl(), internalPath(), internalPathChanged()
    *
    * \if cpp
