@@ -8,6 +8,7 @@
 #include "Wt/WConfig.h"
 
 #ifdef WT_WIN32
+#define NOMINMAX
 // WinSock2.h warns that it should be included before windows.h
 #include <WinSock2.h>
 #endif // WT_WIN32

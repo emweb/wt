@@ -10,6 +10,7 @@
 #include "Wt/Date/date.h"
 
 #ifdef WT_WIN32
+#define NOMINMAX
 #include <Windows.h>
 #endif // WT_WIN32
 #include <sql.h>
