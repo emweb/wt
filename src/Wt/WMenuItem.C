@@ -334,6 +334,9 @@ void WMenuItem::enableAjax()
   if (menu_->internalPathEnabled())
     resetLearnedSlots();
 
+  if (uContents_)
+    uContents_->enableAjax();
+
   WContainerWidget::enableAjax();
 }
 
