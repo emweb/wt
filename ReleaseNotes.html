@@ -22,7 +22,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.0.0 (2017)</h2>
+<h2>Release 4.0.0 (September 2017)</h2>
 <p>
   This release has all of the added features of Wt 3.3.8, but comes with many notable changes. In general,
   Wt 4 employs the more modern C++ style of C++11 and beyond. Support for compilers
@@ -30,6 +30,26 @@ behaviour.
   <a href="https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md">C++ Core Guidelines</a>
   in a pragmatic way, while keeping the API familiar.
 </p>
+<h3>New features since Wt 3.3.8</h3>
+<dl>
+  <dt>Microsoft SQL Server backend for Wt::Dbo</dt>
+  <dd>We've added Microsoft SQL Server support to Wt::Dbo, making it the sixth
+      backend we support, alongside Sqlite, PostgreSQL, MySQL (and MariaDB),
+      Firebird, and Oracle (not part of the open source Wt because of licensing).
+      With this addition, Wt::Dbo now supports most commonly used relational database management systems.
+      It's based on ODBC and works with Microsoft's ODBC Driver
+      for SQL Server. With unixODBC, Linux and macOS are also supported.</dd>
+  <dt>Added support for listening on multiple interfaces and ports to wthttp</dt>
+  <dd>With the multivalued <tt>--http-listen</tt> and <tt>--https-listen</tt> options,
+      you can now listen on multiple interfaces and ports. For example, if you want to
+      listen on port 8080 on all IPv4 and IPv6 interfaces, you can use:
+      <div class="fragment">
+	<div class="line"><tt>--http-listen 0.0.0.0:8080 --https-listen [0::0]:8080</tt></div>
+      </div>
+      <tt>--http-listen</tt> and <tt>--https-listen</tt> obsolete the
+      <tt>--http-address</tt>, <tt>--http-port</tt>, <tt>--https-address</tt>, and <tt>--https-port</tt>
+      options.</dd>
+</dl>
 <h3>Changes in Wt's memory model</h3>
 <p>
 Like before, the parent widget (e.g. a <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>) owns

@@ -175,8 +175,12 @@ void WStackedWidget::render(WFlags<RenderFlag> flags)
     widgetsAdded_ = false;
   }
 
-  if (flags.test(RenderFlag::Full))
+  if (flags.test(RenderFlag::Full)) {
     defineJavaScript();
+    if (currentIndex_ >= 0 && isRendered() && javaScriptDefined_)
+      doJavaScript("$('#" + id() + "').data('obj').setCurrent("
+		   + widget(currentIndex_)->jsRef() + ");");
+  }
 
   WContainerWidget::render(flags);
 }
