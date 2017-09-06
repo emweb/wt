@@ -7,8 +7,6 @@
 #ifndef SIMPLECHATSERVER_H_
 #define SIMPLECHATSERVER_H_
 
-#include <boost/noncopyable.hpp>
-
 #include <Wt/WSignal.h>
 #include <Wt/WString.h>
 
@@ -83,7 +81,7 @@ typedef std::function<void (const ChatEvent&)> ChatEventCallback;
 
 /*! \brief A simple chat server
  */
-class SimpleChatServer : boost::noncopyable
+class SimpleChatServer
 {
 public:
   /*
@@ -96,6 +94,9 @@ public:
   /*! \brief Create a new chat server.
    */
   SimpleChatServer(Wt::WServer& server);
+
+  SimpleChatServer(const SimpleChatServer &) = delete;
+  SimpleChatServer &operator=(const SimpleChatServer &) = delete;
 
   /*! \brief Connects to the chat server.
    *

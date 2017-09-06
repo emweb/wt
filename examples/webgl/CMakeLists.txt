@@ -1,3 +1,4 @@
+IF(BOOST_WT_FOUND)
 #
 # The ADD_EXAMPLE macro (defined in examples/CMakeLists.txt) ensures that
 # the example is correctly built for the requested connector. It is equivalent
@@ -16,3 +17,6 @@ WT_ADD_EXAMPLE(webgl.wt teapot.C readObj.C PaintWidget.C)
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
+ELSE(BOOST_WT_FOUND)
+  MESSAGE(STATUS "** Not building webgl example: requires boost headers.")
+ENDIF(BOOST_WT_FOUND)

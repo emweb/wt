@@ -23,7 +23,6 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 #include <iostream>
-#include <boost/thread/condition.hpp>
 
 #include "WQApplication.h"
 #include "DispatchThread.h"

@@ -1,3 +1,4 @@
+IF(BOOST_WT_FOUND)
 IF(CMAKE_COMPILER_IS_GNUCXX)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
@@ -27,3 +28,6 @@ WT_ADD_EXAMPLE(chart3D.wt
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
+ELSE(BOOST_WT_FOUND)
+  MESSAGE(STATUS "** Not building chart3D example: requires boost headers.")
+ENDIF(BOOST_WT_FOUND)

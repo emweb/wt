@@ -7,6 +7,6 @@ WT_ADD_EXAMPLE(auth2.wt
 	model/UserDetailsModel.C
 )
 
-TARGET_LINK_LIBRARIES(auth2.wt wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(auth2.wt ${EXAMPLES_DBO_LIBS})
 
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)

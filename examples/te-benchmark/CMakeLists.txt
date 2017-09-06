@@ -1,3 +1,4 @@
+IF(BOOST_WT_FOUND)
 #
 # If you have Wt installed somehwere, you should use the
 # installed Wt header files for your own Wt projects.
@@ -20,3 +21,6 @@ TARGET_LINK_LIBRARIES(te-benchmark-pg.wt
 		      debug wtdbod optimized wtdbo
 		      debug wtdbopostgresd optimized wtdbopostgres)
 ENDIF(ENABLE_POSTGRES AND POSTGRES_FOUND)
+ELSE(BOOST_WT_FOUND)
+  MESSAGE(STATUS "** Not building te-benchmark example: requires boost headers.")
+ENDIF(BOOST_WT_FOUND)

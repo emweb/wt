@@ -27,6 +27,10 @@
 #   debug libhpdfd optimized libhpdf # only required for if you write pdfs
 # )
 
+SET(EXAMPLES_WT_LIB debug wtd optimized wt)
+SET(EXAMPLES_WTDBO_LIB debug wtdbod optimized wtdbo)
+SET(EXAMPLES_WTDBOSQLITE3_LIB debug wtdbosqlite3d optimized wtdbosqlite3)
+
 IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   IF(WIN32)
     # preamble to make this a toplevel CMakeLists.txt for Windows, intended
@@ -35,13 +39,23 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
 
     Project(WtExamples)
 
-    SET(EXAMPLES_CONNECTOR
-      debug wthttpd optimized wthttp
-      debug libhpdfd optimized libhpdf
-    )
+    find_package(Boost)
+    find_package(Wt REQUIRED Wt HTTP)
+
+    SET(EXAMPLES_CONNECTOR Wt::HTTP)
+    SET(EXAMPLES_WT_LIB Wt::Wt)
+    SET(EXAMPLES_WTDBO_LIB Wt::Dbo)
+    SET(EXAMPLES_WTDBOSQLITE3_LIB Wt::DboSqlite3)
 
     INCLUDE_DIRECTORIES($(CMAKE_SOURCE_DIR)/../../../include)
     LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/../../../lib)
+
+    IF(${Boost_FOUND})
+      SET(BOOST_FS_LIB ${Boost_FILESYSTEM_LIBRARY})
+      SET(BOOST_WT_FOUND true)
+      INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+      LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+    ENDIF()
 
     # We ship libharu as DLL. Compiling/linking against libharu DLL requires
     # this definition to be set.
@@ -49,9 +63,11 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     # Windows SDK is always multithreaded
     SET(BOOST_WT_MT_FOUND true)
     SET(MULTI_THREADED true)
+    SET(MULTI_THREADED_BUILD true)
+    SET(WT_HAS_WRASTERIMAGE true)
   ENDIF(WIN32)
 ENDIF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
-  
+SET(EXAMPLES_DBO_LIBS ${EXAMPLES_WTDBO_LIB} ${EXAMPLES_WTDBOSQLITE3_LIB}) 
 
 # Normal example CMakeLists.txt starts here
 IF(BOOST_WT_MT_FOUND)
@@ -155,7 +171,6 @@ MACRO(WT_ADD_EXAMPLE name)
 	SET_TARGET_PROPERTIES(${name} PROPERTIES FOLDER "examples")
   ENDIF(MSVC)
   
-  SET(EXAMPLES_WT_LIB debug wtd optimized wt)
   TARGET_LINK_LIBRARIES(${name} ${EXAMPLES_CONNECTOR} ${EXAMPLES_WT_LIB})
 
   IF(INSTALL_EXAMPLES)

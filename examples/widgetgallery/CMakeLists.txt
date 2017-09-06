@@ -1,3 +1,4 @@
+IF(BOOST_WT_FOUND)
 SET(WIDGETGALLERY_SOURCES
   main.C
   # EmwebLoadingIndicator.C
@@ -52,3 +53,6 @@ INCLUDE_DIRECTORIES(
   ../painting
   ../gitmodel
 )
+ELSE(BOOST_WT_FOUND)
+  MESSAGE(STATUS "** Not building widgetgallery example: requires boost headers.")
+ENDIF(BOOST_WT_FOUND)

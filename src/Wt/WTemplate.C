@@ -453,10 +453,13 @@ void WTemplate::updateDom(DomElement& element, bool all)
     for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
 	 ++i) {
       WWidget *w = i->second.get();
-      if (w) {
-        if (w->isRendered() && w->webWidget()->domCanBeSaved()) {
+      if (w && w->isRendered()) {
+        if (w->webWidget()->domCanBeSaved()) {
           previouslyRendered.insert(w);
-        }
+        } else {
+	  wApp->doJavaScript(w->webWidget()->renderRemoveJs(false), false);
+	  w->webWidget()->setRendered(false);
+	}
       }
     }
 
@@ -496,6 +499,7 @@ void WTemplate::updateDom(DomElement& element, bool all)
       for (WidgetMap::const_iterator j = widgets_.begin();
 	   j != widgets_.end(); ++j) {
 	if (j->second.get() == w) {
+	  wApp->doJavaScript(w->webWidget()->renderRemoveJs(false), false);
 	  w->webWidget()->setRendered(false);
 	  break;
 	}

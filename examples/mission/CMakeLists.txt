@@ -9,5 +9,3 @@ WT_ADD_EXAMPLE(impossible.wt impossible.C CountDownWidget.C)
 INCLUDE_DIRECTORIES(
   ${WT_SOURCE_DIR}/src
 )
-
-ADD_DEPENDENCIES(impossible.wt wt ${EXAMPLES_CONNECTOR})
