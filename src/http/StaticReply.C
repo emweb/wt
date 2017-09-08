@@ -23,6 +23,29 @@ namespace Wt {
   LOGGER("wthttp");
 }
 
+namespace {
+
+static bool openStream(std::ifstream &stream, std::string &path, bool acceptGzip) {
+  bool gzipReply = false;
+  if (acceptGzip) {
+    std::string gzipPath = path + ".gz";
+    stream.open(gzipPath.c_str(), std::ios::in | std::ios::binary);
+
+    if (stream) {
+      path = gzipPath;
+      gzipReply = true;
+    } else {
+      stream.clear();
+      stream.open(path.c_str(), std::ios::in | std::ios::binary);
+    }
+  } else {
+    stream.open(path.c_str(), std::ios::in | std::ios::binary);
+  }
+  return gzipReply;
+}
+
+}
+
 namespace http {
 namespace server {
 
@@ -73,19 +96,14 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
   // Do not consider .gz files if we will respond with a range, as we cannot
   // stream partial data from a .gz file
-  if (request_.acceptGzipEncoding() && !hasRange_) {
-    std::string gzipPath = path_ + ".gz";
-    stream_.open(gzipPath.c_str(), std::ios::in | std::ios::binary);
+  bool acceptGzip = request_.acceptGzipEncoding() && !hasRange_;
+  gzipReply = openStream(stream_, path_, acceptGzip);
 
-    if (stream_) {
-      path_ = gzipPath;
-      gzipReply = true;
-    } else {
-      stream_.clear();
-      stream_.open(path_.c_str(), std::ios::in | std::ios::binary);
-    }
-  } else {
-    stream_.open(path_.c_str(), std::ios::in | std::ios::binary);
+  // Try fallback resources folder if not found
+  if (!stream_ && !configuration().resourcesDir().empty() &&
+      boost::starts_with(request_path, "/resources/")) {
+    path_ = configuration().resourcesDir() + request_path.substr(sizeof("/resources") - 1);
+    gzipReply = openStream(stream_, path_, acceptGzip);
   }
 
   if (!stream_) {

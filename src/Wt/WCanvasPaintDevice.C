@@ -136,7 +136,9 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 
   WStringStream tmp;
 
-  tmp << "(function(){";
+  tmp << ";" // Extra ; to make sure that JavaScript interprets the next thing as
+             // a separate statement (for when ; was forgotten in another doJavaScript call)
+         "(function(){";
   tmp << "var pF=function(){";
 
   tmp <<
