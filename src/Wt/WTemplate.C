@@ -457,8 +457,7 @@ void WTemplate::updateDom(DomElement& element, bool all)
         if (w->webWidget()->domCanBeSaved()) {
           previouslyRendered.insert(w);
         } else {
-	  wApp->doJavaScript(w->webWidget()->renderRemoveJs(false), false);
-	  w->webWidget()->setRendered(false);
+	  unrenderWidget(w);
 	}
       }
     }
@@ -499,8 +498,7 @@ void WTemplate::updateDom(DomElement& element, bool all)
       for (WidgetMap::const_iterator j = widgets_.begin();
 	   j != widgets_.end(); ++j) {
 	if (j->second.get() == w) {
-	  wApp->doJavaScript(w->webWidget()->renderRemoveJs(false), false);
-	  w->webWidget()->setRendered(false);
+	  unrenderWidget(w);
 	  break;
 	}
       }
@@ -511,6 +509,17 @@ void WTemplate::updateDom(DomElement& element, bool all)
   }
 
   WInteractWidget::updateDom(element, all);
+}
+
+void WTemplate::unrenderWidget(WWidget *w)
+{
+  std::string removeJs = w->webWidget()->renderRemoveJs(false);
+  if (removeJs[0] == '_')
+    wApp->doJavaScript(WT_CLASS ".remove('" + removeJs.substr(1) +"');",
+		       false);
+  else
+    wApp->doJavaScript(removeJs);
+  w->webWidget()->setRendered(false);
 }
 
 std::string WTemplate::encode(const std::string& text) const

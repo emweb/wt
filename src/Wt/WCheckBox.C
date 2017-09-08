@@ -102,9 +102,9 @@ void WCheckBox::updateNextState() {
   }
 
   if (partialStateSelectable_)
-    doJavaScript(this->jsRef() + ".nextState='"+nextState+"'");
+    doJavaScript(this->jsRef() + ".nextState='"+nextState+"';");
   else 
-    doJavaScript(this->jsRef() + ".nextState=null");
+    doJavaScript(this->jsRef() + ".nextState=null;");
 }
 
 void WCheckBox::setCheckState(CheckState state)
