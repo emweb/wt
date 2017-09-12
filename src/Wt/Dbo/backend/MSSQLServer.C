@@ -180,10 +180,10 @@ public:
     if (sql.empty()) {
       // Empty query, should be an error, but we'll leave the reporting
       // of that error to ODBC
-      SQLWCHAR *wstr = L"";
+      SQLWCHAR wstr[] = L"";
       rc = SQLPrepareW(stmt_, wstr, 0);
     } else {
-      int wstrlen = MultiByteToWideChar(CP_UTF8, 0, &sql[0], sql.size(), NULL, NULL);
+      int wstrlen = MultiByteToWideChar(CP_UTF8, 0, &sql[0], sql.size(), NULL, 0);
       assert(wstrlen != 0);
       SQLWCHAR *wstr = new SQLWCHAR[wstrlen + 1];
       wstrlen = MultiByteToWideChar(CP_UTF8, 0, &sql[0], sql.size(), wstr, wstrlen);
@@ -452,7 +452,7 @@ public:
       // ts.fraction is nanoseconds
       int64_t ticksPerSec =
         boost::posix_time::ptime::time_duration_type::ticks_per_second();
-      ts.fraction = tim.fractional_seconds() * (1000000000 / ticksPerSec);
+      ts.fraction = static_cast<SQLUINTEGER>(tim.fractional_seconds() * (1000000000 / ticksPerSec));
       ts.fraction = (ts.fraction / 100) * 100; // Round to 100ns, 7 digit limit of SQL Server
       if (v.type != SQL_C_TYPE_TIMESTAMP) {
         v.type = SQL_C_TYPE_TIMESTAMP;
@@ -477,39 +477,8 @@ public:
     int column,
     const boost::posix_time::time_duration &value)
   {
-    checkColumnIndex(column);
-    Value &v = paramValues_[column];
-    if (v.type != SQL_C_TIMESTAMP)
-      v.clear();
-    v.lengthOrInd = 0;
-    SQL_TIMESTAMP_STRUCT &ts = v.v.timestamp;
-    ts.year = 1;
-    ts.month = 1;
-    ts.day = 1;
-    ts.hour = value.hours();
-    ts.minute = value.minutes();
-    ts.second = value.seconds();
-    int64_t ticksPerSec =
-      boost::posix_time::ptime::time_duration_type::ticks_per_second();
-    // ts.fraction is nanoseconds
-    ts.fraction = value.fractional_seconds() * (1000000000 / ticksPerSec);
-    ts.fraction = (ts.fraction / 100) * 100; // Round to 100ns, 7 digit limit of SQL Server
-    if (v.type != SQL_C_TYPE_TIMESTAMP) {
-      v.type = SQL_C_TYPE_TIMESTAMP;
-      SQLRETURN rc = SQLBindParameter(
-        /*StatementHandle: */stmt_,
-        /*ParameterNumber: */column + 1,
-        /*InputOutputType: */SQL_PARAM_INPUT,
-        /*ValueType: */SQL_C_TYPE_TIMESTAMP,
-        /*ParameterType: */SQL_TYPE_TIMESTAMP,
-        /*ColumnSize: */0,
-        /*DecimalDigits: */7, // SQL server limit: max 7 decimal digits
-        /*ParameterValuePtr: */&ts,
-        /*BufferLength: */0,
-        /*StrLen_or_IndPtr: */&v.lengthOrInd
-      );
-      handleErr(SQL_HANDLE_STMT, stmt_, rc);
-    }
+    long long msec = value.total_milliseconds();
+    bind(column, msec);
   }
 
   virtual void bind(
@@ -744,20 +713,15 @@ public:
     int column,
     boost::posix_time::time_duration *value)
   {
-    SQL_TIMESTAMP_STRUCT ts;
-    bool result = getRes<SQL_C_TYPE_TIMESTAMP>(column, &ts);
-    if (!result)
-      return false; // NULL
-    const int64_t ticksPerSec =
-      boost::posix_time::ptime::time_duration_type::ticks_per_second();
-    const int64_t fraction = ts.fraction / (1000000000LL / ticksPerSec);
-    *value =
-      boost::posix_time::time_duration(
-        ts.hour,
-        ts.minute,
-        ts.second,
-        fraction
-      );
+    long long msec;
+    bool res = getResult(column, &msec);
+    if (!res)
+      return res;
+    boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
+      boost::posix_time::time_duration::ticks_per_second() / 1000;
+
+    *value = boost::posix_time::time_duration(0, 0, 0,
+      msec * ticks_per_msec);
     return true;
   }
 
@@ -985,7 +949,8 @@ void MSSQLServer::executeSql(const std::string &sql)
   }
 #ifdef WT_WIN32
   if (sql.empty()) {
-    rc = SQLExecDirectW(impl_->stmt, L"", 0);
+    SQLWCHAR wstr[] = L"";
+    rc = SQLExecDirectW(impl_->stmt, wstr, 0);
   } else {
     int wstrlen = MultiByteToWideChar(CP_UTF8, 0, &sql[0], sql.size(), 0, 0);
     assert(wstrlen != 0);
@@ -1073,7 +1038,7 @@ const char *MSSQLServer::dateTimeType(SqlDateTimeType type) const
   if (type == SqlDate)
     return "date";
   if (type == SqlTime)
-    return "time";
+    return "bigint"; // SQL Server has no proper duration type, so store duration as number of milliseconds
   if (type == SqlDateTime)
     return "datetime2";
   return "";

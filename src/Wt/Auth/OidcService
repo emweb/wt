@@ -130,7 +130,7 @@ public:
 
   /*! \brief Returns the desired width for the popup window.
    *
-   * Defaults to 550 pixels.
+   * Defaults to 670 pixels.
    *
    * \sa setPopupWidth()
    */

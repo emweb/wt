@@ -3702,7 +3702,7 @@ function ImagePreloader(uris, callback) {
   this.images = [];
 
   if (uris.length == 0)
-    callback(this.images);
+    this.callback(this.images);
   else
     for (var i = 0; i < uris.length; i++)
       this.preload(uris[i]);

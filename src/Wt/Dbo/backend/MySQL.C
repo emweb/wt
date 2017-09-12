@@ -5,6 +5,13 @@
  *
  * Contributed by: Paul Harrison
  */
+#include "Wt/WConfig.h"
+
+#ifdef WT_WIN32
+ // WinSock2.h warns that it should be included before windows.h
+#include <WinSock2.h>
+#endif // WT_WIN32
+
 #include "Wt/Dbo/backend/MySQL"
 #include "Wt/Dbo/Exception"
 
@@ -17,7 +24,6 @@
 
 #ifdef WT_WIN32
 #define snprintf _snprintf
-#include <winsock2.h>
 #endif
 #include <mysql.h>
 #include <errmsg.h>
@@ -294,15 +300,17 @@ class MySQLStatement : public SqlStatement
       //mapping to a datetime
       in_pars_[column].buffer_type = MYSQL_TYPE_TIME;//MYSQL_TYPE_DATETIME;
 
+      boost::posix_time::time_duration absValue = value.is_negative() ? -value : value;
+
       ts->year = 0;
       ts->month = 0;
       ts->day = 0;
-      ts->neg = 0;
-      ts->hour = value.hours();
-      ts->minute = value.minutes();
-      ts->second = value.seconds();
+      ts->neg = value.is_negative();
+      ts->hour = absValue.hours();
+      ts->minute = absValue.minutes();
+      ts->second = absValue.seconds();
       if(conn_.getFractionalSecondsPart() > 0)
-        ts->second_part = (unsigned long)value.fractional_seconds();
+        ts->second_part = (unsigned long)absValue.fractional_seconds();
       else
         ts->second_part = 0;
       freeColumn(column);
@@ -706,8 +714,9 @@ class MySQLStatement : public SqlStatement
          return false;
 
        MYSQL_TIME* ts = static_cast<MYSQL_TIME*>(out_pars_[column].buffer);
-       *value = boost::posix_time::time_duration(
+       boost::posix_time::time_duration duration(
              ts->hour, ts->minute, ts->second, ts->second_part);
+       *value = ts->neg ? -duration : duration;
 
        DEBUG(std::cerr << this
              << " result time " << column << " " << *value << std::endl);
@@ -969,7 +978,7 @@ void MySQL::init()
 {
   executeSql("SET sql_mode='ANSI_QUOTES,REAL_AS_FLOAT'");
   executeSql("SET default_storage_engine=INNODB;");
-  executeSql("SET NAMES 'utf8';");
+  executeSql("SET NAMES 'utf8mb4';");
 }
 
 void MySQL::checkConnection()

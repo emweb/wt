@@ -136,7 +136,9 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 
   WStringStream tmp;
 
-  tmp << "(function(){";
+  tmp << ";" // Extra ; to make sure that JavaScript interprets the next thing as
+             // a separate statement (for when ; was forgotten in another doJavaScript call)
+         "(function(){";
   tmp << "var pF=function(){";
 
   tmp <<
@@ -166,7 +168,7 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
   tmp << "};";
 
   if (paintUpdate_)
-    tmp << paintedWidgetJsRef << ".repaint=function(){}";
+    tmp << paintedWidgetJsRef << ".repaint=function(){};";
   else {
     tmp << paintedWidgetJsRef << ".repaint=pF;";
     tmp << "pF=function(){"
@@ -178,7 +180,7 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
   if (!paintUpdate_)
     tmp << "o.cancelPreloaders();";
   tmp << "if(" << canvasVar << ".getContext){";
-  tmp << "o.imagePreloaders.push(new ";
+  tmp << "var l=new ";
   tmp << wApp->javaScriptClass() << "._p_.ImagePreloader([";
 
   for (unsigned i = 0; i < images_.size(); ++i) {
@@ -196,13 +198,15 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
              "pF();"
              "o.imagePreloaders.shift();"
            "}else{"
-             "o.handlePreloaders();"
              "while(o.imagePreloaders.length>0&&"
                    "o.imagePreloaders[0].done){"
                "o.imagePreloaders[0].callback(o.imagePreloaders[0].images);"
              "}"
            "}"
-         "}));}"
+         "});"
+	 "if(!l.done)"
+	   "o.imagePreloaders.push(l);"
+       "}"
        "})();";
 
   text->callJavaScript(tmp.str());

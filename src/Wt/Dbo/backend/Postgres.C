@@ -5,6 +5,13 @@
  *
  * Contributed by: Hilary Cheng
  */
+#include "Wt/WConfig.h"
+
+#ifdef WT_WIN32
+// WinSock2.h warns that it should be included before windows.h
+#include <WinSock2.h>
+#endif // WT_WIN32
+
 #include "Wt/Dbo/backend/Postgres"
 #include "Wt/Dbo/Exception"
 
@@ -21,8 +28,6 @@
 #ifdef WT_WIN32
 #define snprintf _snprintf
 #define strcasecmp _stricmp
-
-#include <WinSock2.h>
 #else // WT_WIN32
 #include <sys/select.h>
 #endif // WT_WIN32

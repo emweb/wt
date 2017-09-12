@@ -100,6 +100,14 @@ void Configuration::createOptions(po::options_description& options,
      "are within a deployment path), after a ';' \n\n"
      "e.g. --docroot=\".;/favicon.ico,/resources,/style\"\n")
 
+    ("resources-dir",
+     po::value<std::string>(&resourcesDir_)->default_value(resourcesDir_),
+     "path to the Wt resources folder. By default, Wt will look for its resources "
+     "in the resources subfolder of the docroot (see --docroot). If a file is not found "
+     "in that resources folder, this folder will be checked instead as a fallback. "
+     "If this option is omitted, then Wt will not use a fallback resources folder."
+     )
+
     ("approot",
      po::value<std::string>(&appRoot_)->default_value(appRoot_),
      "application root for private support files; if unspecified, the value "

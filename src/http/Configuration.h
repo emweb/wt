@@ -44,6 +44,7 @@ public:
 
   int threads() const { return threads_; }
   const std::string& docRoot() const { return docRoot_; }
+  const std::string& resourcesDir() const { return resourcesDir_; }
   const std::string& appRoot() const { return appRoot_; }
   bool defaultStatic() const { return defaultStatic_; }
   const std::vector<std::string>& staticPaths() const
@@ -97,7 +98,7 @@ private:
   bool silent_;
 
   int threads_;
-  std::string docRoot_, appRoot_;
+  std::string docRoot_, appRoot_, resourcesDir_;
   bool defaultStatic_;
   std::vector<std::string> staticPaths_;
   std::string errRoot_;

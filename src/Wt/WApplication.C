@@ -443,11 +443,17 @@ std::string WApplication::relativeResourcesUrl()
   const Configuration& conf = app->environment().server()->configuration(); 
   const std::string* path = conf.property(WApplication::RESOURCES_URL);
 
-  if (app->environment().server()->servletMajorVersion() < 3) {
-      /*
-       * Arghll... we should in fact know when we need the absolute URL: only
-       * when we are having a request.pathInfo().
-       */
+  int version;
+  try {
+    version = app->environment().server()->servletMajorVersion();
+  } catch (std::exception& e) {
+    return "";
+  }
+  if (version < 3) {
+    /*
+     * Arghll... we should in fact know when we need the absolute URL: only
+     * when we are having a request.pathInfo().
+     */
     if (path == "/wt-resources/") {
       std::string result = app->environment().deploymentPath();
       if (!result.empty() && result[result.length() - 1] == '/')
