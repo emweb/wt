@@ -14,6 +14,13 @@
 #include "Wt/WTransform"
 #include "Wt/Http/Response"
 
+// graphicsmagick headers seem to include windows.h, which is bad
+#ifdef WT_WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#endif
+
 #include "Wt/FontSupport.h"
 #include "WebUtils.h"
 #include "UriUtils.h"
