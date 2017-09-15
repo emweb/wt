@@ -300,6 +300,10 @@ WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index)
       renderFlags |= RenderSelected;
   }
 
+  if (editOptions() & AlwaysShowEditors) {
+    edit(index);
+  }
+
   if (isEditing(index)) {
     renderFlags |= RenderEditing;
     if (hasEditFocus(index))
