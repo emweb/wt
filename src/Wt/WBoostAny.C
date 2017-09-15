@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "Wt/WConfig.h"
 #ifdef WT_THREADED
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #endif // WT_THREADED

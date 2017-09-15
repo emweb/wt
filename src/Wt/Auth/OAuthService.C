@@ -32,6 +32,7 @@
 #include "WebRequest.h"
 
 #ifdef WT_THREADED
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 #endif // WT_THREADED
 

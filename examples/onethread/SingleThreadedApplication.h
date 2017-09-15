@@ -8,6 +8,7 @@
 #define SINGLE_THREADED_APPLICATION_H_
 
 #include <Wt/WApplication>
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 

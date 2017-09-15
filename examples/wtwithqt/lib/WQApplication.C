@@ -23,6 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 #include <iostream>
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread/condition.hpp>
 
 #include "WQApplication"

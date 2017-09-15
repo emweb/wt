@@ -7,6 +7,7 @@
 
 #ifdef WT_THREADED
 
+#include "Wt/boost-xtime.hpp"
 #include <boost/test/unit_test.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>

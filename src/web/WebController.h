@@ -19,6 +19,7 @@
 #include "SocketNotifier.h"
 
 #if defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 #endif
 

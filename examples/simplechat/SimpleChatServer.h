@@ -18,6 +18,7 @@ namespace Wt {
 
 #include <set>
 #include <map>
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 
 /**

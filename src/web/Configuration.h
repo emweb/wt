@@ -17,6 +17,7 @@
 #endif
 
 #ifdef WT_CONF_LOCK
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 #endif // WT_CONF_LOCK
 

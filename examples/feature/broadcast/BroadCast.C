@@ -8,6 +8,7 @@
 #include <Wt/WMessageBox>
 #include <Wt/WServer>
 
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 
 /*

@@ -27,6 +27,7 @@
 #define WQAPPLICATION_H_
 
 #include <Wt/WApplication>
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 
 /*! \file WQApplication */

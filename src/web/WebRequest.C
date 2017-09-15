@@ -15,6 +15,7 @@
 
 #include <boost/version.hpp>
 
+#include "Wt/boost-xtime.hpp"
 #if BOOST_VERSION < 103600
 #include <boost/spirit.hpp>
 #else
