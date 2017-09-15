@@ -785,7 +785,7 @@ private:
   static std::size_t parseArgs(const std::string& text,
 			       std::size_t pos,
 			       std::vector<WString>& result);
-  void unrenderWidget(WWidget *w);
+  void unrenderWidget(WWidget *w, DomElement &el);
 
   EscapeOStream* plainTextNewLineEscStream_;
 };
