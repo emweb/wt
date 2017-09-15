@@ -29,7 +29,7 @@
             <!-- Every session runs within a dedicated process.
 
 	       This mode guarantees kernel-level session privacy, but as every
-	       session requires a seperate process, it is also an easy target
+	       session requires a separate process, it is also an easy target
 	       for DoS attacks if not shielded by access control.
 
 	       Note: currently only supported by the wtfcgi and wthttp
@@ -61,7 +61,7 @@
 	       session will kill all of the sessions in the same process. You
 	       should debug extensively using valgrind. Also, it is your
 	       responsibility to keep session state not interfering and
-	       seperated.
+	       separated.
 
 	       On the other hand, sessions are inexpensive, and this mode
 	       suffers far less from DoS attacks than dedicated-process mode.

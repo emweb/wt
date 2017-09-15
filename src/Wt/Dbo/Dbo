@@ -11,7 +11,7 @@
 #if defined(__GNUC__) || defined(__clang__)
 #warning "The use of header files without .h is deprecated since Wt 4.0.0, please use Dbo.h instead"
 #elif defined(_MSC_VER)
-#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use Dbo.h instead"
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use Dbo.h instead")
 #endif
 #endif // defined(WT_WARN_HEADER_MISSING_H)
 #include "Dbo.h"

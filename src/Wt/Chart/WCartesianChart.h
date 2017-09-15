@@ -44,7 +44,7 @@ public:
    *
    * Because of a 'break' specified in an axis, axes may be divided in
    * one or two segments (in fact only the API limits this now to
-   * two). The iterator will iterate all segments seperately, but each time
+   * two). The iterator will iterate all segments separately, but each time
    * with a different clipping region specified in the painter, corresponding
    * to that segment.
    *

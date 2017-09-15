@@ -47,7 +47,7 @@ W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption)
  *
  * The pie chart may be customized visually by enabling a 3D effect
  * (setPerspectiveEnabled()), or by specifying the angle of the first
- * segment. One or more segments may be exploded, which seperates the
+ * segment. One or more segments may be exploded, which separates the
  * segment from the rest of the pie chart, using setExplode().
  *
  * The segments may be labeled in various ways using

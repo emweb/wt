@@ -5,23 +5,26 @@
 #include <vector>
 #include <algorithm>
 
-#include <Wt/WServer>
-#include <Wt/WResource>
-#include <Wt/Http/Request>
-#include <Wt/Http/Response>
-#include <Wt/WTemplate>
-#include <Wt/Utils>
+#include <Wt/WServer.h>
+#include <Wt/WResource.h>
+#include <Wt/Http/Request.h>
+#include <Wt/Http/Response.h>
+#include <Wt/WTemplate.h>
+#include <Wt/Utils.h>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/Json>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/Json.h>
 #ifndef BENCHMARK_USE_POSTGRES
-#include <Wt/Dbo/backend/MySQL>
+#include <Wt/Dbo/backend/MySQL.h>
 #else
-#include <Wt/Dbo/backend/Postgres>
+#include <Wt/Dbo/backend/Postgres.h>
 #endif
 
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/taus88.hpp>
+#include <random>
+
+#ifndef WT_WIN32
+extern char **environ;
+#endif // WT_WIN32
 
 class MyMessage {
 public:
@@ -115,8 +118,8 @@ struct DbStruct {
   MyConnection *connection;
   Wt::Dbo::Session session;
 
-  boost::taus88 rng;
-  boost::random::uniform_int_distribution<int> distribution;
+  std::default_random_engine rng;
+  std::uniform_int_distribution<int> distribution;
 
   DbStruct()
     : connection(0),

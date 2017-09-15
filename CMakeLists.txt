@@ -392,8 +392,7 @@ IF(NOT BOOST_WT_FOUND)
       "are not defined). When set to true, method 2 is used.\n"
       "Note 2: the code to discover boost is located in cmake/WtFindBoost.txt\n"
       "Note 3: on windows, set BOOST_PREFIX to the full path, eg "
-      "c:/Program Files/boost/boost_1_38\n\n"
-      "Wt requires the following C++ boost libraries: program_options and random")
+      "c:/Program Files/boost/boost_1_65_1")
   MESSAGE(FATAL_ERROR ${ERR})
 ENDIF(NOT BOOST_WT_FOUND)
 

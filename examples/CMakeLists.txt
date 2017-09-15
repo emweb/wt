@@ -42,6 +42,18 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     find_package(Boost)
     find_package(Wt REQUIRED Wt HTTP)
 
+    set_target_properties(Wt::Wt PROPERTIES
+      MAP_IMPORTED_CONFIG_RELEASE MinSizeRel
+      MAP_IMPORTED_CONFIG_RELWITHDEBINFO MinSizeRel
+    )
+    set_target_properties(Wt::HTTP PROPERTIES
+      MAP_IMPORTED_CONFIG_RELEASE MinSizeRel
+      MAP_IMPORTED_CONFIG_RELWITHDEBINFO MinSizeRel
+    )
+
+    SET(HAVE_HARU true)
+    SET(HARU_LIB optimized libhpdf debug libhpdfd)
+
     SET(EXAMPLES_CONNECTOR Wt::HTTP)
     SET(EXAMPLES_WT_LIB Wt::Wt)
     SET(EXAMPLES_WTDBO_LIB Wt::Dbo)

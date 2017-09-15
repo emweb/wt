@@ -213,7 +213,7 @@ public:
   /*! \brief Sets whether this axis is visible.
    *
    * Changes whether the axis is displayed, including ticks and
-   * labels. The rendering of the grid lines is controlled seperately
+   * labels. The rendering of the grid lines is controlled separately
    * by setGridLinesEnabled().
    *
    * The default value is true for the X axis and first Y axis, but false

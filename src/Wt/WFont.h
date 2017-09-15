@@ -103,7 +103,7 @@ public:
   /*! \brief Sets the font family.
    *
    * The font family is specified using a generic family name,
-   * in addition to a comma-seperated list of specific font choices.
+   * in addition to a comma-separated list of specific font choices.
    *
    * The first specific font that can be matched will be used, otherwise
    * a generic font will be used.

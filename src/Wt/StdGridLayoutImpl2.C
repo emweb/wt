@@ -51,7 +51,7 @@ StdGridLayoutImpl2::StdGridLayoutImpl2(WLayout *layout, Impl::Grid& grid)
 	              "var f=function(){"
 		        + app->javaScriptClass() + ".layouts2.scheduleAdjust();"
 		      "};"
-	              "if($().jquery.startsWith('1.'))"
+	              "if($().jquery.indexOf('1.') === 0)"
 		        "$(window).load(f);"
 		      "else "
 		        "$(window).on('load',f);"
