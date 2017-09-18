@@ -573,8 +573,8 @@ void WClientGLWidget::bufferSubDatafv(WGLWidget::GLenum target, unsigned offset,
     std::unique_ptr<WMemoryResource> res
       (new WMemoryResource("application/octet"));
     res->setData(Utils::toCharPointer(buffer), buffer.size()*sizeof(float));
-    binaryResources_.push_back(std::move(res));
     preloadArrayBuffers_.push_back(PreloadArrayBuffer(currentlyBoundBuffer_.jsRef(), res->url()));
+    binaryResources_.push_back(std::move(res));
 
     js_ << "ctx.bufferSubData(" << toString(target) << ",";
     js_ << offset << ",";

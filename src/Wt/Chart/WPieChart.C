@@ -148,8 +148,7 @@ WPieChart::createLegendItemWidget(int index, WFlags<LabelOption> options)
   std::unique_ptr<WContainerWidget> legendItem(new WContainerWidget());
   legendItem->setPadding(4);
   
-  std::unique_ptr<WText> colorText(new WText());
-  legendItem->addWidget(std::move(colorText));
+  auto colorText = legendItem->addWidget(std::unique_ptr<WText>());
   colorText->setPadding(10, Side::Left | Side::Right);
   colorText->decorationStyle().setBackgroundColor(brush(index).color());
 
