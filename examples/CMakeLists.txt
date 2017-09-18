@@ -27,9 +27,9 @@
 #   debug libhpdfd optimized libhpdf # only required for if you write pdfs
 # )
 
-SET(EXAMPLES_WT_LIB debug wtd optimized wt)
-SET(EXAMPLES_WTDBO_LIB debug wtdbod optimized wtdbo)
-SET(EXAMPLES_WTDBOSQLITE3_LIB debug wtdbosqlite3d optimized wtdbosqlite3)
+SET(EXAMPLES_WT_LIB wt)
+SET(EXAMPLES_WTDBO_LIB wtdbo)
+SET(EXAMPLES_WTDBOSQLITE3_LIB wtdbosqlite3)
 
 IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   IF(WIN32)
