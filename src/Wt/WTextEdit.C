@@ -4,12 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WTextEdit"
-#include "Wt/WBoostAny"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WTextEdit.h"
+#include "Wt/WAny.h"
 
 #include "DomElement.h"
+#include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WTextEdit.min.js"
@@ -17,19 +18,18 @@
 
 namespace Wt {
 
-typedef std::map<std::string, boost::any> SettingsMapType;
+typedef std::map<std::string, cpp17::any> SettingsMapType;
 
-WTextEdit::WTextEdit(WContainerWidget *parent)
-  : WTextArea(parent),
-    onChange_(this, "change"),
+WTextEdit::WTextEdit()
+  : onChange_(this, "change"),
     onRender_(this, "render"),
     contentChanged_(false)
 {
   init();
 }
 
-WTextEdit::WTextEdit(const WT_USTRING& text, WContainerWidget *parent)
-  : WTextArea(text, parent),
+WTextEdit::WTextEdit(const WT_USTRING& text)
+  : WTextArea(text),
     onChange_(this, "change"),
     onRender_(this, "render"),
     contentChanged_(false)
@@ -55,7 +55,8 @@ void WTextEdit::init()
      "function(e, w, h) { var obj = $('#" + id() + "').data('obj'); "
      "obj.wtResize(e, w, h); };");
 
-  std::string direction = app->layoutDirection() == LeftToRight ? "ltr" : "rtl";
+  std::string direction 
+    = app->layoutDirection() == LayoutDirection::LeftToRight ? "ltr" : "rtl";
   setConfigurationSetting("directionality", direction);
 
   std::string toolbar;
@@ -88,10 +89,7 @@ void WTextEdit::init()
 }
 
 WTextEdit::~WTextEdit()
-{
-  // to have virtual renderRemoveJs():
-  setParentWidget(0);
-}
+{ }
 
 void WTextEdit::propagateOnChange()
 {
@@ -126,8 +124,7 @@ void WTextEdit::setToolBar(int i, const std::string& config)
   else
     setting = "toolbar";
 
-  setConfigurationSetting
-    (setting + boost::lexical_cast<std::string>(i + 1), config);
+  setConfigurationSetting(setting + std::to_string(i + 1), config);
 }
 
 const std::string WTextEdit::toolBar(int i) const
@@ -138,8 +135,8 @@ const std::string WTextEdit::toolBar(int i) const
   else
     setting = "toolbar";
 
-  return asString(configurationSetting
-		  (setting + boost::lexical_cast<std::string>(i + 1))).toUTF8();
+  return
+    asString(configurationSetting(setting + std::to_string(i + 1))).toUTF8();
 }
 
 std::string WTextEdit::renderRemoveJs(bool recursive)
@@ -157,7 +154,7 @@ int WTextEdit::getTinyMCEVersion()
 {
   std::string version = "3";
   WApplication::readConfigurationProperty("tinyMCEVersion", version);
-  return boost::lexical_cast<int>(version);
+  return Utils::stoi(version);
 }
 
 void WTextEdit::initTinyMCE()
@@ -212,7 +209,7 @@ void WTextEdit::setReadOnly(bool readOnly)
   if (readOnly)
     setConfigurationSetting("readonly", std::string("1"));
   else
-    setConfigurationSetting("readonly", boost::any());
+    setConfigurationSetting("readonly", cpp17::any());
 }
 
 void WTextEdit::propagateSetEnabled(bool enabled)
@@ -255,11 +252,11 @@ void WTextEdit::updateDom(DomElement& element, bool all)
 {
   WTextArea::updateDom(element, all);
 
-  if (element.type() == DomElement_TEXTAREA)
-    element.removeProperty(PropertyStyleDisplay);
+  if (element.type() == DomElementType::TEXTAREA)
+    element.removeProperty(Property::StyleDisplay);
 
   // we are creating the actual element
-  if (all && element.type() == DomElement_TEXTAREA) {
+  if (all && element.type() == DomElementType::TEXTAREA) {
     std::stringstream config;
     config << "{";
 
@@ -276,7 +273,7 @@ void WTextEdit::updateDom(DomElement& element, bool all)
       first = false;
 
       config << it->first << ": "
-	     << Impl::asJSLiteral(it->second, XHTMLUnsafeText);
+	     << Impl::asJSLiteral(it->second, TextFormat::UnsafeXHTML);
     }
 
     if (!first)
@@ -288,7 +285,7 @@ void WTextEdit::updateDom(DomElement& element, bool all)
       ",init_instance_callback: obj.init"
       "}";
 
-    DomElement dummy(DomElement::ModeUpdate, DomElement_TABLE);
+    DomElement dummy(DomElement::Mode::Update, DomElementType::TABLE);
     updateDom(dummy, true);
 
     element.callJavaScript("(function() { "
@@ -331,7 +328,7 @@ void WTextEdit::getDomChanges(std::vector<DomElement *>& result,
    * makes it work on all version
    */
   DomElement *e = DomElement::getForUpdate(formName()/* + "_tbl" */ ,
-					   DomElement_TABLE);
+					   DomElementType::TABLE);
   updateDom(*e, false);
 
   WTextArea::getDomChanges(result, app);
@@ -355,7 +352,7 @@ int WTextEdit::boxBorder(Orientation orientation) const
 }
 
 void WTextEdit::setConfigurationSetting(const std::string& name, 
-					const boost::any& value)
+					const cpp17::any& value)
 {
   if (!value.empty())
     configurationSettings_[name] = value;
@@ -363,14 +360,14 @@ void WTextEdit::setConfigurationSetting(const std::string& name,
     configurationSettings_.erase(name);
 }
 
-boost::any WTextEdit::configurationSetting(const std::string& name) const
+cpp17::any WTextEdit::configurationSetting(const std::string& name) const
 {
   SettingsMapType::const_iterator it = configurationSettings_.find(name);
 
   if (it != configurationSettings_.end())
     return it->second;
   else
-    return boost::any();
+    return cpp17::any();
 }
 
 }

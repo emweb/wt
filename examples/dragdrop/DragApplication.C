@@ -1,20 +1,21 @@
-#include <Wt/WApplication>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
 
 #include "DragExample.h"
 
 using namespace Wt;
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new WApplication(env);
+  std::unique_ptr<WApplication> app
+      = cpp14::make_unique<WApplication>(env);
   app->setTitle("Drag & drop");
 
   app->root()->setStyleClass("root");
 
-  new WText("<h1>Wt Drag &amp; drop example.</h1>", app->root());
+  app->root()->addWidget(cpp14::make_unique<WText>("<h1>Wt Drag &amp; drop example.</h1>"));
 
-  new DragExample(app->root());
+  app->root()->addWidget(cpp14::make_unique<DragExample>());
 
   app->useStyleSheet("dragdrop.css");
 

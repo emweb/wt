@@ -7,7 +7,7 @@
 #ifndef CODER_WIDGET_H_
 #define CODER_WIDGET_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 #include "CodeSession.h"
 
@@ -20,7 +20,7 @@ public:
   virtual ~CoderWidget();
 
 private:
-  CodeSession *session_;
+  std::shared_ptr<CodeSession> session_;
 
   Wt::WContainerWidget *buffers_;
   Wt::WText *observerCount_;

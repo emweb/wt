@@ -1,1 +1,1 @@
-INSTALL_FILES(/include/Wt/Auth/Dbo "^[^.]+[^hC~]$")
+INSTALL_FILES(/include/Wt/Auth/Dbo "^[^.]+([.][^C~])?$")

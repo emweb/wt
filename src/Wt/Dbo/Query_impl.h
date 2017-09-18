@@ -7,12 +7,12 @@
 #ifndef WT_DBO_QUERY_IMPL_H_
 #define WT_DBO_QUERY_IMPL_H_
 
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
-#include <Wt/Dbo/Exception>
-#include <Wt/Dbo/Field>
-#include <Wt/Dbo/SqlStatement>
-#include <Wt/Dbo/DbAction>
+#include <Wt/Dbo/Exception.h>
+#include <Wt/Dbo/Field.h>
+#include <Wt/Dbo/SqlStatement.h>
+#include <Wt/Dbo/DbAction.h>
 
 #include <Wt/Dbo/Field_impl.h>
 
@@ -57,7 +57,7 @@ parseSql(const std::string& sql, SelectFieldLists& fieldLists);
 
 template <class Result>
 QueryBase<Result>::QueryBase()
-  : session_(0)
+  : session_(nullptr)
 { }
 
 template <class Result>
@@ -199,15 +199,15 @@ Result QueryBase<Result>::singleResult(const collection<Result>& results) const
 
 template <class Result>
 Query<Result, DirectBinding>::Query()
-  : statement_(0),
-    countStatement_(0)
+  : statement_(nullptr),
+    countStatement_(nullptr)
 { }
 
 template <class Result>
 Query<Result, DirectBinding>::Query(Session& session, const std::string& sql)
   : Impl::QueryBase<Result>(session, sql),
-    statement_(0),
-    countStatement_(0)
+    statement_(nullptr),
+    countStatement_(nullptr)
 {
   prepareStatements();
 }
@@ -216,8 +216,8 @@ template <class Result>
 Query<Result, DirectBinding>::Query(Session& session, const std::string& table,
 				    const std::string& where)
   : Impl::QueryBase<Result>(session, table, where),
-    statement_(0),
-    countStatement_(0)
+    statement_(nullptr),
+    countStatement_(nullptr)
 {
   prepareStatements();
 }
@@ -269,7 +269,7 @@ collection<Result> Query<Result, DirectBinding>::resultList() const
 			   "may be called only once");
 
   SqlStatement *s = this->statement_, *cs = this->countStatement_;
-  this->statement_ = this->countStatement_ = 0;
+  this->statement_ = this->countStatement_ = nullptr;
 
   return collection<Result>(this->session_, s, cs);
 }
@@ -294,8 +294,9 @@ void Query<Result, DirectBinding>::prepareStatements() const
 
   this->session_->flush();
 
-  boost::tie(this->statement_, this->countStatement_) = this->statements(
-      std::string(), std::string(), std::string(), std::string(), -1, -1);
+  std::tie(this->statement_, this->countStatement_) 
+    = this->statements(std::string(), std::string(), std::string(),
+		       std::string(), -1, -1);
 
   column_ = 0;
 }
@@ -469,7 +470,7 @@ collection<Result> Query<Result, DynamicBinding>::resultList() const
 
   SqlStatement *statement, *countStatement;
 
-  boost::tie(statement, countStatement)
+  std::tie(statement, countStatement)
     = this->statements(where_, groupBy_, having_, orderBy_, limit_, offset_);
 
   bindParameters(statement);
@@ -500,7 +501,7 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
     parameters_[i]->bind(binder);
 
   switch (this->session_->limitQueryMethod_) {
-  case Limit:
+  case LimitQuery::Limit:
     if (limit_ != -1) {
       int v = limit_;
       field(binder, v, "limit");
@@ -513,7 +514,7 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
 
     break;
 
-  case RowsFromTo:
+  case LimitQuery::RowsFromTo:
     if (limit_ != -1 || offset_ != -1) {
       int from = offset_ == -1 ? 1 : offset_ + 1;
       field(binder, from, "from");
@@ -524,7 +525,7 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
 
     break;
 
-  case Rownum:
+  case LimitQuery::Rownum:
     if (limit_ != -1){
       int v = limit_;
       field(binder, v, "rownum");
@@ -537,7 +538,7 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
 
     break;
 
-  case OffsetFetch:
+  case LimitQuery::OffsetFetch:
     if (offset_ != -1) {
       int v = offset_;
       field(binder, v, "offset");
@@ -550,7 +551,7 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
 
     break;
 
-  case NotSupported:
+  case LimitQuery::NotSupported:
     break;
   }
 }

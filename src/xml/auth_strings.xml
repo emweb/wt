@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<messages xmlns:if="Wt.WTemplate.conditions">
+<messages xmlns:if="Wt.WTemplate.conditions"
+	  nplurals="2"
+	  plural="n == 1 ? 0 : 1">
 
   <!-- BaseAuth, PasswordAuth and OAuth models -->
 
@@ -74,10 +76,12 @@
   <message id="Wt.Auth.password-info">Enter your password</message>
   <message id="Wt.Auth.remember-me">Remember me</message>
   <message id="Wt.Auth.remember-me-info.days">
-    Keeps login for {1} days
+    <plural case="0">Keeps login for one day</plural>
+    <plural case="1">Keeps login for {1} days</plural>
   </message>
   <message id="Wt.Auth.remember-me-info.weeks">
-    Keeps login for {1} weeks
+    <plural case="0">Keeps login for one week</plural>
+    <plural case="1">Keeps login for {1} weeks</plural>
   </message>
   <message id="Wt.Auth.lost-password">Lost password</message>
   <message id="Wt.Auth.login">Login</message>

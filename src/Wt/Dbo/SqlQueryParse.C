@@ -3,10 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Query"
+#include "Query.h"
 #include "Query_impl.h"
-#include "Exception"
-#include "ptr"
+#include "Exception.h"
+#include "ptr.h"
 
 #include <boost/version.hpp>
 

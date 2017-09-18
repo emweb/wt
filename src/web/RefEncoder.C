@@ -3,19 +3,22 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WLogger"
-#include "Wt/WString"
-#include "Wt/WStringStream"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
+#include "Wt/WString.h"
+#include "Wt/WStringStream.h"
 
 #include "DomElement.h"
 #include "RefEncoder.h"
 #include "WebSession.h"
 #include "WebUtils.h"
 
-#include <boost/regex.hpp>
+#include <regex>
+#include <iterator>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
 #include "3rdparty/rapidxml/rapidxml.hpp"
 #include "3rdparty/rapidxml/rapidxml_print.hpp"
 
@@ -27,11 +30,10 @@ LOGGER("RefEncoder");
 
 static std::string replaceUrlInStyle(std::string& style, WApplication *app)
 {
-  boost::regex re("url\\((.*//.*)\\)",
-		  boost::regex::perl | boost::regex::icase);
+  std::regex re("url\\((.*//.*)\\)", std::regex::icase);
 
-  boost::sregex_iterator i(style.begin(), style.end(), re);
-  boost::sregex_iterator end;
+  std::sregex_iterator i(style.begin(), style.end(), re);
+  std::sregex_iterator end;
 
   WStringStream result;
   std::size_t pos = 0;
@@ -160,7 +162,7 @@ WString EncodeRefs(const WString& text, WFlags<RefEncoderOption> options)
   if (text.empty())
     return text;
 
-  std::string result = "<span>" + text.toUTF8() + "</span>";
+  std::string result = "<span>" + text.toXhtmlUTF8() + "</span>";
   char *ctext = const_cast<char *>(result.c_str()); // Shhht it's okay !
 
   WApplication *app = WApplication::instance();

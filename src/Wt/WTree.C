@@ -3,19 +3,20 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WTemplate"
-#include "Wt/WText"
-#include "Wt/WTree"
-#include "Wt/WTreeNode"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WIconPair.h"
+#include "Wt/WTemplate.h"
+#include "Wt/WText.h"
+#include "Wt/WTree.h"
+#include "Wt/WTreeNode.h"
 #include "WebUtils.h"
 
 namespace {
   using namespace Wt;
 
   /*
-   * Get the ancestors of n as a list, starting from the tree root,
+   * Method::Get the ancestors of n as a list, starting from the tree root,
    * and including n.
    *
    * Returns false if node n is currently not visible because one of its
@@ -49,7 +50,7 @@ namespace {
     bool visible2 = n2 ? getAncestors(n2, ancestors2) : true;
 
     if (!visible1 || !visible2)
-      return 0;
+      return nullptr;
 
     if (!n1)
       return n2;
@@ -81,7 +82,7 @@ namespace {
 namespace Wt {
 
   namespace Impl {
-    class SentinelTreeNode : public WTreeNode
+    class SentinelTreeNode final : public WTreeNode
     {
     public:
       SentinelTreeNode(WTree *tree)
@@ -93,15 +94,15 @@ namespace Wt {
 	expand();
      }
       
-     virtual WTree *tree() const { return tree_; }
+     virtual WTree *tree() const override { return tree_; }
 
     protected:
-      virtual void descendantRemoved(WTreeNode *node)
+      virtual void descendantRemoved(WTreeNode *node) override
       {
 	tree_->nodeRemoved(node);
       }
 
-      virtual void descendantAdded(WTreeNode *node)
+      virtual void descendantAdded(WTreeNode *node) override
       {
 	tree_->nodeAdded(node);
       }
@@ -111,24 +112,20 @@ namespace Wt {
     };
   }
 
-WTree::WTree(WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    treeRoot_(0),
-    selectionMode_(NoSelection),
-    itemSelectionChanged_(this)
+WTree::WTree()
+  : WCompositeWidget(),
+    treeRoot_(nullptr),
+    selectionMode_(SelectionMode::None)
 {
-  setImplementation(sentinelRoot_ = new Impl::SentinelTreeNode(this));
+  sentinelRoot_ = setNewImplementation<Impl::SentinelTreeNode>(this);
 }
 
-void WTree::setTreeRoot(WTreeNode *node)
+void WTree::setTreeRoot(std::unique_ptr<WTreeNode> node)
 {
-  if (treeRoot_) {
+  if (treeRoot_)
     sentinelRoot_->removeChildNode(treeRoot_);
-    delete treeRoot_;
-  }
-
-  treeRoot_ = node;
-  sentinelRoot_->addChildNode(node);
+  treeRoot_ = node.get();
+  sentinelRoot_->addChildNode(std::move(node));
 }
 
 void WTree::setSelectionMode(SelectionMode mode)
@@ -149,14 +146,14 @@ void WTree::clearSelection()
 
 void WTree::select(WTreeNode *node, bool selected)
 {
-  if (selectionMode_ == SingleSelection && selected && 
+  if (selectionMode_ == SelectionMode::Single && selected && 
       selection_.size() == 1 && Utils::first(selection_) == node)
     return; // node was already selected, avoid re-emission of signals
 
-  if (selectionMode_ == SingleSelection && selected)
+  if (selectionMode_ == SelectionMode::Single && selected)
     clearSelection();
 
-  if (!selected || selectionMode_ != NoSelection) {
+  if (!selected || selectionMode_ != SelectionMode::None) {
     if (selected) {
       if (node->isSelectable()) {
 	selection_.insert(node);
@@ -204,7 +201,7 @@ void WTree::nodeAdded(WTreeNode * const node)
       w = node->label();
 
     node->clickedConnection_ = w->clicked().connect
-      (boost::bind(&WTree::onClick, this, node, ::_1));
+      (this, std::bind(&WTree::onClick, this, node, std::placeholders::_1));
     w->clicked().preventPropagation();
 
     for (unsigned i = 0; i < node->childNodes().size(); ++i)
@@ -259,7 +256,7 @@ void WTree::extendSelection(WTreeNode *node)
      * node. If node is above, select everything from the bottom item
      * to node. Only visible nodes count.
      */
-    WTreeNode *top = 0, *bottom = 0;
+    WTreeNode *top = nullptr, *bottom = nullptr;
 
     for (WTreeNodeSet::const_iterator i = selection_.begin();
 	 i != selection_.end(); ++i) {
@@ -300,14 +297,15 @@ void WTree::extendSelection(WTreeNode *node)
 
 void WTree::onClick(WTreeNode *node, WMouseEvent event)
 {
-  if (selectionMode_ == NoSelection)
+  if (selectionMode_ == SelectionMode::None)
     return;
 
-  if (selectionMode_ == ExtendedSelection) {
-    if (event.modifiers() & ShiftModifier) {
+  if (selectionMode_ == SelectionMode::Extended) {
+    if (event.modifiers().test(KeyboardModifier::Shift)) {
       extendSelection(node);
     } else {
-      if (!(event.modifiers() & (ControlModifier | MetaModifier))) {
+      if (!(event.modifiers() & (KeyboardModifier::Control |
+				 KeyboardModifier::Meta))) {
 	if (isSelected(node))
 	  return;
 	else {

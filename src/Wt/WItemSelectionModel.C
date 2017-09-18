@@ -4,21 +4,21 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WItemSelectionModel"
-#include "Wt/WAbstractItemModel"
-
-#include <boost/lexical_cast.hpp>
-#include "boost/any.hpp"
+#include "Wt/WItemSelectionModel.h"
+#include "Wt/WAbstractItemModel.h"
 
 #include <string>
 
 namespace Wt {
 
-WItemSelectionModel::WItemSelectionModel(WAbstractItemModel *model,
-					 WObject *parent)
-  : WObject(parent),
-    model_(model),
-    selectionBehavior_(SelectRows)
+WItemSelectionModel::WItemSelectionModel()
+  : selectionBehavior_(SelectionBehavior::Rows)
+{ }
+
+WItemSelectionModel
+::WItemSelectionModel(const std::shared_ptr<WAbstractItemModel>& model)
+  : model_(model),
+    selectionBehavior_(SelectionBehavior::Rows)
 { }
 
 void WItemSelectionModel::setSelectionBehavior(SelectionBehavior behavior)
@@ -28,7 +28,7 @@ void WItemSelectionModel::setSelectionBehavior(SelectionBehavior behavior)
 
 bool WItemSelectionModel::isSelected(const WModelIndex& index) const
 {
-  if (selectionBehavior_ == SelectRows) {
+  if (selectionBehavior_ == SelectionBehavior::Rows) {
     for (std::set<WModelIndex>::const_iterator it = selection_.begin() ; 
          it != selection_.end(); ++it ) {
       WModelIndex mi = *it;
@@ -51,10 +51,10 @@ std::string WItemSelectionModel::mimeType()
        i != selection_.end(); ++i) {
     WModelIndex mi = *i;
 
-    if (!(mi.flags() & ItemIsDragEnabled))
+    if (!(mi.flags() & ItemFlag::DragEnabled))
       return std::string();
 
-    boost::any mimeTypeData = mi.data(MimeTypeRole);
+    cpp17::any mimeTypeData = mi.data(ItemDataRole::MimeType);
     if (!mimeTypeData.empty()) {
       std::string currentMimeType = asString(mimeTypeData).toUTF8();
 

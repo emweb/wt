@@ -17,13 +17,14 @@
 #endif
 
 #ifdef WT_CONF_LOCK
-#include <boost/thread.hpp>
+#include <thread>
+#include <boost/thread/shared_mutex.hpp>
 #endif // WT_CONF_LOCK
 
-#include "Wt/WApplication"
+#include "Wt/WApplication.h"
 
 #include "WebSession.h"
-#include "Wt/WRandom"
+#include "Wt/WRandom.h"
 
 namespace boost {
   namespace program_options {
@@ -68,6 +69,19 @@ private:
 typedef std::deque<EntryPoint> EntryPointList;
 
 #endif // WT_TARGET_JAVA
+
+class WT_API HeadMatter {
+public:
+  HeadMatter(std::string contents,
+             std::string userAgent);
+
+  const std::string& contents() const { return contents_; }
+  const std::string& userAgent() const { return userAgent_; }
+
+private:
+  std::string contents_;
+  std::string userAgent_;
+};
 
 class WT_API Configuration
 {
@@ -139,6 +153,7 @@ public:
 #endif // WT_TARGET_JAVA
 
   const std::vector<MetaHeader>& metaHeaders() const { return metaHeaders_; }
+  const std::vector<HeadMatter>& headMatter() const { return headMatter_; }
   SessionPolicy sessionPolicy() const;
   int numProcesses() const;
   int numThreads() const;
@@ -265,6 +280,7 @@ private:
 
   std::vector<BootstrapEntry> bootstrapConfig_;
   std::vector<MetaHeader> metaHeaders_;
+  std::vector<HeadMatter> headMatter_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

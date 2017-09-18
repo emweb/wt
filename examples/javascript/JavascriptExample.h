@@ -7,7 +7,7 @@
 #ifndef JAVASCRIPTEXAMPLE_H_
 #define JAVASCRIPTEXAMPLE_H_
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
 
 using namespace Wt;
 
@@ -39,11 +39,11 @@ private:
 
   /*! \brief Popup for changing the amount.
    */
-  Popup *promptAmount_;
+  std::unique_ptr<Popup> promptAmount_;
 
   /*! \brief Popup for paying.
    */
-  Popup *confirmPay_;
+  std::unique_ptr<Popup> confirmPay_;
 
   /*! \brief WText for showing the current amount.
    */

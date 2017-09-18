@@ -5,16 +5,16 @@
  */
 #include <fstream>
 #include <boost/algorithm/string.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "Wt/WLogger"
-#include "Wt/WServer"
-#include "Wt/WString"
+#include "Wt/WLogger.h"
+#include "Wt/WServer.h"
+#include "Wt/WString.h"
+#include "Wt/WLocalDateTime.h"
+#include "Wt/WTime.h"
 
 #include "WebUtils.h"
+#include "StringUtils.h"
 #include "WebSession.h"
-
-using namespace boost::posix_time;
 
 namespace Wt {
 
@@ -48,7 +48,8 @@ WLogEntry& WLogEntry::operator<< (const WLogger::Sep&)
 
 WLogEntry& WLogEntry::operator<< (const WLogger::TimeStamp&)
 {
-  std::string dt = to_simple_string(microsec_clock::local_time());
+  std::string dt = WLocalDateTime::currentServerDateTime()
+    .toString("yyyy-MMM-dd hh:mm:ss.zzz").toUTF8();
 
   return *this << '[' << dt << ']';
 }
@@ -84,6 +85,16 @@ WLogEntry& WLogEntry::operator<< (const std::string& s)
 	&& impl_->scope_.empty())
       impl_->scope_ = s;
   }
+
+  return *this;
+}
+
+WLogEntry& WLogEntry::operator<< (char v)
+{
+  startField();
+
+  if (impl_)
+    impl_->line_ << v;
 
   return *this;
 }

@@ -24,8 +24,8 @@
 #include <dwrite.h>
 #endif // WT_FONTSUPPORT_DIRECTWRITE
 
-#include "Wt/WFont"
-#include "Wt/WPaintDevice"
+#include "Wt/WFont.h"
+#include "Wt/WPaintDevice.h"
 
 namespace Wt {
 
@@ -164,7 +164,7 @@ public:
    * Draws the text, using pango for font choices, but delegating the actual
    * drawing to the device
    *
-   * Precondition: device_ != 0
+   * Precondition: device_ != nullptr
    */
   void drawText(const WFont& f,
 		const WRectF& rect,
@@ -190,7 +190,7 @@ public:
   /*
    * Draws the text, using pango and libfreetype to do the actual rendering
    *
-   * Precondition: device_ == 0
+   * Precondition: device_ == nullptr
    */
   void drawText(const WFont& f,
 		const WRectF& rect,
@@ -260,7 +260,7 @@ private:
     PangoFont *match;
     PangoFontDescription *desc;
 
-    Matched() : font(), match(0), desc(0) { }
+    Matched() : font(), match(nullptr), desc(nullptr) { }
     Matched(const WFont& f, PangoFont *m, PangoFontDescription *d) : font(f), match(m), desc(d) { }
   };
 

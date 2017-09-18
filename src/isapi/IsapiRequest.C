@@ -6,8 +6,9 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <fstream>
 #include <stdexcept>
+#include <string>
 
-#include <Wt/WSslInfo>
+#include <Wt/WSslInfo.h>
 
 #ifdef WT_WITH_SSL
 #include <openssl/ssl.h>
@@ -229,8 +230,7 @@ void IsapiRequest::sendHeader()
     header_ << "\r\n";
   }
   // TODO: add proper human-readable description
-  std::string status =
-    boost::lexical_cast<std::string>(ecb_->dwHttpStatusCode);
+  std::string status = std::to_string(ecb_->dwHttpStatusCode);
   std::string header = header_.str();
   HSE_SEND_HEADER_EX_INFO hei = { 0 };
   hei.pszStatus = status.c_str();
@@ -264,7 +264,7 @@ void IsapiRequest::flush(ResponseState state, const WriteCallback& callback)
   reading_ = false;
   if (!headerSent_) {
     // Determine how we will tell the client how long the response is
-    if (state != ResponseDone) {
+    if (state != ResponseState::ResponseDone) {
       if (version_ == HTTP_1_1 && contentLength_ == -1) {
         chunking_ = true;
       }
@@ -278,7 +278,7 @@ void IsapiRequest::flush(ResponseState state, const WriteCallback& callback)
   }
 
   flushState_ = state;
-  if (state == ResponseFlush) {
+  if (state == ResponseState::ResponseFlush) {
     setAsyncCallback(callback);
   } else {
     setAsyncCallback(WriteCallback());
@@ -297,7 +297,7 @@ void IsapiRequest::flush(ResponseState state, const WriteCallback& callback)
     std::stringstream hexsize;
     hexsize << std::hex << size << std::dec << "\r\n";
     writeData_.push_back(chunkPrefix = hexsize.str());
-    if (state == ResponseDone) {
+    if (state == ResponseState::ResponseDone) {
       out_ << "\r\n0\r\n\r\n";
     } else {
       out_ << "\r\n";
@@ -333,7 +333,7 @@ void IsapiRequest::writeSync()
         abort();
         server_->log("error")
           << "ISAPI Synchronous Write failed with error " << err;
-        getAsyncCallback()(Wt::WriteError);
+        getAsyncCallback()(Wt::WebWriteEvent::Error);
         return;
       }
     }
@@ -387,14 +387,14 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
 
   if (error) {
     abort();
-    getAsyncCallback()(Wt::WriteError);
+    getAsyncCallback()(Wt::WebWriteEvent::Error);
     return;
   }
 }
 
 void IsapiRequest::flushDone()
 {
-  if (flushState_ == ResponseDone) {
+  if (flushState_ == ResponseState::ResponseDone) {
     DWORD status;
     if (version_ == HTTP_1_0) {
       status = HSE_STATUS_SUCCESS;
@@ -411,11 +411,11 @@ void IsapiRequest::flushDone()
       delete this;
       return;
     }
-  } else if (flushState_ == ResponseFlush) {
+  } else if (flushState_ == ResponseState::ResponseFlush) {
     if (synchronous_) {
       emulateAsync(flushState_);
     } else {
-      getAsyncCallback()(WriteCompleted);
+      getAsyncCallback()(Wt::WebWriteEvent::Completed);
     }
   }
 }
@@ -424,7 +424,7 @@ void IsapiRequest::sendSimpleReply(int status, const std::string &msg)
 {
   setStatus(status);
   out() << msg;
-  flush(ResponseDone);
+  flush(ResponseState::ResponseDone);
 }
 
 void IsapiRequest::setStatus(int status)
@@ -433,7 +433,7 @@ void IsapiRequest::setStatus(int status)
   header_ << "Status: " << status << "\r\n";
 }
 
-void IsapiRequest::setContentLength(boost::intmax_t length)
+void IsapiRequest::setContentLength(std::int64_t length)
 {
   contentLength_ = length;
 }
@@ -629,8 +629,8 @@ WSslInfo *IsapiRequest::sslInfo() const {
         std::vector<WSslCertificate> clientCertChain;
 	
         Wt::WValidator::Result
-          clientVerificationResult(invalid ? Wt::WValidator::Invalid
-				   : Wt::WValidator::Valid);
+          clientVerificationResult(invalid ? Wt::ValidationState::Invalid
+				   : Wt::ValidationState::Valid);
 
         return new Wt::WSslInfo(clientCert, 
 			        clientCertChain, 
@@ -644,7 +644,7 @@ WSslInfo *IsapiRequest::sslInfo() const {
     } else {
       server_->log("error")
         << "IsapiRequest::sslInfo(): Error " +
-        boost::lexical_cast<std::string>(error);
+           std::to_string(error);
     }
   }
 #endif

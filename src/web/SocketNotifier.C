@@ -6,8 +6,8 @@
 
 #include "SocketNotifier.h"
 #include "WebController.h"
-#include "Wt/WLogger"
-#include "Wt/WSocketNotifier"
+#include "Wt/WLogger.h"
+#include "Wt/WSocketNotifier.h"
 #include <set>
 
 #if WT_WIN32
@@ -24,6 +24,10 @@ typedef int socklen_t;
 #include <string.h>
 #endif
 
+#include <condition_variable>
+#include <algorithm>
+
+
 namespace Wt {
 
 LOGGER("SocketNotifier");
@@ -35,13 +39,13 @@ public:
     terminate_(false),
     socket1_(-1),
     socket2_(-1),
-    controller_(0),
+    controller_(nullptr),
     good_(false)
   {}
-  boost::thread thread_;
-  boost::mutex mutex_;
+  std::thread thread_;
+  std::mutex mutex_;
   bool interruptProcessed_;
-  boost::condition_variable interrupted_;
+  std::condition_variable interrupted_;
   bool terminate_;
 
   int socket1_, socket2_;
@@ -249,12 +253,7 @@ void SocketNotifier::createSocketPair()
 
 void SocketNotifier::startThread()
 {
-#ifndef BOOST_THREAD_MAKE_RV_REF
-  impl_->thread_ = boost::thread(&SocketNotifier::threadEntry, this).move();
-#else
-  // Use macro instead of thread.move()
-  impl_->thread_ = BOOST_THREAD_MAKE_RV_REF(boost::thread(&SocketNotifier::threadEntry, this));
-#endif
+  impl_->thread_ = std::thread(&SocketNotifier::threadEntry, this);
 }
 
 void SocketNotifier::interruptThread()
@@ -264,7 +263,7 @@ void SocketNotifier::interruptThread()
   if (impl_->thread_.joinable()) {
     impl_->interruptProcessed_ = false;
     char data = 0;
-    sendto(impl_->socket1_, &data, 1, 0, 0, 0);
+    sendto(impl_->socket1_, &data, 1, 0, nullptr, 0);
   } else {
     if (!impl_->terminate_) {
       // Just start the thread - there's no need for signaling
@@ -275,7 +274,7 @@ void SocketNotifier::interruptThread()
 
 void SocketNotifier::threadEntry()
 {
-  boost::mutex::scoped_lock lock(impl_->mutex_);
+  std::unique_lock<std::mutex> lock(impl_->mutex_);
   while (!impl_->terminate_) {
     int maxFd = 0;
     fd_set read_fds, write_fds, except_fds;
@@ -310,7 +309,7 @@ void SocketNotifier::threadEntry()
     }
 
     lock.unlock();
-    int result = ::select(maxFd + 1, &read_fds, &write_fds, &except_fds, 0);
+    int result = ::select(maxFd + 1, &read_fds, &write_fds, &except_fds, nullptr);
     lock.lock();
     if (result > 0) {
       if (FD_ISSET(impl_->socket2_, &read_fds)) {
@@ -318,7 +317,7 @@ void SocketNotifier::threadEntry()
         // the interruption connection. Normally contains a single byte,
         // unless we were interrupted a couple of times already.
         char buf[128];
-        ::recvfrom(impl_->socket2_, buf, sizeof(buf), 0, 0, 0);
+        ::recvfrom(impl_->socket2_, buf, sizeof(buf), 0, nullptr, nullptr);
         // Shortcut
         if (impl_->terminate_)
           return;
@@ -333,7 +332,8 @@ void SocketNotifier::threadEntry()
         if (FD_ISSET(*i, &read_fds)) {
           if (impl_->readFds_.find(*i) != impl_->readFds_.end()) {
             impl_->readFds_.erase(*i);
-	    callbacks.push_back(std::make_pair((int)*i, WSocketNotifier::Read));
+	    callbacks.push_back(std::make_pair((int)*i, 
+					       WSocketNotifier::Type::Read));
           }
         }
       }
@@ -344,7 +344,7 @@ void SocketNotifier::threadEntry()
           if (impl_->writeFds_.find(*i) != impl_->writeFds_.end()) {
             impl_->writeFds_.erase(*i);
 	    callbacks.push_back(std::make_pair((int)*i,
-					       WSocketNotifier::Write));
+					       WSocketNotifier::Type::Write));
           }
         }
       }
@@ -355,7 +355,7 @@ void SocketNotifier::threadEntry()
           if (impl_->exceptFds_.find(*i) != impl_->exceptFds_.end()) {
             impl_->exceptFds_.erase(*i);
             callbacks.push_back(std::make_pair((int)*i,
-					       WSocketNotifier::Exception));
+					       WSocketNotifier::Type::Exception));
           }
         }
       }
@@ -379,28 +379,28 @@ void SocketNotifier::threadEntry()
 
 void SocketNotifier::addReadSocket(int socket)
 {
-  boost::mutex::scoped_lock lock(impl_->mutex_);
+  std::unique_lock<std::mutex> lock(impl_->mutex_);
   impl_->readFds_.insert(socket);
   interruptThread();
 }
 
 void SocketNotifier::addWriteSocket(int socket)
 {
-  boost::mutex::scoped_lock lock(impl_->mutex_);
+  std::unique_lock<std::mutex> lock(impl_->mutex_);
   impl_->writeFds_.insert(socket);
   interruptThread();
 }
 
 void SocketNotifier::addExceptSocket(int socket)
 {
-  boost::mutex::scoped_lock lock(impl_->mutex_);
+  std::unique_lock<std::mutex> lock(impl_->mutex_);
   impl_->exceptFds_.insert(socket);
   interruptThread();
 }
 
 void SocketNotifier::removeReadSocket(int socket)
 {
-  boost::mutex::scoped_lock lock(impl_->mutex_);
+  std::unique_lock<std::mutex> lock(impl_->mutex_);
   impl_->readFds_.erase(socket);
 
   while (!impl_->interruptProcessed_)
@@ -416,7 +416,7 @@ void SocketNotifier::removeReadSocket(int socket)
 
 void SocketNotifier::removeWriteSocket(int socket)
 {
-  boost::mutex::scoped_lock lock(impl_->mutex_);
+  std::unique_lock<std::mutex> lock(impl_->mutex_);
   impl_->writeFds_.erase(socket);
   interruptThread();
   impl_->interrupted_.wait(lock);
@@ -424,7 +424,7 @@ void SocketNotifier::removeWriteSocket(int socket)
 
 void SocketNotifier::removeExceptSocket(int socket)
 {
-  boost::mutex::scoped_lock lock(impl_->mutex_);
+  std::unique_lock<std::mutex> lock(impl_->mutex_);
   impl_->exceptFds_.erase(socket);
   interruptThread();
   impl_->interrupted_.wait(lock);

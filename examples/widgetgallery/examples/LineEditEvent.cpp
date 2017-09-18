@@ -1,18 +1,20 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(LineEditEvent)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-Wt::WLineEdit *edit = new Wt::WLineEdit(container);
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+
+Wt::WLineEdit *edit =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
 edit->setPlaceholderText("Edit me");
 
-Wt::WText *out = new Wt::WText("", container);
+Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>(""));
 out->addStyleClass("help-block");
 
-edit->keyPressed().connect(std::bind([=] (const Wt::WKeyEvent& e) {
+edit->keyPressed().connect([=] (const Wt::WKeyEvent& e) {
     out->setText("You pressed the '" + e.text() + "' key.");
-}, std::placeholders::_1));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

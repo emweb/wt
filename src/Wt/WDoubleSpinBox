@@ -1,148 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2010, 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WDOUBLE_SPIN_BOX_H_
-#define WDOUBLE_SPIN_BOX_H_
-
-#include <Wt/WAbstractSpinBox>
-
-namespace Wt {
-
-/*! \class WDoubleSpinBox Wt/WDoubleSpinBox Wt/WDoubleSpinBox
- *  \brief An input control for fixed point numbers.
- *
- * The spin box provides a control for entering a fixed point
- * number. It consists of a line edit, and buttons which allow to
- * increase or decrease the value. If you rather need input of an
- * integer number number, use WSpinBox instead.
- *
- * %WDoubleSpinBox is an \link WWidget::setInline(bool) inline
- * \endlink widget.
- *
- * \sa WSpinBox
- *
- * \note A spinbox configures a validator for validating the input. Therefore
- *       you cannot set a validator yourself.
- */
-class WT_API WDoubleSpinBox : public WAbstractSpinBox
-{
-public:
-  /*! \brief Creates a spin-box.
-   *
-   * The range is (0.0 - 99.99), the step size 1.0, and the spin box
-   * has a precision of 2 decimals.
-   *
-   * The initial value is 0.0.
-   */
-  WDoubleSpinBox(WContainerWidget *parent = 0);
-
-  /*! \brief Sets the minimum value.
-   *
-   * The default value is 0.0.
-   */
-  void setMinimum(double minimum);
-
-  /*! \brief Returns the minimum value.
-   *
-   * \sa setMinimum()
-   */
-  double minimum() const { return min_; }
-
-  /*! \brief Sets the maximum value.
-   *
-   * The default value is 99.99.
-   */
-  void setMaximum(double maximum);
-
-  /*! \brief Returns the maximum value.
-   *
-   * \sa setMaximum()
-   */
-  double maximum() const { return max_; }
-
-  /*! \brief Sets the range.
-   *
-   * \sa setMinimum(), setMaximum()
-   */
-  void setRange(double minimum, double maximum);
-
-  /*! \brief Sets the step value.
-   *
-   * The default value is 1.0.
-   */
-  void setSingleStep(double step);
-
-  /*! \brief Returns the step value.
-   *
-   * \sa setSingleStep()
-   */
-  double singleStep() const { return step_; }
-
-  /*! \brief Sets the precision.
-   *
-   * This sets the number of digits after the decimal point shown
-   *
-   * The default precision is 2.
-   */
-  void setDecimals(int precision);
-
-  /*! \brief Returns the precision.
-   *
-   * \sa setDecimals()
-   */
-  int decimals() const;
-
-  /*! \brief Sets the value.
-   *
-   * \p value must be a value between minimum() and maximum().
-   *
-   * The default value is 0
-   */
-  void setValue(double value);
-
-  /*! \brief Returns the value.
-   *
-   * \note This value may not correctly reflect the valueText()
-   *       of the spin box if valueText() is empty or if the
-   *       contents are not in a \link WFormWidget::validate() valid state\endlink.
-   */
-  double value() const { return value_; }
-
-  /*! \brief A %signal that indicates when the value has changed.
-   *
-   * This signal is emitted when setValue() is called.
-   *
-   * \sa setValue()
-   */
-  Signal<double>& valueChanged() { return valueChanged_; }
-
-  virtual void refresh();
-
-protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual void signalConnectionsChanged();
-
-  virtual std::string jsMinMaxStep() const;
-  virtual bool parseNumberValue(const std::string& text);
-  virtual WT_USTRING textFromValue() const;
-  virtual WValidator *createValidator();
-  virtual WValidator::Result validateRange() const;
-
-private:
-  bool setup_;
-  double value_, min_, max_, step_;
-  int precision_;
-
-  Signal<double> valueChanged_;
-
-  void setup();
-  void onChange();
-};
-
-}
-
-#endif // WDOUBLE_SPIN_BOX_H_
+#ifndef WT_WDOUBLESPINBOX_EXTENSIONLESS_H_
+#define WT_WDOUBLESPINBOX_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WDoubleSpinBox.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WDoubleSpinBox.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WDoubleSpinBox.h"
+#endif // WT_WDOUBLESPINBOX_EXTENSIONLESS_H_

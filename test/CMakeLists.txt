@@ -3,17 +3,21 @@ IF(ENABLE_LIBWTTEST)
     test.C
     auth/BCryptTest.C
     auth/SHA1Test.C
+    core/BindTest.C
     chart/WChartTest.C
     json/JsonParserTest.C
     json/JsonSerializerTest.C
     json/JsonValueTest.C
     http/HttpClientTest.C
     mail/MailClientTest.C
+    matrix/MatrixTest.C
     models/WBatchEditProxyModelTest.C
     models/WStandardItemModelTest.C
+    private/EscapeTest.C
     private/HttpTest.C
     private/CExpressionParserTest.C
     private/I18n.C
+    private/SessionFromCookieTest.C
     private/UrlManipTest.C
     render/BlockCssPropertyTest.C
     render/CssParserTest.C
@@ -24,7 +28,6 @@ IF(ENABLE_LIBWTTEST)
     utf8/XmlTest.C
     utils/Base64Test.C
     utils/EraseWord.C
-    wdatetime/WDateTimeTest.C
     widgets/WSpinBoxTest.C
     length/WLengthTest.C
     color/WColorTest.C
@@ -33,6 +36,8 @@ IF(ENABLE_LIBWTTEST)
     locale/LocaleNumberTest.C
     trampoline/RefEncoder.C
     testenvironment/TestEnvironmentTest.C
+    signals/SignalTest.C
+    wdatetime/WDateTimeTest.C
   )
 
   IF (WT_HAS_WRASTERIMAGE)

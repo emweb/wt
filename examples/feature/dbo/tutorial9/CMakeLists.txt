@@ -1,4 +1,4 @@
-SET(tutorial_libs wtdbo wtdbosqlite3)
+SET(tutorial_libs ${EXAMPLES_DBO_LIBS})
 
 #IF (MULTI_THREADED)
 #  SET(tutorial_libs ${tutorial_libs} ${BOOST_THREAD_LIB})

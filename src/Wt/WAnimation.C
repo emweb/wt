@@ -3,13 +3,13 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WAnimation"
+#include "Wt/WAnimation.h"
 
 namespace Wt {
 
 WAnimation::WAnimation()
-  : effects_(0),
-    timing_(Linear),
+  : effects_(None),
+    timing_(TimingFunction::Linear),
     duration_(250)
 { }
 
@@ -47,8 +47,8 @@ WAnimation WAnimation::clone() const
 
 bool WAnimation::operator==(const WAnimation& animation) const
 {
-  return animation.effects_ == effects_
-    && animation.duration_ == duration_;
+  return animation.effects_ == effects_ &&
+    animation.duration_ == duration_;
 }
 
 bool WAnimation::operator!=(const WAnimation& animation) const

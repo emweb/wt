@@ -6,23 +6,15 @@
 
 #include "Shape.h"
 
-#include <Wt/WPainterPath>
+#include <Wt/WPainterPath.h>
 
-#include <math.h>
-
-using namespace Wt;
-
-Shape::~Shape() 
-{
-
-}
+#include <cmath>
 
 Circle::Circle(const WPointF& center, 
 	       const ShapeColor& color, 
 	       const double size)
   : Shape(center, color, size)
 {
-
 }
 
 
@@ -44,13 +36,13 @@ WString Circle::shapeName() const
 double Circle::distanceTo(const double x1, const double y1, 
 			  const double x2, const double y2) const
 {
-  return sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+  return std::sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
 }
 
-void Circle::paint(Wt::WPainter& painter) const
+void Circle::paint(WPainter& painter) const
 {
   WBrush b;
-  b.setStyle(SolidPattern);
+  b.setStyle(BrushStyle::Solid);
   b.setColor(color());
   
   WPainterPath pp;
@@ -83,10 +75,10 @@ WString Rectangle::shapeName() const
   return WString::tr("captcha.rectangle");
 }
 
-void Rectangle::paint(Wt::WPainter& painter) const
+void Rectangle::paint(WPainter& painter) const
 {
   WBrush b;
-  b.setStyle(SolidPattern);
+  b.setStyle(BrushStyle::Solid);
   b.setColor(color());
   
   WPainterPath pp;

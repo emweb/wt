@@ -1,56 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WLAYOUT_ITEM_IMPL_H_
-#define WLAYOUT_ITEM_IMPL_H_
-
-#include <Wt/WDllDefs.h>
-#include <string>
-
-namespace Wt {
-
-class WLayoutItem;
-class WWidget;
-
-/*! \class WLayoutItemImpl Wt/WLayoutItemImpl Wt/WLayoutItemImpl
- *  \brief An abstract base class for implementing layout managers.
- *
- * \sa WLayoutItem, WLayout
- */
-class WT_API WLayoutItemImpl
-{
-public:
-  /*! \brief Destructor.
-   */
-  virtual ~WLayoutItemImpl();
-
-  /*! \brief Adds a layout <i>item</i>.
-   *
-   * The \p item already has an implementation set.
-   */
-  virtual void updateAddItem(WLayoutItem *item) = 0;
-
-  /*! \brief Removes a layout <i>item</i>.
-   */
-  virtual void updateRemoveItem(WLayoutItem *item) = 0;
-
-  /*! \brief Updates the layout.
-   */
-  virtual void update(WLayoutItem *item) = 0;
-
-  /*! \brief Returns the widget for which this layout item participates in
-   *         layout management.
-   */
-  virtual WWidget *parentWidget() const = 0;
-
-  /*! \brief Provides a hint that can aid in layout strategy / algorithm.
-   */
-  virtual void setHint(const std::string& name, const std::string& value) = 0;
-};
-
-}
-
-#endif // WLAYOUT_ITEM_IMPL_H_
+#ifndef WT_WLAYOUTITEMIMPL_EXTENSIONLESS_H_
+#define WT_WLAYOUTITEMIMPL_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WLayoutItemImpl.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WLayoutItemImpl.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WLayoutItemImpl.h"
+#endif // WT_WLAYOUTITEMIMPL_EXTENSIONLESS_H_

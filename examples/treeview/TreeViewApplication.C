@@ -3,8 +3,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
 
 #include "TreeViewExample.h"
 
@@ -16,15 +16,17 @@ public:
   TreeViewApplication(const WEnvironment &env):
     WApplication(env)
   {
-    WStandardItemModel *model = TreeViewExample::createModel(true, this);
+    std::shared_ptr<WStandardItemModel>
+        model(TreeViewExample::createModel(true));
 
     root()->addWidget
-      (new TreeViewExample(model, WString::tr("treeview-introduction"))); 
+      (cpp14::make_unique<TreeViewExample>(
+         model, WString::tr("treeview-introduction")));
 
     /*
      * Stub for the drink info
      */
-    aboutDrink_ = new WText("", root());
+    aboutDrink_ = root()->addWidget(cpp14::make_unique<WText>(""));
     
     internalPathChanged().connect(this, &TreeViewApplication::handlePathChange);
 
@@ -42,15 +44,15 @@ private:
 
 };
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new TreeViewApplication(env);
+  auto app = cpp14::make_unique<TreeViewApplication>(env);
   app->setTitle("WTreeView example");
   app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
   app->styleSheet().addRule("button", "margin: 2px");
-  //app->useStyleSheet("treeview.css");
+  app->useStyleSheet("treeview.css");
   
-  return app;
+  return std::move(app);
 }
 
 int main(int argc, char **argv)

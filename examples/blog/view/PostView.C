@@ -11,13 +11,12 @@
 #include "../model/BlogSession.h"
 #include "../model/User.h"
 
-#include <Wt/WAnchor>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WText>
-#include <Wt/WTextArea>
+#include <Wt/WAnchor.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
+#include <Wt/WTextArea.h>
 
-using namespace Wt;
 namespace dbo = Wt::Dbo;
 
 PostView::PostView(BlogSession& session, const std::string& basePath,
@@ -42,7 +41,7 @@ void PostView::renderTemplate(std::ostream& result)
 }
 
 void PostView::resolveString(const std::string& varName,
-			     const std::vector<WString>& args,
+                             const std::vector<Wt::WString>& args,
 			     std::ostream& result)
 {
   if (varName == "title")
@@ -51,13 +50,13 @@ void PostView::resolveString(const std::string& varName,
     format(result, post_->date.toString("dddd, MMMM d, yyyy @ HH:mm"));
   else if (varName == "brief") {
     if (!post_->briefSrc.empty())
-      format(result, post_->briefHtml, XHTMLText);
+      format(result, post_->briefHtml, Wt::TextFormat::XHTML);
     else
-      format(result, post_->bodyHtml, XHTMLText);
+      format(result, post_->bodyHtml, Wt::TextFormat::XHTML);
   } else if (varName == "brief+body") {
     format(result, "<div>" + post_->briefHtml + "</div>"
 	   "<div id=\"" + basePath_ + post_->permaLink() + "/more\">"
-	   "<div>" + post_->bodyHtml + "</div></div>", XHTMLUnsafeText);
+           "<div>" + post_->bodyHtml + "</div></div>", Wt::TextFormat::UnsafeXHTML);
   } else
     WTemplate::resolveString(varName, args, result);
 }
@@ -73,13 +72,11 @@ void PostView::render(RenderType type)
   case Detail: {
     setTemplateText(tr("blog-post"));
 
-    commentCount_ = new WText(post_->commentCount());
-
-    CommentView *comments = new CommentView(session_, post_->rootComment());
     session_.commentsChanged().connect(this, &PostView::updateCommentCount);
 
-    bindWidget("comment-count", commentCount_);
-    bindWidget("comments", comments);
+    commentCount_ =
+        bindWidget("comment-count", Wt::cpp14::make_unique<Wt::WText>(post_->commentCount()));
+    bindWidget("comments", Wt::cpp14::make_unique<CommentView>(session_, post_->rootComment()));
     bindString("anchor", basePath_ + post_->permaLink());
 
     break;
@@ -87,41 +84,39 @@ void PostView::render(RenderType type)
   case Brief: {
     setTemplateText(tr("blog-post-brief"));
 
-    WAnchor *titleAnchor
-      = new WAnchor(WLink(WLink::InternalPath, basePath_ + post_->permaLink()),
-		    post_->title);
-    bindWidget("title", titleAnchor);
+    auto titleAnchor
+      = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
+                                          basePath_ + post_->permaLink()),
+                                    post_->title);
+    bindWidget("title", std::move(titleAnchor));
 
     if (!post_->briefSrc.empty()) {
-      WAnchor *moreAnchor 
-	= new WAnchor(WLink(WLink::InternalPath,
-			    basePath_ + post_->permaLink() + "/more"),
-		      tr("blog-read-more"));
-      bindWidget("read-more", moreAnchor);
+      auto moreAnchor
+        = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
+                                            basePath_ + post_->permaLink() + "/more"),
+                                      tr("blog-read-more"));
+      bindWidget("read-more", std::move(moreAnchor));
     } else {
-      bindString("read-more", WString::Empty);
+      bindString("read-more", Wt::WString::Empty);
     }
 
-    commentCount_ = new WText("(" + post_->commentCount() + ")");
-
-    WAnchor *commentsAnchor
-      = new WAnchor(WLink(WLink::InternalPath,
-			  basePath_ + post_->permaLink() + "/comments"));
-    commentsAnchor->addWidget(commentCount_);
-    bindWidget("comment-count", commentsAnchor);
+    auto commentsAnchor
+      = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
+                                    basePath_ + post_->permaLink() + "/comments"));
+    commentCount_ =
+        commentsAnchor->addWidget(Wt::cpp14::make_unique<Wt::WText>("(" + post_->commentCount() + ")"));
+    bindWidget("comment-count", std::move(commentsAnchor));
 
     break; }
   case Edit: {
     setTemplateText(tr("blog-post-edit"));
 
-    bindWidget("title-edit", titleEdit_ = new WLineEdit(post_->title));
-    bindWidget("brief-edit", briefEdit_ = new WTextArea(post_->briefSrc));
-    bindWidget("body-edit", bodyEdit_ = new WTextArea(post_->bodySrc));
+    titleEdit_ = bindWidget("title-edit", Wt::cpp14::make_unique<Wt::WLineEdit>(post_->title));
+    briefEdit_ = bindWidget("brief-edit", Wt::cpp14::make_unique<Wt::WTextArea>(post_->briefSrc));
+    bodyEdit_ = bindWidget("body-edit", Wt::cpp14::make_unique<Wt::WTextArea>(post_->bodySrc));
 
-    WPushButton *saveButton = new WPushButton(tr("save"));
-    WPushButton *cancelButton = new WPushButton(tr("cancel"));
-    bindWidget("save", saveButton);
-    bindWidget("cancel", cancelButton);
+    auto saveButton = bindWidget("save", Wt::cpp14::make_unique<Wt::WPushButton>(tr("save")));
+    auto cancelButton = bindWidget("cancel", Wt::cpp14::make_unique<Wt::WPushButton>(tr("cancel")));
 
     saveButton->clicked().connect(this, &PostView::saveEdit);
     cancelButton->clicked().connect(this, &PostView::showView);
@@ -131,35 +126,36 @@ void PostView::render(RenderType type)
 
   if (type == Detail || type == Brief) {
     if (session_.user() == post_->author) {
-      WPushButton *publishButton;
+      std::unique_ptr<Wt::WPushButton> publishButton;
       if (post_->state != Post::Published) {
-	publishButton = new WPushButton(tr("publish"));
+        publishButton
+            = Wt::cpp14::make_unique<Wt::WPushButton>(tr("publish"));
 	publishButton->clicked().connect(this, &PostView::publish);
       } else {
-	publishButton = new WPushButton(tr("retract"));
+        publishButton
+            = Wt::cpp14::make_unique<Wt::WPushButton>(tr("retract"));
 	publishButton->clicked().connect(this, &PostView::retract);
       }
-      bindWidget("publish", publishButton);
+      bindWidget("publish", std::move(publishButton));
 
-      WPushButton *editButton = new WPushButton(tr("edit"));
+      auto editButton(Wt::cpp14::make_unique<Wt::WPushButton>(tr("edit")));
       editButton->clicked().connect(this, &PostView::showEdit);
-      bindWidget("edit", editButton);
+      bindWidget("edit", std::move(editButton));
 
-      WPushButton *deleteButton = new WPushButton(tr("delete"));
+      auto deleteButton(Wt::cpp14::make_unique<Wt::WPushButton>(tr("delete")));
       deleteButton->clicked().connect(this, &PostView::rm);
-      bindWidget("delete", deleteButton);
+      bindWidget("delete", std::move(deleteButton));
     } else {
-      bindString("publish", WString::Empty);
-      bindString("edit", WString::Empty);
-      bindString("delete", WString::Empty);
+      bindString("publish", Wt::WString::Empty);
+      bindString("edit", Wt::WString::Empty);
+      bindString("delete", Wt::WString::Empty);
     }
   }
 
-  WAnchor *postAnchor
-    = new WAnchor(WLink(WLink::InternalPath,
+  auto postAnchor = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
 			basePath_ + "author/" + post_->author->name.toUTF8()),
 		  post_->author->name);
-  bindWidget("author", postAnchor);
+  bindWidget("author", std::move(postAnchor));
 }
 
 void PostView::saveEdit()
@@ -184,7 +180,7 @@ void PostView::saveEdit()
     post->state = Post::Unpublished;
     post->author = session_.user();
 
-    dbo::ptr<Comment> rootComment = session_.add(new Comment);
+    dbo::ptr<Comment> rootComment = session_.add(Wt::cpp14::make_unique<Comment>());
     rootComment.modify()->post = post_;
   }
 
@@ -198,7 +194,7 @@ void PostView::saveEdit()
 void PostView::showView()
 {
   if (post_.id() == -1)
-    delete this;
+    this->removeFromParent();
   else {
     dbo::Transaction t(session_);
     render(viewType_);
@@ -244,7 +240,7 @@ void PostView::rm()
   post_.remove();
   t.commit();
 
-  delete this;
+  this->removeFromParent();
 }
 
 void PostView::updateCommentCount(dbo::ptr<Comment> comment)

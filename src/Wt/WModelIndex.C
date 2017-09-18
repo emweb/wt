@@ -3,14 +3,31 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <algorithm>
 #include <cstring>
-#include <boost/functional/hash.hpp>
+#include <functional>
 
-#include "Wt/WModelIndex"
-#include "Wt/WAbstractItemModel"
-#include "Wt/WLogger"
+#include "Wt/WModelIndex.h"
+#include "Wt/WAbstractItemModel.h"
+#include "Wt/WLogger.h"
 
 namespace Wt {
+
+const int ItemDataRole::Display;
+const int ItemDataRole::Decoration;
+const int ItemDataRole::Edit;
+const int ItemDataRole::StyleClass;
+const int ItemDataRole::Checked;
+const int ItemDataRole::ToolTip;
+const int ItemDataRole::Link;
+const int ItemDataRole::MimeType;
+const int ItemDataRole::Level;
+const int ItemDataRole::MarkerPenColor;
+const int ItemDataRole::MarkerBrushColor;
+const int ItemDataRole::MarkerScaleFactor;
+const int ItemDataRole::BarPenColor;
+const int ItemDataRole::BarBrushColor;
+const int ItemDataRole::User;
 
 LOGGER("WModelIndex");
 
@@ -21,9 +38,9 @@ WModelIndex::WModelIndex()
     internalId_(0)
 { }
 
-boost::any WModelIndex::data(int role) const
+cpp17::any WModelIndex::data(ItemDataRole role) const
 {
-  return model_ ? model_->data(*this, role) : boost::any();
+  return model_ ? model_->data(*this, role) : cpp17::any();
 }
 
 WFlags<ItemFlag> WModelIndex::flags() const
@@ -158,8 +175,8 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
 { }
 
 std::size_t hash_value(const Wt::WModelIndex& index) {
-  boost::hash<int> intHasher;
-  boost::hash< ::uint64_t > longHasher;
+  std::hash<int> intHasher;
+  std::hash< ::uint64_t > longHasher;
 
   return intHasher(index.row()) + intHasher(index.column())
     + longHasher(index.internalId());

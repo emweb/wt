@@ -4,31 +4,33 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WServer>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WServer.h>
+#include <Wt/WText.h>
 
-class HelloApplication : public Wt::WApplication
+using namespace Wt;
+
+class HelloApplication : public WApplication
 {
 public:
-  HelloApplication(const Wt::WEnvironment& env, bool embedded);
+  HelloApplication(const WEnvironment& env, bool embedded);
 
 private:
-  Wt::WLineEdit *nameEdit_;
-  Wt::WText *greeting_;
+  WLineEdit *nameEdit_;
+  WText *greeting_;
 
   void greet();
 };
 
-HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
+HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
   : WApplication(env)
 {
-  Wt::WContainerWidget *top;
+  WContainerWidget *top;
 
   setTitle("Hello world");
 
@@ -45,37 +47,41 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
      * divs in the web page. In this example, we create a single div
      * whose DOM id was passed as a request argument.
      */
-    top = new Wt::WContainerWidget();
-    const std::string *div = env.getParameter("div");
-    if (div) {
-      setJavaScriptClass(*div);
-      bindWidget(top, *div);
-    } else {
-      std::cerr << "Missing: parameter: 'div'" << std::endl;
-      return;
-    }
+
+      std::unique_ptr<WContainerWidget> topPtr
+          = cpp14::make_unique<WContainerWidget>();
+      top = topPtr.get();
+
+      const std::string *div = env.getParameter("div");
+      if (div) {
+          setJavaScriptClass(*div);
+          bindWidget(std::move(topPtr), *div);
+      } else {
+          std::cerr << "Missing: parameter: 'div'" << std::endl;
+          return;
+      }
   }
 
+
   if (!embedded)
-    new Wt::WText
-      ("<p><emph>Note: you can also run this application "
-       "from within <a href=\"hello.html\">a web page</a>.</emph></p>",
-       root());
+    root()->addWidget(cpp14::make_unique<WText>(
+       "<p><emph>Note: you can also run this application "
+       "from within <a href=\"hello.html\">a web page</a>.</emph></p>"));
 
   /*
    * Everything else is business as usual.
    */
 
-  top->addWidget(new Wt::WText("Your name, please ? "));
-  nameEdit_ = new Wt::WLineEdit(top);
+  top->addWidget(cpp14::make_unique<WText>("Your name, please ? "));
+  nameEdit_ = top->addWidget(cpp14::make_unique<WLineEdit>());
   nameEdit_->setFocus();
 
-  Wt::WPushButton *b = new Wt::WPushButton("Greet me.", top);
-  b->setMargin(5, Wt::Left);
+  auto b = top->addWidget(cpp14::make_unique<WPushButton>("Greet me."));
+  b->setMargin(5, Side::Left);
 
-  top->addWidget(new Wt::WBreak());
+  top->addWidget(cpp14::make_unique<WBreak>());
 
-  greeting_ = new Wt::WText(top);
+  greeting_ = top->addWidget(cpp14::make_unique<WText>());
 
   /*
    * Connect signals with slots
@@ -92,21 +98,21 @@ void HelloApplication::greet()
   greeting_->setText("Hello there, " + nameEdit_->text());
 }
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new HelloApplication(env, false);
+  return cpp14::make_unique<HelloApplication>(env, false);
 }
 
-Wt::WApplication *createWidgetSet(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createWidgetSet(const WEnvironment& env)
 {
-  return new HelloApplication(env, true);
+  return cpp14::make_unique<HelloApplication>(env, true);
 }
 
 int main(int argc, char **argv)
 {
   // Use default server configuration: command line arguments and the
   // wthttpd configuration file.
-  Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
+  WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
   // Application entry points. Each entry point binds an URL with an
   // application (with a callback function used to bootstrap a new
@@ -115,11 +121,11 @@ int main(int argc, char **argv)
   // The following is the default entry point. It configures a
   // standalone Wt application at the deploy path configured in the
   // server configuration.
-  server.addEntryPoint(Wt::Application, createApplication);
+  server.addEntryPoint(EntryPointType::Application, createApplication);
 
   // The following adds an entry point for a widget set. A widget set
   // must be loaded as a JavaScript from an HTML page.
-  server.addEntryPoint(Wt::WidgetSet, createWidgetSet, "/hello.js");
+  server.addEntryPoint(EntryPointType::WidgetSet, createWidgetSet, "/hello.js");
 
   // Start the server (in the background if there is threading support)
   // and wait for a shutdown signal (e.g. Ctrl C, SIGKILL), then cleanly

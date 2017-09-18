@@ -1,10 +1,11 @@
-#include <Wt/WStandardItem>
-#include <Wt/WStandardItemModel>
-#include <Wt/WStringListModel>
-#include <Wt/WTableView>
-#include <Wt/WItemDelegate>
-#include <Wt/WContainerWidget>
-#include <Wt/WComboBox>
+#include <Wt/WStandardItem.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WStringListModel.h>
+#include <Wt/WTableView.h>
+#include <Wt/WItemDelegate.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WAny.h>
 
 /*
  * This delegate demonstrates how to override the editing behaviour of a
@@ -17,90 +18,88 @@
  * searching the item in the list). This is done using the general purpose
  * Wt::UserRole in the model.
  */
-class ComboDelegate : public Wt::WItemDelegate {
+class ComboDelegate : public WItemDelegate {
 public:
-    ComboDelegate(Wt::WAbstractItemModel* items)
+    ComboDelegate(std::shared_ptr<WAbstractItemModel> items)
 	: items_(items)
     { }
 
-    void setModelData(const boost::any &editState, Wt::WAbstractItemModel* model,
-		      const Wt::WModelIndex &index) const
+    virtual void setModelData(const cpp17::any &editState, WAbstractItemModel* model,
+                      const WModelIndex &index) const override
     {
-      int stringIdx = (int)Wt::asNumber(editState);
-	model->setData(index, stringIdx, Wt::UserRole);
-	model->setData(index, items_->data(stringIdx, 0), Wt::DisplayRole);
+      int stringIdx = (int)asNumber(editState);
+        model->setData(index, stringIdx, ItemDataRole::User);
+        model->setData(index, items_->data(stringIdx, 0), ItemDataRole::Display);
     }
 
-    boost::any editState(Wt::WWidget* editor) const
+    virtual cpp17::any editState(WWidget *editor, const WModelIndex& index) const override
     {
-	Wt::WComboBox* combo = dynamic_cast<Wt::WComboBox*>
-	    (dynamic_cast<Wt::WContainerWidget*>(editor)->widget(0));
+        WComboBox* combo = dynamic_cast<WComboBox*>
+            (dynamic_cast<WContainerWidget*>(editor)->widget(0));
 	return combo->currentIndex();
     }
 
-    void setEditState(Wt::WWidget* editor, const boost::any &value) const
+    virtual void setEditState(WWidget *editor, const WModelIndex& index,
+                  const cpp17::any& value) const override
     {
-	Wt::WComboBox* combo = dynamic_cast<Wt::WComboBox*>
-	    (dynamic_cast<Wt::WContainerWidget*>(editor)->widget(0));
-	combo->setCurrentIndex((int)Wt::asNumber(value));
+        WComboBox* combo = dynamic_cast<WComboBox*>
+            (dynamic_cast<WContainerWidget*>(editor)->widget(0));
+        combo->setCurrentIndex((int)asNumber(value));
     }
 
 protected:
-    virtual Wt::WWidget* createEditor(const Wt::WModelIndex &index,
-				      Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
+    virtual std::unique_ptr<WWidget> createEditor(const WModelIndex &index,
+                                      WFlags<ViewItemRenderFlag> flags) const override
     {
-	Wt::WContainerWidget *const container = new Wt::WContainerWidget();
-	Wt::WComboBox* combo = new Wt::WComboBox(container);
+        auto container = cpp14::make_unique<WContainerWidget>();
+        auto combo = container->addWidget(cpp14::make_unique<WComboBox>());
 	combo->setModel(items_);
-	combo->setCurrentIndex((int)Wt::asNumber(index.data(Wt::UserRole)));
+	combo->setCurrentIndex((int)asNumber(index.data(ItemDataRole::User)));
 
-	combo->changed().connect(boost::bind(&ComboDelegate::doCloseEditor, this,
-					     container, true));
-	combo->enterPressed().connect(boost::bind(&ComboDelegate::doCloseEditor,
-    					      this, container, true));
-	combo->escapePressed().connect(boost::bind(&ComboDelegate::doCloseEditor,
-						   this, container, false));
+	combo->changed().connect(std::bind(&ComboDelegate::doCloseEditor, this,
+					   container.get(), true));
+	combo->enterPressed().connect(std::bind(&ComboDelegate::doCloseEditor,
+						this, container.get(), true));
+	combo->escapePressed().connect(std::bind(&ComboDelegate::doCloseEditor,
+						 this, container.get(), false));
 
-	return container;
+        return std::move(container);
     }
 
 private:
-    Wt::WAbstractItemModel* items_;
+    std::shared_ptr<WAbstractItemModel> items_;
 
-    void doCloseEditor(Wt::WWidget *editor, bool save) const
+    virtual void doCloseEditor(WWidget *editor, bool save) const
     {
-	closeEditor().emit(editor, save);
+        closeEditor().emit(editor, save);
     }
 };
 
 SAMPLE_BEGIN(ComboDelegateTable)
 
-Wt::WTableView *table = new Wt::WTableView();
+auto table = cpp14::make_unique<WTableView>();
 
 // create model
-std::vector<Wt::WString> options;
-options.push_back("apples");
-options.push_back("pears");
-options.push_back("bananas");
-options.push_back("cherries");
+std::vector<WString> options { "apples", "pears", "bananas", "cherries" };
 
-Wt::WStandardItemModel *model = new Wt::WStandardItemModel(table);
+auto model = std::make_shared<WStandardItemModel>();
 for (unsigned i=0; i < 2; i++) {
   for (unsigned j=0; j < 2; j++) {
-    Wt::WStandardItem *item = new Wt::WStandardItem();
-    item->setData(0, Wt::UserRole);
-    item->setData(options[0], Wt::DisplayRole);
-    item->setFlags(Wt::ItemIsEditable);
-    model->setItem(i, j, item);
+    auto item = cpp14::make_unique<WStandardItem>();
+    item->setData(0, ItemDataRole::User);
+    item->setData(options[0], ItemDataRole::Display);
+    item->setFlags(ItemFlag::Editable);
+    model->setItem(i, j, std::move(item));
   }
 }
 
 // create table
 table->setModel(model);
-table->setEditTriggers(Wt::WAbstractItemView::SingleClicked);
-Wt::WStringListModel* slModel = new Wt::WStringListModel(table);
+table->setEditTriggers(EditTrigger::SingleClicked);
+auto slModel = std::make_shared<WStringListModel>();
 slModel->setStringList(options);
-ComboDelegate* customdelegate = new ComboDelegate(slModel);
+std::shared_ptr<ComboDelegate> customdelegate =
+    std::make_shared<ComboDelegate>(slModel);
 table->setItemDelegate(customdelegate);
 
 table->setSortingEnabled(false);
@@ -113,4 +112,4 @@ for (int i = 0; i < table->model()->columnCount(); ++i)
     table->setColumnWidth(i, WIDTH);
 table->setWidth((WIDTH + 7) * table->model()->columnCount() + 2);
 
-SAMPLE_END(return table)
+SAMPLE_END(return std::move(table))

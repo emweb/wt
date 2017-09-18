@@ -6,16 +6,14 @@
 
 #include <stdlib.h>
 
-#include "Wt/WApplication"
-#include "Wt/WDateTime"
-#include "Wt/WDate"
-#include "Wt/WLocalDateTime"
-#include "Wt/WTime"
+#include "Wt/WApplication.h"
+#include "Wt/WDateTime.h"
+#include "Wt/WDate.h"
+#include "Wt/WLocalDateTime.h"
+#include "Wt/WTime.h"
+#include "Wt/Date/date.h"
 
 #ifndef DOXYGEN_ONLY
-
-namespace posix = boost::posix_time;
-namespace gregorian = boost::gregorian;
 
 namespace Wt {
 
@@ -31,49 +29,58 @@ namespace Wt {
     {
       return WString::tr(key);
     }
+    inline WString trn(const char *key, ::uint64_t n)
+    {
+      return WString::trn(key, n);
+    }
   }
 
-InvalidDateTimeException::InvalidDateTimeException()
-  : WException("Error: Attempted operation on an invalid WDateTime")
-{ }
-
 WDateTime::WDateTime()
+  : invalid_date_time_(true), null_(true)
 { }
 
 WDateTime::WDateTime(const WDate& date)
+  : null_(false)
 {
   if (date.isValid()) {
-    gregorian::date d = date.toGregorianDate();
-    posix::time_duration t(0, 0, 0, 0);
-
-    datetime_ = posix::ptime(d, t);
-  } else
-    datetime_ = posix::ptime(posix::neg_infin);
+    datetime_ = date.toTimePoint();
+    invalid_date_time_ = false;
+  } else{
+    invalid_date_time_ = true;
+  }
 }
 
 WDateTime::WDateTime(const WDate& date, const WTime& time)
+    : null_(false)
 {
   if (date.isValid() && time.isValid()) {
-    gregorian::date d = date.toGregorianDate();
-    posix::time_duration t = time.toTimeDuration();
-
-    datetime_ = posix::ptime(d, t);
+    std::chrono::system_clock::time_point d = date.toTimePoint();
+    d += std::chrono::hours(time.hour());
+    d += std::chrono::minutes(time.minute());
+    d += std::chrono::seconds(time.second());
+    d += std::chrono::milliseconds(time.msec());
+    datetime_ = d;
+    invalid_date_time_ = false;
   } else
-    datetime_ = posix::ptime(posix::neg_infin);
+    invalid_date_time_ = true;
 }
 
-WDateTime::WDateTime(posix::ptime dt)
-  : datetime_(dt)
+WDateTime::WDateTime(std::chrono::system_clock::time_point timepoint)
+  : datetime_(timepoint), invalid_date_time_(false), null_(false)
 { }
 
 void WDateTime::setTime_t(std::time_t t)
 {
-  datetime_ = posix::from_time_t(t);
+  null_ = false;
+  datetime_ = std::chrono::system_clock::from_time_t(t);
+  invalid_date_time_ = false;
 }
 
-void WDateTime::setPosixTime(const posix::ptime& dt)
+void WDateTime::setTimePoint(const std::chrono::system_clock::time_point& timepoint)
 {
-  datetime_ = dt;
+  null_ = false;
+  datetime_ = timepoint;
+  invalid_date_time_ = false;
 }
 
 void WDateTime::setDate(const WDate& date)
@@ -87,8 +94,7 @@ void WDateTime::setDate(const WDate& date)
 const WDate WDateTime::date() const
 {
   if (isValid()) {
-    gregorian::date d = datetime_.date();
-    return WDate(d);
+    return WDate(datetime_);
   } else
     return WDate();
 }
@@ -101,53 +107,41 @@ void WDateTime::setTime(const WTime& time)
 
 const WTime WDateTime::time() const
 {
-  if (isValid()) {
-    posix::time_duration d = datetime_.time_of_day();
-    posix::time_duration::fractional_seconds_type ticks_per_msec =
-      posix::time_duration::ticks_per_second() / 1000;
-    posix::time_duration::fractional_seconds_type msec =
-      d.fractional_seconds();
-    msec = msec / ticks_per_msec;
-    return WTime(d.hours(), d.minutes(), d.seconds(), (int)msec);
+  if(isValid()){
+      date::sys_days dp = date::floor<date::days>(datetime_);
+      auto time = date::make_time(datetime_ - dp);
+      std::chrono::duration<int, std::milli> ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.subseconds());
+      return WTime(time.hours().count(), time.minutes().count(), time.seconds().count(), ms.count());
   } else
-    return WTime();
+      return WTime();
 }
 
 WDateTime WDateTime::addMSecs(int ms) const
 {
-  if (isValid()) {
-    posix::time_duration::fractional_seconds_type ticks_per_msec =
-      posix::time_duration::ticks_per_second() / 1000;
-    posix::ptime dt = datetime_ + posix::time_duration(0, 0, 0,
-						       ms * ticks_per_msec);
-    if (dt.is_not_a_date_time())
-      dt = posix::ptime(posix::neg_infin);
-
-    return WDateTime(dt);
+  if(isValid()){
+      std::chrono::system_clock::time_point dt = datetime_ + std::chrono::milliseconds(ms);
+      return WDateTime(dt);
   } else
-    return WDateTime();
+      return WDateTime();
 }
 
 WDateTime WDateTime::addSecs(int s) const
 {
-  if (isValid()) {
-    posix::ptime dt = datetime_ + posix::time_duration(0, 0, s, 0);
-    if (dt.is_not_a_date_time())
-      dt = posix::ptime(posix::neg_infin);
-    return WDateTime(dt);
+  if(isValid()){
+      std::chrono::system_clock::time_point dt = datetime_ + std::chrono::seconds(s);
+      return WDateTime(dt);
   } else
-    return WDateTime();
+      return WDateTime();
 }
 
 WDateTime WDateTime::addDays(int ndays) const
 {
-  if (isValid()) {
-    posix::ptime dt = datetime_ + gregorian::days(ndays);
-    if (dt.is_not_a_date_time())
-      dt = posix::ptime(posix::neg_infin);
-    return WDateTime(dt);
+  if(isValid()){
+      WDate d = date().addDays(ndays);
+      WTime t = time();
+      return WDateTime(d, t);
   } else
-    return WDateTime();
+      return WDateTime();
 }
 
 WDateTime WDateTime::addMonths(int nmonths) const
@@ -172,33 +166,32 @@ WDateTime WDateTime::addYears(int nyears) const
 
 bool WDateTime::isNull() const
 {
-  return datetime_.is_not_a_date_time();
+    return null_;
 }
 
 bool WDateTime::isValid() const
 {
-  return !datetime_.is_special();
+  return !invalid_date_time_;
 }
 
 std::time_t WDateTime::toTime_t() const
 {
-  if (isValid())
-    return (datetime_ - posix::ptime(gregorian::date(1970, 1, 1)))
-      .total_seconds();
+  if(isValid())
+      return std::chrono::system_clock::to_time_t(datetime_);
   else
-    return (std::time_t) 0;
+      return (std::time_t) 0;
 }
 
-posix::ptime WDateTime::toPosixTime() const
+std::chrono::system_clock::time_point WDateTime::toTimePoint() const
 {
   return datetime_;
 }
 
 WLocalDateTime WDateTime::toLocalTime(const WLocale& locale) const
 {
-  return WLocalDateTime
-    (boost::local_time::local_date_time(datetime_, locale.time_zone_ptr()),
-     locale.dateTimeFormat());
+  if(isValid())
+      return WLocalDateTime(datetime_, locale.timeZone(), locale.dateTimeFormat());
+  return WLocalDateTime();
 }
 
 int WDateTime::secsTo(const WDateTime& other) const
@@ -214,7 +207,7 @@ int WDateTime::daysTo(const WDateTime& other) const
   return date().daysTo(other.date());
 }
 
-WString WDateTime::timeTo(const WDateTime& other, int minValue) const
+WString WDateTime::timeTo(const WDateTime& other, std::chrono::seconds minValue) const
 {
   if (!isValid() || !other.isValid())
     return WString::Empty;
@@ -227,73 +220,61 @@ WString WDateTime::timeTo(const WDateTime& other, int minValue) const
     } else {
       return "less than a second";
     }
-  else if (abs(secs) < 60 * minValue)
+  else if (abs(secs) < 60 * minValue.count())
     if (WApplication::instance()) {
-      return secs > 1 ? tr("Wt.WDateTime.seconds").arg(secs) :
-        tr("Wt.WDateTime.second");
+      return trn("Wt.WDateTime.seconds", secs > 1 ? secs : 1).arg(secs);
     } else {
-      return boost::lexical_cast<std::string>(secs) + " second"
-        + multiple(secs, "s");
+      return std::to_string(secs) + " second" + multiple(secs, "s");
     }
   else {
     int minutes = secs / 60;
-    if (abs(minutes) < 60 * minValue)
+    if (abs(minutes) < 60 * minValue.count())
       if (WApplication::instance()) {
-        return minutes > 1 ? tr("Wt.WDateTime.minutes").arg(minutes) :
-          tr("Wt.WDateTime.minute");
+	return trn("Wt.WDateTime.minutes", minutes > 1 ? minutes : 1).arg(minutes);
       } else {
-        return boost::lexical_cast<std::string>(minutes) + " minute"
-          + multiple(minutes, "s");
+        return std::to_string(minutes) + " minute" + multiple(minutes, "s");
       }
     else {
       int hours = minutes / 60;
-      if (abs(hours) < 24 * minValue)
+      if (abs(hours) < 24 * minValue.count())
         if (WApplication::instance()) {
-          return hours > 1 ? tr("Wt.WDateTime.hours").arg(hours) :
-            tr("Wt.WDateTime.hour");
+	  return trn("Wt.WDateTime.hours", hours > 1 ? hours : 1).arg(hours);
         } else {
-          return boost::lexical_cast<std::string>(hours) + " hour"
-            + multiple(hours, "s");
+          return std::to_string(hours) + " hour" + multiple(hours, "s");
         }
       else {
 	int days = hours / 24;
-        if (abs(days) < 7 * minValue)
+        if (abs(days) < 7 * minValue.count())
           if (WApplication::instance()) {
-            return days > 1 ? tr("Wt.WDateTime.days").arg(days) :
-              tr("Wt.WDateTime.day");
-          } else {
-            return boost::lexical_cast<std::string>(days) + " day"
-              + multiple(days, "s");
+	    return trn("Wt.WDateTime.days", days > 1 ? days : 1).arg(days);
+	  } else {
+            return std::to_string(days) + " day" + multiple(days, "s");
           }
 	else {
-	  if (abs(days) < 31 * minValue) {
+	  if (abs(days) < 31 * minValue.count()) {
 	    int weeks = days / 7;
             if (WApplication::instance()) {
-              return weeks > 1 ? tr("Wt.WDateTime.weeks").arg(weeks) :
-                tr("Wt.WDateTime.week");
+	      return trn("Wt.WDateTime.weeks", weeks > 1 ? weeks : 1).arg(weeks);
             } else {
-              return boost::lexical_cast<std::string>(weeks) + " week"
-                + multiple(weeks, "s");
+              return std::to_string(weeks) + " week" + multiple(weeks, "s");
             }
 	  } else {
-	    if (abs(days) < 365 * minValue) {
+	    if (abs(days) < 365 * minValue.count()) {
 	      int months = days / 30;
               if (WApplication::instance()) {
-                return months > 1 ? tr("Wt.WDateTime.months").arg(months) :
-                  tr("Wt.WDateTime.month");
+		return trn("Wt.WDateTime.months", months > 1 ? months : 1).arg(months);
               } else {
-                return boost::lexical_cast<std::string>(months) + " month"
-                  + multiple(months, "s");
+                return std::to_string(months) + " month"
+		  + multiple(months, "s");
               }
 	    } else {
 	      int years = days / 365;
               if (WApplication::instance()) {
-                return years > 1 ? tr("Wt.WDateTime.years").arg(years) :
-                  tr("Wt.WDateTime.year");
-              } else {
-		return boost::lexical_cast<std::string>(years) + " year"
+		return trn("Wt.WDateTime.years", years > 1 ? years : 1).arg(years);
+	      } else {
+		return std::to_string(years) + " year"
 		  + multiple(years, "s");
-              }
+	      }
 	    }
 	  }
 	}
@@ -334,7 +315,7 @@ bool WDateTime::operator!=(const WDateTime& other) const
 
 WDateTime WDateTime::currentDateTime()
 {
-  return WDateTime(posix::microsec_clock::universal_time());
+  return WDateTime(std::chrono::system_clock::now());
 }
 
 WString WDateTime::defaultFormat()
@@ -398,25 +379,25 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
     }
 
     if (!inQuote) {
-      CharState state = CharUnhandled;
+      CharState state = CharState::CharUnhandled;
 
       if (date) {
 	CharState dateState = WDate::handleSpecial(c, v, vi, dateParse, format);
-	if (dateState == CharInvalid)
+	if (dateState == CharState::CharInvalid)
 	  return;
-	else if (dateState == CharHandled)
-	  state = CharHandled;
+	else if (dateState == CharState::CharHandled)
+	  state = CharState::CharHandled;
       }
 
       if (time) {
 	CharState timeState = WTime::handleSpecial(c, v, vi, timeParse, format);
-	if (timeState == CharInvalid)
+	if (timeState == CharState::CharInvalid)
 	  return;
-	else if (timeState == CharHandled)
-	  state = CharHandled;
+	else if (timeState == CharState::CharHandled)
+	  state = CharState::CharHandled;
       }
 
-      if (!finished && state == CharUnhandled) {
+      if (!finished && state == CharState::CharUnhandled) {
 	if (c == '\'') {
 	  inQuote = true;
 	  gotQuoteInQuote = false;
@@ -465,9 +446,9 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
 {
   if ((date && !date->isValid()) || (time && !time->isValid())) {
     if (WApplication::instance()) {
-      return tr("Wt.WDateTime.null");
+        return tr("Wt.WDateTime.null");
     } else {
-      return WString::fromUTF8("Null");
+        return WString::fromUTF8("Null");
     }
   }
 
@@ -518,7 +499,6 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
       }
     }
   }
-
   return WString::fromUTF8(result.str());
 }
 
@@ -529,7 +509,7 @@ WDateTime WDateTime::fromTime_t(std::time_t t) {
   return dt;
 }
 
-WDateTime WDateTime::fromPosixTime(const posix::ptime& t) {
+WDateTime WDateTime::fromTimePoint(const std::chrono::system_clock::time_point& t) {
   return WDateTime(t);
 }
 

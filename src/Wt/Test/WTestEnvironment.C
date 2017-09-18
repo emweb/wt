@@ -5,17 +5,15 @@
  */
 
 #ifndef WT_TARGET_JAVA
-// bugfix for https://svn.boost.org/trac/boost/ticket/5722
-#include <boost/asio.hpp>
-#include "Wt/WIOService"
+#include "Wt/WIOService.h"
 #endif // WT_TARGET_JAVA
 
 #include "Configuration.h"
 #include "WebController.h"
 #include "WebSession.h"
 
-#include "Wt/WServer"
-#include "Wt/Test/WTestEnvironment"
+#include "Wt/WServer.h"
+#include "Wt/Test/WTestEnvironment.h"
 
 namespace Wt {
 
@@ -94,7 +92,7 @@ void WTestEnvironment::init(EntryPointType type)
   controller_->addSession(theSession_);
 #endif // WT_TARGET_JAVA
 
-  new WebSession::Handler(theSession_, WebSession::Handler::TakeLock);
+  new WebSession::Handler(theSession_, WebSession::Handler::LockOption::TakeLock);
 
   doesAjax_ = true;
   doesCookies_ = true;
@@ -130,7 +128,7 @@ void WTestEnvironment::endRequest()
 
 void WTestEnvironment::startRequest()
 {
-  new WebSession::Handler(theSession_, WebSession::Handler::TakeLock);
+  new WebSession::Handler(theSession_, WebSession::Handler::LockOption::TakeLock);
 }
 
 WTestEnvironment::~WTestEnvironment()
@@ -227,9 +225,6 @@ void WTestEnvironment::setInternalPath(const std::string& internalPath)
 {
   WEnvironment::setInternalPath(internalPath);
 }
-
-void WTestEnvironment::setContentType(ContentType contentType)
-{ }
 
 #ifndef WT_TARGET_JAVA
 void WTestEnvironment::setAppRoot(const std::string &appRoot)

@@ -18,7 +18,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <boost/lexical_cast.hpp>
 
 #include "Request.h"
 #include "StaticReply.h"
@@ -52,7 +51,7 @@ RequestHandler::RequestHandler(const Configuration &config,
   : config_(config),
     wtConfig_(wtConfig),
     logger_(logger),
-    sessionManager_(0)
+    sessionManager_(nullptr)
 { }
 
 void RequestHandler::setSessionManager(SessionProcessManager *sessionManager)
@@ -118,7 +117,8 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
       req.request_path = ep.path();
 
       if (wtConfig_.sessionPolicy() != Wt::Configuration::DedicatedProcess ||
-	  ep.type() == Wt::StaticResource || config_.parentPort() != -1) {
+	  ep.type() == Wt::EntryPointType::StaticResource ||
+	  config_.parentPort() != -1) {
 	if (!lastWtReply)
 	  lastWtReply.reset(new WtReply(req, ep, config_));
 	else
@@ -129,7 +129,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
 	if (!lastProxyReply)
 	  lastProxyReply.reset(new ProxyReply(req, config_, *sessionManager_));
 	else
-	  lastProxyReply->reset(0);
+	  lastProxyReply->reset(nullptr);
 
 	return lastProxyReply;
       }
@@ -141,7 +141,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
   if (!lastStaticReply)
     lastStaticReply.reset(new StaticReply(req, config_));
   else
-    lastStaticReply->reset(0);
+    lastStaticReply->reset(nullptr);
 
   return lastStaticReply;
 

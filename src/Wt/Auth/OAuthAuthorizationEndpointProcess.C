@@ -1,20 +1,26 @@
-#include "OAuthAuthorizationEndpointProcess"
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include "OAuthAuthorizationEndpointProcess.h"
+
 #include <string>
 #include <set>
 
-#include "Wt/Utils"
-#include "Wt/WText"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WRandom"
-#include "Wt/WDateTime"
-#include "Wt/Utils"
-#include "Wt/WContainerWidget"
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/OAuthClient"
-#include "Wt/WLogger"
+#include "Wt/Utils.h"
+#include "Wt/WText.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WRandom.h"
+#include "Wt/WDateTime.h"
+#include "Wt/Utils.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/PasswordVerifier.h"
+#include "Wt/Auth/HashFunction.h"
+#include "Wt/Auth/OAuthClient.h"
+#include "Wt/WLogger.h"
 
 #define ERROR_MSG(e) WString::tr("Wt.Auth.OAuthAuthorizationEndpointProcess." e)
 

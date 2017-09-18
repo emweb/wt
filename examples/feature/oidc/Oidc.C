@@ -1,14 +1,14 @@
-#include <Wt/WText>
-#include <Wt/WApplication>
-#include <Wt/WServer>
-#include <Wt/WContainerWidget>
-#include <Wt/WImage>
+#include <Wt/WText.h>
+#include <Wt/WApplication.h>
+#include <Wt/WServer.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WImage.h>
 
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/OAuthTokenEndpoint>
-#include <Wt/Auth/OidcService>
-#include <Wt/Auth/OidcUserInfoEndpoint>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/OAuthTokenEndpoint.h>
+#include <Wt/Auth/OidcService.h>
+#include <Wt/Auth/OidcUserInfoEndpoint.h>
 
 #include "model/Session.h"
 #include "OAuthAuthorizationEndpoint.h"
@@ -50,51 +50,24 @@ public:
 
     process_ = oidcService->createProcess("email profile");
 
-    Wt::WImage* image = new Wt::WImage("img/Wt_vol_gradient.png", root());
-    image->clicked().connect(process_, &Wt::Auth::OAuthProcess::startAuthenticate);
+    Wt::WImage *image =
+      root()->addWidget(Wt::cpp14::make_unique<Wt::WImage>("img/Wt_vol_gradient.png"));
+    image->clicked().connect(process_.get(), &Wt::Auth::OAuthProcess::startAuthenticate);
 
     process_->authenticated().connect(this, &OidcClient::authenticated);
   }
 
 
 private:
-  Wt::Auth::OidcProcess* process_;
+  std::unique_ptr<Wt::Auth::OAuthProcess> process_;
 
   void authenticated(Wt::Auth::Identity id)
   {
     root()->clear();
-    new Wt::WText("Welcome, " + id.name(), root());
-  }
-
-  virtual ~OidcClient()
-  {
-    delete process_;
+    root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(
+          Wt::WString("Welcome, {1}").arg(id.name()), Wt::TextFormat::Plain));
   }
 };
-
-Wt::WApplication *createAuthEndpoint(const Wt::WEnvironment& env, std::string dbPath)
-{
-  Session *session = new Session(dbPath);
-
-  // add an example client
-  if (!session->users().idpClientFindWithId("example_client_id").checkValid()) {
-    std::set<std::string> uris;
-    uris.insert(deployUrl + "/oauth2/callback");
-    session->users().idpClientAdd(
-        "example_client_id",
-        true,
-        uris,
-        Wt::Auth::HttpAuthorizationBasic,
-        "example_client_secret");
-  }
-
-  return new OAuthAuthorizationEndpoint(env, session);
-}
-
-Wt::WApplication *createClient(const Wt::WEnvironment& env)
-{
-  return new OidcClient(env);
-}
 
 int main(int argc, char** argv)
 {
@@ -105,19 +78,36 @@ int main(int argc, char** argv)
   oidcService = &myOidcService;
 
   std::string dbPath = server.appRoot() + "auth.db";
-  Wt::ApplicationCreator callback = boost::bind(&createAuthEndpoint, _1, dbPath);
-  server.addEntryPoint(Wt::Application, callback, "/oauth2");
+  Wt::ApplicationCreator callback = [dbPath](const Wt::WEnvironment &env) {
+    auto session = Wt::cpp14::make_unique<Session>(dbPath);
 
-  server.addEntryPoint(Wt::Application, createClient);
+    // add an example client
+    if (!session->users().idpClientFindWithId("example_client_id").checkValid()) {
+      std::set<std::string> uris;
+      uris.insert(deployUrl + "/oauth2/callback");
+      session->users().idpClientAdd(
+          "example_client_id",
+          true,
+          uris,
+          Wt::Auth::HttpAuthorizationBasic,
+          "example_client_secret");
+    }
+
+    return Wt::cpp14::make_unique<OAuthAuthorizationEndpoint>(env, std::move(session));
+  };
+  server.addEntryPoint(Wt::EntryPointType::Application, callback, "/oauth2");
+
+  server.addEntryPoint(Wt::EntryPointType::Application, [](const Wt::WEnvironment& env) {
+    return Wt::cpp14::make_unique<OidcClient>(env);
+  });
 
   Session tokenSession(dbPath);
-  Wt::Auth::OAuthTokenEndpoint *tokenEndpoint =
-    new Wt::Auth::OAuthTokenEndpoint(tokenSession.users(), deployUrl);
-  server.addResource(tokenEndpoint, "/oauth2/token");
+  Wt::Auth::OAuthTokenEndpoint tokenEndpoint{tokenSession.users(), deployUrl};
+  server.addResource(&tokenEndpoint, "/oauth2/token");
 
   Session userInfoSession(dbPath);
-  Wt::WResource *userInfoEndpoint = new Wt::Auth::OidcUserInfoEndpoint(userInfoSession.users());
-  server.addResource(userInfoEndpoint, "/oidc/userinfo");
+  Wt::Auth::OidcUserInfoEndpoint userInfoEndpoint{userInfoSession.users()};
+  server.addResource(&userInfoEndpoint, "/oidc/userinfo");
 
   Session::configureAuth();
 

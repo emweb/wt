@@ -4,23 +4,21 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
-
-#include "Wt/WAbstractArea"
-#include "Wt/WApplication"
-#include "Wt/WCanvasPaintDevice"
-#include "Wt/WEnvironment"
-#include "Wt/WImage"
-#include "Wt/WJavaScriptExposableObject"
-#include "Wt/WPaintedWidget"
-#include "Wt/WPainter"
-#include "Wt/WResource"
-#include "Wt/WSvgImage"
-#include "Wt/WVmlImage"
+#include "Wt/WAbstractArea.h"
+#include "Wt/WApplication.h"
+#include "Wt/WCanvasPaintDevice.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WImage.h"
+#include "Wt/WJavaScriptExposableObject.h"
+#include "Wt/WPaintedWidget.h"
+#include "Wt/WPainter.h"
+#include "Wt/WResource.h"
+#include "Wt/WSvgImage.h"
+#include "Wt/WVmlImage.h"
 #include "WebUtils.h"
 
 #ifdef WT_HAS_WRASTERIMAGE
-#include "Wt/WRasterImage"
+#include "Wt/WRasterImage.h"
 #endif // WT_HAS_WRASTERIMAGE
 
 #include "DomElement.h"
@@ -34,7 +32,7 @@ namespace Wt {
 
 class WWidgetPainter {
 public:
-  enum RenderType {
+  enum class RenderType {
     InlineVml,
     InlineSvg,
     HtmlCanvas,
@@ -43,11 +41,13 @@ public:
 
 public:
   virtual ~WWidgetPainter();
-  virtual WPaintDevice *createPaintDevice(bool paintUpdate) = 0;
-  virtual WPaintDevice *getPaintDevice(bool paintUpdate) = 0;
-  virtual void createContents(DomElement *element, WPaintDevice *device) = 0;
+  virtual std::unique_ptr<WPaintDevice> createPaintDevice(bool paintUpdate)
+  = 0;
+  virtual std::unique_ptr<WPaintDevice> getPaintDevice(bool paintUpdate) = 0;
+  virtual void createContents(DomElement *element,
+			      std::unique_ptr<WPaintDevice> device) = 0;
   virtual void updateContents(std::vector<DomElement *>& result,
-			      WPaintDevice *device) = 0;
+			      std::unique_ptr<WPaintDevice> device) = 0;
   virtual RenderType renderType() const = 0;
 
 protected:
@@ -60,12 +60,16 @@ class WWidgetVectorPainter : public WWidgetPainter
 {
 public:
   WWidgetVectorPainter(WPaintedWidget *widget, RenderType renderType);
-  virtual WVectorImage *createPaintDevice(bool paintUpdate);
-  virtual WPaintDevice *getPaintDevice(bool paintUpdate);
-  virtual void createContents(DomElement *element, WPaintDevice *device);
+
+  virtual std::unique_ptr<WPaintDevice> createPaintDevice(bool paintUpdate)
+    override;
+  virtual std::unique_ptr<WPaintDevice> getPaintDevice(bool paintUpdate)
+    override;
+  virtual void createContents(DomElement *element,
+			      std::unique_ptr<WPaintDevice> device) override;
   virtual void updateContents(std::vector<DomElement *>& result,
-			      WPaintDevice *device);
-  virtual RenderType renderType() const { return renderType_; }
+			      std::unique_ptr<WPaintDevice> device) override;
+  virtual RenderType renderType() const override { return renderType_; }
 
 private:
   RenderType renderType_;
@@ -75,12 +79,17 @@ class WWidgetCanvasPainter : public WWidgetPainter
 {
 public:
   WWidgetCanvasPainter(WPaintedWidget *widget);
-  virtual WCanvasPaintDevice *createPaintDevice(bool paintUpdate);
-  virtual WPaintDevice *getPaintDevice(bool paintUpdate);
-  virtual void createContents(DomElement *element, WPaintDevice *device);
+  virtual std::unique_ptr<WPaintDevice> createPaintDevice(bool paintUpdate)
+    override;
+  virtual std::unique_ptr<WPaintDevice> getPaintDevice(bool paintUpdate)
+    override;
+  virtual void createContents(DomElement *element,
+			      std::unique_ptr<WPaintDevice> device) override;
   virtual void updateContents(std::vector<DomElement *>& result,
-			      WPaintDevice *device); 
-  virtual RenderType renderType() const { return HtmlCanvas; }
+			      std::unique_ptr<WPaintDevice> device) override;
+  virtual RenderType renderType() const override { 
+    return RenderType::HtmlCanvas; 
+  }
 };
 
 class WWidgetRasterPainter : public WWidgetPainter
@@ -88,33 +97,31 @@ class WWidgetRasterPainter : public WWidgetPainter
 public:
   WWidgetRasterPainter(WPaintedWidget *widget);
   ~WWidgetRasterPainter();
-  virtual
-#ifdef WT_HAS_WRASTERIMAGE
-  WRasterImage
-#else
-  WPaintDevice
-#endif
- *createPaintDevice(bool paintUpdate);
-  virtual WPaintDevice *getPaintDevice(bool paintUpdate);
-  virtual void createContents(DomElement *element, WPaintDevice *device);
+
+  virtual std::unique_ptr<WPaintDevice> createPaintDevice(bool paintUpdate)
+    override;
+  virtual std::unique_ptr<WPaintDevice>getPaintDevice(bool paintUpdate)
+    override;
+  virtual void createContents(DomElement *element,
+			      std::unique_ptr<WPaintDevice> device) override;
   virtual void updateContents(std::vector<DomElement *>& result,
-			      WPaintDevice *device); 
-  virtual RenderType renderType() const { return PngImage; }
+			      std::unique_ptr<WPaintDevice> device) override; 
+  virtual RenderType renderType() const override { 
+    return RenderType::PngImage; 
+  }
 
 private:
-  WRasterImage *device_;
+  std::unique_ptr<WPaintDevice> device_;
 };
 
-WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    preferredMethod_(HtmlCanvas),
-    painter_(0),
+WPaintedWidget::WPaintedWidget()
+  : preferredMethod_(RenderMethod::HtmlCanvas),
     needRepaint_(false),
     sizeChanged_(false),
     areaImageAdded_(false),
-    repaintFlags_(0),
-    areaImage_(0),
-    renderWidth_(0), renderHeight_(0),
+    repaintFlags_(None),
+    renderWidth_(0), 
+    renderHeight_(0),
     repaintSlot_("function() {"
 	"var o=" + this->objJsRef() + ";"
 	"if(o){o.repaint();}"
@@ -127,7 +134,7 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
 
     if (env.agentIsOpera()
 	&& env.userAgent().find("Mac OS X") == std::string::npos)
-      preferredMethod_ = InlineSvgVml;
+      preferredMethod_ = RenderMethod::InlineSvgVml;
   }
 
   setInline(false);
@@ -135,15 +142,13 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
 
 WPaintedWidget::~WPaintedWidget()
 {
-  delete painter_;
-  delete areaImage_;
+  manageWidget(areaImage_, std::unique_ptr<WImage>());
 }
 
-void WPaintedWidget::setPreferredMethod(Method method)
+void WPaintedWidget::setPreferredMethod(RenderMethod method)
 {
   if (preferredMethod_ != method) {
-    delete painter_;
-    painter_ = 0;
+    painter_.reset();
     preferredMethod_ = method;
   }
 }
@@ -190,7 +195,7 @@ void WPaintedWidget::update(WFlags<PaintFlag> flags)
 
 void WPaintedWidget::enableAjax()
 {
-  if (dynamic_cast<WWidgetCanvasPainter *>(painter_)
+  if (dynamic_cast<WWidgetCanvasPainter *>(painter_.get())
       && renderWidth_ != 0 && renderHeight_ != 0)
     update();
 
@@ -201,7 +206,7 @@ void WPaintedWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  if (getMethod() == HtmlCanvas) {
+  if (getMethod() == RenderMethod::HtmlCanvas) {
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs10);
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs11);
     if (jsObjects_.size() > 0) {
@@ -218,7 +223,7 @@ void WPaintedWidget::defineJavaScript()
 
 void WPaintedWidget::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull || !jsDefined_) {
+  if (flags.test(RenderFlag::Full) || !jsDefined_) {
     defineJavaScript();
   }
 
@@ -236,69 +241,81 @@ void WPaintedWidget::setFormData(const FormData& formData)
   jsObjects_.assignFromJSON(parVals[0]);
 }
 
-WPaintedWidget::Method WPaintedWidget::getMethod() const
+RenderMethod WPaintedWidget::getMethod() const
 {
   const WEnvironment& env = WApplication::instance()->environment();
 
-  Method method;
+  RenderMethod method;
 
 #ifdef WT_HAS_WRASTERIMAGE
-  if (preferredMethod_ == PngImage) return PngImage;
+  if (preferredMethod_ == RenderMethod::PngImage)
+    return RenderMethod::PngImage;
 #endif
 
   if (env.agentIsIElt(9)) {
 #ifdef WT_HAS_WRASTERIMAGE
-    method = preferredMethod_ == InlineSvgVml ? InlineSvgVml : PngImage;
+    method = preferredMethod_ == RenderMethod::InlineSvgVml ? 
+      RenderMethod::InlineSvgVml : RenderMethod::PngImage;
 #else
-    method = InlineSvgVml;
+    method = RenderMethod::InlineSvgVml;
 #endif
-  } else if (!((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
-        || (env.agentIsGecko() && env.agent() >= WEnvironment::Firefox4_0))) {
-    // on older browsers, inline svg is only supported in xhtml mode. HTML5
-    // also allows inline svg
-    // Safari 5 and Opera 11 do not seem to support inline svg in html mode
+  } else 
+    if (!((env.agentIsChrome() && 
+	   static_cast<unsigned int>(env.agent()) >= 
+	   static_cast<unsigned int>(UserAgent::Chrome5))
+	  || (env.agentIsGecko() && 
+	      static_cast<unsigned int>(env.agent()) >= 
+	      static_cast<unsigned int>(UserAgent::Firefox4_0)))) {
+      // on older browsers, inline svg is only supported in xhtml mode. HTML5
+      // also allows inline svg
+      // Safari 5 and Opera 11 do not seem to support inline svg in html mode
 #ifdef WT_HAS_WRASTERIMAGE
-    method = env.javaScript() ? HtmlCanvas : PngImage;
+      method = env.javaScript() ? RenderMethod::HtmlCanvas :
+	RenderMethod::PngImage;
 #else
-    method = HtmlCanvas;
+      method = RenderMethod::HtmlCanvas;
 #endif
-  } else  {
-    if (!env.javaScript()) {
-      method = InlineSvgVml;
-    } else {
-      /*
-       * For Firefox pre 3.0 on Mac: SVG support is buggy (text filling
-       * is broken).
-       */
-      bool oldFirefoxMac =
-	(env.userAgent().find("Firefox/1.5") != std::string::npos
-	 || env.userAgent().find("Firefox/2.0") != std::string::npos)
-	&& env.userAgent().find("Macintosh") != std::string::npos;
+    } else  {
+      if (!env.javaScript()) {
+	method = RenderMethod::InlineSvgVml;
+      } else {
+	/*
+	 * For Firefox pre 3.0 on Mac: SVG support is buggy (text filling
+	 * is broken).
+	 */
+	bool oldFirefoxMac =
+	  (env.userAgent().find("Firefox/1.5") != std::string::npos
+	   || env.userAgent().find("Firefox/2.0") != std::string::npos)
+	  && env.userAgent().find("Macintosh") != std::string::npos;
 
-      if (oldFirefoxMac)
-	method = HtmlCanvas;
-      else {
-	// HTML canvas if preferred method is PNG, but there's no WRasterImage support
-	method = preferredMethod_ == PngImage ? HtmlCanvas : preferredMethod_;
-      }
+	if (oldFirefoxMac)
+	  method = RenderMethod::HtmlCanvas;
+	else {
+	  // HTML canvas if preferred method is PNG, but there's no
+	  // WRasterImage support
+	  method = preferredMethod_ == RenderMethod::PngImage 
+	    ? RenderMethod::HtmlCanvas : preferredMethod_;
+	}
 
-      /*
-       * Nokia 810's default browser does not do SVG but there is no way of
-       * finding that out, ASFAIK.
-       */
-      bool nokia810 =
-	(env.userAgent().find("Linux arm") != std::string::npos
-	 && env.userAgent().find("Tablet browser") != std::string::npos
-	 && env.userAgent().find("Gecko") != std::string::npos);
+	/*
+	 * Nokia 810's default browser does not do SVG but there is no way of
+	 * finding that out, ASFAIK.
+	 */
+	bool nokia810 =
+	  (env.userAgent().find("Linux arm") != std::string::npos
+	   && env.userAgent().find("Tablet browser") != std::string::npos
+	   && env.userAgent().find("Gecko") != std::string::npos);
 
-      if (nokia810)
-	method = HtmlCanvas;
-      else {
-	// HTML canvas if preferred method is PNG, but there's no WRasterImage support
-	method = preferredMethod_ == PngImage ? HtmlCanvas : preferredMethod_;
+	if (nokia810)
+	  method = RenderMethod::HtmlCanvas;
+	else {
+	  // HTML canvas if preferred method is PNG, but there's no
+	  // WRasterImage support
+	  method = preferredMethod_ == RenderMethod::PngImage 
+	    ? RenderMethod::HtmlCanvas : preferredMethod_;
+	}
       }
     }
-  }
 
   return method;
 }
@@ -311,38 +328,40 @@ bool WPaintedWidget::createPainter()
   const WEnvironment& env = WApplication::instance()->environment();
 
   /* Otherwise, combined preferred method with actual capabilities */
-  Method method = getMethod();
+  RenderMethod method = getMethod();
 
-  if (method == InlineSvgVml) {
+  if (method == RenderMethod::InlineSvgVml) {
     if (env.agentIsIElt(9)) {
-      painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineVml);
+      painter_.reset
+	(new WWidgetVectorPainter(this, WWidgetPainter::RenderType::InlineVml));
     } else {
-      painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineSvg);
+      painter_.reset
+	(new WWidgetVectorPainter(this, WWidgetPainter::RenderType::InlineSvg));
     }
-  } else if (method == PngImage)
-    painter_ = new WWidgetRasterPainter(this);
+  } else if (method == RenderMethod::PngImage)
+    painter_.reset(new WWidgetRasterPainter(this));
   else
-    painter_ = new WWidgetCanvasPainter(this);
+    painter_.reset(new WWidgetCanvasPainter(this));
 
   return true;
 }
 
-WPaintDevice *WPaintedWidget::createPaintDevice() const
+std::unique_ptr<WPaintDevice> WPaintedWidget::createPaintDevice() const
 {
   const_cast<WPaintedWidget *>(this)->createPainter();
 
   if (painter_)
     return painter_->createPaintDevice(true);
   else
-    return 0;
+    return nullptr;
 }
 
 DomElementType WPaintedWidget::domElementType() const
 {
   if (isInline() && WApplication::instance()->environment().agentIsIElt(9))
-    return DomElement_SPAN;
+    return DomElementType::SPAN;
   else  
-    return DomElement_DIV;
+    return DomElementType::DIV;
 }
 
 DomElement *WPaintedWidget::createDomElement(WApplication *app)
@@ -367,31 +386,31 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
   DomElement *wrap = result;
 
   if (width().isAuto() && height().isAuto()) {
-    result->setProperty(PropertyStylePosition, "relative");
+    result->setProperty(Property::StylePosition, "relative");
 
-    wrap = DomElement::createNew(DomElement_DIV);
-    wrap->setProperty(PropertyStylePosition, "absolute");
-    wrap->setProperty(PropertyStyleLeft, "0");
-    wrap->setProperty(PropertyStyleRight, "0");
+    wrap = DomElement::createNew(DomElementType::DIV);
+    wrap->setProperty(Property::StylePosition, "absolute");
+    wrap->setProperty(Property::StyleLeft, "0");
+    wrap->setProperty(Property::StyleRight, "0");
   }
 
-  DomElement *canvas = DomElement::createNew(DomElement_DIV);
+  DomElement *canvas = DomElement::createNew(DomElementType::DIV);
 
   if (!app->environment().agentIsSpiderBot())
     canvas->setId('p' + id());
 
-  WPaintDevice *device = painter_->getPaintDevice(false);
+  std::unique_ptr<WPaintDevice> device = painter_->getPaintDevice(false);
 
   //handle the widget correctly when inline and using VML 
-  if (painter_->renderType() == WWidgetPainter::InlineVml && isInline()) {
-    result->setProperty(PropertyStyle, "zoom: 1;");
-    canvas->setProperty(PropertyStyleDisplay, "inline");
-    canvas->setProperty(PropertyStyle, "zoom: 1;");
+  if (painter_->renderType() == WWidgetPainter::RenderType::InlineVml &&
+      isInline()) {
+    result->setProperty(Property::Style, "zoom: 1;");
+    canvas->setProperty(Property::StyleDisplay, "inline");
+    canvas->setProperty(Property::Style, "zoom: 1;");
   }
 
   if (renderWidth_ != 0 && renderHeight_ != 0) {
-
-    paintEvent(device);
+    paintEvent(device.get());
 
 #ifdef WT_TARGET_JAVA
     if (device->painter())
@@ -399,7 +418,7 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 #endif // WT_TARGET_JAVA
   }
 
-  painter_->createContents(canvas, device);
+  painter_->createContents(canvas, std::move(device));
 
   needRepaint_ = false;
 
@@ -432,19 +451,19 @@ void WPaintedWidget::propagateRenderOk(bool deep)
 void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
 				   WApplication *app)
 {
-  DomElement *e = DomElement::getForUpdate(this, DomElement_DIV);
+  DomElement *e = DomElement::getForUpdate(this, DomElementType::DIV);
   updateDom(*e, false);
   result.push_back(e);
 
   bool createdNew = createPainter();
 
   if (needRepaint_) {
-    WPaintDevice *device = painter_->getPaintDevice
-      ((repaintFlags_ & PaintUpdate) && !createdNew);
+    std::unique_ptr<WPaintDevice> device
+      = painter_->getPaintDevice(repaintFlags_.test(PaintFlag::Update) &&
+				 !createdNew);
 
     if (renderWidth_ != 0 && renderHeight_ != 0) {
-
-      paintEvent(device);
+      paintEvent(device.get());
 
 #ifdef WT_TARGET_JAVA
       if (device->painter())
@@ -453,59 +472,65 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
     }
 
     if (createdNew) {
-      DomElement *canvas = DomElement::getForUpdate('p' + id(), DomElement_DIV);
+      DomElement *canvas
+	= DomElement::getForUpdate('p' + id(), DomElementType::DIV);
       canvas->removeAllChildren();
-      painter_->createContents(canvas, device);
+      painter_->createContents(canvas, std::move(device));
       result.push_back(canvas);
     } else {
-      painter_->updateContents(result, device);
+      painter_->updateContents(result, std::move(device));
     }
 
     needRepaint_ = false;
-    repaintFlags_ = 0;
+    repaintFlags_ = None;
   }
 }
 
-void WPaintedWidget::addArea(WAbstractArea *area)
+void WPaintedWidget::addArea(std::unique_ptr<WAbstractArea> area)
 {
   createAreaImage();
-  areaImage_->addArea(area);
+  areaImage_->addArea(std::move(area));
 }
 
-void WPaintedWidget::insertArea(int index, WAbstractArea *area)
+void WPaintedWidget::insertArea(int index,
+				std::unique_ptr<WAbstractArea> area)
 {
   createAreaImage();
-  areaImage_->insertArea(index, area);
+  areaImage_->insertArea(index, std::move(area));
 }
 
-void WPaintedWidget::removeArea(WAbstractArea *area)
+std::unique_ptr<WAbstractArea> WPaintedWidget
+::removeArea(WAbstractArea *area)
 {
   createAreaImage();
-  areaImage_->removeArea(area);
+  return areaImage_->removeArea(area);
 }
 
 WAbstractArea *WPaintedWidget::area(int index) const
 {
-  return areaImage_ ? areaImage_->area(index) : 0;
+  return areaImage_ ? areaImage_->area(index) : nullptr;
 }
 
 const std::vector<WAbstractArea *> WPaintedWidget::areas() const
 {
-  return areaImage_ ? areaImage_->areas()
-    : static_cast<const std::vector<WAbstractArea *> >(std::vector<WAbstractArea *>());
+  return areaImage_ 
+    ? areaImage_->areas()
+    : static_cast<const std::vector<WAbstractArea *>>
+    (std::vector<WAbstractArea *>());
 }
 
 void WPaintedWidget::createAreaImage()
 {
   if (!areaImage_) {
-    areaImage_ = new WImage(wApp->onePixelGifUrl());
-    areaImage_->setParentWidget(this);
+    areaImage_.reset(new WImage(wApp->onePixelGifUrl()));
+    widgetAdded(areaImage_.get());
 
-    if (positionScheme() == Static)
-      setPositionScheme(Relative);
-    areaImage_->setPositionScheme(Absolute);
-    areaImage_->setOffsets(0, Left | Top);
-    areaImage_->setMargin(0, Top);
+    if (positionScheme() == PositionScheme::Static)
+      setPositionScheme(PositionScheme::Relative);
+
+    areaImage_->setPositionScheme(PositionScheme::Absolute);
+    areaImage_->setOffsets(0, Side::Left | Side::Top);
+    areaImage_->setMargin(0, Side::Top);
     areaImage_->resize(renderWidth_, renderHeight_);
 
     areaImageAdded_ = true;
@@ -533,40 +558,43 @@ WWidgetVectorPainter::WWidgetVectorPainter(WPaintedWidget *widget,
     renderType_(renderType)
 { }
 
-WVectorImage *WWidgetVectorPainter::createPaintDevice(bool paintUpdate)
+std::unique_ptr<WPaintDevice> WWidgetVectorPainter
+::createPaintDevice(bool paintUpdate)
 {
-  if (renderType_ == InlineSvg)
-    return new WSvgImage(widget_->renderWidth_, widget_->renderHeight_, 0,
-			 paintUpdate);
+  if (renderType_ == RenderType::InlineSvg)
+    return std::unique_ptr<WPaintDevice>
+      (new WSvgImage(widget_->renderWidth_, widget_->renderHeight_,
+		     paintUpdate));
   else
-    return new WVmlImage(widget_->renderWidth_, widget_->renderHeight_,
-			 paintUpdate);
+    return std::unique_ptr<WPaintDevice>
+      (new WVmlImage(widget_->renderWidth_, widget_->renderHeight_,
+		     paintUpdate));
 }
 
-WPaintDevice *WWidgetVectorPainter::getPaintDevice(bool paintUpdate)
+std::unique_ptr<WPaintDevice>WWidgetVectorPainter::getPaintDevice(bool paintUpdate)
 {
   return createPaintDevice(paintUpdate);
 }
 
-void WWidgetVectorPainter::createContents(DomElement *canvas,
-					  WPaintDevice *device)
+void WWidgetVectorPainter
+::createContents(DomElement *canvas, std::unique_ptr<WPaintDevice> device)
 {
-  WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device);
-  canvas->setProperty(PropertyInnerHTML, vectorDevice->rendered());
-  delete device;
+  WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device.get());
+  canvas->setProperty(Property::InnerHTML, vectorDevice->rendered());
 }
 
-void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
-					  WPaintDevice *device)
+void WWidgetVectorPainter
+::updateContents(std::vector<DomElement *>& result,
+		 std::unique_ptr<WPaintDevice> device)
 {
-  WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device);
+  WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device.get());
 
-  if (widget_->repaintFlags_ & PaintUpdate) {
+  if (widget_->repaintFlags_.test(PaintFlag::Update)) {
     DomElement *painter = DomElement::updateGiven
       (WT_CLASS ".getElement('p" + widget_->id()+ "').firstChild",
-       DomElement_DIV);
+       DomElementType::DIV);
 
-    painter->setProperty(PropertyAddedInnerHTML, vectorDevice->rendered());
+    painter->setProperty(Property::AddedInnerHTML, vectorDevice->rendered());
 
     WApplication *app = WApplication::instance();
     if (app->environment().agentIsOpera())
@@ -575,20 +603,18 @@ void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
     result.push_back(painter);
   } else {
     DomElement *canvas = DomElement::getForUpdate
-      ('p' + widget_->id(), DomElement_DIV);
+      ('p' + widget_->id(), DomElementType::DIV);
 
     /*
      * In fact, we should use another property, since we could be using
      * document.importNode() instead of myImportNode() since the xml does not
      * need to be interpreted as HTML...
      */
-    canvas->setProperty(PropertyInnerHTML, vectorDevice->rendered());
+    canvas->setProperty(Property::InnerHTML, vectorDevice->rendered());
     result.push_back(canvas);
   }
 
   widget_->sizeChanged_ = false;
-
-  delete device;
 }
 
 /*
@@ -599,45 +625,49 @@ WWidgetCanvasPainter::WWidgetCanvasPainter(WPaintedWidget *widget)
   : WWidgetPainter(widget)
 { }
 
-WCanvasPaintDevice *WWidgetCanvasPainter::createPaintDevice(bool paintUpdate)
+std::unique_ptr<WPaintDevice> WWidgetCanvasPainter
+::createPaintDevice(bool paintUpdate)
 {
-  return new WCanvasPaintDevice(widget_->renderWidth_, widget_->renderHeight_,
-				0, paintUpdate);
+  return std::unique_ptr<WPaintDevice>
+    (new WCanvasPaintDevice(widget_->renderWidth_, widget_->renderHeight_,
+			    paintUpdate));
 }
 
-WPaintDevice *WWidgetCanvasPainter::getPaintDevice(bool paintUpdate)
+std::unique_ptr<WPaintDevice> WWidgetCanvasPainter
+::getPaintDevice(bool paintUpdate)
 {
   return createPaintDevice(paintUpdate);
 }
 
-void WWidgetCanvasPainter::createContents(DomElement *result,
-					  WPaintDevice *device)
+void WWidgetCanvasPainter
+::createContents(DomElement *result, std::unique_ptr<WPaintDevice> device)
 {
-  std::string wstr = boost::lexical_cast<std::string>(widget_->renderWidth_);
-  std::string hstr = boost::lexical_cast<std::string>(widget_->renderHeight_);
+  std::string wstr = std::to_string(widget_->renderWidth_);
+  std::string hstr = std::to_string(widget_->renderHeight_);
 
-  result->setProperty(PropertyStylePosition, "relative");
-  result->setProperty(PropertyStyleOverflowX, "hidden");
-  result->setProperty(PropertyStyleOverflowY, "hidden");
+  result->setProperty(Property::StylePosition, "relative");
+  result->setProperty(Property::StyleOverflowX, "hidden");
+  result->setProperty(Property::StyleOverflowY, "hidden");
 
-  DomElement *canvas = DomElement::createNew(DomElement_CANVAS);
+  DomElement *canvas = DomElement::createNew(DomElementType::CANVAS);
   canvas->setId('c' + widget_->id());
-  canvas->setProperty(PropertyStyleDisplay, "block");
+  canvas->setProperty(Property::StyleDisplay, "block");
   canvas->setAttribute("width", wstr);
   canvas->setAttribute("height", hstr);
   result->addChild(canvas);
   widget_->sizeChanged_ = false;
 
-  WCanvasPaintDevice *canvasDevice = dynamic_cast<WCanvasPaintDevice *>(device);
+  WCanvasPaintDevice *canvasDevice
+    = dynamic_cast<WCanvasPaintDevice *>(device.get());
 
-  DomElement *text = 0;
-  if (canvasDevice->textMethod() == WCanvasPaintDevice::DomText) {
-    text = DomElement::createNew(DomElement_DIV);
+  DomElement *text = nullptr;
+  if (canvasDevice->textMethod() == WCanvasPaintDevice::TextMethod::DomText) {
+    text = DomElement::createNew(DomElementType::DIV);
     text->setId('t' + widget_->id());
-    text->setProperty(PropertyStylePosition, "absolute");
-    text->setProperty(PropertyStyleZIndex, "1");
-    text->setProperty(PropertyStyleTop, "0px");
-    text->setProperty(PropertyStyleLeft, "0px");
+    text->setProperty(Property::StylePosition, "absolute");
+    text->setProperty(Property::StyleZIndex, "1");
+    text->setProperty(Property::StyleTop, "0px");
+    text->setProperty(Property::StyleLeft, "0px");
   }
 
   DomElement *el = text ? text : result;
@@ -668,32 +698,31 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
 
   if (text)
     result->addChild(text);
-
-  delete device;
 }
 
-void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
-					  WPaintDevice *device)
+void WWidgetCanvasPainter
+::updateContents(std::vector<DomElement *>& result,
+		 std::unique_ptr<WPaintDevice> device)
 {
-  WCanvasPaintDevice *canvasDevice = dynamic_cast<WCanvasPaintDevice *>(device);
+  WCanvasPaintDevice *canvasDevice
+    = dynamic_cast<WCanvasPaintDevice *>(device.get());
 
   if (widget_->sizeChanged_) {
     DomElement *canvas = DomElement::getForUpdate('c' + widget_->id(),
-						  DomElement_CANVAS);
-    canvas->setAttribute("width",
-		 boost::lexical_cast<std::string>(widget_->renderWidth_));
-    canvas->setAttribute("height",
-		 boost::lexical_cast<std::string>(widget_->renderHeight_));
+						  DomElementType::CANVAS);
+    canvas->setAttribute("width", std::to_string(widget_->renderWidth_));
+    canvas->setAttribute("height", std::to_string(widget_->renderHeight_));
     result.push_back(canvas);
 
     widget_->sizeChanged_ = false;
   }
 
-  bool domText = canvasDevice->textMethod() == WCanvasPaintDevice::DomText;
+  bool domText = canvasDevice->textMethod() == 
+    WCanvasPaintDevice::TextMethod::DomText;
 
   DomElement *el
     = DomElement::getForUpdate(domText ? 't' + widget_->id() : widget_->id(),
-			       DomElement_DIV);
+			       DomElementType::DIV);
   if (domText)
     el->removeAllChildren();
 
@@ -713,8 +742,6 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
   canvasDevice->render(widget_->objJsRef(), 'c' + widget_->id(), el, updateAreasJs);
 
   result.push_back(el);
-
-  delete device;
 }
 
 /*
@@ -722,36 +749,28 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
  */
 
 WWidgetRasterPainter::WWidgetRasterPainter(WPaintedWidget *widget)
-  : WWidgetPainter(widget),
-    device_(0)
+  : WWidgetPainter(widget)
 { }
 
 WWidgetRasterPainter::~WWidgetRasterPainter()
-{
-#ifdef WT_HAS_WRASTERIMAGE
-  delete device_;
-#endif
-}
+{ }
 
-#ifdef WT_HAS_WRASTERIMAGE
-WRasterImage
-#else
-WPaintDevice
-#endif
-*WWidgetRasterPainter::createPaintDevice(bool paintUpdate)
+std::unique_ptr<WPaintDevice> WWidgetRasterPainter
+::createPaintDevice(bool paintUpdate)
 {
 #ifdef WT_HAS_WRASTERIMAGE
-  return new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
+  return std::unique_ptr<WPaintDevice>
+    (new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_));
 #else
   throw WException("Wt was built without WRasterImage (graphicsmagick, skia or Direct2D)");
 #endif
 }
 
-WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
+std::unique_ptr<WPaintDevice> WWidgetRasterPainter
+::getPaintDevice(bool paintUpdate)
 {
   if (!device_ || widget_->sizeChanged_) {
 #ifdef WT_HAS_WRASTERIMAGE
-    delete device_;
     device_ = createPaintDevice(paintUpdate);
 #else
     throw WException("Wt was built without WRasterImage (graphicsmagick, skia or Direct2D)");
@@ -760,21 +779,19 @@ WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
 
 #ifdef WT_HAS_WRASTERIMAGE
   if (!paintUpdate)
-    device_->clear();
-
-  return device_;
-#else
-  return 0;
+    (dynamic_cast<WRasterImage *>(device_.get()))->clear();
 #endif
+
+  return std::move(device_);
 }
 
-void WWidgetRasterPainter::createContents(DomElement *result,
-					  WPaintDevice *device)
+void WWidgetRasterPainter::createContents
+  (DomElement *result, std::unique_ptr<WPaintDevice> device)
 {
-  std::string wstr = boost::lexical_cast<std::string>(widget_->renderWidth_);
-  std::string hstr = boost::lexical_cast<std::string>(widget_->renderHeight_);
+  std::string wstr = std::to_string(widget_->renderWidth_);
+  std::string hstr = std::to_string(widget_->renderHeight_);
 
-  DomElement *img = DomElement::createNew(DomElement_IMG);
+  DomElement *img = DomElement::createNew(DomElementType::IMG);
   img->setId('i' + widget_->id());
   img->setAttribute("width", wstr);
   img->setAttribute("height", hstr);
@@ -783,31 +800,34 @@ void WWidgetRasterPainter::createContents(DomElement *result,
   img->setAttribute("onselectstart", "return false;");
   img->setAttribute("onmousedown", "return false;");
 
-  WResource *resource = dynamic_cast<WResource *>(device);
+  WResource *resource = dynamic_cast<WResource *>(device.get());
   img->setAttribute("src", resource->generateUrl());
 
   result->addChild(img);
+
+  device_ = std::move(device);
 }
 
-void WWidgetRasterPainter::updateContents(std::vector<DomElement *>& result,
-					  WPaintDevice *device)
+void WWidgetRasterPainter
+::updateContents(std::vector<DomElement *>& result,
+		 std::unique_ptr<WPaintDevice> device)
 {
-  WResource *resource = dynamic_cast<WResource *>(device);
+  WResource *resource = dynamic_cast<WResource *>(device.get());
 
   DomElement *img
-    = DomElement::getForUpdate('i' + widget_->id(), DomElement_IMG);
+    = DomElement::getForUpdate('i' + widget_->id(), DomElementType::IMG);
 
   if (widget_->sizeChanged_) {
-    img->setAttribute("width",
-		      boost::lexical_cast<std::string>(widget_->renderWidth_));
-    img->setAttribute("height",
-		      boost::lexical_cast<std::string>(widget_->renderHeight_));
+    img->setAttribute("width", std::to_string(widget_->renderWidth_));
+    img->setAttribute("height", std::to_string(widget_->renderHeight_));
     widget_->sizeChanged_ = false;
   }
 
   img->setAttribute("src", resource->generateUrl());
 
   result.push_back(img);
+
+  device_ = std::move(device);
 }
 
 WJavaScriptHandle<WTransform> WPaintedWidget::createJSTransform()

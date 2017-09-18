@@ -6,13 +6,12 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "WAbstractChartModel"
+#include "WAbstractChartModel.h"
 
 namespace Wt {
   namespace Chart {
 
-WAbstractChartModel::WAbstractChartModel(WObject *parent)
-  : WObject(parent)
+WAbstractChartModel::WAbstractChartModel()
 { }
 
 WAbstractChartModel::~WAbstractChartModel()
@@ -35,7 +34,7 @@ WString WAbstractChartModel::toolTip(int row, int column) const
 
 WFlags<ItemFlag> WAbstractChartModel::flags(int row, int column) const
 {
-  return 0;
+  return None;
 }
 
 WLink *WAbstractChartModel::link(int row, int column) const
@@ -45,27 +44,27 @@ WLink *WAbstractChartModel::link(int row, int column) const
 
 const WColor *WAbstractChartModel::markerPenColor(int row, int column) const
 {
-  return 0;
+  return nullptr;
 }
 
 const WColor *WAbstractChartModel::markerBrushColor(int row, int column) const
 {
-  return 0;
+  return nullptr;
 }
 
 const WColor *WAbstractChartModel::barPenColor(int row, int column) const
 {
-  return 0;
+  return nullptr;
 }
 
 const WColor *WAbstractChartModel::barBrushColor(int row, int column) const
 {
-  return 0;
+  return nullptr;
 }
 
 const double *WAbstractChartModel::markerScaleFactor(int row, int column) const
 {
-  return 0;
+  return nullptr;
 }
 
   }

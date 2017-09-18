@@ -4,13 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WAbstractItemDelegate"
+#include "Wt/WAbstractItemDelegate.h"
 
 namespace Wt {
 
-WAbstractItemDelegate::WAbstractItemDelegate(WObject *parent)
-  : WObject(parent),
-    closeEditor_(this)
+WAbstractItemDelegate::WAbstractItemDelegate()
 { }
 
 WAbstractItemDelegate::~WAbstractItemDelegate()
@@ -20,25 +18,27 @@ void WAbstractItemDelegate::updateModelIndex(WWidget *widget,
 					     const WModelIndex& index)
 { }
 
-boost::any WAbstractItemDelegate::editState(WWidget *widget) const
+cpp17::any WAbstractItemDelegate::editState(WWidget *widget,
+					 const WModelIndex& index) const
 {
-  return boost::any();
+  return cpp17::any();
 }
 
 void WAbstractItemDelegate::setEditState(WWidget *widget,
-					 const boost::any& value) const
+					 const WModelIndex& index,
+					 const cpp17::any& value) const
 { }
 
-void WAbstractItemDelegate::setModelData(const boost::any& editState,
+void WAbstractItemDelegate::setModelData(const cpp17::any& editState,
 					 WAbstractItemModel *model,
 					 const WModelIndex& index) const
 { }
 
-WValidator::State WAbstractItemDelegate::validate(const WModelIndex& index,
-						  const boost::any& editState)
+ValidationState WAbstractItemDelegate::validate(const WModelIndex& index,
+						const cpp17::any& editState)
   const
 {
-  return WValidator::Valid;
+  return ValidationState::Valid;
 }
 
 }

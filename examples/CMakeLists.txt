@@ -27,26 +27,47 @@
 #   debug libhpdfd optimized libhpdf # only required for if you write pdfs
 # )
 
+SET(EXAMPLES_WT_LIB wt)
+SET(EXAMPLES_WTDBO_LIB wtdbo)
+SET(EXAMPLES_WTDBOSQLITE3_LIB wtdbosqlite3)
+
 IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   IF(WIN32)
     # preamble to make this a toplevel CMakeLists.txt for Windows, intended
     # for being used 
-    CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+    CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
     Project(WtExamples)
 
-    # build widgetgallery, if supported
-    IF(MSVC_VERSION GREATER 1600)
-      SET(HAS_CXX11 ON)
-    ENDIF(MSVC_VERSION GREATER 1600)
+    find_package(Boost)
+    find_package(Wt REQUIRED Wt HTTP)
 
-    SET(EXAMPLES_CONNECTOR
-      debug wthttpd optimized wthttp
-      debug libhpdfd optimized libhpdf
+    set_target_properties(Wt::Wt PROPERTIES
+      MAP_IMPORTED_CONFIG_RELEASE MinSizeRel
+      MAP_IMPORTED_CONFIG_RELWITHDEBINFO MinSizeRel
     )
+    set_target_properties(Wt::HTTP PROPERTIES
+      MAP_IMPORTED_CONFIG_RELEASE MinSizeRel
+      MAP_IMPORTED_CONFIG_RELWITHDEBINFO MinSizeRel
+    )
+
+    SET(HAVE_HARU true)
+    SET(HARU_LIB optimized libhpdf debug libhpdfd)
+
+    SET(EXAMPLES_CONNECTOR Wt::HTTP)
+    SET(EXAMPLES_WT_LIB Wt::Wt)
+    SET(EXAMPLES_WTDBO_LIB Wt::Dbo)
+    SET(EXAMPLES_WTDBOSQLITE3_LIB Wt::DboSqlite3)
 
     INCLUDE_DIRECTORIES($(CMAKE_SOURCE_DIR)/../../../include)
     LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/../../../lib)
+
+    IF(${Boost_FOUND})
+      SET(BOOST_FS_LIB ${Boost_FILESYSTEM_LIBRARY})
+      SET(BOOST_WT_FOUND true)
+      INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+      LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+    ENDIF()
 
     # We ship libharu as DLL. Compiling/linking against libharu DLL requires
     # this definition to be set.
@@ -54,9 +75,11 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     # Windows SDK is always multithreaded
     SET(BOOST_WT_MT_FOUND true)
     SET(MULTI_THREADED true)
+    SET(MULTI_THREADED_BUILD true)
+    SET(WT_HAS_WRASTERIMAGE true)
   ENDIF(WIN32)
 ENDIF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
-  
+SET(EXAMPLES_DBO_LIBS ${EXAMPLES_WTDBO_LIB} ${EXAMPLES_WTDBOSQLITE3_LIB}) 
 
 # Normal example CMakeLists.txt starts here
 IF(BOOST_WT_MT_FOUND)
@@ -160,7 +183,6 @@ MACRO(WT_ADD_EXAMPLE name)
 	SET_TARGET_PROPERTIES(${name} PROPERTIES FOLDER "examples")
   ENDIF(MSVC)
   
-  SET(EXAMPLES_WT_LIB debug wtd optimized wt)
   TARGET_LINK_LIBRARIES(${name} ${EXAMPLES_CONNECTOR} ${EXAMPLES_WT_LIB})
 
   IF(INSTALL_EXAMPLES)
@@ -214,6 +236,7 @@ ENDMACRO(WT_ADD_EXAMPLE)
 SUBDIRS(
   blog
   charts
+  chart3D
   codeview
   composer
   dialog
@@ -239,15 +262,7 @@ SUBDIRS(
   treeview
   treeview-dragdrop
   webgl
+  widgetgallery
   wt-homepage
   wtwithqt
 )
-
-IF(HAS_CXX11)
-  SUBDIRS(
-    chart3D
-    widgetgallery
-  )
-ELSE(HAS_CXX11)
-  MESSAGE("*** Not building widget gallery; C++11 required (gcc > 4.6 + set WT_CPP_11_MODE=-std=c++0x or MSVS >= 2012)")
-ENDIF(HAS_CXX11)

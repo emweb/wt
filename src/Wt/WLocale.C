@@ -1,14 +1,15 @@
-#include "Wt/WApplication"
-#include "Wt/WLocale"
+#include "Wt/WApplication.h"
+#include "Wt/WLocale.h"
 
 #include "WebUtils.h"
-#include <boost/lexical_cast.hpp>
+#include "Wt/Date/tz_private.h"
 
 #include <cctype>
 
 namespace Wt {
 
 namespace {
+thread_local WLocale currentLocale_;
 const WLocale systemLocale;
 }
 
@@ -17,7 +18,8 @@ WLocale::WLocale()
     groupSeparator_(""),
     dateFormat_("yyyy-MM-dd"),
     timeFormat_("HH:mm:ss"),
-    dateTimeFormat_("yyyy-MM-dd HH:mm:ss")
+    dateTimeFormat_("yyyy-MM-dd HH:mm:ss"),
+    timeZone_(nullptr)
 { }
 
 WLocale::WLocale(const WLocale& other)
@@ -27,7 +29,7 @@ WLocale::WLocale(const WLocale& other)
     dateFormat_(other.dateFormat()),
     timeFormat_(other.timeFormat()),
     dateTimeFormat_(other.dateTimeFormat()),
-    time_zone_(other.time_zone_)
+    timeZone_(other.timeZone())
 { }
 
 WLocale::WLocale(const std::string& name)
@@ -37,17 +39,24 @@ WLocale::WLocale(const std::string& name)
     dateFormat_(systemLocale.dateFormat()),
     timeFormat_(systemLocale.timeFormat()),
     dateTimeFormat_(systemLocale.dateTimeFormat()),
-    time_zone_(systemLocale.time_zone_)
+    timeZone_(systemLocale.timeZone())
 { }
 
+WLocale& WLocale::operator=(const WLocale& other)
+{
+  name_ = other.name_;
+  decimalPoint_ = other.decimalPoint_;
+  groupSeparator_ = other.groupSeparator_;
+  dateFormat_ = other.dateFormat_;
+  timeFormat_ = other.timeFormat_;
+  dateTimeFormat_ = other.dateTimeFormat_;
+  timeZone_ = other.timeZone();
+
+  return *this;
+}
+
 WLocale::WLocale(const char *name)
-  : name_(name),
-    decimalPoint_(systemLocale.decimalPoint()),
-    groupSeparator_(systemLocale.groupSeparator()),
-    dateFormat_(systemLocale.dateFormat()),
-    timeFormat_(systemLocale.timeFormat()),
-    dateTimeFormat_(systemLocale.dateTimeFormat()),
-    time_zone_(systemLocale.time_zone_)
+  : WLocale(std::string(name))
 { }
 
 void WLocale::setDecimalPoint(WT_UCHAR c)
@@ -75,17 +84,9 @@ void WLocale::setDateTimeFormat(const WT_USTRING& format)
   dateTimeFormat_ = format;
 }
 
-void WLocale::setTimeZone(const std::string& posixTimeZone)
+void WLocale::setTimeZone(const date::time_zone* zone)
 {
-  time_zone_.reset(new boost::local_time::posix_time_zone(posixTimeZone));
-}
-
-std::string WLocale::timeZone() const
-{
-  if (time_zone_)
-    return time_zone_->to_posix_string();
-  else
-    return std::string();
+  timeZone_ = zone;
 }
 
 const WLocale& WLocale::currentLocale()
@@ -95,7 +96,7 @@ const WLocale& WLocale::currentLocale()
   if (app)
     return app->locale();
   else
-    return systemLocale;
+    return currentLocale_;
 }
 
 bool WLocale::isDefaultNumberLocale() const
@@ -106,7 +107,7 @@ bool WLocale::isDefaultNumberLocale() const
 double WLocale::toDouble(const WT_USTRING& value) const
 {
   if (isDefaultNumberLocale())
-    return boost::lexical_cast<double>(value);
+    return Utils::stod(value.toUTF8());
 
   std::string v = value.toUTF8();
 
@@ -115,40 +116,40 @@ double WLocale::toDouble(const WT_USTRING& value) const
   if (decimalPoint_ != ".")
     Utils::replace(v, decimalPoint_, ".");
 
-  return boost::lexical_cast<double>(v);
+  return Utils::stod(v);
 }
 
 int WLocale::toInt(const WT_USTRING& value) const
 {
   if (groupSeparator_.empty())
-    return boost::lexical_cast<int>(value);
+    return Utils::stoi(value.toUTF8());
 
   std::string v = value.toUTF8();
 
   Utils::replace(v, groupSeparator_, "");
 
-  return boost::lexical_cast<int>(v);
+  return Utils::stoi(v);
 }
 
 #ifndef DOXYGEN_ONLY
 WT_USTRING WLocale::toString(int value) const
 {
-  return integerToString(boost::lexical_cast<std::string>(value));
+  return integerToString(std::to_string(value));
 }
 
 WT_USTRING WLocale::toString(unsigned value) const
 {
-  return integerToString(boost::lexical_cast<std::string>(value));
+  return integerToString(std::to_string(value));
 }
 
 WT_USTRING WLocale::toString(::int64_t value) const
 {
-  return integerToString(boost::lexical_cast<std::string>(value));
+  return integerToString(std::to_string(value));
 }
 
 WT_USTRING WLocale::toString(::uint64_t value) const
 {
-  return integerToString(boost::lexical_cast<std::string>(value));
+  return integerToString(std::to_string(value));
 }
 #endif // DOXYGEN_ONLY
 
@@ -162,8 +163,10 @@ WT_USTRING WLocale::integerToString(const std::string& v) const
 
 WT_USTRING WLocale::toString(double value) const
 {
-  std::string v = boost::lexical_cast<std::string>(value);
-  return doubleToString(v);
+  std::stringstream s;
+  s.precision(16);
+  s << value;
+  return doubleToString(s.str());
 }
 
 WT_USTRING WLocale::toFixedString(double value, int precision) const
@@ -210,6 +213,17 @@ std::string WLocale::addGrouping(const std::string& v, unsigned decimalPoint)
   result += v.substr(decimalPoint);
 
   return result;
+}
+
+void WLocale::setCurrentLocale(const WLocale &locale)
+{
+  WApplication *app = WApplication::instance();
+  if (app) {
+    app->setLocale(locale);
+  }
+  else {
+    currentLocale_ = locale;
+  }
 }
 
 }

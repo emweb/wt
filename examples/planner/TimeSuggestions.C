@@ -6,9 +6,9 @@
 
 #include "TimeSuggestions.h"
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
-#include <stdio.h>
+#include <cstdio>
 
 using namespace Wt;
 
@@ -23,14 +23,13 @@ namespace {
     };
 }
 
-TimeSuggestions::TimeSuggestions(WContainerWidget* parent)
+TimeSuggestions::TimeSuggestions()
   : WSuggestionPopup(WSuggestionPopup::generateMatcherJS(contactOptions),
-                     WSuggestionPopup::generateReplacerJS(contactOptions),
-                     parent)
+                     WSuggestionPopup::generateReplacerJS(contactOptions))
 {
   for (unsigned i = 0; i < 24; i++) {
     char buffer [25];
-    sprintf(buffer, "%02d", i);
+    std::sprintf(buffer, "%02d", i);
     std::string h = buffer;
     
     addSuggestion(WString(h + ":00"));

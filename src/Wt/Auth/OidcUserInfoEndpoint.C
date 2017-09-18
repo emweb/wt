@@ -1,20 +1,26 @@
-#include "OidcUserInfoEndpoint"
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include "OidcUserInfoEndpoint.h"
+
 #include <string>
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WResource"
-#include "Wt/WObject"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
-#include "Wt/Auth/User"
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/IssuedToken"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
-#include "Wt/Json/Value"
-#include "Wt/Json/Object"
-#include "Wt/Json/Serializer"
-#include "Wt/WLogger"
+#include "Wt/WResource.h"
+#include "Wt/WObject.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
+#include "Wt/Auth/User.h"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/IssuedToken.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
+#include "Wt/Json/Value.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Serializer.h"
+#include "Wt/WLogger.h"
 
 namespace {
 const std::string AUTH_TYPE = "Bearer ";

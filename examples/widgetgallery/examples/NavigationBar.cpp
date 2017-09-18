@@ -1,75 +1,80 @@
-#include <Wt/WLineEdit>
-#include <Wt/WMenu>
-#include <Wt/WMessageBox>
-#include <Wt/WNavigationBar>
-#include <Wt/WPopupMenu>
-#include <Wt/WPopupMenuItem>
-#include <Wt/WStackedWidget>
-#include <Wt/WText>
+#include <Wt/WLineEdit.h>
+#include <Wt/WMenu.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WNavigationBar.h>
+#include <Wt/WPopupMenu.h>
+#include <Wt/WPopupMenuItem.h>
+#include <Wt/WStackedWidget.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(NavigationBar)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
 // Create a navigation bar with a link to a web page.
-Wt::WNavigationBar *navigation = new Wt::WNavigationBar(container);
+Wt::WNavigationBar *navigation =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WNavigationBar>());
 navigation->setTitle("Corpy Inc.",
 		     "http://www.google.com/search?q=corpy+inc");
 navigation->setResponsive(true);
 
-Wt::WStackedWidget *contentsStack = new Wt::WStackedWidget(container);
+Wt::WStackedWidget *contentsStack =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WStackedWidget>());
 contentsStack->addStyleClass("contents");
 
 // Setup a Left-aligned menu.
-Wt::WMenu *leftMenu = new Wt::WMenu(contentsStack, container);
-navigation->addMenu(leftMenu);
+auto leftMenu = Wt::cpp14::make_unique<Wt::WMenu>(contentsStack);
+auto leftMenu_ = navigation->addMenu(std::move(leftMenu));
 
-Wt::WText *searchResult = new Wt::WText("Buy or Sell... Bye!");
+auto searchResult = Wt::cpp14::make_unique<Wt::WText>("Buy or Sell... Bye!");
+auto searchResult_ = searchResult.get();
 
-leftMenu->addItem("Home", new Wt::WText("There is no better place!"));
-leftMenu->addItem("Layout", new Wt::WText("Layout contents"))
-    ->setLink(Wt::WLink(Wt::WLink::InternalPath, "/layout"));
-leftMenu->addItem("Sales", searchResult);
+leftMenu_->addItem("Home", Wt::cpp14::make_unique<Wt::WText>("There is no better place!"));
+leftMenu_->addItem("Layout", Wt::cpp14::make_unique<Wt::WText>("Layout contents"))
+    ->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/layout"));
+leftMenu_->addItem("Sales", std::move(searchResult));
 
 // Setup a Right-aligned menu.
-Wt::WMenu *rightMenu = new Wt::WMenu();
-navigation->addMenu(rightMenu, Wt::AlignRight);
+auto rightMenu = Wt::cpp14::make_unique<Wt::WMenu>();
+auto rightMenu_ = navigation->addMenu(std::move(rightMenu), Wt::AlignmentFlag::Right);
 
 // Create a popup submenu for the Help menu.
-Wt::WPopupMenu *popup = new Wt::WPopupMenu();
+auto popupPtr = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+auto popup = popupPtr.get();
 popup->addItem("Contents");
 popup->addItem("Index");
 popup->addSeparator();
 popup->addItem("About");
 
-popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
-    Wt::WMessageBox *messageBox = new Wt::WMessageBox
-	("Help",
-	 Wt::WString::fromUTF8("<p>Showing Help: {1}</p>").arg(item->text()),
-	 Wt::Information, Wt::Ok);
+popup->itemSelected().connect([=] (Wt::WMenuItem *item) {
+    auto messageBox = popup->addChild(
+            Wt::cpp14::make_unique<Wt::WMessageBox>
+            ("Help",
+             Wt::WString("<p>Showing Help: {1}</p>").arg(item->text()),
+             Wt::Icon::Information, Wt::StandardButton::Ok));
 
-    messageBox->buttonClicked().connect(std::bind([=] () {
-	delete messageBox;
-    }));
+    messageBox->buttonClicked().connect([=] {
+        popup->removeChild(messageBox);
+    });
 
     messageBox->show();
-}, std::placeholders::_1));
+});
 
-Wt::WMenuItem *item = new Wt::WMenuItem("Help");
-item->setMenu(popup);
-rightMenu->addItem(item);
+auto item = Wt::cpp14::make_unique<Wt::WMenuItem>("Help");
+item->setMenu(std::move(popupPtr));
+rightMenu_->addItem(std::move(item));
 
 // Add a Search control.
-Wt::WLineEdit *edit = new Wt::WLineEdit();
-edit->setEmptyText("Enter a search item");
+auto editPtr = Wt::cpp14::make_unique<Wt::WLineEdit>();
+auto edit = editPtr.get();
+edit->setPlaceholderText("Enter a search item");
 
-edit->enterPressed().connect(std::bind([=] () {
-    leftMenu->select(2); // is the index of the "Sales"
-    searchResult->setText(Wt::WString("Nothing found for {1}.")
-			  .arg(edit->text()));
-}));
+edit->enterPressed().connect([=] {
+    leftMenu_->select(2); // is the index of the "Sales"
+    searchResult_->setText(Wt::WString("Nothing found for {1}.")
+                          .arg(edit->text()));
+});
 
-navigation->addSearch(edit, Wt::AlignRight);
+navigation->addSearch(std::move(editPtr), Wt::AlignmentFlag::Right);
 
-container->addWidget(contentsStack);
-
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

@@ -8,7 +8,7 @@
 #ifndef FORM_H_
 #define FORM_H_
 
-#include <Wt/WTable>
+#include <Wt/WTable.h>
 
 using namespace Wt;
 
@@ -19,7 +19,7 @@ namespace Wt {
   class WLineEdit;
   class WComboBox;
   class WFormWidget;
-  class WDatePicker;
+  class WDateEdit;
 }
 
 /**
@@ -37,7 +37,7 @@ class Form : public WTable
 public:
   /*!\brief Instantiate a new form.
    */
-  Form(WContainerWidget *parent = 0);
+  Form();
 
 private:
   /*!\brief The user selected a new country: adjust the cities combo box.

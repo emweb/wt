@@ -28,7 +28,7 @@ public:
   virtual ~WebStream();
 
   /*
-   * Get the next request, return 0 when a timeout occurs.
+   * Method::Get the next request, return 0 when a timeout occurs.
    * Otherwise throws an exception.
    */
   virtual WebRequest *getNextRequest(int timeoutsec) = 0;

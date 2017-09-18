@@ -1,8 +1,8 @@
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WLink>
-#include <Wt/WAnchor>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLink.h>
+#include <Wt/WAnchor.h>
+#include <Wt/WText.h>
 
 namespace {
 
@@ -24,25 +24,27 @@ SAMPLE_BEGIN(PathChange)
 /*
  * Create two links to internal paths.
  */
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
-new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, "/navigation/shop"),
-		"Shop", container);
-new Wt::WText(" ", container);
-new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, "/navigation/eat"),
-		"Eat", container);
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+container->addWidget(
+    Wt::cpp14::make_unique<Wt::WAnchor>(
+      Wt::WLink(Wt::LinkType::InternalPath, "/navigation/shop"), "Shop"));
+container->addWidget(Wt::cpp14::make_unique<Wt::WText>(" "));
+container->addWidget(
+    Wt::cpp14::make_unique<Wt::WAnchor>(
+      Wt::WLink(Wt::LinkType::InternalPath, "/navigation/eat"), "Eat"));
 
 /*
  * Handle the internal path events.
  */
-Wt::WText *out = new Wt::WText(container);
+auto out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->setInline(false);
 
 Wt::WApplication *app = Wt::WApplication::instance();
 
-app->internalPathChanged().connect(std::bind([=] () {
+app->internalPathChanged().connect([=] {
      handlePathChange(out);
-}));
+});
 
 handlePathChange(out);
         
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

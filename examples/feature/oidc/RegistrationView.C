@@ -1,4 +1,4 @@
-#include <Wt/WLineEdit>
+#include <Wt/WLineEdit.h>
 
 #include "RegistrationView.h"
 #include "model/Session.h"
@@ -12,14 +12,15 @@ RegistrationView::RegistrationView(Session& session,
     session_(session)
 {
   setTemplateText(tr("template.registration"));
-  detailsModel_ = new UserDetailsModel(session_, this);
+  auto detailsModel = Wt::cpp14::make_unique<UserDetailsModel>(session_);
+  detailsModel_ = addChild(std::move(detailsModel));
   updateView(detailsModel_);
 }
 
-Wt::WWidget *RegistrationView::createFormWidget(Wt::WFormModel::Field field)
+std::unique_ptr<Wt::WWidget> RegistrationView::createFormWidget(Wt::WFormModel::Field field)
 {
   if (field == UserDetailsModel::NameField)
-    return new Wt::WLineEdit();
+    return Wt::cpp14::make_unique<Wt::WLineEdit>();
   else
     return Wt::Auth::RegistrationWidget::createFormWidget(field);
 }

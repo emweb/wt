@@ -8,33 +8,32 @@
 #ifndef WIN32
 #include <unistd.h>
 #endif
-#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 
-#include <Wt/WAnchor>
-#include <Wt/WApplication>
-#include <Wt/WCheckBox>
-#include <Wt/WCssDecorationStyle>
-#include <Wt/WFileResource>
-#include <Wt/WFileUpload>
-#include <Wt/WProgressBar>
-#include <Wt/WText>
+#include <Wt/WAnchor.h>
+#include <Wt/WApplication.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WCssDecorationStyle.h>
+#include <Wt/WFileResource.h>
+#include <Wt/WLink.h>
+#include <Wt/WFileUpload.h>
+#include <Wt/WProgressBar.h>
+#include <Wt/WText.h>
 
 #include "Attachment.h"
 #include "AttachmentEdit.h"
 #include "Composer.h"
 #include "Option.h"
 
-AttachmentEdit::UploadInfo::UploadInfo(const Http::UploadedFile& f,
-				       WContainerWidget *parent)
-  : WContainerWidget(parent),
+AttachmentEdit::UploadInfo::UploadInfo(const Http::UploadedFile& f)
+  : WContainerWidget(),
     info_(f)
 {
   /*
    * Include the file ?
    */
-  keep_ = new WCheckBox(this);
+  keep_ = this->addWidget(cpp14::make_unique<WCheckBox>());
   keep_->setChecked();
 
   /*
@@ -47,62 +46,60 @@ AttachmentEdit::UploadInfo::UploadInfo(const Http::UploadedFile& f,
     fsize = theFile.tellg();
     theFile.seekg(0);
   }
-  std::wstring size;
+  std::u32string size;
   if (fsize < 1024)
-    size = boost::lexical_cast<std::wstring>(fsize) + L" bytes";
+    size = WString(std::to_string(fsize)) + U" bytes";
   else
-    size = boost::lexical_cast<std::wstring>((int)(fsize / 1024))
-      + L"kb";
+    size = WString(std::to_string((int)(fsize / 1024)))
+      + U"kb";
 
-  std::wstring fn = static_cast<std::wstring>
-    (escapeText(WString::fromUTF8(info_.clientFileName())));
+  std::u32string fn = static_cast<std::u32string>
+    (escapeText(WString(info_.clientFileName())));
 
   downloadLink_
-    = new WAnchor("", fn + L" (<i>" + WString::fromUTF8(info_.contentType())
-		  + L"</i>) " + size, this);
+    = this->addWidget(cpp14::make_unique<WAnchor>("", fn + U" (<i>" + WString(info_.contentType())
+                  + U"</i>) " + size));
 
-  WFileResource *res = new WFileResource(info_.contentType(),
-					 info_.spoolFileName(),
-					 this);
+  auto res = std::make_shared<WFileResource>(info_.contentType(),info_.spoolFileName());
   res->suggestFileName(info_.clientFileName());
-  downloadLink_->setLink(res);
+  downloadLink_->setLink(WLink(res));
 }
 
-AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
-  : WContainerWidget(parent),
+AttachmentEdit::AttachmentEdit(Composer *composer)
+  : WContainerWidget(),
     composer_(composer),
-    uploadDone_(this),
+    uploadDone_(),
     uploadFailed_(false)
 {
   /*
    * The file upload itself.
    */
-  upload_ = new WFileUpload(this);
+  upload_ = this->addWidget(cpp14::make_unique<WFileUpload>());
   upload_->setMultiple(true);
   upload_->setFileTextSize(40);
 
   /*
    * A progress bar
    */
-  WProgressBar *progress = new WProgressBar();
+  std::unique_ptr<WProgressBar> progress = cpp14::make_unique<WProgressBar>();
   progress->setFormat(WString::Empty);
-  progress->setVerticalAlignment(AlignMiddle);
-  upload_->setProgressBar(progress);
+  progress->setVerticalAlignment(AlignmentFlag::Middle);
+  upload_->setProgressBar(std::move(progress));
 
   /*
    * The 'remove' option.
    */
-  remove_ = new Option(tr("msg.remove"), this);
-  upload_->decorationStyle().font().setSize(WFont::Smaller);
-  upload_->setVerticalAlignment(AlignMiddle);
-  remove_->setMargin(5, Left);
+  remove_ = this->addWidget(cpp14::make_unique<Option>(tr("msg.remove")));
+  upload_->decorationStyle().font().setSize(FontSize::Smaller);
+  upload_->setVerticalAlignment(AlignmentFlag::Middle);
+  remove_->setMargin(5, Side::Left);
   remove_->item()->clicked().connect(this, &WWidget::hide);
   remove_->item()->clicked().connect(this, &AttachmentEdit::remove);
 
   // The error message.
-  error_ = new WText("", this);
+  error_ = this->addWidget(cpp14::make_unique<WText>(""));
   error_->setStyleClass("error");
-  error_->setMargin(WLength(5), Left);
+  error_->setMargin(WLength(5), Side::Left);
 
   /*
    * React to events.
@@ -150,15 +147,16 @@ void AttachmentEdit::uploaded()
     /*
      * Delete this widgets since we have a succesfull upload.
      */
-    delete upload_;
     upload_ = 0;
-    delete remove_;
+    this->removeWidget(remove_);
     remove_ = 0;
-    delete error_;
+    this->removeWidget(error_);
     error_ = 0;
 
-    for (unsigned i = 0; i < files.size(); ++i)
-      uploadInfo_.push_back(new UploadInfo(files[i], this));
+    for (unsigned i = 0; i < files.size(); ++i) {
+      UploadInfo *info = this->addWidget(cpp14::make_unique<UploadInfo>(files[i]));
+      uploadInfo_.push_back(info);
+    }
   } else {
     error_->setText(tr("msg.file-empty"));
     uploadFailed_ = true;
@@ -197,8 +195,8 @@ std::vector<Attachment> AttachmentEdit::attachments()
       Http::UploadedFile& f = uploadInfo_[i]->info_;
       f.stealSpoolFile();
       result.push_back(Attachment
-		       (WString::fromUTF8(f.clientFileName()),
-			WString::fromUTF8(f.contentType()),
+		       (WString(f.clientFileName()),
+			WString(f.contentType()),
 			f.spoolFileName()));
     }
   }

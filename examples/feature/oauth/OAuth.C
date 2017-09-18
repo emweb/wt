@@ -3,66 +3,69 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WImage>
-#include <Wt/WServer>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WImage.h>
+#include <Wt/WServer.h>
+#include <Wt/WText.h>
 
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/GoogleService>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/GoogleService.h>
 
-Wt::Auth::AuthService authService;
-Wt::Auth::GoogleService *googleService = 0;
+using namespace Wt;
 
-class OAuthApplication : public Wt::WApplication
+Auth::AuthService authService;
+std::unique_ptr<Auth::GoogleService> googleService = nullptr;
+
+class OAuthApplication : public WApplication
 {
 public:
-  OAuthApplication(const Wt::WEnvironment& env)
-    : Wt::WApplication(env)
+  OAuthApplication(const WEnvironment& env)
+    : WApplication(env)
   {
     if (!googleService) {
-      new Wt::WText("This example requires a Google Auth service "
-		    "configuration", root());
+      root()->addWidget(cpp14::make_unique<WText>(
+                    "This example requires a Google Auth service "
+                    "configuration"));
       return;
     }
 
     process_ = googleService->createProcess
       (googleService->authenticationScope());
-    Wt::WImage *ggi = new Wt::WImage("css/oauth-google.png", root());  
-    ggi->clicked().connect(process_,
-			   &Wt::Auth::OAuthProcess::startAuthenticate);
+    auto ggi = root()->addWidget(cpp14::make_unique<WImage>("css/oauth-google.png"));
+    ggi->clicked().connect(process_.get(),
+                           &Auth::OAuthProcess::startAuthenticate);
 
     process_->authenticated().connect(this, &OAuthApplication::authenticated);
   }
 
-  void authenticated(const Wt::Auth::Identity& identity) {
+  void authenticated(const Auth::Identity& identity) {
     root()->clear();
-    new Wt::WText("Welcome, " + identity.name(), root());
+    root()->addWidget(cpp14::make_unique<WText>("Welcome, " + identity.name()));
   }
 
 private:
-  Wt::Auth::OAuthProcess* process_;
+  std::unique_ptr<Auth::OAuthProcess> process_;
 };
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
 {
-  return new OAuthApplication(env);
+  return cpp14::make_unique<OAuthApplication>(env);
 }
 
 int main(int argc, char **argv)
 {
   try {
-    Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
+    WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
-    server.addEntryPoint(Wt::Application, createApplication);
+    server.addEntryPoint(EntryPointType::Application, createApplication);
 
-    if (Wt::Auth::GoogleService::configured()) {
-      googleService = new Wt::Auth::GoogleService(authService);
+    if (Auth::GoogleService::configured()) {
+      googleService = cpp14::make_unique<Auth::GoogleService>(authService);
     }
 
     server.run();
-  } catch (Wt::WServer::Exception& e) {
+  } catch (WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;

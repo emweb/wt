@@ -3,19 +3,18 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WBreak"
+#include "Wt/WBreak.h"
 
 namespace Wt {
 
-WBreak::WBreak(WContainerWidget *parent)
-  : WWebWidget(parent)
+WBreak::WBreak()
 { 
   setInline(false);
 }
 
 DomElementType WBreak::domElementType() const
 {
-  return DomElement_BR;
+  return DomElementType::BR;
 }
 
 }

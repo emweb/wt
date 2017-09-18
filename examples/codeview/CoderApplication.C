@@ -3,8 +3,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WEnvironment>
-#include <Wt/WContainerWidget>
+#include <Wt/WEnvironment.h>
+#include <Wt/WContainerWidget.h>
 
 #include "CoderApplication.h"
 #include "CoderWidget.h"
@@ -26,9 +26,9 @@ CoderApplication::CoderApplication(const WEnvironment& env)
 void CoderApplication::createUI(const std::string& path)
 {
   if (path.length() <= 1)
-    root()->addWidget(new CoderWidget());
+    root()->addWidget(cpp14::make_unique<CoderWidget>());
   else
-    root()->addWidget(new ObserverWidget(path.substr(1)));
+    root()->addWidget(cpp14::make_unique<ObserverWidget>(path.substr(1)));
 }
 
 void CoderApplication::handlePathChange()
@@ -38,9 +38,9 @@ void CoderApplication::handlePathChange()
   createUI(internalPath());
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new CoderApplication(env);
+  return cpp14::make_unique<CoderApplication>(env);
 }
 
 int main(int argc, char **argv)

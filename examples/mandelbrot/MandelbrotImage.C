@@ -4,17 +4,18 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <math.h>
+#include <algorithm>
+#include <cmath>
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
 
-#include <Wt/WResource>
-#include <Wt/WImage>
-#include <Wt/WPainter>
-#include <Wt/WPen>
-#include <Wt/WRasterImage>
-#include <Wt/Http/Response>
+#include <Wt/WResource.h>
+#include <Wt/WImage.h>
+#include <Wt/WPainter.h>
+#include <Wt/WPen.h>
+#include <Wt/WRasterImage.h>
+#include <Wt/Http/Response.h>
 
 #include "MandelbrotImage.h"
 
@@ -50,9 +51,8 @@ MandelbrotImage::MandelbrotImage(int width, int height,
 				 int64_t virtualWidth,
 				 int64_t virtualHeight,
 				 double bx1, double by1,
-				 double bx2, double by2,
-				 WContainerWidget *parent)
-  : WVirtualImage(width, height, virtualWidth, virtualHeight, 256, parent),
+				 double bx2, double by2)
+  : WVirtualImage(width, height, virtualWidth, virtualHeight, 256),
     bx1_(bx1), by1_(by1),
     bwidth_(bx2 - bx1), bheight_(by2 - by1),
     maxDepth_(50),
@@ -80,9 +80,9 @@ void MandelbrotImage::zoomOut()
 	      std::max((int64_t)viewPortHeight(), imageHeight() / 2));
 }
 
-WResource *MandelbrotImage::render(int64_t x, int64_t y, int w, int h)
+std::unique_ptr<WResource> MandelbrotImage::render(int64_t x, int64_t y, int w, int h)
 {
-  return new MandelbrotResource(this, x, y, w, h);
+  return cpp14::make_unique<MandelbrotResource>(this, x, y, w, h);
 }
 
 void MandelbrotImage::generate(int64_t x, int64_t y, WRasterImage *img)

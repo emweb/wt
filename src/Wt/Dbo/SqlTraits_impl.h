@@ -7,8 +7,7 @@
 #ifndef WT_DBO_SQL_TRAITS_IMPL_H_
 #define WT_DBO_SQL_TRAITS_IMPL_H_
 
-#include <Wt/Dbo/SqlStatement>
-#include <boost/algorithm/string/find.hpp>
+#include <Wt/Dbo/SqlStatement.h>
 
 namespace Wt {
   namespace Dbo {
@@ -35,9 +34,9 @@ void query_result_traits<Result>::getFields(Session& session,
   std::string sqlType = "??"; // FIXME, get from session ?
 
   int flags = 0;
-  std::string::iterator as = boost::ifind_last(name, " as ").end();
+  std::string::const_iterator as = Impl::ifind_last_as(name);
   if (as != name.end()) {
-    flags = flags | FieldInfo::AliasedName;
+    flags = flags | FieldFlags::AliasedName;
     name = name.substr(as - name.begin());
   }
 
@@ -46,8 +45,8 @@ void query_result_traits<Result>::getFields(Session& session,
 
 template <typename Result>
 Result query_result_traits<Result>::load(Session& session,
-				       SqlStatement& statement,
-				       int& column)
+					 SqlStatement& statement,
+					 int& column)
 {
   Result result;
   sql_value_traits<Result>::read(result, &statement, column++, -1);
@@ -56,17 +55,17 @@ Result query_result_traits<Result>::load(Session& session,
 
 template <typename Result>
 void query_result_traits<Result>::getValues(const Result& result,
-					    std::vector<boost::any>& values)
+					    std::vector<cpp17::any>& values)
 {
   values.push_back(result);
 }
 
 template <typename Result>
 void query_result_traits<Result>::setValue(Result& result,
-					   int& index, const boost::any& value)
+					   int& index, const cpp17::any& value)
 {
   if (index == 0)
-    result = boost::any_cast<Result>(value);
+    result = cpp17::any_cast<Result>(value);
   --index;
 }
 

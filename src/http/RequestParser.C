@@ -13,10 +13,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <boost/lexical_cast.hpp>
-
-#include "../Wt/WLogger"
-#include "../Wt/Utils"
+#include "../Wt/WLogger.h"
+#include "../Wt/Utils.h"
 
 #include "../web/base64.h"
 
@@ -25,6 +23,7 @@
 #include "Reply.h"
 #include "Server.h"
 #include "WebController.h"
+#include "WebUtils.h"
 
 #undef min
 #if defined(_MSC_VER)
@@ -119,7 +118,7 @@ bool RequestParser::initInflate() {
 }
 #endif
 
-bool RequestParser::consumeChar(Buffer::iterator d)
+bool RequestParser::consumeChar(char *d)
 {
   if (currentString_->data == 0)
     currentString_->data = &(*d);
@@ -136,7 +135,7 @@ void RequestParser::consumeToString(buffer_string& result, int maxSize)
   maxSize_ = maxSize;
 }
 
-void RequestParser::consumeComplete(Buffer::iterator d)
+void RequestParser::consumeComplete(char *d)
 {
   // We 0-terminate for convenient C-string manipulations
   // Note that for headers, we may change this in a ',' when concatenating
@@ -150,9 +149,9 @@ bool RequestParser::initialState() const
   return (httpState_ == method_start);
 }
 
-boost::tuple<boost::tribool, Buffer::iterator>
-RequestParser::parse(Request& req, Buffer::iterator begin,
-		     Buffer::iterator end)
+boost::tuple<boost::tribool, char *>
+RequestParser::parse(Request& req, char *begin,
+		     char *end)
 {
   boost::tribool result = boost::indeterminate;
 
@@ -173,7 +172,7 @@ RequestParser::parse(Request& req, Buffer::iterator begin,
 }
 
 RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply,
-			      Buffer::iterator& begin, Buffer::iterator end)
+			      char *& begin, char *end)
 {
   if (req.type == Request::WebSocket) {
     Request::State state = parseWebSocketMessage(req, reply, begin, end);
@@ -185,8 +184,8 @@ RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply
   } else if (req.type == Request::TCP) {
     ::int64_t thisSize = (::int64_t)(end - begin);
 
-    Buffer::iterator thisBegin = begin;
-    Buffer::iterator thisEnd = begin + thisSize;
+    char *thisBegin = begin;
+    char *thisEnd = begin + thisSize;
 
     begin = thisEnd;
 
@@ -202,8 +201,8 @@ RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply
   } else {
     ::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
 
-    Buffer::iterator thisBegin = begin;
-    Buffer::iterator thisEnd = begin + thisSize;
+    char *thisBegin = begin;
+    char *thisEnd = begin + thisSize;
     remainder_ -= thisSize;
 
     begin = thisEnd;
@@ -272,7 +271,7 @@ bool RequestParser::parseCrazyWebSocketKey(const buffer_string& k,
     else if (key[i] == ' ')
       ++spaces;
 
-  ::uint64_t n = boost::lexical_cast< ::uint64_t >(number);
+  ::uint64_t n = Wt::Utils::stoll(number);
 
   if (!spaces)
     return false;
@@ -387,8 +386,8 @@ bool RequestParser::doWebSocketPerMessageDeflateNegotiation(const Request& req, 
 
 Request::State
 RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
-				     Buffer::iterator& begin,
-				     Buffer::iterator end)
+				     char *& begin,
+				     char * end)
 {
   switch (wsState_) {
   case ws_start:
@@ -431,7 +430,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	  + "?" + req.request_query;
 	reply->addHeader("Sec-WebSocket-Location", location);
 
-	reply->consumeData(begin, begin, Request::Partial);
+	reply->consumeData(&*begin, &*begin, Request::Partial);
 
 	return Request::Complete;
       } else {
@@ -464,7 +463,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	  }
 #endif
 
-	  reply->consumeData(begin, begin, Request::Complete);
+	  reply->consumeData(&*begin, &*begin, Request::Complete);
 
 	  return Request::Complete;
 	}
@@ -477,7 +476,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       unsigned thisSize = std::min((::int64_t)(end - begin),
 				   (::int64_t)(8 - wsCount_));
 
-      memcpy(ws00_buf_ + wsCount_, begin, thisSize);
+      memcpy(ws00_buf_ + wsCount_, &*begin, thisSize);
       wsCount_ += thisSize;
       begin += thisSize;
 
@@ -500,8 +499,8 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
     break;
   }
 
-  Buffer::iterator dataBegin = begin;
-  Buffer::iterator dataEnd = begin; // Initially assume no data
+  char *dataBegin = begin;
+  char *dataEnd = begin; // Initially assume no data
 
   Request::State state = Request::Partial;
 
@@ -697,7 +696,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	remainder_ -= thisSize;
 
 	/* Unmask dataBegin to dataEnd, mask offset in wsCount_ */
-	for (Buffer::iterator i = dataBegin; i != dataEnd; ++i) {
+	for (char *i = dataBegin; i != dataEnd; ++i) {
 	  unsigned char d = *i;
 	  unsigned char m = (unsigned char)(wsMask_ >> ((3 - wsCount_) * 8));
 	  d = d ^ m;
@@ -809,7 +808,7 @@ bool RequestParser::inflate(unsigned char* in, size_t size, unsigned char out[],
 
 #endif
 
-boost::tribool& RequestParser::consume(Request& req, Buffer::iterator it)
+boost::tribool& RequestParser::consume(Request& req, char *it)
 {
   static boost::tribool False(false);
   static boost::tribool True(true);
@@ -1179,9 +1178,8 @@ Reply::status_type RequestParser::validate(Request& req)
 	return Reply::bad_request;
     } else {
       try {
-	std::string cl = h->value.str();
-	req.contentLength = boost::lexical_cast< ::int64_t >(cl);
-      } catch (boost::bad_lexical_cast&) {
+	req.contentLength = Wt::Utils::stoll(h->value.str());
+      } catch (std::exception&) {
 	return Reply::bad_request;
       }
     }

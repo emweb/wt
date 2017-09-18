@@ -1,20 +1,19 @@
-#include <Wt/WTemplate>
-#include <Wt/WDate>
-#include <Wt/WDateValidator>
-#include <Wt/WLabel>
-#include <Wt/WDateEdit>
-#include <Wt/WPushButton>
-#include <Wt/WValidator>
+#include <Wt/WTemplate.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateValidator.h>
+#include <Wt/WLabel.h>
+#include <Wt/WDateEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WValidator.h>
 
 SAMPLE_BEGIN(ValidationDate)
 
-Wt::WTemplate *t = new Wt::WTemplate(Wt::WString::tr("date-template"));
+auto t = Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("date-template"));
 t->addFunction("id", &Wt::WTemplate::Functions::id);
 
-Wt::WDateEdit *dateEdit = new Wt::WDateEdit();
-t->bindWidget("birth-date", dateEdit);
+auto dateEdit = t->bindWidget("birth-date", Wt::cpp14::make_unique<Wt::WDateEdit>());
 
-Wt::WDateValidator *dv = new Wt::WDateValidator();
+auto dv = std::make_shared<Wt::WDateValidator>();
 dv->setBottom(Wt::WDate(1900, 1, 1));
 dv->setTop(Wt::WDate::currentDate());
 dv->setFormat("dd/MM/yyyy");
@@ -31,36 +30,34 @@ dv->setInvalidTooLateText
 
 dateEdit->setValidator(dv);
 
-Wt::WPushButton *button = new Wt::WPushButton("Ok");
-t->bindWidget("button", button);
+auto button = t->bindWidget("button", Wt::cpp14::make_unique<Wt::WPushButton>("Ok"));
 
-Wt::WText *out = new Wt::WText();
+auto out = t->bindWidget("info", Wt::cpp14::make_unique<Wt::WText>());
 out->setInline(false);
 out->hide();
-t->bindWidget("info", out);
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->show();
 
     Wt::WValidator::Result result = dv->validate(dateEdit->text());
-    if (result.state() == Wt::WValidator::Valid) {
-	Wt::WDate d = Wt::WDate::currentServerDate();
-	int years = d.year() - dateEdit->date().year();
-	int days = d.daysTo(dateEdit->date().addYears(years));
+    if (result.state() == Wt::ValidationState::Valid) {
+        Wt::WDate d = Wt::WDate::currentServerDate();
+        int years = d.year() - dateEdit->date().year();
+        int days = d.daysTo(dateEdit->date().addYears(years));
 	if (days < 0)
 	    days = d.daysTo( dateEdit->date().addYears(years + 1) );
-	out->setText("<p>In " + boost::lexical_cast<std::string>(days) +
+	out->setText("<p>In " + std::to_string(days) +
 		     " days, we will be celebrating your next anniversary!</p>");
 	out->setStyleClass("alert alert-success");
     } else {
-	dateEdit->setFocus(true);
-	out->setText(result.message());
-	out->setStyleClass("alert alert-danger");
+        dateEdit->setFocus(true);
+        out->setText(result.message());
+        out->setStyleClass("alert alert-danger");
     }
-}));
+});
 
-dateEdit->enterPressed().connect(std::bind([=] () {
+dateEdit->enterPressed().connect([=] {
     button->clicked().emit(Wt::WMouseEvent());
-}));
+});
 
-SAMPLE_END(return t)
+SAMPLE_END(return std::move(t))

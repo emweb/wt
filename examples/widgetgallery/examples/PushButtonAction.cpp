@@ -1,16 +1,16 @@
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(PushButtonAction)
 
-Wt::WTemplate *result =
-    new Wt::WTemplate(Wt::WString::tr("pushButtonAction-template"));
+auto result =
+    Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("pushButtonAction-template"));
 
-Wt::WPushButton *button = new Wt::WPushButton("Save");
-result->bindWidget("button-save", button);
-button->setStyleClass("btn-primary");
+auto button = Wt::cpp14::make_unique<Wt::WPushButton>("Save");
+auto button_ = result->bindWidget("button-save", std::move(button));
+button_->setStyleClass("btn-primary");
 
-button = new Wt::WPushButton("Cancel");
-result->bindWidget("button-cancel", button);
+button = Wt::cpp14::make_unique<Wt::WPushButton>("Cancel");
+result->bindWidget("button-cancel", std::move(button));
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))

@@ -1,11 +1,11 @@
-#include <Wt/Dbo/Call>
-#include <Wt/Dbo/Session>
-#include <Wt/Dbo/SqlStatement>
+#include <Wt/Dbo/Call.h>
+#include <Wt/Dbo/Session.h>
+#include <Wt/Dbo/SqlStatement.h>
 
 namespace Wt {
   namespace Dbo {
 
-Call::~Call() WT_CXX11ONLY(noexcept(false))
+Call::~Call() noexcept(false)
 {
   if (!copied_ && !run_)
     run();

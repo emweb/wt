@@ -3,17 +3,29 @@
 #include <string>
 #include <set>
 
-#include <Wt/WDateTime>
-#include <Wt/Auth/User>
-#include <Wt/Auth/OAuthClient>
-#include <Wt/Dbo/Dbo>
-#include <Wt/Auth/HashFunction>
-#include <Wt/WRandom>
+#include <Wt/WDateTime.h>
+#include <Wt/Auth/User.h>
+#include <Wt/Auth/OAuthClient.h>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/WRandom.h>
 #include <boost/algorithm/string.hpp>
 
 #include "IssuedToken.h"
 #include "OAuthClient.h"
 #include "User.h"
+
+namespace {
+  long long stringToId(const std::string &s)
+  {
+    std::size_t pos = std::string::npos;
+    auto result = std::stoll(s, &pos);
+    if (pos != s.size())
+      return -1;
+    else
+      return result;
+  }
+}
 
 class InvalidObject : public std::runtime_error
 {
@@ -59,9 +71,9 @@ Wt::Auth::IssuedToken OidcUserDatabase::idpTokenAdd(const std::string& value,
 {
   WithUser findUser(*this, user);
   WithOAuthClient findOAuthClient(*this, authClient);
-  IssuedToken *token = new IssuedToken(value, expirationTime, purpose, scope, redirectUri, user_->user(), authClient_);
-  issuedToken_ = session_.add(token);
-  return Wt::Auth::IssuedToken(boost::lexical_cast<std::string>(issuedToken_.id()), *this);
+  issuedToken_ =
+    session_.addNew<IssuedToken>(value, expirationTime, purpose, scope, redirectUri, user_->user(), authClient_);
+  return Wt::Auth::IssuedToken(std::to_string(issuedToken_.id()), *this);
 }
 
 void OidcUserDatabase::idpTokenRemove(const Wt::Auth::IssuedToken& token)
@@ -81,7 +93,7 @@ Wt::Auth::IssuedToken OidcUserDatabase::idpTokenFindWithValue(const std::string&
       .where("expires > ?").bind(cur);
   t.commit();
   if (issuedToken_)
-    return Wt::Auth::IssuedToken(boost::lexical_cast<std::string>(issuedToken_.id()), *this);
+    return Wt::Auth::IssuedToken(std::to_string(issuedToken_.id()), *this);
   else
     return Wt::Auth::IssuedToken();
 }
@@ -119,13 +131,13 @@ std::string OidcUserDatabase::idpTokenRedirectUri(const Wt::Auth::IssuedToken& t
 Wt::Auth::User OidcUserDatabase::idpTokenUser(const Wt::Auth::IssuedToken& token) const
 {
   WithIssuedToken find(*this, token);
-  return Wt::Auth::User(boost::lexical_cast<std::string>(issuedToken_->user.id()), *this);
+  return Wt::Auth::User(std::to_string(issuedToken_->user.id()), *this);
 }
 
 Wt::Auth::OAuthClient OidcUserDatabase::idpTokenOAuthClient(const Wt::Auth::IssuedToken& token) const
 {
   WithIssuedToken find(*this, token);
-  return Wt::Auth::OAuthClient(boost::lexical_cast<std::string>(issuedToken_->authClient.id()), *this);
+  return Wt::Auth::OAuthClient(std::to_string(issuedToken_->authClient.id()), *this);
 }
 
 Wt::Auth::OAuthClient OidcUserDatabase::idpClientFindWithId(const std::string& clientId) const
@@ -135,7 +147,7 @@ Wt::Auth::OAuthClient OidcUserDatabase::idpClientFindWithId(const std::string& c
       .where("client_id = ?").bind(clientId);
   t.commit();
   if (authClient_)
-    return Wt::Auth::OAuthClient(boost::lexical_cast<std::string>(authClient_.id()), *this);
+    return Wt::Auth::OAuthClient(std::to_string(authClient_.id()), *this);
   else
     return Wt::Auth::OAuthClient();
 }
@@ -182,9 +194,9 @@ Wt::Auth::ClientSecretMethod OidcUserDatabase::idpClientAuthMethod(const Wt::Aut
 
 void OidcUserDatabase::getUser(const std::string& id) const
 {
-  if (!user_ || boost::lexical_cast<std::string>(user_.id()) != id) {
+  if (!user_ || std::to_string(user_.id()) != id) {
     Wt::Dbo::Transaction t(session_);
-    setUser(session_.load<Wt::Auth::Dbo::AuthInfo<User> >(boost::lexical_cast<long long>(id)));
+    setUser(session_.load<Wt::Auth::Dbo::AuthInfo<User> >(stringToId(id)));
     t.commit();
   }
 }
@@ -196,20 +208,20 @@ void OidcUserDatabase::setUser(Wt::Dbo::ptr<Wt::Auth::Dbo::AuthInfo<User> > user
 
 void OidcUserDatabase::getIssuedToken(const std::string& id) const
 {
-  if (!issuedToken_ || boost::lexical_cast<std::string>(issuedToken_->id()) != id) {
+  if (!issuedToken_ || std::to_string(issuedToken_->id()) != id) {
     Wt::Dbo::Transaction t(session_);
     issuedToken_ = session_.find<IssuedToken>()
-        .where("id = ?").bind(boost::lexical_cast<long long>(id));
+        .where("id = ?").bind(stringToId(id));
     t.commit();
   }
 }
 
 void OidcUserDatabase::getOAuthClient(const std::string& id) const
 {
-  if (!authClient_ || boost::lexical_cast<std::string>(authClient_.id()) != id) {
+  if (!authClient_ || std::to_string(authClient_.id()) != id) {
     Wt::Dbo::Transaction t(session_);
     authClient_ = session_.find<OAuthClient>()
-        .where("id = ?").bind(boost::lexical_cast<long long>(id));
+        .where("id = ?").bind(stringToId(id));
     t.commit();
   }
 }
@@ -266,7 +278,7 @@ Wt::Auth::OAuthClient OidcUserDatabase::idpClientAdd(const std::string &clientId
                                                     const std::string &secret)
 {
   Wt::Dbo::Transaction t(session_);
-  OAuthClient *client = new OAuthClient;
+  std::unique_ptr<OAuthClient> client{new OAuthClient};
   client->clientId = clientId;
   client->confidential = confidential;
   std::set<std::string>::iterator uri = redirectUris.begin();
@@ -279,8 +291,7 @@ Wt::Auth::OAuthClient OidcUserDatabase::idpClientAdd(const std::string &clientId
   client->secret = Wt::Auth::BCryptHashFunction(7)
     .compute(secret,
              Wt::WRandom::generateId());
-  Wt::Dbo::ptr<OAuthClient> client_ = session_.add(client);
+  Wt::Dbo::ptr<OAuthClient> client_ = session_.add(std::move(client));
   t.commit();
-  return Wt::Auth::OAuthClient(boost::lexical_cast<std::string>(client_.id()),
-                               *this);
+  return Wt::Auth::OAuthClient(std::to_string(client_.id()), *this);
 }

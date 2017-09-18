@@ -4,11 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Json/Array"
-#include "Wt/Json/Object"
-#include "Wt/Json/Parser"
-#include "Wt/Json/Value"
-#include "Wt/WStringStream"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Parser.h"
+#include "Wt/Json/Value.h"
+#include "Wt/WStringStream.h"
 
 #include <boost/version.hpp>
 
@@ -29,7 +29,7 @@
 #else
 #include <boost/phoenix.hpp>
 #endif
-#include <boost/bind.hpp>
+#include <functional>
 
 #endif // JSON_PARSER
 
@@ -66,9 +66,11 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
   {
     create();
 
-    state_.push_back(InObject);
+    state_.push_back(State::InObject);
     currentValue_ = &result_;
   }
+
+  typedef boost::iterator_range<std::string::const_iterator> StrValue;
 
   void create()
   {
@@ -89,31 +91,103 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
         
     root
       = object | array;
+
+    const auto startObject = [this](){
+      refCurrent();
+
+      *currentValue_ = Value(Type::Object);
+      objectStack_.push_back(&((Object&) (*currentValue_)));
+      state_.push_back(State::InObject);
+    };
+    const auto endObject = [this](){
+      state_.pop_back();
+      objectStack_.pop_back();
+    };
     
     object
-      =  lit('{')[boost::bind(&Self::startObject, this)]
+      =  lit('{')[startObject]
       >> -(member % ',')
-      >> lit('}')[boost::bind(&Self::endObject, this)]
+      >> lit('}')[endObject]
       ;
+
+    const auto setMemberName = [this](const StrValue &value)
+    {
+      assert(state() == State::InObject);
+
+      currentValue_ = &((currentObject())[s_.str()] = Value::Null);
+      s_.clear();
+    };
                 
     member
-      = raw[string][boost::bind(&Self::setMemberName, this, _1)] 
+      = raw[string][setMemberName]
       >> lit(':') 
       >> value
       ;
+
+    const auto startArray = [this]()
+    {
+      refCurrent();
+
+      *currentValue_ = Value(Type::Array);
+      arrayStack_.push_back(&((Array&) (*currentValue_)));
+      state_.push_back(State::InArray);
+    };
+    const auto endArray = [this]()
+    {
+      state_.pop_back();
+      arrayStack_.pop_back();
+    };
                 
     array 
-      = lit('[')[boost::bind(&Self::startArray, this)]
+      = lit('[')[startArray]
       >> -(value % ',')
-      >> lit(']')[boost::bind(&Self::endArray, this)]
+      >> lit(']')[endArray]
       ;
 
+    const auto setStringValue = [this](const StrValue &value)
+    {
+      refCurrent();
+
+      *currentValue_ = Value(WString::fromUTF8(s_.str()));
+      s_.clear();
+      currentValue_ = nullptr;
+    };
+
+    const auto setNumberValue = [this](double d)
+    {
+      // FIXME save as long long or int too ?
+      refCurrent();
+      *currentValue_ = Value(d);
+      currentValue_ = nullptr;
+    };
+
+    const auto setTrueValue = [this]()
+    {
+      refCurrent();
+      *currentValue_ = Value::True;
+      currentValue_ = nullptr;
+    };
+
+    const auto setFalseValue = [this]()
+    {
+      refCurrent();
+      *currentValue_ = Value::False;
+      currentValue_ = nullptr;
+    };
+
+    const auto setNullValue = [this]()
+    {
+      refCurrent();
+      *currentValue_ = Value::Null;
+      currentValue_ = nullptr;
+    };
+
     value 
-      = raw[string][boost::bind(&Self::setStringValue, this, _1)] 
-      | double_[boost::bind(&Self::setNumberValue, this, _1)]
-      | lit("true")[boost::bind(&Self::setTrueValue, this)]
-      | lit("false")[boost::bind(&Self::setFalseValue, this)]
-      | lit("null")[boost::bind(&Self::setNullValue, this)]
+      = raw[string][setStringValue]
+      | double_[setNumberValue]
+      | lit("true")[setTrueValue]
+      | lit("false")[setFalseValue]
+      | lit("null")[setNullValue]
       | object
       | array
       ;
@@ -122,15 +196,41 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
       = lexeme['"' > *character > '"']
       ;
 
+    const auto addChar = [this](char c)
+    {
+      s_ << c;
+    };
+
     character
-      = (char_ - '\\' - '"')[boost::bind(&Self::addChar, this, _1)]
+      = (char_ - '\\' - '"')[addChar]
       | (lit('\\') > escape)
       ;
 
+    const auto addEscapedChar = [this](char c)
+    {
+      switch (c) {
+      case 'b': s_ << '\b'; break;
+      case 'f': s_ << '\f'; break;
+      case 'n': s_ << '\n'; break;
+      case 'r': s_ << '\r'; break;
+      case 't': s_ << '\t'; break;
+      default:  s_ << c;
+      }
+    };
+
+    const auto addUnicodeChar = [this](unsigned long code)
+    {
+      char buf[4];
+      char *end = buf;
+      Wt::rapidxml::xml_document<>::insert_coded_character<0>(end, code);
+      for (char *b = buf; b != end; ++b)
+        s_ << *b;
+    };
+
     escape
-      = char_("\"\\/bfnrt")[boost::bind(&Self::addEscapedChar, this, _1)]
+      = char_("\"\\/bfnrt")[addEscapedChar]
       | ('u' > uint_parser<unsigned long, 16, 4, 4>()
-	 [boost::bind(&Self::addUnicodeChar, this, _1)])
+         [addUnicodeChar])
       ;
   }
 
@@ -139,110 +239,6 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
 
   qi::rule<Iterator> character, escape;
 
-  typedef boost::iterator_range<std::string::const_iterator> StrValue;
-
-  void startObject()
-  {
-    refCurrent();
-
-    *currentValue_ = Value(ObjectType);
-    objectStack_.push_back(&((Object&) (*currentValue_)));
-    state_.push_back(InObject);
-  }
-
-  void endObject()
-  {
-    state_.pop_back();
-    objectStack_.pop_back();
-  }
-
-  void setMemberName(const StrValue& value)
-  {
-    assert(state() == InObject);
-
-    currentValue_ = &((currentObject())[s_.str()] = Value::Null);
-    s_.clear();
-  }
-
-  void startArray()
-  {
-    refCurrent();
-
-    *currentValue_ = Value(ArrayType);
-    arrayStack_.push_back(&((Array&) (*currentValue_)));
-    state_.push_back(InArray);
-  }
-
-  void endArray()
-  {
-    state_.pop_back();
-    arrayStack_.pop_back();
-  }
-
-  void setStringValue(const StrValue& value)
-  {
-    refCurrent();
-
-    *currentValue_ = Value(WString::fromUTF8(s_.str()));
-    s_.clear();
-    currentValue_  = 0;
-  }
-
-  void setNumberValue(double d)
-  {
-    // FIXME save as long long or int too ?
-    refCurrent();
-    *currentValue_ = Value(d);
-    currentValue_  = 0;
-  }
-
-  void addChar(char c)
-  {
-    s_ << c;
-  }
-
-  void addUnicodeChar(unsigned code)
-  {
-    char buf[4];
-    char *end = buf;
-    Wt::rapidxml::xml_document<>::insert_coded_character<0>(end, code);
-    for (char *b = buf; b != end; ++b)
-      s_ << *b;
-  }
-
-  void addEscapedChar(char c)
-  { 
-    switch (c) {
-    case 'b': s_ << '\b'; break;
-    case 'f': s_ << '\f'; break;
-    case 'n': s_ << '\n'; break;
-    case 'r': s_ << '\r'; break;
-    case 't': s_ << '\t'; break;
-    default:  s_ << c;
-    }
-  }
-
-  void setTrueValue()
-  {
-    refCurrent();
-    *currentValue_ = Value::True;
-    currentValue_  = 0;
-  }
-
-  void setFalseValue()
-  {
-    refCurrent();
-    *currentValue_ = Value::False;
-    currentValue_  = 0;
-  }
-
-  void setNullValue()
-  {
-    refCurrent();
-    *currentValue_ = Value::Null;
-    currentValue_  = 0;
-  }
-
 private:
   Value& result_;
   Value *currentValue_;
@@ -250,7 +246,7 @@ private:
   std::list<Object *> objectStack_;
   std::list<Array *> arrayStack_;
 
-  enum State { InObject, InArray };
+  enum class State { InObject, InArray };
 
   std::vector<State> state_;
 
@@ -263,10 +259,10 @@ private:
   void refCurrent()
   {
     switch (state()) {
-    case InObject:
+    case State::InObject:
       assert(currentValue_);
       break;
-    case InArray:
+    case State::InArray:
       currentArray().push_back(Value());
       currentValue_ = &currentArray().back();
       break;

@@ -1,33 +1,31 @@
-#include <Wt/WCalendar>
-#include <Wt/WContainerWidget>
-#include <Wt/WDate>
-#include <Wt/WText>
+#include <Wt/WCalendar.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDate.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(CalendarExtended)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-Wt::WCalendar *c2 = new Wt::WCalendar(container);
-c2->setSelectionMode(Wt::ExtendedSelection);
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WText* out = new Wt::WText(container);
+Wt::WCalendar *c2 = container->addWidget(Wt::cpp14::make_unique<Wt::WCalendar>());
+c2->setSelectionMode(Wt::SelectionMode::Extended);
+
+Wt::WText* out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
-c2->selectionChanged().connect(std::bind([=] () {
+c2->selectionChanged().connect([=] {
     Wt::WString selected;
     std::set<Wt::WDate> selection = c2->selection();
 
-    for (std::set<Wt::WDate>::const_iterator it = selection.begin();
-	 it != selection.end(); ++it) {
+    for (auto &date : c2->selection()) {
 	if (!selected.empty())
 	    selected += ", ";
 
-	const Wt::WDate& d = *it;
-	selected += d.toString("dd/MM/yyyy");
+        selected += date.toString("dd/MM/yyyy");
     }
 
-    out->setText(Wt::WString::fromUTF8
-		 ("<p>You selected the following dates: {1}</p>")
+    out->setText(Wt::WString("<p>You selected the following dates: {1}</p>")
 		 .arg(selected));
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

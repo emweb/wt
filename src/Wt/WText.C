@@ -5,9 +5,9 @@
  */
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WApplication"
-#include "Wt/WLogger"
-#include "Wt/WText"
+#include "Wt/WApplication.h"
+#include "Wt/WLogger.h"
+#include "Wt/WText.h"
 #include "DomElement.h"
 #include "WebSession.h"
 #include "RefEncoder.h"
@@ -17,7 +17,7 @@ namespace Wt {
 LOGGER("WText");
 
 WText::RichText::RichText()
-  : format(XHTMLText)
+  : format(TextFormat::XHTML)
 { }
 
 bool WText::RichText::setText(const WString& newText)
@@ -26,7 +26,7 @@ bool WText::RichText::setText(const WString& newText)
 
   bool ok = checkWellFormed();
   if (!ok)
-    format = PlainText;
+    format = TextFormat::Plain;
 
   return ok;
 }
@@ -48,7 +48,7 @@ bool WText::RichText::setFormat(TextFormat newFormat)
 
 bool WText::RichText::checkWellFormed()
 {
-  if (format == XHTMLText && 
+  if (format == TextFormat::XHTML && 
       (text.literal() || !text.args().empty())) {
     return removeScript(text);
   } else
@@ -57,30 +57,27 @@ bool WText::RichText::checkWellFormed()
 
 std::string WText::RichText::formattedText() const
 {
-  if (format == PlainText)
+  if (format == TextFormat::Plain)
     return escapeText(text, true).toUTF8();
   else
-    return text.toUTF8();
+    return text.toXhtmlUTF8();
 }
 
-WText::WText(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    padding_(0)
+WText::WText()
+  : padding_(nullptr)
 {
   flags_.set(BIT_WORD_WRAP);
 }
 
-WText::WText(const WString& text, WContainerWidget *parent)
-  : WInteractWidget(parent),
-    padding_(0)
+WText::WText(const WString& text)
+  : padding_(nullptr)
 {
   flags_.set(BIT_WORD_WRAP);
   setText(text);
 }
 
-WText::WText(const WString& text, TextFormat format, WContainerWidget *parent)
-  : WInteractWidget(parent),
-    padding_(0)
+WText::WText(const WString& text, TextFormat format)
+  : padding_(nullptr)
 {
   text_.format = format;
   flags_.set(BIT_WORD_WRAP);
@@ -104,14 +101,14 @@ bool WText::setText(const WString& text)
     return true;
 
   flags_.set(BIT_TEXT_CHANGED);
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 
   return ok;
 }
 
 void WText::autoAdjustInline()
 {
-  if (text_.format != PlainText && isInline()) {
+  if (text_.format != TextFormat::Plain && isInline()) {
     std::string t = text_.text.toUTF8();
     boost::trim_left(t);
     if (   boost::istarts_with(t, "<div")
@@ -126,7 +123,7 @@ void WText::setWordWrap(bool wordWrap)
   if (flags_.test(BIT_WORD_WRAP) != wordWrap) {
     flags_.set(BIT_WORD_WRAP, wordWrap);
     flags_.set(BIT_WORD_WRAP_CHANGED);
-    repaint(RepaintSizeAffected);
+    repaint(RepaintFlag::SizeAffected);
   }
 }
 
@@ -137,9 +134,9 @@ void WText::setTextAlignment(AlignmentFlag textAlignment)
   flags_.reset(BIT_TEXT_ALIGN_RIGHT);
 
   switch (textAlignment) {
-  case AlignLeft: flags_.set(BIT_TEXT_ALIGN_LEFT); break;
-  case AlignCenter: flags_.set(BIT_TEXT_ALIGN_CENTER); break;
-  case AlignRight: flags_.set(BIT_TEXT_ALIGN_RIGHT); break;
+  case AlignmentFlag::Left: flags_.set(BIT_TEXT_ALIGN_LEFT); break;
+  case AlignmentFlag::Center: flags_.set(BIT_TEXT_ALIGN_CENTER); break;
+  case AlignmentFlag::Right: flags_.set(BIT_TEXT_ALIGN_RIGHT); break;
   default:
     LOG_ERROR("setTextAlignment(): illegal value for textAlignment");
     return;
@@ -152,11 +149,11 @@ void WText::setTextAlignment(AlignmentFlag textAlignment)
 AlignmentFlag WText::textAlignment() const
 {
   if (flags_.test(BIT_TEXT_ALIGN_CENTER))
-    return AlignCenter;
+    return AlignmentFlag::Center;
   else if (flags_.test(BIT_TEXT_ALIGN_RIGHT))
-    return AlignRight;
+    return AlignmentFlag::Right;
   else
-    return AlignLeft; // perhaps take into account RLT setting?
+    return AlignmentFlag::Left; // perhaps take into account RLT setting?
 }
 
 void WText::updateDom(DomElement& element, bool all)
@@ -164,13 +161,13 @@ void WText::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_TEXT_CHANGED) || all) {
     std::string text = formattedText();
     if (flags_.test(BIT_TEXT_CHANGED) || !text.empty())
-      element.setProperty(Wt::PropertyInnerHTML, text);
+      element.setProperty(Wt::Property::InnerHTML, text);
     flags_.reset(BIT_TEXT_CHANGED);
   }
 
   if (flags_.test(BIT_WORD_WRAP_CHANGED) || all) {
     if (!all || !flags_.test(BIT_WORD_WRAP))
-      element.setProperty(Wt::PropertyStyleWhiteSpace,
+      element.setProperty(Wt::Property::StyleWhiteSpace,
 			  flags_.test(BIT_WORD_WRAP) ? "normal" : "nowrap");
     flags_.reset(BIT_WORD_WRAP_CHANGED);
   }
@@ -179,21 +176,21 @@ void WText::updateDom(DomElement& element, bool all)
       || (all && padding_ &&
 	  !(padding_[0].isAuto() && padding_[1].isAuto()))) {
     
-    element.setProperty(PropertyStylePaddingRight, padding_[0].cssText());
-    element.setProperty(PropertyStylePaddingLeft, padding_[1].cssText());
+    element.setProperty(Property::StylePaddingRight, padding_[0].cssText());
+    element.setProperty(Property::StylePaddingLeft, padding_[1].cssText());
 
     flags_.reset(BIT_PADDINGS_CHANGED);
   }
 
   if (flags_.test(BIT_TEXT_ALIGN_CHANGED) || all) {
     if (flags_.test(BIT_TEXT_ALIGN_CENTER))
-      element.setProperty(PropertyStyleTextAlign, "center");
+      element.setProperty(Property::StyleTextAlign, "center");
     else if (flags_.test(BIT_TEXT_ALIGN_RIGHT))
-      element.setProperty(PropertyStyleTextAlign, "right");
+      element.setProperty(Property::StyleTextAlign, "right");
     else if (flags_.test(BIT_TEXT_ALIGN_LEFT))
-      element.setProperty(PropertyStyleTextAlign, "left");
+      element.setProperty(Property::StyleTextAlign, "left");
     else if (!all)
-      element.setProperty(PropertyStyleTextAlign, "");
+      element.setProperty(Property::StyleTextAlign, "");
 
     flags_.reset(BIT_TEXT_ALIGN_CHANGED);
   }
@@ -233,19 +230,19 @@ void WText::setPadding(const WLength& length, WFlags<Side> sides)
 #endif // WT_TARGET_JAVA
   }
 
-  if (sides & Right)
+  if (sides.test(Side::Right))
     padding_[0] = length;
-  if (sides & Left)
+  if (sides.test(Side::Left))
     padding_[1] = length;
 
-  if (sides & Top)
-    LOG_ERROR("setPadding(..., Top) is not supported.");
+  if (sides.test(Side::Top))
+    LOG_ERROR("setPadding(..., Side::Top) is not supported.");
 
-  if (sides & Bottom)
-    LOG_ERROR("setPadding(..., Bottom) is not supported.");
+  if (sides.test(Side::Bottom))
+    LOG_ERROR("setPadding(..., Side::Bottom) is not supported.");
 
   flags_.set(BIT_PADDINGS_CHANGED);
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 WLength WText::padding(Side side) const
@@ -254,14 +251,14 @@ WLength WText::padding(Side side) const
     return WLength::Auto;
 
   switch (side) {
-  case Top:
-    LOG_ERROR("padding(Top) is not supported.");
+  case Side::Top:
+    LOG_ERROR("padding(Side::Top) is not supported.");
     return WLength();
-  case Right:
+  case Side::Right:
     return padding_[1];
-  case Bottom:
-    LOG_ERROR("padding(Bottom) is not supported.");
-  case Left:
+  case Side::Bottom:
+    LOG_ERROR("padding(Side::Bottom) is not supported.");
+  case Side::Left:
     return padding_[3];
   default:
     LOG_ERROR("padding(Side) with invalid side: " << (int)side);
@@ -271,7 +268,7 @@ WLength WText::padding(Side side) const
 
 std::string WText::formattedText() const
 {
-  if (text_.format == PlainText)
+  if (text_.format == TextFormat::Plain)
     return escapeText(text_.text, true).toUTF8();
   else {
     WApplication *app = WApplication::instance();
@@ -282,15 +279,15 @@ std::string WText::formattedText() const
 	options |= EncodeInternalPaths;
       if (app->session()->hasSessionIdInUrl())
 	options |= EncodeRedirectTrampoline;
-      return EncodeRefs(text_.text, options).toUTF8();
+      return EncodeRefs(text_.text, options).toXhtmlUTF8();
     } else
-      return text_.text.toUTF8();
+      return text_.text.toXhtmlUTF8();
   }
 }
 
 DomElementType WText::domElementType() const
 {
-  return isInline() ? DomElement_SPAN : DomElement_DIV;
+  return isInline() ? DomElementType::SPAN : DomElementType::DIV;
 }
 
 void WText::render(WFlags<RenderFlag> flags)
@@ -305,7 +302,7 @@ void WText::refresh()
 {
   if (text_.text.refresh()) {
     flags_.set(BIT_TEXT_CHANGED);
-    repaint(RepaintSizeAffected);
+    repaint(RepaintFlag::SizeAffected);
   }
 
   WInteractWidget::refresh();

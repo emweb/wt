@@ -4,18 +4,17 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WAudio"
+#include "Wt/WAudio.h"
 #include "DomElement.h"
 
 using namespace Wt;
 
-WAudio::WAudio(WContainerWidget *parent)
-  : WAbstractMedia(parent)
+WAudio::WAudio()
 { }
 
 DomElement *WAudio::createMediaDomElement()
 {
-  return DomElement::createNew(DomElement_AUDIO);
+  return DomElement::createNew(DomElementType::AUDIO);
 }
 
 std::string WAudio::jsAudioRef() const
@@ -25,5 +24,5 @@ std::string WAudio::jsAudioRef() const
 
 DomElementType WAudio::domElementType() const
 {
-  return DomElement_AUDIO;
+  return DomElementType::AUDIO;
 }

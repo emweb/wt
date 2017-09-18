@@ -4,8 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WGridLayout"
-#include "Wt/WWidgetItem"
+#include "Wt/WGridLayout.h"
+#include "Wt/WWidgetItem.h"
+
+#include "StdGridLayoutImpl2.h"
+
+#include <algorithm>
 
 namespace Wt {
 
@@ -16,12 +20,16 @@ Grid::Section::Section(int stretch)
     resizable_(false)
 { }
 
-Grid::Item::Item(WLayoutItem *item, WFlags<AlignmentFlag> alignment)
-  : item_(item),
+Grid::Item::Item(std::unique_ptr<WLayoutItem> item,
+		 WFlags<AlignmentFlag> alignment)
+  : item_(std::move(item)),
     rowSpan_(1),
     colSpan_(1),
     update_(true),
     alignment_(alignment)
+{ }
+
+Grid::Item::~Item()
 { }
 
 Grid::Grid()
@@ -31,12 +39,6 @@ Grid::Grid()
 
 Grid::~Grid()
 {
-  for (unsigned i = 0; i < items_.size(); ++i)
-    for (unsigned j = 0; j < items_[i].size(); ++j) {
-      WLayoutItem *item = items_[i][j].item_;
-      items_[i][j].item_ = 0;;
-      delete item;
-    }
 }
 
 void Grid::clear()
@@ -48,30 +50,29 @@ void Grid::clear()
 
   }
 
-WGridLayout::WGridLayout(WWidget *parent)
-  : WLayout()
+WGridLayout::WGridLayout()
+{ }
+
+void WGridLayout::addItem(std::unique_ptr<WLayoutItem> item)
 {
-  if (parent)
-    setLayoutInParent(parent);
+  addItem(std::move(item), 0, columnCount());
 }
 
-void WGridLayout::addItem(WLayoutItem *item)
-{
-  addItem(item, 0, columnCount());
-}
-
-void WGridLayout::removeItem(WLayoutItem *item)
+std::unique_ptr<WLayoutItem> WGridLayout::removeItem(WLayoutItem *item)
 {
   int index = indexOf(item);
+
+  std::unique_ptr<WLayoutItem> result;
 
   if (index != -1) {
     int row = index / columnCount();
     int col = index % columnCount();
 
-    grid_.items_[row][col].item_ = 0;
-
-    updateRemoveItem(item);
+    result = std::move(grid_.items_[row][col].item_);
+    itemRemoved(item);
   }
+
+  return result;
 }
 
 WLayoutItem *WGridLayout::itemAt(int index) const
@@ -79,7 +80,18 @@ WLayoutItem *WGridLayout::itemAt(int index) const
   int row = index / columnCount();
   int col = index % columnCount();
 
-  return grid_.items_[row][col].item_;
+  return grid_.items_[row][col].item_.get();
+}
+
+void WGridLayout::iterateWidgets(const HandleWidgetMethod& method) const
+{
+  for (unsigned r = 0; r < grid_.rows_.size(); ++r) {
+    for (unsigned c = 0; c < grid_.columns_.size(); ++c) {
+      WLayoutItem *item = grid_.items_[r][c].item_.get();
+      if (item)
+	item->iterateWidgets(method);
+    }
+  }
 }
 
 int WGridLayout::count() const
@@ -87,7 +99,8 @@ int WGridLayout::count() const
   return grid_.rows_.size() * grid_.columns_.size();
 }
 
-void WGridLayout::addItem(WLayoutItem *item, int row, int column,
+void WGridLayout::addItem(std::unique_ptr<WLayoutItem> item,
+			  int row, int column,
 			  int rowSpan, int columnSpan,
 			  WFlags<AlignmentFlag> alignment)
 {
@@ -99,43 +112,48 @@ void WGridLayout::addItem(WLayoutItem *item, int row, int column,
   Impl::Grid::Item& gridItem = grid_.items_[row][column];
 
   if (gridItem.item_) {
-    WLayoutItem *oldItem = gridItem.item_;
-    gridItem.item_ = 0;
-    updateRemoveItem(oldItem);
+    auto oldItem = std::move(gridItem.item_);
+    itemRemoved(oldItem.get());
   }
 
-  gridItem.item_ = item;
+  gridItem.item_ = std::move(item);
   gridItem.rowSpan_ = rowSpan;
   gridItem.colSpan_ = columnSpan;
   gridItem.alignment_ = alignment;
 
-  updateAddItem(item);
+  itemAdded(gridItem.item_.get());
 }
 
-void WGridLayout::addLayout(WLayout *layout, int row, int column,
+void WGridLayout::addLayout(std::unique_ptr<WLayout> layout,
+			    int row, int column,
 			    WFlags<AlignmentFlag> alignment)
 {
-  addItem(layout, row, column, 1, 1, alignment);
+  addItem(std::move(layout), row, column, 1, 1, alignment);
 }
 
-void WGridLayout::addLayout(WLayout *layout, int row, int column,
+void WGridLayout::addLayout(std::unique_ptr<WLayout> layout,
+			    int row, int column,
 			    int rowSpan, int columnSpan,
 			    WFlags<AlignmentFlag> alignment)
 {
-  addItem(layout, row, column, rowSpan, columnSpan, alignment);
+  addItem(std::move(layout), row, column, rowSpan, columnSpan, alignment);
 }
 
-void WGridLayout::addWidget(WWidget *widget, int row, int column,
+void WGridLayout::addWidget(std::unique_ptr<WWidget> widget,
+			    int row, int column,
 			    WFlags<AlignmentFlag> alignment)
 {
-  addItem(new WWidgetItem(widget), row, column, 1, 1, alignment);
+  addItem(std::unique_ptr<WLayoutItem>(new WWidgetItem(std::move(widget))),
+	  row, column, 1, 1, alignment);
 }
 
-void WGridLayout::addWidget(WWidget *widget, int row, int column,
+void WGridLayout::addWidget(std::unique_ptr<WWidget> widget,
+			    int row, int column,
 			    int rowSpan, int columnSpan,
 			    WFlags<AlignmentFlag> alignment)
 {
-  addItem(new WWidgetItem(widget), row, column, rowSpan, columnSpan, alignment);
+  addItem(std::unique_ptr<WLayoutItem>(new WWidgetItem(std::move(widget))),
+	  row, column, rowSpan, columnSpan, alignment);
 }
 
 void WGridLayout::setHorizontalSpacing(int size)
@@ -160,16 +178,6 @@ int WGridLayout::columnCount() const
 int WGridLayout::rowCount() const
 {
   return grid_.rows_.size();
-}
-
-void WGridLayout::clear()
-{
-  unsigned c = count();
-  for (unsigned i = 0; i < c; ++i) {
-    WLayoutItem *item = itemAt(i);
-    clearLayoutItem(item);
-  }
-  grid_.clear();
 }
 
 void WGridLayout::setColumnStretch(int column, int stretch)
@@ -237,17 +245,23 @@ void WGridLayout::expand(int row, int column, int rowSpan, int columnSpan)
   int extraColumns = newColumnCount - columnCount();
 
   if (extraColumns > 0) {
-    for (int a_row = 0; a_row < rowCount(); ++a_row)
-      grid_.items_[a_row].insert(grid_.items_[a_row].end(), extraColumns,
-				 Impl::Grid::Item());
+    for (int a_row = 0; a_row < rowCount(); ++a_row) {
+      for (int i = 0; i < extraColumns; ++i)
+	grid_.items_[a_row].push_back(Impl::Grid::Item());
+    }
+
     grid_.columns_.insert(grid_.columns_.end(), extraColumns,
 			  Impl::Grid::Section());
   }
 
   if (extraRows > 0) {
 #ifndef WT_TARGET_JAVA
-    grid_.items_.insert(grid_.items_.end(), extraRows,
-			std::vector<Impl::Grid::Item>(newColumnCount));
+    for (int i = 0; i < extraRows; ++i) {
+      std::vector<Impl::Grid::Item> row;
+      for (int a_col = 0; a_col < columnCount(); ++a_col)
+	row.push_back(Impl::Grid::Item());
+      grid_.items_.push_back(std::move(row));
+    }
 #else
     grid_.items_.insert(grid_.items_.end(), extraRows,
 			std::vector<Impl::Grid::Item>());
@@ -260,5 +274,15 @@ void WGridLayout::expand(int row, int column, int rowSpan, int columnSpan)
     grid_.rows_.insert(grid_.rows_.end(), extraRows, Impl::Grid::Section());
   }
 }
+
+void WGridLayout::setParentWidget(WWidget *parent)
+{
+  WLayout::setParentWidget(parent);
+
+  if (parent)
+    setImpl(std::unique_ptr<WLayoutImpl>
+	    (new StdGridLayoutImpl2(this, grid_)));
+}
+
 
 }

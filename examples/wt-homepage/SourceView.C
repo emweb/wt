@@ -10,14 +10,16 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/convenience.hpp>
 
-#include <Wt/WApplication>
-#include <Wt/WText>
-#include <Wt/WImage>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
+#include <Wt/WImage.h>
 
 using namespace Wt;
 namespace fs = boost::filesystem;
 
-SourceView::SourceView(int fileNameRole, int contentRole, int filePathRole)
+SourceView::SourceView(ItemDataRole fileNameRole,
+                       ItemDataRole contentRole,
+                       ItemDataRole filePathRole)
     : fileNameRole_(fileNameRole),
       contentRole_(contentRole),
       filePathRole_(filePathRole),
@@ -31,7 +33,7 @@ bool SourceView::setIndex(const WModelIndex& index)
 {
   if (index != index_ && index.isValid()) {
     std::string fp = index.data(filePathRole_).empty() ? std::string()
-      : boost::any_cast<std::string>(index.data(filePathRole_));
+      : asString(index.data(filePathRole_)).toUTF8();
 
     if (!index.data(contentRole_).empty()
 	|| (!fp.empty() && !fs::is_directory(fp))) {
@@ -92,29 +94,29 @@ std::string readFileToString(const std::string& fileName)
   return data;
 }
 
-WWidget * SourceView::renderView() 
+std::unique_ptr<WWidget> SourceView::renderView()
 {
   if (!index_.isValid()) {
     // no content
-    WText *result = new WText();
+    auto result = cpp14::make_unique<WText>();
     result->setInline(false);
-    return result;
+    return std::move(result);
   }
 
   /*
    * read the contents, from string or file name
    */
-  boost::any contentsData = index_.data(contentRole_);
+  cpp17::any contentsData = index_.data(contentRole_);
   std::string content;
   if (!contentsData.empty())
-   content = boost::any_cast<const std::string&>(contentsData);
-  boost::any fileNameData = index_.data(fileNameRole_);
+   content = asString(contentsData).toUTF8();
+  cpp17::any fileNameData = index_.data(fileNameRole_);
   std::string fileName = 
-    boost::any_cast<const std::string&>(fileNameData);
-  boost::any filePathData = index_.data(filePathRole_);
+    asString(fileNameData).toUTF8();
+  cpp17::any filePathData = index_.data(filePathRole_);
   std::string filePath;
   if (!filePathData.empty())
-    filePath = boost::any_cast<const std::string&>(filePathData);
+    filePath = asString(filePathData).toUTF8();
 
   /*
    * determine source language, for source highlight
@@ -170,35 +172,32 @@ WWidget * SourceView::renderView()
 	&& !boost::iends_with(fileName, ".class"))
       content = readFileToString(fileName);
 
-  delete imageResource_;
-  imageResource_ = 0;
-
-  WWidget *result = 0;
+  std::unique_ptr<WWidget> result;
 
   if (!imageExtension(fileName).empty()) {
-    WImage *image = new WImage();
-    imageResource_ = new WMemoryResource(this);
+    std::unique_ptr<WImage> image(cpp14::make_unique<WImage>());
+    imageResource_ = std::make_shared<WMemoryResource>();
     imageResource_->setMimeType("mime/" + imageExtension(fileName));
     imageResource_->setData((const unsigned char*)content.data(),
 			    (int)content.length());
-    image->setImageLink(imageResource_);
-    result = image;
+    image->setImageLink(WLink(imageResource_));
+    result = std::move(image);
   } else if (lang != "") {
-    WText *text = new WText();
-    text->setTextFormat(XHTMLUnsafeText);
-    text->setText(WString::fromUTF8(content));
-    result = text;
+    auto text = cpp14::make_unique<WText>();
+    text->setTextFormat(TextFormat::UnsafeXHTML);
+    text->setText(content);
+    result = std::move(text);
   } else {
-    WText *text = new WText();
-    text->setTextFormat(PlainText);
-    text->setText(WString::fromUTF8(content));
-    result = text;
+    auto text = cpp14::make_unique<WText>();
+    text->setTextFormat(TextFormat::Plain);
+    text->setText(content);
+    result = std::move(text);
   }
 
   result->setInline(false);
   WApplication::instance()
     ->doJavaScript(result->jsRef() + ".parentNode.scrollTop = 0;");
-  return result;
+  return std::move(result);
 }
 
 std::string SourceView::imageExtension(const std::string& fileName)

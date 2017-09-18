@@ -23,19 +23,14 @@
 #include <string>
 #include <vector>
 
-#include <boost/asio.hpp>
-namespace asio = boost::asio;
+#include <Wt/AsioWrapper/asio.hpp>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
-#include <boost/tuple/tuple.hpp>
 #ifdef WTHTTP_WITH_ZLIB
 #include <zlib.h>
 #endif
 
-#include "Wt/WStringStream"
-#include "Wt/WLogger"
+#include "Wt/WStringStream.h"
+#include "Wt/WLogger.h"
 #include "../web/Configuration.h"
 
 #include "Buffer.h"
@@ -45,14 +40,16 @@ namespace asio = boost::asio;
 namespace http {
 namespace server {
 
+namespace asio = Wt::AsioWrapper::asio;
+
 class Configuration;
 class Connection;
 class Reply;
 
-typedef boost::shared_ptr<Connection> ConnectionPtr;
-typedef boost::shared_ptr<Reply> ReplyPtr;
+typedef std::shared_ptr<Connection> ConnectionPtr;
+typedef std::shared_ptr<Reply> ReplyPtr;
 
-class WTHTTP_API Reply : public boost::enable_shared_from_this<Reply>
+class WTHTTP_API Reply : public std::enable_shared_from_this<Reply>
 {
 public:
   Reply(Request& request, const Configuration& config);
@@ -108,8 +105,8 @@ public:
   /*
    * Returns true if ready to read more.
    */
-  virtual bool consumeData(Buffer::const_iterator begin,
-			   Buffer::const_iterator end,
+  virtual bool consumeData(const char *begin,
+			   const char *end,
 			   Request::State state) = 0;
 
   virtual void consumeWebSocketMessage(ws_opcode opcode,
@@ -122,7 +119,7 @@ public:
   bool nextBuffers(std::vector<asio::const_buffer>& result);
   bool closeConnection() const;
   void setCloseConnection() { closeConnection_ = true; }
-  void detectDisconnect(const boost::function<void()>& callback);
+  void detectDisconnect(const std::function<void()>& callback);
 
 
   void addHeader(const std::string name, const std::string value);
@@ -193,7 +190,7 @@ private:
 #endif
 };
 
-typedef boost::shared_ptr<Reply> ReplyPtr;
+typedef std::shared_ptr<Reply> ReplyPtr;
 
 } // namespace server
 } // namespace http

@@ -23,19 +23,17 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 #include <iostream>
-#include <boost/thread/condition.hpp>
 
-#include "WQApplication"
+#include "WQApplication.h"
 #include "DispatchThread.h"
 
-#include <Wt/WLogger>
+#include <Wt/WLogger.h>
 
 namespace Wt {
 
 WQApplication::WQApplication(const WEnvironment& env, bool withEventLoop)
   : WApplication(env),
     withEventLoop_(withEventLoop),
-    thread_(0),
     finalized_(false),
     recursiveEvent_(false)
 { }
@@ -63,7 +61,7 @@ void WQApplication::notify(const WEvent& e)
 {
   if (!thread_) {
     log("debug") << "WQApplication: starting thread";
-    thread_ = new DispatchThread(this, withEventLoop_);
+    thread_ = cpp14::make_unique<DispatchThread>(this, withEventLoop_);
     thread_->start();
     thread_->waitDone();
   }
@@ -75,7 +73,7 @@ void WQApplication::notify(const WEvent& e)
     return;
   }
 
-  if (e.eventType() == Wt::ResourceEvent && recursiveEvent_) {
+  if (e.eventType() == EventType::Resource && recursiveEvent_) {
     /*
      * We do not relay resource events while blocked in a recursive event
      * loop, since these will not unlock a recursive event loop and
@@ -99,8 +97,7 @@ void WQApplication::notify(const WEvent& e)
   if (finalized_) {
     log("debug") << "WQApplication: joining thread";
     thread_->wait();
-    delete thread_;
-    thread_ = 0;
+    thread_.reset();
   }
 }
 
@@ -119,7 +116,7 @@ void WQApplication::waitForEvent()
     thread_->eventLock()->unlock();
 
   try {
-    Wt::WApplication::waitForEvent();
+    WApplication::waitForEvent();
   } catch (...) {
     if (thread_->eventLock())
       thread_->eventLock()->lock();
@@ -136,7 +133,7 @@ void WQApplication::waitForEvent()
 
 WString toWString(const QString& s)
 {
-  return WString::fromUTF8((const char *)s.toUtf8());
+  return Wt::utf8((const char *)s.toUtf8());
 }
 
 QString toQString(const WString& s)

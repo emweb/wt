@@ -5,8 +5,10 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WVector3"
-#include "Wt/WVector4"
+#include "Wt/WVector3.h"
+#include "Wt/WVector4.h"
+
+#include <cmath>
 
 using namespace Wt;
 

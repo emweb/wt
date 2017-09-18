@@ -4,20 +4,26 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/LostPasswordWidget"
-#include "Wt/Auth/AuthService"
+#include "Wt/Auth/LostPasswordWidget.h"
+#include "Wt/Auth/AuthService.h"
 
-#include "Wt/WLineEdit"
-#include "Wt/WMessageBox"
-#include "Wt/WPushButton"
+#include "Wt/WApplication.h"
+#include "Wt/WLineEdit.h"
+#include "Wt/WMessageBox.h"
+#include "Wt/WPushButton.h"
+
+namespace {
+  void deleteBox(Wt::WMessageBox *box) {
+    Wt::WApplication::instance()->removeChild(box);
+  }
+}
 
 namespace Wt {
   namespace Auth {
 
 LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
-				       const AuthService& auth,
-				       WContainerWidget *parent)
-  : WTemplate(tr("Wt.Auth.template.lost-password"), parent),
+				       const AuthService& auth)
+  : WTemplate(tr("Wt.Auth.template.lost-password")),
     users_(users),
     baseAuth_(auth)
 {
@@ -25,18 +31,19 @@ LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
   addFunction("tr", &Functions::tr);
   addFunction("block", &Functions::block);
 
-  WLineEdit *email = new WLineEdit();
+  WLineEdit *email = bindWidget("email", cpp14::make_unique<WLineEdit>());
   email->setFocus(true);
 
-  WPushButton *okButton = new WPushButton(tr("Wt.Auth.send"));
-  WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
+  WPushButton *okButton = bindWidget
+    ("send-button",
+     cpp14::make_unique<WPushButton>(tr("Wt.Auth.send")));
+
+  WPushButton *cancelButton = bindWidget
+    ("cancel-button",
+     cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
 
   okButton->clicked().connect(this, &LostPasswordWidget::send);
   cancelButton->clicked().connect(this, &LostPasswordWidget::cancel);
-
-  bindWidget("email", email);
-  bindWidget("send-button", okButton);
-  bindWidget("cancel-button", cancelButton);
 }
 
 void LostPasswordWidget::send()
@@ -47,27 +54,18 @@ void LostPasswordWidget::send()
 
   cancel();
 
-  WMessageBox *const box = new WMessageBox(tr("Wt.Auth.lost-password"),
-				     tr("Wt.Auth.mail-sent"),
-				     NoIcon, Ok);
-#ifndef WT_TARGET_JAVA
-  box->buttonClicked().connect
-    (boost::bind(&LostPasswordWidget::deleteBox, box));
-#else
-  box->buttonClicked().connect
-    (boost::bind(&LostPasswordWidget::deleteBox, this, box));
-#endif
+  std::unique_ptr<WMessageBox> box
+    (new WMessageBox(tr("Wt.Auth.lost-password"), tr("Wt.Auth.mail-sent"),
+                     Icon::None, StandardButton::Ok));
   box->show();
-}
 
-void LostPasswordWidget::deleteBox(WMessageBox *box)
-{
-  delete box;
+  box->buttonClicked().connect(std::bind(&deleteBox, box.get()));
+  WApplication::instance()->addChild(std::move(box));
 }
 
 void LostPasswordWidget::cancel()
 {
-  delete this;
+  removeFromParent();
 }
 
   }

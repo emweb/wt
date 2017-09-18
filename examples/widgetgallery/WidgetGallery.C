@@ -9,99 +9,108 @@
 #include "TreesTables.h"
 #include "WidgetGallery.h"
 
-#include <Wt/WHBoxLayout>
-#include <Wt/WMenu>
-#include <Wt/WNavigationBar>
-#include <Wt/WStackedWidget>
-#include <Wt/WText>
-#include <Wt/WVBoxLayout>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WMenu.h>
+#include <Wt/WNavigationBar.h>
+#include <Wt/WStackedWidget.h>
+#include <Wt/WText.h>
+#include <Wt/WVBoxLayout.h>
 
 WidgetGallery::WidgetGallery()
   : WContainerWidget()
 {
-  setOverflow(OverflowHidden);
+  setOverflow(Wt::Overflow::Hidden);
 
-  navigation_ = new Wt::WNavigationBar();
+  auto navigation = Wt::cpp14::make_unique<Wt::WNavigationBar>();
+  navigation_ = navigation.get();
+
   navigation_->addStyleClass("main-nav");
   navigation_->setTitle("Wt Widget Gallery",
 			"http://www.webtoolkit.eu/widgets");
   navigation_->setResponsive(true);
 
-  contentsStack_ = new Wt::WStackedWidget();
+  auto contentsStack
+      = Wt::cpp14::make_unique<Wt::WStackedWidget>();
+  contentsStack_ = contentsStack.get();
 
-  Wt::WAnimation animation(Wt::WAnimation::Fade,
-			   Wt::WAnimation::Linear,
+  Wt::WAnimation animation(Wt::AnimationEffect::Fade,
+			   Wt::TimingFunction::Linear,
 			   200);
   contentsStack_->setTransitionAnimation(animation, true);
 
   /*
    * Setup the top-level menu
    */
-  Wt::WMenu *menu = new Wt::WMenu(contentsStack_, 0);
+  auto menu = Wt::cpp14::make_unique<Wt::WMenu>(contentsStack_);
   menu->setInternalPathEnabled();
   menu->setInternalBasePath("/");
 
-  addToMenu(menu, "Layout", new Layout());
-  addToMenu(menu, "Forms", new FormWidgets());
-  addToMenu(menu, "Navigation", new Navigation());
-  addToMenu(menu, "Trees & Tables", new TreesTables())
+  addToMenu(menu.get(), "Layout", Wt::cpp14::make_unique<Layout>());
+  addToMenu(menu.get(), "Forms", Wt::cpp14::make_unique<FormWidgets>());
+  addToMenu(menu.get(), "Navigation", Wt::cpp14::make_unique<Navigation>());
+  addToMenu(menu.get(), "Trees & Tables", Wt::cpp14::make_unique<TreesTables>())
     ->setPathComponent("trees-tables");
-  addToMenu(menu, "Graphics & Charts", new GraphicsWidgets())
+  addToMenu(menu.get(), "Graphics & Charts", Wt::cpp14::make_unique<GraphicsWidgets>())
     ->setPathComponent("graphics-charts");
-  // addToMenu(menu, "Events", new EventsDemo());
-  addToMenu(menu, "Media", new Media());
-
-  navigation_->addMenu(menu);
+  //addToMenu(menu.get(), "Events", Wt::cpp14::make_unique<EventsDemo>());
+  addToMenu(menu.get(), "Media", Wt::cpp14::make_unique<Media>());
+  navigation_->addMenu(std::move(menu));
 
   /*
    * Add it all inside a layout
    */
-  Wt::WVBoxLayout *layout = new Wt::WVBoxLayout(this);
-  layout->addWidget(navigation_);
-  layout->addWidget(contentsStack_, 1);
+  auto layout = this->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  layout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
+  layout->addWidget(std::move(navigation), 0);
+  layout->addWidget(std::move(contentsStack), 1);
   layout->setContentsMargins(0, 0, 0, 0);
 }
 
 Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,
 					const Wt::WString& name,
-					TopicWidget *topic)
+					std::unique_ptr<TopicWidget> topic)
 {
-  Wt::WContainerWidget *result = new Wt::WContainerWidget();
+  auto topic_ = topic.get();
+  auto result = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-  Wt::WContainerWidget *pane = new Wt::WContainerWidget();
+  auto pane = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+  auto pane_ = pane.get();
 
-  Wt::WVBoxLayout *vLayout = new Wt::WVBoxLayout(result);
+  auto vLayout = result->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  vLayout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
   vLayout->setContentsMargins(0, 0, 0, 0);
-  vLayout->addWidget(topic);
-  vLayout->addWidget(pane, 1);
+  vLayout->addWidget(std::move(topic));
+  vLayout->addWidget(std::move(pane), 1);
 
-  Wt::WHBoxLayout *hLayout = new Wt::WHBoxLayout(pane);
+  auto hLayout = pane_->setLayout(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
+  hLayout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
 
-  Wt::WMenuItem *item = new Wt::WMenuItem(name, result);
-  menu->addItem(item);
+  auto item = Wt::cpp14::make_unique<Wt::WMenuItem>(name, std::move(result));
+  auto item_ = menu->addItem(std::move(item));
 
-  Wt::WStackedWidget *subStack = new Wt::WStackedWidget();
+  auto subStack = Wt::cpp14::make_unique<Wt::WStackedWidget>();
   subStack->addStyleClass("contents");
-  subStack->setOverflow(WContainerWidget::OverflowAuto);
+  subStack->setOverflow(Wt::Overflow::Auto);
 
   /*
-  Wt::WAnimation animation(Wt::WAnimation::Fade,
-			   Wt::WAnimation::Linear,
+  WAnimation animation(AnimationEffect::Fade,
+                           TimingFunction::Linear,
 			   100);
   subStack->setTransitionAnimation(animation, true);
   */
 
-  Wt::WMenu *subMenu = new Wt::WMenu(subStack);
-  subMenu->addStyleClass("nav-pills nav-stacked submenu");
-  subMenu->setWidth(200);
+  auto subMenu = Wt::cpp14::make_unique<Wt::WMenu>(subStack.get());
+  auto subMenu_ = subMenu.get();
+  subMenu_->addStyleClass("nav-pills nav-stacked submenu");
+  subMenu_->setWidth(200);
 
-  hLayout->addWidget(subMenu);
-  hLayout->addWidget(subStack,1);
+  hLayout->addWidget(std::move(subMenu));
+  hLayout->addWidget(std::move(subStack),1);
 
-  subMenu->setInternalPathEnabled();
-  subMenu->setInternalBasePath("/" + item->pathComponent());
+  subMenu_->setInternalPathEnabled();
+  subMenu_->setInternalBasePath("/" + item_->pathComponent());
 
-  topic->populateSubMenu(subMenu);
+  topic_->populateSubMenu(subMenu_);
 
-  return item;
+  return item_;
 }

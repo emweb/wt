@@ -1,22 +1,27 @@
-#include "OAuthTokenEndpoint"
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include "OAuthTokenEndpoint.h"
 
 #include <string>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include "Wt/WResource"
-#include "Wt/WRandom"
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/IssuedToken"
-#include "Wt/Auth/OAuthClient"
-#include "Wt/Json/Serializer"
-#include "Wt/Utils"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
-#include "Wt/Json/Object"
-#include "Wt/Json/Value"
+#include "Wt/WResource.h"
+#include "Wt/WRandom.h"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/IssuedToken.h"
+#include "Wt/Auth/OAuthClient.h"
+#include "Wt/Json/Serializer.h"
+#include "Wt/Utils.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Value.h"
 #include "WebUtils.h"
-#include "Wt/WLogger"
-#include "Wt/WException"
+#include "Wt/WLogger.h"
+#include "Wt/WException.h"
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_WITH_SSL

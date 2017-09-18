@@ -7,8 +7,8 @@
 #include "SingleThreadedApplication.h"
 
 SingleThreadedApplication::
-SingleThreadedApplication(const Wt::WEnvironment& env)
-  : Wt::WApplication(env),
+SingleThreadedApplication(const WEnvironment& env)
+  : WApplication(env),
     finalized_(false),
     exception_(false),
     event_(0),
@@ -19,7 +19,7 @@ SingleThreadedApplication(const Wt::WEnvironment& env)
 void SingleThreadedApplication::initialize()
 {
   log("debug") << "STA" << ": initialize()";
-  Wt::WApplication::initialize();
+  WApplication::initialize();
 
   create();
 }
@@ -27,31 +27,31 @@ void SingleThreadedApplication::initialize()
 void SingleThreadedApplication::finalize()
 {
   log("debug") << "STA" << ": finalize()";
-  Wt::WApplication::finalize();
+  WApplication::finalize();
 
   destroy();
 
   finalized_ = true;
 }
 
-void SingleThreadedApplication::notify(const Wt::WEvent& event)
+void SingleThreadedApplication::notify(const WEvent& event)
 {
-  if (appThread_.get_id() == boost::thread::id()) { // not-a-thread
+  if (appThread_.get_id() == std::thread::id()) { // not-a-thread
     done_ = false;
     log("debug") << "STA" << ": starting thread";
-    appThread_ = boost::thread(boost::bind(&SingleThreadedApplication::run,
+    appThread_ = std::thread(std::bind(&SingleThreadedApplication::run,
 					   this));
     waitDone();
   }
 
-  if (boost::this_thread::get_id() == appThread_.get_id()) {
+  if (std::this_thread::get_id() == appThread_.get_id()) {
     /* This could be from within a recursive event loop */
     log("debug") << "STA" << ": notify() called within app thread";
     threadNotify(event);
     return;
   }
 
-  if (event.eventType() == Wt::ResourceEvent) {
+  if (event.eventType() == EventType::Resource) {
     /*
      * We do not relay resource events since these will not unlock
      * a recursive event loop and thus we cannot communicate with the
@@ -67,7 +67,7 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
   done_ = false;
   {
     log("debug") << "STA" << ": notifying thread";
-    boost::mutex::scoped_lock lock(newEventMutex_);
+    std::unique_lock<std::mutex> lock(newEventMutex_);
     newEvent_ = true;
     newEventCondition_.notify_one();
   }
@@ -82,14 +82,14 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
   if (finalized_) {
     log("debug") << "STA" << ": joining thread";
     appThread_.join();
-    appThread_ = boost::thread();
+    appThread_ = std::thread();
   }
 }
 
 void SingleThreadedApplication::waitDone()
 {
   log("debug") << "STA" << ": waiting for event done";
-  boost::mutex::scoped_lock lock(doneMutex_);
+  std::unique_lock<std::mutex> lock(doneMutex_);
 
   while (!done_)
     doneCondition_.wait(lock);
@@ -99,7 +99,7 @@ void SingleThreadedApplication::run()
 {
   signalDone();
 
-  boost::mutex::scoped_lock lock(newEventMutex_);
+  std::unique_lock<std::mutex> lock(newEventMutex_);
   eventLock_ = &lock;
 
   for (;;) {
@@ -131,9 +131,9 @@ void SingleThreadedApplication::run()
   signalDone();
 }
 
-void SingleThreadedApplication::threadNotify(const Wt::WEvent& event)
+void SingleThreadedApplication::threadNotify(const WEvent& event)
 {
-  Wt::WApplication::notify(event);
+  WApplication::notify(event);
 }
 
 void SingleThreadedApplication::waitForEvent()
@@ -142,7 +142,7 @@ void SingleThreadedApplication::waitForEvent()
 
   eventLock_->unlock();
   try {
-    Wt::WApplication::waitForEvent();
+    WApplication::waitForEvent();
   } catch (...) {
     eventLock_->lock();
     throw;
@@ -156,7 +156,7 @@ void SingleThreadedApplication::waitForEvent()
 void SingleThreadedApplication::signalDone()
 {
   log("debug") << "STA" << ": [thread] signaling event done";
-  boost::mutex::scoped_lock lock(doneMutex_);
+  std::unique_lock<std::mutex> lock(doneMutex_);
   done_ = true;
   doneCondition_.notify_one();
 }

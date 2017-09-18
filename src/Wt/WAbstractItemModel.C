@@ -3,11 +3,11 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WEvent"
-#include "Wt/WModelIndex"
-#include "Wt/WAbstractItemModel"
-#include "Wt/WItemSelectionModel"
-#include "Wt/WLogger"
+#include "Wt/WEvent.h"
+#include "Wt/WModelIndex.h"
+#include "Wt/WAbstractItemModel.h"
+#include "Wt/WItemSelectionModel.h"
+#include "Wt/WLogger.h"
 
 #include "WebUtils.h"
 
@@ -23,21 +23,7 @@ namespace Wt {
 
 LOGGER("WAbstractItemModel");
 
-WAbstractItemModel::WAbstractItemModel(WObject *parent)
-  : WObject(parent),
-    columnsAboutToBeInserted_(this),
-    columnsAboutToBeRemoved_(this),
-    columnsInserted_(this),
-    columnsRemoved_(this),
-    rowsAboutToBeInserted_(this),
-    rowsAboutToBeRemoved_(this),
-    rowsInserted_(this),
-    rowsRemoved_(this),
-    dataChanged_(this),
-    headerDataChanged_(this),
-    layoutAboutToBeChanged_(this),
-    layoutChanged_(this),
-    modelReset_(this)
+WAbstractItemModel::WAbstractItemModel()
 { }
 
 WAbstractItemModel::~WAbstractItemModel()
@@ -53,14 +39,14 @@ void WAbstractItemModel::fetchMore(const WModelIndex& parent)
 
 WFlags<ItemFlag> WAbstractItemModel::flags(const WModelIndex& index) const
 {
-  return ItemIsSelectable;
+  return ItemFlag::Selectable;
 }
 
 WFlags<HeaderFlag> WAbstractItemModel::headerFlags(int section,
 						   Orientation orientation)
   const
 {
-  return 0;
+  return None;
 }
 
 bool WAbstractItemModel::hasChildren(const WModelIndex& index) const
@@ -83,27 +69,27 @@ WAbstractItemModel::itemData(const WModelIndex& index) const
   DataMap result;
 
   if (index.isValid()) {
-    for (int i = 0; i <= BarBrushColorRole; ++i)
+    for (int i = 0; i <= ItemDataRole::BarBrushColor; ++i)
       result[i] = data(index, i);
-    result[UserRole] = data(index, UserRole);
+    result[ItemDataRole::User] = data(index, ItemDataRole::User);
   }
 
   return result;
 }
 
-boost::any WAbstractItemModel::data(int row, int column, int role,
-				    const WModelIndex& parent) const
+cpp17::any WAbstractItemModel::data(int row, int column, ItemDataRole role,
+				 const WModelIndex& parent) const
 {
   return data(index(row, column, parent), role);
 }
 
-boost::any WAbstractItemModel::headerData(int section, Orientation orientation,
-					  int role) const
+cpp17::any WAbstractItemModel::headerData(int section, Orientation orientation,
+                                       ItemDataRole role) const
 {
-  if (role == LevelRole)
-    return 0;
+  if (role == ItemDataRole::Level)
+    return cpp17::any((int)0);
   else
-    return boost::any();
+    return cpp17::any();
 }
 
 void WAbstractItemModel::sort(int column, SortOrder order)
@@ -140,20 +126,20 @@ bool WAbstractItemModel::removeRows(int row, int count,
 }
 
 bool WAbstractItemModel::setData(const WModelIndex& index,
-				 const boost::any& value, int role)
+                                 const cpp17::any& value, ItemDataRole role)
 {
   return false;
 }
 
 bool WAbstractItemModel::setHeaderData(int section, Orientation orientation,
-				       const boost::any& value, int role)
+                                       const cpp17::any& value, ItemDataRole role)
 {
   return false;
 }
 
-bool WAbstractItemModel::setHeaderData(int section, const boost::any& value)
+bool WAbstractItemModel::setHeaderData(int section, const cpp17::any& value)
 {
-  return setHeaderData(section, Horizontal, value);
+  return setHeaderData(section, Orientation::Horizontal, value);
 }
 
 bool WAbstractItemModel::setItemData(const WModelIndex& index,
@@ -165,7 +151,7 @@ bool WAbstractItemModel::setItemData(const WModelIndex& index,
   dataChanged().setBlocked(true);
 
   for (DataMap::const_iterator i = values.begin(); i != values.end(); ++i)
-    // if (i->first != EditRole)
+    // if (i->first != ItemDataRole::Edit)
       if (!setData(index, i->second, i->first))
 	result = false;
 
@@ -195,8 +181,8 @@ bool WAbstractItemModel::removeRow(int row, const WModelIndex& parent)
   return removeRows(row, 1, parent);
 }
 
-bool WAbstractItemModel::setData(int row, int column, const boost::any& value,
-				 int role, const WModelIndex& parent)
+bool WAbstractItemModel::setData(int row, int column, const cpp17::any& value,
+                                 ItemDataRole role, const WModelIndex& parent)
 {
   WModelIndex i = index(row, column, parent);
 
@@ -225,7 +211,7 @@ WModelIndex WAbstractItemModel::createIndex(int row, int column, ::uint64_t id)
 
 void *WAbstractItemModel::toRawIndex(const WModelIndex& index) const
 {
-  return 0;
+  return nullptr;
 }
 
 WModelIndex WAbstractItemModel::fromRawIndex(void *rawIndex) const
@@ -254,7 +240,7 @@ void WAbstractItemModel::copyData(const WAbstractItemModel *source,
 {
   DataMap values = destination->itemData(dIndex);
   for (DataMap::const_iterator i = values.begin(); i != values.end(); ++i)
-    destination->setData(dIndex, boost::any(), i->first);
+    destination->setData(dIndex, cpp17::any(), i->first);
   
   destination->setItemData(dIndex, source->itemData(sIndex));
 }
@@ -268,12 +254,12 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
   WItemSelectionModel *selectionModel
     = dynamic_cast<WItemSelectionModel *>(e.source());
   if (selectionModel) {
-    WAbstractItemModel *sourceModel = selectionModel->model();
+    auto sourceModel = selectionModel->model();
 
     /*
      * (1) Insert new rows (or later: cells ?)
      */
-    if (action == MoveAction || row == -1) {
+    if (action == DropAction::Move || row == -1) {
       if (row == -1)
 	row = rowCount(parent);
       
@@ -292,14 +278,15 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
     for (WModelIndexSet::const_iterator i = selection.begin();
 	 i != selection.end(); ++i) {
       WModelIndex sourceIndex = *i;
-      if (selectionModel->selectionBehavior() == SelectRows) {
+      if (selectionModel->selectionBehavior() ==
+	  SelectionBehavior::Rows) {
 	WModelIndex sourceParent = sourceIndex.parent();
 
 	for (int col = 0; col < sourceModel->columnCount(sourceParent); ++col) {
 	  WModelIndex s = sourceModel->index(sourceIndex.row(), col,
 					     sourceParent);
 	  WModelIndex d = index(r, col, parent);
-	  copyData(sourceModel, s, this, d);
+	  copyData(sourceModel.get(), s, this, d);
 	}
 
 	++r;
@@ -311,7 +298,7 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
     /*
      * (3) Remove original data
      */
-    if (action == MoveAction) {
+    if (action == DropAction::Move) {
       while (!selectionModel->selectedIndexes().empty()) {
 	WModelIndex i = Utils::last(selectionModel->selectedIndexes());
 
@@ -385,8 +372,8 @@ void WAbstractItemModel::endRemoveRows()
 }
 
 WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
-					  int role,
-					  const boost::any& value,
+                                          ItemDataRole role,
+					  const cpp17::any& value,
 					  int hits,
 					  WFlags<MatchFlag> flags)
   const
@@ -399,14 +386,14 @@ WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
     int row = start.row() + i;
 
     if (row >= rc) {
-      if (!(flags & MatchWrap))
+      if (!(flags & MatchFlag::Wrap))
 	break;
       else
 	row -= rc;
     }
 
     WModelIndex idx = index(row, start.column(), start.parent());
-    boost::any v = data(idx, role);
+    cpp17::any v = data(idx, role);
 
     if (Impl::matchValue(v, value, flags)) {
       result.push_back(idx);

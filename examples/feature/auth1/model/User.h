@@ -7,13 +7,13 @@
 #ifndef USER_H_
 #define USER_H_
 
-#include <Wt/Dbo/Types>
-#include <Wt/WGlobal>
+#include <Wt/Dbo/Types.h>
+#include <Wt/WGlobal.h>
 
 namespace dbo = Wt::Dbo;
 
 class User;
-typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;
+using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
 
 class User {
 public:
@@ -26,6 +26,6 @@ public:
 };
 
 
-DBO_EXTERN_TEMPLATES(User);
+DBO_EXTERN_TEMPLATES(User)
 
 #endif // USER_H_

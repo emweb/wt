@@ -10,16 +10,17 @@
 
 #include "UserAccount.h"
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WCalendar>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WCalendar.h>
 
-class PlannerCalendar : public Wt::WCalendar
+using namespace Wt;
+
+class PlannerCalendar : public WCalendar
 {
 public: 
-  PlannerCalendar(Wt::WContainerWidget* parent, 
-		  dbo::ptr<UserAccount> user);
+  PlannerCalendar(dbo::ptr<UserAccount> user);
 protected:
-  virtual Wt::WWidget* renderCell(Wt::WWidget* widget, const Wt::WDate& date);
+  virtual WWidget* renderCell(WWidget* widget, const WDate& date) override;
  
 private:
   dbo::ptr<UserAccount> user_;

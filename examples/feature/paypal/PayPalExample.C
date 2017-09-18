@@ -3,70 +3,67 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WAnchor>
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WDialog>
-#include <Wt/WGridLayout>
-#include <Wt/WImage>
-#include <Wt/WLabel>
-#include <Wt/WMessageBox>
-#include <Wt/WPushButton>
-#include <Wt/WServer>
-#include <Wt/WStringStream>
-#include <Wt/WTable>
-#include <Wt/WTemplate>
-#include <Wt/WText>
-#include <Wt/WVBoxLayout>
-#include <Wt/Utils>
+#include <Wt/WAny.h>
+#include <Wt/WAnchor.h>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDialog.h>
+#include <Wt/WGridLayout.h>
+#include <Wt/WImage.h>
+#include <Wt/WLabel.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WServer.h>
+#include <Wt/WStringStream.h>
+#include <Wt/WTable.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
+#include <Wt/WVBoxLayout.h>
+#include <Wt/Utils.h>
 
-#include <Wt/Payment/PayPal>
-#include <Wt/Payment/Customer>
-#include <Wt/Payment/Money>
-#include <Wt/Payment/Order>
-#include <Wt/Payment/Address>
+#include <Wt/Payment/PayPal.h>
+#include <Wt/Payment/Customer.h>
+#include <Wt/Payment/Money.h>
+#include <Wt/Payment/Order.h>
+#include <Wt/Payment/Address.h>
 
-#include "boost/lexical_cast.hpp"
+using namespace Wt;
 
-Wt::Payment::PayPalService *payPalService;
+std::unique_ptr<Payment::PayPalService> payPalService;
 const char *PAYPAL_BUTTON_URL =
   "https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif";
 
-class PayPalApplication : public Wt::WApplication
+class PayPalApplication : public WApplication
 {
 public:
-  PayPalApplication(const Wt::WEnvironment& env)
-    : Wt::WApplication(env),
-      expressCheckout_(0),
-      payment_(0),
-      dialog_(0)
+  PayPalApplication(const WEnvironment& env)
+    : WApplication(env),
+      payment_(0)
   {
     messageResourceBundle().use("text");
     useStyleSheet("css/style.css");
 
-    Wt::WPushButton *checkout = new Wt::WPushButton("Proceed to checkout...");
+    std::unique_ptr<WPushButton> checkout
+        = cpp14::make_unique<WPushButton>("Proceed to checkout...");
     checkout->clicked().connect(this, &PayPalApplication::reviewOrder);
 
-    Wt::WTemplate *t = new Wt::WTemplate(Wt::WString::tr("start"), root());
-    t->bindWidget("checkout", checkout);
+    WTemplate *t = root()->addWidget(cpp14::make_unique<WTemplate>(WString::tr("start")));
+    t->bindWidget("checkout", std::move(checkout));
   }
 
   ~PayPalApplication()
   {
-    if (expressCheckout_)
-      delete expressCheckout_;
-
     clearDialog();
   }
 
 private:
-  Wt::Payment::PayPalExpressCheckout* expressCheckout_;
-  Wt::WContainerWidget *payment_;
+  std::unique_ptr<Payment::PayPalExpressCheckout> expressCheckout_ = nullptr;
+  WContainerWidget *payment_;
 
-  Wt::WDialog *dialog_;
-  Wt::WText *dialogText_;
-  Wt::WPushButton *dialogCancelButton_;
+  std::unique_ptr<WDialog> dialog_ = nullptr;
+  WText *dialogText_;
+  WPushButton *dialogCancelButton_;
 
   void reviewOrder()
   {
@@ -74,14 +71,14 @@ private:
      * First page, shows order and pay pal button
      */
 
-    Wt::Payment::Order order = createOrder();
-    Wt::Payment::Customer customer = createCustomer();
+    Payment::Order order = createOrder();
+    Payment::Customer customer = createCustomer();
 
     root()->clear();
-    new Wt::WText(Wt::WString::tr("review.title"), root());
+    root()->addWidget(cpp14::make_unique<WText>(WString::tr("review.title")));
     printOrder(order, true);
 
-    expressCheckout_ = payPalService->createExpressCheckout(customer, order);
+    expressCheckout_.reset(payPalService->createExpressCheckout(customer, order));
 
     std::string logo = "http://www.webtoolkit.eu/css/wt/emweb_powered.jpg";
     expressCheckout_->setParameter("LOGOIMG", logo);
@@ -90,12 +87,12 @@ private:
     expressCheckout_->setup().connect(this, &PayPalApplication::onSetup);
     enableUpdates(true);
 
-    payment_ = new Wt::WContainerWidget(root());
+    payment_ = root()->addWidget(cpp14::make_unique<WContainerWidget>());
     payment_->setStyleClass("payment");
-    new Wt::WText("Preparing payment...", payment_);
+    payment_->addWidget(cpp14::make_unique<WText>("Preparing payment..."));
   }
 
-  void onSetup(const Wt::Payment::Result& result)
+  void onSetup(const Payment::Result& result)
   {
     enableUpdates(false);
     triggerUpdate();
@@ -104,23 +101,23 @@ private:
       payment_->clear();
 
       // Create the PayPal button
-      Wt::WAnchor *payButton = new Wt::WAnchor(payment_);
-      payButton->setImage(new Wt::WImage(PAYPAL_BUTTON_URL));
+      WAnchor *payButton = payment_->addWidget(cpp14::make_unique<WAnchor>());
+      payButton->setImage(cpp14::make_unique<WImage>(PAYPAL_BUTTON_URL));
 
       // Clicking starts the payment process
       payButton->clicked().connect
-	(expressCheckout_,
-	 &Wt::Payment::PayPalExpressCheckout::startPayment);
+        (expressCheckout_.get(),
+         &Payment::PayPalExpressCheckout::startPayment);
 
       // Clicking also shows an information dialog
       payButton->clicked().connect
-	(this, &PayPalApplication::showPaymentDialog);
+        (this, &PayPalApplication::showPaymentDialog);
 
       // Connect paypal response(approval) from the popup window with
       // onPaymentApproval
       expressCheckout_
-	->paymentApproved().connect(this,
-				    &PayPalApplication::onPaymentApproval);
+        ->paymentApproved().connect(this,
+                                    &PayPalApplication::onPaymentApproval);
     } else {
       std::cerr << "result.errorMessage: "
                 << result.errorMessage().toUTF8() << std::endl;
@@ -138,25 +135,24 @@ private:
      */
     enableUpdates(true);
 
-    dialog_ = new Wt::WDialog("Information");
+    dialog_ = cpp14::make_unique<WDialog>("Information");
 
-    dialogText_ = new Wt::WText("<p>Payment using PayPal in progress ...</p>",
-				dialog_->contents());
+    dialogText_ = dialog_->contents()->addWidget(cpp14::make_unique<WText>("<p>Payment using PayPal in progress ...</p>"));
 
-    dialogCancelButton_ = new Wt::WPushButton("Cancel", dialog_->contents());
+    dialogCancelButton_ = dialog_->contents()->addWidget(cpp14::make_unique<WPushButton>("Cancel"));
     dialogCancelButton_->clicked().connect(this, &PayPalApplication::cancel);
 
     dialog_->show();
   }
 
-  void onPaymentApproval(const Wt::Payment::Approval& approval)
+  void onPaymentApproval(const Payment::Approval& approval)
   {
     enableUpdates(false);
     triggerUpdate();
 
     if (!approval.error()) {
       switch (approval.outcome()) {
-      case Wt::Payment::Approval::Accepted:
+      case Payment::ApprovalOutcome::Accepted:
 	updatePaymentDialog("<p>Payment successful.</p>"
 			    "<p>Fetching payment details...</p>",
 			    false);
@@ -168,18 +164,18 @@ private:
          * Call onCustomerDetails with paypal response(resulte).
          * The responce containes all the information that paypal has
          */
-	expressCheckout_->updateCustomerDetails()
-	  .connect(this, &PayPalApplication::onCustomerDetails);
+        expressCheckout_->updateCustomerDetails()
+          .connect(this, &PayPalApplication::onCustomerDetails);
 
-	enableUpdates(true);
+        enableUpdates(true);
 
-	break;
+        break;
 
-      case Wt::Payment::Approval::Denied:
-      case Wt::Payment::Approval::Interrupted:
+      case Payment::ApprovalOutcome::Denied:
+      case Payment::ApprovalOutcome::Interrupted:
 	cancel();
 
-	break;
+        break;
       }
     } else {
       cancel();
@@ -187,7 +183,7 @@ private:
     }
   }
 
-  void onCustomerDetails(const Wt::Payment::Result& result)
+  void onCustomerDetails(const Payment::Result& result)
   {
     enableUpdates(false);
     triggerUpdate();
@@ -197,18 +193,19 @@ private:
     if (!result.error()) {
       root()->clear();
 
-      new Wt::WText(Wt::WString::tr("confirm.title"), root());
+      root()->addWidget(cpp14::make_unique<WText>(WString::tr("confirm.title")));
 
       printCustomer(expressCheckout_->customer());
       printOrder(expressCheckout_->order(), false);
 
-      payment_ = new Wt::WContainerWidget(root());
+      payment_ = root()->addWidget(cpp14::make_unique<WContainerWidget>());
       payment_->setStyleClass("payment");
-      Wt::WPushButton *payB
-	= new Wt::WPushButton("Confirm payment", payment_);
+
+      auto *payB
+        = payment_->addWidget(cpp14::make_unique<WPushButton>("Confirm payment"));
 
       payB->clicked().connect(this, &PayPalApplication::confirm);
-      payB->clicked().connect(payB, &Wt::WPushButton::disable);
+      payB->clicked().connect(payB, &WPushButton::disable);
     } else {
       cancel();
       showError("Error while fetching payment details.");
@@ -224,14 +221,13 @@ private:
       connect(this, &PayPalApplication::onConfirmed);
     enableUpdates(true);
 
-    dialog_ = new Wt::WDialog("Information");
-    dialogText_ = new Wt::WText("<p>Confirming payment...</p>",
-				dialog_->contents());
-
+    dialog_ = cpp14::make_unique<WDialog>("Information");
+    dialogText_ = dialog_->contents()->addWidget(cpp14::make_unique<WText>(
+                                                   "<p>Confirming payment...</p>"));
     dialog_->show();
   }
 
-  void onConfirmed(const Wt::Payment::Result& result)
+  void onConfirmed(const Payment::Result& result)
   {
     enableUpdates(false);
     triggerUpdate();
@@ -240,10 +236,10 @@ private:
 
     if (!result.error()) {
       root()->clear();
-      new Wt::WText("Thanks for shopping with us !", root());
+      root()->addWidget(cpp14::make_unique<WText>("Thanks for shopping with us !"));
     } else {
       cancel();
-      Wt::WString errorStr("Could not complete the payment. \n ");
+      WString errorStr("Could not complete the payment. \n ");
       errorStr += result.errorMessage();
       showError(errorStr );
     }
@@ -251,7 +247,7 @@ private:
     printResultMessage(result);
   }
 
-  void updatePaymentDialog(const Wt::WString& text, bool enableCancel)
+  void updatePaymentDialog(const WString& text, bool enableCancel)
   {
     dialogText_->setText(text);
     dialogCancelButton_->setDisabled(!enableCancel);
@@ -260,42 +256,34 @@ private:
   void cancel()
   {
     clearDialog();
-
-    if (expressCheckout_)
-      delete expressCheckout_;
-
-    expressCheckout_ = 0;
-
+    expressCheckout_.reset();
     reviewOrder();
   }
 
   void clearDialog()
   {
-    delete dialog_;
-    dialog_ = 0;
+    dialog_.reset();
   }
 
-  void showError(const Wt::WString& message)
+  void showError(const WString& message)
   {
-    dialog_ = new Wt::WMessageBox("Error", message, Wt::NoIcon, Wt::Ok);
-    dialog_->exec();
+    WMessageBox::show("Error", message, StandardButton::Ok);
   }
 
-  void printResultMessage(const Wt::Payment::Result& result)
+  void printResultMessage(const Payment::Result& result)
   {
-    root()->addWidget(new Wt::WBreak());
-    root()->addWidget(new Wt::WBreak());
+    root()->addWidget(cpp14::make_unique<WBreak>());
+    root()->addWidget(cpp14::make_unique<WBreak>());
 
-    Wt::WPushButton *infoB = new Wt::WPushButton("Info", root());
+    auto *infoB = root()->addWidget(cpp14::make_unique<WPushButton>("Info"));
 
     infoB->clicked().connect(
-          boost::bind(&PayPalApplication::showInfo, this, result));
+          std::bind(&PayPalApplication::showInfo, this, result));
   }
 
-  void printCustomer(const Wt::Payment::Customer& customer)
+  void printCustomer(const Payment::Customer& customer)
   {
-    Wt::WTemplate *t = new Wt::WTemplate(Wt::WString::tr("customer.info"),
-					 root());
+    WTemplate *t = root()->addWidget(cpp14::make_unique<WTemplate>(WString::tr("customer.info")));
 
     t->bindString("firstName", customer.firstName());
     t->bindString("lastName", customer.lastName());
@@ -311,10 +299,9 @@ private:
     t->bindString("phoneNumber", customer.shippingAddress().phoneNumber());
   }
 
-  void printOrder(const Wt::Payment::Order &order, bool showDetails)
+  void printOrder(const Payment::Order &order, bool showDetails)
   {
-    Wt::WTemplate *t = new Wt::WTemplate(Wt::WString::tr("order.info"),
-					 root());
+    WTemplate *t = root()->addWidget(cpp14::make_unique<WTemplate>(WString::tr("order.info")));
 
     t->bindString("itemTotalCost", order.totalItemCost().toString());
     t->bindString("tax", order.tax().toString());
@@ -325,104 +312,104 @@ private:
     t->bindString("totalCost", order.totalOrderCost().toString());
 
     if (showDetails && order.items().size() > 0) {
-      Wt::WContainerWidget *items = new Wt::WContainerWidget();
+      std::unique_ptr<WContainerWidget> items
+          = cpp14::make_unique<WContainerWidget>();
       items->addStyleClass("items");
-      items->addWidget(new Wt::WText(Wt::WString::tr("items.header")));
+      items->addWidget(cpp14::make_unique<WText>(WString::tr("items.header")));
 
-      for (unsigned i = 0; i < order.items().size(); ++i) {
-	const Wt::Payment::OrderItem &item = order.items()[i];
-	Wt::WTemplate *it = new Wt::WTemplate(Wt::WString::tr("item.info"));
+      for (auto item : order.items()) {
+        std::unique_ptr<WTemplate> it
+            = cpp14::make_unique<WTemplate>(WString::tr("item.info"));
 	it->bindString("name", item.name());
 	it->bindString("description", item.description());
 	it->bindString("number", item.number());
 	it->bindString("quantity",
-		       boost::lexical_cast<std::string>(item.quantity()));
+		       asString(item.quantity()));
 	it->bindString("unitCost", item.unitCost().toString());
 	it->bindString("totalCost",
 		       (item.unitCost() * item.quantity()).toString());
 
-	items->addWidget(it);
+        items->addWidget(std::move(it));
       }
       
-      t->bindWidget("items", items);
+      t->bindWidget("items", std::move(items));
     } else
       t->bindEmpty("items");
   }
 
-  void showInfo(const Wt::Payment::Result& result)
+  void showInfo(const Payment::Result& result)
   {
-    Wt::WDialog dialog("Info");
-    Wt::WContainerWidget *container = new Wt::WContainerWidget();
+    WDialog dialog("Info");
+    std::unique_ptr<WContainerWidget> container
+        = cpp14::make_unique<WContainerWidget>();
 
-    container->addWidget(new Wt::WText("Request message:"));
-    container->addWidget(new Wt::WBreak());
-    container->addWidget(new Wt::WBreak());
+    container->addWidget(cpp14::make_unique<WText>("Request message:"));
+    container->addWidget(cpp14::make_unique<WBreak>());
+    container->addWidget(cpp14::make_unique<WBreak>());
 
     std::map<std::string, std::string> map = result.requestMessage();
-    std::map<std::string, std::string>::iterator it;
 
-    for (it = map.begin(); it != map.end(); ++it) {
-      Wt::WStringStream text;
-      text << (*it).first << " = "
-           << Wt::Utils::urlDecode((*it).second);
-      container->addWidget(new Wt::WText(Wt::WString(text.str())));
-      container->addWidget(new Wt::WBreak());
+    for (auto& i : map) {
+      WStringStream text;
+      text << i.first << " = "
+           << Utils::urlDecode(i.second);
+      container->addWidget(cpp14::make_unique<WText>(WString(text.str())));
+      container->addWidget(cpp14::make_unique<WBreak>());
     }
 
-    container->addWidget(new Wt::WBreak());
-    container->addWidget(new Wt::WText("Paypal response message:"));
-    container->addWidget(new Wt::WBreak());
-    container->addWidget(new Wt::WBreak());
+    container->addWidget(cpp14::make_unique<WBreak>());
+    container->addWidget(cpp14::make_unique<WText>("Paypal response message:"));
+    container->addWidget(cpp14::make_unique<WBreak>());
+    container->addWidget(cpp14::make_unique<WBreak>());
 
     map = result.responseMessage();
 
-    for(it = map.begin(); it != map.end(); ++it){
-      Wt::WStringStream text;
-      text << (*it).first << " = " << (*it).second;
-      container->addWidget(new Wt::WText(Wt::WString(text.str())));
-      container->addWidget(new Wt::WBreak());
+    for(auto& i : map) {
+      WStringStream text;
+      text << i.first << " = " << i.second;
+      container->addWidget(cpp14::make_unique<WText>(WString(text.str())));
+      container->addWidget(cpp14::make_unique<WBreak>());
     }
 
-    container->setOverflow(Wt::WContainerWidget::OverflowScroll);
+    container->setOverflow(Overflow::Scroll);
     dialog.resize("70%", "70%");
 
-    Wt::WVBoxLayout *layout = new Wt::WVBoxLayout(dialog.contents());
-    layout->addWidget(container, 1);
+    auto layout = dialog.contents()->setLayout(cpp14::make_unique<WVBoxLayout>());
+    layout->addWidget(std::move(container), 1);
 
-    Wt::WPushButton ok("Close");
-    layout->addWidget(&ok, 0, Wt::AlignCenter);
-
-    ok.clicked().connect(&dialog, &Wt::WDialog::accept);
+    auto ok = layout->addWidget(cpp14::make_unique<WPushButton>("Close"),
+                                0, AlignmentFlag::Center);
+    ok->clicked().connect(&dialog, &WDialog::accept);
 
     dialog.exec();
   }
 
-  Wt::Payment::Order createOrder()
+  Payment::Order createOrder()
   {
-    Wt::Payment::OrderItem item1, item2;
+    Payment::OrderItem item1, item2;
 
     item1.setName("Waffle Maker");
     item1.setNumber("00001");
     item1.setDescription("Emweb FlipSide Belgian Waffle Maker");
     item1.setQuantity(1);
-    item1.setUnitCost(Wt::Payment::Money(49, 99, "USD"));
+    item1.setUnitCost(Payment::Money(49, 99, "USD"));
 
     item2.setName("Waffle Mix");
     item2.setNumber("00002");
     item2.setDescription("Mix for authentic Belgian Luikse Waffles");
     item2.setQuantity(2);
-    item2.setUnitCost(Wt::Payment::Money(4, 99, "USD"));
+    item2.setUnitCost(Payment::Money(4, 99, "USD"));
 
-    Wt::Payment::Order order;
+    Payment::Order order;
 
     order.items().push_back(item1);
     order.items().push_back(item2);
 
-    order.setHandling(Wt::Payment::Money(0, 99, "USD"));
-    order.setShipping(Wt::Payment::Money(7, 1, "USD"));
-    order.setShippingDiscount(Wt::Payment::Money(-7, 0, "USD"));
-    order.setShippingInsurance(Wt::Payment::Money(2, 23, "USD"));
-    order.setTax(Wt::Payment::Money(11, 63, "USD"));
+    order.setHandling(Payment::Money(0, 99, "USD"));
+    order.setShipping(Payment::Money(7, 1, "USD"));
+    order.setShippingDiscount(Payment::Money(-7, 0, "USD"));
+    order.setShippingInsurance(Payment::Money(2, 23, "USD"));
+    order.setTax(Payment::Money(11, 63, "USD"));
 
     order.setTotalItemCost(order.computeTotalItemCost());
     order.setTotalOrderCost(order.computeTotalOrderCost());
@@ -430,9 +417,9 @@ private:
     return order;
   }
 
-  Wt::Payment::Customer createCustomer()
+  Payment::Customer createCustomer()
   {
-    Wt::Payment::Customer customer;
+    Payment::Customer customer;
 
     /*
      * This is optional, may help a user register with Paypal.
@@ -443,7 +430,7 @@ private:
     customer.setFirstName("Name");
     customer.setLastName("LastName");
 
-    Wt::Payment::Address address;
+    Payment::Address address;
     address.setCity("Leuven");
     address.setCountryCode("BE");
     address.setPhoneNumber("123456789");
@@ -457,29 +444,29 @@ private:
 
 };
 
-Wt::WApplication *createApplication(const Wt:: WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new PayPalApplication(env);
+  return cpp14::make_unique<PayPalApplication>(env);
 }
 
 int main(int argc, char **argv)
 {
   try {
-    Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
+    WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
-    server.addEntryPoint(Wt::Application, createApplication);
+    server.addEntryPoint(EntryPointType::Application, createApplication);
 
-    payPalService = new Wt::Payment::PayPalService();
+    payPalService = cpp14::make_unique<Payment::PayPalService>();
 
     if (!payPalService->configureFromProperties())
       payPalService->configureTestSandbox();
 
     server.run();
-  } catch (Wt::WServer::Exception& e) {
+  } catch (WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;
   }
 
-  delete payPalService;
+  payPalService.reset();
 }

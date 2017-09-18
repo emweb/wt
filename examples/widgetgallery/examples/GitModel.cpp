@@ -1,17 +1,17 @@
-#include <Wt/WAbstractItemModel>
+#include <Wt/WAbstractItemModel.h>
 
 #include "Git.h"
 
-class GitModel : public Wt::WAbstractItemModel
+class GitModel : public WAbstractItemModel
 {
 public:
     /*
      * A custom role for the file contents of a Git BLOB object.
      */
-    static const int ContentsRole = Wt::UserRole + 1;
+    static constexpr ItemDataRole ContentsRole = ItemDataRole::User + 1;
 
-    GitModel(const std::string& repository, Wt::WObject *parent = 0)
-	: WAbstractItemModel(parent)
+    GitModel(const std::string& repository)
+        : WAbstractItemModel()
     { 
 	git_.setRepositoryPath(repository);
 	loadRevision("master");
@@ -33,17 +33,17 @@ public:
 	layoutChanged().emit();
     }
 
-    virtual Wt::WModelIndex parent(const Wt::WModelIndex& index) const {
+    virtual WModelIndex parent(const WModelIndex& index) const {
 	if (!index.isValid() || index.internalId() == 0) {
-	    return Wt::WModelIndex(); // treeData_[0] is the tree root
+	    return WModelIndex(); // treeData_[0] is the tree root
 	} else {
 	    const Tree& item = treeData_[index.internalId()];
 	    return createIndex(item.index(), 0, item.parentId());
 	}
     }
 
-    virtual Wt::WModelIndex index(int row, int column,
-				  const Wt::WModelIndex& parent = Wt::WModelIndex()) const {
+    virtual WModelIndex index(int row, int column,
+                                  const WModelIndex& parent = WModelIndex()) const {
 	int parentId;
 
 	if (!parent.isValid())
@@ -56,11 +56,11 @@ public:
 	return createIndex(row, column, parentId);
     }
 
-    virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const {
+    virtual int columnCount(const WModelIndex& parent = WModelIndex()) const {
 	return 2;
     }
 
-    virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const {
+    virtual int rowCount(const WModelIndex& parent = WModelIndex()) const {
 	int treeId;
 
 	if (parent.isValid()) {
@@ -78,20 +78,20 @@ public:
 	return treeData_[treeId].rowCount();
     }
 
-    virtual boost::any data(const Wt::WModelIndex& index, int role = Wt::DisplayRole) const {
+    virtual cpp17::any data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display) const {
 	if (!index.isValid())
-	    return boost::any();
+	    return cpp17::any();
 
 	Git::Object object = getObject(index);
 
 	switch (index.column()) {
 	case 0:
-	    if (role == Wt::DisplayRole) {
+	    if (role == ItemDataRole::Display) {
 		if (object.type == Git::Tree)
 		    return object.name + '/';
 		else
 		    return object.name;
-	    } else if (role == Wt::DecorationRole) {
+	    } else if (role == ItemDataRole::Decoration) {
 		if (object.type == Git::Blob)
 		    return std::string("icons/git-blob.png");
 		else if (object.type == Git::Tree)
@@ -103,7 +103,7 @@ public:
 
 	    break;
 	case 1:
-	    if (role == Wt::DisplayRole) {
+	    if (role == ItemDataRole::Display) {
 		if (object.type == Git::Tree)
 		    return std::string("Folder");
 		else {
@@ -125,28 +125,28 @@ public:
 		    else if (suffix == "txt")
 			return std::string("Text");
 		    else
-			return boost::any();
+			return cpp17::any();
 		}
 	    }
 	}
 
-	return boost::any();
+        return cpp17::any();
     }
   
-    virtual boost::any headerData(int section,
-				  Wt::Orientation orientation = Wt::Horizontal,
-				  int role = Wt::DisplayRole) const {
-	if (orientation == Wt::Horizontal && role == Wt::DisplayRole) {
+    virtual cpp17::any headerData(int section,
+                                  Orientation orientation = Orientation::Horizontal,
+                                  ItemDataRole role = ItemDataRole::Display) const {
+        if (orientation == Orientation::Horizontal && role == ItemDataRole::Display) {
 	    switch (section) {
 	    case 0:
 		return std::string("File");
 	    case 1:
 		return std::string("Type");
 	    default:
-		return boost::any();
+		return cpp17::any();
 	    }
 	} else
-	    return boost::any();
+	    return cpp17::any();
     }
 
 private:
@@ -171,8 +171,8 @@ private:
 	}
 
 #ifdef WT_TARGET_JAVA
-        bool equals(boost::any o) {
-	    ChildIndex *other = boost::any_cast<ChildIndex *>(o);
+	bool equals(cpp17::any o) {
+	    ChildIndex *other = cpp17::any_cast<ChildIndex *>(o);
 	    return parentId == other->parentId &&
 	        index == other->index;
 	}
@@ -243,7 +243,7 @@ private:
     /*
      * Gets the Git::Object that corresponds to an index.
      */
-    Git::Object getObject(const Wt::WModelIndex& index) const {
+    Git::Object getObject(const WModelIndex& index) const {
 	int parentId = index.internalId();
 	const Tree& parentItem = treeData_[parentId];
 	return git_.treeGetObject(parentItem.treeObject(), index.row());
@@ -257,10 +257,12 @@ private:
 	    return fileName.substr(dot + 1);
     }
 
-    bool topLevel(const Wt::WModelIndex& index) const {
+    bool topLevel(const WModelIndex& index) const {
 	return !parent(index).isValid();
     }
 };
+
+constexpr Wt::ItemDataRole GitModel::ContentsRole;
 
 SAMPLE_BEGIN(gitModel)
 SAMPLE_END(return 0)

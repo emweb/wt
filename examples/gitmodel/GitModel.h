@@ -7,9 +7,11 @@
 #ifndef GIT_MODEL_H_
 #define GIT_MODEL_H_
 
-#include <Wt/WAbstractItemModel>
+#include <Wt/WAbstractItemModel.h>
 
 #include "Git.h"
+
+using namespace Wt;
 
 /**
  * @addtogroup gitmodelexample
@@ -38,12 +40,12 @@ class GitModel : public Wt::WAbstractItemModel
 public:
   /*! \brief The role which may be used on a file to retrieve its contents.
    */
-  static const int ContentsRole = Wt::UserRole;
-  static const int FilePathRole = Wt::UserRole + 1;
+  static const ItemDataRole ContentsRole;
+  static const ItemDataRole FilePathRole;
 
   /*! \brief Constructor.
    */
-  GitModel(Wt::WObject *parent = 0);
+  GitModel();
 
   /*! \brief Set the repository and load its 'master' revision.
    */
@@ -60,13 +62,13 @@ public:
    *
    * Consults the internal data structure to find the parent index.
    */
-  virtual Wt::WModelIndex parent(const Wt::WModelIndex& index) const;
+  virtual WModelIndex parent(const WModelIndex& index) const;
 
   /*! \brief Returns the column count.
    *
    * Returns 1.
    */
-  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex())
+  virtual int columnCount(const WModelIndex& parent = WModelIndex())
     const;
 
   /*! \brief Returns the row count.
@@ -74,7 +76,7 @@ public:
    * Returns 0 unless the item represents a folder, in which case it returns
    * the number of items in the tree object that corresponds to the folder.
    */
-  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
 
   /*! \brief Returns a child index.
    *
@@ -82,22 +84,22 @@ public:
    * necessary, the internal data structure is expanded by adding an
    * entry for using the <i>parent</i> index as a parent index.
    */
-  virtual Wt::WModelIndex
-  index(int row, int column, const Wt::WModelIndex& parent = Wt::WModelIndex())
+  virtual WModelIndex
+  index(int row, int column, const WModelIndex& parent = WModelIndex())
     const;
 
   /*! \brief Returns data.
    *
    * Returns only data corresponding to DisplayRole and ContentsRole.
    */
-  virtual boost::any
-  data(const Wt::WModelIndex& index, int role = Wt::DisplayRole) const;
+  virtual cpp17::any
+  data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display) const;
   
   /*! \brief Returns header data.
    */
-  virtual boost::any
-  headerData(int section, Wt::Orientation orientation = Wt::Horizontal,
-	     int role = Wt::DisplayRole) const;
+  virtual cpp17::any
+  headerData(int section, Orientation orientation = Orientation::Horizontal,
+             ItemDataRole role = ItemDataRole::Display) const;
 
   using WAbstractItemModel::data;
 
@@ -201,7 +203,7 @@ private:
 
   /*! \brief Get the Git::Object that corresponds to an index.
    */
-  Git::Object getObject(const Wt::WModelIndex& index) const;
+  Git::Object getObject(const WModelIndex& index) const;
 };
 
 /*@}*/

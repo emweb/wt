@@ -4,18 +4,20 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Http/WtClient"
-#include "Wt/WException"
+#include "Wt/AsioWrapper/asio.hpp"
+#include "Wt/AsioWrapper/system_error.hpp"
+#include "Wt/Http/WtClient.h"
+#include "Wt/WException.h"
 
 #include <sstream>
-#include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/asio.hpp>
-#include <boost/system/error_code.hpp>
+#include <regex>
 
-using boost::asio::ip::tcp;
+using Wt::AsioWrapper::asio::ip::tcp;
 
 namespace Wt {
+
+namespace asio = AsioWrapper::asio;
+
   namespace Http {
 
 namespace {
@@ -35,9 +37,9 @@ namespace {
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-    boost::asio::io_service io_service;
+    asio::io_service io_service;
 
-    // Get a list of endpoints corresponding to the server name.
+    // Method::Get a list of endpoints corresponding to the server name.
     tcp::resolver resolver(io_service);
 
     tcp::resolver::query query(host, port);
@@ -46,7 +48,7 @@ namespace {
 
     // Try each endpoint until we successfully establish a connection.
     tcp::socket socket(io_service);
-    boost::system::error_code error = boost::asio::error::host_not_found;
+    Wt::AsioWrapper::error_code error = asio::error::host_not_found;
     while (error && endpoint_iterator != end) {
       socket.close();
       socket.connect(*endpoint_iterator++, error);
@@ -59,7 +61,7 @@ namespace {
     // server will close the socket after transmitting the response. This will
     // allow us to treat all data up until the EOF as the content.
 
-    boost::asio::streambuf request;
+    asio::streambuf request;
     std::ostream request_stream(&request);
     request_stream << "GET " << path << " HTTP/1.0\r\n";
     request_stream << "Host: " << host << "\r\n";
@@ -67,11 +69,11 @@ namespace {
     request_stream << "Connection: close\r\n\r\n";
 
     // Send the request.
-    boost::asio::write(socket, request);
+    asio::write(socket, request);
 
     // Read the response status line.
-    boost::asio::streambuf response;
-    boost::asio::read_until(socket, response, "\r\n");
+    asio::streambuf response;
+    asio::read_until(socket, response, "\r\n");
 
     // Check that response is OK.
     std::istream response_stream(&response);
@@ -89,20 +91,20 @@ namespace {
       std::stringstream content;
 
       // Read the response headers, which are terminated by a blank line.
-      boost::asio::read_until(socket, response, "\r\n\r\n");
+      asio::read_until(socket, response, "\r\n\r\n");
 
       // Write whatever content we already have to output.
       if (result && response.size() > 0)
 	content << &response;
 
       // Read until EOF, writing data to output as we go.
-      while (boost::asio::read(socket, response,
-			       boost::asio::transfer_at_least(1), error))
+      while (asio::read(socket, response,
+                               asio::transfer_at_least(1), error))
 	if (result)
 	  content << &response;
 
-      if (error != boost::asio::error::eof)
-	throw boost::system::system_error(error);
+      if (error != asio::error::eof)
+	throw Wt::AsioWrapper::system_error(error);
 
       if (result)
 	*result = content.str();
@@ -126,29 +128,27 @@ void WtClient::startWtSession(const std::string& host,
   int status = doGet(host, port, url, &result);
 
   if (status != 200)
-    throw WException("Http status != 200: "
-		     + boost::lexical_cast<std::string>(status));    
+    throw WException("Http status != 200: " + std::to_string(status));    
 
-  static const boost::regex session_e(".*\\?wtd=([a-zA-Z0-9]+)&amp;.*");
+  static const std::regex session_e(".*\\?wtd=([a-zA-Z0-9]+)&amp;.*");
 
   std::string sessionId;
-  boost::smatch what;
-  if (boost::regex_match(result, what, session_e))
+  std::smatch what;
+  if (std::regex_match(result, what, session_e))
     sessionId = what[1];
   else
     throw WException("Unexpected response");
 
   url = path + "?wtd=" + sessionId;
-  if (flags & SupportsAjax)
+  if (flags.test(ClientOption::SupportsAjax))
     url += "&request=script";
   else
     url += "&js=no";
 
-  status = doGet(host, port, url, 0);
+  status = doGet(host, port, url, nullptr);
 
   if (status != 200)
-    throw WException("Http status != 200: "
-		      + boost::lexical_cast<std::string>(status));
+    throw WException("Http status != 200: " + std::to_string(status));
 }
 
   }

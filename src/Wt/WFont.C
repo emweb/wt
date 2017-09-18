@@ -3,39 +3,28 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
-
-#include "Wt/WFont"
-#include "Wt/WStringStream"
-#include "Wt/WWebWidget"
+#include "Wt/WFont.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WWebWidget.h"
 
 #include "DomElement.h"
+
+#include <algorithm>
 
 namespace Wt {
 
 WFont::WFont()
-  : widget_(0),
-    genericFamily_(Default),
-    style_(NormalStyle),
-    variant_(NormalVariant),
-    weight_(NormalWeight),
-    weightValue_(400),
-    size_(Medium),
-    familyChanged_(false),
-    styleChanged_(false),
-    variantChanged_(false),
-    weightChanged_(false),
-    sizeChanged_(false)
+  : WFont(FontFamily::Default)
 { }
 
-WFont::WFont(GenericFamily family)
-  : widget_(0),
+WFont::WFont(FontFamily family)
+  : widget_(nullptr),
     genericFamily_(family),
-    style_(NormalStyle),
-    variant_(NormalVariant),
-    weight_(NormalWeight),
+    style_(FontStyle::Normal),
+    variant_(FontVariant::Normal),
+    weight_(FontWeight::Normal),
     weightValue_(400),
-    size_(Medium),
+    size_(FontSize::Medium),
     familyChanged_(false),
     styleChanged_(false),
     variantChanged_(false),
@@ -66,55 +55,55 @@ bool WFont::operator!=(const WFont& other) const
   return !(*this == other);
 }
 
-void WFont::setFamily(GenericFamily genericFamily,
+void WFont::setFamily(FontFamily genericFamily,
 		      const WString& specificFamilies)
 {
   genericFamily_ = genericFamily;
   specificFamilies_ = specificFamilies;
   familyChanged_ = true;
-  if (widget_) widget_->repaint(RepaintSizeAffected);
+  if (widget_) widget_->repaint(RepaintFlag::SizeAffected);
 }
 
-void WFont::setStyle(Style style)
+void WFont::setStyle(FontStyle style)
 {
   style_ = style;
   styleChanged_ = true;
-  if (widget_) widget_->repaint(RepaintSizeAffected);
+  if (widget_) widget_->repaint(RepaintFlag::SizeAffected);
 }
 
-void WFont::setVariant(Variant variant)
+void WFont::setVariant(FontVariant variant)
 {
   variant_ = variant;
   variantChanged_ = true;
-  if (widget_) widget_->repaint(RepaintSizeAffected);
+  if (widget_) widget_->repaint(RepaintFlag::SizeAffected);
 }
 
-void WFont::setWeight(Weight weight, int value)
+void WFont::setWeight(FontWeight weight, int value)
 {
   weight_ = weight;
   weightValue_ = value;
   weightChanged_ = true;
-  if (widget_) widget_->repaint(RepaintSizeAffected);
+  if (widget_) widget_->repaint(RepaintFlag::SizeAffected);
 }
 
-WFont::Weight WFont::weight() const
+FontWeight WFont::weight() const
 {
-  if (weight_ != Value)
+  if (weight_ != FontWeight::Value)
     return weight_;
   else
-    return weightValue_ >= 700 ? WFont::Bold : WFont::NormalWeight;
+    return weightValue_ >= 700 ? FontWeight::Bold : FontWeight::Normal;
 }
 
 int WFont::weightValue() const
 {
   switch (weight_) {
-  case NormalWeight:
-  case Lighter:
+  case FontWeight::Normal:
+  case FontWeight::Lighter:
     return 400;
-  case Bold:
-  case Bolder:
+  case FontWeight::Bold:
+  case FontWeight::Bolder:
     return 700;
-  case Value:
+  case FontWeight::Value:
     return weightValue_;
   }
 
@@ -122,85 +111,72 @@ int WFont::weightValue() const
   return -1;
 }
 
-void WFont::setSize(Size size, const WLength& length)
-{
-  if (size == FixedSize)
-    setSize(length);
-  else
-    setSize(size);
-}
-
-void WFont::setSize(Size size)
+void WFont::setSize(FontSize size)
 {
   size_ = size;
   sizeLength_ = WLength::Auto;
   sizeChanged_ = true;
-  if (widget_) widget_->repaint(RepaintSizeAffected);
+  if (widget_) widget_->repaint(RepaintFlag::SizeAffected);
 }
 
 void WFont::setSize(const WLength& size)
 {
-  size_ = FixedSize;
+  size_ = FontSize::FixedSize;
   sizeLength_ = size;
   sizeChanged_ = true;
-  if (widget_) widget_->repaint(RepaintSizeAffected);
+  if (widget_) widget_->repaint(RepaintFlag::SizeAffected);
 }
 
-WFont::Size WFont::size(double mediumSize) const
+FontSize WFont::size(double mediumSize) const
 {
-  if (size_ != FixedSize)
+  if (size_ != FontSize::FixedSize)
     return size_;
   else {
     double pixels = sizeLength_.toPixels();
 
     if (pixels == mediumSize)
-      return Medium;
+      return FontSize::Medium;
     else if (pixels > mediumSize) {
       if (pixels < 1.2 * 1.19 * mediumSize)
-	return Large;
+	return FontSize::Large;
       else if (pixels < 1.2 * 1.2 * 1.19 * mediumSize)
-	return XLarge;
+	return FontSize::XLarge;
       else
-	return XXLarge;
+	return FontSize::XXLarge;
     } else {
       if (pixels > mediumSize / 1.2 / 1.19)
-	return Small;
+	return FontSize::Small;
       else if (pixels > mediumSize / 1.2 / 1.2 / 1.19)
-	return XSmall;
+	return FontSize::XSmall;
       else
-	return XXSmall;
+	return FontSize::XXSmall;
     }
   }
-}
-
-WLength WFont::fixedSize() const
-{
-  return sizeLength();
 }
 
 WLength WFont::sizeLength(double mediumSize) const
 {
   switch (size_) {
-  case FixedSize:
+  case FontSize::FixedSize:
     return sizeLength_;
-  case XXSmall:
+  case FontSize::XXSmall:
     return WLength(mediumSize / 1.2 / 1.2 / 1.2);
-  case XSmall:
+  case FontSize::XSmall:
     return WLength(mediumSize / 1.2 / 1.2);
-  case Small:
+  case FontSize::Small:
     return WLength(mediumSize / 1.2);
-  case Medium:
+  case FontSize::Medium:
     return WLength(mediumSize);
-  case Large:
+  case FontSize::Large:
     return WLength(mediumSize * 1.2);
-  case XLarge:
+  case FontSize::XLarge:
     return WLength(mediumSize * 1.2 * 1.2);
-  case XXLarge:
+  case FontSize::XXLarge:
     return WLength(mediumSize * 1.2 * 1.2 * 1.2);    
-  case Smaller:
-    return WLength(1 / 1.2, WLength::FontEm);
-  case Larger:
-    return WLength(1.2, WLength::FontEm);
+  case FontSize::Smaller:
+    return WLength(1 / 1.2, LengthUnit::FontEm);
+  case FontSize::Larger:
+    return WLength(1.2, LengthUnit::FontEm);
   }
 
   assert(false);
@@ -213,7 +189,7 @@ void WFont::updateDomElement(DomElement& element, bool fontall, bool all)
     std::string family = cssFamily(fontall);
 
     if (!family.empty())
-      element.setProperty(PropertyStyleFontFamily, family);
+      element.setProperty(Property::StyleFontFamily, family);
 
     familyChanged_ = false;
   }
@@ -222,7 +198,7 @@ void WFont::updateDomElement(DomElement& element, bool fontall, bool all)
     std::string style = cssStyle(fontall);
 
     if (!style.empty())
-      element.setProperty(PropertyStyleFontStyle, style);
+      element.setProperty(Property::StyleFontStyle, style);
 
     styleChanged_ = false;
   }
@@ -231,7 +207,7 @@ void WFont::updateDomElement(DomElement& element, bool fontall, bool all)
     std::string variant = cssVariant(fontall);
 
     if (!variant.empty())
-      element.setProperty(PropertyStyleFontVariant, variant);
+      element.setProperty(Property::StyleFontVariant, variant);
 
     variantChanged_ = false;
   }
@@ -240,7 +216,7 @@ void WFont::updateDomElement(DomElement& element, bool fontall, bool all)
     std::string weight = cssWeight(fontall);
 
     if (!weight.empty())
-      element.setProperty(PropertyStyleFontWeight, weight);
+      element.setProperty(Property::StyleFontWeight, weight);
 
     weightChanged_ = false;
   }
@@ -249,7 +225,7 @@ void WFont::updateDomElement(DomElement& element, bool fontall, bool all)
     std::string size = cssSize(fontall);
 
     if (!size.empty())
-      element.setProperty(PropertyStyleFontSize, size);
+      element.setProperty(Property::StyleFontSize, size);
 
     sizeChanged_ = false;
   }
@@ -258,12 +234,12 @@ void WFont::updateDomElement(DomElement& element, bool fontall, bool all)
 std::string WFont::cssStyle(bool all) const
 {
   switch (style_) {
-  case NormalStyle:
+  case FontStyle::Normal:
     if (styleChanged_ || all)
       return "normal";
     break;
-  case Italic: return "italic";
-  case Oblique: return "oblique";
+  case FontStyle::Italic: return "italic";
+  case FontStyle::Oblique: return "oblique";
   }
 
   return std::string();
@@ -272,11 +248,11 @@ std::string WFont::cssStyle(bool all) const
 std::string WFont::cssVariant(bool all) const
 {
   switch (variant_) {
-  case NormalVariant:
+  case FontVariant::Normal:
     if (variantChanged_ || all)
       return "normal";
     break;
-  case SmallCaps:
+  case FontVariant::SmallCaps:
     return "small-caps";
   }
 
@@ -287,17 +263,17 @@ std::string WFont::cssVariant(bool all) const
 std::string WFont::cssWeight(bool all) const
 {
   switch (weight_) {
-  case NormalWeight:
+  case FontWeight::Normal:
     if (weightChanged_ || all)
       return "normal";
     break;
-    case Bold: return "bold";
-    case Bolder:return "bolder";
-    case Lighter: return "lighter";
-    case Value: {
-      int v = std::min(900, std::max(100, ((weightValue_ / 100))*100));
-      return boost::lexical_cast<std::string>(v);
-    }
+  case FontWeight::Bold: return "bold";
+  case FontWeight::Bolder:return "bolder";
+  case FontWeight::Lighter: return "lighter";
+  case FontWeight::Value: {
+    int v = std::min(900, std::max(100, ((weightValue_ / 100))*100));
+    return std::to_string(v);
+  }
   }
 
   return std::string();
@@ -306,19 +282,19 @@ std::string WFont::cssWeight(bool all) const
 std::string WFont::cssSize(bool all) const
 {
   switch (size_) {
-  case Medium:
+  case FontSize::Medium:
     if (sizeChanged_ || all)
       return "medium";
     break;
-  case XXSmall: return "xx-small";
-  case XSmall: return "x-small";
-  case Small: return "small";
-  case Large: return "large" ;
-  case XLarge: return "x-large" ;
-  case XXLarge: return "xx-large";
-  case Smaller: return "smaller";
-  case Larger: return "larger";
-  case FixedSize: return sizeLength_.cssText();
+  case FontSize::XXSmall: return "xx-small";
+  case FontSize::XSmall: return "x-small";
+  case FontSize::Small: return "small";
+  case FontSize::Large: return "large" ;
+  case FontSize::XLarge: return "x-large" ;
+  case FontSize::XXLarge: return "xx-large";
+  case FontSize::Smaller: return "smaller";
+  case FontSize::Larger: return "larger";
+  case FontSize::FixedSize: return sizeLength_.cssText();
   }
 
   return std::string();
@@ -329,21 +305,21 @@ std::string WFont::cssFamily(bool all) const
   std::string family = specificFamilies_.toUTF8();
 
   if ((!family.empty()) &&
-      genericFamily_ != Default)
+      genericFamily_ != FontFamily::Default)
     family += ',';
 
   switch (genericFamily_) {
-  case Default:
+  case FontFamily::Default:
     break;
-  case Serif:
+  case FontFamily::Serif:
     family += "serif"; break;
-  case SansSerif:
+  case FontFamily::SansSerif:
     family += "sans-serif"; break;
-  case Cursive:
+  case FontFamily::Cursive:
     family += "cursive"; break;
-  case Fantasy:
+  case FontFamily::Fantasy:
     family += "fantasy"; break;
-  case Monospace:
+  case FontFamily::Monospace:
     family += "monospace"; break;
   }
 

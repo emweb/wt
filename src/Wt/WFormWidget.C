@@ -3,12 +3,12 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WAbstractToggleButton"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WFormWidget"
-#include "Wt/WLabel"
-#include "Wt/WTheme"
+#include "Wt/WAbstractToggleButton.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WFormWidget.h"
+#include "Wt/WLabel.h"
+#include "Wt/WTheme.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -20,38 +20,23 @@
 namespace Wt {
 
 const char *WFormWidget::CHANGE_SIGNAL = "M_change";
-const char *WFormWidget::SELECT_SIGNAL = "select";
 
-WFormWidget::WFormWidget(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    label_(0),
-    validator_(0),
-    validateJs_(0),
-    filterInput_(0),
-    removeEmptyText_(0)
+WFormWidget::WFormWidget()
+  : label_(nullptr)
 { }
 
 WFormWidget::~WFormWidget()
 {
   if (label_)
-    label_->setBuddy((WFormWidget *)0);
+    label_->setBuddy(nullptr);
 
   if (validator_)
     validator_->removeFormWidget(this);
-
-  delete removeEmptyText_;
-  delete validateJs_;
-  delete filterInput_;
 }
 
 EventSignal<>& WFormWidget::changed()
 {
   return *voidEventSignal(CHANGE_SIGNAL, true);
-}
-
-EventSignal<>& WFormWidget::selected()
-{
-  return *voidEventSignal(SELECT_SIGNAL, true);
 }
 
 void WFormWidget::setEnabled(bool enabled)
@@ -94,11 +79,6 @@ bool WFormWidget::isReadOnly() const
   return flags_.test(BIT_READONLY);
 }
 
-void WFormWidget::setEmptyText(const WString& emptyText) 
-{
-  setPlaceholderText(emptyText);
-}
-
 void WFormWidget::setPlaceholderText(const WString& placeholderText)
 {
   emptyText_ = placeholderText;
@@ -106,7 +86,7 @@ void WFormWidget::setPlaceholderText(const WString& placeholderText)
   WApplication* app = WApplication::instance();
   const WEnvironment& env = app->environment();
   if (!env.agentIsIElt(10) &&
-    (domElementType() == DomElement_INPUT || domElementType() == DomElement_TEXTAREA)) {
+    (domElementType() == DomElementType::INPUT || domElementType() == DomElementType::TEXTAREA)) {
     flags_.set(BIT_PLACEHOLDER_CHANGED);
     repaint();
   } else {
@@ -118,7 +98,7 @@ void WFormWidget::setPlaceholderText(const WString& placeholderText)
 	  updateEmptyText();
 
 	if (!removeEmptyText_) {
-	  removeEmptyText_ = new JSlot(this);
+          removeEmptyText_.reset(new JSlot(this));
 
 	  focussed().connect(*removeEmptyText_);
 	  blurred().connect(*removeEmptyText_);
@@ -131,8 +111,7 @@ void WFormWidget::setPlaceholderText(const WString& placeholderText)
 	  removeEmptyText_->setJavaScript(jsFunction);
 	}
       } else {
-	delete removeEmptyText_;
-	removeEmptyText_ = 0;
+        removeEmptyText_.reset();
       }
     } else {
       setToolTip(placeholderText);
@@ -161,14 +140,15 @@ void WFormWidget::defineJavaScript(bool force)
 
 void WFormWidget::render(WFlags<RenderFlag> flags)
 {
-  if ((flags & RenderFull)) {
+  if (flags.test(RenderFlag::Full)) {
     if (flags_.test(BIT_JS_OBJECT))
       defineJavaScript(true);
 
     if (validator()) {
       WValidator::Result result = validator()->validate(valueText());
       WApplication::instance()->theme()
-	->applyValidationStyle(this, result, ValidationInvalidStyle);
+	->applyValidationStyle(this, result, 
+			       ValidationStyleFlag::InvalidStyle);
     }
   }
 
@@ -204,7 +184,7 @@ void WFormWidget::enableAjax()
 {
   if (!emptyText_.empty() && toolTip() == emptyText_) {
     setToolTip("");
-    setEmptyText(emptyText_);
+    setPlaceholderText(emptyText_);
   }
   
   WInteractWidget::enableAjax();
@@ -217,25 +197,22 @@ void WFormWidget::validatorChanged()
     setJavaScriptMember("wtValidate", validateJS);
 
     if (!validateJs_) {
-      validateJs_ = new JSlot();
+      validateJs_.reset(new JSlot());
       validateJs_->setJavaScript("function(o){" WT_CLASS ".validate(o)}");
 
       keyWentUp().connect(*validateJs_);
       changed().connect(*validateJs_);
-      if (domElementType() != DomElement_SELECT)
+      if (domElementType() != DomElementType::SELECT)
 	clicked().connect(*validateJs_);
     }
-  } else {
-    delete validateJs_;
-    validateJs_ = 0;
-  }
+  } else
+    validateJs_.reset();
 
   std::string inputFilter = validator_->inputFilter();
 
   if (!inputFilter.empty()) {
     if (!filterInput_) {
-      filterInput_ = new JSlot();
-
+      filterInput_.reset(new JSlot());
       keyPressed().connect(*filterInput_);
     }
 
@@ -245,15 +222,12 @@ void WFormWidget::validatorChanged()
       ("function(o,e){" WT_CLASS ".filter(o,e,"
        + jsStringLiteral(inputFilter) + ")}");
   } else {
-#ifndef WT_TARGET_JAVA
-    delete filterInput_;
-    filterInput_ = 0;
-#else 
-    if(filterInput_) {
+#ifdef WT_TARGET_JAVA
+    if (filterInput_) {
       keyPressed().disconnect(*filterInput_);
-      filterInput_ = 0;
     }
 #endif
+    filterInput_.reset();
   }
 
   validate();
@@ -273,7 +247,7 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_ENABLED_CHANGED) || all) {
     if (!all || !isEnabled())
-      element.setProperty(Wt::PropertyDisabled,
+      element.setProperty(Wt::Property::Disabled,
 			  isEnabled() ? "false" : "true");
 
     if (!all && isEnabled() && env.agentIsIE()) {
@@ -287,14 +261,14 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_READONLY_CHANGED) || all) {
     if (!all || isReadOnly())
-      element.setProperty(Wt::PropertyReadOnly,
+      element.setProperty(Wt::Property::ReadOnly,
 			  isReadOnly() ? "true" : "false");
     flags_.reset(BIT_READONLY_CHANGED);
   }
 
   if (flags_.test(BIT_PLACEHOLDER_CHANGED) || all) {
     if (!all || !emptyText_.empty())
-      element.setProperty(Wt::PropertyPlaceholder, emptyText_.toUTF8());
+      element.setProperty(Wt::Property::Placeholder, emptyText_.toUTF8());
     flags_.reset(BIT_PLACEHOLDER_CHANGED);
   }
 
@@ -320,8 +294,8 @@ void WFormWidget::setLabel(WLabel *label)
 {
   if (label_) {
     WLabel *l = label_;
-    label_ = 0;
-    l->setBuddy((WFormWidget *)0);
+    label_ = nullptr;
+    l->setBuddy(nullptr);
   }
   label_ = label;
 
@@ -341,13 +315,13 @@ void WFormWidget::setToolTip(const WString& text, TextFormat textFormat)
 {
   WInteractWidget::setToolTip(text, textFormat);
 
-  if (validator_ && textFormat == PlainText) {
+  if (validator_ && textFormat == TextFormat::Plain) {
     setJavaScriptMember("defaultTT", text.jsStringLiteral());
     validate();
   }
 }
 
-void WFormWidget::setValidator(WValidator *validator)
+void WFormWidget::setValidator(const std::shared_ptr<WValidator>& validator)
 {
   bool firstValidator = !validator_;
 
@@ -357,41 +331,30 @@ void WFormWidget::setValidator(WValidator *validator)
   validator_ = validator;
 
   if (validator_) {
-#ifndef WT_TARGET_JAVA
-    if (!validator_->parent())
-      WObject::addChild(validator_);
-#endif // WT_TARGET_JAVA
-
     validator_->addFormWidget(this);
 
     if (firstValidator)
       setToolTip(toolTip());
 
     validatorChanged();
-#ifndef WT_TARGET_JAVA
-    if (!validator_->parent())
-      WObject::addChild(validator_);
-#endif // WT_TARGET_JAVA
   } else {
     if (isRendered())
       WApplication::instance()->theme()
-	->applyValidationStyle(this, WValidator::Result(), ValidationNoStyle);
+	->applyValidationStyle(this, WValidator::Result(), None);
 
-    delete validateJs_;
-    validateJs_ = 0;
-    delete filterInput_;
-    filterInput_ = 0;
+    validateJs_.reset();
+    filterInput_.reset();
   }
 }
 
-WValidator::State WFormWidget::validate()
+ValidationState WFormWidget::validate()
 {
   if (validator()) {
     WValidator::Result result = validator()->validate(valueText());
 
     if (isRendered())
       WApplication::instance()->theme()
-	->applyValidationStyle(this, result, ValidationInvalidStyle);
+	->applyValidationStyle(this, result, ValidationStyleFlag::InvalidStyle);
 
     if (validationToolTip_ != result.message()) {
       validationToolTip_ = result.message();
@@ -403,7 +366,7 @@ WValidator::State WFormWidget::validate()
 
     return result.state();
   } else
-    return WValidator::Valid;
+    return ValidationState::Valid;
 }
 
 std::string WFormWidget::formName() const

@@ -5,11 +5,12 @@
  */
 
 #include "Wt/WConfig.h"
-#include "Wt/WLogger"
-#include "Wt/WServer"
+#include "Wt/WLogger.h"
+#include "Wt/WServer.h"
 
 #include "Configuration.h"
 #include "WebUtils.h"
+#include "StringUtils.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -157,18 +158,46 @@ void Configuration::createOptions(po::options_description& options,
 
   po::options_description http("HTTP/WebSocket server options");
   http.add_options()
+    ("http-listen", po::value<std::vector<std::string> >(&httpListen_)->multitoken(),
+     "address/port pair to listen on. If no port is specified, 80 is used as the default, e.g. "
+     "127.0.0.1:8080 will cause the server to listen on port 8080 of 127.0.0.1 (localhost). "
+     "For IPv6, use square brackets, e.g. [::1]:8080 will cause the server to listen on port "
+     "8080 of [::1] (localhost). This argument can be repeated, e.g. "
+     "--http-listen 0.0.0.0:8080 --http-listen [0::0]:8080 will cause the server to listen on "
+     "port 8080 of all interfaces using IPv4 and IPv6. You must specify this option or --https-listen "
+     "at least once. The older style --http-address and --https-address can also be used for backwards "
+     "compatibility."
+#ifndef NO_RESOLVE_ACCEPT_ADDRESS
+     " "
+     "If a hostname is provided instead of an IP address, the server "
+     "will listen on all of the addresses (IPv4 and IPv6) that this hostname resolves to."
+#endif // NO_RESOLVE_ACCEPT_ADDRESS
+     )
     ("http-address", po::value<std::string>(),
      "IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0). You must specify either "
-     "this option or --https-address (or both)")
+     "--http-listen, --https-listen, --http-address, or --https-address.")
     ("http-port", po::value<std::string>(&httpPort_)->default_value(httpPort_),
      "HTTP port (e.g. 80)")
     ;
 
   po::options_description https("HTTPS/Secure WebSocket server options");
   https.add_options()
+    ("https-listen", po::value<std::vector<std::string> >(&httpsListen_)->multitoken(),
+     "address/port pair to listen on. If no port is specified, 80 is used as the default, e.g. "
+     "127.0.0.1:8080 will cause the server to listen on port 8080 of 127.0.0.1 (localhost). "
+     "For IPv6, use square brackets, e.g. [::1]:8080 will cause the server to listen on port "
+     "8080 of [::1] (localhost). This argument can be repeated, e.g. "
+     "--https-listen 0.0.0.0:8080 --https-listen [0::0]:8080 will cause the server to listen on "
+     "port 8080 of all interfaces using IPv4 and IPv6."
+#ifndef NO_RESOLVE_ACCEPT_ADDRESS
+     " "
+     "If a hostname is provided instead of an IP address, the server "
+     "will listen on all of the addresses (IPv4 and IPv6) that this hostname resolves to."
+#endif // NO_RESOLVE_ACCEPT_ADDRESS
+     )
     ("https-address", po::value<std::string>(),
      "IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0). You must specify either "
-     "this option or --http-address (or both)")
+     "--http-listen, --https-listen, --http-address, or --https-address.")
     ("https-port",
      po::value<std::string>(&httpsPort_)->default_value(httpsPort_),
      "HTTPS port (e.g. 443)")
@@ -355,7 +384,9 @@ void Configuration::readOptions(const po::variables_map& vm)
 
   if (vm.count("https-address")) {
     httpsAddress_ = vm["https-address"].as<std::string>();
+  }
 
+  if (vm.count("https-listen") || vm.count("https-address")) {
     checkPath(vm, "ssl-certificate", "SSL Certificate chain file",
 	      sslCertificateChainFile_, RegularFile);
     checkPath(vm, "ssl-private-key", "SSL Private key file",
@@ -379,9 +410,12 @@ void Configuration::readOptions(const po::variables_map& vm)
     }
   }
 
-  if (httpAddress_.empty() && httpsAddress_.empty()) {
+  if (httpListen_.empty() &&
+      httpAddress_.empty() &&
+      httpsListen_.empty() &&
+      httpsAddress_.empty()) {
     throw Wt::WServer::Exception
-      ("Specify http-address and/or https-address "
+      ("Specify http-listen, https-listen, http-address and/or https-address "
        "to run a HTTP and/or HTTPS server.");
   } 
 }

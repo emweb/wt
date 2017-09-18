@@ -7,6 +7,7 @@
 #ifndef TIMEUTIL_H_
 #define TIMEUTIL_H_
 
+#include <chrono>
 #include <Wt/WDllDefs.h>
 
 struct timeval;
@@ -19,7 +20,6 @@ class WT_API Time
 {
 public:
   Time(); // now
-  ~Time(); // now
   Time(const Time &other);
 
   Time operator+ (int msec) const;
@@ -29,8 +29,7 @@ public:
   int operator- (const Time& other) const; // milliseconds
 
 private:
-  // Pointer to avoid inclusion of windows header files in wt
-  class TimeImpl *t_;
+  std::chrono::steady_clock::time_point tp_;
 };
 
 }

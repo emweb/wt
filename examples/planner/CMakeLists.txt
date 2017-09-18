@@ -12,7 +12,7 @@ WT_ADD_EXAMPLE(planner.wt
   CalendarCell.C
   PlannerCalendar.C)
 
-TARGET_LINK_LIBRARIES(planner.wt wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(planner.wt ${EXAMPLES_DBO_LIBS})
 
 #
 # If you have Wt installed somehwere, you should use the

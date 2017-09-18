@@ -7,30 +7,32 @@
 #ifndef LOGIN_H_
 #define LOGIN_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WLineEdit>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WLineEdit.h>
 
 #include "MyCaptcha.h"
 
-class Login : public Wt::WContainerWidget
+using namespace Wt;
+
+class Login : public WContainerWidget
 {
 public:
-  Login(Wt::WContainerWidget* parent);
+  Login();
 
-  Wt::Signal<Wt::WString>& loggedIn() { return loggedIn_; }
+  Signal<WString>& loggedIn() { return loggedIn_; }
 
 private:
   void captchaCompleted();
   void userNameEnterPressed();
-  void loginClicked(const Wt::WMouseEvent& me);
+  void loginClicked(const WMouseEvent& me);
   void login();
 
 private:
-  Wt::Signal<Wt::WString> loggedIn_;
-  Wt::WLineEdit *userNameEdit_;
-  MyCaptcha *captcha_;
-  Wt::WPushButton *loginButton_;
+  Signal<WString>   loggedIn_;
+  WLineEdit        *userNameEdit_;
+  MyCaptcha        *captcha_;
+  WPushButton      *loginButton_;
 };
 
 #endif // LOGIN_H_

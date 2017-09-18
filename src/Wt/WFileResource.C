@@ -6,22 +6,20 @@
 
 #include <fstream>
 
-#include "Wt/WFileResource"
+#include "Wt/WFileResource.h"
 
 namespace Wt {
 
-WFileResource::WFileResource(WObject *parent)
-  : WStreamResource(parent)
+WFileResource::WFileResource()
 { }
 
-WFileResource::WFileResource(const std::string& fileName, WObject *parent)
-  : WStreamResource(parent),
-    fileName_(fileName)
+WFileResource::WFileResource(const std::string& fileName)
+  : fileName_(fileName)
 { }
 
 WFileResource::WFileResource(const std::string& mimeType,
-			     const std::string& fileName, WObject *parent)
-  : WStreamResource(mimeType, parent),
+			     const std::string& fileName)
+  : WStreamResource(mimeType),
     fileName_(fileName)
 { }
 

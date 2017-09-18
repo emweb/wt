@@ -3,14 +3,13 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Query"
+#include "Query.h"
 #include "Query_impl.h"
-#include "SqlTraits"
-#include "ptr"
+#include "SqlTraits.h"
+#include "ptr.h"
 
 #include <string>
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace Wt {
   namespace Dbo {
@@ -79,7 +78,7 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
   std::string result = sql;
 
   switch (limitQueryMethod) {
-  case Limit:
+  case LimitQuery::Limit:
     if (limit != -1)
       result += " limit ?";
 
@@ -88,21 +87,21 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
 
     break;
 
-  case RowsFromTo:
+  case LimitQuery::RowsFromTo:
     if (limit != -1 || offset != -1) {
       result += " rows ? to ?";
     }
 
     break;
 
-  case Rownum:
+  case LimitQuery::Rownum:
     if (limit != -1 && offset == -1)
       result = " select * from ( " + result + " ) where rownum <= ?";
     else if (limit != -1 && offset != -1)
       result = " select * from ( select row_.*, rownum rownum2 from ( " +
 	result + " ) row_ where rownum <= ?) where rownum2 > ?";
 
-  case OffsetFetch:
+  case LimitQuery::OffsetFetch:
     if (offset != -1 || limit != -1) {
       if (orderBy.empty())
         result += " order by (select null)";
@@ -122,7 +121,7 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
 
     break;
   
-  case NotSupported:
+  case LimitQuery::NotSupported:
     break;
   }
 
@@ -203,7 +202,7 @@ void substituteFields(const SelectFieldList& list,
 	  dboFields += ", ";
 
 	dboFields += fs[i].sql();
-        dboFields += " as col" + boost::lexical_cast<std::string>(i);
+        dboFields += " as col" + std::to_string(i);
 
 	++i;
 	if (i >= fs.size()
@@ -221,7 +220,7 @@ void substituteFields(const SelectFieldList& list,
     } else {
       if (!fs[i].isAliasedName()) {
         int start = list[j].end + offset;
-        std::string col = " as col" + boost::lexical_cast<std::string>(i);
+        std::string col = " as col" + std::to_string(i);
         sql.insert(start, col);
         offset += col.size();
       }

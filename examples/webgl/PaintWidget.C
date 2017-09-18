@@ -6,11 +6,9 @@
 
 #include "PaintWidget.h"
 
-#include <Wt/WGLWidget>
-#include <Wt/WMatrix4x4>
-#include <Wt/WMemoryResource>
-
-using namespace Wt;
+#include <Wt/WGLWidget.h>
+#include <Wt/WMatrix4x4.h>
+#include <Wt/WMemoryResource.h>
 
 // To avoid copying large constant data around, the data points are stored
 // in a global variable.
@@ -37,8 +35,8 @@ void centerpoint(double &x, double &y, double &z)
   z = (minz + maxz)/2.;
 }
 
-PaintWidget::PaintWidget(WContainerWidget *root, const bool & useBinaryBuffers):
-  WGLWidget(root), initialized_(false), useBinaryBuffers_(useBinaryBuffers)
+PaintWidget::PaintWidget(const bool & useBinaryBuffers):
+  WGLWidget(), initialized_(false), useBinaryBuffers_(useBinaryBuffers)
 {
   jsMatrix_ = JavaScriptMatrix4x4();
   addJavaScriptMatrix4(jsMatrix_);
@@ -122,29 +120,10 @@ void PaintWidget::initializeGL()
   objBuffer_ = createBuffer();
   bindBuffer(ARRAY_BUFFER, objBuffer_);
 
-  if (!useBinaryBuffers_)
-  {
-      // embed the buffer directly in the JavaScript stream.
-      bufferDatafv(ARRAY_BUFFER, data.begin(), data.end(), STATIC_DRAW);
-  }else
-  {
-      //Alternatively uncomment the following lines to directly transfer the array
-      //as a binary data resource.
-      //The binary data is prepared as a downloadable resource which is requested
-      //by an XHR of the javascript client
-      WMemoryResource * mem = new WMemoryResource("application/octet", this);
-      // cast the doubles to an unsigned char array to serve it by the memory resource
-      mem->setData(
-          reinterpret_cast<unsigned char*>(&(data[0])),
-          data.size() * sizeof(float));
-      // create client side identifier for the buffer resource and set up for preloading
-      ArrayBuffer clientBufferResource = createAndLoadArrayBuffer(mem->generateUrl());
-      bufferData(ARRAY_BUFFER, clientBufferResource, STATIC_DRAW);
-  }
-
-
-
-
+  // Embed the buffer directly in the JavaScript stream if useBinaryBuffers_ is false.
+  // Alternatively transfer the array directly as a binary data resource if useBinaryBuffers_
+  // is true.
+  bufferDatafv(ARRAY_BUFFER, data.begin(), data.end(), STATIC_DRAW, useBinaryBuffers_);
 
   // Set the clear color to a transparant background
   clearColor(0, 0, 0, 0);

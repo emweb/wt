@@ -18,10 +18,9 @@
 #define HTTP_CONNECTION_MANAGER_HPP
 
 #include <set>
-#include <boost/noncopyable.hpp>
 #include "Connection.h" // On WIN32, must be before thread stuff
 #ifdef WT_THREADED
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #endif // WT_THREADED
 
 
@@ -31,9 +30,13 @@ namespace server {
 /// Manages open connections so that they may be cleanly stopped when the server
 /// needs to shut down.
 class ConnectionManager
-  : private boost::noncopyable
 {
 public:
+  ConnectionManager() = default;
+
+  ConnectionManager(const ConnectionManager&) = delete;
+  ConnectionManager& operator=(const ConnectionManager&) = delete;
+
   /// Add the specified connection to the manager and start it.
   void start(ConnectionPtr c);
 
@@ -49,7 +52,7 @@ private:
 
 #ifdef WT_THREADED
   /// Mutex to protect access to connections_
-  boost::mutex mutex_;
+  std::mutex mutex_;
 #endif // WT_THREADED
 };
 

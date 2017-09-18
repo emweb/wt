@@ -6,19 +6,17 @@
 
 #include "ImagesWidget.h"
 
-#include <Wt/WImage>
-
-using namespace Wt;
+#include <Wt/WImage.h>
+#include <Wt/WAny.h>
 
 const int ImagesWidget::HURRAY = -1;
 
-ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
-  : WContainerWidget(parent)
+ImagesWidget::ImagesWidget(int maxGuesses)
 {
   for (int i = 0; i <= maxGuesses; ++i) {
     std::string fname = "icons/hangman";
-    fname += boost::lexical_cast<std::string>(i) + ".jpg";
-    WImage *theImage = new WImage(fname, this);
+    fname += std::to_string(i) + ".jpg";
+    WImage *theImage = addWidget(cpp14::make_unique<WImage>(fname));
     images_.push_back(theImage);
 
     // Although not necessary, we can avoid flicker (on konqueror)
@@ -27,7 +25,7 @@ ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
     theImage->hide();
   }
 
-  WImage *hurray = new WImage("icons/hangmanhurray.jpg", this);
+  WImage *hurray = addWidget(cpp14::make_unique<WImage>("icons/hangmanhurray.jpg"));
   hurray->hide();
   images_.push_back(hurray);
 

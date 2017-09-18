@@ -1,12 +1,12 @@
 #include "Session.h"
 
-#include <Wt/Auth/Dbo/AuthInfo>
-#include <Wt/Auth/Dbo/UserDatabase>
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/PasswordService>
-#include <Wt/Auth/PasswordVerifier>
-#include <Wt/Auth/HashFunction>
-#include <Wt/Auth/PasswordStrengthValidator>
+#include <Wt/Auth/Dbo/AuthInfo.h>
+#include <Wt/Auth/Dbo/UserDatabase.h>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/PasswordVerifier.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/Auth/PasswordStrengthValidator.h>
 
 #include "User.h"
 #include "IssuedToken.h"
@@ -26,20 +26,21 @@ void Session::configureAuth()
   myAuthService.setAuthTokensEnabled(true, "logincookie");
   myAuthService.setEmailVerificationEnabled(true);
 
-  Wt::Auth::PasswordVerifier *verifier = new Wt::Auth::PasswordVerifier();
-  verifier->addHashFunction(new Wt::Auth::BCryptHashFunction());
-  myPasswordService.setVerifier(verifier);
+  auto verifier = Wt::cpp14::make_unique<Wt::Auth::PasswordVerifier>();
+  verifier->addHashFunction(Wt::cpp14::make_unique<Wt::Auth::BCryptHashFunction>());
+  myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setAttemptThrottlingEnabled(true);
 //  myPasswordService.setStrengthValidator
-//    (new Wt::Auth::PasswordStrengthValidator());
+//    (Wt::cpp14::make_unique<Wt::Auth::PasswordStrengthValidator>());
 }
 
 Session::Session(const std::string& db)
-  : connection_(db)
 {
-  connection_.setProperty("show-queries", "true");
+  auto connection = Wt::cpp14::make_unique<Wt::Dbo::backend::Sqlite3>(db);
 
-  setConnection(connection_);
+  connection->setProperty("show-queries", "true");
+
+  setConnection(std::move(connection));
   mapClass<User>("user");
   mapClass<IssuedToken>("issued_token");
   mapClass<OAuthClient>("oauth_client");
@@ -55,12 +56,7 @@ Session::Session(const std::string& db)
     std::cerr << "Using existing database";
   }
 
-  users_ = new OidcUserDatabase(*this);
-}
-
-Session::~Session()
-{
-  delete users_;
+  users_ = Wt::cpp14::make_unique<OidcUserDatabase>(*this);
 }
 
 Wt::Auth::AbstractUserDatabase& Session::users()
@@ -82,7 +78,7 @@ Wt::Dbo::ptr<User> Session::user(const Wt::Auth::User& authUser)
   Wt::Dbo::ptr<User> user = authInfo->user();
 
   if (!user) {
-    user = add(new User());
+    user = addNew<User>();
     authInfo.modify()->setUser(user);
   }
   return user;

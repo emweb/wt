@@ -10,12 +10,10 @@
 #include "PlannerApplication.h"
 #include "Entry.h"
 
-#include <boost/lexical_cast.hpp>
+#include <Wt/WDate.h>
+#include <Wt/WText.h>
 
-#include <Wt/WDate>
-#include <Wt/WText>
-
-using namespace Wt;
+#include <string>
 
 CalendarCell::CalendarCell()
   : WContainerWidget()
@@ -39,12 +37,12 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
   dbo::Transaction transaction(session);
   
   WString day;
-  day += boost::lexical_cast<std::string>(date.day());
+  day += std::to_string(date.day());
   if (date.day() == 1)
     day += " " + WDate::longMonthName(date.month());
-  WText* header = new WText(day);
+  auto header = cpp14::make_unique<WText>(day);
   header->setStyleClass("cell-header");
-  addWidget(header);
+  addWidget(std::move(header));
 
   typedef dbo::collection< dbo::ptr<Entry> > Entries;
   Entries entries = user->entriesInRange(date, date.addDays(1));
@@ -54,20 +52,19 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
   for (Entries::const_iterator i = entries.begin();
        i != entries.end(); ++i, ++counter) {
     if (counter == maxEntries) {
-      WText* extra = 
-	new WText(tr("calendar.cell.extra")
+      auto extra =
+        cpp14::make_unique<WText>(tr("calendar.cell.extra")
 		  .arg((int)(entries.size() - maxEntries)));
-      extra->setStyleClass("cell-extra");
-      addWidget(extra);
+      auto extraPtr = addWidget(std::move(extra));
+      extraPtr->setStyleClass("cell-extra");
 
-      extra->clicked().preventPropagation();
-      extra->clicked().connect(this, &CalendarCell::showAllEntriesDialog);
-      
+      extraPtr->clicked().preventPropagation();
+      extraPtr->clicked().connect(this, &CalendarCell::showAllEntriesDialog);
       break;
     }
 
     WString format = EntryDialog::timeFormat;
-    addWidget(new WText((*i)->start.toString(format) +
+    addWidget(cpp14::make_unique<WText>((*i)->start.toString(format) +
 			"-" + 
 			(*i)->stop.toString(format) + 
 			": " + (*i)->summary));
@@ -81,8 +78,8 @@ void CalendarCell::showEntryDialog()
   WString title =
     tr("calendar.entry.title").arg(date_.toString("ddd, d MMM yyyy"));
 
-  EntryDialog* ed = new EntryDialog(title, this);
-  ed->show();
+    dialog_ = cpp14::make_unique<EntryDialog>(title, this);
+    dialog_->show();
 }
 
 void CalendarCell::showAllEntriesDialog()
@@ -91,6 +88,6 @@ void CalendarCell::showAllEntriesDialog()
     tr("calendar.cell.all-entries.title")
     .arg(date_.toString("ddd, d MMM yyyy"));
   
-  AllEntriesDialog* dialog = new AllEntriesDialog(title, this);
-  dialog->show();
+  dialog_ = cpp14::make_unique<AllEntriesDialog>(title, this);
+  dialog_->show();
 }

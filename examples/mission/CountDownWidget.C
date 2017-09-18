@@ -4,27 +4,26 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
-
-#include <Wt/WTimer>
+#include <Wt/WTimer.h>
 #include "CountDownWidget.h"
+#include <string>
+#include <algorithm>
 
-CountDownWidget::CountDownWidget(int start, int stop, unsigned msec,
-				 WContainerWidget *parent)
-  : WText(parent),
-    done_(this),
+CountDownWidget::CountDownWidget(int start, int stop, std::chrono::milliseconds msec)
+  : WText(),
+    done_(),
     start_(start),
     stop_(stop)
 {
   stop_ = std::min(start_ - 1, stop_);  // stop must be smaller than start
   current_ = start_;
 
-  timer_ = new WTimer(this);
+  timer_ = cpp14::make_unique<WTimer>();
   timer_->setInterval(msec);
   timer_->timeout().connect(this, &CountDownWidget::timerTick);
   timer_->start();
 
-  setText(boost::lexical_cast<std::string>(current_));
+  setText(std::to_string(current_));
 }
 
 void CountDownWidget::cancel()
@@ -34,7 +33,7 @@ void CountDownWidget::cancel()
 
 void CountDownWidget::timerTick()
 {
-  setText(boost::lexical_cast<std::string>(--current_));
+  setText(std::to_string(--current_));
 
   if (current_ <= stop_) {
     timer_->stop();

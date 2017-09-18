@@ -930,7 +930,7 @@ this.scrollHistory = function() {
         // Scroll to the top, which may be overriden by scrollIntoView (if the hash
         // exists somewhere as an object ID)
         //console.log("scrollHistory: new page scroll strategy");
-        // window.scrollTo(0, 0);
+        window.scrollTo(0, 0);
         WT.scrollIntoView(window.history.state.state);
       }
     }
@@ -1298,7 +1298,7 @@ this.IEwidth = function(c, min, max) {
 this.hide = function(o) { WT.getElement(o).style.display = 'none'; };
 this.inline = function(o) { WT.getElement(o).style.display = 'inline'; };
 this.block = function(o) { WT.getElement(o).style.display = 'block'; };
-this.show = function(o) { WT.getElement(o).style.display = ''; };
+this.show = function(o, s) { WT.getElement(o).style.display = s; };
 
 var captureElement = null;
 this.firedTarget = null;

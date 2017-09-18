@@ -7,9 +7,11 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/Json>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/Json.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
+
+#include <Wt/WGlobal.h>
 
 namespace dbo = Wt::Dbo;
 
@@ -220,11 +222,10 @@ struct JsonDboFixture
       logged = true;
     }
 
-    dbo::backend::Sqlite3 *sqlite3 = new dbo::backend::Sqlite3(":memory:");
-    connection_ = sqlite3;
+    std::unique_ptr<dbo::SqlConnection> sqlite3(new dbo::backend::Sqlite3(":memory:"));
 
-    session_ = new dbo::Session();
-    session_->setConnection(*connection_);
+    session_ = std::unique_ptr<dbo::Session>(new dbo::Session());
+    session_->setConnection(std::move(sqlite3));
 
     session_->mapClass<User>("user");
     session_->mapClass<Post>("post");
@@ -241,13 +242,9 @@ struct JsonDboFixture
   ~JsonDboFixture()
   {
     session_->dropTables();
-
-    delete session_;
-    delete connection_;
   }
 
-  dbo::SqlConnection *connection_;
-  dbo::Session *session_;
+  std::unique_ptr<dbo::Session> session_;
 };
 
 BOOST_AUTO_TEST_CASE( dbo_json_empty_test )
@@ -259,14 +256,14 @@ BOOST_AUTO_TEST_CASE( dbo_json_empty_test )
   {
     dbo::Transaction transaction(session);
 
-    Empty *empty = new Empty();
+    std::unique_ptr<Empty> empty{new Empty()};
     
     std::stringstream ss;
     dbo::jsonSerialize(*empty, ss);
 
     BOOST_REQUIRE_EQUAL(ss.str(), "{}");
 
-    dbo::ptr<Empty> emptyPtr = session.add(empty);
+    dbo::ptr<Empty> emptyPtr = session.add(std::move(empty));
   }
 
   dbo::Transaction transaction(session);
@@ -288,13 +285,13 @@ BOOST_AUTO_TEST_CASE( dbo_json_empty_and_null_test )
   {
     dbo::Transaction transaction(session);
 
-    User *user = new User();
+    std::unique_ptr<User> user{new User()};
     user->name = "John";
     user->password = "Something";
     user->role = User::Alien;
     user->karma = 13;
 
-    session.add(user);
+    session.add(std::move(user));
   }
 
   dbo::Transaction transaction(session);
@@ -320,7 +317,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_surrogate_id_test )
   {
     dbo::Transaction transaction(session);
 
-    hasSurrogate = session.add(new HasSurrogate());
+    hasSurrogate = session.add(Wt::cpp14::make_unique<HasSurrogate>());
     hasSurrogate.modify()->foo = "bar";
   }
 
@@ -344,7 +341,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_natural_id_test )
   {
     dbo::Transaction transaction(session);
 
-    hasNatural = session.add(new HasNatural());
+    hasNatural = session.add(Wt::cpp14::make_unique<HasNatural>());
     hasNatural.modify()->myNaturalId = "Nature!";
     hasNatural.modify()->foo = "bar";
   }
@@ -369,7 +366,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_composite_key_test )
   {
     dbo::Transaction transaction(session);
 
-    hasCoordinateId = session.add(new HasCoordinateId());
+    hasCoordinateId = session.add(Wt::cpp14::make_unique<HasCoordinateId>());
     hasCoordinateId.modify()->position = Coordinate(3, 4);
     hasCoordinateId.modify()->name = "foo";
   }
@@ -393,13 +390,13 @@ BOOST_AUTO_TEST_CASE( dbo_json_complex_test )
   {
     dbo::Transaction transaction(session);
 
-    User *user = new User();
+    auto user = Wt::cpp14::make_unique<User>();
     user->name = "Joe";
     user->password = "Secret";
     user->role = User::Visitor;
     user->karma = 13;
 
-    dbo::ptr<User> userPtr = session.add(user);
+    dbo::ptr<User> userPtr = session.add(std::move(user));
   }
 
   dbo::ptr<Post> post;
@@ -409,12 +406,12 @@ BOOST_AUTO_TEST_CASE( dbo_json_complex_test )
 
     dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
 
-    post = session.add(new Post());
+    post = session.add(Wt::cpp14::make_unique<Post>());
     post.modify()->user = joe;
     post.modify()->body = "Lorem ipsum dolor sit amet \"escape me\" something something";
     post.modify()->title = "Hello";
 
-    nestedThing = session.add(new NestedThing());
+    nestedThing = session.add(Wt::cpp14::make_unique<NestedThing>());
     nestedThing.modify()->one = 1;
     nestedThing.modify()->two = 2;
     nestedThing.modify()->three = 3;
@@ -426,7 +423,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_complex_test )
 
     dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
 
-    dbo::ptr<Settings> settings = session.add(new Settings());
+    dbo::ptr<Settings> settings = session.add(Wt::cpp14::make_unique<Settings>());
     settings.modify()->theme = "fancy-pink";
     joe.modify()->settings = settings;
   }

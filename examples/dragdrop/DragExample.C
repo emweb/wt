@@ -1,10 +1,8 @@
 #include "DragExample.h"
 #include "Character.h"
-#include <Wt/WEnvironment>
-#include <Wt/WImage>
-#include <Wt/WApplication>
-
-using namespace Wt;
+#include <Wt/WEnvironment.h>
+#include <Wt/WImage.h>
+#include <Wt/WApplication.h>
 
 /**
  * \defgroup dragexample Drag and Drop example
@@ -20,9 +18,9 @@ WImage *createDragImage(const char *url, const char *smallurl,
 			const char *mimeType,
 			WContainerWidget *p)
 {
-  WImage *result = new WImage(url, p);
-  WImage *dragImage = new WImage(smallurl, p);
-  dragImage->setMargin(-15, Left | Top);
+  WImage *result = p->addWidget(cpp14::make_unique<WImage>(url));
+  WImage *dragImage = p->addWidget(cpp14::make_unique<WImage>(smallurl));
+  dragImage->setMargin(-15, Side::Left | Side::Top);
 
   /*
    * Set the image to be draggable, showing the other image (dragImage)
@@ -33,19 +31,19 @@ WImage *createDragImage(const char *url, const char *smallurl,
   return result;
 }
 
-DragExample::DragExample(WContainerWidget *parent):
-  WContainerWidget(parent)
+DragExample::DragExample():
+  WContainerWidget()
 {
-  new WText("<p>Help these people with their decision by dragging one of "
-	    "the pills.</p>", this);
+  this->addWidget(cpp14::make_unique<WText>("<p>Help these people with their decision by dragging one of "
+            "the pills.</p>"));
 
   if (!wApp->environment().javaScript()) {
-    new WText("<i>This examples requires that javascript support is "
-	      "enabled.</i>", this);
+    this->addWidget(cpp14::make_unique<WText>("<i>This examples requires that javascript support is "
+              "enabled.</i>"));
   }
 
-  WContainerWidget *pills = new WContainerWidget(this);
-  pills->setContentAlignment(AlignCenter);
+  WContainerWidget *pills = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  pills->setContentAlignment(AlignmentFlag::Center);
 
   createDragImage("icons/blue-pill.jpg",
 		  "icons/blue-pill-small.png",
@@ -54,11 +52,11 @@ DragExample::DragExample(WContainerWidget *parent):
 		  "icons/red-pill-small.png",
 		  "red-pill", pills);
 
-  WContainerWidget *dropSites = new WContainerWidget(this);
+  WContainerWidget *dropSites = this->addWidget(cpp14::make_unique<WContainerWidget>());
 
-  new Character("Neo", dropSites);
-  new Character("Morpheus", dropSites);
-  new Character("Trinity", dropSites);
+  dropSites->addWidget(cpp14::make_unique<Character>("Neo"));
+  dropSites->addWidget(cpp14::make_unique<Character>("Morpheus"));
+  dropSites->addWidget(cpp14::make_unique<Character>("Trinity"));
 
 }
 

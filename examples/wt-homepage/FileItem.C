@@ -6,3 +6,7 @@
  */
 
 #include "FileItem.h"
+
+const Wt::ItemDataRole FileItem::ContentsRole = ItemDataRole::User;
+const Wt::ItemDataRole FileItem::FilePathRole = ItemDataRole::User + 1;
+const Wt::ItemDataRole FileItem::FileNameRole = ItemDataRole::User + 2;

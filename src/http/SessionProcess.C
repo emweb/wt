@@ -16,7 +16,7 @@
 #include <signal.h>
 #endif // WT_WIN32
 
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 
 namespace Wt {
   LOGGER("wthttp/proxy");
@@ -42,8 +42,8 @@ SessionProcess::SessionProcess(asio::io_service &io_service)
 void SessionProcess::closeClientSocket()
 {
   if (socket_.get()) {
-    boost::system::error_code ignored_ec;
-    socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    Wt::AsioWrapper::error_code ignored_ec;
+    socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket_->close();
     socket_.reset();
   }
@@ -68,10 +68,10 @@ void SessionProcess::stop()
 }
 
 void SessionProcess::asyncExec(const Configuration &config,
-			       boost::function<void (bool)> onReady)
+			       const std::function<void (bool)>& onReady)
 {
   asio::ip::tcp::endpoint endpoint(asio::ip::address_v4::loopback(), 0);
-  boost::system::error_code ec;
+  Wt::AsioWrapper::error_code ec;
   acceptor_->open(endpoint.protocol(), ec);
   if (!ec)
     acceptor_->set_option(asio::ip::tcp::acceptor::reuse_address(true), ec);
@@ -84,42 +84,44 @@ void SessionProcess::asyncExec(const Configuration &config,
 #endif // !WT_WIN32
   if (ec) {
     LOG_ERROR("Couldn't create listening socket: " << ec.message());
-    if (!onReady.empty()) {
+    if (!onReady) {
       onReady(false);
       return;
     }
   }
-  acceptor_->async_accept(*socket_,
-      boost::bind(&SessionProcess::acceptHandler, shared_from_this(),
-	asio::placeholders::error, onReady));
-  LOG_DEBUG("Listening to child process on port " << acceptor_->local_endpoint(ec).port());
+  acceptor_->async_accept
+    (*socket_, std::bind(&SessionProcess::acceptHandler, shared_from_this(),
+			 std::placeholders::_1, onReady));
+  LOG_DEBUG("Listening to child process on port " 
+	    << acceptor_->local_endpoint(ec).port());
 
   exec(config, onReady);
 }
 
-void SessionProcess::acceptHandler(const boost::system::error_code& err,
-				   boost::function<void (bool)> onReady)
+void SessionProcess::acceptHandler(const Wt::AsioWrapper::error_code& err,
+				   const std::function<void (bool)>& onReady)
 {
   if (!err) {
     acceptor_.reset();
-    asio::async_read(*socket_, asio::buffer(buf_, 5),
-	boost::bind(&SessionProcess::readPortHandler, shared_from_this(),
-	  asio::placeholders::error,
-	  asio::placeholders::bytes_transferred,
-	  onReady));
+    asio::async_read
+      (*socket_, asio::buffer(buf_, 5),
+       std::bind(&SessionProcess::readPortHandler, shared_from_this(),
+		 std::placeholders::_1,
+		 std::placeholders::_2,
+		 onReady));
   }
 }
 
-void SessionProcess::readPortHandler(const boost::system::error_code& err,
+void SessionProcess::readPortHandler(const Wt::AsioWrapper::error_code& err,
 				     std::size_t transferred,
-				     boost::function<void (bool)> onReady)
+				     const std::function<void (bool)>& onReady)
 {
   if (!err || err == asio::error::eof || err == asio::error::shut_down) {
     closeClientSocket();
     buf_[transferred] = '\0';
     port_ = atoi(buf_);
     LOG_DEBUG("Child is listening on port " << port_);
-    if (!onReady.empty()) {
+    if (onReady) {
       onReady(true);
     }
   }
@@ -188,11 +190,11 @@ void appendArgToCmdLine(const std::string &arg, std::wstring &commandLine)
 #endif // WT_WIN32
 
 void SessionProcess::exec(const Configuration& config,
-			  boost::function<void (bool)> onReady)
+			  const std::function<void (bool)>& onReady)
 {
 #ifndef WT_WIN32
   std::string parentPortOption = std::string("--parent-port=")
-    + boost::lexical_cast<std::string>(acceptor_->local_endpoint().port());
+    + std::to_string(acceptor_->local_endpoint().port());
   const std::vector<std::string> &options = config.options();
   const char **c_options = new const char*[options.size() + 2];
   std::size_t i = 0;
@@ -204,16 +206,15 @@ void SessionProcess::exec(const Configuration& config,
   c_options[i] = 0;
 
 #if BOOST_VERSION >= 104700
-  io_service_.notify_fork(boost::asio::io_service::fork_prepare);
+  io_service_.notify_fork(asio::io_service::fork_prepare);
 #endif
 
   pid_ = fork();
   if (pid_ < 0) {
     LOG_ERROR("failed to fork dedicated session process, error code: " << errno);
     stop();
-    if (!onReady.empty()) {
+    if (onReady)
       onReady(false);
-    }
     return;
   } else if (pid_ == 0) {
     /* child process */
@@ -248,7 +249,7 @@ void SessionProcess::exec(const Configuration& config,
   } else {
     /* parent process */
 #if BOOST_VERSION >= 104700
-    io_service_.notify_fork(boost::asio::io_service::fork_parent);
+    io_service_.notify_fork(asio::io_service::fork_parent);
 #endif
   }
 
@@ -276,7 +277,7 @@ void SessionProcess::exec(const Configuration& config,
       0, 0, 0, &startupInfo, &processInfo_)) {
     LOG_ERROR("failed to start dedicated session process, error code: " << GetLastError());
     stop();
-    if (!onReady.empty()) {
+    if (onReady) {
       onReady(false);
     }
   }

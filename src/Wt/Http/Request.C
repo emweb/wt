@@ -9,16 +9,15 @@
 #include <unistd.h>
 #endif
 
-#include "Wt/Http/Request"
-#include "Wt/Utils"
-#include "Wt/WEnvironment"
-#include "Wt/WSslInfo"
+#include "Wt/Http/Request.h"
+#include "Wt/Utils.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WSslInfo.h"
 #include "WebUtils.h"
 #include "WebRequest.h"
-#include "Message"
+#include "Message.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 
 namespace {
@@ -100,7 +99,7 @@ const std::string *get(const ParameterMap& map, const std::string& name)
   if (i != map.end())
     return &i->second[0];
   else
-    return 0;
+    return nullptr;
 }
 
 const ParameterValues& Request::getParameterValues(const std::string& name)
@@ -119,7 +118,7 @@ const std::string *Request::getParameter(const std::string& name) const
   if (!Utils::isEmpty(v))
     return &v[0];
   else
-    return 0;
+    return nullptr;
 }
 
 const UploadedFile *Request::getUploadedFile(const std::string& name) const
@@ -128,7 +127,7 @@ const UploadedFile *Request::getUploadedFile(const std::string& name) const
   if (i != files_.end())
     return &i->second;
   else
-    return 0;
+    return nullptr;
 }
 
 std::string Request::method() const
@@ -270,10 +269,10 @@ Request::ByteRangeSpecifier Request::getRanges(const std::string &rangeHdr,
           uint64_t startInt=0, endInt=0;
           try {
             if (start != "")
-              startInt = boost::lexical_cast<uint64_t>(start);
+              startInt = Utils::stoll(start);
             if (end != "")
-              endInt = boost::lexical_cast<uint64_t>(end);
-          } catch (boost::bad_lexical_cast &) {
+              endInt = Utils::stoll(end);
+          } catch (std::exception& ) {
             // syntactically invalid
             syntaxError = true;
           }
@@ -350,7 +349,7 @@ Request::Request(const WebRequest& request, ResponseContinuation *continuation)
     parameters_(request.getParameterMap()),
     files_(request.uploadedFiles()),
     continuation_(continuation),
-    sslInfo_(0)
+    sslInfo_(nullptr)
 {
   if (!continuation) {
     const char *cookie = request_->headerValue("Cookie");
@@ -360,11 +359,11 @@ Request::Request(const WebRequest& request, ResponseContinuation *continuation)
 }
 
 Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)
-  : request_(0),
+  : request_(nullptr),
     parameters_(parameters),
     files_(files),
     continuation_(0),
-    sslInfo_(0)
+    sslInfo_(nullptr)
 { }
 
 Request::~Request()
@@ -419,7 +418,7 @@ const std::string *Request::getCookieValue(const std::string& cookieName) const
   CookieMap::const_iterator i = cookies_.find(cookieName);
 
   if (i == cookies_.end())
-    return 0;
+    return nullptr;
   else
     return &i->second;
 }

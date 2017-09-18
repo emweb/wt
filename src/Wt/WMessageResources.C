@@ -7,15 +7,13 @@
 #include <fstream>
 #include <cstring>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/scoped_array.hpp>
-
-#include "Wt/WLocale"
-#include "Wt/WLogger"
-#include "Wt/WMessageResources"
-#include "Wt/WStringStream"
+#include "Wt/WLocale.h"
+#include "Wt/WLogger.h"
+#include "Wt/WMessageResources.h"
+#include "Wt/WStringStream.h"
 
 #include "DomElement.h"
+#include "WebUtils.h"
 
 #include "3rdparty/rapidxml/rapidxml.hpp"
 #include "3rdparty/rapidxml/rapidxml_print.hpp"
@@ -35,8 +33,6 @@ using namespace Wt::rapidxml;
 #include <boost/spirit/include/classic_attribute.hpp>
 #include <boost/spirit/include/phoenix1_binders.hpp>
 #endif
-
-#include <boost/bind.hpp>
 
 namespace {
 
@@ -241,8 +237,7 @@ namespace {
 	(std::string(x_node->name(), x_node->name_size()))) {
       // We need to add an emtpy data node since <div /> is illegal HTML
       // (but valid XML / XHTML)
-      xml_node<> *empty
-	= x_node->document()->allocate_node(node_data, 0, 0, 0, 0);
+      xml_node<> *empty	= x_node->document()->allocate_node(node_data);
       x_node->append_node(empty);
     }
   }
@@ -254,8 +249,8 @@ namespace {
     return out;
   }
 
-  std::string readElementContent(xml_node<> *x_parent, 
-				 boost::scoped_array<char> &buf) 
+  std::string readElementContent(xml_node<> *x_parent,
+				 std::unique_ptr<char[]>& buf) 
   {
     char *ptr = buf.get();
 
@@ -279,8 +274,8 @@ namespace {
 
   int attributeValueToInt(xml_attribute<> *x_attribute)
   {
-    return boost::lexical_cast<int>(std::string(x_attribute->value(), 
-						x_attribute->value_size()));
+    return Utils::stoi(std::string(x_attribute->value(),
+				 x_attribute->value_size()));
   }
 }
 
@@ -291,106 +286,99 @@ LOGGER("WMessageResources");
 WMessageResources::WMessageResources(const std::string& path,
 				     bool loadInMemory)
   : loadInMemory_(loadInMemory),
-    loaded_(false),
     path_(path),
-    builtin_(0)
+    builtin_(nullptr)
 { }
 
 WMessageResources::WMessageResources(const char *builtin)
   : loadInMemory_(true),
-    loaded_(false),
-    path_(""),
     builtin_(builtin)
 {
   std::istringstream s(builtin,  std::ios::in | std::ios::binary);
-  readResourceStream(s, defaults_, "<internal resource bundle>");
-  loaded_ = true;
+  readResourceStream(s, resources_[""], "<internal resource bundle>");
 }
 
-std::set<std::string> 
-WMessageResources::keys(WFlags<WMessageResourceBundle::Scope> scope) const
+std::set<std::string> WMessageResources::keys(const WLocale& locale) const
 {
+  load(locale);
+
   std::set<std::string> keys;
-  
-  KeyValuesMap::const_iterator it;
 
-  if (scope & WMessageResourceBundle::Local)
-    for (it = local_.map_.begin() ; it != local_.map_.end(); it++)
-      keys.insert((*it).first);
-
-  if (scope & WMessageResourceBundle::Default)
-    for (it = defaults_.map_.begin() ; it != defaults_.map_.end(); it++)
-      keys.insert((*it).first);
+  for (auto& r : resources_) {
+    if (r.first == locale.name()) {
+      for (auto& k : r.second.map_)
+	keys.insert(k.first);
+      break;
+    }
+  }
 
   return keys;
 }
 
-void WMessageResources::refresh()
+void WMessageResources::load(const WLocale& locale) const
 {
   if (!path_.empty()) {
-    defaults_.map_.clear();
+    Resource& target = resources_[locale.name()];
+    std::string l = locale.name();
 
-    if (!readResourceFile("", defaults_))
-      LOG_ERROR("Could not read: " << path_ << ".xml");
+    target.map_.clear();
 
-    local_.map_.clear();
-    std::string locale = WLocale::currentLocale().name();
+    for (;;) {
+      if (readResourceFile(l, target))
+	break;
 
-    if (!locale.empty())
-      for(;;) {
-        if (readResourceFile(locale, local_))
-          break;
-
-        /* try a lesser specified variant */
-        std::string::size_type l = locale.rfind('-');
-        if (l != std::string::npos)
-          locale.erase(l);
-        else
-          break;
+      /* try a lesser specified variant */
+      std::string::size_type i = l.rfind('-');
+      if (i != std::string::npos)
+	l.erase(i);
+      else {
+	if (locale.name().empty())
+	  LOG_ERROR("Could not load resource bundle: " << path_ << ".xml");
+	break;
       }
-
-      loaded_ = true;
+    }
   }
 }
 
 void WMessageResources::hibernate()
 {
   if (!loadInMemory_) {
-    defaults_.map_.clear();
-    local_.map_.clear();
-    loaded_ = false;
+    resources_.clear();
   }
 }
 
-bool WMessageResources::resolveKey(const std::string& key, std::string& result)
+LocalizedString WMessageResources::resolveKey(const WLocale& locale, const std::string& key)
+  const
 {
-  if (!loaded_)
-    refresh();
+  LocalizedString result = resolve(locale.name(), key);
+  if (result)
+    return result;
 
-  KeyValuesMap::const_iterator j;
+  return resolve(std::string(), key);
+}
 
-  j = local_.map_.find(key);
-  if (j != local_.map_.end()) {
+LocalizedString WMessageResources::resolve(const std::string& locale, const std::string& key)
+  const
+{
+  if (resources_.find(locale) == resources_.end())
+    load(locale);
+  
+  const Resource& res = resources_[locale];
+
+  KeyValuesMap::const_iterator j = res.map_.find(key);
+  if (j != res.map_.end()) {
     if (j->second.size() > 1 )
-      return false;
-    result = j->second[0];
-    return true;
+      return LocalizedString{};
+    return LocalizedString{j->second[0], TextFormat::XHTML};
   }
 
-  j = defaults_.map_.find(key);
-  if (j != defaults_.map_.end()) {
-    if (j->second.size() > 1 )
-      return false;
-    result = j->second[0];
-    return true;
-  }
-
-  return false;
+  return LocalizedString{};
 }
 
 std::string WMessageResources::findCase(const std::vector<std::string> &cases, 
 					std::string pluralExpression,
 					::uint64_t amount)
+  const
 {
 #ifdef WT_NO_SPIRIT
   throw WException("WString::trn() requires the spirit library.");
@@ -400,7 +388,7 @@ std::string WMessageResources::findCase(const std::vector<std::string> &cases,
   if (c > (int)cases.size() - 1 || c < 0) {
     WStringStream error;
     error << "Expression '" << pluralExpression << "' evaluates to '" 
-	  << c << "' for n=" << boost::lexical_cast<std::string>(amount);
+	  << c << "' for n=" << std::to_string(amount);
     
     if (c < 0) 
       error << " and values smaller than 0 are not allowed.";
@@ -415,36 +403,38 @@ std::string WMessageResources::findCase(const std::vector<std::string> &cases,
 #endif // WT_NO_SPIRIT
 }
 
-bool WMessageResources::resolvePluralKey(const std::string& key, 
-					 std::string& result, 
-					 ::uint64_t amount)
+LocalizedString WMessageResources::resolvePluralKey(const WLocale& locale,
+					 const std::string& key, 
+					 ::uint64_t amount) const
 {
-  if (!loaded_)
-    refresh();
+  LocalizedString result = resolvePlural(locale.name(), key, amount);
+  if (result)
+    return result;
 
-  KeyValuesMap::const_iterator j;
+  return resolvePlural(std::string(), key, amount);
+}
 
-  j = local_.map_.find(key);
-  if (j != local_.map_.end()) {
-    if (j->second.size() != local_.pluralCount_ )
-      return false;
-    result = findCase(j->second, local_.pluralExpression_, amount);
-    return true;
-  }
+LocalizedString WMessageResources::resolvePlural(const std::string& locale,
+				      const std::string& key,
+				      ::uint64_t amount) const
+{
+  if (resources_.find(locale) == resources_.end())
+    load(locale);  
 
-  j = defaults_.map_.find(key);
-  if (j != defaults_.map_.end()) {
-    if (j->second.size() != defaults_.pluralCount_)
-      return false;
-    result = findCase(j->second, defaults_.pluralExpression_, amount);
-    return true;
-  }
+  Resource& res = resources_[locale];
 
-  return false;
+  KeyValuesMap::const_iterator j = res.map_.find(key);
+  if (j != res.map_.end()) {
+    if (j->second.size() != res.pluralCount_ )
+      return LocalizedString{};
+    std::string result = findCase(j->second, res.pluralExpression_, amount);
+    return LocalizedString{result, TextFormat::XHTML};
+  } else
+    return LocalizedString{};
 }
 
 bool WMessageResources::readResourceFile(const std::string& locale,
-				         Resource& resource)
+				         Resource& resource) const
 {
   if (!path_.empty()) {
     std::string fileName
@@ -459,7 +449,7 @@ bool WMessageResources::readResourceFile(const std::string& locale,
 
 bool WMessageResources::readResourceStream(std::istream &s,
 					   Resource& resource,
-                                           const std::string &fileName)
+                                           const std::string &fileName) const
 {
   if (!s)
     return false;
@@ -485,11 +475,11 @@ bool WMessageResources::readResourceStream(std::istream &s,
     }
   }
 
-  boost::scoped_array<char> text
+  std::unique_ptr<char[]> text
     (new char[encoding == UTF8 ? length + 1 : (length-2)*2 + 1]);
 
   if (encoding != UTF8) {
-    // Transcode from UTF16 stream to UTF8 text
+    // Transcode from UTF16 stream to CharEncoding::UTF8 text
     const int BUFSIZE = 2048;
     unsigned char buf[BUFSIZE];
 
@@ -575,7 +565,7 @@ bool WMessageResources::readResourceStream(std::istream &s,
     }
 
     // factor 2 in case we expanded <span/> to <span></span>
-    boost::scoped_array<char> buf(new char[length * 2]);
+    std::unique_ptr<char[]> buf(new char[length * 2]);
 
     for (xml_node<> *x_message = x_root->first_node("message");
 	 x_message; x_message = x_message->next_sibling("message")) {
@@ -632,7 +622,8 @@ bool WMessageResources::readResourceStream(std::istream &s,
   return true;
 }
 
-int WMessageResources::evalPluralCase(const std::string &expression, ::uint64_t n)
+int WMessageResources::evalPluralCase(const std::string &expression,
+				      ::uint64_t n)
 {
   int result = 0;
 

@@ -4,25 +4,26 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WPointF>
-#include <Wt/Chart/WChartPalette>
-#include <Wt/Chart/WDataSeries>
-#include <Wt/Chart/WCartesianChart>
+#include <Wt/WPointF.h>
+#include <Wt/Chart/WChartPalette.h>
+#include <Wt/Chart/WDataSeries.h>
+#include <Wt/Chart/WCartesianChart.h>
 
 namespace Wt {
   namespace Chart {
 
 WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
-  : chart_(0),
-    model_(0),
+  : chart_(nullptr),
+    model_(nullptr),
     modelColumn_(modelColumn),
     XSeriesColumn_(-1),
     stacked_(false),
     type_(type),
     axis_(axis),
-    customFlags_(0),
-    fillRange_(NoFill),
-    marker_(type == PointSeries ? CircleMarker : NoMarker),
+    customFlags_(None),
+    fillRange_(FillRangeType::None),
+    marker_(type == SeriesType::Point ? 
+	    MarkerType::Circle : MarkerType::None),
     markerSize_(6),
     legend_(true),
     xLabel_(false),
@@ -34,68 +35,6 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     offsetDirty_(true),
     scaleDirty_(true)
 { }
-
-WDataSeries::WDataSeries(const WDataSeries &other)
-  : chart_(0),
-    model_(other.model_),
-    modelColumn_(other.modelColumn_),
-    XSeriesColumn_(other.XSeriesColumn_),
-    stacked_(other.stacked_),
-    type_(other.type_),
-    axis_(other.axis_),
-    customFlags_(other.customFlags_),
-    pen_(other.pen_),
-    markerPen_(other.markerPen_),
-    brush_(other.brush_),
-    markerBrush_(other.markerBrush_),
-    labelColor_(other.labelColor_),
-    shadow_(other.shadow_),
-    fillRange_(other.fillRange_),
-    marker_(other.marker_),
-    markerSize_(other.markerSize_),
-    legend_(other.legend_),
-    xLabel_(other.xLabel_),
-    yLabel_(other.yLabel_),
-    barWidth_(other.barWidth_),
-    hidden_(other.hidden_),
-    customMarker_(other.customMarker_),
-    offset_(other.offset_),
-    scale_(other.scale_),
-    offsetDirty_(true),
-    scaleDirty_(true)
-{ }
-
-WDataSeries &WDataSeries::operator=(const WDataSeries &rhs)
-{
-  model_ = rhs.model_;
-  modelColumn_ = rhs.modelColumn_;
-  XSeriesColumn_ = rhs.XSeriesColumn_;
-  stacked_ = rhs.stacked_;
-  type_ = rhs.type_;
-  axis_ = rhs.axis_;
-  customFlags_ = rhs.customFlags_;
-  pen_ = rhs.pen_;
-  markerPen_ = rhs.markerPen_;
-  brush_ = rhs.brush_;
-  markerBrush_ = rhs.markerBrush_;
-  labelColor_ = rhs.labelColor_;
-  shadow_ = rhs.shadow_;
-  fillRange_ = rhs.fillRange_;
-  marker_ = rhs.marker_;
-  markerSize_ = rhs.markerSize_;
-  legend_ = rhs.legend_;
-  xLabel_ = rhs.xLabel_;
-  yLabel_ = rhs.yLabel_;
-  barWidth_ = rhs.barWidth_;
-  hidden_ = rhs.hidden_;
-  customMarker_ = rhs.customMarker_;
-  offset_ = rhs.offset_;
-  scale_ = rhs.scale_;
-  offsetDirty_ = true;
-  scaleDirty_ = true;
-
-  return *this;
-}
 
 void WDataSeries::setBarWidth(const double width) 
 {
@@ -136,7 +75,7 @@ void WDataSeries::setPen(const WPen& pen)
 {
   set(pen_, pen);
 
-  customFlags_ |= CustomPen;
+  customFlags_ |= CustomFlag::Pen;
 }
 
 void WDataSeries::setShadow(const WShadow& shadow)
@@ -151,11 +90,11 @@ const WShadow& WDataSeries::shadow() const
 
 WPen WDataSeries::pen() const
 {
-  if (customFlags_ & CustomPen)
+  if (customFlags_.test(CustomFlag::Pen))
     return pen_;
   else
     if (chart_)
-      if (type_ == BarSeries)
+      if (type_ == SeriesType::Bar)
 	return chart_->palette()
 	  ->borderPen(chart_->seriesIndexOf(*this));
       else
@@ -163,8 +102,8 @@ WPen WDataSeries::pen() const
 	  ->strokePen(chart_->seriesIndexOf(*this));
     else {
       WPen defaultPen;
-      defaultPen.setCapStyle(RoundCap);
-      defaultPen.setJoinStyle(RoundJoin);
+      defaultPen.setCapStyle(PenCapStyle::Round);
+      defaultPen.setJoinStyle(PenJoinStyle::Round);
       return defaultPen;
     }
 }
@@ -173,12 +112,12 @@ void WDataSeries::setBrush(const WBrush& brush)
 {
   set(brush_, brush);
 
-  customFlags_ |= CustomBrush;
+  customFlags_ |= CustomFlag::Brush;
 }
 
 WBrush WDataSeries::brush() const
 {
-  if (customFlags_ & CustomBrush)
+  if (customFlags_.test(CustomFlag::Brush))
     return brush_;
   else
     if (chart_)
@@ -189,20 +128,20 @@ WBrush WDataSeries::brush() const
 
 WColor WDataSeries::labelColor() const
 {
-  if (customFlags_ & CustomLabelColor)
+  if (customFlags_.test(CustomFlag::LabelColor))
     return labelColor_;
   else
     if (chart_)
       return chart_->palette()->fontColor(chart_->seriesIndexOf(*this));
     else
-      return black;
+      return StandardColor::Black;
 }
 
 void WDataSeries::setLabelColor(const WColor& color)
 {
   set(labelColor_, color);
 
-  customFlags_ |= CustomLabelColor;
+  customFlags_ |= CustomFlag::LabelColor;
 }
 
 void WDataSeries::setFillRange(FillRangeType fillRange)
@@ -212,8 +151,8 @@ void WDataSeries::setFillRange(FillRangeType fillRange)
 
 FillRangeType WDataSeries::fillRange() const
 {
-  if (type_ == BarSeries && fillRange_ == NoFill)
-    return ZeroValueFill;
+  if (type_ == SeriesType::Bar && fillRange_ == FillRangeType::None)
+    return FillRangeType::ZeroValue;
   else
     return fillRange_;
 }
@@ -225,7 +164,7 @@ void WDataSeries::setMarker(MarkerType marker)
 
 void WDataSeries::setCustomMarker(const WPainterPath& path)
 {
-  set(marker_, CustomMarker);
+  set(marker_, MarkerType::Custom);
 
   customMarker_ = path;
 }
@@ -239,12 +178,12 @@ void WDataSeries::setMarkerPen(const WPen& pen)
 {
   set(markerPen_, pen);
 
-  customFlags_ |= CustomMarkerPen;
+  customFlags_ |= CustomFlag::MarkerPen;
 }
 
 WPen WDataSeries::markerPen() const
 {
-  if (customFlags_ & CustomMarkerPen)
+  if (customFlags_.test(CustomFlag::MarkerPen))
     return markerPen_;
   else
     return pen();
@@ -254,12 +193,12 @@ void WDataSeries::setMarkerBrush(const WBrush& brush)
 {
   set(markerBrush_, brush);
 
-  customFlags_ |= CustomMarkerBrush;
+  customFlags_ |= CustomFlag::MarkerBrush;
 }
 
 WBrush WDataSeries::markerBrush() const
 {
-  if (customFlags_ & CustomMarkerBrush)
+  if (customFlags_.test(CustomFlag::MarkerBrush))
     return markerBrush_;
   else
     return brush();
@@ -280,7 +219,7 @@ bool WDataSeries::isLegendEnabled() const
 
 void WDataSeries::setLabelsEnabled(Axis axis, bool enabled)
 {
-  if (axis == XAxis)
+  if (axis == Axis::X)
     xLabel_ = enabled;
   else
     yLabel_ = enabled;
@@ -290,7 +229,7 @@ void WDataSeries::setLabelsEnabled(Axis axis, bool enabled)
 
 bool WDataSeries::isLabelsEnabled(Axis axis) const
 {
-  return axis == XAxis ? xLabel_ : yLabel_;
+  return axis == Axis::X ? xLabel_ : yLabel_;
 }
 
 void WDataSeries::setHidden(bool hidden)
@@ -322,8 +261,7 @@ WPointF WDataSeries::mapFromDevice(const WPointF& deviceCoordinates) const
     return WPointF();
 }
 
-WPointF WDataSeries::mapToDevice(const boost::any& xValue,
-				 const boost::any& yValue,
+WPointF WDataSeries::mapToDevice(const cpp17::any& xValue, const cpp17::any& yValue,
 				 int segment) const
 {
   if (chart_)
@@ -355,20 +293,22 @@ void WDataSeries::setScale(double scale)
   scaleDirty_ = true;
 }
 
-void WDataSeries::setModel(const WAbstractChartModel *model)
+void WDataSeries::setModel(const std::shared_ptr<WAbstractChartModel>& model)
 {
   model_ = model;
   if (chart_)
     chart_->update();
 }
 
-const WAbstractChartModel *WDataSeries::model() const
+std::shared_ptr<WAbstractChartModel> WDataSeries::model() const
 {
   if (model_)
     return model_;
+
   if (chart_)
     return chart_->model();
-  return 0;
+
+  return nullptr;
 }
 
   }

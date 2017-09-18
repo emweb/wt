@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "PasswordStrengthValidator"
-#include "Wt/WString"
+#include "PasswordStrengthValidator.h"
+#include "Wt/WString.h"
 
 extern "C" {
   #include "passwdqc.h"
@@ -63,7 +63,7 @@ PasswordStrengthValidator::evaluateStrength(const WT_USTRING& password,
   user.pw_name = login_utf8.c_str();
   user.pw_email = email.c_str();
   
-  int index = passwdqc_check(&params, password.toUTF8().c_str(), 0, &user);
+  int index = passwdqc_check(&params, password.toUTF8().c_str(), nullptr, &user);
 
   WString message 
     = WString::tr(std::string("Wt.Auth.passwdqc.reason-") + reasons[index]);
@@ -74,9 +74,10 @@ PasswordStrengthValidator::evaluateStrength(const WT_USTRING& password,
   return result;
 }
 
-void PasswordStrengthValidator::setMinimumLength(PasswordType type, int length)
+void PasswordStrengthValidator::setMinimumLength(PasswordStrengthType type,
+						 int length)
 {
-  minLength_[type] = length;
+  minLength_[static_cast<int>(type)] = length;
 }
 
 void PasswordStrengthValidator::setMinimumPassPhraseWords(int words)

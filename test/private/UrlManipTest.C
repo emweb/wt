@@ -5,8 +5,8 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/WApplication>
-#include <Wt/Test/WTestEnvironment>
+#include <Wt/WApplication.h>
+#include <Wt/Test/WTestEnvironment.h>
 
 using namespace Wt;
 using namespace Wt::Test;

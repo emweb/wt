@@ -3,7 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WException>
+#include <Wt/WException.h>
 #include "FCGIRecord.h"
 
 #include <unistd.h>
@@ -18,14 +18,12 @@ using std::memcpy;
 
 FCGIRecord::FCGIRecord()
   : good_(false),
-    contentData_(0),
-    plainTextBuf_(0)
+    contentData_(nullptr),
+    plainTextBuf_(nullptr)
 { }
 
 FCGIRecord::FCGIRecord(short requestId, char version)
-  : good_(true),
-    contentData_(0),
-    plainTextBuf_(0)
+  : FCGIRecord()
 {
   plainTextBufLength_ = 8 + 8;
   plainTextBuf_ = (unsigned char *) malloc(plainTextBufLength_ * sizeof(char));
@@ -57,9 +55,9 @@ void FCGIRecord::clear()
   if (plainTextBuf_)
     free(plainTextBuf_);
 
-  contentData_ = 0;
+  contentData_ = nullptr;
   plainTextBufLength_ = 0;
-  plainTextBuf_ = 0;
+  plainTextBuf_ = nullptr;
   plainTextLength_ = 0;
 }
 

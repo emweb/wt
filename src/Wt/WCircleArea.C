@@ -4,9 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WCircleArea"
-#include "Wt/WPoint"
-#include "Wt/WPointF"
+#include "Wt/WCircleArea.h"
+#include "Wt/WPoint.h"
+#include "Wt/WPointF.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"

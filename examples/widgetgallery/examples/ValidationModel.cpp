@@ -1,20 +1,17 @@
-#include <Wt/WBoostAny>
-#include <Wt/WFormModel>
-#include <Wt/WIntValidator>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WValidator>
-#include <Wt/WTemplateFormView>
+#include <Wt/WFormModel.h>
+#include <Wt/WIntValidator.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WValidator.h>
+#include <Wt/WTemplateFormView.h>
 
 class AgeFormModel : public Wt::WFormModel
 {
 public:
-    // in C++11:
-    // static constexpr Field AgeField = "age";
-    static Field AgeField;
+    static constexpr Field AgeField = "age";
 
     // inline constructor
-    AgeFormModel(Wt::WObject *parent = 0) : Wt::WFormModel(parent)
+    AgeFormModel() : WFormModel()
     {
         addField(AgeField);
         setValidator(AgeField, createAgeValidator());
@@ -22,57 +19,53 @@ public:
     }
 
 private:
-    Wt::WValidator *createAgeValidator() {
-        Wt::WIntValidator *v = new Wt::WIntValidator(0, 150);
-        return v;
+    std::shared_ptr<Wt::WValidator> createAgeValidator() {
+        return std::make_shared<Wt::WIntValidator>(0, 150);
     }
 };
-
-Wt::WFormModel::Field AgeFormModel::AgeField = "age";
 
 class AgeFormView : public Wt::WTemplateFormView
 {
 public:
     // inline constructor
     AgeFormView() {
-        model_ = new AgeFormModel(this);
+        model_ = Wt::cpp14::make_unique<AgeFormModel>();
 
         setTemplateText(tr("validation-template"));
 
-	setFormWidget(AgeFormModel::AgeField, new Wt::WLineEdit());
+        setFormWidget(AgeFormModel::AgeField, Wt::cpp14::make_unique<Wt::WLineEdit>());
 
-        Wt::WPushButton *button = new Wt::WPushButton("Save");
-        bindWidget("button", button);
+        auto button = bindWidget("button",
+                                 Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
 
         button->clicked().connect(this, &AgeFormView::process);
 
-        updateView(model_);
+        updateView(model_.get());
     }
 
 private:
     void process() {
-        updateModel(model_);
+        updateModel(model_.get());
         if (model_->validate()) {
             // Udate the view: Delete any validation message in the view, etc.
-            updateView(model_);
+            updateView(model_.get());
             bindString("age-info",
                        Wt::WString("Age of {1} is saved!")
-		       .arg(Wt::asString
-			    (model_->value(AgeFormModel::AgeField))));
+                       .arg(Wt::asString(model_->value(AgeFormModel::AgeField))));
         } else {
-            updateView(model_);
+            updateView(model_.get());
             // Set the focus on the line edit.
             Wt::WLineEdit *viewField =
-                       resolve<Wt::WLineEdit*>(AgeFormModel::AgeField);
+                       resolve<Wt::WLineEdit *>(AgeFormModel::AgeField);
             viewField->setFocus(true);
         }
     }
 
-    AgeFormModel *model_;
+    std::unique_ptr<AgeFormModel> model_;
 };
 
 SAMPLE_BEGIN(ValidationModel)
 
-AgeFormView *view = new AgeFormView();
+auto view = Wt::cpp14::make_unique<AgeFormView>();
 
-SAMPLE_END(return view)
+SAMPLE_END(return std::move(view))

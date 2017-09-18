@@ -8,23 +8,24 @@
 #include "OptionList.h"
 #include "Option.h"
 
-OptionList::OptionList(WContainerWidget *parent)
-  : WContainerWidget(parent),
+OptionList::OptionList()
+  : WContainerWidget(),
     optionNeedReset_(0)
 {
-  resize(WLength::Auto, WLength(2.5, WLength::FontEx));
+  resize(WLength::Auto, WLength(2.5, LengthUnit::FontEx));
 }
 
-void OptionList::add(Option *option)
+void OptionList::add(std::unique_ptr<Option> option)
 {
-  addWidget(option);
-  option->setOptionList(this);
+  Option *optionPtr = option.get();
+  addWidget(std::move(option));
+  optionPtr->setOptionList(this);
 
   if (!options_.empty()) {
     options_.back()->addSeparator();
   }
 
-  options_.push_back(option);
+  options_.push_back(optionPtr);
 }
 
 void OptionList::update()

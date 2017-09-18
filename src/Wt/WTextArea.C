@@ -3,12 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
-
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WStringUtil"
-#include "Wt/WTextArea"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WStringUtil.h"
+#include "Wt/WTextArea.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -17,9 +15,8 @@ namespace Wt {
 
 const char *WTextArea::INPUT_SIGNAL = "input";
 
-WTextArea::WTextArea(WContainerWidget *parent)
-  : WFormWidget(parent),
-    cols_(20),
+WTextArea::WTextArea()
+  : cols_(20),
     rows_(5),
     contentChanged_(false),
     attributesChanged_(false)
@@ -28,9 +25,8 @@ WTextArea::WTextArea(WContainerWidget *parent)
   setFormObject(true);
 }
 
-WTextArea::WTextArea(const WT_USTRING& text, WContainerWidget *parent)
-  : WFormWidget(parent),
-    content_(text),
+WTextArea::WTextArea(const WT_USTRING& text)
+  : content_(text),
     cols_(20),
     rows_(5),
     contentChanged_(false),
@@ -55,14 +51,14 @@ void WTextArea::setColumns(int columns)
 {
   cols_ = columns;
   attributesChanged_ = true;
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 void WTextArea::setRows(int rows)
 {
   rows_ = rows;
   attributesChanged_ = true;
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 void WTextArea::resetContentChanged()
@@ -72,17 +68,15 @@ void WTextArea::resetContentChanged()
 
 void WTextArea::updateDom(DomElement& element, bool all)
 {
-  if (element.type() == DomElement_TEXTAREA)
+  if (element.type() == DomElementType::TEXTAREA)
     if (contentChanged_ || all) {
-      element.setProperty(Wt::PropertyValue, content_.toUTF8());
+      element.setProperty(Property::Value, content_.toUTF8());
       contentChanged_ = false;
     }
 
   if (attributesChanged_ || all) {
-    element.setAttribute("cols",
-			 boost::lexical_cast<std::string>(cols_));
-    element.setAttribute("rows",
-			 boost::lexical_cast<std::string>(rows_));
+    element.setAttribute("cols", std::to_string(cols_));
+    element.setAttribute("rows", std::to_string(rows_));
 
     attributesChanged_ = false;
   }
@@ -100,7 +94,7 @@ void WTextArea::propagateRenderOk(bool deep)
 
 DomElementType WTextArea::domElementType() const
 {
-  return DomElement_TEXTAREA;
+  return DomElementType::TEXTAREA;
 }
 
 void WTextArea::setFormData(const FormData& formData)

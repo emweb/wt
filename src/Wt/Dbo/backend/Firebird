@@ -1,133 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
- *
- * Originally contributed by Lukasz Matuszewski
  */
-#ifndef _WT_DBO_BACKEND_FIREBIRD_
-#define _WT_DBO_BACKEND_FIREBIRD_
-
-#include <Wt/Dbo/SqlConnection>
-#include <Wt/Dbo/SqlStatement>
-#include <Wt/Dbo/backend/WDboFirebirdDllDefs.h>
-
-namespace IBPP {
-  class IDatabase;
-  template<class T>
-  class Ptr;
-  typedef Ptr<IDatabase> Database;
-}
-
-namespace Wt {
-  namespace Dbo {
-    namespace backend {
-      class Firebird_impl;
-
-      /*! \class Firebird Wt/Dbo/backend/Firebird
-       *  \brief A %Firebird connection
-       *
-       * This class provides the backend implementation for %Firebird
-       * databases. It supports %Firebird databases with version 2.1
-       * or higher.
-       *
-       * \ingroup dbo
-       */
-      class WTDBOFIREBIRD_API Firebird : public SqlConnection
-      {
-      public:
-        /*! \brief Creates a %Firebird backend connection.
-         *
-         * The connection is not yet open, and requires a connect() before it
-         * can be used.
-         */
-        Firebird();
-
-        /*! \brief Creates and opens a %Firebird backend connection.
-         */
-        Firebird(const std::string& ServerName,
-		 const std::string& DatabaseName, 
-		 const std::string& UserName,
-		 const std::string& UserPassword, 
-		 const std::string& RoleName,
-		 const std::string& CharSet = std::string(), 
-		 const std::string& CreateParams = std::string());
-
-	/*! \brief Creates and opens a %Firebird backend connection.
-	 */
-        Firebird(IBPP::Database db);
-
-        /*! \brief Copy constructor.
-	 *
-	 * This creates a new backend connection with the same settings
-	 * as another connection.
-         */
-        Firebird(const Firebird& other);
-	
-        /*! \brief Destructor.
-         *
-         * Closes the connection.
-         */
-        virtual ~Firebird();
-
-	/*! \brief Tries to connect.
-         *
-         * Throws an exception if there was a problem, otherwise
-         * returns \c true.
-         */
-	bool connect(const std::string& ServerName,
-		     const std::string& DatabaseName, 
-		     const std::string& UserName,
-		     const std::string& UserPassword, 
-		     const std::string& RoleName,
-		     const std::string& CharSet = std::string(), 
-		     const std::string& CreateParams = std::string());
-
-        virtual Firebird *clone() const;
-
-        /*! \brief Returns the underlying connection handle.
-         */
-        IBPP::Database connection();
-
-        virtual void startTransaction();
-        virtual void commitTransaction();
-        virtual void rollbackTransaction();
-	
-        virtual SqlStatement *prepareStatement(const std::string& sql);
-
-        /** @name Methods that return dialect information
-         */
-        //@{
-        virtual std::string autoincrementSql() const;
-        virtual std::vector<std::string> 
-	  autoincrementCreateSequenceSql(const std::string &table,
-					 const std::string &id) const;
-	virtual std::vector<std::string> 
-	  autoincrementDropSequenceSql(const std::string &table,
-				       const std::string &id) const;
-        virtual std::string autoincrementType() const;
-        virtual std::string autoincrementInsertSuffix(const std::string& id) const;
-        virtual const char *dateTimeType(SqlDateTimeType type) const;
-        virtual const char *blobType() const;
-        virtual std::string textType(int size) const;
-        virtual const char *booleanType() const;
-	virtual LimitQuery limitQueryMethod() const;
-	virtual bool supportAlterTable() const;
-        virtual bool usesRowsFromTo() const {return false;}
-	//@}
- 
-	virtual void prepareForDropTables();
-	
-      private:
-	Firebird_impl          *impl_;
-        bool                    m_writableTransaction;
-
-	friend class FirebirdStatement;
-      };
-    }
-  }
-}
-
-#endif /* _WT_DBO_BACKEND_FIREBIRD_ */
-
+#ifndef WT_DBO_BACKEND_FIREBIRD_EXTENSIONLESS_H_
+#define WT_DBO_BACKEND_FIREBIRD_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use Firebird.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use Firebird.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "Firebird.h"
+#endif // WT_DBO_BACKEND_FIREBIRD_EXTENSIONLESS_H_

@@ -1,122 +1,18 @@
-
-#ifndef WTIME_VALIDATOR_H_
-#define WTIME_VALIDATOR_H_
-
-#include "Wt/WRegExpValidator"
-
-namespace Wt {
-
-/*! \class WTimeValidator Wt/WTimeValidator Wt/WTimeValidator
- *  \brief A time validator
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
- *  \sa WTimeEdit
- *  \sa WTime
- *  \sa WTimePicker
- *
+ * See the LICENSE file for terms of use.
  */
-class WT_API WTimeValidator : public WRegExpValidator
-{
-public:
-	/*! \brief Creates a new WTimeValidator
-	 */
-    WTimeValidator(WObject *parent = 0);
-
-	/*! \brief Creates a new WTimeValidator
-	 */
-    WTimeValidator(const WT_USTRING &format, WObject *parent = 0);
-
-    /*! \brief Creates a new WTimeValidator
-     *
-     * The validator will accept only times within the indicated range
-     * <i>bottom</i> to <i>top</i>, in the time formate \p format
-     */
-    WTimeValidator(const WT_USTRING &format, const WTime &bottom,
-                   const WTime &top, WObject *parent = 0);
-
-    /*! \brief Sets the validator format
-	 * \sa WTime::toString()
-	 */
-    void setFormat(const WT_USTRING &format);
-
-    /*! \brief Returns the validator current format
-	 */
-    virtual WT_USTRING format() const { return formats_[0]; }
-
-    /*! \brief Sets the time formats used to parse time strings
-     */
-    void setFormats(const std::vector<WT_USTRING> &formats);
-
-    /*! \brief Returns the time formats used to parse time strings
-     */
-    const std::vector<WT_USTRING>& formats() const { return formats_;}
-
-    /*! \brief Sets the lower limit of the valid time range
-     *
-     * The default is a null time constructed using WTime()
-     */
-    void setBottom(const WTime &bottom);
-
-    /*! \brief Returns the lower limit of the valid time range
-     */
-    const WTime& bottom() const { return bottom_;}
-
-    /*! \brief Sets the upper limit of the valid time range
-     *
-     * The default is a null time constructed using WTime()
-     */
-    void setTop(const WTime &top);
-
-    /*! \brief Returns the upper limit of the valid time range
-     */
-    const WTime& top() const { return top_;}
-
-    /*! \brief Sets the message to display when the input is not a time
-     */
-    void setInvalidNotATimeText(const WString &text);
-
-    /*! \brief Returns the message displayed when the input is not a time
-     */
-    WString invalidNotATimeText() const;
-
-    /*! \brief Sets the message to display when the time is earlier than bottom
-     */
-    void setInvalidTooEarlyText(const WString &text);
-
-    /*! \brief Returns the message displayed when time is too early
-     */
-    WString invalidTooEarlyText() const;
-
-    /*! \brief Sets the message to display when the time is later than top
-     */
-    void setInvalidTooLateText(const WString &text);
-
-    /*! \brief Returns the message displayed when time is too late
-     */
-    WString invalidTooLateText() const;
-
-    /*! \brief Validates the given input
-     *
-     * The input is considered valid only when it is blank for a
-     * non-mandatory field, or represents a time in the given format,
-     * and within the valid range.
-     */
-    virtual Result validate(const WT_USTRING &input) const;
-
-    virtual std::string javaScriptValidate() const;
-
-private:
-
-    std::vector<WT_USTRING> formats_;
-    WTime bottom_, top_;
-
-    WString tooEarlyText_;
-    WString tooLateText_;
-    WString notATimeText_;
-
-    static void loadJavaScript(WApplication *app);
-
-};
-
-}
-
-#endif // WTIME_VALIDATOR_H_
+#ifndef WT_WTIMEVALIDATOR_EXTENSIONLESS_H_
+#define WT_WTIMEVALIDATOR_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WTimeValidator.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WTimeValidator.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WTimeValidator.h"
+#endif // WT_WTIMEVALIDATOR_EXTENSIONLESS_H_

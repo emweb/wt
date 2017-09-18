@@ -1,59 +1,61 @@
-#include <Wt/WButtonGroup>
-#include <Wt/WContainerWidget>
-#include <Wt/WRadioButton>
-#include <Wt/WString>
-#include <Wt/WText>
+#include <Wt/WButtonGroup.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WRadioButton.h>
+#include <Wt/WString.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(RadioButtonsActivated)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
-Wt::WButtonGroup *group = new Wt::WButtonGroup(container);
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto group = std::make_shared<Wt::WButtonGroup>();
 
 Wt::WRadioButton *rb;
 
-rb = new Wt::WRadioButton("sleeping", container);
+rb = container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("sleeping"));
 rb->setInline(false);
 group->addButton(rb, 1);
 
-rb = new Wt::WRadioButton("eating", container);
+rb = container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("eating"));
 rb->setInline(false);
 group->addButton(rb, 2);
 
-rb = new Wt::WRadioButton("driving", container);
+rb = container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("driving"));
 rb->setInline(false);
 group->addButton(rb, 3);
 
-rb = new Wt::WRadioButton("learning Wt", container);
+rb = container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("learning Wt"));
 rb->setInline(false);
 group->addButton(rb, 4);
 
 group->setSelectedButtonIndex(0); // Select the first button by default.
 
-Wt::WText *out = new Wt::WText(container);
+Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-group->checkedChanged().connect(std::bind([=] (Wt::WRadioButton *selection) {
+// Use a raw pointer inside the lambda to prevent memory leak
+auto rawGroup = group.get();
+group->checkedChanged().connect([=] (Wt::WRadioButton *selection) {
     Wt::WString text;
 
-    switch (group->id(selection)) {
-    case 1: text = Wt::WString::fromUTF8("You checked button {1}.")
-	    .arg(group->checkedId());
+    switch (rawGroup->id(selection)) {
+    case 1: text = Wt::WString("You checked button {1}.")
+            .arg(rawGroup->checkedId());
 	break;
 
-    case 2: text = Wt::WString::fromUTF8("You selected button {1}.")
-	    .arg(group->checkedId());
+    case 2: text = Wt::WString("You selected button {1}.")
+            .arg(rawGroup->checkedId());
 	break;
 
-    case 3: text = Wt::WString::fromUTF8("You clicked button {1}.")
-	    .arg(group->checkedId());
+    case 3: text = Wt::WString("You clicked button {1}.")
+            .arg(rawGroup->checkedId());
 	break;
     }
 
-    text += Wt::WString::fromUTF8("... Are your really {1} now?")
+    text += Wt::WString("... Are your really {1} now?")
 	.arg(selection->text());
 
-    if (group->id(selection) == 4)
-	text = Wt::WString::fromUTF8("That's what I expected!");
+    if (rawGroup->id(selection) == 4)
+        text = Wt::WString("That's what I expected!");
 
-    out->setText(Wt::WString::fromUTF8("<p>") + text + "</p>");
-}, std::placeholders::_1));
+    out->setText(Wt::WString("<p>") + text + "</p>");
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

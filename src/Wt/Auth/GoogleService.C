@@ -1,4 +1,4 @@
-#include <Wt/Auth/GoogleService>
+#include "GoogleService.h"
 
 #define ERROR_MSG(e) WString::tr("Wt.Auth.GoogleService." e)
 
@@ -58,7 +58,6 @@ std::string GoogleService::redirectEndpointPath() const
     return OAuthService::redirectEndpointPath();
   }
 }
-
 
   }
 }

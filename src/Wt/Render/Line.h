@@ -7,7 +7,7 @@
 #ifndef RENDER_LINE_H_
 #define RENDER_LINE_H_
 
-#include <Wt/WGlobal>
+#include <Wt/WGlobal.h>
 #include <vector>
 
 namespace Wt {

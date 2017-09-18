@@ -4,14 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
-#include <sstream>
-
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
-#include "Wt/WGridLayout"
-#include "Wt/WLogger"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WGridLayout.h"
+#include "Wt/WLogger.h"
 
 #include "StdGridLayoutImpl2.h"
 #include "SizeHandle.h"
@@ -73,7 +70,7 @@ bool StdGridLayoutImpl2::itemResized(WLayoutItem *item)
 
   for (unsigned row = 0; row < rowCount; ++row)
     for (unsigned col = 0; col < colCount; ++col)
-      if (grid_.items_[row][col].item_ == item &&
+      if (grid_.items_[row][col].item_.get() == item &&
 	  !grid_.items_[row][col].update_) {
 	grid_.items_[row][col].update_ = true;
 	needAdjust_ = true;
@@ -122,7 +119,7 @@ int StdGridLayoutImpl2::nextColumnWithItem(int row, int col) const
 
 bool StdGridLayoutImpl2::hasItem(int row, int col) const
 {
-  WLayoutItem *item = grid_.items_[row][col].item_;
+  WLayoutItem *item = grid_.items_[row][col].item_.get();
 
   if (item) {
     WWidget *w = item->widget();
@@ -134,9 +131,9 @@ bool StdGridLayoutImpl2::hasItem(int row, int col) const
 DomElement *StdGridLayoutImpl2::createElement(WLayoutItem *item,
 					      WApplication *app)
 {
-  DomElement *c = getImpl(item)->createDomElement(true, true, app); 
+  DomElement *c = getImpl(item)->createDomElement(nullptr, true, true, app); 
 
-  c->setProperty(PropertyStyleVisibility, "hidden");
+  c->setProperty(Property::StyleVisibility, "hidden");
 
   return c;
 }
@@ -148,7 +145,7 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
   if (needConfigUpdate_) {
     needConfigUpdate_ = false;
 
-    DomElement *div = DomElement::getForUpdate(this, DomElement_DIV);
+    DomElement *div = DomElement::getForUpdate(this, DomElementType::DIV);
 
     for (unsigned i = 0; i < addedItems_.size(); ++i) {
       WLayoutItem *item = addedItems_[i];
@@ -216,7 +213,7 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
 
   for (unsigned i = 0; i < rowCount; ++i) {
     for (unsigned j = 0; j < colCount; ++j) {
-      WLayoutItem *item = grid_.items_[i][j].item_;
+      WLayoutItem *item = grid_.items_[i][j].item_.get();
       if (item) {
 	WLayout *nested = item->layout();
 	if (nested)
@@ -234,14 +231,14 @@ StdGridLayoutImpl2::~StdGridLayoutImpl2()
    * If it is a top-level layout (as opposed to a nested layout),
    * configure overflow of the container.
    */
-  if (parentLayoutImpl() == 0) {
+  if (parentLayoutImpl() == nullptr) {
     if (container() == app->root()) {
       app->setBodyClass("");
       app->setHtmlClass("");
     }
 
     if (app->environment().agentIsIElt(9) && container())
-      container()->setOverflow(WContainerWidget::OverflowVisible);
+      container()->setOverflow(Overflow::Visible);
   }
 }
 
@@ -251,7 +248,7 @@ int StdGridLayoutImpl2::minimumHeightForRow(int row) const
 
   const unsigned colCount = grid_.columns_.size();
   for (unsigned j = 0; j < colCount; ++j) {
-    WLayoutItem *item = grid_.items_[row][j].item_;
+    WLayoutItem *item = grid_.items_[row][j].item_.get();
     if (item)
       minHeight = std::max(minHeight, getImpl(item)->minimumHeight());
   }
@@ -265,7 +262,7 @@ int StdGridLayoutImpl2::minimumWidthForColumn(int col) const
 
   const unsigned rowCount = grid_.rows_.size();
   for (unsigned i = 0; i < rowCount; ++i) {
-    WLayoutItem *item = grid_.items_[i][col].item_;
+    WLayoutItem *item = grid_.items_[i][col].item_.get();
     if (item)
       minWidth = std::max(minWidth, getImpl(item)->minimumWidth());
   }
@@ -297,17 +294,13 @@ int StdGridLayoutImpl2::minimumHeight() const
   return total + (rowCount-1) * grid_.verticalSpacing_;
 }
 
-void StdGridLayoutImpl2::updateAddItem(WLayoutItem *item)
+void StdGridLayoutImpl2::itemAdded(WLayoutItem *item)
 {
-  StdLayoutImpl::updateAddItem(item);
-
   addedItems_.push_back(item);
 }
 
-void StdGridLayoutImpl2::updateRemoveItem(WLayoutItem *item)
+void StdGridLayoutImpl2::itemRemoved(WLayoutItem *item)
 {
-  StdLayoutImpl::updateRemoveItem(item);
-
   Utils::erase(addedItems_, item);
   removedItems_.push_back(getImpl(item)->id());
 }
@@ -317,40 +310,9 @@ void StdGridLayoutImpl2::update(WLayoutItem *item)
   WContainerWidget *c = container();
 
   if (c)
-    c->layoutChanged(false, false);
+    c->layoutChanged(false);
 
   needConfigUpdate_ = true;
-}
-
-void StdGridLayoutImpl2::containerAddWidgets(WContainerWidget *container)
-{
-  StdLayoutImpl::containerAddWidgets(container);
-
-  if (!container)
-    return;
-
-  WApplication *app = WApplication::instance();
-
-  /*
-   * If it is a top-level layout (as opposed to a nested layout),
-   * configure overflow of the container.
-   */
-  if (parentLayoutImpl() == 0) {
-    if (container == app->root()) {
-      /*
-       * Reset body,html default paddings and so on if we are doing layout
-       * in the entire document.
-       */
-      app->setBodyClass(app->bodyClass() + " Wt-layout");
-      app->setHtmlClass(app->htmlClass() + " Wt-layout");
-    }
-  }
-}
-
-void StdGridLayoutImpl2::setHint(const std::string& name,
-				 const std::string& value)
-{
-  LOG_ERROR("unrecognized hint '" << name << "'");
 }
 
 void StdGridLayoutImpl2
@@ -375,7 +337,7 @@ void StdGridLayoutImpl2
 
       if (size.isAuto())
 	js << "-1";
-      else if (size.unit() == WLength::Percentage)
+      else if (size.unit() == LengthUnit::Percentage)
 	js << size.value() << ",1";
       else
 	js << size.toPixels();
@@ -422,27 +384,29 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
 	js << ",";
 
       if (item.item_) {
-	std::string id = getImpl(item.item_)->id();
+	std::string id = getImpl(item.item_.get())->id();
 
 	js << "{";
 
 	if (item.colSpan_ != 1 || item.rowSpan_ != 1)
 	  js << "span: [" << item.colSpan_ << "," << item.rowSpan_ << "],";
 
-	if (item.alignment_) {
+	if (item.alignment_.value()) {
 	  unsigned align = 0;
 
-	  if (hAlign != 0) switch (hAlign) {
-	    case AlignLeft: align |= 0x1; break;
-	    case AlignRight: align |= 0x2; break;
-	    case AlignCenter: align |= 0x4; break;
+	  if (hAlign != static_cast<AlignmentFlag>(0))
+	    switch (hAlign) {
+	    case AlignmentFlag::Left: align |= 0x1; break;
+	    case AlignmentFlag::Right: align |= 0x2; break;
+	    case AlignmentFlag::Center: align |= 0x4; break;
 	    default: break;
 	    }
 
-	  if (vAlign != 0) switch (vAlign) {
-	    case AlignTop: align |= 0x10; break;
-	    case AlignBottom: align |= 0x20; break;
-	    case AlignMiddle: align |= 0x40; break;
+	  if (vAlign != static_cast<AlignmentFlag>(0))
+	    switch (vAlign) {
+	    case AlignmentFlag::Top: align |= 0x10; break;
+	    case AlignmentFlag::Bottom: align |= 0x20; break;
+	    case AlignmentFlag::Middle: align |= 0x40; break;
 	    default: break;
 	    }
 
@@ -464,7 +428,7 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
 
 int StdGridLayoutImpl2::pixelSize(const WLength& size)
 {
-  if (size.unit() == WLength::Percentage)
+  if (size.unit() == LengthUnit::Percentage)
     return 0;
   else
     return (int)size.toPixels();
@@ -472,11 +436,12 @@ int StdGridLayoutImpl2::pixelSize(const WLength& size)
 
 /*
  * fitWidth, fitHeight:
- *  - from setLayout(AlignLeft | AlignTop)
+ *  - from setLayout(AlignmentFlag::Left | AlignmentFlag::Top)
  *    is being deprecated but still needs to be implemented
  *  - nested layouts: handles as other layout items
  */
-DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
+DomElement *StdGridLayoutImpl2::createDomElement(DomElement *parent,
+						 bool fitWidth, bool fitHeight,
 						 WApplication *app)
 {
   needAdjust_ = needConfigUpdate_ = needRemeasure_ = false;
@@ -490,14 +455,27 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 
   int maxWidth = 0, maxHeight = 0;
 
-  if (layout()->parentLayout() == 0) {
+  if (layout()->parentLayout() == nullptr) {
+    /*
+     * If it is a top-level layout (as opposed to a nested layout),
+     * configure overflow of the container.
+     */
+    if (container() == app->root()) {
+      /*
+       * Reset body,html default paddings and so on if we are doing layout
+       * in the entire document.
+       */
+      app->setBodyClass(app->bodyClass() + " Wt-layout");
+      app->setHtmlClass(app->htmlClass() + " Wt-layout");
+    }
+
 #ifndef WT_TARGET_JAVA
     layout()->getContentsMargins(margin + 3, margin, margin + 1, margin + 2);
 #else // WT_TARGET_JAVA
-    margin[3] = layout()->getContentsMargin(Left);
-    margin[0] = layout()->getContentsMargin(Top);
-    margin[1] = layout()->getContentsMargin(Right);
-    margin[2] = layout()->getContentsMargin(Bottom);
+    margin[3] = layout()->getContentsMargin(Side::Left);
+    margin[0] = layout()->getContentsMargin(Side::Top);
+    margin[1] = layout()->getContentsMargin(Side::Right);
+    margin[2] = layout()->getContentsMargin(Side::Bottom);
 #endif // WT_TARGET_JAVA
 
     maxWidth = pixelSize(container()->maximumWidth());
@@ -511,7 +489,8 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
      << app->javaScriptClass() << ",'"
      << id() << "',";
 
-  if (layout()->parentLayout())
+  if (layout()->parentLayout() &&
+      dynamic_cast<StdGridLayoutImpl2*>(getImpl(layout()->parentLayout())))
     js << "'" << getImpl(layout()->parentLayout())->id() << "',";
   else
     js << "null,";
@@ -528,13 +507,13 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 
   streamConfig(js, app);
 
-  DomElement *div = DomElement::createNew(DomElement_DIV);
+  DomElement *div = DomElement::createNew(DomElementType::DIV);
   div->setId(id());
-  div->setProperty(PropertyStylePosition, "relative");
+  div->setProperty(Property::StylePosition, "relative");
 
-  DomElement *table = 0, *tbody = 0, *tr = 0;
+  DomElement *table = nullptr, *tbody = nullptr, *tr = nullptr;
   if (progressive) {
-    table = DomElement::createNew(DomElement_TABLE);
+    table = DomElement::createNew(DomElementType::TABLE);
 
     WStringStream style;
     if (maxWidth)
@@ -543,14 +522,14 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
       style << "max-height: " << maxHeight << "px;";
     style << "width: 100%;";
 
-    table->setProperty(PropertyStyle, style.str());
+    table->setProperty(Property::Style, style.str());
 
     int totalColStretch = 0;
     for (unsigned col = 0; col < colCount; ++col)
       totalColStretch += std::max(0, grid_.columns_[col].stretch_);
 
     for (unsigned col = 0; col < colCount; ++col) {
-      DomElement *c = DomElement::createNew(DomElement_COL);
+      DomElement *c = DomElement::createNew(DomElementType::COL);
       int stretch = std::max(0, grid_.columns_[col].stretch_);
 
       if (stretch || totalColStretch == 0) {
@@ -561,13 +540,13 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 
 	WStringStream ss;
 	ss << "width:" << Utils::round_css_str(pct, 2, buf) << "%;";
-	c->setProperty(PropertyStyle, ss.str());
+	c->setProperty(Property::Style, ss.str());
       }
 
       table->addChild(c);
     }
 
-    tbody = DomElement::createNew(DomElement_TBODY);
+    tbody = DomElement::createNew(DomElementType::TBODY);
   }
 
 #ifndef WT_TARGET_JAVA
@@ -581,7 +560,7 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 
   for (unsigned row = 0; row < rowCount; ++row) {
     if (table)
-      tr = DomElement::createNew(DomElement_TR);
+      tr = DomElement::createNew(DomElementType::TR);
 
     bool rowVisible = false;
     int prevColumnWithItem = -1;
@@ -598,13 +577,13 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 	AlignmentFlag hAlign = item.alignment_ & AlignHorizontalMask;
 	AlignmentFlag vAlign = item.alignment_ & AlignVerticalMask;
 
-	DomElement *td = 0;
+	DomElement *td = nullptr;
 
 	if (table) {
 	  bool itemVisible = hasItem(row, col);
 	  rowVisible = rowVisible || itemVisible;
 
-	  td = DomElement::createNew(DomElement_TD);
+	  td = DomElement::createNew(DomElementType::TD);
 
 	  if (itemVisible) {
 	    int padding[] = { 0, 0, 0, 0 };
@@ -637,7 +616,7 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 
 	    WStringStream style;
 
-	    if (app->layoutDirection() == RightToLeft)
+	    if (app->layoutDirection() == LayoutDirection::RightToLeft)
 	      std::swap(padding[1], padding[3]);
 
 	    if (padding[0] == padding[1] && padding[0] == padding[2]
@@ -649,64 +628,66 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 		    << padding[0] << "px " << padding[1] << "px "
 		    << padding[2] << "px " << padding[3] << "px;";
 
-	    if (vAlign != 0) switch (vAlign) {
-	      case AlignTop:
+	    if (static_cast<unsigned int>(vAlign) != 0)
+	      switch (vAlign) {
+	      case AlignmentFlag::Top:
 		style << "vertical-align:top;";
 		break;
-	      case AlignMiddle:
+	      case AlignmentFlag::Middle:
 		style << "vertical-align:middle;";
 		break;
-	      case AlignBottom:
+	      case AlignmentFlag::Bottom:
 		style << "vertical-align:bottom;";
 	      default:
 		break;
 	      }
 
-	    td->setProperty(PropertyStyle, style.str());
+	    td->setProperty(Property::Style, style.str());
 
 	    if (item.rowSpan_ != 1)
-	      td->setProperty(PropertyRowSpan,
-			      boost::lexical_cast<std::string>(item.rowSpan_));
+	      td->setProperty(Property::RowSpan,
+			      std::to_string(item.rowSpan_));
 	    if (item.colSpan_ != 1)
-	      td->setProperty(PropertyColSpan,
-			      boost::lexical_cast<std::string>(item.colSpan_));
+	      td->setProperty(Property::ColSpan,
+			      std::to_string(item.colSpan_));
 
 	    prevColumnWithItem = col;
 	  }
 	}
 
-	DomElement *c = 0;
+	DomElement *c = nullptr;
 
 	if (!table) {
 	  if (item.item_) {
-	    c = createElement(item.item_, app);
+	    c = createElement(item.item_.get(), app);
 	    div->addChild(c);
 	  }
 	} else
 	  if (item.item_)
-	    c = getImpl(item.item_)->createDomElement(true, true, app);
+	    c = getImpl(item.item_.get())->createDomElement(nullptr, true,
+							    true, app);
 
 	if (table) {
 	  if (c) {
 	    if (!app->environment().agentIsIElt(9))
-	      c->setProperty(PropertyStyleBoxSizing, "border-box");
+	      c->setProperty(Property::StyleBoxSizing, "border-box");
 
-	    if (hAlign == 0)
-	      hAlign = AlignJustify;
+	    if (static_cast<unsigned int>(hAlign) == 0)
+	      hAlign = AlignmentFlag::Justify;
 
 	    switch (hAlign) {
-	    case AlignCenter: {
-	      DomElement *itable = DomElement::createNew(DomElement_TABLE);
-	      itable->setProperty(PropertyClass, "Wt-hcenter");
-	      if (vAlign == 0)
-		itable->setProperty(PropertyStyle, "height:100%;");
-	      DomElement *irow = DomElement::createNew(DomElement_TR);
-	      DomElement *itd = DomElement::createNew(DomElement_TD);
-	      if (vAlign == 0)
-		itd->setProperty(PropertyStyle, "height:100%;");
+	    case AlignmentFlag::Center: {
+	      DomElement *itable = DomElement::createNew(DomElementType::TABLE);
+	      itable->setProperty(Property::Class, "Wt-hcenter");
+	      if (static_cast<unsigned int>(vAlign) == 0)
+		itable->setProperty(Property::Style, "height:100%;");
+	      DomElement *irow = DomElement::createNew(DomElementType::TR);
+	      DomElement *itd = DomElement::createNew(DomElementType::TD);
+	      if (static_cast<unsigned int>(vAlign) == 0)
+		itd->setProperty(Property::Style, "height:100%;");
 
 	      bool haveMinWidth
-		= !c->getProperty(PropertyStyleMinWidth).empty();
+		= !c->getProperty(Property::StyleMinWidth).empty();
 
 	      itd->addChild(c);
 
@@ -716,10 +697,10 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 		//  see http://stackoverflow.com/questions/2356525
 		//            /css-min-width-in-ie6-7-and-8
 		if (haveMinWidth) {
-		  DomElement *spacer = DomElement::createNew(DomElement_DIV);
-		  spacer->setProperty(PropertyStyleWidth,
-				      c->getProperty(PropertyStyleMinWidth));
-		  spacer->setProperty(PropertyStyleHeight, "1px");
+		  DomElement *spacer = DomElement::createNew(DomElementType::DIV);
+		  spacer->setProperty(Property::StyleWidth,
+				      c->getProperty(Property::StyleMinWidth));
+		  spacer->setProperty(Property::StyleHeight, "1px");
 		  itd->addChild(spacer);
 		}
 	      }
@@ -729,24 +710,24 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 	      c = itable;
 	      break;
 	    }
-	    case AlignRight:
+	    case AlignmentFlag::Right:
 	      if (!c->isDefaultInline())
-		c->setProperty(PropertyStyleFloat, "right");
+		c->setProperty(Property::StyleFloat, "right");
 	      else
-		td->setProperty(PropertyStyleTextAlign, "right");
+		td->setProperty(Property::StyleTextAlign, "right");
 	      break;
-	    case AlignLeft:
+	    case AlignmentFlag::Left:
 	      if (!c->isDefaultInline())
-		c->setProperty(PropertyStyleFloat, "left");
+		c->setProperty(Property::StyleFloat, "left");
 	      else
-		td->setProperty(PropertyStyleTextAlign, "left");
+		td->setProperty(Property::StyleTextAlign, "left");
 	      break;
 	    default:
 	      break;
 	    }
 
 	    bool haveMinWidth
-		= !c->getProperty(PropertyStyleMinWidth).empty();
+		= !c->getProperty(Property::StyleMinWidth).empty();
 
 	    td->addChild(c);
 
@@ -756,10 +737,10 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 	      //  see http://stackoverflow.com/questions/2356525
 	      //            /css-min-width-in-ie6-7-and-8
 	      if (haveMinWidth) {
-		DomElement *spacer = DomElement::createNew(DomElement_DIV);
-		spacer->setProperty(PropertyStyleWidth,
-				    c->getProperty(PropertyStyleMinWidth));
-		spacer->setProperty(PropertyStyleHeight, "1px");
+		DomElement *spacer = DomElement::createNew(DomElementType::DIV);
+		spacer->setProperty(Property::StyleWidth,
+				    c->getProperty(Property::StyleMinWidth));
+		spacer->setProperty(Property::StyleHeight, "1px");
 		td->addChild(spacer);
 	      }
 	    }
@@ -772,7 +753,7 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 
     if (tr) {
       if (!rowVisible)
-	tr->setProperty(PropertyStyleDisplay, "hidden");
+	tr->setProperty(Property::StyleDisplay, "hidden");
       else
 	prevRowWithItem = row;
       tbody->addChild(tr);
@@ -787,6 +768,58 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
   }
 
   div->callJavaScript(js.str());
+
+  if (layout()->parentLayout() == nullptr) {
+    WContainerWidget *c = container();
+
+    /*
+     * Take the hint: if the container is relative, then we can use an absolute
+     * layout for its contents, under the assumption that a .wtResize or
+     * auto-javascript sets the width too (like in WTreeView, WTableView)
+     */
+    if (c->positionScheme() == PositionScheme::Relative ||
+	c->positionScheme() == PositionScheme::Absolute) {
+      div->setProperty(Property::StylePosition, "absolute");
+      div->setProperty(Property::StyleLeft, "0");
+      div->setProperty(Property::StyleRight, "0");
+    } else if (app->environment().agentIsIE()) {
+      /*
+       * position: relative element needs to be in a position: relative
+       * parent otherwise scrolling is broken
+       */
+      if (app->environment().agentIsIE()
+	  && c->parent()->positionScheme() != PositionScheme::Static)
+	parent->setProperty(Property::StylePosition, "relative");
+    }
+
+    AlignmentFlag hAlign = c->contentAlignment() & AlignHorizontalMask;
+    switch (hAlign) {
+    case AlignmentFlag::Center: {
+      DomElement *itable = DomElement::createNew(DomElementType::TABLE);
+      itable->setProperty(Property::Class, "Wt-hcenter");
+      if (fitHeight)
+	itable->setProperty(Property::Style, "height:100%;");
+      DomElement *irow = DomElement::createNew(DomElementType::TR);
+      DomElement *itd = DomElement::createNew(DomElementType::TD);
+      if (fitHeight)
+	itd->setProperty(Property::Style, "height:100%;");
+      itd->addChild(div);
+      irow->addChild(itd);
+      itable->addChild(irow);
+      itable->setId(id() + "l");
+      div = itable;
+
+      break;
+    }
+    case AlignmentFlag::Left:
+      break;
+    case AlignmentFlag::Right:
+      div->setProperty(Property::StyleFloat, "right");
+      break;
+    default:
+      break;
+    }
+  }
 
   return div;
 }

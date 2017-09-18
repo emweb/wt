@@ -4,10 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WException"
-#include "Wt/WLocale"
-#include "Wt/WLogger"
+#include "Wt/WException.h"
+#include "Wt/WLocale.h"
+#include "Wt/WLogger.h"
+#include "Wt/WDateTime.h"
+
 #include "WebRequest.h"
+#include "WebUtils.h"
 
 #include <cstdlib>
 
@@ -21,8 +24,6 @@
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_attribute.hpp>
 #endif
-
-#include <boost/bind.hpp>
 
 #endif // WT_NO_SPIRIT
 
@@ -48,7 +49,7 @@ WebRequest::WebRequest()
     webSocketRequest_(false)
 {
 #ifndef BENCH
-  start_ = boost::posix_time::microsec_clock::local_time();
+  start_ = std::chrono::high_resolution_clock::now();
 #endif
 }
 
@@ -61,15 +62,14 @@ WebRequest::~WebRequest()
 void WebRequest::log()
 {
 #ifndef BENCH
-  if (!start_.is_not_a_date_time()) {
-    boost::posix_time::ptime
-      end = boost::posix_time::microsec_clock::local_time();
+  if (start_.time_since_epoch().count() > 0) {
+    auto end = std::chrono::high_resolution_clock::now();
+    double microseconds 
+      = std::chrono::duration_cast<std::chrono::microseconds>(end - start_)
+      .count();
+    LOG_INFO("took " << (microseconds / 1000) << " ms");
 
-    boost::posix_time::time_duration d = end - start_;
-
-    LOG_INFO("took " << (double)d.total_microseconds() / 1000  << "ms");
-
-    start_ = boost::posix_time::ptime();
+    start_ = std::chrono::high_resolution_clock::time_point();
   }
 #endif
 }
@@ -77,7 +77,7 @@ void WebRequest::log()
 void WebRequest::reset()
 {
 #ifndef BENCH
-  start_ = boost::posix_time::microsec_clock::local_time();
+  start_ = std::chrono::high_resolution_clock::now();
 #endif
 
   entryPoint_ = 0;
@@ -127,14 +127,14 @@ const char *WebRequest::contentType() const
     return 0;
   else {
     try {
-      ::int64_t len = boost::lexical_cast< ::int64_t >(std::string(lenstr));
+      ::int64_t len = Utils::stoll(std::string(lenstr));
       if (len < 0) {
 	LOG_ERROR("Bad content-length: " << lenstr);
 	throw WException("Bad content-length");
       } else {
 	return len;
       }
-    } catch (boost::bad_lexical_cast& e) {
+    } catch (std::exception& e) {
       LOG_ERROR("Bad content-length: " << lenstr);
       throw WException("Bad content-length");
     }
@@ -215,7 +215,7 @@ namespace {
 	     >> '=' 
 	     >> ureal_p
 	        [
-		  bind(&self_t::setQuality, self, _1)
+		  std::bind(&self_t::setQuality, self, std::placeholders::_1)
 		]
 	     )
 	  | (+alpha_p >> '=' >> +alnum_p)
@@ -224,7 +224,7 @@ namespace {
 	value
 	  = lexeme_d[(alpha_p >> +(alnum_p | '-')) | '*']
 	    [
-	       bind(&self_t::addValue, self, _1, _2)
+	       std::bind(&self_t::addValue, self, std::placeholders::_1, std::placeholders:: _2)
 	    ]
 	    >> !( ';' >> option )
 	  ;
@@ -294,13 +294,13 @@ const WebRequest::WriteCallback& WebRequest::getAsyncCallback()
 void WebRequest::emulateAsync(ResponseState state)
 {
   if (async_) {
-    if (state == ResponseDone)
+    if (state == ResponseState::ResponseDone)
       async_->done = true;
 
     return;
   }
 
-  if (state == ResponseFlush) {
+  if (state == ResponseState::ResponseFlush) {
     async_ = new AsyncEmulation();
 
     /*
@@ -312,13 +312,13 @@ void WebRequest::emulateAsync(ResponseState state)
     while (!async_->done) {
       if (!asyncCallback_) {
 	delete async_;
-	async_ = 0;
+	async_ = nullptr;
 	return;
       }
 
       WriteCallback fn = asyncCallback_;
-      asyncCallback_.clear();
-      fn(WriteCompleted);
+      asyncCallback_ = WriteCallback();
+      fn(WebWriteEvent::Completed);
     }
   }
     

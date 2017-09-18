@@ -7,7 +7,7 @@
 #ifndef ATTACHMENT_EDIT_H_
 #define ATTACHMENT_EDIT_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
   class WFileUpload;
@@ -28,7 +28,7 @@ using namespace Wt;
 
 /*! \brief An edit field for an email attachment.
  *
- * This widget managements one attachment edit: it shows a file upload
+ * This widget manages one attachment edit: it shows a file upload
  * control, handles the upload, and gives feed-back on the file
  * uploaded.
  *
@@ -39,7 +39,7 @@ class AttachmentEdit : public WContainerWidget
 public:
   /*! \brief Creates an attachment edit field.
    */
-  AttachmentEdit(Composer *composer, WContainerWidget *parent = 0);
+  AttachmentEdit(Composer *composer);
 
   /*! \brief Updates the file now.
    *
@@ -60,12 +60,12 @@ public:
   /*! \brief Signal emitted when new attachment(s) have been uploaded (or failed
    *         to upload.
    */
-  Signal<void>& uploadDone() { return uploadDone_; }
+  Signal<>& uploadDone() { return uploadDone_; }
 
 private:
   Composer    *composer_;
 
-  Signal<void> uploadDone_;
+  Signal<> uploadDone_;
 
   //! The WFileUpload control.
   WFileUpload *upload_;
@@ -73,7 +73,7 @@ private:
   class UploadInfo : public WContainerWidget
   {
   public:
-    UploadInfo(const Http::UploadedFile& f, WContainerWidget *parent = 0);
+    UploadInfo(const Http::UploadedFile& f);
 
     Http::UploadedFile info_;
 

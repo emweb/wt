@@ -1,10 +1,10 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WJavaScript>
-#include <Wt/WPaintDevice>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPainter>
-#include <Wt/WSlider>
-#include <Wt/WSpinBox>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WJavaScript.h>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPainter.h>
+#include <Wt/WSlider.h>
+#include <Wt/WSpinBox.h>
 
 #include <cmath>
 
@@ -15,8 +15,8 @@
 class PaintingInteractiveWidget : public Wt::WPaintedWidget
 {
 public:
-    PaintingInteractiveWidget(Wt::WContainerWidget *parent = 0)
-	: Wt::WPaintedWidget(parent),
+    PaintingInteractiveWidget()
+        : WPaintedWidget(),
 	  rotateSlot(1, this)
     {
 	resize(300, 300);  // Provide a default size.
@@ -51,7 +51,7 @@ public:
 
 protected:
     void paintEvent(Wt::WPaintDevice *paintDevice) {
-	Wt::WPainter painter(paintDevice);
+        Wt::WPainter painter(paintDevice);
 
 	painter.translate(150, 150);
 
@@ -87,34 +87,35 @@ private:
 };
 
 SAMPLE_BEGIN(PaintingInteractive)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-PaintingInteractiveWidget *widget = new PaintingInteractiveWidget(container);
+PaintingInteractiveWidget *widget =
+    container->addWidget(Wt::cpp14::make_unique<PaintingInteractiveWidget>());
 
-Wt::WSpinBox *sb = new Wt::WSpinBox(container);
+Wt::WSpinBox *sb = container->addWidget(Wt::cpp14::make_unique<Wt::WSpinBox>());
 sb->setWidth(300);
 sb->setRange(0, 360);
 sb->setValue(0);
 
-Wt::WSlider *slider = new Wt::WSlider(Wt::Horizontal, container);
+Wt::WSlider *slider = container->addWidget(Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal));
 slider->resize(300, 50);
 slider->setRange(0, 360);
 
 // This will not cause a server roundtrip
 slider->sliderMoved().connect(widget->rotateSlot);
 
-sb->valueChanged().connect(std::bind([=](){
+sb->valueChanged().connect([=] {
     slider->setValue(sb->value());
     widget->rotate(sb->value());
-}));
-sb->enterPressed().connect(std::bind([=](){
+});
+sb->enterPressed().connect([=] {
     slider->setValue(sb->value());
     widget->rotate(sb->value());
-}));
+});
 
-slider->valueChanged().connect(std::bind([=](){
+slider->valueChanged().connect([=] {
     sb->setValue(slider->value());
     widget->rotate(slider->value());
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

@@ -8,12 +8,14 @@
 #ifndef WORD_WIDGET_H_
 #define WORD_WIDGET_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
-class WordWidget : public Wt::WContainerWidget
+using namespace Wt;
+
+class WordWidget : public WContainerWidget
 {
 public:
-  WordWidget(Wt::WContainerWidget *parent = 0);
+  WordWidget();
 
   std::wstring word() const { return word_; } 
 
@@ -23,7 +25,7 @@ public:
   bool won();
 
 private:
-  std::vector<Wt::WText *>       wordLetters_;
+  std::vector<WText *>           wordLetters_;
   std::wstring                   word_;
 
   unsigned                       displayedLetters_;

@@ -3,14 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WSocketNotifier>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WSocketNotifier.h>
+#include <Wt/WText.h>
 
+#include <algorithm>
 #include <iostream>
-#include <boost/thread.hpp>
 
 #if WT_WIN32
 #include <winsock2.h>
@@ -29,6 +29,8 @@ typedef int socklen_t;
 #define HOSTNAME "www.webtoolkit.eu"
 #define URL_PATH "/wt/blog/feed/"
 
+using namespace Wt;
+
 /*
  * This is a minimal socket notifier example, which is used to asynchronously
  * read an RSS file and display it in raw format on the browser using server
@@ -42,27 +44,24 @@ typedef int socklen_t;
  * API.
  */
 
-class RssReader : public Wt::WContainerWidget
+class RssReader : public WContainerWidget
 {
 public:
-  RssReader(Wt::WContainerWidget *parent)
-    : WContainerWidget(parent),
+  RssReader()
+    : WContainerWidget(),
       state_(CONNECT),
-      bytesSent_(0),
-      readNotifier_(0),
-      writeNotifier_(0)
+      bytesSent_(0)
   {
-    new Wt::WText("Click 'Start' to download the Wt homepage RSS feed<br/>"
+    this->addWidget(cpp14::make_unique<WText>("Click 'Start' to download the Wt homepage RSS feed<br/>"
       "The download will be done asynchronously and this page will update its "
-      "contents to inform you about the progress using server push.<br/>",
-      this);
-    startButton_ = new Wt::WPushButton("Start", this);
-    startButton_->clicked().connect(startButton_, &Wt::WPushButton::disable);
+      "contents to inform you about the progress using server push.<br/>"));
+    startButton_ = this->addWidget(cpp14::make_unique<WPushButton>("Start"));
+    startButton_->clicked().connect(startButton_, &WPushButton::disable);
     startButton_->clicked().connect(this, &RssReader::startDownload);
 
-    resultText_ = new Wt::WText(this);
+    resultText_ = this->addWidget(cpp14::make_unique<WText>());
     resultText_->setInline(false);
-    rssText_ = new Wt::WText(this);
+    rssText_ = this->addWidget(cpp14::make_unique<WText>());
     rssText_->setInline(false);
   }
 
@@ -70,14 +69,14 @@ private:
   int socket_;
   enum {CONNECT, WRITE, READ} state_;
   int bytesSent_;
-  Wt::WSocketNotifier *readNotifier_, *writeNotifier_;
-  Wt::WPushButton *startButton_;
-  Wt::WText *resultText_;
-  Wt::WText *rssText_;
+  std::unique_ptr<WSocketNotifier> readNotifier_, writeNotifier_;
+  WPushButton *startButton_;
+  WText *resultText_;
+  WText *rssText_;
   std::stringstream inStream_;
 
   // Convenience function that updates the status message.
-  void addText(const Wt::WString &text)
+  void addText(const WString &text)
   {
     resultText_->setText(resultText_->text() + text);
     if (wApp->updatesEnabled())
@@ -111,12 +110,12 @@ private:
        * in a call to select, and activated() will be called whenever
        * select decides that the socket is ready for read or write.
        */
-      readNotifier_ = new Wt::WSocketNotifier(socket_,
-          Wt::WSocketNotifier::Read, this);
+      readNotifier_ = cpp14::make_unique<WSocketNotifier>(socket_,
+          WSocketNotifier::Type::Read);
       readNotifier_->setEnabled(false); // Linux fires this on connect, weird
       readNotifier_->activated().connect(this, &RssReader::read);
-      writeNotifier_ = new Wt::WSocketNotifier(socket_,
-          Wt::WSocketNotifier::Write, this);
+      writeNotifier_ = cpp14::make_unique<WSocketNotifier>(socket_,
+          WSocketNotifier::Type::Write);
       writeNotifier_->activated().connect(this, &RssReader::write);
 
       // Set sockets to non-blocking
@@ -249,9 +248,8 @@ private:
      * as select() fails miserably in this case. Disable (or even
      * better, delete) the notifiers before you close the sockets.
      */
-    delete readNotifier_;
-    delete writeNotifier_;
-    readNotifier_ = writeNotifier_ = 0;
+    readNotifier_.reset();
+    writeNotifier_.reset();
 #ifdef WT_WIN32
     closesocket(socket_);
 #else
@@ -263,17 +261,18 @@ private:
     startButton_->setText("Again");
     startButton_->enable();
     rssText_->setText("<pre>" +
-        escapeText(Wt::WString::fromUTF8(inStream_.str())) + "</pre>");
+        escapeText(inStream_.str()) + "</pre>");
     addText("Finished!<br/>Run again?<br/>");
     inStream_.str("");
     wApp->enableUpdates(false);
   }
 };
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  Wt::WApplication *app = new Wt::WApplication(env);
-  new RssReader(app->root());
+  std::unique_ptr<WApplication> app
+      = cpp14::make_unique<WApplication>(env);
+  app->root()->addWidget(cpp14::make_unique<RssReader>());
 
   return app;
 }

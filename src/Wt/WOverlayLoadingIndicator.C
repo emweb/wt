@@ -4,30 +4,41 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WImage"
-#include "Wt/WText"
-#include "Wt/WOverlayLoadingIndicator"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WImage.h"
+#include "Wt/WText.h"
+#include "Wt/WOverlayLoadingIndicator.h"
 
 namespace Wt {
 
-WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WT_USTRING& styleClass, const WT_USTRING& backgroundStyleClass, const WT_USTRING& textStyleClass)
+WOverlayLoadingIndicator
+::WOverlayLoadingIndicator(const WT_USTRING& styleClass,
+			   const WT_USTRING& backgroundStyleClass,
+			   const WT_USTRING& textStyleClass)
 {
+  WContainerWidget *impl;
+
+  setImplementation(std::unique_ptr<WWidget>(impl = new WContainerWidget()));
   setInline(false);
 
   WApplication *app = WApplication::instance();
 
-  cover_ = new WContainerWidget(this);
-  center_ = new WContainerWidget(this);
+  impl->addWidget(std::unique_ptr<WWidget>(cover_ = new WContainerWidget()));
+  impl->addWidget(std::unique_ptr<WWidget>(center_ = new WContainerWidget()));
 
-  WImage *img = new WImage(WApplication::relativeResourcesUrl()
-			   + "ajax-loading.gif", center_);
-  img->setMargin(7, Top | Bottom);
+  WImage *img;
+  center_->addWidget
+    (std::unique_ptr<WWidget>
+     (img = new WImage(WApplication::relativeResourcesUrl()
+		       + "ajax-loading.gif")));
+  img->setMargin(7, Side::Top | Side::Bottom);
 
-  text_ = new WText(tr("Wt.WOverlayLoadingIndicator.Loading"), center_);
+  center_->addWidget
+    (std::unique_ptr<WWidget>
+     (text_ = new WText(tr("Wt.WOverlayLoadingIndicator.Loading"))));
   text_->setInline(false);
-  text_->setMargin(WLength::Auto, Left | Right);
+  text_->setMargin(WLength::Auto, Side::Left | Side::Right);
 
   if (!styleClass.empty())
     center_->setStyleClass(styleClass);
@@ -36,11 +47,12 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WT_USTRING& styleClass,
   if (!backgroundStyleClass.empty())
     cover_->setStyleClass(backgroundStyleClass);
 
-  if (app->environment().agent() == WEnvironment::IE6)
+  if (app->environment().agent() == UserAgent::IE6)
     app->styleSheet().addRule("body", "height: 100%; margin: 0;");
 
   std::string position
-    = app->environment().agent() == WEnvironment::IE6 ? "absolute" : "fixed";
+    = app->environment().agent() == UserAgent::IE6 
+    ? "absolute" : "fixed";
 
   if (backgroundStyleClass.empty())
     app->styleSheet().addRule("div#" + cover_->id(), std::string() +

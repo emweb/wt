@@ -1,43 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WABSTRACT_TABLE_MODEL_H_
-#define WABSTRACT_TABLE_MODEL_H_
-
-#include <Wt/WAbstractItemModel>
-
-namespace Wt {
-
-/*! \class WAbstractTableModel Wt/WAbstractTableModel Wt/WAbstractTableModel
- *  \brief An abstract table model for use with %Wt's view classes.
- *
- * An abstract table model specializes WAbstractItemModel for
- * two-dimensional tables (but no hierarchical models).
- *
- * It cannot be used directly but must be subclassed. Subclassed
- * models must at least reimplement columnCount(), rowCount() and data().
- *
- * \ingroup modelview
- */
-class WT_API WAbstractTableModel : public WAbstractItemModel
-{
-public:
-  /*! \brief Creates a new abstract list model.
-   */
-  WAbstractTableModel(WObject *parent = 0);
-
-  /*! \brief Destructor.
-   */
-  ~WAbstractTableModel();
-
-  virtual WModelIndex parent(const WModelIndex& index) const;
-  virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex()) const;
-};
-
-}
-
-#endif // WABSTRACT_TABLE_MODEL_H_
+#ifndef WT_WABSTRACTTABLEMODEL_EXTENSIONLESS_H_
+#define WT_WABSTRACTTABLEMODEL_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WAbstractTableModel.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WAbstractTableModel.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WAbstractTableModel.h"
+#endif // WT_WABSTRACTTABLEMODEL_EXTENSIONLESS_H_

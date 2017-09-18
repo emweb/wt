@@ -7,10 +7,12 @@
 #ifndef TREEVIEWEXAMPLE_H_
 #define TREEVIEWEXAMPLE_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WString>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WString.h>
 #include <string>
 #include <vector>
+
+using namespace Wt;
 
 enum WeatherIcon {
   Sun,
@@ -28,26 +30,25 @@ namespace Wt {
   class WText;
 }
 
-class TreeViewExample : public Wt::WContainerWidget
+class TreeViewExample : public WContainerWidget
 {
 public:
-  TreeViewExample(Wt::WStandardItemModel *model,
-		  const Wt::WString& titleText);
+  TreeViewExample(std::shared_ptr<WStandardItemModel> model,
+                  const WString& titleText);
 
-  Wt::WTreeView *treeView() const { return treeView_; }
+  WTreeView *treeView() const { return treeView_; }
 
-  static Wt::WStandardItemModel *createModel(bool useInternalPath,
-					     WObject *parent);
+  static std::shared_ptr<WStandardItemModel> createModel(bool useInternalPath);
 
 private:
-  Wt::WStandardItem      *belgium_;
-  Wt::WStandardItemModel *model_;
-  Wt::WTreeView          *treeView_;
+  WStandardItem      *belgium_;
+  std::shared_ptr<WStandardItemModel> model_;
+  WTreeView          *treeView_;
 
-  static Wt::WStandardItem *continentItem(const std::string& continent);
-  static Wt::WStandardItem *countryItem(const std::string& country,
+  static std::unique_ptr<WStandardItem> continentItem(const std::string& continent);
+  static std::unique_ptr<WStandardItem> countryItem(const std::string& country,
 					const std::string& code);
-  static std::vector<Wt::WStandardItem *> cityItems(const std::string& city,
+  static std::vector<std::unique_ptr<WStandardItem> > cityItems(const std::string& city,
 						    WeatherIcon weather,
 						    const std::string& drink,
 						    bool useInternalPath,

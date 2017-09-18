@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 
-#include "Wt/WWebWidget"
+#include "Wt/WWebWidget.h"
 #include "EscapeOStream.h"
 
 namespace Wt {
@@ -24,64 +24,69 @@ typedef EscapeOStream EStream;
  *
  * This is an internal API, subject to change.
  */
-enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
-		PropertyValue, PropertyDisabled,
-		PropertyChecked, PropertySelected, PropertySelectedIndex,
-		PropertyMultiple, PropertyTarget, PropertyDownload, PropertyIndeterminate,
-		PropertySrc,
-		PropertyColSpan, PropertyRowSpan, PropertyReadOnly,
-		PropertyTabIndex, PropertyLabel,
-		PropertyClass,
-		PropertyPlaceholder,
-		PropertyStyle,
-		PropertyStyleWidthExpression,
-		PropertyStylePosition,
-		PropertyStyleZIndex, PropertyStyleFloat, PropertyStyleClear,
-		PropertyStyleWidth, PropertyStyleHeight,
-		PropertyStyleLineHeight,
-		PropertyStyleMinWidth, PropertyStyleMinHeight,
-		PropertyStyleMaxWidth, PropertyStyleMaxHeight,
-		PropertyStyleLeft, PropertyStyleRight,
-		PropertyStyleTop, PropertyStyleBottom,
-		PropertyStyleVerticalAlign, PropertyStyleTextAlign,
-		PropertyStylePadding,
-		PropertyStylePaddingTop, PropertyStylePaddingRight,
-		PropertyStylePaddingBottom, PropertyStylePaddingLeft,
-		PropertyStyleMarginTop, PropertyStyleMarginRight,
-		PropertyStyleMarginBottom, PropertyStyleMarginLeft,
-		PropertyStyleCursor, 
-		PropertyStyleBorderTop, PropertyStyleBorderRight,
-		PropertyStyleBorderBottom, PropertyStyleBorderLeft,
-		PropertyStyleBorderColorTop, PropertyStyleBorderColorRight,
-		PropertyStyleBorderColorBottom, PropertyStyleBorderColorLeft,
-		PropertyStyleBorderWidthTop, PropertyStyleBorderWidthRight,
-		PropertyStyleBorderWidthBottom, PropertyStyleBorderWidthLeft,
-		PropertyStyleColor,
-		PropertyStyleOverflowX,
-		PropertyStyleOverflowY,
-		PropertyStyleOpacity,
-		PropertyStyleFontFamily,
-		PropertyStyleFontStyle,
-		PropertyStyleFontVariant,
-		PropertyStyleFontWeight,
-		PropertyStyleFontSize,
-		PropertyStyleBackgroundColor,
-		PropertyStyleBackgroundImage,
-		PropertyStyleBackgroundRepeat,
-		PropertyStyleBackgroundAttachment,
-		PropertyStyleBackgroundPosition,
-		PropertyStyleTextDecoration, PropertyStyleWhiteSpace,
-		PropertyStyleTableLayout, PropertyStyleBorderSpacing,
-		PropertyStyleBorderCollapse,
-		PropertyStylePageBreakBefore, PropertyStylePageBreakAfter,
-		PropertyStyleZoom,
-		PropertyStyleVisibility, PropertyStyleDisplay,
+enum class Property { InnerHTML, AddedInnerHTML,
+		Value, Disabled,
+		Checked, Selected, SelectedIndex,
+		Multiple, Target, Download, Indeterminate,
+		Src,
+		ColSpan, RowSpan, ReadOnly,
+		TabIndex, Label,
+		Class,
+                Placeholder,
+                Style,
+		StyleWidthExpression,
+		StylePosition,
+		StyleZIndex, StyleFloat, StyleClear,
+		StyleWidth, StyleHeight,
+		StyleLineHeight,
+		StyleMinWidth, StyleMinHeight,
+		StyleMaxWidth, StyleMaxHeight,
+		StyleLeft, StyleRight,
+		StyleTop, StyleBottom,
+		StyleVerticalAlign, StyleTextAlign,
+		StylePadding,
+		StylePaddingTop, StylePaddingRight,
+		StylePaddingBottom, StylePaddingLeft,
+                StyleMargin,
+		StyleMarginTop, StyleMarginRight,
+		StyleMarginBottom, StyleMarginLeft,
+		StyleCursor, 
+		StyleBorderTop, StyleBorderRight,
+		StyleBorderBottom, StyleBorderLeft,
+		StyleBorderColorTop, StyleBorderColorRight,
+		StyleBorderColorBottom, StyleBorderColorLeft,
+		StyleBorderWidthTop, StyleBorderWidthRight,
+		StyleBorderWidthBottom, StyleBorderWidthLeft,
+		StyleColor,
+		StyleOverflowX,
+		StyleOverflowY,
+		StyleOpacity,
+		StyleFontFamily,
+		StyleFontStyle,
+		StyleFontVariant,
+		StyleFontWeight,
+		StyleFontSize,
+		StyleBackgroundColor,
+		StyleBackgroundImage,
+		StyleBackgroundRepeat,
+		StyleBackgroundAttachment,
+		StyleBackgroundPosition,
+		StyleTextDecoration, StyleWhiteSpace,
+		StyleTableLayout, StyleBorderSpacing,
+		StyleBorderCollapse,
+		StylePageBreakBefore, StylePageBreakAfter,
+		StyleZoom,
+		StyleVisibility, StyleDisplay,
 
 		/* CSS 3 */
-		PropertyStyleBoxSizing,
+		StyleBoxSizing,
+		StyleFlex,
+		StyleFlexFlow,
+		StyleAlignSelf,
+		StyleJustifyContent,
 
 		/* Keep as last, e.g. for bitset sizing. Otherwise, unused. */
-		PropertyLastPlusOne };
+		LastPlusOne };
 
 /*! \class DomElement web/DomElement web/DomElement
  *  \brief Class to represent a client-side DOM element (proxy).
@@ -100,7 +105,7 @@ class WT_API DomElement
 {
 public:
   /*! \brief Enumeration for the access mode (creation or update) */
-  enum Mode { ModeCreate, ModeUpdate };
+  enum class Mode { Create, Update };
 
 #ifndef WT_TARGET_JAVA
   /*! \brief A map for property values */
@@ -362,7 +367,7 @@ public:
 
   /*! \brief Enumeration for an update rendering phase.
    */
-  enum Priority { Delete, Create, Update };
+  enum class Priority { Delete, Create, Update };
 
   /*! \brief Structure for keeping track of timers attached to this element.
    */
@@ -569,7 +574,7 @@ private:
     int pos;
     DomElement *child;
 
-    ChildInsertion() : pos(0), child(0) { }
+    ChildInsertion() : pos(0), child(nullptr) { }
     ChildInsertion(int p, DomElement *c) : pos(p), child(c) { }
   };
 

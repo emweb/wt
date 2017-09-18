@@ -6,19 +6,16 @@
 #include "TreeViewExample.h"
 
 #include <iostream>
-#include <boost/lexical_cast.hpp>
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WPanel>
-#include <Wt/WPushButton>
-#include <Wt/WStandardItem>
-#include <Wt/WStandardItemModel>
-#include <Wt/WText>
-#include <Wt/WTreeView>
-
-using namespace Wt;
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WPanel.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WStandardItem.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WText.h>
+#include <Wt/WTreeView.h>
 
 static const char *weatherIcons[] = {
   "sun01.png",
@@ -29,20 +26,23 @@ static const char *weatherIcons[] = {
   "snow.png"
 };
 
-TreeViewExample::TreeViewExample(WStandardItemModel *model,
-				 const WString& titleText)
+TreeViewExample::TreeViewExample(std::shared_ptr<WStandardItemModel> model,
+                                 const WString& titleText)
   : model_(model)
 {
   belgium_ = model_->item(0, 0)->child(0, 0);
 
-  new WText(titleText, this);
+  this->addWidget(cpp14::make_unique<WText>(titleText));
 
   /*
    * Now create the view
    */
-  WPanel *panel = new WPanel(this);
+  WPanel *panel = this->addWidget(cpp14::make_unique<WPanel>());
   panel->resize(600, 300);
-  panel->setCentralWidget(treeView_ = new WTreeView());
+
+  auto treeView = cpp14::make_unique<WTreeView>();
+  treeView_ = treeView.get();
+  panel->setCentralWidget(std::move(treeView));
   
   if (!WApplication::instance()->environment().ajax())
     treeView_->resize(WLength::Auto, 290);
@@ -52,9 +52,9 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   treeView_->setModel(model_);
 
   treeView_->setColumnWidth(1, WLength(100));
-  treeView_->setColumnAlignment(1, AlignCenter);
+  treeView_->setColumnAlignment(1, AlignmentFlag::Center);
   treeView_->setColumnWidth(3, WLength(100));
-  treeView_->setColumnAlignment(3, AlignCenter);
+  treeView_->setColumnAlignment(3, AlignmentFlag::Center);
 
   treeView_->setRowHeaderCount(1);
   treeView_->setColumnWidth(0, 300);
@@ -65,31 +65,35 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   treeView_->setExpanded(model->index(0, 0), true);
   treeView_->setExpanded(model->index(0, 0, model->index(0, 0)), true);
 
+  treeView_->setSortingEnabled(false);
+  treeView_->setSortingEnabled(0, true);
+  treeView_->setSortingEnabled(2, true);
+
   /*
    * Setup some buttons to manipulate the view and the model.
    */
-  WContainerWidget *wc = new WContainerWidget(this);
+  WContainerWidget *wc =
+      this->addWidget(cpp14::make_unique<WContainerWidget>());
   WPushButton *b;
   
-  b = new WPushButton("Toggle row height", wc);
+  b = wc->addWidget(cpp14::make_unique<WPushButton>("Toggle row height"));
   b->clicked().connect(this, &TreeViewExample::toggleRowHeight);
   b->setToolTip("Toggles row height between 31px and 25px");
   
-  b = new WPushButton("Toggle stripes", wc);
+  b = wc->addWidget(cpp14::make_unique<WPushButton>("Toggle stripes"));
   b->clicked().connect(this, &TreeViewExample::toggleStripes);
   b->setToolTip("Toggle alternating row colors");
   
-  b = new WPushButton("Toggle root", wc);
+  b = wc->addWidget(cpp14::make_unique<WPushButton>("Toggle root"));
   b->clicked().connect(this, &TreeViewExample::toggleRoot);
   b->setToolTip("Toggles root item between all and the first continent.");
 
-  b = new WPushButton("Add rows", wc);
+  b = wc->addWidget(cpp14::make_unique<WPushButton>("Add rows"));
   b->clicked().connect(this, &TreeViewExample::addRows);
   b->setToolTip("Adds some cities to Belgium");
 }
 
-WStandardItemModel *TreeViewExample::createModel(bool useInternalPath,
-						 WObject *parent)
+std::shared_ptr<WStandardItemModel> TreeViewExample::createModel(bool useInternalPath)
 {
   /*
    * Setup a model.
@@ -98,93 +102,109 @@ WStandardItemModel *TreeViewExample::createModel(bool useInternalPath,
    * suitable for hierarchical (tree-like) data, but stores all data
    * in memory.
    */
-  WStandardItemModel *result = new WStandardItemModel(0, 4, parent);
+  auto result = std::make_shared<WStandardItemModel>(0, 4);
 
   /*
    * Headers ...
    */
-  result->setHeaderData(0, Horizontal, std::string("Places"));
-  result->setHeaderData(1, Horizontal, std::string("Weather"));
-  result->setHeaderData(2, Horizontal, std::string("Drink"));
-  result->setHeaderData(3, Horizontal, std::string("Visited"));
+  result->setHeaderData(0, Orientation::Horizontal, std::string("Places"));
+  result->setHeaderData(1, Orientation::Horizontal, std::string("Weather"));
+  result->setHeaderData(2, Orientation::Horizontal, std::string("Drink"));
+  result->setHeaderData(3, Orientation::Horizontal, std::string("Visited"));
   
   /*
    * ... and data
    */
-  WStandardItem *continent, *country;
+  std::unique_ptr<WStandardItem> continent, country;
+  WStandardItem *continentPtr, *countryPtr;
+
+  continent = continentItem("Europe");
+  continentPtr = continent.get();
+  result->appendRow(std::move(continent));
+
+  country = countryItem("Belgium", "be");
+  countryPtr = country.get();
+  continentPtr->appendRow(std::move(country));
+  countryPtr->appendRow(cityItems("Brussels", Rain, "Beer",
+                                  useInternalPath, true));
+  countryPtr->appendRow(cityItems("Leuven", Rain, "Beer",
+                                  useInternalPath, true));
   
-  result->appendRow(continent = continentItem("Europe"));
+  country = countryItem("France", "fr");
+  countryPtr = country.get();
+  continentPtr->appendRow(std::move(country));
+  countryPtr->appendRow(cityItems("Paris", Cloud, "Wine",
+                                  useInternalPath, true));
+  countryPtr->appendRow(cityItems("Bordeaux", SunCloud, "Bordeaux wine",
+                                  useInternalPath, false));
   
-  continent->appendRow(country = countryItem("Belgium", "be"));
-  country->appendRow(cityItems("Brussels", Rain, "Beer", useInternalPath,
-			       true));
-  country->appendRow(cityItems("Leuven", Rain, "Beer", useInternalPath, true));
+  country = countryItem("Spain", "sp");
+  countryPtr = country.get();
+  continentPtr->appendRow(std::move(country));
+  countryPtr->appendRow(cityItems("Barcelona", Sun, "Cava",
+                                  useInternalPath, true));
+  countryPtr->appendRow(cityItems("Madrid", Sun, "San Miguel",
+                                  useInternalPath, false));
   
-  continent->appendRow(country = countryItem("France", "fr"));
-  country->appendRow(cityItems("Paris", Cloud, "Wine", useInternalPath, true));
-  country->appendRow(cityItems("Bordeaux", SunCloud, "Bordeaux wine",
-			       useInternalPath, false));
+  continent = continentItem("Africa");
+  continentPtr = continent.get();
+  result->appendRow(std::move(continent));
   
-  continent->appendRow(country = countryItem("Spain", "sp"));
-  country->appendRow(cityItems("Barcelona", Sun, "Cava", useInternalPath,
-			       true));
-  country->appendRow(cityItems("Madrid", Sun, "San Miguel", useInternalPath,
-			       false));
-  
-  result->appendRow(continent = continentItem("Africa"));
-  
-  continent->appendRow(country = countryItem("Morocco (المغرب)", "ma"));
-  country->appendRow(cityItems("Casablanca", Sun, "Tea", useInternalPath,
-			       false));
+  country = countryItem("Morocco (المغرب)", "ma");
+  countryPtr = country.get();
+  continentPtr->appendRow(std::move(country));
+  countryPtr->appendRow(cityItems("Casablanca", Sun, "Tea",
+                                  useInternalPath, false));
 
   return result;
 }
 
-WStandardItem *TreeViewExample::continentItem(const std::string& continent)
+std::unique_ptr<WStandardItem> TreeViewExample::continentItem(const std::string& continent)
 {
-  WStandardItem *result = new WStandardItem(continent);
+  std::unique_ptr<WStandardItem> result
+      = cpp14::make_unique<WStandardItem>(continent);
   result->setColumnCount(4);
   return result;
 }
 
-WStandardItem *TreeViewExample::countryItem(const std::string& country,
+std::unique_ptr<WStandardItem> TreeViewExample::countryItem(const std::string& country,
 					    const std::string& code)
 {
-  WStandardItem *result = new WStandardItem(WString::fromUTF8(country));
+  std::unique_ptr<WStandardItem> result
+      = cpp14::make_unique<WStandardItem>(WString(country));
   result->setIcon("icons/flag_" + code + ".png");
-  
   return result;
 }
 
-std::vector<WStandardItem *>
+std::vector<std::unique_ptr<WStandardItem>>
 TreeViewExample::cityItems(const std::string& city,
 			   WeatherIcon weather,
 			   const std::string& drink,
 			   bool useInternalPath, bool visited)
 {
-  std::vector<WStandardItem *> result;
-  WStandardItem *item;
+  std::vector<std::unique_ptr<WStandardItem>> result;
+  std::unique_ptr<WStandardItem> item;
   
   // column 0: country
-  item = new WStandardItem(WString::fromUTF8(city));
-  result.push_back(item);
+  item = cpp14::make_unique<WStandardItem>(WString(city));
+  result.push_back(std::move(item));
   
   // column 1: weather
-  item = new WStandardItem();
+  item = cpp14::make_unique<WStandardItem>();
   item->setIcon(std::string("icons/") + weatherIcons[weather]);
-  result.push_back(item);
+  result.push_back(std::move(item));
   
   // column 2: drink
-  item = new WStandardItem(drink);
+  item = cpp14::make_unique<WStandardItem>(drink);
   if (useInternalPath)
-    item->setLink(WLink(WLink::InternalPath, "/drinks/" + drink));
-  result.push_back(item);
+    item->setLink(WLink(LinkType::InternalPath, "/drinks/" + drink));
+  result.push_back(std::move(item));
   
   // column 3: visited
-  item = new WStandardItem();
+  item = cpp14::make_unique<WStandardItem>();
   item->setCheckable(true);
   item->setChecked(visited);
-  result.push_back(item);
+  result.push_back(std::move(item));
   
   return result;
 }
@@ -216,13 +236,13 @@ void TreeViewExample::addRows()
 
   for (int i = 0; i < COUNT; ++i) {
     std::string cityName = "City "
-      + boost::lexical_cast<std::string>(belgium_->rowCount() + 1);
+      + asString(belgium_->rowCount() + 1).toUTF8();
     
     bool useInternalPath = false;
-    belgium_->appendRow(cityItems(cityName, Storm, "Juice", useInternalPath,
-				  false));
+    belgium_->appendRow(cityItems(cityName, Storm, "Juice",
+                                  useInternalPath, false));
   }
 
   treeView_->scrollTo(belgium_->child(belgium_->rowCount() -COUNT )->index(),
-		      WAbstractItemView::PositionAtTop);
+                      ScrollHint::PositionAtTop);
 }

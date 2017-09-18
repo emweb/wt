@@ -12,30 +12,40 @@
 #include "../model/BlogSession.h"
 #include "../model/Post.h"
 
-#include <Wt/WAnchor>
-#include <Wt/WApplication>
-#include <Wt/WCheckBox>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WStackedWidget>
-#include <Wt/WTemplate>
-#include <Wt/WText>
+#include <Wt/WAnchor.h>
+#include <Wt/WApplication.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WStackedWidget.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
 
-#include <Wt/Auth/PasswordService>
-#include <Wt/Auth/PasswordVerifier>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/PasswordVerifier.h>
 
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string.hpp>
 
-using namespace Wt;
 namespace dbo = Wt::Dbo;
 
-class BlogImpl : public WContainerWidget
+namespace {
+  static int try_stoi(const std::string &v)
+  {
+    std::size_t pos;
+    auto result = std::stoi(v, &pos);
+    if (pos != v.length())
+      throw std::invalid_argument("stoi() of " + v + " failed");
+    return result;
+  }
+}
+
+class BlogImpl : public Wt::WContainerWidget
 {
 public:
   BlogImpl(const std::string& basePath, dbo::SqlConnectionPool& connectionPool,
@@ -43,48 +53,52 @@ public:
     : basePath_(basePath),
       rssFeedUrl_(rssFeedUrl),
       session_(connectionPool),
-      panel_(0),
-      authorPanel_(0),
-      users_(0),
-      userEditor_(0),
-      mustLoginWarning_(0),
-      mustBeAdministratorWarning_(0),
-      invalidUser_(0)
+      panel_(nullptr),
+      authorPanel_(nullptr),
+      users_(nullptr),
+      userEditor_(nullptr),
+      mustLoginWarning_(nullptr),
+      mustBeAdministratorWarning_(nullptr),
+      invalidUser_(nullptr)
   {
-    WApplication *app = wApp;
+    Wt::WApplication *app = Wt::WApplication::instance();
 
-    app->messageResourceBundle().use(WApplication::appRoot() + "blog");
+    app->messageResourceBundle().use(Wt::WApplication::appRoot() + "blog");
     app->useStyleSheet("/css/blog.css");
     app->useStyleSheet("/css/asciidoc.css");
     app->internalPathChanged().connect(this, &BlogImpl::handlePathChange);
 
-    loginStatus_ = new WTemplate(tr("blog-login-status"), this);
-    panel_ = new WStackedWidget(this);
-    items_ = new WContainerWidget(this);
+    loginStatus_ = this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-login-status")));
+    panel_ = this->addWidget(Wt::cpp14::make_unique<Wt::WStackedWidget>());
+    items_ = this->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>());
 
     session_.login().changed().connect(this, &BlogImpl::onUserChanged);
 
-    loginWidget_ = new BlogLoginWidget(session_, basePath);
+    auto loginWidget
+        = Wt::cpp14::make_unique<BlogLoginWidget>(session_, basePath);
+    loginWidget_ = loginWidget.get();
     loginWidget_->hide();
 
-    WText *loginLink = new WText(tr("login"));
+    auto loginLink = Wt::cpp14::make_unique<Wt::WText>(tr("login"));
+    auto lPtr = loginLink.get();
     loginLink->setStyleClass("link");
     loginLink->clicked().connect(loginWidget_, &WWidget::show);
-    loginLink->clicked().connect(loginLink, &WWidget::hide);
+    loginLink->clicked().connect(lPtr, &WWidget::hide);
 
-    WText *registerLink = new WText(tr("Wt.Auth.register"));
+    auto registerLink = Wt::cpp14::make_unique<Wt::WText>(tr("Wt.Auth.register"));
     registerLink->setStyleClass("link");
     registerLink->clicked().connect(loginWidget_,
 				    &BlogLoginWidget::registerNewUser);
 
-    WAnchor* archiveLink = new WAnchor
-      (WLink(WLink::InternalPath, basePath_ + "all"), tr("archive"));
+    auto archiveLink
+        = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath, basePath_ + "all"),
+                                      tr("archive"));
 
-    loginStatus_->bindWidget("login", loginWidget_);
-    loginStatus_->bindWidget("login-link", loginLink);
-    loginStatus_->bindWidget("register-link", registerLink);
+    loginStatus_->bindWidget("login", std::move(loginWidget));
+    loginStatus_->bindWidget("login-link", std::move(loginLink));
+    loginStatus_->bindWidget("register-link", std::move(registerLink));
     loginStatus_->bindString("feed-url", rssFeedUrl_);
-    loginStatus_->bindWidget("archive-link", archiveLink);
+    loginStatus_->bindWidget("archive-link", std::move(archiveLink));
 
     onUserChanged();
 
@@ -114,14 +128,14 @@ private:
   BlogSession session_;
   BlogLoginWidget *loginWidget_;
 
-  WStackedWidget* panel_;
-  WTemplate *authorPanel_;
+  Wt::WStackedWidget* panel_;
+  Wt::WTemplate *authorPanel_;
   EditUsers *users_;
   EditUser  *userEditor_;
-  WTemplate *mustLoginWarning_;
-  WTemplate *mustBeAdministratorWarning_;
-  WTemplate *invalidUser_;
-  WTemplate *loginStatus_;
+  Wt::WTemplate *mustLoginWarning_;
+  Wt::WTemplate *mustBeAdministratorWarning_;
+  Wt::WTemplate *invalidUser_;
+  Wt::WTemplate *loginStatus_;
   WContainerWidget *items_;
 
   void logout() {
@@ -142,7 +156,7 @@ private:
   }
 
   void loggedIn() {
-    WApplication::instance()->changeSessionId();
+    Wt::WApplication::instance()->changeSessionId();
 
     refresh();
 
@@ -150,28 +164,28 @@ private:
     loginStatus_->resolveWidget("login-link")->hide();
     loginStatus_->resolveWidget("register-link")->hide();
 
-    WText *profileLink = new WText(tr("profile"));
+    auto profileLink = Wt::cpp14::make_unique<Wt::WText>(tr("profile"));
     profileLink->setStyleClass("link");
     profileLink->clicked().connect(this, &BlogImpl::editProfile);
 
     dbo::ptr<User> user = session().user();
 
     if (user->role == User::Admin) {
-      WText *editUsersLink = new WText(tr("edit-users"));
+      auto editUsersLink = Wt::cpp14::make_unique<Wt::WText>(tr("edit-users"));
       editUsersLink->setStyleClass("link");
-      editUsersLink->clicked().connect(SLOT(this, BlogImpl::editUsers));
-      loginStatus_->bindWidget("userlist-link", editUsersLink);
+      editUsersLink->clicked().connect(this, &BlogImpl::editUsers);
+      loginStatus_->bindWidget("userlist-link", std::move(editUsersLink));
 
-      WText *authorPanelLink = new WText(tr("author-post"));
+      auto authorPanelLink = Wt::cpp14::make_unique<Wt::WText>(tr("author-post"));
       authorPanelLink->setStyleClass("link");
-      authorPanelLink->clicked().connect(SLOT(this, BlogImpl::authorPanel));
-      loginStatus_->bindWidget("author-panel-link", authorPanelLink);
+      authorPanelLink->clicked().connect(this, &BlogImpl::authorPanel);
+      loginStatus_->bindWidget("author-panel-link", std::move(authorPanelLink));
     } else {
       loginStatus_->bindEmpty("userlist-link");
       loginStatus_->bindEmpty("author-panel-link");
     }
  
-    loginStatus_->bindWidget("profile-link", profileLink);
+    loginStatus_->bindWidget("profile-link", std::move(profileLink));
  
     bindPanelTemplates();
   }
@@ -183,10 +197,10 @@ private:
     dbo::Transaction t(session_);
 
     if (authorPanel_) {
-      WPushButton *newPost = new WPushButton(tr("new-post"));
-      newPost->clicked().connect(SLOT(this, BlogImpl::newPost));
-      WContainerWidget *unpublishedPosts = new WContainerWidget();
-      showPosts(session_.user()->allPosts(Post::Unpublished), unpublishedPosts);
+      auto newPost = Wt::cpp14::make_unique<Wt::WPushButton>(tr("new-post"));
+      newPost->clicked().connect(this, &BlogImpl::newPost);
+      auto unpublishedPosts = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+      showPosts(session_.user()->allPosts(Post::Unpublished), unpublishedPosts.get());
 
       authorPanel_->bindString("user", session_.user()->name);
       authorPanel_->bindInt("unpublished-count",
@@ -195,8 +209,8 @@ private:
       authorPanel_->bindInt("published-count",
 			    (int)session_.user()->allPosts(Post::Published)
 			    .size());
-      authorPanel_->bindWidget("new-post", newPost);
-      authorPanel_->bindWidget("unpublished-posts", unpublishedPosts);
+      authorPanel_->bindWidget("new-post", std::move(newPost));
+      authorPanel_->bindWidget("unpublished-posts", std::move(unpublishedPosts));
     }
 
     t.commit();
@@ -205,9 +219,10 @@ private:
   void editUsers() {
     panel_->show();
 
-    if (!users_) {
-      users_ = new EditUsers(session_, basePath_);
-      panel_->addWidget(users_);
+    if (!users_)
+    {
+      users_ =
+          panel_->addWidget(Wt::cpp14::make_unique<EditUsers>(session_, basePath_));
       bindPanelTemplates();
     }
 
@@ -218,8 +233,8 @@ private:
     panel_->show();
     if (!authorPanel_)
     {
-      authorPanel_ = new WTemplate(tr("blog-author-panel"));
-      panel_->addWidget(authorPanel_);
+      authorPanel_ =
+          panel_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-author-panel")));
       bindPanelTemplates();
     }
     panel_->setCurrentWidget(authorPanel_);
@@ -230,11 +245,11 @@ private:
   }
 
   void refresh() {
-    handlePathChange(wApp->internalPath());
+    handlePathChange(Wt::WApplication::instance()->internalPath());
   }
 
-  void handlePathChange(const std::string& p) {
-    WApplication *app = wApp;
+  void handlePathChange(const std::string&) {
+    Wt::WApplication *app = Wt::WApplication::instance();
 
     if (app->internalPathMatches(basePath_)) {
       dbo::Transaction t(session_);
@@ -244,7 +259,6 @@ private:
       items_->clear();
 
       if (users_) {
-	delete users_;
 	users_ = 0;
       }
 
@@ -278,24 +292,23 @@ private:
   void editUser(const std::string& ids) {
     if (!checkLoggedIn()) return;
     if (!checkAdministrator()) return;
-    dbo::dbo_traits<User>::IdType id;
-    try {
-      id = boost::lexical_cast<dbo::dbo_traits<User>::IdType>(ids);
-    } catch (boost::bad_lexical_cast&) {
-      id = dbo::dbo_traits<User>::invalidId();
-    }
+    dbo::dbo_traits<User>::IdType id = User::stringToId(ids);
+
     panel_->show();
     try {
       dbo::Transaction t(session_);
       dbo::ptr<User> target(session_.load<User>(id));
-      if (!userEditor_)
-	panel_->addWidget(userEditor_ = new EditUser(session_));
+      if (!userEditor_){
+        userEditor_ = panel_->addWidget(Wt::cpp14::make_unique<EditUser>(session_));
+      }
       userEditor_->switchUser(target);
       panel_->setCurrentWidget(userEditor_);
     }
-    catch (Dbo::ObjectNotFoundException) {
-      if (!invalidUser_)
-	panel_->addWidget(invalidUser_ = new WTemplate(tr("blog-invaliduser")));
+    catch (Wt::Dbo::ObjectNotFoundException) {
+      if (!invalidUser_){
+        invalidUser_ =
+            panel_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-invaliduser")));
+      }
       panel_->setCurrentWidget(invalidUser_);
     }
   }
@@ -304,8 +317,10 @@ private:
   {
     if (session_.user()) return true;
     panel_->show();
-    if (!mustLoginWarning_)
-      panel_->addWidget(mustLoginWarning_ = new WTemplate(tr("blog-mustlogin")));
+    if (!mustLoginWarning_){
+      mustLoginWarning_ =
+        panel_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-mustlogin")));
+    }
     panel_->setCurrentWidget(mustLoginWarning_);
     return false;
   }
@@ -314,8 +329,10 @@ private:
   {
     if (session_.user() && (session_.user()->role == User::Admin)) return true;
     panel_->show();
-    if (!mustBeAdministratorWarning_)
-      panel_->addWidget(mustBeAdministratorWarning_ = new WTemplate(tr("blog-mustbeadministrator")));
+    if (!mustBeAdministratorWarning_){
+      mustBeAdministratorWarning_ =
+          panel_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-mustbeadministrator")));
+    }
     panel_->setCurrentWidget(mustBeAdministratorWarning_);
     return false;
   }
@@ -324,7 +341,7 @@ private:
     return session_.find<User>("where name = ?").bind(name);
   }
   
-  bool yearMonthDiffer(const WDateTime& dt1, const WDateTime& dt2) {
+  bool yearMonthDiffer(const Wt::WDateTime& dt1, const Wt::WDateTime& dt2) {
     return dt1.date().year() != dt2.date().year()
       || dt1.date().month() != dt2.date().month();
   }
@@ -332,28 +349,29 @@ private:
   void showArchive(WContainerWidget *parent) {
     static const char* dateFormat = "MMMM yyyy";
     
-    new WText(tr("archive-title"), parent);
+    parent->addWidget(Wt::cpp14::make_unique<Wt::WText>(tr("archive-title")));
 
     Posts posts = session_.find<Post>("order by date desc");
 
-    WDateTime formerDate;
-    for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i) {
-      if ((*i)->state != Post::Published)
+    Wt::WDateTime formerDate;
+    for (auto post : posts) {
+      if (post->state != Post::Published)
 	continue;
 
       if (formerDate.isNull() 
-	  || yearMonthDiffer(formerDate, (*i)->date)) {
-	WText *title
-	  = new WText((*i)->date.date().toString(dateFormat), parent);
+          || yearMonthDiffer(formerDate, post->date)) {
+        Wt::WText *title
+          = parent->addWidget(Wt::cpp14::make_unique<Wt::WText>(post->date.date().toString(dateFormat)));
 	title->setStyleClass("archive-month-title");
       }
       
-      WAnchor *a = new WAnchor(WLink(WLink::InternalPath,
-				     basePath_ + (*i)->permaLink()),
-			       (*i)->title, parent);
+      Wt::WAnchor *a = parent->addWidget(Wt::cpp14::make_unique<Wt::WAnchor>(
+                                       Wt::WLink(Wt::LinkType::InternalPath,
+                                       basePath_ + post->permaLink()),
+                                       post->title));
       a->setInline(false);
       
-      formerDate = (*i)->date;
+      formerDate = post->date;
     }
   }
 
@@ -362,27 +380,27 @@ private:
     std::vector<std::string> parts;
     boost::split(parts, path, boost::is_any_of("/"));
 
-    WDate lower, upper;
+    Wt::WDate lower, upper;
     try {
-      int year = boost::lexical_cast<int>(parts[0]);
+      int year = try_stoi(parts[0]);
 
       if (parts.size() > 1) {
-	int month = boost::lexical_cast<int>(parts[1]);
+        int month = try_stoi(parts[1]);
 
-	if (parts.size() > 2) {
-	  int day = boost::lexical_cast<int>(parts[2]);
+        if (parts.size() > 2) {
+          int day = try_stoi(parts[2]);
 
-	  lower.setDate(year, month, day);
-	  upper = lower.addDays(1);
-	} else {
-	  lower.setDate(year, month, 1);
-	  upper = lower.addMonths(1);
-	}
+          lower.setDate(year, month, day);
+          upper = lower.addDays(1);
+        } else {
+          lower.setDate(year, month, 1);
+          upper = lower.addMonths(1);
+        }
       } else {
-	lower.setDate(year, 1, 1);
-	upper = lower.addYears(1);
+        lower.setDate(year, 1, 1);
+        upper = lower.addYears(1);
       }
-    } catch (boost::bad_lexical_cast& e) {
+    } catch (std::invalid_argument &) {
       showError(tr("blog-no-post"));
       return;
     }
@@ -391,17 +409,17 @@ private:
       ("where date >= ? "
        "and date < ? "
        "and (state = ? or author_id = ?)")
-      .bind(WDateTime(lower))
-      .bind(WDateTime(upper))
+      .bind(Wt::WDateTime(lower))
+      .bind(Wt::WDateTime(upper))
       .bind(Post::Published)
       .bind(session_.user().id());
 
     if (parts.size() > 3) {
       std::string title = parts[3];
 
-      for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i)
-	if ((*i)->titleToUrl() == title) {
-	  showPost(*i, PostView::Detail, parent);
+      for (auto post : posts)
+        if (post->titleToUrl() == title) {
+          showPost(post, PostView::Detail, parent);
 	  return;
 	}
 
@@ -418,11 +436,11 @@ private:
   void newPost() {
     dbo::Transaction t(session_);
 
-	authorPanel();
-	WContainerWidget *unpublishedPosts
+    authorPanel();
+    WContainerWidget *unpublishedPosts
       = authorPanel_->resolve<WContainerWidget *>("unpublished-posts");
 
-    dbo::ptr<Post> post(new Post);
+    dbo::ptr<Post> post(Wt::cpp14::make_unique<Post>());
 
     Post *p = post.modify();
     p->state = Post::Unpublished;
@@ -437,27 +455,26 @@ private:
   }
 
   void showPosts(const Posts& posts, WContainerWidget *parent) {
-    for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i)
-      showPost(*i, PostView::Brief, parent);
+    for (auto post : posts)
+      showPost(post, PostView::Brief, parent);
   }
 
   void showPost(const dbo::ptr<Post> post, PostView::RenderType type,
 		WContainerWidget *parent) {
-    parent->addWidget(new PostView(session_, basePath_, post, type));
+    parent->addWidget(Wt::cpp14::make_unique<PostView>(session_, basePath_, post, type));
   }
 
-  void showError(const WString& msg) {
-    items_->addWidget(new WText(msg));
+  void showError(const Wt::WString& msg) {
+    items_->addWidget(Wt::cpp14::make_unique<Wt::WText>(msg));
   }
 };
 
 BlogView::BlogView(const std::string& basePath, dbo::SqlConnectionPool& db,
-		   const std::string& rssFeedUrl, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    userChanged_(this)
+                   const std::string& rssFeedUrl)
+  : WCompositeWidget(),
+    userChanged_()
 {
-  impl_ = new BlogImpl(basePath, db, rssFeedUrl, this);
-  setImplementation(impl_);
+  impl_ = setImplementation(Wt::cpp14::make_unique<BlogImpl>(basePath, db, rssFeedUrl, this));
 }
 
 void BlogView::setInternalBasePath(const std::string& basePath)
@@ -465,10 +482,10 @@ void BlogView::setInternalBasePath(const std::string& basePath)
   impl_->setInternalBasePath(basePath);
 }
 
-WString BlogView::user()
+Wt::WString BlogView::user()
 {
   if (impl_->session().user())
     return impl_->session().user()->name;
   else
-    return WString::Empty;
+    return Wt::WString::Empty;
 }

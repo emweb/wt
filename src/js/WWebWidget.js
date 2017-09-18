@@ -222,7 +222,8 @@ WT_DECLARE_WT_MEMBER
 
 	      onEnd();
 	    });
-	}, 0);
+	}, 50); // If this timeout is too small or 0, this will cause some browsers, like
+                // Chrome to sometimes not perform the animation at all.
     }
 
     function animateAbsoluteVertical() {

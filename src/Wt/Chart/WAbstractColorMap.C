@@ -5,4 +5,4 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "WAbstractColorMap"
+#include "WAbstractColorMap.h"

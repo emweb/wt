@@ -6,18 +6,14 @@
 
 #include "MyCaptcha.h"
 
-using namespace Wt;
-
-MyCaptcha::MyCaptcha(WContainerWidget* parent, 
-		     const int width, const int height)
-  : WContainerWidget(parent),
-    completed_(this)
+MyCaptcha::MyCaptcha(const int width, const int height)
+  : WContainerWidget()
 {
   setStyleClass("captcha");
 		
-  captchaMessage_ = new WText(this);
+  captchaMessage_ = this->addWidget(cpp14::make_unique<WText>());
 
-  shapesWidget_ = new ShapesWidget(this);
+  shapesWidget_ = this->addWidget(cpp14::make_unique<ShapesWidget>());
   shapesWidget_->resize(width, height);
 
   shapesWidget_->clicked().connect(this, &MyCaptcha::handleClick);

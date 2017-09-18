@@ -8,8 +8,8 @@
 #ifndef MEMBERSHIP_H
 #define	MEMBERSHIP_H
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 #include "MembershipId.h"
 

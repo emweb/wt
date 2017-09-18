@@ -7,8 +7,8 @@
 #ifndef HOME_H_
 #define HOME_H_
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
   class WMenu;
@@ -59,15 +59,15 @@ private:
 };
 
 template <typename Function>
-DeferredWidget<Function> *deferCreate(Function f)
+std::unique_ptr<DeferredWidget<Function>> deferCreate(Function f)
 {
-  return new DeferredWidget<Function>(f);
+  return cpp14::make_unique<DeferredWidget<Function>>(f);
 }
 
 class Home : public WApplication
 {
 public:
-  Home(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb,
+  Home(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb,
        const std::string& title,
        const std::string& resourceBundle, const std::string& cssPath);
   
@@ -76,15 +76,15 @@ public:
   void googleAnalyticsLogger();
 
 protected:
-  virtual WWidget *examples() = 0;
-  virtual WWidget *createQuoteForm() = 0;
-  virtual WWidget *sourceViewer(const std::string &deployPath) = 0;
+  virtual std::unique_ptr<WWidget> examples() = 0;
+  virtual std::unique_ptr<WWidget> createQuoteForm() = 0;
+  virtual std::unique_ptr<WWidget> sourceViewer(const std::string &deployPath) = 0;
   virtual std::string filePrefix() const = 0;
 
   void init();
   
   void addLanguage(const Lang& l) { languages.push_back(l); }
-  WWidget *linkSourceBrowser(const std::string& examplePath);
+  std::unique_ptr<WWidget> linkSourceBrowser(const std::string& examplePath);
 
   WTabWidget *examplesMenu_;
   
@@ -95,7 +95,7 @@ protected:
   void readReleases(WTable *releaseTable);
 
 private:
-  Wt::Dbo::SqlConnectionPool& blogDb_;
+  Dbo::SqlConnectionPool& blogDb_;
   WWidget *homePage_;
   WWidget *sourceViewer_;
 
@@ -103,15 +103,15 @@ private:
 
   void createHome();
 
-  WWidget *introduction();
-  WWidget *blog();
-  WWidget *status();
-  WWidget *features();
-  WWidget *documentation();
-  WWidget *community();
-  WWidget *otherLanguage();
-  WWidget *download();
-  WWidget *quoteForm();
+  std::unique_ptr<WWidget> introduction();
+  std::unique_ptr<WWidget> blog();
+  std::unique_ptr<WWidget> status();
+  std::unique_ptr<WWidget> features();
+  std::unique_ptr<WWidget> documentation();
+  std::unique_ptr<WWidget> community();
+  std::unique_ptr<WWidget> otherLanguage();
+  std::unique_ptr<WWidget> download();
+  std::unique_ptr<WWidget> quoteForm();
 
   WMenu *mainMenu_;
 
@@ -119,7 +119,7 @@ private:
 
   void readNews(WTable *newsTable, const std::string& newsfile);
   
-  WWidget *wrapView(WWidget *(Home::*createFunction)());
+  std::unique_ptr<WWidget> wrapView(std::unique_ptr<WWidget> (Home::*createFunction)());
 
   void updateTitle();
   void setLanguage(int language);
@@ -128,7 +128,7 @@ private:
   void logInternalPath(const std::string& path);
   void chatSetUser(const WString& name);
 
-  WContainerWidget *sideBarContent_;
+  std::unique_ptr<WContainerWidget> sideBarContent_;
   
   std::vector<Lang> languages;
 };

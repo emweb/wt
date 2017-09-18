@@ -5,9 +5,9 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include "Wt/Test/WTestEnvironment"
-#include "Wt/WApplication"
-#include "Wt/WString"
+#include "Wt/Test/WTestEnvironment.h"
+#include "Wt/WApplication.h"
+#include "Wt/WString.h"
 
 #include "web/FileUtils.h"
 
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleTest )
 
   std::string welcome = Wt::WString::tr("welcome-text").arg("Joske").toUTF8();
   BOOST_REQUIRE(welcome == 
-		"Welcome dear visiter, Joske of the WFooBar magic website !");
+		"Welcome dear visitor, Joske of the WFooBar magic website !");
 
   BOOST_REQUIRE(Wt::WString::tr("welcome").toUTF8() == "??welcome??");
 
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleTest )
   app.setLocale("pl");
   welcome = Wt::WString::tr("welcome-text").arg("Joske").toUTF8();
   BOOST_REQUIRE(welcome == 
-		"Welcome dear visiter, Joske of the WFooBar magic website !");
+		"Welcome dear visitor, Joske of the WFooBar magic website !");
 }
 
 BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundleException1 )
@@ -204,4 +204,19 @@ BOOST_AUTO_TEST_CASE( I18n_badUTF8 )
     'f', 'o', 'r', 'r', (char)243, 0};
   std::string badUTF8(badutf8);
   Wt::WString::checkUTF8Encoding(badUTF8);
+}
+
+BOOST_AUTO_TEST_CASE( I18n_toXhtmlUTF8 )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  app.messageResourceBundle().use(app.appRoot() +
+				  "private/i18n/toxhtml");
+
+  Wt::WString text = Wt::WString::tr("support-training").arg(Wt::utf8("<a href=\"http://webtoolkit.eu\">Wt!</a>"));
+
+  BOOST_REQUIRE(text.toXhtmlUTF8() == "Support &amp; Training <a href=\"http://webtoolkit.eu\">Wt!</a>");
+
+  BOOST_REQUIRE(text.toUTF8() == "Support & Training <a href=\"http://webtoolkit.eu\">Wt!</a>");
 }

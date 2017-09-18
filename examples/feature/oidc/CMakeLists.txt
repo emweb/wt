@@ -1,3 +1,4 @@
+IF(BOOST_WT_FOUND)
 WT_ADD_EXAMPLE(oidc.wt
 	Oidc.C
         OAuthWidget.C
@@ -11,6 +12,9 @@ WT_ADD_EXAMPLE(oidc.wt
         model/UserDetailsModel.C
 )
 
-TARGET_LINK_LIBRARIES(oidc.wt wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(oidc.wt ${EXAMPLES_DBO_LIBS})
 
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
+ELSE(BOOST_WT_FOUND)
+  MESSAGE(STATUS "** Not building oidc example: requires boost headers.")
+ENDIF(BOOST_WT_FOUND)

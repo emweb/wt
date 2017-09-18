@@ -4,35 +4,26 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WMemoryResource"
-#include "Wt/Http/Response"
-
-#ifdef WT_THREADED
-#include <boost/thread/mutex.hpp>
-#endif // WT_THREADED
+#include "Wt/WMemoryResource.h"
+#include "Wt/Http/Response.h"
 
 namespace Wt {
 
-WMemoryResource::WMemoryResource(WObject *parent)
-  : WResource(parent)
+WMemoryResource::WMemoryResource()
 { 
   create();
 }
 
-WMemoryResource::WMemoryResource(const std::string& mimeType,
-				 WObject *parent)
-  : WResource(parent),
-    mimeType_(mimeType),
+WMemoryResource::WMemoryResource(const std::string& mimeType)
+  : mimeType_(mimeType),
     data_(new std::vector<unsigned char>())
 { 
   create();
 }
 
 WMemoryResource::WMemoryResource(const std::string& mimeType,
-				 const std::vector<unsigned char> &data,
-				 WObject *parent)
-  : WResource(parent),
-    mimeType_(mimeType),
+				 const std::vector<unsigned char> &data)
+  : mimeType_(mimeType),
     data_(new std::vector<unsigned char>(data))
 { 
   create();
@@ -41,7 +32,7 @@ WMemoryResource::WMemoryResource(const std::string& mimeType,
 void WMemoryResource::create()
 {
 #ifdef WT_THREADED
-  dataMutex_.reset(new boost::mutex());
+  dataMutex_.reset(new std::mutex());
 #endif // WT_THREADED
 }
 
@@ -61,7 +52,7 @@ void WMemoryResource::setData(const std::vector<unsigned char>& data)
 {
   {
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock lock(*dataMutex_);
+    std::unique_lock<std::mutex> lock(*dataMutex_);
 #endif // WT_THREADED
 
     data_.reset(new std::vector<unsigned char>(data));
@@ -74,7 +65,7 @@ void WMemoryResource::setData(const unsigned char *data, int count)
 {
   {
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock l(*dataMutex_);
+    std::unique_lock<std::mutex> l(*dataMutex_);
 #endif
     data_.reset(new std::vector<unsigned char>(data, data + count));
   }
@@ -88,7 +79,7 @@ const std::vector<unsigned char> WMemoryResource::data() const
 
   {
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock l(*dataMutex_);
+    std::unique_lock<std::mutex> l(*dataMutex_);
 #endif
     data = data_;
   }
@@ -105,7 +96,7 @@ void WMemoryResource::handleRequest(const Http::Request& request,
   DataPtr data;
   {
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock l(*dataMutex_);
+    std::unique_lock<std::mutex> l(*dataMutex_);
 #endif
     data = data_;
   }

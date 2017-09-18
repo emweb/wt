@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WStringListModel"
+#include "Wt/WStringListModel.h"
 #include "WebUtils.h"
 
 #include <functional>
@@ -24,7 +24,7 @@ struct StringListModelCompare W_JAVA_COMPARATOR(int)
 
 #ifndef WT_TARGET_JAVA
   bool operator()(int r1, int r2) const {
-    if (order_ == AscendingOrder)
+    if (order_ == SortOrder::Ascending)
       return compare(r1, r2);
     else
       return compare(r2, r1);
@@ -37,7 +37,7 @@ struct StringListModelCompare W_JAVA_COMPARATOR(int)
   int compare(int r1, int r2) const {
     int result = model_->stringList()[r1].compareTo(model_->stringList()[r2]);
 
-    if (order_ == DescendingOrder)
+    if (order_ == SortOrder::Descending)
       result = -result;
 
     return result;
@@ -49,16 +49,13 @@ struct StringListModelCompare W_JAVA_COMPARATOR(int)
 
 namespace Wt {
 
-WStringListModel::WStringListModel(WObject *parent)
-  : WAbstractListModel(parent),
-    otherData_(0)
+WStringListModel::WStringListModel()
+  : otherData_(nullptr)
 { }
 
-WStringListModel::WStringListModel(const std::vector<WString>& strings,
-				   WObject *parent)
-  : WAbstractListModel(parent),
-    displayData_(strings),
-    otherData_(0)
+WStringListModel::WStringListModel(const std::vector<WString>& strings)
+  : displayData_(strings),
+    otherData_(nullptr)
 { }
 
 WStringListModel::~WStringListModel()
@@ -80,7 +77,7 @@ void WStringListModel::setStringList(const std::vector<WString>& strings)
   flags_.clear();
 
   delete otherData_;
-  otherData_ = 0;
+  otherData_ = nullptr;
 
   if (newSize > currentSize)
     endInsertRows();
@@ -109,23 +106,23 @@ int WStringListModel::rowCount(const WModelIndex& parent) const
   return parent.isValid() ? 0 : displayData_.size();
 }
 
-boost::any WStringListModel::data(const WModelIndex& index, int role) const
+cpp17::any WStringListModel::data(const WModelIndex& index, ItemDataRole role) const
 {
-  if (role == DisplayRole)
-    return boost::any(displayData_[index.row()]);
+  if (role == ItemDataRole::Display)
+    return cpp17::any(displayData_[index.row()]);
   else if (otherData_)
     return (*otherData_)[index.row()][role];
   else
-    return boost::any();
+    return cpp17::any();
 }
 
 bool WStringListModel::setData(const WModelIndex& index,
-			       const boost::any& value, int role)
+                               const cpp17::any& value, ItemDataRole role)
 {
-  if (role == EditRole)
-    role = DisplayRole;
+  if (role == ItemDataRole::Edit)
+    role = ItemDataRole::Display;
 
-  if (role == DisplayRole)
+  if (role == ItemDataRole::Display)
     displayData_[index.row()] = asString(value);
   else {
     if (!otherData_) {
@@ -150,7 +147,7 @@ void WStringListModel::setFlags(int row, WFlags<ItemFlag> flags)
 {
   if (flags_.empty())
     flags_.insert(flags_.begin(), rowCount(),
-		  ItemIsSelectable | ItemIsEditable);
+		  ItemFlag::Selectable | ItemFlag::Editable);
 
   flags_[row] = flags;
   dataChanged().emit(index(row, 0), index(row, 0));
@@ -159,7 +156,7 @@ void WStringListModel::setFlags(int row, WFlags<ItemFlag> flags)
 WFlags<ItemFlag> WStringListModel::flags(const WModelIndex& index) const
 {
   if (flags_.empty())
-    return ItemIsSelectable | ItemIsEditable;
+    return ItemFlag::Selectable | ItemFlag::Editable;
   else
     return flags_[index.row()];
 }
@@ -171,7 +168,7 @@ bool WStringListModel::insertRows(int row, int count, const WModelIndex& parent)
     displayData_.insert(displayData_.begin() + row, count, WString());
     if (!flags_.empty())
       flags_.insert(flags_.begin() + row, count,
-		    ItemIsSelectable | ItemIsEditable);
+		    ItemFlag::Selectable | ItemFlag::Editable);
     if (otherData_)
       otherData_->insert(otherData_->begin() + row, count, DataMap());
     endInsertRows();
@@ -204,7 +201,7 @@ void WStringListModel::sort(int column, SortOrder order)
   layoutAboutToBeChanged().emit();
 
   if (!otherData_ && flags_.empty()) {
-    if (order == AscendingOrder)
+    if (order == SortOrder::Ascending)
       Utils::sort(displayData_);
     else
       Utils::sort(displayData_, std::greater<WString>());
@@ -228,7 +225,7 @@ void WStringListModel::sort(int column, SortOrder order)
     if (!flags_.empty())
       flags.resize(rowCount());
 
-    std::vector<DataMap> *otherData = 0;
+    std::vector<DataMap> *otherData = nullptr;
     if (otherData_) {
       otherData = new std::vector<DataMap>();
       otherData->resize(rowCount());

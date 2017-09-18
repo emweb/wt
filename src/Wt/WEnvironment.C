@@ -3,17 +3,17 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WEnvironment"
+#include "Wt/WEnvironment.h"
 
-#include "Wt/Utils"
-#include "Wt/WException"
-#include "Wt/WLogger"
-#include "Wt/WSslInfo"
-#include "Wt/Http/Request"
-#include "Wt/Json/Parser"
-#include "Wt/Json/Object"
-#include "Wt/Json/Array"
-#include "Wt/WString"
+#include "Wt/Utils.h"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
+#include "Wt/WSslInfo.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Json/Parser.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Array.h"
+#include "Wt/WString.h"
 
 #include "WebController.h"
 #include "WebRequest.h"
@@ -21,7 +21,7 @@
 #include "WebUtils.h"
 #include "Configuration.h"
 
-#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_WITH_SSL
@@ -41,18 +41,7 @@ namespace Wt {
 LOGGER("WEnvironment");
 
 WEnvironment::WEnvironment()
-  : session_(0),
-    doesAjax_(false),
-    doesCookies_(false),
-    internalPathUsingFragments_(false),
-    screenWidth_(-1),
-    screenHeight_(-1),
-    dpiScale_(1),
-    webGLsupported_(false),
-    timeZoneOffset_(0)
-#ifndef WT_TARGET_JAVA
-    , sslInfo_(0)
-#endif
+  : WEnvironment(nullptr)
 { }
 
 WEnvironment::WEnvironment(WebSession *session)
@@ -66,7 +55,7 @@ WEnvironment::WEnvironment(WebSession *session)
     webGLsupported_(false),
     timeZoneOffset_(0)
 #ifndef WT_TARGET_JAVA
-    , sslInfo_(0)
+    , sslInfo_(nullptr)
 #endif
 { }
 
@@ -235,7 +224,7 @@ void WEnvironment::parseSSLInfo(const std::string& json) {
 		clientCertChain.push_back(Wt::Ssl::x509ToWSslCertificate(Wt::Ssl::readFromPem(arr[i])));
 	  }
 
-	  Wt::WValidator::State state = static_cast<Wt::WValidator::State>((int)obj["client-verification-result-state"]);
+	  Wt::ValidationState state = static_cast<Wt::ValidationState>((int)obj["client-verification-result-state"]);
 	  Wt::WString message = obj["client-verification-result-message"];
 
 	  sslInfo_ = new Wt::WSslInfo(clientCert, clientCertChain, Wt::WValidator::Result(state, message));
@@ -294,7 +283,7 @@ void WEnvironment::enableAjax(const WebRequest& request)
   doesAjax_ = true;
   session_->controller()->newAjaxSession();
 
-  doesCookies_ = request.headerValue("Cookie") != 0;
+  doesCookies_ = request.headerValue("Cookie") != nullptr;
 
   if (!request.getParameter("htmlHistory"))
     internalPathUsingFragments_ = true;
@@ -302,8 +291,8 @@ void WEnvironment::enableAjax(const WebRequest& request)
   const std::string *scaleE = request.getParameter("scale");
 
   try {
-    dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
-  } catch (boost::bad_lexical_cast &e) {
+    dpiScale_ = scaleE ? Utils::stod(*scaleE) : 1;
+  } catch (std::exception& e) {
     dpiScale_ = 1;
   }
 
@@ -314,8 +303,8 @@ void WEnvironment::enableAjax(const WebRequest& request)
   const std::string *tzE = request.getParameter("tz");
 
   try {
-    timeZoneOffset_ = tzE ? boost::lexical_cast<int>(*tzE) : 0;
-  } catch (boost::bad_lexical_cast &e) {
+    timeZoneOffset_ = std::chrono::minutes{tzE ? Utils::stoi(*tzE) : 0};
+  } catch (std::exception& e) {
   }
 
   const std::string *hashE = request.getParameter("_");
@@ -336,15 +325,15 @@ void WEnvironment::enableAjax(const WebRequest& request)
   const std::string *scrWE = request.getParameter("scrW");
   if (scrWE) {
     try {
-      screenWidth_ = boost::lexical_cast<int>(*scrWE);
-    } catch (boost::bad_lexical_cast &e) {
+      screenWidth_ = Utils::stoi(*scrWE);
+    } catch (std::exception &e) {
     }
   }
   const std::string *scrHE = request.getParameter("scrH");
   if (scrHE) {
     try {
-      screenHeight_ = boost::lexical_cast<int>(*scrHE);
-    } catch (boost::bad_lexical_cast &e) {
+      screenHeight_ = Utils::stoi(*scrHE);
+    } catch (std::exception &e) {
     }
   }
 }
@@ -355,36 +344,36 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
 
   Configuration& conf = session_->controller()->configuration();
 
-  agent_ = Unknown;
+  agent_ = UserAgent::Unknown;
 
   /* detecting MSIE is as messy as their browser */
   if (userAgent_.find("Trident/4.0") != std::string::npos) {
-    agent_ = IE8; return;
+    agent_ = UserAgent::IE8; return;
   } if (userAgent_.find("Trident/5.0") != std::string::npos) {
-    agent_ = IE9; return;
+    agent_ = UserAgent::IE9; return;
   } else if (userAgent_.find("Trident/6.0") != std::string::npos) {
-    agent_ = IE10; return;
+    agent_ = UserAgent::IE10; return;
   } else if (userAgent_.find("Trident/") != std::string::npos) {
-    agent_ = IE11; return;
+    agent_ = UserAgent::IE11; return;
   } else if (userAgent_.find("MSIE 2.") != std::string::npos
       || userAgent_.find("MSIE 3.") != std::string::npos
       || userAgent_.find("MSIE 4.") != std::string::npos
       || userAgent_.find("MSIE 5.") != std::string::npos
       || userAgent_.find("IEMobile") != std::string::npos)
-    agent_ = IEMobile;
+    agent_ = UserAgent::IEMobile;
   else if (userAgent_.find("MSIE 6.") != std::string::npos)
-    agent_ = IE6;
+    agent_ = UserAgent::IE6;
   else if (userAgent_.find("MSIE 7.") != std::string::npos)
-    agent_ = IE7;
+    agent_ = UserAgent::IE7;
   else if (userAgent_.find("MSIE 8.") != std::string::npos)
-    agent_ = IE8;
+    agent_ = UserAgent::IE8;
   else if (userAgent_.find("MSIE 9.") != std::string::npos)
-    agent_ = IE9;
+    agent_ = UserAgent::IE9;
   else if (userAgent_.find("MSIE") != std::string::npos)
-    agent_ = IE10;
+    agent_ = UserAgent::IE10;
 
   if (userAgent_.find("Opera") != std::string::npos) {
-    agent_ = Opera;
+    agent_ = UserAgent::Opera;
 
     std::size_t t = userAgent_.find("Version/");
     if (t != std::string::npos) {
@@ -393,86 +382,86 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
       if (t != std::string::npos)
 	vs = vs.substr(0, t);
       try {
-	double v = boost::lexical_cast<double>(vs);
+	double v = Utils::stod(vs);
 	if (v >= 10)
-	  agent_ = Opera10;
-      } catch (boost::bad_lexical_cast& e) { }
+	  agent_ = UserAgent::Opera10;
+      } catch (std::exception& e) { }
     }
   }
 
   if (userAgent_.find("Chrome") != std::string::npos) {
     if (userAgent_.find("Android") != std::string::npos)
-      agent_ = MobileWebKitAndroid;
+      agent_ = UserAgent::MobileWebKitAndroid;
     else if (userAgent_.find("Chrome/0.") != std::string::npos)
-      agent_ = Chrome0;
+      agent_ = UserAgent::Chrome0;
     else if (userAgent_.find("Chrome/1.") != std::string::npos)
-      agent_ = Chrome1;
+      agent_ = UserAgent::Chrome1;
     else if (userAgent_.find("Chrome/2.") != std::string::npos)
-      agent_ = Chrome2;
+      agent_ = UserAgent::Chrome2;
     else if (userAgent_.find("Chrome/3.") != std::string::npos)
-      agent_ = Chrome3;
+      agent_ = UserAgent::Chrome3;
     else if (userAgent_.find("Chrome/4.") != std::string::npos)
-      agent_ = Chrome4;
+      agent_ = UserAgent::Chrome4;
     else
-      agent_ = Chrome5;
+      agent_ = UserAgent::Chrome5;
   } else if (userAgent_.find("Safari") != std::string::npos) {
     if (userAgent_.find("iPhone") != std::string::npos
 	|| userAgent_.find("iPad") != std::string::npos) {
-      agent_ = MobileWebKitiPhone;
+      agent_ = UserAgent::MobileWebKitiPhone;
     } else if (userAgent_.find("Android") != std::string::npos) {
-      agent_ = MobileWebKitAndroid;
+      agent_ = UserAgent::MobileWebKitAndroid;
     } else if (userAgent_.find("Mobile") != std::string::npos) {
-      agent_ = MobileWebKit;
+      agent_ = UserAgent::MobileWebKit;
     } else if (userAgent_.find("Version") == std::string::npos) {
       if (userAgent_.find("Arora") != std::string::npos)
-	agent_ = Arora;
+	agent_ = UserAgent::Arora;
       else
-	agent_ = Safari;
+	agent_ = UserAgent::Safari;
     } else if (userAgent_.find("Version/3") != std::string::npos)
-      agent_ = Safari3;
+      agent_ = UserAgent::Safari3;
     else
-      agent_ = Safari4;
+      agent_ = UserAgent::Safari4;
   } else if (userAgent_.find("WebKit") != std::string::npos) {
     if (userAgent_.find("iPhone") != std::string::npos)
-      agent_ = MobileWebKitiPhone;
+      agent_ = UserAgent::MobileWebKitiPhone;
     else
-      agent_ = WebKit;
+      agent_ = UserAgent::WebKit;
   } else if (userAgent_.find("Konqueror") != std::string::npos)
-    agent_ = Konqueror;
+    agent_ = UserAgent::Konqueror;
   else if (userAgent_.find("Gecko") != std::string::npos)
-    agent_ = Gecko;
+    agent_ = UserAgent::Gecko;
 
   if (userAgent_.find("Firefox") != std::string::npos) {
     if (userAgent_.find("Firefox/0.") != std::string::npos)
-      agent_ = Firefox;
+      agent_ = UserAgent::Firefox;
     else if (userAgent_.find("Firefox/1.") != std::string::npos)
-      agent_ = Firefox;
+      agent_ = UserAgent::Firefox;
     else if (userAgent_.find("Firefox/2.") != std::string::npos)
-      agent_ = Firefox;
+      agent_ = UserAgent::Firefox;
     else {
       if (userAgent_.find("Firefox/3.0") != std::string::npos)
-	agent_ = Firefox3_0;
+	agent_ = UserAgent::Firefox3_0;
       else if (userAgent_.find("Firefox/3.1") != std::string::npos)
-	agent_ = Firefox3_1;
+	agent_ = UserAgent::Firefox3_1;
       else if (userAgent_.find("Firefox/3.1b") != std::string::npos)
-	agent_ = Firefox3_1b;
+	agent_ = UserAgent::Firefox3_1b;
       else if (userAgent_.find("Firefox/3.5") != std::string::npos)
-	agent_ = Firefox3_5;
+	agent_ = UserAgent::Firefox3_5;
       else if (userAgent_.find("Firefox/3.6") != std::string::npos)
-	agent_ = Firefox3_6;
+	agent_ = UserAgent::Firefox3_6;
       else if (userAgent_.find("Firefox/4.") != std::string::npos)
-	agent_ = Firefox4_0;
+	agent_ = UserAgent::Firefox4_0;
       else
-	agent_ = Firefox5_0;
+	agent_ = UserAgent::Firefox5_0;
     }
   }
 
   if (userAgent_.find("Edge/") != std::string::npos) {
-    agent_ = Edge;
+    agent_ = UserAgent::Edge;
   }
 
   if (conf.agentIsBot(userAgent_))
-    agent_ = BotAgent;
+    agent_ = UserAgent::BotAgent;
 }
 
 bool WEnvironment::agentSupportsAjax() const
@@ -484,8 +473,12 @@ bool WEnvironment::agentSupportsAjax() const
 
 bool WEnvironment::supportsCss3Animations() const
 {
-  return ((agentIsGecko() && agent_ >= Firefox5_0) ||
-	  (agentIsIE() && agent_ >= IE10) ||
+  return ((agentIsGecko() && 
+	   static_cast<unsigned int>(agent_) >= 
+	   static_cast<unsigned int>(UserAgent::Firefox5_0)) ||
+	  (agentIsIE() && 
+	   static_cast<unsigned int>(agent_) >= 
+	   static_cast<unsigned int>(UserAgent::IE10)) ||
 	  agentIsWebKit());
 }
 
@@ -502,11 +495,6 @@ void WEnvironment::libraryVersion(int& series, int& major, int& minor) const
   minor = WT_MINOR;
 }
 #endif //WT_TARGET_JAVA
-
-std::string WEnvironment::sessionId() const
-{
-  return session_->sessionId();
-}
 
 const Http::ParameterValues&
 WEnvironment::getParameterValues(const std::string& name) const
@@ -525,26 +513,16 @@ const std::string *WEnvironment::getParameter(const std::string& name) const
   if (!Utils::isEmpty(values))
     return &values[0];
   else
-    return 0;
+    return nullptr;
 }
 
-const std::string WEnvironment::getCookie(const std::string& cookieName) const
-{
-  CookieMap::const_iterator i = cookies_.find(cookieName);
-
-  if (i == cookies_.end())
-    throw std::runtime_error("Missing cookie: " + cookieName);
-  else
-    return i->second;
-}
-
-const std::string *WEnvironment::getCookieValue(const std::string& cookieName)
+const std::string *WEnvironment::getCookie(const std::string& cookieName)
   const
 {
   CookieMap::const_iterator i = cookies_.find(cookieName);
 
   if (i == cookies_.end())
-    return 0;
+    return nullptr;
   else
     return &i->second;
 }

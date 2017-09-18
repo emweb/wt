@@ -4,37 +4,39 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 #include "CountDownWidget.h"
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *appl = new WApplication(env);
+  std::unique_ptr<WApplication> appl
+      = cpp14::make_unique<WApplication>(env);
 
-  new WText("<h1>Your mission</h1>", appl->root());
+  appl->root()->addWidget(cpp14::make_unique<WText>("<h1>Your mission</h1>"));
   WText *secret 
-    = new WText("Your mission, Jim, should you accept, is to create solid "
-		"web applications.",
-		appl->root());
+    = appl->root()->addWidget(cpp14::make_unique<WText>("Your mission, Jim, should you accept, is to create solid "
+                "web applications."));
 
-  new WBreak(appl->root()); new WBreak(appl->root());
+  appl->root()->addWidget(cpp14::make_unique<WBreak>());
+  appl->root()->addWidget(cpp14::make_unique<WBreak>());
 
-  new WText("This program will quit in ", appl->root());
-  CountDownWidget *countdown = new CountDownWidget(10, 0, 1000, appl->root());
-  new WText(" seconds.", appl->root());
+  appl->root()->addWidget(cpp14::make_unique<WText>("This program will quit in "));
+  CountDownWidget *countdown = appl->root()->addWidget(cpp14::make_unique<CountDownWidget>(10, 0, std::chrono::milliseconds{1000}));
+  appl->root()->addWidget(cpp14::make_unique<WText>(" seconds."));
 
-  new WBreak(appl->root()); new WBreak(appl->root());
+  appl->root()->addWidget(cpp14::make_unique<WBreak>());
+  appl->root()->addWidget(cpp14::make_unique<WBreak>());
 
-  WPushButton *cancelButton = new WPushButton("Cancel!", appl->root());
-  WPushButton *quitButton = new WPushButton("Quit", appl->root());
-  quitButton->clicked().connect(appl, &WApplication::quit);
+  WPushButton *cancelButton = appl->root()->addWidget(cpp14::make_unique<WPushButton>("Cancel!"));
+  WPushButton *quitButton = appl->root()->addWidget(cpp14::make_unique<WPushButton>("Quit"));
+  quitButton->clicked().connect(appl.get(), &WApplication::quit);
 
-  countdown->done().connect(appl, &WApplication::quit);
+  countdown->done().connect([](){ WApplication::instance()->quit(); });
   cancelButton->clicked().connect(countdown, &CountDownWidget::cancel);
   cancelButton->clicked().connect(cancelButton, &WFormWidget::disable);
   cancelButton->clicked().connect(secret, &WWidget::hide);

@@ -7,9 +7,9 @@
 #include <boost/version.hpp>
 #include <iostream>
 
-#include <Wt/Json/Parser>
-#include <Wt/Json/Object>
-#include <Wt/Json/Array>
+#include <Wt/Json/Parser.h>
+#include <Wt/Json/Object.h>
+#include <Wt/Json/Array.h>
 
 
 

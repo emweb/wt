@@ -7,13 +7,15 @@
 #ifndef PAINTWIDGET_H_
 #define PAINTWIDGET_H_
 
-#include <Wt/WGLWidget>
+#include <Wt/WGLWidget.h>
+
+using namespace Wt;
 
 // You must inherit Wt::WGLWidget to draw a 3D scene
-class PaintWidget: public Wt::WGLWidget
+class PaintWidget: public WGLWidget
 {
 public:
-  PaintWidget(Wt::WContainerWidget *root, const bool & useBinaryBuffers);
+  PaintWidget(const bool & useBinaryBuffers);
   
   // Specialization of WGLWidgeT::intializeGL()
   void initializeGL();
@@ -36,9 +38,9 @@ private:
   std::string fragmentShader_;
 
   // Program and related variables
-  Program shaderProgram_;
-  AttribLocation vertexPositionAttribute_;
-  AttribLocation vertexNormalAttribute_;
+  Program         shaderProgram_;
+  AttribLocation  vertexPositionAttribute_;
+  AttribLocation  vertexNormalAttribute_;
   UniformLocation pMatrixUniform_;
   UniformLocation cMatrixUniform_;
   UniformLocation mvMatrixUniform_;

@@ -10,7 +10,7 @@ WT_ADD_EXAMPLE(hangman.wt
   HighScoresWidget.C
   Dictionary.C
 )
-TARGET_LINK_LIBRARIES(hangman.wt wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(hangman.wt ${EXAMPLES_DBO_LIBS})
 
 # Test whether crypt(3) is provided by libc. If it's not, check if
 # libcrypt exists and if it provides crypt(3).

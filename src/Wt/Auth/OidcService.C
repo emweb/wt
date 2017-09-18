@@ -1,10 +1,10 @@
-#include "Wt/WApplication"
-#include "Wt/Json/Object"
-#include "Wt/Json/Parser"
-#include "Wt/Http/Client"
-#include "Wt/WException"
-#include "Wt/Auth/OidcService"
-#include "Wt/Utils"
+#include "Wt/WApplication.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Parser.h"
+#include "Wt/Http/Client.h"
+#include "Wt/WException.h"
+#include "Wt/Auth/OidcService.h"
+#include "Wt/Utils.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -30,18 +30,18 @@ LOGGER("Auth.OidcService");
       }
     }
 
-    Http::Client *client = new Http::Client(this);
-    client->setTimeout(15);
-    client->setMaximumResponseSize(10 * 1024);
+    httpClient_.reset(new Http::Client());
+    httpClient_->setTimeout(std::chrono::seconds{15});
+    httpClient_->setMaximumResponseSize(10 * 1024);
 
-    client->done().connect(boost::bind(&OidcProcess::handleResponse,
-                                       this, _1, _2));
+    httpClient_->done().connect(std::bind(&OidcProcess::handleResponse,
+                                       this, std::placeholders::_1, std::placeholders::_2));
 
     std::vector<Http::Message::Header> headers;
     headers.push_back(Http::Message::Header("Authorization",
 					    "Bearer " + token.value()));
 
-    client->get(service().userInfoEndpoint(), headers);
+    httpClient_->get(service().userInfoEndpoint(), headers);
 
 #ifndef WT_TARGET_JAVA
     WApplication::instance()->deferRendering();
@@ -58,7 +58,7 @@ LOGGER("Auth.OidcService");
     return Identity(providerName, id, name, email, emailVerified);
   }
 
-  void OidcProcess::handleResponse(boost::system::error_code err, const Http::Message& response)
+  void OidcProcess::handleResponse(AsioWrapper::error_code err, const Http::Message& response)
   {
 #ifndef WT_TARGET_JAVA
     WApplication::instance()->resumeRendering();
@@ -150,10 +150,10 @@ bool OidcService::configure()
   return configured_;
 }
 
-OidcProcess *OidcService::createProcess(const std::string& scope) const
+std::unique_ptr<OAuthProcess> OidcService::createProcess(const std::string& scope) const
 {
   if (configured_)
-    return new OidcProcess(*this, scope);
+    return std::unique_ptr<OAuthProcess>(new OidcProcess(*this, scope));
   else
     throw new WException("OidcService not configured correctly");
 }

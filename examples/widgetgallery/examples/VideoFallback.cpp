@@ -1,10 +1,10 @@
-#include <Wt/WFlashObject>
-#include <Wt/WContainerWidget>
-#include <Wt/WFlashObject>
-#include <Wt/WImage>
-#include <Wt/WLink>
-#include <Wt/WText>
-#include <Wt/WVideo>
+#include <Wt/WFlashObject.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WFlashObject.h>
+#include <Wt/WImage.h>
+#include <Wt/WLink.h>
+#include <Wt/WText.h>
+#include <Wt/WVideo.h>
 
 SAMPLE_BEGIN(VideoFallback)
 
@@ -15,41 +15,41 @@ std::string ogvVideo = "http://www.webtoolkit.eu/videos/sintel_trailer.ogv";
 // Define poster image location
 std::string poster = "pics/sintel_trailer.jpg";
 
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WFlashObject *flash =
-    new Wt::WFlashObject("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
+auto flash =
+    Wt::cpp14::make_unique<Wt::WFlashObject>("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
 flash->setFlashVariable("startimage", "pics/sintel_trailer.jpg");
 flash->setFlashParameter("allowFullScreen", "true");
 flash->setFlashVariable("flv", mp4Video);
 flash->setFlashVariable("showvolume", "1");
 flash->setFlashVariable("showfullscreen", "1");
-flash->setAlternativeContent(new Wt::WImage(poster));
+flash->setAlternativeContent(Wt::cpp14::make_unique<Wt::WImage>(poster));
 flash->resize(640, 360);
 
-Wt::WVideo *video = new Wt::WVideo(container);
+Wt::WVideo *video = container->addWidget(Wt::cpp14::make_unique<Wt::WVideo>());
 video->addSource(Wt::WLink(mp4Video));
 video->addSource(Wt::WLink(ogvVideo));
-video->setAlternativeContent(flash);
+video->setAlternativeContent(std::move(flash));
 video->setPoster(poster);
 video->resize(640, 360);
 
-Wt::WText *out = new Wt::WText(container);
+Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-video->playbackStarted().connect(std::bind([=] () {
+video->playbackStarted().connect([=] {
         out->setText("<p>Video playing</p>");
-}));
+});
 
-video->playbackPaused().connect(std::bind([=] () {
+video->playbackPaused().connect([=] {
         out->setText("<p>Video paused</p>");
-}));
+});
 
-video->ended().connect(std::bind([=] () {
+video->ended().connect([=] {
         out->setText("<p>Video ended</p>");
-}));
+});
 
-video->volumeChanged().connect(std::bind([=] () {
+video->volumeChanged().connect([=] {
         out->setText("<p>Volume changed</p>");
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

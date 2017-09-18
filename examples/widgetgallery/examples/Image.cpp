@@ -1,23 +1,23 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WImage>
-#include <Wt/WLink>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WImage.h>
+#include <Wt/WLink.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(Image)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WImage *image = new Wt::WImage(Wt::WLink("icons/wt_powered.jpg"),
-                                   container);
+Wt::WImage *image =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WImage>(Wt::WLink("icons/wt_powered.jpg")));
 image->setAlternateText("Wt logo");
 
-Wt::WText *out = new Wt::WText(container);
-out->setMargin(10, Wt::Left);
+Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+out->setMargin(10, Wt::Side::Left);
 
-image->clicked().connect(std::bind([=] (const Wt::WMouseEvent& e) {
+image->clicked().connect([=] (const Wt::WMouseEvent& e) {
     out->setText("You clicked the Wt logo at "
-		 "(" + boost::lexical_cast<std::string>(e.widget().x) +
-		 "," + boost::lexical_cast<std::string>(e.widget().y) +
+                 "(" + std::to_string(e.widget().x) +
+                 "," + std::to_string(e.widget().y) +
 		 ").");
-}, std::placeholders::_1));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

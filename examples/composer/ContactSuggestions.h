@@ -7,7 +7,7 @@
 #ifndef CONTACT_SUGGESTIONS_H_
 #define CONTACT_SUGGESTIONS_H_
 
-#include <Wt/WSuggestionPopup>
+#include <Wt/WSuggestionPopup.h>
 
 class AddresseeEdit;
 struct Contact;
@@ -34,7 +34,7 @@ class ContactSuggestions : public WSuggestionPopup
 public:
   /*! \brief Create a new ContactSuggestions popup.
    */
-  ContactSuggestions(WObject *parent = 0);
+  ContactSuggestions();
 
   /*! \brief Set the address book.
    */

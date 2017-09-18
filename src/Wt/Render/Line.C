@@ -137,7 +137,7 @@ void Line::finish(AlignmentFlag textAlign,
     Block *b = blocks_[blocks_.size() - 1 - i];
 
     if (!b->isFloat()) {
-      if (b->type() != DomElement_LI && b->isText()) {
+      if (b->type() != DomElementType::LI && b->isText()) {
 	bool done = false;
 
 	for (unsigned j = 0; j < b->inlineLayout.size(); ++j) {
@@ -165,7 +165,7 @@ void Line::finish(AlignmentFlag textAlign,
   Range rangeX(minX, maxX);
   Block::adjustAvailableWidth(y_, page_, floats, rangeX);
   
-  /* Compute total width and total white space width */
+  /* Compute total width and total StandardColor::White space width */
   double whitespace = 0;
   double content = 0;
 
@@ -182,7 +182,7 @@ void Line::finish(AlignmentFlag textAlign,
 	InlineBox& ib = b->inlineLayout[j];
 
 	if (ib.y == y_ && ib.page == page_) {
-	  std::string va = b->cssProperty(PropertyStyleVerticalAlign);
+	  std::string va = b->cssProperty(Property::StyleVerticalAlign);
 
 	  if (va == "top")
 	    ib.y = y_;
@@ -218,15 +218,15 @@ void Line::finish(AlignmentFlag textAlign,
   double spaceFactor = 1.0;
 
   switch (textAlign) {
-  case AlignLeft:
+  case AlignmentFlag::Left:
     break;
-  case AlignRight:
+  case AlignmentFlag::Right:
     rangeX.start = rangeX.end - content - whitespace;
     break;
-  case AlignCenter:
+  case AlignmentFlag::Center:
     rangeX.start += (rangeX.end - rangeX.start - content - whitespace)/2;
     break;
-  case AlignJustify:
+  case AlignmentFlag::Justify:
     if (!lineBreak_) {
       double remaining = rangeX.end - rangeX.start - content;
 

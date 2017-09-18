@@ -41,7 +41,7 @@
 	references to Ghostscript; clarified derivation from RFC 1321;
 	now handles byte order either statically or dynamically.
   1999-11-04 lpd Edited comments slightly for automatic TOC extraction.
-  1999-10-18 lpd Fixed typo in header comment (ansi2knr rather than md5);
+  1999-10-18 lpd PositionScheme::Fixed typo in header comment (ansi2knr rather than md5);
 	added conditionalization for C++ compilation from Martin
 	Purschke <purschke@bnl.gov>.
   1999-05-03 lpd Original version.

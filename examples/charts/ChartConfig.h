@@ -7,8 +7,8 @@
 #ifndef CHART_CONFIG_H_
 #define CHART_CONFIG_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/Chart/WDataSeries>
+#include <Wt/WContainerWidget.h>
+#include <Wt/Chart/WDataSeries.h>
 
 namespace Wt {
   class WCheckBox;
@@ -39,13 +39,13 @@ class ChartConfig : public Wt::WContainerWidget
 public:
   /*! \brief Constructor.
    */  
-  ChartConfig(Wt::Chart::WCartesianChart *chart, Wt::WContainerWidget *parent);
+  ChartConfig(Wt::Chart::WCartesianChart *chart);
 
   void setValueFill(Wt::Chart::FillRangeType fill);
 
 private:
   Wt::Chart::WCartesianChart  *chart_;
-  Wt::Chart::FillRangeType fill_;
+  Wt::Chart::FillRangeType     fill_;
 
   //! Struct that holds the controls for one series
   struct SeriesControl {

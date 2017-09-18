@@ -5,16 +5,14 @@
  */
 #include <iostream>
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WText>
-#include <Wt/WPushButton>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WText.h>
+#include <Wt/WPushButton.h>
 
 #include "JavascriptExample.h"
 #include "Popup.h"
-
-using namespace Wt;
 
 JavascriptExample::JavascriptExample(const WEnvironment& env)
   : WApplication(env)
@@ -26,18 +24,18 @@ JavascriptExample::JavascriptExample(const WEnvironment& env)
   //
   // Note that the input provided by the user in the prompt box is passed as
   // an argument to the slot.
-  promptAmount_ = Popup::createPrompt("How much do you want to pay?", "",
-				      this);
-  promptAmount_->okPressed().connect(this, &JavascriptExample::setAmount);
+  promptAmount_ = Popup::createPrompt("How much do you want to pay?","");
+  promptAmount_->okPressed().connect(std::bind(&JavascriptExample::setAmount,
+                                               this, std::placeholders::_1));
 
   // Create a popup for confirming the payment.
   //
   // Since a confirm popup does not allow input, we ignore the
   // argument carrying the input (which will be empty anyway).
-  confirmPay_ = Popup::createConfirm("", this);
+  confirmPay_ = Popup::createConfirm("");
   confirmPay_->okPressed().connect(this, &JavascriptExample::confirmed);
 
-  new WText("<h2>Wt Javascript example</h2>"
+  root()->addWidget(cpp14::make_unique<WText>("<h2>Wt Javascript example</h2>"
 	    "<p>Wt makes abstraction of Javascript, and therefore allows you"
 	    " to develop web applications without any knowledge of Javascript,"
 	    " and which are not dependent on Javascript."
@@ -51,18 +49,21 @@ JavascriptExample::JavascriptExample(const WEnvironment& env)
 	    "WApplication::doJavascript() or Wt::JSlot::exec().</li>"
 	    " </ul>"
 	    "<p>This simple application shows how to interact between C++ and"
-	    " JavaScript using the JSlot and JSignal classes.</p>", root());
+	    " JavaScript using the JSlot and JSignal classes.</p>"));
 
   currentAmount_
-    = new WText("Current amount: $" + promptAmount_->defaultValue(), root());
+    = root()->addWidget(cpp14::make_unique<WText>("Current amount: $" +
+                                                  promptAmount_->defaultValue()));
 
-  WPushButton *amountButton = new WPushButton("Change ...", root());
-  amountButton->setMargin(10, Left | Right);
+  auto amountButton =
+      root()->addWidget(cpp14::make_unique<WPushButton>("Change ..."));
+  amountButton->setMargin(10, Side::Left | Side::Right);
 
-  new WBreak(root());
+  root()->addWidget(cpp14::make_unique<WBreak>());
 
-  WPushButton *confirmButton = new WPushButton("Pay now.", root());
-  confirmButton->setMargin(10, Top | Bottom);
+  auto confirmButton =
+      root()->addWidget(cpp14::make_unique<WPushButton>("Pay now."));
+  confirmButton->setMargin(10, Side::Top | Side::Bottom);
 
   // Connect the event handlers to a JSlot: this will execute the JavaScript
   // immediately, without a server round trip.
@@ -87,12 +88,13 @@ void JavascriptExample::setAmount(const std::string amount)
 
 void JavascriptExample::confirmed()
 {
-  new WText("<br/>Just payed $" + promptAmount_->defaultValue() + ".", root());
+  root()->addWidget(cpp14::make_unique<WText>("<br/>Just payed $" +
+                                              promptAmount_->defaultValue() + "."));
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new JavascriptExample(env);
+  return cpp14::make_unique<JavascriptExample>(env);
 }
 
 int main(int argc, char **argv)

@@ -48,10 +48,10 @@ struct buffer_string
   unsigned int len;
   buffer_string *next;
 
-  buffer_string() : data(0), len(0), next(0) { }
+  buffer_string() : data(nullptr), len(0), next(nullptr) { }
 
   bool empty() const { return len == 0 && (!next || next->empty()); }
-  void clear() { data = 0; len = 0; next = 0; }
+  void clear() { data = nullptr; len = 0; next = nullptr; }
   std::string str() const;
   unsigned length() const;
   bool contains(const char *s) const;
@@ -87,7 +87,7 @@ public:
 
   Request() {
 #ifdef HTTP_WITH_SSL
-    ssl = 0;
+    ssl = nullptr;
 #endif
     http_version_major = -1;
     http_version_minor = -1;

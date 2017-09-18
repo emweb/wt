@@ -3,12 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
-
-#include "Wt/WApplication"
-#include "Wt/WJavaScriptSlot"
-#include "Wt/WStatelessSlot"
-#include "Wt/WWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WJavaScriptSlot.h"
+#include "Wt/WStatelessSlot.h"
+#include "Wt/WWidget.h"
 
 namespace Wt {
 
@@ -77,7 +75,7 @@ void JSlot::create()
     }
   }
 
-  imp_ = new WStatelessSlotImpl(widget_, 0, ss.str());
+  imp_ = new WStatelessSlotImpl(widget_, nullptr, ss.str());
 }
 
 JSlot::~JSlot()
@@ -87,7 +85,7 @@ JSlot::~JSlot()
 
 std::string JSlot::jsFunctionName() const
 {
-  return "sf" + boost::lexical_cast<std::string>(fid_);
+  return "sf" + std::to_string(fid_);
 }
 
 void JSlot::setJavaScript(const std::string& js, int nbArgs)

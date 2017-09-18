@@ -3,12 +3,16 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WText>
-#include <Wt/WMessageBox>
-#include <Wt/WServer>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WServer.h>
 
-#include <boost/thread.hpp>
+#include <thread>
+#include <chrono>
+#include <mutex>
+
+using namespace Wt;
 
 /*
  * This example illustrates how using WServer::post() you may notify
@@ -31,7 +35,7 @@ public:
     : counter_(0),
       stop_(false)
   {
-    thread_ = boost::thread(boost::bind(&Server::run, this));
+    thread_ = std::thread(std::bind(&Server::run, this));
   }
 
   ~Server()
@@ -40,17 +44,17 @@ public:
     thread_.join();
   }
 
-  void connect(Client *client, const boost::function<void()>& function)
+  void connect(Client *client, const std::function<void()>& function)
   {
-    boost::mutex::scoped_lock lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
 
     connections_.push_back
-      (Connection(Wt::WApplication::instance()->sessionId(), client, function));
+      (Connection(WApplication::instance()->sessionId(), client, function));
   }
 
   void disconnect(Client *client)
   {
-    boost::mutex::scoped_lock lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
 
     for (unsigned i = 0; i < connections_.size(); ++i) {
       if (connections_[i].client == client) {
@@ -63,7 +67,7 @@ public:
   }
 
   int getCount() const {
-    boost::mutex::scoped_lock lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
 
     return counter_;
   }
@@ -71,7 +75,7 @@ public:
 private:
   struct Connection {
     Connection(const std::string& id, Client *c,
-	       const boost::function<void()>& f)
+               const std::function<void()>& f)
       : sessionId(id),
 	client(c),
 	function(f)
@@ -79,11 +83,11 @@ private:
 
     std::string sessionId;
     Client *client;
-    boost::function<void()> function;
+    std::function<void()> function;
   };
 
-  mutable boost::mutex mutex_;
-  boost::thread thread_;
+  mutable std::mutex mutex_;
+  std::thread thread_;
   int counter_;
   bool stop_;
 
@@ -98,16 +102,26 @@ Server server;
  * A widget which displays the server data, keeping itself up-to-date
  * using server push.
  */
-class ClientWidget : public Wt::WText, public Client
+class ClientWidget : public WText, public Client
 {
 public:
-  ClientWidget(Wt::WContainerWidget *parent = 0)
-    : Wt::WText(parent)
+  ClientWidget()
+    : WText()
   {
-    Wt::WApplication *app = Wt::WApplication::instance();
+    WApplication *app = WApplication::instance();
 
-    server.connect(this,
-		   app->bind(boost::bind(&ClientWidget::updateData, this)));
+    /*
+     * WObject::bindSafe() is a functor that protects calling the passed
+     * method or function against calling it when the object has already
+     * been deleted.
+     */
+    server.connect(this, bindSafe(&ClientWidget::updateData));
+
+    /*
+     * You can also bindSafe() a lambda, for example:
+     */
+    // server.connect(this, bindSafe([this]() { updateData(); }));
+
     app->enableUpdates(true);
 
     updateData();
@@ -116,14 +130,14 @@ public:
   virtual ~ClientWidget() {
     server.disconnect(this);
 
-    Wt::WApplication::instance()->enableUpdates(false);
+    WApplication::instance()->enableUpdates(false);
   }
 
 private:
   void updateData() {
-    setText(Wt::WString("count: {1}").arg(server.getCount()));
+    setText(WString("count: {1}").arg(server.getCount()));
 
-    Wt::WApplication::instance()->triggerUpdate();
+    WApplication::instance()->triggerUpdate();
   }
 };
 
@@ -134,29 +148,29 @@ void Server::run()
    * thread.
    */
   for (;;) {
-    boost::this_thread::sleep(boost::posix_time::seconds(1));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     if (stop_)
       return;
 
     {
-      boost::mutex::scoped_lock lock(mutex_);
+      std::unique_lock<std::mutex> lock(mutex_);
       ++counter_;
 
       /* This is where we notify all connected clients. */
       for (unsigned i = 0; i < connections_.size(); ++i) {
 	Connection& c = connections_[i];
-	Wt::WServer::instance()->post(c.sessionId, c.function);
+	WServer::instance()->post(c.sessionId, c.function);
       }
     }
   }
 }
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  Wt::WApplication *app = new Wt::WApplication(env);
+  std::unique_ptr<WApplication> app = cpp14::make_unique<WApplication>(env);
   app->setCssTheme("");
-  new ClientWidget(app->root());
+  app->root()->addWidget(cpp14::make_unique<ClientWidget>());
   return app;
 }
 

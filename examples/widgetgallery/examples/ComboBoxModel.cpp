@@ -1,39 +1,39 @@
-#include <Wt/WComboBox>
-#include <Wt/WContainerWidget>
-#include <Wt/WStringListModel>
-#include <Wt/WText>
+#include <Wt/WAny.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WStringListModel.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(ComboBoxModel)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-Wt::WComboBox *cb = new Wt::WComboBox(container);
-cb->setMargin(10, Wt::Right);
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WStringListModel *model = new Wt::WStringListModel(cb);
+auto cb = container->addWidget(Wt::cpp14::make_unique<Wt::WComboBox>());
+cb->setMargin(10, Wt::Side::Right);
 
+auto model = std::make_shared<Wt::WStringListModel>();
 model->addString("Belgium");
-model->setData(0, 0, std::string("BE"), Wt::UserRole);
+model->setData(0, 0, std::string("BE"), Wt::ItemDataRole::User);
 model->addString("Netherlands");
-model->setData(1, 0, std::string("NL"), Wt::UserRole);
+model->setData(1, 0, std::string("NL"), Wt::ItemDataRole::User);
 model->addString("United Kingdom");
-model->setData(2, 0, std::string("UK"), Wt::UserRole);
+model->setData(2, 0, std::string("UK"), Wt::ItemDataRole::User);
 model->addString("United States");
-model->setData(3, 0, std::string("US"), Wt::UserRole);
-model->setFlags(3, 0);
+model->setData(3, 0, std::string("US"), Wt::ItemDataRole::User);
+model->setFlags(3, Wt::ItemFlag::Selectable);
 
 cb->setNoSelectionEnabled(true);
 cb->setModel(model);
 
-Wt::WText *out = new Wt::WText(container);
+auto out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
-cb->changed().connect(std::bind([=] () {
+cb->changed().connect([=] {
     Wt::WString countryName = cb->currentText();
     int row = cb->currentIndex();
-    std::string countryCode = boost::any_cast<std::string>
-        (model->data(model->index(row,0), Wt::UserRole));
-    out->setText(Wt::WString::fromUTF8("You selected {1} with key {2}.").
+    Wt::WString countryCode = Wt::asString(model->data(model->index(row,0), Wt::ItemDataRole::User));
+    out->setText(Wt::WString("You selected {1} with key {2}.").
 		 arg(countryName).arg(countryCode));
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

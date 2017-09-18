@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
 #include "ChartsExample.h"
 
 using namespace Wt;
@@ -23,7 +23,7 @@ public:
     root()->setPadding(10);
     root()->resize(WLength::Auto, WLength::Auto);
 
-    new ChartsExample(root());
+    root()->addWidget(cpp14::make_unique<ChartsExample>());
 
     /*
      * Set our style sheet last, so that it loaded after the ext stylesheets.
@@ -32,11 +32,9 @@ public:
   }
 };
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new ChartsApplication(env);
-
-  return app;
+  return cpp14::make_unique<ChartsApplication>(env);
 }
 
 int main(int argc, char **argv)

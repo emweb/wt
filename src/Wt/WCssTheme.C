@@ -6,21 +6,22 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WAbstractItemView"
-#include "Wt/WAbstractSpinBox"
-#include "Wt/WApplication"
-#include "Wt/WCalendar"
-#include "Wt/WCssTheme"
-#include "Wt/WDateEdit"
-#include "Wt/WDialog"
-#include "Wt/WEnvironment"
-#include "Wt/WMessageResourceBundle"
-#include "Wt/WPanel"
-#include "Wt/WPopupMenu"
-#include "Wt/WProgressBar"
-#include "Wt/WPushButton"
-#include "Wt/WSuggestionPopup"
-#include "Wt/WTabWidget"
+#include "Wt/WAbstractItemView.h"
+#include "Wt/WAbstractSpinBox.h"
+#include "Wt/WApplication.h"
+#include "Wt/WCalendar.h"
+#include "Wt/WCssTheme.h"
+#include "Wt/WDateEdit.h"
+#include "Wt/WDialog.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WLinkedCssStyleSheet.h"
+#include "Wt/WMessageResourceBundle.h"
+#include "Wt/WPanel.h"
+#include "Wt/WPopupMenu.h"
+#include "Wt/WProgressBar.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WSuggestionPopup.h"
+#include "Wt/WTabWidget.h"
 
 #include "DomElement.h"
 
@@ -34,30 +35,30 @@ namespace skeletons {
 
 namespace Wt {
 
-WCssTheme::WCssTheme(const std::string& name, WObject *parent)
-  : WTheme(parent),
+WCssTheme::WCssTheme(const std::string& name)
+  : WTheme(),
     name_(name)
 { }
 
 WCssTheme::~WCssTheme()
 { }
 
-std::vector<WCssStyleSheet> WCssTheme::styleSheets() const
+std::vector<WLinkedCssStyleSheet> WCssTheme::styleSheets() const
 {
-  std::vector<WCssStyleSheet> result;
+  std::vector<WLinkedCssStyleSheet> result;
 
   if (!name_.empty()) {
     std::string themeDir = resourcesUrl();
 
     WApplication *app = WApplication::instance();
 
-    result.push_back(WCssStyleSheet(WLink(themeDir + "wt.css")));
+    result.push_back(WLinkedCssStyleSheet(WLink(themeDir + "wt.css")));
 
     if (app->environment().agentIsIElt(9))
-      result.push_back(WCssStyleSheet(WLink(themeDir + "wt_ie.css")));
+      result.push_back(WLinkedCssStyleSheet(WLink(themeDir + "wt_ie.css")));
 
-    if (app->environment().agent() == WEnvironment::IE6)
-      result.push_back(WCssStyleSheet(WLink(themeDir + "wt_ie6.css")));
+    if (app->environment().agent() == UserAgent::IE6)
+      result.push_back(WLinkedCssStyleSheet(WLink(themeDir + "wt_ie6.css")));
   }
 
   return result;
@@ -69,34 +70,34 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
     return;
 
   switch (widgetRole) {
-  case MenuItemIconRole:
+  case WidgetThemeRole::MenuItemIcon:
     child->addStyleClass("Wt-icon");
     break;
-  case MenuItemCheckBoxRole:
+  case WidgetThemeRole::MenuItemCheckBox:
     child->addStyleClass("Wt-chkbox");
     break;
-  case MenuItemCloseRole:
+  case WidgetThemeRole::MenuItemClose:
     widget->addStyleClass("Wt-closable");
     child->addStyleClass("closeicon");
     break;
 
-  case DialogCoverRole:
+  case WidgetThemeRole::DialogCoverWidget:
     child->setStyleClass("Wt-dialogcover in");
     break;
-  case DialogTitleBarRole:
+  case WidgetThemeRole::DialogTitleBar:
     child->addStyleClass("titlebar");
     break;
-  case DialogBodyRole:
+  case WidgetThemeRole::DialogBody:
     child->addStyleClass("body");
     break;
-  case DialogFooterRole:
+  case WidgetThemeRole::DialogFooter:
     child->addStyleClass("footer");
     break;
-  case DialogCloseIconRole:
+  case WidgetThemeRole::DialogCloseIcon:
     child->addStyleClass("closeicon");
     break;
 
-  case TableViewRowContainerRole:
+  case WidgetThemeRole::TableViewRowContainer:
     {
       WAbstractItemView *view = dynamic_cast<WAbstractItemView *>(widget);
 
@@ -108,8 +109,7 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
 	backgroundImage = "no-stripes/no-stripe-";
 
       backgroundImage = resourcesUrl() + backgroundImage
-	+ boost::lexical_cast<std::string>
-	  (static_cast<int>(view->rowHeight().toPixels()))
+	+ std::to_string(static_cast<int>(view->rowHeight().toPixels()))
 	+ "px.gif";
 
       child->decorationStyle().setBackgroundImage(WLink(backgroundImage));
@@ -117,17 +117,17 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
       break;
     }
 
-  case DatePickerPopupRole:
+  case WidgetThemeRole::DatePickerPopup:
     child->addStyleClass("Wt-datepicker");
     break;
-  case PanelTitleBarRole:
+  case WidgetThemeRole::PanelTitleBar:
     child->addStyleClass("titlebar");
     break;
-  case PanelBodyRole:
+  case WidgetThemeRole::PanelBody:
     child->addStyleClass("body");
     break;
 
-  case AuthWidgets:
+  case WidgetThemeRole::AuthWidgets:
     WApplication *app = WApplication::instance();
     app->useStyleSheet(WApplication::relativeResourcesUrl() + "form.css");
     app->builtinLocalizedStrings().useBuiltin(skeletons::AuthCssTheme_xml1);
@@ -138,90 +138,90 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
 void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
   const
 {
+  bool creating = element.mode() == DomElement::Mode::Create;
+
   if (!widget->isThemeStyleEnabled())
     return;
-
-  bool creating = element.mode() == DomElement::ModeCreate;
 
   {
     WPopupWidget *popup = dynamic_cast<WPopupWidget *>(widget);
     if (popup)
-      element.addPropertyWord(PropertyClass, "Wt-outset");
+      element.addPropertyWord(Property::Class, "Wt-outset");
   }
 
   switch (element.type()) {
-  case DomElement_BUTTON:
+  case DomElementType::BUTTON:
     if (creating) {
-      element.addPropertyWord(PropertyClass, "Wt-btn");
+      element.addPropertyWord(Property::Class, "Wt-btn");
       WPushButton *b = dynamic_cast<WPushButton *>(widget);
       if (b) {
 	if (b->isDefault())
-	  element.addPropertyWord(PropertyClass, "Wt-btn-default");
+	  element.addPropertyWord(Property::Class, "Wt-btn-default");
 
 	if (!b->text().empty())
-	  element.addPropertyWord(PropertyClass, "with-label");
+	  element.addPropertyWord(Property::Class, "with-label");
       }
     }
     break;
 
-  case DomElement_UL:
+  case DomElementType::UL:
     if (dynamic_cast<WPopupMenu *>(widget))
-      element.addPropertyWord(PropertyClass, "Wt-popupmenu Wt-outset");
+      element.addPropertyWord(Property::Class, "Wt-popupmenu Wt-outset");
     else {
       WTabWidget *tabs
 	= dynamic_cast<WTabWidget *>(widget->parent()->parent());
 
       if (tabs)
-	element.addPropertyWord(PropertyClass, "Wt-tabs");
+	element.addPropertyWord(Property::Class, "Wt-tabs");
       else {
 	WSuggestionPopup *suggestions
 	  = dynamic_cast<WSuggestionPopup *>(widget);
 
 	if (suggestions)
-	  element.addPropertyWord(PropertyClass, "Wt-suggest");
+	  element.addPropertyWord(Property::Class, "Wt-suggest");
       }
     }
     break;
 
-  case DomElement_LI:
+  case DomElementType::LI:
     {
       WMenuItem *item = dynamic_cast<WMenuItem *>(widget);
       if (item) {
 	if (item->isSeparator())
-	  element.addPropertyWord(PropertyClass, "Wt-separator");
+	  element.addPropertyWord(Property::Class, "Wt-separator");
    	if (item->isSectionHeader())
-	  element.addPropertyWord(PropertyClass, "Wt-sectheader");
+	  element.addPropertyWord(Property::Class, "Wt-sectheader");
 	if (item->menu())
-	  element.addPropertyWord(PropertyClass, "submenu");
+	  element.addPropertyWord(Property::Class, "submenu");
       }
     }
     break;
 
-  case DomElement_DIV:
+  case DomElementType::DIV:
     {
       WDialog *dialog = dynamic_cast<WDialog *>(widget);
       if (dialog) {
-	element.addPropertyWord(PropertyClass, "Wt-dialog");
+	element.addPropertyWord(Property::Class, "Wt-dialog");
 	return;
       }
 
       WPanel *panel = dynamic_cast<WPanel *>(widget);
       if (panel) {
-	element.addPropertyWord(PropertyClass, "Wt-panel Wt-outset");
+	element.addPropertyWord(Property::Class, "Wt-panel Wt-outset");
 	return;
       }
 
       WProgressBar *bar = dynamic_cast<WProgressBar *>(widget);
       if (bar) {
 	switch (elementRole) {
-	case MainElementThemeRole:
-	  element.addPropertyWord(PropertyClass, "Wt-progressbar");
+	case ElementThemeRole::MainElement:
+	  element.addPropertyWord(Property::Class, "Wt-progressbar");
 	  break;
-	case ProgressBarBarRole:
-	  element.addPropertyWord(PropertyClass, "Wt-pgb-bar");
+	case ElementThemeRole::ProgressBarBar:
+	  element.addPropertyWord(Property::Class, "Wt-pgb-bar");
 	  break;
-	case ProgressBarLabelRole:
-	  element.addPropertyWord(PropertyClass, "Wt-pgb-label");
+	case ElementThemeRole::ProgressBarLabel:
+	  element.addPropertyWord(Property::Class, "Wt-pgb-label");
 	}
 	return;
       }
@@ -229,17 +229,17 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
 
     break;
 
-  case DomElement_INPUT:
+  case DomElementType::INPUT:
     {
       WAbstractSpinBox *spinBox = dynamic_cast<WAbstractSpinBox *>(widget);
       if (spinBox) {
-	element.addPropertyWord(PropertyClass, "Wt-spinbox");
+	element.addPropertyWord(Property::Class, "Wt-spinbox");
 	return;
       }
 
       WDateEdit *dateEdit = dynamic_cast<WDateEdit *>(widget);
       if (dateEdit) {
-	element.addPropertyWord(PropertyClass, "Wt-dateedit");
+	element.addPropertyWord(Property::Class, "Wt-dateedit");
 	return;
       }
     }
@@ -263,7 +263,7 @@ std::string WCssTheme::activeClass() const
 std::string WCssTheme::utilityCssClass(int utilityCssClassRole) const
 {
   switch (utilityCssClassRole) {
-  case ToolTipOuter:
+  case UtilityCssClassRole::ToolTipOuter:
     return "Wt-tooltip";
   default:
     return "";
@@ -292,18 +292,18 @@ void WCssTheme::applyValidationStyle(WWidget *widget,
   if (app->environment().ajax()) {
     WStringStream js;
     js << WT_CLASS ".setValidationState(" << widget->jsRef() << ","
-       << (validation.state() == WValidator::Valid ? 1 : 0) << ","
+       << (validation.state() == ValidationState::Valid ? 1 : 0) << ","
        << validation.message().jsStringLiteral() << ","
        << styles.value() << ");";
 
     widget->doJavaScript(js.str());
   } else {
     bool validStyle
-      = (validation.state() == WValidator::Valid) && 
-      (styles & ValidationValidStyle);
+      = (validation.state() == ValidationState::Valid) && 
+      styles.test(ValidationStyleFlag::ValidStyle);
     bool invalidStyle
-      = (validation.state() != WValidator::Valid) && 
-      (styles & ValidationInvalidStyle);
+      = (validation.state() != ValidationState::Valid) && 
+      styles.test(ValidationStyleFlag::InvalidStyle);
 
     widget->toggleStyleClass("Wt-valid", validStyle);
     widget->toggleStyleClass("Wt-invalid", invalidStyle);

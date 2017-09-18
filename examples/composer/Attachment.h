@@ -21,11 +21,11 @@ class Attachment
 public:
   /*! \brief The file name.
    */
-  std::wstring fileName;
+  std::u32string fileName;
 
   /*! \brief The content description.
    */
-  std::wstring contentDescription;
+  std::u32string contentDescription;
 
   /*! \brief the spooled file name.
    */
@@ -33,8 +33,8 @@ public:
 
   /*! \brief Create an attachment.
    */
-  Attachment(const std::wstring aFileName,
-	     const std::wstring aContentDescription,
+  Attachment(const std::u32string aFileName,
+             const std::u32string aContentDescription,
 	     const std::string aSpoolFileName)
     : fileName(aFileName),
       contentDescription(aContentDescription),

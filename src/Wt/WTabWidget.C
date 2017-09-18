@@ -4,34 +4,33 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WAnchor"
-#include "Wt/WApplication"
-#include "Wt/WText"
-#include "Wt/WTabWidget"
-#include "Wt/WMenu"
-#include "Wt/WMenuItem"
-#include "Wt/WStackedWidget"
+#include "Wt/WAnchor.h"
+#include "Wt/WApplication.h"
+#include "Wt/WText.h"
+#include "Wt/WTabWidget.h"
+#include "Wt/WMenu.h"
+#include "Wt/WMenuItem.h"
+#include "Wt/WStackedWidget.h"
 
 #include "WebUtils.h"
 #include "StdWidgetItemImpl.h"
 
 namespace Wt {
 
-WTabWidget::WTabWidget(WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    currentChanged_(this)
+WTabWidget::WTabWidget()
 {
   create();
 }
 
 void WTabWidget::create()
 {
-  setImplementation(layout_ = new WContainerWidget());
+  layout_ = new WContainerWidget();
+  setImplementation(std::unique_ptr<WWidget>(layout_));
 
-  menu_ = new WMenu(new WStackedWidget());
-
-  layout_->addWidget(menu_);
-  layout_->addWidget(menu_->contentsStack());
+  std::unique_ptr<WStackedWidget> stack(new WStackedWidget());
+  menu_ = new WMenu(stack.get());
+  layout_->addWidget(std::unique_ptr<WWidget>(menu_));
+  layout_->addWidget(std::move(stack));
 
   setJavaScriptMember(WT_RESIZE_JS, StdWidgetItemImpl::secondResizeJS());
   setJavaScriptMember(WT_GETPS_JS, StdWidgetItemImpl::secondGetPSJS());
@@ -40,25 +39,19 @@ void WTabWidget::create()
   menu_->itemClosed().connect(this, &WTabWidget::onItemClosed);
 }
 
-WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
-			      LoadPolicy loadPolicy)
+WMenuItem *WTabWidget::addTab(std::unique_ptr<WWidget> child,
+			      const WString& label,
+			      ContentLoading loadPolicy)
 {
-  WMenuItem::LoadPolicy policy = WMenuItem::PreLoading;
-  switch (loadPolicy) {
-  case PreLoading: policy = WMenuItem::PreLoading; break;
-  case LazyLoading: policy = WMenuItem::LazyLoading; break;
-  }
-
-  WMenuItem *result = new WMenuItem(label, child, policy);
-
-  contentsWidgets_.push_back(child);
-
-  menu_->addItem(result);
-
+  contentsWidgets_.push_back(child.get());
+  std::unique_ptr<WMenuItem> item
+    (new WMenuItem(label, std::move(child), loadPolicy));
+  WMenuItem *result = item.get();
+  menu_->addItem(std::move(item));
   return result;
 }
 
-void WTabWidget::removeTab(WWidget *child)
+std::unique_ptr<WWidget> WTabWidget::removeTab(WWidget *child)
 {
   int tabIndex = indexOf(child);
 
@@ -66,11 +59,11 @@ void WTabWidget::removeTab(WWidget *child)
     contentsWidgets_.erase(contentsWidgets_.begin() + tabIndex);
 
     WMenuItem *item = menu_->itemAt(tabIndex);
+    std::unique_ptr<WWidget> result = item->removeContents();
     menu_->removeItem(item);
-
-    item->takeContents();
-    delete item;
-  }
+    return result;
+  } else
+    return std::unique_ptr<WWidget>();
 }
 
 int WTabWidget::count() const
@@ -150,7 +143,7 @@ void WTabWidget::setTabText(int index, const WString& label)
   item->setText(label);
 }
 
-const WString& WTabWidget::tabText(int index) const
+WString WTabWidget::tabText(int index) const
 {
   WMenuItem *item = menu_->itemAt(index);
   return item->text();
@@ -203,7 +196,7 @@ WStackedWidget *WTabWidget::contentsStack() const
   return menu_->contentsStack();
 }
 
-void WTabWidget::setOverflow(WContainerWidget::Overflow value,
+void WTabWidget::setOverflow(Overflow value,
 	WFlags<Orientation> orientation)
 {
   layout_->setOverflow(value, orientation);

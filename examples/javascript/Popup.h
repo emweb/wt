@@ -7,9 +7,9 @@
 #ifndef POPUP_H_
 #define POPUP_H_
 
-#include <Wt/WObject>
-#include <Wt/WString>
-#include <Wt/WJavaScript>
+#include <Wt/WObject.h>
+#include <Wt/WString.h>
+#include <Wt/WJavaScript.h>
 
 using namespace Wt;
 
@@ -32,19 +32,26 @@ using namespace Wt;
 class Popup : public WObject
 {
 public:
+  /*! \brief Popup type.
+   */
+  enum Type { Confirm, Alert, Prompt };
+
+  /*! \brief Popup constructor.
+   */
+  Popup(Type t, const WString& message, const std::string defaultValue);
+
   /*! \brief Create a confirm dialog.
    */
-  static Popup *createConfirm(const WString& message, WObject *parent = 0);
+  static std::unique_ptr<Popup> createConfirm(const WString& message);
 
   /*! \brief Create a prompt dialog with the given default value
    */
-  static Popup *createPrompt(const WString& message,
-			     const std::string defaultValue,
-			     WObject *parent = 0);
+  static std::unique_ptr<Popup> createPrompt(const WString& message,
+                             const std::string defaultValue);
 
   /*! \brief Create an alert dialog.
    */
-  static Popup *createAlert(const WString& message, WObject *parent = 0);
+  static std::unique_ptr<Popup> createAlert(const WString& message);
 
   /*! \brief Change the message
    */
@@ -75,20 +82,11 @@ public:
 
   /*! \brief Signal emitted when cancel is pressed.
    */
-  JSignal<void>&        cancelPressed() { return cancelPressed_; }
+  JSignal<>&        cancelPressed() { return cancelPressed_; }
 
 private:
-  /*! \brief Popup type.
-   */
-  enum Type { Confirm, Alert, Prompt };
-
-  /*! \brief Popup constructor.
-   */
-  Popup(Type t, const WString& message, const std::string defaultValue,
-	WObject *parent);
-
-  JSignal<std::string> okPressed_;
-  JSignal<void>        cancelPressed_;
+  JSignal<std::string>  okPressed_;
+  JSignal<>             cancelPressed_;
 
   Type t_;
   WString message_;

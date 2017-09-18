@@ -8,7 +8,7 @@
 #ifndef PAINT_EXAMPLE_H_
 #define PAINT_EXAMPLE_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 using namespace Wt;
 
@@ -17,7 +17,7 @@ class ShapesWidget;
 class PaintExample : public WContainerWidget
 {
 public:
-  PaintExample(WContainerWidget *root, bool showTitle=true);
+  PaintExample(bool showTitle=true);
 
 private:
   ShapesWidget *shapes_;

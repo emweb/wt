@@ -4,15 +4,17 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WServer>
+#include <Wt/WApplication.h>
+#include <Wt/WServer.h>
 
 #include "HangmanGame.h"
 #include "Session.h"
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+using namespace Wt;
+
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  Wt::WApplication *app = new Wt::WApplication(env);
+  auto app = cpp14::make_unique<WApplication>(env);
   
   app->setTitle("Hangman");
 
@@ -21,7 +23,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
   app->useStyleSheet("css/hangman.css");
 
-  new HangmanGame(app->root());
+  app->root()->addWidget(cpp14::make_unique<HangmanGame>());
 
   return app;
 }
@@ -30,14 +32,14 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 int main(int argc, char **argv)
 {
   try {
-    Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
+    WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
-    server.addEntryPoint(Wt::Application, createApplication);
+    server.addEntryPoint(EntryPointType::Application, createApplication);
 
     Session::configureAuth();
 
     server.run();
-  } catch (Wt::WServer::Exception& e) {
+  } catch (WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;

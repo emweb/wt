@@ -5,10 +5,19 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/WDate>
-#include <Wt/WTime>
-#include <Wt/WDateTime>
-#include <Wt/WLocalDateTime>
+#include <Wt/WDate.h>
+#include <Wt/WTime.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WLocalDateTime.h>
+#include <stdlib.h>
+#include <iostream>
+#include <Wt/Date/tz_private.h>
+
+namespace date {
+  namespace detail {
+    struct undocumented {};
+  }
+}
 
 BOOST_AUTO_TEST_CASE( WDateTime_test_WDate )
 {
@@ -33,14 +42,41 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDate2 )
   
   BOOST_REQUIRE(wd.isValid());
   BOOST_REQUIRE(!wd.isNull());
-
-  wd = wd.addDays(360);
-
-  BOOST_REQUIRE(!wd.isValid());
-  BOOST_REQUIRE(wd.isNull());
 }
 
-BOOST_AUTO_TEST_CASE( WDateTime_test_WDate3 )
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDate3)
+{
+    Wt::WDate wd1(2009, 10, 2);
+    Wt::WDate wd2(2010, 10, 2);
+    BOOST_REQUIRE(wd1.daysTo(wd2) == 365);
+    BOOST_REQUIRE(wd1.isLeapYear(2016));
+
+    Wt::WDate wd3(2016, 2, 18); //Thursday
+    BOOST_REQUIRE(wd3.dayOfWeek() == 4);
+    BOOST_REQUIRE(wd3.toJulianDay() == 2457437);
+
+    Wt::WDate wd4 = wd3.fromJulianDay(2457437);
+    BOOST_REQUIRE(wd4.day() == 18);
+    BOOST_REQUIRE(wd4.month() == 2);
+    BOOST_REQUIRE(wd4.year() == 2016);
+
+    /*Wt::WDate current = wd3.currentServerDate();
+    BOOST_REQUIRE(current.day() == 1);
+    BOOST_REQUIRE(current.month() == 3);
+    BOOST_REQUIRE(current.year() == 2016);*/
+}
+
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDate4 )
+{
+    Wt::WDate current(2016, 2, 24); //Wednesday
+    Wt::WDate d = Wt::WDate::previousWeekday(current, 5);
+    //Looking for previous Friday
+    BOOST_REQUIRE(d.day() == 19);
+    BOOST_REQUIRE(d.month() == 2);
+    BOOST_REQUIRE(d.year() == 2016);
+}
+
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDate5 )
 {
   Wt::WDate wd = Wt::WDate::fromString("31/07/9999/not-valid", "dd/MM/yyyy");
   BOOST_REQUIRE(!wd.isValid());
@@ -49,8 +85,45 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDate3 )
 
 BOOST_AUTO_TEST_CASE( WDateTime_test_WTime )
 {
-  Wt::WTime wt(12, 11, 31);
-  BOOST_REQUIRE(wt.toString() == "12:11:31");
+  Wt::WTime wt(22, 11, 31);
+  BOOST_REQUIRE(wt.toString() == "22:11:31");
+
+  std::chrono::duration<int, std::milli> duration = wt.toTimeDuration();
+  BOOST_REQUIRE(duration == std::chrono::hours(22) + std::chrono::minutes(11) + std::chrono::seconds(31) + std::chrono::milliseconds(0));
+
+  Wt::WTime wt2 = Wt::WTime::fromTimeDuration(duration);
+  BOOST_REQUIRE(wt2.hour() == 22);
+  BOOST_REQUIRE(wt2.minute() == 11);
+  BOOST_REQUIRE(wt2.second() == 31);
+
+  std::chrono::duration<int, std::milli> d = std::chrono::hours(13) +
+          std::chrono::minutes(42) + std::chrono::seconds(8) + std::chrono::milliseconds(102);
+  Wt::WTime wt3 = Wt::WTime::fromTimeDuration(d);
+  BOOST_REQUIRE(wt3.hour() == 13);
+  BOOST_REQUIRE(wt3.minute() == 42);
+  BOOST_REQUIRE(wt3.second() == 8);
+  BOOST_REQUIRE(wt3.msec() == 102);
+  BOOST_REQUIRE(wt3.toTimeDuration() == d);
+
+  Wt::WTime wt4(15, 53, 12, 100);
+  BOOST_REQUIRE(wt4.toString() == "15:53:12");
+
+  wt4 = wt4.addMSecs(900);
+  BOOST_REQUIRE(wt4.toString() == "15:53:13");
+  wt4 = wt4.addSecs(60);
+  BOOST_REQUIRE(wt4.toString() == "15:54:13");
+
+  BOOST_REQUIRE(wt4.secsTo(Wt::WTime(15, 54, 33)) == 20);
+
+  Wt::WTime wt5 = Wt::WTime::currentServerTime();
+  std::cerr << wt5.toString() << std::endl;
+
+  Wt::WTime wt6 = Wt::WTime::fromString("11:42:16");
+  BOOST_REQUIRE(wt6.hour() == 11);
+  BOOST_REQUIRE(wt6.minute() == 42);
+  BOOST_REQUIRE(wt6.second() == 16);
+  wt6 = wt6.addMSecs(587);
+  BOOST_REQUIRE(wt6.msec() == 587);
 }
 
 BOOST_AUTO_TEST_CASE( WDateTime_test_WTime2 )
@@ -87,6 +160,30 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
 		== "Thu Oct 1 12:11:31:499 2009");
   BOOST_REQUIRE(wdt2.toString("ddd MMM d HH:mm:ss:zzz yyyy")
 		== "Thu Oct 1 12:11:33:099 2009");
+
+  Wt::WDateTime wdt3 = wdt.addSecs(50);
+  BOOST_REQUIRE(wdt.toString("ddd MMM d HH:mm:ss:zzz yyyy")
+                == "Thu Oct 1 12:11:31:499 2009");
+  BOOST_REQUIRE(wdt3.toString("ddd MMM d HH:mm:ss:zzz yyyy")
+                == "Thu Oct 1 12:12:21:499 2009");
+
+  Wt::WDateTime wdt4 = wdt.addDays(1);
+  BOOST_REQUIRE(wdt.toString("ddd MMM d HH:mm:ss:zzz yyyy")
+                == "Thu Oct 1 12:11:31:499 2009");
+  BOOST_REQUIRE(wdt4.toString("ddd MMM d HH:mm:ss:zzz yyyy")
+                == "Fri Oct 2 12:11:31:499 2009");
+
+  Wt::WDateTime wdt5 = wdt.addMonths(1);
+  BOOST_REQUIRE(wdt.toString("ddd MMM d HH:mm:ss:zzz yyyy")
+                == "Thu Oct 1 12:11:31:499 2009");
+  BOOST_REQUIRE(wdt5.toString("ddd MMM d HH:mm:ss:zzz yyyy")
+                == "Sun Nov 1 12:11:31:499 2009");
+
+  Wt::WDateTime wdt6 = wdt.addYears(6);
+  BOOST_REQUIRE(wdt.toString("ddd MMM d HH:mm:ss:zzz yyyy")
+                == "Thu Oct 1 12:11:31:499 2009");
+  BOOST_REQUIRE(wdt6.toString("ddd MMM d HH:mm:ss:zzz yyyy")
+                == "Thu Oct 1 12:11:31:499 2015");
 
   Wt::WDateTime d = Wt::WDateTime::fromString("2000-06-14 13:05:12",
 					      "yyyy-MM-dd hh:mm:ss");
@@ -230,11 +327,17 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WLocalDateTime )
   Wt::WDateTime wdt(wd, wt);
 
   Wt::WLocale loc;
-  loc.setTimeZone("EST-5EDT,M4.1.0,M10.5.0");
+  //loc.setTimeZone("EST-5EDT,M4.1.0,M10.5.0");
+  auto zone = Wt::cpp14::make_unique<date::time_zone>(std::chrono::hours{-4},
+						      date::detail::undocumented{});
+  loc.setTimeZone(zone.get());
 
   Wt::WLocalDateTime wldt = wdt.toLocalTime(loc);
 
+  BOOST_REQUIRE(wldt.timeZone()->name() == "Unknown");
+  BOOST_REQUIRE(wldt.timeZone() == zone.get());
   BOOST_REQUIRE(wldt.toString() == "2009-10-01 08:11:31");
+  BOOST_REQUIRE(wldt.timeZoneOffset() == -240); //4h behind
 
   Wt::WDateTime utc = wldt.toUTC();
 
@@ -246,7 +349,9 @@ BOOST_AUTO_TEST_CASE( WDateTime_testspecial_WLocalDateTime )
   Wt::WDateTime wdt;
 
   Wt::WLocale loc;
-  loc.setTimeZone("EST-5EDT,M4.1.0,M10.5.0");
+  auto zone = Wt::cpp14::make_unique<date::time_zone>(std::chrono::hours{-4},
+						      date::detail::undocumented{});
+  loc.setTimeZone(zone.get());
 
   Wt::WLocalDateTime wldt = wdt.toLocalTime(loc);
 
@@ -257,12 +362,13 @@ BOOST_AUTO_TEST_CASE( WDateTime_testspecial_WLocalDateTime )
 
   BOOST_REQUIRE(utc == wdt);
 
-  wldt.setDateTime(Wt::WDate(1976,6,14), Wt::WTime(3,0,0));
+  Wt::WLocalDateTime wldt2(loc);
+  wldt2.setDateTime(Wt::WDate(1976, 6, 14), Wt::WTime(3, 0, 0), true);
 
-  BOOST_REQUIRE(wldt.isValid());
-  BOOST_REQUIRE(!wldt.isNull());
+  BOOST_REQUIRE(wldt2.isValid());
+  BOOST_REQUIRE(!wldt2.isNull());
 
-  utc = wldt.toUTC();
+  utc = wldt2.toUTC();
 
   std::cerr << utc.toString() << std::endl;
 }

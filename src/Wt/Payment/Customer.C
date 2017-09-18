@@ -1,6 +1,6 @@
-#include "Customer"
+#include "Customer.h"
 
-#include "Wt/WString"
+#include "Wt/WString.h"
 
 namespace Wt {
   namespace Payment {

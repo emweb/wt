@@ -10,21 +10,23 @@
 #include "QuoteForm.h"
 #endif // WT_EMWEB_BUILD
 
-#include <Wt/WAnchor>
-#include <Wt/WEnvironment>
-#include <Wt/WLogger>
-#include <Wt/WMenuItem>
-#include <Wt/WStackedWidget>
-#include <Wt/WTable>
-#include <Wt/WTabWidget>
-#include <Wt/WText>
-#include <Wt/WTreeNode>
-#include <Wt/WViewWidget>
-#include <Wt/WWidget>
+#include <Wt/WAnchor.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WLogger.h>
+#include <Wt/WMenuItem.h>
+#include <Wt/WStackedWidget.h>
+#include <Wt/WTable.h>
+#include <Wt/WTabWidget.h>
+#include <Wt/WText.h>
+#include <Wt/WTreeNode.h>
+#include <Wt/WViewWidget.h>
+#include <Wt/WWidget.h>
 
 #include "ExampleSourceViewer.h"
 
-WtHome::WtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb)
+using namespace Wt;
+
+WtHome::WtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb)
   : Home(env, blogDb, "Wt, C++ Web Toolkit", "wt-home", "css/wt")
 {
   addLanguage(Lang("en", "/", "en", "English"));
@@ -40,71 +42,71 @@ WtHome::WtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb)
   init();
 }
 
-WWidget *WtHome::example(const char *textKey, const std::string& sourceDir)
+std::unique_ptr<WWidget> WtHome::example(const char *textKey, const std::string& sourceDir)
 {
-  WContainerWidget *result = new WContainerWidget();
-  WText *w = new WText(tr(textKey), result);
+  auto result = cpp14::make_unique<WContainerWidget>();
+  WText *w = result->addWidget(cpp14::make_unique<WText>(tr(textKey)));
   w->setInternalPathEncoding(true);
   result->addWidget(linkSourceBrowser(sourceDir));
-  return result;
+  return std::move(result);
 }
 
-WWidget *WtHome::helloWorldExample()
+std::unique_ptr<WWidget> WtHome::helloWorldExample()
 {
   return example("home.examples.hello", "hello");
 }
 
-WWidget *WtHome::chartExample()
+std::unique_ptr<WWidget> WtHome::chartExample()
 {
   return example("home.examples.chart", "charts");
 }
 
-WWidget *WtHome::homepageExample()
+std::unique_ptr<WWidget> WtHome::homepageExample()
 {
   return example("home.examples.wt", "wt-homepage");
 }
 
-WWidget *WtHome::treeviewExample()
+std::unique_ptr<WWidget> WtHome::treeviewExample()
 {
   return example("home.examples.treeview", "treeview-dragdrop");
 }
 
-WWidget *WtHome::gitExample()
+std::unique_ptr<WWidget> WtHome::gitExample()
 {
   return example("home.examples.git", "gitmodel");
 }
 
-WWidget *WtHome::chatExample()
+std::unique_ptr<WWidget> WtHome::chatExample()
 {
   return example("home.examples.chat", "simplechat");
 }
 
-WWidget *WtHome::composerExample()
+std::unique_ptr<WWidget> WtHome::composerExample()
 {
   return example("home.examples.composer", "composer");
 }
 
-WWidget *WtHome::widgetGalleryExample()
+std::unique_ptr<WWidget> WtHome::widgetGalleryExample()
 {
   return example("home.examples.widgetgallery", "widgetgallery");
 }
 
-WWidget *WtHome::hangmanExample()
+std::unique_ptr<WWidget> WtHome::hangmanExample()
 {
   return example("home.examples.hangman", "hangman");
 }
 
-WWidget *WtHome::examples()
+std::unique_ptr<WWidget> WtHome::examples()
 {
-  WContainerWidget *result = new WContainerWidget();
+  auto result = cpp14::make_unique<WContainerWidget>();
 
-  WText *intro = new WText(tr("home.examples"));
+  auto intro = cpp14::make_unique<WText>(tr("home.examples"));
   intro->setInternalPathEncoding(true);
-  result->addWidget(intro);
+  result->addWidget(std::move(intro));
 
-  examplesMenu_ = new WTabWidget(result);
+  examplesMenu_ = result->addWidget(cpp14::make_unique<WTabWidget>());
 
-  WAnimation animation(WAnimation::SlideInFromRight, WAnimation::EaseIn);
+  WAnimation animation(AnimationEffect::SlideInFromRight, TimingFunction::EaseIn);
   examplesMenu_->contentsStack()->setTransitionAnimation(animation, true);
 
   /*
@@ -145,30 +147,30 @@ WWidget *WtHome::examples()
   examplesMenu_->setInternalPathEnabled("/examples");
   examplesMenu_->currentChanged().connect(this, &Home::googleAnalyticsLogger);
 
-  return result;
+  return std::move(result);
 }
 
-WWidget *WtHome::createQuoteForm()
+std::unique_ptr<WWidget> WtHome::createQuoteForm()
 {
 #ifdef WT_EMWEB_BUILD
-  return new QuoteForm(QuoteForm::Wt);
+  return cpp14::make_unique<QuoteForm>(QuoteForm::Wt);
 #else
-  return 0;
+  return nullptr;
 #endif
 }
 
-WWidget *WtHome::sourceViewer(const std::string& deployPath)
+std::unique_ptr<WWidget> WtHome::sourceViewer(const std::string& deployPath)
 {
-  return new ExampleSourceViewer(deployPath, wtExamplePath_ + "/", "CPP");
+  return cpp14::make_unique<ExampleSourceViewer>(deployPath, wtExamplePath_ + "/", "CPP");
 }
 
-WWidget *WtHome::wrapView(WWidget *(WtHome::*createWidget)())
+std::unique_ptr<WWidget> WtHome::wrapView(std::unique_ptr<WWidget> (WtHome::*createWidget)())
 {
-  return makeStaticModel(boost::bind(createWidget, this));
+  return makeStaticModel(std::bind(createWidget, this));
 }
 
-WApplication *createWtHomeApplication(const WEnvironment& env, 
-				      Wt::Dbo::SqlConnectionPool *blogDb)
+std::unique_ptr<WApplication> createWtHomeApplication(const WEnvironment& env,
+                                      Dbo::SqlConnectionPool *blogDb)
 {
-  return new WtHome(env, *blogDb);
+  return cpp14::make_unique<WtHome>(env, *blogDb);
 }

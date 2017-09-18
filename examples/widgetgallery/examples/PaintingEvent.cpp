@@ -1,14 +1,14 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WPaintDevice>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPainter>
-#include <Wt/WSpinBox>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPainter.h>
+#include <Wt/WSpinBox.h>
 
 class MyPaintedWidget : public Wt::WPaintedWidget
 {
 public:
-    MyPaintedWidget(Wt::WContainerWidget *parent = 0)
-	: Wt::WPaintedWidget(parent), end_(100)
+    MyPaintedWidget()
+        : WPaintedWidget(), end_(100)
     {
 	resize(200, 60);   // Provide a default size.
     }
@@ -20,9 +20,9 @@ public:
 
 protected:
     void paintEvent(Wt::WPaintDevice *paintDevice) {
-	Wt::WPainter painter(paintDevice);
-	painter.setBrush(Wt::WBrush(Wt::WBrush(Wt::blue)));
-	painter.drawRect(0, 0 ,end_, 50);
+        Wt::WPainter painter(paintDevice);
+        painter.setBrush(Wt::WBrush(Wt::WColor(Wt::StandardColor::Blue)));
+        painter.drawRect(0, 0, end_, 50);
     }
 
 private:
@@ -30,16 +30,18 @@ private:
 };
 
 SAMPLE_BEGIN(PaintingEvent)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-MyPaintedWidget *painting = new MyPaintedWidget(container);
+MyPaintedWidget *painting =
+    container->addWidget(Wt::cpp14::make_unique<MyPaintedWidget>());
 
-Wt::WSpinBox *sb = new Wt::WSpinBox(container);
+Wt::WSpinBox *sb =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WSpinBox>());
 sb->setRange(10,200);
 sb->setValue(100);
 
-sb->changed().connect(std::bind([=] () {
+sb->changed().connect([=] {
     painting->setEnd(sb->value());
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

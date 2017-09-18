@@ -17,25 +17,25 @@ namespace Wt {
 
     std::string toBase14Font(const WFont& font)
     {
-      const char *base = 0;
-      const char *italic = 0;
-      const char *bold = 0;
+      const char *base = nullptr;
+      const char *italic = nullptr;
+      const char *bold = nullptr;
 
       switch (font.genericFamily()) {
-      case WFont::Default:
-      case WFont::Serif:
-      case WFont::Fantasy: // Not really !
-      case WFont::Cursive: // Not really !
+      case FontFamily::Default:
+      case FontFamily::Serif:
+      case FontFamily::Fantasy: // Not really !
+      case FontFamily::Cursive: // Not really !
 	base = "Times";
 	italic = "Italic";
 	bold = "Bold";
 	break;
-      case WFont::SansSerif:
+      case FontFamily::SansSerif:
 	base = "Helvetica";
 	italic = "Oblique";
 	bold = "Bold";
 	break;
-      case WFont::Monospace:
+      case FontFamily::Monospace:
 	base = "Courier";
 	italic = "Oblique";
 	bold = "Bold";
@@ -49,15 +49,15 @@ namespace Wt {
 
       if (italic)
 	switch (font.style()) {
-	case WFont::NormalStyle:
-	  italic = 0;
+	case FontStyle::Normal:
+	  italic = nullptr;
 	  break;
 	default:
 	  break;
 	}
 
       if (font.weightValue() <= 400)
-	bold = 0;
+	bold = nullptr;
 
       std::string name = base;
       if (bold) {

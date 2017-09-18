@@ -3,80 +3,82 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WServer>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WServer.h>
 
-#include <Wt/Auth/AuthModel>
-#include <Wt/Auth/PasswordService>
+#include <Wt/Auth/AuthModel.h>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/RegistrationModel.h>
 
 #include "QRAuthWidget.h"
 #include "model/Session.h"
 #include "model/QRTokenDatabase.h"
 
-class AuthApplication : public Wt::WApplication
+using namespace Wt;
+
+class AuthApplication : public WApplication
 {
 public:
-  AuthApplication(const Wt::WEnvironment& env)
-    : Wt::WApplication(env),
+  AuthApplication(const WEnvironment& env)
+    : WApplication(env),
       session_(appRoot() + "auth.db")
   {
     /*
      * For better support for a mobile device. Note this requires
      * progressive bootstrap being enabled (see wt_config.xml).
      */
-    addMetaHeader("viewport",
-		  "width=device-width, initial-scale=1, maximum-scale=1");
+    addMetaHeader(MetaHeaderType::Meta,
+                  "width=device-width", "initial-scale=1", "maximum-scale=1");
 
     session_.login().changed().connect(this, &AuthApplication::authEvent);
 
     useStyleSheet("css/style.css");
     messageResourceBundle().use(appRoot() + "templates");
 
-    QRAuthWidget *authWidget = new QRAuthWidget(session_.login());
+    auto authWidget = cpp14::make_unique<QRAuthWidget>(session_.login());
 
-    Wt::Auth::AuthModel *model
-      = new Wt::Auth::AuthModel(Session::auth(), session_.users(), this);
+    auto model = cpp14::make_unique<Auth::AuthModel>(Session::auth(), session_.users());
 
     model->addPasswordAuth(&Session::passwordAuth());
     model->addOAuth(Session::oAuth());
-    authWidget->setModel(model);
+    authWidget->setModel(std::move(model));
     authWidget->setRegistrationEnabled(true);
     authWidget->configureQRAuth(Session::qrAuth(), session_.qrTokenDatabase());
 
     authWidget->processEnvironment();
 
-    root()->addWidget(authWidget);
+    root()->addWidget(std::move(authWidget));
   }
 
   void authEvent() {
     if (session_.login().loggedIn())
-      Wt::log("notice") << "User " << session_.login().user().id()
+      log("notice") << "User " << session_.login().user().id()
 			<< " logged in.";
     else
-      Wt::log("notice") << "User logged out.";
+      log("notice") << "User logged out.";
   }
 
 private:
   Session session_;
 };
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new AuthApplication(env);
+  return cpp14::make_unique<AuthApplication>(env);
 }
 
 int main(int argc, char **argv)
 {
   try {
-    Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
+    WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
-    server.addEntryPoint(Wt::Application, createApplication);
+    server.addEntryPoint(EntryPointType::Application, &createApplication);
 
     Session::configureAuth();
 
     server.run();
-  } catch (Wt::WServer::Exception& e) {
+  } catch (WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;

@@ -4,20 +4,20 @@
  * See the LICENSE file for terms of use.
  */
 #include <fstream>
-#include <boost/lexical_cast.hpp>
 
-#include "Wt/Utils"
-#include "Wt/WApplication"
-#include "Wt/WCombinedLocalizedStrings"
-#include "Wt/WContainerWidget"
-#include "Wt/WCssTheme"
-#include "Wt/WDate"
-#include "Wt/WDefaultLoadingIndicator"
-#include "Wt/WException"
-#include "Wt/WFileUpload"
-#include "Wt/WMemoryResource"
-#include "Wt/WServer"
-#include "Wt/WTimer"
+#include "Wt/Utils.h"
+#include "Wt/WApplication.h"
+#include "Wt/WCombinedLocalizedStrings.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WCssTheme.h"
+#include "Wt/WDate.h"
+#include "Wt/WDefaultLoadingIndicator.h"
+#include "Wt/WException.h"
+#include "Wt/WFileUpload.h"
+#include "Wt/WLinkedCssStyleSheet.h"
+#include "Wt/WMemoryResource.h"
+#include "Wt/WServer.h"
+#include "Wt/WTimer.h"
 
 #include "WebSession.h"
 #include "DomElement.h"
@@ -26,6 +26,7 @@
 #include "WebController.h"
 #include "WebUtils.h"
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/pool/pool.hpp>
 
 #ifdef min
@@ -93,8 +94,8 @@ WApplication::WApplication(const WEnvironment& env
     titleChanged_(false),
     closeMessageChanged_(false),
     localeChanged_(false),
-    localizedStrings_(0),
-    internalPathChanged_(this),
+    widgetRoot_(nullptr),
+    timerRoot_(nullptr),
     serverPush_(0),
     serverPushChanged_(true),
 #ifndef WT_CNOR
@@ -102,11 +103,9 @@ WApplication::WApplication(const WEnvironment& env
 #endif // WT_CNOR
     javaScriptClass_("Wt"),
     quitted_(false),
-    onePixelGifR_(0),
     internalPathsEnabled_(false),
-    exposedOnly_(0),
-    loadingIndicator_(0),
-    connected_(true),
+    exposedOnly_(nullptr),
+    loadingIndicator_(nullptr),
     bodyHtmlClassChanged_(true),
     enableAjax_(false),
 #ifndef WT_TARGET_JAVA
@@ -114,9 +113,9 @@ WApplication::WApplication(const WEnvironment& env
 #endif // WT_TARGET_JAVA
     selectionStart_(-1),
     selectionEnd_(-1),
-    layoutDirection_(LeftToRight),
+    layoutDirection_(LayoutDirection::LeftToRight),
     scriptLibrariesAdded_(0),
-    theme_(0),
+    theme_(nullptr),
     styleSheetsAdded_(0),
     exposeSignals_(true),
     newBeforeLoadJavaScript_(0),
@@ -128,7 +127,7 @@ WApplication::WApplication(const WEnvironment& env
     showLoadingIndicator_("showload", this),
     hideLoadingIndicator_("hideload", this),
     unloaded_(this, "Wt-unload"),
-    soundManager_(0)
+    soundManager_(nullptr)
 {
   session_->setApplication(this);
   locale_ = environment().locale();
@@ -138,12 +137,12 @@ WApplication::WApplication(const WEnvironment& env
   internalPathDefaultValid_ = true;
   internalPathValid_ = true;
 
-  theme_ = new WCssTheme("default", this);
+  theme_.reset(new WCssTheme("default"));
 
 #ifndef WT_TARGET_JAVA
-  setLocalizedStrings(new WMessageResourceBundle());
+  setLocalizedStrings(std::make_shared<WMessageResourceBundle>());
 #else
-  setLocalizedStrings(0);
+  setLocalizedStrings(nullptr);
 #endif // !WT_TARGET_JAVA
 
   if (!environment().javaScript() && environment().agentIsIE()) {
@@ -151,46 +150,40 @@ WApplication::WApplication(const WEnvironment& env
      * WARNING: Similar code in WebRenderer.C must be kept in sync for 
      *          plain boot.
      */
-    if (environment().agent() < WEnvironment::IE9) {
+    if (static_cast<unsigned int>(environment().agent()) < 
+	static_cast<unsigned int>(UserAgent::IE9)) {
       const Configuration& conf = environment().server()->configuration(); 
       bool selectIE7 = conf.uaCompatible().find("IE8=IE7")
 	!= std::string::npos;
 
       if (selectIE7)
-	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=7");
-    } else if (environment().agent() == WEnvironment::IE9) {
-	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=9");
-    } else if (environment().agent() == WEnvironment::IE10) {
-	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=10");
+	addMetaHeader(MetaHeaderType::HttpHeader, "X-UA-Compatible", "IE=7");
+    } else if (environment().agent() == UserAgent::IE9) {
+	addMetaHeader(MetaHeaderType::HttpHeader, "X-UA-Compatible", "IE=9");
+    } else if (environment().agent() == UserAgent::IE10) {
+	addMetaHeader(MetaHeaderType::HttpHeader, "X-UA-Compatible", "IE=10");
     } else {
-	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=11");
+	addMetaHeader(MetaHeaderType::HttpHeader, "X-UA-Compatible", "IE=11");
     }
   }
 
-  domRoot_ = new WContainerWidget();
+  domRoot_.reset(new WContainerWidget());
   domRoot_->setGlobalUnfocused(true);
   domRoot_->setStyleClass("Wt-domRoot");
 
-  if (session_->type() == Application)
-    domRoot_->resize(WLength::Auto, WLength(100, WLength::Percentage));
+  if (session_->type() == EntryPointType::Application)
+    domRoot_->resize(WLength::Auto, WLength(100, LengthUnit::Percentage));
 
-  timerRoot_ = new WContainerWidget(domRoot_);
+  timerRoot_ = domRoot_->addWidget(cpp14::make_unique<WContainerWidget>());
   timerRoot_->setId("Wt-timers");
   timerRoot_->resize(WLength::Auto, 0);
-  timerRoot_->setPositionScheme(Absolute);
+  timerRoot_->setPositionScheme(PositionScheme::Absolute);
 
-  if (session_->type() == Application) {
-    ajaxMethod_ = XMLHttpRequest;
-
-    domRoot2_ = 0;
-    widgetRoot_ = new WContainerWidget(domRoot_);
-    widgetRoot_->resize(WLength::Auto,
-			WLength(100, WLength::Percentage));
+  if (session_->type() == EntryPointType::Application) {
+    widgetRoot_ = domRoot_->addWidget(cpp14::make_unique<WContainerWidget>());
+    widgetRoot_->resize(WLength::Auto, WLength(100, LengthUnit::Percentage));
   } else {
-    ajaxMethod_ = DynamicScriptTag;
-
-    domRoot2_ = new WContainerWidget();
-    widgetRoot_ = 0;
+    domRoot2_.reset(new WContainerWidget());
   }
 
   // a define so that it shouts at us !
@@ -284,18 +277,20 @@ WApplication::WApplication(const WEnvironment& env
 		  + prefix + "transitions.css");
   }
 
-  setLoadingIndicator(new WDefaultLoadingIndicator());
+  setLoadingIndicator
+    (std::unique_ptr<WLoadingIndicator>(new WDefaultLoadingIndicator()));
 
   unloaded_.connect(this, &WApplication::doUnload);
 }
 
 void WApplication::setJavaScriptClass(const std::string& javaScriptClass)
 {
-  if (session_->type() != Application)
+  if (session_->type() != EntryPointType::Application)
     javaScriptClass_ = javaScriptClass;
 }
 
-void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
+void WApplication
+::setLoadingIndicator(std::unique_ptr<WLoadingIndicator> indicator)
 {
 #ifdef WT_TARGET_JAVA
   if (!loadingIndicator_) {
@@ -304,30 +299,31 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
   }
 #endif
 
-  delete loadingIndicator_;
-  loadingIndicator_ = indicator;
+  if (loadingIndicator_)
+    loadingIndicator_->removeFromParent();
+
+  loadingIndicator_ = indicator.get();
 
   if (loadingIndicator_) {
-    loadingIndicatorWidget_ = indicator->widget();
-    domRoot_->addWidget(loadingIndicatorWidget_);
+    domRoot_->addWidget(std::move(indicator));
 
 #ifndef WT_TARGET_JAVA
-    showLoadingIndicator_.connect(loadingIndicatorWidget_, &WWidget::show);
-    hideLoadingIndicator_.connect(loadingIndicatorWidget_, &WWidget::hide);
+    showLoadingIndicator_.connect(loadingIndicator_, &WWidget::show);
+    hideLoadingIndicator_.connect(loadingIndicator_, &WWidget::hide);
 #else
-    // stateless learning does not yet work
+    // stateless learning does not work in Java
     showLoadJS.setJavaScript
       ("function(o,e) {"
-       "" WT_CLASS ".inline('" + loadingIndicatorWidget_->id() + "');"
+       "" WT_CLASS ".inline('" + loadingIndicator_->id() + "');"
        "}");
 
     hideLoadJS.setJavaScript
       ("function(o,e) {"
-       "" WT_CLASS ".hide('" + loadingIndicatorWidget_->id() + "');"
+       "" WT_CLASS ".hide('" + loadingIndicator_->id() + "');"
        "}");
 #endif
 
-    loadingIndicatorWidget_->hide();
+    loadingIndicator_->hide();
   }
 }
 
@@ -349,7 +345,7 @@ void WApplication::destroy()
 #ifndef WT_TARGET_JAVA
 WMessageResourceBundle& WApplication::messageResourceBundle()
 {
-  return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings()));
+  return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings().get()));
 }
 #endif // !WT_TARGET_JAVA
 
@@ -357,7 +353,7 @@ std::string WApplication::onePixelGifUrl()
 {
   if (environment().agentIsIElt(7)) {
     if (!onePixelGifR_) {
-      WMemoryResource *w = new WMemoryResource("image/gif", this);
+      std::unique_ptr<WMemoryResource> w(new WMemoryResource("image/gif"));
   
       static const unsigned char gifData[]
 	= { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00,
@@ -367,7 +363,7 @@ std::string WApplication::onePixelGifUrl()
             0x01, 0x00, 0x3b };
 
       w->setData(gifData, 43);
-      onePixelGifR_ = w;
+      onePixelGifR_ = std::move(w);
     }
 
     return onePixelGifR_->url();
@@ -378,54 +374,41 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
-  // Fix issue #5331: if WTimer is a child of WApplication,
-  // it will outlive timerRoot_. Delete it now already.
-  std::vector<WObject *> children = this->children();
-  for (std::size_t i = 0; i < children.size(); ++i) {
-    delete dynamic_cast<WTimer*>(children[i]);
-  }
-  timerRoot_ = 0; // marker for being deleted
+  /* Clear domRoot */
+  domRoot_.reset();
 
-  WContainerWidget *r = domRoot_;
-  domRoot_ = 0;
-  delete r;
+  /* Widgetset bound widgets */
+  domRoot2_.reset();
 
-  delete domRoot2_;
-  domRoot2_ = 0;
-
-  delete localizedStrings_;
-
-  styleSheet_.clear();
-
-  session_->setApplication(0);
+  session_->setApplication(nullptr);
 
 #ifndef WT_TARGET_JAVA
   delete eventSignalPool_;
 #endif
 }
 
+WWebWidget *WApplication::domRoot() const
+{
+  return domRoot_.get();
+}
+
 void WApplication::attachThread(bool attach)
 {
 #ifndef WT_CNOR
   if (attach) {
-    boost::shared_ptr<WebSession> session = weakSession_.lock();
+    std::shared_ptr<WebSession> session = weakSession_.lock();
     if (session)
       WebSession::Handler::attachThreadToSession(session);
     else
       session_->attachThreadToLockedHandler();
   } else
-    WebSession::Handler::attachThreadToSession(boost::shared_ptr<WebSession>());
+    WebSession::Handler::attachThreadToSession(std::shared_ptr<WebSession>());
 #else
   if (attach)
     WebSession::Handler::attachThreadToSession(session_);
   else
-    WebSession::Handler::attachThreadToSession(boost::shared_ptr<WebSession>());
+    WebSession::Handler::attachThreadToSession(std::shared_ptr<WebSession>());
 #endif
-}
-
-void WApplication::setAjaxMethod(AjaxMethod method)
-{
-  ajaxMethod_ = method;
 }
 
 std::string WApplication::relativeResourcesUrl()
@@ -493,14 +476,15 @@ void WApplication::setConnectionMonitor(const std::string& jsFunction) {
 
 #endif // WT_TARGET_JAVA
 
-void WApplication::bindWidget(WWidget *widget, const std::string& domId)
+void WApplication::bindWidget(std::unique_ptr<WWidget> widget,
+			      const std::string& domId)
 {
-  if (session_->type() != WidgetSet)
+  if (session_->type() != EntryPointType::WidgetSet)
     throw WException("WApplication::bindWidget() can be used only "
 		     "in WidgetSet mode.");
 
   widget->setId(domId);
-  domRoot2_->addWidget(widget);
+  domRoot2_->addWidget(std::move(widget));
 }
 
 void WApplication::pushExposedConstraint(WWidget *w)
@@ -511,16 +495,23 @@ void WApplication::pushExposedConstraint(WWidget *w)
 void WApplication::popExposedConstraint(WWidget *w)
 {
   assert (exposedOnly_ == w);
-  exposedOnly_ = 0;
+  exposedOnly_ = nullptr;
 }
 
 void WApplication::addGlobalWidget(WWidget *w)
 {
-  domRoot_->addWidget(w);
+  domRoot_->addWidget(std::unique_ptr<WWidget>(w)); // take ownership
+  domRoot_->removeChild(w).release();               // return ownership
 }
 
-void WApplication::removeGlobalWidget(WWidget *)
-{ }
+void WApplication::removeGlobalWidget(WWidget *w)
+{ 
+  // In the destructor domRoot_->reset() can cause domRoot_
+  // to be null. In that case, we don't need to remove this
+  // widget from the domRoot.
+  if (domRoot_)
+    domRoot_->removeWidget(w);
+}
 
 bool WApplication::isExposed(WWidget *w) const
 {
@@ -536,7 +527,7 @@ bool WApplication::isExposed(WWidget *w) const
   if (!w->isEnabled())
     return false;
 
-  if (w == domRoot_)
+  if (w == domRoot_.get())
     return true;
 
   if (w->parent() == timerRoot_)
@@ -546,7 +537,7 @@ bool WApplication::isExposed(WWidget *w) const
     return exposedOnly_->isExposed(w);
   else {
     WWidget *p = w->adam();
-    return (p == domRoot_ || p == domRoot2_);
+    return (p == domRoot_.get() || p == domRoot2_.get());
   }
 }
 
@@ -564,34 +555,29 @@ void WApplication::changeSessionId()
 
 void WApplication::setCssTheme(const std::string& theme)
 {
-  setTheme(new WCssTheme(theme, this));
+  setTheme(std::shared_ptr<WTheme>(new WCssTheme(theme)));
 }
 
-void WApplication::setTheme(const WTheme *theme)
+void WApplication::setTheme(const std::shared_ptr<WTheme>& theme)
 {
   theme_ = theme;
 }
 
 void WApplication::useStyleSheet(const WLink& link, const std::string& media)
 {
-  useStyleSheet(WCssStyleSheet(link, media));
+  useStyleSheet(WLinkedCssStyleSheet(link, media));
 }
 
 void WApplication::useStyleSheet(const WLink& link,
 				 const std::string& condition,
 				 const std::string& media)
 {
-  useStyleSheet(WCssStyleSheet(link, media), condition);
+  useStyleSheet(WLinkedCssStyleSheet(link, media), condition);
 }
 
-void WApplication::useStyleSheet(const WCssStyleSheet& styleSheet,
+void WApplication::useStyleSheet(const WLinkedCssStyleSheet& styleSheet,
 				 const std::string& condition)
 {
-
-  if (styleSheet.link().isNull())
-    throw WException(
-        "WApplication::useStyleSheet stylesheet must have valid link!");
-
   bool display = true;
 
   if (!condition.empty()) {
@@ -600,16 +586,20 @@ void WApplication::useStyleSheet(const WCssStyleSheet& styleSheet,
       int thisVersion = 4;
 
       switch (environment().agent()) {
-      case WEnvironment::IEMobile:
+      case UserAgent::IEMobile:
 	thisVersion = 5; break;
-      case WEnvironment::IE6:
+      case UserAgent::IE6:
 	thisVersion = 6; break;
-      case WEnvironment::IE7:
+      case UserAgent::IE7:
 	thisVersion = 7; break;
-      case WEnvironment::IE8:
+      case UserAgent::IE8:
 	thisVersion = 8; break;
+      case UserAgent::IE9:
+	thisVersion = 9; break;
+      case UserAgent::IE10:
+	thisVersion = 10; break;
       default:
-	thisVersion = 9; break;	
+	thisVersion = 11; break;	
       }
 
       enum { lte, lt, eq, gt, gte } cond = eq;
@@ -637,7 +627,7 @@ void WApplication::useStyleSheet(const WCssStyleSheet& styleSheet,
 	  cond = gte;
 	} else {
 	  try {
-	    int version = boost::lexical_cast<int>(r);
+	    int version = Utils::stoi(r);
 	    switch (cond) {
 	    case eq:  display = thisVersion == version; break;
 	    case lte: display = thisVersion <= version; break;
@@ -673,7 +663,7 @@ void WApplication::removeStyleSheet(const WLink& link)
 {
   for (int i = (int)styleSheets_.size() - 1; i > -1; --i) {
     if (styleSheets_[i].link() == link) {
-      WCssStyleSheet &sheet = styleSheets_[i];
+      WLinkedCssStyleSheet &sheet = styleSheets_[i];
       styleSheetsToRemove_.push_back(sheet);
       if (i > (int)styleSheets_.size() + styleSheetsAdded_ - 1)
         styleSheetsAdded_--;
@@ -751,22 +741,11 @@ void WApplication::doUnload()
   if (conf.reloadIsNewSession())
     unload();
   else
-    session_->setState(WebSession::Loaded, 5);
+    session_->setState(WebSession::State::Loaded, 5);
 }
 
 void WApplication::unload()
 {
-#ifndef WT_TARGET_JAVA
-  if (session_->shouldDisconnect()) {
-    if (connected_) {
-      connected_ = false;
-      LOG_INFO("Session disconnected on unload()");
-    }
-
-    return;
-  }
-#endif // WT_TARGET_JAVA
-
   quit();
 }
 
@@ -804,7 +783,7 @@ WApplication::decodeExposedSignal(const std::string& signalName) const
   if (i != exposedSignals_.end()) {
     return i->second;
   } else
-    return 0;
+    return nullptr;
 }
 
 std::string WApplication::encodeSignal(const std::string& objectId,
@@ -832,7 +811,7 @@ std::string WApplication::addExposedResource(WResource *resource)
   if (resource->internalPath().empty())
     return session_->mostRelativeUrl(fn)
       + "&request=resource&resource=" + Utils::urlEncode(resource->id())
-      + "&rand=" + boost::lexical_cast<std::string>(seq++);
+      + "&rand=" + std::to_string(seq++);
   else {
     fn = resource->internalPath() + fn;
     if (!session_->applicationName().empty() && fn[0] != '/')
@@ -869,7 +848,7 @@ WResource *WApplication::decodeExposedResource(const std::string& resourceKey)
     if (j != std::string::npos && j > 1)
       return decodeExposedResource(resourceKey.substr(0, j));
     else
-      return 0;
+      return nullptr;
   }
 }
 
@@ -889,7 +868,7 @@ WObject *WApplication::decodeObject(const std::string& objectId) const
   if (i != encodedObjects_.end()) {
     return i->second;
   } else
-    return 0;
+    return nullptr;
 }
 
 void WApplication::setLocale(const WLocale& locale)
@@ -944,35 +923,38 @@ EventSignal<>& WApplication::globalEscapePressed()
   return domRoot_->escapePressed();
 }
 
-WLocalizedStrings *WApplication::localizedStrings()
+std::shared_ptr<WLocalizedStrings> WApplication::localizedStrings()
 {
   if (localizedStrings_->items().size() > 1)
     return localizedStrings_->items()[0];
   else
-    return 0;
+    return std::shared_ptr<WLocalizedStrings>();
+}
+
+WLocalizedStrings *WApplication::localizedStringsPack()
+{
+  return localizedStrings_.get();
 }
 
 WMessageResourceBundle& WApplication::builtinLocalizedStrings()
 {
   return *(dynamic_cast<WMessageResourceBundle *>
-	   (localizedStrings_->items().back()));
+	   (localizedStrings_->items().back().get()));
 }
 
-void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
+void WApplication
+::setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>& translator)
 {
   if (!localizedStrings_) {
-    localizedStrings_ = new WCombinedLocalizedStrings();
+    localizedStrings_.reset(new WCombinedLocalizedStrings());
 
-    WMessageResourceBundle *defaultMessages = new WMessageResourceBundle();
+    auto defaultMessages = std::make_shared<WMessageResourceBundle>();
     defaultMessages->useBuiltin(skeletons::Wt_xml1);
     localizedStrings_->add(defaultMessages);
   }
 
-  if (localizedStrings_->items().size() > 1) {
-    WLocalizedStrings *previous = localizedStrings_->items()[0];
-    localizedStrings_->remove(previous);
-    delete previous;
-  }
+  if (localizedStrings_->items().size() > 1)
+    localizedStrings_->remove(localizedStrings_->items()[0]);
 
   if (translator)
     localizedStrings_->insert(0, translator);
@@ -980,14 +962,10 @@ void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
 
 void WApplication::refresh()
 {
-  if (localizedStrings_)
-    localizedStrings_->refresh();
-
-  if (domRoot2_) {
+  if (domRoot2_)
     domRoot2_->refresh();
-  } else {
+  else
     domRoot_->refresh();
-  }
 
   if (title_.refresh())
     titleChanged_ = true;
@@ -1124,7 +1102,7 @@ void WApplication::addMetaHeader(const std::string& name,
 				 const WString& content,
 				 const std::string& lang)
 {
-  addMetaHeader(MetaName, name, content, lang);
+  addMetaHeader(MetaHeaderType::Meta, name, content, lang);
 }
 
 WString WApplication::metaHeader(MetaHeaderType type, const std::string& name) const
@@ -1191,7 +1169,7 @@ WApplication *WApplication::instance()
 {
   WebSession *session = WebSession::instance();
 
-  return session ? session->app() : 0;
+  return session ? session->app() : nullptr;
 }
 
 ::int64_t WApplication::maximumRequestSize() const
@@ -1369,10 +1347,12 @@ void WApplication::triggerUpdate()
   session_->setTriggerUpdate(true);
 }
 
+#ifdef WT_TARGET_JAVA
 WApplication::UpdateLock WApplication::getUpdateLock()
 {
   return UpdateLock(this);
 }
+#endif
 
 #ifndef WT_TARGET_JAVA
 
@@ -1380,11 +1360,11 @@ class UpdateLockImpl
 {
 public:
   UpdateLockImpl(WApplication *app)
-    : handler_(0)
+    : handler_(nullptr)
   {
 #ifdef WT_THREADED
     handler_ = new WebSession::Handler(app->weakSession_.lock(),
-				       WebSession::Handler::TakeLock);
+				       WebSession::Handler::LockOption::TakeLock);
 #endif // WT_THREADED
   }
 
@@ -1400,8 +1380,7 @@ private:
 };
 
 WApplication::UpdateLock::UpdateLock(WApplication *app)
-  : impl_(0),
-    ok_(true)
+  : ok_(true)
 {
 #ifndef WT_THREADED
   return;
@@ -1413,28 +1392,19 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
    */
   WebSession::Handler *handler = WebSession::Handler::instance();
 
-  boost::shared_ptr<WebSession> appSession = app->weakSession_.lock();
+  std::shared_ptr<WebSession> appSession = app->weakSession_.lock();
   if (handler && handler->haveLock() && handler->session() == appSession.get())
     return;
 
   if (appSession.get() && !appSession->dead())
-    impl_ = new UpdateLockImpl(app);
+    impl_.reset(new UpdateLockImpl(app));
   else
     ok_ = false;
 #endif // WT_THREADED
 }
 
-WApplication::UpdateLock::UpdateLock(const UpdateLock& other)
-{
-  impl_ = other.impl_;
-
-  other.impl_ = 0;
-}
-
 WApplication::UpdateLock::~UpdateLock()
-{
-  delete impl_;
-}
+{ }
 
 #else
 
@@ -1578,7 +1548,7 @@ bool WApplication::debug() const
 SoundManager *WApplication::getSoundManager()
 {
   if (!soundManager_)
-    soundManager_ = new SoundManager(domRoot());
+    soundManager_ = domRoot_->addWidget(cpp14::make_unique<SoundManager>());
 
   return soundManager_;
 }
@@ -1683,12 +1653,5 @@ void WApplication::resumeRendering()
   session_->resumeRendering();
 }
 #endif // WT_TARGET_JAVA
-
-#ifndef WT_CNOR
-void WtEmitBindSignal(const boost::shared_ptr< Wt::Signals::signal<void()> >& s)
-{
-  (*s)();
-}
-#endif // WTEMITBINDSIGNAL
 
 }

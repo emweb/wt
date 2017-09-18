@@ -26,9 +26,8 @@
 #include "HelloApplication.h"
 #include "QtObject.h"
 
-QtObject::QtObject(Dictionary *wt, QObject *parent)
-  : QObject(parent),
-    wt_(wt)
+QtObject::QtObject(Dictionary *wt)
+  : wt_(wt)
 { }
 
 void QtObject::passGreet(const QString& name)

@@ -442,48 +442,46 @@ CssParser::CssParser()
 {
 }
 
-StyleSheet* CssParser::parse(const WString& styleSheetContents)
+std::unique_ptr<StyleSheet> CssParser::parse(const WString& styleSheetContents)
 {
   error_.clear();
-  StyleSheetImpl* style = new StyleSheetImpl();
+  std::unique_ptr<StyleSheetImpl> style = cpp14::make_unique<StyleSheetImpl>();
   CssGrammar<std::string::const_iterator> cssGrammar;
   std::string s = styleSheetContents.toUTF8();
-  bool success = cssGrammar.parse(s.begin(), s.end(), style);
+  bool success = cssGrammar.parse(s.begin(), s.end(), style.get());
   if (!success) {
     error_ = cssGrammar.error_;
-    delete style;
-    return 0;
+    return nullptr;
   } else {
     error_ = "";
-    return style;
+    return std::unique_ptr<StyleSheet>(std::move(style));
   }
 }
 
-StyleSheet* CssParser::parseFile(const WString& filename)
+std::unique_ptr<StyleSheet> CssParser::parseFile(const WString& filename)
 {
   error_.clear();
   boost::spirit::classic::file_iterator<> first(filename.toUTF8());
   if(!first)
   {
     error_ = "file \"" + filename.toUTF8() + "\" not found";
-    return 0;
+    return nullptr;
   }
   boost::spirit::classic::file_iterator<> last = first.make_end();
 
 
-  StyleSheetImpl* style = new StyleSheetImpl();
+  std::unique_ptr<StyleSheetImpl> style = cpp14::make_unique<StyleSheetImpl>();
   CssGrammar<boost::spirit::classic::file_iterator<> > cssGrammar;
-  bool success = cssGrammar.parse(first, last, style);
+  bool success = cssGrammar.parse(first, last, style.get());
   if(!success)
   {
     error_ = cssGrammar.error_;
-    delete style;
-    return 0;
+    return nullptr;
   }
   else
   {
     error_ = "";
-    return style;
+    return std::unique_ptr<StyleSheet>(std::move(style));
   }
 }
 

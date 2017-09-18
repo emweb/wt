@@ -4,60 +4,61 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WAnchor>
-#include <Wt/WText>
-#include <Wt/WStackedWidget>
-#include <Wt/WVBoxLayout>
-#include <Wt/WHBoxLayout>
-#include <Wt/WApplication>
-#include <Wt/Auth/AuthWidget>
+#include <Wt/WAnchor.h>
+#include <Wt/WText.h>
+#include <Wt/WStackedWidget.h>
+#include <Wt/WVBoxLayout.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WApplication.h>
+#include <Wt/Auth/AuthWidget.h>
+#include <Wt/Auth/RegistrationModel.h>
 
 #include "HangmanGame.h"
 #include "HangmanWidget.h"
 #include "HighScoresWidget.h"
 
-using namespace Wt;
-
-HangmanGame::HangmanGame(WContainerWidget *parent):
-  WContainerWidget(parent),
+HangmanGame::HangmanGame():
+  WContainerWidget(),
   game_(0),
   scores_(0)
 {
   session_.login().changed().connect(this, &HangmanGame::onAuthEvent);
 
-  Auth::AuthModel *authModel = new Auth::AuthModel(Session::auth(),
-						   session_.users(), this);
+  std::unique_ptr<Auth::AuthModel> authModel
+      = cpp14::make_unique<Auth::AuthModel>(Session::auth(), session_.users());
   authModel->addPasswordAuth(&Session::passwordAuth());
   authModel->addOAuth(Session::oAuth());
 
-  Auth::AuthWidget *authWidget = new Auth::AuthWidget(session_.login());
-  authWidget->setModel(authModel);
+  std::unique_ptr<Auth::AuthWidget> authWidget
+      = cpp14::make_unique<Auth::AuthWidget>(session_.login());
+  auto authWidgetPtr = authWidget.get();
+  authWidget->setModel(std::move(authModel));
   authWidget->setRegistrationEnabled(true);
 
-  WText *title = new WText("<h1>A Witty game: Hangman</h1>");
-  addWidget(title);
+  std::unique_ptr<WText> title(cpp14::make_unique<WText>("<h1>A Witty game: Hangman</h1>"));
+  addWidget(std::move(title));
 
-  addWidget(authWidget);
+  addWidget(std::move(authWidget));
 
   mainStack_ = new WStackedWidget();
   mainStack_->setStyleClass("gamestack");
-  addWidget(mainStack_);
+  addWidget(std::unique_ptr<WStackedWidget>(mainStack_));
 
   links_ = new WContainerWidget();
   links_->setStyleClass("links");
   links_->hide();
-  addWidget(links_);
+  addWidget(std::unique_ptr<WContainerWidget>(links_));
 
-  backToGameAnchor_ = new WAnchor("/play", "Gaming Grounds", links_);
-  backToGameAnchor_->setLink(WLink(WLink::InternalPath, "/play"));
+  backToGameAnchor_ = links_->addWidget(cpp14::make_unique<WAnchor>("/play", "Gaming Grounds"));
+  backToGameAnchor_->setLink(WLink(LinkType::InternalPath, "/play"));
 
-  scoresAnchor_ = new WAnchor("/highscores", "Highscores", links_);
-  scoresAnchor_->setLink(WLink(WLink::InternalPath, "/highscores"));
+  scoresAnchor_ = links_->addWidget(cpp14::make_unique<WAnchor>("/highscores", "Highscores"));
+  scoresAnchor_->setLink(WLink(LinkType::InternalPath, "/highscores"));
 
   WApplication::instance()->internalPathChanged()
     .connect(this, &HangmanGame::handleInternalPath);
 
-  authWidget->processEnvironment();
+  authWidgetPtr->processEnvironment();
 }
 
 void HangmanGame::onAuthEvent()
@@ -88,7 +89,7 @@ void HangmanGame::handleInternalPath(const std::string &internalPath)
 void HangmanGame::showHighScores()
 {
   if (!scores_)
-    scores_ = new HighScoresWidget(&session_, mainStack_);
+    scores_ = mainStack_->addWidget(cpp14::make_unique<HighScoresWidget>(&session_));
 
   mainStack_->setCurrentWidget(scores_);
   scores_->update();
@@ -100,8 +101,8 @@ void HangmanGame::showHighScores()
 void HangmanGame::showGame()
 {
   if (!game_) {
-    game_ = new HangmanWidget(session_.userName(), mainStack_);
-    game_->scoreUpdated().connect(&session_, &Session::addToScore);
+    game_ = mainStack_->addWidget(cpp14::make_unique<HangmanWidget>(session_.userName()));
+    game_->scoreUpdated().connect(std::bind(&Session::addToScore,&session_,std::placeholders::_1));
   }
 
   mainStack_->setCurrentWidget(game_);

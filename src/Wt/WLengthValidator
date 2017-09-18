@@ -1,130 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WLENGTHVALIDATOR_H_
-#define WLENGTHVALIDATOR_H_
-
-#include <limits>
-
-#include <Wt/WValidator>
-
-namespace Wt {
-
-/*! \class WLengthValidator Wt/WLengthValidator Wt/WLengthValidator
- *  \brief A validator that checks the string length of user input.
- *
- * This validator checks whether user input is within the specified range
- * of accepted string lengths.
- *
- * If you only want to limit the length on a line edit, you may also
- * use WLineEdit::setMaxLength().
- *
- * \if cpp
- * Usage example:
- * \code
- * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
- * Wt::WLengthValidator *validator = new Wt::WLengthValidator(5, 15);
- * lineEdit->setValidator(validator);
- * lineEdit->setText("abcdef");
- * \endcode
- * \endif
- *
- * <h3>i18n</h3>
- *
- * The strings used in this class can be translated by overriding
- * the default values for the following localization keys:
- * - Wt.WLengthValidator.TooShort: The input must be at least {1} characters
- * - Wt.WLengthValidator.BadRange: The input must have a length between {1} and {2} characters
- * - Wt.WLengthValidator.TooLong: The input must be no more than {1} characters
- */
-class WT_API WLengthValidator : public WValidator
-{
-public:
-  /*! \brief Creates a length validator that accepts input of any length.
-   */
-  WLengthValidator(WObject *parent = 0);
-
-  /*! \brief Creates a length validator that accepts input within a length range.
-   */
-  WLengthValidator(int minLength, int maxLength, WObject *parent = 0);
-
-  /*! \brief Sets the minimum length.
-   *
-   * The default value is 0.
-   */
-  void setMinimumLength(int minimum);
-
-  /*! \brief Returns the minimum length.
-   *
-   * \sa setMinimumLength(int)
-   */
-  int minimumLength() const { return minLength_; }
-
-  /*! \brief Sets the maximum length.
-   *
-   * The default value is the maximum integer value. 
-   */
-  void setMaximumLength(int maximum);
-
-  /*! \brief Returns the maximum length.
-   *
-   * \sa setMaximumLength(int)
-   */
-  int maximumLength() const { return maxLength_; }
-
-  /*! \brief Validates the given input.
-   *
-   * The input is considered valid only when it is blank for a non-mandatory
-   * field, or has a length within the valid range.
-   */
-  virtual Result validate(const WT_USTRING& input) const;
-
-  virtual void createExtConfig(std::ostream& config) const;
-
-  /*! \brief Sets the message to display when the input is too short.
-   *
-   * Depending on whether maximumLength() is a real bound, the default
-   * message is "The input must have a length between {1} and {2}
-   * characters" or " "The input must be at least {1} characters".
-   */
-  void setInvalidTooShortText(const WString& text);
-
-  /*! \brief Returns the message displayed when the input is too short.
-   *
-   * \sa setInvalidTooShortText(const WString&)
-   */
-  WString invalidTooShortText() const;
-
-  /*! \brief Sets the message to display when the input is too long.
-   *
-   * Depending on whether minimumLength() is different from zero, the
-   * default message is "The input must have a length between {1} and
-   * {2} characters" or " "The input must be no more than {2}
-   * characters".
-   */
-  void setInvalidTooLongText(const WString& text);
-
-  /*! \brief Returns the message displayed when the input is too long.
-   *
-   * \sa setInvalidTooLongText(const WString&)
-   */
-  WString invalidTooLongText() const;
-
-  std::string javaScriptValidate() const;
-
-private:
-  int minLength_;
-  int maxLength_;
-
-  WString tooLongText_;
-  WString tooShortText_;
-
-  static void loadJavaScript(WApplication *app);
-};
-
-}
-
-#endif // WLENGTHVALIDATOR_H_
+#ifndef WT_WLENGTHVALIDATOR_EXTENSIONLESS_H_
+#define WT_WLENGTHVALIDATOR_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WLengthValidator.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WLengthValidator.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WLengthValidator.h"
+#endif // WT_WLENGTHVALIDATOR_EXTENSIONLESS_H_

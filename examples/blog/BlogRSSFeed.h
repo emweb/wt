@@ -7,7 +7,7 @@
 #ifndef BLOG_RSS_FEED_H_
 #define BLOG_RSS_FEED_H_
 
-#include <Wt/WResource>
+#include <Wt/WResource.h>
 
 class BlogSession;
 
@@ -22,7 +22,7 @@ public:
 
 protected:
   virtual void handleRequest(const Wt::Http::Request &request,
-			     Wt::Http::Response &response);
+                             Wt::Http::Response &response);
 
 private:
   Wt::Dbo::SqlConnectionPool& connectionPool_;

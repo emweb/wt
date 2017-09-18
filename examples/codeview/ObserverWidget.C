@@ -6,8 +6,8 @@
 
 #include "ObserverWidget.h"
 
-#include <Wt/WApplication>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
 
 using namespace Wt;
 
@@ -21,10 +21,10 @@ public:
     WApplication::instance()->require("prettify/prettify.min.js");
     WApplication::instance()->useStyleSheet("prettify/prettify.css");
 
-    new WText("File: ", this);
-    bufferName_ = new WText(this);
+    this->addWidget(cpp14::make_unique<WText>("File: "));
+    bufferName_ = this->addWidget(cpp14::make_unique<WText>());
 
-    bufferText_ = new WText(this);
+    bufferText_ = this->addWidget(cpp14::make_unique<WText>());
     bufferText_->setInline(false);
     bufferText_->setStyleClass("prettyprint");
   }
@@ -51,7 +51,7 @@ ObserverWidget::ObserverWidget(const std::string& id)
   WApplication::instance()->enableUpdates(true);
 
   session_ = CodeSession::addObserver
-    (id, boost::bind(&ObserverWidget::updateBuffer, this, _1, _2));
+    (id, std::bind(&ObserverWidget::updateBuffer, this, std::placeholders::_1, std::placeholders::_2));
 
   if (session_) {
     std::vector<CodeSession::Buffer> buffers = session_->buffers();
@@ -71,11 +71,11 @@ ObserverWidget::~ObserverWidget()
 
 void ObserverWidget::insertBuffer(const CodeSession::Buffer& buffer, int i)
 {
-  BufferViewWidget *w = new BufferViewWidget();
+  std::unique_ptr<BufferViewWidget> w(cpp14::make_unique<BufferViewWidget>());
   w->setName(buffer.name);
   w->setText(buffer.text);
 
-  insertWidget(i, w);
+  insertWidget(i, std::move(w));
 }
 
 void ObserverWidget::updateBuffer(int buffer, CodeSession::BufferUpdate update)
@@ -85,7 +85,7 @@ void ObserverWidget::updateBuffer(int buffer, CodeSession::BufferUpdate update)
     insertBuffer(session_->buffer(buffer), buffer);
     break;
   case CodeSession::Deleted:
-    delete widget(buffer);
+    this->removeWidget(widget(buffer));
     break;
   case CodeSession::Changed:
     {

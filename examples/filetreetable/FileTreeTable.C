@@ -8,13 +8,12 @@
 #include "FileTreeTable.h"
 #include "FileTreeTableNode.h"
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 using namespace Wt;
 
-FileTreeTable::FileTreeTable(const boost::filesystem::path& path,
-			     WContainerWidget *parent)
-  : WTreeTable(parent)
+FileTreeTable::FileTreeTable(const boost::filesystem::path& path)
+  : WTreeTable()
 {
   addColumn("Size", 80);
   addColumn("Modified", 110);
@@ -22,8 +21,10 @@ FileTreeTable::FileTreeTable(const boost::filesystem::path& path,
   header(1)->setStyleClass("fsize");
   header(2)->setStyleClass("date");
 
-  setTreeRoot(new FileTreeTableNode(path), "File");
+  auto tableNode
+      = cpp14::make_unique<FileTreeTableNode>(path);
+  setTreeRoot(std::move(tableNode), "File");
 
-  treeRoot()->setImagePack("icons/");
+  //treeRoot()->setImagePack("icons/");
   treeRoot()->expand();
 }

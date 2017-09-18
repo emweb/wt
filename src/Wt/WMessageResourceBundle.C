@@ -4,20 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WMessageResourceBundle"
-#include "Wt/WMessageResources"
+#include "Wt/WMessageResourceBundle.h"
+#include "Wt/WMessageResources.h"
 
 namespace Wt {
 
 WMessageResourceBundle::WMessageResourceBundle()
-{
-}
+{ }
 
 WMessageResourceBundle::~WMessageResourceBundle()
-{
-  for (unsigned i = 0; i < messageResources_.size(); ++i)
-    delete messageResources_[i];
-}
+{ }
 
 void WMessageResourceBundle::use(const std::string& path, bool loadInMemory)
 {
@@ -26,7 +22,9 @@ void WMessageResourceBundle::use(const std::string& path, bool loadInMemory)
         messageResources_[i]->path() == path)
       return;
 
-  messageResources_.push_back(new WMessageResources(path, loadInMemory));
+  messageResources_.push_back
+    (std::unique_ptr<WMessageResources>
+     (new WMessageResources(path, loadInMemory)));
 }
 
 void WMessageResourceBundle::useBuiltin(const char *xmlbundle)
@@ -35,54 +33,52 @@ void WMessageResourceBundle::useBuiltin(const char *xmlbundle)
     if (messageResources_[i]->isBuiltin(xmlbundle))
       return;
 
-  messageResources_.insert(messageResources_.begin(),
-			   new WMessageResources(xmlbundle));
+  messageResources_.insert
+    (messageResources_.begin(),
+     std::unique_ptr<WMessageResources>(new WMessageResources(xmlbundle)));
 }
 
 #ifndef WT_TARGET_JAVA
-bool WMessageResourceBundle::resolveKey(const std::string& key,
-					std::string& result)
+  LocalizedString WMessageResourceBundle::resolveKey(const WLocale& locale,
+                                          const std::string& key)
 {
   for (unsigned i = 0; i < messageResources_.size(); ++i) {
-    if (messageResources_[i]->resolveKey(key, result))
-      return true;
+    LocalizedString result = messageResources_[i]->resolveKey(locale, key);
+    if (result)
+      return result;
   }
 
-  return false;
+  return LocalizedString{};
 }
 #else
-std::string *WMessageResourceBundle::resolveKey(const std::string& key)
+std::string *WMessageResourceBundle::resolveKey(const WLocale& locale,
+						const std::string& key)
 {
   return 0;
 }
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
-bool WMessageResourceBundle::resolvePluralKey(const std::string& key,
-					      std::string& result,
+LocalizedString WMessageResourceBundle::resolvePluralKey(const WLocale& locale,
+					      const std::string& key,
 					      ::uint64_t amount)
 {
   for (unsigned i = 0; i < messageResources_.size(); ++i) {
-    if (messageResources_[i]->resolvePluralKey(key, result, amount))
-      return true;
+    LocalizedString result = messageResources_[i]->resolvePluralKey(locale, key, amount);
+    if (result)
+      return result;
   }
 
-  return false;
+  return LocalizedString{};
 }
 #else
-std::string *WMessageResourceBundle::resolvePluralKey(const std::string& key,
+std::string *WMessageResourceBundle::resolvePluralKey(const WLocale& locale,
+						      const std::string& key,
 						      ::uint64_t amount)
 {
   return 0;
 }
 #endif // WT_TARGET_JAVA
-
-void WMessageResourceBundle::refresh()
-{
-  for (unsigned i = 0; i < messageResources_.size(); ++i) {
-    messageResources_[i]->refresh();
-  }
-}
 
 void WMessageResourceBundle::hibernate()
 {
@@ -91,12 +87,12 @@ void WMessageResourceBundle::hibernate()
 }
 
 const std::set<std::string> 
-WMessageResourceBundle::keys(WFlags<Scope> scope) const
+WMessageResourceBundle::keys(const WLocale& locale) const
 {
   std::set<std::string> keys;
 
   for (unsigned i = 0; i < messageResources_.size(); ++i) {
-    const std::set<std::string>& resources = messageResources_[i]->keys(scope);
+    const std::set<std::string>& resources = messageResources_[i]->keys(locale);
     keys.insert(resources.begin(), resources.end());
   }
 

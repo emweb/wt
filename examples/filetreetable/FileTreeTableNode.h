@@ -7,9 +7,11 @@
 #ifndef FILETREETABLENODE_H_
 #define FILETREETABLENODE_H_
 
-#include <Wt/WTreeTableNode>
+#include <Wt/WTreeTableNode.h>
 
 #include <boost/filesystem/path.hpp>
+
+using namespace Wt;
 
 /**
  * @addtogroup fileexplorer
@@ -25,7 +27,7 @@
  * a directory node only when the node is expanded. In this way, only
  * directories that are actually browsed are loaded from disk.
  */
-class FileTreeTableNode : public Wt::WTreeTableNode
+class FileTreeTableNode : public WTreeTableNode
 {
 public:
   /*! \brief Construct a new node for the given file.
@@ -37,13 +39,13 @@ private:
   boost::filesystem::path path_;
 
   //! Reimplements WTreeNode::populate to read files within a directory.
-  virtual void populate();
+  virtual void populate() override;
 
   //! Reimplements WTreeNode::expandable
-  virtual bool expandable();
+  virtual bool expandable() override;
 
   //! Create the iconpair for representing the path.
-  static Wt::WIconPair *createIcon(const boost::filesystem::path& path);
+  static std::unique_ptr<WIconPair> createIcon(const boost::filesystem::path& path);
 };
 
 /*@}*/

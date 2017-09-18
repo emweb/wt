@@ -1,156 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WTREE_H_
-#define WTREE_H_
-
-#include <set>
-
-#include <Wt/WCompositeWidget>
-#include <Wt/WSignalMapper>
-
-namespace Wt {
-
-  namespace Impl {
-    class SentinelTreeNode;
-  }
-
-  class WTreeNode;
-
-/*! \class WTree Wt/WTree Wt/WTree
- *  \brief A widget that represents a navigatable tree
- *
- * %WTree provides a tree widget, and coordinates selection
- * functionality.
- *
- * Unlike the MVC-based WTreeView, the tree renders a widget
- * hierarchy, rather than a hierarhical standard model. This provides
- * extra flexibility (as any widget can be used as contents), at the
- * cost of server-side, client-side and bandwidth resources
- * (especially for large tree tables).
- *
- * The tree is implemented as a hierarchy of WTreeNode widgets.
- *
- * Selection is rendered by calling WTreeNode::renderSelected(bool). Only
- * tree nodes that are \link WTreeNode::setSelectable(bool) selectable\endlink
- * may participate in the selection.
- * 
- * \if cpp
- * Usage example:
- * \code
- * Wt::WIconPair *folderIcon = new Wt::WIconPair("icons/yellow-folder-closed.png",
- *				               "icons/yellow-folder-open.png", false);
- *
- * Wt::WTree *tree = new Wt::WTree();
- * tree->setSelectionMode(Wt::SingleSelection);
- *
- * Wt::WTreeNode *root = new Wt::WTreeNode("Tree root", folderIcon);
- * root->setStyleClass("example-tree");
- * tree->setTreeRoot(root);
- * root->label()->setTextFormat(Wt::PlainText);
- * root->setImagePack("resources/");
- * root->setLoadPolicy(Wt::WTreeNode::NextLevelLoading);
- * root->addChildNode(new Wt::WTreeNode("one"));
- * root->addChildNode(new Wt::WTreeNode("two"));
- *
- * Wt::WTreeNode *three = new Wt::WTreeNode("three");
- * three->addChildNode(new WTreeNode("three: one"));
- * three->addChildNode(new WTreeNode("three: two"));
- * root->addChildNode(three);
- *
- * root->expand();
- * \endcode
- * \endif
- *
- * A screenshot of the tree:
- * <TABLE border="0" align="center"> <TR> <TD> 
- * \image html WTree-default-1.png "An example WTree (default)"
- * </TD> <TD>
- * \image html WTree-polished-1.png "An example WTree (polished)"
- * </TD> </TR> </TABLE>
- *
- * \sa WTreeNode, WTreeTable, WTreeView
- */
-class WT_API WTree : public WCompositeWidget
-{
-public:
-  /*! \brief Creates a new tree.
-   */
-  WTree(WContainerWidget *parent = 0);
-
-  /*! \brief Sets the tree root node.
-   *
-   * The initial value is \c 0.
-   */
-  void setTreeRoot(WTreeNode *root);
-
-  /*! \brief Returns the root node.
-   *
-   * \sa setTreeRoot()
-   */
-  WTreeNode *treeRoot() const { return treeRoot_; }
-
-  /*! \brief Sets the selection mode.
-   *
-   * The default selection mode is Wt::NoSelection.
-   */
-  void setSelectionMode(SelectionMode mode);
-
-  /*! \brief Returns the selection mode.
-   */
-  SelectionMode selectionMode() const { return selectionMode_; } 
-
-  /*! \brief Typedef for a set of WTreeNode's.
-   */
-  typedef std::set<WTreeNode *> WTreeNodeSet;
-
-  /*! \brief Returns the set of selected tree nodes.
-   */
-  const WTreeNodeSet& selectedNodes() const { return selection_; }
-
-  /*! \brief Sets a selection of tree nodes.
-   */
-  void select(const WTreeNodeSet& nodes);
-
-  /*! \brief Selects or unselect the given <i>node</i>.
-   */
-  void select(WTreeNode *node, bool selected = true);
-
-  /*! \brief Returns if the given <i>node</i> is currently selected.
-   */
-  bool isSelected(WTreeNode *node) const;
-
-  /*! \brief Clears the current selection.
-   */
-  void clearSelection();
-
-  /*! \brief %Signal that is emitted when the selection changes.
-   */
-  Signal<>& itemSelectionChanged() { return itemSelectionChanged_; }
-
-private:
-  WTreeNode                 *treeRoot_;
-  Impl::SentinelTreeNode    *sentinelRoot_;
-
-  SelectionMode              selectionMode_;
-  WTreeNodeSet               selection_;
-  Signal<>                   itemSelectionChanged_;
-
-  void onClick(WTreeNode *node, WMouseEvent event);
-
-  void selectRange(WTreeNode *from, WTreeNode *to);
-  void extendSelection(WTreeNode *node);
-
-protected:
-  void nodeRemoved(WTreeNode *node);
-  void nodeAdded(WTreeNode * const node);
-
-  friend class Impl::SentinelTreeNode;
-};
-
-}
-
-#endif // WTREE_H_
+#ifndef WT_WTREE_EXTENSIONLESS_H_
+#define WT_WTREE_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WTree.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WTree.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WTree.h"
+#endif // WT_WTREE_EXTENSIONLESS_H_

@@ -1,16 +1,17 @@
-#include <Wt/Chart/WCartesianChart>
-#include <Wt/WContainerWidget>
-#include <Wt/WStandardItemModel>
-#include <Wt/WTimer>
+#include <Wt/Chart/WCartesianChart.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WTimer.h>
 
 #include <cmath>
 
 SAMPLE_BEGIN(ScatterPlotCurve)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = cpp14::make_unique<WContainerWidget>();
 
-Wt::WStandardItemModel *model = new Wt::WStandardItemModel(40, 2, container);
-model->setHeaderData(0, Wt::WString("X"));
-model->setHeaderData(1, Wt::WString("Y = sin(X)"));
+auto model =
+    std::make_shared<WStandardItemModel>(40, 2);
+model->setHeaderData(0, WString("X"));
+model->setHeaderData(1, WString("Y = sin(X)"));
 
 for (unsigned i = 0; i < 40; ++i) {
     double x = (static_cast<double>(i) - 20) / 4;
@@ -22,30 +23,31 @@ for (unsigned i = 0; i < 40; ++i) {
 /*
  * Create the scatter plot.
  */
-Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart(container);
+Chart::WCartesianChart *chart =
+    container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
 chart->setModel(model);        // Set the model.
 chart->setXSeriesColumn(0);    // Set the column that holds the X data.
 chart->setLegendEnabled(true); // Enable the legend.
 
-chart->setType(Wt::Chart::ScatterPlot);   // Set type to ScatterPlot.
+chart->setType(Chart::ChartType::Scatter);   // Set type to ScatterPlot.
 
 // Typically, for mathematical functions, you want the axes to cross
 // at the 0 mark:
-chart->axis(Wt::Chart::XAxis).setLocation(Wt::Chart::ZeroValue);
-chart->axis(Wt::Chart::YAxis).setLocation(Wt::Chart::ZeroValue);
+chart->axis(Chart::Axis::X).setLocation(Chart::AxisValue::Zero);
+chart->axis(Chart::Axis::Y).setLocation(Chart::AxisValue::Zero);
 
 // Provide space for the X and Y axis and title.
-chart->setPlotAreaPadding(120, Wt::Right);
-chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
+chart->setPlotAreaPadding(120, Side::Right);
+chart->setPlotAreaPadding(40, Side::Top | Side::Bottom);
 
 // Add the curves
-Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(1, Wt::Chart::CurveSeries);
-s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-chart->addSeries(s);
+auto s = cpp14::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Curve);
+s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+chart->addSeries(std::move(s));
 
 chart->resize(800, 300); // WPaintedWidget must be given explicit size.
 
-chart->setMargin(10, Wt::Top | Wt::Bottom);            // Add margin vertically
-chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right); // Center horizontally
+chart->setMargin(10, Side::Top | Side::Bottom);            // Add margin vertically
+chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

@@ -1,51 +1,54 @@
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WDialog>
-#include <Wt/WEnvironment>
-#include <Wt/WLabel>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WRegExpValidator>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDialog.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WLabel.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WRegExpValidator.h>
+#include <Wt/WText.h>
 
 namespace {
 
-extern void showDialog(Wt::WText *out)
+extern void showDialog(Wt::WObject *owner, Wt::WText *out)
 {
-    Wt::WDialog *dialog = new Wt::WDialog("Go to cell");
+    auto dialog = owner->addChild(Wt::cpp14::make_unique<Wt::WDialog>("Go to cell"));
 
-    Wt::WLabel *label = new Wt::WLabel("Cell location (A1..Z999)",
-				       dialog->contents());
-    Wt::WLineEdit *edit = new Wt::WLineEdit(dialog->contents());
+    Wt::WLabel *label =
+        dialog->contents()->addWidget(Wt::cpp14::make_unique<Wt::WLabel>("Cell location (A1..Z999)"));
+    Wt::WLineEdit *edit =
+        dialog->contents()->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
     label->setBuddy(edit);
 
     dialog->contents()->addStyleClass("form-group");
 
-    Wt::WRegExpValidator *validator = 
-        new Wt::WRegExpValidator("[A-Za-z][1-9][0-9]{0,2}");
+    auto validator =
+        std::make_shared<Wt::WRegExpValidator>("[A-Za-z][1-9][0-9]{0,2}");
     validator->setMandatory(true);
     edit->setValidator(validator);
 
-    Wt::WPushButton *ok = new Wt::WPushButton("OK", dialog->footer());
+    Wt::WPushButton *ok =
+        dialog->footer()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("OK"));
     ok->setDefault(true);
     if (wApp->environment().ajax())
       ok->disable();
 
-    Wt::WPushButton *cancel = new Wt::WPushButton("Cancel", dialog->footer());
+    Wt::WPushButton *cancel =
+        dialog->footer()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Cancel"));
     dialog->rejectWhenEscapePressed();
 
-    edit->keyWentUp().connect(std::bind([=] () {
-	ok->setDisabled(edit->validate() != Wt::WValidator::Valid);
-    }));
+    edit->keyWentUp().connect([=] {
+        ok->setDisabled(edit->validate() != Wt::ValidationState::Valid);
+    });
 
     /*
      * Accept the dialog
      */
-    ok->clicked().connect(std::bind([=] () {
-	if (edit->validate())
-	    dialog->accept();
-    }));
+    ok->clicked().connect([=] {
+        if (edit->validate() == Wt::ValidationState::Valid)
+            dialog->accept();
+    });
 
     /*
      * Reject the dialog
@@ -55,29 +58,30 @@ extern void showDialog(Wt::WText *out)
     /*
      * Process the dialog result.
      */
-    dialog->finished().connect(std::bind([=] () {
-	if (dialog->result() == Wt::WDialog::Accepted)
+    dialog->finished().connect([=] {
+        if (dialog->result() == Wt::DialogCode::Accepted)
 	    out->setText("New location: " + edit->text());
 	else
 	    out->setText("No location selected.");
 
-	delete dialog;
-    }));
+        owner->removeChild(dialog);
+    });
 
     dialog->show();
 }
 
 }
 SAMPLE_BEGIN(Dialog)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WPushButton *button = new Wt::WPushButton("Jump", container);
+Wt::WPushButton *button = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Jump"));
 
-Wt::WText *out = new Wt::WText(container);
+Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->setStyleClass("help-block");
 
-button->clicked().connect(std::bind([=] () {
-      showDialog(out);
-}));
+auto c = container.get();
+button->clicked().connect([=] {
+  showDialog(c, out);
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

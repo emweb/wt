@@ -1,153 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WDATE_EDIT_H_
-#define WDATE_EDIT_H_
-
-#include <Wt/WDateValidator>
-#include <Wt/WLineEdit>
-
-namespace Wt {
-
-/*! \class WDateEdit Wt/WDateEdit Wt/WDateEdit
- *  \brief A date edit.
- *
- * A date picker is a line edit with support for date entry (using an
- * icon and a calendar).
- *
- * A WDateValidator is used to validate date entry.
- *
- * In many cases, it provides a more convenient implementation of a
- * date picker compared to WDatePicker since it is implemented as a
- * line edit. This also makes the implementation ready for a native
- * HTML5 control.
- */
-class WT_API WDateEdit : public WLineEdit
-{
-public:
-  /*! \brief Creates a new date edit.
-   */
-  WDateEdit(WContainerWidget *parent = 0);
-
-  virtual ~WDateEdit();
-
-  /*! \brief Sets the date.
-   *
-   * Does nothing if the current date is \p Null.
-   *
-   * \sa date()
-   */
-  void setDate(const WDate& date);
-
-  /*! \brief Returns the date.
-   *
-   * Reads the current date.
-   *
-   * \if cpp
-   * Returns an invalid date (for which WDate::isValid() returns
-   * \c false) if the date could not be parsed using the current
-   * format(). <br>
-   * \elseif java
-   * Returns \c null if the date could not be parsed using the current
-   * format(). <br>
-   * \endif
-   *
-   * \sa setDate(), WDate::fromString(), WLineEdit::text()
-   */
-  WDate date() const;
-
-  /*! \brief Returns the validator.
-   *
-   * Most of the configuration of the date edit is stored in the
-   * validator.
-   */
-  virtual WDateValidator *validator() const;
-
-  /*! \brief Sets the format used for representing the date.
-   *
-   * This sets the format in the validator.
-   *
-   * The default format is based on the current WLocale.
-   *
-   * \sa WDateValidator::setFormat()
-   */
-  void setFormat(const WT_USTRING& format);
-
-  /*! \brief Returns the format.
-   *
-   * \sa setFormat()
-   */
-  WT_USTRING format() const;
-
-  /*! \brief Sets the lower limit of the valid date range.
-   *
-   * This sets the lower limit of the valid date range in the
-   * validator.
-   *
-   * \sa WDateValidator::setBottom()
-   */
-  void setBottom(const WDate& bottom);
-
-  /*! \brief Returns the lower limit of the valid date range.
-   *
-   * \sa setBottom()
-   */
-  WDate bottom() const;
-  
-  /*! \brief Sets the upper limit of the valid date range.
-   *
-   * This sets the upper limit of the valid date range in the
-   * validator.
-   *
-   * \sa WDateValidator::setTop()
-   */
-  void setTop(const WDate& top);
-
-  /*! \brief Returns the upper limit of the valid range.
-   *
-   * \sa setTop()
-   */
-  WDate top() const;
-
-  /*! \brief Returns the calendar widget.
-   *
-   * The calendar may be 0 (e.g. when using a native date entry
-   * widget).
-   */
-  WCalendar *calendar() const { return calendar_; }
-
-  /*! \brief Hide/unhide the widget.
-   */
-  virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation());
-
-  virtual void load();
-  virtual void refresh();
-
-protected:
-  virtual void render(WFlags<RenderFlag> flags);
-  virtual void propagateSetEnabled(bool enabled);
-
-  /*! \brief Sets the value from the calendar to the line edit.
-   */
-  virtual void setFromCalendar();
-
-  /*! \brief Sets the value from the line edit to the calendar.
-   */
-  virtual void setFromLineEdit();
-
-private:
-  WPopupWidget *popup_;
-  WCalendar *calendar_;
-  bool customFormat_;
-
-  void defineJavaScript();
-  void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);
-};
-
-}
-
-#endif // WDATE_EDIT_H_
+#ifndef WT_WDATEEDIT_EXTENSIONLESS_H_
+#define WT_WDATEEDIT_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WDateEdit.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WDateEdit.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WDateEdit.h"
+#endif // WT_WDATEEDIT_EXTENSIONLESS_H_

@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WShadow"
+#include "Wt/WShadow.h"
 
 namespace Wt {
 
 WShadow::WShadow()
-  : color_(black),
+  : color_(StandardColor::Black),
     offsetX_(0),
     offsetY_(0),
     blur_(0)

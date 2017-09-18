@@ -11,50 +11,50 @@
 
 #include "WebRequest.h"
 #include "WtReply.h"
-#include "Wt/Http/Message"
+#include "Wt/Http/Message.h"
 
 namespace http {
 namespace server {
 
-class HTTPRequest : public Wt::WebRequest
+class HTTPRequest final : public Wt::WebRequest
 {
 public:
   HTTPRequest(WtReplyPtr wtReply, const Wt::EntryPoint *entryPoint);
   void reset(WtReplyPtr reply, const Wt::EntryPoint *entryPoint);
   bool done() const;
 
-  virtual void flush(ResponseState state, const WriteCallback& callback);
-  virtual void readWebSocketMessage(const ReadCallback& callback);
-  virtual bool webSocketMessagePending() const;
-  virtual bool detectDisconnect(const DisconnectCallback& callback);
+  virtual void flush(ResponseState state, const WriteCallback& callback) override;
+  virtual void readWebSocketMessage(const ReadCallback& callback) override;
+  virtual bool webSocketMessagePending() const override;
+  virtual bool detectDisconnect(const DisconnectCallback& callback) override;
 
-  virtual std::istream& in() { return reply_->in(); }
-  virtual std::ostream& out() { return reply_->out(); }
-  virtual std::ostream& err() { return std::cerr; }
+  virtual std::istream& in() override { return reply_->in(); }
+  virtual std::ostream& out() override { return reply_->out(); }
+  virtual std::ostream& err() override { return std::cerr; }
 
-  virtual void setStatus(int status);
-  virtual void setContentLength(::int64_t length);
+  virtual void setStatus(int status) override;
+  virtual void setContentLength(::int64_t length) override;
 
-  virtual void addHeader(const std::string& name, const std::string& value);
-  virtual void setContentType(const std::string& value);
-  virtual void setRedirect(const std::string& url);
+  virtual void addHeader(const std::string& name, const std::string& value) override;
+  virtual void setContentType(const std::string& value) override;
+  virtual void setRedirect(const std::string& url) override;
 
-  virtual const char *contentType() const;
-  virtual ::int64_t contentLength() const;
+  virtual const char *contentType() const override;
+  virtual ::int64_t contentLength() const override;
 
-  virtual const char *envValue(const char *name) const;
-  virtual const char *headerValue(const char *name) const;
-  virtual std::vector<Wt::Http::Message::Header> headers() const;
-  virtual const std::string& serverName() const;
-  virtual const std::string& serverPort() const;
-  virtual const std::string& scriptName() const;
-  virtual const char *requestMethod() const;
-  virtual const std::string& queryString() const;
-  virtual const std::string& pathInfo() const;
-  virtual const std::string& remoteAddr() const;
-  virtual const char *urlScheme() const;
-  virtual bool isSynchronous() const;
-  virtual Wt::WSslInfo *sslInfo() const;
+  virtual const char *envValue(const char *name) const override;
+  virtual const char *headerValue(const char *name) const override;
+  virtual std::vector<Wt::Http::Message::Header> headers() const override;
+  virtual const std::string& serverName() const override;
+  virtual const std::string& serverPort() const override;
+  virtual const std::string& scriptName() const override;
+  virtual const char *requestMethod() const override;
+  virtual const std::string& queryString() const override;
+  virtual const std::string& pathInfo() const override;
+  virtual const std::string& remoteAddr() const override;
+  virtual const char *urlScheme() const override;
+  bool isSynchronous() const;
+  virtual Wt::WSslInfo *sslInfo() const override;
 
 private:
   WtReplyPtr reply_;

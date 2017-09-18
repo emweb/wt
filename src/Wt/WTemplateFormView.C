@@ -4,13 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WAbstractToggleButton"
-#include "Wt/WFormWidget"
-#include "Wt/WLogger"
-#include "Wt/WText"
-#include "Wt/WTemplateFormView"
-#include "Wt/WTheme"
+#include "Wt/WApplication.h"
+#include "Wt/WAbstractToggleButton.h"
+#include "Wt/WFormWidget.h"
+#include "Wt/WLogger.h"
+#include "Wt/WText.h"
+#include "Wt/WTemplateFormView.h"
+#include "Wt/WTheme.h"
 
 #include "WebUtils.h"
 
@@ -19,18 +19,16 @@ namespace Wt {
   LOGGER("WTemplateFormView");
 
 WTemplateFormView::FieldData::FieldData()
-  : formWidget(0)
+  : formWidget(nullptr)
 { }
 
-WTemplateFormView::WTemplateFormView(const WString& text,
-				     WContainerWidget *parent)
-  : WTemplate(text, parent)
+WTemplateFormView::WTemplateFormView(const WString& text)
+  : WTemplate(text)
 {
   init();
 }
 
-WTemplateFormView::WTemplateFormView(WContainerWidget *parent)
-  : WTemplate(parent)
+WTemplateFormView::WTemplateFormView()
 {
   init();
 }
@@ -43,25 +41,25 @@ void WTemplateFormView::init()
 }
 
 void WTemplateFormView::setFormWidget(WFormModel::Field field,
-				      Wt::WWidget *formWidget)
+				      std::unique_ptr<Wt::WWidget> formWidget)
 {
   fields_[field] = FieldData();
-  fields_[field].formWidget = formWidget;
-  bindWidget(field, formWidget);
+  fields_[field].formWidget = formWidget.get();
+  bindWidget(field, std::move(formWidget));
 }
 
 #ifndef WT_TARGET_JAVA
 
 void WTemplateFormView
-::setFormWidget(WFormModel::Field field, WWidget *formWidget,
-		const boost::function<void()>& updateViewValue,
-		const boost::function<void()>& updateModelValue)
+::setFormWidget(WFormModel::Field field, std::unique_ptr<WWidget> formWidget,
+		const std::function<void()>& updateViewValue,
+		const std::function<void()>& updateModelValue)
 {
-  fields_[field].formWidget = formWidget;
+  fields_[field].formWidget = formWidget.get();
   fields_[field].updateView = updateViewValue;
   fields_[field].updateModel = updateModelValue;
 
-  bindWidget(field, formWidget); 
+  bindWidget(field, std::move(formWidget));
 }
 
 #else
@@ -79,9 +77,10 @@ void WTemplateFormView
 
 #endif // WT_TARGET_JAVA
 
-WWidget *WTemplateFormView::createFormWidget(WFormModel::Field field)
+std::unique_ptr<WWidget> WTemplateFormView
+::createFormWidget(WFormModel::Field field)
 {
-  return 0;
+  return std::unique_ptr<WWidget>();
 }
 
 void WTemplateFormView::updateViewValue(WFormModel *model,
@@ -93,8 +92,8 @@ void WTemplateFormView::updateViewValue(WFormModel *model,
 
   WAbstractToggleButton *b = dynamic_cast<WAbstractToggleButton *>(edit);
   if (b) {
-    boost::any v = model->value(field);
-    if (v.empty() || boost::any_cast<bool>(v) == false)
+    cpp17::any v = model->value(field);
+    if (v.empty() || cpp17::any_cast<bool>(v) == false)
       b->setChecked(false);
     else
       b->setChecked(true);
@@ -134,13 +133,14 @@ void WTemplateFormView::updateViewField(WFormModel *model,
     setCondition("if:" + var, true);
     WWidget *edit = resolveWidget(var);
     if (!edit) {
-      edit = createFormWidget(field);
+      std::unique_ptr<WWidget> nw = createFormWidget(field);
+      edit = nw.get();
       if (!edit) {
 	LOG_ERROR("updateViewField: createFormWidget('"
 		  << field << "') returned 0");
 	return;
       }
-      bindWidget(var, edit);
+      bindWidget(var, std::move(nw));
     }
 
     WFormWidget *fedit = dynamic_cast<WFormWidget *>(edit);
@@ -155,7 +155,7 @@ void WTemplateFormView::updateViewField(WFormModel *model,
     WText *info = resolve<WText *>(var + "-info");
     if (!info) {
       info = new WText();
-      bindWidget(var + "-info", info);
+      bindWidget(var + "-info", std::unique_ptr<WWidget>(info));
     }
 
     bindString(var + "-label", model->label(field));
@@ -184,11 +184,12 @@ void WTemplateFormView::indicateValidation(WFormModel::Field field,
     WApplication::instance()->theme()
       ->applyValidationStyle(edit, validation, ValidationAllStyles);
 
-    info->toggleStyleClass("Wt-error", validation.state() != WValidator::Valid,
+    info->toggleStyleClass("Wt-error", 
+			   validation.state() != ValidationState::Valid,
 			   true);
   } else {
     WApplication::instance()->theme()
-      ->applyValidationStyle(edit, validation, ValidationNoStyle);
+      ->applyValidationStyle(edit, validation, None);
 
     info->removeStyleClass("Wt-error", true);
   }

@@ -1,42 +1,39 @@
-#include <Wt/WIntValidator>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
-#include <Wt/WText>
+#include <Wt/WIntValidator.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(Validation)
 
-Wt::WTemplate *t = new Wt::WTemplate(Wt::WString::tr("validation-template"));
+auto t = Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("validation-template"));
 t->addFunction("id", &Wt::WTemplate::Functions::id);
 
-Wt::WLineEdit *ageEdit = new Wt::WLineEdit();
-t->bindWidget("age", ageEdit);
+auto ageEdit = t->bindWidget("age", Wt::cpp14::make_unique<Wt::WLineEdit>());
 
-Wt::WIntValidator *validator = new Wt::WIntValidator(0, 150);
+auto validator = std::make_shared<Wt::WIntValidator>(0, 150);
 validator->setMandatory(true);
 ageEdit->setValidator(validator);
 
-Wt::WPushButton *button = new Wt::WPushButton("Save");
-t->bindWidget("button", button);
+auto button = t->bindWidget("button", Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
 
-Wt::WText *out = new Wt::WText();
+auto out = t->bindWidget("age-info", Wt::cpp14::make_unique<Wt::WText>());
 out->setInline(false);
 out->hide();
-t->bindWidget("age-info", out);
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->show();
-    if (ageEdit->validate() == Wt::WValidator::Valid) {
-	out->setText("Age of " + ageEdit->text() + " is saved!");
-	out->setStyleClass("alert alert-success");
+    if (ageEdit->validate() == Wt::ValidationState::Valid) {
+        out->setText("Age of " + ageEdit->text() + " is saved!");
+        out->setStyleClass("alert alert-success");
     } else {
-	out->setText("The number must be in the range 0 to 150");
-	out->setStyleClass("alert alert-danger");
+        out->setText("The number must be in the range 0 to 150");
+        out->setStyleClass("alert alert-danger");
     }
-}));
+});
 
-ageEdit->enterPressed().connect(std::bind([=] () {
+ageEdit->enterPressed().connect([=] {
     button->clicked().emit(Wt::WMouseEvent());
-}));
+});
 
-SAMPLE_END(return t)
+SAMPLE_END(return std::move(t))

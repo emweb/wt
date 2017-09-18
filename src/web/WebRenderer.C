@@ -4,18 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <regex>
 #include <map>
 
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WRandom"
-#include "Wt/WRegExp"
-#include "Wt/WWebWidget"
-#include "Wt/WStringStream"
-#include "Wt/WTheme"
-#include "Wt/Utils"
+#include "Wt/WApplication.h"
+#include "Wt/WLinkedCssStyleSheet.h"
+#include "Wt/WLoadingIndicator.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WRandom.h"
+#include "Wt/WWebWidget.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WTheme.h"
+#include "Wt/Utils.h"
 
 #include "Configuration.h"
 #include "DomElement.h"
@@ -26,6 +27,7 @@
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WebUtils.h"
+#include "StringUtils.h"
 
 #ifdef WT_WIN32
 #include <process.h> // for getpid()
@@ -149,7 +151,7 @@ bool WebRenderer::isDirty() const
 {
   return !updateMap_.empty()
     || formObjectsChanged_
-    || session_.app()->isQuited()
+    || session_.app()->hasQuit()
     || !session_.app()->afterLoadJavaScript_.empty()
     || session_.app()->serverPushChanged_
     || session_.app()->styleSheetsAdded_
@@ -175,7 +177,7 @@ std::string WebRenderer::bodyClassRtl() const
     if (!s.empty())
       s += ' ';
 
-    s += session_.app()->layoutDirection() == LeftToRight
+    s += session_.app()->layoutDirection() == LayoutDirection::LeftToRight
       ? "Wt-ltr" : "Wt-rtl";
 
     session_.app()->bodyHtmlClassChanged_ = false;
@@ -192,7 +194,7 @@ void WebRenderer::saveChanges()
 
 void WebRenderer::discardChanges()
 {
-  collectJS(0);
+  collectJS(nullptr);
 }
 
 WebRenderer::AckState WebRenderer::ackUpdate(int updateId)
@@ -269,10 +271,10 @@ void WebRenderer::serveResponse(WebResponse& response)
   session_.setTriggerUpdate(false);
 
   switch (response.responseType()) {
-  case WebResponse::Update:
+  case WebResponse::ResponseType::Update:
     serveJavaScriptUpdate(response);
     break;
-  case WebResponse::Page:
+  case WebResponse::ResponseType::Page:
     initialStyleRendered_ = false;
     ++pageId_;
     if (session_.app())
@@ -280,7 +282,7 @@ void WebRenderer::serveResponse(WebResponse& response)
     else
       serveBootstrap(response);
     break;
-  case WebResponse::Script:
+  case WebResponse::ResponseType::Script:
     bool hybridPage = session_.progressiveBoot() || session_.env().ajax();
     if (!hybridPage)
       setRendered(false);
@@ -313,7 +315,7 @@ void WebRenderer::setPageVars(FileServe& page)
   if (!attr.empty())
     attr = " class=\"" + attr + "\"";
 
-  if (app && app->layoutDirection() == RightToLeft)
+  if (app && app->layoutDirection() == LayoutDirection::RightToLeft)
     attr += " dir=\"RTL\"";
 
   page.setVar("BODYATTRIBUTES", attr);
@@ -335,7 +337,8 @@ void WebRenderer::streamBootContent(WebResponse& response,
   FileServe bootJs(skeletons::Boot_js1);
 
   boot.setVar("BLANK_HTML",
-	      session_.bootstrapUrl(response, WebSession::ClearInternalPath)
+	      session_.bootstrapUrl(response, 
+				    WebSession::BootstrapOption::ClearInternalPath)
 	      + "&amp;request=resource&amp;resource=blank");
   boot.setVar("SESSION_ID", session_.sessionId());
   //TODO remove APP_CLASS, will later only be used in the javascript
@@ -343,8 +346,8 @@ void WebRenderer::streamBootContent(WebResponse& response,
 
   bootJs.setVar("SELF_URL",
 		safeJsStringLiteral
-		(session_.bootstrapUrl(response, 
-				       WebSession::ClearInternalPath)));
+		(session_.bootstrapUrl
+		 (response, WebSession::BootstrapOption::ClearInternalPath)));
   bootJs.setVar("SESSION_ID", session_.sessionId());
 
   expectedAckId_ = scriptId_ = WRandom::get();
@@ -391,7 +394,7 @@ void WebRenderer::serveLinkedCss(WebResponse& response)
       app->theme()->serveCss(out);
 
     for (unsigned i = 0; i < app->styleSheets_.size(); ++i)
-      app->styleSheets_[i].cssText(out, true);
+      app->styleSheets_[i].cssText(out);
 
     app->styleSheetsAdded_ = 0;
 
@@ -415,7 +418,7 @@ void WebRenderer::serveLinkedCss(WebResponse& response)
       = std::min((std::size_t)linkedCssCount_, app->styleSheets_.size());
 
     for (unsigned i = 0; i < count; ++i)
-      app->styleSheets_[i].cssText(out, true);
+      app->styleSheets_[i].cssText(out);
 
     out.spool(response.out());
   }
@@ -431,7 +434,8 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   WStringStream noJsRedirectUrl;
   DomElement::htmlAttributeValue
     (noJsRedirectUrl,
-     session_.bootstrapUrl(response, WebSession::KeepInternalPath) + "&js=no");
+     session_.bootstrapUrl(response, 
+			   WebSession::BootstrapOption::KeepInternalPath) + "&js=no");
 
   boot.setVar("REDIRECT_URL", noJsRedirectUrl.str());
   boot.setVar("AUTO_REDIRECT",
@@ -442,9 +446,9 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   WStringStream bootStyleUrl;
   DomElement::htmlAttributeValue
     (bootStyleUrl,
-     session_.bootstrapUrl(response, WebSession::ClearInternalPath)
-     + "&request=style&page="
-     + boost::lexical_cast<std::string>(pageId_));
+     session_.bootstrapUrl(response, 
+			   WebSession::BootstrapOption::ClearInternalPath)
+     + "&request=style&page=" + std::to_string(pageId_));
 
   boot.setVar("BOOT_STYLE_URL", bootStyleUrl.str());
 
@@ -466,7 +470,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 void WebRenderer::serveError(int status, WebResponse& response,
 			     const std::string& message)
 {
-  bool js = response.responseType() != WebResponse::Page;
+  bool js = response.responseType() != WebResponse::ResponseType::Page;
 
   WApplication *app = session_.app();
   if (!js || !app) {
@@ -693,9 +697,9 @@ void WebRenderer::addResponseAckPuzzle(WStringStream& out)
     std::vector<WContainerWidget *> widgets;
 
     WApplication *app = session_.app();
-    addContainerWidgets(app->domRoot_, widgets);
+    addContainerWidgets(app->domRoot_.get(), widgets);
     if (app->domRoot2_)
-      addContainerWidgets(app->domRoot2_, widgets);
+      addContainerWidgets(app->domRoot2_.get(), widgets);
     
     unsigned r = WRandom::get() % widgets.size();
 
@@ -818,13 +822,13 @@ void WebRenderer::collectJavaScript()
   invisibleJS_.clear();
 
   if (app->bodyHtmlClassChanged_) {
-    bool widgetset = session_.type() == WidgetSet;
+    bool widgetset = session_.type() == EntryPointType::WidgetSet;
     std::string op = widgetset ? "+=" : "=";
     collectedJS1_ << "document.body.parentNode.className" << op << '\''
 		  << app->htmlClass_ << "';"
 		  << "document.body.className" << op << '\'' << bodyClassRtl() << "';"
 		  << "document.body.setAttribute('dir', '";
-    if (app->layoutDirection() == LeftToRight)
+    if (app->layoutDirection() == LayoutDirection::LeftToRight)
       collectedJS1_ << "LTR";
     else
       collectedJS1_ << "RTL";
@@ -913,7 +917,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
    * collectedJS variables.
    */
   Configuration& conf = session_.controller()->configuration();
-  bool widgetset = session_.type() == WidgetSet;
+  bool widgetset = session_.type() == EntryPointType::WidgetSet;
 
   bool serveSkeletons = !conf.splitScript() 
     || response.getParameter("skeleton");
@@ -1011,7 +1015,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setVar("WS_ID", WWebWidget::jsStringLiteral(std::string("")));
 #endif
 
-    script.setVar("KEEP_ALIVE", boost::lexical_cast<std::string>(conf.keepAlive()));
+    script.setVar("KEEP_ALIVE", std::to_string(conf.keepAlive()));
 
     script.setVar("INDICATOR_TIMEOUT", conf.indicatorTimeout());
     script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
@@ -1026,7 +1030,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
      * Ajax update request has all the information to reload the session.
      */
     std::string params;
-    if (session_.type() == WidgetSet) {
+    if (session_.type() == EntryPointType::WidgetSet) {
       const Http::ParameterMap *m = &session_.env().getParameterMap();
       Http::ParameterMap::const_iterator it = m->find("Wt-params");
       Http::ParameterMap wtParams;
@@ -1058,7 +1062,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
   formObjectsChanged_ = true;
   app->autoJavaScriptChanged_ = true;
 
-  if (session_.type() == WidgetSet) {
+  if (session_.type() == EntryPointType::WidgetSet) {
     out << app->javaScriptClass() << "._p_.update(null, 'load', null, false);";
   } else if (!rendered_) {
     serveMainAjax(out);
@@ -1156,10 +1160,10 @@ void WebRenderer::serveMainscript(WebResponse& response)
 void WebRenderer::serveMainAjax(WStringStream& out)
 {
   Configuration& conf = session_.controller()->configuration();
-  bool widgetset = session_.type() == WidgetSet;
+  bool widgetset = session_.type() == EntryPointType::WidgetSet;
   WApplication *app = session_.app();
 
-  WWebWidget *mainWebWidget = app->domRoot_;
+  WWebWidget *mainWebWidget = app->domRoot_.get();
 
   visibleOnly_ = true;
 
@@ -1168,9 +1172,9 @@ void WebRenderer::serveMainAjax(WStringStream& out)
    * domRoot2_). This automatically creates loading stubs for
    * invisible widgets.
    */
-  app->loadingIndicatorWidget_->show();
+  app->loadingIndicator_->show();
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
-  app->loadingIndicatorWidget_->hide();
+  app->loadingIndicator_->hide();
 
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
   int librariesLoaded = loadScriptLibraries(out, app);
@@ -1190,7 +1194,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
      * In case we have not yet served the bootstyle for this page:
      */
     if (app->theme()) {
-      std::vector<WCssStyleSheet> styleSheets = app->theme()->styleSheets();
+      auto styleSheets = app->theme()->styleSheets();
       for (unsigned i = 0; i < styleSheets.size(); ++i)
 	loadStyleSheet(out, app, styleSheets[i]);
     }
@@ -1213,7 +1217,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
     out << "document.body.parentNode.className" << op << '\'' << app->htmlClass_ << "';"
 	<< "document.body.className" << op << '\'' << bodyClassRtl() << "';"
 	<< "document.body.setAttribute('dir', '";
-    if (app->layoutDirection() == LeftToRight)
+    if (app->layoutDirection() == LayoutDirection::LeftToRight)
       out << "LTR";
     else
       out << "RTL";
@@ -1276,7 +1280,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
       << '}';
 
   if (!widgetset) {
-    if (!app->isQuited())
+    if (!app->hasQuit())
       out << session_.app()->javaScriptClass()
 	  << "._p_.update(null, 'load', null, false);\n";
     out << "};\n";
@@ -1332,7 +1336,7 @@ void WebRenderer::updateLoadIndicator(WStringStream& out, WApplication *app,
 }
 
 void WebRenderer::renderStyleSheet(WStringStream& out,
-				   const WCssStyleSheet& sheet,
+				   const WLinkedCssStyleSheet& sheet,
 				   WApplication *app)
 {
   out << "<link href=\"";
@@ -1365,10 +1369,10 @@ void WebRenderer::serveMainpage(WebResponse& response)
   WApplication *app = session_.app();
 
   /*
-   * This implements the redirect for Post-Redirect-Get, or when the
+   * This implements the redirect for Method::Post-Redirect-Method::Get, or when the
    * internal path changed.
    *
-   * Post-Redirect-Get does not work properly though: refresh() may misbehave
+   * Method::Post-Redirect-Method::Get does not work properly though: refresh() may misbehave
    * and have unintended side effects ?
    */
   if (!app->environment().ajax()
@@ -1377,7 +1381,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 		&& app->renderedInternalPath_ != app->newInternalPath_))) {
     app->renderedInternalPath_ = app->newInternalPath_;
 
-    if (session_.state() == WebSession::JustCreated &&
+    if (session_.state() == WebSession::State::JustCreated &&
 	conf.progressiveBoot(app->environment().internalPath())) {
       session_.redirect
 	(session_.fixRelativeUrl
@@ -1399,7 +1403,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
     return;
   }
 
-  WWebWidget *mainWebWidget = app->domRoot_;
+  WWebWidget *mainWebWidget = app->domRoot_.get();
 
   visibleOnly_ = true;
 
@@ -1415,7 +1419,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
   WStringStream styleSheets;
 
   if (app->theme()) {
-    std::vector<WCssStyleSheet> sheets = app->theme()->styleSheets();
+    std::vector<WLinkedCssStyleSheet> sheets = app->theme()->styleSheets();
 
     for (unsigned i = 0; i < sheets.size(); ++i)
       renderStyleSheet(styleSheets, sheets[i], app);
@@ -1509,7 +1513,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
     refresh = 1000000;
   } else {
-    if (app->isQuited() || conf.sessionTimeout() == -1)
+    if (app->hasQuit() || conf.sessionTimeout() == -1)
       refresh = 1000000;
     else {
       refresh = conf.sessionTimeout() / 3;
@@ -1517,7 +1521,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 	refresh = std::min(refresh, 1 + timeouts[i].msec/1000);
     }
   }
-  page.setVar("REFRESH", boost::lexical_cast<std::string>(refresh));
+  page.setVar("REFRESH", std::to_string(refresh));
 
   page.stream(out);
 
@@ -1559,7 +1563,7 @@ int WebRenderer::loadScriptLibraries(WStringStream& out,
 }
 
 void WebRenderer::loadStyleSheet(WStringStream& out, WApplication *app,
-				 const WCssStyleSheet& sheet)
+				 const WLinkedCssStyleSheet& sheet)
 {
   out << WT_CLASS << ".addStyleSheet('"
       << sheet.link().resolveUrl(app) << "', '"
@@ -1605,7 +1609,7 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
       for (; w->parent(); ++depth)
 	w = w->parent();
 
-      if (w != app->domRoot_ && w != app->domRoot2_) {
+      if (w != app->domRoot_.get() && w != app->domRoot2_.get()) {
 	LOG_DEBUG("ignoring: " << ww->id() << " (" << DESCRIBE(ww) << ") " <<
 		  w->id() << " (" << DESCRIBE(w) << ")");
 
@@ -1704,7 +1708,7 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
 
   app->streamAfterLoadJavaScript(out);
 
-  if (app->isQuited())
+  if (app->hasQuit())
     out << app->javaScriptClass() << "._p_.quit("
 	<< (app->quittedMessage_.empty() ? "null" :
 	    app->quittedMessage_.jsStringLiteral()) + ");";
@@ -1775,10 +1779,10 @@ void WebRenderer::collectJS(WStringStream* js)
     EscapeOStream sout(*js);
 
     for (unsigned i = 0; i < changes.size(); ++i)
-      changes[i]->asJavaScript(sout, DomElement::Delete);
+      changes[i]->asJavaScript(sout, DomElement::Priority::Delete);
 
     for (unsigned i = 0; i < changes.size(); ++i) {
-      changes[i]->asJavaScript(sout, DomElement::Update);
+      changes[i]->asJavaScript(sout, DomElement::Priority::Update);
       delete changes[i];
     }
   } else {
@@ -1847,10 +1851,10 @@ void WebRenderer::preLearnStateless(WApplication *app, WStringStream& out)
        i != ss.end(); ) {
     Wt::EventSignalBase* s = i->second;
 
-    if (s->sender() == app)
+    if (s->owner() == app)
       s->processPreLearnStateless(this);
     else if (s->canAutoLearn()) {
-      WWidget *ww = static_cast<WWidget *>(s->sender());
+      WWidget *ww = static_cast<WWidget *>(s->owner());
       if (ww && ww->isRendered())
 	s->processPreLearnStateless(this);
     }
@@ -1867,7 +1871,7 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
   if (slot->invalidated())
     return std::string();
 
-  if (slot->type() == WStatelessSlot::PreLearnStateless)
+  if (slot->type() == WStatelessSlot::SlotType::PreLearnStateless)
     learning_ = true;
 
   learningIncomplete_ = false;
@@ -1884,9 +1888,9 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
 
   LOG_DEBUG("learned: " << result);
 
-  if (slot->type() == WStatelessSlot::PreLearnStateless) {
+  if (slot->type() == WStatelessSlot::SlotType::PreLearnStateless) {
     slot->undoTrigger();
-    collectJS(0);
+    collectJS(nullptr);
 
     learning_ = false;
   } else { // AutoLearnStateless
@@ -1915,6 +1919,22 @@ std::string WebRenderer::headDeclarations() const
  
   const Configuration& conf = session_.env().server()->configuration();
 
+  const std::vector<HeadMatter>& headMatters = conf.headMatter();
+  for (unsigned i = 0; i < headMatters.size(); ++i) {
+    const HeadMatter& m = headMatters[i];
+
+    bool add = true;
+    if (!m.userAgent().empty()) {
+      std::string s = session_.env().userAgent();
+      std::regex expr(m.userAgent());
+      if (!std::regex_search(s, expr))
+	add = false;
+    }
+
+    if (add)
+      result << m.contents();
+  }
+
   const std::vector<MetaHeader>& confMetaHeaders = conf.metaHeaders();
   std::vector<MetaHeader> metaHeaders;
 
@@ -1923,9 +1943,9 @@ std::string WebRenderer::headDeclarations() const
 
     bool add = true;
     if (!m.userAgent.empty()) {
-      WT_USTRING s = WT_USTRING::fromUTF8(session_.env().userAgent());
-      WRegExp expr(WT_USTRING::fromUTF8(m.userAgent));
-      if (!expr.exactMatch(s))
+      std::string s = session_.env().userAgent();
+      std::regex expr(m.userAgent);
+      if (!std::regex_search(s, expr))
 	add = false;
     }
 
@@ -1964,9 +1984,9 @@ std::string WebRenderer::headDeclarations() const
     if (!m.name.empty()) {
       std::string attribute;
       switch (m.type) {
-      case MetaName: attribute = "name"; break;
-      case MetaProperty: attribute = "property"; break;
-      case MetaHttpHeader: attribute = "http-equiv"; break;
+      case MetaHeaderType::Meta: attribute = "name"; break;
+      case MetaHeaderType::Property: attribute = "property"; break;
+      case MetaHeaderType::HttpHeader: attribute = "http-equiv"; break;
       }
 
       appendAttribute(result, attribute, m.name);
@@ -2007,7 +2027,7 @@ std::string WebRenderer::headDeclarations() const
        * WARNING: Similar code in WApplication.C must be kept in sync for 
        *          progressive boot.
        */
-      if (session_.env().agent() < WEnvironment::IE9) {
+      if (session_.env().agentIsIElt(9)) {
 	bool selectIE7 = conf.uaCompatible().find("IE8=IE7")
 	  != std::string::npos;
 
@@ -2015,10 +2035,10 @@ std::string WebRenderer::headDeclarations() const
 	  result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7\"";
 	  closeSpecial(result);
 	}
-      } else if (session_.env().agent() == WEnvironment::IE9) {
+      } else if (session_.env().agent() == UserAgent::IE9) {
 	result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\"";
 	closeSpecial(result);
-      } else if (session_.env().agent() == WEnvironment::IE10) {
+      } else if (session_.env().agent() == UserAgent::IE10) {
 	result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=10\"";
 	closeSpecial(result);
       } else {

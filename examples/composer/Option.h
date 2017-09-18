@@ -7,8 +7,8 @@
 #ifndef OPTION_H_
 #define OPTION_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WText.h>
 
 using namespace Wt;
 
@@ -33,7 +33,7 @@ class Option : public WContainerWidget
 public:
   /*! \brief Create an Option with the given text.
    */
-  Option(const WString& text, WContainerWidget *parent = 0);
+  Option(const WString& text);
 
   /*! \brief Change the text.
    */

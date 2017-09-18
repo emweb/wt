@@ -1,55 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WVBOX_LAYOUT_H_
-#define WVBOX_LAYOUT_H_
-
-#include <Wt/WBoxLayout>
-
-namespace Wt {
-
-/*! \class WVBoxLayout Wt/WVBoxLayout Wt/WVBoxLayout
- *  \brief A layout manager which arranges widgets vertically
- *
- * This convenience class creates a vertical box layout, laying contained
- * widgets out from top to bottom. 
- *
- * See WBoxLayout for available member methods and more information.
- *
- * \if cpp
- * Usage example:
- * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
- * w->resize(WLength::Auto, 600);
- *
- * Wt::WVBoxLayout *layout = new Wt::WVBoxLayout();
- * layout->addWidget(new Wt::WText("One"));
- * layout->addWidget(new Wt::WText("Two"));
- * layout->addWidget(new Wt::WText("Three"));
- * layout->addWidget(new Wt::WText("Four"));
- *
- * w->setLayout(layout);
- * \endcode
- * \endif
- *
- * \note First consider if you can achieve your layout using CSS !
- *
- * \sa WHBoxLayout
- */
-class WT_API WVBoxLayout : public WBoxLayout
-{
-public:
-  /*! \brief Create a new vertical box layout.
-   *
-   * Use \p parent=0 to created a layout manager that can be
-   * nested inside other layout managers.
-   */
-  WVBoxLayout(WWidget *parent = 0);
-};
-
-}
-
-#endif // WVBOX_LAYOUT_H_
+#ifndef WT_WVBOXLAYOUT_EXTENSIONLESS_H_
+#define WT_WVBOXLAYOUT_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WVBoxLayout.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WVBoxLayout.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WVBoxLayout.h"
+#endif // WT_WVBOXLAYOUT_EXTENSIONLESS_H_

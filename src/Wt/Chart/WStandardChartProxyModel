@@ -1,172 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2016 Emweb bvba, Herent, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WSTANDARD_CHART_PROXY_MODEL_H_
-#define WSTANDARD_CHART_PROXY_MODEL_H_
-
-#include "Wt/Chart/WAbstractChartModel"
-#include "Wt/WLink"
-
-namespace Wt {
-
-class WAbstractItemModel;
-
-  namespace Chart {
-
-/*! \class WStandardChartProxyModel Wt/Chart/WStandardChartProxyModel Wt/Chart/WStandardChartProxyModel
- *  \brief A WAbstractChartModel implementation that wraps a WAbstractItemModel
- *
- * This model delegates all functions to an underlying WAbstractItemModel,
- * using the appropriate roles.
- *
- * This model also triggers the changed() signal whenever the underlying WAbstractItemModel
- * is changed.
- *
- * \ingroup charts
- */
-class WT_API WStandardChartProxyModel : public WAbstractChartModel {
-public:
-  /*! \brief Creates a new WStandardChartProxyModel that wraps the given source model.
-   */
-  WStandardChartProxyModel(WAbstractItemModel *sourceModel, WObject *parent = 0);
-
-  virtual ~WStandardChartProxyModel();
-
-  /*! \brief Returns data at a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole DisplayRole\endlink as a double.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual double data(int row, int column) const WT_CXX11ONLY(override);
-
-  /*! \brief Returns display data at a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole DisplayRole\endlink as a WString.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual WString displayData(int row, int column) const WT_CXX11ONLY(override);
-
-  /*! \brief Returns the given column's header data.
-   *
-   * Returns the result of WAbstractItemModel::headerData() for the
-   * given column with the \link ItemDataRole DisplayRole\endlink as a WString.
-   *
-   * \sa WAbstractItemModel::headerData()
-   */
-  virtual WString headerData(int column) const WT_CXX11ONLY(override);
-
-  /*! \brief Returns the tooltip text to use on a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole ToolTipRole\endlink as a WString.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual WString toolTip(int row, int column) const WT_CXX11ONLY(override);
-
-  /*! \brief Returns the item flags for the given row and column.
-   *
-   * Returns the result of WAbstractItemModel::index(row, column).flags()
-   * for the given row and column.
-   *
-   * \sa WModelIndex::flags()
-   */
-  virtual WFlags<ItemFlag> flags(int row, int column) const WT_CXX11ONLY(override);
-
-  /*! \brief Returns the link to use on a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole LinkRole\endlink as a WLink.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual WLink *link(int row, int column) const WT_CXX11ONLY(override);
-
-  /*!\brief Returns the marker pen color to use for a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole MarkerPenColorRole\endlink, or null if no color
-   * is defined.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual const WColor *markerPenColor(int row, int column) const WT_CXX11ONLY(override);
-
-  /*!\brief Returns the marker brush color to use for a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole MarkerBrushColorRole\endlink, or null if no color
-   * is defined.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual const WColor *markerBrushColor(int row, int column) const WT_CXX11ONLY(override);
-
-  /*!\brief Returns the bar pen color to use for a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole BarPenColorRole\endlink, or null if no color
-   * is defined.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual const WColor *barPenColor(int row, int column) const WT_CXX11ONLY(override);
-
-  /*!\brief Returns the bar brush color to use for a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole BarBrushColorRole\endlink, or null if no color
-   * is defined.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual const WColor *barBrushColor(int row, int column) const WT_CXX11ONLY(override);
-
-  /*!\brief Returns the marker scale factor to use for a given row and column.
-   *
-   * Returns the result of WAbstractItemModel::data() for the given
-   * row and column with the \link ItemDataRole MarkerScaleFactorRole\endlink, or null if no color
-   * is defined.
-   *
-   * \sa WAbstractItemModel::data()
-   */
-  virtual const double *markerScaleFactor(int row, int column) const WT_CXX11ONLY(override);
-
-  /*! \brief Returns the number of columns.
-   *
-   * \sa WAbstractItemModel::columnCount()
-   */
-  virtual int columnCount() const WT_CXX11ONLY(override);
-
-  /*! \brief Returns the number of rows.
-   *
-   * \sa WAbstractItemModel::rowCount()
-   */
-  virtual int rowCount() const WT_CXX11ONLY(override);
-
-  /*! \brief Returns the wrapped source model.
-   */
-  WAbstractItemModel *sourceModel() const { return sourceModel_; }
-
-private:
-  WAbstractItemModel *sourceModel_;
-#ifndef WT_TARGET_JAVA
-  mutable WColor color_;
-  mutable WLink link_;
+#ifndef WT_CHART_WSTANDARDCHARTPROXYMODEL_EXTENSIONLESS_H_
+#define WT_CHART_WSTANDARDCHARTPROXYMODEL_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WStandardChartProxyModel.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WStandardChartProxyModel.h instead")
 #endif
-
-  void sourceModelModified();
-  const WColor *color(int row, int column, int colorRole) const;
-};
-
-  }
-}
-
-#endif // WSTANDARD_CHART_PROXY_MODEL_H_
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WStandardChartProxyModel.h"
+#endif // WT_CHART_WSTANDARDCHARTPROXYMODEL_EXTENSIONLESS_H_

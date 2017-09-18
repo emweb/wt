@@ -27,9 +27,10 @@
 #define DISPATCH_THREAD_H_
 
 #include <QThread>
+#include <mutex>
 #ifndef Q_MOC_RUN // https://bugreports.qt.io/browse/QTBUG-22829
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
+#include <thread>
+#include <condition_variable>
 #endif
 
 namespace Wt {
@@ -43,7 +44,7 @@ class DispatchThread;
  */
 class DispatchObject : public QObject
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   DispatchObject(DispatchThread *thread);
@@ -75,7 +76,7 @@ public:
 
   virtual void run();
 
-  boost::mutex::scoped_lock *eventLock() { return eventLock_; }
+  std::unique_lock<std::mutex> *eventLock() { return eventLock_; }
 
   void notify(const WEvent& event);
   void destroy();
@@ -85,20 +86,20 @@ public:
   void waitDone();
 
 private:
-  WQApplication    *app_;
-  bool              qtEventLoop_;
-  DispatchObject   *dispatchObject_;
-  const WEvent     *event_;
-  bool              exception_;
+  WQApplication                  *app_;
+  bool                            qtEventLoop_;
+  std::unique_ptr<DispatchObject> dispatchObject_;
+  const WEvent                   *event_;
+  bool                            exception_;
 
-  boost::mutex      doneMutex_;
-  bool              done_;
-  boost::condition  doneCondition_;
+  std::mutex                      doneMutex_;
+  bool                            done_;
+  std::condition_variable         doneCondition_;
 
-  boost::mutex               newEventMutex_;
-  bool                       newEvent_;
-  boost::condition           newEventCondition_;
-  boost::mutex::scoped_lock *eventLock_;
+  std::mutex                      newEventMutex_;
+  bool                            newEvent_;
+  std::condition_variable         newEventCondition_;
+  std::unique_lock<std::mutex>   *eventLock_;
 
   void doEvent();
 

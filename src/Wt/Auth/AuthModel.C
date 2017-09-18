@@ -4,16 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractPasswordService"
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/Login"
-#include "Wt/Auth/AuthModel"
+#include "Wt/Auth/AbstractPasswordService.h"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/Login.h"
+#include "Wt/Auth/AuthModel.h"
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WInteractWidget"
-#include "Wt/WLogger"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WInteractWidget.h"
+#include "Wt/WLogger.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/AuthModel.min.js"
@@ -22,12 +22,6 @@
 #include "Wt/WDllDefs.h"
 
 #include <memory>
-
-#ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
-#else
-#define AUTO_PTR std::auto_ptr
-#endif
 
 namespace Wt {
 
@@ -38,9 +32,8 @@ LOGGER("Auth.AuthModel");
 const WFormModel::Field AuthModel::PasswordField = "password";
 const WFormModel::Field AuthModel::RememberMeField = "remember-me";
 
-AuthModel::AuthModel(const AuthService& baseAuth, AbstractUserDatabase& users,
-		     WObject *parent)
-  : FormBaseModel(baseAuth, users, parent),
+AuthModel::AuthModel(const AuthService& baseAuth, AbstractUserDatabase& users)
+  : FormBaseModel(baseAuth, users),
     throttlingDelay_(0)
 {
   reset();
@@ -48,7 +41,7 @@ AuthModel::AuthModel(const AuthService& baseAuth, AbstractUserDatabase& users,
 
 void AuthModel::reset()
 {
-  if (baseAuth()->identityPolicy() == EmailAddressIdentity)
+  if (baseAuth()->identityPolicy() == IdentityPolicy::EmailAddress)
     addField(LoginNameField, WString::tr("Wt.Auth.email-info"));
   else
     addField(LoginNameField, WString::tr("Wt.Auth.user-name-info"));
@@ -59,12 +52,13 @@ void AuthModel::reset()
 
   WString info;
   if (days % 7 != 0)
-    info = WString::tr("Wt.Auth.remember-me-info.days").arg(days);
+    info = WString::trn("Wt.Auth.remember-me-info.days", days).arg(days);
   else
-    info = WString::tr("Wt.Auth.remember-me-info.weeks").arg(days/7);
+    info = WString::trn("Wt.Auth.remember-me-info.weeks", days/7).arg(days/7);
 
   addField(RememberMeField, info);
-  setValidation(RememberMeField, WValidator::Result(WValidator::Valid, info));
+  setValidation(RememberMeField, WValidator::Result(ValidationState::Valid,
+						    info));
 }
 
 bool AuthModel::isVisible(Field field) const
@@ -114,7 +108,7 @@ bool AuthModel::validateField(Field field)
     else {
       setValidation
 	(LoginNameField,
-	 WValidator::Result(WValidator::Invalid,
+	 WValidator::Result(ValidationState::Invalid,
 			    WString::tr("Wt.Auth.user-name-invalid")));
 
       throttlingDelay_ = 0;
@@ -127,20 +121,20 @@ bool AuthModel::validateField(Field field)
 	= passwordAuth()->verifyPassword(user, valueText(PasswordField));
 
       switch (r) {
-      case PasswordInvalid:
+      case PasswordResult::PasswordInvalid:
 	setValidation
 	  (PasswordField,
-	   WValidator::Result(WValidator::Invalid,
+	   WValidator::Result(ValidationState::Invalid,
 			      WString::tr("Wt.Auth.password-invalid")));
 
 	if (passwordAuth()->attemptThrottlingEnabled())
 	  throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
 
 	return false;
-      case LoginThrottling:
+      case PasswordResult::LoginThrottling:
 	setValidation
 	  (PasswordField,
-	   WValidator::Result(WValidator::Invalid,
+	   WValidator::Result(ValidationState::Invalid,
 			      WString::tr("Wt.Auth.password-info")));
 	setValidated(PasswordField, false);
 
@@ -149,7 +143,7 @@ bool AuthModel::validateField(Field field)
 		   << " seconds for " << user.identity(Identity::LoginName));
 
 	return false;
-      case PasswordValid:
+      case PasswordResult::PasswordValid:
 	setValid(PasswordField);
 	return true;
       }
@@ -164,7 +158,7 @@ bool AuthModel::validateField(Field field)
 
 bool AuthModel::validate()
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction>
+  std::unique_ptr<AbstractUserDatabase::Transaction>
     t(users().startTransaction());
 
   bool result = WFormModel::validate();
@@ -193,11 +187,11 @@ bool AuthModel::login(Login& login)
   if (valid()) {
     User user = users().findWithIdentity(Identity::LoginName,
 					 valueText(LoginNameField));
-    boost::any v = value(RememberMeField);
+    cpp17::any v = value(RememberMeField);
     if (loginUser(login, user)) {
       reset();
 
-      if (!v.empty() && boost::any_cast<bool>(v) == true)
+      if (!v.empty() && cpp17::any_cast<bool>(v) == true)
 	setRememberMeCookie(user);
 
       return true;
@@ -236,13 +230,13 @@ User AuthModel::processAuthToken()
 
   if (baseAuth()->authTokensEnabled()) {
     const std::string *token =
-      env.getCookieValue(baseAuth()->authTokenCookieName());
+      env.getCookie(baseAuth()->authTokenCookieName());
 
     if (token) {
       AuthTokenResult result = baseAuth()->processAuthToken(*token, users());
 
-      switch(result.result()) {
-      case AuthTokenResult::Valid:
+      switch(result.state()) {
+      case AuthTokenState::Valid:
 	/*
 	 * Only extend the validity from what we had currently.
 	 */
@@ -250,8 +244,8 @@ User AuthModel::processAuthToken()
 		       result.newTokenValidity(), "", "", app->environment().urlScheme() == "https");
 
 	return result.user();
-      case AuthTokenResult::Invalid:
-	app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0, "", "", app->environment().urlScheme() == "https");
+      case AuthTokenState::Invalid:
+        app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0, "", "", app->environment().urlScheme() == "https");
 
 	return User();
       }

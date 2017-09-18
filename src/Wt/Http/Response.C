@@ -4,10 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Http/Response"
-#include "Wt/Http/ResponseContinuation"
-#include "Wt/WResource"
-#include "Wt/WStringStream"
+#include "Wt/Http/Response.h"
+#include "Wt/Http/ResponseContinuation.h"
+#include "Wt/WResource.h"
+#include "Wt/WStringStream.h"
 #include "WebRequest.h"
 #include "WebUtils.h"
 
@@ -54,7 +54,7 @@ ResponseContinuation *Response::continuation() const
   if (continuation_ && continuation_->resource_)
     return continuation_.get();
   else
-    return 0;
+    return nullptr;
 }
 
 WT_BOSTREAM& Response::out()
@@ -62,16 +62,16 @@ WT_BOSTREAM& Response::out()
   if (!headersCommitted_) {
     if (response_ &&
 	!continuation_ &&
-	(resource_->dispositionType() != WResource::NoDisposition
+	(resource_->dispositionType() != ContentDisposition::None
 	 || !resource_->suggestedFileName().empty())) {
       WStringStream cdp;
 
       switch (resource_->dispositionType()) {
       default:
-      case WResource::Inline:
+      case ContentDisposition::Inline:
         cdp << "inline";
         break;
-      case WResource::Attachment:
+      case ContentDisposition::Attachment:
         cdp << "attachment";
         break;
       }
@@ -79,7 +79,7 @@ WT_BOSTREAM& Response::out()
       const WString& fileName = resource_->suggestedFileName();
 
       if (!fileName.empty()) {
-	if (resource_->dispositionType() == WResource::NoDisposition) {
+	if (resource_->dispositionType() == ContentDisposition::None) {
 	  // backward compatibility-ish with older Wt versions
 	  cdp.clear();
 	  cdp << "attachment";
@@ -93,8 +93,8 @@ WT_BOSTREAM& Response::out()
 	// We cannot query wApp here, because wApp doesn't exist for
 	// static resources.
 	const char *ua = response_->userAgent();
-	bool isIE = ua && strstr(ua, "MSIE") != 0;
-	bool isChrome = ua && strstr(ua, "Chrome") != 0;
+	bool isIE = ua && strstr(ua, "MSIE") != nullptr;
+	bool isChrome = ua && strstr(ua, "Chrome") != nullptr;
 
 	if (isIE || isChrome) {
 	  // filename="foo-%c3%a4-%e2%82%ac.html"
@@ -131,13 +131,13 @@ Response::Response(WResource *resource, WebResponse *response,
   : resource_(resource),
     response_(response),
     continuation_(continuation),
-    out_(0),
+    out_(nullptr),
     headersCommitted_(false)
 { }
 
 Response::Response(WResource *resource, WT_BOSTREAM& out)
   : resource_(resource),
-    response_(0),
+    response_(nullptr),
     out_(&out),
     headersCommitted_(false)
 { }

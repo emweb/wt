@@ -4,14 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
-
-#include <Wt/WLineEdit>
-#include <Wt/WIntValidator>
-#include <Wt/WText>
-#include <Wt/WPushButton>
-#include <Wt/WApplication>
-#include <Wt/WBreak>
+#include <Wt/WLineEdit.h>
+#include <Wt/WIntValidator.h>
+#include <Wt/WText.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
 
 #include "RoundedWidget.h"
 #include "StyleExample.h"
@@ -26,66 +24,69 @@ char loremipsum[] = "Lorem ipsum dolor sit amet, consectetur adipisicing "
    "non proident, sunt in culpa qui officia deserunt mollit "
    "anim id est laborum.";
 
-StyleExample::StyleExample(WContainerWidget *parent)
-  : WContainerWidget(parent)
+StyleExample::StyleExample()
+  : WContainerWidget()
 {
-  w_ = new RoundedWidget(RoundedWidget::All, this);
+  w_ = this->addWidget(cpp14::make_unique<RoundedWidget>());
 
-  new WText(loremipsum, w_->contents());
-  new WBreak(this);
+  w_->contents()->addWidget(cpp14::make_unique<WText>(loremipsum));
+  this->addWidget(cpp14::make_unique<WBreak>());
 
-  new WText("Color (rgb): ", this);
+  this->addWidget(cpp14::make_unique<WText>("Color (rgb): "));
   r_ = createValidateLineEdit(w_->backgroundColor().red(), 0, 255);
   g_ = createValidateLineEdit(w_->backgroundColor().green(), 0, 255);
   b_ = createValidateLineEdit(w_->backgroundColor().blue(), 0, 255);
 
-  new WBreak(this);
+  this->addWidget(cpp14::make_unique<WBreak>());
 
-  new WText("Radius (px): ", this);
+  this->addWidget(cpp14::make_unique<WText>("Radius (px): "));
   radius_ = createValidateLineEdit(w_->cornerRadius(), 1, 500);
 
-  new WBreak(this);
+  this->addWidget(cpp14::make_unique<WBreak>());
 
-  WPushButton *p = new WPushButton("Update!", this);
+  WPushButton *p = this->addWidget(cpp14::make_unique<WPushButton>("Update!"));
   p->clicked().connect(this, &StyleExample::updateStyle);
 
-  new WBreak(this);
+  this->addWidget(cpp14::make_unique<WBreak>());
 
-  error_ = new WText("", this);
+  error_ = this->addWidget(cpp14::make_unique<WText>(""));
 }
 
 WLineEdit *StyleExample::createValidateLineEdit(int value, int min, int max)
 {
-  WLineEdit *le = new WLineEdit(boost::lexical_cast<std::wstring>(value), this);
+  WLineEdit *le = this->addWidget(cpp14::make_unique<WLineEdit>(std::to_string(value)));
   le->setTextSize(3);
-  le->setValidator(new WIntValidator(min, max));
+  le->setValidator(std::make_shared<WIntValidator>(min,max));
 
   return le;
 }
 
 void StyleExample::updateStyle()
 {
-  if ((r_->validate() != WValidator::Valid)
-      || (g_->validate() != WValidator::Valid)
-      || (b_->validate() != WValidator::Valid))
+  if ((r_->validate() != ValidationState::Valid)
+      || (g_->validate() != ValidationState::Valid)
+      || (b_->validate() != ValidationState::Valid))
     error_->setText("Color components must be numbers between 0 and 255.");
-  else if (radius_->validate() != WValidator::Valid)
+  else if (radius_->validate() != ValidationState::Valid)
     error_->setText("Radius must be between 1 and 500.");
   else {
-    w_->setBackgroundColor(WColor(boost::lexical_cast<int>(r_->text()),
-				  boost::lexical_cast<int>(g_->text()),
-				  boost::lexical_cast<int>(b_->text())));
-    w_->setCornerRadius(boost::lexical_cast<int>(radius_->text()));
+    int r = std::atoi(r_->text().toUTF8().c_str());
+    int g = std::atoi(g_->text().toUTF8().c_str());
+    int b = std::atoi(b_->text().toUTF8().c_str());
+    int radius = std::atoi(radius_->text().toUTF8().c_str());
+    w_->setBackgroundColor(WColor(r, g, b));
+    w_->setCornerRadius(radius);
     error_->setText("");
   }
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new WApplication(env);
+  std::unique_ptr<WApplication> app
+      = cpp14::make_unique<WApplication>(env);
   app->setTitle("Style example");
 
-  app->root()->addWidget(new StyleExample());
+  app->root()->addWidget(cpp14::make_unique<StyleExample>());
   return app;
 }
 

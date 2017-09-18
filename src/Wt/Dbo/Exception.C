@@ -4,9 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/Exception"
-
-#include <boost/lexical_cast.hpp>
+#include "Wt/Dbo/Exception.h"
 
 #ifdef WT_WITH_UNWIND
 #define UNW_LOCAL_ONLY
@@ -15,6 +13,7 @@
 #include <libunwind.h>
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
 
 namespace Wt {
   namespace Dbo {
@@ -95,7 +94,7 @@ StaleObjectException::StaleObjectException(const std::string& id,
 					   const char *table,
 					   int version)
   : Exception(std::string("Stale object, ") + table + ", id = " + id +
-	      ", version = " + boost::lexical_cast<std::string>(version))
+              ", version = " + std::to_string(version))
 { }
 
 ObjectNotFoundException::ObjectNotFoundException(const char *table,

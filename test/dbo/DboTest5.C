@@ -6,8 +6,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 #include "DboFixture.h"
 
@@ -65,14 +65,14 @@ BOOST_AUTO_TEST_CASE( dbo5_test1 )
   long long id = -1;
   {
     dbo::Transaction transaction(session);
-    Shard *shard = new Shard();
+    std::unique_ptr<Shard> shard{new Shard()};
     shard->name = "shard1";
-    dbo::ptr<Shard> s = session.add(shard);
+    dbo::ptr<Shard> s = session.add(std::move(shard));
     
-    MixedId *mixedId = new MixedId();
+    std::unique_ptr<MixedId> mixedId{new MixedId()};
     mixedId->shard = s;
     mixedId->value = "A lot";
-    dbo::ptr<MixedId> m = session.add(mixedId);
+    dbo::ptr<MixedId> m = session.add(std::move(mixedId));
     m.flush();
     id = m.id();
   }

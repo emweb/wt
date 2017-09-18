@@ -4,15 +4,15 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "User"
-#include "AbstractUserDatabase"
-#include "Wt/WException"
+#include "User.h"
+#include "AbstractUserDatabase.h"
+#include "Wt/WException.h"
 
 namespace Wt {
   namespace Auth {
 
 User::User()
-  : db_(0)
+  : db_(nullptr)
 { }
 
 User::User(const std::string& id, const AbstractUserDatabase& userDatabase)
@@ -70,14 +70,14 @@ void User::setUnverifiedEmail(const std::string& address) const
   db_->setUnverifiedEmail(*this, address);
 }
 
-User::Status User::status() const
+AccountStatus User::status() const
 {
   checkValid();
 
   return db_->status(*this);
 }
 
-void User::setStatus(Status status)
+void User::setStatus(AccountStatus status)
 {
   checkValid();
 
@@ -117,7 +117,7 @@ Token User::emailToken() const
   return db_->emailToken(*this);
 }
 
-User::EmailTokenRole User::emailTokenRole() const
+EmailTokenRole User::emailTokenRole() const
 {
   return db_->emailTokenRole(*this);
 }
@@ -133,7 +133,7 @@ void User::clearEmailToken() const
 {
   checkValid();
 
-  db_->setEmailToken(*this, Token(), LostPassword);
+  db_->setEmailToken(*this, Token(), EmailTokenRole::LostPassword);
 }
 
 void User::addAuthToken(const Token& token) const

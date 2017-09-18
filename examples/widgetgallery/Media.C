@@ -8,6 +8,8 @@
 #include "Media.h"
 #include "TopicTemplate.h"
 
+#include <Wt/WMenu.h>
+
 Media::Media() 
   : TopicWidget()
 {
@@ -17,20 +19,20 @@ Media::Media()
 void Media::populateSubMenu(Wt::WMenu *menu)
 {
   menu->addItem("WMediaPlayer",
-                deferCreate(boost::bind(&Media::mediaPlayer, this)))
+                deferCreate(std::bind(&Media::mediaPlayer, this)))
     ->setPathComponent("");
   menu->addItem("WSound",
-                deferCreate(boost::bind(&Media::sound, this)));
+                deferCreate(std::bind(&Media::sound, this)));
   menu->addItem("WAudio",
-                deferCreate(boost::bind(&Media::audio, this)));
+                deferCreate(std::bind(&Media::audio, this)));
   menu->addItem("WVideo",
-                deferCreate(boost::bind(&Media::video, this)));
+                deferCreate(std::bind(&Media::video, this)));
   menu->addItem("WFlashObject",
-                deferCreate(boost::bind(&Media::flashObject, this)));
+                deferCreate(std::bind(&Media::flashObject, this)));
   menu->addItem("Resources",
-                deferCreate(boost::bind(&Media::resources, this)));
+                deferCreate(std::bind(&Media::resources, this)));
   menu->addItem("PDF output",
-                deferCreate(boost::bind(&Media::pdf, this)));
+                deferCreate(std::bind(&Media::pdf, this)));
 
 }
 
@@ -38,78 +40,78 @@ void Media::populateSubMenu(Wt::WMenu *menu)
 #include "examples/MediaPlayerVideo.cpp"
 #include "examples/MediaPlayerAudio.cpp"
 
-Wt::WWidget *Media::mediaPlayer()
+std::unique_ptr<Wt::WWidget> Media::mediaPlayer()
 {
-  Wt::WTemplate *result = new TopicTemplate("media-MediaPlayer");
+  auto result = Wt::cpp14::make_unique<TopicTemplate>("media-MediaPlayer");
 
   result->bindWidget("MediaPlayerVideo", MediaPlayerVideo());
   result->bindWidget("MediaPlayerAudio", MediaPlayerAudio());
 
-  return result;
+  return std::move(result);
 }
 
 
 #include "examples/Sound.cpp"
 
-Wt::WWidget *Media::sound()
+std::unique_ptr<Wt::WWidget> Media::sound()
 {
-  Wt::WTemplate *result = new TopicTemplate("media-Sound");
+  auto result = Wt::cpp14::make_unique<TopicTemplate>("media-Sound");
 
   result->bindWidget("Sound", Sound());
 
-  return result;
+  return std::move(result);
 }
 
 
 #include "examples/Audio.cpp"
 
-Wt::WWidget *Media::audio()
+std::unique_ptr<Wt::WWidget> Media::audio()
 {
-  Wt::WTemplate *result = new TopicTemplate("media-Audio");
+  auto result = Wt::cpp14::make_unique<TopicTemplate>("media-Audio");
 
   result->bindWidget("Audio", Audio());
 
-  return result;
+  return std::move(result);
 }
 
 
 #include "examples/Video.cpp"
 #include "examples/VideoFallback.cpp"
 
-Wt::WWidget *Media::video()
+std::unique_ptr<Wt::WWidget> Media::video()
 {
-  Wt::WTemplate *result = new TopicTemplate("media-Video");
+  auto result = Wt::cpp14::make_unique<TopicTemplate>("media-Video");
 
   result->bindWidget("Video", Video());
   result->bindWidget("VideoFallback", VideoFallback());
 
-  return result;
+  return std::move(result);
 }
 
 
 #include "examples/Flash.cpp"
 
-Wt::WWidget *Media::flashObject()
+std::unique_ptr<Wt::WWidget> Media::flashObject()
 {
-  Wt::WTemplate *result = new TopicTemplate("media-FlashObject");
+  auto result = Wt::cpp14::make_unique<TopicTemplate>("media-FlashObject");
 
   result->bindWidget("Flash", Flash());
 
-  return result;
+  return std::move(result);
 }
 
 
 #include "examples/ResourceCustom.cpp"
 #include "examples/ResourceStatic.cpp"
 
-Wt::WWidget *Media::resources()
+std::unique_ptr<Wt::WWidget> Media::resources()
 {
-  Wt::WTemplate *result = new TopicTemplate("media-Resources");
+  auto result = Wt::cpp14::make_unique<TopicTemplate>("media-Resources");
 
   result->bindWidget("ResourceCustom", ResourceCustom());
   result->bindWidget("ResourceStatic", ResourceStatic());
 
-  return result;
+  return std::move(result);
 }
 
 #ifdef WT_HAS_WPDFIMAGE
@@ -121,9 +123,9 @@ Wt::WWidget *Media::resources()
 #endif
 #endif
 
-Wt::WWidget *Media::pdf()
+std::unique_ptr<Wt::WWidget> Media::pdf()
 {
-  Wt::WTemplate *result = new TopicTemplate("media-PDF");
+  auto result = Wt::cpp14::make_unique<TopicTemplate>("media-PDF");
 
 #ifdef WT_HAS_WPDFIMAGE
   result->bindWidget("PdfImage", PdfImage());
@@ -137,6 +139,6 @@ Wt::WWidget *Media::pdf()
 
   // Show the source code only for write to file example.
   result->bindString("PdfImageWrite",
-                     reindent(tr("media-PdfImageWrite")), Wt::PlainText);
-  return result;
+		     reindent(tr("media-PdfImageWrite")), Wt::TextFormat::Plain);
+  return std::move(result);
 }

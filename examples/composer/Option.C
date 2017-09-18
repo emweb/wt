@@ -4,19 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 #include "Option.h"
 #include "OptionList.h"
 
-Option::Option(const WString& text, WContainerWidget *parent)
-  : WContainerWidget(parent),
+Option::Option(const WString& text)
+  : WContainerWidget(),
     sep_(0),
     list_(0)
 {
   setInline(true);
 
-  option_ = new WText(text, this);
+  option_ = this->addWidget(cpp14::make_unique<WText>(text));
   option_->setStyleClass("option");
 }
 
@@ -32,7 +32,7 @@ void Option::setOptionList(OptionList *l)
 
 void Option::addSeparator()
 {
-  sep_ = new WText("|", this);
+  sep_ = this->addWidget(cpp14::make_unique<WText>("|"));
   sep_->setStyleClass("sep");
 }
 

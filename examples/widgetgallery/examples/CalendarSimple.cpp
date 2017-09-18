@@ -1,16 +1,17 @@
-#include <Wt/WCalendar>
-#include <Wt/WContainerWidget>
-#include <Wt/WText>
+#include <Wt/WCalendar.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(CalendarSimple)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-Wt::WCalendar *c1 = new Wt::WCalendar(container);
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WText *out = new Wt::WText(container);
+Wt::WCalendar *c1 = container->addWidget(Wt::cpp14::make_unique<Wt::WCalendar>());
+
+Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->addStyleClass("help-block");
 
-c1->selectionChanged().connect(std::bind([=] () {
+c1->selectionChanged().connect([=] {
     std::set<Wt::WDate> selection = c1->selection();
     if (selection.size() != 0) {
         Wt::WDate d;
@@ -20,6 +21,6 @@ c1->selectionChanged().connect(std::bind([=] () {
 	out->setText(Wt::WString("<p>That's {1} days until New Year's Day!</p>")
 		     .arg(days));
     }
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

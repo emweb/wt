@@ -14,9 +14,7 @@
 //
 
 #include "ConnectionManager.h"
-#include "Wt/WLogger"
-
-#include <boost/bind.hpp>
+#include "Wt/WLogger.h"
 
 namespace Wt {
   LOGGER("wthttp/async");
@@ -28,7 +26,7 @@ namespace server {
 void ConnectionManager::start(ConnectionPtr c)
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::mutex> lock{mutex_};
 #endif // WT_THREADED
 
   connections_.insert(c);
@@ -45,7 +43,7 @@ void ConnectionManager::start(ConnectionPtr c)
 void ConnectionManager::stop(ConnectionPtr c)
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::mutex> lock{mutex_};
 #endif // WT_THREADED
 
   std::set<ConnectionPtr>::iterator i = connections_.find(c);
@@ -82,7 +80,7 @@ void ConnectionManager::stopAll()
 
     {
 #ifdef WT_THREADED
-      boost::mutex::scoped_lock lock(mutex_);
+      std::unique_lock<std::mutex> lock{mutex_};
 #endif // WT_THREADED
 
       if (connections_.size())

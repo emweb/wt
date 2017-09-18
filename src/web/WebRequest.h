@@ -7,14 +7,14 @@
 #ifndef WEB_REQUEST_H_
 #define WEB_REQUEST_H_
 
+#include <chrono>
 #include <iostream>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <Wt/WDllDefs.h>
-#include <Wt/WGlobal>
-#include <Wt/Http/Request>
+#include <Wt/WGlobal.h>
+#include <Wt/Http/Request.h>
 
-#include <boost/cstdint.hpp>
-#include <boost/function.hpp>
+#include <cstdint>
+#include <functional>
 
 namespace Wt {
 
@@ -32,20 +32,20 @@ public:
 
   void log();
 
-  enum ResponseState {
+  enum class ResponseState {
     ResponseDone,
     ResponseFlush
   };
 
-  enum ResponseType {
+  enum class ResponseType {
     Page,
     Script,
     Update
   };
 
-  typedef boost::function<void(WebWriteEvent)> WriteCallback;
-  typedef boost::function<void(WebReadEvent)> ReadCallback;
-  typedef boost::function<void(void)> DisconnectCallback;
+  typedef std::function<void(WebWriteEvent)> WriteCallback;
+  typedef std::function<void(WebReadEvent)> ReadCallback;
+  typedef std::function<void(void)> DisconnectCallback;
 
   /*
    * Signal that the response should be flushed.
@@ -57,7 +57,7 @@ public:
    *    if more data can be written. Until then, you cannot do new
    *    writes.
    */
-  virtual void flush(ResponseState state = ResponseDone,
+  virtual void flush(ResponseState state = ResponseState::ResponseDone,
 		     const WriteCallback& callback = WriteCallback()) = 0;
 #ifdef WT_TARGET_JAVA
   virtual void flushBuffer();
@@ -123,7 +123,7 @@ public:
   /*
    * Sets the content-length for a normal response.
    */
-  virtual void setContentLength(::int64_t length) = 0;
+  virtual void setContentLength(std::int64_t length) = 0;
 
   /*
    * Adds a header for a normal response.
@@ -218,7 +218,7 @@ private:
   Http::UploadedFileMap files_;
   ResponseType responseType_;
   bool webSocketRequest_;
-  boost::posix_time::ptime start_;
+  std::chrono::high_resolution_clock::time_point start_;
 
   static Http::ParameterValues emptyValues_;
 

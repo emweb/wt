@@ -4,26 +4,26 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractPasswordService"
-#include "Wt/Auth/AuthModel"
-#include "Wt/Auth/Login"
-#include "Wt/Auth/UpdatePasswordWidget"
-#include "Wt/Auth/User"
+#include "Wt/Auth/AbstractPasswordService.h"
+#include "Wt/Auth/AuthModel.h"
+#include "Wt/Auth/Login.h"
+#include "Wt/Auth/UpdatePasswordWidget.h"
+#include "Wt/Auth/User.h"
 
-#include "Wt/WLineEdit"
-#include "Wt/WPushButton"
-#include "Wt/WText"
+#include "Wt/WLineEdit.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WText.h"
 
 namespace Wt {
   namespace Auth {
 
-UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
-					   RegistrationModel *registrationModel,
-					   AuthModel *authModel,
-					   WContainerWidget *parent)
-  : WTemplateFormView(tr("Wt.Auth.template.update-password"), parent),
+UpdatePasswordWidget
+::UpdatePasswordWidget(const User& user,
+		       std::unique_ptr<RegistrationModel> registrationModel,
+		       const std::shared_ptr<AuthModel>& authModel)
+  : WTemplateFormView(tr("Wt.Auth.template.update-password")),
     user_(user),
-    registrationModel_(registrationModel),
+    registrationModel_(std::move(registrationModel)),
     authModel_(authModel)
 {
   registrationModel_->setValue(RegistrationModel::LoginNameField,
@@ -31,7 +31,7 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
   registrationModel_->setReadOnly(RegistrationModel::LoginNameField, true);
 
   if (user.password().empty())
-    authModel_ = 0;
+    authModel_.reset();
   else if (authModel_)
     authModel_->reset();
 
@@ -49,14 +49,18 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
   // Make sure it does not block validation
   registrationModel_->setVisible(RegistrationModel::EmailField, false);
 
-  WPushButton *okButton = new WPushButton(tr("Wt.WMessageBox.Ok"));
-  WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
+  WPushButton *okButton =
+    bindWidget("ok-button",
+               cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Ok")));
+  WPushButton *cancelButton = 
+    bindWidget("cancel-button",
+               cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
 
   if (authModel_) {
     authModel_->setValue(AuthModel::LoginNameField,
 			 user.identity(Identity::LoginName));
 
-    updateViewField(authModel_, AuthModel::PasswordField);
+    updateViewField(authModel_.get(), AuthModel::PasswordField);
 
     authModel_->configureThrottling(okButton);
 
@@ -64,7 +68,7 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
     password->setFocus(true);
   }
 
-  updateView(registrationModel_);
+  updateView(registrationModel_.get());
 
   WLineEdit *password = resolve<WLineEdit *>
     (RegistrationModel::ChoosePasswordField);
@@ -81,53 +85,51 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 
   okButton->clicked().connect(this, &UpdatePasswordWidget::doUpdate);
   cancelButton->clicked().connect(this, &UpdatePasswordWidget::close);
-
-  bindWidget("ok-button", okButton);
-  bindWidget("cancel-button", cancelButton);
-
 }
 
-WWidget *UpdatePasswordWidget::createFormWidget(WFormModel::Field field)
+std::unique_ptr<WWidget> UpdatePasswordWidget
+::createFormWidget(WFormModel::Field field)
 {
-  WFormWidget *result = 0;
+  std::unique_ptr<WFormWidget> result;
 
   if (field == RegistrationModel::LoginNameField) {
-    result = new WLineEdit();
+    result.reset(new WLineEdit());
   } else if (field == AuthModel::PasswordField) {
     WLineEdit *p = new WLineEdit();
-    p->setEchoMode(WLineEdit::Password);
-    result = p;
+    p->setEchoMode(EchoMode::Password);
+    result.reset(p);
   } else if (field == RegistrationModel::ChoosePasswordField) {
     WLineEdit *p = new WLineEdit();
-    p->setEchoMode(WLineEdit::Password);
-    p->keyWentUp().connect
-      (boost::bind(&UpdatePasswordWidget::checkPassword, this));
-    p->changed().connect
-      (boost::bind(&UpdatePasswordWidget::checkPassword, this));
-    result = p;
+    p->setEchoMode(EchoMode::Password);
+    p->keyWentUp().connect(this, &UpdatePasswordWidget::checkPassword);
+    p->changed().connect(this, &UpdatePasswordWidget::checkPassword);
+    result.reset(p);
   } else if (field == RegistrationModel::RepeatPasswordField) {
     WLineEdit *p = new WLineEdit();
-    p->setEchoMode(WLineEdit::Password);
-    p->changed().connect
-      (boost::bind(&UpdatePasswordWidget::checkPassword2, this));
-    result = p;
+    p->setEchoMode(EchoMode::Password);
+    p->changed().connect(this, &UpdatePasswordWidget::checkPassword2);
+    result.reset(p);
   }
 
-  return result;
+  return std::move(result);
 }
 
 void UpdatePasswordWidget::checkPassword()
 {
-  updateModelField(registrationModel_, RegistrationModel::ChoosePasswordField);
+  updateModelField(registrationModel_.get(),
+		   RegistrationModel::ChoosePasswordField);
   registrationModel_->validateField(RegistrationModel::ChoosePasswordField);
-  updateViewField(registrationModel_, RegistrationModel::ChoosePasswordField);
+  updateViewField(registrationModel_.get(),
+		  RegistrationModel::ChoosePasswordField);
 }
 
 void UpdatePasswordWidget::checkPassword2()
 {
-  updateModelField(registrationModel_, RegistrationModel::RepeatPasswordField);
+  updateModelField(registrationModel_.get(),
+		   RegistrationModel::RepeatPasswordField);
   registrationModel_->validateField(RegistrationModel::RepeatPasswordField);
-  updateViewField(registrationModel_, RegistrationModel::RepeatPasswordField);
+  updateViewField(registrationModel_.get(),
+		  RegistrationModel::RepeatPasswordField);
 }
 
 bool UpdatePasswordWidget::validate()
@@ -135,10 +137,10 @@ bool UpdatePasswordWidget::validate()
   bool valid = true;
 
   if (authModel_) {
-    updateModelField(authModel_, AuthModel::PasswordField);
+    updateModelField(authModel_.get(), AuthModel::PasswordField);
 
     if (!authModel_->validate()) {
-      updateViewField(authModel_, AuthModel::PasswordField);
+      updateViewField(authModel_.get(), AuthModel::PasswordField);
       valid = false;
     }
   }
@@ -169,7 +171,7 @@ void UpdatePasswordWidget::doUpdate()
 
 void UpdatePasswordWidget::close()
 {
-  delete this;
+  removeFromParent();
 }
 
   }

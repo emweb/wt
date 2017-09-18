@@ -1,11 +1,11 @@
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/AbstractUserDatabase>
-#include <Wt/Auth/AuthWidget>
-#include <Wt/Auth/Login>
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/RegistrationModel>
-#include <Wt/WWidget>
-#include <Wt/WContainerWidget>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/AbstractUserDatabase.h>
+#include <Wt/Auth/AuthWidget.h>
+#include <Wt/Auth/Login.h>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/RegistrationModel.h>
+#include <Wt/WWidget.h>
+#include <Wt/WContainerWidget.h>
 
 #include "OAuthWidget.h"
 #include "RegistrationView.h"
@@ -24,13 +24,13 @@ void OAuthWidget::createLoggedInView()
                     login().user().identity(Wt::Auth::Identity::LoginName)));
 }
 
-Wt::WWidget* OAuthWidget::createRegistrationView(const Wt::Auth::Identity& id)
+std::unique_ptr<Wt::WWidget> OAuthWidget::createRegistrationView(const Wt::Auth::Identity& id)
 {
-  RegistrationView *w = new RegistrationView(session_, this);
-  Wt::Auth::RegistrationModel *model = createRegistrationModel();
+  auto w = Wt::cpp14::make_unique<RegistrationView>(session_, this);
+  auto model = createRegistrationModel();
 
   if (id.isValid())
     model->registerIdentified(id);
-  w->setModel(model);
-  return w;
+  w->setModel(std::move(model));
+  return std::unique_ptr<Wt::WWidget>(w.release());
 }

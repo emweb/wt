@@ -1,16 +1,18 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WIntValidator>
-#include <Wt/WLineEdit>
-#include <Wt/WTemplate>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WIntValidator.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(LineEdit)
-Wt::WTemplate *result = new Wt::WTemplate(Wt::WString::tr("lineEdit-template"));
+
+auto result =
+    Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("lineEdit-template"));
 result->addFunction("id", &Wt::WTemplate::Functions::id);
 
-Wt::WLineEdit *edit = new Wt::WLineEdit();
-edit->setValidator(new Wt::WIntValidator(0, 130));
+auto edit = Wt::cpp14::make_unique<Wt::WLineEdit>();
+edit->setValidator(std::make_shared<Wt::WIntValidator>(0, 130));
 
 result->bindString("label", "Age:");
-result->bindWidget("edit", edit);
+result->bindWidget("edit", std::move(edit));
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))

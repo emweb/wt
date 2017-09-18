@@ -25,25 +25,25 @@ public:
   void setName(const Wt::WString& name);
 
 protected:
-  virtual void createLayout(Wt::WWidget *messages, Wt::WWidget *userList,
-			    Wt::WWidget *messageEdit,
-			    Wt::WWidget *sendButton, Wt::WWidget *logoutButton);
+  virtual void createLayout(std::unique_ptr<WWidget> messages, std::unique_ptr<WWidget> userList,
+                            std::unique_ptr<WWidget> messageEdit,
+                            std::unique_ptr<WWidget> sendButton, std::unique_ptr<WWidget> logoutButton);
 
   virtual void updateUsers();
   virtual void newMessage();
 
 private:
-  Wt::WString name_;
-  Wt::WText *title_;
-  Wt::WWidget *bar_;
-  bool online_, minimized_;
-  int missedMessages_;
+  Wt::WString   name_;
+  Wt::WText    *title_;
+  Wt::WWidget  *bar_;
+  bool      online_, minimized_;
+  int       missedMessages_;
 
   void toggleSize();
   void goOnline();
   bool minimized() const;
 
-  Wt::WContainerWidget *createBar();
+  std::unique_ptr<Wt::WContainerWidget> createBar();
 };
 
 /*@}*/

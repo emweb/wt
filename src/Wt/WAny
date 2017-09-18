@@ -1,0 +1,18 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_WANY_EXTENSIONLESS_H_
+#define WT_WANY_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WAny.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WAny.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WAny.h"
+#endif // WT_WANY_EXTENSIONLESS_H_

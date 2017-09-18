@@ -1,12 +1,12 @@
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(Template)
-Wt::WTemplate *t = new Wt::WTemplate(Wt::WString::tr("WTemplate-example"));
+auto t = Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("WTemplate-example"));
 
-t->bindWidget("name-edit", new Wt::WLineEdit());
-t->bindWidget("save-button", new Wt::WPushButton("Save"));
-t->bindWidget("cancel-button", new Wt::WPushButton("Cancel"));
+t->bindWidget("name-edit", Wt::cpp14::make_unique<Wt::WLineEdit>());
+t->bindWidget("save-button", Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
+t->bindWidget("cancel-button", Wt::cpp14::make_unique<Wt::WPushButton>("Cancel"));
 
-SAMPLE_END(return t)
+SAMPLE_END(return std::move(t))

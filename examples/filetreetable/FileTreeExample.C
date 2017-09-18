@@ -4,28 +4,29 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WTree>
-#include <Wt/WTreeTableNode>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WTree.h>
+#include <Wt/WTreeTableNode.h>
 
 #include "FileTreeTable.h"
 
 using namespace Wt;
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new WApplication(env);
+  auto app = cpp14::make_unique<WApplication>(env);
   app->setTitle("File explorer example");
   app->useStyleSheet("filetree.css");
 
-  FileTreeTable *treeTable = new FileTreeTable(".");
+  std::unique_ptr<FileTreeTable> treeTable
+      = cpp14::make_unique<FileTreeTable>(".");
   treeTable->resize(500, 300);
-  treeTable->tree()->setSelectionMode(ExtendedSelection);
+  treeTable->tree()->setSelectionMode(SelectionMode::Extended);
   treeTable->treeRoot()->setNodeVisible(false);
-  treeTable->treeRoot()->setChildCountPolicy(WTreeNode::Enabled);
+  treeTable->treeRoot()->setChildCountPolicy(ChildCountPolicy::Enabled);
 
-  app->root()->addWidget(treeTable);
+  app->root()->addWidget(std::move(treeTable));
 
   return app;
 }

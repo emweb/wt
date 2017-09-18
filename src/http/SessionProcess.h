@@ -9,11 +9,8 @@
 
 #include "Wt/WConfig.h"
 
-#include <boost/asio.hpp>
-namespace asio = boost::asio;
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
+#include "Wt/AsioWrapper/asio.hpp"
+#include "Wt/AsioWrapper/system_error.hpp"
 
 #include "Configuration.h"
 
@@ -24,12 +21,14 @@ namespace asio = boost::asio;
 namespace http {
 namespace server {
 
+namespace asio = Wt::AsioWrapper::asio;
+
 class SessionProcess
-  : public boost::enable_shared_from_this<SessionProcess>,
-    private boost::noncopyable
+  : public std::enable_shared_from_this<SessionProcess>
 {
 public:
   SessionProcess(asio::io_service &io_service);
+  SessionProcess(const SessionProcess&) = delete;
 
   void stop();
 
@@ -37,7 +36,8 @@ public:
   // function when done. The bool passed on to the onReady function
   // indicates success.
   void asyncExec(const Configuration &config,
-	    boost::function<void (bool)> onReady = boost::function<void (bool)>());
+		 const std::function<void (bool)>& onReady 
+		   = std::function<void (bool)>());
 
   // Check whether the process is ready to accept connections
   bool ready() const { return port_ != -1; }
@@ -58,17 +58,17 @@ public:
 
 private:
   void exec(const Configuration& config,
-	    boost::function<void (bool)> onReady);
-  void acceptHandler(const boost::system::error_code& err,
-		     boost::function<void (bool)> onReady);
-  void readPortHandler(const boost::system::error_code& err,
+	    const std::function<void (bool)>& onReady);
+  void acceptHandler(const Wt::AsioWrapper::error_code& err,
+		     const std::function<void (bool)>& onReady);
+  void readPortHandler(const Wt::AsioWrapper::error_code& err,
 		       std::size_t transferred,
-		       boost::function<void (bool)> onReady);
+		       const std::function<void (bool)>& onReady);
 
   // Short-lived objects during startup
   asio::io_service& io_service_;
-  boost::shared_ptr<asio::ip::tcp::socket>   socket_;
-  boost::shared_ptr<asio::ip::tcp::acceptor> acceptor_;
+  std::shared_ptr<asio::ip::tcp::socket> socket_;
+  std::shared_ptr<asio::ip::tcp::acceptor> acceptor_;
 
   int			   port_;
 

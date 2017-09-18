@@ -1,114 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
- */
-#ifndef WT_PAYMENT_RESULT_H
-#define WT_PAYMENT_RESULT_H
-
-#include <Wt/WString>
-#include <map>
-
-namespace Wt {
-  namespace Payment {
-
-/*! \class Result Wt/Payment/Result Wt/Payment/Result
- *  \brief A class that represents the result of a payment API call.
- * 
- * This class indicates the result of an asynchronous call: error()
- * indicates whether there was an error.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
- * \ingroup payment
+ * See the LICENSE file for terms of use.
  */
-class WT_API Result
-{
-public:
-  /*! \brief Default constructor.
-   *
-   * This creates a successful result.
-   */
-  Result() {}
-
-  /*! \brief Constructor with an error message.
-   *
-   * This creates an unsuccessful result. The error message cannot be
-   * empty.
-   */
-  Result(const WString& errorMessage);
-
-  /*! \brief Returns whether the result indicates success.
-   */
-  bool error() const { return (!errorMessage_.empty()); }
-
-  /*! \brief Returns the error message.
-   */
-  WString errorMessage() const { return errorMessage_; }
-
-  /*! \brief Sets the request parameters.
-   *
-   * For an asynchronous API call that uses name value pairs, this sets
-   * the underlying values that were sent in the request.
-   */
-  void setRequestMessage(const std::map<std::string, std::string> & msg);
-
-  /*! \brief Returns the request parameters.
-   *
-   * \sa setRequestMessage()
-   */
-  std::map<std::string, std::string> requestMessage() const;
-
-  /*! \brief Sets the response parameters.
-   *
-   * For an asynchronous API call that uses name value pairs, this sets
-   * the underlying values that were returned in the response.
-   */
-  void setResponseMessage(const std::map<std::string, std::string> &msg);
-
-  /*! \brief Returns the response parameters.
-   *
-   * \sa setResponseMessage()
-   */
-  std::map<std::string, std::string> responseMessage() const;
-
-private:
-  WString errorMessage_;
-  std::map<std::string, std::string> responseMessage_;
-  std::map<std::string, std::string> requestMessage_;
-
-};
-
-/*! \class Approval Wt/Payment/Result Wt/Payment/Result
- *  \brief A class that represents the result of a payment.
- *
- * \ingroup payment
- */
-class Approval : public Result
-{
-public:
-  /*! \brief Enumeration for a payment approval outcome.
-   */
-  enum Outcome {
-    Denied = 0,      //!< The user denied the payment.
-    Interrupted = 1, //!< The payment process was interrupted.
-    Accepted = 2     //!< The user accepted the payment.
-  };
-
-  /*! \brief Constructor.
-   */
-  Approval(Outcome outcome);
-
-  /*! \brief Constructor for an interrupted payment.
-   */
-  Approval(const WString& errorMessage);
-
-  /*! \brief Returns the outcome.
-   */
-  Outcome outcome() const { return outcome_; }
-
-private:
-  Outcome outcome_;
-};
-
-  }
-}
-
-#endif // WT_PAYMENT_RESULT_H_
+#ifndef WT_PAYMENT_RESULT_EXTENSIONLESS_H_
+#define WT_PAYMENT_RESULT_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use Result.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use Result.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "Result.h"
+#endif // WT_PAYMENT_RESULT_EXTENSIONLESS_H_

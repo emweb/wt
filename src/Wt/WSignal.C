@@ -6,10 +6,10 @@
 
 #include <boost/pool/pool.hpp>
 
-#include "Wt/WSignal"
-#include "Wt/WApplication"
-#include "Wt/WStatelessSlot"
-#include "Wt/WJavaScriptSlot"
+#include "Wt/WSignal.h"
+#include "Wt/WApplication.h"
+#include "Wt/WStatelessSlot.h"
+#include "Wt/WJavaScriptSlot.h"
 
 #include "WebUtils.h"
 #include "WebSession.h"
@@ -18,8 +18,8 @@ namespace Wt {
 
 Wt::NoClass Wt::NoClass::none;
 
-SignalBase::SignalBase(WObject *sender)
-  : sender_(sender), blocked_(false)
+SignalBase::SignalBase()
+  : blocked_(false)
 { }
 
 SignalBase::~SignalBase()
@@ -30,41 +30,9 @@ void SignalBase::setBlocked(bool blocked)
   blocked_ = blocked;
 }
 
-void SignalBase::pushSender(WObject *sender)
-{
-  WebSession *sess = WebSession::instance();
-  if (sess) {
-    sess->pushEmitStack(sender);
-  }
-}
-
-void SignalBase::popSender()
-{
-  WebSession *sess = WebSession::instance();
-  if (sess) {
-    sess->popEmitStack();
-  }
-}
-
-WObject *SignalBase::currentSender()
-{
-  WebSession *sess = WebSession::instance();
-  if (sess) {
-    return sess->emitStackTop();
-  } else {
-    return 0;
-  }
-}
-
-#ifndef WT_CNOR
-Signal<void>::Signal(WObject *sender)
-  : Signal<>(sender)
-{ }
-#endif // WT_CNOR
-
-EventSignalBase::EventSignalBase(const char *name, WObject *sender,
+EventSignalBase::EventSignalBase(const char *name, WObject *owner,
 				 bool autoLearn)
-  : SignalBase(sender), name_(name), id_(nextId_++)
+  : name_(name), owner_(owner), id_(nextId_++)
 {
   if (!name_)
     flags_.set(BIT_SIGNAL_SERVER_ANYWAY);
@@ -95,7 +63,7 @@ EventSignalBase
 
 bool EventSignalBase::StatelessConnection::ok() const
 {
-  return target == 0 || connection.connected();
+  return target == nullptr || connection.isConnected();
 }
 
 int EventSignalBase::nextId_ = 0;
@@ -117,7 +85,7 @@ void EventSignalBase::removeSlot(WStatelessSlot *s)
   for (unsigned i = 0; i < connections_.size(); ++i) {
     if (connections_[i].slot == s) {
       connections_.erase(connections_.begin() + i);
-      senderRepaint();
+      ownerRepaint();
       return;
     }
   }
@@ -137,12 +105,8 @@ const std::string
 EventSignalBase::createUserEventCall(const std::string& jsObject,
 				     const std::string& jsEvent,
 				     const std::string& eventName,
-				     const std::string& arg1,
-				     const std::string& arg2,
-				     const std::string& arg3,
-				     const std::string& arg4,
-				     const std::string& arg5,
-				     const std::string& arg6) const
+				     std::initializer_list<std::string> args)
+  const
 {
   /*
    * If we aren't connected yet to anything, assume we will be later to
@@ -151,27 +115,19 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
   if (!this->isExposedSignal() && !isConnected())
     const_cast<EventSignalBase*>(this)->exposeSignal();
 
-  std::stringstream result;
+  WStringStream result;
+  int i = 0;
 
-  if (!arg1.empty()) {
-    result << "var a1=" << arg1;
-    if (!arg2.empty()) {
-      result << ",a2=" << arg2;
-      if (!arg3.empty()) {
-	result << ",a3=" << arg3;
-	if (!arg4.empty()) {
-	  result << ",a4=" << arg4;
-	  if (!arg5.empty()) {
-	    result << ",a5=" << arg5;
-	    if (!arg6.empty()) {
-	      result << ",a6=" << arg6;
-	    }
-	  }
-	}
-      }
-    }
-    result << ";";
+  for (const std::string& a : args) {
+    if (++i == 1)
+      result << "var a";
+    else
+      result << ",a";
+    result << i << "=" << a;
   }
+
+  if (i != 0)
+    result << ";";
 
   result << javaScript();
 
@@ -190,24 +146,8 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
     else
       result << "','" << eventName << "'";
 
-    if (!arg1.empty()) {
-      result << "," << arg1;
-      if (!arg2.empty()) {
-	result << "," << arg2;
-	if (!arg3.empty()) {
-	  result << "," << arg3;
-	  if (!arg4.empty()) {
-	    result << "," << arg4;
-	    if (!arg5.empty()) {
-	      result << "," << arg5;
-	      if (!arg6.empty()) {
-		result << "," << arg6;
-	      }
-	    }
-	  }
-	}
-      }
-    }
+    for (const std::string& a : args)
+      result << "," << a;
 
     result << ");";
   }
@@ -264,7 +204,7 @@ void EventSignalBase::disconnect(Wt::Signals::connection& conn)
       setNotExposed();
     }
 
-  senderRepaint();
+  ownerRepaint();
 }
 
 bool EventSignalBase::isExposedSignal() const
@@ -281,7 +221,7 @@ void EventSignalBase::preventDefaultAction(bool prevent)
 {
   if (defaultActionPrevented() != prevent) {
     flags_.set(BIT_PREVENT_DEFAULT, prevent);
-    senderRepaint();
+    ownerRepaint();
   }
 }
 
@@ -294,7 +234,7 @@ void EventSignalBase::preventPropagation(bool prevent)
 {
   if (propagationPrevented() != prevent) {
     flags_.set(BIT_PREVENT_PROPAGATION, prevent);
-    senderRepaint();
+    ownerRepaint();
   }
 }
 
@@ -331,11 +271,12 @@ EventSignalBase::connectStateless(WObject::Method method,
 				  WObject *target,
 				  WStatelessSlot *slot)
 {
-  Wt::Signals::connection c = dummy_.connect(boost::bind(method, target));
+  Wt::Signals::connection c
+    = dummy_.connect(std::bind(method, target), target);
   if (slot->addConnection(this))
     connections_.push_back(StatelessConnection(c, target, slot));
 
-  senderRepaint();
+  ownerRepaint();
 
   return c;
 }
@@ -347,9 +288,9 @@ void EventSignalBase::connect(JSlot& slot)
 
   if (s->addConnection(this)) {
     Wt::Signals::connection c;
-    connections_.push_back(StatelessConnection(c, 0, s));
+    connections_.push_back(StatelessConnection(c, nullptr, s));
 
-    senderRepaint();
+    ownerRepaint();
   }
 }
 
@@ -366,20 +307,19 @@ void EventSignalBase::connect(const std::string& javaScript)
   ss << ");";
 
   connections_.push_back
-    (StatelessConnection(c, 0,
-			 new WStatelessSlot(ss.str())));
+    (StatelessConnection(c, nullptr, new WStatelessSlot(ss.str())));
 
-  senderRepaint();
+  ownerRepaint();
 }
 
 #ifndef WT_CNOR
 bool EventSignalBase::isConnected() const
 {
-  bool result = dummy_.num_slots() > 0;
+  bool result = dummy_.isConnected();
 
   if (!result) {
     for (unsigned i = 0; i < connections_.size(); ++i) {
-      if (connections_[i].target == 0)
+      if (connections_[i].target == nullptr)
 	return true;
     }
   }
@@ -402,7 +342,7 @@ void EventSignalBase::exposeSignal()
 
   // cheap catch: if it generates a server event, for sure it is also exposed
   if (flags_.test(BIT_SERVER_EVENT)) {
-    senderRepaint();
+    ownerRepaint();
     return;
   }
 
@@ -415,13 +355,13 @@ void EventSignalBase::exposeSignal()
   if (app->exposeSignals())
     flags_.set(BIT_SERVER_EVENT);
 
-  senderRepaint();
+  ownerRepaint();
 }
 
-void EventSignalBase::senderRepaint()
+void EventSignalBase::ownerRepaint()
 {
   flags_.set(BIT_NEED_UPDATE, true);
-  sender()->signalConnectionsChanged();
+  owner()->signalConnectionsChanged();
 }
 
 void EventSignalBase::processNonLearnedStateless() const
@@ -472,7 +412,7 @@ void EventSignalBase::processPreLearnStateless(SlotLearnerInterface *learner)
 
     if (c.ok()
 	&& !c.slot->learned()
-	&& c.slot->type() == WStatelessSlot::PreLearnStateless) {
+	&& c.slot->type() == WStatelessSlot::SlotType::PreLearnStateless) {
       learner->learn(c.slot);
     }
   }
@@ -489,14 +429,14 @@ void EventSignalBase::processAutoLearnStateless(SlotLearnerInterface *learner)
 
     if (c.ok()
 	&& !c.slot->learned()
-	&& c.slot->type() == WStatelessSlot::AutoLearnStateless) {
+	&& c.slot->type() == WStatelessSlot::SlotType::AutoLearnStateless) {
       learner->learn(c.slot);
       changed = true;
     }
   }
 
   if (changed)
-    senderRepaint();
+    ownerRepaint();
 }
 
 }

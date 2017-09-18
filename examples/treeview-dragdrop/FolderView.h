@@ -7,7 +7,9 @@
 #ifndef FOLDER_VIEW_H_
 #define FOLDER_VIEW_H_
 
-#include <Wt/WTreeView>
+#include <Wt/WTreeView.h>
+
+using namespace Wt;
 
 /**
  * \addtogroup treeviewdragdrop
@@ -16,7 +18,7 @@
 
 /*! \brief A specialized treeview that supports a custom drop event.
  */
-class FolderView : public Wt::WTreeView 
+class FolderView : public WTreeView
 {
 public:
   /*! \brief Constant that indicates the mime type for a selection of files.
@@ -27,13 +29,13 @@ public:
 
   /*! \brief Constructor.
    */
-  FolderView(Wt::WContainerWidget *parent = 0);
+  FolderView();
 
 protected:
   /*! \brief Drop event.
    */
-  virtual void dropEvent(const Wt::WDropEvent &event,
-			 const Wt::WModelIndex &target);
+  virtual void dropEvent(const WDropEvent &event,
+                         const WModelIndex &target);
 };
 
 /*@}*/

@@ -7,12 +7,11 @@
 #include "UserAccount.h"
 #include "Entry.h"
 
-#include <Wt/WApplication>
-#include <Wt/WLogger>
+#include <Wt/WApplication.h>
+#include <Wt/WLogger.h>
 
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/WtSqlTraits.h>
 
-using namespace Wt;
 using namespace Wt::Dbo;
 
 UserAccount::UserAccount()
@@ -42,7 +41,7 @@ ptr<UserAccount> UserAccount::login(Session& session,
     WApplication::instance()
       ->log("notice") << "Creating user: " << userName.toUTF8();
 
-    ua = session.add(new UserAccount(userName));
+    ua = session.add(Wt::cpp14::make_unique<UserAccount>(userName));
   }
 
   transaction.commit(); 

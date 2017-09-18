@@ -29,7 +29,7 @@
             <!-- Every session runs within a dedicated process.
 
 	       This mode guarantees kernel-level session privacy, but as every
-	       session requires a seperate process, it is also an easy target
+	       session requires a separate process, it is also an easy target
 	       for DoS attacks if not shielded by access control.
 
 	       Note: currently only supported by the wtfcgi and wthttp
@@ -61,7 +61,7 @@
 	       session will kill all of the sessions in the same process. You
 	       should debug extensively using valgrind. Also, it is your
 	       responsibility to keep session state not interfering and
-	       seperated.
+	       separated.
 
 	       On the other hand, sessions are inexpensive, and this mode
 	       suffers far less from DoS attacks than dedicated-process mode.
@@ -509,10 +509,26 @@
          user-agent, using a regular expression. You can have multiple
          set-meta-headers definitions.
 
-	 -->
+	 Deprecated: use <head-matter> instead.
+
 	<meta-headers user-agent=".*MSIE.*">
 	  <meta name="robots" content="noindex" />
 	</meta-headers>
+	 -->
+
+	<!-- Configure <head> matter
+
+	  The user-agent allows optional filtering based on the
+	  user-agent, using a regular expression. You can have multiple
+	  head-matter definitions.
+
+	  All contents will be inserted into the <head> tag
+	  verbatim. This could be useful for setting <meta> tags or
+	  <link> tags that are global for the entire application.
+	-->
+	<head-matter user-agent=".*MSIE.*">
+	  <meta name="robots" content="noindex" />
+	</head-matter>
 
 	<!-- Configure allowed origins for CORS (only for WidgetSet entry points)
 

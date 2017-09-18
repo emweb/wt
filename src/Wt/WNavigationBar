@@ -1,99 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WT_WNAVIGATION_BAR_H_
-#define WT_WNAVIGATION_BAR_H_
-
-#include <vector>
-
-#include <Wt/WLink>
-#include <Wt/WTemplate>
-
-namespace Wt {
-
-class WStackedWidget;
-class WTable;
-
-/*! \class WNavigationBar Wt/WNavigationBar Wt/WNavigationBar
- *  \brief A navigation bar
- *
- * \note WNavigationBar is currently only styled in the Bootstrap themes.
- */
-class WT_API WNavigationBar : public WTemplate
-{
-public:
-  /*! \brief Constructor.
-   */
-  WNavigationBar(WContainerWidget *parent = 0);
-
-  /*! \brief Sets a title.
-   *
-   * The title may optionally link to a 'homepage'.
-   */
-  void setTitle(const WString& title, const WLink& link = WLink());
-
-  /*! \brief Sets whether the navigation bar will respond to screen size.
-   *
-   * For screens that are less wide, the navigation bar can be
-   * rendered different (more compact and allowing for vertical menu
-   * layouts).
-   */
-  void setResponsive(bool responsive);
-
-  /*! \brief Adds a menu to the navigation bar.
-   *
-   * Typically, a navigation bar will contain at least one menu which
-   * implements the top-level navigation options allowed by the
-   * navigation bar.
-   *
-   * The menu may be aligned to the left or to the right of the
-   * navigation bar.
-   */
-  void addMenu(WMenu *menu, AlignmentFlag alignment = AlignLeft);
-
-  /*! \brief Adds a form field to the navigation bar.
-   *
-   * In some cases, one may want to add a few form fields to the navigation
-   * bar (e.g. for a compact login option).
-   */
-  void addFormField(WWidget *widget, AlignmentFlag alignment = AlignLeft);
-
-  /*! \brief Adds a search widget to the navigation bar.
-   *
-   * This is not so different from addFormField(), except that the
-   * form field may be styled differently to indicate a search
-   * function.
-   */
-  void addSearch(WLineEdit *field, AlignmentFlag alignment = AlignLeft);
-
-  /*! \brief Adds a widget to the navigation bar.
-   *
-   * Any other widget may be added to the navigation bar, although they may
-   * require special CSS style to blend well with the navigation bar style.
-   */
-  void addWidget(WWidget *widget, AlignmentFlag alignment = AlignLeft);
-
-protected:
-  WInteractWidget *createCollapseButton();
-  WInteractWidget *createExpandButton();
-
-private:
-  void expandContents();
-  void collapseContents();
-  void undoExpandContents();
-
-  void addWrapped(WWidget *widget, AlignmentFlag alignment,
-		  const char *wrapClass);
-  void addWrapped(WWidget *widget, WWidget* parent, int role,
-                  AlignmentFlag alignment);
-  void align(WWidget *widget, AlignmentFlag alignment);
-
-  bool animatedResponsive() const;
-};
-
-}
-
-#endif // WT_WNAVIGATION_BAR_H_
+#ifndef WT_WNAVIGATIONBAR_EXTENSIONLESS_H_
+#define WT_WNAVIGATIONBAR_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WNavigationBar.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WNavigationBar.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WNavigationBar.h"
+#endif // WT_WNAVIGATIONBAR_EXTENSIONLESS_H_

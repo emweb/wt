@@ -9,19 +9,17 @@
 #include "IsapiStream.h"
 
 #include <windows.h>
-#include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include <exception>
 #include <vector>
 
 #include "WebMain.h"
 
-#include "Wt/WResource"
-#include "Wt/WServer"
-#include "Wt/WLogger"
+#include "Wt/WResource.h"
+#include "Wt/WServer.h"
+#include "Wt/WLogger.h"
 
+#include <chrono>
 #include <fstream>
 
 using std::exit;
@@ -53,10 +51,10 @@ IsapiServer::IsapiServer():
   server_(0),
   terminated_(false)
 {
-  boost::mutex::scoped_lock l(startedMutex_);
+  std::unique_lock<std::mutex> l(startedMutex_);
   started_ = false;
   instance_ = this; // must be set before serverEntry() is called
-  serverThread_ = boost::thread(boost::bind(&IsapiServer::serverEntry, this));
+  serverThread_ = std::thread(std::bind(&IsapiServer::serverEntry, this));
   // don't return before WRun was executed and the server is actually running
   while (!started_)
     startedCondition_.wait(l);
@@ -110,7 +108,7 @@ void IsapiServer::serverEntry() {
 
 void IsapiServer::pushRequest(IsapiRequest *request) {
   if (request->isGood()) {
-    boost::mutex::scoped_lock l(queueMutex_);
+    std::lock_guard<std::mutex> l(queueMutex_);
     if (!terminated_) {
       queue_.push_back(request);
       queueCond_.notify_all();
@@ -126,9 +124,8 @@ void IsapiServer::pushRequest(IsapiRequest *request) {
 
 IsapiRequest *IsapiServer::popRequest(int timeoutSec)
 {
-  boost::system_time const deadline =
-    boost::get_system_time() + boost::posix_time::seconds(timeoutSec);
-  boost::mutex::scoped_lock l(queueMutex_);
+  std::chrono::seconds timeout{timeoutSec};
+  std::unique_lock<std::mutex> l(queueMutex_);
   while (true) {
     if (queue_.size()) {
       IsapiRequest *retval = queue_.front();
@@ -136,7 +133,7 @@ IsapiRequest *IsapiServer::popRequest(int timeoutSec)
       return retval;
     } else {
       // Wait until an element is inserted in the queue...
-      if (!queueCond_.timed_wait(l, deadline)) {
+      if (queueCond_.wait_for(l, timeout) == std::cv_status::timeout) {
         // timeout
         return 0;
       }
@@ -147,7 +144,7 @@ IsapiRequest *IsapiServer::popRequest(int timeoutSec)
 
 void IsapiServer::setTerminated()
 {
-  boost::mutex::scoped_lock l(queueMutex_);
+  std::unique_lock<std::mutex> l(queueMutex_);
   terminated_ = true;
   while (queue_.size()) {
     IsapiRequest *retval = queue_.front();
@@ -163,10 +160,11 @@ void IsapiServer::shutdown()
   if (hasConfiguration())
     log("notice") << "ISAPI: shutdown requested...";
   {
-    boost::mutex::scoped_lock l(queueMutex_);
+    std::lock_guard<std::mutex> l(queueMutex_);
     server_->stop();
   }
-  serverThread_.join();
+  if (serverThread_.joinable())
+    serverThread_.join();
   if (hasConfiguration())
     log("notice") << "ISAPI: shutdown completed...";
 }
@@ -184,7 +182,7 @@ IsapiServer *IsapiServer::instance()
 
 bool IsapiServer::addServer(WServer *server)
 {
-  boost::mutex::scoped_lock l(queueMutex_);
+  std::lock_guard<std::mutex> l(queueMutex_);
   if (server_) return false;
   server_ = server;
   return true;
@@ -192,7 +190,7 @@ bool IsapiServer::addServer(WServer *server)
 
 void IsapiServer::removeServer(WServer *server)
 {
-  boost::mutex::scoped_lock l(queueMutex_);
+  std::lock_guard<std::mutex> l(queueMutex_);
   if (server_ != server) {
     if (hasConfiguration()) {
       log("error") << "ISAPI internal error: removeServer() inconsistent";

@@ -5,8 +5,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WLineF>
-#include <Wt/WPointF>
+#include <Wt/WLineF.h>
+#include <Wt/WPointF.h>
 
 namespace Wt {
 

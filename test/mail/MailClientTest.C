@@ -7,9 +7,9 @@
 #include <fstream>
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Mail/Client>
-#include <Wt/Mail/Message>
-#include <Wt/WLocalDateTime>
+#include <Wt/Mail/Client.h>
+#include <Wt/Mail/Message.h>
+#include <Wt/WLocalDateTime.h>
 
 using namespace Wt;
 using namespace Wt::Mail;
@@ -18,8 +18,8 @@ BOOST_AUTO_TEST_CASE( mail_test1 )
 {
   Message m;
   m.setFrom(Mailbox("bas@kode.be", "Bas Deforche"));
-  m.addRecipient(To, Mailbox("koen@emweb.be", "Koen Deforche"));
-  m.addRecipient(Bcc,
+  m.addRecipient(RecipientType::To, Mailbox("koen@emweb.be", "Koen Deforche"));
+  m.addRecipient(RecipientType::Bcc,
 		 Mailbox("koen.deforche@gmail.com",
 			 WString::fromUTF8("Koen Deforche")));
   m.setSubject(WString::fromUTF8("Hey there, \xe2\x82\xac !"));
@@ -54,8 +54,8 @@ BOOST_AUTO_TEST_CASE( mail_test2 )
   Message m;
   m.setFrom(Mailbox("bas@kode.be", "Bas Deforche"));
   m.setDate(WLocalDateTime::currentServerDateTime());
-  m.addRecipient(To, Mailbox("koen@emweb.be", "Koen Deforche"));
-  m.addRecipient(Bcc,
+  m.addRecipient(RecipientType::To, Mailbox("koen@emweb.be", "Koen Deforche"));
+  m.addRecipient(RecipientType::Bcc,
 		 Mailbox("koen.deforche@gmail.com",
 			 WString::fromUTF8("Koen Deforche")));
   m.setSubject(WString::fromUTF8("Hey there, \xe2\x82\xac !"));

@@ -3,12 +3,12 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WAnchor"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WImage"
-#include "Wt/WResource"
-#include "Wt/WText"
+#include "Wt/WAnchor.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WImage.h"
+#include "Wt/WResource.h"
+#include "Wt/WText.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -16,7 +16,7 @@
 namespace Wt {
 
 WAnchor::LinkState::LinkState()
-  : clickJS(0)
+  : clickJS(nullptr)
 { }
 
 WAnchor::LinkState::~LinkState()
@@ -24,133 +24,40 @@ WAnchor::LinkState::~LinkState()
   delete clickJS;
 }
 
-WAnchor::WAnchor(WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
+WAnchor::WAnchor()
 {
   setInline(true);
 }
 
-WAnchor::WAnchor(const WLink& link, WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
+WAnchor::WAnchor(const WLink& link)
 {
   setInline(true);
   setLink(link);
 }
 
-#ifdef WT_TARGET_JAVA
-WAnchor::WAnchor(const std::string& ref, WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
-{
-  setInline(true);
-  linkState_.link = WLink(WLink::Url, ref);
-}
-
-WAnchor::WAnchor(WResource *resource, WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
-{
-  setInline(true);
-  setResource(resource);
-}
-#endif // WT_TARGET_JAVA
-
-WAnchor::WAnchor(const WLink& link, const WString& text,
-		 WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
+WAnchor::WAnchor(const WLink& link, const WString& text)
 {
   setInline(true);
   setLink(link);
-
-  text_ = new WText(text, this);
+  text_ = new WText(text);
+  addWidget(std::unique_ptr<WWidget>(text_.get()));
 }
 
-#ifdef WT_TARGET_JAVA
-WAnchor::WAnchor(const std::string& ref, const WString& text,
-		 WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
+WAnchor::WAnchor(const WLink& link, std::unique_ptr<WImage> image)
 { 
   setInline(true);
-
-  setLink(WLink(WLink::Url, ref));
-
-  text_ = new WText(text, this);
-}
-
-WAnchor::WAnchor(WResource *resource, const WString& text,
-		 WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
-{ 
-  setInline(true);
-
-  setResource(resource);
-
-  text_ = new WText(text, this);
-}
-#endif // WT_TARGET_JAVA
-
-WAnchor::WAnchor(const WLink& link, WImage *image, WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
-{ 
-  setInline(true);
-
   setLink(link);
 
-  image_ = image;
-  if (image_)
-    addWidget(image_);
+  if (image) {
+    addWidget(std::move(image));
+    image_ = image.get();
+  }
 }
-
-#ifdef WT_TARGET_JAVA
-WAnchor::WAnchor(const std::string& ref, WImage *image,
-		 WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
-{ 
-  setInline(true);
-
-  linkState_.link = WLink(WLink::Url, ref);
-
-  image_ = image;
-
-  if (image_)
-    addWidget(image_);
-}
-
-WAnchor::WAnchor(WResource *resource, WImage *image,
-		 WContainerWidget *parent)
-  : WContainerWidget(parent),
-    text_(0),
-    image_(0)
-{ 
-  setInline(true);
-
-  setResource(resource);
-
-  image_ = image;
-  if (image_)
-    addWidget(image_);
-}
-#endif // WT_TARGET_JAVA
 
 void WAnchor::setLink(const WLink& link)
 {
-  if (linkState_.link.type() != WLink::Resource && linkState_.link == link)
+  if (linkState_.link.type() != LinkType::Resource && 
+      linkState_.link == link)
     return;
 
   linkState_.link = link;
@@ -160,46 +67,15 @@ void WAnchor::setLink(const WLink& link)
   repaint();
 
   switch (linkState_.link.type()) {
-  case WLink::Resource:
+  case LinkType::Resource:
     linkState_.link.resource()->dataChanged().connect
       (this, &WAnchor::resourceChanged);
     break;
-  case WLink::InternalPath:
+  case LinkType::InternalPath:
     WApplication::instance()->enableInternalPaths();
     break;
   default:
     break;
-  }
-}
-
-void WAnchor::setRef(const std::string& url)
-{
-  setLink(WLink(WLink::Url, url));
-}
-
-void WAnchor::setRefInternalPath(const std::string& path)
-{
-  setLink(WLink(WLink::InternalPath, path));
-}
-
-void WAnchor::setResource(WResource *resource)
-{
-  setLink(WLink(resource));
-}
-
-WResource *WAnchor::resource() const
-{
-  if (linkState_.link.type() == WLink::Resource)
-    return linkState_.link.resource();
-  else
-    return 0;
-}
-
-void WAnchor::setTarget(AnchorTarget target)
-{
-  if (linkState_.link.target() != target) {
-    linkState_.link.setTarget(target);
-    flags_.set(BIT_TARGET_CHANGED);
   }
 }
 
@@ -215,20 +91,20 @@ const WString& WAnchor::text() const
 void WAnchor::setText(const WString& text)
 {
   if (!text_) {
-    text_ = new WText(text, this);
+    std::unique_ptr<WText> t(new WText(text));
+    text_ = t.get();
+    addWidget(std::move(t));
   } else
     if (!text.empty())
       text_->setText(text);
-    else {
-      delete text_;
-      text_ = 0;
-    }
+    else
+      text_->parent()->removeWidget(text_.get());
 }
 
 void WAnchor::setWordWrap(bool wordWrap)
 {
   if (!text_)
-    text_ = new WText(this);
+    setText(WString());
 
   text_->setWordWrap(wordWrap);
 }
@@ -241,23 +117,22 @@ bool WAnchor::wordWrap() const
 void WAnchor::setTextFormat(TextFormat textFormat)
 {
   if (!text_)
-    text_ = new WText(this);
+    setText(WString());
 
   text_->setTextFormat(textFormat);
 }
 
 TextFormat WAnchor::textFormat() const
 {
-  return text_ ? text_->textFormat() : XHTMLText;
+  return text_ ? text_->textFormat() : TextFormat::XHTML;
 }
 
-void WAnchor::setImage(WImage *image)
+void WAnchor::setImage(std::unique_ptr<WImage> image)
 {
-  delete image_;
-  image_ = image;
+  image_ = image.get();
 
-  if (image_)
-    addWidget(image_);
+  if (image)
+    addWidget(std::move(image));
 }
 
 void WAnchor::resourceChanged()
@@ -268,7 +143,7 @@ void WAnchor::resourceChanged()
 
 void WAnchor::enableAjax()
 {
-  if (linkState_.link.type() == WLink::InternalPath) {
+  if (linkState_.link.type() == LinkType::InternalPath) {
     flags_.set(BIT_LINK_CHANGED);
     repaint();
   }
@@ -334,16 +209,16 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
     std::string url = linkState.link.resolveUrl(app);
 
     /*
-     * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
+     * From 但浩亮: setRefInternalPath() and setTarget(LinkTarget::NewWindow)
      * does not work without the check below:
      */
-    if (linkState.link.target() == TargetSelf) {
+    if (linkState.link.target() == LinkTarget::Self) {
       linkState.clickJS
 	= linkState.link.manageInternalPathChange(app, widget,
 						  linkState.clickJS);
     } else {
       delete linkState.clickJS;
-      linkState.clickJS = 0;
+      linkState.clickJS = nullptr;
     }
 
     url = app->encodeUntrustedUrl(url);
@@ -360,20 +235,20 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
 void WAnchor::renderHTarget(LinkState& linkState, DomElement& element, bool all)
 {
   switch (linkState.link.target()) {
-  case TargetSelf:
+  case LinkTarget::Self:
     if (!all)
-      element.setProperty(PropertyTarget, "_self");
+      element.setProperty(Property::Target, "_self");
     break;
-  case TargetThisWindow:
-    element.setProperty(PropertyTarget, "_top");
-	break;
-  case TargetNewWindow:
-    element.setProperty(PropertyTarget, "_blank");
-	break;
-  case TargetDownload:
-	element.setProperty(PropertyTarget, "wt_iframe_dl");
-	element.setProperty(PropertyDownload, ""); // Only works on some browsers (FF, Chrome)
-	break;
+  case LinkTarget::ThisWindow:
+    element.setProperty(Property::Target, "_top");
+    break;
+  case LinkTarget::NewWindow:
+    element.setProperty(Property::Target, "_blank");
+    break;
+  case LinkTarget::Download:
+    element.setProperty(Property::Target, "wt_iframe_dl");
+    element.setProperty(Property::Download, ""); // Only works on some browsers (FF, Chrome)
+    break;
   }
 }
 
@@ -381,7 +256,7 @@ void WAnchor::renderUrlResolution(WWidget *widget, DomElement& element,
 				  bool all)
 {
   if (all)
-    element.setProperty(PropertyClass,
+    element.setProperty(Property::Class,
 			Utils::addWord(widget->styleClass().toUTF8(), "Wt-rr"));
   else
     element.callJavaScript("$('#" + widget->id() + "').addClass('Wt-rr');");
@@ -404,7 +279,7 @@ void WAnchor::propagateSetEnabled(bool enabled)
 
 DomElementType WAnchor::domElementType() const
 {
-  return DomElement_A;
+  return DomElementType::A;
 }
 
 }

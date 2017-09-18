@@ -4,12 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
-
 #include "HTTPRequest.h"
 #include "Configuration.h"
 #include "WtReply.h"
-#include "Wt/Http/Message"
+#include "Wt/Http/Message.h"
 
 namespace http {
 namespace server {
@@ -42,10 +40,10 @@ void HTTPRequest::flush(ResponseState state, const WriteCallback& callback)
   if (done()) 
     return;
 
-  if (state == ResponseDone)
+  if (state == ResponseState::ResponseDone)
     reply_.reset();
 
-  ptr->send(callback, state == ResponseDone);
+  ptr->send(callback, state == ResponseState::ResponseDone);
 }
 
 void HTTPRequest::readWebSocketMessage(const ReadCallback& callback)
@@ -93,13 +91,13 @@ const char *HTTPRequest::headerValue(const char *name) const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return 0;
+    return nullptr;
 
   const Request::Header *i = p->request().getHeader(name);
   if (i)
     return cstr(i->value);
   else
-    return 0;
+    return nullptr;
 }
 
 std::vector<Wt::Http::Message::Header> HTTPRequest::headers() const
@@ -160,7 +158,7 @@ const char *HTTPRequest::envValue(const char *name) const
   } else if (strcmp(name, "DOCUMENT_ROOT") == 0) {
     return reply_->configuration().docRoot().c_str();
   } else
-    return 0;
+    return nullptr;
 }
 
 const std::string& HTTPRequest::serverName() const
@@ -179,7 +177,7 @@ const std::string& HTTPRequest::serverPort() const
     return empty_;
 
   if (serverPort_.empty())
-    serverPort_ = boost::lexical_cast<std::string>(p->request().port);
+    serverPort_ = std::to_string(p->request().port);
 
   return serverPort_;
 }
@@ -197,7 +195,7 @@ const char * HTTPRequest::requestMethod() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return 0;
+    return nullptr;
 
   return cstr(p->request().method);
 }

@@ -4,16 +4,14 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
-
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WPoint"
-#include "Wt/WPopupMenu"
-#include "Wt/WPushButton"
-#include "Wt/WTemplate"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WPoint.h"
+#include "Wt/WPopupMenu.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WTemplate.h"
 
 #include "WebSession.h"
 
@@ -25,12 +23,12 @@ namespace Wt {
 
 WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
   : WMenu(contentsStack),
-    topLevel_(0),
-    result_(0),
-    location_(0),
-    button_(0),
-    aboutToHide_(this),
-    triggered_(this),
+    topLevel_(nullptr),
+    result_(nullptr),
+    location_(nullptr),
+    button_(nullptr),
+    aboutToHide_(),
+    triggered_(),
     cancel_(this, "cancel"),
     recursiveEventLoop_(false),
     willPopup_(false),
@@ -57,8 +55,10 @@ WPopupMenu::~WPopupMenu()
   if (button_) {
     WPushButton *b = dynamic_cast<WPushButton *>(button_);
     if (b)
-      b->setMenu(0);
+      b->setMenu(nullptr);
   }
+
+  wApp->removeGlobalWidget(this);
 }
 
 void WPopupMenu::setButton(WInteractWidget *button)
@@ -120,7 +120,7 @@ void WPopupMenu::done(WMenuItem *result)
       parentItem()->removeStyleClass("open");
   }
 
-  location_ = 0;
+  location_ = nullptr;
   result_ = result;
 
   hide();
@@ -139,7 +139,7 @@ void WPopupMenu::cancel()
     return;
 
   if (!isHidden())
-    done(0);
+    done(nullptr);
 }
 
 void WPopupMenu::popup(WWidget *location, Orientation orientation)
@@ -161,7 +161,7 @@ void WPopupMenu::popup(const WMouseEvent& e)
 
 void WPopupMenu::popupImpl()
 {
-  result_ = 0;
+  result_ = nullptr;
 
   WApplication *app = WApplication::instance();
   prepareRender(app);
@@ -177,12 +177,12 @@ void WPopupMenu::popup(const WPoint& p)
   popupImpl();
 
   // make sure we are not confused by client-side being positioned properly
-  setOffsets(42, Left | Top);
-  setOffsets(-10000, Left | Top);
+  setOffsets(42, Side::Left | Side::Top);
+  setOffsets(-10000, Side::Left | Side::Top);
 
   doJavaScript(WT_CLASS ".positionXY('" + id() + "',"
-               + boost::lexical_cast<std::string>(p.x()) + ","
-               + boost::lexical_cast<std::string>(p.y()) + ");");
+	       + std::to_string(p.x()) + ","
+	       + std::to_string(p.y()) + ");");
 }
 
 void WPopupMenu::prepareRender(WApplication *app)

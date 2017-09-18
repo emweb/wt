@@ -1,7 +1,7 @@
 #ifndef DEFERRED_WIDGET_H_
 #define DEFERRED_WIDGET_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 /*
  * A utility container widget which defers creation of its single
@@ -23,25 +23,25 @@ public:
 private:
   void load() {
     addWidget(f_());
-    WContainerWidget::load();
+    Wt::WContainerWidget::load();
   }
 
   Function f_;
 };
 
 template <typename Function>
-DeferredWidget<Function> *deferCreate(Function f)
+std::unique_ptr<DeferredWidget<Function>> deferCreate(Function f)
 {
-  return new DeferredWidget<Function>(f);
+  return Wt::cpp14::make_unique<DeferredWidget<Function>>(f);
 }
 #else
-class DeferredWidget : public Wt::WContainerWidget {
+class DeferredWidget : public WContainerWidget {
 public:
-  DeferredWidget(boost::bound f) {}
+  DeferredWidget(std::fuction<std::unique_ptr<WWidget>>() f) {}
 };
-DeferredWidget *deferCreate(boost::bound b) 
+std::unique_ptr<DeferredWidget> deferCreate(std::function<std::unique_ptr<WWidget>> b)
 {
-  return new DeferredWidget(b);
+  return cpp14::make_unique<DeferredWidget>(b);
 }
 
 #endif

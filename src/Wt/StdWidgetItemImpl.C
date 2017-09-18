@@ -8,12 +8,12 @@
 #include "DomElement.h"
 #include "StdWidgetItemImpl.h"
 
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
-#include "Wt/WLogger"
-#include "Wt/WWidgetItem"
-#include "Wt/WTheme"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
+#include "Wt/WTheme.h"
+#include "Wt/WWidgetItem.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WtResize.min.js"
@@ -28,9 +28,7 @@ StdWidgetItemImpl::StdWidgetItemImpl(WWidgetItem *item)
 { }
 
 StdWidgetItemImpl::~StdWidgetItemImpl()
-{
-  containerAddWidgets(0);
-}
+{ }
 
 const char *StdWidgetItemImpl::childrenResizeJS()
 {
@@ -64,11 +62,6 @@ const char *StdWidgetItemImpl::secondGetPSJS()
   return WT_CLASS ".LastGetPS";
 }
 
-WLayoutItem *StdWidgetItemImpl::layoutItem() const
-{
-  return item_;
-}
-
 int StdWidgetItemImpl::minimumWidth() const
 {
   if (item_->widget()->isHidden())
@@ -85,25 +78,13 @@ int StdWidgetItemImpl::minimumHeight() const
     return static_cast<int>(item_->widget()->minimumHeight().toPixels());
 }
 
-void StdWidgetItemImpl::containerAddWidgets(WContainerWidget *container)
-{
-  if (container)
-    container->addWidget(item_->widget());
-  else {
-    WContainerWidget *wc
-      = dynamic_cast<WContainerWidget *>(item_->widget()->parent());
-
-    if (wc)
-      wc->removeFromLayout(item_->widget());
-  }
-}
-
 const std::string StdWidgetItemImpl::id() const
 {
   return item_->widget()->id();
 }
 
-DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
+DomElement *StdWidgetItemImpl::createDomElement(DomElement *parent,
+						bool fitWidth, bool fitHeight,
 						WApplication *app)
 {
   WWidget *w = item_->widget();
@@ -114,40 +95,26 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
   DomElement *result = d;
 
   if (app->environment().agentIsIElt(9) &&
-      (d->type() == DomElement_TEXTAREA || d->type() == DomElement_SELECT
-       || d->type() == DomElement_INPUT || d->type() == DomElement_BUTTON)) {
-    d->removeProperty(PropertyStyleDisplay);
+      (d->type() == DomElementType::TEXTAREA ||
+       d->type() == DomElementType::SELECT ||
+       d->type() == DomElementType::INPUT ||
+       d->type() == DomElementType::BUTTON)) {
+    d->removeProperty(Property::StyleDisplay);
   }
 
   // FIXME IE9 does border-box perhaps ?
   if (!app->environment().agentIsIElt(9) && 
       w->javaScriptMember(WWidget::WT_RESIZE_JS).empty() &&
-      d->type() != DomElement_TABLE /* buggy in Chrome, see #1856 */ &&
+      d->type() != DomElementType::TABLE /* buggy in Chrome, see #1856 */ &&
       app->theme()->canBorderBoxElement(*d))
-    d->setProperty(PropertyStyleBoxSizing, "border-box");
+    d->setProperty(Property::StyleBoxSizing, "border-box");
 
   return result;
 }
 
-void StdWidgetItemImpl::updateAddItem(WLayoutItem *)
+WLayoutItem *StdWidgetItemImpl::layoutItem() const
 {
-  assert(false);
-}
-
-void StdWidgetItemImpl::updateRemoveItem(WLayoutItem *)
-{
-  assert(false);
-}
-
-void StdWidgetItemImpl::update(WLayoutItem *)
-{
-  assert(false);
-}
-
-void StdWidgetItemImpl::setHint(const std::string& name,
-				const std::string& value)
-{
-  LOG_ERROR("unrecognized hint '" << name << "'");
+  return item_;
 }
 
 }

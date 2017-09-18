@@ -1,12 +1,15 @@
-#include <Wt/WAnchor>
-#include <Wt/WContainerWidget>
-#include <Wt/WLink>
+#include <Wt/WAnchor.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLink.h>
 
 SAMPLE_BEGIN(Anchor)
-// Create an anchor that links to a URL through clickable text.
-Wt::WAnchor *anchor =
-        new Wt::WAnchor(Wt::WLink("http://www.webtoolkit.eu/"),
-                        "Wt homepage (in a new window)");
-anchor->setTarget(Wt::TargetNewWindow);
 
-SAMPLE_END(return anchor)
+// Create an anchor that links to a URL through clickable text.
+Wt::WLink link = Wt::WLink("http://www.webtoolkit.eu/");
+link.setTarget(Wt::LinkTarget::NewWindow);
+
+std::unique_ptr<Wt::WAnchor> anchor =
+        Wt::cpp14::make_unique<Wt::WAnchor>(link,
+                        "Wt homepage (in a new window)");
+
+SAMPLE_END(return std::move(anchor))

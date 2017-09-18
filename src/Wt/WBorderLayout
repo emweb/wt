@@ -1,131 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WBORDER_LAYOUT_H_
-#define WBORDER_LAYOUT_H_
-
-#include <Wt/WGridLayout>
-
-namespace Wt {
-
-/*! \class WBorderLayout Wt/WBorderLayout Wt/WBorderLayout
- *  \brief A layout manager which divides the container region in five regions.
- *
- * The five regions are composed of:
- * <pre>
-     ------------------------------------
-     |              North               |
-     ------------------------------------
-     |      |                    |      |
-     | West |       Center       | East |
-     |      |                    |      |
-     ------------------------------------
-     |              South               |
-     ------------------------------------
- * </pre>
- *
- * Each region may hold no more than one widget, and for all but the
- * Center region, the widget is optional.
- *
- * The North, West, East, and South widgets will take their preferred
- * sizes, while the Center widget takes all available remaining space.
- * 
- * \if cpp
- * Usage example:
- * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
- * Wt::WBorderLayout *layout = new Wt::WBorderLayout();
- * layout->addWidget(new Wt::WText("West-side is best"), Wt::WBorderLayout::West);
- * layout->addWidget(new Wt::WText("East-side is best"), Wt::WBorderLayout::East);
- * layout->addWidget(contents, Wt::WBorderLayout::Center);
- *
- * // use layout but do not justify vertically
- * w->setLayout(layout, Wt::AlignTop | Wt::AlignJustify);
- * \endcode
- * \endif
- */
-class WT_API WBorderLayout : public WLayout
-{
-public:
-  /*! \brief Enumeration of possible positions in the layout.
-   */
-  enum Position {
-    North,  //!< North (top)
-    East,   //!< East (right)
-    South,  //!< South (bottom)
-    West,   //!< West (left)
-    Center  //!< Center
-  };
-
-  /*! \brief Creates a new border layout.
-   */
-  WBorderLayout(WWidget *parent = 0);
-
-  /*! \brief Destructor.
-   */
-  ~WBorderLayout();
-
-  /*! \brief Sets spacing between each item.
-   *
-   * The default spacing is 6 pixels.
-   */
-  void setSpacing(int size);
-
-  /*! \brief Returns the spacing between each item.
-   *
-   * \sa setSpacing()
-   */
-  int spacing() const { return grid_.horizontalSpacing_; }
-
-  virtual void addItem(WLayoutItem *item);
-  virtual void removeItem(WLayoutItem *item);
-  virtual WLayoutItem *itemAt(int index) const;
-  virtual int count() const;
-  virtual void clear();
-
-  /*! \brief Adds a widget to the given position.
-   *
-   * Only one widget per position is supported.
-   *
-   * \sa add(WLayoutItem *, Position)
-   */
-  void addWidget(WWidget *widget, Position position);
-
-  /*! \brief Adds a layout item to the given position.
-   *
-   * Only one widget per position is supported.
-   */
-  void add(WLayoutItem *item, Position position);
-
-  /*! \brief Returns the widget at a position.
-   *
-   * Returns \c 0 if no widget was set for that position.
-   */
-  WWidget *widgetAt(Position position) const;
-
-  /*! \brief Returns the item at a position.
-   *
-   * Returns \c 0 if no item was set for that position.
-   */
-  WLayoutItem *itemAt(Position position) const;
-
-  /*! \brief Returns the position at which the given layout item is set.
-   */
-  Position position(WLayoutItem *item) const;
-
-  Impl::Grid& grid() { return grid_; }
-
-private:
-  Impl::Grid grid_;
-
-  const Impl::Grid::Item& itemAtPosition(Position position) const;
-
-  Impl::Grid::Item& itemAtPosition(Position position);
-};
-
-}
-
-#endif // WBORDER_LAYOUT_H_
+#ifndef WT_WBORDERLAYOUT_EXTENSIONLESS_H_
+#define WT_WBORDERLAYOUT_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WBorderLayout.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WBorderLayout.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WBorderLayout.h"
+#endif // WT_WBORDERLAYOUT_EXTENSIONLESS_H_

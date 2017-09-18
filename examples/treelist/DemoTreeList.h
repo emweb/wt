@@ -7,7 +7,9 @@
 #ifndef DEMO_TREE_LIST
 #define DEMO_TREE_LIST
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
+
+using namespace Wt;
 
 namespace Wt {
   class WPushButton;
@@ -24,36 +26,44 @@ class TreeNode;
  *
  * This is the main class for the treelist example.
  */
-class DemoTreeList : public Wt::WContainerWidget
+class DemoTreeList : public WContainerWidget
 {
 public:
   /*! \brief Create a DemoTreeList.
    */
-  DemoTreeList(Wt::WContainerWidget *parent);
+  DemoTreeList();
 
 private:
-  TreeNode *tree_;
-  TreeNode *testMap_;
-  int testCount_;
+  TreeNode    *tree_;
+  TreeNode    *testFolder_;
+  int          testCount_;
 
-  Wt::WPushButton *addMapButton_;
-  Wt::WPushButton *removeMapButton_;
+  WPushButton *addFolderButton_;
+  WPushButton *removeFolderButton_;
 
-  /*!\brief Add a map.
+  /*!\brief Add a folder.
    */
-  void addMap();
+  void addFolder();
 
-  /*!\brief Remove a map.
+  /*!\brief Remove a folder.
    */ 
-  void removeMap();
+  void removeFolder();
 
-  /*!\brief Create a "map" node, and insert in the given parent.
+  /*!\brief Create a "folder" node, and insert in the given parent.
    */
-  TreeNode *makeTreeMap(const std::string name, TreeNode *parent);
+  TreeNode *makeTreeFolder(const std::string name, TreeNode *parent);
+
+  /*!\brief Create a "folder" root.
+   */
+  std::unique_ptr<TreeNode> makeTreeFolder(const std::string name);
 
   /*!\brief Create a "file" node, and insert in the given parent.
    */
   TreeNode *makeTreeFile(const std::string name, TreeNode *parent);
+
+  /*!\brief Create a "file" root.
+   */
+  std::unique_ptr<TreeNode> makeTreeFile(const std::string name);
 };
 
 /*@}*/
