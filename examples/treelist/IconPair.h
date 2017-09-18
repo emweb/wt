@@ -75,7 +75,7 @@ public:
   void showIcon2();
 
 private:
-  std::unique_ptr<WContainerWidget> impl_;
+  WContainerWidget *impl_;
 
   //! First icon.
   WImage *icon1_;
@@ -87,12 +87,12 @@ public:
   /*! \brief Signal emitted when clicked while in state 0 (icon 1 is
    *         shown).
    */
-  EventSignal<WMouseEvent>& icon1Clicked;
+  EventSignal<WMouseEvent> *icon1Clicked;
 
   /*! \brief Signal emitted when clicked while in state 1 (icon 2 is
    *         shown).
    */
-  EventSignal<WMouseEvent>& icon2Clicked;
+  EventSignal<WMouseEvent> *icon2Clicked;
 
 private:
   //! Undo state for prelearning stateless showIcon1() and showIcon2() slots

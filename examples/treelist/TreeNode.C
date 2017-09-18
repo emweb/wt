@@ -81,9 +81,9 @@ TreeNode::TreeNode(const std::string labelText,
   layout_->elementAt(0, 0)->setContentAlignment(AlignmentFlag::Top);
   layout_->elementAt(0, 1)->setContentAlignment(AlignmentFlag::Middle);
 
-  expandIcon_->icon1Clicked.connect(this, &TreeNode::expand);
-  expandIcon_->icon2Clicked.connect(this, &TreeNode::collapse);
-}
+  expandIcon_->icon1Clicked->connect(this, &TreeNode::expand);
+  expandIcon_->icon2Clicked->connect(this, &TreeNode::collapse);
+} //
 
 bool TreeNode::isLastChildNode() const
 {
@@ -112,7 +112,7 @@ void TreeNode::removeChildNode(TreeNode *node, int index)
   expandedContent_->removeWidget(node);
 
   childNodesChanged();
-}
+} //
 
 void TreeNode::childNodesChanged()
 {
@@ -129,7 +129,7 @@ void TreeNode::childNodesChanged()
     childCountLabel_->setText("");
 
   resetLearnedSlots();
-}
+} //
 
 void TreeNode::collapse()
 {
@@ -139,7 +139,7 @@ void TreeNode::collapse()
   expandedContent_->hide();
   if (labelIcon_)
     labelIcon_->setState(0);
-}
+} //
 
 void TreeNode::expand()
 {
@@ -155,7 +155,7 @@ void TreeNode::expand()
    */
   for (auto node : childNodes_)
     node->collapse();
-}
+} //
 
 void TreeNode::undoCollapse()
 {
@@ -183,7 +183,7 @@ void TreeNode::undoExpand()
    */
   for (auto node : childNodes_)
     node->undoCollapse();
-}
+} //
 
 void TreeNode::adjustExpandIcon()
 {
@@ -208,7 +208,7 @@ void TreeNode::adjustExpandIcon()
     layout_->elementAt(1, 0)
       ->decorationStyle().setBackgroundImage("icons/line-trunk.gif",
                                              Orientation::Vertical);
-  }
+  } //
 
   if (childNodes_.empty()) {
     if (noExpandIcon_->isHidden()) {
@@ -221,4 +221,4 @@ void TreeNode::adjustExpandIcon()
       expandIcon_->show();
     }
   }
-}
+} //
