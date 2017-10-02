@@ -946,6 +946,7 @@ protected:
   int currentSortColumn_;
 
   bool dragEnabled_, dropsEnabled_;
+  std::unique_ptr<WWidget> uDragWidget_;
   observing_ptr<WWidget> dragWidget_;
 
   virtual void scheduleRerender(RenderState what);
@@ -1013,6 +1014,8 @@ protected:
 				       const WTouchEvent& event);
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
+
+  virtual void enableAjax() override;
 
   void setEditState(const WModelIndex& index, const cpp17::any& editState);
   cpp17::any editState(const WModelIndex& index) const;

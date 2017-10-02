@@ -214,6 +214,7 @@ void WTableView::enableAjax()
   setup();
   defineJavaScript();
   scheduleRerender(RenderState::NeedRerenderHeader);
+  WAbstractItemView::enableAjax();
 }
 
 void WTableView::resize(const WLength& width, const WLength& height)

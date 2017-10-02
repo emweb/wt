@@ -1209,19 +1209,29 @@ std::unique_ptr<WWidget> WAbstractItemView::createHeaderWidget(int column)
   return std::move(result);
 }
 
+void WAbstractItemView::enableAjax()
+{
+  WCompositeWidget::enableAjax();
+  if (uDragWidget_) {
+    headerContainer()->addWidget(std::move(uDragWidget_));
+    configureModelDragDrop();
+  }
+}
+
 void WAbstractItemView::setDragEnabled(bool enable)
 {
   if (dragEnabled_ != enable) {
     dragEnabled_ = enable;
 
     if (enable) {
-      std::unique_ptr<WText> dragWidget(new WText());
-      dragWidget_ = dragWidget.get();
-      dragWidget->setId(id() + "dw");
-      dragWidget->setInline(false);
-      dragWidget->hide();
-      setAttributeValue("dwid", dragWidget->id());
-      headerContainer()->addWidget(std::move(dragWidget));
+      uDragWidget_ = cpp14::make_unique<WText>();
+      dragWidget_ = uDragWidget_.get();
+      dragWidget_->setId(id() + "dw");
+      dragWidget_->setInline(false);
+      dragWidget_->hide();
+      setAttributeValue("dwid", dragWidget_->id());
+      if (headerContainer())
+        headerContainer()->addWidget(std::move(uDragWidget_));
 
       configureModelDragDrop();
     } else {
