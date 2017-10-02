@@ -1937,7 +1937,8 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	bool closing = message->contentLength() == 0;
 
 	if (!closing) {
-	  CgiParser cgi(lock->controller_->configuration().maxRequestSize());
+	  CgiParser cgi(lock->controller_->configuration().maxRequestSize(),
+			lock->controller_->configuration().maxFormDataSize());
 	  try {
 	    cgi.parse(*message, CgiParser::ReadDefault);
 	  } catch (std::exception& e) {

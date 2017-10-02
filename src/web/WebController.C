@@ -429,7 +429,7 @@ bool WebController::requestDataReceived(WebRequest *request,
     lock.unlock();
 #endif // WT_THREADED
 
-    CgiParser cgi(conf_.maxRequestSize());
+    CgiParser cgi(conf_.maxRequestSize(), conf_.maxFormDataSize());
 
     try {
       cgi.parse(*request, CgiParser::ReadHeadersOnly);
@@ -564,7 +564,7 @@ void WebController::handleRequest(WebRequest *request)
     }
   }
 
-  CgiParser cgi(conf_.maxRequestSize());
+  CgiParser cgi(conf_.maxRequestSize(), conf_.maxFormDataSize());
 
   try {
     cgi.parse(*request, conf_.needReadBodyBeforeResponse()

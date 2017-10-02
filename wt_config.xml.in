@@ -234,6 +234,15 @@
          -->
 	<max-request-size>128</max-request-size>
 
+	<!-- Maximum form data (Kb)
+	     
+	   Maximum size of the data in a POST request of type
+	   'application/x-www-form-urlencoded' (used for Wt form-field values)
+	   Note that the maximum size is also limited by the value of
+	   'max-request-size'.
+	-->
+	<max-formdata-size>5120</max-formdata-size>
+
         <!-- Number of threads per process
 
            You may want to change this value if you would like to

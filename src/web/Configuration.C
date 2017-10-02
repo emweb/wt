@@ -202,6 +202,7 @@ void Configuration::reset()
   numThreads_ = 10;
   maxNumSessions_ = 100;
   maxRequestSize_ = 128 * 1024;
+  maxFormDataSize_ = 5 * 1024 * 1024;
   isapiMaxMemoryRequestSize_ = 128 * 1024;
   sessionTracking_ = URL;
   reloadIsNewSession_ = true;
@@ -273,6 +274,12 @@ int Configuration::maxNumSessions() const
 ::int64_t Configuration::maxRequestSize() const
 {
   return maxRequestSize_;
+}
+
+  
+::int64_t Configuration::maxFormDataSize() const
+{
+  return maxFormDataSize_;
 }
 
 ::int64_t Configuration::isapiMaxMemoryRequestSize() const
@@ -764,6 +771,11 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     = singleChildElementValue(app, "max-request-size", "");
   if (!maxRequestStr.empty())
     maxRequestSize_ = boost::lexical_cast< ::int64_t >(maxRequestStr) * 1024;
+
+  std::string maxFormDataStr =
+    singleChildElementValue(app, "max-formdata-size", "");
+  if (!maxFormDataStr.empty())
+    maxFormDataSize_ = boost::lexical_cast< ::int64_t >(maxFormDataStr) * 1024;
 
   std::string debugStr = singleChildElementValue(app, "debug", "");
 

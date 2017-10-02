@@ -31,9 +31,10 @@ const std::string AUTH_TYPE = "Basic";
 }
 
 namespace Wt {
-namespace Auth {
 
 LOGGER("OAuthTokenEndpoint");
+
+namespace Auth {
 
 OAuthTokenEndpoint::OAuthTokenEndpoint(AbstractUserDatabase& db,
                                        std::string issuer)
@@ -110,6 +111,12 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
   if (!code || clientId.empty() || clientSecret.empty() || !grantType || !redirectUri) {
     response.setStatus(400);
     response.out() << "{\"error\": \"invalid_request\"}" << std::endl;
+    LOG_INFO("{\"error\": \"invalid_request\"}:"
+      << " code:" << (code ? *code : "NULL")
+      << " clientId: " << clientId
+      << " clientSecret: " << (clientSecret.empty() ? "MISSING" : "NOT MISSING")
+      << " grantType: " << (grantType ? *grantType : "NULL")
+      << " redirectUri: " << (redirectUri ? *redirectUri : "NULL"));
     return;
   }
   OAuthClient client = db_->idpClientFindWithId(clientId);
@@ -124,11 +131,21 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
             methodToString(client.authMethod()));
     }
     response.out() << "{\n\"error\": \"invalid_client\"\n}" << std::endl;
+    LOG_INFO("{\"error\": \"invalid_client\"}: "
+      << " id: " << clientId
+      << " client: " << (client.checkValid() ? "valid" : "not valid")
+      << " secret: " << (client.verifySecret(clientSecret) ? "correct" : "incorrect")
+	     << " method: " << (client.authMethod() != authMethod ? "no match" : "match")
+    );
     return;
   }
   if (*grantType != GRANT_TYPE) {
     response.setStatus(400);
     response.out() << "{\n\"error\": \"unsupported_grant_type\"\n}" << std::endl;
+    LOG_INFO("{\"error\": \"unsupported_grant_type\"}: "
+      << " id: " << clientId
+      << " grantType: " << grantType
+    );
     return;
   }
   IssuedToken authCode = db_->idpTokenFindWithValue(GRANT_TYPE, *code);
@@ -136,6 +153,13 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
       || WDateTime::currentDateTime() > authCode.expirationTime()) {
     response.setStatus(400);
     response.out() << "{\n\"error\": \"invalid_grant\"\n}" << std::endl;
+    LOG_INFO("{\"error\": \"invalid_grant\"}:"
+      << " id: " << clientId
+      << " code: " << *code
+      << " authCode: " << (authCode.checkValid() ? "valid" : "not valid")
+      << " redirectUri: " << *redirectUri << (authCode.redirectUri() != *redirectUri ? " - invalid" : " - valid")
+      << " timestamp: " << authCode.expirationTime().toString() << (WDateTime::currentDateTime() > authCode.expirationTime() ? ", expired" : ", not expired")
+    );
     return;
   }
   std::string accessTokenValue = WRandom::generateId();
@@ -173,6 +197,9 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
     root["id_token"] = Json::Value(header + "." + payload + "." + signature);
   }
   response.out() << Json::serialize(root);
+
+  LOG_INFO("success: " << clientId << ", " << user.id() << ", " << db_->email(user));
+
 #ifdef WT_TARGET_JAVA
   } catch (std::io_exception ioe) {
     LOG_ERROR(ioe.message());

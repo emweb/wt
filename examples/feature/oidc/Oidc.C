@@ -98,6 +98,7 @@ Wt::WApplication *createClient(const Wt::WEnvironment& env)
 
 int main(int argc, char** argv)
 {
+  try {
   Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
   server.readConfigurationProperty("application-url",deployUrl);
 
@@ -122,4 +123,7 @@ int main(int argc, char** argv)
   Session::configureAuth();
 
   server.run();
+  } catch (Wt::WException &e) {
+    std::cerr << "Exception: " << e.what() << std::endl;
+  }
 }
