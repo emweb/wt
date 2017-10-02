@@ -57,12 +57,12 @@ void OAuthAuthorizationEndpointProcess::processEnvironment()
   }
   client_ = db_->idpClientFindWithId(*clientId);
   if (!client_.checkValid()) {
-    LOG_ERROR("Unknown or invalid client_id.");
+    LOG_ERROR("Unknown or invalid client_id " << *clientId);
     return;
   }
   std::set<std::string> redirectUris = client_.redirectUris();
   if (redirectUris.find(redirectUri_) == redirectUris.end()) {
-    LOG_ERROR("The client application passed an unregistered redirection URI.");
+    LOG_ERROR("The client application passed the  unregistered redirection URI " << redirectUri_);
     return;
   }
   const std::string *scope = env.getParameter("scope");
@@ -70,6 +70,10 @@ void OAuthAuthorizationEndpointProcess::processEnvironment()
   const std::string *state  = env.getParameter("state");
   if (!scope || !responseType || *responseType != "code") {
     sendResponse("error=invalid_request");
+    LOG_INFO("error=invalid_request: "
+      << " scope: " << (scope ? *scope : "NULL")
+      << " response_type: " << (responseType ? *responseType : "NULL")
+    );
     return;
   }
   validRequest_ = true;
@@ -85,6 +89,7 @@ void OAuthAuthorizationEndpointProcess::processEnvironment()
     return;
   } else if (prompt && *prompt == "none") {
     sendResponse("error=login_required");
+    LOG_INFO("error=login_required but prompt == none");
     return;
   }
 }
@@ -97,6 +102,8 @@ void OAuthAuthorizationEndpointProcess::authorizeScope(const std::string& scope)
     db_->idpTokenAdd(authCodeValue, expirationTime, "authorization_code", scope,
         redirectUri_, login_.user(), client_);
     sendResponse("code=" + authCodeValue);
+    LOG_INFO("authorization_code created for " << login_.user().id() << "(" << login_.user().email() << ")"
+	     << ", code = " + authCodeValue);
   } else {
     throw WException("Wt::Auth::OAuthAuthorizationEndpointProcess::authorizeScope: request isn't valid");
   }

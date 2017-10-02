@@ -174,8 +174,9 @@ void CgiParser::init()
 #endif
 }
 
-CgiParser::CgiParser(::int64_t maxPostData)
-  : maxPostData_(maxPostData)
+CgiParser::CgiParser(::int64_t maxRequestSize, ::int64_t maxFormData)
+  : maxFormData_(maxFormData),
+    maxRequestSize_(maxRequestSize)
 { }
 
 void CgiParser::parse(WebRequest& request, ReadOption readOption)
@@ -189,7 +190,7 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
   const char *type = request.contentType();
   const char *meth = request.requestMethod();
 
-  request.postDataExceeded_ = (len > maxPostData_ ? len : 0);
+  request.postDataExceeded_ = (len > maxRequestSize_ ? len : 0);
 
   std::string queryString = request.queryString();
 
@@ -204,7 +205,7 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
      * TODO: parse this stream-based to avoid the malloc here. For now
      * we protect the maximum that can be POST'ed as form data.
      */
-    if (len > 5*1024*1024)
+    if (len > maxFormData_)
       throw WException("Oversized application/x-www-form-urlencoded ("
 		       + std::to_string(len) + ")");
 

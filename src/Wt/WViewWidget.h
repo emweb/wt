@@ -110,6 +110,8 @@ public:
    */
   WViewWidget();
 
+  ~WViewWidget();
+
   /*! \brief Updates the view.
    *
    * Typically, the model will want to update the view when the model

@@ -159,6 +159,7 @@ public:
   int numThreads() const;
   int maxNumSessions() const;
   ::int64_t maxRequestSize() const;
+  ::int64_t maxFormDataSize() const;
   ::int64_t isapiMaxMemoryRequestSize() const;
   SessionTracking sessionTracking() const;
   bool reloadIsNewSession() const;
@@ -246,6 +247,7 @@ private:
   int             numThreads_;
   int             maxNumSessions_;
   ::int64_t       maxRequestSize_;
+  ::int64_t       maxFormDataSize_;
   ::int64_t       isapiMaxMemoryRequestSize_;
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;

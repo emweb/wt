@@ -14,6 +14,11 @@ namespace Wt {
 WViewWidget::WViewWidget()
 { }
 
+WViewWidget::~WViewWidget()
+{
+  manageWidget(contents_, std::unique_ptr<WWidget>{});
+}
+
 void WViewWidget::load()
 {
   update();

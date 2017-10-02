@@ -27,9 +27,11 @@ const std::string AUTH_TYPE = "Bearer ";
 }
 
 namespace Wt {
+
+  LOGGER("OidcUserInfoEndpoint");
+
 namespace Auth {
 
-LOGGER("OidcUserInfoEndpoint");
 
 OidcUserInfoEndpoint::OidcUserInfoEndpoint(AbstractUserDatabase &db)
   : db_(&db)
@@ -54,6 +56,7 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   if (!boost::starts_with(authHeader, AUTH_TYPE)) {
     response.setStatus(400);
     response.addHeader("WWW-Authenticate", "error=\"invalid_request\"");
+    LOG_INFO("error=\"invalid_request\": Authorization header missing");
     return;
   }
   std::string tokenValue = authHeader.substr(AUTH_TYPE.length());
@@ -61,6 +64,7 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   if (!accessToken.checkValid() || WDateTime::currentDateTime() > accessToken.expirationTime()) {
     response.setStatus(401);
     response.addHeader("WWW-Authenticate", "error=\"invalid_token\"");
+    LOG_INFO("error=\"invalid_token\" " << authHeader);
     return;
   }
   response.setMimeType("application/json");
@@ -73,6 +77,7 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   try {
 #endif
     response.out() << Json::serialize(generateUserInfo(user, scopeSet)) << std::endl;
+    LOG_INFO("Response sent for " << user.id() << "(" << db_->email(user) << ")");
 #ifdef WT_TARGET_JAVA
   } catch (std::io_exception ioe) {
     LOG_ERROR(ioe.message());
