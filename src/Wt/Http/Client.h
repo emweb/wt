@@ -335,7 +335,11 @@ public:
   /*! \brief Aborts the curent request.
    *
    * If the client is currently busy, this cancels the pending request.
-   * done() will be emitted with an error_code. (FIXME: which one ?)
+   * done() will be emitted with asio::error::operation_aborted.
+   *
+   * \note The abort will be performed asynchronously, so it is possible
+   *       that done() is still emitted with a successful response after
+   *       abort() is called.
    */
   void abort();
 
