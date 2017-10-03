@@ -216,7 +216,10 @@ private:
 					  std::placeholders::_1,
 					  ++endpoint_iterator)));
     } else {
-      err_ = err;
+      if (aborted_)
+        err_ = asio::error::operation_aborted;
+      else
+        err_ = err;
       complete();
     }
   }
@@ -241,7 +244,10 @@ private:
 
       handleResolve(AsioWrapper::error_code(), endpoint_iterator);
     } else {
-      err_ = err;
+      if (aborted_)
+        err_ = asio::error::operation_aborted;
+      else
+        err_ = err;
       complete();
     }
   }
@@ -262,7 +268,10 @@ private:
 		      std::placeholders::_1,
 		      std::placeholders::_2)));
     } else {
-      err_ = err;
+      if (aborted_)
+        err_ = asio::error::operation_aborted;
+      else
+        err_ = err;
       complete();
     }
   }
@@ -274,7 +283,7 @@ private:
 
     cancelTimer();
 
-    if (!err) {
+    if (!err && !aborted_) {
       // Read the response status line.
       startTimer();
       asyncReadUntil
@@ -285,7 +294,10 @@ private:
 		      std::placeholders::_1,
 		      std::placeholders::_2)));
     } else {
-      err_ = err;
+      if (aborted_)
+        err_ = asio::error::operation_aborted;
+      else
+        err_ = err;
       complete();
     }
   }
@@ -296,7 +308,6 @@ private:
 
     if (maximumResponseSize_ && responseSize_ > maximumResponseSize_) {
       err_ = asio::error::message_size;
-      complete();
       return false;
     }
 
@@ -310,9 +321,11 @@ private:
 
     cancelTimer();
 
-    if (!err) {
-      if (!addResponseSize(s))
+    if (!err && !aborted_) {
+      if (!addResponseSize(s)) {
+        complete();
 	return;
+      }
 
       // Check that response is OK.
       std::istream response_stream(&responseBuf_);
@@ -347,7 +360,10 @@ private:
 		      std::placeholders::_1,
 		      std::placeholders::_2)));
     } else {
-      err_ = err;
+      if (aborted_)
+        err_ = asio::error::operation_aborted;
+      else
+        err_ = err;
       complete();
     }
   }
@@ -359,9 +375,11 @@ private:
 
     cancelTimer();
 
-    if (!err) {
-      if (!addResponseSize(s))
+    if (!err && !aborted_) {
+      if (!addResponseSize(s)) {
+        complete();
 	return;
+      }
 
       chunkedResponse_ = false;
 
@@ -394,14 +412,15 @@ private:
 	  emitHeadersReceived();
       }
 
+      bool done = false;
       // Write whatever content we already have to output.
       if (responseBuf_.size() > 0) {
 	std::stringstream ss;
 	ss << &responseBuf_;
-	addBodyText(ss.str());
+        done = addBodyText(ss.str());
       }
 
-      if (!aborted_) {
+      if (!done) {
 	// Start reading remaining data until EOF.
 	startTimer();
 	asyncRead(strand_.wrap
@@ -409,9 +428,14 @@ private:
 		       shared_from_this(),
 		       std::placeholders::_1,
 		       std::placeholders::_2)));
+      } else {
+	complete();
       }
     } else {
-      err_ = err;
+      if (!aborted_)
+        err_ = asio::error::operation_aborted;
+      else
+        err_ = err;
       complete();
     }
   }
@@ -423,16 +447,18 @@ private:
 
     cancelTimer();
 
-    if (!err) {
-      if (!addResponseSize(s))
+    if (!err && !aborted_) {
+      if (!addResponseSize(s)) {
+        complete();
 	return;
+      }
 
       std::stringstream ss;
       ss << &responseBuf_;
 
-      addBodyText(ss.str());
+      bool done = addBodyText(ss.str());
 
-      if (!aborted_) {
+      if (!done) {
 	// Continue reading remaining data until EOF.
 	startTimer();
 	asyncRead
@@ -441,8 +467,11 @@ private:
 		      shared_from_this(),
 		      std::placeholders::_1,
 		      std::placeholders::_2)));
+      } else {
+	complete();
       }
-    } else if (err != asio::error::eof
+    } else if (!aborted_
+               && err != asio::error::eof
                && err != asio::error::shut_down
                && err != asio::error::bad_descriptor
                && err != asio::error::operation_aborted
@@ -450,25 +479,31 @@ private:
       err_ = err;
       complete();
     } else {
+      if (aborted_)
+        err_ = asio::error::operation_aborted;
       complete();
     }
   }
 
-  void addBodyText(const std::string& text)
+  // Returns whether we're done (caller must call complete())
+  bool addBodyText(const std::string& text)
   {
     if (chunkedResponse_) {
       chunkedDecode(text);
       if (chunkState_.state == ChunkState::State::Error) {
-	protocolError(); return;
+	protocolError();
+	return true;
       } else if (chunkState_.state == ChunkState::State::Complete) {
-	complete(); return;
-      }
+	return true;
+      } else
+	return false;
     } else {
       if (maximumResponseSize_)
 	response_.addBodyText(text);
 
       LOG_DEBUG("Data: " << text);
       haveBodyData(text);
+      return false;
     }
   }
 
@@ -568,7 +603,6 @@ private:
 #else
     err_ = std::make_error_code(std::errc::protocol_error);
 #endif
-    complete();
   } 
 
   void complete()
