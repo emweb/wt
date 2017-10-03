@@ -473,6 +473,29 @@ public:
     return result;
   }
 
+  /*! \brief Creates a new widget with the given arguments, and binds it, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
+   * Widget &result = *w;
+   * bindWidget(varName, std::unique_ptr<WWidget>(std::move(w)));
+   * return result;
+   * \endcode
+   *
+   * This is a useful shorthand for creating and binding a widget in one go.
+   */
+  template <typename Widget, typename ...Args>
+    Widget &bindNew(const std::string& varName,
+	            Args&& ...args)
+  {
+    std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
+    Widget &result = *w;
+    bindWidget(varName, std::unique_ptr<WWidget>(std::move(w)));
+    return result;
+  }
+
   /*! \brief Unbinds a widget by variable name.
    *
    * This removes a previously bound widget and unbinds the

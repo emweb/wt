@@ -209,6 +209,34 @@ public:
     return result;
   }
 
+  /*! \brief Creates a widget and adds it, returning a reference to it.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
+   * Widget &result = *w;
+   * addWidget(std::unique_ptr<WWidget>{std::move(w)});
+   * return result;
+   * \endcode
+   *
+   * This is a useful shorthand for adding a new widget to the container, and
+   * getting a reference to it, e.g.:
+   *
+   * \code
+   * Wt::WPushButton &button = container->addNew<Wt::WPushButton>("Click me!");
+   * // do something with button, including safely using it in a lambda function
+   * \endcode
+   */
+  template <typename Widget, typename ...Args>
+    Widget &addNew( Args&& ...args )
+  {
+    std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
+    Widget &result = *w;
+    addWidget(std::unique_ptr<WWidget>{std::move(w)});
+    return result;
+  }
+
   /*! \brief Inserts a child widget in this container, before another
    *         widget.
    *
@@ -269,6 +297,26 @@ public:
   {
     Widget *result = widget.get();
     insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
+
+  /*! \brief Creates a widget and inserts it, returning a reference to it.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
+   * Widget &result = *w;
+   * insertWidget(index, std::unique_ptr<WWidget>{std::move(w)});
+   * return result;
+   * \endcode
+   */
+  template <typename Widget, typename ...Args>
+    Widget &insertNew(int index, Args&& ...args)
+  {
+    std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
+    Widget &result = *w;
+    insertWidget(index, std::unique_ptr<WWidget>{std::move(w)});
     return result;
   }
 
