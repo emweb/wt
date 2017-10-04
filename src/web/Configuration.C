@@ -325,6 +325,16 @@ int Configuration::keepAlive() const
     return timeout / 2;
 }
 
+// The multisession cookie timeout should be longer than
+// sessionTimeout() + keepAlive(), to avoid the situation
+// where the session has not timed out yet, but the multi
+// session cookie has expired. Let's just set
+// multiSessionCookieTimeout() to sessionTimeout() * 2
+int Configuration::multiSessionCookieTimeout() const
+{
+  return sessionTimeout() * 2;
+}
+
 int Configuration::bootstrapTimeout() const
 {
   READ_LOCK;

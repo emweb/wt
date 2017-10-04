@@ -653,7 +653,7 @@ void WebRenderer::updateMultiSessionCookie(const WebRequest &request)
   Configuration &conf = session_.controller()->configuration();
   setCookie("ms" + request.scriptName(),
             session_.multiSessionId(),
-            WDateTime::currentDateTime().addSecs(conf.sessionTimeout()),
+            WDateTime::currentDateTime().addSecs(conf.multiSessionCookieTimeout()),
             "", "",
             session_.env().urlScheme() == "https");
 }
