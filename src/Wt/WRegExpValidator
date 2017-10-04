@@ -30,6 +30,13 @@ class WRegExp;
  *   <li>No conditional expressions, i.e. the consturct (?ifthen|else).</li>
  * </ul>
  *
+ * See http://www.boost.org/doc/libs/release/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html
+ * for a full overview of the supported regular expression syntax. However, if you want client-side
+ * validation to work correctly, you will have to limit your regular expressions to those features
+ * supported by JavaScript (ECMAScript style regular expressions).
+ * See http://en.cppreference.com/w/cpp/regex/ecmascript for an overview of the ECMAScript regular
+ * expression syntax.
+ *
  * Usage example:
  * \if cpp
  * \code
