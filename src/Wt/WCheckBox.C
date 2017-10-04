@@ -51,13 +51,14 @@ void WCheckBox::setPartialStateSelectable(bool t)
 
 void WCheckBox::updateJSlot()
 {
-  JSlot *slot = nullptr;
+  jslot_ = nullptr;
+  std::unique_ptr<JSlot> slot;
   std::string partialOn, partialOff;
   if (!supportsIndeterminate(WApplication::instance()->environment())) {
     partialOff = "obj.style.opacity='';";
     partialOn = "obj.style.opacity='0.5';";
-    if (triState_ && !partialStateSelectable_) 
-      slot = new JSlot("function(obj, e) { " + partialOff + "}", this);
+    if (triState_ && !partialStateSelectable_)
+      slot.reset(new JSlot("function(obj, e) { " + partialOff + "}", this));
   } else {
     partialOn  = "obj.indeterminate=true;";
     partialOff = "obj.indeterminate=false;";
@@ -79,11 +80,13 @@ void WCheckBox::updateJSlot()
        << partialOff 
        << " } else obj.nextState='i';"
        << "}";
-    slot = new JSlot(ss.str(), this);
+    slot.reset(new JSlot(ss.str(), this));
   }
 
-  if (slot)
+  if (slot) {
     changed().connect(*slot);
+    jslot_ = std::move(slot);
+  }
 }
 
 void WCheckBox::updateNextState() {

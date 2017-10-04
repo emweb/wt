@@ -8,6 +8,7 @@
 #define WCHECKBOX_H_
 
 #include <Wt/WAbstractToggleButton.h>
+#include <Wt/WJavaScriptSlot.h>
 
 namespace Wt {
 
@@ -135,6 +136,7 @@ protected:
 private:
   bool triState_;
   bool partialStateSelectable_;
+  std::unique_ptr<JSlot> jslot_;
 };
 
 }
