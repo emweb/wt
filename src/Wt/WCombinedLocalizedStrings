@@ -1,94 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WCOMBINED_LOCALIZED_STRINGS_
-#define WCOMBINED_LOCALIZED_STRINGS_
-
-#include <vector>
-#include <Wt/WLocalizedStrings>
-
-namespace Wt {
-
-class WMessageResources;
-
-/*! \class WCombinedLocalizedStrings Wt/WCombinedLocalizedStrings Wt/WCombinedLocalizedStrings
- *  \brief A localized string resolver that bundles multiple string resolvers.
- *
- * This class implements the localized strings interface and delegates
- * WString::tr() string resolution to one or more string
- * resolvers. You will typically use this class if you want to combine
- * different methods of string resolution (e.g. some from files, and
- * other strings using a database).
- *
- * \sa WApplication::setLocalizedStrings()
- */
-class WT_API WCombinedLocalizedStrings : public WLocalizedStrings
-{
-public:
-  /*! \brief Constructor.
-   */
-  WCombinedLocalizedStrings();
-
-  virtual ~WCombinedLocalizedStrings();
-
-  /*! \brief Adds a string resolver.
-   *
-   * The order in which string resolvers are added is significant:
-   * resolveKey() will consult each string resolver in the order they
-   * have been added, until a match is found.
-   *
-   * \if cpp
-   * Ownership of the resolver is transferred.
-   * \endif
-   */
-  void add(WLocalizedStrings *resolver);
-
-  /*! \brief Inserts a string resolver.
-   *
-   * \sa add()
-   */
-  void insert(int index, WLocalizedStrings *resolver);
-
-  /*! \brief Removes a string resolver.
-   *
-   * \if cpp
-   * This returns ownership of the resolver.
-   * \endif
-   *
-   * \sa add()
-   */
-  void remove(WLocalizedStrings *resolver);
-
-  /*! \brief Returns the list of resolvers.
-   *
-   * \sa add(), remove()
-   */
-  const std::vector<WLocalizedStrings *> &items() const;
-
-  virtual void refresh();
-  virtual void hibernate();
-
-#ifndef WT_TARGET_JAVA
-  virtual bool resolveKey(const std::string& key, std::string& result);
-#else // WT_TARGET_JAVA
-  virtual std::string *resolveKey(const std::string& key) = 0;
-#endif // WT_TARGET_JAVA
-
-#ifndef WT_TARGET_JAVA
-  virtual bool resolvePluralKey(const std::string& key, 
-				std::string& result,
-				::uint64_t amount);
-#else // WT_TARGET_JAVA
-  //TODO make this work for java
-  //virtual std::string *resolveKey(const std::string& key) = 0;
-#endif // WT_TARGET_JAVA
-private:
-  std::vector<WLocalizedStrings *> localizedStrings_;
-};
-
-}
-
-#endif // WCOMBINED_LOCALIZED_STRINGS_
+#ifndef WT_WCOMBINEDLOCALIZEDSTRINGS_EXTENSIONLESS_H_
+#define WT_WCOMBINEDLOCALIZEDSTRINGS_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WCombinedLocalizedStrings.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WCombinedLocalizedStrings.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WCombinedLocalizedStrings.h"
+#endif // WT_WCOMBINEDLOCALIZEDSTRINGS_EXTENSIONLESS_H_

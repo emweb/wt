@@ -14,8 +14,8 @@
  *  Specifying a natural primary key that is also a foreign key
  *****/
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 namespace dbo = Wt::Dbo;
 
@@ -73,10 +73,10 @@ void run()
   /*
    * Setup a session, would typically be done once at application startup.
    */
-  dbo::backend::Sqlite3 sqlite3(":memory:");
-  sqlite3.setProperty("show-queries", "true");
+  std::unique_ptr<dbo::backend::Sqlite3> sqlite3(new dbo::backend::Sqlite3(":memory:"));
+  sqlite3->setProperty("show-queries", "true");
   dbo::Session session;
-  session.setConnection(sqlite3);
+  session.setConnection(std::move(sqlite3));
 
   session.mapClass<User>("user");
   session.mapClass<UserInfo>("user_info");
@@ -89,16 +89,16 @@ void run()
   dbo::Transaction transaction(session);
 
   {
-    User *user = new User();
+    std::unique_ptr<User> user{new User()};
     user->name = "Joe";
 
-    dbo::ptr<User> userPtr = session.add(user);
+    dbo::ptr<User> userPtr = session.add(std::move(user));
 
-    UserInfo *userInfo = new UserInfo();
+    std::unique_ptr<UserInfo> userInfo{new UserInfo()};
     userInfo->user = userPtr;
     userInfo->info = "great guy";
 
-    session.add(userInfo);
+    session.add(std::move(userInfo));
   }
 
   {

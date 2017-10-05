@@ -3,18 +3,18 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WDialog"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WVBoxLayout"
-#include "Wt/WPushButton"
-#include "Wt/WTemplate"
-#include "Wt/WText"
-#include "Wt/WTheme"
-#include "Wt/Utils"
-#include "Wt/WGlobal"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WDialog.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WVBoxLayout.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WTemplate.h"
+#include "Wt/WText.h"
+#include "Wt/WTheme.h"
+#include "Wt/Utils.h"
+#include "Wt/WGlobal.h"
 
 #include "Resizable.h"
 #include "WebController.h"
@@ -31,12 +31,9 @@ namespace Wt {
 class DialogCover : public WContainerWidget
 {
 public:
-  DialogCover()
-    : WContainerWidget()
+  DialogCover() : WContainerWidget()
   {
     setObjectName("dialog-cover");
-    WApplication *app = WApplication::instance();
-    app->domRoot()->addWidget(this);
 
     hide();
   }
@@ -54,7 +51,7 @@ public:
   void popDialog(WDialog *dialog, const WAnimation& animation) {
     Utils::erase(dialogs_, dialog);
 
-    WDialog *topModal = 0;
+    WDialog *topModal = nullptr;
 
     for (unsigned i = dialogs_.size(); i > 0; --i) {
       unsigned j = i - 1;
@@ -67,12 +64,12 @@ public:
     coverFor(topModal, animation);
 
     if (dialogs_.empty())
-      delete this;
+      WApplication::instance()->removeChild(this);
     else
       scheduleRender();
   }
 
-  virtual bool isExposed(WWidget *w) {
+  virtual bool isExposed(WWidget *w) final override {
     for (unsigned i = dialogs_.size(); i > 0; --i) {
       unsigned j = i - 1;
 
@@ -98,7 +95,7 @@ public:
   }
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags) {
+  virtual void render(WFlags<RenderFlag> flags) final override {
     if (dialogs_.empty())
       topDialogId_.clear();
     else
@@ -114,7 +111,8 @@ private:
       if (isHidden()) {
 
 	if (!animation.empty())
-	  animateShow(WAnimation(WAnimation::Fade, WAnimation::Linear,
+	  animateShow(WAnimation(AnimationEffect::Fade,
+				 TimingFunction::Linear,
 				 animation.duration() * 4));
 	else
 	  show();
@@ -133,7 +131,8 @@ private:
       setStyleClass(userCoverClasses(dialog));
 
       WApplication *app = WApplication::instance();
-      app->theme()->apply(app->domRoot(), this, DialogCoverRole);
+      app->theme()->apply(app->domRoot(), this, 
+			  WidgetThemeRole::DialogCoverWidget);
     } else {
 	//call updateGlobal(null)
       WApplication::instance()->doJavaScript("setTimeout(function() {"
@@ -141,7 +140,8 @@ private:
 	    + "._p_.updateGlobal(null) });");
       if (!isHidden()) {
 	if (!animation.empty())
-	  animateHide(WAnimation(WAnimation::Fade, WAnimation::Linear,
+	  animateHide(WAnimation(AnimationEffect::Fade,
+				 TimingFunction::Linear,
 				 animation.duration() * 4));
 	else
 	  hide();
@@ -189,29 +189,25 @@ private:
   }
 };
 
-WDialog::WDialog(WObject *parent)
-  : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
+WDialog::WDialog()
+  : WPopupWidget(std::unique_ptr<WWidget>
+		 (new WTemplate(tr("Wt.WDialog.template")))),
     moved_(this, "moved"),
-    resized_(this, "resized"),
-    finished_(this)
+    resized_(this, "resized")
 {
   create();
 }
 
-WDialog::WDialog(const WString& windowTitle, WObject *parent)
-  : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
-    moved_(this, "moved"),
-    resized_(this, "resized"),
-    finished_(this)
+WDialog::WDialog(const WString& windowTitle)
+  : WDialog()
 {
-  create();
   setWindowTitle(windowTitle);
 }
 
 void WDialog::create()
 {
-  closeIcon_ = 0;
-  footer_ = 0;
+  closeIcon_ = nullptr;
+  footer_ = nullptr;
   modal_ = true;
   resizable_ = false;
   recursiveEventLoop_ = false;
@@ -229,7 +225,8 @@ void WDialog::create()
       app->styleSheet().addRule("body", "height: 100%;");
 
     std::string position
-      = app->environment().agent() == WEnvironment::IE6 ? "absolute" : "fixed";
+      = app->environment().agent() 
+      == UserAgent::IE6 ? "absolute" : "fixed";
 
     // we use left: 50%, top: 50%, margin hack when JavaScript is not available
     // see below for an IE workaround
@@ -243,7 +240,7 @@ void WDialog::create()
 				 "left: 0px; top: 0px;"),
 			      CSS_RULES_NAME);
 
-    if (app->environment().agent() == WEnvironment::IE6) {
+    if (app->environment().agent() == UserAgent::IE6) {
       app->styleSheet().addRule
 	("div.Wt-dialogcover",
 	 "position: absolute;"
@@ -268,26 +265,30 @@ void WDialog::create()
 
   LOAD_JAVASCRIPT(app, "js/WDialog.js", "WDialog", wtjs1);
 
-  layoutContainer_ = new WContainerWidget();
-  layoutContainer_->setGlobalUnfocused(true);
-  wApp->theme()->apply(this, layoutContainer_, DialogContent);
-  layoutContainer_->addStyleClass("dialog-layout");
-  WVBoxLayout *layout = new WVBoxLayout(layoutContainer_);
+  std::unique_ptr<WContainerWidget> layoutContainer(new WContainerWidget());
+  layoutContainer_ = layoutContainer.get();
+  layoutContainer->setGlobalUnfocused(true);
+  wApp->theme()->apply(this, layoutContainer.get(), WidgetThemeRole::DialogContent);
+  layoutContainer->addStyleClass("dialog-layout");
+  std::unique_ptr<WVBoxLayout> layoutPtr(new WVBoxLayout());
+  WVBoxLayout *layout = layoutPtr.get();
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
-  impl_->bindWidget("layout", layoutContainer_);
+  layoutContainer->setLayout(std::move(layoutPtr));
+  impl_->bindWidget("layout", std::move(layoutContainer));
 
   titleBar_ = new WContainerWidget();
-  app->theme()->apply(this, titleBar_, DialogTitleBarRole);
+  app->theme()->apply(this, titleBar_, WidgetThemeRole::DialogTitleBar);
 
-  caption_ = new WText(titleBar_);
+  caption_ = new WText();
   caption_->setInline(false);
+  titleBar_->addWidget(std::unique_ptr<WText>(caption_));
   
   contents_ = new WContainerWidget();
-  app->theme()->apply(this, contents_, DialogBodyRole);
+  app->theme()->apply(this, contents_, WidgetThemeRole::DialogBody);
 
-  layout->addWidget(titleBar_);
-  layout->addWidget(contents_, 1);
+  layout->addWidget(std::unique_ptr<WWidget>(titleBar_));
+  layout->addWidget(std::unique_ptr<WWidget>(contents_), 1);
 
   /*
    * Cannot be done using the CSS stylesheet in case there are
@@ -298,17 +299,17 @@ void WDialog::create()
    */
   if (app->environment().ajax()) {
     setAttributeValue("style", "visibility: hidden");
-    impl_->setMargin(0, All);
+    impl_->setMargin(0);
 
     /*
      * This is needed for animations only, but setting absolute or
      * fixed positioning confuses layout measurement in IE browsers
      */
     if (!app->environment().agentIsIElt(9))
-      setPositionScheme(Fixed);
+      setPositionScheme(PositionScheme::Fixed);
   } else
-    setPositionScheme(app->environment().agent() == WEnvironment::IE6
-		      ? Absolute : Fixed);
+    setPositionScheme(app->environment().agent() == UserAgent::IE6
+		      ? PositionScheme::Absolute : PositionScheme::Fixed);
 
   setMovable(true);
 }
@@ -321,13 +322,13 @@ WDialog::~WDialog()
 WContainerWidget *WDialog::footer() const
 {
   if (!footer_) {
-    footer_ = new WContainerWidget();
-    WApplication::instance()->theme()->apply(const_cast<WDialog *>(this),
-					     footer_, DialogFooterRole);
+    std::unique_ptr<WContainerWidget> footer(footer_ = new WContainerWidget());
+    WApplication::instance()->theme()->apply
+      (const_cast<WDialog *>(this), footer_, WidgetThemeRole::DialogFooter);
 
     WContainerWidget *layoutContainer
       = impl_->resolve<WContainerWidget *>("layout");
-    layoutContainer->layout()->addWidget(footer_);
+    layoutContainer->layout()->addWidget(std::move(footer));
   }
 
   return footer_;
@@ -367,8 +368,8 @@ void WDialog::setMaximumSize(const WLength& width, const WLength& height)
 {
   WPopupWidget::setMaximumSize(width, height);
 
-  WLength w = width.unit() != WLength::Percentage ? width : WLength::Auto;
-  WLength h = height.unit() != WLength::Percentage ? height : WLength::Auto;
+  WLength w = width.unit() != LengthUnit::Percentage ? width : WLength::Auto;
+  WLength h = height.unit() != LengthUnit::Percentage ? height : WLength::Auto;
 
   impl_->resolveWidget("layout")->setMaximumSize(w, h);
 }
@@ -382,11 +383,11 @@ void WDialog::setMinimumSize(const WLength& width, const WLength& height)
 
 void WDialog::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
+  if (flags.test(RenderFlag::Full)) {
     WApplication *app = WApplication::instance();
 
-    bool centerX = offset(Left).isAuto() && offset(Right).isAuto(),
-      centerY = offset(Top).isAuto() && offset(Bottom).isAuto();
+    bool centerX = offset(Side::Left).isAuto() && offset(Side::Right).isAuto(),
+      centerY = offset(Side::Top).isAuto() && offset(Side::Bottom).isAuto();
 
     /*
      * Make sure layout adjusts to contents preferred width, especially
@@ -394,7 +395,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
      */
     if (app->environment().ajax())
       if (width().isAuto())
-	if (maximumWidth().unit() == WLength::Percentage ||
+	if (maximumWidth().unit() == LengthUnit::Percentage ||
 	    maximumWidth().toPixels() == 0)
 	  impl_->resolveWidget("layout")->setMaximumSize(999999,
 							 maximumHeight());
@@ -426,8 +427,8 @@ void WDialog::render(WFlags<RenderFlag> flags)
       Utils::replace(js, "$centerY", centerY ? "1" : "0");
 
       impl_->bindString
-        ("center-script", "<script>" + Utils::htmlEncode(js)
-         + "</script>", XHTMLUnsafeText);
+	("center-script", "<script>" + Utils::htmlEncode(js)
+	 + "</script>", TextFormat::UnsafeXHTML);
     } else
       impl_->bindEmpty("center-script");
   }
@@ -435,7 +436,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
   if (!isModal())
     impl_->mouseWentDown().connect(this, &WDialog::bringToFront);
 
-  if ( (flags & RenderFull) && autoFocus_)
+  if ( flags.test(RenderFlag::Full) && autoFocus_)
     impl_->setFirstFocus();
 
   WPopupWidget::render(flags);
@@ -445,18 +446,6 @@ void WDialog::rejectWhenEscapePressed(bool enable)
 {
   escapeIsReject_ = enable;
 }
-
-#ifndef WT_DEPRECATED_3_0_0
-void WDialog::setCaption(const WString& caption)
-{
-  setWindowTitle(caption);
-}
-
-WString WDialog::caption() const
-{
-  return windowTitle();
-}
-#endif // WT_DEPRECATED_3_0_0
 
 void WDialog::setWindowTitle(const WString& windowTitle)
 {
@@ -483,19 +472,19 @@ void WDialog::setClosable(bool closable)
 {
   if (closable) {
     if (!closeIcon_) {
-      closeIcon_ = new WText();
-      titleBar_->insertWidget(0, closeIcon_);
-      WApplication::instance()->theme()->apply(this, closeIcon_,
-					       DialogCloseIconRole);
+      std::unique_ptr<WText> closeIcon(closeIcon_ = new WText());
+      titleBar_->insertWidget(0, std::move(closeIcon));
+      WApplication::instance()->theme()->apply
+	(this, closeIcon_, WidgetThemeRole::DialogCloseIcon);
       closeIcon_->clicked().connect(this, &WDialog::reject);
     }
   } else {
-    delete closeIcon_;
-    closeIcon_ = 0;
+    titleBar_->removeWidget(closeIcon_);
+    closeIcon_ = nullptr;
   }
 }
 
-WDialog::DialogCode WDialog::exec(const WAnimation& animation)
+DialogCode WDialog::exec(const WAnimation& animation)
 {
   if (recursiveEventLoop_)
     throw WException("WDialog::exec(): already being executed.");
@@ -544,12 +533,12 @@ void WDialog::done(DialogCode result)
 
 void WDialog::accept()
 {
-  done(Accepted);
+  done(DialogCode::Accepted);
 }
 
 void WDialog::reject()
 {
-  done(Rejected);
+  done(DialogCode::Rejected);
 }
 
 void WDialog::setModal(bool modal)
@@ -646,39 +635,45 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
 
 void WDialog::positionAt(const WWidget *widget, Orientation orientation)
 {
-  setPositionScheme(Absolute);
+  setPositionScheme(PositionScheme::Absolute);
   if (wApp->environment().javaScript())
-    setOffsets(0, Left | Top);
+    setOffsets(0, Side::Left | Side::Top);
   WPopupWidget::positionAt(widget, orientation);
 }
 
 void WDialog::positionAt(const Wt::WMouseEvent& ev)
 {
-  setPositionScheme(Fixed);
+  setPositionScheme(PositionScheme::Fixed);
   if (wApp->environment().javaScript()) {
-	setOffsets(ev.window().x, Left);
-	setOffsets(ev.window().y, Top);
+	setOffsets(ev.window().x, Side::Left);
+	setOffsets(ev.window().y, Side::Top);
   }
 }
 
 DialogCover *WDialog::cover() 
 {
   WApplication *app = WApplication::instance();
+
   if (app->domRoot()) {
     WWidget *w = app->findWidget("dialog-cover");
 
     if (w)
       return dynamic_cast<DialogCover *>(w);
-    else
-      return new DialogCover();
+    else {
+      std::unique_ptr<DialogCover> d(new DialogCover());
+      auto result = d.get();
+      app->addGlobalWidget(result);
+      app->addChild(std::move(d));
+      return result;
+    }
   } else
     return 0;
 }
 
 void WDialog::bringToFront(const WMouseEvent &e)
 {
-  if (e.button() == WMouseEvent::LeftButton &&
-      e.modifiers() == NoModifier) {
+  if (e.button() == MouseButton::Left &&
+      e.modifiers() == KeyboardModifier::None) {
     raiseToFront();
   }
 }

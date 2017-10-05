@@ -27,7 +27,7 @@ struct InlineBox : public LayoutBox
 
   int utf8Pos, utf8Count;
 
-  // minimum width of white space contained in this linebox.
+  // minimum width of StandardColor::White space contained in this linebox.
   double whitespaceWidth;
   int whitespaceCount;
 

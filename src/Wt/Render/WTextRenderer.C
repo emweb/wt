@@ -5,8 +5,8 @@
  */
 
 #include "web/FileUtils.h"
-#include <Wt/WPainter>
-#include <Wt/Render/WTextRenderer>
+#include <Wt/WPainter.h>
+#include <Wt/Render/WTextRenderer.h>
 #include <Wt/Render/CssParser.h>
 #include <WebUtils.h>
 
@@ -14,11 +14,6 @@
 
 #include <fstream>
 #include <string>
-#include <boost/lexical_cast.hpp>
-
-#ifndef WT_TARGET_JAVA
-#include <boost/scoped_array.hpp>
-#endif // WT_TARGET_JAVA
 
 namespace {
   const double EPSILON = 1e-4;
@@ -33,32 +28,31 @@ LOGGER("Render.WTextRenderer");
 
   namespace Render {
 
-class CombinedStyleSheet : public StyleSheet
+class CombinedStyleSheet final : public StyleSheet
 {
 public:
   CombinedStyleSheet() { }
-  virtual ~CombinedStyleSheet() {
-#ifndef WT_TARGET_JAVA
-    for (unsigned i = 0; i < sheets_.size(); ++i)
-      if (!sheets_not_owned_.count(sheets_[i]))
-        delete sheets_[i];
-#endif //WT_TARGET_JAVA
-  }
+  virtual ~CombinedStyleSheet() { }
 
-  void use(StyleSheet *sh, bool noFree = false) {
+  void use(StyleSheet *sh) {
     sheets_.push_back(sh);
-    if (noFree)
-      sheets_not_owned_.insert(sh);
   }
 
-  virtual unsigned int rulesetSize() const {
+  void use(std::unique_ptr<StyleSheet> sh) {
+    use(sh.get());
+    sheets_owned_.push_back(std::move(sh));
+  }
+
+  virtual unsigned int rulesetSize() const override
+  {
     unsigned int result = 0;
     for (unsigned i = 0; i < sheets_.size(); ++i)
       result += sheets_[i]->rulesetSize();
     return result;
   }
 
-  virtual const Ruleset& rulesetAt(int j) const {
+  virtual const Ruleset& rulesetAt(int j) const override
+  {
     for (unsigned i = 0; i < sheets_.size(); ++i) {
       if ((unsigned)j < sheets_[i]->rulesetSize())
 	return sheets_[i]->rulesetAt(j);
@@ -70,7 +64,7 @@ public:
 
 private:
   std::vector<StyleSheet *> sheets_;
-  std::set<StyleSheet *> sheets_not_owned_;
+  std::vector<std::unique_ptr<StyleSheet>> sheets_owned_;
 };
 
 WTextRenderer::Node::Node(Block& block, LayoutBox& lb,
@@ -100,12 +94,12 @@ int WTextRenderer::Node::page() const
 
 double WTextRenderer::Node::x() const
 {
-  return lb_.x + renderer_.margin(Left);
+  return lb_.x + renderer_.margin(Side::Left);
 }
 
 double WTextRenderer::Node::y() const
 {
-  return lb_.y + renderer_.margin(Top);
+  return lb_.y + renderer_.margin(Side::Top);
 }
 
 double WTextRenderer::Node::width() const
@@ -141,15 +135,13 @@ int WTextRenderer::Node::fragmentCount() const
 }
 
 WTextRenderer::WTextRenderer()
-  : device_(0),
+  : device_(nullptr),
     fontScale_(1),
-    styleSheet_(0)
+    styleSheet_(nullptr)
 { }
 
 WTextRenderer::~WTextRenderer()
-{ 
-  delete styleSheet_;
-}
+{ }
 
 void WTextRenderer::setFontScale(double factor)
 {
@@ -158,21 +150,21 @@ void WTextRenderer::setFontScale(double factor)
 
 double WTextRenderer::textWidth(int page) const
 {
-  return pageWidth(page) - margin(Left) - margin(Right);
+  return pageWidth(page) - margin(Side::Left) - margin(Side::Right);
 }
 
 double WTextRenderer::textHeight(int page) const
 {
-  return pageHeight(page) - margin(Top) - margin(Bottom);
+  return pageHeight(page) - margin(Side::Top) - margin(Side::Bottom);
 }
 
 double WTextRenderer::render(const WString& text, double y)
 {
-  std::string xhtml = text.toUTF8();
+  std::string xhtml = text.toXhtmlUTF8();
 
 #ifndef WT_TARGET_JAVA
   unsigned l = xhtml.length();
-  boost::scoped_array<char> cxhtml(new char[l + 1]);
+  std::unique_ptr<char[]> cxhtml(new char[l + 1]);
   memcpy(cxhtml.get(), xhtml.c_str(), l);
   cxhtml[l] = 0;
 #endif
@@ -185,20 +177,20 @@ double WTextRenderer::render(const WString& text, double y)
     Wt::rapidxml::xml_document<> doc = Wt::rapidxml::parseXHTML(xhtml);
 #endif
 
-    Block docBlock(&doc, (Block*)0);
+    Block docBlock(&doc, nullptr);
 
     CombinedStyleSheet styles;
     if (styleSheet_)
-      styles.use(styleSheet_, true);
+      styles.use(styleSheet_.get());
 
     WStringStream ss;
     docBlock.collectStyles(ss);
 
     if (!ss.empty()) {
       CssParser parser;
-      Wt::Render::StyleSheet *docStyles = parser.parse(ss.str());
+      std::unique_ptr<Wt::Render::StyleSheet> docStyles = parser.parse(ss.str());
       if (docStyles)
-	styles.use(docStyles);
+	styles.use(std::move(docStyles));
       else
 	LOG_ERROR("Error parsing style sheet: " << parser.getLastError());
     }
@@ -217,7 +209,7 @@ double WTextRenderer::render(const WString& text, double y)
     painter_ = getPainter(device_);
 
     WFont defaultFont;
-    defaultFont.setFamily(WFont::SansSerif);
+    defaultFont.setFamily(FontFamily::SansSerif);
     painter_->setFont(defaultFont);
 
     double collapseMarginBottom = 0;
@@ -291,13 +283,12 @@ bool WTextRenderer::setStyleSheetText(const WString& styleSheetContents)
 {
   if (styleSheetContents.empty()) {
     styleSheetText_ = WString();
-    delete styleSheet_;
-    styleSheet_ = 0;
+    styleSheet_.reset();
     error_ = "";
     return true;
   } else {
     CssParser parser;
-    Wt::Render::StyleSheet* styleSheet = parser.parse(styleSheetContents);
+    std::unique_ptr<Wt::Render::StyleSheet> styleSheet = parser.parse(styleSheetContents);
     if (!styleSheet) {
       error_ = parser.getLastError();
       return false;
@@ -305,8 +296,7 @@ bool WTextRenderer::setStyleSheetText(const WString& styleSheetContents)
 
     error_ = "";
     styleSheetText_ = styleSheetContents;
-    delete styleSheet_;
-    styleSheet_ = styleSheet;
+    styleSheet_ = std::move(styleSheet);
     return true;
   }
 }

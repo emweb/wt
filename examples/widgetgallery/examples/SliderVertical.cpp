@@ -1,26 +1,28 @@
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WSlider>
-#include <Wt/WText>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WSlider.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(SliderVertical)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-new Wt::WText("How much does Wt increase your efficiency?", container);
-new Wt::WBreak(container);
+container->addWidget(Wt::cpp14::make_unique<Wt::WText>("How much does Wt increase your efficiency?"));
+container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
 
-Wt::WSlider *verticalSlider = new Wt::WSlider(Wt::Vertical, container);
+Wt::WSlider *verticalSlider =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Vertical));
 verticalSlider->resize(50, 150);
 verticalSlider->setTickPosition(Wt::WSlider::TicksBothSides);
 verticalSlider->setRange(5, 50);
 
-new Wt::WBreak(container);
-Wt::WText *out = new Wt::WText(container);
-out->setMargin(10, Wt::Left);
+container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
+Wt::WText *out =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+out->setMargin(10, Wt::Side::Left);
 
-verticalSlider->valueChanged().connect(std::bind([=] () {
+verticalSlider->valueChanged().connect([=] {
     out->setText("Currenly, my efficiency increased " +
 		 verticalSlider->valueText() + "%!");
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

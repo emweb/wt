@@ -8,7 +8,7 @@
 #include "FileUtils.h"
 #include "WebUtils.h"
 
-#include "Wt/WException"
+#include "Wt/WException.h"
 
 #include <cstring>
 

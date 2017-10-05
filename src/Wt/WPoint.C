@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WPoint"
+#include "Wt/WPoint.h"
 
 namespace Wt {
 

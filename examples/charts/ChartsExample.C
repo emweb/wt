@@ -11,21 +11,21 @@
 #include "ChartConfig.h"
 #include "CsvUtil.h"
 
-#include <Wt/WApplication>
-#include <Wt/WDate>
-#include <Wt/WEnvironment>
-#include <Wt/WItemDelegate>
-#include <Wt/WStandardItemModel>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WDate.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WItemDelegate.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WText.h>
 
-#include <Wt/WBorderLayout>
-#include <Wt/WFitLayout>
+#include <Wt/WBorderLayout.h>
+#include <Wt/WFitLayout.h>
 
-#include <Wt/WStandardItem>
-#include <Wt/WTableView>
+#include <Wt/WStandardItem.h>
+#include <Wt/WTableView.h>
 
-#include <Wt/Chart/WCartesianChart>
-#include <Wt/Chart/WPieChart>
+#include <Wt/Chart/WCartesianChart.h>
+#include <Wt/Chart/WPieChart.h>
 
 using namespace Wt;
 using namespace Wt::Chart;
@@ -37,19 +37,19 @@ namespace {
    */
   class NumericItem : public WStandardItem {
   public:
-    virtual NumericItem *clone() const {
-      return new NumericItem();
+    virtual std::unique_ptr<WStandardItem> clone() const override {
+      return cpp14::make_unique<NumericItem>();
     }
 
-    virtual void setData(const boost::any &data, int role = UserRole) {
-      boost::any dt;
+    virtual void setData(const cpp17::any &data, ItemDataRole role = ItemDataRole::User) override {
+      cpp17::any dt;
 
-      if (role == EditRole) {
-	std::string s = Wt::asString(data).toUTF8();
+      if (role == ItemDataRole::Edit) {
+        std::string s = asString(data).toUTF8();
 	char *endptr;
 	double d = strtod(s.c_str(), &endptr);
 	if (*endptr == 0)
-	  dt = boost::any(d);
+	  dt = cpp17::any(d);
 	else
 	  dt = data;
       }
@@ -61,19 +61,22 @@ namespace {
   /*
    * Reads a CSV file as an (editable) standard item model.
    */
-  WAbstractItemModel *readCsvFile(const std::string &fname,
+  std::shared_ptr<WAbstractItemModel> readCsvFile(const std::string &fname,
 				  WContainerWidget *parent)
   {
-    WStandardItemModel *model = new WStandardItemModel(0, 0, parent);
-    model->setItemPrototype(new NumericItem());
+    std::shared_ptr<WStandardItemModel> model
+        = std::make_shared<WStandardItemModel>(0, 0);
+    std::unique_ptr<NumericItem> prototype
+        = cpp14::make_unique<NumericItem>();
+    model->setItemPrototype(std::move(prototype));
     std::ifstream f(fname.c_str());
 
     if (f) {
-      readFromCsv(f, model);
+      readFromCsv(f, model.get());
 
       for (int row = 0; row < model->rowCount(); ++row)
-	for (int col = 0; col < model->columnCount(); ++col) {
-	  model->item(row, col)->setFlags(ItemIsSelectable | ItemIsEditable);
+          for (int col = 0; col < model->columnCount(); ++col) {
+             model->item(row, col)->setFlags(ItemFlag::Selectable | ItemFlag::Editable);
 
 	  /*
 	    Example of tool tips (disabled here because they are not updated
@@ -90,64 +93,65 @@ namespace {
       return model;
     } else {
       WString error(WString::tr("error-missing-data"));
-      error.arg(fname, UTF8);
-      new WText(error, parent);
+      error.arg(fname, CharEncoding::UTF8);
+      parent->addWidget(cpp14::make_unique<WText>(error));
       return 0;
     }
   }
 }
 
-ChartsExample::ChartsExample(WContainerWidget *root)
-  : WContainerWidget(root)
+ChartsExample::ChartsExample()
+  : WContainerWidget()
 {
-  new WText(WString::tr("introduction"), this);
+  this->addWidget(cpp14::make_unique<WText>(WString::tr("introduction")));
 
-  new CategoryExample(this);
-  new TimeSeriesExample(this);
-  new ScatterPlotExample(this);
-  new PieExample(this);
+  this->addWidget(cpp14::make_unique<CategoryExample>());
+  this->addWidget(cpp14::make_unique<TimeSeriesExample>());
+  this->addWidget(cpp14::make_unique<ScatterPlotExample>());
+  this->addWidget(cpp14::make_unique<PieExample>());
 }
 
-CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
-  WContainerWidget(parent)
+CategoryExample::CategoryExample():
+  WContainerWidget()
 {
-  new WText(WString::tr("category chart"), this);
+  this->addWidget(cpp14::make_unique<WText>(WString::tr("category chart")));
 
-  WAbstractItemModel *model
+  std::shared_ptr<WAbstractItemModel> model
     = readCsvFile(WApplication::appRoot() + "category.csv", this);
 
   if (!model)
     return;
 
   // Show a view that allows editing of the model.
-  WContainerWidget *w = new WContainerWidget(this);
-  WTableView *table = new WTableView(w);
+  auto *w = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  auto *table = w->addWidget(cpp14::make_unique<WTableView>());
 
-  table->setMargin(10, Top | Bottom);
-  table->setMargin(WLength::Auto, Left | Right);
+  table->setMargin(10, Side::Top | Side::Bottom);
+  table->setMargin(WLength::Auto, Side::Left | Side::Right);
 
   table->setModel(model);
   table->setSortingEnabled(true);
   table->setColumnResizeEnabled(true);
-  // table->setSelectionMode(ExtendedSelection);
+  // table->setSelectionMode(SelectionMode::Extended);
   table->setAlternatingRowColors(true);
-  table->setColumnAlignment(0, AlignCenter);
-  table->setHeaderAlignment(0, AlignCenter);
+  table->setColumnAlignment(0, AlignmentFlag::Center);
+  table->setHeaderAlignment(0, AlignmentFlag::Center);
   table->setRowHeight(22);
 
   // Editing does not really work without Ajax, it would require an
   // additional button somewhere to confirm the edited value.
   if (WApplication::instance()->environment().ajax()) {
     table->resize(600, 20 + 5*22);
-    table->setEditTriggers(WAbstractItemView::SingleClicked);
+    table->setEditTriggers(EditTrigger::SingleClicked);
   } else {
     table->resize(600, WLength::Auto);
-    table->setEditTriggers(WAbstractItemView::NoEditTrigger);
+    table->setEditTriggers(EditTrigger::None);
   }
 
   // We use a single delegate for all items which rounds values to
   // the closest integer value.
-  WItemDelegate *delegate = new WItemDelegate(this);
+  std::shared_ptr<WItemDelegate> delegate
+      = std::make_shared<WItemDelegate>();
   delegate->setTextFormat("%.f");
   table->setItemDelegate(delegate);
 
@@ -158,7 +162,7 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   /*
    * Create the category chart.
    */
-  WCartesianChart *chart = new WCartesianChart(this);
+  WCartesianChart *chart = this->addWidget(cpp14::make_unique<WCartesianChart>());
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the categories
   chart->setLegendEnabled(true); // enable the legend
@@ -174,29 +178,30 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
    * Add all (but first) column as bar series
    */
   for (int i = 1; i < model->columnCount(); ++i) {
-    WDataSeries *s = new WDataSeries(i, BarSeries);
+    std::unique_ptr<WDataSeries> s
+        = cpp14::make_unique<WDataSeries>(i, SeriesType::Bar);
     s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
-    chart->addSeries(s);
+    chart->addSeries(std::move(s));
   }
 
   chart->resize(800, 400);
 
-  chart->setMargin(10, Top | Bottom);
-  chart->setMargin(WLength::Auto, Left | Right);
+  chart->setMargin(10, Side::Top | Side::Bottom);
+  chart->setMargin(WLength::Auto, Side::Left | Side::Right);
 
   /*
    * Provide a widget to manipulate chart properties
    */
-  new ChartConfig(chart, this);
+  this->addWidget(cpp14::make_unique<ChartConfig>(chart));
 }
 
-TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
-  WContainerWidget(parent)
+TimeSeriesExample::TimeSeriesExample():
+  WContainerWidget()
 {
-  new WText(WString::tr("scatter plot"), this);
+  this->addWidget(cpp14::make_unique<WText>(WString::tr("scatter plot")));
 
-  WAbstractItemModel *model = readCsvFile(
-    WApplication::appRoot() + "timeseries.csv", this);
+  std::shared_ptr<WAbstractItemModel> model
+      = readCsvFile(WApplication::appRoot() + "timeseries.csv", this);
 
   if (!model)
     return;
@@ -211,35 +216,39 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   }
 
   // Show a view that allows editing of the model.
-  WContainerWidget *w = new WContainerWidget(this);
-  WTableView *table = new WTableView(w);
+  auto *w = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  auto *table = w->addWidget(cpp14::make_unique<WTableView>());
 
-  table->setMargin(10, Top | Bottom);
-  table->setMargin(WLength::Auto, Left | Right);
+  table->setMargin(10, Side::Top | Side::Bottom);
+  table->setMargin(WLength::Auto, Side::Left | Side::Right);
 
   table->setModel(model);
   table->setSortingEnabled(false); // Does not make much sense for time series
   table->setColumnResizeEnabled(true);
-  table->setSelectionMode(NoSelection);
+  table->setSelectionMode(SelectionMode::None);
   table->setAlternatingRowColors(true);
-  table->setColumnAlignment(0, AlignCenter);
-  table->setHeaderAlignment(0, AlignCenter);
+  table->setColumnAlignment(0, AlignmentFlag::Center);
+  table->setHeaderAlignment(0, AlignmentFlag::Center);
   table->setRowHeight(22);
 
   // Editing does not really work without Ajax, it would require an
   // additional button somewhere to confirm the edited value.
   if (WApplication::instance()->environment().ajax()) {
     table->resize(800, 20 + 5*22);
-    table->setEditTriggers(WAbstractItemView::SingleClicked);
+    table->setEditTriggers(EditTrigger::SingleClicked);
   } else {
     table->resize(800, 20 + 5*22 + 25);
-    table->setEditTriggers(WAbstractItemView::NoEditTrigger);
+    table->setEditTriggers(EditTrigger::None);
   }
 
-  WItemDelegate *delegate = new WItemDelegate(this);
+  std::shared_ptr<WItemDelegate> delegate
+      = std::make_shared<WItemDelegate>();
   delegate->setTextFormat("%.1f");
   table->setItemDelegate(delegate);
-  table->setItemDelegateForColumn(0, new WItemDelegate(this));
+
+  std::shared_ptr<WItemDelegate> delegateColumn
+      = std::make_shared<WItemDelegate>();
+  table->setItemDelegateForColumn(0, delegateColumn);
 
   table->setColumnWidth(0, 80);
   for (int i = 1; i < model->columnCount(); ++i)
@@ -248,7 +257,7 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   /*
    * Create the scatter plot.
    */
-  WCartesianChart *chart = new WCartesianChart(this);
+  WCartesianChart *chart = this->addWidget(cpp14::make_unique<WCartesianChart>());
   //chart->setPreferredMethod(WPaintedWidget::PngImage);
   //chart->setBackground(gray);
   chart->setModel(model);        // set the model
@@ -257,8 +266,8 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   chart->setZoomEnabled(true);
   chart->setPanEnabled(true);
 
-  chart->setType(ScatterPlot);            // set type to ScatterPlot
-  chart->axis(XAxis).setScale(DateScale); // set scale of X axis to DateScale
+  chart->setType(ChartType::Scatter);            // set type to ScatterPlot
+  chart->axis(Axis::X).setScale(AxisScale::Date); // set scale of X axis to DateScale
 
   // Automatically layout chart (space for axes, legend, ...)
   chart->setAutoLayoutEnabled();
@@ -268,26 +277,30 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
    * Add first two columns as line series
    */
   for (int i = 1; i < 3; ++i) {
-    WDataSeries *s = new WDataSeries(i, LineSeries);
+    std::unique_ptr<WDataSeries> s
+        = cpp14::make_unique<WDataSeries>(i, SeriesType::Line);
     s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
-    chart->addSeries(s);
+    chart->addSeries(std::move(s));
   }
 
   chart->resize(800, 400); // WPaintedWidget must be given explicit size
 
-  chart->setMargin(10, Top | Bottom);            // add margin vertically
-  chart->setMargin(WLength::Auto, Left | Right); // center horizontally
+  chart->setMargin(10, Side::Top | Side::Bottom);            // add margin vertically
+  chart->setMargin(WLength::Auto, Side::Left | Side::Right); // center horizontally
 
-  new ChartConfig(chart, this);
+  this->addWidget(cpp14::make_unique<ChartConfig>(chart));
 }
 
-ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
-  WContainerWidget(parent)
+ScatterPlotExample::ScatterPlotExample():
+  WContainerWidget()
 {
-  new WText(WString::tr("scatter plot 2"), this);
+  this->addWidget(cpp14::make_unique<WText>(WString::tr("scatter plot 2")));
 
-  WStandardItemModel *model = new WStandardItemModel(40, 2, this);
-  model->setItemPrototype(new NumericItem());
+  std::shared_ptr<WStandardItemModel> model
+      = std::make_shared<WStandardItemModel>(40, 2);
+  std::unique_ptr<NumericItem> prototype
+      = cpp14::make_unique<NumericItem>();
+  model->setItemPrototype(std::move(prototype));
   model->setHeaderData(0, WString("X"));
   model->setHeaderData(1, WString("Y = sin(X)"));
 
@@ -301,7 +314,7 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
   /*
    * Create the scatter plot.
    */
-  WCartesianChart *chart = new WCartesianChart(this);
+  WCartesianChart *chart = this->addWidget(cpp14::make_unique<WCartesianChart>());
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the X data
   chart->setLegendEnabled(true); // enable the legend
@@ -311,37 +324,41 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
 
   chart->setBackground(WColor(200,200,200));
 
-  chart->setType(ScatterPlot);   // set type to ScatterPlot
+  chart->setType(ChartType::Scatter);   // set type to ScatterPlot
 
   // Typically, for mathematical functions, you want the axes to cross
   // at the 0 mark:
-  chart->axis(XAxis).setLocation(ZeroValue);
-  chart->axis(YAxis).setLocation(ZeroValue);
+  chart->axis(Axis::X).setLocation(AxisValue::Zero);
+  chart->axis(Axis::Y).setLocation(AxisValue::Zero);
 
   // Automatically layout chart (space for axes, legend, ...)
   chart->setAutoLayoutEnabled();
 
   // Add the curves
-  WDataSeries *s = new WDataSeries(1, CurveSeries);
+  std::unique_ptr<WDataSeries> s
+      = cpp14::make_unique<WDataSeries>(1, SeriesType::Curve);
   s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
-  chart->addSeries(s);
+  chart->addSeries(std::move(s));
 
   chart->resize(800, 300); // WPaintedWidget must be given explicit size
 
-  chart->setMargin(10, Top | Bottom);            // add margin vertically
-  chart->setMargin(WLength::Auto, Left | Right); // center horizontally
+  chart->setMargin(10, Side::Top | Side::Bottom);            // add margin vertically
+  chart->setMargin(WLength::Auto, Side::Left | Side::Right); // center horizontally
 
-  ChartConfig *config = new ChartConfig(chart, this);
-  config->setValueFill(ZeroValueFill);
+  ChartConfig *config = this->addWidget(cpp14::make_unique<ChartConfig>(chart));
+  config->setValueFill(FillRangeType::ZeroValue);
 }
 
-PieExample::PieExample(WContainerWidget *parent):
-  WContainerWidget(parent)
+PieExample::PieExample():
+  WContainerWidget()
 {
-  new WText(WString::tr("pie chart"), this);
+  this->addWidget(cpp14::make_unique<WText>(WString::tr("pie chart")));
 
-  WStandardItemModel *model = new WStandardItemModel(this);
-  model->setItemPrototype(new NumericItem());
+  std::shared_ptr<WStandardItemModel> model
+      = std::make_shared<WStandardItemModel>();
+  std::unique_ptr<NumericItem> prototype
+      = cpp14::make_unique<NumericItem>();
+  model->setItemPrototype(std::move(prototype));
   
   //headers
   model->insertColumns(model->columnCount(), 2);
@@ -374,13 +391,13 @@ PieExample::PieExample(WContainerWidget *parent):
   //set all items to be editable and selectable
   for (int row = 0; row < model->rowCount(); ++row)
     for (int col = 0; col < model->columnCount(); ++col)
-      model->item(row, col)->setFlags(ItemIsSelectable | ItemIsEditable);
+      model->item(row, col)->setFlags(ItemFlag::Selectable | ItemFlag::Editable);
 
-  WContainerWidget *w = new WContainerWidget(this);
-  WTableView* table = new WTableView(w);
+  WContainerWidget *w = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  WTableView* table = w->addWidget(cpp14::make_unique<WTableView>());
 
-  table->setMargin(10, Top | Bottom);
-  table->setMargin(WLength::Auto, Left | Right);
+  table->setMargin(10, Side::Top | Side::Bottom);
+  table->setMargin(WLength::Auto, Side::Left | Side::Right);
   table->setSortingEnabled(true);
   table->setModel(model);
   table->setColumnWidth(1, 100);
@@ -388,22 +405,22 @@ PieExample::PieExample(WContainerWidget *parent):
 
   if (WApplication::instance()->environment().ajax()) {
     table->resize(150 + 100 + 14, 20 + 6 * 22);
-    table->setEditTriggers(WAbstractItemView::SingleClicked);
+    table->setEditTriggers(EditTrigger::SingleClicked);
   } else {
     table->resize(150 + 100 + 14, WLength::Auto);
-    table->setEditTriggers(WAbstractItemView::NoEditTrigger);    
+    table->setEditTriggers(EditTrigger::None);
   }
 
   /*
    * Create the pie chart.
    */
-  WPieChart *chart = new WPieChart(this);
+  WPieChart *chart = this->addWidget(cpp14::make_unique<WPieChart>());
   chart->setModel(model);       // set the model
   chart->setLabelsColumn(0);    // set the column that holds the labels
   chart->setDataColumn(1);      // set the column that holds the data
 
   // configure location and type of labels
-  chart->setDisplayLabels(Outside | TextLabel | TextPercentage);
+  chart->setDisplayLabels(LabelOption::Outside | LabelOption::TextLabel | LabelOption::TextPercentage);
 
   // enable a 3D and shadow effect
   chart->setPerspectiveEnabled(true, 0.2);
@@ -414,7 +431,7 @@ PieExample::PieExample(WContainerWidget *parent):
 
   chart->resize(800, 300); // WPaintedWidget must be given an explicit size
 
-  chart->setMargin(10, Top | Bottom);            // add margin vertically
-  chart->setMargin(WLength::Auto, Left | Right); // center horizontally
+  chart->setMargin(10, Side::Top | Side::Bottom);            // add margin vertically
+  chart->setMargin(WLength::Auto, Side::Left | Side::Right); // center horizontally
 }
 

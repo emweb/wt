@@ -4,28 +4,47 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WException"
-#include "Wt/WLayout"
-#include "Wt/WLayoutItemImpl"
-#include "Wt/WWidget"
-#include "Wt/WWidgetItem"
+#include "Wt/WException.h"
+#include "Wt/WLayout.h"
+#include "Wt/WLayoutImpl.h"
+#include "Wt/WWidget.h"
+#include "Wt/WWidgetItem.h"
+
+#include "Wt/StdGridLayoutImpl2.h"
+#include "Wt/FlexLayoutImpl.h"
 
 namespace Wt {
 
 WLayout::WLayout()
-  : margins_(0),
-    impl_(0),
-    hints_(0)
+  : parentLayout_(nullptr),
+    parentWidget_(nullptr),
+    preferredImplementation_(LayoutImplementation::Flex)
 { }
 
 WLayout::~WLayout()
-{
-  if (!parentLayout())
-    setParent(0);
+{ }
 
-  delete impl_;
-  delete hints_;
-  delete[] margins_;
+void WLayout::setPreferredImplementation(LayoutImplementation implementation)
+{
+  if (preferredImplementation_ != implementation) {
+    preferredImplementation_ = implementation;
+    if (impl_ && this->implementation() != preferredImplementation())
+      updateImplementation();
+  }
+}
+
+LayoutImplementation WLayout::implementation() const
+{
+  if (dynamic_cast<StdGridLayoutImpl2*>(impl_.get()))
+    return LayoutImplementation::JavaScript;
+  if (dynamic_cast<FlexLayoutImpl*>(impl_.get()))
+    return LayoutImplementation::Flex;
+  return preferredImplementation_;
+}
+
+LayoutImplementation WLayout::preferredImplementation() const
+{
+  return preferredImplementation_;
 }
 
 #ifndef WT_TARGET_JAVA
@@ -54,13 +73,13 @@ int WLayout::getContentsMargin(Side side) const
     return 9;
 
   switch (side) {
-  case Left:
+  case Side::Left:
     return margins_[0];
-  case Top:
+  case Side::Top:
     return margins_[1];
-  case Right:
+  case Side::Right:
     return margins_[2];
-  case Bottom:
+  case Side::Bottom:
     return margins_[3];
   default:
     return 9;
@@ -71,7 +90,7 @@ int WLayout::getContentsMargin(Side side) const
 void WLayout::setContentsMargins(int left, int top, int right, int bottom)
 {
   if (!margins_)
-    margins_ = new int[4];
+    margins_.reset(new int[4]);
 
   margins_[0] = left;
   margins_[1] = top;
@@ -89,42 +108,42 @@ int WLayout::indexOf(WLayoutItem *item) const
   return -1;
 }
 
-void WLayout::addWidget(WWidget *w)
+void WLayout::addWidget(std::unique_ptr<WWidget> w)
 {
-  addItem(new WWidgetItem(w));
+  addItem(std::unique_ptr<WWidgetItem>(new WWidgetItem(std::move(w))));
 }
 
-bool WLayout::removeWidget(WWidget *w)
+std::unique_ptr<WWidget> WLayout::removeWidget(WWidget *w)
 {
   WWidgetItem *widgetItem = findWidgetItem(w);
 
   if (widgetItem) {
-    widgetItem->parentLayout()->removeItem(widgetItem);
-    delete widgetItem;
-    return true;
+    auto wi = widgetItem->parentLayout()->removeItem(widgetItem);
+    return widgetItem->takeWidget();
   } else
-    return false;
+    return std::unique_ptr<WWidget>();
 }
 
-void WLayout::updateAddItem(WLayoutItem *item)
+void WLayout::itemAdded(WLayoutItem *item)
 {
-  if (item->parentLayout())
-    throw WException("Cannot add item to two Layouts");
-
   item->setParentLayout(this);
 
-  if (impl_) {
-    item->setParentWidget(impl_->parentWidget());
-    impl_->updateAddItem(item);
-  }
+  WWidget *w = parentWidget();
+  if (w)
+    item->setParentWidget(w);
+
+  if (impl_)
+    impl_->itemAdded(item);
 }
 
-void WLayout::updateRemoveItem(WLayoutItem *item)
-{
+void WLayout::itemRemoved(WLayoutItem *item)
+{  
   if (impl_)
-    impl_->updateRemoveItem(item);
+    impl_->itemRemoved(item);
 
-  item->setParentLayout(0);
+  item->setParentWidget(nullptr);
+
+  item->setParentLayout(nullptr);
 }
 
 void WLayout::update(WLayoutItem *item)
@@ -147,80 +166,53 @@ WWidgetItem *WLayout::findWidgetItem(WWidget *widget)
     }
   }
 
-  return 0;
-}
-
-void WLayout::setLayoutInParent(WWidget *parent)
-{
-  parent->setLayout(this);
+  return nullptr;
 }
 
 void WLayout::setParentWidget(WWidget *parent)
 {
-  if (!this->parent())
-    setParent(parent);
-
-  assert(!impl_);
+  parentWidget_ = parent;
 
   int c = count();
+
   for (int i = 0; i < c; ++i) {
     WLayoutItem *item = itemAt(i);
     if (item)
       item->setParentWidget(parent);
   }
 
-  impl_ = parent->createLayoutItemImpl(this);
-
-  if (hints_) {
-    for (unsigned i = 0; i < hints_->size(); ++i)
-      impl_->setHint((*hints_)[i].name, (*hints_)[i].value);
-    delete hints_;
-    hints_ = 0;
-  }
+  if (!parent)
+    impl_.reset();
 }
 
 void WLayout::setParentLayout(WLayout *layout)
 {
-  if (layout)
-    layout->addChild(this);
-  else
-    parent()->removeChild(this);
+  parentLayout_ = layout;
 }
 
 WLayout *WLayout::parentLayout() const
 {
-  return dynamic_cast<WLayout *>(parent());
+  return parentLayout_;
 }
 
-void WLayout::setLayoutHint(const std::string& name, const std::string& value)
+WWidget *WLayout::parentWidget() const
 {
-  if (impl_)
-    impl_->setHint(name, value);
-  else {
-    if (!hints_)
-      hints_ = new HintsList();
-    hints_->push_back(Hint(name, value));
-  }
+  if (parentWidget_)
+    return parentWidget_;
+  else if (parentLayout_)
+    return parentLayout_->parentWidget();
+  else
+    return nullptr;
 }
 
-void WLayout::clearLayoutItem(WLayoutItem *item)
-{    
-  if (item) {
-    WWidget* widget = 0;
-    
-    if (item->layout()) {
-      //clear removes all widgets and sublayouts of this layout,
-      //which is not executed by the dtor
-      item->layout()->clear();
-    } else {
-      widget = item->widget();
-    }
-    
-    removeItem(item);
-    delete item;
-    
-    delete widget;
-  }
+void WLayout::setImpl(std::unique_ptr<WLayoutImpl> impl)
+{
+  impl_ = std::move(impl);
+}
+
+void WLayout::updateImplementation()
+{
+  // If StdGridLayoutImpl2 is the only option, don't update anything
 }
 
 }

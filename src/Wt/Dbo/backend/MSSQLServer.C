@@ -3,11 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/Dbo/backend/MSSQLServer"
+#include "Wt/Dbo/backend/MSSQLServer.h"
 
-#include "Wt/Dbo/Exception"
+#include "Wt/Dbo/Exception.h"
+
+#include "Wt/Date/date.h"
 
 #ifdef WT_WIN32
+#define NOMINMAX
 #include <Windows.h>
 #endif // WT_WIN32
 #include <sql.h>
@@ -406,20 +409,21 @@ public:
 
   virtual void bind(
     int column,
-    const boost::posix_time::ptime & value,
+    const std::chrono::system_clock::time_point& value,
     SqlDateTimeType type)
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
-    if (type == SqlDate) {
+    if (type == SqlDateTimeType::Date) {
       if (v.type != SQL_C_TYPE_DATE)
         v.clear();
       v.lengthOrInd = 0;
       SQL_DATE_STRUCT &date = paramValues_[column].v.date;
-      boost::posix_time::ptime::date_type dd = value.date();
-      date.year = dd.year();
-      date.month = dd.month();
-      date.day = dd.day();
+      auto daypoint = date::floor<date::days>(value);
+      auto ymd = date::year_month_day(daypoint);
+      date.year = (int)ymd.year();
+      date.month = (unsigned)ymd.month();
+      date.day = (unsigned)ymd.day();
       if (v.type != SQL_C_TYPE_DATE) {
         v.type = SQL_C_TYPE_DATE;
         SQLRETURN rc = SQLBindParameter(
@@ -441,19 +445,17 @@ public:
         v.clear();
       v.lengthOrInd = 0;
       SQL_TIMESTAMP_STRUCT &ts = paramValues_[column].v.timestamp;
-      boost::posix_time::ptime::date_type dd = value.date();
-      boost::posix_time::ptime::time_duration_type tim = value.time_of_day();
-      ts.year = dd.year();
-      ts.month = dd.month();
-      ts.day = dd.day();
-      ts.hour = tim.hours();
-      ts.minute = tim.minutes();
-      ts.second = tim.seconds();
-      // ts.fraction is nanoseconds
-      int64_t ticksPerSec =
-        boost::posix_time::ptime::time_duration_type::ticks_per_second();
-      ts.fraction = static_cast<SQLUINTEGER>(tim.fractional_seconds() * (1000000000 / ticksPerSec));
-      ts.fraction = (ts.fraction / 100) * 100; // Round to 100ns, 7 digit limit of SQL Server
+      auto daypoint = date::floor<date::days>(value);
+      auto ymd = date::year_month_day(daypoint);
+      auto tod = date::make_time(value - daypoint);
+      ts.year = (int)ymd.year();
+      ts.month = (unsigned)ymd.month();
+      ts.day = (unsigned)ymd.day();
+      ts.hour = tod.hours().count();
+      ts.minute = tod.minutes().count();
+      ts.second = tod.seconds().count();
+      ts.fraction = std::chrono::nanoseconds(std::chrono::duration_cast<
+        std::chrono::duration<long long, std::ratio_multiply<std::ratio<100>, std::nano>>>(tod.subseconds())).count();
       if (v.type != SQL_C_TYPE_TIMESTAMP) {
         v.type = SQL_C_TYPE_TIMESTAMP;
         SQLRETURN rc = SQLBindParameter(
@@ -475,9 +477,9 @@ public:
 
   virtual void bind(
     int column,
-    const boost::posix_time::time_duration &value)
+    const std::chrono::duration<int, std::milli>& value)
   {
-    long long msec = value.total_milliseconds();
+    long long msec = value.count();
     bind(column, msec);
   }
 
@@ -664,44 +666,28 @@ public:
 
   virtual bool getResult(
     int column,
-    boost::posix_time::ptime *value,
+    std::chrono::system_clock::time_point *value,
     SqlDateTimeType type)
   {
-    if (type == SqlDate) {
+    if (type == SqlDateTimeType::Date) {
       SQL_DATE_STRUCT date;
       bool result = getRes<SQL_C_TYPE_DATE>(column, &date);
       if (!result)
         return false; // NULL
-      *value =
-        boost::posix_time::ptime(
-          boost::gregorian::date(
-            date.year,
-            date.month,
-            date.day
-          ),
-          boost::posix_time::time_duration());
+      *value = date::sys_days{ date::year{ date.year } / date.month / date.day };
       return true;
     } else {
       SQL_TIMESTAMP_STRUCT ts;
       bool result = getRes<SQL_C_TYPE_TIMESTAMP>(column, &ts);
       if (!result)
         return false; // NULL
-      const int64_t ticksPerSec =
-        boost::posix_time::ptime::time_duration_type::ticks_per_second();
-      const int64_t fraction = ts.fraction / (1000000000LL / ticksPerSec);
-      *value =
-        boost::posix_time::ptime(
-          boost::gregorian::date(
-            ts.year,
-            ts.month,
-            ts.day
-          ),
-          boost::posix_time::time_duration(
-            ts.hour,
-            ts.minute,
-            ts.second,
-            fraction
-          )
+      *value = 
+        date::sys_days{ date::year{ ts.year } / ts.month / ts.day } +
+        std::chrono::duration_cast<std::chrono::system_clock::duration>(
+          std::chrono::hours{ ts.hour } +
+          std::chrono::minutes{ ts.minute } +
+          std::chrono::seconds{ ts.second } +
+          std::chrono::nanoseconds{ ts.fraction }
         );
       return true;
     }
@@ -711,17 +697,14 @@ public:
 
   virtual bool getResult(
     int column,
-    boost::posix_time::time_duration *value)
+    std::chrono::duration<int, std::milli> *value)
   {
     long long msec;
     bool res = getResult(column, &msec);
     if (!res)
       return res;
-    boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
-      boost::posix_time::time_duration::ticks_per_second() / 1000;
 
-    *value = boost::posix_time::time_duration(0, 0, 0,
-      msec * ticks_per_msec);
+    *value = std::chrono::duration<int, std::milli>(msec);
     return true;
   }
 
@@ -902,9 +885,9 @@ MSSQLServer::~MSSQLServer()
   delete impl_;
 }
 
-MSSQLServer *MSSQLServer::clone() const
+std::unique_ptr<SqlConnection> MSSQLServer::clone() const
 {
-  return new MSSQLServer(*this);
+  return std::unique_ptr<SqlConnection>(new MSSQLServer(*this));
 }
 
 bool MSSQLServer::connect(const std::string &connectionString)
@@ -998,9 +981,9 @@ void MSSQLServer::rollbackTransaction()
   handleErr(SQL_HANDLE_DBC, impl_->dbc, rc);
 }
 
-SqlStatement *MSSQLServer::prepareStatement(const std::string &sql)
+std::unique_ptr<SqlStatement> MSSQLServer::prepareStatement(const std::string &sql)
 {
-  return new MSSQLServerStatement(*this, sql);
+  return std::unique_ptr<SqlStatement>(new MSSQLServerStatement(*this, sql));
 }
 
 std::string MSSQLServer::autoincrementSql() const
@@ -1035,11 +1018,11 @@ std::string MSSQLServer::autoincrementInsertSuffix(const std::string &id) const
 
 const char *MSSQLServer::dateTimeType(SqlDateTimeType type) const
 {
-  if (type == SqlDate)
+  if (type == SqlDateTimeType::Date)
     return "date";
-  if (type == SqlTime)
+  if (type == SqlDateTimeType::Time)
     return "bigint"; // SQL Server has no proper duration type, so store duration as number of milliseconds
-  if (type == SqlDateTime)
+  if (type == SqlDateTimeType::DateTime)
     return "datetime2";
   return "";
 }
@@ -1075,7 +1058,7 @@ std::string MSSQLServer::textType(int size) const
 
 LimitQuery MSSQLServer::limitQueryMethod() const
 {
-  return OffsetFetch;
+  return LimitQuery::OffsetFetch;
 }
 
     }

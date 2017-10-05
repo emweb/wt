@@ -1,11 +1,11 @@
-#include <Wt/WText>
-#include <Wt/WString>
-#include <Wt/WContainerWidget>
+#include <Wt/WText.h>
+#include <Wt/WString.h>
+#include <Wt/WContainerWidget.h>
 
 class Text : public Wt::WText
 {
 public:
-  Text() : Wt::WText(){}
+  Text() : WText(){}
 
   Wt::WString calculateToolTip() const
   {
@@ -20,8 +20,8 @@ public:
 
 SAMPLE_BEGIN(TextDeferredToolTip)
 
-Text *text = new Text();
+auto text = Wt::cpp14::make_unique<Text>();
 text->setText("Text");
 text->setDeferredToolTip(true);
 
-SAMPLE_END(return text)
+SAMPLE_END(return std::move(text))

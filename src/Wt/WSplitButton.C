@@ -4,31 +4,30 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WPushButton"
-#include "Wt/WSplitButton"
-#include "Wt/WToolBar"
+#include "Wt/WPopupMenu.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WSplitButton.h"
+#include "Wt/WToolBar.h"
 
 namespace Wt {
 
-WSplitButton::WSplitButton(WContainerWidget *parent)
-  : WCompositeWidget(parent)
+WSplitButton::WSplitButton()
 {
   init(WString::Empty);
 }
 
-WSplitButton::WSplitButton(const WString& label, WContainerWidget *parent)
-  : WCompositeWidget(parent)
+WSplitButton::WSplitButton(const WString& label)
 {
   init(label);
 }
 
 void WSplitButton::init(const WString& label)
 {
-  setImplementation(impl_ = new WToolBar());
+  impl_ = setNewImplementation<WToolBar>();
 
   impl_->setInline(true);
-  impl_->addButton(new WPushButton(label));
-  impl_->addButton(new WPushButton());
+  impl_->addButton(std::unique_ptr<WPushButton>(new WPushButton(label)));
+  impl_->addButton(std::unique_ptr<WPushButton>(new WPushButton()));
 
   dropDownButton()->setStyleClass("dropdown-toggle");
 }
@@ -43,9 +42,9 @@ WPushButton *WSplitButton::dropDownButton() const
   return dynamic_cast<WPushButton *>(impl_->widget(1));
 }
 
-void WSplitButton::setMenu(WPopupMenu *popupMenu)
+void WSplitButton::setMenu(std::unique_ptr<WPopupMenu> popupMenu)
 {
-  dropDownButton()->setMenu(popupMenu);
+  dropDownButton()->setMenu(std::move(popupMenu));
 }
 
 WPopupMenu *WSplitButton::menu() const

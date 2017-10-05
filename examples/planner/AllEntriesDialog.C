@@ -9,19 +9,18 @@
 #include "EntryDialog.h"
 #include "Entry.h"
 
-#include <Wt/WTemplate>
-#include <Wt/WString>
-#include <Wt/WText>
-#include <Wt/WPushButton>
-
-using namespace Wt;
+#include <Wt/WTemplate.h>
+#include <Wt/WString.h>
+#include <Wt/WText.h>
+#include <Wt/WPushButton.h>
 
 AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
   : WDialog(title)
 {
-  WTemplate* t = new WTemplate(tr("calendar.all-entries"), contents());
-  WContainerWidget* wc = new WContainerWidget();
-  t->bindWidget("entries", wc);
+  WTemplate* t = contents()->addWidget(cpp14::make_unique<WTemplate>(
+                                         tr("calendar.all-entries")));
+  auto wc = cpp14::make_unique<WContainerWidget>();
+  auto container = t->bindWidget("entries", std::move(wc));
 
   dbo::Session& session = PlannerApplication::plannerApplication()->session;
   dbo::Transaction transaction(session);
@@ -32,18 +31,18 @@ AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
     cell->user()->entriesInRange(cell->date(), cell->date().addDays(1));
 
   WString format = EntryDialog::timeFormat;
-  for (Entries::const_iterator i = entries.begin(); i != entries.end(); ++i) {
-    wc->addWidget(new WText((*i)->start.toString(format) + 
+  for (auto& entry : entries) {
+    container->addWidget(cpp14::make_unique<WText>(entry->start.toString(format) +
 			    "-" + 
-			    (*i)->stop.toString(format) + 
-			    ": " + (*i)->summary));
+			    entry->stop.toString(format) +
+			    ": " + entry->summary));
   }
 
   transaction.commit();
 
-  WPushButton* button = new WPushButton(tr("calendar.cell.all-entries.close"));
-  t->bindWidget("close", button);
-  button->clicked().connect(this, &AllEntriesDialog::closeDialog);
+  auto button = cpp14::make_unique<WPushButton>(tr("calendar.cell.all-entries.close"));
+  auto buttonPtr = t->bindWidget("close", std::move(button));
+  buttonPtr->clicked().connect(this, &AllEntriesDialog::closeDialog);
 }
 
 void AllEntriesDialog::closeDialog()

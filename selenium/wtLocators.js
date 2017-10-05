@@ -29,12 +29,7 @@ function(e) {
 
   function objectNameSelector(e) {
     var result = e.tagName.toLowerCase();
-
-    var id = e.id;
-    var objectName = e.id.substr(0, e.id.lastIndexOf('_'));
-
-    result += "[starts-with(@id, '" + objectName + "_')]";
-
+    result += '[@data-object-name="' + e.getAttribute('data-object-name') + '"]';
     return result;
   }
 
@@ -85,7 +80,7 @@ function(e) {
 
   var xpath = "", child_xpath = "";
 
-  if (e.id && e.id.indexOf('_') != -1)
+  if (e.getAttribute('data-object-name'))
     child_xpath = objectNameSelector(e);
   else
     child_xpath = tagSelector(e);
@@ -95,7 +90,7 @@ function(e) {
   while (e.parentNode.tagName && e.parentNode.tagName.toLowerCase() != 'body') {
     var p = e.parentNode;
 
-    if (p.id && p.id.indexOf('_') != -1) {
+    if (p.getAttribute('data-object-name')) {
       xpath = addChildXPath(xpath, child_xpath, child, p);
 
       child_xpath = objectNameSelector(p);

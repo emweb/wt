@@ -4,85 +4,91 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WContainerWidget"
-#include "Wt/WPushButton"
-#include "Wt/WSplitButton"
-#include "Wt/WToolBar"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WSplitButton.h"
+#include "Wt/WToolBar.h"
 
 namespace Wt {
 
 LOGGER("WToolBar");
 
-WToolBar::WToolBar(WContainerWidget *parent)
-  : WCompositeWidget(parent),
+WToolBar::WToolBar()
+  : WCompositeWidget(),
     compact_(true),
-    lastGroup_(0)
+    lastGroup_(nullptr)
 {
-  setImplementation(impl_ = new WContainerWidget());
+  impl_ = setNewImplementation<WContainerWidget>();
   setStyleClass("btn-group");
 }
 
 void WToolBar::setOrientation(Orientation orientation)
 {
-  if (orientation == Vertical)
+  if (orientation == Orientation::Vertical)
     addStyleClass("btn-group-vertical");
   else
     removeStyleClass("btn-group-vertical");
 }
 
-void WToolBar::addButton(WPushButton *button, AlignmentFlag alignmentFlag)
+void WToolBar::addButton(std::unique_ptr<WPushButton> button,
+			 AlignmentFlag alignmentFlag)
 {
   if (compact_){
-    impl_->addWidget(button);
-    if(alignmentFlag == AlignRight)
+    if (alignmentFlag == AlignmentFlag::Right)
       button->setAttributeValue("style", "float:right;");
+    impl_->addWidget(std::move(button));
   } else{
-    if(alignmentFlag == AlignRight)
+    if (alignmentFlag == AlignmentFlag::Right)
       lastGroup()->setAttributeValue("style", "float:right;");
-    lastGroup()->addWidget(button);
+    lastGroup()->addWidget(std::move(button));
   }
 }
 
-void WToolBar::addButton(WSplitButton *button, AlignmentFlag alignmentFlag)
+void WToolBar::addButton(std::unique_ptr<WSplitButton> button,
+			 AlignmentFlag alignmentFlag)
 {
   setCompact(false);
-  lastGroup_ = 0;
-  if(alignmentFlag == AlignRight)
+  lastGroup_ = nullptr;
+  if (alignmentFlag == AlignmentFlag::Right)
     button->setAttributeValue("style", "float:right;");
-  impl_->addWidget(button);
+  impl_->addWidget(std::move(button));
 }
 
-void WToolBar::addWidget(WWidget *widget, AlignmentFlag alignmentFlag)
+void WToolBar::addWidget(std::unique_ptr<WWidget> widget,
+			 AlignmentFlag alignmentFlag)
 {
   setCompact(false);
-  lastGroup_ = 0;
-  if(alignmentFlag == AlignRight)
+  lastGroup_ = nullptr;
+  if (alignmentFlag == AlignmentFlag::Right)
     widget->setAttributeValue("style", "float:right;");
-  impl_->addWidget(widget);
+  impl_->addWidget(std::move(widget));
 }
 
-void WToolBar::removeWidget(WWidget *widget)
+std::unique_ptr<WWidget> WToolBar::removeWidget(WWidget *widget)
 {
   WWidget *p = widget->parent();
   if (p == impl_)
-    impl_->removeWidget(widget);
+    return impl_->removeWidget(widget);
   else {
     int i = impl_->indexOf(p);
     if (i >= 0) {
       WContainerWidget *cw = dynamic_cast<WContainerWidget *>(p);
       if (cw) {
-	cw->removeWidget(widget);
+	std::unique_ptr<WWidget> result = cw->removeWidget(widget);
 	if (cw->count() == 0)
-	  delete cw;
+	  cw->parent()->removeWidget(cw);
+	return result;
       }
     }
   }
+
+  return std::unique_ptr<WWidget>();
 }
 
 void WToolBar::addSeparator()
 {
   setCompact(false);
-  lastGroup_ = 0;
+  lastGroup_ = nullptr;
 }
 
 void WToolBar::setCompact(bool compact)
@@ -97,15 +103,14 @@ void WToolBar::setCompact(bool compact)
     } else {
       setStyleClass("btn-toolbar");
       if (impl_->count() > 0) {
-	WContainerWidget *group = new WContainerWidget();
+	std::unique_ptr<WContainerWidget> group(new WContainerWidget());
 	group->setStyleClass("btn-group");
 	while (impl_->count() > 0) {
-	  WWidget *w = impl_->widget(0);
-	  impl_->removeWidget(w);
-	  group->addWidget(w);
+	  auto w = impl_->removeWidget(impl_->widget(0));
+	  group->addWidget(std::move(w));
 	}
-	impl_->addWidget(group);
-	lastGroup_ = group;
+	lastGroup_ = group.get();
+	impl_->addWidget(std::move(group));
       }
     }
   }
@@ -114,7 +119,7 @@ void WToolBar::setCompact(bool compact)
 WContainerWidget *WToolBar::lastGroup()
 {
   if (!lastGroup_) {
-    lastGroup_ = new WContainerWidget(impl_);
+    lastGroup_ = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
     lastGroup_->addStyleClass("btn-group");
   }
 
@@ -166,7 +171,7 @@ WWidget *WToolBar::widget(int index) const
       }
     }
 
-    return 0;
+    return nullptr;
   }
 }
 

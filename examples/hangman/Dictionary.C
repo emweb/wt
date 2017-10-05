@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WStringUtil>
+#include <Wt/WApplication.h>
+#include <Wt/WStringUtil.h>
 
 #include "Dictionary.h"
 #include <fstream>
@@ -17,9 +17,9 @@ std::wstring RandomWord(Dictionary dictionary)
 {
    std::ifstream dict;
    if (dictionary == DICT_NL) {
-     dict.open((Wt::WApplication::appRoot() + "dict-nl.txt").c_str());
+     dict.open((WApplication::appRoot() + "dict-nl.txt").c_str());
    } else { // english is default
-     dict.open((Wt::WApplication::appRoot() + "dict.txt").c_str());
+     dict.open((WApplication::appRoot() + "dict.txt").c_str());
    }
       
    std::string retval;
@@ -43,5 +43,5 @@ std::wstring RandomWord(Dictionary dictionary)
 	 std::cout << "word " << retval 
 		   << " contains illegal data at pos " << i << std::endl;
 
-   return Wt::widen(retval);
+   return widen(retval);
 }

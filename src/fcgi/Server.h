@@ -11,7 +11,7 @@
 #include <map>
 
 #ifdef WT_THREADED
-#include <boost/thread.hpp>
+#include <thread>
 #endif // WT_THREADED
 
 namespace Wt {
@@ -46,7 +46,7 @@ private:
 
 #ifdef WT_THREADED
   // mutex to protect access to the sessions map
-  boost::recursive_mutex mutex_;
+  std::recursive_mutex mutex_;
 #endif
 
   void checkAndQueueSigChld();

@@ -4,20 +4,20 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WFont"
-#include "Wt/WFontMetrics"
-#include "Wt/WPointF"
-#include "Wt/WRectF"
-#include "Wt/WTransform"
+#include "Wt/WFont.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WPointF.h"
+#include "Wt/WRectF.h"
+#include "Wt/WTransform.h"
 #include "Wt/FontSupport.h"
 
 #include "WebUtils.h"
 
 #ifdef WT_THREADED
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 #endif // WT_THREADED
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <pango/pango.h>
 #include <pango/pangoft2.h>
@@ -61,11 +61,11 @@ void addTrueTypePattern(FcPattern *pattern, gpointer data)
  * so here we serialize everything using a mutex.
  */
 
-PangoFontMap *pangoFontMap = 0;
+PangoFontMap *pangoFontMap = nullptr;
 
 #ifdef WT_THREADED
-boost::recursive_mutex pangoMutex;
-#define PANGO_LOCK boost::recursive_mutex::scoped_lock lock(pangoMutex);
+std::recursive_mutex pangoMutex;
+#define PANGO_LOCK std::unique_lock<std::recursive_mutex> lock(pangoMutex);
 #else
 #define PANGO_LOCK
 #endif // WT_THREADED
@@ -116,7 +116,7 @@ FontSupport::FontSupport(WPaintDevice *paintDevice, EnabledFontFormats enabledFo
   context_ = pango_ft2_font_map_create_context(PANGO_FT2_FONT_MAP(pangoFontMap));
 #endif
 
-  currentFont_ = 0;
+  currentFont_ = nullptr;
 }
 
 FontSupport::~FontSupport()
@@ -152,16 +152,16 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
   if (Utils::lowerCase(s) == "times")
     s = "Times New Roman";
 
-  if (f.genericFamily() != WFont::Default) {
+  if (f.genericFamily() != FontFamily::Default) {
     if (!s.empty())
       s += ',';
 
     switch (f.genericFamily()) {
-    case WFont::Serif: s += "serif"; break;
-    case WFont::SansSerif: s += "sans"; break;
-    case WFont::Cursive: s += "cursive"; break;
-    case WFont::Fantasy: s += "fantasy"; break;
-    case WFont::Monospace: s += "monospace"; break;
+    case FontFamily::Serif: s += "serif"; break;
+    case FontFamily::SansSerif: s += "sans"; break;
+    case FontFamily::Cursive: s += "cursive"; break;
+    case FontFamily::Fantasy: s += "fantasy"; break;
+    case FontFamily::Monospace: s += "monospace"; break;
     default: break;
     }
   }
@@ -178,18 +178,17 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
     s += " heavy";
 
   switch (f.style()) {
-  case WFont::Italic: s += " italic"; break;
-  case WFont::Oblique: s += " oblique"; break;
+  case FontStyle::Italic: s += " italic"; break;
+  case FontStyle::Oblique: s += " oblique"; break;
   default: break;
   }
 
   switch (f.variant()) {
-  case WFont::SmallCaps: s += " small-caps"; break;
+  case FontVariant::SmallCaps: s += " small-caps"; break;
   default: break;
   }
 
-  s += " " + boost::lexical_cast<std::string>((int)(f.sizeLength().toPixels()
-						    * 0.75 * 96/72));
+  s += " " + std::to_string((int)(f.sizeLength().toPixels() * 0.75 * 96/72));
 
   return pango_font_description_from_string(s.c_str());
 }
@@ -268,7 +267,7 @@ GList *FontSupport::layoutText(const WFont& font,
 
   pango_context_set_font_description(context_, match.pangoFontDescription());
   GList *items
-    = pango_itemize(context_, utf8.c_str(), 0, utf8.length(), attrs, NULL);
+    = pango_itemize(context_, utf8.c_str(), 0, utf8.length(), attrs, nullptr);
 
   width = 0;
 
@@ -292,7 +291,7 @@ GList *FontSupport::layoutText(const WFont& font,
 
       width += pangoUnitsFromDouble(textItem.width());
 
-      currentFont_ = 0;
+      currentFont_ = nullptr;
     } else
       width += pango_glyph_string_get_width(gl);
   }
@@ -323,13 +322,13 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
   double x;
   switch (hAlign) {
-  case AlignLeft:
+  case AlignmentFlag::Left:
     x = rect.left();
     break;
-  case AlignRight:
+  case AlignmentFlag::Right:
     x = rect.right() - pangoUnitsToDouble(width);
     break;
-  case AlignCenter:
+  case AlignmentFlag::Center:
     x = rect.center().x() - pangoUnitsToDouble(width/2);
     break;
   default:
@@ -355,8 +354,8 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
     device_->drawText(WRectF(x, rect.y(),
 			     1000, rect.height()),
-		      AlignLeft | vAlign, TextSingleLine,
-		      s, 0);
+		      AlignmentFlag::Left | vAlign, TextFlag::SingleLine,
+		      s, nullptr);
 
     WTextItem textItem = device_->measureText(s, -1, false);
 
@@ -368,7 +367,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
   g_list_free(items);
 
-  currentFont_ = 0;
+  currentFont_ = nullptr;
 }
 
 WFontMetrics FontSupport::fontMetrics(const WFont& font)
@@ -378,7 +377,7 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
   enabledFontFormats = enabledFontFormats_;
 
   PangoFont *pangoFont = matchFont(font).pangoFont();
-  PangoFontMetrics *metrics = pango_font_get_metrics(pangoFont, NULL);
+  PangoFontMetrics *metrics = pango_font_get_metrics(pangoFont, nullptr);
 
   double ascent
     = pangoUnitsToDouble(pango_font_metrics_get_ascent(metrics));
@@ -485,7 +484,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
     for (unsigned i = 0; i < glyphs.size(); ++i)
       pango_glyph_string_free(glyphs[i]);
 
-    g_list_foreach(items, (GFunc) pango_item_free, 0);
+    g_list_foreach(items, (GFunc) pango_item_free, nullptr);
     g_list_free(items);
 
     return WTextItem(text, w);
@@ -524,7 +523,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 	    / pango_matrix_get_font_scale_factor(&matrix));
 
   GList *items = layoutText(f, utf8, glyphs, width);
-  pango_context_set_matrix(context_, 0);
+  pango_context_set_matrix(context_, nullptr);
 
   AlignmentFlag hAlign = flags & AlignHorizontalMask;
 
@@ -532,13 +531,13 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
   double x;
   switch (hAlign) {
-  case AlignLeft:
+  case AlignmentFlag::Left:
     x = rect.left();
     break;
-  case AlignRight:
+  case AlignmentFlag::Right:
     x = rect.right() - pangoUnitsToDouble(width);
     break;
-  case AlignCenter:
+  case AlignmentFlag::Center:
     x = rect.center().x() - pangoUnitsToDouble(width/2);
     break;
   default:
@@ -548,7 +547,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
   AlignmentFlag vAlign = flags & AlignVerticalMask;
 
   PangoFont *pangoFont = matchFont(font).pangoFont();
-  PangoFontMetrics *metrics = pango_font_get_metrics(pangoFont, NULL);
+  PangoFontMetrics *metrics = pango_font_get_metrics(pangoFont, nullptr);
 
   double ascent
     = pangoUnitsToDouble(pango_font_metrics_get_ascent(metrics));
@@ -562,13 +561,13 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
   double y;
   switch (vAlign) {
-  case AlignTop:
+  case AlignmentFlag::Top:
     y = rect.top() + baseline;
     break;
-  case AlignMiddle:
+  case AlignmentFlag::Middle:
     y = rect.center().y() - height / 2 + baseline;
     break;
-  case AlignBottom:
+  case AlignmentFlag::Bottom:
     y = rect.bottom() - height + baseline;
     break;
   default:

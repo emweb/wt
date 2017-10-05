@@ -1,15 +1,15 @@
-#include <Wt/WAbstractTableModel>
+#include <Wt/WAbstractTableModel.h>
 
-class VirtualModel : public Wt::WAbstractTableModel
+class VirtualModel : public WAbstractTableModel
 {
 public:
-  VirtualModel(int rows, int columns, Wt::WObject *parent = 0)
-    : Wt::WAbstractTableModel(parent),
+  VirtualModel(int rows, int columns)
+    : WAbstractTableModel(),
       rows_(rows),
       columns_(columns)
   { }
 
-  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const
   {
     if (!parent.isValid())
       return rows_;
@@ -17,7 +17,7 @@ public:
       return 0;
   }
 
-  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const
   {
     if (!parent.isValid())
       return columns_;
@@ -25,33 +25,33 @@ public:
       return 0;
   }
 
-  virtual boost::any data(const Wt::WModelIndex& index, int role = Wt::DisplayRole) const
+  virtual cpp17::any data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display) const
   {
-    switch (role) {
-    case Wt::DisplayRole:
+    switch (role.value()) {
+    case ItemDataRole::Display:
       if (index.column() == 0)
-	return Wt::WString("Row {1}").arg(index.row());
+        return WString("Row {1}").arg(index.row());
       else
-	return Wt::WString("Item row {1}, col {2}")
+        return WString("Item row {1}, col {2}")
 	  .arg(index.row()).arg(index.column());
     default:
-      return boost::any();
+      return cpp17::any();
     }
   }
 
-  virtual boost::any headerData(int section,
-				Wt::Orientation orientation = Wt::Horizontal,
-				int role = Wt::DisplayRole) const
+  virtual cpp17::any headerData(int section,
+                                Orientation orientation = Orientation::Horizontal,
+                                ItemDataRole role = ItemDataRole::Display) const
   {
-    if (orientation == Wt::Horizontal) {
-      switch (role) {
-      case Wt::DisplayRole:
-	return Wt::WString("Column {1}").arg(section);
+    if (orientation == Orientation::Horizontal) {
+      switch (role.value()) {
+      case ItemDataRole::Display:
+        return WString("Column {1}").arg(section);
       default:
-	return boost::any();
+        return cpp17::any();
       }
     } else
-      return boost::any();
+      return cpp17::any();
   }
 
 private:

@@ -5,21 +5,16 @@
  */
 #include "DomElement.h"
 
-#include "Wt/WTable"
-#include "Wt/WTableColumn"
+#include "Wt/WTable.h"
+#include "Wt/WTableColumn.h"
 
 namespace Wt {
 
 WTableColumn::WTableColumn()
-  : width_(0),
-    id_(0)
 { }
 
 WTableColumn::~WTableColumn()
-{
-  delete width_;
-  delete id_;
-}
+{ }
 
 WTableCell *WTableColumn::elementAt(int row)
 {
@@ -29,7 +24,7 @@ WTableCell *WTableColumn::elementAt(int row)
 int WTableColumn::columnNum() const
 {
   for (unsigned i =0; i < table_->columns_.size(); i++) 
-    if (table_->columns_[i] == this)
+    if (table_->columns_[i].get() == this)
       return i;
 
   return -1;
@@ -39,7 +34,7 @@ void WTableColumn::setWidth(const WLength& width)
 {
 #ifndef WT_TARGET_JAVA
   if (!width_)
-    width_ = new WLength(width);
+    width_.reset(new WLength(width));
   else
 #endif
     *width_ = width;
@@ -64,7 +59,7 @@ WLength WTableColumn::width() const
 void WTableColumn::setId(const std::string& id)
 {
   if (!id_)
-    id_ = new std::string();
+    id_.reset(new std::string());
 
   *id_ = id;
 }
@@ -80,10 +75,15 @@ const std::string WTableColumn::id() const
 void WTableColumn::updateDom(DomElement& element, bool all)
 {
   if (width_)
-    element.setProperty(PropertyStyleWidth, width_->cssText());
+    element.setProperty(Property::StyleWidth, width_->cssText());
 
   if (!all || !styleClass_.empty())
-    element.setProperty(PropertyClass, styleClass_.toUTF8());
+    element.setProperty(Property::Class, styleClass_.toUTF8());
+}
+
+void WTableColumn::setTable(WTable *table)
+{
+  table_ = table;
 }
 
 }

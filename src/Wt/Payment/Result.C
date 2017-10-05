@@ -1,4 +1,4 @@
-#include "Wt/Payment/Result"
+#include "Wt/Payment/Result.h"
 
 namespace Wt {
   namespace Payment {
@@ -28,7 +28,7 @@ std::map<std::string, std::string> Result::requestMessage() const
 }
 
 
-Approval::Approval(Outcome outcome)
+Approval::Approval(ApprovalOutcome outcome)
   : outcome_(outcome)
 { }
 

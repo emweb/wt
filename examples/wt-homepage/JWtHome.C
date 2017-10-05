@@ -10,21 +10,21 @@
 #include "QuoteForm.h"
 #endif // WT_EMWEB_BUILD
 
-#include <Wt/WText>
-#include <Wt/WAnchor>
-#include <Wt/WStackedWidget>
-#include <Wt/WTreeNode>
-#include <Wt/WWidget>
-#include <Wt/WViewWidget>
-#include <Wt/WTabWidget>
-#include <Wt/WMenuItem>
-#include <Wt/WTable>
-#include <Wt/WEnvironment>
-#include <Wt/WLogger>
+#include <Wt/WText.h>
+#include <Wt/WAnchor.h>
+#include <Wt/WStackedWidget.h>
+#include <Wt/WTreeNode.h>
+#include <Wt/WWidget.h>
+#include <Wt/WViewWidget.h>
+#include <Wt/WTabWidget.h>
+#include <Wt/WMenuItem.h>
+#include <Wt/WTable.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WLogger.h>
 
 #include "ExampleSourceViewer.h"
 
-JWtHome::JWtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb)
+JWtHome::JWtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb)
   : Home(env, blogDb,
 	 "JWt, Java Web Toolkit",
 	 "jwt-home", "css/jwt")
@@ -40,16 +40,16 @@ JWtHome::JWtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb)
   init();
 }
 
-WWidget *JWtHome::examples()
+std::unique_ptr<WWidget> JWtHome::examples()
 {
-  WContainerWidget *result = new WContainerWidget();
+  std::unique_ptr<WContainerWidget> result(cpp14::make_unique<WContainerWidget>());
 
-  WText *intro = new WText(tr("home.examples"));
+  std::unique_ptr<WText> intro(cpp14::make_unique<WText>(tr("home.examples")));
   intro->setInternalPathEncoding(true);
-  result->addWidget(intro);
+  result->addWidget(std::move(intro));
 
-  examplesMenu_ = new WTabWidget(result);
-  WAnimation animation(WAnimation::SlideInFromRight, WAnimation::EaseIn);
+  examplesMenu_ = result->addWidget(cpp14::make_unique<WTabWidget>());
+  WAnimation animation(AnimationEffect::SlideInFromRight, TimingFunction::EaseIn);
   examplesMenu_->contentsStack()->setTransitionAnimation(animation, true);
 
   /*
@@ -67,95 +67,95 @@ WWidget *JWtHome::examples()
 
   // The call ->setPathComponent() is to use "/examples/" instead of
   // "/examples/hello_world" as internal path
-  examplesMenu_->addTab(wrapView(&JWtHome::helloWorldExample),
+  examplesMenu_->addTab(std::move(wrapView(&JWtHome::helloWorldExample)),
   			tr("hello-world"))->setPathComponent("");
-  examplesMenu_->addTab(wrapView(&JWtHome::widgetGalleryExample),
+  examplesMenu_->addTab(std::move(wrapView(&JWtHome::widgetGalleryExample)),
 			tr("widget-gallery"));
-  examplesMenu_->addTab(wrapView(&JWtHome::chartExample),
+  examplesMenu_->addTab(std::move(wrapView(&JWtHome::chartExample)),
   			tr("charts"));
-  examplesMenu_->addTab(wrapView(&JWtHome::treeviewExample),
+  examplesMenu_->addTab(std::move(wrapView(&JWtHome::treeviewExample)),
 			tr("treeview"));
-  examplesMenu_->addTab(wrapView(&JWtHome::composerExample),
+  examplesMenu_->addTab(std::move(wrapView(&JWtHome::composerExample)),
 			tr("mail-composer"));
-  examplesMenu_->addTab(wrapView(&JWtHome::chatExample),
+  examplesMenu_->addTab(std::move(wrapView(&JWtHome::chatExample)),
 			tr("chat"));
-  examplesMenu_->addTab(wrapView(&JWtHome::figtreeExample),
+  examplesMenu_->addTab(std::move(wrapView(&JWtHome::figtreeExample)),
 			tr("figtree"));
   
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled("/examples");
   examplesMenu_->currentChanged().connect(this, &Home::googleAnalyticsLogger);
 
-  return result;
+  return std::move(result);
 }
 
-WWidget *JWtHome::createQuoteForm()
+std::unique_ptr<WWidget> JWtHome::createQuoteForm()
 {
 #ifdef WT_EMWEB_BUILD
-  return new QuoteForm(QuoteForm::JWt);
+  return cpp14::make_unique<QuoteForm>(QuoteForm::JWt);
 #else
-  return 0;
+  return nullptr;
 #endif
 }
 
-WWidget *JWtHome::sourceViewer(const std::string &deployPath)
+std::unique_ptr<WWidget> JWtHome::sourceViewer(const std::string &deployPath)
 {
-  return new ExampleSourceViewer(deployPath, jwtExamplePath_ + "/", "JAVA");
+  return cpp14::make_unique<ExampleSourceViewer>(deployPath, jwtExamplePath_ + "/", "JAVA");
 }
 
-WWidget *JWtHome::example(const char *textKey, const std::string& sourceDir)
+std::unique_ptr<WWidget> JWtHome::example(const char *textKey, const std::string& sourceDir)
 {
-  WContainerWidget *result = new WContainerWidget();
-  new WText(tr(textKey), result);
+  std::unique_ptr<WContainerWidget> result = cpp14::make_unique<WContainerWidget>();
+  result->addWidget(cpp14::make_unique<WText>(tr(textKey)));
   result->addWidget(linkSourceBrowser(sourceDir));
-  return result;
+  return std::move(result);
 }
 
-WWidget *JWtHome::helloWorldExample()
+std::unique_ptr<WWidget> JWtHome::helloWorldExample()
 {
-  return example("home.examples.hello", "hello");
+  return std::move(example("home.examples.hello", "hello"));
 }
 
-WWidget *JWtHome::chartExample()
+std::unique_ptr<WWidget> JWtHome::chartExample()
 {
-  return example("home.examples.chart", "charts");
+  return std::move(example("home.examples.chart", "charts"));
 }
 
-WWidget *JWtHome::treeviewExample()
+std::unique_ptr<WWidget> JWtHome::treeviewExample()
 {
-  return example("home.examples.treeview", "treeviewdragdrop");
+  return std::move(example("home.examples.treeview", "treeviewdragdrop"));
 }
 
-WWidget *JWtHome::composerExample()
+std::unique_ptr<WWidget> JWtHome::composerExample()
 {
-  return example("home.examples.composer", "composer");
+  return std::move(example("home.examples.composer", "composer"));
 }
 
-WWidget *JWtHome::chatExample()
+std::unique_ptr<WWidget> JWtHome::chatExample()
 {
-  return example("home.examples.chat", "simplechat");
+  return std::move(example("home.examples.chat", "simplechat"));
 }
 
-WWidget *JWtHome::figtreeExample()
+std::unique_ptr<WWidget> JWtHome::figtreeExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-  WText *text = new WText(tr("home.examples.figtree"), result);
+  std::unique_ptr<WContainerWidget> result(cpp14::make_unique<WContainerWidget>());
+  WText *text = result->addWidget(cpp14::make_unique<WText>(tr("home.examples.figtree")));
   text->setInternalPathEncoding(true);
-  return result;
+  return std::move(result);
 }
 
-WWidget *JWtHome::widgetGalleryExample()
+std::unique_ptr<WWidget> JWtHome::widgetGalleryExample()
 {
-  return example("home.examples.widgetgallery", "widgetgallery");
+  return std::move(example("home.examples.widgetgallery", "widgetgallery"));
 }
 
-WWidget *JWtHome::wrapView(WWidget *(JWtHome::*createWidget)())
+std::unique_ptr<WWidget> JWtHome::wrapView(std::unique_ptr<WWidget> (JWtHome::*createWidget)())
 {
-  return makeStaticModel(boost::bind(createWidget, this));
+  return makeStaticModel(std::bind(createWidget, this));
 }
 
-WApplication *createJWtHomeApplication(const WEnvironment& env, 
-				       Wt::Dbo::SqlConnectionPool *blogDb)
+std::unique_ptr<WApplication> createJWtHomeApplication(const WEnvironment& env,
+                                       Dbo::SqlConnectionPool *blogDb)
 {
-  return new JWtHome(env, *blogDb);
+  return cpp14::make_unique<JWtHome>(env, *blogDb);
 }

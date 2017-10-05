@@ -7,8 +7,8 @@
 #ifndef DIALOG_EXAMPLE_H_
 #define DIALOG_EXAMPLE_H_
 
-#include <Wt/WApplication>
-#include <Wt/WMessageBox>
+#include <Wt/WApplication.h>
+#include <Wt/WMessageBox.h>
 
 using namespace Wt;
 
@@ -37,7 +37,7 @@ private:
 
   void setStatus(const WString& text);
 
-  WMessageBox *messageBox_;
+  std::unique_ptr<WMessageBox> messageBox_;
   WText *status_;
 };
 

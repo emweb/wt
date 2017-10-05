@@ -8,7 +8,7 @@
 #ifndef WT_MAIL_UTILS_H_
 #define WT_MAIL_UTILS_H_
 
-#include "Wt/Mail/Message"
+#include "Wt/Mail/Message.h"
 #include <Wt/WDllDefs.h>
 
 namespace Wt {

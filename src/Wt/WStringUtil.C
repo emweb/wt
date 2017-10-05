@@ -4,13 +4,17 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WLogger"
-#include "Wt/WStringUtil"
+#include "Wt/WLogger.h"
+#include "Wt/WStringUtil.h"
 
 #include "3rdparty/rapidxml/rapidxml.hpp"
 
-#ifndef WT_NO_STD_LOCALE
 #include <locale>
+
+#if WCHAR_MAX == 0xFFFF
+#define TWO_BYTE_CHAR
+#else
+#define FOUR_BYTE_CHAR
 #endif
 
 namespace Wt {
@@ -19,334 +23,413 @@ LOGGER("WString");
 
 namespace {
   static const std::size_t stack_buffer_size = 512;
-}
 
-#ifndef WT_NO_STD_WSTRING
-#ifndef WT_NO_STD_LOCALE
-std::wstring widen(const std::string& s, const std::locale &loc)
-{
-  typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
-  
-  std::wstring result;
-  result.reserve(s.length());
-  
-  const Cvt& myfacet = std::use_facet<Cvt>(loc);
-  Cvt::result myresult;
-  std::mbstate_t mystate = std::mbstate_t();
- 
-  wchar_t stack_buffer[stack_buffer_size + 1];
-  const char* next_to_convert = s.c_str();
-  const char* const to_convert_end = s.c_str() + s.length();
-  
-  bool error = false;
+  template<typename OutStrT>
+  OutStrT do_widen(const std::string& s, const std::locale &loc)
+  {
+    typedef typename OutStrT::value_type OutCharT;
 
-  while (next_to_convert != to_convert_end) {
-    wchar_t* converted_end = stack_buffer;
-    myresult = myfacet.in(mystate, next_to_convert, to_convert_end,
-			  next_to_convert,
-			  stack_buffer, stack_buffer + stack_buffer_size,
-			  converted_end);
-
-    result.append(stack_buffer, converted_end);
+    typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
     
-    if (myresult == Cvt::error) {
-      result += L'?';
-      ++ next_to_convert;
-      error = true;
-    }
-  }
+    OutStrT result;
+    result.reserve(s.length());
+    
+    const Cvt& myfacet = std::use_facet<Cvt>(loc);
+    Cvt::result myresult;
+    std::mbstate_t mystate = std::mbstate_t();
+   
+    wchar_t stack_buffer[stack_buffer_size + 1];
+    const char* next_to_convert = s.c_str();
+    const char* const to_convert_end = s.c_str() + s.length();
+    
+    bool error = false;
 
-  if (error)
-    LOG_ERROR("widen(): could not widen string: " << s);
+    while (next_to_convert != to_convert_end) {
+      wchar_t* converted_end = stack_buffer;
+      myresult = myfacet.in(mystate, next_to_convert, to_convert_end,
+			    next_to_convert,
+			    stack_buffer, stack_buffer + stack_buffer_size,
+			    converted_end);
 
-  return result;
-}
-#else
-// Assumes pure ASCII-7 encoding. The wstring will be UCS encoded.
-std::wstring widen(const std::string& s)
-{
-  std::wstring retval;
-  retval.reserve(s.size());
-  
-  for(unsigned int i = 0; i < s.size(); ++i) {
-    if (s[i] & 0x80)
-      retval.push_back('?'); // invalid ASCII character
-    else
-      retval.push_back(s[i]); // ASCII-7 doesn't change in unicode
-  }
-  return retval;
-}
-#endif
-#endif
-
-#ifndef WT_NO_STD_WSTRING
-#ifndef WT_NO_STD_LOCALE
-std::string narrow(const std::wstring& s, const std::locale &loc)
-{
-  typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
-
-  const Cvt& myfacet = std::use_facet<Cvt>(loc);
-
-  Cvt::result myresult;
-
-  const wchar_t *pwstr = s.c_str();
-  const wchar_t *pwend = s.c_str() + s.length();
-  const wchar_t *pwc = pwstr;
-
-  int size = s.length() + 1;
-
-  char *pstr = (char*)std::malloc(size);
-  char *pc = pstr;
-
-  std::mbstate_t mystate = std::mbstate_t();
-  bool error = false;
-
-  for (;;) {
-    myresult = myfacet.out(mystate, pwc, pwend, pwc, pc, pstr + size, pc);
-
-    if (myresult == Cvt::ok) {
-      break;
-    } else {
-      if (myresult == Cvt::partial || pc >= pstr + size) {
-	size += s.length();
-	std::size_t sofar = pc - pstr;
-	pstr = (char *)std::realloc(pstr, size);
-	pc = pstr + sofar;
-      }
-
+      result.append((OutCharT*)stack_buffer, (OutCharT*)converted_end);
+      
       if (myresult == Cvt::error) {
-	*pc++ = '?';
-	pwc++;
+	result += '?';
+	++ next_to_convert;
 	error = true;
       }
     }
+
+    if (error)
+      LOG_ERROR("widen(): could not widen string: " << s);
+
+    return result;
   }
 
-  std::string result(pstr, pc - pstr);
+  template<typename InStrT>
+  std::string do_narrow(const InStrT &s, const std::locale &loc)
+  {
+    typedef std::codecvt<wchar_t, char, std::mbstate_t> cvt;
 
-  if (error)
-    LOG_WARN("narrow(): loss of detail: " << result);
+    const cvt& myfacet = std::use_facet<cvt>(loc);
 
-  std::free(pstr);
+    cvt::result myresult;
 
-  return result;
+    const wchar_t *pwstr = (const wchar_t*)(s.c_str());
+    const wchar_t *pwend = (const wchar_t*)(s.c_str() + s.length());
+    const wchar_t *pwc = pwstr;
+
+    int size = s.length() + 1;
+
+    char *pstr = (char*)std::malloc(size);
+    char *pc = pstr;
+
+    std::mbstate_t mystate = std::mbstate_t();
+    bool error = false;
+
+    for (;;) {
+      myresult = myfacet.out(mystate, pwc, pwend, pwc, pc, pstr + size, pc);
+
+      if (myresult == cvt::ok) {
+        break;
+      } else {
+        if (myresult == cvt::partial || pc >= pstr + size) {
+          size += s.length();
+          std::size_t sofar = pc - pstr;
+          pstr = (char *)std::realloc(pstr, size);
+          pc = pstr + sofar;
+        }
+
+        if (myresult == cvt::error) {
+          *pc++ = '?';
+          error = true;
+#ifdef TWO_BYTE_CHAR
+          if (*pwc >= 0xD800 &&
+              *pwc < 0xDC00)
+            ++pwc; // skip low surrogate too
+          if (pwc == pwend)
+            break; // highly unusual
+#endif
+          ++pwc;
+        }
+      }
+    }
+
+    std::string result(pstr, pc - pstr);
+
+    if (error)
+      LOG_WARN("narrow(): loss of detail: " << result);
+
+    std::free(pstr);
+
+    return result;
+  }
+
+  template<typename OutStrT, typename InStrT>
+  OutStrT utf16_to_utf32(const InStrT &s)
+  {
+    OutStrT result;
+    result.reserve(s.size());
+    for (std::size_t i = 0; i < s.size(); ++i) {
+      typename InStrT::value_type c = s[i];
+      if (c < 0xD800 || c > 0xDFFF)
+        result.push_back((typename OutStrT::value_type) c);
+      else if (i + 1 < s.size() &&
+               s[i] >= 0xD800 && s[i] < 0xDC00 &&
+               s[i+1] >= 0xDC00 && s[i+1] <= 0xDFFF) {
+        result.push_back((typename OutStrT::value_type)
+                         (0x10000 + ((s[i] - 0xD800) << 10) + (s[i+1] - 0xDC00)));
+        ++i;
+      } else {
+        result.push_back((typename OutStrT::value_type) 0xFFFD); // invalid
+      }
+    }
+    return result;
+  }
+
+  template<typename OutStrT, typename InStrT>
+  OutStrT utf32_to_utf16(const InStrT &s)
+  {
+    OutStrT result;
+    result.reserve(s.size());
+    for (std::size_t i = 0; i < s.size(); ++i) {
+      typename InStrT::value_type c = s[i];
+      if (c < 0x10000) {
+        if (c < 0xD800 || c > 0xDFFF)
+          result.push_back((typename OutStrT::value_type) c);
+        else
+          result.push_back((typename OutStrT::value_type) 0xFFFD); // invalid
+      } else {
+        result.push_back((typename OutStrT::value_type) (((c - 0x10000) >> 10) + 0xD800));
+        result.push_back((typename OutStrT::value_type) (((c - 0x10000) & 0x3FF) + 0xDC00));
+      }
+    }
+    return result;
+  }
+
+  template<typename OutStrT>
+  OutStrT utf8_to_utf32(const std::string &s)
+  {
+    typedef typename OutStrT::value_type char_type;
+
+    OutStrT result;
+    result.reserve(s.length());
+
+    for (unsigned i = 0; i < s.length(); ++i) {
+      bool legal = false;
+      if ((unsigned char)s[i] <= 0x7F) {
+        unsigned char c = s[i];
+        if (c == 0x09 || c == 0x0A || c == 0x0D || c >= 0x20) {
+          result += (char_type)(c);
+          legal = true;
+        }
+      } else if ((unsigned char)s[i] >= 0xF0) {
+        if (i + 3 < s.length()) {
+          if ((
+               // F0 90-BF 80-BF 80-BF
+               (                                    (unsigned char)s[i] == 0xF0)
+               && (0x90 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
+               && (0x80 <= (unsigned char)s[i+2] && (unsigned char)s[i+2] <= 0xBF)
+               && (0x80 <= (unsigned char)s[i+3] && (unsigned char)s[i+3] <= 0xBF)
+               ) ||
+              (
+               // F1-F3 80-BF 80-BF 80-BF
+               (   0xF1 <= (unsigned char)s[i]   && (unsigned char)s[i] <= 0xF3)
+               && (0x80 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
+               && (0x80 <= (unsigned char)s[i+2] && (unsigned char)s[i+2] <= 0xBF)
+               && (0x80 <= (unsigned char)s[i+3] && (unsigned char)s[i+3] <= 0xBF)
+               )) {
+            legal = true;
+
+            uint32_t cp = ((unsigned char)s[i]) & 0x0F;
+            for (unsigned j = 1; j < 4; ++j) {
+              cp <<= 6;
+              cp |= ((unsigned char)s[i+j]) & 0x3F;
+            }
+
+            char_type wc = cp;
+            if ((uint32_t)wc == cp)
+              result += wc;
+            else
+              legal = false;
+          }
+        }
+        i += 3;
+      } else if ((unsigned char)s[i] >= 0xE0) {
+        if (i + 2 < s.length()) {
+          if ((
+               // E0 A0*-BF 80-BF
+               (                                    (unsigned char)s[i] == 0xE0)
+               && (0xA0 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
+               && (0x80 <= (unsigned char)s[i+2] && (unsigned char)s[i+2] <= 0xBF)
+               ) ||
+              (
+               // E1-EF 80-BF 80-BF
+               (   0xE1 <= (unsigned char)s[i]   && (unsigned char)s[i] <= 0xF1)
+               && (0x80 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
+               && (0x80 <= (unsigned char)s[i+2] && (unsigned char)s[i+2] <= 0xBF)
+               )) {
+            legal = true;
+
+            char_type cp = ((unsigned char)s[i]) & 0x1F;
+            for (unsigned j = 1; j < 3; ++j) {
+              cp <<= 6;
+              cp |= ((unsigned char)s[i+j]) & 0x3F;
+            }
+
+            char_type wc = cp;
+            if (wc == cp)
+              result += wc;
+            else
+              legal = false;
+          }
+        }
+        i += 2;
+      } else if ((unsigned char)s[i] >= 0xC0) {
+        if (i + 1 < s.length()) {
+          if (
+              // C2-DF 80-BF
+              (   0xC2 <= (unsigned char)s[i]   && (unsigned char)s[i] <= 0xDF)
+              && (0x80 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
+              ) {
+            legal = true;
+
+            char_type cp = ((unsigned char)s[i]) & 0x3F;
+            for (unsigned j = 1; j < 2; ++j) {
+              cp <<= 6;
+              cp |= ((unsigned char)s[i+j]) & 0x3F;
+            }
+
+            char_type wc = cp;
+            if (wc == cp)
+              result += wc;
+            else
+              legal = false;
+          }
+        }
+        i += 1;
+      }
+
+      if (!legal)
+        result += (char_type)0xFFFD;
+    }
+
+    return result;
+  }
+
+  template<typename InStrT>
+  std::string utf32_to_utf8(const InStrT &s)
+  {
+    std::string result;
+    result.reserve(s.length() * 3);
+
+    char buf[4];
+    for (typename InStrT::const_iterator i = s.begin(); i != s.end(); ++i) {
+      char *end = buf;
+      try {
+        Wt::rapidxml::xml_document<>::insert_coded_character<0>(end, *i);
+        for (char *b = buf; b != end; ++b)
+          result += *b;
+      } catch (Wt::rapidxml::parse_error& e) {
+        LOG_ERROR("toUTF8(): " << e.what());
+      }
+    }
+
+    return result;
+  }
 }
-#else
-std::string narrow(const std::wstring& s)
+
+std::wstring widen(const std::string& s, const std::locale &loc)
 {
-  std::string retval;
-  retval.reserve(s.size());
-  
-  for (unsigned int i = 0; i < s.size(); ++i) {
-    if (retval[i] < 128)
-      retval.push_back(s[i]);
-    else
-      retval.push_back('?');
-  }
-  return retval;
+  return do_widen<std::wstring>(s, loc);
 }
-#endif
-#endif
 
-#ifndef WT_NO_STD_WSTRING
+std::u16string toUTF16(const std::string& s, const std::locale &loc)
+{
+#ifdef TWO_BYTE_CHAR
+  return do_widen<std::u16string>(s, loc);
+#else
+  return utf32_to_utf16<std::u16string>(do_widen<std::u32string>(s, loc));
+#endif
+}
+
+std::u32string toUTF32(const std::string& s, const std::locale &loc)
+{
+#ifdef TWO_BYTE_CHAR
+  return utf16_to_utf32<std::u32string>(do_widen<std::u16string>(s, loc));
+#else
+  return do_widen<std::u32string>(s, loc);
+#endif
+}
+
+std::string narrow(const std::wstring& s, const std::locale &loc)
+{
+  return do_narrow(s, loc);
+}
+
+std::string narrow(const std::u16string& s, const std::locale &loc)
+{
+#ifdef TWO_BYTE_CHAR
+  return do_narrow(s, loc);
+#else
+  return do_narrow(utf16_to_utf32<std::wstring>(s), loc);
+#endif
+}
+
+std::string narrow(const std::u32string& s, const std::locale &loc)
+{
+#ifdef TWO_BYTE_CHAR
+  return do_narrow(utf32_to_utf16<std::wstring>(s), loc);
+#else
+  return do_narrow(s, loc);
+#endif
+}
+
 std::string toUTF8(const std::wstring& s)
 {
-  std::string result;
-  result.reserve(s.length() * 3);
-
-  char buf[4];
-  uint32_t cp = 0;
-  for (std::wstring::const_iterator i = s.begin(); i != s.end(); ++i) {
-    wchar_t c = *i;
-    if (sizeof(wchar_t) == 2 && c >= 0xD800 && c < 0xDC00) {
-      cp = (((uint32_t)(c - 0xD800)) << 10) + 0x10000;
-      continue;
-    } else if (sizeof(wchar_t) == 2 && c >= 0xDC00 && c < 0xE000)
-      cp += (c - 0xDC00);
-    else
-      cp = c;
-    char *end = buf;
-    try {
-      Wt::rapidxml::xml_document<>::insert_coded_character<0>(end, cp);
-      for (char *b = buf; b != end; ++b)
-	result += *b;
-    } catch (Wt::rapidxml::parse_error& e) {
-      LOG_ERROR("toUTF8(): " << e.what());
-    }
-  }
-
-  return result;
-}
+#ifdef TWO_BYTE_CHAR
+  return utf32_to_utf8(utf16_to_utf32<std::u32string>(s));
+#else
+  return utf32_to_utf8(s);
 #endif
+}
 
-#ifndef WT_NO_STD_WSTRING
+std::string toUTF8(const std::u16string& s)
+{
+  return utf32_to_utf8(utf16_to_utf32<std::u32string>(s));
+}
+
+std::string toUTF8(const std::u32string& s)
+{
+  return utf32_to_utf8(s);
+}
+
 std::wstring fromUTF8(const std::string& s)
 {
-  std::wstring result;
-  result.reserve(s.length());
-
-  for (unsigned i = 0; i < s.length(); ++i) {
-    bool legal = false;
-    if ((unsigned char)s[i] <= 0x7F) {
-      unsigned char c = s[i];
-      if (c == 0x09 || c == 0x0A || c == 0x0D || c >= 0x20) {
-	result += (wchar_t)(c);
-	legal = true;
-      }
-    } else if ((unsigned char)s[i] >= 0xF0) {
-      if (i + 3 < s.length()) {
-	if ((
-	     // F0 90-BF 80-BF 80-BF
-	     (                                    (unsigned char)s[i] == 0xF0)
-	     && (0x90 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
-	     && (0x80 <= (unsigned char)s[i+2] && (unsigned char)s[i+2] <= 0xBF)
-	     && (0x80 <= (unsigned char)s[i+3] && (unsigned char)s[i+3] <= 0xBF)
-	     ) ||
-	    (
-	     // F1-F3 80-BF 80-BF 80-BF
-	     (   0xF1 <= (unsigned char)s[i]   && (unsigned char)s[i] <= 0xF3)
-	     && (0x80 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
-	     && (0x80 <= (unsigned char)s[i+2] && (unsigned char)s[i+2] <= 0xBF)
-	     && (0x80 <= (unsigned char)s[i+3] && (unsigned char)s[i+3] <= 0xBF)
-	     )) {
-	  legal = true;
-
-	  uint32_t cp = ((unsigned char)s[i]) & 0x0F;
-	  for (unsigned j = 1; j < 4; ++j) {
-	    cp <<= 6;
-	    cp |= ((unsigned char)s[i+j]) & 0x3F;
-	  }
-
-          if (cp >= 0xD800 && cp < 0xE000)
-            legal = false;
-          else if (sizeof(wchar_t) == 4 || cp < 0x10000)
-            result += (wchar_t)cp;
-          else {
-            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
-            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
-          }
-	}
-      }
-      i += 3;
-    } else if ((unsigned char)s[i] >= 0xE0) {
-      if (i + 2 < s.length()) {
-	if ((
-	     // E0 A0*-BF 80-BF
-	     (                                    (unsigned char)s[i] == 0xE0)
-	     && (0xA0 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
-	     && (0x80 <= (unsigned char)s[i+2] && (unsigned char)s[i+2] <= 0xBF)
-	     ) ||
-	    (
-	     // E1-EF 80-BF 80-BF
-	     (   0xE1 <= (unsigned char)s[i]   && (unsigned char)s[i] <= 0xF1)
-	     && (0x80 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
-	     && (0x80 <= (unsigned char)s[i+2] && (unsigned char)s[i+2] <= 0xBF)
-	     )) {
-	  legal = true;
-
-	  uint32_t cp = ((unsigned char)s[i]) & 0x1F;
-	  for (unsigned j = 1; j < 3; ++j) {
-	    cp <<= 6;
-	    cp |= ((unsigned char)s[i+j]) & 0x3F;
-	  }
-
-          if (cp >= 0xD800 && cp < 0xE000)
-            legal = false;
-          else if (sizeof(wchar_t) == 4 || cp < 0x10000)
-            result += (wchar_t)cp;
-          else {
-            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
-            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
-          }
-	}
-      }
-      i += 2;
-    } else if ((unsigned char)s[i] >= 0xC0) {
-      if (i + 1 < s.length()) {
-	if (
-	    // C2-DF 80-BF
-	    (   0xC2 <= (unsigned char)s[i]   && (unsigned char)s[i] <= 0xDF)
-	    && (0x80 <= (unsigned char)s[i+1] && (unsigned char)s[i+1] <= 0xBF)
-	    ) {
-	  legal = true;
-
-	  uint32_t cp = ((unsigned char)s[i]) & 0x3F;
-	  for (unsigned j = 1; j < 2; ++j) {
-	    cp <<= 6;
-	    cp |= ((unsigned char)s[i+j]) & 0x3F;
-	  }
-
-          if (cp >= 0xD800 && cp < 0xE000)
-            legal = false;
-          else if (sizeof(wchar_t) == 4 || cp < 0x10000)
-            result += (wchar_t)cp;
-          else {
-            result += (wchar_t)(0xD800 + ((cp - 0x10000) >> 10));
-            result += (wchar_t)(0xDC00 + ((cp - 0x10000) & 0x3FF));
-          }
-	}
-      }
-      i += 1;
-    }
-
-    if (!legal)
-      result += (wchar_t)0xFFFD;
-  }
-
-  return result;
-}
+#ifdef TWO_BYTE_CHAR
+  return utf32_to_utf16<std::wstring>(utf8_to_utf32<std::u32string>(s));
+#else
+  return utf8_to_utf32<std::wstring>(s);
 #endif
+}
 
-#ifndef WT_NO_STD_LOCALE
+std::u16string utf8ToUTF16(const std::string &s)
+{
+  return utf32_to_utf16<std::u16string>(utf8_to_utf32<std::u32string>(s));
+}
+
+std::u32string utf8ToUTF32(const std::string &s)
+{
+  return utf8_to_utf32<std::u32string>(s);
+}
+
 std::string fromUTF8(const std::string& s, const std::locale &loc)
 {
   return narrow(fromUTF8(s), loc);
 }
-#else
-std::string fromUTF8(const std::string& s, CharEncoding encoding)
-{
-  switch(encoding) {
-#ifndef WT_NO_STD_WSTRING
-    case DefaultEncoding:
-    case LocalEncoding:
-      return narrow(fromUTF8(s));
-#else
-    case DefaultEncoding:
-    case LocalEncoding:
-      {
-        // You may want to rewrite this for your system
-        // Eliminate all non-ascii chars
-        // TODO: handle multi-byte UTF-8 characters
-        std::string retval = s;
-        for(std::size_t i = 0; i < retval.size(); ++i)
-          if (retval[i] > 127) retval[i] = '?';
-        return s;
-      }
-#endif
-    case UTF8: return s;
-  }
-}
-#endif
 
-#ifndef WT_NO_STD_LOCALE
 std::string toUTF8(const std::string& s, const std::locale &loc)
 {
   return toUTF8(widen(s, loc));
 }
-#else
-std::string toUTF8(const std::string& s)
+
+std::u16string toUTF16(const std::wstring& s)
 {
-#ifndef WT_NO_STD_WSTRING
-  return toUTF8(widen(s));
+#ifdef TWO_BYTE_CHAR
+  return std::u16string((const char16_t*)s.c_str());
 #else
-  // You may want to rewrite this for your system
-  std::string retval = s;
-  for(std::size_t i = 0; i < retval.size(); ++i)
-    if (retval[i] > 127) retval[i] = '?';
-  return s;
+  return utf32_to_utf16<std::u16string>(s);
 #endif
 }
+
+std::u16string toUTF16(const std::u32string& s)
+{
+  return utf32_to_utf16<std::u16string>(s);
+}
+
+std::u32string toUTF32(const std::wstring& s)
+{
+#ifdef TWO_BYTE_CHAR
+  return utf16_to_utf32<std::u32string>(s);
+#else
+  return std::u32string((const char32_t*)s.c_str());
 #endif
+}
+
+std::u32string toUTF32(const std::u16string& s)
+{
+  return utf16_to_utf32<std::u32string>(s);
+}
+
+std::wostream& streamUTF8(std::wostream &os, const std::string &s)
+{
+#ifdef TWO_BYTE_CHAR
+  os << utf32_to_utf16<std::wstring>(utf8_to_utf32<std::u32string>(s));
+#else
+  os << utf8_to_utf32<std::wstring>(s);
+#endif
+  return os;
+}
 
 std::string UTF8Substr(const std::string &s, int begin, int length)
 {

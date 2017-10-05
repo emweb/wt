@@ -10,34 +10,36 @@
 
 #include "Shape.h"
 
-#include <Wt/WPaintedWidget>
-#include <Wt/WPaintDevice>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPaintDevice.h>
 
-class ShapesWidget : public Wt::WPaintedWidget
+using namespace Wt;
+
+class ShapesWidget : public WPaintedWidget
 {
 public:
-  ShapesWidget(Wt::WContainerWidget* parent);
+  ShapesWidget();
   ~ShapesWidget();
 
-  Wt::WString selectedColor();
-  Wt::WString selectedShape();
-  bool correctlyClicked(const Wt::WMouseEvent& me);
+  WString selectedColor();
+  WString selectedShape();
+  bool correctlyClicked(const WMouseEvent& me);
   void initShapes();
   
 protected:
-  virtual void paintEvent(Wt::WPaintDevice *paintDevice);
+  virtual void paintEvent(WPaintDevice *paintDevice);
 
 private:
   int randomInt(const unsigned max);
   double randomDouble();
   bool sameShapeAndColor(const Shape* s1, const Shape* s2);
   ShapeColor createRandomColor();
-  Shape* createRandomShape();
+  std::unique_ptr<Shape> createRandomShape();
   void cleanupShapes();
 
 private:
-  std::vector<Shape*> shapes_;
-  Shape* toSelect_;
+  std::vector<std::unique_ptr<Shape>> shapes_;
+  Shape *toSelect_;
 };
 
 #endif //SHAPES_WIDGET_H_

@@ -2,8 +2,8 @@
 #define USER_H
 
 #include <string>
-#include <Wt/Dbo/Dbo>
-#include <Wt/Auth/Dbo/AuthInfo>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
 
 class User;
 typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;

@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <boost/tokenizer.hpp>
 
-#include <Wt/WAbstractItemModel>
-#include <Wt/WString>
+#include <Wt/WAbstractItemModel.h>
+#include <Wt/WString.h>
 
 #include "CsvUtil.h"
 
@@ -35,7 +35,7 @@ void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
 			       col + 1 - model->columnCount());
 
 	if (firstLineIsHeaders && csvRow == 0)
-	  model->setHeaderData(col, boost::any(Wt::WString::fromUTF8(*i)));
+          model->setHeaderData(col, Wt::cpp17::any(Wt::WString(*i)));
 	else {
 	  int dataRow = firstLineIsHeaders ? csvRow - 1 : csvRow;
 
@@ -46,19 +46,19 @@ void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
 	    model->insertRows(model->rowCount(),
 			      dataRow + 1 - model->rowCount());
 
-	  boost::any data;
+          Wt::cpp17::any data;
 	  std::string s = *i;
 
 	  char *endptr;
 
 	  if (s.empty())
-	    data = boost::any();
+            data = Wt::cpp17::any();
 	  else {
 	    double d = strtod(s.c_str(), &endptr);
 	    if (*endptr == 0)
-	      data = boost::any(d);
+              data = Wt::cpp17::any(d);
 	    else
-	      data = boost::any(Wt::WString::fromUTF8(s));
+              data = Wt::cpp17::any(Wt::WString(s));
 	  }
 
 	  model->setData(dataRow, col, data);

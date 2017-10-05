@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Render/WTextRenderer>
+#include <Wt/Render/WTextRenderer.h>
 #include <iostream>
 #include <boost/version.hpp>
 
@@ -12,12 +12,12 @@
 
 class MyTextRenderer : public Wt::Render::WTextRenderer
 {
-  virtual double pageWidth(int page) const{return 0;}
-  virtual double pageHeight(int page) const{return 0;}
-  virtual double margin(Wt::Side side) const{return 0;}
-  virtual Wt::WPaintDevice *startPage(int page){return 0;}
-  virtual void endPage(Wt::WPaintDevice *device){}
-  virtual Wt::WPainter *getPainter(Wt::WPaintDevice *device){return 0;}
+  virtual double pageWidth(int page) const override {return 0;}
+  virtual double pageHeight(int page) const override {return 0;}
+  virtual double margin(Wt::Side side) const override {return 0;}
+  virtual Wt::WPaintDevice *startPage(int page) override{return 0;}
+  virtual void endPage(Wt::WPaintDevice *device) override{}
+  virtual Wt::WPainter *getPainter(Wt::WPaintDevice *device) override{return 0;}
 };
 
 BOOST_AUTO_TEST_CASE( WTextRenderer_testStylesheet )

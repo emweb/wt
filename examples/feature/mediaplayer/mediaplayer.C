@@ -4,15 +4,17 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WText>
-#include <Wt/WMediaPlayer>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
+#include <Wt/WMediaPlayer.h>
+#include <Wt/WContainerWidget.h>
 
 using namespace Wt;
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication* app = new WApplication(env);
+  std::unique_ptr<WApplication> app
+      = cpp14::make_unique<WApplication>(env);
 
   app->messageResourceBundle().use(WApplication::appRoot() + "text");
 
@@ -25,24 +27,25 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
   std::string poster = "sintel_trailer.jpg";
   
-  new WText(WString::tr("intro"), app->root());
+  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("intro")));
 
-  new WText(WString::tr("video"), app->root());
+  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("video")));
 
-  WMediaPlayer *player = new WMediaPlayer(WMediaPlayer::Video, app->root());
+  WMediaPlayer *player = app->root()->addWidget(
+        cpp14::make_unique<WMediaPlayer>(MediaType::Video));
 
-  player->addSource(WMediaPlayer::M4V, mp4Video);
-  player->addSource(WMediaPlayer::OGV, ogvVideo);
-  player->addSource(WMediaPlayer::PosterImage, poster);
+  player->addSource(MediaEncoding::M4V, mp4Video);
+  player->addSource(MediaEncoding::OGV, ogvVideo);
+  player->addSource(MediaEncoding::PosterImage, poster);
   player->setTitle("<a href=\"http://durian.blender.org/\""
 		   "target=\"_blank\">Sintel</a>, "
 		   "(c) copyright Blender Foundation");
 
-  new WText(WString::tr("audio"), app->root());
+  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("audio")));
 
-  player = new WMediaPlayer(WMediaPlayer::Audio, app->root());
+  player = app->root()->addWidget(cpp14::make_unique<WMediaPlayer>(MediaType::Audio));
 
-  player->addSource(WMediaPlayer::MP3, mp3Audio);
+  player->addSource(MediaEncoding::MP3, mp3Audio);
   player->setTitle("La Sera - Never Come Around");
   
   return app;
@@ -50,6 +53,6 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
 int main(int argc, char **argv)
 {
-  return Wt::WRun(argc, argv, &createApplication);
+  return WRun(argc, argv, &createApplication);
 }
 

@@ -1,125 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WSTRING_LIST_MODEL_H_
-#define WSTRING_LIST_MODEL_H_
-
-#include <Wt/WAbstractListModel>
-
-namespace Wt {
-
-/*! \class WStringListModel Wt/WStringListModel Wt/WStringListModel
- *  \brief An model that manages a list of strings.
- *
- * This model only manages a unidimensional list of items and is
- * optimized for usage by view widgets such as combo-boxes.
- *
- * It supports all features of a typical item model, including data
- * for multiple roles, editing and addition and removal of data rows.
- *
- * You can populate the model by passing a list of strings to its
- * consructor, or by using the setStringList() method. You can set or
- * retrieve data using the setData() and data() methods, and add or
- * remove data using the insertRows() and removeRows() methods.
- *
- * \if cpp
- * \sa WComboBox, WSelectionBox, Ext::ComboBox
- * \elseif java
- * \sa WComboBox, WSelectionBox
- * \endif
- *
- * \ingroup modelview
- */
-class WT_API WStringListModel : public WAbstractListModel
-{
-public:
-  /*! \brief Creates a new empty string list model.
-   */
-  WStringListModel(WObject *parent = 0);
-
-  /*! \brief Creates a new string list model.
-   */
-  WStringListModel(const std::vector<WString>& strings, WObject *parent = 0);
-
-  /*! \brief Destructor.
-   */
-  ~WStringListModel();
-
-  /*! \brief Sets a new string list.
-   *
-   * Replaces the current string list with a new list.
-   *
-   * \sa dataChanged()
-   * \sa addString()
-   */
-  void setStringList(const std::vector<WString>& strings);
-
-  /*! \brief Inserts a string.
-   *
-   * \sa setStringList()
-   */
-  void insertString(int row, const WString& string);
-
-  /*! \brief Adds a string.
-   *
-   * \sa setStringList()
-   */
-  void addString(const WString& string);
-
-  /*! \brief Returns the string list.
-   *
-   * \sa setStringList()
-   */
-  const std::vector<WString>& stringList() const { return displayData_; }
-
-  /*! \brief Sets model flags for an item.
-   *
-   * The default item flags are \link Wt::ItemIsSelectable
-   * ItemIsSelectable\endlink | \link Wt::ItemIsEditable
-   * ItemIsEditable\endlink.
-   */
-  void setFlags(int index, WFlags<ItemFlag> flags);
-
-  /*! \brief Returns the flags for an item.
-   *
-   * This method is reimplemented to return flags set in setFlags().
-   *
-   * \sa setFlags()
-   */
-  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
-
-  using WAbstractListModel::setData;
-  virtual bool setData(const WModelIndex& index, const boost::any& value,
-		       int role = EditRole);
-
-  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
-    const;
-
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
-
-  virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
-
-  virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
-
-  virtual void sort(int column, SortOrder order = AscendingOrder);
-
-private:
-#ifndef WT_TARGET_JAVA
-  typedef std::map<int, boost::any> DataMap;
-#else
-  typedef std::treemap<int, boost::any> DataMap;
+#ifndef WT_WSTRINGLISTMODEL_EXTENSIONLESS_H_
+#define WT_WSTRINGLISTMODEL_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WStringListModel.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WStringListModel.h instead")
 #endif
-
-  std::vector<WString> displayData_;
-  std::vector<DataMap> *otherData_;
-  std::vector<WFlags<ItemFlag> > flags_;
-};
-
-}
-
-#endif // WSTRING_LIST_MODEL_H_
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WStringListModel.h"
+#endif // WT_WSTRINGLISTMODEL_EXTENSIONLESS_H_

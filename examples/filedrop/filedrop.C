@@ -5,15 +5,10 @@
  */
 #include "FileDropApplication.h"
 
-using namespace Wt;
-
-WApplication *createApplication(const WEnvironment& env)
-{
-  return new FileDropApplication(env);
-}
-
 int main(int argc, char **argv)
 {
-  return WRun(argc, argv, &createApplication);
+  return Wt::WRun(argc, argv, [](const Wt::WEnvironment &env) {
+    return Wt::cpp14::make_unique<FileDropApplication>(env);
+  });
 }
 

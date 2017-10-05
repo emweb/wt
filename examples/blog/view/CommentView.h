@@ -7,8 +7,8 @@
 #ifndef COMMENT_VIEW_H_
 #define COMMENT_VIEW_H_
 
-#include <Wt/WTemplate>
-#include <Wt/Dbo/ptr>
+#include <Wt/WTemplate.h>
+#include <Wt/Dbo/ptr.h>
 
 namespace Wt {
   class WTextArea;
@@ -29,7 +29,7 @@ public:
   CommentView(BlogSession& session, dbo::ptr<Comment> comment);
 
   virtual void resolveString(const std::string& varName,
-			     const std::vector<Wt::WString>& args,
+                             const std::vector<Wt::WString>& args,
 			     std::ostream& result);
 
 protected:

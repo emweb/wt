@@ -1,68 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WHBOX_LAYOUT_H_
-#define WHBOX_LAYOUT_H_
-
-#include <Wt/WBoxLayout>
-
-namespace Wt {
-
-/*! \class WHBoxLayout Wt/WHBoxLayout Wt/WHBoxLayout
- *  \brief A layout manager which arranges widgets horizontally
- *
- * This convenience class creates a horizontal box layout, laying contained
- * widgets out from left to right.
- *
- * See the WBoxLayout documentation for available member methods and
- * more information.
- *
- * Usage example:
- * \if cpp
- * \code
- * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
- *
- * Wt::WHBoxLayout *layout = new Wt::WHBoxLayout();
- * layout->addWidget(new Wt::WText("One"));
- * layout->addWidget(new Wt::WText("Two"));
- * layout->addWidget(new Wt::WText("Three"));
- * layout->addWidget(new Wt::WText("Four"));
- *
- * w->setLayout(layout, AlignTop | AlignJustify);
- * \endcode
- * \elseif java
- * \code
- * WContainerWidget w = new WContainerWidget(this);
- *		
- * WHBoxLayout layout = new WHBoxLayout();
- * layout.addWidget(new WText("One"));
- * layout.addWidget(new WText("Two"));
- * layout.addWidget(new WText("Three"));
- * layout.addWidget(new WText("Four"));
- *	 
- * w.setLayout(layout, AlignmentFlag.AlignTop, AlignmentFlag.AlignJustify);
- * \endcode
- * \endif
- *
- * \note First consider if you can achieve your layout using CSS !
- *
- * \sa WVBoxLayout
- */
-class WT_API WHBoxLayout : public WBoxLayout
-{
-public:
-  /*! \brief Creates a new horizontal box layout.
-   *
-   * Use \p parent = \c 0 to create a layout manager that can be
-   * nested inside other layout managers, or to specify a specific alignment
-   * when setting the layout to a WContainerWidget.
-   */
-  WHBoxLayout(WWidget *parent = 0);
-};
-
-}
-
-#endif // WHBOX_LAYOUT_H_
+#ifndef WT_WHBOXLAYOUT_EXTENSIONLESS_H_
+#define WT_WHBOXLAYOUT_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WHBoxLayout.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WHBoxLayout.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WHBoxLayout.h"
+#endif // WT_WHBOXLAYOUT_EXTENSIONLESS_H_

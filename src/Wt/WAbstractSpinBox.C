@@ -4,10 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WAbstractSpinBox"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WValidator"
+#include "Wt/WAbstractSpinBox.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WValidator.h"
 
 #include "DomElement.h"
 
@@ -26,15 +26,15 @@ public:
     : spinBox_(spinBox)
   { }
 
-  virtual Result validate(const WT_USTRING& input) const {
+  virtual Result validate(const WT_USTRING& input) const override {
     bool valid = spinBox_->parseValue(input);
     if (valid)
       return spinBox_->validateRange();
     else
-      return Result(Invalid);
+      return Result(ValidationState::Invalid);
   }
  
-  virtual std::string javaScriptValidate() const {
+  virtual std::string javaScriptValidate() const override {
     return 
       "new function() { "
       """this.validate = function(t) {"
@@ -47,9 +47,8 @@ private:
   WAbstractSpinBox *spinBox_;
 };
 
-WAbstractSpinBox::WAbstractSpinBox(WContainerWidget *parent)
-  : WLineEdit(parent),
-    changed_(false),
+WAbstractSpinBox::WAbstractSpinBox()
+  : changed_(false),
     valueChangedConnection_(false),
     preferNative_(false),
     setup_(false),
@@ -69,9 +68,15 @@ bool WAbstractSpinBox::nativeControl() const
     }
 
     const WEnvironment& env = WApplication::instance()->environment();
-    if ((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
-	|| (env.agentIsSafari() && env.agent() >= WEnvironment::Safari4)
-	|| (env.agentIsOpera() && env.agent() >= WEnvironment::Opera10))
+    if ((env.agentIsChrome() && 
+	 static_cast<unsigned int>(env.agent()) >= 
+	 static_cast<unsigned int>(UserAgent::Chrome5))
+	|| (env.agentIsSafari() && 
+	    static_cast<unsigned int>(env.agent()) >= 
+	    static_cast<unsigned int>(UserAgent::Safari4))
+	|| (env.agentIsOpera() && 
+	    static_cast<unsigned int>(env.agent()) >=
+	    static_cast<unsigned int>(UserAgent::Opera10)))
       return true;
   }
 
@@ -104,7 +109,7 @@ void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
    * In theory we are a bit late here to decide what we want to become:
    * somebody could already have asked the domElementType()
    */
-  if (!setup_ && flags & RenderFull) {
+  if (!setup_ && flags.test(RenderFlag::Full)) {
     setup();
   }
 
@@ -113,7 +118,7 @@ void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
     function << "jQuery.data(" + jsRef() + ",'obj').jsValueChanged=";
     if (jsValueChanged().isConnected()) {
       function << "function(oldv, v){"
-               << "var o=null;var e=null;" << jsValueChanged().createCall("oldv", "v") << "};";
+               << "var o=null;var e=null;" << jsValueChanged().createCall({"oldv", "v"}) << "};";
     } else {
       function << "function() {};";
     }
@@ -142,7 +147,6 @@ void WAbstractSpinBox::defineJavaScript()
   LOAD_JAVASCRIPT(app, "js/WSpinBox.js", "WSpinBox", wtjs1);
 
   WStringStream ss;
-
 
   ss << "new " WT_CLASS ".WSpinBox("
     << app->javaScriptClass() << "," << jsRef() << "," << decimals() << ","
@@ -177,12 +181,12 @@ void WAbstractSpinBox::updateDom(DomElement& element, bool all)
       if (!nativeControl())
 	doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
 		     ".configure("
-		     + boost::lexical_cast<std::string>(decimals()) + ","
+		     + std::to_string(decimals()) + ","
 		     + prefix().jsStringLiteral() + ","
 		     + suffix().jsStringLiteral() + ","
 		     + jsMinMaxStep() + ");");
       else
-	setValidator(createValidator());
+	setValidator(std::shared_ptr<WValidator>(createValidator().release()));
     }
   }
 
@@ -222,11 +226,11 @@ void WAbstractSpinBox::setup()
     connectJavaScript(keyWentUp(), "keyUp");
 
     if (!prefix_.empty() || !suffix_.empty())
-      setValidator(new SpinBoxValidator(this));
+      setValidator(std::make_shared<SpinBoxValidator>(this));
   }
 }
 
-WValidator::State WAbstractSpinBox::validate()
+ValidationState WAbstractSpinBox::validate()
 {
   return WLineEdit::validate();
 }
@@ -244,7 +248,7 @@ void WAbstractSpinBox::refresh()
 
 int WAbstractSpinBox::boxPadding(Orientation orientation) const
 {
-  if (!nativeControl() && orientation == Horizontal)
+  if (!nativeControl() && orientation == Orientation::Horizontal)
     return WLineEdit::boxPadding(orientation) + 8; // Half since for one side
   else
     return WLineEdit::boxPadding(orientation);

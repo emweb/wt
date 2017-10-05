@@ -20,23 +20,23 @@ struct Contact
 {
   /*! \brief The contact name.
    */
-  std::wstring name;
+  std::u32string name;
 
   /*! \brief The contact email address.
    */
-  std::wstring email;
+  std::u32string email;
 
   /*! \brief Create a new contact.
    */
-  Contact(const std::wstring name_, const std::wstring email_)
+  Contact(const std::u32string name_, const std::u32string email_)
     : name(name_),
       email(email_)
   { }
 
   /*! \brief Get the typical single string form: "name" <email>
    */
-  std::wstring formatted() const {
-    return L'"' + name + L"\" <" + email + L">";
+  std::u32string formatted() const {
+    return U"\"" + name + U"\" <" + email + U">";
   }
 };
 

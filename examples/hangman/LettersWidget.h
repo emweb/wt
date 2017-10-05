@@ -8,7 +8,9 @@
 #ifndef LETTERS_WIDGET_H_
 #define LETTERS_WIDGET_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
+
+using namespace Wt;
 
 namespace Wt {
   class WContainerWidget;
@@ -16,23 +18,23 @@ namespace Wt {
   class WTable;
 }
 
-class LettersWidget : public Wt::WCompositeWidget
+class LettersWidget : public WCompositeWidget
 {
 public:
-  LettersWidget(Wt::WContainerWidget *parent = 0);
+  LettersWidget();
 
   void reset();
 
-  Wt::Signal<char>& letterPushed() { return letterPushed_; } 
+  Signal<char>& letterPushed() { return letterPushed_; }
 
 private:
-  Wt::WTable                     *impl_;
-  std::vector<Wt::WPushButton *>  letterButtons_;
+  WTable                     *impl_;
+  std::vector<WPushButton *>  letterButtons_;
 
-  Wt::Signal<char>                letterPushed_;
+  Signal<char>                letterPushed_;
 
-  void processButton(Wt::WPushButton *b);
-  void processButtonPushed(const Wt::WKeyEvent &e, Wt::WPushButton *b);
+  void processButton(WPushButton *b);
+  void processButtonPushed(const WKeyEvent &e, WPushButton *b);
 };
 
 #endif //LETTERS_WIDGET_H_

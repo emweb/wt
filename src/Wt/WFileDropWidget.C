@@ -1,13 +1,13 @@
-#include "Wt/WFileDropWidget"
+#include "Wt/WFileDropWidget.h"
 
-#include "Wt/Http/Response"
-#include "Wt/Json/Array"
-#include "Wt/Json/Parser"
-#include "Wt/Json/Object"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WServer"
-#include "Wt/WSignal"
+#include "Wt/Http/Response.h"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Parser.h"
+#include "Wt/Json/Object.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WServer.h"
+#include "Wt/WSignal.h"
 
 #include "WebUtils.h"
 #include "WebSession.h"
@@ -18,15 +18,70 @@
 #include "js/WFileDropWidget.min.js"
 #endif
 
-#define NestedResource Wt::WFileDropWidget::WFileDropUploadResource
-
 namespace Wt {
 
+class WFileDropWidget::WFileDropUploadResource final : public WResource {
+public:
+  WFileDropUploadResource(WFileDropWidget *fileDropWidget)
+    : WResource(),
+      parent_(fileDropWidget),
+      app_(WApplication::instance())
+  {
+    setUploadProgress(true);
+  }
+
+  virtual ~WFileDropUploadResource()
+  {
+    beingDeleted();
+  }
+
+  virtual void handleRequest(const Http::Request &request,
+			     Http::Response &response) override
+  {
+#ifndef WT_TARGET_JAVA
+    WApplication::UpdateLock lock(WApplication::instance());
+#else
+    WApplication::UpdateLock lock = WApplication::instance()->getUpdateLock();
+#endif
+    const std::string *fileId = request.getParameter("file-id");
+    if (fileId == 0 || (*fileId).empty()) {
+      response.setStatus(404);
+      return;
+    }
+    int id = Utils::stoi(*fileId);
+    bool validId = parent_->incomingIdCheck(id);
+    if (!validId) {
+      response.setStatus(404);
+      return;
+    }
+    
+    std::vector<Http::UploadedFile> files;
+    Utils::find(request.uploadedFiles(), "data", files);
+    if (files.empty()) {
+      response.setStatus(404);
+      return;
+    }
+  
+    parent_->setUploadedFile(files[0]);
+    // WServer::instance()->post(app_->sessionId(),
+    // 			    boost::bind(&WFileDropWidget::setUploadedFile,
+    // 					parent_, files[0]));
+#ifdef WT_TARGET_JAVA
+    lock.release();
+#endif  
+  }
+
+  void setCurrentFile(File *file) { currentFile_ = file; }
+
+private:
+  WFileDropWidget *parent_;
+  WApplication *app_;
+  File *currentFile_;
+};
+
 WFileDropWidget::File::File(int id, const std::string& fileName,
-			    const std::string& type, ::uint64_t size, 
-			    WObject *parent)
-  : WObject(parent),
-    id_(id),
+                            const std::string& type, ::uint64_t size)
+  : id_(id),
     clientFileName_(fileName),
     type_(type),
     size_(size),
@@ -56,60 +111,9 @@ bool WFileDropWidget::File::cancelled() const
 {
   return cancelled_;
 }
-  
-NestedResource::WFileDropUploadResource(WFileDropWidget *fileDropWidget)
-  : WResource(fileDropWidget),
-    parent_(fileDropWidget),
-    app_(WApplication::instance())
-{
-  setUploadProgress(true);
-}
 
-NestedResource::~WFileDropUploadResource()
-{
-  beingDeleted();
-}
-
-void NestedResource::handleRequest(const Http::Request& request,
-				   Http::Response& response)
-{
-#ifndef WT_TARGET_JAVA
-  WApplication::UpdateLock lock(WApplication::instance());
-#else
-  WApplication::UpdateLock lock = WApplication::instance()->getUpdateLock();
-#endif
-  const std::string *fileId = request.getParameter("file-id");
-  if (fileId == 0 || (*fileId).empty()) {
-    response.setStatus(404);
-    return;
-  }
-  int id = boost::lexical_cast<int>(*fileId);
-  bool validId = parent_->incomingIdCheck(id);
-  if (!validId) {
-    response.setStatus(404);
-    return;
-  }
-  
-  std::vector<Http::UploadedFile> files;
-  Utils::find(request.uploadedFiles(), "data", files);
-  if (files.empty()) {
-    response.setStatus(404);
-    return;
-  }
-
-  parent_->setUploadedFile(files[0]);
-  // WServer::instance()->post(app_->sessionId(),
-  // 			    boost::bind(&WFileDropWidget::setUploadedFile,
-  // 					parent_, files[0]));
-#ifdef WT_TARGET_JAVA
-  lock.release();
-#endif  
-}
-
-
-WFileDropWidget::WFileDropWidget(WContainerWidget *parent)
-  : WContainerWidget(parent),
-    resource_(0),
+WFileDropWidget::WFileDropWidget()
+  : resource_(nullptr),
     currentFileIdx_(0),
     dropSignal_(this, "dropsignal"),
     requestSend_(this, "requestsend"),
@@ -135,9 +139,7 @@ void WFileDropWidget::setup()
 
   LOAD_JAVASCRIPT(app, "js/WFileDropWidget.js", "WFileDropWidget", wtjs1);
 
-  std::string maxFileSize =
-    boost::lexical_cast<std::string>(
-	WApplication::instance()->maximumRequestSize());
+  std::string maxFileSize = std::to_string(WApplication::instance()->maximumRequestSize());
   setJavaScriptMember(" WFileDropWidget", "new " WT_CLASS ".WFileDropWidget("
                       + app->javaScriptClass() + "," + jsRef() + ","
                       + maxFileSize + ");");
@@ -194,7 +196,7 @@ void WFileDropWidget::handleDrop(const std::string& newDrops)
 	throw std::exception();
     }
     
-    File *file = new File(id, name, type, size, this);
+    File *file = new File(id, name, type, size);
     drops.push_back(file);
     uploads_.push_back(file);
   }
@@ -229,8 +231,7 @@ void WFileDropWidget::handleSendRequest(int id)
   }
 
   if (!fileFound)
-    doJavaScript(jsRef() + ".cancelUpload("
-		 + boost::lexical_cast<std::string>(id) + ");");
+    doJavaScript(jsRef() + ".cancelUpload(" + std::to_string(id) + ");");
   else {
     WApplication::instance()->enableUpdates(true);
   }
@@ -315,8 +316,7 @@ void WFileDropWidget::cancelUpload(File *file)
 {
   file->cancel();
   int i = file->uploadId();
-  doJavaScript(jsRef() + ".cancelUpload("
-	       + boost::lexical_cast<std::string>(i) + ");");
+  doJavaScript(jsRef() + ".cancelUpload(" + std::to_string(i) + ");");
 }
   
 bool WFileDropWidget::remove(File *file)

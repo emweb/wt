@@ -1,8 +1,8 @@
 #ifndef ISSUED_TOKEN_H
 #define ISSUED_TOKEN_H
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDateTime>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDateTime.h>
 
 #include "User.h"
 #include "OAuthClient.h"

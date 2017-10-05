@@ -57,9 +57,11 @@ public:
   bool gdb() const { return gdb_; }
   const std::string& configPath() const { return configPath_; }
 
+  const std::vector<std::string>& httpListen() const { return httpListen_; }
   const std::string& httpAddress() const { return httpAddress_; }
   const std::string& httpPort() const { return httpPort_; }
 
+  const std::vector<std::string>& httpsListen() const { return httpsListen_; }
   const std::string& httpsAddress() const { return httpsAddress_; }
   const std::string& httpsPort() const { return httpsPort_; }
   const std::string& sslCertificateChainFile() const 
@@ -81,15 +83,16 @@ public:
 
   ::int64_t maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
 
+  typedef std::function<std::string (std::size_t max_length, int purpose)>
+    SslPasswordCallback;
+
   // ssl Password callback is not configurable from a file but we store it
   // here because it's used in the Server constructor (inside start())
-  void setSslPasswordCallback(
-          boost::function<std::string (std::size_t max_length, int purpose)> cb)
-  { sslPasswordCallback_ = cb; }
-  boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback()
-  { return sslPasswordCallback_; }
-  bool hasSslPasswordCallback()
-  { return sslPasswordCallback_; }
+  void setSslPasswordCallback(const SslPasswordCallback& cb) {
+    sslPasswordCallback_ = cb;
+  }
+  SslPasswordCallback sslPasswordCallback() { return sslPasswordCallback_; }
+  bool hasSslPasswordCallback() { return (bool)sslPasswordCallback_; }
 
 private:
   std::vector<std::string> options_;
@@ -109,9 +112,11 @@ private:
   bool gdb_;
   std::string configPath_;
 
+  std::vector<std::string> httpListen_;
   std::string httpAddress_;
   std::string httpPort_;
 
+  std::vector<std::string> httpsListen_;
   std::string httpsAddress_;
   std::string httpsPort_;
   std::string sslCertificateChainFile_;
@@ -131,9 +136,10 @@ private:
 
   ::int64_t maxMemoryRequestSize_;
 
-  boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
+  SslPasswordCallback sslPasswordCallback_;
 
-  void createOptions(po::options_description& options, po::options_description& visible_options);
+  void createOptions(po::options_description& options,
+		     po::options_description& visible_options);
   void readOptions(const po::variables_map& vm);
 
   void checkPath(const boost::program_options::variables_map& vm,

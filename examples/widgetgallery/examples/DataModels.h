@@ -1,7 +1,7 @@
 #ifndef DATAMODELS_H
 #define DATAMODELS_H
 
-#include <Wt/WStandardItemModel>
+#include <Wt/WStandardItemModel.h>
 
 #ifdef WT_TARGET_JAVA
 // Smuggling a using namespace into NumericalCharts3D.cpp to make operator | work.
@@ -10,10 +10,10 @@ using namespace Wt;
 
 class SombreroData : public Wt::WStandardItemModel {
 public:
-  SombreroData(unsigned nbXpts, unsigned nbYpts, Wt::WObject *parent = 0);
+  SombreroData(unsigned nbXpts, unsigned nbYpts);
 
-  boost::any data(const Wt::WModelIndex& index,
-		  int role = Wt::DisplayRole) const;
+  Wt::cpp17::any data(const Wt::WModelIndex& index,
+                  Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   const double xStart_, xEnd_, yStart_, yEnd_;
@@ -21,10 +21,10 @@ private:
 
 class PlaneData : public Wt::WStandardItemModel {
 public:
-  PlaneData(unsigned nbXpts, unsigned nbYpts, Wt::WObject *parent = 0);
+  PlaneData(unsigned nbXpts, unsigned nbYpts);
 
-  boost::any data(const Wt::WModelIndex& index,
-		  int role = Wt::DisplayRole) const;
+  Wt::cpp17::any data(const Wt::WModelIndex& index,
+                  Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   const double xStart_, xEnd_, yStart_, yEnd_;
@@ -32,10 +32,10 @@ private:
 
 class HorizontalPlaneData : public Wt::WStandardItemModel {
 public:
-  HorizontalPlaneData(unsigned nbXpts, unsigned nbYpts, Wt::WObject *parent = 0);
+  HorizontalPlaneData(unsigned nbXpts, unsigned nbYpts);
 
-  boost::any data(const Wt::WModelIndex& index,
-		  int role = Wt::DisplayRole) const;
+  Wt::cpp17::any data(const Wt::WModelIndex& index,
+                  Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   const double xStart_, xEnd_, yStart_, yEnd_;
@@ -43,10 +43,10 @@ private:
 
 class SpiralData : public Wt::WStandardItemModel {
 public:
-  SpiralData(unsigned nbPts, Wt::WObject *parent = 0);
+  SpiralData(unsigned nbPts);
 
-  boost::any data(const Wt::WModelIndex& index,
-		  int role = Wt::DisplayRole) const;
+  Wt::cpp17::any data(const Wt::WModelIndex& index,
+                  Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   unsigned nbPts_;

@@ -930,7 +930,7 @@ this.scrollHistory = function() {
         // Scroll to the top, which may be overriden by scrollIntoView (if the hash
         // exists somewhere as an object ID)
         //console.log("scrollHistory: new page scroll strategy");
-        // window.scrollTo(0, 0);
+        window.scrollTo(0, 0);
         WT.scrollIntoView(window.history.state.state);
       }
     }
@@ -1298,7 +1298,7 @@ this.IEwidth = function(c, min, max) {
 this.hide = function(o) { WT.getElement(o).style.display = 'none'; };
 this.inline = function(o) { WT.getElement(o).style.display = 'inline'; };
 this.block = function(o) { WT.getElement(o).style.display = 'block'; };
-this.show = function(o) { WT.getElement(o).style.display = ''; };
+this.show = function(o, s) { WT.getElement(o).style.display = s; };
 
 var captureElement = null;
 this.firedTarget = null;
@@ -2711,8 +2711,20 @@ function encodeEvent(event, i) {
       }
     }
 
-    if (v != null)
-      result += se + formObjects[x] + '=' + encodeURIComponent(v);
+    if (v != null) {
+      var component;
+      try {
+	component = encodeURIComponent(v);
+	result += se + formObjects[x] + '=' + component;
+      } catch (e) {
+	// encoding failed, omit this form field
+	// This can happen on Windows when typing a character
+	// with a high and low surrogate pair (like an emoji).
+	// On Chrome and Firefox this is split out into two pairs
+	// of keydown/keyup events instead of one.
+	console.error("Form object " + formObjects[x] + " failed to encode, discarded", e);
+      }
+    }
   }
 
 

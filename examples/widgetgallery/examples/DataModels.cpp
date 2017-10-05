@@ -1,19 +1,17 @@
 #include "DataModels.h"
 
-#include "Wt/WColor"
+#include "Wt/WColor.h"
 
 #include <cmath>
 
-using namespace Wt;
-
-SombreroData::SombreroData(unsigned nbXpts, unsigned nbYpts, WObject *parent)
-  : WStandardItemModel(nbXpts+1, nbYpts+1, parent),
+SombreroData::SombreroData(unsigned nbXpts, unsigned nbYpts)
+  : WStandardItemModel(nbXpts+1, nbYpts+1),
     xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
 {}
 
-boost::any SombreroData::data(const Wt::WModelIndex& index, int role) const
+Wt::cpp17::any SombreroData::data(const Wt::WModelIndex& index, Wt::ItemDataRole role) const
 {
-  if (role != DisplayRole) {
+  if (role != Wt::ItemDataRole::Display) {
     return WStandardItemModel::data(index, role);
   }
 
@@ -38,14 +36,14 @@ boost::any SombreroData::data(const Wt::WModelIndex& index, int role) const
     / (std::sqrt (std::pow(x,2) + std::pow(y,2)));
 }
 
-PlaneData::PlaneData(unsigned nbXpts, unsigned nbYpts, WObject *parent)
-  : WStandardItemModel(nbXpts+1, nbYpts+1, parent),
+PlaneData::PlaneData(unsigned nbXpts, unsigned nbYpts)
+  : WStandardItemModel(nbXpts+1, nbYpts+1),
     xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
 {}
 
-boost::any PlaneData::data(const Wt::WModelIndex& index, int role) const
+Wt::cpp17::any PlaneData::data(const Wt::WModelIndex& index, Wt::ItemDataRole role) const
 {
-  if (role != DisplayRole) {
+  if (role != Wt::ItemDataRole::Display) {
     return WStandardItemModel::data(index, role);
   }
 
@@ -57,27 +55,27 @@ boost::any PlaneData::data(const Wt::WModelIndex& index, int role) const
   return 0.2*x - 0.2*y;
 }
 
-HorizontalPlaneData::HorizontalPlaneData(unsigned nbXpts, unsigned nbYpts, WObject *parent)
-  : WStandardItemModel(nbXpts+1, nbYpts+1, parent),
+HorizontalPlaneData::HorizontalPlaneData(unsigned nbXpts, unsigned nbYpts)
+  : WStandardItemModel(nbXpts+1, nbYpts+1),
     xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
 {}
 
-boost::any HorizontalPlaneData::data(const Wt::WModelIndex& index, int role) const
+Wt::cpp17::any HorizontalPlaneData::data(const Wt::WModelIndex& index, Wt::ItemDataRole role) const
 {
-  if (role != DisplayRole) {
+  if (role != Wt::ItemDataRole::Display) {
     return WStandardItemModel::data(index, role);
   }
 
   return 0.0;
 }
 
-SpiralData::SpiralData(unsigned nbPts, WObject *parent)
-  : WStandardItemModel(nbPts, 3, parent), nbPts_(nbPts)
+SpiralData::SpiralData(unsigned nbPts)
+  : WStandardItemModel(nbPts, 3), nbPts_(nbPts)
 {}
 
-boost::any SpiralData::data(const Wt::WModelIndex& index, int role) const
+Wt::cpp17::any SpiralData::data(const Wt::WModelIndex& index, Wt::ItemDataRole role) const
 {
-  if (role != DisplayRole) {
+  if (role != Wt::ItemDataRole::Display) {
     return WStandardItemModel::data(index, role);
   }
 
@@ -92,6 +90,6 @@ boost::any SpiralData::data(const Wt::WModelIndex& index, int role) const
   } else if (index.column() == 2) {
     return 5.0 - index.row() * (10.0/nbPts_);
   } else {
-    return boost::any();
+    return Wt::cpp17::any();
   }
 }

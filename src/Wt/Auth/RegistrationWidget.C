@@ -4,30 +4,25 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/AuthWidget"
-#include "Wt/Auth/Login"
-#include "Wt/Auth/RegistrationWidget"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/AuthWidget.h"
+#include "Wt/Auth/Login.h"
+#include "Wt/Auth/OAuthWidget.h"
+#include "Wt/Auth/RegistrationWidget.h"
 
-#include "Wt/WAnchor"
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WDialog"
-#include "Wt/WImage"
-#include "Wt/WLineEdit"
-#include "Wt/WPushButton"
-#include "Wt/WText"
-#include "Wt/WTheme"
+#include "Wt/WAnchor.h"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WDialog.h"
+#include "Wt/WImage.h"
+#include "Wt/WLineEdit.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WText.h"
+#include "Wt/WTheme.h"
 
 #include "Wt/WDllDefs.h"
 
 #include <memory>
-
-#ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
-#else
-#define AUTO_PTR std::auto_ptr
-#endif
 
 namespace Wt {
 
@@ -38,23 +33,20 @@ LOGGER("Auth.RegistrationWidget");
 RegistrationWidget::RegistrationWidget(AuthWidget *authWidget)
   : WTemplateFormView(tr("Wt.Auth.template.registration")),
     authWidget_(authWidget),
-    model_(0),
-    created_(false),
-    confirmPasswordLogin_(0)
+    created_(false)
 {
-  setWidgetIdMode(SetWidgetObjectName);
+  setWidgetIdMode(TemplateWidgetIdMode::SetObjectName);
 
   WApplication *app = WApplication::instance();
-  app->theme()->apply(this, this, AuthWidgets);
+  app->theme()->apply(this, this, WidgetThemeRole::AuthWidgets);
 }
 
-void RegistrationWidget::setModel(RegistrationModel *model)
+void RegistrationWidget::setModel(std::unique_ptr<RegistrationModel> model)
 {
   if (!model_ && model)
     model->login().changed().connect(this, &RegistrationWidget::close);
 
-  delete model_;
-  model_ = model;
+  model_ = std::move(model);
 }
 
 void RegistrationWidget::render(WFlags<RenderFlag> flags)
@@ -67,33 +59,30 @@ void RegistrationWidget::render(WFlags<RenderFlag> flags)
   WTemplateFormView::render(flags);
 }
 
-WWidget *RegistrationWidget::createFormWidget(WFormModel::Field field)
+std::unique_ptr<WWidget> RegistrationWidget
+::createFormWidget(WFormModel::Field field)
 {
-  WFormWidget *result = 0;
+  std::unique_ptr<WFormWidget> result;
 
   if (field == RegistrationModel::LoginNameField) {
-    result = new WLineEdit();
-    result->changed().connect
-      (boost::bind(&RegistrationWidget::checkLoginName, this));
+    result.reset(new WLineEdit());
+    result->changed().connect(this, &RegistrationWidget::checkLoginName);
   } else if (field == RegistrationModel::EmailField) {
-    result = new WLineEdit();
+    result.reset(new WLineEdit());
   } else if (field == RegistrationModel::ChoosePasswordField) {
     WLineEdit *p = new WLineEdit();
-    p->setEchoMode(WLineEdit::Password);
-    p->keyWentUp().connect
-      (boost::bind(&RegistrationWidget::checkPassword, this));
-    p->changed().connect
-      (boost::bind(&RegistrationWidget::checkPassword, this));
-    result = p;
+    p->setEchoMode(EchoMode::Password);
+    p->keyWentUp().connect(this, &RegistrationWidget::checkPassword);
+    p->changed().connect(this, &RegistrationWidget::checkPassword);
+    result.reset(p);
   } else if (field == RegistrationModel::RepeatPasswordField) {
     WLineEdit *p = new WLineEdit();
-    p->setEchoMode(WLineEdit::Password);
-    p->changed().connect
-      (boost::bind(&RegistrationWidget::checkPassword2, this));
-    result = p;
+    p->setEchoMode(EchoMode::Password);
+    p->changed().connect(this, &RegistrationWidget::checkPassword2);
+    result.reset(p);
   }
 
-  return result;
+  return std::move(result);
 }
 
 void RegistrationWidget::update()
@@ -104,7 +93,7 @@ void RegistrationWidget::update()
   else
     bindEmpty("password-description");
 
-  updateView(model_);
+  updateView(model_.get());
 
   if (!created_) {
     WLineEdit *password = resolve<WLineEdit *>
@@ -122,9 +111,10 @@ void RegistrationWidget::update()
 
   WAnchor *isYou = resolve<WAnchor *>("confirm-is-you");
   if (!isYou) {
-    isYou = new WAnchor(std::string("#"), tr("Wt.Auth.confirm-is-you"));
-    isYou->hide();
-    bindWidget("confirm-is-you", isYou);
+    std::unique_ptr<WAnchor> newIsYou
+      (isYou = new WAnchor(std::string("#"), tr("Wt.Auth.confirm-is-you")));
+    newIsYou->hide();
+    bindWidget("confirm-is-you", std::move(newIsYou));
   }
 
   if (model_->isConfirmUserButtonVisible()) {
@@ -142,27 +132,17 @@ void RegistrationWidget::update()
       else
 	bindString("oauth-description", tr("Wt.Auth.oauth-registration"));
 
-      WContainerWidget *icons = new WContainerWidget();
+      WContainerWidget *icons = 
+	bindWidget("icons", cpp14::make_unique<WContainerWidget>());
       icons->addStyleClass("Wt-field");
 
       for (unsigned i = 0; i < model_->oAuth().size(); ++i) {
 	const OAuthService *service = model_->oAuth()[i];
 
-	WImage *w = new WImage("css/oauth-" + service->name() + ".png", icons);
-	w->setToolTip(service->description());
-	w->setStyleClass("Wt-auth-icon");
-	w->setVerticalAlignment(AlignMiddle);
-	OAuthProcess *const process
-	  = service->createProcess(service->authenticationScope());
-	w->clicked().connect(process, &OAuthProcess::startAuthenticate);
-
-	process->authenticated().connect
-	  (boost::bind(&RegistrationWidget::oAuthDone, this, process, _1));
-
-	WObject::addChild(process);
+	OAuthWidget *w
+	  = icons->addWidget(cpp14::make_unique<OAuthWidget>(*service));
+	w->authenticated().connect(this, &RegistrationWidget::oAuthDone);
       }
-
-      bindWidget("icons", icons);
     }
   } else {
     setCondition("if:oauth", false);
@@ -170,11 +150,12 @@ void RegistrationWidget::update()
   }
 
   if (!created_) {
-    WPushButton *okButton = new WPushButton(tr("Wt.Auth.register"));
-    WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
-
-    bindWidget("ok-button", okButton);
-    bindWidget("cancel-button", cancelButton);
+    WPushButton *okButton =
+      bindWidget("ok-button",
+		 cpp14::make_unique<WPushButton>(tr("Wt.Auth.register")));
+    WPushButton *cancelButton =
+      bindWidget("cancel-button",
+                 cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
 
     okButton->clicked().connect(this, &RegistrationWidget::doRegister);
     cancelButton->clicked().connect(this, &RegistrationWidget::close);
@@ -202,7 +183,7 @@ void RegistrationWidget::oAuthDone(OAuthProcess *oauth,
 
 void RegistrationWidget::checkLoginName()
 {
-  updateModelField(model_, RegistrationModel::LoginNameField);
+  updateModelField(model_.get(), RegistrationModel::LoginNameField);
   model_->validateField(RegistrationModel::LoginNameField);
   model_->setValidated(RegistrationModel::LoginNameField, false);
   update();
@@ -210,9 +191,9 @@ void RegistrationWidget::checkLoginName()
 
 void RegistrationWidget::checkPassword()
 {
-  updateModelField(model_, RegistrationModel::LoginNameField);
-  updateModelField(model_, RegistrationModel::ChoosePasswordField);
-  updateModelField(model_, RegistrationModel::EmailField);
+  updateModelField(model_.get(), RegistrationModel::LoginNameField);
+  updateModelField(model_.get(), RegistrationModel::ChoosePasswordField);
+  updateModelField(model_.get(), RegistrationModel::EmailField);
   model_->validateField(RegistrationModel::ChoosePasswordField);
   model_->setValidated(RegistrationModel::ChoosePasswordField, false);
   update();
@@ -220,8 +201,8 @@ void RegistrationWidget::checkPassword()
 
 void RegistrationWidget::checkPassword2()
 {
-  updateModelField(model_, RegistrationModel::ChoosePasswordField);
-  updateModelField(model_, RegistrationModel::RepeatPasswordField);
+  updateModelField(model_.get(), RegistrationModel::ChoosePasswordField);
+  updateModelField(model_.get(), RegistrationModel::RepeatPasswordField);
   model_->validateField(RegistrationModel::RepeatPasswordField);
   model_->setValidated(RegistrationModel::RepeatPasswordField, false);
   update();
@@ -234,10 +215,10 @@ bool RegistrationWidget::validate()
 
 void RegistrationWidget::doRegister()
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction>
+  std::unique_ptr<AbstractUserDatabase::Transaction>
     t(model_->users().startTransaction());
 
-  updateModel(model_);
+  updateModel(model_.get());
 
   if (validate()) {
     User user = model_->doRegister();
@@ -266,19 +247,18 @@ void RegistrationWidget::registerUserDetails(User& user)
 
 void RegistrationWidget::close()
 {
-  delete this;
+  removeFromParent();
 }
 
 void RegistrationWidget::confirmIsYou()
 {
-  updateModel(model_);
+  updateModel(model_.get());
 
   switch (model_->confirmIsExistingUser()) {
-  case RegistrationModel::ConfirmWithPassword:
+  case IdentityConfirmationMethod::ConfirmWithPassword:
     {
-      delete confirmPasswordLogin_;
-      confirmPasswordLogin_ = new Login();
-      confirmPasswordLogin_->login(model_->existingUser(), WeakLogin);
+      confirmPasswordLogin_.reset(new Login());
+      confirmPasswordLogin_->login(model_->existingUser(), LoginState::Weak);
       confirmPasswordLogin_
 	->changed().connect(this, &RegistrationWidget::confirmedIsYou);
 
@@ -288,7 +268,7 @@ void RegistrationWidget::confirmIsYou()
     }
 
     break;
-  case RegistrationModel::ConfirmWithEmail:
+  case IdentityConfirmationMethod::ConfirmWithEmail:
     // FIXME send a confirmation email to merge the new identity
     // with the existing one. We need to include the provisional
     // id in the token -- no problem there, integrity is verified by a
@@ -304,12 +284,10 @@ void RegistrationWidget::confirmIsYou()
 
 void RegistrationWidget::confirmedIsYou()
 {
-  if (confirmPasswordLogin_->state() == StrongLogin) {
+  if (confirmPasswordLogin_->state() == LoginState::Strong)
     model_->existingUserConfirmed();
-  } else {
-    delete confirmPasswordLogin_;
-    confirmPasswordLogin_ = 0;
-  }
+  else
+    confirmPasswordLogin_.reset();
 }
 
   }

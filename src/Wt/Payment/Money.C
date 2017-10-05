@@ -1,7 +1,7 @@
-#include "Money"
+#include "Money.h"
 
-#include "Wt/WException"
-#include "Wt/WStringStream"
+#include "Wt/WException.h"
+#include "Wt/WStringStream.h"
 
 namespace Wt {
   namespace Payment {

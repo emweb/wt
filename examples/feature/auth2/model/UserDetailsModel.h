@@ -7,18 +7,20 @@
 #ifndef USER_DETAILS_MODEL_H_
 #define USER_DETAILS_MODEL_H_
 
-#include <Wt/WFormModel>
+#include <Wt/WFormModel.h>
+
+using namespace Wt;
 
 class Session;
 
-class UserDetailsModel : public Wt::WFormModel
+class UserDetailsModel : public WFormModel
 {
 public:
   static const Field FavouritePetField;
 
-  UserDetailsModel(Session& session, Wt::WObject *parent = 0);
+  UserDetailsModel(Session& session);
 
-  void save(const Wt::Auth::User& user);
+  void save(const Auth::User& user);
 
 private:
   Session& session_;

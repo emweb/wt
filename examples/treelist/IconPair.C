@@ -3,22 +3,31 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WCssDecorationStyle>
-#include <Wt/WContainerWidget>
-#include <Wt/WImage>
+#include <Wt/WCssDecorationStyle.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WImage.h>
 
 #include "IconPair.h"
 
+using namespace Wt;
+
 IconPair::IconPair(const std::string icon1URI, const std::string icon2URI,
-		   bool clickIsSwitch, Wt::WContainerWidget *parent)
-  : Wt::WCompositeWidget(parent),
-    impl_(new Wt::WContainerWidget()),
-    icon1_(new Wt::WImage(icon1URI, impl_)),
-    icon2_(new Wt::WImage(icon2URI, impl_)),
-    icon1Clicked(icon1_->clicked()),
-    icon2Clicked(icon2_->clicked())
+                   bool clickIsSwitch)
+  : WCompositeWidget(),
+    impl_(nullptr),
+    icon1_(nullptr),
+    icon2_(nullptr),
+    icon1Clicked(nullptr),
+    icon2Clicked(nullptr)
 {
-  setImplementation(impl_);
+  auto impl = cpp14::make_unique<WContainerWidget>();
+  impl_ = impl.get();
+  icon1_ = impl_->addWidget(cpp14::make_unique<WImage>(icon1URI));
+  icon2_ = impl_->addWidget(cpp14::make_unique<WImage>(icon2URI));
+  icon1Clicked = &icon1_->clicked();
+  icon2Clicked = &icon2_->clicked();
+
+  setImplementation(std::move(impl));
 
   implementStateless(&IconPair::showIcon1, &IconPair::undoShowIcon1);
   implementStateless(&IconPair::showIcon2, &IconPair::undoShowIcon2);
@@ -28,13 +37,13 @@ IconPair::IconPair(const std::string icon1URI, const std::string icon2URI,
   icon2_->hide();
 
   if (clickIsSwitch) {
-    icon1_->clicked().connect(icon1_, &Wt::WImage::hide);
-    icon1_->clicked().connect(icon2_, &Wt::WImage::show);
+    icon1_->clicked().connect(icon1_, &WImage::hide);
+    icon1_->clicked().connect(icon2_, &WImage::show);
 
-    icon2_->clicked().connect(icon2_, &Wt::WImage::hide);
-    icon2_->clicked().connect(icon1_, &Wt::WImage::show); //
+    icon2_->clicked().connect(icon2_, &WImage::hide);
+    icon2_->clicked().connect(icon1_, &WImage::show); //
 
-    decorationStyle().setCursor(Wt::PointingHandCursor);
+    decorationStyle().setCursor(Cursor::PointingHand);
   }
 } //
 

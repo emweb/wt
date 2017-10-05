@@ -9,52 +9,54 @@
 #include "Entry.h"
 #include "PlannerApplication.h"
 
-#include <Wt/WTemplate>
-#include <Wt/WPushButton>
-#include <Wt/WRegExpValidator>
+#include <Wt/WTemplate.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WRegExpValidator.h>
 
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 using namespace Wt;
 using namespace Wt::Dbo;
 
-WString EntryDialog::timeFormat = WString::fromUTF8("HH:mm");
+WString EntryDialog::timeFormat = WString("HH:mm");
 
 EntryDialog::EntryDialog(const WString& title, CalendarCell* cell) 
   : WDialog(title)
 {
   cell_ = cell;
 
-  WTemplate* t = new WTemplate(contents());
+  WTemplate* t = contents()->addWidget(cpp14::make_unique<WTemplate>());
   t->setTemplateText(tr("calendar.entry"));
   
-  summary_ = new WLineEdit();
-  summary_->setValidator(new WValidator());
-  t->bindWidget("summary", summary_);
+  auto summaryPtr = cpp14::make_unique<WLineEdit>();
+  summary_ = t->bindWidget("summary", std::move(summaryPtr));
+  summary_->setValidator(std::make_shared<WValidator>());
 		
-  WValidator* timeValidator = 
-    new WRegExpValidator("^([0-1][0-9]|[2][0-3]):([0-5][0-9])$");
-  start_ = new WLineEdit();
+  auto timeValidator =
+    std::make_shared<WRegExpValidator>("^([0-1][0-9]|[2][0-3]):([0-5][0-9])$");
+  auto startPtr = cpp14::make_unique<WLineEdit>();
+  start_ = t->bindWidget("start", std::move(startPtr));
   start_->setTextSize(5);
   start_->setValidator(timeValidator);
-  t->bindWidget("start", start_);
-  stop_ = new WLineEdit();
+
+  auto stopPtr = cpp14::make_unique<WLineEdit>();
+  stop_ = t->bindWidget("stop", std::move(stopPtr));
   stop_->setTextSize(5);
   stop_->setValidator(timeValidator);
-  t->bindWidget("stop", stop_);
-  description_ = new WTextArea();
-  t->bindWidget("description", description_);
+
+  auto descriptionPtr = cpp14::make_unique<WTextArea>();
+  description_ = t->bindWidget("description", std::move(descriptionPtr));
 		
-  TimeSuggestions* suggestions = new TimeSuggestions(contents());
+  TimeSuggestions* suggestions = contents()->addWidget(cpp14::make_unique<TimeSuggestions>());
   suggestions->forEdit(start_);
   suggestions->forEdit(stop_);
 
-  WPushButton* ok = new WPushButton(tr("calendar.entry.ok"));
-  t->bindWidget("ok", ok);
+  auto okPtr = cpp14::make_unique<WPushButton>(tr("calendar.entry.ok"));
+  auto ok = t->bindWidget("ok", std::move(okPtr));
   ok->clicked().connect(this, &EntryDialog::ok);
 
-  WPushButton* cancel = new WPushButton(tr("calendar.entry.cancel"));
-  t->bindWidget("cancel", cancel);
+  auto cancelPtr = cpp14::make_unique<WPushButton>(tr("calendar.entry.cancel"));
+  auto cancel = t->bindWidget("cancel", std::move(cancelPtr));
   cancel->clicked().connect(this, &EntryDialog::cancel);
 }
 
@@ -76,7 +78,8 @@ void EntryDialog::ok()
   Transaction transaction(session);
 
   ptr<Entry> e = 
-    PlannerApplication::plannerApplication()->session.add(new Entry());
+    PlannerApplication::plannerApplication()->session.add(
+        Wt::cpp14::make_unique<Entry>());
   e.modify()->start = timeStamp(start_->text(), cell_->date());
   e.modify()->stop = timeStamp(stop_->text(), cell_->date());
   e.modify()->summary = summary_->text().toUTF8();
@@ -86,7 +89,6 @@ void EntryDialog::ok()
   cell_->update(cell_->user(), cell_->date());
   
   transaction.commit();
-
   hide();
 }
 

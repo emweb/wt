@@ -4,70 +4,71 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WContainerWidget"
-#include "Wt/WTemplate"
-#include "Wt/WText"
-#include "Wt/WTreeTable"
-#include "Wt/WTreeTableNode"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WIconPair.h"
+#include "Wt/WTemplate.h"
+#include "Wt/WText.h"
+#include "Wt/WTreeTable.h"
+#include "Wt/WTreeTableNode.h"
 
 namespace Wt {
 
 WTreeTableNode::WTreeTableNode(const WString& labelText,
-			       WIconPair *labelIcon,
-			       WTreeTableNode *parentNode)
-  : WTreeNode(labelText, labelIcon),
-    table_(0),
-    row_(0)
-{ 
-  if (parentNode)
-    parentNode->addChildNode(this);
-}
+			       std::unique_ptr<WIconPair> labelIcon)
+  : WTreeNode(labelText, std::move(labelIcon)),
+    table_(nullptr),
+    row_(nullptr)
+{ }
 
-void WTreeTableNode::insertChildNode(int index, WTreeNode *node)
+void WTreeTableNode::insertChildNode(int index,
+				     std::unique_ptr<WTreeNode> node)
 {
-  WTreeNode::insertChildNode(index, node);
-
   if (table_)
-    (dynamic_cast<WTreeTableNode *>(node))->setTable(table_);
+    (dynamic_cast<WTreeTableNode *>(node.get()))->setTable(table_);
+
+  WTreeNode::insertChildNode(index, std::move(node));
 }
 
-void WTreeTableNode::setColumnWidget(int column, WWidget *widget)
+void WTreeTableNode::setColumnWidget(int column,
+				     std::unique_ptr<WWidget> widget)
 {
   --column;
 
   createExtraColumns(column);
 
   if (column < (int)columnWidgets_.size()) {
-    delete columnWidgets_[column].widget;
-    columnWidgets_[column] = ColumnWidget(widget, true);
+    if (columnWidgets_[column].widget)
+      columnWidgets_[column].widget->removeFromParent();
+    columnWidgets_[column] = ColumnWidget(widget.get(), true);
   } else {
-    columnWidgets_.push_back(ColumnWidget(widget, true));
+    columnWidgets_.push_back(ColumnWidget(widget.get(), true));
   }
 
   widget->setInline(false);
-  widget->setFloatSide(Left);
+  widget->setFloatSide(Side::Left);
   widget->resize(columnWidth(column + 1), WLength::Auto);
   widget->setMinimumSize(WLength::Auto, 1);
   if (column == static_cast<int>(columnWidgets_.size()) - 1)
-    row_->addWidget(widget);
+    row_->addWidget(std::move(widget));
   else
-    row_->insertBefore(widget, columnWidgets_[column + 1].widget);
+    row_->insertBefore(std::move(widget), columnWidgets_[column + 1].widget);
 }
 
 void WTreeTableNode::createExtraColumns(int numColumns)
 {
   if (!row_) {
-    row_ = new WContainerWidget();
+    row_ = impl()->bindWidget("cols-row",
+			      cpp14::make_unique<WContainerWidget>());
     row_->addStyleClass("cols-row");
-    impl()->bindWidget("cols-row", row_);
   }
 
   while (static_cast<int>(columnWidgets_.size()) < numColumns) {
-    WText *w = new WText(WString::fromUTF8(" "), row_);
+    std::unique_ptr<WText> w(new WText(WString::fromUTF8(" ")));
     w->setInline(false);
-    columnWidgets_.push_back(ColumnWidget(w, false));
-    w->setFloatSide(Left);
+    columnWidgets_.push_back(ColumnWidget(w.get(), false));
+    w->setFloatSide(Side::Left);
     w->resize(columnWidth(columnWidgets_.size()), 1);
+    row_->addWidget(std::move(w));
   }
 }
 
@@ -79,7 +80,7 @@ WWidget *WTreeTableNode::columnWidget(int column)
     (column < static_cast<int>(columnWidgets_.size())
      && columnWidgets_[column].isSet)
     ? columnWidgets_[column].widget
-    : 0;
+    : nullptr;
 }
 
 WLength WTreeTableNode::columnWidth(int column)

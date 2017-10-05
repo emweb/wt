@@ -11,7 +11,6 @@
 #include <map>
 #include <iostream>
 #include <vector>
-#include <boost/cstdint.hpp>
 
 #include <Wt/WDllDefs.h>
 
@@ -30,7 +29,7 @@ public:
 
   static void init();
 
-  CgiParser(::int64_t maxPostData);
+  CgiParser(::int64_t maxRequestSize, ::int64_t maxFormData);
 
   /*
    * Reads in GET or POST data, converts it to unescaped text, and
@@ -44,7 +43,7 @@ private:
 			 ::int64_t len);
   bool parseBody(WebRequest& request, const std::string boundary);
   bool parseHead(WebRequest& request);
-  ::int64_t maxPostData_, left_;
+  ::int64_t maxFormData_, maxRequestSize_, left_;
   std::ostream *spoolStream_;
   WebRequest *request_;
 

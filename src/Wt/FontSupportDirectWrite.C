@@ -8,13 +8,13 @@
 
 #include "Wt/WDllDefs.h"
 
-#include "Wt/WException"
-#include "Wt/WFontMetrics"
-#include "Wt/WLogger"
-#include "Wt/WPointF"
-#include "Wt/WRasterImage"
-#include "Wt/WRectF"
-#include "Wt/WString"
+#include "Wt/WException.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WLogger.h"
+#include "Wt/WPointF.h"
+#include "Wt/WRasterImage.h"
+#include "Wt/WRectF.h"
+#include "Wt/WString.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -51,13 +51,13 @@ template <class T> void SafeRelease(T *&ppT)
 DWRITE_FONT_WEIGHT dwriteFontWeight(const Wt::WFont &font)
 {
   switch (font.weight()) {
-  case Wt::WFont::Lighter:
+  case Wt::FontWeight::Lighter:
     return DWRITE_FONT_WEIGHT_LIGHT;
-  case Wt::WFont::NormalWeight:
+  case Wt::FontWeight::Normal:
     return DWRITE_FONT_WEIGHT_NORMAL;
-  case Wt::WFont::Bold:
+  case Wt::FontWeight::Bold:
     return DWRITE_FONT_WEIGHT_BOLD;
-  case Wt::WFont::Bolder:
+  case Wt::FontWeight::Bolder:
     return DWRITE_FONT_WEIGHT_EXTRA_BOLD;
   default:
     return (DWRITE_FONT_WEIGHT)font.weightValue();
@@ -67,11 +67,11 @@ DWRITE_FONT_WEIGHT dwriteFontWeight(const Wt::WFont &font)
 DWRITE_FONT_STYLE dwriteFontStyle(const Wt::WFont &font)
 {
   switch (font.style()) {
-  case Wt::WFont::NormalStyle:
+  case Wt::FontStyle::Normal:
     return DWRITE_FONT_STYLE_NORMAL;
-  case Wt::WFont::Oblique:
+  case Wt::FontStyle::Oblique:
     return DWRITE_FONT_STYLE_OBLIQUE;
-  case Wt::WFont::Italic:
+  case Wt::FontStyle::Italic:
     return DWRITE_FONT_STYLE_ITALIC;
   default:
     return DWRITE_FONT_STYLE_NORMAL;
@@ -215,23 +215,23 @@ std::wstring ttfForFontFace(IDWriteFontCollection *collection, const Wt::WFont &
   return ttfForFont(collection, f, NULL, fontFace);
 }
 
-std::wstring genericFamilyToName(Wt::WFont::GenericFamily family)
+std::wstring genericFamilyToName(Wt::FontFamily family)
 {
   switch (family) {
-  case Wt::WFont::Default:
-  case Wt::WFont::Serif:
+  case Wt::FontFamily::Default:
+  case Wt::FontFamily::Serif:
     return L"Times New Roman";
     break;
-  case Wt::WFont::SansSerif:
+  case Wt::FontFamily::SansSerif:
     return L"Arial";
     break;
-  case Wt::WFont::Monospace:
+  case Wt::FontFamily::Monospace:
     return L"Consolas";
     break;
-  case Wt::WFont::Fantasy:
+  case Wt::FontFamily::Fantasy:
     return L"Gabriola"; // IE/Edge on Windows choose Gabriola, so let's use that
     break;
-  case Wt::WFont::Cursive:
+  case Wt::FontFamily::Cursive:
     return L"Comic Sans MS"; // Apparently, all browsers on Windows choose Comic Sans
   default:
     return L"";
@@ -676,7 +676,7 @@ WTextItem FontSupport::measureText(const WFont &f, const WString &text, double m
 {
   bool wasBusy = busy();
   font_ = &f;
-  if (!wasBusy && device_->features() & WPaintDevice::HasFontMetrics) {
+  if (!wasBusy && device_->features().test(PaintDeviceFeatureFlag::FontMetrics)) {
     if (dynamic_cast<WRasterImage*>(device_)) {
       WTextItem textItem = device_->measureText(text, maxWidth, wordWrap);
       font_ = 0;
@@ -775,7 +775,7 @@ void FontSupport::drawText(const WFont &f,
 {
   font_ = &f;
   if (dynamic_cast<WRasterImage*>(device_)) {
-    device_->drawText(rect, alignmentFlags, TextWordWrap, text, 0);
+    device_->drawText(rect, alignmentFlags, TextFlag::WordWrap, text, 0);
   } else {
     std::vector<TextFragment> fragments;
     std::wstring wtext = text;
@@ -786,13 +786,13 @@ void FontSupport::drawText(const WFont &f,
     AlignmentFlag hAlign = alignmentFlags & AlignHorizontalMask;
     AlignmentFlag vAlign = alignmentFlags & AlignVerticalMask;
     switch (hAlign) {
-    case AlignLeft:
+    case AlignmentFlag::Left:
       x = rect.left();
       break;
-    case AlignRight:
+    case AlignmentFlag::Right:
       x = rect.right() - totalWidth;
       break;
-    case AlignCenter:
+    case AlignmentFlag::Center:
       x = rect.center().x() - totalWidth / 2;
       break;
     default:
@@ -800,7 +800,7 @@ void FontSupport::drawText(const WFont &f,
     }
     for (std::size_t i = 0; i < fragments.size(); ++i) {
       drawingFontPath_ = fragments[i].fontPath;
-      device_->drawText(WRectF(x, rect.y(), 1000, rect.height()), AlignLeft | vAlign, TextSingleLine, Wt::WString(wtext.substr(fragments[i].start, fragments[i].length)), 0);
+      device_->drawText(WRectF(x, rect.y(), 1000, rect.height()), WFlags<AlignmentFlag>(AlignmentFlag::Left) | vAlign, TextFlag::SingleLine, Wt::WString(wtext.substr(fragments[i].start, fragments[i].length)), 0);
       x += fragments[i].width;
     }
     drawingFontPath_.clear();

@@ -1,86 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WT_JAVASCRIPT_PREAMBLE_H_
-#define WT_JAVASCRIPT_PREAMBLE_H_
-
-#include <Wt/WObject>
-
-#define WT_JS(...) #__VA_ARGS__
-
-namespace Wt {
-#ifdef WT_TARGET_JAVA
-/*! \brief Enumeration for a JavaScript object type.
- *
- * This is an internal %Wt type.
- */
+#ifndef WT_WJAVASCRIPTPREAMBLE_EXTENSIONLESS_H_
+#define WT_WJAVASCRIPTPREAMBLE_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WJavaScriptPreamble.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WJavaScriptPreamble.h instead")
 #endif
-enum JavaScriptObjectType {
-  JavaScriptFunction,     // called with this == WT
-  JavaScriptConstructor,
-  JavaScriptObject,
-  JavaScriptPrototype
-};
-
-#ifdef WT_TARGET_JAVA
-/*! \brief Enumeration for a JavaScript object scope.
- *
- * This is an internal %Wt type.
- */
-#endif
-enum JavaScriptScope {
-  ApplicationScope,
-  WtClassScope
-};
-
-#ifdef WT_TARGET_JAVA
-/*! \brief Javascript preamble.
- *
- * This is an internal %Wt type.
- */
-#endif
-class WT_API WJavaScriptPreamble 
-{
-public:
-  WJavaScriptPreamble(JavaScriptScope scope, JavaScriptObjectType type,
-		      const char *name, const char *src);
-
-  JavaScriptScope scope;
-  JavaScriptObjectType type;
-  const char *name, *src;
-};
-
-}
-
-#ifndef WT_DEBUG_JS
-
-#define WT_DECLARE_WT_MEMBER(i, type, name, ...)			\
-  namespace {								\
-  using namespace Wt;							\
-  WJavaScriptPreamble wtjs##i() {					\
-    return WJavaScriptPreamble(WtClassScope, type, name, #__VA_ARGS__); \
-  }									\
-  }
-
-#define WT_DECLARE_APP_MEMBER(i, type, name, ...)			\
-  namespace {								\
-  using namespace Wt;							\
-  WJavaScriptPreamble appjs##i() {					\
-    return WJavaScriptPreamble(ApplicationScope, type, name, #__VA_ARGS__); \
-  }									\
-  }
-
-#define LOAD_JAVASCRIPT(app, jsFile, name, jsi)	\
-  app->loadJavaScript(jsFile, jsi())
-
-#else // !WT_DEBUG_JS
-
-#define LOAD_JAVASCRIPT(app, jsFile, name, jsi)	\
-  app->loadJavaScript(jsFile)
-
-#endif // WT_DEBUG_JS
-
-#endif // WT_JAVASCRIPT_PREAMBLE_H_
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WJavaScriptPreamble.h"
+#endif // WT_WJAVASCRIPTPREAMBLE_EXTENSIONLESS_H_

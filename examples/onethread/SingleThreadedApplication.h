@@ -7,15 +7,20 @@
 #ifndef SINGLE_THREADED_APPLICATION_H_
 #define SINGLE_THREADED_APPLICATION_H_
 
-#include <Wt/WApplication>
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
+#include <Wt/WApplication.h>
+#include <thread>
+#include <chrono>
+#include <mutex>
+#include <condition_variable>
+
+
+using namespace Wt;
 
 /*
  * Base class for an application which handles events in a dedicated
  * thread.
  */
-class SingleThreadedApplication : public Wt::WApplication
+class SingleThreadedApplication : public WApplication
 {
 public:
   /*
@@ -23,7 +28,7 @@ public:
    * Wt's thread pool, and thus not yet in its private thread. You should
    * thus actually create the application from within the create() function.
    */
-  SingleThreadedApplication(const Wt::WEnvironment& env);
+  SingleThreadedApplication(const WEnvironment& env);
 
 protected:
   /*
@@ -41,27 +46,27 @@ protected:
   /*
    * Actual notify within the private thread.
    */
-  virtual void threadNotify(const Wt::WEvent& event);
+  virtual void threadNotify(const WEvent& event);
 
-  virtual void notify(const Wt::WEvent& event);
+  virtual void notify(const WEvent& event);
   virtual void initialize();
   virtual void finalize();
   virtual void waitForEvent();
 
 private:
-  boost::thread appThread_;
+  std::thread     appThread_;
   bool finalized_, exception_;
 
-  const Wt::WEvent *event_;
+  const WEvent                 *event_;
 
-  boost::mutex     doneMutex_;
-  bool             done_;
-  boost::condition doneCondition_;
+  std::mutex                    doneMutex_;
+  bool                          done_;
+  std::condition_variable       doneCondition_;
 
-  boost::mutex     newEventMutex_;
-  bool             newEvent_;
-  boost::condition newEventCondition_;
-  boost::mutex::scoped_lock *eventLock_;
+  std::mutex                    newEventMutex_;
+  bool                          newEvent_;
+  std::condition_variable       newEventCondition_;
+  std::unique_lock<std::mutex> *eventLock_;
 
   void run();
   void signalDone();

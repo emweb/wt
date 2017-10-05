@@ -1,19 +1,23 @@
-#include <Wt/WLineEdit>
-#include <Wt/WTemplate>
+#include <Wt/WLineEdit.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(TextSide)
-Wt::WTemplate *result = new Wt::WTemplate(Wt::WString::tr("editSide-template"));
+auto result =
+    Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("editSide-template"));
 
-Wt::WLineEdit *edit = new Wt::WLineEdit("Username");
+auto edit =
+    Wt::cpp14::make_unique<Wt::WLineEdit>("Username");
 edit->setStyleClass("span2");
-result->bindWidget("name", edit);
+result->bindWidget("name", std::move(edit));
 
-edit = new Wt::WLineEdit();
+edit =
+    Wt::cpp14::make_unique<Wt::WLineEdit>();
 edit->setStyleClass("span2");
-result->bindWidget("amount1", edit);
+result->bindWidget("amount1", std::move(edit));
 
-edit = new Wt::WLineEdit();
+edit =
+    Wt::cpp14::make_unique<Wt::WLineEdit>();
 edit->setStyleClass("span2");
-result->bindWidget("amount2", edit);
+result->bindWidget("amount2", std::move(edit));
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))

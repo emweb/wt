@@ -1,49 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WDEFAULT_LOADING_INDICATOR_H_
-#define WDEFAULT_LOADING_INDICATOR_H_
-
-#include <Wt/WText>
-#include <Wt/WLoadingIndicator>
-
-namespace Wt {
-
-/*! \class WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator
- *  \brief A default loading indicator.
- *
- * The default loading indicator displays the text message <span
- * style="background-color: red; color: white; font-family:
- * Arial,Helvetica,sans-serif; font-size: small;">Loading...</span> in
- * the right top corner of the window.
- *
- * <h3>CSS</h3>
- *
- * This widget does not provide styling, 
- * and can be styled using inline or external CSS as appropriate.
- *
- * <h3>i18n</h3>
- *
- * The strings used in this class can be translated by overriding
- * the default values for the following localization keys:
- * - Wt.WDefaultLoadingIndicator.Loading: Loading...
- *
- * \sa WApplication::setLoadingIndicator()
- */
-class WT_API WDefaultLoadingIndicator : public WText, public WLoadingIndicator
-{
-public:
-  /*! \brief Constructor.
-   */
-  WDefaultLoadingIndicator();
-
-  virtual WWidget *widget() { return this; }
-  virtual void setMessage(const WString& text);
-};
-
-}
-
-#endif // WDEFAULT_LOADING_INDICATOR_H_
+#ifndef WT_WDEFAULTLOADINGINDICATOR_EXTENSIONLESS_H_
+#define WT_WDEFAULTLOADINGINDICATOR_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WDefaultLoadingIndicator.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WDefaultLoadingIndicator.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WDefaultLoadingIndicator.h"
+#endif // WT_WDEFAULTLOADINGINDICATOR_EXTENSIONLESS_H_

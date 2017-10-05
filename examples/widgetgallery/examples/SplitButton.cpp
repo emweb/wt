@@ -1,29 +1,32 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WPopupMenu>
-#include <Wt/WPushButton>
-#include <Wt/WSplitButton>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPopupMenu.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WSplitButton.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(SplitButton)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WSplitButton *sb = new Wt::WSplitButton("Save", container);
+Wt::WSplitButton *sb =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WSplitButton>("Save"));
 
-Wt::WText *out = new Wt::WText(container);
-out->setMargin(10, Wt::Left);
+Wt::WText *out =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+out->setMargin(10, Wt::Side::Left);
 
-Wt::WPopupMenu *popup = new Wt::WPopupMenu();
-popup->addItem("Save As ...");
-popup->addItem("Save Template");
+auto popup = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+auto popup_ = popup.get();
+popup_->addItem("Save As ...");
+popup_->addItem("Save Template");
 
-sb->dropDownButton()->setMenu(popup);
+sb->dropDownButton()->setMenu(std::move(popup));
 
-sb->actionButton()->clicked().connect(std::bind([=] () {
+sb->actionButton()->clicked().connect([=] {
     out->setText("Saved!");
-}));
+});
 
-popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
+popup_->itemSelected().connect([=] (Wt::WMenuItem *item) {
     out->setText(item->text());
-}, std::placeholders::_1));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

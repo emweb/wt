@@ -4,19 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WTimer"
-#include "Wt/WTimerWidget"
-#include "Wt/WContainerWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WTimer.h"
+#include "Wt/WTimerWidget.h"
+#include "Wt/WContainerWidget.h"
 #include "TimeUtil.h"
+
+#include <algorithm>
 
 namespace Wt {
 
-WTimer::WTimer(WObject *parent)
-  : WObject(parent),
-    timerWidget_(new WTimerWidget(this)),
+WTimer::WTimer()
+  : timerWidget_(new WTimerWidget(this)),
     singleShot_(false),
-    selfDestruct_(false),
     interval_(0),
     active_(false),
     timeoutConnected_(false),
@@ -33,11 +33,11 @@ WTimer::~WTimer()
   if (active_)
     stop();
 
-  delete timerWidget_;
-  delete timeout_;
+  if (!timerWidget_->parent())
+    delete timerWidget_;
 }
 
-void WTimer::setInterval(int msec)
+void WTimer::setInterval(std::chrono::milliseconds msec)
 {
   interval_ = msec;
 }
@@ -52,11 +52,11 @@ void WTimer::start()
   if (!active_) {
     WApplication *app = WApplication::instance();    
     if (app && app->timerRoot())
-      app->timerRoot()->addWidget(timerWidget_);
+      app->timerRoot()->addWidget(std::unique_ptr<WWidget>(timerWidget_));
   }
 
   active_ = true;
-  *timeout_ = Time() + interval_;
+  *timeout_ = Time() + interval_.count();
 
   bool jsRepeat = !timeout().isExposedSignal() && !singleShot_;
 
@@ -71,30 +71,21 @@ void WTimer::start()
 void WTimer::stop()
 {
   if (active_) {
-    WApplication *app = WApplication::instance();
-    if (app && app->timerRoot())
-      app->timerRoot()->removeWidget(timerWidget_);
+    if (timerWidget_->parent())
+      timerWidget_->parent()->removeWidget(timerWidget_).release();
     active_ = false;
   }
-}
-
-void WTimer::setSelfDestruct()
-{
-  selfDestruct_ = true;
 }
 
 void WTimer::gotTimeout()
 {
   if (active_) {
     if (!singleShot_) {
-      *timeout_ = Time() + interval_;
+      *timeout_ = Time() + interval_.count();
       timerWidget_->timerStart(false);    
     } else
       stop();
   }
-
-  if (selfDestruct_)
-    delete this;
 }
 
 int WTimer::getRemainingInterval() const

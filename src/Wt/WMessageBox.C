@@ -4,19 +4,27 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WIcon"
-#include "Wt/WImage"
-#include "Wt/WMessageBox"
-#include "Wt/WPushButton"
-#include "Wt/WSignalMapper"
-#include "Wt/WText"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WIcon.h"
+#include "Wt/WImage.h"
+#include "Wt/WMessageBox.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WText.h"
 
 namespace Wt {
 
-StandardButton WMessageBox::order_[] = { Ok, Yes, YesAll, Retry, No,
-					 NoAll, Abort, Ignore, Cancel };
+StandardButton WMessageBox::order_[] = { 
+  StandardButton::Ok,
+  StandardButton::Yes, 
+  StandardButton::YesAll, 
+  StandardButton::Retry, 
+  StandardButton::No,
+  StandardButton::NoAll, 
+  StandardButton::Abort, 
+  StandardButton::Ignore, 
+  StandardButton::Cancel 
+};
 
 const char *WMessageBox::buttonText_[]
   = { "Wt.WMessageBox.Ok", "Wt.WMessageBox.Yes", "Wt.WMessageBox.YesToAll",
@@ -24,41 +32,38 @@ const char *WMessageBox::buttonText_[]
       "Wt.WMessageBox.Abort", "Wt.WMessageBox.Ignore", "Wt.WMessageBox.Cancel"
     };
 
-WMessageBox::WMessageBox(WObject *parent)
-  : WDialog(parent),
-    icon_(NoIcon),
-    result_(NoButton),
-    buttonClicked_(this),
-    defaultButton_(0),
-    escapeButton_(0)
+WMessageBox::WMessageBox()
+  : icon_(Icon::None),
+    result_(StandardButton::None),
+    defaultButton_(nullptr),
+    escapeButton_(nullptr)
 {
   create();
 }
 
 WMessageBox::WMessageBox(const WString& caption, const WString& text,
-			 Icon icon, WFlags<StandardButton> buttons,
-			 WObject *parent)
-  : WDialog(caption, parent),
-    icon_(NoIcon),
-    buttonClicked_(this),
-    defaultButton_(0),
-    escapeButton_(0)
+			 Icon icon, WFlags<StandardButton> buttons)
+  : WDialog(caption),
+    icon_(Icon::None),
+    defaultButton_(nullptr),
+    escapeButton_(nullptr)
 {
   create();
 
   setText(text);
   setIcon(icon);
-  setButtons(buttons);
+  setStandardButtons(buttons);
 }
 
 void WMessageBox::create()
 {
-  iconW_ = new WIcon(contents());
-  text_ = new WText(contents());
-  contents()->addStyleClass("Wt-msgbox-body");
+  std::unique_ptr<WIcon> icon(iconW_ = new WIcon());
+  contents()->addWidget(std::move(icon));
 
-  buttonMapper_ = new WSignalMapper<StandardButton>(this);
-  buttonMapper_->mapped().connect(this, &WMessageBox::onButtonClick);
+  std::unique_ptr<WText> text(text_ = new WText());
+  contents()->addWidget(std::move(text));
+
+  contents()->addStyleClass("Wt-msgbox-body");
 
   rejectWhenEscapePressed();
 
@@ -73,21 +78,24 @@ WPushButton *WMessageBox::addButton(StandardButton result)
 WPushButton *WMessageBox::addButton(const WString& text, StandardButton result)
 {
   WPushButton *b = new WPushButton(text);
-  addButton(b, result);
+  addButton(std::unique_ptr<WPushButton>(b), result);
   return b;
 }
 
-void WMessageBox::addButton(WPushButton *button, StandardButton result)
+void WMessageBox::addButton(std::unique_ptr<WPushButton> button,
+			    StandardButton result)
 {
   buttons_.push_back(Button());
-  buttons_.back().button = button;
+  buttons_.back().button = button.get();
   buttons_.back().result = result;
-
-  footer()->addWidget(button);
-  buttonMapper_->mapConnect(button->clicked(), result);
+  
+  button->clicked().connect
+    (this, std::bind(&WMessageBox::onButtonClick, this, result));
 
   if (button->isDefault())
-    setDefaultButton(button);
+    setDefaultButton(button.get());
+
+  footer()->addWidget(std::move(button));
 }
 
 void WMessageBox::setDefaultButton(WPushButton *button)
@@ -132,31 +140,26 @@ void WMessageBox::setIcon(Icon icon)
 {
   icon_ = icon;
 
-  iconW_->toggleStyleClass("Wt-msgbox-icon", icon_ != NoIcon);
-  text_->toggleStyleClass("Wt-msgbox-text", icon_ != NoIcon);
-  iconW_->setSize(icon_ != NoIcon ? 2.5 : 1);
+  iconW_->toggleStyleClass("Wt-msgbox-icon", icon_ != Icon::None);
+  text_->toggleStyleClass("Wt-msgbox-text", icon_ != Icon::None);
+  iconW_->setSize(icon_ != Icon::None ? 2.5 : 1);
 
   switch (icon_) {
-  case NoIcon:
+  case Icon::None:
     iconW_->setName(std::string());
     break;
-  case Information:
+  case Icon::Information:
     iconW_->setName("info");
     break;
-  case Warning:
+  case Icon::Warning:
     iconW_->setName("warning");
     break;
-  case Critical:
+  case Icon::Critical:
     iconW_->setName("exclamation");
     break;
-  case Question:
+  case Icon::Question:
     iconW_->setName("question");
   }
-}
-
-void WMessageBox::setButtons(WFlags<StandardButton> buttons)
-{
-  setStandardButtons(buttons);
 }
 
 void WMessageBox::setStandardButtons(WFlags<StandardButton> buttons)
@@ -164,10 +167,10 @@ void WMessageBox::setStandardButtons(WFlags<StandardButton> buttons)
   buttons_.clear();
   footer()->clear();
 
-  defaultButton_ = escapeButton_ = 0;
+  defaultButton_ = escapeButton_ = nullptr;
 
   for (int i = 0; i < 9; ++i)
-    if (buttons & order_[i])
+    if (buttons.test(order_[i]))
       addButton(order_[i]);
 }
 
@@ -197,7 +200,7 @@ WPushButton *WMessageBox::button(StandardButton b)
     if (buttons_[i].result == b)
       return buttons_[i].button;
 
-  return 0;
+  return nullptr;
 }
 
 void WMessageBox::onButtonClick(StandardButton b)
@@ -208,7 +211,7 @@ void WMessageBox::onButtonClick(StandardButton b)
 
 void WMessageBox::onFinished()
 {
-  if (result() == Rejected) {
+  if (result() == DialogCode::Rejected) {
     if (escapeButton_) {
       for (unsigned i = 0; i < buttons_.size(); ++i) {
 	if (buttons_[i].button == escapeButton_) {
@@ -221,18 +224,18 @@ void WMessageBox::onFinished()
 	onButtonClick(buttons_[0].result);
 	return;
       } else {
-	WPushButton *b = button(Cancel);
+	WPushButton *b = button(StandardButton::Cancel);
 	if (b) {
-	  onButtonClick(Cancel);
+	  onButtonClick(StandardButton::Cancel);
 	  return;
 	}
-	b = button(No);
+	b = button(StandardButton::No);
 	if (b) {
-	  onButtonClick(No);
+	  onButtonClick(StandardButton::No);
 	  return;
 	}
 
-	onButtonClick(NoButton);
+	onButtonClick(StandardButton::None);
       }
     }
   }
@@ -243,7 +246,8 @@ void WMessageBox::setHidden(bool hidden, const WAnimation& animation)
   if (!hidden) {
     if (!defaultButton_) {
       for (unsigned i = 0; i < buttons_.size(); ++i) {
-	if (buttons_[i].result == Ok || buttons_[i].result == Yes) {
+	if (buttons_[i].result == StandardButton::Ok || 
+	    buttons_[i].result == StandardButton::Yes) {
 	  buttons_[i].button->setDefault(true);	
 	  break;
 	}
@@ -259,7 +263,7 @@ StandardButton WMessageBox::show(const WString& caption,
 				 WFlags<StandardButton> buttons,
 				 const WAnimation& animation)
 {
-  WMessageBox box(caption, text, Information, buttons);
+  WMessageBox box(caption, text, Icon::Information, buttons);
   box.buttonClicked().connect(&box, &WMessageBox::accept);
   box.exec(animation);
   return box.buttonResult();

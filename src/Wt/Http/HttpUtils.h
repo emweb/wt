@@ -9,9 +9,9 @@
 #define WT_HTTP_UTILS_H_
 
 #include <string>
-#include "Wt/Http/Client"
-#include "Wt/Http/Response"
-#include "Wt/Http/Request"
+#include "Wt/Http/Client.h"
+#include "Wt/Http/Response.h"
+#include "Wt/Http/Request.h"
 #include <Wt/WDllDefs.h>
 
 namespace Wt {

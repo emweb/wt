@@ -7,9 +7,11 @@
 #ifndef WT_DBO_COLLECTION_IMPL_H_
 #define WT_DBO_COLLECTION_IMPL_H_
 
-#include <Wt/Dbo/collection>
-#include <Wt/Dbo/Exception>
-#include <Wt/Dbo/SqlStatement>
+#include <Wt/Dbo/collection.h>
+#include <Wt/Dbo/Exception.h>
+#include <Wt/Dbo/SqlStatement.h>
+
+#include <algorithm>
 
 namespace Wt {
   namespace Dbo {
@@ -99,7 +101,7 @@ collection<C>::iterator::operator-> ()
   if (impl_ && !impl_->ended_)
     return &impl_->current();
   else
-    return 0;
+    return nullptr;
 }
 
 
@@ -197,7 +199,7 @@ typename collection<C>::value_type& collection<C>::iterator::shared_impl::curren
 
 template <class C>
 collection<C>::iterator::iterator()
-  : impl_(0)
+  : impl_(nullptr)
 { }
 
 template <class C>
@@ -286,13 +288,13 @@ collection<C>::const_iterator::const_iterator(const collection<C>& collection,
 
 template <class C>
 collection<C>::collection()
-  : session_(0),
+  : session_(nullptr),
     type_(RelationCollection)
 {
-  data_.relation.sql = 0;
-  data_.relation.dbo = 0;
-  data_.relation.setInfo = 0;
-  data_.relation.activity = 0;
+  data_.relation.sql = nullptr;
+  data_.relation.dbo = nullptr;
+  data_.relation.setInfo = nullptr;
+  data_.relation.activity = nullptr;
 }
 
 template <class C>
@@ -315,7 +317,7 @@ collection<C>::collection(const collection<C>& other)
     data_(other.data_)
 {
   if (type_ == RelationCollection)
-    data_.relation.activity = 0;
+    data_.relation.activity = nullptr;
   else
     ++data_.query->useCount;
 }
@@ -347,7 +349,7 @@ collection<C>& collection<C>::operator=(const collection<C>& other)
   data_ = other.data_;
   
   if (type_ == RelationCollection)
-    data_.relation.activity = 0;
+    data_.relation.activity = nullptr;
   else
     ++data_.query->useCount;
 
@@ -367,15 +369,15 @@ template <class C>
 void collection<C>::iterateDone() const
 {
   if (type_ == QueryCollection)
-    data_.query->statement = 0;
+    data_.query->statement = nullptr;
 }
 
 template <class C>
 SqlStatement *collection<C>::executeStatement() const
 {
-  SqlStatement *statement = 0;
+  SqlStatement *statement = nullptr;
 
-  if (session_ && session_->flushMode() == Auto)
+  if (session_ && session_->flushMode() == FlushMode::Auto)
     session_->flush();
 
   if (type_ == QueryCollection)
@@ -436,9 +438,9 @@ typename collection<C>::size_type collection<C>::size() const
   if (type_ == QueryCollection && data_.query->size != -1)
     return data_.query->size;
 
-  SqlStatement *countStatement = 0;
+  SqlStatement *countStatement = nullptr;
 
-  if (session_ && session_->flushMode() == Auto)
+  if (session_ && session_->flushMode() == FlushMode::Auto)
     session_->flush();
 
   if (type_ == QueryCollection)
@@ -472,7 +474,7 @@ typename collection<C>::size_type collection<C>::size() const
 
     if (type_ == QueryCollection) {
       data_.query->size = result;
-      data_.query->countStatement = 0;
+      data_.query->countStatement = nullptr;
     }
 
     if (type_ != QueryCollection) {
@@ -515,17 +517,17 @@ void collection<C>::insert(C c)
 {
   RelationData& relation = data_.relation;
 
-  if (type_ != RelationCollection || relation.setInfo == 0)
+  if (type_ != RelationCollection || relation.setInfo == nullptr)
     throw Exception("collection<C>::insert() only for a relational "
 		    "collection.");
 
-  if (session_->flushMode() == Auto) {
+  if (session_->flushMode() == FlushMode::Auto) {
     if (relation.dbo) {
       relation.dbo->setDirty();
       if (relation.dbo->session())
 	relation.dbo->session()->add(c);
     }
-  } else if (session_->flushMode() == Manual) {
+  } else if (session_->flushMode() == FlushMode::Manual) {
     manualModeInsertions_.push_back(c);
   }
 
@@ -550,7 +552,7 @@ void collection<C>::erase(C c)
 {
   RelationData& relation = data_.relation;
 
-  if (type_ != RelationCollection || relation.setInfo == 0)
+  if (type_ != RelationCollection || relation.setInfo == nullptr)
     throw Exception("collection<C>::erase() only for a relational relation.");
 
   if (relation.dbo)
@@ -566,7 +568,7 @@ void collection<C>::erase(C c)
     if (!wasJustInserted && !relation.activity->transactionErased.count(c))
       relation.activity->erased.insert(c);
   } else {
-    SetReciproceAction setPtr(session_, relation.setInfo->joinName, 0);
+    SetReciproceAction setPtr(session_, relation.setInfo->joinName, nullptr);
     setPtr.visit(*c.modify());
   }
 
@@ -575,7 +577,7 @@ void collection<C>::erase(C c)
   if (pos != manualModeInsertions_.end())
     manualModeInsertions_.erase(pos);
 
-  if (session_->flushMode() == Manual) {
+  if (session_->flushMode() == FlushMode::Manual) {
     manualModeRemovals_.push_back(c);
   }
 }
@@ -585,7 +587,7 @@ void collection<C>::clear()
 {
   RelationData& relation = data_.relation;
 
-  if (type_ != RelationCollection || relation.setInfo == 0)
+  if (type_ != RelationCollection || relation.setInfo == nullptr)
     throw Exception("collection<C>::clear() only for a relational relation.");
 
   if (relation.setInfo->type == ManyToMany) {
@@ -626,7 +628,7 @@ int collection<C>::count(C c) const
     throw Exception("collection<C>::count() only for a collection "
 		    "that is bound to a session.");
 
-  if (session_->flushMode() == Auto)
+  if (session_->flushMode() == FlushMode::Auto)
     session_->flush();
 
   if (type_ != RelationCollection)
@@ -656,7 +658,7 @@ void collection<C>::resetActivity()
 {
   RelationData& relation = data_.relation;
   delete relation.activity;
-  relation.activity = 0;
+  relation.activity = nullptr;
 }
 
 template <class C>

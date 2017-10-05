@@ -1,22 +1,22 @@
-#include <Wt/WApplication>
-#include <Wt/WBoostAny>
-#include <Wt/WComboBox>
-#include <Wt/WDate>
-#include <Wt/WDateEdit>
-#include <Wt/WDateValidator>
-#include <Wt/WFormModel>
-#include <Wt/WImage>
-#include <Wt/WIntValidator>
-#include <Wt/WLengthValidator>
-#include <Wt/WModelIndex>
-#include <Wt/WPushButton>
-#include <Wt/WSpinBox>
-#include <Wt/WStandardItem>
-#include <Wt/WStandardItemModel>
-#include <Wt/WString>
-#include <Wt/WTemplateFormView>
-#include <Wt/WTextArea>
-#include <Wt/WValidator>
+#include <Wt/WApplication.h>
+#include <Wt/WAny.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateEdit.h>
+#include <Wt/WDateValidator.h>
+#include <Wt/WFormModel.h>
+#include <Wt/WImage.h>
+#include <Wt/WIntValidator.h>
+#include <Wt/WLengthValidator.h>
+#include <Wt/WModelIndex.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WSpinBox.h>
+#include <Wt/WStandardItem.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WString.h>
+#include <Wt/WTemplateFormView.h>
+#include <Wt/WTextArea.h>
+#include <Wt/WValidator.h>
 
 class UserFormModel : public Wt::WFormModel
 {
@@ -30,8 +30,8 @@ public:
     static const Field ChildrenField;
     static const Field RemarksField;
 
-    UserFormModel(Wt::WObject *parent = 0)
-        : Wt::WFormModel(parent)
+    UserFormModel()
+        : WFormModel()
     {
         initializeModels();
 
@@ -52,12 +52,11 @@ public:
 
         // Here you could populate the model with initial data using
         // setValue() for each field.
-
         setValue(BirthField, Wt::WDate());
         setValue(CountryField, std::string());
     }
 
-    Wt::WAbstractItemModel *countryModel() {
+    std::shared_ptr<Wt::WAbstractItemModel> countryModel() {
         return countryModel_;
     }
 
@@ -69,7 +68,7 @@ public:
 	return -1;
     }
 
-    Wt::WAbstractItemModel *cityModel() {
+    std::shared_ptr<Wt::WAbstractItemModel> cityModel() {
         return cityModel_;
     }
 
@@ -83,13 +82,13 @@ public:
 
             // The initial text shown in the city combo box should be an empty
             // string.
-            cityModel_->appendRow(new Wt::WStandardItem());
+            cityModel_->appendRow(Wt::cpp14::make_unique<Wt::WStandardItem>());
 
             for (unsigned j = 0; j < cities.size(); ++j)
-                cityModel_->appendRow(new Wt::WStandardItem(cities[j]));
+                cityModel_->appendRow(Wt::cpp14::make_unique<Wt::WStandardItem>(cities[j]));
         } else {
             cityModel_->appendRow(
-                        new Wt::WStandardItem("(Choose Country first)"));
+                        Wt::cpp14::make_unique<Wt::WStandardItem>("(Choose Country first)"));
         }
     }
 
@@ -108,8 +107,7 @@ public:
 
     // Get the right code for the current index.
     std::string countryCode (int row) {
-        return boost::any_cast<std::string>
-	  (countryModel_->data(row, 0, Wt::UserRole));
+        return Wt::asString(countryModel_->data(row, 0, Wt::ItemDataRole::User)).toUTF8();
     }
 
     typedef std::map< std::string, std::vector<std::string> > CityMap;
@@ -118,24 +116,23 @@ public:
 private:
     static const CityMap cities;
     static const CountryMap countries;
-    Wt::WStandardItemModel *countryModel_, *cityModel_;
+    std::shared_ptr<Wt::WStandardItemModel> countryModel_, cityModel_;
 
-    static const int MAX_LENGTH = 25;
-    static const int MAX_CHILDREN = 15;
+    static const int MAX_LENGTH;
+    static const int MAX_CHILDREN;
 
     void initializeModels() {
         // Create a country model.
         unsigned countryModelRows = countries.size() + 1;
         const unsigned countryModelColumns = 1;
         countryModel_ =
-          new Wt::WStandardItemModel(countryModelRows, countryModelColumns,
-                                     this);
+          std::make_shared<Wt::WStandardItemModel>(countryModelRows, countryModelColumns);
 
         // The initial text shown in the country combo box should be an empty
         // string.
         int row = 0;
-        countryModel_->setData(row, 0, std::string(" "), Wt::DisplayRole);
-        countryModel_->setData(row, 0, std::string(), Wt::UserRole);
+        countryModel_->setData(row, 0, std::string(" "), Wt::ItemDataRole::Display);
+        countryModel_->setData(row, 0, std::string(), Wt::ItemDataRole::User);
 
         // For each country, update the model based on the key (corresponding
         // to the country code):
@@ -144,37 +141,37 @@ private:
         row = 1;
         for (CountryMap::const_iterator i = countries.begin();
                                         i != countries.end(); ++i) {
-            countryModel_->setData(row, 0, i->second, Wt::DisplayRole);
-            countryModel_->setData(row++, 0, i->first, Wt::UserRole);
+            countryModel_->setData(row, 0, i->second, Wt::ItemDataRole::Display);
+            countryModel_->setData(row++, 0, i->first, Wt::ItemDataRole::User);
         }
 
         // Create a city model.
-        cityModel_ = new Wt::WStandardItemModel(this);
+        cityModel_ = std::make_shared<Wt::WStandardItemModel>();
         updateCityModel(std::string());
     }
 
-    Wt::WValidator *createNameValidator(const std::string& field) {
-        Wt::WLengthValidator *v = new Wt::WLengthValidator();
+    std::shared_ptr<Wt::WValidator> createNameValidator(const std::string& field) {
+        auto v = std::make_shared<Wt::WLengthValidator>();
         v->setMandatory(true);
         v->setMinimumLength(1);
         v->setMaximumLength(MAX_LENGTH);
         return v;
     }
 
-    Wt::WValidator *createCountryValidator() {
-        Wt::WLengthValidator *v = new Wt::WLengthValidator();
+    std::shared_ptr<Wt::WValidator> createCountryValidator() {
+        auto v = std::make_shared<Wt::WLengthValidator>();
         v->setMandatory(true);
         return v;
     }
 
-    Wt::WValidator *createCityValidator() {
-        Wt::WLengthValidator *v = new Wt::WLengthValidator();
+    std::shared_ptr<Wt::WValidator> createCityValidator() {
+        auto v = std::make_shared<Wt::WLengthValidator>();
         v->setMandatory(true);
         return v;
     }
 
-    Wt::WValidator *createBirthValidator() {
-        Wt::WDateValidator *v = new Wt::WDateValidator();
+    std::shared_ptr<Wt::WValidator> createBirthValidator() {
+        auto v = std::make_shared<Wt::WDateValidator>();
         v->setBottom(Wt::WDate(1900, 1, 1));
         v->setTop(Wt::WDate::currentDate());
         v->setFormat("dd/MM/yyyy");
@@ -182,13 +179,16 @@ private:
         return v;
     }
 
-    Wt::WValidator *createChildrenValidator() {
-        Wt::WIntValidator *v = new Wt::WIntValidator(0, MAX_CHILDREN);
+    std::shared_ptr<Wt::WValidator> createChildrenValidator() {
+        auto v = std::make_shared<Wt::WIntValidator>(0, MAX_CHILDREN);
         v->setMandatory(true);
         return v;
     }
 
 };
+
+const int UserFormModel::MAX_LENGTH = 25;
+const int UserFormModel::MAX_CHILDREN = 15;
 
 const Wt::WFormModel::Field UserFormModel::FirstNameField = "first-name";
 const Wt::WFormModel::Field UserFormModel::LastNameField = "last-name";
@@ -198,70 +198,26 @@ const Wt::WFormModel::Field UserFormModel::BirthField = "birth";
 const Wt::WFormModel::Field UserFormModel::ChildrenField = "children";
 const Wt::WFormModel::Field UserFormModel::RemarksField = "remarks";
 
-// In C++11, this initializing can be done inline, within the declaration:
-//
-// const UserFormModel::CityMap UserFormModel::cities = {
-//    { "BE", { "Antwerp", "Bruges", "Brussels", "Ghent" } },
-//    { "NL", { "Amsterdam", "Eindhoven", "Rotterdam", "The Hague"} },
-//    { "UK", { "London", "Bristol", "Oxford", "Stonehenge"} },
-//    { "US", { "Boston", "Chicago", "Los Angeles", "New York"} }
-// };
+const UserFormModel::CountryMap UserFormModel::countries = {
+  { "BE", { "Belgium" } },
+  { "NL", { "Netherlands" } },
+  { "UK", { "United Kingdom" } },
+  { "US", { "United States" } }
+};
 
-namespace {
-    UserFormModel::CountryMap getCountryMap() {
-	UserFormModel::CountryMap retval;
-	retval["BE"] = "Belgium";
-	retval["NL"] = "Netherlands";
-	retval["UK"] = "United Kingdom";
-	retval["US"] = "United States";
-	return retval;
-    }
-}
-const UserFormModel::CountryMap UserFormModel::countries = getCountryMap();
-
-namespace {
-    UserFormModel::CityMap getCityMap() {
-	std::vector<std::string> beCities;
-	beCities.push_back("Antwerp");
-	beCities.push_back("Bruges");
-	beCities.push_back("Brussels");
-	beCities.push_back("Ghent");
-
-	std::vector<std::string> nlCities;
-	nlCities.push_back("Amsterdam");
-	nlCities.push_back("Eindhoven");
-	nlCities.push_back("Rotterdam");
-	nlCities.push_back("The Hague");
-
-	std::vector<std::string> ukCities;
-	ukCities.push_back("London");
-	ukCities.push_back("Bristol");
-	ukCities.push_back("Oxford");
-	ukCities.push_back("Stonehenge");
-
-	std::vector<std::string> usCities;
-	usCities.push_back("Boston");
-	usCities.push_back("Chicago");
-        usCities.push_back("Los Angeles");
-	usCities.push_back("New York");
-
-	UserFormModel::CityMap retval;
-	retval["BE"] = beCities;
-	retval["NL"] = nlCities;
-	retval["UK"] = ukCities;
-        retval["US"] = usCities;
-	return retval;
-    }
-}
-
-const UserFormModel::CityMap UserFormModel::cities = getCityMap();
+const UserFormModel::CityMap UserFormModel::cities = {
+  { "BE", { "Antwerp", "Bruges", "Brussels", "Ghent" } },
+  { "NL", { "Amsterdam", "Eindhoven", "Rotterdam", "The Hague"} },
+  { "UK", { "London", "Bristol", "Oxford", "Stonehenge"} },
+  { "US", { "Boston", "Chicago", "Los Angeles", "New York"} }
+};
 
 class UserFormView : public Wt::WTemplateFormView
 {
 public:
     // inline constructor
     UserFormView() {
-        model = new UserFormModel(this);
+        model = std::make_shared<UserFormModel>();
 
         setTemplateText(tr("userForm-template"));
         addFunction("id", &WTemplate::Functions::id);
@@ -270,115 +226,119 @@ public:
         /*
 	 * First Name
 	 */
-	setFormWidget(UserFormModel::FirstNameField, new Wt::WLineEdit());
+	setFormWidget(UserFormModel::FirstNameField,
+	              Wt::cpp14::make_unique<Wt::WLineEdit>());
 
 	/*
 	 * Last Name
 	 */
-	setFormWidget(UserFormModel::LastNameField, new Wt::WLineEdit());
+	setFormWidget(UserFormModel::LastNameField,
+	              Wt::cpp14::make_unique<Wt::WLineEdit>());
 
 	/*
 	 * Country
 	 */
-	Wt::WComboBox *countryCB = new Wt::WComboBox();
+	auto countryCB = Wt::cpp14::make_unique<Wt::WComboBox>();
+	auto countryCB_ = countryCB.get();
 	countryCB->setModel(model->countryModel());
 
-	countryCB->activated().connect(std::bind([=] () {
-	    std::string code = model->countryCode(countryCB->currentIndex());
+	countryCB_->activated().connect([=] {
+	    std::string code = model->countryCode(countryCB_->currentIndex());
 	    model->updateCityModel(code);
-	}));
+	});
 
-	setFormWidget(UserFormModel::CountryField, countryCB,
-            [=] () { // updateViewValue()
-	        std::string code = boost::any_cast<std::string>
-		    (model->value(UserFormModel::CountryField));
+        setFormWidget(UserFormModel::CountryField, std::move(countryCB),
+            [=] { // updateViewValue()
+                std::string code =
+                    Wt::asString(model->value(UserFormModel::CountryField)).toUTF8();
 		int row = model->countryModelRow(code);
-		countryCB->setCurrentIndex(row);
+		countryCB_->setCurrentIndex(row);
 	    },
 
-            [=] () { // updateModelValue()
-	        std::string code = model->countryCode(countryCB->currentIndex());
+            [=] { // updateModelValue()
+                std::string code = model->countryCode(countryCB_->currentIndex());
 		model->setValue(UserFormModel::CountryField, code);
             });
 
 	/*
 	 * City
 	 */
-	Wt::WComboBox *cityCB = new Wt::WComboBox();
+	auto cityCB = Wt::cpp14::make_unique<Wt::WComboBox>();
 	cityCB->setModel(model->cityModel());
-	setFormWidget(UserFormModel::CityField, cityCB);
+	setFormWidget(UserFormModel::CityField, std::move(cityCB));
 
 	/*
 	 * Birth Date
 	 */
-	Wt::WDateEdit *dateEdit = new Wt::WDateEdit();
-	setFormWidget(UserFormModel::BirthField, dateEdit,
-	    [=] () { // updateViewValue()
-	        Wt::WDate date = boost::any_cast<Wt::WDate>
+	auto dateEdit = Wt::cpp14::make_unique<Wt::WDateEdit>();
+	auto dateEdit_ = dateEdit.get();
+	setFormWidget(UserFormModel::BirthField, std::move(dateEdit),
+	    [=] { // updateViewValue()
+	        Wt::WDate date = Wt::cpp17::any_cast<Wt::WDate>
 		    (model->value(UserFormModel::BirthField));
-                dateEdit->setDate(date);
+		dateEdit_->setDate(date);
 	    }, 
 
-            [=] () { // updateModelValue()
-	        Wt::WDate date = dateEdit->date();
+            [=] { // updateModelValue()
+                Wt::WDate date = dateEdit_->date();
                 model->setValue(UserFormModel::BirthField, date);
 	    });
 
         /*
 	 * Children
 	 */ 
-	setFormWidget(UserFormModel::ChildrenField, new Wt::WSpinBox());
+	setFormWidget(UserFormModel::ChildrenField, Wt::cpp14::make_unique<Wt::WSpinBox>());
 
 	/*
 	 * Remarks
 	 */
-	Wt::WTextArea *remarksTA = new Wt::WTextArea();
+	auto remarksTA = Wt::cpp14::make_unique<Wt::WTextArea>();
 	remarksTA->setColumns(40);
 	remarksTA->setRows(5);
-	setFormWidget(UserFormModel::RemarksField, remarksTA);
+	setFormWidget(UserFormModel::RemarksField, std::move(remarksTA));
 
 	/*
 	 * Title & Buttons
 	 */
-        Wt::WString title = Wt::WString("Create new user");
+	Wt::WString title = Wt::WString("Create new user");
         bindString("title", title);
 
-        Wt::WPushButton *button = new Wt::WPushButton("Save");
-        bindWidget("submit-button", button);
+        auto button = Wt::cpp14::make_unique<Wt::WPushButton>("Save");
+        auto button_ = bindWidget("submit-button", std::move(button));
 
         bindString("submit-info", Wt::WString());
 
-        button->clicked().connect(this, &UserFormView::process);
+        button_->clicked().connect(this, &UserFormView::process);
 
-        updateView(model);
+        updateView(model.get());
     }
 
 private:
     void process() {
-        updateModel(model);
+        updateModel(model.get());
 
         if (model->validate()) {
             // Do something with the data in the model: show it.
             bindString("submit-info",
-                       Wt::WString::fromUTF8("Saved user data for ")
-		       + model->userData(), Wt::PlainText);
+                       Wt::WString("Saved user data for ")
+                       + model->userData(), Wt::TextFormat::Plain);
             // Udate the view: Delete any validation message in the view, etc.
-            updateView(model);
+            updateView(model.get());
             // Set the focus on the first field in the form.
             Wt::WLineEdit *viewField =
                     resolve<Wt::WLineEdit*>(UserFormModel::FirstNameField);
             viewField->setFocus(true);
         } else {
             bindEmpty("submit-info"); // Delete the previous user data.
-            updateView(model);
+            updateView(model.get());
         }
     }
 
-    UserFormModel *model;
+    std::shared_ptr<UserFormModel> model;
 };
 
 SAMPLE_BEGIN(FormModel)
 
-UserFormView *view = new UserFormView();
+auto view = Wt::cpp14::make_unique<UserFormView>();
 
-SAMPLE_END(return view)
+SAMPLE_END(return std::move(view))

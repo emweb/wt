@@ -17,11 +17,7 @@
 #ifndef HTTP_TCP_CONNECTION_HPP
 #define HTTP_TCP_CONNECTION_HPP
 
-#include <boost/asio.hpp>
-namespace asio = boost::asio;
-
 #include <boost/array.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
@@ -34,7 +30,7 @@ class RequestHandler;
 class Server;
 
 /// Represents a single connection from a client.
-class TcpConnection : public Connection
+class TcpConnection final : public Connection
 {
 public:
   /// Construct a connection with the given io_service.
@@ -42,24 +38,24 @@ public:
       ConnectionManager& manager, RequestHandler& handler);
 
   /// Get the socket associated with the connection.
-  virtual asio::ip::tcp::socket& socket();
+  virtual asio::ip::tcp::socket& socket() override;
 
-  virtual const char *urlScheme() { return "http"; }
+  virtual const char *urlScheme() override { return "http"; }
 
 protected:
-  virtual void startAsyncReadRequest(Buffer& buffer, int timeout);
-  virtual void startAsyncReadBody(ReplyPtr reply, Buffer& buffer, int timeout);
+  virtual void startAsyncReadRequest(Buffer& buffer, int timeout) override;
+  virtual void startAsyncReadBody(ReplyPtr reply, Buffer& buffer, int timeout) override;
   virtual void startAsyncWriteResponse
       (ReplyPtr reply, const std::vector<asio::const_buffer>& buffers,
-       int timeout);
+       int timeout) override;
 
-  virtual void stop();
+  virtual void stop() override;
 
   /// Socket for the connection.
   asio::ip::tcp::socket socket_;
 };
 
-typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 } // namespace server
 } // namespace http

@@ -8,12 +8,11 @@
 #define STD_WIDGET_ITEM_IMPL_H_
 
 #include "StdLayoutItemImpl.h"
+#include "Wt/WWidgetItemImpl.h"
 
 namespace Wt {
 
-  class WWidgetItem;
-
-class StdWidgetItemImpl : public StdLayoutItemImpl
+class StdWidgetItemImpl : public StdLayoutItemImpl, public WWidgetItemImpl
 {
 public:
   StdWidgetItemImpl(WWidgetItem *item);
@@ -24,20 +23,15 @@ public:
   static const char *secondResizeJS();
   static const char *secondGetPSJS();
 
-  virtual const std::string id() const;
-  virtual int minimumHeight() const;
-  virtual int minimumWidth() const;
+  virtual const std::string id() const override;
+  virtual int minimumHeight() const override;
+  virtual int minimumWidth() const override;
 
-  virtual void updateAddItem(WLayoutItem *);
-  virtual void updateRemoveItem(WLayoutItem *);
-  virtual void update(WLayoutItem *);
+  virtual WLayoutItem *layoutItem() const override;
 
-  virtual WLayoutItem *layoutItem() const;
-  virtual void containerAddWidgets(WContainerWidget *container);
-  virtual DomElement *createDomElement(bool fitWidth, bool fitHeight,
-				       WApplication *app);
-
-  virtual void setHint(const std::string& name, const std::string& value);
+  virtual DomElement *createDomElement(DomElement *parent,
+				       bool fitWidth, bool fitHeight,
+				       WApplication *app) override;
 
 private:
   WWidgetItem *item_;

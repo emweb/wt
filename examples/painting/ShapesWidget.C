@@ -7,22 +7,23 @@
 
 #include "ShapesWidget.h"
 
-#include <Wt/WPainter>
-#include <Wt/WPainterPath>
-#include <Wt/WPointF>
-#include <Wt/WRectF>
+#include <Wt/WPainter.h>
+#include <Wt/WPainterPath.h>
+#include <Wt/WPointF.h>
+#include <Wt/WRectF.h>
+#include <Wt/WAny.h>
 
 #include <math.h>
 #include <iostream>
-#include <boost/lexical_cast.hpp>
+#include <algorithm>
 
 namespace {
   // the blue emweb color
   WColor emweb(0x04, 0x7c, 0x93);
 }
 
-ShapesWidget::ShapesWidget(WContainerWidget *parent)
-  : WPaintedWidget(parent),
+ShapesWidget::ShapesWidget()
+  : WPaintedWidget(),
     angle_(0),
     size_(1)
 {
@@ -54,7 +55,7 @@ void ShapesWidget::paintEvent(WPaintDevice *paintDevice)
   WPainter painter(paintDevice);
 
   painter.setShadow(WShadow(10, 10, WColor(0, 0, 0, 50), 10));
-  painter.setRenderHint(WPainter::Antialiasing);
+  painter.setRenderHint(RenderHint::Antialiasing);
 
   painter.translate(width().value()/2, height().value()/2);
   painter.rotate(angle_);
@@ -145,14 +146,14 @@ void ShapesWidget::drawEmwebMW(WPainter& painter)
 void ShapesWidget::drawEmwebLogo(WPainter& painter)
 {
   painter.save();
-  painter.setPen(NoPen);
+  painter.setPen(WPen(PenStyle::None));
 
   /*
    * The emweb logo can be drawn as 3 e's, and one combined m/w
    */
 
   // Emweb
-  painter.setBrush(black);
+  painter.setBrush(WColor(StandardColor::Black));
   drawEmwebE(painter);
 
   // emwEb

@@ -5,7 +5,7 @@
  */
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
-#include <Wt/WLocale>
+#include <Wt/WLocale.h>
 
 using namespace Wt;
 
@@ -43,27 +43,19 @@ BOOST_AUTO_TEST_CASE( formatGrouping )
 
   s = l.toString(d / 1E30);
 
-  BOOST_REQUIRE(s == boost::lexical_cast<std::string>(d / 1E30));
+  BOOST_REQUIRE(s == "1.23456782345e-23");
 
   s = l.toString(d * 1E30);
 
-#ifdef WT_WIN32
-  BOOST_REQUIRE(s == "1.23456782345e+037");
-#else
   BOOST_REQUIRE(s == "1.23456782345e+37");
-#endif
 
   s = l.toString(d / -1E30);
 
-  BOOST_REQUIRE(s == boost::lexical_cast<std::string>(d / -1E30));
+  BOOST_REQUIRE(s == "-1.23456782345e-23");
 
   s = l.toString(d * -1E30);
 
-#ifdef WT_WIN32
-  BOOST_REQUIRE(s == "-1.23456782345e+037");
-#else
   BOOST_REQUIRE(s == "-1.23456782345e+37");
-#endif
 }
 
 BOOST_AUTO_TEST_CASE( formatNegGrouping )
@@ -89,25 +81,17 @@ BOOST_AUTO_TEST_CASE( formatNegGrouping )
 
   s = l.toString(d / 1E30);
 
-  BOOST_REQUIRE(s == boost::lexical_cast<std::string>(d / 1E30));
+  BOOST_REQUIRE(s == "-1.23456782345e-23");
 
   s = l.toString(d * 1E30);
 
-#ifdef WT_WIN32
-  BOOST_REQUIRE(s == "-1.23456782345e+037");
-#else
   BOOST_REQUIRE(s == "-1.23456782345e+37");
-#endif
 
   s = l.toString(d / -1E30);
 
-  BOOST_REQUIRE(s == boost::lexical_cast<std::string>(d / -1E30));
+  BOOST_REQUIRE(s == "1.23456782345e-23");
 
   s = l.toString(d * -1E30);
 
-#ifdef WT_WIN32
-  BOOST_REQUIRE(s == "1.23456782345e+037");
-#else
   BOOST_REQUIRE(s == "1.23456782345e+37");
-#endif
 }

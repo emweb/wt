@@ -4,15 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WString"
-#include "Wt/WTree"
-#include "Wt/WTreeTable"
-#include "Wt/WText"
-#include "Wt/WTreeTableNode"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WIconPair.h"
+#include "Wt/WString.h"
+#include "Wt/WTree.h"
+#include "Wt/WTreeTable.h"
+#include "Wt/WText.h"
+#include "Wt/WTreeTableNode.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WTreeTable.min.js"
@@ -20,41 +21,42 @@
 
 namespace Wt {
 
-WTreeTable::WTreeTable(WContainerWidget *parent)
-  : WCompositeWidget(parent)
+WTreeTable::WTreeTable()
 {
-  setImplementation(impl_ = new WContainerWidget());
+  impl_ = setNewImplementation<WContainerWidget>();
 
   setStyleClass("Wt-treetable");
-  setPositionScheme(Relative);
+  setPositionScheme(PositionScheme::Relative);
 
-  headers_ = new WContainerWidget(impl_);
+  headers_ = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
   headers_->setStyleClass("Wt-header header");
 
   /*
    * spacer for when a scroll bar is visible
    */
-  WContainerWidget *spacer = new WContainerWidget(headers_);
+  WContainerWidget *spacer
+    = headers_->addWidget(cpp14::make_unique<WContainerWidget>());
   spacer->setStyleClass("Wt-sbspacer");
 
-  headerContainer_ = new WContainerWidget(headers_);
-  headerContainer_->setFloatSide(Right);
+  headerContainer_
+    = headers_->addWidget(cpp14::make_unique<WContainerWidget>());
+  headerContainer_->setFloatSide(Side::Right);
 
-  headers_->addWidget(new WText());
+  headers_->addWidget(cpp14::make_unique<WText>());
   columnWidths_.push_back(WLength::Auto);
 
-  WContainerWidget *content = new WContainerWidget(impl_);
+  WContainerWidget *content
+    = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
   content->setStyleClass("Wt-content");
   if (!wApp->environment().agentIsIE())
-    content->setOverflow(WContainerWidget::OverflowAuto);
+    content->setOverflow(Overflow::Auto);
   else
     content->setAttributeValue
       ("style", "overflow-y: auto; overflow-x: hidden; zoom: 1");
 
-  content->addWidget(tree_ = new WTree());
-
-  tree_->setMargin(3, Top);
-  tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
+  tree_ = content->addWidget(cpp14::make_unique<WTree>());
+  tree_->setMargin(3, Side::Top);
+  tree_->resize(WLength(100, LengthUnit::Percentage), WLength::Auto);
 }
 
 void WTreeTable::defineJavaScript()
@@ -69,7 +71,7 @@ void WTreeTable::defineJavaScript()
 
 void WTreeTable::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
+  if (flags.test(RenderFlag::Full)) {
     defineJavaScript();
 
     setJavaScriptMember(WT_RESIZE_JS,
@@ -90,11 +92,13 @@ WWidget *WTreeTable::headerWidget() const
   return headers_;
 }
 
-void WTreeTable::setTreeRoot(WTreeTableNode *root, const WString& h)
+void WTreeTable::setTreeRoot(std::unique_ptr<WTreeTableNode> root,
+			     const WString& h)
 {
-  tree_->setTreeRoot(root);
-  header(0)->setText(h.empty() ? "&nbsp;" : h);
   root->setTable(this);
+  tree_->setTreeRoot(std::move(root));
+
+  header(0)->setText(h.empty() ? "&nbsp;" : h);
 }
 
 WTreeTableNode *WTreeTable::treeRoot()
@@ -102,14 +106,15 @@ WTreeTableNode *WTreeTable::treeRoot()
   return dynamic_cast<WTreeTableNode *>(tree_->treeRoot());
 }
 
-void WTreeTable::setTree(WTree *root, const WString& h)
+void WTreeTable::setTree(std::unique_ptr<WTree> root, const WString& h)
 {
   WContainerWidget *parent = dynamic_cast<WContainerWidget *>(tree_->parent());
+  parent->removeWidget(tree_);
+  tree_ = root.get();
+  parent->addWidget(std::move(root));
 
-  delete tree_;
-  parent->addWidget(tree_ = root);
   header(0)->setText(h);
-  tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
+  tree_->resize(WLength(100, LengthUnit::Percentage), WLength::Auto);
 
   treeRoot()->setTable(this);
 }
@@ -120,11 +125,11 @@ void WTreeTable::addColumn(const WString& header, const WLength& width)
     throw WException("WTreeTable::addColumn(): must be called before "
 		     "setTreeRoot()");
 
-  WText *t = new WText(header);
+  std::unique_ptr<WText> t(new WText(header));
   t->resize(width, WLength::Auto);
   t->setInline(false);
-  t->setFloatSide(Left);
-  headerContainer_->addWidget(t);
+  t->setFloatSide(Side::Left);
+  headerContainer_->addWidget(std::move(t));
 
   columnWidths_.push_back(width);
 }

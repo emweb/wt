@@ -4,19 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WRasterImage"
+#include "Wt/WRasterImage.h"
 
 #include "Wt/FontSupport.h"
-#include "Wt/WBrush"
-#include "Wt/WException"
-#include "Wt/WFontMetrics"
-#include "Wt/WGradient"
-#include "Wt/WLogger"
-#include "Wt/WPainter"
-#include "Wt/WPen"
-#include "Wt/WString"
-#include "Wt/WTransform"
-#include "Wt/Http/Response"
+#include "Wt/WBrush.h"
+#include "Wt/WException.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WGradient.h"
+#include "Wt/WLogger.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPen.h"
+#include "Wt/WString.h"
+#include "Wt/WTransform.h"
+#include "Wt/Http/Response.h"
 
 #include "UriUtils.h"
 
@@ -100,7 +100,7 @@ public:
     wicFactory_(NULL),
     bitmap_(NULL),
     fillBrush_(NULL),
-    fillBrushStyle_(SolidPattern),
+    fillBrushStyle_(BrushStyle::Solid),
     strokeBrush_(NULL),
     stroke_(NULL),
     lineWidth_(0.f),
@@ -245,9 +245,8 @@ public:
 #endif // DEBUG_D2D
 
 WRasterImage::WRasterImage(const std::string& type,
-			   const WLength& width, const WLength& height,
-			   WObject *parent)
-  : WResource(parent),
+			   const WLength& width, const WLength& height)
+  : WResource(),
     width_(width),
     height_(height),
     painter_(0),
@@ -270,7 +269,7 @@ WRasterImage::WRasterImage(const std::string& type,
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
     if (!SUCCEEDED(hr)) {
-      delete impl_;
+      impl_.reset();
       throw WException("D2D: Error initializing COM: HRESULT " + boost::lexical_cast<std::string>(hr));
     }
   }
@@ -324,14 +323,14 @@ WRasterImage::WRasterImage(const std::string& type,
   try {
     impl_->fontSupport_ = new FontSupport(this, FontSupport::AnyFont);
   } catch (...) {
-    delete impl_;
+    impl_.reset();
     throw;
   }
 
   impl_->currentFontMatch_ = impl_->fontSupport_->matchFont(WFont());
 
   if (!SUCCEEDED(hr)) {
-    delete impl_;
+    impl_.reset();
     throw WException(std::string("Error when initializing D2D: HRESULT ") + boost::lexical_cast<std::string>(hr));
   }
 }
@@ -348,7 +347,7 @@ WRasterImage::~WRasterImage()
 {
   beingDeleted();
 
-  delete impl_;
+  impl_.reset();
 
   CoUninitialize();
 }
@@ -361,7 +360,7 @@ void WRasterImage::addFontCollection(const std::string& directory,
   
 WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 {
-  return HasFontMetrics | CanWordWrap;
+  return FeatureFlag::FontMetrics | FeatureFlag::WordWrap;
 }
 
 void WRasterImage::init()
@@ -374,7 +373,12 @@ void WRasterImage::init()
 
   impl_->beginDraw();
 
-  setChanged(Clipping | Transform | Pen | Brush | Font | Hints);
+  setChanged(WFlags<PainterChangeFlag>(PainterChangeFlag::Clipping) |
+             PainterChangeFlag::Transform |
+             PainterChangeFlag::Pen |
+             PainterChangeFlag::Brush |
+             PainterChangeFlag::Font |
+             PainterChangeFlag::Hints);
 }
 
 void WRasterImage::done()
@@ -414,10 +418,10 @@ void WRasterImage::Impl::setTransform(const WTransform& t)
   rt_->SetTransform(matrix);
 }
 
-void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
+void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
 {
   HRESULT hr = S_OK;
-  if (flags & Clipping) {
+  if (flags.test(PainterChangeFlag::Clipping)) {
     GUARD_TAG(DRAW_CLIP_PATH);
     if (impl_->clipLayerActive_) {
       GUARD_TAG(POP_LAYER);
@@ -446,24 +450,27 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
     }
   }
 
-  if (flags & Transform) {
+  if (flags.test(PainterChangeFlag::Transform)) {
     impl_->setTransform(painter()->combinedTransform());
-    flags = Pen | Brush | Font | Hints;
+    flags = WFlags<PainterChangeFlag>(PainterChangeFlag::Pen) |
+            PainterChangeFlag::Brush |
+            PainterChangeFlag::Font |
+            PainterChangeFlag::Hints;
   }
 
-  if (flags & Hints) {
+  if (flags.test(PainterChangeFlag::Hints)) {
     GUARD_TAG(SET_ANTIALIAS_MODE);
-    if (!(painter()->renderHints() & WPainter::Antialiasing)) {
+    if (!painter()->renderHints().test(RenderHint::Antialiasing)) {
       impl_->rt_->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
     } else {
       impl_->rt_->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
     }
   }
 
-  if (flags & Pen) {
+  if (flags.test(PainterChangeFlag::Pen)) {
     const WPen& pen = painter()->pen();
 
-    if (pen.style() != NoPen) {
+    if (pen.style() != PenStyle::None) {
       const WColor& color = pen.color();
 
       D2D1_STROKE_STYLE_PROPERTIES strokeProperties = D2D1::StrokeStyleProperties();
@@ -473,25 +480,25 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       impl_->lineWidth_ = static_cast<FLOAT>(painter()->normalizedPenWidth(w, w.value() == 0).toPixels());
 
       switch (pen.capStyle()) {
-      case FlatCap:
+      case PenCapStyle::Flat:
 	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_FLAT;
 	break;
-      case SquareCap:
+      case PenCapStyle::Square:
 	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_SQUARE;
 	break;
-      case RoundCap:
+      case PenCapStyle::Round:
 	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_ROUND;
 	break;
       }
 
       switch (pen.joinStyle()) {
-      case MiterJoin:
+      case PenJoinStyle::Miter:
 	strokeProperties.lineJoin = D2D1_LINE_JOIN_MITER;
 	break;
-      case BevelJoin:
+      case PenJoinStyle::Bevel:
 	strokeProperties.lineJoin = D2D1_LINE_JOIN_BEVEL;
 	break;
-      case RoundJoin:
+      case PenJoinStyle::Round:
 	strokeProperties.lineJoin = D2D1_LINE_JOIN_ROUND;
 	break;
       }
@@ -500,29 +507,29 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       int numdashes = 0;
 
       switch (pen.style()) {
-      case NoPen:
+      case PenStyle::None:
 	break;
-      case SolidLine:
+      case PenStyle::SolidLine:
 	break;
-      case DashLine: {
+      case PenStyle::DashLine: {
 	const float dasharray[] = {4, 2};
 	memcpy(dashes, dasharray, sizeof(dasharray));
 	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
 	break;
       }
-      case DotLine: {
+      case PenStyle::DotLine: {
 	const float dasharray[] = {1, 2};
 	memcpy(dashes, dasharray, sizeof(dasharray));
 	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
 	break;
       }
-      case DashDotLine: {
+      case PenStyle::DashDotLine: {
 	const float dasharray[] = {4, 2, 1, 2};
 	memcpy(dashes, dasharray, sizeof(dasharray));
 	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
 	break;
       }
-      case DashDotDotLine: {
+      case PenStyle::DashDotDotLine: {
 	const float dasharray[] = {4, 2, 1, 2, 1, 2};
 	memcpy(dashes, dasharray, sizeof(dasharray));
 	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
@@ -541,19 +548,19 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
     }
   }
 
-  if (flags & Brush) {
+  if (flags.test(PainterChangeFlag::Brush)) {
     const WBrush& brush = painter()->brush();
-    if (brush.style() == SolidPattern) {
+    if (brush.style() == BrushStyle::Solid) {
       const WColor &color = painter()->brush().color();
-      if (impl_->fillBrushStyle_ != SolidPattern) {
+      if (impl_->fillBrushStyle_ != BrushStyle::Solid) {
         SafeRelease(impl_->fillBrush_);
         hr = impl_->rt_->CreateSolidColorBrush(fromWColor(color),
           reinterpret_cast<ID2D1SolidColorBrush**>(&impl_->fillBrush_));
-        impl_->fillBrushStyle_ = SolidPattern;
+        impl_->fillBrushStyle_ = BrushStyle::Solid;
       } else {
         reinterpret_cast<ID2D1SolidColorBrush*>(impl_->fillBrush_)->SetColor(fromWColor(color));
       }
-    } else if (brush.style() == GradientPattern) {
+    } else if (brush.style() == BrushStyle::Gradient) {
       const WGradient &gradient = painter()->brush().gradient();
       const std::vector<WGradient::ColorStop> &colorstops = gradient.colorstops();
       std::vector<D2D1_GRADIENT_STOP> gradientStops;
@@ -568,15 +575,15 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
         &gradientStopCollection
       );
       SafeRelease(impl_->fillBrush_);
-      impl_->fillBrushStyle_ = GradientPattern;
-      if (gradient.style() == LinearGradient) {
+      impl_->fillBrushStyle_ = BrushStyle::Gradient;
+      if (gradient.style() == GradientStyle::Linear) {
         const WLineF &vector = gradient.linearGradientVector();
         D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES properties;
         properties.startPoint = D2D1::Point2F(static_cast<FLOAT>(vector.x1()), static_cast<FLOAT>(vector.y1()));
         properties.endPoint = D2D1::Point2F(static_cast<FLOAT>(vector.x2()), static_cast<FLOAT>(vector.y2()));
         hr = impl_->rt_->CreateLinearGradientBrush(properties, gradientStopCollection,
           reinterpret_cast<ID2D1LinearGradientBrush**>(&impl_->fillBrush_));
-      } else if (gradient.style() == RadialGradient) {
+      } else if (gradient.style() == GradientStyle::Radial) {
         D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES properties;
         properties.center = fromPointF(gradient.radialCenterPoint());
         const WPointF &focalPoint = gradient.radialFocalPoint();
@@ -588,9 +595,6 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       }
       SafeRelease(gradientStopCollection);
     }
-  }
-
-  if (flags & Font) {
   }
 }
 
@@ -636,7 +640,7 @@ void WRasterImage::drawArc(const WRectF& rect,
   impl_->factory_->CreatePathGeometry(&path);
   path->Open(&sink);
   sink->BeginFigure(startPoint,
-		    painter()->brush().style() != NoBrush ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
+		    painter()->brush().style() != BrushStyle::None ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
   sink->AddArc(arc1);
   sink->AddArc(arc2);
   sink->EndFigure(D2D1_FIGURE_END_OPEN);
@@ -644,10 +648,10 @@ void WRasterImage::drawArc(const WRectF& rect,
 
   SafeRelease(sink);
 
-  if (painter()->brush().style() != NoBrush) {
+  if (painter()->brush().style() != BrushStyle::None) {
     impl_->rt_->FillGeometry(path, impl_->fillBrush_);
   }
-  if (painter()->pen().style() != NoPen) {
+  if (painter()->pen().style() != PenStyle::None) {
     impl_->rt_->DrawGeometry(path, impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
   }
   SafeRelease(path);
@@ -736,18 +740,23 @@ void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
 		       impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
 }
 
+void WRasterImage::drawRect(const WRectF& rect)
+{
+  drawPath(rect.toPath());
+}
+
 void WRasterImage::drawPath(const WPainterPath& path)
 {
   GUARD_TAG(DRAW_PATH);
   if (!path.isEmpty()) {
     ID2D1PathGeometry *p;
     impl_->factory_->CreatePathGeometry(&p);
-    impl_->drawPlainPath(p, path, painter()->brush().style() != NoBrush);
+    impl_->drawPlainPath(p, path, painter()->brush().style() != BrushStyle::None);
     
-    if (painter()->brush().style() != NoBrush) {
+    if (painter()->brush().style() != BrushStyle::None) {
       impl_->rt_->FillGeometry(p, impl_->fillBrush_);
     }
-    if (painter()->pen().style() != NoPen) {
+    if (painter()->pen().style() != PenStyle::None) {
       impl_->rt_->DrawGeometry(p, impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
     }
   }
@@ -813,23 +822,23 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
   for (unsigned i = 0; i < segments.size(); ++i) {
     const WPainterPath::Segment s = segments[i];
 
-    if (s.type() != WPainterPath::Segment::MoveTo && !started) {
+    if (s.type() != SegmentType::MoveTo && !started) {
       sink->BeginFigure(startPoint,
 			filled ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
       started = true;
     }
     switch (s.type()) {
-    case WPainterPath::Segment::MoveTo:
+    case SegmentType::MoveTo:
       if (started) {
 	sink->EndFigure(D2D1_FIGURE_END_OPEN);
 	started = false;
       }
       startPoint = D2D1::Point2F(static_cast<FLOAT>(s.x()), static_cast<FLOAT>(s.y()));
       break;
-    case WPainterPath::Segment::LineTo:
+    case SegmentType::LineTo:
       sink->AddLine(D2D1::Point2F(static_cast<FLOAT>(s.x()), static_cast<FLOAT>(s.y())));
       break;
-    case WPainterPath::Segment::CubicC1: {
+    case SegmentType::CubicC1: {
       const FLOAT x1 = static_cast<FLOAT>(s.x());
       const FLOAT y1 = static_cast<FLOAT>(s.y());
       const FLOAT x2 = static_cast<FLOAT>(segments[i + 1].x());
@@ -840,11 +849,11 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
       i += 2;
       break;
     }
-    case WPainterPath::Segment::CubicC2:
-    case WPainterPath::Segment::CubicEnd:
+    case SegmentType::CubicC2:
+    case SegmentType::CubicEnd:
       assert(false);
       break;
-    case WPainterPath::Segment::ArcC: {
+    case SegmentType::ArcC: {
       WPointF current = path.positionAtSegment(i);
 
       const double cx = s.x();
@@ -883,11 +892,11 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
       i += 2;
       break;
     }
-    case WPainterPath::Segment::ArcR:
-    case WPainterPath::Segment::ArcAngleSweep:
+    case SegmentType::ArcR:
+    case SegmentType::ArcAngleSweep:
       assert(false);
       break;
-    case WPainterPath::Segment::QuadC: {
+    case SegmentType::QuadC: {
       const FLOAT x1 = static_cast<FLOAT>(s.x());
       const FLOAT y1 = static_cast<FLOAT>(s.y());
       const FLOAT x2 = static_cast<FLOAT>(segments[i + 1].x());
@@ -898,7 +907,7 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
 
       break;
     }
-    case WPainterPath::Segment::QuadEnd:
+    case SegmentType::QuadEnd:
       assert(false);
       break;
     }
@@ -933,26 +942,26 @@ void WRasterImage::drawText(const WRectF& rect,
   FontSupport::FontMatch &match = impl_->currentFontMatch_;
   switch (verticalAlign) {
   default:
-  case AlignTop:
+  case AlignmentFlag::Top:
     match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
     break;
-  case AlignMiddle:
+  case AlignmentFlag::Middle:
     match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
     break;
-  case AlignBottom:
+  case AlignmentFlag::Bottom:
     match.textFormat()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
     break;
   }
   
   switch (horizontalAlign) {
   default:
-  case AlignLeft:
+  case AlignmentFlag::Left:
     match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
     break;
-  case AlignCenter:
+  case AlignmentFlag::Center:
     match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
     break;
-  case AlignRight:
+  case AlignmentFlag::Right:
     match.textFormat()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
     break;
   }
@@ -966,7 +975,7 @@ void WRasterImage::drawText(const WRectF& rect,
     static_cast<FLOAT>(rect.width()),
     static_cast<FLOAT>(rect.height()),
     &textLayout);
-  if (textFlag == TextSingleLine)
+  if (textFlag == TextFlag::SingleLine)
     textLayout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
   impl_->rt_->DrawTextLayout(
     D2D1::Point2F(static_cast<FLOAT>(rect.left()), static_cast<FLOAT>(rect.top())),

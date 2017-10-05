@@ -5,14 +5,15 @@
  */
 
 // bugfix for https://svn.boost.org/trac/boost/ticket/5722
-#include <boost/asio.hpp>
+#include <Wt/AsioWrapper/asio.hpp>
+#include <Wt/AsioWrapper/system_error.hpp>
 
-#include "Client"
-#include "Message"
-#include "Wt/WApplication"
-#include "Wt/WException"
+#include "Client.h"
+#include "Message.h"
+#include "Wt/WApplication.h"
+#include "Wt/WException.h"
 
-#include <boost/lexical_cast.hpp>
+#include "WebUtils.h"
 
 namespace Wt {
 
@@ -21,15 +22,17 @@ LOGGER("Mail.Client");
 namespace {
   bool logged = false;
 }
+
+namespace asio = AsioWrapper::asio;
 		
   namespace Mail {
 
-using boost::asio::ip::tcp;
+using asio::ip::tcp;
 
 class Client::Impl
 {
 public:
-  enum ReplyCode {
+  enum class ReplyCode {
     Ready = 220,
     Bye = 221,
     Ok = 250,
@@ -39,15 +42,15 @@ public:
   Impl(const std::string& host, const std::string& selfFQDN, int port)
     : socket_(io_service_)
   {
-    // Get a list of endpoints corresponding to the server name.
+    // Method::Get a list of endpoints corresponding to the server name.
     tcp::resolver resolver(io_service_);
 
-    tcp::resolver::query query(host, boost::lexical_cast<std::string>(port));
+    tcp::resolver::query query(host, std::to_string(port));
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
     tcp::resolver::iterator end;
 
     // Try each endpoint until we successfully establish a connection.
-    boost::system::error_code error = boost::asio::error::host_not_found;
+    AsioWrapper::error_code error = asio::error::host_not_found;
     while (error && endpoint_iterator != end) {
       socket_.close();
       socket_.connect(*endpoint_iterator++, error);
@@ -60,11 +63,11 @@ public:
     }
 
     try {
-      failIfReplyCodeNot(Ready);
+      failIfReplyCodeNot(ReplyCode::Ready);
 
       send("EHLO " + selfFQDN + "\r\n");
 
-      failIfReplyCodeNot(Ok);
+      failIfReplyCodeNot(ReplyCode::Ok);
     } catch (std::exception& e) {
       socket_.close();
       LOG_ERROR(e.what());
@@ -81,7 +84,7 @@ public:
     if (good()) {
       try {
 	send("QUIT\r\n");
-	failIfReplyCodeNot(Bye);
+	failIfReplyCodeNot(ReplyCode::Bye);
       } catch (std::exception& e) {
 	socket_.close();
 	LOG_ERROR(e.what());
@@ -94,25 +97,25 @@ public:
   {
     try {
       send("MAIL FROM:<" + message.from().address() + ">\r\n");
-      failIfReplyCodeNot(Ok);
+      failIfReplyCodeNot(ReplyCode::Ok);
       for (unsigned i = 0; i < message.recipients().size(); ++i) {
 	const Mailbox& m = message.recipients()[i].mailbox;
 
 	send("RCPT TO:<" + m.address() + ">\r\n");
-	failIfReplyCodeNot(Ok);
+	failIfReplyCodeNot(ReplyCode::Ok);
       }
 
       send("DATA\r\n");
-      failIfReplyCodeNot(StartMailInput);
+      failIfReplyCodeNot(ReplyCode::StartMailInput);
 
-      boost::asio::streambuf buf;
+      asio::streambuf buf;
       std::ostream data(&buf);
       message.write(data);
       data << ".\r\n";
 
-      boost::asio::write(socket_, buf);
+      asio::write(socket_, buf);
 
-      failIfReplyCodeNot(Ok);
+      failIfReplyCodeNot(ReplyCode::Ok);
     } catch (std::exception& e) {
       socket_.close();
       LOG_ERROR(e.what());
@@ -125,8 +128,8 @@ private:
   void send(const std::string& s)
   {
     LOG_DEBUG("C " << s);
-    // boost::asio::const_buffer request = boost::asio::buffer(s);
-    boost::asio::write(socket_, boost::asio::buffer(s));
+    // asio::const_buffer request = asio::buffer(s);
+    asio::write(socket_, asio::buffer(s));
 
     // FIXME error handling ?
   }
@@ -135,17 +138,16 @@ private:
   {
     int r = readResponse();
 
-    if (r != expected)
-      throw WException("Unexpected response "
-		       + boost::lexical_cast<std::string>(r));
+    if (r != static_cast<int>(expected))
+      throw WException("Unexpected response " + std::to_string(r));
   }
 
   int readResponse() {
     int replyCode = -1;
 
-    boost::asio::streambuf response;
+    asio::streambuf response;
     for (;;) {
-      boost::asio::read_until(socket_, response, "\r\n");
+      asio::read_until(socket_, response, "\r\n");
 
       std::istream in(&response);
       int code;
@@ -174,12 +176,12 @@ private:
   }
 
 private:
-  boost::asio::io_service io_service_;
+  asio::io_service io_service_;
   tcp::socket socket_;
 };
 
 Client::Client(const std::string& selfHost)
-  : impl_(0),
+  : impl_(nullptr),
     selfHost_(selfHost)
 { 
   if (selfHost_.empty()) {
@@ -207,7 +209,7 @@ bool Client::connect()
   WApplication::readConfigurationProperty("smtp-host", smtpHost);
   WApplication::readConfigurationProperty("smtp-port", smtpPortStr);
 
-  int smtpPort = boost::lexical_cast<int>(smtpPortStr);
+  int smtpPort = Utils::stoi(smtpPortStr);
 
   if (!logged)
     LOG_INFO("Smtp::Client: using '" << smtpHost << ":" << smtpPortStr
@@ -232,7 +234,7 @@ bool Client::connect(const std::string& smtpHost, int smtpPort)
 void Client::disconnect()
 {
   delete impl_;
-  impl_ = 0;
+  impl_ = nullptr;
 }
 
 bool Client::send(const Message& message)

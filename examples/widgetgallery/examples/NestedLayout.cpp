@@ -1,29 +1,27 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WHBoxLayout>
-#include <Wt/WText>
-#include <Wt/WVBoxLayout>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WText.h>
+#include <Wt/WVBoxLayout.h>
 
 SAMPLE_BEGIN(NestedLayout)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 container->resize(200, 200);
 container->setStyleClass("yellow-box centered");
 
-Wt::WVBoxLayout *vbox = new Wt::WVBoxLayout();
-container->setLayout(vbox);
+auto vbox = container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
 
-Wt::WText *item = new Wt::WText("Item 1");
+auto item = Wt::cpp14::make_unique<Wt::WText>("Item 1");
 item->setStyleClass("green-box");
-vbox->addWidget(item, 1);
+vbox->addWidget(std::move(item), 1);
 
-Wt::WHBoxLayout *hbox = new Wt::WHBoxLayout();
-vbox->addLayout(hbox);
+auto hbox = vbox->addLayout(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
 
-item = new Wt::WText("Item 2");
+item = Wt::cpp14::make_unique<Wt::WText>("Item 2");
 item->setStyleClass("green-box");
-hbox->addWidget(item);
+hbox->addWidget(std::move(item));
 
-item = new Wt::WText("Item 3");
+item = Wt::cpp14::make_unique<Wt::WText>("Item 3");
 item->setStyleClass("blue-box");
-hbox->addWidget(item);
+hbox->addWidget(std::move(item));
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

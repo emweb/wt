@@ -6,32 +6,34 @@
 
 #include "LettersWidget.h"
 
-#include <Wt/WPushButton>
-#include <Wt/WTable>
-#include <Wt/WApplication>
-#include <Wt/WEvent>
+#include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
+#include <Wt/WApplication.h>
+#include <Wt/WEvent.h>
+#include <Wt/WAny.h>
 
 using namespace Wt;
 
-LettersWidget::LettersWidget(WContainerWidget *parent)
-  : WCompositeWidget(parent)
+LettersWidget::LettersWidget()
+  : WCompositeWidget()
 {
-  setImplementation(impl_ = new WTable());
+  impl_ = new WTable();
+  setImplementation(std::unique_ptr<WTable>(impl_));
 
   impl_->resize(13*30, WLength::Auto);
 
   for (unsigned int i = 0; i < 26; ++i) {
     std::string c(1, 'A' + i);
-    WPushButton *character = new WPushButton(c,
-					     impl_->elementAt(i / 13, i % 13));
+    WPushButton *character
+        = impl_->elementAt(i / 13, i % 13)->addWidget(cpp14::make_unique<WPushButton>(c));
     letterButtons_.push_back(character);
     character->resize(WLength(30), WLength::Auto);
 
     character->clicked().connect
-      (boost::bind(&LettersWidget::processButton, this, character));
+      (std::bind(&LettersWidget::processButton, this, character));
 
 	WApplication::instance()->globalKeyPressed().connect
-	  (boost::bind(&LettersWidget::processButtonPushed, this, _1, character));
+	  (std::bind(&LettersWidget::processButtonPushed, this, std::placeholders::_1, character));
   }
 }
 
@@ -46,14 +48,14 @@ void LettersWidget::processButtonPushed(const WKeyEvent &e, WPushButton *b)
   if(isHidden())
 	  return;
 
-  if(e.key() == b->text().toUTF8()[0])
+  if(e.key() == static_cast<Key>(b->text().toUTF8()[0]))
     processButton(b);
 }
 
 void LettersWidget::reset()
 {
-  for (unsigned int i = 0; i < letterButtons_.size(); ++i)
-    letterButtons_[i]->enable();
+  for (auto& letterButton : letterButtons_)
+    letterButton->enable();
 
   show();
 }

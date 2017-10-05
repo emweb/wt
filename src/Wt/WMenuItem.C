@@ -4,19 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WAnchor"
-#include "Wt/WApplication"
-#include "Wt/WCheckBox"
-#include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WLabel"
-#include "Wt/WMenuItem"
-#include "Wt/WMenu"
-#include "Wt/WPopupMenu"
-#include "Wt/WStackedWidget"
-#include "Wt/WText"
-#include "Wt/WTheme"
+#include "Wt/WAnchor.h"
+#include "Wt/WApplication.h"
+#include "Wt/WCheckBox.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WLabel.h"
+#include "Wt/WMenuItem.h"
+#include "Wt/WMenu.h"
+#include "Wt/WPopupMenu.h"
+#include "Wt/WStackedWidget.h"
+#include "Wt/WText.h"
+#include "Wt/WTheme.h"
 
 #include "StdWidgetItemImpl.h"
 
@@ -25,68 +25,58 @@
 
 namespace Wt {
 
-WMenuItem::WMenuItem(const WString& text, WWidget *contents,
-		     LoadPolicy policy)
-  : separator_(false),
-    triggered_(this)
+WMenuItem::WMenuItem(const WString& text, std::unique_ptr<WWidget> contents,
+		     ContentLoading policy)
+  : separator_(false)
 {
-  create(std::string(), text, contents, policy);
+  create(std::string(), text, std::move(contents), policy);
 }
 
 WMenuItem::WMenuItem(const std::string& iconPath, const WString& text,
-		     WWidget *contents, LoadPolicy policy)
-  : separator_(false),
-    triggered_(this)
+		     std::unique_ptr<WWidget> contents, ContentLoading policy)
+  : separator_(false)
 {
-  create(iconPath, text, contents, policy);
+  create(iconPath, text, std::move(contents), policy);
 }
 
 WMenuItem::WMenuItem(bool separator, const WString& text)
-  : separator_(true),
-    triggered_(this)
+  : separator_(true)
 {
-  create(std::string(), WString::Empty, 0, LazyLoading);
+  create(std::string(), WString::Empty, nullptr, ContentLoading::Lazy);
 
   separator_ = separator;
   selectable_ = false;
   internalPathEnabled_ = false;
 
   if (!text.empty()) {
-    text_ = new WLabel(this);
-    text_->setTextFormat(PlainText);
+    text_ = new WLabel();
+    addWidget(std::unique_ptr<WWidget>(text_));
+    text_->setTextFormat(TextFormat::Plain);
     text_->setText(text);
   }
 }
 
 void WMenuItem::create(const std::string& iconPath, const WString& text,
-		       WWidget *contents, LoadPolicy policy)
+		       std::unique_ptr<WWidget> contents, ContentLoading policy)
 {
   customLink_ = false;
-  contentsContainer_ = 0;
-  contents_ = 0;
 
-  menu_ = 0;
+  menu_ = nullptr;
   customPathComponent_ = false;
   internalPathEnabled_ = true;
   closeable_ = false;
   selectable_ = true;
 
-  text_ = 0;
-  icon_ = 0;
-  checkBox_ = 0;
-  subMenu_ = 0;
-  data_ = 0;
+  text_ = nullptr;
+  icon_ = nullptr;
+  checkBox_ = nullptr;
+  subMenu_ = nullptr;
+  data_ = nullptr;
 
-  if (contents && contents->parent()) {
-    WContainerWidget *cw = dynamic_cast<WContainerWidget *>(contents->parent());
-    if (cw)
-      cw->removeWidget(contents);
-  }
-
-  setContents(contents, policy);
+  setContents(std::move(contents), policy);
 
   if (!separator_) {
-    new WAnchor(this);
+    addWidget(std::unique_ptr<WAnchor>(new WAnchor));
     updateInternalPath();
   }
 
@@ -100,42 +90,28 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
 }
 
 WMenuItem::~WMenuItem()
+{ }
+
+void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
+			    ContentLoading policy)
 {
-  if (!contentsLoaded())
-    delete contents_;
+  assert (!oContents_ && !uContents_);
 
-  delete subMenu_;
-}
+  uContents_ = std::move(contents);
+  loadPolicy_ = policy;
 
-void WMenuItem::setContents(WWidget *contents, LoadPolicy policy)
-{
-  delete contents_;
+  if (uContents_ && loadPolicy_ != ContentLoading::NextLevel) {
+     if (!oContentsContainer_) {
+       uContentsContainer_.reset(new WContainerWidget());
+       oContentsContainer_ = uContentsContainer_.get();
+       oContentsContainer_
+         ->setJavaScriptMember("wtResize",
+                               StdWidgetItemImpl::childrenResizeJS());
 
-  contents_ = contents;
-
-#ifndef WT_CNOR
-  if (contents) {
-    // contents' ownership will be moved to a containerwidget once
-    // it is in the widget tree (contentsLoaded). In any case, if
-    // contents_ is destroyed elsewhere, we want to know about it.
-    contentsDestroyedConnection_ =
-      contents_->destroyed().connect(this, &WMenuItem::contentsDestroyed);
-  }
-#endif // WT_CNOR
-
-  if (contents && policy != PreLoading) {
-    contents_ = contents;
-
-    if (!contentsContainer_) {
-      contentsContainer_ = new WContainerWidget();
-      contentsContainer_
-	->setJavaScriptMember("wtResize",
-			      StdWidgetItemImpl::childrenResizeJS());
-
-      contentsContainer_->resize(WLength::Auto,
-				 WLength(100, WLength::Percentage));
-    }
-  }
+       oContentsContainer_->resize(WLength::Auto,
+                                  WLength(100, LengthUnit::Percentage));
+     }
+   }
 }
 
 bool WMenuItem::isSectionHeader() const
@@ -152,7 +128,7 @@ WAnchor *WMenuItem::anchor() const
       return result;
   }
 
-  return 0;
+  return nullptr;
 }
 
 void WMenuItem::setIcon(const std::string& path)
@@ -163,10 +139,10 @@ void WMenuItem::setIcon(const std::string& path)
       return;
 
     icon_ = new WText(" ");
-    a->insertWidget(0, icon_);
+    a->insertWidget(0, std::unique_ptr<WText>(icon_));
 
     WApplication *app = WApplication::instance();
-    app->theme()->apply(this, icon_, MenuItemIconRole);
+    app->theme()->apply(this, icon_, WidgetThemeRole::MenuItemIcon);
   }
 
   icon_->decorationStyle().setBackgroundImage(WLink(path));
@@ -183,8 +159,9 @@ std::string WMenuItem::icon() const
 void WMenuItem::setText(const WString& text)
 {
   if (!text_) {
-    text_ = new WLabel(anchor());
-    text_->setTextFormat(Wt::PlainText);
+    text_ = new WLabel();
+    anchor()->addWidget(std::unique_ptr<WLabel>(text_));
+    text_->setTextFormat(TextFormat::Plain);
   }
 
   text_->setText(text);
@@ -216,7 +193,7 @@ void WMenuItem::setText(const WString& text)
   }
 }
 
-const WString& WMenuItem::text() const
+WString WMenuItem::text() const
 {
   if (text_)
     return text_->text();
@@ -255,37 +232,22 @@ WLink WMenuItem::link() const
   if (a)
     return a->link();
   else
-    return std::string();
-}
-
-void WMenuItem::setLinkTarget(AnchorTarget target)
-{
-  WAnchor *a = anchor();
-  if (a)
-    a->setTarget(target);
-}
-
-AnchorTarget WMenuItem::linkTarget() const
-{
-  WAnchor *a = anchor();
-  if (a)
-    return anchor()->target();
-  else
-    return TargetSelf;
+    return WLink();
 }
 
 void WMenuItem::updateInternalPath()
 {  
   if (menu_ && menu_->internalPathEnabled() && internalPathEnabled()) {
     std::string internalPath = menu_->internalBasePath() + pathComponent();
-    WLink link(WLink::InternalPath, internalPath);
+    WLink link(LinkType::InternalPath, internalPath);
     WAnchor *a = anchor();
     if (a)
       a->setLink(link);
   } else {
     WAnchor *a = anchor();
     if (a && !customLink_) {
-      if (WApplication::instance()->environment().agent() == WEnvironment::IE6)
+      if (WApplication::instance()->environment().agent() == 
+	  UserAgent::IE6)
 	a->setLink(WLink("#"));
       else
 	a->setLink(WLink());
@@ -315,14 +277,13 @@ void WMenuItem::setCloseable(bool closeable)
 
     if (closeable_) {
       WText *closeIcon = new WText("");
-      insertWidget(0, closeIcon);
+      insertWidget(0, std::unique_ptr<WText>(closeIcon));
       WApplication *app = WApplication::instance();
-      app->theme()->apply(this, closeIcon, MenuItemCloseRole);
+      app->theme()->apply(this, closeIcon, WidgetThemeRole::MenuItemClose);
 
       closeIcon->clicked().connect(this, &WMenuItem::close);
-    } else {
-      delete widget(0);
-    }
+    } else
+      removeWidget(widget(0));
   }
 }
 
@@ -330,16 +291,17 @@ void WMenuItem::setCheckable(bool checkable)
 {
   if (isCheckable() != checkable) {
     if (checkable) {
-      checkBox_ = new WCheckBox();
-      anchor()->insertWidget(0, checkBox_);
+      std::unique_ptr<WCheckBox> cb(checkBox_ = new WCheckBox());
+      anchor()->insertWidget(0, std::move(cb));
       setText(text());
 
       text_->setBuddy(checkBox_);
 
       WApplication *app = WApplication::instance();
-      app->theme()->apply(this, checkBox_, MenuItemCheckBoxRole);
+      app->theme()->apply(this, checkBox_, WidgetThemeRole::MenuItemCheckBox);
     } else {
-      delete checkBox_;
+      removeWidget(checkBox_);
+      checkBox_ = nullptr;
     }
   }
 }
@@ -361,11 +323,6 @@ bool WMenuItem::isChecked() const
     return false;
 }
 
-WWidget *WMenuItem::itemWidget()
-{
-  return this;
-}
-
 void WMenuItem::close()
 {
   if (menu_)
@@ -377,8 +334,8 @@ void WMenuItem::enableAjax()
   if (menu_->internalPathEnabled())
     resetLearnedSlots();
 
-  if (contents_ && !contentsLoaded())
-    contents_->enableAjax();
+  if (uContents_)
+    uContents_->enableAjax();
 
   WContainerWidget::enableAjax();
 }
@@ -424,21 +381,21 @@ void WMenuItem::renderSelected(bool selected)
 
 void WMenuItem::selectNotLoaded()
 {
-  if (!contentsLoaded())
+  if (contentsLoaded())
     select();
 }
 
 bool WMenuItem::contentsLoaded() const
 {
-  return !contentsContainer_ || contentsContainer_->count() == 1;
+  return uContents_ != nullptr;
 }
 
 void WMenuItem::loadContents()
 {
-  if (!contents_)
+  if (!uContents_)
     return;
-  if (!contentsLoaded()) {
-    contentsContainer_->addWidget(contents_);
+  else {
+    oContentsContainer_->addWidget(std::move(uContents_));
     signalsConnected_ = false;
     connectSignals();
   }
@@ -449,7 +406,7 @@ void WMenuItem::connectSignals()
   if (!signalsConnected_) {
     signalsConnected_ = true;
 
-    if (!contents_ || contentsLoaded())
+    if (contentsLoaded())
       implementStateless(&WMenuItem::selectVisual,
 			 &WMenuItem::undoSelectVisual);
 
@@ -474,7 +431,7 @@ void WMenuItem::connectSignals()
       if (checkBox_)
 	a->setLink(WLink());
 
-      if (contentsContainer_ && contentsContainer_->count() == 0)
+      if (uContents_)
 	as->connect(this, &WMenuItem::selectNotLoaded);
       else {
 	as->connect(this, &WMenuItem::selectVisual);
@@ -511,43 +468,68 @@ void WMenuItem::setParentMenu(WMenu *menu)
 
 WWidget *WMenuItem::contents() const
 {
-  if (contentsContainer_)
-    return contentsContainer_;
+  if (oContents_)
+    return oContents_.get();
   else
-    return contents_;
+    return uContents_.get();
 }
 
-WWidget *WMenuItem::takeContents()
+WWidget *WMenuItem::contentsInStack() const
 {
-  if (contents_ == 0)
-    return 0;
+  if (oContents_)
+    return oContents_.get();
+  else
+    return oContentsContainer_.get();
+}
 
-  WWidget *result = contents_;
+std::unique_ptr<WWidget> WMenuItem::removeContents()
+{
+  oContents_.reset();
 
-  if (contentsLoaded()) {
-    if (contentsContainer_)
-      contentsContainer_->removeWidget(contents_);
-  } else {
-    // contents_ is still owned by WMenuItem -> setting ptr to 0 is ok
+  WWidget *c = contentsInStack();
+
+  if (c) {
+    /* Remove from stack */
+    std::unique_ptr<WWidget> w = c->parent()->removeWidget(c);
+
+    if (oContentsContainer_)
+      return oContentsContainer_->removeWidget(oContents_.get());
+    else
+      return w;
+  } else
+    return std::move(uContents_);
+}
+
+std::unique_ptr<WWidget> WMenuItem::takeContentsForStack()
+{
+  if (!uContents_)
+    return nullptr;
+  else {
+    if (loadPolicy_ == ContentLoading::Lazy) {
+      uContentsContainer_.reset(new WContainerWidget());
+      oContentsContainer_ = uContentsContainer_.get();
+      oContentsContainer_
+	->setJavaScriptMember("wtResize",
+			      StdWidgetItemImpl::childrenResizeJS());
+
+      oContentsContainer_->resize(WLength::Auto,
+				 WLength(100, LengthUnit::Percentage));
+
+      return std::move(uContentsContainer_);
+    } else {
+      oContents_ = uContents_.get();
+      return std::move(uContents_);
+    }
   }
-
-  if (contentsDestroyedConnection_.connected())
-    contentsDestroyedConnection_.disconnect();
-  contents_ = 0;
-
-  return result;
 }
 
-void WMenuItem::purgeContents()
+void WMenuItem::returnContentsInStack(std::unique_ptr<WWidget> widget)
 {
-  // this is called to avoid dangling pointers to objects that are deleted
-  contentsContainer_ = 0;
-  // two cases are possible for contents: either ownership is with WMenuItem,
-  // or it was with the destroyed container. In the first case, we have to
-  // delete, while in the second case, contents_ will already be deleted and
-  // set to 0 by the contentsDestroyed() slot
-  delete contents_;
-  contents_ = 0;
+  if (oContentsContainer_) {
+    uContents_ = oContentsContainer_->removeWidget(oContents_.get());
+    oContentsContainer_ = nullptr;
+  } else
+    uContents_ = std::move(widget);
 }
 
 void WMenuItem::setFromInternalPath(const std::string& path)
@@ -579,17 +561,13 @@ void WMenuItem::undoSelectVisual()
     menu_->undoSelectVisual();
 }
 
-void WMenuItem::setMenu(WMenu *menu)
+void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
 {
-  subMenu_ = menu;
+  subMenu_ = menu.get();
   subMenu_->parentItem_ = this;
 
-  Wt::WContainerWidget *sparent
-    = dynamic_cast<Wt::WContainerWidget *>(subMenu_->parent());
-  if (sparent)
-    sparent->removeWidget(subMenu_);
+  addWidget(std::move(menu));
 
-  addWidget(subMenu_);
   if (subMenu_->isPopup() &&
       parentMenu() && parentMenu()->isPopup()) {
     subMenu_->webWidget()->setZIndex(std::max(parentMenu()->zIndex() + 100, subMenu_->zIndex()));
@@ -611,11 +589,6 @@ void WMenuItem::setMenu(WMenu *menu)
   }
 }
 
-void WMenuItem::setSubMenu(WMenu *menu)
-{
-  setMenu(menu);
-}
-
 void WMenuItem::setItemPadding(bool padding)
 {
   if (!checkBox_ && !icon_) {
@@ -623,12 +596,6 @@ void WMenuItem::setItemPadding(bool padding)
     if (a)
       a->toggleStyleClass("Wt-padded", padding);
   }
-}
-
-void WMenuItem::contentsDestroyed()
-{
-  contentsContainer_ = 0;
-  contents_ = 0;
 }
 
 }

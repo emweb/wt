@@ -4,18 +4,22 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WHBoxLayout>
-#include <Wt/WBootstrapTheme>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WBootstrapTheme.h>
+#include <Wt/WNavigationBar.h>
+#include <Wt/WStackedWidget.h>
 
-#include <Wt/WCssTheme>
+#include <Wt/WCssTheme.h>
 
 #include "WidgetGallery.h"
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+using namespace Wt;
+
+std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
 {
-  Wt::WApplication* app = new Wt::WApplication(env);
+  auto app = cpp14::make_unique<WApplication>(env);
 
   if (app->appRoot().empty()) {
     std::cerr << "!!!!!!!!!!" << std::endl
@@ -24,7 +28,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 	      << "!!!!!!!!!!" << std::endl;
   }
 
-  // app->setLayoutDirection(Wt::RightToLeft);
+  // app->setLayoutDirection(LayoutDirection::RightToLeft);
 
   // Choice of theme: defaults to bootstrap3 but can be overridden using
   // a theme parameter (for testing)
@@ -36,19 +40,19 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
     theme = *themePtr;
 
   if (theme == "bootstrap3") {
-    Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
-    bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
+    auto bootstrapTheme = std::make_shared<WBootstrapTheme>();
+    bootstrapTheme->setVersion(BootstrapVersion::v3);
     bootstrapTheme->setResponsive(true);
     app->setTheme(bootstrapTheme);
 
     // load the default bootstrap3 (sub-)theme
     app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
   } else if (theme == "bootstrap2") {
-    Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
+    auto bootstrapTheme = std::make_shared<WBootstrapTheme>();
     bootstrapTheme->setResponsive(true);
     app->setTheme(bootstrapTheme);
   } else
-    app->setTheme(new Wt::WCssTheme(theme));
+    app->setTheme(std::make_shared<WCssTheme>(theme));
 
 
   // load text bundles (for the tr() function)
@@ -56,9 +60,12 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   app->messageResourceBundle().use(app->appRoot() + "text");
   app->messageResourceBundle().use(app->appRoot() + "src");
  
-  Wt::WHBoxLayout *layout = new Wt::WHBoxLayout(app->root());
+
+  auto layout =
+      app->root()->setLayout(cpp14::make_unique<WHBoxLayout>());
+  layout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
   layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(new WidgetGallery());
+  layout->addWidget(cpp14::make_unique<WidgetGallery>());
 
   app->setTitle("Wt Widget Gallery");
 
@@ -74,5 +81,5 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
 int main(int argc, char **argv)
 {
-  return Wt::WRun(argc, argv, &createApplication);
+  return WRun(argc, argv, &createApplication);
 }

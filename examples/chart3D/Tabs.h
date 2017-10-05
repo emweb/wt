@@ -8,57 +8,53 @@
 #ifndef TABS_H
 #define TABS_H
 
-#include <Wt/WContainerWidget>
-#include <Wt/WTextArea>
-#include <Wt/WLabel>
-#include <Wt/WString>
-#include <Wt/WLineEdit>
-#include <Wt/WCheckBox>
-#include <Wt/WComboBox>
-#include <Wt/Chart/WCartesian3DChart>
-#include <Wt/Chart/WChart3DImplementation>
-#include <Wt/Chart/WAbstractDataSeries3D>
-#include <Wt/Chart/WGridData>
-#include <Wt/Chart/WScatterData>
-#include <Wt/WTemplate>
-#include <Wt/WStackedWidget>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WTextArea.h>
+#include <Wt/WLabel.h>
+#include <Wt/WString.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WComboBox.h>
+#include <Wt/Chart/WCartesian3DChart.h>
+#include <Wt/Chart/WChart3DImplementation.h>
+#include <Wt/Chart/WAbstractDataSeries3D.h>
+#include <Wt/Chart/WGridData.h>
+#include <Wt/Chart/WScatterData.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WStackedWidget.h>
 
 #include "DataSettings.h"
 
-using namespace Wt;
-using namespace Wt::Chart;
-
-class ChartSettings : public WContainerWidget
+class ChartSettings : public Wt::WContainerWidget
 {
 public:
-  ChartSettings(WCartesian3DChart *chart,
-		WContainerWidget *parent = 0);
+  ChartSettings(Wt::Chart::WCartesian3DChart *chart);
 };
 
 
-class DataSelection : public WContainerWidget
+class DataSelection : public Wt::WContainerWidget
 {
 public:
-  DataSelection(WCartesian3DChart *chart);
+  DataSelection(Wt::Chart::WCartesian3DChart *chart);
   
-  void addDataToCollection(WString name, WAbstractDataSeries3D* data);
-  Signal<WAbstractDataSeries3D*>& selectionChanged() { return selectionChange_; }
+  void addDataToCollection(Wt::WString name, Wt::Chart::WAbstractDataSeries3D *data);
+  Wt::Signal<Wt::Chart::WAbstractDataSeries3D*>& selectionChanged() { return selectionChange_; }
 
 private:
-  typedef std::pair<WString, WAbstractDataSeries3D*> DataSelectionItem;
+  typedef std::pair<Wt::WString, Wt::Chart::WAbstractDataSeries3D *> DataSelectionItem;
   std::vector<DataSelectionItem> dataCollection_;
-  Signal<WAbstractDataSeries3D*> selectionChange_;
+  Wt::Signal<Wt::Chart::WAbstractDataSeries3D*> selectionChange_;
 
-  WSelectionBox *notShown;
-  WSelectionBox *shown;
+  Wt::WSelectionBox *notShown;
+  Wt::WSelectionBox *shown;
 };
 
 // This class provides all kinds of data-configuration and always shows only one
-class DataConfig : public WContainerWidget {
+class DataConfig : public Wt::WContainerWidget {
 public:
-  DataConfig(WCartesian3DChart* chart);
+  DataConfig(Wt::Chart::WCartesian3DChart* chart);
 
-  void addDataToCollection(WString name, WAbstractDataSeries3D *data);
+  void addDataToCollection(Wt::WString name, Wt::Chart::WAbstractDataSeries3D *data);
 
 private:
   DataSelection* dataselection_;

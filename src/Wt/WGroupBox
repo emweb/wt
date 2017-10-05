@@ -1,122 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WGROUP_BOX_H_
-#define WGROUP_BOX_H_
-
-#include <Wt/WContainerWidget>
-
-namespace Wt {
-
-/*! \class WGroupBox Wt/WGroupBox Wt/WGroupBox
- *  \brief A widget which group widgets into a frame with a title.
- *
- * This is typically used in a form to group certain form elements
- * together.
- *
- * Usage example:
- * \if cpp
- * \code
- * enum Vote { Republican = 1, Democrate = 2, NoVote = 10 };
- *
- * // use a group box as widget container for 3 radio buttons, with a title
- * Wt::WGroupBox *container = new Wt::WGroupBox("USA elections vote");
- *
- * // use a button group to logically group the 3 options
- * Wt::WButtonGroup *group = new Wt::WButtonGroup(this);
- *
- * Wt::WRadioButton *button;
- * button = new Wt::WRadioButton("I voted Republican", container);
- * new Wt::WBreak(container);
- * group->addButton(button, Republican);
-
- * button = new Wt::WRadioButton("I voted Democrat", container);
- * new Wt::WBreak(container);
- * group->addButton(button, Democrate);
-
- * button = new Wt::WRadioButton("I didn't vote", container);
- * new Wt::WBreak(container);
- * group->addButton(button, NoVote);
- *
- * group->setCheckedButton(group->button(NoVote));
- * \endcode
- * \elseif java
- * \code
- * enum Vote { Republican , Democrate , NoVote };
- * 
- * // use a group box as widget container for 3 radio buttons, with a title
- * WGroupBox container = new WGroupBox("USA elections vote");
- * 		 
- * // use a button group to logically group the 3 options
- * WButtonGroup group = new WButtonGroup(this);
- *		 
- * WRadioButton button;
- * button = new WRadioButton("I voted Republican", container);
- * new WBreak(container);
- * group.addButton(button, Vote.Republican.ordinal());
- *
- * button = new WRadioButton("I voted Democrat", container);
- * new WBreak(container);
- * group.addButton(button, Vote.Democrate.ordinal());
- *
- * button = new WRadioButton("I didn't vote", container);
- * new WBreak(container);
- * group.addButton(button, Vote.NoVote.ordinal());
- *		 
- * group.setCheckedButton(group.button(Vote.NoVote.ordinal()));
- * \endcode
- * \endif
- *
- * Like WContainerWidget, %WGroupBox is by default displayed as a
- * \link WWidget::setInline() block\endlink.
- *
- * \image html WGroupBox-1.png "WGroupBox example"
- *
- * <h3>CSS</h3>
- *
- * The widget corresponds to the HTML <tt>&lt;fieldset&gt;</tt> tag,
- * and the title in a nested <tt>&lt;legend&gt;</tt> tag. This widget
- * does not provide styling, and can be styled using inline or
- * external CSS as appropriate.
- */
-class WT_API WGroupBox : public WContainerWidget
-{
-public:
-  /*! \brief Creates a groupbox with empty title.
-   */
-  WGroupBox(WContainerWidget *parent = 0);
-  
-  /*! \brief Creates a groupbox with given title message.
-   */
-  WGroupBox(const WString& title, WContainerWidget *parent = 0);
-
-  /*! \brief Returns the title.
-   */
-  const WString& title() const { return title_; }
-
-  /*! \brief Sets the title.
-   */
-  void setTitle(const WString& title);
-
-  virtual void refresh();
-
-protected:
-  virtual DomElementType domElementType() const;
-
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
-  virtual int firstChildIndex() const;
-
-private:
-  WString title_;
-  bool titleChanged_;
-
-  void init();
-};
-
-}
-
-#endif // WGROUP_BOX_H_
+#ifndef WT_WGROUPBOX_EXTENSIONLESS_H_
+#define WT_WGROUPBOX_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WGroupBox.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WGroupBox.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WGroupBox.h"
+#endif // WT_WGROUPBOX_EXTENSIONLESS_H_

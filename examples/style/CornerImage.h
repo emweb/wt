@@ -8,12 +8,22 @@
 #ifndef CORNER_IMAGE_H_
 #define CORNER_IMAGE_H_
 
-#include <Wt/WColor>
-#include <Wt/WImage>
+#include <Wt/WColor.h>
+#include <Wt/WImage.h>
+#include <Wt/WObject.h>
 
 using namespace Wt;
 
 class CornerResource;
+
+/*! \brief One of the four corners of a widget.
+ */
+enum class Corner {
+  TopLeft = (int)Side::Top | (int)Side::Left,         //!< Top left
+  TopRight = (int)Side::Top | (int)Side::Right,       //!< Top right
+  BottomLeft = (int)Side::Bottom | (int)Side::Left,   //!< Bottom left
+  BottomRight = (int)Side::Bottom | (int)Side::Right  //!< Bottom right
+};
 
 /**
  * @addtogroup styleexample
@@ -23,7 +33,7 @@ class CornerResource;
 /*! \brief The CornerImage is a painted widget with a rounded corner.
  *
  * The CornerImage is a dynamically generated image which draws an arc
- * of 90°, to represent one of the four corners of a rounded widget.
+ * of 90Â°, to represent one of the four corners of a rounded widget.
  *
  * The CornerImage is part of the %Wt style example.
  *
@@ -32,14 +42,6 @@ class CornerResource;
 class CornerImage : public WImage
 {
 public:
-  /*! \brief One of the four corners of a widget.
-   */
-  enum Corner { TopLeft = (int)Top | (int)Left,         //!< Top left
-		TopRight = (int)Top | (int)Right,       //!< Top right
-		BottomLeft = (int)Bottom | (int)Left,   //!< Bottom left
-		BottomRight = (int)Bottom | (int)Right  //!< Bottom right
-  };
-
   /*! \brief Construct a new CornerImage.
    *
    * Construct a corner image, to draw the specified corner, with
@@ -49,7 +51,7 @@ public:
    * using WColor::WColor(int, int, int).
    */
   CornerImage(Corner corner, WColor fg, WColor bg,
-	      int radius, WContainerWidget *parent = 0);
+              int radius);
 
   /*! \brief Change the corner radius (and image dimensions).
    */
@@ -90,7 +92,7 @@ private:
   //! Radius
   int radius_;
 
-  CornerResource *resource_;
+  std::shared_ptr<CornerResource> resource_;
 };
 
 /*@}*/

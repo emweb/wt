@@ -5,6 +5,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "WAbstractChartImplementation"
+#include "WAbstractChartImplementation.h"
 
 

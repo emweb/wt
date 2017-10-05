@@ -4,9 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WColor"
-#include "Wt/WLogger"
-#include "Wt/WStringStream"
+#include "Wt/WColor.h"
+#include "Wt/WLogger.h"
+#include "Wt/WStringStream.h"
 #include "WebUtils.h"
 #include "ColorUtils.h"
 
@@ -46,27 +46,27 @@ WColor::WColor(const WString& name)
   name_ = name;
 }
 
-WColor::WColor(Wt::GlobalColor name)
+WColor::WColor(StandardColor name)
 {
   switch(name) {
-  case Wt::white:       setRgb(0xff, 0xff, 0xff); break;
-  case Wt::black:       setRgb(0x00, 0x00, 0x00); break;
-  case Wt::red:         setRgb(0xff, 0x00, 0x00); break;
-  case Wt::darkRed:     setRgb(0x80, 0x00, 0x00); break;
-  case Wt::green:       setRgb(0x00, 0xff, 0x00); break;
-  case Wt::darkGreen:   setRgb(0x00, 0x80, 0x00); break;
-  case Wt::blue:        setRgb(0x00, 0x00, 0xff); break;
-  case Wt::darkBlue:    setRgb(0x00, 0x00, 0x80); break;
-  case Wt::cyan:        setRgb(0x00, 0xff, 0xff); break;
-  case Wt::darkCyan:    setRgb(0x00, 0x80, 0x80); break;
-  case Wt::magenta:     setRgb(0xff, 0x00, 0xff); break;
-  case Wt::darkMagenta: setRgb(0x80, 0x00, 0x80); break;
-  case Wt::yellow:      setRgb(0xff, 0xff, 0x00); break;
-  case Wt::darkYellow:  setRgb(0x80, 0x80, 0x00); break;
-  case Wt::gray:        setRgb(0xa0, 0xa0, 0xa4); break;
-  case Wt::darkGray:    setRgb(0x80, 0x80, 0x80); break;
-  case Wt::lightGray:   setRgb(0xc0, 0xc0, 0xc0); break;
-  case Wt::transparent: setRgb(0x00, 0x00, 0x00, 0x00); break;
+  case StandardColor::White:       setRgb(0xff, 0xff, 0xff); break;
+  case StandardColor::Black:       setRgb(0x00, 0x00, 0x00); break;
+  case StandardColor::Red:         setRgb(0xff, 0x00, 0x00); break;
+  case StandardColor::DarkRed:     setRgb(0x80, 0x00, 0x00); break;
+  case StandardColor::Green:       setRgb(0x00, 0xff, 0x00); break;
+  case StandardColor::DarkGreen:   setRgb(0x00, 0x80, 0x00); break;
+  case StandardColor::Blue:        setRgb(0x00, 0x00, 0xff); break;
+  case StandardColor::DarkBlue:    setRgb(0x00, 0x00, 0x80); break;
+  case StandardColor::Cyan:        setRgb(0x00, 0xff, 0xff); break;
+  case StandardColor::DarkCyan:    setRgb(0x00, 0x80, 0x80); break;
+  case StandardColor::Magenta:     setRgb(0xff, 0x00, 0xff); break;
+  case StandardColor::DarkMagenta: setRgb(0x80, 0x00, 0x80); break;
+  case StandardColor::Yellow:      setRgb(0xff, 0xff, 0x00); break;
+  case StandardColor::DarkYellow:  setRgb(0x80, 0x80, 0x00); break;
+  case StandardColor::Gray:        setRgb(0xa0, 0xa0, 0xa4); break;
+  case StandardColor::DarkGray:    setRgb(0x80, 0x80, 0x80); break;
+  case StandardColor::LightGray:   setRgb(0xc0, 0xc0, 0xc0); break;
+  case StandardColor::Transparent: setRgb(0x00, 0x00, 0x00, 0x00); break;
   }
 }
 

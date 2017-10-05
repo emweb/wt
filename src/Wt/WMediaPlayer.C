@@ -4,15 +4,15 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WMediaPlayer"
-#include "Wt/WAnchor"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WProgressBar"
-#include "Wt/WStringStream"
-#include "Wt/WTemplate"
-#include "Wt/WText"
+#include "Wt/WMediaPlayer.h"
+#include "Wt/WAnchor.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WProgressBar.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WTemplate.h"
+#include "Wt/WText.h"
 #include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
@@ -20,22 +20,21 @@
 #endif
 
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace {
-  Wt::WMediaPlayer::ReadyState intToReadyState(int i) 
+  Wt::MediaReadyState intToReadyState(int i) 
   {
     switch (i) {
     case 0:
-      return Wt::WMediaPlayer::HaveNothing;
+      return Wt::MediaReadyState::HaveNothing;
     case 1:
-      return Wt::WMediaPlayer::HaveMetaData;
+      return Wt::MediaReadyState::HaveMetaData;
     case 2:
-      return Wt::WMediaPlayer::HaveCurrentData;
+      return Wt::MediaReadyState::HaveCurrentData;
     case 3:
-      return Wt::WMediaPlayer::HaveFutureData;
+      return Wt::MediaReadyState::HaveFutureData;
     case 4:
-      return Wt::WMediaPlayer::HaveEnoughData;
+      return Wt::MediaReadyState::HaveEnoughData;
     default:
       throw Wt::WException("Invalid readystate");
     }
@@ -51,7 +50,7 @@ const char *WMediaPlayer::PLAYBACK_PAUSED_SIGNAL = "jPlayer_pause.Wt";
 const char *WMediaPlayer::ENDED_SIGNAL = "jPlayer_ended.Wt";
 const char *WMediaPlayer::VOLUME_CHANGED_SIGNAL = "jPlayer_volumechange.Wt";
 
-class WMediaPlayerImpl : public WTemplate
+class WMediaPlayerImpl final : public WTemplate
 {
 public:
   WMediaPlayerImpl(WMediaPlayer *player, const WString& text)
@@ -62,7 +61,7 @@ public:
   }
 
 protected:
-  virtual std::string renderRemoveJs(bool recursive)
+  virtual std::string renderRemoveJs(bool recursive) override
   {
     if (isRendered()) {
       std::string result = player_->jsPlayerRef() + ".jPlayer('destroy');";
@@ -75,7 +74,7 @@ protected:
       return WTemplate::renderRemoveJs(recursive);
   }
 
-  virtual void setFormData(const FormData& formData)
+  virtual void setFormData(const FormData& formData) override
   {
     player_->setFormData(formData);
   }
@@ -91,7 +90,7 @@ private:
  */
 WMediaPlayer::State::State()
   : playing(false),
-    readyState(HaveNothing),
+    readyState(MediaReadyState::HaveNothing),
     seekPercent(0),
     volume(0.8),
     duration(0),
@@ -99,9 +98,8 @@ WMediaPlayer::State::State()
     playbackRate(1)
 { }
 
-WMediaPlayer::WMediaPlayer(MediaType mediaType, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    mediaType_(mediaType),
+WMediaPlayer::WMediaPlayer(MediaType mediaType)
+  : mediaType_(mediaType),
     videoWidth_(0),
     videoHeight_(0),
     gui_(this),
@@ -109,18 +107,18 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType, WContainerWidget *parent)
     boundSignalsDouble_(0)
 {
   for (unsigned i = 0; i < 11; ++i)
-    control_[i] = 0;
+    control_[i] = nullptr;
 
   for (unsigned i = 0; i < 3; ++i)
-    display_[i] = 0;
+    display_[i] = nullptr;
 
   for (unsigned i = 0; i < 2; ++i)
-    progressBar_[i] = 0;
+    progressBar_[i] = nullptr;
 
-  WTemplate *impl = new WMediaPlayerImpl(this, tr("Wt.WMediaPlayer.template"));
-  impl->bindString("gui", std::string());
-
-  setImplementation(impl);
+  std::unique_ptr<WTemplate> impl
+    (new WMediaPlayerImpl(this, tr("Wt.WMediaPlayer.template")));
+  impl->bindEmpty("gui");
+  setImplementation(std::move(impl));
 
   WApplication *app = WApplication::instance();
 
@@ -134,7 +132,7 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType, WContainerWidget *parent)
   if (app->require(res + "jquery.jplayer.min.js"))
     app->useStyleSheet(res + "skin/jplayer.blue.monday.css");
 
-  if (mediaType_ == Video)
+  if (mediaType_ == MediaType::Video)
     setVideoSize(480, 270);
 
 #ifndef WT_TARGET_JAVA
@@ -149,8 +147,6 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType, WContainerWidget *parent)
 
 WMediaPlayer::~WMediaPlayer()
 {
-  setParentWidget(0); // to have virtual renderRemoveJs()
-
   for (unsigned i = 0; i < signals_.size(); ++i)
     delete signals_[i];
 
@@ -166,7 +162,7 @@ void WMediaPlayer::clearSources()
   scheduleRender();
 }
 
-void WMediaPlayer::addSource(Encoding encoding, const WLink& link)
+void WMediaPlayer::addSource(MediaEncoding encoding, const WLink& link)
 {
   media_.push_back(Source());
   media_.back().link = link;
@@ -176,7 +172,7 @@ void WMediaPlayer::addSource(Encoding encoding, const WLink& link)
   scheduleRender();
 }
 
-WLink WMediaPlayer::getSource(Encoding encoding) const
+WLink WMediaPlayer::getSource(MediaEncoding encoding) const
 {
   for (unsigned i = 0; i < media_.size(); ++i) {
     if (media_[i].encoding == encoding)
@@ -190,118 +186,119 @@ void WMediaPlayer::setTitle(const WString& title)
 {
   title_ = title;
 
-  if (display_[Title]) {
-    display_[Title]->setText(title_);
+  if (display_[static_cast<unsigned int>(MediaPlayerTextId::Title)]) {
+    display_[static_cast<unsigned int>(MediaPlayerTextId::Title)]
+      ->setText(title_);
 
     if (gui_) {
-      WTemplate *t = dynamic_cast<WTemplate *>(gui_);
+      WTemplate *t = dynamic_cast<WTemplate *>(gui_.get());
       if (t)
 	t->bindString("title-display", title_.empty() ? "none" : "");
     }
   }
 }
 
-void WMediaPlayer::setControlsWidget(WWidget *controlsWidget)
+void WMediaPlayer::setControlsWidget(std::unique_ptr<WWidget> controlsWidget)
 {
-  if (gui_ != this)
-    delete gui_;
-
-  gui_ = controlsWidget;
+  gui_ = controlsWidget.get();
 
   WTemplate *impl = dynamic_cast<WTemplate *>(implementation());
 
-  if (gui_) {
-    gui_->addStyleClass("jp-gui");
+  if (controlsWidget) {
+    controlsWidget->addStyleClass("jp-gui");
 
-    impl->bindWidget("gui", gui_);
+    impl->bindWidget("gui", std::move(controlsWidget));
   } else
-    impl->bindString("gui", std::string());
+    impl->bindEmpty("gui");
 }
 
 WWidget *WMediaPlayer::controlsWidget() const
 {
-  if (gui_ == this)
+  if (gui_.get() == this)
     (const_cast<WMediaPlayer *>(this))->createDefaultGui();
 
-  return gui_;
+  return gui_.get();
 }
 
-void WMediaPlayer::setButton(ButtonControlId id, WInteractWidget *w)
+void WMediaPlayer::setButton(MediaPlayerButtonId id, WInteractWidget *w)
 {
-  delete control_[id];
-  control_[id] = w;
+  if (control_[static_cast<unsigned int>(id)])
+    control_[static_cast<unsigned int>(id)]->parent()
+      ->removeWidget(control_[static_cast<unsigned int>(id)].get());
+  control_[static_cast<unsigned int>(id)] = w;
 }
 
-WInteractWidget *WMediaPlayer::button(ButtonControlId id) const
+WInteractWidget *WMediaPlayer::button(MediaPlayerButtonId id) const
 {
   controlsWidget(); // may lazy-create the default gui.
-
-  return control_[id];
+  return control_[static_cast<unsigned int>(id)].get();
 }
 
-void WMediaPlayer::setText(TextId id, WText *w)
+void WMediaPlayer::setText(MediaPlayerTextId id, WText *w)
 {
-  delete display_[id];
-  display_[id] = w;
+  delete display_[static_cast<unsigned int>(id)];
+  display_[static_cast<unsigned int>(id)] = w;
 
-  if (id == Title && w)
+  if (id == MediaPlayerTextId::Title && w)
     w->setText(title_);
 }
 
-WText *WMediaPlayer::text(TextId id) const
+WText *WMediaPlayer::text(MediaPlayerTextId id) const
 {
   controlsWidget(); // may lazy-create the default gui.
 
-  return display_[id];
+  return display_[static_cast<unsigned int>(id)];
 }
 
-void WMediaPlayer::setProgressBar(BarControlId id, WProgressBar *w)
+void WMediaPlayer::setProgressBar(MediaPlayerProgressBarId id, WProgressBar *w)
 {
-  const BarControlId bc_id = id;
+  const MediaPlayerProgressBarId bc_id = id;
 
-  delete progressBar_[id];
-  progressBar_[id] = w;
+  delete progressBar_[static_cast<unsigned int>(id)];
+  progressBar_[static_cast<unsigned int>(id)] = w;
 
   if (w) {
     w->setFormat(WString::Empty);
 
     w->valueChanged().connect
-      (boost::bind(&WMediaPlayer::updateFromProgressBar, this, bc_id, _1));
+      (this, std::bind(&WMediaPlayer::updateFromProgressBar, this, bc_id,
+		       std::placeholders::_1));
 
     updateProgressBarState(id);
   }
 }
 
-void WMediaPlayer::updateProgressBarState(BarControlId id)
+void WMediaPlayer::updateProgressBarState(MediaPlayerProgressBarId id)
 {
   WProgressBar *bar = progressBar(id);
   if (bar) {
     switch (id) {
-    case Time:
+    case MediaPlayerProgressBarId::Time:
       bar->setState(0, status_.seekPercent * status_.duration,
 		    status_.currentTime);
       break;
-    case Volume:
+    case MediaPlayerProgressBarId::Volume:
       bar->setState(0, 1, status_.volume);
     }
   }
 }
 
-void WMediaPlayer::updateFromProgressBar(BarControlId id, double value)
+void WMediaPlayer::updateFromProgressBar(MediaPlayerProgressBarId id,
+					 double value)
 {
   switch (id) {
-  case Time:
+  case MediaPlayerProgressBarId::Time:
     seek(value); break;
-  case Volume:
+  case MediaPlayerProgressBarId::Volume:
     setVolume(value);
   } 
 }
 
-WProgressBar *WMediaPlayer::progressBar(BarControlId id) const
+WProgressBar *WMediaPlayer::progressBar(MediaPlayerProgressBarId id) const
 {
   controlsWidget(); // may lazy-create the default gui.
 
-  return progressBar_[id];
+  return progressBar_[static_cast<unsigned int>(id)];
 }
 
 std::string WMediaPlayer::jsPlayerRef() const
@@ -330,7 +327,7 @@ void WMediaPlayer::pause()
 void WMediaPlayer::setVolume(double volume)
 {
   status_.volume = volume;
-  playerDo("volume", boost::lexical_cast<std::string>(volume));
+  playerDo("volume", std::to_string(volume));
 }
 
 double WMediaPlayer::volume() const
@@ -343,7 +340,7 @@ void WMediaPlayer::setPlaybackRate(double rate)
   if (rate != status_.playbackRate) {
     status_.playbackRate = rate;
 
-    playerDoData("wtPlaybackRate", boost::lexical_cast<std::string>(rate));
+    playerDoData("wtPlaybackRate", std::to_string(rate));
   }
 }
 
@@ -363,7 +360,7 @@ void WMediaPlayer::seek(double time)
     double pct = time / (status_.seekPercent * status_.duration / 100);
     pct = std::min(1.0, pct);
 
-    playerDo("playHead", boost::lexical_cast<std::string>(pct * 100));
+    playerDo("playHead", std::to_string(pct * 100));
   }
 }
 
@@ -434,7 +431,7 @@ void WMediaPlayer::refresh()
   WCompositeWidget::refresh();
 
   // rerender so that the jPlayer constructor is executed on the new HTML
-  render(RenderFull);
+  render(RenderFlag::Full);
 }
 
 void WMediaPlayer::render(WFlags<RenderFlag> flags)
@@ -463,7 +460,8 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 
       std::string url = app->resolveRelativeUrl(media_[i].link.url());
 
-      ss << const_cast<char *>(mediaNames[media_[i].encoding]) << ": "
+      ss << const_cast<char *>
+	(mediaNames[static_cast<unsigned int>(media_[i].encoding)]) << ": "
 	 << WWebWidget::jsStringLiteral(url);
 
       first = false;
@@ -471,7 +469,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 
     ss << '}';
 
-    if (!(flags & RenderFull))
+    if (!(flags & RenderFlag::Full))
       playerDo("setMedia", ss.str());
     else {
       initialJs_ = ".jPlayer('setMedia', " + ss.str() + ')' + initialJs_;
@@ -480,8 +478,8 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     mediaUpdated_ = false;
   }
 
-  if (flags & RenderFull) {
-    if (gui_ == this)
+  if (flags.test(RenderFlag::Full)) {
+    if (gui_.get() == this)
       createDefaultGui();
 
     WStringStream ss;
@@ -500,17 +498,18 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 
     bool first = true;
     for (unsigned i = 0; i < media_.size(); ++i) {
-      if (media_[i].encoding != PosterImage) {
+      if (media_[i].encoding != MediaEncoding::PosterImage) {
 	if (!first)
 	  ss << ',';
-	ss << const_cast<char *>(mediaNames[media_[i].encoding]);
+	ss << const_cast<char *>
+	  (mediaNames[static_cast<unsigned int>(media_[i].encoding)]);
 	first = false;
       }
     }
 
     ss << "\",";
 
-    if (mediaType_ == Video) {
+    if (mediaType_ == MediaType::Video) {
       ss << "size: {"
 	 <<   "width: \"" << videoWidth_ << "px\","
 	 <<   "height: \"" << videoHeight_ << "px\","
@@ -527,7 +526,9 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 	"fullScreen", "restoreScreen", "repeat", "repeatOff" };
 
     first = true;
-    for (unsigned i = VideoPlay; i < RepeatOff; ++i) {
+    for (unsigned i = static_cast<unsigned int>
+	   (MediaPlayerButtonId::VideoPlay); 
+	 i < static_cast<unsigned int>(MediaPlayerButtonId::RepeatOff); ++i) {
       if (control_[i]) {
 	if (!first)
 	  ss << ", ";
@@ -542,7 +543,8 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     const char *displaySelectors[] = 
       { "currentTime", "duration" };
 
-    for (unsigned i = CurrentTime; i < Duration; ++i) {
+    for (unsigned i = static_cast<unsigned int>(MediaPlayerTextId::CurrentTime);
+	 i < static_cast<unsigned int>(MediaPlayerTextId::Duration); ++i) {
       if (control_[i]) {
 	if (!first)
 	  ss << ", ";
@@ -554,22 +556,36 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
       }
     }
 
-    if (progressBar_[Time]) {
+    if (progressBar_[static_cast<unsigned int>
+		     (MediaPlayerProgressBarId::Time)]) {
       if (!first)
 	ss << ", ";
 
-      ss << "seekBar:\"#" << progressBar_[Time]->id() << "\", "
-	 << "playBar:\"#bar" << progressBar_[Time]->id() << "\"";
+      ss << "seekBar:\"#"
+	 << progressBar_[static_cast<unsigned int>
+			 (MediaPlayerProgressBarId::Time)]->id()
+	 << "\", "
+	 << "playBar:\"#bar"
+	 << progressBar_[static_cast<unsigned int>
+			 (MediaPlayerProgressBarId::Time)]->id()
+	 << "\"";
 
       first = false;
     }
 
-    if (progressBar_[Volume]) {
+    if (progressBar_[static_cast<unsigned int>
+		     (MediaPlayerProgressBarId::Volume)]) {
       if (!first)
 	ss << ", ";
 
-      ss << "volumeBar:\"#" << progressBar_[Volume]->id() << "\", "
-	 << "volumeBarValue:\"#bar" << progressBar_[Volume]->id() << "\"";
+      ss << "volumeBar:\"#"
+	 << progressBar_[static_cast<unsigned int>
+			 (MediaPlayerProgressBarId::Volume)]->id()
+	 << "\", "
+	 << "volumeBarValue:\"#bar" 
+	 << progressBar_[static_cast<unsigned int>
+			 (MediaPlayerProgressBarId::Volume)]->id()
+	 << "\"";
 
       first = false;
     }
@@ -591,7 +607,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     ss << jsPlayerRef();
     for (unsigned i = boundSignals_; i < signals_.size(); ++i)
       ss << ".bind('" << signals_[i]->name() << "', function(o, e) { "
-	 << signals_[i]->createCall() << "})";
+	 << signals_[i]->createCall({}) << "})";
     ss << ';';
 
     doJavaScript(ss.str());
@@ -604,8 +620,8 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     for (unsigned i = boundSignalsDouble_; i < signalsDouble_.size(); ++i)
       ss << ".bind('" << signalsDouble_[i].signal->name()
 	 << "', function(o, e) { "
-	 << signalsDouble_[i].signal
-	     ->createCall(signalsDouble_[i].jsExprA1) << "})";
+	 << signalsDouble_[i].signal->createCall({signalsDouble_[i].jsExprA1})
+	 << "})";
     ss << ';';
 
     doJavaScript(ss.str());
@@ -622,18 +638,17 @@ void WMediaPlayer::setFormData(const FormData& formData)
     boost::split(attributes, formData.values[0], boost::is_any_of(";"));
     if (attributes.size() == 8) {
       try {
-        status_.volume = boost::lexical_cast<double>(attributes[0]);
-	status_.currentTime = boost::lexical_cast<double>(attributes[1]);
-        status_.duration = boost::lexical_cast<double>(attributes[2]);
+        status_.volume = Utils::stod(attributes[0]);
+	status_.currentTime = Utils::stod(attributes[1]);
+        status_.duration = Utils::stod(attributes[2]);
         status_.playing = (attributes[3] == "0");
         status_.ended = (attributes[4] == "1");
-        status_.readyState
-	  = intToReadyState(boost::lexical_cast<int>(attributes[5]));
-	status_.playbackRate = boost::lexical_cast<double>(attributes[6]);
-        status_.seekPercent = boost::lexical_cast<double>(attributes[7]);
+        status_.readyState = intToReadyState(Utils::stoi(attributes[5]));
+	status_.playbackRate = Utils::stod(attributes[6]);
+        status_.seekPercent = Utils::stod(attributes[7]);
 
-	updateProgressBarState(Time);
-	updateProgressBarState(Volume);
+	updateProgressBarState(MediaPlayerProgressBarId::Time);
+	updateProgressBarState(MediaPlayerProgressBarId::Volume);
 
       } catch (const std::exception& e) {
 	throw WException("WMediaPlayer: error parsing: "
@@ -713,45 +728,51 @@ JSignal<double>& WMediaPlayer::signalDouble(const char *name,
 
 void WMediaPlayer::createDefaultGui()
 {
-  gui_ = 0;
+  gui_ = nullptr;
 
   static const char *media[] = { "audio", "video" };
 
-  WTemplate *ui = new WTemplate
-    (tr(std::string("Wt.WMediaPlayer.defaultgui-") + media[mediaType_]));
+  std::unique_ptr<WTemplate> ui
+    (new WTemplate(tr(std::string("Wt.WMediaPlayer.defaultgui-")
+		      + media[static_cast<unsigned int>(mediaType_)])));
 
-  addAnchor(ui, Play, "play-btn", "jp-play");
-  addAnchor(ui, Pause, "pause-btn", "jp-pause");
-  addAnchor(ui, Stop, "stop-btn", "jp-stop");
-  addAnchor(ui, VolumeMute, "mute-btn", "jp-mute");
-  addAnchor(ui, VolumeUnmute, "unmute-btn", "jp-unmute");
-  addAnchor(ui, VolumeMax, "volume-max-btn", "jp-volume-max");
-  addAnchor(ui, RepeatOn, "repeat-btn", "jp-repeat");
-  addAnchor(ui, RepeatOff, "repeat-off-btn", "jp-repeat-off");
+  addAnchor(ui.get(), MediaPlayerButtonId::Play, "play-btn", "jp-play");
+  addAnchor(ui.get(), MediaPlayerButtonId::Pause, "pause-btn", "jp-pause");
+  addAnchor(ui.get(), MediaPlayerButtonId::Stop, "stop-btn", "jp-stop");
+  addAnchor(ui.get(), MediaPlayerButtonId::VolumeMute, "mute-btn", "jp-mute");
+  addAnchor(ui.get(), MediaPlayerButtonId::VolumeUnmute, "unmute-btn", "jp-unmute");
+  addAnchor(ui.get(), MediaPlayerButtonId::VolumeMax, "volume-max-btn",
+	    "jp-volume-max");
+  addAnchor(ui.get(), MediaPlayerButtonId::RepeatOn, "repeat-btn", "jp-repeat");
+  addAnchor(ui.get(), MediaPlayerButtonId::RepeatOff, "repeat-off-btn", "jp-repeat-off");
 
-  if (mediaType_ == Video) {
-    addAnchor(ui, VideoPlay, "video-play-btn", "jp-video-play-icon", "play");
-    addAnchor(ui, FullScreen, "full-screen-btn", "jp-full-screen");
-    addAnchor(ui, RestoreScreen, "restore-screen-btn", "jp-restore-screen");
+  if (mediaType_ == MediaType::Video) {
+    addAnchor(ui.get(), MediaPlayerButtonId::VideoPlay, "video-play-btn",
+	      "jp-video-play-icon", "play");
+    addAnchor(ui.get(), MediaPlayerButtonId::FullScreen, "full-screen-btn",
+	      "jp-full-screen");
+    addAnchor(ui.get(), MediaPlayerButtonId::RestoreScreen, "restore-screen-btn",
+	      "jp-restore-screen");
   }
 
-  addText(ui, CurrentTime, "current-time", "jp-current-time");
-  addText(ui, Duration, "duration", "jp-duration");
-  addText(ui, Title, "title", std::string());
+  addText(ui.get(), MediaPlayerTextId::CurrentTime, 
+	  "current-time", "jp-current-time");
+  addText(ui.get(), MediaPlayerTextId::Duration, "duration", "jp-duration");
+  addText(ui.get(), MediaPlayerTextId::Title, "title", std::string());
 
-  addProgressBar(ui, Time, "progress-bar", "jp-seek-bar",
+  addProgressBar(ui.get(), MediaPlayerProgressBarId::Time, "progress-bar", "jp-seek-bar",
 		 "jp-play-bar");
-  addProgressBar(ui, Volume, "volume-bar", "jp-volume-bar",
+  addProgressBar(ui.get(), MediaPlayerProgressBarId::Volume, "volume-bar", "jp-volume-bar",
 		 "jp-volume-bar-value");
 
   ui->bindString("title-display", title_.empty() ? "none" : "");
 
-  addStyleClass(mediaType_ == Video ? "jp-video" : "jp-audio");
+  addStyleClass(mediaType_ == MediaType::Video ? "jp-video" : "jp-audio");
 
-  setControlsWidget(ui);
+  setControlsWidget(std::move(ui));
 }
 
-void WMediaPlayer::addAnchor(WTemplate *t, ButtonControlId id,
+void WMediaPlayer::addAnchor(WTemplate *t, MediaPlayerButtonId id,
 			     const char *bindId,
 			     const std::string& styleClass,
 			     const std::string& altText)
@@ -765,44 +786,45 @@ void WMediaPlayer::addAnchor(WTemplate *t, ButtonControlId id,
 
   text = "Wt.WMediaPlayer." + text;
 
-  WAnchor *anchor = new WAnchor(WLink("javascript:;"), WString::tr(text));
+  std::unique_ptr<WAnchor> anchor
+    (new WAnchor(WLink("javascript:;"), WString::tr(text)));
   anchor->setStyleClass(styleClass);
   anchor->setAttributeValue("tabindex", "1");
   anchor->setToolTip(WString::tr(text));
   anchor->setInline(false);
 
-  t->bindWidget(bindId, anchor);
+  setButton(id, anchor.get());
 
-  setButton(id, anchor);
+  t->bindWidget(bindId, std::move(anchor));
 }
 
-void WMediaPlayer::addText(WTemplate *t, TextId id, const char *bindId,
-			   const std::string& styleClass)
+void WMediaPlayer::addText(WTemplate *t, MediaPlayerTextId id,
+			   const char *bindId, const std::string& styleClass)
 {
-  WText *text = new WText();
+  std::unique_ptr<WText> text(new WText());
   text->setInline(false);
 
   if (!styleClass.empty())
     text->setStyleClass(styleClass);
 
-  t->bindWidget(bindId, text);
+  setText(id, text.get());
 
-  setText(id, text);
+  t->bindWidget(bindId, std::move(text));
 }
 
-void WMediaPlayer::addProgressBar(WTemplate *t, BarControlId id,
+void WMediaPlayer::addProgressBar(WTemplate *t, MediaPlayerProgressBarId id,
 				  const char *bindId,
 				  const std::string& styleClass,
 				  const std::string& valueStyleClass)
 {
-  WProgressBar *progressBar = new WProgressBar();
+  std::unique_ptr<WProgressBar> progressBar(new WProgressBar());
   progressBar->setStyleClass(styleClass);
   progressBar->setValueStyleClass(valueStyleClass);
   progressBar->setInline(false);
 
-  t->bindWidget(bindId, progressBar);
+  setProgressBar(id, progressBar.get());
 
-  setProgressBar(id, progressBar);
+  t->bindWidget(bindId, std::move(progressBar));
 }
 
 }

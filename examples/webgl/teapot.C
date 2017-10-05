@@ -4,16 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WImage>
-#include <Wt/WPushButton>
-#include <Wt/WTabWidget>
-#include <Wt/WText>
-#include <Wt/WTextArea>
-#include <Wt/WServer>
-#include <Wt/WEnvironment>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WImage.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTabWidget.h>
+#include <Wt/WText.h>
+#include <Wt/WTextArea.h>
+#include <Wt/WServer.h>
+#include <Wt/WEnvironment.h>
 
 #include "readObj.h"
 #include "PaintWidget.h"
@@ -73,9 +73,9 @@ private:
   void resetShaders();
 
   WContainerWidget *glContainer_;
-  PaintWidget *paintWidget_;
-  WTextArea *fragmentShaderText_;
-  WTextArea *vertexShaderText_;
+  PaintWidget      *paintWidget_;
+  WTextArea        *fragmentShaderText_;
+  WTextArea        *vertexShaderText_;
 };
 
 WebGLDemo::WebGLDemo(const WEnvironment& env)
@@ -83,31 +83,33 @@ WebGLDemo::WebGLDemo(const WEnvironment& env)
 {
   setTitle("WebGL Demo");
 
-  root()->addWidget(new WText("If your browser supports WebGL, you'll "
+  root()->addWidget(cpp14::make_unique<WText>("If your browser supports WebGL, you'll "
     "see a teapot below.<br/>Use your mouse to move around the teapot.<br/>"
     "Edit the shaders below the teapot to change how the teapot is rendered."));
-  root()->addWidget(new WBreak());
+  root()->addWidget(cpp14::make_unique<WBreak>());
 
   paintWidget_ = 0;
 
-  glContainer_ = new WContainerWidget(root());
+  glContainer_ = root()->addWidget(cpp14::make_unique<WContainerWidget>());
   glContainer_->resize(500, 500);
   glContainer_->setInline(false);
 
-  WPushButton *updateButton = new WPushButton("Update shaders", root());
+  WPushButton *updateButton = root()->addWidget(cpp14::make_unique<WPushButton>("Update shaders"));
   updateButton->clicked().connect(this, &WebGLDemo::updateShaders);
-  WPushButton *resetButton = new WPushButton("Reset shaders", root());
+  WPushButton *resetButton = root()->addWidget(cpp14::make_unique<WPushButton>("Reset shaders"));
   resetButton->clicked().connect(this, &WebGLDemo::resetShaders);
 
-  WTabWidget *tabs = new WTabWidget(root());
+  WTabWidget *tabs = root()->addWidget(cpp14::make_unique<WTabWidget>());
 
-  fragmentShaderText_ = new WTextArea;
+  auto fragmentShaderText = cpp14::make_unique<WTextArea>();
+  fragmentShaderText_ = fragmentShaderText.get();
   fragmentShaderText_->resize(750, 250);
-  tabs->addTab(fragmentShaderText_, "Fragment Shader");
+  tabs->addTab(std::move(fragmentShaderText), "Fragment Shader");
 
-  vertexShaderText_ = new WTextArea;
+  auto vertexShaderText = cpp14::make_unique<WTextArea>();
+  vertexShaderText_ = vertexShaderText.get();
   vertexShaderText_->resize(750, 250);
-  tabs->addTab(vertexShaderText_, "Vertex Shader");
+  tabs->addTab(std::move(vertexShaderText), "Vertex Shader");
 
   resetShaders();
 }
@@ -125,12 +127,14 @@ void WebGLDemo::updateShaders()
       useBinaryBuffers = true;
   }
 
-  delete paintWidget_;
-  paintWidget_ = new PaintWidget(glContainer_, useBinaryBuffers);
+  if(paintWidget_)
+    paintWidget_->removeFromParent(); //FIXME: reset the current paintWidget to replace it with a new one
+
+  paintWidget_ = glContainer_->addWidget(cpp14::make_unique<PaintWidget>(useBinaryBuffers));
   paintWidget_->resize(500, 500);
   paintWidget_->setShaders(vertexShaderText_->text().toUTF8(),
     fragmentShaderText_->text().toUTF8());
-  paintWidget_->setAlternativeContent(new WImage("nowebgl.png"));
+  paintWidget_->setAlternativeContent(cpp14::make_unique<WImage>("nowebgl.png"));
 }
 
 void WebGLDemo::resetShaders()
@@ -140,9 +144,9 @@ void WebGLDemo::resetShaders()
   updateShaders();
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new WebGLDemo(env);
+  return cpp14::make_unique<WebGLDemo>(env);
 }
 
 int main(int argc, char **argv)
@@ -151,7 +155,7 @@ int main(int argc, char **argv)
     WServer server(argc, argv, WTHTTP_CONFIGURATION);
     readObj(WApplication::appRoot() + "teapot.obj", data);
 
-    server.addEntryPoint(Wt::Application, createApplication);
+    server.addEntryPoint(EntryPointType::Application, &createApplication);
     server.run();
   } catch (WServer::Exception& e) {
     std::cerr << e.what() << "\n";

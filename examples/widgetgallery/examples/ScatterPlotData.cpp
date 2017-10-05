@@ -1,45 +1,46 @@
-#include <Wt/Chart/WCartesianChart>
-#include <Wt/Chart/WDataSeries>
-#include <Wt/WAbstractItemModel>
-#include <Wt/WAbstractItemView>
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WDate>
-#include <Wt/WEnvironment>
-#include <Wt/WPaintedWidget>
-#include <Wt/WItemDelegate>
-#include <Wt/WShadow>
-#include <Wt/WStandardItemModel>
-#include <Wt/WTableView>
+#include <Wt/Chart/WCartesianChart.h>
+#include <Wt/Chart/WDataSeries.h>
+#include <Wt/WAbstractItemModel.h>
+#include <Wt/WAbstractItemView.h>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDate.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WItemDelegate.h>
+#include <Wt/WShadow.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WTableView.h>
 
 #include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(ScatterPlotData)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = cpp14::make_unique<WContainerWidget>();
 
-Wt::WStandardItemModel *model
-    = csvToModel(Wt::WApplication::appRoot() + "timeseries.csv", container);
+auto model
+    = csvToModel(WApplication::appRoot() + "timeseries.csv");
 
 if (!model)
-    return container;
+    return std::move(container);
 
 /*
  * Parses the first column as dates, to be able to use a date scale
  */
 for (int row = 0; row < model->rowCount(); ++row) {
-    Wt::WString s = Wt::asString(model->data(row, 0));
-    Wt::WDate date = Wt::WDate::fromString(s, "dd/MM/yy");
+    WString s = asString(model->data(row, 0));
+    WDate date = WDate::fromString(s, "dd/MM/yy");
     model->setData(row, 0, date);
   }
 
 // Renders the data in a table.
-Wt::WTableView *table = new Wt::WTableView(container);
+WTableView *table =
+    container->addWidget(cpp14::make_unique<WTableView>());
 table->setModel(model);
 table->setSortingEnabled(false);
 table->setColumnResizeEnabled(true);
 table->setAlternatingRowColors(true);
-table->setColumnAlignment(0, Wt::AlignCenter);
-table->setHeaderAlignment(0, Wt::AlignCenter);
+table->setColumnAlignment(0, AlignmentFlag::Center);
+table->setHeaderAlignment(0, AlignmentFlag::Center);
 table->setRowHeight(28);
 table->setHeaderHeight(28);
 table->setColumnWidth(0, 80);
@@ -50,38 +51,39 @@ table->resize(783, 200);
 /*
  * Use a delegate for the numeric data which rounds values sensibly.
  */
-Wt::WItemDelegate *delegate = new Wt::WItemDelegate(table);
+auto delegate = std::make_shared<WItemDelegate>();
 delegate->setTextFormat("%.1f");
 table->setItemDelegate(delegate);
-table->setItemDelegateForColumn(0, new Wt::WItemDelegate(table));
+table->setItemDelegateForColumn(0, std::make_shared<WItemDelegate>());
 
 /*
  * Creates the scatter plot.
  */
-Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart(container);
-chart->setBackground(Wt::WColor(220, 220, 220));
+Chart::WCartesianChart *chart =
+    container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
+chart->setBackground(WColor(220, 220, 220));
 chart->setModel(model);
 chart->setXSeriesColumn(0);
 chart->setLegendEnabled(true);
-chart->setType(Wt::Chart::ScatterPlot);
-chart->axis(Wt::Chart::XAxis).setScale(Wt::Chart::DateScale);
+chart->setType(Chart::ChartType::Scatter);
+chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::Date);
 
 /*
  * Provide ample space for the title, the X and Y axis and the legend.
  */
-chart->setPlotAreaPadding(40, Wt::Left | Wt::Top | Wt::Bottom);
-chart->setPlotAreaPadding(120, Wt::Right);
+chart->setPlotAreaPadding(40, Side::Left | Side::Top | Side::Bottom);
+chart->setPlotAreaPadding(120, Side::Right);
 
 /*
  * Add the second and the third column as line series.
  */
 for (int i = 2; i < 4; ++i) {
-    Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(i, Wt::Chart::LineSeries);
-    s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-    chart->addSeries(s);
+    auto s = cpp14::make_unique<Chart::WDataSeries>(i, Chart::SeriesType::Line);
+    s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+    chart->addSeries(std::move(s));
 }
 
 chart->resize(800, 400);
-chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+chart->setMargin(WLength::Auto, Side::Left | Side::Right);
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

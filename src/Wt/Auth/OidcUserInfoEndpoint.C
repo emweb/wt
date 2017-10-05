@@ -1,29 +1,37 @@
-#include "OidcUserInfoEndpoint"
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include "OidcUserInfoEndpoint.h"
+
 #include <string>
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WResource"
-#include "Wt/WObject"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
-#include "Wt/Auth/User"
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/IssuedToken"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
-#include "Wt/Json/Value"
-#include "Wt/Json/Object"
-#include "Wt/Json/Serializer"
-#include "Wt/WLogger"
+#include "Wt/WResource.h"
+#include "Wt/WObject.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
+#include "Wt/Auth/User.h"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/IssuedToken.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
+#include "Wt/Json/Value.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Serializer.h"
+#include "Wt/WLogger.h"
 
 namespace {
 const std::string AUTH_TYPE = "Bearer ";
 }
 
 namespace Wt {
+
+  LOGGER("OidcUserInfoEndpoint");
+
 namespace Auth {
 
-LOGGER("OidcUserInfoEndpoint");
 
 OidcUserInfoEndpoint::OidcUserInfoEndpoint(AbstractUserDatabase &db)
   : db_(&db)
@@ -48,6 +56,7 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   if (!boost::starts_with(authHeader, AUTH_TYPE)) {
     response.setStatus(400);
     response.addHeader("WWW-Authenticate", "error=\"invalid_request\"");
+    LOG_INFO("error=\"invalid_request\": Authorization header missing");
     return;
   }
   std::string tokenValue = authHeader.substr(AUTH_TYPE.length());
@@ -55,6 +64,7 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   if (!accessToken.checkValid() || WDateTime::currentDateTime() > accessToken.expirationTime()) {
     response.setStatus(401);
     response.addHeader("WWW-Authenticate", "error=\"invalid_token\"");
+    LOG_INFO("error=\"invalid_token\" " << authHeader);
     return;
   }
   response.setMimeType("application/json");
@@ -67,6 +77,7 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   try {
 #endif
     response.out() << Json::serialize(generateUserInfo(user, scopeSet)) << std::endl;
+    LOG_INFO("Response sent for " << user.id() << "(" << db_->email(user) << ")");
 #ifdef WT_TARGET_JAVA
   } catch (std::io_exception ioe) {
     LOG_ERROR(ioe.message());

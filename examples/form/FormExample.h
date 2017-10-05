@@ -8,7 +8,7 @@
 #ifndef FORMEXAMPLE_H_
 #define FORMEXAMPLE_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
   class WText;
@@ -31,14 +31,14 @@ class FormExample : public WContainerWidget
 public:
   /*!\brief Instantiate a new form example.
    */
-  FormExample(WContainerWidget *parent = 0);
+  FormExample();
 
 private:
   std::vector<WText *> languageSelects_;
 
   /*!\brief Change the language.
    */
-  void changeLanguage();
+  void changeLanguage(WText *t);
 
   void setLanguage(const std::string lang);
 };

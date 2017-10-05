@@ -6,17 +6,17 @@
 
 #include "Session.h"
 
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/PasswordService"
-#include "Wt/Auth/PasswordStrengthValidator"
-#include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/GoogleService"
-#include "Wt/Auth/Dbo/AuthInfo"
-#include "Wt/Auth/Dbo/UserDatabase"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/HashFunction.h"
+#include "Wt/Auth/PasswordService.h"
+#include "Wt/Auth/PasswordStrengthValidator.h"
+#include "Wt/Auth/PasswordVerifier.h"
+#include "Wt/Auth/GoogleService.h"
+#include "Wt/Auth/Dbo/AuthInfo.h"
+#include "Wt/Auth/Dbo/UserDatabase.h"
 
-#include <Wt/WApplication>
-#include <Wt/WLogger>
+#include <Wt/WApplication.h>
+#include <Wt/WLogger.h>
 
 #ifndef WT_WIN32
 #include <unistd.h>
@@ -26,7 +26,6 @@
 #define HAVE_CRYPT
 #endif
 
-using namespace Wt;
 namespace dbo = Wt::Dbo;
 
 namespace {
@@ -61,7 +60,7 @@ class UnixCryptHashFunction : public Auth::HashFunction
     ~MyOAuth()
     {
       for (unsigned i = 0; i < size(); ++i)
-	delete (*this)[i];
+        delete (*this)[i];
     }
   };
 
@@ -75,17 +74,18 @@ void Session::configureAuth()
   myAuthService.setAuthTokensEnabled(true, "hangmancookie");
   myAuthService.setEmailVerificationEnabled(true);
 
-  Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
-  verifier->addHashFunction(new Auth::BCryptHashFunction(7));
+  std::unique_ptr<Auth::PasswordVerifier> verifier
+      = cpp14::make_unique<Auth::PasswordVerifier>();
+  verifier->addHashFunction(cpp14::make_unique<Auth::BCryptHashFunction>(7));
 
 #ifdef HAVE_CRYPT
   // We want to still support users registered in the pre - Wt::Auth
   // version of the hangman example
-  verifier->addHashFunction(new UnixCryptHashFunction());
+  verifier->addHashFunction(cpp14::make_unique<UnixCryptHashFunction>());
 #endif
 
-  myPasswordService.setVerifier(verifier);
-  myPasswordService.setStrengthValidator(new Auth::PasswordStrengthValidator());
+  myPasswordService.setVerifier(std::move(verifier));
+  myPasswordService.setStrengthValidator(cpp14::make_unique<Auth::PasswordStrengthValidator>());
   myPasswordService.setAttemptThrottlingEnabled(true);
 
   if (Auth::GoogleService::configured())
@@ -93,17 +93,17 @@ void Session::configureAuth()
 }
 
 Session::Session()
-  : sqlite3_(WApplication::instance()->appRoot() + "hangman.db")
 {
-  session_.setConnection(sqlite3_);
-  sqlite3_.setProperty("show-queries", "true");
+  auto sqlite3 = cpp14::make_unique<Dbo::backend::Sqlite3>(WApplication::instance()->appRoot() + "hangman.db");
+  sqlite3->setProperty("show-queries", "true");
+  session_.setConnection(std::move(sqlite3));
 
   session_.mapClass<User>("user");
   session_.mapClass<AuthInfo>("auth_info");
   session_.mapClass<AuthInfo::AuthIdentityType>("auth_identity");
   session_.mapClass<AuthInfo::AuthTokenType>("auth_token");
 
-  users_ = new UserDatabase(session_);
+  users_ = cpp14::make_unique<UserDatabase>(session_);
 
   dbo::Transaction transaction(session_);
   try {
@@ -116,9 +116,9 @@ Session::Session()
     guestUser.addIdentity(Auth::Identity::LoginName, "guest");
     myPasswordService.updatePassword(guestUser, "guest");
 
-    Wt::log("info") << "Database created";
+    log("info") << "Database created";
   } catch (...) {
-    Wt::log("info") << "Using existing database";
+    log("info") << "Using existing database";
   }
 
   transaction.commit();
@@ -126,7 +126,6 @@ Session::Session()
 
 Session::~Session()
 {
-  delete users_;
 }
 
 dbo::ptr<User> Session::user() const
@@ -136,7 +135,7 @@ dbo::ptr<User> Session::user() const
     dbo::ptr<User> user = authInfo->user();
 
     if (!user) {
-      user = session_.add(new User());
+      user = session_.add(Wt::cpp14::make_unique<User>());
       authInfo.modify()->setUser(user);
     }
 
@@ -177,7 +176,7 @@ std::vector<User> Session::topUsers(int limit)
   for (Users::const_iterator i = top.begin(); i != top.end(); ++i) {
     dbo::ptr<User> user = *i;
     result.push_back(*user);
- 
+
     dbo::ptr<AuthInfo> auth = *user->authInfos.begin();
     std::string name = auth->identity(Auth::Identity::LoginName).toUTF8();
 

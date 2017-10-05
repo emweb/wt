@@ -10,7 +10,7 @@
 #include "AddresseeEdit.h"
 #include "Contact.h"
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace {
   WSuggestionPopup::Options contactOptions
@@ -23,16 +23,15 @@ namespace {
     };
 }
 
-ContactSuggestions::ContactSuggestions(WObject *parent)
+ContactSuggestions::ContactSuggestions()
   : WSuggestionPopup(WSuggestionPopup::generateMatcherJS(contactOptions),
-		     WSuggestionPopup::generateReplacerJS(contactOptions),
-		     parent)
+                     WSuggestionPopup::generateReplacerJS(contactOptions))
 { }
 
 void ContactSuggestions::setAddressBook(const std::vector<Contact>& contacts)
 {
   clearSuggestions();
 
-  for (unsigned i = 0; i < contacts.size(); ++i)
-    addSuggestion(contacts[i].formatted(), contacts[i].formatted());
+  for(auto contact : contacts)
+    addSuggestion(contact.formatted(), contact.formatted());
 }

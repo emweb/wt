@@ -1,46 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WFIT_LAYOUT_H_
-#define WFIT_LAYOUT_H_
-
-#include <Wt/WLayout>
-#include <Wt/WGridLayout>
-
-namespace Wt {
-
-/*! \class WFitLayout Wt/WFitLayout Wt/WFitLayout
- *  \brief A layout manager which spans a single widget to all available space.
- *
- * This layout manager may manage only a single child widget, and sizes that
- * widget so that it uses all space available in the parent.
- */
-class WT_API WFitLayout : public WLayout
-{
-public:
-  /*! \brief Creates a new fit layout.
-   */
-  WFitLayout(WWidget *parent = 0);
-  ~WFitLayout();
-
-  static void fitWidget(WContainerWidget *container, WWidget *widget);
-
-  virtual void addItem(WLayoutItem *);
-  virtual void removeItem(WLayoutItem *);
-  virtual WLayoutItem *itemAt(int index) const;
-  virtual int indexOf(WLayoutItem *item) const;
-  virtual int count() const;
-  virtual void clear();
-
-  Impl::Grid& grid() { return grid_; }
-
-private:
-  Impl::Grid grid_;
-};
-
-}
-
-#endif // WFIT_LAYOUT_H_
+#ifndef WT_WFITLAYOUT_EXTENSIONLESS_H_
+#define WT_WFITLAYOUT_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WFitLayout.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WFitLayout.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WFitLayout.h"
+#endif // WT_WFITLAYOUT_EXTENSIONLESS_H_

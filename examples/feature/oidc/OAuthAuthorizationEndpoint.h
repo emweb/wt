@@ -1,9 +1,9 @@
 #include <string>
 
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
 
-#include <Wt/Auth/OAuthAuthorizationEndpointProcess>
+#include <Wt/Auth/OAuthAuthorizationEndpointProcess.h>
 
 #include "model/OidcUserDatabase.h"
 #include "model/User.h"
@@ -16,13 +16,12 @@ typedef Wt::Auth::Dbo::UserDatabase<AuthInfo> UserDatabase;
 class OAuthAuthorizationEndpoint : public Wt::WApplication
 {
 public:
-  OAuthAuthorizationEndpoint(const Wt::WEnvironment& env, Session* session);
-
-  virtual ~OAuthAuthorizationEndpoint();
+  OAuthAuthorizationEndpoint(const Wt::WEnvironment& env,
+                             std::unique_ptr<Session> session);
 
   static Wt::WApplication *createAuthEndpoint(const Wt::WEnvironment& env,
                                               std::string dbPath);
 private:
-  Session *session_;
-  Wt::Auth::OAuthAuthorizationEndpointProcess* process_;
+  std::unique_ptr<Session> session_;
+  std::unique_ptr<Wt::Auth::OAuthAuthorizationEndpointProcess> process_;
 };

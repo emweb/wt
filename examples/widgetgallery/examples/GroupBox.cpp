@@ -1,10 +1,10 @@
-#include <Wt/WGroupBox>
-#include <Wt/WText>
+#include <Wt/WGroupBox.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(GroupBox)
-Wt::WGroupBox *groupBox = new Wt::WGroupBox("A group box");
+auto groupBox = Wt::cpp14::make_unique<Wt::WGroupBox>("A group box");
 groupBox->addStyleClass("centered-example");
-groupBox->addWidget(new Wt::WText("<p>Some contents.</p>"));
-groupBox->addWidget(new Wt::WText("<p>More contents.</p>"));
+groupBox->addWidget(Wt::cpp14::make_unique<Wt::WText>("<p>Some contents.</p>"));
+groupBox->addWidget(Wt::cpp14::make_unique<Wt::WText>("<p>More contents.</p>"));
 
-SAMPLE_END(return groupBox)
+SAMPLE_END(return std::move(groupBox))

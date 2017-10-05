@@ -7,14 +7,14 @@
 #include "Request.h"
 
 #include <ostream>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "SslUtils.h"
+#include "WebUtils.h"
 
-#include <Wt/WLogger>
-#include <Wt/WSslInfo>
-#include <Wt/WTime>
+#include <Wt/WLogger.h>
+#include <Wt/WSslInfo.h>
+#include <Wt/WTime.h>
 
 #ifdef HTTP_WITH_SSL
 #include <openssl/ssl.h>
@@ -62,9 +62,9 @@ unsigned buffer_string::length() const
 bool buffer_string::contains(const char *s) const
 {
   if (next)
-    return strstr(str().c_str(), s) != 0;
+    return strstr(str().c_str(), s) != nullptr;
   else if (data)
-    return strstr(data, s) != 0;
+    return strstr(data, s) != nullptr;
   else
     return false;
 }
@@ -73,9 +73,9 @@ bool buffer_string::icontains(const char *s) const
 {
 #ifdef HAVE_STRCASESTR
   if (next)
-    return strcasestr(str().c_str(), s) != 0;
+    return strcasestr(str().c_str(), s) != nullptr;
   else if (data)
-    return strcasestr(data, s) != 0;
+    return strcasestr(data, s) != nullptr;
   else
     return false;
 #else
@@ -205,7 +205,7 @@ void Request::enableWebSocket()
       const Header *k = getHeader("Sec-WebSocket-Version");
       if (k) {
 	try {
-	  webSocketVersion = boost::lexical_cast<int>(k->value.str());
+	  webSocketVersion = Wt::Utils::stoi(k->value.str());
 	} catch (std::exception& e) {
 	  LOG_ERROR("could not parse Sec-WebSocket-Version: "
 		    << k->value.str());
@@ -252,7 +252,7 @@ Wt::WSslInfo *Request::sslInfo() const
 {
 #ifdef HTTP_WITH_SSL
   if (!ssl)
-    return 0;
+    return nullptr;
 
   X509 *x509 = SSL_get_peer_certificate(ssl);
   
@@ -270,14 +270,14 @@ Wt::WSslInfo *Request::sslInfo() const
       }
     }
     
-    Wt::WValidator::State state = Wt::WValidator::Invalid;
+    Wt::ValidationState state = Wt::ValidationState::Invalid;
     std::string info;
 
     long SSL_state = SSL_get_verify_result(ssl);
     if (SSL_state == X509_V_OK) {
-      state = Wt::WValidator::Valid;
+      state = Wt::ValidationState::Valid;
     } else {
-      state = Wt::WValidator::Invalid;
+      state = Wt::ValidationState::Invalid;
       info = X509_verify_cert_error_string(SSL_state);
     }
     Wt::WValidator::Result clientVerificationResult(state, info);
@@ -287,7 +287,7 @@ Wt::WSslInfo *Request::sslInfo() const
 			    clientVerificationResult);
   }
 #endif
-  return 0;
+  return nullptr;
 }
 
 const Request::Header *Request::getHeader(const std::string& name) const
@@ -298,7 +298,7 @@ const Request::Header *Request::getHeader(const std::string& name) const
       return &(*i);
   }
 
-  return 0;
+  return nullptr;
 }
 
 const Request::Header *Request::getHeader(const char *name) const
@@ -309,7 +309,7 @@ const Request::Header *Request::getHeader(const char *name) const
       return &(*i);
   }
 
-  return 0;
+  return nullptr;
 }
 
 } // namespace server

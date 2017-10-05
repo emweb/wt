@@ -4,10 +4,20 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/SqlTraits"
+#include "Wt/Dbo/SqlTraits.h"
+
+#include <boost/algorithm/string/find.hpp>
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+
+std::string::const_iterator ifind_last_as(const std::string &name)
+{
+  return boost::ifind_last(name, " as ").end();
+}
+
+    }
 
 FieldInfo::FieldInfo(const std::string& name,
 		     const std::type_info *type,

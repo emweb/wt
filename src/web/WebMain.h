@@ -7,7 +7,7 @@
 #ifndef WT_WEB_MAIN_H_
 #define WT_WEB_MAIN_H_
 
-#include "Wt/WServer"
+#include "Wt/WServer.h"
 
 namespace Wt {
 

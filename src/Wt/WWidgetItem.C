@@ -4,44 +4,90 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WWidget"
-#include "Wt/WWidgetItem"
-#include "Wt/WLayoutItemImpl"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WWidgetItem.h"
+#include "Wt/WLayout.h"
+#include "Wt/WLayoutItemImpl.h"
+
+#include "StdWidgetItemImpl.h"
+#include "FlexLayoutImpl.h"
+#include "FlexItemImpl.h"
 
 namespace Wt {
 
-WWidgetItem::WWidgetItem(WWidget *widget)
-  : widget_(widget),
-    parentLayout_(0),
-    impl_(0)
-{ 
-  widget_->setHasParent(true);
-}
+WWidgetItem::WWidgetItem(std::unique_ptr<WWidget> widget)
+  : widget_(std::move(widget)),
+    parentLayout_(nullptr)
+{ }
 
 WWidgetItem::~WWidgetItem()
 {
-  widget_->setHasParent(false);
-
-  delete impl_;
+  setParentWidget(nullptr);
 }
 
 WWidgetItem *WWidgetItem::findWidgetItem(WWidget *widget)
 {
-  if (widget_ == widget)
+  if (widget_.get() == widget)
     return this;
   else
-    return 0;
+    return nullptr;
 }
 
 void WWidgetItem::setParentWidget(WWidget *parent)
-{ 
-  assert(!impl_);
-  impl_ = parent->createLayoutItemImpl(this);
+{
+  if (!widget_)
+    return;
+
+  if (parent) {
+    WContainerWidget *pc = dynamic_cast<WContainerWidget *>(parent);
+
+    if (widget_->parent()) {
+      if (widget_->parent() != pc)
+	throw WException("Cannot move a WWidgetItem to another container");
+    } else
+      pc->widgetAdded(widget_.get());
+
+    bool flexLayout = dynamic_cast<FlexLayoutImpl *>
+      (parentLayout_->impl()) != 0;
+
+    if (flexLayout)
+      impl_ = cpp14::make_unique<FlexItemImpl>(this);
+    else
+      impl_ = cpp14::make_unique<StdWidgetItemImpl>(this);
+  } else {
+    WContainerWidget *pc = dynamic_cast<WContainerWidget *>(widget_->parent());
+
+    if (pc)
+      pc->widgetRemoved(widget_.get(), true);
+
+    impl_.reset();
+  }
+}
+
+std::unique_ptr<WWidget> WWidgetItem::takeWidget()
+{
+  std::unique_ptr<WWidget> result = std::move(widget_);
+  impl_.reset();
+  return result;
 }
 
 void WWidgetItem::setParentLayout(WLayout *parentLayout)
 {
   parentLayout_ = parentLayout;
+}
+
+void WWidgetItem::iterateWidgets(const HandleWidgetMethod& method) const
+{
+  if (widget_)
+    method(widget_.get());
+}
+
+WWidget *WWidgetItem::parentWidget() const
+{
+  if (parentLayout_)
+    return parentLayout_->parentWidget();
+  else
+    return nullptr;
 }
 
 }

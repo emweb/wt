@@ -5,15 +5,15 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "WScatterData"
+#include "WScatterData.h"
 
-#include "Wt/WAbstractItemModel"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WMemoryResource"
-#include "Wt/WPainter"
-#include "Wt/WVector4"
-#include "Wt/Chart/WAbstractColorMap"
+#include "Wt/WAbstractItemModel.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WMemoryResource.h"
+#include "Wt/WPainter.h"
+#include "Wt/WVector4.h"
+#include "Wt/Chart/WAbstractColorMap.h"
 #include "WebUtils.h"
 
 #include "gridDataShaders"
@@ -21,14 +21,14 @@
 namespace Wt {
   namespace Chart {
 
-WScatterData::WScatterData(WAbstractItemModel *model)
+WScatterData::WScatterData(std::shared_ptr<WAbstractItemModel> model)
   : WAbstractDataSeries3D(model),
     XSeriesColumn_(0),
     YSeriesColumn_(1),
     ZSeriesColumn_(2),
     colorColumn_(-1),
-    asColorRole_(Wt::MarkerPenColorRole),
-    asSizeRole_(Wt::MarkerScaleFactorRole),
+    asColorRole_(Wt::ItemDataRole::MarkerPenColor),
+    asSizeRole_(Wt::ItemDataRole::MarkerScaleFactor),
     sizeColumn_(-1),
     droplinesEnabled_(false),
     xRangeCached_(false),
@@ -67,7 +67,7 @@ void WScatterData::setDroplinesEnabled(bool enabled)
   if (droplinesEnabled_ != enabled) {
     droplinesEnabled_ = enabled;
     if (chart_) {
-      chart_->updateChart(GLContext);
+      chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
     }
   }
 }
@@ -77,7 +77,7 @@ void WScatterData::setDroplinesPen(const WPen &pen)
   droplinesPen_ = pen;
 
   if (chart_) {
-    chart_->updateChart(GLContext);
+    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
   }
 }
 
@@ -179,9 +179,11 @@ void WScatterData::updateGL()
   chart_->uniformMatrix4(pMatrixUniform3_, chart_->pMatrix());
   chart_->useProgram(shaderProgram_);
   float text_min, text_max;
-  if (colormap_ != 0) {
-    text_min = (float)chart_->toPlotCubeCoords(colormap_->minimum(), ZAxis_3D);
-    text_max = (float)chart_->toPlotCubeCoords(colormap_->maximum(), ZAxis_3D);
+  if (colormap_ != nullptr) {
+    text_min = (float)chart_->toPlotCubeCoords(colormap_->minimum(), 
+					       Axis::Z3D);
+    text_max = (float)chart_->toPlotCubeCoords(colormap_->maximum(), 
+					       Axis::Z3D);
     chart_->uniform1f(offsetUniform_, text_min);
     chart_->uniform1f(scaleFactorUniform_, 1.0/(text_max - text_min));
   } else {
@@ -291,7 +293,7 @@ int WScatterData::countSimpleData() const
     result = 0;
   } else {
     for (int i=0; i < N; i++) {
-      if (model_->data(i,ZSeriesColumn_, MarkerBrushColorRole).empty()) {
+      if (model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor).empty()) {
 	result++;
       }
     }
@@ -309,45 +311,73 @@ void WScatterData::dataFromModel(FloatBuffer& simplePtsArray,
 {
   int N = model_->rowCount();
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
   
   for (int i=0; i < N; i++) {
-    if (colorColumn_ == -1 && model_->data(i,ZSeriesColumn_, MarkerBrushColorRole).empty()) {
-      simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin)/(xMax - xMin)));
-      simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin)/(yMax - yMin)));
-      simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin)/(zMax - zMin)));
+    if (colorColumn_ == -1 && model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor).empty()) {
+      simplePtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) / 
+		 (xMax - xMin)));
+      simplePtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
+		 (yMax - yMin)));
+      simplePtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
+		 (zMax - zMin)));
     } else if (colorColumn_ == -1) {
-      coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin)/(xMax - xMin)));
-      coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin)/(yMax - yMin)));
-      coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin)/(zMax - zMin)));
-      WColor color = boost::any_cast<WColor>(model_->data(i,ZSeriesColumn_,MarkerBrushColorRole));
+      coloredPtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) /
+		 (xMax - xMin)));
+      coloredPtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
+		 (yMax - yMin)));
+      coloredPtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
+		 (zMax - zMin)));
+      WColor color = cpp17::any_cast<WColor>
+	(model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor));
       coloredPtsColor.push_back((float)color.red());
       coloredPtsColor.push_back((float)color.green());
       coloredPtsColor.push_back((float)color.blue());
       coloredPtsColor.push_back((float)color.alpha());
     } else {
-      coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin)/(xMax - xMin)));
-      coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin)/(yMax - yMin)));
-      coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin)/(zMax - zMin)));
-      WColor color = boost::any_cast<WColor>(model_->data(i,colorColumn_,asColorRole_));
+      coloredPtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) /
+		 (xMax - xMin)));
+      coloredPtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
+		 (yMax - yMin)));
+      coloredPtsArray.push_back
+	((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
+		 (zMax - zMin)));
+      WColor color = cpp17::any_cast<WColor>
+	(model_->data(i,colorColumn_, asColorRole_));
       coloredPtsColor.push_back((float)color.red());
       coloredPtsColor.push_back((float)color.green());
       coloredPtsColor.push_back((float)color.blue());
       coloredPtsColor.push_back((float)color.alpha());
     }
 
-    FloatBuffer& sizeArrayAlias = (colorColumn_ == -1 && model_->data(i,ZSeriesColumn_, MarkerBrushColorRole).empty()) ? simplePtsSize : coloredPtsSize;
-    if (sizeColumn_ == -1 && model_->data(i,ZSeriesColumn_,MarkerScaleFactorRole).empty()) {
+    FloatBuffer& sizeArrayAlias = 
+      (colorColumn_ == -1 && 
+       model_->data(i, ZSeriesColumn_, ItemDataRole::MarkerBrushColor).empty())
+      ? simplePtsSize : coloredPtsSize;
+    if (sizeColumn_ == -1 &&
+	model_->data(i, ZSeriesColumn_, 
+		     ItemDataRole::MarkerScaleFactor).empty()) {
       sizeArrayAlias.push_back((float)pointSize_);
     } else if (sizeColumn_ == -1) {
-      sizeArrayAlias.push_back((float)(Wt::asNumber(model_->data(i,ZSeriesColumn_,MarkerScaleFactorRole))));
+      sizeArrayAlias.push_back
+	((float)(Wt::asNumber(model_->data(i, ZSeriesColumn_, 
+					   ItemDataRole::MarkerScaleFactor))));
     } else {
-      sizeArrayAlias.push_back((float)(Wt::asNumber(model_->data(i,sizeColumn_, asSizeRole_))));
+      sizeArrayAlias.push_back
+	((float)(Wt::asNumber(model_->data(i,sizeColumn_, asSizeRole_))));
     }
   }
 }
@@ -370,17 +400,17 @@ void WScatterData::dropLineVertices(FloatBuffer& dataPoints,
 
 double WScatterData::minimum(Axis axis) const
 {
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     if (!xRangeCached_) {
       findXRange();
     }
     return xMin_;
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     if (!yRangeCached_) {
       findYRange();
     }
     return yMin_;
-  } else if (axis == ZAxis_3D) {
+  } else if (axis == Axis::Z3D) {
     if (!rangeCached_) {
       findZRange();
     }
@@ -392,17 +422,17 @@ double WScatterData::minimum(Axis axis) const
 
 double WScatterData::maximum(Axis axis) const
 {
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     if (!xRangeCached_) {
       findXRange();
     }
     return xMax_;
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     if (!yRangeCached_) {
       findYRange();
     }
     return yMax_;
-  } else if (axis == ZAxis_3D) {
+  } else if (axis == Axis::Z3D) {
     if (!rangeCached_) {
       findZRange();
     }
@@ -475,9 +505,9 @@ void WScatterData::findZRange() const
   rangeCached_ = true;
 }
 
-std::vector<boost::any> WScatterData::getGlObjects()
+std::vector<cpp17::any> WScatterData::getGlObjects()
 {
-  std::vector<boost::any> res;
+  std::vector<cpp17::any> res;
   res.push_back(vertexPosBuffer_);
   res.push_back(vertexSizeBuffer_);
   res.push_back(vertexPosBuffer2_);
@@ -504,10 +534,14 @@ void WScatterData::paintGL() const
     return;
 
   loadPointSpriteTexture(pointSpriteTexture_);
-  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
-  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
-  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
-  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D,
+			WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D,
+			WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D,
+			WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D,
+			WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
   
   chart_->disable(WGLWidget::CULL_FACE);
   chart_->enable(WGLWidget::DEPTH_TEST);
@@ -692,12 +726,12 @@ std::vector<WPointSelection> WScatterData::pickPoints(int x, int y, int radius) 
 {
   double otherY = chart_->height().value() - y;
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
   WMatrix4x4 transform = chart_->cameraMatrix() * mvMatrix_;
 #ifndef WT_TARGET_JAVA
   WMatrix4x4 invTransform = transform.inverted();
@@ -739,12 +773,12 @@ std::vector<WPointSelection> WScatterData::pickPoints(int x1, int y1, int x2, in
   double bottomY = std::min(otherY1, otherY2);
   double topY = std::max(otherY1, otherY2);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
   WMatrix4x4 transform = chart_->cameraMatrix() * mvMatrix_;
 #ifndef WT_TARGET_JAVA
   WMatrix4x4 invTransform = transform.inverted();

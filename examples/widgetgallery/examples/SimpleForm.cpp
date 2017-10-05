@@ -1,26 +1,23 @@
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
-#include <Wt/WText>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(SimpleForm)
-Wt::WTemplate *result =
-    new Wt::WTemplate(Wt::WString::tr("simpleForm-template"));
+auto result =
+    Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("simpleForm-template"));
 
-Wt::WLineEdit *name = new Wt::WLineEdit();
-result->bindWidget("name", name);
-name->setEmptyText("first name");
+auto name = result->bindWidget("name", Wt::cpp14::make_unique<Wt::WLineEdit>());
+name->setPlaceholderText("first name");
 
-Wt::WPushButton *button = new Wt::WPushButton("OK");
-result->bindWidget("button", button);
+auto button = result->bindWidget("button", Wt::cpp14::make_unique<Wt::WPushButton>("OK"));
 
-Wt::WText *out = new Wt::WText("");
-result->bindWidget("out", out);
+auto out = result->bindWidget("out", Wt::cpp14::make_unique<Wt::WText>());
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->setText("Hello, " + name->text() + "! I just want to help you... You"
                  + " could complete this simple form by adding validation.");
-}));
+});
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))
 

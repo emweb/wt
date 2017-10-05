@@ -7,7 +7,8 @@
 #ifndef WCOUNTDOWNWIDGET_H_
 #define WCOUNTDOWNWIDGET_H_
 
-#include <Wt/WText>
+#include <Wt/WText.h>
+#include <Wt/WTimer.h>
 
 namespace Wt {
   class WTimer;
@@ -30,25 +31,24 @@ public:
    * The widget will count down from start to stop, decrementing
    * the number every msec milliseconds.
    */
-  CountDownWidget(int start, int stop, unsigned msec,
-		  WContainerWidget *parent = 0);
+  CountDownWidget(int start, int stop, std::chrono::milliseconds msec);
 
   /*! \brief Signal emitted when the countdown reached stop.
    */
-  Wt::Signal<void>& done() { return done_; }
+  Signal<>& done() { return done_; }
 
   /*! \brief Cancel the count down.
    */
   void cancel();
 
 private:
-  Wt::Signal<void> done_;
+  Signal<> done_;
   int start_;
   int stop_;
 
   int current_;
 
-  WTimer *timer_;
+  std::unique_ptr<WTimer> timer_;
 
   /*! \brief Process one timer tick.
    */

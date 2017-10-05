@@ -5,19 +5,15 @@
  */
 #include <string>
 
-#include "Wt/WResource"
-#include "Wt/WApplication"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
+#include "Wt/WResource.h"
+#include "Wt/WApplication.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
 
 #include "WebController.h"
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WebUtils.h"
-
-#ifdef WT_THREADED
-#include <boost/thread/recursive_mutex.hpp>
-#endif // WT_THREADED
 
 namespace Wt {
 
@@ -37,7 +33,7 @@ LOGGER("WResource");
  */
 
 WResource::UseLock::UseLock()
-  : resource_(0)
+  : resource_(nullptr)
 { }
 
 bool WResource::UseLock::use(WResource *resource)
@@ -59,7 +55,7 @@ WResource::UseLock::~UseLock()
 {
 #ifdef WT_THREADED
   if (resource_) {
-    boost::recursive_mutex::scoped_lock lock(*resource_->mutex_);
+    std::unique_lock<std::recursive_mutex> lock(*resource_->mutex_);
     --resource_->useCount_;
     if (resource_->useCount_ == 0)
       resource_->useDone_.notify_one();
@@ -67,14 +63,12 @@ WResource::UseLock::~UseLock()
 #endif
 }
 
-WResource::WResource(WObject* parent)
-  : WObject(parent),
-    dataChanged_(this),
-    trackUploadProgress_(false),
-    dispositionType_(NoDisposition)
+WResource::WResource()
+  : trackUploadProgress_(false),
+    dispositionType_(ContentDisposition::None)
 { 
 #ifdef WT_THREADED
-  mutex_.reset(new boost::recursive_mutex());
+  mutex_.reset(new std::recursive_mutex());
   beingDeleted_ = false;
   useCount_ = 0;
 #endif // WT_THREADED
@@ -88,7 +82,7 @@ void WResource::beingDeleted()
 
   {
 #ifdef WT_THREADED
-    boost::recursive_mutex::scoped_lock lock(*mutex_);
+    std::unique_lock<std::recursive_mutex> lock(*mutex_);
     beingDeleted_ = true;
 
     while (useCount_ > 0)
@@ -135,7 +129,7 @@ void WResource::haveMoreData()
 
   {
 #ifdef WT_THREADED
-    boost::recursive_mutex::scoped_lock lock(*mutex_);
+    std::unique_lock<std::recursive_mutex> lock(*mutex_);
 #endif // WT_THREADED
     cs = continuations_;
   }
@@ -161,7 +155,7 @@ void WResource::doContinue(Http::ResponseContinuationPtr continuation)
 void WResource::removeContinuation(Http::ResponseContinuationPtr continuation)
 {
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock lock(*mutex_);
+  std::unique_lock<std::recursive_mutex> lock(*mutex_);
 #endif
   Utils::erase(continuations_, continuation);
 }
@@ -172,7 +166,7 @@ WResource::addContinuation(Http::ResponseContinuation *c)
   Http::ResponseContinuationPtr result(c);
 
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock lock(*mutex_);
+  std::unique_lock<std::recursive_mutex> lock(*mutex_);
 #endif
   continuations_.push_back(result);
 
@@ -195,16 +189,21 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
   if (handler && !continuation) {
 #ifdef WT_THREADED
-    boost::recursive_mutex::scoped_lock lock(*mutex_);
+    std::unique_lock<std::recursive_mutex> lock(*mutex_);
 
     if (!useLock.use(this))
       return;
 
     if (handler->haveLock() && 
-	handler->lockOwner() == boost::this_thread::get_id()) {
+	handler->lockOwner() == std::this_thread::get_id()) {
       handler->unlock();
     }
 #endif // WT_THREADED
+  }
+
+  if (!handler) {
+    WLocale locale = webRequest->parseLocale();
+    WLocale::setCurrentLocale(locale);
   }
 
   Http::Request request(*webRequest, continuation.get());
@@ -221,12 +220,13 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
     response.out(); // trigger committing the headers if still necessary
 
-    webResponse->flush(WebResponse::ResponseDone);
+    webResponse->flush(WebResponse::ResponseState::ResponseDone);
   } else {
     webResponse->flush
-      (WebResponse::ResponseFlush,
-       boost::bind(&Http::ResponseContinuation::readyToContinue,
-		   response.continuation_, _1));
+      (WebResponse::ResponseState::ResponseFlush,
+       std::bind(&Http::ResponseContinuation::readyToContinue,
+		 response.continuation_,
+		 std::placeholders::_1));
   }
 }
 
@@ -234,7 +234,7 @@ void WResource::handleAbort(const Http::Request& request)
 { }
 
 void WResource::suggestFileName(const WString& name,
-                                DispositionType dispositionType)
+                                ContentDisposition dispositionType)
 {
   suggestedFileName_ = name;
   dispositionType_ = dispositionType;
@@ -255,7 +255,7 @@ void WResource::setInternalPath(const std::string& path)
     app->addExposedResource(this);
 }
 
-void WResource::setDispositionType(DispositionType dispositionType)
+void WResource::setDispositionType(ContentDisposition dispositionType)
 {
   dispositionType_ = dispositionType;
 }
@@ -280,7 +280,7 @@ const std::string& WResource::generateUrl()
   WApplication *app = WApplication::instance();
 
   if (app) {
-    WebController *c = 0;
+    WebController *c = nullptr;
     if (trackUploadProgress_)
       c = WebSession::instance()->controller();
 
@@ -306,7 +306,7 @@ void WResource::write(WT_BOSTREAM& out,
 
   // While the resource indicates more data to be sent, get it too.
   while (response.continuation_	&& response.continuation_->resource_) {
-    response.continuation_->resource_ = 0;
+    response.continuation_->resource_ = nullptr;
     request.continuation_ = response.continuation_.get();
 
     handleRequest(request, response);

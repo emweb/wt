@@ -6,12 +6,14 @@
 
 #include "Session.h"
 
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/Dbo/AuthInfo"
-#include "Wt/Auth/Dbo/UserDatabase"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/Dbo/AuthInfo.h"
+#include "Wt/Auth/Dbo/UserDatabase.h"
+
+#include "Wt/Dbo/backend/Sqlite3.h"
 
 namespace {
-  Wt::Auth::AuthService myAuthService;
+  Auth::AuthService myAuthService;
 }
 
 void Session::configureAuth()
@@ -20,11 +22,12 @@ void Session::configureAuth()
 }
 
 Session::Session(const std::string& sqliteDb)
-  : connection_(sqliteDb)
 {
-  connection_.setProperty("show-queries", "true");
+  auto connection = cpp14::make_unique<Dbo::backend::Sqlite3>(sqliteDb);
 
-  setConnection(connection_);
+  connection->setProperty("show-queries", "true");
+
+  setConnection(std::move(connection));
 
   mapClass<User>("user");
   mapClass<AuthInfo>("auth_info");
@@ -39,15 +42,10 @@ Session::Session(const std::string& sqliteDb)
     std::cerr << "Using existing database";
   }
 
-  users_ = new UserDatabase(*this);
+  users_ = cpp14::make_unique<UserDatabase>(*this);
 }
 
-Session::~Session()
-{
-  delete users_;
-}
-
-Wt::Auth::AbstractUserDatabase& Session::users()
+Auth::AbstractUserDatabase& Session::users()
 {
   return *users_;
 }
@@ -58,10 +56,10 @@ dbo::ptr<User> Session::user() const
     dbo::ptr<AuthInfo> authInfo = users_->find(login_.user());
     return authInfo->user();
   } else
-    return dbo::ptr<User>();
+    return nullptr;
 }
 
-const Wt::Auth::AuthService& Session::auth()
+const Auth::AuthService& Session::auth()
 {
   return myAuthService;
 }

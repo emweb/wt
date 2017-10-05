@@ -2,54 +2,52 @@
 #include "CategoryExample.h"
 #include "ColorMapTest.h"
 
-#include <Wt/WApplication>
-#include <Wt/WBootstrapTheme>
-#include <Wt/WComboBox>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WStackedWidget>
+#include <Wt/WApplication.h>
+#include <Wt/WBootstrapTheme.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WStackedWidget.h>
 
-using namespace Wt;
-
-class TestApp : public WApplication
+class TestApp : public Wt::WApplication
 {
 public:
-  TestApp(const WEnvironment& env);
+  TestApp(const Wt::WEnvironment& env);
 
 private:
-  WStackedWidget *stack_;
-  WComboBox *chartExPicker_;
+  Wt::WStackedWidget    *stack_;
+  Wt::WComboBox         *chartExPicker_;
 
-  NumericalExample *numEx_;
-  CategoryExample *categoryEx_;
-  ColorMapTest *colormap_;
+  NumericalExample  *numEx_;
+  CategoryExample   *categoryEx_;
+  ColorMapTest      *colormap_;
 
   void switchExamples();
 };
 
-TestApp::TestApp(const WEnvironment& env)
+TestApp::TestApp(const Wt::WEnvironment& env)
   : WApplication(env)
 {
   setTitle("3D Charts Demo");
 
-  setTheme(new WBootstrapTheme(this));
+  setTheme(std::make_shared<Wt::WBootstrapTheme>());
   //require("WebGL-Inspector/core/embed.js");
 
   messageResourceBundle().use(appRoot() + "configTemplates");
 
-  WContainerWidget *wrapper = new WContainerWidget(root());
-  wrapper->setContentAlignment(AlignCenter);
-  wrapper->addWidget(new WText("<h1>3D Charts Demo</h1>", wrapper));
-  chartExPicker_ = new WComboBox(wrapper);
+  Wt::WContainerWidget *wrapper = root()->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>());
+  wrapper->setContentAlignment(Wt::AlignmentFlag::Center);
+  wrapper->addWidget(Wt::cpp14::make_unique<Wt::WText>("<h1>3D Charts Demo</h1>"));
+  chartExPicker_ = wrapper->addWidget(Wt::cpp14::make_unique<Wt::WComboBox>());
   chartExPicker_->addItem("Numerical Grid-Based Data");
   chartExPicker_->addItem("Categorical Data");
   chartExPicker_->addItem("Colormap Example");
   chartExPicker_->changed().connect(this, &TestApp::switchExamples);
   
-  stack_ = new WStackedWidget(wrapper);
-  numEx_ = new NumericalExample(stack_);
-  categoryEx_ = new CategoryExample(stack_);
-  colormap_ = new ColorMapTest(stack_);
+  stack_ = wrapper->addWidget(Wt::cpp14::make_unique<Wt::WStackedWidget>());
+  numEx_ = stack_->addWidget(Wt::cpp14::make_unique<NumericalExample>());
+  categoryEx_ = stack_->addWidget(Wt::cpp14::make_unique<CategoryExample>());
+  colormap_ = stack_->addWidget(Wt::cpp14::make_unique<ColorMapTest>());
   
   chartExPicker_->setCurrentIndex(0);
   stack_->setCurrentWidget(numEx_);
@@ -70,12 +68,12 @@ void TestApp::switchExamples()
   }
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
 {
-  return new TestApp(env);
+  return Wt::cpp14::make_unique<TestApp>(env);
 }
 
 int main(int argc, char **argv)
 {
-  return Wt::WRun(argc, argv, &createApplication);
+  return WRun(argc, argv, &createApplication);
 }

@@ -3,10 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WServer>
-#include <Wt/Dbo/SqlConnectionPool>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WServer.h>
+#include <Wt/Dbo/SqlConnectionPool.h>
 
 #include "model/BlogSession.h"
 #include "model/Token.h"
@@ -14,39 +14,34 @@
 #include "view/BlogView.h"
 #include "BlogRSSFeed.h"
 
-using namespace Wt;
-
-//static const char *FeedUrl = "/Test/blog/feed/";
-//static const char *BlogUrl = "/Test/blog";
-
 static const char *FeedUrl = "/blog/feed/";
 static const char *BlogUrl = "/blog";
 
-class BlogApplication : public WApplication
+class BlogApplication : public Wt::WApplication
 {
 public:
-  BlogApplication(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb) 
-    : WApplication(env)
+  BlogApplication(const Wt::WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb)
+    : Wt::WApplication(env)
   {
-    root()->addWidget(new BlogView("/", blogDb, FeedUrl));
+    root()->addWidget(Wt::cpp14::make_unique<BlogView>("/", blogDb, FeedUrl));
     useStyleSheet("css/blogexample.css");
   }
 };
 
-WApplication *createApplication(const WEnvironment& env,
-				Wt::Dbo::SqlConnectionPool *blogDb)
+std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env,
+                                Wt::Dbo::SqlConnectionPool *blogDb)
 {
-  return new BlogApplication(env, *blogDb);
+  return Wt::cpp14::make_unique<BlogApplication>(env, *blogDb);
 }
 
 int main(int argc, char **argv)
 {
   try {
-    WServer server(argc, argv, WTHTTP_CONFIGURATION);
+    Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
     BlogSession::configureAuth();
 
-    Wt::Dbo::SqlConnectionPool *blogDb
+    std::unique_ptr<Wt::Dbo::SqlConnectionPool> blogDb
       = BlogSession::createConnectionPool(server.appRoot() + "blog.db");
 
     BlogRSSFeed rssFeed(*blogDb, "Wt blog example", "", "It's just an example.");
@@ -54,16 +49,15 @@ int main(int argc, char **argv)
     server.addResource(&rssFeed, FeedUrl);
     //When the blog application is deployed in ISAPI on the path "/blog"
     //the resources (css+images) are not fetched correctly
-    server.addEntryPoint(Application,
-			 boost::bind(&createApplication, _1, blogDb), BlogUrl);    
+    server.addEntryPoint(Wt::EntryPointType::Application,
+                         std::bind(&createApplication, std::placeholders::_1, blogDb.get()), BlogUrl);
 
     std::cerr << "\n\n -- Warning: Example is deployed at '"
       << BlogUrl << "'\n\n";
 
     server.run();
 
-    delete blogDb;
-  } catch (WServer::Exception& e) {
+  } catch (Wt::WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;

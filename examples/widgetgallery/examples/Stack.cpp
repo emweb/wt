@@ -1,25 +1,27 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WSpinBox>
-#include <Wt/WStackedWidget>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WSpinBox.h>
+#include <Wt/WStackedWidget.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(Stack)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WSpinBox *sb = new Wt::WSpinBox(container);
+Wt::WSpinBox *sb =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WSpinBox>());
 sb->setRange(0,2);
 
-Wt::WStackedWidget *stack = new Wt::WStackedWidget(container);
-stack->addWidget(new Wt::WText("<strong>Stacked widget-index 0</strong>"
+Wt::WStackedWidget *stack =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WStackedWidget>());
+stack->addWidget(Wt::cpp14::make_unique<Wt::WText>("<strong>Stacked widget-index 0</strong>"
                                "<p>Hello</p>"));
-stack->addWidget(new Wt::WText("<strong>Stacked widget-index 1</strong>"
+stack->addWidget(Wt::cpp14::make_unique<Wt::WText>("<strong>Stacked widget-index 1</strong>"
                                "<p>This is Wt</p>"));
-stack->addWidget(new Wt::WText("<strong>Stacked widget-index 2</strong>"
+stack->addWidget(Wt::cpp14::make_unique<Wt::WText>("<strong>Stacked widget-index 2</strong>"
                                "<p>Do you like it?</p>"));
 
-sb->changed().connect(std::bind([=] () {
-    if (sb->validate())
+sb->changed().connect([=] {
+    if (sb->validate() == Wt::ValidationState::Valid)
 	stack->setCurrentIndex(sb->value());
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

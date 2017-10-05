@@ -1,3 +1,4 @@
+IF(BOOST_WT_FOUND)
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckLibraryExists)
 
@@ -23,7 +24,7 @@ WT_ADD_EXAMPLE(blog.wt
   blog.C
 )
 
-TARGET_LINK_LIBRARIES(blog.wt wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(blog.wt ${EXAMPLES_DBO_LIBS})
 
 # Test whether crypt(3) is provided by libc. If it's not, check if
 # libcrypt exists and if it provides crypt(3).
@@ -43,3 +44,6 @@ ENDIF(CRYPT_LIB_EXISTS)
 INCLUDE_DIRECTORIES(
   ${WT_SOURCE_DIR}/src
 )
+ELSE(BOOST_WT_FOUND)
+  MESSAGE(STATUS "** Not building blog example: requires boost headers.")
+ENDIF(BOOST_WT_FOUND)

@@ -4,13 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WCssTheme"
+#include "Wt/WApplication.h"
+#include "Wt/WCssTheme.h"
+#include "Wt/WLinkedCssStyleSheet.h"
 
 namespace Wt {
 
-WTheme::WTheme(WObject *parent)
-  : WObject(parent)
+WTheme::WTheme()
 { }
 
 std::string WTheme::resourcesUrl() const
@@ -23,10 +23,10 @@ WTheme::~WTheme()
 
 void WTheme::serveCss(WStringStream& out) const
 {
-  std::vector<WCssStyleSheet> sheets = styleSheets();
+  std::vector<WLinkedCssStyleSheet> sheets = styleSheets();
 
   for (unsigned i = 0; i < sheets.size(); ++i)
-    sheets[i].cssText(out, true);
+    sheets[i].cssText(out);
 }
 
 }

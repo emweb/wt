@@ -4,11 +4,12 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-#include <boost/scoped_array.hpp>
 
-#include "Wt/WString"
+#include "Wt/WString.h"
 
-using namespace Wt;
+#ifndef WT_WIN32
+#include <unistd.h>
+#endif
 
 namespace {
 
@@ -29,12 +30,11 @@ std::string tempFileName()
 
 std::string readFileToString(const std::string& fileName) 
 {
-  std::fstream file (fileName.c_str(), std::ios::in | std::ios::binary);
-  file.seekg(0, std::ios::end);
+  std::fstream file(fileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
   int length = file.tellg();
   file.seekg(0, std::ios::beg);
 
-  boost::scoped_array<char> buf(new char[length]);
+  std::unique_ptr<char[]> buf(new char[length]);
   file.read(buf.get(), length);
   file.close();
 
@@ -43,7 +43,7 @@ std::string readFileToString(const std::string& fileName)
 
 }
 
-WString asciidoc(const Wt::WString& src)
+Wt::WString asciidoc(const Wt::WString& src)
 {
   std::string srcFileName = tempFileName();
   std::string htmlFileName = tempFileName();
@@ -80,12 +80,12 @@ WString asciidoc(const Wt::WString& src)
   sigaction(SIGINT, &oldAction, 0);
 #endif
 
-  WString result;
+  Wt::WString result;
 
   if (ok) {
-    result = WString::fromUTF8(readFileToString(htmlFileName));
+    result = Wt::WString(readFileToString(htmlFileName));
   } else
-    result = WString::fromUTF8("<i>Could not execute asciidoc</i>");
+    result = Wt::WString("<i>Could not execute asciidoc</i>");
 
   unlink(srcFileName.c_str());
   unlink(htmlFileName.c_str());

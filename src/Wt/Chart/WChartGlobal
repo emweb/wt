@@ -1,102 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WCHARTGLOBAL_H_
-#define WCHARTGLOBAL_H_
-
-#include <Wt/WGlobal>
-
-namespace Wt {
-  namespace Chart {
-/*! \brief Enumeration that specifies the type of a chart series.
- *
- * \sa WDataSeries::setType(SeriesType)
- * \sa WCartesianChart
- *
- * \ingroup charts
- */
-enum SeriesType {
-  PointSeries,  //!< Series rendered solely as point markers.
-  LineSeries,   //!< Series rendered as points connected by straight lines.
-  CurveSeries,  //!< Series rendered as points connected by curves.
-  BarSeries     //!< Series rendered as bars.
-};
-
-/*! \brief Enumeration that specifies a type of point marker.
- *
- * \sa WDataSeries::setMarker(MarkerType marker)
- * \sa WCartesianChart
- *
- * \ingroup charts
- */
-enum MarkerType {
-  NoMarker,       //!< Do not draw point markers.
-  SquareMarker,   //!< Mark points using a square.
-  CircleMarker,   //!< Mark points using a circle.
-  CrossMarker,    //!< Mark points using a cross (+).
-  XCrossMarker,   //!< Mark points using a cross (x).
-  TriangleMarker, //!< Mark points using a triangle.
-  CustomMarker,    //!< Mark points using a custom marker.
-  StarMarker,     //!< Mark points using a star.
-  InvertedTriangleMarker, //!< Mark points using an inverted (upside-down) triangle.
-  AsteriskMarker, //!< Mark points using an asterisk (*).
-  DiamondMarker   //!< Mark points using a diamond.
-};
-
-/*! \brief Enumeration that specifies how an area should be filled.
- *
- * Data series of type LineSeries or CurveSerie may be filled under or
- * above the line or curve. This enumeration specifies the other limit
- * of this fill.
- * Data series of type BarSeries can use this setting to configure the bottom
- * of the chart.
- *
- * \sa WDataSeries::setFillRange(FillRangeType range)
- * \sa WCartesianChart
- *
- * \ingroup charts
- */
-enum FillRangeType {
-  NoFill,           //!< Do not fill under the curve.
-  MinimumValueFill, //!< Fill from the curve to the chart bottom (min)
-  MaximumValueFill, //!< Fill from the curve to the chart top
-  ZeroValueFill     //!< Fill from the curve to the zero Y value.
-};
-
-/*! \brief Enumeration type that indicates a chart type for a cartesian
- *         chart.
- *
- * \ingroup charts
- */
-enum ChartType {
-  CategoryChart, //!< The X series are categories
-  ScatterPlot    //!< The X series must be interpreted as numerical data
-};
-
-/*! \brief Enumeration that specifies a property of the axes.
- *
- * \ingroup charts
- */
-enum AxisProperty {
-  Labels = 0x1,  //<! Axis Labels.
-  Line = 0x4     //<! Axis line and ticks.
-};
-
-W_DECLARE_OPERATORS_FOR_FLAGS(AxisProperty)
-
-/*! \brief Enumeration type that indicates a legend location.
- *
- * \ingroup charts
- */
-enum LegendLocation {
-  LegendInside, //!< Inside the chart area
-  LegendOutside //!< Outside the chart area (in the padding area)
-};
-
-  }
-}
-
-#endif // WCHARTGLOBAL_H_
+#ifndef WT_CHART_WCHARTGLOBAL_EXTENSIONLESS_H_
+#define WT_CHART_WCHARTGLOBAL_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WChartGlobal.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WChartGlobal.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WChartGlobal.h"
+#endif // WT_CHART_WCHARTGLOBAL_EXTENSIONLESS_H_

@@ -47,7 +47,7 @@
 	unsigned in ANSI C, signed in traditional"; made test program
 	self-checking.
   1999-11-04 lpd Edited comments slightly for automatic TOC extraction.
-  1999-10-18 lpd Fixed typo in header comment (ansi2knr rather than md5).
+  1999-10-18 lpd PositionScheme::Fixed typo in header comment (ansi2knr rather than md5).
   1999-05-03 lpd Original version.
  */
 

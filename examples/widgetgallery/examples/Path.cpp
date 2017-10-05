@@ -1,8 +1,8 @@
-#include <Wt/WLink>
-#include <Wt/WPushButton>
+#include <Wt/WLink.h>
+#include <Wt/WPushButton.h>
 
 SAMPLE_BEGIN(Path)
-Wt::WPushButton *button = new Wt::WPushButton("Next");
-button->setLink(Wt::WLink(Wt::WLink::InternalPath, "/navigation/anchor"));
+auto button = Wt::cpp14::make_unique<Wt::WPushButton>("Next");
+button->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/navigation/anchor"));
 
-SAMPLE_END(return button)
+SAMPLE_END(return std::move(button))

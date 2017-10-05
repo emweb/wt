@@ -5,24 +5,30 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/FixedSqlConnectionPool>
-#include <Wt/WDate>
-#include <Wt/WDateTime>
-#include <Wt/WTime>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/ptr_tuple>
-#include <Wt/Dbo/QueryModel>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/FixedSqlConnectionPool.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/ptr_tuple.h>
+#include <Wt/Dbo/QueryModel.h>
 
 #include "DboFixture.h"
+
+#include <iomanip>
+
+#include <boost/optional.hpp>
 
 //#define SCHEMA "test."
 #define SCHEMA ""
 
 #define DEBUG(x) x
 //#define DEBUG(x)
+
+#ifdef WT_WIN32
+#define timegm _mkgmtime
+#endif
 
 namespace dbo = Wt::Dbo;
 
@@ -128,10 +134,10 @@ template<> struct dbo_traits<const E> : dbo_traits<E> {};
   }
 }
 
-typedef dbo::collection<dbo::ptr<A> > As;
-typedef dbo::collection<dbo::ptr<B> > Bs;
-typedef dbo::collection<dbo::ptr<C> > Cs;
-typedef dbo::collection<dbo::ptr<D> > Ds;
+typedef dbo::collection<dbo::ptr<A>> As;
+typedef dbo::collection<dbo::ptr<B>> Bs;
+typedef dbo::collection<dbo::ptr<C>> Cs;
+typedef dbo::collection<dbo::ptr<D>> Ds;
 
 class A : public dbo::Dbo<A> {
 public:
@@ -149,8 +155,8 @@ public:
   std::string string;
   std::string string2;
   boost::optional<std::string> string3;
-  boost::posix_time::ptime ptime;
-  boost::posix_time::time_duration pduration;
+  std::chrono::system_clock::time_point timepoint;
+  std::chrono::duration<int, std::milli> timeduration;
   bool checked;
   int i;
   ::int64_t i64;
@@ -204,13 +210,32 @@ public:
       DEBUG(std::cerr << "ERROR: string3 = " << (string3 ? *string3 : "<optional empty>") << " | "
         << (other.string3 ? *other.string3 : "<optional empty>") << std::endl);
     }
-    if (ptime  != other.ptime) {
-      DEBUG(std::cerr << "ERROR: ptime = " <<  ptime<< " | " << other.ptime
+    if (timepoint  != other.timepoint) {
+      std::time_t t = std::chrono::system_clock::to_time_t(timepoint);
+      std::tm *tm = std::gmtime(&t);
+      char str[100];
+      std::strftime(str, sizeof(str), "%Y-%b-%d %H:%M:%S", tm);
+      std::time_t tother = std::chrono::system_clock::to_time_t(other.timepoint);
+      std::tm *tmother = std::gmtime(&tother);
+      char strother[100];
+      std::strftime(strother, sizeof(strother), "%Y-%b-%d %H:%M:%S", tmother);
+      DEBUG(std::cerr << "ERROR: timepoint = " <<  str << " | " << strother
             << std::endl);
     }
-    if (pduration  != other.pduration) {
-      DEBUG(std::cerr << "ERROR: pduration = " << pduration << " | "
-            << other.pduration << std::endl);
+    if (timeduration  != other.timeduration) {
+      std::chrono::system_clock::time_point tp(timeduration);
+      std::time_t t = std::chrono::system_clock::to_time_t(tp);
+      std::tm *tm = std::gmtime(&t);
+      char str[100];
+      std::strftime(str, sizeof(str), "%Y-%b-%d %H:%M:%S", tm);
+      std::chrono::system_clock::time_point tpother(other.timeduration);
+      std::time_t tother = std::chrono::system_clock::to_time_t(tpother);
+      std::tm *tmother = std::gmtime(&tother);
+      char strother[100];
+      std::strftime(strother, sizeof(strother), "%Y-%b-%d %H:%M:%S", tmother);
+      std::cout << "Current " << timeduration.count() << " | other " << other.timeduration.count() << std::endl;
+      DEBUG(std::cerr << "ERROR: timeduration = " << str << " | "
+            << strother << std::endl);
     }
     if (i != other.i) {
       DEBUG(std::cerr << "ERROR: i = " << i << " | " << other.i << std::endl);
@@ -269,8 +294,8 @@ public:
       && string == other.string
       && string2 == other.string2
       && string3 == other.string3
-      && ptime == other.ptime
-      && pduration == pduration
+      && timepoint == other.timepoint
+      && timeduration == other.timeduration
       && i == other.i
       && i64 == other.i64
       && ll == other.ll
@@ -296,8 +321,8 @@ public:
     dbo::field(a, string, "string");
     dbo::field(a, string2, "string2", 50);
     dbo::field(a, string3, "string3");
-    dbo::field(a, ptime, "ptime");
-    dbo::field(a, pduration, "pduration");
+    dbo::field(a, timepoint, "timepoint");
+    dbo::field(a, timeduration, "timeduration");
     dbo::field(a, i, "i");
     dbo::field(a, i64, "i64");
     dbo::field(a, ll, "ll");
@@ -480,7 +505,6 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
     a1.binary.push_back(i);
   a1.date = Wt::WDate(1976, 6, 14);
   a1.time = Wt::WTime(13, 14, 15, 102);
-
   // There is a bug in the implementation of milliseconds in mariadb c client
 #ifdef MYSQL
   a1.time = Wt::WTime(13, 14, 15);
@@ -491,11 +515,16 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
   a1.wstring2 = Wt::WString::fromUTF8("Kitty euro\xe2\x82\xac greek \xc6\x94 \xf0\x9f\x90\xb1");
   a1.string = "There";
   a1.string2 = "Big Owl";
-  a1.ptime = boost::posix_time::ptime
-    (boost::gregorian::date(2005,boost::gregorian::Jan,1),
-     boost::posix_time::time_duration(1,2,3));
-  a1.pduration = boost::posix_time::hours(1) + 
-    boost::posix_time::seconds(10);
+  std::tm timeInfo = std::tm();
+  timeInfo.tm_year = 2005 - 1900;
+  timeInfo.tm_mon = 0; //Jan
+  timeInfo.tm_mday = 1;
+  timeInfo.tm_hour = 1;
+  timeInfo.tm_min = 2;
+  timeInfo.tm_sec = 3;
+  std::time_t t = timegm(&timeInfo);
+  a1.timepoint = std::chrono::system_clock::from_time_t(t);
+  a1.timeduration = std::chrono::hours(1) + std::chrono::seconds(10);
   a1.checked = true;
   a1.i = 42;
   a1.i64 = 9223372036854775805LL;
@@ -506,7 +535,7 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
   /* Create an A, check that it is found during the same transaction  */
   {
     dbo::Transaction t(*session_);
-    dbo::ptr<A> ptrA = session_->add(new A(a1));
+    dbo::ptr<A> ptrA = session_->addNew<A>(a1);
 
     BOOST_REQUIRE(ptrA->session() == session_);
 
@@ -586,6 +615,7 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
 #ifdef MYSQL
   a1.time = Wt::WTime(13, 14, 15);
 #endif //MYSQL
+  a1.timeduration = std::chrono::duration<int, std::milli>(0);
   a1.wstring = "Hello";
   a1.string = "There";
   a1.checked = false;
@@ -598,12 +628,11 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
   B b1;
   b1.name = "b1";
   b1.state = B::State1;
-
   /* Create an A + B  */
   {
     dbo::Transaction t(*session_);
-    a1.b = session_->add(new B(b1));
-    dbo::ptr<A> a = session_->add(new A(a1));
+    a1.b = session_->addNew<B>(b1);
+    dbo::ptr<A> a = session_->addNew<A>(a1);
 
     As allAs = session_->find<A>();
     BOOST_REQUIRE(allAs.size() == 1);
@@ -618,6 +647,10 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
     As allAs = session_->find<A>();
     BOOST_REQUIRE(allAs.size() == 1);
     dbo::ptr<A> a2 = *allAs.begin();
+    std::cout << "a2 time " << a2->time.toString() << std::endl;
+    std::cout << "a1 time " << a1.time.toString() << std::endl;
+    std::cout << "a2 " << a2->timeduration.count() << std::endl;
+    std::cout << "a1 " << a1.timeduration.count() << std::endl;
     BOOST_REQUIRE(*a2 == a1);
     BOOST_REQUIRE(*a2->b == b1);
   }
@@ -633,13 +666,13 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<B> b1 = session_->add(new B("b1", B::State1));
-    dbo::ptr<B> b2 = session_->add(new B("b2", B::State2));
-    dbo::ptr<B> b3 = session_->add(new B("b3", B::State1));
+    dbo::ptr<B> b1 = session_->addNew<B>("b1", B::State1);
+    dbo::ptr<B> b2 = session_->addNew<B>("b2", B::State2);
+    dbo::ptr<B> b3 = session_->addNew<B>("b3", B::State1);
 
-    dbo::ptr<C> c1 = session_->add(new C("c1"));
-    dbo::ptr<C> c2 = session_->add(new C("c2"));
-    dbo::ptr<C> c3 = session_->add(new C("c3"));
+    dbo::ptr<C> c1 = session_->addNew<C>("c1");
+    dbo::ptr<C> c2 = session_->addNew<C>("c2");
+    dbo::ptr<C> c3 = session_->addNew<C>("c3");
 
     B *m = b1.modify();
     m->csManyToMany.insert(c1);
@@ -697,10 +730,10 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<B> b1 = session_->query< dbo::ptr<B> >
+    dbo::ptr<B> b1 = session_->query<dbo::ptr<B>>
       ("select distinct B from " SCHEMA "\"table_b\" B ").where("B.\"name\" = ?").bind("b1");
 
-    std::size_t count = session_->query< dbo::ptr<B> >
+    std::size_t count = session_->query<dbo::ptr<B>>
       ("select distinct B from " SCHEMA "\"table_b\" B ").where("B.\"name\" = ?").bind("b1")
       .resultList().size();
 
@@ -716,7 +749,7 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     //order by is not supported on columns of this datatype 
     //http://www.firebirdsql.org/refdocs/langrefupd21-blob.html
 #ifndef FIREBIRD
-    typedef dbo::collection<dbo::ptr<C> > Cs;
+    typedef dbo::collection<dbo::ptr<C>> Cs;
 
     Cs c2 = session_->find<C>().orderBy("\"name\" desc");
     Cs c3 = session_->find<C>().orderBy("\"name\" desc").limit(2);
@@ -752,7 +785,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
 
     BOOST_REQUIRE(a1->self() == a1);
 
@@ -767,11 +800,11 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     a1.modify()->f = (float)42.42;
     a1.modify()->d = 42.424242;
 
-    dbo::ptr<A> a2(new A(*a1));
+    dbo::ptr<A> a2 = dbo::make_ptr<A>(*a1);
     a2.modify()->wstring = "Oh my god";
     a2.modify()->i = 142;
 
-    dbo::ptr<B> b(new B());
+    dbo::ptr<B> b = dbo::make_ptr<B>();
     b.modify()->name = "b";
     b.modify()->state = B::State1;
 
@@ -782,7 +815,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     session_->add(a2);
     session_->add(b);
 
-    typedef dbo::ptr_tuple<B, A>::type BA;
+    typedef std::tuple<dbo::ptr<B>, dbo::ptr<A>> BA;
     typedef dbo::collection<BA> BAs;
 
     // The query below becomes:
@@ -817,7 +850,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     for (BAs::const_iterator i = bas.begin(); i != bas.end(); ++i) {
       dbo::ptr<A> a_result;
       dbo::ptr<B> b_result;
-      boost::tie(b_result, a_result) = *i;
+      std::tie(b_result, a_result) = *i;
 
       if (ii == 0) {
 	BOOST_REQUIRE(a_result == a1);
@@ -844,20 +877,20 @@ BOOST_AUTO_TEST_CASE( dbo_test4b )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a1(new A());
-    dbo::ptr<A> a2(new A());
-    dbo::ptr<A> a3(new A());
-    dbo::ptr<A> a4(new A());
-    dbo::ptr<A> a5(new A());
-    dbo::ptr<A> a6(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
+    dbo::ptr<A> a2 = dbo::make_ptr<A>();
+    dbo::ptr<A> a3 = dbo::make_ptr<A>();
+    dbo::ptr<A> a4 = dbo::make_ptr<A>();
+    dbo::ptr<A> a5 = dbo::make_ptr<A>();
+    dbo::ptr<A> a6 = dbo::make_ptr<A>();
 
-    dbo::ptr<B> b1(new B());
-    dbo::ptr<B> b2(new B());
-    dbo::ptr<B> b3(new B());
+    dbo::ptr<B> b1 = dbo::make_ptr<B>();
+    dbo::ptr<B> b2 = dbo::make_ptr<B>();
+    dbo::ptr<B> b3 = dbo::make_ptr<B>();
 
-    dbo::ptr<C> c1(new C());
-    dbo::ptr<C> c2(new C());
-    dbo::ptr<C> c3(new C());
+    dbo::ptr<C> c1 = dbo::make_ptr<C>();
+    dbo::ptr<C> c2 = dbo::make_ptr<C>();
+    dbo::ptr<C> c3 = dbo::make_ptr<C>();
 
     a1.modify()->wstring = "a1";
     a2.modify()->wstring = "a2";
@@ -902,7 +935,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4b )
   {
     dbo::Transaction t(*session_);
 
-    typedef dbo::ptr_tuple<A, B, C>::type ABC;
+    typedef std::tuple<dbo::ptr<A>, dbo::ptr<B>, dbo::ptr<C>> ABC;
     typedef dbo::collection<ABC> C_ABCs;
     typedef std::vector<ABC> ABCs;
 
@@ -922,7 +955,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4b )
       dbo::ptr<A> a_result;
       dbo::ptr<B> b_result;
       dbo::ptr<C> c_result;
-      boost::tie(a_result, b_result, c_result) = *i;
+      std::tie(a_result, b_result, c_result) = *i;
 
       switch (ii)
       {
@@ -975,16 +1008,16 @@ BOOST_AUTO_TEST_CASE( dbo_test4c )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a1(new A());
-    dbo::ptr<A> a2(new A());
-    dbo::ptr<A> a3(new A());
-    dbo::ptr<A> a4(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
+    dbo::ptr<A> a2 = dbo::make_ptr<A>();
+    dbo::ptr<A> a3 = dbo::make_ptr<A>();
+    dbo::ptr<A> a4 = dbo::make_ptr<A>();
 
-    dbo::ptr<B> b1(new B());
-    dbo::ptr<B> b2(new B());
+    dbo::ptr<B> b1 = dbo::make_ptr<B>();
+    dbo::ptr<B> b2 = dbo::make_ptr<B>();
 
-    dbo::ptr<C> c1(new C());
-    dbo::ptr<C> c2(new C());
+    dbo::ptr<C> c1 = dbo::make_ptr<C>();
+    dbo::ptr<C> c2 = dbo::make_ptr<C>();
 
     a1.modify()->wstring = "a1";
     a2.modify()->wstring = "a2";
@@ -1021,7 +1054,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4c )
   {
     dbo::Transaction t(*session_);
 
-    typedef dbo::ptr_tuple<A, B, C>::type ABC;
+    typedef std::tuple<dbo::ptr<A>, dbo::ptr<B>, dbo::ptr<C>> ABC;
     typedef dbo::collection<ABC> C_ABCs;
     typedef std::vector<ABC> ABCs;
 
@@ -1043,7 +1076,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4c )
       dbo::ptr<A> a_result;
       dbo::ptr<B> b_result;
       dbo::ptr<C> c_result;
-      boost::tie(a_result, b_result, c_result) = *i;
+      std::tie(a_result, b_result, c_result) = *i;
 
       switch (ii)
       {
@@ -1086,7 +1119,7 @@ BOOST_AUTO_TEST_CASE( dbo_test5 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
     a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
 					  Wt::WTime(12, 11, 31));
     a1.modify()->date = Wt::WDate(1976, 11, 1);
@@ -1098,11 +1131,11 @@ BOOST_AUTO_TEST_CASE( dbo_test5 )
     a1.modify()->f = (float)42.42;
     a1.modify()->d = 42.424242;
 
-    dbo::ptr<A> a2(new A(*a1));
+    dbo::ptr<A> a2 = dbo::make_ptr<A>(*a1);
     a2.modify()->wstring = "Oh my god";
     a2.modify()->i = 142;
 
-    dbo::ptr<B> b(new B());
+    dbo::ptr<B> b = dbo::make_ptr<B>();
     b.modify()->name = "b";
     b.modify()->state = B::State1;
 
@@ -1136,7 +1169,7 @@ BOOST_AUTO_TEST_CASE( dbo_test6 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
     a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
 					  Wt::WTime(12, 11, 31));
     a1.modify()->date = Wt::WDate(1980, 1, 1);
@@ -1193,7 +1226,7 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
     a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
 					  Wt::WTime(12, 11, 31));
     a1.modify()->date = Wt::WDate(1980, 1, 1);
@@ -1215,7 +1248,7 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
     dbo::Transaction t(*session_);
     int id1, id2;
 
-    boost::tie(id1, id2) = session_->query<boost::tuple<int, int> >
+    std::tie(id1, id2) = session_->query<std::tuple<int, int>>
       ("select \"id\", \"id\" from " SCHEMA "\"table_a\"").resultValue();
 
     BOOST_REQUIRE(id1 == aId);
@@ -1224,7 +1257,7 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
 #ifdef POSTGRES
     dbo::ptr<A> a;
     int id;
-    boost::tie(a, id) = session_->query<boost::tuple<dbo::ptr<A>, int> >
+    std::tie(a, id) = session_->query<std::tuple<dbo::ptr<A>, int>>
       ("select (a), a.\"id\" from " SCHEMA "\"table_a\" a").resultValue();
 
     BOOST_REQUIRE(id == aId);
@@ -1255,11 +1288,11 @@ BOOST_AUTO_TEST_CASE( dbo_test9 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a(new A());
+    dbo::ptr<A> a = dbo::make_ptr<A>();
 
-    typedef dbo::query_result_traits< dbo::ptr<A> > A_traits;
+    typedef dbo::query_result_traits<dbo::ptr<A>> A_traits;
 
-    std::vector<boost::any> values;
+    std::vector<Wt::cpp17::any> values;
     A_traits::getValues(a, values);
 
     std::cerr << values.size() << std::endl;
@@ -1274,9 +1307,9 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<D> d(new D());
+    dbo::ptr<D> d = dbo::make_ptr<D>();
 
-    BOOST_REQUIRE(Wt::asString(boost::any(Coordinate(10, 4)))
+    BOOST_REQUIRE(Wt::asString(Wt::cpp17::any(Coordinate(10, 4)))
 		  == "(10, 4)");
 
     d.modify()->id = Coordinate(42, 43);
@@ -1304,9 +1337,9 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
  
     BOOST_REQUIRE(d2 && d2.id() == Coordinate(42, 43));
      
-    dbo::ptr<C> c1 = session_->add(new C("c1"));
-    dbo::ptr<C> c2 = session_->add(new C("c2"));
-    dbo::ptr<C> c3 = session_->add(new C("c3"));
+    dbo::ptr<C> c1 = session_->addNew<C>("c1");
+    dbo::ptr<C> c2 = session_->addNew<C>("c2");
+    dbo::ptr<C> c3 = session_->addNew<C>("c3");
 
     d2.modify()->csManyToMany.insert(c1);
 
@@ -1348,7 +1381,7 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
      */
     dbo::Transaction t(*session_);
 
-    dbo::ptr<D> d(new D());
+    dbo::ptr<D> d = dbo::make_ptr<D>();
 
     d.modify()->id = Coordinate(42, 43);
     d.modify()->name = "Object2 @ (42, 43)";
@@ -1389,7 +1422,7 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
        */
       dbo::Transaction t(*session_);
 
-      dbo::ptr<D> d(new D());
+      dbo::ptr<D> d = dbo::make_ptr<D>();
 
       d.modify()->id = Coordinate(42, 43);
       d.modify()->name = "Object2 @ (42, 43)";
@@ -1415,17 +1448,16 @@ BOOST_AUTO_TEST_CASE( dbo_test11 )
   {
     dbo::Transaction t(*session_);
 
-    session_->add(new C("c1"));
+    session_->addNew<C>("c1");
 
-    dbo::Query< dbo::ptr<C> > query = session_->find<C>();
-    dbo::QueryModel< dbo::ptr<C> > *model
-      = new dbo::QueryModel< dbo::ptr<C> >();
+    dbo::Query<dbo::ptr<C>> query = session_->find<C>();
+    dbo::QueryModel<dbo::ptr<C>> *model = new dbo::QueryModel<dbo::ptr<C>>();
 
     model->setQuery(query);
 
     t.commit();
 
-    boost::any d;
+    Wt::cpp17::any d;
 
     model->addAllFieldsAsColumns();
 
@@ -1437,7 +1469,8 @@ BOOST_AUTO_TEST_CASE( dbo_test11 )
     BOOST_REQUIRE(Wt::asString(model->headerData(2)) == "name");
     BOOST_REQUIRE(Wt::asString(model->headerData(3)) == "b2_id");
 
-    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "c1");
+    d = model->data(0, 2);
+    BOOST_REQUIRE(Wt::asString(d) == "c1");
 
     model->setData(0, 2, std::string("changed"));
 
@@ -1479,21 +1512,20 @@ BOOST_AUTO_TEST_CASE( dbo_test12 )
   {
     dbo::Transaction t(*session_);
 
-    session_->add(new D(Coordinate(5, 6), "yes"));
+    session_->addNew<D>(Coordinate(5, 6), "yes");
     dbo::ptr<D> d1 = session_->find<D>();
 
     BOOST_REQUIRE(d1->name == "yes");
     BOOST_REQUIRE(d1->id == Coordinate(5, 6));
 
-    session_->add(new C("c1"));
+    session_->addNew<C>("c1");
 
-    dbo::Query< dbo::ptr<C> > query = session_->find<C>();
-    dbo::QueryModel< dbo::ptr<C> > *model
-      = new dbo::QueryModel< dbo::ptr<C> >();
+    dbo::Query<dbo::ptr<C>> query = session_->find<C>();
+    dbo::QueryModel<dbo::ptr<C>> *model = new dbo::QueryModel<dbo::ptr<C>>();
 
     model->setQuery(query);
 
-    boost::any d;
+    Wt::cpp17::any d;
 
     model->addAllFieldsAsColumns();
 
@@ -1554,14 +1586,14 @@ BOOST_AUTO_TEST_CASE( dbo_test13 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<B> b1 = session_->add(new B("b1", B::State1));
-    dbo::ptr<B> b2 = session_->add(new B("b2", B::State2));
-    dbo::ptr<B> b3 = session_->add(new B("b3", B::State1));
+    dbo::ptr<B> b1 = session_->addNew<B>("b1", B::State1);
+    dbo::ptr<B> b2 = session_->addNew<B>("b2", B::State2);
+    dbo::ptr<B> b3 = session_->addNew<B>("b3", B::State1);
 
 
     {
-      dbo::collection<dbo::ptr<B> > c;
-      c = session_->query< dbo::ptr<B> >
+      dbo::collection<dbo::ptr<B>> c;
+      c = session_->query<dbo::ptr<B>>
 	("select B from " SCHEMA "\"table_b\" B ")
 	.where("B.\"state\" = ?").orderBy("B.\"name\"")
 	.limit(1).bind(0);
@@ -1569,7 +1601,7 @@ BOOST_AUTO_TEST_CASE( dbo_test13 )
       BOOST_REQUIRE(c.size() == 1);
     }
 
-    dbo::ptr<B> d = session_->query< dbo::ptr<B> >
+    dbo::ptr<B> d = session_->query<dbo::ptr<B>>
       ("select B from " SCHEMA "\"table_b\" B ")
       .where("B.\"state\" = ?").orderBy("B.\"name\"")
       .limit(1).bind(0);
@@ -1590,6 +1622,7 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
   a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
   a1.date = Wt::WDate(1980, 12, 4);
   a1.time = Wt::WTime(12, 13, 14, 123);
+  a1.timeduration = std::chrono::duration<int, std::milli>(0);
   a1.wstring = "Hello";
   a1.string = "There";
   a1.checked = false;
@@ -1606,8 +1639,8 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
   /* Create an A + B  */
   {
     dbo::Transaction t(*session_);
-    dbo::ptr<A> a = session_->add(new A(a1));    
-    dbo::ptr<B> b = session_->add(new B(b1));
+    dbo::ptr<A> a = session_->addNew<A>(a1);
+    dbo::ptr<B> b = session_->addNew<B>(b1);
 
     BOOST_REQUIRE(!a->b);
 
@@ -1645,13 +1678,14 @@ BOOST_AUTO_TEST_CASE( dbo_test15 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a = session_->add(new A());
-    dbo::ptr<B> b = session_->add(new B("b", B::State1));
+    dbo::ptr<A> a = session_->addNew<A>();
+    dbo::ptr<B> b = session_->addNew<B>("b", B::State1);
     a.modify()->b = b;
 
     {
-      dbo::collection<dbo::ptr<A> > c = session_->query< dbo::ptr<A> >
-	("select A from " SCHEMA "\"table_a\" A ").where("\"b_id\" = ?").bind(b);
+      dbo::collection<dbo::ptr<A>> c = session_->query<dbo::ptr<A>>
+	("select A from " SCHEMA "\"table_a\" A ")
+	.where("\"b_id\" = ?").bind(b);
 
       BOOST_REQUIRE(c.size() == 1);
     }
@@ -1676,10 +1710,16 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
     a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
     a1.wstring = "Hello";
     a1.string = "There";
-    a1.ptime = boost::posix_time::ptime
-      (boost::gregorian::date(2005,boost::gregorian::Jan,1),
-       boost::posix_time::time_duration(1,2,3));
-    a1.pduration = boost::posix_time::hours(1) + boost::posix_time::seconds(10);
+    std::tm timeInfo = std::tm();
+    timeInfo.tm_year = 2005 - 1900;
+    timeInfo.tm_mon = 0; //Jan
+    timeInfo.tm_mday = 1;
+    timeInfo.tm_hour = 1;
+    timeInfo.tm_min = 2;
+    timeInfo.tm_sec = 3;
+    std::time_t timet = timegm(&timeInfo);
+    a1.timepoint = std::chrono::system_clock::from_time_t(timet);
+    a1.timeduration = std::chrono::hours(1) + std::chrono::seconds(10);
     a1.i = 42;
     a1.i64 = 9223372036854775805LL;
     a1.ll = 6066005651767221LL;
@@ -1687,16 +1727,15 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
     a1.f = (float)42.42;
     a1.d = 42.424242;
 
-    dbo::ptr<A> a = session->add(new A());
+    dbo::ptr<A> a = session->addNew<A>();
 
     t.commit();
 
     {
       dbo::Transaction t(*session);
 
-      dbo::Query< dbo::ptr<A> > query = session->find<A>();
-      dbo::QueryModel< dbo::ptr<A> > *model
-	= new dbo::QueryModel< dbo::ptr<A> >();
+      dbo::Query<dbo::ptr<A>> query = session->find<A>();
+      dbo::QueryModel<dbo::ptr<A>> *model = new dbo::QueryModel<dbo::ptr<A>>();
       model->setQuery(query);
       model->addColumn ("date");
       model->addColumn ("time");
@@ -1704,8 +1743,8 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
       model->addColumn ("datetime");
       model->addColumn ("wstring");
       model->addColumn ("string");
-      model->addColumn ("ptime");
-      model->addColumn ("pduration");
+      model->addColumn ("timepoint");
+      model->addColumn ("timeduration");
       model->addColumn ("i");
       model->addColumn ("i64");
       model->addColumn ("ll");
@@ -1721,11 +1760,16 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
 	bin.push_back(255 - i);
       Wt::WString ws("Hey");
       std::string s("Test");
-      boost::posix_time::ptime p_time 
-	(boost::gregorian::date(2010,boost::gregorian::Sep,9),
-	 boost::posix_time::time_duration(3,2,1));
-      boost::posix_time::time_duration p_duration 
-        = boost::posix_time::hours(1) + boost::posix_time::seconds(10);
+      std::tm timeInfo = std::tm();
+      timeInfo.tm_year = 2010 - 1900;
+      timeInfo.tm_mon = 8; //Sep
+      timeInfo.tm_mday = 9;
+      timeInfo.tm_hour = 3;
+      timeInfo.tm_min = 2;
+      timeInfo.tm_sec = 1;
+      std::time_t timet = timegm(&timeInfo);
+      std::chrono::system_clock::time_point tp = std::chrono::system_clock::from_time_t(timet);
+      std::chrono::duration<int, std::milli> duration = std::chrono::hours(1) + std::chrono::seconds(10);
       int i = 50;
       ::int64_t i64 = 8223372036854775805LL;;
       long long ll = 7066005651767221LL;
@@ -1733,20 +1777,20 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
       double d = 53.5353;
       bool checked = false;
       
-      model->setData(0, 0, boost::any(date));
-      model->setData(0, 1, boost::any(time));
-      model->setData(0, 2, boost::any(bin));
-      model->setData(0, 3, boost::any(Wt::WDateTime(date, time)));
-      model->setData(0, 4, boost::any(ws));
-      model->setData(0, 5, boost::any(s));
-      model->setData(0, 6, boost::any(p_time));
-      model->setData(0, 7, boost::any(p_duration));
-      model->setData(0, 8, boost::any(i));
-      model->setData(0, 9, boost::any(i64));
-      model->setData(0, 10, boost::any(ll));
-      model->setData(0, 11, boost::any(checked));
-      model->setData(0, 12, boost::any(f));
-      model->setData(0, 13, boost::any(d));
+      model->setData(0, 0, Wt::cpp17::any(date));
+      model->setData(0, 1, Wt::cpp17::any(time));
+      model->setData(0, 2, Wt::cpp17::any(bin));
+      model->setData(0, 3, Wt::cpp17::any(Wt::WDateTime(date, time)));
+      model->setData(0, 4, Wt::cpp17::any(ws));
+      model->setData(0, 5, Wt::cpp17::any(s));
+      model->setData(0, 6, Wt::cpp17::any(tp));
+      model->setData(0, 7, Wt::cpp17::any(duration));
+      model->setData(0, 8, Wt::cpp17::any(i));
+      model->setData(0, 9, Wt::cpp17::any(i64));
+      model->setData(0, 10, Wt::cpp17::any(ll));
+      model->setData(0, 11, Wt::cpp17::any(checked));
+      model->setData(0, 12, Wt::cpp17::any(f));
+      model->setData(0, 13, Wt::cpp17::any(d));
 
       //TODO, also set data using strings to test string to any value conversion
 
@@ -1757,8 +1801,8 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
       BOOST_REQUIRE(aa->datetime == Wt::WDateTime(date, time));
       BOOST_REQUIRE(aa->wstring == ws);
       BOOST_REQUIRE(aa->string == s);
-      BOOST_REQUIRE(aa->ptime == p_time);
-      BOOST_REQUIRE(aa->pduration == p_duration);
+      BOOST_REQUIRE(aa->timepoint == tp);
+      BOOST_REQUIRE(aa->timeduration == duration);
       BOOST_REQUIRE(aa->i == i);
       BOOST_REQUIRE(aa->i64 == i64);
       BOOST_REQUIRE(aa->ll == ll);
@@ -1780,8 +1824,8 @@ BOOST_AUTO_TEST_CASE( dbo_test17 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a = session_->add(new A());
-    dbo::ptr<B> b = session_->add(new B("b", B::State1));
+    dbo::ptr<A> a = session_->addNew<A>();
+    dbo::ptr<B> b = session_->addNew<B>("b", B::State1);
     a.modify()->b = b;
   }
 
@@ -1807,8 +1851,8 @@ BOOST_AUTO_TEST_CASE( dbo_test18 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a = session_->add(new A());
-    dbo::ptr<C> c = session_->add(new C());
+    dbo::ptr<A> a = session_->addNew<A>();
+    dbo::ptr<C> c = session_->addNew<C>();
 
     BOOST_REQUIRE(!c->aOneToOne);
 
@@ -1839,8 +1883,8 @@ BOOST_AUTO_TEST_CASE( dbo_test19 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<A> a = session_->add(new A());
-    dbo::ptr<B> b = session_->add(new B("b", B::State1));
+    dbo::ptr<A> a = session_->addNew<A>();
+    dbo::ptr<B> b = session_->addNew<B>("b", B::State1);
     a.modify()->b = b;
   }
 
@@ -1914,7 +1958,7 @@ BOOST_AUTO_TEST_CASE( dbo_test22a )
     dbo::Transaction t(*session_);
     session_->execute("SET TIME ZONE \"America/New_York\"");
 
-    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
     a1.modify()->datetime = datetime1;
 
     session_->add(a1);
@@ -1943,7 +1987,7 @@ BOOST_AUTO_TEST_CASE( dbo_test22b )
     dbo::Transaction t(*session_);
     session_->execute("SET TIME ZONE \"Europe/Brussels\"");
 
-    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
     a1.modify()->datetime = datetime1;
 
     session_->add(a1);
@@ -1974,7 +2018,7 @@ BOOST_AUTO_TEST_CASE( dbo_test22c )
         "TYPE TIMESTAMP WITH TIME ZONE" );
     session_->execute("SET TIME ZONE \"America/New_York\"");
 
-    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
     a1.modify()->datetime = datetime1;
 
     session_->add(a1);
@@ -2005,7 +2049,7 @@ BOOST_AUTO_TEST_CASE( dbo_test22d )
         "TYPE TIMESTAMP WITH TIME ZONE" );
     session_->execute("SET TIME ZONE \"Europe/Brussels\"");
 
-    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a1 = dbo::make_ptr<A>();
     a1.modify()->datetime = datetime1;
 
     session_->add(a1);
@@ -2032,9 +2076,9 @@ BOOST_AUTO_TEST_CASE( dbo_test23a )
   {
     dbo::Transaction t(*session_);
 
-    A *a1 = new A();
+    auto a1 = Wt::cpp14::make_unique<A>();
     a1->ll = 123456L;
-    dbo::ptr<const A> aPtr(a1);
+    dbo::ptr<const A> aPtr(std::move(a1));
 
     session_->add(aPtr);
     t.commit();
@@ -2045,7 +2089,7 @@ BOOST_AUTO_TEST_CASE( dbo_test23a )
 
     dbo::ptr<const A> a1 = session_->find<const A>();
     dbo::ptr<A> a2 = session_->find<A>();
-    dbo::collection<dbo::ptr<const A> > as1 = session_->find<const A>();
+    dbo::collection<dbo::ptr<const A>> as1 = session_->find<const A>();
     dbo::ptr<const A> a3 = as1.front();
 
     BOOST_REQUIRE(a1 == a2);
@@ -2065,13 +2109,13 @@ BOOST_AUTO_TEST_CASE( dbo_test23b )
   {
     dbo::Transaction t(*session_);
 
-    A *a1 = new A();
+    auto a1 = Wt::cpp14::make_unique<A>();
     a1->ll = 123456L;
-    dbo::ptr<A> aPtr1(a1);
+    dbo::ptr<A> aPtr1(std::move(a1));
 
-    C *c1 = new C();
+    auto c1 = Wt::cpp14::make_unique<C>();
     c1->name = "Jos";
-    dbo::ptr<C> cPtr1(c1);
+    dbo::ptr<C> cPtr1(std::move(c1));
 
     aPtr1.modify()->c = cPtr1;
 
@@ -2113,11 +2157,11 @@ BOOST_AUTO_TEST_CASE( dbo_test23c )
   {
     dbo::Transaction t(*session_);
 
-    D *d = new D();
+    auto d = Wt::cpp14::make_unique<D>();
     d->id = Coordinate(2, 4);
 
-    dbo::ptr<D> dPtr = session_->add(d);
-    dbo::ptr<C> cPtr = session_->add(new C());
+    dbo::ptr<D> dPtr = session_->add(std::move(d));
+    dbo::ptr<C> cPtr = session_->addNew<C>();
 
     dPtr.modify()->c = cPtr;
 
@@ -2146,17 +2190,17 @@ BOOST_AUTO_TEST_CASE( dbo_test24a )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<E> e1(new E("e1"));
-    dbo::ptr<C> c1(new C("c1"));
+    dbo::ptr<E> e1 = dbo::make_ptr<E>("e1");
+    dbo::ptr<C> c1 = dbo::make_ptr<C>("c1");
     session_->add(e1);
     session_->add(c1);
 
-    typedef dbo::ptr_tuple<E, C>::type EC;
+    typedef std::tuple<dbo::ptr<E>, dbo::ptr<C>> EC;
     EC ec = session_->query< EC >
       ("select E, C from  " SCHEMA "\"table_e\" E, " SCHEMA "\"table_c\" C");
 
-    BOOST_REQUIRE(ec.get<0>()->name == "e1");
-    BOOST_REQUIRE(ec.get<1>()->name == "c1");
+    BOOST_REQUIRE(std::get<0>(ec)->name == "e1");
+    BOOST_REQUIRE(std::get<1>(ec)->name == "c1");
   }
 }
 
@@ -2168,15 +2212,15 @@ BOOST_AUTO_TEST_CASE( dbo_test24b )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<E> e1(new E("e1"));
+    dbo::ptr<E> e1 = dbo::make_ptr<E>("e1");
     session_->add(e1);
 
-    typedef dbo::ptr_tuple<E, E>::type EE;
-    EE ee = session_->query< EE >
+    typedef std::tuple<dbo::ptr<E>, dbo::ptr<E>> EE;
+    EE ee = session_->query<EE>
       ("select \"E1\", \"E2\" from " SCHEMA "\"table_e\" \"E1\" "
        "right join " SCHEMA "\"table_e\" \"E2\" on \"E1\".\"id\" != \"E2\".\"id\"");
 
-    BOOST_REQUIRE(ee.get<1>()->name == "e1");
+    BOOST_REQUIRE(std::get<1>(ee)->name == "e1");
   }
 #endif // SQLITE3
 }
@@ -2188,17 +2232,17 @@ BOOST_AUTO_TEST_CASE( dbo_test24c )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<D> d1(new D(Coordinate(42, 43), "d1"));
-    dbo::ptr<C> c1(new C("c1"));
+    dbo::ptr<D> d1 = dbo::make_ptr<D>(Coordinate(42, 43), "d1");
+    dbo::ptr<C> c1 = dbo::make_ptr<C>("c1");
     session_->add(d1);
     session_->add(c1);
 
-    typedef dbo::ptr_tuple<D, C>::type DC;
+    typedef std::tuple<dbo::ptr<D>, dbo::ptr<C>> DC;
     DC dc = session_->query< DC >
       ("select D, C from " SCHEMA "\"table_d\" D, " SCHEMA "\"table_c\" C");
 
-    BOOST_REQUIRE(dc.get<0>()->name == "d1");
-    BOOST_REQUIRE(dc.get<1>()->name == "c1");
+    BOOST_REQUIRE(std::get<0>(dc)->name == "d1");
+    BOOST_REQUIRE(std::get<1>(dc)->name == "c1");
   }
 }
 
@@ -2209,12 +2253,12 @@ BOOST_AUTO_TEST_CASE( dbo_test24d )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<E> e1(new E("e1"));
-    dbo::ptr<C> c1(new C("c1"));
+    dbo::ptr<E> e1 = dbo::make_ptr<E>("e1");
+    dbo::ptr<C> c1 = dbo::make_ptr<C>("c1");
     session_->add(e1);
     session_->add(c1);
 
-    typedef dbo::ptr_tuple<E, C>::type EC;
+    typedef std::tuple<dbo::ptr<E>, dbo::ptr<C>> EC;
     dbo::collection<EC> ecs = session_->query< EC >
       ("select E, C from  " SCHEMA "\"table_e\" E, " SCHEMA "\"table_c\" C");
 
@@ -2226,8 +2270,9 @@ BOOST_AUTO_TEST_CASE( dbo_test24d )
     BOOST_REQUIRE(ecs.size() == 1);
 
     EC ec = *ecs.begin();
-    BOOST_REQUIRE(ec.get<0>()->name == "e1");
-    BOOST_REQUIRE(ec.get<1>()->name == "c1");
+
+    BOOST_REQUIRE(std::get<0>(ec)->name == "e1");
+    BOOST_REQUIRE(std::get<1>(ec)->name == "c1");
   }
 }
 
@@ -2240,18 +2285,17 @@ BOOST_AUTO_TEST_CASE( dbo_test25 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<F> e1 = session_->add(new F("Alice",  "Kramden", "Female"));
-    dbo::ptr<F> e2 = session_->add(new F("Ralph",  "Kramden", "Male"));
-    dbo::ptr<F> e3 = session_->add(new F("Trixie", "Norton", "Female"));
-    dbo::ptr<F> e4 = session_->add(new F("Ed",     "Norton", "Male"));
+    dbo::ptr<F> e1 = session_->addNew<F>("Alice",  "Kramden", "Female");
+    dbo::ptr<F> e2 = session_->addNew<F>("Ralph",  "Kramden", "Male");
+    dbo::ptr<F> e3 = session_->addNew<F>("Trixie", "Norton", "Female");
+    dbo::ptr<F> e4 = session_->addNew<F>("Ed",     "Norton", "Male");
 
     t.commit();
   }
 
   {
-    dbo::Query< dbo::ptr<F> > query = session_->find<F>().orderBy("\"id\"");
-    dbo::QueryModel< dbo::ptr<F> > *model
-      = new dbo::QueryModel< dbo::ptr<F> >();
+    dbo::Query<dbo::ptr<F>> query = session_->find<F>().orderBy("\"id\"");
+    dbo::QueryModel<dbo::ptr<F>> *model = new dbo::QueryModel<dbo::ptr<F>>();
 
     model->setQuery(query);
     model->addAllFieldsAsColumns();
@@ -2270,7 +2314,7 @@ BOOST_AUTO_TEST_CASE( dbo_test25 )
     BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Ed");
 
     // sort on first name
-    model->sort(2, Wt::AscendingOrder);
+    model->sort(2, Wt::SortOrder::Ascending);
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
     BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Ed");
     BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Ralph");
@@ -2280,20 +2324,21 @@ BOOST_AUTO_TEST_CASE( dbo_test25 )
   }
 
   {
-    class custom_sort_model : public dbo::QueryModel< dbo::ptr<F> > {
+    class custom_sort_model : public dbo::QueryModel<dbo::ptr<F>> {
     public:
-      custom_sort_model() : dbo::QueryModel< dbo::ptr<F> >() { }
+      custom_sort_model() : dbo::QueryModel<dbo::ptr<F>>() { }
 
-      virtual std::string createOrderBy(int column, Wt::SortOrder order)
+      virtual std::string createOrderBy(int column, Wt::SortOrder order) override
       {
-        std::string dir = (order == Wt::AscendingOrder ? "asc" : "desc");
+        std::string dir 
+	  = (order == Wt::SortOrder::Ascending ? "asc" : "desc");
         return "\"" + fieldInfo(column).name() + "\" " + dir +
           ((column != 3) ? ", \"last_name\"" : "") +
           ((column != 2) ? ", \"first_name\"" : "");
       }
     };
 
-    dbo::Query< dbo::ptr<F> > query = session_->find<F>().orderBy("\"id\"");
+    dbo::Query<dbo::ptr<F>> query = session_->find<F>().orderBy("\"id\"");
 
     custom_sort_model *model = new custom_sort_model();
 
@@ -2314,28 +2359,28 @@ BOOST_AUTO_TEST_CASE( dbo_test25 )
     BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Ed");
 
     // sort on last name ascending, then first name ascending
-    model->sort(3, Wt::AscendingOrder);
+    model->sort(3, Wt::SortOrder::Ascending);
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
     BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Ralph");
     BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Ed");
     BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Trixie");
 
     // sort on last name descending, then first name ascending
-    model->sort(3, Wt::DescendingOrder);
+    model->sort(3, Wt::SortOrder::Descending);
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Ed");
     BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Trixie");
     BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Alice");
     BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Ralph");
 
     // sort on first name, then last name ascending
-    model->sort(2, Wt::AscendingOrder);
+    model->sort(2, Wt::SortOrder::Ascending);
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
     BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Ed");
     BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Ralph");
     BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Trixie");
 
     // sort on gender, then last name, then first name
-    model->sort(4, Wt::AscendingOrder);
+    model->sort(4, Wt::SortOrder::Ascending);
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
     BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Trixie");
     BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Ralph");
@@ -2391,11 +2436,10 @@ BOOST_AUTO_TEST_CASE( dbo_test26 )
   {
     dbo::Transaction t(*session_);
 
-    session_->add(new F("Alice",  "Kramden", "Female"));
+    session_->addNew<F>("Alice",  "Kramden", "Female");
 
-    dbo::Query< dbo::ptr<F> > query = session_->find<F>();
-    dbo::QueryModel< dbo::ptr<F> > *model
-      = new dbo::QueryModel< dbo::ptr<F> >();
+    dbo::Query<dbo::ptr<F>> query = session_->find<F>();
+    dbo::QueryModel<dbo::ptr<F>> *model = new dbo::QueryModel<dbo::ptr<F>>();
 
     model->setQuery(query);
     model->addAllFieldsAsColumns();
@@ -2413,16 +2457,16 @@ BOOST_AUTO_TEST_CASE( dbo_test26 )
      * Set-up a handler to verify that updates are visible
      * in a second session when model->dataChanged() is emitted
      */
-    model->dataChanged().connect(boost::bind<bool>(boost::ref(checkExpected),
-          boost::ref(ExpectedFirstName)));
-
+    model->dataChanged().connect
+      ([&checkExpected, &ExpectedFirstName] () {checkExpected(ExpectedFirstName); });
+    
     /*
      * The setItemData() convenience method commits
      * a transaction prior to emitting dataChanged()
      */
     ExpectedFirstName = "AliceTwo";
     Wt::WAbstractItemModel::DataMap map;
-    map[Wt::EditRole] = ExpectedFirstName;
+    map[Wt::ItemDataRole::Edit] = ExpectedFirstName;
     model->setItemData(model->index(0, 2), map);  // checkExpected() will be called
 
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == ExpectedFirstName);
@@ -2452,7 +2496,7 @@ BOOST_AUTO_TEST_CASE( dbo_test27 )
   {
     dbo::Transaction t(*session_);
 
-    dbo::ptr<B> b(new B());
+    dbo::ptr<B> b = dbo::make_ptr<B>();
     b.modify()->name = "b";
     session_->add(b);
   }
@@ -2478,7 +2522,7 @@ BOOST_AUTO_TEST_CASE( dbo_test28 )
 
   try {
     dbo::Transaction t(*session_);
-    dbo::ptr<B> b(new B());
+    dbo::ptr<B> b = dbo::make_ptr<B>();
     b.modify()->name = "b";
     session_->add(b);
     session_->flush();
@@ -2489,7 +2533,7 @@ BOOST_AUTO_TEST_CASE( dbo_test28 )
 
   {
     dbo::Transaction t(*session_);
-    dbo::ptr<B> b(new B());
+    dbo::ptr<B> b = dbo::make_ptr<B>();
     b.modify()->name = "b";
     session_->add(b);
     session_->flush();
@@ -2506,16 +2550,16 @@ BOOST_AUTO_TEST_CASE( dbo_test29 )
 
   dbo::Transaction t(*session_);
 
-  dbo::ptr<A> a1 = session_->add(new A());
+  dbo::ptr<A> a1 = session_->addNew<A>();
   a1.modify()->string2 = "B";
   a1.modify()->i = 1;
-  dbo::ptr<A> a2 = session_->add(new A());
+  dbo::ptr<A> a2 = session_->addNew<A>();
   a2.modify()->string2 = "A";
   a2.modify()->i = 2;
-  dbo::ptr<A> a3 = session_->add(new A());
+  dbo::ptr<A> a3 = session_->addNew<A>();
   a3.modify()->string2 = "B";
   a3.modify()->i = 4;
-  dbo::ptr<A> a4 = session_->add(new A());
+  dbo::ptr<A> a4 = session_->addNew<A>();
   a4.modify()->string2 = "A";
   a4.modify()->i = 8;
 
@@ -2568,10 +2612,10 @@ BOOST_AUTO_TEST_CASE( dbo_test30 )
   dbo::Session *session_ = f.session_;
 
   dbo::Transaction t(*session_);
-  dbo::ptr<A> a1 = session_->add(new A());
+  dbo::ptr<A> a1 = session_->addNew<A>();
   a1.modify()->string = "B";
   a1.modify()->i = 1;
-  dbo::ptr<A> a2 = session_->add(new A());
+  dbo::ptr<A> a2 = session_->addNew<A>();
   a2.modify()->string = "A";
   a2.modify()->i = 2;
 
@@ -2593,24 +2637,26 @@ BOOST_AUTO_TEST_CASE( dbo_test30 )
 BOOST_AUTO_TEST_CASE( dbo_test31 )
 {
   // Test long and negative durations
-  boost::posix_time::time_duration longDuration =
-    boost::posix_time::hours(42) +
-    boost::posix_time::minutes(10) +
-    boost::posix_time::seconds(11) +
-    boost::posix_time::milliseconds(123);
-  boost::posix_time::time_duration negDuration = -longDuration;
-  // Test for serialization/deserialization when time
-  // is stored as a string (milliseconds with leading/trailing zero)
-  boost::posix_time::time_duration otherDuration =
-    boost::posix_time::hours(42) +
-    boost::posix_time::minutes(10) +
-    boost::posix_time::seconds(11) +
-    boost::posix_time::milliseconds(120);
-  boost::posix_time::time_duration otherDuration2 =
-    boost::posix_time::hours(42) +
-    boost::posix_time::minutes(10) +
-    boost::posix_time::seconds(11) +
-    boost::posix_time::milliseconds(12);
+  std::chrono::milliseconds longDuration =
+    std::chrono::hours(42) +
+    std::chrono::minutes(10) +
+    std::chrono::seconds(11) +
+    std::chrono::milliseconds(123);
+  auto negDuration = -longDuration;
+  // Test whether Postgres properly serializes/deserializes
+  // time when the last digit of milliseconds is 0
+  std::chrono::milliseconds anotherDuration =
+    std::chrono::hours(42) +
+    std::chrono::minutes(10) +
+    std::chrono::seconds(11) +
+    std::chrono::milliseconds(120);
+  // Test whether Postgres properly serializes/deserializes
+  // time when the first digit of milliseconds is 0
+  std::chrono::milliseconds anotherDuration2 =
+    std::chrono::hours(42) +
+    std::chrono::minutes(10) +
+    std::chrono::seconds(11) +
+    std::chrono::milliseconds(12);
 
   DboFixture f;
 
@@ -2618,53 +2664,53 @@ BOOST_AUTO_TEST_CASE( dbo_test31 )
   {
     // Store
     dbo::Transaction t(*session_);
-    dbo::ptr<A> a = session_->add(new A());
-    a.modify()->pduration = longDuration;
+    dbo::ptr<A> a = session_->addNew<A>();
+    a.modify()->timeduration = longDuration;
   }
   {
     // Retrieve
     dbo::Transaction t(*session_);
     dbo::ptr<A> a = session_->find<A>();
-    BOOST_REQUIRE(a->pduration == longDuration);
+    BOOST_REQUIRE(a->timeduration == longDuration);
     a.remove();
   }
   {
     // Store
     dbo::Transaction t(*session_);
-    dbo::ptr<A> a = session_->add(new A());
-    a.modify()->pduration = negDuration;
+    dbo::ptr<A> a = session_->addNew<A>();
+    a.modify()->timeduration = negDuration;
   }
   {
     // Retrieve
     dbo::Transaction t(*session_);
     dbo::ptr<A> a = session_->find<A>();
-    BOOST_REQUIRE(a->pduration == negDuration);
+    BOOST_REQUIRE(a->timeduration == negDuration);
     a.remove();
   }
   {
     // Store
     dbo::Transaction t(*session_);
-    dbo::ptr<A> a = session_->add(new A());
-    a.modify()->pduration = otherDuration;
+    dbo::ptr<A> a = session_->addNew<A>();
+    a.modify()->timeduration = anotherDuration;
   }
   {
     // Retrieve
     dbo::Transaction t(*session_);
     dbo::ptr<A> a = session_->find<A>();
-    BOOST_REQUIRE(a->pduration == otherDuration);
+    BOOST_REQUIRE(a->timeduration == anotherDuration);
     a.remove();
   }
   {
     // Store
     dbo::Transaction t(*session_);
-    dbo::ptr<A> a = session_->add(new A());
-    a.modify()->pduration = otherDuration2;
+    dbo::ptr<A> a = session_->addNew<A>();
+    a.modify()->timeduration = anotherDuration2;
   }
   {
     // Retrieve
     dbo::Transaction t(*session_);
     dbo::ptr<A> a = session_->find<A>();
-    BOOST_REQUIRE(a->pduration == otherDuration2);
+    BOOST_REQUIRE(a->timeduration == anotherDuration2);
   }
 }
 #endif // !FIREBIRD

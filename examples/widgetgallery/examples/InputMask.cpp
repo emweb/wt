@@ -1,16 +1,18 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WTemplate>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(InputMask)
-Wt::WTemplate *result = new Wt::WTemplate(Wt::WString::tr("lineEdit-template"));
+
+auto result =
+    Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("lineEdit-template"));
 result->addFunction("id", &Wt::WTemplate::Functions::id);
 
-Wt::WLineEdit *edit = new Wt::WLineEdit();
+auto edit = Wt::cpp14::make_unique<Wt::WLineEdit>();
 edit->setTextSize(15);
 edit->setInputMask("009.009.009.009;_");
 
 result->bindString("label", "IP Address:");
-result->bindWidget("edit", edit);
+result->bindWidget("edit", std::move(edit));
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))

@@ -7,7 +7,9 @@
 #ifndef COMPOSE_EXAMPLE_H_
 #define COMPOSE_EXAMPLE_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
+
+using namespace Wt;
 
 class Composer;
 
@@ -27,7 +29,7 @@ class ComposeExample : public WContainerWidget
 public:
   /*! \brief create a new Composer example.
    */
-  ComposeExample(WContainerWidget *parent = 0);
+  ComposeExample();
 
 private:
   Composer *composer_;

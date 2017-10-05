@@ -1,28 +1,25 @@
 #ifndef MODELS_H
 #define MODELS_H
 
-#include <Wt/WAbstractTableModel>
+#include <Wt/WAbstractTableModel.h>
 
-using namespace Wt;
-
-class SombreroData : public WAbstractTableModel {
+class SombreroData : public Wt::WAbstractTableModel {
 public:
   SombreroData(int nbXPts, int nbYPts,
 	       double xStart, double xEnd,
-	       double yStart, double yEnd,
-	       WObject *parent = 0);
+	       double yStart, double yEnd);
 
-  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
-  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
+  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
+  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-  boost::any data(int row, int column, int role=DisplayRole, const WModelIndex &parent=WModelIndex()) const ;
+  Wt::cpp17::any data(int row, int column, Wt::ItemDataRole role = Wt::ItemDataRole::Display, const Wt::WModelIndex &parent = Wt::WModelIndex()) const;
 
-  virtual boost::any data(const Wt::WModelIndex& index,
-			  int role = Wt::DisplayRole) const;
+  virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
-  virtual boost::any headerData(int section,
-				Wt::Orientation orientation = Wt::Horizontal,
-				int role = Wt::DisplayRole) const;
+  virtual Wt::cpp17::any headerData(int section,
+                                Wt::Orientation orientation = Wt::Orientation::Horizontal,
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   void update(double xStart, double xEnd, double yStart, double yEnd,
 	      int nbXPts, int nbYPts) {
@@ -39,27 +36,26 @@ private:
   double xStart_, xEnd_, yStart_, yEnd_;
 };
 
-class PlaneData : public WAbstractTableModel {
+class PlaneData : public Wt::WAbstractTableModel {
 public:
   PlaneData(int nbXPts, int nbYPts,
 	    double xStart, double xDelta,
 	    double yStart, double yDelta,
 	    bool Yvariation,
-	    double colorRoleBound, double sizeRoleBound,
-	    WObject *parent = 0);
+	    double colorRoleBound, double sizeRoleBound);
 
-  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
-  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
+  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
+  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-  boost::any data(int row, int column, int role=DisplayRole,
-		  const WModelIndex &parent=WModelIndex()) const ;
+  Wt::cpp17::any data(int row, int column, Wt::ItemDataRole role = Wt::ItemDataRole::Display,
+                  const Wt::WModelIndex &parent = Wt::WModelIndex()) const;
 
-  virtual boost::any data(const Wt::WModelIndex& index,
-			  int role = Wt::DisplayRole) const;
+  virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
-  virtual boost::any headerData(int section,
-				Wt::Orientation orientation = Wt::Horizontal,
-				int role = Wt::DisplayRole) const;
+  virtual Wt::cpp17::any headerData(int section,
+                                Wt::Orientation orientation = Wt::Orientation::Horizontal,
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   void update(double xStart, double xDelta, double yStart, double yDelta,
 	      int nbXPts, int nbYPts) {
@@ -79,46 +75,45 @@ private:
   double colorRoleBound_, sizeRoleBound_;
 };
 
-class PointsData : public WAbstractTableModel {
+class PointsData : public Wt::WAbstractTableModel {
 public:
-  PointsData(int nbPts, WObject *parent = 0);
+  PointsData(int nbPts);
 
-  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
-  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
+  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
+  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-  boost::any data(int row, int column, int role=DisplayRole,
-		  const WModelIndex &parent=WModelIndex()) const ;
+  Wt::cpp17::any data(int row, int column, Wt::ItemDataRole role = Wt::ItemDataRole::Display,
+                  const Wt::WModelIndex &parent = Wt::WModelIndex()) const ;
 
-  virtual boost::any data(const Wt::WModelIndex& index,
-			  int role = Wt::DisplayRole) const;
+  virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
-  virtual boost::any headerData(int section,
-				Wt::Orientation orientation = Wt::Horizontal,
-				int role = Wt::DisplayRole) const;
+  virtual Wt::cpp17::any headerData(int section,
+                                Wt::Orientation orientation = Wt::Orientation::Horizontal,
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   int nbPts_;
 };
 
-class Parabola : public WAbstractTableModel {
+class Parabola : public Wt::WAbstractTableModel {
 public:
   Parabola(double xMin, double deltaX, double yMin, double deltaY,
 	   double factor, double minimum,
-	   bool withColorRoles, double colorRoleBoundary, 
-	   WObject *parent = 0);
+	   bool withColorRoles, double colorRoleBoundary);
 
-  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
-  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const;
+  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
+  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-  boost::any data(int row, int column, int role=DisplayRole,
-		  const WModelIndex &parent=WModelIndex()) const ;
+  Wt::cpp17::any data(int row, int column, Wt::ItemDataRole role = Wt::ItemDataRole::Display,
+                  const Wt::WModelIndex &parent = Wt::WModelIndex()) const ;
 
-  virtual boost::any data(const Wt::WModelIndex& index,
-			  int role = Wt::DisplayRole) const;
+  virtual Wt::cpp17::any data(const Wt::WModelIndex& index,
+                          Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
-  virtual boost::any headerData(int section,
-				Wt::Orientation orientation = Wt::Horizontal,
-				int role = Wt::DisplayRole) const;
+  virtual Wt::cpp17::any headerData(int section,
+                                Wt::Orientation orientation = Wt::Orientation::Horizontal,
+                                Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
 private:
   double xMin_, deltaX_;

@@ -8,17 +8,19 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include <Wt/WContainerWidget>
-#include <Wt/WTreeView>
-#include <Wt/WStandardItemModel>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WTreeView.h>
+#include <Wt/WStandardItemModel.h>
 
 #include "FileItem.h"
 #include "SourceView.h"
 
+using namespace Wt;
+
 /*! \class ExampleSourceViewer 
  *  \brief A simple widget to visualise a set of example source files.
  */
-class ExampleSourceViewer: public Wt::WContainerWidget
+class ExampleSourceViewer: public WContainerWidget
 {
 public:
   /*! \brief Constructor.
@@ -28,20 +30,20 @@ public:
 		      const std::string& examplesType); 
 
 private:
-  Wt::WTreeView  *exampleView_;
+  WTreeView  *exampleView_;
   SourceView *sourceView_;
 
   std::string deployPath_;
   std::string examplesRoot_;
   std::string examplesType_;
 
-  Wt::WStandardItemModel *model_;
+  std::shared_ptr<WStandardItemModel> model_;
 
-  void cppTraverseDir(Wt::WStandardItem* parent, 
+  void cppTraverseDir(WStandardItem* parent,
 		      const boost::filesystem::path& path);
-  void javaTraverseDir(Wt::WStandardItem* parent, 
+  void javaTraverseDir(WStandardItem* parent,
 		       const boost::filesystem::path& path);
-  void javaTraversePackages(Wt::WStandardItem *parent,
+  void javaTraversePackages(WStandardItem *parent,
 			    const boost::filesystem::path& srcPath,
 			    const std::string packageName);
 

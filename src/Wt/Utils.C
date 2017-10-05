@@ -17,12 +17,14 @@
 #include <winsock2.h>
 #endif
 
-#include "Wt/WLogger"
-#include "Wt/Utils"
+#include "Wt/WLogger.h"
+#include "Wt/Utils.h"
 #include "DomElement.h"
 #include "md5.h"
 #include "base64.h"
 #include "ImageUtils.h"
+
+#include <cstring>
 
 extern "C" {
   #include "sha1.h"
@@ -150,7 +152,9 @@ std::string hexDecode(const std::string& data)
 std::string htmlEncode(const std::string& text, WFlags<HtmlEncodingFlag> flags)
 {
   std::string result = text;
-  WWebWidget::escapeText(result, flags & EncodeNewLines ? true : false);
+  WWebWidget::escapeText(result, 
+			 (flags.test(HtmlEncodingFlag::EncodeNewLines)) ? 
+			 true : false);
   return result;
 }
 
@@ -175,7 +179,7 @@ std::string urlDecode(const std::string &text)
       result << ' ';
     } else if (c == '%' && i + 2 < text.length()) {
       std::string h = text.substr(i + 1, 2);
-      char *e = 0;
+      char *e = nullptr;
       int hval = std::strtol(h.c_str(), &e, 16);
 
       if (*e == 0) {

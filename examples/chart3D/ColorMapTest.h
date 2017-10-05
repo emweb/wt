@@ -1,42 +1,37 @@
 // This may look like C code, but it's really -*- C++ -*-
-#include <Wt/WContainerWidget>
-#include <Wt/WPaintDevice>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPainter>
-#include <Wt/WColor>
-#include <Wt/WFont>
-#include <Wt/WRectF>
-#include <Wt/Chart/WStandardColorMap>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPainter.h>
+#include <Wt/WColor.h>
+#include <Wt/WFont.h>
+#include <Wt/WRectF.h>
+#include <Wt/Chart/WStandardColorMap.h>
 
 #include <map>
-
-using namespace Wt;
-using namespace Wt::Chart;
 
 class ColorMapTest : public Wt::WPaintedWidget
 {
 public:
-  ColorMapTest(Wt::WContainerWidget *parent = 0)
-    : Wt::WPaintedWidget(parent)
+  ColorMapTest()
+    : WPaintedWidget()
   {
     resize(500, 300);
-    std::vector<WStandardColorMap::Pair> colormap;
-    colormap.push_back(WStandardColorMap::Pair(0,WColor(darkRed)));
-    colormap.push_back(WStandardColorMap::Pair(1,WColor(red)));
-    colormap.push_back(WStandardColorMap::Pair(2,WColor(gray)));
-    colormap_ = new WStandardColorMap(0,3,colormap, false);
-    colormap2_ = new WStandardColorMap(0,2,colormap, true);
+    std::vector<Wt::Chart::WStandardColorMap::Pair> colormap;
+    colormap.push_back(Wt::Chart::WStandardColorMap::Pair(0, Wt::WColor(Wt::StandardColor::DarkRed)));
+    colormap.push_back(Wt::Chart::WStandardColorMap::Pair(1, Wt::WColor(Wt::StandardColor::Red)));
+    colormap.push_back(Wt::Chart::WStandardColorMap::Pair(2, Wt::WColor(Wt::StandardColor::Gray)));
+    colormap_ = Wt::cpp14::make_unique<Wt::Chart::WStandardColorMap>(0,3,colormap, false);
+    colormap2_ = Wt::cpp14::make_unique<Wt::Chart::WStandardColorMap>(0,2,colormap, true);
   }
 
   ~ColorMapTest()
   {
-    delete colormap_;
-    delete colormap2_;
   }
   
 protected:
   void paintEvent(Wt::WPaintDevice *paintDevice) {
-    WPainter painter(paintDevice);
+    Wt::WPainter painter(paintDevice);
 
     painter.translate(50,0);
     colormap_->paintLegend(&painter);
@@ -50,6 +45,6 @@ protected:
   }
   
 private:
-  Wt::Chart::WStandardColorMap *colormap_;
-  Wt::Chart::WStandardColorMap *colormap2_;
+  std::unique_ptr<Wt::Chart::WStandardColorMap> colormap_;
+  std::unique_ptr<Wt::Chart::WStandardColorMap> colormap2_;
 };

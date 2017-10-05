@@ -26,28 +26,31 @@ To use the built-in server, you have to link your projects against libwt
 and libwthttp. To use the ISAPI connector, you have to link to libwtisapi
 instead of libwthttp.</p>
 
+<p>The prebuilt binaries for Visual Studio include all necessary and optional dependencies,
+and enable all features of Wt and can be downloaded from the
+<a href="https://github.com/emweb/wt/releases">releases page on GitHub</a>.</p>
+
 <p>Requirements:
 <ul>
-  <li>Microsoft Visual Studio C++ 2005 or newer. Wt and its dependencies also
-      build on the Express Edition, which is free (as in beer) to use.
-  <li>CMake cross-platform build system (www.cmake.org): cmake-2.6.x,
-      Windows version (2.8 or newer recommended).</li>
+  <li>Microsoft Visual Studio 2015 or newer. Wt and its dependencies also
+      build on the Community Edition, which is free (as in beer) to use.
+  <li>CMake cross-platform build system (www.cmake.org): cmake-3.1.x or higher</li>
   <li>Boost 1.46.1 (or later; a recent version is recommended)</li>
 </ul>
 </p>
 
 <p>Additional and optional requirements for some of the examples
 <ul>
-<li>For https support: OpenSSL, version 0.9.8d or newer.</li>
-<li>To compress traffic: zlib 1.2.3</li>
-<li>Postgres, mysql, firebird client libraries for Dbo database backends</li>
+<li>For HTTPS support: OpenSSL, version 0.9.8d or newer.</li>
+<li>To compress traffic: zlib</li>
+<li>PostgreSQL, MySQL, Firebird client libraries for Dbo database backends</li>
 <li><a href="http://libharu.org/">Haru Free PDF Library</a>, which is used to
 provide support for rendering PDF (WPdfImage, WPdfRenderer).</li>
 </ul>
 </p>
 
 <p>
-We stronly recommend to use libraries which are all built using the same
+We strongly recommend to use libraries which are all built using the same
 compiler and the same runtime configuration (/MT, /MD, /MTd
 or /MDd) to avoid incompatibilities with the C runtime libraries. Mixing
 CRTs is NOT recommended, the <a href="http://www.zlib.net/DLL_FAQ.txt">zlib
@@ -60,14 +63,18 @@ if those are not available, rebuild the dependency libraries from the sources).
 
 <h2>Step by step instructions to build and install the Wt library</h2>
 
+<p>
 Up to date instructions are located on the Wt wiki page:
 <a href="http://redmine.emweb.be/projects/wt/wiki/Installing_Wt_on_MS_Windows">Installing Wt on MS Windows</a>
+</p>
 
+<p>
 Instructions on how to use the ISAPI connector for deployment under IIS are
 also available on the wiki page:
 <a href="http://redmine.emweb.be/projects/wt/wiki/ISAPI_on_Microsoft_IIS">ISAPI on Microsoft IIS</a>
+</p>
 
-<h2>Trying the examples (or your own Wt application) using wthttpd</h3>
+<h2>Trying the examples (or your own Wt application) using wthttpd</h2>
 
 <h4>1. Run the example in the MSVC IDE </h4>
 
@@ -83,7 +90,7 @@ port 8080, and you may browse the example at <a
 href="http://127.0.0.1:8080/hello">http://127.0.0.1:8080/hello</a></p>
 
 <p>
-Examples that need extra files to run, should be executed from their source
+Examples that need extra files to run should be executed from their source
 directory in order to find their dependency files (icons, css files, etc.
 Watch for 404 errors in Wt's output). To do so, set the 'Working directory'
 for the example to wt-x.y.z/examples/ExampleName. Some examples (e.g. the
@@ -92,6 +99,7 @@ the wt-2.x.x/resources to the example's source directory to solve this
 problem. Other examples (such as the Charts example) may require the
 installation of ExtJs. See the Wt reference manual for more information
 on how to obtain and install ExtJs. 
+</p>
 
 <p>
 These are all the command-line options that are available (run the examples

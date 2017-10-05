@@ -5,19 +5,17 @@
  */
 #include <iostream>
 
-#include <Wt/WAbstractItemModel>
-#include <Wt/WItemSelectionModel>
-#include <Wt/WMessageBox>
+#include <Wt/WAbstractItemModel.h>
+#include <Wt/WItemSelectionModel.h>
+#include <Wt/WMessageBox.h>
 
 #include "FolderView.h"
-
-using namespace Wt;
 
 const char *FolderView::FileSelectionMimeType
   = "application/x-computers-selection";
 
-FolderView::FolderView(Wt::WContainerWidget *parent)
-  : WTreeView(parent)
+FolderView::FolderView()
+  : WTreeView()
 {
   /*
    * Accept drops for the custom mime type.
@@ -25,8 +23,8 @@ FolderView::FolderView(Wt::WContainerWidget *parent)
   acceptDrops(FileSelectionMimeType);
 }
 
-void FolderView::dropEvent(const Wt::WDropEvent& event,
-			    const Wt::WModelIndex& target)
+void FolderView::dropEvent(const WDropEvent& event,
+                            const WModelIndex& target)
 {
   /*
    * We reimplement the drop event to handle the dropping of a
@@ -44,24 +42,24 @@ void FolderView::dropEvent(const Wt::WDropEvent& event,
       = dynamic_cast<WItemSelectionModel *>(event.source());
 
 #ifdef WT_THREADED
-    int result = WMessageBox::show
+    StandardButton result = WMessageBox::show
       ("Drop event",
        "Move "
-       + boost::lexical_cast<std::string>(selection->selectedIndexes().size())
+       + asString(selection->selectedIndexes().size())
        + " files to folder '"
-       + boost::any_cast<WString>(target.data(DisplayRole)).toUTF8()
+       + cpp17::any_cast<WString>(target.data(ItemDataRole::Display)).toUTF8()
        + "' ?",
-       Yes | No);
+       StandardButton::Yes | StandardButton::No);
 #else
-    int result = Yes;
+    StandardButton result = StandardButton::Yes;
 #endif
 
-    if (result == Yes) {
+    if (result == StandardButton::Yes) {
       /*
        * You can access the source model from the selection and
        * manipulate it.
        */
-      WAbstractItemModel *sourceModel = selection->model();
+      std::shared_ptr<WAbstractItemModel> sourceModel = selection->model();
 
       WModelIndexSet toChange = selection->selectedIndexes();
 
@@ -75,8 +73,8 @@ void FolderView::dropEvent(const Wt::WDropEvent& event,
 	 * will also result in the removal of the file from the
 	 * current view.
 	 */
-	std::map<int, boost::any> data = model()->itemData(target);
-	data[DecorationRole] = index.data(DecorationRole);
+        std::map<ItemDataRole, cpp17::any> data = model()->itemData(target);
+	data[ItemDataRole::Decoration] = index.data(ItemDataRole::Decoration);
 	sourceModel->setItemData(index, data);
       }
     }

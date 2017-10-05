@@ -5,7 +5,7 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Utils>
+#include <Wt/Utils.h>
 #include <iostream>
 
 const int WrapSize = 76;

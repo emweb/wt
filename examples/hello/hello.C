@@ -4,30 +4,25 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WText>
-
-// c++0x only, for std::bind
-// #include <functional>
-
-using namespace Wt;
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 /*
  * A simple hello world application class which demonstrates how to react
  * to events, read input, and give feed-back.
  */
-class HelloApplication : public WApplication
+class HelloApplication : public Wt::WApplication
 {
 public:
-  HelloApplication(const WEnvironment& env);
+  HelloApplication(const Wt::WEnvironment& env);
 
 private:
-  WLineEdit *nameEdit_;
-  WText *greeting_;
+  Wt::WLineEdit *nameEdit_;
+  Wt::WText     *greeting_;
 
   void greet();
 };
@@ -38,42 +33,42 @@ private:
  * constructor so it is typically also an argument for your custom
  * application constructor.
 */
-HelloApplication::HelloApplication(const WEnvironment& env)
+HelloApplication::HelloApplication(const Wt::WEnvironment& env)
   : WApplication(env)
 {
-  setTitle("Hello world");                               // application title
+  setTitle("Hello world");                            // application title
 
-  root()->addWidget(new WText("Your name, please ? "));  // show some text
-  nameEdit_ = new WLineEdit(root());                     // allow text input
-  nameEdit_->setFocus();                                 // give focus
+  root()->addWidget(Wt::cpp14::make_unique<Wt::WText>("Your name, please ? ")); // show some text
 
-  WPushButton *button
-    = new WPushButton("Greet me.", root());              // create a button
-  button->setMargin(5, Left);                            // add 5 pixels margin
+  nameEdit_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>()); // allow text input
+  nameEdit_->setFocus();                              // give focus
 
-  root()->addWidget(new WBreak());                       // insert a line break
+  auto button = root()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Greet me."));
+                                                      // create a button
+  button->setMargin(5, Wt::Side::Left);                   // add 5 pixels margin
 
-  greeting_ = new WText(root());                         // empty text
+  root()->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());    // insert a line break
+  greeting_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WText>()); // empty text
 
   /*
    * Connect signals with slots
    *
-   * - simple Wt-way
+   * - simple Wt-way: specify object and method
    */
   button->clicked().connect(this, &HelloApplication::greet);
 
   /*
-   * - using an arbitrary function object (binding values with boost::bind())
+   * - using an arbitrary function object, e.g. useful to bind
+   *   values with std::bind() to the resulting method call
    */
-  nameEdit_->enterPressed().connect
-    (boost::bind(&HelloApplication::greet, this));
+  nameEdit_->enterPressed().connect(std::bind(&HelloApplication::greet, this));
 
   /*
-   * - using a c++0x lambda:
+   * - using a lambda:
    */
-  // button->clicked().connect(std::bind([=]() { 
-  //       greeting_->setText("Hello there, " + nameEdit_->text());
-  // }));
+  button->clicked().connect([=]() { 
+      std::cerr << "Hello there, " << nameEdit_->text() << std::endl;
+  });
 }
 
 void HelloApplication::greet()
@@ -82,15 +77,6 @@ void HelloApplication::greet()
    * Update the text, using text input into the nameEdit_ field.
    */
   greeting_->setText("Hello there, " + nameEdit_->text());
-}
-
-WApplication *createApplication(const WEnvironment& env)
-{
-  /*
-   * You could read information from the environment to decide whether
-   * the user has permission to start a new application
-   */
-  return new HelloApplication(env);
 }
 
 int main(int argc, char **argv)
@@ -106,6 +92,11 @@ int main(int argc, char **argv)
    * support. The function should return a newly instantiated application
    * object.
    */
-  return WRun(argc, argv, &createApplication);
+  return Wt::WRun(argc, argv, [](const Wt::WEnvironment &env) {
+    /*
+     * You could read information from the environment to decide whether
+     * the user has permission to start a new application
+     */
+    return Wt::cpp14::make_unique<HelloApplication>(env);
+  });
 }
-

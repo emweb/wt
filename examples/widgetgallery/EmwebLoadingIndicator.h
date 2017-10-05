@@ -7,23 +7,23 @@
 #ifndef EMWEB_LOADING_INDICATOR_H_
 #define EMWEB_LOADING_INDICATOR_H_
 
-#include <Wt/WText>
-#include <Wt/WContainerWidget>
-#include <Wt/WLoadingIndicator>
+#include <Wt/WText.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLoadingIndicator.h>
 
-class EmwebLoadingIndicator : public Wt::WContainerWidget, 
-			      public Wt::WLoadingIndicator
+class EmwebLoadingIndicator : public WContainerWidget,
+                              public WLoadingIndicator
 {
 public:
   EmwebLoadingIndicator();
 
-  virtual Wt::WWidget *widget() { return this; }
-  virtual void setMessage(const Wt::WString& text);
+  virtual WWidget *widget() { return this; }
+  virtual void setMessage(const WString& text);
 
 private:
-  Wt::WContainerWidget *cover_;
-  Wt::WContainerWidget *center_;
-  Wt::WText            *text_;
+  WContainerWidget *cover_;
+  WContainerWidget *center_;
+  WText            *text_;
 };
 
 #endif // EMWEB_LOADING_INDICATOR_H_

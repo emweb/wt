@@ -7,10 +7,8 @@
 #ifndef SIMPLECHATSERVER_H_
 #define SIMPLECHATSERVER_H_
 
-#include <boost/noncopyable.hpp>
-
-#include <Wt/WSignal>
-#include <Wt/WString>
+#include <Wt/WSignal.h>
+#include <Wt/WString.h>
 
 namespace Wt {
   class WServer;
@@ -18,7 +16,8 @@ namespace Wt {
 
 #include <set>
 #include <map>
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 
 /**
  * @addtogroup chatexample
@@ -58,7 +57,7 @@ public:
 				  Wt::TextFormat format) const;
 
 private:
-  Type type_;
+  Type    type_;
   Wt::WString user_;
   Wt::WString data_;
   Wt::WString message_;
@@ -78,11 +77,11 @@ private:
   friend class SimpleChatServer;
 };
 
-typedef boost::function<void (const ChatEvent&)> ChatEventCallback;
+typedef std::function<void (const ChatEvent&)> ChatEventCallback;
 
 /*! \brief A simple chat server
  */
-class SimpleChatServer : boost::noncopyable
+class SimpleChatServer
 {
 public:
   /*
@@ -95,6 +94,9 @@ public:
   /*! \brief Create a new chat server.
    */
   SimpleChatServer(Wt::WServer& server);
+
+  SimpleChatServer(const SimpleChatServer &) = delete;
+  SimpleChatServer &operator=(const SimpleChatServer &) = delete;
 
   /*! \brief Connects to the chat server.
    *
@@ -145,16 +147,16 @@ public:
 
 private:
   struct ClientInfo {
-    std::string sessionId;
+    std::string       sessionId;
     ChatEventCallback eventCallback;
   };
 
   typedef std::map<Client *, ClientInfo> ClientMap;
 
-  Wt::WServer& server_;
-  boost::recursive_mutex mutex_;
-  ClientMap clients_;
-  UserSet users_;
+  Wt::WServer&                server_;
+  std::recursive_mutex    mutex_;
+  ClientMap               clients_;
+  UserSet                 users_;
 
   void postChatEvent(const ChatEvent& event);
 };

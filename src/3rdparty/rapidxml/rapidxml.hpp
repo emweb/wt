@@ -2,6 +2,7 @@
 #define RAPIDXML_HPP_INCLUDED
 
 #include "rapidxml_xhtml.hpp"
+#include <string>
 
 // Copyright (C) 2006, 2009 Marcin Kalicinski
 // Version 1.13
@@ -14,8 +15,6 @@
     #include <cassert>      // For assert
     #include <new>          // For placement new
 #endif
-
-#include <boost/lexical_cast.hpp>
 
 // On MSVC, disable "conditional expression is constant" warning (level 4). 
 // This warning is almost impossible to avoid with certain types of templated code
@@ -1573,7 +1572,7 @@ namespace rapidxml
                 {
                     RAPIDXML_PARSE_ERROR
 		      (("invalid numeric character entity: "
-			+ boost::lexical_cast<std::string>(code)).c_str(), 0);
+			+ std::to_string(code)).c_str(), 0);
                 }
             }
         }

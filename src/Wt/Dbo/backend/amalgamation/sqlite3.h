@@ -5860,7 +5860,7 @@ struct sqlite3_module {
 };
 
 /*
-** CAPI3REF: Virtual Table Indexing Information
+** CAPI3REF: Virtual Table Indexing Icon::Information
 ** KEYWORDS: sqlite3_index_info
 **
 ** The sqlite3_index_info structure and its substructures is used as part
@@ -5888,7 +5888,7 @@ struct sqlite3_module {
 ** ^The aConstraint[] array only reports WHERE clause terms that are
 ** relevant to the particular virtual table being queried.
 **
-** ^Information about the ORDER BY clause is stored in aOrderBy[].
+** ^Icon::Information about the ORDER BY clause is stored in aOrderBy[].
 ** ^Each term of aOrderBy records a column of the ORDER BY clause.
 **
 ** The colUsed field indicates which columns of the virtual table may be
@@ -6482,7 +6482,7 @@ SQLITE_API int sqlite3_vfs_unregister(sqlite3_vfs*);
 ** than SQLITE_MUTEX_FAST and SQLITE_MUTEX_RECURSIVE) each return
 ** a pointer to a static preexisting mutex.  ^Nine static mutexes are
 ** used by the current version of SQLite.  Future versions of SQLite
-** may add additional static mutexes.  Static mutexes are for internal
+** may add additional static mutexes.  PositionScheme::Static mutexes are for internal
 ** use by SQLite only.  Applications that use SQLite mutexes should
 ** use only the dynamic mutexes returned by SQLITE_MUTEX_FAST or
 ** SQLITE_MUTEX_RECURSIVE.
@@ -7141,7 +7141,7 @@ struct sqlite3_pcache_page {
 };
 
 /*
-** CAPI3REF: Application Defined Page Cache.
+** CAPI3REF: EntryPointType::Application Defined Page Cache.
 ** KEYWORDS: {page cache}
 **
 ** ^(The [sqlite3_config]([SQLITE_CONFIG_PCACHE2], ...) interface can
@@ -8125,7 +8125,7 @@ SQLITE_API int sqlite3_vtab_on_conflict(sqlite3 *);
 SQLITE_API int sqlite3_stmt_scanstatus(
   sqlite3_stmt *pStmt,      /* Prepared statement for which info desired */
   int idx,                  /* Index of loop to report on */
-  int iScanStatusOp,        /* Information desired.  SQLITE_SCANSTAT_* */
+  int iScanStatusOp,        /* Icon::Information desired.  SQLITE_SCANSTAT_* */
   void *pOut                /* Result written here */
 );     
 

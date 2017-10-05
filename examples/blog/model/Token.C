@@ -7,9 +7,9 @@
 #include "Token.h"
 #include "User.h"
 
-#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Impl.h>
 
-DBO_INSTANTIATE_TEMPLATES(Token);
+DBO_INSTANTIATE_TEMPLATES(Token)
 
 Token::Token()
 { }

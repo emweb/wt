@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/SqlConnectionPool"
+#include "Wt/Dbo/SqlConnectionPool.h"
 
 namespace Wt {
   namespace Dbo {

@@ -5,14 +5,14 @@
  */
 #include "SoundManager.h"
 
-#include "Wt/WSound"
-#include "Wt/WCssDecorationStyle"
-#include "Wt/WStringStream"
+#include "Wt/WSound.h"
+#include "Wt/WCssDecorationStyle.h"
+#include "Wt/WStringStream.h"
 
 namespace Wt {
 
-SoundManager::SoundManager(WContainerWidget *parent)
-  : WMediaPlayer(WMediaPlayer::Audio, parent)
+SoundManager::SoundManager()
+  : WMediaPlayer(MediaType::Audio)
 {
   resize(0, 0);
   setAttributeValue("style", "overflow: hidden");
@@ -59,7 +59,7 @@ void SoundManager::play(WSound *sound, int loops)
   setup(sound);
 
   setAttributeValue("loops", std::string());
-  setAttributeValue("loops", boost::lexical_cast<std::string>(loops - 1));
+  setAttributeValue("loops", std::to_string(loops - 1));
 
   current_ = sound;
 
@@ -70,7 +70,7 @@ void SoundManager::stop(WSound *sound)
 {
   WMediaPlayer::stop();
 
-  current_ = 0;
+  current_ = nullptr;
 }
 
 bool SoundManager::isFinished(WSound *sound) const

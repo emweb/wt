@@ -6,12 +6,12 @@
 
 #include <iostream>
 
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WMessageBox>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 #include "SingleThreadedApplication.h"
 
@@ -28,7 +28,7 @@ protected:
 
 private:
   WLineEdit *nameEdit_;
-  WText *greeting_;
+  WText     *greeting_;
 
   void greet();
 };
@@ -43,20 +43,20 @@ void HelloApplication::create()
 {
   setTitle("Hello world");
 
-  root()->addWidget(new WText("Your name, please ? "));
-  nameEdit_ = new WLineEdit(root());
+  root()->addWidget(cpp14::make_unique<WText>("Your name, please? "));
+  nameEdit_ = root()->addWidget(cpp14::make_unique<WLineEdit>());
   nameEdit_->setFocus();
 
-  WPushButton *button = new WPushButton("Greet me.", root());
-  button->setMargin(5, Left);
+  auto button = root()->addWidget(cpp14::make_unique<WPushButton>("Greet me"));
+  button->setMargin(5, Side::Left);
 
-  root()->addWidget(new WBreak());
+  root()->addWidget(cpp14::make_unique<WBreak>());
 
-  greeting_ = new WText(root());
+  greeting_ = root()->addWidget(cpp14::make_unique<WText>());
 
   button->clicked().connect(this, &HelloApplication::greet);
   nameEdit_->enterPressed().connect
-    (boost::bind(&HelloApplication::greet, this));
+    (std::bind(&HelloApplication::greet, this));
 }
 
 void HelloApplication::destroy()
@@ -67,15 +67,15 @@ void HelloApplication::destroy()
 void HelloApplication::greet()
 {
   /*
-   * You can even functions that block the event loop (and start a recursive
+   * You can even use functions that block the event loop (and start a recursive
    * event loop).
    */
-  WMessageBox::show("Welcome", "Hello there, " + nameEdit_->text(), Ok);
+  WMessageBox::show("Welcome", "Hello there, " + nameEdit_->text(), StandardButton::Ok);
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new HelloApplication(env);
+  return cpp14::make_unique<HelloApplication>(env);
 }
 
 int main(int argc, char **argv)

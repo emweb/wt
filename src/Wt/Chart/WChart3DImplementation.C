@@ -5,13 +5,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Chart/WChart3DImplementation"
+#include "Wt/Chart/WChart3DImplementation.h"
 
-#include "Wt/Chart/WCartesian3DChart"
-#include "Wt/Chart/WGridData"
-#include "Wt/WAbstractItemModel"
-#include "Wt/WBoostAny"
-#include "Wt/WTransform"
+#include "Wt/Chart/WCartesian3DChart.h"
+#include "Wt/Chart/WGridData.h"
+#include "Wt/WAbstractItemModel.h"
+#include "Wt/WAny.h"
+#include "Wt/WTransform.h"
 
 namespace Wt {
   namespace Chart {
@@ -27,7 +27,7 @@ ChartType WChart3DImplementation::chartType() const
 
 Orientation WChart3DImplementation::orientation() const
 {
-  return Vertical;
+  return Orientation::Vertical;
 }
 
 int WChart3DImplementation::axisPadding() const
@@ -41,16 +41,16 @@ int WChart3DImplementation::numberOfCategories(Axis axis) const
     return 10;
 
   WAbstractGridData *first;
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     first = dynamic_cast<WAbstractGridData*>(chart_->dataSeries()[0]);
-    if (first == 0) {
+    if (first == nullptr) {
       throw WException("WChart3DImplementation: can only count the categories in WAbstractGridData");
     } else {
       return first->nbXPoints();
     }
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     first = dynamic_cast<WAbstractGridData*>(chart_->dataSeries()[0]);
-    if (first == 0) {
+    if (first == nullptr) {
       throw WException("WChart3DImplementation: can only count the categories in WAbstractGridData");
     } else {
       return first->nbYPoints();
@@ -63,11 +63,12 @@ int WChart3DImplementation::numberOfCategories(Axis axis) const
 WString WChart3DImplementation::categoryLabel(int u, Axis axis) const
 {
   if (chart_->dataSeries().size() == 0)
-    return WString(boost::lexical_cast<std::string>(u));
+    return WString(std::to_string(u));
 
   WAbstractGridData *first = dynamic_cast<WAbstractGridData*>(chart_->dataSeries()[0]);
   if (!first) {
-    throw WException("WChart3DImplementation: can only count the categories in WAbstractGridData");
+    throw WException("WChart3DImplementation: "
+		     "can only count the categories in WAbstractGridData");
   }
 
   return first->axisLabel(u, axis);
@@ -90,7 +91,7 @@ WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderR
   double stackedBarsHeight = 0.0;
   WAbstractGridData* griddata;
   switch (chart_->type()) {
-  case ScatterPlot:
+  case ChartType::Scatter:
     for (unsigned i = 0; i < series.size(); i++) {
       double seriesMin = series[i]->minimum(axis);
       double seriesMax = series[i]->maximum(axis);
@@ -104,11 +105,11 @@ WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderR
     range.minimum = min;
     range.maximum = max;
     return range;
-  case CategoryChart:
+  case ChartType::Category:
     for (unsigned k = 0; k < series.size(); k++) {
       griddata = dynamic_cast<WAbstractGridData*>(series[k]);
       if ( griddata == 0 
-	   || griddata->type() != BarSeries3D) {
+	   || griddata->type() != Series3DType::Bar) {
 	throw WException("WChart3DImplementation: not all data is categorical");
       }
     }
@@ -143,8 +144,7 @@ WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderR
 
 void WChart3DImplementation::update()
 {
-  chart_->updateChart(GLContext |
-		      GLTextures);
+  chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
 

@@ -15,17 +15,17 @@ class Services : public ControlsWidget
 public:
   Services(EventDisplayer *ed);
 
-  void populateSubMenu(Wt::WMenu *menu);
+  void populateSubMenu(WMenu *menu);
 
 private:
-  Wt::WWidget *localization();
-  Wt::WWidget *auth();
-  Wt::WWidget *dbo();
-  Wt::WWidget *payment();
-  Wt::WWidget *mail();
-  Wt::WWidget *http();
-  Wt::WWidget *json();
-  Wt::WWidget *render();
+  std::unique_ptr<WWidget> localization();
+  std::unique_ptr<WWidget> auth();
+  std::unique_ptr<WWidget> dbo();
+  std::unique_ptr<WWidget> payment();
+  std::unique_ptr<WWidget> mail();
+  std::unique_ptr<WWidget> http();
+  std::unique_ptr<WWidget> json();
+  std::unique_ptr<WWidget> render();
 };
 
 #endif // SERVICES_H_

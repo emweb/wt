@@ -1,142 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WCHECKBOX_H_
-#define WCHECKBOX_H_
-
-#include <Wt/WAbstractToggleButton>
-
-namespace Wt {
-
-/*! \class WCheckBox Wt/WCheckBox Wt/WCheckBox
- *  \brief A user control that represents a check box.
- *
- * By default, a checkbox can have two states: Wt::Checked or
- * Wt::Unchecked, which can be inspected using isChecked(), and set
- * using setChecked().
- *
- * A checkbox may also provide a third state, Wt::PartiallyChecked,
- * which is useful to indicate that it is neither checked nor
- * unchecked. %Wt will use native browser support for this HTML5
- * extension when available (Safari and MS IE), and use an image-based
- * workaround otherwise. You may enable support for the third state
- * using setTristate(), and use setCheckState() and checkState() to
- * read all three states.
- * Once a tri-state checkbox is clicked, it cycles through the states
- * Wt::Checked and Wt::Unchecked.
- *
- * A label is added as a sibling of the checkbox to the same parent.
- *
- * Usage example:
- * \if cpp
- * \code
- * Wt::WGroupBox *box = new Wt::WGroupBox("In-flight options");
- *
- * Wt::WCheckBox *w1 = new Wt::WCheckBox("Vegetarian diet", box);
- * box->addWidget(new WBreak());
- * Wt::WCheckBox *w2 = new Wt::WCheckBox("WIFI access", box);
- * box->addWidget(new WBreak());
- * Wt::WCheckBox *w3 = new Wt::WCheckBox("AC plug", box);
- *
- * w1->setChecked(false);
- * w2->setChecked(true);
- * w3->setChecked(true);
- * \endcode
- * \elseif java
- * \code
- * WGroupBox box = new WGroupBox("In-flight options");
- *		 
- * WCheckBox w1 = new WCheckBox("Vegetarian diet", box);
- * box.addWidget(new WBreak());
- * WCheckBox w2 = new WCheckBox("WIFI access", box);
- * box.addWidget(new WBreak());
- * WCheckBox w3 = new WCheckBox("AC plug", box);
- *		 
- * w1.setChecked(false);
- * w2.setChecked(true);
- * w3.setChecked(true);
- * \endcode
- * \endif
- *
- * %WCheckBox is an \link WWidget::setInline(bool) inline \endlink widget.
- *
- * <h3>CSS</h3>
- *
- * This widget is rendered using an HTML <tt>&lt;input
- * type="checkbox"&gt;</tt> tag. When a label is specified, the input
- * element is nested in a <tt>&lt;label&gt;</tt>.
- *
- * This widget does not provide styling, and can be styled using
- * inline or external CSS as appropriate.
- *
- * \sa WAbstractToggleButton
- */
-class WT_API WCheckBox : public WAbstractToggleButton
-{
-public:
-  /*! \brief Creates a checkbox without label.
-   *
-   * A checkbox created by this constructor will not contain a placeholder
-   * for a label, and therefore it is not possible to assign a label to it
-   * later through setText().
-   */
-  WCheckBox(WContainerWidget *parent = 0);
-
-  /*! \brief Creates a checkbox with given label.
-   */
-  WCheckBox(const WString& text, WContainerWidget *parent = 0);
-
-  /*! \brief Makes a tristate checkbox.
-   *
-   * \note You should enable tristate functionality right after construction
-   *       and this cannot be modified later.
-   */
-  void setTristate(bool tristate = true);
-
-  /*! \brief enable or disable cycling throught partial state 
-   *
-   * \sa isPartialStateSelectable()
-   */
-  void setPartialStateSelectable(bool b);
-
-  /*! \brief return partial state cycling
-   *
-   * \sa setPartialStateSelectable();
-   */
-  bool isPartialStateSelectable() { return partialStateSelectable_; };
-
-  /*! \brief Returns whether the checkbox is tristate.
-   *
-   * \sa setTristate()
-   */
-  bool isTristate() const { return triState_; }
-
-  /*! \brief Sets the check state.
-   *
-   * Unless it is a tri-state checkbox, only Wt::Checked and Wt::Unchecked are
-   * valid states.
-   */
-  void setCheckState(CheckState state);
-
-  /*! \brief Returns the check state.
-   *
-   * \sa setCheckState(), isChecked()
-   */
-  CheckState checkState() const { return state_; }
-
-protected:
-  virtual void updateInput(DomElement& input, bool all);
-  void updateJSlot();
-  void updateNextState();
-
-private:
-  bool triState_;
-  bool partialStateSelectable_;
-};
-
-}
-
-#endif // WCHECKBOX_H_
+#ifndef WT_WCHECKBOX_EXTENSIONLESS_H_
+#define WT_WCHECKBOX_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WCheckBox.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WCheckBox.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WCheckBox.h"
+#endif // WT_WCHECKBOX_EXTENSIONLESS_H_

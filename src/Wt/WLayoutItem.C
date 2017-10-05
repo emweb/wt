@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WLayoutItem"
+#include "Wt/WLayoutItem.h"
 
 namespace Wt {
 

@@ -7,11 +7,12 @@
 #ifndef CODE_SESSION_H_
 #define CODE_SESSION_H_
 
-#include <Wt/WString>
-#include <Wt/WSignal>
+#include <Wt/WString.h>
+#include <Wt/WSignal.h>
 
 #include <vector>
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 
 class CodeSession
 {
@@ -27,15 +28,17 @@ public:
     Wt::WString text;
   };
 
-  typedef boost::function<void(int, BufferUpdate)> BufferCallback;
-  typedef boost::function<void(void)> CoderCallback;
+  typedef std::function<void(int, BufferUpdate)> BufferCallback;
+  typedef std::function<void(void)> CoderCallback;
 
   CodeSession(const CoderCallback& coderCallback);
   ~CodeSession();
 
+  static void addSession(const std::shared_ptr<CodeSession> &session);
+
   std::string id() const { return id_; }
 
-  static CodeSession *
+  static std::shared_ptr<CodeSession>
     addObserver(const std::string& id, const BufferCallback& bufferCallback);
 
   void removeObserver();
@@ -43,18 +46,18 @@ public:
 
   void insertBuffer(int index);
   void updateBuffer(int buffer, const Wt::WString& name,
-		    const Wt::WString& text);
+                    const Wt::WString& text);
 
   std::vector<Buffer> buffers() const;
   Buffer buffer(int buffer) const;
   int observerCount() const { return observers_.size(); }
 
 private:
-  typedef boost::recursive_mutex::scoped_lock Lock;
+  typedef std::unique_lock<std::recursive_mutex> Lock;
 
   struct Coder {
     std::string sessionId;
-    CoderCallback callback;    
+    CoderCallback callback;
   };
 
   struct Observer {
@@ -66,13 +69,13 @@ private:
   std::vector<Buffer> buffers_;
 
   std::vector<Observer> observers_;
-  Coder *coder_;
+  std::unique_ptr<Coder> coder_;
 
-  static std::vector<CodeSession *> sessions_;
-  static boost::recursive_mutex mutex_;
+  static std::vector<std::weak_ptr<CodeSession>> sessions_;
+  static std::recursive_mutex mutex_;
 
   void generateId();
-  void deleteIfEmpty();
+  static void cleanExpiredSessions();
   void postSessionChanged();
   void postBufferChanged(int buffer, BufferUpdate update);
 };

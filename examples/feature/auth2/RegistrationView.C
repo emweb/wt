@@ -6,40 +6,42 @@
 #include "RegistrationView.h"
 #include "model/UserDetailsModel.h"
 
-#include <Wt/WLineEdit>
+#include <Wt/WLineEdit.h>
+
+using namespace Wt;
 
 RegistrationView::RegistrationView(Session& session,
-				   Wt::Auth::AuthWidget *authWidget)
-  : Wt::Auth::RegistrationWidget(authWidget),
+                                   Auth::AuthWidget *authWidget)
+  : Auth::RegistrationWidget(authWidget),
     session_(session)
 {
   setTemplateText(tr("template.registration"));
-  detailsModel_ = new UserDetailsModel(session_, this);
+  detailsModel_ = cpp14::make_unique<UserDetailsModel>(session_);
 
-  updateView(detailsModel_);
+  updateView(detailsModel_.get());
 }
 
-Wt::WWidget *RegistrationView::createFormWidget(Wt::WFormModel::Field field)
+std::unique_ptr<WWidget> RegistrationView::createFormWidget(WFormModel::Field field)
 {
   if (field == UserDetailsModel::FavouritePetField)
-    return new Wt::WLineEdit();
+    return cpp14::make_unique<WLineEdit>();
   else
-    return Wt::Auth::RegistrationWidget::createFormWidget(field);
+    return Auth::RegistrationWidget::createFormWidget(field);
 }
 
 bool RegistrationView::validate()
 {
-  bool result = Wt::Auth::RegistrationWidget::validate();
+  bool result = Auth::RegistrationWidget::validate();
 
-  updateModel(detailsModel_);
+  updateModel(detailsModel_.get());
   if (!detailsModel_->validate())
     result = false;
-  updateView(detailsModel_);
+  updateView(detailsModel_.get());
 
   return result;
 }
 
-void RegistrationView::registerUserDetails(Wt::Auth::User& user)
+void RegistrationView::registerUserDetails(Auth::User& user)
 {
   detailsModel_->save(user);
 }

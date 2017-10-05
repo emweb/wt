@@ -8,14 +8,16 @@
 #ifndef HIGH_SCORES_WIDGET_H_
 #define HIGH_SCORES_WIDGET_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
+
+using namespace Wt;
 
 class Session;
 
-class HighScoresWidget: public Wt::WContainerWidget
+class HighScoresWidget: public WContainerWidget
 {
 public:
-  HighScoresWidget(Session *session, Wt::WContainerWidget *parent = 0);
+  HighScoresWidget(Session *session);
   void update();
 
 private:

@@ -4,14 +4,15 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WAbstractArea"
-#include "Wt/WApplication"
-#include "Wt/WResource"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WImage"
+#include "Wt/WAbstractArea.h"
+#include "Wt/WApplication.h"
+#include "Wt/WResource.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WImage.h"
 
 #include "DomElement.h"
+#include "WebUtils.h"
 
 namespace Wt {
 
@@ -25,12 +26,7 @@ namespace Wt {
       { }
 
       ~AreaWidget()
-      {
-	if (facade_) {
-	  facade_->impl_ = 0;
-	  delete facade_;
-	}
-      }
+      { }
 
       WAbstractArea *facade() const { return facade_; }
 
@@ -38,13 +34,13 @@ namespace Wt {
       WAbstractArea *facade_;
 
     protected:
-      virtual void updateDom(DomElement& element, bool all)
+      virtual void updateDom(DomElement& element, bool all) override
       {
 	bool needsUrlResolution = facade_->updateDom(element, all);
 
 	WInteractWidget::updateDom(element, all);
 
-	if (!element.getProperty(PropertyStyleCursor).empty()
+	if (!element.getProperty(Property::StyleCursor).empty()
 	    && !wApp->environment().agentIsGecko()
 	    && element.getAttribute("href").empty())
 	  element.setAttribute("href", "javascript:void(0);");
@@ -53,8 +49,9 @@ namespace Wt {
 	  WAnchor::renderUrlResolution(this, element, all);
       }
 
-      virtual DomElementType domElementType() const {
-	return DomElement_AREA;
+      virtual DomElementType domElementType() const override
+      {
+	return DomElementType::AREA;
       }
 
       friend class Wt::WAbstractArea;
@@ -63,123 +60,93 @@ namespace Wt {
   }
 
 WAbstractArea::WAbstractArea()
-  : impl_(new Impl::AreaWidget(this)),
+  : uWidget_(new Impl::AreaWidget(this)),
+    widget_(uWidget_.get()),
     hole_(false),
-    transformable_(true),
-    anchor_(0)
+    transformable_(true)
 { }
 
 WAbstractArea::~WAbstractArea()
-{
-  if (impl_) {
-    WImage *i = image();
-
-    if (i)
-      i->removeArea(this);
-
-    impl_->facade_ = 0;
-    delete impl_;
-  }
-
-  delete anchor_;
-}
+{ }
 
 EventSignal<WKeyEvent>& WAbstractArea::keyWentDown()
 {
-  return impl_->keyWentDown();
+  return widget_->keyWentDown();
 }
 
 EventSignal<WKeyEvent>& WAbstractArea::keyPressed()
 {
-  return impl_->keyPressed();
+  return widget_->keyPressed();
 }
 
 EventSignal<WKeyEvent>& WAbstractArea::keyWentUp()
 {
-  return impl_->keyWentUp();
+  return widget_->keyWentUp();
 }
 
 EventSignal<>& WAbstractArea::enterPressed()
 {
-  return impl_->enterPressed();
+  return widget_->enterPressed();
 }
 
 EventSignal<>& WAbstractArea::escapePressed()
 {
-  return impl_->escapePressed();
+  return widget_->escapePressed();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::clicked()
 {
-  return impl_->clicked();
+  return widget_->clicked();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::doubleClicked()
 {
-  return impl_->doubleClicked();
+  return widget_->doubleClicked();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::mouseWentDown()
 {
-  return impl_->mouseWentDown();
+  return widget_->mouseWentDown();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::mouseWentUp()
 {
-  return impl_->mouseWentUp();
+  return widget_->mouseWentUp();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::mouseWentOut()
 {
-  return impl_->mouseWentOut();
+  return widget_->mouseWentOut();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::mouseWentOver()
 {
-  return impl_->mouseWentOver();
+  return widget_->mouseWentOver();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::mouseMoved()
 {
-  return impl_->mouseMoved();
+  return widget_->mouseMoved();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::mouseDragged()
 {
-  return impl_->mouseDragged();
+  return widget_->mouseDragged();
 }
 
 EventSignal<WMouseEvent>& WAbstractArea::mouseWheel()
 {
-  return impl_->mouseWheel();
+  return widget_->mouseWheel();
 }
 
 void WAbstractArea::setImage(WImage *image)
 {
-  impl_->setParent(image);
+  image_ = image;
 }
 
 WImage *WAbstractArea::image() const
 {
-  return dynamic_cast<WImage *>(impl_->parent());
-}
-
-void WAbstractArea::setRef(const std::string& ref)
-{
-  setLink(WLink(ref));
-}
-
-const std::string WAbstractArea::ref() const
-{
-  if (anchor_)
-    switch (anchor_->linkState.link.type()) {
-    case WLink::InternalPath:
-      return anchor_->linkState.link.internalPath().toUTF8();
-    default:
-      return anchor_->linkState.link.url();
-    }
-  else
-    return std::string();
+  return image_.get();
 }
 
 void WAbstractArea::setHole(bool hole)
@@ -202,7 +169,7 @@ void WAbstractArea::setLink(const WLink& link)
 
   anchor_->linkState.link = link;
 
-  if (anchor_->linkState.link.type() == WLink::Resource)
+  if (anchor_->linkState.link.type() == LinkType::Resource)
     anchor_->linkState.link.resource()->dataChanged().connect
       (this, &WAbstractArea::resourceChanged);
 
@@ -215,35 +182,6 @@ WLink WAbstractArea::link() const
     return WLink();
   else
     return anchor_->linkState.link;
-}
-
-void WAbstractArea::setResource(WResource *resource)
-{
-  setLink(WLink(resource));
-}
-
-WResource *WAbstractArea::resource() const
-{
-  if (anchor_)
-    return anchor_->linkState.link.resource();
-  else
-    return 0;
-}
-
-void WAbstractArea::setTarget(AnchorTarget target)
-{
-  createAnchorImpl();
-
-  anchor_->linkState.link.setTarget(target);
-  repaint();
-}
-
-AnchorTarget WAbstractArea::target() const
-{
-  if (anchor_)
-    return anchor_->linkState.link.target();
-  else
-    return TargetSelf;
 }
 
 void WAbstractArea::setAlternateText(const WString& text)
@@ -265,58 +203,58 @@ const WString WAbstractArea::alternateText() const
 
 void WAbstractArea::setToolTip(const WString& text)
 {
-  impl_->setToolTip(text);
+  widget_->setToolTip(text);
 }
 
 WString WAbstractArea::toolTip() const
 {
-  return impl_->toolTip();
+  return widget_->toolTip();
 }
 
 void WAbstractArea::setStyleClass(const WT_USTRING& styleClass)
 {
-  impl_->setStyleClass(styleClass);
+  widget_->setStyleClass(styleClass);
 }
 
 void WAbstractArea::setStyleClass(const char *styleClass)
 {
-  impl_->setStyleClass(styleClass);
+  widget_->setStyleClass(styleClass);
 }
 
 WT_USTRING WAbstractArea::styleClass() const
 {
-  return impl_->styleClass();
+  return widget_->styleClass();
 }
 
 void WAbstractArea::addStyleClass(const WT_USTRING& styleClass, bool force)
 {
-  impl_->addStyleClass(styleClass, force);
+  widget_->addStyleClass(styleClass, force);
 }
 
 void WAbstractArea::removeStyleClass(const WT_USTRING& styleClass, bool force)
 {
-  impl_->removeStyleClass(styleClass, force);
+  widget_->removeStyleClass(styleClass, force);
 }
 
 void WAbstractArea::setCursor(Cursor cursor)
 {
-  impl_->decorationStyle().setCursor(cursor);
+  widget_->decorationStyle().setCursor(cursor);
 }
 
 void WAbstractArea::setCursor(std::string cursorImage, Cursor fallback)
 {
-  impl_->decorationStyle().setCursor(cursorImage, fallback);
+  widget_->decorationStyle().setCursor(cursorImage, fallback);
 }
 
 Cursor WAbstractArea::cursor() const
 {
-  return impl_->decorationStyle().cursor();
+  return widget_->decorationStyle().cursor();
 }
 
 void WAbstractArea::createAnchorImpl()
 {
   if (!anchor_)
-    anchor_ = new AnchorImpl();
+    anchor_.reset(new AnchorImpl());
 }
 
 void WAbstractArea::resourceChanged()
@@ -326,7 +264,7 @@ void WAbstractArea::resourceChanged()
 
 void WAbstractArea::repaint()
 {
-  impl_->repaint();
+  widget_->repaint();
 }
 
 bool WAbstractArea::updateDom(DomElement& element, bool all)
@@ -334,8 +272,8 @@ bool WAbstractArea::updateDom(DomElement& element, bool all)
   bool needsUrlResolution = false;
 
   if (!hole_ && anchor_) {
-    needsUrlResolution = WAnchor::renderHRef(impl(), anchor_->linkState,
-					     element);
+    needsUrlResolution
+      = WAnchor::renderHRef(widget_, anchor_->linkState, element);
     WAnchor::renderHTarget(anchor_->linkState, element, all);
     element.setAttribute("alt", anchor_->altText.toUTF8());
   } else {
@@ -348,19 +286,24 @@ bool WAbstractArea::updateDom(DomElement& element, bool all)
   return needsUrlResolution;
 }
 
-WInteractWidget *WAbstractArea::impl()
+WInteractWidget *WAbstractArea::widget()
 {
-  return impl_;
+  return widget_;
 }
 
-WAbstractArea *WAbstractArea::areaForImpl(WWidget *w)
+std::unique_ptr<WWidget> WAbstractArea::takeWidget()
 {
-  Impl::AreaWidget *aw = dynamic_cast<Impl::AreaWidget *>(w);
+  return std::move(uWidget_);
+}
 
-  if (!aw)
-    throw WException("WAbstractArea::areaForImpl could not dynamic_cast?");
+void WAbstractArea::returnWidget(std::unique_ptr<WWidget> w)
+{
+  uWidget_ = Utils::dynamic_unique_ptr_cast<Impl::AreaWidget>(std::move(w));
+}
 
-  return aw->facade();
+std::string WAbstractArea::jsRef() const
+{
+  return widget_->jsRef();
 }
 
 }

@@ -5,7 +5,7 @@ Pieter Libin <pieter@emweb.be> +
 Koen Deforche <koen@emweb.be> +
 Wim Dumon <wim@emweb.be>
 
-For Wt 3.2.0 (December 5 2011)
+For Wt 4.0.0 (September 19, 2017)
 
 :doc: link:http://www.webtoolkit.eu/wt/doc/reference/html/
 :tutorials: link:http://www.webtoolkit.eu/wt/doc/tutorial/
@@ -103,7 +103,7 @@ using the widget tree and the rendering of the tree, the library
 implements several optimizations for rendering when Ajax is
 available. Not only can the library update the interface
 incrementally, there are other tricks such as only rendering visible
-widget changes during in response to an event (or initial loading),
+widget changes during the response to an event (or initial loading),
 and in the background render changes to hidden widgets. As a
 consequence, both the initial response is optimized and the appearance
 of subsequent widgets appears snappy.
@@ -121,7 +121,7 @@ data-sharing mechanisms must be used.
 
 Depending on the deployment model, the library will map sessions onto
 dedicated or shared processes. When using dedicated processes a new
-process is created for every distinct session, this provides the
+process is created for every distinct session: this provides the
 kernel-level isolation of different sessions, which may be useful for
 highly security sensitive applications. When using shared processes
 new sessions are allocated randomly to one of the processes available
@@ -177,15 +177,22 @@ A new session starts with creating an instance of class
 the root of the widget tree and contains other session information,
 such as the connected browser's capabilities.
 
+.NOTE
+****
+The examples assume that you use a compiler with {cpp}14 support. If you
+can only use use {cpp}11, you can use +Wt::cpp14::make_unique+ instead
+of +std::make_unique+.
+****
+
 .A complete "Hello world" application
 [source,cpp]
 ----
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 class HelloApplication : public Wt::WApplication
 {
@@ -204,27 +211,21 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env)
 {
     setTitle("Hello world");
 
-    root()->addWidget(new Wt::WText("Your name, please ? "));
-    nameEdit_ = new Wt::WLineEdit(root());
-    Wt::WPushButton *button = new Wt::WPushButton("Greet me.", root());
-    root()->addWidget(new Wt::WBreak());
-    greeting_ = new Wt::WText(root());
-    button->clicked().connect(this, &HelloApplication::greet);
-}
-
-void HelloApplication::greet()
-{
-    greeting_->setText("Hello there, " + nameEdit_->text());
-}
-
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
-{
-    return new HelloApplication(env);
+    root()->addWidget(std::make_unique<Wt::WText>("Your name, please? "));
+    nameEdit_ = root()->addWidget(std::make_unique<Wt::WLineEdit>());
+    Wt::WPushButton *button = root()->addWidget(std::make_unique<Wt::WPushButton>("Greet me."));
+    root()->addWidget(std:make_unique<Wt::WBreak>());
+    greeting_ = root()->addWidget(std::make_unique<Wt::WText>());
+    button->clicked().connect(this, [this](){
+      greeting_->setText("Hello there, " + nameEdit_->text());
+    });
 }
 
 int main(int argc, char **argv)
 {
-    return Wt::WRun(argc, argv, &createApplication);
+    return Wt::WRun(argc, argv, [](const Wt::WEnvironment& env) {
+      return std::make_unique<HelloApplication>(env);
+    });
 }
 ----
 
@@ -234,20 +235,19 @@ need to do is compile the code above and link against the Wt library
 
 On UNIX-like systems, you could do the following:
 ----
-$ g++ -o hello hello.cc -lwthttp -lwt
+$ g++ -std=c++14 -o hello hello.cc -lwthttp -lwt
 $ ./hello --docroot . --http-address 0.0.0.0 --http-port 9090
 ----
 
 .NOTE
 ****
-If you get linking errors during the first step, it might be you need to
+If you get linking errors during the first step, you might need to
 add more libraries:
 
 ----
-$ g++ -o hello hello.cc -I/usr/local/include -L/usr/local/lib
-  -lwthttp -lwt -lboost_random -lboost_regex 
-  -lboost_signals -lboost_system -lboost_thread -lboost_filesystem 
-  -lboost_program_options -lboost_date_time
+$ g++ -std=c++14 -o hello hello.cc -I/usr/local/include -L/usr/local/lib
+  -lwthttp -lwt -lboost_system -lboost_thread -lboost_filesystem
+  -lboost_program_options
 ----
 ****
 
@@ -257,7 +257,7 @@ function.
 In the +main()+ function, we call
 +{doc}classWt_1_1WServer.html#abca6890dab44d87bd3af64705ac072d3[WRun()]+
 to start the application server. This method will return when the
-application server shuts down (by catching the KILL signal or Windows
+application server shuts down (by catching the TERM signal or the Windows
 equivalent).
 
 .Inside +WRun()+
@@ -282,7 +282,7 @@ The example instantiates four widgets into the application's root
 container: a text (+"Your name, please?"+), a line edit (+nameEdit_+),
 an empty text (+greeting_+) and a button (+button+). These three types
 of widgets are generic widgets provided by the library, and map
-directly on native HTML elements. In the hangman example below we will
+directly to native HTML elements. In the hangman example below we will
 see how other custom and more specialized widgets are used in exactly
 the same way.
 
@@ -307,7 +307,7 @@ the target object and corresponding signal together with all form data
 to the web server (using a full page refresh or Ajax/WebSockets). At
 the server, after the request has been validated as genuine, form data
 such as line edit text is first processed to update the widget tree
-state. Then, the event is propagated by emitting the signal on the
+state. Then, the event is propagated by emitting the signal from the
 target widget, which propagates the event to all connected methods,
 such as in our example the +greet()+ method. Modifications to the widget
 tree are tracked, and after the event has been handled these changes
@@ -318,7 +318,7 @@ refresh or incrementally using Ajax or WebSockets.
 The most interesting thing about the implementation of the +greet()+
 method may be the code that is not there: no JavaScript to update the
 text using DOM manipulations or to re-render the page, no JavaScript
-code to post the event end line edit value using Ajax or WebSockets,
+code to post the event and line edit value using Ajax or WebSockets,
 no HTTP request decoding to interpret the line edit value or button
 event, and no security-related code. All this is handled instead by
 the library. While this could still be manageable for such a small
@@ -329,7 +329,7 @@ updated.
 
 == Hangman
 
-For those of you who forgot the game-play of hangman: the challenge is
+For those of you who forgot the gameplay of hangman: the challenge is
 to guess a word. You can pick a letter, one at a time. If the word
 contains the chosen letter, it is indicated at the correct
 location(s). If the word does not contain the letter, you loose a turn
@@ -372,7 +372,7 @@ With this information, we can implement the class definition.
 class HangmanWidget : public Wt::WContainerWidget
 {
 public:
-    HangmanWidget(const std::string &name, Wt::WContainerWidget *parent = 0);
+    HangmanWidget(const std::string &name);
 
     Wt::Signal<int>& scoreUpdated() { return scoreUpdated_; }
   
@@ -388,7 +388,6 @@ private:
     Wt::Signal<int>   scoreUpdated_;
 
     std::string       name_;
-    Dictionary        dictionary_;
     int               badGuesses_;
 
     void registerGuess(char c);
@@ -399,15 +398,13 @@ private:
 This widget is implemented as a specialized
 +{doc}classWt_1_1WContainerWidget.html[WContainerWidget]+. This is a
 typical choice for widgets that combine other widgets in a simple
-layout. Following a customary practice for widgets, we take an
-optional +parent+ container as the last argument of the constructor.
-We declare one public method +scoreUpdated()+, which provides access
+layout. We declare one public method +scoreUpdated()+, which provides access
 to the signal that will be used to indicate changes to the user's
 score as he plays through games. A
 +{doc}classWt_1_1Signal[Signal<int>]+ used here, indicates that an
 integer value will be passed as event information, and will reflect
 the score update itself (positive when the user wins, or negative when
-the user looses). Any function or object method with a signature
+the user loses). Any function or object method with a signature
 compatible with the signal may be connected to it and will receive the
 score update.
 
@@ -423,29 +420,28 @@ event signals are bound. There are some novelties however.
 ----
 using namespace Wt;
 
-HangmanWidget::HangmanWidget(const std::string &name, WContainerWidget *parent)
-    : WContainerWidget(parent),
-      name_(name),
+HangmanWidget::HangmanWidget(const std::string &name)
+    : name_(name),
       badGuesses_(0)
 {
-    setContentAlignment(AlignCenter);
+    setContentAlignment(AlignmentFlag::Center);
   
-    title_ = new WText(tr("hangman.readyToPlay"), this);
+    title_ = addWidget(std::make_unique<WText>(tr("hangman.readyToPlay")));
 
-    word_ = new WordWidget(this);
-    statusText_ = new WText(this);
-    images_ = new ImagesWidget(MaxGuesses, this);
+    word_ = addWidget(std::make_unique<WordWidget>());
+    statusText_ = addWidget(std::make_unique<WText>());
+    images_ = addWidget(std::make_unique<ImagesWidget>(MaxGuesses));
 
-    letters_ = new LettersWidget(this);
+    letters_ = addWidget(std::make_unique<LettersWidget>());
     letters_->letterPushed().connect(this, &HangmanWidget::registerGuess);
 
-    language_ = new WComboBox(this);
+    language_ = addWidget(std::make_unique<WComboBox>());
     language_->addItem(tr("hangman.englishWords").arg(18957));
     language_->addItem(tr("hangman.dutchWords").arg(1688));
 
-    new WBreak(this);
+    addWidget(std::make_unique<WBreak>());
 
-    newGameButton_ = new WPushButton(tr("hangman.newGame"), this);
+    newGameButton_ = addWidget(std::make_unique<WPushButton>(tr("hangman.newGame")));
     newGameButton_->clicked().connect(this, &HangmanWidget::newGame);
 
     letters_->hide();
@@ -467,6 +463,10 @@ with CSS though, in particular vertical centering or vertical size
 adjustments. It is for this purpose that layout managers have been
 added to Wt. These layout managers use JavaScript to compute the width
 and/or height of widgets based on dimensions of other widgets.
+
+Since Wt 4, some layouts use CSS and flexbox by default, which works
+in many cases, but in some situations, you may want to opt for the
+JavaScript implementation instead.
 ****
 
 The +LetterWidget+ exposes a signal that indicates that the user chose
@@ -485,7 +485,7 @@ to lookup a (localized) string given a key. This happens in a message
 resource bundle (see
 +{doc}classWt_1_1WMessageResourceBundle[WMessageResourceBundle]+),
 which contains locale-specific values for these strings. Values may be
-substituted in these strings using a +“{x}”+ notation and the
+substituted in these strings using a +`“{x}”`+ notation and the
 +{doc}classWt_1_1WString.html#a167d99295d497bc37c11893c175e7e02[arg()]+
 method of +WString+, as used for example for the
 +“hangman.englishWords”+ string which has as actual English value
@@ -515,15 +515,17 @@ void HangmanWidget::newGame()
 
 void HangmanWidget::registerGuess(char c)
 {
-    bool correct = word_->guess(c);
+    if (badGuesses_ < MaxGuesses) {
+      bool correct = word_->guess(c);
 
-    if (!correct) {
-        ++badGuesses_;
-        images_->showImage(badGuesses_);
+      if (!correct) {
+          ++badGuesses_;
+          images_->showImage(badGuesses_);
+      }
     }
 
     if (badGuesses_ == MaxGuesses) {
-        WString status(tr("hangman.youHang"));
+        WString status = tr("hangman.youHang");
         statusText_->setText(status.arg(word_->word()));
 
         letters_->hide();
@@ -547,7 +549,7 @@ void HangmanWidget::registerGuess(char c)
 === Unleashing (some of) Wt's power
 
 Until now, we introduced a rather unique way to develop web
-applications, and a powerful building block for reuse – the
+applications, and a powerful building block for reuse: the
 widget. The next widget in the Hangman game that we will tackle, is
 one we've already used just earlier: the +ImagesWidget+. It
 illustrates an important aspect of the library that highly enhances
@@ -569,30 +571,30 @@ is called.
 .+ImagesWidget+: implementation
 [source,cpp]
 ----
-ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
-    : WContainerWidget(parent)
+ImagesWidget::ImagesWidget(int maxGuesses)
 { 
     for (int i = 0; i <= maxGuesses; ++i) { 
         std::string fname = "icons/hangman"; 
-        fname += boost::lexical_cast<std::string>(i) + ".png"; 
-        WImage *theImage = new WImage(fname, this);
+        fname += std::to_string(i) + ".jpg";
+        WImage *theImage = addWidget(std::make_unique<WImage>(fname));
         images_.push_back(theImage);
 
         theImage->hide();
     } 
 
-    WImage *hurray = new WImage("icons/hangmanhurray.jpg", this);
+    WImage *hurray = std::make_unique<WImage>("icons/hangmanhurray.jpg");
     hurray->hide();
     images_.push_back(hurray);
 
-    showImage(HURRAY);
+    image_ = 0;
+    showImage(maxGuesses);
 } 
 
 void ImagesWidget::showImage(int index) 
 {
-    image(index)->hide();
+    image(image_)->hide();
     image_ = index;
-    image(index)->show();
+    image(image_)->show();
 }
 
 WImage *ImagesWidget::image(int index) const
@@ -640,7 +642,7 @@ tutorial). Both are contained by a
 container widget which shows only one of its contained children at a
 time (and which, in all honesty we should have used to implement the
 +ImagesWidget+, were it not that we wanted to explain a bit more about
-preloading of contents).  Unless we do something about it, a Wt
+preloading of contents). Unless we do something about it, a Wt
 application presents itself as a single URL, and is thus a single-page
 web application. This is not necessarily bad, but, it may be better to
 support multiple URLs which allows a user to navigate within your
@@ -717,7 +719,7 @@ application: namely how user scores are stored, and the authentication
 system. Database access is implemented using a +Wt::Dbo+, which is a
 {cpp} ORM that comes with Wt. {tutorials}dbo.html[This tutorial]
 introduces the database layer. The authentication module, +Wt::Auth+,
-as used in this example, is {tutorials}auth.html[[introduced here].
+as used in this example, is {tutorials}auth.html[introduced here].
 
 == Summary
 

@@ -4,9 +4,8 @@
 
 const Wt::WFormModel::Field UserDetailsModel::NameField = "name";
 
-UserDetailsModel::UserDetailsModel(Session& session, Wt::WObject *parent)
-  : Wt::WFormModel(parent),
-    session_(session)
+UserDetailsModel::UserDetailsModel(Session& session)
+  : session_(session)
 {
   addField(NameField, Wt::WString::tr("name-info"));
 }

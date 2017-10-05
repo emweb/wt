@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WException"
+#include "Wt/WException.h"
 
 #ifdef WT_WITH_UNWIND
 #define UNW_LOCAL_ONLY

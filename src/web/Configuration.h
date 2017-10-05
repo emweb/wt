@@ -17,13 +17,14 @@
 #endif
 
 #ifdef WT_CONF_LOCK
-#include <boost/thread.hpp>
+#include <thread>
+#include <boost/thread/shared_mutex.hpp>
 #endif // WT_CONF_LOCK
 
-#include "Wt/WApplication"
+#include "Wt/WApplication.h"
 
 #include "WebSession.h"
-#include "Wt/WRandom"
+#include "Wt/WRandom.h"
 
 namespace boost {
   namespace program_options {
@@ -68,6 +69,19 @@ private:
 typedef std::deque<EntryPoint> EntryPointList;
 
 #endif // WT_TARGET_JAVA
+
+class WT_API HeadMatter {
+public:
+  HeadMatter(std::string contents,
+             std::string userAgent);
+
+  const std::string& contents() const { return contents_; }
+  const std::string& userAgent() const { return userAgent_; }
+
+private:
+  std::string contents_;
+  std::string userAgent_;
+};
 
 class WT_API Configuration
 {
@@ -139,16 +153,19 @@ public:
 #endif // WT_TARGET_JAVA
 
   const std::vector<MetaHeader>& metaHeaders() const { return metaHeaders_; }
+  const std::vector<HeadMatter>& headMatter() const { return headMatter_; }
   SessionPolicy sessionPolicy() const;
   int numProcesses() const;
   int numThreads() const;
   int maxNumSessions() const;
   ::int64_t maxRequestSize() const;
+  ::int64_t maxFormDataSize() const;
   ::int64_t isapiMaxMemoryRequestSize() const;
   SessionTracking sessionTracking() const;
   bool reloadIsNewSession() const;
   int sessionTimeout() const;
   int keepAlive() const; // sessionTimeout() / 2, or if sessionTimeout == -1, 1000000
+  int multiSessionCookieTimeout() const; // sessionTimeout() * 2
   int bootstrapTimeout() const;
   int indicatorTimeout() const;
   int doubleClickTimeout() const;
@@ -231,6 +248,7 @@ private:
   int             numThreads_;
   int             maxNumSessions_;
   ::int64_t       maxRequestSize_;
+  ::int64_t       maxFormDataSize_;
   ::int64_t       isapiMaxMemoryRequestSize_;
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;
@@ -265,6 +283,7 @@ private:
 
   std::vector<BootstrapEntry> bootstrapConfig_;
   std::vector<MetaHeader> metaHeaders_;
+  std::vector<HeadMatter> headMatter_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

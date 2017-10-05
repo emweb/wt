@@ -1,13 +1,14 @@
-#include <Wt/Utils>
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WText>
-#include <Wt/WTextEdit>
+#include <Wt/Utils.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
+#include <Wt/WTextEdit.h>
 
 SAMPLE_BEGIN(TextEdit)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WTextEdit *edit = new Wt::WTextEdit(container);
+Wt::WTextEdit *edit =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WTextEdit>());
 edit->setHeight(300);
 edit->setText("<p>"
     "<span style=\"font-family: 'courier new', courier; font-size: medium;\">"
@@ -24,14 +25,16 @@ edit->setText("<p>"
       "</ul>"
     "<p>don't have style.</p>");
 
-Wt::WPushButton *button = new Wt::WPushButton("Get text", container);
-button->setMargin(10, Wt::Top | Wt::Bottom);
+Wt::WPushButton *button =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Get text"));
+button->setMargin(10, Wt::Side::Top | Wt::Side::Bottom);
 
-Wt::WText *out = new Wt::WText(container);
+Wt::WText *out =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 out->setStyleClass("xhtml-output");
 
-button->clicked().connect(std::bind([=] () {
+button->clicked().connect([=] {
     out->setText("<pre>" + Wt::Utils::htmlEncode(edit->text()) + "</pre>");
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

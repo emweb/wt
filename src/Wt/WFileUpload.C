@@ -3,16 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
-
-#include "Wt/WFileUpload"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WLogger"
-#include "Wt/WProgressBar"
-#include "Wt/WResource"
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
+#include "Wt/WFileUpload.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
+#include "Wt/WProgressBar.h"
+#include "Wt/WResource.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
 
 #include "DomElement.h"
 #include "WebSession.h"
@@ -27,11 +25,10 @@ namespace Wt {
 
 LOGGER("WFileUpload");
 
-class WFileUploadResource : public WResource {
+class WFileUploadResource final : public WResource {
 public:
   WFileUploadResource(WFileUpload *fileUpload)
-    : WResource(fileUpload),
-      fileUpload_(fileUpload)
+    : fileUpload_(fileUpload)
   { }
 
   virtual ~WFileUploadResource()
@@ -41,7 +38,8 @@ public:
 
 protected:
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response) {
+			     Http::Response& response) override
+  {
     bool triggerUpdate = false;
 
     std::vector<Http::UploadedFile> files;
@@ -70,14 +68,15 @@ protected:
       "function load() { ";
 
     if (triggerUpdate || request.tooLarge()) {
-      WEnvironment::UserAgent agent =
+      UserAgent agent =
           WApplication::instance()->environment().agent();
 
       if (triggerUpdate) {
         LOG_DEBUG("Resource handleRequest(): signaling uploaded");
 
         // postMessage does not work for IE6,7
-        if (agent == WEnvironment::IE6 || agent == WEnvironment::IE7){
+        if (agent == UserAgent::IE6 ||
+	    agent == UserAgent::IE7){
           o << "window.parent."
             << WApplication::instance()->javaScriptClass()
             << "._p_.update(null, '"
@@ -95,11 +94,12 @@ protected:
 
 	// FIXME this should use postMessage() all the same
 
-        std::string s = boost::lexical_cast<std::string>(request.tooLarge());
+        std::string s = std::to_string(request.tooLarge());
 
         // postMessage does not work for IE6,7
-        if (agent == WEnvironment::IE6 || agent == WEnvironment::IE7)
-          o << fileUpload_->fileTooLarge().createCall(s);
+        if (agent == UserAgent::IE6 || 
+	    agent == UserAgent::IE7)
+          o << fileUpload_->fileTooLarge().createCall({s});
         else
           o << " window.parent.postMessage("
             << "JSON.stringify({" << "fileTooLargeSize: '" << s
@@ -131,11 +131,10 @@ const char *WFileUpload::UPLOADED_SIGNAL = "M_uploaded";
  * - JavaScript method to do the upload
  */
 
-WFileUpload::WFileUpload(WContainerWidget *parent)
-  : WWebWidget(parent),
-    textSize_(20),
+WFileUpload::WFileUpload()
+  : textSize_(20),
     fileTooLarge_(this, "fileTooLarge"),
-    dataReceived_(this),
+    dataReceived_(),
     progressBar_(0)
 {
   setInline(true);
@@ -148,7 +147,7 @@ void WFileUpload::create()
   bool methodIframe = WApplication::instance()->environment().ajax();
 
   if (methodIframe) {
-    fileUploadTarget_ = new WFileUploadResource(this);
+    fileUploadTarget_.reset(new WFileUploadResource(this));
     fileUploadTarget_->setUploadProgress(true);
     fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
     fileUploadTarget_->dataExceeded().connect(this, &WFileUpload::onDataExceeded);
@@ -159,7 +158,7 @@ void WFileUpload::create()
 			""  "$(self).find('input').width(w);"
 			"}");
   } else
-    fileUploadTarget_ = 0;
+    fileUploadTarget_.reset();
 
   setFormObject(!fileUploadTarget_);
 
@@ -225,13 +224,19 @@ void WFileUpload::setFilters(const std::string& acceptAttributes)
 
 void WFileUpload::setProgressBar(WProgressBar *bar)
 {
-  delete progressBar_;
-  progressBar_ = bar;
+  if (containedProgressBar_.get() != bar)
+    manageWidget(containedProgressBar_, std::unique_ptr<WProgressBar>());
 
-  if (progressBar_) {
-    if (!progressBar_->parent()) {
-      progressBar_->setParentWidget(this);
-      progressBar_->hide();
+  progressBar_ = bar;
+}
+
+void WFileUpload::setProgressBar(std::unique_ptr<WProgressBar> bar)
+{
+  if(bar){
+    if (containedProgressBar_ != bar){
+      progressBar_ = bar.get();
+      containedProgressBar_ = std::move(bar);
+      containedProgressBar_->hide();
     }
   }
 }
@@ -291,11 +296,6 @@ void WFileUpload::stealSpooledFile()
     uploadedFiles_[0].stealSpoolFile();
 }
 
-bool WFileUpload::emptyFileName() const
-{
-  return empty();
-}
-
 bool WFileUpload::empty() const
 {
   return uploadedFiles_.empty();
@@ -304,9 +304,9 @@ bool WFileUpload::empty() const
 void WFileUpload::updateDom(DomElement& element, bool all)
 {
   bool containsProgress = progressBar_ && progressBar_->parent() == this;
-  DomElement *inputE = 0;
+  DomElement *inputE = nullptr;
 
-  if (element.type() != DomElement_INPUT
+  if (element.type() != DomElementType::INPUT
       && flags_.test(BIT_DO_UPLOAD)
       && containsProgress && !progressBar_->isRendered())
     element.addChild(progressBar_->createSDomElement(WApplication::instance()));
@@ -320,8 +320,7 @@ void WFileUpload::updateDom(DomElement& element, bool all)
     element.setAttribute("action", fileUploadTarget_->generateUrl());
 
     std::string maxFileSize =
-        boost::lexical_cast<std::string>(
-          WApplication::instance()->maximumRequestSize());
+        std::to_string(WApplication::instance()->maximumRequestSize());
 
     std::string command =
       "{"
@@ -332,7 +331,7 @@ void WFileUpload::updateDom(DomElement& element, bool all)
       ""    "var f = x.files[i];"
       ""      "if (f.size > " + maxFileSize + ") {"
       ""        "submit = false;"
-      ""       + fileTooLarge().createCall("f.size") + ";"
+      ""       + fileTooLarge().createCall({"f.size"}) + ";"
       ""        "break;"
       ""      "}"
       ""    "}"
@@ -345,14 +344,14 @@ void WFileUpload::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_DO_UPLOAD);
 
     if (containsProgress) {
-      inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
-      inputE->setProperty(PropertyStyleDisplay, "none");
+      inputE = DomElement::getForUpdate("in" + id(), DomElementType::INPUT);
+      inputE->setProperty(Property::StyleDisplay, "none");
     }
   }
 
   if (flags_.test(BIT_ENABLED_CHANGED)) {
     if (!inputE)
-      inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
+      inputE = DomElement::getForUpdate("in" + id(), DomElementType::INPUT);
 
     if (isEnabled())
       inputE->callMethod("disabled=false");
@@ -362,7 +361,7 @@ void WFileUpload::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_ACCEPT_ATTRIBUTE_CHANGED) || flags_.test(BIT_ENABLED_CHANGED)){
     if (!inputE)
-      inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
+      inputE = DomElement::getForUpdate("in" + id(), DomElementType::INPUT);
 
     inputE->setAttribute("accept", acceptAttributes_);
   }
@@ -373,7 +372,7 @@ void WFileUpload::updateDom(DomElement& element, bool all)
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
   if (change && change->needsUpdate(all)) {
     if (!inputE)
-      inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
+      inputE = DomElement::getForUpdate("in" + id(), DomElementType::INPUT);
 
     updateSignalConnection(*inputE, *change, "change", all);
   }
@@ -392,14 +391,14 @@ void WFileUpload::propagateRenderOk(bool deep)
 
 DomElementType WFileUpload::domElementType() const
 {
-  return fileUploadTarget_ ? DomElement_FORM : DomElement_INPUT;
+  return fileUploadTarget_ ? DomElementType::FORM : DomElementType::INPUT;
 }
 
 void WFileUpload::getDomChanges(std::vector<DomElement *>& result,
 				WApplication *app)
 {
   if (flags_.test(BIT_ENABLE_AJAX)) {
-    DomElement *plainE = DomElement::getForUpdate(this, DomElement_INPUT);
+    DomElement *plainE = DomElement::getForUpdate(this, DomElementType::INPUT);
     DomElement *ajaxE = createDomElement(app);
     plainE->replaceWith(ajaxE);
     result.push_back(plainE);
@@ -410,7 +409,7 @@ void WFileUpload::getDomChanges(std::vector<DomElement *>& result,
 DomElement *WFileUpload::createDomElement(WApplication *app)
 {
   DomElement *result = DomElement::createNew(domElementType());
-  if (result->type() == DomElement_FORM)
+  if (result->type() == DomElementType::FORM)
     result->setId(id());
   else
     result->setName(id());
@@ -418,9 +417,9 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
 
   if (fileUploadTarget_) {
-    DomElement *i = DomElement::createNew(DomElement_IFRAME);
-    i->setProperty(PropertyClass, "Wt-resource");
-    i->setProperty(PropertySrc, fileUploadTarget_->url());
+    DomElement *i = DomElement::createNew(DomElementType::IFRAME);
+    i->setProperty(Property::Class, "Wt-resource");
+    i->setProperty(Property::Src, fileUploadTarget_->url());
     i->setName("if" + id());
     if (app->environment().agentIsIE()) {
       // http://msdn.microsoft.com/en-us/library/ms536474%28v=vs.85%29.aspx
@@ -437,29 +436,29 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     form->setAttribute("method", "post");
     form->setAttribute("action", fileUploadTarget_->url());
     form->setAttribute("enctype", "multipart/form-data");
-    form->setProperty(PropertyStyle, "margin:0;padding:0;display:inline");
-    form->setProperty(PropertyTarget, "if" + id());
+    form->setProperty(Property::Style, "margin:0;padding:0;display:inline");
+    form->setProperty(Property::Target, "if" + id());
 
     /*
      * wrap iframe in an extra span to work around bug in IE which does
      * not set the name use DOM methods
      */
-    DomElement *d = DomElement::createNew(DomElement_SPAN);
+    DomElement *d = DomElement::createNew(DomElementType::SPAN);
     d->addChild(i);
 
     form->addChild(d);
 
-    DomElement *input = DomElement::createNew(DomElement_INPUT);
+    DomElement *input = DomElement::createNew(DomElementType::INPUT);
     input->setAttribute("type", "file");
     if (flags_.test(BIT_MULTIPLE))
       input->setAttribute("multiple", "multiple");
     input->setAttribute("name", "data");
-    input->setAttribute("size", boost::lexical_cast<std::string>(textSize_));
+    input->setAttribute("size", std::to_string(textSize_));
     input->setAttribute("accept", acceptAttributes_);
     input->setId("in" + id());
 
     if (!isEnabled())
-      input->setProperty(Wt::PropertyDisabled, "true");
+      input->setProperty(Wt::Property::Disabled, "true");
 
     if (change)
       updateSignalConnection(*input, *change, "change", true);
@@ -475,7 +474,7 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
      +        app->javaScriptClass()
      +        "._p_.update(null, data.signal, null, true);"
      ""  "} else if (data.type === 'file_too_large') {"
-     ""    + fileTooLarge().createCall("data.fileTooLargeSize") +
+     ""    + fileTooLarge().createCall({"data.fileTooLargeSize"}) +
 		 "  ""}"
 		 """}"
 		 "};"
@@ -488,10 +487,10 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     result->setAttribute("type", "file");
     if (flags_.test(BIT_MULTIPLE))
       result->setAttribute("multiple", "multiple");
-    result->setAttribute("size", boost::lexical_cast<std::string>(textSize_));
+    result->setAttribute("size", std::to_string(textSize_));
 
     if (!isEnabled())
-      result->setProperty(Wt::PropertyDisabled, "true");
+      result->setProperty(Wt::Property::Disabled, "true");
 
     if (change)
       updateSignalConnection(*result, *change, "change", true);

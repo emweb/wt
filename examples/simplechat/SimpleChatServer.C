@@ -5,43 +5,41 @@
  */
 
 #include "SimpleChatServer.h"
-#include <Wt/WServer>
+#include <Wt/WServer.h>
 
 #include <iostream>
-#include <boost/lexical_cast.hpp>
 
-using namespace Wt;
 
-const WString ChatEvent::formattedHTML(const WString& user,
-				       TextFormat format) const
+const Wt::WString ChatEvent::formattedHTML(const Wt::WString& user,
+				       Wt::TextFormat format) const
 {
   switch (type_) {
   case Login:
-    return WString::fromUTF8("<span class='chat-info'>")
-      + WWebWidget::escapeText(user_) + " joined.</span>";
+    return Wt::WString("<span class='chat-info'>")
+      + Wt::WWebWidget::escapeText(user_) + " joined.</span>";
   case Logout:
-    return WString::fromUTF8("<span class='chat-info'>")
+    return Wt::WString("<span class='chat-info'>")
       + ((user == user_) ?
-	 WString::fromUTF8("You") :
-	 WWebWidget::escapeText(user_))
+	 Wt::WString("You") :
+	 Wt::WWebWidget::escapeText(user_))
       + " logged out.</span>";
   case Rename:
     return "<span class='chat-info'>"
       + ((user == data_ || user == user_) ?
 	 "You are" :
-	 (WWebWidget::escapeText(user_) + " is")) 
-      + " now known as " + WWebWidget::escapeText(data_) + ".</span>";
+	 (Wt::WWebWidget::escapeText(user_) + " is"))
+      + " now known as " + Wt::WWebWidget::escapeText(data_) + ".</span>";
   case Message:{
-    WString result;
+    Wt::WString result;
 
-    result = WString("<span class='")
+    result = Wt::WString("<span class='")
       + ((user == user_) ?
 	 "chat-self" :
 	 "chat-user")
-      + "'>" + WWebWidget::escapeText(user_) + ":</span>";
+      + "'>" + Wt::WWebWidget::escapeText(user_) + ":</span>";
 
-    WString msg
-      = (format == XHTMLText ? message_ : WWebWidget::escapeText(message_));
+    Wt::WString msg
+      = (format == Wt::TextFormat::XHTML ? message_ : Wt::WWebWidget::escapeText(message_));
 
     if (message_.toUTF8().find(user.toUTF8()) != std::string::npos)
       return result + "<span class='chat-highlight'>" + msg + "</span>";
@@ -54,19 +52,19 @@ const WString ChatEvent::formattedHTML(const WString& user,
 }
 
 
-SimpleChatServer::SimpleChatServer(WServer& server)
+SimpleChatServer::SimpleChatServer(Wt::WServer& server)
   : server_(server)
 { }
 
 bool SimpleChatServer::connect(Client *client,
 			       const ChatEventCallback& handleEvent)
 {
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
 
   if (clients_.count(client) == 0) {
     ClientInfo clientInfo;
   
-    clientInfo.sessionId = WApplication::instance()->sessionId();
+    clientInfo.sessionId = Wt::WApplication::instance()->sessionId();
     clientInfo.eventCallback = handleEvent;
 
     clients_[client] = clientInfo;
@@ -78,14 +76,14 @@ bool SimpleChatServer::connect(Client *client,
 
 bool SimpleChatServer::disconnect(Client *client)
 {
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
 
   return clients_.erase(client) == 1;
 }
 
-bool SimpleChatServer::login(const WString& user)
+bool SimpleChatServer::login(const Wt::WString& user)
 {
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
   
   if (users_.find(user) == users_.end()) {
     users_.insert(user);
@@ -97,9 +95,9 @@ bool SimpleChatServer::login(const WString& user)
     return false;
 }
 
-void SimpleChatServer::logout(const WString& user)
+void SimpleChatServer::logout(const Wt::WString& user)
 {
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
 
   UserSet::iterator i = users_.find(user);
 
@@ -110,12 +108,12 @@ void SimpleChatServer::logout(const WString& user)
   }
 }
 
-bool SimpleChatServer::changeName(const WString& user, const WString& newUser)
+bool SimpleChatServer::changeName(const Wt::WString& user, const Wt::WString& newUser)
 {
   if (user == newUser)
     return true;
 
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
   
   UserSet::iterator i = users_.find(user);
 
@@ -133,29 +131,29 @@ bool SimpleChatServer::changeName(const WString& user, const WString& newUser)
     return false;
 }
 
-WString SimpleChatServer::suggestGuest()
+Wt::WString SimpleChatServer::suggestGuest()
 {
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
 
   for (int i = 1;; ++i) {
-    std::string s = "guest " + boost::lexical_cast<std::string>(i);
-    WString ss = s;
+    std::string s = "guest " + std::to_string(i);
+    Wt::WString ss = s;
 
     if (users_.find(ss) == users_.end())
       return ss;
   }
 }
 
-void SimpleChatServer::sendMessage(const WString& user, const WString& message)
+void SimpleChatServer::sendMessage(const Wt::WString& user, const Wt::WString& message)
 {
   postChatEvent(ChatEvent(user, message));
 }
 
 void SimpleChatServer::postChatEvent(const ChatEvent& event)
 {
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
 
-  WApplication *app = WApplication::instance();
+  Wt::WApplication *app = Wt::WApplication::instance();
 
   for (ClientMap::const_iterator i = clients_.begin(); i != clients_.end();
        ++i) {
@@ -173,13 +171,13 @@ void SimpleChatServer::postChatEvent(const ChatEvent& event)
       i->second.eventCallback(event);
     else
       server_.post(i->second.sessionId,
-		   boost::bind(i->second.eventCallback, event));
+                   std::bind(i->second.eventCallback, event));
   }
 }
 
 SimpleChatServer::UserSet SimpleChatServer::users()
 {
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
 
   UserSet result = users_;
 

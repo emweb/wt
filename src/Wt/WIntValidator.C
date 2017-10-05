@@ -4,13 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WApplication"
-#include "Wt/WIntValidator"
-#include "Wt/WString"
-#include "Wt/WStringStream"
+#include "Wt/WApplication.h"
+#include "Wt/WIntValidator.h"
+#include "Wt/WString.h"
+#include "Wt/WStringStream.h"
 
 
 #ifndef WT_DEBUG_JS
@@ -19,18 +18,16 @@
 
 namespace Wt {
 
-WIntValidator::WIntValidator(WObject *parent)
-  : WValidator(parent),
-    bottom_(std::numeric_limits<int>::min()),
+WIntValidator::WIntValidator()
+  : bottom_(std::numeric_limits<int>::min()),
     top_(std::numeric_limits<int>::max()),
-	ignoreTrailingSpaces_(false)
+    ignoreTrailingSpaces_(false)
 { }
 
-WIntValidator::WIntValidator(int bottom, int top, WObject *parent)
-  : WValidator(parent),
-    bottom_(bottom),
+WIntValidator::WIntValidator(int bottom, int top)
+  : bottom_(bottom),
     top_(top),
-	ignoreTrailingSpaces_(false)
+    ignoreTrailingSpaces_(false)
 { }
 
 void WIntValidator::setBottom(int bottom)
@@ -128,20 +125,20 @@ WValidator::Result WIntValidator::validate(const WT_USTRING& input) const
 
   std::string text = input.toUTF8();
 
-  if(ignoreTrailingSpaces_)
-	boost::trim(text);
+  if (ignoreTrailingSpaces_)
+    boost::trim(text);
 
   try {
     int i = WLocale::currentLocale().toInt(text);
 
     if (i < bottom_)
-      return Result(Invalid, invalidTooSmallText());
+      return Result(ValidationState::Invalid, invalidTooSmallText());
     else if (i > top_)
-      return Result(Invalid, invalidTooLargeText());
+      return Result(ValidationState::Invalid, invalidTooLargeText());
     else
-      return Result(Valid);
-  } catch (boost::bad_lexical_cast& e) {
-    return Result(Invalid, invalidNotANumberText());
+      return Result(ValidationState::Valid);
+  } catch (std::exception& e) {
+    return Result(ValidationState::Invalid, invalidNotANumberText());
   }
 }
 
@@ -161,7 +158,7 @@ std::string WIntValidator::javaScriptValidate() const
      << ',';
 
   if (bottom_ != std::numeric_limits<int>::min())
-	js << bottom_;
+    js << bottom_;
   else
     js << "null";
 
@@ -187,28 +184,5 @@ std::string WIntValidator::inputFilter() const
 {
   return "[-+0-9]";
 }
-
-#ifndef WT_TARGET_JAVA
-void WIntValidator::createExtConfig(std::ostream& config) const
-{
-  config << ",allowDecimals:false";
-
-  if (bottom_ >= 0)
-    config << ",allowNegative:false";
-  if (bottom_ != std::numeric_limits<int>::min())
-    config << ",minValue:" << bottom_;
-  if (top_ != std::numeric_limits<int>::max())
-    config << ",maxValue:" << top_;
-
-  if (!tooSmallText_.empty())
-    config << ",minText:" << tooSmallText_.jsStringLiteral();
-  if (!tooLargeText_.empty())
-    config << ",maxText:" << tooLargeText_.jsStringLiteral();
-  if (!nanText_.empty())
-    config << ",nanText:" << nanText_.jsStringLiteral();
-
-  WValidator::createExtConfig(config);
-}
-#endif //WT_TARGET_JAVA
 
 }

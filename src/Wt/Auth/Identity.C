@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/Identity"
+#include "Wt/Auth/Identity.h"
 
 namespace Wt {
   namespace Auth {

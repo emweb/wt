@@ -1,22 +1,22 @@
-#include <Wt/WBrush>
-#include <Wt/WColor>
-#include <Wt/WContainerWidget>
-#include <Wt/WPaintDevice>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPainter>
+#include <Wt/WBrush.h>
+#include <Wt/WColor.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPainter.h>
 
 class PaintingImagesWidget : public Wt::WPaintedWidget
 {
 public:
-    PaintingImagesWidget(Wt::WContainerWidget *parent = 0)
-	: Wt::WPaintedWidget(parent)
+    PaintingImagesWidget()
+        : WPaintedWidget()
     {
 	resize(639, 1310);  // Provide a default size.
     }
 
 protected:
     void paintEvent(Wt::WPaintDevice *paintDevice) {
-	Wt::WPainter painter(paintDevice);
+        Wt::WPainter painter(paintDevice);
 
 	Wt::WPainter::Image image("pics/sintel_trailer.jpg", 639, 354);
 	painter.drawImage(0.0, 0.0, image);
@@ -56,15 +56,15 @@ protected:
 	path.lineTo(263,264);
 	path.lineTo(228,330);
 	path.lineTo(92,330);
-	Wt::WPen pen = Wt::WPen(Wt::red);
+	Wt::WPen pen = Wt::WPen(Wt::WColor(Wt::StandardColor::Red));
 	pen.setWidth(3);
 	painter.strokePath(path, pen);
     }
 };
 
 SAMPLE_BEGIN(PaintingImages)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-new PaintingImagesWidget(container);
+container->addWidget(Wt::cpp14::make_unique<PaintingImagesWidget>());
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

@@ -43,3 +43,11 @@ body {
 .modal-body {
     max-height: none;
 }
+
+/*
+ * Default width of .modal is too narrow to accomodate
+ * div.Wt-auth-registration of width 600px.
+ */
+.modal {
+    width: auto;
+}

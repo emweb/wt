@@ -7,7 +7,7 @@
 #ifndef CHARACTER_H_
 #define CHARACTER_H_
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 using namespace Wt;
 
@@ -26,7 +26,7 @@ class Character : public WText
 public:
   /*! \brief Create a new character with the given name.
    */
-  Character(const std::string& name, WContainerWidget *parent = 0);
+  Character(const std::string& name);
 
   /*! \brief React to a drop event.
    */

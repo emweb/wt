@@ -8,26 +8,28 @@
 #ifndef MY_CAPTCHA_H_
 #define MY_CAPTCHA_H_
 
-#include <Wt/WSignal>
-#include <Wt/WContainerWidget>
-#include <Wt/WText>
+#include <Wt/WSignal.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WText.h>
 
 #include "ShapesWidget.h"
 
-class MyCaptcha : public Wt::WContainerWidget
+using namespace Wt;
+
+class MyCaptcha : public WContainerWidget
 {
 public:
-  MyCaptcha(Wt::WContainerWidget* parent, const int width, const int height);
+  MyCaptcha(const int width, const int height);
 
-  Wt::Signal<void>& completed() { return completed_; }
+  Signal<>& completed() { return completed_; }
   
 private:
-  Wt::Signal<void> completed_;
-  ShapesWidget* shapesWidget_;
-  Wt::WText* captchaMessage_;
+  Signal<>        completed_;
+  ShapesWidget   *shapesWidget_;
+  WText          *captchaMessage_;
 
   void regenerate();
-  void handleClick(const Wt::WMouseEvent& me);  
+  void handleClick(const WMouseEvent& me);
 };
 
 #endif //MY_CAPTCHA_H_

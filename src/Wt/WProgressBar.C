@@ -7,9 +7,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WProgressBar>
-#include <Wt/WTheme>
+#include <Wt/WApplication.h>
+#include <Wt/WProgressBar.h>
+#include <Wt/WTheme.h>
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -18,15 +18,13 @@ using namespace Wt;
 
 namespace Wt {
 
-WProgressBar::WProgressBar(WContainerWidget *parent)
-   : WInteractWidget(parent),
-     min_(0),
-     max_(100),
-     value_(0),
-     changed_(false)
+WProgressBar::WProgressBar()
+  : min_(0),
+    max_(100),
+    value_(0),
+    changed_(false)
 {
   format_ = WString::fromUTF8("%.0f %%");
-
   setInline(true);
 }
 
@@ -108,7 +106,7 @@ double WProgressBar::percentage() const
 
 DomElementType WProgressBar::domElementType() const
 {
-  return DomElement_DIV; // later support DomElement_PROGRESS
+  return DomElementType::DIV; // later support DomElementType::PROGRESS
 }
 
 void WProgressBar::resize(const WLength& width, const WLength& height)
@@ -121,39 +119,38 @@ void WProgressBar::resize(const WLength& width, const WLength& height)
 
 void WProgressBar::updateBar(DomElement& bar)
 {
-    bar.setProperty(PropertyStyleWidth,
-		     boost::lexical_cast<std::string>(percentage()) + "%");
+  bar.setProperty(Property::StyleWidth, std::to_string(percentage()) + "%");
 }
 
 void WProgressBar::updateDom(DomElement& element, bool all)
 {
-  DomElement *bar = 0, *label = 0;
+  DomElement *bar = nullptr, *label = nullptr;
 
   if (all) {
     WApplication *app = WApplication::instance();
 
-    bar = DomElement::createNew(DomElement_DIV);
+    bar = DomElement::createNew(DomElementType::DIV);
     bar->setId("bar" + id());
-    bar->setProperty(PropertyClass, valueStyleClass_);
-    app->theme()->apply(this, *bar, ProgressBarBarRole);
+    bar->setProperty(Property::Class, valueStyleClass_);
+    app->theme()->apply(this, *bar, ElementThemeRole::ProgressBarBar);
 
-    label = DomElement::createNew(DomElement_DIV);
+    label = DomElement::createNew(DomElementType::DIV);
     label->setId("lbl" + id());
-    app->theme()->apply(this, *label, ProgressBarLabelRole);
+    app->theme()->apply(this, *label, ElementThemeRole::ProgressBarLabel);
   }
 
   if (changed_ || all) {
     if (!bar)
-      bar = DomElement::getForUpdate("bar" + id(), DomElement_DIV);
+      bar = DomElement::getForUpdate("bar" + id(), DomElementType::DIV);
     if (!label)
-      label = DomElement::getForUpdate("lbl" + id(), DomElement_DIV);
+      label = DomElement::getForUpdate("lbl" + id(), DomElementType::DIV);
 
     updateBar(*bar);
 
     WString s = text();
     removeScript(s);
 
-    label->setProperty(PropertyInnerHTML, s.toUTF8());
+    label->setProperty(Property::InnerHTML, s.toUTF8());
 
     changed_ = false;
   }

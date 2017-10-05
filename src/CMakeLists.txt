@@ -50,8 +50,11 @@ FILE_TO_STRING(xml/auth_css_theme.xml
     AuthCssTheme_xml.C AuthCssTheme_xml)
 
 SET(libsources
+Wt/FlexLayoutImpl.C
+Wt/FlexItemImpl.C
 Wt/PopupWindow.C
 Wt/Resizable.C
+Wt/ResizeSensor.C
 Wt/ServerSideFontMetrics.C
 Wt/SizeHandle.C
 Wt/StdGridLayoutImpl2.C
@@ -69,14 +72,13 @@ Wt/WAbstractProxyModel.C
 Wt/WAbstractSpinBox.C
 Wt/WAbstractTableModel.C
 Wt/WAbstractToggleButton.C
-Wt/WAccordionLayout.C
 Wt/WAggregateProxyModel.C
 Wt/WAnchor.C
 Wt/WAnimation.C
+Wt/WAny.C
 Wt/WApplication.C
 Wt/WAudio.C
 Wt/WBatchEditProxyModel.C
-Wt/WBoostAny.C
 Wt/WBootstrapTheme.C
 Wt/WBorder.C
 Wt/WBorderLayout.C
@@ -101,7 +103,6 @@ Wt/WDateEdit.C
 Wt/WDatePicker.C
 Wt/WDateTime.C
 Wt/WDateValidator.C
-Wt/WDefaultLayout.C
 Wt/WDefaultLoadingIndicator.C
 Wt/WDialog.C
 Wt/WDoubleSpinBox.C
@@ -146,6 +147,7 @@ Wt/WJavaScriptPreamble.C
 Wt/WJavaScriptSlot.C
 Wt/WLabel.C
 Wt/WLayout.C
+Wt/WLayoutImpl.C
 Wt/WLayoutItem.C
 Wt/WLayoutItemImpl.C
 Wt/WLength.C
@@ -153,6 +155,7 @@ Wt/WLengthValidator.C
 Wt/WLineEdit.C
 Wt/WLineF.C
 Wt/WLink.C
+Wt/WLinkedCssStyleSheet.C
 Wt/WLoadingIndicator.C
 Wt/WLocalizedStrings.C
 Wt/WLogger.C
@@ -187,11 +190,8 @@ Wt/WRandom.C
 Wt/WReadOnlyProxyModel.C
 Wt/WRectArea.C
 Wt/WRectF.C
-Wt/WRegExp.C
 Wt/WRegExpValidator.C
 Wt/WResource.C
-Wt/WScrollArea.C
-Wt/WScrollBar.C
 Wt/WSelectionBox.C
 Wt/WServer.C
 Wt/WShadow.C
@@ -240,7 +240,6 @@ Wt/WTreeNode.C
 Wt/WTreeTable.C
 Wt/WTreeTableNode.C
 Wt/WTreeView.C
-Wt/WValidationStatus.C
 Wt/WValidator.C
 Wt/WVBoxLayout.C
 Wt/WVector3.C
@@ -253,6 +252,7 @@ Wt/WVirtualImage.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
+Wt/WWidgetItemImpl.C
 Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.C
 Wt/Auth/AuthModel.C
@@ -266,6 +266,7 @@ Wt/Auth/Identity.C
 Wt/Auth/Login.C
 Wt/Auth/LostPasswordWidget.C
 Wt/Auth/OAuthService.C
+Wt/Auth/OAuthWidget.C
 Wt/Auth/passwdqc_check.c
 Wt/Auth/PasswordHash.C
 Wt/Auth/PasswordPromptDialog.C
@@ -308,6 +309,9 @@ Wt/Chart/WGridData.C
 Wt/Chart/WEquidistantGridData.C
 Wt/Chart/WScatterData.C
 Wt/Chart/WSelection.C
+Wt/Core/observable.cpp
+Wt/Core/observing_ptr.cpp
+Wt/Date/tz.cpp
 Wt/Json/Array.C
 Wt/Json/Object.C
 Wt/Json/Parser.C
@@ -339,6 +343,7 @@ Wt/Render/LayoutBox.C
 Wt/Render/RenderUtils.C
 Wt/Render/Specificity.C
 Wt/Render/WTextRenderer.C
+Wt/Signals/signals.cpp
 web/md5.c
 web/sha1.c
 web/CgiParser.C
@@ -360,13 +365,14 @@ web/WebRenderer.C
 web/WebUtils.C
 web/FileUtils.C
 web/PdfUtils.C
+web/StringUtils.cpp
 web/TimeUtil.C
 web/XSSFilter.C
 web/XSSUtils.C
 web/SslUtils.C
 web/UriUtils.C
-web/random_device.cpp
 web/base64.cpp
+#experimental/any.cpp
 Plain_html.C
 Boot_html.C
 Hybrid_html.C
@@ -394,7 +400,7 @@ SET(libsources ${libsources}
 
 IF(HAVE_HARU)
   SET(libsources ${libsources} Wt/WPdfImage.C Wt/Render/WPdfRenderer.C)
-  SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} ${BOOST_FS_LIB})
+  SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES})
   ADD_DEFINITIONS(-DHAVE_PDF_IMAGE)
 ENDIF(HAVE_HARU)
 
@@ -462,9 +468,17 @@ IF(WIN32)
 ENDIF(WIN32)
 
 ADD_LIBRARY(wt ${libsources})
+
+if (WT_ASIO_IS_STANDALONE_ASIO)
+  TARGET_LINK_LIBRARIES(wt
+    PRIVATE ${BOOST_WT_LIBRARIES})
+else (WT_ASIO_IS_STANDALONE_ASIO)
+  TARGET_LINK_LIBRARIES(wt
+    PUBLIC ${BOOST_WT_LIBRARIES})
+endif (WT_ASIO_IS_STANDALONE_ASIO)
+
 TARGET_LINK_LIBRARIES(wt
   PUBLIC
-    ${BOOST_WT_LIBRARIES}
     ${WT_SOCKET_LIBRARY}
   PRIVATE
     ${WT_MATH_LIBRARY}
@@ -479,9 +493,14 @@ IF(ENABLE_LIBWTTEST)
   TARGET_LINK_LIBRARIES(wttest wt)
 
   INSTALL(TARGETS wttest
+          EXPORT wt-target-test
 	  RUNTIME DESTINATION bin
 	  LIBRARY DESTINATION ${LIB_INSTALL_DIR}
 	  ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
+
+  INSTALL(EXPORT wt-target-test
+          DESTINATION ${CMAKE_INSTALL_DIR}/wt
+          NAMESPACE Wt::)
 
   IF(MSVC)
     SET_TARGET_PROPERTIES(wttest PROPERTIES COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4355 /wd4800 /wd4996 /wd4101 /wd4267")
@@ -491,6 +510,7 @@ IF(ENABLE_LIBWTTEST)
   SET_TARGET_PROPERTIES(
     wttest
   PROPERTIES
+    EXPORT_NAME Test
     VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
     SOVERSION ${WTTEST_SOVERSION}
     DEBUG_POSTFIX ${DEBUG_LIB_POSTFIX}
@@ -510,7 +530,7 @@ ELSE(HAVE_SSL)
 ENDIF(HAVE_SSL)
 
 IF(HAVE_HARU)
-  TARGET_LINK_LIBRARIES(wt PUBLIC ${HARU_LIBRARIES})
+  TARGET_LINK_LIBRARIES(wt PRIVATE ${HARU_LIBRARIES})
   INCLUDE_DIRECTORIES(${HARU_INCLUDE_DIRS})
 ELSE(HAVE_HARU)
   MESSAGE("** Disabling PDF support (WPdfImage, WPdfRenderer): requires libharu.")
@@ -575,10 +595,18 @@ IF(MULTI_THREADED_BUILD)
   TARGET_LINK_LIBRARIES(wt PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 ENDIF(MULTI_THREADED_BUILD)
 
+TARGET_INCLUDE_DIRECTORIES(wt INTERFACE
+  $<INSTALL_INTERFACE:include>)
+
 INSTALL(TARGETS wt
+    EXPORT wt-target-wt
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
+
+INSTALL(EXPORT wt-target-wt
+        DESTINATION ${CMAKE_INSTALL_DIR}/wt
+        NAMESPACE Wt::)
 
 CONFIGURE_FILE(
   ${WT_SOURCE_DIR}/WtInstall.cmake
@@ -588,6 +616,7 @@ CONFIGURE_FILE(
 SET_TARGET_PROPERTIES(
   wt
 PROPERTIES
+  EXPORT_NAME Wt
   POST_INSTALL_SCRIPT ${WT_BINARY_DIR}/WtInstall.cmake
   VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
   SOVERSION ${WT_SOVERSION}

@@ -1,127 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WRADIOBUTTON_H_
-#define WRADIOBUTTON_H_
-
-#include <Wt/WAbstractToggleButton>
-
-namespace Wt {
-
-class WButtonGroup;
-
-/*! \class WRadioButton Wt/WRadioButton Wt/WRadioButton
- *  \brief A user control that represents a radio button.
- *
- * Use a WButtonGroup to group together radio buttons that reflect
- * options that are mutually exclusive.
- *
- * Usage example:
- * \if cpp
- * \code
- * enum Vote { Republican = 1, Democrate = 2, NoVote = 10 };
- *
- * // use a group box as widget container for 3 radio buttons, with a title
- * Wt::WGroupBox *container = new Wt::WGroupBox("USA elections vote");
- *
- * // use a button group to logically group the 3 options
- * Wt::WButtonGroup *group = new Wt::WButtonGroup(this);
- *
- * Wt::WRadioButton *button;
- * button = new Wt::WRadioButton("I voted Republican", container);
- * new Wt::WBreak(container);
- * group->addButton(button, Republican);
-
- * button = new Wt::WRadioButton("I voted Democrat", container);
- * new Wt::WBreak(container);
- * group->addButton(button, Democrate);
-
- * button = new Wt::WRadioButton("I didn't vote", container);
- * new Wt::WBreak(container);
- * group->addButton(button, NoVote);
- *
- * group->setCheckedButton(group->button(NoVote));
- * \endcode
- * \elseif java
- * \code
- * enum Vote { Republican, Democrate, NoVote };
- *
- * // use a group box as widget container for 3 radio buttons, with a title
- * WGroupBox container = new WGroupBox("USA elections vote");
-		 
- * // use a button group to logically group the 3 options
- * WButtonGroup group = new WButtonGroup(this);
-		 
- * WRadioButton button;
- * button = new WRadioButton("I voted Republican", container);
- * new WBreak(container);
- * group.addButton(button, Vote.Republican.ordinal());
- * button = new WRadioButton("I voted Democrat", container);
- * new WBreak(container);
- * group.addButton(button, Vote.Democrate.ordinal());
-
- * button = new WRadioButton("I didn't vote", container);
- * new WBreak(container);
- * group.addButton(button, Vote.NoVote.ordinal());
-		 
- * group.setCheckedButton(group.button(Vote.NoVote.ordinal()));	
- * \endcode
- * \endif
- *
- * %WRadioButton is an \link WWidget::setInline(bool) inline \endlink widget.
- *
- * <h3>CSS</h3>
- *
- * This widget corresponds to the HTML <tt>&lt;input
- * type="radio"&gt;</tt> tag.  When a label is specified, the input
- * element is nested in a <tt>&lt;label&gt;</tt>.
- *
- * This widget does not provide styling, and can be styled using
- * inline or external CSS as appropriate.
- *
- * \sa WAbstractToggleButton, WButtonGroup
- */
-class WT_API WRadioButton : public WAbstractToggleButton
-{
-public:
-  /*! \brief Creates an unchecked radio button with empty label and optional
-   *         parent.
-   */
-  WRadioButton(WContainerWidget *parent = 0);
-
-  /*! \brief Creates an unchecked radio button with given text and optional
-   *         parent.
-   */
-  WRadioButton(const WString& text, WContainerWidget *parent = 0);
-
-  /*! \brief Destructor.
-   */
-  ~WRadioButton();
-
-  /*! \brief Returns the button group.
-   *
-   * Returns the button group to which this button belongs.
-   *
-   * \sa WButtonGroup::addButton(WRadioButton *, int)
-   */
-  WButtonGroup *group() const { return buttonGroup_; }
-
-private:
-  WButtonGroup *buttonGroup_;
-
-  void setGroup(WButtonGroup *buttonGroup);
-  friend class WButtonGroup;
-
-protected:
-  virtual void updateInput(DomElement& input, bool all);
-  virtual void getFormObjects(FormObjectsMap& formObjects);
-
-  virtual void setFormData(const FormData& formData);
-};
-
-}
-
-#endif // WRADIOBUTTON_H_
+#ifndef WT_WRADIOBUTTON_EXTENSIONLESS_H_
+#define WT_WRADIOBUTTON_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WRadioButton.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WRadioButton.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WRadioButton.h"
+#endif // WT_WRADIOBUTTON_EXTENSIONLESS_H_

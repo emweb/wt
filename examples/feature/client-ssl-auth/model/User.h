@@ -7,8 +7,8 @@
 #ifndef USER_H_
 #define USER_H_
 
-#include <Wt/Dbo/Types>
-#include <Wt/WGlobal>
+#include <Wt/Dbo/Types.h>
+#include <Wt/WGlobal.h>
 
 namespace dbo = Wt::Dbo;
 

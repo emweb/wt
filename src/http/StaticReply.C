@@ -4,7 +4,6 @@
  * All rights reserved.
  */
 
-#include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "Configuration.h"
@@ -15,7 +14,7 @@
 
 #include "FileUtils.h"
 
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
@@ -137,8 +136,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
       if (fileSize_ != -1) {
         // 416 SHOULD include a Content-Range with byte-range-resp-spec * and
         // instance-length set to current lenght
-        sr->addHeader("Content-Range",
-          "bytes */" + boost::lexical_cast<std::string>(fileSize_));
+        sr->addHeader("Content-Range", "bytes */" + std::to_string(fileSize_));
       }
       setRelay(sr);
       stream_.close();
@@ -217,8 +215,7 @@ std::string StaticReply::computeModifiedDate() const
 
 std::string StaticReply::computeETag() const
 {
-  return boost::lexical_cast<std::string>(fileSize_)
-    + "-" + computeModifiedDate();
+  return std::to_string(fileSize_) + "-" + computeModifiedDate();
 }
 
 std::string StaticReply::computeExpires()
@@ -228,8 +225,8 @@ std::string StaticReply::computeExpires()
   return httpDate(t);
 }
 
-bool StaticReply::consumeData(Buffer::const_iterator begin,
-			      Buffer::const_iterator end,
+bool StaticReply::consumeData(const char *begin,
+			      const char *end,
 			      Request::State state)
 {
   if (state != Request::Partial)

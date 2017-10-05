@@ -34,14 +34,14 @@ class Dictionary;
  *  \brief A simple Qt object with sample signal and slot.
  *
  * This simple object class demonstrates that the Qt signal/slot
- * mechanism may be used alonglisde Wt's signal/slot mechanism.
+ * mechanism may be used alongside Wt's signal/slot mechanism.
  */
 class QtObject : public QObject
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
-  QtObject(Dictionary *wt_, QObject *parent = 0);
+  QtObject(Dictionary *wt);
 
   void passGreet(const QString&);
 

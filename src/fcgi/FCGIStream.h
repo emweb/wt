@@ -14,13 +14,13 @@ struct FCGX_Request;
 
 namespace Wt {
 
-class FCGIStream : public WebStream
+class FCGIStream final : public WebStream
 {
 public:
   FCGIStream();
   ~FCGIStream();
 
-  virtual WebRequest *getNextRequest(int timeoutsec);
+  virtual WebRequest *getNextRequest(int timeoutsec) override;
 };
 
 }

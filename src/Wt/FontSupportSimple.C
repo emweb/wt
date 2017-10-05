@@ -4,16 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WFont"
-#include "Wt/WFontMetrics"
-#include "Wt/WLogger"
+#include "Wt/WFont.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WLogger.h"
 #include "Wt/FontSupport.h"
 
 #include "WebUtils.h"
 #include "FileUtils.h"
 
 #ifdef WT_THREADED
-#include <boost/thread.hpp>
+#include <mutex>
 #endif // WT_THREADED
 
 #include <boost/algorithm/string.hpp>
@@ -22,10 +22,6 @@
 #include <vector>
 
 namespace {
-#ifdef WT_THREADED
-  boost::mutex fontRegistryMutex_;
-#endif // WT_THREADED
-
   // Maps TrueType file names to font names
   std::map<std::string, std::string> fontRegistry_;
 }
@@ -54,7 +50,7 @@ FontSupport::FontMatch::FontMatch(const std::string& fileName, double quality)
 // FontSupportSimple only supports TrueType fonts, so can ignore enabledFontFormats
 FontSupport::FontSupport(WPaintDevice *device, EnabledFontFormats /* enabledFontFormats */)
   : device_(device),
-    font_(0)
+    font_(nullptr)
 { 
   for (int i = 0; i < 5; ++i)
     cache_.push_back(Matched());
@@ -96,7 +92,7 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
 {
   font_ = &font;
   WFontMetrics fm = device_->fontMetrics();
-  font_ = 0;
+  font_ = nullptr;
   return fm;
 }
 
@@ -105,7 +101,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 {
   font_ = &font;
   WTextItem ti = device_->measureText(text, maxWidth, wordWrap);
-  font_ = 0;
+  font_ = nullptr;
   return ti;
 }
 
@@ -113,8 +109,8 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 			   WFlags<AlignmentFlag> flags, const WString& text)
 {
   font_ = &font;
-  device_->drawText(rect, flags, TextSingleLine, text, 0);
-  font_ = 0;
+  device_->drawText(rect, flags, TextFlag::SingleLine, text, 0);
+  font_ = nullptr;
 }
 
 #ifndef WT_TARGET_JAVA
@@ -180,23 +176,23 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font,
   }
 
   switch (font.genericFamily()) {
-  case WFont::Serif:
+  case FontFamily::Serif:
     fontNames.push_back("times");
     fontNames.push_back("timesnewroman");
     break;
-  case WFont::SansSerif:
+  case FontFamily::SansSerif:
     fontNames.push_back("helvetica");
     fontNames.push_back("arialunicode");
     fontNames.push_back("arial");
     fontNames.push_back("verdana");
     break;
-  case WFont::Cursive:
+  case FontFamily::Cursive:
     fontNames.push_back("zapfchancery");
     break;
-  case WFont::Fantasy:
+  case FontFamily::Fantasy:
     fontNames.push_back("western");
     break;
-  case WFont::Monospace:
+  case FontFamily::Monospace:
     fontNames.push_back("courier");
     fontNames.push_back("mscouriernew");
     break;
@@ -248,7 +244,7 @@ void FontSupport::matchFont(const WFont& font,
 
     std::vector<const char*> weightVariants, styleVariants;
 
-    if (font.weight() == WFont::Bold) {
+    if (font.weight() == FontWeight::Bold) {
       weightVariants.push_back("bold");
       weightVariants.push_back("bf");
     } else {
@@ -256,15 +252,15 @@ void FontSupport::matchFont(const WFont& font,
     }
 
     switch (font.style()) {
-    case WFont::NormalStyle: 
+    case FontStyle::Normal: 
       styleVariants.push_back("regular");
       styleVariants.push_back(""); 
       break;
-    case WFont::Italic:  
+    case FontStyle::Italic:  
       styleVariants.push_back("italic");
       styleVariants.push_back("oblique");  
       break;
-    case WFont::Oblique: 
+    case FontStyle::Oblique: 
       styleVariants.push_back("oblique"); 
       break;
     }

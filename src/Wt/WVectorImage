@@ -1,31 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WVECTOR_IMAGE_H_
-#define WVECTOR_IMAGE_H_
-
-#include <Wt/WPaintDevice>
-
-namespace Wt {
-
-/*! \class WVectorImage Wt/WVectorImage Wt/WVectorImage
- *  \brief An abstract paint device for rendering using native vector graphics.
- *
- * \ingroup painting
- */
-class WT_API WVectorImage : public WPaintDevice
-{
-public:
-  ~WVectorImage();
-
-  /*! \brief Internal method.
-   */
-  virtual std::string rendered() = 0;
-};
-
-}
-
-#endif // WVECTOR_IMAGE_H_
+#ifndef WT_WVECTORIMAGE_EXTENSIONLESS_H_
+#define WT_WVECTORIMAGE_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WVectorImage.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WVectorImage.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WVectorImage.h"
+#endif // WT_WVECTORIMAGE_EXTENSIONLESS_H_

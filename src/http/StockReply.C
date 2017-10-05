@@ -20,7 +20,7 @@
 #include <fstream>
 #include <boost/lexical_cast.hpp>
 #include "Request.h"
-#include "../Wt/Utils"
+#include "../Wt/Utils.h"
 
 namespace http {
 namespace server {
@@ -295,8 +295,8 @@ void StockReply::reset(const Wt::EntryPoint *ep)
   assert(false);
 }
 
-bool StockReply::consumeData(Buffer::const_iterator begin,
-			     Buffer::const_iterator end,
+bool StockReply::consumeData(const char *begin,
+			     const char *end,
 			     Request::State state)
 {
   if (state != Request::Partial)

@@ -4,14 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WSslCertificate"
+#include "Wt/WSslCertificate.h"
 
-#include "Wt/WException"
-#include "Wt/WLogger"
-#include "Wt/Utils"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
+#include "Wt/Utils.h"
 
 #include <sstream>
 #include <stdexcept>
+#include <cstring>
+#include <cctype>
 
 #ifdef WT_WITH_SSL
 

@@ -3,23 +3,23 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WBorder"
+#include "Wt/WBorder.h"
 
 namespace Wt {
 
 WBorder::WBorder()
-  : width_(Medium),
-    style_(None)
+  : width_(BorderWidth::Medium),
+    style_(BorderStyle::None)
 { }
 
-WBorder::WBorder(Style style, Width width, WColor color)
+WBorder::WBorder(BorderStyle style, BorderWidth width, WColor color)
   : width_(width),
     color_(color),
     style_(style)
 { }
 
-WBorder::WBorder(Style style, const WLength& width, WColor color)
-  : width_(Explicit),
+WBorder::WBorder(BorderStyle style, const WLength& width, WColor color)
+  : width_(BorderWidth::Explicit),
     explicitWidth_(width),
     color_(color),
     style_(style)
@@ -38,7 +38,7 @@ bool WBorder::operator!=(const WBorder& other) const
   return !(*this == other);
 }
 
-void WBorder::setWidth(Width width, const WLength& explicitWidth)
+void WBorder::setWidth(BorderWidth width, const WLength& explicitWidth)
 {
   width_ = width;
   explicitWidth_ = explicitWidth;
@@ -49,7 +49,7 @@ void WBorder::setColor(WColor color)
   color_ = color;
 }
 
-void WBorder::setStyle(Style style)
+void WBorder::setStyle(BorderStyle style)
 {
   style_ = style;
 }
@@ -58,37 +58,37 @@ std::string WBorder::cssText() const
 {
   std::string style;
   switch (style_) {
-  case None:
+  case BorderStyle::None:
     return "none";
-  case Hidden:
+  case BorderStyle::Hidden:
     style = "hidden"; break;
-  case Dotted:
+  case BorderStyle::Dotted:
     style = "dotted"; break;
-  case Dashed:
+  case BorderStyle::Dashed:
     style = "dashed"; break;
-  case Solid:
+  case BorderStyle::Solid:
     style = "solid"; break;
-  case Double:
+  case BorderStyle::Double:
     style = "double"; break;
-  case Groove:
+  case BorderStyle::Groove:
     style = "groove"; break;
-  case Ridge:
+  case BorderStyle::Ridge:
     style = "ridge"; break;
-  case Inset:
+  case BorderStyle::Inset:
     style = "inset"; break;
-  case Outset:
+  case BorderStyle::Outset:
     style = "outset"; break;
   }
 
   std::string width;
   switch (width_) {
-  case Thin:
+  case BorderWidth::Thin:
     width = "thin"; break;
-  case Medium:
+  case BorderWidth::Medium:
     width = "medium"; break;
-  case Thick:
+  case BorderWidth::Thick:
     width = "thick"; break;
-  case Explicit:
+  case BorderWidth::Explicit:
     width = explicitWidth_.cssText();
   }
 

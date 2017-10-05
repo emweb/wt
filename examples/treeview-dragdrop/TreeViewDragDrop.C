@@ -5,31 +5,31 @@
  */
 #include <fstream>
 
-#include <Wt/WApplication>
-#include <Wt/WComboBox>
-#include <Wt/WContainerWidget>
-#include <Wt/WDatePicker>
-#include <Wt/WDateValidator>
-#include <Wt/WDialog>
-#include <Wt/WEnvironment>
-#include <Wt/WIntValidator>
-#include <Wt/WItemDelegate>
-#include <Wt/WLabel>
-#include <Wt/WLineEdit>
-#include <Wt/WMessageBox>
-#include <Wt/WPushButton>
-#include <Wt/WRegExpValidator>
-#include <Wt/WGridLayout>
-#include <Wt/WPopupMenu>
-#include <Wt/WSortFilterProxyModel>
-#include <Wt/WStandardItem>
-#include <Wt/WStandardItemModel>
-#include <Wt/WTableView>
-#include <Wt/WTreeView>
-#include <Wt/WText>
-#include <Wt/WVBoxLayout>
+#include <Wt/WApplication.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDatePicker.h>
+#include <Wt/WDateValidator.h>
+#include <Wt/WDialog.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WIntValidator.h>
+#include <Wt/WItemDelegate.h>
+#include <Wt/WLabel.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WRegExpValidator.h>
+#include <Wt/WGridLayout.h>
+#include <Wt/WPopupMenu.h>
+#include <Wt/WSortFilterProxyModel.h>
+#include <Wt/WStandardItem.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WTableView.h>
+#include <Wt/WTreeView.h>
+#include <Wt/WText.h>
+#include <Wt/WVBoxLayout.h>
 
-#include <Wt/Chart/WPieChart>
+#include <Wt/Chart/WPieChart.h>
 
 #include "CsvUtil.h"
 #include "FolderView.h"
@@ -53,8 +53,8 @@ class FileModel : public WStandardItemModel
 public:
   /*! \brief Constructor.
    */
-  FileModel(WObject *parent)
-    : WStandardItemModel(parent) { }
+  FileModel()
+    : WStandardItemModel() { }
 
   /*! \brief Return the mime type.
    */
@@ -69,8 +69,8 @@ public:
   static WString dateEditFormat;
 };
 
-WString FileModel::dateDisplayFormat(WString::fromUTF8("MMM dd, yyyy"));
-WString FileModel::dateEditFormat(WString::fromUTF8("dd-MM-yyyy"));
+WString FileModel::dateDisplayFormat(WString("MMM dd, yyyy"));
+WString FileModel::dateEditFormat(WString("dd-MM-yyyy"));
 
 /*! \class FileEditDialog
  *  \brief A dialog for editing a 'file'.
@@ -78,7 +78,7 @@ WString FileModel::dateEditFormat(WString::fromUTF8("dd-MM-yyyy"));
 class FileEditDialog : public WDialog
 {
 public:
-  FileEditDialog(WAbstractItemModel *model, const WModelIndex& item)
+  FileEditDialog(std::shared_ptr<WAbstractItemModel> model, const WModelIndex& item)
     : WDialog("Edit..."),
       model_(model),
       item_(item)
@@ -92,10 +92,12 @@ public:
      */
 
     // name
-    nameEdit_ = new WLineEdit(asString(model_->data(modelRow, 1)));
+    auto nameEdit = cpp14::make_unique<WLineEdit>(asString(model_->data(modelRow, 1)));
+    nameEdit_ = nameEdit.get();
 
     // type
-    typeEdit_ = new WComboBox();
+    auto typeEdit = cpp14::make_unique<WComboBox>();
+    typeEdit_ = typeEdit.get();
     typeEdit_->addItem("Document");
     typeEdit_->addItem("Spreadsheet");
     typeEdit_->addItem("Presentation");
@@ -103,64 +105,75 @@ public:
       (typeEdit_->findText(asString(model_->data(modelRow, 2))));
 
     // size
-    sizeEdit_ = new WLineEdit(asString(model_->data(modelRow, 3)));
+    auto sizeEdit = cpp14::make_unique<WLineEdit>(asString(model_->data(modelRow, 3)));
+    sizeEdit_ = sizeEdit.get();
     sizeEdit_->setValidator
-      (new WIntValidator(0, std::numeric_limits<int>::max(), this));
+      (std::make_shared<WIntValidator>(0, std::numeric_limits<int>::max()));
+
 
     // created
-    createdPicker_ = new WDatePicker();
+    auto createdPicker = cpp14::make_unique<WDatePicker>();
+    createdPicker_ = createdPicker.get();
     createdPicker_->lineEdit()->validator()->setMandatory(true);
     createdPicker_->setFormat(FileModel::dateEditFormat);
-    createdPicker_->setDate(boost::any_cast<WDate>(model_->data(modelRow, 4)));
+    createdPicker_->setDate(cpp17::any_cast<WDate>(model_->data(modelRow, 4)));
 
     // modified
-    modifiedPicker_ = new WDatePicker();
+    auto modifiedPicker = cpp14::make_unique<WDatePicker>();
+    modifiedPicker_ = modifiedPicker.get();
     modifiedPicker_->lineEdit()->validator()->setMandatory(true);
     modifiedPicker_->setFormat(FileModel::dateEditFormat);
-    modifiedPicker_->setDate(boost::any_cast<WDate>(model_->data(modelRow, 5)));
+    modifiedPicker_->setDate(cpp17::any_cast<WDate>(model_->data(modelRow, 5)));
 
     /*
      * Use a grid layout for the labels and fields
      */
-    WGridLayout *layout = new WGridLayout();
+    auto layout = cpp14::make_unique<WGridLayout>();
 
-    WLabel *l;
+    std::unique_ptr<WLabel> label;
     int row = 0;
 
-    layout->addWidget(l = new WLabel("Name:"), row, 0);
-    layout->addWidget(nameEdit_, row, 1);
-    l->setBuddy(nameEdit_);
+    label = cpp14::make_unique<WLabel>("Name:");
+    label->setBuddy(nameEdit_);
+    layout->addWidget(std::move(label), row, 0);
+    layout->addWidget(std::move(nameEdit), row, 1);
     ++row;
 
-    layout->addWidget(l = new WLabel("Type:"), row, 0);
-    layout->addWidget(typeEdit_, row, 1);
-    l->setBuddy(typeEdit_);
+    label = cpp14::make_unique<WLabel>("Type:");
+    label->setBuddy(typeEdit_);
+    layout->addWidget(std::move(label), row, 0);
+    layout->addWidget(std::move(typeEdit), row, 1);
     ++row;
 
-    layout->addWidget(l = new WLabel("Size:"), row, 0);
-    layout->addWidget(sizeEdit_, row, 1);
-    l->setBuddy(sizeEdit_);
+    label = cpp14::make_unique<WLabel>("Size");
+    label->setBuddy(sizeEdit_);
+    layout->addWidget(std::move(label), row, 0);
+    layout->addWidget(std::move(sizeEdit), row, 1);
     ++row;
 
-    layout->addWidget(l = new WLabel("Created:"), row, 0);
-    layout->addWidget(createdPicker_->lineEdit(), row, 1);
-    layout->addWidget(createdPicker_, row, 2);
-    l->setBuddy(createdPicker_->lineEdit());
+    label = cpp14::make_unique<WLabel>("Created:");
+    label->setBuddy(createdPicker_->lineEdit());
+    layout->addWidget(std::move(label), row, 0);
+    layout->addWidget(std::move(createdPicker), row, 2);
     ++row;
 
-    layout->addWidget(l = new WLabel("Modified:"), row, 0);
-    layout->addWidget(modifiedPicker_->lineEdit(), row, 1);
-    layout->addWidget(modifiedPicker_, row, 2);
-    l->setBuddy(modifiedPicker_->lineEdit());
+    label = cpp14::make_unique<WLabel>("Modified:");
+    label->setBuddy(modifiedPicker_->lineEdit());
+    layout->addWidget(std::move(label), row, 0);
+    layout->addWidget(std::move(modifiedPicker), row, 2);
     ++row;
 
-    WPushButton *b;
-    WContainerWidget *buttons = new WContainerWidget();
-    buttons->addWidget(b = new WPushButton("Save"));
-    b->clicked().connect(this, &WDialog::accept);
+    std::unique_ptr<WPushButton>button;
+    auto buttons = cpp14::make_unique<WContainerWidget>();
+
+    button = cpp14::make_unique<WPushButton>("Save");
+    button->clicked().connect(this, &WDialog::accept);
+    buttons->addWidget(std::move(button));
+
+    button = cpp14::make_unique<WPushButton>("Cancel");
     contents()->enterPressed().connect(this, &WDialog::accept);
-    buttons->addWidget(b = new WPushButton("Cancel"));
-    b->clicked().connect(this, &WDialog::reject);
+    button->clicked().connect(this, &WDialog::reject);
+    buttons->addWidget(std::move(button));
 
     /*
      * Focus the form widget that corresonds to the selected item.
@@ -171,17 +184,19 @@ public:
     case 3:
       sizeEdit_->setFocus(); break;
     case 4:
-      createdPicker_->lineEdit()->setFocus(); break;
+      createdPicker_->lineEdit()->setFocus();
+      break;
     case 5:
-      modifiedPicker_->lineEdit()->setFocus(); break;
+      modifiedPicker_->lineEdit()->setFocus();
+      break;
     default:
       nameEdit_->setFocus(); break;
     }
 
-    layout->addWidget(buttons, row, 0, 0, 3, AlignCenter);
+    layout->addWidget(std::move(buttons), row, 0, 0, 3, AlignmentFlag::Center);
     layout->setColumnStretch(1, 1);
 
-    contents()->setLayout(layout);
+    contents()->setLayout(std::move(layout));
 
     finished().connect(this, &FileEditDialog::handleFinish);
 
@@ -189,16 +204,16 @@ public:
   }
 
 private:
-  WAbstractItemModel *model_;
-  WModelIndex         item_;
+  std::shared_ptr<WAbstractItemModel> model_;
+  WModelIndex                         item_;
 
-  WLineEdit *nameEdit_, *sizeEdit_;
-  WComboBox *typeEdit_;
+  WLineEdit   *nameEdit_, *sizeEdit_;
+  WComboBox   *typeEdit_;
   WDatePicker *createdPicker_, *modifiedPicker_;
 
   void handleFinish(DialogCode result)
   {
-    if (result == WDialog::Accepted) {
+    if (result == DialogCode::Accepted) {
       /*
        * Update the model with data from the edit widgets.
        *
@@ -209,24 +224,25 @@ private:
        * which reorders row numbers, and would cause us to switch to editing
        * the wrong data.
        */
-      WAbstractItemModel *m = model_;
+      std::shared_ptr<WAbstractItemModel> m = model_;
       int modelRow = item_.row();
 
-      WAbstractProxyModel *proxyModel = dynamic_cast<WAbstractProxyModel *>(m);
+      std::shared_ptr<WAbstractProxyModel> proxyModel =
+          std::dynamic_pointer_cast<WAbstractProxyModel>(m);
       if (proxyModel) {
 	m = proxyModel->sourceModel();
 	modelRow = proxyModel->mapToSource(item_).row();
       }
 
-      m->setData(modelRow, 1, boost::any(nameEdit_->text()));
-      m->setData(modelRow, 2, boost::any(typeEdit_->currentText()));
-      m->setData(modelRow, 3, boost::any(boost::lexical_cast<int>
+      m->setData(modelRow, 1, cpp17::any(nameEdit_->text()));
+      m->setData(modelRow, 2, cpp17::any(typeEdit_->currentText()));
+      m->setData(modelRow, 3, cpp17::any(asNumber
 					 (sizeEdit_->text().toUTF8())));
-      m->setData(modelRow, 4, boost::any(createdPicker_->date()));
-      m->setData(modelRow, 5, boost::any(modifiedPicker_->date()));
+      m->setData(modelRow, 4, cpp17::any(createdPicker_->date()));
+      m->setData(modelRow, 5, cpp17::any(modifiedPicker_->date()));
     }
 
-    delete this;
+    //delete this;
   }
 
 };
@@ -241,70 +257,76 @@ public:
    */
   TreeViewDragDrop(const WEnvironment &env)
     : WApplication(env),
-      popup_(0),
-      popupActionBox_(0)
+      popup_(nullptr),
+      popupActionBox_(nullptr)
   {
     setCssTheme("polished");
 
     /*
      * Create the data models.
      */
-    folderModel_ = new WStandardItemModel(0, 1, this);
+    folderModel_ =
+        std::make_shared<WStandardItemModel>(0, 1);
     populateFolders();
 
-    fileModel_ = new FileModel(this);
+
+    fileModel_ =
+        std::make_shared<FileModel>();
     populateFiles();
 
     /*
-      The header items are also endered using an ItemDelegate, and thus
-      support other data, e.g.:
-
-      fileModel_->setHeaderFlags(0, Horizontal, HeaderIsUserCheckable);
-      fileModel_->setHeaderData(0, Horizontal,
-                                std::string("icons/file.gif"),
-			        Wt::DecorationRole);
-    */
-    fileFilterModel_ = new WSortFilterProxyModel(this);
+     * The header items are also endered using an ItemDelegate, and thus
+     * support other data, e.g.:
+     *
+     * fileModel_->setHeaderFlags(0, Horizontal, HeaderIsUserCheckable);
+     * fileModel_->setHeaderData(0, Horizontal,
+     *                           std::string("icons/file.gif"),
+     *                           Wt::DecorationRole);
+     */
+    fileFilterModel_ = std::make_shared<WSortFilterProxyModel>();
     fileFilterModel_->setSourceModel(fileModel_);
     fileFilterModel_->setDynamicSortFilter(true);
     fileFilterModel_->setFilterKeyColumn(0);
-    fileFilterModel_->setFilterRole(UserRole);
+    fileFilterModel_->setFilterRole(ItemDataRole::User);
 
     /*
      * Setup the user interface.
      */
     createUI();
+
   }
 
-  virtual ~TreeViewDragDrop() {
-    delete popup_;
-    delete popupActionBox_;
+  virtual ~TreeViewDragDrop()
+  {
+    dialog_.reset();
   }
 
 private:
   /// The folder model (used by folderView_)
-  WStandardItemModel    *folderModel_;
+  std::shared_ptr<WStandardItemModel>     folderModel_;
 
   /// The file model (used by fileView_)
-  WStandardItemModel    *fileModel_;
+  std::shared_ptr<WStandardItemModel>     fileModel_;
 
   /// The sort filter proxy model that adapts fileModel_
-  WSortFilterProxyModel *fileFilterModel_;
+  std::shared_ptr<WSortFilterProxyModel>  fileFilterModel_;
 
   /// Maps folder id's to folder descriptions.
-  std::map<std::string, WString> folderNameMap_;
+  std::map<std::string, WString>          folderNameMap_;
 
   /// The folder view.
-  WTreeView *folderView_;
+  WTreeView                              *folderView_;
 
   /// The file view.
-  WTableView *fileView_;
+  WTableView                             *fileView_;
+
+  std::unique_ptr<FileEditDialog>         dialog_;
 
   /// Popup menu on the folder view
-  WPopupMenu *popup_;
+  std::unique_ptr<WPopupMenu>             popup_;
 
   /// Message box to confirm the poup menu action
-  WMessageBox *popupActionBox_;
+  std::unique_ptr<WMessageBox>            popupActionBox_;
 
   /*! \brief Setup the user interface.
    */
@@ -315,7 +337,8 @@ private:
     /*
      * The main layout is a 3x2 grid layout.
      */
-    WGridLayout *layout = new WGridLayout();
+    std::unique_ptr<WGridLayout> layout =
+        cpp14::make_unique<WGridLayout>();
     layout->addWidget(createTitle("Folders"), 0, 0);
     layout->addWidget(createTitle("Files"), 0, 1);
     layout->addWidget(folderView(), 1, 0);
@@ -324,12 +347,13 @@ private:
     // select the first folder
     folderView_->select(folderModel_->index(0, 0, folderModel_->index(0, 0)));
 
-    WVBoxLayout *vbox = new WVBoxLayout();
+    std::unique_ptr<WVBoxLayout> vbox =
+        cpp14::make_unique<WVBoxLayout>();
     vbox->addWidget(fileView(), 1);
     vbox->addWidget(pieChart(), 1);
     vbox->setResizable(0);
 
-    layout->addLayout(vbox, 1, 1);
+    layout->addLayout(std::move(vbox), 1, 1);
 
     layout->addWidget(aboutDisplay(), 2, 0, 1, 2);
 
@@ -339,13 +363,13 @@ private:
     layout->setRowStretch(1, 1);
     layout->setColumnStretch(1, 1);
 
-    w->setLayout(layout);
+    w->setLayout(std::move(layout));
   }
 
   /*! \brief Creates a title widget.
    */
-  WText *createTitle(const WString& title) {
-    WText *result = new WText(title);
+  std::unique_ptr<WText> createTitle(const WString& title) {
+    auto result = cpp14::make_unique<WText>(title);
     result->setInline(false);
     result->setStyleClass("title");
 
@@ -354,8 +378,8 @@ private:
 
   /*! \brief Creates the folder WTreeView
    */
-  WTreeView *folderView() {
-    WTreeView *treeView = new FolderView();
+  std::unique_ptr<WTreeView> folderView() {
+    auto treeView = cpp14::make_unique<FolderView>();
 
     /*
      * To support right-click, we need to disable the built-in browser
@@ -369,27 +393,28 @@ private:
        "event.cancelBubble = true; event.returnValue = false; return false;");
     treeView->setModel(folderModel_);
     treeView->resize(200, WLength::Auto);
-    treeView->setSelectionMode(SingleSelection);
+    treeView->setSelectionMode(SelectionMode::Single);
     treeView->expandToDepth(1);
     treeView->selectionChanged()
       .connect(this, &TreeViewDragDrop::folderChanged);
 
     treeView->mouseWentUp().connect(this, &TreeViewDragDrop::showPopup);
 
-    folderView_ = treeView;
+    folderView_ = treeView.get();
 
-    return treeView;
+    return std::move(treeView);
   }
 
   /*! \brief Creates the file table view (a WTableView)
    */
-  WTableView *fileView() {
-    WTableView *tableView = new WTableView();
+  std::unique_ptr<WTableView> fileView() {
+    auto tableView
+        = cpp14::make_unique<WTableView>();
 
     tableView->setAlternatingRowColors(true);
 
     tableView->setModel(fileFilterModel_);
-    tableView->setSelectionMode(ExtendedSelection);
+    tableView->setSelectionMode(SelectionMode::Extended);
     tableView->setDragEnabled(true);
 
     tableView->setColumnWidth(0, 100);
@@ -399,20 +424,21 @@ private:
     tableView->setColumnWidth(4, 100);
     tableView->setColumnWidth(5, 100);
 
-    WItemDelegate *delegate = new WItemDelegate(this);
+    auto delegate = std::make_shared<WItemDelegate>();
     delegate->setTextFormat(FileModel::dateDisplayFormat);
     tableView->setItemDelegateForColumn(4, delegate);
     tableView->setItemDelegateForColumn(5, delegate);
 
-    tableView->setColumnAlignment(3, AlignRight);
-    tableView->setColumnAlignment(4, AlignRight);
-    tableView->setColumnAlignment(5, AlignRight);
+    tableView->setColumnAlignment(3, AlignmentFlag::Right);
+    tableView->setColumnAlignment(4, AlignmentFlag::Right);
+    tableView->setColumnAlignment(5, AlignmentFlag::Right);
 
-    tableView->sortByColumn(1, AscendingOrder);
+    tableView->sortByColumn(1, SortOrder::Ascending);
 
-    tableView->doubleClicked().connect(this, &TreeViewDragDrop::editFile);
+    tableView->doubleClicked().connect(this, std::bind(&TreeViewDragDrop::editFile,
+                                                       this, std::placeholders::_1));
 
-    fileView_ = tableView;
+    fileView_ = tableView.get();
 
     return tableView;
   }
@@ -420,15 +446,15 @@ private:
   /*! \brief Edit a particular row.
    */
   void editFile(const WModelIndex& item) {
-    new FileEditDialog(fileView_->model(), item);
+    dialog_ = cpp14::make_unique<FileEditDialog>(fileView_->model(), item);
   }
 
   /*! \brief Creates the chart.
    */
-  WWidget *pieChart() {
+  std::unique_ptr<WWidget> pieChart() {
     using namespace Chart;
 
-    WPieChart *chart = new WPieChart();
+    auto chart = cpp14::make_unique<WPieChart>();
     // chart->setPreferredMethod(WPaintedWidget::PngImage);
     chart->setModel(fileFilterModel_);
     chart->setTitle("File sizes");
@@ -437,27 +463,29 @@ private:
     chart->setDataColumn(3);   // Size
 
     chart->setPerspectiveEnabled(true, 0.2);
-    chart->setDisplayLabels(Outside | TextLabel);
+    chart->setDisplayLabels(LabelOption::Outside | LabelOption::TextLabel);
 
     if (!WApplication::instance()->environment().ajax()) {
       chart->resize(500, 200);
-      chart->setMargin(WLength::Auto, Left | Right);
-      WContainerWidget *w = new WContainerWidget();
-      w->addWidget(chart);
+      chart->setMargin(WLength::Auto, Side::Left | Side::Right);
+
+      auto w = cpp14::make_unique<WContainerWidget>();
+      w->addWidget(std::move(chart));
       w->setStyleClass("about");
-      return w;
+      return std::move(w);
     } else {
       chart->setStyleClass("about");
-      return chart;
+      return std::move(chart);
     }
   }
 
   /*! \brief Creates the hints text.
    */
-  WWidget *aboutDisplay() {
-    WText *result = new WText(WString::tr("about-text"));
+  std::unique_ptr<WWidget> aboutDisplay() {
+    std::unique_ptr<WText> result
+        = cpp14::make_unique<WText>(WString::tr("about-text"));
     result->setStyleClass("about");
-    return result;
+    return std::move(result);
   }
 
   /*! \brief Change the filter on the file view when the selected folder
@@ -468,28 +496,28 @@ private:
       return;
 
     WModelIndex selected = *folderView_->selectedIndexes().begin();
-    boost::any d = selected.data(UserRole);
+    cpp17::any d = selected.data(ItemDataRole::User);
     if (!d.empty()) {
-      std::string folder = boost::any_cast<std::string>(d);
+        std::string folder = cpp17::any_cast<std::string>(d);
 
       // For simplicity, we assume here that the folder-id does not
       // contain special regexp characters, otherwise these need to be
       // escaped -- or use the \Q \E qutoing escape regular expression
       // syntax (and escape \E)
-      fileFilterModel_->setFilterRegExp(folder);
+     fileFilterModel_->setFilterRegExp(std::unique_ptr<std::regex>(new std::regex(folder)));
     }
   }
 
   /*! \brief Show a popup for a folder item.
    */
   void showPopup(const WModelIndex& item, const WMouseEvent& event) {
-    if (event.button() == WMouseEvent::RightButton) {
+    if (event.button() == MouseButton::Right) {
       // Select the item, it was not yet selected.
       if (!folderView_->isSelected(item))
 	folderView_->select(item);
 
       if (!popup_) {
-	popup_ = new WPopupMenu();
+        popup_ = cpp14::make_unique<WPopupMenu>();
 	popup_->addItem("icons/folder_new.gif", "Create a New Folder");
 	popup_->addItem("Rename this Folder")->setCheckable(true);
 	popup_->addItem("Delete this Folder");
@@ -500,10 +528,10 @@ private:
 	popup_->addItem("Hardware Inventory");
 	popup_->addSeparator();
 
-	WPopupMenu *subMenu = new WPopupMenu();
+	std::unique_ptr<WPopupMenu> subMenu = cpp14::make_unique<WPopupMenu>();
 	subMenu->addItem("Sub Item 1");
 	subMenu->addItem("Sub Item 2");
-	popup_->addMenu("File Deployments", subMenu);
+	popup_->addMenu("File Deployments", std::move(subMenu));
 
 	/*
 	 * This is one method of executing a popup, which does not block a
@@ -533,8 +561,10 @@ private:
       WString text = popup_->result()->text();
       popup_->hide();
 
-      popupActionBox_ = new WMessageBox("Sorry.","Action '" + text
-					+ "' is not implemented.", NoIcon, Ok);
+      popupActionBox_ = cpp14::make_unique<WMessageBox>("Sorry.","Action '"
+                                        + text + "' is not implemented.",
+                                        Icon::None,
+                                        StandardButton::Ok);
       popupActionBox_->buttonClicked()
 	.connect(this, &TreeViewDragDrop::dialogDone);
       popupActionBox_->show();
@@ -546,8 +576,7 @@ private:
   /** \brief Process the result of the message box.
    */
   void dialogDone() {
-    delete popupActionBox_;
-    popupActionBox_ = 0;
+    popupActionBox_.reset();
   }
 
   /*! \brief Populate the files model.
@@ -569,12 +598,12 @@ private:
 
     for (int i = 0; i < fileModel_->rowCount(); ++i) {
       WStandardItem *item = fileModel_->item(i, 0);
-      item->setFlags(item->flags() | ItemIsDragEnabled);
+      item->setFlags(item->flags() | ItemFlag::DragEnabled);
       item->setIcon("icons/file.gif");
 
       std::string folderId = item->text().toUTF8();
 
-      item->setData(boost::any(folderId), UserRole);
+      item->setData(cpp17::any(folderId), ItemDataRole::User);
       item->setText(folderNameMap_[folderId]);
 
       convertToNumber(fileModel_->item(i, 3));
@@ -587,77 +616,80 @@ private:
    */
   void convertToDate(WStandardItem *item) {
     WDate d = WDate::fromString(item->text(), FileModel::dateEditFormat);
-    item->setData(boost::any(d), DisplayRole);
+    item->setData(cpp17::any(d), ItemDataRole::Display);
   }
 
   /*! \brief Convert a string to a number.
    */
   void convertToNumber(WStandardItem *item) {
-    int i = boost::lexical_cast<int>(item->text());
-    item->setData(boost::any(i), EditRole);
+    int i = asNumber(item->text());
+    item->setData(cpp17::any(i), ItemDataRole::Edit);
   }
 
   /*! \brief Populate the folders model.
    */
   void populateFolders() {
-    WStandardItem *level1, *level2;
+    std::unique_ptr<WStandardItem> level1;
 
-    folderModel_->appendRow(level1 = createFolderItem("San Fransisco"));
-    level1->appendRow(level2 = createFolderItem("Investors", "sf-investors"));
-    level1->appendRow(level2 = createFolderItem("Fellows", "sf-fellows"));
+    level1 = createFolderItem("San Fransisco");
+    level1->appendRow(createFolderItem("Investors", "sf-investors"));
+    level1->appendRow(createFolderItem("Fellows", "sf-fellows"));
+    folderModel_->appendRow(std::move(level1));
 
-    folderModel_->appendRow(level1 = createFolderItem("Sophia Antipolis"));
-    level1->appendRow(level2 = createFolderItem("R&D", "sa-r_d"));
-    level1->appendRow(level2 = createFolderItem("Services", "sa-services"));
-    level1->appendRow(level2 = createFolderItem("Support", "sa-support"));
-    level1->appendRow(level2 = createFolderItem("Billing", "sa-billing"));
+    level1 = createFolderItem("Sophia Antipolis");
+    level1->appendRow(createFolderItem("R&D", "sa-r_d"));
+    level1->appendRow(createFolderItem("Services", "sa-services"));
+    level1->appendRow(createFolderItem("Support", "sa-support"));
+    level1->appendRow(createFolderItem("Billing", "sa-billing"));
+    folderModel_->appendRow(std::move(level1));
 
-    folderModel_->appendRow(level1 = createFolderItem("New York"));
-    level1->appendRow(level2 = createFolderItem("Marketing", "ny-marketing"));
-    level1->appendRow(level2 = createFolderItem("Sales", "ny-sales"));
-    level1->appendRow(level2 = createFolderItem("Advisors", "ny-advisors"));
+    level1 = createFolderItem("New York");
+    level1->appendRow(createFolderItem("Marketing", "ny-marketing"));
+    level1->appendRow(createFolderItem("Sales", "ny-sales"));
+    level1->appendRow(createFolderItem("Advisors", "ny-advisors"));
+    folderModel_->appendRow(std::move(level1));
 
-    folderModel_->appendRow(level1 = createFolderItem
-			     (WString::fromUTF8("Frankfürt")));
-    level1->appendRow(level2 = createFolderItem("Sales", "frank-sales"));
+    level1 = createFolderItem(WString(u8"Frankf\u00DCrt"));
+    level1->appendRow(createFolderItem("Sales", "frank-sales"));
+    folderModel_->appendRow(std::move(level1));
 
-    folderModel_->setHeaderData(0, Horizontal,
-				 boost::any(std::string("SandBox")));
+    folderModel_->setHeaderData(0, Orientation::Horizontal,
+                                 cpp17::any(std::string("SandBox")));
   }
 
   /*! \brief Create a folder item.
    *
    * Configures flags for drag and drop support.
    */
-  WStandardItem *createFolderItem(const WString& location,
+  std::unique_ptr<WStandardItem> createFolderItem(const WString& location,
 				  const std::string& folderId = std::string())
   {
-    WStandardItem *result = new WStandardItem(location);
+    auto result
+        = cpp14::make_unique<WStandardItem>(location);
 
     if (!folderId.empty()) {
-      result->setData(boost::any(folderId));
-      result->setFlags(result->flags() | ItemIsDropEnabled);
+      result->setData(cpp17::any(folderId));
+      result->setFlags(result->flags() | ItemFlag::DropEnabled);
       folderNameMap_[folderId] = location;
     } else
-      result->setFlags(result->flags().clear(ItemIsSelectable));
+      result->setFlags(result->flags().clear(ItemFlag::Selectable));
 
     result->setIcon("icons/folder.gif");
 
     return result;
   }
-
 };
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new TreeViewDragDrop(env);
+  auto app = cpp14::make_unique<TreeViewDragDrop>(env);
   app->setTwoPhaseRenderingThreshold(0);
   app->setTitle("WTreeView Drag & Drop");
   app->useStyleSheet("styles.css");
   app->messageResourceBundle().use(WApplication::appRoot() + "about");
   app->refresh();
   
-  return app;
+  return std::move(app);
 }
 
 int main(int argc, char **argv)

@@ -6,9 +6,9 @@
 
 #include <stdlib.h>
 
-#include "Message"
-#include "Wt/WException"
-#include "Wt/WStringStream"
+#include "Message.h"
+#include "Wt/WException.h"
+#include "Wt/WStringStream.h"
 #include "base64.h"
 
 #ifndef WT_WIN32
@@ -126,7 +126,7 @@ const std::string *Message::getHeader(const std::string& name) const
     if (headers_[i].name() == name)
       return &headers_[i].value();
 
-  return 0;
+  return nullptr;
 }
 
 std::string Message::generateBoundary()
@@ -196,8 +196,8 @@ void Message::write(std::ostream& out) const
     };
 
     const Recipient& r = recipients_[i];
-    if (r.type != Bcc)
-      r.mailbox.write(recipients[r.type], out);
+    if (r.type != RecipientType::Bcc)
+      r.mailbox.write(recipients[static_cast<unsigned int>(r.type)], out);
   }
 
   for (unsigned i = 0; i < headers_.size(); ++i) {

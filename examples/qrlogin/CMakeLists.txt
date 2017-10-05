@@ -7,6 +7,6 @@ WT_ADD_EXAMPLE(qrlogin.wt
 	model/User.C
 )
 
-TARGET_LINK_LIBRARIES(qrlogin.wt wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(qrlogin.wt ${EXAMPLES_DBO_LIBS})
 
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)

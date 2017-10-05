@@ -5,23 +5,23 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Chart/WLegend"
+#include "Wt/Chart/WLegend.h"
 
 namespace Wt {
   namespace Chart {
 
 WLegend::WLegend()
   : legendEnabled_(false),
-    legendLocation_(LegendOutside),
-    legendSide_(Right),
-    legendAlignment_(AlignMiddle),
+    legendLocation_(LegendLocation::Outside),
+    legendSide_(Side::Right),
+    legendAlignment_(AlignmentFlag::Middle),
     legendColumns_(1),
     legendColumnWidth_(100),
-    legendBorder_(NoPen),
-    legendBackground_(NoBrush)
+    legendBorder_(PenStyle::None),
+    legendBackground_(BrushStyle::None)
 {
-  legendFont_.setFamily(WFont::SansSerif, "Arial");
-  legendFont_.setSize(WFont::FixedSize, WLength(10, WLength::Point));
+  legendFont_.setFamily(FontFamily::SansSerif, "Arial");
+  legendFont_.setSize(WLength(10, LengthUnit::Point));
 }
     
 void WLegend::setLegendEnabled(bool enabled) {

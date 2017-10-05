@@ -5,7 +5,7 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include "Wt/Http/Request"
+#include "Wt/Http/Request.h"
 
 using namespace Wt::Http;
 

@@ -1,145 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
-#ifndef WSTRING_UTIL_H_
-#define WSTRING_UTIL_H_
-
-#include <string>
-#include <Wt/WDllDefs.h>
-#ifndef WT_NO_STD_LOCALE
-#include <locale>
-#else
-#include <Wt/WGlobal>
+#ifndef WT_WSTRINGUTIL_EXTENSIONLESS_H_
+#define WT_WSTRINGUTIL_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WStringUtil.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WStringUtil.h instead")
 #endif
-
-namespace Wt {
-#ifndef WT_NO_STD_WSTRING
-  /*! \brief Convert a narrow to a wide string.
-   *
-   * Convert a narrow string to a wide string. This method will interpret
-   * the input string as being encoded in the given locale (by default the
-   * currently configured global C++ locale).
-   *
-   * \sa narrow(const std::wstring&), fromUTF8(const std::string& s)
-   *
-   * \relates WString
-   */
-#ifndef WT_NO_STD_LOCALE
-  extern WT_API std::wstring widen(const std::string& s,
-      const std::locale &loc = std::locale());
-#else
-  extern WT_API std::wstring widen(const std::string& s);
-#endif // WT_NO_STD_LOCALE
-#endif // WT_NO_STD_WSTRING
-
-#ifndef WT_NO_STD_WSTRING
-  /*! \brief Convert a wide to a narrow string.
-   *
-   * Convert a wide string to a narrow string. This method will encode
-   * the characters in the given locale, if possible.
-   *
-   * In general this will lead to a loss of information. If you wish to
-   * preserve all information, you should us toUTF8() instead.
-   *
-   * \sa widen(const std::string&), toUTF8(const std::wstring& s)
-   *
-   * \relates WString
-   */
-#ifndef WT_NO_STD_LOCALE
-  extern WT_API std::string narrow(const std::wstring& s,
-      const std::locale &loc = std::locale());
-#else
-  extern WT_API std::string narrow(const std::wstring& s);
-#endif // WT_NO_STD_LOCALE
-#endif // WT_NO_STD_WSTRING
-
-#ifndef WT_NO_STD_WSTRING
-  /*! \brief Decode a UTF8 string a wide string.
-   *
-   * Decode a UTF8 string to a wide string. In a UTF8 encoded unicode string,
-   * some unicode characters are represented in more than one byte.
-   * This method will decode to extract the proper unicode characters from
-   * the string. The resulting string may thus be shorter (has less characters)
-   * than the original, but does not lead to a loss of information.
-   *
-   * \sa toUTF8(const std::string& s), narrow(const std::wstring&)
-   *
-   * \relates WString
-   */
-  extern WT_API std::wstring fromUTF8(const std::string& s);
-#endif // WT_NO_STD_WSTRING
-
-  /*! \brief Decode a UTF8 string into a (narrow) string.
-   *
-   * Decode a UTF8 string to a normal string.
-   * Not all Unicode characters can be represented in a narrow string,
-   * and quite a lot characters will have no equivalent in the target
-   * character set, so you may loose information.
-   *
-   * To distinguish from the other fromUTF8() function, that returns a
-   * wstring, the locale is not an optional argument, as in most other
-   * locale-conversing functions. You may choose to use the
-   * default-constructed std::locale().
-   *
-   * \sa toUTF8(const std::string& s, const std::locale &),
-   *     fromUTF8(const std::string& s)
-   *
-   * \relates WString
-   */
-#ifndef WT_NO_STD_LOCALE
-  extern WT_API std::string fromUTF8(const std::string& s,
-      const std::locale &loc);
-#else
-  // in order to be unambiguous with the fromUTF8 function that returns a
-  // wstring, this version takes an extra CharEncoding parameter.
-  extern WT_API std::string fromUTF8(const std::string& s,
-      CharEncoding encoding);
-#endif
-
-#ifndef WT_NO_STD_WSTRING
-  /*! \brief Encode a wide string to UTF8.
-   *
-   * Convert a wide string to UTF8. This method will encode the given
-   * wide string in UTF8. This may result in a string that is possibly
-   * longer (has more characters), but does not lead to a loss of
-   * information.
-   *
-   * \sa fromUTF8(const std::string& s), narrow(const std::wstring&) 
-   *
-   * \relates WString
-   */
-  extern WT_API std::string toUTF8(const std::wstring& s);
-#endif // WT_NO_STD_WSTRING
-
-  /*! \brief Encode an character string (encoding known) to UTF8.
-   *
-   * Convert a char * string to UTF8. This method will encode the given
-   * string in UTF8, assuming that the original string was encoded in the
-   * given locale. This conversion does not lead to a loss of information.
-   *
-   * The reverse operation is in principle narrow(fromUTF8(str), locale).
-   *
-   * Do not call this function multiple times: toUTF8(toUTF8(str)) is
-   * meaningless.
-   *
-   * \sa toUTF8(const std::wstring& s), fromUTF8(const std::string &),
-   * narrow(const std::wstring&) 
-   *
-   * \relates WString
-   */
-#ifndef WT_NO_STD_LOCALE
-  extern WT_API std::string toUTF8(const std::string& s,
-      const std::locale &loc = std::locale());
-#else
-  extern WT_API std::string toUTF8(const std::string& s);
-#endif
-
-  // Following is WT_API for testing
-  std::string WT_API UTF8Substr(const std::string &s, int begin, int length);
-}
-
-#endif // WSTRING_UTIL_H_
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WStringUtil.h"
+#endif // WT_WSTRINGUTIL_EXTENSIONLESS_H_

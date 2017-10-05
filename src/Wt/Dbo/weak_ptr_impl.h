@@ -77,7 +77,7 @@ weak_ptr<C>::weak_ptr(const weak_ptr<D>& other)
   : collection_(other.collection_)
 {
   // Check if we can convert D* to C*
-  D *d = 0;
+  D *d = nullptr;
   C *c = d;
   (void)(c);
 }
@@ -99,7 +99,7 @@ template <class D>
 weak_ptr<C>& weak_ptr<C>::operator= (const weak_ptr<D>& other)
 {
   // Check if we can convert D* to C*
-  D *d = 0;
+  D *d = nullptr;
   C *c = d;
   (void)(c);
 
@@ -122,7 +122,7 @@ template <class D>
 weak_ptr<C>& weak_ptr<C>::operator= (const ptr<D>& other)
 {
   // Check if we can convert D* to C*
-  D *d = 0;
+  D *d = nullptr;
   C *c = d;
   (void)(c);
 

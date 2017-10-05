@@ -4,10 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WSslInfo"
+#include "Wt/WSslInfo.h"
 
-#include "Wt/WLogger"
-#include "Wt/Utils"
+#include "Wt/WLogger.h"
+#include "Wt/Utils.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -40,7 +40,8 @@ std::string WSslInfo::gdb() const
   }
 
   ss
-    << "valid: " << (clientVerificationResult_.state() == WValidator::Valid)
+    << "valid: " 
+    << (clientVerificationResult_.state() == ValidationState::Valid)
     << std::endl
     << "validity info: " << clientVerificationResult_.message() << std::endl;
   

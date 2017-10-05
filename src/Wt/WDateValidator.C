@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WDateValidator"
-#include "Wt/WLocale"
-#include "Wt/WLogger"
-#include "Wt/WStringStream"
-#include "Wt/WWebWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WDateValidator.h"
+#include "Wt/WLocale.h"
+#include "Wt/WLogger.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WWebWidget.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WDateValidator.min.js"
@@ -19,32 +19,26 @@ namespace Wt {
 
 LOGGER("WDateValidator");
 
-WDateValidator::WDateValidator(WObject *parent)
-  : WValidator(parent)
+WDateValidator::WDateValidator()
 {
   setFormat(WLocale::currentLocale().dateFormat());
 }
 
-WDateValidator::WDateValidator(const WDate& bottom, const WDate& top,
-			       WObject *parent)
-  : WValidator(parent),
-    bottom_(bottom),
+WDateValidator::WDateValidator(const WDate& bottom, const WDate& top)
+  : bottom_(bottom),
     top_(top)
 {
   setFormat(WLocale::currentLocale().dateFormat());
 }
 
-WDateValidator::WDateValidator(const WT_USTRING& format, WObject *parent)
-  : WValidator(parent)
+WDateValidator::WDateValidator(const WT_USTRING& format)
 {
   setFormat(format);
 }
 
 WDateValidator::WDateValidator(const WT_USTRING& format,
-			       const WDate& bottom, const WDate& top,
-			       WObject *parent)
-  : WValidator(parent),
-    bottom_(bottom),
+			       const WDate& bottom, const WDate& top)
+  : bottom_(bottom),
     top_(top)
 {
   setFormat(format);
@@ -159,20 +153,20 @@ WValidator::Result WDateValidator::validate(const WT_USTRING& input) const
       if (d.isValid()) {
 	if (!bottom_.isNull())
 	  if (d < bottom_)
-	    return Result(Invalid, invalidTooEarlyText());
+	    return Result(ValidationState::Invalid, invalidTooEarlyText());
 
 	if (!top_.isNull())
 	  if (d > top_)
-	    return Result(Invalid, invalidTooLateText());
+	    return Result(ValidationState::Invalid, invalidTooLateText());
     
-	return Result(Valid);
+	return Result(ValidationState::Valid);
       }
     } catch (std::exception& e) {
       LOG_WARN("validate(): " << e.what());
     }
   }
 
-  return Result(Invalid, invalidNotADateText());
+  return Result(ValidationState::Invalid, invalidNotADateText());
 }
 
 void WDateValidator::loadJavaScript(WApplication *app)
@@ -229,33 +223,5 @@ std::string WDateValidator::javaScriptValidate() const
 
   return js.str();
 }
-
-#ifndef WT_TARGET_JAVA
-void WDateValidator::createExtConfig(std::ostream& config) const
-{
-  config << ",format:"
-	 << WWebWidget::jsStringLiteral(WDate::extFormat(formats_[0]), '\'');
-
-  try {
-    if (!bottom_.isNull())
-      config << ",minValue:"
-	     << WWebWidget::jsStringLiteral(bottom_.toString(formats_[0]));
-    if (top_.isNull())
-      config << ",maxValue:"
-	     << WWebWidget::jsStringLiteral(top_.toString(formats_[0]));
-  } catch (std::exception& e) {
-    LOG_ERROR(e.what());
-  }
-
-  if (!tooEarlyText_.empty())
-    config << ",minText:" << tooEarlyText_.jsStringLiteral();
-  if (!tooLateText_.empty())
-    config << ",maxText:" << tooLateText_.jsStringLiteral();
-  if (!notADateText_.empty())
-    config << ",invalidText:" << notADateText_.jsStringLiteral();
-
-  WValidator::createExtConfig(config);
-}
-#endif //WT_TARGET_JAVA
 
 }

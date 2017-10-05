@@ -7,7 +7,7 @@
 #ifndef CODER_APPLICATION_H_
 #define CODER_APPLICATION_H_
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
 
 class CoderApplication : public Wt::WApplication
 {

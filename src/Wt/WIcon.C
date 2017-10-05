@@ -4,23 +4,23 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WIcon"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WCssDecorationStyle"
-#include "Wt/WFont"
+#include "Wt/WIcon.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WCssDecorationStyle.h"
+#include "Wt/WFont.h"
 
 #include "WebUtils.h"
 #include "DomElement.h"
 
 namespace Wt {
 
-WIcon::WIcon(WContainerWidget *parent)
-  : WInteractWidget(parent),
-	iconChanged_(false)
+WIcon::WIcon()
+  : iconChanged_(false)
 { }
 
-WIcon::WIcon(const std::string& name, WContainerWidget *parent)
+WIcon::WIcon(const std::string& name)
+  : iconChanged_(false)
 {
   setName(name);
 }
@@ -39,13 +39,13 @@ void WIcon::setName(const std::string& name)
 
 void WIcon::setSize(double factor)
 {
-  decorationStyle().font().setSize(WLength(factor, WLength::FontEm));
+  decorationStyle().font().setSize(WLength(factor, LengthUnit::FontEm));
 }
 
 double WIcon::size() const
 {
   const WFont& f = decorationStyle().font();
-  if (f.sizeLength().unit() == WLength::FontEm)
+  if (f.sizeLength().unit() == LengthUnit::FontEm)
     return f.sizeLength().value();
   else
     return 1;
@@ -61,7 +61,7 @@ void WIcon::updateDom(DomElement& element, bool all)
     if (!name_.empty())
       sc = Utils::addWord(sc, "fa fa-" + name_);
 
-    element.setProperty(PropertyClass, sc);
+    element.setProperty(Property::Class, sc);
 
     iconChanged_ = false;
   }
@@ -71,7 +71,7 @@ void WIcon::updateDom(DomElement& element, bool all)
 
 DomElementType WIcon::domElementType() const
 {
-  return DomElement_I;
+  return DomElementType::I;
 }
 
 void WIcon::propagateRenderOk(bool deep)

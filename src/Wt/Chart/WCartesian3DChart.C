@@ -4,25 +4,25 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Chart/WCartesian3DChart"
+#include "Wt/Chart/WCartesian3DChart.h"
 
-#include "Wt/Chart/WChart3DImplementation"
-#include "Wt/Chart/WAbstractColorMap"
-#include "Wt/Chart/WAbstractGridData"
-#include "Wt/WCanvasPaintDevice"
-#include "Wt/WException"
-#include "Wt/WFont"
-#include "Wt/WLength"
-#include "Wt/WPaintedWidget"
-#include "Wt/WPainter"
-#include "Wt/WPaintDevice"
-#include "Wt/WPainterPath"
-#include "Wt/WPen"
-#include "Wt/WRasterImage"
-#include "Wt/WRectF"
-#include "Wt/WVector3"
-#include "Wt/WVector4"
-#include "Wt/Chart/WStandardPalette"
+#include "Wt/Chart/WChart3DImplementation.h"
+#include "Wt/Chart/WAbstractColorMap.h"
+#include "Wt/Chart/WAbstractGridData.h"
+#include "Wt/WCanvasPaintDevice.h"
+#include "Wt/WException.h"
+#include "Wt/WFont.h"
+#include "Wt/WLength.h"
+#include "Wt/WPaintedWidget.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPaintDevice.h"
+#include "Wt/WPainterPath.h"
+#include "Wt/WPen.h"
+#include "Wt/WRasterImage.h"
+#include "Wt/WRectF.h"
+#include "Wt/WVector3.h"
+#include "Wt/WVector4.h"
+#include "Wt/Chart/WStandardPalette.h"
 #include "WebUtils.h"
 
 #include <string>
@@ -46,49 +46,15 @@ static const double ANGLE2 = 80;
 namespace Wt {
   namespace Chart {
 
-WCartesian3DChart::WCartesian3DChart(WContainerWidget* parent)
-  : WGLWidget(parent),
-    isViewSet_(false),
-    chartType_(ScatterPlot),
-    background_(transparent),
-    chartPalette_(new WStandardPalette(WStandardPalette::Muted)),
-    interface_(new WChart3DImplementation(this)),
-    axisRenderWidth_(1024),
-    axisRenderHeight_(256),
-    gridRenderWidth_(512),
-    textureScaling_(0),
-    seriesCounter_(0),
-    currentTopOffset_(0),
-    currentBottomOffset_(0),
-    currentLeftOffset_(0),
-    currentRightOffset_(0),
-    updates_(0),
-    intersectionLinesEnabled_(false)
-{
-  XYGridEnabled_[0] = false; XYGridEnabled_[1] = false;
-  XZGridEnabled_[0] = false; XZGridEnabled_[1] = false;
-  YZGridEnabled_[0] = false; YZGridEnabled_[1] = false;
+WCartesian3DChart::WCartesian3DChart()
+  : WCartesian3DChart(ChartType::Scatter)
+{ }
 
-  WPen pen; pen.setWidth(WLength(1.0));
-  XAxis_.init(interface_, XAxis_3D);
-  XAxis_.setPen(pen);
-  YAxis_.init(interface_, YAxis_3D);
-  YAxis_.setPen(pen);
-  ZAxis_.init(interface_, ZAxis_3D);
-  ZAxis_.setPen(pen);
-
-  titleFont_.setFamily(WFont::SansSerif);
-  titleFont_.setSize(WFont::FixedSize, WLength(15, WLength::Point));
-
-  addJavaScriptMatrix4(jsMatrix_);
-}
-
-WCartesian3DChart::WCartesian3DChart(ChartType type, WContainerWidget *parent)
-  : WGLWidget(parent),
-    isViewSet_(false),
+WCartesian3DChart::WCartesian3DChart(ChartType type)
+  : isViewSet_(false),
     chartType_(type),
-    background_(white),
-    chartPalette_(new WStandardPalette(WStandardPalette::Muted)),
+    background_(StandardColor::White),
+    chartPalette_(std::make_shared<WStandardPalette>(PaletteFlavour::Muted)),
     interface_(new WChart3DImplementation(this)),
     axisRenderWidth_(1024),
     axisRenderHeight_(256),
@@ -105,64 +71,67 @@ WCartesian3DChart::WCartesian3DChart(ChartType type, WContainerWidget *parent)
   XZGridEnabled_[0] = false; XZGridEnabled_[1] = false;
   YZGridEnabled_[0] = false; YZGridEnabled_[1] = false;
 
-  XAxis_.init(interface_, XAxis_3D);
-  YAxis_.init(interface_, YAxis_3D);
-  ZAxis_.init(interface_, ZAxis_3D);
+  XAxis_.init(interface_.get(), Axis::X3D);
+  YAxis_.init(interface_.get(), Axis::Y3D);
+  ZAxis_.init(interface_.get(), Axis::Z3D);
 
-  titleFont_.setFamily(WFont::SansSerif);
-  titleFont_.setSize(WFont::FixedSize, WLength(15, WLength::Point));
+  titleFont_.setFamily(FontFamily::SansSerif);
+  titleFont_.setSize(WLength(15, LengthUnit::Point));
 
   addJavaScriptMatrix4(jsMatrix_);
 }
 
 WCartesian3DChart::~WCartesian3DChart()
+{ }
+
+void WCartesian3DChart
+::addDataSeries(std::unique_ptr<WAbstractDataSeries3D> dataseries_)
 {
-  for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-    delete dataSeriesVector_[i];
-  }
-  delete chartPalette_;
-  delete interface_;
-}
-
-void WCartesian3DChart::addDataSeries(WAbstractDataSeries3D * dataseries)
-{
-  if (dataseries == 0)
-    return;
-
-  // no duplicates allowed
-  for (unsigned i = 0; i<dataSeriesVector_.size(); i++) {
-    if (dataSeriesVector_[i] == dataseries)
-      return;
-  }
-
+  auto dataseries = dataseries_.get();
   // add it
-  dataSeriesVector_.push_back(dataseries);
+  dataSeriesVector_.push_back(std::move(dataseries_));
   dataseries->setChart(this);
+
   if (dataseries->title().empty())
     dataseries->setDefaultTitle(++seriesCounter_);
 
-  updateChart(GLContext);
+  updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
-void WCartesian3DChart::removeDataSeries(WAbstractDataSeries3D * dataseries)
+std::unique_ptr<WAbstractDataSeries3D> WCartesian3DChart
+::removeDataSeries(WAbstractDataSeries3D * dataseries)
 {
-  Wt::Utils::erase(dataSeriesVector_, dataseries);
-  std::vector<boost::any> glObjects = dataseries->getGlObjects();
+  auto result = Wt::Utils::take(dataSeriesVector_, dataseries);
+
+  std::vector<cpp17::any> glObjects = dataseries->getGlObjects();
   objectsToDelete.reserve(glObjects.size());
   for (std::size_t i = 0; i < glObjects.size(); ++i) {
     objectsToDelete.push_back(glObjects[i]);
   }
 
-  updateChart(GLContext);
+  updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+
+  return result;
+}
+
+std::vector<WAbstractDataSeries3D *> WCartesian3DChart::dataSeries() const
+{
+  std::vector<WAbstractDataSeries3D *> result;
+  result.reserve(dataSeriesVector_.size());
+
+  for (const auto& d : dataSeriesVector_)
+    result.push_back(d.get());
+
+  return result;
 }
 
 WAxis& WCartesian3DChart::axis(Axis axis)
 {
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     return XAxis_;
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     return YAxis_;
-  } else if (axis == ZAxis_3D) {
+  } else if (axis == Axis::Z3D) {
     return ZAxis_;
   } else {
     throw WException("WCartesian3DChart: don't know this type of axis");
@@ -172,52 +141,52 @@ WAxis& WCartesian3DChart::axis(Axis axis)
 void WCartesian3DChart::setGridEnabled(Plane plane, Axis axis, bool enabled)
 {
   switch (plane) {
-  case XY_Plane:
-    if (axis == XAxis_3D)
+  case Plane::XY:
+    if (axis == Axis::X3D)
       XYGridEnabled_[0] = enabled;
-    if (axis == YAxis_3D)
+    if (axis == Axis::Y3D)
       XYGridEnabled_[1] = enabled;
     break;
-  case XZ_Plane:
-    if (axis == XAxis_3D)
+  case Plane::XZ:
+    if (axis == Axis::X3D)
       XZGridEnabled_[0] = enabled;
-    if (axis == ZAxis_3D)
+    if (axis == Axis::Z3D)
       XZGridEnabled_[1] = enabled;
     break;
-  case YZ_Plane:
-    if (axis == YAxis_3D)
+  case Plane::YZ:
+    if (axis == Axis::Y3D)
       YZGridEnabled_[0] = enabled;
-    if (axis == ZAxis_3D)
+    if (axis == Axis::Z3D)
       YZGridEnabled_[1] = enabled;
     break;
   }
 
-  updateChart(GLContext);
+  updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setGridLinesPen(const WPen &pen)
 {
   gridLinesPen_ = pen;
 
-  updateChart(GLContext);
+  updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setIntersectionLinesEnabled(bool enabled)
 {
   intersectionLinesEnabled_ = enabled;
-  updateChart(GLContext);
+  updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setIntersectionLinesColor(WColor color)
 {
   intersectionLinesColor_ = color;
-  repaintGL(PAINT_GL);
+  repaintGL(GLClientSideRenderer::PAINT_GL);
 }
 
 void WCartesian3DChart::setIntersectionPlanes(const std::vector<WCartesian3DChart::IntersectionPlane> &intersectionPlanes)
 {
   intersectionPlanes_ = intersectionPlanes;
-  updateChart(GLContext);
+  updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
 const std::vector<WCartesian3DChart::IntersectionPlane> &WCartesian3DChart::intersectionPlanes() const
@@ -228,59 +197,56 @@ const std::vector<WCartesian3DChart::IntersectionPlane> &WCartesian3DChart::inte
 void WCartesian3DChart::setTitle(const WString &title)
 {
   title_ = title;
-  updateChart(GLTextures);
+  updateChart(ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setTitleFont(const WFont &titleFont)
 {
   titleFont_ = titleFont;
-  updateChart(GLTextures);
+  updateChart(ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setBackground(const WColor &background)
 {
   background_ = background;
 
-  updateChart(GLContext);
+  updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
-void WCartesian3DChart::setPalette(WChartPalette * palette)
+void WCartesian3DChart
+::setPalette(const std::shared_ptr<WChartPalette>& palette)
 {
-  if (palette == chartPalette_ || palette == 0)
-    return;
-
-  delete chartPalette_;
   chartPalette_ = palette;
 
-  updateChart(GLContext);
+  updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setType(ChartType type)
 {
   chartType_ = type;
 
-  XAxis_.init(interface_, XAxis_3D);
-  YAxis_.init(interface_, YAxis_3D);
-  ZAxis_.init(interface_, ZAxis_3D);
+  XAxis_.init(interface_.get(), Axis::X3D);
+  YAxis_.init(interface_.get(), Axis::Y3D);
+  ZAxis_.init(interface_.get(), Axis::Z3D);
 }
 
 void WCartesian3DChart::setLegendEnabled(bool enabled)
 {
   legend_.setLegendEnabled(enabled);
-  updateChart(GLTextures);
+  updateChart(ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setLegendLocation(Side side, AlignmentFlag alignment)
 {
-  legend_.setLegendLocation(LegendOutside, side, alignment);
-  updateChart(GLTextures);
+  legend_.setLegendLocation(LegendLocation::Outside, side, alignment);
+  updateChart(ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setLegendStyle(const WFont &font, const WPen &border,
 				       const WBrush &background)
 {
   legend_.setLegendStyle(font, border, background);
-  updateChart(GLTextures);
+  updateChart(ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::setLegendColumns(int columns,
@@ -288,7 +254,7 @@ void WCartesian3DChart::setLegendColumns(int columns,
 {
   legend_.setLegendColumns(columns);
   legend_.setLegendColumnWidth(columnWidth);
-  updateChart(GLTextures);
+  updateChart(ChartUpdates::GLTextures);
 }
 
 void WCartesian3DChart::initLayout()
@@ -303,9 +269,9 @@ void WCartesian3DChart::initLayout()
   int axisOffset = (int)(axisRenderWidth_/textureScaling_/1.6*0.3);
   int axisWidth = axisRenderWidth_/textureScaling_;
 
-  XAxis_.prepareRender(Horizontal, axisWidth-2*axisOffset);
-  YAxis_.prepareRender(Horizontal, axisWidth-2*axisOffset);
-  ZAxis_.prepareRender(Vertical, axisWidth-2*axisOffset);
+  XAxis_.prepareRender(Orientation::Horizontal, axisWidth-2*axisOffset);
+  YAxis_.prepareRender(Orientation::Horizontal, axisWidth-2*axisOffset);
+  ZAxis_.prepareRender(Orientation::Vertical, axisWidth-2*axisOffset);
 }
 
 WMatrix4x4 WCartesian3DChart::cameraMatrix() const
@@ -317,7 +283,7 @@ void WCartesian3DChart::setCameraMatrix(const WMatrix4x4& matrix)
 {
   worldTransform_ = matrix;
 
-  updateChart(CameraMatrix);
+  updateChart(ChartUpdates::CameraMatrix);
 }
 
 void WCartesian3DChart::createRay(double x, double y, WVector3 &eye, WVector3 &direction) const {
@@ -464,9 +430,10 @@ void WCartesian3DChart::initializeGL()
   }
 
   if (restoringContext()) {
-    updateChart(GLContext | GLTextures);
+    updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
   } else {
-    updateChart(GLContext | GLTextures | CameraMatrix);
+    updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures | 
+		ChartUpdates::CameraMatrix);
   }
 }
 
@@ -861,21 +828,22 @@ void WCartesian3DChart::loadCubeTextures()
   initLayout();
 
   // Two horizontal and one vertical axis texture
-  WPaintDevice* cpdHoriz0 = createPaintDevice(WLength(1024),
-					      WLength(8*256));
-  WPaintDevice* cpdHoriz1 = createPaintDevice(WLength(1024),
-					      WLength(8*256));
-  WPaintDevice* cpdVert = createPaintDevice(WLength(2*256),
-					    WLength(1024));
-  paintHorizAxisTextures(cpdHoriz0);
-  paintHorizAxisTextures(cpdHoriz1, true);
-  paintVertAxisTextures(cpdVert);
+  std::unique_ptr<WPaintDevice> cpdHoriz0 
+    = createPaintDevice(WLength(1024), WLength(8*256));
+  std::unique_ptr<WPaintDevice> cpdHoriz1
+    = createPaintDevice(WLength(1024), WLength(8*256));
+  std::unique_ptr<WPaintDevice> cpdVert
+    = createPaintDevice(WLength(2*256), WLength(1024));
+
+  paintHorizAxisTextures(cpdHoriz0.get());
+  paintHorizAxisTextures(cpdHoriz1.get(), true);
+  paintVertAxisTextures(cpdVert.get());
 
   if (horizAxisTexture_.isNull())
     horizAxisTexture_ = createTexture();
   bindTexture(TEXTURE_2D, horizAxisTexture_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, cpdHoriz0);
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, cpdHoriz0.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR_MIPMAP_LINEAR);
   generateMipmap(TEXTURE_2D);
@@ -886,7 +854,7 @@ void WCartesian3DChart::loadCubeTextures()
     horizAxisTexture2_ = createTexture();
   bindTexture(TEXTURE_2D, horizAxisTexture2_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, cpdHoriz1);
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, cpdHoriz1.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR_MIPMAP_LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_WRAP_S,CLAMP_TO_EDGE);
@@ -897,7 +865,7 @@ void WCartesian3DChart::loadCubeTextures()
     vertAxisTexture_ = createTexture();
   bindTexture(TEXTURE_2D, vertAxisTexture_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, cpdVert);
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, cpdVert.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR_MIPMAP_LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_WRAP_S,CLAMP_TO_EDGE);
@@ -905,30 +873,30 @@ void WCartesian3DChart::loadCubeTextures()
   generateMipmap(TEXTURE_2D);
 
   // All gridline textures
-  WPaintDevice* pd1 = createPaintDevice(512, 512);
-  paintGridLines(pd1, XY_Plane);
+  std::unique_ptr<WPaintDevice> pd1 = createPaintDevice(512, 512);
+  paintGridLines(pd1.get(), Plane::XY);
   cubeTextureXY_ = createTexture();
   bindTexture(TEXTURE_2D, cubeTextureXY_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, pd1);
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, pd1.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR_MIPMAP_LINEAR);
   generateMipmap(TEXTURE_2D);
-  WPaintDevice* pd2 = createPaintDevice(512, 512);
-  paintGridLines(pd2, XZ_Plane);
+  std::unique_ptr<WPaintDevice> pd2 = createPaintDevice(512, 512);
+  paintGridLines(pd2.get(), Plane::XZ);
   cubeTextureXZ_ = createTexture();
   bindTexture(TEXTURE_2D, cubeTextureXZ_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, pd2);
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, pd2.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR_MIPMAP_LINEAR);
   generateMipmap(TEXTURE_2D);
-  WPaintDevice* pd3 = createPaintDevice(512, 512);
-  paintGridLines(pd3, YZ_Plane);
+  std::unique_ptr<WPaintDevice> pd3 = createPaintDevice(512, 512);
+  paintGridLines(pd3.get(), Plane::YZ);
   cubeTextureYZ_ = createTexture();
   bindTexture(TEXTURE_2D, cubeTextureYZ_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, pd3);
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, pd3.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR_MIPMAP_LINEAR);
   generateMipmap(TEXTURE_2D);
@@ -964,19 +932,19 @@ void WCartesian3DChart::initTitle()
   float pixelHeight = (float)(titleFont_.sizeLength().toPixels() * 1.5);
 
   // paint texture
-  WPaintDevice* titlePaintDev = createPaintDevice(width(), height());
-  WPainter painter(titlePaintDev);
+  std::unique_ptr<WPaintDevice> titlePaintDev
+    = createPaintDevice(width(), height());
+
+  WPainter painter(titlePaintDev.get());
   painter.setFont(titleFont_);
   painter.drawText(WRectF(0, 0, width().value(), pixelHeight),
-		   AlignCenter | AlignMiddle,
-		   title_);
+		   AlignmentFlag::Center | AlignmentFlag::Middle, title_);
   painter.end();
 
   titleTexture_ = createTexture();
   bindTexture(TEXTURE_2D, titleTexture_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, titlePaintDev);
-  delete titlePaintDev; titlePaintDev = 0;
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, titlePaintDev.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
@@ -988,8 +956,10 @@ void WCartesian3DChart::initTitle()
 void WCartesian3DChart::initColorMaps()
 {
   // paint the colormaps
-  WPaintDevice* colorMapPaintDev = createPaintDevice(width(), height());
-  WPainter painter(colorMapPaintDev);
+  std::unique_ptr<WPaintDevice> colorMapPaintDev
+    = createPaintDevice(width(), height());
+
+  WPainter painter(colorMapPaintDev.get());
   painter.translate(0, currentTopOffset_);
   const int WIDTH = 100;
   int space = (int)(height().value())
@@ -997,25 +967,30 @@ void WCartesian3DChart::initColorMaps()
   const int VERT_MARGIN = (int)(space * 0.1);
   const int LEFT_OFFSET = 4;
   for (unsigned i = 0; i<dataSeriesVector_.size(); i++) {
-    if (dataSeriesVector_[i]->colorMap() == 0 ||
+    if (dataSeriesVector_[i]->colorMap() == nullptr ||
 	dataSeriesVector_[i]->isHidden())
       continue;
 
     painter.save();
     if (dataSeriesVector_[i]->colorMapVisible()) {
       switch (dataSeriesVector_[i]->colorMapSide()) {
-      case Left:
+      case Side::Left:
 	painter.translate(currentLeftOffset_, 0);
-	dataSeriesVector_[i]->colorMap()->paintLegend(&painter, WRectF(LEFT_OFFSET, VERT_MARGIN, WIDTH, space - 2*VERT_MARGIN));
+	dataSeriesVector_[i]->colorMap()->paintLegend
+	  (&painter, WRectF(LEFT_OFFSET, VERT_MARGIN,
+			    WIDTH, space - 2*VERT_MARGIN));
 	currentLeftOffset_ += WIDTH;
 	break;
-      case Right:
+      case Side::Right:
 	painter.translate(width().value() - currentRightOffset_ - WIDTH, 0);
-	dataSeriesVector_[i]->colorMap()->paintLegend(&painter, WRectF(LEFT_OFFSET, VERT_MARGIN, WIDTH, space - 2*VERT_MARGIN));
+	dataSeriesVector_[i]->colorMap()->paintLegend
+	  (&painter, WRectF(LEFT_OFFSET, VERT_MARGIN,
+			    WIDTH, space - 2*VERT_MARGIN));
 	currentRightOffset_ += WIDTH;
 	break;
       default:
-	throw WException("WCartesian3DChart: colormaps can only be put left or right of the chart");
+	throw WException("WCartesian3DChart: colormaps can only be put "
+			 "left or right of the chart");
       }
     }
     painter.restore();
@@ -1025,8 +1000,7 @@ void WCartesian3DChart::initColorMaps()
   colorMapTexture_ = createTexture();
   bindTexture(TEXTURE_2D, colorMapTexture_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, colorMapPaintDev);
-  delete colorMapPaintDev; colorMapPaintDev = 0;
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, colorMapPaintDev.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
@@ -1043,65 +1017,68 @@ void WCartesian3DChart::initLegend()
   int legendWidth = legend_.width();
   int legendHeight = legend_.height(dataSeriesVector_);
 
-  WPaintDevice* legendPaintDev = createPaintDevice(width().value(),
-						   height().value());
-  WPainter painter(legendPaintDev);
+  std::unique_ptr<WPaintDevice> legendPaintDev
+    = createPaintDevice(width().value(), height().value());
+  WPainter painter(legendPaintDev.get());
 
   // do some fancy moves based on Side and Alignment
   int space = 0;
-  if (legend_.legendSide() == Left) {
+  if (legend_.legendSide() == Side::Left) {
     space = (int)(height().value()) - currentTopOffset_ - currentBottomOffset_;
     painter.translate(currentLeftOffset_ + MARGIN, 0);
     currentLeftOffset_ += legendWidth + MARGIN;
-  } else if (legend_.legendSide() == Right) {
+  } else if (legend_.legendSide() == Side::Right) {
     space = (int)(height().value()) - currentTopOffset_ - currentBottomOffset_;
-    painter.translate(width().value() - currentRightOffset_ - legendWidth - MARGIN, 0);
+    painter.translate(width().value() 
+		      - currentRightOffset_ - legendWidth - MARGIN, 0);
     currentRightOffset_ += legendWidth + MARGIN;
-  } else if (legend_.legendSide() == Top) {
+  } else if (legend_.legendSide() == Side::Top) {
     space = (int)(width().value()) - currentLeftOffset_ - currentRightOffset_;
     painter.translate(0, currentTopOffset_ + MARGIN);
     currentTopOffset_ += legendHeight + MARGIN;
-  } else if (legend_.legendSide() == Bottom) {
+  } else if (legend_.legendSide() == Side::Bottom) {
     space = (int)(width().value()) - currentLeftOffset_ - currentRightOffset_;
-    painter.translate(0, height().value() - currentBottomOffset_ - legendHeight - MARGIN);
+    painter.translate(0, height().value() 
+		      - currentBottomOffset_ - legendHeight - MARGIN);
     currentBottomOffset_ += legendHeight + MARGIN;
   }
 
-  if (legend_.legendSide() == Left || legend_.legendSide() == Right) {
+  if (legend_.legendSide() == Side::Left || legend_.legendSide() == Side::Right) {
     painter.translate(0, currentTopOffset_);
     switch (legend_.legendAlignment()) {
-    case AlignTop:
+    case AlignmentFlag::Top:
       painter.translate(0, MARGIN);
       currentTopOffset_ += MARGIN;
       break;
-    case AlignMiddle:
+    case AlignmentFlag::Middle:
       painter.translate(0, (space-legendHeight)/2);
       break;
-    case AlignBottom:
+    case AlignmentFlag::Bottom:
       painter.translate(0, space-legendHeight - MARGIN);
       currentBottomOffset_ += MARGIN;
       break;
     default:
-      throw WException("WCartesian3DChart: legend-side does not match legend-alignment");
+      break; // legend-side does not match legend-alignment
     }
   }
-  if (legend_.legendSide() == Top || legend_.legendSide() == Bottom) {
+  if (legend_.legendSide() == Side::Top || 
+      legend_.legendSide() == Side::Bottom) {
     painter.translate(currentLeftOffset_, 0);
     space = (int)(width().value()) - currentLeftOffset_ - currentRightOffset_;
     switch (legend_.legendAlignment()) {
-    case AlignLeft:
+    case AlignmentFlag::Left:
       painter.translate(MARGIN, 0);
       currentLeftOffset_ += MARGIN;
       break;
-    case AlignCenter:
+    case AlignmentFlag::Center:
       painter.translate((space-legendWidth)/2, 0);
       break;
-    case AlignRight:
+    case AlignmentFlag::Right:
       painter.translate(space-legendWidth - MARGIN, 0);
       currentRightOffset_ += MARGIN;
       break;
     default:
-      throw WException("WCartesian3DChart: legend-side does not match legend-alignment");
+      break; // legend-side does not match legend-alignment
     }
   }
 
@@ -1111,8 +1088,7 @@ void WCartesian3DChart::initLegend()
   legendTexture_ = createTexture();
   bindTexture(TEXTURE_2D, legendTexture_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, legendPaintDev);
-  delete legendPaintDev; legendPaintDev = 0;
+  texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, legendPaintDev.get());
   texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR);
   texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
@@ -1354,8 +1330,11 @@ void WCartesian3DChart::paintGL()
   disable(BLEND);
   // Paint all grid data with clipping lines
   for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-    WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
-    if (gridData && gridData->type() == SurfaceSeries3D && gridData->clippingLinesEnabled()) {
+    WAbstractGridData *gridData
+      = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i].get());
+    if (gridData &&
+	gridData->type() == Series3DType::Surface &&
+	gridData->clippingLinesEnabled()) {
       gridData->paintGL();
       renderClippingLines(gridData);
       enable(BLEND);
@@ -1363,7 +1342,8 @@ void WCartesian3DChart::paintGL()
       disable(DEPTH_TEST);
       depthMask(false);
       if (!intersectionLinesTexture_.isNull())
-	paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_, intersectionLinesTexture_);
+	paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_,
+			       intersectionLinesTexture_);
       depthMask(true);
       disable(BLEND);
       enable(CULL_FACE);
@@ -1372,16 +1352,20 @@ void WCartesian3DChart::paintGL()
   }
   // Paint all grid data without clipping lines
   for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-    WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
-    if (gridData && gridData->type() == SurfaceSeries3D && !gridData->clippingLinesEnabled()) {
+    WAbstractGridData *gridData
+      = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i].get());
+    if (gridData &&
+	gridData->type() == Series3DType::Surface &&
+	!gridData->clippingLinesEnabled()) {
       gridData->paintGL();
     }
   }
   // Paint all other data, if intersection lines are not enabled
   if (!intersectionLinesEnabled_ && intersectionPlanes_.empty()) {
     for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-      WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
-      if (!(gridData && gridData->type() == SurfaceSeries3D)) {
+      WAbstractGridData *gridData
+	= dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i].get());
+      if (!(gridData && gridData->type() == Series3DType::Surface)) {
 	dataSeriesVector_[i]->paintGL();
       }
     }
@@ -1404,7 +1388,8 @@ void WCartesian3DChart::paintGL()
 
     depthMask(false);
     if (!intersectionLinesTexture_.isNull())
-      paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_, intersectionLinesTexture_);
+      paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_,
+			     intersectionLinesTexture_);
     depthMask(true);
 
     disable(BLEND);
@@ -1413,8 +1398,9 @@ void WCartesian3DChart::paintGL()
 
     // Paint all other data
     for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-      WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
-      if (!gridData || gridData->type() != SurfaceSeries3D) {
+      WAbstractGridData *gridData
+	= dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i].get());
+      if (!gridData || gridData->type() != Series3DType::Surface) {
 	dataSeriesVector_[i]->paintGL();
       }
     }
@@ -1425,7 +1411,8 @@ void WCartesian3DChart::paintGL()
 
   // draw peripheral textures
   if (!titleTexture_.isNull())
-    paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_, titleTexture_);
+    paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_,
+			   titleTexture_);
 
   if (!legendTexture_.isNull())
     paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_,
@@ -1469,7 +1456,7 @@ void WCartesian3DChart::paintPeripheralTexture(const Buffer& pos,
 
 void WCartesian3DChart::updateGL()
 {
-  if (updates_ & GLContext) {
+  if (updates_.test(ChartUpdates::GLContext)) {
     deleteAllGLResources();
     for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
       dataSeriesVector_[i]->deleteAllGLResources();
@@ -1483,7 +1470,8 @@ void WCartesian3DChart::updateGL()
       initOffscreenBuffer();
     }
     for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-      WAbstractGridData *data = dynamic_cast<WAbstractGridData *>(dataSeriesVector_[i]);
+      WAbstractGridData *data
+	= dynamic_cast<WAbstractGridData *>(dataSeriesVector_[i].get());
       if (data) {
 	initializeClippingPlaneProgram();
 	// NOTE: the ! is not an error, if intersectionLinesEnabled_ is true,
@@ -1499,37 +1487,37 @@ void WCartesian3DChart::updateGL()
       dataSeriesVector_[i]->updateGL();
     }
 
-    repaintGL(WGLWidget::RESIZE_GL);
-    repaintGL(WGLWidget::PAINT_GL);
+    repaintGL(GLClientSideRenderer::RESIZE_GL);
+    repaintGL(GLClientSideRenderer::PAINT_GL);
   }
 
-  if (updates_ & CameraMatrix) {
+  if (updates_.test(ChartUpdates::CameraMatrix)) {
     setJavaScriptMatrix4(jsMatrix_, worldTransform_);
 
-    repaintGL(WGLWidget::PAINT_GL);
+    repaintGL(GLClientSideRenderer::PAINT_GL);
   }
 
-  if (updates_ & GLTextures) {
+  if (updates_.test(ChartUpdates::GLTextures)) {
     deleteGLTextures();
     loadCubeTextures();
 
     currentTopOffset_ = 0; currentBottomOffset_ = 0;
     currentLeftOffset_ = 0; currentRightOffset_ = 0;
     initTitle();
-    if (legend_.legendSide() == Left) {
+    if (legend_.legendSide() == Side::Left) {
       initColorMaps();
       initLegend();
-    } else if (legend_.legendSide() == Right) {
+    } else if (legend_.legendSide() == Side::Right) {
       initLegend();
       initColorMaps();
     } else {
       initLegend();
       initColorMaps();
     }
-    repaintGL(WGLWidget::PAINT_GL);
+    repaintGL(GLClientSideRenderer::PAINT_GL);
   }
 
-  updates_ = 0;
+  updates_ = None;
 }
 
 void WCartesian3DChart::resizeGL(int width, int height)
@@ -1548,13 +1536,16 @@ void WCartesian3DChart::resizeGL(int width, int height)
 
   bool clippingLinesEnabled = false;
   for (std::size_t i = 0; i < dataSeriesVector_.size(); i++) {
-    WAbstractGridData *data = dynamic_cast<WAbstractGridData *>(dataSeriesVector_[i]);
+    WAbstractGridData *data
+      = dynamic_cast<WAbstractGridData *>(dataSeriesVector_[i].get());
     if (data && data->clippingLinesEnabled()) {
       clippingLinesEnabled = true;
       break;
     }
   }
-  if (intersectionLinesEnabled_ || clippingLinesEnabled || !intersectionPlanes_.empty())
+  if (intersectionLinesEnabled_ || 
+      clippingLinesEnabled || 
+      !intersectionPlanes_.empty())
     resizeOffscreenBuffer();
 
   // + change the projection matrices for all dataseries
@@ -1615,16 +1606,22 @@ void WCartesian3DChart::resizeOffscreenBuffer()
   renderbufferStorage(RENDERBUFFER, DEPTH_COMPONENT16, w, h);
 
   bindFramebuffer(FRAMEBUFFER, intersectionLinesFramebuffer_);
-  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, intersectionLinesTexture_, 0);
-  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, offscreenDepthbuffer_);
+  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, 
+		       TEXTURE_2D, intersectionLinesTexture_, 0);
+  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, 
+			  RENDERBUFFER, offscreenDepthbuffer_);
 
   bindFramebuffer(FRAMEBUFFER, meshIndexFramebuffer_);
-  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, meshIndexTexture_, 0);
-  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, offscreenDepthbuffer_);
+  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, 
+		       TEXTURE_2D, meshIndexTexture_, 0);
+  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, 
+			  RENDERBUFFER, offscreenDepthbuffer_);
 
   bindFramebuffer(FRAMEBUFFER, positionFramebuffer_);
-  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, positionTexture_, 0);
-  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, offscreenDepthbuffer_);
+  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, 
+		       TEXTURE_2D, positionTexture_, 0);
+  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, 
+			  RENDERBUFFER, offscreenDepthbuffer_);
 
   bindRenderbuffer(RENDERBUFFER, Renderbuffer());
   bindFramebuffer(FRAMEBUFFER, Framebuffer());
@@ -1672,8 +1669,9 @@ void WCartesian3DChart::renderIntersectionLines()
   clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
   for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-    WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
-    if (gridData && gridData->type() == SurfaceSeries3D) {
+    WAbstractGridData *gridData 
+      = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i].get());
+    if (gridData && gridData->type() == Series3DType::Surface) {
       gridData->paintGLIndex(i);
     }
   }
@@ -1683,8 +1681,9 @@ void WCartesian3DChart::renderIntersectionLines()
   clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
   for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-    WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
-    if (gridData && gridData->type() == SurfaceSeries3D) {
+    WAbstractGridData *gridData
+      = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i].get());
+    if (gridData && gridData->type() == Series3DType::Surface) {
       gridData->paintGLPositions();
     }
   }
@@ -1717,10 +1716,10 @@ void WCartesian3DChart::renderIntersectionLines()
   uniform1f(intersectionLines_viewportWidthUniform_, width().value());
   uniform1f(intersectionLines_viewportHeightUniform_, height().value());
   uniform4f(intersectionLines_colorUniform_,
-      intersectionLinesColor_.red() / 255.0,
-      intersectionLinesColor_.green() / 255.0,
-      intersectionLinesColor_.blue() / 255.0,
-      intersectionLinesColor_.alpha() / 255.0);
+	    intersectionLinesColor_.red() / 255.0,
+	    intersectionLinesColor_.green() / 255.0,
+	    intersectionLinesColor_.blue() / 255.0,
+	    intersectionLinesColor_.alpha() / 255.0);
 
   activeTexture(TEXTURE0);
   bindTexture(TEXTURE_2D, positionTexture_);
@@ -1750,8 +1749,9 @@ void WCartesian3DChart::renderIntersectionLinesWithInvisiblePlanes()
     clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
     for (unsigned j = 0; j < dataSeriesVector_.size(); j++) {
-      WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j]);
-      if (gridData && gridData->type() == SurfaceSeries3D) {
+      WAbstractGridData *gridData
+	= dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j].get());
+      if (gridData && gridData->type() == Series3DType::Surface) {
 	gridData->paintGLIndex(1);
       }
     }
@@ -1769,14 +1769,15 @@ void WCartesian3DChart::renderIntersectionLinesWithInvisiblePlanes()
     double maxZ = ZAxis_.maximum();
 
     IntersectionPlane plane = intersectionPlanes_[i];
-    if (plane.axis == XAxis_3D) {
+    if (plane.axis == Axis::X3D) {
       uniform1i(clippingPlane_clippingAxis_, 0);
-    } else if (plane.axis == YAxis_3D) {
+    } else if (plane.axis == Axis::Y3D) {
       uniform1i(clippingPlane_clippingAxis_, 1);
     } else {
       uniform1i(clippingPlane_clippingAxis_, 2);
     }
-    uniform3f(clippingPlane_clipPtUniform_, plane.position, plane.position, plane.position);
+    uniform3f(clippingPlane_clipPtUniform_, plane.position, 
+	      plane.position, plane.position);
     uniform3f(clippingPlane_dataMinPtUniform_, minX, minY, minZ);
     uniform3f(clippingPlane_dataMaxPtUniform_, maxX, maxY, maxZ);
     uniform1i(clippingPlane_drawPositionUniform_, 0);
@@ -1811,8 +1812,9 @@ void WCartesian3DChart::renderIntersectionLinesWithInvisiblePlanes()
     clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
     for (unsigned j = 0; j < dataSeriesVector_.size(); j++) {
-      WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j]);
-      if (gridData && gridData->type() == SurfaceSeries3D) {
+      WAbstractGridData *gridData
+	= dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j].get());
+      if (gridData && gridData->type() == Series3DType::Surface) {
 	gridData->paintGLPositions();
       }
     }
@@ -1964,9 +1966,12 @@ void WCartesian3DChart::renderClippingLines(WAbstractGridData *data)
     //       of surfaces. This will affect performance and may be undesirable
     //       when using more and larger surfaces.
     for (size_t j = 0; j < dataSeriesVector_.size(); ++j) {
-      if (dataSeriesVector_[j] != data) {
-	WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j]);
-	if (gridData && gridData->type() == SurfaceSeries3D && gridData->clippingLinesEnabled()) {
+      if (dataSeriesVector_[j].get() != data) {
+	WAbstractGridData *gridData 
+	  = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j].get());
+	if (gridData &&
+	    gridData->type() == Series3DType::Surface &&
+	    gridData->clippingLinesEnabled()) {
 	  gridData->paintGLIndex(0xffffff);
 	}
       }
@@ -2000,9 +2005,12 @@ void WCartesian3DChart::renderClippingLines(WAbstractGridData *data)
 	clippingAxis == 1 ? 0.01 : 0.0,
 	clippingAxis == 2 ? 0.01 : 0.0);
     for (size_t j = 0; j < dataSeriesVector_.size(); ++j) {
-      if (dataSeriesVector_[j] != data) {
-	WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j]);
-	if (gridData && gridData->type() == SurfaceSeries3D && gridData->clippingLinesEnabled()) {
+      if (dataSeriesVector_[j].get() != data) {
+	WAbstractGridData *gridData
+	  = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j].get());
+	if (gridData &&
+	    gridData->type() == Series3DType::Surface &&
+	    gridData->clippingLinesEnabled()) {
 	  gridData->paintGLPositions();
 	}
       }
@@ -2143,24 +2151,24 @@ void WCartesian3DChart::deleteGLTextures() {
     deleteTexture(colorMapTexture_);colorMapTexture_.clear();
 
   for (std::size_t i = 0; i < objectsToDelete.size(); ++i) {
-    boost::any o = objectsToDelete[i];
+    cpp17::any o = objectsToDelete[i];
     if (o.type() == typeid(WGLWidget::Buffer)) {
-      WGLWidget::Buffer buf = boost::any_cast<WGLWidget::Buffer>(objectsToDelete[i]);
+      WGLWidget::Buffer buf = cpp17::any_cast<WGLWidget::Buffer>(objectsToDelete[i]);
       if (!buf.isNull()) {
 	deleteBuffer(buf);
       }
     } else if (o.type() == typeid(WGLWidget::Texture)) {
-      WGLWidget::Texture tex = boost::any_cast<WGLWidget::Texture>(objectsToDelete[i]);
+      WGLWidget::Texture tex = cpp17::any_cast<WGLWidget::Texture>(objectsToDelete[i]);
       if (!tex.isNull()) {
 	deleteTexture(tex);
       }
     } else if (o.type() == typeid(WGLWidget::Shader)) {
-      WGLWidget::Shader shader = boost::any_cast<WGLWidget::Shader>(objectsToDelete[i]);
+      WGLWidget::Shader shader = cpp17::any_cast<WGLWidget::Shader>(objectsToDelete[i]);
       if (!shader.isNull()) {
 	deleteShader(shader);
       }
     } else if (o.type() == typeid(WGLWidget::Program)) {
-      WGLWidget::Program prog = boost::any_cast<WGLWidget::Program>(objectsToDelete[i]);
+      WGLWidget::Program prog = cpp17::any_cast<WGLWidget::Program>(objectsToDelete[i]);
       if (!prog.isNull()) {
 	deleteProgram(prog);
       }
@@ -2173,12 +2181,12 @@ void WCartesian3DChart::updateChart(WFlags<ChartUpdates> flags)
 {
   updates_ |= flags;
 
-  repaintGL(WGLWidget::UPDATE_GL);
+  repaintGL(GLClientSideRenderer::UPDATE_GL);
 }
 
 void WCartesian3DChart::resize(const WLength &width, const WLength &height)
 {
-  updateChart(GLTextures);
+  updateChart(ChartUpdates::GLTextures);
   WGLWidget::resize(width, height);
 }
 
@@ -2221,19 +2229,19 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   axisEnd = WPointF(axisWidth-axisOffset, 0.0);
   tickStart = 0.0; tickEnd = TICKLENGTH;
   labelPos = tickEnd;
-  labelHFlag = AlignCenter; labelVFlag = AlignTop;
+  labelHFlag = AlignmentFlag::Center; labelVFlag = AlignmentFlag::Top;
   if (XAxis_.labelAngle() > ANGLE1) {
-    labelHFlag = labelPos > 0 ? AlignRight : AlignLeft;
+    labelHFlag = labelPos > 0 ? AlignmentFlag::Right : AlignmentFlag::Left;
     if (XAxis_.labelAngle() > ANGLE2)
-      labelVFlag = AlignMiddle;
+      labelVFlag = AlignmentFlag::Middle;
   } else if (XAxis_.labelAngle() < -ANGLE1) {
-    labelHFlag = labelPos > 0 ? AlignLeft : AlignRight;
+    labelHFlag = labelPos > 0 ? AlignmentFlag::Left : AlignmentFlag::Right;
     if (XAxis_.labelAngle() < -ANGLE2)
-      labelVFlag = AlignMiddle;
+      labelVFlag = AlignmentFlag::Middle;
   }
 
   XAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2245,7 +2253,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   painter.setFont(XAxis_.titleFont());
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignTop, XAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Top, XAxis_.title());
 
   // draw X-axis( RTL, labels underneath)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2259,7 +2267,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   labelPos = tickEnd;
 
   XAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2268,7 +2276,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   // draw title
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignTop, XAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Top, XAxis_.title());
 
   // draw X-axis( LTR, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2280,19 +2288,19 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   axisEnd = WPointF(axisWidth-axisOffset, axisHeight);
   tickStart = -TICKLENGTH; tickEnd = 0.0;
   labelPos = tickEnd - 4;
-  labelHFlag = AlignCenter; labelVFlag = AlignBottom;
+  labelHFlag = AlignmentFlag::Center; labelVFlag = AlignmentFlag::Bottom;
   if (XAxis_.labelAngle() > ANGLE1) {
-    labelHFlag = labelPos > 0 ? AlignRight : AlignLeft;
+    labelHFlag = labelPos > 0 ? AlignmentFlag::Right : AlignmentFlag::Left;
     if (XAxis_.labelAngle() > ANGLE2)
-      labelVFlag = AlignMiddle;
+      labelVFlag = AlignmentFlag::Middle;
   } else if (XAxis_.labelAngle() < -ANGLE1) {
-    labelHFlag = labelPos > 0 ? AlignLeft : AlignRight;
+    labelHFlag = labelPos > 0 ? AlignmentFlag::Left : AlignmentFlag::Right;
     if (XAxis_.labelAngle() < -ANGLE2)
-      labelVFlag = AlignMiddle;
+      labelVFlag = AlignmentFlag::Middle;
   }
 
   XAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2300,7 +2308,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignBottom, XAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Bottom, XAxis_.title());
 
   // draw X-axis( RTL, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2314,7 +2322,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   labelPos = tickEnd - 4;
 
   XAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2322,7 +2330,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignBottom, XAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Bottom, XAxis_.title());
   painter.setFont(oldFont);
 
   // draw Y-axis (LTR, label underneath)
@@ -2335,19 +2343,19 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   axisEnd = WPointF(axisWidth-axisOffset, 0.0);
   tickStart = 0.0; tickEnd = TICKLENGTH;
   labelPos = tickEnd;
-  labelHFlag = AlignCenter; labelVFlag = AlignTop;
+  labelHFlag = AlignmentFlag::Center; labelVFlag = AlignmentFlag::Top;
   if (YAxis_.labelAngle() > ANGLE1) {
-    labelHFlag = labelPos > 0 ? AlignRight : AlignLeft;
+    labelHFlag = labelPos > 0 ? AlignmentFlag::Right : AlignmentFlag::Left;
     if (YAxis_.labelAngle() > ANGLE2)
-      labelVFlag = AlignMiddle;
+      labelVFlag = AlignmentFlag::Middle;
   } else if (YAxis_.labelAngle() < -ANGLE1) {
-    labelHFlag = labelPos > 0 ? AlignLeft : AlignRight;
+    labelHFlag = labelPos > 0 ? AlignmentFlag::Left : AlignmentFlag::Right;
     if (YAxis_.labelAngle() < -ANGLE2)
-      labelVFlag = AlignMiddle;
+      labelVFlag = AlignmentFlag::Middle;
   }
 
   YAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2358,7 +2366,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   painter.setFont(YAxis_.titleFont());
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignTop, YAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Top, YAxis_.title());
 
   // draw Y-axis (RTL, label underneath)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2372,7 +2380,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   labelPos = tickEnd;
 
   YAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2381,7 +2389,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   // draw title
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignTop, YAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Top, YAxis_.title());
 
   // draw Y-axis (LTR, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2393,19 +2401,19 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   axisEnd = WPointF(axisWidth-axisOffset, axisHeight);
   tickStart = -TICKLENGTH; tickEnd = 0.0;
   labelPos = tickEnd - 4;
-  labelHFlag = AlignCenter; labelVFlag = AlignBottom;
+  labelHFlag = AlignmentFlag::Center; labelVFlag = AlignmentFlag::Bottom;
   if (YAxis_.labelAngle() > ANGLE1) {
-    labelHFlag = labelPos > 0 ? AlignRight : AlignLeft;
+    labelHFlag = labelPos > 0 ? AlignmentFlag::Right : AlignmentFlag::Left;
     if (YAxis_.labelAngle() > ANGLE2)
-      labelVFlag = AlignMiddle;
+      labelVFlag = AlignmentFlag::Middle;
   } else if (YAxis_.labelAngle() < -ANGLE1) {
-    labelHFlag = labelPos > 0 ? AlignLeft : AlignRight;
+    labelHFlag = labelPos > 0 ? AlignmentFlag::Left : AlignmentFlag::Right;
     if (YAxis_.labelAngle() < -ANGLE2)
-      labelVFlag = AlignMiddle;
+      labelVFlag = AlignmentFlag::Middle;
   }
 
   YAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2413,7 +2421,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignBottom, YAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Bottom, YAxis_.title());
 
   // draw Y-axis (RTL, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2427,7 +2435,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   labelPos = tickEnd - 4;
 
   YAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2435,7 +2443,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignBottom, YAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Bottom, YAxis_.title());
   painter.setFont(oldFont);
 
   if (labelAngleMirrored) {
@@ -2462,20 +2470,20 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   WPointF axisEnd = WPointF(axisHeight, axisOffset);
   double tickStart = -TICKLENGTH; double tickEnd = 0.0;
   double labelPos = tickEnd - 4;
-  AlignmentFlag labelHFlag = AlignRight;
-  AlignmentFlag labelVFlag = AlignMiddle;
+  AlignmentFlag labelHFlag = AlignmentFlag::Right;
+  AlignmentFlag labelVFlag = AlignmentFlag::Middle;
   if (ZAxis_.labelAngle() > ANGLE1) {
-    labelVFlag = labelPos < 0 ? AlignBottom : AlignTop;
+    labelVFlag = labelPos < 0 ? AlignmentFlag::Bottom : AlignmentFlag::Top;
     if (ZAxis_.labelAngle() > ANGLE2)
-      labelHFlag = AlignCenter;
+      labelHFlag = AlignmentFlag::Center;
   } else if (ZAxis_.labelAngle() < -ANGLE1) {
-    labelVFlag = labelPos < 0 ? AlignTop : AlignBottom;
+    labelVFlag = labelPos < 0 ? AlignmentFlag::Top : AlignmentFlag::Bottom;
     if (ZAxis_.labelAngle() < -ANGLE2)
-      labelHFlag = AlignCenter;
+      labelHFlag = AlignmentFlag::Center;
   }
 
   ZAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2488,7 +2496,7 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   painter.setFont(ZAxis_.titleFont());
   painter.drawText(WRectF(-axisWidth, 0,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignCenter | AlignBottom, ZAxis_.title());
+		   AlignmentFlag::Center | AlignmentFlag::Bottom, ZAxis_.title());
   painter.rotate(90);
 
   // draw Z-axis (labels right)
@@ -2496,19 +2504,19 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   axisEnd = WPointF(axisHeight, axisOffset);
   tickStart = 0.0; tickEnd = TICKLENGTH;
   labelPos = tickEnd;
-  labelHFlag = AlignLeft; labelVFlag = AlignMiddle;
+  labelHFlag = AlignmentFlag::Left; labelVFlag = AlignmentFlag::Middle;
   if (ZAxis_.labelAngle() > ANGLE1) {
-    labelVFlag = labelPos < 0 ? AlignBottom : AlignTop;
+    labelVFlag = labelPos < 0 ? AlignmentFlag::Bottom : AlignmentFlag::Top;
     if (ZAxis_.labelAngle() > ANGLE2)
-      labelHFlag = AlignCenter;
+      labelHFlag = AlignmentFlag::Center;
   } else if (ZAxis_.labelAngle() < -ANGLE1) {
-    labelVFlag = labelPos < 0 ? AlignTop : AlignBottom;
+    labelVFlag = labelPos < 0 ? AlignmentFlag::Top : AlignmentFlag::Bottom;
     if (ZAxis_.labelAngle() < -ANGLE2)
-      labelHFlag = AlignCenter;
+      labelHFlag = AlignmentFlag::Center;
   }
 
   ZAxis_.render(painter,
-		Line | Labels,
+		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2518,7 +2526,7 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   painter.rotate(-90);
   painter.drawText(WRectF(-axisWidth, axisHeight+TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-			  AlignCenter | AlignTop, ZAxis_.title());
+			  AlignmentFlag::Center | AlignmentFlag::Top, ZAxis_.title());
   painter.setFont(oldFont);
   painter.rotate(90);
   painter.end();
@@ -2538,14 +2546,16 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
   painter.setPen(gridLinesPen_);
 
   switch (plane) {
-  case XY_Plane:
+  case Plane::XY:
     if (XYGridEnabled_[0]) {
       std::vector<double> pos = XAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
-	int texPos = (int)(pos[i]/renderLength * (gridRenderWidth_/textureScaling_));
-	painter.drawLine(texPos+0.5, 0.5, texPos+0.5, gridRenderWidth_/textureScaling_-0.5);
+	int texPos = (int)(pos[i]/renderLength * 
+			   (gridRenderWidth_/textureScaling_));
+	painter.drawLine(texPos+0.5, 0.5, texPos+0.5, 
+			 gridRenderWidth_/textureScaling_-0.5);
       }
     }
     if (XYGridEnabled_[1]) {
@@ -2553,12 +2563,14 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
-	int texPos = (int)(pos[i]/renderLength * (gridRenderWidth_/textureScaling_));
-	painter.drawLine(0.5, texPos+0.5, gridRenderWidth_/textureScaling_-0.5, texPos+0.5);
+	int texPos = (int)(pos[i]/renderLength * 
+			   (gridRenderWidth_/textureScaling_));
+	painter.drawLine(0.5, texPos+0.5, 
+			 gridRenderWidth_/textureScaling_-0.5, texPos+0.5);
       }
     }
     break;
-  case XZ_Plane:
+  case Plane::XZ:
     if (XZGridEnabled_[0]) {
       std::vector<double> pos = XAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
@@ -2578,7 +2590,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
       }
     }
     break;
-  case YZ_Plane:
+  case Plane::YZ:
     if (YZGridEnabled_[0]) {
       std::vector<double> pos = YAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
@@ -2606,13 +2618,13 @@ double WCartesian3DChart::toPlotCubeCoords(double value, Axis axis)
 {
   double min = 0.0, max = 1.0;
 
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     min = XAxis_.minimum();
     max = XAxis_.maximum();
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     min = YAxis_.minimum();
     max = YAxis_.maximum();
-  } else if (axis == ZAxis_3D) {
+  } else if (axis == Axis::Z3D) {
     min = ZAxis_.minimum();
     max = ZAxis_.maximum();
   } else {

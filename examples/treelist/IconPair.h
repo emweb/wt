@@ -7,7 +7,9 @@
 #ifndef ICONPAIR_H_
 #define ICONPAIR_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
+
+using namespace Wt;
 
 namespace Wt {
   class WImage;
@@ -31,7 +33,7 @@ namespace Wt {
  *
  * \sa TreeNode
  */
-class IconPair : public Wt::WCompositeWidget
+class IconPair : public WCompositeWidget
 {
 public:
   /*! \brief Construct a two-state icon widget.
@@ -40,7 +42,7 @@ public:
    * is set true, clicking on the icon will switch state.
    */
   IconPair(const std::string icon1URI, const std::string icon2URI,
-	   bool clickIsSwitch = true, Wt::WContainerWidget *parent = 0);
+           bool clickIsSwitch = true);
 
   /*! \brief Set which icon should be visible.
    *
@@ -58,11 +60,11 @@ public:
 
   /*! \brief Get the first icon image
    */
-  Wt::WImage *icon1() const { return icon1_; }
+  WImage *icon1() const { return icon1_; }
   
   /*! \brief Get the second icon image
    */
-  Wt::WImage *icon2() const { return icon2_; }
+  WImage *icon2() const { return icon2_; }
 
   /*! \brief Set state to 0 (show icon 1).
    */
@@ -73,24 +75,24 @@ public:
   void showIcon2();
 
 private:
-  Wt::WContainerWidget *impl_;
+  WContainerWidget *impl_;
 
   //! First icon.
-  Wt::WImage *icon1_;
+  WImage *icon1_;
 
   //! Second icon.
-  Wt::WImage *icon2_;
+  WImage *icon2_;
 
 public:
   /*! \brief Signal emitted when clicked while in state 0 (icon 1 is
    *         shown).
    */
-  Wt::EventSignal<Wt::WMouseEvent>& icon1Clicked;
+  EventSignal<WMouseEvent> *icon1Clicked;
 
   /*! \brief Signal emitted when clicked while in state 1 (icon 2 is
    *         shown).
    */
-  Wt::EventSignal<Wt::WMouseEvent>& icon2Clicked;
+  EventSignal<WMouseEvent> *icon2Clicked;
 
 private:
   //! Undo state for prelearning stateless showIcon1() and showIcon2() slots

@@ -18,9 +18,8 @@
 #define HTTP_REQUEST_HANDLER_HPP
 
 #include <string>
-#include <boost/noncopyable.hpp>
 
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 
 #include "Configuration.h"
 #include "SessionProcessManager.h"
@@ -35,7 +34,6 @@ class Request;
 
 /// The common handler for all incoming requests.
 class RequestHandler
-  : private boost::noncopyable
 {
 public:
   /// Construct with a directory containing files to be served.
@@ -47,6 +45,9 @@ public:
   ReplyPtr handleRequest(Request& req, ReplyPtr& lastWtReply,
 			 ReplyPtr& lastProxyReply,
 			 ReplyPtr& lastStaticReply);
+
+  RequestHandler(const RequestHandler&) = delete;
+  RequestHandler& operator=(const RequestHandler&) = delete;
 
   const std::string getErrorRoot() const
   {

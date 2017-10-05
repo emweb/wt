@@ -1,13 +1,13 @@
-#include "WEquidistantGridData"
+#include "WEquidistantGridData.h"
 
-#include "Wt/WAbstractItemModel"
-#include "Wt/WException"
+#include "Wt/WAbstractItemModel.h"
+#include "Wt/WException.h"
 #include "WebUtils.h"
 
 namespace Wt {
   namespace Chart {
 
-WEquidistantGridData::WEquidistantGridData(WAbstractItemModel *model,
+WEquidistantGridData::WEquidistantGridData(std::shared_ptr<WAbstractItemModel> model,
 					   double XMin,
 					   double deltaX,
 					   double YMin,
@@ -24,7 +24,7 @@ void WEquidistantGridData::setXAbscis(double XMinimum, double deltaX)
   deltaX_ = deltaX;
 
   if (chart_) {
-    chart_->updateChart(GLContext);
+    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
   }
 }
 
@@ -34,17 +34,17 @@ void WEquidistantGridData::setYAbscis(double YMinimum, double deltaY)
   deltaY_ = deltaY;
 
   if (chart_) {
-    chart_->updateChart(GLContext);
+    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
   }
 }
 
 double WEquidistantGridData::minimum(Axis axis) const
 {
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     return XMinimum_;
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     return YMinimum_;
-  } else if (axis == ZAxis_3D) {
+  } else if (axis == Axis::Z3D) {
     if (!rangeCached_) {
       findRange();
     }
@@ -57,13 +57,13 @@ double WEquidistantGridData::minimum(Axis axis) const
 double WEquidistantGridData::maximum(Axis axis) const
 {
   int Nx, Ny;
-  if (axis == XAxis_3D) {
+  if (axis == Axis::X3D) {
     Nx = model_->rowCount();
     return XMinimum_ + (Nx-1)*deltaX_;
-  } else if (axis == YAxis_3D) {
+  } else if (axis == Axis::Y3D) {
     Ny = model_->columnCount();
     return YMinimum_ + (Ny-1)*deltaY_;
-  } else if (axis == ZAxis_3D) {
+  } else if (axis == Axis::Z3D) {
     if (!rangeCached_) {
       findRange();
     }
@@ -109,7 +109,7 @@ int WEquidistantGridData::countSimpleData() const
   int nbModelCols = model_->columnCount();
   for (int i=0; i<nbModelRows; i++) {
     for (int j=0; j<nbModelCols; j++) {
-      if (model_->data(i,j,MarkerBrushColorRole).empty()) {
+      if (model_->data(i,j,ItemDataRole::MarkerBrushColor).empty()) {
 	result++;
       }
     }
@@ -131,12 +131,12 @@ void WEquidistantGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
   FloatBuffer scaledXAxis = Utils::createFloatBuffer(Nx);
   FloatBuffer scaledYAxis = Utils::createFloatBuffer(Ny);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
   
   for (int i=0; i<Nx; i++) {
     scaledXAxis.push_back((float)(((XMinimum_ + i*deltaX_) - xMin)
@@ -149,12 +149,12 @@ void WEquidistantGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
 
   for (int i=0; i < Nx; i++) {
     for (int j=0; j < Ny; j++) {
-      if (model_->data(i,j,MarkerBrushColorRole).empty()) {
+      if (model_->data(i,j,ItemDataRole::MarkerBrushColor).empty()) {
 	simplePtsArray.push_back(scaledXAxis[i]);
 	simplePtsArray.push_back(scaledYAxis[j]);
 	simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
-	if (!model_->data(i,j,MarkerScaleFactorRole).empty()) {
-	  simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,MarkerScaleFactorRole))));
+	if (!model_->data(i,j,ItemDataRole::MarkerScaleFactor).empty()) {
+	  simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
 	} else {
 	  simplePtsSize.push_back((float)pointSize());
 	}
@@ -163,14 +163,15 @@ void WEquidistantGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
 	coloredPtsArray.push_back(scaledYAxis[j]);
 	coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)
 					  /(zMax-zMin)));
-	WColor color = boost::any_cast<WColor>(model_->data(i,j,MarkerBrushColorRole));
+	WColor color = cpp17::any_cast<WColor>
+	  (model_->data(i,j, ItemDataRole::MarkerBrushColor));
 	coloredPtsColor.push_back((float)color.red());
 	coloredPtsColor.push_back((float)color.green());
 	coloredPtsColor.push_back((float)color.blue());
 	coloredPtsColor.push_back((float)color.alpha());
 
-	if (!model_->data(i,j,MarkerScaleFactorRole).empty()) {
-	  coloredPtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,MarkerScaleFactorRole))));
+	if (!model_->data(i,j,ItemDataRole::MarkerScaleFactor).empty()) {
+	  coloredPtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
 	} else {
 	  coloredPtsSize.push_back((float)pointSize());
 	}
@@ -188,12 +189,12 @@ void WEquidistantGridData::surfaceDataFromModel(std::vector<FloatBuffer>&
   FloatBuffer scaledXAxis = Utils::createFloatBuffer(Nx);
   FloatBuffer scaledYAxis = Utils::createFloatBuffer(Ny);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
 
   for (int i=0; i<Nx; i++) {
     scaledXAxis.push_back((float)(((XMinimum_ + i*deltaX_) - xMin)
@@ -281,7 +282,7 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
     if ( dynamic_cast<WAbstractGridData*>(dataseries[i]) != 0) {
       WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
       if (griddata == this ||
-	  griddata->type() != BarSeries3D) {
+	  griddata->type() != Series3DType::Bar) {
 	break;
       }
       if (first) {
@@ -308,12 +309,12 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
   FloatBuffer scaledXAxis = Utils::createFloatBuffer(Nx);
   FloatBuffer scaledYAxis = Utils::createFloatBuffer(Ny);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
 
   for (int i=0; i < Nx; i++) {
     scaledXAxis.push_back((float)((xMin + 0.5 + i - xMin)/(xMax-xMin)));
@@ -358,7 +359,7 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
     if ( dynamic_cast<WAbstractGridData*>(dataseries[i]) != 0) {
       WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
       if (griddata == this ||
-	  griddata->type() != BarSeries3D) {
+	  griddata->type() != Series3DType::Bar) {
 	break;
       }
       if (first) {
@@ -385,12 +386,12 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
   FloatBuffer scaledXAxis = Utils::createFloatBuffer(Nx);
   FloatBuffer scaledYAxis = Utils::createFloatBuffer(Ny);
 
-  double xMin = chart_->axis(XAxis_3D).minimum();
-  double xMax = chart_->axis(XAxis_3D).maximum();
-  double yMin = chart_->axis(YAxis_3D).minimum();
-  double yMax = chart_->axis(YAxis_3D).maximum();
-  double zMin = chart_->axis(ZAxis_3D).minimum();
-  double zMax = chart_->axis(ZAxis_3D).maximum();
+  double xMin = chart_->axis(Axis::X3D).minimum();
+  double xMax = chart_->axis(Axis::X3D).maximum();
+  double yMin = chart_->axis(Axis::Y3D).minimum();
+  double yMax = chart_->axis(Axis::Y3D).maximum();
+  double zMin = chart_->axis(Axis::Z3D).minimum();
+  double zMax = chart_->axis(Axis::Z3D).maximum();
 
   for (int i=0; i < Nx; i++) {
     scaledXAxis.push_back((float)((xMin + 0.5 + i - xMin)/(xMax-xMin)));
@@ -406,7 +407,7 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
     for (int j=0; j < Ny; j++) {
       float z0 = stackAllValues(prevDataseries, i,j);
       
-      if (model_->data(i,j,MarkerBrushColorRole).empty()) {
+      if (model_->data(i,j,ItemDataRole::MarkerBrushColor).empty()) {
 	if (simpleCount == BAR_BUFFER_LIMIT) {
 	  simpleBufferIndex++;
 	  simpleCount = 0;
@@ -433,7 +434,7 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
 	  modelVal = 0.00001;
 	coloredPtsArrays[coloredBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin)));
 
-	WColor color = boost::any_cast<WColor>(model_->data(i,j,MarkerBrushColorRole));
+	WColor color = cpp17::any_cast<WColor>(model_->data(i,j,ItemDataRole::MarkerBrushColor));
 	for (int k=0; k < 8; k++) {
 	  coloredPtsColors[coloredBufferIndex].push_back((float)color.red());
 	  coloredPtsColors[coloredBufferIndex].push_back((float)color.green());
@@ -459,16 +460,16 @@ int WEquidistantGridData::nbYPoints() const
 
 WString WEquidistantGridData::axisLabel(int u, Axis axis) const
 {
-  if (axis == XAxis_3D) {
-    return asString(XMinimum_ + u*deltaX_);
-  } else if (axis == YAxis_3D) {
-    return asString(YMinimum_ + u*deltaY_);
+  if (axis == Axis::X3D) {
+    return WString("{1}").arg(XMinimum_ + u*deltaX_);
+  } else if (axis == Axis::Y3D) {
+    return WString("{1}").arg(YMinimum_ + u*deltaY_);
   } else {
     throw WException("WEquidistantGridData: don't know this type of axis");
   }
 }
 
-boost::any WEquidistantGridData::data(int i, int j) const
+cpp17::any WEquidistantGridData::data(int i, int j) const
 {
   return model_->data(i,j);
 }

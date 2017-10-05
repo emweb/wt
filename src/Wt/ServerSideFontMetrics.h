@@ -7,7 +7,7 @@
 #ifndef SERVER_SIDE_FONT_METRICS_H_
 #define SERVER_SIDE_FONT_METRICS_H_
 
-#include <Wt/WGlobal>
+#include <Wt/WGlobal.h>
 
 namespace Wt {
 
@@ -28,8 +28,10 @@ public:
   static bool available();
 
 private:
-  WPdfImage *img_;
-  WPainter *painter_;
+#ifdef WT_HAS_WPDFIMAGE
+  std::unique_ptr<WPdfImage> img_;
+  std::unique_ptr<WPainter> painter_;
+#endif
 };
 
 }

@@ -4,72 +4,70 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WContainerWidget"
-#include "Wt/WFitLayout"
-#include "Wt/WLogger"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WFitLayout.h"
+#include "Wt/WLogger.h"
+
+#include "StdGridLayoutImpl2.h"
+#include "FlexLayoutImpl.h"
 
 namespace Wt {
 
 LOGGER("WFitLayout");
 
-WFitLayout::WFitLayout(WWidget *parent)
-  : WLayout()
+WFitLayout::WFitLayout()
 { 
   grid_.columns_.push_back(Impl::Grid::Section(0));
   grid_.rows_.push_back(Impl::Grid::Section(0));
 
   std::vector<Impl::Grid::Item> items;
   items.push_back(Impl::Grid::Item());
-  grid_.items_.push_back(items);
-
-  if (parent)
-    setLayoutInParent(parent);
+  grid_.items_.push_back(std::move(items));
 }
 
 WFitLayout::~WFitLayout()
 { }
 
-void WFitLayout::fitWidget(WContainerWidget *container, WWidget *widget)
+void WFitLayout::fitWidget(WContainerWidget *container,
+			   std::unique_ptr<WWidget> widget)
 {
-  WFitLayout *l = new WFitLayout();
-  container->setLayout(l);
-  l->addWidget(widget);
+  std::unique_ptr<WFitLayout> l(new WFitLayout());
+  l->addWidget(std::move(widget));
+  container->setLayout(std::move(l));
 }
 
-void WFitLayout::addItem(WLayoutItem *item)
+void WFitLayout::addItem(std::unique_ptr<WLayoutItem> item)
 {
   if (grid_.items_[0][0].item_) {
     LOG_ERROR("addItem(): already have a widget");
     return;
   }
 
-  grid_.items_[0][0].item_ = item;
-
-  updateAddItem(item);
+  WLayoutItem *it = item.get();
+  grid_.items_[0][0].item_ = std::move(item);
+  itemAdded(it);
 }
 
-void WFitLayout::removeItem(WLayoutItem *item)
+std::unique_ptr<WLayoutItem> WFitLayout::removeItem(WLayoutItem *item)
 {
-  if (item == grid_.items_[0][0].item_) {
-    grid_.items_[0][0].item_ = 0;
-    updateRemoveItem(item);
-  }
+  if (item == grid_.items_[0][0].item_.get()) {
+    auto result = std::move(grid_.items_[0][0].item_);
+    itemRemoved(item);
+    return result;
+  } else
+    return std::unique_ptr<WLayoutItem>();
 }
 
 WLayoutItem *WFitLayout::itemAt(int index) const
 {
-  return grid_.items_[0][0].item_;
-}
-
-void WFitLayout::clear()
-{
-  clearLayoutItem(grid_.items_[0][0].item_);
-  grid_.items_[0][0].item_ = 0;
+  return grid_.items_[0][0].item_.get();
 }
 
 int WFitLayout::indexOf(WLayoutItem *item) const
 {
-  if (grid_.items_[0][0].item_ == item)
+  if (grid_.items_[0][0].item_.get() == item)
     return 0;
   else
     return -1;
@@ -78,6 +76,39 @@ int WFitLayout::indexOf(WLayoutItem *item) const
 int WFitLayout::count() const
 {
   return grid_.items_[0][0].item_ ? 1 : 0;
+}
+
+
+void WFitLayout::iterateWidgets(const HandleWidgetMethod& method) const
+{
+  if (grid_.items_[0][0].item_)
+    grid_.items_[0][0].item_->iterateWidgets(method);
+}
+
+void WFitLayout::setParentWidget(WWidget *parent)
+{
+  WLayout::setParentWidget(parent);
+
+  if (parent) {
+    updateImplementation();
+  }
+}
+
+void WFitLayout::updateImplementation()
+{
+  if (!parentWidget())
+    return;
+
+  bool flexLayout = preferredImplementation() == LayoutImplementation::Flex;
+
+  const WEnvironment& env = WApplication::instance()->environment();
+  if (env.agentIsIElt(10))
+    flexLayout = false;
+
+  if (flexLayout)
+    setImpl(cpp14::make_unique<FlexLayoutImpl>(this, grid_));
+  else
+    setImpl(cpp14::make_unique<StdGridLayoutImpl2>(this, grid_));
 }
 
 }

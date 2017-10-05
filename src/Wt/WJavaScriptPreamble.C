@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WJavaScriptPreamble>
+#include <Wt/WJavaScriptPreamble.h>
 
 namespace Wt {
 

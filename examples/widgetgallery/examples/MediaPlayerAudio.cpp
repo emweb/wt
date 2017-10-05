@@ -1,40 +1,41 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WLink>
-#include <Wt/WMediaPlayer>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLink.h>
+#include <Wt/WMediaPlayer.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(MediaPlayerAudio)
+
 // Define media source locations.
 std::string mp3Audio =
     "http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3";
 std::string oggAudio =
     "http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg";
 
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
 Wt::WMediaPlayer *player =
-    new Wt::WMediaPlayer(Wt::WMediaPlayer::Audio, container);
-player->addSource(Wt::WMediaPlayer::MP3, Wt::WLink(mp3Audio));
-player->addSource(Wt::WMediaPlayer::OGA, Wt::WLink(oggAudio));
+    container->addWidget(Wt::cpp14::make_unique<Wt::WMediaPlayer>(Wt::MediaType::Audio));
+player->addSource(Wt::MediaEncoding::MP3, Wt::WLink(mp3Audio));
+player->addSource(Wt::MediaEncoding::OGA, Wt::WLink(oggAudio));
 player->setTitle("La Sera - Never Come Around");
 
-Wt::WText *out = new Wt::WText(container);
+Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-player->playbackStarted().connect(std::bind([=] () {
+player->playbackStarted().connect([=] {
     out->setText("<p>Song playing</p>");
-}));
+});
 
-player->playbackPaused().connect(std::bind([=] () {
+player->playbackPaused().connect([=] {
     out->setText("<p>Song paused</p>");
-}));
+});
 
-player->ended().connect(std::bind([=] () {
+player->ended().connect([=] {
     out->setText("<p>Song ended</p>");
-}));
+});
 
-player->volumeChanged().connect(std::bind([=] () {
+player->volumeChanged().connect([=] {
     out->setText("<p>Volume changed</p>");
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))
 

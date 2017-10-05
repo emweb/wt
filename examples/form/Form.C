@@ -1,21 +1,21 @@
 #include "Form.h"
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WDateEdit>
-#include <Wt/WSelectionBox>
-#include <Wt/WContainerWidget>
-#include <Wt/WImage>
-#include <Wt/WIntValidator>
-#include <Wt/WLabel>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WTableCell>
-#include <Wt/WTextArea>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WDateEdit.h>
+#include <Wt/WSelectionBox.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WImage.h>
+#include <Wt/WIntValidator.h>
+#include <Wt/WLabel.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTableCell.h>
+#include <Wt/WTextArea.h>
+#include <Wt/WText.h>
 
-Form::Form(WContainerWidget *parent)
-  : WTable(parent)
+Form::Form()
+  : WTable()
 {
   createUI();
 }
@@ -27,11 +27,10 @@ void Form::createUI()
 
   // Title
   elementAt(row, 0)->setColumnSpan(3);
-  elementAt(row, 0)->setContentAlignment(AlignTop | AlignCenter);
+  elementAt(row, 0)->setContentAlignment(AlignmentFlag::Top | AlignmentFlag::Center);
   elementAt(row, 0)->setPadding(10);
-  WText *title = new WText(tr("example.form"),
-			   elementAt(row, 0));
-  title->decorationStyle().font().setSize(WFont::XLarge);
+  WText *title = elementAt(row,0)->addWidget(cpp14::make_unique<WText>(tr("example.form")));
+  title->decorationStyle().font().setSize(FontSize::XLarge);
 
   // error messages
   ++row;
@@ -40,84 +39,80 @@ void Form::createUI()
   feedbackMessages_->setPadding(5);
 
   WCssDecorationStyle& errorStyle = feedbackMessages_->decorationStyle();
-  errorStyle.setForegroundColor(Wt::red);
-  errorStyle.font().setSize(WFont::Smaller);
-  errorStyle.font().setWeight(WFont::Bold);
-  errorStyle.font().setStyle(WFont::Italic);
+  errorStyle.setForegroundColor(WColor("red"));
+  errorStyle.font().setSize(FontSize::Smaller);
+  errorStyle.font().setWeight(FontWeight::Bold);
+  errorStyle.font().setStyle(FontStyle::Italic);
 
   // Name
   ++row;
-  nameEdit_ = new WLineEdit(elementAt(row, 2));
-  label = new WLabel(tr("example.name"), elementAt(row, 0));
+  nameEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WLineEdit>());
+  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.name")));
   label->setBuddy(nameEdit_);
-  nameEdit_->setValidator(new WValidator(true));
+  nameEdit_->setValidator(std::make_shared<WValidator>(true));
   nameEdit_->enterPressed().connect(this, &Form::submit);
 
   // First name
   ++row;
-  firstNameEdit_ = new WLineEdit(elementAt(row, 2));
-  label = new WLabel(tr("example.firstname"), elementAt(row,0));
+  firstNameEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WLineEdit>());
+  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.firstname")));
   label->setBuddy(firstNameEdit_);
 
   // Country
   ++row;
-  countryEdit_ = new WComboBox(elementAt(row, 2));
+  countryEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WComboBox>());
   countryEdit_->addItem("");
   countryEdit_->addItem("Belgium");
   countryEdit_->addItem("Netherlands");
   countryEdit_->addItem("United Kingdom");
   countryEdit_->addItem("United States");
-  label = new WLabel(tr("example.country"), elementAt(row, 0));
+  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.country")));
   label->setBuddy(countryEdit_);
-  countryEdit_->setValidator(new WValidator(true));
+  countryEdit_->setValidator(std::make_shared<WValidator>(true));
   countryEdit_->changed().connect(this, &Form::countryChanged);
 
   // City
   ++row;
-  cityEdit_ = new WComboBox(elementAt(row, 2));
+  cityEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WComboBox>());
   cityEdit_->addItem(tr("example.choosecountry"));
-  label = new WLabel(tr("example.city"), elementAt(row, 0));
+  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.city")));
   label->setBuddy(cityEdit_);
 
   // Birth date
   ++row;
-
-  birthDateEdit_ = new WDateEdit(elementAt(row, 2));
+  birthDateEdit_ = elementAt(row, 2)->addWidget(cpp14::make_unique<WDateEdit>());
   birthDateEdit_->setBottom(WDate(1900, 1, 1));
   birthDateEdit_->setTop(WDate::currentDate());
-  label = new WLabel(tr("example.birthdate"), elementAt(row, 0));
+  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.birthdate")));
   label->setBuddy(birthDateEdit_);
   birthDateEdit_->setFormat("dd/MM/yyyy");
   birthDateEdit_->validator()->setMandatory(true);
 
   // Child count
   ++row;
-  childCountEdit_ = new WLineEdit("0", elementAt(row, 2));
-  label = new WLabel(tr("example.childcount"),
-		     elementAt(row, 0));
+  childCountEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WLineEdit>("0"));
+  label = elementAt(row, 0)->addWidget(cpp14::make_unique<WLabel>(tr("example.childcount")));
   label->setBuddy(childCountEdit_);
-  childCountEdit_->setValidator(new WIntValidator(0,30));
+  childCountEdit_->setValidator(std::make_shared<WIntValidator>(0,30));
   childCountEdit_->validator()->setMandatory(true);
 
   ++row;
-  remarksEdit_ = new WTextArea(elementAt(row, 2));
+  remarksEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WTextArea>());
   remarksEdit_->setColumns(40);
   remarksEdit_->setRows(5);
-  label = new WLabel(tr("example.remarks"),
-		     elementAt(row, 0));
+  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.remarks")));
   label->setBuddy(remarksEdit_);
 
   // Submit
   ++row;
-  WPushButton *submit = new WPushButton(tr("submit"),
-					elementAt(row, 0));
+  WPushButton *submit = elementAt(row,0)->addWidget(cpp14::make_unique<WPushButton>(tr("submit")));
   submit->clicked().connect(this, &Form::submit);
-  submit->setMargin(15, Top);
+  submit->setMargin(15, Side::Top);
   elementAt(row, 0)->setColumnSpan(3);
-  elementAt(row, 0)->setContentAlignment(AlignTop | AlignCenter);
+  elementAt(row, 0)->setContentAlignment(AlignmentFlag::Top | AlignmentFlag::Center);
 
   // Set column widths for label and validation icon
-  elementAt(2, 0)->resize(WLength(30, WLength::FontEx), WLength::Auto);
+  elementAt(2, 0)->resize(WLength(30, LengthUnit::FontEx), WLength::Auto);
   elementAt(2, 1)->resize(20, WLength::Auto);
 }
 
@@ -152,20 +147,19 @@ void Form::countryChanged()
     cityEdit_->addItem("Los Angeles");
     cityEdit_->addItem("New York");
     break;
-  }    
+  }
 }
 
 bool Form::checkValid(WFormWidget *edit, const WString& text)
 {
-  if (edit->validate() != WValidator::Valid) {
-    feedbackMessages_->addWidget(new WText(text));
-    feedbackMessages_->addWidget(new WBreak());
-    edit->label()->decorationStyle().setForegroundColor(Wt::red);
+  if (edit->validate() != ValidationState::Valid) {
+    feedbackMessages_->addWidget(cpp14::make_unique<WText>(text));
+    feedbackMessages_->addWidget(cpp14::make_unique<WBreak>());
+    edit->label()->decorationStyle().setForegroundColor(WColor("red"));
     edit->setStyleClass("Wt-invalid");
-
     return false;
   } else {
-    edit->label()->decorationStyle().setForegroundColor(WColor());    
+    edit->label()->decorationStyle().setForegroundColor(WColor());
     edit->setStyleClass("");
 
     return true;
@@ -193,20 +187,22 @@ void Form::submit()
 {
   if (validate()) {
     // do something useful with the data...
-    std::wstring name
-      = firstNameEdit_->text() + L" " + nameEdit_->text();
+    WString name = WString("{1} {2}")
+	.arg(firstNameEdit_->text())
+	.arg(nameEdit_->text());
 
-    std::wstring remarks
+    WString remarks
       = remarksEdit_->text();
 
     clear();
 
-    new WText(WString::fromUTF8("<p>Thank you, {1}, "
-				"for all this precious data.</p>").arg(name),
-	      elementAt(0, 0));
-    
+    elementAt(0,0)->addWidget(cpp14::make_unique<WText>(
+                                WString("<p>Thank you, {1}, "
+                               "for all this precious data.</p>").arg(name)));
+
     if (!remarks.empty())
-      new WText("<p>You had some remarks. Splendid !</p>", elementAt(0, 0));
+      elementAt(0,0)->addWidget(cpp14::make_unique<WText>(
+				  WString("<p>You had some remarks. Splendid !</p>")));
 
     wApp->quit();
   }

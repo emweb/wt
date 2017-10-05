@@ -13,33 +13,75 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <boost/asio.hpp>
-
-#include <Wt/WIOService>
-#include <Wt/WServer>
+#include <Wt/WIOService.h>
+#include <Wt/WServer.h>
 
 #include "Server.h"
 #include "Configuration.h"
 #include "WebController.h"
 #include "WebUtils.h"
 
-#include <boost/bind.hpp>
-
-#ifdef HTTP_WITH_SSL
-
-#include <boost/asio/ssl.hpp>
-
-#endif // HTTP_WITH_SSL
-
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
-typedef std::chrono::seconds asio_timer_seconds;
-#else
-typedef boost::posix_time::seconds asio_timer_seconds;
-#endif
-
 namespace {
-  std::string bindError(asio::ip::tcp::endpoint ep, 
-			boost::system::system_error e) {
+  bool parseAddressPort(const std::string &str,
+                        const char *defaultPort,
+                        std::string &address,
+                        std::string &port)
+  {
+    if (str.empty()) {
+      return false;
+    } else {
+      if (str[0] == '[') {
+        std::size_t endIPv6 = str.find(']');
+        if (endIPv6 == std::string::npos) {
+          return false;
+        } else {
+          address = str.substr(1, endIPv6 - 1);
+          if (endIPv6 != str.size() - 1) {
+            if (str[endIPv6 + 1] == ':') {
+              port = str.substr(endIPv6 + 2);
+            } else {
+              return false;
+            }
+          } else {
+            port = defaultPort;
+          }
+          return true;
+        }
+      } else {
+        std::size_t colonPos = str.find(':');
+        if (colonPos == std::string::npos) {
+          address = str;
+          port = defaultPort;
+          return true;
+        } else {
+          address = str.substr(0, colonPos);
+          port = str.substr(colonPos + 1);
+          return true;
+        }
+      }
+    }
+  }
+
+  std::string addressString(const std::string &protocol,
+                            const Wt::AsioWrapper::asio::ip::tcp::endpoint &ep,
+                            const std::string &address)
+  {
+    std::string epAddrStr = ep.address().to_string();
+    Wt::WStringStream ss;
+    ss << protocol << "://";
+    if (ep.address().is_v4())
+      ss << epAddrStr;
+    else if (ep.address().is_v6())
+      ss << "[" << ep.address().to_string() << "]";
+    ss << ":" << (int)ep.port();
+    if (!address.empty() && epAddrStr != address) {
+      ss << " (" << address << ")";
+    }
+    return ss.str();
+  }
+
+  std::string bindError(Wt::AsioWrapper::asio::ip::tcp::endpoint ep,
+			Wt::AsioWrapper::system_error e) {
     std::stringstream ss;
     ss << "Error occurred when binding to " 
        << ep.address().to_string() 
@@ -51,13 +93,9 @@ namespace {
   }
 
 #ifdef HTTP_WITH_SSL
-  SSL_CTX *nativeContext(asio::ssl::context& context)
+  SSL_CTX *nativeContext(Wt::AsioWrapper::asio::ssl::context& context)
   {
-#if BOOST_VERSION >= 104700
     return context.native_handle();
-#else //BOOST_VERSION < 104700
-    return context.impl();
-#endif //BOOST_VERSION >= 104700
   }
 #endif //HTTP_WITH_SSL
 
@@ -78,10 +116,8 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
     wt_(wtServer),
     accept_strand_(wt_.ioService()),
     // post_strand_(ioService_),
-    tcp_acceptor_(wt_.ioService()),
 #ifdef HTTP_WITH_SSL
     ssl_context_(wt_.ioService(), asio::ssl::context::sslv23),
-    ssl_acceptor_(wt_.ioService()),
 #endif // HTTP_WITH_SSL
     connection_manager_(),
     sessionManager_(0),
@@ -127,63 +163,38 @@ Wt::WebController *Server::controller()
 void Server::start()
 {
   if (config_.parentPort() != -1) {
-    expireSessionsTimer_.expires_from_now(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
-    expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
-	  asio::placeholders::error));
+    expireSessionsTimer_.expires_from_now
+      (std::chrono::seconds(SESSION_EXPIRE_INTERVAL));
+    expireSessionsTimer_.async_wait
+      (std::bind(&Server::expireSessions, this, std::placeholders::_1));
   }
 
   asio::ip::tcp::resolver resolver(wt_.ioService());
 
   // HTTP
-  if (!config_.httpAddress().empty() || config_.parentPort() != -1) {
-    asio::ip::tcp::endpoint tcp_endpoint;
+  if (config_.parentPort() != -1) {
+    // address is always IPv4 loopback, port is picked automatically
+    addTcpListener(resolver, "", "");
+  } else {
+    // Old style --http-address/--http-port
+    if (!config_.httpAddress().empty())
+      addTcpListener(resolver, config_.httpAddress(), config_.httpPort());
 
-    if (config_.parentPort() == -1) {
-      std::string httpPort = config_.httpPort();
-
-      if (httpPort == "0")
-	tcp_endpoint.address(asio::ip::address::from_string
-			     (config_.httpAddress()));
-      else {
-#ifndef NO_RESOLVE_ACCEPT_ADDRESS
-	asio::ip::tcp::resolver::query tcp_query(config_.httpAddress(),
-						 config_.httpPort());
-	tcp_endpoint = *resolver.resolve(tcp_query);
-#else // !NO_RESOLVE_ACCEPT_ADDRESS
-	tcp_endpoint.address
-	  (asio::ip::address::from_string(config_.httpAddress()));
-	tcp_endpoint.port(atoi(httpPort.c_str()));
-#endif // NO_RESOLVE_ACCEPT_ADDRESS
-      }
-    } else {
-      tcp_endpoint = asio::ip::tcp::endpoint(
-	  asio::ip::address_v4::loopback(), 0);
+    // New style --http-listen
+    for (std::size_t i = 0; i < config_.httpListen().size(); ++i) {
+      const std::string &listenStr = config_.httpListen()[i];
+      std::string address, port;
+      if (parseAddressPort(listenStr, "80", address, port))
+        addTcpListener(resolver, address, port);
+      else
+        throw Wt::WException(std::string("Could not bind to \"") + listenStr + "\": invalid format");
     }
-
-    tcp_acceptor_.open(tcp_endpoint.protocol());
-    tcp_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
-    try {
-      tcp_acceptor_.bind(tcp_endpoint);
-    } catch (boost::system::system_error e) {
-      LOG_ERROR_S(&wt_, bindError(tcp_endpoint, e));
-      throw;
-    }
-    tcp_acceptor_.listen();
-
-    LOG_INFO_S(&wt_, "started server: http://" << 
-	       config_.httpAddress() << ":" << this->httpPort());
-
-    new_tcpconnection_.reset
-      (new TcpConnection(wt_.ioService(), this, connection_manager_,
-			 request_handler_));
   }
 
   // HTTPS
   if (!config_.httpsAddress().empty() && config_.parentPort() == -1) {
 #ifdef HTTP_WITH_SSL
-    LOG_INFO_S(&wt_, "starting server: https://" <<
-	       config_.httpsAddress() << ":" << config_.httpsPort());
-
+    // Configure SSL context
     if (config_.hasSslPasswordCallback())
       ssl_context_.set_password_callback(config_.sslPasswordCallback());
 
@@ -198,8 +209,8 @@ void Server::start()
 
     if (config_.sslClientVerification() == "none") {
       ssl_context_.set_verify_mode(asio::ssl::context::verify_none);
-	} else if (config_.sslClientVerification() == "once") {
-	  ssl_context_.set_verify_mode(asio::ssl::context::verify_client_once);
+        } else if (config_.sslClientVerification() == "once") {
+          ssl_context_.set_verify_mode(asio::ssl::context::verify_client_once);
       ssl_context_.load_verify_file(config_.sslCaCertificates());
     } else if (config_.sslClientVerification() == "optional") {
       ssl_context_.set_verify_mode(asio::ssl::context::verify_peer);
@@ -237,55 +248,221 @@ void Server::start()
     std::string sessionId = Wt::WRandom::generateId(SSL_MAX_SSL_SESSION_ID_LENGTH);
     SSL_CTX_set_session_id_context(native_ctx,
       reinterpret_cast<const unsigned char *>(sessionId.c_str()), sessionId.size());
-
-    asio::ip::tcp::endpoint ssl_endpoint;
-#ifndef NO_RESOLVE_ACCEPT_ADDRESS
-    asio::ip::tcp::resolver::query ssl_query(config_.httpsAddress(),
-					     config_.httpsPort());
-    ssl_endpoint = *resolver.resolve(ssl_query);
-#else // !NO_RESOLVE_ACCEPT_ADDRESS
-    ssl_endpoint.address(asio::ip::address::from_string(config_.httpsAddress()));
-    ssl_endpoint.port(atoi(config_.httpsPort().c_str()));
-#endif // NO_RESOLVE_ACCEPT_ADDRESS
-
-    ssl_acceptor_.open(ssl_endpoint.protocol());
-    ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
-    try {
-      ssl_acceptor_.bind(ssl_endpoint);
-    } catch (boost::system::system_error e) {
-      LOG_ERROR_S(&wt_, bindError(ssl_endpoint, e);)
-      throw;
-    }
-    ssl_acceptor_.listen();
-
-    new_sslconnection_.reset
-      (new SslConnection(wt_.ioService(), this, ssl_context_, connection_manager_,
-			 request_handler_));
-
 #else // HTTP_WITH_SSL
     LOG_ERROR_S(&wt_, "built without support for SSL: "
-		"cannot start https server.");
+                "cannot start https server.");
 #endif // HTTP_WITH_SSL
   }
+
+#ifdef HTTP_WITH_SSL
+  if (config_.parentPort() == -1) {
+    // Old style --https-address/--https-port
+    if (!config_.httpsAddress().empty())
+      addSslListener(resolver, config_.httpsAddress(), config_.httpsPort());
+
+    // New style --https-listen
+    for (std::size_t i = 0; i < config_.httpsListen().size(); ++i) {
+      const std::string &listenStr = config_.httpsListen()[i];
+      std::string address, port;
+      if (parseAddressPort(listenStr, "443", address, port))
+        addSslListener(resolver, address, port);
+      else
+        throw Wt::WException(std::string("Could not bind to \"") + listenStr + "\": invalid format");
+    }
+  }
+#endif // HTTP_WITH_SSL
 
   // Win32 cancels the non-blocking accept when the thread that called
   // accept exits. To avoid that this happens when called within the
   // WServer context, we post the action of calling accept to one of
   // the threads in the threadpool.
-  wt_.ioService().post(boost::bind(&Server::startAccept, this));
+  wt_.ioService().post(std::bind(&Server::startAccept, this));
 
   if (config_.parentPort() != -1) {
     // This is a child process, connect to parent to
     // announce the listening port.
-    boost::shared_ptr<asio::ip::tcp::socket> parentSocketPtr
+    std::shared_ptr<asio::ip::tcp::socket> parentSocketPtr
       (new asio::ip::tcp::socket(wt_.ioService()));
-    wt_.ioService().post(boost::bind(&Server::startConnect, this, parentSocketPtr));
+    wt_.ioService().post
+      (std::bind(&Server::startConnect, this, parentSocketPtr));
   }
 }
 
+std::vector<asio::ip::address> Server::resolveAddress(asio::ip::tcp::resolver &resolver,
+                                                      const std::string &address)
+{
+  std::vector<asio::ip::address> result;
+  Wt::AsioWrapper::error_code errc;
+  asio::ip::address fromStr = asio::ip::address::from_string(address, errc);
+  if (!errc) {
+    // The address is not a hostname, because it can be parsed as an
+    // IP address, so we don't need to resolve it
+    result.push_back(fromStr);
+    return result;
+  } else {
+#ifndef NO_RESOLVE_ACCEPT_ADDRESS
+    // Resolve IPv4
+    asio::ip::tcp::resolver::query query(asio::ip::tcp::v4(), address, "http");
+    asio::ip::tcp::resolver::iterator end;
+    for (asio::ip::tcp::resolver::iterator it = resolver.resolve(query, errc);
+         !errc && it != end; ++it) {
+      result.push_back(it->endpoint().address());
+    }
+    if (errc)
+      LOG_DEBUG_S(&wt_, "Failed to resolve hostname \"" << address << "\" as IPv4: " <<
+                  Wt::AsioWrapper::system_error(errc).what());
+    // Resolve IPv6
+    query = Wt::AsioWrapper::asio::ip::tcp::resolver::query(Wt::AsioWrapper::asio::ip::tcp::v6(), address, "http");
+    for (Wt::AsioWrapper::asio::ip::tcp::resolver::iterator it = resolver.resolve(query, errc);
+         !errc && it != end; ++it) {
+      result.push_back(it->endpoint().address());
+    }
+    if (errc)
+      LOG_DEBUG_S(&wt_, "Failed to resolve hostname \"" << address << "\" as IPv6: " <<
+                  Wt::AsioWrapper::system_error(errc).what());
+    if (result.empty())
+      LOG_WARN_S(&wt_, "Failed to resolve hostname \"" << address << "\": " <<
+                 Wt::AsioWrapper::system_error(errc).what());
+    return result;
+#else // NO_RESOLVE_ACCEPT_ADDRESS
+    LOG_WARN_S(&wt_, "Failed to resolve hostname \"" << address << "\": not supported");
+    return result;
+#endif
+  }
+}
+
+Server::TcpListener::TcpListener(asio::ip::tcp::acceptor &&acceptor,
+                                 TcpConnectionPtr new_connection)
+  : acceptor(std::move(acceptor)), new_connection(new_connection)
+{ }
+
+void Server::addTcpListener(asio::ip::tcp::resolver &resolver,
+                            const std::string &address,
+                            const std::string &port)
+{
+  asio::ip::tcp::endpoint tcp_endpoint;
+  Wt::AsioWrapper::error_code errc;
+
+  if (config_.parentPort() == -1) {
+    std::vector<asio::ip::address> addresses = resolveAddress(resolver, address);
+    if (addresses.empty())
+      throw Wt::WException(std::string("Could not bind to address ") + address + " port " + port
+                           + ": Failed to resolve address.");
+    bool couldBindToOne = false; // Tracks whether we could bind to at least one address
+    for (std::vector<asio::ip::address>::const_iterator it = addresses.begin();
+         it != addresses.end(); ++it) {
+      tcp_endpoint.address(*it);
+      if (port != "0")
+        tcp_endpoint.port(atoi(port.c_str()));
+      addTcpEndpoint(tcp_endpoint, address, errc);
+      if (!errc)
+        couldBindToOne = true;
+    }
+    if (!couldBindToOne)
+      throw Wt::WException(std::string("Could not bind to address ") + address + " port " + port
+                           + ": Could not listen on address.");
+  } else {
+    tcp_endpoint = asio::ip::tcp::endpoint(
+          asio::ip::address_v4::loopback(), 0);
+    addTcpEndpoint(tcp_endpoint, "", errc);
+    if (errc)
+      throw Wt::WException("Child process: failed to bind to IPv4 loopback address.");
+  }
+}
+
+void Server::addTcpEndpoint(const asio::ip::tcp::endpoint &endpoint,
+                            const std::string &address,
+                            Wt::AsioWrapper::error_code &errc)
+{
+  tcp_listeners_.push_back(TcpListener(asio::ip::tcp::acceptor(wt_.ioService()), TcpConnectionPtr()));
+  asio::ip::tcp::acceptor &tcp_acceptor = tcp_listeners_.back().acceptor;
+  tcp_acceptor.open(endpoint.protocol());
+  tcp_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+  tcp_acceptor.bind(endpoint, errc);
+  if (!errc) {
+    tcp_acceptor.listen();
+
+    LOG_INFO_S(&wt_, "started server: " << addressString("http", endpoint, address));
+
+    tcp_listeners_.back().new_connection.reset
+      (new TcpConnection(wt_.ioService(), this, connection_manager_,
+                         request_handler_));
+  } else {
+    LOG_WARN_S(&wt_, bindError(endpoint, errc));
+    tcp_listeners_.pop_back();
+  }
+}
+
+#ifdef HTTP_WITH_SSL
+Server::SslListener::SslListener(asio::ip::tcp::acceptor &&acceptor,
+                                 SslConnectionPtr new_connection)
+  : acceptor(std::move(acceptor)), new_connection(new_connection)
+{ }
+
+void Server::addSslListener(asio::ip::tcp::resolver &resolver,
+                            const std::string &address,
+                            const std::string &port)
+{
+  asio::ip::tcp::endpoint tcp_endpoint;
+  Wt::AsioWrapper::error_code errc;
+
+  std::vector<asio::ip::address> addresses = resolveAddress(resolver, address);
+  if (addresses.empty())
+    throw Wt::WException(std::string("Could not bind to address ") + address + " port " + port
+                         + ": Failed to resolve address.");
+  bool couldBindToOne = false; // Tracks whether we could bind to at least one address
+  for (std::vector<asio::ip::address>::const_iterator it = addresses.begin();
+       it != addresses.end(); ++it) {
+    tcp_endpoint.address(*it);
+    tcp_endpoint.port(atoi(port.c_str()));
+    addSslEndpoint(tcp_endpoint, address, errc);
+    if (!errc)
+      couldBindToOne = true;
+  }
+  if (!couldBindToOne)
+    throw Wt::WException(std::string("Could not bind to address ") + address + " port " + port
+                         + ": Could not listen on address.");
+}
+
+void Server::addSslEndpoint(const asio::ip::tcp::endpoint &endpoint,
+                            const std::string &address,
+                            Wt::AsioWrapper::error_code &errc)
+{
+  ssl_listeners_.push_back(SslListener(asio::ip::tcp::acceptor(wt_.ioService()), SslConnectionPtr()));
+  asio::ip::tcp::acceptor &ssl_acceptor = ssl_listeners_.back().acceptor;
+  ssl_acceptor.open(endpoint.protocol());
+  ssl_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+  ssl_acceptor.bind(endpoint, errc);
+  if (!errc) {
+    ssl_acceptor.listen();
+
+    LOG_INFO_S(&wt_, "started server: " << addressString("https", endpoint, address));
+
+    ssl_listeners_.back().new_connection.reset
+      (new SslConnection(wt_.ioService(), this, ssl_context_, connection_manager_,
+                         request_handler_));
+  } else {
+    LOG_WARN_S(&wt_, bindError(endpoint, errc));
+    ssl_listeners_.pop_back();
+  }
+}
+
+#endif // HTTP_WITH_SSL
+
 int Server::httpPort() const
 {
-  return tcp_acceptor_.local_endpoint().port();
+  if (tcp_listeners_.empty()) {
+#ifdef HTTP_WITH_SSL
+    if (ssl_listeners_.empty())
+      return -1;
+    else
+      return ssl_listeners_.front().acceptor.local_endpoint().port();
+#else // HTTP_WITH_SSL
+    return -1;
+#endif // HTTP_WITH_SSL
+  }
+
+  return tcp_listeners_.front().acceptor.local_endpoint().port();
 }
 
 void Server::startAccept()
@@ -299,57 +476,71 @@ void Server::startAccept()
    * Ssl connection, this performance impact is negligible (and both
    * need to access the ConnectionManager mutex in any case).
    */
-  if (new_tcpconnection_) {
-    tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
-			accept_strand_.wrap(
-			       boost::bind(&Server::handleTcpAccept, this,
-					   asio::placeholders::error)));
+  for (std::size_t i = 0; i < tcp_listeners_.size(); ++i) {
+    asio::ip::tcp::acceptor &acceptor = tcp_listeners_[i].acceptor;
+    TcpConnectionPtr &new_connection = tcp_listeners_[i].new_connection;
+    acceptor.async_accept(new_connection->socket(),
+                          accept_strand_.wrap(
+                            std::bind(&Server::handleTcpAccept, this,
+                                        &tcp_listeners_[i],
+                                        std::placeholders::_1)));
   }
 
 #ifdef HTTP_WITH_SSL
-  if (new_sslconnection_) {
-    ssl_acceptor_.async_accept(new_sslconnection_->socket(),
-	                accept_strand_.wrap(
-			       boost::bind(&Server::handleSslAccept, this,
-					   asio::placeholders::error)));
+  for (std::size_t i = 0; i < ssl_listeners_.size(); ++i) {
+    asio::ip::tcp::acceptor &acceptor = ssl_listeners_[i].acceptor;
+    SslConnectionPtr &new_connection = ssl_listeners_[i].new_connection;
+    acceptor.async_accept(new_connection->socket(),
+                          accept_strand_.wrap(
+                            std::bind(&Server::handleSslAccept, this,
+                                        &ssl_listeners_[i],
+                                        std::placeholders::_1)));
   }
 #endif // HTTP_WITH_SSL
 }
 
-void Server::startConnect(const boost::shared_ptr<asio::ip::tcp::socket>& socket)
+void Server::startConnect(const std::shared_ptr<asio::ip::tcp::socket>& socket)
 {
-  socket->async_connect(
-      asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(), config_.parentPort()),
-	boost::bind(&Server::handleConnected, this,
-		    socket,
-		    asio::placeholders::error));
+  socket->async_connect
+    (asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(),
+			     config_.parentPort()),
+     std::bind(&Server::handleConnected, this, socket,
+	       std::placeholders::_1));
 }
 
-void Server::handleConnected(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
-			     const asio_error_code& err)
+void Server
+::handleConnected(const std::shared_ptr<asio::ip::tcp::socket>& socket,
+                  const Wt::AsioWrapper::error_code& err)
 {
   if (!err) {
-    boost::shared_ptr<std::string> buf(new std::string(
-      boost::lexical_cast<std::string>(tcp_acceptor_.local_endpoint().port())));
+    // tcp_listeners_.front() should be fine here:
+    // it should be the only acceptor when this is a session process
+    std::shared_ptr<std::string> buf(new std::string(
+      boost::lexical_cast<std::string>(tcp_listeners_.front().acceptor.local_endpoint().port())));
     socket->async_send(asio::buffer(*buf),
-      boost::bind(&Server::handlePortSent, this, socket, err, buf));
+		       std::bind(&Server::handlePortSent, this, 
+				 socket, err, buf));
   } else {
-    LOG_ERROR_S(&wt_, "child process couldn't connect to parent to send listening port: " << err.message());
+    LOG_ERROR_S(&wt_, "child process couldn't connect to parent to "
+		"send listening port: " << err.message());
   }
 }
 
-void Server::handlePortSent(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
-			    const asio_error_code& err, const boost::shared_ptr<std::string>& /*buf*/)
+void Server
+::handlePortSent(const std::shared_ptr<asio::ip::tcp::socket>& socket,
+                 const Wt::AsioWrapper::error_code& err,
+		 const std::shared_ptr<std::string>& /*buf*/)
 {
   if (err) {
-    LOG_ERROR_S(&wt_, "child process couldn't send listening port: " << err.message());
-  }
-  boost::system::error_code ignored_ec;
-  if(socket.get()) {
-	socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-	socket->close();
+    LOG_ERROR_S(&wt_, "child process couldn't send listening port: " 
+		<< err.message());
   }
 
+  Wt::AsioWrapper::error_code ignored_ec;
+  if (socket.get()) {
+    socket->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    socket->close();
+  }
 }
 
 Server::~Server()
@@ -363,51 +554,55 @@ void Server::stop()
   // Post a call to the stop function so that server::stop() is safe
   // to call from any thread, and not simultaneously with waiting for
   // a new async_accept() call.
-  wt_.ioService().post(accept_strand_.wrap
-		   (boost::bind(&Server::handleStop, this)));
+  wt_.ioService().post
+    (accept_strand_.wrap(std::bind(&Server::handleStop, this)));
 }
 
 void Server::resume()
 {
-  wt_.ioService().post(boost::bind(&Server::handleResume, this));
+  wt_.ioService().post(std::bind(&Server::handleResume, this));
 }
 
 void Server::handleResume()
 {
-  tcp_acceptor_.close();
+  for (std::size_t i = 0; i < tcp_listeners_.size(); ++i)
+    tcp_listeners_[i].acceptor.close();
+  tcp_listeners_.clear();
 
 #ifdef HTTP_WITH_SSL
-  ssl_acceptor_.close();
+  for (std::size_t i = 0; i < ssl_listeners_.size(); ++i)
+    ssl_listeners_[i].acceptor.close();
+  ssl_listeners_.clear();
 #endif // HTTP_WITH_SSL
   
   start();
 }
 
-void Server::handleTcpAccept(const asio_error_code& e)
+void Server::handleTcpAccept(TcpListener *listener, const Wt::AsioWrapper::error_code& e)
 {
   if (!e) {
-    connection_manager_.start(new_tcpconnection_);
-    new_tcpconnection_.reset(new TcpConnection(wt_.ioService(), this,
+    connection_manager_.start(listener->new_connection);
+    listener->new_connection.reset(new TcpConnection(wt_.ioService(), this,
 	  connection_manager_, request_handler_));
-    tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
-			accept_strand_.wrap(
-		    boost::bind(&Server::handleTcpAccept, this,
-				asio::placeholders::error)));
+    listener->acceptor.async_accept(listener->new_connection->socket(),
+                                    accept_strand_.wrap(
+                                      std::bind(&Server::handleTcpAccept, this,
+                                      listener, std::placeholders::_1)));
   }
 }
 
 #ifdef HTTP_WITH_SSL
-void Server::handleSslAccept(const asio_error_code& e)
+void Server::handleSslAccept(SslListener *listener, const Wt::AsioWrapper::error_code& e)
 {
   if (!e)
   {
-    connection_manager_.start(new_sslconnection_);
-    new_sslconnection_.reset(new SslConnection(wt_.ioService(), this,
+    connection_manager_.start(listener->new_connection);
+    listener->new_connection.reset(new SslConnection(wt_.ioService(), this,
           ssl_context_, connection_manager_, request_handler_));
-    ssl_acceptor_.async_accept(new_sslconnection_->socket(),
-	                accept_strand_.wrap(
-	           boost::bind(&Server::handleSslAccept, this,
-			       asio::placeholders::error)));
+    listener->acceptor.async_accept(listener->new_connection->socket(),
+                                    accept_strand_.wrap(
+                                      std::bind(&Server::handleSslAccept, this,
+                                      listener, std::placeholders::_1)));
   }
 }
 #endif // HTTP_WITH_SSL
@@ -422,16 +617,20 @@ void Server::handleStop()
   // The server is stopped by cancelling all outstanding asynchronous
   // operations. Once all operations have finished the io_service::run() call
   // will exit.
-  tcp_acceptor_.close();
+  for (std::size_t i = 0; i < tcp_listeners_.size(); ++i)
+    tcp_listeners_[i].acceptor.close();
+  tcp_listeners_.clear();
 
 #ifdef HTTP_WITH_SSL
-  ssl_acceptor_.close();
+  for (std::size_t i = 0; i < ssl_listeners_.size(); ++i)
+    ssl_listeners_[i].acceptor.close();
+  ssl_listeners_.clear();
 #endif // HTTP_WITH_SSL
 
   connection_manager_.stopAll();
 }
 
-void Server::expireSessions(boost::system::error_code ec)
+void Server::expireSessions(Wt::AsioWrapper::error_code ec)
 {
   LOG_DEBUG_S(&wt_, "expireSession()" << ec.message());
 
@@ -439,9 +638,10 @@ void Server::expireSessions(boost::system::error_code ec)
     if (!wt_.expireSessions())
       wt_.scheduleStop();
     else {
-      expireSessionsTimer_.expires_from_now(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
-      expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
-						  asio::placeholders::error));
+      expireSessionsTimer_.expires_from_now
+        (std::chrono::seconds(SESSION_EXPIRE_INTERVAL));
+      expireSessionsTimer_.async_wait
+	(std::bind(&Server::expireSessions, this, std::placeholders::_1));
     }
   } else if (ec != asio::error::operation_aborted) {
     LOG_ERROR_S(&wt_, "session expiration timer got an error: " << ec.message());

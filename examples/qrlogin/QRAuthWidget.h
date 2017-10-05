@@ -7,15 +7,17 @@
 #ifndef QR_AUTH_WIDGET
 #define QR_AUTH_WIDGET
 
-#include <Wt/Auth/AuthWidget>
+#include <Wt/Auth/AuthWidget.h>
+
+using namespace Wt;
 
 class QRAuthService;
 class QRTokenDatabase;
 
-class QRAuthWidget : public Wt::Auth::AuthWidget
+class QRAuthWidget : public Auth::AuthWidget
 {
 public:
-  QRAuthWidget(Wt::Auth::Login& login, Wt::WContainerWidget *parent = 0);
+  QRAuthWidget(Auth::Login& login);
 
   void configureQRAuth(const QRAuthService& service, QRTokenDatabase& database);
 
@@ -23,14 +25,14 @@ public:
   virtual void createLoginView();
 
 private:
-  const QRAuthService *qrService_;
-  QRTokenDatabase *qrDatabase_;
+  const QRAuthService      *qrService_;
+  QRTokenDatabase          *qrDatabase_;
 
-  std::string qrToken_;
-  Wt::WDialog *dialog_;
+  std::string               qrToken_;
+  std::unique_ptr<WDialog>  dialog_;
 
   void confirmRemoteLogin();
-  void doRemoteLogin(Wt::StandardButton button);
+  void doRemoteLogin(StandardButton button);
   void showQRDialog();
   void dialogDone();
 };

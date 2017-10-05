@@ -8,41 +8,46 @@
 #define QR_AUTH_SERVICE_H_
 
 #include <string>
-#include <Wt/WGlobal>
-#include <Wt/Http/Client>
+#include <Wt/WGlobal.h>
+#include <Wt/Http/Client.h>
+
+// #include <system_error> for standalone Asio
+// #include <boost/system/system_error.hpp> for Boost.Asio
+#include <Wt/AsioWrapper/system_error.hpp>
+
+using namespace Wt;
 
 class QRTokenDatabase;
 
 class QRAuthService
 {
 public:
-  QRAuthService(const Wt::Auth::AuthService& baseAuth);
+  QRAuthService(const Auth::AuthService& baseAuth);
 
-  const Wt::Auth::AuthService& baseAuth() const { return baseAuth_; }
+  const Auth::AuthService& baseAuth() const { return baseAuth_; }
 
   void setRedirectParameter(const std::string& parameter);
   std::string redirectParameter() const { return redirectParameter_; }
 
-  std::string parseQRToken(const Wt::WEnvironment& env) const;
+  std::string parseQRToken(const WEnvironment& env) const;
 
-  Wt::WResource *createLoginResource(QRTokenDatabase& database,
-				     Wt::Auth::AbstractUserDatabase& users,
-				     Wt::Auth::Login& login,
-				     Wt::WObject *parent = 0) const;
+  std::unique_ptr<WResource> createLoginResource(QRTokenDatabase& database,
+                                     Auth::AbstractUserDatabase& users,
+                                     Auth::Login& login) const;
 
   std::string createQRToken(QRTokenDatabase& database,
-			    Wt::WResource *resource) const;
+                            WResource *resource) const;
 
-  void remoteLogin(QRTokenDatabase& database, const Wt::Auth::User& user,
+  void remoteLogin(QRTokenDatabase& database, const Auth::User& user,
 		   const std::string& token) const;
 
 private:
-  const Wt::Auth::AuthService& baseAuth_;
+  const Auth::AuthService& baseAuth_;
   std::string redirectParameter_;
 
-  void handleHttpResponse(Wt::Http::Client *client,
-			  boost::system::error_code err,
-			  const Wt::Http::Message& response) const;
+  void handleHttpResponse(Wt::AsioWrapper::error_code err,
+                          const Http::Message& response,
+                          Http::Client *client) const;
 };
 
 #endif // QR_AUTH_SERVICE_H_

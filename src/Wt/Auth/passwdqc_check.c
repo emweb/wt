@@ -199,7 +199,7 @@ static char *unify(char *dst, const char *src)
 			c = '3'; break;
 /* Unfortunately, if we translate both 'i' and 'l' to '1', this would
  * associate these two letters with each other - e.g., "mile" would
- * match "MLLE", which is undesired.  To solve this, we'd need to test
+ * match "MLLE", which is undesired. To solve this, we'd need to test
  * different translations separately, which is not implemented yet. */
 		case 'i': case '|':
 			c = '!'; break;

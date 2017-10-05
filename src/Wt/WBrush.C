@@ -4,41 +4,41 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WBrush"
+#include "Wt/WBrush.h"
 
-#include "Wt/WLogger"
-#include "Wt/WStringStream"
+#include "Wt/WLogger.h"
+#include "Wt/WStringStream.h"
 
-#include "Wt/Json/Array"
-#include "Wt/Json/Object"
-#include "Wt/Json/Value"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Value.h"
 
 namespace Wt {
 
 LOGGER("WBrush");
 
 WBrush::WBrush()
-  : style_(NoBrush),
-    color_(black)
+  : style_(BrushStyle::None),
+    color_(StandardColor::Black)
 { }
 
 WBrush::WBrush(BrushStyle style)
   : style_(style),
-    color_(black)
+    color_(StandardColor::Black)
 { }
 
 WBrush::WBrush(const WColor& color)
-  : style_(SolidPattern),
+  : style_(BrushStyle::Solid),
     color_(color)
 { }
 
-WBrush::WBrush(GlobalColor color)
-  : style_(SolidPattern),
+WBrush::WBrush(StandardColor color)
+  : style_(BrushStyle::Solid),
     color_(color)
 { }
 
 WBrush::WBrush(const WGradient& gradient)
-  : style_(GradientPattern),
+  : style_(BrushStyle::Gradient),
     gradient_(gradient)
 { }
 
@@ -61,8 +61,8 @@ void WBrush::setColor(const WColor& color)
 {
   checkModifiable();
   color_ = color;
-  if (style_ == GradientPattern)
-    style_ = SolidPattern;
+  if (style_ == BrushStyle::Gradient)
+    style_ = BrushStyle::Solid;
 }
 
 void WBrush::setGradient(const WGradient& gradient)
@@ -70,7 +70,7 @@ void WBrush::setGradient(const WGradient& gradient)
   checkModifiable();
   if (!gradient_.isEmpty()) {
     gradient_ = gradient;
-    style_ = GradientPattern;
+    style_ = BrushStyle::Gradient;
   }
 }
 

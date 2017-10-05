@@ -7,11 +7,11 @@
 #ifndef WT_DBO_FIELD_IMPL_H_
 #define WT_DBO_FIELD_IMPL_H_
 
-#include <Wt/Dbo/Session>
-#include <Wt/Dbo/Exception>
-#include <Wt/Dbo/SqlStatement>
-#include <Wt/Dbo/SqlTraits>
-#include <Wt/Dbo/DbAction>
+#include <Wt/Dbo/Session.h>
+#include <Wt/Dbo/Exception.h>
+#include <Wt/Dbo/SqlStatement.h>
+#include <Wt/Dbo/SqlTraits.h>
+#include <Wt/Dbo/DbAction.h>
 
 namespace Wt {
   namespace Dbo {
@@ -61,7 +61,7 @@ void FieldRef<V>::bindValue(SqlStatement *statement, int column) const
 }
 
 template <typename V>
-void FieldRef<V>::setValue(Session& session, SqlStatement *statement,
+void FieldRef<V>::setValue(Session& /* session */, SqlStatement *statement,
 			   int column) const
 {
   sql_value_traits<V>::read(value_, statement, column, size_);
@@ -104,12 +104,12 @@ PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name,
 template <class C, class A, class Enable = void>
 struct LoadLazyHelper
 {
-  static void loadLazy(ptr<C>& p, typename dbo_traits<C>::IdType id,
-		       Session *session) { }
+  static void loadLazy(ptr<C>& /* p */, typename dbo_traits<C>::IdType /* id */,
+		       Session * /* session */) { }
 };
 
 template <class C, class A>
-struct LoadLazyHelper<C, A, typename boost::enable_if<action_sets_value<A> >::type>
+struct LoadLazyHelper<C, A, typename std::enable_if<action_sets_value<A>::value >::type>
 {
   static void loadLazy(ptr<C>& p, typename dbo_traits<C>::IdType id,
 		       Session *session) {

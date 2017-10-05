@@ -1,12 +1,12 @@
 
-#include "Wt/WApplication"
+#include "Wt/WApplication.h"
 
-#include "Wt/WTime"
-#include "Wt/WTimeValidator"
-#include "Wt/WLocale"
-#include "Wt/WLogger"
-#include "Wt/WStringStream"
-#include "Wt/WWebWidget"
+#include "Wt/WTime.h"
+#include "Wt/WTimeValidator.h"
+#include "Wt/WLocale.h"
+#include "Wt/WLogger.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WWebWidget.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WTimeValidator.min.js"
@@ -17,8 +17,7 @@ namespace Wt {
 
 LOGGER("WTimeValidator");
 
-WTimeValidator::WTimeValidator(WObject *parent)
-  : WRegExpValidator(parent)
+WTimeValidator::WTimeValidator()
 {
 #ifndef WT_TARGET_JAVA
   setFormat(WLocale::currentLocale().timeFormat());
@@ -27,16 +26,14 @@ WTimeValidator::WTimeValidator(WObject *parent)
 #endif
 }
 
-WTimeValidator::WTimeValidator(const WT_USTRING& format, WObject *parent)
-  : WRegExpValidator(parent)
+WTimeValidator::WTimeValidator(const WT_USTRING& format)
 {
   setFormat(format);
 }
 
 WTimeValidator::WTimeValidator(const WT_USTRING &format, const WTime &bottom,
-                               const WTime &top, WObject *parent)
-    : WRegExpValidator(parent),
-      bottom_(bottom),
+                               const WTime &top)
+    : bottom_(bottom),
       top_(top)
 {
   setFormat(format);
@@ -141,23 +138,25 @@ WString WTimeValidator::invalidTooLateText() const
 
 WValidator::Result WTimeValidator::validate(const WT_USTRING &input) const
 {
-    if(input.empty())
+    if (input.empty())
         return WValidator::validate(input);
-    for(unsigned i = 0; i < formats_.size(); i++){
-        try{
+    for (unsigned i = 0; i < formats_.size(); i++){
+        try {
             WTime t = WTime::fromString(input, formats_[i]);
             if(t.isValid()){
                 if(!bottom_.isNull() && t < bottom_)
-                    return Result(Invalid, invalidTooEarlyText());
+		  return Result(ValidationState::Invalid, 
+				invalidTooEarlyText());
                 if(!top_.isNull() && t > top_)
-                    return Result(Invalid, invalidTooLateText());
-                return Result(Valid);
+		  return Result(ValidationState::Invalid, 
+				invalidTooLateText());
+                return Result(ValidationState::Valid);
             }
-        } catch(std::exception &e){
-                LOG_WARN("validate(): " << e.what());
+        } catch (std::exception &e){
+	  LOG_WARN("validate(): " << e.what());
         }
     }
-    return Result(Invalid, invalidNotATimeText());
+    return Result(ValidationState::Invalid, invalidNotATimeText());
 }
 
 void WTimeValidator::loadJavaScript(WApplication *app)

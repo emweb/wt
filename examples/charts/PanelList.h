@@ -7,7 +7,7 @@
 #ifndef PANEL_LIST_H_
 #define PANEL_LIST_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
   class WPanel;
@@ -16,16 +16,17 @@ namespace Wt {
 class PanelList : public Wt::WContainerWidget
 {
 public:
-  PanelList(Wt::WContainerWidget *parent);
+  PanelList();
 
-  Wt::WPanel *addWidget(const Wt::WString& text, Wt::WWidget *w);
-  void addPanel(Wt::WPanel *panel);
+  Wt::WPanel *addWidget(const Wt::WString& text, std::unique_ptr<Wt::WWidget> w);
+  void addPanel(std::unique_ptr<Wt::WPanel> panel);
   void removePanel(Wt::WPanel *panel);
 
   using WContainerWidget::addWidget;
 
 private:
-  void onExpand(bool notUndo);
+  void onExpand(bool notUndo, Wt::WPanel *panel);
+  //void onExpand(bool notUndo);
 
   int wasExpanded_;
 };

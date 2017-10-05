@@ -8,9 +8,14 @@
 #ifndef TOPIC_WIDGET_H_
 #define TOPIC_WIDGET_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WMenu>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WString.h>
+
 #include <string>
+
+namespace Wt {
+  class WMenu;
+}
 
 class TopicWidget : public Wt::WContainerWidget
 {
@@ -22,8 +27,7 @@ public:
   static Wt::WString reindent(const Wt::WString& text);
 
 protected:
-  static Wt::WText *addText(const Wt::WString& text,
-			    Wt::WContainerWidget *parent = 0);
+  static Wt::WText *addText(const Wt::WString& s, Wt::WContainerWidget *parent);
 
 private:
   std::string docAnchor(const std::string &classname) const;

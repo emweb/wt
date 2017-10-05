@@ -7,18 +7,18 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WLineEdit>
-#include <Wt/WGridLayout>
-#include <Wt/WHBoxLayout>
-#include <Wt/WPushButton>
-#include <Wt/WTable>
-#include <Wt/WText>
-#include <Wt/WTreeView>
-#include <Wt/WVBoxLayout>
-#include <Wt/WViewWidget>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WGridLayout.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
+#include <Wt/WText.h>
+#include <Wt/WTreeView.h>
+#include <Wt/WVBoxLayout.h>
+
 
 #include "GitModel.h"
 #include "../wt-homepage/SourceView.h"
@@ -49,14 +49,19 @@ public:
 
     const char *gitRepo = getenv("GITVIEW_REPOSITORY_PATH");
 
-    WGridLayout *grid = new WGridLayout();
-    grid->addWidget(new WText("Git repository path:"), 0, 0);
-    grid->addWidget(repositoryEdit_ = new WLineEdit(gitRepo ? gitRepo : "")
-		    , 0, 1, AlignLeft);
-    grid->addWidget(repositoryError_ = new WText(), 0, 2);
-    grid->addWidget(new WText("Revision:"), 1, 0);
-    grid->addWidget(revisionEdit_ = new WLineEdit("master"), 1, 1, AlignLeft);
-    grid->addWidget(revisionError_ = new WText(), 1, 2);
+    auto grid
+        = cpp14::make_unique<WGridLayout>();
+    grid->addWidget(cpp14::make_unique<WText>("Git repository path:"), 0, 0);
+
+    repositoryEdit_ = grid->addWidget(cpp14::make_unique<WLineEdit>(gitRepo ? gitRepo : ""),
+                                      0, 1, AlignmentFlag::Left);
+    repositoryError_ = grid->addWidget(cpp14::make_unique<WText>(), 0, 2);
+
+    grid->addWidget(cpp14::make_unique<WText>("Revision:"), 1, 0);
+
+    revisionEdit_ = grid->addWidget(cpp14::make_unique<WLineEdit>("master"),
+                                    1, 1, AlignmentFlag::Left);
+    revisionError_ = grid->addWidget(cpp14::make_unique<WText>(), 1, 2);
 
     repositoryEdit_->setTextSize(30);
     revisionEdit_->setTextSize(20);
@@ -68,50 +73,55 @@ public:
     revisionEdit_->enterPressed()
       .connect(this, &GitViewApplication::loadGitModel);
 
-    WPushButton *b = new WPushButton("Load");
-    b->clicked().connect(this, &GitViewApplication::loadGitModel);
-    grid->addWidget(b, 2, 0, AlignLeft);
+    auto button = grid->addWidget(cpp14::make_unique<WPushButton>("Load"),
+                                  2, 0, AlignmentFlag::Left);
+    button->clicked().connect(this, &GitViewApplication::loadGitModel);
 
-    gitView_ = new WTreeView();
+    auto gitView = cpp14::make_unique<WTreeView>();
+    gitView_ = gitView.get();
     gitView_->resize(300, WLength::Auto);
     gitView_->setSortingEnabled(false);
-    gitView_->setModel(gitModel_ = new GitModel(this));
-    gitView_->setSelectionMode(SingleSelection);
+
+    gitModel_
+        = std::make_shared<GitModel>();
+    gitView_->setModel(gitModel_);
+    gitView_->setSelectionMode(SelectionMode::Single);
     gitView_->selectionChanged().connect(this, &GitViewApplication::showFile);
 
-    sourceView_ = new SourceView(DisplayRole, 
-				 GitModel::ContentsRole, 
-				 GitModel::FilePathRole);
+    auto sourceView
+        = cpp14::make_unique<SourceView>(ItemDataRole::Display,
+                                         GitModel::ContentsRole, GitModel::FilePathRole);
+    sourceView_ = sourceView.get();
     sourceView_->setStyleClass("source-view");
 
+    /* FIXME: adding a gridlayout to a box layout */
     if (environment().javaScript()) {
       /*
        * We have JavaScript: We can use layout managers so everything will
        * always fit nicely in the window.
        */
-      WVBoxLayout *topLayout = new WVBoxLayout();
-      topLayout->addLayout(grid, 0);
-
-      WHBoxLayout *gitLayout = new WHBoxLayout();
-      gitLayout->addWidget(gitView_, 0);
-      gitLayout->addWidget(sourceView_, 1);
-      topLayout->addLayout(gitLayout, 1);
-
-      root()->setLayout(topLayout);
+      auto topLayout = root()->setLayout(cpp14::make_unique<WVBoxLayout>());
       root()->setStyleClass("maindiv");
+      topLayout->addLayout(std::move(grid),0);
+
+      auto gitLayout = cpp14::make_unique<WHBoxLayout>();
+      gitLayout->addWidget(std::move(gitView),0);
+      gitLayout->addWidget(std::move(sourceView),1);
+      topLayout->addLayout(std::move(gitLayout),1);
     } else {
       /*
        * No JavaScript: let's make the best of the situation using regular
        * CSS-based layout
        */
       root()->setStyleClass("maindiv");
-      WContainerWidget *top = new WContainerWidget();
-      top->setLayout(grid);
-      root()->addWidget(top);
-      root()->addWidget(gitView_);
-      gitView_->setFloatSide(Left);
+      auto top
+          = cpp14::make_unique<WContainerWidget>();
+      top->setLayout(std::move(grid));
+      root()->addWidget(std::move(top));
+      root()->addWidget(std::move(gitView));
+      gitView_->setFloatSide(Side::Left);
       gitView_->setMargin(6);
-      root()->addWidget(sourceView_);
+      root()->addWidget(std::move(sourceView));
       sourceView_->setMargin(6);
     }
   }
@@ -119,7 +129,7 @@ public:
 private:
   WLineEdit  *repositoryEdit_, *revisionEdit_;
   WText      *repositoryError_, *revisionError_;
-  GitModel   *gitModel_;
+  std::shared_ptr<GitModel>   gitModel_;
   WTreeView  *gitView_;
   SourceView *sourceView_;
 
@@ -152,9 +162,9 @@ private:
   }
 };
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new GitViewApplication(env);
+  return cpp14::make_unique<GitViewApplication>(env);
 }
 
 int main(int argc, char **argv)

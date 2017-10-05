@@ -4,9 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/FormBaseModel"
+#include "Wt/WApplication.h"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/FormBaseModel.h"
 #include "web/WebUtils.h"
 
 namespace skeletons {
@@ -19,12 +19,10 @@ namespace Wt {
 const FormBaseModel::Field FormBaseModel::LoginNameField = "user-name";
 
 FormBaseModel::FormBaseModel(const AuthService& baseAuth,
-			     AbstractUserDatabase& users,
-			     WObject *parent)
-  : WFormModel(parent), 
-    baseAuth_(baseAuth),
+			     AbstractUserDatabase& users)
+  : baseAuth_(baseAuth),
     users_(users),
-    passwordAuth_(0)
+    passwordAuth_(nullptr)
 { 
   WApplication *app = WApplication::instance();
   app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml1);
@@ -49,7 +47,7 @@ void FormBaseModel::addOAuth(const std::vector<const OAuthService *>& auth)
 WString FormBaseModel::label(Field field) const
 {
   if (field == LoginNameField
-      && baseAuth_.identityPolicy() == EmailAddressIdentity)
+      && baseAuth_.identityPolicy() == IdentityPolicy::EmailAddress)
     field = "email";
 
   return WString::tr(std::string("Wt.Auth.") + field);
@@ -63,7 +61,7 @@ void FormBaseModel::setValid(Field field)
 void FormBaseModel::setValid(Field field, const Wt::WString& message)
 {
   setValidation(field,
-		WValidator::Result(WValidator::Valid,
+		WValidator::Result(ValidationState::Valid,
 				   message.empty() ? 
 				   WString::tr("Wt.Auth.valid") : message));
 }
@@ -73,23 +71,23 @@ bool FormBaseModel::loginUser(Login& login, User& user, LoginState state)
   if (!user.isValid())
     return false;
 
-  if (user.status() == User::Disabled) {
+  if (user.status() == AccountStatus::Disabled) {
     setValidation
       (LoginNameField,
-       WValidator::Result(WValidator::Invalid,
+       WValidator::Result(ValidationState::Invalid,
 			  WString::tr("Wt.Auth.account-disabled")));
 
-    login.login(user, DisabledLogin);
+    login.login(user, LoginState::Disabled);
 
     return false;
   } else if (baseAuth()->emailVerificationRequired() &&
 	     user.email().empty()) {
     setValidation
       (LoginNameField,
-       WValidator::Result(WValidator::Invalid,
+       WValidator::Result(ValidationState::Invalid,
 			  WString::tr("Wt.Auth.email-unverified")));
 
-    login.login(user, DisabledLogin);
+    login.login(user, LoginState::Disabled);
 
     return false;
   } else {

@@ -7,15 +7,14 @@
 #ifndef WT_DBO_QUERY_MODEL_IMPL_H_
 #define WT_DBO_QUERY_MODEL_IMPL_H_
 
-#include <Wt/Dbo/QueryColumn>
+#include <Wt/Dbo/QueryColumn.h>
 
 namespace Wt {
   namespace Dbo {
 
 template <class Result>
-QueryModel<Result>::QueryModel(WObject *parent)
-  : WAbstractTableModel(parent),
-    batchSize_(40),
+QueryModel<Result>::QueryModel()
+  : batchSize_(40),
     cachedRowCount_(-1),
     cacheStart_(-1),
     currentRow_(-1)
@@ -88,10 +87,10 @@ template <class Result>
 void QueryModel<Result>::addAllFieldsAsColumns()
 {
   for (unsigned i = 0; i < fields_.size(); ++i) {
-    WFlags<ItemFlag> flags = ItemIsSelectable;
+    WFlags<ItemFlag> flags = ItemFlag::Selectable;
 
     if (fields_[i].isMutable())
-      flags |= ItemIsEditable;
+      flags |= ItemFlag::Editable;
 
     if (fields_[i].qualifier().empty())
       addColumn(fields_[i].name(), flags);
@@ -140,14 +139,14 @@ WFlags<ItemFlag> QueryModel<Result>::flags(const WModelIndex& index) const
 }
 
 template <class Result>
-boost::any QueryModel<Result>::data(const WModelIndex& index, int role) const
+cpp17::any QueryModel<Result>::data(const WModelIndex& index, ItemDataRole role) const
 {
   setCurrentRow(index.row());
 
-  if (role == DisplayRole || role == EditRole)
+  if (role == ItemDataRole::Display || role == ItemDataRole::Edit)
     return rowValues_[columns_[index.column()].fieldIdx_];
   else
-    return boost::any();
+    return cpp17::any();
 }
 
 template <class Result>
@@ -168,9 +167,9 @@ void QueryModel<Result>::setCurrentRow(int row) const
 
 template <class Result>
 bool QueryModel<Result>::setData(const WModelIndex& index,
-				 const boost::any& value, int role)
+                                 const cpp17::any& value, ItemDataRole role)
 {
-  if (role == EditRole) {
+  if (role == ItemDataRole::Edit) {
     {
       Transaction transaction(query_.session());
 
@@ -180,7 +179,7 @@ bool QueryModel<Result>::setData(const WModelIndex& index,
 
       const FieldInfo& field = fields()[column];
 
-      boost::any dbValue = Wt::convertAnyToAny(value, *field.type());
+      cpp17::any dbValue = Wt::convertAnyToAny(value, *field.type());
 
       query_result_traits<Result>::setValue(result, column, dbValue);
 
@@ -232,7 +231,7 @@ template <class Result>
 std::string QueryModel<Result>::createOrderBy(int column, SortOrder order)
 {
   return fieldInfo(column).sql() + " "
-		 + (order == AscendingOrder ? "asc" : "desc");
+    + (order == SortOrder::Ascending ? "asc" : "desc");
 }
 
 template <class Result>
@@ -440,12 +439,12 @@ bool QueryModel<Result>::removeRows(int row, int count,
 
 template <class Result>
 bool QueryModel<Result>::setHeaderData(int section, Orientation orientation,
-				       const boost::any& value,
-				       int role)
+				       const cpp17::any& value,
+                                       ItemDataRole role)
 {
-  if (orientation == Horizontal) {
-    if (role == EditRole)
-      role = DisplayRole;
+  if (orientation == Orientation::Horizontal) {
+    if (role == ItemDataRole::Edit)
+      role = ItemDataRole::Display;
 
     columns_[section].headerData_[role] = value;
 
@@ -458,11 +457,11 @@ bool QueryModel<Result>::setHeaderData(int section, Orientation orientation,
 }
 
 template <class Result>
-boost::any QueryModel<Result>::headerData(int section, Orientation orientation,
-					  int role) const
+cpp17::any QueryModel<Result>::headerData(int section, Orientation orientation,
+                                          ItemDataRole role) const
 {
-  if (orientation == Horizontal) {
-    if (role == LevelRole)
+  if (orientation == Orientation::Horizontal) {
+    if (role == ItemDataRole::Level)
       return WAbstractTableModel::headerData(section, orientation, role);
 
     QueryColumn::HeaderData::const_iterator i
@@ -471,7 +470,7 @@ boost::any QueryModel<Result>::headerData(int section, Orientation orientation,
     if (i != columns_[section].headerData_.end())
       return i->second;
     else
-      return boost::any();
+      return cpp17::any();
   } else
     return WAbstractTableModel::headerData(section, orientation, role);
 }
@@ -499,9 +498,9 @@ void *QueryModel<Result>::toRawIndex(const WModelIndex& index) const
     if (id >= 0)
       return reinterpret_cast<void *>(id + 1);
     else
-      return 0;
+      return nullptr;
   } else
-    return 0;
+    return nullptr;
 }
 
 template <class Result>

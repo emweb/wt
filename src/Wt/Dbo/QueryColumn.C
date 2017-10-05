@@ -3,7 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/Dbo/QueryColumn>
+#include <Wt/Dbo/QueryColumn.h>
 
 namespace Wt {
   namespace Dbo {
@@ -12,10 +12,10 @@ namespace Wt {
    Editing ramblings
 
    Scenario:
-    - query a Post, join its author User, and the number of comments
+    - query a Method::Post, join its author User, and the number of comments
 
    Three different kinds of edits:
-    - change a Post property
+    - change a Method::Post property
     - change a User property
     - change the author
     - cannot change the number of comments
@@ -24,8 +24,8 @@ namespace Wt {
     - two more ItemDataRoles:
       - OptionsModel
         a WAbstractItemModel: column 0 has entries with data of two roles:
-        - EditRole: the primary key
-	- DisplayRole: the value to display
+        - ItemDataRole::Edit: the primary key
+	- ItemDataRole::Display: the value to display
       - Validator
         a WValidator: used to validate the data
 

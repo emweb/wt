@@ -19,10 +19,9 @@
 
 #ifdef HTTP_WITH_SSL
 
-#include <boost/asio/ssl.hpp>
+#include "Wt/AsioWrapper/ssl.hpp"
 
 #include <boost/array.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
@@ -37,7 +36,7 @@ class Server;
 typedef asio::ssl::stream<asio::ip::tcp::socket> ssl_socket;
 
 /// Represents a single connection from a client.
-class SslConnection : public Connection
+class SslConnection final : public Connection
 {
 public:
   /// Construct a connection with the given io_service.
@@ -46,37 +45,37 @@ public:
       ConnectionManager& manager, RequestHandler& handler);
 
   /// Get the socket associated with the connection.
-  virtual asio::ip::tcp::socket& socket();
+  virtual asio::ip::tcp::socket& socket() override;
 
-  virtual void start();
-  virtual const char *urlScheme() { return "https"; }
+  virtual void start() override;
+  virtual const char *urlScheme() override { return "https"; }
 
 protected:
 
-  virtual void stop();
+  virtual void stop() override;
 
-  virtual void startAsyncReadRequest(Buffer& buffer, int timeout);
-  virtual void startAsyncReadBody(ReplyPtr reply, Buffer& buffer, int timeout);
+  virtual void startAsyncReadRequest(Buffer& buffer, int timeout) override;
+  virtual void startAsyncReadBody(ReplyPtr reply, Buffer& buffer, int timeout) override;
   virtual void startAsyncWriteResponse
       (ReplyPtr reply, const std::vector<asio::const_buffer>& buffers,
-       int timeout);
+       int timeout) override;
 
 private:
-  void handleReadRequestSsl(const asio_error_code& e,
+  void handleReadRequestSsl(const Wt::AsioWrapper::error_code& e,
                             std::size_t bytes_transferred);
-  void handleReadBodySsl(ReplyPtr reply, const asio_error_code& e,
+  void handleReadBodySsl(ReplyPtr reply, const Wt::AsioWrapper::error_code& e,
                          std::size_t bytes_transferred);
-  void handleHandshake(const asio_error_code& error);
-  void stopNextLayer(const boost::system::error_code& ec);
+  void handleHandshake(const Wt::AsioWrapper::error_code& error);
+  void stopNextLayer(const Wt::AsioWrapper::error_code& ec);
 
   /// Socket for the connection.
   ssl_socket socket_;
 
   // SSL shutdown takes many seconds sometimes. Put a limit on it.
-  asio_timer sslShutdownTimer_;
+  asio::steady_timer sslShutdownTimer_;
 };
 
-typedef boost::shared_ptr<SslConnection> SslConnectionPtr;
+typedef std::shared_ptr<SslConnection> SslConnectionPtr;
 
 } // namespace server
 } // namespace http

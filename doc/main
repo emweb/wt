@@ -24,7 +24,6 @@ namespace Wt {
    - \ref InstallationWindows - How to build %Wt and your applications on
      Microsoft Windows systems.
    - \ref Releasenotes - Release notes.
-   - \ref ext - Using %Ext widgets, widgets based on ExtJS.
    - \ref example - A line-by-line explanation, mainly shows how to implement
       client-side event handling in C++ (a parodox!).
    - <a href="../../tutorial/dbo.html">Tutorial for Dbo</a> - %Wt's C++ ORM
@@ -63,16 +62,16 @@ namespace Wt {
      <div style="margin-left: 10px; margin-bottom: 7px;"></div>
    \ref deployment <br>
      <div style="margin-left: 10px; margin-bottom: 7px;">
-     \ref fastcgi <br>
      \ref wthttpd <br>
+     \ref fastcgi <br>
      \ref wtisapi <br>
      </div>  
    \ref configuration_sec
      <div style="margin-left: 10px; margin-bottom: 7px;">
      \ref config_session <br>
      \ref config_general <br>
-     \ref config_fastcgi <br>
      \ref config_wthttpd <br>
+     \ref config_fastcgi <br>
      \ref config_isapi <br>
      </div>
      <div style="margin-left: 10px; margin-bottom: 7px;"></div>
@@ -82,7 +81,7 @@ namespace Wt {
    \section wwidget_sec &nbsp;1. Widgets
   
    The WWidget class represents a widget, which provides an
-   abstraction of a visual entity. The entire user-interface is
+   abstraction of a visual entity. The entire user interface is
    specified by creating a hierarchical structure of WWidgets, rooted
    at WApplication::root(). By reacting to events related to these
    widgets, you can perform business logic, and manipulate the widget
@@ -94,7 +93,7 @@ namespace Wt {
    reducing the burden of memory management related to widgets. When
    the WApplication object is deleted, the root of the tree is
    deleted, and in this way all resources associated with any widget
-   are free'd.
+   are freed.
   
    Any descendent class of WWidget is a self-contained (reusable)
    class that encapsulates both the look and behaviour, enabling the
@@ -103,7 +102,7 @@ namespace Wt {
    \subsection layout 1.1 Layout
   
    Widgets are layed out (with a few exceptions) following this
-   hierarchical structure. You have two choices for lay-out of
+   hierarchical structure. You have two choices for layout of
    children within a container.
 
     - Either you use a CSS based layout (perhaps in combination with a
@@ -112,9 +111,8 @@ namespace Wt {
    result: each child manages its layout with respect to its sibling
    following a (rather complex) set of rules.
 
-   - Alternatively, %Wt provides \link WLayout layout managers\endlink
-   that may be used for layout, and this is especially useful for
-   scenarios when CSS is not adequate
+    - Alternatively, %Wt provides \link WLayout layout managers\endlink
+   that may be used for layout.
 
    CSS distinguishes between inline and block level elements (widgets)
    for deciding how to add them to the layout. Text-like widgets
@@ -131,20 +129,20 @@ namespace Wt {
    container. A layout manager adapts the size and location of the
    children to the width and height of the parent. If you want the
    opposite (i.e. to adapt the size (width and/or height) of the
-   parent to the size of the children, then you can still use layout
+   parent to the size of the children), then you can still use layout
    managers, but you need to set additional alignment flags which
-   determines how the layout is positioned in the parent in case of
+   determine how the layout is positioned in the parent in case of
    excess width and/or height.
 
    \subsection style 1.2 Style
 
    For visual markup of widgets, the recommended way is to use CSS
-   style sheets. These allow the visual look to be defined seperately
-   from the the rest of the application. External stylesheets may be
+   style sheets. These allow the visual look to be defined separately
+   from the the rest of the application. External style sheets may be
    loaded using WApplication::useStyleSheet(), and the internal
-   stylesheet may be manipulated using WApplication::styleSheet().
+   style sheet may be manipulated using WApplication::styleSheet().
 
-   In the stylesheets, you describe rules that are prefixed by CSS
+   In the style sheets, you describe rules that are prefixed by CSS
    selectors. By setting matching style classes for your widgets using
    WWidget::setStyleClass(), these rules will be applied to your
    widgets. The recommended way for visual response to events is by
@@ -155,20 +153,17 @@ namespace Wt {
 
    \subsection containers 1.3 Widget containers
   
-   With a few exceptions, all widgets are child of (and contained in)
+   With a few exceptions, all widgets are children of (and contained in)
    a container widget such as WContainerWidget or WTableCell. A widget
    may be inserted into a WContainerWidget by adding the widget to the
-   container using WContainerWidget::addWidget(), or by passing the
-   parent container as an argument to its constructor. You may also
+   container using WContainerWidget::addWidget(). You may also
    add a widget to a container using a layout manager.
 
    \section urls_sec &nbsp;2. Application URL(s)
 
-   A %Wt application, like any other CGI application, is deployed at a
-   single location (URL) within your web server. In this mode, a %Wt
-   application is a single page web application: the URL does not
-   change. Still, an application may manage multiple URLs that
-   correspond to internal paths. These are URLs that are created by
+   By default, a %Wt application is a single page web application:
+   the URL does not change. Still, an application may manage multiple
+   URLs that correspond to internal paths. These are URLs that are created by
    appending an internal path to the application URL. The internal
    path may be manipulated through WApplication::setInternalPath().
    When the internal path changes, this is reflected in the browser
@@ -179,15 +174,15 @@ namespace Wt {
    To avoid rerendering the entire widget tree for each internal path
    change, when Ajax is available, the internal path is indicated
    either by manipulating the URL using the HTML5 History API, or by 
-   using a name anchor (#) after the deployment URL. For a plain HTML
+   using a named anchor (#) after the deployment URL. For a plain HTML
    session, the session ID is appended to the URL to avoid the session
-   from reloading when the user navigates using a WAnchor to a new
-   internal URL.
+   from reloading when the user navigates to a new internal URL using
+   a WAnchor.
 
    To effectively change the internal path and obtain consistent
    behaviour with or without JavaScript, you should use a WAnchor to
    let the user navigate to a new internal path. The easiest way to do
-   this is by using the WAnchor::setRefInternalPath(). This refers the
+   this is by using WAnchor::setLink(). This refers the
    WAnchor to a URL generated by WApplication::bookmarkUrl() for the
    new internal path (handling the plain HTML case), and binds a
    JavaScript slot to its WAnchor::clicked() signal, which changes the
@@ -199,7 +194,7 @@ namespace Wt {
 
    \section application_sec &nbsp;3. Startup and session management
   
-   In your application, e.g. from within your main(), you should
+   In your application, e.g. from within your main(), you can use
    WRun() to start the %Wt application server. This method will return
    only when shutdown is signaled by the environment, and after the
    application server (and all remaining active sessions) has been
@@ -250,10 +245,9 @@ namespace Wt {
    To respond to user-interactivity events, or in general to communicate
    events from one widget to any other, %Wt uses a signal/slot system.
   
-   A slot can be any function, bound using boost::bind() or
-   std::bind(), but special support exists for method of descendants
-   of WObject with respect to connection management: the signal will
-   be disconnected when the bound object is deleted.
+   A slot can be any function, bound using std::bind(), but special support exists
+   for methods of descendants of WObject with respect to connection management:
+   the signal will be disconnected when the bound object is deleted.
 
    To connect a signal with a slot, the only requirement is that the
    method signature of the slot must be compatible with the signal
@@ -266,11 +260,11 @@ namespace Wt {
    methods as client-side JavaScript code (see below).
   
    A signal may be created by adding a \link Signal Signal<X,
-   ...>\endlink object. You may specify up to 6 arguments which may be
+   ...>\endlink object. You may specify arguments which may be
    of arbitrary types that are Copyable, that may be passed through
    the signal to connected slots.
   
-   The library defines several user-event signals on various widgets,
+   The library defines several user event signals on various widgets,
    and it is easy and convenient to add signals and slots to widget
    classes to communicate events and trigger callbacks.
   
@@ -285,12 +279,12 @@ namespace Wt {
   
    By default, %Wt performs all event processing server-side. Every
    connected event signal will cause the web browser to communicate
-   with the web server in order to invoke the call-back code, and
+   with the web server in order to invoke the callback code, and
    visual changes will be updated in the web page.
   
    However, %Wt offers several options for incorporating client-side event
    handling. This may in general increase responsiveness of the application
-   since the user gets an instant feed-back, avoiding the typical
+   since the user gets an instant feedback, avoiding the typical
    communication delay is avoided.
   
    The least flexible but most convenient option for client-side event
@@ -299,7 +293,7 @@ namespace Wt {
    functionality is still specified in C++, and therefore the
    application still works equally when JavaScript is not available.
    The only restriction is that this is only possible for stateless
-   call-back code -- i.e. when the visual update does not depend on
+   callback code -- i.e. when the visual update does not depend on
    state that may change in the course of the application, or event
    details.  See the documentation of WObject::implementStateless
    for details, or the \ref example for the use of stateless
@@ -310,7 +304,7 @@ namespace Wt {
    The stateless slot learning allows applications to be developed entirely
    in C++, with only one specification of the desired behaviour, and decide
    at run-time to optimize certain event handling in client-side JavaScript
-   if possible, and fall-back to server-side event handling otherwise.
+   if possible, and fallback to server-side event handling otherwise.
   
    When the requirements for stateless slot learning cannot be met you will
    have to resort to writing JavaScript manually. %Wt provides a number
@@ -352,24 +346,24 @@ namespace Wt {
   spider bots, or user agents which are configured to not support Ajax
   (well), see the \ref config_general "user-agents configuration setting".
 
-  There are some draw-backs to this bootstrap method:
+  There are some drawbacks to this bootstrap method:
 
   - the redirection without JavaScript support may not be supported by
     all user agents, leaving these with a link and a redirect message
-    (see the \ref config_general "redirect-message configuration
-    setting")
+    (see the \ref config_general "redirect-message configuration"
+    setting)
 
-  - there is an additional round-trip before any contents is rendered
+  - there is an additional roundtrip before any contents is rendered
  
   - for an Ajax user interface, all contents will be loaded through
-    JavaScript. This has a draw-back that some 3rd party JavaScript
+    JavaScript. This has a drawback that some 3rd party JavaScript
     libraries do not support being loaded on-demand (with as most
     notable example, Google ads).
 
   \subsection progressive_bootstrap 6.1 Progressive bootstrap
 
   Since %Wt 2.99.4, a new bootstrap method has been added (initially
-  proposed by Anthony roger Buck). While the default bootstrap already
+  proposed by Anthony Roger Buck). While the default bootstrap already
   honors the principle of graceful degradation, this bootstrap
   implements this using the principle of <a
   href="http://en.wikipedia.org/wiki/Progressive_enhancement">progressive
@@ -379,7 +373,7 @@ namespace Wt {
   "progressive-bootstrap configuration setting".
 
   This bootstrap method will initially assume that the user agent is a
-  plain HTML user-agent and immediately create the application (with
+  plain HTML user agent and immediately create the application (with
   WEnvironment::ajax() always returning <tt>false</tt>). The initial
   response will contain the initial page suitable for a plain HTML
   user-agent.
@@ -403,7 +397,7 @@ namespace Wt {
   graphics (inline SVG, inline VML or HTML 5 &lt;canvas&gt;
   element). Vector graphics has as benefit a lower bandwidth usage,
   which is indepedent of the image size and quality, and can be
-  embedded within the HTML, avoiding an additional round-trip. To use
+  embedded within the HTML, avoiding an additional roundtrip. To use
   the paint system, you need to specialize WPaintedWidget and use a
   WPainter to paint the contents of the widget inside its
   WPaintedWidget::paintEvent().
@@ -445,7 +439,7 @@ namespace Wt {
 
   In addition, you may need to deploy also your own CSS files, custom
   icons/images, and/or static pages that you reference from your
-  application, into your web server.
+  application, onto your web server.
 
   Your application may also use other files which do not need to be
   published online, but are instead read only by your
@@ -455,30 +449,7 @@ namespace Wt {
   <i>application root</i> (see WApplication::appRoot()), whose
   location is configured in a way that is specific for each connector.
 
-  \subsection fastcgi 9.1 FastCGI
-
-  When linking your application against <tt>libwtfcgi</tt>, the
-  resulting binary is a FastCGI binary. This binary may then be
-  deployed and managed within a web server which supports the FastCGI
-  protocol (these include apache, lighttpd and many other popular web
-  servers).
-
-  The following locations for the wt_config.xml configuration file are
-  considered, in this order:
-
-  - value of environment variable <tt>$WT_CONFIG_XML</tt>
-  - within the app root, as configured by the environment variable
-    <tt>$WT_APP_ROOT</tt>: <tt>$WT_APP_ROOT/wt_config.xml</tt>
-  - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>),
-
-  Environment variables can be specified to a FastCGI application depending
-  on the web server. E.g. for FastCGI, this is:
-
-\code
--initial-env WT_APP_ROOT=/opt/myapp
-\endcode
-
-  \subsection wthttpd 9.2 Built-in httpd
+  \subsection wthttpd 9.1 Built-in httpd
 
   When linking your application against <tt>libwthttp</tt>, the
   resulting binary is a stand-alone HTTP/WebSockets server.  The web
@@ -515,6 +486,30 @@ $ ../../build/examples/wt-homepage/Home.wt --docroot=".;/favicon.ico,/css,/resou
   If a static file (e.g. \c style.css) is requested, and the static file with \c .gz extension (e.g. \c style.css.gz)
   exists, then the built-in httpd will assume that the \c .gz file is the gzipped version of the file without \c .gz,
   and will serve the \c .gz file instead of applying compression.
+
+  \subsection fastcgi 9.2 FastCGI
+
+  When linking your application against <tt>libwtfcgi</tt>, the
+  resulting binary is a FastCGI binary. This binary may then be
+  deployed and managed within a web server which supports the FastCGI
+  protocol (these include apache, lighttpd and many other popular web
+  servers).
+
+  The following locations for the wt_config.xml configuration file are
+  considered, in this order:
+
+  - value of environment variable <tt>$WT_CONFIG_XML</tt>
+  - within the app root, as configured by the environment variable
+    <tt>$WT_APP_ROOT</tt>: <tt>$WT_APP_ROOT/wt_config.xml</tt>
+  - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>),
+
+  Environment variables can be specified to a FastCGI application depending
+  on the web server. E.g. for FastCGI, this is:
+
+\code
+-initial-env WT_APP_ROOT=/opt/myapp
+\endcode
+
 
   \subsection wtisapi 9.3 ISAPI
 
@@ -587,7 +582,8 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dt><strong>shared-process</strong></dt>
 
     <dd>Sessions share a fixed number of processes, yielding a lower
-      session cost.</dd>
+      session cost. If neither <tt>dedicated-process</tt> nor the <tt>shared-process</tt>
+      tags exist, Wt defaults to the shared process strategy.</dd>
 
     <dt><strong>tracking</strong></dt>
 
@@ -802,26 +798,15 @@ appRoot=C:\Program Files\MyApplications\AppRoot
  </properties>
       \endcode
     </dd>
+
+    <dt><strong>head-matter</strong></dt>
+
+    <dd>HTML that should be inserted into the <tt>&lt;head%gt;</tt>
+        of every page. This can be used e.g. for adding meta and
+        link tags.</dd>
   </dl>
 
-  \subsection config_fastcgi 10.3 FastCGI options (wt_config.xml)
-
-  These options only apply to FastCGI-based deployment, and are
-  are specified inside a <b>&lt;connector-fcgi&gt;</b> subsection.
-
-  <dl>
-    <dt><strong>valgrind-path</strong></dt>
-
-    <dd>Set the path to valgrind for debugging using valgrind. This
-    requires that debugging is enabled and <tt>debug</tt> is passed to
-    the application as last request parameter.</dd>
-
-    <dt><strong>run-directory</strong></dt>
-
-    <dd>The path that is used by the library for managing sessions.</dd>
-  </dl>
-
-  \subsection config_wthttpd 10.4 Wt httpd (command-line or configuration file) options
+  \subsection config_wthttpd 10.3 Wt httpd (command-line or configuration file) options
 
 These options are not specified in the wt_config.xml configuration
 file, but may be indicated on the command-line, or within a
@@ -846,103 +831,169 @@ Allowed options:
 
 General options:
   -h [ --help ]                         produce help message
-  -t [ --threads ] arg (=-1)            number of threads (-1 indicates that
+  -t [ --threads ] arg (=-1)            number of threads (-1 indicates that 
                                         num_threads from wt_config.xml is to be
                                         used, which defaults to 10)
   --servername arg                      servername (IP address or DNS name)
-  --docroot arg                         document root for static files,
-                                        optionally followed by a
-                                        comma-separated list of paths with
+  --docroot arg                         document root for static files, 
+                                        optionally followed by a 
+                                        comma-separated list of paths with 
                                         static files (even if they are within a
-                                        deployment path), after a ';'
-
+                                        deployment path), after a ';' 
+                                        
                                         e.g. --docroot=".;/favicon.ico,/resourc
                                         es,/style"
-
-  --approot arg                         application root for private support
+                                        
+  --resources-dir arg                   path to the Wt resources folder. By 
+                                        default, Wt will look for its resources
+                                        in the resources subfolder of the 
+                                        docroot (see --docroot). If a file is 
+                                        not found in that resources folder, 
+                                        this folder will be checked instead as 
+                                        a fallback. If this option is omitted, 
+                                        then Wt will not use a fallback 
+                                        resources folder.
+  --approot arg                         application root for private support 
                                         files; if unspecified, the value of the
-                                        environment variable $WT_APP_ROOT is
-                                        used, or else the current working
+                                        environment variable $WT_APP_ROOT is 
+                                        used, or else the current working 
                                         directory
   --errroot arg                         root for error pages
-  --accesslog arg                       access log file (defaults to stdout),
-                                        to disable access logging completely,
+  --accesslog arg                       access log file (defaults to stdout), 
+                                        to disable access logging completely, 
                                         use --accesslog=-
   --no-compression                      do not use compression
   --deploy-path arg (=/)                location for deployment
-  --session-id-prefix arg               prefix for session IDs (overrides
+  --session-id-prefix arg               prefix for session IDs (overrides 
                                         wt_config.xml setting)
   -p [ --pid-file ] arg                 path to pid file (optional)
-  -c [ --config ] arg                   location of wt_config.xml; if
-                                        unspecified, the value of the
-                                        environment variable $WT_CONFIG_XML is
-                                        used, or else the built-in default
-                                        (/etc/wt/wt_config.xml) is tried,
-                                        or else built-in defaults are used
+  -c [ --config ] arg                   location of wt_config.xml; if 
+                                        unspecified, the value of the 
+                                        environment variable $WT_CONFIG_XML is 
+                                        used, or else the built-in default 
+                                        (/etc/wt/wt_config.xml) is tried, or else 
+                                        built-in defaults are used
   --max-memory-request-size arg (=131072)
                                         threshold for request size (bytes), for
                                         spooling the entire request to disk, to
                                         avoid DoS
-  --gdb                                 do not shutdown when receiving Ctrl-C
+  --gdb                                 do not shutdown when receiving Ctrl-C 
                                         (and let gdb break instead)
 
 HTTP/WebSocket server options:
-  --http-address arg                    IPv4 (e.g. 0.0.0.0) or IPv6 Address
-                                        (e.g. 0::0). You must specify either
-                                        this option or --https-address (or
-                                        both)
+  --http-listen arg                     address/port pair to listen on. If no 
+                                        port is specified, 80 is used as the 
+                                        default, e.g. 127.0.0.1:8080 will cause
+                                        the server to listen on port 8080 of 
+                                        127.0.0.1 (localhost). For IPv6, use 
+                                        square brackets, e.g. [::1]:8080 will 
+                                        cause the server to listen on port 8080
+                                        of [::1] (localhost). This argument can
+                                        be repeated, e.g. --http-listen 
+                                        0.0.0.0:8080 --http-listen [0::0]:8080 
+                                        will cause the server to listen on port
+                                        8080 of all interfaces using IPv4 and 
+                                        IPv6. You must specify this option or 
+                                        --https-listen at least once. The older
+                                        style --http-address and 
+                                        --https-address can also be used for 
+                                        backwards compatibility. If a hostname 
+                                        is provided instead of an IP address, 
+                                        the server will listen on all of the 
+                                        addresses (IPv4 and IPv6) that this 
+                                        hostname resolves to.
+  --http-address arg                    IPv4 (e.g. 0.0.0.0) or IPv6 Address 
+                                        (e.g. 0::0). You must specify either 
+                                        --http-listen, --https-listen, 
+                                        --http-address, or --https-address.
   --http-port arg (=80)                 HTTP port (e.g. 80)
 
 HTTPS/Secure WebSocket server options:
-  --https-address arg                   IPv4 (e.g. 0.0.0.0) or IPv6 Address
-                                        (e.g. 0::0). You must specify either
-                                        this option or --http-address (or both)
+  --https-listen arg                    address/port pair to listen on. If no 
+                                        port is specified, 80 is used as the 
+                                        default, e.g. 127.0.0.1:8080 will cause
+                                        the server to listen on port 8080 of 
+                                        127.0.0.1 (localhost). For IPv6, use 
+                                        square brackets, e.g. [::1]:8080 will 
+                                        cause the server to listen on port 8080
+                                        of [::1] (localhost). This argument can
+                                        be repeated, e.g. --https-listen 
+                                        0.0.0.0:8080 --https-listen [0::0]:8080
+                                        will cause the server to listen on port
+                                        8080 of all interfaces using IPv4 and 
+                                        IPv6. If a hostname is provided instead
+                                        of an IP address, the server will 
+                                        listen on all of the addresses (IPv4 
+                                        and IPv6) that this hostname resolves 
+                                        to.
+  --https-address arg                   IPv4 (e.g. 0.0.0.0) or IPv6 Address 
+                                        (e.g. 0::0). You must specify either 
+                                        --http-listen, --https-listen, 
+                                        --http-address, or --https-address.
   --https-port arg (=443)               HTTPS port (e.g. 443)
   --ssl-certificate arg                 SSL server certificate chain file
                                         e.g. "/etc/ssl/certs/vsign1.pem"
   --ssl-private-key arg                 SSL server private key file
                                         e.g. "/etc/ssl/private/company.pem"
-  --ssl-tmp-dh arg                      File for temporary Diffie-Hellman
+  --ssl-tmp-dh arg                      File for temporary Diffie-Hellman 
                                         parameters
                                         e.g. "/etc/ssl/dh512.pem"
-  --ssl-enable-v3                       Switch on SSLv3 support (not
+  --ssl-enable-v3                       Switch on SSLv3 support (not 
                                         recommended; disabled by default)
-  --ssl-client-verification arg (=none) The verification mode for client
+  --ssl-client-verification arg (=none) The verification mode for client 
                                         certificates.
-                                        This is either 'none', 'optional' or
-                                        'required'. When 'none', the server
-                                        will not request a client certificate.
-                                        When 'optional', the server will
-                                        request a certificate, but the client
-                                        does not have to supply one. With
-                                        'required', the connection will be
-                                        terminated if the client does not
+                                        This is either 'none', 'optional' or 
+                                        'required'. When 'none', the server 
+                                        will not request a client certificate. 
+                                        When 'optional', the server will 
+                                        request a certificate, but the client 
+                                        does not have to supply one. With 
+                                        'required', the connection will be 
+                                        terminated if the client does not 
                                         provide a valid certificate.
-  --ssl-verify-depth arg (=1)           Specifies the maximum length of the
+  --ssl-verify-depth arg (=1)           Specifies the maximum length of the 
                                         server certificate chain.
-
-  --ssl-ca-certificates arg             Path to a file containing the
-                                        concatenated trusted CA certificates,
-                                        which can be used to authenticate the
-                                        client. The file should contains a a
+                                        
+  --ssl-ca-certificates arg             Path to a file containing the 
+                                        concatenated trusted CA certificates, 
+                                        which can be used to authenticate the 
+                                        client. The file should contains a a 
                                         number of PEM-encoded certificates.
-
-  --ssl-cipherlist arg                  List of acceptable ciphers for SSL.
-                                        This list is passed as-is to the SSL
-                                        layer, so see openssl for the proper
-                                        syntax. When empty, the default
-                                        acceptable cipher list will be used.
-                                        Example cipher list string:
+                                        
+  --ssl-cipherlist arg                  List of acceptable ciphers for SSL. 
+                                        This list is passed as-is to the SSL 
+                                        layer, so see openssl for the proper 
+                                        syntax. When empty, the default 
+                                        acceptable cipher list will be used. 
+                                        Example cipher list string: 
                                         "TLSv1+HIGH:!SSLv2"
-
-  --ssl-prefer-server-ciphers arg (=0)  By default, the client's preference is
+                                        
+  --ssl-prefer-server-ciphers arg (=0)  By default, the client's preference is 
                                         used for determining the cipher that is
-                                        choosen during a SSL or TLS handshake.
-                                        By enabling this option, the server's
+                                        choosen during a SSL or TLS handshake. 
+                                        By enabling this option, the server's 
                                         preference will be used.
 
 Settings may be set in the configuration file /etc/wt/wthttpd
 \endcode
+
+  \subsection config_fastcgi 10.4 FastCGI options (wt_config.xml)
+
+  These options only apply to FastCGI-based deployment, and are
+  specified inside a <b>&lt;connector-fcgi&gt;</b> subsection.
+
+  <dl>
+    <dt><strong>valgrind-path</strong></dt>
+
+    <dd>Set the path to valgrind for debugging using valgrind. This
+    requires that debugging is enabled and <tt>debug</tt> is passed to
+    the application as last request parameter.</dd>
+
+    <dt><strong>run-directory</strong></dt>
+
+    <dd>The path that is used by the library for managing sessions.</dd>
+  </dl>
+
 
   \subsection config_isapi 10.5 ISAPI options (wt_config.xml)
 
@@ -959,7 +1010,7 @@ Settings may be set in the configuration file /etc/wt/wthttpd
   </dl>
 
 
-   \section error_sec &nbsp;11. Error-handling and logging
+   \section error_sec &nbsp;11. Error handling and logging
 
    %Wt provides logging of events to a log-file (see the \ref
    config_general "log-file configuration setting"). Every log entry
@@ -1025,17 +1076,17 @@ Wt::log("error") << "Message";
 /*! \page example Treelist example
   
    In this example we will step through the code of the <a
-   href="http://wipkip.irule.be/wt/examples/treelist/demotreelist.wt">
+   href="https://webtoolkit.eu/wt/examples/treelist/demotreelist.wt">
    Tree List example</a>. The source code of the entire example is
-   available as leafs of the tree. Note that %Wt offers a Tree List
+   available as leaves of the tree. Note that %Wt offers a Tree List
    widget as part of the library (see WTreeNode), of which this
-   example is a down-stripped version.
+   example is a stripped down version.
   
    The example in particular demonstrates the use of stateless slot
    learning to simultaneously implement client-side and server-side
    event handling in C++.
   
-   The tree constructed as hierarchy of tree nodes. A single tree node
+   The tree is constructed as a hierarchy of tree nodes. A single tree node
    is implemented in the class TreeNode. TreeNode uses the helper
    class IconPair for rendering icons that have a state (such as the
    expand/collapse icons). We start with a walk-over of this class.
@@ -1043,8 +1094,8 @@ Wt::log("error") << "Message";
    \section stateicon_sec IconPair: a pair of icons that reflects state.
   
    For the implementation of the tree list expand/collapse icons, as
-   well as the label icons (such as the folder icon), we use class
-   IconPair. It takes a pair of icons and shows only one at a
+   well as the label icons (such as the folder icon), we use the
+   IconPair class. It takes a pair of icons and shows only one at a
    time. Passing clickIsSwitch = true to the constructor will make the
    icon react to click events to switch the current icon.
   
@@ -1065,7 +1116,7 @@ Wt::log("error") << "Message";
    navigation at the client-side for those clients that support
    JavaScript -- as if it were implemented as a JavaScript
    library. But since everything is still plain C++ code, it works
-   whatever technology is available or lacking at the client
+   regardless of what technology is available or lacking at the client
    side. Think of a stateless slot implementation as creating a forked
    implementation, with JavaScript in the client for visual response
    -- when JavaScript is available, and C++ at the server. When no
@@ -1097,7 +1148,7 @@ Wt::log("error") << "Message";
   
    \dontinclude examples/treelist/IconPair.C
    \skip IconPair::
-   \until {
+   \until icon2_->clicked();
   
    IconPair inherits from WCompositeWidget. A composite widget is
    a widget which is composed from other widgets, in a way not exposed
@@ -1209,7 +1260,7 @@ Wt::log("error") << "Message";
    We create all icons. Since currently the node is empty, we only
    show the no-expand version (which is simply a horizontal line).
   
-   \until noExpandIcon
+   \until noExpandIcon.get();
   
    The expanded content is a WContainerWidget.
   
@@ -1222,7 +1273,7 @@ Wt::log("error") << "Message";
    Now we add all widgets in the proper table cell, and set the correct
    alignment.
   
-   \until setContentAlignment(Wt::AlignMiddle)
+   \until setContentAlignment(AlignmentFlag::Middle)
   
    Finally, we connect the click events of the expandIcon to the expand
    and collapse slots.
@@ -1324,7 +1375,7 @@ Wt::log("error") << "Message";
    identical by definition since they are derived from the same C++ code.
   
 */
-/*! \page InstallationUnix Installation: Unix-like platforms
+/*! \page InstallationUnix Installation: Unix-like platforms (Linux, macOS, BSD,...)
   
    \htmlinclude INSTALL.html
 */

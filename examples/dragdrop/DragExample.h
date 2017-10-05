@@ -7,13 +7,15 @@
 #ifndef DRAGEXAMPLE_H_
 #define DRAGEXAMPLE_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
+
+using namespace Wt;
 
 /// Class demonstrating drag and drop in Wt
-class DragExample: public Wt::WContainerWidget
+class DragExample: public WContainerWidget
 {
  public:
-  DragExample(Wt::WContainerWidget *parent);
+  DragExample();
 };
 
 #endif

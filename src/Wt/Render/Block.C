@@ -6,16 +6,17 @@
 
 // #define DEBUG_LAYOUT
 
-#include "Wt/WFontMetrics"
-#include "Wt/WLogger"
-#include "Wt/WPaintDevice"
-#include "Wt/WPainter"
-#include "Wt/Render/WTextRenderer"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WLogger.h"
+#include "Wt/WPaintDevice.h"
+#include "Wt/WPainter.h"
+#include "Wt/Render/WTextRenderer.h"
 
 #include "Block.h"
 #include "CssParser.h"
 #include "Line.h"
 #include "WebUtils.h"
+#include "StringUtils.h"
 #include "RenderUtils.h"
 #include "DomElement.h"
 
@@ -44,13 +45,12 @@ LOGGER("Render.Block");
 int sideToIndex(Wt::Side side)
 {
   switch (side) {
-  case Wt::Top: return 0;
-  case Wt::Right: return 1;
-  case Wt::Bottom: return 2;
-  case Wt::Left: return 3;
+  case Wt::Side::Top: return 0;
+  case Wt::Side::Right: return 1;
+  case Wt::Side::Bottom: return 2;
+  case Wt::Side::Left: return 3;
   default:
-    throw WException("Unexpected side: " + 
-		     boost::lexical_cast<std::string>(side));
+    return -1;
   }
 }
 
@@ -65,22 +65,22 @@ double sum(const std::vector<double>& v)
 Block::Block(xml_node<> *node, Block *parent)
   : node_(node),
     parent_(parent),
-    type_(DomElement_UNKNOWN),
+    type_(DomElementType::UNKNOWN),
 #ifndef WT_TARGET_JAVA
-    float_(None),
+    float_(static_cast<Side>(0)),
 #endif
     inline_(false),
-    currentTheadBlock_(0),
+    currentTheadBlock_(nullptr),
     currentWidth_(0),
     contentsHeight_(0),
-    styleSheet_(0)
+    styleSheet_(nullptr)
 {
   if (node) {
     if (Render::Utils::isXMLElement(node)) {
       type_ = DomElement::parseTagName(node->name());
-      if (type_ == DomElement_UNKNOWN) {
-	LOG_ERROR("unsupported element: " << node->name());
-	type_ = DomElement_DIV;
+      if (type_ == DomElementType::UNKNOWN) {
+	LOG_ERROR("unsupported element: " << (const char *)node->name());
+	type_ = DomElementType::DIV;
       }
 
       std::string s = attributeValue("class");
@@ -109,13 +109,13 @@ bool Block::isWhitespace(char c)
 
 bool Block::isText() const
 {
-  return (node_ && children_.empty() && type_ == DomElement_UNKNOWN)
-    || type_ == DomElement_LI;
+  return (node_ && children_.empty() && type_ == DomElementType::UNKNOWN)
+    || type_ == DomElementType::LI;
 }
 
 std::string Block::text() const
 {
-  if (type_ == DomElement_LI)
+  if (type_ == DomElementType::LI)
     return generateItem().toUTF8();
   else
     return Render::Utils::nodeValueToString(node_);
@@ -124,7 +124,7 @@ std::string Block::text() const
 void Block::collectStyles(WStringStream& ss)
 {
   for (unsigned int i = 0; i < children_.size(); ++i) {
-    if (children_[i]->type_ == DomElement_STYLE) {
+    if (children_[i]->type_ == DomElementType::STYLE) {
       ss << Render::Utils::nodeValueToString(children_[i]->node_);
       delete children_[i];
       children_.erase(children_.begin() + i);
@@ -145,23 +145,23 @@ void Block::setStyleSheet(StyleSheet* styleSheet)
 
 void Block::determineDisplay()
 {
-  std::string fl = cssProperty(PropertyStyleFloat);
+  std::string fl = cssProperty(Property::StyleFloat);
 
   if (!fl.empty()) {
     if (fl == "left")
-      float_ = Left;
+      float_ = Side::Left;
     else if (fl == "right")
-      float_ = Right;
+      float_ = Side::Right;
     else {
-      unsupportedCssValue(PropertyStyleFloat, fl);
+      unsupportedCssValue(Property::StyleFloat, fl);
     }
-  } else if (type_ == DomElement_IMG || isTable()) {
+  } else if (type_ == DomElementType::IMG || isTable()) {
     std::string align = attributeValue("align");
     if (!align.empty()) {
       if (align == "left")
-	float_ = Left;
+	float_ = Side::Left;
       else if (align == "right")
-	float_ = Right;
+	float_ = Side::Right;
       else
 	unsupportedAttributeValue("align", align);
     }
@@ -189,7 +189,7 @@ void Block::determineDisplay()
   if (!allChildrenInline) {
     int firstToGroup = -1;
     for (unsigned i = 0; i <= children_.size(); ++i) {
-      Block *b = i < children_.size() ? children_[i] : 0;
+      Block *b = i < children_.size() ? children_[i] : nullptr;
 
       if (!b || !b->isFloat()) {
 	if (b && b->inline_ && firstToGroup == -1)
@@ -197,7 +197,7 @@ void Block::determineDisplay()
 
 	if ((!b || !b->inline_)
 	    && firstToGroup != -1 && (int)i > firstToGroup - 1) {
-	  Block *anonymous = new Block(0, this);
+	  Block *anonymous = new Block(nullptr, this);
 	  children_.insert(children_.begin() + i, anonymous);
 
 	  anonymous->inline_ = false;
@@ -215,13 +215,13 @@ void Block::determineDisplay()
   }
 
   switch (type_) {
-  case DomElement_UNKNOWN:
+  case DomElementType::UNKNOWN:
     if (allChildrenInline)
       inline_ = true;
     break;
   default:
     if (!isFloat()) {
-      std::string display = cssProperty(PropertyStyleDisplay);
+      std::string display = cssProperty(Property::StyleDisplay);
       if (!display.empty())
 	if (display == "inline")
 	  inline_ = true;
@@ -241,7 +241,7 @@ void Block::determineDisplay()
       inline_ = false;
   }
 
-  if (type_ == DomElement_TABLE) {
+  if (type_ == DomElementType::TABLE) {
     std::vector<int> rowSpan;
 
     int row = numberTableCells(0, rowSpan);
@@ -265,7 +265,7 @@ bool Block::normalizeWhitespace(bool haveWhitespace,
   if (!isInline())
     haveWhitespace = true;
 
-  if (type_ == DomElement_UNKNOWN && isText()) {
+  if (type_ == DomElementType::UNKNOWN && isText()) {
     haveWhitespace = Render::Utils::normalizeWhitespace(this, 
 							node_, 
 							haveWhitespace, 
@@ -285,16 +285,16 @@ bool Block::normalizeWhitespace(bool haveWhitespace,
 
 int Block::numberTableCells(int row, std::vector<int>& rowSpan)
 {
-  if (   type_ == DomElement_TABLE
-      || type_ == DomElement_TBODY
-      || type_ == DomElement_THEAD
-      || type_ == DomElement_TFOOT) {
+  if (   type_ == DomElementType::TABLE
+      || type_ == DomElementType::TBODY
+      || type_ == DomElementType::THEAD
+      || type_ == DomElementType::TFOOT) {
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
       row = c->numberTableCells(row, rowSpan);
     }
-  } else if (type_ == DomElement_TR) {
+  } else if (type_ == DomElementType::TR) {
     int col = 0;
 
     cellRow_ = row;
@@ -348,34 +348,34 @@ bool Block::inlineChildren() const
 AlignmentFlag Block::horizontalAlignment() const
 {
   /* Based on CSS margins */
-  std::string marginLeft = cssProperty(PropertyStyleMarginLeft);
-  std::string marginRight = cssProperty(PropertyStyleMarginRight);
+  std::string marginLeft = cssProperty(Property::StyleMarginLeft);
+  std::string marginRight = cssProperty(Property::StyleMarginRight);
 
   if (marginLeft == "auto") {
     if (marginRight == "auto")
-      return AlignCenter;
+      return AlignmentFlag::Center;
     else
-      return AlignRight;
+      return AlignmentFlag::Right;
   } else {
     if (marginRight == "auto")
-      return AlignLeft;
+      return AlignmentFlag::Left;
     else
-      return AlignJustify;
+      return AlignmentFlag::Justify;
   }
 }
 
 AlignmentFlag Block::verticalAlignment() const
 {
-  std::string va = cssProperty(PropertyStyleVerticalAlign);
+  std::string va = cssProperty(Property::StyleVerticalAlign);
   if (va.empty())
     va = attributeValue("valign");
 
   if (va.empty() || va == "middle")
-    return AlignMiddle;
+    return AlignmentFlag::Middle;
   else if (va == "bottom")
-    return AlignBottom;
+    return AlignmentFlag::Bottom;
   else
-    return AlignTop;
+    return AlignmentFlag::Top;
 }
 
 Block::CssLength Block::cssLength(Property top, Side side, 
@@ -390,7 +390,7 @@ Block::CssLength Block::cssLength(Property top, Side side,
   }
 
   int index = sideToIndex(side);
-  Property property = (Property)(top + index);
+  Property property = (Property)(static_cast<unsigned int>(top) + index);
 
   std::string value = cssProperty(property);
 
@@ -408,12 +408,12 @@ Block::CssLength Block::cssLength(Property top, Side side,
 
 double Block::cssPadding(Side side, double fontScale) const
 {
-  Block::CssLength result = cssLength(PropertyStylePaddingTop, side, fontScale);
+  Block::CssLength result = cssLength(Property::StylePaddingTop, side, fontScale);
 
   if (!result.defined) {
     if (isTableCell())
       return 1;
-    else if ((type_ == DomElement_UL || type_ == DomElement_OL) && side == Left)
+    else if ((type_ == DomElementType::UL || type_ == DomElementType::OL) && side == Side::Left)
       return 40;
   }
 
@@ -425,43 +425,43 @@ double Block::cssMargin(Side side, double fontScale) const
   CssLength result;
   result.length = 0;
 
-  if (type_ == DomElement_TD)
+  if (type_ == DomElementType::TD)
     return 0;
 
   try {
-    result = cssLength(PropertyStyleMarginTop, side, fontScale);
+    result = cssLength(Property::StyleMarginTop, side, fontScale);
   } catch (std::exception& e) {
     /* catches 'auto' margin length */
   }
 
   if (!result.defined) {
-    if (side == Top || side == Bottom) {
-      if (   type_ == DomElement_H4
-	  || type_ == DomElement_P
-	  /* || type_ == DomElement_BLOCKQUOTE */
-	  || type_ == DomElement_FIELDSET
-	  || type_ == DomElement_FORM
-	  /* || type_ == DomElement_DL */
-	  /* || type_ == DomElement_DIR */
-	  /* || type_ == DomElement_MENU */)
+    if (side == Side::Top || side == Side::Bottom) {
+      if (   type_ == DomElementType::H4
+	  || type_ == DomElementType::P
+	  /* || type_ == DomElementType::BLOCKQUOTE */
+	  || type_ == DomElementType::FIELDSET
+	  || type_ == DomElementType::FORM
+	  /* || type_ == DomElementType::DL */
+	  /* || type_ == DomElementType::DIR */
+	  /* || type_ == DomElementType::MENU */)
 	return 1.12 * cssFontSize(fontScale);
-      else if (type_ == DomElement_UL
-	       || type_ == DomElement_OL) {
-	if (!(isInside(DomElement_UL) || isInside(DomElement_OL)))
+      else if (type_ == DomElementType::UL
+	       || type_ == DomElementType::OL) {
+	if (!(isInside(DomElementType::UL) || isInside(DomElementType::OL)))
 	  return 1.12 * cssFontSize(fontScale);
 	else
 	  return 0;
-      } else if (type_ == DomElement_H1)
+      } else if (type_ == DomElementType::H1)
 	return 0.67 * cssFontSize(fontScale);
-      else if (type_ == DomElement_H2)
+      else if (type_ == DomElementType::H2)
 	return 0.75 * cssFontSize(fontScale);
-      else if (type_ == DomElement_H3)
+      else if (type_ == DomElementType::H3)
 	return 0.83 * cssFontSize(fontScale);
-      else if (type_ == DomElement_H5)
+      else if (type_ == DomElementType::H5)
 	return 1.5 * cssFontSize(fontScale);
-      else if (type_ == DomElement_H6)
+      else if (type_ == DomElementType::H6)
 	return 1.67 * cssFontSize(fontScale);
-      else if (type_ == DomElement_HR)
+      else if (type_ == DomElementType::HR)
 	return 0.5 * cssFontSize(fontScale);
     }
   }
@@ -485,7 +485,7 @@ double Block::cssBorderSpacing(double fontScale) const
   if (tableCollapseBorders())
     return 0;
 
-  std::string spacingStr = cssProperty(PropertyStyleBorderSpacing);
+  std::string spacingStr = cssProperty(Property::StyleBorderSpacing);
 
   if (!spacingStr.empty()) {
     WLength l(spacingStr.c_str());
@@ -504,7 +504,7 @@ Block *Block::table() const
 
 bool Block::tableCollapseBorders() const
 {
-  return cssProperty(PropertyStyleBorderCollapse) == "collapse";
+  return cssProperty(Property::StyleBorderCollapse) == "collapse";
 }
 
 double Block::cssBorderWidth(Side side, double fontScale) const
@@ -523,10 +523,10 @@ double Block::cssBorderWidth(Side side, double fontScale) const
 
 Block *Block::findTableCell(int row, int col) const
 {
-  if (   type_ == DomElement_TABLE
-      || type_ == DomElement_TBODY
-      || type_ == DomElement_THEAD
-      || type_ == DomElement_TFOOT) {
+  if (   type_ == DomElementType::TABLE
+      || type_ == DomElementType::TBODY
+      || type_ == DomElementType::THEAD
+      || type_ == DomElementType::TFOOT) {
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
@@ -535,8 +535,8 @@ Block *Block::findTableCell(int row, int col) const
 	return result;
     }
 
-    return 0;
-  } else if (type_ == DomElement_TR) {
+    return nullptr;
+  } else if (type_ == DomElementType::TR) {
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
@@ -550,10 +550,10 @@ Block *Block::findTableCell(int row, int col) const
       }
     }
 
-    return 0;
+    return nullptr;
   }
 
-  return 0;
+  return nullptr;
 }
 
 Block *Block::siblingTableCell(Side side) const
@@ -561,27 +561,27 @@ Block *Block::siblingTableCell(Side side) const
   Block *t = table();
 
   switch (side) {
-  case Left:
+  case Side::Left:
     if (cellCol_ == 0)
-      return 0;
+      return nullptr;
     else
       return t->findTableCell(cellRow_, cellCol_ - 1);
-  case Right: {
+  case Side::Right: {
     int nextCol = cellCol_ + attributeValue("colspan", 1);
     if (nextCol >= t->tableColCount_)
-      return 0;
+      return nullptr;
     else
       return t->findTableCell(cellRow_, nextCol);
   }
-  case Top:
+  case Side::Top:
     if (cellRow_ == 0)
-      return 0;
+      return nullptr;
     else
       return t->findTableCell(cellRow_ - 1, cellCol_);
-  case Bottom: {
+  case Side::Bottom: {
     int nextRow = cellRow_ + attributeValue("rowspan", 1);
     if (nextRow >= t->tableRowCount_)
-      return 0;
+      return nullptr;
     else
       return t->findTableCell(nextRow, cellCol_);
   }
@@ -589,7 +589,7 @@ Block *Block::siblingTableCell(Side side) const
     break;
   }
 
-  return 0;
+  return nullptr;
 }
 
 Block::BorderElement Block::collapseCellBorders(Side side) const
@@ -601,40 +601,40 @@ Block::BorderElement Block::collapseCellBorders(Side side) const
   Block *t = table();
 
   switch (side) {
-  case Left:
+  case Side::Left:
     if (s) {
-      elements.push_back(BorderElement(s, Right));
-      elements.push_back(BorderElement(this, Left));
+      elements.push_back(BorderElement(s, Side::Right));
+      elements.push_back(BorderElement(this, Side::Left));
     } else {
-      elements.push_back(BorderElement(this, Left));
-      elements.push_back(BorderElement(t, Left));
+      elements.push_back(BorderElement(this, Side::Left));
+      elements.push_back(BorderElement(t, Side::Left));
     }
 
     break;
-  case Top:
+  case Side::Top:
     if (s) {
-      elements.push_back(BorderElement(s, Bottom));
-      elements.push_back(BorderElement(this, Top));
+      elements.push_back(BorderElement(s, Side::Bottom));
+      elements.push_back(BorderElement(this, Side::Top));
     } else {
-      elements.push_back(BorderElement(this, Top));
-      elements.push_back(BorderElement(t, Top));
+      elements.push_back(BorderElement(this, Side::Top));
+      elements.push_back(BorderElement(t, Side::Top));
     }
 
     break;
-  case Right:
-    elements.push_back(BorderElement(this, Right));
+  case Side::Right:
+    elements.push_back(BorderElement(this, Side::Right));
     if (s)
-      elements.push_back(BorderElement(s, Left));
+      elements.push_back(BorderElement(s, Side::Left));
     else
-      elements.push_back(BorderElement(t, Right));
+      elements.push_back(BorderElement(t, Side::Right));
     
     break;
-  case Bottom:
-    elements.push_back(BorderElement(this, Bottom));
+  case Side::Bottom:
+    elements.push_back(BorderElement(this, Side::Bottom));
     if (s)
-      elements.push_back(BorderElement(s, Top));
+      elements.push_back(BorderElement(s, Side::Top));
     else
-      elements.push_back(BorderElement(t, Bottom));
+      elements.push_back(BorderElement(t, Side::Bottom));
   default:
     break;
   }
@@ -692,7 +692,8 @@ double Block::rawCssBorderWidth(Side side, double fontScale,
     return 0;
 
   int index = sideToIndex(side);
-  Property property = (Property)(PropertyStyleBorderTop + index);
+  Property property
+    = (Property)(static_cast<unsigned int>(Property::StyleBorderTop) + index);
 
   std::string borderStr = cssProperty(property);
   std::string borderWidthStr;
@@ -712,7 +713,8 @@ double Block::rawCssBorderWidth(Side side, double fontScale,
   }
 
   if (borderWidthStr.empty()) {
-    property = (Property)(PropertyStyleBorderWidthTop + index);
+    property = (Property)
+      (static_cast<unsigned int>(Property::StyleBorderWidthTop) + index);
     borderWidthStr = cssProperty(property);
   }
 
@@ -735,7 +737,7 @@ double Block::rawCssBorderWidth(Side side, double fontScale,
       Block *t = table();
       if (t && !t->tableCollapseBorders())
 	result = t->attributeValue("border", 0) ? 1 : 0;
-    } else if (type_ == DomElement_HR)
+    } else if (type_ == DomElementType::HR)
       result = 1;
   }
 
@@ -773,7 +775,8 @@ WColor Block::collapsedBorderColor(Side side) const
 WColor Block::rawCssBorderColor(Side side) const
 {
   int index = sideToIndex(side);
-  Property property = (Property)(PropertyStyleBorderTop + index);
+  Property property 
+    = (Property)(static_cast<unsigned int>(Property::StyleBorderTop) + index);
 
   std::string borderStr = cssProperty(property);
   std::string borderColorStr;
@@ -787,24 +790,25 @@ WColor Block::rawCssBorderColor(Side side) const
   }
 
   if (borderColorStr.empty()) {
-    property = (Property)(PropertyStyleBorderColorTop + index);
+    property = (Property)
+      (static_cast<unsigned int>(Property::StyleBorderColorTop) + index);
     borderColorStr = cssProperty(property);
   }
 
   if (!borderColorStr.empty())
     return WColor(WString::fromUTF8(borderColorStr));
 
-  return black;
+  return StandardColor::Black;
 }
 
 WColor Block::cssColor() const
 {
-  std::string color = inheritedCssProperty(PropertyStyleColor);
+  std::string color = inheritedCssProperty(Property::StyleColor);
 
   if (!color.empty())
     return WColor(WString::fromUTF8(color));
   else
-    return black;
+    return StandardColor::Black;
 }
 
 double Block::cssBoxMargin(Side side, double fontScale) const
@@ -814,27 +818,27 @@ double Block::cssBoxMargin(Side side, double fontScale) const
     + cssBorderWidth(side, fontScale);
 }
 
-WFont::Style Block::cssFontStyle() const
+FontStyle Block::cssFontStyle() const
 {
   if (!node_ && parent_)
     return parent_->cssFontStyle();
 
-  std::string v = cssProperty(PropertyStyleFontStyle);
+  std::string v = cssProperty(Property::StyleFontStyle);
 
   if (v.empty() &&
-      (type_ == DomElement_EM || type_ == DomElement_I))
-    return WFont::Italic;
+      (type_ == DomElementType::EM || type_ == DomElementType::I))
+    return FontStyle::Italic;
   else if (v == "normal")
-    return WFont::NormalStyle;
+    return FontStyle::Normal;
   else if (v == "italic")
-    return WFont::Italic;
+    return FontStyle::Italic;
   else if (v == "oblique")
-    return WFont::Oblique;
+    return FontStyle::Oblique;
   else
     if (parent_)
       return parent_->cssFontStyle();
     else
-      return WFont::NormalStyle;
+      return FontStyle::Normal;
 }
 
 int Block::cssFontWeight() const
@@ -842,13 +846,13 @@ int Block::cssFontWeight() const
   if (!node_ && parent_)
     return parent_->cssFontWeight();
 
-  std::string v = cssProperty(PropertyStyleFontWeight);
+  std::string v = cssProperty(Property::StyleFontWeight);
 
-  if (v.empty() && (type_ == DomElement_B
-		    || type_ == DomElement_STRONG
-		    || type_ == DomElement_TH
-		    || (type_ >= DomElement_H1
-			&& type_ <= DomElement_H6)))
+  if (v.empty() && (type_ == DomElementType::B
+		    || type_ == DomElementType::STRONG
+		    || type_ == DomElementType::TH
+		    || (type_ >= DomElementType::H1
+			&& type_ <= DomElementType::H6)))
     v = "bolder";
 
   if (!v.empty() && v != "bolder" && v != "lighter") {
@@ -858,8 +862,8 @@ int Block::cssFontWeight() const
       return 700;
     else {
       try {
-	return boost::lexical_cast<int>(v);
-      } catch (boost::bad_lexical_cast& blc) {
+	return Wt::Utils::stoi(v);
+      } catch (std::exception& blc) {
       }
     }
   }
@@ -889,7 +893,7 @@ double Block::cssFontSize(double fontScale) const
   if (!node_ && parent_)
     return fontScale * parent_->cssFontSize();
 
-  std::string v = cssProperty(PropertyStyleFontSize);
+  std::string v = cssProperty(Property::StyleFontSize);
 
   double Medium = 16;
   double parentSize = parent_ ? parent_->cssFontSize() : Medium;
@@ -918,23 +922,23 @@ double Block::cssFontSize(double fontScale) const
     else {
       WLength l(v.c_str());
 
-      if (l.unit() == WLength::Percentage)
+      if (l.unit() == LengthUnit::Percentage)
 	result = parentSize * l.value() / 100;
-      else if (l.unit() == WLength::FontEm)
+      else if (l.unit() == LengthUnit::FontEm)
 	result = parentSize * l.value();
       else
 	result = l.toPixels();
     }
   } else {
-    if (type_ == DomElement_H1)
+    if (type_ == DomElementType::H1)
       result = parentSize * 2;
-    else if (type_ == DomElement_H2)
+    else if (type_ == DomElementType::H2)
       result = parentSize * 1.5;
-    else if (type_ == DomElement_H3)
+    else if (type_ == DomElementType::H3)
       result = parentSize * 1.17;
-    else if (type_ == DomElement_H5)
+    else if (type_ == DomElementType::H5)
       result = parentSize * 0.83;
-    else if (type_ == DomElement_H6)
+    else if (type_ == DomElementType::H6)
       result = parentSize * 0.75;
     else
       result = parentSize;
@@ -948,18 +952,18 @@ double Block::cssLineHeight(double fontLineHeight, double fontScale) const
   if (!node_ && parent_)
     return parent_->cssLineHeight(fontLineHeight, fontScale);
 
-  std::string v = cssProperty(PropertyStyleLineHeight);
+  std::string v = cssProperty(Property::StyleLineHeight);
 
   if (!v.empty()) {
     if (v == "normal")
       return fontLineHeight;
     else {
       try {
-	return boost::lexical_cast<double>(v);
-      } catch (boost::bad_lexical_cast& e) {
+	return Wt::Utils::stod(v);
+      } catch (std::exception& e) {
 	WLength l(v.c_str());
 
-	if (l.unit() == WLength::Percentage)
+	if (l.unit() == LengthUnit::Percentage)
 	  return cssFontSize(fontScale) * l.value() / 100;
 	else
 	  return l.toPixels(parent_->cssFontSize(fontScale));
@@ -1010,10 +1014,10 @@ double Block::layoutInline(Line& line, BlockList& floats,
 {
   inlineLayout.clear();
 
-  inlinePageBreak(cssProperty(PropertyStylePageBreakBefore),
+  inlinePageBreak(cssProperty(Property::StylePageBreakBefore),
 		  line, floats, minX, maxX, renderer);
 
-  if (isText() || type_ == DomElement_IMG || type_ == DomElement_BR) {
+  if (isText() || type_ == DomElementType::IMG || type_ == DomElementType::BR) {
     std::string s;
     unsigned utf8Pos = 0, utf8Count = 0;
     double whitespaceWidth = 0;
@@ -1116,7 +1120,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	  }
 	} else
 	  break; // All text has been processed
-      } else if (type_ == DomElement_BR) {
+      } else if (type_ == DomElementType::BR) {
 	if (inlineLayout.empty()) {
 	  inlineLayout.push_back(InlineBox());
 
@@ -1127,7 +1131,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	  inlineLayout.clear();
 	  break;
 	}
-      } else { // type_ == DomElement_IMG
+      } else { // type_ == DomElementType::IMG
 	w = cssWidth(renderer.fontScale());
 	h = cssHeight(renderer.fontScale());
 
@@ -1143,12 +1147,12 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	    h = image.height();
 	}
 
-	w += cssBoxMargin(Left, renderer.fontScale())
-	  + cssBoxMargin(Right, renderer.fontScale());
-	h += cssBoxMargin(Top, renderer.fontScale())
-	  + cssBoxMargin(Bottom, renderer.fontScale());
+	w += cssBoxMargin(Side::Left, renderer.fontScale())
+	  + cssBoxMargin(Side::Right, renderer.fontScale());
+	h += cssBoxMargin(Side::Top, renderer.fontScale())
+	  + cssBoxMargin(Side::Bottom, renderer.fontScale());
 
-	std::string va = cssProperty(PropertyStyleVerticalAlign);
+	std::string va = cssProperty(Property::StyleVerticalAlign);
 
 	if (va == "middle")
 	  baseline = h/2 + fontHeight / 2;
@@ -1162,7 +1166,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	/*
 	 * Content does not fit on this line.
 	 */
-	line.setLineBreak(type_ == DomElement_BR);
+	line.setLineBreak(type_ == DomElementType::BR);
 	line.finish(cssTextAlign(), floats, minX, maxX, renderer);
 
 	if (w == 0 || line.x() > rangeX.start) {
@@ -1206,11 +1210,11 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	InlineBox& b = inlineLayout.back();
 
 	double marginLeft = 0, marginRight = 0, marginBottom = 0, marginTop = 0;
-	if (type_ == DomElement_IMG) {
-	  marginLeft = cssMargin(Left, renderer.fontScale());
-	  marginRight = cssMargin(Right, renderer.fontScale());
-	  marginBottom = cssMargin(Bottom, renderer.fontScale());
-	  marginTop = cssMargin(Top, renderer.fontScale());
+	if (type_ == DomElementType::IMG) {
+	  marginLeft = cssMargin(Side::Left, renderer.fontScale());
+	  marginRight = cssMargin(Side::Right, renderer.fontScale());
+	  marginBottom = cssMargin(Side::Bottom, renderer.fontScale());
+	  marginTop = cssMargin(Side::Top, renderer.fontScale());
 	}
 
 	b.page = line.page();
@@ -1240,7 +1244,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
   }
 
   if (inlineChildren()) {
-    if (type_ == DomElement_LI) {
+    if (type_ == DomElementType::LI) {
       inlineLayout[0].x = MARGINX; // move it to the the margin
       line.setX(minX);
     }
@@ -1287,7 +1291,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
     for (unsigned i = 0; i < offsetChildren_.size(); ++i)
       offsetChildren_[i]->layoutAbsolute(renderer);
 
-  inlinePageBreak(cssProperty(PropertyStylePageBreakAfter),
+  inlinePageBreak(cssProperty(Property::StylePageBreakAfter),
 		  line, floats, minX, maxX, renderer);
 
   return maxX;
@@ -1340,8 +1344,8 @@ void Block::layoutTable(PageState &ps,
     adjustAvailableWidth(ps.y, ps.page, ps.floats, rangeX);
     ps.maxX = rangeX.end;
 
-    double border = cssBorderWidth(Left, renderer.fontScale())
-      + cssBorderWidth(Right, renderer.fontScale());
+    double border = cssBorderWidth(Side::Left, renderer.fontScale())
+      + cssBorderWidth(Side::Right, renderer.fontScale());
     availableWidth = rangeX.end - rangeX.start - border;
 
     /*
@@ -1429,41 +1433,41 @@ void Block::layoutTable(PageState &ps,
   AlignmentFlag hAlign = horizontalAlignment();
 
   switch (hAlign) {
-  case AlignLeft:
-  case AlignJustify:
+  case AlignmentFlag::Left:
+  case AlignmentFlag::Justify:
     ps.maxX = ps.minX + width;
     break;
-  case AlignCenter:
+  case AlignmentFlag::Center:
     ps.minX = ps.minX + (ps.maxX - ps.minX - width) / 2;
     ps.maxX = ps.minX + width;
     break;
-  case AlignRight:
+  case AlignmentFlag::Right:
     ps.minX = ps.maxX - width;
     break;
   default:
     break;
   }
 
-  Block *repeatHead = 0;
+  Block *repeatHead = nullptr;
 
   for (unsigned i = 0; i < children_.size(); ++i) {
-    if (children_[i]->type_ == DomElement_THEAD) {
+    if (children_[i]->type_ == DomElementType::THEAD) {
       // Note: should actually interpret CSS 'table-header-group' value for
       // display
       repeatHead = children_[i];
       break;
-    } else if (children_[i]->type_ == DomElement_TBODY ||
-	       children_[i]->type_ == DomElement_TR)
+    } else if (children_[i]->type_ == DomElementType::TBODY ||
+	       children_[i]->type_ == DomElementType::TR)
       break;
   }
-  bool protectRows = repeatHead != 0;
+  bool protectRows = repeatHead != nullptr;
 
   std::vector<CellState> rowSpanBackLog;
   tableDoLayout(ps.minX, ps, cellSpacing, widths, rowSpanBackLog,
 		protectRows, repeatHead, renderer);
 
-  ps.minX -= cssBorderWidth(Left, renderer.fontScale());
-  ps.maxX += cssBorderWidth(Right, renderer.fontScale());
+  ps.minX -= cssBorderWidth(Side::Left, renderer.fontScale());
+  ps.maxX += cssBorderWidth(Side::Right, renderer.fontScale());
 
   ps.y += cellSpacing;
 }
@@ -1474,20 +1478,20 @@ void Block::tableDoLayout(double x, PageState &ps, double cellSpacing,
 			  bool protectRows, Block *repeatHead,
 			  const WTextRenderer& renderer)
 {
-  if (   type_ == DomElement_TABLE
-      || type_ == DomElement_TBODY
-      || type_ == DomElement_THEAD
-      || type_ == DomElement_TFOOT) {
+  if (   type_ == DomElementType::TABLE
+      || type_ == DomElementType::TBODY
+      || type_ == DomElementType::THEAD
+      || type_ == DomElementType::TFOOT) {
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
       c->tableDoLayout(x, ps, cellSpacing, widths, rowSpanBackLog,
 		       protectRows,
-		       (type_ != DomElement_THEAD ? repeatHead : 0),
+		       (type_ != DomElementType::THEAD ? repeatHead : nullptr),
 		       renderer);
     }
 
-    if (repeatHead && type_ == DomElement_THEAD) {
+    if (repeatHead && type_ == DomElementType::THEAD) {
       blockLayout.clear();
 
       BlockBox bb;
@@ -1499,7 +1503,7 @@ void Block::tableDoLayout(double x, PageState &ps, double cellSpacing,
 
       blockLayout.push_back(bb);
     }
-  } else if (type_ == DomElement_TR) {
+  } else if (type_ == DomElementType::TR) {
     double startY = ps.y;
     int startPage = ps.page;
     tableRowDoLayout(x, ps, cellSpacing, widths, rowSpanBackLog, renderer, -1);
@@ -1584,7 +1588,7 @@ void Block::tableCellDoLayout(double x, const PageState& ps,
   double collapseMarginBottom = 0;
   double collapseMarginTop = std::numeric_limits<double>::max();
 
-  std::string s = cssProperty(PropertyStyleBackgroundColor);
+  std::string s = cssProperty(Property::StyleBackgroundColor);
 
   collapseMarginBottom = layoutBlock(cellPs, false, renderer,
 				     collapseMarginTop, 
@@ -1673,22 +1677,25 @@ void Block::tableComputeColumnWidths(std::vector<double>& minima,
    * Current limitations:
    * - we currently ignore column/column group widths
    */
-  if (   type_ == DomElement_TBODY
-      || type_ == DomElement_THEAD
-      || type_ == DomElement_TFOOT) {
+  if (   type_ == DomElementType::TBODY
+      || type_ == DomElementType::THEAD
+      || type_ == DomElementType::TFOOT) {
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
       c->tableComputeColumnWidths(minima, maxima, asSet, renderer, table);
     }
-  } else if (type_ == DomElement_TR) {
+  } else if (type_ == DomElementType::TR) {
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
       if (c->isTableCell()) {
-	c->cellComputeColumnWidths(AsSetWidth, asSet, renderer, table);
-	c->cellComputeColumnWidths(MinimumWidth, minima, renderer, table);
-	c->cellComputeColumnWidths(MaximumWidth, maxima, renderer, table);
+	c->cellComputeColumnWidths(WidthType::AsSetWidth, asSet, renderer, 
+				   table);
+	c->cellComputeColumnWidths(WidthType::MinimumWidth, minima, renderer,
+				   table);
+	c->cellComputeColumnWidths(WidthType::MaximumWidth, maxima, renderer,
+				   table);
       }
     }
   }
@@ -1698,7 +1705,7 @@ int Block::attributeValue(const char *attribute, int defaultValue) const
 {
   std::string valueStr = attributeValue(attribute);
   if (!valueStr.empty())
-    return boost::lexical_cast<int>(valueStr);
+    return Wt::Utils::stoi(valueStr);
   else
     return defaultValue;
 }
@@ -1714,7 +1721,7 @@ void Block::cellComputeColumnWidths(WidthType type,
   int colSpan = attributeValue("colspan", 1);
 
   double defaultWidth = 0;
-  if (type == AsSetWidth)
+  if (type == WidthType::AsSetWidth)
     defaultWidth = -1;
 
   while (col + colSpan > (int)values.size())
@@ -1728,11 +1735,11 @@ void Block::cellComputeColumnWidths(WidthType type,
   double width = currentWidth;
 
   switch (type) {
-  case AsSetWidth:
+  case WidthType::AsSetWidth:
     width = cssWidth(renderer.fontScale());
     break;
-  case MinimumWidth:
-  case MaximumWidth:
+  case WidthType::MinimumWidth:
+  case WidthType::MaximumWidth:
     {
       PageState ps;
       ps.y = 0;
@@ -1741,10 +1748,10 @@ void Block::cellComputeColumnWidths(WidthType type,
       ps.maxX = width;
 
       double origTableWidth = table->currentWidth_;
-      if (type == MinimumWidth)
+      if (type == WidthType::MinimumWidth)
 	table->currentWidth_ = 0;
 
-      layoutBlock(ps, type == MaximumWidth, renderer, 0, 0);
+      layoutBlock(ps, type == WidthType::MaximumWidth, renderer, 0, 0);
 
       table->currentWidth_ = origTableWidth;
 
@@ -1763,7 +1770,7 @@ void Block::cellComputeColumnWidths(WidthType type,
 bool Block::isPercentageLength(const std::string& length)
 {
   return !length.empty()
-    && WLength(length.c_str()).unit() == WLength::Percentage;
+    && WLength(length.c_str()).unit() == LengthUnit::Percentage;
 }
 
 double Block::cssDecodeLength(const std::string& length,
@@ -1773,13 +1780,13 @@ double Block::cssDecodeLength(const std::string& length,
 {
   if (!length.empty()) {
     WLength l(length.c_str());
-    if (l.unit() == WLength::Percentage) {
+    if (l.unit() == LengthUnit::Percentage) {
       switch (percentage) {
-      case PercentageOfFontSize:
+      case PercentageRule::PercentageOfFontSize:
 	return l.toPixels(cssFontSize(fontScale));
-      case PercentageOfParentSize:
+      case PercentageRule::PercentageOfParentSize:
 	return l.value() / 100.0 * parentSize;
-      case IgnorePercentage:
+      case PercentageRule::IgnorePercentage:
 	return defaultValue;
       }
 
@@ -1794,10 +1801,10 @@ double Block::currentParentWidth() const
 {
   if (parent_) {
     switch (parent_->type_) {
-    case DomElement_TR:
-    case DomElement_TBODY:
-    case DomElement_THEAD:
-    case DomElement_TFOOT:
+    case DomElementType::TR:
+    case DomElementType::TBODY:
+    case DomElementType::THEAD:
+    case DomElementType::TFOOT:
       return parent_->currentParentWidth();
     default:
       return parent_->currentWidth_;
@@ -1811,16 +1818,18 @@ double Block::cssWidth(double fontScale) const
   double result = -1;
 
   if (node_) {
-    result = cssDecodeLength(cssProperty(PropertyStyleWidth),
-			     fontScale, result, PercentageOfParentSize,
+    result = cssDecodeLength(cssProperty(Property::StyleWidth),
+			     fontScale, result, 
+			     PercentageRule::PercentageOfParentSize,
 			     currentParentWidth());
 
-    if (type_ == DomElement_IMG ||
-	type_ == DomElement_TABLE ||
-	type_ == DomElement_TD ||
-	type_ == DomElement_TH)
+    if (type_ == DomElementType::IMG ||
+	type_ == DomElementType::TABLE ||
+	type_ == DomElementType::TD ||
+	type_ == DomElementType::TH)
       result = cssDecodeLength(attributeValue("width"),
-			       fontScale, result, PercentageOfParentSize,
+			       fontScale, result,
+			       PercentageRule::PercentageOfParentSize,
 			       currentParentWidth());
   }
 
@@ -1832,12 +1841,14 @@ double Block::cssHeight(double fontScale) const
   double result = -1;
 
   if (node_) {
-    result = cssDecodeLength(cssProperty(PropertyStyleHeight),
-			     fontScale, result, IgnorePercentage);
+    result = cssDecodeLength(cssProperty(Property::StyleHeight),
+			     fontScale, result, 
+			     PercentageRule::IgnorePercentage);
 
-    if (type_ == DomElement_IMG)
+    if (type_ == DomElementType::IMG)
       result = cssDecodeLength(attributeValue("height"),
-			       fontScale, result, IgnorePercentage);
+			       fontScale, result, 
+			       PercentageRule::IgnorePercentage);
   }
 
   return result;
@@ -1972,7 +1983,7 @@ double Block::layoutBlock(PageState &ps,
 			  double collapseMarginBottom,
 			  double cellHeight)
 {
-  std::string pageBreakBefore = cssProperty(PropertyStylePageBreakBefore);
+  std::string pageBreakBefore = cssProperty(Property::StylePageBreakBefore);
   if (pageBreakBefore == "always") {
     pageBreak(ps);
     collapseMarginTop = 0;
@@ -1990,13 +2001,13 @@ double Block::layoutBlock(PageState &ps,
     AlignmentFlag va = verticalAlignment();
 
     switch (va) {
-    case AlignTop:
+    case AlignmentFlag::Top:
       spacerBottom = cellHeight - ch;
       break;
-    case AlignMiddle:
+    case AlignmentFlag::Middle:
       spacerTop = spacerBottom = (cellHeight - ch) / 2;
       break;
-    case AlignBottom:
+    case AlignmentFlag::Bottom:
       spacerTop = cellHeight - ch;
       break;
     default:
@@ -2008,7 +2019,7 @@ double Block::layoutBlock(PageState &ps,
 
   double startY;
 
-  double marginTop = cssMargin(Top, renderer.fontScale());
+  double marginTop = cssMargin(Side::Top, renderer.fontScale());
 
   ps.y -= std::min(marginTop, collapseMarginTop);
 
@@ -2024,10 +2035,10 @@ double Block::layoutBlock(PageState &ps,
 
   int startPage = ps.page;
 
-  ps.y += cssBorderWidth(Top, renderer.fontScale());
+  ps.y += cssBorderWidth(Side::Top, renderer.fontScale());
 
-  ps.minX += cssMargin(Left, renderer.fontScale());
-  ps.maxX -= cssMargin(Right, renderer.fontScale());
+  ps.minX += cssMargin(Side::Left, renderer.fontScale());
+  ps.maxX -= cssMargin(Side::Right, renderer.fontScale());
 
   double cssSetWidth = cssWidth(renderer.fontScale());
 
@@ -2037,8 +2048,8 @@ double Block::layoutBlock(PageState &ps,
      * element which applies the width to it's padding box !
      */
     if (cssSetWidth > 0) {
-      cssSetWidth -= cssBorderWidth(Left, renderer.fontScale())
-	+ cssBorderWidth(Right, renderer.fontScale());
+      cssSetWidth -= cssBorderWidth(Side::Left, renderer.fontScale())
+	+ cssBorderWidth(Side::Right, renderer.fontScale());
       cssSetWidth = std::max(0.0, cssSetWidth);
     }
 
@@ -2047,14 +2058,14 @@ double Block::layoutBlock(PageState &ps,
     double width = cssSetWidth;
 
     bool paddingBorderWithinWidth
-      = isTableCell() && isPercentageLength(cssProperty(PropertyStyleWidth));
+      = isTableCell() && isPercentageLength(cssProperty(Property::StyleWidth));
 
     if (width >= 0) {
       if (!paddingBorderWithinWidth)
-	width += cssPadding(Left, renderer.fontScale())
-	  + cssBorderWidth(Left, renderer.fontScale())
-	  + cssPadding(Right, renderer.fontScale())
-	  + cssBorderWidth(Right, renderer.fontScale());
+	width += cssPadding(Side::Left, renderer.fontScale())
+	  + cssBorderWidth(Side::Left, renderer.fontScale())
+	  + cssPadding(Side::Right, renderer.fontScale())
+	  + cssBorderWidth(Side::Right, renderer.fontScale());
 
       if (isTableCell()) {
 	if (width < (ps.maxX - ps.minX))
@@ -2071,15 +2082,15 @@ double Block::layoutBlock(PageState &ps,
 
       AlignmentFlag hAlign = horizontalAlignment();
       switch (hAlign) {
-      case AlignJustify:
-      case AlignLeft:
+      case AlignmentFlag::Justify:
+      case AlignmentFlag::Left:
 	ps.maxX = ps.minX + width;
 	break;
-      case AlignCenter:
+      case AlignmentFlag::Center:
 	ps.minX = ps.minX + (ps.maxX - ps.minX - width) / 2;
 	ps.maxX = ps.minX + width;
 	break;
-      case AlignRight:
+      case AlignmentFlag::Right:
 	ps.minX = ps.maxX - width;
 	break;
       default:
@@ -2087,7 +2098,7 @@ double Block::layoutBlock(PageState &ps,
       }
     }
 
-    if (type_ == DomElement_IMG) {
+    if (type_ == DomElementType::IMG) {
       double height = cssHeight(renderer.fontScale());
       std::string src = attributeValue("src");
 
@@ -2107,7 +2118,7 @@ double Block::layoutBlock(PageState &ps,
 	startPage = ps.page;
 	startY = ps.y;
 
-	ps.y += cssBorderWidth(Top, renderer.fontScale());
+	ps.y += cssBorderWidth(Side::Top, renderer.fontScale());
       }
 
       ps.y += height;
@@ -2123,16 +2134,16 @@ double Block::layoutBlock(PageState &ps,
 	  borderFactor = 0.5;
       }
 
-      double cMinX = ps.minX + cssPadding(Left, renderer.fontScale())
-	+ borderFactor * cssBorderWidth(Left, renderer.fontScale());
-      double cMaxX = ps.maxX - cssPadding(Right, renderer.fontScale())
-	- borderFactor * cssBorderWidth(Right, renderer.fontScale());
+      double cMinX = ps.minX + cssPadding(Side::Left, renderer.fontScale())
+	+ borderFactor * cssBorderWidth(Side::Left, renderer.fontScale());
+      double cMaxX = ps.maxX - cssPadding(Side::Right, renderer.fontScale())
+	- borderFactor * cssBorderWidth(Side::Right, renderer.fontScale());
 
       cMaxX = std::max(cMaxX, cMinX);
 
       currentWidth_ = cMaxX - cMinX;
 
-      ps.y += cssPadding(Top, renderer.fontScale());
+      ps.y += cssPadding(Side::Top, renderer.fontScale());
 
       advance(ps, spacerTop, renderer);
 
@@ -2156,14 +2167,14 @@ double Block::layoutBlock(PageState &ps,
       } else {
 	double minY = ps.y;
 	int minPage = ps.page;
-	if (type_ == DomElement_LI) {
+	if (type_ == DomElementType::LI) {
 	  Line line(0, ps.y, ps.page);
 
 	  double x2 = 1000;
 	  x2 = layoutInline(line, ps.floats, cMinX, x2, false, renderer);
 
 	  line.setLineBreak(true);
-	  line.finish(AlignLeft, ps.floats, cMinX, x2, renderer);
+	  line.finish(AlignmentFlag::Left, ps.floats, cMinX, x2, renderer);
 
 	  inlineLayout[0].x -= inlineLayout[0].width;
 	  minY = line.bottom();
@@ -2218,18 +2229,18 @@ double Block::layoutBlock(PageState &ps,
 	  ps.y = minY;
       }
 
-      ps.maxX = cMaxX + cssPadding(Right, renderer.fontScale())
-	+ borderFactor * cssBorderWidth(Right, renderer.fontScale());
+      ps.maxX = cMaxX + cssPadding(Side::Right, renderer.fontScale())
+	+ borderFactor * cssBorderWidth(Side::Right, renderer.fontScale());
 
       advance(ps, spacerBottom, renderer);
 
-      ps.y += cssPadding(Bottom, renderer.fontScale());
+      ps.y += cssPadding(Side::Bottom, renderer.fontScale());
     }
   }
 
-  ps.y += cssBorderWidth(Bottom, renderer.fontScale());
+  ps.y += cssBorderWidth(Side::Bottom, renderer.fontScale());
 
-  double marginBottom = cssMargin(Bottom, renderer.fontScale());
+  double marginBottom = cssMargin(Side::Bottom, renderer.fontScale());
 
   ps.y -= collapseMarginBottom;
 
@@ -2264,8 +2275,8 @@ double Block::layoutBlock(PageState &ps,
   collapseMarginBottom = std::max(marginBottom, collapseMarginBottom);
 
   if (isFloat()) {
-    ps.minX -= cssMargin(Left, renderer.fontScale());
-    ps.maxX += cssMargin(Right, renderer.fontScale());
+    ps.minX -= cssMargin(Side::Left, renderer.fontScale());
+    ps.maxX += cssMargin(Side::Right, renderer.fontScale());
     ps.y += collapseMarginBottom;
     collapseMarginBottom = 0;
   }
@@ -2328,20 +2339,20 @@ double Block::layoutBlock(PageState &ps,
    */
   if (!isTableCell()
       && (ps.maxX - ps.minX == cssSetWidth)
-      && isPercentageLength(cssProperty(PropertyStyleWidth)))
+      && isPercentageLength(cssProperty(Property::StyleWidth)))
     ps.maxX = origMaxX;
   else if (ps.maxX < origMaxX)
     ps.maxX = origMaxX;
   else {
     if (!isFloat()) {
-      ps.minX -= cssMargin(Left, renderer.fontScale());
-      ps.maxX += cssMargin(Right, renderer.fontScale());
+      ps.minX -= cssMargin(Side::Left, renderer.fontScale());
+      ps.maxX += cssMargin(Side::Right, renderer.fontScale());
     }
   }
 
   ps.minX = origMinX;
 
-  std::string pageBreakAfter = cssProperty(PropertyStylePageBreakAfter);
+  std::string pageBreakAfter = cssProperty(Property::StylePageBreakAfter);
   if (pageBreakAfter == "always") {
     pageBreak(ps);
     return 0;
@@ -2351,7 +2362,7 @@ double Block::layoutBlock(PageState &ps,
 
 WString Block::generateItem() const
 {
-  bool numbered = parent_ && parent_->type_ == DomElement_OL;
+  bool numbered = parent_ && parent_->type_ == DomElementType::OL;
 
   if (numbered) {
     int counter = 0;
@@ -2359,14 +2370,14 @@ WString Block::generateItem() const
     for (unsigned i = 0; i < parent_->children_.size(); ++i) {
       Block *child = parent_->children_[i];
 
-      if (child->type_ == DomElement_LI)
+      if (child->type_ == DomElementType::LI)
 	++counter;
 
       if (child == this)
 	break;
     }
 
-    return boost::lexical_cast<std::string>(counter) + ". ";
+    return std::to_string(counter) + ". ";
   } else
     return "- ";
 }
@@ -2374,7 +2385,7 @@ WString Block::generateItem() const
 Block *Block::findOffsetParent()
 {
   if (parent_) {
-    std::string pos = parent_->cssProperty(PropertyStylePosition);
+    std::string pos = parent_->cssProperty(Property::StylePosition);
     if (pos == "absolute" ||
 	pos == "fixed" ||
 	pos == "relative")
@@ -2387,7 +2398,7 @@ Block *Block::findOffsetParent()
 
 bool Block::isPositionedAbsolutely() const
 {
-  std::string pos = cssProperty(PropertyStylePosition);
+  std::string pos = cssProperty(Property::StylePosition);
   return (pos == "absolute" || pos == "fixed");
 }
 
@@ -2453,9 +2464,9 @@ void Block::layoutAbsolute(const WTextRenderer& renderer)
   LayoutBox staticLayout = layoutTotal();
   LayoutBox containingLayout = offsetParent_->layoutTotal();
 
-  bool leftAuto = isOffsetAuto(cssProperty(PropertyStyleLeft));
-  bool widthAuto = isOffsetAuto(cssProperty(PropertyStyleWidth));
-  bool rightAuto = isOffsetAuto(cssProperty(PropertyStyleRight));
+  bool leftAuto = isOffsetAuto(cssProperty(Property::StyleLeft));
+  bool widthAuto = isOffsetAuto(cssProperty(Property::StyleWidth));
+  bool rightAuto = isOffsetAuto(cssProperty(Property::StyleRight));
 
   double staticLeft = staticLayout.x - containingLayout.x;
   /*
@@ -2488,15 +2499,15 @@ void Block::layoutAbsolute(const WTextRenderer& renderer)
   double left = 0, width = 0, right = 0;
 
   if (!leftAuto)
-    left = cssDecodeLength(cssProperty(PropertyStyleLeft),
+    left = cssDecodeLength(cssProperty(Property::StyleLeft),
 			   renderer.fontScale(), 0,
-			   PercentageOfParentSize,
+			   PercentageRule::PercentageOfParentSize,
 			   containingLayout.width);
 
   if (!rightAuto)
-    right = cssDecodeLength(cssProperty(PropertyStyleRight),
+    right = cssDecodeLength(cssProperty(Property::StyleRight),
 			    renderer.fontScale(), 0,
-			    PercentageOfParentSize,
+			    PercentageRule::PercentageOfParentSize,
 			    containingLayout.width);
 
   if (!widthAuto)
@@ -2544,22 +2555,22 @@ void Block::layoutAbsolute(const WTextRenderer& renderer)
   staticTop += (staticLayout.page - containingLayout.page)
     * renderer.textHeight(containingLayout.page);
 
-  bool topAuto = isOffsetAuto(cssProperty(PropertyStyleTop));
-  bool heightAuto = isOffsetAuto(cssProperty(PropertyStyleHeight));
-  bool bottomAuto = isOffsetAuto(cssProperty(PropertyStyleBottom));
+  bool topAuto = isOffsetAuto(cssProperty(Property::StyleTop));
+  bool heightAuto = isOffsetAuto(cssProperty(Property::StyleHeight));
+  bool bottomAuto = isOffsetAuto(cssProperty(Property::StyleBottom));
 
   double top = 0, height = 0, bottom = 0;
 
   if (!topAuto)
-    top = cssDecodeLength(cssProperty(PropertyStyleTop),
+    top = cssDecodeLength(cssProperty(Property::StyleTop),
 			   renderer.fontScale(), 0,
-			   PercentageOfParentSize,
+			   PercentageRule::PercentageOfParentSize,
 			   containingLayout.height);
 
   if (!bottomAuto)
-    right = cssDecodeLength(cssProperty(PropertyStyleBottom),
+    right = cssDecodeLength(cssProperty(Property::StyleBottom),
 			    renderer.fontScale(), 0,
-			    PercentageOfParentSize,
+			    PercentageRule::PercentageOfParentSize,
 			    containingLayout.height);
 
   if (!heightAuto)
@@ -2636,8 +2647,8 @@ double Block::layoutFloat(double y, int page, BlockList& floats,
   double blockCssWidth = cssWidth(renderer.fontScale());
 
   double currentWidth = std::max(0.0, blockCssWidth)
-    + cssBoxMargin(Left, renderer.fontScale())
-    + cssBoxMargin(Right, renderer.fontScale());
+    + cssBoxMargin(Side::Left, renderer.fontScale())
+    + cssBoxMargin(Side::Right, renderer.fontScale());
 
   PageState floatPs;
   floatPs.floats = floats;
@@ -2713,7 +2724,7 @@ void Block::adjustAvailableWidth(double y, int page,
 
       if (block.page == page) {
 	if (block.y <= y && y < block.y + block.height) {
-	  if (floats[i]->floatSide() == Left)
+	  if (floats[i]->floatSide() == Side::Left)
 	    rangeX.start = std::max(rangeX.start, block.x + block.width);
 	  else
 	    rangeX.end = std::min(rangeX.end, block.x);
@@ -2794,7 +2805,7 @@ double Block::positionFloat(double x, PageState &ps,
   adjustAvailableWidth(ps.y, ps.page, ps.floats, rangeX);
   ps.maxX = rangeX.end;
 
-  if (floatSide == Left)
+  if (floatSide == Side::Left)
     x = rangeX.start;
   else
     x = rangeX.end - width;
@@ -2818,47 +2829,47 @@ void Block::clearFloats(PageState &ps)
 AlignmentFlag Block::cssTextAlign() const
 {
   if (node_ && !isInline()) {
-    std::string s = cssProperty(PropertyStyleTextAlign);
+    std::string s = cssProperty(Property::StyleTextAlign);
 
     if (s.empty() && !isTable())
       s = attributeValue("align");
 
     if (s.empty() || s == "inherit") {
-      if (type_ == DomElement_TH)
-	return AlignCenter;
+      if (type_ == DomElementType::TH)
+	return AlignmentFlag::Center;
       else if (parent_)
 	return parent_->cssTextAlign();
       else
-	return AlignLeft;
+	return AlignmentFlag::Left;
     } else {
       if (s == "left")
-	return AlignLeft;
+	return AlignmentFlag::Left;
       else if (s == "center")
-	return AlignCenter;
+	return AlignmentFlag::Center;
       else if (s == "right")
-	return AlignRight;
+	return AlignmentFlag::Right;
       else if (s == "justify")
-	return AlignJustify;
+	return AlignmentFlag::Justify;
       else {
-	unsupportedCssValue(PropertyStyleTextAlign, s);
-	return AlignLeft;
+	unsupportedCssValue(Property::StyleTextAlign, s);
+	return AlignmentFlag::Left;
       }
     }
   } else if (parent_)
     return parent_->cssTextAlign();
   else
-    return AlignLeft;
+    return AlignmentFlag::Left;
 }
 
 WFont Block::cssFont(double fontScale) const
 {
-  if (font_.genericFamily() != WFont::Default)
+  if (font_.genericFamily() != FontFamily::Default)
     return font_;
 
-  WFont::GenericFamily genericFamily = WFont::SansSerif;
+  FontFamily genericFamily = FontFamily::SansSerif;
   WString specificFamilies;
 
-  std::string family = inheritedCssProperty(PropertyStyleFontFamily);
+  std::string family = inheritedCssProperty(Property::StyleFontFamily);
 
   if (!family.empty()) {
     std::vector<std::string> values;
@@ -2871,28 +2882,28 @@ WFont Block::cssFont(double fontScale) const
       name = Wt::Utils::lowerCase(name);
 
       if (name == "sans-serif")
-	genericFamily = WFont::SansSerif;
+	genericFamily = FontFamily::SansSerif;
       else if (name == "serif")
-	genericFamily = WFont::Serif;
+	genericFamily = FontFamily::Serif;
       else if (name == "cursive")
-	genericFamily = WFont::Cursive;
+	genericFamily = FontFamily::Cursive;
       else if (name == "fantasy")
-	genericFamily = WFont::Fantasy;
+	genericFamily = FontFamily::Fantasy;
       else if (name == "monospace")
-	genericFamily = WFont::Monospace;
+	genericFamily = FontFamily::Monospace;
       else {
 	if (   name == "times"
 	    || name == "palatino")
-	  genericFamily = WFont::Serif;
+	  genericFamily = FontFamily::Serif;
 	else if (   name == "arial"
 		 || name == "helvetica")
-	  genericFamily = WFont::SansSerif;
+	  genericFamily = FontFamily::SansSerif;
 	else if (name == "courier")
-	  genericFamily = WFont::Monospace;
+	  genericFamily = FontFamily::Monospace;
 	else if (name == "symbol")
-	  genericFamily = WFont::Fantasy; // XXX
+	  genericFamily = FontFamily::Fantasy; // XXX
 	else if (name == "zapf dingbats")
-	  genericFamily = WFont::Cursive;
+	  genericFamily = FontFamily::Cursive;
 
 	if (!specificFamilies.empty())
 	  specificFamilies += ", ";
@@ -2902,9 +2913,8 @@ WFont Block::cssFont(double fontScale) const
   }
 
   font_.setFamily(genericFamily, specificFamilies);
-  font_.setSize(WFont::FixedSize,
-		WLength(cssFontSize(fontScale), WLength::Pixel));
-  font_.setWeight(WFont::Value, cssFontWeight());
+  font_.setSize(WLength(cssFontSize(fontScale), LengthUnit::Pixel));
+  font_.setWeight(FontWeight::Value, cssFontWeight());
   font_.setStyle(cssFontStyle());
 
   return font_;
@@ -2912,7 +2922,7 @@ WFont Block::cssFont(double fontScale) const
 
 std::string Block::cssTextDecoration() const
 {
-  std::string v = cssProperty(PropertyStyleTextDecoration);
+  std::string v = cssProperty(Property::StyleTextDecoration);
 
   if (v.empty() || v == "inherit")
     if (parent_)
@@ -2949,18 +2959,18 @@ void Block::render(WTextRenderer& renderer, WPainter& painter, int page)
 {
   bool painterTranslated = false;
 
-  if (cssProperty(PropertyStylePosition) == "relative") {
+  if (cssProperty(Property::StylePosition) == "relative") {
     painter.save();
     painterTranslated = true;
 
     LayoutBox box = layoutTotal();
-    double left = cssDecodeLength(cssProperty(PropertyStyleLeft),
+    double left = cssDecodeLength(cssProperty(Property::StyleLeft),
 				  renderer.fontScale(), 0,
-				  PercentageOfParentSize,
+				  PercentageRule::PercentageOfParentSize,
 				  box.width);
-    double top = cssDecodeLength(cssProperty(PropertyStyleTop),
+    double top = cssDecodeLength(cssProperty(Property::StyleTop),
 				 renderer.fontScale(), 0,
-				 PercentageOfParentSize,
+				 PercentageRule::PercentageOfParentSize,
 				 box.height);
 
     painter.translate(left, top);
@@ -2969,14 +2979,14 @@ void Block::render(WTextRenderer& renderer, WPainter& painter, int page)
   if (isText()) {
     renderText(text(), renderer, painter, page);
 
-    if (type_ != DomElement_LI) { // there are inline children
+    if (type_ != DomElementType::LI) { // there are inline children
       if (painterTranslated)
 	painter.restore();
       return;
     }
   }
 
-  unsigned first = (type_ == DomElement_LI) ? 1 : 0;
+  unsigned first = (type_ == DomElementType::LI) ? 1 : 0;
   for (unsigned i = first; i < inlineLayout.size(); ++i) {
     LayoutBox& lb = inlineLayout[i];
 
@@ -3025,15 +3035,15 @@ int Block::lastLayoutPage() const
 void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
                          LayoutBox& lb)
 {
-  if (type_ == DomElement_IMG) {
+  if (type_ == DomElementType::IMG) {
     LayoutBox bb = toBorderBox(lb, renderer.fontScale());
 
-    renderBorders(bb, renderer, painter, Top | Bottom);
+    renderBorders(bb, renderer, painter, Side::Top | Side::Bottom);
 
-    double left = renderer.margin(Left) + bb.x
-     + cssBorderWidth(Left, renderer.fontScale());
-    double top = renderer.margin(Top) + bb.y
-     + cssBorderWidth(Top, renderer.fontScale());
+    double left = renderer.margin(Side::Left) + bb.x
+     + cssBorderWidth(Side::Left, renderer.fontScale());
+    double top = renderer.margin(Side::Top) + bb.y
+     + cssBorderWidth(Side::Top, renderer.fontScale());
 
     double width = bb.width;
     double height = bb.height;
@@ -3041,7 +3051,7 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
     WRectF rect(left, top, width, height);
 
 #ifdef DEBUG_LAYOUT
-    painter.setPen(WPen(red));
+    painter.setPen(WPen(StandardColor::Red));
     painter.drawRect(rect);
 #endif // DEBUG_LAYOUT
 
@@ -3050,10 +3060,10 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
   } else {
     LayoutBox bb = toBorderBox(lb, renderer.fontScale());
 
-    WRectF rect(bb.x + renderer.margin(Left), bb.y + renderer.margin(Top),
+    WRectF rect(bb.x + renderer.margin(Side::Left), bb.y + renderer.margin(Side::Top),
                 bb.width, bb.height);
 
-    std::string s = cssProperty(PropertyStyleBackgroundColor);
+    std::string s = cssProperty(Property::StyleBackgroundColor);
     if (!s.empty()) {
       WColor c(WString::fromUTF8(s));
       painter.fillRect(rect, WBrush(c));
@@ -3061,19 +3071,19 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
 
     WFlags<Side> verticals;
     if (lb.page == firstLayoutPage())
-      verticals |= Top;
+      verticals |= Side::Top;
     if (lb.page == lastLayoutPage())
-      verticals |= Bottom;
+      verticals |= Side::Bottom;
 
     renderBorders(bb, renderer, painter, verticals);
 
 #ifdef DEBUG_LAYOUT
-    painter.setPen(WPen(green));
+    painter.setPen(WPen(StandardColor::Green));
     painter.drawRect(rect);
 #endif // DEBUG_LAYOUT
 
-    if (type_ == DomElement_THEAD) {
-      if (currentTheadBlock_ == 0 && !blockLayout.empty())
+    if (type_ == DomElementType::THEAD) {
+      if (currentTheadBlock_ == nullptr && !blockLayout.empty())
 	currentTheadBlock_ = &blockLayout.front();
 
       for (unsigned j = 0; j < children_.size(); ++j) {
@@ -3087,7 +3097,7 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
     }
   }
 
-  if (type_ != DomElement_THEAD)
+  if (type_ != DomElementType::THEAD)
     for (unsigned i = 0; i < children_.size(); ++i)
       children_[i]->render(renderer, painter, lb.page);
 }
@@ -3109,27 +3119,27 @@ void Block::renderText(const std::string& text, WTextRenderer& renderer,
     InlineBox& ib = inlineLayout[i];
   
     if (ib.page == page) {
-      double y = renderer.margin(Top) + ib.y - metrics.leading()
+      double y = renderer.margin(Side::Top) + ib.y - metrics.leading()
 	+ (lineHeight - fontHeight)/2.0;
-      WRectF rect(renderer.margin(Left) + ib.x, y, ib.width, ib.height);
+      WRectF rect(renderer.margin(Side::Left) + ib.x, y, ib.width, ib.height);
 
 #ifdef DEBUG_LAYOUT
       painter.save();
-      painter.setPen(WPen(gray));
+      painter.setPen(WPen(StandardColor::Gray));
       painter.drawRect(WRectF(rect.left(), rect.top() + metrics.leading(),
 			      rect.width(), rect.height()));
-      painter.setPen(WPen(blue));
+      painter.setPen(WPen(StandardColor::Blue));
       double baseline = y + metrics.leading() + metrics.ascent();
       painter.drawLine(rect.left(), baseline, rect.right(), baseline);
       painter.restore();
 #endif // DEBUG_LAYOUT
 
       /*
-      std::string s = inheritedCssProperty(PropertyStyleBackgroundColor);
+      std::string s = inheritedCssProperty(Property::StyleBackgroundColor);
       if (!s.empty()) {
 	WColor c(WString::fromUTF8(s));
 
-	WRectF hrect(rect.left(), renderer.margin(Top) + ib.lineTop,
+	WRectF hrect(rect.left(), renderer.margin(Side::Top) + ib.lineTop,
 		     rect.width(), ib.lineHeight);
 
 	renderer.painter()->fillRect(hrect, WBrush(c));
@@ -3143,7 +3153,7 @@ void Block::renderText(const std::string& text, WTextRenderer& renderer,
 
 	painter.drawText(WRectF(rect.x(), rect.y(), rect.width(),
 				rect.height() + metrics.leading()),
-			 AlignLeft | AlignTop, t);
+			 AlignmentFlag::Left | AlignmentFlag::Top, t);
       } else {
 	double x = rect.left();
 
@@ -3160,11 +3170,11 @@ void Block::renderText(const std::string& text, WTextRenderer& renderer,
 
 	      painter.drawText(WRectF(x, rect.top(),
 				      wordWidth, rect.height()),
-			       AlignLeft | AlignTop, word);
+			       AlignmentFlag::Left | AlignmentFlag::Top, word);
 
 #ifdef DEBUG_LAYOUT
 	      painter.save();
-	      painter.setPen(WPen(cyan));
+	      painter.setPen(WPen(StandardColor::Cyan));
 	      painter.drawRect(WRectF(x, rect.top(),
 				      wordWidth, rect.height()));
 	      painter.restore();
@@ -3184,7 +3194,7 @@ void Block::renderText(const std::string& text, WTextRenderer& renderer,
 	painter.drawLine(rect.left(), below, rect.right(), below);
       } else if (decoration == "overline") {
 	// FIXME this will depend on font metrics, but shouldn't
-	double over = renderer.margin(Top) + ib.y + 2;
+	double over = renderer.margin(Side::Top) + ib.y + 2;
 	painter.drawLine(rect.left(), over, rect.right(), over);
       } else if (decoration == "line-through") {
 	double through = y + metrics.leading() + metrics.ascent() - 3;
@@ -3200,10 +3210,10 @@ LayoutBox Block::toBorderBox(const LayoutBox& bb, double fontScale) const
   LayoutBox result = bb;
 
   if (isFloat()) {
-    result.x += cssMargin(Left, fontScale);
-    result.y += cssMargin(Top, fontScale);
-    result.width -= cssMargin(Left, fontScale) + cssMargin(Right, fontScale);
-    result.height -= cssMargin(Top, fontScale) + cssMargin(Bottom, fontScale);
+    result.x += cssMargin(Side::Left, fontScale);
+    result.y += cssMargin(Side::Top, fontScale);
+    result.width -= cssMargin(Side::Left, fontScale) + cssMargin(Side::Right, fontScale);
+    result.height -= cssMargin(Side::Top, fontScale) + cssMargin(Side::Bottom, fontScale);
   }
 
   return result;
@@ -3238,15 +3248,15 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
   if (!node_)
     return;
 
-  double left = renderer.margin(Left) + bb.x;
-  double top = renderer.margin(Top) + bb.y;
+  double left = renderer.margin(Side::Left) + bb.x;
+  double top = renderer.margin(Side::Top) + bb.y;
   double right = left + bb.width;
   double bottom = top + bb.height;
 
   double borderWidth[4];
   WColor borderColor[4];
 
-  Side sides[4] = { Top, Right, Bottom, Left };
+  Side sides[4] = { Side::Top, Side::Right, Side::Bottom, Side::Left };
   for (int i = 0; i < 4; ++i) {
     borderWidth[i] = cssBorderWidth(sides[i], renderer.fontScale());
     borderColor[i] = cssBorderColor(sides[i]);
@@ -3270,51 +3280,51 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
     for (unsigned i = 0; i < 4; ++i)
       siblings[i] = siblingTableCell(sides[i]);
 
-    cornerMaxWidth[TopLeft] = maxBorderWidth(siblings[3], Top,
-					     this, Top,
-					     siblings[0], Left,
-					     this, Left,
-					     renderer.fontScale());
+    cornerMaxWidth[Corner::TopLeft] = maxBorderWidth(siblings[3], Side::Top,
+						     this, Side::Top,
+						     siblings[0], Side::Left,
+						     this, Side::Left,
+						     renderer.fontScale());
 
-    cornerMaxWidth[TopRight] = maxBorderWidth(siblings[1], Top,
-					      this, Top,
-					      siblings[0], Right,
-					      this, Right,
-					      renderer.fontScale());
+    cornerMaxWidth[Corner::TopRight] = maxBorderWidth(siblings[1], Side::Top,
+						      this, Side::Top,
+						      siblings[0], Side::Right,
+						      this, Side::Right,
+						      renderer.fontScale());
 
-    cornerMaxWidth[BottomLeft] = maxBorderWidth(siblings[3], Bottom,
-						this, Bottom,
-						siblings[2], Left,
-						this, Left,
-						renderer.fontScale());
+    cornerMaxWidth[Corner::BottomLeft] = maxBorderWidth(siblings[3], Side::Bottom,
+							this, Side::Bottom,
+							siblings[2], Side::Left,
+							this, Side::Left,
+							renderer.fontScale());
 
-    cornerMaxWidth[BottomRight] = maxBorderWidth(siblings[1], Bottom,
-						 this, Bottom,
-						 siblings[2], Right,
-						 this, Right,
-						 renderer.fontScale());
+    cornerMaxWidth[Corner::BottomRight] = maxBorderWidth(siblings[1], Side::Bottom,
+							 this, Side::Bottom,
+							 siblings[2], Side::Right,
+							 this, Side::Right,
+							 renderer.fontScale());
   }
 
   for (unsigned i = 0; i < 4; ++i) {
     if (borderWidth[i] != 0) {
       WPen borderPen;
-      borderPen.setCapStyle(FlatCap);
+      borderPen.setCapStyle(PenCapStyle::Flat);
       borderPen.setWidth(borderWidth[i]);
       borderPen.setColor(borderColor[i]);
       painter.setPen(borderPen);
 
       switch (sides[i]) {
-      case Top:
-	if (verticals & Top) {
+      case Side::Top:
+	if (verticals.test(Side::Top)) {
 	  double leftOffset = 0, rightOffset = 0;
 
-	  if (borderWidth[i] < cornerMaxWidth[TopLeft])
-	    leftOffset = cornerMaxWidth[TopLeft] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[Corner::TopLeft])
+	    leftOffset = cornerMaxWidth[Corner::TopLeft] / 2;
 	  else if (offsetFactor == 0)
 	    leftOffset = -borderWidth[i] / 2;
 
-	  if (borderWidth[i] < cornerMaxWidth[TopRight])
-	    rightOffset = cornerMaxWidth[TopRight] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[Corner::TopRight])
+	    rightOffset = cornerMaxWidth[Corner::TopRight] / 2;
 	  else if (offsetFactor == 0)
 	    rightOffset = -borderWidth[i] / 2;
 
@@ -3326,17 +3336,17 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
 	}
 
 	break;
-      case Right:
+      case Side::Right:
 	{
 	  double topOffset = 0, bottomOffset = 0;
 
-	  if (borderWidth[i] < cornerMaxWidth[TopRight])
-	    topOffset = cornerMaxWidth[TopRight] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[Corner::TopRight])
+	    topOffset = cornerMaxWidth[Corner::TopRight] / 2;
 	  else if (offsetFactor == 0)
 	    topOffset = -borderWidth[i] / 2;
 
-	  if (borderWidth[i] < cornerMaxWidth[BottomRight])
-	    bottomOffset = cornerMaxWidth[BottomRight] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[Corner::BottomRight])
+	    bottomOffset = cornerMaxWidth[Corner::BottomRight] / 2;
 	  else if (offsetFactor == 0)
 	    bottomOffset = -borderWidth[i] / 2;
 
@@ -3347,17 +3357,17 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
 	}
 
 	break;
-      case Bottom:
-	if (verticals & Bottom) {
+      case Side::Bottom:
+	if (verticals.test(Side::Bottom)) {
 	  double leftOffset = 0, rightOffset = 0;
 
-	  if (borderWidth[i] < cornerMaxWidth[BottomLeft])
-	    leftOffset = cornerMaxWidth[BottomLeft] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[Corner::BottomLeft])
+	    leftOffset = cornerMaxWidth[Corner::BottomLeft] / 2;
 	  else if (offsetFactor == 0)
 	    leftOffset = -borderWidth[i] / 2;
 
-	  if (borderWidth[i] < cornerMaxWidth[TopRight])
-	    rightOffset = cornerMaxWidth[BottomRight] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[Corner::TopRight])
+	    rightOffset = cornerMaxWidth[Corner::BottomRight] / 2;
 	  else if (offsetFactor == 0)
 	    rightOffset = -borderWidth[i] / 2;
 
@@ -3368,17 +3378,17 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
 	}
 
 	break;
-      case Left:
+      case Side::Left:
 	{
 	  double topOffset = 0, bottomOffset = 0;
 
-	  if (borderWidth[i] < cornerMaxWidth[TopLeft])
-	    topOffset = cornerMaxWidth[TopLeft] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[Corner::TopLeft])
+	    topOffset = cornerMaxWidth[Corner::TopLeft] / 2;
 	  else if (offsetFactor == 0)
 	    topOffset = -borderWidth[i] / 2;
 
-	  if (borderWidth[i] < cornerMaxWidth[BottomLeft])
-	    bottomOffset = cornerMaxWidth[BottomLeft] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[Corner::BottomLeft])
+	    bottomOffset = cornerMaxWidth[Corner::BottomLeft] / 2;
 	  else if (offsetFactor == 0)
 	    bottomOffset = -borderWidth[i] / 2;
 

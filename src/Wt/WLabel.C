@@ -3,60 +3,47 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WLabel"
-#include "Wt/WText"
-#include "Wt/WImage"
-#include "Wt/WFormWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WLabel.h"
+#include "Wt/WText.h"
+#include "Wt/WImage.h"
+#include "Wt/WFormWidget.h"
 
 #include "DomElement.h"
 
 namespace Wt {
 
-WLabel::WLabel(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    buddy_(0),
-    text_(0),
-    image_(0),
-    buddyChanged_(false),
+WLabel::WLabel()
+  : buddyChanged_(false),
     newImage_(false),
     newText_(false)
 { }
 
-WLabel::WLabel(const WString& text, WContainerWidget *parent)
-  : WInteractWidget(parent),
-    buddy_(0),
-    image_(0),
-    buddyChanged_(false),
-    newImage_(false),
-    newText_(false)
+WLabel::WLabel(const WString& text)
+  : WLabel()
 {
-  text_ = new WText(text);
+  manageWidget(text_, std::unique_ptr<WText>(new WText(text)));
   text_->setWordWrap(false);
-  text_->setParentWidget(this);
 }
 
-WLabel::WLabel(WImage *image, WContainerWidget *parent)
-  : WInteractWidget(parent),
-    buddy_(0),
-    text_(0),
-    buddyChanged_(false),
-    newImage_(false),
-    newText_(false)
+WLabel::WLabel(std::unique_ptr<WImage> image)
+  : WLabel()
 { 
-  image_ = image;
-  image_->setParentWidget(this);
+  manageWidget(image_, std::move(image));
 }
 
 WLabel::~WLabel()
 {
-  setBuddy((WFormWidget *) 0);
+  beingDeleted();
+  manageWidget(text_, std::unique_ptr<WText>());
+  manageWidget(image_, std::unique_ptr<WImage>());
+  setBuddy(nullptr);
 }
 
 void WLabel::setBuddy(WFormWidget *buddy)
 {
   if (buddy_)
-    buddy_->setLabel(0);
+    buddy_->setLabel(nullptr);
 
   buddy_ = buddy;
   if (buddy_)
@@ -72,11 +59,10 @@ void WLabel::setText(const WString& text)
     return;
 
   if (!text_) {
-    text_ = new WText();
+    manageWidget(text_, std::unique_ptr<WText>(new WText(text)));
     text_->setWordWrap(false);
-    text_->setParentWidget(this);
     newText_ = true;
-    repaint(RepaintSizeAffected);
+    repaint(RepaintFlag::SizeAffected);
   }
 
   text_->setText(text);
@@ -85,8 +71,7 @@ void WLabel::setText(const WString& text)
 bool WLabel::setTextFormat(TextFormat format)
 {
   if (!text_) {
-    setText("A");
-    setText("");
+    setText("A"); setText("");
   }
 
   return text_->setTextFormat(format);
@@ -95,40 +80,31 @@ bool WLabel::setTextFormat(TextFormat format)
 TextFormat WLabel::textFormat() const
 {
   if (!text_)
-    return XHTMLText;
+    return TextFormat::XHTML;
   else
     return text_->textFormat();
 }
 
-const WString& WLabel::text() const
+WString WLabel::text() const
 {
-  static WString empty("");
   if (text_)
     return text_->text();
   else
-    return empty;
+    return WString::Empty;
 }
 
-void WLabel::setImage(WImage *image, Side side)
+void WLabel::setImage(std::unique_ptr<WImage> image, Side side)
 {
-  delete image_;
-  image_ = image;
-  if (image_) {
-    image_->setParentWidget(this);
-    imageSide_ = side;
-  }
-
+  manageWidget(image_, std::move(image));
+  imageSide_ = side;
   newImage_ = true;
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 void WLabel::setWordWrap(bool wordWrap)
 {
-  if (!text_) {
-    text_ = new WText();
-    text_->setParentWidget(this);
-    newText_ = true;
-    repaint(RepaintSizeAffected);
+ if (!text_) {
+    setText("A"); setText("");
   }
 
   text_->setWordWrap(wordWrap);
@@ -144,7 +120,7 @@ void WLabel::updateDom(DomElement& element, bool all)
   WApplication *app = WApplication::instance();
 
   if (image_ && text_)
-    if (imageSide_ == Left) {
+    if (imageSide_ == Side::Left) {
       updateImage(element, all, app, 0);
       updateText(element, all, app, 1);
     } else {
@@ -209,9 +185,9 @@ DomElementType WLabel::domElementType() const
   // For now we avoid to create a LABEL element if no buddy is set
   // (This is used e.g. in WTreeView)
   if (buddy_)
-    return DomElement_LABEL;
+    return DomElementType::LABEL;
   else
-    return isInline() ? DomElement_SPAN : DomElement_DIV;
+    return isInline() ? DomElementType::SPAN : DomElementType::DIV;
 }
 
 void WLabel::getDomChanges(std::vector<DomElement *>& result,
@@ -220,9 +196,17 @@ void WLabel::getDomChanges(std::vector<DomElement *>& result,
   WInteractWidget::getDomChanges(result, app);
 
   if (text_)
-    ((WWebWidget *)text_)->getDomChanges(result, app);
+    text_->getDomChanges(result, app);
   if (image_)
-    ((WWebWidget *)image_)->getDomChanges(result, app);
+    image_->getDomChanges(result, app);
+}
+
+void WLabel::iterateChildren(const HandleWidgetMethod &method) const
+{
+  if (text_)
+    method(text_.get());
+  if (image_)
+    method(image_.get());
 }
 
 }

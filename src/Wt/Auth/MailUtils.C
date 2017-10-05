@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WLogger"
-#include "Wt/Mail/Client"
+#include "Wt/WLogger.h"
+#include "Wt/Mail/Client.h"
 
 namespace Wt {
   namespace Auth {

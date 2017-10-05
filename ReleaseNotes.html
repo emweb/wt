@@ -22,6 +22,205 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.0.0 (September 19, 2017)</h2>
+<p>
+  This release has all of the added features of Wt 3.3.8, but comes with many notable changes. In general,
+  Wt 4 employs the more modern C++ style of C++11 and beyond. Support for compilers
+  without sufficient C++11 support is dropped competely. Wt 4 aligns more with the
+  <a href="https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md">C++ Core Guidelines</a>
+  in a pragmatic way, while keeping the API familiar.
+</p>
+<h3>New features since Wt 3.3.8</h3>
+<dl>
+  <dt>Microsoft SQL Server backend for Wt::Dbo</dt>
+  <dd>We've added Microsoft SQL Server support to Wt::Dbo, making it the sixth
+      backend we support, alongside Sqlite, PostgreSQL, MySQL (and MariaDB),
+      Firebird, and Oracle (not part of the open source Wt because of licensing).
+      With this addition, Wt::Dbo now supports most commonly used relational database management systems.
+      It's based on ODBC and works with Microsoft's ODBC Driver
+      for SQL Server. With unixODBC, Linux and macOS are also supported.</dd>
+  <dt>Added support for listening on multiple interfaces and ports to wthttp</dt>
+  <dd>With the multivalued <tt>--http-listen</tt> and <tt>--https-listen</tt> options,
+      you can now listen on multiple interfaces and ports. For example, if you want to
+      listen on port 8080 on all IPv4 and IPv6 interfaces, you can use:
+      <div class="fragment">
+	<div class="line"><tt>--http-listen 0.0.0.0:8080 --https-listen [0::0]:8080</tt></div>
+      </div>
+      <tt>--http-listen</tt> and <tt>--https-listen</tt> obsolete the
+      <tt>--http-address</tt>, <tt>--http-port</tt>, <tt>--https-address</tt>, and <tt>--https-port</tt>
+      options.</dd>
+</dl>
+<h3>Changes in Wt's memory model</h3>
+<p>
+Like before, the parent widget (e.g. a <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>) owns
+its child widgets. This has not changed. Wt 4 makes ownership transfers more clear by using <tt>std::unique_ptr</tt>
+There are no more owning raw pointers in Wt's public API.
+</p>
+<p>
+By consequence of using <tt>unique_ptr</tt>, constructors no longer take a <tt>parent</tt> argument. For
+convenience, <a href="classWt_1_1WContainerWidget.html#a3341360fc6cc1e86c1a42a3a54d9e0c7">addWidget()</a>
+now returns a (non-owning) raw pointer. Instead of doing:
+<div class="fragment">
+  <div class="line"><span class="comment"><tt>// parent is a Wt::WContainerWidget*</tt></span></div>
+  <div class="line"><tt>Wt::WPushButton *button = new Wt::WPushButton("Click me", parent); <span class="comment">// Wt 3: parent owns the button</span></tt></div>
+</div>
+or:
+<div class="fragment">
+  <div class="line"><tt>Wt::WPushButton *button = new Wt::WPushButton("Click me");</tt></div>
+  <div class="line"><tt>parent-&gt;addWidget(button); <span class="comment">// Wt 3: ownership is transferred to parent through addWidget</span></tt></div>
+</div>
+You can now do:
+<div class="fragment">
+  <div class="line"><span class="comment"><tt>// Wt 4 (with C++14's std::make_unique)</tt></span></div>
+  <div class="line"><tt>Wt::WPushButton *button = parent-&gt;addWidget(std::make_unique&lt;Wt::WPushButton&gt;("Click me"));</tt></div>
+</div>
+<tt>Wt::cpp14::make_unique</tt> can be used instead of <tt>std::make_unique</tt> if C++14 support is unavailable.
+</p>
+<p>
+Some classes were changed from the old single ownership
+model to shared ownership through <tt>std::shared_ptr</tt>, like models (<a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a>, <a href="classWt_1_1Chart_1_1WAbstractChartModel.html">WAbstractChartModel</a>, and derivates) and <a href="classWt_1_1WValidator.html">validators</a>.
+</p>
+<p>
+<a href="classWt_1_1Core_1_1observing__ptr.html">Wt::Core::observing_ptr</a> was introduced. This pointer will
+be notified when the object it points to is deleted. <tt>observing_ptr</tt>s are intended to be used within the
+scope of a <a href="classWt_1_1WApplication.html">WApplication</a> and are not thread safe. Every
+<a href="classWt_1_1WObject.html">WObject</a> (and by consequence, every <a href="classWt_1_1WWidget.html">widget</a>)
+is an <a href="classWt_1_1Core_1_1observing_ptr.html">observable</a>, so its lifetime can be observed with
+an <tt>observing_ptr</tt>. Their use is entirely optional, but they may be useful when the lifetime of an
+object is not always clear.
+</p>
+<h3>Header files now end in .h</h3>
+Wt 3 used extensionless headers. This confuses many editors and IDEs.
+For Wt 4, the <tt>.h</tt> extension was added, and using the old style headers is deprecated. You can use the
+Python script <a href="https://github.com/emweb/wt/blob/wt4/migrate/wt4_add_h_to_includes.py">migrate/wt4_add_h_to_includes.py</a> to help update your Wt includes.
+<h3>Enums replaced by enum classes</h3>
+Many enums were replaced with enum classes, and many have been moved from class scope to namespace scope, e.g.:
+<div class="fragment">
+  <div class="line"><tt>enum SelectionMode {</tt></div>
+  <div class="line"><tt>&nbsp;&nbsp;NoSelection = 0,</tt></div>
+  <div class="line"><tt>&nbsp;&nbsp;SingleSelection = 1,</tt></div>
+  <div class="line"><tt>&nbsp;&nbsp;ExtendedSelection = 3</tt></div>
+  <div class="line"><tt>};</tt></div>
+</div>
+became:
+<div class="fragment">
+  <div class="line"><tt>enum class SelectionMode {</tt></div>
+  <div class="line"><tt>&nbsp;&nbsp;None = 0,</tt></div>
+  <div class="line"><tt>&nbsp;&nbsp;Single = 1,</tt></div>
+  <div class="line"><tt>&nbsp;&nbsp;Extended = 3</tt></div>
+  <div class="line"><tt>};</tt></div>
+</div>
+Some enums were preserved in places were the added verbosity
+was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91ca564">Wt::Dbo::RelationType</a> enum.
+<h3>Replacements for Boost</h3>
+    Many features of Boost that Wt relied on were made obsolete by C++11. Many other Boost features have been replaced
+    with C++11-based alternatives.
+
+    <dl>
+      <dt>Choice between Boost.Asio and standalone Asio</dt>
+      <dd>
+        The CMake option <tt>WT_ASIO_IMPLEMENTATION</tt> allows to choose between <tt>boost</tt> and <tt>standalone</tt>
+	Asio.</dd>
+      <dt>Removal of Boost usage in Wt headers</dt>
+      <dd>
+        If standalone Asio is used, the installed headers of Wt no longer include any Boost headers.
+	The Windows builds of Wt 4 will from now on no longer include Boost,
+	including only the standalone Asio headers instead. This just about halves the size of the installer.
+	If you want to use Boost, you'll have to provide your own. You can find prebuilt Boost binaries for Windows
+	<a href="https://sourceforge.net/projects/boost/files/boost-binaries/">here</a>.
+      </dd>
+      <dt>Boost.Date_Time was replaced with Howard Hinnant's <tt>std::chrono</tt>-based date implementation</dt>
+      <dd>
+      The author of the <tt>std::chrono</tt> standard has created a
+      <a href="https://github.com/HowardHinnant/date">library for dates and time zones</a>.
+	This library is proposed for inclusion into the C++ standard in the future. For now, Wt includes
+	this date and time zone library (at this moment, this is version 2.2). This is used for all time-related
+	classes, like <a href="classWt_1_1WDate.html">WDate</a>,
+	<a href="classWt_1_1WTime.html">WTime</a>, <a href="classWt_1_1WDateTime.html">WDateTime</a>,
+	and <a href="classWt_1_1WLocalDateTime.html">WLocalDateTime</a>.
+      </dd>
+      <dt>
+        Boost.Any replaced by <tt>Wt::cpp17::any</tt>
+      </dt>
+      <dd>
+        <a href="classWt_1_1WStandardItemModel.html">WStandardItemModel</a> relied heavily on
+	<tt>boost::any</tt>. This was replaced with <tt>Wt::cpp17::any</tt>. You can choose the
+	implementation of <tt>any</tt> to use with the CMake option <tt>WT_CPP17_ANY_IMPLEMENTATION</tt>.
+	Valid options are:
+	<ul>
+	  <li><a href="https://github.com/thelink2012/any">thelink2012</a>: this is the default implementation, included in Wt</li>
+	  <li><tt>experimental</tt> for <tt>std::experimental::any</tt></li>
+	  <li><tt>std</tt> for C++17's <tt>std::any</tt></li>
+	</ul>
+      </dd>
+      <dt>Boost.Signals2 replaced with own implementation</dt>
+      <dd>
+        <p>
+          Wt did not use many of the features of Boost.Signals2. Since C++11, many more efficient alternatives
+	  have been created. Wt 4's implementation, based on
+	  <a href="https://testbit.eu/cpp11-signal-system-performance/">this blog post</a>, offers better performance
+	  and more understandable stack traces. It's now no longer necessary to
+	  use <tt>std::bind</tt> with lambda functions, e.g.:
+	  <div class="fragment"><div class="line"><tt>button-&gt;clicked().connect(std::bind([]{ std::cout &lt;&lt; "Clicked!" &lt;&lt; std::endl; })); <span class="comment">// Wt 3</span></tt></div></div>
+	  can be changed to:
+	  <div class="fragment"><div class="line"><tt>button-&gt;clicked().connect([]{ std::cout &lt;&lt; "Clicked!" &lt;&lt; std::endl; }); <span class="comment">// Wt 4</span></tt></div></div>
+	</p>
+	<p>
+	  Boost.Signals2, together with <tt>boost::bind</tt>, allowed you to automatically disconnect slots
+	  when one of their bound arguments was deleted, if the argument was a derived class of
+	  <tt>boost::signals2::trackable</tt>. In Wt 4, this is no longer the case. Instead, you
+	  can provide a target <a class="classWt_1_1WObject.html">WObject</a> as the first argument to
+	  the connect function, and Wt will disconnect the slot when the target <tt>WObject</tt> is deleted.
+	</p>
+	<p>
+	  <tt>WApplication::bind</tt> has been removed, and instead
+	  <a href="classWt_1_1Core_1_1observable.html#a8ef9ce1dc22e3bae13e198b27e6b64cc">observable::bindSafe</a>
+	  was introduced. <tt>bindSafe</tt> will guard the <tt>observable</tt>, returning a function
+	  object that doesn't do anything if the <tt>observable</tt> has been deleted.
+	</p>
+      </dd>
+      <dt>Other Boost libraries obsoleted by C++11</dt>
+      <dd>Boost.Thread, Boost.Regex and Boost.Random were mostly replaced by their STL counterparts. Only
+          Boost.Thread is used internally in Wt 4 because Wt uses some mutex functionality that's not part of
+          C++11.</dd>
+    </dl>
+  <h3>Other changes:</h3>
+    <ul>
+      <li>
+	<a href="classWt_1_1ItemDataRole.html">ItemDataRole</a> is now a class instead of an enum.
+      </li>
+      <li>
+	Wt 4 assumes that <tt>std::string</tt> is UTF-8 encoded by default, so
+	<a href="classWt_1_1WString.html#a64d17e31e557208ab8d8ea765c1e52b8">WString(std::string)</a>
+	will assume that the argument is UTF-8 encoded. Overloads for new C++11 string types
+	(<tt>std::u16string</tt>, <tt>std::u32string</tt>) have been added.
+      </li>
+      <li>
+	Intervals and other durations previously indicated by <tt>int</tt>s have been replaced by
+	<tt>std::chrono::duration</tt>s, e.g. in 
+	<a href="classWt_1_1WIOService.html#a5e445e207ee36f75cea4ba7ae321d7dc">WIOService::schedule()</a> or
+	<a href="classWt_1_1Http_1_1Client.html#a84856aabdef30b9e91bb3c4d30b9ecd1">Wt::Http::Client::setTimeout()</a>.
+      </li>
+      <li>
+	<a href="classWt_1_1WBoxLayout.html">WBoxLayout</a> is now implemented with flexbox instead of JavaScript
+	by default. Wt will fallback to the old JavaScript implementation when functionality unavailable in
+	the flexbox implementation is used, use
+	<a href="classWt_1_1WLayout.html#a9cd0547c710e357e4c688ccfdb790d8f">WBoxLayout::setPreferredImplementation</a>
+	to set a preferred implementation.
+      </li>
+    </ul>
+  <h3>Removal of deprecated functionality</h3>
+    <ul>
+      <li>
+	Everything that was marked as deprecated in Wt 3.3.7 has been removed,
+	including <tt>Wt::Ext</tt>.
+      </li>
+      <li>
+	<tt>WScrollArea</tt> was removed, use CSS or
+	<a href="classWt_1_1WContainerWidget.html#af3d9510f569deed060689aa509ecc831">WContainerWidget::setOverflow()</a> instead.
+      </li>
+    </ul>
+
 <h2>Release 3.3.8 (August 16, 2017)</h2>
 <p>
   This release consists of bug fixes and some new features:

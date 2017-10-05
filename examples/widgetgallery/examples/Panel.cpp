@@ -1,10 +1,10 @@
-#include <Wt/WPanel>
-#include <Wt/WText>
+#include <Wt/WPanel.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(Panel)
-Wt::WPanel *panel = new Wt::WPanel();
+auto panel = Wt::cpp14::make_unique<Wt::WPanel>();
 panel->addStyleClass("centered-example");
 panel->setTitle("Terrific panel");
-panel->setCentralWidget(new Wt::WText("This is a panel with a title."));
+panel->setCentralWidget(Wt::cpp14::make_unique<Wt::WText>("This is a panel with a title."));
 
-SAMPLE_END(return panel)
+SAMPLE_END(return std::move(panel))

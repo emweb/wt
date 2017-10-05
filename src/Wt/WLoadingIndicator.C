@@ -4,18 +4,14 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WLoadingIndicator"
+#include "Wt/WLoadingIndicator.h"
 
 namespace Wt {
 #ifndef WT_TARGET_JAVA
-  WLoadingIndicator::WLoadingIndicator(WObject *parent):
-	WObject(parent) 
-  {
-
-  }
+  WLoadingIndicator::WLoadingIndicator()
+  { }
 #endif //WT_TARGET_JAVA
 
-  WLoadingIndicator::~WLoadingIndicator() {
-  }
-
+  WLoadingIndicator::~WLoadingIndicator()
+  { }
 }

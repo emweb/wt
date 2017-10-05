@@ -10,21 +10,21 @@
 #include <string>
 
 #ifndef WT_TARGET_JAVA
-#include "Wt/Render/WTextRenderer"
+#include "Wt/Render/WTextRenderer.h"
 #endif
 
-#include "Wt/WApplication"
-#include "Wt/WException"
-#include "Wt/WLineF"
-#include "Wt/WPainter"
-#include "Wt/WPainterPath"
-#include "Wt/WPaintDevice"
-#include "Wt/WRectF"
-#include "Wt/WStringStream" 
-#include "Wt/WTransform"
-#include "Wt/WWebWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WException.h"
+#include "Wt/WLineF.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPainterPath.h"
+#include "Wt/WPaintDevice.h"
+#include "Wt/WRectF.h"
+#include "Wt/WStringStream.h" 
+#include "Wt/WTransform.h"
+#include "Wt/WWebWidget.h"
 
-#include "Wt/WCanvasPaintDevice"
+#include "Wt/WCanvasPaintDevice.h"
 
 #include "FileUtils.h"
 #include "ImageUtils.h"
@@ -52,11 +52,11 @@ namespace {
 			    double lineHeight,
 			    WFlags<AlignmentFlag> verticalAlign)
   {
-    if (verticalAlign == AlignMiddle) {
+    if (verticalAlign == AlignmentFlag::Middle) {
       return - ((nbLines - 1) * lineHeight / 2.0) + lineNb * lineHeight;
-    } else if (verticalAlign == AlignTop) {
+    } else if (verticalAlign == AlignmentFlag::Top) {
       return lineNb * lineHeight;
-    } else if (verticalAlign == AlignBottom) {
+    } else if (verticalAlign == AlignmentFlag::Bottom) {
       return - (nbLines - 1 - lineNb) * lineHeight;
     } else {
       return 0;
@@ -66,7 +66,7 @@ namespace {
 
 #ifndef WT_TARGET_JAVA
 
-class MultiLineTextRenderer : public Render::WTextRenderer
+class MultiLineTextRenderer final : public Render::WTextRenderer
 {
 public:
   MultiLineTextRenderer(WPainter& painter, const WRectF& rect)
@@ -74,34 +74,40 @@ public:
       rect_(rect)
   { }
 
-  virtual double pageWidth(int page) const {
+  virtual double pageWidth(int page) const override
+  {
     return rect_.right();
   }
 
-  virtual double pageHeight(int page) const {
+  virtual double pageHeight(int page) const override
+  {
     return 1E9;
   }
 
-  virtual double margin(Side side) const {
+  virtual double margin(Side side) const override
+  {
     switch (side) {
-    case Top: return rect_.top(); break;
-    case Left: return rect_.left(); break;
+    case Side::Top: return rect_.top(); break;
+    case Side::Left: return rect_.left(); break;
     default:
       return 0;
     }
   }
 
-  virtual WPaintDevice *startPage(int page) {
+  virtual WPaintDevice *startPage(int page) override
+  {
     if (page > 0)
       assert(false);
 
     return painter_.device();
   }
 
-  virtual void endPage(WPaintDevice *device) {
+  virtual void endPage(WPaintDevice *device) override
+  {
   }
 
-  virtual WPainter *getPainter(WPaintDevice *device) {
+  virtual WPainter *getPainter(WPaintDevice *device) override
+  {
     return &painter_;
   }
 
@@ -113,11 +119,11 @@ private:
 #endif // WT_TARGET_JAVA
 
 WPainter::State::State()
-  : renderHints_(0),
+  : renderHints_(None),
     clipping_(false)
 {
-  currentFont_.setFamily(WFont::SansSerif);
-  currentFont_.setSize(WFont::FixedSize, WLength(10, WLength::Point));
+  currentFont_.setFamily(FontFamily::SansSerif);
+  currentFont_.setSize(WLength(10, LengthUnit::Point));
 }
 
 #ifdef WT_TARGET_JAVA
@@ -179,13 +185,13 @@ void WPainter::Image::setUrl(const std::string& url)
 }
 
 WPainter::WPainter()
-  : device_(0)
+  : device_(nullptr)
 {
   stateStack_.push_back(State());
 }
 
 WPainter::WPainter(WPaintDevice *device)
-  : device_(0)
+  : device_(nullptr)
 {
   begin(device);
 }
@@ -197,15 +203,15 @@ WPainter::~WPainter()
 
 void WPainter::setRenderHint(RenderHint hint, bool on)
 {
-  int old = s().renderHints_;
+  int old = s().renderHints_.value();
 
   if (on)
     s().renderHints_ |= hint;
   else
-    s().renderHints_ &= ~hint;
+    s().renderHints_.clear(hint);
 
-  if (device_ && old != s().renderHints_)
-    device_->setChanged(WPaintDevice::Hints);
+  if (device_ && old != s().renderHints_.value())
+    device_->setChanged(PainterChangeFlag::Hints);
 }
 
 bool WPainter::begin(WPaintDevice *device)
@@ -240,8 +246,8 @@ bool WPainter::end()
 
   device_->done();
 
-  device_->setPainter(0);
-  device_ = 0;
+  device_->setPainter(nullptr);
+  device_ = nullptr;
 
   stateStack_.clear();
 
@@ -250,7 +256,7 @@ bool WPainter::end()
 
 bool WPainter::isActive() const
 {
-  return device_ != 0;
+  return device_ != nullptr;
 }
 
 void WPainter::save()
@@ -261,31 +267,31 @@ void WPainter::save()
 void WPainter::restore()
 {
   if (stateStack_.size() > 1) {
-    WFlags<WPaintDevice::ChangeFlag> flags = 0;
+    WFlags<PainterChangeFlag> flags = None;
 
     State& last = stateStack_.back();
     State& next = stateStack_[stateStack_.size() - 2];
 
     if (last.worldTransform_ != next.worldTransform_)
-      flags |= WPaintDevice::Transform;
+      flags |= PainterChangeFlag::Transform;
     if (last.currentBrush_ != next.currentBrush_)
-      flags |= WPaintDevice::Brush;
+      flags |= PainterChangeFlag::Brush;
     if (last.currentFont_ != next.currentFont_)
-      flags |= WPaintDevice::Font;
+      flags |= PainterChangeFlag::Font;
     if (last.currentPen_ != next.currentPen_)
-      flags |= WPaintDevice::Pen;
+      flags |= PainterChangeFlag::Pen;
     if (last.currentShadow_ != next.currentShadow_)
-      flags |= WPaintDevice::Shadow;
+      flags |= PainterChangeFlag::Shadow;
     if (last.renderHints_ != next.renderHints_)
-      flags |= WPaintDevice::Hints;
+      flags |= PainterChangeFlag::Hints;
     if (last.clipPath_ != next.clipPath_)
-      flags |= WPaintDevice::Clipping;
+      flags |= PainterChangeFlag::Clipping;
     if (last.clipping_ != next.clipping_)
-      flags |= WPaintDevice::Clipping;
+      flags |= PainterChangeFlag::Clipping;
 
     stateStack_.erase(stateStack_.begin() + stateStack_.size() - 1);
 
-    if (flags && device_)
+    if (!flags.empty() && device_)
       device_->setChanged(flags);
   }
 }
@@ -436,10 +442,10 @@ void WPainter::drawStencilAlongPath(const WPainterPath &stencil,
 	    .isPointInPath(worldTransform().map(WPointF(seg.x(),seg.y())))) {
 	continue;
       }
-      if (seg.type() == WPainterPath::Segment::LineTo ||
-	  seg.type() == WPainterPath::Segment::MoveTo ||
-	  seg.type() == WPainterPath::Segment::CubicEnd ||
-	  seg.type() == WPainterPath::Segment::QuadEnd) {
+      if (seg.type() == SegmentType::LineTo ||
+	  seg.type() == SegmentType::MoveTo ||
+	  seg.type() == SegmentType::CubicEnd ||
+	  seg.type() == SegmentType::QuadEnd) {
 	WPointF p = WPointF(seg.x(), seg.y());
 	drawPath((WTransform().translate(p)).map(stencil));
       }
@@ -522,24 +528,12 @@ void WPainter::drawPolyline(const WT_ARRAY WPointF *points, int pointCount)
 
 void WPainter::drawRect(const WRectF& rectangle)
 {
-  WCanvasPaintDevice *cDevice = dynamic_cast<WCanvasPaintDevice*>(device_);
-  if (cDevice && rectangle.isJavaScriptBound()) {
-    cDevice->drawRect(rectangle);
-  } else {
-    drawRect(rectangle.x(), rectangle.y(), rectangle.width(), rectangle.height());
-  }
+  device_->drawRect(rectangle);
 }
 
 void WPainter::drawRect(double x, double y, double width, double height)
 {
-  WPainterPath path(WPointF(x, y));
-
-  path.lineTo(x + width, y);
-  path.lineTo(x + width, y + height);
-  path.lineTo(x, y + height);
-  path.closeSubPath();
-
-  drawPath(path);
+  drawRect(WRectF(x, y, width, height));
 }
 
 void WPainter::drawRects(const WT_ARRAY WRectF *rectangles, int rectCount)
@@ -558,11 +552,12 @@ void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
 			const WString& text)
 {
   if (!(flags & AlignVerticalMask))
-    flags |= AlignTop;
+    flags |= AlignmentFlag::Top;
   if (!(flags & AlignHorizontalMask))
-    flags |= AlignLeft;
+    flags |= AlignmentFlag::Left;
 
-  device_->drawText(rectangle.normalized(), flags, TextSingleLine, text, 0);
+  device_->drawText(rectangle.normalized(), flags, TextFlag::SingleLine,
+		    text, nullptr);
 }
 
 void WPainter::drawText(const WRectF& rectangle, 
@@ -571,22 +566,24 @@ void WPainter::drawText(const WRectF& rectangle,
 			const WString& text,
 			const WPointF *clipPoint)
 {
-  if (textFlag == TextSingleLine) {
+  if (textFlag == TextFlag::SingleLine) {
     if (!(alignmentFlags & AlignVerticalMask))
-      alignmentFlags |= AlignTop;
+      alignmentFlags |= AlignmentFlag::Top;
     if (!(alignmentFlags & AlignHorizontalMask))
-      alignmentFlags |= AlignLeft;
+      alignmentFlags |= AlignmentFlag::Left;
 
-    device_->drawText(rectangle.normalized(), alignmentFlags, TextSingleLine, text, clipPoint);
+    device_->drawText(rectangle.normalized(), alignmentFlags,
+		      TextFlag::SingleLine, text, clipPoint);
   } else {
     if (!(alignmentFlags & AlignVerticalMask))
-      alignmentFlags |= AlignTop;
+      alignmentFlags |= AlignmentFlag::Top;
     if (!(alignmentFlags & AlignHorizontalMask))
-      alignmentFlags |= AlignLeft;
+      alignmentFlags |= AlignmentFlag::Left;
 
-    if (device_->features() & WPaintDevice::CanWordWrap)
-      device_->drawText(rectangle.normalized(), alignmentFlags, textFlag, text, clipPoint);
-    else if (device_->features() & WPaintDevice::HasFontMetrics) {
+    if (device_->features().test(PaintDeviceFeatureFlag::WordWrap))
+      device_->drawText(rectangle.normalized(), alignmentFlags, textFlag, 
+			text, clipPoint);
+    else if (device_->features().test(PaintDeviceFeatureFlag::FontMetrics)) {
 #ifndef WT_TARGET_JAVA
       MultiLineTextRenderer renderer(*this, rectangle);
 
@@ -607,18 +604,18 @@ void WPainter::drawText(const WRectF& rectangle,
 	              << ";text-align:";
 
       switch (horizontalAlign) {
-      case AlignLeft: s << "left"; break;
-      case AlignRight: s << "right"; break;
-      case AlignCenter: s << "center"; break;
+      case AlignmentFlag::Left: s << "left"; break;
+      case AlignmentFlag::Right: s << "right"; break;
+      case AlignmentFlag::Center: s << "center"; break;
       default: break;
       }
 
       s << ";vertical-align:";
 
       switch (verticalAlign) {
-      case AlignTop: s << "top"; break;
-      case AlignBottom: s << "bottom"; break;
-      case AlignMiddle: s << "middle"; break;
+      case AlignmentFlag::Top: s << "top"; break;
+      case AlignmentFlag::Bottom: s << "bottom"; break;
+      case AlignmentFlag::Middle: s << "middle"; break;
       default: break;
       }
 
@@ -635,7 +632,8 @@ void WPainter::drawText(const WRectF& rectangle,
        * them ...
        */
       WPainterPath p;
-      p.addRect(rectangle.x() + 1, rectangle.y() + 1, rectangle.width() - 2, rectangle.height() - 2);
+      p.addRect(rectangle.x() + 1, rectangle.y() + 1, 
+		rectangle.width() - 2, rectangle.height() - 2);
       setClipPath(p);
       setClipping(true);
       renderer.render(WString::fromUTF8(s.str()));
@@ -643,7 +641,7 @@ void WPainter::drawText(const WRectF& rectangle,
 #endif // WT_TARGET_JAVA
     } else
       throw WException("WPainter::drawText(): device does not support "
-		       "TextWordWrap or FontMetrics");
+		       "WordWrap or FontMetrics");
   }
 }
 
@@ -670,9 +668,9 @@ void WPainter::drawTextOnPath(const WRectF &rect,
 			      bool softClipping)
 {
   if (!(alignmentFlags & AlignVerticalMask))
-    alignmentFlags |= AlignTop;
+    alignmentFlags |= AlignmentFlag::Top;
   if (!(alignmentFlags & AlignHorizontalMask))
-    alignmentFlags |= AlignLeft;
+    alignmentFlags |= AlignmentFlag::Left;
   WCanvasPaintDevice *cDevice = dynamic_cast<WCanvasPaintDevice*>(device_);
   if (cDevice) {
     cDevice->drawTextOnPath(rect, alignmentFlags, text, transform, path, angle, lineHeight, softClipping);
@@ -684,10 +682,10 @@ void WPainter::drawTextOnPath(const WRectF &rect,
       const WPainterPath::Segment &seg = path.segments()[i];
       const WPainterPath::Segment &tseg = tpath.segments()[i];
       std::vector<WString> splitText = splitLabel(text[i]);
-      if (seg.type() == WPainterPath::Segment::MoveTo ||
-	  seg.type() == WPainterPath::Segment::LineTo ||
-	  seg.type() == WPainterPath::Segment::QuadEnd ||
-	  seg.type() == WPainterPath::Segment::CubicEnd) {
+      if (seg.type() == SegmentType::MoveTo ||
+	  seg.type() == SegmentType::LineTo ||
+	  seg.type() == SegmentType::QuadEnd ||
+	  seg.type() == SegmentType::CubicEnd) {
 	save();
 	setClipping(false);
 	translate(tseg.x(), tseg.y());
@@ -696,7 +694,7 @@ void WPainter::drawTextOnPath(const WRectF &rect,
 	  double yOffset = calcYOffset(j, splitText.size(), lineHeight, alignmentFlags & AlignVerticalMask);
 	  WPointF p(tseg.x(), tseg.y());
 	  drawText(WRectF(rect.left(), rect.top() + yOffset, rect.width(), rect.height()),
-			      alignmentFlags, TextSingleLine, splitText[j], softClipping ? &p : 0);
+			      alignmentFlags, TextFlag::SingleLine, splitText[j], softClipping ? &p : 0);
 	}
 	restore();
       }
@@ -710,7 +708,7 @@ void WPainter::fillPath(const WPainterPath& path, const WBrush& b)
   WPen   oldPen = WPen(pen());
 
   setBrush(b);
-  setPen(NoPen);
+  setPen(PenStyle::None);
 
   drawPath(path);
 
@@ -724,7 +722,7 @@ void WPainter::fillRect(const WRectF& rectangle, const WBrush& b)
   WPen   oldPen = WPen(pen());
 
   setBrush(b);
-  setPen(NoPen);
+  setPen(PenStyle::None);
 
   drawRect(rectangle);
 
@@ -756,7 +754,7 @@ void WPainter::setBrush(const WBrush& b)
 {
   if (brush() != b) {
     s().currentBrush_ = b;
-    device_->setChanged(WPaintDevice::Brush);
+    device_->setChanged(PainterChangeFlag::Brush);
   }
 }
 
@@ -764,7 +762,7 @@ void WPainter::setFont(const WFont& f)
 {
   if (font() != f) {
     s().currentFont_ = f;
-    device_->setChanged(WPaintDevice::Font);
+    device_->setChanged(PainterChangeFlag::Font);
   }
 }
 
@@ -772,7 +770,7 @@ void WPainter::setPen(const WPen& p)
 {
   if (pen() != p) {
     s().currentPen_ = p;
-    device_->setChanged(WPaintDevice::Pen);
+    device_->setChanged(PainterChangeFlag::Pen);
   }
 }
 
@@ -780,7 +778,7 @@ void WPainter::setShadow(const WShadow& shadow)
 {
   if (this->shadow() != shadow) {
     s().currentShadow_ = shadow;
-    device_->setChanged(WPaintDevice::Shadow);
+    device_->setChanged(PainterChangeFlag::Shadow);
   }
 }
 
@@ -789,7 +787,7 @@ void WPainter::resetTransform()
   s().worldTransform_.reset();
 
   if (device_)
-    device_->setChanged(WPaintDevice::Transform);
+    device_->setChanged(PainterChangeFlag::Transform);
 }
 
 void WPainter::rotate(double angle)
@@ -797,7 +795,7 @@ void WPainter::rotate(double angle)
   s().worldTransform_.rotate(angle);
 
   if (device_)
-    device_->setChanged(WPaintDevice::Transform);
+    device_->setChanged(PainterChangeFlag::Transform);
 }
 
 void WPainter::scale(double sx, double sy)
@@ -805,7 +803,7 @@ void WPainter::scale(double sx, double sy)
   s().worldTransform_.scale(sx, sy);
 
   if (device_)
-    device_->setChanged(WPaintDevice::Transform);
+    device_->setChanged(PainterChangeFlag::Transform);
 }
 
 void WPainter::translate(double dx, double dy)
@@ -818,7 +816,7 @@ void WPainter::translate(const WPointF& p)
   s().worldTransform_.translate(p);
 
   if (device_)
-    device_->setChanged(WPaintDevice::Transform);
+    device_->setChanged(PainterChangeFlag::Transform);
 }
 
 void WPainter::setWorldTransform(const WTransform& matrix, bool combine)
@@ -829,7 +827,7 @@ void WPainter::setWorldTransform(const WTransform& matrix, bool combine)
     s().worldTransform_ = matrix;
 
   if (device_)
-    device_->setChanged(WPaintDevice::Transform);
+    device_->setChanged(PainterChangeFlag::Transform);
 }
 
 void WPainter::setViewPort(const WRectF& viewPort)
@@ -868,7 +866,7 @@ void WPainter::recalculateViewTransform()
   viewTransform_.scale(scaleX, scaleY);
 
   if (device_)
-    device_->setChanged(WPaintDevice::Transform);
+    device_->setChanged(PainterChangeFlag::Transform);
 }
 
 WTransform WPainter::combinedTransform() const
@@ -886,7 +884,7 @@ void WPainter::setClipping(bool enable)
   if (s().clipping_ != enable) {
     s().clipping_ = enable;
     if (device_)
-      device_->setChanged(WPaintDevice::Clipping);
+      device_->setChanged(PainterChangeFlag::Clipping);
   }
 }
 
@@ -896,7 +894,7 @@ void WPainter::setClipPath(const WPainterPath& clipPath)
   s().clipPathTransform_ = combinedTransform();
 
   if (s().clipping_ && device_)
-    device_->setChanged(WPaintDevice::Clipping);
+    device_->setChanged(PainterChangeFlag::Clipping);
 }
 
 WLength WPainter::normalizedPenWidth(const WLength& penWidth,
@@ -915,7 +913,7 @@ WLength WPainter::normalizedPenWidth(const WLength& penWidth,
     } else
       w = 1.0;
 
-    return WLength(w, WLength::Pixel);
+    return WLength(w, LengthUnit::Pixel);
   } else if (w != 0 && !correctCosmetic) {
     // non-cosmetic width -- must be transformed
     const WTransform& t = combinedTransform();
@@ -926,7 +924,7 @@ WLength WPainter::normalizedPenWidth(const WLength& penWidth,
       w *= (std::fabs(d.sx) + std::fabs(d.sy))/2.0;
     }
 
-    return WLength(w, WLength::Pixel);
+    return WLength(w, LengthUnit::Pixel);
   } else
     return penWidth;
 }

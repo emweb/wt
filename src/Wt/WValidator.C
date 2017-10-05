@@ -5,40 +5,34 @@
  */
 #include "WebUtils.h"
 
-#include "Wt/WFormWidget"
-#include "Wt/WValidator"
-#include "Wt/WString"
+#include "Wt/WFormWidget.h"
+#include "Wt/WValidator.h"
+#include "Wt/WString.h"
 
 namespace Wt {
 
 WValidator::Result::Result()
-  : state_(Invalid)
+  : state_(ValidationState::Invalid)
 { }
 
-WValidator::Result::Result(State state, const WString& message)
+WValidator::Result::Result(ValidationState state, const WString& message)
   : state_(state),
     message_(message)
 { }
 
-WValidator::Result::Result(State state)
+WValidator::Result::Result(ValidationState state)
   : state_(state),
     message_(WString::Empty)
 { }
 
-WValidator::WValidator(WObject *parent)
-  : WObject(parent),
-    mandatory_(false)
-{ }
-
-WValidator::WValidator(bool mandatory, WObject *parent)
-  : WObject(parent),
-    mandatory_(mandatory)
+WValidator::WValidator(bool mandatory)
+  : mandatory_(mandatory)
 { }
 
 WValidator::~WValidator()
 {
   for (int i = formWidgets_.size() - 1; i >= 0; --i)
-    formWidgets_[i]->setValidator(0);
+    formWidgets_[i]->setValidator(nullptr);
 }
 
 void WValidator::setMandatory(bool mandatory)
@@ -67,10 +61,10 @@ WValidator::Result WValidator::validate(const WT_USTRING& input) const
 {
   if (isMandatory()) {
     if (input.empty())
-      return Result(InvalidEmpty, invalidBlankText());
+      return Result(ValidationState::InvalidEmpty, invalidBlankText());
   }
 
-  return Result(Valid);  
+  return Result(ValidationState::Valid);  
 }
 
 WT_USTRING WValidator::format() const
@@ -116,16 +110,5 @@ void WValidator::removeFormWidget(WFormWidget *w)
 {
   Utils::erase(formWidgets_, w);
 }
-
-#ifndef WT_TARGET_JAVA
-void WValidator::createExtConfig(std::ostream& config) const
-{
-  if (mandatory_) {
-    config << ",allowBlank:false";
-    if (!mandatoryText_.empty())
-      config << ",blankText:" << mandatoryText_.jsStringLiteral();
-  }
-}
-#endif //WT_TARGET_JAVA
 
 }

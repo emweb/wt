@@ -3,12 +3,12 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WPopupMenu"
-#include "Wt/WPushButton"
-#include "Wt/WResource"
-#include "Wt/WTheme"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WPopupMenu.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WResource.h"
+#include "Wt/WTheme.h"
 
 #include "DomElement.h"
 
@@ -17,27 +17,20 @@ namespace Wt {
 const char *WPushButton::CHECKED_SIGNAL = "M_checked";
 const char *WPushButton::UNCHECKED_SIGNAL = "M_unchecked";
 
-WPushButton::WPushButton(WContainerWidget *parent)
-  : WFormWidget(parent),
-    popupMenu_(0)
+WPushButton::WPushButton()
 { 
-  text_.format = PlainText;
+  text_.format = TextFormat::Plain;
 }
 
-WPushButton::WPushButton(const WString& text, WContainerWidget *parent)
-  : WFormWidget(parent),
-    popupMenu_(0)
+WPushButton::WPushButton(const WString& text)
 { 
-  text_.format = PlainText;
+  text_.format = TextFormat::Plain;
   text_.text = text;
 }
 
-WPushButton::WPushButton(const WString& text, TextFormat format,
-			 WContainerWidget *parent)
-  : WFormWidget(parent),
-    popupMenu_(0)
+WPushButton::WPushButton(const WString& text, TextFormat format)
 { 
-  text_.format = PlainText;
+  text_.format = TextFormat::Plain;
   text_.text = text;
   setTextFormat(format);
 }
@@ -45,7 +38,7 @@ WPushButton::WPushButton(const WString& text, TextFormat format,
 WPushButton::~WPushButton()
 {
   if (popupMenu_)
-    popupMenu_->setButton(0);
+    popupMenu_->setButton(nullptr);
 }
 
 bool WPushButton::setText(const WString& text)
@@ -56,7 +49,7 @@ bool WPushButton::setText(const WString& text)
   bool ok = text_.setText(text);
 
   flags_.set(BIT_TEXT_CHANGED);
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 
   return ok;
 }
@@ -151,7 +144,7 @@ void WPushButton::setIcon(const WLink& link)
   icon_ = link;
   flags_.set(BIT_ICON_CHANGED);
 
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 void WPushButton::setLink(const WLink& link)
@@ -162,26 +155,11 @@ void WPushButton::setLink(const WLink& link)
   linkState_.link = link;
   flags_.set(BIT_LINK_CHANGED);
 
-  if (linkState_.link.type() == WLink::Resource)
+  if (linkState_.link.type() == LinkType::Resource)
     linkState_.link.resource()->dataChanged()
       .connect(this, &WPushButton::resourceChanged);
 
   repaint();
-}
-
-void WPushButton::setLinkTarget(AnchorTarget target)
-{
-  linkState_.link.setTarget(target);
-}
-
-void WPushButton::setRef(const std::string& url)
-{
-  setLink(WLink(url));
-}
-
-void WPushButton::setResource(WResource *resource)
-{
-  setLink(WLink(resource));
 }
 
 void WPushButton::resourceChanged()
@@ -190,9 +168,9 @@ void WPushButton::resourceChanged()
   repaint();
 }
 
-void WPushButton::setMenu(WPopupMenu *popupMenu)
+void WPushButton::setMenu(std::unique_ptr<WPopupMenu> popupMenu)
 {
-  popupMenu_ = popupMenu;
+  popupMenu_ = std::move(popupMenu);
 
   if (popupMenu_)
     popupMenu_->setButton(this);
@@ -203,7 +181,7 @@ void WPushButton::doRedirect()
   WApplication *app = WApplication::instance();
 
   if (!app->environment().ajax()) {
-    if (linkState_.link.type() == WLink::InternalPath)
+    if (linkState_.link.type() == LinkType::InternalPath)
       app->setInternalPath(linkState_.link.internalPath().toUTF8(), true);
     else
       app->redirect(linkState_.link.url());
@@ -215,23 +193,24 @@ DomElementType WPushButton::domElementType() const
   if (!linkState_.link.isNull()) {
     WApplication *app = WApplication::instance();
     if (app->theme()->canStyleAnchorAsButton())
-      return DomElement_A;
+      return DomElementType::A;
   }
 
-  return DomElement_BUTTON;
+  return DomElementType::BUTTON;
 }
 
 void WPushButton::updateDom(DomElement& element, bool all)
 {
-  if (all && element.type() == DomElement_BUTTON)
+  if (all && element.type() == DomElementType::BUTTON)
     element.setAttribute("type", "button");
 
   bool updateInnerHtml = !icon_.isNull() && flags_.test(BIT_TEXT_CHANGED);
 
   if (updateInnerHtml || flags_.test(BIT_ICON_CHANGED)
       || (all && !icon_.isNull())) {
-    DomElement *image = DomElement::createNew(DomElement_IMG);
-    image->setProperty(PropertySrc, icon_.resolveUrl(WApplication::instance()));
+    DomElement *image = DomElement::createNew(DomElementType::IMG);
+    image->setProperty(Property::Src, 
+		       icon_.resolveUrl(WApplication::instance()));
     image->setId("im" + formName());
     element.insertChildAt(image, 0);
     flags_.set(BIT_ICON_RENDERED);
@@ -239,7 +218,7 @@ void WPushButton::updateDom(DomElement& element, bool all)
   }
 
   if (flags_.test(BIT_TEXT_CHANGED) || all) {
-    element.setProperty(Wt::PropertyInnerHTML, text_.formattedText());
+    element.setProperty(Wt::Property::InnerHTML, text_.formattedText());
 
     flags_.reset(BIT_TEXT_CHANGED);
   }
@@ -247,7 +226,7 @@ void WPushButton::updateDom(DomElement& element, bool all)
   // bool needsUrlResolution = false;
 
   if (flags_.test(BIT_LINK_CHANGED) || all) {
-    if (element.type() == DomElement_A) {
+    if (element.type() == DomElementType::A) {
       /* needsUrlResolution = */ WAnchor::renderHRef(this, linkState_, element);
       WAnchor::renderHTarget(linkState_, element, all);
     } else
@@ -268,7 +247,7 @@ void WPushButton::updateDom(DomElement& element, bool all)
 
   if (!all)
     WApplication::instance()->theme()->apply(this, element,
-					     MainElementThemeRole);
+					     ElementThemeRole::MainElement);
 
   WFormWidget::updateDom(element, all);
 }
@@ -286,7 +265,7 @@ void WPushButton::renderHRef(DomElement& element)
 	clicked().connect(this, &WPushButton::doRedirect);
     }
 
-    if (linkState_.link.type() == WLink::InternalPath)
+    if (linkState_.link.type() == LinkType::InternalPath)
       linkState_.clickJS->setJavaScript
 	("function(){" +
 	 app->javaScriptClass() + "._p_.setHash("
@@ -295,17 +274,17 @@ void WPushButton::renderHRef(DomElement& element)
     else {
       std::string url = linkState_.link.resolveUrl(app);
 
-      if (linkState_.link.target() == TargetNewWindow)
+      if (linkState_.link.target() == LinkTarget::NewWindow)
 	linkState_.clickJS->setJavaScript
 	  ("function(){"
 	   "window.open(" + jsStringLiteral(url) + ");"
 	   "}");
-	  else if (linkState_.link.target() == TargetDownload)
-		linkState_.clickJS->setJavaScript
-		  ("function(){"
-		   "var ifr = document.getElementById('wt_iframe_dl_id');"
-		   "ifr.src = "  + jsStringLiteral(url) + ";"
-		  "}");
+      else if (linkState_.link.target() == LinkTarget::Download)
+	linkState_.clickJS->setJavaScript
+	  ("function(){"
+	   "var ifr = document.getElementById('wt_iframe_dl_id');"
+	   "ifr.src = "  + jsStringLiteral(url) + ";"
+	   "}");
       else
 	linkState_.clickJS->setJavaScript
 	  ("function(){"
@@ -313,10 +292,10 @@ void WPushButton::renderHRef(DomElement& element)
 	   "}");
     }
 
-    clicked().senderRepaint(); // XXX only for Java port necessary
+    clicked().ownerRepaint(); // XXX only for Java port necessary
   } else {
     delete linkState_.clickJS;
-    linkState_.clickJS = 0;
+    linkState_.clickJS = nullptr;
   }
 }
 
@@ -325,12 +304,12 @@ void WPushButton::getDomChanges(std::vector<DomElement *>& result,
 {
   if (flags_.test(BIT_ICON_CHANGED) && flags_.test(BIT_ICON_RENDERED)) {
     DomElement *image
-      = DomElement::getForUpdate("im" + formName(), DomElement_IMG);
+      = DomElement::getForUpdate("im" + formName(), DomElementType::IMG);
     if (icon_.isNull()) {
       image->removeFromParent();
       flags_.reset(BIT_ICON_RENDERED);
     } else
-      image->setProperty(PropertySrc, icon_.resolveUrl(app));
+      image->setProperty(Property::Src, icon_.resolveUrl(app));
 
     result.push_back(image);
 
@@ -369,7 +348,7 @@ void WPushButton::refresh()
 {
   if (text_.text.refresh()) {
     flags_.set(BIT_TEXT_CHANGED);
-    repaint(RepaintSizeAffected);
+    repaint(RepaintFlag::SizeAffected);
   }
 
   WFormWidget::refresh();

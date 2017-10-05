@@ -4,36 +4,29 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WInPlaceEdit"
-#include "Wt/WCssDecorationStyle"
-#include "Wt/WContainerWidget"
-#include "Wt/WPushButton"
-#include "Wt/WText"
-#include "Wt/WTheme"
-#include "Wt/WLineEdit"
+#include "Wt/WApplication.h"
+#include "Wt/WInPlaceEdit.h"
+#include "Wt/WCssDecorationStyle.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WText.h"
+#include "Wt/WTheme.h"
+#include "Wt/WLineEdit.h"
 
 namespace Wt {
 
-WInPlaceEdit::WInPlaceEdit(WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    valueChanged_(this)
+WInPlaceEdit::WInPlaceEdit()
 {
   create();
 }
 
-WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    valueChanged_(this)
+WInPlaceEdit::WInPlaceEdit(const WString& text)
 {
   create();
   setText(text);
 }
 
-WInPlaceEdit::WInPlaceEdit(bool buttons, 
-			   const WString& text, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    valueChanged_(this)
+WInPlaceEdit::WInPlaceEdit(bool buttons, const WString& text)
 {
   create();
   setText(text);
@@ -42,20 +35,21 @@ WInPlaceEdit::WInPlaceEdit(bool buttons,
 
 void WInPlaceEdit::create()
 {
-  setImplementation(impl_ = new WContainerWidget());
+  setImplementation(std::unique_ptr<WWidget>(impl_ = new WContainerWidget()));
   setInline(true);
 
-  text_ = new WText(WString::Empty, PlainText, impl_);
-  text_->decorationStyle().setCursor(ArrowCursor);
+  impl_->addWidget(std::unique_ptr<WWidget>
+		   (text_ = new WText(WString::Empty, TextFormat::Plain)));
+  text_->decorationStyle().setCursor(Cursor::Arrow);
 
-  editing_ = new WContainerWidget(impl_);
+  impl_->addWidget(std::unique_ptr<WWidget>(editing_ = new WContainerWidget()));
   editing_->setInline(true);
   editing_->hide();
 
-  edit_ = new WLineEdit(editing_);
+  editing_->addWidget(std::unique_ptr<WWidget>(edit_ = new WLineEdit()));
   edit_->setTextSize(20);
-  save_ = 0;
-  cancel_ = 0;
+  save_ = nullptr;
+  cancel_ = nullptr;
 
   /*
    * This is stateless implementation heaven
@@ -73,7 +67,8 @@ void WInPlaceEdit::create()
   edit_->escapePressed().connect(this, &WInPlaceEdit::cancel);
   edit_->escapePressed().preventPropagation();
 
-  buttons_ = new WContainerWidget(editing_);
+  editing_->addWidget
+    (std::unique_ptr<WWidget>(buttons_ = new WContainerWidget()));
   buttons_->setInline(true);
   buttons_->addStyleClass("input-group-btn"); // FIXME !!!!
 
@@ -95,11 +90,6 @@ void WInPlaceEdit::setText(const WString& text)
     text_->setText(placeholderText());
 
   edit_->setText(text);
-}
-
-void WInPlaceEdit::setEmptyText(const WString& text)
-{
-  setPlaceholderText(text);
 }
 
 void WInPlaceEdit::setPlaceholderText(const WString& text)
@@ -143,11 +133,14 @@ void WInPlaceEdit::cancel()
 void WInPlaceEdit::setButtonsEnabled(bool enabled)
 {
   if (enabled && !save_) {
-    if (c2_.connected())
-      c2_.disconnect();
+    c2_.disconnect();
 
-    save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"), buttons_);
-    cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"), buttons_);
+    buttons_->addWidget
+      (std::unique_ptr<WWidget>
+       (save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"))));
+    buttons_->addWidget
+      (std::unique_ptr<WWidget>
+       (cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"))));
 
     save_->clicked().connect(edit_, &WFormWidget::disable);
     save_->clicked().connect(save_, &WFormWidget::disable);
@@ -158,18 +151,19 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
     cancel_->clicked().connect(text_, &WWidget::show);
     cancel_->clicked().connect(this, &WInPlaceEdit::cancel);
   } else if (!enabled && save_) {
-    delete save_;
-    save_ = 0;
-    delete cancel_;
-    cancel_ = 0;
+    save_->parent()->removeWidget(save_);
+    cancel_->parent()->removeWidget(cancel_);
+    save_ = nullptr;
+    cancel_ = nullptr;
+
     c2_ = edit_->blurred().connect(this, &WInPlaceEdit::save);
   }
 }
 
 void WInPlaceEdit::render(WFlags<RenderFlag> flags)
 {
-  if (save_ && flags & RenderFull)
-    wApp->theme()->apply(this, editing_, InPlaceEditingRole);
+  if (save_ && flags.test(RenderFlag::Full))
+    wApp->theme()->apply(this, editing_, WidgetThemeRole::InPlaceEditing);
 
   WCompositeWidget::render(flags);
 }

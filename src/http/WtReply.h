@@ -28,29 +28,29 @@ class HTTPRequest;
 class WtReply;
 class Configuration;
 
-typedef boost::shared_ptr<WtReply> WtReplyPtr;
+typedef std::shared_ptr<WtReply> WtReplyPtr;
 
 /// A Wt application reply to be sent to a client.
-class WtReply : public Reply
+class WtReply final : public Reply
 {
 public:
   WtReply(Request& request, const Wt::EntryPoint& ep,
 	  const Configuration &config);
 
-  virtual void reset(const Wt::EntryPoint *ep);
-  virtual void writeDone(bool success);
-  virtual void logReply(Wt::WLogger& logger);
+  virtual void reset(const Wt::EntryPoint *ep) override;
+  virtual void writeDone(bool success) override;
+  virtual void logReply(Wt::WLogger& logger) override;
 
   ~WtReply();
 
-  virtual bool consumeData(Buffer::const_iterator begin,
-			   Buffer::const_iterator end,
-			   Request::State state);
+  virtual bool consumeData(const char *begin,
+			   const char *end,
+			   Request::State state) override;
 
   virtual void consumeWebSocketMessage(ws_opcode opcode,
 				       const char* begin,
 				       const char* end,
-				       Request::State state);
+				       Request::State state) override;
 
   void setContentLength(::int64_t length);
   void setContentType(const std::string& type);
@@ -70,7 +70,7 @@ protected:
   std::stringstream in_mem_;
   std::iostream *in_;
   std::string requestFileName_;
-  boost::asio::streambuf out_buf_;
+  asio::streambuf out_buf_;
   std::ostream out_;
   std::string contentType_;
   std::string location_;
@@ -88,17 +88,17 @@ protected:
   bool deflateInitialized_;
 #endif
 
-  virtual std::string contentType();
-  virtual std::string location();
-  virtual ::int64_t contentLength();
+  virtual std::string contentType() override;
+  virtual std::string location() override;
+  virtual ::int64_t contentLength() override;
 
-  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result);
+  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result) override;
 
 private:
   void readRestWebSocketHandshake();
 
-  void consumeRequestBody(Buffer::const_iterator begin,
-			  Buffer::const_iterator end,
+  void consumeRequestBody(const char *begin,
+			  const char *end,
 			  Request::State state);
   void formatResponse(std::vector<asio::const_buffer>& result);
 #ifdef WTHTTP_WITH_ZLIB

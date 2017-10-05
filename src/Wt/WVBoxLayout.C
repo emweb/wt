@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WVBoxLayout"
+#include "Wt/WVBoxLayout.h"
 
 namespace Wt {
 
-WVBoxLayout::WVBoxLayout(WWidget *parent)
-  : WBoxLayout(TopToBottom, parent)
+WVBoxLayout::WVBoxLayout()
+  : WBoxLayout(LayoutDirection::TopToBottom)
 { }
 
 }

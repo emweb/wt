@@ -1,91 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WCIRCLE_AREA_H_
-#define WCIRCLE_AREA_H_
-
-#include <Wt/WAbstractArea>
-
-namespace Wt {
-
-  class WPointF;
-  class WPoint;
-
-/*! \class WCircleArea Wt/WCircleArea Wt/WCircleArea
- *  \brief A interactive area in a widget, specified by a circle.
- *
- * The area may be added to a WImage or WPaintedWidget to provide
- * interactivity on a circular area of the image. The circle is
- * specified in pixel coordinates.
- *
- * \if cpp
- * Usage example:
- * \code
- * Wt::WImage *image = new Wt::WImage("images/events.png", this);
- * Wt::WCircleArea *area = new Wt::WCircleArea(20, 30, 15);
- * image->addArea(area);
- *
- * area->clicked().connect(this, &MyWidget::areaClicked);
- * \endcode
- * \endif
- *
- * \sa WImage::addArea(), WPaintedWidget::addArea()
- * \sa WRectArea, WPolygonArea
- */
-class WT_API WCircleArea : public WAbstractArea
-{
-public:
-  /*! \brief Default constructor.
-   *
-   * Specifies a circular area with center (0, 0) and radius 0. 
-   */
-  WCircleArea();
-
-  /*! \brief Creates a circular area with given geometry. 
-   *
-   * The arguments are in pixel units.
-   */
-  WCircleArea(int x, int y, int radius);
-
-  /*! \brief Sets the center.
-   */
-  void setCenter(const WPoint& point);
-
-  /*! \brief Sets the center.
-   */
-  void setCenter(const WPointF& point);
-
-  /*! \brief Sets the center.
-   */
-  void setCenter(int x, int y);
-
-  /*! \brief Returns the center X coordinate.
-   */
-  int centerX() const { return static_cast<int>(x_); }
-
-  /*! \brief Returns the center Y coordinate.
-   */
-  int centerY() const { return static_cast<int>(y_); }
-
-  /*! \brief Sets the radius. 
-   */
-  void setRadius(int radius);
-
-  /*! \brief Returns the radius.
-   */
-  int radius() const { return static_cast<int>(r_); }
-
-private:
-  double x_, y_, r_;
-
-protected:
-  virtual bool updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
-  virtual std::string updateAreaCoordsJS() WT_CXX11ONLY(override);
-};
-
-}
-
-#endif // WCIRCLE_AREA_H_
+#ifndef WT_WCIRCLEAREA_EXTENSIONLESS_H_
+#define WT_WCIRCLEAREA_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WCircleArea.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WCircleArea.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WCircleArea.h"
+#endif // WT_WCIRCLEAREA_EXTENSIONLESS_H_
