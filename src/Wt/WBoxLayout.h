@@ -162,6 +162,16 @@ public:
   void addWidget(std::unique_ptr<WWidget> widget, int stretch,
                  WFlags<AlignmentFlag> alignment);
 
+  /*! \brief Adds a widget to the layout, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Widget *result = widget.get();
+   * addWidget(std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
+   * return result;
+   * \encode
+   */
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int stretch = 0,
                       WFlags<AlignmentFlag> alignment = None)
@@ -180,6 +190,16 @@ public:
   void addLayout(std::unique_ptr<WLayout> layout, int stretch,
                  WFlags<AlignmentFlag> alignment);
 
+  /*! \briefs Adds a nested layout to the layout, returning a raw pointer.
+   *
+   * This is implemented as:
+   * 
+   * \code
+   * Layout *result = layout.get();
+   * addLayout(std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
+   * return result;
+   * \endcode
+   */
   template <typename Layout>
     Layout *addLayout(std::unique_ptr<Layout> layout, int stretch = 0,
                       WFlags<AlignmentFlag> alignment = None)
@@ -227,6 +247,24 @@ public:
   void insertWidget(int index, std::unique_ptr<WWidget> widget, int stretch = 0,
 		    WFlags<AlignmentFlag> alignment = None);
 
+  /*! \brief Inserts a widget in the layout, returning a raw pointer.
+   *
+   * This is implemented as:
+   * \code
+   * Widget *result = widget.get();
+   * insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
+   * return result;
+   * \endcode
+   */
+  template <typename Widget>
+    Widget *insertWidget(int index, std::unique_ptr<Widget> widget, int stretch = 0,
+			 WFlags<AlignmentFlag> alignment = None)
+  {
+    Widget *result = widget.get();
+    insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
+    return result;
+  }
+
   /*! \brief Inserts a nested layout in the layout.
    *
    * Inserts a nested layout in the layout at position\p index,
@@ -236,6 +274,24 @@ public:
    */
   void insertLayout(int index, std::unique_ptr<WLayout> layout, int stretch = 0,
 		    WFlags<AlignmentFlag> alignment = None);
+
+  /*! \briefs Inserts a nested layout in the layout, returning a raw pointer.
+   *
+   * This is implemented as:
+   * \code
+   * Layout *result = layout.get();
+   * addLayout(index, std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
+   * return result;
+   * \encode
+   */
+  template <typename Layout>
+    Layout *insertLayout(int index, std::unique_ptr<Layout> layout, int stretch = 0,
+	                 WFlags<AlignmentFlag> alignment = None)
+  {
+    Layout *result = layout.get();
+    insertLayout(index, std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
+    return result;
+  }
 
   /*! \brief Inserts extra spacing in the layout.
    *

@@ -173,8 +173,7 @@ public:
   /*! \brief Adds a layout item to the grid.
    *
    * Adds the <i>item</i> at (<i>row</i>, \p column). If an item
-   * was already added to that location, it is replaced (but not
-   * deleted).
+   * was already added to that location, it is replaced.
    *
    * An item may span several more rows or columns, which is
    * controlled by <i>rowSpan</i> and \p columnSpan.
@@ -254,6 +253,16 @@ public:
   void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
                  WFlags<AlignmentFlag> alignment);
 
+  /*! \brief Adds a widget to the grid, returning a raw pointer to the widget.
+   *
+   * This is implemented as:
+   * 
+   * \code
+   * Widget *result = widget.get();
+   * addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column, alignment);
+   * return result;
+   * \endcode
+   */
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
                       WFlags<AlignmentFlag> alignment = None)
@@ -286,6 +295,17 @@ public:
 		 int rowSpan, int columnSpan,
 		 WFlags<AlignmentFlag> alignment);
 
+  /*! \brief Adds a widget to the grid, returning a raw pointer to the widget.
+   *
+   * This is implemented as:
+   * 
+   * \code
+   * Widget *result = widget.get();
+   * addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column,
+   *           rowSpan, columnSpan, alignment);
+   * return result;
+   * \endcode
+   */
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
                       int rowSpan, int columnSpan,
