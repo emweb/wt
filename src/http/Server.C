@@ -61,8 +61,7 @@ namespace {
   }
 #endif //HTTP_WITH_SSL
 
-  // The interval to run WebController::expireSessions(),
-  // when running as a dedicated process.
+  // The interval to run WebController::expireSessions()
   static const int SESSION_EXPIRE_INTERVAL = 5;
 }
 
@@ -126,7 +125,10 @@ Wt::WebController *Server::controller()
 
 void Server::start()
 {
-  if (config_.parentPort() != -1) {
+  if (wt_.configuration().sessionPolicy() != Wt::Configuration::DedicatedProcess ||
+      config_.parentPort() != -1) {
+    // If we have one shared process, or this is the only session process,
+    // run expireSessions() every SESSION_EXPIRE_INTERVAL seconds
     expireSessionsTimer_.expires_from_now(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
     expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
 	  asio::placeholders::error));
@@ -436,7 +438,10 @@ void Server::expireSessions(boost::system::error_code ec)
   LOG_DEBUG_S(&wt_, "expireSession()" << ec.message());
 
   if (!ec) {
-    if (!wt_.expireSessions())
+    bool haveMoreSessions = wt_.expireSessions();
+    if (!haveMoreSessions &&
+	wt_.configuration().sessionPolicy() == Wt::Configuration::DedicatedProcess &&
+	config_.parentPort() != -1)
       wt_.scheduleStop();
     else {
       expireSessionsTimer_.expires_from_now(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
