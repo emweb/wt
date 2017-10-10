@@ -34,11 +34,6 @@ void WRegExpValidator::setRegExp(const WT_USTRING& pattern)
   repaint();
 }
 
-void WRegExpValidator::setNoMatchText(const WString& text)
-{
-  setInvalidNoMatchText(text);
-}
-
 void WRegExpValidator::setInvalidNoMatchText(const WString& text)
 {
   noMatchText_ = text;
