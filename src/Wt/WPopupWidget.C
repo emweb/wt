@@ -33,8 +33,7 @@ WPopupWidget::WPopupWidget(std::unique_ptr<WWidget> impl)
   jsHidden_.connect(this, &WWidget::hide);
   jsShown_.connect(this, &WWidget::show);
 
-  WApplication::instance()->internalPathChanged()
-    .connect(this, &WWidget::hide);
+  WApplication::instance()->internalPathChanged().connect(this, &WPopupWidget::onPathChange);
 }
 
 WPopupWidget::~WPopupWidget()
@@ -59,6 +58,11 @@ void WPopupWidget::setTransient(bool isTransient, int autoHideDelay)
        << transient_ << ',' << autoHideDelay_ << ");";
     doJavaScript(ss.str());
   }
+}
+
+void WPopupWidget::onPathChange()
+{
+  hide();
 }
 
 void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
