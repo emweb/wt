@@ -115,7 +115,9 @@ public:
 
   /*! \brief Sets the text to be shown if no match can be found.
    *
-   * Sets the text to be shown if no match can be found.
+   * This calls setInvalidNoMatchText()
+   *
+   * \deprecated Use setInvalidNoMatchText() instead
    */
   void setNoMatchText(const WString& text);
 
