@@ -445,6 +445,7 @@ public:
 
 protected:
   virtual void render(WFlags<RenderFlag> flags);
+  virtual void onPathChange();
 
 private:
   WTemplate *impl_;

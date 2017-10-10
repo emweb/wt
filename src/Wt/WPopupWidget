@@ -120,6 +120,7 @@ public:
 protected:
   virtual void render(WFlags<RenderFlag> flags);
   virtual void setParent(WObject *parent);
+  virtual void onPathChange();
 
 private:
   WObject *fakeParent_;

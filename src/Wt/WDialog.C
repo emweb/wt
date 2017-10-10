@@ -441,6 +441,10 @@ void WDialog::render(WFlags<RenderFlag> flags)
   WPopupWidget::render(flags);
 }
 
+void WDialog::onPathChange()
+{
+}
+
 void WDialog::rejectWhenEscapePressed(bool enable)
 {
   escapeIsReject_ = enable;
