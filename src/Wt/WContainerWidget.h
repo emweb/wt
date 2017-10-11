@@ -215,7 +215,7 @@ public:
    *
    * \code
    * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
-   * Widget &result = *w;
+   * Widget *result = w.get();
    * addWidget(std::unique_ptr<WWidget>{std::move(w)});
    * return result;
    * \endcode
@@ -224,15 +224,15 @@ public:
    * getting a reference to it, e.g.:
    *
    * \code
-   * Wt::WPushButton &button = container->addNew<Wt::WPushButton>("Click me!");
+   * Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Click me!");
    * // do something with button, including safely using it in a lambda function
    * \endcode
    */
   template <typename Widget, typename ...Args>
-    Widget &addNew( Args&& ...args )
+    Widget *addNew( Args&& ...args )
   {
     std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
-    Widget &result = *w;
+    Widget *result = w.get();
     addWidget(std::unique_ptr<WWidget>{std::move(w)});
     return result;
   }
@@ -306,16 +306,16 @@ public:
    *
    * \code
    * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
-   * Widget &result = *w;
+   * Widget *result = w.get();
    * insertWidget(index, std::unique_ptr<WWidget>{std::move(w)});
    * return result;
    * \endcode
    */
   template <typename Widget, typename ...Args>
-    Widget &insertNew(int index, Args&& ...args)
+    Widget *insertNew(int index, Args&& ...args)
   {
     std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
-    Widget &result = *w;
+    Widget *result = w.get();
     insertWidget(index, std::unique_ptr<WWidget>{std::move(w)});
     return result;
   }
