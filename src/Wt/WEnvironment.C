@@ -570,6 +570,8 @@ void WEnvironment::parseCookies(const std::string& cookie,
   boost::split(list, cookie, boost::is_any_of(";"));
   for (unsigned int i = 0; i < list.size(); ++i) {
     std::string::size_type e = list[i].find('=');
+    if (e == std::string::npos)
+      continue;
     std::string cookieName = list[i].substr(0, e);
     std::string cookieValue =
       (e != std::string::npos && list[i].size() > e + 1) ?
