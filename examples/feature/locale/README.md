@@ -11,7 +11,7 @@ See the README in the parent directory.
 What it illustrates
 -------------------
 
-Timezones are not straitforward to deal with; the browser does not provide
+Timezones are not straightforward to deal with; the browser does not provide
 information on the user's time zone, but only on his current UTC offset.
 
 The UTC offset is sufficient to show the current time in the user's time zone,
