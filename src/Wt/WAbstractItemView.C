@@ -21,6 +21,8 @@
 #include "SizeHandle.h"
 #include "WebUtils.h"
 
+#include <cstdlib>
+
 namespace Wt {
 
 LOGGER("WAbstractItemView");
@@ -1360,9 +1362,10 @@ void WAbstractItemView::expandColumn(int columnid)
 void WAbstractItemView::handleClick(const WModelIndex& index,
 				    const WMouseEvent& event)
 {
-  if (dragEnabled_ && delayedClearAndSelectIndex_.isValid() &&
-      event.dragDelta().x < 4 && event.dragDelta().y < 4) {
-    select(delayedClearAndSelectIndex_, ClearAndSelect);
+  if (dragEnabled_ && delayedClearAndSelectIndex_.isValid()) {
+    Coordinates delta = event.dragDelta();
+    if (std::abs(delta.x) < 4 && std::abs(delta.y) < 4)
+      select(delayedClearAndSelectIndex_, ClearAndSelect);
   }
 
   bool doEdit = index.isValid() && (editTriggers() & SingleClicked);
