@@ -11,6 +11,7 @@ SUBDIRS(
   oauth
   oidc
   paypal
+  postall
   scrollvisibility
   serverpush
   socketnotifier

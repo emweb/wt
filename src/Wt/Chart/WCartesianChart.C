@@ -1032,7 +1032,12 @@ public:
 
 	    std::unique_ptr<WCircleArea> circleArea(new WCircleArea());
 	    circleArea->setCenter(WPointF(p.x(), p.y()));
-	    circleArea->setRadius(5);
+	    const double *scaleFactorP = series.model()
+	      ->markerScaleFactor(yRow, yColumn);
+	    double scaleFactor = scaleFactorP != 0 ? *scaleFactorP : 1.0;
+	    if (scaleFactor < 1.0)
+	      scaleFactor = 1.0;
+	    circleArea->setRadius(int(scaleFactor * 5.0));
 	    circleArea->setToolTip(toolTip);
 
 	    const_cast<WCartesianChart&>(chart_)
@@ -1152,13 +1157,20 @@ public:
     if (matchedSeries_)
       return; // we already have a match
     if (!Utils::isNaN(x) && !Utils::isNaN(y)) {
+      const double *scaleFactorP = series.model()->markerScaleFactor(yRow, yColumn);
+      double scaleFactor = scaleFactorP != 0 ? *scaleFactorP : 1.0;
+      if (scaleFactor < 1.0)
+	scaleFactor = 1.0;
+      double scaledRx = scaleFactor * rX_;
+      double scaledRy = scaleFactor * rY_;
+      
       WPointF p = chart_.map(x, y, series.axis(), currentXSegment(), currentYSegment());
       double dx = p.x() - matchX_;
       double dy = p.y() - matchY_;
       double dx2 = dx * dx;
       double dy2 = dy * dy;
-      double rx2 = rX_ * rX_;
-      double ry2 = rY_ * rY_;
+      double rx2 = scaledRx * scaledRx;
+      double ry2 = scaledRy * scaledRy;
       if (dx2/rx2 + dy2/ry2 <= 1) {
 	matchedXRow_ = xRow;
 	matchedXColumn_ = xColumn;
