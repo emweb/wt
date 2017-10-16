@@ -170,7 +170,7 @@ public:
    * Widget *result = widget.get();
    * addWidget(std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
    * return result;
-   * \encode
+   * \endcode
    */
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int stretch = 0,
@@ -282,7 +282,7 @@ public:
    * Layout *result = layout.get();
    * addLayout(index, std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
    * return result;
-   * \encode
+   * \endcode
    */
   template <typename Layout>
     Layout *insertLayout(int index, std::unique_ptr<Layout> layout, int stretch = 0,

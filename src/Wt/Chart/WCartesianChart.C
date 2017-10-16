@@ -1034,7 +1034,7 @@ public:
 	    circleArea->setCenter(WPointF(p.x(), p.y()));
 	    const double *scaleFactorP = series.model()
 	      ->markerScaleFactor(yRow, yColumn);
-	    double scaleFactor = scaleFactorP != 0 ? *scaleFactorP : 1.0;
+	    double scaleFactor = scaleFactorP != nullptr ? *scaleFactorP : 1.0;
 	    if (scaleFactor < 1.0)
 	      scaleFactor = 1.0;
 	    circleArea->setRadius(int(scaleFactor * 5.0));
@@ -1158,7 +1158,7 @@ public:
       return; // we already have a match
     if (!Utils::isNaN(x) && !Utils::isNaN(y)) {
       const double *scaleFactorP = series.model()->markerScaleFactor(yRow, yColumn);
-      double scaleFactor = scaleFactorP != 0 ? *scaleFactorP : 1.0;
+      double scaleFactor = scaleFactorP != nullptr ? *scaleFactorP : 1.0;
       if (scaleFactor < 1.0)
 	scaleFactor = 1.0;
       double scaledRx = scaleFactor * rX_;
