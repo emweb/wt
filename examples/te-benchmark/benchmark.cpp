@@ -125,10 +125,15 @@ struct DbStruct {
     : connection(0),
       rng(clock()),
       distribution(1, 10000) {
+    std::string dbHostStr = "localhost";
+    char *dbHost = std::getenv("DBHOST");
+    if (dbHost)
+      dbHostStr = std::string(dbHost);
 #ifndef BENCHMARK_USE_POSTGRES
-    auto c = Wt::cpp14::make_unique<MyConnection>("hello_world", "benchmarkdbuser", "benchmarkdbpass", "INSERT_DB_HOST_HERE", 3306);
+    auto c = Wt::cpp14::make_unique<MyConnection>("hello_world", "benchmarkdbuser", "benchmarkdbpass", dbHostStr, 3306);
 #else
-    auto c = Wt::cpp14::make_unique<MyConnection>("host=INSERT_DB_HOST_HERE port=5432 user=benchmarkdbuser password=benchmarkdbpass dbname=hello_world");
+    auto connStr = std::string("host=") + dbHostStr + " port=5432 user=benchmarkdbuser password=benchmarkdbpass dbname=hello_world";
+    auto c = Wt::cpp14::make_unique<MyConnection>(connStr);
 #endif
 
     connection = c.get();
@@ -325,11 +330,12 @@ class PlaintextResource : public Wt::WResource {
 int main(int argc, char** argv) {
   try {
     Wt::WServer server(argv[0]);
-    auto bundle = std::make_shared<Wt::WMessageResourceBundle>();
-    bundle->use("fortunes");
-    server.setLocalizedStrings(bundle);
 
     server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+
+    auto bundle = std::make_shared<Wt::WMessageResourceBundle>();
+    bundle->use(server.appRoot() + "fortunes");
+    server.setLocalizedStrings(bundle);
 
     JsonResource jsonResource;
     server.addResource(&jsonResource, "/json");
