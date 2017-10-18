@@ -110,12 +110,6 @@ public:
    */
   virtual Result validate(const WT_USTRING& input) const override;
 
-  /*! \brief Sets the text to be shown if no match can be found.
-   *
-   * Sets the text to be shown if no match can be found.
-   */
-  void setNoMatchText(const WString& text);
-
   /*! \brief Sets the message to display when the input does not match.
    *
    * The default value is "Invalid input".

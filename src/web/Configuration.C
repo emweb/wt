@@ -12,7 +12,7 @@
 #include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
-#ifdef WT_CONF_LOCK
+#ifdef WT_BOOST_CONF_LOCK
 #include <boost/thread.hpp>
 #endif
 #include <sys/types.h>
@@ -32,7 +32,10 @@
 #include <process.h>
 #endif
 
-#ifdef WT_CONF_LOCK
+#if defined(WT_STD_CONF_LOCK)
+#define READ_LOCK std::shared_lock<std::shared_mutex> lock(mutex_)
+#define WRITE_LOCK std::unique_lock<std::shared_mutex> lock(mutex_)
+#elif defined(WT_BOOST_CONF_LOCK)
 #define READ_LOCK boost::shared_lock<boost::shared_mutex> lock(mutex_)
 #define WRITE_LOCK boost::lock_guard<boost::shared_mutex> lock(mutex_)
 #else

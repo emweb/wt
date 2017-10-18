@@ -13,13 +13,27 @@
 #include <string>
 
 #if defined(WT_THREADED) && !defined(WT_CONF_NO_SHARED_LOCK)
+#if _MSC_VER >= 1900
+// we're using Visual Studio 2015 or higher, so we can use std::shared_mutex
+#define WT_STD_CONF_LOCK
 #define WT_CONF_LOCK
+#else
+#define WT_BOOST_CONF_LOCK
+#define WT_CONF_LOCK
+#endif
 #endif
 
 #ifdef WT_CONF_LOCK
 #include <thread>
-#include <boost/thread/shared_mutex.hpp>
 #endif // WT_CONF_LOCK
+
+#ifdef WT_STD_CONF_LOCK
+#include <shared_mutex>
+#endif  // WT_STD_CONF_LOCK
+
+#ifdef WT_BOOST_CONF_LOCK
+#include <boost/thread/shared_mutex.hpp>
+#endif // WT_BOOST_CONF_LOCK
 
 #include "Wt/WApplication.h"
 
@@ -229,9 +243,12 @@ private:
     BootstrapMethod method;
   };
 
-#ifdef WT_CONF_LOCK
+#ifdef WT_STD_CONF_LOCK
+  mutable std::shared_mutex mutex_;
+#endif // WT_STD_CONF_LOCK
+#ifdef WT_BOOST_CONF_LOCK
   mutable boost::shared_mutex mutex_;
-#endif // WT_CONF_LOCK
+#endif // WT_BOOST_CONF_LOCK
 
   WServer *server_;
   std::string applicationPath_;

@@ -479,7 +479,7 @@ public:
    *
    * \code
    * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
-   * Widget &result = *w;
+   * Widget *result = w.get();
    * bindWidget(varName, std::unique_ptr<WWidget>(std::move(w)));
    * return result;
    * \endcode
@@ -487,11 +487,11 @@ public:
    * This is a useful shorthand for creating and binding a widget in one go.
    */
   template <typename Widget, typename ...Args>
-    Widget &bindNew(const std::string& varName,
+    Widget *bindNew(const std::string& varName,
 	            Args&& ...args)
   {
     std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
-    Widget &result = *w;
+    Widget *result = w.get();
     bindWidget(varName, std::unique_ptr<WWidget>(std::move(w)));
     return result;
   }

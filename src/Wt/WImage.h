@@ -132,7 +132,7 @@ public:
    * Area *result = area.get();
    * addArea(std::unique_ptr<WAbstractArea>(std::move(area)));
    * return result;
-   * \encode
+   * \endcode
    */
   template <typename Area>
     Area *addArea(std::unique_ptr<Area> area)
@@ -167,7 +167,7 @@ public:
    * Area *result = area.get();
    * insertArea(index, std::unique_ptr<WAbstractArea>(std::move(area)));
    * return result;
-   * \encode
+   * \endcode
    */
   template <typename Area>
     Area *insertArea(int index, std::unique_ptr<Area> area)

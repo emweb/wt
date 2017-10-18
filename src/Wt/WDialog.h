@@ -434,6 +434,7 @@ public:
 
 protected:
   virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void onPathChange() override;
 
 private:
   WTemplate *impl_;

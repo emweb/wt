@@ -112,6 +112,7 @@ public:
 
 protected:
   virtual void render(WFlags<RenderFlag> flags) override;
+  virtual void onPathChange();
 
 private:
   observing_ptr<WWidget> anchorWidget_;
