@@ -153,7 +153,7 @@
 	  -->
 	<connector-isapi>
 
-	    <!-- Maximum Request Size spooled in memory (Kb)
+	    <!-- Maximum Request Size spooled in memory (KiB)
         
                Normally, Wt keeps incoming requests (POST data) in memory.
                However, malicious users could send a big POST and as such
@@ -227,14 +227,14 @@
 	  -->
 	<log-config>* -debug</log-config>
 
-	<!-- Maximum HTTP request size (Kb)
+	<!-- Maximum HTTP request size (KiB)
 
            Maximum size of an incoming POST request. This value must be
            increased when the user is allowed to upload files.
          -->
 	<max-request-size>128</max-request-size>
 
-	<!-- Maximum form data (Kb)
+	<!-- Maximum form data (KiB)
 	     
 	   Maximum size of the data in a POST request of type
 	   'application/x-www-form-urlencoded' (used for Wt form-field values)

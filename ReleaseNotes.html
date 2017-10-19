@@ -22,6 +22,29 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.0.1 (November 2017)</h2>
+<p>This is a smaller release with mostly bugfixes, and some new features:</p>
+<dl>
+  <dt>Added <a href="classWt_1_1WContainerWidget.html#acf75dda5024db05cf847c282f8a99117">WContainerWidget::addNew()</a> and similar methods</dt>
+  <dd>Because writing code like this:
+<div class="fragment">
+  <div class="line"><tt>auto text = root()-&gt;addWidget(std::make_unique&lt;Wt::WText&gt;("Hello!"));</tt></div>
+</div>
+  is a bit verbose, a shorthand was added that creates the widget and adds it to the container in one go:
+<div class="fragment">
+  <div class="line"><tt>auto text = root()-&gt;addNew&lt;Wt::WText&gt;("Hello!");</tt></div>
+</div>
+<tt>addNew</tt> forwards its arguments to the constructor, just like <tt>std::make_unique</tt>.
+Along those lines, we added <a href="classWt_1_1WContainerWidget.html#a5a7e7b9fe21bdc38f7a270193ed83243">WContainerWidget::insertNew()</a> and <a href="classWt_1_1WTemplate.html#a240f910cd1e3d5b7876aa20f6b33767c">WTemplate::bindNew()</a>.
+  </dd>
+  <dt>Added the <tt>&lt;max-formdata-size&gt;</tt> configuration option</dt>
+  <dd>Previously, the maximum size of form data sent by Wt in a single POST request was capped to 5 MiB.
+      In applications with a large amount of forms with a lot of data, that may not be enough,
+      so <tt>&lt;max-formdata-size&gt;</tt> can be used to adjust this independently. Note that
+      the maximum request size (and by consequence, the form data size) is still capped by
+      <tt>&lt;max-request-size&gt;</tt>.</dd>
+</dl>
+
 <h2>Release 4.0.0 (September 19, 2017)</h2>
 <p>
   This release has all of the added features of Wt 3.3.8, but comes with many notable changes. In general,
