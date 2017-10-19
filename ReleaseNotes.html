@@ -22,6 +22,30 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.9 (November 2017)</h2>
+<p>This release consists mostly of bug fixes and adds some new features:</p>
+<dl>
+  <dt>Microsoft SQL Server backend for Wt::Dbo (also in Wt 4.0.0)</dt>
+  <dd>We've added Microsoft SQL Server support to Wt::Dbo, making it the sixth
+   backend we support, alongside Sqlite, PostgreSQL, MySQL (and MariaDB),
+   Firebird, and Oracle (not part of the open source Wt because of licensing).
+   With this addition, Wt::Dbo now supports most commonly used relational database
+   management systems. It's based on ODBC and works with Microsoft's ODBC Driver
+   for SQL Server. With unixODBC, Linux and macOS are also supported.</dd>
+  <dt>Added the <tt>--resources-dir</tt> option to wthttp (also in Wt 4.0.0)</dt>
+  <dd>With the <tt>--resources-dir</tt> option, all requests for static resources
+  (in <tt>/resources</tt>) will fallback to this specified folder, so that you don't
+   need to copy or create a symlink to the resources folder anymore. This also means
+   that resources can be selectively overridden, just by creating a file with the same
+   name in the resources folder of your docroot.</dd>
+  <dt>Added the <tt>&lt;max-formdata-size&gt;</tt> configuration option (also in Wt 4.0.1)</dt>
+  <dd>Previously, the maximum size of form data sent by Wt in a single POST request was capped to 5 MiB.
+      In applications with a large amount of forms with a lot of data, that may not be enough,
+      so <tt>&lt;max-formdata-size&gt;</tt> can be used to adjust this independently. Note that
+      the maximum request size (and by consequence, the form data size) is still capped by
+      <tt>&lt;max-request-size&gt;</tt>.</dd>
+</dl>
+
 <h2>Release 3.3.8 (August 16, 2017)</h2>
 <p>
   This release consists of bug fixes and some new features:
