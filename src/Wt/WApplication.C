@@ -463,7 +463,13 @@ std::string WApplication::relativeResourcesUrl()
     } else 
       return *path;
   } else { // from v3.0, resources can be deployed in META-INF of a jar-file
-    return app->environment().server()->getContextPath() + *path;
+    std::string contextPath = app->environment().server()->getContextPath();
+    if (!contextPath.empty() && contextPath[contextPath.length() - 1] != '/')
+      contextPath = contextPath + "/";
+    if (path == "/wt-resources/")
+      return  contextPath + path->substr(1);
+    else
+      return contextPath + *path;
   }
 #endif // WT_TARGET_JAVA
 }

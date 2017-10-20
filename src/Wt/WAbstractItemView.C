@@ -21,8 +21,6 @@
 #include "SizeHandle.h"
 #include "WebUtils.h"
 
-#include <cstdlib>
-
 namespace Wt {
 
 LOGGER("WAbstractItemView");
@@ -1364,7 +1362,7 @@ void WAbstractItemView::handleClick(const WModelIndex& index,
 {
   if (dragEnabled_ && delayedClearAndSelectIndex_.isValid()) {
     Coordinates delta = event.dragDelta();
-    if (std::abs(delta.x) < 4 && std::abs(delta.y) < 4)
+    if ((delta.x < 0 ? -delta.x : delta.x) < 4 && (delta.y < 0 ? -delta.y : delta.y) < 4)
       select(delayedClearAndSelectIndex_, ClearAndSelect);
   }
 
