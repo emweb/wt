@@ -683,9 +683,11 @@ public:
 
   /*! \brief Returns a widget for a variable name.
    *
-   * This is a convience method, which calls resolveWidget() and casts
+   * This is a convience method, which calls resolveWidget() and dynamic casts
    * the result to type \p T. You may use this method to fetch widgets
    * that have previously been bound using bindWidget().
+   *
+   * If the cast fails, a null pointer is returned.
    */
   template <typename T> T resolve(const std::string& varName);
 
