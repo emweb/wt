@@ -1102,8 +1102,8 @@ User.
 .Using a foreign key as primary key (tutorial7.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 namespace dbo = Wt::Dbo;
 
