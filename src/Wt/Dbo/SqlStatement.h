@@ -176,6 +176,13 @@ public:
    *
    * Returns \c true when the value was not \c null.
    */
+  virtual bool getResult(int column, std::chrono::seconds *value)
+    = 0;
+
+  /*! \brief Fetches a result value.
+   *
+   * Returns \c true when the value was not \c null.
+   */
   virtual bool getResult(int column, std::vector<unsigned char> *value,
 			 int size) = 0;
 

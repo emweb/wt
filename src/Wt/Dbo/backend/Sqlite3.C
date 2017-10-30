@@ -412,6 +412,21 @@ public:
     return true;
   }
 
+  virtual bool getResult(int column, std::chrono::seconds *value) override
+  {
+    if (sqlite3_column_type(st_, column) == SQLITE_NULL)
+      return false;
+
+    long long msec = sqlite3_column_int64(st_, column);
+
+    *value = std::chrono::seconds(msec);
+
+    DEBUG(std::cerr << this
+      << " result time_duration " << column << " " << value->count() << "ms" << std::endl);
+
+    return true;
+  }
+
   virtual bool getResult(int column, std::chrono::system_clock::time_point *value,
 			 SqlDateTimeType type) override
   {

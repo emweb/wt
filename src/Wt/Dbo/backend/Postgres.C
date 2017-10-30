@@ -532,6 +532,27 @@ public:
     return true;
   }
 
+  virtual bool getResult(int column, std::chrono::seconds *value) override
+  {
+    if (PQgetisnull(result_, row_, column))
+      return false;
+
+    std::string v = PQgetvalue(result_, row_, column);
+    bool neg = false;
+    if (!v.empty() && v[0] == '-') {
+      neg = true;
+      v = v.substr(1);
+    }
+
+    std::istringstream in(v);
+    in.imbue(std::locale::classic());
+    in >> date::parse("%T", *value);
+    if (neg)
+      *value = -(*value);
+
+    return true;
+  }
+
   virtual bool getResult(int column, std::vector<unsigned char> *value,
 			 int size) override
   {
