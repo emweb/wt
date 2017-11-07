@@ -821,20 +821,6 @@ void WebRenderer::collectJavaScript()
   collectedJS1_ << invisibleJS_.str();
   invisibleJS_.clear();
 
-  if (app->bodyHtmlClassChanged_) {
-    bool widgetset = session_.type() == EntryPointType::WidgetSet;
-    std::string op = widgetset ? "+=" : "=";
-    collectedJS1_ << "document.body.parentNode.className" << op << '\''
-		  << app->htmlClass_ << "';"
-		  << "document.body.className" << op << '\'' << bodyClassRtl() << "';"
-		  << "document.body.setAttribute('dir', '";
-    if (app->layoutDirection() == LayoutDirection::LeftToRight)
-      collectedJS1_ << "LTR";
-    else
-      collectedJS1_ << "RTL";
-    collectedJS1_ << "');";
-  }
-
   /*
    * This opens scopes, waiting for new libraries to be loaded.
    */
@@ -854,6 +840,20 @@ void WebRenderer::collectJavaScript()
     app->domRoot2_->rootAsJavaScript(app, collectedJS1_, false);
 
   collectJavaScriptUpdate(collectedJS1_);
+
+  if (app->bodyHtmlClassChanged_) {
+    bool widgetset = session_.type() == EntryPointType::WidgetSet;
+    std::string op = widgetset ? "+=" : "=";
+    collectedJS1_ << "document.body.parentNode.className" << op << '\''
+                  << app->htmlClass_ << "';"
+                  << "document.body.className" << op << '\'' << bodyClassRtl() << "';"
+                  << "document.body.setAttribute('dir', '";
+    if (app->layoutDirection() == LayoutDirection::LeftToRight)
+      collectedJS1_ << "LTR";
+    else
+      collectedJS1_ << "RTL";
+    collectedJS1_ << "');";
+  }
 
   if (visibleOnly_) {
     bool needFetchInvisible = false;
@@ -1369,10 +1369,10 @@ void WebRenderer::serveMainpage(WebResponse& response)
   WApplication *app = session_.app();
 
   /*
-   * This implements the redirect for Method::Post-Redirect-Method::Get, or when the
+   * This implements the redirect for Post-Redirect-Get, or when the
    * internal path changed.
    *
-   * Method::Post-Redirect-Method::Get does not work properly though: refresh() may misbehave
+   * Post-Redirect-Get does not work properly though: refresh() may misbehave
    * and have unintended side effects ?
    */
   if (!app->environment().ajax()

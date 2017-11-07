@@ -62,6 +62,13 @@ StdLayoutImpl *WContainerWidget::layoutImpl() const
 void WContainerWidget::setLayout(std::unique_ptr<WLayout> layout)
 {
 #ifndef WT_NO_LAYOUT
+  // make sure old layout is deleted first, std::unique_ptr assignment
+  // changes the value of the pointer and then deletes the old value, but
+  // we need to delete the old value first, otherwise we run into problems
+  // FIXME: maybe the code should be fixed so this is not necessary? Having
+  //        to call reset() first feels dirty
+  layout_.reset();
+
   layout_ = std::move(layout);
   if (layout_)
     layout_->setParentWidget(this);
