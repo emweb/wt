@@ -598,7 +598,7 @@ public:
    */
   ptr(const ptr<C>& other);
 
-  template <class D, class = typename std::enable_if<std::is_convertible<D*,C*>::value>::type>
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   ptr(const ptr<D>& other);
 
   /*! \brief Destructor.
@@ -621,7 +621,7 @@ public:
    */
   ptr<C>& operator= (const ptr<C>& other);
 
-  template <class D, class = typename std::enable_if<std::is_convertible<D*,C*>::value>::type>
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   ptr<C>& operator= (const ptr<D>& other);
 
   /*! \brief Dereference operator.
