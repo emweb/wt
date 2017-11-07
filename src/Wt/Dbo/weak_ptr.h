@@ -94,6 +94,13 @@ public:
   template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   weak_ptr(const weak_ptr<D>& other);
 
+  /*! \brief Move constructor.
+   */
+  weak_ptr(weak_ptr<C> &&other) noexcept;
+
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
+  weak_ptr(weak_ptr<D>&& other) noexcept;
+
   /*! \brief Sets the value.
    *
    * This is assigns a new value, and:
@@ -110,7 +117,7 @@ public:
    */
   void reset(C *obj = 0);
 
-  /*! \brief Assignment operator.
+  /*! \brief Copy assignment operator.
    *
    * Since this needs to query the previous value, you should have an
    * active transaction.
@@ -120,7 +127,14 @@ public:
   template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   weak_ptr<C>& operator= (const weak_ptr<D>& other);
 
-  /*! \brief Assignment operator.
+  /*! \brief Move assignment operator.
+   */
+  weak_ptr<C>& operator= (weak_ptr<C>&& other) noexcept;
+
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
+  weak_ptr<C>& operator= (weak_ptr<D>&& other) noexcept;
+
+  /*! \brief Copy assignment operator.
    *
    * Since this needs to query the previous value, you should have an
    * active transaction.

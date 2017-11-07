@@ -78,6 +78,17 @@ weak_ptr<C>::weak_ptr(const weak_ptr<D>& other)
 { }
 
 template <class C>
+weak_ptr<C>::weak_ptr(weak_ptr<C>&& other) noexcept
+  : collection_(std::move(other.collection_))
+{ }
+
+template <class C>
+template <class D, typename>
+weak_ptr<C>::weak_ptr(weak_ptr<D>&& other) noexcept
+  : collection_(std::move(other.collecton_))
+{ }
+
+template <class C>
 void weak_ptr<C>::reset(C *obj)
 {
   *this = ptr<MutC>(const_cast<MutC*>(obj));
@@ -86,6 +97,9 @@ void weak_ptr<C>::reset(C *obj)
 template <class C>
 weak_ptr<C>& weak_ptr<C>::operator= (const weak_ptr<C>& other)
 {
+  if (this == &other)
+    return *this;
+
   return *this = other.query();
 }
 
@@ -94,6 +108,26 @@ template <class D, typename>
 weak_ptr<C>& weak_ptr<C>::operator= (const weak_ptr<D>& other)
 {
   return *this = other.query();
+}
+
+template <class C>
+weak_ptr<C>& weak_ptr<C>::operator= (weak_ptr<C>&& other) noexcept
+{
+  if (this == &other)
+    return *this;
+
+  collection_ = std::move(other.collection_);
+
+  return *this;
+}
+
+template <class C>
+template <class D, typename>
+weak_ptr<C>& weak_ptr<C>::operator= (weak_ptr<D>&& other) noexcept
+{
+  collection_ = std::move(other.collection_);
+
+  return *this;
 }
 
 template <class C>
