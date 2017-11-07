@@ -323,6 +323,22 @@ collection<C>::collection(const collection<C>& other)
 }
 
 template <class C>
+collection<C>::collection(collection<C>&& other) noexcept
+  : session_(other.session_),
+    type_(other.type_),
+    data_(other.data_),
+    manualModeInsertions_(std::move(other.manualModeInsertions_)),
+    manualModeRemovals_(std::move(other.manualModeRemovals_))
+{
+  other.session_ = nullptr;
+  other.type_ = RelationCollection;
+  other.data_.relation.sql = nullptr;
+  other.data_.relation.dbo = nullptr;
+  other.data_.relation.setInfo = nullptr;
+  other.data_.relation.activity = nullptr;
+}
+
+template <class C>
 void collection<C>::releaseQuery()
 {
   if (type_ == QueryCollection) {
@@ -339,19 +355,47 @@ void collection<C>::releaseQuery()
 template <class C>
 collection<C>& collection<C>::operator=(const collection<C>& other)
 {
-  if (type_ == RelationCollection)
-    delete data_.relation.activity;
-  else
-    releaseQuery();
+  if (this != &other) {
+    if (type_ == RelationCollection)
+      delete data_.relation.activity;
+    else
+      releaseQuery();
 
-  session_ = other.session_;
-  type_ = other.type_;
-  data_ = other.data_;
-  
-  if (type_ == RelationCollection)
-    data_.relation.activity = nullptr;
-  else
-    ++data_.query->useCount;
+    session_ = other.session_;
+    type_ = other.type_;
+    data_ = other.data_;
+
+    if (type_ == RelationCollection)
+      data_.relation.activity = nullptr;
+    else
+      ++data_.query->useCount;
+  }
+
+  return *this;
+}
+
+template <class C>
+collection<C>& collection<C>::operator=(collection<C>&& other) noexcept
+{
+  if (this != &other) {
+    if (type_ == RelationCollection)
+      delete data_.relation.activity;
+    else
+      releaseQuery();
+
+    session_ = other.session_;
+    type_ = other.type_;
+    data_ = other.data_;
+    manualModeInsertions_ = std::move(other.manualModeInsertions_);
+    manualModeRemovals_ = std::move(other.manualModeRemovals_);
+
+    other.session_ = nullptr;
+    other.type_ = RelationCollection;
+    other.data_.relation.sql = nullptr;
+    other.data_.relation.dbo = nullptr;
+    other.data_.relation.setInfo = nullptr;
+    other.data_.relation.activity = nullptr;
+  }
 
   return *this;
 }

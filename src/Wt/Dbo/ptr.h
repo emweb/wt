@@ -601,6 +601,13 @@ public:
   template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   ptr(const ptr<D>& other);
 
+  /*! \brief Move constructor.
+   */
+  ptr(ptr<C>&& other) noexcept;
+
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
+  ptr(ptr<D>&& other) noexcept;
+
   /*! \brief Destructor.
    *
    * This method will delete the transient copy of the database object if
@@ -617,12 +624,19 @@ public:
    */
   void reset(std::unique_ptr<C> obj = nullptr);
 
-  /*! \brief Assignment operator.
+  /*! \brief Copy assignment operator.
    */
   ptr<C>& operator= (const ptr<C>& other);
 
   template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   ptr<C>& operator= (const ptr<D>& other);
+
+  /*! \brief Move assignment operator.
+   */
+  ptr<C>& operator= (ptr<C>&& other) noexcept;
+
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
+  ptr<C>& operator= (ptr<D>&& other) noexcept;
 
   /*! \brief Dereference operator.
    *

@@ -260,9 +260,17 @@ namespace Wt {
      */
     collection(const collection<C>& other);
 
-    /*! \brief Assignment operator.
+    /*! \brief Move constructor.
+     */
+    collection(collection<C>&& other) noexcept;
+
+    /*! \brief Copy assignment operator.
      */
     collection<C>& operator=(const collection<C>& other);
+
+    /*! \brief Move assignment operator.
+     */
+    collection<C>& operator=(collection<C>&& other) noexcept;
 
     /*! \brief Destructor.
      */
