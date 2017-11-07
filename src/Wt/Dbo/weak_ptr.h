@@ -91,7 +91,7 @@ public:
    */
   weak_ptr(const weak_ptr<C>& other);
 
-  template <class D>
+  template <class D, class = typename std::enable_if<std::is_convertible<D*,C*>::value>::type>
   weak_ptr(const weak_ptr<D>& other);
 
   /*! \brief Sets the value.
@@ -117,7 +117,7 @@ public:
    */
   weak_ptr<C>& operator= (const weak_ptr<C>& other);
 
-  template <class D>
+  template <class D, class = typename std::enable_if<std::is_convertible<D*,C*>::value>::type>
   weak_ptr<C>& operator= (const weak_ptr<D>& other);
 
   /*! \brief Assignment operator.
@@ -127,7 +127,7 @@ public:
    */
   weak_ptr<C>& operator= (const ptr<C>& other);
 
-  template <class D>
+  template <class D, class = typename std::enable_if<std::is_convertible<D*,C*>::value>::type>
   weak_ptr<C>& operator= (const ptr<D>& other);
 
 #ifdef DOXYGEN_ONLY
@@ -241,7 +241,7 @@ public:
    */
   operator ptr<C>() const;
 
-  template <class D>
+  template <class D, class = typename std::enable_if<std::is_same<D, std::add_const<C>>::value>>
   operator ptr<D>() const; // for conversion to ptr<const C>
 
   /*! \brief Promotes to a ptr.

@@ -335,15 +335,10 @@ ptr<C>::ptr(const ptr<C>& other)
 }
 
 template <class C>
-template <class D>
+template <class D, typename>
 ptr<C>::ptr(const ptr<D>& other)
   : obj_(other.obj_)
 {
-  // Check if we can convert D* to C*
-  D *d = nullptr;
-  C *c = d;
-  (void)(c);
-
   takeObj();
 }
 
@@ -376,14 +371,9 @@ ptr<C>& ptr<C>::operator= (const ptr<C>& other)
 }
 
 template <class C>
-template <class D>
+template <class D, typename>
 ptr<C>& ptr<C>::operator= (const ptr<D>& other)
 {
-  // Check if we can convert D* to C*
-  D *d = nullptr;
-  C *c = d;
-  (void)(c);
-
   if (obj_ != other.obj_) {
     freeObj();
     obj_ = other.obj_;

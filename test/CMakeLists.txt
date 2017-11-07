@@ -4,6 +4,7 @@ IF(ENABLE_LIBWTTEST)
     auth/BCryptTest.C
     auth/SHA1Test.C
     core/BindTest.C
+    core/ObservingPtrTest.C
     chart/WChartTest.C
     json/JsonParserTest.C
     json/JsonSerializerTest.C

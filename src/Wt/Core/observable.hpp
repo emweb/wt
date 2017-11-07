@@ -40,7 +40,7 @@ class WT_API observable
 public:
   /*! \brief Default constructor.
    */
-  observable();
+  observable() noexcept;
 
   /*! \brief Destructor.
    *
@@ -70,14 +70,14 @@ public:
    * passed method.
    */
   template <typename... Args, typename C>
-  auto bindSafe(void(C::*method)(Args...));
+  auto bindSafe(void(C::*method)(Args...) noexcept;
 
   /*! \brief Protects a const method call against object destruction.
    *
    * \sa bindSafe(void(C::*method)(Args...))
    */
   template <typename... Args, typename C>
-  auto bindSafe(void(C::*method)(Args...) const) const;
+  auto bindSafe(void(C::*method)(Args...) const) const noexcept;
 
   /*! \brief Protects a function against object destruction.
    *
@@ -97,28 +97,28 @@ public:
    * The past function object can be a std::function or a lambda.
    */
   template <typename Function>
-  auto bindSafe(const Function& function);
+  auto bindSafe(const Function& function) noexcept;
 #else
   // non-const member function pointers
   template<typename... Args, typename ClassType>
-  auto bindSafe(void(ClassType::*f)(Args...)) 
+  auto bindSafe(void(ClassType::*f)(Args...)) noexcept
     -> std::function<void(Args...)>;
 
   // const member function pointers
   template<typename... Args, typename ClassType>
-  auto bindSafe(void(ClassType::*f)(Args...) const) const
+  auto bindSafe(void(ClassType::*f)(Args...) const) const noexcept
     -> std::function<void(Args...)>;
 
   // qualified functionoids
   template<typename FirstArg, typename... Args, class F>
-  auto bindSafe(F&& f) const
+  auto bindSafe(F&& f) const noexcept
     -> std::function<decltype(f(std::declval<FirstArg>(), 
 				std::declval<Args>()...))(FirstArg, Args...)>;
 
   // unqualified functionoids, should have an unambiguous
   // `T::operator()` and use that.
   template<class F>
-  auto bindSafe(F&& f) const
+  auto bindSafe(F&& f) const noexcept
     -> decltype(bindSafe(&std::remove_reference<F>::type::operator())) {
     decltype(bindSafe(&std::remove_reference<F>::type::operator())) f1 = f;
 
@@ -128,19 +128,21 @@ public:
   // explicit variant for std::function
   template<typename... Args>
   std::function<void(Args...)> bindSafe(const std::function<void(Args...)>& f)
-    const;
+    const noexcept;
 #endif
 
 private:
   std::unique_ptr<Impl::observer_info> observerInfo_;
 
-  void addObserver(Impl::observing_ptr_base *observer);
-  void removeObserver(Impl::observing_ptr_base *observer);
+  void addObserver(Impl::observing_ptr_base *observer) noexcept;
+  void removeObserver(Impl::observing_ptr_base *observer) noexcept;
+  void replaceObserver(Impl::observing_ptr_base *original,
+                       Impl::observing_ptr_base *observer) noexcept;
 
   //explicit variant for std::function
   template<typename... Args>
   std::function<void(Args...)> bindSafeFunction
-    (std::function<void(Args...)> f) const;
+    (std::function<void(Args...)> f) const noexcept;
 
   template <typename T> friend class observing_ptr;
   friend struct Impl::observing_ptr_base;

@@ -72,15 +72,10 @@ weak_ptr<C>::weak_ptr(const weak_ptr<C>& other)
 { }
 
 template <class C>
-template <class D>
+template <class D, typename>
 weak_ptr<C>::weak_ptr(const weak_ptr<D>& other)
   : collection_(other.collection_)
-{
-  // Check if we can convert D* to C*
-  D *d = nullptr;
-  C *c = d;
-  (void)(c);
-}
+{ }
 
 template <class C>
 void weak_ptr<C>::reset(C *obj)
@@ -95,14 +90,9 @@ weak_ptr<C>& weak_ptr<C>::operator= (const weak_ptr<C>& other)
 }
 
 template <class C>
-template <class D>
+template <class D, typename>
 weak_ptr<C>& weak_ptr<C>::operator= (const weak_ptr<D>& other)
 {
-  // Check if we can convert D* to C*
-  D *d = nullptr;
-  C *c = d;
-  (void)(c);
-
   return *this = other.query();
 }
 
@@ -118,14 +108,9 @@ weak_ptr<C>& weak_ptr<C>::operator= (const ptr<C>& other)
 }
 
 template <class C>
-template <class D>
+template <class D, typename>
 weak_ptr<C>& weak_ptr<C>::operator= (const ptr<D>& other)
 {
-  // Check if we can convert D* to C*
-  D *d = nullptr;
-  C *c = d;
-  (void)(c);
-
   collection_.clear();
 
   if (other)
@@ -217,7 +202,7 @@ weak_ptr<C>::operator ptr<C>() const
 }
 
 template <class C>
-template <class D>
+template <class D, typename>
 weak_ptr<C>::operator ptr<D>() const
 {
   return query();
