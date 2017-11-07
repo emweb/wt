@@ -2714,3 +2714,44 @@ BOOST_AUTO_TEST_CASE( dbo_test31 )
   }
 }
 #endif // !FIREBIRD
+
+BOOST_AUTO_TEST_CASE( dbo_test32 )
+{
+  struct OnlyMovable {
+    OnlyMovable() { }
+    ~OnlyMovable() { }
+    OnlyMovable(const OnlyMovable&) = delete;
+    OnlyMovable& operator=(const OnlyMovable&) = delete;
+    OnlyMovable(OnlyMovable&&) = default;
+    OnlyMovable& operator=(OnlyMovable&&) noexcept = default;
+
+    dbo::ptr<A> p;
+    dbo::collection<dbo::ptr<A>> c;
+    dbo::weak_ptr<A> wp;
+  };
+
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+    session_->addNew<A>();
+  }
+
+  dbo::Transaction t(*session_);
+  dbo::ptr<A> myA = session_->find<A>();
+  dbo::collection<dbo::ptr<A>> aColl = session_->find<A>();
+
+  OnlyMovable om1;
+  om1.p = myA;
+  om1.c = aColl;
+
+  OnlyMovable om2{std::move(om1)};
+
+  BOOST_REQUIRE(om1.p.get() == nullptr);
+  BOOST_REQUIRE(om1.c.empty());
+
+  BOOST_REQUIRE(om2.p == myA);
+  BOOST_REQUIRE(om2.c.front() == myA);
+}
