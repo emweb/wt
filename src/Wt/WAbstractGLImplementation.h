@@ -183,7 +183,7 @@ public:
 
   virtual WGLWidget::AttribLocation getAttribLocation(WGLWidget::Program program, const std::string &attrib) = 0;
 
-  virtual WGLWidget::UniformLocation getUniformLocation(WGLWidget::Program program, const std::string location) = 0;
+  virtual WGLWidget::UniformLocation getUniformLocation(WGLWidget::Program program, const std::string &location) = 0;
 
   virtual void hint(WGLWidget::GLenum target, WGLWidget::GLenum mode) = 0;
 

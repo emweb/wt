@@ -207,7 +207,7 @@ public:
    (WGLWidget::Program program, const std::string &attrib)
     override;
   virtual WGLWidget::UniformLocation getUniformLocation
-    (WGLWidget::Program program, const std::string location)
+    (WGLWidget::Program program, const std::string &location)
     override;
   virtual void hint(WGLWidget::GLenum target, WGLWidget::GLenum mode)
     override;
