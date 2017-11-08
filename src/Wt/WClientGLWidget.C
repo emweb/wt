@@ -953,7 +953,7 @@ WGLWidget::AttribLocation WClientGLWidget::getAttribLocation(WGLWidget::Program 
   return retval;
 }
 
-WGLWidget::UniformLocation WClientGLWidget::getUniformLocation(WGLWidget::Program program, const std::string location)
+WGLWidget::UniformLocation WClientGLWidget::getUniformLocation(WGLWidget::Program program, const std::string &location)
 {
   WGLWidget::UniformLocation retval(uniforms_++);
   js_ << retval.jsRef() << "=ctx.getUniformLocation(" << program.jsRef() 

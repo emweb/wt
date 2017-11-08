@@ -186,7 +186,7 @@ public:
 
   WGLWidget::AttribLocation getAttribLocation(WGLWidget::Program program, const std::string &attrib);
 
-  WGLWidget::UniformLocation getUniformLocation(WGLWidget::Program program, const std::string location);
+  WGLWidget::UniformLocation getUniformLocation(WGLWidget::Program program, const std::string &location);
 
   void hint(WGLWidget::GLenum target, WGLWidget::GLenum mode);
 

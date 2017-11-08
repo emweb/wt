@@ -1784,7 +1784,7 @@ public:
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glGetUniformLocation.xml">
    * glGetUniformLocation() OpenGL ES manpage</a>
    */
-  UniformLocation getUniformLocation(Program program, const std::string location);
+  UniformLocation getUniformLocation(Program program, const std::string &location);
 
   //any getVertexAttrib(GLuint index, GLenum pname);
 

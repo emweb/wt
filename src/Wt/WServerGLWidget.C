@@ -1061,7 +1061,7 @@ WGLWidget::AttribLocation WServerGLWidget::getAttribLocation(WGLWidget::Program 
   return WGLWidget::AttribLocation((int)id);
 }
 
-WGLWidget::UniformLocation WServerGLWidget::getUniformLocation(WGLWidget::Program program, const std::string location)
+WGLWidget::UniformLocation WServerGLWidget::getUniformLocation(WGLWidget::Program program, const std::string &location)
 {
   GLint id = glGetUniformLocation(program.getId(), location.c_str());
   SERVERGLDEBUG;
