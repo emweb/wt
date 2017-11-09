@@ -150,7 +150,8 @@ public:
   EventSignal<WMouseEvent>& timeout();
 
 private:
-  WTimerWidget *timerWidget_;
+  observing_ptr<WTimerWidget> timerWidget_;
+  std::unique_ptr<WTimerWidget> uTimerWidget_;
 
   bool singleShot_;
   std::chrono::milliseconds  interval_;
@@ -169,18 +170,23 @@ private:
 template <class T, class V>
 void WTimer::singleShot(std::chrono::milliseconds interval, T *receiver, void (V::*method)())
 {
-  singleShot(interval, std::bind(method, receiver));
+  auto timer = WApplication::instance()->addChild(cpp14::make_unique<WTimer>());
+  timer->setSingleShot(true);
+  timer->setInterval(interval);
+  timer->start();
+  timer->timeout().connect(receiver, method);
+  timer->timeout().connect([timer]{ WApplication::instance()->removeChild(timer); });
 }
 
 template <class F>
 void WTimer::singleShot(std::chrono::milliseconds interval, const F& f)
 {
-  WTimer *timer = new WTimer();
+  auto timer = WApplication::instance()->addChild(cpp14::make_unique<WTimer>());
   timer->setSingleShot(true);
   timer->setInterval(interval);
   timer->start();
   timer->timeout().connect(f);
-  timer->timeout().connect([=]() { delete timer; });
+  timer->timeout().connect([timer]{ WApplication::instance()->removeChild(timer); });
 }
 #endif // WT_TARGET_JAVA
 

@@ -15,13 +15,15 @@
 namespace Wt {
 
 WTimer::WTimer()
-  : timerWidget_(new WTimerWidget(this)),
+  : uTimerWidget_(new WTimerWidget(this)),
     singleShot_(false),
     interval_(0),
     active_(false),
     timeoutConnected_(false),
     timeout_(new Time())
-{ }
+{
+  timerWidget_ = uTimerWidget_.get();
+}
 
 EventSignal<WMouseEvent>& WTimer::timeout()
 {
@@ -32,9 +34,6 @@ WTimer::~WTimer()
 {
   if (active_)
     stop();
-
-  if (!timerWidget_->parent())
-    delete timerWidget_;
 }
 
 void WTimer::setInterval(std::chrono::milliseconds msec)
@@ -52,7 +51,7 @@ void WTimer::start()
   if (!active_) {
     WApplication *app = WApplication::instance();    
     if (app && app->timerRoot())
-      app->timerRoot()->addWidget(std::unique_ptr<WWidget>(timerWidget_));
+      app->timerRoot()->addWidget(std::move(uTimerWidget_));
   }
 
   active_ = true;
@@ -71,8 +70,11 @@ void WTimer::start()
 void WTimer::stop()
 {
   if (active_) {
-    if (timerWidget_->parent())
-      timerWidget_->parent()->removeWidget(timerWidget_).release();
+    if (timerWidget_ && timerWidget_->parent()) {
+      uTimerWidget_ = std::unique_ptr<WTimerWidget>(static_cast<WTimerWidget*>(
+                        timerWidget_->parent()->removeWidget(timerWidget_.get()).release()));
+
+    }
     active_ = false;
   }
 }
