@@ -257,15 +257,15 @@ public:
    *
    * \code
    * Widget *result = widget.get();
-   * insertWidget(std::unique_ptr<WWidget>(std::move(widget)), before);
+   * insertBefore(std::unique_ptr<WWidget>(std::move(widget)), before);
    * return result;
    * \endcode
    */
   template <typename Widget>
-    Widget *insertWidget(std::unique_ptr<Widget> widget, WWidget *before)
+    Widget *insertBefore(std::unique_ptr<Widget> widget, WWidget *before)
   {
     Widget *result = widget.get();
-    insertWidget(std::unique_ptr<WWidget>(std::move(widget)), before);
+    insertBefore(std::unique_ptr<WWidget>(std::move(widget)), before);
     return result;
   }
 
