@@ -37,7 +37,7 @@ WT_DECLARE_WT_MEMBER
 	 nodeId = t.id;
 
 	 break;
-       } else if (t.className.indexOf('Wt-tv-c') == 0) {
+       } else if (t.className && t.className.indexOf('Wt-tv-c') == 0) {
 	 if (t.className.indexOf('Wt-tv-c') == 0)
 	   columnId = t.className.split(' ')[0].substring(7) * 1;
 	 else if (columnId == -1)

@@ -98,7 +98,7 @@ public:
    *
    * The table cell at that position is recreated.
    *
-   * \sa removeCell(int int)
+   * \sa removeCell(int, int)
    */
   void removeCell(WTableCell *item);
 
