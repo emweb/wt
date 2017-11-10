@@ -613,12 +613,22 @@ public:
         /*StrLen_or_IndPtr: */&strLen_or_ind
       );
       handleErr(SQL_HANDLE_STMT, stmt_, rc);
+#ifdef WT_WIN32
+      const int charSize = 2;
+#else // WT_WIN32
+      const int charSize = 1;
+#endif // WT_WIN32
       if (strLen_or_ind == SQL_NULL_DATA) {
         return false; // NULL
-      } else if (strLen_or_ind == SQL_NO_TOTAL) {
-        resultBufferPos = resultBuffer.size - 1;
+      } else if (strLen_or_ind == SQL_NO_TOTAL || strLen_or_ind + charSize > resultBuffer.size - resultBufferPos) {
+        std::size_t pos = resultBuffer.size - charSize;
         resultBuffer.size *= 2;
+        while (strLen_or_ind != SQL_NO_TOTAL &&
+               strLen_or_ind + charSize > resultBuffer.size - resultBufferPos)
+          resultBuffer.size *= 2;
+        resultBufferPos = pos;
         resultBuffer.buf = (char*)realloc(resultBuffer.buf, resultBuffer.size);
+        strLen_or_ind = SQL_NO_TOTAL;
       }
     }
     if (resultBufferPos == 0 && strLen_or_ind == 0) {
@@ -728,10 +738,15 @@ public:
       handleErr(SQL_HANDLE_STMT, stmt_, rc);
       if (strLen_or_ind == SQL_NULL_DATA) {
         return false; // NULL
-      } else if (strLen_or_ind == SQL_NO_TOTAL) {
-        resultBufferPos = resultBuffer.size - 1;
+      } else if (strLen_or_ind == SQL_NO_TOTAL || strLen_or_ind > resultBuffer.size - resultBufferPos) {
+        std::size_t pos = resultBuffer.size;
         resultBuffer.size *= 2;
+        while (strLen_or_ind != SQL_NO_TOTAL &&
+               strLen_or_ind > resultBuffer.size - resultBufferPos)
+          resultBuffer.size *= 2;
+        resultBufferPos = pos;
         resultBuffer.buf = (char*)realloc(resultBuffer.buf, resultBuffer.size);
+        strLen_or_ind = SQL_NO_TOTAL;
       }
     }
     std::size_t totalDataSize = resultBufferPos + strLen_or_ind;

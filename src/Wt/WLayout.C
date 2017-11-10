@@ -15,10 +15,12 @@
 
 namespace Wt {
 
+LayoutImplementation WLayout::defaultImplementation_ = LayoutImplementation::Flex;
+
 WLayout::WLayout()
   : parentLayout_(nullptr),
     parentWidget_(nullptr),
-    preferredImplementation_(LayoutImplementation::Flex)
+    preferredImplementation_(defaultImplementation_)
 { }
 
 WLayout::~WLayout()
@@ -31,6 +33,11 @@ void WLayout::setPreferredImplementation(LayoutImplementation implementation)
     if (impl_ && this->implementation() != preferredImplementation())
       updateImplementation();
   }
+}
+
+void WLayout::setDefaultImplementation(LayoutImplementation implementation)
+{
+  defaultImplementation_ = implementation;
 }
 
 LayoutImplementation WLayout::implementation() const

@@ -2501,6 +2501,17 @@ function dragStart(obj, e) {
 
   ds.object.onmousemove = dragDrag;
   ds.object.onmouseup = dragEnd;
+  if (document.addEventListener) {
+    // New mousedown (other button): abort drag
+    document.addEventListener('mousedown', dragAbort);
+    // Release mouse outside of page (fires after ds.object.onmouseup)
+    window.addEventListener('mouseup', dragAbort);
+    // Another touch: abort drag
+    document.addEventListener('touchstart', dragAbort);
+  } else {
+    document.attachEvent('onmousedown', dragAbort);
+    window.attachEvent('onmouseup', dragAbort);
+  }
   ds.object.ontouchmove = dragDrag;
   ds.object.ontouchend = dragEnd;
 
@@ -2596,6 +2607,37 @@ function dragDrag(e) {
   return true;
 };
 
+function dragAbort() {
+  WT.capture(null);
+
+  var ds = dragState;
+
+  if (ds.object) {
+    document.body.removeChild(ds.object);
+    ds.objectPrevStyle.parent.appendChild(ds.object);
+
+    ds.object.style.zIndex = ds.objectPrevStyle.zIndex;
+    ds.object.style.position = ds.objectPrevStyle.position;
+    ds.object.style.display = ds.objectPrevStyle.display;
+    ds.object.style.left = ds.objectPrevStyle.left;
+    ds.object.style.top = ds.objectPrevStyle.top;
+    ds.object.className = ds.objectPrevStyle.className;
+
+    ds.object = null;
+    if (touchTimer)
+      clearTimeout(touchTimer);
+  }
+
+  if (document.removeEventListener) {
+    document.removeEventListener('mousedown', dragAbort);
+    window.removeEventListener('mouseup', dragAbort);
+    document.removeEventListener('touchstart', dragAbort);
+  } else {
+    document.detachEvent('onmousedown', dragAbort);
+    window.detachEvent('onmouseup', dragAbort);
+  }
+};
+
 function dragEnd(e) {
   e = e || window.event;
   WT.capture(null);
@@ -2622,19 +2664,7 @@ function dragEnd(e) {
       // could not be dropped, animate it floating back ?
     }
 
-    document.body.removeChild(ds.object);
-    ds.objectPrevStyle.parent.appendChild(ds.object);
-
-    ds.object.style.zIndex = ds.objectPrevStyle.zIndex;
-    ds.object.style.position = ds.objectPrevStyle.position;
-    ds.object.style.display = ds.objectPrevStyle.display;
-    ds.object.style.left = ds.objectPrevStyle.left;
-    ds.object.style.top = ds.objectPrevStyle.top;
-    ds.object.className = ds.objectPrevStyle.className;
-
-    ds.object = null;
-    if (touchTimer)
-      clearTimeout(touchTimer);
+    dragAbort();
   }
 };
 

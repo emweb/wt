@@ -136,21 +136,21 @@ void Home::createHome()
   auto mainMenu = cpp14::make_unique<WMenu>(contents.get());
   mainMenu_ = mainMenu.get();
   mainMenu_->addItem
-    (tr("introduction"), std::move(introduction()))->setPathComponent("");
+    (tr("introduction"), introduction())->setPathComponent("");
 
   mainMenu_->addItem
     (tr("blog"), deferCreate(std::bind(&Home::blog, this)));
 
   mainMenu_->addItem
-    (tr("features"), std::move(wrapView(&Home::features)),
+    (tr("features"), wrapView(&Home::features),
      ContentLoading::Eager);
 
   mainMenu_->addItem
-    (tr("documentation"), std::move(wrapView(&Home::documentation)),
+    (tr("documentation"), wrapView(&Home::documentation),
      ContentLoading::Eager);
 
   mainMenu_->addItem
-    (tr("examples"), std::move(examples()),
+    (tr("examples"), examples(),
      ContentLoading::Eager)->setPathComponent("examples/");
 
   mainMenu_->addItem
@@ -158,11 +158,11 @@ void Home::createHome()
      ContentLoading::Eager);
 
   mainMenu_->addItem
-    (tr("community"), std::move(wrapView(&Home::community)),
+    (tr("community"), wrapView(&Home::community),
      ContentLoading::Eager);
 
   mainMenu_->addItem
-    (tr("other-language"), std::move(wrapView(&Home::otherLanguage)),
+    (tr("other-language"), wrapView(&Home::otherLanguage),
      ContentLoading::Eager);
 
   mainMenu_->itemSelectRendered().connect(this, &Home::updateTitle);
@@ -313,7 +313,7 @@ std::unique_ptr<WWidget> Home::otherLanguage()
 
 std::unique_ptr<WWidget> Home::wrapView(std::unique_ptr<WWidget> (Home::*createWidget)())
 {
-  return std::move(makeStaticModel(std::bind(createWidget, this)));
+  return makeStaticModel(std::bind(createWidget, this));
 }
 
 std::string Home::href(const std::string& url, const std::string& description)

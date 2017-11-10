@@ -22,6 +22,7 @@ class LettersWidget : public WCompositeWidget
 {
 public:
   LettersWidget();
+  virtual ~LettersWidget();
 
   void reset();
 
@@ -30,6 +31,7 @@ public:
 private:
   WTable                     *impl_;
   std::vector<WPushButton *>  letterButtons_;
+  std::vector<Wt::Signals::connection> connections_;
 
   Signal<char>                letterPushed_;
 

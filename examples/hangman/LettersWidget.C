@@ -32,9 +32,15 @@ LettersWidget::LettersWidget()
     character->clicked().connect
       (std::bind(&LettersWidget::processButton, this, character));
 
-	WApplication::instance()->globalKeyPressed().connect
-	  (std::bind(&LettersWidget::processButtonPushed, this, std::placeholders::_1, character));
+    connections_.push_back(WApplication::instance()->globalKeyPressed().connect
+      (std::bind(&LettersWidget::processButtonPushed, this, std::placeholders::_1, character)));
   }
+}
+
+LettersWidget::~LettersWidget()
+{
+  for (auto &connection : connections_)
+    connection.disconnect();
 }
 
 void LettersWidget::processButton(WPushButton *b)
@@ -45,8 +51,8 @@ void LettersWidget::processButton(WPushButton *b)
 
 void LettersWidget::processButtonPushed(const WKeyEvent &e, WPushButton *b)
 {
-  if(isHidden())
-	  return;
+  if (isHidden())
+    return;
 
   if(e.key() == static_cast<Key>(b->text().toUTF8()[0]))
     processButton(b);

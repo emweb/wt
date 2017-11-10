@@ -9,6 +9,8 @@
 
 #include <Wt/WDllDefs.h>
 
+#include <type_traits>
+
 namespace Wt { namespace Core {
 
 class observable;
@@ -16,10 +18,10 @@ class observable;
 namespace Impl {
   struct WT_API observing_ptr_base
   {
-    observing_ptr_base();
+    observing_ptr_base() noexcept;
     ~observing_ptr_base();
-    void clear();
-    void set(observable *observable);
+    void clear() noexcept;
+    void set(observable *observable) noexcept;
 
     observable *observed_;
     bool cleared_;
@@ -45,29 +47,43 @@ public:
    *
    * \sa reset()
    */
-  observing_ptr(T *t = nullptr);
+  observing_ptr(T *t = nullptr) noexcept;
 
   /*! \brief Copy constructor.
    */
-  observing_ptr(const observing_ptr<T>& other);
+  observing_ptr(const observing_ptr<T>& other) noexcept;
 
-  /*! \brief Assignment operator.
+  /*! \brief Move constructor.
    */
-  observing_ptr<T>& operator=(const observing_ptr<T>& other);
+  observing_ptr(observing_ptr<T>&& other) noexcept;
+
+  /*! \brief Copy assignment operator.
+   */
+  observing_ptr<T>& operator=(const observing_ptr<T>& other) noexcept;
+
+  /*! \brief Move assignment operator.
+   */
+  observing_ptr<T>& operator=(observing_ptr<T>&& other) noexcept;
 
   /*! \brief Copy constructor with type conversion.
-   *
-   * This uses a dynamic_cast to perform a type-safe conversion.
    */
-  template <typename S>
-  observing_ptr(const observing_ptr<S>& other);
+  template <typename S, typename = typename std::enable_if<std::is_convertible<S*, T*>::value>::type>
+  observing_ptr(const observing_ptr<S>& other) noexcept;
 
-  /*! \brief Assignment operator with type conversion.
-   *
-   * This uses a dynamic_cast to perform a type-safe conversion.
+  /*! \brief Move constructor with type conversion.
    */
-  template <typename S>
-  observing_ptr<T>& operator=(const observing_ptr<S>& other);
+  template <typename S, typename = typename std::enable_if<std::is_convertible<S*, T*>::value>::type>
+  observing_ptr(observing_ptr<S>&& other) noexcept;
+
+  /*! \brief Copy assignment operator with type conversion.
+   */
+  template <typename S, typename = typename std::enable_if<std::is_convertible<S*, T*>::value>::type>
+  observing_ptr<T>& operator=(const observing_ptr<S>& other) noexcept;
+
+  /*! \brief Move assignment operator with type conversion.
+   */
+  template <typename S, typename = typename std::enable_if<std::is_convertible<S*, T*>::value>::type>
+  observing_ptr<T>& operator=(observing_ptr<S>&& other) noexcept;
 
   /*! \brief Returns the pointer value.
    *
@@ -75,11 +91,11 @@ public:
    *
    * \sa reset()
    */
-  T *get() const;
+  T *get() const noexcept;
 
   /*! \brief Resets the value.
    */
-  void reset(T *v = nullptr);
+  void reset(T *v = nullptr) noexcept;
 
   /*! \brief Dereferences the pointer.
    *
@@ -100,16 +116,19 @@ public:
    * Returns if the pointer does not point to \c null and the pointed
    * object isn't deleted.
    */
-  operator bool() const;
+  operator bool() const noexcept;
 
   /*! \brief Returns whether the observed object has been deleted.
    *
    * Returns if the pointed object has been deleted.
    */
-  bool observedDeleted() const;
+  bool observedDeleted() const noexcept;
 
 private:
   Impl::observing_ptr_base impl_;
+
+  template <typename S, typename = typename std::enable_if<std::is_convertible<S*, T*>::value>::type>
+  void doMove(observing_ptr<S>& other) noexcept;
 };
 
 }}

@@ -23,6 +23,7 @@ class WLayoutImpl;
 /*! \brief Enumeration to indicate which layout implementation to use.
  *
  * \sa WLayout::setPreferredImplementation()
+ * \sa WLayout::setDefaultImplementation()
  */
 enum class LayoutImplementation {
   Flex, //!< Use CSS flex layout (if supported by the browser)
@@ -60,8 +61,31 @@ public:
    * (if supported by the browser). Otherwise a fallback to
    * \link LayoutImplementation::JavaScript JavaScript\endlink
    * is used.
+   *
+   * \sa setDefaultImplementation()
    */
   void setPreferredImplementation(LayoutImplementation implementation);
+
+  /*! \brief Sets the preferred layout implementation globally.
+   *
+   * The default implementation for box layouts and fit layouts is
+   * \link LayoutImplementation::Flex Flex\endlink
+   * (if supported by the browser). Otherwise a fallback to
+   * \link LayoutImplementation::JavaScript JavaScript\endlink
+   * is used.
+   *
+   * Because there are cases where \link LayoutImplementation::Flex Flex\endlink
+   * does not work properly, this method can be used to set the global
+   * preferred implementation to \link LayoutImplementation::JavaScript\endlink
+   * instead.
+   *
+   * Since this is a system-wide setting, and not a per-session setting,
+   * you should call this function before any session is created, e.g. in
+   * main() before calling WRun().
+   *
+   * \sa setPreferredImplementation()
+   */
+  static void setDefaultImplementation(LayoutImplementation implementation);
 
   /*! \brief Adds a layout <i>item</i>.
    *
@@ -192,6 +216,7 @@ private:
   std::unique_ptr<int[]> margins_;
   std::unique_ptr<WLayoutImpl> impl_;
   LayoutImplementation preferredImplementation_;
+  static LayoutImplementation defaultImplementation_;
 
   virtual void setParentLayout(WLayout *parentLayout) override;
 

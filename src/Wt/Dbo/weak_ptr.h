@@ -91,8 +91,15 @@ public:
    */
   weak_ptr(const weak_ptr<C>& other);
 
-  template <class D>
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   weak_ptr(const weak_ptr<D>& other);
+
+  /*! \brief Move constructor.
+   */
+  weak_ptr(weak_ptr<C> &&other) noexcept;
+
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
+  weak_ptr(weak_ptr<D>&& other) noexcept;
 
   /*! \brief Sets the value.
    *
@@ -110,24 +117,31 @@ public:
    */
   void reset(C *obj = 0);
 
-  /*! \brief Assignment operator.
+  /*! \brief Copy assignment operator.
    *
    * Since this needs to query the previous value, you should have an
    * active transaction.
    */
   weak_ptr<C>& operator= (const weak_ptr<C>& other);
 
-  template <class D>
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   weak_ptr<C>& operator= (const weak_ptr<D>& other);
 
-  /*! \brief Assignment operator.
+  /*! \brief Move assignment operator.
+   */
+  weak_ptr<C>& operator= (weak_ptr<C>&& other) noexcept;
+
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
+  weak_ptr<C>& operator= (weak_ptr<D>&& other) noexcept;
+
+  /*! \brief Copy assignment operator.
    *
    * Since this needs to query the previous value, you should have an
    * active transaction.
    */
   weak_ptr<C>& operator= (const ptr<C>& other);
 
-  template <class D>
+  template <class D, class = typename std::enable_if<std::is_same<MutC,D>::value>::type>
   weak_ptr<C>& operator= (const ptr<D>& other);
 
 #ifdef DOXYGEN_ONLY
@@ -241,7 +255,7 @@ public:
    */
   operator ptr<C>() const;
 
-  template <class D>
+  template <class D, class = typename std::enable_if<std::is_same<D, std::add_const<C>>::value>>
   operator ptr<D>() const; // for conversion to ptr<const C>
 
   /*! \brief Promotes to a ptr.

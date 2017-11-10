@@ -2714,3 +2714,104 @@ BOOST_AUTO_TEST_CASE( dbo_test31 )
   }
 }
 #endif // !FIREBIRD
+
+BOOST_AUTO_TEST_CASE( dbo_test32 )
+{
+  struct OnlyMovable {
+    OnlyMovable() { }
+    ~OnlyMovable() { }
+    OnlyMovable(const OnlyMovable&) = delete;
+    OnlyMovable& operator=(const OnlyMovable&) = delete;
+    OnlyMovable(OnlyMovable&&) = default;
+    OnlyMovable& operator=(OnlyMovable&&) noexcept = default;
+
+    dbo::ptr<A> p;
+    dbo::collection<dbo::ptr<A>> c;
+    dbo::weak_ptr<A> wp;
+  };
+
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+    session_->addNew<A>();
+  }
+
+  dbo::Transaction t(*session_);
+  dbo::ptr<A> myA = session_->find<A>();
+  dbo::collection<dbo::ptr<A>> aColl = session_->find<A>();
+
+  OnlyMovable om1;
+  om1.p = myA;
+  om1.c = aColl;
+
+  OnlyMovable om2{std::move(om1)};
+
+  BOOST_REQUIRE(om1.p.get() == nullptr);
+  BOOST_REQUIRE(om1.c.empty());
+
+  BOOST_REQUIRE(om2.p == myA);
+  BOOST_REQUIRE(om2.c.front() == myA);
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test34 )
+{
+  std::vector<int> sizes;
+  sizes.push_back(127);
+  sizes.push_back(128);
+  sizes.push_back(129);
+  sizes.push_back(255);
+  sizes.push_back(256);
+  sizes.push_back(257);
+  sizes.push_back(1023);
+  sizes.push_back(1024);
+  sizes.push_back(1025);
+  sizes.push_back(1024 * 1024 - 1);
+  sizes.push_back(1024 * 1024);
+  sizes.push_back(1024 * 1024 + 1);
+
+  std::vector<int>::const_iterator end = sizes.end();
+  for (std::vector<int>::const_iterator it = sizes.begin();
+       it != end; ++it) {
+    const int size = *it;
+
+    DboFixture f;
+
+    dbo::Session *session_ = f.session_;
+
+    std::string longStr;
+    {
+      std::stringstream ss;
+      for (int i = 0; i < size; ++i) {
+        ss << static_cast<char>('0' + (i % 8));
+      }
+      longStr = ss.str();
+    }
+    std::vector<unsigned char> longBinary;
+    {
+      for (int i = 0; i < size; ++i) {
+        longBinary.push_back(static_cast<unsigned char>(i % 256));
+      }
+    }
+
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<A> a = session_->addNew<A>();
+
+      a.modify()->string = longStr;
+      a.modify()->binary = longBinary;
+    }
+
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<A> a = session_->find<A>();
+
+      BOOST_REQUIRE(a->string == longStr);
+      BOOST_REQUIRE(a->binary == longBinary);
+    }
+  }
+}

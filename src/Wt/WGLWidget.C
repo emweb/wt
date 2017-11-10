@@ -666,7 +666,7 @@ WGLWidget::AttribLocation WGLWidget::getAttribLocation(Program program, const st
   return pImpl_->getAttribLocation(program, attrib);
 }
 
-WGLWidget::UniformLocation WGLWidget::getUniformLocation(Program program, const std::string location)
+WGLWidget::UniformLocation WGLWidget::getUniformLocation(Program program, const std::string &location)
 {
   return pImpl_->getUniformLocation(program,  location);
 }

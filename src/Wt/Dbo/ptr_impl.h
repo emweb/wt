@@ -335,16 +335,26 @@ ptr<C>::ptr(const ptr<C>& other)
 }
 
 template <class C>
-template <class D>
+template <class D, typename>
 ptr<C>::ptr(const ptr<D>& other)
   : obj_(other.obj_)
 {
-  // Check if we can convert D* to C*
-  D *d = nullptr;
-  C *c = d;
-  (void)(c);
-
   takeObj();
+}
+
+template <class C>
+ptr<C>::ptr(ptr<C>&& other) noexcept
+  : obj_(other.obj_)
+{
+  other.obj_ = nullptr;
+}
+
+template <class C>
+template <class D, typename>
+ptr<C>::ptr(ptr<D>&& other) noexcept
+  : obj_(other.obj_)
+{
+  other.obj_ = nullptr;
 }
 
 template <class C>
@@ -376,18 +386,45 @@ ptr<C>& ptr<C>::operator= (const ptr<C>& other)
 }
 
 template <class C>
-template <class D>
+template <class D, typename>
 ptr<C>& ptr<C>::operator= (const ptr<D>& other)
 {
-  // Check if we can convert D* to C*
-  D *d = nullptr;
-  C *c = d;
-  (void)(c);
-
   if (obj_ != other.obj_) {
     freeObj();
     obj_ = other.obj_;
     takeObj();
+  }
+
+  return *this;
+}
+
+template <class C>
+ptr<C>& ptr<C>::operator= (ptr<C>&& other) noexcept
+{
+  if (this == &other)
+    return *this;
+
+  if (obj_ == other.obj_) {
+    other.freeObj();
+  } else {
+    freeObj();
+    obj_ = other.obj_;
+    other.obj_ = nullptr;
+  }
+
+  return *this;
+}
+
+template <class C>
+template <class D, typename>
+ptr<C>& ptr<C>::operator= (ptr<D>&& other) noexcept
+{
+  if (obj_ == other.obj_) {
+    other.freeObj();
+  } else {
+    freeObj();
+    obj_ = other.obj_;
+    other.obj_ = nullptr;
   }
 
   return *this;
