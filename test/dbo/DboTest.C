@@ -2756,7 +2756,7 @@ BOOST_AUTO_TEST_CASE( dbo_test32 )
   BOOST_REQUIRE(om2.c.front() == myA);
 }
 
-BOOST_AUTO_TEST_CASE( dbo_test34 )
+BOOST_AUTO_TEST_CASE( dbo_test33 )
 {
   std::vector<int> sizes;
   sizes.push_back(127);
@@ -2768,9 +2768,13 @@ BOOST_AUTO_TEST_CASE( dbo_test34 )
   sizes.push_back(1023);
   sizes.push_back(1024);
   sizes.push_back(1025);
+  sizes.push_back(65535);
+  // MySQL "text" type only supports up to 65535 bytes
+#ifndef MYSQL
   sizes.push_back(1024 * 1024 - 1);
   sizes.push_back(1024 * 1024);
   sizes.push_back(1024 * 1024 + 1);
+#endif // MYSQL
 
   std::vector<int>::const_iterator end = sizes.end();
   for (std::vector<int>::const_iterator it = sizes.begin();
