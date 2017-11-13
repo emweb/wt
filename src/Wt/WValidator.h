@@ -117,7 +117,7 @@ public:
    * The validator automatically removes itself from all formfields to
    * which it was associated.
    */
-  ~WValidator();
+  virtual ~WValidator();
 
   /*! \brief Sets if input is mandatory
    *
