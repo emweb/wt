@@ -153,7 +153,7 @@ void WPanel::setCollapsible(bool on)
     titleBarWidget()->clicked().connect(this, &WPanel::toggleCollapse);
 
   } else if (!on && collapseIcon_) {
-    delete collapseIcon_;
+    titleBarWidget()->removeWidget(collapseIcon_);
     collapseIcon_ = nullptr;
   }
 }
