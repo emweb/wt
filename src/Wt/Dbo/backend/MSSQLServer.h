@@ -71,8 +71,8 @@ public:
    * \code
    * Driver={ODBC Driver 13 for SQL Server};
    * Server=localhost; 
-   * User=SA;
-   * Password={example password};
+   * UID=SA;
+   * PWD={example password};
    * Database=example_db;
    * \endcode
    *
