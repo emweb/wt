@@ -2683,11 +2683,13 @@ BOOST_AUTO_TEST_CASE(dbo_test32)
   sizes.push_back(1025);
   sizes.push_back(65535);
   // MySQL "text" type only supports up to 65535 bytes
-#ifndef MYSQL
+  // Firebird also throws an exception when it's over 65535 bytes
+  // FIXME: can this be fixed in the Firebird backend?
+#if !defined(MYSQL) && !defined(FIREBIRD)
   sizes.push_back(1024 * 1024 - 1);
   sizes.push_back(1024 * 1024);
   sizes.push_back(1024 * 1024 + 1);
-#endif // MYSQL
+#endif // !defined(MYSQL) && !defined(FIREBIRD)
 
   std::vector<int>::const_iterator end = sizes.end();
   for (std::vector<int>::const_iterator it = sizes.begin();
@@ -2699,13 +2701,7 @@ BOOST_AUTO_TEST_CASE(dbo_test32)
     dbo::Session *session_ = f.session_;
 
     std::string longStr;
-#ifdef FIREBIRD
-    // Firebird throws LogicException because of invalid segment size
-    // FIXME: can this be fixed, so we can store strings that long?
-    if (size <= 65535) {
-#else // FIREBIRD
     {
-#endif // FIREBIRD
       std::stringstream ss;
       for (int i = 0; i < size; ++i) {
         ss << static_cast<char>('0' + (i % 8));
