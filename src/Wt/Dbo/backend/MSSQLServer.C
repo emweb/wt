@@ -148,7 +148,7 @@ struct MSSQLServer::Impl {
       NULL,
       0,
       NULL,
-      SQL_DRIVER_COMPLETE);
+      SQL_DRIVER_NOPROMPT);
     handleErr(SQL_HANDLE_DBC, dbc, res);
   }
 
