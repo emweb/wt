@@ -23,7 +23,7 @@ namespace Wt {
    * implement encoding and decoding for common encodings.
    *
    * These utility functions can be accessed by including the
-   * \c Wt/Utils header.
+   * \c Wt/Utils.h header.
    */
   namespace Utils {
 
