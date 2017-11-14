@@ -2699,7 +2699,13 @@ BOOST_AUTO_TEST_CASE(dbo_test32)
     dbo::Session *session_ = f.session_;
 
     std::string longStr;
+#ifdef FIREBIRD
+    // Firebird throws LogicException because of invalid segment size
+    // FIXME: can this be fixed, so we can store strings that long?
+    if (size <= 65535) {
+#else // FIREBIRD
     {
+#endif // FIREBIRD
       std::stringstream ss;
       for (int i = 0; i < size; ++i) {
         ss << static_cast<char>('0' + (i % 8));
