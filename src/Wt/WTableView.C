@@ -146,12 +146,24 @@ void WTableView::setup()
 
     headerColumnsCanvas_ = new WContainerWidget();
     headerColumnsCanvas_->setPositionScheme(Relative);
+    headerColumnsCanvas_->clicked().preventPropagation();
     headerColumnsCanvas_->clicked()
       .connect(boost::bind(&WTableView::handleSingleClick, this, true, _1));
+    headerColumnsCanvas_->clicked().connect("function(o, e) { "
+                               "$(document).trigger($.event.fix(e));"
+                               "}");
+    headerColumnsCanvas_->mouseWentDown().preventPropagation();
     headerColumnsCanvas_->mouseWentDown()
       .connect(boost::bind(&WTableView::handleMouseWentDown, this, true, _1)); 
+    headerColumnsCanvas_->mouseWentDown().connect("function(o, e) { "
+                                     "$(document).trigger($.event.fix(e));"
+                                     "}");
+    headerColumnsCanvas_->mouseWentUp().preventPropagation();
     headerColumnsCanvas_->mouseWentUp()
       .connect(boost::bind(&WTableView::handleMouseWentUp, this, true, _1)); 
+    headerColumnsCanvas_->mouseWentUp().connect("function(o, e) { "
+                                     "$(document).trigger($.event.fix(e));"
+                                     "}");
     headerColumnsCanvas_->addWidget(headerColumnsTable_);
 
     headerColumnsContainer_ = new WContainerWidget();
