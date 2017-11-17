@@ -148,10 +148,6 @@ public:
    * attribute.
    *
    * The default object name is empty (no object name).
-   *
-   * \note Only letters ([A-Za-z]), digits ([0-9]), hyphens ("-"),
-   * underscores ("_"), colons (":"), and periods (".") are allowed in
-   * the object name.
    */
   virtual void setObjectName(const std::string& name);
 
