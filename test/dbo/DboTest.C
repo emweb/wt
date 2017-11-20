@@ -2825,11 +2825,11 @@ BOOST_AUTO_TEST_CASE( dbo_test33 )
 
 BOOST_AUTO_TEST_CASE ( dbo_test34 )
 {
-#if defined(POSTGRES) || defined(SQLITE3) || defined(MSSQLSERVER) || defined(FIREBIRD)
+#if defined(POSTGRES) || defined(SQLITE3)
   const std::vector<double> ds =
     { 0.123456789123456, std::numeric_limits<double>::infinity(),
       -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN() };
-#elif defined(MYSQL)
+#elif defined(MYSQL) || defined(MSSQLSERVER) || defined(FIREBIRD)
   const std::vector<double> ds = { 0.12345678923456 };
 #endif
 
