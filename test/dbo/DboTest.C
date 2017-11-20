@@ -16,6 +16,7 @@
 
 #include "DboFixture.h"
 
+#include <limits>
 #include <iomanip>
 
 #include <boost/optional.hpp>
@@ -2818,6 +2819,37 @@ BOOST_AUTO_TEST_CASE( dbo_test33 )
 
       BOOST_REQUIRE(a->string == longStr);
       BOOST_REQUIRE(a->binary == longBinary);
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE ( dbo_test34 )
+{
+#if defined(POSTGRES) || defined(SQLITE3) || defined(MSSQLSERVER) || defined(FIREBIRD)
+  const std::vector<double> ds =
+    { 0.123456789123456, std::numeric_limits<double>::infinity(),
+      -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN() };
+#elif defined(MYSQL)
+  const std::vector<double> ds = { 0.12345678923456 };
+#endif
+
+  for (const double d : ds) {
+    DboFixture f;
+    dbo::Session *session_ = f.session_;
+
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<A> a = session_->addNew<A>();
+      a.modify()->d = d;
+    }
+
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<A> a = session_->find<A>();
+
+      BOOST_REQUIRE((std::isnan(d) && std::isnan(a->d)) || a->d == d);
     }
   }
 }

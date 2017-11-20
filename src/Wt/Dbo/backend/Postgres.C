@@ -17,13 +17,17 @@
 #include "Wt/Dbo/Exception.h"
 
 #include <libpq-fe.h>
-#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include <sstream>
 #include <cstring>
 #include <ctime>
+
+#include <boost/config/warning_disable.hpp>
+#include <boost/spirit/include/karma.hpp>
 
 #include "Wt/Date/date.h"
 
@@ -50,6 +54,71 @@ namespace {
     return result;
   }
 
+  using namespace boost::spirit;
+  using namespace boost::spirit::karma;
+
+  // adjust rendering for JS flaots
+  template <typename T, int Precision>
+  struct PostgresPolicy : karma::real_policies<T>
+  {
+    // not 'nan', but 'NaN'
+    template <typename CharEncoding, typename Tag, typename OutputIterator>
+    static bool nan (OutputIterator& sink, T n, bool force_sign)
+    {
+      return string_inserter<CharEncoding, Tag>::call(sink, "NaN");
+    }
+
+    // not 'inf', but 'Infinity'
+    template <typename CharEncoding, typename Tag, typename OutputIterator>
+    static bool inf (OutputIterator& sink, T n, bool force_sign)
+    {
+      return sign_inserter::call(sink, false, (n<0), force_sign) &&
+        string_inserter<CharEncoding, Tag>::call(sink, "Infinity");
+    }
+
+    static int floatfield(T t) {
+      return (t != 0.0) && ((t < 0.001) || (t > 1E8)) ?
+        karma::real_policies<T>::fmtflags::scientific :
+        karma::real_policies<T>::fmtflags::fixed;
+    }
+
+    // 7 significant numbers; about float precision
+    static unsigned precision(T) { return Precision; }
+
+  };
+
+  using PostgresReal = real_generator<float, PostgresPolicy<float, 7> >;
+  using PostgresDouble = real_generator<double, PostgresPolicy<double, 15> >;
+
+  static inline std::string double_to_s(const double d)
+  {
+    char buf[30];
+    char *p = buf;
+    if (d != 0) {
+      using namespace boost::spirit;
+      using namespace boost::spirit::karma;
+      generate(p, PostgresDouble(), d);
+    } else {
+      *p++ = '0';
+    }
+    *p = '\0';
+    return std::string(buf, p);
+  }
+
+  static inline std::string float_to_s(const float f)
+  {
+    char buf[30];
+    char *p = buf;
+    if (f != 0) {
+      using namespace boost::spirit;
+      using namespace boost::spirit::karma;
+      generate(p, PostgresReal(), f);
+    } else {
+      *p++ = '0';
+    }
+    *p = '\0';
+    return std::string(buf, p);
+  }
 }
 
 namespace Wt {
@@ -144,14 +213,14 @@ public:
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    setValue(column, std::to_string(value));
+    setValue(column, float_to_s(value));
   }
 
   virtual void bind(int column, double value) override
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    setValue(column, std::to_string(value));
+    setValue(column, double_to_s(value));
   }
 
   virtual void bind(int column, const std::chrono::duration<int, std::milli> & value) override
