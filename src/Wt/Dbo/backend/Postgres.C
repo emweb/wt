@@ -17,6 +17,7 @@
 
 #include <libpq-fe.h>
 #include <boost/lexical_cast.hpp>
+#include <cerrno>
 #include <iostream>
 #include <vector>
 #include <sstream>
