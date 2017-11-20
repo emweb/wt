@@ -11,11 +11,13 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WFormWidget"
 #include "Wt/WLogger"
+#include "Wt/WLineEdit"
 #include "Wt/WSuggestionPopup"
 #include "Wt/WStringStream" 
 #include "Wt/WStringListModel"
 #include "Wt/WTemplate"
 #include "Wt/WText"
+#include "Wt/WTextArea"
 
 #include "WebUtils.h"
 
@@ -402,8 +404,14 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
     if (impl_->widget(i)->id() == itemId) {
 	  currentItem_ = i;
       activated_.emit(i, edit);
-	  if(edit)
-		edit->changed().emit();
+      if(edit) {
+        if (Wt::WLineEdit *le = dynamic_cast<Wt::WLineEdit*>(edit)) {
+          le->textInput().emit();
+        } else if (Wt::WTextArea *ta = dynamic_cast<Wt::WTextArea*>(edit)) {
+          ta->textInput().emit();
+        }
+        edit->changed().emit();
+      }
       return;
     }
   currentItem_ = -1;

@@ -130,6 +130,7 @@ void WDateEdit::setFromCalendar()
   if (!calendar_->selection().empty()) {
     WDate calDate = Utils::first(calendar_->selection());
     setText(calDate.toString(format()));
+    textInput().emit();
     changed().emit();
   }
 }
