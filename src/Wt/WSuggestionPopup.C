@@ -399,9 +399,11 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
 	  currentItem_ = i;
       activated_.emit(i, edit);
       if(edit) {
-        if (Wt::WLineEdit *le = dynamic_cast<Wt::WLineEdit*>(edit)) {
+        WLineEdit *le = dynamic_cast<WLineEdit*>(edit);
+        WTextArea *ta = dynamic_cast<WTextArea*>(edit);
+        if (le) {
           le->textInput().emit();
-        } else if (Wt::WTextArea *ta = dynamic_cast<Wt::WTextArea*>(edit)) {
+        } else if (ta) {
           ta->textInput().emit();
         }
         edit->changed().emit();
