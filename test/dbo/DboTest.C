@@ -16,6 +16,7 @@
 
 #include "DboFixture.h"
 
+#include <cmath>
 #include <limits>
 #include <iomanip>
 
