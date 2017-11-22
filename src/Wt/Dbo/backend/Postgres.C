@@ -43,6 +43,8 @@
 //#define DEBUG(x) x
 #define DEBUG(x)
 
+namespace karma = boost::spirit::karma;
+
 namespace {
 
   inline struct timeval toTimeval(std::chrono::microseconds ms)
@@ -54,9 +56,6 @@ namespace {
     return result;
   }
 
-  using namespace boost::spirit;
-  using namespace boost::spirit::karma;
-
   // adjust rendering for JS flaots
   template <typename T, int Precision>
   struct PostgresPolicy : karma::real_policies<T>
@@ -65,15 +64,15 @@ namespace {
     template <typename CharEncoding, typename Tag, typename OutputIterator>
     static bool nan (OutputIterator& sink, T n, bool force_sign)
     {
-      return string_inserter<CharEncoding, Tag>::call(sink, "NaN");
+      return karma::string_inserter<CharEncoding, Tag>::call(sink, "NaN");
     }
 
     // not 'inf', but 'Infinity'
     template <typename CharEncoding, typename Tag, typename OutputIterator>
     static bool inf (OutputIterator& sink, T n, bool force_sign)
     {
-      return sign_inserter::call(sink, false, (n<0), force_sign) &&
-        string_inserter<CharEncoding, Tag>::call(sink, "Infinity");
+      return karma::sign_inserter::call(sink, false, (n<0), force_sign) &&
+        karma::string_inserter<CharEncoding, Tag>::call(sink, "Infinity");
     }
 
     static int floatfield(T t) {
@@ -87,17 +86,15 @@ namespace {
 
   };
 
-  using PostgresReal = real_generator<float, PostgresPolicy<float, 7> >;
-  using PostgresDouble = real_generator<double, PostgresPolicy<double, 15> >;
+  using PostgresReal = karma::real_generator<float, PostgresPolicy<float, 7> >;
+  using PostgresDouble = karma::real_generator<double, PostgresPolicy<double, 15> >;
 
   static inline std::string double_to_s(const double d)
   {
     char buf[30];
     char *p = buf;
     if (d != 0) {
-      using namespace boost::spirit;
-      using namespace boost::spirit::karma;
-      generate(p, PostgresDouble(), d);
+      karma::generate(p, PostgresDouble(), d);
     } else {
       *p++ = '0';
     }
@@ -110,9 +107,7 @@ namespace {
     char buf[30];
     char *p = buf;
     if (f != 0) {
-      using namespace boost::spirit;
-      using namespace boost::spirit::karma;
-      generate(p, PostgresReal(), f);
+      karma::generate(p, PostgresReal(), f);
     } else {
       *p++ = '0';
     }
