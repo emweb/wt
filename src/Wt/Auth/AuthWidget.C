@@ -194,7 +194,7 @@ std::unique_ptr<WWidget> AuthWidget::createRegistrationView(const Identity& id)
   if (id.isValid())
     model->registerIdentified(id);
 
-  std::unique_ptr<RegistrationWidget> w(new RegistrationWidget());
+  std::unique_ptr<RegistrationWidget> w(new RegistrationWidget(this));
   w->setModel(std::move(model));
   return std::move(w);
 }
