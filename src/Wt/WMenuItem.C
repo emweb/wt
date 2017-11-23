@@ -103,6 +103,8 @@ WMenuItem::~WMenuItem()
 {
   if (!contentsLoaded())
     delete contents_;
+  if (contentsContainer_ && contentsContainer_->parent() == 0)
+    delete contentsContainer_;
 
   delete subMenu_;
 }
