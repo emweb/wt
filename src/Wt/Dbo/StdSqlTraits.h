@@ -127,6 +127,16 @@ struct WTDBO_API sql_value_traits<std::chrono::duration<int, std::milli>, void>
 		   SqlStatement *statement, int column, int size);
 };
 
+template<>
+struct WTDBO_API sql_value_traits<std::chrono::seconds, void>
+{
+  static const bool specialized = true;
+
+  static std::string type(SqlConnection *conn, int size);
+  static void bind(const std::chrono::seconds& v, SqlStatement *statement, int column, int size);
+  static bool read(std::chrono::seconds& v, SqlStatement *statement, int column, int size);
+};
+
 template <typename Enum>
 struct WTDBO_API sql_value_traits<Enum,
 	         typename std::enable_if<std::is_enum<Enum>::value>::type> 

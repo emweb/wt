@@ -276,6 +276,42 @@ bool sql_value_traits<std::chrono::duration<int, std::milli>>
 }
 
    /*
+    * std::chrono::seconds
+    */
+
+std::string sql_value_traits<std::chrono::seconds>::type(SqlConnection *conn, int size)
+{
+    return conn->dateTimeType(SqlDateTimeType::Time);
+}
+
+void sql_value_traits<std::chrono::seconds>::bind(
+    const std::chrono::seconds& v,
+    SqlStatement *statement,
+    int column,
+    int size
+) {
+    if (v == std::chrono::seconds::zero()) {
+        statement->bindNull(column);
+    } else {
+        statement->bind(column, v);
+    }
+}
+
+bool sql_value_traits<std::chrono::seconds>::read(
+    std::chrono::seconds& v,
+    SqlStatement *statement,
+    int column,
+    int size
+) {
+    if (statement->getResult(column, &v)) {
+        return true;
+    } else {
+        v = std::chrono::seconds::zero();
+        return false;
+    }
+}
+
+   /*
     * std::vector<unsigned char>
     */
 

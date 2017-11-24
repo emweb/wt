@@ -755,6 +755,26 @@ class MySQLStatement final : public SqlStatement
        return true;
     }
 
+    virtual bool getResult(int column, std::chrono::seconds *value) override
+    {
+      if (has_truncation_ && *out_pars_[column].error)
+	throw MySQLException("MySQL: getResult(): truncated result for column "
+	  + std::to_string(column));
+
+      if (*(out_pars_[column].is_null) == 1)
+         return false;
+
+       MYSQL_TIME* ts = static_cast<MYSQL_TIME*>(out_pars_[column].buffer);
+       std::chrono::seconds absValue = std::chrono::hours(ts->hour) + std::chrono::minutes(ts->minute)
+                     + std::chrono::seconds(ts->second);
+       *value = ts->neg ? -absValue : absValue;
+
+       DEBUG(std::cerr << this
+             << " result time " << column << " " << *value.count() << std::endl);
+
+       return true;
+    }
+
     virtual bool getResult(int column, std::vector<unsigned char> *value,
                            int size) override
     {
