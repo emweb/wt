@@ -2681,7 +2681,7 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
   int width = (int)legendColumnWidth().toPixels();
   if (width < 100)
     width = 100;
-  painter.drawText(pos.x() + 23, pos.y() - 0, width, 20,
+  painter.drawText(pos.x() + 23, pos.y() - 9, width, 20,
 		   AlignmentFlag::Left | AlignmentFlag::Middle,
 		   series.model()->headerData(series.modelColumn()));
 }

@@ -377,6 +377,12 @@ public:
       return false;
 
     *value = static_cast<float>(sqlite3_column_double(st_, column));
+    if (sqlite3_column_type(st_, column) != SQLITE_FLOAT) {
+      const char *txt = (const char*)sqlite3_column_text(st_, column);
+      if (txt[0] == 'N' && txt[1] == 'a' && txt[2] == 'N' && txt[3] == '\0') {
+        *value = std::numeric_limits<float>::quiet_NaN();
+      }
+    }
 
     DEBUG(std::cerr << this 
 	  << " result float " << column << " " << *value << std::endl);
@@ -390,7 +396,13 @@ public:
       return false;
 
     *value = sqlite3_column_double(st_, column);
-  
+    if (sqlite3_column_type(st_, column) != SQLITE_FLOAT) {
+      const char *txt = (const char*)sqlite3_column_text(st_, column);
+      if (txt[0] == 'N' && txt[1] == 'a' && txt[2] == 'N' && txt[3] == '\0') {
+        *value = std::numeric_limits<double>::quiet_NaN();
+      }
+    }
+
     DEBUG(std::cerr << this 
 	  << " result double " << column << " " << *value << std::endl);
 

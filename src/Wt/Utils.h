@@ -21,6 +21,9 @@ namespace Wt {
    * This namespace contains functions for computing message digests
    * with cryptographic hash functions (md5, sha1), and functions that
    * implement encoding and decoding for common encodings.
+   *
+   * These utility functions can be accessed by including the
+   * \c Wt/Utils.h header.
    */
   namespace Utils {
 

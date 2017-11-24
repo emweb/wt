@@ -1666,62 +1666,69 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
 
   out << '{';
 
-  if (session_.sessionIdChanged_) {
-    if (session_.hasSessionIdInUrl()) {
-      if (app->environment().ajax() &&
-	  !app->environment().internalPathUsingFragments()) {
-	streamRedirectJS(out, app->url(app->internalPath()));
-	// better would be to use HTML5 history in this case but that would
-	// need some minor JavaScript reorganizations
-      } else {
-	streamRedirectJS(out, app->url(app->internalPath()));
+  try {
+    if (session_.sessionIdChanged_) {
+      if (session_.hasSessionIdInUrl()) {
+        if (app->environment().ajax() &&
+            !app->environment().internalPathUsingFragments()) {
+          streamRedirectJS(out, app->url(app->internalPath()));
+          // better would be to use HTML5 history in this case but that would
+          // need some minor JavaScript reorganizations
+        } else {
+          streamRedirectJS(out, app->url(app->internalPath()));
+        }
+        out << '}';
+        return;
       }
-      out << '}';
-      return;
+
+      out << session_.app()->javaScriptClass()
+          << "._p_.setSessionUrl("
+          << WWebWidget::jsStringLiteral(sessionUrl())
+          << ");";
+      session_.sessionIdChanged_ = false;
     }
 
-    out << session_.app()->javaScriptClass()
-	<< "._p_.setSessionUrl("
-	<< WWebWidget::jsStringLiteral(sessionUrl())
-	<< ");";
-    session_.sessionIdChanged_ = false;
-  }
+    collectJS(&out);
 
-  collectJS(&out);
+    /*
+     * Now, as we have cleared and recorded all JavaScript changes that were
+     * caused by the actual code, we can learn stateless code and collect
+     * changes that result.
+     */
 
-  /*
-   * Now, as we have cleared and recorded all JavaScript changes that were
-   * caused by the actual code, we can learn stateless code and collect
-   * changes that result.
-   */
+    preLearnStateless(app, out);
 
-  preLearnStateless(app, out);
-
-  if (formObjectsChanged_) {
-    std::string formObjectsList = createFormObjectsList(app);
-    if (formObjectsList != currentFormObjectsList_) {
-      currentFormObjectsList_ = formObjectsList;
-      out << app->javaScriptClass()
-	  << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);";
+    if (formObjectsChanged_) {
+      std::string formObjectsList = createFormObjectsList(app);
+      if (formObjectsList != currentFormObjectsList_) {
+        currentFormObjectsList_ = formObjectsList;
+        out << app->javaScriptClass()
+            << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);";
+      }
     }
+
+    app->streamAfterLoadJavaScript(out);
+
+    if (app->hasQuit())
+      out << app->javaScriptClass() << "._p_.quit("
+          << (app->quittedMessage_.empty() ? "null" :
+              app->quittedMessage_.jsStringLiteral()) + ");";
+
+    if (updateLayout_) {
+      out << "window.onresize();";
+      updateLayout_ = false;
+    }
+
+    app->renderedInternalPath_ = app->newInternalPath_;
+
+    updateLoadIndicator(out, app, false);
+  } catch (std::exception &e) {
+    out << '}';
+    throw e;
+  } catch (...) {
+    out << '}';
+    throw;
   }
-
-  app->streamAfterLoadJavaScript(out);
-
-  if (app->hasQuit())
-    out << app->javaScriptClass() << "._p_.quit("
-	<< (app->quittedMessage_.empty() ? "null" :
-	    app->quittedMessage_.jsStringLiteral()) + ");";
-
-  if (updateLayout_) {
-    out << "window.onresize();";
-    updateLayout_ = false;
-  }
-
-  app->renderedInternalPath_ = app->newInternalPath_;
-
-  updateLoadIndicator(out, app, false);
-
   out << '}';
 }
 

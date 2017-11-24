@@ -1544,7 +1544,9 @@ void WWebWidget::updateDom(DomElement& element, bool all)
           LOAD_JAVASCRIPT(app, "js/ToolTip.js", "toolTip", wtjs10);
 
 	  WString tooltipText = *lookImpl_->toolTip_;
-	  if (lookImpl_->toolTipTextFormat_ != TextFormat::UnsafeXHTML) {
+          if (lookImpl_->toolTipTextFormat_ == TextFormat::Plain) {
+            tooltipText = escapeText(*lookImpl_->toolTip_);
+          } else if (lookImpl_->toolTipTextFormat_ == TextFormat::XHTML) {
 	    bool res = removeScript(tooltipText);
 	    if (!res) {
 	      tooltipText = escapeText(*lookImpl_->toolTip_);

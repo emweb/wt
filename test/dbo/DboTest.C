@@ -16,6 +16,8 @@
 
 #include "DboFixture.h"
 
+#include <cmath>
+#include <limits>
 #include <iomanip>
 
 #include <boost/optional.hpp>
@@ -2756,7 +2758,7 @@ BOOST_AUTO_TEST_CASE( dbo_test32 )
   BOOST_REQUIRE(om2.c.front() == myA);
 }
 
-BOOST_AUTO_TEST_CASE( dbo_test34 )
+BOOST_AUTO_TEST_CASE( dbo_test33 )
 {
   std::vector<int> sizes;
   sizes.push_back(127);
@@ -2768,9 +2770,15 @@ BOOST_AUTO_TEST_CASE( dbo_test34 )
   sizes.push_back(1023);
   sizes.push_back(1024);
   sizes.push_back(1025);
+  sizes.push_back(65535);
+  // MySQL "text" type only supports up to 65535 bytes
+  // Firebird also throws an exception when it's over 65535 bytes
+  // FIXME: can this be fixed in the Firebird backend?
+#if !defined(MYSQL) && !defined(FIREBIRD)
   sizes.push_back(1024 * 1024 - 1);
   sizes.push_back(1024 * 1024);
   sizes.push_back(1024 * 1024 + 1);
+#endif // !defined(MYSQL) && !defined(FIREBIRD)
 
   std::vector<int>::const_iterator end = sizes.end();
   for (std::vector<int>::const_iterator it = sizes.begin();
@@ -2812,6 +2820,37 @@ BOOST_AUTO_TEST_CASE( dbo_test34 )
 
       BOOST_REQUIRE(a->string == longStr);
       BOOST_REQUIRE(a->binary == longBinary);
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE ( dbo_test34 )
+{
+#if defined(POSTGRES) || defined(SQLITE3)
+  const std::vector<double> ds =
+    { 0.123456789123456, std::numeric_limits<double>::infinity(),
+      -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN() };
+#elif defined(MYSQL) || defined(MSSQLSERVER) || defined(FIREBIRD)
+  const std::vector<double> ds = { 0.12345678923456 };
+#endif
+
+  for (const double d : ds) {
+    DboFixture f;
+    dbo::Session *session_ = f.session_;
+
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<A> a = session_->addNew<A>();
+      a.modify()->d = d;
+    }
+
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<A> a = session_->find<A>();
+
+      BOOST_REQUIRE((std::isnan(d) && std::isnan(a->d)) || a->d == d);
     }
   }
 }

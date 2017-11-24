@@ -153,15 +153,27 @@ void WTableView::setup()
 
     headerColumnsCanvas_ = new WContainerWidget();
     headerColumnsCanvas_->setPositionScheme(PositionScheme::Relative);
+    headerColumnsCanvas_->clicked().preventPropagation();
     headerColumnsCanvas_->clicked().connect
       (this, std::bind(&WTableView::handleSingleClick, this, true,
 		       std::placeholders::_1));
+    headerColumnsCanvas_->clicked().connect("function(o, e) { "
+                               "$(document).trigger($.event.fix(e));"
+                               "}");
+    headerColumnsCanvas_->mouseWentDown().preventPropagation();
     headerColumnsCanvas_->mouseWentDown().connect
       (this, std::bind(&WTableView::handleMouseWentDown, this, true,
 		       std::placeholders::_1)); 
+    headerColumnsCanvas_->mouseWentDown().connect("function(o, e) { "
+                                     "$(document).trigger($.event.fix(e));"
+                                     "}");
+    headerColumnsCanvas_->mouseWentUp().preventPropagation();
     headerColumnsCanvas_->mouseWentUp().connect
       (this, std::bind(&WTableView::handleMouseWentUp, this, true,
 		       std::placeholders::_1)); 
+    headerColumnsCanvas_->mouseWentUp().connect("function(o, e) { "
+                                     "$(document).trigger($.event.fix(e));"
+                                     "}");
     headerColumnsCanvas_->addWidget
       (std::unique_ptr<WWidget>(headerColumnsTable_));
 

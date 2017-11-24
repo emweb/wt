@@ -164,6 +164,7 @@ void WTimeEdit::propagateSetEnabled(bool enabled)
 void WTimeEdit::setFromTimePicker()
 {
   setTime(timePicker_->time());
+  textInput().emit();
   changed().emit();
 }
 
