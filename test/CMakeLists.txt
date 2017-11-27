@@ -15,6 +15,7 @@ IF(ENABLE_LIBWTTEST)
     models/WBatchEditProxyModelTest.C
     models/WStandardItemModelTest.C
     private/EscapeTest.C
+    private/EventDecodeTest.C
     private/HttpTest.C
     private/CExpressionParserTest.C
     private/I18n.C

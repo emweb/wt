@@ -41,9 +41,7 @@ namespace {
   }
 
   unsigned asUInt(const std::string& v) {
-    unsigned long res = Utils::stoul(v);
-    if (res > static_cast<unsigned long>(std::numeric_limits<unsigned>::max()))
-      throw std::invalid_argument("can't coerce " + v + " into unsigned int: too big");
+    long long res = Utils::stoll(v);
     return static_cast<unsigned>(res);
   }
 
