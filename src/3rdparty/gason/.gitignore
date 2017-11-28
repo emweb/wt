@@ -1,0 +1,13 @@
+.DS_Store
+*.swp
+data/*.json
+build
+build-debug
+build-release
+ruberoid/bin
+ruberoid/libs
+ruberoid/build.xml
+ruberoid/local.properties
+ruberoid/proguard-project.txt
+ruberoid/project.properties
+rapidjson
