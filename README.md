@@ -1,66 +1,158 @@
-What is Wt ?
-------------
+Leaflet map for Wt
+=============
 
-Wt is a C++ library for developing web applications. It consists of:
+[Wt](https://www.webtoolkit.eu/wt) is a C++ library for developing web applications. 
+This fork adds a [Leaflet](http://leafletjs.com/) class.
 
-- libwt, a widget/rendering library
-- libwthttp, an (async I/O) HTTP/WebSockets server
-- libwtfcgi, a FastCGI connector library (Unix)
-- libwtisapi, an ISAPI connector library (Windows)
-- libwttest, a test connector environment
-
-It also contains a C++ ORM, which can be used in a web application
-(obviously), but can also be used on its own:
-
-- libwtdbo, a C++ ORM
-- libwtdbopostgres, PostgreSQL backend
-- libwtdbosqlite3, Sqlite3 backend
-- libwtdbofirebird, Firebird backend
-
-For more information, see [the homepage](http://www.webtoolkit.eu/wt
-"Wt homepage").
-
-Dependencies
-------------
-
-To build Wt from source you will need at least
-[CMake](http://www.cmake.org/CMake) (>= 2.4), and
-[boost](http://www.boost.org) (version >= 1.41).
-
-Optionally, you may want to add:
-
-- [OpenSSL](http://www.openssl.org) for SSL and WebSockets support in
-  the built-in httpd, the HTTP(S) client, and additional cryptographic
-  hashes in the authentication module
-- [Haru PDF library](http://libharu.org) which is used for painting to PDF
-- [GraphicsMagick](http://www.graphicsmagick.org/) which is used for painting
-  to PNG, GIF (on Windows, Direct2D can be used instead)
-- [PostgreSQL](http://www.posgresql.org/) for a PostgreSQL backend
-- [Firebird](http://www.firebirdsql.org/) for a Firebird backend
-- [Pango](http://www.pango.org/) for improved font support in PDF and raster
-  image painting (on Windows, DirectWrite can be used instead)
-- [ZLib](http://zlib.net/) for compression in the built-in httpd.
-
-For the FastCGI connector, you also need:
-
-- [FastCGI development kit](http://www.fastcgi.com/): you need the
-  C/C++ library (libfcgi++)
 
 Building
---------
+=============
 
-Generic instructions for [Unix-like
-platforms](http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html)
-or [Windows
-platforms](http://www.webtoolkit.eu/wt/doc/reference/html/InstallationWindows.html).
+Switch to branch leaflet
+------------
+<pre>
+git checkout leaflet
+</pre>
 
-Bug Reporting
--------------
-Bugs can be reported here
-http://redmine.webtoolkit.eu/projects/wt/issues/new
+Install dependencies
+------------
+[cmake](https://cmake.org/)
 
-Demos, examples
----------------
+[boost](http://www.boost.org/)
 
-[The homepage](http://www.webtoolkit.eu/wt), itself a Wt application,
-contains also [various examples](http://www.webtoolkit.eu/wt/examples).
+Linux Ubuntu, install packages with
+
+<pre>
+sudo apt-get install cmake
+sudo apt-get install build-essential
+sudo apt-get install libboost-all-dev
+</pre>
+
+Mac OSX
+
+Install Homebrew
+
+<pre>
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+</pre>
+
+Install packages with
+
+<pre>
+brew install cmake 
+brew install boost 
+</pre>
+
+
+Build with
+--------------
+<pre>
+git clone https://github.com/pedro-vicente/wt.git
+git checkout leaflet
+cd build
+cmake .. 
+make
+</pre>
+
+Build with custom boost location
+------------
+<pre>
+cmake .. -G "Visual Studio 14" -DBOOST_PREFIX=E:\wt\boost_1_64_0 -DBOOST_DYNAMIC=ON -DSHARED_LIBS=ON
+</pre>
+
+Run with
+------------
+<pre>
+cd examples/leaflet_test
+make
+leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=.
+-t 2 -d ../../../examples/leaflet_test/dc_311-2016.csv.s0311.csv 
+-g ../../../examples/leaflet_test/ward-2012.geojson
+</pre>
+to run a DC311 example database of rodent complaints
+
+Use 
+<pre>
+-t 3 -g ../../../examples/leaflet_test/gz_2010_us_040_00_20m.json
+</pre>
+
+to load and display any GeoJSON file
+
+Open a browser
+------------
+<pre>
+http://127.0.0.1:8080/
+</pre>
+
+Source code examples
+===========
+
+Examples are in
+
+DC311
+District of Columbia, Office of Unified Communications complaints
+
+US states
+Topology of US states
+
+[/examples/leaflet_test/leaflet_test.cc](https://github.com/pedro-vicente/wt/blob/leaflet/examples/leaflet_test/leaflet_test.cc)
+
+
+Leaflet class source is in [/src/leaflet/WLeaflet.cc](https://github.com/pedro-vicente/wt/blob/leaflet/src/leaflet/WLeaflet.cc)
+
+Usage of the Leaflet Wt class
+==========
+
+The API supports 2 map tile providers: CartoDB and RRZE Openstreetmap-Server
+
+[cartoDB](https://carto.com/)
+
+[RRZE Openstreetmap-Server](https://osm.rrze.fau.de/)
+
+```c++
+enum class tile_provider_t
+{
+  CARTODB, RRZE
+};
+```
+
+Example of a map of Washington DC using CartoDB tiles
+
+```c++
+class MapApplication : public WApplication
+{
+public:
+  MapApplication(const WEnvironment& env) : WApplication(env)
+  {
+    std::unique_ptr<WLeaflet> leaflet = cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 38.9072 -77.0369, 13);
+    root()->addWidget(std::move(leaflet));
+  }
+};
+```
+
+API
+------------
+```c++
+void Circle(const std::string &lat, const std::string &lon);
+void Polygon(const std::vector<double> &lat, const std::vector<double> &lon);
+```
+
+Output
+------------
+Washington DC S0311 code (rodent complaints) [DC311](https://311.dc.gov/) occurrences for year 2016. The circle has a radius of 100 meters
+
+![image](https://user-images.githubusercontent.com/6119070/31053476-03da5ff8-a66c-11e7-9ad9-487aef6e062c.png)
+
+
+Topology of US states example
+---------
+Data source
+
+https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
+Converted to GeoJSON
+https://tools.ietf.org/html/rfc7946
+
+
+Output
+------------
+![image](https://user-images.githubusercontent.com/6119070/31628950-25fbfe14-b280-11e7-880f-b3784ca3ceba.png)
