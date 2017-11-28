@@ -3,6 +3,7 @@ SUBDIRS(web Wt)
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/web
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gason/src # for geojson
   ${CMAKE_CURRENT_BINARY_DIR} # for WConfig.h
   ${BOOST_INCLUDE_DIRS}
   Wt/Dbo/backend/amalgamation # for sqlite3.h
@@ -384,6 +385,15 @@ BootstrapTheme_xml.C
 Bootstrap3Theme_xml.C
 AuthCssTheme_xml.C
 JQuery_js.C
+#leaflet
+leaflet/WLeaflet.hh
+leaflet/WLeaflet.cc
+leaflet/geojson.hh
+leaflet/geojson.cc
+leaflet/csv.hh
+leaflet/csv.cc
+3rdparty/gason/src/gason.h
+3rdparty/gason/src/gason.cpp
 )
 
 ADD_DEFINITIONS(-DWT_BUILDING)
