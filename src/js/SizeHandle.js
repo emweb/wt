@@ -59,7 +59,7 @@ WT_DECLARE_WT_MEMBER
        return Math.min(Math.max(result, minDelta), maxDelta);
      }
 
-     handle.onmousemove = parent.ontouchmove = function(event) {
+     function mousemove(event) {
        var delta = computeDelta(event);
        if (orientation == 'h')
          handle.style.left = (elpos.x + delta) + 'px';
@@ -67,14 +67,50 @@ WT_DECLARE_WT_MEMBER
          handle.style.top = (elpos.y + delta) + 'px';
 
        WT.cancelEvent(event);
-     };
-
-     handle.onmouseup = parent.ontouchend = function(event) {
+     }
+     function mouseup_common(event) {
        if (handle.parentNode != null) {
-	 handle.parentNode.removeChild(handle);
-	 doneFn(computeDelta(event));
-	 parent.ontouchmove = null;
+         handle.parentNode.removeChild(handle);
+         doneFn(computeDelta(event));
        }
-     };
+     }
+     if (document.addEventListener) {
+       var domRoot = $('.Wt-domRoot')[0];
+       if (!domRoot) {
+         // widgetset mode
+         domRoot = parent;
+       }
+       var oldPointerEvents = domRoot.style['pointer-events'];
+       if (!oldPointerEvents)
+         oldPointerEvents = 'all';
+       domRoot.style["pointer-events"] = 'none';
+       var oldCursorStyle = document.body.style['cursor'];
+       if (!oldCursorStyle)
+         oldCursorStyle = 'auto';
+       if (orientation == 'h')
+         document.body.style['cursor'] = 'ew-resize';
+       else
+         document.body.style['cursor'] = 'ns-resize';
+       function mouseup(event) {
+         domRoot.style['pointer-events'] = oldPointerEvents;
+         document.body.style['cursor'] = oldCursorStyle;
+         document.removeEventListener('mousemove', mousemove);
+         document.removeEventListener('mouseup', mouseup);
+         document.removeEventListener('touchmove', mousemove);
+         document.removeEventListener('touchend', mouseup);
+         mouseup_common(event);
+       }
+       document.addEventListener('mousemove', mousemove, {capture: true});
+       document.addEventListener('mouseup', mouseup, {capture: true});
+       document.addEventListener('touchmove', mousemove, {capture: true});
+       document.addEventListener('touchend', mouseup, {capture: true});
+     } else {
+       handle.onmousemove = parent.ontouchmove = mousemove;
+       handle.onmouseup = parent.ontouchend = function(event) {
+         parent.ontouchmove = null;
+         parent.ontouchend = null;
+         mouseup_common(event);
+       };
+     }
   }
    );
