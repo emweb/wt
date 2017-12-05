@@ -972,16 +972,18 @@ function toUnicodeSelection(selection, text) {
   var i;
   var start = selection.start;
   var end = selection.end;
-  for (i = 0; i < text.length; ++i) {
-    if (i >= selection.start && i >= selection.end)
-      return {start: start, end: end};
-    if (isHighSurrogate(text.charCodeAt(i)) &&
-	(i + 1) < text.length &&
-	isLowSurrogate(text.charCodeAt(i + 1))) {
-      if (i < selection.start)
-	--start;
-      if (i < selection.end)
-	--end;
+  if (text) {
+    for (i = 0; i < text.length; ++i) {
+      if (i >= selection.start && i >= selection.end)
+	return {start: start, end: end};
+      if (isHighSurrogate(text.charCodeAt(i)) &&
+	  (i + 1) < text.length &&
+	  isLowSurrogate(text.charCodeAt(i + 1))) {
+	if (i < selection.start)
+	  --start;
+	if (i < selection.end)
+	  --end;
+      }
     }
   }
   return {start: start, end: end};
