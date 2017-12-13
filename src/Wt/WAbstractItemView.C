@@ -246,6 +246,8 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     mouseWentDown_(this),
     mouseWentUp_(this),
     touchStart_(this),
+    touchStarted_(this),
+    touchEnded_(this),
     selectionChanged_(this),
     pageChanged_(this),
     editTriggers_(DoubleClicked),
@@ -1411,8 +1413,8 @@ void WAbstractItemView::handleMouseUp(const WModelIndex& index,
   mouseWentUp_.emit(index, event);
 }
 
-void WAbstractItemView::handleTouchStart(const std::vector<WModelIndex>& indices,
-					   const WTouchEvent& event)
+void WAbstractItemView::handleTouchSelect(const std::vector<WModelIndex>& indices,
+                                          const WTouchEvent& event)
 {
   const WModelIndex& index = indices[0];
   touchRegistered_ = true;
@@ -1430,6 +1432,18 @@ void WAbstractItemView::handleTouchStart(const std::vector<WModelIndex>& indices
   }
 
   touchStart_.emit(index, event);
+}
+
+void WAbstractItemView::handleTouchStart(const std::vector<WModelIndex>& indices,
+					   const WTouchEvent& event)
+{
+  touchStarted_.emit(indices, event);
+}
+
+void WAbstractItemView::handleTouchEnd(const std::vector<WModelIndex>& indices,
+				       const WTouchEvent& event)
+{
+  touchEnded_.emit(indices, event);
 }
 
 void WAbstractItemView::setEditTriggers(WFlags<EditTrigger> editTriggers)

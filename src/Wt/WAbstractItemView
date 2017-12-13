@@ -743,8 +743,28 @@ public:
    *
    * When the event happened over an item, the first argument
    * indicates the item that was touched.
+   *
+   * \deprecated Use touchStarted() instead.
    */
   Signal<WModelIndex, WTouchEvent>& touchStart() { return touchStart_; }
+
+  /*! \brief %Signal emitted when one or more fingers are placed on the screen.
+   *
+   * When the event happened over an item, the first argument
+   * indicates the items that were touched. The indices in the model index
+   * vector match the indices in the \link WTouchEvent::changedTouches() changedTouches() of the WTouchEvent\endlink.
+   */
+  Signal<std::vector<WModelIndex>, WTouchEvent>& touchStarted() { return touchStarted_; }
+
+  /*! \brief %Signal emitted when one or more fingers are removed from the screen.
+   *
+   * When the event happened over an item, the first argument
+   * indicates the items where the touch ended. The indices in the model index
+   * vector match the indices in the \link WTouchEvent::changedTouches() changedTouches() of the WTouchEvent\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  Signal<std::vector<WModelIndex>, WTouchEvent>& touchEnded() { return touchEnded_; }
 
   /*! \brief %Signal emitted when the selection is changed.
    *
@@ -1062,10 +1082,20 @@ protected:
   virtual void handleMouseUp(const WModelIndex& index,
 			     const WMouseEvent& event);
 
+  /*! \brief Handles a touch select event.
+   */
+  virtual void handleTouchSelect(const std::vector<WModelIndex>& indices,
+                                 const WTouchEvent& event);
+
   /*! \brief Handles a touch started event.
    */
   virtual void handleTouchStart(const std::vector<WModelIndex>& indices,
-				       const WTouchEvent& event);
+				const WTouchEvent& event);
+
+  /*! \brief Handles a touch ended event.
+   */
+  virtual void handleTouchEnd(const std::vector<WModelIndex>& indices,
+			      const WTouchEvent& event);
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
 
@@ -1138,6 +1168,8 @@ private:
   Signal<WModelIndex, WMouseEvent> mouseWentDown_;
   Signal<WModelIndex, WMouseEvent> mouseWentUp_;
   Signal<WModelIndex, WTouchEvent> touchStart_;
+  Signal<std::vector<WModelIndex>, WTouchEvent> touchStarted_;
+  Signal<std::vector<WModelIndex>, WTouchEvent> touchEnded_;
   Signal<> selectionChanged_;
   Signal<> pageChanged_;
 

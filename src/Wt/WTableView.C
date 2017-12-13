@@ -56,7 +56,7 @@ WTableView::WTableView(WContainerWidget *parent)
     plainTable_(0),
     dropEvent_(impl_, "dropEvent"),
     scrolled_(impl_, "scrolled"),
-    itemTouchEvent_(impl_, "itemTouchEvent"),
+    itemTouchSelectEvent_(impl_, "itemTouchSelectEvent"),
     firstColumn_(-1),
     lastColumn_(-1),
     viewportLeft_(0),
@@ -772,8 +772,8 @@ void WTableView::defineJavaScript()
   if (!scrolled_.isConnected())
     scrolled_.connect(this, &WTableView::onViewportChange);
 
-  if (!itemTouchEvent_.isConnected())
-    itemTouchEvent_.connect(this, &WTableView::handleTouchStarted);
+  if (!itemTouchSelectEvent_.isConnected())
+    itemTouchSelectEvent_.connect(this, &WTableView::handleTouchSelected);
 
   if (!columnResizeConnected_) {
     columnResized().connect(this, &WTableView::onColumnResize);
@@ -845,6 +845,18 @@ void WTableView::render(WFlags<RenderFlag> flags)
 	.connect(boost::bind(&WTableView::handleRootDoubleClick, this, 0, _1));
       headerColumnsContainer_->doubleClicked()
 	.connect(boost::bind(&WTableView::handleRootDoubleClick, this, 0, _1));
+    }
+
+    if (!touchStartConnection_.connected()
+        && touchStarted().isConnected()) {
+      touchStartConnection_ = canvas_->touchStarted()
+	.connect(boost::bind(&WTableView::handleTouchStarted, this, _1));
+    }
+
+    if (!touchEndConnection_.connected()
+        && touchEnded().isConnected()) {
+      touchEndConnection_ = canvas_->touchEnded()
+	.connect(boost::bind(&WTableView::handleTouchEnded, this, _1));
     }
   }
 
@@ -1695,13 +1707,33 @@ void WTableView::handleMouseWentUp(bool headerColumns, const WMouseEvent& event)
   handleMouseUp(index, event);
 }
 
-void WTableView::handleTouchStarted(const WTouchEvent& event)
+void WTableView::handleTouchSelected(const WTouchEvent& event)
 {
   std::vector<WModelIndex> indices;
   for(std::size_t i = 0; i < event.touches().size(); i++){
     indices.push_back(translateModelIndex(event.touches()[i]));
   }
+  handleTouchSelect(indices, event);
+}
+
+void WTableView::handleTouchStarted(const WTouchEvent& event)
+{
+  std::vector<WModelIndex> indices;
+  const std::vector<Touch> &touches = event.changedTouches();
+  for(std::size_t i = 0; i < touches.size(); i++){
+    indices.push_back(translateModelIndex(touches[i]));
+  }
   handleTouchStart(indices, event);
+}
+
+void WTableView::handleTouchEnded(const WTouchEvent& event)
+{
+  std::vector<WModelIndex> indices;
+  const std::vector<Touch> &touches = event.changedTouches();
+  for (std::size_t i = 0; i < touches.size(); i++) {
+    indices.push_back(translateModelIndex(touches[i]));
+  }
+  handleTouchEnd(indices, event);
 }
 
 void WTableView::handleRootSingleClick(int u, const WMouseEvent& event)

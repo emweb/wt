@@ -39,8 +39,8 @@ namespace {
     return boost::lexical_cast<int>(v);
   }
 
-  unsigned asUInt(const std::string& v) {
-    return boost::lexical_cast<unsigned>(v);
+  long long asLongLong(const std::string& v) {
+    return boost::lexical_cast<long long>(v);
   }
 
   int parseIntParameter(const WebRequest& request, const std::string& name,
@@ -83,7 +83,7 @@ namespace {
 
     try {
       for (unsigned i = 0; i < s.size(); i += 9) {
-	result.push_back(Touch(asUInt(s[i + 0]),
+        result.push_back(Touch(asLongLong(s[i + 0]),
 			       asInt(s[i + 1]), asInt(s[i + 2]),
 			       asInt(s[i + 3]), asInt(s[i + 4]),
 			       asInt(s[i + 5]), asInt(s[i + 6]),
@@ -106,7 +106,7 @@ EventType WEvent::eventType() const
   return impl_.handler->session()->getEventType(*this);
 }
 
-Touch::Touch(unsigned identifier,
+Touch::Touch(long long identifier,
 	     int clientX, int clientY,
 	     int documentX, int documentY,
 	     int screenX, int screenY,

@@ -1385,7 +1385,7 @@ void WTreeView::render(WFlags<RenderFlag> flags)
   if (flags & RenderFull) {
     defineJavaScript();
 
-    if (!itemTouchEvent_.isConnected()) 
+    if (!itemTouchEvent_.isConnected())
       itemTouchEvent_.connect(this, &WTreeView::onItemTouchEvent);
 
     if (!itemEvent_.isConnected()) {
@@ -1631,16 +1631,19 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
   }
 }
 
-void WTreeView::onItemTouchEvent(std::string nodeAndColumnId, std::string type,
-				 std::string extra1, std::string extra2, WTouchEvent event)
+void WTreeView::onItemTouchEvent(std::string nodeAndColumnId, std::string type, WTouchEvent event)
 {
   // nodeId and columnId are combined because WSignal needed to be changed
   // since MSVS 2012 does not support >5 arguments in std::bind()
   std::vector<WModelIndex> index;
   index.push_back(calculateModelIndex(nodeAndColumnId));
 
-  if (type == "touchstart")
+  if (type == "touchselect")
+    handleTouchSelect(index, event);
+  else if (type == "touchstart")
     handleTouchStart(index, event);
+  else if (type == "touchend")
+    handleTouchEnd(index, event);
 }
 
 WModelIndex WTreeView::calculateModelIndex(std::string nodeAndColumnId)

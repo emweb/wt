@@ -269,18 +269,18 @@ WT_DECLARE_WT_MEMBER
      }
      if (event.touches.length > 1) {
        clearTimeout(touchStartTimer);
-       touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 1000);
+       touchStartTimer = setTimeout(function(){emitTouchSelect(obj, event);}, 1000);
        touches = event.touches.length;
      }
      else{
        clearTimeout(touchStartTimer);
-       touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 50);
+       touchStartTimer = setTimeout(function(){emitTouchSelect(obj, event);}, 50);
        touches = 1;
      }
    };
 
-   function emitTouchStart(obj, event) {
-     APP.emit(el, { name: 'itemTouchEvent', eventObject: obj, event: event});
+   function emitTouchSelect(obj, event) {
+     APP.emit(el, { name: 'itemTouchSelectEvent', eventObject: obj, event: event});
    };
 
    this.touchMove = function(obj, event) {
