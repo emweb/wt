@@ -34,7 +34,7 @@ namespace Wt {
   public:
     /*! \brief Constructor.
      */
-    Touch(unsigned identifier,
+    Touch(long long identifier,
 	  int clientX, int clientY,
 	  int documentX, int documentY,
 	  int screenX, int screenY,
@@ -59,12 +59,16 @@ namespace Wt {
      */
     Coordinates widget() const { return Coordinates(widgetX_, widgetY_); }
 
+    /*! \brief Returns the identifier for this touch.
+     */
+    long long identifier() const { return identifier_; }
+
   private:
     int clientX_, clientY_;
     int documentX_, documentY_;
     int screenX_, screenY_;
     int widgetX_, widgetY_;
-    unsigned identifier_;
+    long long identifier_;
   };
 
 class WebRequest;

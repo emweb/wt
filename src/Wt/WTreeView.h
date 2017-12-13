@@ -268,8 +268,7 @@ private:
 
   JSignal<std::string, std::string, std::string,
           std::string, WMouseEvent> itemEvent_;
-  JSignal<std::string, std::string, std::string,
-	  std::string, WTouchEvent> itemTouchEvent_;
+  JSignal<std::string, std::string, WTouchEvent> itemTouchEvent_;
 
   std::unique_ptr<ToggleButtonConfig> expandConfig_;
 
@@ -300,8 +299,7 @@ private:
   void contentsSizeChanged(int width, int height);
   void onItemEvent(std::string nodeAndColumnId, std::string type,
 		   std::string extra1, std::string extra2, WMouseEvent event);
-  void onItemTouchEvent(std::string nodeAndColumnId, std::string type,
-			std::string extra1, std::string extra2, WTouchEvent event);
+  void onItemTouchEvent(std::string nodeAndColumnId, std::string type, WTouchEvent event);
   WModelIndex calculateModelIndex(std::string nodeAndColumnId);
   void setRootNodeStyle();
   void setCollapsed(const WModelIndex& index);

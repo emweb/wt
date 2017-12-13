@@ -170,7 +170,10 @@ private:
 
   JSignal<int, int, std::string, std::string, WMouseEvent> dropEvent_;
   JSignal<int, int, int, int> scrolled_;
-  JSignal<WTouchEvent> itemTouchEvent_;
+  JSignal<WTouchEvent> itemTouchSelectEvent_;
+
+  Signals::connection touchStartConnection_;
+  Signals::connection touchEndConnection_;
 
   /* Ajax only: First and last columns rendered (this somewhat
    * redundant with the state contained in the widgets, but because
@@ -241,7 +244,9 @@ private:
   void handleDblClick(bool headerColumns, const WMouseEvent& event);
   void handleMouseWentDown(bool headerColumns, const WMouseEvent& event);
   void handleMouseWentUp(bool headerColumns, const WMouseEvent& event);
+  void handleTouchSelected(const WTouchEvent& event);
   void handleTouchStarted(const WTouchEvent& event);
+  void handleTouchEnded(const WTouchEvent& event);
   WModelIndex translateModelIndex(bool headerColumns, const WMouseEvent& event);
   WModelIndex translateModelIndex(const Touch& touch);
 
