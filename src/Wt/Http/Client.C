@@ -644,7 +644,11 @@ private:
 
 protected:
   boost::asio::io_service& ioService_;
+#if BOOST_VERSION >= 106600
+  boost::asio::io_context::strand strand_;
+#else
   boost::asio::strand strand_;
+#endif
   tcp::resolver resolver_;
   boost::asio::streambuf requestBuf_;
   boost::asio::streambuf responseBuf_;
@@ -933,8 +937,12 @@ bool Client::request(Http::Method method, const std::string& url,
 
 #ifdef WT_WITH_SSL
   } else if (parsedUrl.protocol == "https") {
+#if BOOST_VERSION >= 106600
+    boost::asio::ssl::context context(boost::asio::ssl::context::tls);
+#else
     boost::asio::ssl::context context
       (*ioService, boost::asio::ssl::context::sslv23);
+#endif
     long sslOptions = boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3;
     context.set_options(sslOptions);
 

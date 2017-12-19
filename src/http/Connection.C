@@ -62,6 +62,15 @@ Connection::~Connection()
   LOG_DEBUG("~Connection");
 }
 
+asio::ip::tcp::socket::native_handle_type Connection::native()
+{
+#if BOOST_VERSION >= 106600
+  return socket().native_handle();
+#else
+  return socket().native();
+#endif
+}
+
 void Connection::finishReply()
 { 
   if (!request_.uri.empty()) {
@@ -79,7 +88,7 @@ void Connection::scheduleStop()
 
 void Connection::start()
 {
-  LOG_DEBUG(socket().native() << ": start()");
+  LOG_DEBUG(native() << ": start()");
 
   request_parser_.reset();
   request_.reset();
@@ -107,7 +116,7 @@ void Connection::stop()
 void Connection::setReadTimeout(int seconds)
 {
   if (seconds != 0) {
-    LOG_DEBUG(socket().native() << " setting read timeout (ws: "
+    LOG_DEBUG(native() << " setting read timeout (ws: "
 	      << request_.webSocketVersion << ")");
     state_ |= Reading;
 
@@ -119,7 +128,7 @@ void Connection::setReadTimeout(int seconds)
 
 void Connection::setWriteTimeout(int seconds)
 {
-  LOG_DEBUG(socket().native() << " setting write timeout (ws: "
+  LOG_DEBUG(native() << " setting write timeout (ws: "
 	    << request_.webSocketVersion << ")");
   state_ |= Writing;
 
@@ -130,7 +139,7 @@ void Connection::setWriteTimeout(int seconds)
 
 void Connection::cancelReadTimer()
 {
-  LOG_DEBUG(socket().native() << " cancel read timeout");
+  LOG_DEBUG(native() << " cancel read timeout");
   state_.clear(Reading);
 
   readTimer_.cancel();
@@ -138,7 +147,7 @@ void Connection::cancelReadTimer()
 
 void Connection::cancelWriteTimer()
 {
-  LOG_DEBUG(socket().native() << " cancel write timeout");
+  LOG_DEBUG(native() << " cancel write timeout");
   state_.clear(Writing);
 
   writeTimer_.cancel();
@@ -164,7 +173,7 @@ void Connection::handleReadRequest0()
 
 #ifdef DEBUG
   try {
-    LOG_DEBUG(socket().native() << "incoming request: "
+    LOG_DEBUG(socket().native_handle() << "incoming request: "
 	      << socket().remote_endpoint().port() << " (avail= "
 	      << (rcv_buffer_size_ - (rcv_remaining_ - buffer.data())) << "): "
 	      << std::string(rcv_remaining_,
@@ -190,7 +199,7 @@ void Connection::handleReadRequest0()
     if (doWebSockets)
       request_.enableWebSocket();
 
-    LOG_DEBUG(socket().native() << "request: " << status);
+    LOG_DEBUG(native() << "request: " << status);
 
     if (status >= 300)
       sendStockReply(status);
@@ -243,7 +252,7 @@ void Connection::sendStockReply(StockReply::status_type status)
 void Connection::handleReadRequest(const asio_error_code& e,
 				   std::size_t bytes_transferred)
 {
-  LOG_DEBUG(socket().native() << ": handleReadRequest(): " << e.message());
+  LOG_DEBUG(native() << ": handleReadRequest(): " << e.message());
 
   cancelReadTimer();
 
@@ -262,7 +271,7 @@ void Connection::close()
   cancelReadTimer();
   cancelWriteTimer();
 
-  LOG_DEBUG(socket().native() << ": close()");
+  LOG_DEBUG(native() << ": close()");
 
   ConnectionManager_.stop(shared_from_this());
 }
@@ -275,7 +284,7 @@ bool Connection::closed() const
 
 void Connection::handleError(const asio_error_code& e)
 {
-  LOG_DEBUG(socket().native() << ": error: " << e.message());
+  LOG_DEBUG(native() << ": error: " << e.message());
 
   close();
 }
@@ -350,7 +359,7 @@ void Connection::handleReadBody(ReplyPtr reply,
 				const asio_error_code& e,
 				std::size_t bytes_transferred)
 {
-  LOG_DEBUG(socket().native() << ": handleReadBody(): " << e.message());
+  LOG_DEBUG(native() << ": handleReadBody(): " << e.message());
 
   if (disconnectCallback_) {
     if (e && e != asio::error::operation_aborted) {
@@ -358,7 +367,7 @@ void Connection::handleReadBody(ReplyPtr reply,
       disconnectCallback_ = boost::function<void()>();
       f();
     } else if (!e) {
-      LOG_ERROR(socket().native()
+      LOG_ERROR(native()
 		<< ": handleReadBody(): while waiting for disconnect, "
 		"received unexpected data, closing");
       close();
@@ -411,7 +420,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
   }
 #endif
 
-  LOG_DEBUG(socket().native() << " sending: " << s << "(buffers: "
+  LOG_DEBUG(native() << " sending: " << s << "(buffers: "
 	    << buffers.size() << ")");
 
   if (!buffers.empty()) {
@@ -424,7 +433,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
 
 void Connection::handleWriteResponse(ReplyPtr reply)
 {
-  LOG_DEBUG(socket().native() << ": handleWriteResponse() " <<
+  LOG_DEBUG(native() << ": handleWriteResponse() " <<
 	    haveResponse_ << " " << responseDone_);
   if (haveResponse_)
     startWriteResponse(reply);
@@ -459,7 +468,7 @@ void Connection::handleWriteResponse(ReplyPtr reply,
 				     const asio_error_code& e,
 				     std::size_t bytes_transferred)
 {
-  LOG_DEBUG(socket().native() << ": handleWriteResponse(): "
+  LOG_DEBUG(native() << ": handleWriteResponse(): "
 	    << bytes_transferred << " ; " << e.message());
 
   cancelWriteTimer();

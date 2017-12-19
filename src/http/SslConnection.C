@@ -98,9 +98,9 @@ void SslConnection::handleHandshake(const asio_error_code& error)
 
 void SslConnection::stop()
 {
-  LOG_DEBUG(socket().native() << ": stop()");
+  LOG_DEBUG(native() << ": stop()");
   finishReply();
-  LOG_DEBUG(socket().native() << ": SSL shutdown");
+  LOG_DEBUG(native() << ": SSL shutdown");
 
   Connection::stop();
   
@@ -125,19 +125,19 @@ void SslConnection::stopNextLayer(const boost::system::error_code& ec)
   // In case of timeout, we will get here twice.
   sslShutdownTimer_.cancel();
   if (ec) {
-    LOG_DEBUG(socket().native() << ": ssl_shutdown failed:"
+    LOG_DEBUG(native() << ": ssl_shutdown failed:"
       << ec.message());
   }
   try {
     if (socket().is_open()) {
       boost::system::error_code ignored_ec;
-      LOG_DEBUG(socket().native() << ": socket shutdown");
+      LOG_DEBUG(native() << ": socket shutdown");
       socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-      LOG_DEBUG(socket().native() << "closing socket");
+      LOG_DEBUG(native() << "closing socket");
       socket().close();
     }
   } catch (asio_system_error& e) {
-    LOG_DEBUG(socket().native() << ": error " << e.what());
+    LOG_DEBUG(native() << ": error " << e.what());
   }
 }
 
@@ -177,7 +177,7 @@ void SslConnection::startAsyncReadBody(ReplyPtr reply,
 				       Buffer& buffer, int timeout)
 {
   if (state_ & Reading) {
-    LOG_DEBUG(socket().native() << ": state_ = " << state_);
+    LOG_DEBUG(native() << ": state_ = " << state_);
     stop();
     return;
   }
@@ -212,7 +212,7 @@ void SslConnection::startAsyncWriteResponse
      int timeout)
 {
   if (state_ & Writing) {
-    LOG_DEBUG(socket().native() << ": state_ = " << state_);
+    LOG_DEBUG(native() << ": state_ = " << state_);
     stop();
     return;
   }

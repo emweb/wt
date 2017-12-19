@@ -79,7 +79,11 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
     // post_strand_(ioService_),
     tcp_acceptor_(wt_.ioService()),
 #ifdef HTTP_WITH_SSL
+#if BOOST_VERSION >= 106600
+    ssl_context_(asio::ssl::context::sslv23),
+#else
     ssl_context_(wt_.ioService(), asio::ssl::context::sslv23),
+#endif
     ssl_acceptor_(wt_.ioService()),
 #endif // HTTP_WITH_SSL
     connection_manager_(),

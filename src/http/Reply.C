@@ -595,7 +595,8 @@ bool Reply::encodeNextContentBuffer(
       originalSize += bs;
 
       gzipStrm_.avail_in = bs;
-      gzipStrm_.next_in = (unsigned char *)asio::detail::buffer_cast_helper(b);
+      gzipStrm_.next_in = const_cast<unsigned char*>(
+            asio::buffer_cast<const unsigned char*>(b));
 
       unsigned char out[16*1024];
       do {
