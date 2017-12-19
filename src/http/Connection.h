@@ -103,7 +103,11 @@ public:
 
 protected:
   /// Get the native handle of the socket
+#if BOOST_VERSION >= 106600
   boost::asio::ip::tcp::socket::native_handle_type native();
+#else
+  boost::asio::ip::tcp::socket::native_type native();
+#endif
 
   void handleWriteResponse(ReplyPtr reply,
 			   const asio_error_code& e,

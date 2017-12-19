@@ -62,14 +62,17 @@ Connection::~Connection()
   LOG_DEBUG("~Connection");
 }
 
+#if BOOST_VERSION >= 106600
 asio::ip::tcp::socket::native_handle_type Connection::native()
 {
-#if BOOST_VERSION >= 106600
   return socket().native_handle();
-#else
-  return socket().native();
-#endif
 }
+#else
+asio::ip::tcp::socket::native_type Connection::native()
+{
+  return socket().native();
+}
+#endif
 
 void Connection::finishReply()
 { 
