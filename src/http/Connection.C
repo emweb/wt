@@ -61,14 +61,17 @@ Connection::~Connection()
   LOG_DEBUG("~Connection");
 }
 
+#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 106600) || (defined(WT_ASIO_IS_STANDALONE_ASIO) && ASIO_VERSION >= 101100)
 asio::ip::tcp::socket::native_handle_type Connection::native()
 {
-#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 106600) || (defined(WT_ASIO_IS_STANDALONE_ASIO) && ASIO_VERSION >= 101100)
   return socket().native_handle();
-#else
-  return socket().native();
-#endif
 }
+#else
+asio::ip::tcp::socket::native_type Connection::native()
+{
+  return socket().native();
+}
+#endif
 
 void Connection::finishReply()
 { 

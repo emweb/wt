@@ -88,7 +88,11 @@ public:
 
 protected:
   /// Get the native handle of the socket
+#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 106600) || (defined(WT_ASIO_IS_STANDALONE_ASIO) && ASIO_VERSION >= 101100)
   asio::ip::tcp::socket::native_handle_type native();
+#else
+  asio::ip::tcp::socket::native_type native();
+#endif
 
   void handleWriteResponse0(ReplyPtr reply,
                             const Wt::AsioWrapper::error_code& e,
