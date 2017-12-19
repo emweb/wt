@@ -825,13 +825,9 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   runDirectory_ = singleChildElementValue(fcgi, "run-directory",
 					  runDirectory_);
 
-  setInt(fcgi, "num-threads", numThreads_); // backward compatibility < 3.2.0
-
   xml_node<> *isapi = singleChildElement(app, "connector-isapi");
   if (!isapi)
     isapi = app; // backward compatibility
-
-  setInt(isapi, "num-threads", numThreads_); // backward compatibility < 3.2.0
 
   std::string maxMemoryRequestSizeStr =
     singleChildElementValue(isapi, "max-memory-request-size", "");

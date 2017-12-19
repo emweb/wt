@@ -436,8 +436,10 @@ void WDialog::render(WFlags<RenderFlag> flags)
   if (!isModal())
     impl_->mouseWentDown().connect(this, &WDialog::bringToFront);
 
-  if ( flags.test(RenderFlag::Full) && autoFocus_)
-    impl_->setFirstFocus();
+  if ( flags.test(RenderFlag::Full) && autoFocus_) {
+    if (!impl_->findById(Wt::WApplication::instance()->focus()))
+      impl_->setFirstFocus();
+  }
 
   WPopupWidget::render(flags);
 }

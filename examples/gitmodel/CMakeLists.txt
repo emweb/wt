@@ -7,7 +7,7 @@ IF(BOOST_FS_LIB)
     ../wt-homepage/SourceView.C
     GitView.C
   )
-  TARGET_LINK_LIBRARIES(gitview.wt ${BOOST_FS_LIB})
+  TARGET_LINK_LIBRARIES(gitview.wt ${BOOST_FS_LIB} ${BOOST_SYSTEM_LIB})
 
   INCLUDE_DIRECTORIES(
     ${WT_SOURCE_DIR}/src

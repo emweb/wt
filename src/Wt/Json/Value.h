@@ -23,7 +23,7 @@ class Array;
  *  \brief A JSON representation and parsing library.
  *
  * The JSON library contains data types to represent a JSON data
- * structure (Value, Object and Array), and a JSON parser.
+ * structure (Value, Object and Array), a JSON parser, and a JSON serializer.
  *
  * Usage example:
  * \code
@@ -39,6 +39,9 @@ class Array;
  * bool b = result.get("b");
  * std::cerr << "a: " << s << ", b: " << b << std::endl; // a: That's great, b: true
  * \endcode
+ *
+ * Include the <Wt/Json/Parser.h> header for Wt::Json::parse(), and
+ * the <Wt/Json/Serializer.h> header for Wt::Json::serialize().
  */
 
 /*! \brief Enumeration for the type of a JSON value.

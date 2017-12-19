@@ -1983,9 +1983,13 @@ bool WWebWidget::setFirstFocus()
       return true;
     }
 
-    for (unsigned i = 0; i < children().size(); i++)
-      if (children()[i]->setFirstFocus())
-	return true;
+    bool result = false;
+    iterateChildren([&result](Wt::WWidget *w){
+      if (!result)
+        result = w->setFirstFocus();
+    });
+    if (result)
+      return true;
 
     return false;
   } else
@@ -2207,6 +2211,8 @@ WWidget *WWebWidget::findById(const std::string& id)
 	if (!result)
 	  result = c->findById(id);
       });
+    if (result)
+      return result;
   }
 
   return nullptr;

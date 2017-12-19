@@ -337,6 +337,9 @@ public:
   bool closable() const { return closeIcon_ != nullptr; }
 
   /*! \brief Set focus on the first widget in the dialog.
+   *
+   * Autofocus is enabled by default. If a widget inside of
+   * this dialog already has focus, the focus will not be changed.
    */
   void setAutoFocus(bool enable){ autoFocus_ = enable;}
 

@@ -642,7 +642,7 @@ private:
 
 protected:
   asio::io_service& ioService_;
-  asio::strand strand_;
+  AsioWrapper::strand strand_;
   tcp::resolver resolver_;
   asio::streambuf requestBuf_;
   asio::streambuf responseBuf_;
@@ -929,8 +929,14 @@ bool Client::request(Http::Method method, const std::string& url,
 
 #ifdef WT_WITH_SSL
   } else if (parsedUrl.protocol == "https") {
+#if defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 106600
+    asio::ssl::context context(asio::ssl::context::tls);
+#elif defined(WT_ASIO_IS_STANDALONE_ASIO) && ASIO_VERSION >= 101100
+    asio::ssl::context context(asio::ssl::context::sslv23);
+#else
     asio::ssl::context context
       (*ioService, asio::ssl::context::sslv23);
+#endif
     long sslOptions = asio::ssl::context::no_sslv2 | asio::ssl::context::no_sslv3;
     context.set_options(sslOptions);
 

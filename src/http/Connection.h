@@ -18,6 +18,7 @@
 #define HTTP_CONNECTION_HPP
 
 #include <Wt/AsioWrapper/asio.hpp>
+#include <Wt/AsioWrapper/strand.hpp>
 #include <Wt/AsioWrapper/steady_timer.hpp>
 
 #include "Buffer.h"
@@ -61,7 +62,7 @@ public:
   virtual ~Connection();
 
   Server *server() const { return server_; }
-  asio::strand& strand() { return strand_; }
+  Wt::AsioWrapper::strand& strand() { return strand_; }
 
   /// Stop all asynchronous operations associated with the connection.
   void scheduleStop();
@@ -86,6 +87,9 @@ public:
 			     const std::function<void()>& callback);
 
 protected:
+  /// Get the native handle of the socket
+  asio::ip::tcp::socket::native_handle_type native();
+
   void handleWriteResponse0(ReplyPtr reply,
                             const Wt::AsioWrapper::error_code& e,
 			    std::size_t bytes_transferred);
@@ -104,7 +108,7 @@ protected:
   /// The manager for this connection.
   ConnectionManager& ConnectionManager_;
 
-  asio::strand strand_;
+  Wt::AsioWrapper::strand strand_;
 
   void finishReply();
 
