@@ -170,6 +170,8 @@ WFileUpload::~WFileUpload()
 {
   if (flags_.test(BIT_UPLOADING))
     WApplication::instance()->enableUpdates(false);
+
+  manageWidget(containedProgressBar_, std::unique_ptr<Wt::WProgressBar>());
 }
 
 void WFileUpload::onUploaded()
@@ -235,7 +237,7 @@ void WFileUpload::setProgressBar(std::unique_ptr<WProgressBar> bar)
   if(bar){
     if (containedProgressBar_ != bar){
       progressBar_ = bar.get();
-      containedProgressBar_ = std::move(bar);
+      manageWidget(containedProgressBar_, std::move(bar));
       containedProgressBar_->hide();
     }
   }
