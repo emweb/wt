@@ -11,14 +11,36 @@
 #include "leaflet/WLeaflet.hh"
 #include "leaflet/csv.hh"
 #include "leaflet/geojson.hh"
+#include "leaflet/star_json.hh"
+#include "leaflet/star_dataset.hh"
 #include "pal_rgb.h"
 using namespace Wt;
 
 //./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=.
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 2
+//DC311 rodent complaints and DC wards geojson
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //-t 2 -d ../../../examples/leaflet_test/dc_311-2016.csv.s0311.csv -g ../../../examples/leaflet_test/ward-2012.geojson
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 3
+//US states geojson
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //-t 3 -g ../../../examples/leaflet_test/gz_2010_us_040_00_20m.json
-//38.9072, -77.0369, 14 DC
-//37.0902, -95.7129, 5 US
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 4
+//NOAA ATMS data
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//-t 4 -d ../../../examples/leaflet_test/TATMS_npp_d20141130_t1817273_e1817589_b16023_c20141201005810987954_noaa_ops.h5.star.json
+
+std::vector<star_dataset_t> datasets;
+star_dataset_t find_dataset(std::string name);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //rgb_t
@@ -91,6 +113,8 @@ rgb_to_hex(128, 0, 128) //purple
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //Application_test
+//38.9072, -77.0369, 14 DC
+//37.0902, -95.7129, 5 US
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class Application_test : public WApplication
@@ -98,6 +122,7 @@ class Application_test : public WApplication
 public:
   Application_test(const WEnvironment& env) : WApplication(env)
   {
+    setTitle("test");
     useStyleSheet("boxes.css");
     auto hbox = root()->setLayout(cpp14::make_unique<WVBoxLayout>());
     std::unique_ptr<WText> text = cpp14::make_unique<WText>("item 1");
@@ -119,10 +144,9 @@ class Application_dc311 : public WApplication
 public:
   Application_dc311(const WEnvironment& env) : WApplication(env)
   {
-    setTitle("leaflet");
+    setTitle("dc311");
     std::unique_ptr<WLeaflet> leaflet =
       cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 38.9072, -77.0369, 13);
-
 
     ///////////////////////////////////////////////////////////////////////////////////////
     //render geojson
@@ -134,7 +158,7 @@ public:
       feature_t feature = geojson.m_feature.at(idx_fet);
 
       //make each feature have a unique color
-      std::string color_feature = ward_color.at(idx_fet);
+      std::string color = ward_color.at(idx_fet);
 
       size_t size_geometry = feature.m_geometry.size();
       for (size_t idx_geo = 0; idx_geo < size_geometry; idx_geo++)
@@ -165,11 +189,10 @@ public:
             lon.push_back(polygon.m_coord[idx_crd].m_lon);
           }
 
-          leaflet->Polygon(lat, lon, color_feature);
+          leaflet->Polygon(lat, lon, color);
         }  //idx_pol
       } //idx_geo
     } //idx_fet
-
 
     ///////////////////////////////////////////////////////////////////////////////////////
     //render CSV points from DC_311 database
@@ -195,7 +218,7 @@ class Application_geojson : public WApplication
 public:
   Application_geojson(const WEnvironment& env) : WApplication(env)
   {
-    setTitle("leaflet");
+    setTitle("geojson");
     std::unique_ptr<WLeaflet> leaflet =
       cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 38.9072, -77.0369, 8);
 
@@ -207,16 +230,13 @@ public:
     for (size_t idx_fet = 0; idx_fet < size_features; idx_fet++)
     {
       feature_t feature = geojson.m_feature.at(idx_fet);
-
-      //make each feature have a unique color
-
       size_t nbr_palette_entries = rgb_256.size();
       double value = idx_fet;
       double value_min = 0;
       double value_range = size_features - value_min;
       size_t idx_pal = (size_t)(nbr_palette_entries * ((value - value_min) / value_range));
       idx_pal = (idx_pal < 0 ? 0 : (idx_pal >= nbr_palette_entries ? nbr_palette_entries - 1 : idx_pal));
-      std::string color_feature = rgb_to_hex(
+      std::string color = rgb_to_hex(
         rgb_256.at(idx_pal).red,
         rgb_256.at(idx_pal).green,
         rgb_256.at(idx_pal).blue);
@@ -252,17 +272,113 @@ public:
 
           if (geometry.m_type.compare("Point") == 0)
           {
-            leaflet->Circle(lat[0], lon[0], color_feature);
+            leaflet->Circle(lat[0], lon[0], color);
           }
           else if (geometry.m_type.compare("Polygon") == 0 ||
             geometry.m_type.compare("MultiPolygon") == 0)
           {
-            leaflet->Polygon(lat, lon, color_feature);
+            leaflet->Polygon(lat, lon, color);
           }
 
         }  //idx_pol
       } //idx_geo
     } //idx_fet
+
+    root()->addWidget(std::move(leaflet));
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
+//Application_atms
+///////////////////////////////////////////////////////////////////////////////////////
+
+class Application_atms : public WApplication
+{
+public:
+  Application_atms(const WEnvironment& env) : WApplication(env)
+  {
+    star_dataset_t temperature = find_dataset("AntennaTemperature");
+    star_dataset_t latitude = find_dataset("latitude");
+    star_dataset_t longitude = find_dataset("longitude");
+    size_t nbr_rows = temperature.m_shape[0];
+    size_t nbr_cols = temperature.m_shape[1];
+    size_t nbr_lev = temperature.m_shape[2];
+    double temp_min;
+    double temp_max;
+    double lat_min;
+    double lat_max;
+    double lon_min;
+    double lon_max;
+    temperature.do_min_max(temp_min, temp_max);
+    latitude.do_min_max(lat_min, lat_max);
+    longitude.do_min_max(lon_min, lon_max);
+    double lat = (lat_max + lat_min) / 2;
+    double lon = (lon_max + lon_min) / 2;
+
+    setTitle("atms");
+    std::unique_ptr<WLeaflet> leaflet =
+      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, lat, lon, 5);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render border
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    std::vector<double> blat(4);
+    std::vector<double> blon(4);
+    blat[0] = lat_min;
+    blon[0] = lon_min;
+    blat[1] = lat_max;
+    blon[1] = lon_min;
+    blat[2] = lat_max;
+    blon[2] = lon_max;
+    blat[3] = lat_min;
+    blon[3] = lon_max;
+    leaflet->Polygon(blat, blon, "#76d7c4");
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render data
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    size_t idx_channel = 0;
+
+    for (size_t idx_row = 0; idx_row < nbr_rows - 1; idx_row++)
+    {
+      for (size_t idx_col = 0; idx_col < nbr_cols - 1; idx_col++)
+      {
+        ///////////////////////////////////////////////////////////////////////////
+        //polygon coordinates for a granule
+        ///////////////////////////////////////////////////////////////////////////
+
+        std::vector<double> vlat(4);
+        std::vector<double> vlon(4);
+        vlat[0] = latitude.value_at(idx_row, idx_col);
+        vlon[0] = longitude.value_at(idx_row, idx_col);
+        vlat[1] = latitude.value_at(idx_row, idx_col + 1);
+        vlon[1] = longitude.value_at(idx_row, idx_col + 1);
+        vlat[2] = latitude.value_at(idx_row + 1, idx_col + 1);
+        vlon[2] = longitude.value_at(idx_row + 1, idx_col + 1);
+        vlat[3] = latitude.value_at(idx_row + 1, idx_col);
+        vlon[3] = longitude.value_at(idx_row + 1, idx_col);
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        //color
+        //The Vizualization Toolkit, pg.156
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        size_t nbr_palette_entries = rgb_256.size();
+        double value_range = temp_max - temp_min;
+        double value_min = temp_min;
+        double value = temperature.value_at(idx_row, idx_col, idx_channel);
+        size_t idx_pal = (size_t)(nbr_palette_entries * ((value - value_min) / value_range));
+        idx_pal = (idx_pal < 0 ? 0 : (idx_pal >= nbr_palette_entries ? nbr_palette_entries - 1 : idx_pal));
+        std::string color = rgb_to_hex(
+          rgb_256.at(idx_pal).red,
+          rgb_256.at(idx_pal).green,
+          rgb_256.at(idx_pal).blue);
+
+        leaflet->Polygon(vlat, vlon, color);
+      }
+    }
 
     root()->addWidget(std::move(leaflet));
   }
@@ -286,6 +402,10 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
   {
     return cpp14::make_unique<Application_geojson>(env);
   }
+  else if (test.compare("4") == 0)
+  {
+    return cpp14::make_unique<Application_atms>(env);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +417,7 @@ void usage()
   std::cout << "usage: ./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. ";
   std::cout << "-t TEST <-d DATABASE> <-g GEOJSON>";
   std::cout << std::endl;
-  std::cout << "-t TEST: test number (1 to 3)" << std::endl;
+  std::cout << "-t TEST: test number (1 to 4)" << std::endl;
   std::cout << "-d DATABASE: data file" << std::endl;
   std::cout << "-g GEOJSON: geojson file" << std::endl;
   exit(0);
@@ -375,6 +495,18 @@ int main(int argc, char **argv)
     }
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //NOAA ATMS star json file
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  else if (test.compare("4") == 0)
+  {
+    if (read_datasets(data_file.c_str(), datasets) < 0)
+    {
+      assert(0);
+    }
+  }
+
   for (size_t idx = 0; idx < 3 * 256; idx += 3)
   {
     unsigned char r = pal_rgb[idx];
@@ -449,3 +581,18 @@ std::string rgb_to_hex(int r, int g, int b)
   return str;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//find_dataset
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+star_dataset_t find_dataset(std::string name)
+{
+  for (size_t idx = 0; idx < datasets.size(); idx++)
+  {
+    if (datasets.at(idx).m_name.compare(name) == 0)
+    {
+      return datasets.at(idx);
+    }
+  }
+}

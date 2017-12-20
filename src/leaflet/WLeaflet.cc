@@ -30,8 +30,8 @@ namespace Wt
     this->addCssRule("body", "height: 100%");
     this->addCssRule("#" + id(), "position:relative; top:0; bottom:0; height: 100%");
     WApplication *app = WApplication::instance();
-    app->useStyleSheet("https://unpkg.com/leaflet@1.0.3/dist/leaflet.css");
-    const std::string leaflet = "https://unpkg.com/leaflet@1.0.3/dist/leaflet.js";
+    app->useStyleSheet("https://unpkg.com/leaflet@1.2.0/dist/leaflet.css");
+    const std::string leaflet = "https://unpkg.com/leaflet@1.2.0/dist/leaflet.js";
     app->require(leaflet, "leaflet");
   }
 
@@ -156,6 +156,7 @@ namespace Wt
 
   ///////////////////////////////////////////////////////////////////////////////////////
   //WLeaflet::Polygon
+  //draw a weight of 1 pixel and opacity .1 for border 
   ///////////////////////////////////////////////////////////////////////////////////////
 
   void WLeaflet::Polygon(const std::vector<double> &lat, const std::vector<double> &lon,
@@ -186,7 +187,7 @@ namespace Wt
     strm
       << "L.polygon(vert,{color:'"
       << color
-      << "',opacity:.1}).addTo(map);";
+      << "',opacity:.1,weight:1}).addTo(map);";
 
     m_additions.push_back(strm.str());
   }

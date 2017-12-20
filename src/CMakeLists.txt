@@ -1,9 +1,9 @@
 SUBDIRS(web Wt)
 
 INCLUDE_DIRECTORIES(
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gason/src # for geojson
   ${CMAKE_CURRENT_SOURCE_DIR}/web
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gason/src # for geojson
   ${CMAKE_CURRENT_BINARY_DIR} # for WConfig.h
   ${BOOST_INCLUDE_DIRS}
   Wt/Dbo/backend/amalgamation # for sqlite3.h
@@ -392,6 +392,10 @@ leaflet/geojson.hh
 leaflet/geojson.cc
 leaflet/csv.hh
 leaflet/csv.cc
+leaflet/star_json.cc
+leaflet/star_json.hh
+leaflet/star_dataset.cc
+leaflet/star_dataset.hh
 3rdparty/gason/src/gason.h
 3rdparty/gason/src/gason.cpp
 )

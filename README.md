@@ -25,6 +25,7 @@ Linux Ubuntu, install packages with
 <pre>
 sudo apt-get install cmake
 sudo apt-get install build-essential
+sudo apt-get install python-dev
 sudo apt-get install libboost-all-dev
 </pre>
 
@@ -63,20 +64,10 @@ cmake .. -G "Visual Studio 14" -DBOOST_PREFIX=E:\wt\boost_1_64_0 -DBOOST_DYNAMIC
 Run with
 ------------
 <pre>
-cd examples/leaflet_test
+cd examples/leaflet_dc311
 make
-leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=.
--t 2 -d ../../../examples/leaflet_test/dc_311-2016.csv.s0311.csv 
--g ../../../examples/leaflet_test/ward-2012.geojson
+./leaflet_dc311.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. -f ../../../examples/leaflet_dc311/dc_311-2016.csv.s0311.csv
 </pre>
-to run a DC311 example database of rodent complaints
-
-Use 
-<pre>
--t 3 -g ../../../examples/leaflet_test/gz_2010_us_040_00_20m.json
-</pre>
-
-to load and display any GeoJSON file
 
 Open a browser
 ------------
@@ -92,10 +83,12 @@ Examples are in
 DC311
 District of Columbia, Office of Unified Communications complaints
 
+[/examples/leaflet_dc311/leaflet_dc311.cc](https://github.com/pedro-vicente/wt/blob/leaflet/examples/leaflet_dc311/leaflet_dc311.cc)
+
 US states
 Topology of US states
 
-[/examples/leaflet_test/leaflet_test.cc](https://github.com/pedro-vicente/wt/blob/leaflet/examples/leaflet_test/leaflet_test.cc)
+[/examples/leaflet_states/leaflet_states.cc](https://github.com/pedro-vicente/wt/blob/leaflet/examples/leaflet_states/leaflet_states.cc)
 
 
 Leaflet class source is in [/src/leaflet/WLeaflet.cc](https://github.com/pedro-vicente/wt/blob/leaflet/src/leaflet/WLeaflet.cc)
@@ -152,6 +145,19 @@ https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
 Converted to GeoJSON
 https://tools.ietf.org/html/rfc7946
 
+Run with
+------------
+<pre>
+cd examples/leaflet_states
+make
+./leaflet_states.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. -f ../../../examples/leaflet_states/gz_2010_us_040_00_20m.json
+</pre>
+
+Open browser
+------------
+<pre>
+http://127.0.0.1:8080/
+</pre>
 
 Output
 ------------

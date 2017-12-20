@@ -4,7 +4,9 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-ExecStart=/home/pvn/git/wt/wt-3.3.8/build/examples/map/map.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. -c /home/pvn/git/wt/wt-3.3.8/build/examples/map/wt_config.xml
+ExecStart=/home/pvn/git/wt/wt-3.3.8/build/examples/map/map.wt \
+--http-address=0.0.0.0 --http-port=8080  --docroot=. \
+-c /home/pvn/git/wt/wt-3.3.8/build/examples/map/wt_config.xml
 User=pvn
 
 [Install]
