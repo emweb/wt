@@ -9,6 +9,10 @@
 #include "WebUtils.h"
 
 #include "Wt/WException"
+#include "Wt/WLogger"
+
+#include <boost/interprocess/file_mapping.hpp>
+#include <boost/interprocess/mapped_region.hpp>
 
 #include <cstring>
 
@@ -65,6 +69,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("ImageUtils");
+
 std::string ImageUtils::identifyMimeType(const std::string& fileName)
 {
   std::vector<unsigned char> header = FileUtils::fileHeader(fileName, 25);
@@ -111,27 +117,47 @@ WPoint ImageUtils::getSize(const std::string& fileName)
 }
 
 WPoint ImageUtils::getJpegSize(const std::string& fileName){
-  std::vector<unsigned char> header =
-      FileUtils::fileHeader(fileName, 2048);
+  try {
+    boost::interprocess::file_mapping mapping(fileName.c_str(), boost::interprocess::read_only);
+    boost::interprocess::mapped_region region(mapping, boost::interprocess::read_only, 0, 2 * 1024 * 1024);
+    const unsigned char *const header = static_cast<unsigned char*>(region.get_address());
+    std::size_t headerSize = region.get_size();
 
-  int pos = 2;
-  while (toUnsigned(header[pos])==0xFF) {
-    if (toUnsigned(header[pos + 1])==0xC0 ||
-        toUnsigned(header[pos + 1])==0xC1 ||
-        toUnsigned(header[pos + 1])==0xC2 ||
-        toUnsigned(header[pos + 1])==0xC3 ||
-        toUnsigned(header[pos + 1])==0xC9 ||
-        toUnsigned(header[pos + 1])==0xCA ||
-        toUnsigned(header[pos + 1])==0xCB)
-      break;
-    pos += 2+ (toUnsigned(header[pos + 2])<<8) + toUnsigned(header[pos + 3]);
-    if (pos + 12 > (int)header.size())
-      break;
+    std::size_t pos = 2;
+
+    if (pos + 12 > headerSize) {
+      LOG_ERROR("getJpegSize: JPEG file '" <<
+                fileName << "' is too small, size of mapped region: " <<
+                headerSize << " bytes");
+      return WPoint();
+    }
+
+    while (toUnsigned(header[pos])==0xFF) {
+      if (toUnsigned(header[pos + 1])==0xC0 ||
+          toUnsigned(header[pos + 1])==0xC1 ||
+          toUnsigned(header[pos + 1])==0xC2 ||
+          toUnsigned(header[pos + 1])==0xC3 ||
+          toUnsigned(header[pos + 1])==0xC9 ||
+          toUnsigned(header[pos + 1])==0xCA ||
+          toUnsigned(header[pos + 1])==0xCB)
+        break;
+      pos += 2+ (toUnsigned(header[pos + 2])<<8) + toUnsigned(header[pos + 3]);
+      if (pos + 12 > headerSize) {
+        LOG_ERROR("getJpegSize: end of mapped region for JPEG file '" <<
+                  fileName << "' reached without finding geometry, size of "
+                  "mapped region: " << headerSize << " bytes");
+        return WPoint();
+      }
+    }
+
+    int height = (toUnsigned(header[pos + 5] << 8)) + toUnsigned(header[pos + 6]);
+    int width = (toUnsigned(header[pos + 7] << 8)) + toUnsigned(header[pos + 8]);
+    return WPoint(width, height);
+  } catch (const boost::interprocess::interprocess_exception &e) {
+    LOG_ERROR("getJpegSize: memory mapping JPEG file '" <<
+              fileName << "' failed with exception: " << e.what());
+    return WPoint();
   }
-
-  int height = (toUnsigned(header[pos + 5] << 8)) + toUnsigned(header[pos + 6]);
-  int width = (toUnsigned(header[pos + 7] << 8)) + toUnsigned(header[pos + 8]);
-  return WPoint(width, height);
 }
 
 WPoint ImageUtils::getSize(const std::vector<unsigned char>& header)
