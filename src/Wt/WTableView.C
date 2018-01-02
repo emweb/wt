@@ -850,13 +850,13 @@ void WTableView::render(WFlags<RenderFlag> flags)
     if (!touchStartConnection_.connected()
         && touchStarted().isConnected()) {
       touchStartConnection_ = canvas_->touchStarted()
-	.connect(boost::bind(&WTableView::handleTouchStarted, this, _1));
+	.connect(this, &WTableView::handleTouchStarted);
     }
 
     if (!touchEndConnection_.connected()
         && touchEnded().isConnected()) {
       touchEndConnection_ = canvas_->touchEnded()
-	.connect(boost::bind(&WTableView::handleTouchEnded, this, _1));
+	.connect(this, &WTableView::handleTouchEnded);
     }
   }
 

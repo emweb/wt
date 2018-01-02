@@ -38,7 +38,7 @@ public:
    * values if the upload of this file is not yet finished. The method
    * uploadedFile() is only available after the upload is finished.
    */
-  class File : public WObject {
+  class WT_API File : public WObject {
   public:
     /*! \brief Returns the client filename.
      */
