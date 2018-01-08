@@ -18,6 +18,12 @@ WT_DECLARE_WT_MEMBER
    var uploads = [];
    var sending = false;
    var acceptDrops = true;
+   
+   var hiddenInput = document.createElement('input');
+   hiddenInput.type = 'file';
+   hiddenInput.setAttribute('multiple', 'multiple');
+   $(hiddenInput).hide();
+   dropwidget.appendChild(hiddenInput);
 
    this.eventContainsFile = function(e) {
      var items = (e.dataTransfer.items != null &&
@@ -74,12 +80,15 @@ WT_DECLARE_WT_MEMBER
 	 e.dataTransfer.files.length == 0)
        return;
 
-     var newId = Math.floor(Math.random() * 32768);
+     self.addFiles(e.dataTransfer.files);
+   };
+
+   this.addFiles = function(filesList) {
      var newKeys = [];
-     for (var i=0; i < e.dataTransfer.files.length; i++) {
+     for (var i=0; i < filesList.length; i++) {
        var xhr = new XMLHttpRequest();
        xhr.id = Math.floor(Math.random() * Math.pow(2, 31));
-       xhr.file = e.dataTransfer.files[i];
+       xhr.file = filesList[i];
        
        uploads.push(xhr);
        
@@ -89,12 +98,14 @@ WT_DECLARE_WT_MEMBER
        newUpload['type'] = xhr.file.type;
        newUpload['size'] = xhr.file.size;
        
-       //newUpload[xhr.id] = xhr.file.name
        newKeys.push(newUpload);
      }
-
-     console.log(newKeys);
+     
      APP.emit(dropwidget, 'dropsignal', JSON.stringify(newKeys));
+   }
+
+   dropwidget.onclick = function(e) {
+     hiddenInput.click();
    };
    
    dropwidget.markForSending = function(files) {
@@ -183,6 +194,18 @@ WT_DECLARE_WT_MEMBER
        }
      }
    };
+
+   hiddenInput.onchange = function() {
+     if (!acceptDrops)
+       return;
+     if (window.FormData === undefined ||
+	 this.files == null ||
+	 this.files.length == 0)
+       return;
+
+     self.addFiles(this.files);
+   };
+   
    
    this.setHoverStyle = function(enable) {
      if (enable)

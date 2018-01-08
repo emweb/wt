@@ -1201,3 +1201,7 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 .Wt-filedropzone-hover * {
   pointer-events: none;
 }
+
+.Wt-fileupload-hidden {
+    display: none !important;
+}
