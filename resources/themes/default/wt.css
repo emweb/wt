@@ -1176,3 +1176,7 @@ table.x-grid3-row-table {
 .Wt-filedropzone-hover * {
     pointer-events: none;
 }
+
+.Wt-fileupload-hidden {
+    display: none !important;
+}

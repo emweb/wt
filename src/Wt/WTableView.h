@@ -173,6 +173,7 @@ private:
   JSignal<WTouchEvent> itemTouchSelectEvent_;
 
   Signals::connection touchStartConnection_;
+  Signals::connection touchMoveConnection_;
   Signals::connection touchEndConnection_;
 
   /* Ajax only: First and last columns rendered (this somewhat
@@ -246,6 +247,7 @@ private:
   void handleMouseWentUp(bool headerColumns, const WMouseEvent& event);
   void handleTouchSelected(const WTouchEvent& event);
   void handleTouchStarted(const WTouchEvent& event);
+  void handleTouchMoved(const WTouchEvent& event);
   void handleTouchEnded(const WTouchEvent& event);
   WModelIndex translateModelIndex(bool headerColumns, const WMouseEvent& event);
   WModelIndex translateModelIndex(const Touch& touch);

@@ -23,7 +23,10 @@ namespace Wt {
     static WPoint getSize(const std::string& fileName);
 
     static WPoint getSize(const std::vector<unsigned char>& header);
+
+#ifndef WT_TARGET_JAVA
     static WPoint getJpegSize(const std::string& fileName);
+#endif // WT_TARGET_JAVA
 
   };
 }

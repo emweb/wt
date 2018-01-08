@@ -243,6 +243,22 @@ void WFileUpload::setProgressBar(std::unique_ptr<WProgressBar> bar)
   }
 }
 
+void WFileUpload::setDisplayWidget(WInteractWidget *widget) {
+  addStyleClass("Wt-fileupload-hidden");
+  widget->clicked().connect(displayWidgetClickJS());
+}
+  
+std::string WFileUpload::displayWidgetClickJS() {
+  return "function(obj, event) {" +
+       jsRef() + ".click();" +
+    "  var children = " + jsRef() + ".children;" +
+    "  for (var i=0; i < children.length; i++) {" +
+    "    children[i].click();" +
+    "  }" +
+    "}";
+}
+
+
 EventSignal<>& WFileUpload::uploaded()
 {
   return *voidEventSignal(UPLOADED_SIGNAL, true);

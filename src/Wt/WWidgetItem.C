@@ -4,8 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WContainerWidget.h"
 #include "Wt/WWidgetItem.h"
+
+#include "Wt/WContainerWidget.h"
 #include "Wt/WLayout.h"
 #include "Wt/WLayoutItemImpl.h"
 

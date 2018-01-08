@@ -10,6 +10,8 @@
 #include <Wt/WLayoutItem.h>
 #include <Wt/WWidgetItemImpl.h>
 
+#include <memory>
+
 namespace Wt {
 
 class WWidgetItemImpl;

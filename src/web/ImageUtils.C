@@ -11,8 +11,10 @@
 #include "Wt/WException.h"
 #include "Wt/WLogger.h"
 
+#ifndef WT_TARGET_JAVA
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+#endif // WT_TARGET_JAVA
 
 #include <cstring>
 
@@ -100,6 +102,7 @@ std::string ImageUtils::identifyMimeType(const std::vector<unsigned char>&
   return std::string();
 }
 
+#ifndef WT_TARGET_JAVA
 WPoint ImageUtils::getSize(const std::string& fileName)
 {
   std::vector<unsigned char> header =
@@ -184,5 +187,6 @@ WPoint ImageUtils::getSize(const std::vector<unsigned char>& header)
   } else
     return WPoint();
 }
+#endif // WT_TARGET_JAVA
 
 }

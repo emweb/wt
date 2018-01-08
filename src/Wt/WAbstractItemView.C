@@ -1421,6 +1421,12 @@ void WAbstractItemView::handleTouchStart(const std::vector<WModelIndex>& indices
   touchStarted_.emit(indices, event);
 }
 
+void WAbstractItemView::handleTouchMove(const std::vector<WModelIndex>& indices,
+                                        const WTouchEvent& event)
+{
+  touchMoved_.emit(indices, event);
+}
+
 void WAbstractItemView::handleTouchEnd(const std::vector<WModelIndex>& indices,
 				       const WTouchEvent& event)
 {

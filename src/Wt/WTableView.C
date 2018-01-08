@@ -873,13 +873,19 @@ void WTableView::render(WFlags<RenderFlag> flags)
     if (!touchStartConnection_.isConnected()
         && touchStarted().isConnected()) {
       touchStartConnection_ = canvas_->touchStarted()
-	.connect(std::bind(&WTableView::handleTouchStarted, this, std::placeholders::_1));
+	.connect(this, &WTableView::handleTouchStarted);
+    }
+
+    if (!touchMoveConnection_.isConnected()
+        && touchMoved().isConnected()) {
+      touchMoveConnection_ = canvas_->touchMoved()
+        .connect(this, &WTableView::handleTouchMoved);
     }
 
     if (!touchEndConnection_.isConnected()
         && touchEnded().isConnected()) {
       touchEndConnection_ = canvas_->touchEnded()
-	.connect(std::bind(&WTableView::handleTouchEnded, this, std::placeholders::_1));
+	.connect(this, &WTableView::handleTouchEnded);
     }
   }
 
@@ -1766,6 +1772,16 @@ void WTableView::handleTouchStarted(const WTouchEvent& event)
     indices.push_back(translateModelIndex(touches[i]));
   }
   handleTouchStart(indices, event);
+}
+
+void WTableView::handleTouchMoved(const WTouchEvent& event)
+{
+  std::vector<WModelIndex> indices;
+  const std::vector<Touch> &touches = event.changedTouches();
+  for(std::size_t i = 0; i < touches.size(); i++){
+    indices.push_back(translateModelIndex(touches[i]));
+  }
+  handleTouchMove(indices, event);
 }
 
 void WTableView::handleTouchEnded(const WTouchEvent& event)
