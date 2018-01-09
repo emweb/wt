@@ -149,6 +149,16 @@ public:
    */
   void setHoverStyleClass(const std::string& className);
 
+  /*! \brief Sets input accept attributes
+   *
+   * The accept attribute may be specified to provide user agents with a 
+   * hint of what file types will be accepted. Use html input accept attributes
+   * as input.
+   * This only affects the popup that is shown when users click on the widget.
+   * A user can still drop any file type.
+   */
+  void setFilters(const std::string& acceptAttributes);
+
   /*! \brief The signal triggers if one or more files are dropped.
    */
   Signal<std::vector<File*> >& drop() { return dropEvent_; }
