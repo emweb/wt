@@ -369,5 +369,11 @@ void WFileDropWidget::setAcceptDrops(bool enable)
   doJavaScript(jsRef() + ".setAcceptDrops(" + (enable ? "true" : "false")
 	       + ");");
 }
+
+void WFileDropWidget::setFilters(const std::string& acceptAttributes)
+{
+  doJavaScript(jsRef() + ".setFilters("
+	       + jsStringLiteral(acceptAttributes) + ");");
+}
   
 }

@@ -104,9 +104,10 @@ WT_DECLARE_WT_MEMBER
      APP.emit(dropwidget, 'dropsignal', JSON.stringify(newKeys));
    }
 
-   dropwidget.onclick = function(e) {
-     hiddenInput.click();
-   };
+   dropwidget.addEventListener("click", function(e) {
+     if (acceptDrops)
+       hiddenInput.click();
+   });
    
    dropwidget.markForSending = function(files) {
      for (var j=0; j < files.length; j++) {
@@ -216,6 +217,10 @@ WT_DECLARE_WT_MEMBER
 
    dropwidget.configureHoverClass = function(className) {
      hoverClassName = className;
+   };
+
+   dropwidget.setFilters = function(acceptAttributes) {
+     hiddenInput.setAttribute('accept', acceptAttributes);
    };
 
  });
