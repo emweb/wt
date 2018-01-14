@@ -18,7 +18,6 @@ public:
   read_csv_t();
   int open(const std::string &file_name);
   std::vector<std::string> read_row();
-private:
   std::ifstream m_ifs;
 };
 

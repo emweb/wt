@@ -43,6 +43,17 @@ std::vector<star_dataset_t> datasets;
 star_dataset_t find_dataset(std::string name);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 5
+//ep
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//-t 5 
+//-d ../../../examples/leaflet_test/us_states_epilepsy_2015.csv 
+//-g ../../../examples/leaflet_test/gz_2010_us_040_00_20m.json 
+//-u ./../../examples/leaflet_test/us_states_population_2015.csv
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 //rgb_t
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -83,11 +94,30 @@ public:
   std::string zip;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////
+//ep_data_t
+///////////////////////////////////////////////////////////////////////////////////////
+
+class ep_data_t
+{
+public:
+  ep_data_t(const std::string &state_,
+    size_t &ep_) :
+    state(state_),
+    ep(ep_)
+  {
+  };
+  std::string state;
+  size_t ep;
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //forward declarations
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int read_dc311(std::string file_name);
+int read_ep_pop(const std::string &file_name_ep, const std::string &file_name_pop);
+size_t find_ep(std::string state_name);
 std::string to_hex(int n);
 std::string rgb_to_hex(int r, int g, int b);
 
@@ -99,6 +129,7 @@ std::string test;
 std::vector<rgb_t> rgb_256;
 geojson_t geojson;
 std::vector<dc311_data_t> dc311_data;
+std::vector<ep_data_t> ep_data;
 std::vector<std::string> ward_color =
 { rgb_to_hex(128, 128, 0), //olive
 rgb_to_hex(255, 255, 0), //yellow 
@@ -210,13 +241,13 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//Application_geojson
+//Application_us_states
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Application_geojson : public WApplication
+class Application_us_states : public WApplication
 {
 public:
-  Application_geojson(const WEnvironment& env) : WApplication(env)
+  Application_us_states(const WEnvironment& env) : WApplication(env)
   {
     setTitle("geojson");
     std::unique_ptr<WLeaflet> leaflet =
@@ -384,6 +415,93 @@ public:
   }
 };
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+//Application_ep
+///////////////////////////////////////////////////////////////////////////////////////
+
+class Application_ep : public WApplication
+{
+public:
+  Application_ep(const WEnvironment& env) : WApplication(env)
+  {
+    setTitle("geojson");
+    std::unique_ptr<WLeaflet> leaflet =
+      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 37.0902, -95.7129, 5);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render geojson
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    size_t size_features = geojson.m_feature.size();
+    for (size_t idx_fet = 0; idx_fet < size_features; idx_fet++)
+    {
+      feature_t feature = geojson.m_feature.at(idx_fet);
+
+      //find ep by state name
+      size_t ep = find_ep(feature.m_name);
+      std::string color;
+      if (ep < 20000)
+      {
+        color = rgb_to_hex(0, 255, 0);
+      }
+      else if (ep < 70000)
+      {
+        color = rgb_to_hex(0, 0, 255);
+      }
+      else
+      {
+        color = rgb_to_hex(255, 0, 0);
+      }
+
+      size_t size_geometry = feature.m_geometry.size();
+      for (size_t idx_geo = 0; idx_geo < size_geometry; idx_geo++)
+      {
+        geometry_t geometry = feature.m_geometry.at(idx_geo);
+        size_t size_pol = geometry.m_polygons.size();
+
+        for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
+        {
+          polygon_t polygon = geometry.m_polygons[idx_pol];
+          size_t size_crd = polygon.m_coord.size();
+
+          if (size_crd == 0)
+          {
+            continue;
+          }
+
+          ///////////////////////////////////////////////////////////////////////////////////////
+          //render each polygon as a vector of vertices passed to Polygon
+          ///////////////////////////////////////////////////////////////////////////////////////
+
+          std::vector<double> lat;
+          std::vector<double> lon;
+
+          for (size_t idx_crd = 0; idx_crd < size_crd; idx_crd++)
+          {
+            lat.push_back(polygon.m_coord[idx_crd].m_lat);
+            lon.push_back(polygon.m_coord[idx_crd].m_lon);
+          }
+
+          if (geometry.m_type.compare("Point") == 0)
+          {
+            leaflet->Circle(lat[0], lon[0], color);
+          }
+          else if (geometry.m_type.compare("Polygon") == 0 ||
+            geometry.m_type.compare("MultiPolygon") == 0)
+          {
+            leaflet->Polygon(lat, lon, color);
+          }
+
+        }  //idx_pol
+      } //idx_geo
+    } //idx_fet
+
+    root()->addWidget(std::move(leaflet));
+  }
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //create_application
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -400,12 +518,17 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
   }
   else if (test.compare("3") == 0)
   {
-    return cpp14::make_unique<Application_geojson>(env);
+    return cpp14::make_unique<Application_us_states>(env);
   }
   else if (test.compare("4") == 0)
   {
     return cpp14::make_unique<Application_atms>(env);
   }
+  else if (test.compare("5") == 0)
+  {
+    return cpp14::make_unique<Application_ep>(env);
+  }
+  assert(0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -415,11 +538,12 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
 void usage()
 {
   std::cout << "usage: ./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. ";
-  std::cout << "-t TEST <-d DATABASE> <-g GEOJSON>";
+  std::cout << "-t TEST <-d DATABASE> <-u DATABASE> <-g GEOJSON> ";
   std::cout << std::endl;
-  std::cout << "-t TEST: test number (1 to 4)" << std::endl;
+  std::cout << "-t TEST: test number (1 to 5)" << std::endl;
   std::cout << "-d DATABASE: data file" << std::endl;
   std::cout << "-g GEOJSON: geojson file" << std::endl;
+  std::cout << "-u DATABASE: data file" << std::endl;
   exit(0);
 }
 
@@ -430,6 +554,7 @@ void usage()
 int main(int argc, char **argv)
 {
   std::string data_file;
+  std::string data_file_us_states_pop;
   std::string geojson_file;
 
   for (int i = 1; i < argc; i++)
@@ -444,6 +569,10 @@ int main(int argc, char **argv)
         break;
       case 'd':
         data_file = argv[i + 1];
+        i++;
+        break;
+      case 'u':
+        data_file_us_states_pop = argv[i + 1];
         i++;
         break;
       case 'g':
@@ -501,10 +630,44 @@ int main(int argc, char **argv)
 
   else if (test.compare("4") == 0)
   {
+    if (data_file.empty())
+    {
+      usage();
+    }
     if (read_datasets(data_file.c_str(), datasets) < 0)
     {
       assert(0);
     }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //ep
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  else if (test.compare("5") == 0)
+  {
+    if (data_file.empty() || data_file_us_states_pop.empty() || geojson_file.empty())
+    {
+      usage();
+    }
+
+    std::cout << data_file << std::endl;
+    std::cout << data_file_us_states_pop << std::endl;
+    std::cout << geojson_file << std::endl;
+
+    if (data_file.empty() || geojson_file.empty())
+    {
+      usage();
+    }
+    if (read_ep_pop(data_file, data_file_us_states_pop) < 0)
+    {
+      exit(0);
+    }
+    if (geojson.convert(geojson_file.c_str()) < 0)
+    {
+      exit(0);
+    }
+
   }
 
   for (size_t idx = 0; idx < 3 * 256; idx += 3)
@@ -514,6 +677,7 @@ int main(int argc, char **argv)
     unsigned char b = pal_rgb[idx + 2];
     rgb_256.push_back(rgb_t(r, g, b));
   }
+
   return WRun(argc, argv, &create_application);
 }
 
@@ -552,6 +716,83 @@ int read_dc311(std::string file_name)
   }
 
   std::cout << "Processed " << rows << " rows" << std::endl;
+  return 0;
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//read_ep
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int read_ep_pop(const std::string &file_name_ep, const std::string &file_name_pop)
+{
+  read_csv_t csv;
+
+  if (csv.open(file_name_ep) < 0)
+  {
+    std::cout << "Cannot open file " << file_name_ep.c_str() << std::endl;
+    return -1;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  //iterate until an empty row is returned (end of file)
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  size_t rows = 0;
+  std::vector<std::string> row;
+  while (true)
+  {
+    row = csv.read_row();
+    if (row.size() == 0)
+    {
+      break;
+    }
+    rows++;
+
+    std::string eps = row.at(1);
+    size_t pos = eps.find("(");
+    eps = eps.substr(0, pos);
+    pos = eps.find(",");
+    std::string eps1 = eps.substr(0, pos);
+    std::string eps2 = eps.substr(pos + 1);
+    eps = eps1 + eps2;
+    size_t ep = std::stoi(eps);
+    ep_data_t data(row.at(0), ep);
+    std::cout << row.at(0) << " " << ep << "\t";
+    ep_data.push_back(data);
+  }
+
+  std::cout << "\n";
+  std::cout << "Read " << rows << " rows" << "\n";
+
+  csv.m_ifs.close();
+
+  if (csv.open(file_name_pop) < 0)
+  {
+    std::cout << "Cannot open file " << file_name_pop.c_str() << std::endl;
+    return -1;
+  }
+
+  rows = 0;
+  while (true)
+  {
+    row = csv.read_row();
+    if (row.size() == 0)
+    {
+      break;
+    }
+    rows++;
+
+    std::string state = row.at(0);
+    std::string pop = row.at(1);
+    std::cout << state << " " << pop << "\t";
+
+  }
+  std::cout << "\n";
+  std::cout << "Read " << rows << " rows" << "\n";
+
+  csv.m_ifs.close();
   return 0;
 }
 
@@ -595,4 +836,24 @@ star_dataset_t find_dataset(std::string name)
       return datasets.at(idx);
     }
   }
+  assert(0);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//find_ep
+//by state name
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+size_t find_ep(std::string state_name)
+{
+  for (size_t idx = 0; idx < ep_data.size(); idx++)
+  {
+    std::string state = ep_data.at(idx).state;
+    if (state.find(state_name) == 0)
+    {
+      return ep_data.at(idx).ep;
+    }
+  }
+
+  return 0;
 }
