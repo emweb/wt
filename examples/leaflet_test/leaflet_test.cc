@@ -101,14 +101,29 @@ public:
 class ep_data_t
 {
 public:
-  ep_data_t(const std::string &state_,
-    size_t &ep_) :
+  ep_data_t(std::string state_, size_t ep_) :
     state(state_),
     ep(ep_)
   {
   };
   std::string state;
   size_t ep;
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
+//ep_data_t
+///////////////////////////////////////////////////////////////////////////////////////
+
+class us_state_pop_t
+{
+public:
+  us_state_pop_t(const std::string state_, size_t population_) :
+    state(state_),
+    population(population_)
+  {
+  };
+  std::string state;
+  size_t population;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,6 +133,7 @@ public:
 int read_dc311(std::string file_name);
 int read_ep_pop(const std::string &file_name_ep, const std::string &file_name_pop);
 size_t find_ep(std::string state_name);
+size_t find_population(std::string state_name);
 std::string to_hex(int n);
 std::string rgb_to_hex(int r, int g, int b);
 
@@ -130,6 +146,7 @@ std::vector<rgb_t> rgb_256;
 geojson_t geojson;
 std::vector<dc311_data_t> dc311_data;
 std::vector<ep_data_t> ep_data;
+std::vector<us_state_pop_t> us_state_pop;
 std::vector<std::string> ward_color =
 { rgb_to_hex(128, 128, 0), //olive
 rgb_to_hex(255, 255, 0), //yellow 
@@ -441,18 +458,37 @@ public:
 
       //find ep by state name
       size_t ep = find_ep(feature.m_name);
+      //find population by state name
+      size_t population = find_population(feature.m_name);
+
+      if (ep == 0 || population == 0)
+      {
+        continue;
+      }
+
+      double percentage_state_epilepsy = (double(ep) / double(population)) / 100.0;
+
+      percentage_state_epilepsy *= 100000;
       std::string color;
-      if (ep < 20000)
+      if (percentage_state_epilepsy < 10)
       {
         color = rgb_to_hex(0, 255, 0);
       }
-      else if (ep < 70000)
+      else if (percentage_state_epilepsy < 10.4)
       {
-        color = rgb_to_hex(0, 0, 255);
+        color = rgb_to_hex(0, 128, 0);
+      }
+      else if (percentage_state_epilepsy < 10.8)
+      {
+        color = rgb_to_hex(0, 255, 255);
+      }
+      else if (percentage_state_epilepsy < 11.2)
+      {
+        color = rgb_to_hex(255, 0, 0);
       }
       else
       {
-        color = rgb_to_hex(255, 0, 0);
+        color = rgb_to_hex(128, 0, 0);
       }
 
       size_t size_geometry = feature.m_geometry.size();
@@ -757,10 +793,9 @@ int read_ep_pop(const std::string &file_name_ep, const std::string &file_name_po
     std::string eps1 = eps.substr(0, pos);
     std::string eps2 = eps.substr(pos + 1);
     eps = eps1 + eps2;
-    size_t ep = std::stoi(eps);
-    ep_data_t data(row.at(0), ep);
-    std::cout << row.at(0) << " " << ep << "\t";
+    ep_data_t data(row.at(0), std::stoul(eps));
     ep_data.push_back(data);
+    std::cout << ep_data.back().state << " " << ep_data.back().ep << "\t";
   }
 
   std::cout << "\n";
@@ -786,7 +821,9 @@ int read_ep_pop(const std::string &file_name_ep, const std::string &file_name_po
 
     std::string state = row.at(0);
     std::string pop = row.at(1);
-    std::cout << state << " " << pop << "\t";
+    us_state_pop_t state_pop(state, std::stoul(pop));
+    us_state_pop.push_back(state_pop);
+    std::cout << us_state_pop.back().state << " " << us_state_pop.back().population << "\t";
 
   }
   std::cout << "\n";
@@ -854,6 +891,23 @@ size_t find_ep(std::string state_name)
       return ep_data.at(idx).ep;
     }
   }
+  return 0;
+}
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//find_population
+//by state name
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+size_t find_population(std::string state_name)
+{
+  for (size_t idx = 0; idx < us_state_pop.size(); idx++)
+  {
+    std::string state = us_state_pop.at(idx).state;
+    if (state.find(state_name) == 0)
+    {
+      return us_state_pop.at(idx).population;
+    }
+  }
   return 0;
 }
