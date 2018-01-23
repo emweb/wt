@@ -38,7 +38,7 @@ public:
 
   /*! \brief Updates the layout.
    */
-  virtual void update(WLayoutItem *item) = 0;
+  virtual void update() = 0;
 };
 
 }

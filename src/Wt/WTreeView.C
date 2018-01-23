@@ -2847,8 +2847,11 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(int column) const
     ci.width = WLength::Auto;
     ci.styleRule->templateWidget()->resize(WLength::Auto, WLength::Auto);
 
-    if (c0StyleRule_)
+    if (c0StyleRule_) {
+      WCssStyleSheet& styleSheet = wApp->styleSheet();
       c0StyleRule_->setSelector("#" + id() + " li ." + ci.styleClass());
+      styleSheet.addRule(styleSheet.removeRule(c0StyleRule_)); // needed on rerender
+    }
   }
 
   return ci;

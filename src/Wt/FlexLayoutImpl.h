@@ -31,7 +31,7 @@ public:
 
   virtual void updateDom(DomElement& parent) override;
 
-  virtual void update(WLayoutItem *) override;
+  virtual void update() override;
 
   virtual DomElement *createDomElement(DomElement *parent,
 				       bool fitWidth, bool fitHeight,

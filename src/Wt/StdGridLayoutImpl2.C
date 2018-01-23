@@ -297,15 +297,17 @@ int StdGridLayoutImpl2::minimumHeight() const
 void StdGridLayoutImpl2::itemAdded(WLayoutItem *item)
 {
   addedItems_.push_back(item);
+  update();
 }
 
 void StdGridLayoutImpl2::itemRemoved(WLayoutItem *item)
 {
   Utils::erase(addedItems_, item);
   removedItems_.push_back(getImpl(item)->id());
+  update();
 }
 
-void StdGridLayoutImpl2::update(WLayoutItem *item)
+void StdGridLayoutImpl2::update()
 {
   WContainerWidget *c = container();
 

@@ -155,15 +155,17 @@ int FlexLayoutImpl::minimumHeight() const
 void FlexLayoutImpl::itemAdded(WLayoutItem *item)
 {
   addedItems_.push_back(item);
+  update();
 }
 
 void FlexLayoutImpl::itemRemoved(WLayoutItem *item)
 {
   Utils::erase(addedItems_, item);
   removedItems_.push_back(getImpl(item)->id());
+  update();
 }
 
-void FlexLayoutImpl::update(WLayoutItem *item)
+void FlexLayoutImpl::update()
 {
   WContainerWidget *c = container();
 

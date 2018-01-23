@@ -329,8 +329,9 @@ private:
   static const int BIT_MULTIPLE         	= 3;
   static const int BIT_ENABLED_CHANGED  	= 4;
   static const int BIT_ACCEPT_ATTRIBUTE_CHANGED = 5;
+  static const int BIT_USE_DISPLAY_WIDGET       = 6;
 
-  std::bitset<6> flags_;
+  std::bitset<7> flags_;
 
   int textSize_;
 
@@ -339,6 +340,9 @@ private:
   JSignal<::int64_t> fileTooLarge_;
 
   Signal<::uint64_t, ::uint64_t> dataReceived_;
+
+  Core::observing_ptr<WInteractWidget> displayWidget_;
+  JSlot displayWidgetRedirect_;
 
   std::unique_ptr<WResource> fileUploadTarget_;
   std::unique_ptr<WProgressBar> containedProgressBar_;

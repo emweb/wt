@@ -156,7 +156,7 @@ void WLayout::itemRemoved(WLayoutItem *item)
 void WLayout::update(WLayoutItem *item)
 {
   if (impl_)
-    impl_->update(item);
+    impl_->update();
 }
 
 WWidgetItem *WLayout::findWidgetItem(WWidget *widget)

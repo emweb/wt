@@ -135,6 +135,8 @@ WFileUpload::WFileUpload()
   : textSize_(20),
     fileTooLarge_(this, "fileTooLarge"),
     dataReceived_(),
+    displayWidget_(nullptr),
+    displayWidgetRedirect_(this),
     progressBar_(0)
 {
   setInline(true);
@@ -161,6 +163,8 @@ void WFileUpload::create()
     fileUploadTarget_.reset();
 
   setFormObject(!fileUploadTarget_);
+
+  displayWidgetRedirect_.setJavaScript(displayWidgetClickJS());
 
   uploaded().connect(this, &WFileUpload::onUploaded);
   fileTooLarge().connect(this, &WFileUpload::onUploaded);
@@ -244,16 +248,34 @@ void WFileUpload::setProgressBar(std::unique_ptr<WProgressBar> bar)
 }
 
 void WFileUpload::setDisplayWidget(WInteractWidget *widget) {
-  addStyleClass("Wt-fileupload-hidden");
-  widget->clicked().connect(displayWidgetClickJS());
+  if (displayWidget_ || !widget)
+    return;
+
+  displayWidget_ = Core::observing_ptr<WInteractWidget>(widget);
+  flags_.set(BIT_USE_DISPLAY_WIDGET, true);
+  repaint();
 }
-  
+
 std::string WFileUpload::displayWidgetClickJS() {
-  return "function(obj, event) {" +
-       jsRef() + ".click();" +
-    "  var children = " + jsRef() + ".children;" +
-    "  for (var i=0; i < children.length; i++) {" +
-    "    children[i].click();" +
+  return std::string() +
+    "function(sender, event) {" +
+    "  function redirectClick(el) {" +
+    "    if (el && el.tagName && el.tagName.toLowerCase() === 'input') {" +
+    "      el.click();" +
+    "      return true;" +
+    "    } else {" +
+    "      return false;" +
+    "    }"  +
+    "  };" +
+    "  " +
+    "  var ok = redirectClick(" + jsRef() + ");" +
+    "  if (!ok) {" +
+    "    var children = " + jsRef() + ".children;" +
+    "    for (var i=0; i < children.length; i++) {" +
+    "      if (redirectClick(children[i])) {" +
+    "        return;" +
+    "      }" +
+    "    }" +
     "  }" +
     "}";
 }
@@ -329,6 +351,12 @@ void WFileUpload::updateDom(DomElement& element, bool all)
       && containsProgress && !progressBar_->isRendered())
     element.addChild(progressBar_->createSDomElement(WApplication::instance()));
 
+  if (fileUploadTarget_ && flags_.test(BIT_USE_DISPLAY_WIDGET) &&
+      displayWidget_) {
+    addStyleClass("Wt-fileupload-hidden");
+    displayWidget_->clicked().connect(displayWidgetRedirect_);
+  }
+  
   // upload() + disable() does not work. -- fix after this release,
   // change order of javaScript_ and properties rendering in DomElement
 
@@ -386,6 +414,7 @@ void WFileUpload::updateDom(DomElement& element, bool all)
 
   flags_.reset(BIT_ENABLED_CHANGED);
   flags_.reset(BIT_ACCEPT_ATTRIBUTE_CHANGED);
+  flags_.reset(BIT_USE_DISPLAY_WIDGET);
 
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
   if (change && change->needsUpdate(all)) {
