@@ -21,8 +21,10 @@ class WebRequest;
 
 /*
  * Parses CGI in all its forms (get/post/file uploads).
+ *
+ * (WT_API added for tests)
  */
-class CgiParser
+class WT_API CgiParser
 {
 public:
   enum ReadOption { ReadDefault, ReadHeadersOnly, ReadBodyAnyway };
