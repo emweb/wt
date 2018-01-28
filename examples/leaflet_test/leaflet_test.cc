@@ -50,7 +50,16 @@ star_dataset_t find_dataset(std::string name);
 //-t 5 
 //-d ../../../examples/leaflet_test/us_states_epilepsy_2015.csv 
 //-g ../../../examples/leaflet_test/gz_2010_us_040_00_20m.json 
-//-u ./../../examples/leaflet_test/us_states_population_2015.csv
+//-u ../../../examples/leaflet_test/us_states_population_2015.csv
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 6
+//schools
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//-t 6
+//-d ../../../examples/leaflet_test/montgomery_county_schools.csv
+//-g ../../../examples/leaflet_test/board_education_districts.json 
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,13 +120,13 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//ep_data_t
+//us_state_pop_t
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class us_state_pop_t
 {
 public:
-  us_state_pop_t(const std::string state_, size_t population_) :
+  us_state_pop_t(std::string state_, size_t population_) :
     state(state_),
     population(population_)
   {
@@ -126,12 +135,34 @@ public:
   size_t population;
 };
 
+
+///////////////////////////////////////////////////////////////////////////////////////
+//school_t
+///////////////////////////////////////////////////////////////////////////////////////
+
+class school_t
+{
+public:
+  school_t(std::string name_, std::string lat_, std::string lon_, int rating_) :
+    name(name_),
+    lat(lat_),
+    lon(lon_),
+    rating(rating_)
+  {
+  };
+  std::string name;
+  std::string lat;
+  std::string lon;
+  int rating;
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //forward declarations
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int read_dc311(std::string file_name);
 int read_ep_pop(const std::string &file_name_ep, const std::string &file_name_pop);
+int read_schools(const std::string &file_name);
 size_t find_ep(std::string state_name);
 size_t find_population(std::string state_name);
 std::string to_hex(int n);
@@ -147,6 +178,7 @@ geojson_t geojson;
 std::vector<dc311_data_t> dc311_data;
 std::vector<ep_data_t> ep_data;
 std::vector<us_state_pop_t> us_state_pop;
+std::vector<school_t> schools_list;
 std::vector<std::string> ward_color =
 { rgb_to_hex(128, 128, 0), //olive
 rgb_to_hex(255, 255, 0), //yellow 
@@ -538,6 +570,37 @@ public:
   }
 };
 
+
+///////////////////////////////////////////////////////////////////////////////////////
+//Application_schools
+///////////////////////////////////////////////////////////////////////////////////////
+
+class Application_schools : public WApplication
+{
+public:
+  Application_schools(const WEnvironment& env) : WApplication(env)
+  {
+    setTitle("geojson");
+    std::unique_ptr<WLeaflet> leaflet =
+      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 39.0443047898, -77.1731281364, 12);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render schools
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    size_t size = schools_list.size();
+    for (size_t idx = 0; idx < size; idx++)
+    {
+      school_t data = schools_list.at(idx);
+      leaflet->Marker(data.lat, data.lon, data.name);
+    }
+
+    root()->addWidget(std::move(leaflet));
+  }
+};
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //create_application
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -564,6 +627,10 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
   {
     return cpp14::make_unique<Application_ep>(env);
   }
+  else if (test.compare("6") == 0)
+  {
+    return cpp14::make_unique<Application_schools>(env);
+  }
   assert(0);
 }
 
@@ -576,7 +643,7 @@ void usage()
   std::cout << "usage: ./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. ";
   std::cout << "-t TEST <-d DATABASE> <-u DATABASE> <-g GEOJSON> ";
   std::cout << std::endl;
-  std::cout << "-t TEST: test number (1 to 5)" << std::endl;
+  std::cout << "-t TEST: test number (1 to 6)" << std::endl;
   std::cout << "-d DATABASE: data file" << std::endl;
   std::cout << "-g GEOJSON: geojson file" << std::endl;
   std::cout << "-u DATABASE: data file" << std::endl;
@@ -700,6 +767,19 @@ int main(int argc, char **argv)
       exit(0);
     }
     if (geojson.convert(geojson_file.c_str()) < 0)
+    {
+      exit(0);
+    }
+  }
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //schools
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  else if (test.compare("6") == 0)
+  {
+    std::cout << data_file << std::endl;
+    std::cout << geojson_file << std::endl;
+    if (read_schools(data_file) < 0)
     {
       exit(0);
     }
@@ -909,5 +989,52 @@ size_t find_population(std::string state_name)
       return us_state_pop.at(idx).population;
     }
   }
+  return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//read_schools
+//CATEGORY,SCHOOL NAME,ADDRESS,CITY,ZIP CODE,PHONE,URL,LONGITUDE,LATITUDE,LOCATION
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int read_schools(const std::string &file_name)
+{
+  read_csv_t csv;
+
+  if (csv.open(file_name) < 0)
+  {
+    std::cout << "Cannot open file " << file_name.c_str() << std::endl;
+    return -1;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  //iterate until an empty row is returned (end of file)
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  std::vector<std::string> row;
+
+  //read header
+  row = csv.read_row();
+  size_t rows = 0;
+  while (true)
+  {
+    row = csv.read_row();
+    if (row.size() == 0)
+    {
+      break;
+    }
+    rows++;
+
+    std::string name = row.at(1);
+    std::string lon = row.at(7);
+    std::string lat = row.at(8);
+    std::string rating = row.at(10);
+    schools_list.push_back(school_t(name, lat, lon, std::stoi(rating)));
+  }
+
+  std::cout << "\n";
+  std::cout << "Read " << rows << " rows" << "\n";
+  csv.m_ifs.close();
   return 0;
 }

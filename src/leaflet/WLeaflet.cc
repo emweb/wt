@@ -191,4 +191,25 @@ namespace Wt
 
     m_additions.push_back(strm.str());
   }
+
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //WLeaflet::Marker
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  void WLeaflet::Marker(const std::string &lat, const std::string &lon, const std::string &text)
+  {
+    Wt::WStringStream strm;
+    std::string str_ll;
+    str_ll = lat;
+    str_ll += ",";
+    str_ll += lon;
+    strm
+      << " L.marker([" << str_ll << "]).addTo(map)"
+      << ".bindPopup('"
+      << text
+      << "');\n";
+    m_additions.push_back(strm.str());
+
+  }
 }
