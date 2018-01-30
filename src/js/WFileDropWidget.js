@@ -43,7 +43,7 @@ WT_DECLARE_WT_MEMBER
      reader.onerror = function() {
        callback(false, url);
      }
-     reader.readAsText(file); // try reading first 10 bytes
+     reader.readAsText(file.slice(0, 32)); // try reading some bytes
    }
 
    dropwidget.setAcceptDrops = function(enable) {
