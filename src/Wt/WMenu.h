@@ -81,8 +81,7 @@ namespace Wt {
  * which lets menu items correspond to internal URLs, see
  * setInternalPathEnabled().
  *
- * The layout of the menu may be Orientation::Horizontal or Orientation::Vertical. The look of
- * the items may be defined through style sheets. The default
+ * The look of the items may be defined through style sheets. The default
  * WMenuItem implementation uses four style classes to distinguish
  * between inactivated, activated, closeable inactivated and closeable
  * activated menu items: <tt>"item"</tt>, <tt>"itemselected"</tt>,

@@ -189,6 +189,7 @@ public:
 
 protected:
   virtual void enableAjax() override;
+  virtual void updateDom(DomElement& element, bool all) override;
 
 private:
   void setup();
@@ -208,6 +209,10 @@ private:
   WFileDropUploadResource *resource_;
   unsigned currentFileIdx_;
 
+  std::string hoverStyleClass_;
+  bool acceptDrops_;
+  std::string acceptAttributes_;
+
   JSignal<std::string> dropSignal_;
   JSignal<int> requestSend_;
   JSignal< ::uint64_t > fileTooLarge_;
@@ -221,6 +226,11 @@ private:
   Signal<File*> uploadFailed_;
   
   std::vector<File*> uploads_;
+
+  static const int BIT_HOVERSTYLE_CHANGED  = 0;
+  static const int BIT_ACCEPTDROPS_CHANGED = 1;
+  static const int BIT_FILTERS_CHANGED     = 2;
+  std::bitset<3> updateFlags_;
   
   friend class WFileDropUploadResource;
 };

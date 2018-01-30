@@ -115,6 +115,9 @@ bool WFileDropWidget::File::cancelled() const
 WFileDropWidget::WFileDropWidget()
   : resource_(nullptr),
     currentFileIdx_(0),
+    hoverStyleClass_("Wt-filedropzone-hover"),
+    acceptDrops_(true),
+    acceptAttributes_(""),
     dropSignal_(this, "dropsignal"),
     requestSend_(this, "requestsend"),
     fileTooLarge_(this, "filetoolarge"),
@@ -131,6 +134,9 @@ WFileDropWidget::WFileDropWidget()
 void WFileDropWidget::enableAjax()
 {
   setup();
+  repaint();
+  
+  WContainerWidget::enableAjax();
 }
 
 void WFileDropWidget::setup()
@@ -359,21 +365,56 @@ void WFileDropWidget::onDataExceeded(::uint64_t dataExceeded)
   app->triggerUpdate();
 }
 
+void WFileDropWidget::updateDom(DomElement& element, bool all)
+{
+  WApplication *app = WApplication::instance();
+  if (app->environment().ajax()) {
+    if (updateFlags_.test(BIT_HOVERSTYLE_CHANGED))
+      doJavaScript(jsRef() + ".configureHoverClass('" + hoverStyleClass_
+		   + "');");
+    if (updateFlags_.test(BIT_ACCEPTDROPS_CHANGED))
+      doJavaScript(jsRef() + ".setAcceptDrops("
+		   + (acceptDrops_ ? "true" : "false") + ");");
+    if (updateFlags_.test(BIT_FILTERS_CHANGED))
+      doJavaScript(jsRef() + ".setFilters("
+		   + jsStringLiteral(acceptAttributes_) + ");");
+    updateFlags_.reset();
+  }
+  
+  WContainerWidget::updateDom(element, all);
+}
+
 void WFileDropWidget::setHoverStyleClass(const std::string& className)
 {
-  doJavaScript(jsRef() + ".configureHoverClass('" + className + "');");
+  if (className == hoverStyleClass_)
+    return;
+
+  hoverStyleClass_ = className;
+  
+  updateFlags_.set(BIT_HOVERSTYLE_CHANGED);
+  repaint();
 }
 
 void WFileDropWidget::setAcceptDrops(bool enable)
 {
-  doJavaScript(jsRef() + ".setAcceptDrops(" + (enable ? "true" : "false")
-	       + ");");
+  if (enable == acceptDrops_)
+    return;
+
+  acceptDrops_ = enable;
+
+  updateFlags_.set(BIT_ACCEPTDROPS_CHANGED);
+  repaint();
 }
 
 void WFileDropWidget::setFilters(const std::string& acceptAttributes)
 {
-  doJavaScript(jsRef() + ".setFilters("
-	       + jsStringLiteral(acceptAttributes) + ");");
+  if (acceptAttributes == acceptAttributes_)
+    return;
+
+  acceptAttributes_ = acceptAttributes;
+  
+  updateFlags_.set(BIT_FILTERS_CHANGED);
+  repaint();
 }
   
 }
