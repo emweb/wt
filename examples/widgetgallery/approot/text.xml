@@ -43,7 +43,7 @@
       usually does not have any visual aspect (although it can very
       well be styled to give it for example margin and borders). The
       widgets that are contained can be positioned using <a
-      href="#/layout/CSS">Cascading StyleSheets (CSS)</a> or a <a
+      href="#/layout/css">Cascading StyleSheets (CSS)</a> or a <a
       href="#/layout/layout-managers">Layout Manager</a>. CSS, which
       to most C++ developers will be a new technology, is worthwile
       learning as it will allow you to push many layout and style
