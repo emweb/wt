@@ -501,22 +501,22 @@ namespace Wt {
 CssParser::CssParser()
 { }
 
-StyleSheet* CssParser::parse(const WString& styleSheetContents)
+std::unique_ptr<StyleSheet> CssParser::parse(const WString& styleSheetContents)
 {
   error_.clear();
 
   if (styleSheetContents.empty())
-    return new StyleSheetImpl();
+    return cpp14::make_unique<StyleSheetImpl>();
   else {
     error_ = "Wt::Render: CSSParser requires Boost 1.47 or later";
-    return 0;
+    return nullptr;
   }
 }
 
-StyleSheet* CssParser::parseFile(const WString& filename)
+std::unique_ptr<StyleSheet> CssParser::parseFile(const WString& filename)
 {
   error_ = "Wt::Render: CSSParser requires Boost 1.47 or later";
-  return 0;
+  return nullptr;
 }
 
 std::string CssParser::getLastError() const
