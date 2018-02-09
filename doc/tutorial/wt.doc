@@ -202,8 +202,6 @@ public:
 private:
     Wt::WLineEdit *nameEdit_;
     Wt::WText *greeting_;
-
-    void greet();
 };
 
 HelloApplication::HelloApplication(const Wt::WEnvironment& env)
@@ -216,9 +214,10 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env)
     Wt::WPushButton *button = root()->addWidget(std::make_unique<Wt::WPushButton>("Greet me."));
     root()->addWidget(std:make_unique<Wt::WBreak>());
     greeting_ = root()->addWidget(std::make_unique<Wt::WText>());
-    button->clicked().connect(this, [this](){
+    auto greet = [this]{
       greeting_->setText("Hello there, " + nameEdit_->text());
     });
+    button->clicked().connect(greet);
 }
 
 int main(int argc, char **argv)
@@ -287,9 +286,9 @@ see how other custom and more specialized widgets are used in exactly
 the same way.
 
 After we instantiated the widgets, we specify that we want to react to
-a click on the button. We connect the +greet()+ method to the button's
+a click on the button. We connect the button's
 +{doc}classWt_1_1WInteractWidget.html#ae11e050cce0d4a8f742afa3ef92bfe8c[clicked()]+
-signal. Events propagate from one widget (the button) to other widgets
+signal to the +greet+ function. Events propagate from one widget (the button) to other widgets
 or, as in this case, the application object, using signals. A glimpse
 at the reference documentation of a widget lists the signals that are
 exposed by a particular widget. For basic widgets, such as a push
@@ -309,13 +308,13 @@ the server, after the request has been validated as genuine, form data
 such as line edit text is first processed to update the widget tree
 state. Then, the event is propagated by emitting the signal from the
 target widget, which propagates the event to all connected methods,
-such as in our example the +greet()+ method. Modifications to the widget
+such as in our example the +greet+ function. Modifications to the widget
 tree are tracked, and after the event has been handled these changes
 are reflected on the rendered HTML DOM tree, again using a full page
 refresh or incrementally using Ajax or WebSockets.
 *****
 
-The most interesting thing about the implementation of the +greet()+
+The most interesting thing about the implementation of the +greet+
 method may be the code that is not there: no JavaScript to update the
 text using DOM manipulations or to re-render the page, no JavaScript
 code to post the event and line edit value using Ajax or WebSockets,
