@@ -40,6 +40,11 @@ WLabel::~WLabel()
   setBuddy(nullptr);
 }
 
+WFormWidget *WLabel::buddy() const
+{
+  return buddy_.get();
+}
+
 void WLabel::setBuddy(WFormWidget *buddy)
 {
   if (buddy_)

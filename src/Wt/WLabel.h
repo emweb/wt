@@ -74,7 +74,7 @@ public:
    *
    * \sa setBuddy(WFormWidget *)
    */
-  WFormWidget *buddy() const { return buddy_.get(); }
+  WFormWidget *buddy() const;
 
   /*! \brief Sets the buddy of this label.
    *

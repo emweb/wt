@@ -105,7 +105,8 @@ bool observing_ptr<T>::observedDeleted() const noexcept
 template <typename T>
 T *observing_ptr<T>::get() const noexcept
 {
-  return dynamic_cast<T *>(impl_.observed_);
+  // this cast shouldn't fail
+  return static_cast<T *>(impl_.observed_);
 }
 
 template <typename T>
