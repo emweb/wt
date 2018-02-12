@@ -37,6 +37,12 @@ void SqlConnection::executeSql(const std::string& sql)
   s->execute();
 }
 
+void SqlConnection::executeSqlStateful(const std::string& sql)
+{
+  statefulSql_.push_back(sql);
+  executeSql(sql);
+}
+
 SqlStatement *SqlConnection::getStatement(const std::string& id) const
 {
   StatementMap::const_iterator i = statementCache_.find(id);

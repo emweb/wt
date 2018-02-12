@@ -114,6 +114,17 @@ public:
    */
   std::chrono::microseconds timeout() const { return timeout_; }
 
+  /*! \brief Sets the maximum lifetime for the underlying connection.
+   *
+   * The maximum lifetime is specified in seconds. If set to a value >
+   * 0, then the underlying connection object will be closed and
+   * reopened when the connection has been open longer than this
+   * lifetime.
+   *
+   * The default value is -1 (unlimited lifetime).
+   */
+  void setMaximumLifetime(std::chrono::seconds seconds);
+
   virtual void executeSql(const std::string &sql) override;
 
   virtual void startTransaction() override;
@@ -140,11 +151,15 @@ public:
   virtual bool supportDeferrableFKConstraint() const override;
   virtual bool requireSubqueryAlias() const override;
   //@}
+  
+  void checkConnection();
 
 private:
   std::string connInfo_;
   PGconn *conn_;
   std::chrono::microseconds timeout_;
+  std::chrono::seconds maximumLifetime_;
+  std::chrono::steady_clock::time_point connectTime_;
 
   void exec(const std::string& sql, bool showQuery);
 };

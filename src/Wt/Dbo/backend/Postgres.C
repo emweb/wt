@@ -303,6 +303,8 @@ public:
 
   virtual void execute() override
   {
+    conn_.checkConnection();
+    
     if (conn_.showQueries())
       std::cerr << sql_ << std::endl;
 
@@ -714,12 +716,14 @@ private:
 
 Postgres::Postgres()
   : conn_(nullptr),
-    timeout_(0)
+    timeout_(0),
+    maximumLifetime_(std::chrono::seconds{-1})
 { }
 
 Postgres::Postgres(const std::string& db)
   : conn_(nullptr),
-    timeout_(0)
+    timeout_(0),
+    maximumLifetime_(std::chrono::seconds{-1})
 {
   if (!db.empty())
     connect(db);
@@ -728,10 +732,16 @@ Postgres::Postgres(const std::string& db)
 Postgres::Postgres(const Postgres& other)
   : SqlConnection(other),
     conn_(NULL),
-    timeout_(other.timeout_)
+    timeout_(other.timeout_),
+    maximumLifetime_(other.maximumLifetime_)
 {
   if (!other.connInfo_.empty())
     connect(other.connInfo_);
+}
+
+void Postgres::setMaximumLifetime(std::chrono::seconds seconds)
+{
+  maximumLifetime_ = seconds;
 }
 
 Postgres::~Postgres()
@@ -779,8 +789,10 @@ bool Postgres::connect(const std::string& db)
     std::string error = PQerrorMessage(conn_);
     PQfinish(conn_);
     conn_ = nullptr;
+    connectTime_ = std::chrono::steady_clock::time_point{};
     throw PostgresException("Could not connect to: " + error);
-  }
+  } else
+    connectTime_ = std::chrono::steady_clock::now();
 
   PQsetClientEncoding(conn_, "UTF8");
 
@@ -801,9 +813,17 @@ bool Postgres::reconnect()
 
   clearStatementCache();
 
-  if (!connInfo_.empty())
-    return connect(connInfo_);
-  else
+  if (!connInfo_.empty()) {
+    bool result = connect(connInfo_);
+
+    if (result) {
+      std::vector<std::string> statefulSql = getStatefulSql();
+      for (unsigned i = 0; i < statefulSql.size(); ++i)
+	executeSql(statefulSql[i]);
+    }
+
+    return result;
+  } else
     return false;
 }
 
@@ -825,8 +845,24 @@ void Postgres::executeSql(const std::string &sql)
   exec(sql, true);
 }
 
+void Postgres::checkConnection()
+{
+  if (maximumLifetime_ > std::chrono::seconds{0} && connectTime_ != std::chrono::steady_clock::time_point{}) {
+    auto t = std::chrono::steady_clock::now();
+    if (t - connectTime_ > maximumLifetime_) {
+      std::cerr << "Postgres: maximum connection lifetime passed, trying to reconnect..."
+		<< std::endl;
+      if (!reconnect()) {
+	throw PostgresException("Could not reconnect to server...");
+      }
+    }
+  }
+}
+    
 void Postgres::exec(const std::string& sql, bool showQuery)
 {
+  checkConnection();
+  
   if (PQstatus(conn_) != CONNECTION_OK)  {
     std::cerr << "Postgres: connection lost to server, trying to reconnect..."
 	      << std::endl;
