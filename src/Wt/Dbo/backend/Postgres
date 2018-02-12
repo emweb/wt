@@ -113,6 +113,17 @@ public:
    * \sa setTimeout()
    */
   int timeout() const { return timeout_; }
+
+  /*! \brief Sets the maximum lifetime for the underlying connection.
+   *
+   * The maximum lifetime is specified in seconds. If set to a value >
+   * 0, then the underlying connection object will be closed and
+   * reopened when the connection has been open longer than this
+   * lifetime.
+   *
+   * The default value is -1 (unlimited lifetime).
+   */
+  void setMaximumLifetime(int seconds);
   
   virtual void executeSql(const std::string &sql);
 
@@ -141,10 +152,14 @@ public:
   virtual bool requireSubqueryAlias() const;
   //@}
 
+  void checkConnection();
+
 private:
   std::string connInfo_;
   PGconn *conn_;
   int timeout_;
+  int maximumLifetime_;
+  std::time_t connectTime_;
 
   void exec(const std::string& sql, bool showQuery);
 };
