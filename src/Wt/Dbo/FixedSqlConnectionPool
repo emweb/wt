@@ -58,7 +58,7 @@ public:
    * \sa setTimeout()
    */
   int timeout() const;
-  
+
   virtual ~FixedSqlConnectionPool();
   virtual SqlConnection *getConnection();
   virtual void returnConnection(SqlConnection *);
