@@ -352,8 +352,7 @@ public:
 
   /*! \brief Returns a header value.
    *
-   * Returns a header value, or an empty string if the header was 
-   * present.
+   * Returns an empty string if the header was not present.
    */
   std::string headerValue(const std::string& field) const;
 
