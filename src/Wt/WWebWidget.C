@@ -1031,6 +1031,8 @@ void WWebWidget::setDeferredToolTip(bool enable, TextFormat textFormat)
 
     if (!lookImpl_->toolTip_)
       lookImpl_->toolTip_.reset(new WString());
+    else
+      *lookImpl_->toolTip_ = WString();
 
     lookImpl_->toolTipTextFormat_ = textFormat;
 
