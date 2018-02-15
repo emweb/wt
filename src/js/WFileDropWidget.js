@@ -105,8 +105,10 @@ WT_DECLARE_WT_MEMBER
    }
 
    dropwidget.addEventListener("click", function(e) {
-     if (acceptDrops)
+     if (acceptDrops) {
+       $(hiddenInput).val('');
        hiddenInput.click();
+     }
    });
    
    dropwidget.markForSending = function(files) {
