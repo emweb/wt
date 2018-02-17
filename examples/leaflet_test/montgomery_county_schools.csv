@@ -1,7 +1,7 @@
 CATEGORY,SCHOOL NAME,ADDRESS,CITY,ZIP CODE,PHONE,URL,LONGITUDE,LATITUDE,LOCATION,RATING
 HIGH SCHOOLS,Richard Montgomery HS,250 Richard Montgomery Dr,Rockville,20852,301-610-8000,http://www.montgomeryschoolsmd.org/schools/rmhs,-77.1457297834,39.0772920776,"250 Richard Montgomery Dr
 Rockville, MD 20852
-(39.0772920776, -77.1457297834)",0
+(39.0772920776, -77.1457297834)",7
 HIGH SCHOOLS,Rockville HS,2100 Baltimore Rd,Rockville,20851,301-517-8105,http://www.montgomeryschoolsmd.org/schools/rockvillehs,-77.1182723989,39.0863478113,"2100 Baltimore Rd
 Rockville, MD 20851
 (39.0863478113, -77.1182723989)",0
@@ -28,7 +28,7 @@ Bethesda, MD 20817
 (38.9816307564, -77.1276727865)",0
 HIGH SCHOOLS,Bethesda-Chevy Chase HS,4301 East West Hwy,Bethesda,20814,240-497-6300,http://www.montgomeryschoolsmd.org/schools/bcchs,-77.0889699717,38.9868264765,"4301 East West Hwy
 Bethesda, MD 20814
-(38.9868264765, -77.0889699717)",0
+(38.9868264765, -77.0889699717)",9
 HIGH SCHOOLS,Winston Churchill HS,11300 Gainsborough Rd,Potomac,20854,301-469-1200,http://www.montgomeryschoolsmd.org/schools/churchillhs,-77.1731281364,39.0443047898,"11300 Gainsborough Rd
 Potomac, MD 20854
 (39.0443047898, -77.1731281364)",0
@@ -58,10 +58,10 @@ Clarksburg, MD 20871
 (39.225501825, -77.2655866221)",0
 HIGH SCHOOLS,Sherwood HS,300 Olney Sandy Spring Rd,Sandy Spring,20860,301-924-3200,http://www.montgomeryschoolsmd.org/schools/sherwoodhs,-77.018771801,39.148342372,"300 Olney Sandy Spring Rd
 Sandy Spring, MD 20860
-(39.148342372, -77.018771801)",0
+(39.148342372, -77.018771801)",7
 HIGH SCHOOLS,Col Zadok Magruder HS,5939 Muncaster Mill Rd,Rockville,20855,301-840-4600,http://www.montgomeryschoolsmd.org/schools/magruderhs,-77.1188059149,39.1313109818,"5939 Muncaster Mill Rd
 Rockville, MD 20855
-(39.1313109818, -77.1188059149)",0
+(39.1313109818, -77.1188059149)",6
 HIGH SCHOOLS,Gaithersburg HS,314 S Frederick Ave,Gaithersburg,20877,301-840-4700,http://www.montgomeryschoolsmd.org/schools/gaithsbghs,-77.1954776183,39.1348394458,"314 S Frederick Ave
 Gaithersburg, MD 20877
 (39.1348394458, -77.1954776183)",0

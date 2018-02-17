@@ -192,7 +192,6 @@ namespace Wt
     m_additions.push_back(strm.str());
   }
 
-
   ///////////////////////////////////////////////////////////////////////////////////////
   //WLeaflet::Marker
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -210,6 +209,39 @@ namespace Wt
       << text
       << "');\n";
     m_additions.push_back(strm.str());
+  }
 
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //WLeaflet::Marker
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  void WLeaflet::Marker(const std::string &lat, const std::string &lon, const std::string &text, marker_icon_t icon)
+  {
+    Wt::WStringStream strm;
+
+    strm
+      << "var custom_icon = new L.Icon({"
+      << "iconUrl: '"
+      << icon.icon_url
+      << "',"
+      << "shadowUrl: '"
+      << icon.shadow_url
+      << "',"
+      << "iconSize: [25, 41],"
+      << "iconAnchor: [12, 41],"
+      << "popupAnchor: [1, -34],"
+      << "shadowSize: [41, 41]"
+      << "});\n";
+
+    std::string str_ll;
+    str_ll = lat;
+    str_ll += ",";
+    str_ll += lon;
+    strm
+      << " L.marker([" << str_ll << "], {icon: custom_icon}).addTo(map)"
+      << ".bindPopup('"
+      << text
+      << "');\n";
+    m_additions.push_back(strm.str());
   }
 }

@@ -584,6 +584,22 @@ public:
     std::unique_ptr<WLeaflet> leaflet =
       cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 39.0443047898, -77.1731281364, 12);
 
+    marker_icon_t marker_green(
+      "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      icon_size_t(25, 41),
+      icon_size_t(12, 41),
+      icon_size_t(1, -34),
+      icon_size_t(41, 41));
+
+    marker_icon_t marker_red(
+      "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      icon_size_t(25, 41),
+      icon_size_t(12, 41),
+      icon_size_t(1, -34),
+      icon_size_t(41, 41));
+
     ///////////////////////////////////////////////////////////////////////////////////////
     //render schools
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -592,7 +608,19 @@ public:
     for (size_t idx = 0; idx < size; idx++)
     {
       school_t data = schools_list.at(idx);
-      leaflet->Marker(data.lat, data.lon, data.name);
+
+      if (data.rating < 5)
+      {
+        leaflet->Marker(data.lat, data.lon, data.name, marker_red);
+      }
+      else if (data.rating < 8)
+      {
+        leaflet->Marker(data.lat, data.lon, data.name);
+      }
+      else if (data.rating < 11)
+      {
+        leaflet->Marker(data.lat, data.lon, data.name, marker_green);
+      }
     }
 
     root()->addWidget(std::move(leaflet));
