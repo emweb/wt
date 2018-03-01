@@ -2850,6 +2850,7 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(int column) const
 
     if (c0StyleRule_) {
       c0StyleRule_->setSelector("#" + id() + " li ." + ci.styleClass());
+      wApp->styleSheet().removeRule(c0StyleRule_);
       wApp->styleSheet().addRule(c0StyleRule_); // needed on rerender
     }
   }
