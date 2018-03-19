@@ -98,6 +98,7 @@ void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
   assert (!oContents_ && !uContents_);
 
   uContents_ = std::move(contents);
+  oContents_ = uContents_.get();
   loadPolicy_ = policy;
 
   if (uContents_ && loadPolicy_ != ContentLoading::NextLevel) {
@@ -468,22 +469,20 @@ void WMenuItem::setParentMenu(WMenu *menu)
 
 WWidget *WMenuItem::contents() const
 {
-  if (oContents_)
-    return oContents_.get();
-  else
-    return uContents_.get();
+  return oContents_.get();
 }
 
 WWidget *WMenuItem::contentsInStack() const
 {
-  if (oContents_)
-    return oContents_.get();
-  else
+  if (oContentsContainer_)
     return oContentsContainer_.get();
+  else
+    return oContents_.get();
 }
 
 std::unique_ptr<WWidget> WMenuItem::removeContents()
 {
+  auto contents = oContents_.get();
   oContents_.reset();
 
   WWidget *c = contentsInStack();
@@ -493,7 +492,7 @@ std::unique_ptr<WWidget> WMenuItem::removeContents()
     std::unique_ptr<WWidget> w = c->parent()->removeWidget(c);
 
     if (oContentsContainer_)
-      return oContentsContainer_->removeWidget(oContents_.get());
+      return oContentsContainer_->removeWidget(contents);
     else
       return w;
   } else
@@ -517,7 +516,6 @@ std::unique_ptr<WWidget> WMenuItem::takeContentsForStack()
 
       return std::move(uContentsContainer_);
     } else {
-      oContents_ = uContents_.get();
       return std::move(uContents_);
     }
   }

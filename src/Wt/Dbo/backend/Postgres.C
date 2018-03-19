@@ -120,6 +120,9 @@ namespace Wt {
   namespace Dbo {
     namespace backend {
 
+// do not reconnect in a transaction unless we exceed the lifetime by 120s.
+const std::chrono::seconds TRANSACTION_LIFETIME_MARGIN = std::chrono::seconds(120);
+    
 class PostgresException : public Exception
 {
 public:
@@ -175,6 +178,10 @@ public:
     if (result_) {
       PQclear(result_);
       result_ = 0;
+      delete[] paramValues_;
+      paramValues_ = 0;
+      delete[] paramTypes_;
+      paramTypes_ = paramLengths_ = paramFormats_ = 0;
     }
   }
 
@@ -303,7 +310,7 @@ public:
 
   virtual void execute() override
   {
-    conn_.checkConnection();
+    conn_.checkConnection(TRANSACTION_LIFETIME_MARGIN);
     
     if (conn_.showQueries())
       std::cerr << sql_ << std::endl;
@@ -741,7 +748,7 @@ Postgres::Postgres(const Postgres& other)
 
 void Postgres::setMaximumLifetime(std::chrono::seconds seconds)
 {
-  maximumLifetime_ = seconds;
+  maximumLifetime_ = seconds;    
 }
 
 Postgres::~Postgres()
@@ -845,11 +852,14 @@ void Postgres::executeSql(const std::string &sql)
   exec(sql, true);
 }
 
-void Postgres::checkConnection()
+/*
+ * margin: a grace period beyond the lifetime
+ */
+void Postgres::checkConnection(std::chrono::seconds margin)
 {
   if (maximumLifetime_ > std::chrono::seconds{0} && connectTime_ != std::chrono::steady_clock::time_point{}) {
     auto t = std::chrono::steady_clock::now();
-    if (t - connectTime_ > maximumLifetime_) {
+    if (t - connectTime_ > maximumLifetime_ + margin) {
       std::cerr << "Postgres: maximum connection lifetime passed, trying to reconnect..."
 		<< std::endl;
       if (!reconnect()) {
@@ -861,7 +871,7 @@ void Postgres::checkConnection()
     
 void Postgres::exec(const std::string& sql, bool showQuery)
 {
-  checkConnection();
+  checkConnection(std::chrono::seconds(0));
   
   if (PQstatus(conn_) != CONNECTION_OK)  {
     std::cerr << "Postgres: connection lost to server, trying to reconnect..."

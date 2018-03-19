@@ -12,6 +12,7 @@
 
 namespace Wt {
 
+class WPainterPath;
 class WPointF;
 class WRectF;
 

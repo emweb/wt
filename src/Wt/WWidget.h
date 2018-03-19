@@ -44,20 +44,12 @@ class WCssTextRule;
  * widget and dialogs, have a parent which is usually a
  * WContainerWidget.
  *
- * \if cpp
- *
- * When a widget is deleted, it is also visually removed from the
- * user-interface and all children are deleted recursively.
- *
- * \endif
- *
  * This is an abstract base class. Implementations derive either from
  * the abstract WWebWidget (for basic widgets with a direct HTML
  * counter-part) or from the abstract WCompositeWidget (for anything
- * else). To add a %WWebWidget directly to a parent container, either
- * specify the parent in the constructor (which is conventionally the
- * last constructor argument), or add the widget to the parent using
- * WContainerWidget::addWidget(). Alternatively, you may add the widget
+ * else). To add a %WWidget to a parent container add the
+ * widget to the parent using WContainerWidget::addWidget().
+ * Alternatively, you may add the widget
  * to a layout manager set for a %WContainerWidget.
  *
  * A widget provides methods to manage its decorative style base on

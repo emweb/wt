@@ -13,6 +13,8 @@
 #include <Wt/Dbo/SqlStatement.h>
 #include <Wt/Dbo/backend/WDboPostgresDllDefs.h>
 
+#include <chrono>
+
 struct pg_conn;
 typedef struct pg_conn PGconn;
 
@@ -152,7 +154,7 @@ public:
   virtual bool requireSubqueryAlias() const override;
   //@}
   
-  void checkConnection();
+  void checkConnection(std::chrono::seconds margin);
 
 private:
   std::string connInfo_;

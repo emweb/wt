@@ -28,6 +28,9 @@
 
 #if !defined(WT_WIN32) && !defined(__CYGWIN__) && !defined(ANDROID)
 #define HAVE_CRYPT
+#ifndef _XOPEN_CRYPT
+#include <crypt.h>
+#endif // _XOPEN_CRYPT
 #endif
 
 namespace {
