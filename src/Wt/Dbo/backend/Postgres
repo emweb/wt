@@ -152,7 +152,7 @@ public:
   virtual bool requireSubqueryAlias() const;
   //@}
 
-  void checkConnection();
+  void checkConnection(int margin);
 
 private:
   std::string connInfo_;
