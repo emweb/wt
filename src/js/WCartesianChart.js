@@ -633,7 +633,7 @@ WT_DECLARE_WT_MEMBER
 	    }, TOOLTIP_TIMEOUT);
 	 }
 
-	 if (showCrosshair() && paintEnabled) {
+	 if (dragPreviousXY === null && showCrosshair() && paintEnabled) {
 	    crosshair = [c.x,c.y];
 	    rqAnimFrameThrottled(repaintOverlay);
 	 }
