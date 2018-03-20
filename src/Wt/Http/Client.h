@@ -21,6 +21,7 @@
 #include <string>
 
 #ifdef WT_ASIO_IS_BOOST_ASIO
+#include <boost/version.hpp>
 namespace boost {
   namespace asio {
 #if BOOST_VERSION >= 106600
@@ -32,8 +33,14 @@ namespace boost {
   }
 }
 #else // WT_ASIO_IS_STANDALONE_ASIO
+#include <asio/version.hpp>
 namespace asio {
+#if ASIO_VERSION >= 101200
+  class io_context;
+  typedef io_context io_service;
+#else
   class io_service;
+#endif
 }
 #endif // WT_ASIO_IS_BOOST_ASIO
 
