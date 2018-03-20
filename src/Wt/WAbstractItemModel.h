@@ -255,9 +255,7 @@ public:
    */
   virtual WModelIndex parent(const WModelIndex& index) const = 0;
 
-  /*! \brief Returns data at a specific model index.
-   *
-   * Return data for a given role at a given index.
+  /*! \brief Returns data at a specified model index for the given role.
    *
    * You should check the \p role to decide what data to
    * return. Usually a View class will ask for data for several roles
