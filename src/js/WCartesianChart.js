@@ -721,10 +721,8 @@ WT_DECLARE_WT_MEMBER
 	 overlay = undefined;
       }
 
-      if (!crosshair) {
-	 crosshair = toDisplayCoord([(left(modelArea()) + right(modelArea())) / 2,
-				     (top(modelArea()) + bottom(modelArea())) / 2]);
-      }
+      crosshair = [(left(configArea()) + right(configArea())) / 2,
+                   (top(configArea()) + bottom(configArea())) / 2];
    }
 
    this.mouseWheel = function(o, event) {
