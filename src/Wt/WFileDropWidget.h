@@ -158,6 +158,35 @@ public:
    */
   void setFilters(const std::string& acceptAttributes);
 
+  /*! \brief Interprets dragging anywhere on the page as intended for this widget
+   *
+   * As soon as a drag enters anywhere on the page the hover-styleclass is
+   * applied, which can be useful to point the user to the correct place to
+   * drop the file.
+   * This can be enabled for multiple dropwidgets if only one of them is
+   * visible at the same time.
+   *
+   * \sa setDropOnBodyEnabled()
+   */
+  void setDragOnBodyAware(bool enable);
+
+  /*! \brief Returns if dragging anywhere on the page is intended for this widget.
+   */
+  bool dragOnBodyAware() const;
+
+  /*! \brief Forward a drop anywhere on the page to this widget.
+   *
+   * This only works is setDragOnBodyAware() is enabled. If enabled, a drop
+   * anywhere on the page will be forwarded to this widget.
+   * 
+   * \sa setDragOnBodyAware()
+   */
+  void setDropOnBodyEnabled(bool enable);
+
+  /*! \brief Returns if drops are forwarded to this widget.
+   */
+  bool dropOnBodyEnabled() const;
+
   /*! \brief The signal triggers if one or more files are dropped.
    */
   Signal<std::vector<File*> >& drop() { return dropEvent_; }
@@ -188,6 +217,7 @@ public:
   Signal<File*>& uploadFailed() { return uploadFailed_; }
 
 protected:
+  virtual std::string renderRemoveJs(bool recursive) override;
   virtual void enableAjax() override;
   virtual void updateDom(DomElement& element, bool all) override;
 
@@ -212,6 +242,8 @@ private:
   std::string hoverStyleClass_;
   bool acceptDrops_;
   std::string acceptAttributes_;
+  bool dragOnBodyAware_;
+  bool dropOnBodyForward_;
 
   JSignal<std::string> dropSignal_;
   JSignal<int> requestSend_;
@@ -230,7 +262,8 @@ private:
   static const int BIT_HOVERSTYLE_CHANGED  = 0;
   static const int BIT_ACCEPTDROPS_CHANGED = 1;
   static const int BIT_FILTERS_CHANGED     = 2;
-  std::bitset<3> updateFlags_;
+  static const int BIT_BODYAWARE_CHANGED   = 3;
+  std::bitset<4> updateFlags_;
   
   friend class WFileDropUploadResource;
 };

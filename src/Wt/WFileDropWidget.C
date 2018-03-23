@@ -118,6 +118,8 @@ WFileDropWidget::WFileDropWidget()
     hoverStyleClass_("Wt-filedropzone-hover"),
     acceptDrops_(true),
     acceptAttributes_(""),
+    dragOnBodyAware_(false),
+    dropOnBodyForward_(false),
     dropSignal_(this, "dropsignal"),
     requestSend_(this, "requestsend"),
     fileTooLarge_(this, "filetoolarge"),
@@ -369,19 +371,30 @@ void WFileDropWidget::updateDom(DomElement& element, bool all)
 {
   WApplication *app = WApplication::instance();
   if (app->environment().ajax()) {
-    if (updateFlags_.test(BIT_HOVERSTYLE_CHANGED))
+    if (updateFlags_.test(BIT_HOVERSTYLE_CHANGED) || all)
       doJavaScript(jsRef() + ".configureHoverClass('" + hoverStyleClass_
 		   + "');");
-    if (updateFlags_.test(BIT_ACCEPTDROPS_CHANGED))
+    if (updateFlags_.test(BIT_ACCEPTDROPS_CHANGED) || all)
       doJavaScript(jsRef() + ".setAcceptDrops("
 		   + (acceptDrops_ ? "true" : "false") + ");");
-    if (updateFlags_.test(BIT_FILTERS_CHANGED))
+    if (updateFlags_.test(BIT_FILTERS_CHANGED) || all)
       doJavaScript(jsRef() + ".setFilters("
 		   + jsStringLiteral(acceptAttributes_) + ");");
+    if (updateFlags_.test(BIT_BODYAWARE_CHANGED) || all) {
+      doJavaScript(jsRef() + ".setBodyAware("
+		   + (dragOnBodyAware_ ? "true" : "false") + ");");
+      doJavaScript(jsRef() + ".setDropForward("
+		   + (dropOnBodyForward_ ? "true" : "false") + ");");
+    }
+      
     updateFlags_.reset();
   }
   
   WContainerWidget::updateDom(element, all);
+}
+
+std::string WFileDropWidget::renderRemoveJs(bool recursive) {
+  return jsRef() + ".destructor();";
 }
 
 void WFileDropWidget::setHoverStyleClass(const std::string& className)
@@ -416,5 +429,38 @@ void WFileDropWidget::setFilters(const std::string& acceptAttributes)
   updateFlags_.set(BIT_FILTERS_CHANGED);
   repaint();
 }
+
+void WFileDropWidget::setDragOnBodyAware(bool enable) {
+  if (enable == dragOnBodyAware_)
+    return;
+
+  dragOnBodyAware_ = enable;
+  if (!dragOnBodyAware_ && dropOnBodyForward_)
+    dropOnBodyForward_ = false;
+
+  updateFlags_.set(BIT_BODYAWARE_CHANGED);
+  repaint();
+}
+
+bool WFileDropWidget::dragOnBodyAware() const {
+  return dragOnBodyAware_;
+}
+
+void WFileDropWidget::setDropOnBodyEnabled(bool enable) {
+  if (enable == dropOnBodyForward_)
+    return;
+
+  if (!dragOnBodyAware_ && enable)
+    throw std::exception();
+  
+  dropOnBodyForward_ = enable;
+  updateFlags_.set(BIT_BODYAWARE_CHANGED);
+  repaint();
+}
+
+bool WFileDropWidget::dropOnBodyEnabled() const {
+  return dropOnBodyForward_;
+}
+  
   
 }

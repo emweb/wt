@@ -18,12 +18,20 @@ WT_DECLARE_WT_MEMBER
    var uploads = [];
    var sending = false;
    var acceptDrops = true;
-   
+   var bodyAware = false;
+   var bodyDropForward = false;
+
+   var dragState = 0;
+
    var hiddenInput = document.createElement('input');
    hiddenInput.type = 'file';
    hiddenInput.setAttribute('multiple', 'multiple');
    $(hiddenInput).hide();
    dropwidget.appendChild(hiddenInput);
+
+   var dropcover = document.createElement('div');
+   $(dropcover).addClass('Wt-dropcover');
+   document.body.appendChild(dropcover)
 
    this.eventContainsFile = function(e) {
      var items = (e.dataTransfer.items != null &&
@@ -50,14 +58,32 @@ WT_DECLARE_WT_MEMBER
      acceptDrops = enable
    };
 
+   dropwidget.setBodyAware = function(enable) {
+     bodyAware = enable;
+   };
+   
+   dropwidget.setDropForward = function(enable) {
+     bodyDropForward = enable;
+   };
+
    dropwidget.ondragenter = function(e) {
      if (!acceptDrops)
        return;
-     else if (self.eventContainsFile(e))
+     else if (self.eventContainsFile(e)) {
+       dragState = 2;
        self.setHoverStyle(true);
+     }
+     e.stopPropagation();
    };
 
    dropwidget.ondragleave = function(e) {
+     var x = e.clientX, y = e.clientY;
+     var el = document.elementFromPoint(x, y);
+     if (el === dropcover) {
+       dragState = 1;
+       return;
+     }
+     
      if (!acceptDrops)
        return;
      self.setHoverStyle(false);
@@ -65,9 +91,33 @@ WT_DECLARE_WT_MEMBER
 
    dropwidget.ondragover = function(e) {
      e.preventDefault();
-     if (!acceptDrops)
-       return;
    };
+
+   bodyDragEnter = function(e) {
+     if (!bodyAware || !$(dropwidget).is(":visible"))
+       return;
+     
+     dragState = 1;
+     self.setHoverStyle(true);
+   };
+   document.body.addEventListener("dragenter", bodyDragEnter);
+
+   dropcover.ondragover = function(e) {
+     e.preventDefault();
+     e.stopPropagation();
+   }
+   dropcover.ondragleave = function(e) {
+     if (!acceptDrops || dragState != 1)
+      return;
+     self.setHoverStyle(false);
+   };
+   dropcover.ondrop = function(e) {
+     e.preventDefault();
+     if (bodyDropForward)
+       dropwidget.ondrop(e);
+     else
+       self.setHoverStyle(false);
+   }   
 
    dropwidget.ondrop = function(e) {
      e.preventDefault();
@@ -140,7 +190,6 @@ WT_DECLARE_WT_MEMBER
    }
    
    dropwidget.send = function(url) {
-     console.log('sending file');
      xhr = uploads[0]
      if (xhr.file.size > maxFileSize) {
        APP.emit(dropwidget, 'filetoolarge', xhr.file.size);
@@ -172,7 +221,6 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.uploadFinished = function(e) {
-     console.log('finished sending (type = ' + e + ')');
      if (e != null &&
 	 e.type == 'load' &&
 	 e.currentTarget.status == 200)
@@ -187,7 +235,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    dropwidget.cancelUpload = function(id) {
-     if (uploads[0].id == id)
+     if (uploads[0] && uploads[0].id == id)
        uploads[0].abort();
      else {
        for (var i=1; i < uploads.length; i++) {
@@ -211,10 +259,20 @@ WT_DECLARE_WT_MEMBER
    
    
    this.setHoverStyle = function(enable) {
-     if (enable)
+     if (enable) {
        $(dropwidget).addClass(hoverClassName);
-     else
+       if (bodyAware) {
+	 $(dropwidget).addClass("drag-style");
+	 $(dropcover).addClass("drag-style");
+       }
+     } else {
        $(dropwidget).removeClass(hoverClassName);
+       if (bodyAware) {
+	 $(dropwidget).removeClass("drag-style");
+	 $(dropcover).removeClass("drag-style");
+       }
+       dragState = 0;
+     }
    };
 
    dropwidget.configureHoverClass = function(className) {
@@ -223,6 +281,11 @@ WT_DECLARE_WT_MEMBER
 
    dropwidget.setFilters = function(acceptAttributes) {
      hiddenInput.setAttribute('accept', acceptAttributes);
+   };
+
+   dropwidget.destructor = function() {
+     document.body.removeEventListener("dragenter", bodyDragEnter);
+     document.body.removeChild(dropcover);
    };
 
  });
