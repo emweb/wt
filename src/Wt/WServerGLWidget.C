@@ -1,14 +1,4 @@
-#include "Wt/WApplication"
-#include "Wt/WServerGLWidget"
-
-#include "Wt/WClientGLWidget"
-#include "Wt/WMemoryResource"
-#include "Wt/WPainter"
-#include "Wt/WRasterImage"
-#include "Wt/WWebWidget"
-#include "Wt/Http/Response"
-
-#include <fstream>
+#include <Wt/WDllDefs.h>
 
 #ifdef WT_WIN32
 #define WIN32_GL
@@ -46,6 +36,18 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 #include <OpenGL/CGLTypes.h>
 #include <OpenGL/OpenGL.h>
 #endif
+
+#include "Wt/WApplication"
+#include "Wt/WServerGLWidget"
+
+#include "Wt/WClientGLWidget"
+#include "Wt/WMemoryResource"
+#include "Wt/WPainter"
+#include "Wt/WRasterImage"
+#include "Wt/WWebWidget"
+#include "Wt/Http/Response"
+
+#include <fstream>
 
 namespace {
   GLenum serverGLenum(Wt::WGLWidget::GLenum e);

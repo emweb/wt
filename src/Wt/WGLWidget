@@ -20,6 +20,12 @@ typedef std::vector<int> IntBuffer;
 #include <java/buffer>
 #endif
 
+#ifdef WT_WIN32
+// Windows defines NO_ERROR (with value 0),
+// but we use it in the enum below.
+#undef NO_ERROR
+#endif
+
 namespace Wt {
 
 // define to enable WebGL debug code
