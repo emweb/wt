@@ -85,6 +85,10 @@ public:
    *
    * Such statements could be for example 'LISTEN' in a postgresql
    * connection.
+   *
+   * \note These statements are only executed upon a reconnect for
+   *       those backends that support automatic reconnect, but
+   *       not when a connection is \link clone() cloned\endlink.
    */
   virtual void executeSqlStateful(const std::string& sql);
   
@@ -305,7 +309,7 @@ protected:
   void clearStatementCache();
 
   std::vector<SqlStatement *> getStatements() const;
-  std::vector<std::string> getStatefulSql() const { return statefulSql_; }
+  const std::vector<std::string>& getStatefulSql() const { return statefulSql_; }
   
 private:
   typedef std::map<std::string, std::unique_ptr<SqlStatement>> StatementMap;

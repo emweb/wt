@@ -824,7 +824,7 @@ bool Postgres::reconnect()
     bool result = connect(connInfo_);
 
     if (result) {
-      std::vector<std::string> statefulSql = getStatefulSql();
+      const std::vector<std::string>& statefulSql = getStatefulSql();
       for (unsigned i = 0; i < statefulSql.size(); ++i)
 	executeSql(statefulSql[i]);
     }
