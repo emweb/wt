@@ -1,4 +1,4 @@
-#include <Wt/WDllDefs.h>
+#include "Wt/WDllDefs.h"
 
 #ifdef WT_WIN32
 #define WIN32_GL
@@ -13,28 +13,9 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#ifdef X11_GL
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <GL/glx.h>
-
-#define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
-#define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
-
-typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-#endif
-
 #ifdef WIN32_GL
 #include <GL/wglew.h>
 #include <Windows.h>
-#endif
-
-#ifdef APPLE_GL
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/CGLCurrent.h>
-#include <OpenGL/CGLRenderers.h>
-#include <OpenGL/CGLTypes.h>
-#include <OpenGL/OpenGL.h>
 #endif
 
 #include "Wt/WApplication"
@@ -48,6 +29,25 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 #include "Wt/Http/Response"
 
 #include <fstream>
+
+#ifdef X11_GL
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <GL/glx.h>
+
+#define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
+
+typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+#endif
+
+#ifdef APPLE_GL
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/CGLCurrent.h>
+#include <OpenGL/CGLRenderers.h>
+#include <OpenGL/CGLTypes.h>
+#include <OpenGL/OpenGL.h>
+#endif
 
 namespace {
   GLenum serverGLenum(Wt::WGLWidget::GLenum e);

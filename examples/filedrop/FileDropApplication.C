@@ -32,6 +32,9 @@ FileDropApplication::FileDropApplication(const WEnvironment& env)
 
   drop_ = new WFileDropWidget(root());
 
+  drop_->setDropIndicationEnabled(true);
+  // drop_->setGlobalDropEnabled(true);
+
   drop_->drop().connect(this, &FileDropApplication::handleDrop);
   drop_->newUpload().connect(this,&FileDropApplication::updateProgressListener);
   drop_->uploaded().connect(this, &FileDropApplication::saveFile);

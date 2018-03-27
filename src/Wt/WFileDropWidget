@@ -159,34 +159,39 @@ public:
    */
   void setFilters(const std::string& acceptAttributes);
 
-  /*! \brief Interprets dragging anywhere on the page as intended for this widget
+  /*! \brief Highlight widget if a file is dragged anywhere on the page
    *
    * As soon as a drag enters anywhere on the page the hover-styleclass is
    * applied, which can be useful to point the user to the correct place to
-   * drop the file.
+   * drop the file. If not enabled, the style will only be applied when the
+   * file is dragged over the widget.
    * This can be enabled for multiple dropwidgets if only one of them is
    * visible at the same time.
    *
-   * \sa setDropOnBodyEnabled()
+   * \sa setGlobalDropEnabled()
    */
-  void setDragOnBodyAware(bool enable);
+  void setDropIndicationEnabled(bool enable);
 
-  /*! \brief Returns if dragging anywhere on the page is intended for this widget.
-   */
-  bool dragOnBodyAware() const;
-
-  /*! \brief Forward a drop anywhere on the page to this widget.
+  /*! \brief Returns if the widget is highlighted for drags anywhere on the page
    *
-   * This only works is setDragOnBodyAware() is enabled. If enabled, a drop
-   * anywhere on the page will be forwarded to this widget.
-   * 
-   * \sa setDragOnBodyAware()
+   * \sa setDropIndicationEnabled()
    */
-  void setDropOnBodyEnabled(bool enable);
+  bool dropIndicationEnabled() const;
 
-  /*! \brief Returns if drops are forwarded to this widget.
+  /*! \brief Allow dropping the files anywhere on the page
+   *
+   * This only works if setDropIndicationEnabled() is enabled. If enabled,
+   * a drop anywhere on the page will be forwarded to this widget.
+   * 
+   * \sa setDropIndicationEnabled()
    */
-  bool dropOnBodyEnabled() const;
+  void setGlobalDropEnabled(bool enable);
+
+  /*! \brief Returns if all drops are forwarded to this widget.
+   *
+   * \sa setGlobalDropEnabled
+   */
+  bool globalDropEnabled() const;
 
   /*! \brief The signal triggers if one or more files are dropped.
    */
@@ -258,8 +263,8 @@ private:
   std::string hoverStyleClass_;
   bool acceptDrops_;
   std::string acceptAttributes_;
-  bool dragOnBodyAware_;
-  bool dropOnBodyForward_;
+  bool dropIndicationEnabled_;
+  bool globalDropEnabled_;
 
   JSignal<std::string> dropSignal_;
   JSignal<int> requestSend_;
@@ -278,7 +283,7 @@ private:
   static const int BIT_HOVERSTYLE_CHANGED  = 0;
   static const int BIT_ACCEPTDROPS_CHANGED = 1;
   static const int BIT_FILTERS_CHANGED     = 2;
-  static const int BIT_BODYAWARE_CHANGED   = 3;
+  static const int BIT_DRAGOPTIONS_CHANGED   = 3;
   std::bitset<4> updateFlags_;
   
   friend class WFileDropUploadResource;
