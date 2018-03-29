@@ -171,6 +171,13 @@ void WCartesian3DChart::setGridLinesPen(const WPen &pen)
   updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
+void WCartesian3DChart::setCubeLinesPen(const WPen &pen)
+{
+  cubeLinesPen_ = pen;
+
+  updateChart(ChartUpdates::GLContext);
+}
+
 void WCartesian3DChart::setIntersectionLinesEnabled(bool enabled)
 {
   intersectionLinesEnabled_ = enabled;

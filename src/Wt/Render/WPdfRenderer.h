@@ -114,11 +114,21 @@ public:
    * to add the directories where %Wt should look for fonts. You will
    * also have to specify the required font in the HTML source, e.g.:
    *
+   * \if cpp
    * \code
    * Render::WPdfRenderer renderer(pdf, page);
    * // ...
-   * renderer.render("<p style=\"font-family: 'DejaVuSans', Arial\">élève, fenêtre, âme</p>");
+   * renderer.render(Wt::utf8(u8"<p style=\"font-family: 'DejaVuSans', Arial\">\u00e9l\u00e8ve, fen\u00eatre, \u00e2me</p>"));
    * \endcode
+   * \endif
+   *
+   * \if java
+   * \code
+   * WPdfRenderer renderer = new WPdfRenderer(pdf, page);
+   * // ...
+   * renderer.render("<p style=\"font-family: 'DejaVuSans', Arial\">\u00E9l\u00E8ve, fen\u00EAtre, \u00E2me</p>");
+   * \endcode
+   * \endif
    *
    * \sa WPdfImage::addFontCollection()
    */
