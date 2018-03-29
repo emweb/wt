@@ -22,6 +22,35 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.0.3 (April 2018)</h2>
+<p>This release fixes compatibility with Boost 1.66, fixes some bugs, and adds
+some functionality:</p>
+<dl>
+  <dt>WFileUpload: added display widget</dt>
+  <dd>Often, native file upload field look out of place in the rest of a web application's design.
+      A common trick is to hide the file upload field, and add another widget that forwards its click
+      signal to the file upload field. We added
+      <a href="classWt_1_1WFileUpload.html#ab95ec35db690296e848d89a71c23737a">setDisplayWidget()</a>
+      to make it easy to implement that trick.</dd>
+  <dt>WFileDropWidget: added drop indication and global drop</dt>
+  <dd>When <a href="classWt_1_1WFileDropWidget.html#a0c1400a6f7f63eec4bb1cfe30807538e">drop indication</a>
+  is enabled, a WFileDropWidget will be highlighted as soon
+  as a file being dragged enters the page. When
+  <a href="classWt_1_1WFileDropWidget.html#a051b4928cb26446de1eb3617d0f8c954">global drop</a> is enabled, then a drop
+  anywhere on the page will put the file in the WFileDropWidget.</dd>
+  <dt>SqlConnection::executeSqlStateful()</dt>
+  <dd><a href="classWt_1_1Dbo_1_1SqlConnection.html#a7ac824e554074898f10cf75b70a4a6b1">SqlConnection::executeSqlStateful()</a> allows to execute SQL that should be re-executed upon automatic reconnect. Automatic reconnect
+  is currently supported for the <a href="classWt_1_1Dbo_1_1backend_1_1Postgres.html">Postgres</a>
+  and <a href="classWt_1_1Dbo_1_1backend_1_1MySQL.html">MySQL</a> backends.</dd>
+  <dt>WTableView: exposed touch events</dt>
+  <dd>
+    We made it possible to define custom behaviour upon touch events on WTableView, by
+    adding the <a href="classWt_1_1WAbstractItemView.html#acd980e6a9eb110400f334e341f8386a4">touchStarted()</a>,
+    <a href="classWt_1_1WAbstractItemView.html#aaf371c95c294c952be0eaac5b3f56af7">touchMoved()</a>, and
+    <a href="classWt_1_1WAbstractItemView.html#a9f3bd68d6d5ca982b2a22bcd100ea271">touchEnded()</a> signals.
+  </dd>
+</dl>
+
 <h2>Release 4.0.2 (November 24, 2017)</h2>
 <p>This is a patch release that fixes a few problems with the build of Wt 4.0.1, and fixes a bug in Wt::Auth.</p>
 
