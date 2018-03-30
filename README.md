@@ -15,6 +15,8 @@ It also contains a C++ ORM, which can be used in a web application
 - libwtdbo, a C++ ORM
 - libwtdbopostgres, PostgreSQL backend
 - libwtdbosqlite3, Sqlite3 backend
+- libwtdbomysql, MySQL and MariaDB backend
+- libwtdbomssqlserver, Microsoft SQL Server backend
 - libwtdbofirebird, Firebird backend
 
 For more information, see [the homepage](http://www.webtoolkit.eu/wt
