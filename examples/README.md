@@ -3,7 +3,7 @@ Running the examples
 
 The examples that come with the library will by default be linked
 against the built-in httpd. In any case, we recommend this way of
-exploring the examples and trying them out, even you'll end up
+exploring the examples and trying them out, even if you'll end up
 deploying using FastCGI or ISAPI.
 
 You typically need the following commands to run an example (`foobar`):
