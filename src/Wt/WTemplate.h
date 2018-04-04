@@ -95,7 +95,7 @@ enum class TemplateWidgetIdMode {
  *
  * <tt>${var arg1="A value" arg2='A second value'}</tt>
  *
- * The arguments can thus be simple simple strings or quoted strings
+ * The arguments can thus be simple strings or quoted strings
  * (single or double quoted). These arguments are applied to a
  * resolved widget in applyArguments() and currently supports only
  * style classes.
