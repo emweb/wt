@@ -231,8 +231,6 @@ void WDialog::create()
     // we use left: 50%, top: 50%, margin hack when JavaScript is not available
     // see below for an IE workaround
     app->styleSheet().addRule("div.Wt-dialog", std::string() +
-			      (app->environment().ajax() ?
-			       "visibility: hidden;" : "") 
 			      //"position: " + position + ';'
 			      + (!app->environment().ajax() ?
 				 "left: 50%; top: 50%;"
@@ -298,7 +296,6 @@ void WDialog::create()
    * to become minimum size instead of (unconstrained) preferred size
    */
   if (app->environment().ajax()) {
-    setAttributeValue("style", "visibility: hidden");
     impl_->setMargin(0);
 
     /*
