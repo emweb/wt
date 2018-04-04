@@ -82,12 +82,6 @@ public:
    *
    * The initial model is \c 0.
    *
-   * \if cpp
-   * Ownership of the model is not transferred (and thus the
-   * previously set model is not deleted). A model may not be deleted as
-   * long as a view exists for it.
-   * \endif
-   *
    * \sa setRootIndex()
    */
   virtual void setModel(const std::shared_ptr<WAbstractItemModel>& model);
