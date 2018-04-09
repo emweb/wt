@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+  <plist version="1.0">
+  <dict>
+  	<key>Label</key>
+  	<string>leaflet_dc311</string>
+  	<key>ProgramArguments</key>
+  	<array>
+  	<string>/Volumes/Home/wt.leaflet/wt-4.0.1/build/examples/leaflet_test/leaflet_test.wt</string>
+  	<string>--http-address=0.0.0.0 --http-port=9081 --docroot=. -t 2 -d /Volumes/Home/wt.leaflet/wt-4.0.1/examples/leaflet_test/dc_311-2016.csv.s0311.csv -g /Volumes/Home/wt.leaflet/wt-4.0.1/examples/leaflet_test/ward-2012.geojson</string>
+  	</array>
+  	<key>RunAtLoad</key>
+  	<true/>
+        <key>KeepAlive</key>
+        <true/> 
+  </dict> 
+  </plist>

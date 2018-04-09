@@ -8,6 +8,8 @@
 #include <Wt/WPushButton>
 #include <Wt/WStringListModel>
 #include <Wt/WTemplate>
+#include "leaflet_test.hh"
+#include "gason.h"
 #include "leaflet/WLeaflet.hh"
 #include "leaflet/csv.hh"
 #include "leaflet/geojson.hh"
@@ -57,112 +59,26 @@ star_dataset_t find_dataset(std::string name);
 //schools
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//-t 6
-//-d ../../../examples/leaflet_test/montgomery_county_schools.csv
-//-g ../../../examples/leaflet_test/board_education_districts.json 
+//-t 6 -d ../../../examples/leaflet_test/montgomery_county_schools.csv -g ../../../examples/leaflet_test/montgomery_county_boundary.json 
+//-m ../../../examples/leaflet_test/wmata_stations.json 
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//rgb_t
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class rgb_t
-{
-public:
-  rgb_t(unsigned char r, unsigned char g, unsigned char b) :
-    red(r),
-    green(g),
-    blue(b)
-  {
-  }
-  unsigned char red;
-  unsigned char green;
-  unsigned char blue;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////
-//dc311_data_t
-///////////////////////////////////////////////////////////////////////////////////////
-
-class dc311_data_t
-{
-public:
-  dc311_data_t(const std::string &date_,
-    const std::string &lat_,
-    const std::string &lon_,
-    const std::string &zip_) :
-    date(date_),
-    lat(lat_),
-    lon(lon_),
-    zip(zip_)
-  {
-  };
-  std::string date;
-  std::string lat;
-  std::string lon;
-  std::string zip;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////
-//ep_data_t
-///////////////////////////////////////////////////////////////////////////////////////
-
-class ep_data_t
-{
-public:
-  ep_data_t(std::string state_, size_t ep_) :
-    state(state_),
-    ep(ep_)
-  {
-  };
-  std::string state;
-  size_t ep;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////
-//us_state_pop_t
-///////////////////////////////////////////////////////////////////////////////////////
-
-class us_state_pop_t
-{
-public:
-  us_state_pop_t(std::string state_, size_t population_) :
-    state(state_),
-    population(population_)
-  {
-  };
-  std::string state;
-  size_t population;
-};
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-//school_t
-///////////////////////////////////////////////////////////////////////////////////////
-
-class school_t
-{
-public:
-  school_t(std::string name_, std::string lat_, std::string lon_, int rating_) :
-    name(name_),
-    lat(lat_),
-    lon(lon_),
-    rating(rating_)
-  {
-  };
-  std::string name;
-  std::string lat;
-  std::string lon;
-  int rating;
-};
+std::vector<school_t> schools_list;
+std::vector<double> lat_montgomery;
+std::vector<double> lon_montgomery;
+std::vector<double> lat_wmata;
+std::vector<double> lon_wmata;
+std::string file_wmata_stations;
+std::vector<wmata_station_t> wmata_station;
+int read_schools(const std::string &file_name);
+int read_json_montgomery_county(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon);
+int read_json_wmata(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //forward declarations
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int read_dc311(std::string file_name);
+int read_dc311(const std::string &file_name);
 int read_ep_pop(const std::string &file_name_ep, const std::string &file_name_pop);
-int read_schools(const std::string &file_name);
 size_t find_ep(std::string state_name);
 size_t find_population(std::string state_name);
 std::string to_hex(int n);
@@ -178,7 +94,6 @@ geojson_t geojson;
 std::vector<dc311_data_t> dc311_data;
 std::vector<ep_data_t> ep_data;
 std::vector<us_state_pop_t> us_state_pop;
-std::vector<school_t> schools_list;
 std::vector<std::string> ward_color =
 { rgb_to_hex(128, 128, 0), //olive
 rgb_to_hex(255, 255, 0), //yellow 
@@ -582,7 +497,7 @@ public:
   {
     setTitle("geojson");
     std::unique_ptr<WLeaflet> leaflet =
-      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 39.0443047898, -77.1731281364, 12);
+      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 39.0443047898, -77.1731281364, 11);
 
     marker_icon_t marker_green(
       "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
@@ -601,25 +516,58 @@ public:
       icon_size_t(41, 41));
 
     ///////////////////////////////////////////////////////////////////////////////////////
+    //render boundary
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    assert(lat_montgomery.size() == lon_montgomery.size());
+    std::string color = rgb_to_hex(128, 128, 0);
+    leaflet->Polygon(lat_montgomery, lon_montgomery, color);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render WMATA stations
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    std::string  color_red = rgb_to_hex(255, 0, 0);
+    std::string  color_green = rgb_to_hex(0, 255, 0);
+    std::string  color_blue = rgb_to_hex(0, 0, 255);
+    std::string  color_orange = rgb_to_hex(255, 165, 0);
+    std::string  color_yellow = rgb_to_hex(255, 255, 0);
+    std::string  color_silver = rgb_to_hex(211, 211, 211);
+
+    size_t size_stations = wmata_station.size();
+    for (size_t idx = 0; idx < size_stations; idx++)
+    {
+      leaflet->Circle(wmata_station.at(idx).lat, wmata_station.at(idx).lon, color_red);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
     //render schools
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    size_t size = schools_list.size();
-    for (size_t idx = 0; idx < size; idx++)
+    size_t size_schools = schools_list.size();
+    for (size_t idx = 0; idx < size_schools; idx++)
     {
       school_t data = schools_list.at(idx);
 
-      if (data.rating < 5)
+      std::string text(data.name);
+      text += " ";
+      text += std::to_string(data.rating);
+
+      if (data.rating <= 4) //3, 4
       {
-        leaflet->Marker(data.lat, data.lon, data.name, marker_red);
+        leaflet->Marker(data.lat, data.lon, text, marker_red);
       }
-      else if (data.rating < 8)
+      else if (data.rating <= 6) // 5, 6
       {
-        leaflet->Marker(data.lat, data.lon, data.name);
+        leaflet->Marker(data.lat, data.lon, text);
       }
-      else if (data.rating < 11)
+      else if (data.rating <= 10) // 7, 8, 9, 10
       {
-        leaflet->Marker(data.lat, data.lon, data.name, marker_green);
+        leaflet->Marker(data.lat, data.lon, text, marker_green);
+      }
+      else
+      {
+        assert(0);
       }
     }
 
@@ -708,6 +656,10 @@ int main(int argc, char **argv)
         break;
       case 'g':
         geojson_file = argv[i + 1];
+        i++;
+        break;
+      case 'm':
+        file_wmata_stations = argv[i + 1];
         i++;
         break;
       }
@@ -809,7 +761,16 @@ int main(int argc, char **argv)
     std::cout << geojson_file << std::endl;
     if (read_schools(data_file) < 0)
     {
-      exit(0);
+      assert(0);
+    }
+    if (read_json_montgomery_county(geojson_file.c_str(), lat_montgomery, lon_montgomery) < 0)
+    {
+      assert(0);
+    }
+
+    if (read_json_wmata(file_wmata_stations, lat_wmata, lon_wmata) < 0)
+    {
+      assert(0);
     }
 
   }
@@ -830,7 +791,7 @@ int main(int argc, char **argv)
 //read_dc311
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int read_dc311(std::string file_name)
+int read_dc311(const std::string &file_name)
 {
   read_csv_t csv;
 
@@ -1064,5 +1025,198 @@ int read_schools(const std::string &file_name)
   std::cout << "\n";
   std::cout << "Read " << rows << " rows" << "\n";
   csv.m_ifs.close();
+  return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//read_json_montgomery_county
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int read_json_montgomery_county(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon)
+{
+  char *buf = 0;
+  size_t length;
+  FILE *f;
+  std::string polygon_data;
+
+  std::cout << file_name << std::endl;
+  f = fopen(file_name.c_str(), "rb");
+  if (!f)
+  {
+    std::cout << "cannot open " << file_name << std::endl;
+    assert(0);
+    return -1;
+  }
+
+  fseek(f, 0, SEEK_END);
+  length = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  buf = (char*)malloc(length);
+  if (buf)
+  {
+    fread(buf, 1, length, f);
+  }
+  fclose(f);
+
+  char *endptr;
+  JsonValue value;
+  JsonAllocator allocator;
+  int rc = jsonParse(buf, &endptr, &value, allocator);
+  if (rc != JSON_OK)
+  {
+    std::cout << "invalid JSON format for " << buf << std::endl;
+    return -1;
+  }
+
+  size_t arr_size = 0; //size of array
+  for (JsonNode *node_root = value.toNode(); node_root != nullptr; node_root = node_root->next)
+  {
+    std::cout << node_root->key << std::endl;
+    if (std::string(node_root->key).compare("data") == 0)
+    {
+      assert(node_root->value.getTag() == JSON_ARRAY);
+      JsonValue value_data = node_root->value;
+      for (JsonNode *node_data = value_data.toNode(); node_data != nullptr; node_data = node_data->next)
+      {
+        JsonValue value_arr = node_data->value;
+        for (JsonNode *node_arr = value_arr.toNode(); node_arr != nullptr; node_arr = node_arr->next)
+        {
+          //"MULTIPOLYGON" string at index 8
+          if (arr_size == 8)
+          {
+            assert(node_arr->value.getTag() == JSON_STRING);
+            polygon_data = node_arr->value.toString();
+          }
+          arr_size++;
+        }
+
+
+      }//node_data
+    }//"data"
+  }//node_root
+
+  size_t start = polygon_data.find("(((");
+  size_t end = polygon_data.find(")))");
+  start += 3;
+  end += 3;
+  size_t len = end - start + 1;
+  std::string str = polygon_data.substr(start, len);
+  size_t pos_comma = 0;
+  while (true)
+  {
+    start = pos_comma;
+    pos_comma = str.find(",", pos_comma);
+    size_t len_lat_lon = pos_comma - start; //skip ","
+    if (pos_comma == std::string::npos)
+    {
+      break;
+    }
+    std::string lat_lon = str.substr(start, len_lat_lon);
+    size_t pos_space = lat_lon.find(" ");
+    std::string str_lon = lat_lon.substr(0, pos_space);
+    std::string str_lat = lat_lon.substr(pos_space + 1);
+    double dlat = std::stod(str_lat);
+    double dlon = std::stod(str_lon);
+    lat.push_back(dlat);
+    lon.push_back(dlon);
+    pos_comma += 2; //skip ", " comma and space
+  }
+
+  free(buf);
+  return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//read_json_wmata
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int read_json_wmata(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon)
+{
+  char *buf = 0;
+  size_t length;
+  FILE *f;
+
+  std::cout << file_name << std::endl;
+  f = fopen(file_name.c_str(), "rb");
+  if (!f)
+  {
+    std::cout << "cannot open " << file_name << std::endl;
+    assert(0);
+    return -1;
+  }
+
+  fseek(f, 0, SEEK_END);
+  length = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  buf = (char*)malloc(length);
+  if (buf)
+  {
+    fread(buf, 1, length, f);
+  }
+  fclose(f);
+
+  char *endptr;
+  JsonValue value;
+  JsonAllocator allocator;
+  int rc = jsonParse(buf, &endptr, &value, allocator);
+  if (rc != JSON_OK)
+  {
+    std::cout << "invalid JSON format for " << buf << std::endl;
+    return -1;
+  }
+
+  size_t arr_size = 0; //size of array
+  for (JsonNode *node_root = value.toNode(); node_root != nullptr; node_root = node_root->next)
+  {
+    std::cout << node_root->key << std::endl;
+    if (std::string(node_root->key).compare("Stations") == 0)
+    {
+      JsonValue value_stations = node_root->value;
+      assert(value_stations.getTag() == JSON_ARRAY);
+      for (JsonNode *node_arr = value_stations.toNode(); node_arr != nullptr; node_arr = node_arr->next)
+      {
+        arr_size++;
+        JsonValue value_obj_station = node_arr->value;
+        assert(value_obj_station.getTag() == JSON_OBJECT);
+
+        double lat;
+        double lon;
+        std::string name;
+        std::string line_code;
+
+        for (JsonNode *node_obj = value_obj_station.toNode(); node_obj != nullptr; node_obj = node_obj->next)
+        {
+          if (std::string(node_obj->key).compare("Lat") == 0)
+          {
+            assert(node_obj->value.getTag() == JSON_NUMBER);
+            lat = node_obj->value.toNumber();
+          }
+          else if (std::string(node_obj->key).compare("Lon") == 0)
+          {
+            assert(node_obj->value.getTag() == JSON_NUMBER);
+            lon = node_obj->value.toNumber();
+          }
+          else if (std::string(node_obj->key).compare("LineCode1") == 0)
+          {
+            assert(node_obj->value.getTag() == JSON_STRING);
+            line_code = node_obj->value.toString();
+          }
+          else if (std::string(node_obj->key).compare("Name") == 0)
+          {
+            assert(node_obj->value.getTag() == JSON_STRING);
+            name = node_obj->value.toString();
+            std::cout << name << " ";
+          }
+        } //node_obj
+
+        wmata_station_t station(std::to_string(lat), std::to_string(lon), name, line_code);
+        wmata_station.push_back(station);
+
+      } //node_arr
+    } //"Stations"
+  } //node_root
+  std::cout << "\n";
+
+  free(buf);
   return 0;
 }
