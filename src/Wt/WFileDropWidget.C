@@ -394,7 +394,16 @@ void WFileDropWidget::updateDom(DomElement& element, bool all)
 }
 
 std::string WFileDropWidget::renderRemoveJs(bool recursive) {
-  return jsRef() + ".destructor();";
+  if (isRendered()) {
+    std::string result = jsRef() + ".destructor();";
+
+    if (!recursive)
+	result += WT_CLASS ".remove('" + id() + "');";
+
+    return result;
+  } else {
+    return WContainerWidget::renderRemoveJs(recursive);
+  }
 }
 
 void WFileDropWidget::setHoverStyleClass(const std::string& className)

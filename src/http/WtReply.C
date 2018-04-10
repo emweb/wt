@@ -220,6 +220,10 @@ void WtReply::consumeRequestBody(const char *begin,
         }
 
 	in_->seekg(0); // rewind
+#ifdef  __OpenBSD__
+        // openbsd sets error flag after calling seekg(0) on file stream
+        in_->clear()
+#endif
 
 	// Note: this is being posted because we want to release the strand
 	// we currently hold; we need to do that because otherwise the strand
