@@ -122,7 +122,7 @@ private:
 	WApplication::instance()->pushExposedConstraint(this);
       }
 	
-      dialog->doJavaScript("setTimeout(function() {"
+      dialog->doJSAfterLoad("setTimeout(function() {"
        + WApplication::instance()->javaScriptClass() 
        + "._p_.updateGlobal('" + dialog->layoutContainer_->id() + "') }"
        ", 0);"
@@ -413,6 +413,11 @@ void WDialog::render(WFlags<RenderFlag> flags)
 			  : "null")
 		 + ");");
 
+    for (std::size_t i = 0; i < delayedJs_.size(); ++i) {
+      doJavaScript(delayedJs_[i]);
+    }
+    delayedJs_.clear();
+
     /*
      * When a dialog is shown immediately for a new session, the recentering
      * logic comes too late and causes a glitch. Thus we include directly in
@@ -628,7 +633,7 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
 	c->pushDialog(this, animation);
     
       if (modal_) {
-	doJavaScript
+        doJSAfterLoad
 	  ("try {"
 	   """var ae=document.activeElement;"
 	   // On IE when a dialog is shown on startup, activeElement is the
@@ -690,7 +695,7 @@ void WDialog::bringToFront(const WMouseEvent &e)
 
 void WDialog::raiseToFront()
 {
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').bringToFront()");
+  doJSAfterLoad("jQuery.data(" + jsRef() + ", 'obj').bringToFront()");
   DialogCover *c = cover();
   c->bringToFront(this);  
 }
@@ -733,6 +738,14 @@ EventSignal<WTouchEvent>& WDialog::touchEnded()
 EventSignal<WTouchEvent>& WDialog::touchMoved()
 {
   return layoutContainer_->touchMoved();
+}
+
+void WDialog::doJSAfterLoad(std::string js)
+{
+  if (isRendered())
+    doJavaScript(js);
+  else
+    delayedJs_.push_back(js);
 }
 
 }
