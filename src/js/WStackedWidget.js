@@ -143,7 +143,10 @@ WT_DECLARE_WT_MEMBER
 	    c.style.display = 'none';
 	  }
 	} else {
-	  c.style.display = '';
+          if (c.style.flexFlow)
+            c.style.display = 'flex';
+          else
+	    c.style.display = '';
 
 	  if (widget.lh) {
 	    widget.lh = false;
