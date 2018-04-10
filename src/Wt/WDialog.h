@@ -449,6 +449,7 @@ private:
   mutable WContainerWidget *footer_;
   bool modal_, resizable_, movable_, escapeIsReject_, autoFocus_;
   JSignal<int,int> moved_, resized_;
+  std::vector<std::string> delayedJs_;
 
   Signal<DialogCode> finished_;
   DialogCode result_;
@@ -461,6 +462,8 @@ private:
   void onEscapePressed();
   void onDefaultPressed();
   void bringToFront(const WMouseEvent &e);
+
+  void doJSAfterLoad(std::string js);
 
   DialogCover *cover();
 
