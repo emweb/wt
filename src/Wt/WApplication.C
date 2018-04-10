@@ -374,6 +374,13 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
+  // First remove all children owned by this WApplication (issue #6282)
+  for (WContainerWidget *domRoot : {domRoot_.get(), domRoot2_.get()}) {
+    if (domRoot)
+      for (WWidget *child : domRoot->children())
+        removeChild(child);
+  }
+
   /* Clear domRoot */
   domRoot_.reset();
 
