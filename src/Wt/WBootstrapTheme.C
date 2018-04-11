@@ -413,6 +413,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
         element.addPropertyWord(Property::Class, "Wt-dateedit");
         return;
       }
+
       WTimeEdit *timeEdit = dynamic_cast<WTimeEdit *>(widget);
       if (timeEdit) {
         element.addPropertyWord(Property::Class, "Wt-timeedit");

@@ -22,6 +22,7 @@
 #include "Wt/WPushButton.h"
 #include "Wt/WSuggestionPopup.h"
 #include "Wt/WTabWidget.h"
+#include "Wt/WTimeEdit.h"
 
 #include "DomElement.h"
 
@@ -241,6 +242,12 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
       if (dateEdit) {
 	element.addPropertyWord(Property::Class, "Wt-dateedit");
 	return;
+      }
+
+      WTimeEdit *timeEdit = dynamic_cast<WTimeEdit *>(widget);
+      if (timeEdit) {
+        element.addPropertyWord(Property::Class, "Wt-timeedit");
+        return;
       }
     }
     break;

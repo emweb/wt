@@ -44,7 +44,7 @@ WDatePicker::~WDatePicker()
 void WDatePicker::createDefault(WLineEdit *forEdit)
 {
   std::unique_ptr<WImage> icon
-    (new WImage(WApplication::relativeResourcesUrl() + "calendar_edit.png"));
+    (new WImage(WApplication::relativeResourcesUrl() + "date.gif"));
   icon->resize(16, 16);
   icon->setVerticalAlignment(AlignmentFlag::Middle);
 
