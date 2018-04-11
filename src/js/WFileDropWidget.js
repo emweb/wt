@@ -13,12 +13,14 @@ WT_DECLARE_WT_MEMBER
    jQuery.data(dropwidget, 'lobj', this);
    
    var self = this, WT = APP.WT;
-   var hoverClassName = 'Wt-filedropzone-hover';
+   var hoverClassName = 'Wt-dropzone-hover';
+   var indicationClassName = 'Wt-dropzone-indication';
+   var dragClassName = 'Wt-dropzone-dragstyle';
 
    var uploads = [];
    var sending = false;
    var acceptDrops = true;
-   var bodyAware = false;
+   var dropIndication = false;
    var bodyDropForward = false;
 
    var dragState = 0;
@@ -58,8 +60,8 @@ WT_DECLARE_WT_MEMBER
      acceptDrops = enable
    };
 
-   dropwidget.setBodyAware = function(enable) {
-     bodyAware = enable;
+   dropwidget.setDropIndication = function(enable) {
+     dropIndication = enable;
    };
    
    dropwidget.setDropForward = function(enable) {
@@ -70,8 +72,11 @@ WT_DECLARE_WT_MEMBER
      if (!acceptDrops)
        return;
      else if (self.eventContainsFile(e)) {
+       if (dragState === 0)
+	 self.setPageHoverStyle();
+       
        dragState = 2;
-       self.setHoverStyle(true);
+       self.setWidgetHoverStyle(true);
      }
      e.stopPropagation();
    };
@@ -79,14 +84,16 @@ WT_DECLARE_WT_MEMBER
    dropwidget.ondragleave = function(e) {
      var x = e.clientX, y = e.clientY;
      var el = document.elementFromPoint(x, y);
+     if (x===0 && y===0) // chrome issue
+       el = null;
+     
      if (el === dropcover) {
+       self.setWidgetHoverStyle(false);
        dragState = 1;
        return;
      }
      
-     if (!acceptDrops)
-       return;
-     self.setHoverStyle(false);
+     self.resetDragDrop();
    };
 
    dropwidget.ondragover = function(e) {
@@ -94,11 +101,12 @@ WT_DECLARE_WT_MEMBER
    };
 
    bodyDragEnter = function(e) {
-     if (!bodyAware || !$(dropwidget).is(":visible"))
+     if (!(dropIndication || bodyDropForward)
+	 || !$(dropwidget).is(":visible"))
        return;
      
      dragState = 1;
-     self.setHoverStyle(true);
+     self.setPageHoverStyle();
    };
    document.body.addEventListener("dragenter", bodyDragEnter);
 
@@ -109,14 +117,14 @@ WT_DECLARE_WT_MEMBER
    dropcover.ondragleave = function(e) {
      if (!acceptDrops || dragState != 1)
       return;
-     self.setHoverStyle(false);
+     self.resetDragDrop();
    };
    dropcover.ondrop = function(e) {
      e.preventDefault();
      if (bodyDropForward)
        dropwidget.ondrop(e);
      else
-       self.setHoverStyle(false);
+       self.resetDragDrop();
    }   
 
    dropwidget.ondrop = function(e) {
@@ -124,7 +132,7 @@ WT_DECLARE_WT_MEMBER
      if (!acceptDrops)
        return;
      
-     self.setHoverStyle(false);
+     self.resetDragDrop();
      if (window.FormData === undefined ||
 	 e.dataTransfer.files == null ||
 	 e.dataTransfer.files.length == 0)
@@ -256,23 +264,32 @@ WT_DECLARE_WT_MEMBER
 
      self.addFiles(this.files);
    };
-   
-   
-   this.setHoverStyle = function(enable) {
+
+   this.setPageHoverStyle = function() {
+     if (dropIndication || bodyDropForward) {
+       $(dropcover).addClass(dragClassName);
+       $(dropwidget).addClass(dragClassName);
+       
+       if (dropIndication)
+	 $(dropwidget).addClass(indicationClassName);
+     }
+   };
+
+   this.setWidgetHoverStyle = function(enable) {
      if (enable) {
        $(dropwidget).addClass(hoverClassName);
-       if (bodyAware) {
-	 $(dropwidget).addClass("drag-style");
-	 $(dropcover).addClass("drag-style");
-       }
      } else {
        $(dropwidget).removeClass(hoverClassName);
-       if (bodyAware) {
-	 $(dropwidget).removeClass("drag-style");
-	 $(dropcover).removeClass("drag-style");
-       }
-       dragState = 0;
      }
+   };
+
+   this.resetDragDrop = function() {
+     $(dropwidget).removeClass(indicationClassName);
+     $(dropwidget).removeClass(dragClassName);
+     $(dropcover).removeClass(dragClassName);
+     self.setWidgetHoverStyle(false);
+     
+     dragState = 0;
    };
 
    dropwidget.configureHoverClass = function(className) {
