@@ -359,7 +359,7 @@ public:
    *
    * The default token hash function is an MD5HashFunction.
    */
-  void setTokenHashFunction(HashFunction *function);
+  void setTokenHashFunction(std::unique_ptr<HashFunction> function);
 
   /*! \brief Returns the token hash function.
    *
@@ -576,7 +576,7 @@ private:
   IdentityPolicy identityPolicy_;
   int minimumLoginNameLength_;
 
-  HashFunction *tokenHashFunction_;
+  std::unique_ptr<HashFunction> tokenHashFunction_;
   int tokenLength_;
 
   bool emailVerification_;

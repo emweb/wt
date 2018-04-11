@@ -134,9 +134,7 @@ AuthService::AuthService()
 }
 
 AuthService::~AuthService()
-{
-  delete tokenHashFunction_;
-}
+{ }
 
 void AuthService::setEmailVerificationEnabled(bool enabled)
 {
@@ -216,15 +214,14 @@ User AuthService::identifyUser(const Identity& identity,
   return User();
 }
 
-void AuthService::setTokenHashFunction(HashFunction *function)
+void AuthService::setTokenHashFunction(std::unique_ptr<HashFunction> function)
 {
-  delete tokenHashFunction_;
-  tokenHashFunction_ = function;
+  tokenHashFunction_ = std::move(function);
 }
 
 HashFunction *AuthService::tokenHashFunction() const
 {
-  return tokenHashFunction_;
+  return tokenHashFunction_.get();
 }
 
 std::string AuthService::createAuthToken(const User& user) const
