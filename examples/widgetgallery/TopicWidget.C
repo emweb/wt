@@ -55,13 +55,13 @@ std::string TopicWidget::docAnchor(const std::string &classname) const
   std::stringstream ss;
 
 #if !defined(WT_TARGET_JAVA)
-  ss << "<a href=\"http://www.webtoolkit.eu/wt/doc/reference/html/class"
+  ss << "<a href=\"https://www.webtoolkit.eu/wt/doc/reference/html/class"
      << escape("Wt::" + classname)
      << ".html\" target=\"_blank\">doc</a>";
 #else
   std::string cn = classname;
   cn = boost::replace_all(cn, "Chart::","chart/");
-  ss << "<a href=\"http://www.webtoolkit.eu/"
+  ss << "<a href=\"https://www.webtoolkit.eu/"
      << "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/"
      << cn
      << ".html\" target=\"_blank\">doc</a>";

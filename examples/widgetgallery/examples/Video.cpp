@@ -7,8 +7,8 @@
 SAMPLE_BEGIN(Video)
 
 // Define media source locations
-std::string mp4Video = "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
-std::string ogvVideo = "http://www.webtoolkit.eu/videos/sintel_trailer.ogv";
+std::string mp4Video = "https://www.webtoolkit.eu/videos/sintel_trailer.mp4";
+std::string ogvVideo = "https://www.webtoolkit.eu/videos/sintel_trailer.ogv";
 
 // Define poster image location
 std::string poster = "pics/sintel_trailer.jpg";

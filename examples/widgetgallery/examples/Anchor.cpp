@@ -5,7 +5,7 @@
 SAMPLE_BEGIN(Anchor)
 
 // Create an anchor that links to a URL through clickable text.
-Wt::WLink link = Wt::WLink("http://www.webtoolkit.eu/");
+Wt::WLink link = Wt::WLink("https://www.webtoolkit.eu/");
 link.setTarget(Wt::LinkTarget::NewWindow);
 
 std::unique_ptr<Wt::WAnchor> anchor =

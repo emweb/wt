@@ -15,7 +15,7 @@ auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 Wt::WNavigationBar *navigation =
     container->addWidget(Wt::cpp14::make_unique<Wt::WNavigationBar>());
 navigation->setTitle("Corpy Inc.",
-		     "http://www.google.com/search?q=corpy+inc");
+		     "https://www.google.com/search?q=corpy+inc");
 navigation->setResponsive(true);
 
 Wt::WStackedWidget *contentsStack =
