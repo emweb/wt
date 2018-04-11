@@ -5,8 +5,8 @@
 
 SAMPLE_BEGIN(MediaPlayerVideo)
 // Define media source locations
-std::string mp4Video = "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
-std::string ogvVideo = "http://www.webtoolkit.eu/videos/sintel_trailer.ogv";
+std::string mp4Video = "https://www.webtoolkit.eu/videos/sintel_trailer.mp4";
+std::string ogvVideo = "https://www.webtoolkit.eu/videos/sintel_trailer.ogv";
 
 // Define poster image location
 std::string poster = "pics/sintel_trailer.jpg";
@@ -18,7 +18,7 @@ Wt::WMediaPlayer *player =
 player->addSource(Wt::WMediaPlayer::M4V, Wt::WLink(mp4Video));
 player->addSource(Wt::WMediaPlayer::OGV, Wt::WLink(ogvVideo));
 player->addSource(Wt::WMediaPlayer::PosterImage, Wt::WLink(poster));
-player->setTitle("<a href=\"http://durian.blender.org/\""
+player->setTitle("<a href=\"https://durian.blender.org/\""
 		 "target=\"_blank\">Sintel</a>, (c) copyright Blender Foundation");
 
 Wt::WText *out = new Wt::WText(container);

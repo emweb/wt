@@ -9,7 +9,7 @@ std::string poster = "pics/sintel_trailer.jpg";
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WFlashObject *flash =
-    new Wt::WFlashObject("http://www.youtube.com/v/HOfdboHvshg", container);
+    new Wt::WFlashObject("https://www.youtube.com/v/HOfdboHvshg", container);
 flash->setFlashParameter("allowFullScreen", "true");
 flash->setAlternativeContent(new Wt::WImage(poster));
 flash->resize(640, 360);

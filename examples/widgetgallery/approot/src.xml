@@ -7,7 +7,7 @@
 
 <span class="c1">// Create an anchor that links to a URL through clickable text.</span>
 <span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span> <span class="o">*</span><span class="n">anchor</span> <span class="o">=</span>
-        <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;http://www.webtoolkit.eu/&quot;</span><span class="p">),</span>
+        <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;https://www.webtoolkit.eu/&quot;</span><span class="p">),</span>
                         <span class="s">&quot;Wt homepage (in a new window)&quot;</span><span class="p">);</span>
 <span class="n">anchor</span><span class="o">-&gt;</span><span class="n">setTarget</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">TargetNewWindow</span><span class="p">);</span>
 </pre></div>
@@ -19,9 +19,9 @@
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WLink&gt;</span><span class="cp"></span>
 
 <span class="c1">// Create an anchor that links to a URL through an image.</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span> <span class="o">*</span><span class="n">anchor</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;http://www.emweb.be/&quot;</span><span class="p">));</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span> <span class="o">*</span><span class="n">anchor</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;https://www.emweb.be/&quot;</span><span class="p">));</span>
 <span class="n">anchor</span><span class="o">-&gt;</span><span class="n">setTarget</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">TargetNewWindow</span><span class="p">);</span>
-<span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;pics/emweb_small.jpg&quot;</span><span class="p">),</span> <span class="n">anchor</span><span class="p">);</span>
+<span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;https://www.emweb.be/css/emweb_small.png&quot;</span><span class="p">),</span> <span class="n">anchor</span><span class="p">);</span>
 </pre></div>
   </message>
   <message id="src-Audio">
@@ -32,9 +32,9 @@
 
 <span class="c1">// Define media source locations.</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mp3Audio</span> <span class="o">=</span>
-            <span class="s">&quot;http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3&quot;</span><span class="p">;</span>
+            <span class="s">&quot;https://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3&quot;</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">oggAudio</span> <span class="o">=</span>
-            <span class="s">&quot;http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg&quot;</span><span class="p">;</span>
+            <span class="s">&quot;https://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg&quot;</span><span class="p">;</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
 
@@ -1287,7 +1287,7 @@
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WFlashObject</span> <span class="o">*</span><span class="n">flash</span> <span class="o">=</span>
-    <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFlashObject</span><span class="p">(</span><span class="s">&quot;http://www.youtube.com/v/HOfdboHvshg&quot;</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+    <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFlashObject</span><span class="p">(</span><span class="s">&quot;https://www.youtube.com/v/HOfdboHvshg&quot;</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setFlashParameter</span><span class="p">(</span><span class="s">&quot;allowFullScreen&quot;</span><span class="p">,</span> <span class="s">&quot;true&quot;</span><span class="p">);</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setAlternativeContent</span><span class="p">(</span><span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="p">(</span><span class="n">poster</span><span class="p">));</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">360</span><span class="p">);</span>
@@ -2099,7 +2099,7 @@
 	<span class="n">map_</span><span class="o">-&gt;</span><span class="n">setCenter</span><span class="p">(</span><span class="n">road</span><span class="p">[</span><span class="n">road</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
 
 	<span class="n">map_</span><span class="o">-&gt;</span><span class="n">openInfoWindow</span><span class="p">(</span><span class="n">road</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-           <span class="s">&quot;&lt;img src=</span><span class="se">\&quot;</span><span class="s">http://www.emweb.be/css/emweb_small.jpg</span><span class="se">\&quot;</span><span class="s"> /&gt;&quot;</span>
+           <span class="s">&quot;&lt;p&gt;&lt;img src=</span><span class="se">\&quot;</span><span class="s">https://www.emweb.be/css/emweb_small.png</span><span class="se">\&quot;</span><span class="s"> /&gt;&lt;/p&gt;&quot;</span>
            <span class="s">&quot;&lt;p&gt;&lt;strong&gt;Emweb office&lt;/strong&gt;&lt;/p&gt;&quot;</span><span class="p">);</span>
 
 	<span class="n">map_</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WGoogleMap</span><span class="o">::</span><span class="n">Coordinate</span> <span class="n">c</span><span class="p">)</span> <span class="p">{</span>
@@ -2518,9 +2518,9 @@
 
 <span class="c1">// Define media source locations.</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mp3Audio</span> <span class="o">=</span>
-    <span class="s">&quot;http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3&quot;</span><span class="p">;</span>
+    <span class="s">&quot;https://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3&quot;</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">oggAudio</span> <span class="o">=</span>
-    <span class="s">&quot;http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg&quot;</span><span class="p">;</span>
+    <span class="s">&quot;https://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg&quot;</span><span class="p">;</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
 
@@ -2556,8 +2556,8 @@
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WText&gt;</span><span class="cp"></span>
 
 <span class="c1">// Define media source locations</span>
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mp4Video</span> <span class="o">=</span> <span class="s">&quot;http://www.webtoolkit.eu/videos/sintel_trailer.mp4&quot;</span><span class="p">;</span>
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ogvVideo</span> <span class="o">=</span> <span class="s">&quot;http://www.webtoolkit.eu/videos/sintel_trailer.ogv&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mp4Video</span> <span class="o">=</span> <span class="s">&quot;https://www.webtoolkit.eu/videos/sintel_trailer.mp4&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ogvVideo</span> <span class="o">=</span> <span class="s">&quot;https://www.webtoolkit.eu/videos/sintel_trailer.ogv&quot;</span><span class="p">;</span>
 
 <span class="c1">// Define poster image location</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">poster</span> <span class="o">=</span> <span class="s">&quot;pics/sintel_trailer.jpg&quot;</span><span class="p">;</span>
@@ -2569,7 +2569,7 @@
 <span class="n">player</span><span class="o">-&gt;</span><span class="n">addSource</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMediaPlayer</span><span class="o">::</span><span class="n">M4V</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">mp4Video</span><span class="p">));</span>
 <span class="n">player</span><span class="o">-&gt;</span><span class="n">addSource</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMediaPlayer</span><span class="o">::</span><span class="n">OGV</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">ogvVideo</span><span class="p">));</span>
 <span class="n">player</span><span class="o">-&gt;</span><span class="n">addSource</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMediaPlayer</span><span class="o">::</span><span class="n">PosterImage</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">poster</span><span class="p">));</span>
-<span class="n">player</span><span class="o">-&gt;</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;&lt;a href=</span><span class="se">\&quot;</span><span class="s">http://durian.blender.org/</span><span class="se">\&quot;</span><span class="s">&quot;</span>
+<span class="n">player</span><span class="o">-&gt;</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;&lt;a href=</span><span class="se">\&quot;</span><span class="s">https://durian.blender.org/</span><span class="se">\&quot;</span><span class="s">&quot;</span>
 		 <span class="s">&quot;target=</span><span class="se">\&quot;</span><span class="s">_blank</span><span class="se">\&quot;</span><span class="s">&gt;Sintel&lt;/a&gt;, (c) copyright Blender Foundation&quot;</span><span class="p">);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span> <span class="o">*</span><span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
@@ -2694,7 +2694,7 @@
 <span class="c1">// Create a navigation bar with a link to a web page.</span>
 <span class="n">Wt</span><span class="o">::</span><span class="n">WNavigationBar</span> <span class="o">*</span><span class="n">navigation</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WNavigationBar</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
 <span class="n">navigation</span><span class="o">-&gt;</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;Corpy Inc.&quot;</span><span class="p">,</span>
-		     <span class="s">&quot;http://www.google.com/search?q=corpy+inc&quot;</span><span class="p">);</span>
+		     <span class="s">&quot;https://www.google.com/search?q=corpy+inc&quot;</span><span class="p">);</span>
 <span class="n">navigation</span><span class="o">-&gt;</span><span class="n">setResponsive</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WStackedWidget</span> <span class="o">*</span><span class="n">contentsStack</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WStackedWidget</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
@@ -6081,8 +6081,8 @@
 
 
 <span class="c1">// Define media source locations</span>
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mp4Video</span> <span class="o">=</span> <span class="s">&quot;http://www.webtoolkit.eu/videos/sintel_trailer.mp4&quot;</span><span class="p">;</span>
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ogvVideo</span> <span class="o">=</span> <span class="s">&quot;http://www.webtoolkit.eu/videos/sintel_trailer.ogv&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mp4Video</span> <span class="o">=</span> <span class="s">&quot;https://www.webtoolkit.eu/videos/sintel_trailer.mp4&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ogvVideo</span> <span class="o">=</span> <span class="s">&quot;https://www.webtoolkit.eu/videos/sintel_trailer.ogv&quot;</span><span class="p">;</span>
 
 <span class="c1">// Define poster image location</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">poster</span> <span class="o">=</span> <span class="s">&quot;pics/sintel_trailer.jpg&quot;</span><span class="p">;</span>
@@ -6126,8 +6126,8 @@
 
 
 <span class="c1">// Define media source locations</span>
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mp4Video</span> <span class="o">=</span> <span class="s">&quot;http://www.webtoolkit.eu/videos/sintel_trailer.mp4&quot;</span><span class="p">;</span>
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ogvVideo</span> <span class="o">=</span> <span class="s">&quot;http://www.webtoolkit.eu/videos/sintel_trailer.ogv&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mp4Video</span> <span class="o">=</span> <span class="s">&quot;https://www.webtoolkit.eu/videos/sintel_trailer.mp4&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ogvVideo</span> <span class="o">=</span> <span class="s">&quot;https://www.webtoolkit.eu/videos/sintel_trailer.ogv&quot;</span><span class="p">;</span>
 
 <span class="c1">// Define poster image location</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">poster</span> <span class="o">=</span> <span class="s">&quot;pics/sintel_trailer.jpg&quot;</span><span class="p">;</span>
@@ -6135,7 +6135,7 @@
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WFlashObject</span> <span class="o">*</span><span class="n">flash</span> <span class="o">=</span>
-    <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFlashObject</span><span class="p">(</span><span class="s">&quot;http://www.webtoolkit.eu/videos/player_flv_maxi.swf&quot;</span><span class="p">);</span>
+    <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFlashObject</span><span class="p">(</span><span class="s">&quot;https://www.webtoolkit.eu/videos/player_flv_maxi.swf&quot;</span><span class="p">);</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setFlashVariable</span><span class="p">(</span><span class="s">&quot;startimage&quot;</span><span class="p">,</span> <span class="s">&quot;pics/sintel_trailer.jpg&quot;</span><span class="p">);</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setFlashParameter</span><span class="p">(</span><span class="s">&quot;allowFullScreen&quot;</span><span class="p">,</span> <span class="s">&quot;true&quot;</span><span class="p">);</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setFlashVariable</span><span class="p">(</span><span class="s">&quot;flv&quot;</span><span class="p">,</span> <span class="n">mp4Video</span><span class="p">);</span>

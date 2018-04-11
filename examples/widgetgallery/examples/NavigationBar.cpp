@@ -13,7 +13,7 @@ Wt::WContainerWidget *container = new Wt::WContainerWidget();
 // Create a navigation bar with a link to a web page.
 Wt::WNavigationBar *navigation = new Wt::WNavigationBar(container);
 navigation->setTitle("Corpy Inc.",
-		     "http://www.google.com/search?q=corpy+inc");
+		     "https://www.google.com/search?q=corpy+inc");
 navigation->setResponsive(true);
 
 Wt::WStackedWidget *contentsStack = new Wt::WStackedWidget(container);

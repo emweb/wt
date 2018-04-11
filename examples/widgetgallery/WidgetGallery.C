@@ -24,7 +24,7 @@ WidgetGallery::WidgetGallery()
   navigation_ = new Wt::WNavigationBar();
   navigation_->addStyleClass("main-nav");
   navigation_->setTitle("Wt Widget Gallery",
-			"http://www.webtoolkit.eu/widgets");
+			"https://www.webtoolkit.eu/widgets");
   navigation_->setResponsive(true);
 
   contentsStack_ = new Wt::WStackedWidget();

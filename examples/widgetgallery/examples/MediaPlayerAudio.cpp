@@ -6,9 +6,9 @@
 SAMPLE_BEGIN(MediaPlayerAudio)
 // Define media source locations.
 std::string mp3Audio =
-    "http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3";
+    "https://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3";
 std::string oggAudio =
-    "http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg";
+    "https://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg";
 
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 

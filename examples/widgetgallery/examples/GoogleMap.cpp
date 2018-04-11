@@ -155,7 +155,7 @@ public:
 	map_->setCenter(road[road.size()-1]);
 
 	map_->openInfoWindow(road[0],
-           "<img src=\"http://www.emweb.be/css/emweb_small.jpg\" />"
+           "<p><img src=\"https://www.emweb.be/css/emweb_small.png\" /></p>"
            "<p><strong>Emweb office</strong></p>");
 
 	map_->clicked().connect(std::bind([=] (Wt::WGoogleMap::Coordinate c) {

@@ -9,8 +9,8 @@
 SAMPLE_BEGIN(VideoFallback)
 
 // Define media source locations
-std::string mp4Video = "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
-std::string ogvVideo = "http://www.webtoolkit.eu/videos/sintel_trailer.ogv";
+std::string mp4Video = "https://www.webtoolkit.eu/videos/sintel_trailer.mp4";
+std::string ogvVideo = "https://www.webtoolkit.eu/videos/sintel_trailer.ogv";
 
 // Define poster image location
 std::string poster = "pics/sintel_trailer.jpg";
@@ -18,7 +18,7 @@ std::string poster = "pics/sintel_trailer.jpg";
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WFlashObject *flash =
-    new Wt::WFlashObject("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
+    new Wt::WFlashObject("https://www.webtoolkit.eu/videos/player_flv_maxi.swf");
 flash->setFlashVariable("startimage", "pics/sintel_trailer.jpg");
 flash->setFlashParameter("allowFullScreen", "true");
 flash->setFlashVariable("flv", mp4Video);
