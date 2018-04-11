@@ -66,6 +66,8 @@ public:
     // WServer::instance()->post(app_->sessionId(),
     // 			    boost::bind(&WFileDropWidget::setUploadedFile,
     // 					parent_, files[0]));
+    
+    response.setMimeType("text/plain"); // else firefox complains
 #ifdef WT_TARGET_JAVA
     lock.release();
 #endif  
@@ -115,7 +117,7 @@ bool WFileDropWidget::File::cancelled() const
 WFileDropWidget::WFileDropWidget()
   : resource_(nullptr),
     currentFileIdx_(0),
-    hoverStyleClass_("Wt-filedropzone-hover"),
+    hoverStyleClass_("Wt-dropzone-hover"),
     acceptDrops_(true),
     acceptAttributes_(""),
     dropIndicationEnabled_(false),
@@ -381,7 +383,7 @@ void WFileDropWidget::updateDom(DomElement& element, bool all)
       doJavaScript(jsRef() + ".setFilters("
 		   + jsStringLiteral(acceptAttributes_) + ");");
     if (updateFlags_.test(BIT_DRAGOPTIONS_CHANGED) || all) {
-      doJavaScript(jsRef() + ".setBodyAware("
+      doJavaScript(jsRef() + ".setDropIndication("
 		   + (dropIndicationEnabled_ ? "true" : "false") + ");");
       doJavaScript(jsRef() + ".setDropForward("
 		   + (globalDropEnabled_ ? "true" : "false") + ");");
@@ -444,8 +446,6 @@ void WFileDropWidget::setDropIndicationEnabled(bool enable) {
     return;
 
   dropIndicationEnabled_ = enable;
-  if (!dropIndicationEnabled_ && globalDropEnabled_)
-    globalDropEnabled_ = false;
 
   updateFlags_.set(BIT_DRAGOPTIONS_CHANGED);
   repaint();
@@ -458,9 +458,6 @@ bool WFileDropWidget::dropIndicationEnabled() const {
 void WFileDropWidget::setGlobalDropEnabled(bool enable) {
   if (enable == globalDropEnabled_)
     return;
-
-  if (!dropIndicationEnabled_ && enable)
-    throw std::exception();
   
   globalDropEnabled_ = enable;
   updateFlags_.set(BIT_DRAGOPTIONS_CHANGED);

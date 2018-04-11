@@ -25,9 +25,8 @@ class WFileDropUploadResource;
  * The file upload is done sequentially. All files before the currentIndex()
  * have either finished, failed or have been cancelled.
  *
- * The widget has the default style-class 'Wt-filedropzone'. An additional 
- * style class is applied when files are hovered over the widget. This can be
- * configured using the method setHoverStyleClass().
+ * The widget has the default style-class 'Wt-filedropzone'. The style-class
+ * 'Wt-dropzone-hover' is added when files are hovered over the widget.
  */
 class WT_API WFileDropWidget : public WContainerWidget {
 public:
@@ -145,6 +144,8 @@ public:
   
   /*! \brief Set the style class that is applied when a file is hovered over 
    * the widget.
+   *
+   * \deprecated Override the css rule '.Wt-filedropzone.Wt-dropzone-hover' instead.
    */
   void setHoverStyleClass(const std::string& className);
 
@@ -160,10 +161,11 @@ public:
 
   /*! \brief Highlight widget if a file is dragged anywhere on the page
    *
-   * As soon as a drag enters anywhere on the page the hover-styleclass is
-   * applied, which can be useful to point the user to the correct place to
-   * drop the file. If not enabled, the style will only be applied when the
-   * file is dragged over the widget.
+   * As soon as a drag enters anywhere on the page the styleclass
+   * 'Wt-dropzone-indication' is added to this widget. This can be useful to
+   * point the user to the correct place to drop the file. Once the user drags
+   * a file over the widget itself, the styleclass 'hover-style' is also
+   * added.
    * This can be enabled for multiple dropwidgets if only one of them is
    * visible at the same time.
    *
@@ -179,8 +181,7 @@ public:
 
   /*! \brief Allow dropping the files anywhere on the page
    *
-   * This only works if setDropIndicationEnabled() is enabled. If enabled,
-   * a drop anywhere on the page will be forwarded to this widget.
+   * If enabled, a drop anywhere on the page will be forwarded to this widget.
    * 
    * \sa setDropIndicationEnabled()
    */

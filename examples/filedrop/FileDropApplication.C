@@ -31,7 +31,7 @@ FileDropApplication::FileDropApplication(const Wt::WEnvironment& env)
   drop_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WFileDropWidget>());
 
   drop_->setDropIndicationEnabled(true);
-  // drop_->setGlobalDropEnabled(true);
+  drop_->setGlobalDropEnabled(true);
 
   drop_->drop().connect(this, &FileDropApplication::handleDrop);
   drop_->newUpload().connect(this,&FileDropApplication::updateProgressListener);

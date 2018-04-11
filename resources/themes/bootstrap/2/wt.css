@@ -1022,10 +1022,10 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
   border: thick dashed grey;
   background-color: lightgrey;
 }
-.Wt-filedropzone-hover {
+.Wt-filedropzone.Wt-dropzone-hover {
   border-color: green;
 }
-.Wt-filedropzone-hover * {
+.Wt-filedropzone.Wt-dropzone-hover * {
   pointer-events: none;
 }
 
@@ -1033,9 +1033,13 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
     display: none !important;
 }
 
-.Wt-filedropzone.drag-style {
+.Wt-filedropzone.Wt-dropzone-dragstyle {
     position: relative;
-    z-index: 2001;
+    z-index: 20001;
+}
+
+.Wt-filedropzone.Wt-dropzone-indication {
+    border-color: green;
 }
 
 .Wt-dropcover {
@@ -1046,6 +1050,6 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
     height: 100%;
     z-index: -100;
 }
-.Wt-dropcover.drag-style {
-    z-index: 2000;
+.Wt-dropcover.Wt-dropzone-drag {
+    z-index: 20000;
 }
