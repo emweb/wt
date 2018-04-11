@@ -189,7 +189,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * WDateEdit
  */
 .Wt-dateedit {
-    background-image: url('../../calendar_edit.png');
+    background-image: url('../../date.gif');
     background-repeat: no-repeat;
     background-position: right top;
     padding-right: 40px;

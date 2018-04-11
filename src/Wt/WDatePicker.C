@@ -50,7 +50,7 @@ WDatePicker::~WDatePicker()
 void WDatePicker::createDefault(WLineEdit *forEdit)
 {
   WImage *icon = new WImage(WApplication::relativeResourcesUrl() 
-			    + "calendar_edit.png");
+			    + "date.gif");
   icon->resize(16, 16);
   icon->setVerticalAlignment(AlignMiddle);
 

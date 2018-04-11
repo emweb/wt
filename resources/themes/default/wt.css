@@ -191,7 +191,17 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * WDateEdit
  */
 .Wt-dateedit {
-    background-image: url('../../calendar_edit.png');
+    background-image: url('../../date.gif');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 40px;
+}
+
+/*
+ * WTimeEdit
+ */
+.Wt-timeedit {
+    background-image: url('../../icon_clock.gif');
     background-repeat: no-repeat;
     background-position: right top;
     padding-right: 40px;
@@ -209,6 +219,13 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  */
 .Wt-dateedit::-ms-clear {
     display:none
+}
+
+/*
+ * Wt-timeedit
+ */
+.Wt-timeedit::-ms-clear {
+    display: none
 }
 
 /*
