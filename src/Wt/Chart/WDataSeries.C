@@ -19,7 +19,30 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     XSeriesColumn_(-1),
     stacked_(false),
     type_(type),
-    axis_(axis),
+    yAxis_(axis == Y1Axis ? 0 : 1),
+    customFlags_(0),
+    fillRange_(NoFill),
+    marker_(type == PointSeries ? CircleMarker : NoMarker),
+    markerSize_(6),
+    legend_(true),
+    xLabel_(false),
+    yLabel_(false),
+    barWidth_(0.8),
+    hidden_(false),
+    offset_(0.0),
+    scale_(1.0),
+    offsetDirty_(true),
+    scaleDirty_(true)
+{ }
+
+WDataSeries::WDataSeries(int modelColumn, SeriesType type, int yAxis)
+  : chart_(0),
+    model_(0),
+    modelColumn_(modelColumn),
+    XSeriesColumn_(-1),
+    stacked_(false),
+    type_(type),
+    yAxis_(yAxis),
     customFlags_(0),
     fillRange_(NoFill),
     marker_(type == PointSeries ? CircleMarker : NoMarker),
@@ -42,7 +65,7 @@ WDataSeries::WDataSeries(const WDataSeries &other)
     XSeriesColumn_(other.XSeriesColumn_),
     stacked_(other.stacked_),
     type_(other.type_),
-    axis_(other.axis_),
+    yAxis_(other.yAxis_),
     customFlags_(other.customFlags_),
     pen_(other.pen_),
     markerPen_(other.markerPen_),
@@ -72,7 +95,7 @@ WDataSeries &WDataSeries::operator=(const WDataSeries &rhs)
   XSeriesColumn_ = rhs.XSeriesColumn_;
   stacked_ = rhs.stacked_;
   type_ = rhs.type_;
-  axis_ = rhs.axis_;
+  yAxis_ = rhs.yAxis_;
   customFlags_ = rhs.customFlags_;
   pen_ = rhs.pen_;
   markerPen_ = rhs.markerPen_;
@@ -124,7 +147,12 @@ void WDataSeries::setModelColumn(int modelColumn)
 
 void WDataSeries::bindToAxis(Axis axis)
 {
-  set(axis_, axis);
+  set(yAxis_, axis == Y1Axis ? 0 : 1);
+}
+
+void WDataSeries::bindToYAxis(int yAxis)
+{
+  set(yAxis_, yAxis);
 }
 
 void WDataSeries::setCustomFlags(WFlags<CustomFlag> flags)
@@ -317,7 +345,7 @@ void WDataSeries::update()
 WPointF WDataSeries::mapFromDevice(const WPointF& deviceCoordinates) const
 {
   if (chart_)
-    return chart_->mapFromDevice(deviceCoordinates, axis_);
+    return chart_->mapFromDevice(deviceCoordinates, yAxis_);
   else
     return WPointF();
 }
@@ -327,7 +355,7 @@ WPointF WDataSeries::mapToDevice(const boost::any& xValue,
 				 int segment) const
 {
   if (chart_)
-    return chart_->mapToDevice(xValue, yValue, axis_, segment);
+    return chart_->mapToDevice(xValue, yValue, yAxis_, segment);
   else
     return WPointF();
 }

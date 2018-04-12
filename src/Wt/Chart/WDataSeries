@@ -91,6 +91,17 @@ public:
   WDataSeries(int modelColumn, SeriesType seriesType = PointSeries,
 	      Axis axis = Y1Axis);
 
+  /*! \brief Constructs a new data series.
+   *
+   * Creates a new data series which plots the Y values from the
+   * model column <i>modelColumn</i>, with the indicated
+   * <i>seriesType</i>. The Y values are mapped to the indicated
+   * <i>yAxis</i>, which should correspond to one of the two Y axes.
+   *
+   * \sa WCartesianChart::addSeries()
+   */
+  WDataSeries(int modelColumn, SeriesType seriesType, int yAxis);
+
   /*! \brief Copy constructor
    *
    * This does not copy over the associated chart.
@@ -209,8 +220,8 @@ public:
 
   /*! \brief Binds this series to a chart axis.
    *
-   * A data series may be bound to either the first or second Y axis.
-   * Note that the second Y axis is by default not displayed.
+   * A data series can only be bound to a Y axis. Note that
+   * the second Y axis will not be displayed by default.
    *
    * The default value is the first Y axis.
    *
@@ -218,11 +229,28 @@ public:
    */
   void bindToAxis(Axis axis);
 
+  /*! \brief Binds this series to a chart axis.
+   *
+   * A data series can only be bound to a Y axis. Note that
+   * the second Y axis will not be displayed by default.
+   *
+   * The default value is the first Y axis.
+   *
+   * \sa WAxis::setVisible()
+   */
+  void bindToYAxis(int yAxis);
+
   /*! \brief Returns the chart axis used for this series.
    *
    * \sa bindToAxis()
    */
-  Axis axis() const { return axis_; }
+  Axis axis() const { return yAxis_ == 1 ? Y2Axis : Y1Axis; }
+
+  /*! \brief Returns the Y axis used for this series.
+   *
+   * \sa bindToYAxis()
+   */
+  int yAxis() const { return yAxis_; }
 
   /*! \brief Sets which aspects of the look are overriden.
    *
@@ -559,7 +587,7 @@ private:
   int                XSeriesColumn_;
   bool               stacked_;
   SeriesType         type_;
-  Axis               axis_;
+  int                yAxis_;
   WFlags<CustomFlag> customFlags_;
   WPen               pen_, markerPen_;
   WBrush             brush_, markerBrush_;
