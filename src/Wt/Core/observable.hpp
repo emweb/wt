@@ -70,7 +70,7 @@ public:
    * passed method.
    */
   template <typename... Args, typename C>
-  auto bindSafe(void(C::*method)(Args...) noexcept;
+  auto bindSafe(void(C::*method)(Args...)) noexcept;
 
   /*! \brief Protects a const method call against object destruction.
    *
