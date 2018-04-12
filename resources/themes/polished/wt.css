@@ -196,6 +196,16 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 /*
+ * WTimeEdit
+ */
+.Wt-timeedit {
+    background-image: url('../../icon_clock.gif');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 40px;
+}
+
+/*
  * WDatePicker
  */
 .Wt-datepicker {
@@ -207,6 +217,13 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  */
 .Wt-dateedit::-ms-clear {
     display:none
+}
+
+/*
+ * Wt-timeedit
+ */
+.Wt-timeedit::-ms-clear {
+    display: none
 }
 
 /*
