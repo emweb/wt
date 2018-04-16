@@ -69,14 +69,11 @@ std::vector<double> lat_montgomery;
 std::vector<double> lon_montgomery;
 std::vector<double> lat_wmata;
 std::vector<double> lon_wmata;
-std::vector<double> lat_zip;
-std::vector<double> lon_zip;
 std::string file_wmata_stations;
 std::vector<wmata_station_t> wmata_station;
 int read_schools(const std::string &file_name);
 int read_json_montgomery_county(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon);
 int read_json_wmata(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon);
-int read_json_zip(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //forward declarations
@@ -529,6 +526,70 @@ public:
     leaflet->Polygon(lat_montgomery, lon_montgomery, color);
 
     ///////////////////////////////////////////////////////////////////////////////////////
+    //render geojson (ZIP)
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    size_t size_features = geojson.m_feature.size();
+    for (size_t idx_fet = 0; idx_fet < size_features; idx_fet++)
+    {
+      feature_t feature = geojson.m_feature.at(idx_fet);
+
+      std::string color = rgb_to_hex(255, 255, 255);
+
+      if (feature.m_name.compare("20850") == 0)
+      {
+        color = rgb_to_hex(0, 255, 0); 
+      }
+      else if (feature.m_name.compare("20851") == 0)
+      {
+        color = rgb_to_hex(255, 255, 0);
+      }
+      else if (feature.m_name.compare("20852") == 0)
+      {
+        color = rgb_to_hex(0, 0, 255);
+      }
+      else
+      {
+        continue;
+      }
+
+      size_t size_geometry = feature.m_geometry.size();
+      for (size_t idx_geo = 0; idx_geo < size_geometry; idx_geo++)
+      {
+        geometry_t geometry = feature.m_geometry.at(idx_geo);
+        size_t size_pol = geometry.m_polygons.size();
+
+        for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
+        {
+          polygon_t polygon = geometry.m_polygons[idx_pol];
+          size_t size_crd = polygon.m_coord.size();
+
+          if (size_crd == 0)
+          {
+            continue;
+          }
+
+          ///////////////////////////////////////////////////////////////////////////////////////
+          //render each polygon as a vector of vertices passed to Polygon
+          ///////////////////////////////////////////////////////////////////////////////////////
+
+          std::vector<double> lat;
+          std::vector<double> lon;
+
+          for (size_t idx_crd = 0; idx_crd < size_crd; idx_crd++)
+          {
+            lat.push_back(polygon.m_coord[idx_crd].m_lat);
+            lon.push_back(polygon.m_coord[idx_crd].m_lon);
+          }
+
+          leaflet->Polygon(lat, lon, color);
+        }  //idx_pol
+      } //idx_geo
+    } //idx_fet
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////
     //render WMATA stations
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -783,11 +844,10 @@ int main(int argc, char **argv)
     {
       assert(0);
     }
-    if (read_json_zip(zip_geojson_file, lat_zip, lon_zip) < 0)
+    if (geojson.convert(zip_geojson_file.c_str()) < 0)
     {
       assert(0);
     }
-
   }
 
   for (size_t idx = 0; idx < 3 * 256; idx += 3)
@@ -1236,63 +1296,3 @@ int read_json_wmata(const std::string &file_name, std::vector<double> &lat, std:
   return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//read_json_zip
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-int read_json_zip(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon)
-{
-  char *buf = 0;
-  size_t length;
-  FILE *f;
-
-  std::cout << file_name << std::endl;
-  f = fopen(file_name.c_str(), "rb");
-  if (!f)
-  {
-    std::cout << "cannot open " << file_name << std::endl;
-    assert(0);
-    return -1;
-  }
-
-  fseek(f, 0, SEEK_END);
-  length = ftell(f);
-  fseek(f, 0, SEEK_SET);
-  buf = (char*)malloc(length);
-  if (buf)
-  {
-    fread(buf, 1, length, f);
-  }
-  fclose(f);
-
-  char *endptr;
-  JsonValue value;
-  JsonAllocator allocator;
-  int rc = jsonParse(buf, &endptr, &value, allocator);
-  if (rc != JSON_OK)
-  {
-    std::cout << "invalid JSON format for " << buf << std::endl;
-    return -1;
-  }
-
-  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
-  {
-    //JSON organized in hierarchical levels
-    //level 0, root with objects: "type", "features"
-    //FeatureCollection is not much more than an object that has "type": "FeatureCollection" 
-    //and then an array of Feature objects under the key "features". 
-
-    if (std::string(node->key).compare("type") == 0)
-    {
-      assert(node->value.getTag() == JSON_STRING);
-    }
-    if (std::string(node->key).compare("features") == 0)
-    {
-      assert(node->value.getTag() == JSON_ARRAY);
-    }
-  }
-  std::cout << "\n";
-
-  free(buf);
-  return 0;
-}
