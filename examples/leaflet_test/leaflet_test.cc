@@ -59,19 +59,24 @@ star_dataset_t find_dataset(std::string name);
 //schools
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//-t 6 -d ../../../examples/leaflet_test/montgomery_county_schools.csv -g ../../../examples/leaflet_test/montgomery_county_boundary.json 
-//-m ../../../examples/leaflet_test/wmata_stations.json 
+//-t 6 -d ../../../examples/leaflet_test/montgomery_county_schools.csv
+//-g ../../../examples/leaflet_test/montgomery_county_boundary.json 
+//-m ../../../examples/leaflet_test/wmata_stations.json
+//-z ../../../examples/leaflet_test/md_maryland_zip_codes_geo.min.json
 
 std::vector<school_t> schools_list;
 std::vector<double> lat_montgomery;
 std::vector<double> lon_montgomery;
 std::vector<double> lat_wmata;
 std::vector<double> lon_wmata;
+std::vector<double> lat_zip;
+std::vector<double> lon_zip;
 std::string file_wmata_stations;
 std::vector<wmata_station_t> wmata_station;
 int read_schools(const std::string &file_name);
 int read_json_montgomery_county(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon);
 int read_json_wmata(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon);
+int read_json_zip(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //forward declarations
@@ -617,12 +622,13 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
 void usage()
 {
   std::cout << "usage: ./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. ";
-  std::cout << "-t TEST <-d DATABASE> <-u DATABASE> <-g GEOJSON> ";
+  std::cout << "-t TEST <-d DATABASE> <-u DATABASE> <-g GEOJSON> <-z GEOJSON> ";
   std::cout << std::endl;
   std::cout << "-t TEST: test number (1 to 6)" << std::endl;
   std::cout << "-d DATABASE: data file" << std::endl;
   std::cout << "-g GEOJSON: geojson file" << std::endl;
   std::cout << "-u DATABASE: data file" << std::endl;
+  std::cout << "-z GEOJSON: data file" << std::endl;
   exit(0);
 }
 
@@ -635,6 +641,7 @@ int main(int argc, char **argv)
   std::string data_file;
   std::string data_file_us_states_pop;
   std::string geojson_file;
+  std::string zip_geojson_file;
 
   for (int i = 1; i < argc; i++)
   {
@@ -660,6 +667,10 @@ int main(int argc, char **argv)
         break;
       case 'm':
         file_wmata_stations = argv[i + 1];
+        i++;
+        break;
+      case 'z':
+        zip_geojson_file = argv[i + 1];
         i++;
         break;
       }
@@ -759,6 +770,7 @@ int main(int argc, char **argv)
   {
     std::cout << data_file << std::endl;
     std::cout << geojson_file << std::endl;
+    std::cout << zip_geojson_file << std::endl;
     if (read_schools(data_file) < 0)
     {
       assert(0);
@@ -767,8 +779,11 @@ int main(int argc, char **argv)
     {
       assert(0);
     }
-
     if (read_json_wmata(file_wmata_stations, lat_wmata, lon_wmata) < 0)
+    {
+      assert(0);
+    }
+    if (read_json_zip(zip_geojson_file, lat_zip, lon_zip) < 0)
     {
       assert(0);
     }
@@ -1215,6 +1230,67 @@ int read_json_wmata(const std::string &file_name, std::vector<double> &lat, std:
       } //node_arr
     } //"Stations"
   } //node_root
+  std::cout << "\n";
+
+  free(buf);
+  return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//read_json_zip
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int read_json_zip(const std::string &file_name, std::vector<double> &lat, std::vector<double> &lon)
+{
+  char *buf = 0;
+  size_t length;
+  FILE *f;
+
+  std::cout << file_name << std::endl;
+  f = fopen(file_name.c_str(), "rb");
+  if (!f)
+  {
+    std::cout << "cannot open " << file_name << std::endl;
+    assert(0);
+    return -1;
+  }
+
+  fseek(f, 0, SEEK_END);
+  length = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  buf = (char*)malloc(length);
+  if (buf)
+  {
+    fread(buf, 1, length, f);
+  }
+  fclose(f);
+
+  char *endptr;
+  JsonValue value;
+  JsonAllocator allocator;
+  int rc = jsonParse(buf, &endptr, &value, allocator);
+  if (rc != JSON_OK)
+  {
+    std::cout << "invalid JSON format for " << buf << std::endl;
+    return -1;
+  }
+
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
+  {
+    //JSON organized in hierarchical levels
+    //level 0, root with objects: "type", "features"
+    //FeatureCollection is not much more than an object that has "type": "FeatureCollection" 
+    //and then an array of Feature objects under the key "features". 
+
+    if (std::string(node->key).compare("type") == 0)
+    {
+      assert(node->value.getTag() == JSON_STRING);
+    }
+    if (std::string(node->key).compare("features") == 0)
+    {
+      assert(node->value.getTag() == JSON_ARRAY);
+    }
+  }
   std::cout << "\n";
 
   free(buf);

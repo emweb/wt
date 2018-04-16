@@ -125,14 +125,27 @@ int geojson_t::parse_features(JsonValue value)
       {
         assert(obj->value.getTag() == JSON_OBJECT);
         //parse properties
+        
         for (JsonNode *prp = obj->value.toNode(); prp != nullptr; prp = prp->next)
         {
-          //get name
+          //properties are generic, these are particular to data files
+
+          //"NAME
+
           if (std::string(prp->key).compare("NAME") == 0 || std::string(prp->key).compare("name") == 0)
           {
             assert(prp->value.getTag() == JSON_STRING);
             feature.m_name = prp->value.toString();
-            std::cout << "NAME: " << feature.m_name << std::endl;
+            std::cout << "NAME: " << feature.m_name << " ";
+          }
+
+          //ZCTA5CE10 MD ZIP codes
+
+          if (std::string(prp->key).compare("ZCTA5CE10") == 0)
+          {
+            assert(prp->value.getTag() == JSON_STRING);
+            feature.m_name = prp->value.toString();
+            std::cout << feature.m_name << " ";
           }
         }
       }
