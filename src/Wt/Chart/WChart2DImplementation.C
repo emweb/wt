@@ -17,7 +17,7 @@ namespace Wt {
 bool ExtremesIterator::startSeries(const WDataSeries& series, double groupWidth,
 				   int numBarGroups, int currentBarGroup)
 {
-  return axis_ == Axis::X || series.axis() == axis_;
+  return axis_ == Axis::X || series.yAxis() == yAxis_;
 }
 
 void ExtremesIterator::newValue(const WDataSeries& series, double x, double y,
@@ -76,9 +76,9 @@ WString WChart2DImplementation::categoryLabel(int u, Axis axis) const
   }
 }
 
-WChart2DImplementation::RenderRange WChart2DImplementation::computeRenderRange(Axis axis, AxisScale scale) const
+WChart2DImplementation::RenderRange WChart2DImplementation::computeRenderRange(Axis axis, int yAxis, AxisScale scale) const
 {
-  ExtremesIterator iterator(axis, scale);
+  ExtremesIterator iterator(axis, yAxis, scale);
   
   chart_->iterateSeries(&iterator, nullptr);
 

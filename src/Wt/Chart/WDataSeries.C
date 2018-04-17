@@ -13,13 +13,17 @@ namespace Wt {
   namespace Chart {
 
 WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
+  : WDataSeries(modelColumn, type, axis == Axis::Y1 ? 0 : 1)
+{ }
+
+WDataSeries::WDataSeries(int modelColumn, SeriesType type, int axis)
   : chart_(nullptr),
     model_(nullptr),
     modelColumn_(modelColumn),
     XSeriesColumn_(-1),
     stacked_(false),
     type_(type),
-    axis_(axis),
+    yAxis_(axis),
     customFlags_(None),
     fillRange_(FillRangeType::None),
     marker_(type == SeriesType::Point ? 
@@ -63,7 +67,12 @@ void WDataSeries::setModelColumn(int modelColumn)
 
 void WDataSeries::bindToAxis(Axis axis)
 {
-  set(axis_, axis);
+  set(yAxis_, axis == Axis::Y1 ? 0 : 1);
+}
+
+void WDataSeries::bindToYAxis(int yAxis)
+{
+  set(yAxis_, yAxis);
 }
 
 void WDataSeries::setCustomFlags(WFlags<CustomFlag> flags)
@@ -256,7 +265,7 @@ void WDataSeries::update()
 WPointF WDataSeries::mapFromDevice(const WPointF& deviceCoordinates) const
 {
   if (chart_)
-    return chart_->mapFromDevice(deviceCoordinates, axis_);
+    return chart_->mapFromDevice(deviceCoordinates, yAxis_);
   else
     return WPointF();
 }
@@ -265,7 +274,7 @@ WPointF WDataSeries::mapToDevice(const cpp17::any& xValue, const cpp17::any& yVa
 				 int segment) const
 {
   if (chart_)
-    return chart_->mapToDevice(xValue, yValue, axis_, segment);
+    return chart_->mapToDevice(xValue, yValue, yAxis_, segment);
   else
     return WPointF();
 }

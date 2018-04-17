@@ -31,8 +31,8 @@ public:
   virtual int numberOfCategories(Axis axis = Axis::X) const override;
   virtual WString categoryLabel(int u, Axis axis) const override;
   
-  virtual RenderRange computeRenderRange(Axis axis, 
-					 AxisScale scale = AxisScale::Linear)
+  virtual RenderRange computeRenderRange(
+      Axis axis, int yAxis, AxisScale scale = AxisScale::Linear)
     const override;
   
   virtual void update() override;

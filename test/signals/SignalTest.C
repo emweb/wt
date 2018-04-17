@@ -299,3 +299,102 @@ BOOST_AUTO_TEST_CASE( test_signals11 )
   // - second i++ slot is executed (-> i == 7)
   BOOST_REQUIRE_EQUAL(i, 7);
 }
+
+BOOST_AUTO_TEST_CASE( test_signals12 )
+{
+  // Test self-assignment
+  int i = 0;
+  Wt::Signal<> signal;
+  Wt::Signals::connection conn = signal.connect([&i]{ ++i; });
+  BOOST_REQUIRE(conn.isConnected());
+  signal();
+  BOOST_REQUIRE_EQUAL(i, 1);
+  conn = conn;
+  BOOST_REQUIRE(conn.isConnected());
+  signal();
+  BOOST_REQUIRE_EQUAL(i, 2);
+}
+
+BOOST_AUTO_TEST_CASE( test_signals13 )
+{
+  // Test moved from state
+  // Moved from state should be equivalent to default-constructed state
+  Wt::Signal<> signal;
+  Wt::Signals::connection conn = signal.connect([]{});
+  BOOST_REQUIRE(conn.isConnected());
+  Wt::Signals::connection conn2 = std::move(conn);
+  BOOST_REQUIRE(!conn.isConnected());
+  BOOST_REQUIRE(conn2.isConnected());
+  conn = std::move(conn2);
+  BOOST_REQUIRE(conn.isConnected());
+  BOOST_REQUIRE(!conn2.isConnected());
+}
+
+#if __cplusplus >= 201402L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201402L)
+BOOST_AUTO_TEST_CASE( test_signals14 )
+{
+  struct movable_bool_ref {
+    movable_bool_ref(bool &b) noexcept
+      : b_{&b}
+    { }
+
+    ~movable_bool_ref() noexcept
+    {
+      if (b_)
+        *b_ = true;
+    }
+
+    movable_bool_ref(const movable_bool_ref& other) noexcept
+      : b_{nullptr}
+    {
+      *this = other;
+    }
+
+    movable_bool_ref& operator=(const movable_bool_ref& other) noexcept
+    {
+      if (this == &other)
+        return *this;
+
+      b_ = other.b_;
+      other.b_ = nullptr;
+
+      return *this;
+    }
+
+    movable_bool_ref(movable_bool_ref&& other) noexcept
+      : b_{nullptr}
+    {
+      *this = std::move(other);
+    }
+
+    movable_bool_ref& operator=(movable_bool_ref&& other) noexcept
+    {
+      if (this == &other)
+        return *this;
+
+      b_ = other.b_;
+      other.b_ = nullptr;
+
+      return *this;
+    }
+
+    mutable bool *b_;
+  };
+
+  Wt::Signal<> signal;
+  Wt::Signals::connection conn;
+  bool destroyed = false;
+
+  conn = signal.connect([&conn, r = movable_bool_ref{destroyed}](){
+    conn.disconnect();
+  });
+
+  BOOST_REQUIRE(!destroyed);
+  BOOST_REQUIRE(signal.isConnected());
+
+  signal();
+
+  BOOST_REQUIRE(destroyed);
+  BOOST_REQUIRE(!signal.isConnected());
+}
+#endif

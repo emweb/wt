@@ -5,12 +5,6 @@
  * See the LICENSE file for terms of use.
  */
 
-// FIXME: find a way to disconnect a signal where it is actually removed from
-//        the ring of SignalLinks! The problem: Connection is not templated on the
-//        callback function type, while SignalLink is! Can we do this in a way where
-//        Connection stays non-templated? We'll probably have to either do it in a
-//        hacky way, or use virtual methods.
-
 // Based on: https://testbit.eu/cpp11-signal-system-performance/
 //   CC0 Public Domain: http://creativecommons.org/publicdomain/zero/1.0/
 
@@ -33,8 +27,15 @@ class Connection;
 class WT_API SignalLinkBase
 {
 public:
-  SignalLinkBase();
+  using CBUnlink = void (*)(SignalLinkBase*);
+
+  SignalLinkBase(CBUnlink unlink_callback);
   ~SignalLinkBase();
+
+  SignalLinkBase(const SignalLinkBase&) = delete;
+  SignalLinkBase(SignalLinkBase&&) = delete;
+  SignalLinkBase& operator=(const SignalLinkBase&) = delete;
+  SignalLinkBase& operator=(SignalLinkBase&&) = delete;
 
   Connection connect(const Wt::Core::observable *object);
 
@@ -45,6 +46,7 @@ protected:
   bool connected_;
   Wt::Core::observing_ptr<const Wt::Core::observable> obj_;
   const Connection *connection_ring_;
+  CBUnlink unlink_callback_;
 
   friend class Connection;
 };
@@ -52,21 +54,23 @@ protected:
 class WT_API Connection
 {
 public:
-  Connection();
-  Connection(const Connection& conn);
-  ~Connection();
+  Connection() noexcept;
+  Connection(const Connection& conn) noexcept;
+  Connection(Connection&& conn) noexcept;
+  ~Connection() noexcept;
 
-  Connection& operator= (const Connection& other);
-  void disconnect();
-  bool isConnected() const;
+  Connection& operator= (const Connection& other) noexcept;
+  Connection& operator= (Connection&& other) noexcept;
+  void disconnect() noexcept;
+  bool isConnected() const noexcept;
 
 private:
   mutable const Connection *next_, *prev_;
   mutable SignalLinkBase *signalLink_;
 
-  Connection(SignalLinkBase *signalLink);
-  void clear();
-  void unlinkAll() const;
+  Connection(SignalLinkBase *signalLink) noexcept;
+  void clear() noexcept;
+  void unlinkAll() const noexcept;
 
   friend class SignalLinkBase;
 };
@@ -83,8 +87,15 @@ private:
     CbFunction function;
     int ref_count;
 
+    static void unlinkBase(SignalLinkBase *self)
+    {
+      SignalLink *link = static_cast<SignalLink*>(self);
+      link->unlink();
+    }
+
     SignalLink ()
-      : next (nullptr),
+      : SignalLinkBase(&SignalLink::unlinkBase),
+        next (nullptr),
 	prev (nullptr),
 	ref_count (1) { }
 

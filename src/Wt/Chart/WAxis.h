@@ -210,6 +210,14 @@ public:
    */
   Axis id() const { return axis_; }
 
+  /*! \brief Returns the Y axis id.
+   *
+   * Returns 0 if this axis is not a Y axis.
+   *
+   * \sa chart(), WCartesianChart::yAxis()
+   */
+  int yAxisId() const { return yAxis_; }
+
   /*! \brief Sets whether this axis is visible.
    *
    * Changes whether the axis is displayed, including ticks and
@@ -989,6 +997,7 @@ private:
 
   WAbstractChartImplementation *chart_;
   Axis             axis_;
+  int              yAxis_;
   bool             visible_;
   AxisValue        location_;
   AxisScale        scale_;
@@ -1040,6 +1049,7 @@ private:
   mutable double fullRenderLength_; // Render length including padding
 
   void init(WAbstractChartImplementation* chart, Axis axis);
+  void initYAxis(WAbstractChartImplementation* chart, int yAxis);
   void update();
 
   template <typename T>

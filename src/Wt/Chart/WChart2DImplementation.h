@@ -17,8 +17,8 @@ namespace Wt {
 class ExtremesIterator final : public SeriesIterator
 {
 public:
-  ExtremesIterator(Axis axis, AxisScale scale)
-    : axis_(axis), scale_(scale),
+  ExtremesIterator(Axis axis, int yAxis, AxisScale scale)
+    : axis_(axis), yAxis_(yAxis), scale_(scale),
       minimum_(DBL_MAX),
       maximum_(-DBL_MAX)
   { }
@@ -35,6 +35,7 @@ public:
 
 private:
   Axis axis_;
+  int yAxis_;
   AxisScale scale_;
   double minimum_, maximum_;
 };
@@ -51,7 +52,7 @@ public:
 
   virtual int numberOfCategories(Axis axis = Axis::X) const override;
   virtual WString categoryLabel(int u, Axis axis = Axis::X) const override;
-  virtual RenderRange computeRenderRange(Axis axis, AxisScale scale) const override;
+  virtual RenderRange computeRenderRange(Axis axis, int yAxis, AxisScale scale) const override;
 
   virtual void update() override;
   

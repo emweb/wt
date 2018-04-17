@@ -91,6 +91,17 @@ public:
   WDataSeries(int modelColumn, SeriesType seriesType = SeriesType::Point,
 	      Axis axis = Axis::Y1);
 
+  /*! \brief Constructs a new data series.
+   *
+   * Creates a new data series which plots the Y values from the
+   * model column <i>modelColumn</i>, with the indicated
+   * <i>seriesType</i>. The Y values are mapped to the indicated
+   * <i>yAxis</i>, which should correspond to one of the two Y axes.
+   *
+   * \sa WCartesianChart::addSeries()
+   */
+  WDataSeries(int modelColumn, SeriesType seriesType, int yAxis);
+
   /*! \brief Sets the bar width.
    *
    * The bar width specifies the bar width (in axis dimensions).  For
@@ -202,11 +213,28 @@ public:
    */
   void bindToAxis(Axis axis);
 
+  /*! \brief Binds this series to a chart axis.
+   *
+   * A data series can only be bound to a Y axis. Note that
+   * the second Y axis will not be displayed by default.
+   *
+   * The default value is the first Y axis.
+   *
+   * \sa WAxis::setVisible()
+   */
+  void bindToYAxis(int yAxis);
+
   /*! \brief Returns the chart axis used for this series.
    *
    * \sa bindToAxis()
    */
-  Axis axis() const { return axis_; }
+  Axis axis() const { return yAxis_ == 1 ? Axis::Y2 : Axis::Y1; }
+
+  /*! \brief Returns the Y axis used for this series.
+   *
+   * \sa bindToYAxis()
+   */
+  int yAxis() const { return yAxis_; }
 
   /*! \brief Sets which aspects of the look are overriden.
    *
@@ -270,7 +298,7 @@ public:
 
   /*! \brief Sets the fill range for line or curve series.
    *
-   * AxisProperty::Line or curve series may be filled under or above the curve,
+   * Line or curve series may be filled under or above the curve,
    * using the brush(). This setting specifies the range that is
    * filled. The default value for all but SeriesType::Bar is FillRangeType::None.
    *
@@ -477,7 +505,7 @@ public:
    */
   void setOffset(double offset);
 
-  /*! \brief Method::Get the offset for this data series.
+  /*! \brief Get the offset for this data series.
    *
    * \sa setOffset()
    */
@@ -500,7 +528,7 @@ public:
    */
   void setScale(double scale);
 
-  /*! \brief Method::Get the scale for this data series.
+  /*! \brief Get the scale for this data series.
    *
    * \sa setScale()
    */
@@ -518,7 +546,7 @@ public:
    */
   void setModel(const std::shared_ptr<WAbstractChartModel>& model);
 
-  /*! \brief Method::Get the model for this data series.
+  /*! \brief Get the model for this data series.
    *
    * This will return the model set for this data series,
    * if it is set.
@@ -543,7 +571,7 @@ private:
   int                XSeriesColumn_;
   bool               stacked_;
   SeriesType         type_;
-  Axis               axis_;
+  int                yAxis_;
   WFlags<CustomFlag> customFlags_;
   WPen               pen_, markerPen_;
   WBrush             brush_, markerBrush_;
