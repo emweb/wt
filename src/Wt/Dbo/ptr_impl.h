@@ -394,7 +394,7 @@ const C *ptr<C>::operator->() const
   const C *v = get();
 
   if (!v)
-    throw Exception("Wt::Dbo::ptr: null dereference");
+    throw Exception("Wt::Dbo::ptr<" + std::string(typeid(C).name()) + ">: null dereference");
 
   return v;
 }
