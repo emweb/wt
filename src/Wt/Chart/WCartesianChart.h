@@ -1372,10 +1372,27 @@ private:
   mutable int width_, height_;
   mutable WRectF chartArea_;
   mutable AxisValue xAxisLocation_;
-  mutable std::vector<AxisValue> yAxisLocations_;
   mutable bool hasDeferredToolTips_;
-  mutable int minAxesRendered_; // the number of axes already rendered on the minimum side
-  mutable int maxAxesRendered_; // the number of axes already rendered on the maximum side
+
+  struct AxisLocation {
+    AxisLocation()
+      : minOffset(0),
+        maxOffset(0),
+        result(AxisValue::Minimum),
+        original(AxisValue::Minimum)
+    { }
+
+    int minOffset; // the number of pixels the axis should be shifted beyond
+                   // the minimum due to this axis being an extra Y axis on
+                   // the MinimumValue side
+    int maxOffset; // the number of pixels the axis should be shifted beyond
+                   // the maximum due to this axis being an extra Y axis on
+                   // the MaximumValue side
+    AxisValue result; // where the axis has been placed due to
+                      // Minimum/Maximum -> ZeroValue tricks
+    AxisValue original; // the initial desired location of the axis
+  };
+  mutable std::vector<AxisLocation> yAxisLocations_;
 
   bool jsDefined_;
   bool zoomEnabled_;
