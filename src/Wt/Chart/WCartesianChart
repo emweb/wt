@@ -625,6 +625,10 @@ public:
    */
   std::vector<const WAxis*> yAxes() const;
 
+  /*! \brief Returns the number of Y axes associated with this chart.
+   */
+  int yAxisCount() const;
+
   /*! \brief Retrieves the Y axis at index i
    *
    * The following expressions are always true:
@@ -1434,10 +1438,26 @@ private:
   mutable int width_, height_;
   mutable WRectF chartArea_;
   mutable AxisValue xAxisLocation_;
-  mutable std::vector<AxisValue> yAxisLocations_;
   mutable bool hasDeferredToolTips_;
-  mutable int minAxesRendered_; // the number of axes already rendered on the minimum side
-  mutable int maxAxesRendered_; // the number of axes already rendered on the maximum side
+
+  struct AxisLocation {
+    AxisLocation()
+      : minOffset(0),
+        maxOffset(0),
+        loc(MinimumValue)
+    { }
+
+    int minOffset; // the number of pixels the axis should be shifted beyond
+                   // the minimum due to this axis being an extra Y axis on
+                   // the MinimumValue side
+    int maxOffset; // the number of pixels the axis should be shifted beyond
+                   // the maximum due to this axis being an extra Y axis on
+                   // the MaximumValue side
+    AxisValue loc; // where the axis has been placed after all of the
+                   // ZeroValue -> Minimum/Maximum and
+                   // Minimum/Maximum -> ZeroValue tricks
+  };
+  mutable std::vector<AxisLocation> yAxisLocations_;
 
   bool jsDefined_;
   bool zoomEnabled_;
@@ -1777,6 +1797,7 @@ private:
   WPointF inverseHv(double x, double y, double width) const;
   WPointF inverseHv(const WPointF &p) const;
   WRectF insideChartArea() const;
+  int calcYAxisSize(const WAxis &axis) const;
   void defineJavaScript();
 
   bool axisSliderWidgetForSeries(WDataSeries *series) const;
