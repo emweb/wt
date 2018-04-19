@@ -20,9 +20,13 @@ WT_DECLARE_WT_MEMBER
    var uploads = [];
    var sending = false;
    var acceptDrops = true;
+
    var dropIndication = false;
    var bodyDropForward = false;
 
+   var uploadWorker = undefined;
+   var chunkSize = 0;
+   
    var dragState = 0;
 
    var hiddenInput = document.createElement('input');
@@ -38,10 +42,10 @@ WT_DECLARE_WT_MEMBER
    this.eventContainsFile = function(e) {
      var items = (e.dataTransfer.items != null &&
 		  e.dataTransfer.items.length > 0 &&
-		  e.dataTransfer.items[0].kind == 'file');
+		  e.dataTransfer.items[0].kind === 'file');
      var types = (e.dataTransfer.types != null &&
 		  e.dataTransfer.types.length > 0 &&
-		  e.dataTransfer.types[0] == 'Files');
+		  e.dataTransfer.types[0] === 'Files');
      return items || types;
    };
 
@@ -134,8 +138,8 @@ WT_DECLARE_WT_MEMBER
      
      self.resetDragDrop();
      if (window.FormData === undefined ||
-	 e.dataTransfer.files == null ||
-	 e.dataTransfer.files.length == 0)
+	 e.dataTransfer.files === null ||
+	 e.dataTransfer.files.length === 0)
        return;
 
      self.addFiles(e.dataTransfer.files);
@@ -144,17 +148,17 @@ WT_DECLARE_WT_MEMBER
    this.addFiles = function(filesList) {
      var newKeys = [];
      for (var i=0; i < filesList.length; i++) {
-       var xhr = new XMLHttpRequest();
-       xhr.id = Math.floor(Math.random() * Math.pow(2, 31));
-       xhr.file = filesList[i];
+       var upload = new Object();
+       upload.id = Math.floor(Math.random() * Math.pow(2, 31));
+       upload.file = filesList[i];
        
-       uploads.push(xhr);
+       uploads.push(upload);
        
        var newUpload = {};
-       newUpload['id'] = xhr.id;
-       newUpload['filename'] = xhr.file.name;
-       newUpload['type'] = xhr.file.type;
-       newUpload['size'] = xhr.file.size;
+       newUpload['id'] = upload.id;
+       newUpload['filename'] = upload.file.name;
+       newUpload['type'] = upload.file.type;
+       newUpload['size'] = upload.file.size;
        
        newKeys.push(newUpload);
      }
@@ -173,7 +177,7 @@ WT_DECLARE_WT_MEMBER
      for (var j=0; j < files.length; j++) {
        var id = files[j]['id'];
        for (var i=0; i < uploads.length; i++) {
-	 if (uploads[i].id == id) {
+	 if (uploads[i].id === id) {
 	   uploads[i].ready = true;
 	   break;
 	 }
@@ -197,14 +201,16 @@ WT_DECLARE_WT_MEMBER
      APP.emit(dropwidget, 'requestsend', uploads[0].id);
    }
    
-   dropwidget.send = function(url) {
-     xhr = uploads[0]
-     if (xhr.file.size > maxFileSize) {
-       APP.emit(dropwidget, 'filetoolarge', xhr.file.size);
+   dropwidget.send = function(url, useFilter) {
+     upload = uploads[0];
+     if (upload.file.size > maxFileSize) {
+       APP.emit(dropwidget, 'filetoolarge', upload.file.size);
        self.uploadFinished(null);
        return;
      } else {
-       self.validFileCheck(xhr.file, self.actualSend, url);
+       var sendFn = (uploadWorker != undefined && useFilter) ?
+	   self.workerSend : self.actualSend;
+       self.validFileCheck(upload.file, sendFn, url);
      }
    }
 
@@ -213,25 +219,42 @@ WT_DECLARE_WT_MEMBER
        self.uploadFinished(null);
        return;
      }
-       
-     xhr = uploads[0]
+
+     var xhr = new XMLHttpRequest();
      xhr.addEventListener("load", self.uploadFinished);
      xhr.addEventListener("error", self.uploadFinished);
      xhr.addEventListener("abort", self.uploadFinished);
      xhr.addEventListener("timeout", self.uploadFinished);
-     //xhr.upload.addEventListener("error", self.uploadFinished);
      xhr.open("POST", url);
 
+     uploads[0].request = xhr;
+
      var fd = new FormData();
-     fd.append("file-id", xhr.id);
-     fd.append("data", xhr.file);
+     fd.append("file-id", uploads[0].id);
+     fd.append("data", uploads[0].file);
      xhr.send(fd);
    }
 
+   this.workerSend = function(isValid, url) {
+     if (!isValid) {
+       self.uploadFinished(null);
+       return;
+     }
+
+     uploadWorker.upload = uploads[0];
+     uploadWorker.postMessage({
+       "cmd" : "send",
+       "url" : url,
+       "upload" : uploads[0],
+       "chunksize" : chunkSize
+     });
+   }
+
    this.uploadFinished = function(e) {
-     if (e != null &&
-	 e.type == 'load' &&
-	 e.currentTarget.status == 200)
+     if ( (e != null &&
+	   e.type === 'load' &&
+	   e.currentTarget.status === 200) ||
+	  e === true)
        APP.emit(dropwidget, 'uploadfinished', uploads[0].id);
      uploads.splice(0,1);
      if (uploads[0] && uploads[0].ready)
@@ -241,13 +264,20 @@ WT_DECLARE_WT_MEMBER
        APP.emit(dropwidget, 'donesending');
      }
    }
-
+   
    dropwidget.cancelUpload = function(id) {
-     if (uploads[0] && uploads[0].id == id)
-       uploads[0].abort();
-     else {
+     if (uploads[0] && uploads[0].id === id) {
+       if (uploads[0].request) {
+	 uploads[0].request.abort();
+       } else if (uploadWorker.upload === uploads[0]) {
+	 uploadWorker.postMessage({
+	   "cmd" : "cancel",
+	   "upload" : uploads[0]
+	 });
+       }
+     } else {
        for (var i=1; i < uploads.length; i++) {
-	 if (uploads[i].id == id) {
+	 if (uploads[i].id === id) {
 	   uploads[i].skip = true;
 	 }
        }
@@ -258,8 +288,8 @@ WT_DECLARE_WT_MEMBER
      if (!acceptDrops)
        return;
      if (window.FormData === undefined ||
-	 this.files == null ||
-	 this.files.length == 0)
+	 this.files === null ||
+	 this.files.length === 0)
        return;
 
      self.addFiles(this.files);
@@ -298,6 +328,29 @@ WT_DECLARE_WT_MEMBER
 
    dropwidget.setFilters = function(acceptAttributes) {
      hiddenInput.setAttribute('accept', acceptAttributes);
+   };
+
+   dropwidget.setUploadWorker = function(url) {
+     if (url && window.Worker) {
+       uploadWorker = new Worker(url);
+       uploadWorker.onmessage = function(e) {
+	 if (e.data["workerfeatures"]) {
+	   if (e.data["workerfeatures"] !== "valid") {
+	     dropwidget.setUploadWorker(null);
+	     APP.emit(dropwidget, 'filternotsupported');
+	   }
+	 } else {
+	   self.uploadFinished(e.data);
+	 }
+       };
+       uploadWorker.postMessage({"cmd" : "check"});
+     } else {
+       uploadWorker = undefined;
+     }
+   };
+   
+   dropwidget.setChunkSize = function(size) {
+     chunkSize = size;
    };
 
    dropwidget.destructor = function() {

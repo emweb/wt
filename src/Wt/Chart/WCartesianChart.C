@@ -2591,7 +2591,7 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
     xTransform_ = WTransform();
     yTransform_ = WTransform();
 
-    if (chartArea_.width() <= 5 || chartArea_.height() <= 5 || !prepareAxes()) {
+    if (chartArea_.width() <= 5 || chartArea_.height() <= 5 || !prepareAxes(device)) {
       if (isInteractive()) {
 	xTransform_ = xTransformHandle_.value();
 	yTransform_ = yTransformHandle_.value();
@@ -2628,7 +2628,7 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
 
   calcChartArea();
 
-  bool result = chartArea_.width() > 5 && chartArea_.height() > 5 && prepareAxes();
+  bool result = chartArea_.width() > 5 && chartArea_.height() > 5 && prepareAxes(device);
 
   if (isInteractive()) {
     xTransform_ = xTransformHandle_.value();
@@ -2802,7 +2802,7 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
 		   series.model()->headerData(series.modelColumn()));
 }
 
-bool WCartesianChart::prepareAxes() const
+bool WCartesianChart::prepareAxes(WPaintDevice *device) const
 {
   const WAxis& xAxis = axis(XAxis);
 
@@ -2861,7 +2861,7 @@ bool WCartesianChart::prepareAxes() const
     if (i == 0 && axis.tickDirection() == Inwards)
       offset += 10;
     else
-      offset += calcYAxisSize(axis);
+      offset += calcYAxisSize(axis, device) + 10;
   }
 
   std::vector<const WAxis*> maximumYaxes = collectYAxesAtLocation(MaximumValue);
@@ -2874,7 +2874,7 @@ bool WCartesianChart::prepareAxes() const
     if (i == 0 && axis.tickDirection() == Inwards)
       offset += 10;
     else
-      offset += calcYAxisSize(axis);
+      offset += calcYAxisSize(axis, device) + 10;
   }
 
   if (!minimumYaxes.empty() &&
@@ -2947,9 +2947,35 @@ std::vector<const WAxis*> WCartesianChart::collectYAxesAtLocation(AxisValue side
   return result;
 }
 
-int WCartesianChart::calcYAxisSize(const WAxis &axis) const
+int WCartesianChart::calcYAxisSize(const WAxis &axis, WPaintDevice *device) const
 {
-  return 50;
+  if (device->features() & Wt::WPaintDevice::HasFontMetrics) {
+    // TICK_LENGTH + axis labels + (optional) title
+    if (orientation() == Horizontal) {
+      WMeasurePaintDevice md(device);
+      double h = TICK_LENGTH;
+      h += axis.calcMaxTickLabelSize(&md, Vertical);
+      if (!axis.title().empty()) {
+        h += axis.calcTitleSize(&md, Vertical);
+      }
+      return static_cast<int>(std::ceil(h));
+    } else {
+      WMeasurePaintDevice md(device);
+      double w = TICK_LENGTH;
+      w += axis.calcMaxTickLabelSize(&md, Horizontal);
+      if (!axis.title().empty() &&
+           axis.titleOrientation() == Vertical) {
+        w += axis.calcTitleSize(&md, Vertical) + 10;
+      }
+      return static_cast<int>(std::ceil(w));
+    }
+  } else {
+    if (orientation() == Horizontal) {
+      return TICK_LENGTH + 20 + (axis.title().empty() ? 0 : 20);
+    } else {
+      return TICK_LENGTH + 30 + (axis.title().empty() ? 0 : 15);
+    }
+  }
 }
 
 WPointF WCartesianChart::map(double xValue, double yValue,
@@ -3344,8 +3370,12 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	} else {
 	  double extraMargin = 0;
 	  WPaintDevice *device = painter.device();
-          if (axis.tickDirection() == Outwards)
-            extraMargin = axis.calcMaxTickLabelSize(device, Vertical);
+          if (axis.tickDirection() == Outwards) {
+              if (device->features() & WPaintDevice::HasFontMetrics)
+                extraMargin = axis.calcMaxTickLabelSize(device, Vertical);
+              else
+                extraMargin = 15;
+          }
           if (locations[l] != MaximumValue)
             extraMargin = -extraMargin;
 	  WFlags<AlignmentFlag> alignment = (locations[l] == MaximumValue ? AlignLeft : AlignRight) | AlignMiddle;

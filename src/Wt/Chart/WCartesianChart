@@ -1661,7 +1661,8 @@ protected:
    *
    * \sa initLayout()
    */
-  virtual bool prepareAxes() const;
+  // TODO(Roel): adding the device here kind of breaks backwards compat
+  virtual bool prepareAxes(WPaintDevice *device) const;
 
   /*! \brief Renders the background.
    *
@@ -1797,7 +1798,7 @@ private:
   WPointF inverseHv(double x, double y, double width) const;
   WPointF inverseHv(const WPointF &p) const;
   WRectF insideChartArea() const;
-  int calcYAxisSize(const WAxis &axis) const;
+  int calcYAxisSize(const WAxis &axis, WPaintDevice *device) const;
   void defineJavaScript();
 
   bool axisSliderWidgetForSeries(WDataSeries *series) const;

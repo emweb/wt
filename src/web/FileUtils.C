@@ -215,5 +215,21 @@ namespace Wt {
 	return file;
     }
 
+    void concatenateFiles(const std::string &srcFile,
+			  const std::string &targetFile)
+    {
+      std::ofstream ts(srcFile.c_str(),
+		       std::ios::out | std::ios::binary | std::ios::app);
+      std::ifstream ss(targetFile.c_str(),
+		       std::ios::in | std::ios::binary);
+      
+      const int LEN = 4096;
+      char buffer[LEN];
+      while (!ss.eof()) {
+	ss.read(buffer, LEN);
+	ts.write(buffer, ss.gcount());
+      } 
+    }
+
   }
 }
