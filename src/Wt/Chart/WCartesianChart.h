@@ -1396,6 +1396,7 @@ private:
     ~AxisStruct();
 
     std::unique_ptr<WAxis> axis;
+    mutable int calculatedWidth;
     mutable AxisLocation location;
     mutable WTransform transform;
     WJavaScriptHandle<WTransform> transformHandle;

@@ -21,7 +21,6 @@
 #ifndef WT_DEBUG_JS
 #include "js/WFileDropWidget.min.js"
 #endif
-#include "js/WFileDropWidget_worker.min.js"
 
 namespace Wt {
 
@@ -96,6 +95,10 @@ private:
   File *currentFile_;
 };
 
+const std::string WFileDropWidget::WORKER_JS =
+#include "js/WFileDropWidget_worker.min.js"
+  ;
+
 WFileDropWidget::File::File(int id, const std::string& fileName,
                             const std::string& type, ::uint64_t size,
                             ::uint64_t chunkSize)
@@ -126,8 +129,8 @@ void WFileDropWidget::File::handleIncomingData(const Http::UploadedFile& file, b
     uploadStarted_ = true;
   } else {
     // append data to spool-file
-    Wt::FileUtils::concatenateFiles(file.spoolFileName(),
-				uploadedFile_.spoolFileName());
+    Wt::FileUtils::appendFile(file.spoolFileName(),
+			      uploadedFile_.spoolFileName());
   }
   nbReceivedChunks_++;
   
@@ -568,7 +571,7 @@ void WFileDropWidget::createWorkerResource() {
   ss << ");" << std::endl;
   ss << jsFilterFn_ << std::endl;
 
-  ss << wtjs_uploadworker();
+  ss << WORKER_JS;
   
 #ifndef WT_TARGET_JAVA
   std::string js = ss.str();

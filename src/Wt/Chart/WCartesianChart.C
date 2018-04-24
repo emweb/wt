@@ -1201,21 +1201,25 @@ private:
 const double MarkerMatchIterator::MATCH_RADIUS = 5;
 
 WCartesianChart::AxisStruct::AxisStruct() noexcept
-  : axis(cpp14::make_unique<WAxis>())
+  : axis(cpp14::make_unique<WAxis>()),
+    calculatedWidth(0)
 { }
 
 WCartesianChart::AxisStruct::AxisStruct(std::unique_ptr<WAxis> ax) noexcept
-  : axis(std::move(ax))
+  : axis(std::move(ax)),
+    calculatedWidth(0)
 { }
 
 WCartesianChart::AxisStruct::AxisStruct(AxisStruct &&other) noexcept
   : axis(std::move(other.axis)),
+    calculatedWidth(other.calculatedWidth),
     location(other.location),
     transform(other.transform),
     transformHandle(std::move(other.transformHandle)),
     transformChanged(std::move(other.transformChanged)),
     pens(std::move(other.pens))
 {
+  other.calculatedWidth = 0;
   other.location = AxisLocation();
   other.transform = WTransform();
 }
@@ -1226,12 +1230,14 @@ WCartesianChart::AxisStruct &WCartesianChart::AxisStruct::operator=(AxisStruct &
     return *this;
 
   axis = std::move(other.axis);
+  calculatedWidth = other.calculatedWidth;
   location = other.location;
   transform = other.transform;
   transformHandle = std::move(other.transformHandle);
   transformChanged = std::move(other.transformChanged);
   pens = std::move(other.pens);
 
+  other.calculatedWidth = 0;
   other.location = AxisLocation();
   other.transform = WTransform();
 
@@ -2602,9 +2608,34 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     ss << "],";
     ss << "wheelActions:" << wheelActionsToJson(wheelActions_) << ",";
     ss << "coordinateOverlayPadding:[" << coordPaddingX << ",";
-    ss                                 << coordPaddingY << "]";
-    ss << "});";
-
+    ss                                 << coordPaddingY << "],";
+    ss << "yAxes:[";
+    for (int i = 0; i < yAxisCount(); ++i) {
+      if (i != 0)
+        ss << ',';
+      ss << '{';
+      ss << "width:" << Utils::round_js_str(yAxes_[i]->calculatedWidth, 3, buf) << ',';
+      ss << "side:'";
+      switch (yAxes_[i]->location.loc) {
+      case MinimumValue:
+        ss << "min";
+        break;
+      case MaximumValue:
+        ss << "max";
+        break;
+      case ZeroValue:
+        ss << "zero";
+        break;
+      case BothSides:
+        ss << "both";
+        break;
+      }
+      ss << "',";
+      ss << "minOffset:" << yAxes_[i]->location.minOffset << ',';
+      ss << "maxOffset:" << yAxes_[i]->location.maxOffset;
+      ss << '}';
+    }
+    ss << "]});";
 
     doJavaScript(ss.str());
 
@@ -2963,28 +2994,34 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
   int offset = 0;
   for (std::size_t i = 0; i < minimumYaxes.size(); ++i) {
     const WAxis &axis = *minimumYaxes[i];
-    if (axis.location() != AxisValue::Both)
-      yAxes_[axis.yAxisId()].location.loc = AxisValue::Minimum;
+    if (axis.location() != BothSides)
+      yAxes_[axis.yAxisId()].location.loc = MinimumValue;
     yAxes_[axis.yAxisId()].location.minOffset = offset;
-    if (i == 0 && axis.tickDirection() == TickDirection::Inwards)
+    yAxes_[axis.yAxisId()].calculatedWidth =
+        calcYAxisSize(axis, device) + 10;
+    if (i == 0 && axis.tickDirection() == Inwards)
       offset += 10;
     else
-      offset += calcYAxisSize(axis, device) + 10;
+      offset += yAxes_[axis.yAxisId()].calculatedWidth;
   }
 
   std::vector<const WAxis*> maximumYaxes = collectYAxesAtLocation(AxisValue::Maximum);
   offset = 0;
   for (std::size_t i = 0; i < maximumYaxes.size(); ++i) {
     const WAxis &axis = *maximumYaxes[i];
-    if (axis.location() != AxisValue::Both)
-      yAxes_[axis.yAxisId()].location.loc = AxisValue::Maximum;
+    if (axis.location() != BothSides)
+      yAxes_[axis.yAxisId()].location.loc = MaximumValue;
     yAxes_[axis.yAxisId()].location.maxOffset = offset;
-    if (i == 0 && axis.tickDirection() == TickDirection::Inwards)
+    yAxes_[axis.yAxisId()].calculatedWidth =
+        calcYAxisSize(axis, device) + 10;
+    if (i == 0 && axis.tickDirection() == Inwards)
       offset += 10;
     else
-      offset += calcYAxisSize(axis, device) + 10;
+      offset += yAxes_[axis.yAxisId()]->calculatedWidth;
   }
 
+  // TODO(Roel): This could break something?
+#if 0
   if (!minimumYaxes.empty() &&
       minimumYaxes[0]->location() == AxisValue::Minimum &&
       xAxis_.axis->segments_.front().renderMinimum == 0 &&
@@ -2997,6 +3034,7 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
       xAxis_.axis->segments_.back().renderMaximum == 0) {
     yAxes_[maximumYaxes[0]->yAxisId()].location.loc = AxisValue::Zero;
   }
+#endif
 
   // TODO(Roel): don't do this anymore?
 #if 0
