@@ -36,6 +36,7 @@ WT_DECLARE_WT_MEMBER
  //     hasToolTips // whether there are any tooltips
  //     pens // {x: [linePen,textPen,gridPen], y: [[linePen,textPen,gridPen],...] }
  //     penAlpha: {x: [linePenAlpha,textPenAlpha,gridPenAlpha], y: [[linePenAlpha,textPenAlpha,gridPenAlpha],...] }
+ //     yAxes: [{width: float, side: side, minOffset: float, maxOffset: float}] side = min max zero both
  //
  function(APP, widget, target, config) {
 
@@ -82,6 +83,18 @@ WT_DECLARE_WT_MEMBER
    }
    function yTransform(ax) {
      return config.yTransforms[ax];
+   }
+   function yAxisWidth(ax) {
+     return config.yAxes[ax].width;
+   }
+   function yAxisSide(ax) {
+     return config.yAxes[ax].side;
+   }
+   function yAxisMinOffset(ax) {
+     return config.yAxes[ax].minOffset;
+   }
+   function yAxisMaxOffset(ax) {
+     return config.yAxes[ax].maxOffset;
    }
    function configArea() { return config.area; }
    function insideArea() { return config.insideArea; }
@@ -165,6 +178,42 @@ WT_DECLARE_WT_MEMBER
    }
    function crosshairAxis() {
      return config.crosshairAxis;
+   }
+   function matchAxis(x, y) {
+     // Check if the given x, y position (in pixels) matches an axis.
+     // If so, this returns the axis id, otherwise this returns -1.
+     var area = configArea();
+     if (isHorizontal()) {
+       if (x < left(area) || x > right(area))
+         return -1;
+     } else {
+       if (y < top(area) || y > bottom(area))
+         return -1;
+     }
+     for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+       if (isHorizontal()) {
+         if ((yAxisSide(yAx) === 'min' || yAxisSide(yAx) === 'both') &&
+             y >= top(area) - yAxisMinOffset(yAx) - yAxisWidth(yAx) &&
+             y <= top(area) - yAxisMinOffset(yAx)) {
+           return yAx;
+         } else if ((yAxisSide(yAx) === 'max' || yAxisSide(yAx) === 'both') &&
+                    y >= bottom(area) + yAxisMaxOffset(yAx) &&
+                    y <= bottom(area) + yAxisMaxOffset(yAx) + yAxisWidth(yAx)) {
+           return yAx;
+         }
+       } else {
+         if ((yAxisSide(yAx) === 'min' || yAxisSide(yAx) === 'both') &&
+             x >= left(area) - yAxisMinOffset(yAx) - yAxisWidth(yAx) &&
+             x <= left(area) - yAxisMinOffset(yAx)) {
+           return yAx;
+         } else if ((yAxisSide(yAx) === 'max' || yAxisSide(yAx) === 'both') &&
+                    x >= right(area) + yAxisMaxOffset(yAx) &&
+                    x <= right(area) + yAxisMaxOffset(yAx) + yAxisWidth(yAx)) {
+           return yAx;
+         }
+       }
+     }
+     return -1;
    }
 
    /* const */ var ANIMATION_INTERVAL = 17;
@@ -328,6 +377,7 @@ WT_DECLARE_WT_MEMBER
 
    var paintEnabled = true; 
    var dragPreviousXY = null;
+   var dragCurrentYAxis = -1;
    var touches = [];
    var singleTouch = false;
    var doubleTouch = false;
@@ -686,25 +736,38 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.mouseDown = function(o, event) {
-      if (pointerActive) return;
+      if (pointerActive)
+        return;
       var c = WT.widgetCoordinates(target.canvas, event);
-      if (!isPointInRect(c, configArea())) return;
+      var matchedYAxis = matchAxis(c.x, c.y);
+      var inRect = isPointInRect(c, configArea());
+      if (matchedYAxis === -1 && !inRect)
+        return;
 
       dragPreviousXY = c;
+      dragCurrentYAxis = matchedYAxis;
    };
 
    this.mouseUp = function(o, event) {
-      if (pointerActive) return;
+      if (pointerActive)
+        return;
       dragPreviousXY = null;
+      dragCurrentYAxis = -1;
    };
 
    this.mouseDrag = function(o, event) {
-      if (pointerActive) return;
-      if (dragPreviousXY === null) return;
+      if (pointerActive)
+        return;
+      if (dragPreviousXY === null)
+        return;
       var c = WT.widgetCoordinates(target.canvas, event);
-      if (!isPointInRect(c, configArea())) return;
+      /*
+       * TODO(Roel): no point in rect check?
+      if (!isPointInRect(c, configArea()))
+        return;
+      */
       if (WT.buttons === 1) {
-	 if (curveManipulation() && configSeries(configSelectedCurve())) {
+	 if (dragCurrentYAxis === -1 && curveManipulation() && configSeries(configSelectedCurve())) {
 	    var curve = configSelectedCurve();
 	    var dy;
 	    if (isHorizontal()) {
@@ -720,7 +783,7 @@ WT_DECLARE_WT_MEMBER
 	    translate({
 	       x: c.x - dragPreviousXY.x,
 	       y: c.y - dragPreviousXY.y
-	    });
+	    }, 0, dragCurrentYAxis);
 	 }
       }
       dragPreviousXY = c;
@@ -772,9 +835,12 @@ WT_DECLARE_WT_MEMBER
       if (isUndefined(action)) return;
 
       var c = WT.widgetCoordinates(target.canvas, event);
-      if (!isPointInRect(c, configArea())) return;
+      var matchedYAxis = matchAxis(c.x, c.y);
+      var inRect = isPointInRect(c, configArea());
+      if (matchedYAxis === -1 && !inRect)
+        return;
       var w = WT.normalizeWheel(event);
-      if (modifiers === 0 && curveManipulation()) {
+      if (inRect && modifiers === 0 && curveManipulation()) {
 	 // Scale the curve around its middle
 	 var curve = configSelectedCurve();
 	 var d = -w.spinY;
@@ -799,11 +865,11 @@ WT_DECLARE_WT_MEMBER
            yBefore.push(yTransform(yAx)[5]);
          }
 	 if (action === WHEEL_PAN_MATCHING)
-	    translate({x:-w.pixelX,y:-w.pixelY});
+	    translate({x:-w.pixelX,y:-w.pixelY}, 0, matchedYAxis);
 	 else if (action === WHEEL_PAN_Y)
-	    translate({x:0,y:-w.pixelX - w.pixelY});
+	    translate({x:0,y:-w.pixelX - w.pixelY}, 0, matchedYAxis);
 	 else if (action === WHEEL_PAN_X)
-	    translate({x:-w.pixelX - w.pixelY,y:0});
+	    translate({x:-w.pixelX - w.pixelY,y:0}, 0, matchedYAxis);
 	 if (xBefore !== xTransform()[4]) {
            for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
              if (yBefore[yAx] !== yTransform(yAx)[5])
@@ -816,16 +882,16 @@ WT_DECLARE_WT_MEMBER
 	 // Some browsers scroll horizontally when shift key pressed
 	 if (d === 0) d = -w.spinX;
 	 if (action === WHEEL_ZOOM_Y) {
-	    zoom(c, 0, d);
+	    zoom(c, 0, d, matchedYAxis);
 	 } else if (action === WHEEL_ZOOM_X) {
-	    zoom(c, d, 0);
+	    zoom(c, d, 0, matchedYAxis);
 	 } else if (action === WHEEL_ZOOM_XY) {
-	    zoom(c, d, d);
+	    zoom(c, d, d, matchedYAxis);
 	 } else if (action === WHEEL_ZOOM_MATCHING) {
 	    if (w.pixelX !== 0)
-	       zoom(c, d, 0);
+	       zoom(c, d, 0, matchedYAxis);
 	    else
-	       zoom(c, 0, d);
+	       zoom(c, 0, d, matchedYAxis);
 	 }
       }
    };
@@ -854,16 +920,20 @@ WT_DECLARE_WT_MEMBER
       if (singleTouch) {
 	 animating = false;
 	 var c = WT.widgetCoordinates(target.canvas, event.touches[0]);
-	 if (!isPointInRect(c, configArea())) return;
-	 if (showCrosshair() && distanceLessThanRadius(crosshair, [c.x,c.y], CROSSHAIR_RADIUS)) {
+         var matchedYAxis = matchAxis(c.x, c.y);
+         var inRect = isPointInRect(c, configArea());
+	 if (matchedYAxis === -1 && !inRect)
+           return;
+	 if (matchedYAxis === -1 && showCrosshair() && distanceLessThanRadius(crosshair, [c.x,c.y], CROSSHAIR_RADIUS)) {
 	    mode = CROSSHAIR_MODE;
 	 } else {
 	    mode = LOOK_MODE;
 	 }
 	 lastDate = Date.now();
 	 dragPreviousXY = c;
+         dragCurrentYAxis = matchedYAxis;
 	 if (mode !== CROSSHAIR_MODE) {
-	    if (!fromDoubleTouch) {
+	    if (!fromDoubleTouch && inRect) {
 	      seriesSelectionTimeout = window.setTimeout(seriesSelected, SERIES_SELECTION_TIMEOUT);
 	    }
 	    addEventListener('contextmenu', eobj2.contextmenuListener);
@@ -880,9 +950,15 @@ WT_DECLARE_WT_MEMBER
 	   WT.widgetCoordinates(target.canvas,event.touches[0]),
 	   WT.widgetCoordinates(target.canvas,event.touches[1])
 	].map(function(t){return [t.x,t.y];});
+        var matchedYAxis = -1;
 	if (!touches.every(function(p){return isPointInRect(p,configArea());})) {
-	   doubleTouch = null;
-	   return;
+           matchedYAxis = matchAxis(touches[0][X], touches[0][Y]);
+           if (matchedYAxis === -1 ||
+               matchAxis(touches[1][X], touches[1][Y]) !== matchedYAxis) {
+	     doubleTouch = null;
+	     return;
+           }
+           dragCurrentYAxis = matchedYAxis;
 	}
 	WT.capture(null);
 	WT.capture(topElement());
@@ -902,6 +978,7 @@ WT_DECLARE_WT_MEMBER
 	   zoomAngle = -Math.PI / 4;
 	}
 	zoomProjection = projection(zoomAngle, zoomMiddle);
+        dragCurrentYAxis = matchedYAxis;
       } else {
 	 return;
       }
@@ -916,9 +993,14 @@ WT_DECLARE_WT_MEMBER
 	 dt = now - lastDate;
       }
       var d = {x: 0, y: 0};
-      var area = transformedInsideChartArea(0);
-      for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
-        area = intersection(area, transformedInsideChartArea(yAx));
+      var area;
+      if (dragCurrentYAxis === -1) {
+        area = transformedInsideChartArea(0);
+        for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
+          area = intersection(area, transformedInsideChartArea(yAx));
+        }
+      } else {
+        area = transformedInsideChartArea(dragCurrentYAxis);
       }
       var k = SPRING_CONSTANT;
 
@@ -990,37 +1072,46 @@ WT_DECLARE_WT_MEMBER
 	 d.y = v.y * dt;
       }
 
-      area = transformedInsideChartArea(0);
-      for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
-        area = intersection(area, transformedInsideChartArea(yAx));
+      if (dragCurrentYAxis === -1) {
+        area = transformedInsideChartArea(0);
+        for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
+          area = intersection(area, transformedInsideChartArea(yAx));
+        }
+      } else {
+        area = transformedInsideChartArea(dragCurrentYAxis);
       }
-      translate(d, NO_LIMIT);
-      var newArea = transformedInsideChartArea(0);
-      for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
-        newArea = intersection(newArea, transformedInsideChartArea(yAx));
+      translate(d, NO_LIMIT, dragCurrentYAxis);
+      var newArea;
+      if (dragCurrentYAxis === -1) {
+        newArea = transformedInsideChartArea(0);
+        for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
+          newArea = intersection(newArea, transformedInsideChartArea(yAx));
+        }
+      } else {
+        newArea = transformedInsideChartArea(dragCurrentYAxis);
       }
       if (left(area) > left(insideArea()) &&
 	  left(newArea) <= left(insideArea())) {
 	v.x = 0;
-	translate({x:-d.x,y:0}, NO_LIMIT);
+	translate({x:-d.x,y:0}, NO_LIMIT, dragCurrentYAxis);
 	enforceLimits(X_ONLY);
       }
       if (right(area) < right(insideArea()) &&
 	  right(newArea) >= right(insideArea())) {
 	v.x = 0;
-	translate({x:-d.x,y:0}, NO_LIMIT);
+	translate({x:-d.x,y:0}, NO_LIMIT, dragCurrentYAxis);
 	enforceLimits(X_ONLY);
       }
       if (top(area) > top(insideArea()) &&
 	  top(newArea) <= top(insideArea())) {
 	v.y = 0;
-	translate({x:0,y:-d.y}, NO_LIMIT);
+	translate({x:0,y:-d.y}, NO_LIMIT, dragCurrentYAxis);
 	enforceLimits(Y_ONLY);
       }
       if (bottom(area) < bottom(insideArea()) &&
 	  bottom(newArea) >= bottom(insideArea())) {
 	v.y = 0;
-	translate({x:0,y:-d.y}, NO_LIMIT);
+	translate({x:0,y:-d.y}, NO_LIMIT, dragCurrentYAxis);
 	enforceLimits(Y_ONLY);
       }
       if (Math.abs(v.x) < STOPPING_SPEED &&
@@ -1109,14 +1200,14 @@ WT_DECLARE_WT_MEMBER
       // kind of breaks pinch-to-zoom?
       if (len(event.touches) > 1)
 	 c2 = WT.widgetCoordinates(target.canvas, event.touches[1]);
-      if (singleTouch && seriesSelectionTimeout && !distanceLessThanRadius([c1.x,c1.y],[dragPreviousXY.x,dragPreviousXY.y],3)) {
+      if (dragCurrentYAxis === -1 && singleTouch && seriesSelectionTimeout && !distanceLessThanRadius([c1.x,c1.y],[dragPreviousXY.x,dragPreviousXY.y],3)) {
 	 window.clearTimeout(seriesSelectionTimeout);
 	 seriesSelectionTimeout = null;
       }
       // setTimeout prevents high animation velocity due to looking
       // at events that are further apart.
       if (!moveTimeout) moveTimeout = setTimeout(function(){
-        if (singleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
+        if (dragCurrentYAxis === -1 && singleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
 	   var curve = configSelectedCurve();
 	   if (configSeries(curve)) {
 	      var c = c1;
@@ -1148,10 +1239,10 @@ WT_DECLARE_WT_MEMBER
 	   } else if (config.pan) {
 	      v.x = d.x / dt;
 	      v.y = d.y / dt;
-	      translate(d, config.rubberBand ? DAMPEN : 0);
+	      translate(d, config.rubberBand ? DAMPEN : 0, dragCurrentYAxis);
 	   }
 	   dragPreviousXY = c;
-	} else if (doubleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
+	} else if (dragCurrentYAxis === -1 && doubleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
 	   var yAxis = isHorizontal() ? X : Y;
 	   var newTouches = [ c1, c2 ].map(function(t){
 	      if (isHorizontal()) {
@@ -1191,7 +1282,7 @@ WT_DECLARE_WT_MEMBER
 		 return [mxBefore, t.y];
 	      } else {
 		 return mult(zoomProjection,[t.x,t.y]);
-	      }
+	        }
 	   });
 
 	   var dxBefore = Math.abs(touches[1][0] - touches[0][0]);
@@ -1235,25 +1326,37 @@ WT_DECLARE_WT_MEMBER
 	        yScalePerAxis[yAx] = maxYZoom(yAx) / yTransform(yAx)[3];
 	     }
            }
-	   if (xScale !== 1 &&
+           if (dragCurrentYAxis === -1) {
+	     if (xScale !== 1 &&
 		 (xScale < 1.0 || xTransform()[0] !== maxXZoom())) {
-          tAssign(xTransform(),
-		mult(
-		   [xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
-		   xTransform()
-		 )
-	      );
-	   }
-           for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
-	     if (yScalePerAxis[yAx] !== 1 &&
-		 (yScalePerAxis[yAx] < 1.0 || yTransform(yAx)[3] !== maxYZoom(yAx))) {
-                tAssign(yTransform(yAx),
-		mult(
-		  [1,0,0,yScalePerAxis[yAx],0,-yScalePerAxis[yAx]*myBefore+myAfter],
-		  yTransform(yAx)
-		)
-	      );
+               tAssign(xTransform(),
+		    mult(
+		      [xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
+		      xTransform()
+		    )
+	          );
 	     }
+             for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+	       if (yScalePerAxis[yAx] !== 1 &&
+		   (yScalePerAxis[yAx] < 1.0 || yTransform(yAx)[3] !== maxYZoom(yAx))) {
+                 tAssign(yTransform(yAx),
+		   mult(
+		    [1,0,0,yScalePerAxis[yAx],0,-yScalePerAxis[yAx]*myBefore+myAfter],
+		    yTransform(yAx)
+		   )
+	         );
+	       }
+             }
+           } else {
+             if (yScalePerAxis[dragCurrentYAxis] !== 1 &&
+                 (yScalePerAxis[dragCurrentYAxis] < 1.0 || yTransform(dragCurrentYAxis)[3] !== maxYZoom(dragCurrentYAxis))) {
+               tAssign(yTransform(dragCurrentYAxis),
+                   mult(
+                     [1,0,0,yScalePerAxis[dragCurrentYAxis],0,-yScalePerAxis[dragCurrentYAxis]*myBefore+myAfter],
+                     yTransform(dragCurrentYAxis)
+                   )
+                );
+             }
            }
 	   enforceLimits();
 
@@ -1304,9 +1407,11 @@ WT_DECLARE_WT_MEMBER
       }
    }
 
-   function translate(d, flags) {
+   function translate(d, flags, matchedYAxis) {
       if (isUndefined(flags))
         flags = 0;
+      if (isUndefined(matchedYAxis))
+        matchedYAxis = -1;
       var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
 
       if (isHorizontal()) {
@@ -1314,14 +1419,23 @@ WT_DECLARE_WT_MEMBER
       }
 
       if (flags & NO_LIMIT) {
-	xTransform()[4] = xTransform()[4] + d.x;
-        for (var yAx = 0; yAx < yAxisCount(); ++yAx)
-          yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
+        if (matchedYAxis === -1) {
+	  xTransform()[4] = xTransform()[4] + d.x;
+          for (var yAx = 0; yAx < yAxisCount(); ++yAx)
+            yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
+        } else {
+          yTransform(matchedYAxis)[5] = yTransform(matchedYAxis)[5] - d.y;
+        }
         setTransformChangedTimeout();
       } else if (flags & DAMPEN) {
-	var area = transformedInsideChartArea(0);
-        for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
-          area = intersection(area, transformedInsideChartArea(yAx));
+        var area;
+        if (matchedYAxis === -1) {
+	  area = transformedInsideChartArea(0);
+          for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
+            area = intersection(area, transformedInsideChartArea(yAx));
+          }
+        } else {
+          area = transformedInsideChartArea(matchedYAxis);
         }
 	if (left(area) > left(insideArea())) {
 	  if (d.x > 0) {
@@ -1341,17 +1455,27 @@ WT_DECLARE_WT_MEMBER
 	    d.y = d.y / (1 + ((bottom(insideArea()) - bottom(area)) * RESISTANCE_FACTOR));
 	  }
 	}
-	xTransform()[4] = xTransform()[4] + d.x;
-        for (var yAx = 0; yAx < yAxisCount(); ++yAx)
-	  yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
-	crosshair[X] = crosshair[X] + d.x;
+        if (matchedYAxis === -1) {
+	  xTransform()[4] = xTransform()[4] + d.x;
+          for (var yAx = 0; yAx < yAxisCount(); ++yAx)
+	    yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
+        } else {
+          yTransform(matchedYAxis)[5] = yTransform(matchedYAxis)[5] - d.y;
+        }
+        if (matchedYAxis === -1)
+	  crosshair[X] = crosshair[X] + d.x;
 	crosshair[Y] = crosshair[Y] + d.y;
         setTransformChangedTimeout();
       } else {
-	xTransform()[4] = xTransform()[4] + d.x;
-        for (var yAx = 0; yAx < yAxisCount(); ++yAx)
-	  yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
-	crosshair[X] = crosshair[X] + d.x;
+        if (matchedYAxis === -1) {
+	  xTransform()[4] = xTransform()[4] + d.x;
+          for (var yAx = 0; yAx < yAxisCount(); ++yAx)
+	    yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
+        } else {
+          yTransform(matchedYAxis)[5] = yTransform(matchedYAxis)[5] - d.y;
+        }
+        if (matchedYAxis === -1)
+	  crosshair[X] = crosshair[X] + d.x;
 	crosshair[Y] = crosshair[Y] + d.y;
 
 	enforceLimits();
@@ -1366,35 +1490,44 @@ WT_DECLARE_WT_MEMBER
       notifyAreaChanged();
    }
 
-   function zoom(coords, xDelta, yDelta) {
-      var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
-      var xy;
-      if (isHorizontal()) {
-	 xy = [coords.y - top(configArea()), coords.x - left(configArea())];
-      } else {
-	 xy = mult(
-	    inverted([1,0,0,-1,left(configArea()),bottom(configArea())]), [coords.x, coords.y]);
-      }
-      var x = xy[0];
-      var y = xy[1];
-      var s_x = Math.pow(1.2, isHorizontal() ? yDelta : xDelta);
-      var s_y = Math.pow(1.2, isHorizontal() ? xDelta : yDelta);
-      if (xTransform()[0] * s_x > maxXZoom()) {
-	 s_x = maxXZoom() / xTransform()[0];
-      }
-      if (s_x < 1.0 || xTransform()[0] !== maxXZoom()) {
-        tAssign(xTransform(),
-	       mult(
-		  [s_x,0,0,1,x-s_x*x,0],
-		  xTransform()));
-      }
-      for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
-        var s_specific_y = s_y;
-        if (yTransform(yAx)[3] * s_y > maxYZoom(yAx)) {
-          s_specific_y = maxYZoom(yAx) / yTransform(yAx)[3];
+   function zoom(coords, xDelta, yDelta, matchedYAxis) {
+     if (isUndefined(matchedYAxis))
+       matchedYAxis = -1;
+     var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
+     var xy;
+     if (isHorizontal()) {
+       xy = [coords.y - top(configArea()), coords.x - left(configArea())];
+     } else {
+       xy = mult(
+              inverted([1,0,0,-1,left(configArea()),bottom(configArea())]), [coords.x, coords.y]);
+     }
+     var x = xy[0];
+     var y = xy[1];
+     var s_x = Math.pow(1.2, isHorizontal() ? yDelta : xDelta);
+     var s_y = Math.pow(1.2, isHorizontal() ? xDelta : yDelta);
+     if (xTransform()[0] * s_x > maxXZoom()) {
+       s_x = maxXZoom() / xTransform()[0];
+     }
+     if (matchedYAxis === -1) {
+       if (s_x < 1.0 || xTransform()[0] !== maxXZoom()) {
+         tAssign(xTransform(),
+                 mult([s_x,0,0,1,x-s_x*x,0], xTransform()));
         }
-        if (s_specific_y < 1.0 || yTransform(yAx)[3] !== maxYZoom(yAx)) {
-          tAssign(yTransform(yAx), mult([1,0,0,s_specific_y,0,y-s_specific_y*y], yTransform(yAx)));
+        for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+          var s_specific_y = s_y;
+          if (yTransform(yAx)[3] * s_y > maxYZoom(yAx)) {
+            s_specific_y = maxYZoom(yAx) / yTransform(yAx)[3];
+          }
+          if (s_specific_y < 1.0 || yTransform(yAx)[3] !== maxYZoom(yAx)) {
+            tAssign(yTransform(yAx), mult([1,0,0,s_specific_y,0,y-s_specific_y*y], yTransform(yAx)));
+          }
+        }
+      } else {
+        if (yTransform(matchedYAxis)[3] * s_y > maxYZoom(matchedYAxis)) {
+          s_y = maxYZoom(matchedYAxis) / yTransform(matchedYAxis)[3];
+        }
+        if (s_y < 1.0 || yTransform(matchedYAxis)[3] != maxYZoom(matchedYAxis)) {
+          tAssign(yTransform(matchedYAxis), mult([1,0,0,s_y,0,y-s_y*y], yTransform(matchedYAxis)));
         }
       }
 

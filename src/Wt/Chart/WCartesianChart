@@ -1454,6 +1454,7 @@ private:
     ~AxisStruct();
 
     WAxis *axis;
+    mutable int calculatedWidth;
     mutable AxisLocation location;
     mutable WTransform transform;
     WJavaScriptHandle<WTransform> transformHandle;

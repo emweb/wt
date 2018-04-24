@@ -279,6 +279,7 @@ private:
   WFileDropUploadResource *resource_;
   unsigned currentFileIdx_;
 
+  static const std::string WORKER_JS;
   std::string jsFilterFn_;
   std::vector<std::string> jsFilterImports_;
   ::uint64_t chunkSize_;

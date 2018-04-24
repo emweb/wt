@@ -1190,11 +1190,13 @@ const double MarkerMatchIterator::MATCH_RADIUS = 5;
 
 WCartesianChart::AxisStruct::AxisStruct()
   : axis(new WAxis()),
+    calculatedWidth(0),
     transformChanged(0)
 { }
 
 WCartesianChart::AxisStruct::AxisStruct(WAxis *ax)
   : axis(ax),
+    calculatedWidth(0),
     transformChanged(0)
 { }
 
@@ -2601,9 +2603,34 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     ss << "],";
     ss << "wheelActions:" << wheelActionsToJson(wheelActions_) << ",";
     ss << "coordinateOverlayPadding:[" << coordPaddingX << ",";
-    ss                                 << coordPaddingY << "]";
-    ss << "});";
-
+    ss                                 << coordPaddingY << "],";
+    ss << "yAxes:[";
+    for (int i = 0; i < yAxisCount(); ++i) {
+      if (i != 0)
+        ss << ',';
+      ss << '{';
+      ss << "width:" << Utils::round_js_str(yAxes_[i]->calculatedWidth, 3, buf) << ',';
+      ss << "side:'";
+      switch (yAxes_[i]->location.loc) {
+      case MinimumValue:
+        ss << "min";
+        break;
+      case MaximumValue:
+        ss << "max";
+        break;
+      case ZeroValue:
+        ss << "zero";
+        break;
+      case BothSides:
+        ss << "both";
+        break;
+      }
+      ss << "',";
+      ss << "minOffset:" << yAxes_[i]->location.minOffset << ',';
+      ss << "maxOffset:" << yAxes_[i]->location.maxOffset;
+      ss << '}';
+    }
+    ss << "]});";
 
     doJavaScript(ss.str());
 
@@ -2957,10 +2984,12 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
     if (axis.location() != BothSides)
       yAxes_[axis.yAxisId()]->location.loc = MinimumValue;
     yAxes_[axis.yAxisId()]->location.minOffset = offset;
+    yAxes_[axis.yAxisId()]->calculatedWidth =
+        calcYAxisSize(axis, device) + 10;
     if (i == 0 && axis.tickDirection() == Inwards)
       offset += 10;
     else
-      offset += calcYAxisSize(axis, device) + 10;
+      offset += yAxes_[axis.yAxisId()]->calculatedWidth;
   }
 
   std::vector<const WAxis*> maximumYaxes = collectYAxesAtLocation(MaximumValue);
@@ -2970,12 +2999,16 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
     if (axis.location() != BothSides)
       yAxes_[axis.yAxisId()]->location.loc = MaximumValue;
     yAxes_[axis.yAxisId()]->location.maxOffset = offset;
+    yAxes_[axis.yAxisId()]->calculatedWidth =
+        calcYAxisSize(axis, device) + 10;
     if (i == 0 && axis.tickDirection() == Inwards)
       offset += 10;
     else
-      offset += calcYAxisSize(axis, device) + 10;
+      offset += yAxes_[axis.yAxisId()]->calculatedWidth;
   }
 
+  // TODO(Roel): This could break something?
+#if 0
   if (!minimumYaxes.empty() &&
       minimumYaxes[0]->location() == MinimumValue &&
       xAxis_.axis->segments_.front().renderMinimum == 0 &&
@@ -2988,6 +3021,7 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
       xAxis_.axis->segments_.back().renderMaximum == 0) {
     yAxes_[maximumYaxes[0]->yAxisId()]->location.loc = ZeroValue;
   }
+#endif
 
   // TODO(Roel): don't do this anymore?
 #if 0

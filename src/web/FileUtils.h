@@ -34,8 +34,8 @@ namespace Wt {
     // Returns a filename that can be used as temporary file
     extern WT_API std::string createTempFileName();
 
-    extern void concatenateFiles(const std::string &srcFile,
-				 const std::string &targetFile);
+    extern void appendFile(const std::string &srcFile,
+			   const std::string &targetFile);
   }
 }
 
