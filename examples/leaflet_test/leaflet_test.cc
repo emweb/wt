@@ -548,6 +548,10 @@ public:
       {
         color = rgb_to_hex(0, 0, 255);
       }
+      else if (feature.m_name.compare("20878") == 0)
+      {
+        color = rgb_to_hex(0, 255, 255);
+      }
       else
       {
         continue;
