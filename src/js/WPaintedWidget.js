@@ -222,6 +222,21 @@ WT_DECLARE_WT_MEMBER
 	    }
 	    return res;
 	 };
+         this.rect_intersection = function(rect1, rect2) {
+           rect1 = self.rect_normalized(rect1);
+           rect2 = self.rect_normalized(rect2);
+           var t = self.rect_top;
+           var b = self.rect_bottom;
+           var l = self.rect_left;
+           var r = self.rect_right;
+           var left = Math.max(l(rect1), l(rect2));
+           var right = Math.min(r(rect1), r(rect2));
+           var top = Math.max(t(rect1), t(rect2));
+           var bottom = Math.min(b(rect1), b(rect2));
+           var width = right - left;
+           var height = bottom - top;
+           return [left, top, width, height];
+         };
 	 this.drawRect = function(ctx, rect, fill, stroke) {
 	    rect = self.rect_normalized(rect);
 	    var t = self.rect_top(rect),

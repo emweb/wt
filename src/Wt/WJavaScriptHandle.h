@@ -46,13 +46,13 @@ public:
    * The handle will be invalid until a valid WJavaScriptHandle
    * is copy-assigned to it.
    */
-  WJavaScriptHandle()
+  WJavaScriptHandle() noexcept
     : value_(nullptr), id_(0)
   { }
 
   /*! \brief Copy constructor
    */
-  WJavaScriptHandle(const WJavaScriptHandle &handle)
+  WJavaScriptHandle(const WJavaScriptHandle &handle) noexcept
     : value_(handle.value_), id_(handle.id_)
   {
     assert(value_ == nullptr || 
@@ -61,7 +61,7 @@ public:
 
   /*! \brief Copy assignment operator
    */
-  WJavaScriptHandle &operator=(const WJavaScriptHandle &handle)
+  WJavaScriptHandle &operator=(const WJavaScriptHandle &handle) noexcept
   {
     assert(handle.value_ == nullptr || 
 	   handle.value_->clientBinding_ != nullptr);
@@ -72,6 +72,41 @@ public:
     return (*this);
   }
 
+  /*! \brief Move constructor
+   */
+  WJavaScriptHandle(WJavaScriptHandle &&handle) noexcept
+    : value_(handle.value_), id_(handle.id_)
+  {
+    assert(handle.value_ == nullptr ||
+           handle.value_->clientBinding_ != nullptr);
+
+    handle.value_ = nullptr;
+    handle.id_ = 0;
+  }
+
+  /*! \brief Move assignment operator
+   */
+  WJavaScriptHandle &operator=(WJavaScriptHandle &&handle) noexcept
+  {
+    if (this == &handle)
+      return *this;
+
+    assert(handle.value_ == nullptr ||
+           handle.value_->clientBinding_ != nullptr);
+
+    value_ = handle.value_;
+    id_ = handle.id_;
+    handle.value_ = nullptr;
+    handle.id_ = 0;
+
+    return *this;
+  }
+
+  /*! \brief Destructor
+   */
+  ~WJavaScriptHandle()
+  { }
+
   /*! \brief Returns whether this is a valid handle
    *
    * A handle is not valid if it is not connected to a JavaScript
@@ -79,7 +114,7 @@ public:
    * WJavaScriptHandle has to be copy-assigned to it. The various
    * createJS... methods in WPaintedWidget return a valid handle.
    */
-  bool isValid() const {
+  bool isValid() const noexcept {
     return value_;
   }
   
@@ -137,7 +172,7 @@ public:
 private:
   friend class WJavaScriptObjectStorage;
 
-  WJavaScriptHandle(int id, T *t)
+  WJavaScriptHandle(int id, T *t) noexcept
     : value_(t), id_(id)
   {
     assert(t != nullptr && t->clientBinding_ != nullptr);

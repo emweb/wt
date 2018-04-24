@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-class WFileDropUploadResource;
+class WMemoryResource;
   
 /*! \class WFileDropWidget Wt/WFileDropWidget.h Wt/WFileDropWidget.h
  *  \brief A widget that allows dropping files for upload.
@@ -79,12 +79,20 @@ public:
      */
     Signal<>& uploaded() { return uploaded_; }
 
+    void setFilterEnabled(bool enabled);
+    bool filterEnabled() { return filterEnabled_; }
+
+    bool isFiltered() const { return isFiltered_; }
+
     // Wt internal
-    File(int id, const std::string& fileName, const std::string& type, ::uint64_t size);
+    File(int id, const std::string& fileName, const std::string& type, ::uint64_t size, ::uint64_t chunkSize);
     int uploadId() const { return id_; }
-    void setUploadedFile(const Http::UploadedFile& file);
+    void handleIncomingData(const Http::UploadedFile& file, bool last);
     void cancel();
     bool cancelled() const;
+    void emitDataReceived(::uint64_t current, ::uint64_t total,
+			  bool filterSupported);
+    void setIsFiltered(bool filtered);
     
   private:
     int id_;
@@ -95,8 +103,13 @@ public:
     Signal< ::uint64_t, ::uint64_t > dataReceived_;
     Signal<> uploaded_;
 
+    bool uploadStarted_;
     bool uploadFinished_;
     bool cancelled_;
+    bool filterEnabled_;
+    bool isFiltered_;
+    unsigned nbReceivedChunks_;
+    ::uint64_t chunkSize_;
   };
 
 
@@ -193,6 +206,10 @@ public:
    */
   bool globalDropEnabled() const;
 
+  /*! \brief Supply a function to process file data before it is uploaded to the server.
+   */
+  void setJavaScriptFilter(const std::string& filterFn, ::uint64_t chunksize = 0, const std::vector<std::string>& imports = std::vector<std::string>());
+
   /*! \brief The signal triggers if one or more files are dropped.
    */
   Signal<std::vector<File*> >& drop() { return dropEvent_; }
@@ -236,14 +253,22 @@ private:
   void stopReceiving();
   void onData(::uint64_t current, ::uint64_t total);
   void onDataExceeded(::uint64_t dataExceeded);
+  void createWorkerResource();
+  void disableJavaScriptFilter();
 
   // Functions for handling incoming requests
-  void setUploadedFile(Http::UploadedFile file);
+  void proceedToNextFile();
   bool incomingIdCheck(int id);
-  
+
+  WMemoryResource *uploadWorkerResource_;
   class WFileDropUploadResource;
   WFileDropUploadResource *resource_;
   unsigned currentFileIdx_;
+
+  std::string jsFilterFn_;
+  std::vector<std::string> jsFilterImports_;
+  ::uint64_t chunkSize_;
+  bool filterSupported_;
 
   std::string hoverStyleClass_;
   bool acceptDrops_;
@@ -256,6 +281,7 @@ private:
   JSignal< ::uint64_t > fileTooLarge_;
   JSignal<int> uploadFinished_;
   JSignal<> doneSending_;
+  JSignal<> jsFilterNotSupported_;
   
   Signal<std::vector<File*> > dropEvent_;
   Signal<File*> uploadStart_;
@@ -268,8 +294,9 @@ private:
   static const int BIT_HOVERSTYLE_CHANGED  = 0;
   static const int BIT_ACCEPTDROPS_CHANGED = 1;
   static const int BIT_FILTERS_CHANGED     = 2;
-  static const int BIT_DRAGOPTIONS_CHANGED   = 3;
-  std::bitset<4> updateFlags_;
+  static const int BIT_DRAGOPTIONS_CHANGED = 3;
+  static const int BIT_JSFILTER_CHANGED    = 4;
+  std::bitset<5> updateFlags_;
   
   friend class WFileDropUploadResource;
 };

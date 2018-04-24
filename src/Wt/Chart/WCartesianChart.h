@@ -563,6 +563,10 @@ public:
    */
   std::vector<const WAxis*> yAxes() const;
 
+  /*! \brief Returns the number of Y axes associated with this chart.
+   */
+  int yAxisCount() const;
+
   /*! \brief Retrieves the Y axis at index i
    *
    * The following expressions are always true:
@@ -1354,14 +1358,59 @@ public:
   void removeAxisSliderWidget(WAxisSliderWidget *slider);
 
 private:
+  struct AxisLocation {
+    AxisLocation()
+      : minOffset(0),
+        maxOffset(0),
+        loc(AxisValue::Minimum)
+    { }
+
+    int minOffset; // the number of pixels the axis should be shifted beyond
+                   // the minimum due to this axis being an extra Y axis on
+                   // the MinimumValue side
+    int maxOffset; // the number of pixels the axis should be shifted beyond
+                   // the maximum due to this axis being an extra Y axis on
+                   // the MaximumValue side
+    AxisValue loc; // where the axis has been placed after all of the
+                   // ZeroValue -> Minimum/Maximum and
+                   // Minimum/Maximum -> ZeroValue tricks
+  };
+  struct PenAssignment {
+    WJavaScriptHandle<WPen> pen;
+    WJavaScriptHandle<WPen> textPen;
+    WJavaScriptHandle<WPen> gridPen;
+
+    PenAssignment(const WJavaScriptHandle<WPen>& pen,
+		  const WJavaScriptHandle<WPen>& textPen,
+		  const WJavaScriptHandle<WPen>& gridPen)
+      : pen(pen), textPen(textPen), gridPen(gridPen)
+    { }
+  };
+  struct AxisStruct {
+    AxisStruct() noexcept;
+    AxisStruct(std::unique_ptr<WAxis> ax) noexcept;
+    AxisStruct(const AxisStruct &) = delete;
+    AxisStruct& operator=(const AxisStruct &) = delete;
+    AxisStruct(AxisStruct&&) noexcept;
+    AxisStruct& operator=(AxisStruct&&) noexcept;
+    ~AxisStruct();
+
+    std::unique_ptr<WAxis> axis;
+    mutable AxisLocation location;
+    mutable WTransform transform;
+    WJavaScriptHandle<WTransform> transformHandle;
+    std::unique_ptr<JSignal<>> transformChanged;
+    std::vector<PenAssignment> pens;
+  };
+
   std::unique_ptr<WChart2DImplementation> interface_;
 
   Orientation orientation_;
   int XSeriesColumn_;
   ChartType type_;
   std::vector<std::unique_ptr<WDataSeries>> series_;
-  std::unique_ptr<WAxis> xAxis_;
-  std::vector<std::unique_ptr<WAxis>> yAxes_;
+  AxisStruct xAxis_;
+  std::vector<AxisStruct> yAxes_;
   double barMargin_;
   WLegend legend_;
   int axisPadding_;
@@ -1371,28 +1420,7 @@ private:
   /* render state */
   mutable int width_, height_;
   mutable WRectF chartArea_;
-  mutable AxisValue xAxisLocation_;
   mutable bool hasDeferredToolTips_;
-
-  struct AxisLocation {
-    AxisLocation()
-      : minOffset(0),
-        maxOffset(0),
-        result(AxisValue::Minimum),
-        original(AxisValue::Minimum)
-    { }
-
-    int minOffset; // the number of pixels the axis should be shifted beyond
-                   // the minimum due to this axis being an extra Y axis on
-                   // the MinimumValue side
-    int maxOffset; // the number of pixels the axis should be shifted beyond
-                   // the maximum due to this axis being an extra Y axis on
-                   // the MaximumValue side
-    AxisValue result; // where the axis has been placed due to
-                      // Minimum/Maximum -> ZeroValue tricks
-    AxisValue original; // the initial desired location of the axis
-  };
-  mutable std::vector<AxisLocation> yAxisLocations_;
 
   bool jsDefined_;
   bool zoomEnabled_;
@@ -1406,8 +1434,6 @@ private:
   const WDataSeries *followCurve_;
   bool curveManipulationEnabled_;
   bool cObjCreated_;
-  JSignal<> xTransformChanged_;
-  JSignal<> yTransformChanged_;
 
   Signal<const WDataSeries *, WPointF> seriesSelected_;
   JSignal<double, double> jsSeriesSelected_;
@@ -1420,27 +1446,6 @@ private:
   TransformMap curveTransforms_;
   std::vector<WJavaScriptHandle<WTransform> > freeTransforms_;
 
-  mutable WTransform xTransform_;
-  mutable WTransform yTransform_;
-
-  // Scales and translates X axis
-  WJavaScriptHandle<WTransform> xTransformHandle_;
-  // Scales and translates Y axis
-  WJavaScriptHandle<WTransform> yTransformHandle_;
-
-  struct PenAssignment {
-    WJavaScriptHandle<WPen> pen;
-    WJavaScriptHandle<WPen> textPen;
-    WJavaScriptHandle<WPen> gridPen;
-
-    PenAssignment(const WJavaScriptHandle<WPen>& pen,
-		  const WJavaScriptHandle<WPen>& textPen,
-		  const WJavaScriptHandle<WPen>& gridPen)
-      : pen(pen), textPen(textPen), gridPen(gridPen)
-    { }
-  };
-  typedef std::map<Axis,std::vector<PenAssignment> > PenMap;
-  PenMap pens_;
   std::vector<WJavaScriptHandle<WPen>> freePens_;
 
   std::vector<CurveLabel> curveLabels_;
@@ -1599,7 +1604,8 @@ protected:
    *
    * \sa initLayout()
    */
-  virtual bool prepareAxes() const;
+  // TODO(Roel): adding the device here kind of breaks backwards compat
+  virtual bool prepareAxes(WPaintDevice *device) const;
 
   /*! \brief Renders the background.
    *
@@ -1698,7 +1704,8 @@ protected:
    * \sa setPanEnabled
    * \sa WAxis::setZoomRange()
    */
-  WTransform zoomRangeTransform() const;
+  // TODO(Roel): yAxis = 0 by default?
+  WTransform zoomRangeTransform(int yAxis) const;
 
 private:
   int calcNumBarGroups() const;
@@ -1707,7 +1714,8 @@ private:
   int seriesIndexOf(const WDataSeries &series) const;
   bool hasInwardsYAxisOnMaximumSide() const;
   void clearPens();
-  void createPensForAxis(Axis axis);
+  void clearPensForAxis(Axis axis, int yAxis);
+  void createPensForAxis(Axis axis, int yAxis);
   std::string cObjJsRef() const; // WCartesianChart JS object
   void assignJSHandlesForAllSeries();
   void freeJSHandlesForAllSeries();
@@ -1718,22 +1726,23 @@ private:
   void freeJSTransformsForSeries(const WDataSeries &series);
   void freeAllJSTransforms();
   void updateJSPens(WStringStream& js) const;
-  void updateJSPensForAxis(WStringStream& js, Axis axis) const;
+  void updateJSPensForAxis(WStringStream& js, Axis axis, int yAxis) const;
   void updateJSConfig(const std::string &key, cpp17::any value);
   WPainterPath pathForSeries(const WDataSeries &series) const; // For use in WAxisSliderWidget
-  WTransform zoomRangeTransform(WTransform xTransform, WTransform yTransform) const;
+  WTransform zoomRangeTransform(const WTransform &xTransform, const WTransform &yTransform) const;
   WTransform calculateCurveTransform(const WDataSeries &series) const;
   WTransform curveTransform(const WDataSeries &series) const;
   void setZoomAndPan();
   void addAreaMask();
   void xTransformChanged();
-  void yTransformChanged();
+  void yTransformChanged(int yAxis);
   void jsSeriesSelected(double x, double y);
   void loadTooltip(double x, double y);
   WPointF hv(double x, double y, double width) const;
   WPointF inverseHv(double x, double y, double width) const;
   WPointF inverseHv(const WPointF &p) const;
   WRectF insideChartArea() const;
+  int calcYAxisSize(const WAxis &axis, WPaintDevice *device) const;
   void defineJavaScript();
 
   bool axisSliderWidgetForSeries(WDataSeries *series) const;

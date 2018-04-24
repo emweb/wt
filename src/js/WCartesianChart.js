@@ -17,22 +17,25 @@ WT_DECLARE_WT_MEMBER
  //     selectedCurve (the curve that is currently selected)
  //     isHorizontal (if orientation() == Horizontal)
  //	xTransform
- //	yTransform
+ //	yTransforms[]
  //	area (WRectF describing render area)
  //	insideArea (WRectF describing render area without axis margins)
- //	modelArea (WRectF describing model area)
- //	maxZoom
+ //	modelAreas ([WRectF] describing model areas per Y axis)
+ //	maxZoom {x: float, y: [float]}
  //	rubberBand
  //	zoom (bool)
  //	pan (bool)
  //	crosshair (bool)
+ //	crosshairAxis (int)
  //	crosshairColor (css text)
  //	followCurve (int, -1 for disabled)
- //	notifyTransform {x: bool, y: bool} // Whether we should emit a signal on X or Y transform change
- //	series {modelColumn: {curve: curve ref, transform: transform ref},...}
+ //	notifyTransform {x: bool, y: [bool]} // Whether we should emit a signal on X or Y transform change
+ //	series {modelColumn: {curve: curve ref, transform: transform ref, axis: int},...}
  //	ToolTipInnerStyle // Style for the tooltip
  //	ToolTipOuterStyle // Style for the tooltip
  //     hasToolTips // whether there are any tooltips
+ //     pens // {x: [linePen,textPen,gridPen], y: [[linePen,textPen,gridPen],...] }
+ //     penAlpha: {x: [linePenAlpha,textPenAlpha,gridPenAlpha], y: [[linePenAlpha,textPenAlpha,gridPenAlpha],...] }
  //
  function(APP, widget, target, config) {
 
@@ -53,6 +56,7 @@ WT_DECLARE_WT_MEMBER
    var bottom = utils.rect_bottom;
    var left = utils.rect_left;
    var right = utils.rect_right;
+   var intersection = utils.rect_intersection;
 
    var chartCommon = WT.chartCommon;
    var minMaxY = chartCommon.minMaxY;
@@ -67,15 +71,17 @@ WT_DECLARE_WT_MEMBER
    function isUndefined(x) {
       return x === undefined;
    }
-   function modelArea() { return config.modelArea; }
+   function modelArea(ax) { return config.modelAreas[ax]; }
    function followCurve() { return config.followCurve; }
    function showCrosshair() {
       return config.crosshair || followCurve() !== -1;
    }
    function isHorizontal() { return config.isHorizontal; }
-   function transform(ax) {
-      if (ax === X) return config.xTransform;
-      if (ax === Y) return config.yTransform;
+   function xTransform() {
+     return config.xTransform;
+   }
+   function yTransform(ax) {
+     return config.yTransforms[ax];
    }
    function configArea() { return config.area; }
    function insideArea() { return config.insideArea; }
@@ -99,6 +105,9 @@ WT_DECLARE_WT_MEMBER
    function seriesCurve(seriesNb) {
       return configSeries(seriesNb).curve;
    }
+   function seriesAxis(seriesNb) {
+     return configSeries(seriesNb).axis;
+   }
    function seriesSelection() {
       return config.seriesSelection;
    }
@@ -114,11 +123,17 @@ WT_DECLARE_WT_MEMBER
    function curveManipulation() {
       return config.curveManipulation;
    }
-   function maxZoom() {
-      return config.maxZoom;
+   function maxXZoom() {
+      return config.maxZoom.x;
+   }
+   function maxYZoom(ax) {
+     return config.maxZoom.y[ax];
    }
    function pens() {
       return config.pens;
+   }
+   function penAlpha() {
+     return config.penAlpha;
    }
    function configSelectedCurve() {
       return config.selectedCurve;
@@ -135,6 +150,21 @@ WT_DECLARE_WT_MEMBER
    }
    function len(ar) {
       return ar.length;
+   }
+   function yAxisCount() {
+     return len(config.yTransforms);
+   }
+   function notifyAnyTransform() {
+     if (config.notifyTransform.x)
+       return true;
+     for (var i = 0; i < yAxisCount(); ++i) {
+       if (config.notifyTransform.y[i])
+         return true;
+     }
+     return false;
+   }
+   function crosshairAxis() {
+     return config.crosshairAxis;
    }
 
    /* const */ var ANIMATION_INTERVAL = 17;
@@ -340,26 +370,30 @@ WT_DECLARE_WT_MEMBER
 
    var transformChangedTimeout = null;
    var oldXTransform = [0,0,0,0,0,0];
-   assign(oldXTransform, transform(X));
-   var oldYTransform = [0,0,0,0,0,0];
-   assign(oldYTransform, transform(Y));
+   assign(oldXTransform, xTransform());
+   var oldYTransforms = [];
+   for (var i = 0; i < yAxisCount(); ++i) {
+     oldYTransforms.push([0,0,0,0,0,0]);
+     assign(oldYTransforms[i], yTransform(i));
+   }
    function setTransformChangedTimeout() {
-      if (!config.notifyTransform.x &&
-	  !config.notifyTransform.y)
-	 return;
+       if (!notifyAnyTransform())
+         return;
        if (transformChangedTimeout) {
            window.clearTimeout(transformChangedTimeout);
            transformChangedTimeout = null;
        }
        transformChangedTimeout = setTimeout(function(){
-	   if (config.notifyTransform.x && !equal(oldXTransform, transform(X))) {
+	   if (config.notifyTransform.x && !equal(oldXTransform, xTransform())) {
              APP.emit(target.widget, "xTransformChanged");
-	     assign(oldXTransform, transform(X));
+	     assign(oldXTransform, xTransform());
 	   }
-	   if (config.notifyTransform.y && !equal(oldYTransform, transform(Y))) {
-             APP.emit(target.widget, "yTransformChanged");
-	     assign(oldYTransform, transform(Y));
-	   }
+           for (var i = 0; i < yAxisCount(); ++i) {
+	     if (config.notifyTransform.y[i] && !equal(oldYTransforms[i], yTransform(i))) {
+               APP.emit(target.widget, "yTransformChanged" + i);
+	       assign(oldYTransforms[i], yTransform(i));
+	     }
+           }
          }, TRANSFORM_CHANGED_TIMEOUT);
    }
    var tAssign = function(a, b) {
@@ -368,32 +402,32 @@ WT_DECLARE_WT_MEMBER
    }
 
 
-   function combinedTransform() {
+   function combinedTransform(ax) {
       var l, b, t;
       if (isHorizontal()) {
 	 l = left(configArea());
 	 t = top(configArea());
-	 return mult([0,1,1,0,l,t], mult(transform(X), mult(transform(Y), [0,1,1,0,-t,-l])));
+	 return mult([0,1,1,0,l,t], mult(xTransform(), mult(yTransform(ax), [0,1,1,0,-t,-l])));
       } else {
 	 l = left(configArea());
 	 b = bottom(configArea());
-	 return mult([1,0,0,-1,l,b], mult(transform(X), mult(transform(Y), [1,0,0,-1,-l,b])));
+	 return mult([1,0,0,-1,l,b], mult(xTransform(), mult(yTransform(ax), [1,0,0,-1,-l,b])));
       }
    }
    target.combinedTransform = combinedTransform;
 
-   function transformedInsideChartArea() {
-      return mult(combinedTransform(), insideArea());
+   function transformedInsideChartArea(ax) {
+      return mult(combinedTransform(ax), insideArea());
    }
    
 
-   function toModelCoord(p, noTransform) {
+   function toModelCoord(p, ax, noTransform) {
       if (isUndefined(noTransform)) noTransform = false;
       var res;
       if (noTransform) {
 	 res = p;
       } else {
-	 res = mult(inverted(combinedTransform()), p);
+	 res = mult(inverted(combinedTransform(ax)), p);
       }
       var u;
       if (isHorizontal()) {
@@ -403,24 +437,24 @@ WT_DECLARE_WT_MEMBER
          u = [(res[X] - configArea()[0]) / configArea()[2],
 	       1 - (res[Y] - configArea()[1]) / configArea()[3]];
       }
-      return [modelArea()[0] + u[X] * modelArea()[2],
-	      modelArea()[1] + u[Y] * modelArea()[3]];
+      return [modelArea(ax)[0] + u[X] * modelArea(ax)[2],
+	      modelArea(ax)[1] + u[Y] * modelArea(ax)[3]];
    }
    
-   function toDisplayCoord(p, noTransform) {
+   function toDisplayCoord(p, ax, noTransform) {
      if (isUndefined(noTransform))
         noTransform = false;
-     return chartCommon.toDisplayCoord(p, noTransform ? [1,0,0,1,0,0] : combinedTransform(), isHorizontal(), configArea(), modelArea());
+     return chartCommon.toDisplayCoord(p, noTransform ? [1,0,0,1,0,0] : combinedTransform(ax), isHorizontal(), configArea(), modelArea(ax));
    }
 
    function notifyAreaChanged() {
       var u,v;
       if (isHorizontal()) {
-	 u = (toModelCoord([0, top(configArea())])[0] - modelArea()[0]) / modelArea()[2];
-	 v = (toModelCoord([0, bottom(configArea())])[0] - modelArea()[0]) / modelArea()[2];
+	 u = (toModelCoord([0, top(configArea())], 0)[0] - modelArea(0)[0]) / modelArea(0)[2];
+	 v = (toModelCoord([0, bottom(configArea())], 0)[0] - modelArea(0)[0]) / modelArea(0)[2];
       } else {
-	 u = (toModelCoord([left(configArea()), 0])[0] - modelArea()[0]) / modelArea()[2];
-	 v = (toModelCoord([right(configArea()), 0])[0] - modelArea()[0]) / modelArea()[2];
+	 u = (toModelCoord([left(configArea()), 0], 0)[0] - modelArea(0)[0]) / modelArea(0)[2];
+	 v = (toModelCoord([right(configArea()), 0], 0)[0] - modelArea(0)[0]) / modelArea(0)[2];
       }
       var i;
       for (i = 0; i < len(sliders()); ++i) {
@@ -466,13 +500,13 @@ WT_DECLARE_WT_MEMBER
       ctx.closePath();
       ctx.clip();
 
-      var p = mult(inverted(combinedTransform()), crosshair);
+      var p = mult(inverted(combinedTransform(crosshairAxis())), crosshair);
       var x = crosshair[X];
       var y = crosshair[Y];
       if (followCurve() !== -1) {
 	 p = findClosestPoint(isHorizontal() ? p[Y] : p[X],
 	       seriesCurve(followCurve()), isHorizontal());
-	 var tp = mult(combinedTransform(), mult(curveTransform(followCurve()), p));
+	 var tp = mult(combinedTransform(seriesAxis(followCurve())), mult(curveTransform(followCurve()), p));
 	 x = tp[X];
 	 y = tp[Y];
 	 crosshair[X] = x;
@@ -486,8 +520,13 @@ WT_DECLARE_WT_MEMBER
 	 u = [(p[X] - configArea()[0]) / configArea()[2],
 	       1 - (p[Y] - configArea()[1]) / configArea()[3]];
       }
-      p = [modelArea()[0] + u[X] * modelArea()[2],
-	   modelArea()[1] + u[Y] * modelArea()[3]];
+      if (followCurve() !== -1) {
+        p = [modelArea(seriesAxis(followCurve()))[0] + u[X] * modelArea(seriesAxis(followCurve()))[2],
+  	     modelArea(seriesAxis(followCurve()))[1] + u[Y] * modelArea(seriesAxis(followCurve()))[3]];
+      } else {
+        p = [modelArea(crosshairAxis())[0] + u[X] * modelArea(crosshairAxis())[2],
+  	     modelArea(crosshairAxis())[1] + u[Y] * modelArea(crosshairAxis())[3]];
+      }
 
       ctx.fillStyle = ctx.strokeStyle = config.crosshairColor;
       ctx.font = '16px sans-serif';
@@ -522,59 +561,61 @@ WT_DECLARE_WT_MEMBER
    }
 
    function enforceLimits(flags) {
-     var newChartArea = transformedInsideChartArea();
-     if (isHorizontal()) {
-	if (flags === X_ONLY) flags = Y_ONLY;
-	else if (flags === Y_ONLY) flags = X_ONLY;
-     }
-     var diff;
-     if (isUndefined(flags) || flags === X_ONLY) {
-	if (transform(X)[0] < 1) {
-	   transform(X)[0] = 1;
-	   newChartArea = transformedInsideChartArea();
-	}
-     }
-     if (isUndefined(flags) || flags === Y_ONLY) {
-	if (transform(Y)[3] < 1) {
-	   transform(Y)[3] = 1;
-	   newChartArea = transformedInsideChartArea();
-	}
-     }
-     if (isUndefined(flags) || flags === X_ONLY) {
-	if (left(newChartArea) > left(insideArea())) {
-	   diff = left(insideArea()) - left(newChartArea);
-	   if (isHorizontal())
-	      transform(Y)[5] = transform(Y)[5] + diff;
-	   else
-	      transform(X)[4] = transform(X)[4] + diff;
-	   newChartArea = transformedInsideChartArea();
-	}
-	if (right(newChartArea) < right(insideArea())) {
-	   diff = right(insideArea()) - right(newChartArea);
-	   if (isHorizontal())
-	      transform(Y)[5] = transform(Y)[5] + diff;
-	   else
-	      transform(X)[4] = transform(X)[4] + diff;
-	   newChartArea = transformedInsideChartArea();
-	}
-     }
-     if (isUndefined(flags) || flags === Y_ONLY) {
-	if (top(newChartArea) > top(insideArea())) {
-	   diff = top(insideArea()) - top(newChartArea);
-	   if (isHorizontal())
-	      transform(X)[4] = transform(X)[4] + diff;
-	   else
-	      transform(Y)[5] = transform(Y)[5] - diff;
-	   newChartArea = transformedInsideChartArea();
-	}
-	if (bottom(newChartArea) < bottom(insideArea())) {
-	   diff = bottom(insideArea()) - bottom(newChartArea);
-	   if (isHorizontal())
-	      transform(X)[4] = transform(X)[4] + diff;
-	   else
-	      transform(Y)[5] = transform(Y)[5] - diff;
-	   newChartArea = transformedInsideChartArea();
-	}
+     for (var i = 0; i < yAxisCount(); ++i) {
+       var newChartArea = transformedInsideChartArea(i);
+       if (isHorizontal()) {
+          if (flags === X_ONLY) flags = Y_ONLY;
+          else if (flags === Y_ONLY) flags = X_ONLY;
+       }
+       var diff;
+       if (isUndefined(flags) || flags === X_ONLY) {
+          if (xTransform()[0] < 1) {
+             xTransform()[0] = 1;
+             newChartArea = transformedInsideChartArea(i);
+          }
+       }
+       if (isUndefined(flags) || flags === Y_ONLY) {
+          if (yTransform(i)[3] < 1) {
+             yTransform(i)[3] = 1;
+             newChartArea = transformedInsideChartArea(i);
+          }
+       }
+       if (isUndefined(flags) || flags === X_ONLY) {
+          if (left(newChartArea) > left(insideArea())) {
+             diff = left(insideArea()) - left(newChartArea);
+             if (isHorizontal())
+                yTransform(i)[5] = yTransform(i)[5] + diff;
+             else
+                xTransform()[4] = xTransform()[4] + diff;
+             newChartArea = transformedInsideChartArea(i);
+          }
+          if (right(newChartArea) < right(insideArea())) {
+             diff = right(insideArea()) - right(newChartArea);
+             if (isHorizontal())
+                yTransform(i)[5] = yTransform(i)[5] + diff;
+             else
+                xTransform()[4] = xTransform()[4] + diff;
+             newChartArea = transformedInsideChartArea(i);
+          }
+       }
+       if (isUndefined(flags) || flags === Y_ONLY) {
+          if (top(newChartArea) > top(insideArea())) {
+             diff = top(insideArea()) - top(newChartArea);
+             if (isHorizontal())
+                xTransform()[4] = xTransform()[4] + diff;
+             else
+                yTransform(i)[5] = yTransform(i)[5] - diff;
+             newChartArea = transformedInsideChartArea(i);
+          }
+          if (bottom(newChartArea) < bottom(insideArea())) {
+             diff = bottom(insideArea()) - bottom(newChartArea);
+             if (isHorizontal())
+                xTransform()[4] = xTransform()[4] + diff;
+             else
+                yTransform(i)[5] = yTransform(i)[5] - diff;
+             newChartArea = transformedInsideChartArea(i);
+          }
+       }
      }
      setTransformChangedTimeout();
    }
@@ -672,7 +713,7 @@ WT_DECLARE_WT_MEMBER
 	       dy = c.y - dragPreviousXY.y;
 	    }
 	    assign(seriesTransform(curve),
-		  mult([1,0,0,1,0,dy / transform(Y)[3]],
+		  mult([1,0,0,1,0,dy / yTransform(seriesAxis(seriesNb))[3]],
 		       seriesTransform(curve)));
 	    repaint();
 	 } else if (config.pan) {
@@ -752,17 +793,22 @@ WT_DECLARE_WT_MEMBER
 	 }
       }
       if ((action === WHEEL_PAN_X || action === WHEEL_PAN_Y || action === WHEEL_PAN_MATCHING) && config.pan) {
-	 var xBefore = transform(X)[4];
-	 var yBefore = transform(Y)[5];
+	 var xBefore = xTransform()[4];
+         var yBefore = [];
+         for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+           yBefore.push(yTransform(yAx)[5]);
+         }
 	 if (action === WHEEL_PAN_MATCHING)
 	    translate({x:-w.pixelX,y:-w.pixelY});
 	 else if (action === WHEEL_PAN_Y)
 	    translate({x:0,y:-w.pixelX - w.pixelY});
 	 else if (action === WHEEL_PAN_X)
 	    translate({x:-w.pixelX - w.pixelY,y:0});
-	 if (xBefore !== transform(X)[4] ||
-	     yBefore !== transform(Y)[5]) {
-	    WT.cancelEvent(event);
+	 if (xBefore !== xTransform()[4]) {
+           for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+             if (yBefore[yAx] !== yTransform(yAx)[5])
+	       WT.cancelEvent(event);
+           }
 	 }
       } else if (config.zoom) {
 	 WT.cancelEvent(event);
@@ -870,7 +916,10 @@ WT_DECLARE_WT_MEMBER
 	 dt = now - lastDate;
       }
       var d = {x: 0, y: 0};
-      var area = transformedInsideChartArea();
+      var area = transformedInsideChartArea(0);
+      for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
+        area = intersection(area, transformedInsideChartArea(yAx));
+      }
       var k = SPRING_CONSTANT;
 
       if (dt > 2 * ANIMATION_INTERVAL) {
@@ -941,9 +990,15 @@ WT_DECLARE_WT_MEMBER
 	 d.y = v.y * dt;
       }
 
-      area = transformedInsideChartArea();
+      area = transformedInsideChartArea(0);
+      for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
+        area = intersection(area, transformedInsideChartArea(yAx));
+      }
       translate(d, NO_LIMIT);
-      var newArea = transformedInsideChartArea();
+      var newArea = transformedInsideChartArea(0);
+      for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
+        newArea = intersection(newArea, transformedInsideChartArea(yAx));
+      }
       if (left(area) > left(insideArea()) &&
 	  left(newArea) <= left(insideArea())) {
 	v.x = 0;
@@ -1067,9 +1122,9 @@ WT_DECLARE_WT_MEMBER
 	      var c = c1;
 	      var dy;
 	      if (isHorizontal()) {
-		 dy = (c.x - dragPreviousXY.x) / transform(Y)[3];
+		 dy = (c.x - dragPreviousXY.x) / yTransform(seriesAxis(configSelectedCurve()))[3];
 	      } else {
-		 dy = (c.y - dragPreviousXY.y) / transform(Y)[3];
+		 dy = (c.y - dragPreviousXY.y) / yTransform(seriesAxis(configSelectedCurve()))[3];
 	      }
 	      seriesTransform(curve)[5] += dy;
 	      dragPreviousXY = c;
@@ -1111,10 +1166,10 @@ WT_DECLARE_WT_MEMBER
 	   if (dyAfter === dyBefore) {
 	      yScale = 1;
 	   }
-	   var myBefore = mult(inverted(combinedTransform()), [0, (touches[0][yAxis] + touches[1][yAxis]) / 2])[1];
-	   var myAfter = mult(inverted(combinedTransform()), [0, (newTouches[0][yAxis] + newTouches[1][yAxis]) / 2])[1];
 	   var curve = configSelectedCurve();
 	   if (configSeries(curve)) {
+	      var myBefore = mult(inverted(combinedTransform(seriesAxis(curve))), [0, (touches[0][yAxis] + touches[1][yAxis]) / 2])[1];
+	      var myAfter = mult(inverted(combinedTransform(seriesAxis(curve))), [0, (newTouches[0][yAxis] + newTouches[1][yAxis]) / 2])[1];
 	      assign(seriesTransform(curve),
 		 mult(
 		     [1,0,0,yScale,0,-yScale*myBefore+myAfter],
@@ -1126,7 +1181,7 @@ WT_DECLARE_WT_MEMBER
 	      touches = newTouches;
 	   }
 	} else if (doubleTouch && config.zoom) {
-	   var crosshairBefore = toModelCoord(crosshair);
+	   var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
 	   var mxBefore = (touches[0][0] + touches[1][0]) / 2;
 	   var myBefore = (touches[0][1] + touches[1][1]) / 2;
 	   var newTouches = [ c1, c2 ].map(function(t){
@@ -1168,33 +1223,41 @@ WT_DECLARE_WT_MEMBER
 	      })();
 	   }
 
-	   if (transform(X)[0] * xScale > maxZoom()[X]) {
-	      xScale = maxZoom()[X] / transform(X)[0];
+	   if (xTransform()[0] * xScale > maxXZoom()) {
+	      xScale = maxXZoom() / xTransform()[0];
 	   }
-	   if (transform(Y)[3] * yScale > maxZoom()[Y]) {
-	      yScale = maxZoom()[Y] / transform(Y)[3];
-	   }
+           var yScalePerAxis = [];
+           for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+             yScalePerAxis.push(yScale);
+           }
+           for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+	     if (yTransform(yAx)[3] * yScalePerAxis[yAx] > maxYZoom(yAx)) {
+	        yScalePerAxis[yAx] = maxYZoom(yAx) / yTransform(yAx)[3];
+	     }
+           }
 	   if (xScale !== 1 &&
-		 (xScale < 1.0 || transform(X)[0] !== maxZoom()[X])) {
-          tAssign(transform(X),
+		 (xScale < 1.0 || xTransform()[0] !== maxXZoom())) {
+          tAssign(xTransform(),
 		mult(
 		   [xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
-		   transform(X)
+		   xTransform()
 		 )
 	      );
 	   }
-	   if (yScale !== 1 &&
-		 (yScale < 1.0 || transform(Y)[3] !== maxZoom()[Y])) {
-          tAssign(transform(Y),
+           for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+	     if (yScalePerAxis[yAx] !== 1 &&
+		 (yScalePerAxis[yAx] < 1.0 || yTransform(yAx)[3] !== maxYZoom(yAx))) {
+                tAssign(yTransform(yAx),
 		mult(
-		  [1,0,0,yScale,0,-yScale*myBefore+myAfter],
-		  transform(Y)
+		  [1,0,0,yScalePerAxis[yAx],0,-yScalePerAxis[yAx]*myBefore+myAfter],
+		  yTransform(yAx)
 		)
 	      );
-	   }
+	     }
+           }
 	   enforceLimits();
 
-	   var crosshairAfter = toDisplayCoord(crosshairBefore);
+	   var crosshairAfter = toDisplayCoord(crosshairBefore, crosshairAxis());
 	   crosshair[X] = crosshairAfter[X];
 	   crosshair[Y] = crosshairAfter[Y];
 
@@ -1209,13 +1272,13 @@ WT_DECLARE_WT_MEMBER
 
    function refreshPenColors() {
       var i, j;
-      var xLevel = toZoomLevel(transform(X)[0]) - 1;
+      var xLevel = toZoomLevel(xTransform()[0]) - 1;
       if (xLevel >= len(pens().x))
 	 xLevel = len(pens().x) - 1;
       for (i = 0; i < len(pens().x); ++i) {
 	 if (xLevel === i) {
 	    for (j = 0; j < len(pens().x[i]); ++j) {
-	       pens().x[i][j].color[3] = config.penAlpha.x[j];
+	       pens().x[i][j].color[3] = penAlpha().x[j];
 	    }
 	 } else {
 	    for (j = 0; j < len(pens().x[i]); ++j) {
@@ -1223,70 +1286,78 @@ WT_DECLARE_WT_MEMBER
 	    }
 	 }
       }
-      var yLevel = toZoomLevel(transform(Y)[3]) - 1;
-      if (yLevel >= len(pens().y))
-	 yLevel = len(pens().y) - 1;
-      for (i = 0; i < len(pens().y); ++i) {
-	 if (yLevel === i) {
-	    for (j = 0; j < len(pens().y[i]); ++j) {
-	       pens().y[i][j].color[3] = config.penAlpha.y[j];
-	    }
-	 } else {
-	    for (j = 0; j < len(pens().y[i]); ++j) {
-	       pens().y[i][j].color[3] = 0;
-	    }
-	 }
+      for (var yAx = 0; yAx < len(pens().y); ++yAx) {
+        var yLevel = toZoomLevel(yTransform(yAx)[3]) - 1;
+        if (yLevel >= len(pens().y[yAx]))
+          yLevel = len(pens().y[yAx]) - 1;
+        for (i = 0; i < len(pens().y[yAx]); ++i) {
+          if (yLevel === i) {
+            for (j = 0; j < len(pens().y[yAx][i]); ++j) {
+              pens().y[yAx][i][j].color[3] = penAlpha().y[yAx][j];
+            }
+          } else {
+            for (j = 0; j < len(pens().y[yAx][i]); ++j) {
+              pens().y[yAx][i][j].color[3] = 0;
+            }
+          }
+        }
       }
    }
 
    function translate(d, flags) {
       if (isUndefined(flags))
         flags = 0;
-      var crosshairBefore = toModelCoord(crosshair);
+      var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
 
       if (isHorizontal()) {
 	 d = {x:d.y,y:-d.x};
       }
 
       if (flags & NO_LIMIT) {
-	 transform(X)[4] = transform(X)[4] + d.x;
-	 transform(Y)[5] = transform(Y)[5] - d.y;
-          setTransformChangedTimeout();
+	xTransform()[4] = xTransform()[4] + d.x;
+        for (var yAx = 0; yAx < yAxisCount(); ++yAx)
+          yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
+        setTransformChangedTimeout();
       } else if (flags & DAMPEN) {
-	 var area = transformedInsideChartArea();
-	 if (left(area) > left(insideArea())) {
-	    if (d.x > 0) {
-	       d.x = d.x / (1 + ((left(area) - left(insideArea())) * RESISTANCE_FACTOR));
-	    }
-	 } else if (right(area) < right(insideArea())) {
-	    if (d.x < 0) {
-	       d.x = d.x / (1 + ((right(insideArea()) - right(area)) * RESISTANCE_FACTOR));
-	    }
-	 }
-	 if (top(area) > top(insideArea())) {
-	    if (d.y > 0) {
-	       d.y = d.y / (1 + ((top(area) - top(insideArea())) * RESISTANCE_FACTOR));
-	    }
-	 } else if (bottom(area) < bottom(insideArea())) {
-	    if (d.y < 0) {
-	       d.y = d.y / (1 + ((bottom(insideArea()) - bottom(area)) * RESISTANCE_FACTOR));
-	    }
-	 }
-	 transform(X)[4] = transform(X)[4] + d.x;
-	 transform(Y)[5] = transform(Y)[5] - d.y;
-	 crosshair[X] = crosshair[X] + d.x;
-	 crosshair[Y] = crosshair[Y] + d.y;
-         setTransformChangedTimeout();
+	var area = transformedInsideChartArea(0);
+        for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
+          area = intersection(area, transformedInsideChartArea(yAx));
+        }
+	if (left(area) > left(insideArea())) {
+	  if (d.x > 0) {
+	    d.x = d.x / (1 + ((left(area) - left(insideArea())) * RESISTANCE_FACTOR));
+	  }
+	} else if (right(area) < right(insideArea())) {
+	  if (d.x < 0) {
+	    d.x = d.x / (1 + ((right(insideArea()) - right(area)) * RESISTANCE_FACTOR));
+	  }
+	}
+	if (top(area) > top(insideArea())) {
+	  if (d.y > 0) {
+	    d.y = d.y / (1 + ((top(area) - top(insideArea())) * RESISTANCE_FACTOR));
+	  }
+	} else if (bottom(area) < bottom(insideArea())) {
+	  if (d.y < 0) {
+	    d.y = d.y / (1 + ((bottom(insideArea()) - bottom(area)) * RESISTANCE_FACTOR));
+	  }
+	}
+	xTransform()[4] = xTransform()[4] + d.x;
+        for (var yAx = 0; yAx < yAxisCount(); ++yAx)
+	  yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
+	crosshair[X] = crosshair[X] + d.x;
+	crosshair[Y] = crosshair[Y] + d.y;
+        setTransformChangedTimeout();
       } else {
-	 transform(X)[4] = transform(X)[4] + d.x;
-	 transform(Y)[5] = transform(Y)[5] - d.y;
-	 crosshair[X] = crosshair[X] + d.x;
-	 crosshair[Y] = crosshair[Y] + d.y;
+	xTransform()[4] = xTransform()[4] + d.x;
+        for (var yAx = 0; yAx < yAxisCount(); ++yAx)
+	  yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
+	crosshair[X] = crosshair[X] + d.x;
+	crosshair[Y] = crosshair[Y] + d.y;
 
-	 enforceLimits();
+	enforceLimits();
       }
 
-      var crosshairAfter = toDisplayCoord(crosshairBefore);
+      var crosshairAfter = toDisplayCoord(crosshairBefore, crosshairAxis());
 
       crosshair[X] = crosshairAfter[X];
       crosshair[Y] = crosshairAfter[Y];
@@ -1296,7 +1367,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function zoom(coords, xDelta, yDelta) {
-      var crosshairBefore = toModelCoord(crosshair);
+      var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
       var xy;
       if (isHorizontal()) {
 	 xy = [coords.y - top(configArea()), coords.x - left(configArea())];
@@ -1308,28 +1379,28 @@ WT_DECLARE_WT_MEMBER
       var y = xy[1];
       var s_x = Math.pow(1.2, isHorizontal() ? yDelta : xDelta);
       var s_y = Math.pow(1.2, isHorizontal() ? xDelta : yDelta);
-      if (transform(X)[0] * s_x > maxZoom()[X]) {
-	 s_x = maxZoom()[X] / transform(X)[0];
+      if (xTransform()[0] * s_x > maxXZoom()) {
+	 s_x = maxXZoom() / xTransform()[0];
       }
-      if (s_x < 1.0 || transform(X)[0] !== maxZoom()[X]) {
-     tAssign(transform(X),
+      if (s_x < 1.0 || xTransform()[0] !== maxXZoom()) {
+        tAssign(xTransform(),
 	       mult(
 		  [s_x,0,0,1,x-s_x*x,0],
-		  transform(X)));
+		  xTransform()));
       }
-      if (transform(Y)[3] * s_y > maxZoom()[Y]) {
-	 s_y = maxZoom()[Y] / transform(Y)[3];
-      }
-      if (s_y < 1.0 || transform(Y)[3] !== maxZoom()[Y]) {
-     tAssign(transform(Y),
-	       mult(
-		  [1,0,0,s_y,0,y-s_y*y],
-		  transform(Y)));
+      for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+        var s_specific_y = s_y;
+        if (yTransform(yAx)[3] * s_y > maxYZoom(yAx)) {
+          s_specific_y = maxYZoom(yAx) / yTransform(yAx)[3];
+        }
+        if (s_specific_y < 1.0 || yTransform(yAx)[3] !== maxYZoom(yAx)) {
+          tAssign(yTransform(yAx), mult([1,0,0,s_specific_y,0,y-s_specific_y*y], yTransform(yAx)));
+        }
       }
 
       enforceLimits();
 
-      var crosshairAfter = toDisplayCoord(crosshairBefore);
+      var crosshairAfter = toDisplayCoord(crosshairBefore, crosshairAxis());
       crosshair[X] = crosshairAfter[X];
       crosshair[Y] = crosshairAfter[Y];
 
@@ -1339,39 +1410,39 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.setXRange = function(seriesNb, lowerBound, upperBound, updateYAxis) {
-      lowerBound = modelArea()[0] + modelArea()[2] * lowerBound;
-      upperBound = modelArea()[0] + modelArea()[2] * upperBound;
+      lowerBound = modelArea(0)[0] + modelArea(0)[2] * lowerBound;
+      upperBound = modelArea(0)[0] + modelArea(0)[2] * upperBound;
       //Constrain given range
-      if (left(modelArea()) > right(modelArea())) {
-	 if (lowerBound > left(modelArea()))
-           lowerBound = left(modelArea());
-	 if (upperBound < right(modelArea()))
-           upperBound = right(modelArea());
+      if (left(modelArea(0)) > right(modelArea(0))) {
+	 if (lowerBound > left(modelArea(0)))
+           lowerBound = left(modelArea(0));
+	 if (upperBound < right(modelArea(0)))
+           upperBound = right(modelArea(0));
       } else {
-	 if (lowerBound < left(modelArea()))
-           lowerBound = left(modelArea());
-	 if (upperBound > right(modelArea()))
-           upperBound = right(modelArea());
+	 if (lowerBound < left(modelArea(0)))
+           lowerBound = left(modelArea(0));
+	 if (upperBound > right(modelArea(0)))
+           upperBound = right(modelArea(0));
       }
       // Set X range, and adjust Y!
       var series = seriesCurve(seriesNb);
       
-      var res = findYRange(series, lowerBound, upperBound, isHorizontal(), configArea(), modelArea(), maxZoom());
+      var res = findYRange(series, seriesAxis(seriesNb), lowerBound, upperBound, isHorizontal(), configArea(), modelArea(seriesAxis(seriesNb)), config.maxZoom);
       var xZoom = res.xZoom;
       var yZoom = res.yZoom;
       var panPoint = res.panPoint;
 
-      var crosshairBefore = toModelCoord(crosshair);
+      var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
 
-      transform(X)[0] = xZoom;
+      xTransform()[0] = xZoom;
       if (yZoom && updateYAxis)
-          transform(Y)[3] = yZoom;
-      transform(X)[4] = -panPoint[X] * xZoom;
+          yTransform(seriesAxis(seriesNb))[3] = yZoom;
+      xTransform()[4] = -panPoint[X] * xZoom;
       if (yZoom && updateYAxis)
-          transform(Y)[5] = -panPoint[Y] * yZoom;
+          yTransform(seriesAxis(seriesNb))[5] = -panPoint[Y] * yZoom;
       setTransformChangedTimeout();
 
-      var crosshairAfter = toDisplayCoord(crosshairBefore);
+      var crosshairAfter = toDisplayCoord(crosshairBefore, crosshairAxis());
       crosshair[X] = crosshairAfter[X];
       crosshair[Y] = crosshairAfter[Y];
 

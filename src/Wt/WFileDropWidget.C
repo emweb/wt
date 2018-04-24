@@ -6,26 +6,32 @@
 #include "Wt/Json/Object.h"
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WMemoryResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WSignal.h"
 
+#include "FileUtils.h"
 #include "WebUtils.h"
 #include "WebSession.h"
 #include <exception>
 #include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
+#include <fstream>
 
 #ifndef WT_DEBUG_JS
 #include "js/WFileDropWidget.min.js"
 #endif
+#include "js/WFileDropWidget_worker.min.js"
 
 namespace Wt {
 
 class WFileDropWidget::WFileDropUploadResource final : public WResource {
 public:
-  WFileDropUploadResource(WFileDropWidget *fileDropWidget)
+  WFileDropUploadResource(WFileDropWidget *fileDropWidget, File *file)
     : WResource(),
       parent_(fileDropWidget),
-      app_(WApplication::instance())
+      app_(WApplication::instance()),
+      currentFile_(file)
   {
     setUploadProgress(true);
   }
@@ -48,29 +54,38 @@ public:
       response.setStatus(404);
       return;
     }
-    int id = Utils::stoi(*fileId);
+    int id = boost::lexical_cast<int>(*fileId);
     bool validId = parent_->incomingIdCheck(id);
     if (!validId) {
       response.setStatus(404);
       return;
     }
-    
+
     std::vector<Http::UploadedFile> files;
     Utils::find(request.uploadedFiles(), "data", files);
     if (files.empty()) {
       response.setStatus(404);
       return;
     }
-  
-    parent_->setUploadedFile(files[0]);
-    // WServer::instance()->post(app_->sessionId(),
-    // 			    boost::bind(&WFileDropWidget::setUploadedFile,
-    // 					parent_, files[0]));
-    
+
+    // check is js filter was used
+    const std::string *filtFlag = request.getParameter("filtered");
+    currentFile_->setIsFiltered((filtFlag != 0) && ((*filtFlag) == "true"));
+
+    // add data to currentFile_
+    const std::string *lastFlag = request.getParameter("last");
+    bool isLast = (lastFlag == 0) || // if not present, assume not chunked
+      (lastFlag != 0 && (*lastFlag) == "true");
+    currentFile_->handleIncomingData(files[0], isLast);
+
+    if (isLast) {
+      parent_->proceedToNextFile();
+    }
+
     response.setMimeType("text/plain"); // else firefox complains
 #ifdef WT_TARGET_JAVA
     lock.release();
-#endif  
+#endif
   }
 
   void setCurrentFile(File *file) { currentFile_ = file; }
@@ -82,15 +97,21 @@ private:
 };
 
 WFileDropWidget::File::File(int id, const std::string& fileName,
-                            const std::string& type, ::uint64_t size)
+                            const std::string& type, ::uint64_t size,
+                            ::uint64_t chunkSize)
   : id_(id),
     clientFileName_(fileName),
     type_(type),
     size_(size),
+    uploadStarted_(false),
     uploadFinished_(false),
-    cancelled_(false)
+    cancelled_(false),
+    filterEnabled_(true),
+    isFiltered_(false),
+    nbReceivedChunks_(0),
+    chunkSize_(chunkSize)
 { }
-  
+
 const Http::UploadedFile& WFileDropWidget::File::uploadedFile() const {
   if (!uploadFinished_)
     throw std::exception();
@@ -98,10 +119,20 @@ const Http::UploadedFile& WFileDropWidget::File::uploadedFile() const {
     return uploadedFile_;
 }
 
-void WFileDropWidget::File::setUploadedFile(const Http::UploadedFile& file)
+void WFileDropWidget::File::handleIncomingData(const Http::UploadedFile& file, bool last)
 {
-  uploadFinished_ = true;
-  uploadedFile_ = file;
+  if (!uploadStarted_) {
+    uploadedFile_ = file;
+    uploadStarted_ = true;
+  } else {
+    // append data to spool-file
+    Wt::FileUtils::concatenateFiles(file.spoolFileName(),
+				uploadedFile_.spoolFileName());
+  }
+  nbReceivedChunks_++;
+  
+  if (last)
+    uploadFinished_ = true;
 }
 
 void WFileDropWidget::File::cancel()
@@ -114,9 +145,36 @@ bool WFileDropWidget::File::cancelled() const
   return cancelled_;
 }
 
+void WFileDropWidget::File::emitDataReceived(::uint64_t current, ::uint64_t total,
+					     bool filterSupported) {
+  if (!filterEnabled_ || !filterSupported || chunkSize_ == 0) {
+    dataReceived_.emit(current, total);
+  } else {
+    ::uint64_t currentChunkSize = chunkSize_;
+    unsigned nbChunks = (unsigned)(size_ / chunkSize_);
+    if (nbReceivedChunks_ == nbChunks) // next chunk is the remainder
+      currentChunkSize = size_ - (nbReceivedChunks_*chunkSize_);
+    
+    ::uint64_t progress = nbReceivedChunks_*chunkSize_
+	+ ::uint64_t( (double(current)/double(total)) * currentChunkSize );
+    dataReceived_.emit(progress, size_);
+  }
+}
+
+void WFileDropWidget::File::setFilterEnabled(bool enabled) {
+  filterEnabled_ = enabled;
+}
+
+void WFileDropWidget::File::setIsFiltered(bool filtered) {
+  isFiltered_ = filtered;
+}
+  
 WFileDropWidget::WFileDropWidget()
-  : resource_(nullptr),
+  : uploadWorkerResource_(nullptr),
+    resource_(nullptr),
     currentFileIdx_(0),
+    chunkSize_(0),
+    filterSupported_(true),
     hoverStyleClass_("Wt-dropzone-hover"),
     acceptDrops_(true),
     acceptAttributes_(""),
@@ -126,7 +184,8 @@ WFileDropWidget::WFileDropWidget()
     requestSend_(this, "requestsend"),
     fileTooLarge_(this, "filetoolarge"),
     uploadFinished_(this, "uploadfinished"),
-    doneSending_(this, "donesending")
+    doneSending_(this, "donesending"),
+    jsFilterNotSupported_(this, "filternotsupported")
 {
   WApplication *app = WApplication::instance();
   if (!app->environment().ajax())
@@ -160,6 +219,7 @@ void WFileDropWidget::setup()
   fileTooLarge_.connect(this, &WFileDropWidget::handleTooLarge);
   uploadFinished_.connect(this, &WFileDropWidget::emitUploaded);
   doneSending_.connect(this, &WFileDropWidget::stopReceiving);
+  jsFilterNotSupported_.connect(this, &WFileDropWidget::disableJavaScriptFilter);
 
   addStyleClass("Wt-filedropzone");
 }
@@ -206,7 +266,7 @@ void WFileDropWidget::handleDrop(const std::string& newDrops)
 	throw std::exception();
     }
     
-    File *file = new File(id, name, type, size);
+    File *file = new File(id, name, type, size, chunkSize_);
     drops.push_back(file);
     uploads_.push_back(file);
   }
@@ -227,10 +287,12 @@ void WFileDropWidget::handleSendRequest(int id)
       fileFound = true;
       currentFileIdx_ = i;
       delete resource_;
-      resource_ = new WFileDropUploadResource(this);
+      resource_ = new WFileDropUploadResource(this, uploads_[currentFileIdx_]);
       resource_->dataReceived().connect(this, &WFileDropWidget::onData);
       resource_->dataExceeded().connect(this, &WFileDropWidget::onDataExceeded);
-      doJavaScript(jsRef() + ".send('" + resource_->url() + "');");
+      doJavaScript(jsRef() + ".send('" + resource_->url() + "', "
+		   + (uploads_[i]->filterEnabled() ? "true" : "false")
+		   + ");");
       uploadStart_.emit(uploads_[currentFileIdx_]);
       break;
     } else {
@@ -274,7 +336,7 @@ void WFileDropWidget::stopReceiving()
 }
 
 // Note: args by value, since this is handled after handleRequest is finished
-void WFileDropWidget::setUploadedFile(Http::UploadedFile file)
+void WFileDropWidget::proceedToNextFile()
 {
   if (currentFileIdx_ >= uploads_.size()) {
     // This shouldn't happen, but a mischievous client might emit
@@ -283,14 +345,7 @@ void WFileDropWidget::setUploadedFile(Http::UploadedFile file)
     return;
   }
 
-  File *f = uploads_[currentFileIdx_];
   currentFileIdx_++;
-  
-  f->setUploadedFile(file);
-  // f->uploaded().emit();
-  // uploaded().emit(f);
-  // WApplication::instance()->triggerUpdate();
-
   if (currentFileIdx_ == uploads_.size()) {
     WApplication::instance()->enableUpdates(false);
   }
@@ -350,7 +405,7 @@ void WFileDropWidget::onData(::uint64_t current, ::uint64_t total)
     return;
   }
   File *file = uploads_[currentFileIdx_];
-  file->dataReceived().emit(current, total);
+  file->emitDataReceived(current, total, filterSupported_);
 
   WApplication::instance()->triggerUpdate();
 }
@@ -387,6 +442,16 @@ void WFileDropWidget::updateDom(DomElement& element, bool all)
 		   + (dropIndicationEnabled_ ? "true" : "false") + ");");
       doJavaScript(jsRef() + ".setDropForward("
 		   + (globalDropEnabled_ ? "true" : "false") + ");");
+    }
+    if (updateFlags_.test(BIT_JSFILTER_CHANGED) || all) {
+      createWorkerResource();
+      
+      doJavaScript(jsRef() + ".setUploadWorker(\""
+		   + (uploadWorkerResource_ ?
+		      uploadWorkerResource_->url() : "")
+		   + "\");");
+      doJavaScript(jsRef() + ".setChunkSize("
+		   + boost::lexical_cast<std::string>(chunkSize_) + ");");
     }
       
     updateFlags_.reset();
@@ -467,6 +532,58 @@ void WFileDropWidget::setGlobalDropEnabled(bool enable) {
 bool WFileDropWidget::globalDropEnabled() const {
   return globalDropEnabled_;
 }
+
+void WFileDropWidget::setJavaScriptFilter(const std::string& filterFn,
+					  ::uint64_t chunksize,
+					  const std::vector<std::string>& imports) {
+  if (jsFilterFn_ == filterFn && chunksize == chunkSize_)
+    return;
+
+  jsFilterFn_ = filterFn;
+  jsFilterImports_ = imports;
+  chunkSize_ = chunksize;
+
+  updateFlags_.set(BIT_JSFILTER_CHANGED);
+  repaint();
+}
+
+void WFileDropWidget::createWorkerResource() {
+  if (uploadWorkerResource_ != 0) {
+    delete uploadWorkerResource_;
+    uploadWorkerResource_ = 0;
+  }
+
+  if (jsFilterFn_.empty())
+    return;
   
+  uploadWorkerResource_ = addChild(cpp14::make_unique<WMemoryResource>("text/javascript"));
+
+  std::stringstream ss;
+  ss << "importScripts(";
+  for (unsigned i=0; i < jsFilterImports_.size(); i++) {
+    ss << "\"" << jsFilterImports_[i] << "\"";
+    if (i < jsFilterImports_.size()-1)
+      ss << ", ";
+  }
+  ss << ");" << std::endl;
+  ss << jsFilterFn_ << std::endl;
+
+  ss << wtjs_uploadworker();
+  
+#ifndef WT_TARGET_JAVA
+  std::string js = ss.str();
+  uploadWorkerResource_->setData((const unsigned char*)js.c_str(), js.length());
+#else
+  try {
+    uploadWorkerResource_->setData(ss.str().getBytes("utf8"));
+  } catch (UnsupportedEncodingException e) {
+  }
+#endif
+}
+
+  
+void WFileDropWidget::disableJavaScriptFilter() {
+  filterSupported_ = false;
+}
   
 }

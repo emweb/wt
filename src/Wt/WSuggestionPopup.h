@@ -490,12 +490,15 @@ private:
 
   std::vector<Wt::Signals::connection> modelConnections_;
 
+  std::string currentInputText_;
+
   JSignal<std::string> filter_;
   JSignal<std::string, std::string> jactivated_;
 
   std::vector<WFormWidget *> edits_;
 
   void init();
+  void scheduleFilter(std::string input);
   void doFilter(std::string input);
   void doActivate(std::string itemId, std::string editId);
   void connectObjJS(EventSignalBase& s, const std::string& methodName);

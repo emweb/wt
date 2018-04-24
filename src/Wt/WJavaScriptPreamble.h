@@ -11,6 +11,14 @@
 
 #define WT_JS(...) #__VA_ARGS__
 
+#define WT_JS_GETTER(name, ...)						\
+  namespace {								\
+  std::string wtjs_##name() {						\
+    return std::string(#__VA_ARGS__);					\
+  }									\
+  }
+
+
 namespace Wt {
 #ifdef WT_TARGET_JAVA
 /*! \brief Enumeration for a JavaScript object type.

@@ -318,9 +318,11 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   WRectF selectionRect;
   {
     // Determine initial position based on xTransform of chart
-    double u = -chart()->xTransformHandle_.value().dx() / (chartArea.width() * chart()->xTransformHandle_.value().m11());
+    double u = -chart()->xAxis_.transformHandle.value().dx() /
+        (chartArea.width() * chart()->xAxis_.transformHandle.value().m11());
     selectionRect = WRectF(0, top, maxW, h - (top + bottom));
-    transform_.setValue(WTransform(1 / chart()->xTransformHandle_.value().m11(), 0, 0, 1, u * maxW, 0));
+    transform_.setValue(
+          WTransform(1 / chart()->xAxis_.transformHandle.value().m11(), 0, 0, 1, u * maxW, 0));
   }
   WRectF seriesArea(left, top + 5, maxW, h - (top + bottom + 5));
   WTransform selectionTransform = hv(WTransform(1,0,0,1,left,0) * transform_.value());
