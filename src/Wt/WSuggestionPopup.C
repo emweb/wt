@@ -116,7 +116,7 @@ void WSuggestionPopup::init()
 
   impl_->escapePressed().connect(this, &WWidget::hide);
 
-  filter_.connect(this, &WSuggestionPopup::doFilter);
+  filter_.connect(this, &WSuggestionPopup::scheduleFilter);
   jactivated_.connect(this, &WSuggestionPopup::doActivate);
 
 }
@@ -145,6 +145,8 @@ void WSuggestionPopup::render(WFlags<RenderFlag> flags)
 {
   if (flags & RenderFull)
     defineJavaScript();
+
+  doFilter(currentInputText_);
 
   WPopupWidget::render(flags);
 }
@@ -354,6 +356,12 @@ void WSuggestionPopup::addSuggestion(const WString& suggestionText,
 void WSuggestionPopup::setFilterLength(int length)
 {
   filterLength_ = length;
+}
+
+void WSuggestionPopup::scheduleFilter(std::string input)
+{
+  currentInputText_ = input;
+  scheduleRender();
 }
 
 void WSuggestionPopup::doFilter(std::string input)

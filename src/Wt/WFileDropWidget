@@ -12,7 +12,6 @@
 
 namespace Wt {
 
-class WFileDropUploadResource;
 class WMemoryResource;
   
 /*! \class WFileDropWidget Wt/WFileDropWidget Wt/WFileDropWidget

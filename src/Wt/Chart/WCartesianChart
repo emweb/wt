@@ -1420,26 +1420,6 @@ public:
   void removeAxisSliderWidget(WAxisSliderWidget *slider);
 
 private:
-  WChart2DImplementation *interface_;
-
-  Orientation orientation_;
-  int XSeriesColumn_;
-  ChartType type_;
-  std::vector<WDataSeries *> series_;
-  WAxis *xAxis_;
-  std::vector<WAxis *> yAxes_;
-  double barMargin_;
-  WLegend legend_;
-  int axisPadding_;
-  WPen borderPen_;
-  WPen textPen_;
-
-  /* render state */
-  mutable int width_, height_;
-  mutable WRectF chartArea_;
-  mutable AxisValue xAxisLocation_;
-  mutable bool hasDeferredToolTips_;
-
   struct AxisLocation {
     AxisLocation()
       : minOffset(0),
@@ -1457,7 +1437,48 @@ private:
                    // ZeroValue -> Minimum/Maximum and
                    // Minimum/Maximum -> ZeroValue tricks
   };
-  mutable std::vector<AxisLocation> yAxisLocations_;
+  struct PenAssignment {
+    WJavaScriptHandle<WPen> pen;
+    WJavaScriptHandle<WPen> textPen;
+    WJavaScriptHandle<WPen> gridPen;
+
+    PenAssignment(const WJavaScriptHandle<WPen>& pen,
+                  const WJavaScriptHandle<WPen>& textPen,
+                  const WJavaScriptHandle<WPen>& gridPen)
+      : pen(pen), textPen(textPen), gridPen(gridPen)
+    { }
+  };
+  struct AxisStruct {
+    AxisStruct();
+    AxisStruct(WAxis *ax);
+    ~AxisStruct();
+
+    WAxis *axis;
+    mutable AxisLocation location;
+    mutable WTransform transform;
+    WJavaScriptHandle<WTransform> transformHandle;
+    JSignal<> *transformChanged;
+    std::vector<PenAssignment> pens;
+  };
+
+  WChart2DImplementation *interface_;
+
+  Orientation orientation_;
+  int XSeriesColumn_;
+  ChartType type_;
+  std::vector<WDataSeries *> series_;
+  AxisStruct xAxis_;
+  std::vector<AxisStruct*> yAxes_;
+  double barMargin_;
+  WLegend legend_;
+  int axisPadding_;
+  WPen borderPen_;
+  WPen textPen_;
+
+  /* render state */
+  mutable int width_, height_;
+  mutable WRectF chartArea_;
+  mutable bool hasDeferredToolTips_;
 
   bool jsDefined_;
   bool zoomEnabled_;
@@ -1471,8 +1492,6 @@ private:
   const WDataSeries *followCurve_;
   bool curveManipulationEnabled_;
   bool cObjCreated_;
-  JSignal<> xTransformChanged_;
-  JSignal<> yTransformChanged_;
 
   Signal<const WDataSeries *, WPointF> seriesSelected_;
   JSignal<double, double> jsSeriesSelected_;
@@ -1485,24 +1504,6 @@ private:
   TransformMap curveTransforms_;
   std::vector<WJavaScriptHandle<WTransform> > freeTransforms_;
 
-  mutable WTransform xTransform_;
-  mutable WTransform yTransform_;
-  WJavaScriptHandle<WTransform> xTransformHandle_; // Scales and translates X axis
-  WJavaScriptHandle<WTransform> yTransformHandle_; // Scales and translates Y axis
-
-  struct PenAssignment {
-    WJavaScriptHandle<WPen> pen;
-    WJavaScriptHandle<WPen> textPen;
-    WJavaScriptHandle<WPen> gridPen;
-
-    PenAssignment(const WJavaScriptHandle<WPen>& pen,
-		  const WJavaScriptHandle<WPen>& textPen,
-		  const WJavaScriptHandle<WPen>& gridPen)
-      : pen(pen), textPen(textPen), gridPen(gridPen)
-    { }
-  };
-  typedef std::map<Axis,std::vector<PenAssignment> > PenMap;
-  PenMap pens_;
   std::vector<WJavaScriptHandle<WPen> > freePens_;
 
   std::vector<CurveLabel> curveLabels_;
@@ -1762,7 +1763,8 @@ protected:
    * \sa setPanEnabled
    * \sa WAxis::setZoomRange()
    */
-  WTransform zoomRangeTransform() const;
+  // TODO(Roel): yAxis = 0 by default?
+  WTransform zoomRangeTransform(int yAxis) const;
 
 private:
   int calcNumBarGroups() const;
@@ -1771,7 +1773,8 @@ private:
   int seriesIndexOf(const WDataSeries &series) const;
   bool hasInwardsYAxisOnMaximumSide() const;
   void clearPens();
-  void createPensForAxis(Axis axis);
+  void clearPensForAxis(Axis ax, int yAxis);
+  void createPensForAxis(Axis axis, int yAxis);
   std::string cObjJsRef() const; // WCartesianChart JS object
   void assignJSHandlesForAllSeries();
   void freeJSHandlesForAllSeries();
@@ -1782,16 +1785,16 @@ private:
   void freeJSTransformsForSeries(const WDataSeries &series);
   void freeAllJSTransforms();
   void updateJSPens(WStringStream& js) const;
-  void updateJSPensForAxis(WStringStream& js, Axis axis) const;
+  void updateJSPensForAxis(WStringStream& js, Axis axis, int yAxis) const;
   void updateJSConfig(const std::string &key, boost::any value);
   WPainterPath pathForSeries(const WDataSeries &series) const; // For use in WAxisSliderWidget
-  WTransform zoomRangeTransform(WTransform xTransform, WTransform yTransform) const;
+  WTransform zoomRangeTransform(const WTransform &xTransform, const WTransform &yTransform) const;
   WTransform calculateCurveTransform(const WDataSeries &series) const;
   WTransform curveTransform(const WDataSeries &series) const;
   void setZoomAndPan();
   void addAreaMask();
   void xTransformChanged();
-  void yTransformChanged();
+  void yTransformChanged(int yAxis);
   void jsSeriesSelected(double x, double y);
   void loadTooltip(double x, double y);
   WPointF hv(double x, double y, double width) const;
