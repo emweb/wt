@@ -255,4 +255,55 @@ WT_DECLARE_WT_MEMBER
 	    !outsideRange ? -((min_y + max_y) / 2 + (area[3] / yZoom) / 2 - bottom(area)) : 0];
       return {xZoom: xZoom, yZoom: yZoom, panPoint: panPoint};
    };
+
+   this.matchAxis = function(x, y, area, yAxes, isHorizontal) {
+     function yAxisCount() {
+       return yAxes.length;
+     }
+     function yAxisSide(ax) {
+       return yAxes[ax].side;
+     }
+     function yAxisWidth(ax) {
+       return yAxes[ax].width;
+     }
+     function yAxisMinOffset(ax) {
+       return yAxes[ax].minOffset;
+     }
+     function yAxisMaxOffset(ax) {
+       return yAxes[ax].maxOffset;
+     }
+     // Check if the given x, y position (in pixels) matches an axis.
+     // If so, this returns the axis id, otherwise this returns -1.
+     if (isHorizontal) {
+       if (x < left(area) || x > right(area))
+         return -1;
+     } else {
+       if (y < top(area) || y > bottom(area))
+         return -1;
+     }
+     for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+       if (isHorizontal) {
+         if ((yAxisSide(yAx) === 'min' || yAxisSide(yAx) === 'both') &&
+             y >= top(area) - yAxisMinOffset(yAx) - yAxisWidth(yAx) &&
+             y <= top(area) - yAxisMinOffset(yAx)) {
+           return yAx;
+         } else if ((yAxisSide(yAx) === 'max' || yAxisSide(yAx) === 'both') &&
+             y >= bottom(area) + yAxisMaxOffset(yAx) &&
+             y <= bottom(area) + yAxisMaxOffset(yAx) + yAxisWidth(yAx)) {
+           return yAx;
+         }
+       } else {
+         if ((yAxisSide(yAx) === 'min' || yAxisSide(yAx) === 'both') &&
+             x >= left(area) - yAxisMinOffset(yAx) - yAxisWidth(yAx) &&
+             x <= left(area) - yAxisMinOffset(yAx)) {
+           return yAx;
+         } else if ((yAxisSide(yAx) === 'max' || yAxisSide(yAx) === 'both') &&
+             x >= right(area) + yAxisMaxOffset(yAx) &&
+             x <= right(area) + yAxisMaxOffset(yAx) + yAxisWidth(yAx)) {
+           return yAx;
+         }
+       }
+     }
+     return -1;
+   }
  });
