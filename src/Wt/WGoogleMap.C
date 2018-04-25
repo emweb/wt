@@ -299,7 +299,7 @@ void WGoogleMap::addMarker(const Coordinate& pos)
 }
 
 void WGoogleMap::addIconMarker(const Coordinate &pos,
-                               const std::string& iconURL)
+                               const std::string& iconURL, std::string toolTip)
 {
   std::stringstream strm;
   
@@ -312,8 +312,10 @@ void WGoogleMap::addIconMarker(const Coordinate &pos,
     strm << ";"
          << "var marker = new google.maps.Marker({"
 	 << "position: position,"
-	 << "icon: \"" <<  iconURL << "\","
-         << "map: " << jsRef() << ".map"
+	 << "icon: \"" <<  iconURL << "\",";
+	 if (!toolTip.empty())
+	   strm << "title: " << WWebWidget::jsStringLiteral(toolTip) << ",";
+         strm << "map: " << jsRef() << ".map"
 	 << "});"
       
          << jsRef() << ".map.overlays.push(marker);";

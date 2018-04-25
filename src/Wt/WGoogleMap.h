@@ -147,7 +147,7 @@ public:
 
   /*! \brief Adds a icon marker overlay to the map.
    */
-  void addIconMarker(const Coordinate &pos, const std::string& iconURL);
+  void addIconMarker(const Coordinate &pos, const std::string& iconURL, std::string toolTip);
 
   /*! \brief Removes all overlays from the map.
    */
