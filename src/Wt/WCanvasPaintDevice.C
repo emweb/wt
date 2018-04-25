@@ -848,28 +848,46 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       }
     }
 
+    char buf[30];
+    double lw = painter()->normalizedPenWidth(painter()->pen().width(), true).value();
+
     switch (painter()->pen().style()) {
     case PenStyle::SolidLine:
       js_ << "ctx.setLineDash([]);";
       break;
     case PenStyle::DashLine:
-      js_ << "ctx.setLineDash([4,2]);";
+      js_ << "ctx.setLineDash([";
+      js_ << Utils::round_js_str(lw * 4.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 2.0, 3, buf);
+      js_ << "]);";
       break;
     case PenStyle::DotLine:
-      js_ << "ctx.setLineDash([1,2]);";
+      js_ << "ctx.setLineDash([";
+      js_ << Utils::round_js_str(lw * 1.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 2.0, 3, buf);
+      js_ << "]);";
       break;
     case PenStyle::DashDotLine:
-      js_ << "ctx.setLineDash([4,2,1,2]);";
+      js_ << "ctx.setLineDash([";
+      js_ << Utils::round_js_str(lw * 4.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 2.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 1.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 2.0, 3, buf);
+      js_ << "]);";
       break;
     case PenStyle::DashDotDotLine:
-      js_ << "ctx.setLineDash([4,2,1,2,1,2]);";
+      js_ << "ctx.setLineDash([";
+      js_ << Utils::round_js_str(lw * 4.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 2.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 1.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 2.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 1.0, 3, buf) << ',';
+      js_ << Utils::round_js_str(lw * 2.0, 3, buf);
+      js_ << "]);";
       break;
     case PenStyle::None:
       break;
     }
-
-    char buf[30];
-    double lw = painter()->normalizedPenWidth(painter()->pen().width(), true).value();
 
     js_ << "ctx.lineWidth="
         << Utils::round_js_str(lw, 3, buf)
