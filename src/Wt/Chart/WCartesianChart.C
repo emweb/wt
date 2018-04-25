@@ -2614,25 +2614,25 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       if (i != 0)
         ss << ',';
       ss << '{';
-      ss << "width:" << Utils::round_js_str(yAxes_[i]->calculatedWidth, 3, buf) << ',';
+      ss << "width:" << Utils::round_js_str(yAxes_[i].calculatedWidth, 3, buf) << ',';
       ss << "side:'";
-      switch (yAxes_[i]->location.loc) {
-      case MinimumValue:
+      switch (yAxes_[i].location.loc) {
+      case AxisValue::Minimum:
         ss << "min";
         break;
-      case MaximumValue:
+      case AxisValue::Maximum:
         ss << "max";
         break;
-      case ZeroValue:
+      case AxisValue::Zero:
         ss << "zero";
         break;
-      case BothSides:
+      case AxisValue::Both:
         ss << "both";
         break;
       }
       ss << "',";
-      ss << "minOffset:" << yAxes_[i]->location.minOffset << ',';
-      ss << "maxOffset:" << yAxes_[i]->location.maxOffset;
+      ss << "minOffset:" << yAxes_[i].location.minOffset << ',';
+      ss << "maxOffset:" << yAxes_[i].location.maxOffset;
       ss << '}';
     }
     ss << "]});";
@@ -2994,12 +2994,12 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
   int offset = 0;
   for (std::size_t i = 0; i < minimumYaxes.size(); ++i) {
     const WAxis &axis = *minimumYaxes[i];
-    if (axis.location() != BothSides)
-      yAxes_[axis.yAxisId()].location.loc = MinimumValue;
+    if (axis.location() != AxisValue::Both)
+      yAxes_[axis.yAxisId()].location.loc = AxisValue::Minimum;
     yAxes_[axis.yAxisId()].location.minOffset = offset;
     yAxes_[axis.yAxisId()].calculatedWidth =
         calcYAxisSize(axis, device) + 10;
-    if (i == 0 && axis.tickDirection() == Inwards)
+    if (i == 0 && axis.tickDirection() == TickDirection::Inwards)
       offset += 10;
     else
       offset += yAxes_[axis.yAxisId()].calculatedWidth;
@@ -3009,15 +3009,15 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
   offset = 0;
   for (std::size_t i = 0; i < maximumYaxes.size(); ++i) {
     const WAxis &axis = *maximumYaxes[i];
-    if (axis.location() != BothSides)
-      yAxes_[axis.yAxisId()].location.loc = MaximumValue;
+    if (axis.location() != AxisValue::Both)
+      yAxes_[axis.yAxisId()].location.loc = AxisValue::Maximum;
     yAxes_[axis.yAxisId()].location.maxOffset = offset;
     yAxes_[axis.yAxisId()].calculatedWidth =
         calcYAxisSize(axis, device) + 10;
-    if (i == 0 && axis.tickDirection() == Inwards)
+    if (i == 0 && axis.tickDirection() == TickDirection::Inwards)
       offset += 10;
     else
-      offset += yAxes_[axis.yAxisId()]->calculatedWidth;
+      offset += yAxes_[axis.yAxisId()].calculatedWidth;
   }
 
   // TODO(Roel): This could break something?
