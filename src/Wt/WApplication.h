@@ -2017,9 +2017,8 @@ protected:
    *
    * - for having a single point for exception handling: while you may want
    *   to catch recoverable exceptions in a more appropriate place, general
-   *   (usually fatal) exceptions may be caught here. You will in probably
-   *   also want to catch the same exceptions in the application constructor
-   *   in the same way.
+   *   (usually fatal) exceptions may be caught here. You will probably
+   *   want to catch the same exceptions in the application constructor.
    * - you want to manage resource usage during requests. For example, at
    *   the end of request handling, you want to return a database session
    *   back to the pool. Since %notify() is also used for rendering right after
