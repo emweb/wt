@@ -2068,7 +2068,7 @@ void WCartesianChart::clearCurveLabels()
 
 bool WCartesianChart::isInteractive() const
 {
-  return (zoomEnabled_ || panEnabled_ || crosshairEnabled_ || followCurve_ != 0 ||
+  return !yAxes_.empty() && (zoomEnabled_ || panEnabled_ || crosshairEnabled_ || followCurve_ != 0 ||
 	  axisSliderWidgets_.size() > 0 || seriesSelectionEnabled_ || curveManipulationEnabled_) && getMethod() == HtmlCanvas;
 }
 
