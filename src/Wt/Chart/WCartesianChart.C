@@ -22,6 +22,7 @@
 #include "Wt/WException"
 #include "Wt/WEnvironment"
 #include "Wt/WJavaScriptHandle"
+#include "Wt/WJavaScriptPreamble"
 #include "Wt/WJavaScriptObjectStorage"
 #include "Wt/WMeasurePaintDevice"
 #include "Wt/WPainter"
@@ -35,7 +36,28 @@
 
 #ifndef WT_DEBUG_JS
 #include "js/ChartCommon.min.js"
-#include "js/WCartesianChart.min.js"
+
+namespace skeletons {
+  extern std::vector<const char*> WCartesianChart_js();
+}
+
+namespace {
+  using namespace Wt;
+  std::string WCartesianChart_js_str()
+  {
+    std::vector<const char *> v = skeletons::WCartesianChart_js();
+    WStringStream ss;
+    for (std::size_t i = 0; i < v.size(); ++i) {
+      ss << std::string(v[i]);
+    }
+    return ss.str();
+  }
+
+  WJavaScriptPreamble wtjs1() {
+    static std::string js = WCartesianChart_js_str();
+    return WJavaScriptPreamble(WtClassScope, JavaScriptConstructor, "WCartesianChart", js.c_str());
+  }
+}
 #endif
 
 #ifndef M_PI

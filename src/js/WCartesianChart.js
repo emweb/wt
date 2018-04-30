@@ -6,7 +6,7 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER
+WT_DECLARE_WT_MEMBER_BIG
 (1, JavaScriptConstructor, "WCartesianChart",
   // target: the WPaintedWidget JavaScript obj, with:
   //   repaint

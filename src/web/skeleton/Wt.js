@@ -23,6 +23,7 @@ window.WT_DECLARE_WT_MEMBER = function(i, type, name, fn)
     _$_WT_CLASS_$_[name] = fn;
   }
 };
+window.WT_DECLARE_WT_MEMBER_BIG = window.WT_DECLARE_WT_MEMBER;
 
 window.WT_DECLARE_APP_MEMBER = function(i, type, name, fn)
 {
@@ -38,6 +39,14 @@ window.WT_DECLARE_APP_MEMBER = function(i, type, name, fn)
   }
 };
 
+_$_$endif_$_();
+
+_$_$ifnot_DYNAMIC_JS_$_();
+window.JavaScriptConstructor = 2;
+window.WT_DECLARE_WT_MEMBER_BIG = function(i, type, name, fn)
+{
+  return fn;
+}
 _$_$endif_$_();
 
 if (!window._$_WT_CLASS_$_)
