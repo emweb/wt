@@ -1665,7 +1665,51 @@ int WCartesianChart::addYAxis(WAxis *waxis)
   yAxes_[idx]->transformChanged =
       new JSignal<>(this, "yTransformChanged" + boost::lexical_cast<std::string>(idx));
 
+  update();
+
   return idx;
+}
+
+void WCartesianChart::removeYAxis(int yAxisId)
+{
+  // TODO(Roel): what if the index is out of bounds?
+  {
+    std::size_t i = 0;
+    while (i < series_.size()) {
+      if (series_[i]->yAxis() == yAxisId) {
+        removeSeries(series_[i]);
+      } else {
+        if (series_[i]->yAxis() > yAxisId) {
+          series_[i]->bindToYAxis(series_[i]->yAxis() - 1);
+        }
+        ++i;
+      }
+    }
+  }
+  if (crosshairYAxis() > yAxisId) {
+    setCrosshairYAxis(crosshairYAxis() - 1);
+  }
+  clearPensForAxis(YAxis, yAxisId);
+  delete yAxes_[yAxisId];
+  yAxes_.erase(yAxes_.begin() + yAxisId);
+  for (std::size_t i = 0; i < yAxes_.size(); ++i) {
+    yAxes_[i]->axis->yAxis_ = static_cast<int>(i);
+    yAxes_[i]->axis->axis_ = i == 1 ? Y2Axis : Y1Axis;
+  }
+
+  update();
+}
+
+void WCartesianChart::clearYAxes()
+{
+  while (!series_.empty())
+    removeSeries(series_[series_.size() - 1]);
+  clearPens();
+  for (std::size_t i = 0; i < yAxes_.size(); ++i)
+    delete yAxes_[i];
+  yAxes_.clear();
+
+  update();
 }
 
 void WCartesianChart::setBarMargin(double margin)
@@ -2379,18 +2423,22 @@ void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 WRectF WCartesianChart::insideChartArea() const
 {
   const WAxis& xAxis = axis(XAxis);
-  const WAxis& yAxis = axis(YAxis);
 
   const WAxis::Segment& xs = xAxis.segments_[0];
-  const WAxis::Segment& ys = yAxis.segments_[0];
 
   // margin used when clipping, see also WAxis::prepareRender(),
   // when the renderMinimum/maximum is 0, clipping is done exact
-
   double xRenderStart = xAxis.inverted() ? xAxis.mapToDevice(xs.renderMaximum, 0) : xs.renderStart;
   double xRenderEnd = xAxis.inverted() ? xAxis.mapToDevice(xs.renderMinimum, 0) : xs.renderStart + xs.renderLength;
-  double yRenderStart = yAxis.inverted() ? yAxis.mapToDevice(ys.renderMaximum, 0) : ys.renderStart;
-  double yRenderEnd = yAxis.inverted() ? yAxis.mapToDevice(ys.renderMinimum, 0) : ys.renderStart + ys.renderLength;
+
+  double yRenderStart = 0;
+  double yRenderEnd = 0;
+  if (yAxisCount() >= 1) {
+    const WAxis& yAxis = axis(YAxis);
+    const WAxis::Segment& ys = yAxis.segments_[0];
+    yRenderStart = yAxis.inverted() ? yAxis.mapToDevice(ys.renderMaximum, 0) : ys.renderStart;
+    yRenderEnd = yAxis.inverted() ? yAxis.mapToDevice(ys.renderMinimum, 0) : ys.renderStart + ys.renderLength;
+  }
 
   double x1 = chartArea_.left() + xRenderStart;
   double x2 = chartArea_.left() + xRenderEnd;
@@ -2952,6 +3000,10 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
 
 bool WCartesianChart::prepareAxes(WPaintDevice *device) const
 {
+  // No axes
+  if (yAxes_.empty())
+    return true;
+
   const WAxis& xAxis = axis(XAxis);
 
   Orientation yDir = orientation_;
@@ -3229,6 +3281,8 @@ void WCartesianChart::renderGrid(WPainter& painter, const WAxis& ax) const
   double ou0 = s0.renderStart;
   double oun = sn.renderStart + sn.renderLength;
 
+  // TODO(Roel): fix this case?
+#if 0
   // Adjust for potentially different axis padding on second Y-axis
   if (!isYAxis && axis(Y2Axis).isGridLinesEnabled()) {
     const WAxis& other2 = axis(Y2Axis);
@@ -3239,6 +3293,7 @@ void WCartesianChart::renderGrid(WPainter& painter, const WAxis& ax) const
     if (!axis(YAxis).isGridLinesEnabled() || sn_2.renderStart + sn_2.renderLength > oun)
       oun = sn_2.renderStart + sn_2.renderLength;
   }
+#endif
   
   if (!isYAxis) {
     ou0 = chartArea_.bottom() - ou0;
