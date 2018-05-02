@@ -37,6 +37,7 @@
 #ifndef WT_DEBUG_JS
 #include "js/ChartCommon.min.js"
 
+#ifndef WT_TARGET_JAVA
 namespace skeletons {
   extern std::vector<const char*> WCartesianChart_js();
 }
@@ -58,6 +59,9 @@ namespace {
     return WJavaScriptPreamble(WtClassScope, JavaScriptConstructor, "WCartesianChart", js.c_str());
   }
 }
+#else
+#include "js/WCartesianChart.min.js"
+#endif
 #endif
 
 #ifndef M_PI
