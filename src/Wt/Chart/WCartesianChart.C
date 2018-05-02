@@ -1316,6 +1316,7 @@ void WCartesianChart::init()
   axis(XAxis).init(interface_, XAxis);
   axis(YAxis).init(interface_, YAxis);
   axis(Y2Axis).init(interface_, Y2Axis);
+  axis(Y2Axis).setVisible(false);
 
   axis(XAxis).setPadding(axisPadding_);
   axis(YAxis).setPadding(axisPadding_);
@@ -1946,26 +1947,28 @@ void WCartesianChart::setFormData(const FormData& formData)
   if (curveTransforms_.size() != 0) {
     for (std::size_t i = 0; i < series_.size(); ++i) {
       WDataSeries &s = *series_[i];
-      if ((s.type() == LineSeries || s.type() == CurveSeries) && !s.isHidden()) {
-	if (!s.scaleDirty_) {
-	  s.scale_ = curveTransforms_[&s].value().m22();
-	}
-	if (!s.offsetDirty_) {
-          int yAxis = s.yAxis();
-	  double origin;
-	  if (orientation() == Horizontal) {
-	    origin = mapToDeviceWithoutTransform(0.0, 0.0, yAxis).x();
-	  } else {
-	    origin = mapToDeviceWithoutTransform(0.0, 0.0, yAxis).y();
-	  }
-	  double dy = curveTransforms_[&s].value().dy();
-	  double scale = curveTransforms_[&s].value().m22();
-          double offset = - dy + origin * (1 - scale) + this->yAxis(yAxis).mapToDevice(0.0, 0);
-	  if (orientation() == Horizontal) {
-            s.offset_ = - this->yAxis(yAxis).mapFromDevice(offset);
-	  } else {
-            s.offset_ = this->yAxis(yAxis).mapFromDevice(offset);
-	  }
+      int yAxis = s.yAxis();
+      if (yAxis >= 0 && yAxis < yAxisCount()) {
+        if ((s.type() == LineSeries || s.type() == CurveSeries) && !s.isHidden()) {
+          if (!s.scaleDirty_) {
+            s.scale_ = curveTransforms_[&s].value().m22();
+          }
+          if (!s.offsetDirty_) {
+            double origin;
+            if (orientation() == Horizontal) {
+              origin = mapToDeviceWithoutTransform(0.0, 0.0, yAxis).x();
+            } else {
+              origin = mapToDeviceWithoutTransform(0.0, 0.0, yAxis).y();
+            }
+            double dy = curveTransforms_[&s].value().dy();
+            double scale = curveTransforms_[&s].value().m22();
+            double offset = - dy + origin * (1 - scale) + this->yAxis(yAxis).mapToDevice(0.0, 0);
+            if (orientation() == Horizontal) {
+              s.offset_ = - this->yAxis(yAxis).mapFromDevice(offset);
+            } else {
+              s.offset_ = this->yAxis(yAxis).mapFromDevice(offset);
+            }
+          }
 	}
       }
     }
@@ -2276,7 +2279,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 
     int i = startSeries;
     for (;;) {
-      bool doSeries = 
+      bool doSeries = series_[i]->yAxis() >= 0 && series_[i]->yAxis() < yAxisCount() &&
 	iterator->startSeries(*series_[i], groupWidth, numBarGroups,
 			      currentBarGroup);
 

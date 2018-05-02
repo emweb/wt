@@ -42,6 +42,11 @@ namespace {
     model->setData(model->rowCount()-1, 0, boost::any(std::string(value)));
   }
 
+  void addEntry(WAbstractItemModel *model, const WString &value) {
+    model->insertRows(model->rowCount(), 1);
+    model->setData(model->rowCount()-1, 0, boost::any(value));
+  }
+
   bool getDouble(WLineEdit *edit, double& value) {
     try {
       value = WLocale::currentLocale().toDouble(edit->text());
@@ -58,6 +63,15 @@ namespace {
     
     return -1;
   }
+
+  WString axisName(Axis axis, int yAxis)
+  {
+    if (axis == XAxis)
+      return Wt::utf8("X Axis");
+    else {
+      return Wt::utf8("Y axis {1}").arg(yAxis + 1);
+    }
+  }
 }
 
 ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
@@ -73,11 +87,11 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   WIntValidator *sizeValidator = new WIntValidator(200, 2000, this);
   sizeValidator->setMandatory(true);
 
-  WDoubleValidator *anyNumberValidator = new WDoubleValidator(this);
-  anyNumberValidator->setMandatory(true);
+  anyNumberValidator_ = new WDoubleValidator(this);
+  anyNumberValidator_->setMandatory(true);
 
-  WDoubleValidator *angleValidator = new WDoubleValidator(-90, 90, this);
-  angleValidator->setMandatory(true);
+  angleValidator_ = new WDoubleValidator(-90, 90, this);
+  angleValidator_->setMandatory(true);
 
   // ---- Chart properties ----
 
@@ -200,9 +214,9 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   addEntry(markers, "Asterisk");
   addEntry(markers, "Diamond");
 
-  WStandardItemModel *axes = new WStandardItemModel(0, 1, this);
-  addEntry(axes, "1st Y axis");
-  addEntry(axes, "2nd Y axis");
+  yAxesModel_ = new WStandardItemModel(0, 1, this);
+  addEntry(yAxesModel_, axisName(YAxis, 0));
+  addEntry(yAxesModel_, axisName(YAxis, 1));
 
   WStandardItemModel *labels = new WStandardItemModel(0, 1, this);
   addEntry(labels, "None");
@@ -244,8 +258,8 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     connectSignals(sc.markerEdit);
 
     sc.axisEdit = new WComboBox(seriesConfig->elementAt(j, 4));
-    sc.axisEdit->setModel(axes);
-	sc.axisEdit->setCurrentIndex(0);
+    sc.axisEdit->setModel(yAxesModel_);
+    sc.axisEdit->setCurrentIndex(0);
     connectSignals(sc.axisEdit);
 
     sc.legendEdit = new WCheckBox(seriesConfig->elementAt(j, 5));
@@ -295,124 +309,45 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
   // ---- Axis properties ----
 
-  WStandardItemModel *yScales = new WStandardItemModel(0, 1, this);
-  addEntry(yScales, "Linear scale");
-  addEntry(yScales, "Log scale");
+  yScales_ = new WStandardItemModel(0, 1, this);
+  addEntry(yScales_, "Linear scale");
+  addEntry(yScales_, "Log scale");
 
-  WStandardItemModel *xScales = new WStandardItemModel(0, 1, this);
-  addEntry(xScales, "Categories");
-  addEntry(xScales, "Linear scale");
-  addEntry(xScales, "Log scale");
-  addEntry(xScales, "Date scale");
+  xScales_ = new WStandardItemModel(0, 1, this);
+  addEntry(xScales_, "Categories");
+  addEntry(xScales_, "Linear scale");
+  addEntry(xScales_, "Log scale");
+  addEntry(xScales_, "Date scale");
 
-  WTable *axisConfig = new WTable();
-  axisConfig->setMargin(WLength::Auto, Left | Right);
+  WContainerWidget *axisConfig = new WContainerWidget();
+  axisConfig_ = new WTable(axisConfig);
+  axisConfig_->setMargin(WLength::Auto, Left | Right);
 
-  ::addHeader(axisConfig, "Axis");
-  ::addHeader(axisConfig, "Visible");
-  ::addHeader(axisConfig, "Scale");
-  ::addHeader(axisConfig, "Automatic");
-  ::addHeader(axisConfig, "Minimum");
-  ::addHeader(axisConfig, "Maximum");
-  ::addHeader(axisConfig, "Gridlines");
-  ::addHeader(axisConfig, "Label angle");
-  ::addHeader(axisConfig, "Title");
-  ::addHeader(axisConfig, "Title orientation");
-  ::addHeader(axisConfig, "Tick direction");
-  ::addHeader(axisConfig, "Location");
+  ::addHeader(axisConfig_, "Axis");
+  ::addHeader(axisConfig_, "Visible");
+  ::addHeader(axisConfig_, "Scale");
+  ::addHeader(axisConfig_, "Automatic");
+  ::addHeader(axisConfig_, "Minimum");
+  ::addHeader(axisConfig_, "Maximum");
+  ::addHeader(axisConfig_, "Gridlines");
+  ::addHeader(axisConfig_, "Label angle");
+  ::addHeader(axisConfig_, "Title");
+  ::addHeader(axisConfig_, "Title orientation");
+  ::addHeader(axisConfig_, "Tick direction");
+  ::addHeader(axisConfig_, "Location");
 
-  axisConfig->rowAt(0)->setStyleClass("trhead");
+  axisConfig_->rowAt(0)->setStyleClass("trhead");
 
-  for (int i = 0; i < 3; ++i) {
-    const char *axisName[] = { "X axis", "1st Y axis", "2nd Y axis" };
-    int j = i + 1;
+  addAxis(XAxis, 0);
+  addAxis(YAxis, 0);
+  addAxis(YAxis, 1);
 
-    const WAxis& axis = chart_->axis(static_cast<Axis>(i));
-    AxisControl sc;
-
-    new WText(WString(axisName[i], UTF8), axisConfig->elementAt(j, 0));
-
-    sc.visibleEdit = new WCheckBox(axisConfig->elementAt(j, 1));
-    sc.visibleEdit->setChecked(axis.isVisible());
-    connectSignals(sc.visibleEdit);
-
-    sc.scaleEdit = new WComboBox(axisConfig->elementAt(j, 2));
-    if (axis.scale() == CategoryScale)
-      sc.scaleEdit->addItem("Category scale");
-    else {
-      if (axis.id() == XAxis) {
-	sc.scaleEdit->setModel(xScales);
-	sc.scaleEdit->setCurrentIndex(axis.scale());
-      } else {
-	sc.scaleEdit->setModel(yScales);
-	sc.scaleEdit->setCurrentIndex(axis.scale() - 1);
-      }
-    }
-    connectSignals(sc.scaleEdit);
-
-    bool autoValues = axis.autoLimits() == (MinimumValue | MaximumValue);
-
-    sc.minimumEdit = new WLineEdit(axisConfig->elementAt(j, 4));
-    sc.minimumEdit->setText(WLocale::currentLocale()
-                            .toString(axis.minimum()));
-    sc.minimumEdit->setValidator(anyNumberValidator);
-    sc.minimumEdit->setEnabled(!autoValues);
-    connectSignals(sc.minimumEdit);
-
-    sc.maximumEdit = new WLineEdit(axisConfig->elementAt(j, 5));
-    sc.maximumEdit->setText(WLocale::currentLocale()
-                            .toString(axis.maximum()));
-    sc.maximumEdit->setValidator(anyNumberValidator);
-    sc.maximumEdit->setEnabled(!autoValues);
-    connectSignals(sc.maximumEdit);
-
-    sc.autoEdit = new WCheckBox(axisConfig->elementAt(j, 3));
-    sc.autoEdit->setChecked(autoValues);
-    connectSignals(sc.autoEdit);
-    sc.autoEdit->checked().connect(sc.maximumEdit, &WLineEdit::disable);
-    sc.autoEdit->unChecked().connect(sc.maximumEdit, &WLineEdit::enable);
-    sc.autoEdit->checked().connect(sc.minimumEdit, &WLineEdit::disable);
-    sc.autoEdit->unChecked().connect(sc.minimumEdit, &WLineEdit::enable);
-
-    sc.gridLinesEdit = new WCheckBox(axisConfig->elementAt(j, 6));
-    connectSignals(sc.gridLinesEdit);
-
-    sc.labelAngleEdit = new WLineEdit(axisConfig->elementAt(j, 7));
-    sc.labelAngleEdit->setText("0");
-    sc.labelAngleEdit->setValidator(angleValidator);
-    connectSignals(sc.labelAngleEdit);
-
-    sc.titleEdit = new WLineEdit(axisConfig->elementAt(j, 8));
-    sc.titleEdit->setText("");
-    connectSignals(sc.titleEdit);
-
-    sc.titleOrientationEdit = new WComboBox(axisConfig->elementAt(j, 9));
-    sc.titleOrientationEdit->addItem("Horizontal");
-    sc.titleOrientationEdit->addItem("Vertical");
-	sc.titleOrientationEdit->setCurrentIndex(0);
-    connectSignals(sc.titleOrientationEdit);
-
-    sc.tickDirectionEdit = new WComboBox(axisConfig->elementAt(j, 10));
-    sc.tickDirectionEdit->addItem("Outwards");
-    sc.tickDirectionEdit->addItem("Inwards");
-	sc.tickDirectionEdit->setCurrentIndex(0);
-    connectSignals(sc.tickDirectionEdit);
-
-    sc.locationEdit = new WComboBox(axisConfig->elementAt(j, 11));
-    sc.locationEdit->addItem("Minimum value");
-    sc.locationEdit->addItem("Maximum value");
-    sc.locationEdit->addItem("Zero value");
-    sc.locationEdit->addItem("Both sides");
-	sc.locationEdit->setCurrentIndex(0);
-    if (axis.location() == ZeroValue) {
-      sc.locationEdit->setCurrentIndex(2);
-    }
-    connectSignals(sc.locationEdit);
-
-    axisConfig->rowAt(j)->setStyleClass("trdata");
-
-    axisControls_.push_back(sc);
-  }
+  WPushButton *addAxisBtn =
+      new WPushButton(Wt::utf8("Add Y axis"), axisConfig);
+  addAxisBtn->clicked().connect(this, &ChartConfig::addYAxis);
+  WPushButton *clearAxesBtn =
+      new WPushButton(Wt::utf8("Clear Y axes"), axisConfig);
+  clearAxesBtn->clicked().connect(this, &ChartConfig::clearYAxes);
 
   p = list->addWidget("Axis properties", axisConfig);
   p->setMargin(WLength::Auto, Left | Right);
@@ -496,9 +431,7 @@ void ChartConfig::update()
 
       s->setMarker(static_cast<MarkerType>(sc.markerEdit->currentIndex()));
 
-      if (sc.axisEdit->currentIndex() == 1) {
-	s->bindToAxis(Y2Axis);
-      }
+      s->bindToYAxis(sc.axisEdit->currentIndex());
 
       if (sc.legendEdit->isChecked()) {
 	s->setLegendEnabled(true);
@@ -530,9 +463,9 @@ void ChartConfig::update()
 
   chart_->setSeries(series);
 
-  for (int i = 0; i < 3; ++i) {
+  for (std::size_t i = 0; i < axisControls_.size(); ++i) {
     AxisControl& sc = axisControls_[i];
-    WAxis& axis = chart_->axis(static_cast<Axis>(i));
+    WAxis& axis = i == 0 ? chart_->axis(XAxis) : chart_->yAxis(i - 1);
 
     axis.setVisible(sc.visibleEdit->isChecked());
 
@@ -711,4 +644,141 @@ void ChartConfig::connectSignals(WFormWidget *w)
   w->changed().connect(this, &ChartConfig::update);
   if (dynamic_cast<WLineEdit *>(w))
     w->enterPressed().connect(this, &ChartConfig::update);
+}
+
+void ChartConfig::addYAxis()
+{
+  int yAxis = chart_->addYAxis(new WAxis());
+  addAxis(YAxis, yAxis);
+  addEntry(yAxesModel_, axisName(YAxis, yAxis));
+  if (yAxis == 0)
+    update();
+}
+
+void ChartConfig::addAxis(Axis ax, int yAxis)
+{
+  int j = ax == XAxis ? 1 : yAxis + 2;
+
+  const WAxis& axis = ax == XAxis ? chart_->axis(XAxis) : chart_->yAxis(yAxis);
+  AxisControl sc;
+
+  new WText(axisName(axis.id(), axis.yAxisId()), axisConfig_->elementAt(j, 0));
+
+  sc.visibleEdit = new WCheckBox(axisConfig_->elementAt(j, 1));
+  sc.visibleEdit->setChecked(axis.isVisible());
+  connectSignals(sc.visibleEdit);
+
+  sc.scaleEdit = new WComboBox(axisConfig_->elementAt(j, 2));
+  if (axis.scale() == CategoryScale)
+    sc.scaleEdit->addItem("Category scale");
+  else {
+    if (axis.id() == XAxis) {
+      sc.scaleEdit->setModel(xScales_);
+      sc.scaleEdit->setCurrentIndex(axis.scale());
+    } else {
+      sc.scaleEdit->setModel(yScales_);
+      sc.scaleEdit->setCurrentIndex(axis.scale() - 1);
+    }
+  }
+  connectSignals(sc.scaleEdit);
+
+  bool autoValues = axis.autoLimits() == (MinimumValue | MaximumValue);
+
+  sc.minimumEdit = new WLineEdit(axisConfig_->elementAt(j, 4));
+  sc.minimumEdit->setText(WLocale::currentLocale()
+                          .toString(axis.minimum()));
+  sc.minimumEdit->setValidator(anyNumberValidator_);
+  sc.minimumEdit->setEnabled(!autoValues);
+  connectSignals(sc.minimumEdit);
+
+  sc.maximumEdit = new WLineEdit(axisConfig_->elementAt(j, 5));
+  sc.maximumEdit->setText(WLocale::currentLocale()
+                          .toString(axis.maximum()));
+  sc.maximumEdit->setValidator(anyNumberValidator_);
+  sc.maximumEdit->setEnabled(!autoValues);
+  connectSignals(sc.maximumEdit);
+
+  sc.autoEdit = new WCheckBox(axisConfig_->elementAt(j, 3));
+  sc.autoEdit->setChecked(autoValues);
+  connectSignals(sc.autoEdit);
+  sc.autoEdit->checked().connect(sc.maximumEdit, &WLineEdit::disable);
+  sc.autoEdit->unChecked().connect(sc.maximumEdit, &WLineEdit::enable);
+  sc.autoEdit->checked().connect(sc.minimumEdit, &WLineEdit::disable);
+  sc.autoEdit->unChecked().connect(sc.minimumEdit, &WLineEdit::enable);
+
+  sc.gridLinesEdit = new WCheckBox(axisConfig_->elementAt(j, 6));
+  connectSignals(sc.gridLinesEdit);
+
+  sc.labelAngleEdit = new WLineEdit(axisConfig_->elementAt(j, 7));
+  sc.labelAngleEdit->setText("0");
+  sc.labelAngleEdit->setValidator(angleValidator_);
+  connectSignals(sc.labelAngleEdit);
+
+  sc.titleEdit = new WLineEdit(axisConfig_->elementAt(j, 8));
+  sc.titleEdit->setText("");
+  connectSignals(sc.titleEdit);
+
+  sc.titleOrientationEdit = new WComboBox(axisConfig_->elementAt(j, 9));
+  sc.titleOrientationEdit->addItem("Horizontal");
+  sc.titleOrientationEdit->addItem("Vertical");
+      sc.titleOrientationEdit->setCurrentIndex(0);
+  connectSignals(sc.titleOrientationEdit);
+
+  sc.tickDirectionEdit = new WComboBox(axisConfig_->elementAt(j, 10));
+  sc.tickDirectionEdit->addItem("Outwards");
+  sc.tickDirectionEdit->addItem("Inwards");
+      sc.tickDirectionEdit->setCurrentIndex(0);
+  connectSignals(sc.tickDirectionEdit);
+
+  sc.locationEdit = new WComboBox(axisConfig_->elementAt(j, 11));
+  sc.locationEdit->addItem("Minimum value");
+  sc.locationEdit->addItem("Maximum value");
+  sc.locationEdit->addItem("Zero value");
+  sc.locationEdit->addItem("Both sides");
+  sc.locationEdit->setCurrentIndex(0);
+  if (axis.location() == MaximumValue) {
+    sc.locationEdit->setCurrentIndex(1);
+  } else if (axis.location() == ZeroValue) {
+    sc.locationEdit->setCurrentIndex(2);
+  }
+  connectSignals(sc.locationEdit);
+
+  if (ax != XAxis) {
+    WPushButton *removeAxisButton =
+        new WPushButton(Wt::utf8("x"), axisConfig_->elementAt(j, 12));
+    removeAxisButton->clicked().connect(boost::bind(&ChartConfig::removeYAxis, this, &axis));
+  }
+
+  axisConfig_->rowAt(j)->setStyleClass("trdata");
+
+  axisControls_.push_back(sc);
+}
+
+void ChartConfig::removeYAxis(const WAxis *axis)
+{
+  int yAxis = axis->yAxisId();
+  for (std::size_t i = 0; i < chart_->series().size(); ++i) {
+    if (chart_->series()[i]->yAxis() == yAxis)
+      chart_->series()[i]->bindToYAxis(-1);
+  }
+  chart_->removeYAxis(yAxis);
+  axisConfig_->deleteRow(yAxis + 2);
+  yAxesModel_->removeRow(yAxis);
+  axisControls_.erase(axisControls_.begin() + yAxis + 1);
+  update();
+}
+
+void ChartConfig::clearYAxes()
+{
+  if (chart_->yAxisCount() == 0)
+    return;
+
+  for (std::size_t i = 0; i < chart_->series().size(); ++i) {
+    chart_->series()[i]->bindToYAxis(-1);
+  }
+  chart_->clearYAxes();
+  while (axisConfig_->rowCount() > 2)
+    axisConfig_->deleteRow(2);
+  yAxesModel_->clear();
+  axisControls_.resize(1);
 }
