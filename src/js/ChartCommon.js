@@ -256,7 +256,34 @@ WT_DECLARE_WT_MEMBER
       return {xZoom: xZoom, yZoom: yZoom, panPoint: panPoint};
    };
 
-   this.matchAxis = function(x, y, area, yAxes, isHorizontal) {
+   this.matchesXAxis = function(x, y, area, xAxis, isHorizontal) {
+     if (isHorizontal) {
+       if (y < top(area) || y > bottom(area))
+         return false;
+       if ((xAxis.side === 'min' || xAxis.side === 'both') &&
+           x >= left(area) - xAxis.width &&
+           x <= left(area))
+         return true;
+       if ((xAxis.side === 'max' || xAxis.side === 'both') &&
+           x <= right(area) + xAxis.width &&
+           x >= right(area))
+         return true;
+     } else {
+       if (x < left(area) || x > right(area))
+         return false;
+       if ((xAxis.side === 'min' || xAxis.side === 'both') &&
+           y <= bottom(area) + xAxis.width &&
+           y >= bottom(area))
+         return true;
+       if ((xAxis.side === 'max' || xAxis.side === 'both') &&
+           y >= top(area) - xAxis.width &&
+           y <= top(area))
+         return true;
+     }
+     return false;
+   }
+
+   this.matchYAxis = function(x, y, area, yAxes, isHorizontal) {
      function yAxisCount() {
        return yAxes.length;
      }
