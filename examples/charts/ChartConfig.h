@@ -15,9 +15,12 @@ namespace Wt {
   class WComboBox;
   class WFormWidget;
   class WLineEdit;
+  class WStandardItemModel;
   class WTable;
+  class WValidator;
 
   namespace Chart {
+    class WAxis;
     class WCartesianChart;
   }
 }
@@ -88,8 +91,16 @@ private:
   Wt::WComboBox *legendAlignmentEdit_;
   Wt::WCheckBox *borderEdit_;
 
+  std::shared_ptr<Wt::WStandardItemModel> yAxesModel_, xScales_, yScales_;
+  Wt::WTable *axisConfig_;
+  std::shared_ptr<Wt::WValidator> anyNumberValidator_, angleValidator_;
+
   void connectSignals(Wt::WFormWidget *w);
   void update();
+  void addYAxis();
+  void addAxis(Wt::Chart::Axis axis, int yAxis);
+  void removeYAxis(const Wt::Chart::WAxis *axis);
+  void clearYAxes();
 
   static bool validate(Wt::WFormWidget *w);
 };

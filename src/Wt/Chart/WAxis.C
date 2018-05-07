@@ -193,9 +193,6 @@ void WAxis::init(WAbstractChartImplementation* chart,
     } else if (scale_ == AxisScale::Discrete)
       scale_ = AxisScale::Linear;
   }
-
-  if (axis == Axis::Y2)
-    visible_ = false;
 }
 
 void WAxis::initYAxis(WAbstractChartImplementation* chart,

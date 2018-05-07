@@ -34,6 +34,24 @@ namespace {
   inline std::string str(const char *s) {
     return s ? std::string(s) : std::string();
   }
+
+  bool isPrivateIP(const std::string &s) {
+    return boost::starts_with(s, "127.") ||
+           boost::starts_with(s, "10.") ||
+           boost::starts_with(s, "192.168.") ||
+           (s.size() >= 7 &&
+            boost::starts_with(s, "172.") &&
+            s[6] == '.' &&
+            ((s[4] == '1' &&
+              s[5] >= '6' &&
+              s[5] <= '9') ||
+             (s[4] == '2' &&
+              s[5] >= '0' &&
+              s[5] <= '9') ||
+             (s[4] == '3' &&
+              s[5] >= '0' &&
+              s[5] <= '1')));
+  }
 }
 
 namespace Wt {
@@ -264,10 +282,7 @@ std::string WEnvironment::getClientAddress(const WebRequest& request,
       boost::trim(result);
 
       if (!result.empty()
-          && !boost::starts_with(result, "127.")
-	  && !boost::starts_with(result, "10.")
-	  && !boost::starts_with(result, "172.16.")
-	  && !boost::starts_with(result, "192.168.")) {
+          && !isPrivateIP(result)) {
 	break;
       }
     }

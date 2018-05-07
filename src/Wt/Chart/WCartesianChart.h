@@ -617,6 +617,24 @@ public:
    */
   int addYAxis(std::unique_ptr<WAxis> waxis);
 
+  /*! \brief Removes the Y axis with the given id.
+   *
+   * The indices of the axes with an id higher than
+   * yAxisId will be decremented.
+   *
+   * Any WDataSeries associated with the removed axis
+   * are also removed.
+   */
+  std::unique_ptr<WAxis> removeYAxis(int yAxisId);
+
+  /*! \brief Clears all Y axes.
+   *
+   * The effect is the same as repeatedly using removeYAxis()
+   * until are axes are removed, i.e. any WDataSeries will
+   * also be removed.
+   */
+  void clearYAxes();
+
   /*! \brief Sets the margin between bars of different series.
    *
    * Use this method to change the margin that is set between bars of
@@ -1362,7 +1380,8 @@ private:
     AxisLocation()
       : minOffset(0),
         maxOffset(0),
-        loc(AxisValue::Minimum)
+        initLoc(AxisValue::Minimum),
+        finLoc(AxisValue::Minimum)
     { }
 
     int minOffset; // the number of pixels the axis should be shifted beyond
@@ -1371,9 +1390,10 @@ private:
     int maxOffset; // the number of pixels the axis should be shifted beyond
                    // the maximum due to this axis being an extra Y axis on
                    // the MaximumValue side
-    AxisValue loc; // where the axis has been placed after all of the
-                   // ZeroValue -> Minimum/Maximum and
-                   // Minimum/Maximum -> ZeroValue tricks
+    AxisValue initLoc; // where the axis has been placed after the
+                       // ZeroValue out of bounds -> Minimum/Maximum transformation
+    AxisValue finLoc; // where the axis has been placed after the
+                      // Minimum/Maximum at the bound -> ZeroValue transformation
   };
   struct PenAssignment {
     WJavaScriptHandle<WPen> pen;
@@ -1743,7 +1763,7 @@ private:
   WPointF inverseHv(double x, double y, double width) const;
   WPointF inverseHv(const WPointF &p) const;
   WRectF insideChartArea() const;
-  int calcYAxisSize(const WAxis &axis, WPaintDevice *device) const;
+  int calcAxisSize(const WAxis &axis, WPaintDevice *device) const;
   void defineJavaScript();
 
   bool axisSliderWidgetForSeries(WDataSeries *series) const;

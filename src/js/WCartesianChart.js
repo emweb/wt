@@ -6,7 +6,7 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER
+WT_DECLARE_WT_MEMBER_BIG
 (1, JavaScriptConstructor, "WCartesianChart",
   // target: the WPaintedWidget JavaScript obj, with:
   //   repaint
@@ -36,6 +36,7 @@ WT_DECLARE_WT_MEMBER
   //   hasToolTips // whether there are any tooltips
   //   pens // {x: [linePen,textPen,gridPen], y: [[linePen,textPen,gridPen],...] }
   //   penAlpha: {x: [linePenAlpha,textPenAlpha,gridPenAlpha], y: [[linePenAlpha,textPenAlpha,gridPenAlpha],...] }
+  //   xAxis: {width: float, side: side} side = min max zero both
   //   yAxes: [{width: float, side: side, minOffset: float, maxOffset: float}] side = min max zero both
   //
   function(APP, widget, target, config) {
@@ -67,8 +68,11 @@ WT_DECLARE_WT_MEMBER
     var toZoomLevel = chartCommon.toZoomLevel;
     var isPointInRect = chartCommon.isPointInRect;
     var findYRange = chartCommon.findYRange;
-    var matchAxis = function(x,y) {
-      return chartCommon.matchAxis(x, y, configArea(), config.yAxes, isHorizontal());
+    var matchesXAxis = function(x,y) {
+      return chartCommon.matchesXAxis(x, y, configArea(), config.xAxis, isHorizontal());
+    };
+    var matchYAxis = function(x,y) {
+      return chartCommon.matchYAxis(x, y, configArea(), config.yAxes, isHorizontal());
     };
 
     // Functions that help in making minification more effective
@@ -332,6 +336,7 @@ WT_DECLARE_WT_MEMBER
 
     var paintEnabled = true; 
     var dragPreviousXY = null;
+    var dragXAxis = false;
     var dragCurrentYAxis = -1;
     var touches = [];
     var singleTouch = false;
@@ -694,12 +699,14 @@ WT_DECLARE_WT_MEMBER
       if (pointerActive)
         return;
       var c = WT.widgetCoordinates(target.canvas, event);
-      var matchedYAxis = matchAxis(c.x, c.y);
+      var matchedYAxis = matchYAxis(c.x, c.y);
       var inRect = isPointInRect(c, configArea());
-      if (matchedYAxis === -1 && !inRect)
+      var matchedXAxis = matchesXAxis(c.x, c.y);
+      if (matchedYAxis === -1 && !matchedXAxis && !inRect)
         return;
 
       dragPreviousXY = c;
+      dragXAxis = matchedXAxis;
       dragCurrentYAxis = matchedYAxis;
     };
 
@@ -707,6 +714,7 @@ WT_DECLARE_WT_MEMBER
       if (pointerActive)
         return;
       dragPreviousXY = null;
+      dragXAxis = false;
       dragCurrentYAxis = -1;
     };
 
@@ -722,7 +730,8 @@ WT_DECLARE_WT_MEMBER
        return;
        */
       if (WT.buttons === 1) {
-        if (dragCurrentYAxis === -1 && curveManipulation() && configSeries(configSelectedCurve())) {
+        if (dragCurrentYAxis === -1 && !dragXAxis &&
+            curveManipulation() && configSeries(configSelectedCurve())) {
           var curve = configSelectedCurve();
           var dy;
           if (isHorizontal()) {
@@ -738,7 +747,7 @@ WT_DECLARE_WT_MEMBER
           translate({
             x: c.x - dragPreviousXY.x,
             y: c.y - dragPreviousXY.y
-          }, 0, dragCurrentYAxis);
+          }, 0, dragCurrentYAxis, dragXAxis);
         }
       }
       dragPreviousXY = c;
@@ -790,9 +799,10 @@ WT_DECLARE_WT_MEMBER
       if (isUndefined(action)) return;
 
       var c = WT.widgetCoordinates(target.canvas, event);
-      var matchedYAxis = matchAxis(c.x, c.y);
+      var matchedXAxis = matchesXAxis(c.x, c.y);
+      var matchedYAxis = matchYAxis(c.x, c.y);
       var inRect = isPointInRect(c, configArea());
-      if (matchedYAxis === -1 && !inRect)
+      if (!matchedXAxis && matchedYAxis === -1 && !inRect)
         return;
       var w = WT.normalizeWheel(event);
       if (inRect && modifiers === 0 && curveManipulation()) {
@@ -820,16 +830,17 @@ WT_DECLARE_WT_MEMBER
           yBefore.push(yTransform(yAx)[5]);
         }
         if (action === WHEEL_PAN_MATCHING)
-          translate({x:-w.pixelX,y:-w.pixelY}, 0, matchedYAxis);
+          translate({x:-w.pixelX,y:-w.pixelY}, 0, matchedYAxis, matchedXAxis);
         else if (action === WHEEL_PAN_Y)
-          translate({x:0,y:-w.pixelX - w.pixelY}, 0, matchedYAxis);
+          translate({x:0,y:-w.pixelX - w.pixelY}, 0, matchedYAxis, matchedXAxis);
         else if (action === WHEEL_PAN_X)
-          translate({x:-w.pixelX - w.pixelY,y:0}, 0, matchedYAxis);
+          translate({x:-w.pixelX - w.pixelY,y:0}, 0, matchedYAxis, matchedXAxis);
         if (xBefore !== xTransform()[4]) {
-          for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
-            if (yBefore[yAx] !== yTransform(yAx)[5])
-              WT.cancelEvent(event);
-          }
+          WT.cancelEvent(event);
+        }
+        for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+          if (yBefore[yAx] !== yTransform(yAx)[5])
+            WT.cancelEvent(event);
         }
       } else if (config.zoom) {
         WT.cancelEvent(event);
@@ -837,16 +848,16 @@ WT_DECLARE_WT_MEMBER
         // Some browsers scroll horizontally when shift key pressed
         if (d === 0) d = -w.spinX;
         if (action === WHEEL_ZOOM_Y) {
-          zoom(c, 0, d, matchedYAxis);
+          zoom(c, 0, d, matchedYAxis, matchedXAxis);
         } else if (action === WHEEL_ZOOM_X) {
-          zoom(c, d, 0, matchedYAxis);
+          zoom(c, d, 0, matchedYAxis, matchedXAxis);
         } else if (action === WHEEL_ZOOM_XY) {
-          zoom(c, d, d, matchedYAxis);
+          zoom(c, d, d, matchedYAxis, matchedXAxis);
         } else if (action === WHEEL_ZOOM_MATCHING) {
           if (w.pixelX !== 0)
-            zoom(c, d, 0, matchedYAxis);
+            zoom(c, d, 0, matchedYAxis, matchedXAxis);
           else
-            zoom(c, 0, d, matchedYAxis);
+            zoom(c, 0, d, matchedYAxis, matchedXAxis);
         }
       }
     };
@@ -875,11 +886,12 @@ WT_DECLARE_WT_MEMBER
       if (singleTouch) {
         animating = false;
         var c = WT.widgetCoordinates(target.canvas, event.touches[0]);
-        var matchedYAxis = matchAxis(c.x, c.y);
+        var matchedYAxis = matchYAxis(c.x, c.y);
         var inRect = isPointInRect(c, configArea());
-        if (matchedYAxis === -1 && !inRect)
+        var matchedXAxis = matchesXAxis(c.x, c.y);
+        if (matchedYAxis === -1 && !matchedXAxis && !inRect)
           return;
-        if (matchedYAxis === -1 && showCrosshair() && distanceLessThanRadius(crosshair, [c.x,c.y], CROSSHAIR_RADIUS)) {
+        if (matchedYAxis === -1 && !matchedXAxis && showCrosshair() && distanceLessThanRadius(crosshair, [c.x,c.y], CROSSHAIR_RADIUS)) {
           mode = CROSSHAIR_MODE;
         } else {
           mode = LOOK_MODE;
@@ -887,6 +899,7 @@ WT_DECLARE_WT_MEMBER
         lastDate = Date.now();
         dragPreviousXY = c;
         dragCurrentYAxis = matchedYAxis;
+        dragXAxis = matchedXAxis;
         if (mode !== CROSSHAIR_MODE) {
           if (!fromDoubleTouch && inRect) {
             seriesSelectionTimeout = window.setTimeout(seriesSelected, SERIES_SELECTION_TIMEOUT);
@@ -905,14 +918,20 @@ WT_DECLARE_WT_MEMBER
           WT.widgetCoordinates(target.canvas,event.touches[0]),
           WT.widgetCoordinates(target.canvas,event.touches[1])
         ].map(function(t){return [t.x,t.y];});
+        var matchedXAxis = false;
         var matchedYAxis = -1;
         if (!touches.every(function(p){return isPointInRect(p,configArea());})) {
-          matchedYAxis = matchAxis(touches[0][X], touches[0][Y]);
-          if (matchedYAxis === -1 ||
-              matchAxis(touches[1][X], touches[1][Y]) !== matchedYAxis) {
+          matchedXAxis = matchesXAxis(touches[0][X], touches[0][Y]) &&
+                         matchesXAxis(touches[1][X], touches[1][Y]);
+          if (!matchedXAxis)
+            matchedYAxis = matchYAxis(touches[0][X], touches[0][Y]);
+          if (!matchedXAxis &&
+              (matchedYAxis === -1 ||
+               matchYAxis(touches[1][X], touches[1][Y]) !== matchedYAxis)) {
             doubleTouch = null;
             return;
           }
+          dragXAxis = matchedXAxis;
           dragCurrentYAxis = matchedYAxis;
         }
         WT.capture(null);
@@ -933,6 +952,7 @@ WT_DECLARE_WT_MEMBER
           zoomAngle = -Math.PI / 4;
         }
         zoomProjection = projection(zoomAngle, zoomMiddle);
+        dragXAxis = matchedXAxis;
         dragCurrentYAxis = matchedYAxis;
       } else {
         return;
@@ -949,7 +969,9 @@ WT_DECLARE_WT_MEMBER
       }
       var d = {x: 0, y: 0};
       var area;
-      if (dragCurrentYAxis === -1) {
+      if (dragXAxis) {
+        area = transformedInsideChartArea(0);
+      } else if (dragCurrentYAxis === -1) {
         area = transformedInsideChartArea(0);
         for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
           area = intersection(area, transformedInsideChartArea(yAx));
@@ -1027,7 +1049,9 @@ WT_DECLARE_WT_MEMBER
         d.y = v.y * dt;
       }
 
-      if (dragCurrentYAxis === -1) {
+      if (dragXAxis) {
+        area = transformedInsideChartArea(0);
+      } else if (dragCurrentYAxis === -1) {
         area = transformedInsideChartArea(0);
         for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
           area = intersection(area, transformedInsideChartArea(yAx));
@@ -1035,9 +1059,11 @@ WT_DECLARE_WT_MEMBER
       } else {
         area = transformedInsideChartArea(dragCurrentYAxis);
       }
-      translate(d, NO_LIMIT, dragCurrentYAxis);
+      translate(d, NO_LIMIT, dragCurrentYAxis, dragXAxis);
       var newArea;
-      if (dragCurrentYAxis === -1) {
+      if (dragXAxis) {
+        newArea = transformedInsideChartArea(0);
+      } else if (dragCurrentYAxis === -1) {
         newArea = transformedInsideChartArea(0);
         for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
           newArea = intersection(newArea, transformedInsideChartArea(yAx));
@@ -1048,25 +1074,25 @@ WT_DECLARE_WT_MEMBER
       if (left(area) > left(insideArea()) &&
           left(newArea) <= left(insideArea())) {
         v.x = 0;
-        translate({x:-d.x,y:0}, NO_LIMIT, dragCurrentYAxis);
+        translate({x:-d.x,y:0}, NO_LIMIT, dragCurrentYAxis, dragXAxis);
         enforceLimits(X_ONLY);
       }
       if (right(area) < right(insideArea()) &&
           right(newArea) >= right(insideArea())) {
         v.x = 0;
-        translate({x:-d.x,y:0}, NO_LIMIT, dragCurrentYAxis);
+        translate({x:-d.x,y:0}, NO_LIMIT, dragCurrentYAxis, dragXAxis);
         enforceLimits(X_ONLY);
       }
       if (top(area) > top(insideArea()) &&
           top(newArea) <= top(insideArea())) {
         v.y = 0;
-        translate({x:0,y:-d.y}, NO_LIMIT, dragCurrentYAxis);
+        translate({x:0,y:-d.y}, NO_LIMIT, dragCurrentYAxis, dragXAxis);
         enforceLimits(Y_ONLY);
       }
       if (bottom(area) < bottom(insideArea()) &&
           bottom(newArea) >= bottom(insideArea())) {
         v.y = 0;
-        translate({x:0,y:-d.y}, NO_LIMIT, dragCurrentYAxis);
+        translate({x:0,y:-d.y}, NO_LIMIT, dragCurrentYAxis, dragXAxis);
         enforceLimits(Y_ONLY);
       }
       if (Math.abs(v.x) < STOPPING_SPEED &&
@@ -1155,14 +1181,14 @@ WT_DECLARE_WT_MEMBER
       // kind of breaks pinch-to-zoom?
       if (len(event.touches) > 1)
         c2 = WT.widgetCoordinates(target.canvas, event.touches[1]);
-      if (dragCurrentYAxis === -1 && singleTouch && seriesSelectionTimeout && !distanceLessThanRadius([c1.x,c1.y],[dragPreviousXY.x,dragPreviousXY.y],3)) {
+      if (!dragXAxis && dragCurrentYAxis === -1 && singleTouch && seriesSelectionTimeout && !distanceLessThanRadius([c1.x,c1.y],[dragPreviousXY.x,dragPreviousXY.y],3)) {
         window.clearTimeout(seriesSelectionTimeout);
         seriesSelectionTimeout = null;
       }
       // setTimeout prevents high animation velocity due to looking
       // at events that are further apart.
       if (!moveTimeout) moveTimeout = setTimeout(function(){
-        if (dragCurrentYAxis === -1 && singleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
+        if (!dragXAxis && dragCurrentYAxis === -1 && singleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
           var curve = configSelectedCurve();
           if (configSeries(curve)) {
             var c = c1;
@@ -1194,10 +1220,10 @@ WT_DECLARE_WT_MEMBER
           } else if (config.pan) {
             v.x = d.x / dt;
             v.y = d.y / dt;
-            translate(d, config.rubberBand ? DAMPEN : 0, dragCurrentYAxis);
+            translate(d, config.rubberBand ? DAMPEN : 0, dragCurrentYAxis, dragXAxis);
           }
           dragPreviousXY = c;
-        } else if (dragCurrentYAxis === -1 && doubleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
+        } else if (!dragXAxis && dragCurrentYAxis === -1 && doubleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
           var yAxis = isHorizontal() ? X : Y;
           var newTouches = [ c1, c2 ].map(function(t){
             if (isHorizontal()) {
@@ -1281,7 +1307,17 @@ WT_DECLARE_WT_MEMBER
               yScalePerAxis[yAx] = maxYZoom(yAx) / yTransform(yAx)[3];
             }
           }
-          if (dragCurrentYAxis === -1) {
+          if (dragXAxis) {
+            if (xScale !== 1 &&
+                (xScale < 1.0 || xTransform()[0] !== maxXZoom())) {
+              tAssign(xTransform(),
+                  mult(
+                    [xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
+                    xTransform()
+                    )
+                  );
+            }
+          } else if (dragCurrentYAxis === -1) {
             if (xScale !== 1 &&
                 (xScale < 1.0 || xTransform()[0] !== maxXZoom())) {
               tAssign(xTransform(),
@@ -1362,11 +1398,13 @@ WT_DECLARE_WT_MEMBER
       }
     }
 
-    function translate(d, flags, matchedYAxis) {
+    function translate(d, flags, matchedYAxis, dragX) {
       if (isUndefined(flags))
         flags = 0;
       if (isUndefined(matchedYAxis))
         matchedYAxis = -1;
+      if (isUndefined(dragX))
+        dragX = false;
       var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
 
       if (isHorizontal()) {
@@ -1374,7 +1412,9 @@ WT_DECLARE_WT_MEMBER
       }
 
       if (flags & NO_LIMIT) {
-        if (matchedYAxis === -1) {
+        if (dragX) {
+          xTransform()[4] = xTransform()[4] + d.x;
+        } else if (matchedYAxis === -1) {
           xTransform()[4] = xTransform()[4] + d.x;
           for (var yAx = 0; yAx < yAxisCount(); ++yAx)
             yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
@@ -1384,7 +1424,9 @@ WT_DECLARE_WT_MEMBER
         setTransformChangedTimeout();
       } else if (flags & DAMPEN) {
         var area;
-        if (matchedYAxis === -1) {
+        if (dragX) {
+          area = transformedInsideChartArea(0);
+        } else if (matchedYAxis === -1) {
           area = transformedInsideChartArea(0);
           for (var yAx = 1; yAx < yAxisCount(); ++yAx) {
             area = intersection(area, transformedInsideChartArea(yAx));
@@ -1410,7 +1452,9 @@ WT_DECLARE_WT_MEMBER
             d.y = d.y / (1 + ((bottom(insideArea()) - bottom(area)) * RESISTANCE_FACTOR));
           }
         }
-        if (matchedYAxis === -1) {
+        if (dragX) {
+          xTransform()[4] = xTransform()[4] + d.x;
+        } else if (matchedYAxis === -1) {
           xTransform()[4] = xTransform()[4] + d.x;
           for (var yAx = 0; yAx < yAxisCount(); ++yAx)
             yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
@@ -1419,10 +1463,13 @@ WT_DECLARE_WT_MEMBER
         }
         if (matchedYAxis === -1)
           crosshair[X] = crosshair[X] + d.x;
-        crosshair[Y] = crosshair[Y] + d.y;
+        if (!dragX)
+          crosshair[Y] = crosshair[Y] + d.y;
         setTransformChangedTimeout();
       } else {
-        if (matchedYAxis === -1) {
+        if (dragX) {
+          xTransform()[4] = xTransform()[4] + d.x;
+        } else if (matchedYAxis === -1) {
           xTransform()[4] = xTransform()[4] + d.x;
           for (var yAx = 0; yAx < yAxisCount(); ++yAx)
             yTransform(yAx)[5] = yTransform(yAx)[5] - d.y;
@@ -1431,7 +1478,8 @@ WT_DECLARE_WT_MEMBER
         }
         if (matchedYAxis === -1)
           crosshair[X] = crosshair[X] + d.x;
-        crosshair[Y] = crosshair[Y] + d.y;
+        if (!dragX)
+          crosshair[Y] = crosshair[Y] + d.y;
 
         enforceLimits();
       }
@@ -1445,9 +1493,11 @@ WT_DECLARE_WT_MEMBER
       notifyAreaChanged();
     }
 
-    function zoom(coords, xDelta, yDelta, matchedYAxis) {
+    function zoom(coords, xDelta, yDelta, matchedYAxis, matchedXAxis) {
       if (isUndefined(matchedYAxis))
         matchedYAxis = -1;
+      if (isUndefined(matchedXAxis))
+        matchedXAxis = false;
       var crosshairBefore = toModelCoord(crosshair, crosshairAxis());
       var xy;
       if (isHorizontal()) {
@@ -1463,7 +1513,12 @@ WT_DECLARE_WT_MEMBER
       if (xTransform()[0] * s_x > maxXZoom()) {
         s_x = maxXZoom() / xTransform()[0];
       }
-      if (matchedYAxis === -1) {
+      if (matchedXAxis) {
+        if (s_x < 1.0 || xTransform()[0] !== maxXZoom()) {
+          tAssign(xTransform(),
+              mult([s_x,0,0,1,x-s_x*x,0], xTransform()));
+        }
+      } else if (matchedYAxis === -1) {
         if (s_x < 1.0 || xTransform()[0] !== maxXZoom()) {
           tAssign(xTransform(),
               mult([s_x,0,0,1,x-s_x*x,0], xTransform()));

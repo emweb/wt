@@ -65,6 +65,14 @@ public:
   }									\
   }
 
+#define WT_DECLARE_WT_MEMBER_BIG(i, type, name, ...)			\
+  namespace {								\
+  using namespace Wt;							\
+  WJavaScriptPreamble wtjs##i() {					\
+    return WJavaScriptPreamble(WtClassScope, type, name, #__VA_ARGS__); \
+  }									\
+  }
+
 #define WT_DECLARE_APP_MEMBER(i, type, name, ...)			\
   namespace {								\
   using namespace Wt;							\
