@@ -54,6 +54,8 @@ public:
   virtual WString categoryLabel(int u, Axis axis = XAxis) const;
   virtual RenderRange computeRenderRange(Axis axis, int yAxis, AxisScale scale) const;
 
+  virtual bool onDemandLoadingEnabled() const;
+
   virtual void update();
   
 private:

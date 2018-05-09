@@ -147,6 +147,11 @@ void WChart3DImplementation::update()
 		      GLTextures);
 }
 
+bool WChart3DImplementation::onDemandLoadingEnabled() const
+{
+  return false;
+}
+
 
   }
 }

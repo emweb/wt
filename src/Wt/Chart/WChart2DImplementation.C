@@ -79,14 +79,19 @@ WString WChart2DImplementation::categoryLabel(int u, Axis axis) const
 WChart2DImplementation::RenderRange WChart2DImplementation::computeRenderRange(Axis axis, int yAxis, AxisScale scale) const
 {
   ExtremesIterator iterator(axis, yAxis, scale);
-  
-  chart_->iterateSeries(&iterator, 0);
+
+  chart_->iterateSeries(&iterator, 0, false, axis == XAxis);
 
   RenderRange range;
   range.minimum = iterator.minimum();
   range.maximum = iterator.maximum();
 
   return range;
+}
+
+bool WChart2DImplementation::onDemandLoadingEnabled() const
+{
+  return chart_->onDemandLoadingEnabled();
 }
 
   }

@@ -185,7 +185,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
   WPanel *p = list->addWidget("Chart properties", chartConfig);
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(1080, WLength::Auto);
+  p->resize(1160, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   // ---- Series properties ----
@@ -304,7 +304,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   p = list->addWidget("Series properties", seriesConfig);
   p->expand();
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(1080, WLength::Auto);
+  p->resize(1160, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   // ---- Axis properties ----
@@ -351,7 +351,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
   p = list->addWidget("Axis properties", axisConfig);
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(1080, WLength::Auto);
+  p->resize(1160, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   /*

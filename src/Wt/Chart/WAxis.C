@@ -32,6 +32,12 @@ namespace {
   const int AUTO_V_LABEL_PIXELS = 25;
   const int AUTO_H_LABEL_PIXELS = 80;
 
+  bool isfin(double d)
+  {
+    return -std::numeric_limits<double>::infinity() < d &&
+            d < std::numeric_limits<double>::infinity();
+  }
+
   double round125(double v) {
     double n = std::pow(10, std::floor(std::log10(v)));
     double msd = v / n;
@@ -158,7 +164,9 @@ WAxis::WAxis()
     textPen_(black),
     titleOrientation_(Horizontal),
     maxZoom_(4.0),
+    minZoom_(1.0),
     minimumZoomRange_(AUTO_MINIMUM),
+    maximumZoomRange_(AUTO_MAXIMUM),
     zoomMin_(AUTO_MINIMUM),
     zoomMax_(AUTO_MAXIMUM),
     zoomRangeDirty_(true),
@@ -1195,7 +1203,7 @@ void WAxis::setZoomRange(double minimum, double maximum)
 double WAxis::zoomMinimum() const
 {
   double min = drawnMinimum();
-  if (zoomMin_ <= min) {
+  if (isfin(min) && zoomMin_ <= min) {
     return min;
   }
   return zoomMin_;
@@ -1204,7 +1212,7 @@ double WAxis::zoomMinimum() const
 double WAxis::zoomMaximum() const
 {
   double max = drawnMaximum();
-  if (zoomMax_ >= max) {
+  if (isfin(max) && zoomMax_ >= max) {
     return max;
   }
   return zoomMax_;
@@ -1307,12 +1315,49 @@ void WAxis::setMinimumZoomRange(double size)
 
 double WAxis::minimumZoomRange() const
 {
-  double min = drawnMinimum();
-  double max = drawnMaximum();
   if (minimumZoomRange_ == AUTO_MINIMUM) {
+    double min = drawnMinimum();
+    double max = drawnMaximum();
     return (max - min) / maxZoom_;
   } else {
     return minimumZoomRange_;
+  }
+}
+
+void WAxis::setMinZoom(double minZoom)
+{
+  if (minZoom < 1)
+    minZoom = 1;
+  if (maximumZoomRange_ != AUTO_MAXIMUM) {
+    setMaximumZoomRange((maximum() - minimum()) / minZoom);
+  }
+  set(minZoom_, minZoom);
+}
+
+double WAxis::minZoom() const
+{
+  double min = drawnMinimum();
+  double max = drawnMaximum();
+  double zoom = (max - min) / maximumZoomRange();
+  if (zoom < 1.0 || zoom != zoom)
+    return 1.0;
+  else
+    return zoom;
+}
+
+void WAxis::setMaximumZoomRange(double size)
+{
+  set(maximumZoomRange_, size);
+}
+
+double WAxis::maximumZoomRange() const
+{
+  if (maximumZoomRange_ == AUTO_MAXIMUM) {
+    double min = drawnMinimum();
+    double max = drawnMaximum();
+    return (max - min) / minZoom_;
+  } else {
+    return maximumZoomRange_;
   }
 }
 
@@ -1320,6 +1365,13 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 {
   static double EPSILON = 1E-3;
   double divisor = std::pow(2.0, config.zoomLevel - 1);
+
+  double zoomRange = 0, zoomStart = 0, zoomEnd = 0;
+  if (axis_ == XAxis) {
+    zoomRange = zoomMaximum() - zoomMinimum();
+    zoomStart = zoomMinimum() - zoomRange;
+    zoomEnd = zoomMaximum() + zoomRange;
+  }
 
   const Segment& s = segments_[segment];
 
@@ -1362,9 +1414,22 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 	firstTickIsLong = false;
       }
     }
-    for (int i = 0;; ++i) {
+    int i = 0;
+    if (axis_ == XAxis &&
+        config.zoomLevel > 1 &&
+        chart_->onDemandLoadingEnabled()) {
+      // solve zoomStart = minimum + interval * i, and round down
+      i = std::max(static_cast<int>((zoomStart - minimum) / interval), 0);
+    }
+    for (;; ++i) {
       double v = minimum + interval * i;
 
+      if (axis_ == XAxis &&
+          config.zoomLevel > 1 &&
+          chart_->onDemandLoadingEnabled() &&
+          v - interval > zoomEnd) {
+        break;
+      }
       if (v - s.renderMaximum > EPSILON * interval)
 	break;
 
@@ -1561,6 +1626,14 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 	next = dt.addSecs(interval); break;
       }
 
+      if (axis_ == XAxis &&
+          config.zoomLevel > 1 &&
+          chart_->onDemandLoadingEnabled() &&
+          getDateNumber(next) < zoomStart) {
+        dt = next;
+        continue;
+      }
+
       WString text;
       {
 	WDateTime transformedDt = dt;
@@ -1588,6 +1661,12 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 	}
       }
       dt = next;
+
+      if (axis_ == XAxis &&
+          config.zoomLevel > 1 &&
+          chart_->onDemandLoadingEnabled() &&
+          dl > zoomEnd)
+        break;
     }
 
     break;

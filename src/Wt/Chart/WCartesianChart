@@ -1427,11 +1427,38 @@ public:
    */
   bool curveManipulationEnabled() const { return curveManipulationEnabled_; }
 
+  /*! \brief Enable on-demand loading
+   * TODO(Roel): elaborate
+   *
+   * \sa onDemandLoadingEnabled()
+   */
+  void setOnDemandLoadingEnabled(bool enabled);
+
+  /*! \brief Returns whether on-demand loading is enabled.
+   *
+   * \sa setOnDemandLoadingEnabled()
+   */
+  bool onDemandLoadingEnabled() const { return onDemandLoadingEnabled_; }
+
+  /*! \brief Set the background brush for the unloaded area.
+   *
+   * \sa setOnDemandLoadingEnabled()
+   * \sa loadingBackground()
+   */
+  void setLoadingBackground(const WBrush& brush);
+
+  /*! \brief Returns the background brush for the unloaded area.
+   *
+   * \sa setOnDemandLoadingEnabled()
+   * \sa setLoadingBackground()
+   */
+  const WBrush& loadingBackground() const { return loadingBackground_; }
+
   /*! @}
    */
 
   void iterateSeries(SeriesIterator *iterator,
-		     WPainter *painter, bool reverseStacked = false) const;
+                     WPainter *painter, bool reverseStacked = false, bool extremesOnly = false) const;
 
   // For use in WAxisSliderWidget
   void addAxisSliderWidget(WAxisSliderWidget *slider);
@@ -1512,6 +1539,8 @@ private:
   const WDataSeries *selectedSeries_;
   const WDataSeries *followCurve_;
   bool curveManipulationEnabled_;
+  bool onDemandLoadingEnabled_;
+  WBrush loadingBackground_;
   bool cObjCreated_;
 
   Signal<const WDataSeries *, WPointF> seriesSelected_;
@@ -1583,11 +1612,11 @@ protected:
    * painter.save();
    * painter.translate(rectangle.topLeft());
    *
-   * if (initLayout(rectangle)) {
+   * if (initLayout(rectangle, painter.device())) {
    *   renderBackground(painter);
    *   renderGrid(painter, axis(XAxis));
-   *   renderGrid(painter, axis(Y1Axis));
-   *   renderGrid(painter, axis(Y2Axis));
+   *   for (int i = 0; i < yAxisCount(); ++i)
+   *     renderGrid(painter, yAxis(i));
    *   renderAxes(painter, Line);
    *   renderSeries(painter);
    *   renderAxes(painter, Labels);
@@ -1784,8 +1813,7 @@ protected:
    * \sa setPanEnabled
    * \sa WAxis::setZoomRange()
    */
-  // TODO(Roel): yAxis = 0 by default?
-  WTransform zoomRangeTransform(int yAxis) const;
+  WTransform zoomRangeTransform(int yAxis = 0) const;
 
 private:
   int calcNumBarGroups() const;

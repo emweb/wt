@@ -26,6 +26,7 @@ namespace Wt {
 
 #ifndef WT_TARGET_JAVA
     static WPoint getJpegSize(const std::string& fileName);
+    static WPoint getSvgSize(const std::string& fileName);
 #endif // WT_TARGET_JAVA
 
   };

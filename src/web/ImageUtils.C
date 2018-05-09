@@ -16,10 +16,12 @@
 #include <boost/interprocess/mapped_region.hpp>
 #endif // WT_TARGET_JAVA
 
+#include <boost/lexical_cast.hpp>
+
 #include <cstring>
 
 namespace {
-  const int mimeTypeCount = 10;
+  const int mimeTypeCount = 12;
   const char *imageMimeTypes [] = { 
     "image/png", 
     "image/jpeg", 
@@ -30,7 +32,9 @@ namespace {
     "image/bmp",
     "image/bmp",
     "image/bmp",
-    "image/bmp"
+    "image/bmp",
+    "image/svg",
+    "image/svg"
   };
   const char *imageHeaders [] = { 
     "\211PNG\r\n\032\n", 
@@ -42,7 +46,9 @@ namespace {
     "CI",
     "CP",
     "IC",
-    "PI"
+    "PI",
+    "<?xml",
+    "<svg"
   };
   static const int imageHeaderSize [] = {
     8,
@@ -54,7 +60,9 @@ namespace {
     2,
     2,
     2,
-    2
+    2,
+    5,
+    4
   };
 
 #ifndef WT_TARGET_JAVA
@@ -98,7 +106,7 @@ std::string ImageUtils::identifyMimeType(const std::vector<unsigned char>&
       return std::string(imageMimeTypes[i]);
 #endif
   }
-    
+
   return std::string();
 }
 
@@ -114,12 +122,47 @@ WPoint ImageUtils::getSize(const std::string& fileName)
     std::string mimeType = identifyMimeType(header);
     if (mimeType == "image/jpeg")
       return getJpegSize(fileName);
+    if (mimeType == "image/svg")
+      return getSvgSize(fileName);
     else
       return getSize(header);
   }
 }
 
-WPoint ImageUtils::getJpegSize(const std::string& fileName){
+WPoint ImageUtils::getSvgSize(const std::string& fileName)
+{
+  try {
+    std::vector<unsigned char> headerv = FileUtils::fileHeader(fileName, 1024);
+    std::string header(headerv.begin(), headerv.end());
+
+    const char *wstr = std::strstr(header.c_str(), "width=\"");
+    if (!wstr)
+      return WPoint();
+    const char *hstr = std::strstr(header.c_str(), "height=\"");
+    if (!hstr)
+      return WPoint();
+
+    wstr += 7;
+    hstr += 8;
+    
+    const char *wend = std::strstr(wstr, "\"");
+    const char *hend = std::strstr(hstr, "\"");
+
+    if (wend && hend) {
+      double w = boost::lexical_cast<double>(std::string(wstr, wend));
+      double h = boost::lexical_cast<double>(std::string(hstr, hend));
+      return WPoint((int)w, (int)h);
+    } else
+      return WPoint();
+  } catch (const boost::interprocess::interprocess_exception &e) {
+    LOG_ERROR("getSvgSize: memory mapping SVG file '" <<
+              fileName << "' failed with exception: " << e.what());
+    return WPoint();
+  }
+}
+
+WPoint ImageUtils::getJpegSize(const std::string& fileName)
+{
   try {
     boost::interprocess::file_mapping mapping(fileName.c_str(), boost::interprocess::read_only);
     boost::interprocess::mapped_region region(mapping, boost::interprocess::read_only, 0, 2 * 1024 * 1024);

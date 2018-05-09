@@ -32,6 +32,8 @@ public:
   virtual WString categoryLabel(int u, Axis axis) const;
   
   virtual RenderRange computeRenderRange(Axis axis, int yAxis, AxisScale scale = LinearScale) const;
+
+  virtual bool onDemandLoadingEnabled() const;
   
   virtual void update();
 

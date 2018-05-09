@@ -21,6 +21,7 @@ WT_DECLARE_WT_MEMBER_BIG
   //   area (WRectF describing render area)
   //   insideArea (WRectF describing render area without axis margins)
   //   modelAreas ([WRectF] describing model areas per Y axis)
+  //   minZoom {x: float, y: [float]}
   //   maxZoom {x: float, y: [float]}
   //   rubberBand
   //   zoom (bool)
@@ -130,6 +131,12 @@ WT_DECLARE_WT_MEMBER_BIG
     }
     function curveManipulation() {
       return config.curveManipulation;
+    }
+    function minXZoom() {
+      return config.minZoom.x;
+    }
+    function minYZoom(ax) {
+      return config.minZoom.y[ax];
     }
     function maxXZoom() {
       return config.maxZoom.x;
@@ -1298,6 +1305,9 @@ WT_DECLARE_WT_MEMBER_BIG
           if (xTransform()[0] * xScale > maxXZoom()) {
             xScale = maxXZoom() / xTransform()[0];
           }
+          if (xTransform()[0] * xScale < minXZoom()) {
+            xScale = minXZoom() / xTransform()[0];
+          }
           var yScalePerAxis = [];
           for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
             yScalePerAxis.push(yScale);
@@ -1305,6 +1315,9 @@ WT_DECLARE_WT_MEMBER_BIG
           for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
             if (yTransform(yAx)[3] * yScalePerAxis[yAx] > maxYZoom(yAx)) {
               yScalePerAxis[yAx] = maxYZoom(yAx) / yTransform(yAx)[3];
+            }
+            if (yTransform(yAx)[3] * yScalePerAxis[yAx] < minYZoom(yAx)) {
+              yScalePerAxis[yAx] = minYZoom(yAx) / yTransform(yAx)[3];
             }
           }
           if (dragXAxis) {
@@ -1512,6 +1525,9 @@ WT_DECLARE_WT_MEMBER_BIG
       var s_y = Math.pow(1.2, isHorizontal() ? xDelta : yDelta);
       if (xTransform()[0] * s_x > maxXZoom()) {
         s_x = maxXZoom() / xTransform()[0];
+      }
+      if (xTransform()[0] * s_x < minXZoom()) {
+        s_x = minXZoom() / xTransform()[0];
       }
       if (matchedXAxis) {
         if (s_x < 1.0 || xTransform()[0] !== maxXZoom()) {
