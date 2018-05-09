@@ -54,6 +54,8 @@ public:
   virtual WString categoryLabel(int u, Axis axis = Axis::X) const override;
   virtual RenderRange computeRenderRange(Axis axis, int yAxis, AxisScale scale) const override;
 
+  virtual bool onDemandLoadingEnabled() const override;
+
   virtual void update() override;
   
 private:

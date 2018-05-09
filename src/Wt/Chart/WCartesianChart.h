@@ -584,6 +584,8 @@ public:
    * axis(Y2) == yAxis(1)
    * \endcode
    * \endif
+   *
+   * \note Precondition: 0 <= i < yAxisCount()
    */
   WAxis &yAxis(int i);
 
@@ -604,6 +606,8 @@ public:
    * axis(Y2) == yAxis(1)
    * \endcode
    * \endif
+   *
+   * \note Precondition: 0 <= i < yAxisCount()
    */
   const WAxis &yAxis(int i) const;
 
@@ -614,6 +618,8 @@ public:
    * Returns the index of the added axis.
    *
    * \note This transfers ownership of the given WAxis to this chart.
+   *
+   * \note Precondition: waxis is not null
    */
   int addYAxis(std::unique_ptr<WAxis> waxis);
 
@@ -624,6 +630,8 @@ public:
    *
    * Any WDataSeries associated with the removed axis
    * are also removed.
+   *
+   * \note Precondition: 0 <= yAxisId < yAxisCount()
    */
   std::unique_ptr<WAxis> removeYAxis(int yAxisId);
 
@@ -1365,11 +1373,39 @@ public:
    */
   bool curveManipulationEnabled() const { return curveManipulationEnabled_; }
 
+  /*! \brief Enable on-demand loading
+   *
+   * If on-demand loading is not enabled (the default),... TODO(Roel):
+   *
+   * \sa onDemandLoadingEnabled()
+   */
+  void setOnDemandLoadingEnabled(bool enabled);
+
+  /*! \brief Returns whether on-demand loading is enabled.
+   *
+   * \sa setOnDemandLoadingEnabled()
+   */
+  bool onDemandLoadingEnabled() const { return onDemandLoadingEnabled_; }
+
+  /*! \brief Set the background brush for the unloaded area.
+   *
+   * \sa setOnDemandLoadingEnabled()
+   * \sa loadingBackground()
+   */
+  void setLoadingBackground(const WBrush& brush);
+
+  /*! \brief Returns the background brush for the unloaded area.
+   *
+   * \sa setOnDemandLoadingEnabled()
+   * \sa setLoadingBackground()
+   */
+  const WBrush& loadingBackground() const { return loadingBackground_; }
+
   /*! @}
    */
 
   void iterateSeries(SeriesIterator *iterator,
-		     WPainter *painter, bool reverseStacked = false) const;
+		     WPainter *painter, bool reverseStacked = false, bool extremesOnly = false) const;
 
   // For use in WAxisSliderWidget
   void addAxisSliderWidget(WAxisSliderWidget *slider);
@@ -1454,6 +1490,8 @@ private:
   const WDataSeries *selectedSeries_;
   const WDataSeries *followCurve_;
   bool curveManipulationEnabled_;
+  bool onDemandLoadingEnabled_;
+  WBrush loadingBackground_;
   bool cObjCreated_;
 
   Signal<const WDataSeries *, WPointF> seriesSelected_;
@@ -1525,11 +1563,11 @@ protected:
    * painter.save();
    * painter.translate(rectangle.topLeft());
    *
-   * if (initLayout(rectangle)) {
+   * if (initLayout(rectangle, painter.device())) {
    *   renderBackground(painter);
    *   renderGrid(painter, axis(Axis::X));
-   *   renderGrid(painter, axis(Axis::Y1));
-   *   renderGrid(painter, axis(Axis::Y2));
+   *   for (int i = 0; i < yAxisCount(); ++i)
+   *     renderGrid(painter, yAxis(i));
    *   renderAxes(painter, AxisProperty::Line);
    *   renderSeries(painter);
    *   renderAxes(painter, AxisProperty::Labels);
@@ -1625,7 +1663,6 @@ protected:
    *
    * \sa initLayout()
    */
-  // TODO(Roel): adding the device here kind of breaks backwards compat
   virtual bool prepareAxes(WPaintDevice *device) const;
 
   /*! \brief Renders the background.
@@ -1725,8 +1762,7 @@ protected:
    * \sa setPanEnabled
    * \sa WAxis::setZoomRange()
    */
-  // TODO(Roel): yAxis = 0 by default?
-  WTransform zoomRangeTransform(int yAxis) const;
+  WTransform zoomRangeTransform(int yAxis = 0) const;
 
 private:
   int calcNumBarGroups() const;

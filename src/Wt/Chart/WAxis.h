@@ -669,8 +669,6 @@ public:
    * two values are swapped.
    *
    * Only applies to a WCartesianChart in interactive mode.
-   *
-   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
    */
   void setZoomRange(double minimum, double maximum);
 
@@ -704,8 +702,6 @@ public:
    * Only applies to a WCartesianChart in interactive mode.
    * The zoom level should be >= 1 and smaller than maxZoom()
    *
-   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
-   *
    * \deprecated Use setZoomRange() instead.
    */
   void setZoom(double zoom);
@@ -724,8 +720,6 @@ public:
    *
    * Only applies to a WCartesianChart in interactive mode.
    * The zoom level should be >= 1 (1 = no zoom).
-   *
-   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
    *
    * \deprecated Use setMinimumZoomRange(double) instead
    */
@@ -747,8 +741,6 @@ public:
    *
    * This range is the smallest difference there can be between
    * zoomMinimum() and zoomMaximum().
-   *
-   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
    */
   void setMinimumZoomRange(double size);
 
@@ -760,6 +752,48 @@ public:
    */
   double minimumZoomRange() const;
 
+  /*! \brief Sets the maximum zoom range for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * This range is the largest difference there can be between
+   * zoomMinimum() and zoomMaximum().
+   *
+   * This is especially useful in combination with
+   * \link WCartesianChart::setOnDemandLoadingEnabled
+   * on demand loading \endlink, when showing the entire
+   * chart is undesirable because the amount of data to be shown
+   * is too large.
+   */
+  void setMaximumZoomRange(double size);
+
+  /*! \brief Get the maximum zoom range for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * \sa setMaximumZoomRange()
+   */
+  double maximumZoomRange() const;
+  
+  /*! \brief Sets the minimum zoom level for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   * The zoom level should be >= 1 (1 = no zoom).
+   *
+   * \deprecated Use setMaximumZoomRange(double) instead
+   */
+  void setMinZoom(double minZoom);
+
+  /*! \brief Get the minimum zoom level for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * \see setMinZoom()
+   *
+   * \deprecated Use maximumZoomRange() instead
+   */
+  double minZoom() const;
+
   /*! \brief Sets the value to pan to for this axis.
    *
    * This sets the leftmost (horizontal axis)
@@ -769,8 +803,6 @@ public:
    * the panning of the chart will be automatically adjusted.
    *
    * Only applies to a WCartesianChart in interactive mode.
-   *
-   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
    *
    * \note If the pan position has been changed on the client side, this may not reflect the actual pan position.
    *
@@ -1018,7 +1050,9 @@ private:
   WPen             textPen_;
   Orientation      titleOrientation_;
   double	   maxZoom_;
+  double	   minZoom_;
   double	   minimumZoomRange_;
+  double	   maximumZoomRange_;
   double           zoomMin_;
   double           zoomMax_;
   bool 		   zoomRangeDirty_;

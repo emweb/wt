@@ -147,6 +147,11 @@ void WChart3DImplementation::update()
   chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
 }
 
+bool WChart3DImplementation::onDemandLoadingEnabled() const
+{
+  return false;
+}
+
 
   }
 }

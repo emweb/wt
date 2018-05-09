@@ -1,3 +1,4 @@
+INCLUDE(CheckFunctionExists)
 WT_ADD_EXAMPLE(hangman.wt
   hangman.C
   User.C

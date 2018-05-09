@@ -80,13 +80,18 @@ WChart2DImplementation::RenderRange WChart2DImplementation::computeRenderRange(A
 {
   ExtremesIterator iterator(axis, yAxis, scale);
   
-  chart_->iterateSeries(&iterator, nullptr);
+  chart_->iterateSeries(&iterator, nullptr, false, axis == Axis::X);
 
   RenderRange range;
   range.minimum = iterator.minimum();
   range.maximum = iterator.maximum();
 
   return range;
+}
+
+bool WChart2DImplementation::onDemandLoadingEnabled() const
+{
+  return chart_->onDemandLoadingEnabled();
 }
 
   }

@@ -657,7 +657,7 @@ void ChartConfig::connectSignals(WFormWidget *w)
 
 void ChartConfig::addYAxis()
 {
-  int yAxis = chart_->addYAxis(std::make_unique<WAxis>());
+  int yAxis = chart_->addYAxis(cpp14::make_unique<WAxis>());
   addAxis(Axis::Y, yAxis);
   addEntry(yAxesModel_, axisName(Axis::Y, yAxis));
   if (yAxis == 0)

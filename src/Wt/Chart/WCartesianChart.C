@@ -79,6 +79,27 @@ namespace {
     assert(false);
     return "";
   }
+
+  int binarySearchRow(const Wt::Chart::WAbstractChartModel &model, int xColumn, double d, int minRow, int maxRow)
+  {
+    if (minRow == maxRow)
+      return minRow;
+    double min = model.data(minRow, xColumn);
+    double max = model.data(maxRow, xColumn);
+    if (d <= min)
+      return minRow;
+    if (d >= max)
+      return maxRow;
+    double start = minRow + (d - min) / (max - min) * (maxRow - minRow);
+    double data = model.data(static_cast<int>(start), xColumn);
+    if (data < d) {
+      return binarySearchRow(model, xColumn, d, static_cast<int>(start) + 1, maxRow);
+    } else if (data > d) {
+      return binarySearchRow(model, xColumn, d, minRow, static_cast<int>(start) - 1);
+    } else {
+      return static_cast<int>(start);
+    }
+  }
 }
 
 #ifndef M_PI
@@ -1315,6 +1336,8 @@ WCartesianChart::WCartesianChart(ChartType type)
     selectedSeries_(nullptr),
     followCurve_(nullptr),
     curveManipulationEnabled_(false),
+    onDemandLoadingEnabled_(false),
+    loadingBackground_(StandardColor::LightGray),
     cObjCreated_(false),
     jsSeriesSelected_(this, "seriesSelected"),
     loadTooltip_(this, "loadTooltip")
@@ -2074,6 +2097,23 @@ void WCartesianChart::clearCurveLabels()
   update();
 }
 
+void WCartesianChart::setOnDemandLoadingEnabled(bool enabled)
+{
+  if (onDemandLoadingEnabled_ != enabled) {
+    onDemandLoadingEnabled_ = enabled;
+    update();
+  }
+}
+
+void WCartesianChart::setLoadingBackground(const WBrush &brush)
+{
+  if (loadingBackground_ != brush) {
+    loadingBackground_ = brush;
+    if (onDemandLoadingEnabled())
+      update();
+  }
+}
+
 bool WCartesianChart::isInteractive() const
 {
   return !yAxes_.empty() && (zoomEnabled_ || panEnabled_ || crosshairEnabled_ || followCurve_ != 0 ||
@@ -2172,20 +2212,15 @@ bool WCartesianChart::axisSliderWidgetForSeries(WDataSeries *series) const
 
 void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 				    WPainter *painter,
-				    bool reverseStacked) const
+                                    bool reverseStacked,
+                                    bool extremesOnly) const
 {
   double groupWidth = 0.0;
   int numBarGroups;
   int currentBarGroup;
 
   int rowCount = model() ? model()->rowCount() : 0;
-#ifndef WT_TARGET_JAVA
-  std::vector<double> posStackedValuesInit(rowCount), minStackedValuesInit(rowCount);
-#else
   std::vector<double> posStackedValuesInit, minStackedValuesInit;
-  posStackedValuesInit.insert(posStackedValuesInit.begin(), rowCount, 0.0);
-  minStackedValuesInit.insert(minStackedValuesInit.begin(), rowCount, 0.0);
-#endif // WT_TARGET_JAVA
 
   const bool scatterPlot = type_ == ChartType::Scatter;
 
@@ -2195,6 +2230,8 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
   } else {
     numBarGroups = calcNumBarGroups();
     currentBarGroup = 0;
+    posStackedValuesInit.insert(posStackedValuesInit.begin(), rowCount, 0.0);
+    minStackedValuesInit.insert(minStackedValuesInit.begin(), rowCount, 0.0);
   }
 
   bool containsBars = false;
@@ -2218,7 +2255,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
       startSeries = endSeries = g;
     } else if (series_[g]->model() == model()) {
       for (int i = 0; i < rowCount; ++i)
-	posStackedValuesInit[i] = minStackedValuesInit[i] = 0.0;
+        posStackedValuesInit[i] = minStackedValuesInit[i] = 0.0;
 
       if (reverseStacked) {
 	endSeries = g;
@@ -2322,9 +2359,34 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 				     WRectF());
 	    }
 
-	    for (int row = 0; row < (series_[i]->model() ? 
-				     series_[i]->model()->rowCount() : 0);
-		 ++row) {
+            int startRow = 0;
+            int endRow = series_[i]->model() ? series_[i]->model()->rowCount() : 0;
+
+            if (isInteractive() &&
+                !extremesOnly &&
+                onDemandLoadingEnabled() &&
+                series_[i]->model() &&
+                !axisSliderWidgetForSeries(series_[i].get())) {
+              int xColumn = series_[i]->XSeriesColumn() == -1 ? XSeriesColumn() : series_[i]->XSeriesColumn();
+              if (xColumn == -1) {
+                startRow = std::max(0, static_cast<int>(axis(Axis::X).zoomMinimum()) - 1);
+                endRow = std::min(endRow, static_cast<int>(axis(Axis::X).zoomMaximum()) + 1);
+              } else {
+                double zoomMin = axis(Axis::X).zoomMinimum();
+                double zoomMax = axis(Axis::X).zoomMaximum();
+                double zoomRange = zoomMax - zoomMin;
+                startRow = std::max(binarySearchRow(*series_[i]->model(),
+                                                    xColumn,
+                                                    zoomMin - zoomRange,
+                                                    0, series_[i]->model()->rowCount() - 1) - 1, 0);
+                endRow = std::min(binarySearchRow(*series_[i]->model(),
+                                                  xColumn,
+                                                  zoomMax + zoomRange,
+                                                  0, series_[i]->model()->rowCount() - 1) + 1, series_[i]->model()->rowCount());
+              }
+            }
+
+            for (int row = startRow; row < endRow; ++row) {
 	      int xIndex[] = {-1, -1};
 	      int yIndex[] = {-1, -1};
 
@@ -2382,6 +2444,9 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 				       xIndex[0], xIndex[1], yIndex[0], yIndex[1]);
 		}
 	      }
+
+              if (extremesOnly && onDemandLoadingEnabled())
+                row = std::max(endRow - 2, row);
 	    }
 
 	    iterator->endSegment();
@@ -2468,7 +2533,10 @@ void WCartesianChart::setZoomAndPan()
       axis(Axis::X).zoomMax_ != WAxis::AUTO_MAXIMUM) {
     double xPan = -axis(Axis::X).mapToDevice(axis(Axis::X).pan(), 0);
     double xZoom = axis(Axis::X).zoom();
-    if (xZoom > axis(Axis::X).maxZoom()) xZoom = axis(Axis::X).maxZoom();
+    if (xZoom > axis(Axis::X).maxZoom())
+      xZoom = axis(Axis::X).maxZoom();
+    if (xZoom < axis(Axis::X).minZoom())
+      xZoom = axis(Axis::X).minZoom();
     xTransform = WTransform(xZoom, 0, 0, 1, xZoom * xPan, 0);
   }
 
@@ -2478,7 +2546,10 @@ void WCartesianChart::setZoomAndPan()
         yAxis(i).zoomMax_ != WAxis::AUTO_MAXIMUM) {
       double yPan = -yAxis(i).mapToDevice(yAxis(i).pan(), 0);
       double yZoom = yAxis(i).zoom();
-      if (yZoom > yAxis(i).maxZoom()) yZoom = yAxis(i).maxZoom();
+      if (yZoom > yAxis(i).maxZoom())
+        yZoom = yAxis(i).maxZoom();
+      if (yZoom < yAxis(i).minZoom())
+        yZoom = yAxis(i).minZoom();
       yTransforms.push_back(WTransform(1, 0, 0, yZoom, 0, yZoom * yPan));
     } else {
       yTransforms.push_back(WTransform());
@@ -2597,7 +2668,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       }
     }
 
-    if (axis(Axis::X).zoomRangeChanged().isConnected() &&
+    if ((axis(Axis::X).zoomRangeChanged().isConnected() ||
+         onDemandLoadingEnabled()) &&
         !xAxis_.transformChanged->isConnected()) {
       xAxis_.transformChanged->connect(this, &WCartesianChart::xTransformChanged);
     }
@@ -2648,7 +2720,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     }
     ss << "],";
     ss << "hasToolTips:" << asString(hasDeferredToolTips_).toUTF8() << ","
-          "notifyTransform:{x:" << asString(axis(Axis::X).zoomRangeChanged().isConnected()).toUTF8() << ","
+          "notifyTransform:{x:" << asString(axis(Axis::X).zoomRangeChanged().isConnected() ||
+                                            onDemandLoadingEnabled()).toUTF8() << ","
                            "y:[";
     for (int i = 0; i < yAxisCount(); ++i) {
       if (i != 0)
@@ -2678,6 +2751,14 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       }
     }
     ss << "},";
+    ss << "minZoom:{x:" << Utils::round_js_str(axis(Axis::X).minZoom(), 3, buf) << ","
+                   "y:[";
+    for (int i = 0; i < yAxisCount(); ++i) {
+      if (i != 0)
+        ss << ',';
+      ss << Utils::round_js_str(yAxis(i).minZoom(), 3, buf);
+    }
+    ss << "]},";
     ss << "maxZoom:{x:" << Utils::round_js_str(axis(Axis::X).maxZoom(), 3, buf) << ","
                    "y:[";
     for (int i = 0; i < yAxisCount(); ++i) {
@@ -3281,6 +3362,24 @@ void WCartesianChart::renderBackground(WPainter& painter) const
 {
   if (background().style() != BrushStyle::None)
     painter.fillRect(hv(chartArea_), background());
+
+  if (onDemandLoadingEnabled()) {
+    painter.save();
+    WPainterPath clipPath;
+    clipPath.addRect(hv(chartArea_));
+    painter.setClipPath(clipPath);
+    painter.setClipping(true);
+
+    double zoomRange = axis(Axis::X).zoomMaximum() - axis(Axis::X).zoomMinimum();
+    double zoomStart = axis(Axis::X).zoomMinimum() - zoomRange;
+    double zoomEnd = axis(Axis::X).zoomMaximum() + zoomRange;
+    double minX = std::max(chartArea_.left() + axis(Axis::X).mapToDevice(zoomStart), chartArea_.left());
+    double maxX = std::min(chartArea_.left() + axis(Axis::X).mapToDevice(zoomEnd), chartArea_.right());
+    painter.fillRect(zoomRangeTransform(0).map(hv(WRectF(chartArea_.left(), chartArea_.top(), minX - chartArea_.left(), chartArea_.height()))), loadingBackground());
+    painter.fillRect(zoomRangeTransform(0).map(hv(WRectF(maxX, chartArea_.top(), chartArea_.right() - maxX, chartArea_.height()))), loadingBackground());
+
+    painter.restore();
+  }
 }
 
 void WCartesianChart::renderGrid(WPainter& painter, const WAxis& ax) const
@@ -4511,7 +4610,12 @@ void WCartesianChart::createPensForAxis(Axis ax, int yAxis)
   std::vector<PenAssignment> assignments;
   for (int i = 1;;++i) {
     double z = std::pow(2.0, i-1);
-    if (z > axis.maxZoom()) break;
+    if (onDemandLoadingEnabled() &&
+        ax == Axis::X &&
+        i > level + 1)
+      break;
+    if (z > axis.maxZoom())
+      break;
     WJavaScriptHandle<WPen> pen;
     if (freePens_.size() > 0) {
       pen = freePens_.back();
@@ -4663,6 +4767,10 @@ void WCartesianChart::addAreaMask()
 
 void WCartesianChart::xTransformChanged()
 {
+  if (onDemandLoadingEnabled()) {
+    update();
+  }
+
   // setFormData() already assigns the right values
   axis(Axis::X).zoomRangeChanged().emit(axis(Axis::X).zoomMinimum(),
 					    axis(Axis::X).zoomMaximum());

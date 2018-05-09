@@ -34,6 +34,8 @@ public:
   virtual RenderRange computeRenderRange(
       Axis axis, int yAxis, AxisScale scale = AxisScale::Linear)
     const override;
+
+  virtual bool onDemandLoadingEnabled() const override;
   
   virtual void update() override;
 
