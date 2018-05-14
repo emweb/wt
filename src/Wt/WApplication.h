@@ -541,6 +541,8 @@ public:
    * object, and this method returns localizedStrings() downcasted to
    * this type.
    *
+   * \throws WException when localizedStrings() is not a WMessageResourceBundle
+   *
    * \sa WString::tr(const char *key)
    */
   WMessageResourceBundle& messageResourceBundle();

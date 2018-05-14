@@ -80,6 +80,24 @@ public:
   void addWidget(std::unique_ptr<WWidget> widget,
 		 AlignmentFlag alignment = AlignmentFlag::Left);
 
+  /*! \brief Adds a widget to the navigation bar, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Widget *result = widget.get();
+   * addWidget(std::unique_ptr<WWidget>(std::move(widget)));
+   * return result;
+   * \endcode
+   */
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget)
+  {
+    Widget *result = widget.get();
+    addWidget(std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
+
 protected:
   std::unique_ptr<WInteractWidget> createCollapseButton();
   std::unique_ptr<WInteractWidget> createExpandButton();

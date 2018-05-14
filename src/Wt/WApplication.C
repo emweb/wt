@@ -345,7 +345,11 @@ void WApplication::destroy()
 #ifndef WT_TARGET_JAVA
 WMessageResourceBundle& WApplication::messageResourceBundle()
 {
-  return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings().get()));
+  auto result = dynamic_cast<WMessageResourceBundle*>(localizedStrings().get());
+  if (result)
+    return *result;
+  else
+    throw WException("messageResourceBundle(): failed to cast localizedStrings() to WMessageResourceBundle*!");
 }
 #endif // !WT_TARGET_JAVA
 
