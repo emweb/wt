@@ -731,11 +731,6 @@ WT_DECLARE_WT_MEMBER_BIG
       if (dragPreviousXY === null)
         return;
       var c = WT.widgetCoordinates(target.canvas, event);
-      /*
-       * TODO(Roel): no point in rect check?
-       if (!isPointInRect(c, configArea()))
-       return;
-       */
       if (WT.buttons === 1) {
         if (dragCurrentYAxis === -1 && !dragXAxis &&
             curveManipulation() && configSeries(configSelectedCurve())) {

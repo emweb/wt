@@ -1691,13 +1691,11 @@ int WCartesianChart::yAxisCount() const
 
 WAxis &WCartesianChart::yAxis(int i)
 {
-  // TODO(Roel): what if i is outside of bounds?
   return *yAxes_[i]->axis;
 }
 
 const WAxis &WCartesianChart::yAxis(int i) const
 {
-  // TODO(Roel): what if i is outside of bounds?
   return *yAxes_[i]->axis;
 }
 
@@ -1720,7 +1718,6 @@ int WCartesianChart::addYAxis(WAxis *waxis)
 
 void WCartesianChart::removeYAxis(int yAxisId)
 {
-  // TODO(Roel): what if the index is out of bounds?
   {
     std::size_t i = 0;
     while (i < series_.size()) {
