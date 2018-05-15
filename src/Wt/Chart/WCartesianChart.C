@@ -2551,6 +2551,9 @@ void WCartesianChart::setZoomAndPan()
     if (xZoom < axis(XAxis).minZoom())
       xZoom = axis(XAxis).minZoom();
     xTransform = WTransform(xZoom, 0, 0, 1, xZoom * xPan, 0);
+  } else {
+    double xZoom = axis(XAxis).minZoom();
+    xTransform = WTransform(xZoom, 0, 0, 1, 0, 0);
   }
 
   std::vector<WTransform> yTransforms;
@@ -2565,7 +2568,8 @@ void WCartesianChart::setZoomAndPan()
         yZoom = yAxis(i).minZoom();
       yTransforms.push_back(WTransform(1, 0, 0, yZoom, 0, yZoom * yPan));
     } else {
-      yTransforms.push_back(WTransform());
+      double yZoom = yAxis(i).minZoom();
+      yTransforms.push_back(WTransform(1, 0, 0, yZoom, 0, 0));
     }
   }
 

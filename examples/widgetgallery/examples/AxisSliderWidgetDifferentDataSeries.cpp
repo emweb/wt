@@ -15,10 +15,11 @@
 
 class SinModel : public Wt::Chart::WAbstractChartModel {
 public:
-  SinModel(double minimum, double maximum, Wt::WObject *parent = 0)
+  SinModel(double minimum, double maximum, int rows, Wt::WObject *parent = 0)
     : Wt::Chart::WAbstractChartModel(parent),
       minimum_(minimum),
-      maximum_(maximum)
+      maximum_(maximum),
+      rows_(rows)
   { }
 
   virtual double data(int row, int column) const
@@ -38,7 +39,7 @@ public:
 
   virtual int rowCount() const
   {
-    return 100;
+    return rows_;
   }
 
   double minimum() const { return minimum_; }
@@ -47,35 +48,11 @@ public:
 private:
   double minimum_;
   double maximum_;
-};
-
-struct ChartState : Wt::WObject {
-  ChartState(Wt::WObject *parent = 0)
-    : Wt::WObject(parent)
-#ifndef WT_TARGET_JAVA
-      , model(0)
-#endif
-  { }
-
-#ifndef WT_TARGET_JAVA
-  virtual ~ChartState()
-  {
-    delete model;
-  }
-#endif
-
-  SinModel *model;
+  int rows_;
 };
 
 SAMPLE_BEGIN(AxisSliderWidgetDifferentDataSeries)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
-
-ChartState *state = new ChartState(container);
-
-/*
- * Start with a rough model for the fully zoomed out position.
- */
-state->model = new SinModel(-M_PI, M_PI);
 
 Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart(container);
 chart->setBackground(Wt::WColor(220, 220, 220));
@@ -84,7 +61,7 @@ chart->setType(Wt::Chart::ScatterPlot);
 /*
  * Create a rough model to use for the WAxisSliderWidget
  */
-Wt::Chart::WAbstractChartModel *roughModel = new SinModel(-M_PI, M_PI, container);
+Wt::Chart::WAbstractChartModel *roughModel = new SinModel(-M_PI, M_PI, 100, container);
 Wt::Chart::WDataSeries *roughSeries = new Wt::Chart::WDataSeries(1, Wt::Chart::LineSeries);
 roughSeries->setModel(roughModel);
 roughSeries->setXSeriesColumn(0);
@@ -93,36 +70,17 @@ roughSeries->setHidden(true);
 chart->addSeries(roughSeries);
 
 /*
- * Add the second and the third column as line series.
+ * Create a detailed model
  */
+Wt::Chart::WAbstractChartModel *detailedModel = new SinModel(-M_PI, M_PI, 10000, container);
 Wt::Chart::WDataSeries *series = new Wt::Chart::WDataSeries(1, Wt::Chart::LineSeries);
-series->setModel(state->model);
+series->setModel(detailedModel);
 series->setXSeriesColumn(0);
 series->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
 chart->addSeries(series);
 
-chart->axis(Wt::Chart::XAxis).zoomRangeChanged().connect(std::bind([=] () {
-  double minX = chart->axis(Wt::Chart::XAxis).zoomMinimum();
-  double maxX = chart->axis(Wt::Chart::XAxis).zoomMaximum();
-  /*
-   * Determine the range of the model.
-   */
-  double dX = maxX - minX;
-  minX = minX - dX / 2.0;
-  if (minX < -M_PI)
-    minX = -M_PI;
-  maxX = maxX + dX / 2.0;
-  if (maxX > M_PI)
-    maxX = M_PI;
-  if (state->model->minimum() != minX || state->model->maximum() != maxX) {
-    // Change the model
-    delete state->model;
-    state->model = new SinModel(minX, maxX);
-    series->setModel(state->model);
-  }
-}));
-
-chart->axis(Wt::Chart::XAxis).setMinimumZoomRange(M_PI / 8.0);
+chart->axis(Wt::Chart::XAxis).setMaximumZoomRange(M_PI);
+chart->axis(Wt::Chart::XAxis).setMinimumZoomRange(M_PI / 16.0);
 chart->axis(Wt::Chart::XAxis).setMinimum(-3.5);
 chart->axis(Wt::Chart::XAxis).setMaximum(3.5);
 
@@ -135,6 +93,9 @@ chart->resize(800, 400);
 // Enable pan and zoom
 chart->setPanEnabled(true);
 chart->setZoomEnabled(true);
+
+// Enable on-demand loading
+chart->setOnDemandLoadingEnabled(true);
 
 chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right); // Center horizontally
 

@@ -174,7 +174,7 @@ WT_DECLARE_WT_MEMBER
       return mult(transform, res);
    };
    
-   this.findYRange = function(series, seriesAxis, lowerBound, upperBound, horizontal, area, modelArea, maxZoom) {
+   this.findYRange = function(series, seriesAxis, lowerBound, upperBound, horizontal, area, modelArea, minZoom, maxZoom) {
       if (series.length === 0)
 	 return; // This would be weird?
       var p0 = self.toDisplayCoord([lowerBound, 0], [1,0,0,1,0,0], horizontal, area, modelArea);
@@ -233,8 +233,10 @@ WT_DECLARE_WT_MEMBER
 	    }
 	    u = (p1[axis] - series[i_n][axis]) / (series[after_i_n][axis] - series[i_n][axis]);
 	    y = series[i_n][otherAxis] + u * (series[after_i_n][otherAxis] - series[i_n][otherAxis]);
-	    if (y < min_y) min_y = y;
-	    if (y > max_y) max_y = y;
+	    if (y < min_y)
+              min_y = y;
+	    if (y > max_y)
+              max_y = y;
 	 }
       }
       var yZoom, yMargin;
@@ -244,7 +246,10 @@ WT_DECLARE_WT_MEMBER
 	 yZoom = area[H] / (max_y - min_y);
 	 yMargin = 10;
 	 yZoom = area[H] / (area[H] / yZoom + yMargin * 2); // Give it 10 px extra on each side
-	 if (yZoom > maxZoom.y[seriesAxis]) yZoom = maxZoom.y[seriesAxis];
+	 if (yZoom > maxZoom.y[seriesAxis])
+           yZoom = maxZoom.y[seriesAxis];
+         if (yZoom < minZoom.y[seriesAxis])
+           yZoom = minZoom.y[seriesAxis];
       }
       var panPoint;
       if (horizontal)
