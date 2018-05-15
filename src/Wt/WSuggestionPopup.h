@@ -32,8 +32,7 @@ enum class PopupTrigger {
   /*! \brief Shows popup when user clicks a drop down icon.
    *
    * The lineedit is modified to show a drop down icon, and clicking
-   * the icon shows the suggestions, very much like a WComboCox.
-   * line edit.
+   * the icon shows the suggestions, very much like a WComboBox.
    */
   DropDownIcon = 0x2
 };

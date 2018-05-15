@@ -1375,7 +1375,28 @@ public:
 
   /*! \brief Enable on-demand loading
    *
-   * If on-demand loading is not enabled (the default),... TODO(Roel):
+   * By default, when on-demand loading is not enabled, the
+   * entire chart area is loaded, regardless of whether it is
+   * within the current zoom range of the X axis.
+   *
+   * When on-demand loading is enabled only the currently visible area +
+   * some margin is loaded. As the visible area changes, different data
+   * is loaded. This improves performance for charts with a lot of data
+   * if not all of the data needs to be visible at the same time.
+   *
+   * This feature is especially useful in combination with WAxis::setMaximumZoomRange()
+   * or WAxis::setMinZoom(), which makes it impossible for the user to view
+   * all of the data at the same time, because that would incur too much overhead.
+   *
+   * \note On-demand loading requires that the X axis data for all data series
+   *       is sorted in ascending order. This feature is optimized for equidistant
+   *       X axis data, but that's not a requirement.
+   *
+   * \note If no minimum or maximum are set on the Y axis (or axes), then
+   *       the chart will still have to scan all data of its data series to automatically
+   *       determine the minimum and maximum Y axis values. If this performance hit is undesirable
+   *       and the Y axis range is known or guaranteed to be within a certain range, make sure to
+   *       \link WAxis::setRange() set a range\endlink on the Y axis (or axes).
    *
    * \sa onDemandLoadingEnabled()
    */
