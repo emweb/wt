@@ -1581,7 +1581,7 @@ WT_DECLARE_WT_MEMBER_BIG
       // Set X range, and adjust Y!
       var series = seriesCurve(seriesNb);
 
-      var res = findYRange(series, seriesAxis(seriesNb), lowerBound, upperBound, isHorizontal(), configArea(), modelArea(seriesAxis(seriesNb)), config.maxZoom);
+      var res = findYRange(series, seriesAxis(seriesNb), lowerBound, upperBound, isHorizontal(), configArea(), modelArea(seriesAxis(seriesNb)), config.minZoom, config.maxZoom);
       var xZoom = res.xZoom;
       var yZoom = res.yZoom;
       var panPoint = res.panPoint;

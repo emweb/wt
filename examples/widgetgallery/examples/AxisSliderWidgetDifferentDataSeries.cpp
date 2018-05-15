@@ -15,10 +15,11 @@
 
 class SinModel : public Chart::WAbstractChartModel {
 public:
-  SinModel(double minimum, double maximum)
+  SinModel(double minimum, double maximum, int rows)
     : Chart::WAbstractChartModel(),
       minimum_(minimum),
-      maximum_(maximum)
+      maximum_(maximum),
+      rows_(rows)
   { }
 
   virtual double data(int row, int column) const
@@ -38,7 +39,7 @@ public:
 
   virtual int rowCount() const
   {
-    return 100;
+    return rows_;
   }
 
   double minimum() const { return minimum_; }
@@ -49,33 +50,9 @@ private:
   double maximum_;
 };
 
-struct ChartState : WObject {
-  ChartState()
-    : WObject()
-#ifndef WT_TARGET_JAVA
-      , model(nullptr)
-#endif
-  { }
-
-#ifndef WT_TARGET_JAVA
-  virtual ~ChartState()
-  {
-  }
-#endif
-
-  std::shared_ptr<SinModel> model;
-};
-
 SAMPLE_BEGIN(AxisSliderWidgetDifferentDataSeries)
 
 auto container = cpp14::make_unique<WContainerWidget>();
-
-auto state = container->addChild(cpp14::make_unique<ChartState>());
-
-/*
- * Start with a rough model for the fully zoomed out position.
- */
-state->model = std::make_shared<SinModel>(-M_PI, M_PI);
 
 auto chart =
     container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
@@ -85,7 +62,7 @@ chart->setType(Chart::ChartType::Scatter);
 /*
  * Create a rough model to use for the WAxisSliderWidget
  */
-auto roughModel = std::make_shared<SinModel>(-M_PI, M_PI);
+auto roughModel = std::make_shared<SinModel>(-M_PI, M_PI, 100);
 auto roughSeries =
     cpp14::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Line);
 auto roughSeries_ = roughSeries.get();
@@ -96,37 +73,20 @@ roughSeries->setHidden(true);
 chart->addSeries(std::move(roughSeries));
 
 /*
- * Add the second and the third column as line series.
+ * Create a detailed model
  */
+auto detailedModel = std::make_shared<SinModel>(-M_PI, M_PI, 10000);
 auto seriesPtr =
     cpp14::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Line);
 auto series = seriesPtr.get();
-series->setModel(state->model);
+series->setModel(detailedModel);
 series->setXSeriesColumn(0);
 series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
 chart->addSeries(std::move(seriesPtr));
 
-chart->axis(Chart::Axis::X).zoomRangeChanged().connect([=] {
-  double minX = chart->axis(Chart::Axis::X).zoomMinimum();
-  double maxX = chart->axis(Chart::Axis::X).zoomMaximum();
-  /*
-   * Determine the range of the model.
-   */
-  double dX = maxX - minX;
-  minX = minX - dX / 2.0;
-  if (minX < -M_PI)
-    minX = -M_PI;
-  maxX = maxX + dX / 2.0;
-  if (maxX > M_PI)
-    maxX = M_PI;
-  if (state->model->minimum() != minX || state->model->maximum() != maxX) {
-    // Change the model
-    state->model = std::make_shared<SinModel>(minX, maxX);
-    series->setModel(state->model);
-  }
-});
 
-chart->axis(Chart::Axis::X).setMinimumZoomRange(M_PI / 8.0);
+chart->axis(Chart::Axis::X).setMaximumZoomRange(M_PI);
+chart->axis(Chart::Axis::X).setMinimumZoomRange(M_PI / 16.0);
 chart->axis(Chart::Axis::X).setMinimum(-3.5);
 chart->axis(Chart::Axis::X).setMaximum(3.5);
 
@@ -139,6 +99,9 @@ chart->resize(800, 400);
 // Enable pan and zoom
 chart->setPanEnabled(true);
 chart->setZoomEnabled(true);
+
+// Enable on-demand loading
+chart->setOnDemandLoadingEnabled(true);
 
 chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
