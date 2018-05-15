@@ -2536,7 +2536,7 @@ void WCartesianChart::setZoomAndPan()
       xZoom = axis(Axis::X).minZoom();
     xTransform = WTransform(xZoom, 0, 0, 1, xZoom * xPan, 0);
   } else {
-    double xZoom = axis(XAxis).minZoom();
+    double xZoom = axis(Axis::X).minZoom();
     xTransform = WTransform(xZoom, 0, 0, 1, 0, 0);
   }
 
