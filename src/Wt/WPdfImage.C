@@ -125,6 +125,7 @@ void WPdfImage::init()
   HPDF_Page_Concat(page_, 1, 0, 0, 1, x_, y_);
 
   HPDF_Page_GSave(page_); // for painter->combinedTransform()
+
 }
 
 void WPdfImage::done()
@@ -146,12 +147,14 @@ void WPdfImage::applyTransform(const WTransform& t)
 
 void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 {
-  if (flags & (Transform | Clipping)) {
+  if (flags) {
     HPDF_Page_GRestore(page_);
+    HPDF_Page_GSave(page_);
+
+    HPDF_ExtGState gstate;
+    gstate = HPDF_CreateExtGState (pdf_);
 
     currentFont_ = WFont();
-
-    HPDF_Page_GSave(page_);
 
     if (painter()->hasClipping()) {
       const WTransform& t = painter()->clipPathTransform();
@@ -167,19 +170,17 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 
     applyTransform(painter()->combinedTransform());
 
-    flags = Pen | Brush | Font;
-  }
-
-  if (flags & Pen) {
     const WPen& pen = painter()->pen();
 
     if (pen.style() != NoPen) {
       const WColor& color = pen.color();
 
       HPDF_Page_SetRGBStroke(page_,
-			     color.red() / 255.,
-			     color.green() / 255.,
-			     color.blue() / 255.);
+                             color.red() / 255.,
+                             color.green() / 255.,
+                             color.blue() / 255.);
+
+      HPDF_ExtGState_SetAlphaStroke (gstate, color.alpha()/255.);
 
       WLength w = painter()->normalizedPenWidth(pen.width(), false);
       HPDF_Page_SetLineWidth(page_, w.toPixels());
@@ -236,22 +237,24 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
       }
       }
     }
-  }
 
-  if (flags & Brush) {
     const WBrush& brush = painter()->brush();
 
     if (brush.style() != NoBrush) {
       const WColor& color = painter()->brush().color();
 
       HPDF_Page_SetRGBFill(page_,
-			   color.red() / 255.,
-			   color.green() / 255.,
-			   color.blue() / 255.);
-    }
-  }
+                           color.red() / 255.,
+                           color.green() / 255.,
+                           color.blue() / 255.);
 
-  if (flags & Font) {
+      HPDF_ExtGState_SetAlphaFill (gstate, color.alpha()/255.);
+    }
+
+    HPDF_Page_SetExtGState (page_, gstate);
+
+    
+
     const WFont& font = painter()->font();
 
     if (font == currentFont_ && !trueTypeFonts_->busy())
@@ -458,6 +461,8 @@ void WPdfImage::drawLine(double x1, double y1, double x2, double y2)
 
 void WPdfImage::drawPath(const WPainterPath& path)
 {
+  if (path.isEmpty())
+    return;
   drawPlainPath(path);
 
   paintPath();
