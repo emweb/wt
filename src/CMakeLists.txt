@@ -445,21 +445,6 @@ IF(HAVE_HARU OR "${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick" OR
   ENDIF(HAVE_PANGO AND NOT "${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "Direct2D")
 ENDIF(HAVE_HARU OR "${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick" OR "${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "Direct2D")
 
-# check if we need -lrt, used in boost::chrone::steady_clock::now()
-SET(RT_test_fname "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/rt.c")
-FILE(WRITE
-    "${RT_test_fname}"
-    "#include <time.h>\nint main() { struct timespec time1; clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1); return 0; }"
-    )
-TRY_COMPILE(RT_required
-    "${CMAKE_BINARY_DIR}" "${RT_test_fname}"
-    CMAKE_FLAGS
-    -DLINK_LIBRARIES:STRING=rt
-    )
-IF(RT_required)
-  SET(RT_LIBRARY "rt")
-ENDIF(RT_required)
-
 IF(WIN32)
   IF(SHARED_LIBS)
     CONFIGURE_FILE(Wt/wt-version.rc.in
@@ -483,7 +468,12 @@ IF(ENABLE_LIBWTTEST)
     Wt/Test/WTestEnvironment.C
   )
 
-  TARGET_LINK_LIBRARIES(wttest wt)
+  TARGET_LINK_LIBRARIES(wttest
+    PUBLIC
+      wt
+    PRIVATE
+      ${RT_LIBRARY}
+      )
 
   INSTALL(TARGETS wttest
 	  RUNTIME DESTINATION bin

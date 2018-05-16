@@ -569,6 +569,21 @@ IF(APPLE)
   SET(CMAKE_MACOSX_RPATH TRUE)
 ENDIF(APPLE)
 
+# check if we need -lrt, used in boost::chrono::steady_clock::now()
+SET(RT_test_fname "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/rt.c")
+FILE(WRITE
+    "${RT_test_fname}"
+    "#include <time.h>\nint main() { struct timespec time1; clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1); return 0; }"
+    )
+TRY_COMPILE(RT_required
+    "${CMAKE_BINARY_DIR}" "${RT_test_fname}"
+    CMAKE_FLAGS
+    -DLINK_LIBRARIES:STRING=rt
+    )
+IF(RT_required)
+  SET(RT_LIBRARY "rt")
+ENDIF(RT_required)
+
 SUBDIRS(src)
 
 IF(BUILD_EXAMPLES)
