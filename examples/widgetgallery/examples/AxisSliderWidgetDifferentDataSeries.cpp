@@ -48,6 +48,7 @@ public:
 private:
   double minimum_;
   double maximum_;
+  int rows_;
 };
 
 SAMPLE_BEGIN(AxisSliderWidgetDifferentDataSeries)
