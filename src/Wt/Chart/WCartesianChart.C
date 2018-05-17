@@ -4563,10 +4563,10 @@ void WCartesianChart::clearPensForAxis(Axis ax, int yAxis)
 
 void WCartesianChart::createPensForAxis(Axis ax, int yAxis)
 {
-  if (!axis(ax).isVisible() || axis(ax).scale() == LogScale)
+  WAxis &axis = ax == XAxis ? this->axis(XAxis) : this->yAxis(yAxis);
+  if (!axis.isVisible() || axis.scale() == LogScale)
     return;
 
-  WAxis &axis = ax == XAxis ? this->axis(XAxis) : this->yAxis(yAxis);
   AxisStruct &axisStruct = ax == XAxis ? xAxis_ : *yAxes_[yAxis];
 
   double zoom = axis.zoom();
