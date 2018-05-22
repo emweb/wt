@@ -1605,6 +1605,31 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
       (unit <= Days) || 
       !(roundLimits_ & MinimumValue);
 
+    if (config.zoomLevel > 1 &&
+        chart_->onDemandLoadingEnabled() &&
+        scale_ == DateTimeScale) {
+      // Jump ahead to right before zoomStart
+      if (unit == Hours) {
+          long long zs = static_cast<long long>(std::floor(zoomStart));
+          long long dl = zs - ((zs - getDateNumber(dt)) % (interval * 60 * 60));
+          if (dl > zoomStart)
+            dl -= (interval * 60 * 60); // compensate for modulo of negative number
+          dt = WDateTime::fromTime_t(static_cast<std::time_t>(dl));
+      } else if (unit == Minutes) {
+          long long zs = static_cast<long long>(std::floor(zoomStart));
+          long long dl = zs - ((zs - getDateNumber(dt)) % (interval * 60));
+          if (dl > zoomStart)
+            dl -= (interval * 60); // compensate for modulo of negative number
+          dt = WDateTime::fromTime_t(static_cast<std::time_t>(dl));
+      } else if (unit == Seconds) {
+          long long zs = static_cast<long long>(std::floor(zoomStart));
+          long long dl = zs - ((zs - getDateNumber(dt)) % interval);
+          if (dl > zoomStart)
+            dl -= interval; // compensate for modulo of negative number
+          dt = WDateTime::fromTime_t(static_cast<std::time_t>(dl));
+      }
+    }
+
     for (;;) {
       long long dl = getDateNumber(dt);
 
@@ -1760,7 +1785,6 @@ long long WAxis::getDateNumber(WDateTime dt) const
     return 1;
   }
 }
-
 
 double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
 {
