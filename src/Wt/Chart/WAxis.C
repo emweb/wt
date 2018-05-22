@@ -1415,11 +1415,13 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 	firstTickIsLong = false;
       }
     }
-    int i = 0;
+    long long i = 0;
     if (config.zoomLevel > 1 &&
         chart_->onDemandLoadingEnabled()) {
       // solve zoomStart = minimum + interval * i, and round down
-      i = std::max(static_cast<int>((zoomStart - minimum) / interval), 0);
+      long long newI = static_cast<long long>((zoomStart - minimum) / interval);
+      if (newI > 0)
+        i = newI;
     }
     for (;; ++i) {
       double v = minimum + interval * i;
