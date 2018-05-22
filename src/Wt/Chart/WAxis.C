@@ -1364,7 +1364,10 @@ double WAxis::maximumZoomRange() const
 void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig config) const
 {
   static double EPSILON = 1E-3;
-  double divisor = std::pow(2.0, config.zoomLevel - 1);
+  double zoomFactor = std::pow(2.0, config.zoomLevel - 1);
+  if (zoomFactor > maxZoom()) {
+    zoomFactor = maxZoom();
+  }
 
   double zoomRange = 0, zoomStart = 0, zoomEnd = 0;
   zoomRange = zoomMaximum() - zoomMinimum();
@@ -1376,7 +1379,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
   switch (scale_) {
   case CategoryScale: {
     int renderInterval = std::max(1, 
-				  static_cast<int>(renderInterval_ / divisor));
+                                  static_cast<int>(renderInterval_ / zoomFactor));
     if (renderInterval == 1) {
       ticks.push_back(TickLabel(s.renderMinimum, TickLabel::Long));
       for (int i = (int)(s.renderMinimum + 0.5); i < s.renderMaximum; ++i) {
@@ -1397,7 +1400,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
     break;
   }
   case LinearScale: {
-    double interval = renderInterval_ / divisor;
+    double interval = renderInterval_ / zoomFactor;
     // Start labels at a round minimum
     double minimum = roundUp125(s.renderMinimum, interval);
     bool firstTickIsLong = true;
@@ -1510,7 +1513,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
       } else {
 	daysInterval = renderInterval_ / (60.0 * 60.0 * 24);
       }
-      daysInterval /= divisor;
+      daysInterval /= zoomFactor;
       if (daysInterval > 200) {
 	unit = Years;
 	interval = std::max(1,

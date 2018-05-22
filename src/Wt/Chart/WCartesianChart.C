@@ -4578,13 +4578,13 @@ void WCartesianChart::createPensForAxis(Axis ax, int yAxis)
   int level = toZoomLevel(zoom);
 
   std::vector<PenAssignment> assignments;
-  for (int i = 1;;++i) {
-    double z = std::pow(2.0, i-1);
+  bool stop = false;
+  for (int i = 1; !stop; ++i) {
     if (onDemandLoadingEnabled() &&
         i > level + 1)
       break;
-    if (z > axis.maxZoom())
-      break;
+    double z = std::pow(2.0, i-1);
+    stop = z >= axis.maxZoom();
     WJavaScriptHandle<WPen> pen;
     if (freePens_.size() > 0) {
       pen = freePens_.back();

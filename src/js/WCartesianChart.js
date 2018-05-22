@@ -1375,6 +1375,8 @@ WT_DECLARE_WT_MEMBER_BIG
     function refreshPenColors() {
       var i, j;
       var xLevel = toZoomLevel(xTransform()[0]) - 1;
+      if (xTransform()[0] == maxXZoom())
+        xLevel = len(pens().x) - 1;
       if (xLevel >= len(pens().x))
         xLevel = len(pens().x) - 1;
       for (i = 0; i < len(pens().x); ++i) {
@@ -1390,6 +1392,8 @@ WT_DECLARE_WT_MEMBER_BIG
       }
       for (var yAx = 0; yAx < len(pens().y); ++yAx) {
         var yLevel = toZoomLevel(yTransform(yAx)[3]) - 1;
+        if (yTransform(yAx)[3] == maxYZoom(yAx))
+          yLevel = len(pens().y[yAx]) - 1;
         if (yLevel >= len(pens().y[yAx]))
           yLevel = len(pens().y[yAx]) - 1;
         for (i = 0; i < len(pens().y[yAx]); ++i) {
