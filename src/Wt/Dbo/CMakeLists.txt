@@ -41,7 +41,7 @@ IF(ENABLE_LIBWTDBO)
     IF(MULTI_THREADED_BUILD)
       TARGET_LINK_LIBRARIES(wtdbo
                             PRIVATE
-                              ${CMAKE_THREAD_LIBS_INIT})
+                            ${WT_THREAD_LIB})
     ENDIF(MULTI_THREADED_BUILD)
   ELSE(MSVC)
     IF(MULTI_THREADED_BUILD)
@@ -49,7 +49,7 @@ IF(ENABLE_LIBWTDBO)
                             PRIVATE
                               ${BOOST_THREAD_LIB}
                               ${BOOST_SYSTEM_LIB}
-                              ${CMAKE_THREAD_LIBS_INIT})
+                              ${WT_THREAD_LIB})
     ENDIF(MULTI_THREADED_BUILD)
   ENDIF(MSVC)
 
