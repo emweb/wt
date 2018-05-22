@@ -1367,11 +1367,9 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
   double divisor = std::pow(2.0, config.zoomLevel - 1);
 
   double zoomRange = 0, zoomStart = 0, zoomEnd = 0;
-  if (axis_ == XAxis) {
-    zoomRange = zoomMaximum() - zoomMinimum();
-    zoomStart = zoomMinimum() - zoomRange;
-    zoomEnd = zoomMaximum() + zoomRange;
-  }
+  zoomRange = zoomMaximum() - zoomMinimum();
+  zoomStart = zoomMinimum() - zoomRange;
+  zoomEnd = zoomMaximum() + zoomRange;
 
   const Segment& s = segments_[segment];
 
@@ -1415,8 +1413,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
       }
     }
     int i = 0;
-    if (axis_ == XAxis &&
-        config.zoomLevel > 1 &&
+    if (config.zoomLevel > 1 &&
         chart_->onDemandLoadingEnabled()) {
       // solve zoomStart = minimum + interval * i, and round down
       i = std::max(static_cast<int>((zoomStart - minimum) / interval), 0);
@@ -1424,8 +1421,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
     for (;; ++i) {
       double v = minimum + interval * i;
 
-      if (axis_ == XAxis &&
-          config.zoomLevel > 1 &&
+      if (config.zoomLevel > 1 &&
           chart_->onDemandLoadingEnabled() &&
           v - interval > zoomEnd) {
         break;
@@ -1626,8 +1622,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 	next = dt.addSecs(interval); break;
       }
 
-      if (axis_ == XAxis &&
-          config.zoomLevel > 1 &&
+      if (config.zoomLevel > 1 &&
           chart_->onDemandLoadingEnabled() &&
           getDateNumber(next) < zoomStart) {
         dt = next;
@@ -1662,8 +1657,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
       }
       dt = next;
 
-      if (axis_ == XAxis &&
-          config.zoomLevel > 1 &&
+      if (config.zoomLevel > 1 &&
           chart_->onDemandLoadingEnabled() &&
           dl > zoomEnd)
         break;

@@ -2691,7 +2691,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       xAxis_.transformChanged->connect(this, &WCartesianChart::xTransformChanged);
     }
     for (int i = 0; i < yAxisCount(); ++i) {
-      if (yAxis(i).zoomRangeChanged().isConnected() &&
+      if ((yAxis(i).zoomRangeChanged().isConnected() ||
+           onDemandLoadingEnabled()) &&
           !yAxes_[i]->transformChanged->isConnected()) {
         const int axis = i; // Fix for JWt
         yAxes_[i]->transformChanged->connect(boost::bind(&WCartesianChart::yTransformChanged, this, axis));
@@ -2742,7 +2743,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     for (int i = 0; i < yAxisCount(); ++i) {
       if (i != 0)
         ss << ',';
-      ss << asString(yAxis(i).zoomRangeChanged().isConnected()).toUTF8();
+      ss << asString(yAxis(i).zoomRangeChanged().isConnected() ||
+                     onDemandLoadingEnabled()).toUTF8();
     }
     ss << "]},"
 	  "ToolTipInnerStyle:" << jsStringLiteral(app->theme()->utilityCssClass(ToolTipInner)) << ","
@@ -4579,7 +4581,6 @@ void WCartesianChart::createPensForAxis(Axis ax, int yAxis)
   for (int i = 1;;++i) {
     double z = std::pow(2.0, i-1);
     if (onDemandLoadingEnabled() &&
-        ax == XAxis &&
         i > level + 1)
       break;
     if (z > axis.maxZoom())
@@ -4741,6 +4742,10 @@ void WCartesianChart::xTransformChanged()
 
 void WCartesianChart::yTransformChanged(int yAxis)
 {
+  if (onDemandLoadingEnabled()) {
+    update();
+  }
+
   // setFormData() already assigns the right values
   this->yAxis(yAxis).zoomRangeChanged().emit(this->yAxis(yAxis).zoomMinimum(),
                                              this->yAxis(yAxis).zoomMaximum());
