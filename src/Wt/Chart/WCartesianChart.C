@@ -2769,20 +2769,20 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       }
     }
     ss << "},";
-    ss << "minZoom:{x:" << Utils::round_js_str(axis(XAxis).minZoom(), 3, buf) << ","
+    ss << "minZoom:{x:" << Utils::round_js_str(axis(XAxis).minZoom(), 16, buf) << ","
                    "y:[";
     for (int i = 0; i < yAxisCount(); ++i) {
       if (i != 0)
         ss << ',';
-      ss << Utils::round_js_str(yAxis(i).minZoom(), 3, buf);
+      ss << Utils::round_js_str(yAxis(i).minZoom(), 16, buf);
     }
     ss << "]},";
-    ss << "maxZoom:{x:" << Utils::round_js_str(axis(XAxis).maxZoom(), 3, buf) << ","
+    ss << "maxZoom:{x:" << Utils::round_js_str(axis(XAxis).maxZoom(), 16, buf) << ","
                    "y:[";
     for (int i = 0; i < yAxisCount(); ++i) {
       if (i != 0)
         ss << ',';
-      ss << Utils::round_js_str(yAxis(i).maxZoom(), 3, buf);
+      ss << Utils::round_js_str(yAxis(i).maxZoom(), 16, buf);
     }
     ss << "]},";
     ss << "rubberBand:" << rubberBandEnabled_ << ',';
@@ -2796,7 +2796,7 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     ss << "coordinateOverlayPadding:[" << coordPaddingX << ",";
     ss                                 << coordPaddingY << "],";
     ss << "xAxis:{";
-    ss << "width:" << Utils::round_js_str(xAxis_.calculatedWidth, 3, buf) << ',';
+    ss << "width:" << Utils::round_js_str(xAxis_.calculatedWidth, 16, buf) << ',';
     ss << "side:'" << locToJsString(xAxis_.location.initLoc) << '\'';
     ss << "},";
     ss << "yAxes:[";
@@ -2804,7 +2804,7 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       if (i != 0)
         ss << ',';
       ss << '{';
-      ss << "width:" << Utils::round_js_str(yAxes_[i]->calculatedWidth, 3, buf) << ',';
+      ss << "width:" << Utils::round_js_str(yAxes_[i]->calculatedWidth, 16, buf) << ',';
       ss << "side:'" << locToJsString(yAxes_[i]->location.initLoc) << "',";
       ss << "minOffset:" << yAxes_[i]->location.minOffset << ',';
       ss << "maxOffset:" << yAxes_[i]->location.maxOffset;

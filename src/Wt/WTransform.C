@@ -551,12 +551,12 @@ std::string WTransform::jsValue() const
 
   WStringStream ss;
   ss << '[';
-  ss << Utils::round_js_str(m_[0], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[2], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[1], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[3], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[4], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[5], 3, buf) << ']';
+  ss << Utils::round_js_str(m_[0], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[2], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[1], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[3], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[4], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[5], 16, buf) << ']';
   return ss.str();
 }
 

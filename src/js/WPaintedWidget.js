@@ -267,6 +267,33 @@ WT_DECLARE_WT_MEMBER
 		  ctx.moveTo(x(s), y(s));
 		  break;
 	       case LINE_TO:
+                  var INCR = 0x1000000;
+                  var pos = i === 0 ? [0,0] : [x(path[i-1]), y(path[i-1])];
+                  var dx = x(s) - x(pos);
+                  var dy = y(s) - y(pos);
+                  var dx_sgn = dx >= 0 ? 1 : -1;
+                  var dy_sgn = dy >= 0 ? 1 : -1;
+                  if (Math.abs(dx) > INCR ||
+                      Math.abs(dy) > INCR) {
+                    // segmentize long line,
+                    // lines that are too long won't
+                    // be rendered for some reason
+                    var fx = 1.0, fy = 1.0;
+                    if (Math.abs(dx) > Math.abs(dy))
+                      fy = Math.abs(dy) / Math.abs(dx);
+                    else
+                      fx = Math.abs(dx) / Math.abs(dy);
+                    pos = [x(pos) + fx * INCR * dx_sgn,
+                           y(pos) + fy * INCR * dy_sgn];
+                    while ((dx_sgn === 1 && x(pos) < x(s)) ||
+                           (dx_sgn === -1 && x(pos) > x(s)) ||
+                           (dy_sgn === 1 && y(pos) < y(s)) ||
+                           (dy_sgn === -1 && y(pos) > y(s))) {
+                      ctx.lineTo(x(pos), y(pos));
+                      pos = [x(pos) + fx * INCR * dx_sgn,
+                             y(pos) + fy * INCR * dy_sgn];
+                    }
+                  }
 		  ctx.lineTo(x(s), y(s));
 		  break;
 	       case CUBIC_C1:
