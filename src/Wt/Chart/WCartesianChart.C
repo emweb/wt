@@ -483,9 +483,9 @@ public:
 
   virtual void paint() {
     WCartesianChart::PainterPathMap::iterator curveHandle =
-        const_cast<WCartesianChart&>(chart_).curvePaths_.find(&series_);
+        chart_.curvePaths_.find(&series_);
     WCartesianChart::TransformMap::iterator transformHandle =
-        const_cast<WCartesianChart&>(chart_).curveTransforms_.find(&series_);
+        chart_.curveTransforms_.find(&series_);
 
     WTransform transform = chart_.zoomRangeTransform(series_.yAxis());
 
@@ -2882,6 +2882,16 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
     autoLayout = false;
   }
 
+  // FIXME: eliminate this const_cast!
+  WCartesianChart *self = const_cast<WCartesianChart *>(this);
+  self->clearPens();
+  if (isInteractive()) {
+    self->createPensForAxis(XAxis, -1);
+    for (int i = 0; i < yAxisCount(); ++i) {
+      self->createPensForAxis(YAxis, i);
+    }
+  }
+
   if (autoLayout) {
     WCartesianChart *self = const_cast<WCartesianChart *>(this);
     self->setPlotAreaPadding(40, Left | Right);
@@ -2945,14 +2955,6 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
   }
 
   if (isInteractive()) {
-    // This is a bit dirty, but in this case it's fine
-    // FIXME: eliminate this const_cast!
-    WCartesianChart *self = const_cast<WCartesianChart *>(this);
-    self->clearPens();
-    self->createPensForAxis(XAxis, -1);
-    for (int i = 0; i < yAxisCount(); ++i) {
-      self->createPensForAxis(YAxis, i);
-    }
     if (curvePaths_.empty()) {
       self->assignJSHandlesForAllSeries();
     }

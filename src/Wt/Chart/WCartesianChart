@@ -1577,11 +1577,11 @@ private:
   JSignal<double, double> jsSeriesSelected_;
 
   typedef std::map<const WDataSeries *, WJavaScriptHandle<WPainterPath> > PainterPathMap;
-  PainterPathMap curvePaths_;
+  mutable PainterPathMap curvePaths_;
   std::vector<WJavaScriptHandle<WPainterPath> > freePainterPaths_;
 
   typedef std::map<const WDataSeries *, WJavaScriptHandle<WTransform> > TransformMap;
-  TransformMap curveTransforms_;
+  mutable TransformMap curveTransforms_;
   std::vector<WJavaScriptHandle<WTransform> > freeTransforms_;
 
   std::vector<WJavaScriptHandle<WPen> > freePens_;
