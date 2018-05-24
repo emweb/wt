@@ -4284,7 +4284,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 void WCartesianChart::renderOther(WPainter &painter) const
 {
   WPainterPath clipPath;
-  clipPath.addRect(chartArea_);
+  clipPath.addRect(hv(chartArea_));
   painter.setClipPath(clipPath);
 }
 

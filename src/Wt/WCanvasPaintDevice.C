@@ -653,16 +653,9 @@ void WCanvasPaintDevice::setChanged(WFlags<ChangeFlag> flags)
 void WCanvasPaintDevice::renderTransform(std::stringstream& s,
 					 const WTransform& t)
 {
-  if (t.isJavaScriptBound()) {
-    s << "ctx.setTransform.apply(ctx, " << t.jsRef() << ");";
-  } else if (!(t.isIdentity() && lastTransformWasIdentity_)) {
-    char buf[30];
-    s << "ctx.setTransform(" << Utils::round_js_str(t.m11(), 3, buf) << ",";
-    s			  << Utils::round_js_str(t.m12(), 3, buf) << ",";
-    s			  << Utils::round_js_str(t.m21(), 3, buf) << ",";
-    s			  << Utils::round_js_str(t.m22(), 3, buf) << ",";
-    s			  << Utils::round_js_str(t.m31(), 3, buf) << ",";
-    s                     << Utils::round_js_str(t.m32(), 3, buf) << ");";
+  if (!(t.isIdentity() && lastTransformWasIdentity_)) {
+    s << "ctx.wtTransform=" << t.jsRef() << ';';
+    s << "ctx.setTransform.apply(ctx, ctx.wtTransform);";
   }
   lastTransformWasIdentity_ = t.isIdentity();
 }
