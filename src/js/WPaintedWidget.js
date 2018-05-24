@@ -64,8 +64,8 @@ WT_DECLARE_WT_MEMBER
 	       // WPointF
 	       var x = t2[0], y = t2[1];
 	       return [
-	         t1[M11] * x + t1[M12] * y + t1[M13],
-	         t1[M21] * x + t1[M22] * y + t1[M23]
+	         t1[M11] * x + t1[M21] * y + t1[M13],
+	         t1[M12] * x + t1[M22] * y + t1[M23]
 	       ];
 	    }
 	    if (t2.length === 3) {
@@ -75,8 +75,8 @@ WT_DECLARE_WT_MEMBER
 	       // WPainterPath component
 	       var x = t2[0], y = t2[1];
 	       return [
-	         t1[M11] * x + t1[M12] * y + t1[M13],
-	         t1[M21] * x + t1[M22] * y + t1[M23],
+	         t1[M11] * x + t1[M21] * y + t1[M13],
+	         t1[M12] * x + t1[M22] * y + t1[M23],
 		 t2[2]
 	       ];
 	    }
@@ -105,12 +105,12 @@ WT_DECLARE_WT_MEMBER
 	    if (t2.length === 6) {
 	       // WTransform
 	       return [
-		  t1[M11] * t2[M11] + t1[M12] * t2[M21],
-		  t1[M11] * t2[M12] + t1[M12] * t2[M22],
-		  t1[M21] * t2[M11] + t1[M22] * t2[M21],
-		  t1[M21] * t2[M12] + t1[M22] * t2[M22],
-		  t1[M11] * t2[M13] + t1[M12] * t2[M23] + t1[M13],
-		  t1[M21] * t2[M13] + t1[M22] * t2[M23] + t1[M23]
+		  t1[M11] * t2[M11] + t1[M21] * t2[M12],
+		  t1[M12] * t2[M11] + t1[M22] * t2[M12],
+		  t1[M11] * t2[M21] + t1[M21] * t2[M22],
+		  t1[M12] * t2[M21] + t1[M22] * t2[M22],
+		  t1[M11] * t2[M13] + t1[M21] * t2[M23] + t1[M13],
+		  t1[M12] * t2[M13] + t1[M22] * t2[M23] + t1[M23]
 	       ];
 	    }
 	    return [];
@@ -267,7 +267,82 @@ WT_DECLARE_WT_MEMBER
 		  ctx.moveTo(x(s), y(s));
 		  break;
 	       case LINE_TO:
-		  ctx.lineTo(x(s), y(s));
+                  (function(){
+                    var pos = i === 0 ? [0, 0] : path[i-1];
+                    var THRESHOLD = 0x1000000;
+                    var MARGIN = 50;
+                    if (!fill && !clip && stroke &&
+                        (x(s) - x(pos) > THRESHOLD ||
+                         y(s) - y(pos) > THRESHOLD)) {
+                      var t = ctx.wtTransform ? ctx.wtTransform : [1,0,0,1,0,0];
+                      var t_pos = self.transform_mult(t, pos);
+                      var t_s = self.transform_mult(t, s);
+                      var dx = x(t_s) - x(t_pos);
+                      var dy = y(t_s) - y(t_pos);
+                      var w = ctx.canvas.width;
+                      var h = ctx.canvas.height;
+                      var left = -MARGIN;
+                      var right = w + MARGIN;
+                      var top = -MARGIN;
+                      var bottom = h + MARGIN;
+                      var intersections = [];
+                      var k;
+                      if (dx !== 0) {
+                        // Solve left = x(t_pos) + k * dx for k
+                        k = (left - x(t_pos)) / dx;
+                        intersections.push(k);
+                        // Solve right = x(t_pos) + k * dx for k
+                        k = (right - x(t_pos)) / dx;
+                        intersections.push(k);
+                      }
+                      if (dy !== 0) {
+                        // Solve top = y(t_pos) + k * dy for k
+                        k = (top - y(t_pos)) / dy;
+                        intersections.push(k);
+                        // Solve bottom = y(t_pos) + k * dy for k
+                        k = (bottom - y(t_pos)) / dy;
+                        intersections.push(k);
+                      }
+                      var points = [];
+                      var j = 0;
+                      for (j = 0; j < intersections.length; ++j) {
+                        var k = intersections[j];
+                        if (k < 0)
+                          k = 0;
+                        if (k > 1)
+                          k = 1;
+                        var t_x = x(t_pos) + k * dx;
+                        var t_y = y(t_pos) + k * dy;
+                        if (t_x >= left &&
+                            t_x <= right &&
+                            t_y >= top &&
+                            t_y <= bottom) {
+                          points.push([k,
+                                       x(pos) + k * (x(s) - x(pos)),
+                                       y(pos) + k * (y(s) - y(pos))]);
+                        }
+                      }
+                      // sort on k
+                      points.sort(function(a,b){
+                        return a[0] - b[0];
+                      });
+                      // remove duplicates
+                      j = 1;
+                      while (j < points.length) {
+                        if (points[j][0] === points[j-1][0])
+                          points.splice(j, 1);
+                        else
+                          ++j;
+                      }
+                      if (points.length === 2) {
+                        ctx.moveTo(points[0][1], points[0][2]);
+                        ctx.lineTo(points[1][1], points[1][2]);
+                        ctx.moveTo(x(s), y(s));
+                      }
+                    } else {
+		      ctx.lineTo(x(s), y(s));
+                    }
+                  })();
 		  break;
 	       case CUBIC_C1:
 		  bezier.push(x(s), y(s));

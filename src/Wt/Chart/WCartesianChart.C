@@ -488,9 +488,9 @@ public:
 
   virtual void paint() override {
     WCartesianChart::PainterPathMap::iterator curveHandle =
-        const_cast<WCartesianChart&>(chart_).curvePaths_.find(&series_);
+        chart_.curvePaths_.find(&series_);
     WCartesianChart::TransformMap::iterator transformHandle =
-        const_cast<WCartesianChart&>(chart_).curveTransforms_.find(&series_);
+        chart_.curveTransforms_.find(&series_);
 
     WTransform transform = chart_.zoomRangeTransform(series_.yAxis());
 
@@ -2675,7 +2675,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       xAxis_.transformChanged->connect(this, &WCartesianChart::xTransformChanged);
     }
     for (int i = 0; i < yAxisCount(); ++i) {
-      if (yAxis(i).zoomRangeChanged().isConnected() &&
+      if ((yAxis(i).zoomRangeChanged().isConnected() ||
+           onDemandLoadingEnabled()) &&
           !yAxes_[i].transformChanged->isConnected()) {
         const int axis = i; // Fix for JWt
         yAxes_[i].transformChanged->connect(std::bind(&WCartesianChart::yTransformChanged, this, axis));
@@ -2727,7 +2728,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     for (int i = 0; i < yAxisCount(); ++i) {
       if (i != 0)
         ss << ',';
-      ss << asString(yAxis(i).zoomRangeChanged().isConnected()).toUTF8();
+      ss << asString(yAxis(i).zoomRangeChanged().isConnected() ||
+                     onDemandLoadingEnabled()).toUTF8();
     }
     ss << "]},"
 	  "ToolTipInnerStyle:" << jsStringLiteral(app->theme()->utilityCssClass(ToolTipInner)) << ","
@@ -2752,20 +2754,20 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       }
     }
     ss << "},";
-    ss << "minZoom:{x:" << Utils::round_js_str(axis(Axis::X).minZoom(), 3, buf) << ","
+    ss << "minZoom:{x:" << Utils::round_js_str(axis(Axis::X).minZoom(), 16, buf) << ","
                    "y:[";
     for (int i = 0; i < yAxisCount(); ++i) {
       if (i != 0)
         ss << ',';
-      ss << Utils::round_js_str(yAxis(i).minZoom(), 3, buf);
+      ss << Utils::round_js_str(yAxis(i).minZoom(), 16, buf);
     }
     ss << "]},";
-    ss << "maxZoom:{x:" << Utils::round_js_str(axis(Axis::X).maxZoom(), 3, buf) << ","
+    ss << "maxZoom:{x:" << Utils::round_js_str(axis(Axis::X).maxZoom(), 16, buf) << ","
                    "y:[";
     for (int i = 0; i < yAxisCount(); ++i) {
       if (i != 0)
         ss << ',';
-      ss << Utils::round_js_str(yAxis(i).maxZoom(), 3, buf);
+      ss << Utils::round_js_str(yAxis(i).maxZoom(), 16, buf);
     }
     ss << "]},";
     ss << "rubberBand:" << rubberBandEnabled_ << ',';
@@ -2779,7 +2781,7 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     ss << "coordinateOverlayPadding:[" << coordPaddingX << ",";
     ss                                 << coordPaddingY << "],";
     ss << "xAxis:{";
-    ss << "width:" << Utils::round_js_str(xAxis_.calculatedWidth, 3, buf) << ',';
+    ss << "width:" << Utils::round_js_str(xAxis_.calculatedWidth, 16, buf) << ',';
     ss << "side:'" << locToJsString(xAxis_.location.initLoc) << '\'';
     ss << "},";
     ss << "yAxes:[";
@@ -2787,7 +2789,7 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       if (i != 0)
         ss << ',';
       ss << '{';
-      ss << "width:" << Utils::round_js_str(yAxes_[i].calculatedWidth, 3, buf) << ',';
+      ss << "width:" << Utils::round_js_str(yAxes_[i].calculatedWidth, 16, buf) << ',';
       ss << "side:'" << locToJsString(yAxes_[i].location.initLoc) << "',";
       ss << "minOffset:" << yAxes_[i].location.minOffset << ',';
       ss << "maxOffset:" << yAxes_[i].location.maxOffset;
@@ -2868,6 +2870,16 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
     autoLayout = false;
   }
 
+  // FIXME: eliminate this const_cast!
+  WCartesianChart *self = const_cast<WCartesianChart *>(this);
+  self->clearPens();
+  if (isInteractive()) {
+    self->createPensForAxis(Axis::X, -1);
+    for (int i = 0; i < yAxisCount(); ++i) {
+      self->createPensForAxis(Axis::Y, i);
+    }
+  }
+
   if (autoLayout) {
     WCartesianChart *self = const_cast<WCartesianChart *>(this);
     self->setPlotAreaPadding(40, Side::Left | Side::Right);
@@ -2936,14 +2948,6 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
   }
 
   if (isInteractive()) {
-    // This is a bit dirty, but in this case it's fine
-    // FIXME: eliminate this const_cast!
-    WCartesianChart *self = const_cast<WCartesianChart *>(this);
-    self->clearPens();
-    self->createPensForAxis(Axis::X, -1);
-    for (int i = 0; i < yAxisCount(); ++i) {
-      self->createPensForAxis(Axis::Y, i);
-    }
     if (curvePaths_.empty()) {
       self->assignJSHandlesForAllSeries();
     }
@@ -4313,7 +4317,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 void WCartesianChart::renderOther(WPainter &painter) const
 {
   WPainterPath clipPath;
-  clipPath.addRect(chartArea_);
+  clipPath.addRect(hv(chartArea_));
   painter.setClipPath(clipPath);
 }
 
@@ -4609,14 +4613,13 @@ void WCartesianChart::createPensForAxis(Axis ax, int yAxis)
   int level = toZoomLevel(zoom);
 
   std::vector<PenAssignment> assignments;
-  for (int i = 1;;++i) {
-    double z = std::pow(2.0, i-1);
+  bool stop = false;
+  for (int i = 1; !stop; ++i) {
     if (onDemandLoadingEnabled() &&
-        ax == Axis::X &&
         i > level + 1)
       break;
-    if (z > axis.maxZoom())
-      break;
+    double z = std::pow(2.0, i-1);
+    stop = z >= axis.maxZoom();
     WJavaScriptHandle<WPen> pen;
     if (freePens_.size() > 0) {
       pen = freePens_.back();
@@ -4779,6 +4782,10 @@ void WCartesianChart::xTransformChanged()
 
 void WCartesianChart::yTransformChanged(int yAxis)
 {
+  if (onDemandLoadingEnabled()) {
+    update();
+  }
+
   // setFormData() already assigns the right values
   this->yAxis(yAxis).zoomRangeChanged().emit(this->yAxis(yAxis).zoomMinimum(),
                                              this->yAxis(yAxis).zoomMaximum());
