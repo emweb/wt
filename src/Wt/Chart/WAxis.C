@@ -1302,7 +1302,9 @@ double WAxis::maxZoom() const
   double min = drawnMinimum();
   double max = drawnMaximum();
   double zoom = (max - min) / minimumZoomRange();
-  if (zoom < 1.0 || zoom != zoom)
+  if (!isfin(zoom))
+    return maxZoom_;
+  else if (zoom < 1.0)
     return 1.0;
   else
     return zoom;
@@ -1339,7 +1341,9 @@ double WAxis::minZoom() const
   double min = drawnMinimum();
   double max = drawnMaximum();
   double zoom = (max - min) / maximumZoomRange();
-  if (zoom < 1.0 || zoom != zoom)
+  if (!isfin(zoom))
+    return minZoom_;
+  else if (zoom < 1.0)
     return 1.0;
   else
     return zoom;
