@@ -2365,21 +2365,21 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
                 series_[i]->model() &&
                 !axisSliderWidgetForSeries(series_[i].get())) {
               int xColumn = series_[i]->XSeriesColumn() == -1 ? XSeriesColumn() : series_[i]->XSeriesColumn();
+              double zoomMin = axis(Axis::X).zoomMinimum();
+              double zoomMax = axis(Axis::X).zoomMaximum();
+              double zoomRange = zoomMax - zoomMin;
               if (xColumn == -1) {
-                startRow = std::max(0, static_cast<int>(axis(Axis::X).zoomMinimum()) - 1);
-                endRow = std::min(endRow, static_cast<int>(axis(Axis::X).zoomMaximum()) + 1);
+                startRow = std::max(0, static_cast<int>(zoomMin - zoomRange));
+                endRow = std::min(endRow, static_cast<int>(std::ceil(zoomMax + zoomRange)) + 1);
               } else {
-                double zoomMin = axis(Axis::X).zoomMinimum();
-                double zoomMax = axis(Axis::X).zoomMaximum();
-                double zoomRange = zoomMax - zoomMin;
                 startRow = std::max(binarySearchRow(*series_[i]->model(),
                                                     xColumn,
                                                     zoomMin - zoomRange,
-                                                    0, series_[i]->model()->rowCount() - 1) - 1, 0);
+                                                    0, series_[i]->model()->rowCount() - 1) - 1, startRow);
                 endRow = std::min(binarySearchRow(*series_[i]->model(),
                                                   xColumn,
                                                   zoomMax + zoomRange,
-                                                  0, series_[i]->model()->rowCount() - 1) + 1, series_[i]->model()->rowCount());
+                                                  0, series_[i]->model()->rowCount() - 1) + 1, endRow);
               }
             }
 
@@ -2559,8 +2559,6 @@ void WCartesianChart::setZoomAndPan()
 
   // Enforce limits
   WRectF chartArea = hv(insideChartArea());
-  // TODO(Roel): can we do this a bit more efficiently?
-  //             handle the X axis and the Y axes separately
   for (int i = 0; i < yAxisCount(); ++i) {
     WRectF transformedArea = zoomRangeTransform(xTransform, yTransforms[i]).map(chartArea);
     if (transformedArea.left() > chartArea.left()) {
@@ -2881,7 +2879,6 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
   }
 
   if (autoLayout) {
-    WCartesianChart *self = const_cast<WCartesianChart *>(this);
     self->setPlotAreaPadding(40, Side::Left | Side::Right);
     self->setPlotAreaPadding(30, Side::Top | Side::Bottom);
 
