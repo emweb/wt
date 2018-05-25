@@ -287,40 +287,49 @@ WT_DECLARE_WT_MEMBER
                       var bottom = h + MARGIN;
                       var intersections = [];
                       var k;
+                      function clamp(my_k) {
+                        if (my_k < 0)
+                          return 0;
+                        if (my_k > 1)
+                          return 1;
+                        else
+                          return my_k;
+                      }
+                      function inXRange(my_k) {
+                        var my_x = x(t_pos) + my_k * dx;
+                        return my_x >= left && my_x <= right;
+                      }
+                      function inYRange(my_k) {
+                        var my_y = y(t_pos) + my_k * dy;
+                        return my_y >= top && my_y <= bottom;
+                      }
                       if (dx !== 0) {
                         // Solve left = x(t_pos) + k * dx for k
-                        k = (left - x(t_pos)) / dx;
-                        intersections.push(k);
+                        k = clamp((left - x(t_pos)) / dx);
+                        if (inYRange(k))
+                          intersections.push(k);
                         // Solve right = x(t_pos) + k * dx for k
-                        k = (right - x(t_pos)) / dx;
-                        intersections.push(k);
+                        k = clamp((right - x(t_pos)) / dx);
+                        if (inYRange(k))
+                          intersections.push(k);
                       }
                       if (dy !== 0) {
                         // Solve top = y(t_pos) + k * dy for k
-                        k = (top - y(t_pos)) / dy;
-                        intersections.push(k);
+                        k = clamp((top - y(t_pos)) / dy);
+                        if (inXRange(k))
+                          intersections.push(k);
                         // Solve bottom = y(t_pos) + k * dy for k
-                        k = (bottom - y(t_pos)) / dy;
-                        intersections.push(k);
+                        k = clamp((bottom - y(t_pos)) / dy);
+                        if (inXRange(k))
+                          intersections.push(k);
                       }
                       var points = [];
                       var j = 0;
                       for (j = 0; j < intersections.length; ++j) {
                         var k = intersections[j];
-                        if (k < 0)
-                          k = 0;
-                        if (k > 1)
-                          k = 1;
-                        var t_x = x(t_pos) + k * dx;
-                        var t_y = y(t_pos) + k * dy;
-                        if (t_x >= left &&
-                            t_x <= right &&
-                            t_y >= top &&
-                            t_y <= bottom) {
-                          points.push([k,
-                                       x(pos) + k * (x(s) - x(pos)),
-                                       y(pos) + k * (y(s) - y(pos))]);
-                        }
+                        points.push([k,
+                                     x(pos) + k * (x(s) - x(pos)),
+                                     y(pos) + k * (y(s) - y(pos))]);
                       }
                       // sort on k
                       points.sort(function(a,b){
