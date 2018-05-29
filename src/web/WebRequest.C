@@ -87,6 +87,8 @@ void WebRequest::reset()
 
   parameters_.clear();
   files_.clear();
+
+  urlParams_.clear();
 }
 
 void WebRequest::readWebSocketMessage(const ReadCallback& callback)
@@ -328,6 +330,11 @@ void WebRequest::emulateAsync(ResponseState state)
 void WebRequest::setResponseType(ResponseType responseType)
 {
   responseType_ = responseType;
+}
+
+const std::vector<std::pair<std::string, std::string> > &WebRequest::urlParams() const
+{
+  return urlParams_;
 }
 
 }

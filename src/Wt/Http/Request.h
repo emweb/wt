@@ -414,6 +414,24 @@ public:
    */
   WSslInfo *sslInfo() const;
 
+  /*! \brief Get the value for the given URL parameter
+   *
+   * Example:
+   *
+   * If a static resource is deployed at /tags/${tag},
+   * then, if a request is made for /tags/Wt, urlParam("tag")
+   * will return "Wt".
+   *
+   * If the given parameter is not available, an empty string is returned.
+   */
+  std::string urlParam(const std::string &param) const;
+
+  /*! \brief Get all URL parameters
+   *
+   * \sa urlParam()
+   */
+  const std::vector<std::pair<std::string, std::string> > &urlParams() const;
+
   static ByteRangeSpecifier getRanges(const std::string &header,
 				      ::int64_t filesize);
 

@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <algorithm>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -154,36 +155,13 @@ std::vector<xml_node<> *> childElements(xml_node<> *element,
   return result;
 }
 
+static std::string FORWARD_SLASH = "/";
+
 }
 
 namespace Wt {
 
 LOGGER("config");
-
-EntryPoint::EntryPoint(EntryPointType type, ApplicationCreator appCallback,
-		       const std::string& path, const std::string& favicon)
-  : type_(type),
-    resource_(0),
-    appCallback_(appCallback),
-    path_(path),
-    favicon_(favicon)
-{ }
-
-EntryPoint::EntryPoint(WResource *resource, const std::string& path)
-  : type_(EntryPointType::StaticResource),
-    resource_(resource),
-    appCallback_(nullptr),
-    path_(path)
-{ }
-
-EntryPoint::~EntryPoint()
-{
-}
-
-void EntryPoint::setPath(const std::string& path)
-{
-  path_ = path;
-}
 
 HeadMatter::HeadMatter(std::string contents,
 		       std::string userAgent)
@@ -593,6 +571,60 @@ std::string Configuration::locateConfigFile(const std::string& appRoot)
   }
 }
 
+void Configuration::registerEntryPoint(const EntryPoint &ep)
+{
+  const std::string &path = ep.path();
+
+  if (path.empty()) {
+    // special case: set entrypoint to root path segment (matches everything)
+    rootPathSegment_.entryPoint = &ep;
+    return;
+  }
+
+  assert(path[0] == '/');
+
+  // The PathSegment in the routing tree where this entrypoint will end up
+  PathSegment *pathSegment = &rootPathSegment_;
+
+  typedef boost::split_iterator<std::string::const_iterator> spliterator;
+  for (spliterator it = spliterator(path.begin() + 1, path.end(),
+                                    boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+       it != spliterator(); ++it) {
+    PathSegment *childSegment = nullptr;
+    if (boost::starts_with(*it, "${") &&
+        boost::ends_with(*it, "}")) {
+      // This is a dynamic segment, e.g. ${var}
+      if (!pathSegment->dynamicChild) {
+        pathSegment->dynamicChild = std::unique_ptr<PathSegment>(new PathSegment("", pathSegment));
+      }
+      childSegment = pathSegment->dynamicChild.get();
+    } else {
+      // This is a normal segment
+      auto &children = pathSegment->children;
+      auto c = std::find_if(children.begin(), children.end(), [&it](const PathSegment &c) {
+        return c.segment == *it;
+      });
+      if (c != children.end())
+        childSegment = &*c;
+
+      if (!childSegment) {
+        if (it->empty()) {
+          // Empty part (entry point with trailing slash)
+          // Put it in front by convention
+          children.push_front(PathSegment("", pathSegment));
+          childSegment = &children.front();
+        } else {
+          children.push_back(PathSegment(boost::copy_range<std::string>(*it), pathSegment));
+          childSegment = &children.back();
+        }
+      }
+    }
+    pathSegment = childSegment;
+  }
+
+  pathSegment->entryPoint = &ep;
+}
+
 void Configuration::addEntryPoint(const EntryPoint& ep)
 {
   if (ep.type() == EntryPointType::StaticResource)
@@ -600,6 +632,8 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
 
   WRITE_LOCK;
   entryPoints_.push_back(ep);
+
+  registerEntryPoint(entryPoints_.back());
 }
 
 bool Configuration::tryAddResource(const EntryPoint& ep)
@@ -616,15 +650,21 @@ bool Configuration::tryAddResource(const EntryPoint& ep)
 
   entryPoints_.push_back(ep);
 
+  registerEntryPoint(entryPoints_.back());
+
   return true;
 }
 
 void Configuration::removeEntryPoint(const std::string& path)
 {
   for (unsigned i = 0; i < entryPoints_.size(); ++i) {
-    EntryPoint &ep = entryPoints_[i];
+    const EntryPoint &ep = entryPoints_[i];
     if (ep.path() == path) {
+      rootPathSegment_.children.clear();
       entryPoints_.erase(entryPoints_.begin() + i);
+      for (std::size_t j = 0; j < entryPoints_.size(); ++j) {
+        registerEntryPoint(entryPoints_[j]);
+      }
       break;
     }
   }
@@ -632,51 +672,117 @@ void Configuration::removeEntryPoint(const std::string& path)
 
 void Configuration::setDefaultEntryPoint(const std::string& path)
 {
-  for (unsigned i = 0; i < entryPoints_.size(); ++i)
-    if (entryPoints_[i].path().empty())
-      entryPoints_[i].setPath(path);
+  if (rootPathSegment_.entryPoint) {
+    for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
+      if (&entryPoints_[i] == rootPathSegment_.entryPoint) {
+        rootPathSegment_.entryPoint = nullptr;
+        entryPoints_[i].setPath(path);
+        registerEntryPoint(entryPoints_[i]);
+        return;
+      }
+    }
+  }
 }
 
-const EntryPoint *Configuration::matchEntryPoint(const std::string &scriptName,
+EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
                                                  const std::string &path,
                                                  bool matchAfterSlash) const
 {
+  // TODO(Roel): handle scriptName!!!
   READ_LOCK;
   // Only one default entry point.
   if (entryPoints_.size() == 1
       && entryPoints_[0].path().empty())
-    return &entryPoints_[0];
+    return EntryPointMatch(&entryPoints_[0], 0);
 
-  // Multiple entry points.
-  const Wt::EntryPoint *bestMatch = nullptr;
-  std::size_t bestLength = std::string::npos;
+  assert(path[0] == '/');
 
-  for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
-    const Wt::EntryPoint &ep = entryPoints_[i];
+  const PathSegment *pathSegment = &rootPathSegment_;
 
-    if (ep.path().empty()) {
-      if (bestLength == std::string::npos)
-	bestMatch = &ep;
-    } else {
-      // Don't even try to match if the length won't be longer than
-      // the existing match
-      if (bestLength == std::string::npos ||
-	  ep.path().length() > bestLength) {
+  // Flag marking whether any of the matched segments is dynamic
+  bool dynamic = false;
 
-        bool matches = matchesPath(path, ep.path(), matchAfterSlash);
-	if (!scriptName.empty()) {
-	  matches = matchesPath(scriptName + path, ep.path(), matchAfterSlash);
-	}
+  // Move down the routing tree, segment per segment
+  typedef boost::split_iterator<std::string::const_iterator> spliterator;
+  for (spliterator it = spliterator(path.begin() + 1, path.end(),
+                                    boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+       it != spliterator(); ++it) {
+    // Find exact path match for segment
+    const auto &children = pathSegment->children;
+    const PathSegment *childSegment = nullptr;
+    auto c = std::find_if(children.begin(), children.end(), [&it](const PathSegment &c) {
+      return c.segment == *it;
+    });
+    if (c != children.end())
+      childSegment = &*c;
 
-        if (matches) {
-          bestLength = ep.path().length();
-          bestMatch = &ep;
-        }
+    // No exact match, see if there is a dynamic segment
+    if (!childSegment &&
+        !it->empty() &&
+        pathSegment->dynamicChild) {
+      childSegment = pathSegment->dynamicChild.get();
+      dynamic = true;
+    }
+
+    // No match, deepest match reached
+    if (!childSegment)
+      break;
+
+    // Move to the next segment
+    pathSegment = childSegment;
+  }
+
+  // Move up from the found segment, until we find one that corresponds to an entrypoint
+  const EntryPoint *match = nullptr;
+  for (bool firstIteration = true;
+       pathSegment != nullptr;
+       pathSegment = pathSegment->parent,
+       firstIteration = false) {
+    // If matchAfterSlash is true,
+    // then the path /head/tail
+    // may match the entry point /head/
+    if (matchAfterSlash && !firstIteration) {
+      const auto &children = pathSegment->children;
+      if (!children.empty() && children.front().segment.empty()) {
+        match = children.front().entryPoint;
+        break;
       }
+    }
+    // If the current segment has an entrypoint, we're done
+    if (pathSegment->entryPoint) {
+      match = pathSegment->entryPoint;
+      break;
     }
   }
 
-  return bestMatch;
+  if (match && dynamic) {
+    // Process path parameters
+    EntryPointMatch result;
+    result.entryPoint = match;
+    // Iterate concurrently over the path (it1),
+    // and the matched endpoint's path (it2)
+    spliterator it1 = spliterator(path.begin() + 1, path.end(),
+                                  boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+    for (spliterator it2 = spliterator(match->path().begin() + 1, match->path().end(),
+                                       boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+         it1 != spliterator() && it2 != spliterator(); ++it1, ++it2) {
+      // Check dynamic segment (e.g. "${var}")
+      if (boost::starts_with(*it2, "${") &&
+          boost::ends_with(*it2, "}")) {
+        auto range = boost::iterator_range<std::string::const_iterator>(it2->begin() + 2, it2->end() - 1);
+        result.urlParams.push_back(std::make_pair(boost::copy_range<std::string>(range),
+                                                  boost::copy_range<std::string>(*it1)));
+      }
+    }
+    if (it1 == spliterator())
+      result.extra = path.size(); // no extra path
+    else
+      result.extra = std::distance(path.begin(), it1->begin()) - 1; // there's more
+    return result;
+  } else if (match) {
+    return EntryPointMatch(match, match->path().size()); // simple match
+  } else
+    return EntryPointMatch(); // no match
 }
 
 bool Configuration::matchesPath(const std::string &path,

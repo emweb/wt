@@ -16,6 +16,7 @@
 #include <Wt/WServer.h>
 #include <Wt/WSocketNotifier.h>
 
+#include "EntryPoint.h"
 #include "SocketNotifier.h"
 
 #if defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
@@ -193,7 +194,7 @@ private:
   void updateResourceProgress(WebRequest *request,
 			      std::uintmax_t current, std::uintmax_t total);
 
-  const EntryPoint *getEntryPoint(WebRequest *request);
+  EntryPointMatch getEntryPoint(WebRequest *request);
 
   static std::string appSessionCookie(const std::string& url);
 

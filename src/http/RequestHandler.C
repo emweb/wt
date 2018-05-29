@@ -106,15 +106,17 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
   }
 
   if (!isStaticFile) {
-    const Wt::EntryPoint *bestMatch = wtConfig_.matchEntryPoint("", req.request_path, !config_.defaultStatic());
+    Wt::EntryPointMatch bestMatch = wtConfig_.matchEntryPoint("", req.request_path, !config_.defaultStatic());
 
-    if (bestMatch) {
-      const Wt::EntryPoint& ep = *bestMatch;
+    if (bestMatch.entryPoint) {
+      const Wt::EntryPoint& ep = *bestMatch.entryPoint;
 
       if (!ep.path().empty())
-	req.request_extra_path = req.request_path.substr(ep.path().size());
+        req.request_extra_path = req.request_path.substr(bestMatch.extra);
 
-      req.request_path = ep.path();
+      req.request_path.resize(bestMatch.extra, '\0');
+
+      req.url_params = std::move(bestMatch.urlParams);
 
       if (wtConfig_.sessionPolicy() != Wt::Configuration::DedicatedProcess ||
 	  ep.type() == Wt::EntryPointType::StaticResource ||

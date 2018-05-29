@@ -17,6 +17,7 @@ SUBDIRS(
   socketnotifier
   suggestionpopup
   template-fun
+  urlparams
   video
   widgetset
 )

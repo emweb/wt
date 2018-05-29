@@ -195,6 +195,8 @@ public:
    */
   virtual WSslInfo *sslInfo() const = 0;
 
+  virtual const std::vector<std::pair<std::string, std::string> >& urlParams() const;
+
 protected:
   const EntryPoint *entryPoint_;
 
@@ -219,6 +221,7 @@ private:
   ResponseType responseType_;
   bool webSocketRequest_;
   std::chrono::high_resolution_clock::time_point start_;
+  std::vector<std::pair<std::string, std::string> > urlParams_;
 
   static Http::ParameterValues emptyValues_;
 

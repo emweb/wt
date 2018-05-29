@@ -246,5 +246,14 @@ Wt::WSslInfo *HTTPRequest::sslInfo() const
   return reply_->request().sslInfo();
 }
 
+const std::vector<std::pair<std::string, std::string> > &HTTPRequest::urlParams() const
+{
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return WebRequest::urlParams();
+
+  return p->request().url_params;
+}
+
 } // namespace server
 } // namespace http

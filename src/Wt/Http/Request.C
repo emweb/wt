@@ -26,6 +26,8 @@ namespace {
   inline std::string str(const char *s) {
     return s ? std::string(s) : std::string();
   }
+
+  static std::vector<std::pair<std::string, std::string> > EMPTY_URL_PARAMS;
 }
 
 namespace Wt {
@@ -421,6 +423,24 @@ const std::string *Request::getCookieValue(const std::string& cookieName) const
     return nullptr;
   else
     return &i->second;
+}
+
+std::string Request::urlParam(const std::string &param) const
+{
+  if (!request_)
+    return "";
+
+  const auto &params = urlParams();
+  for (const auto &p : params) {
+    if (p.first == param)
+      return p.second;
+  }
+  return "";
+}
+
+const std::vector<std::pair<std::string, std::string> >& Request::urlParams() const
+{
+  return request_ ? request_->urlParams() : EMPTY_URL_PARAMS;
 }
 
   }

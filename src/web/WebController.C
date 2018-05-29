@@ -579,12 +579,14 @@ void WebController::handleRequest(WebRequest *request)
   }
 
   if (!request->entryPoint_) {
-    request->entryPoint_ = getEntryPoint(request);
+    EntryPointMatch match = getEntryPoint(request);
+    request->entryPoint_ = match.entryPoint;
     if (!request->entryPoint_) {
       request->setStatus(404);
       request->flush();
       return;
     }
+    request->urlParams_ = std::move(match.urlParams);
   }
 
   CgiParser cgi(conf_.maxRequestSize(), conf_.maxFormDataSize());
@@ -778,7 +780,7 @@ std::unique_ptr<WApplication> WebController
   return ep->appCallback()(session->env());
 }
 
-const EntryPoint *WebController::getEntryPoint(WebRequest *request)
+EntryPointMatch WebController::getEntryPoint(WebRequest *request)
 {
   const std::string& scriptName = request->scriptName();
   const std::string& pathInfo = request->pathInfo();

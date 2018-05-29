@@ -355,6 +355,7 @@ web/sha1.c
 web/CgiParser.C
 web/Configuration.C
 web/DomElement.C
+web/EntryPoint.C
 web/EscapeOStream.C
 web/FileServe.C
 web/ColorUtils.C

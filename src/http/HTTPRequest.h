@@ -55,6 +55,7 @@ public:
   virtual const char *urlScheme() const override;
   bool isSynchronous() const;
   virtual Wt::WSslInfo *sslInfo() const override;
+  virtual const std::vector<std::pair<std::string, std::string> > &urlParams() const override;
 
 private:
   WtReplyPtr reply_;

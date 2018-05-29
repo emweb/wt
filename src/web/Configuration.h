@@ -11,6 +11,8 @@
 #include <exception>
 #include <iostream>
 #include <string>
+#include <utility>
+#include <vector>
 
 #if defined(WT_THREADED) && !defined(WT_CONF_NO_SHARED_LOCK)
 #if _MSC_VER >= 1900
@@ -40,6 +42,10 @@
 #include "WebSession.h"
 #include "Wt/WRandom.h"
 
+#ifndef WT_TARGET_JAVA
+#include "EntryPoint.h"
+#endif // WT_TARGET_JAVA
+
 namespace boost {
   namespace program_options {
     class variables_map;
@@ -56,31 +62,27 @@ namespace Wt {
 
 #ifndef WT_TARGET_JAVA
 
-class WT_API EntryPoint {
-public:
-  EntryPoint(EntryPointType type, ApplicationCreator appCallback,
-	     const std::string& path, 
-             const std::string& favicon);
-  EntryPoint(WResource *resource, const std::string& path);
-  ~EntryPoint();
+/// A segment in the deployment path of an entry point,
+/// used for routing.
+struct WT_API PathSegment {
+  PathSegment()
+    : parent(nullptr),
+      entryPoint(nullptr)
+  { }
 
-  void setPath(const std::string& path);
+  PathSegment(const std::string &s,
+              PathSegment *p)
+    : parent(p),
+      entryPoint(nullptr),
+      segment(s)
+  { }
 
-  EntryPointType type() const { return type_; }
-  WResource *resource() const { return resource_; }
-  ApplicationCreator appCallback() const { return appCallback_; }
-  const std::string& path() const { return path_; }
-  const std::string& favicon() const { return favicon_; }
-
-private:
-  EntryPointType type_;
-  WResource *resource_;
-  ApplicationCreator appCallback_;
-  std::string path_;
-  std::string favicon_;
+  PathSegment *parent;
+  const EntryPoint *entryPoint;
+  std::deque<PathSegment> children; // Static path segments
+  std::unique_ptr<PathSegment> dynamicChild; // Dynamic path segment, lowest priority
+  std::string segment;
 };
-
-typedef std::deque<EntryPoint> EntryPointList;
 
 #endif // WT_TARGET_JAVA
 
@@ -151,15 +153,19 @@ public:
   void setSessionIdPrefix(const std::string& prefix);
 
 #ifndef WT_TARGET_JAVA
+  // Add the given entryPoint to the routing tree
+  // NOTE: Server may not be running, or you should have WRITE_LOCK
+  // when registering an entry point
+  void registerEntryPoint(const EntryPoint &entryPoint);
   void addEntryPoint(const EntryPoint& entryPoint);
   bool tryAddResource(const EntryPoint& entryPoint); // Returns bool indicating success:
 						     // false if entry point existed already
   void removeEntryPoint(const std::string& path);
   void setDefaultEntryPoint(const std::string& path);
   // Returns matching entry point and match length
-  const EntryPoint *matchEntryPoint(const std::string &scriptName,
-                                    const std::string &path,
-                                    bool matchAfterSlash) const;
+  EntryPointMatch matchEntryPoint(const std::string &scriptName,
+                                  const std::string &path,
+                                  bool matchAfterSlash) const;
   static bool matchesPath(const std::string &path,
                           const std::string &prefix,
 		          bool matchAfterSlash);
@@ -258,6 +264,8 @@ private:
 
 #ifndef WT_TARGET_JAVA
   EntryPointList entryPoints_;
+  PathSegment rootPathSegment_; /// The toplevel path segment ('/') for routing,
+                                /// root of the rounting tree.
 #endif // WT_TARGET_JAVA
 
   SessionPolicy   sessionPolicy_;

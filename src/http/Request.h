@@ -120,6 +120,8 @@ public:
   std::string request_query;
   std::string request_extra_path;
 
+  std::vector<std::pair<std::string, std::string> > url_params;
+
 #ifdef HTTP_WITH_SSL
   SSL *ssl;
 #endif
