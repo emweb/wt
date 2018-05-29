@@ -334,6 +334,10 @@ void WEnvironment::enableAjax(const WebRequest& request)
   } catch (boost::bad_lexical_cast &e) {
   }
 
+  const std::string *tzSE = request.getParameter("tzS");
+
+  timeZoneName_ = tzSE ? *tzSE : std::string("");
+
   const std::string *hashE = request.getParameter("_");
 
   // the internal path, when present as an anchor (#), is only
