@@ -156,13 +156,15 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
     if (painter()->hasClipping()) {
       const WTransform& t = painter()->clipPathTransform();
 
-      applyTransform(t);
+      if (!painter()->clipPath().isEmpty()) {
+        applyTransform(t);
 
-      drawPlainPath(painter()->clipPath());
-      HPDF_Page_Clip(page_);
-      HPDF_Page_EndPath(page_);
+        drawPlainPath(painter()->clipPath());
+        HPDF_Page_Clip(page_);
+        HPDF_Page_EndPath(page_);
 
-      applyTransform(t.inverted());
+        applyTransform(t.inverted());
+      }
     }
 
     applyTransform(painter()->combinedTransform());
@@ -472,6 +474,9 @@ void WPdfImage::drawPath(const WPainterPath& path)
 
 void WPdfImage::drawPlainPath(const WPainterPath& path)
 {
+  if (path.isEmpty())
+    return;
+
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (segments.size() > 0

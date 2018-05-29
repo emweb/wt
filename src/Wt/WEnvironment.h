@@ -324,6 +324,15 @@ public:
    */
   std::chrono::minutes timeZoneOffset() const { return timeZoneOffset_; }
 
+  /*! \brief Returns the time zone name as reported by the client.
+   *
+   * \note This requires JavaScript support and is only supported by
+   * browsers that implement the JavaScript Internationalization API.
+   * No version of Internet Explorer supports this, but modern browsers
+   * do. If not supported, this will return the empty string.
+   */
+  std::string timeZoneName() const { return timeZoneName_; }
+
   /*! \brief Returns the server host name that is used by the client.
    *
    * The hostname is the unresolved host name with optional port number,
@@ -686,6 +695,7 @@ protected:
 
   WLocale locale_;
   std::chrono::minutes timeZoneOffset_;
+  std::string timeZoneName_;
   std::string host_;
   std::string userAgent_;
   std::string urlScheme_;

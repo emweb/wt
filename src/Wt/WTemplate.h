@@ -25,9 +25,8 @@ enum class TemplateWidgetIdMode {
   None,
 
   /*!
-   * Use setObjectName() to prefix the ID with the varName. This is
-   * a safe choice since %Wt still guarantees that the IDs are
-   * unique.
+   * Use setObjectName() to add a 'data-object-name' attribute. This is
+   * a safe choice since it does not affect the ID.
    */
   SetObjectName,
 
@@ -395,10 +394,10 @@ public:
   /*! \brief Sets how the varName should be reflected on bound widgets.
    *
    * To easily identify a widget in the browser, it may be convenient
-   * to reflect the varName to the widget's ID. This options allows
-   * you to choose from two methods.
+   * to reflect the varName, either through the object name (recommended)
+   * or the widget's ID.
    *
-   * The default value is SetNoWidgetId which does not reflect the
+   * The default value is TemplateWidgetIdMode::None which does not reflect the
    * varName on the bound widget.
    */
   void setWidgetIdMode(TemplateWidgetIdMode mode);
