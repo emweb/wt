@@ -79,7 +79,7 @@ struct WT_API PathSegment {
 
   PathSegment *parent;
   const EntryPoint *entryPoint;
-  std::deque<PathSegment> children; // Static path segments
+  std::vector<std::unique_ptr<PathSegment>> children; // Static path segments
   std::unique_ptr<PathSegment> dynamicChild; // Dynamic path segment, lowest priority
   std::string segment;
 };

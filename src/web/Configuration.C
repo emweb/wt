@@ -601,21 +601,21 @@ void Configuration::registerEntryPoint(const EntryPoint &ep)
     } else {
       // This is a normal segment
       auto &children = pathSegment->children;
-      auto c = std::find_if(children.begin(), children.end(), [&it](const PathSegment &c) {
-        return c.segment == *it;
+      auto c = std::find_if(children.begin(), children.end(), [&it](const std::unique_ptr<PathSegment> &c) {
+        return c->segment == *it;
       });
       if (c != children.end())
-        childSegment = &*c;
+        childSegment = c->get();
 
       if (!childSegment) {
         if (it->empty()) {
           // Empty part (entry point with trailing slash)
           // Put it in front by convention
-          children.push_front(PathSegment("", pathSegment));
-          childSegment = &children.front();
+          children.insert(children.begin(), Wt::cpp14::make_unique<PathSegment>("", pathSegment));
+          childSegment = children.front().get();
         } else {
-          children.push_back(PathSegment(boost::copy_range<std::string>(*it), pathSegment));
-          childSegment = &children.back();
+          children.push_back(Wt::cpp14::make_unique<PathSegment>(boost::copy_range<std::string>(*it), pathSegment));
+          childSegment = children.back().get();
         }
       }
     }
@@ -710,11 +710,11 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
     // Find exact path match for segment
     const auto &children = pathSegment->children;
     const PathSegment *childSegment = nullptr;
-    auto c = std::find_if(children.begin(), children.end(), [&it](const PathSegment &c) {
-      return c.segment == *it;
+    auto c = std::find_if(children.begin(), children.end(), [&it](const std::unique_ptr<PathSegment> &c) {
+      return c->segment == *it;
     });
     if (c != children.end())
-      childSegment = &*c;
+      childSegment = c->get();
 
     // No exact match, see if there is a dynamic segment
     if (!childSegment &&
@@ -743,8 +743,8 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
     // may match the entry point /head/
     if (matchAfterSlash && !firstIteration) {
       const auto &children = pathSegment->children;
-      if (!children.empty() && children.front().segment.empty()) {
-        match = children.front().entryPoint;
+      if (!children.empty() && children.front()->segment.empty()) {
+        match = children.front()->entryPoint;
         break;
       }
     }
