@@ -102,6 +102,10 @@ public:
    */
   WDataSeries(int modelColumn, SeriesType seriesType, int yAxis);
 
+  /*! \brief Destructor.
+   */
+  ~WDataSeries();
+
   /*! \brief Sets the bar width.
    *
    * The bar width specifies the bar width (in axis dimensions).  For

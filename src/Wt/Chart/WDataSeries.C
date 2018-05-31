@@ -40,6 +40,15 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, int axis)
     scaleDirty_(true)
 { }
 
+
+WDataSeries::~WDataSeries()
+{
+  if (model_) {
+    for (unsigned i = 0; i < modelConnections_.size(); ++i)
+      modelConnections_[i].disconnect();
+  }
+}
+
 void WDataSeries::setBarWidth(const double width) 
 {
   barWidth_ = width;
@@ -314,7 +323,9 @@ void WDataSeries::setModel(const std::shared_ptr<WAbstractChartModel>& model)
 
   model_ = model;
 
-  modelConnections_.push_back(model_->changed().connect(std::bind(&WDataSeries::modelReset, this)));
+  if (model_) {
+    modelConnections_.push_back(model_->changed().connect(std::bind(&WDataSeries::modelReset, this)));
+  }
 
   if (chart_)
     chart_->update();
