@@ -69,8 +69,12 @@ public:
    *
    * This creates an internal proxy model that presents the
    * WAbstractItemModel as a WAbstractChartModel. Use
-   * setModel(WAbstractChartModel *) directly for highest performance
-   * (avoiding the overhead of boost::any for numeric data).
+   * setModel(const std::shared_ptr<WAbstractChartModel>&)
+   * directly for highest performance (avoiding the overhead
+   * of any for numeric data).
+   *
+   * \note Setting a new model on a WCartesianChart causes the
+   *       WCartesianChart::XSeriesColumn() and all series to be cleared
    *
    * \sa model()
    */
@@ -81,6 +85,9 @@ public:
    * The model is used by the chart to get its data.
    *
    * The default model is a \c nullptr.
+   *
+   * \note Setting a new model on a WCartesianChart causes the
+   *       WCartesianChart::XSeriesColumn() and all series to be cleared
    *
    * \sa model()
    */

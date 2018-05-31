@@ -304,9 +304,27 @@ void WDataSeries::setScale(double scale)
 
 void WDataSeries::setModel(const std::shared_ptr<WAbstractChartModel>& model)
 {
+  if (model_) {
+    /* disconnect slots from previous model */
+    for (unsigned i = 0; i < modelConnections_.size(); ++i)
+      modelConnections_[i].disconnect();
+
+    modelConnections_.clear();
+  }
+
   model_ = model;
+
+  modelConnections_.push_back(model_->changed().connect
+                              (this, &WDataSeries::modelReset));
+
   if (chart_)
     chart_->update();
+}
+
+void WDataSeries::modelReset()
+{
+  if (chart_)
+    chart_->modelReset();
 }
 
 std::shared_ptr<WAbstractChartModel> WDataSeries::model() const

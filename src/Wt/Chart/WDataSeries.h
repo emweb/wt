@@ -591,6 +591,12 @@ private:
   mutable bool       offsetDirty_;
   mutable bool       scaleDirty_;
 
+  // connections with the current model, used to disconnect from a model
+  // when the model changes.
+  std::vector<Wt::Signals::connection> modelConnections_;
+
+  void modelReset();
+
   template <typename T>
   bool set(T& m, const T& v);
 
