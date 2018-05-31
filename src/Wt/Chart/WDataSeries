@@ -560,7 +560,7 @@ public:
    *
    * \sa WCartesianChart::setModel()
    */
-  void setModel(const WAbstractChartModel *model);
+  void setModel(WAbstractChartModel *model);
 
   /*! \brief Get the model for this data series.
    *
@@ -582,7 +582,7 @@ public:
 
 private:
   WCartesianChart   *chart_;
-  const WAbstractChartModel *model_;
+  WAbstractChartModel *model_;
   int                modelColumn_;
   int                XSeriesColumn_;
   bool               stacked_;
@@ -606,6 +606,12 @@ private:
   double             scale_;
   mutable bool       offsetDirty_;
   mutable bool       scaleDirty_;
+
+  // connections with the current model, used to disconnect from a model
+  // when the model changes.
+  std::vector<Wt::Signals::connection> modelConnections_;
+
+  void modelReset();
 
   template <typename T>
   bool set(T& m, const T& v);

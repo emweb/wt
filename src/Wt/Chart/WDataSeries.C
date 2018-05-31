@@ -383,11 +383,29 @@ void WDataSeries::setScale(double scale)
   scaleDirty_ = true;
 }
 
-void WDataSeries::setModel(const WAbstractChartModel *model)
+void WDataSeries::setModel(WAbstractChartModel *model)
 {
+  if (model_) {
+    /* disconnect slots from previous model */
+    for (unsigned i = 0; i < modelConnections_.size(); ++i)
+      modelConnections_[i].disconnect();
+
+    modelConnections_.clear();
+  }
+
   model_ = model;
+
+  modelConnections_.push_back(model_->changed().connect
+                              (this, &WDataSeries::modelReset));
+
   if (chart_)
     chart_->update();
+}
+
+void WDataSeries::modelReset()
+{
+  if (chart_)
+    chart_->modelReset();
 }
 
 const WAbstractChartModel *WDataSeries::model() const

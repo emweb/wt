@@ -74,6 +74,9 @@ public:
    * setModel(WAbstractChartModel *) directly for highest performance
    * (avoiding the overhead of boost::any for numeric data).
    *
+   * \note Setting a new model on a WCartesianChart causes the
+   *       WCartesianChart::XSeriesColumn() and all series to be cleared
+   *
    * \sa model()
    */
   void setModel(WAbstractItemModel *model);
@@ -85,6 +88,9 @@ public:
    * not deleted.
    *
    * The default model is a \c 0 model.
+   *
+   * \note Setting a new model on a WCartesianChart causes the
+   *       WCartesianChart::XSeriesColumn() and all series to be cleared
    *
    * \sa model()
    */
