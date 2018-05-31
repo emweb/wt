@@ -86,11 +86,26 @@ WDataSeries::WDataSeries(const WDataSeries &other)
     scale_(other.scale_),
     offsetDirty_(true),
     scaleDirty_(true)
-{ }
+{
+  if (model_) {
+    modelConnections_.push_back(model_->changed().connect
+                                (this, &WDataSeries::modelReset));
+  }
+}
 
 WDataSeries &WDataSeries::operator=(const WDataSeries &rhs)
 {
+  if (&rhs != this && model_) {
+    for (unsigned i = 0; i < modelConnections_.size(); ++i)
+      modelConnections_[i].disconnect();
+
+    modelConnections_.clear();
+  }
   model_ = rhs.model_;
+  if (model_) {
+    modelConnections_.push_back(model_->changed().connect
+                                (this, &WDataSeries::modelReset));
+  }
   modelColumn_ = rhs.modelColumn_;
   XSeriesColumn_ = rhs.XSeriesColumn_;
   stacked_ = rhs.stacked_;
@@ -118,6 +133,14 @@ WDataSeries &WDataSeries::operator=(const WDataSeries &rhs)
   scaleDirty_ = true;
 
   return *this;
+}
+
+WDataSeries::~WDataSeries()
+{
+  if (model_) {
+    for (unsigned i = 0; i < modelConnections_.size(); ++i)
+      modelConnections_[i].disconnect();
+  }
 }
 
 void WDataSeries::setBarWidth(const double width) 
@@ -395,8 +418,10 @@ void WDataSeries::setModel(WAbstractChartModel *model)
 
   model_ = model;
 
-  modelConnections_.push_back(model_->changed().connect
-                              (this, &WDataSeries::modelReset));
+  if (model_) {
+    modelConnections_.push_back(model_->changed().connect
+                                (this, &WDataSeries::modelReset));
+  }
 
   if (chart_)
     chart_->update();
