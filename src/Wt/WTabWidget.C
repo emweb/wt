@@ -43,6 +43,14 @@ void WTabWidget::create()
 WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
 			      LoadPolicy loadPolicy)
 {
+  return insertTab(count(), child, label, loadPolicy);
+}
+
+WMenuItem *WTabWidget::insertTab(int index,
+                                 WWidget *child,
+                                 const WString &label,
+                                 LoadPolicy loadPolicy)
+{
   WMenuItem::LoadPolicy policy = WMenuItem::PreLoading;
   switch (loadPolicy) {
   case PreLoading: policy = WMenuItem::PreLoading; break;
@@ -51,9 +59,9 @@ WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
 
   WMenuItem *result = new WMenuItem(label, child, policy);
 
-  contentsWidgets_.push_back(child);
+  contentsWidgets_.insert(contentsWidgets_.begin() + index, child);
 
-  menu_->addItem(result);
+  menu_->insertItem(index, result);
 
   return result;
 }
@@ -83,6 +91,11 @@ WWidget *WTabWidget::widget(int index) const
   return contentsWidgets_[index];
 }
 
+WMenuItem *WTabWidget::itemAt(int index) const
+{
+  return menu_->itemAt(index);
+}
+
 int WTabWidget::indexOf(WWidget *widget) const
 {
   return Utils::indexOf(contentsWidgets_, widget);
@@ -106,6 +119,11 @@ void WTabWidget::setCurrentWidget(WWidget *widget)
 WWidget *WTabWidget::currentWidget() const
 {
   return menu_->currentItem()->contents();
+}
+
+WMenuItem *WTabWidget::currentItem() const
+{
+  return menu_->currentItem();
 }
 
 void WTabWidget::setTabEnabled(int index, bool enable)
