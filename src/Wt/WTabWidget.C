@@ -43,11 +43,19 @@ WMenuItem *WTabWidget::addTab(std::unique_ptr<WWidget> child,
 			      const WString& label,
 			      ContentLoading loadPolicy)
 {
-  contentsWidgets_.push_back(child.get());
+  return insertTab(count(), std::move(child), label, loadPolicy);
+}
+
+WMenuItem *WTabWidget::insertTab(int index,
+                                 std::unique_ptr<WWidget> child,
+                                 const WString &label,
+                                 ContentLoading loadPolicy)
+{
+  contentsWidgets_.insert(contentsWidgets_.begin() + index, child.get());
   std::unique_ptr<WMenuItem> item
     (new WMenuItem(label, std::move(child), loadPolicy));
   WMenuItem *result = item.get();
-  menu_->addItem(std::move(item));
+  menu_->insertItem(index, std::move(item));
   return result;
 }
 
@@ -76,6 +84,11 @@ WWidget *WTabWidget::widget(int index) const
   return contentsWidgets_[index];
 }
 
+WMenuItem *WTabWidget::itemAt(int index) const
+{
+  return menu_->itemAt(index);
+}
+
 int WTabWidget::indexOf(WWidget *widget) const
 {
   return Utils::indexOf(contentsWidgets_, widget);
@@ -99,6 +112,11 @@ void WTabWidget::setCurrentWidget(WWidget *widget)
 WWidget *WTabWidget::currentWidget() const
 {
   return menu_->currentItem()->contents();
+}
+
+WMenuItem *WTabWidget::currentItem() const
+{
+  return menu_->currentItem();
 }
 
 void WTabWidget::setTabEnabled(int index, bool enable)

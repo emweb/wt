@@ -81,6 +81,13 @@ public:
 		    const WString& label,
 		    ContentLoading loadPolicy = ContentLoading::Lazy);
 
+  /*! \brief Inserts a new tab, with <i>child</i> as content, and the given label.
+   *
+   * Returns the menu item that implements the tab item.
+   */
+  WMenuItem *insertTab(int index, std::unique_ptr<WWidget> child, const WString& label,
+                       ContentLoading loadPolicy = ContentLoading::Lazy);
+
   /*! \brief Removes a tab item.
    *
    * \sa WMenu::removeItem()
@@ -94,6 +101,10 @@ public:
   /*! \brief Returns the content widget at the given tab <i>index</i>.
    */
   WWidget *widget(int index) const;
+
+  /*! \brief Returns the item at the given tab <i>index</i>.
+   */
+  WMenuItem *itemAt(int index) const;
 
   /*! \brief Returns the index of the tab of the given content widget.
    *
@@ -116,6 +127,10 @@ public:
   /*! \brief Returns the widget of the activated tab.
    */
   WWidget *currentWidget() const;
+
+  /*! \brief Returns the item of the activated tab.
+   */
+  WMenuItem *currentItem() const;
 
   /*! \brief Enables or disables a tab.
    *
