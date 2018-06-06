@@ -168,6 +168,7 @@ void toText(S& stream, Reply::status_type status)
   case Reply::no_status:
   case Reply::internal_server_error:
     stream << "500 Internal Server Error\r\n";
+    break;
   default:
     stream << (int) status << " Unknown\r\n";
   }
