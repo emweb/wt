@@ -396,7 +396,7 @@ JQuery_js.C
 )
 
 IF (WIN32)
-  set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS USE_OS_TZDB=0 INSTALL=. HAS_REMOTE_API=0)
+  set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS USE_OS_TZDB=0 HAS_REMOTE_API=0)
   IF (SHARED_LIBS)
     set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS DATE_BUILD_DLL)
   ELSE (SHARED_LIBS)
