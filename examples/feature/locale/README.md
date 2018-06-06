@@ -8,15 +8,26 @@ How to run
 
 See the README in the parent directory.
 
-This example requires the uncompressed IANA time zone data to be installed.
-
-On Linux or Mac OS X, the time zone information in /usr/share/zoneinfo is
+On POSIX systems (Linux, macOS, BSD,...), the time zone information in /usr/share/zoneinfo is
 used, and you don't need to do anything.
+
+On Windows, this example requires the uncompressed IANA time zone data to be installed.
 
 On Windows, you can specify the tzdata directory with `date::set_install`.
 This example sets it to `./tzdata`. The default on Windows is in the users's
 Downloads folder: `Downloads/tzdata`. You will also need to add the windowsZones.xml
 file (see http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml).
+
+To summarize, on Windows:
+
+ - In the directory that you will run the example from, create a `tzdata` directory
+ - Download the latest time zone database from IANA: https://www.iana.org/time-zones
+   (Choose the Data Only Distribution), and extract its contents into the `tzdata`
+   directory you just created.
+ - Download `windowsZones.xml` from
+   http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml and
+   add it to the `tzdata` directory
+ 
 
 What it illustrates
 -------------------
