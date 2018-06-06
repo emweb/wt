@@ -1,8 +1,9 @@
 #include "Wt/WApplication.h"
 #include "Wt/WLocale.h"
 
+#include "Wt/Date/tz.h"
+
 #include "WebUtils.h"
-#include "Wt/Date/tz_private.h"
 
 #include <cctype>
 

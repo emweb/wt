@@ -1,11 +1,10 @@
-SUBDIRS(Auth Core Chart Dbo Json Http Mail Payment Render Signals Test)
+SUBDIRS(Auth Core Chart Date Dbo Json Http Mail Payment Render Signals Test)
 
 IF(INSTALL_EXTENSIONLESS_HEADERS)
   INSTALL_FILES(/include/Wt "^W.*[^C~]$")
 ELSE(INSTALL_EXTENSIONLESS_HEADERS)
   INSTALL_FILES(/include/Wt "^W.*[.]h$")
 ENDIF(INSTALL_EXTENSIONLESS_HEADERS)
-INSTALL_FILES(/include/Wt "^Date$")
 IF(INSTALL_EXTENSIONLESS_HEADERS)
   INSTALL_FILES(/include/Wt "^Utils$")
 ENDIF(INSTALL_EXTENSIONLESS_HEADERS)

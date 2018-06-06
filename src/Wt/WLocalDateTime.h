@@ -185,17 +185,23 @@ public:
    */
   bool operator!= (const WLocalDateTime& other) const;
 
+  // Internal: for tests
+  static WLocalDateTime offsetDateTime(const std::chrono::system_clock::time_point& dt,
+                                       std::chrono::minutes offset, const WT_USTRING& format);
+
 private:
+  class OffsetZone;
+
   std::chrono::system_clock::time_point datetime_; // UTC clock
   WT_USTRING format_;
   const date::time_zone *zone_;
-  std::shared_ptr<date::time_zone> customZone_;
+  std::shared_ptr<OffsetZone> customZone_;
   bool valid_, null_;
 
   WLocalDateTime(const std::chrono::system_clock::time_point& dt,
                  const date::time_zone *zone, const WT_USTRING& format);
   WLocalDateTime(const std::chrono::system_clock::time_point& dt,
-                 const std::shared_ptr<date::time_zone>& zone, const WT_USTRING& format);
+                 const std::shared_ptr<OffsetZone>& zone, const WT_USTRING& format);
 
   friend class WDateTime;
 

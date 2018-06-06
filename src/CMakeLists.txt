@@ -3,6 +3,7 @@ SUBDIRS(web Wt)
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/web
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/Wt/Date/include
   ${CMAKE_CURRENT_BINARY_DIR} # for WConfig.h
   ${BOOST_INCLUDE_DIRS}
   Wt/Dbo/backend/amalgamation # for sqlite3.h
@@ -317,7 +318,7 @@ Wt/Chart/WScatterData.C
 Wt/Chart/WSelection.C
 Wt/Core/observable.cpp
 Wt/Core/observing_ptr.cpp
-Wt/Date/tz.cpp
+Wt/Date/src/tz.cpp
 Wt/Json/Array.C
 Wt/Json/Object.C
 Wt/Json/Parser.C
@@ -393,6 +394,17 @@ Bootstrap3Theme_xml.C
 AuthCssTheme_xml.C
 JQuery_js.C
 )
+
+IF (WIN32)
+  set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS USE_OS_TZDB=0 INSTALL=. HAS_REMOTE_API=0)
+  IF (SHARED_LIBS)
+    set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS DATE_BUILD_DLL)
+  ELSE (SHARED_LIBS)
+    set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS DATE_BUILD_LIB)
+  ENDIF (SHARED_LIBS)
+ELSE (WIN32)
+  set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS USE_OS_TZDB=1)
+ENDIF (WIN32)
 
 ADD_DEFINITIONS(-DWT_BUILDING)
 

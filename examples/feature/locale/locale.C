@@ -14,7 +14,8 @@
 #include <Wt/WReadOnlyProxyModel.h>
 #include <Wt/WLocalDateTime.h>
 #include <Wt/WContainerWidget.h>
-#include <Wt/Date/tz_private.h>
+
+#include <Wt/Date/tz.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -49,8 +50,15 @@ public:
     showOffset_ = enabled;
   }
 
-  int suggestedTimeZone(std::chrono::minutes currentOffset)
+  int suggestedTimeZone(const std::string &timeZoneName,
+                        std::chrono::minutes currentOffset)
   {
+    if (!timeZoneName.empty()) {
+      for (unsigned i = 0; i < ids_.size(); ++i) {
+        if (ids_[i] == timeZoneName)
+          return i;
+      }
+    }
 
     std::chrono::system_clock::time_point nowUtc = std::chrono::system_clock::now();
 
@@ -195,7 +203,7 @@ public:
     localeCombo_->setModel(regions);
 
     localeCombo_->setCurrentIndex
-      (timeZones->suggestedTimeZone(std::chrono::minutes{env.timeZoneOffset()}));
+      (timeZones->suggestedTimeZone(env.timeZoneName(), env.timeZoneOffset()));
 
     localeCombo_->changed().connect(this, &LocaleApplication::updateLocale);
 

@@ -13,7 +13,8 @@
 #include "Wt/WDate.h"
 #include "Wt/WTime.h"
 
-#include "Wt/Date/tz_private.h"
+#include "Wt/Date/date.h"
+#include "Wt/Date/tz.h"
 
 #ifndef WT_WIN32
 #include <ctime>
@@ -22,12 +23,7 @@
 #endif
 
 #include <chrono>
-
-namespace date {
-  namespace detail {
-    struct undocumented {};
-  }
-}
+#include <type_traits>
 
 namespace Wt {
 
@@ -41,6 +37,55 @@ namespace Wt {
 
 LOGGER("WDateTime");
 
+class WLocalDateTime::OffsetZone {
+  std::chrono::minutes offset_;
+  std::string name_;
+
+public:
+  explicit OffsetZone(std::chrono::minutes offset)
+    : offset_{offset}
+  {
+    Wt::WStringStream ss;
+    ss << "<custom zone, offset ";
+    ss << std::string((offset < std::chrono::minutes{0}) ? "-" : "+");
+    ss << static_cast<long long>(std::abs(offset.count()));
+    ss << " minutes>";
+    name_ = ss.str();
+  }
+
+  template<class Duration>
+  date::local_time<typename std::common_type<Duration, std::chrono::minutes>::type>
+  to_local(date::sys_time<Duration> tp) const
+  {
+    using namespace date;
+    using namespace std;
+    using namespace std::chrono;
+    using LT = local_time<typename common_type<Duration, minutes>::type>;
+    return LT{(tp + offset_).time_since_epoch()};
+  }
+
+  template<class Duration>
+  date::sys_time<typename std::common_type<Duration, std::chrono::minutes>::type>
+  to_sys(date::local_time<Duration> tp) const
+  {
+    using namespace date;
+    using namespace std;
+    using namespace std::chrono;
+    using ST = sys_time<typename common_type<Duration, minutes>::type>;
+    return ST{(tp - offset_).time_since_epoch()};
+  }
+
+  const std::string &name() const
+  {
+    return name_;
+  }
+
+  std::chrono::minutes offset() const
+  {
+    return offset_;
+  }
+};
+
 WLocalDateTime::WLocalDateTime(const std::chrono::system_clock::time_point& dt,
 			       const date::time_zone *zone, const WT_USTRING& format)
   : datetime_(dt),
@@ -53,15 +98,15 @@ WLocalDateTime::WLocalDateTime(const std::chrono::system_clock::time_point& dt,
 }
 
 WLocalDateTime::WLocalDateTime(const std::chrono::system_clock::time_point& dt,
-                               const std::shared_ptr<date::time_zone>& zone, 
+                               const std::shared_ptr<OffsetZone>& zone,
 			       const WT_USTRING& format)
   : datetime_(dt),
     format_(format),
+    zone_(nullptr),
     customZone_(zone),
     valid_(false),
     null_(false)
 {
-    zone_ = customZone_.get();
     valid_ = WDateTime(dt).isValid();
 }
 
@@ -87,6 +132,12 @@ WLocalDateTime::WLocalDateTime(const WDate& date, const WTime& time,
   setDateTime(date, time);
 }
 
+WLocalDateTime WLocalDateTime::offsetDateTime(const std::chrono::system_clock::time_point& dt,
+                                              std::chrono::minutes offset, const WT_USTRING& format)
+{
+  return WLocalDateTime(dt, std::make_shared<OffsetZone>(offset), format);
+}
+
 bool WLocalDateTime::isNull() const
 {
   return null_;
@@ -102,9 +153,12 @@ void WLocalDateTime::setDateTime(const WDate& date, const WTime& time)
   null_ = false;
   valid_ = true;
   if (date.isValid() && time.isValid()) {
-    if (zone_) {
+    if (zone_ || customZone_) {
       try {
-        datetime_ = zone_->to_sys(asLocalTime(WDateTime(date, time).toTimePoint()));
+        if (zone_)
+          datetime_ = zone_->to_sys(asLocalTime(WDateTime(date, time).toTimePoint()));
+        else
+          datetime_ = customZone_->to_sys(asLocalTime(WDateTime(date, time).toTimePoint()));
       } catch(std::exception& e){
         LOG_WARN("Invalid local date time: " << e.what());
         setInvalid();
@@ -120,7 +174,7 @@ void WLocalDateTime::setDateTime(const WDate& date, const WTime& time)
       LOG_WARN("Invalid local date time ("
                << date.toString() << " "
                << time.toString() << ") in zone "
-               << (zone_ ? zone_->name() : "<no zone>"));
+               << (zone_ ? zone_->name() : (customZone_ ? customZone_->name() : "<no zone>")));
       setInvalid();
     }
 
@@ -147,10 +201,20 @@ void WLocalDateTime::setDateTime(const WDate& date, const WTime& time,
           datetime_ = zone_->to_sys(asLocalTime(WDateTime(date, time).toTimePoint()), date::choose::earliest);
         if (isNull()) {
           LOG_WARN("Invalid local date time ("
-                   <<date.toString() << " "
+                   << date.toString() << " "
                    << time.toString() << " "
                    << "dst=" << dst << ") in zone "
                    << zone_->name());
+          setInvalid();
+        }
+      } else if (customZone_) {
+        datetime_ = customZone_->to_sys(asLocalTime(WDateTime(date, time).toTimePoint()));
+        if (isNull()) {
+          LOG_WARN("Invalid local date time ("
+                   << date.toString() << " "
+                   << time.toString() << " "
+                   << "dst=" << dst << ") in zone "
+                   << customZone_->name());
           setInvalid();
         }
       } else{
@@ -180,7 +244,9 @@ void WLocalDateTime::setDate(const WDate& date)
 WDate WLocalDateTime::date() const
 {
   if (isValid()){
-    auto ymd = date::year_month_day(date::floor<date::days>(zone_->to_local(datetime_)));
+    auto d = zone_ ? date::floor<date::days>(zone_->to_local(datetime_)) :
+                     date::floor<date::days>(customZone_->to_local(datetime_));
+    auto ymd = date::year_month_day(d);
     return WDate(int(ymd.year()), unsigned(ymd.month()), unsigned(ymd.day()));
   }
   return WDate();
@@ -195,7 +261,7 @@ void WLocalDateTime::setTime(const WTime& time)
 WTime WLocalDateTime::time() const
 {
   if (isValid()){
-    auto dt = zone_->to_local(datetime_);
+    auto dt = zone_ ? zone_->to_local(datetime_) : customZone_->to_local(datetime_);
     date::local_days dp = date::floor<date::days>(dt);
     auto time = date::make_time(dt - dp);
     std::chrono::duration<int, std::milli> ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.subseconds());
@@ -220,13 +286,17 @@ WT_USTRING WLocalDateTime::toString() const
 
 int WLocalDateTime::timeZoneOffset() const
 {
-  auto info = zone_->get_info(datetime_);
-  return info.offset.count() / 60;
+  if (zone_) {
+    auto info = zone_->get_info(datetime_);
+    return info.offset.count() / 60;
+  } else {
+    return customZone_->offset().count();
+  }
 }
 
 const date::time_zone* WLocalDateTime::timeZone() const
 {
-  return zone_;
+  return zone_; // TODO(Roel): what about OffsetZone?
 }
 
 WT_USTRING WLocalDateTime::toString(const WT_USTRING& format) const
@@ -256,8 +326,7 @@ WLocalDateTime WLocalDateTime::currentDateTime(const WLocale& locale)
 
 WLocalDateTime WLocalDateTime::currentTime(std::chrono::minutes offset, const WT_USTRING& format)
 {
-  std::shared_ptr<date::time_zone> z =
-      std::make_shared<date::time_zone>(offset, date::detail::undocumented());
+  auto z = std::make_shared<OffsetZone>(offset);
   return WLocalDateTime(std::chrono::system_clock::now(), z, format);
 }
 

@@ -9,15 +9,14 @@
 #include <Wt/WTime.h>
 #include <Wt/WDateTime.h>
 #include <Wt/WLocalDateTime.h>
-#include <stdlib.h>
-#include <iostream>
-#include <Wt/Date/tz_private.h>
+#include <Wt/WStringStream.h>
 
-namespace date {
-  namespace detail {
-    struct undocumented {};
-  }
-}
+#include <Wt/Date/tz.h>
+
+#include <stdlib.h>
+#include <chrono>
+#include <iostream>
+#include <type_traits>
 
 BOOST_AUTO_TEST_CASE( WDateTime_test_WDate )
 {
@@ -327,15 +326,10 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WLocalDateTime )
   Wt::WDateTime wdt(wd, wt);
 
   Wt::WLocale loc;
-  //loc.setTimeZone("EST-5EDT,M4.1.0,M10.5.0");
-  auto zone = Wt::cpp14::make_unique<date::time_zone>(std::chrono::hours{-4},
-						      date::detail::undocumented{});
-  loc.setTimeZone(zone.get());
+  Wt::WLocalDateTime wldt = Wt::WLocalDateTime::offsetDateTime(wdt.toTimePoint(),
+                                                               std::chrono::hours{-4},
+                                                               loc.dateTimeFormat());
 
-  Wt::WLocalDateTime wldt = wdt.toLocalTime(loc);
-
-  BOOST_REQUIRE(wldt.timeZone()->name() == "Unknown");
-  BOOST_REQUIRE(wldt.timeZone() == zone.get());
   BOOST_REQUIRE(wldt.toString() == "2009-10-01 08:11:31");
   BOOST_REQUIRE(wldt.timeZoneOffset() == -240); //4h behind
 
@@ -349,26 +343,15 @@ BOOST_AUTO_TEST_CASE( WDateTime_testspecial_WLocalDateTime )
   Wt::WDateTime wdt;
 
   Wt::WLocale loc;
-  auto zone = Wt::cpp14::make_unique<date::time_zone>(std::chrono::hours{-4},
-						      date::detail::undocumented{});
-  loc.setTimeZone(zone.get());
+  Wt::WLocalDateTime wldt = Wt::WLocalDateTime::offsetDateTime(std::chrono::system_clock::time_point{},
+                                                                std::chrono::hours{-4},
+                                                                loc.dateTimeFormat());
+  wldt.setDateTime(Wt::WDate(1976, 6, 14), Wt::WTime(3, 0, 0), true);
 
-  Wt::WLocalDateTime wldt = wdt.toLocalTime(loc);
-
-  BOOST_REQUIRE(!wldt.isValid());
-  BOOST_REQUIRE(wldt.isNull());
+  BOOST_REQUIRE(wldt.isValid());
+  BOOST_REQUIRE(!wldt.isNull());
 
   Wt::WDateTime utc = wldt.toUTC();
-
-  BOOST_REQUIRE(utc == wdt);
-
-  Wt::WLocalDateTime wldt2(loc);
-  wldt2.setDateTime(Wt::WDate(1976, 6, 14), Wt::WTime(3, 0, 0), true);
-
-  BOOST_REQUIRE(wldt2.isValid());
-  BOOST_REQUIRE(!wldt2.isNull());
-
-  utc = wldt2.toUTC();
 
   std::cerr << utc.toString() << std::endl;
 }
