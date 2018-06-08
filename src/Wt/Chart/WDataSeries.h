@@ -9,6 +9,7 @@
 
 #include <Wt/Chart/WAxis.h>
 #include <Wt/WBrush.h>
+#include <Wt/WObject.h>
 #include <Wt/WPen.h>
 #include <Wt/WShadow.h>
 #include <Wt/Chart/WChartGlobal.h>
@@ -77,6 +78,9 @@ enum class CustomFlag {
  * \ingroup charts
  */
 class WT_API WDataSeries
+#ifdef WT_TARGET_JAVA
+  : public Wt::WObject
+#endif // WT_TARGET_JAVA
 {
 public:
   /*! \brief Constructs a new data series.

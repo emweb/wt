@@ -65,6 +65,7 @@ double sum(const std::vector<double>& v)
 Block::Block(xml_node<> *node, Block *parent)
   : node_(node),
     parent_(parent),
+    offsetParent_(0),
     type_(DomElementType::UNKNOWN),
 #ifndef WT_TARGET_JAVA
     float_(static_cast<Side>(0)),
