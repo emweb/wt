@@ -734,14 +734,11 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
 
   // Move up from the found segment, until we find one that corresponds to an entrypoint
   const EntryPoint *match = nullptr;
-  for (bool firstIteration = true;
-       pathSegment != nullptr;
-       pathSegment = pathSegment->parent,
-       firstIteration = false) {
+  for (; pathSegment != nullptr; pathSegment = pathSegment->parent) {
     // If matchAfterSlash is true,
     // then the path /head/tail
     // may match the entry point /head/
-    if (matchAfterSlash && !firstIteration) {
+    if (matchAfterSlash) {
       const auto &children = pathSegment->children;
       if (!children.empty() && children.front()->segment.empty()) {
         match = children.front()->entryPoint;
