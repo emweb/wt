@@ -219,9 +219,9 @@ public:
    * to values passed by the signal.
    */
 #ifndef WT_CNOR
-  template <class F> Wt::Signals::connection connect(const F& function);
+  template <class F> Wt::Signals::connection connect(F function);
   template <class F> Wt::Signals::connection connect(const WObject *target,
-						     const F& function);
+						     F function);
 #else
   Wt::Signals::connection connect(const boost::bound& f);
   Wt::Signals::connection connect(const WObject *target, const boost::bound& f);
@@ -492,9 +492,9 @@ public:
    * object inherits from WObject (or Wt::Signals::trackable).
    */
 #ifndef WT_CNOR
-  template <class F> Wt::Signals::connection connect(const F& function);
+  template <class F> Wt::Signals::connection connect(F function);
   template <class F> Wt::Signals::connection connect(const WObject *target,
-						     const F& function);
+						     F function);
 #else
   Wt::Signals::connection connect(const boost::bound& function);
 #endif
@@ -643,17 +643,17 @@ Wt::Signals::connection Signal<A...>::connect(WObject *target,
 
 template <class... A>
 template <class F>
-Wt::Signals::connection Signal<A...>::connect(const F& function)
+Wt::Signals::connection Signal<A...>::connect(F function)
 {
-  return Signals::Impl::connectFunction<F, A...>(impl_, function, nullptr);
+  return Signals::Impl::connectFunction<F, A...>(impl_, std::move(function), nullptr);
 }
 
 template <class... A>
 template <class F>
 Wt::Signals::connection Signal<A...>::connect(const WObject *target,
-					      const F& function)
+					      F function)
 {
-  return Signals::Impl::connectFunction<F, A...>(impl_, function, target);
+  return Signals::Impl::connectFunction<F, A...>(impl_, std::move(function), target);
 }
 
 template <class... A>
@@ -715,19 +715,19 @@ int EventSignal<E>::argumentCount() const
 
 template <typename E>
 template <class F>
-Wt::Signals::connection EventSignal<E>::connect(const F& function)
+Wt::Signals::connection EventSignal<E>::connect(F function)
 {
   exposeSignal();
-  return Signals::Impl::connectFunction<F, E>(dynamic_, function, nullptr);
+  return Signals::Impl::connectFunction<F, E>(dynamic_, std::move(function), nullptr);
 }
 
 template <typename E>
 template <class F>
 Wt::Signals::connection EventSignal<E>::connect(const WObject *target,
-						const F& function)
+						F function)
 {
   exposeSignal();
-  return Signals::Impl::connectFunction<F, E>(dynamic_, function, target);
+  return Signals::Impl::connectFunction<F, E>(dynamic_, std::move(function), target);
 }
 
 template <typename E>

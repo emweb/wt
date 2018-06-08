@@ -197,9 +197,9 @@ public:
    * automatically be disconnected when the object is deleted, as long as the
    * object inherits from WObject (or Wt::Signals::trackable).
    */
-  template<class F> Wt::Signals::connection connect(const F& function);
+  template<class F> Wt::Signals::connection connect(F function);
   template<class F> Wt::Signals::connection connect(const WObject *target,
-						    const F& function);
+						    F function);
 
   /*! \brief Connect a slot that takes no arguments.
    */
@@ -336,19 +336,19 @@ const std::string JSignal<A...>
 
 template <typename... A>
 template <class F>
-Wt::Signals::connection JSignal<A...>::connect(const F& function)
+Wt::Signals::connection JSignal<A...>::connect(F function)
 {
   exposeSignal();
-  return Signals::Impl::connectFunction<F, A...>(impl_, function, nullptr);
+  return Signals::Impl::connectFunction<F, A...>(impl_, std::move(function), nullptr);
 }
 
 template <typename... A>
 template <class F>
 Wt::Signals::connection JSignal<A...>::connect(const WObject *target,
-					       const F& function)
+					       F function)
 {
   exposeSignal();
-  return Signals::Impl::connectFunction<F, A...>(impl_, function, target);
+  return Signals::Impl::connectFunction<F, A...>(impl_, std::move(function), target);
 }
 
 template <class... A>

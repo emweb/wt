@@ -138,42 +138,13 @@ private:
       static_assert (sizeof (link) == sizeof (size_t), "sizeof size_t");
     }
 
-    Connection add_before (const CbFunction &cb,
+    Connection add_before (CbFunction &&cb,
 			   const Wt::Core::observable *object)
     {
       SignalLink *link = new SignalLink ();
       add_before(link);
-      link->function = cb;
+      link->function = std::move(cb);
       return link->connect(object);
-    }
-
-    bool deactivate (const CbFunction &cbf)
-    {
-      if (cbf == function) {
-	function = nullptr;      // deactivate static head
-	return true;
-      }
-
-      for (SignalLink *link = this->next ? this->next : this; link != this; link = link->next) {
-        if (cbf == link->function) {
-	  link->unlink();     // deactivate and unlink sibling
-	  return true;
-	}
-      }
-
-      return false;
-    }
-
-    bool remove_sibling (size_t id)
-    {
-      for (SignalLink *link = this->next ? this->next : this; link != this; link = link->next) {
-        if (id == size_t (link)) {
-	  link->unlink();     // deactivate and unlink sibling
-	  return true;
-	}
-      }
-
-      return false;
     }
 
     bool active() const 
@@ -219,10 +190,10 @@ public:
 
   // Operator to add a new function or lambda as signal handler,
   // returns a handler connection ID.
-  Connection connect(const CbFunction &cb,
+  Connection connect(CbFunction &&cb,
 		     const Wt::Core::observable *object = nullptr) {
     ensure_ring();
-    return callback_ring_->add_before(cb, object);
+    return callback_ring_->add_before(std::move(cb), object);
   }
 
   bool isConnected() const
@@ -320,10 +291,17 @@ struct function_traits<ReturnType(ClassType::*)(Args...) const>
   typedef std::function<ReturnType(Args...)> function;
 };
 
-template <typename Function>
-typename function_traits<Function>::function toFunction(Function& lambda)
+template <typename ClassType, typename ReturnType, typename... Args>
+struct function_traits<ReturnType(ClassType::*)(Args...)>
 {
-  return static_cast<typename function_traits<Function>::function>(lambda);
+  static constexpr int argCount = sizeof...(Args);
+  typedef std::function<ReturnType(Args...)> function;
+};
+
+template <typename Function>
+typename function_traits<Function>::function toFunction(Function&& lambda)
+{
+  return static_cast<typename function_traits<Function>::function>(std::move(lambda));
 }
 
 } // Impl
@@ -358,9 +336,9 @@ template <class... Args>
 struct ConnectHelper<0, Args...> {
   static connection connect(Signals::Signal<Args...>& signal,
 			    const Core::observable *target,
-			    const std::function<void ()>& f)
+                            std::function<void ()>&& f)
   {
-    return signal.connect([f](Args...) { f(); }, target);
+    return signal.connect([f WT_CXX14ONLY(=std::move(f))](Args...) { f(); }, target);
   }
 
   template <class T, class V>
@@ -378,9 +356,9 @@ struct ConnectHelper<1, Args...> {
   template <typename B1, typename... An>
   static connection connect(Signals::Signal<Args...>& signal,
 			    const Core::observable *target,
-			    const std::function<void (B1)>& f)
+                            std::function<void (B1)>&& f)
   {
-    return signal.connect([f](B1 b1, An...) { f(b1); }, target);
+    return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, An...) { f(b1); }, target);
   }
 
   template <class T, class V,
@@ -400,9 +378,9 @@ struct ConnectHelper<2, Args...> {
   template <typename B1, typename B2, typename... An>
   static connection connect(Signals::Signal<Args...>& signal,
 			    const Core::observable *target,
-			    const std::function<void (B1, B2)>& f)
+                            std::function<void (B1, B2)>&& f)
   {
-    return signal.connect([f](B1 b1, B2 b2, An...) { f(b1, b2); }, target);
+    return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, B2 b2, An...) { f(b1, b2); }, target);
   }
 
   template <class T, class V,
@@ -422,9 +400,9 @@ struct ConnectHelper<3, Args...> {
   template <typename B1, typename B2, typename B3, typename... An>
   static connection connect(Signals::Signal<Args...>& signal,
 			    const Core::observable *target,
-			    const std::function<void (B1, B2, B3)>& f)
+                            std::function<void (B1, B2, B3)>&& f)
   {
-    return signal.connect([f](B1 b1, B2 b2, B3 b3, An...) {
+    return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, B2 b2, B3 b3, An...) {
 	f(b1, b2, b3);
       }, target);
   }
@@ -447,22 +425,20 @@ struct ConnectHelper<3, Args...> {
 template <typename F, class... Args>
 connection connectFunction
 (Signal<Args...>& signal,
- typename std::enable_if<!std::is_bind_expression<F>::value,
-                         const F&>::type function,
+ typename std::enable_if<!std::is_bind_expression<F>::value, F&&>::type function,
  const Core::observable *target)
 {
   return ConnectHelper<function_traits<F>::argCount, Args...>
-    ::connect(signal, target, Signals::Impl::toFunction(function));
+    ::connect(signal, target, Signals::Impl::toFunction(std::move(function)));
 }
 
 template <typename F, class... Args>
 connection connectFunction
 (Signal<Args...>& signal,
- typename std::enable_if<std::is_bind_expression<F>::value,
-                         const F&>::type function,
+ typename std::enable_if<std::is_bind_expression<F>::value, F&&>::type function,
  const Core::observable *target)
 {
-  return signal.connect(function, target);
+  return signal.connect(std::move(function), target);
 }
 
 }
