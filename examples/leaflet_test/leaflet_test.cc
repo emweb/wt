@@ -661,7 +661,29 @@ public:
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////////////
+//Application_topojson
+///////////////////////////////////////////////////////////////////////////////////////
 
+class Application_topojson : public WApplication
+{
+public:
+  Application_topojson(const WEnvironment& env) : WApplication(env)
+  {
+    setTitle("topojson sample");
+    std::unique_ptr<WLeaflet> leaflet =
+      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 37.0902, -95.7129, 5);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render topojson
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    size_t size_arcs = topojson.m_vec_arcs.size();
+   
+
+    root()->addWidget(std::move(leaflet));
+  }
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //create_application
@@ -692,6 +714,10 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
   else if (test.compare("6") == 0)
   {
     return cpp14::make_unique<Application_schools>(env);
+  }
+  else if (test.compare("7") == 0)
+  {
+    return cpp14::make_unique<Application_topojson>(env);
   }
   assert(0);
 }
@@ -881,7 +907,6 @@ int main(int argc, char **argv)
     {
       assert(0);
     }
-
   }
 
   for (size_t idx = 0; idx < 3 * 256; idx += 3)

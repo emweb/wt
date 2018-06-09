@@ -52,6 +52,7 @@ public:
     scale[0] = scale[1] = translate[0] = translate[1] = 0;
   }
   int convert(const char* file_name);
+  std::vector<arc_t> m_vec_arcs;
 
 private:
   int parse_root(JsonValue value);
@@ -62,7 +63,7 @@ private:
   std::vector<double> transform_point(const int position_quant[2]);
   double scale[2];
   double translate[2];
-  std::vector<arc_t> m_vec_arcs;
+  
 
 };
 
