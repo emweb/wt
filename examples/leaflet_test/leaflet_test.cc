@@ -13,6 +13,7 @@
 #include "leaflet/WLeaflet.hh"
 #include "leaflet/csv.hh"
 #include "leaflet/geojson.hh"
+#include "leaflet/topojson.hh"
 #include "leaflet/star_json.hh"
 #include "leaflet/star_dataset.hh"
 #include "pal_rgb.h"
@@ -64,6 +65,20 @@ star_dataset_t find_dataset(std::string name);
 //-m ../../../examples/leaflet_test/wmata_stations.json
 //-z ../../../examples/leaflet_test/md_maryland_zip_codes_geo.min.json
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 7
+//topojson sample
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//-t 7 -g ../../../examples/leaflet_test/example.quantized.topojson
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 8
+//topojson US counties
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//-t 8 -g ../../../examples/leaflet_test/us.topojson
+
 std::vector<school_t> schools_list;
 std::vector<double> lat_montgomery;
 std::vector<double> lon_montgomery;
@@ -93,6 +108,7 @@ std::string rgb_to_hex(int r, int g, int b);
 std::string test;
 std::vector<rgb_t> rgb_256;
 geojson_t geojson;
+topojson_t topojson;
 std::vector<dc311_data_t> dc311_data;
 std::vector<ep_data_t> ep_data;
 std::vector<us_state_pop_t> us_state_pop;
@@ -852,6 +868,20 @@ int main(int argc, char **argv)
     {
       assert(0);
     }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //topojson sample
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  else if (test.compare("7") == 0)
+  {
+    std::cout << geojson_file << std::endl;
+    if (topojson.convert(geojson_file.c_str()) < 0)
+    {
+      assert(0);
+    }
+
   }
 
   for (size_t idx = 0; idx < 3 * 256; idx += 3)

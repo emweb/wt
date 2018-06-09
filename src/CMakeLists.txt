@@ -390,6 +390,8 @@ leaflet/WLeaflet.hh
 leaflet/WLeaflet.cc
 leaflet/geojson.hh
 leaflet/geojson.cc
+leaflet/topojson.hh
+leaflet/topojson.cc
 leaflet/csv.hh
 leaflet/csv.cc
 leaflet/star_json.cc
