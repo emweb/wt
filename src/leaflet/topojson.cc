@@ -139,6 +139,7 @@ int topojson_t::parse_geometry_object(JsonValue value)
   {
     JsonValue object = node->value;
     assert(object.getTag() == JSON_OBJECT);
+    Geometry_t geometry;
     for (JsonNode *obj = object.toNode(); obj != nullptr; obj = obj->next)
     {
       if (std::string(obj->key).compare("type") == 0)
@@ -146,18 +147,19 @@ int topojson_t::parse_geometry_object(JsonValue value)
         assert(obj->value.getTag() == JSON_STRING);
         std::string str = obj->value.toString();
         std::cout << "\t\tgeometry type:\t" << str << "\n";
+        geometry.type = str;
       }
       else if (std::string(obj->key).compare("coordinates") == 0)
       {
         assert(obj->value.getTag() == JSON_ARRAY);
-
       }
       else if (std::string(obj->key).compare("arcs") == 0)
       {
         assert(obj->value.getTag() == JSON_ARRAY);
-
       }
     }
+
+    m_geom.push_back(geometry);
   }//node
   return 0;
 }
@@ -244,13 +246,13 @@ int topojson_t::parse_arcs(JsonValue value)
       arc.vec.push_back(inner_arr);
     }//node_arr_1
 
-    m_vec_arcs.push_back(arc);
+    m_arcs.push_back(arc);
   }//node_arr_0
 
-  std::cout << "arcs size: " << m_vec_arcs.size() << "\n";
-  for (size_t idx = 0; idx < m_vec_arcs.size(); idx++)
+  std::cout << "arcs size: " << m_arcs.size() << "\n";
+  for (size_t idx = 0; idx < m_arcs.size(); idx++)
   {
-    arc_t arc = m_vec_arcs.at(idx);
+    arc_t arc = m_arcs.at(idx);
     std::cout << "\tarc size: " << arc.vec.size() << "\n";
   }
   return 0;

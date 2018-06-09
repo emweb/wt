@@ -38,7 +38,14 @@ public:
   std::vector<int> arcs; //indices into arc_t array
 };
 
-
+class WT_API Geometry_t
+{
+public:
+  Geometry_t() {}
+  //A TopoJSON object must have a member with the name “type”. 
+  //This member’s value is a string that determines the type of the TopoJSON object.
+  std::string type; 
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //topojson_t
@@ -52,7 +59,7 @@ public:
     scale[0] = scale[1] = translate[0] = translate[1] = 0;
   }
   int convert(const char* file_name);
-  std::vector<arc_t> m_vec_arcs;
+  std::vector<Geometry_t> m_geom;
 
 private:
   int parse_root(JsonValue value);
@@ -63,8 +70,7 @@ private:
   std::vector<double> transform_point(const int position_quant[2]);
   double scale[2];
   double translate[2];
-  
-
+  std::vector<arc_t> m_arcs;
 };
 
 #endif

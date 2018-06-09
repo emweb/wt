@@ -554,7 +554,7 @@ public:
 
       if (feature.m_name.compare("20850") == 0)
       {
-        color = rgb_to_hex(0, 255, 0); 
+        color = rgb_to_hex(0, 255, 0);
       }
       else if (feature.m_name.compare("20851") == 0)
       {
@@ -678,8 +678,12 @@ public:
     //render topojson
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    size_t size_arcs = topojson.m_vec_arcs.size();
-   
+    size_t size_geom = topojson.m_geom.size();
+    for (size_t idx = 0; idx < size_geom; idx++)
+    {
+      std::string str = topojson.m_geom.at(idx).type;
+    }
+
 
     root()->addWidget(std::move(leaflet));
   }
