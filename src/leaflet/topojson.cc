@@ -140,24 +140,45 @@ int topojson_t::parse_geometry_object(JsonValue value)
     JsonValue object = node->value;
     assert(object.getTag() == JSON_OBJECT);
     Geometry_t geometry;
-    for (JsonNode *obj = object.toNode(); obj != nullptr; obj = obj->next)
+    for (JsonNode *obj_geometry = object.toNode(); obj_geometry != nullptr; obj_geometry = obj_geometry->next)
     {
-      if (std::string(obj->key).compare("type") == 0)
+      if (std::string(obj_geometry->key).compare("type") == 0)
       {
-        assert(obj->value.getTag() == JSON_STRING);
-        std::string str = obj->value.toString();
+        assert(obj_geometry->value.getTag() == JSON_STRING);
+        std::string str = obj_geometry->value.toString();
         std::cout << "\t\tgeometry type:\t" << str << "\n";
         geometry.type = str;
       }
-      else if (std::string(obj->key).compare("coordinates") == 0)
+      else if (std::string(obj_geometry->key).compare("coordinates") == 0)
       {
-        assert(obj->value.getTag() == JSON_ARRAY);
+        assert(obj_geometry->value.getTag() == JSON_ARRAY);
       }
-      else if (std::string(obj->key).compare("arcs") == 0)
+      else if (std::string(obj_geometry->key).compare("arcs") == 0)
       {
-        assert(obj->value.getTag() == JSON_ARRAY);
-      }
-    }
+        assert(obj_geometry->value.getTag() == JSON_ARRAY);
+        JsonValue arr_arcs = obj_geometry->value;
+        for (JsonNode *arr_obj = arr_arcs.toNode(); arr_obj != nullptr; arr_obj = arr_obj->next)
+        {
+          if (geometry.type.compare("LineString") == 0)
+          {
+            assert(arr_obj->value.getTag() == JSON_NUMBER);
+          }
+          else if (geometry.type.compare("Polygon") == 0)
+          {
+            assert(arr_obj->value.getTag() == JSON_ARRAY);
+            JsonValue arr_pol = arr_obj->value;
+            //indices into arc vector
+            Polygon polygon;
+            for (JsonNode *arr_values = arr_pol.toNode(); arr_values != nullptr; arr_values = arr_values->next)
+            {
+              assert(arr_values->value.getTag() == JSON_NUMBER);
+              polygon.arcs.push_back((int)arr_values->value.toNumber());
+            }
+            geometry.m_polygon.push_back(polygon);
+          }//"Polygon"
+        }//arr_obj
+      }//"arcs"
+    }//obj_geometry
 
     m_geom.push_back(geometry);
   }//node

@@ -679,9 +679,20 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
 
     size_t size_geom = topojson.m_geom.size();
-    for (size_t idx = 0; idx < size_geom; idx++)
+    for (size_t idx_geom = 0; idx_geom < size_geom; idx_geom++)
     {
-      std::string str = topojson.m_geom.at(idx).type;
+      Geometry_t geometry = topojson.m_geom.at(idx_geom);
+      if (geometry.type.compare("Polygon") == 0)
+      {
+        size_t size_pol = geometry.m_polygon.size();
+        for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
+        {
+          Polygon polygon = geometry.m_polygon.at(idx_pol);
+          size_t size_arcs = polygon.arcs.size();
+        }
+
+      }
+
     }
 
 
