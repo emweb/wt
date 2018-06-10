@@ -69,6 +69,8 @@ public:
   }
   int convert(const char* file_name);
   std::vector<Geometry_t> m_geom;
+  std::vector<arc_t> m_arcs;
+  std::vector<double> transform_point(const int position_quant[2]);
 
 private:
   int parse_root(JsonValue value);
@@ -76,10 +78,8 @@ private:
   int parse_transform(JsonValue value);
   int parse_geometry_object(JsonValue value);
   int parse_arcs(JsonValue value);
-  std::vector<double> transform_point(const int position_quant[2]);
   double scale[2];
   double translate[2];
-  std::vector<arc_t> m_arcs;
 };
 
 #endif

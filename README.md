@@ -178,9 +178,7 @@ https://tools.ietf.org/html/rfc7946
 Run with
 <pre>
 ./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=.
-
 -t 3 -g ../../../examples/leaflet_test/gz_2010_us_040_00_20m.json
-
 </pre>
 
 
@@ -191,7 +189,19 @@ Run with
 
 <pre>
 ./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=.
-
 -t 4 -d ../../../examples/leaflet_test/TATMS_npp_d20141130_t1817273_e1817589_b16023_c20141201005810987954_noaa_ops.h5.star.json
-
 </pre>
+
+Topojson example
+----------
+
+Run with
+
+<pre>
+./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=.
+-t 7 -g ../../../examples/leaflet_test/example.quantized.topojson
+</pre>
+rendered file example.quantized.topojson
+
+
+![image](https://user-images.githubusercontent.com/6119070/41197489-7e51fe16-6c2e-11e8-853b-a1122ca8bcb5.png)

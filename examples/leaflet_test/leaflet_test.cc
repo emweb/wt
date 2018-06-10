@@ -671,8 +671,13 @@ public:
   Application_topojson(const WEnvironment& env) : WApplication(env)
   {
     setTitle("topojson sample");
-    std::unique_ptr<WLeaflet> leaflet =
-      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 37.0902, -95.7129, 5);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render each polygon as a vector of vertices passed to Polygon
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    std::vector<double> lat;
+    std::vector<double> lon;
 
     ///////////////////////////////////////////////////////////////////////////////////////
     //render topojson
@@ -689,12 +694,29 @@ public:
         {
           Polygon polygon = geometry.m_polygon.at(idx_pol);
           size_t size_arcs = polygon.arcs.size();
-        }
+          for (size_t idx_arc = 0; idx_arc < size_arcs; idx_arc++)
+          {
+            int index = polygon.arcs.at(idx_arc);
+            arc_t arc = topojson.m_arcs.at(index);
+            size_t size_vec_arcs = arc.vec.size();
+            for (size_t idx_vec = 0; idx_vec < size_vec_arcs; idx_vec++)
+            {
+              std::vector<double> coord_quant = arc.vec.at(idx_vec);
+              int position_quantized[2] = { (int)coord_quant[0], (int)coord_quant[1] };
+              std::vector<double> coord = topojson.transform_point(position_quantized);
+              lat.push_back(coord[1]);
+              lon.push_back(coord[0]);
+            }//size_vec_arcs
+          }//size_arcs
+        }//size_pol
+      }//"Polygon"
+    }//size_geom
 
-      }
+    std::unique_ptr<WLeaflet> leaflet =
+      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, lat[1], lon[0], 7);
 
-    }
-
+    std::string  color_red = rgb_to_hex(255, 0, 0);
+    leaflet->Polygon(lat, lon, color_red);
 
     root()->addWidget(std::move(leaflet));
   }
