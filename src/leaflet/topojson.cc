@@ -157,18 +157,6 @@ int topojson_t::parse_geometry_object(JsonValue value)
       else if (std::string(obj_geometry->key).compare("arcs") == 0)
       {
         assert(obj_geometry->value.getTag() == JSON_ARRAY);
-        JsonValue arr_arcs = obj_geometry->value;
-        for (JsonNode *arr_obj = arr_arcs.toNode(); arr_obj != nullptr; arr_obj = arr_obj->next)
-        {
-          if (geometry.type.compare("LineString") == 0)
-          {
-            assert(arr_obj->value.getTag() == JSON_NUMBER);
-          }
-          else if (geometry.type.compare("Polygon") == 0)
-          {
-            assert(arr_obj->value.getTag() == JSON_ARRAY);
-          }//"Polygon"
-        }//arr_obj
       }//"arcs"
     }//obj_geometry
 
@@ -205,12 +193,23 @@ int topojson_t::parse_geometry_object(JsonValue value)
       {
         assert(obj_geometry->value.getTag() == JSON_ARRAY);
         JsonValue arr_arcs = obj_geometry->value;
+
+        //get size of "arcs" array; for "Polygon", it should be 1
+        size_t size_arr_arcs = 0;
+        for (JsonNode *arr_obj = arr_arcs.toNode(); arr_obj != nullptr; arr_obj = arr_obj->next)
+        {
+          size_arr_arcs++;
+        }
+
         for (JsonNode *arr_obj = arr_arcs.toNode(); arr_obj != nullptr; arr_obj = arr_obj->next)
         {
           if (m_geom.at(idx_geom).type.compare("LineString") == 0)
           {
             assert(arr_obj->value.getTag() == JSON_NUMBER);
           }
+          //For type “Polygon”, the “arcs” member must be an array of LinearRing arc indexes. 
+          //For Polygons with multiple rings, the first must be the exterior ring and 
+          //any others must be interior rings or holes.
           else if (m_geom.at(idx_geom).type.compare("Polygon") == 0)
           {
             assert(arr_obj->value.getTag() == JSON_ARRAY);
@@ -224,6 +223,11 @@ int topojson_t::parse_geometry_object(JsonValue value)
             }
             m_geom.at(idx_geom).m_polygon.push_back(polygon);
           }//"Polygon"
+          //For type “MultiPolygon”, the “arcs” member must be an array of Polygon arc indexes.
+          else if (geometry.type.compare("MultiPolygon") == 0)
+          {
+            assert(arr_obj->value.getTag() == JSON_ARRAY);
+          }//"MultiPolygon"
         }//arr_obj
       }//"arcs"
     }//obj_geometry
