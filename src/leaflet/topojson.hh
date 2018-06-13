@@ -78,6 +78,7 @@ private:
   int parse_topology(JsonValue value);
   int parse_transform(JsonValue value);
   int parse_geometry_object(JsonValue value);
+  int define_geometry_object(JsonValue value);
   int parse_arcs(JsonValue value);
   double scale[2];
   double translate[2];
