@@ -201,7 +201,4 @@ Run with
 ./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=.
 -t 7 -g ../../../examples/leaflet_test/example.quantized.topojson
 </pre>
-rendered file example.quantized.topojson
 
-
-![image](https://user-images.githubusercontent.com/6119070/41197489-7e51fe16-6c2e-11e8-853b-a1122ca8bcb5.png)
