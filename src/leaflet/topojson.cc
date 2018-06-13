@@ -279,3 +279,34 @@ int topojson_t::parse_arcs(JsonValue value)
   return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//topojson_t::get_first
+//get first arc coordinates(center, render)
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::vector<double> topojson_t::get_first()
+{
+  std::vector<double> first;
+  size_t size_geom = m_geom.size();
+  for (size_t idx_geom = 0; idx_geom < size_geom; idx_geom++)
+  {
+    Geometry_t geometry = m_geom.at(idx_geom);
+    if (geometry.type.compare("Polygon") == 0)
+    {
+      size_t size_pol = geometry.m_polygon.size();
+      for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
+      {
+        Polygon polygon = geometry.m_polygon.at(idx_pol);
+        size_t size_arcs = polygon.arcs.size();
+        for (size_t idx_arc = 0; idx_arc < size_arcs; idx_arc++)
+        {
+          int index = polygon.arcs.at(idx_arc);
+          int idx = index < 0 ? ~index : index;
+          arc_t arc = m_arcs.at(idx);
+          first = arc.vec.at(0);
+        }
+      }
+    }
+  }
+  return first;
+}

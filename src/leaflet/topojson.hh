@@ -71,6 +71,7 @@ public:
   std::vector<Geometry_t> m_geom;
   std::vector<arc_t> m_arcs;
   std::vector<double> transform_point(const int position_quant[2]);
+  std::vector<double> get_first();
 
 private:
   int parse_root(JsonValue value);

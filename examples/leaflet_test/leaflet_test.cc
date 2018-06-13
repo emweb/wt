@@ -672,8 +672,14 @@ public:
   {
     setTitle("topojson sample");
 
+    std::vector<double> first = topojson.get_first();
+    int ifirst[2];
+    ifirst[0] = first[0];
+    ifirst[1] = first[1];
+    std::vector<double> center = topojson.transform_point(ifirst);
+
     std::unique_ptr<WLeaflet> leaflet =
-      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 0, 0, 6);
+      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, center[1], center[0], 6);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     //render topojson
@@ -749,10 +755,6 @@ public:
         }//size_pol
       }//"Polygon"
     }//size_geom
-
-  
-
-   
 
     root()->addWidget(std::move(leaflet));
   }
