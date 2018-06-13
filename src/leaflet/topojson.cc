@@ -119,36 +119,6 @@ int topojson_t::parse_topology(JsonValue value)
     }//geom_obj
   }//node
 
-
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-   //second traverse to define geometry (geometry "type" could be defined after "arcs" )
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
-  {
-    std::string object_name = node->key;
-    std::cout << "\tobject name:\t" << object_name << "\n";
-    JsonValue object = node->value;
-    assert(object.getTag() == JSON_OBJECT);
-    for (JsonNode *geom_obj = object.toNode(); geom_obj != nullptr; geom_obj = geom_obj->next)
-    {
-      //A geometry is a TopoJSON object where the type member’s value is one of the following strings: 
-      //“Point”, “MultiPoint”, “LineString”, “MultiLineString”, “Polygon”, “MultiPolygon”, or “GeometryCollection”.
-      if (std::string(geom_obj->key).compare("type") == 0)
-      {
-        assert(geom_obj->value.getTag() == JSON_STRING);
-        std::string str = geom_obj->value.toString();
-        std::cout << "\tgeometry type:\t" << str << "\n";
-      }
-      else if (std::string(geom_obj->key).compare("geometries") == 0)
-      {
-        assert(geom_obj->value.getTag() == JSON_ARRAY);
-        define_geometry_object(geom_obj->value);
-      }//"geometries"
-    }//geom_obj
-  }//node
-
-
   return 0;
 }
 
@@ -197,15 +167,6 @@ int topojson_t::parse_geometry_object(JsonValue value)
           else if (geometry.type.compare("Polygon") == 0)
           {
             assert(arr_obj->value.getTag() == JSON_ARRAY);
-            JsonValue arr_pol = arr_obj->value;
-            //indices into arc vector
-            Polygon polygon;
-            for (JsonNode *arr_values = arr_pol.toNode(); arr_values != nullptr; arr_values = arr_values->next)
-            {
-              assert(arr_values->value.getTag() == JSON_NUMBER);
-              polygon.arcs.push_back((int)arr_values->value.toNumber());
-            }
-            geometry.m_polygon.push_back(polygon);
           }//"Polygon"
         }//arr_obj
       }//"arcs"
@@ -213,24 +174,10 @@ int topojson_t::parse_geometry_object(JsonValue value)
 
     m_geom.push_back(geometry);
   }//node
-  return 0;
-}
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//topojson_t::define_geometry_object
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-int topojson_t::define_geometry_object(JsonValue value)
-{
-  assert(value.getTag() == JSON_ARRAY);
-  //A TopoJSON geometry object of type “Point” or “MultiPoint” must have a member with the name “coordinates”. 
-  //A TopoJSON geometry object of type “LineString”, “MultiLineString”, “Polygon”, or “MultiPolygon” 
-  //must have a member with the name “arcs”. 
-  //The value of the arcs and coordinates members is always an array. 
-  //The structure for the elements in this array is determined by the type of geometry.
-  //A geometry object may have a member with the name “properties”. 
-  //The value of the properties member is an object (any JSON object or a JSON null value).
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  //second traverse to define geometry (geometry "type" could be defined after "arcs" )
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
 
   size_t idx_geom = 0;
 
@@ -264,8 +211,7 @@ int topojson_t::define_geometry_object(JsonValue value)
           {
             assert(arr_obj->value.getTag() == JSON_NUMBER);
           }
-          else if (m_geom.at(idx_geom).type.compare("Polygon") == 0 &&
-            m_geom.at(idx_geom).m_polygon.size() == 0) //if empty of polygons
+          else if (m_geom.at(idx_geom).type.compare("Polygon") == 0)
           {
             assert(arr_obj->value.getTag() == JSON_ARRAY);
             JsonValue arr_pol = arr_obj->value;
@@ -285,6 +231,7 @@ int topojson_t::define_geometry_object(JsonValue value)
     idx_geom++; //go to next geometry
 
   }//node
+
   return 0;
 }
 
