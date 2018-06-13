@@ -1943,6 +1943,28 @@ if (html5History) {
   // state anymore at the moment that onPopState() is called.
   // For navigation, when pushState() is called, the scroll
   // history can be updated before the pushState() call.
+  function coalesceEvents(callback, minPeriod) {
+    var timer = null;
+    var args = null;
+
+    function dispatch()
+    {
+      callback.apply(null, args);
+      timer = null;
+      args = null;
+    }
+
+    function proxy() {
+      args = arguments;
+
+      if (!timer) {
+        timer = setTimeout(dispatch, minPeriod);
+      }
+    }
+
+    return proxy;
+  }
+
   function updateScrollHistory() {
     //console.log("updateScrollHistory");
     try {
@@ -1961,7 +1983,7 @@ if (html5History) {
       console.log(error.toString());
     }
   }
-  window.addEventListener('scroll', updateScrollHistory);
+  window.addEventListener('scroll', coalesceEvents(updateScrollHistory, 10));
 
   // the 'auto' scrollRestoration gives too much flicker, since it
   // updates the scroll state before the page is updated
