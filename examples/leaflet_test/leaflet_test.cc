@@ -690,7 +690,7 @@ public:
     for (size_t idx_geom = 0; idx_geom < size_geom; idx_geom++)
     {
       Geometry_t geometry = topojson.m_geom.at(idx_geom);
-      if (geometry.type.compare("Polygon") == 0)
+      if (geometry.type.compare("Polygon") == 0 || geometry.type.compare("MultiPolygon") == 0)
       {
         size_t size_pol = geometry.m_polygon.size();
         for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
@@ -732,7 +732,7 @@ public:
               x.push_back(xn);
               y.push_back(yn);
             }
-            
+
             for (size_t idx = 0; idx < size_vec_arcs; idx++)
             {
               int pos_quant[2];
@@ -741,16 +741,20 @@ public:
               std::vector<double> coord = topojson.transform_point(pos_quant);
               lat.push_back(coord[1]);
               lon.push_back(coord[0]);
-              
+
             }//size_vec_arcs
           }//size_arcs
 
-          leaflet->Polygon(lat, lon, ward_color[idx_color]);
-          idx_color++;
-          if (idx_color > 7)
+          std::string color = rgb_to_hex(0, 0, 0);
+          if (geometry.type.compare("Polygon") == 0)
           {
-            idx_color = 0;
+            color = rgb_to_hex(255, 0, 0);
           }
+          else if (geometry.type.compare("MultiPolygon") == 0)
+          {
+            color = rgb_to_hex(0, 255, 0);
+          }
+          leaflet->Polygon(lat, lon, color);
 
         }//size_pol
       }//"Polygon"
