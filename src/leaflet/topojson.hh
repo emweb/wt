@@ -52,7 +52,7 @@ public:
   Geometry_t() {}
   //A TopoJSON object must have a member with the name “type”. 
   //This member’s value is a string that determines the type of the TopoJSON object.
-  std::string type; 
+  std::string type;
   std::vector<Polygon> m_polygon;
 };
 
@@ -63,7 +63,8 @@ public:
 class WT_API topojson_t
 {
 public:
-  topojson_t()
+  topojson_t() :
+    idx_geom(0)
   {
     scale[0] = scale[1] = translate[0] = translate[1] = 0;
   }
@@ -81,6 +82,7 @@ private:
   int parse_arcs(JsonValue value);
   double scale[2];
   double translate[2];
+  size_t idx_geom; //helper
 };
 
 #endif

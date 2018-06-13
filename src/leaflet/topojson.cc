@@ -146,18 +146,9 @@ int topojson_t::parse_geometry_object(JsonValue value)
       if (std::string(obj_geometry->key).compare("type") == 0)
       {
         assert(obj_geometry->value.getTag() == JSON_STRING);
-        std::string str = obj_geometry->value.toString();
-        std::cout << "\t\tgeometry type:\t" << str << "\n";
-        geometry.type = str;
+        geometry.type = obj_geometry->value.toString();
+        std::cout << "\t\tgeometry type:\t" << geometry.type << "\n";
       }
-      else if (std::string(obj_geometry->key).compare("coordinates") == 0)
-      {
-        assert(obj_geometry->value.getTag() == JSON_ARRAY);
-      }
-      else if (std::string(obj_geometry->key).compare("arcs") == 0)
-      {
-        assert(obj_geometry->value.getTag() == JSON_ARRAY);
-      }//"arcs"
     }//obj_geometry
 
     m_geom.push_back(geometry);
@@ -166,8 +157,6 @@ int topojson_t::parse_geometry_object(JsonValue value)
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //second traverse to define geometry (geometry "type" could be defined after "arcs" )
   /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  size_t idx_geom = 0;
 
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
@@ -192,47 +181,60 @@ int topojson_t::parse_geometry_object(JsonValue value)
       else if (std::string(obj_geometry->key).compare("arcs") == 0)
       {
         assert(obj_geometry->value.getTag() == JSON_ARRAY);
-        JsonValue arr_arcs = obj_geometry->value;
-
-        //get size of "arcs" array; for "Polygon", it should be 1
+        JsonValue arcs = obj_geometry->value;
+        //get size of "arcs" array
         size_t size_arr_arcs = 0;
-        for (JsonNode *arr_obj = arr_arcs.toNode(); arr_obj != nullptr; arr_obj = arr_obj->next)
+        for (JsonNode *arr_arcs = arcs.toNode(); arr_arcs != nullptr; arr_arcs = arr_arcs->next)
         {
           size_arr_arcs++;
         }
-
-        for (JsonNode *arr_obj = arr_arcs.toNode(); arr_obj != nullptr; arr_obj = arr_obj->next)
+        for (JsonNode *arr_arcs = arcs.toNode(); arr_arcs != nullptr; arr_arcs = arr_arcs->next)
         {
           if (m_geom.at(idx_geom).type.compare("LineString") == 0)
           {
-            assert(arr_obj->value.getTag() == JSON_NUMBER);
+            assert(arr_arcs->value.getTag() == JSON_NUMBER);
           }
           //For type “Polygon”, the “arcs” member must be an array of LinearRing arc indexes. 
           //For Polygons with multiple rings, the first must be the exterior ring and 
           //any others must be interior rings or holes.
           else if (m_geom.at(idx_geom).type.compare("Polygon") == 0)
           {
-            assert(arr_obj->value.getTag() == JSON_ARRAY);
-            JsonValue arr_pol = arr_obj->value;
+            JsonValue arr_pol = arr_arcs->value;
+            assert(arr_pol.getTag() == JSON_ARRAY);
             //indices into arc vector
             Polygon polygon;
             for (JsonNode *arr_values = arr_pol.toNode(); arr_values != nullptr; arr_values = arr_values->next)
             {
               assert(arr_values->value.getTag() == JSON_NUMBER);
               polygon.arcs.push_back((int)arr_values->value.toNumber());
-            }
+            }//arr_values
             m_geom.at(idx_geom).m_polygon.push_back(polygon);
           }//"Polygon"
           //For type “MultiPolygon”, the “arcs” member must be an array of Polygon arc indexes.
           else if (geometry.type.compare("MultiPolygon") == 0)
           {
-            assert(arr_obj->value.getTag() == JSON_ARRAY);
+            JsonValue arr_multi = arr_arcs->value;
+            assert(arr_multi.getTag() == JSON_ARRAY);
+            for (JsonNode *arr_m_values = arr_multi.toNode(); arr_m_values != nullptr; arr_m_values = arr_m_values->next)
+            {
+              JsonValue arr_pol = arr_m_values->value;
+              assert(arr_pol.getTag() == JSON_ARRAY);
+              //indices into arc vector
+              Polygon polygon;
+              for (JsonNode *arr_values = arr_pol.toNode(); arr_values != nullptr; arr_values = arr_values->next)
+              {
+                assert(arr_values->value.getTag() == JSON_NUMBER);
+                polygon.arcs.push_back((int)arr_values->value.toNumber());
+              }//arr_values
+              m_geom.at(idx_geom).m_polygon.push_back(polygon);
+            }//arr_m_values
           }//"MultiPolygon"
         }//arr_obj
       }//"arcs"
     }//obj_geometry
 
     idx_geom++; //go to next geometry
+    std::cout << idx_geom << "\t";
 
   }//node
 
