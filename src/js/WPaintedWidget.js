@@ -269,11 +269,13 @@ WT_DECLARE_WT_MEMBER
 	       case LINE_TO:
                   (function(){
                     var pos = i === 0 ? [0, 0] : path[i-1];
-                    var THRESHOLD = 0x1000000;
+                    var THRESHOLD = 0x100000;
                     var MARGIN = 50;
                     if (!fill && !clip && stroke &&
-                        (x(s) - x(pos) > THRESHOLD ||
-                         y(s) - y(pos) > THRESHOLD)) {
+                        (Math.abs(x(pos)) > THRESHOLD ||
+                         Math.abs(y(pos)) > THRESHOLD ||
+                         Math.abs(x(s)) > THRESHOLD ||
+                         Math.abs(y(s)) > THRESHOLD)) {
                       var t = ctx.wtTransform ? ctx.wtTransform : [1,0,0,1,0,0];
                       var t_pos = self.transform_mult(t, pos);
                       var t_s = self.transform_mult(t, s);
@@ -346,6 +348,9 @@ WT_DECLARE_WT_MEMBER
                       if (points.length === 2) {
                         ctx.moveTo(points[0][1], points[0][2]);
                         ctx.lineTo(points[1][1], points[1][2]);
+                      }
+                      if (Math.abs(x(s)) <= THRESHOLD &&
+                          Math.abs(y(s)) <= THRESHOLD) {
                         ctx.moveTo(x(s), y(s));
                       }
                     } else {
