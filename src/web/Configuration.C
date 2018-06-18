@@ -896,7 +896,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   std::string maxRequestStr
     = singleChildElementValue(app, "max-request-size", "");
   if (!maxRequestStr.empty())
-    maxRequestSize_ = Utils::stol(maxRequestStr) * 1024;
+    maxRequestSize_ = Utils::stoll(maxRequestStr) * 1024;
 
   std::string maxFormDataStr =
     singleChildElementValue(app, "max-formdata-size", "");

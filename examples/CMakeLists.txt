@@ -255,6 +255,7 @@ SUBDIRS(
   painting
   planner
   qrlogin
+  rest
   simplechat
   style
   te-benchmark

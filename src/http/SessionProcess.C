@@ -216,6 +216,7 @@ void SessionProcess::exec(const Configuration& config,
     stop();
     if (onReady)
       onReady(false);
+    delete[] c_options;
     return;
   } else if (pid_ == 0) {
     /* child process */
