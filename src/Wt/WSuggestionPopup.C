@@ -225,13 +225,13 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
     WText *value = anchor->addWidget(cpp14::make_unique<WText>(asString(d), format));
 
     cpp17::any d2 = index.data(editRole_);
-    if (d2.empty())
+    if (!cpp17::any_has_value(d2))
       d2 = d;
 
     value->setAttributeValue("sug", asString(d2));
 
     cpp17::any styleclass = index.data(ItemDataRole::StyleClass);
-    if (!styleclass.empty()) {
+    if (cpp17::any_has_value(styleclass)) {
       value->setAttributeValue("class", asString(styleclass));
     }
   }
@@ -274,7 +274,7 @@ void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
     value->setTextFormat(format);
 
     cpp17::any d2 = model_->data(i, modelColumn_, editRole());
-    if (d2.empty())
+    if (!cpp17::any_has_value(d2))
       d2 = d;
 
     value->setAttributeValue("sug", asString(d2));

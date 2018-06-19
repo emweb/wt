@@ -178,8 +178,8 @@ bool Value::operator== (const Value& other) const
 {
   if (typeid(v_) != typeid(other.v_))
     return false;
-  else if (v_.empty() || other.v_.empty())
-    return v_.empty() == other.v_.empty();
+  else if (!cpp17::any_has_value(v_) || !cpp17::any_has_value(other.v_))
+    return cpp17::any_has_value(v_) == cpp17::any_has_value(other.v_);
   else if (v_.type() == typeid(Json::Object))
     return cpp17::any_cast<Json::Object>(v_) ==
       cpp17::any_cast<Json::Object>(other.v_);
@@ -211,7 +211,7 @@ bool Value::operator!= (const Value& other) const
 
 Type Value::type() const
 {
-  if (v_.empty())
+  if (cpp17::any_has_value(v_))
     return Type::Null;
   else {
     return typeOf(v_.type());
@@ -319,7 +319,7 @@ Value::operator Object&()
 
 const WT_USTRING& Value::orIfNull(const WT_USTRING& v) const
 {
-  if (!v_.empty())
+  if (cpp17::any_has_value(v_))
     return *this;
   else
     return v;
@@ -327,7 +327,7 @@ const WT_USTRING& Value::orIfNull(const WT_USTRING& v) const
 
 std::string Value::orIfNull(const std::string& v) const
 {
-  if (!v_.empty())
+  if (cpp17::any_has_value(v_))
     return *this;
   else
     return v;
@@ -340,7 +340,7 @@ std::string Value::orIfNull(const char *v) const
 
 bool Value::orIfNull(bool v) const
 {
-  if (!v_.empty())
+  if (cpp17::any_has_value(v_))
     return *this;
   else
     return v;
@@ -348,7 +348,7 @@ bool Value::orIfNull(bool v) const
 
 int Value::orIfNull(int v) const
 {
-  if (!v_.empty())
+  if (cpp17::any_has_value(v_))
     return *this;
   else
     return v;
@@ -356,7 +356,7 @@ int Value::orIfNull(int v) const
 
 long long Value::orIfNull(long long v) const
 {
-  if (!v_.empty())
+  if (cpp17::any_has_value(v_))
     return *this;
   else
     return v;
@@ -364,7 +364,7 @@ long long Value::orIfNull(long long v) const
 
 double Value::orIfNull(double v) const
 {
-  if (!v_.empty())
+  if (cpp17::any_has_value(v_))
     return *this;
   else
     return v;
@@ -372,7 +372,7 @@ double Value::orIfNull(double v) const
 
 const Array& Value::orIfNull(const Array& v) const
 {
-  if (!v_.empty())
+  if (cpp17::any_has_value(v_))
     return *this;
   else
     return v;
@@ -380,7 +380,7 @@ const Array& Value::orIfNull(const Array& v) const
 
 const Object& Value::orIfNull(const Object& v) const
 {
-  if (!v_.empty())
+  if (cpp17::any_has_value(v_))
     return *this;
   else
     return v;

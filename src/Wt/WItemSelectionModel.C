@@ -55,7 +55,7 @@ std::string WItemSelectionModel::mimeType()
       return std::string();
 
     cpp17::any mimeTypeData = mi.data(ItemDataRole::MimeType);
-    if (!mimeTypeData.empty()) {
+    if (cpp17::any_has_value(mimeTypeData)) {
       std::string currentMimeType = asString(mimeTypeData).toUTF8();
 
       if (!currentMimeType.empty()) {

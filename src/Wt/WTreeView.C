@@ -422,7 +422,7 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
        */
       if (renderFlags.test(ViewItemRenderFlag::Editing)) {
 	cpp17::any state = view_->editState(child);
-	if (!state.empty())
+	if (cpp17::any_has_value(state))
 	  view_->itemDelegate(i)->setEditState(w, child, state);
       }
     } else

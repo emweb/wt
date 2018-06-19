@@ -123,9 +123,9 @@ std::unique_ptr<WWidget> WItemDelegate::update(WWidget *widget, const WModelInde
 
   bool isNew = false;
 
-  bool haveCheckBox = index.isValid() ? !index.data(ItemDataRole::Checked).empty() : false;
-  bool haveLink = index.isValid() ? !index.data(ItemDataRole::Link).empty() : false;
-  bool haveIcon = index.isValid() ? !index.data(ItemDataRole::Decoration).empty(): false;
+  bool haveCheckBox = index.isValid() ? cpp17::any_has_value(index.data(ItemDataRole::Checked)) : false;
+  bool haveLink = index.isValid() ? cpp17::any_has_value(index.data(ItemDataRole::Link)) : false;
+  bool haveIcon = index.isValid() ? cpp17::any_has_value(index.data(ItemDataRole::Decoration)): false;
   if (!(flags & ViewItemRenderFlag::Editing)) {
     if (widgetRef.w) {
       if (haveCheckBox != (checkBox(widgetRef, index, false) != 0) ||
@@ -155,7 +155,7 @@ std::unique_ptr<WWidget> WItemDelegate::update(WWidget *widget, const WModelInde
     }
 
     cpp17::any checkedData = index.data(ItemDataRole::Checked);
-    if (!checkedData.empty()) {
+    if (cpp17::any_has_value(checkedData)) {
       CheckState state =
         (checkedData.type() == typeid(bool) ?
          (cpp17::any_cast<bool>(checkedData) ?
@@ -175,7 +175,7 @@ std::unique_ptr<WWidget> WItemDelegate::update(WWidget *widget, const WModelInde
     }
 
     cpp17::any linkData = index.data(ItemDataRole::Link);
-    if (!linkData.empty()) {
+    if (cpp17::any_has_value(linkData)) {
       WLink link = cpp17::any_cast<WLink>(linkData);
       IndexAnchor *a = anchorWidget(widgetRef, index, true);
       a->setLink(link);

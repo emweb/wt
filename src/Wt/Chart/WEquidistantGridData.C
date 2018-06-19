@@ -109,7 +109,7 @@ int WEquidistantGridData::countSimpleData() const
   int nbModelCols = model_->columnCount();
   for (int i=0; i<nbModelRows; i++) {
     for (int j=0; j<nbModelCols; j++) {
-      if (model_->data(i,j,ItemDataRole::MarkerBrushColor).empty()) {
+      if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
 	result++;
       }
     }
@@ -149,11 +149,11 @@ void WEquidistantGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
 
   for (int i=0; i < Nx; i++) {
     for (int j=0; j < Ny; j++) {
-      if (model_->data(i,j,ItemDataRole::MarkerBrushColor).empty()) {
+      if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
 	simplePtsArray.push_back(scaledXAxis[i]);
 	simplePtsArray.push_back(scaledYAxis[j]);
 	simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
-	if (!model_->data(i,j,ItemDataRole::MarkerScaleFactor).empty()) {
+	if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
 	  simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
 	} else {
 	  simplePtsSize.push_back((float)pointSize());
@@ -170,7 +170,7 @@ void WEquidistantGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
 	coloredPtsColor.push_back((float)color.blue());
 	coloredPtsColor.push_back((float)color.alpha());
 
-	if (!model_->data(i,j,ItemDataRole::MarkerScaleFactor).empty()) {
+	if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
 	  coloredPtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
 	} else {
 	  coloredPtsSize.push_back((float)pointSize());
@@ -407,7 +407,7 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
     for (int j=0; j < Ny; j++) {
       float z0 = stackAllValues(prevDataseries, i,j);
       
-      if (model_->data(i,j,ItemDataRole::MarkerBrushColor).empty()) {
+      if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
 	if (simpleCount == BAR_BUFFER_LIMIT) {
 	  simpleBufferIndex++;
 	  simpleCount = 0;

@@ -136,7 +136,7 @@ bool matchValue(const cpp17::any& value, const cpp17::any& query,
 
 std::string asJSLiteral(const cpp17::any& v, TextFormat textFormat)
 {
-  if (v.empty())
+  if (!cpp17::any_has_value(v))
     return std::string("''");
   else if (v.type() == typeid(WString)) {
     WString s = cpp17::any_cast<WString>(v);
@@ -249,7 +249,7 @@ T lexical_cast(const std::string& s) {
 
 cpp17::any updateFromJS(const cpp17::any& v, std::string s)
 {
-  if (v.empty())
+  if (!cpp17::any_has_value(v))
     return cpp17::any(s);
   else if (v.type() == typeid(WString))
     return cpp17::any(WString::fromUTF8(s));
@@ -301,8 +301,8 @@ int compare(const cpp17::any& d1, const cpp17::any& d2)
    * If the types are the same then we use std::operator< on that type
    * otherwise we compare lexicographically
    */
-  if (!d1.empty())
-    if (!d2.empty()) {
+  if (cpp17::any_has_value(d1))
+    if (cpp17::any_has_value(d2)) {
       if (d1.type() == d2.type()) {
 	if (d1.type() == typeid(bool))
 	  return static_cast<int>(cpp17::any_cast<bool>(d1))
@@ -355,7 +355,7 @@ int compare(const cpp17::any& d1, const cpp17::any& d2)
     } else
       return -UNSPECIFIED_RESULT;
   else
-    if (!d2.empty())
+    if (cpp17::any_has_value(d2))
       return UNSPECIFIED_RESULT;
     else
       return 0;
@@ -365,7 +365,7 @@ int compare(const cpp17::any& d1, const cpp17::any& d2)
 
 WString asString(const cpp17::any& v, const WT_USTRING& format)
 {
-  if (v.empty())
+  if (!cpp17::any_has_value(v))
     return WString();
   else if (v.type() == typeid(WString))
     return cpp17::any_cast<WString>(v);
@@ -491,7 +491,7 @@ WString asString(const cpp17::any& v, const WT_USTRING& format)
 
 double asNumber(const cpp17::any& v)
 {
-  if (v.empty())
+  if (!cpp17::any_has_value(v))
     return std::numeric_limits<double>::signaling_NaN();
   else if (v.type() == typeid(WString))
     try {
@@ -568,7 +568,7 @@ extern WT_API cpp17::any convertAnyToAny(const cpp17::any& v,
 					 const std::type_info& type,
 					 const WT_USTRING& format)
 {
-  if (v.empty())
+  if (!cpp17::any_has_value(v))
     return cpp17::any();
   else if (v.type() == type)
     return v;

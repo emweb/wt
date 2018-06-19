@@ -354,7 +354,7 @@ int WTextEdit::boxBorder(Orientation orientation) const
 void WTextEdit::setConfigurationSetting(const std::string& name, 
 					const cpp17::any& value)
 {
-  if (!value.empty())
+  if (cpp17::any_has_value(value))
     configurationSettings_[name] = value;
   else
     configurationSettings_.erase(name);

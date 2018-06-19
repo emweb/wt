@@ -93,7 +93,7 @@ void WTemplateFormView::updateViewValue(WFormModel *model,
   WAbstractToggleButton *b = dynamic_cast<WAbstractToggleButton *>(edit);
   if (b) {
     cpp17::any v = model->value(field);
-    if (v.empty() || cpp17::any_cast<bool>(v) == false)
+    if (!cpp17::any_has_value(v) || cpp17::any_cast<bool>(v) == false)
       b->setChecked(false);
     else
       b->setChecked(true);

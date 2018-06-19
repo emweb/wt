@@ -293,7 +293,7 @@ int WScatterData::countSimpleData() const
     result = 0;
   } else {
     for (int i=0; i < N; i++) {
-      if (model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor).empty()) {
+      if (!cpp17::any_has_value(model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor))) {
 	result++;
       }
     }
@@ -319,7 +319,7 @@ void WScatterData::dataFromModel(FloatBuffer& simplePtsArray,
   double zMax = chart_->axis(Axis::Z3D).maximum();
   
   for (int i=0; i < N; i++) {
-    if (colorColumn_ == -1 && model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor).empty()) {
+    if (colorColumn_ == -1 && !cpp17::any_has_value(model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor))) {
       simplePtsArray.push_back
 	((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) / 
 		 (xMax - xMin)));
@@ -365,11 +365,11 @@ void WScatterData::dataFromModel(FloatBuffer& simplePtsArray,
 
     FloatBuffer& sizeArrayAlias = 
       (colorColumn_ == -1 && 
-       model_->data(i, ZSeriesColumn_, ItemDataRole::MarkerBrushColor).empty())
+       !cpp17::any_has_value(model_->data(i, ZSeriesColumn_, ItemDataRole::MarkerBrushColor)))
       ? simplePtsSize : coloredPtsSize;
     if (sizeColumn_ == -1 &&
-	model_->data(i, ZSeriesColumn_, 
-		     ItemDataRole::MarkerScaleFactor).empty()) {
+	!cpp17::any_has_value(model_->data(i, ZSeriesColumn_, 
+		     ItemDataRole::MarkerScaleFactor))) {
       sizeArrayAlias.push_back((float)pointSize_);
     } else if (sizeColumn_ == -1) {
       sizeArrayAlias.push_back

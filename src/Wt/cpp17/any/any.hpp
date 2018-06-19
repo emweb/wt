@@ -127,6 +127,12 @@ public:
         return this->vtable == nullptr;
     }
 
+    /// Returns true if *this has a contained object, otherwise false.
+    bool has_value() const noexcept
+    {
+      return !empty();
+    }
+
     /// If *this has a contained object of type T, typeid(T); otherwise typeid(void).
     const std::type_info& type() const noexcept
     {

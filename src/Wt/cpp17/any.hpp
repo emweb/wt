@@ -18,6 +18,10 @@ namespace Wt {
     using any = std::experimental::any;
     using bad_any_cast = std::experimental::bad_any_cast;
 
+    inline bool any_has_value(const any &v) {
+      return !v.empty();
+    }
+
     template<class ValueType>
     ValueType any_cast(const any& operand) {
       return std::experimental::any_cast<ValueType>(operand);
@@ -50,6 +54,10 @@ namespace Wt {
     using any = std::any;
     using bad_any_cast = std::bad_any_cast;
 
+    inline bool any_has_value(const any &v) {
+      return v.has_value();
+    }
+
     template<class ValueType>
     ValueType any_cast(const any& operand) {
       return std::any_cast<ValueType>(operand);
@@ -81,6 +89,10 @@ namespace Wt {
   namespace cpp17 {
     using any = linb::any;
     using bad_any_cast = linb::bad_any_cast;
+
+    inline bool any_has_value(const any &v) {
+      return !v.empty();
+    }
 
     template<class ValueType>
     ValueType any_cast(const any& operand) {

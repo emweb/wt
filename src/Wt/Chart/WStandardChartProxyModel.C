@@ -66,7 +66,7 @@ WLink *WStandardChartProxyModel::link(int row, int column) const
 {
   cpp17::any result = sourceModel_->data(row, column, ItemDataRole::Link);
 
-  if (result.empty())
+  if (!cpp17::any_has_value(result))
     return 0;
   else {
 #ifndef WT_TARGET_JAVA
@@ -84,7 +84,7 @@ const WColor *WStandardChartProxyModel::color(int row, int column, int colorData
 {
   cpp17::any result = sourceModel_->data(row, column, colorDataRole);
 
-  if (result.empty())
+  if (!cpp17::any_has_value(result))
     return nullptr;
   else {
 #ifndef WT_TARGET_JAVA
@@ -122,7 +122,7 @@ const double *WStandardChartProxyModel::markerScaleFactor(int row, int column) c
   cpp17::any result = sourceModel_->data(row, column, 
 				      ItemDataRole::MarkerScaleFactor);
 
-  if (result.empty()) {
+  if (!cpp17::any_has_value(result)) {
     return WAbstractChartModel::markerScaleFactor(row, column);
   } else {
 #ifndef WT_TARGET_JAVA

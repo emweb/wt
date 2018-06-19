@@ -360,7 +360,7 @@ std::unique_ptr<WWidget> WTableView::renderWidget(WWidget* widget, const WModelI
      */
     if (renderFlags.test(ViewItemRenderFlag::Editing)) {
       cpp17::any state = editState(index);
-      if (!state.empty())
+      if (cpp17::any_has_value(state))
 	itemDelegate->setEditState(widget, index, state);
     }
   }

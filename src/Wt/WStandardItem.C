@@ -185,7 +185,7 @@ std::string WStandardItem::icon() const
 {
   cpp17::any d = data(ItemDataRole::Decoration);
 
-  if (!d.empty() && d.type() == typeid(std::string))
+  if (cpp17::any_has_value(d) && d.type() == typeid(std::string))
     return cpp17::any_cast<std::string>(d);
   else
     return std::string();
@@ -200,7 +200,7 @@ WLink WStandardItem::link() const
 {
   cpp17::any d = data(ItemDataRole::Link);
 
-  if (!d.empty() && d.type() == typeid(WLink))
+  if (cpp17::any_has_value(d) && d.type() == typeid(WLink))
     return cpp17::any_cast<WLink>(d);
   else
     return WLink(std::string());
@@ -228,7 +228,7 @@ WString WStandardItem::styleClass() const
 {
   cpp17::any d = data(ItemDataRole::StyleClass);
 
-  if (!d.empty() && d.type() == typeid(WString))
+  if (cpp17::any_has_value(d) && d.type() == typeid(WString))
     return cpp17::any_cast<WString>(d);
   else
     return WString();
@@ -243,7 +243,7 @@ WString WStandardItem::toolTip() const
 {
   cpp17::any d = data(ItemDataRole::ToolTip);
 
-  if (!d.empty() && d.type() == typeid(WString))
+  if (cpp17::any_has_value(d) && d.type() == typeid(WString))
     return cpp17::any_cast<WString>(d);
   else
     return WString();
@@ -253,7 +253,7 @@ void WStandardItem::setCheckable(bool checkable)
 {
   if (!isCheckable() && checkable) {
     flags_ |= ItemFlag::UserCheckable;
-    if (data(ItemDataRole::Checked).empty())
+    if (!cpp17::any_has_value(data(ItemDataRole::Checked)))
       setChecked(false);
     signalModelDataChange();
   } if (isCheckable() && !checkable) {
@@ -270,15 +270,15 @@ bool WStandardItem::isCheckable() const
 void WStandardItem::setChecked(bool checked)
 {
   cpp17::any d = data(ItemDataRole::Checked);
-  if (d.empty() || isChecked() != checked)
+  if (!cpp17::any_has_value(d) || isChecked() != checked)
     setCheckState(checked ? CheckState::Checked : CheckState::Unchecked);
 }
 
 void WStandardItem::setCheckState(CheckState state)
 {
   cpp17::any d = data(ItemDataRole::Checked);
-  if (d.empty() || checkState() != state || 
-      data(ItemDataRole::Checked).empty()) {
+  if (!cpp17::any_has_value(d) || checkState() != state || 
+      !cpp17::any_has_value(data(ItemDataRole::Checked))) {
     if (isTristate())
       setData(cpp17::any(state), ItemDataRole::Checked);
     else
@@ -295,7 +295,7 @@ CheckState WStandardItem::checkState() const
 {
   cpp17::any d = data(ItemDataRole::Checked);
 
-  if (d.empty())
+  if (!cpp17::any_has_value(d))
     return CheckState::Unchecked;
   else if (d.type() == typeid(bool))
     return cpp17::any_cast<bool>(d) ? CheckState::Checked : CheckState::Unchecked;

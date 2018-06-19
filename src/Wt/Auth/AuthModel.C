@@ -191,7 +191,7 @@ bool AuthModel::login(Login& login)
     if (loginUser(login, user)) {
       reset();
 
-      if (!v.empty() && cpp17::any_cast<bool>(v) == true)
+      if (cpp17::any_has_value(v) && cpp17::any_cast<bool>(v) == true)
 	setRememberMeCookie(user);
 
       return true;

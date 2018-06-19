@@ -1039,7 +1039,7 @@ int WAbstractItemView::headerLevel(int column) const
   cpp17::any d = model_->headerData(column, Orientation::Horizontal,
 				 ItemDataRole::Level);
 
-  if (!d.empty())
+  if (cpp17::any_has_value(d))
     return static_cast<int>(asNumber(d));
   else
     return 0;
