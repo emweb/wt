@@ -1488,7 +1488,6 @@ void WCartesianChart::freeJSHandlesForAllSeries()
 
 void WCartesianChart::assignJSPathsForSeries(const WDataSeries& series)
 {
-  if (!isInteractive()) return;
   WJavaScriptHandle<WPainterPath> handle;
   if (freePainterPaths_.size() > 0) {
     handle = freePainterPaths_.back();

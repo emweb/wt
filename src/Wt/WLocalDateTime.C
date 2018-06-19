@@ -296,7 +296,7 @@ int WLocalDateTime::timeZoneOffset() const
 
 const date::time_zone* WLocalDateTime::timeZone() const
 {
-  return zone_; // TODO(Roel): what about OffsetZone?
+  return zone_;
 }
 
 WT_USTRING WLocalDateTime::toString(const WT_USTRING& format) const

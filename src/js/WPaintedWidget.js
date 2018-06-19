@@ -252,6 +252,7 @@ WT_DECLARE_WT_MEMBER
 	 };
 	 this.drawPath = function(ctx, path, fill, stroke, clip) {
 	    var i = 0, bezier = [], arc = [], quad = [];
+            /*const*/ var THRESHOLD = 0x100000;
 	    function x(segment) { return segment[0]; }
 	    function y(segment) { return segment[1]; }
 	    function type(segment) { return segment[2]; }
@@ -264,88 +265,140 @@ WT_DECLARE_WT_MEMBER
 
 	       switch (type(s)) {
 	       case MOVE_TO:
-		  ctx.moveTo(x(s), y(s));
+                  if (Math.abs(x(s)) <= THRESHOLD &&
+                      Math.abs(y(s)) <= THRESHOLD) {
+		    ctx.moveTo(x(s), y(s));
+                  }
 		  break;
 	       case LINE_TO:
                   (function(){
                     var pos = i === 0 ? [0, 0] : path[i-1];
-                    var THRESHOLD = 0x1000000;
                     var MARGIN = 50;
                     if (!fill && !clip && stroke &&
-                        (x(s) - x(pos) > THRESHOLD ||
-                         y(s) - y(pos) > THRESHOLD)) {
-                      var t = ctx.wtTransform ? ctx.wtTransform : [1,0,0,1,0,0];
-                      var t_pos = self.transform_mult(t, pos);
-                      var t_s = self.transform_mult(t, s);
-                      var dx = x(t_s) - x(t_pos);
-                      var dy = y(t_s) - y(t_pos);
-                      var w = ctx.canvas.width;
-                      var h = ctx.canvas.height;
-                      var left = -MARGIN;
-                      var right = w + MARGIN;
-                      var top = -MARGIN;
-                      var bottom = h + MARGIN;
-                      var intersections = [];
-                      var k;
-                      function clamp(my_k) {
-                        if (my_k < 0)
-                          return 0;
-                        if (my_k > 1)
-                          return 1;
-                        else
-                          return my_k;
-                      }
-                      function inXRange(my_k) {
-                        var my_x = x(t_pos) + my_k * dx;
-                        return my_x >= left && my_x <= right;
-                      }
-                      function inYRange(my_k) {
-                        var my_y = y(t_pos) + my_k * dy;
-                        return my_y >= top && my_y <= bottom;
-                      }
-                      if (dx !== 0) {
-                        // Solve left = x(t_pos) + k * dx for k
-                        k = clamp((left - x(t_pos)) / dx);
-                        if (inYRange(k))
-                          intersections.push(k);
-                        // Solve right = x(t_pos) + k * dx for k
-                        k = clamp((right - x(t_pos)) / dx);
-                        if (inYRange(k))
-                          intersections.push(k);
-                      }
-                      if (dy !== 0) {
-                        // Solve top = y(t_pos) + k * dy for k
-                        k = clamp((top - y(t_pos)) / dy);
-                        if (inXRange(k))
-                          intersections.push(k);
-                        // Solve bottom = y(t_pos) + k * dy for k
-                        k = clamp((bottom - y(t_pos)) / dy);
-                        if (inXRange(k))
-                          intersections.push(k);
-                      }
-                      var points = [];
-                      var j = 0;
-                      for (j = 0; j < intersections.length; ++j) {
-                        var k = intersections[j];
-                        points.push([k,
-                                     x(pos) + k * (x(s) - x(pos)),
-                                     y(pos) + k * (y(s) - y(pos))]);
-                      }
-                      // sort on k
-                      points.sort(function(a,b){
-                        return a[0] - b[0];
-                      });
-                      // remove duplicates
-                      j = 1;
-                      while (j < points.length) {
-                        if (points[j][0] === points[j-1][0])
-                          points.splice(j, 1);
-                        else
-                          ++j;
-                      }
-                      if (points.length === 2) {
-                        ctx.moveTo(points[0][1], points[0][2]);
-                        ctx.lineTo(points[1][1], points[1][2]);
+                        (Math.abs(x(pos)) > THRESHOLD ||
+                         Math.abs(y(pos)) > THRESHOLD ||
+                         Math.abs(x(s)) > THRESHOLD ||
+                         Math.abs(y(s)) > THRESHOLD)) {
+                      (function() {
+                        var t = ctx.wtTransform ? ctx.wtTransform : [1,0,0,1,0,0];
+                        var t_inv = self.transform_inverted(t);
+                        var t_pos = self.transform_mult(t, pos);
+                        var t_s = self.transform_mult(t, s);
+                        var dx = x(t_s) - x(t_pos);
+                        var dy = y(t_s) - y(t_pos);
+                        var w = ctx.canvas.width;
+                        var h = ctx.canvas.height;
+                        var left = -MARGIN;
+                        var right = w + MARGIN;
+                        var top = -MARGIN;
+                        var bottom = h + MARGIN;
+                        
+                        // TODO(Roel): maybe refactor?
+
+                        // Find where start + k * diff = test
+                        function find_k(start, diff, test) {
+                          return (test - start) / diff;
+                        }
+                        function calc_other(start, diff, k) {
+                          return start + k * diff;
+                        }
+
+                        var k;
+                        var p1 = null, p2 = null, p3 = null, p4 = null;
+                        var pstart, pend;
+                        if (x(t_pos) < left &&
+                            x(t_s) > left) {
+                          k = find_k(x(t_pos), dx, left);
+                          p1 = [left, calc_other(y(t_pos), dy, k), k];
+                        } else if (x(t_pos) > right &&
+                                   x(t_s) < right) {
+                          k = find_k(x(t_pos), dx, right);
+                          p1 = [right, calc_other(y(t_pos), dy, k), k];
+                        } else if (x(t_pos) > left &&
+                                   x(t_pos) < right) {
+                          p1 = [x(t_pos), y(t_pos), 0];
+                        } else {
+                          return;
+                        }
+
+                        if (y(t_pos) < top &&
+                            y(t_s) > top) {
+                          k = find_k(y(t_pos), dy, top);
+                          p2 = [calc_other(x(t_pos), dx, k), top, k];
+                        } else if (y(t_pos) > bottom &&
+                                   y(t_s) < bottom) {
+                          k = find_k(y(t_pos), dy, bottom);
+                          p2 = [calc_other(x(t_pos), dx, k), bottom, k];
+                        } else if (y(t_pos) > top &&
+                                   y(t_pos) < bottom) {
+                          p2 = [x(t_pos), y(t_pos), 0];
+                        } else {
+                          return;
+                        }
+
+                        if (p1[2] > p2[2]) {
+                          pstart = [p1[0], p1[1]];
+                        } else {
+                          pstart = [p2[0], p2[1]];
+                        }
+
+                        if (x(pstart) < left ||
+                            x(pstart) > right ||
+                            y(pstart) < top ||
+                            y(pstart) > bottom)
+                          return;
+
+                        if (x(t_pos) < right &&
+                            x(t_s) > right) {
+                          k = find_k(x(t_pos), dx, right);
+                          p3 = [right, calc_other(y(t_pos), dy, k), k];
+                        } else if (x(t_pos) > left &&
+                                   x(t_s) < left) {
+                          k = find_k(x(t_pos), dx, left);
+                          p3 = [left, calc_other(y(t_pos), dy, k), k];
+                        } else if (x(t_s) > left &&
+                                   x(t_s) < right) {
+                          p3 = [x(t_s), y(t_s), 1];
+                        } else {
+                          return;
+                        }
+
+                        if (y(t_pos) < bottom &&
+                            y(t_s) > bottom) {
+                          k = find_k(y(t_pos), dy, bottom);
+                          p4 = [calc_other(x(t_pos), dx, k), bottom, k];
+                        } else if (y(t_pos) > top &&
+                                   y(t_s) < top) {
+                          k = find_k(y(t_pos), dy, top);
+                          p4 = [calc_other(x(t_pos), dx, k), top, k];
+                        } else if (x(t_s) > top &&
+                                   y(t_s) < bottom) {
+                          p4 = [x(t_s), y(t_s), 1];
+                        } else {
+                          return;
+                        }
+
+                        if (p3[2] < p4[2]) {
+                          pend = [p3[0], p3[1]];
+                        } else {
+                          pend = [p4[0], p4[1]];
+                        }
+
+                        if (x(pend) < left ||
+                            x(pend) > right ||
+                            y(pend) < top ||
+                            y(pend) > bottom)
+                          return;
+
+                        pstart = self.transform_mult(t_inv, pstart);
+                        pend = self.transform_mult(t_inv, pend);
+
+                        ctx.moveTo(pstart[0], pstart[1]);
+                        ctx.lineTo(pend[0], pend[1]);
+                      })();
+
+                      if (Math.abs(x(s)) <= THRESHOLD &&
+                          Math.abs(y(s)) <= THRESHOLD) {
                         ctx.moveTo(x(s), y(s));
                       }
                     } else {
@@ -376,7 +429,7 @@ WT_DECLARE_WT_MEMBER
 		  arc = [];
 		  break;
 	       case QUAD_C:
-		  quad.push(x(s));
+		  quad.push(x(s), y(s));
 		  break;
 	       case QUAD_END:
 		  quad.push(x(s), y(s));

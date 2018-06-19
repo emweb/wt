@@ -879,6 +879,10 @@ class MySQLStatement final : public SqlStatement
 	  out_pars_[i].error = (my_bool *)malloc(sizeof(char));
 	}
       }
+      for (unsigned int i = 0; i < mysql_num_fields(result_); ++i) {
+        // Clear error for MariaDB Connector/C (see issue #6407)
+        *out_pars_[i].error = 0;
+      }
       mysql_stmt_bind_result(stmt_, out_pars_);
     }
 
