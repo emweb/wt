@@ -32,10 +32,10 @@ SourceView::~SourceView()
 bool SourceView::setIndex(const WModelIndex& index) 
 {
   if (index != index_ && index.isValid()) {
-    std::string fp = index.data(filePathRole_).empty() ? std::string()
+    std::string fp = !cpp17::any_has_value(index.data(filePathRole_)) ? std::string()
       : asString(index.data(filePathRole_)).toUTF8();
 
-    if (!index.data(contentRole_).empty()
+    if (cpp17::any_has_value(index.data(contentRole_))
 	|| (!fp.empty() && !fs::is_directory(fp))) {
       index_ = index;
       update();
@@ -108,14 +108,14 @@ std::unique_ptr<WWidget> SourceView::renderView()
    */
   cpp17::any contentsData = index_.data(contentRole_);
   std::string content;
-  if (!contentsData.empty())
+  if (cpp17::any_has_value(contentsData))
    content = asString(contentsData).toUTF8();
   cpp17::any fileNameData = index_.data(fileNameRole_);
   std::string fileName = 
     asString(fileNameData).toUTF8();
   cpp17::any filePathData = index_.data(filePathRole_);
   std::string filePath;
-  if (!filePathData.empty())
+  if (cpp17::any_has_value(filePathData))
     filePath = asString(filePathData).toUTF8();
 
   /*
@@ -131,7 +131,7 @@ std::unique_ptr<WWidget> SourceView::renderView()
   if (lang != "") {
     std::string inputFileName;
 
-    if (!filePathData.empty())
+    if (cpp17::any_has_value(filePathData))
       inputFileName = filePath;
     else {
       inputFileName = tempFileName();
@@ -160,7 +160,7 @@ std::unique_ptr<WWidget> SourceView::renderView()
     }
     unlink(outputFileName.c_str());
 
-    if (filePathData.empty())
+    if (!cpp17::any_has_value(filePathData))
       unlink(inputFileName.c_str());
   } 
 

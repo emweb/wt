@@ -497,7 +497,7 @@ private:
 
     WModelIndex selected = *folderView_->selectedIndexes().begin();
     cpp17::any d = selected.data(ItemDataRole::User);
-    if (!d.empty()) {
+    if (cpp17::any_has_value(d)) {
         std::string folder = cpp17::any_cast<std::string>(d);
 
       // For simplicity, we assume here that the folder-id does not
