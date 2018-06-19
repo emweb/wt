@@ -846,7 +846,6 @@ class MySQLStatement : public SqlStatement
 	  out_pars_[i].is_null = (my_bool *)malloc(sizeof(char));
 	  out_pars_[i].length =
 	      (unsigned long *) malloc(sizeof(unsigned long));
-	  out_pars_[i].error = (my_bool *)malloc(sizeof(char));
 	}
       }
       for (unsigned int i = 0; i < mysql_num_fields(result_); ++i) {
@@ -881,7 +880,6 @@ class MySQLStatement : public SqlStatement
        if(out_pars_[i].buffer != 0)free(out_pars_[i].buffer);
        if(out_pars_[i].is_null != 0)free(out_pars_[i].is_null) ;
        if(out_pars_[i].length != 0)free(out_pars_[i].length);
-       if(out_pars_[i].error != 0)free(out_pars_[i].error);
 
       }
       free(out_pars_);
