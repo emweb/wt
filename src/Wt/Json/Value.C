@@ -211,7 +211,7 @@ bool Value::operator!= (const Value& other) const
 
 Type Value::type() const
 {
-  if (cpp17::any_has_value(v_))
+  if (!cpp17::any_has_value(v_))
     return Type::Null;
   else {
     return typeOf(v_.type());
