@@ -21,7 +21,8 @@ WRegExpValidator::WRegExpValidator()
 { }
 
 WRegExpValidator::WRegExpValidator(const WT_USTRING& pattern)
-  : regex_(pattern.toUTF8())
+  : pattern_(pattern),
+    regex_(pattern.toUTF8())
 { }
 
 WRegExpValidator::~WRegExpValidator()
