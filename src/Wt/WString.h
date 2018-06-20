@@ -648,13 +648,31 @@ public:
    * argument value <tt>5</tt> becomes: "<tt>Bart bought 5 apples in
    * the shop.</tt>"
    */
-  WString& arg(::int64_t value);
+  WString& arg(long value);
 
   /*! \brief Substitutes the next positional argument with an unsigned value.
    *
    * \sa arg()
    */
-  WString& arg(::uint64_t value);
+  WString& arg(unsigned long value);
+
+  /*! \brief Substitutes the next positional argument with an integer value.
+   *
+   * In the string, the \p n-th argument is reffered to as using
+   * {\p n}.
+   *
+   * For example: the string "<tt>{1} bought {2} apples in the
+   * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
+   * argument value <tt>5</tt> becomes: "<tt>Bart bought 5 apples in
+   * the shop.</tt>"
+   */
+  WString& arg(long long value);
+
+  /*! \brief Substitutes the next positional argument with an unsigned value.
+   *
+   * \sa arg()
+   */
+  WString& arg(unsigned long long value);
 
   /*! \brief Substitutes the next positional argument with a double value.
    *

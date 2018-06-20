@@ -143,12 +143,22 @@ WT_USTRING WLocale::toString(unsigned value) const
   return integerToString(std::to_string(value));
 }
 
-WT_USTRING WLocale::toString(::int64_t value) const
+WT_USTRING WLocale::toString(long value) const
 {
   return integerToString(std::to_string(value));
 }
 
-WT_USTRING WLocale::toString(::uint64_t value) const
+WT_USTRING WLocale::toString(unsigned long value) const
+{
+  return integerToString(std::to_string(value));
+}
+
+WT_USTRING WLocale::toString(long long value) const
+{
+  return integerToString(std::to_string(value));
+}
+
+WT_USTRING WLocale::toString(unsigned long long value) const
 {
   return integerToString(std::to_string(value));
 }
@@ -165,6 +175,7 @@ WT_USTRING WLocale::integerToString(const std::string& v) const
 WT_USTRING WLocale::toString(double value) const
 {
   std::stringstream s;
+  s.imbue(std::locale::classic());
   s.precision(16);
   s << value;
   return doubleToString(s.str());
@@ -173,6 +184,7 @@ WT_USTRING WLocale::toString(double value) const
 WT_USTRING WLocale::toFixedString(double value, int precision) const
 {
   std::stringstream ss;
+  ss.imbue(std::locale::classic());
   ss.precision(precision);
   ss << std::fixed << ((precision > 0) ? std::showpoint : std::noshowpoint) << value;
 
