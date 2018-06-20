@@ -1348,7 +1348,6 @@ private:
   friend class WMenuItem;
   friend class WPaintedWidget;
   friend class WPopupWidget;
-  friend class WScrollArea;
   friend class WTemplate;
   friend class WViewWidget;
   friend class WWebWidget;

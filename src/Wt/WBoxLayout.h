@@ -38,10 +38,9 @@ namespace Wt {
  * <tt>min-height</tt> properties.
  *
  * You should use \link WContainerWidget::setOverflow()
- * WContainerWidget::setOverflow(OverflowAuto) \endlink or use a
- * WScrollArea to automatically show scrollbars for widgets inserted
- * in the layout to cope with a size set by the layout manager that is
- * smaller than the preferred size.
+ * WContainerWidget::setOverflow(OverflowAuto) \endlink to automatically
+ * show scrollbars for widgets inserted in the layout to cope with a size
+ * set by the layout manager that is smaller than the preferred size.
  *
  * When the container of a layout manager does not have a defined size
  * (by having an explicit size, or by being inside a layout manager),

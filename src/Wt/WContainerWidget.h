@@ -379,16 +379,6 @@ public:
   WFlags<AlignmentFlag> contentAlignment() const { return contentAlignment_; }
 
   /*! \brief Sets how overflow of contained children must be handled.
-   *
-   * This is an alternative (CSS-ish) way to configure scroll bars on
-   * a container widget, compared to wrapping inside a WScrollArea.
-   *
-   * Unlike WScrollArea, horizontal scrolling does not work reliably
-   * when the container widget is inserted in a layout manager: the
-   * layout manager will overflow rather than use scrollbars for this
-   * container widget. A solution then is to use WScrollArea instead.
-   *
-   * \sa WScrollArea
    */
   void setOverflow(Overflow overflow, WFlags<Orientation> orientation = 
 		   (Orientation::Horizontal | Orientation::Vertical));

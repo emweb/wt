@@ -82,8 +82,8 @@ struct Grid {
  * <tt>min-height</tt> properties.
  *
  * You should use \link WContainerWidget::setOverflow()
- * WContainerWidget::setOverflow(OverflowAuto) \endlink or use a
- * WScrollArea to automatically show scrollbars for widgets inserted
+ * WContainerWidget::setOverflow(OverflowAuto) \endlink to automatically
+ * show scrollbars for widgets inserted
  * in the layout to cope with a size set by the layout manager that is
  * smaller than the preferred size.
  *
