@@ -1718,9 +1718,9 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
     app->renderedInternalPath_ = app->newInternalPath_;
 
     updateLoadIndicator(out, app, false);
-  } catch (std::exception &e) {
+  } catch (const std::exception &e) {
     out << '}';
-    throw e;
+    throw;
   } catch (...) {
     out << '}';
     throw;
