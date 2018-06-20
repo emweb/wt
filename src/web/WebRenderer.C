@@ -40,6 +40,12 @@
 #define DESCRIBE(w) "(fixme)"
 #endif
 
+#ifdef WT_TARGET_JAVA
+#define RETHROW(e) throw e
+#else
+#define RETHROW(e) throw
+#endif
+
 namespace {
 
   bool isAbsoluteUrl(const std::string& url) {
@@ -1720,7 +1726,7 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
     updateLoadIndicator(out, app, false);
   } catch (const std::exception &e) {
     out << '}';
-    throw;
+    RETHROW(e);
   } catch (...) {
     out << '}';
     throw;
