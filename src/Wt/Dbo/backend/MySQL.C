@@ -36,6 +36,12 @@
 #define DEBUG(x)
 //#define DEBUG(x) x
 
+#if defined(LIBMYSQL_VERSION_ID) && LIBMYSQL_VERSION_ID >= 80000
+#define WT_MY_BOOL bool
+#else
+#define WT_MY_BOOL my_bool
+#endif
+
 namespace {
 #ifndef WT_WIN32
   thread_local std::tm local_tm;
@@ -109,6 +115,7 @@ class MySQLStatement final : public SqlStatement
       result_ = nullptr;
       out_pars_ = nullptr;
       errors_ = nullptr;
+      is_nulls_ = nullptr;
       lastOutCount_ = 0;
 
       conn_.checkConnection();
@@ -123,8 +130,8 @@ class MySQLStatement final : public SqlStatement
 
       if (paramCount_ > 0) {
           in_pars_ =
-	    (MYSQL_BIND *)malloc(sizeof(struct st_mysql_bind) * paramCount_);
-	  std::memset(in_pars_, 0, sizeof(struct st_mysql_bind) * paramCount_);
+	    (MYSQL_BIND *)malloc(sizeof(MYSQL_BIND) * paramCount_);
+	  std::memset(in_pars_, 0, sizeof(MYSQL_BIND) * paramCount_);
       } else {
         in_pars_ = nullptr;
       }
@@ -144,6 +151,8 @@ class MySQLStatement final : public SqlStatement
       if(out_pars_) free_outpars();
 
       if (errors_) delete[] errors_;
+
+      if (is_nulls_) delete[] is_nulls_;
 
       if(result_) {
         mysql_free_result(result_);
@@ -275,7 +284,7 @@ class MySQLStatement final : public SqlStatement
       DEBUG(std::cerr << this << " bind " << column << " "
                 << mbstr << std::endl);
 
-      MYSQL_TIME*  ts = (MYSQL_TIME*)malloc(sizeof(struct st_mysql_time));
+      MYSQL_TIME*  ts = (MYSQL_TIME*)malloc(sizeof(MYSQL_TIME));
 
       ts->year = tm->tm_year + 1900;
       ts->month = tm->tm_mon + 1;
@@ -321,7 +330,7 @@ class MySQLStatement final : public SqlStatement
       DEBUG(std::cerr << this << " bind " << column << " "
                 << mbstr << std::endl);
 
-      MYSQL_TIME* ts  = (MYSQL_TIME *)malloc(sizeof(struct st_mysql_time));
+      MYSQL_TIME* ts  = (MYSQL_TIME *)malloc(sizeof(MYSQL_TIME));
 
       //IMPL note that there is not really a "duration" type in mysql...
       //mapping to a datetime
@@ -384,7 +393,7 @@ class MySQLStatement final : public SqlStatement
 
       freeColumn(column);
       in_pars_[column].buffer_type = MYSQL_TYPE_NULL;
-      in_pars_[column].is_null = const_cast<my_bool*>(&mysqltrue_);
+      in_pars_[column].is_null = const_cast<WT_MY_BOOL*>(&mysqltrue_);
       unsigned long * len = (unsigned long *)malloc(sizeof(unsigned long));
       in_pars_[column].buffer = nullptr;
       in_pars_[column].buffer_length = 0;
@@ -805,25 +814,28 @@ class MySQLStatement final : public SqlStatement
     MYSQL_BIND* in_pars_;
     MYSQL_BIND* out_pars_;
     int paramCount_;
-    my_bool* errors_;
+    WT_MY_BOOL* errors_;
+    WT_MY_BOOL* is_nulls_;
     unsigned int lastOutCount_;
     // true value to use because mysql specifies that pointer to the boolean
     // is passed in many cases....
-    static const my_bool mysqltrue_;
+    static const WT_MY_BOOL mysqltrue_;
     enum { NoFirstRow, NextRow, Done } state_;
     long long lastId_, row_, affectedRows_;
 
     void bind_output() {
       if (!out_pars_) {
 	out_pars_ =(MYSQL_BIND *)malloc(
-	      mysql_num_fields(result_) * sizeof(struct st_mysql_bind));
+	      mysql_num_fields(result_) * sizeof(MYSQL_BIND));
     std::memset(out_pars_, 0,
-		mysql_num_fields(result_) * sizeof(struct st_mysql_bind));
-	errors_ = new my_bool[mysql_num_fields(result_)];
+		mysql_num_fields(result_) * sizeof(MYSQL_BIND));
+	errors_ = new WT_MY_BOOL[mysql_num_fields(result_)];
+        is_nulls_ = new WT_MY_BOOL[mysql_num_fields(result_)];
 	for(unsigned int i = 0; i < mysql_num_fields(result_); ++i){
 	  MYSQL_FIELD* field = mysql_fetch_field_direct(result_, i);
 	  out_pars_[i].buffer_type = field->type;
 	  out_pars_[i].error = &errors_[i];
+	  out_pars_[i].is_null = &is_nulls_[i];
 	  switch(field->type){
 	  case MYSQL_TYPE_TINY:
 	    out_pars_[i].buffer = malloc(1);
@@ -857,8 +869,8 @@ class MySQLStatement final : public SqlStatement
 	  case MYSQL_TYPE_DATE:
 	  case MYSQL_TYPE_DATETIME:
 	  case MYSQL_TYPE_TIMESTAMP:
-	    out_pars_[i].buffer = malloc(sizeof(struct st_mysql_time));
-	    out_pars_[i].buffer_length = sizeof(struct st_mysql_time);
+	    out_pars_[i].buffer = malloc(sizeof(MYSQL_TIME));
+	    out_pars_[i].buffer_length = sizeof(MYSQL_TIME);
 	    break;
 
 	  case MYSQL_TYPE_NEWDECIMAL: // newdecimal is stored as string.
@@ -874,7 +886,6 @@ class MySQLStatement final : public SqlStatement
 		      << field->type << std::endl;
 	  }
 	  out_pars_[i].buffer_type = field->type;
-	  out_pars_[i].is_null = (my_bool *)malloc(sizeof(char));
 	  out_pars_[i].length = (unsigned long *) malloc(sizeof(unsigned long));
 	}
       }
@@ -908,7 +919,6 @@ class MySQLStatement final : public SqlStatement
 
       for (unsigned int i = 0; i < count; ++i){
        if(out_pars_[i].buffer != nullptr)free(out_pars_[i].buffer);
-       if(out_pars_[i].is_null != nullptr)free(out_pars_[i].is_null) ;
        if(out_pars_[i].length != nullptr)free(out_pars_[i].length);
 
       }
@@ -918,7 +928,7 @@ class MySQLStatement final : public SqlStatement
 
 };
 
-const my_bool MySQLStatement::mysqltrue_ = 1;
+const WT_MY_BOOL MySQLStatement::mysqltrue_ = 1;
 
 MySQL::MySQL(const std::string &db,  const std::string &dbuser,
              const std::string &dbpasswd, const std::string dbhost,
@@ -1178,7 +1188,7 @@ void MySQL::startTransaction()
 
 void MySQL::commitTransaction()
 {
-  my_bool status;
+  WT_MY_BOOL status;
   if (showQueries())
      std::cerr << "commit transaction" << std::endl;
 
@@ -1196,7 +1206,7 @@ void MySQL::commitTransaction()
 
 void MySQL::rollbackTransaction()
 {
-  my_bool status;
+  WT_MY_BOOL status;
   if (showQueries())
      std::cerr << "rollback" << std::endl;
 
