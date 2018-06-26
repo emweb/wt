@@ -116,13 +116,6 @@ WStringStream& WStringStream::operator<< (char c)
   return *this;
 }
 
-WStringStream& WStringStream::operator<< (char *s)
-{
-  append(s, std::strlen(s));
-
-  return *this;
-}
-
 WStringStream& WStringStream::operator<< (const std::string& s)
 {
   append(s.data(), s.length());
