@@ -78,25 +78,27 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
 
 void WNavigationBar::setLogo(const std::string &imageRef, const WLink &link)
 {
-	this->setLogo(new WImage(imageRef), link);
+  this->setLogo(cpp14::make_unique<WImage>(imageRef), link);
 }
 
-void WNavigationBar::setLogo(WImage* logoImg, const WLink& link)
+void WNavigationBar::setLogo(std::unique_ptr<WImage> logoImg, const WLink& link)
 {
-	WAnchor *logoLink = resolve<WAnchor *>("logo-link");
+  WAnchor *logoLink = resolve<WAnchor *>("logo-link");
 
-	if (!logoLink) 
-	{
-		bindWidget("logo-link", logoLink = new WAnchor());
-		wApp->theme()->apply(this, logoLink, NavBrandRole);
-	}
-	if (logoImg)
-	{
-		logoImg->resize(34, 34);
-		logoImg->setMargin(-7, Top);
-	}
-	logoLink->setImage(logoImg);
-	logoLink->setLink(link);
+  if (!logoLink) 
+  {
+    logoLink = bindWidget<WAnchor>("logo-link", cpp14::make_unique<WAnchor>());
+    wApp->theme()->apply(this, logoLink, WidgetThemeRole::NavBrand);
+  }
+  
+  if (logoImg)
+  {
+    logoImg->resize(34, 34);
+    logoImg->setMargin(-7, Wt::Side::Top);
+  }
+  
+  logoLink->setImage(std::move(logoImg));
+  logoLink->setLink(link);
 }
 
 void WNavigationBar::setResponsive(bool responsive)
