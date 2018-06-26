@@ -11,7 +11,7 @@
 #include "Wt/WNavigationBar.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WTheme.h"
-#include "Wt/WImage"
+#include "Wt/WImage.h"
 
 #include <exception>
 
