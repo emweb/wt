@@ -491,7 +491,7 @@ extern WT_API void unMarshal(const JavaScriptEvent& jse, int, WTouchEvent& e);
  */
 template<std::size_t I = 0, typename... A>
 inline typename std::enable_if<I == sizeof...(A), void>::type
-unMarshal(const JavaScriptEvent& jse, std::tuple<A...>& t)
+unMarshal(const JavaScriptEvent& /*jse*/, std::tuple<A...>& /*t*/)
 { }
 
 template<std::size_t I = 0, typename... A>
