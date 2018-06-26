@@ -1,70 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WT_JSON_ARRAY_H_
-#define WT_JSON_ARRAY_H_
-
-#include <string>
-#include <vector>
-#ifdef WT_CXX11
-#include <initializer_list>
-#endif // WT_CXX11
-
-#include <Wt/Json/Value>
-
-namespace Wt {
-  namespace Json {
-
-class Object;
-class Value;
-
-/*! \brief A JSON array
- *
- * This class represents a JSON array. It is implemented as a
- * <tt>std::vector&lt;Json::Value&gt;</tt> -- no new API to learn
- * here!
- *
- * \ingroup json
- */
-class WT_API Array : public std::vector<Value>
-{
-public:
-
-  /*! \brief Constructor.
-   */
-  Array();
-
-  /*! \brief Copy constructor.
-   */
-  Array(const Array& other);
-
-  /*! \brief Assignment operator.
-   */
-  Array& operator= (const Array& other);
-
-#ifdef WT_CXX11
-  /*! \brief Move constructor
-   */
-  Array(Array&& other);
-
-  /*! \brief Initializer list constructor.
-   */
-  Array(std::initializer_list<Value> list);
-
-  /*! \brief Assignment operator.
-   */
-  Array& operator= (Array&& other);
+#ifndef WT_JSON_ARRAY_EXTENSIONLESS_H_
+#define WT_JSON_ARRAY_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use Array.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use Array.h instead")
 #endif
-
-  /*! \brief Empty array constant.
-   */
-  static Array Empty;
-};
-
-  }
-}
-
-#endif // WT_JSON_ARRAY_H_
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "Array.h"
+#endif // WT_JSON_ARRAY_EXTENSIONLESS_H_

@@ -191,7 +191,17 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * WDateEdit
  */
 .Wt-dateedit {
-    background-image: url('../../calendar_edit.png');
+    background-image: url('../../date.gif');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 40px;
+}
+
+/*
+ * WTimeEdit
+ */
+.Wt-timeedit {
+    background-image: url('../../icon_clock.gif');
     background-repeat: no-repeat;
     background-position: right top;
     padding-right: 40px;
@@ -209,6 +219,13 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  */
 .Wt-dateedit::-ms-clear {
     display:none
+}
+
+/*
+ * Wt-timeedit
+ */
+.Wt-timeedit::-ms-clear {
+    display: none
 }
 
 /*
@@ -1168,11 +1185,35 @@ table.x-grid3-row-table {
     border: thick dashed grey;
     background-color: lightgrey;
 }
-
-.Wt-filedropzone-hover {
+.Wt-filedropzone.Wt-dropzone-hover {
     border-color: green;
 }
 
-.Wt-filedropzone-hover * {
+.Wt-filedropzone.Wt-dropzone-hover * {
     pointer-events: none;
+}
+
+.Wt-fileupload-hidden {
+    display: none !important;
+}
+
+.Wt-filedropzone.Wt-dropzone-dragstyle {
+    position: relative;
+    z-index: 20001;
+}
+
+.Wt-filedropzone.Wt-dropzone-indication {
+    border-color: green;
+}
+
+.Wt-dropcover {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: -100;
+}
+.Wt-dropcover.Wt-dropzone-dragstyle {
+    z-index: 20000;
 }

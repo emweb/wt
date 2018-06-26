@@ -4,9 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WLengthValidator"
-#include "Wt/WStringStream"
+#include "Wt/WApplication.h"
+#include "Wt/WLengthValidator.h"
+#include "Wt/WStringStream.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WLengthValidator.min.js"
@@ -14,16 +14,13 @@
 
 namespace Wt {
 
-WLengthValidator::WLengthValidator(WObject *parent)
-  : WValidator(parent),
-    minLength_(0),
+WLengthValidator::WLengthValidator()
+  : minLength_(0),
     maxLength_(std::numeric_limits<int>::max())
 { }
 
-WLengthValidator::WLengthValidator(int minLength, int maxLength,
-				   WObject *parent)
-  : WValidator(parent),
-    minLength_(minLength),
+WLengthValidator::WLengthValidator(int minLength, int maxLength)
+  : minLength_(minLength),
     maxLength_(maxLength)
 { }
 
@@ -95,21 +92,17 @@ WValidator::Result WLengthValidator::validate(const WT_USTRING& input) const
     return WValidator::validate(input);
 
 #ifndef WT_TARGET_JAVA
-#ifndef WT_NO_STD_WSTRING
-  std::wstring text = input.value();
-#else
-  std::string text = input.narrow();
-#endif
+  std::u32string text = input.toUTF32();
 #else
   std::string text = input;
 #endif
 
   if ((int)text.length() < minLength_)
-    return Result(Invalid, invalidTooShortText());
+    return Result(ValidationState::Invalid, invalidTooShortText());
   else if ((int)text.length() > maxLength_)
-    return Result(Invalid, invalidTooLongText());
+    return Result(ValidationState::Invalid, invalidTooLongText());
   else
-    return Result(Valid);
+    return Result(ValidationState::Valid);
 }
 
 void WLengthValidator::loadJavaScript(WApplication *app)
@@ -146,24 +139,5 @@ std::string WLengthValidator::javaScriptValidate() const
 
   return js.str();
 }
-
-#ifndef WT_TARGET_JAVA
-void WLengthValidator::createExtConfig(std::ostream& config) const
-{
-  if (minLength_ != 0) {
-    config << ",minLength:" << minLength_;
-    if (!tooShortText_.empty())
-      config << ",minLengthText:" << tooShortText_.jsStringLiteral();
-  }
-
-  if (maxLength_ != std::numeric_limits<int>::max()) {
-    config << ",maxLength:" << maxLength_;
-    if (!tooLongText_.empty())
-      config << ",maxLengthText:" << tooLongText_.jsStringLiteral();
-  }
-
-  WValidator::createExtConfig(config);
-}
-#endif //WT_TARGET_JAVA
 
 }

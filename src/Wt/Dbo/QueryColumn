@@ -1,62 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2010 Emweb bvba, Leuven, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WT_DBO_QUERY_COLUMN_H_
-#define WT_DBO_QUERY_COLUMN_H_
-
-#include <Wt/WModelIndex>
-#include <Wt/WString>
-#include <Wt/Dbo/Dbo>
-
-namespace Wt {
-class WAbstractTableModel;
-
-  namespace Dbo {
-
-// TODO figure out a nice syntax for qualified fields ?
-class QueryColumn 
-{
-  QueryColumn(const std::string& field,
-	      const WString& header,
-	      WFlags<ItemFlag> flags);
-
-  /*
-  QueryColumn(const std::string& field,
-	      WAbstractTableModel *editValuesModel);
-  */
-
-private:
-  typedef std::map<int, boost::any> HeaderData;
-
-  std::string field_;
-  WFlags<ItemFlag> flags_;
-  int fieldIdx_;
-  HeaderData headerData_;
-
-  WAbstractTableModel *editValuesModel_;
-
-  template <class Result> friend class QueryModel;
-};
-
-/*
- * Defined in the header file to avoid a link-time dependency on
- * libwt.so
- */
-inline QueryColumn::QueryColumn(const std::string& field,
-				const WString& header,
-				WFlags<ItemFlag> flags)
-  : field_(field),
-    flags_(flags),
-    fieldIdx_(-1)
-{ 
-  headerData_[DisplayRole] = header;
-}
-
-  }
-}
-
-#endif // WT_DBO_QUERY_COLUMN_H_
-
+#ifndef WT_DBO_QUERYCOLUMN_EXTENSIONLESS_H_
+#define WT_DBO_QUERYCOLUMN_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use QueryColumn.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use QueryColumn.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "QueryColumn.h"
+#endif // WT_DBO_QUERYCOLUMN_EXTENSIONLESS_H_

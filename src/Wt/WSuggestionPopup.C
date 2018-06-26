@@ -4,18 +4,18 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
-
-#include "Wt/WApplication"
-#include "Wt/WAnchor"
-#include "Wt/WContainerWidget"
-#include "Wt/WFormWidget"
-#include "Wt/WLogger"
-#include "Wt/WSuggestionPopup"
-#include "Wt/WStringStream" 
-#include "Wt/WStringListModel"
-#include "Wt/WTemplate"
-#include "Wt/WText"
+#include "Wt/WApplication.h"
+#include "Wt/WAnchor.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WFormWidget.h"
+#include "Wt/WLogger.h"
+#include "Wt/WLineEdit.h"
+#include "Wt/WSuggestionPopup.h"
+#include "Wt/WStringStream.h" 
+#include "Wt/WStringListModel.h"
+#include "Wt/WTemplate.h"
+#include "Wt/WText.h"
+#include "Wt/WTextArea.h"
 
 #include "WebUtils.h"
 
@@ -57,20 +57,17 @@ WSuggestionPopup::Options::Options()
 { }
 #endif
 
-WSuggestionPopup::WSuggestionPopup(const Options& options, WObject *parent)
-  : WPopupWidget(new WContainerWidget(), parent),
-    model_(0),
+WSuggestionPopup::WSuggestionPopup(const Options& options)
+  : WPopupWidget(std::unique_ptr<WWidget>(new WContainerWidget())),
     modelColumn_(0),
     filterLength_(0),
     filtering_(false),
     defaultValue_(-1),
     isDropDownIconUnfiltered_(false),
     currentItem_(-1),
-    editRole_(UserRole),
+    editRole_(ItemDataRole::User),
     matcherJS_(generateMatcherJS(options)),
     replacerJS_(generateReplacerJS(options)),
-    filterModel_(this),
-    activated_(this),
     filter_(implementation(), "filter"),
     jactivated_(implementation(), "select")
 {
@@ -78,17 +75,15 @@ WSuggestionPopup::WSuggestionPopup(const Options& options, WObject *parent)
 }
 
 WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
-				   const std::string& replacerJS,
-				   WObject *parent)
-  : WPopupWidget(new WContainerWidget(), parent),
-    model_(0),
+				   const std::string& replacerJS)
+  : WPopupWidget(std::unique_ptr<WWidget>(new WContainerWidget())),
     modelColumn_(0),
     filterLength_(0),
     filtering_(false),
     defaultValue_(-1),
     isDropDownIconUnfiltered_(false),
     currentItem_(-1),
-    editRole_(UserRole),
+    editRole_(ItemDataRole::User),
     matcherJS_(matcherJS),
     replacerJS_(replacerJS),
     filter_(implementation(), "filter"),
@@ -110,13 +105,12 @@ void WSuggestionPopup::init()
    */
   setAttributeValue("style", "z-index: 10000; display: none; overflow: auto");
 
-  setModel(new WStringListModel(this));
+  setModel(std::make_shared<WStringListModel>());
 
   impl_->escapePressed().connect(this, &WWidget::hide);
 
-  filter_.connect(this, &WSuggestionPopup::doFilter);
+  filter_.connect(this, &WSuggestionPopup::scheduleFilter);
   jactivated_.connect(this, &WSuggestionPopup::doActivate);
-
 }
 
 void WSuggestionPopup::defineJavaScript()
@@ -132,17 +126,18 @@ void WSuggestionPopup::defineJavaScript()
 		      "new " WT_CLASS ".WSuggestionPopup("
 		      + app->javaScriptClass() + "," + jsRef() + ","
 		      + replacerJS_ + "," + matcherJS_ + ","
-		      + boost::lexical_cast<std::string>
-		        (std::max(0, filterLength_)) + ","
-		      + boost::lexical_cast<std::string>(partialResults()) + ","
-                      + boost::lexical_cast<std::string>(defaultValue_) + ","
+		      + std::to_string(std::max(0, filterLength_)) + ","
+		      + std::to_string(partialResults()) + ","
+                      + std::to_string(defaultValue_) + ","
                       + ddUnfiltered + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull)
+  if (flags.test(RenderFlag::Full))
     defineJavaScript();
+
+  doFilter(currentInputText_);
 
   WPopupWidget::render(flags);
 }
@@ -158,7 +153,8 @@ void WSuggestionPopup::connectObjJS(EventSignalBase& s,
   s.connect(jsFunction);
 }
 
-void WSuggestionPopup::setModel(WAbstractItemModel *model)
+void WSuggestionPopup::setModel(const std::shared_ptr<WAbstractItemModel>&
+				model)
 {
   if (model_) {
     /* disconnect slots from previous model */
@@ -199,8 +195,8 @@ void WSuggestionPopup::setDefaultIndex(int row)
 
     if (isRendered())
       doJavaScript("jQuery.data(" + jsRef() + ", 'obj').defaultValue = "
-		   + boost::lexical_cast<std::string>(defaultValue_)
-		   + ';');      
+		   + std::to_string(defaultValue_)
+		   + ';');
   }
 }
 
@@ -217,25 +213,25 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
     return;
 
   for (int i = start; i <= end; ++i) {
-    WContainerWidget *line = new WContainerWidget();
-    impl_->insertWidget(i, line);
+    WContainerWidget *line = impl_->insertWidget(i, cpp14::make_unique<WContainerWidget>());
 
     WModelIndex index = model_->index(i, modelColumn_);
 
-    boost::any d = index.data();
+    cpp17::any d = index.data();
 
-    TextFormat format = index.flags() & ItemIsXHTMLText ? XHTMLText : PlainText;
-    WAnchor *anchor = new WAnchor(line);
-    WText *value = new WText(asString(d), format, anchor);
+    TextFormat format = index.flags().test(ItemFlag::XHTMLText) ? 
+      TextFormat::XHTML : TextFormat::Plain;
+    WAnchor *anchor = line->addWidget(cpp14::make_unique<WAnchor>());
+    WText *value = anchor->addWidget(cpp14::make_unique<WText>(asString(d), format));
 
-    boost::any d2 = index.data(editRole_);
-    if (d2.empty())
+    cpp17::any d2 = index.data(editRole_);
+    if (!cpp17::any_has_value(d2))
       d2 = d;
 
     value->setAttributeValue("sug", asString(d2));
 
-    boost::any styleclass = index.data(StyleClassRole);
-    if (!styleclass.empty()) {
+    cpp17::any styleclass = index.data(ItemDataRole::StyleClass);
+    if (cpp17::any_has_value(styleclass)) {
       value->setAttributeValue("class", asString(styleclass));
     }
   }
@@ -249,7 +245,7 @@ void WSuggestionPopup::modelRowsRemoved(const WModelIndex& parent,
 
   for (int i = start; i <= end; ++i)
     if (start < impl_->count())
-      delete impl_->widget(start);
+      impl_->removeWidget(impl_->widget(start));
     else
       break;
 }
@@ -270,14 +266,15 @@ void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
 
     WModelIndex index = model_->index(i, modelColumn_);
 
-    boost::any d = index.data();
+    cpp17::any d = index.data();
     value->setText(asString(d));
 
-    TextFormat format = index.flags() & ItemIsXHTMLText ? XHTMLText : PlainText;
+    TextFormat format = index.flags().test(ItemFlag::XHTMLText)
+      ? TextFormat::XHTML : TextFormat::Plain;
     value->setTextFormat(format);
 
-    boost::any d2 = model_->data(i, modelColumn_, editRole());
-    if (d2.empty())
+    cpp17::any d2 = model_->data(i, modelColumn_, editRole());
+    if (!cpp17::any_has_value(d2))
       d2 = d;
 
     value->setAttributeValue("sug", asString(d2));
@@ -299,10 +296,10 @@ void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
   connectObjJS(edit->keyWentUp(), "editKeyUp");
   connectObjJS(edit->blurred(), "delayHide");
 
-  if (triggers & Editing)
+  if (triggers.test(PopupTrigger::Editing))
     edit->addStyleClass("Wt-suggest-onedit");
 
-  if (triggers & DropDownIcon) {
+  if (triggers.test(PopupTrigger::DropDownIcon)) {
     edit->addStyleClass("Wt-suggest-dropdown");
     EventSignalBase& c = edit->clicked();
     connectObjJS(c, "editClick");
@@ -342,9 +339,10 @@ void WSuggestionPopup::addSuggestion(const WString& suggestionText,
   int row = model_->rowCount();
 
   if (model_->insertRow(row)) {
-    model_->setData(row, modelColumn_, boost::any(suggestionText), DisplayRole);
+    model_->setData(row, modelColumn_, cpp17::any(suggestionText), 
+		    ItemDataRole::Display);
     if (!suggestionValue.empty())
-      model_->setData(row, modelColumn_, boost::any(suggestionValue),
+      model_->setData(row, modelColumn_, cpp17::any(suggestionValue),
 		      editRole());
   }
 }
@@ -352,6 +350,12 @@ void WSuggestionPopup::addSuggestion(const WString& suggestionText,
 void WSuggestionPopup::setFilterLength(int length)
 {
   filterLength_ = length;
+}
+
+void WSuggestionPopup::scheduleFilter(std::string input)
+{
+  currentInputText_ = input;
+  scheduleRender();
 }
 
 void WSuggestionPopup::doFilter(std::string input)
@@ -376,7 +380,7 @@ bool WSuggestionPopup::partialResults() const
     return true;
   else if (model_->rowCount() > 0) {
     WModelIndex index = model_->index(model_->rowCount() - 1, modelColumn_);
-    boost::any styleclass = index.data(StyleClassRole);
+    cpp17::any styleclass = index.data(ItemDataRole::StyleClass);
     return Wt::asString(styleclass) == "Wt-more-data";
   } else
     return false;
@@ -402,8 +406,16 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
     if (impl_->widget(i)->id() == itemId) {
 	  currentItem_ = i;
       activated_.emit(i, edit);
-	  if(edit)
-		edit->changed().emit();
+      if(edit) {
+        WLineEdit *le = dynamic_cast<WLineEdit*>(edit);
+        WTextArea *ta = dynamic_cast<WTextArea*>(edit);
+        if (le) {
+          le->textInput().emit();
+        } else if (ta) {
+          ta->textInput().emit();
+        }
+        edit->changed().emit();
+      }
       return;
     }
   currentItem_ = -1;

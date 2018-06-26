@@ -4,26 +4,20 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/Identity"
-#include "Wt/Auth/User"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/HashFunction.h"
+#include "Wt/Auth/Identity.h"
+#include "Wt/Auth/User.h"
 #include "Wt/Auth/MailUtils.h"
-#include "Wt/Mail/Client"
-#include "Wt/Mail/Message"
-#include "Wt/WApplication"
-#include "Wt/WRandom"
+#include "Wt/Mail/Client.h"
+#include "Wt/Mail/Message.h"
+#include "Wt/WApplication.h"
+#include "Wt/WRandom.h"
 
 #include "Wt/WDllDefs.h"
 
 #include <memory>
-
-#ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
-#else
-#define AUTO_PTR std::auto_ptr
-#endif
 
 namespace Wt {
   namespace Auth {
@@ -80,8 +74,8 @@ namespace Wt {
  * - UpdatePasswordWidget: a widget to update a password
  */
 
-EmailTokenResult::EmailTokenResult(Result result, const User& user)
-  : result_(result),
+EmailTokenResult::EmailTokenResult(EmailTokenState state, const User& user)
+  : state_(state),
     user_(user)
 { }
 
@@ -93,10 +87,10 @@ const User& EmailTokenResult::user() const
     throw WException("EmailTokenResult::user() invalid");
 }
 
-AuthTokenResult::AuthTokenResult(Result result, const User& user,
+AuthTokenResult::AuthTokenResult(AuthTokenState state, const User& user,
 				 const std::string& newToken,
 				 int newTokenValidity)
-  : result_(result),
+  : state_(state),
     user_(user),
     newToken_(newToken),
     newTokenValidity_(newTokenValidity)
@@ -127,7 +121,7 @@ int AuthTokenResult::newTokenValidity() const
 }
 
 AuthService::AuthService()
-  : identityPolicy_(LoginNameIdentity),
+  : identityPolicy_(IdentityPolicy::LoginName),
     minimumLoginNameLength_(4),
     tokenHashFunction_(new MD5HashFunction()),
     tokenLength_(32),
@@ -140,9 +134,7 @@ AuthService::AuthService()
 }
 
 AuthService::~AuthService()
-{
-  delete tokenHashFunction_;
-}
+{ }
 
 void AuthService::setEmailVerificationEnabled(bool enabled)
 {
@@ -179,7 +171,7 @@ void AuthService::setAuthTokensEnabled(bool enabled, const std::string& cookieNa
 User AuthService::identifyUser(const Identity& identity,
 			    AbstractUserDatabase& users) const
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction> t(users.startTransaction());
+  std::unique_ptr<AbstractUserDatabase::Transaction> t(users.startTransaction());
 
   User user = users.findWithIdentity(identity.provider(),
 				     WString::fromUTF8(identity.id()));
@@ -222,15 +214,14 @@ User AuthService::identifyUser(const Identity& identity,
   return User();
 }
 
-void AuthService::setTokenHashFunction(HashFunction *function)
+void AuthService::setTokenHashFunction(std::unique_ptr<HashFunction> function)
 {
-  delete tokenHashFunction_;
-  tokenHashFunction_ = function;
+  tokenHashFunction_ = std::move(function);
 }
 
 HashFunction *AuthService::tokenHashFunction() const
 {
-  return tokenHashFunction_;
+  return tokenHashFunction_.get();
 }
 
 std::string AuthService::createAuthToken(const User& user) const
@@ -238,7 +229,7 @@ std::string AuthService::createAuthToken(const User& user) const
   if (!user.isValid())
     throw WException("Auth: createAuthToken(): user invalid");
 
-  AUTO_PTR<AbstractUserDatabase::Transaction>
+  std::unique_ptr<AbstractUserDatabase::Transaction>
     t(user.database()->startTransaction());
 
   std::string random = WRandom::generateId(tokenLength_);
@@ -256,7 +247,7 @@ std::string AuthService::createAuthToken(const User& user) const
 AuthTokenResult AuthService::processAuthToken(const std::string& token,
 					      AbstractUserDatabase& users) const
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction> t(users.startTransaction());
+  std::unique_ptr<AbstractUserDatabase::Transaction> t(users.startTransaction());
 
   std::string hash = tokenHashFunction()->compute(token, std::string());
 
@@ -279,11 +270,12 @@ AuthTokenResult AuthService::processAuthToken(const std::string& token,
 
     if (t.get()) t->commit();
 
-    return AuthTokenResult(AuthTokenResult::Valid, user, newToken, validity);
+    return AuthTokenResult(AuthTokenState::Valid, 
+			   user, newToken, validity);
   } else {
     if (t.get()) t->commit();
     
-    return AuthTokenResult(AuthTokenResult::Invalid);
+    return AuthTokenResult(AuthTokenState::Invalid);
   }
 }
 
@@ -297,7 +289,7 @@ void AuthService::verifyEmailAddress(const User& user, const std::string& addres
 
   Token t(hash,
 	  WDateTime::currentDateTime().addSecs(emailTokenValidity_ * 60));
-  user.setEmailToken(t, User::VerifyEmail);
+  user.setEmailToken(t, EmailTokenRole::VerifyEmail);
   sendConfirmMail(address, user, random);
 }
 
@@ -318,7 +310,7 @@ void AuthService::lostPassword(const std::string& emailAddress,
     expires = expires.addSecs(emailTokenValidity() * 60);
 
     Token t(hash, expires);
-    user.setEmailToken(t, User::LostPassword);
+    user.setEmailToken(t, EmailTokenRole::LostPassword);
     sendLostPasswordMail(emailAddress, user, random);
   }
 }
@@ -335,7 +327,7 @@ std::string AuthService::parseEmailToken(const std::string& internalPath) const
 EmailTokenResult AuthService::processEmailToken(const std::string& token,
 					     AbstractUserDatabase& users) const
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction> tr(users.startTransaction());
+  std::unique_ptr<AbstractUserDatabase::Transaction> tr(users.startTransaction());
 
   std::string hash = tokenHashFunction()->compute(token, std::string());
 
@@ -350,19 +342,19 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
       if (tr.get())
 	tr->commit();
 
-      return EmailTokenResult(EmailTokenResult::Expired);
+      return EmailTokenResult(EmailTokenState::Expired);
     }
 
     switch (user.emailTokenRole()) {
-    case User::LostPassword:
+    case EmailTokenRole::LostPassword:
       user.clearEmailToken();
 
       if (tr.get())
 	tr->commit();
 
-      return EmailTokenResult(EmailTokenResult::UpdatePassword, user);
+      return EmailTokenResult(EmailTokenState::UpdatePassword, user);
 
-    case User::VerifyEmail:
+    case EmailTokenRole::VerifyEmail:
       user.clearEmailToken();
       user.setEmail(user.unverifiedEmail());
       user.setUnverifiedEmail(std::string());
@@ -370,19 +362,19 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
       if (tr.get())
 	tr->commit();
 
-      return EmailTokenResult(EmailTokenResult::EmailConfirmed, user);
+      return EmailTokenResult(EmailTokenState::EmailConfirmed, user);
 
     default:
       if (tr.get())
 	tr->commit();
 
-      return EmailTokenResult(EmailTokenResult::Invalid); // Unreachable
+      return EmailTokenResult(EmailTokenState::Invalid); // Unreachable
     }
   } else {
     if (tr.get())
       tr->commit();
 
-    return EmailTokenResult(EmailTokenResult::Invalid);
+    return EmailTokenResult(EmailTokenState::Invalid);
   }
 }
 
@@ -400,7 +392,7 @@ void AuthService::sendConfirmMail(const std::string& address,
 
   std::string url = createRedirectUrl(token);
 
-  message.addRecipient(Mail::To, Mail::Mailbox(address));
+  message.addRecipient(Mail::RecipientType::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.confirmmail.subject"));
   message.setBody(WString::tr("Wt.Auth.confirmmail.body")
 		  .arg(user.identity(Identity::LoginName))
@@ -420,7 +412,7 @@ void AuthService::sendLostPasswordMail(const std::string& address,
 
   std::string url = createRedirectUrl(token);
 
-  message.addRecipient(Mail::To, Mail::Mailbox(address));
+  message.addRecipient(Mail::RecipientType::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.lostpasswordmail.subject"));
   message.setBody(WString::tr("Wt.Auth.lostpasswordmail.body")
 		  .arg(user.identity(Identity::LoginName))

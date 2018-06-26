@@ -2,8 +2,8 @@
 #define RENDER_CSSDATA_H_
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WString>
-#include <Wt/WWebWidget>
+#include <Wt/WString.h>
+#include <Wt/WWebWidget.h>
 #include "Wt/Render/Specificity.h"
 
 

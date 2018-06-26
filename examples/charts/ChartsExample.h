@@ -7,7 +7,7 @@
 #ifndef CHARTS_EXAMPLE_H_
 #define CHARTS_EXAMPLE_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 #include <iostream>
 
@@ -31,7 +31,7 @@ class TimeSeriesExample: public Wt::WContainerWidget
 public:
   /*! \brief Creates the time series scatter plot example
    */
-  TimeSeriesExample(Wt::WContainerWidget *parent);
+  TimeSeriesExample();
 };
 
 /*! \brief A Widget that demonstrates a category chart
@@ -41,7 +41,7 @@ class CategoryExample: public Wt::WContainerWidget
 public:
   /*! \brief Creates the category chart example
    */
-  CategoryExample(Wt::WContainerWidget *parent);
+  CategoryExample();
 };
 
 /*! \brief A Widget that demonstrates a scatter plot
@@ -51,7 +51,7 @@ class ScatterPlotExample: public Wt::WContainerWidget
 public:
   /*! \brief Creates the scatter plot example
    */
-  ScatterPlotExample(Wt::WContainerWidget *parent);
+  ScatterPlotExample();
 };
 
 /*! \brief A Widget that demonstrates a Pie chart
@@ -61,7 +61,7 @@ class PieExample: public Wt::WContainerWidget
 public:
   /*! \brief Creates the pie chart example
    */
-  PieExample(Wt::WContainerWidget *parent);
+  PieExample();
 };
 
 /*! \brief A widget that demonstrates various aspects of the charting lib.
@@ -71,7 +71,7 @@ class ChartsExample : public Wt::WContainerWidget
 public:
   /*! \brief Constructor.
    */
-  ChartsExample(Wt::WContainerWidget *root);
+  ChartsExample();
 };
 
 /*@}*/

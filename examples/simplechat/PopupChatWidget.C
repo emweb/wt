@@ -4,11 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WImage>
-#include <Wt/WText>
-#include <Wt/WVBoxLayout>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WImage.h>
+#include <Wt/WText.h>
+#include <Wt/WVBoxLayout.h>
 
 #include "PopupChatWidget.h"
 #include "SimpleChatServer.h"
@@ -25,10 +25,10 @@ PopupChatWidget::PopupChatWidget(SimpleChatServer& server,
 
   if (Wt::WApplication::instance()->environment().agentIsIE()) {
     if (Wt::WApplication::instance()->environment().agent()
-	== Wt::WEnvironment::IE6)
-      setPositionScheme(Wt::Absolute);
+	== Wt::UserAgent::IE6)
+      setPositionScheme(Wt::PositionScheme::Absolute);
     else
-      setPositionScheme(Wt::Fixed);
+      setPositionScheme(Wt::PositionScheme::Fixed);
   }
 
   implementJavaScript
@@ -36,8 +36,6 @@ PopupChatWidget::PopupChatWidget(SimpleChatServer& server,
      "{"
      """var s = $('#" + id + "');"
      """s.toggleClass('chat-maximized chat-minimized');"
-     + Wt::WApplication::instance()->javaScriptClass()
-     + ".layouts2.scheduleAdjust(true);"
      "}");
 
   online_ = false;
@@ -60,29 +58,29 @@ void PopupChatWidget::setName(const Wt::WString& name)
     int tries = 1;
     Wt::WString n = name;
     while (!server().changeName(name_, n))
-      n = name + boost::lexical_cast<std::string>(++tries);
+      n = name + std::to_string(++tries);
 
     name_ = n;
   } else
     name_ = name;
 }
 
-Wt::WContainerWidget *PopupChatWidget::createBar() 
+std::unique_ptr<Wt::WContainerWidget> PopupChatWidget::createBar()
 {
-  Wt::WContainerWidget *bar = new Wt::WContainerWidget();
+  auto bar(Wt::cpp14::make_unique<Wt::WContainerWidget>());
   bar->setStyleClass("chat-bar");
 
-  Wt::WText *toggleButton = new Wt::WText();
+  auto toggleButton(Wt::cpp14::make_unique<Wt::WText>());
   toggleButton->setInline(false);
   toggleButton->setStyleClass("chat-minmax");
   bar->clicked().connect(this, &PopupChatWidget::toggleSize);
   bar->clicked().connect(this, &PopupChatWidget::goOnline);
 
-  bar->addWidget(toggleButton);
+  bar->addWidget(std::move(toggleButton));
 
-  title_ = new Wt::WText(bar);
+  title_ = bar->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-  bar_ = bar;
+  bar_ = bar.get();
 
   return bar;
 }
@@ -106,7 +104,7 @@ void PopupChatWidget::goOnline()
       if (name_.empty())
 	name = server().suggestGuest();
       else
-	name = name_ + boost::lexical_cast<std::string>(++tries);
+	name = name_ + std::to_string(++tries);
     }
 
     name_ = name;
@@ -116,24 +114,22 @@ void PopupChatWidget::goOnline()
   bar_->removeStyleClass("alert");
 }
 
-void PopupChatWidget::createLayout(Wt::WWidget *messages,
-				   Wt::WWidget *userList,
-				   Wt::WWidget *messageEdit,
-				   Wt::WWidget *sendButton,
-				   Wt::WWidget *logoutButton)
+void PopupChatWidget::createLayout(std::unique_ptr<Wt::WWidget> messages,
+				   std::unique_ptr<Wt::WWidget> userList,
+				   std::unique_ptr<Wt::WWidget> messageEdit,
+				   std::unique_ptr<Wt::WWidget> sendButton,
+				   std::unique_ptr<Wt::WWidget> logoutButton)
 {
-  Wt::WVBoxLayout *layout = new Wt::WVBoxLayout();
+  auto layout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
-  Wt::WContainerWidget *bar = createBar();
-
-  layout->addWidget(bar);
+  auto bar = layout->addWidget(createBar());
   bar->setMinimumSize(Wt::WLength::Auto, 20);
-  layout->addWidget(messages, 1);
-  layout->addWidget(messageEdit);
+  layout->addWidget(std::move(messages), 1);
+  layout->addWidget(std::move(messageEdit));
 
-  setLayout(layout);
+  setLayout(std::move(layout));
 }
 
 void PopupChatWidget::updateUsers()

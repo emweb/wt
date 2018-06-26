@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include <Wt/WString>
-#include <Wt/WColor>
+#include <Wt/WString.h>
+#include <Wt/WColor.h>
 
 namespace Wt {
   namespace Color {

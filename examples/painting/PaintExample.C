@@ -4,24 +4,25 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WContainerWidget>
-#include <Wt/WGridLayout>
-#include <Wt/WSlider>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WGridLayout.h>
+#include <Wt/WSlider.h>
+#include <Wt/WText.h>
+#include <iostream>
 
 #include "PaintExample.h"
 #include "ShapesWidget.h"
 
 using namespace Wt;
 
-PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
-  : WContainerWidget(root)
+PaintExample::PaintExample(bool showTitle)
+  : WContainerWidget()
 {
   std::string text;
   if (showTitle)
     text += "<h2>Paint example</h2>";
 
-  text += 
+  text +=
     "<p>A simple example demonstrating cross-browser vector graphics."
     "</p>"
     "<p>The emweb logo below is painted using the Wt WPainter API from "
@@ -31,24 +32,24 @@ PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
     "<p>"
     "The example also demonstrates the horizontal and vertical "
     "<a href=\"http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSlider.html\" target=\"_blank\">"
-    "WSlider</a> widgets. Here,"
+    "WSlider</a> widgets. Here, "
     "the events of the WSlider widgets are used to scale and rotate the "
     "emweb logo."
     "</p>"
     "<p>"
-    "In non-IE browsers, a different backend is used for positive or negative "
+    "To demonstrate the different rendering methods, a different backend is used for positive or negative "
     "angles (SVG or HTML canvas)."
     "</p>";
 
-  new WText(text, this);
+  this->addWidget(cpp14::make_unique<WText>(text));
 
-  WContainerWidget *emweb = new WContainerWidget(this);
-  emweb->setMargin(WLength::Auto, Left | Right);
+  WContainerWidget *emweb = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  emweb->setMargin(WLength::Auto, Side::Left | Side::Right);
 
-  WGridLayout *layout = new WGridLayout();
-  emweb->setLayout(layout);
+  auto layout = cpp14::make_unique<WGridLayout>();
+  auto layout_ = emweb->setLayout(std::move(layout));
 
-  WSlider *scaleSlider = new WSlider(Horizontal);
+  std::unique_ptr<WSlider> scaleSlider(cpp14::make_unique<WSlider>());
   scaleSlider->setMinimum(0);
   scaleSlider->setMaximum(20);
   scaleSlider->setValue(10);
@@ -57,9 +58,9 @@ PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
   scaleSlider->resize(300, 50);
   scaleSlider->sliderMoved().connect(this, &PaintExample::scaleShape);
 
-  layout->addWidget(scaleSlider, 0, 1, AlignCenter | AlignMiddle);
+  layout_->addWidget(std::move(scaleSlider), 0, 1, AlignmentFlag::Center | AlignmentFlag::Middle);
 
-  WSlider *rotateSlider = new WSlider(Vertical);
+  auto rotateSlider = cpp14::make_unique<WSlider>(Orientation::Vertical);
   rotateSlider->setMinimum(-30);
   rotateSlider->setMaximum(30);
   rotateSlider->setValue(0);
@@ -68,14 +69,16 @@ PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
   rotateSlider->resize(50, 400);
   rotateSlider->sliderMoved().connect(this, &PaintExample::rotateShape);
 
-  layout->addWidget(rotateSlider, 1, 0, AlignCenter | AlignMiddle);
+  layout_->addWidget(std::move(rotateSlider), 1, 0, AlignmentFlag::Center | AlignmentFlag::Middle);
 
-  shapes_ = new ShapesWidget();
+  auto shapes = cpp14::make_unique<ShapesWidget>();
+  shapes_ = shapes.get();
   shapes_->setAngle(0.0);
   shapes_->setRelativeSize(0.5);
-  shapes_->setPreferredMethod(WPaintedWidget::HtmlCanvas);
+  shapes_->setPreferredMethod(RenderMethod::HtmlCanvas);
 
-  layout->addWidget(shapes_, 1, 1, AlignCenter | AlignMiddle);
+  layout_->addWidget(std::move(shapes), 1, 1,
+                    AlignmentFlag::Center | AlignmentFlag::Middle);
 }
 
 void PaintExample::rotateShape(int v)
@@ -83,8 +86,8 @@ void PaintExample::rotateShape(int v)
   shapes_->setAngle(v / 2.0);
 
   // Being silly: test alternate rendering method
-  shapes_->setPreferredMethod(v < 0 ? WPaintedWidget::InlineSvgVml
-			      : WPaintedWidget::HtmlCanvas);
+  shapes_->setPreferredMethod(v < 0 ? RenderMethod::InlineSvgVml
+                              : RenderMethod::HtmlCanvas);
 }
 
 void PaintExample::scaleShape(int v)

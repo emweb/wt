@@ -242,9 +242,11 @@ WT_DECLARE_WT_MEMBER
       if (v <= uAfter) {
 	 return;
       }
-      if (1 / (v - uAfter) > config.chart.config.maxZoom[0]) {
+      var newZoom = 1 / (v - uAfter);
+      if (newZoom > config.chart.config.maxZoom.x)
 	 return;
-      }
+      if (newZoom < config.chart.config.minZoom.x)
+        return;
       if (uAfter < 0)
 	 uAfter = 0;
       if (uAfter > 1)
@@ -269,9 +271,11 @@ WT_DECLARE_WT_MEMBER
       if (vAfter <= u) {
 	 return;
       }
-      if (1 / (vAfter - u) > config.chart.config.maxZoom[0]) {
+      var newZoom = 1 / (vAfter - u);
+      if (newZoom > config.chart.config.maxZoom.x)
 	 return;
-      }
+      if (newZoom < config.chart.config.minZoom.x)
+	 return;
       if (vAfter < 0) vAfter = 0;
       if (vAfter > 1) vAfter = 1;
       self.changeRange(u, vAfter);

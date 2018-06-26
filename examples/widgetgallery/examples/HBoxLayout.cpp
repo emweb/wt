@@ -1,20 +1,20 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WHBoxLayout>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(HBoxLayout)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 container->setStyleClass("yellow-box");
 
-Wt::WHBoxLayout *hbox = new Wt::WHBoxLayout();
-container->setLayout(hbox);
+auto hbox = container->setLayout(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
 
-Wt::WText *item = new Wt::WText("Item 1");
+std::unique_ptr<Wt::WText> item = Wt::cpp14::make_unique<Wt::WText>("Item 1");
 item->setStyleClass("green-box");
-hbox->addWidget(item);
-  
-item = new Wt::WText("Item 2");
-item->setStyleClass("blue-box");
-hbox->addWidget(item);
+hbox->addWidget(std::move(item));
 
-SAMPLE_END(return container)
+item = Wt::cpp14::make_unique<Wt::WText>("Item 2");
+item->setStyleClass("blue-box");
+hbox->addWidget(std::move(item));
+
+SAMPLE_END(return std::move(container))

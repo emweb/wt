@@ -1,27 +1,27 @@
-#include <Wt/WCssDecorationStyle>
-#include <Wt/WColor>
-#include <Wt/WContainerWidget>
-#include <Wt/WEvent>
-#include <Wt/WPainter>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPainterPath>
-#include <Wt/WPen>
-#include <Wt/WPointF>
-#include <Wt/WPushButton>
-#include <Wt/WRectF>
-#include <Wt/WTemplate>
-#include <Wt/WText>
-#include <Wt/WToolBar>
+#include <Wt/WCssDecorationStyle.h>
+#include <Wt/WColor.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEvent.h>
+#include <Wt/WPainter.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPainterPath.h>
+#include <Wt/WPen.h>
+#include <Wt/WPointF.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WRectF.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
+#include <Wt/WToolBar.h>
 
 class PaintBrush : public Wt::WPaintedWidget
 {
 public:
-    PaintBrush(int width, int height, Wt::WContainerWidget *parent = 0)
-	: Wt::WPaintedWidget(parent)
+    PaintBrush(int width, int height)
+        : WPaintedWidget()
     {
 	resize(width, height);
 
-	decorationStyle().setCursor("icons/pencil.cur", Wt::CrossCursor);
+	decorationStyle().setCursor("icons/pencil.cur", Wt::Cursor::Cross);
 
 	mouseDragged().connect(this, &PaintBrush::mouseDrag);
 	mouseWentDown().connect(this, &PaintBrush::mouseDown);
@@ -29,7 +29,7 @@ public:
 	touchMoved().connect(this, &PaintBrush::touchMove);
 	touchMoved().preventDefaultAction();
   
-	color_ = Wt::black;
+        color_ = Wt::WColor(Wt::StandardColor::Black);
     }
 
     void clear() {
@@ -42,18 +42,18 @@ public:
 
 protected:
     virtual void paintEvent(Wt::WPaintDevice *paintDevice) {
-	Wt::WPainter painter(paintDevice);
-	painter.setRenderHint(Wt::WPainter::Antialiasing);
+        Wt::WPainter painter(paintDevice);
+        painter.setRenderHint(Wt::RenderHint::Antialiasing);
   
-	Wt::WPen pen;
+        Wt::WPen pen;
 	pen.setWidth(3);
 	pen.setColor(color_);
-	pen.setCapStyle(Wt::FlatCap);
-	pen.setJoinStyle(Wt::MiterJoin);
+	pen.setCapStyle(Wt::PenCapStyle::Flat);
+	pen.setJoinStyle(Wt::PenJoinStyle::Miter);
 	painter.setPen(pen);
 	painter.drawPath(path_);
 
-	path_ = Wt::WPainterPath(path_.currentPosition());
+        path_ = Wt::WPainterPath(path_.currentPosition());
     }
 
 private:
@@ -61,25 +61,25 @@ private:
     Wt::WColor color_;
 
     void mouseDown(const Wt::WMouseEvent& e) {
-	Wt::Coordinates c = e.widget();
-	path_ = Wt::WPainterPath(Wt::WPointF(c.x, c.y));
+        Wt::Coordinates c = e.widget();
+        path_ = Wt::WPainterPath(Wt::WPointF(c.x, c.y));
     }
 
     void mouseDrag(const Wt::WMouseEvent& e) {
-	Wt::Coordinates c = e.widget();
+        Wt::Coordinates c = e.widget();
 	path_.lineTo(c.x, c.y);
-	update(Wt::PaintUpdate);
+	update(Wt::PaintFlag::Update);
     }
 
     void touchStart(const Wt::WTouchEvent& e) {
-	Wt::Coordinates c = e.touches()[0].widget();
-	path_ = Wt::WPainterPath(Wt::WPointF(c.x, c.y));
+        Wt::Coordinates c = e.touches()[0].widget();
+        path_ = Wt::WPainterPath(Wt::WPointF(c.x, c.y));
     }
 
     void touchMove(const Wt::WTouchEvent& e) {
-	Wt::Coordinates c = e.touches()[0].widget();
+        Wt::Coordinates c = e.touches()[0].widget();
 	path_.lineTo(c.x, c.y);
-	update(Wt::PaintUpdate);
+	update(Wt::PaintFlag::Update);
     }
 };
 
@@ -89,15 +89,15 @@ extern
 Wt::WPushButton *createColorToggle(const char *className, const Wt::WColor& color,
 				   PaintBrush *canvas)
 {
-    Wt::WPushButton *button = new Wt::WPushButton();
-    button->setTextFormat(Wt::XHTMLText);
+    auto button = new Wt::WPushButton();
+    button->setTextFormat(Wt::TextFormat::XHTML);
     button->setText("&nbsp;");
     button->setCheckable(true);
     button->addStyleClass(className);
     button->setWidth(30);
-    button->checked().connect(std::bind([=] () {
+    button->checked().connect([=] {
 	canvas->setColor(color);
-    }));
+    });
 
     return button;
 }
@@ -107,54 +107,56 @@ Wt::WPushButton *createColorToggle(const char *className, const Wt::WColor& colo
 SAMPLE_BEGIN(Paintbrush)
 
 /* Approximate bootstrap standard colors */
-const Wt::WColor blue(0, 110, 204);    // btn-primary
-const Wt::WColor red(218, 81, 76);     // btn-danger
-const Wt::WColor green(59, 195, 95);   // btn-success
-const Wt::WColor orange(250, 168, 52); // btn-warning
-const Wt::WColor black = Wt::black;    // btn-inverse
-const Wt::WColor gray(210, 210, 210);  // (default)
+const Wt::WColor blue(0, 110, 204);                     // btn-primary
+const Wt::WColor red(218, 81, 76);                      // btn-danger
+const Wt::WColor green(59, 195, 95);                    // btn-success
+const Wt::WColor orange(250, 168, 52);                  // btn-warning
+const Wt::WColor black = Wt::WColor(Wt::StandardColor::Black);  // btn-inverse
+const Wt::WColor gray(210, 210, 210);                   // (default)
 
-Wt::WContainerWidget* result = new Wt::WContainerWidget();
+auto result = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-PaintBrush *canvas = new PaintBrush(710, 400);
+auto canvas = Wt::cpp14::make_unique<PaintBrush>(710, 400);
+auto canvas_ = canvas.get();
 canvas->setColor(blue);
 canvas->decorationStyle().setBorder
-    (Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium, Wt::black));
+    (Wt::WBorder(Wt::BorderStyle::Solid, Wt::BorderWidth::Medium, black));
 
-std::vector<Wt::WPushButton *> colorButtons;
-colorButtons.push_back(createColorToggle("btn-primary", blue, canvas));
-colorButtons.push_back(createColorToggle("btn-danger", red, canvas));
-colorButtons.push_back(createColorToggle("btn-success", green, canvas));
-colorButtons.push_back(createColorToggle("btn-warning", orange, canvas));
-colorButtons.push_back(createColorToggle("btn-inverse", black, canvas));
-colorButtons.push_back(createColorToggle("" /* default */, gray, canvas));
+std::vector<Wt::WPushButton *> colorButtons {
+  createColorToggle("btn-primary", blue, canvas.get()),
+  createColorToggle("btn-danger", red, canvas.get()),
+  createColorToggle("btn-success", green, canvas.get()),
+  createColorToggle("btn-warning", orange, canvas.get()),
+  createColorToggle("btn-inverse", black, canvas.get()),
+  createColorToggle("" /* default */, gray, canvas.get())
+};
 
-Wt::WToolBar *toolBar = new Wt::WToolBar();
+auto toolBar = Wt::cpp14::make_unique<Wt::WToolBar>();
 
 for (unsigned i = 0; i < colorButtons.size(); ++i) {
     Wt::WPushButton *button = colorButtons[i];
     button->setChecked(i == 0);
-    toolBar->addButton(button);
+    toolBar->addButton(std::unique_ptr<Wt::WPushButton>(button));
 
     // Implement a radio button group
-    for (unsigned j = 0; j < colorButtons.size(); ++j) {
-	if (i != j) {
-	    Wt::WPushButton * const other = colorButtons[j];
-	    button->checked().connect(other, &Wt::WPushButton::setUnChecked);
-	}
-    }
+        for (unsigned j = 0; j < colorButtons.size(); ++j) {
+            if (i != j) {
+                Wt::WPushButton * const other = colorButtons[j];
+                button->checked().connect(other, &Wt::WPushButton::setUnChecked);
+            }
+        }
 }
 
-Wt::WPushButton *clearButton = new Wt::WPushButton("Clear");
+auto clearButton = Wt::cpp14::make_unique<Wt::WPushButton>("Clear");
 
-clearButton->clicked().connect(std::bind([=] () {
-    canvas->clear();
-}));
+clearButton->clicked().connect([=] {
+    canvas_->clear();
+});
 
 toolBar->addSeparator();
-toolBar->addButton(clearButton);
+toolBar->addButton(std::move(clearButton));
 
-result->addWidget(toolBar);
-result->addWidget(canvas);
+result->addWidget(std::move(toolBar));
+result->addWidget(std::move(canvas));
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))

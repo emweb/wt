@@ -11,11 +11,13 @@ SUBDIRS(
   oauth
   oidc
   paypal
+  postall
   scrollvisibility
   serverpush
   socketnotifier
   suggestionpopup
   template-fun
+  urlparams
   video
   widgetset
 )

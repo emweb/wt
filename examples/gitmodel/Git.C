@@ -10,10 +10,14 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include <Wt/WAny.h>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/lexical_cast.hpp>
+
+#include <sys/stat.h>
+
+using namespace Wt;
 
 /*
  * Small utility methods and classes.
@@ -138,9 +142,9 @@ namespace {
       std::string result;
       std::string unsafe = "<>&;|[$`";
  
-      for (unsigned i = 0; i < cmd.size(); ++i) {
-	if (unsafe.find(cmd[i]) == std::string::npos)
-	  result += cmd[i];
+      for (auto item : cmd) {
+        if (unsafe.find(item) == std::string::npos)
+          result += item;
       }
 
       return result;
@@ -195,11 +199,15 @@ Git::Object::Object(const ObjectId& anId, ObjectType aType)
 { }
 
 Git::Git()
-  : cache_(3) // cache of 3 git results
+  : is_bare_(false),
+    cache_(3) // cache of 3 git results
 { }
 
 void Git::setRepositoryPath(const std::string& repositoryPath)
 { 
+  struct stat sb;
+  is_bare_ = !(stat((repositoryPath + "/.git").c_str(), &sb) == 0 &&
+               S_ISDIR(sb.st_mode));
   repository_ = repositoryPath;
   checkRepository();
 }
@@ -247,7 +255,7 @@ Git::Object Git::treeGetObject(const ObjectId& tree, int index) const
   std::string objectLine;
   if (!getCmdResult("cat-file -p " + tree.toString(), objectLine, index))
     throw Exception("Git: could not read object %"
-		    + boost::lexical_cast<std::string>(index)
+                    + asString(index).toUTF8()
 		    + "  from tree " + tree.toString());
   else {
     std::vector<std::string> v1, v2;
@@ -281,10 +289,19 @@ int Git::treeSize(const ObjectId& tree) const
   return getCmdResultLineCount("cat-file -p " + tree.toString());
 }
 
+std::string Git::baseCmd() const
+{
+  if (is_bare_)
+    return "git --git-dir=" + repository_;
+  else
+    return "git --git-dir=" + repository_ + "/.git"
+           " --work-tree=" + repository_;
+}
+
 bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
 		       int index) const
 {
-  POpenWrapper p("git --git-dir=" + repository_ + " " + gitCmd, cache_);
+  POpenWrapper p(baseCmd() + " " + gitCmd, cache_);
 
   if (p.exitStatus() != 0)
     throw Exception("Git error: " + p.readLine(result));
@@ -307,7 +324,7 @@ bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
 bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
 		       const std::string& tag) const
 {
-  POpenWrapper p("git --git-dir=" + repository_ + " " + gitCmd, cache_);
+  POpenWrapper p(baseCmd() + " " + gitCmd, cache_);
 
   if (p.exitStatus() != 0)
     throw Exception("Git error: " + p.readLine(result));
@@ -323,7 +340,7 @@ bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
 
 int Git::getCmdResultLineCount(const std::string& gitCmd) const
 {
-  POpenWrapper p("git --git-dir=" + repository_ + " " + gitCmd, cache_);
+  POpenWrapper p(baseCmd() + " " + gitCmd, cache_);
 
   std::string r;
 
@@ -341,7 +358,7 @@ int Git::getCmdResultLineCount(const std::string& gitCmd) const
 
 void Git::checkRepository() const
 {
-  POpenWrapper p("git --git-dir=" + repository_ + " branch", cache_);
+  POpenWrapper p(baseCmd() + " branch", cache_);
 
   std::string r;
   if (p.exitStatus() != 0)

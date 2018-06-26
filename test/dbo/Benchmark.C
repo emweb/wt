@@ -6,9 +6,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDateTime>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDateTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 #include "DboFixture.h"
 
@@ -82,8 +82,8 @@ namespace Wt {
     template<>
     struct dbo_traits<Perf::Post> : public dbo_default_traits {
       typedef long IdType;
-      static const char *surrogateIdField() { return 0; }
-      static const char *versionField() { return 0; }
+      static const char *surrogateIdField() { return nullptr; }
+      static const char *versionField() { return nullptr; }
       static IdType invalidId() { return -1; }
     };
 
@@ -104,25 +104,24 @@ BOOST_AUTO_TEST_CASE( performance_test )
   std::cerr << "Loading " << total_objects << " objects in database."
             << std::endl;
   for (unsigned i = 0; i < total_objects; ++i) {
-    Perf::Post *p = new Perf::Post();
+    auto p = Wt::cpp14::make_unique<Perf::Post>();
 
     p->id = i;
     p->text = text;
-    p->creation_date = Wt::WDateTime::currentDateTime().addSecs(-i * 60 * 60);
+    p->creation_date = Wt::WDateTime::currentDateTime().addSecs(-(int)i * 60 * 60);
     p->last_change_date = Wt::WDateTime::currentDateTime();
  
     for (unsigned k = 0; k < 10; ++k)
       p->counter[k] = i + k + 1;
 
-    session.add(p);
+    session.add(std::move(p));
   }
 
   t.commit();
 
   std::cerr << "Measuring selection ..." << std::endl;
 
-  boost::posix_time::ptime start
-    = boost::posix_time::microsec_clock::local_time();
+  std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
   const unsigned times = 100;
   for (unsigned i = 0; i < times; ++i) {
@@ -138,12 +137,9 @@ BOOST_AUTO_TEST_CASE( performance_test )
     t.commit();
   }
 
-  boost::posix_time::ptime
-    end = boost::posix_time::microsec_clock::local_time();
+  std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
 
-  boost::posix_time::time_duration d = end - start;
-
-  std::cerr << "Took: " << (double)d.total_microseconds() / 1000 / times
+  std::cerr << "Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / times
             << " ms per 500 selects." << std::endl;
 
   //session.dropTables();

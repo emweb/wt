@@ -6,35 +6,35 @@
 
 #include "Login.h"
 
-#include <Wt/WLabel>
+#include <Wt/WLabel.h>
 
-using namespace Wt;
-
-Login::Login(WContainerWidget* parent)
-  : WContainerWidget(parent),
-    loggedIn_(this)
+Login::Login()
+  : WContainerWidget()
 {
   setStyleClass("login");
 		 
-  WLabel* userNameL = new WLabel(tr("login.userName"), this);
-  userNameEdit_ = new WLineEdit(this);
+  WLabel* userNameL =
+      this->addWidget(cpp14::make_unique<WLabel>(tr("login.userName")));
+  userNameEdit_ = this->addWidget(cpp14::make_unique<WLineEdit>());
   userNameEdit_->setFocus();
-  userNameEdit_->setValidator(new WValidator(true));
+  userNameEdit_->setValidator(std::make_shared<WValidator>(true));
   userNameL->setBuddy(userNameEdit_);
 
   userNameEdit_->enterPressed().connect(this, &Login::userNameEnterPressed);
   
-  loginButton_ = new WPushButton(tr("login.loginButton"), this);
+  loginButton_ =
+      this->addWidget(cpp14::make_unique<WPushButton>(tr("login.loginButton")));
   loginButton_->hide();
   loginButton_->clicked().connect(this, &Login::loginClicked);
 
-  captcha_ = new MyCaptcha(this, 150, 70);
+  captcha_ =
+      this->addWidget(cpp14::make_unique<MyCaptcha>(150, 70));
   captcha_->completed().connect(this, &Login::captchaCompleted);
 }
 
 void Login::captchaCompleted()
 {
-  if (userNameEdit_->validate() != WValidator::Valid) {
+  if (userNameEdit_->validate() != ValidationState::Valid) {
     captcha_->hide();
     loginButton_->show();
     userNameEdit_->setFocus();
@@ -45,14 +45,14 @@ void Login::captchaCompleted()
 
 void Login::userNameEnterPressed()
 {
-  if (userNameEdit_->validate() == WValidator::Valid 
+  if (userNameEdit_->validate() == ValidationState::Valid
       && !loginButton_->isHidden())
     login();
 }
 
 void Login::loginClicked(const WMouseEvent& me)
 {
-  if (userNameEdit_->validate() == WValidator::Valid)
+  if (userNameEdit_->validate() == ValidationState::Valid)
     login();
 }
 

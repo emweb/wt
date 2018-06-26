@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Auth/WAuthGlobal>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Auth/WAuthGlobal.h>
 
 class OAuthClient
 {

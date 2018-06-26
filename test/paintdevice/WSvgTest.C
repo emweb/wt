@@ -8,10 +8,10 @@
 #include <iostream>
 #include <fstream>
 
-#include <Wt/WSvgImage>
-#include <Wt/WRectF>
-#include <Wt/WPainter>
-#include <Wt/WPen>
+#include <Wt/WSvgImage.h>
+#include <Wt/WRectF.h>
+#include <Wt/WPainter.h>
+#include <Wt/WPen.h>
 
 BOOST_AUTO_TEST_CASE( svg_test_drawWrappedText )
 {
@@ -24,33 +24,38 @@ BOOST_AUTO_TEST_CASE( svg_test_drawWrappedText )
   //horizontal alignment
   {
   Wt::WRectF r(5, 5, 150, 100);
-  p.drawText(r, Wt::AlignLeft | Wt::AlignTop, Wt::TextWordWrap, text);
+  p.drawText(r, Wt::AlignmentFlag::Left | Wt::AlignmentFlag::Top,
+	     Wt::TextFlag::WordWrap, text);
   p.drawRect(r);
   }
 
   {
   Wt::WRectF r(160, 5, 150, 100);
-  p.drawText(r, Wt::AlignRight | Wt::AlignTop, Wt::TextWordWrap, text);
+  p.drawText(r, Wt::AlignmentFlag::Right | Wt::AlignmentFlag::Top,
+	     Wt::TextFlag::WordWrap, text);
   p.drawRect(r);
   }
 
   {
   Wt::WRectF r(315, 5, 150, 100);
-  p.drawText(r, Wt::AlignCenter | Wt::AlignTop, Wt::TextWordWrap, text);
+  p.drawText(r, Wt::AlignmentFlag::Center | Wt::AlignmentFlag::Top,
+	     Wt::TextFlag::WordWrap, text);
   p.drawRect(r);
   }
   
   {
   Wt::WRectF r(470, 5, 150, 100);
-  p.drawText(r, Wt::AlignJustify | Wt::AlignTop, Wt::TextWordWrap, text);
+  p.drawText(r, Wt::AlignmentFlag::Justify | Wt::AlignmentFlag::Top,
+	     Wt::TextFlag::WordWrap, text);
   p.drawRect(r);
   }
 
   //red text
   {
   Wt::WRectF r(625, 5, 150, 100);
-  p.setPen(Wt::WPen(Wt::red));
-  p.drawText(r, Wt::AlignJustify | Wt::AlignTop, Wt::TextWordWrap, text);
+  p.setPen(Wt::WPen(Wt::StandardColor::Red));
+  p.drawText(r, Wt::AlignmentFlag::Justify | Wt::AlignmentFlag::Top,
+	     Wt::TextFlag::WordWrap, text);
   p.drawRect(r);
   }
 
@@ -70,33 +75,38 @@ BOOST_AUTO_TEST_CASE( svg_test_drawSingleText )
   //horizontal alignment
   {
   Wt::WRectF r(5, 5, 150, 100);
-  p.drawText(r, Wt::AlignLeft | Wt::AlignTop, text);
+  p.drawText(r, Wt::AlignmentFlag::Left | Wt::AlignmentFlag::Top, 
+	     text);
   p.drawRect(r);
   }
 
   {
   Wt::WRectF r(5, 110, 150, 100);
-  p.drawText(r, Wt::AlignRight | Wt::AlignTop, text);
+  p.drawText(r, Wt::AlignmentFlag::Right | Wt::AlignmentFlag::Top,
+	     text);
   p.drawRect(r);
   }
 
   {
   Wt::WRectF r(5, 215, 150, 100);
-  p.drawText(r, Wt::AlignCenter | Wt::AlignTop, text);
+  p.drawText(r, Wt::AlignmentFlag::Center | Wt::AlignmentFlag::Top,
+	     text);
   p.drawRect(r);
   }
   
   {
   Wt::WRectF r(5, 320, 150, 100);
-  p.drawText(r, Wt::AlignJustify | Wt::AlignTop, text);
+  p.drawText(r, Wt::AlignmentFlag::Justify | Wt::AlignmentFlag::Top,
+	     text);
   p.drawRect(r);
   }
 
   //red text
   {
   Wt::WRectF r(5, 425, 150, 100);
-  p.setPen(Wt::WPen(Wt::red));
-  p.drawText(r, Wt::AlignJustify | Wt::AlignTop, text);
+  p.setPen(Wt::WPen(Wt::StandardColor::Red));
+  p.drawText(r, Wt::AlignmentFlag::Justify | Wt::AlignmentFlag::Top,
+	     text);
   p.drawRect(r);
   }
 

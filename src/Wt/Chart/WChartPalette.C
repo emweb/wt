@@ -4,7 +4,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/Chart/WChartPalette>
+#include <Wt/Chart/WChartPalette.h>
 
 namespace Wt {
   namespace Chart {

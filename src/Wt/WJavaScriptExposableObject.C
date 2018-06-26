@@ -5,21 +5,22 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "WJavaScriptExposableObject"
-#include "Wt/WException"
-#include "Wt/WLogger"
+#include "WJavaScriptExposableObject.h"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
 
 #include <cassert>
 
 namespace Wt {
 
 WJavaScriptExposableObject::WJavaScriptExposableObject()
-  : clientBinding_(0)
+  : clientBinding_(nullptr)
 { }
 
 WJavaScriptExposableObject::WJavaScriptExposableObject(const WJavaScriptExposableObject &other)
 #ifndef WT_TARGET_JAVA
-  : clientBinding_(other.clientBinding_ ? new JSInfo(*other.clientBinding_) : 0)
+  : clientBinding_(other.clientBinding_ ? 
+		   new JSInfo(*other.clientBinding_) : nullptr)
 #else
   : clientBinding_(other.clientBinding_)
 #endif
@@ -28,13 +29,13 @@ WJavaScriptExposableObject::WJavaScriptExposableObject(const WJavaScriptExposabl
 #ifndef WT_TARGET_JAVA
 WJavaScriptExposableObject &WJavaScriptExposableObject::operator=(const WJavaScriptExposableObject &rhs)
 {
-  if (clientBinding_ != 0 && rhs.clientBinding_ != clientBinding_) {
+  if (clientBinding_ != nullptr && rhs.clientBinding_ != clientBinding_) {
     delete clientBinding_;
   }
-  if (rhs.clientBinding_ != 0) {
+  if (rhs.clientBinding_ != nullptr) {
     clientBinding_ = new JSInfo(*rhs.clientBinding_);
   } else {
-    clientBinding_ = 0;
+    clientBinding_ = nullptr;
   }
 
   return *this;
@@ -66,7 +67,7 @@ bool WJavaScriptExposableObject::sameBindingAs(const WJavaScriptExposableObject 
 
 void WJavaScriptExposableObject::assignBinding(const WJavaScriptExposableObject &rhs)
 {
-  assert(rhs.clientBinding_ != 0);
+  assert(rhs.clientBinding_ != nullptr);
   if (&rhs != this) {
     if (clientBinding_) delete clientBinding_;
 #ifndef WT_TARGET_JAVA
@@ -80,7 +81,7 @@ void WJavaScriptExposableObject::assignBinding(const WJavaScriptExposableObject 
 void WJavaScriptExposableObject::assignBinding(const WJavaScriptExposableObject &rhs,
 					       const std::string &jsRef)
 {
-  assert(rhs.clientBinding_ != 0);
+  assert(rhs.clientBinding_ != nullptr);
   if (&rhs != this) {
     if (clientBinding_) delete clientBinding_;
     clientBinding_ = new WJavaScriptExposableObject::JSInfo(*rhs.clientBinding_);

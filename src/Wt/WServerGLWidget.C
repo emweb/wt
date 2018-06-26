@@ -1,12 +1,12 @@
-#include "Wt/WApplication"
-#include "Wt/WServerGLWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WServerGLWidget.h"
 
-#include "Wt/WClientGLWidget"
-#include "Wt/WMemoryResource"
-#include "Wt/WPainter"
-#include "Wt/WRasterImage"
-#include "Wt/WWebWidget"
-#include "Wt/Http/Response"
+#include "Wt/WClientGLWidget.h"
+#include "Wt/WMemoryResource.h"
+#include "Wt/WPainter.h"
+#include "Wt/WRasterImage.h"
+#include "Wt/WWebWidget.h"
+#include "Wt/Http/Response.h"
 
 #include <fstream>
 
@@ -54,13 +54,13 @@ namespace {
 namespace Wt {
 
   namespace {
-    class WGLImageResource : public WMemoryResource {
+    class WGLImageResource final : public WMemoryResource {
     public:
       WGLImageResource() : WMemoryResource()
       { }
 
       virtual void handleRequest(const Http::Request &request,
-				 Http::Response &response)
+				 Http::Response &response) override
       {
 	response.addHeader("Cache-Control", "max-age=60");
 	WMemoryResource::handleRequest(request, response);
@@ -112,9 +112,9 @@ private:
 
 #ifdef X11_GL
 WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
-  display_(0)
+  display_(nullptr)
 {
-  display_ = XOpenDisplay(0);
+  display_ = XOpenDisplay(nullptr);
 
   if ( !display_ )
   {
@@ -131,7 +131,7 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
     samples = 0;
   }
 
-  // Get a matching FB config
+  // Method::Get a matching FB config
   int visual_attribs[] =
     {
       GLX_X_RENDERABLE    , True,
@@ -166,7 +166,7 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
 
   // NOTE: It is not necessary to create or make current to a context before
   // calling glXGetProcAddressARB
-  glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+  glXCreateContextAttribsARBProc glXCreateContextAttribsARB = nullptr;
   glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
            glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
 
@@ -177,7 +177,7 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
       None
     };
 
-  ctx_ = glXCreateContextAttribsARB( display_, bestFbc_, 0,
+  ctx_ = glXCreateContextAttribsARB( display_, bestFbc_, nullptr,
 				    True, context_attribs );
 
   // Sync to ensure any errors generated are processed.
@@ -208,12 +208,12 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
   if (res != GLEW_OK) {
     glXDestroyContext( display_, ctx_ );
     XCloseDisplay( display_ );
-    glXMakeCurrent( display_, 0, 0 );
+    glXMakeCurrent( display_, 0, nullptr );
     throw WException("WServerGLWidget: problem with GLEW initialization.\n");
   }
   glEnable(GL_PROGRAM_POINT_SIZE);
   glEnable(GL_POINT_SPRITE);
-  glXMakeCurrent( display_, 0, 0 );
+  glXMakeCurrent( display_, 0, nullptr );
 }
 
 WServerGLWidgetImpl::~WServerGLWidgetImpl()
@@ -229,7 +229,7 @@ void WServerGLWidgetImpl::makeCurrent()
 
 void WServerGLWidgetImpl::unmakeCurrent()
 {
-  glXMakeCurrent(display_, 0, 0);
+  glXMakeCurrent(display_, 0, nullptr);
 }
 
 void WServerGLWidgetImpl::resize(int width, int height)
@@ -267,14 +267,14 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
   err = CGLChoosePixelFormat(attributes, &pix, &num);
   if (err != kCGLNoError) {
     throw WException("WServerGLWidget cannot select proper pixel format: "
-		     + boost::lexical_cast<std::string>(err));
+		     + std::to_string(err));
   }
 
   err = CGLCreateContext(pix, NULL, &context_);
   CGLDestroyPixelFormat(pix);
   if (err != kCGLNoError) {
     throw WException("WServerGLWidget cannot create context"
-		     + boost::lexical_cast<std::string>(err));
+		     + std::to_string(err));
   }
 
   makeCurrent();
@@ -289,7 +289,7 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
     CGLSetCurrentContext(NULL);
     CGLDestroyContext(context_);
     throw WException("WServerGLWidget cannot create offscreen framebuffers "
-		     + boost::lexical_cast<std::string>(err));
+		     + std::to_string(err));
   }
 }
 
@@ -304,7 +304,7 @@ void WServerGLWidgetImpl::makeCurrent()
   CGLError err = CGLSetCurrentContext(context_);
   if (err != kCGLNoError) {
     throw WException("WServerGLWidget cannot make context active"
-		     + boost::lexical_cast<std::string>(err));
+		     + std::to_string(err));
   }
 }
 
@@ -560,7 +560,8 @@ WServerGLWidget::WServerGLWidget(WGLWidget *glInterface)
     memres_(new WGLImageResource())
 {
   try {
-    impl_ = new WServerGLWidgetImpl(glInterface_->renderOptions_ & WGLWidget::AntiAliasing);
+    impl_ = new WServerGLWidgetImpl
+      (glInterface_->renderOptions_.test(GLRenderOption::AntiAliasing));
   } catch (WException &e) {
     delete memres_;
     throw e;
@@ -759,11 +760,11 @@ void WServerGLWidget::bufferSubDataiv(WGLWidget::GLenum target,
 void WServerGLWidget::clear(WFlags<WGLWidget::GLenum> mask)
 {
   GLbitfield glmask = 0;
-  if (mask.testFlag(WGLWidget::COLOR_BUFFER_BIT))
+  if (mask.test(WGLWidget::COLOR_BUFFER_BIT))
     glmask |= GL_COLOR_BUFFER_BIT;
-  if (mask.testFlag(WGLWidget::DEPTH_BUFFER_BIT))
+  if (mask.test(WGLWidget::DEPTH_BUFFER_BIT))
     glmask |= GL_DEPTH_BUFFER_BIT;
-  if (mask.testFlag(WGLWidget::STENCIL_BUFFER_BIT))
+  if (mask.test(WGLWidget::STENCIL_BUFFER_BIT))
     glmask |= GL_STENCIL_BUFFER_BIT;
 
   glClear(glmask);
@@ -803,7 +804,7 @@ void WServerGLWidget::compileShader(WGLWidget::Shader shader)
   if (params != GL_TRUE) {
     std::cerr << "Shader " << shader.getId() << " compilation failed" << std::endl;
     char buffer[32*1024];
-    glGetShaderInfoLog(shader.getId(), sizeof(buffer), 0, buffer);
+    glGetShaderInfoLog(shader.getId(), sizeof(buffer), nullptr, buffer);
     std::cerr << buffer << std::endl;
   }
   SERVERGLDEBUG;
@@ -891,10 +892,10 @@ WGLWidget::Texture WServerGLWidget::createTextureAndLoad(const std::string &url)
   return tex;
 }
 
-WPaintDevice* WServerGLWidget::createPaintDevice(const WLength& width,
-					   const WLength& height)
+std::unique_ptr<WPaintDevice> WServerGLWidget
+::createPaintDevice(const WLength& width, const WLength& height)
 {
-  return new WRasterImage("png", width, height, this);
+  return std::unique_ptr<WRasterImage>(new WRasterImage("png", width, height));
 }
 
 void WServerGLWidget::cullFace(WGLWidget::GLenum mode)
@@ -992,8 +993,7 @@ void WServerGLWidget::drawArrays(WGLWidget::GLenum mode, int first, unsigned cou
 void WServerGLWidget::drawElements(WGLWidget::GLenum mode, unsigned count,
 				   WGLWidget::GLenum type, unsigned offset)
 {
-  glDrawElements(serverGLenum(mode), count, serverGLenum(type),
-		 reinterpret_cast<void*>(0));
+  glDrawElements(serverGLenum(mode), count, serverGLenum(type), nullptr);
   SERVERGLDEBUG;
 }
 
@@ -1061,7 +1061,7 @@ WGLWidget::AttribLocation WServerGLWidget::getAttribLocation(WGLWidget::Program 
   return WGLWidget::AttribLocation((int)id);
 }
 
-WGLWidget::UniformLocation WServerGLWidget::getUniformLocation(WGLWidget::Program program, const std::string location)
+WGLWidget::UniformLocation WServerGLWidget::getUniformLocation(WGLWidget::Program program, const std::string &location)
 {
   GLint id = glGetUniformLocation(program.getId(), location.c_str());
   SERVERGLDEBUG;
@@ -1189,7 +1189,7 @@ void WServerGLWidget::texImage2D(WGLWidget::GLenum target,
 {
   glTexImage2D(serverGLenum(target), level, serverGLenum(internalformat),
 	       width, height, border, serverGLenum(format), GL_UNSIGNED_BYTE,
-	       0);
+	       nullptr);
   SERVERGLDEBUG;
 }
 
@@ -1217,8 +1217,9 @@ void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 				 WGLWidget::GLenum type,
 				 std::string imgFilename)
 {
-  WPainter::Image image(WApplication::instance()->docRoot().append("/").append(imgFilename), imgFilename);
-  WRasterImage raster("png", image.width(), image.height(), this);
+  WPainter::Image image(WApplication::instance()->docRoot().append("/")
+			.append(imgFilename), imgFilename);
+  WRasterImage raster("png", image.width(), image.height());
   WPainter decoder(&raster);
   decoder.drawImage(WPointF(), image);
 
@@ -1573,7 +1574,7 @@ void WServerGLWidget::vertexAttribPointer(WGLWidget::AttribLocation location,
 					  unsigned offset)
 {
   glVertexAttribPointer(location.getId(), size, serverGLenum(type),
-			normalized, stride, 0);
+			normalized, stride, nullptr);
   SERVERGLDEBUG;
 }
 
@@ -1599,7 +1600,7 @@ void WServerGLWidget::initJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &mat)
 
   WGenericMatrix<double, 4, 4> m = mat.value();
   js_ << mat.jsRef() << "=";
-  WClientGLWidget::renderfv(js_, m, Array);
+  WClientGLWidget::renderfv(js_, m, JsArrayType::Array);
   js_ << ";";
 
   mat.initialize();
@@ -1618,7 +1619,7 @@ void WServerGLWidget::setJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm,
 
   // set it in javascript
   js_ << WT_CLASS ".glMatrix.mat4.set(";
-  WClientGLWidget::renderfv(js_, transposed, Array);
+  WClientGLWidget::renderfv(js_, transposed, JsArrayType::Array);
   js_ << ", " << jsm.jsRef() << ");";
 }
 
@@ -1642,7 +1643,7 @@ void WServerGLWidget::initJavaScriptVector(WGLWidget::JavaScriptVector &vec)
     } else if (v[i] == -std::numeric_limits<float>::infinity()) {
       val = "-Infinity";
     } else {
-      val = boost::lexical_cast<std::string>(v[i]);
+      val = std::to_string(v[i]);
     }
     js_ << val;
   }
@@ -1663,7 +1664,7 @@ void WServerGLWidget::setJavaScriptVector(WGLWidget::JavaScriptVector &jsv,
     } else if (v[i] == -std::numeric_limits<float>::infinity()) {
       val = "Number.NEGATIVE_INFINITY";
     } else {
-      val = boost::lexical_cast<std::string>(v[i]);
+      val = std::to_string(v[i]);
     }
     js_ << jsv.jsRef() << "[" << i << "] = " << val << ";";
   }
@@ -1693,7 +1694,7 @@ void WServerGLWidget::setClientSideWalkHandler(const WGLWidget::JavaScriptMatrix
 
 JsArrayType WServerGLWidget::arrayType() const
 {
-  return Array;
+  return JsArrayType::Array;
 }
 
 std::string WServerGLWidget::glObjJsRef(const std::string& jsRef)
@@ -1705,21 +1706,20 @@ std::string WServerGLWidget::glObjJsRef(const std::string& jsRef)
     "})()";
 }
 
-void WServerGLWidget::render(const std::string& jsRef,
-			     WFlags<RenderFlag> flags)
+void WServerGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
 {
   //boost::timer::auto_cpu_timer t;
   if (updateResizeGL_ && sizeChanged_) {
     impl_->resize(renderWidth_, renderHeight_);
     delete raster_;
-    raster_ = 0; // will be re-initialized later
+    raster_ = nullptr; // will be re-initialized later
 
   }
 
   impl_->makeCurrent();
   glEnable(GL_MULTISAMPLE_ARB);
 
-  if (flags & RenderFull) {
+  if (flags.test(RenderFlag::Full)) {
     std::stringstream ss;
     ss << "{\nvar obj = new " WT_CLASS ".WGLWidget("
        << WApplication::instance()->javaScriptClass() << ","
@@ -1729,7 +1729,7 @@ void WServerGLWidget::render(const std::string& jsRef,
     glInterface_->initializeGL();
     ss << js_.str().c_str();
     ss << "obj.paintGL = function(){\n"
-       << "Wt.emit(" << jsRef << ", " << WWebWidget::jsStringLiteral(std::string("repaintSignal")) << ");"
+       << Wt::WApplication::instance()->javaScriptClass() << ".emit(" << jsRef << ", " << WWebWidget::jsStringLiteral(std::string("repaintSignal")) << ");"
        << "}";
     ss << "}";
 
@@ -1807,6 +1807,12 @@ void WServerGLWidget::render(const std::string& jsRef,
   ss << "jQuery.data(" << jsRef << ",'obj').loadImage(" << WWebWidget::jsStringLiteral(memres_->url()) << ");";
   glInterface_->doJavaScript(ss.str());
 }
+
+void WServerGLWidget::injectJS(const std::string & jsString)
+{ }
+
+void WServerGLWidget::restoreContext(const std::string &jsRef)
+{ }
 
 }
 

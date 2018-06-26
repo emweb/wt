@@ -4,41 +4,44 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WGLWidget"
+#include "Wt/WGLWidget.h"
 
-#include "Wt/WApplication"
-#include "Wt/WAbstractGLImplementation"
-#include "Wt/WCanvasPaintDevice"
-#include "Wt/WClientGLWidget"
-#include "Wt/WLogger"
+#include "Wt/WApplication.h"
+#include "Wt/WAbstractGLImplementation.h"
+#include "Wt/WCanvasPaintDevice.h"
+#include "Wt/WClientGLWidget.h"
+#include "Wt/WLogger.h"
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_USE_OPENGL
-#include "Wt/WServerGLWidget"
+#include "Wt/WServerGLWidget.h"
 #endif
 #else
 #include <java/WServerGLWidget>
 #endif
 
-#include "Wt/WBoostAny"
-#include "Wt/WEnvironment"
-#include "Wt/WVideo"
-#include "Wt/WImage"
-#include "Wt/WPaintedWidget"
-#include "Wt/WText"
-#include "Wt/WWebWidget"
+#include "Wt/WAny.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WVideo.h"
+#include "Wt/WImage.h"
+#include "Wt/WPaintedWidget.h"
+#include "Wt/WText.h"
+#include "Wt/WWebWidget.h"
+
 #include "DomElement.h"
 #include "WebUtils.h"
 
-#include "Wt/Json/Array"
-#include "Wt/Json/Object"
-#include "Wt/Json/Parser"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Parser.h"
 
 #ifndef WT_DEBUG_JS
-#include "js/WGLWidget.min.js"
 #include "js/WPaintedWidget.min.js"
+#include "js/WGLWidget.min.js"
 #include "js/WtGlMatrix.min.js"
 #endif
+
+#include <boost/algorithm/string.hpp>
 
 namespace Wt {
 
@@ -49,36 +52,44 @@ LOGGER("WGLWidget");
 //       an extra array.
 // TODO: allow VBO's to be served from a file
 
-WGLWidget::WGLWidget(WContainerWidget *parent)
-: WInteractWidget(parent),
-  renderOptions_(ClientSideRendering | ServerSideRendering | AntiAliasing),
-  pImpl_(0),
-  jsValues_(0),
-  repaintSignal_(this, "repaintSignal"),
-  alternative_(0),
-  webglNotAvailable_(this, "webglNotAvailable"),
-  webGlNotAvailable_(false),
-  contextRestored_(this, "contextRestored"),
-  restoringContext_(false),
-  valueChanged_(false),
-  mouseWentDownSlot_("function(o, e){" + this->glObjJsRef() + ".mouseDown(o, e);}", this),
-  mouseWentUpSlot_("function(o, e){" + this->glObjJsRef() + ".mouseUp(o, e);}", this),
-  mouseDraggedSlot_("function(o, e){" + this->glObjJsRef() + ".mouseDrag(o, e);}", this),
-  mouseMovedSlot_("function(o, e){" + this->glObjJsRef() + ".mouseMove(o, e);}", this),
-  mouseWheelSlot_("function(o, e){" + this->glObjJsRef() + ".mouseWheel(o, e);}", this),
-  touchStarted_("function(o, e){" + this->glObjJsRef() + ".touchStart(o, e);}", this),
-  touchEnded_("function(o, e){" + this->glObjJsRef() + ".touchEnd(o, e);}", this),
-  touchMoved_("function(o, e){" + this->glObjJsRef() + ".touchMoved(o, e);}", this),
-  repaintSlot_("function() {"
-    "var o = " + this->glObjJsRef() + ";"
-    "if(o.ctx) o.paintGL();"
-    "}", this)
+WGLWidget::WGLWidget()
+  : renderOptions_(GLRenderOption::ClientSide | 
+		   GLRenderOption::ServerSide |
+		   GLRenderOption::AntiAliasing),
+    jsValues_(0),
+    repaintSignal_(this, "repaintSignal"),
+    webglNotAvailable_(this, "webglNotAvailable"),
+    webGlNotAvailable_(false),
+    contextRestored_(this, "contextRestored"),
+    restoringContext_(false),
+    valueChanged_(false),
+    mouseWentDownSlot_("function(o, e){" + this->glObjJsRef() 
+		       + ".mouseDown(o, e);}", this),
+    mouseWentUpSlot_("function(o, e){" + this->glObjJsRef() 
+		     + ".mouseUp(o, e);}", this),
+    mouseDraggedSlot_("function(o, e){" + this->glObjJsRef() 
+		      + ".mouseDrag(o, e);}", this),
+    mouseMovedSlot_("function(o, e){" + this->glObjJsRef() 
+		    + ".mouseMove(o, e);}", this),
+    mouseWheelSlot_("function(o, e){" + this->glObjJsRef() 
+		    + ".mouseWheel(o, e);}", this),
+    touchStarted_("function(o, e){" + this->glObjJsRef() 
+		  + ".touchStart(o, e);}", this),
+    touchEnded_("function(o, e){" + this->glObjJsRef()
+		+ ".touchEnd(o, e);}", this),
+    touchMoved_("function(o, e){" + this->glObjJsRef() 
+		+ ".touchMoved(o, e);}", this),
+    repaintSlot_("function() {"
+		 "var o = " + this->glObjJsRef() + ";"
+		 "if(o.ctx) o.paintGL();"
+		 "}", this)
 {
   setInline(false);
   setLayoutSizeAware(true);
   webglNotAvailable_.connect(this, &WGLWidget::webglNotAvailable);
-  repaintSignal_.connect(boost::bind(&WGLWidget::repaintGL, this, PAINT_GL));
-  contextRestored_.connect(boost::bind(&WGLWidget::contextRestored, this));
+  repaintSignal_.connect(this, std::bind(&WGLWidget::repaintGL, this,
+					 GLClientSideRenderer::PAINT_GL));
+  contextRestored_.connect(this, std::bind(&WGLWidget::contextRestored, this));
   mouseWentDown().connect(mouseWentDownSlot_);
   mouseWentUp().connect(mouseWentUpSlot_);
   mouseDragged().connect(mouseDraggedSlot_);
@@ -87,28 +98,25 @@ WGLWidget::WGLWidget(WContainerWidget *parent)
   touchStarted().connect(touchStarted_);
   touchEnded().connect(touchEnded_);
   touchMoved().connect(touchMoved_);
-  setAlternativeContent(new WText("Your browser does not support WebGL"));
+  setAlternativeContent(std::unique_ptr<WWidget>
+			(new WText("Your browser does not support WebGL")));
 
   setFormObject(true);
 }
 
 WGLWidget::~WGLWidget()
 {
-  delete pImpl_;
+  manageWidget(alternative_, std::unique_ptr<WWidget>());
 }
 
-void WGLWidget::setRenderOptions(WFlags<RenderOption> options)
+void WGLWidget::setRenderOptions(WFlags<GLRenderOption> options)
 {
   renderOptions_ = options;
 }
 
-void WGLWidget::setAlternativeContent(WWidget *alternative)
+void WGLWidget::setAlternativeContent(std::unique_ptr<WWidget> alternative)
 {
-  if (alternative_)
-    delete alternative_;
-  alternative_ = alternative;
-  if (alternative_)
-    addChild(alternative_);
+  manageWidget(alternative_, std::move(alternative));
 }
 
 void WGLWidget::enableClientErrorChecks(bool enable) {
@@ -148,15 +156,15 @@ std::string WGLWidget::glObjJsRef() const
 
 DomElement *WGLWidget::createDomElement(WApplication *app)
 {
-  DomElement *result = 0;
+  DomElement *result = nullptr;
 
   if (!pImpl_) { // no GL support whatsoever
-    result = DomElement::createNew(DomElement_DIV);
+    result = DomElement::createNew(DomElementType::DIV);
     result->addChild(alternative_->createSDomElement(app));
     webGlNotAvailable_ = true;
   } else {
     result = DomElement::createNew(domElementType());
-    repaintGL(PAINT_GL | RESIZE_GL);
+    repaintGL(GLClientSideRenderer::PAINT_GL | GLClientSideRenderer::RESIZE_GL);
   }
   setId(result, app);
 
@@ -165,14 +173,14 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
   return result;
 }
 
-void WGLWidget::repaintGL(WFlags<ClientSideRenderer> which)
+void WGLWidget::repaintGL(WFlags<GLClientSideRenderer> which)
 {
   if (!pImpl_)
     return;
 
   pImpl_->repaintGL(which);
 
-  if (which != 0)
+  if (!which.empty())
     repaint();
 }
 
@@ -198,10 +206,10 @@ void WGLWidget::getDomChanges(std::vector<DomElement *>& result,
 
 DomElementType WGLWidget::domElementType() const
 {
-  if (dynamic_cast<WClientGLWidget*>(pImpl_) != 0) {
-    return Wt::DomElement_CANVAS;
+  if (dynamic_cast<WClientGLWidget*>(pImpl_.get()) != nullptr) {
+    return Wt::DomElementType::CANVAS;
   } else {
-    return Wt::DomElement_IMG;
+    return Wt::DomElementType::IMG;
   }
 }
 
@@ -217,7 +225,7 @@ void WGLWidget::layoutSizeChanged(int width, int height)
 {
   pImpl_->layoutSizeChanged(width, height);
 
-  repaintGL(RESIZE_GL);
+  repaintGL(GLClientSideRenderer::RESIZE_GL);
 }
 
 void WGLWidget::contextRestored()
@@ -225,7 +233,9 @@ void WGLWidget::contextRestored()
   restoringContext_ = true;
   pImpl_->restoreContext(jsRef());
 
-  repaintGL(UPDATE_GL | RESIZE_GL | PAINT_GL);
+  repaintGL(GLClientSideRenderer::UPDATE_GL | 
+	    GLClientSideRenderer::RESIZE_GL | 
+	    GLClientSideRenderer::PAINT_GL);
   restoringContext_ = false;
 }
 
@@ -233,7 +243,7 @@ void WGLWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  if (renderOptions_ & ClientSideRendering &&
+  if (renderOptions_.test(GLRenderOption::ClientSide) &&
       WApplication::instance()->environment().webGL()) {
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs11);
   }
@@ -243,32 +253,31 @@ void WGLWidget::defineJavaScript()
 
 void WGLWidget::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
+  if (flags.test(RenderFlag::Full)) {
     if (!pImpl_) {
-      if (renderOptions_ & ClientSideRendering &&
+      if (renderOptions_.test(GLRenderOption::ClientSide) &&
 	  WApplication::instance()->environment().webGL()) {
-	pImpl_ = new WClientGLWidget(this);
+	pImpl_.reset(new WClientGLWidget(this));
       } else {
 #ifndef WT_TARGET_JAVA
 #ifdef WT_USE_OPENGL
-	if (renderOptions_ & ServerSideRendering) {
+	if (renderOptions_.test(GLRenderOption::ServerSide)) {
 	  try {
-	    pImpl_ = new WServerGLWidget(this);
+	    pImpl_.reset(new WServerGLWidget(this));
 	  } catch (WException& e) {
 	    LOG_WARN("Failed to initialize server rendering fallback: " << e.what());
-	    pImpl_ = 0;
 	  }
 	} else {
-	  pImpl_ = 0;
+	  pImpl_.reset();
 	}
 #else
-	pImpl_ = 0;
+	pImpl_.reset();
 #endif
 #else
-	if (renderOptions_ & ServerSideRendering) {
-	  pImpl_ = new WServerGLWidget(this);
+	if (renderOptions_ & GLRenderOption::ServerSide) {
+	  pImpl_.reset(new WServerGLWidget(this));
 	} else {
-	  pImpl_ = 0;
+	  pImpl_.reset();
 	}
 #endif
       }
@@ -498,11 +507,6 @@ WGLWidget::Buffer WGLWidget::createBuffer()
   return pImpl_->createBuffer();
 }
 
-WGLWidget::ArrayBuffer WGLWidget::createAndLoadArrayBuffer(const std::string &url)
-{
-  return pImpl_->createAndLoadArrayBuffer(url);
-}
-
 WGLWidget::Framebuffer WGLWidget::createFramebuffer()
 {
   return pImpl_->createFramebuffer();
@@ -533,8 +537,8 @@ WGLWidget::Texture WGLWidget::createTextureAndLoad(const std::string &url)
   return pImpl_->createTextureAndLoad(url);
 }
 
-WPaintDevice* WGLWidget::createPaintDevice(const WLength& width,
-					   const WLength& height)
+std::unique_ptr<WPaintDevice>
+WGLWidget::createPaintDevice(const WLength& width, const WLength& height)
 {
   return pImpl_->createPaintDevice(width, height);
 }
@@ -662,7 +666,7 @@ WGLWidget::AttribLocation WGLWidget::getAttribLocation(Program program, const st
   return pImpl_->getAttribLocation(program, attrib);
 }
 
-WGLWidget::UniformLocation WGLWidget::getUniformLocation(Program program, const std::string location)
+WGLWidget::UniformLocation WGLWidget::getUniformLocation(Program program, const std::string &location)
 {
   return pImpl_->getUniformLocation(program,  location);
 }
@@ -780,7 +784,8 @@ void WGLWidget::texImage2D(GLenum target, int level, GLenum internalformat,
 			   GLenum format, GLenum type,
 			   WPaintDevice *paintdevice)
 {
-  pImpl_->texImage2D(target, level, internalformat, format, type, paintdevice);
+  pImpl_->texImage2D(target, level, internalformat, format, type,
+		     paintdevice);
 }
 
 // Deprecated!
@@ -1147,7 +1152,7 @@ void WGLWidget::setFormData(const FormData& formData)
 	} else if (mData[i1] == "-Infinity") {
 	  vec[i1] = -std::numeric_limits<float>::infinity();
 	} else {
-	  vec[i1] = boost::lexical_cast<float>(mData[i1]);
+	  vec[i1] = Utils::stof(mData[i1]);
 	}
       }
     } else {
@@ -1159,7 +1164,7 @@ void WGLWidget::setFormData(const FormData& formData)
 #ifndef WT_TARGET_JAVA
 	  mat(i2, i1) = (float)Wt::asNumber(mData[i1*4+i2]);
 #else
-	  mat.setElement(i2, i1, boost::lexical_cast<float>(mData[i1*4+i2]));
+	  mat.setElement(i2, i1, Utils::stof(mData[i1*4+i2]));
 #endif
 	}
       }
@@ -1168,15 +1173,14 @@ void WGLWidget::setFormData(const FormData& formData)
 }
 
 WGLWidget::JavaScriptVector::JavaScriptVector(unsigned length)
-  : id_(-1), length_(length), context_(0), initialized_(false)
+  : id_(-1), length_(length), context_(nullptr), initialized_(false)
 {}
 
 void WGLWidget::JavaScriptVector
 ::assignToContext(int id, const WGLWidget *context)
 {
   id_ = id;
-  jsRef_ = context->glObjJsRef() + ".jsValues[" + 
-    boost::lexical_cast<std::string>(id_) + "]";
+  jsRef_ = context->glObjJsRef() + ".jsValues[" + std::to_string(id_) + "]";
   context_ = context;
 }
 
@@ -1228,7 +1232,7 @@ WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4()
 void WGLWidget::JavaScriptMatrix4x4::assignToContext(int id, const WGLWidget* context)
 {
   id_ = id;
-  jsRef_ = context->glObjJsRef() + ".jsValues[" + boost::lexical_cast<std::string>(id_) + "]";
+  jsRef_ = context->glObjJsRef() + ".jsValues[" + std::to_string(id_) + "]";
   context_ = context;
 }
 
@@ -1270,16 +1274,16 @@ WMatrix4x4 WGLWidget::JavaScriptMatrix4x4::value() const
   int nbMult = 0;
   for (unsigned i = 0; i<operations_.size(); i++) {
     switch (operations_[i]) {
-    case TRANSPOSE:
+    case op::TRANSPOSE:
       originalCpy = originalCpy.transposed();
       break;
-    case INVERT:
+    case op::INVERT:
 #ifndef WT_TARGET_JAVA
       originalCpy = 
 #endif
 	originalCpy.inverted();
       break;
-    case MULTIPLY:
+    case op::MULTIPLY:
 #ifndef WT_TARGET_JAVA
       originalCpy = originalCpy * matrices_[nbMult];
 #else
@@ -1300,7 +1304,7 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::inverted() const
   WGLWidget::JavaScriptMatrix4x4 copy = WGLWidget::JavaScriptMatrix4x4(*this);
   copy.jsRef_ = WT_CLASS ".glMatrix.mat4.inverse(" +
     jsRef_ + ", " WT_CLASS ".glMatrix.mat4.create())";
-  copy.operations_.push_back(INVERT);
+  copy.operations_.push_back(op::INVERT);
   return copy;
 }
 
@@ -1311,7 +1315,7 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::transposed() cons
   WGLWidget::JavaScriptMatrix4x4 copy = WGLWidget::JavaScriptMatrix4x4(*this);
   copy.jsRef_ = WT_CLASS ".glMatrix.mat4.transpose(" +
     jsRef_ + ", " WT_CLASS ".glMatrix.mat4.create())";
-  copy.operations_.push_back(TRANSPOSE);
+  copy.operations_.push_back(op::TRANSPOSE);
   return copy;
 }
 
@@ -1334,7 +1338,7 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::multiply(const WG
 #endif
   ss << ", " WT_CLASS ".glMatrix.mat4.create())";
   copy.jsRef_ = ss.str();
-  copy.operations_.push_back(MULTIPLY);
+  copy.operations_.push_back(op::MULTIPLY);
   copy.matrices_.push_back(m);
   return copy;
 }

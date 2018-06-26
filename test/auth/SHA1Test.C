@@ -3,10 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Auth/HashFunction>
+#include <Wt/Auth/HashFunction.h>
 
 using namespace Wt;
 

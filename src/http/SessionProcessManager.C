@@ -6,8 +6,6 @@
 
 #include "SessionProcessManager.h"
 
-#include <boost/bind.hpp>
-
 #ifndef WT_WIN32
 #include <signal.h>
 #include <sys/wait.h>
@@ -17,30 +15,24 @@
 #define SIGNAL_SET
 #endif
 
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 
 namespace Wt {
   LOGGER("wthttp/proxy");
 }
 
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
-typedef std::chrono::seconds asio_timer_seconds;
-#else
-typedef boost::posix_time::seconds asio_timer_seconds;
-#endif
-
 namespace http {
 namespace server {
 
 namespace {
-  static const boost::shared_ptr<SessionProcess> nullProcessPtr
-    = boost::shared_ptr<SessionProcess>();
+  static const std::shared_ptr<SessionProcess> nullProcessPtr;
+
 #ifndef SIGNAL_SET
   static const int CHECK_CHILDREN_INTERVAL = 10;
 #endif // SIGNAL_SET
 }
 
-SessionProcessManager::SessionProcessManager(boost::asio::io_service &ioService,
+SessionProcessManager::SessionProcessManager(asio::io_service &ioService,
 					     const Wt::Configuration &configuration)
   : 
 #ifdef SIGNAL_SET
@@ -52,12 +44,14 @@ SessionProcessManager::SessionProcessManager(boost::asio::io_service &ioService,
     configuration_(configuration)
 {
 #ifdef SIGNAL_SET
-  signals_.async_wait(boost::bind(&SessionProcessManager::processDeadChildren, this,
-	boost::asio::placeholders::error));
+  signals_.async_wait
+    (std::bind(&SessionProcessManager::processDeadChildren, this,
+	       std::placeholders::_1));
 #else // !SIGNAL_SET
-  timer_.expires_from_now(asio_timer_seconds(CHECK_CHILDREN_INTERVAL));
-  timer_.async_wait(boost::bind(&SessionProcessManager::processDeadChildren, this,
-	boost::asio::placeholders::error));
+  timer_.expires_from_now(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
+  timer_.async_wait
+    (std::bind(&SessionProcessManager::processDeadChildren, this,
+	       std::placeholders::_1));
 #endif // SIGNAL_SET
 }
 
@@ -77,9 +71,9 @@ bool SessionProcessManager::tryToIncrementSessionCount()
 #endif // SIGNAL_SET
   // Reap dead children, in case there are dead children,
   // and processDeadChildren hasn't been run yet.
-  processDeadChildren(boost::system::error_code());
+  processDeadChildren(Wt::AsioWrapper::error_code());
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(sessionsMutex_);
+  std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
   if (numSessions_ + 1 > configuration_.maxNumSessions()) {
     return false;
@@ -89,11 +83,11 @@ bool SessionProcessManager::tryToIncrementSessionCount()
   return true;
 }
 
-const boost::shared_ptr<SessionProcess>&
-SessionProcessManager::sessionProcess(std::string sessionId)
+const std::shared_ptr<SessionProcess>& SessionProcessManager
+::sessionProcess(std::string sessionId)
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(sessionsMutex_);
+  std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
   SessionMap::const_iterator it = sessions_.find(sessionId);
   if (it != sessions_.end()) {
@@ -102,20 +96,24 @@ SessionProcessManager::sessionProcess(std::string sessionId)
   return nullProcessPtr;
 }
 
-void SessionProcessManager::addPendingSessionProcess(const boost::shared_ptr<SessionProcess>& process)
+void SessionProcessManager
+::addPendingSessionProcess(const std::shared_ptr<SessionProcess>& process)
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(sessionsMutex_);
+  std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
   LOG_DEBUG("addPendingSessionProcess()");
   pendingProcesses_.push_back(process);
 }
 
-void SessionProcessManager::addSessionProcess(std::string sessionId, const boost::shared_ptr<SessionProcess>& process)
+void SessionProcessManager
+::addSessionProcess(std::string sessionId, 
+		    const std::shared_ptr<SessionProcess>& process)
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(sessionsMutex_);
+  std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
+
   LOG_DEBUG("addSessionProcess()" << sessionId);
   for (SessionProcessList::iterator it = pendingProcesses_.begin();
        it != pendingProcesses_.end(); ++it) {
@@ -134,7 +132,7 @@ void SessionProcessManager::addSessionProcess(std::string sessionId, const boost
 std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(sessionsMutex_);
+  std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
   std::vector<Wt::WServer::SessionInfo> result;
   for (SessionMap::const_iterator it = sessions_.begin();
@@ -151,11 +149,16 @@ std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
   return result;
 }
 
-void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
+void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
 {
   if (ec) {
-    if (ec != boost::system::errc::operation_canceled)
+#ifdef WT_ASIO_IS_BOOST_ASIO
+    if (ec != boost::system::errc::operation_canceled) {
+#else
+    if (ec != std::errc::operation_canceled) {
+#endif
       LOG_ERROR("Error processing dead children: " << ec.message());
+    }
     return;
   }
 
@@ -170,7 +173,7 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
   }
 #else // WT_WIN32
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(sessionsMutex_);
+  std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
 
   std::vector<std::string> toErase;
@@ -211,12 +214,14 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
   }
 #endif // WT_WIN32
 #ifdef SIGNAL_SET
-  signals_.async_wait(boost::bind(&SessionProcessManager::processDeadChildren, this,
-	boost::asio::placeholders::error));
+  signals_.async_wait
+    (std::bind(&SessionProcessManager::processDeadChildren, this,
+	       std::placeholders::_1));
 #else // !SIGNAL_SET
-  timer_.expires_from_now(asio_timer_seconds(CHECK_CHILDREN_INTERVAL));
-  timer_.async_wait(boost::bind(&SessionProcessManager::processDeadChildren, this,
-	boost::asio::placeholders::error));
+  timer_.expires_from_now(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
+  timer_.async_wait
+    (std::bind(&SessionProcessManager::processDeadChildren, this,
+	       std::placeholders::_1));
 #endif // SIGNAL_SET
 }
 
@@ -224,7 +229,7 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
 void SessionProcessManager::removeSessionForPid(pid_t cpid)
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(sessionsMutex_);
+  std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
   for (SessionMap::iterator it = sessions_.begin();
        it != sessions_.end(); ++it) {

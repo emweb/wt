@@ -4,17 +4,15 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WDate"
-#include "Wt/WException"
-#include "Wt/WLocalDateTime"
-#include "Wt/WLogger"
+#include "Wt/WApplication.h"
+#include "Wt/WDate.h"
+#include "Wt/WException.h"
+#include "Wt/WLocalDateTime.h"
+#include "Wt/WLogger.h"
+#include "Wt/Date/date.h"
 
 #include "WebUtils.h"
-
-#include <boost/date_time/gregorian/gregorian.hpp>
-
-using namespace boost::gregorian;
+#include <cmath>
 
 namespace {
   std::string WT_WDATE = "Wt.WDate.";
@@ -24,17 +22,13 @@ namespace Wt {
 
 LOGGER("WDate");
 
-InvalidDateException::InvalidDateException()
- : WException("Error: Attempted operation on an invalid WDate")
-{ }
-
 WDate::WDate()
   : ymd_(0)
 { }
 
-WDate::WDate(const boost::gregorian::date& date)
+WDate::WDate(const std::chrono::system_clock::time_point& tp)
 {
-  setGregorianDate(date);
+  setTimePoint(tp);
 }
 
 WDate::WDate(int year, int month, int day)
@@ -42,66 +36,66 @@ WDate::WDate(int year, int month, int day)
   setDate(year, month, day);
 }
 
-void WDate::setGregorianDate(const date& date)
+void WDate::setTimePoint(const std::chrono::system_clock::time_point& tp)
 {
-  bool valid = !date.is_special();
-
-  if (valid)
-    setYmd(date.year(), date.month(), date.day());
+  date::sys_days dp = date::floor<date::days>(tp);
+  auto ymd = date::year_month_day(dp);
+  if(ymd.ok())
+      setYmd((int)ymd.year(), (unsigned int)ymd.month(), (unsigned int)ymd.day());
   else
-    ymd_ = 1; // not null and not valid
+      ymd_ = 1; //not null and not valid
 }
 
 WDate WDate::addDays(int ndays) const
 {
-  if (isValid()) {
-    date d(year(), month(), day());
-    d += date_duration(ndays);
-    if (d.year() > 9999 || d.year() < 1400)
-      return WDate();
-    return WDate(d.year(), d.month(), d.day());
+  if(isValid()){
+      date::sys_days dp(date::day(day())/month()/year());
+      date::year_month_day ymd(dp + date::days(ndays));
+      return WDate((int)ymd.year(), (unsigned int)ymd.month(), (unsigned int)ymd.day());
   } else
-    return WDate();
+      return WDate();
 }
 
 WDate WDate::addMonths(int nmonths) const
 {
-  if (isValid()) {
-    date d(year(), month(), day());
-    d += months(nmonths);
-    if (d.year() > 9999 || d.year() < 1400)
-      return WDate();
-    return WDate(d.year(), d.month(), d.day());
+  if(isValid()){
+      date::year_month_day ymd = date::day(day())/month()/year();
+      ymd += date::months(nmonths);
+      if(!ymd.ok())
+          return WDate();
+      return WDate((int)ymd.year(), (unsigned int)ymd.month(), (unsigned int)ymd.day());
   } else
-    return WDate();
+      return WDate();
 }
 
 WDate WDate::addYears(int nyears) const
 {
-  if (isValid()) {
-    date d(year(), month(), day());
-    d += years(nyears);
-    if (d.year() > 9999 || d.year() < 1400)
-      return WDate();
-    return WDate(d.year(), d.month(), d.day());
+  if(isValid()){
+      date::year_month_day ymd = date::day(day())/month()/year();
+      ymd += date::years(nyears);
+      if(!ymd.ok())
+          return WDate();
+      return WDate((int)ymd.year(), (unsigned int)ymd.month(), (unsigned int)ymd.day());
   } else
-    return WDate();
+      return WDate();
 }
 
 void WDate::setDate(int year, int month, int day)
 {
-  try {
-    date d(year, month, day);
-    if (d.year() > 9999 || d.year() < 1400) {
-      LOG_WARN("Invalid date: not in range 1400 .. 9999");
-      ymd_ = 1;
-      return;
+    date::year_month_day ymd = date::day(day)/month/year;
+    if(!ymd.ok()){
+        if(!ymd.year().ok())
+            LOG_WARN("Invalid date: year not in range "
+                     << (int)ymd.year().min()<< " .. "
+                     << (int)ymd.year().max());
+        if(!ymd.month().ok())
+            LOG_WARN("Invalid date: month not in range 1 .. 12");
+        if(!ymd.day().ok())
+            LOG_WARN("Invalid date: day not in range 1 .. 31");
+        ymd_ = 1;
+        return;
     }
     setYmd(year, month, day);
-  } catch (std::out_of_range& e) {
-    LOG_WARN("Invalid date: " << e.what());
-    ymd_ = 1;
-  }
 }
 
 void WDate::setYmd(int y, int m, int d)
@@ -111,7 +105,7 @@ void WDate::setYmd(int y, int m, int d)
 
 bool WDate::isLeapYear(int year)
 {
- return gregorian_calendar::is_leap_year(year);
+    return date::year(year).is_leap();
 }
 
 int WDate::dayOfWeek() const
@@ -119,8 +113,7 @@ int WDate::dayOfWeek() const
   if (!isValid())
     return 0;
 
-  date d(year(), month(), day());
-  int dow = d.day_of_week().as_number();
+  unsigned dow = (unsigned)date::weekday(date::day(day())/month()/year());
   return (dow == 0 ? 7 : dow);
 }
 
@@ -129,11 +122,12 @@ int WDate::daysTo(const WDate& other) const
   if (!isValid() || !other.isValid())
     return 0;
 
-  date dthis(year(), month(), day());
-  date dother(other.year(), other.month(), other.day());
-  date_duration dd = dother - dthis;
-
-  return dd.days();
+  date::year_month_day ymdthis = date::day(day())/month()/year();
+  date::year_month_day ymdother = date::day(other.day())/other.month()/other.year();
+  date::sys_days dpthis = ymdthis;
+  date::sys_days dpother = ymdother;
+  auto dd = dpother - dpthis;
+  return dd.count();
 }
 
 int WDate::toJulianDay() const
@@ -141,17 +135,34 @@ int WDate::toJulianDay() const
   if (!isValid())
     return 0;
   else {
-    date dthis(year(), month(), day());
-    return dthis.julian_day();
+    int a = std::floor((14 - month())/12);
+    int nyears = year() + 4800 - a;
+    int nmonths = month() + 12*a -3;
+    return day() + std::floor((153*nmonths + 2)/5) 
+      + 365*nyears + std::floor(nyears/4) 
+      - std::floor(nyears/100) + std::floor(nyears/400) - 32045;
   }
 }
 
-boost::gregorian::date WDate::toGregorianDate() const
+std::chrono::system_clock::time_point WDate::toTimePoint() const
 {
-  if (isValid())
-    return date(year(), month(), day());
+  if (isValid()){
+    date::year_month_day ymd = date::day(day())/month()/year();
+    date::sys_days days = ymd;
+    return days;
+  }
   else
-    return date(not_a_date_time);
+    return std::chrono::system_clock::time_point();
+}
+
+WDate WDate::previousWeekday(WDate &d, int weekday)
+{
+    if(!d.isValid())
+        return WDate();
+    WDate dt = d.addDays(-1);
+    while(dt.dayOfWeek() != weekday)
+        dt = dt.addDays(-1);
+    return dt;
 }
 
 bool WDate::isValid(int year, int month, int day)
@@ -192,9 +203,9 @@ bool WDate::operator>= (const WDate& other) const
 
 WDate WDate::currentServerDate()
 {
-  date cd = day_clock::local_day();
-
-  return WDate(cd.year(), cd.month(), cd.day());
+  date::sys_days dp = date::floor<date::days>(std::chrono::system_clock::now());
+  date::year_month_day ymd(dp);
+  return WDate((int)ymd.year(), (unsigned int)ymd.month(), (unsigned int)ymd.day());
 }
 
 WDate WDate::currentDate()
@@ -336,7 +347,7 @@ WDate WDate::fromString(const WString& s, const WString& format)
 {
   WDate result;
 
-  WDateTime::fromString(&result, 0, s, format);
+  WDateTime::fromString(&result, nullptr, s, format);
 
   return result;
 }
@@ -349,35 +360,35 @@ WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
   case 'd':
     if (parse.d == 0)
       if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharInvalid;
+	return WDateTime::CharState::CharInvalid;
 
     ++parse.d;
 
-    return WDateTime::CharHandled;
+    return WDateTime::CharState::CharHandled;
 
   case 'M':
     if (parse.M == 0)
       if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharInvalid;
+	return WDateTime::CharState::CharInvalid;
 
     ++parse.M;
 
-    return WDateTime::CharHandled;
+    return WDateTime::CharState::CharHandled;
 
   case 'y':
     if (parse.y == 0)
       if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharInvalid;
+	return WDateTime::CharState::CharInvalid;
 
     ++parse.y;
 
-    return WDateTime::CharHandled;
+    return WDateTime::CharState::CharHandled;
 
   default:
     if (!parseLast(v, vi, parse, format))
-      return WDateTime::CharInvalid;
+      return WDateTime::CharState::CharInvalid;
 
-    return WDateTime::CharUnhandled;
+    return WDateTime::CharState::CharUnhandled;
   }
 }
 
@@ -449,8 +460,8 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
 	  dstr += v[vi++];
 
       try {
-	parse.day = boost::lexical_cast<int>(dstr);
-      } catch (boost::bad_lexical_cast&) {
+	parse.day = Utils::stoi(dstr);
+      } catch (std::exception&) {
 	return false;
       }
       
@@ -464,8 +475,8 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
       vi += 2;
 
       try {
-	parse.day = boost::lexical_cast<int>(dstr);
-      } catch (boost::bad_lexical_cast&) {
+	parse.day = Utils::stoi(dstr);
+      } catch (std::exception&) {
 	return false;
       }      
 
@@ -500,8 +511,8 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
 	  Mstr += v[vi++];
 
       try {
-	parse.month = boost::lexical_cast<int>(Mstr);
-      } catch (boost::bad_lexical_cast&) {
+	parse.month = Utils::stoi(Mstr);
+      } catch (std::exception&) {
 	return false;
       }
       
@@ -515,8 +526,8 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
       vi += 2;
 
       try {
-	parse.month = boost::lexical_cast<int>(Mstr);
-      } catch (boost::bad_lexical_cast&) {
+	parse.month = Utils::stoi(Mstr);
+      } catch (std::exception&) {
 	return false;
       }      
 
@@ -549,12 +560,12 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
       vi += 2;
 
       try {
-	parse.year = boost::lexical_cast<int>(ystr);
+	parse.year = Utils::stoi(ystr);
 	if (parse.year < 38)
 	  parse.year += 2000;
 	else
 	  parse.year += 1900;
-      } catch (boost::bad_lexical_cast&) {
+      } catch (std::exception&) {
 	return false;
       }      
 
@@ -568,8 +579,8 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
       vi += 4;
 
       try {
-	parse.year = boost::lexical_cast<int>(ystr);
-      } catch (boost::bad_lexical_cast&) {
+	parse.year = Utils::stoi(ystr);
+      } catch (std::exception&) {
 	return false;
       }      
 
@@ -592,7 +603,7 @@ WString WDate::toString() const
 
 WString WDate::toString(const WString& format) const
 {
-  return WDateTime::toString(this, 0, format, true, 0);
+  return WDateTime::toString(this, nullptr, format, true, 0);
 }
 
 bool WDate::writeSpecial(const std::string& f, unsigned& i,
@@ -819,7 +830,7 @@ namespace {
 	  result.regexp += "(\\d{2})";
 
 	result.dayGetJS = "return parseInt(results["
-	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10);";
+	  + std::to_string(currentGroup++) + "], 10);";
 	break;
       default:
 	fatalFormatRegExpError(format, d, "d's");
@@ -838,7 +849,7 @@ namespace {
 	  result.regexp += "(\\d{2})";
 
 	result.monthGetJS = "return parseInt(results["
-	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10);";
+	  + std::to_string(currentGroup++) + "], 10);";
 	break;
       default:
 	fatalFormatRegExpError(format, M, "M's");
@@ -852,13 +863,13 @@ namespace {
       case 2:
 	result.regexp += "(\\d{2})";
 	result.yearGetJS = "var y=parseInt(results["
-	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10);"
+	  + std::to_string(currentGroup++) + "], 10);"
 	  "return y > 38 ? 1900 + y : 2000 + y;";
 	break;
       case 4:
 	result.regexp += "(\\d{4})";
 	result.yearGetJS = "return parseInt(results["
-	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10)";
+	  + std::to_string(currentGroup++) + "], 10)";
 	break;
       default:
 	fatalFormatRegExpError(format, y, "y's");

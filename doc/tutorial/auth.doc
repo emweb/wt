@@ -3,7 +3,7 @@ Introduction to Wt::Auth
 
 Koen Deforche <koen@emweb.be> +
 
-For Wt 3.2.1 (March 16 2012)
+For Wt 4.0.0 (September 19, 2017)
 
 :doc: link:http://www.webtoolkit.eu/wt/doc/reference/html/
 :tutorials: link:http://www.webtoolkit.eu/wt/doc/tutorial/
@@ -11,13 +11,12 @@ For Wt 3.2.1 (March 16 2012)
 
 == Prerequisites
 
-In Wt 3.2.0, an authentication module was added to Wt. In this
-tutorial, we use an example as a hands-on introduction to this
+In this tutorial, we use an example as a hands-on introduction to the Wt authentication
 module. This example is included in the Wt distribution, in
-https://github.com/kdeforche/wt/tree/master/examples/feature/auth1[examples/feature/auth1].
+https://github.com/emweb/wt/tree/master/examples/feature/auth1[examples/feature/auth1].
 
 This introduction assumes that you have a reasonable understanding of
-Wt itself, in particular it's stateful session model and the widget
+Wt itself, in particular its stateful session model and the widget
 concept. If you haven't done so yet, you may want to go through the
 {tutorials}wt.html[Wt tutorial] first.
 
@@ -65,9 +64,9 @@ to prompt a user to enter a new password.
 
 * Authentication using *3rd party Identity Providers*, currently using
 http://oauth.net/2/[OAuth 2], with support for multiple identities per
-user. We've added an implementation using Google, but others will be
-added, and in the future we may expect standardization using
-OpenIDConnect.
+user. Currently, only Google and Facebook are supported for authentication,
+but Wt may support other OAuth 2 providers, like the standardized OpenIDConnect,
+in the future.
 
 * *Registration* logic, which includes also the logic needed to merge
 new (federated login) identities into existing user profiles. For
@@ -76,7 +75,7 @@ password, he may later also authenticate using for example his Google
 Account and this new identity is added to his existing account.
 
 The logic for these features is implemented separately from the
-user-interface components, which can be customized or completely
+user interface components, which can be customized or completely
 replaced with your own widgets.
 
 Next to traditional password-based authentication, we've been careful
@@ -86,6 +85,9 @@ such as Google, Twitter, Facebook, etc... and other authentication
 mechanisms in general (authenticating
 http://en.wikipedia.org/wiki/Reverse_proxy[reverse proxies], client
 SSL certificates, LDAP, token devices ...).
+
+////
+FIXME: update to the current state of affairs
 
 Federated login is a compelling proposition, but has currently not had
 widespread success, because of usability issues and other problems,
@@ -112,7 +114,7 @@ might just work.
 increasingly so. Not only is the logic daunting
 (http://sites.google.com/site/oauthgoog/UXFedLogin/loginlogic[account
 linking] is one example), it also requires a good mix of Ajax-y
-user-interface components, server-side logic and state with a protocol
+user interface components, server-side logic and state with a protocol
 that involves receiving and sending HTTP requests, and integration
 into a traditional password-based authentication module. Well, we are
 solving that ;-)
@@ -128,6 +130,7 @@ and
 {doc}classWt_1_1Auth_1_1RegistrationWidget.html[Wt::Auth::RegistrationWidget]
 classes and which allows users to authenticate with any email provider
 using the OpenIDConnect discovery protocol.
+////
 
 Obviously, the authentication logic needs to talk to a storage system,
 and it is designed to hook into a storage system using an abstract
@@ -173,7 +176,7 @@ is about 200 lines of C++ (which we'll discuss below), and has the
 following features:
 
 * Password-based authentication and registration
-* OAuth-2 login and registration, for Google Accounts
+* OAuth-2 login and registration, for Google and Facebook accounts
 * Password attempt throttling
 * Email verification and a lost password procedure
 * Remember-me tokens
@@ -217,13 +220,13 @@ type is as given below:
 .User.h
 [source,cpp]
 ----
-#include <Wt/Dbo>
-#include <Wt/WGlobal>
+#include <Wt/Dbo/Types.h>
+#include <Wt/WGlobal.h>
 
 namespace dbo = Wt::Dbo;
 
 class User;
-typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;
+using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
 
 class User {
 public:
@@ -232,9 +235,11 @@ public:
   {
   }
 };
+
+DBO_EXTERN_TEMPLATES(User)
 ----
 
-We declare a typedef for +AuthInfo+, which links the authentication
+We declare a type alias for +AuthInfo+, which links the authentication
 information persistence class to our custom +User+ information
 persistence class.
 
@@ -252,15 +257,17 @@ persistence/authentication +Session+ object.
 .Session.h
 [source,cpp]
 ----
-#include <Wt/Dbo/Session>
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Auth/Login.h>
+#include <Wt/Auth/UserDatabase.h>
+
+#include <Wt/Dbo/Session.h>
+#include <Wt/Dbo/ptr.h>
 
 #include "User.h"
 
 namespace dbo = Wt::Dbo;
 
-typedef Wt::Auth::Dbo::UserDatabase<AuthInfo> UserDatabase;
+using UserDatabase = Wt::Auth::Dbo::UserDatabase<AuthInfo>;
 
 class Session : public dbo::Session
 {
@@ -273,18 +280,17 @@ public:
   ...
 
 private:
-  dbo::backend::Sqlite3 connection_;
-  UserDatabase *users_;
+  std::unique_ptr<UserDatabase> users_;
   Wt::Auth::Login login_;
 
   ...
 };
 ----
 
-Notice the typedef for +UserDatabase+, which states that we will be
+Notice the type alias for +UserDatabase+, which states that we will be
 using the
 {doc}classWt_1_1Auth_1_1Dbo_1_1UserDatabase.html[Wt::Auth::Dbo::UserDatabase]
-implementation using +AuthInfo+, for which we declared a typedef
+implementation using +AuthInfo+, for which we declared a type alias
 earlier on. You are of course free to provide another implementation
 for
 {doc}classWt_1_1Auth_1_1AbstractUserDatabase.html[Wt::Auth::AbstractUserDatabase]
@@ -305,15 +311,16 @@ The +Session+ constructor sets up the database session.
 #include "Session.h"
 #include "User.h"
 
-#include "Wt/Auth/Dbo/AuthInfo"
-#include "Wt/Auth/Dbo/UserDatabase"
+#include "Wt/Auth/Dbo/AuthInfo.h"
+
+#include "Wt/Dbo/backend/Sqlite3.h"
 
 using namespace Wt;
 
 Session::Session(const std::string& sqliteDb)
-  : connection_(sqliteDb)
 {
-  setConnection(connection_);
+  auto connection = std::make_unique<Dbo::backend::Sqlite3>(sqliteDb);
+  setConnection(std::move(connection_));
 
   mapClass<User>("user");
   mapClass<AuthInfo>("auth_info");
@@ -328,7 +335,7 @@ Session::Session(const std::string& sqliteDb)
     std::cerr << "Using existing database";
   }
 
-  users_ = new UserDatabase(*this);
+  users_ = std::make_unique<UserDatabase>(*this);
 }
 ----
 
@@ -362,6 +369,7 @@ create table "auth_info" (
   "email_token_role" integer not null,
   constraint "fk_auth_info_user" foreign key
    ("user_id") references "user" ("id")
+   on delete cascade deferrable initially deferred
 )
 
 create table "auth_token" (
@@ -372,6 +380,7 @@ create table "auth_token" (
   "expires" text,
   constraint "fk_auth_token_auth_info" foreign key
    ("auth_info_id") references "auth_info" ("id")
+   on delete cascade deferrable initially deferred
 )
 
 create table "auth_identity" (
@@ -382,6 +391,7 @@ create table "auth_identity" (
   "identity" varchar(512) not null,
   constraint "fk_auth_identity_auth_info" foreign key
    ("auth_info_id") references "auth_info" ("id")
+   on delete cascade defferable initially deferred
 )
 ----
 
@@ -409,47 +419,65 @@ will declare them simply as global variables (but within file scope):
 [source,cpp]
 ----
 
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/PasswordService"
-#include "Wt/Auth/PasswordStrengthValidator"
-#include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/GoogleService"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/HashFunction.h"
+#include "Wt/Auth/PasswordService.h"
+#include "Wt/Auth/PasswordStrengthValidator.h"
+#include "Wt/Auth/PasswordVerifier.h"
+#include "Wt/Auth/GoogleService.h"
+#include "Wt/Auth/FacebookService.h"
 
 namespace {
   Wt::Auth::AuthService myAuthService;
-  Wt::Auth::PasswordService myPasswordService(myAuthService);
-  std::vector<const Wt::Auth::OAuthService *> myOAuth;
+  Wt::Auth::PasswordService myPasswordService{myAuthService};
+  std::vector<std::unique_ptr<Wt::Auth::OAuthService>> myOAuth;
 }
 
 void Session::configureAuth()
 {
   myAuthService.setAuthTokensEnabled(true, "logincookie");
   myAuthService.setEmailVerificationEnabled(true);
+  myAuthService.setEmailVerificationRequired(true);
 
-  Wt::Auth::PasswordVerifier *verifier = new Wt::Auth::PasswordVerifier();
-  verifier->addHashFunction(new Wt::Auth::BCryptHashFunction(7));
-  myPasswordService.setVerifier(verifier);
+  std::unique_ptr<Wt::Auth::PasswordVerifier> verifier =
+    std::make_unique<Wt::Auth::PasswordVerifier>();
+  verifier->addHashFunction(std::make_unique<Wt::Auth::BCryptHashFunction>(7));
+  myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setAttemptThrottlingEnabled(true);
-  myPasswordService.setStrengthValidator(new Wt::Auth::PasswordStrengthValidator());
+  myPasswordService.setStrengthValidator(std::make_unique<Wt::Auth::PasswordStrengthValidator>());
 
   if (Wt::Auth::GoogleService::configured())
-    myOAuthServices.push_back(new Wt::Auth::GoogleService(myAuthService));
+    myOAuthServices.push_back(std::make_unique<Wt::Auth::GoogleService>(myAuthService));
+
+  if (Wt::Auth::FacebookService::configured())
+    myOAuthServices.push_back(std::make_unique<Wt::Auth::FacebookService>(myAuthService));
+
+  for (unsigned i = 0; i < myOAuthServices.size(); ++i)
+    myOAuthServices[i]->generateRedirectEndpoint();
+}
+
+Wt::Auth::AbstractUserDatabase& Session::users()
+{
+  return *users_;
 }
 
 const Wt::Auth::AuthService& Session::auth()
 {
-  return myBaseAuth;
+  return myAuthService;
 }
 
 const Wt::Auth::PasswordService& Session::passwordAuth()
 {
-  return myPasswords;
+  return myPasswordService;
 }
 
 const std::vector<const Wt::Auth::OAuthService *>& Session::oAuth()
 {
-  return myOAuth;
+  std::vector<const Wt::Auth::OAuthService *> result;
+  for (auto &auth : myOAuthServices) {
+    result.push_back(auth.get());
+  }
+  return result;
 }
 ----
 
@@ -472,13 +500,10 @@ function] in Wt::Auth.
 We also enable password attempt throttling: this mitigates brute force
 password guessing attempts.
 
-Finally, we also use one (but later, perhaps more)
+Finally, we also use two (but later, perhaps more)
 {doc}classWt_1_1Auth_1_1OAuthService.html[Wt::Auth::OAuthService]
-classes. You need one service per identity provider. Until
-OpenIDConnect is supported by most providers, each provider requires a
-proprietary method to access identity information using the authorized
-OAuth2.0 token. In this case, we only add Google as an identity
-provider.
+classes. You need one service per identity provider. In this case,
+we add Google and Facebook as identity providers.
 
 === The user interface
 
@@ -493,12 +518,13 @@ and handling of email-sent tokens in URLs).
 .User interface
 [source,cpp]
 ----
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WServer>
+#include <Wt/WApplication.h>
+#include <Wt/WBootstrapTheme.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WServer.h>
 
-#include <Wt/Auth/AuthWidget>
-#include <Wt/Auth/PasswordService>
+#include <Wt/Auth/AuthWidget.h>
+#include <Wt/Auth/PasswordService.h>
 
 #include "model/Session.h"
 
@@ -511,11 +537,13 @@ public:
   {
     session_.login().changed().connect(this, &AuthApplication::authEvent);
 
+    root()->addStyleClass("container");
+    setTheme(std::make_shared<Wt::WBootstrapTheme>());
+
     useStyleSheet("css/style.css");
 
-    Wt::Auth::AuthWidget *authWidget
-      = new Wt::Auth::AuthWidget(Session::auth(), session_.users(),
-				 session_.login());
+    std::unique_ptr<Wt::Auth::AuthWidget> authWidget =
+      std::make_unique<Wt::Auth::AuthWidget>(Session::auth(), session_.users(), session_.login());
 
     authWidget->model()->addPasswordAuth(&Session::passwordAuth());
     authWidget->model()->addOAuth(Session::oAuth());
@@ -523,15 +551,18 @@ public:
 
     authWidget->processEnvironment();
 
-    root()->addWidget(authWidget);
+    root()->addWidget(std::move(authWidget));
   }
 
   void authEvent() {
-    if (session_.login().loggedIn())
-      Wt::log("notice") << "User " << session_.login().user().id()
-			<< " logged in.";
-    else
-      Wt::log("notice") << "User logged out.";
+    if (session_.login().loggedIn()) {
+      const Wt::Auth::User& u = session_.login().user();
+      log("notice")
+        << "User " << u.id()
+        << " (" << u.identity(Wt::Auth::Identity::LoginName) << ")"
+        << " logged in.";
+    } else
+      log("notice") << "User logged out.";
   }
 
 private:
@@ -539,30 +570,26 @@ private:
 };
 ----
 
-The last part is our main function where setup the application server:
+The last part is our main function where we setup the application server:
 
 .Application server setup
 [source,cpp]
 ----
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment &env)
 {
-  return new AuthApplication(env);
+  return std::make_unique<AuthApplication>(env);
 }
 
 int main(int argc, char **argv)
 {
   try {
-    Wt::WServer server(argv[0]);
+    Wt::WServer server{argc, argv, WTHTTP_CONFIGURATION};
 
-    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
-    server.addEntryPoint(Wt::Application, createApplication);
+    server.addEntryPoint(Wt::EntryPointType::Application, createApplication);
 
     Session::configureAuth();
 
-    if (server.start()) {
-      Wt::WServer::waitForShutdown();
-      server.stop();
-    }
+    server.run();
   } catch (Wt::WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (Wt::Dbo::Exception &e) {

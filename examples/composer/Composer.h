@@ -7,7 +7,7 @@
 #ifndef COMPOSER_H_
 #define COMPOSER_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 #include "Contact.h"
 #include "Attachment.h"
@@ -42,7 +42,7 @@ class Composer : public WCompositeWidget
 public:
   /*! \brief Construct a new Composer
    */
-  Composer(WContainerWidget *parent = 0);
+  Composer();
 
   /*! \brief Set message To: contacts
    */
@@ -90,11 +90,11 @@ public:
 public:
   /*! \brief The message is ready to be sent...
    */
-  Wt::Signal<void> send;
+  Wt::Signal<> send;
 
   /*! \brief The message must be discarded.
    */
-  Wt::Signal<void> discard;
+  Wt::Signal<> discard;
 
 private:
   WContainerWidget *layout_;

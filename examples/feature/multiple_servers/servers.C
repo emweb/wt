@@ -6,19 +6,19 @@
 
 #include <iostream>
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WText>
-#include <Wt/WServer>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WText.h>
+#include <Wt/WServer.h>
 
 using namespace Wt;
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new WApplication(env);
+  auto app = cpp14::make_unique<WApplication>(env);
   app->setTitle("Multiple servers @ " + env.hostName());
-  app->root()->addWidget(new WText("Well hello there"));
+  app->root()->addWidget(cpp14::make_unique<WText>("Well hello there"));
 
   return app;
 }
@@ -27,7 +27,7 @@ int main(int, char **)
 {
   try {
     int argc = 5;
-    char** argv1 = new char*[argc];
+    auto argv1 = std::unique_ptr<char*[]>(new char*[argc]);
 
     argv1[0] = (char *) "multiple";
     argv1[1] = (char *) "--http-address=0.0.0.0";
@@ -35,9 +35,9 @@ int main(int, char **)
     argv1[3] = (char *) "--deploy-path=/";
     argv1[4] = (char *) "--docroot=.";
 
-    WServer server1(argc, argv1, WTHTTP_CONFIGURATION);
+    WServer server1(argc, argv1.get(), WTHTTP_CONFIGURATION);
 
-    char** argv2 = new char*[argc];
+    auto argv2 = std::unique_ptr<char*[]>(new char*[argc]);
 
     argv2[0] = (char *) "multiple";
     argv2[1] = (char *) "--http-address=0.0.0.0";
@@ -45,10 +45,10 @@ int main(int, char **)
     argv2[3] = (char *) "--deploy-path=/";
     argv2[4] = (char *) "--docroot=.";
 
-    WServer server2(argc, argv2, WTHTTP_CONFIGURATION);
+    WServer server2(argc, argv2.get(), WTHTTP_CONFIGURATION);
 
-    server1.addEntryPoint(Application, createApplication);
-    server2.addEntryPoint(Application, createApplication);
+    server1.addEntryPoint(EntryPointType::Application, createApplication);
+    server2.addEntryPoint(EntryPointType::Application, createApplication);
 
     if (server1.start()) {
       if (server2.start()) {
@@ -57,7 +57,7 @@ int main(int, char **)
       }
       server1.stop();
     }
-  } catch (Wt::WServer::Exception& e) {
+  } catch (WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;

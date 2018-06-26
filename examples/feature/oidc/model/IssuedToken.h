@@ -1,8 +1,8 @@
 #ifndef ISSUED_TOKEN_H
 #define ISSUED_TOKEN_H
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDateTime>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDateTime.h>
 
 #include "User.h"
 #include "OAuthClient.h"
@@ -18,14 +18,14 @@ public:
               std::string redirectUri,
               Wt::Dbo::ptr<User> user,
               Wt::Dbo::ptr<OAuthClient> authClient);
-  Wt::Dbo::ptr<User> user;
-  Wt::Dbo::ptr<OAuthClient> authClient;
 
   std::string   value;
   Wt::WDateTime expires;
   std::string   purpose;
   std::string   scope;
   std::string   redirectUri;
+  Wt::Dbo::ptr<User> user;
+  Wt::Dbo::ptr<OAuthClient> authClient;
 
   template<class Action>
   void persist(Action& a)

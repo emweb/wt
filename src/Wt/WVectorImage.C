@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WVectorImage"
+#include "Wt/WVectorImage.h"
 
 namespace Wt {
 

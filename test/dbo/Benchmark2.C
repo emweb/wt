@@ -6,10 +6,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDateTime>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/QueryModel>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDateTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/QueryModel.h>
 
 #include "DboFixture.h"
 
@@ -70,10 +70,11 @@ long benchmarkQuery(
    */
   session.rereadAll();
 
-  boost::posix_time::ptime start
-    = boost::posix_time::microsec_clock::local_time();
+  /*boost::posix_time::ptime start
+    = boost::posix_time::microsec_clock::local_time();*/
+  std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
-  typedef boost::tuple<dbo::ptr<Perf2::Post>, double> PostWithSum;
+  typedef std::tuple<dbo::ptr<Perf2::Post>, double> PostWithSum;
 
   dbo::Query<PostWithSum> query = session.query<PostWithSum>(query_sql);
 
@@ -106,21 +107,23 @@ long benchmarkQuery(
   long sum;
   dbo::ptr<Perf2::Post> post;
   for (int i = 0; i < total_objects; i++) {
-    boost::tie(post, sum) = model.resultRow(i);
+    std::tie(post, sum) = model.resultRow(i);
     total_sum += sum;
   }
 
-  boost::posix_time::ptime
-    end = boost::posix_time::microsec_clock::local_time();
+  /*boost::posix_time::ptime
+    end = boost::posix_time::microsec_clock::local_time();*/
+  std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
 
-  boost::posix_time::time_duration d = end - start;
+  //boost::posix_time::time_duration d = end - start;
 
-  std::cerr << (double)d.total_microseconds() / total_objects
+  std::cerr << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / total_objects
             << " microseconds per object" << std::endl;
 
   BOOST_REQUIRE(total_sum == expected);
 
-  return d.total_seconds();
+  //return d.total_seconds();
+  return std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
 }
 
 BOOST_AUTO_TEST_CASE( performance_test2 )
@@ -136,7 +139,7 @@ BOOST_AUTO_TEST_CASE( performance_test2 )
    */
   std::string query_post_with_sum =
       "SELECT \"p1\", (SELECT sum(\"p2\".\"counter\") * (avg(\"p2\".\"counter\")) \"sum_total\" "
-                  "FROM \"post\" \"p2\" WHERE \"p2\".\"id\" <= \"p1\".\"id\") "
+                  "FROM \"post\" \"p2\" WHERE \"p2\".\"id\" <= \"p1\".\"id\") AS \"subq1\" "
       "FROM \"post\" \"p1\" "
       "WHERE (SELECT sum(\"p2\".\"counter\") * (avg(\"p2\".\"counter\")) \"sum_total\" "
                   "FROM \"post\" \"p2\" WHERE \"p2\".\"id\" <= \"p1\".\"id\") > 0";
@@ -155,9 +158,9 @@ BOOST_AUTO_TEST_CASE( performance_test2 )
               << std::endl;
 
     for (int i = 0; i < total_objects - current_objects; ++i) {
-      Perf2::Post *p = new Perf2::Post();
+      auto p = Wt::cpp14::make_unique<Perf2::Post>();
       p->counter = 1;
-      session.add(p);
+      session.add(std::move(p));
     }
 
     t.commit();

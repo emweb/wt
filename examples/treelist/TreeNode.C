@@ -3,18 +3,18 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
 
-#include <Wt/WTable>
-#include <Wt/WTableCell>
-#include <Wt/WImage>
-#include <Wt/WText>
-#include <Wt/WCssDecorationStyle>
+#include <Wt/WTable.h>
+#include <Wt/WTableCell.h>
+#include <Wt/WImage.h>
+#include <Wt/WText.h>
+#include <Wt/WCssDecorationStyle.h>
 
 #include "TreeNode.h"
 #include "IconPair.h"
 
 using std::find;
+using namespace Wt;
 
 std::string TreeNode::imageLine_[] = { "icons/line-middle.gif",
 				       "icons/line-last.gif" };
@@ -24,12 +24,11 @@ std::string TreeNode::imageMin_[] = { "icons/nav-minus-line-middle.gif",
 				      "icons/nav-minus-line-last.gif" };
 
 TreeNode::TreeNode(const std::string labelText,
-		   Wt::TextFormat labelFormat,
-		   IconPair *labelIcon,
-		   Wt::WContainerWidget *parent)
-  : Wt::WCompositeWidget(parent),
-    parentNode_(0),
-    labelIcon_(labelIcon)
+		   TextFormat labelFormat,
+		   std::unique_ptr<IconPair> labelIcon)
+  : WCompositeWidget(),
+    parentNode_(nullptr),
+    labelIcon_(labelIcon.get())
 {
   // pre-learned stateless implementations ...
   implementStateless(&TreeNode::expand, &TreeNode::undoExpand);
@@ -40,39 +39,50 @@ TreeNode::TreeNode(const std::string labelText,
   //implementStateless(&TreeNode::expand);
   //implementStateless(&TreeNode::collapse);
 
-  setImplementation(layout_ = new Wt::WTable());
+  auto layout = cpp14::make_unique<WTable>();
+  layout_ = layout.get();
+  setImplementation(std::move(layout));
 
-  expandIcon_ = new IconPair(imagePlus_[Last], imageMin_[Last]);
+  auto expandIcon =
+      cpp14::make_unique<IconPair>(imagePlus_[Last], imageMin_[Last]);
+  expandIcon_ = expandIcon.get();
   expandIcon_->hide();
-  noExpandIcon_ = new Wt::WImage(imageLine_[Last]);
 
-  expandedContent_ = new Wt::WContainerWidget();
+  auto noExpandIcon =
+      cpp14::make_unique<WImage>(imageLine_[Last]);
+
+  noExpandIcon_ = noExpandIcon.get();
+
+  auto expandedContent = cpp14::make_unique<WContainerWidget>();
+  expandedContent_ = expandedContent.get();
   expandedContent_->hide();
 
-  labelText_ = new Wt::WText(labelText);
+  labelText_ = cpp14::make_unique<WText>(labelText);
   labelText_->setTextFormat(labelFormat);
   labelText_->setStyleClass("treenodelabel");
-  childCountLabel_ = new Wt::WText();
-  childCountLabel_->setMargin(7, Wt::Left);
+
+  auto childCountLabel = cpp14::make_unique<WText>();
+  childCountLabel_ = childCountLabel.get();
+  childCountLabel_->setMargin(7, Side::Left);
   childCountLabel_->setStyleClass("treenodechildcount");
 
-  layout_->elementAt(0, 0)->addWidget(expandIcon_);
-  layout_->elementAt(0, 0)->addWidget(noExpandIcon_);
+  layout_->elementAt(0, 0)->addWidget(std::move(expandIcon));
+  layout_->elementAt(0, 0)->addWidget(std::move(noExpandIcon));
 
-  if (labelIcon_) {
-    layout_->elementAt(0, 1)->addWidget(labelIcon_);
-    labelIcon_->setVerticalAlignment(Wt::AlignMiddle);
+  if (labelIcon) {
+    layout_->elementAt(0, 1)->addWidget(std::move(labelIcon));
+    labelIcon_->setVerticalAlignment(AlignmentFlag::Middle);
   }
-  layout_->elementAt(0, 1)->addWidget(labelText_);
-  layout_->elementAt(0, 1)->addWidget(childCountLabel_);
+  layout_->elementAt(0, 1)->addWidget(std::move(labelText_));
+  layout_->elementAt(0, 1)->addWidget(std::move(childCountLabel));
 
-  layout_->elementAt(1, 1)->addWidget(expandedContent_);
+  layout_->elementAt(1, 1)->addWidget(std::move(expandedContent));
 
-  layout_->elementAt(0, 0)->setContentAlignment(Wt::AlignTop);
-  layout_->elementAt(0, 1)->setContentAlignment(Wt::AlignMiddle);
+  layout_->elementAt(0, 0)->setContentAlignment(AlignmentFlag::Top);
+  layout_->elementAt(0, 1)->setContentAlignment(AlignmentFlag::Middle);
 
-  expandIcon_->icon1Clicked.connect(this, &TreeNode::expand);
-  expandIcon_->icon2Clicked.connect(this, &TreeNode::collapse);
+  expandIcon_->icon1Clicked->connect(this, &TreeNode::expand);
+  expandIcon_->icon2Clicked->connect(this, &TreeNode::collapse);
 } //
 
 bool TreeNode::isLastChildNode() const
@@ -83,21 +93,21 @@ bool TreeNode::isLastChildNode() const
     return true;
 }
 
-void TreeNode::addChildNode(TreeNode *node)
+void TreeNode::addChildNode(std::unique_ptr<TreeNode> node)
 {
-  childNodes_.push_back(node);
+  childNodes_.push_back(node.get());
   node->parentNode_ = this;
 
-  expandedContent_->addWidget(node);
+  expandedContent_->addWidget(std::move(node));
 
   childNodesChanged();
 }
 
-void TreeNode::removeChildNode(TreeNode *node)
+void TreeNode::removeChildNode(TreeNode *node, int index)
 {
-  childNodes_.erase(std::find(childNodes_.begin(), childNodes_.end(), node));
+  childNodes_.erase(childNodes_.begin() + index);
 
-  node->parentNode_ = 0;
+  node->parentNode_ = nullptr;
 
   expandedContent_->removeWidget(node);
 
@@ -106,14 +116,14 @@ void TreeNode::removeChildNode(TreeNode *node)
 
 void TreeNode::childNodesChanged()
 {
-  for (unsigned i = 0; i < childNodes_.size(); ++i)
-    childNodes_[i]->adjustExpandIcon();
+  for (auto node : childNodes_)
+    node->adjustExpandIcon();
 
   adjustExpandIcon();
 
   if (childNodes_.size())
     childCountLabel_
-      ->setText("(" + boost::lexical_cast<std::string>(childNodes_.size())
+      ->setText("(" + std::to_string(childNodes_.size())
 		+ ")");
   else
     childCountLabel_->setText("");
@@ -143,8 +153,8 @@ void TreeNode::expand()
   /*
    * collapse all children
    */
-  for (unsigned i = 0; i < childNodes_.size(); ++i)
-    childNodes_[i]->collapse();
+  for (auto node : childNodes_)
+    node->collapse();
 } //
 
 void TreeNode::undoCollapse()
@@ -171,8 +181,8 @@ void TreeNode::undoExpand()
   /*
    * undo collapse of children
    */
-  for (unsigned i = 0; i < childNodes_.size(); ++i)
-    childNodes_[i]->undoCollapse();  
+  for (auto node : childNodes_)
+    node->undoCollapse();
 } //
 
 void TreeNode::adjustExpandIcon()
@@ -194,10 +204,10 @@ void TreeNode::adjustExpandIcon()
   } else {
     layout_->elementAt(0, 0)
       ->decorationStyle().setBackgroundImage("icons/line-trunk.gif",
-					     Wt::WCssDecorationStyle::RepeatY);
+                                             Orientation::Vertical);
     layout_->elementAt(1, 0)
       ->decorationStyle().setBackgroundImage("icons/line-trunk.gif",
-					     Wt::WCssDecorationStyle::RepeatY);
+                                             Orientation::Vertical);
   } //
 
   if (childNodes_.empty()) {

@@ -1,9 +1,9 @@
-#include <Wt/WPushButton>
+#include <Wt/WPushButton.h>
 
 SAMPLE_BEGIN(PushButtonLink)
-Wt::WPushButton *button = new Wt::WPushButton("Navigate");
-button->setLink(Wt::WLink(Wt::WLink::InternalPath, "/navigation/anchor"));
+auto button = Wt::cpp14::make_unique<Wt::WPushButton>("Navigate");
+button->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/navigation/anchor"));
 
-SAMPLE_END(return button)
+SAMPLE_END(return std::move(button))
 
 

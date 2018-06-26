@@ -5,8 +5,8 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/WString>
-#include <Wt/WStringUtil>
+#include <Wt/WString.h>
+#include <Wt/WStringUtil.h>
 #include <iostream>
 
 namespace {
@@ -19,21 +19,17 @@ namespace {
 
 BOOST_AUTO_TEST_CASE( Utf8_test1 )
 {
-#ifndef WT_NO_STD_WSTRING
-#ifndef WT_WIN32
-  std::wstring w = L"This costs 100\x20AC (greek \x0194 special \x103A7)";
+  std::string u8 = u8"This costs 100\u20AC (greek \u0194 special \U000103A7)";
+  std::wstring w = L"This costs 100\u20AC (greek \u0194 special \U000103A7)";
+  std::u16string u16 = u"This costs 100\u20AC (greek \u0194 special \U000103A7)";
+  std::u32string u32 = U"This costs 100\u20AC (greek \u0194 special \U000103A7)";
   Wt::WString ws = w;
   // std::cerr << ws.toUTF8() << std::endl;
   BOOST_REQUIRE(ws.value() == w);
-  BOOST_REQUIRE(ws.toUTF8().length() == w.length() + 2 + 1 + 3);
-#else
-  std::wstring w = L"This costs 100\x20AC (greek \x0194)";
-  Wt::WString ws = w;
-  // std::cerr << ws.toUTF8() << std::endl;
-  BOOST_REQUIRE(ws.value() == w);
-  BOOST_REQUIRE(ws.toUTF8().length() == w.length() + 2 + 1);
-#endif
-#endif
+  BOOST_REQUIRE(ws.toUTF16() == u16);
+  BOOST_REQUIRE(ws.toUTF32() == u32);
+  BOOST_REQUIRE(ws.toUTF8() == u8);
+  BOOST_REQUIRE(ws.toUTF8().length() == u32.length() + 2 + 1 + 3);
 }
 
 BOOST_AUTO_TEST_CASE( Utf8_test2 )
@@ -45,16 +41,16 @@ BOOST_AUTO_TEST_CASE( Utf8_test2 )
    * See: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=209907
    */
 #if !(defined(__FreeBSD__) && __FreeBSD__ < 11)
-#ifndef WT_NO_STD_WSTRING
-  std::wstring w = L"This costs 100\x20AC (greek \x0194)";
+  std::u32string w = U"This costs 100\x20AC (greek \x0194 special \U000103A7)";
 
   Wt::WString ws = w;
   std::string s = ws.narrow();
 
+  std::cerr << s << std::endl;
+
   // The following will work only if locale is classic.
   // If locale is UTF8, we have the original back.
-  BOOST_REQUIRE(s == "This costs 100? (greek ?)" || s == ws.toUTF8());
-#endif
+  BOOST_REQUIRE(s == "This costs 100? (greek ? special ?)" || s == ws.toUTF8());
 #endif
 }
 
@@ -142,4 +138,25 @@ BOOST_AUTO_TEST_CASE( Utf8_test5 )
   std::string s2 = "\xF0\x9F\x98\xB8\xF0\x9F\x98\xB1";
 
   BOOST_REQUIRE(Wt::narrow(s1, l) == s2);
+}
+
+BOOST_AUTO_TEST_CASE( Utf8_test6 )
+{
+  std::string u8s = u8"This costs 100\u20AC (greek \u0194 special \U000103A7)";
+  std::u16string u16s = u"This costs 100\u20AC (greek \u0194 special \U000103A7)";
+  std::u32string u32s = U"This costs 100\u20AC (greek \u0194 special \U000103A7)";
+
+  BOOST_REQUIRE(Wt::toUTF8(u16s) == u8s);
+  BOOST_REQUIRE(Wt::toUTF8(u32s) == u8s);
+}
+
+BOOST_AUTO_TEST_CASE( Utf8_test7 )
+{
+  std::wstringstream ss;
+
+  Wt::WString ws = Wt::utf8(u8"This costs 100\u20AC (greek \u0194 special \U000103A7)");
+
+  ss << ws;
+
+  BOOST_REQUIRE(ss.str() == L"This costs 100\u20AC (greek \u0194 special \U000103A7)");
 }

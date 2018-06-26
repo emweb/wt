@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages>
-  <message id="welcome-text">Welcome dear visiter, {1} of the WFooBar magic website !</message>
+  <message id="welcome-text">Welcome dear visitor, {1} of the WFooBar magic website !</message>
   <message id="company-policy">The company policy is to <b>please our share-holders</b>.</message>
   <message id="programmer">Programmer</message>
 </messages>

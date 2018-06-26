@@ -23,6 +23,7 @@ window.WT_DECLARE_WT_MEMBER = function(i, type, name, fn)
     _$_WT_CLASS_$_[name] = fn;
   }
 };
+window.WT_DECLARE_WT_MEMBER_BIG = window.WT_DECLARE_WT_MEMBER;
 
 window.WT_DECLARE_APP_MEMBER = function(i, type, name, fn)
 {
@@ -38,6 +39,14 @@ window.WT_DECLARE_APP_MEMBER = function(i, type, name, fn)
   }
 };
 
+_$_$endif_$_();
+
+_$_$ifnot_DYNAMIC_JS_$_();
+window.JavaScriptConstructor = 2;
+window.WT_DECLARE_WT_MEMBER_BIG = function(i, type, name, fn)
+{
+  return fn;
+}
 _$_$endif_$_();
 
 if (!window._$_WT_CLASS_$_)
@@ -914,28 +923,50 @@ this.wheelDelta = function(e) {
   return delta;
 };
 
-this.scrollIntoView = function(id) {
-  setTimeout(function() {
-      var hashI = id.indexOf('#');
-      if (hashI != -1)
-	id = id.substr(hashI + 1);
-
-      var obj = document.getElementById(id);
-      if (obj) {
-	/* Locate a suitable ancestor to scroll */
-	var p;
-	for (p = obj.parentNode; p != document.body; p = p.parentNode) {
-	  if (p.scrollHeight > p.clientHeight &&
-	      WT.css(p, 'overflow-y') == 'auto') {
-	    var xy = WT.widgetPageCoordinates(obj, p);
-	    p.scrollTop += xy.y;
-	    return;
-	  }
-	}
-
-	obj.scrollIntoView(true);
+this.scrollHistory = function() {
+  // after any hash change event (forward/backward, or user clicks
+  // on an achor with internal path), the server calls this function
+  // to update the scroll position of the main window
+  try {
+    if (window.history.state) {
+      if (typeof window.history.state.pageXOffset !== UNDEFINED) {
+        // scroll to a historic position where we have been before
+        //console.log("scrollHistory: " + JSON.stringify(window.history.state));
+        window.scrollTo(window.history.state.pageXOffset, window.history.state.pageYOffset);
+      } else {
+        // we went to a new hash (following an anchor, we assume some equivalence
+        // with 'new page') that hasn't been scrolled yet.
+        // Scroll to the top, which may be overriden by scrollIntoView (if the hash
+        // exists somewhere as an object ID)
+        //console.log("scrollHistory: new page scroll strategy");
+        window.scrollTo(0, 0);
+        WT.scrollIntoView(window.history.state.state);
       }
-    }, 100);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+this.scrollIntoView = function(id) {
+  var hashI = id.indexOf('#');
+  if (hashI != -1)
+    id = id.substr(hashI + 1);
+
+  var obj = document.getElementById(id);
+  if (obj) {
+    /* Locate a suitable ancestor to scroll */
+    var p;
+    for (p = obj.parentNode; p != document.body; p = p.parentNode) {
+      if (p.scrollHeight > p.clientHeight &&
+          WT.css(p, 'overflow-y') == 'auto') {
+        var xy = WT.widgetPageCoordinates(obj, p);
+        p.scrollTop += xy.y;
+        return;
+      }
+    }
+    obj.scrollIntoView(true);
+  }
 };
 
 function isHighSurrogate(chr) {
@@ -950,16 +981,18 @@ function toUnicodeSelection(selection, text) {
   var i;
   var start = selection.start;
   var end = selection.end;
-  for (i = 0; i < text.length; ++i) {
-    if (i >= selection.start && i >= selection.end)
-      return {start: start, end: end};
-    if (isHighSurrogate(text.charCodeAt(i)) &&
-	(i + 1) < text.length &&
-	isLowSurrogate(text.charCodeAt(i + 1))) {
-      if (i < selection.start)
-	--start;
-      if (i < selection.end)
-	--end;
+  if (text) {
+    for (i = 0; i < text.length; ++i) {
+      if (i >= selection.start && i >= selection.end)
+	return {start: start, end: end};
+      if (isHighSurrogate(text.charCodeAt(i)) &&
+	  (i + 1) < text.length &&
+	  isLowSurrogate(text.charCodeAt(i + 1))) {
+	if (i < selection.start)
+	  --start;
+	if (i < selection.end)
+	  --end;
+      }
     }
   }
   return {start: start, end: end};
@@ -1072,7 +1105,7 @@ this.setSelectionRange = function(elem, start, end, unicode) {
 this.isKeyPress = function(e) {
   if (!e) e = window.event;
 
-  if (e.altKey || e.ctrlKey || e.metaKey)
+  if (e.ctrlKey || e.metaKey)
     return false;
 
   var charCode = (typeof e.charCode !== UNDEFINED) ? e.charCode : 0;
@@ -1276,7 +1309,7 @@ this.IEwidth = function(c, min, max) {
 this.hide = function(o) { WT.getElement(o).style.display = 'none'; };
 this.inline = function(o) { WT.getElement(o).style.display = 'inline'; };
 this.block = function(o) { WT.getElement(o).style.display = 'block'; };
-this.show = function(o) { WT.getElement(o).style.display = ''; };
+this.show = function(o, s) { WT.getElement(o).style.display = s; };
 
 var captureElement = null;
 this.firedTarget = null;
@@ -1905,6 +1938,59 @@ function gentleURIEncode(s) {
 }
 
 if (html5History) {
+  // we need to update the scroll position at the scroll event,
+  // because we don't have the chance to update the html5history
+  // state anymore at the moment that onPopState() is called.
+  // For navigation, when pushState() is called, the scroll
+  // history can be updated before the pushState() call.
+  function coalesceEvents(callback, minPeriod) {
+    var timer = null;
+    var args = null;
+
+    function dispatch()
+    {
+      callback.apply(null, args);
+      timer = null;
+      args = null;
+    }
+
+    function proxy() {
+      args = arguments;
+
+      if (!timer) {
+        timer = setTimeout(dispatch, minPeriod);
+      }
+    }
+
+    return proxy;
+  }
+
+  function updateScrollHistory() {
+    //console.log("updateScrollHistory");
+    try {
+      var newState = window.history.state;
+      if (window.history.state == null) {
+        // freshly initiated session, no state present yet
+        newState = {};
+        newState.state = "";
+        newState.title = window.document.title;
+      }
+      newState.pageXOffset = window.pageXOffset;
+      newState.pageYOffset = window.pageYOffset;
+      window.history.replaceState(newState, newState.title);
+    } catch (error) {
+      // shouldn't happen
+      console.log(error.toString());
+    }
+  }
+  window.addEventListener('scroll', coalesceEvents(updateScrollHistory, 10));
+
+  // the 'auto' scrollRestoration gives too much flicker, since it
+  // updates the scroll state before the page is updated
+  // Browsers not supporting manual scrollRestoration, the flicker
+  // should not be worse than what it was.
+  window.history.scrollRestoration = 'manual';
+
   this.history = (function()
 {
   var currentState = null, baseUrl = null, ugly = false, cb = null,
@@ -1925,7 +2011,9 @@ if (html5History) {
       saveState(initialState);
 
       function onPopState(event) {
-	var newState = event.state;
+	var newState = null;
+        if (event.state && event.state.state)
+          newState = event.state.state;
 
 	if (newState == null)
 	  newState = stateMap[w.location.pathname + w.location.search];
@@ -1945,6 +2033,7 @@ if (html5History) {
 	  currentState = newState;
 	  onStateChange(currentState != "" ? currentState : "/");
 	}
+        //console.log("onPopState: " + JSON.stringify(window.history.state));
       }
 
       w.addEventListener("popstate", onPopState, false);
@@ -1965,6 +2054,7 @@ _$_$endif_$_();
     },
 
     navigate: function (state, generateEvent) {
+      //console.log("navigate: " + state);
       WT.resolveRelativeAnchors();
 
       currentState = state;
@@ -2004,7 +2094,18 @@ _$_$endif_$_();
       }
 
       try {
-	window.history.pushState(state ? state : "", document.title, url);
+        var historyState = { };
+        historyState.state = state ? state : "";
+        // By not setting historyState.page[XY]Offset, we indicate that
+        // this state change was made by navigation rather than by
+        // the back/forward button
+        // keep title for call to replaceState when page offset is updated
+        historyState.title = document.title;
+        // update scroll position of stack top with the position at the time of leaving the page
+        updateScrollHistory();
+        //console.log("pushState before: " + JSON.stringify(window.history.state));
+	window.history.pushState(historyState, document.title, url);
+        //console.log("pushState after: " + JSON.stringify(window.history.state));
       } catch (error) {
 	/*
 	 * In case we are wrong about our baseUrl or base href
@@ -2013,7 +2114,12 @@ _$_$endif_$_();
 	console.log(error.toString());
       }
 
-      WT.scrollIntoView(state);
+      // We used to call scrollIntoView here. We modified this to have
+      // scrollIntoView called after the server round-trip, so that the
+      // new content is certainly visible before we scroll. This avoids
+      // flicker. If the rendering result was pre-learned client-side,
+      // the page will scroll to the right position only after a server
+      // round-trip, which is not ideal.
 
       if (generateEvent)
 	cb(state);
@@ -2055,8 +2161,6 @@ _$_$endif_$_();
       currentState = state;
 
       w.location.hash = state;
-
-      WT.scrollIntoView(state);
 
       if (generateEvent)
 	cb(state);
@@ -2430,6 +2534,17 @@ function dragStart(obj, e) {
 
   ds.object.onmousemove = dragDrag;
   ds.object.onmouseup = dragEnd;
+  if (document.addEventListener) {
+    // New mousedown (other button): abort drag
+    document.addEventListener('mousedown', dragAbort);
+    // Release mouse outside of page (fires after ds.object.onmouseup)
+    window.addEventListener('mouseup', dragAbort);
+    // Another touch: abort drag
+    document.addEventListener('touchstart', dragAbort);
+  } else {
+    document.attachEvent('onmousedown', dragAbort);
+    window.attachEvent('onmouseup', dragAbort);
+  }
   ds.object.ontouchmove = dragDrag;
   ds.object.ontouchend = dragEnd;
 
@@ -2525,6 +2640,37 @@ function dragDrag(e) {
   return true;
 };
 
+function dragAbort() {
+  WT.capture(null);
+
+  var ds = dragState;
+
+  if (ds.object) {
+    document.body.removeChild(ds.object);
+    ds.objectPrevStyle.parent.appendChild(ds.object);
+
+    ds.object.style.zIndex = ds.objectPrevStyle.zIndex;
+    ds.object.style.position = ds.objectPrevStyle.position;
+    ds.object.style.display = ds.objectPrevStyle.display;
+    ds.object.style.left = ds.objectPrevStyle.left;
+    ds.object.style.top = ds.objectPrevStyle.top;
+    ds.object.className = ds.objectPrevStyle.className;
+
+    ds.object = null;
+    if (touchTimer)
+      clearTimeout(touchTimer);
+  }
+
+  if (document.removeEventListener) {
+    document.removeEventListener('mousedown', dragAbort);
+    window.removeEventListener('mouseup', dragAbort);
+    document.removeEventListener('touchstart', dragAbort);
+  } else {
+    document.detachEvent('onmousedown', dragAbort);
+    window.detachEvent('onmouseup', dragAbort);
+  }
+};
+
 function dragEnd(e) {
   e = e || window.event;
   WT.capture(null);
@@ -2551,19 +2697,7 @@ function dragEnd(e) {
       // could not be dropped, animate it floating back ?
     }
 
-    document.body.removeChild(ds.object);
-    ds.objectPrevStyle.parent.appendChild(ds.object);
-
-    ds.object.style.zIndex = ds.objectPrevStyle.zIndex;
-    ds.object.style.position = ds.objectPrevStyle.position;
-    ds.object.style.display = ds.objectPrevStyle.display;
-    ds.object.style.left = ds.objectPrevStyle.left;
-    ds.object.style.top = ds.objectPrevStyle.top;
-    ds.object.className = ds.objectPrevStyle.className;
-
-    ds.object = null;
-    if (touchTimer)
-      clearTimeout(touchTimer);
+    dragAbort();
   }
 };
 
@@ -2640,8 +2774,20 @@ function encodeEvent(event, i) {
       }
     }
 
-    if (v != null)
-      result += se + formObjects[x] + '=' + encodeURIComponent(v);
+    if (v != null) {
+      var component;
+      try {
+	component = encodeURIComponent(v);
+	result += se + formObjects[x] + '=' + component;
+      } catch (e) {
+	// encoding failed, omit this form field
+	// This can happen on Windows when typing a character
+	// with a high and low surrogate pair (like an emoji).
+	// On Chrome and Firefox this is split out into two pairs
+	// of keydown/keyup events instead of one.
+	console.error("Form object " + formObjects[x] + " failed to encode, discarded", e);
+      }
+    }
   }
 
 
@@ -3035,7 +3181,7 @@ _$_$endif_$_();
   if (websocket.state == WebSocketAckConnect)
     webSocketAckConnect();
 
-  if (serverPush || pendingEvents.length > 0) {
+  if ((serverPush && !waitingForJavaScript) || pendingEvents.length > 0) {
     if (status == 1) {
       var ms = Math.min(120000, Math.exp(commErrors) * 500);
       updateTimeout = setTimeout(function() { sendUpdate(); }, ms);
@@ -3542,6 +3688,8 @@ function onJsLoad(path, f) {
     if (jsLibsLoaded[path] === true) {
       waitingForJavaScript = false;
       f();
+      if (!waitingForJavaScript && serverPush)
+        sendUpdate();
     } else
       jsLibsLoaded[path] = f;
     }, 20);
@@ -3557,6 +3705,8 @@ function jsLoaded(path)
     if (typeof jsLibsLoaded[path] !== UNDEFINED) {
       waitingForJavaScript = false;
       jsLibsLoaded[path]();
+      if (!waitingForJavaScript && serverPush)
+	sendUpdate();
     }
     jsLibsLoaded[path] = true;
   }
@@ -3627,7 +3777,7 @@ function ImagePreloader(uris, callback) {
   this.images = [];
 
   if (uris.length == 0)
-    callback(this.images);
+    this.callback(this.images);
   else
     for (var i = 0; i < uris.length; i++)
       this.preload(uris[i]);

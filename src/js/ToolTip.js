@@ -42,7 +42,7 @@ WT_DECLARE_WT_MEMBER
                  if (waitingForText) {
                      this.showToolTip();
                      clearTimeout(showTimer);
-                     waitingforText = false;
+                     waitingForText = false;
                  }
              }
 
@@ -73,6 +73,8 @@ WT_DECLARE_WT_MEMBER
                      });
                  }
 
+                 clearInterval(checkInt);
+                 checkInt = null;
                  checkInt = setInterval(function() { checkIsOver(); }, 200);
              }
 

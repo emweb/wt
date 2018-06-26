@@ -107,7 +107,7 @@ WT_DECLARE_WT_MEMBER
        var ws = WT.windowSize();
        
        var layout = jQuery.data(layoutContainer.firstChild, 'layout');
-       if (layout) {
+       if (layout && layout.setMaxSize) {
 	 layout.setMaxSize(ws.x * pctMaxWidth / 100,
 			   ws.y * pctMaxHeight / 100);
        }
@@ -118,7 +118,10 @@ WT_DECLARE_WT_MEMBER
        return;
      }
 
-     if ((el.style.display != 'none') && (el.style.visibility != 'hidden')) {
+     // FIXME: figure out the visibility story. The stdlayoutimpl sets
+     //        itself to visible, seemingly by accident? It seems like
+     //        a hack that centerDialog() causes the dialog to be visible?
+     if ((el.style.display != 'none')/* && (el.style.visibility != 'hidden')*/) {
        var ws = WT.windowSize();
        var w = el.offsetWidth, h = el.offsetHeight;
        if (percentageWidth != -1) {
@@ -219,7 +222,16 @@ WT_DECLARE_WT_MEMBER
    };
 
    function wtPosition() {
-     APP.layouts2.adjust();
+     // if the WTreeView is rendered using StdGridLayoutImpl2,
+     // the call to wtResize() is not necessary, because APP.layouts2.adjust()
+     // already does that. It doesn't hurt, though.
+     self.centerDialog();
+     if (APP.layouts2) {
+       // This is for StdGridLayoutImpl2,
+       // will call self.centerDialog() as
+       // part of its implementation
+       APP.layouts2.adjust();
+     }
    }
 
    this.bringToFront = function() {
@@ -245,9 +257,11 @@ WT_DECLARE_WT_MEMBER
      wtResize(el, w, h);
 
      var layout = jQuery.data(layoutContainer.firstChild, 'layout');
-     layout.setMaxSize(0, 0);
+     if (layout && layout.setMaxSize)
+        layout.setMaxSize(0, 0);
 
-     APP.layouts2.scheduleAdjust();
+     if (APP.layouts2)
+       APP.layouts2.scheduleAdjust();
 
      if (done)
        newSize(w, h);

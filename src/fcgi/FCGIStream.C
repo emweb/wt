@@ -5,6 +5,7 @@
  */
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstring>
 #include <climits>
@@ -16,13 +17,11 @@
 #include "Configuration.h"
 #include "SslUtils.h"
 
-#include "Wt/WSslInfo"
-#include "Wt/WLogger"
+#include "Wt/WSslInfo.h"
+#include "Wt/WLogger.h"
 
 #include "fcgio.h"
 #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
-
-#include <boost/array.hpp>
 
 #ifdef WT_WITH_SSL
 #include <openssl/ssl.h>
@@ -44,7 +43,7 @@ namespace {
     return v ? std::string(v) : std::string();
   }
 
-  class FCGIRequest : public WebRequest
+  class FCGIRequest final : public WebRequest
   {
     mutable std::string scriptName_, serverName_, queryString_,
       serverPort_, pathInfo_, remoteAddr_;
@@ -76,20 +75,21 @@ namespace {
       delete request_;
     }
 
-    virtual void flush(ResponseState state, const WriteCallback& callback) {
+    virtual void flush(ResponseState state, const WriteCallback& callback) override
+    {
       out().flush();
 
-      if (state == ResponseFlush) {
+      if (state == ResponseState::ResponseFlush) {
         setAsyncCallback(callback);
       } else {
-        setAsyncCallback(0);
+        setAsyncCallback(nullptr);
       }
 
       emulateAsync(state);
     }
 
-    virtual std::istream& in() { return *in_; }
-    virtual std::ostream& out() {
+    virtual std::istream& in() override { return *in_; }
+    virtual std::ostream& out() override {
       if (!headersCommitted_) {
 	headersCommitted_ = true;
 	if(status_ > -1 ) 
@@ -98,19 +98,19 @@ namespace {
       }
       return *out_; 
     }
-    virtual std::ostream& err() { return *err_; }
+    virtual std::ostream& err() override { return *err_; }
 
-    virtual void setStatus(int status)
+    virtual void setStatus(int status) override
     {
 	  status_ = status;
     }
 
-    virtual void setContentType(const std::string& value)
+    virtual void setContentType(const std::string& value) override
     {
       addHeader("Content-Type", value);
     }
 
-    virtual void addHeader(const std::string& name, const std::string& value)
+    virtual void addHeader(const std::string& name, const std::string& value) override
     {
       if (!headersCommitted_)
 	*out_ << name << ": " << value << "\r\n";
@@ -119,21 +119,23 @@ namespace {
 		 << " ignored because headers already committed.");
     }
 
-    virtual void setContentLength(::int64_t length)
+    virtual void setContentLength(::int64_t length) override
     {
-      addHeader("Content-Length", boost::lexical_cast<std::string>(length));
+      addHeader("Content-Length", std::to_string(length));
     }
 
-    virtual void setRedirect(const std::string& url)
+    virtual void setRedirect(const std::string& url) override
     {
       *out_ << "Location: " << url << "\r\n\r\n";
     }
 
-    virtual const char *headerValue(const char *name) const {
+    virtual const char *headerValue(const char *name) const override 
+    {
       return envValue(cgiEnvName(name).c_str());
     }
 
-    std::vector<Wt::Http::Message::Header> headers() const {
+    std::vector<Wt::Http::Message::Header> headers() const override
+    {
       std::vector<Wt::Http::Message::Header> headerVector;
       std::string header_prefix("HTTP_");
       int prefix_length = header_prefix.length();
@@ -158,12 +160,13 @@ namespace {
     }
 
 
-    virtual const char *envValue(const char *name) const {
+    virtual const char *envValue(const char *name) const override
+    {
       char *result = FCGX_GetParam(name, request_->envp);
       if (result)
 	return result;
       else
-	return 0;
+	return nullptr;
     }
 
     std::string cgiEnvName(const char *name) const {
@@ -177,7 +180,8 @@ namespace {
       return "HTTP_" + result;
     }
 
-    virtual const std::string& scriptName() const {
+    virtual const std::string& scriptName() const override
+    {
       if (scriptName_.empty()) {
 	if (entryPoint_)
 	  scriptName_ = str(envValue("SCRIPT_NAME")) + entryPoint_->path();
@@ -188,32 +192,37 @@ namespace {
       return scriptName_;
     }
 
-    virtual const std::string& serverName() const {
+    virtual const std::string& serverName() const override
+    {
       if (serverName_.empty())
 	serverName_ = str(envValue("SERVER_NAME"));
 
       return serverName_;
     }
 
-    virtual const char *requestMethod() const {
+    virtual const char *requestMethod() const override
+    {
       return envValue("REQUEST_METHOD");
     }
 
-    virtual const std::string& queryString() const {
+    virtual const std::string& queryString() const override
+    {
       if (queryString_.empty())
 	queryString_ = str(envValue("QUERY_STRING"));
 
       return queryString_;
     }
 
-    virtual const std::string& serverPort() const {
+    virtual const std::string& serverPort() const override
+    {
       if (serverPort_.empty())
 	serverPort_ = str(envValue("SERVER_PORT"));
 
       return serverPort_;
     }
 
-    virtual const std::string& pathInfo() const {
+    virtual const std::string& pathInfo() const override
+    {
       if (pathInfo_.empty()) {
 	pathInfo_ = str(envValue("PATH_INFO"));
 	if (entryPoint_) {
@@ -227,14 +236,16 @@ namespace {
       return pathInfo_;
     }
 
-    virtual const std::string& remoteAddr() const {
+    virtual const std::string& remoteAddr() const override
+    {
       if (remoteAddr_.empty())
 	remoteAddr_ = str(envValue("REMOTE_ADDR"));
 
       return remoteAddr_;
     }
 
-    virtual const char *urlScheme() const {
+    virtual const char *urlScheme() const override
+    {
       const char *https = envValue("HTTPS");
       if (https && strcasecmp(https, "ON") == 0)
 	return "https";
@@ -246,7 +257,8 @@ namespace {
       return true;
     }
 
-    virtual WSslInfo *sslInfo() const {
+    virtual WSslInfo *sslInfo() const override
+    {
 #ifdef WT_WITH_SSL
       std::string clientCert = str(envValue("SSL_CLIENT_CERT"));
       if (!clientCert.empty()) {
@@ -261,7 +273,7 @@ namespace {
 	  unsigned depth = UINT_MAX;
 	  for (unsigned i = 0; i < depth; i++) {
 	    std::string name = SSL_CLIENT_CERT_CHAIN_PREFIX; 
-	    name += boost::lexical_cast<std::string>(i);
+	    name += std::to_string(i);
 	    char *cc = FCGX_GetParam(name.c_str(), request_->envp);
 	    if (cc) {
               X509 *x509_i = Wt::Ssl::readFromPem(cc);
@@ -272,16 +284,16 @@ namespace {
 	  }
 	  
 	  
-          Wt::WValidator::State state = Wt::WValidator::Invalid;
+          Wt::ValidationState state = Wt::ValidationState::Invalid;
 	  std::string verify = str(envValue("SSL_CLIENT_VERIFY"));
           std::string verifyInfo;
 	  if (verify == "SUCCESS") {
-	    state = Wt::WValidator::Valid;
+	    state = Wt::ValidationState::Valid;
 	  } else if (verify.empty()) {
-	    state = Wt::WValidator::Invalid;
+	    state = Wt::ValidationState::Invalid;
 	    verifyInfo = "SSL_CLIENT_VERIFY variable was empty";
 	  } else {
-	    state = Wt::WValidator::Invalid;
+	    state = Wt::ValidationState::Invalid;
 	    verifyInfo = verify;
 	  }
 	  Wt::WValidator::Result clientVerificationResult(state, verifyInfo);
@@ -293,13 +305,13 @@ namespace {
       }
 #endif
 
-      return 0;
+      return nullptr;
     }
 
   private:
     FCGX_Request *request_;
     fcgi_streambuf *in_streambuf_, *out_streambuf_, *err_streambuf_;
-    boost::array<char, 8> buf_; // Workaround for bug with fcgi_streambuf::underflow()
+    std::array<char, 8> buf_; // Workaround for bug with fcgi_streambuf::underflow()
     std::istream *in_;
     std::ostream *out_, *err_;
     bool headersCommitted_;
@@ -327,10 +339,10 @@ WebRequest *FCGIStream::getNextRequest(int timeoutsec)
   timeout.tv_usec = 0;
 
   for(;;) {
-    int result = select(FD_SETSIZE, &rfds, 0, 0, &timeout);
+    int result = select(FD_SETSIZE, &rfds, nullptr, nullptr, &timeout);
 
     if (result == 0)
-      return 0; // timeout
+      return nullptr; // timeout
     else if (result == -1) {
       if (errno != EINTR) {
 	perror("select");

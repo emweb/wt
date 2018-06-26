@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WLogger"
-#include "Wt/WMenu"
-#include "Wt/WMenuItem"
-#include "Wt/WStackedWidget"
-#include "Wt/WTemplate"
+#include "Wt/WApplication.h"
+#include "Wt/WLogger.h"
+#include "Wt/WMenu.h"
+#include "Wt/WMenuItem.h"
+#include "Wt/WStackedWidget.h"
+#include "Wt/WTemplate.h"
 
 #include "WebUtils.h"
 
@@ -51,43 +51,14 @@ namespace Wt {
 
 LOGGER("WMenu");
 
-WMenu::WMenu(Orientation orientation, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    contentsStack_(0),
-    itemSelected_(this),
-    itemSelectRendered_(this),
-    itemClosed_(this)
+WMenu::WMenu()
+  : contentsStack_(nullptr)
 { 
   init();
 }
 
-WMenu::WMenu(WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    contentsStack_(0),
-    itemSelected_(this),
-    itemSelectRendered_(this),
-    itemClosed_(this)
-{ 
-  init();
-}
-
-WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
-	     WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    contentsStack_(contentsStack),
-    itemSelected_(this),
-    itemSelectRendered_(this),
-    itemClosed_(this)
-{
-  init();
-}
-
-WMenu::WMenu(WStackedWidget *contentsStack, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    contentsStack_(contentsStack),
-    itemSelected_(this),
-    itemSelectRendered_(this),
-    itemClosed_(this)
+WMenu::WMenu(WStackedWidget *contentsStack)
+  : contentsStack_(contentsStack)
 {
   init();
 }
@@ -96,21 +67,16 @@ void WMenu::init()
 {
   internalPathEnabled_ = false;
   emitPathChange_ = false;
-  parentItem_ = 0;
+  parentItem_ = nullptr;
   needSelectionEventUpdate_ = false;
   current_ = -1;
 
   if (contentsStack_) {
-#ifndef WT_CNOR
-    contentsStackConnection_
-      = contentsStack_->destroyed().connect(this, &WMenu::contentsDestroyed);
-#endif // WT_CNOR
-
     contentsStack_->childrenChanged().connect(this,
 					      &WMenu::updateSelectionEvent);
   }
 
-  setImplementation(ul_ = new WContainerWidget());
+  setImplementation(std::unique_ptr<WWidget>(ul_ = new WContainerWidget()));
   ul_->setList(true);
 }
 
@@ -127,21 +93,8 @@ void WMenu::load()
     currentItem()->loadContents();
 }
 
-void WMenu::contentsDestroyed()
-{
-  for (int i = 0; i < count(); ++i)
-    itemAt(i)->purgeContents();
-}
-
-void WMenu::setRenderAsList(bool enable)
-{ 
-  LOG_ERROR("WMenu::setRenderAsList() has been deprecated.");
-}
-
 WMenu::~WMenu()
-{
-  contentsStackConnection_.disconnect();
-}
+{ }
 
 void WMenu::setInternalPathEnabled(const std::string& basePath)
 {
@@ -182,107 +135,111 @@ void WMenu::updateItemsInternalPath()
   updateSelectionEvent();
 }
 
-WMenuItem *WMenu::addItem(const WString& name, WWidget *contents,
-			  WMenuItem::LoadPolicy policy)
+WMenuItem *WMenu::addItem(const WString& name,
+			  std::unique_ptr<WWidget> contents,
+			  ContentLoading policy)
 {
-  return addItem(std::string(), name, contents, policy);
+  return addItem(std::string(), name, std::move(contents), policy);
 }
 
 WMenuItem *WMenu::addItem(const std::string& iconPath, const WString& name,
-			  WWidget *contents, WMenuItem::LoadPolicy policy)
+			  std::unique_ptr<WWidget> contents,
+			  ContentLoading policy)
 {
-  WMenuItem *item = new WMenuItem(iconPath, name, contents, policy);
-  addItem(item);
-  return item;
+  return addItem(std::unique_ptr<WMenuItem>
+		 (new WMenuItem(iconPath, name, std::move(contents), policy)));
 }
 
-WMenuItem *WMenu::addMenu(const WString& text, WMenu *menu)
+WMenuItem *WMenu::addMenu(const WString& text, std::unique_ptr<WMenu> menu)
 {
-  return addMenu(std::string(), text, menu);
+  return addMenu(std::string(), text, std::move(menu));
 }
 
 WMenuItem *WMenu::addMenu(const std::string& iconPath,
-			  const WString& text, WMenu *menu)
+			  const WString& text, std::unique_ptr<WMenu> menu)
 {
-  WMenuItem *item = new WMenuItem(iconPath, text, 0, WMenuItem::LazyLoading);
-  item->setMenu(menu);
-  addItem(item);
+  WMenuItem *item = addItem(iconPath, text, nullptr,
+			    ContentLoading::Lazy);
+  item->setMenu(std::move(menu));
   return item;
 }
 
 WMenuItem *WMenu::addSeparator()
 {
-  WMenuItem *item = new WMenuItem(true, WString::Empty);
-  addItem(item);
-  return item;
+  return addItem(std::unique_ptr<WMenuItem>
+		 (new WMenuItem(true, WString::Empty)));
 }
 
 WMenuItem *WMenu::addSectionHeader(const WString& text)
 {
-  WMenuItem *result = new WMenuItem(false, text);
-  addItem(result);
-  return result;
+  return addItem(std::unique_ptr<WMenuItem>(new WMenuItem(false, text)));
 }
 
-void WMenu::addItem(WMenuItem *item)
+WMenuItem *WMenu::addItem(std::unique_ptr<WMenuItem> item)
 {
-  insertItem(ul()->count(), item);
+  return insertItem(ul()->count(), std::move(item));
 }
 
-WMenuItem *WMenu::insertItem(int index, const WString& name, WWidget *contents,
-                          WMenuItem::LoadPolicy policy)
+WMenuItem *WMenu::insertItem(int index, const WString& name,
+			     std::unique_ptr<WWidget> contents,
+			     ContentLoading policy)
 {
-  return insertItem(index, std::string(), name, contents, policy);
+  return insertItem(index, std::string(), name, std::move(contents), policy);
 }
 
 WMenuItem *WMenu::insertItem(int index, const std::string& iconPath,
-                             const WString& name, WWidget *contents,
-                             WMenuItem::LoadPolicy policy)
+                             const WString& name,
+			     std::unique_ptr<WWidget> contents,
+                             ContentLoading policy)
 {
-  WMenuItem *item = new WMenuItem(iconPath, name, contents, policy);
-  insertItem(index, item);
-  return item;
+  return insertItem
+    (index, std::unique_ptr<WMenuItem>
+     (new WMenuItem(iconPath, name, std::move(contents), policy)));
 }
 
-WMenuItem *WMenu::insertMenu(int index, const WString& text, WMenu *menu)
+WMenuItem *WMenu::insertMenu(int index, const WString& text,
+			     std::unique_ptr<WMenu> menu)
 {
-  return insertMenu(index, std::string(), text, menu);
+  return insertMenu(index, std::string(), text, std::move(menu));
 }
 
 WMenuItem *WMenu::insertMenu(int index, const std::string& iconPath,
-                          const WString& text, WMenu *menu)
+			     const WString& text, std::unique_ptr<WMenu> menu)
 {
-  WMenuItem *item = new WMenuItem(iconPath, text, 0, WMenuItem::LazyLoading);
-  item->setMenu(menu);
-  insertItem(index, item);
+  WMenuItem *item = insertItem(index, iconPath, text, nullptr);
+  item->setMenu(std::move(menu));
   return item;
 }
-void WMenu::insertItem(int index, WMenuItem *item)
+
+WMenuItem *WMenu::insertItem(int index, std::unique_ptr<WMenuItem> item)
 {
   item->setParentMenu(this);
 
-  ul()->insertWidget(index, item);
+  WMenuItem *result = item.get();
+  ul()->insertWidget(index, std::move(item));
 
   if (contentsStack_) {
-    WWidget *contents = item->contents();
-    if (contents) {
-      contentsStack_->addWidget(contents);
+    std::unique_ptr<WWidget> contentsPtr = result->takeContentsForStack();
+    if (contentsPtr) {
+      WWidget *contents = contentsPtr.get();
+      contentsStack_->addWidget(std::move(contentsPtr));
 
       if (contentsStack_->count() == 1) {
 	setCurrent(0);
-
 	if (contents)
 	  contentsStack_->setCurrentWidget(contents);
 
-	renderSelected(item, true);
+	renderSelected(result, true);
       } else
-	renderSelected(item, false);
+	renderSelected(result, false);
     } else
-      renderSelected(item, false);
+      renderSelected(result, false);
   } else
-    renderSelected(item, false);
+    renderSelected(result, false);
 
-  itemPathChanged(item);
+  itemPathChanged(result);
+
+  return result;
 }
 
 void WMenu::itemPathChanged(WMenuItem *item)
@@ -295,24 +252,31 @@ void WMenu::itemPathChanged(WMenuItem *item)
   }
 }
 
-void WMenu::removeItem(WMenuItem *item)
+std::unique_ptr<WMenuItem> WMenu::removeItem(WMenuItem *item)
 {
+  std::unique_ptr<WMenuItem> result;
+
   WContainerWidget *items = ul();
 
   if (item->parent() == items) {
     int itemIndex = items->indexOf(item);
-    items->removeWidget(item);
 
-    if (contentsStack_ && item->contents())
-      contentsStack_->removeWidget(item->contents());
+    result = Utils::dynamic_unique_ptr_cast<WMenuItem>
+      (items->removeWidget(item));
 
-    item->setParentMenu(0);
+    if (contentsStack_ && item->contentsInStack())
+      item->returnContentsInStack
+	(contentsStack_->removeWidget(item->contentsInStack()));
+
+    item->setParentMenu(nullptr);
 
     if (itemIndex <= current_ && current_ >= 0)
       --current_;
 
     select(current_, true);
   }
+
+  return result;
 }
 
 void WMenu::select(int index)
@@ -338,19 +302,19 @@ void WMenu::select(int index, bool changePath)
     if (loaded())
       item->loadContents();
 
-    DeletionTracker guard(this);
+    observing_ptr<WMenu> self = this;
 
     if (changePath && emitPathChange_) {
       WApplication *app = wApp;
       app->internalPathChanged().emit(app->internalPath());
-      if (guard.deleted())
+      if (!self)
         return;
       emitPathChange_ = false;
     }
 
     if (last != index) {
       item->triggered().emit(item);
-      if (!guard.deleted()) {
+      if (self) {
         // item may have been deleted too
         if (ul()->indexOf(item) != -1)
           itemSelected_.emit(item);
@@ -366,7 +330,7 @@ void WMenu::selectVisual(int index, bool changePath, bool showContents)
   if (contentsStack_)
     previousStackIndex_ = contentsStack_->currentIndex();
 
-  WMenuItem *item = index >= 0 ? itemAt(index) : 0;
+  WMenuItem *item = index >= 0 ? itemAt(index) : nullptr;
 
   if (changePath && internalPathEnabled_ &&
       index != -1 && item->internalPathEnabled()) {
@@ -388,7 +352,7 @@ void WMenu::selectVisual(int index, bool changePath, bool showContents)
     return;
 
   if (showContents && contentsStack_) {
-    WWidget *contents = item->contents();
+    WWidget *contents = item->contentsInStack();
     if (contents)
       contentsStack_->setCurrentWidget(contents);
   }
@@ -545,7 +509,7 @@ void WMenu::undoSelectVisual()
 
 WMenuItem *WMenu::currentItem() const
 {
-  return current_ >= 0 ? itemAt(current_) : 0;
+  return current_ >= 0 ? itemAt(current_) : nullptr;
 }
 
 void WMenu::render(WFlags<RenderFlag> flags)

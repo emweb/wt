@@ -8,8 +8,8 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptFunction, "animateDisplay",
- function(id, effects, timing, duration, display) {
-  var WT = this;
+ function(APP, id, effects, timing, duration, display) {
+  var WT = APP.WT;
 
   var doAnimateDisplay = function(id, effects, timing, duration, display) {
 
@@ -93,9 +93,8 @@ WT_DECLARE_WT_MEMBER
 
       $el.removeClass("animating");
 
-      // FIXME: APP instead of Wt
-      if (Wt.layouts2)
-	Wt.layouts2.setElementDirty(el);
+      if (APP.layouts2)
+	APP.layouts2.setElementDirty(el);
     }
 
     function show() {
@@ -223,7 +222,8 @@ WT_DECLARE_WT_MEMBER
 
 	      onEnd();
 	    });
-	}, 0);
+	}, 50); // If this timeout is too small or 0, this will cause some browsers, like
+                // Chrome to sometimes not perform the animation at all.
     }
 
     function animateAbsoluteVertical() {

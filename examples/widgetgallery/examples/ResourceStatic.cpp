@@ -1,14 +1,14 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WPainter>
-#include <Wt/WResource>
-#include <Wt/WServer>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPainter.h>
+#include <Wt/WResource.h>
+#include <Wt/WServer.h>
 
 SAMPLE_BEGIN(ResourceStatic)
 
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-//Wt::WResource *resource = new SamplePdfResource(container);
+//auto resource = std::make_shared<SamplePdfResource>();
 
-//Wt::WServer::addResource(resource, "/media/static-resource");
+//WServer::addResource(resource, "/media/static-resource");
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

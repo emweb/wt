@@ -7,17 +7,20 @@
 #ifndef CHART_CONFIG_H_
 #define CHART_CONFIG_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/Chart/WDataSeries>
+#include <Wt/WContainerWidget.h>
+#include <Wt/Chart/WDataSeries.h>
 
 namespace Wt {
   class WCheckBox;
   class WComboBox;
   class WFormWidget;
   class WLineEdit;
+  class WStandardItemModel;
   class WTable;
+  class WValidator;
 
   namespace Chart {
+    class WAxis;
     class WCartesianChart;
   }
 }
@@ -39,13 +42,13 @@ class ChartConfig : public Wt::WContainerWidget
 public:
   /*! \brief Constructor.
    */  
-  ChartConfig(Wt::Chart::WCartesianChart *chart, Wt::WContainerWidget *parent);
+  ChartConfig(Wt::Chart::WCartesianChart *chart);
 
   void setValueFill(Wt::Chart::FillRangeType fill);
 
 private:
   Wt::Chart::WCartesianChart  *chart_;
-  Wt::Chart::FillRangeType fill_;
+  Wt::Chart::FillRangeType     fill_;
 
   //! Struct that holds the controls for one series
   struct SeriesControl {
@@ -88,8 +91,16 @@ private:
   Wt::WComboBox *legendAlignmentEdit_;
   Wt::WCheckBox *borderEdit_;
 
+  std::shared_ptr<Wt::WStandardItemModel> yAxesModel_, xScales_, yScales_;
+  Wt::WTable *axisConfig_;
+  std::shared_ptr<Wt::WValidator> anyNumberValidator_, angleValidator_;
+
   void connectSignals(Wt::WFormWidget *w);
   void update();
+  void addYAxis();
+  void addAxis(Wt::Chart::Axis axis, int yAxis);
+  void removeYAxis(const Wt::Chart::WAxis *axis);
+  void clearYAxes();
 
   static bool validate(Wt::WFormWidget *w);
 };

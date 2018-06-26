@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Json/Array"
+#include "Wt/Json/Array.h"
 
 namespace Wt {
   namespace Json {
@@ -25,7 +25,6 @@ Array& Array::operator= (const Array& other)
   return *this;
 }
 
-#ifdef WT_CXX11
 Array::Array(Array&& other)
   : Impl(std::move(other))
 { }
@@ -39,7 +38,6 @@ Array& Array::operator= (Array&& other)
   Impl::operator=(std::move(other));
   return *this;
 }
-#endif
 
 Array Array::Empty;
 

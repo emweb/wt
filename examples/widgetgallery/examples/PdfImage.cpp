@@ -1,13 +1,13 @@
-#include <Wt/WPainter>
-#include <Wt/WPdfImage>
-#include <Wt/WPushButton>
-#include <Wt/WResource>
+#include <Wt/WPainter.h>
+#include <Wt/WPdfImage.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WResource.h>
 
 class SamplePdfResource : public Wt::WPdfImage
 {
 public:
-    SamplePdfResource(Wt::WObject *parent = 0)
-        : Wt::WPdfImage(400, 300, parent)
+    SamplePdfResource()
+        : WPdfImage(400, 300)
     {
         suggestFileName("line.pdf");
         paint();
@@ -23,17 +23,18 @@ private:
         painter.drawLine(50, 250, 150, 50);
         painter.drawLine(150, 50, 250, 50);
 
-        painter.drawText(0, 0, 400, 300, Wt::AlignCenter | Wt::AlignTop,
+        painter.drawText(0, 0, 400, 300,
+                         Wt::AlignmentFlag::Center | Wt::AlignmentFlag::Top,
                          "Hello, PDF");
     }
 };
 
 SAMPLE_BEGIN(PdfImage)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WResource *pdf = new SamplePdfResource(container);
+auto pdf = std::make_shared<SamplePdfResource>();
 
-Wt::WPushButton *button = new Wt::WPushButton("Create pdf", container);
-button->setLink(pdf);
-
-SAMPLE_END(return container)
+Wt::WPushButton *button =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Create pdf"));
+button->setLink(Wt::WLink(pdf));
+SAMPLE_END(return std::move(container))

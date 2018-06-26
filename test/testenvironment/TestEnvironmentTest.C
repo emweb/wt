@@ -8,14 +8,13 @@
 #ifdef WT_THREADED
 
 #include <boost/test/unit_test.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
+#include <thread>
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WProgressBar>
-#include <Wt/Test/WTestEnvironment>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WProgressBar.h>
+#include <Wt/Test/WTestEnvironment.h>
 
 using namespace Wt;
 
@@ -24,16 +23,16 @@ namespace {
 class BigWorkWidget : public Wt::WContainerWidget
 {
 public:
-  BigWorkWidget(Wt::WContainerWidget *parent)
-    : WContainerWidget(parent)
+  BigWorkWidget()
+    : WContainerWidget()
   {
-    startButton_ = new Wt::WPushButton("Start", this);
+    startButton_ = addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Start"));
     startButton_->setObjectName("startbutton");
     startButton_->clicked().connect(startButton_, &Wt::WPushButton::disable);
     startButton_->clicked().connect(this, &BigWorkWidget::startBigWork);
     startButton_->setMargin(2);
 
-    progress_ = new Wt::WProgressBar(this);
+    progress_ = addWidget(Wt::cpp14::make_unique<Wt::WProgressBar>());
     progress_->setObjectName("progress");
     progress_->setInline(false);
     progress_->setMinimum(0);
@@ -49,7 +48,7 @@ private:
   Wt::WPushButton *startButton_;
   Wt::WProgressBar *progress_;
 
-  boost::thread workThread_;
+  std::thread workThread_;
 
   void startBigWork() {
     Wt::WApplication *app = Wt::WApplication::instance();
@@ -57,8 +56,7 @@ private:
     // Enable server push
     app->enableUpdates(true);
 
-    workThread_ 
-      = boost::thread(boost::bind(&BigWorkWidget::doBigWork, this, app));
+    workThread_ = std::thread(std::bind(&BigWorkWidget::doBigWork, this, app));
 
     progress_->setValue(0);
     startButton_->setText("Busy...");
@@ -75,7 +73,7 @@ private:
   {
     for (unsigned i = 0; i < 20; ++i) {
       // Do 50 ms of hard work.
-      boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
       // Get the application update lock to update the user-interface
       // with a progress indication.
@@ -106,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_serverpush_test )
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
 
-  BigWorkWidget *bw = new BigWorkWidget(app.root());
+  app.root()->addWidget(cpp14::make_unique<BigWorkWidget>());
 
   Wt::WPushButton *b
     = dynamic_cast<Wt::WPushButton *>(app.findWidget("startbutton"));
@@ -119,7 +117,7 @@ BOOST_AUTO_TEST_CASE( test_serverpush_test )
   environment.endRequest();
 
   for (;;) {
-    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     std::cerr << "Progress: " << bar->value() << std::endl;
     if (b->isEnabled())
       break;

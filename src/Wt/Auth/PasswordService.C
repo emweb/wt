@@ -4,20 +4,14 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/PasswordService"
-#include "Wt/Auth/User"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/PasswordService.h"
+#include "Wt/Auth/User.h"
 
 #include "Wt/WDllDefs.h"
 
 #include <memory>
-
-#ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
-#else
-#define AUTO_PTR std::auto_ptr
-#endif
 
 /*
  * Global throttling:
@@ -31,27 +25,21 @@ PasswordService::AbstractVerifier::~AbstractVerifier()
 
 PasswordService::PasswordService(const AuthService& baseAuth)
   : baseAuth_(baseAuth),
-    verifier_(0),
-    validator_(0),
     attemptThrottling_(false)
 { }
 
 PasswordService::~PasswordService()
+{ }
+
+void PasswordService::setVerifier(std::unique_ptr<AbstractVerifier> verifier)
 {
-  delete verifier_;
-  delete validator_;
+  verifier_ = std::move(verifier);
 }
 
-void PasswordService::setVerifier(AbstractVerifier *verifier)
+void PasswordService
+::setStrengthValidator(std::unique_ptr<AbstractStrengthValidator> validator)
 {
-  delete verifier_;
-  verifier_ = verifier;
-}
-
-void PasswordService::setStrengthValidator(AbstractStrengthValidator *validator)
-{
-  delete validator_;
-  validator_ = validator;
+  validator_ = std::move(validator);
 }
 
 void PasswordService::setAttemptThrottlingEnabled(bool enabled)
@@ -97,11 +85,11 @@ int PasswordService::getPasswordThrottle(int failedAttempts) const
 PasswordResult PasswordService::verifyPassword(const User& user,
 					    const WT_USTRING& password) const
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction> t
+  std::unique_ptr<AbstractUserDatabase::Transaction> t
     (user.database()->startTransaction());
 
   if (delayForNextAttempt(user) > 0)
-    return LoginThrottling;
+    return PasswordResult::LoginThrottling;
 
   bool valid = verifier_->verify(password, user.password());
 
@@ -118,12 +106,12 @@ PasswordResult PasswordService::verifyPassword(const User& user,
     if (t.get())
       t->commit();
 
-    return PasswordValid;
+    return PasswordResult::PasswordValid;
   } else {
     if (t.get())
       t->commit();
 
-    return PasswordInvalid;
+    return PasswordResult::PasswordInvalid;
   }
 }
 

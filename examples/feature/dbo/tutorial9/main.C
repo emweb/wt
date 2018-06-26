@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 #include "Person.h"
 #include "Membership.h"
@@ -23,10 +23,10 @@ void run()
   /*
    * Setup a session, would typically be done once at application startup.
    */
-  dbo::backend::Sqlite3 sqlite3(":memory:");
-  sqlite3.setProperty("show-queries", "true");
+  std::unique_ptr<dbo::backend::Sqlite3> sqlite3(new dbo::backend::Sqlite3(":memory:"));
+  sqlite3->setProperty("show-queries", "true");
   dbo::Session session;
-  session.setConnection(sqlite3);
+  session.setConnection(std::move(sqlite3));
   
   session.mapClass<Membership > ("membership");
   session.mapClass<Person > ("person");
@@ -40,20 +40,20 @@ void run()
   {
     dbo::Transaction transaction(session);
     
-    Person *p = new Person();
+    std::unique_ptr<Person> p{new Person()};
     p->name = "Joe";
-    dbo::ptr<Person> joe = session.add(p);
+    dbo::ptr<Person> joe = session.add(std::move(p));
     
-    Organisation *o = new Organisation();
+    std::unique_ptr<Organisation> o{new Organisation()};
     o->name = "Police";
-    dbo::ptr<Organisation> police = session.add(o);
+    dbo::ptr<Organisation> police = session.add(std::move(o));
     
-    Membership *ms = new Membership();
+    std::unique_ptr<Membership> ms{new Membership()};
     ms->id.person = joe;
     ms->id.organisation = police;
     ms->karma = 42;
     
-    session.add(ms);
+    session.add(std::move(ms));
   }
 }
 

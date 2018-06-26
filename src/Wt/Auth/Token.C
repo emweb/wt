@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Token"
+#include "Token.h"
 
 namespace Wt {
   namespace Auth {

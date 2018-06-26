@@ -6,10 +6,9 @@
 
 #include "ColorUtils.h"
 
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 #include "web/WebUtils.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <string>
@@ -25,11 +24,10 @@ int parseRgbArgument(const std::string& argument)
   std::string arg = boost::trim_copy(argument);
   try {
     if (boost::ends_with(arg, "%"))
-      return (int) (boost::lexical_cast<double>(arg.substr(0, arg.size() - 1)) 
-		    * 255 / 100);
+      return (int) (Utils::stod(arg.substr(0, arg.size() - 1)) * 255 / 100);
     else 
-      return boost::lexical_cast<int>(arg);
-  } catch (boost::bad_lexical_cast &e) {
+      return Utils::stoi(arg);
+  } catch (std::exception& e) {
     LOG_ERROR("invalid color component: " << arg);
     return 0;
   }
@@ -104,8 +102,8 @@ WColor parseCssColor(const std::string &name)
 	
     if (has_alpha) {
       try {
-	alpha = boost::lexical_cast<int>(boost::trim_copy(arguments[3]));
-      } catch (boost::bad_lexical_cast &e) {
+	alpha = Utils::stoi(boost::trim_copy(arguments[3]));
+      } catch (std::exception& e) {
 	LOG_ERROR("could not parse rgb format: " << n);
 	alpha = 255;
 	return WColor(red, green, blue, alpha);

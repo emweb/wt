@@ -1,32 +1,31 @@
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Postgres>
-#include <Wt/Dbo/backend/MySQL>
-#include <Wt/Dbo/backend/Sqlite3>
-#include <Wt/Dbo/backend/Firebird>
-#include <Wt/Dbo/FixedSqlConnectionPool>
-#include <Wt/WDate>
-#include <Wt/WDateTime>
-#include <Wt/WTime>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/ptr_tuple>
-#include <Wt/Dbo/QueryModel>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Postgres.h>
+#include <Wt/Dbo/backend/MySQL.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
+#include <Wt/Dbo/backend/Firebird.h>
+#include <Wt/Dbo/backend/MSSQLServer.h>
+#include <Wt/Dbo/FixedSqlConnectionPool.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/ptr_tuple.h>
+#include <Wt/Dbo/QueryModel.h>
 
 namespace dbo = Wt::Dbo;
 
 struct DboFixtureBase
 {
 
-  dbo::SqlConnectionPool *connectionPool_;
+  std::unique_ptr<dbo::SqlConnectionPool> connectionPool_;
   dbo::Session *session_;
 
   DboFixtureBase(bool showQueries = true)
   {
     static bool logged = false;
-    dbo::SqlConnection *connection;
+    std::unique_ptr<dbo::SqlConnection> connection;
 
 #ifdef SQLITE3
     if (!logged) {
@@ -35,9 +34,10 @@ struct DboFixtureBase
     }
 
     dbo::backend::Sqlite3 *sqlite3 = new dbo::backend::Sqlite3(":memory:");
-    sqlite3->setDateTimeStorage(dbo::SqlDate,
-				dbo::backend::Sqlite3::JulianDaysAsReal);
-    connection = sqlite3;
+    sqlite3->setDateTimeStorage
+      (dbo::SqlDateTimeType::Date,
+       dbo::backend::DateTimeStorage::JulianDaysAsReal);
+    connection = std::unique_ptr<dbo::SqlConnection>(sqlite3);
 #endif // SQLITE3
 
 #ifdef POSTGRES
@@ -46,9 +46,10 @@ struct DboFixtureBase
       logged = true;
     }
 
-    connection = new dbo::backend::Postgres
-        ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
+    connection = std::unique_ptr<dbo::SqlConnection>(new dbo::backend::Postgres
+        ("user=postgres_test password=postgres_test port=5432 dbname=wt_test"));
     // use host=vendetta for testing.
+
 #endif // POSTGRES");
 
 #ifdef MYSQL
@@ -57,8 +58,10 @@ struct DboFixtureBase
       logged = true;
     }
 
-    connection = new dbo::backend::MySQL("wt_test_db", "test_user",
-                                            "test_pw", "vendetta", 3306);
+    std::unique_ptr<dbo::backend::MySQL> mysql(
+        new dbo::backend::MySQL("wt_test_db", "test_user", "test_pw", "vendetta", 3306));
+    mysql->setFractionalSecondsPart(3);
+    connection = std::move(mysql);
 #endif // MYSQL
 
 #ifdef FIREBIRD
@@ -78,15 +81,32 @@ struct DboFixtureBase
       logged = true;
     }
 
-    connection = new dbo::backend::Firebird ("vendetta",
-					     file, 
-					     "test_user", "test_pwd", 
-					     "", "", "");
+    connection = std::unique_ptr<dbo::SqlConnection>(
+          new dbo::backend::Firebird ("localhost",
+                                      file,
+                                      "test_user", "test_pwd",
+                                      "", "", ""));
 #endif // FIREBIRD
+
+#ifdef MSSQLSERVER
+    if (!logged) {
+      std::cerr << "DboTest.C created a Microsoft SQL Server connector" << std::endl;
+      logged = true;
+    }
+
+    connection = std::unique_ptr<dbo::SqlConnection>(
+	new dbo::backend::MSSQLServer(
+	"Driver={ODBC Driver 13 for SQL Server};"
+	"Server=vendetta;"
+	"UID=test_user;"
+	"PWD=test_pwd;"
+	"Database=wt_test;"));
+#endif // MSSQLSERVER
 
     if (showQueries)
       connection->setProperty("show-queries", "true");
-    connectionPool_ = new dbo::FixedSqlConnectionPool(connection, 5);
+    connectionPool_ = std::unique_ptr<dbo::SqlConnectionPool>(
+          new dbo::FixedSqlConnectionPool(std::move(connection), 5));
 
     session_ = new dbo::Session();
     session_->setConnectionPool(*connectionPool_);
@@ -101,6 +121,5 @@ struct DboFixtureBase
     }
 
     delete session_;
-    delete connectionPool_;
   }
 };

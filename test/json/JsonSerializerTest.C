@@ -6,10 +6,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/version.hpp>
 
-#include <Wt/Json/Parser>
-#include <Wt/Json/Serializer>
-#include <Wt/Json/Object>
-#include <Wt/Json/Array>
+#include <Wt/Json/Parser.h>
+#include <Wt/Json/Serializer.h>
+#include <Wt/Json/Object.h>
+#include <Wt/Json/Array.h>
 
 #include <fstream>
 #include <streambuf>

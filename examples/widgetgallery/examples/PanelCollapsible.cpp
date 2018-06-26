@@ -1,18 +1,18 @@
-#include <Wt/WAnimation>
-#include <Wt/WPanel>
-#include <Wt/WText>
+#include <Wt/WAnimation.h>
+#include <Wt/WPanel.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(PanelCollapsible)
-Wt::WPanel *panel = new Wt::WPanel();
+auto panel = Wt::cpp14::make_unique<Wt::WPanel>();
 panel->setTitle("Collapsible panel");
 panel->addStyleClass("centered-example");
 panel->setCollapsible(true);
 
-Wt::WAnimation animation(Wt::WAnimation::SlideInFromTop,
-			 Wt::WAnimation::EaseOut,
+Wt::WAnimation animation(Wt::AnimationEffect::SlideInFromTop,
+                         Wt::TimingFunction::EaseOut,
 			 100);
 
 panel->setAnimation(animation);
-panel->setCentralWidget(new Wt::WText("This panel can be collapsed."));
+panel->setCentralWidget(Wt::cpp14::make_unique<Wt::WText>("This panel can be collapsed."));
 
-SAMPLE_END(return panel)
+SAMPLE_END(return std::move(panel))

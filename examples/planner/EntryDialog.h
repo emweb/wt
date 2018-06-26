@@ -7,34 +7,36 @@
 #ifndef ENTRY_DIALOG_H_
 #define ENTRY_DIALOG_H_
 
-#include <Wt/WDialog>
-#include <Wt/WDate>
-#include <Wt/WDateTime>
-#include <Wt/WLineEdit>
-#include <Wt/WTextArea>
+#include <Wt/WDialog.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WTextArea.h>
 
 #include "CalendarCell.h"
 
-class EntryDialog : public Wt::WDialog {
+using namespace Wt;
+
+class EntryDialog : public WDialog {
  public:
-  EntryDialog(const Wt::WString& title, CalendarCell* cell);
+  EntryDialog(const WString& title, CalendarCell* cell);
 
  private:
-  Wt::WDateTime timeStamp(const Wt::WString& time, const Wt::WDate& day);
-  Wt::WString description();
+  WDateTime timeStamp(const WString& time, const WDate& day);
+  WString description();
   void ok();
   void cancel();
 
  public:
-  static Wt::WString timeFormat;
+  static WString timeFormat;
 
  private:
   CalendarCell* cell_;
 
-  Wt::WLineEdit* summary_;
-  Wt::WLineEdit* start_;
-  Wt::WLineEdit* stop_;
-  Wt::WTextArea* description_;
+  WLineEdit* summary_;
+  WLineEdit* start_;
+  WLineEdit* stop_;
+  WTextArea* description_;
 };
 
 #endif //ENTRY_DIALOG_H_

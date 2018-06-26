@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-#include "WQApplication"
+#include "WQApplication.h"
 
 #include "DispatchThread.h"
 
@@ -49,18 +49,17 @@ DispatchThread::DispatchThread(WQApplication *app,
   : QThread(),
     app_(app),
     qtEventLoop_(withEventLoop),
-    dispatchObject_(0),
-    event_(0),
+    event_(nullptr),
     exception_(false),
     done_(false),
     newEvent_(false),
-    eventLock_(0)
+    eventLock_(nullptr)
 { }
 
 void DispatchThread::run()
 {
   if (qtEventLoop_)
-    dispatchObject_ = new DispatchObject(this);
+    dispatchObject_ = Wt::cpp14::make_unique<DispatchObject>(this);
 
   signalDone();
 
@@ -69,14 +68,14 @@ void DispatchThread::run()
   else
     myExec();
 
-  delete dispatchObject_;
+  dispatchObject_ = nullptr;
 
   signalDone();
 }
 
 void DispatchThread::myExec()
 {
-  boost::mutex::scoped_lock lock(newEventMutex_);
+  std::unique_lock<std::mutex> lock(newEventMutex_);
   eventLock_ = &lock;
 
   for (;;) {
@@ -97,7 +96,7 @@ void DispatchThread::myExec()
 void DispatchThread::myPropagateEvent()
 {
   {
-    boost::mutex::scoped_lock lock(newEventMutex_);
+    std::unique_lock<std::mutex> lock(newEventMutex_);
     newEvent_ = true;
   }
   newEventCondition_.notify_one();
@@ -107,7 +106,7 @@ void DispatchThread::signalDone()
 {
   log("debug") << "WQApplication: [thread] signaling event done";
   {
-    boost::mutex::scoped_lock lock(doneMutex_);
+    std::unique_lock<std::mutex> lock(doneMutex_);
     done_ = true;
   }
   doneCondition_.notify_one();
@@ -115,7 +114,7 @@ void DispatchThread::signalDone()
 
 void DispatchThread::waitDone()
 {
-  boost::mutex::scoped_lock lock(doneMutex_);
+  std::unique_lock<std::mutex> lock(doneMutex_);
 
   if (done_)
     return;

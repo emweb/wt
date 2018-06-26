@@ -4,8 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WSortFilterProxyModel"
-#include "Wt/WRegExp"
+#include "Wt/WSortFilterProxyModel.h"
 
 #include "WebUtils.h"
 
@@ -16,7 +15,7 @@ namespace Wt {
 bool WSortFilterProxyModel::Compare::operator()(int sourceRow1,
 						int sourceRow2) const
 {
-  if (model->sortOrder_ == AscendingOrder)
+  if (model->sortOrder_ == SortOrder::Ascending)
     return lessThan(sourceRow1, sourceRow2);
   else
     return lessThan(sourceRow2, sourceRow1);
@@ -43,7 +42,7 @@ bool WSortFilterProxyModel::Compare::lessThan(int sourceRow1, int sourceRow2)
 int WSortFilterProxyModel::Compare::compare(int sourceRow1, int sourceRow2)
   const
 {
-  int factor = (model->sortOrder_ == AscendingOrder) ? 1 : -1;
+  int factor = (model->sortOrder_ == SortOrder::Ascending) ? 1 : -1;
 
   if (model->sortKeyColumn_ == -1)
     return factor * (sourceRow1 - sourceRow2);
@@ -64,14 +63,12 @@ int WSortFilterProxyModel::Compare::compare(int sourceRow1, int sourceRow2)
 WSortFilterProxyModel::Item::~Item()
 { }
 
-WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
-  : WAbstractProxyModel(parent),
-    regex_(0),
-    filterKeyColumn_(0),
-    filterRole_(DisplayRole),
+WSortFilterProxyModel::WSortFilterProxyModel()
+  : filterKeyColumn_(0),
+    filterRole_(ItemDataRole::Display),
     sortKeyColumn_(-1),
-    sortRole_(DisplayRole),
-    sortOrder_(AscendingOrder),
+    sortRole_(ItemDataRole::Display),
+    sortOrder_(SortOrder::Ascending),
     dynamic_(false),
     inserting_(false),
     mappedRootItem_(0)
@@ -79,20 +76,17 @@ WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
 
 WSortFilterProxyModel::~WSortFilterProxyModel()
 {
-  delete regex_;
-
   resetMappings();
 }
 
-void WSortFilterProxyModel::setSourceModel(WAbstractItemModel *model)
+void WSortFilterProxyModel
+::setSourceModel(const std::shared_ptr<WAbstractItemModel>& model)
 {
-  if (sourceModel()) {
-    for (unsigned i = 0; i < modelConnections_.size(); ++i)
-      modelConnections_[i].disconnect();
-    modelConnections_.clear();
-  }
+  for (unsigned i = 0; i < modelConnections_.size(); ++i)
+    modelConnections_[i].disconnect();
+  modelConnections_.clear();
 
-  WAbstractProxyModel::setSourceModel(model);
+  WAbstractProxyModel::setSourceModel(std::move(model));
 
   modelConnections_.push_back(sourceModel()->columnsAboutToBeInserted().connect
      (this, &WSortFilterProxyModel::sourceColumnsAboutToBeInserted));
@@ -124,6 +118,9 @@ void WSortFilterProxyModel::setSourceModel(WAbstractItemModel *model)
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
      (this, &WSortFilterProxyModel::sourceLayoutChanged));
 
+  modelConnections_.push_back(sourceModel()->modelReset().connect
+     (this, &WSortFilterProxyModel::sourceModelReset));
+
   resetMappings();
 }
 
@@ -132,49 +129,27 @@ void WSortFilterProxyModel::setFilterKeyColumn(int column)
   filterKeyColumn_ = column;
 }
 
-void WSortFilterProxyModel::setFilterRole(int role)
+void WSortFilterProxyModel::setFilterRole(ItemDataRole role)
 {
   filterRole_ = role;
 }
 
-void WSortFilterProxyModel::setSortRole(int role)
+void WSortFilterProxyModel::setSortRole(ItemDataRole role)
 {
   sortRole_ = role;
 }
 
-void WSortFilterProxyModel::setFilterRegExp(const WT_USTRING& pattern)
+void WSortFilterProxyModel
+::setFilterRegExp(std::unique_ptr<std::regex> pattern)
 {
-  if (!regex_)
-    regex_ = new WRegExp(pattern);
-  else
-    regex_->setPattern(pattern, regex_->flags());
+  regex_ = std::move(pattern);
 
   invalidate();
 }
 
-WT_USTRING WSortFilterProxyModel::filterRegExp() const
+std::regex *WSortFilterProxyModel::filterRegExp() const
 {
-  return regex_ ? regex_->pattern() : WT_USTRING();
-}
-
-void WSortFilterProxyModel::setFilterFlags(WFlags<RegExpFlag> flags)
-{
-  if (!regex_)
-    regex_ = new WRegExp(".*");
-
-  regex_->setPattern(regex_->pattern(), flags);
-}
-
-WFlags<RegExpFlag> WSortFilterProxyModel::filterFlags() const
-{
-  if (regex_)
-    return regex_->flags();
-  else 
-#ifndef WT_TARGET_JAVA
-    return WFlags<RegExpFlag>();
-#else
-    return (int)0;
-#endif
+  return regex_.get();
 }
 
 void WSortFilterProxyModel::sort(int column, SortOrder order)
@@ -360,7 +335,7 @@ bool WSortFilterProxyModel::filterAcceptRow(int sourceRow,
     WString s = asString(sourceModel()
 			 ->index(sourceRow, filterKeyColumn_, sourceParent)
 			 .data(filterRole_));
-    bool result = regex_->exactMatch(s);
+    bool result = std::regex_match(s.toUTF8(), *regex_);
 
     return result;
   } else
@@ -395,19 +370,18 @@ int WSortFilterProxyModel::rowCount(const WModelIndex& parent) const
 }
 
 bool WSortFilterProxyModel::setHeaderData(int section, Orientation orientation,
-					  const boost::any& value, int role)
+                                          const cpp17::any& value, ItemDataRole role)
 {
-  if (orientation == Vertical)
+  if (orientation == Orientation::Vertical)
     section = mapToSource(index(section, 0)).row();
 
   return sourceModel()->setHeaderData(section, orientation, value, role);
 }
 
-boost::any WSortFilterProxyModel::headerData(int section,
-					     Orientation orientation, int role)
-  const
+cpp17::any WSortFilterProxyModel::headerData(int section,
+                                      Orientation orientation, ItemDataRole role) const
 {
-  if (orientation == Vertical)
+  if (orientation == Orientation::Vertical)
     section = mapToSource(index(section, 0)).row();
 
   return sourceModel()->headerData(section, orientation, role);
@@ -415,9 +389,9 @@ boost::any WSortFilterProxyModel::headerData(int section,
 
 WFlags<HeaderFlag> WSortFilterProxyModel::headerFlags(int section,
 						      Orientation orientation)
-    const
+  const
 {
-  if (orientation == Vertical)
+  if (orientation == Orientation::Vertical)
     section = mapToSource(index(section, 0)).row();
 
   return sourceModel()->headerFlags(section, orientation);
@@ -625,7 +599,7 @@ void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 void WSortFilterProxyModel::sourceHeaderDataChanged(Orientation orientation, 
 						    int start, int end)
 {
-  if (orientation == Vertical) {
+  if (orientation == Orientation::Vertical) {
     Item *item = itemFromIndex(WModelIndex());
     for (int row = start; row <= end; ++row) {
       int mappedRow = item->sourceRowMap_[row];
@@ -645,6 +619,12 @@ void WSortFilterProxyModel::sourceLayoutAboutToBeChanged()
 void WSortFilterProxyModel::sourceLayoutChanged()
 {
   layoutChanged().emit();
+}
+
+void WSortFilterProxyModel::sourceModelReset()
+{
+  resetMappings();
+  reset();
 }
 
 bool WSortFilterProxyModel::insertRows(int row, int count,

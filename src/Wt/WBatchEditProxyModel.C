@@ -6,8 +6,8 @@
 
 #include <cassert>
 
-#include "Wt/WBatchEditProxyModel"
-#include "Wt/WException"
+#include "Wt/WBatchEditProxyModel.h"
+#include "Wt/WException.h"
 
 #include "WebUtils.h"
 
@@ -39,7 +39,7 @@ bool WBatchEditProxyModel::Cell::operator< (const Cell& other) const
 
 WBatchEditProxyModel::Item::Item(const WModelIndex& sourceIndex)
   : BaseItem(sourceIndex),
-    insertedParent_(0)
+    insertedParent_(nullptr)
 { }
 
 WBatchEditProxyModel::Item::Item(Item *insertedParent)
@@ -53,9 +53,8 @@ WBatchEditProxyModel::Item::~Item()
     delete insertedItems_[i];
 }
 
-WBatchEditProxyModel::WBatchEditProxyModel(WObject *parent)
-  : WAbstractProxyModel(parent),
-    submitting_(false),
+WBatchEditProxyModel::WBatchEditProxyModel()
+  : submitting_(false),
     dirtyIndicationRole_(-1)
 { }
 
@@ -64,13 +63,12 @@ WBatchEditProxyModel::~WBatchEditProxyModel()
   resetMappings();
 }
 
-void WBatchEditProxyModel::setSourceModel(WAbstractItemModel *model)
+void WBatchEditProxyModel
+::setSourceModel(const std::shared_ptr<WAbstractItemModel>& model)
 {
-  if (sourceModel()) {
-    for (unsigned i = 0; i < modelConnections_.size(); ++i)
-      modelConnections_[i].disconnect();
-    modelConnections_.clear();
-  }
+  for (unsigned i = 0; i < modelConnections_.size(); ++i)
+    modelConnections_[i].disconnect();
+  modelConnections_.clear();
 
   WAbstractProxyModel::setSourceModel(model);
 
@@ -104,11 +102,14 @@ void WBatchEditProxyModel::setSourceModel(WAbstractItemModel *model)
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
      (this, &WBatchEditProxyModel::sourceLayoutChanged));
 
+  modelConnections_.push_back(sourceModel()->modelReset().connect
+     (this, &WBatchEditProxyModel::sourceModelReset));
+
   resetMappings();
 }
 
-void WBatchEditProxyModel::setNewRowData(int column, const boost::any& data,
-					 int role)
+void WBatchEditProxyModel::setNewRowData(int column, const cpp17::any& data,
+                                         ItemDataRole role)
 {
   newRowData_[column][role] = data;
 }
@@ -360,7 +361,7 @@ WBatchEditProxyModel::itemFromIndex(const WModelIndex& index,
 	  throw WException("WBatchEditProxyModel does not support children in "
 			   "column > 0");
 	else
-	  return 0;
+	  return nullptr;
     }
   } else
     return itemFromSourceIndex(WModelIndex(), autoCreate);
@@ -372,7 +373,7 @@ WBatchEditProxyModel::itemFromSourceIndex(const WModelIndex& sourceParent,
   const
 {
   if (isRemoved(sourceParent))
-    return 0;
+    return nullptr;
 
   ItemMap::const_iterator i = mappedIndexes_.find(sourceParent);
   if (i == mappedIndexes_.end()) {
@@ -381,7 +382,7 @@ WBatchEditProxyModel::itemFromSourceIndex(const WModelIndex& sourceParent,
       mappedIndexes_[sourceParent] = result;
       return result;
     } else
-      return 0;
+      return nullptr;
   } else
     return dynamic_cast<Item *>(i->second);
 }
@@ -611,7 +612,7 @@ void WBatchEditProxyModel::sourceRowsInserted(const WModelIndex& parent,
 	Item *child = item->insertedItems_[index];
 	if (child) {
 	  child->sourceIndex_ = sourceModel()->index(start + i, 0, parent);
-	  child->insertedParent_ = 0;
+	  child->insertedParent_ = nullptr;
 	  mappedIndexes_[child->sourceIndex_] = child;
 	}
 
@@ -653,7 +654,7 @@ void WBatchEditProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 void WBatchEditProxyModel::sourceHeaderDataChanged(Orientation orientation, 
 						   int start, int end)
 {
-  if (orientation == Vertical) {    
+  if (orientation == Orientation::Vertical) {    
     Item *item = itemFromIndex(WModelIndex());
     for (int row = start; row <= end; ++row) {
       int proxyRow = adjustedProxyRow(item, row);
@@ -679,7 +680,13 @@ void WBatchEditProxyModel::sourceLayoutChanged()
   layoutChanged().emit();
 }
 
-boost::any WBatchEditProxyModel::data(const WModelIndex& index, int role) const
+void WBatchEditProxyModel::sourceModelReset()
+{
+  resetMappings();
+  reset();
+}
+
+cpp17::any WBatchEditProxyModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   Item *item = itemFromIndex(index.parent());
 
@@ -691,33 +698,32 @@ boost::any WBatchEditProxyModel::data(const WModelIndex& index, int role) const
     if (j != i->second.end())
       return indicateDirty(role, j->second);
     else
-      return indicateDirty(role, boost::any());
+      return indicateDirty(role, cpp17::any());
   }
 
   WModelIndex sourceIndex = mapToSource(index);
   if (sourceIndex.isValid())
     return sourceModel()->data(sourceIndex, role);
   else
-    return indicateDirty(role, boost::any());
+    return indicateDirty(role, cpp17::any());
 }
 
-void WBatchEditProxyModel::setDirtyIndication(int role, const boost::any& data)
+void WBatchEditProxyModel::setDirtyIndication(ItemDataRole role, const cpp17::any& data)
 {
   dirtyIndicationRole_ = role;
   dirtyIndicationData_ = data;
 }
 
-boost::any
-WBatchEditProxyModel::indicateDirty(int role, const boost::any& value) const
+cpp17::any WBatchEditProxyModel::indicateDirty(ItemDataRole role, const cpp17::any& value) const
 {
   if (role == dirtyIndicationRole_) {
-    if (role == StyleClassRole) {
+    if (role == ItemDataRole::StyleClass) {
       WString s1 = asString(value);
       WString s2 = asString(dirtyIndicationData_);
       if (!s1.empty())
 	s1 += " ";
       s1 += s2;
-      return boost::any(s1);
+      return cpp17::any(s1);
     } else
       return dirtyIndicationData_;
   } else
@@ -725,7 +731,7 @@ WBatchEditProxyModel::indicateDirty(int role, const boost::any& value) const
 }
 
 bool WBatchEditProxyModel::setData(const WModelIndex& index,
-				   const boost::any& value, int role)
+                                   const cpp17::any& value, ItemDataRole role)
 {
   Item *item = itemFromIndex(index.parent());
 
@@ -741,14 +747,14 @@ bool WBatchEditProxyModel::setData(const WModelIndex& index,
 
     dataMap[role] = value;
 
-    if (role == EditRole)
-      dataMap[DisplayRole] = value;
+    if (role == ItemDataRole::Edit)
+      dataMap[ItemDataRole::Display] = value;
 
     item->editedValues_[Cell(index.row(), index.column())] = dataMap;
   } else {
     i->second[role] = value;
-    if (role == EditRole)
-      i->second[DisplayRole] = value;
+    if (role == ItemDataRole::Edit)
+      i->second[ItemDataRole::Display] = value;
   }
 
   dataChanged().emit(index, index);
@@ -772,12 +778,12 @@ WFlags<ItemFlag> WBatchEditProxyModel::flags(const WModelIndex& index) const
   }
 }
 
-boost::any WBatchEditProxyModel::headerData(int section,
+cpp17::any WBatchEditProxyModel::headerData(int section,
 					    Orientation orientation,
-					    int role) const
+                                            ItemDataRole role) const
 {
-  if (orientation == Vertical)
-    return boost::any(); // nobody cares
+  if (orientation == Orientation::Vertical)
+    return cpp17::any(); // nobody cares
   else
     // FIXME
     return sourceModel()->headerData(section, orientation, role);
@@ -901,7 +907,7 @@ bool WBatchEditProxyModel::insertColumns(int column, int count,
 
   shiftColumns(item, column, count);
 
-  insertIndexes(item, item->insertedColumns_, 0, column, count);
+  insertIndexes(item, item->insertedColumns_, nullptr, column, count);
 
   endInsertColumns();
 
@@ -916,7 +922,7 @@ bool WBatchEditProxyModel::removeColumns(int column, int count,
   Item *item = itemFromIndex(parent);
 
   removeIndexes(item, item->insertedColumns_, item->removedColumns_,
-		0, column, count);
+		nullptr, column, count);
 
   shiftColumns(item->editedValues_, column, count);
 
@@ -936,7 +942,7 @@ void WBatchEditProxyModel::insertIndexes(Item *item,
     ins.insert(ins.begin() + insertIndex + i, index + i);
 
     if (rowItems)
-      rowItems->insert(rowItems->begin() + insertIndex + i, (Item *)0);
+      rowItems->insert(rowItems->begin() + insertIndex + i, nullptr);
   }
 }
 

@@ -6,12 +6,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDate>
-#include <Wt/WDateTime>
-#include <Wt/WTime>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/ptr_tuple>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/ptr_tuple.h>
 
 #include "DboFixture.h"
 
@@ -60,15 +60,15 @@ namespace Wt
     template<class Action>
       void field(Action &action, PageKeys &Keys, const std::string &name, int size = -1)
       {
-	field(action, Keys.id, name + "_page_id");
-	belongsTo(action, Keys.ModulePtr, name + "_Module", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade | Wt::Dbo::NotNull);
+        field(action, Keys.id, name + "_page_id");
+        belongsTo(action, Keys.ModulePtr, name + "_Module", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade | Wt::Dbo::NotNull);
       }
     template<>
       struct dbo_traits<Page> : public dbo_default_traits
       {
-	typedef PageKeys IdType;
-	static IdType invalidId();
-	static const char *surrogateIdField();
+        typedef PageKeys IdType;
+        static IdType invalidId();
+        static const char *surrogateIdField();
       };
   }
 }
@@ -87,7 +87,11 @@ public:
     Wt::Dbo::id(a, _Id, "Page");
 
     Wt::Dbo::hasMany(a, ChildrenPages, Wt::Dbo::ManyToOne, "Parent_Page");
+#ifndef MSSQLSERVER
     Wt::Dbo::belongsTo(a, ParentPage, "Parent_Page", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade);
+#else
+    Wt::Dbo::belongsTo(a, ParentPage, "Parent_Page");
+#endif
   }
 
 private:

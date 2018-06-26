@@ -7,7 +7,7 @@
 #ifndef USER_H_
 #define USER_H_
 
-#include <Wt/Dbo/Types>
+#include <Wt/Dbo/Types.h>
 
 #include "Post.h"
 #include "Token.h"
@@ -29,8 +29,8 @@ public:
     Admin = 1
   };
 
-  Wt::WString name;
-  Role role;
+  Wt::WString   name;
+  Role      role;
 
   std::string password;
   std::string passwordMethod;
@@ -65,8 +65,10 @@ public:
     dbo::hasMany(a, posts,      dbo::ManyToOne, "author");
     dbo::hasMany(a, authTokens, dbo::ManyToOne, "user");
   }
+
+  static dbo::dbo_traits<User>::IdType stringToId(const std::string &s);
 };
 
-DBO_EXTERN_TEMPLATES(User);
+DBO_EXTERN_TEMPLATES(User)
 
 #endif // USER_H_

@@ -1,138 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WSELECTIONBOX_H_
-#define WSELECTIONBOX_H_
-
-#include <Wt/WComboBox>
-
-namespace Wt {
-
-/*! \class WSelectionBox Wt/WSelectionBox Wt/WSelectionBox
- *  \brief A selection box allows selection from a list of options.
- *
- * By default, a selection box may be used to let the user select one
- * item from a list. This may be changed to multiple selection mode
- * using setSelectionMode().
- *
- * The current selection may be set and read using setCurrentIndex()
- * and currentIndex(), for \link Wt::SingleSelection
- * SingleSelection\endlink mode, or setSelectedIndexes() and
- * selectedIndexes() for Wt::ExtendedSelection mode. 
- * The activated() and sactivated()
- * signals are not emited in the Wt::ExtendedSelection mode, use the
- * changed() signal changed().
- *
- * %WSelectionBox is an MVC view class, using a simple string list
- * model by default. The model may be populated using WComboBox::addItem() 
- * or WComboBox::insertItem() and the contents can 
- * be cleared through clear(). These methods manipulate the underlying
- * model().
- *
- * To use the selectionbox with a custom model instead of the default
- * WStringListModel, use setModel().
- *
- * \if cpp
- * Usage example:
- * \code
- * Wt::WSelectionBox *selectionBox = new Wt::WSelectionBox(this);
- * selectionBox->addItem("Clint Eastwood");
- * selectionBox->addItem("Mick Jagger");
- * selectionBox->addItem("Johnny Depp");
- * selectionBox->addItem("Kate Winslet");
- *
- * selectionBox->setCurrentIndex(2); // Johnny Depp
- * selectionBox->activated().connect(this, &MyWidget::comboChanged);
- * \endcode
- * \endif
- *
- * %WSelectionBox is an \link WWidget::setInline(bool) inline \endlink widget.
- *
- * <h3>CSS</h3>
- *
- * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag and
- * does not provide styling. It can be styled using inline or external
- * CSS as appropriate.
- *
- * \ingroup modelview
- */
-class WT_API WSelectionBox : public WComboBox
-{
-public:
-  /*! \brief Constructor.
-   */
-  WSelectionBox(WContainerWidget *parent = 0);
-
-  /*! \brief Returns the number of items that are visible.
-   */
-  int verticalSize() const { return verticalSize_; }
-
-  /*! \brief Sets the number of items that are visible.
-   *
-   * If more items are available, a scroll-bar is provided.
-   */
-  void setVerticalSize(int items);
-
-  /*! \brief Sets the selection mode.
-   *
-   * The default selection mode is SingleSelection. You can change to
-   * Wt::ExtendedSelection to allow selection of multiple items.
-   */
-  void setSelectionMode(SelectionMode mode);
-
-  /*! \brief Returns the selection mode.
-   *
-   * \sa setSelectionMode(SelectionMode)
-   */
-  virtual SelectionMode selectionMode() const { return selectionMode_; }   
-
-  /*! \brief Returns the current selection (in Wt::ExtendedSelection mode).
-   *
-   * Get the list of currently selected items. This method is only defined
-   * when selectionMode() is Wt::ExtendedSelection. Otherwise, you should use
-   * currentIndex() to get item currently selected.
-   *
-   * \sa currentIndex()
-   */
-  const std::set<int>& selectedIndexes() const;
-
-  /*! \brief Sets the selection (in Wt::ExtendedSelection mode).
-   *
-   * For an Wt::ExtendedSelection mode, set the list of currently selected
-   * items.
-   *
-   * \sa selectedIndexes()
-   */
-  void setSelectedIndexes(const std::set<int>& selection);
-
-  /*! \brief Clears the current selection.
-   *
-   * Clears the current selection.
-   *
-   * \sa setCurrentIndex(), setSelectedIndexes()
-   */
-  void clearSelection();
-
-private:
-  int           verticalSize_;
-  SelectionMode selectionMode_;
-  std::set<int> selection_;
-
-  bool configChanged_;
-
-  virtual bool supportsNoSelection() const;
-
-protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void setFormData(const FormData& formData);
-  virtual void propagateRenderOk(bool deep);
-
-  virtual bool isSelected(int index) const;
-};
-
-}
-
-#endif // WSELECTIONBOX_
+#ifndef WT_WSELECTIONBOX_EXTENSIONLESS_H_
+#define WT_WSELECTIONBOX_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WSelectionBox.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WSelectionBox.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WSelectionBox.h"
+#endif // WT_WSELECTIONBOX_EXTENSIONLESS_H_

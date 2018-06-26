@@ -1,9 +1,9 @@
-#include "Wt/WGradient"
+#include "Wt/WGradient.h"
 
 namespace Wt {
 
 WGradient::WGradient()
-  : style_(LinearGradient),
+  : style_(GradientStyle::Linear),
     gradientVector_(0, 0, 1, 1),
     center_(0, 0),
     focal_(0, 0),
@@ -12,14 +12,14 @@ WGradient::WGradient()
 
 void WGradient::setLinearGradient(double x0, double y0, double x1, double y1)
 {
-  style_ = LinearGradient;
+  style_ = GradientStyle::Linear;
   gradientVector_ = WLineF(x0, y0, x1, y1);
 }
 
 void WGradient::setRadialGradient(double cx, double cy, double r,
 				  double fx, double fy)
 {
-  style_ = RadialGradient;
+  style_ = GradientStyle::Radial;
   center_ = WPointF(cx, cy);
   focal_ = WPointF(fx, fy);
   radius_ = r;
@@ -54,9 +54,9 @@ bool WGradient::operator==(const WGradient& other) const
       return false;
   }
 
-  if (style_ == LinearGradient) {
+  if (style_ == GradientStyle::Linear) {
     return gradientVector_ == other.gradientVector_;
-  } else if (style_ == RadialGradient) {
+  } else if (style_ == GradientStyle::Radial) {
     return (center_ == other.center_) && 
       (focal_ == other.focal_) &&
       (radius_ == other.radius_);

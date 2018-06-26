@@ -6,16 +6,17 @@
 #include <cstdio>
 #include <sstream>
 
-#include "Wt/WObject"
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WStringStream"
-#include "Wt/WTheme"
+#include "Wt/WObject.h"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WTheme.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
+#include "StringUtils.h"
 
 namespace {
 
@@ -80,6 +81,7 @@ std::string cssNames_[] =
     "padding",
     "padding-top", "padding-right",
     "padding-bottom", "padding-left",
+    "margin",
     "margin-top", "margin-right",
     "margin-bottom", "margin-left", "cursor",
     "border-top", "border-right",
@@ -99,7 +101,7 @@ std::string cssNames_[] =
     "border-collapse",
     "page-break-before", "page-break-after",
     "zoom", "visibility", "display",
-    "box-sizing"};
+    "box-sizing", "flex", "flex-flow", "align-self", "justify-content"};
 
 std::string cssCamelNames_[] =
   { "cssText", "width", "position",
@@ -112,6 +114,7 @@ std::string cssCamelNames_[] =
     "padding",
     "paddingTop", "paddingRight",
     "paddingBottom", "paddingLeft",
+    "margin",
     "marginTop", "marginRight",
     "marginBottom", "marginLeft",
     "cursor",
@@ -132,7 +135,7 @@ std::string cssCamelNames_[] =
     "border-collapse",
     "pageBreakBefore", "pageBreakAfter",
     "zoom", "visibility", "display",
-    "boxSizing" 
+    "boxSizing", "flex", "flexFlow", "alignSelf", "justifyContent"
   };
 
 const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`/";
@@ -149,7 +152,7 @@ int DomElement::nextId_ = 0;
 
 DomElement *DomElement::createNew(DomElementType type)
 {
-  DomElement *e = new DomElement(ModeCreate, type);
+  DomElement *e = new DomElement(Mode::Create, type);
   return e;
 }
 
@@ -159,7 +162,7 @@ DomElement *DomElement::getForUpdate(const std::string& id,
   if (id.empty())
     throw WException("Cannot update widget without id");
 
-  DomElement *e = new DomElement(ModeUpdate, type);
+  DomElement *e = new DomElement(Mode::Update, type);
   e->id_ = id;
 
   return e;
@@ -168,7 +171,7 @@ DomElement *DomElement::getForUpdate(const std::string& id,
 DomElement *DomElement::updateGiven(const std::string& var,
 				    DomElementType type)
 {
-  DomElement *e = new DomElement(ModeUpdate, type);
+  DomElement *e = new DomElement(Mode::Update, type);
   e->var_ = var;
 
   return e;
@@ -182,13 +185,13 @@ DomElement *DomElement::getForUpdate(const WObject *object,
 
 DomElement::DomElement(Mode mode, DomElementType type)
   : mode_(mode),
-    wasEmpty_(mode_ == ModeCreate),
+    wasEmpty_(mode_ == Mode::Create),
     removeAllChildren_(-1),
     minMaxSizeProperties_(false),
     unstubbed_(false),
     unwrapped_(false),
-    replaced_(0),
-    insertBefore_(0),
+    replaced_(nullptr),
+    insertBefore_(nullptr),
     type_(type),
     numManipulations_(0),
     timeOut_(-1),
@@ -269,18 +272,18 @@ void DomElement::setWasEmpty(bool how)
 
 void DomElement::updateInnerHtmlOnly()
 {
-  mode_ = ModeUpdate;
+  mode_ = Mode::Update;
 
-  assert(replaced_ == 0);
-  assert(insertBefore_ == 0);
+  assert(replaced_ == nullptr);
+  assert(insertBefore_ == nullptr);
 
   attributes_.clear();
   removedAttributes_.clear();
   eventHandlers_.clear();
 
   for (PropertyMap::iterator i = properties_.begin(); i != properties_.end();) {
-    if (   i->first == PropertyInnerHTML
-	|| i->first == PropertyTarget)
+    if (   i->first == Property::InnerHTML
+	|| i->first == Property::Target)
       ++i;
     else
       Utils::eraseAndNext(properties_, i);
@@ -289,7 +292,7 @@ void DomElement::updateInnerHtmlOnly()
 
 void DomElement::addChild(DomElement *child)
 {
-  if (child->mode() == ModeCreate) {
+  if (child->mode() == Mode::Create) {
     numManipulations_ += 2; // cannot be short-cutted
 
     if (wasEmpty_ && canWriteInnerHTML(WApplication::instance())) {
@@ -345,7 +348,7 @@ void DomElement::setEvent(const char *eventName,
 {
   WApplication *app = WApplication::instance();
 
-  bool anchorClick = type() == DomElement_A
+  bool anchorClick = type() == DomElementType::A
     && eventName == WInteractWidget::CLICK_SIGNAL;
 
   WStringStream js;
@@ -426,12 +429,12 @@ void DomElement::setEvent(const char *eventName,
 void DomElement::processProperties(WApplication *app) const
 {
   if (minMaxSizeProperties_
-      && app->environment().agent() == WEnvironment::IE6) {
+      && app->environment().agent() == UserAgent::IE6) {
     DomElement *self = const_cast<DomElement *>(this); 
 
-    PropertyMap::iterator w = self->properties_.find(PropertyStyleWidth);
-    PropertyMap::iterator minw = self->properties_.find(PropertyStyleMinWidth);
-    PropertyMap::iterator maxw = self->properties_.find(PropertyStyleMaxWidth);
+    PropertyMap::iterator w = self->properties_.find(Property::StyleWidth);
+    PropertyMap::iterator minw = self->properties_.find(Property::StyleMinWidth);
+    PropertyMap::iterator maxw = self->properties_.find(Property::StyleMaxWidth);
 
     if (minw != self->properties_.end() || maxw != self->properties_.end()) {
       if (w == self->properties_.end()) {
@@ -439,26 +442,26 @@ void DomElement::processProperties(WApplication *app) const
 	expr << WT_CLASS ".IEwidth(this,";
 	if (minw != self->properties_.end()) {
 	  expr << '\'' << minw->second << '\'';
-          self->properties_.erase(PropertyStyleMinWidth); // C++: could be minw
+          self->properties_.erase(Property::StyleMinWidth); // C++: could be minw
 	} else
 	  expr << "'0px'";
 	expr << ',';
 	if (maxw != self->properties_.end()) {
 	  expr << '\''<< maxw->second << '\'';
-	  self->properties_.erase(PropertyStyleMaxWidth); // C++: could be maxw
+	  self->properties_.erase(Property::StyleMaxWidth); // C++: could be maxw
 	} else
 	  expr << "'100000px'";
 	expr << ")";
 
-	self->properties_.erase(PropertyStyleWidth);
-	self->properties_[PropertyStyleWidthExpression] = expr.str();
+	self->properties_.erase(Property::StyleWidth);
+	self->properties_[Property::StyleWidthExpression] = expr.str();
       }
     }
 
-    PropertyMap::iterator i = self->properties_.find(PropertyStyleMinHeight);
+    PropertyMap::iterator i = self->properties_.find(Property::StyleMinHeight);
 
     if (i != self->properties_.end()) {
-      self->properties_[PropertyStyleHeight] = i->second;
+      self->properties_[Property::StyleHeight] = i->second;
     }
   }
 }
@@ -512,7 +515,7 @@ void DomElement::setProperty(Property property, const std::string& value)
   ++numManipulations_;
   properties_[property] = value;
 
-  if (property >= PropertyStyleMinWidth && property <= PropertyStyleMaxHeight)
+  if (property >= Property::StyleMinWidth && property <= Property::StyleMaxHeight)
     minMaxSizeProperties_ = true;
 }
 
@@ -666,34 +669,40 @@ std::string DomElement::cssStyle() const
     return std::string();
 
   EscapeOStream style;
-  const std::string *styleProperty = 0;
+  const std::string *styleProperty = nullptr;
 
   for (PropertyMap::const_iterator j = properties_.begin();
        j != properties_.end(); ++j) {
-    if (j->first == PropertyStyle)
+    unsigned p = static_cast<unsigned int>(j->first);
+
+    if (j->first == Property::Style)
       styleProperty = &j->second;
-    else if ((j->first >= PropertyStylePosition)
-	&& (j->first <= PropertyStyleBoxSizing)) {
-      if ((j->first == PropertyStyleCursor) && (j->second == "pointer")) {
+    else if ((p >= static_cast<unsigned int>(Property::StylePosition)) &&
+	     (p < static_cast<unsigned int>(Property::LastPlusOne))) {
+      if ((j->first == Property::StyleCursor) && (j->second == "pointer")) {
 	style << "cursor:pointer;cursor:hand;";	    
       } else {
 	if (!j->second.empty()) {
-	  style << cssNames_[j->first - PropertyStylePosition]
+	  style << cssNames_[p -
+			     static_cast<unsigned int>(Property::StylePosition)]
 		<< ':' << j->second << ';';
-	  if (j->first >= PropertyStyleBoxSizing) {
-	    WApplication *app = WApplication::instance(); // XXX
+	  if (p >= static_cast<unsigned int>(Property::StyleBoxSizing)) {
+	    WApplication *app = WApplication::instance();
 
-	    if (app->environment().agentIsGecko())
-	      style << "-moz-";
-	    else if (app->environment().agentIsWebKit())
-	      style << "-webkit-";
+	    if (app) {
+	      if (app->environment().agentIsGecko())
+		style << "-moz-";
+	      else if (app->environment().agentIsWebKit())
+		style << "-webkit-";
+	    }
 
-	    style << cssNames_[j->first - PropertyStylePosition]
+	    style << cssNames_[p -
+			       static_cast<unsigned int>(Property::StylePosition)]
 		  << ':' << j->second << ';';
 	  }
 	}
       }
-    } else if (j->first == PropertyStyleWidthExpression) {
+    } else if (j->first == Property::StyleWidthExpression) {
       style << "width:expression(" << j->second << ");";
     }
   }
@@ -730,8 +739,10 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
     out << var_;
   }
 
-  if (eventName == WInteractWidget::WHEEL_SIGNAL
-      && app->environment().agentIsIE() && app->environment().agent() >= WEnvironment::IE9)
+  if (eventName == WInteractWidget::WHEEL_SIGNAL &&
+      app->environment().agentIsIE() && 
+      static_cast<unsigned int>(app->environment().agent()) >= 
+      static_cast<unsigned int>(UserAgent::IE9))
     out << ".addEventListener('wheel', f" << fid << ", false);\n";
   else
     out << ".on" << const_cast<char *>(eventName) << "=f" << fid << ";\n";
@@ -742,7 +753,7 @@ void DomElement::asHTML(EscapeOStream& out,
 			std::vector<TimeoutEvent>& timeouts,
 			bool openingTagOnly) const
 {
-  if (mode_ != ModeCreate)
+  if (mode_ != Mode::Create)
     throw WException("DomElement::asHTML() called with ModeUpdate");
 
   WApplication *app = WApplication::instance();
@@ -762,7 +773,7 @@ void DomElement::asHTML(EscapeOStream& out,
   DomElementType renderedType = type_;
 
   if (needButtonWrap) {
-    if (type_ == DomElement_BUTTON) {
+    if (type_ == DomElementType::BUTTON) {
       /*
        * We don't need to wrap a button: we can just modify the attributes
        * type name and value. This avoid layout problems.
@@ -778,12 +789,12 @@ void DomElement::asHTML(EscapeOStream& out,
       self->setAttribute("name", "signal=" + clickEvent->second.signalName);
 
       needButtonWrap = false;
-    } else if (type_ == DomElement_IMG) {
+    } else if (type_ == DomElementType::IMG) {
       /*
        * We don't need to wrap an image: we can substitute it for an input
        * type image. This avoid layout problems.
        */
-      renderedType = DomElement_INPUT;
+      renderedType = DomElementType::INPUT;
 
       DomElement *self = const_cast<DomElement *>(this);
       self->setAttribute("type", "image");
@@ -796,19 +807,19 @@ void DomElement::asHTML(EscapeOStream& out,
    * We also should not wrap anchors, map area elements and form elements.
    */
   if (needButtonWrap) {
-    if (   type_ == DomElement_AREA
-	|| type_ == DomElement_INPUT
-	|| type_ == DomElement_SELECT)
+    if (   type_ == DomElementType::AREA
+	|| type_ == DomElementType::INPUT
+	|| type_ == DomElementType::SELECT)
       needButtonWrap = false;
 
-    if (type_ == DomElement_A) {
+    if (type_ == DomElementType::A) {
       std::string href = getAttribute("href");
 
       /*
        * If we're IE7/8 or there is a real URL, then we don't wrap
        */
-      if (app->environment().agent() == WEnvironment::IE7 ||
-	  app->environment().agent() == WEnvironment::IE8 ||
+      if (app->environment().agent() == UserAgent::IE7 ||
+	  app->environment().agent() == UserAgent::IE8 ||
 	  href.length() > 1)
 	needButtonWrap = false;
       else if (app->theme()->canStyleAnchorAsButton()) {
@@ -817,7 +828,7 @@ void DomElement::asHTML(EscapeOStream& out,
 			   + "&signal=" + clickEvent->second.signalName);
 	needButtonWrap = false;
       }
-    } else if (type_ == DomElement_AREA) {
+    } else if (type_ == DomElementType::AREA) {
       DomElement *self = const_cast<DomElement *>(this);
       self->setAttribute("href", app->url(app->internalPath())
 			 + "&signal=" + clickEvent->second.signalName);
@@ -828,15 +839,15 @@ void DomElement::asHTML(EscapeOStream& out,
 
   bool needAnchorWrap = false;
 
-  if (!supportButton && type_ == DomElement_BUTTON) {
-    renderedType = DomElement_INPUT;
+  if (!supportButton && type_ == DomElementType::BUTTON) {
+    renderedType = DomElementType::INPUT;
 
     DomElement *self = const_cast<DomElement *>(this);
     if (!isSubmit)
       self->setAttribute("type", "button");
     self->setAttribute("value",
-		       properties_.find(PropertyInnerHTML)->second);
-    self->setProperty(PropertyInnerHTML, "");
+		       properties_.find(Property::InnerHTML)->second);
+    self->setProperty(Property::InnerHTML, "");
   }
 
 #ifndef WT_TARGET_JAVA
@@ -854,11 +865,11 @@ void DomElement::asHTML(EscapeOStream& out,
       out.append(clickEvent->second.signalName, attributeValues);
       out << "\" class=\"Wt-wrap ";
 
-      PropertyMap::const_iterator l = properties_.find(PropertyClass);
+      PropertyMap::const_iterator l = properties_.find(Property::Class);
       if (l != properties_.end()) {
 	out << l->second;
 	PropertyMap& map = const_cast<PropertyMap&>(properties_);
-	map.erase(PropertyClass);
+	map.erase(Property::Class);
       }
 
       out << '"';
@@ -876,7 +887,7 @@ void DomElement::asHTML(EscapeOStream& out,
 	fastHtmlAttributeValue(out, attributeValues, wrapStyle);
       }
 
-      PropertyMap::const_iterator i = properties_.find(PropertyDisabled);
+      PropertyMap::const_iterator i = properties_.find(Property::Disabled);
       if ((i != properties_.end()) && (i->second=="true"))
 	out << " disabled=\"disabled\"";
 
@@ -887,14 +898,14 @@ void DomElement::asHTML(EscapeOStream& out,
 	  fastHtmlAttributeValue(out, attributeValues, j->second);
 	}
 
-      if (app->environment().agent() != WEnvironment::Konqueror
+      if (app->environment().agent() != UserAgent::Konqueror
 	  && !app->environment().agentIsWebKit()
 	  && !app->environment().agentIsIE())
 	style = "margin: 0px -3px -2px -3px;";
 
-      out << "><" << elementNames_[renderedType];
+      out << "><" << elementNames_[static_cast<unsigned int>(renderedType)];
     } else {
-      if (type_ == DomElement_IMG)
+      if (type_ == DomElementType::IMG)
 	out << "<input type=\"image\"";
       else
 	out << "<input type=\"submit\"";
@@ -904,7 +915,7 @@ void DomElement::asHTML(EscapeOStream& out,
 			     "signal=" + clickEvent->second.signalName);
       out << " value=";
 
-      PropertyMap::const_iterator i = properties_.find(PropertyInnerHTML);
+      PropertyMap::const_iterator i = properties_.find(Property::InnerHTML);
       if (i != properties_.end())
 	fastHtmlAttributeValue(out, attributeValues, i->second);
       else
@@ -913,11 +924,11 @@ void DomElement::asHTML(EscapeOStream& out,
   } else if (needAnchorWrap) {
     out << "<a href=\"#\" class=\"Wt-wrap\" onclick=";
     fastHtmlAttributeValue(out, attributeValues, clickEvent->second.jsCode);
-    out << "><" << elementNames_[renderedType];
-  } else if (renderedType == DomElement_OTHER)  // Custom tag name
+    out << "><" << elementNames_[static_cast<unsigned int>(renderedType)];
+  } else if (renderedType == DomElementType::OTHER)  // Custom tag name
 	out << '<' << elementTagName_;
   else
-    out << '<' << elementNames_[renderedType];
+    out << '<' << elementNames_[static_cast<unsigned int>(renderedType)];
 
   if (!id_.empty()) {
     out << " id=";
@@ -935,9 +946,11 @@ void DomElement::asHTML(EscapeOStream& out,
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
 	 i != eventHandlers_.end(); ++i) {
       if (!i->second.jsCode.empty()) {
-	if (globalUnfocused_ 
-	    || (i->first == WInteractWidget::WHEEL_SIGNAL
-		&& app->environment().agentIsIE() && app->environment().agent() >= WEnvironment::IE9))
+        if (globalUnfocused_
+	    || (i->first == WInteractWidget::WHEEL_SIGNAL &&
+		app->environment().agentIsIE() && 
+		static_cast<unsigned int>(app->environment().agent()) >=
+		static_cast<unsigned int>(UserAgent::IE9)))
 	  setJavaScriptEvent(javaScript, i->first, i->second, app);
 	else {
 	  out << " on" << const_cast<char *>(i->first) << '=';
@@ -952,51 +965,51 @@ void DomElement::asHTML(EscapeOStream& out,
   for (PropertyMap::const_iterator i = properties_.begin();
        i != properties_.end(); ++i) {
     switch (i->first) {
-    case PropertyInnerHTML:
+    case Property::InnerHTML:
       innerHTML += i->second; break;
-    case PropertyDisabled:
+    case Property::Disabled:
       if (i->second == "true")
 	out << " disabled=\"disabled\"";
       break;
-    case PropertyReadOnly:
+    case Property::ReadOnly:
       if (i->second == "true")
 	out << " readonly=\"readonly\"";
       break;
-    case PropertyTabIndex:
+    case Property::TabIndex:
       out << " tabindex=\"" << i->second << '"';
       break;
-    case PropertyChecked:
+    case Property::Checked:
       if (i->second == "true")
 	out << " checked=\"checked\"";
       break;
-    case PropertySelected:
+    case Property::Selected:
       if (i->second == "true")
 	out << " selected=\"selected\"";
       break;
-    case PropertySelectedIndex:
+    case Property::SelectedIndex:
       if (i->second == "-1") {
 	DomElement *self = const_cast<DomElement *>(this);
 	self->callMethod("selectedIndex=-1");
       }
       break;
-    case PropertyMultiple:
+    case Property::Multiple:
       if (i->second == "true")
 	out << " multiple=\"multiple\"";
       break;
-    case PropertyTarget:
+    case Property::Target:
       out << " target=\"" << i->second << "\"";
       break;
-	case PropertyDownload:
+	case Property::Download:
 	  out << " download=\"" << i->second << "\"";
 	  break;
-    case PropertyIndeterminate:
+    case Property::Indeterminate:
       if (i->second == "true") {
 	DomElement *self = const_cast<DomElement *>(this);
 	self->callMethod("indeterminate=" + i->second);
       }
       break;
-    case PropertyValue:
-      if (type_ != DomElement_TEXTAREA) {
+    case Property::Value:
+      if (type_ != DomElementType::TEXTAREA) {
 	out << " value=";
 	fastHtmlAttributeValue(out, attributeValues, i->second);
       } else {
@@ -1004,27 +1017,27 @@ void DomElement::asHTML(EscapeOStream& out,
   innerHTML += WWebWidget::escapeText(v, false);
       }
       break;
-    case PropertySrc:
+    case Property::Src:
       out << " src=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
-    case PropertyColSpan:
+    case Property::ColSpan:
       out << " colspan=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
-    case PropertyRowSpan:
+    case Property::RowSpan:
       out << " rowspan=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
-    case PropertyClass:
+    case Property::Class:
       out << " class=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
-    case PropertyLabel:
+    case Property::Label:
       out << " label=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
-    case PropertyPlaceholder:
+    case Property::Placeholder:
       out << " placeholder=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
@@ -1065,16 +1078,17 @@ void DomElement::asHTML(EscapeOStream& out,
       out << childrenHtml_.str();
 
       // IE6 will incorrectly set the height of empty divs
-      if (renderedType == DomElement_DIV
-	  && app->environment().agent() == WEnvironment::IE6
+      if (renderedType == DomElementType::DIV
+	  && app->environment().agent() == UserAgent::IE6
 	  && innerHTML.empty()
 	  && childrenToAdd_.empty()
 	  && childrenHtml_.empty())
 	out << "&nbsp;";
-	  if( renderedType  == DomElement_OTHER) // Custom tag name
-		out << "</" << elementTagName_ << ">";
+	  if (renderedType  == DomElementType::OTHER) // Custom tag name
+	    out << "</" << elementTagName_ << ">";
 	  else
-		out << "</" << elementNames_[renderedType] << ">";
+	    out << "</" << elementNames_[static_cast<unsigned int>(renderedType)]
+		<< ">";
     } else
       out << " />";
 
@@ -1099,7 +1113,7 @@ std::string DomElement::createVar() const
   std::sprintf(buf, "j%d", nextId_++);
   var_ = buf;
 #else // !WT_TARGET_JAVA
-  var_ = "j" + boost::lexical_cast<std::string>(nextId_++);
+  var_ = "j" + std::to_string(nextId_++);
 #endif // !WT_TARGET_JAVA
 
   return var_;
@@ -1129,18 +1143,18 @@ bool DomElement::canWriteInnerHTML(WApplication *app) const
    */
   /* http://support.microsoft.com/kb/276228
    * BUG: Internet Explorer Fails to Set the innerHTML Property of the
-   * Select Object. Seems to affect at least up to IE6.0
+   * SelectionFlag::Select Object. Seems to affect at least up to IE6.0
    */
   if ((app->environment().agentIsIE()
-       || app->environment().agent() == WEnvironment::Konqueror)
-      && (   type_ == DomElement_TBODY
-	  || type_ == DomElement_THEAD
-	  || type_ == DomElement_TABLE
-	  || type_ == DomElement_COLGROUP
-	  || type_ == DomElement_TR
-	  || type_ == DomElement_SELECT
-	  || type_ == DomElement_TD
-	  || type_ == DomElement_OPTGROUP))
+       || app->environment().agent() == UserAgent::Konqueror)
+      && (   type_ == DomElementType::TBODY
+	  || type_ == DomElementType::THEAD
+	  || type_ == DomElementType::TABLE
+	  || type_ == DomElementType::COLGROUP
+	  || type_ == DomElementType::TR
+	  || type_ == DomElementType::SELECT
+	  || type_ == DomElementType::TD
+	  || type_ == DomElementType::OPTGROUP))
     return false;
 
   return true;
@@ -1162,18 +1176,18 @@ bool DomElement::containsElement(DomElementType type) const
 
 void DomElement::asJavaScript(WStringStream& out)
 {
-  mode_ = ModeUpdate;
+  mode_ = Mode::Update;
 
   EscapeOStream eout(out);
 
   declare(eout);
   eout << var_ << ".setAttribute('id', '" << id_ << "');\n";
 
-  mode_ = ModeCreate;
+  mode_ = Mode::Create;
 
   setJavaScriptProperties(eout, WApplication::instance());
   setJavaScriptAttributes(eout);
-  asJavaScript(eout, Update);
+  asJavaScript(eout, Priority::Update);
 }
 
 void DomElement::createTimeoutJs(WStringStream& out,
@@ -1202,8 +1216,8 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
   out << "var " << var_ << "=";
 
   if (app->environment().agentIsIE()
-      && app->environment().agent() <= WEnvironment::IE8
-      && type_ != DomElement_TEXTAREA) {
+      && app->environment().agent() <= UserAgent::IE8
+      && type_ != DomElementType::TEXTAREA) {
     /*
      * IE pre 9 can create the entire opening tag at once.
      * This rocks because it results in fewer JavaScript statements.
@@ -1224,10 +1238,11 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
     renderInnerHtmlJS(out, app);
     renderDeferredJavaScript(out);
   } else {
-    out << "document.createElement('" << elementNames_[type_] << "');";
+    out << "document.createElement('" 
+	<< elementNames_[static_cast<unsigned int>(type_)] << "');";
     out << domInsertJS;
-    asJavaScript(out, Create);
-    asJavaScript(out, Update);
+    asJavaScript(out, Priority::Create);
+    asJavaScript(out, Priority::Update);
   }
 }
 
@@ -1245,16 +1260,16 @@ std::string DomElement::addToParent(EscapeOStream& out,
 {
   createVar();
 
-  if (type_ == DomElement_TD || type_ == DomElement_TR) {
+  if (type_ == DomElementType::TD || type_ == DomElementType::TR) {
     out << "var " << var_ << "=";
 
-    if (type_ == DomElement_TD)
+    if (type_ == DomElementType::TD)
       out << parentVar << ".insertCell(" << pos << ");\n";
     else
       out << parentVar << ".insertRow(" << pos << ");\n";
 
-    asJavaScript(out, Create);
-    asJavaScript(out, Update);
+    asJavaScript(out, Priority::Create);
+    asJavaScript(out, Priority::Update);
   } else {
     WStringStream insertJS;
     if (pos != -1)
@@ -1273,7 +1288,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 				     Priority priority) const
 {
   switch(priority) {
-  case Delete:
+  case Priority::Delete:
     if (!javaScriptEvenWhenDeleted_.empty() || (removeAllChildren_ >= 0)) {
       out << javaScriptEvenWhenDeleted_;
       if (removeAllChildren_ >= 0) {
@@ -1288,8 +1303,8 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     }
 
     return var_;
-  case Create:
-    if (mode_ == ModeCreate) {
+  case Priority::Create:
+    if (mode_ == Mode::Create) {
       if (!id_.empty())
 	out << var_ << ".setAttribute('id', '" << id_ << "');\n";
 
@@ -1298,7 +1313,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     }
 
     return var_;
-  case Update:
+  case Priority::Update:
   {
     WApplication *app = WApplication::instance();
 
@@ -1307,27 +1322,27 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     /*
      * short-cut for frequent short manipulations
      */
-    if (mode_ == ModeUpdate && numManipulations_ == 1) {
+    if (mode_ == Mode::Update && numManipulations_ == 1) {
       for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
 	DomElement *child = updatedChildren_[i];
-	child->asJavaScript(out, Update);
+	child->asJavaScript(out, Priority::Update);
       }
 
       childrenUpdated = true;
 
-      if (properties_.find(PropertyStyleDisplay) != properties_.end()) {
-	std::string style = properties_.find(PropertyStyleDisplay)->second;
+      if (properties_.find(Property::StyleDisplay) != properties_.end()) {
+	std::string style = properties_.find(Property::StyleDisplay)->second;
 	if (style == "none") {
 	  out << WT_CLASS ".hide('" << id_ << "');\n";
-	  return var_;
-	} else if (style.empty()) {
-	  out << WT_CLASS ".show('" << id_ << "');\n";
 	  return var_;
 	} else if (style == "inline") {
 	  out << WT_CLASS ".inline('" + id_ + "');\n";
 	  return var_;
 	} else if (style == "block") {
 	  out << WT_CLASS ".block('" + id_ + "');\n";
+	  return var_;
+	} else {
+	  out << WT_CLASS ".show('" << id_ << "', '" << style << "');\n";
 	  return var_;
 	}
       } else if (!javaScript_.empty()) {
@@ -1383,14 +1398,14 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       out << ";";
     }
 
-    if (mode_ != ModeCreate) {
+    if (mode_ != Mode::Create) {
       setJavaScriptProperties(out, app);
       setJavaScriptAttributes(out);
     }
 
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
 	 i != eventHandlers_.end(); ++i)
-      if ((mode_ == ModeUpdate) || !i->second.jsCode.empty())
+      if ((mode_ == Mode::Update) || !i->second.jsCode.empty())
 	setJavaScriptEvent(out, i->first, i->second, app);
 
     renderInnerHtmlJS(out, app);
@@ -1406,7 +1421,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     if (!childrenUpdated)
       for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
 	DomElement *child = updatedChildren_[i];
-	child->asJavaScript(out, Update);
+	child->asJavaScript(out, Priority::Update);
       }
 
     return var_;
@@ -1431,11 +1446,11 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
     std::string innerHTML;
 
     if (!properties_.empty()) {
-      PropertyMap::const_iterator i = properties_.find(PropertyInnerHTML);
+      PropertyMap::const_iterator i = properties_.find(Property::InnerHTML);
       if (i != properties_.end()) {
 	innerHTML += i->second;
       }
-      i = properties_.find(PropertyAddedInnerHTML);
+      i = properties_.find(Property::AddedInnerHTML);
       if (i != properties_.end()) {
 	innerHTML += i->second;
       }
@@ -1445,8 +1460,8 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
      * Do we actually have anything to render ?
      *   first condition: for IE6: write &nbsp; inside a empty <div></div>
      */
-    if ((type_ == DomElement_DIV
-	 && app->environment().agent() == WEnvironment::IE6)
+    if ((type_ == DomElementType::DIV
+	 && app->environment().agent() == UserAgent::IE6)
 	|| !childrenToAdd_.empty() || !childrenHtml_.empty()
 	|| !innerHTML.empty()) {
       declare(out);
@@ -1464,8 +1479,8 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 
       out << childrenHtml_.str();
 
-      if (type_ == DomElement_DIV
-	  && app->environment().agent() == WEnvironment::IE6
+      if (type_ == DomElementType::DIV
+	  && app->environment().agent() == UserAgent::IE6
 	  && childrenToAdd_.empty()
 	  && innerHTML.empty()
 	  && childrenHtml_.empty())
@@ -1525,8 +1540,8 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
     declare(out);
 
     switch(i->first) {
-    case PropertyInnerHTML:
-    case PropertyAddedInnerHTML:
+    case Property::InnerHTML:
+    case Property::AddedInnerHTML:
       /*
        * In all cases, setJavaScriptProperties() is followed by
        * renderInnerHtmlJS() which also considers children.
@@ -1544,7 +1559,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
 	pushed = true;
       }
       fastJsStringLiteral(out, escaped, i->second);
-      if (i->first == PropertyInnerHTML)
+      if (i->first == Property::InnerHTML)
 	out << ",false";
       else
 	out << ",true";
@@ -1552,7 +1567,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       out << ");";
 
       break;
-    case PropertyValue:
+    case Property::Value:
       out << var_ << ".value=";
       if (!pushed) {
 	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
@@ -1561,14 +1576,14 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       fastJsStringLiteral(out, escaped, i->second);
       out << ';';
       break;
-    case PropertyTarget:
+    case Property::Target:
       out << var_ << ".target='" << i->second << "';";
       break;
-    case PropertyIndeterminate:
+    case Property::Indeterminate:
       out << var_ << ".indeterminate=" << i->second << ";";
       break;
-    case PropertyDisabled:
-      if (type_ == DomElement_A) {
+    case Property::Disabled:
+      if (type_ == DomElementType::A) {
 	if (i->second == "true")
 	  out << var_ << ".setAttribute('disabled', 'disabled');";
 	else
@@ -1576,35 +1591,35 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       } else
 	out << var_ << ".disabled=" << i->second << ';';
       break;
-    case PropertyReadOnly:
+    case Property::ReadOnly:
       out << var_ << ".readOnly=" << i->second << ';';
       break;
-    case PropertyTabIndex:
+    case Property::TabIndex:
       out << var_ << ".tabIndex=" << i->second << ';';
       break;
-    case PropertyChecked:
+    case Property::Checked:
       out << var_ << ".checked=" << i->second << ';';
       break;
-    case PropertySelected:
+    case Property::Selected:
       out << var_ << ".selected=" << i->second << ';';
       break;
-    case PropertySelectedIndex:
+    case Property::SelectedIndex:
       out << "setTimeout(function() { "
 	  << var_ << ".selectedIndex=" << i->second << ";}, 0);";
       break;
-    case PropertyMultiple:
+    case Property::Multiple:
       out << var_ << ".multiple=" << i->second << ';';
       break;
-    case PropertySrc:
+    case Property::Src:
       out << var_ << ".src='" << i->second << "\';";
       break;
-    case PropertyColSpan:
+    case Property::ColSpan:
       out << var_ << ".colSpan=" << i->second << ";";
       break;
-    case PropertyRowSpan:
+    case Property::RowSpan:
       out << var_ << ".rowSpan=" << i->second << ";";
       break;
-    case PropertyLabel:
+    case Property::Label:
       out << var_ << ".label=";
       if (!pushed) {
 	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
@@ -1613,7 +1628,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       fastJsStringLiteral(out, escaped, i->second);
       out << ';';
       break;
-    case PropertyPlaceholder:
+    case Property::Placeholder:
       out << var_ << ".placeholder=";
       if (!pushed) {
 	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
@@ -1622,7 +1637,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       fastJsStringLiteral(out, escaped, i->second);
       out << ';';
       break;
-    case PropertyClass:
+    case Property::Class:
       out << var_ << ".className=";
       if (!pushed) {
 	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
@@ -1631,7 +1646,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       fastJsStringLiteral(out, escaped, i->second);
       out << ';';
       break;
-    case PropertyStyleFloat:
+    case Property::StyleFloat:
       out << var_ << ".style.";
       if (app->environment().agentIsIE())
 	out << "styleFloat";
@@ -1639,7 +1654,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
 	out << "cssFloat";
       out << "=\'" << i->second << "\';";
       break;
-    case Wt::PropertyStyleWidthExpression:
+    case Wt::Property::StyleWidthExpression:
       out << var_ << ".style.setExpression('width',";
       if (!pushed) {
 	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
@@ -1648,22 +1663,25 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       fastJsStringLiteral(out, escaped, i->second);
       out << ");";
       break;
-    default:
-      if (i->first >= PropertyStyle && i->first <= PropertyStyleBoxSizing) {
-	if (app->environment().agent() == WEnvironment::IE6) {
+    default: {
+      unsigned int p = static_cast<unsigned int>(i->first);
+      if (p >= static_cast<unsigned int>(Property::Style) &&
+	  p < static_cast<unsigned int>(Property::LastPlusOne)) {
+	if (app->environment().agent() == UserAgent::IE6) {
 	  /*
 	   * Unsupported properties, like min-height, would otherwise be
 	   * ignored, but we want this information client-side. (Still, really ?)
 	   */
 	  out << var_ << ".style['"
-	      << cssNames_[i->first - PropertyStylePosition]
+	      << cssNames_[p - static_cast<unsigned int>(Property::StylePosition)]
 	      << "']='" << i->second << "';";
 	} else {
 	  out << var_ << ".style."
-	      << cssCamelNames_[i->first - PropertyStyle]
+	      << cssCamelNames_[p - static_cast<unsigned int>(Property::Style)]
 	      << "='" << i->second << "';";
 	}
       }
+    }
     }
 
     out << '\n';
@@ -1702,7 +1720,7 @@ bool DomElement::isDefaultInline() const
 
 bool DomElement::isDefaultInline(DomElementType type)
 {
-  return defaultInline_[type];
+  return defaultInline_[static_cast<unsigned int>(type)];
 }
 
 bool DomElement::isSelfClosingTag(const std::string& tag)
@@ -1717,31 +1735,32 @@ bool DomElement::isSelfClosingTag(const std::string& tag)
 
 bool DomElement::isSelfClosingTag(DomElementType element)
 {
-  return ((   element == DomElement_BR)
-       /* || (element == DomElement_HR) */
-	  || (element == DomElement_IMG)
-	  || (element == DomElement_AREA)
-	  || (element == DomElement_COL)
-	  || (element == DomElement_INPUT));
+  return ((   element == DomElementType::BR)
+       /* || (element == DomElementType::HR) */
+	  || (element == DomElementType::IMG)
+	  || (element == DomElementType::AREA)
+	  || (element == DomElementType::COL)
+	  || (element == DomElementType::INPUT));
 }
 
 DomElementType DomElement::parseTagName(const std::string& tag)
 {
-  for (unsigned i = 0; i < DomElement_UNKNOWN; ++i)
+  for (unsigned i = 0; i < static_cast<unsigned int>(DomElementType::UNKNOWN); ++i)
     if (tag == elementNames_[i])
       return (DomElementType)i;
 
-  return DomElement_UNKNOWN;
+  return DomElementType::UNKNOWN;
 }
 
 std::string DomElement::tagName(DomElementType type)
 {
-  return elementNames_[type];
+  return elementNames_[static_cast<unsigned int>(type)];
 }
 
 const std::string& DomElement::cssName(Property property)
 {
-  return cssNames_[property - PropertyStylePosition];
+  return cssNames_[static_cast<unsigned int>(property) - 
+		   static_cast<unsigned int>(Property::StylePosition)];
 }
 
 void DomElement::setGlobalUnfocused(bool b)

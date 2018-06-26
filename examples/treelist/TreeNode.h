@@ -7,10 +7,12 @@
 #ifndef TREENODE_H_
 #define TREENODE_H_
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WText>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WText.h>
 
 class IconPair;
+
+using namespace Wt;
 
 namespace Wt {
   class WTable;
@@ -52,7 +54,7 @@ namespace Wt {
  *
  * This widget is part of the %Wt treelist example.
  */
-class TreeNode : public Wt::WCompositeWidget
+class TreeNode : public WCompositeWidget
 {
 public:
   /*! \brief Construct a tree node with the given label.
@@ -66,16 +68,16 @@ public:
    * any of the children nodes.
    */
   TreeNode(const std::string labelText,
-	   Wt::TextFormat labelFormat,
-	   IconPair *labelIcon, Wt::WContainerWidget *parent = 0);
+           TextFormat labelFormat,
+           std::unique_ptr<IconPair> labelIcon);
 
   /*! \brief Adds a child node.
    */
-  void addChildNode(TreeNode *node);
+  void addChildNode(std::unique_ptr<TreeNode> node);
 
   /*! \brief Removes a child node.
    */
-  void removeChildNode(TreeNode *node);
+  void removeChildNode(TreeNode *node, int index);
 
   /*! \brief Returns the list of children.
    */
@@ -91,31 +93,31 @@ public:
 
 private:
   //! List of child nodes.
-  std::vector<TreeNode *> childNodes_;
+  std::vector<TreeNode *>   childNodes_;
 
   //! The parent node.
-  TreeNode		   *parentNode_;
+  TreeNode                 *parentNode_;
 
   //! Layout (2x2 table).
-  Wt::WTable               *layout_;
+  WTable                   *layout_;
 
   //! The icon for expanding or collapsing.
   IconPair                 *expandIcon_;
 
   //! The single image shown instead of the expand/collapse icon when no children.
-  Wt::WImage		   *noExpandIcon_;
+  WImage		   *noExpandIcon_;
 
   //! The icon next to the label.
-  IconPair		   *labelIcon_;
+  IconPair                 *labelIcon_;
 
   //! The label.
-  Wt::WText		   *labelText_;
+  std::unique_ptr<WText>    labelText_;
 
   //! The children count '(x)' for x children.
-  Wt::WText		   *childCountLabel_;
+  WText                    *childCountLabel_;
 
   //! The container in which the children are managed.
-  Wt::WContainerWidget     *expandedContent_;
+  WContainerWidget         *expandedContent_;
 
   //! Adjust the expand icon
   void adjustExpandIcon();

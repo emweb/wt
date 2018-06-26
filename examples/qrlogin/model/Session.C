@@ -8,29 +8,31 @@
 #include "QRAuthService.h"
 #include "QRTokenDatabase.h"
 
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/PasswordService"
-#include "Wt/Auth/PasswordStrengthValidator"
-#include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/GoogleService"
-#include "Wt/Auth/Dbo/AuthInfo"
-#include "Wt/Auth/Dbo/UserDatabase"
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/HashFunction.h"
+#include "Wt/Auth/PasswordService.h"
+#include "Wt/Auth/PasswordStrengthValidator.h"
+#include "Wt/Auth/PasswordVerifier.h"
+#include "Wt/Auth/GoogleService.h"
+#include "Wt/Auth/Dbo/AuthInfo.h"
+#include "Wt/Auth/Dbo/UserDatabase.h"
+
+#include "Wt/Dbo/backend/Sqlite3.h"
 
 namespace {
 
-  class MyOAuth : public std::vector<const Wt::Auth::OAuthService *>
+  class MyOAuth : public std::vector<const Auth::OAuthService *>
   {
   public:
     ~MyOAuth()
     {
       for (unsigned i = 0; i < size(); ++i)
-	delete (*this)[i];
+        delete (*this)[i];
     }
   };
 
-  Wt::Auth::AuthService myAuthService;
-  Wt::Auth::PasswordService myPasswordService(myAuthService);
+  Auth::AuthService myAuthService;
+  Auth::PasswordService myPasswordService(myAuthService);
   QRAuthService myQRService(myAuthService);
   MyOAuth myOAuthServices;
 }
@@ -39,35 +41,34 @@ void Session::configureAuth()
 {
   myAuthService.setAuthTokensEnabled(true, "logincookie");
 
-  Wt::Auth::PasswordVerifier *verifier = new Wt::Auth::PasswordVerifier();
-  verifier->addHashFunction(new Wt::Auth::BCryptHashFunction(7));
-  myPasswordService.setVerifier(verifier);
+  auto verifier = cpp14::make_unique<Auth::PasswordVerifier>();
+  verifier->addHashFunction(cpp14::make_unique<Auth::BCryptHashFunction>(7));
+  myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setAttemptThrottlingEnabled(true);
 
-  Wt::Auth::PasswordStrengthValidator *v 
-    = new Wt::Auth::PasswordStrengthValidator();
+  auto validator
+    = cpp14::make_unique<Auth::PasswordStrengthValidator>();
   /* Relax these a bit -- it's not the main point of this example */
-  v->setMinimumLength(Wt::Auth::PasswordStrengthValidator::TwoCharClass, 8);
-  v->setMinimumLength(Wt::Auth::PasswordStrengthValidator::ThreeCharClass, 8);
-  myPasswordService.setStrengthValidator(v);
+  validator->setMinimumLength(Auth::PasswordStrengthType::TwoCharClass, 8);
+  validator->setMinimumLength(Auth::PasswordStrengthType::ThreeCharClass, 8);
+  myPasswordService.setStrengthValidator(std::move(validator));
 
-  if (Wt::Auth::GoogleService::configured())
-    myOAuthServices.push_back(new Wt::Auth::GoogleService(myAuthService));
+  if (Auth::GoogleService::configured())
+    myOAuthServices.push_back(new Auth::GoogleService(myAuthService));
 }
 
 Session::Session(const std::string& sqliteDb)
-  : connection_(sqliteDb)
 {
-  connection_.setProperty("show-queries", "true");
-
-  setConnection(connection_);
+  auto connection = cpp14::make_unique<Dbo::backend::Sqlite3>(sqliteDb);
+  connection->setProperty("show-queries", "true");
+  setConnection(std::move(connection));
 
   mapClass<User>("user");
   mapClass<AuthInfo>("auth_info");
   mapClass<AuthInfo::AuthIdentityType>("auth_identity");
   mapClass<AuthInfo::AuthTokenType>("auth_token");
 
-  qrTokens_ = new QRTokenDatabase(*this);
+  qrTokens_ = cpp14::make_unique<QRTokenDatabase>(*this);
 
   try {
     createTables();
@@ -77,15 +78,15 @@ Session::Session(const std::string& sqliteDb)
     std::cerr << "Using existing database";
   }
 
-  users_ = new UserDatabase(*this);
+  users_ = cpp14::make_unique<UserDatabase>(*this);
 }
 
 Session::~Session()
 {
-  delete users_;
+  users_.reset();
 }
 
-Wt::Auth::AbstractUserDatabase& Session::users()
+Auth::AbstractUserDatabase& Session::users()
 {
   return *users_;
 }
@@ -104,12 +105,12 @@ dbo::ptr<User> Session::user() const
     return dbo::ptr<User>();
 }
 
-const Wt::Auth::AuthService& Session::auth()
+const Auth::AuthService& Session::auth()
 {
   return myAuthService;
 }
 
-const Wt::Auth::PasswordService& Session::passwordAuth()
+const Auth::PasswordService& Session::passwordAuth()
 {
   return myPasswordService;
 }
@@ -119,7 +120,7 @@ const QRAuthService& Session::qrAuth()
   return myQRService;
 }
 
-const std::vector<const Wt::Auth::OAuthService *>& Session::oAuth()
+const std::vector<const Auth::OAuthService *>& Session::oAuth()
 {
   return myOAuthServices;
 }

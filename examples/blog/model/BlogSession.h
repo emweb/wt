@@ -7,11 +7,11 @@
 #ifndef BLOG_SESSION_H_
 #define BLOG_SESSION_H_
 
-#include <Wt/WSignal>
-#include <Wt/Auth/Login>
-#include <Wt/Dbo/Session>
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/WSignal.h>
+#include <Wt/Auth/Login.h>
+#include <Wt/Dbo/Session.h>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 namespace Wt {
   namespace Auth {
@@ -46,12 +46,12 @@ public:
   Wt::Auth::PasswordService *passwordAuth() const;
   const std::vector<const Wt::Auth::OAuthService *>& oAuth() const;
 
-  static dbo::SqlConnectionPool *createConnectionPool(const std::string& sqlite3);
+  static std::unique_ptr<dbo::SqlConnectionPool> createConnectionPool(const std::string& sqlite3);
 
 private:
-  dbo::SqlConnectionPool& connectionPool_;
-  BlogUserDatabase users_;
-  Wt::Auth::Login login_;
+  dbo::SqlConnectionPool&     connectionPool_;
+  BlogUserDatabase            users_;
+  Wt::Auth::Login                 login_;
 
   Wt::Signal< dbo::ptr<Comment> > commentsChanged_;
 };

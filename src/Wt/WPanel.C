@@ -4,44 +4,40 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WIconPair>
-#include <Wt/WPanel>
-#include <Wt/WTemplate>
-#include <Wt/WText>
-#include <Wt/WTheme>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WIconPair.h>
+#include <Wt/WPanel.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
+#include <Wt/WTheme.h>
 
 #include "StdWidgetItemImpl.h"
 
 namespace Wt {
 
-WPanel::WPanel(WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    collapseIcon_(0),
-    title_(0),
-    centralWidget_(0),
-    collapsed_(this),
-    expanded_(this),
-    collapsedSS_(this),
-    expandedSS_(this)
+WPanel::WPanel()
+  : collapseIcon_(nullptr),
+    title_(nullptr),
+    centralWidget_(nullptr)
 {
   const char *TEMPLATE =
     "${titlebar}"
     "${contents}";
 
-  setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
+  impl_ = new WTemplate(WString::fromUTF8(TEMPLATE));
+  setImplementation(std::unique_ptr<WWidget>(impl_));
 
   implementStateless(&WPanel::doExpand, &WPanel::undoExpand);
   implementStateless(&WPanel::doCollapse, &WPanel::undoCollapse);
 
   WApplication *app = WApplication::instance();
 
-  WContainerWidget *centralArea = new WContainerWidget();
-  app->theme()->apply(this, centralArea, PanelBodyRole);
+  std::unique_ptr<WContainerWidget> centralArea(new WContainerWidget());
+  app->theme()->apply(this, centralArea.get(), WidgetThemeRole::PanelBody);
 
-  impl_->bindWidget("titlebar", 0);
-  impl_->bindWidget("contents", centralArea);
+  impl_->bindEmpty("titlebar");
+  impl_->bindWidget("contents", std::move(centralArea));
 
   setJavaScriptMember
     (WT_RESIZE_JS,
@@ -89,10 +85,9 @@ void WPanel::setTitle(const WString& title)
   setTitleBar(true);
 
   if (!title_) {
-    title_ = new WText();
+    title_ = titleBarWidget()->addWidget(cpp14::make_unique<WText>());
     WApplication *app = WApplication::instance();
-    app->theme()->apply(this, title_, PanelTitleRole);
-    titleBarWidget()->insertWidget(titleBarWidget()->count(), title_);
+    app->theme()->apply(this, title_, WidgetThemeRole::PanelTitle);
   }
 
   title_->setText(title);
@@ -108,7 +103,7 @@ WString WPanel::title() const
 
 bool WPanel::titleBar() const
 {
-  return titleBarWidget() != 0;
+  return titleBarWidget() != nullptr;
 }
 
 WContainerWidget *WPanel::titleBarWidget() const
@@ -119,15 +114,15 @@ WContainerWidget *WPanel::titleBarWidget() const
 void WPanel::setTitleBar(bool enable)
 {
   if (enable && !titleBarWidget()) {
-    WContainerWidget *titleBar = new WContainerWidget();
-    impl_->bindWidget("titlebar", titleBar);
+    auto titleBar = impl_->bindWidget("titlebar",
+				      cpp14::make_unique<WContainerWidget>());
 
     WApplication *app = WApplication::instance();
-    app->theme()->apply(this, titleBar, PanelTitleBarRole);
+    app->theme()->apply(this, titleBar, WidgetThemeRole::PanelTitleBar);
   } else if (!enable && titleBar()) {
-    impl_->bindWidget("titlebar", 0);
-    title_ = 0;
-    collapseIcon_ = 0;
+    impl_->bindEmpty("titlebar");
+    title_ = nullptr;
+    collapseIcon_ = nullptr;
   }
 }
 
@@ -137,14 +132,15 @@ void WPanel::setCollapsible(bool on)
     std::string resources = WApplication::relativeResourcesUrl();
 
     setTitleBar(true);
-    collapseIcon_ = new WIconPair(resources + "collapse.gif",
-				  resources + "expand.gif");
-    collapseIcon_->setFloatSide(Left);
+    std::unique_ptr<WIconPair> icon
+      (collapseIcon_ = new WIconPair(resources + "collapse.gif",
+				     resources + "expand.gif"));
+    collapseIcon_->setFloatSide(Side::Left);
     
     WApplication *app = WApplication::instance();
-    app->theme()->apply(this, collapseIcon_, PanelCollapseButtonRole);
-
-    titleBarWidget()->insertWidget(0, collapseIcon_);
+    app->theme()->apply(this, collapseIcon_, 
+			WidgetThemeRole::PanelCollapseButton);
+    titleBarWidget()->insertWidget(0, std::move(icon));
 
     collapseIcon_->icon1Clicked().connect(this, &WPanel::doCollapse);
     collapseIcon_->icon1Clicked().connect(this, &WPanel::onCollapse);
@@ -157,8 +153,8 @@ void WPanel::setCollapsible(bool on)
     titleBarWidget()->clicked().connect(this, &WPanel::toggleCollapse);
 
   } else if (!on && collapseIcon_) {
-    delete collapseIcon_;
-    collapseIcon_ = 0;
+    titleBarWidget()->removeWidget(collapseIcon_);
+    collapseIcon_ = nullptr;
   }
 }
 
@@ -255,14 +251,17 @@ void WPanel::onExpand()
   expanded_.emit();
 }
 
-void WPanel::setCentralWidget(WWidget * w)
+void WPanel::setCentralWidget(std::unique_ptr<WWidget> w)
 {
-  delete centralWidget_;
-  centralWidget_ = w;
-
+  if (centralWidget_) {
+    centralArea()->removeWidget(centralWidget_);
+    centralWidget_ = nullptr;
+  }
+    
   if (w) {
-    centralArea()->addWidget(w);
-    w->setInline(false);
+    centralWidget_ = w.get();
+    centralWidget_->setInline(false);
+    centralArea()->addWidget(std::move(w));
   }
 }
 

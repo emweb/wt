@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractPasswordService"
+#include "Wt/Auth/AbstractPasswordService.h"
 
 namespace Wt {
   namespace Auth {
@@ -28,8 +28,9 @@ WValidator::Result AbstractPasswordService::AbstractStrengthValidator
   AbstractPasswordService::StrengthValidatorResult result 
     = evaluateStrength(password, loginName, email);
 
-  return WValidator::Result(result.isValid() ? Valid : Invalid, 
-			    result.message());
+  return WValidator::Result
+    (result.isValid() ? ValidationState::Valid : ValidationState::Invalid, 
+     result.message());
 }
 
 WValidator::Result AbstractPasswordService::AbstractStrengthValidator

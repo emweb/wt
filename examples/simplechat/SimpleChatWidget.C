@@ -7,31 +7,28 @@
 #include "SimpleChatWidget.h"
 #include "SimpleChatServer.h"
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WInPlaceEdit>
-#include <Wt/WHBoxLayout>
-#include <Wt/WVBoxLayout>
-#include <Wt/WLabel>
-#include <Wt/WLineEdit>
-#include <Wt/WTemplate>
-#include <Wt/WText>
-#include <Wt/WTextArea>
-#include <Wt/WPushButton>
-#include <Wt/WCheckBox>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WInPlaceEdit.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WVBoxLayout.h>
+#include <Wt/WLabel.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
+#include <Wt/WTextArea.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WCheckBox.h>
 
 #include <iostream>
 
-using namespace Wt;
-
-SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
-				   Wt::WContainerWidget *parent)
-  : WContainerWidget(parent),
+SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server)
+  : WContainerWidget(),
     server_(server),
     loggedIn_(false),
     userList_(0),
-    messageReceived_(0)
+    messageReceived_(nullptr)
 {
   user_ = server_.suggestGuest();
   letLogin();
@@ -39,14 +36,14 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
 
 SimpleChatWidget::~SimpleChatWidget()
 {
-  delete messageReceived_;
+  messageReceived_.reset();
   logout();
 }
 
 void SimpleChatWidget::connect()
 {
   if (server_.connect
-      (this, boost::bind(&SimpleChatWidget::processChatEvent, this, _1)))
+      (this, std::bind(&SimpleChatWidget::processChatEvent, this, std::placeholders::_1)))
     Wt::WApplication::instance()->enableUpdates(true);
 }
 
@@ -60,33 +57,37 @@ void SimpleChatWidget::letLogin()
 {
   clear();
 
-  WVBoxLayout *vLayout = new WVBoxLayout();
-  setLayout(vLayout);
+  auto vLayout = setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
 
-  WHBoxLayout *hLayout = new WHBoxLayout();
-  vLayout->addLayout(hLayout, 0, AlignTop | AlignLeft);
+  auto hLayout_(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
+  auto hLayout = hLayout_.get();
+  vLayout->addLayout(std::move(hLayout_), 0,
+		     Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Left);
 
-  hLayout->addWidget(new WLabel("User name:"), 0, AlignMiddle);
-  hLayout->addWidget(userNameEdit_ = new WLineEdit(user_), 0, AlignMiddle);
+  hLayout->addWidget(Wt::cpp14::make_unique<Wt::WLabel>("User name:"),
+		     0, Wt::AlignmentFlag::Middle);
+
+  userNameEdit_ = hLayout->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>(user_),
+				     0, Wt::AlignmentFlag::Middle);
   userNameEdit_->setFocus();
 
-  WPushButton *b = new WPushButton("Login");
-  hLayout->addWidget(b, 0, AlignMiddle);
+  auto button = hLayout->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Login"),
+				    0, Wt::AlignmentFlag::Middle);
 
-  b->clicked().connect(this, &SimpleChatWidget::login);
+  button->clicked().connect(this, &SimpleChatWidget::login);
   userNameEdit_->enterPressed().connect(this, &SimpleChatWidget::login);
 
-  vLayout->addWidget(statusMsg_ = new WText());
-  statusMsg_->setTextFormat(PlainText);
+  statusMsg_ = vLayout->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+  statusMsg_->setTextFormat(Wt::TextFormat::Plain);
 }
 
 void SimpleChatWidget::login()
 {
   if (!loggedIn()) {
-    WString name = userNameEdit_->text();
+    Wt::WString name = userNameEdit_->text();
 
     if (!messageReceived_)
-      messageReceived_ = new WSound("sounds/message_received.mp3");
+      messageReceived_ = Wt::cpp14::make_unique<Wt::WSound>("sounds/message_received.mp3");
 
     if (!startChat(name))
       statusMsg_->setText("Sorry, name '" + escapeText(name) +
@@ -105,9 +106,9 @@ void SimpleChatWidget::logout()
   }
 }
 
-void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
-				    WWidget *messageEdit,
-				    WWidget *sendButton, WWidget *logoutButton)
+void SimpleChatWidget::createLayout(std::unique_ptr<WWidget> messages, std::unique_ptr<WWidget> userList,
+				    std::unique_ptr<WWidget> messageEdit,
+				    std::unique_ptr<WWidget> sendButton, std::unique_ptr<WWidget> logoutButton)
 {
   /*
    * Create a vertical layout, which will hold 3 rows,
@@ -127,41 +128,44 @@ void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
    * | send | logout                            |
    * --------------------------------------------
    */
-  WVBoxLayout *vLayout = new WVBoxLayout();
+  auto vLayout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
 
   // Create a horizontal layout for the messages | userslist.
-  WHBoxLayout *hLayout = new WHBoxLayout();
+  auto hLayout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
+
+  // Choose JavaScript implementation explicitly to avoid log warning (needed for resizable layout)
+  hLayout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
 
   // Add widget to horizontal layout with stretch = 1
-  hLayout->addWidget(messages, 1);
   messages->setStyleClass("chat-msgs");
+  hLayout->addWidget(std::move(messages), 1);
 
-    // Add another widget to horizontal layout with stretch = 0
-  hLayout->addWidget(userList);
+  // Add another widget to horizontal layout with stretch = 0
   userList->setStyleClass("chat-users");
+  hLayout->addWidget(std::move(userList));
 
   hLayout->setResizable(0, true);
 
   // Add nested layout to vertical layout with stretch = 1
-  vLayout->addLayout(hLayout, 1);
+  vLayout->addLayout(std::move(hLayout), 1);
 
   // Add widget to vertical layout with stretch = 0
-  vLayout->addWidget(messageEdit);
   messageEdit->setStyleClass("chat-noedit");
+  vLayout->addWidget(std::move(messageEdit));
 
   // Create a horizontal layout for the buttons.
-  hLayout = new WHBoxLayout();
+  hLayout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
 
   // Add button to horizontal layout with stretch = 0
-  hLayout->addWidget(sendButton);
+  hLayout->addWidget(std::move(sendButton));
 
   // Add button to horizontal layout with stretch = 0
-  hLayout->addWidget(logoutButton);
+  hLayout->addWidget(std::move(logoutButton));
 
   // Add nested layout to vertical layout with stretch = 0
-  vLayout->addLayout(hLayout, 0, AlignLeft);
+  vLayout->addLayout(std::move(hLayout), 0, Wt::AlignmentFlag::Left);
 
-  setLayout(vLayout);
+  this->setLayout(std::move(vLayout));
 }
 
 bool SimpleChatWidget::loggedIn() const
@@ -169,12 +173,12 @@ bool SimpleChatWidget::loggedIn() const
   return loggedIn_;
 }
 
-void SimpleChatWidget::render(WFlags<RenderFlag> flags)
+void SimpleChatWidget::render(Wt::WFlags<Wt::RenderFlag> flags)
 {
-  if (flags & RenderFull) {
+  if (flags.test(Wt::RenderFlag::Full)) {
     if (loggedIn()) {
       /* Handle a page refresh correctly */
-      messageEdit_->setText(WString::Empty);
+      messageEdit_->setText(Wt::WString::Empty);
       doJavaScript("setTimeout(function() { "
 		   + messages_->jsRef() + ".scrollTop += "
 		   + messages_->jsRef() + ".scrollHeight;}, 0);");
@@ -184,7 +188,7 @@ void SimpleChatWidget::render(WFlags<RenderFlag> flags)
   WContainerWidget::render(flags);
 }
 
-bool SimpleChatWidget::startChat(const WString& user)
+bool SimpleChatWidget::startChat(const Wt::WString& user)
 {
   /*
    * When logging in, we pass our processChatEvent method as the function that
@@ -199,21 +203,28 @@ bool SimpleChatWidget::startChat(const WString& user)
     clear();
     userNameEdit_ = 0;
 
-    messages_ = new WContainerWidget();
-    userList_ = new WContainerWidget();
-    messageEdit_ = new WTextArea();
+    auto messagesPtr = Wt::cpp14::make_unique<WContainerWidget>();
+    auto userListPtr = Wt::cpp14::make_unique<WContainerWidget>();
+    auto messageEditPtr = Wt::cpp14::make_unique<Wt::WTextArea>();
+    auto sendButtonPtr = Wt::cpp14::make_unique<Wt::WPushButton>("Send");
+    auto logoutButtonPtr = Wt::cpp14::make_unique<Wt::WPushButton>("Logout");
+
+    messages_ = messagesPtr.get();
+    userList_ = userListPtr.get();
+    messageEdit_ = messageEditPtr.get();
+    sendButton_ = sendButtonPtr.get();
+    Wt::Core::observing_ptr<Wt::WPushButton> logoutButton = logoutButtonPtr.get();
+
     messageEdit_->setRows(2);
     messageEdit_->setFocus();
 
     // Display scroll bars if contents overflows
-    messages_->setOverflow(WContainerWidget::OverflowAuto);
-    userList_->setOverflow(WContainerWidget::OverflowAuto);
+    messages_->setOverflow(Wt::Overflow::Auto);
+    userList_->setOverflow(Wt::Overflow::Auto);
 
-    sendButton_ = new WPushButton("Send");
-    WPushButton *logoutButton = new WPushButton("Logout");
-
-    createLayout(messages_, userList_, messageEdit_, sendButton_, logoutButton);
-
+    createLayout(std::move(messagesPtr), std::move(userListPtr),
+                 std::move(messageEditPtr),
+                 std::move(sendButtonPtr), std::move(logoutButtonPtr));
 
     /*
      * Connect event handlers:
@@ -241,7 +252,7 @@ bool SimpleChatWidget::startChat(const WString& user)
      * online/offline) Here we just disable the TextEdit when we are
      * offline and enable it once we're back online
      */
-    WApplication::instance()->setConnectionMonitor(
+    Wt::WApplication::instance()->setConnectionMonitor(
 		"window.monitor={ "
 		"'onChange':function(type, newV) {"
 		  "var connected = window.monitor.status.connectionStatus != 0;"
@@ -257,12 +268,14 @@ bool SimpleChatWidget::startChat(const WString& user)
 		);
 
     // Bind the C++ and JavaScript event handlers.
-    sendButton_->clicked().connect(this, &SimpleChatWidget::send);
+    if (sendButton_) {
+      sendButton_->clicked().connect(this, &SimpleChatWidget::send);
+      sendButton_->clicked().connect(clearInput_);
+      sendButton_->clicked().connect((WWidget *)messageEdit_,
+				     &WWidget::setFocus);
+    }
     messageEdit_->enterPressed().connect(this, &SimpleChatWidget::send);
-    sendButton_->clicked().connect(clearInput_);
     messageEdit_->enterPressed().connect(clearInput_);
-    sendButton_->clicked().connect((WWidget *)messageEdit_,
-				   &WWidget::setFocus);
     messageEdit_->enterPressed().connect((WWidget *)messageEdit_,
 					 &WWidget::setFocus);
 
@@ -270,30 +283,18 @@ bool SimpleChatWidget::startChat(const WString& user)
     // action
     messageEdit_->enterPressed().preventDefaultAction();
 
-    logoutButton->clicked().connect(this, &SimpleChatWidget::logout);
+    if (logoutButton)
+      logoutButton->clicked().connect(this, &SimpleChatWidget::logout);
 
-    WInPlaceEdit *nameEdit = new WInPlaceEdit();
+    auto nameEdit = Wt::cpp14::make_unique<Wt::WInPlaceEdit>();
     nameEdit->addStyleClass("name-edit");
     nameEdit->setButtonsEnabled(false);
     nameEdit->setText(user_);
     nameEdit->valueChanged().connect(this, &SimpleChatWidget::changeName);
 
-    WTemplate *joinMsg = new WTemplate(tr("join-msg.template"), messages_);
-    joinMsg->bindWidget("name", nameEdit);
+    Wt::WTemplate *joinMsg = messages_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("join-msg.template")));
+    joinMsg->bindWidget("name", std::move(nameEdit));
     joinMsg->setStyleClass("chat-msg");
-
-    if (!userList_->parent()) {
-      delete userList_;
-      userList_ = 0;
-    }
-
-    if (!sendButton_->parent()) {
-      delete sendButton_;
-      sendButton_ = 0;
-    }
-
-    if (!logoutButton->parent())
-      delete logoutButton;
 
     updateUsers();
     
@@ -302,7 +303,7 @@ bool SimpleChatWidget::startChat(const WString& user)
     return false;
 }
 
-void SimpleChatWidget::changeName(const WString& name)
+void SimpleChatWidget::changeName(const Wt::WString& name)
 {
   if (!name.empty()) {
     if (server_.changeName(user_, name))
@@ -328,7 +329,7 @@ void SimpleChatWidget::updateUsers()
 
     for (SimpleChatServer::UserSet::iterator i = users.begin();
 	 i != users.end(); ++i) {
-      WCheckBox *w = new WCheckBox(escapeText(*i), userList_);
+      Wt::WCheckBox *w = userList_->addWidget(Wt::cpp14::make_unique<Wt::WCheckBox>(escapeText(*i)));
       w->setInline(false);
 
       UserMap::const_iterator j = oldUsers.find(*i);
@@ -338,7 +339,7 @@ void SimpleChatWidget::updateUsers()
 	w->setChecked(true);
 
       users_[*i] = w->isChecked();
-      w->changed().connect(this, &SimpleChatWidget::updateUser);
+      w->changed().connect(std::bind(&SimpleChatWidget::updateUser, this, w));
 
       if (*i == user_)
 	w->setStyleClass("chat-self");
@@ -349,15 +350,14 @@ void SimpleChatWidget::updateUsers()
 void SimpleChatWidget::newMessage()
 { }
 
-void SimpleChatWidget::updateUser()
+void SimpleChatWidget::updateUser(Wt::WCheckBox *b)
 {
-  WCheckBox *b = dynamic_cast<WCheckBox *>(sender());
   users_[b->text()] = b->isChecked();
 }
 
 void SimpleChatWidget::processChatEvent(const ChatEvent& event)
 {
-  WApplication *app = WApplication::instance();
+  Wt::WApplication *app = Wt::WApplication::instance();
 
   /*
    * This is where the "server-push" happens. The chat server posts to this
@@ -404,14 +404,14 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
     || (users_.find(event.user()) != users_.end() && users_[event.user()]);
 
   if (display) {
-    WText *w = new WText(messages_);
+    Wt::WText *w = messages_->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
     /*
      * If it fails, it is because the content wasn't valid XHTML
      */
-    if (!w->setText(event.formattedHTML(user_, XHTMLText))) {
-      w->setText(event.formattedHTML(user_, PlainText));
-      w->setTextFormat(XHTMLText);
+    if (!w->setText(event.formattedHTML(user_, Wt::TextFormat::XHTML))) {
+      w->setText(event.formattedHTML(user_, Wt::TextFormat::Plain));
+      w->setTextFormat(Wt::TextFormat::XHTML);
     }
 
     w->setInline(false);
@@ -421,7 +421,7 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
      * Leave no more than 100 messages in the back-log
      */
     if (messages_->count() > 100)
-      delete messages_->children()[0];
+      messages_->removeChild(messages_->children()[0]);
 
     /*
      * Little javascript trick to make sure we scroll along with new content

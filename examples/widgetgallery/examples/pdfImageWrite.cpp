@@ -1,11 +1,11 @@
-#include <Wt/Chart/WCartesianChart>
-#include <Wt/WPdfImage>
+#include <Wt/Chart/WCartesianChart.h>
+#include <Wt/WPdfImage.h>
 
-Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart(...);
+auto chart = cpp14::make_unique<Chart::WCartesianChart>();
 
-Wt::WPdfImage pdfImage("4cm", "3cm");
+WPdfImage pdfImage("4cm", "3cm");
 {
-    Wt::WPainter p(&pdfImage);
+    WPainter p(&pdfImage);
     chart->paint(p);
 }
 std::ofstream f("chart.pdf", std::ios::out | std::ios::binary);

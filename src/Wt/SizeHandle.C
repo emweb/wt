@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
+#include "Wt/WApplication.h"
 
 #include "SizeHandle.h"
 

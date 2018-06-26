@@ -5,8 +5,8 @@
  */
 #include "QRTokenDatabase.h"
 
-#include <Wt/Auth/User>
-#include <Wt/Dbo/Dbo>
+#include <Wt/Auth/User.h>
+#include <Wt/Dbo/Dbo.h>
 
 class QRToken
 {
@@ -28,14 +28,14 @@ public:
   template<class Action>
   void persist(Action& a)
   {
-    Wt::Dbo::field(a, sessionId, "session_id");
-    Wt::Dbo::field(a, hash, "hash");
-    Wt::Dbo::field(a, url, "url");
-    Wt::Dbo::field(a, userId, "user_id");
+    Dbo::field(a, sessionId, "session_id");
+    Dbo::field(a, hash, "hash");
+    Dbo::field(a, url, "url");
+    Dbo::field(a, userId, "user_id");
   }
 };
 
-QRTokenDatabase::QRTokenDatabase(Wt::Dbo::Session& session)
+QRTokenDatabase::QRTokenDatabase(Dbo::Session& session)
   : session_(session)
 { 
   session_.mapClass<QRToken>("qr_token");
@@ -45,24 +45,24 @@ void QRTokenDatabase::addToken(const std::string& sessionId,
 			       const std::string& hash,
 			       const std::string& url)
 {
-  Wt::Dbo::Transaction t(session_);
+  Dbo::Transaction t(session_);
 
-  session_.add(new QRToken(sessionId, hash, url));
+  session_.add(Wt::cpp14::make_unique<QRToken>(sessionId, hash, url));
 }
 
 void QRTokenDatabase::removeToken(const std::string& sessionId)
 {
-  Wt::Dbo::Transaction t(session_);
+  Dbo::Transaction t(session_);
 
   session_.execute("delete from qr_token where session_id = ?").bind(sessionId);
 }
 
 std::string QRTokenDatabase::setUser(const std::string& hash,
-				     const Wt::Auth::User& user)
+                                     const Auth::User& user)
 {
-  Wt::Dbo::Transaction t(session_);
+  Dbo::Transaction t(session_);
 
-  Wt::Dbo::ptr<QRToken> token
+  Dbo::ptr<QRToken> token
     = session_.find<QRToken>().where("hash = ?").bind(hash);
 
   if (token) {
@@ -74,16 +74,16 @@ std::string QRTokenDatabase::setUser(const std::string& hash,
     return std::string();
 }
 
-Wt::Auth::User QRTokenDatabase::findUser(const std::string& sessionId,
-					 Wt::Auth::AbstractUserDatabase& db)
+Auth::User QRTokenDatabase::findUser(const std::string& sessionId,
+                                         Auth::AbstractUserDatabase& db)
 {
-  Wt::Dbo::Transaction t(session_);
+  Dbo::Transaction t(session_);
 
-    Wt::Dbo::ptr<QRToken> token
+    Dbo::ptr<QRToken> token
     = session_.find<QRToken>().where("session_id = ?").bind(sessionId);
 
   if (token) {
-    return Wt::Auth::User(token->userId, db);
+    return Auth::User(token->userId, db);
   } else
-    return Wt::Auth::User();
+    return Auth::User();
 }

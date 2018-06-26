@@ -5,13 +5,14 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WAny.h>
+
 #include "Popup.h"
 
 using namespace Wt;
 
-Popup::Popup(Type t, const WString& message, std::string defaultValue,
-	     WObject *parent)
-  : WObject(parent),
+Popup::Popup(Type t, const WString& message, std::string defaultValue)
+  : WObject(),
     okPressed_(this, "ok"),
     cancelPressed_(this, "cancel"),
     t_(t),
@@ -34,15 +35,15 @@ void Popup::setJavaScript()
   case Confirm:
     show.setJavaScript
       ("function(){ if (confirm('" + message_.narrow() + "')) {"
-       + okPressed_.createCall("''") +
+       + okPressed_.createCall({"''"}) +
        "} else {"
-       + cancelPressed_.createCall() +
+       + cancelPressed_.createCall({}) +
        "}}");
     break;
   case Alert:
     show.setJavaScript
       ("function(){ alert('" + message_.narrow() + "');"
-       + okPressed_.createCall("''") +
+       + okPressed_.createCall({"''"}) +
        "}");
     break;
   case Prompt:
@@ -50,9 +51,9 @@ void Popup::setJavaScript()
       ("function(){var n = prompt('" + message_.narrow() + "', '"
        + defaultValue_ + "');"
        "if (n != null) {"
-       + okPressed_.createCall("n") +
+       + okPressed_.createCall({"n"}) +
        "} else {"
-       + cancelPressed_.createCall() +
+       + cancelPressed_.createCall({}) +
        "}}");
   }
 }
@@ -69,18 +70,18 @@ void Popup::setDefaultValue(const std::string defaultValue)
   setJavaScript();
 }
 
-Popup *Popup::createConfirm(const WString& message, WObject *parent)
+std::unique_ptr<Popup> Popup::createConfirm(const WString& message)
 {
-  return new Popup(Confirm, message, std::string(), parent);
+  return cpp14::make_unique<Popup>(Type::Confirm, message, std::string());
 }
 
-Popup *Popup::createAlert(const WString& message, WObject *parent)
+std::unique_ptr<Popup> Popup::createAlert(const WString& message)
 {
-  return new Popup(Alert, message, std::string(), parent);
+  return cpp14::make_unique<Popup>(Type::Alert, message, std::string());
 }
 
-Popup *Popup::createPrompt(const WString& message,
-			   const std::string defaultValue, WObject *parent)
+std::unique_ptr<Popup> Popup::createPrompt(const WString& message,
+                           const std::string defaultValue)
 {
-  return new Popup(Prompt, message, defaultValue, parent);
+  return cpp14::make_unique<Popup>(Type::Prompt, message, defaultValue);
 }

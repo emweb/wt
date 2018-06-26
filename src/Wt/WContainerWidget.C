@@ -6,17 +6,19 @@
 #include "StdWidgetItemImpl.h"
 #include "StdGridLayoutImpl2.h"
 
-#include "Wt/WApplication"
-#include "Wt/WBorderLayout"
-#include "Wt/WBoxLayout"
-#include "Wt/WContainerWidget"
-#include "Wt/WFitLayout"
-#include "Wt/WGridLayout"
-#include "Wt/WWidgetItem"
+#include "Wt/WApplication.h"
+#include "Wt/WBorderLayout.h"
+#include "Wt/WBoxLayout.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WFitLayout.h"
+#include "Wt/WGridLayout.h"
+#include "Wt/WWidgetItem.h"
 #include "WebUtils.h"
 
 #include "DomElement.h"
 #include "WebSession.h"
+
+#include <boost/algorithm/string.hpp>
 
 namespace Wt {
 
@@ -24,32 +26,16 @@ LOGGER("WContainerWidget");
 
 const char *WContainerWidget::SCROLL_SIGNAL = "scroll";
 
-/*
- * Should addedChildren move to WWebWidget ?
- * Should a WWebWidget know itself that it has been rendered to
- * avoid the ugly setIgnoreChildRemoves() hack ?
- * I think so ?
- *
- * The problem still exists with a child added with insertWidget since
- * it is not in the addedChildren list even if if it is not rendered ?
- * What if before gets deleted after adding a sibling ? then also
- * things go wrong. So many wrong things !
- */
-
-WContainerWidget::WContainerWidget(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    contentAlignment_(AlignLeft),
-    overflow_(0),
-    padding_(0),
-    layout_(0),
+WContainerWidget::WContainerWidget()
+  : contentAlignment_(AlignmentFlag::Left),
+    overflow_(nullptr),
+    padding_(nullptr),
     globalUnfocused_(false),
     scrollTop_(0),
     scrollLeft_(0)
 {
   setInline(false);
   setLoadLaterWhenInvisible(false);
-
-  children_ = new std::vector<WWidget *>;
 }
 
 EventSignal<WScrollEvent>& WContainerWidget::scrolled()
@@ -59,11 +45,9 @@ EventSignal<WScrollEvent>& WContainerWidget::scrolled()
 
 WContainerWidget::~WContainerWidget()
 {
-#ifndef WT_NO_LAYOUT
-  WLayout *layout = layout_;
-  layout_ = 0;
-  delete layout;
-#endif // WT_NO_LAYOUT
+  beingDeleted();
+  clear();
+
   delete[] padding_;
   delete[] overflow_;
 }
@@ -75,38 +59,21 @@ StdLayoutImpl *WContainerWidget::layoutImpl() const
 }
 #endif // WT_NO_LAYOUT
 
-void WContainerWidget::setLayout(WLayout *layout)
-{
-  setLayout(layout, AlignJustify);
-}
-
-void WContainerWidget::setLayout(WLayout *layout,
-				 WFlags<AlignmentFlag> alignment)
+void WContainerWidget::setLayout(std::unique_ptr<WLayout> layout)
 {
 #ifndef WT_NO_LAYOUT
-  if (layout_ && layout != layout_)
-    delete layout_;
+  // make sure old layout is deleted first, std::unique_ptr assignment
+  // changes the value of the pointer and then deletes the old value, but
+  // we need to delete the old value first, otherwise we run into problems
+  // FIXME: maybe the code should be fixed so this is not necessary? Having
+  //        to call reset() first feels dirty
+  layout_.reset();
 
-  AlignmentFlag hAlign = alignment & AlignHorizontalMask;
-  AlignmentFlag vAlign = alignment & AlignVerticalMask;
-  
-  if (hAlign != AlignJustify || vAlign != 0) {
-    LOG_WARN("setLayout(layout, alignment) is being deprecated (and does no "
-	     "longer have the special meaning it used to have). Use spacers "
-	     "or CSS instead to control alignment");
-  }
-
-  contentAlignment_ = alignment;
-
-  if (layout != layout_) {
-    layout_ = layout;
-    flags_.set(BIT_LAYOUT_NEEDS_RERENDER);
-
-    if (layout) {
-      WWidget::setLayout(layout);
-      layoutImpl()->setContainer(this);
-    }
-  }
+  layout_ = std::move(layout);
+  if (layout_)
+    layout_->setParentWidget(this);
+  contentAlignment_ = AlignmentFlag::Justify;
+  flags_.set(BIT_LAYOUT_NEEDS_RERENDER);
 #else
   assert(false);
 #endif
@@ -144,187 +111,125 @@ void WContainerWidget::parentResized(WWidget *parent,
 #endif
 }
 
-WLayoutItemImpl *WContainerWidget::createLayoutItemImpl(WLayoutItem *item)
+void WContainerWidget::addWidget(std::unique_ptr<WWidget> widget)
 {
-#ifndef WT_NO_LAYOUT
-  {
-    WWidgetItem *wi = dynamic_cast<WWidgetItem *>(item);
-    if (wi)
-      return new StdWidgetItemImpl(wi);
-  }
-
-  {
-    WBorderLayout *l = dynamic_cast<WBorderLayout *>(item);
-    if (l)
-      return new StdGridLayoutImpl2(l, l->grid());
-  }
-
-  {
-    WBoxLayout *l = dynamic_cast<WBoxLayout *>(item);
-    if (l)
-      return new StdGridLayoutImpl2(l, l->grid());
-  }
-
-  {
-    WGridLayout *l = dynamic_cast<WGridLayout *>(item);
-    if (l)
-      return new StdGridLayoutImpl2(l, l->grid());
-  }
-
-  {
-    WFitLayout *l = dynamic_cast<WFitLayout *>(item);
-    if (l)
-      return new StdGridLayoutImpl2(l, l->grid());
-  }
-#endif
-
-  assert(false);
-
-  return 0;
+  insertWidget(children_.size(), std::move(widget));
 }
 
-void WContainerWidget::addWidget(WWidget *widget)
+void WContainerWidget::insertBefore(std::unique_ptr<WWidget> widget,
+				    WWidget *before)
 {
-  if (widget->parent()) {
-    if (widget->parent() != this) {
-      LOG_WARN("addWidget(): reparenting widget");
-      widget->setParentWidget(0);
-    } else
-      return;
+  int index = indexOf(before);
+
+  if (index == -1) {
+    LOG_ERROR("insertBefore(): before is not in container, appending at back");
+    index = children_.size();
   }
 
-  if (!transientImpl_) {
-    transientImpl_ = new TransientImpl();
+  insertWidget(index, std::move(widget));
+}
+
+void WContainerWidget::insertWidget(int index, std::unique_ptr<WWidget> widget)
+{
+  WWidget *w = widget.get();
+
+  if (!addedChildren_) {
+    addedChildren_.reset(new std::vector<WWidget *>());
 
     // A TD/TH node cannot be stubbed
-    if (domElementType() != DomElement_TD
-	&& domElementType() != DomElement_TH)
+    if (domElementType() != DomElementType::TD &&
+	domElementType() != DomElementType::TH)
       setLoadLaterWhenInvisible(true);
   }
 
-  transientImpl_->addedChildren_.push_back(widget);
+  addedChildren_->push_back(widget.get());
+  children_.insert(children_.begin() + index, widget.get());
+  addChild(std::move(widget));
   flags_.set(BIT_ADJUST_CHILDREN_ALIGN); // children margins hacks
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 
-  widget->setParentWidget(this);
+  widgetAdded(w);
 }
 
-void WContainerWidget::insertWidget(int index, WWidget *widget)
-{
-  if (index == (int)children_->size())
-    addWidget(widget);
-  else
-    insertBefore(widget, children()[index]);
-}
-
-void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
-{
-  if (before->parent() != this) {
-    LOG_ERROR("insertBefore(): 'before' not in this container");
-    return;
-  }
-
-  if (widget->parent()) {
-    if (widget->parent() != this) {
-      LOG_WARN("insertWidget(): reparenting widget");
-      widget->setParentWidget(0);
-    } else
-      return;
-  }
-
-  int i = Utils::indexOf(*children_, before);
-  if (i == -1)
-    i = children_->size();
-
-  children_->insert(children_->begin() + i, widget);
-  flags_.set(BIT_ADJUST_CHILDREN_ALIGN); // children margins hacks
-  repaint(RepaintSizeAffected);
-
-  if (!transientImpl_)
-    transientImpl_ = new TransientImpl();
-  transientImpl_->addedChildren_.push_back(widget);
-
-  childAdded(widget);
-}
-
-void WContainerWidget::removeFromLayout(WWidget *widget)
+std::unique_ptr<WWidget> WContainerWidget::removeWidget(WWidget *widget)
 {
 #ifndef WT_NO_LAYOUT
-  if (layout_)
-    removeWidget(widget);
+  if (layout_) {
+    auto result = layout_->removeWidget(widget);
+    if (result)
+      widgetRemoved(result.get(), false);
+    return result;
+  }
 #endif // WT_NO_LAYOUT
-}
 
-void WContainerWidget::removeWidget(WWidget *widget)
-{
-  widget->setParentWidget(0);
+  int index = indexOf(widget);
 
-  repaint(RepaintSizeAffected);
+  if (index != -1) {
+    bool renderRemove = true;
+
+    if (addedChildren_ && Utils::erase(*addedChildren_, widget))
+      renderRemove = false;
+
+    children_.erase(children_.begin() + index);
+
+    // NOTE: result may be null if the widget is not owned by this WContainerWidget!
+    std::unique_ptr<WWidget> result
+      = Utils::dynamic_unique_ptr_cast<WWidget>(removeChild(widget));
+
+    repaint(RepaintFlag::SizeAffected);
+
+    widgetRemoved(widget, renderRemove);
+
+    return result;
+  } else {
+    LOG_ERROR("removeWidget(): widget not in container");
+    return std::unique_ptr<WWidget>();
+  }
 }
 
 void WContainerWidget::clear()
 {
-  // first delete the widgets, this will also remove them from
-  // the layout
-  while (!children().empty()) {
-    WWidget *w = children().back();
-    delete w;
-  }
-
 #ifndef WT_NO_LAYOUT
-  delete layout_;
-  layout_ = 0;
-#endif // WT_NO_LAYOUT
+  layout_.reset();
+#endif
+
+  while (!children_.empty())
+    removeWidget(children_.back());
+}
+
+void WContainerWidget::iterateChildren(const HandleWidgetMethod& method) const
+{
+  // It's possible that a child is added during iteration,
+  // e.g. when load() is called on a widget that adds a
+  // new global widget to the domroot. This would invalidate
+  // the iterator. That's why we're iterating over children_
+  // the old school way, with an index. Then there's no iterator
+  // that ends up invalidated.
+  for (decltype(children_.size()) i = 0;
+       i < children_.size(); ++i)
+    method(children_[i]);
+
+  if (layout_)
+    layout_->iterateWidgets(method);
 }
 
 int WContainerWidget::indexOf(WWidget *widget) const
 {
-  return Utils::indexOf(children(), widget);
+  for (unsigned i = 0; i < children_.size(); ++i)
+    if (children_[i] == widget)
+      return i;
+
+  return -1;
 }
 
 WWidget *WContainerWidget::widget(int index) const
 {
-  return children()[index];
+  return children_[index];
 }
 
 int WContainerWidget::count() const
 {
-  return children().size();
-}
-
-void WContainerWidget::removeChild(WWidget *child)
-{
-  bool ignoreThisChildRemove = false;
-
-  if (transientImpl_) {
-    if (Utils::erase(transientImpl_->addedChildren_, child)) {
-      /*
-       * Child was just added: do not render a child remove, since it
-       * is not yet part of the DOM
-       */
-      ignoreThisChildRemove = true;
-    }
-  }
-
-#ifndef WT_NO_LAYOUT
-  if (layout_) {
-    ignoreThisChildRemove = true; // will be re-rendered by layout
-    if (layout_->removeWidget(child))
-      return;
-  }
-#endif // WT_NO_LAYOUT
-
-  if (ignoreThisChildRemove)
-    if (ignoreChildRemoves())
-      ignoreThisChildRemove = false; // was already ignoring them
-
-  if (ignoreThisChildRemove)
-    setIgnoreChildRemoves(true);
-
-  WWebWidget::removeChild(child);
-
-  if (ignoreThisChildRemove)
-    setIgnoreChildRemoves(false);
+  return children_.size();
 }
 
 void WContainerWidget::setContentAlignment(WFlags<AlignmentFlag> alignment)
@@ -333,8 +238,8 @@ void WContainerWidget::setContentAlignment(WFlags<AlignmentFlag> alignment)
 
   /* Make sure vertical alignment is always specified */
   AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
-  if (vAlign == 0)
-    contentAlignment_ |= AlignTop;
+  if (vAlign == static_cast<AlignmentFlag>(0))
+    contentAlignment_ |= AlignmentFlag::Top;
 
   flags_.set(BIT_CONTENT_ALIGNMENT_CHANGED);
 
@@ -371,17 +276,17 @@ void WContainerWidget::setPadding(const WLength& length, WFlags<Side> sides)
 #endif // WT_TARGET_JAVA
   }
 
-  if (sides.testFlag(Top))
+  if (sides.test(Side::Top))
     padding_[0] = length;
-  if (sides.testFlag(Right))
+  if (sides.test(Side::Right))
     padding_[1] = length;
-  if (sides.testFlag(Bottom))
+  if (sides.test(Side::Bottom))
     padding_[2] = length;
-  if (sides.testFlag(Left))
+  if (sides.test(Side::Left))
     padding_[3] = length;
 
   flags_.set(BIT_PADDINGS_CHANGED);
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 void WContainerWidget::setOverflow(Overflow value,
@@ -389,17 +294,17 @@ void WContainerWidget::setOverflow(Overflow value,
 {
   if (!overflow_) {
     overflow_ = new Overflow[2];
-    overflow_[0] = overflow_[1] = OverflowVisible;
+    overflow_[0] = overflow_[1] = Overflow::Visible;
   }
 
-  if (orientation & Horizontal)
+  if (orientation.test(Orientation::Horizontal))
     overflow_[0] = value;
-  if (orientation & Vertical)
+  if (orientation.test(Orientation::Vertical))
     overflow_[1] = value;
   
   // Could be a workaround for IE, but sometimes causes other problems:
   // if (value == OverflowScroll || value == OverflowAuto)
-  //   setPositionScheme(Relative);
+  //   setPositionScheme(PositionScheme::Relative);
 
   flags_.set(BIT_OVERFLOW_CHANGED);
   repaint();
@@ -411,13 +316,13 @@ WLength WContainerWidget::padding(Side side) const
     return WLength::Auto;
 
   switch (side) {
-  case Top:
+  case Side::Top:
     return padding_[0];
-  case Right:
+  case Side::Right:
     return padding_[1];
-  case Bottom:
+  case Side::Bottom:
     return padding_[2];
-  case Left:
+  case Side::Left:
     return padding_[3];
   default:
     LOG_ERROR("padding(): improper side.");
@@ -428,55 +333,56 @@ WLength WContainerWidget::padding(Side side) const
 void WContainerWidget::updateDom(DomElement& element, bool all)
 {
   element.setGlobalUnfocused(globalUnfocused_);
-  if (all && element.type() == DomElement_LI && isInline())
-    element.setProperty(PropertyStyleDisplay, "inline");
+  if (all && element.type() == DomElementType::LI && isInline())
+    element.setProperty(Property::StyleDisplay, "inline");
 
   if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED) || all) {
     AlignmentFlag hAlign = contentAlignment_ & AlignHorizontalMask;
 
-    bool ltr = WApplication::instance()->layoutDirection() == LeftToRight;
+    bool ltr = WApplication::instance()->layoutDirection() 
+      == LayoutDirection::LeftToRight;
 
     switch (hAlign) {
-    case AlignLeft:
+    case AlignmentFlag::Left:
       if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
-	element.setProperty(PropertyStyleTextAlign, ltr ? "left" : "right");
+	element.setProperty(Property::StyleTextAlign, ltr ? "left" : "right");
       break;
-    case AlignRight:
-      element.setProperty(PropertyStyleTextAlign, ltr ? "right" : "left");
+    case AlignmentFlag::Right:
+      element.setProperty(Property::StyleTextAlign, ltr ? "right" : "left");
       break;
-    case AlignCenter:
-      element.setProperty(PropertyStyleTextAlign, "center");
+    case AlignmentFlag::Center:
+      element.setProperty(Property::StyleTextAlign, "center");
       break;
-    case AlignJustify:
+    case AlignmentFlag::Justify:
 #ifndef WT_NO_LAYOUT
       if (!layout_)
 #endif // WT_NO_LAYOUT
-	element.setProperty(PropertyStyleTextAlign, "justify");
+	element.setProperty(Property::StyleTextAlign, "justify");
       break;
     default:
       break;
     }
 
-    if (domElementType() == DomElement_TD) {
+    if (domElementType() == DomElementType::TD) {
       AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
       switch (vAlign) {
-      case AlignTop:
+      case AlignmentFlag::Top:
 	if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
-	  element.setProperty(PropertyStyleVerticalAlign, "top");
+	  element.setProperty(Property::StyleVerticalAlign, "top");
 	break;
-      case AlignMiddle:
-	element.setProperty(PropertyStyleVerticalAlign, "middle");
+      case AlignmentFlag::Middle:
+	element.setProperty(Property::StyleVerticalAlign, "middle");
 	break;
-      case AlignBottom:
-	element.setProperty(PropertyStyleVerticalAlign, "bottom");
+      case AlignmentFlag::Bottom:
+	element.setProperty(Property::StyleVerticalAlign, "bottom");
       default:
 	break;
       }
     }
   }
 
-  if (flags_.test(BIT_ADJUST_CHILDREN_ALIGN)
-      || flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED) || all) {
+  if (flags_.test(BIT_ADJUST_CHILDREN_ALIGN) || 
+      flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED) || all) {
     /*
      * Welcome to CSS hell.
      *
@@ -486,19 +392,19 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
      *
      * I assume the same applies for aligning to the right ?
      */
-    for (unsigned i = 0; i < children_->size(); ++i) {
-      WWidget *child = (*children_)[i];
+    for (unsigned i = 0; i < children_.size(); ++i) {
+      WWidget *child = children_[i];
 
       if (!child->isInline()) {
 	AlignmentFlag ha = contentAlignment_ & AlignHorizontalMask;
-	if (ha == AlignCenter) {
-	  if (!child->margin(Left).isAuto())
-	    child->setMargin(WLength::Auto, Left);
-	  if (!child->margin(Right).isAuto())
-	    child->setMargin(WLength::Auto, Right);
-	} else if (ha == AlignRight) {
-	  if (!child->margin(Left).isAuto())
-	    child->setMargin(WLength::Auto, Left);
+	if (ha == AlignmentFlag::Center) {
+	  if (!child->margin(Side::Left).isAuto())
+	    child->setMargin(WLength::Auto, Side::Left);
+	  if (!child->margin(Side::Right).isAuto())
+	    child->setMargin(WLength::Auto, Side::Right);
+	} else if (ha == AlignmentFlag::Right) {
+	  if (!child->margin(Side::Left).isAuto())
+	    child->setMargin(WLength::Auto, Side::Left);
 	}
       }
     }
@@ -512,11 +418,9 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 	  !(   padding_[0].isAuto() && padding_[1].isAuto()
 	    && padding_[2].isAuto() && padding_[3].isAuto()))) {
 
-    if ((padding_[0] == padding_[1])
-	&& (padding_[0] == padding_[2])
+    if ((padding_[0] == padding_[1]) && (padding_[0] == padding_[2])
 	&& (padding_[0] == padding_[3]))
-      element.setProperty(PropertyStylePadding,
-			  padding_[0].cssText());
+      element.setProperty(Property::StylePadding, padding_[0].cssText());
     else {
       WStringStream s;
       for (unsigned i = 0; i < 4; ++i) {
@@ -524,7 +428,7 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 	  s << ' ';
 	s << (padding_[i].isAuto() ? "0" : padding_[i].cssText());
       }
-      element.setProperty(PropertyStylePadding, s.str());
+      element.setProperty(Property::StylePadding, s.str());
     }
 
     flags_.reset(BIT_PADDINGS_CHANGED);
@@ -532,14 +436,16 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 
   WInteractWidget::updateDom(element, all);
 
-  if (flags_.test(BIT_OVERFLOW_CHANGED)
-      || (all && overflow_ &&
-	  !(overflow_[0] == OverflowVisible
-	    && overflow_[1] == OverflowVisible))) {
+  if (flags_.test(BIT_OVERFLOW_CHANGED) ||
+      (all && overflow_ &&
+       !(overflow_[0] == Overflow::Visible &&
+	 overflow_[1] == Overflow::Visible))) {
     static const char *cssText[] = { "visible", "auto", "hidden", "scroll" };
 
-    element.setProperty(PropertyStyleOverflowX, cssText[overflow_[0]]);
-    element.setProperty(PropertyStyleOverflowY, cssText[overflow_[1]]);
+    element.setProperty(Property::StyleOverflowX, 
+			cssText[static_cast<unsigned int>(overflow_[0])]);
+    element.setProperty(Property::StyleOverflowY,
+			cssText[static_cast<unsigned int>(overflow_[1])]);
     // enable form object to retrieve scroll state
     setFormObject(true);
     
@@ -562,9 +468,10 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
      */
     WApplication *app = WApplication::instance();
     if (app->environment().agentIsIE()
-	&& (overflow_[0] == OverflowAuto || overflow_[0] == OverflowScroll))
-      if (positionScheme() == Static)
-	element.setProperty(PropertyStylePosition, "relative");
+	&& (overflow_[0] == Overflow::Auto || 
+	    overflow_[0] == Overflow::Scroll))
+      if (positionScheme() == PositionScheme::Static)
+	element.setProperty(Property::StylePosition, "relative");
   }
 }
 
@@ -602,8 +509,7 @@ void WContainerWidget::propagateRenderOk(bool deep)
     propagateLayoutItemsOk(layout());
   else
 #endif
-    if (transientImpl_)
-      transientImpl_->addedChildren_.clear();
+    addedChildren_.reset();
 
   WInteractWidget::propagateRenderOk(deep);
 }
@@ -617,20 +523,19 @@ bool WContainerWidget::wasEmpty() const
   if (isPopup() || firstChildIndex() > 0)
     return false;
   else
-    return ((transientImpl_ ? transientImpl_->addedChildren_.size() : 0)
-	    == children_->size());
+    return (addedChildren_ ? addedChildren_->size() : 0) == children_.size();
 }
 
 DomElementType WContainerWidget::domElementType() const
 {
-  DomElementType type = isInline() ? DomElement_SPAN : DomElement_DIV;
+  DomElementType type = isInline() ? DomElementType::SPAN : DomElementType::DIV;
 
   WContainerWidget *p = dynamic_cast<WContainerWidget *>(parentWebWidget());
   if (p && p->isList())
-    type = DomElement_LI;
+    type = DomElementType::LI;
 
   if (isList())
-    type = isOrderedList() ? DomElement_OL : DomElement_UL;
+    type = isOrderedList() ? DomElementType::OL : DomElementType::UL;
 
   return type;
 }
@@ -667,8 +572,7 @@ DomElement *WContainerWidget::createDomElement(WApplication *app)
 DomElement *WContainerWidget::createDomElement(WApplication *app,
 					       bool addChildren)
 {
-  if (transientImpl_)
-    transientImpl_->addedChildren_.clear();
+  addedChildren_.reset();
 
   DomElement *result = WWebWidget::createDomElement(app);
 
@@ -683,96 +587,52 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
   if (layout_) {
 #ifndef WT_NO_LAYOUT
     containsLayout();
-    bool fitWidth = contentAlignment_ & AlignJustify;
-    bool fitHeight = !(contentAlignment_ & AlignVerticalMask);
+    bool fitWidth = true;
+    bool fitHeight = true;
 
-    DomElement *c = layoutImpl()->createDomElement(fitWidth, fitHeight, app);
+    DomElement *c = layoutImpl()->createDomElement(&parent,
+						   fitWidth, fitHeight, app);
 
-    /*
-     * Take the hint: if the container is relative, then we can use an absolute
-     * layout for its contents, under the assumption that a .wtResize or
-     * auto-javascript sets the width too (like in WTreeView, WTableView)
-     */
-    if (positionScheme() == Relative || positionScheme() == Absolute) {
-      c->setProperty(PropertyStylePosition, "absolute");
-      c->setProperty(PropertyStyleLeft, "0");
-      c->setProperty(PropertyStyleRight, "0");
-    } else if (app->environment().agentIsIE()) {
-      /*
-       * position: relative element needs to be in a position: relative
-       * parent otherwise scrolling is broken
-       */
-      if (app->environment().agentIsIE()
-	  && this->parent()->positionScheme() != Static)
-	parent.setProperty(PropertyStylePosition, "relative");
-    }
-
-    switch (contentAlignment_ & AlignHorizontalMask) {
-    case AlignCenter: {
-      DomElement *itable = DomElement::createNew(DomElement_TABLE);
-      itable->setProperty(PropertyClass, "Wt-hcenter");
-      if (fitHeight)
-	itable->setProperty(PropertyStyle, "height:100%;");
-      DomElement *irow = DomElement::createNew(DomElement_TR);
-      DomElement *itd = DomElement::createNew(DomElement_TD);
-      if (fitHeight)
-	itd->setProperty(PropertyStyle, "height:100%;");
-      itd->addChild(c);
-      irow->addChild(itd);
-      itable->addChild(irow);
-      itable->setId(id() + "l");
-      c = itable;
-
-      break;
-    }
-    case AlignLeft:
-      break;
-    case AlignRight:
-      c->setProperty(PropertyStyleFloat, "right");
-      break;
-    default:
-      break;
-    }
-
-    parent.addChild(c);
+    if (c != &parent)
+      parent.addChild(c);
 
     flags_.reset(BIT_LAYOUT_NEEDS_RERENDER);
+    flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
 #endif // WT_NO_LAYOUT
   } else {
-    for (unsigned i = 0; i < children_->size(); ++i)
-      parent.addChild((*children_)[i]->createSDomElement(app));
+    for (unsigned i = 0; i < children_.size(); ++i)
+      parent.addChild(children_[i]->createSDomElement(app));
   }
 
-  if (transientImpl_)
-    transientImpl_->addedChildren_.clear();
+  addedChildren_.reset();
 }
 
 void WContainerWidget::updateDomChildren(DomElement& parent, WApplication *app)
 {
   if (!app->session()->renderer().preLearning() && !layout_) {
-    if (parent.mode() == DomElement::ModeUpdate)
+    if (parent.mode() == DomElement::Mode::Update)
       parent.setWasEmpty(wasEmpty());
 
-    if (transientImpl_) {
+    if (addedChildren_) {
       for (;;) {
 	std::vector<int> orderedInserts;
-	std::vector<WWidget *>& ac = transientImpl_->addedChildren_;
+	std::vector<WWidget *>& ac = *addedChildren_;
 
 	for (unsigned i = 0; i < ac.size(); ++i)
-	  orderedInserts.push_back(Utils::indexOf(*children_, ac[i]));
+	  orderedInserts.push_back(indexOf(ac[i]));
 
 	Utils::sort(orderedInserts);
 
-	int addedCount = transientImpl_->addedChildren_.size();
-	int totalCount = children_->size();
+	int addedCount = addedChildren_->size();
+	int totalCount = children_.size();
 	int insertCount = 0;
 
-	transientImpl_->addedChildren_.clear();
+	addedChildren_.reset();
 
 	for (unsigned i = 0; i < orderedInserts.size(); ++i) {
 	  int pos = orderedInserts[i];
 	
-	  DomElement *c = (*children_)[pos]->createSDomElement(app);
+	  DomElement *c = (children_)[pos]->createSDomElement(app);
 
 	  if (pos + (addedCount - insertCount) == totalCount)
 	    parent.addChild(c);
@@ -782,9 +642,11 @@ void WContainerWidget::updateDomChildren(DomElement& parent, WApplication *app)
 	  ++insertCount;
 	}
 
-	if (transientImpl_->addedChildren_.empty())
+	if (!addedChildren_ || addedChildren_->empty())
 	  break;
       }
+
+      addedChildren_.reset();
     }
   }
 
@@ -798,11 +660,22 @@ void WContainerWidget::updateDomChildren(DomElement& parent, WApplication *app)
 #endif // WT_NO_LAYOUT
 }
 
+void WContainerWidget::layoutChanged(bool rerender)
+{
+#ifndef WT_NO_LAYOUT
+  if (rerender)
+    flags_.set(BIT_LAYOUT_NEEDS_RERENDER);
+  else
+    flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
+
+  repaint(RepaintFlag::SizeAffected);
+#endif // WT_NO_LAYOUT
+}
+
 void WContainerWidget::rootAsJavaScript(WApplication *app, WStringStream& out,
 					bool all)
 {
-  std::vector<WWidget *> *toAdd
-    = all ? children_ : (transientImpl_ ? &transientImpl_->addedChildren_ : 0);
+  std::vector<WWidget *> *toAdd = all ? &children_ : addedChildren_.get();
 
   if (toAdd)
     for (unsigned i = 0; i < toAdd->size(); ++i) {
@@ -823,8 +696,7 @@ void WContainerWidget::rootAsJavaScript(WApplication *app, WStringStream& out,
       delete c;
     }
 
-  if (transientImpl_)
-    transientImpl_->addedChildren_.clear();
+  addedChildren_.reset();
 
   if (!all) {
     /* Note: we ignore rendering of deletion of a bound widget... */
@@ -832,22 +704,6 @@ void WContainerWidget::rootAsJavaScript(WApplication *app, WStringStream& out,
 
   // FIXME
   propagateRenderOk(false);
-}
-
-void WContainerWidget::layoutChanged(bool rerender, bool deleted)
-{
-#ifndef WT_NO_LAYOUT
-  if (rerender)
-    flags_.set(BIT_LAYOUT_NEEDS_RERENDER);
-  else
-    flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
-
-  if (deleted)
-    layout_ = 0;
-
-  repaint(RepaintSizeAffected);
-
-#endif // WT_NO_LAYOUT
 }
 
 void WContainerWidget::setGlobalUnfocused(bool b)
@@ -868,8 +724,8 @@ void WContainerWidget::setFormData(const FormData& formData)
 
     if (attributes.size() == 2) {
       try {
-        scrollTop_ = (int)boost::lexical_cast<double>(attributes[0]);
-        scrollLeft_ = (int)boost::lexical_cast<double>(attributes[1]);
+        scrollTop_ = (int)Utils::stod(attributes[0]);
+        scrollLeft_ = (int)Utils::stod(attributes[1]);
 
       }catch (const std::exception& e) {
 	throw WException("WContainerWidget: error parsing: " + formData.values[0] + ": " + e.what());

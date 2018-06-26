@@ -1,57 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WT_DBO_FIXED_SQL_CONNECTION_POOL_H_
-#define WT_DBO_FIXED_SQL_CONNECTION_POOL_H_
-
-#include <Wt/Dbo/SqlConnectionPool>
-
-#include <vector>
-
-namespace Wt {
-  namespace Dbo {
-
-/*! \class FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool
- *  \brief A connection pool of fixed size.
- *
- * This provides a connection pool of fixed size: its size is determined at
- * startup time, and the pool will not grow as more connections are needed.
- *
- * This is adequate when the number of threads (which need different
- * connections to work with) is also bounded, like when using a fixed
- * size thread pool. This is for example the case when used in
- * conjunction with %Wt. Note that you do not need as many connections
- * as sessions, since Session will only use a connection while
- * processing a transaction.
- *
- * \ingroup dbo
- */
-class WTDBO_API FixedSqlConnectionPool : public SqlConnectionPool
-{
-public:
-  /*! \brief Creates a fixed connection pool.
-   *
-   * The pool is initialized with the provided \p connection, which is
-   * cloned (\p size - 1) times.
-   *
-   * The pool thus takes ownership of the given connection.
-   */
-  FixedSqlConnectionPool(SqlConnection *connection, int size);
-
-  virtual ~FixedSqlConnectionPool();
-  virtual SqlConnection *getConnection();
-  virtual void returnConnection(SqlConnection *);
-  virtual void prepareForDropTables() const;
-
-private:
-  struct Impl;
-  Impl *impl_;
-};
-
-  }
-}
-
-#endif // WT_DBO_SQL_CONNECTION_POOL_H_
+#ifndef WT_DBO_FIXEDSQLCONNECTIONPOOL_EXTENSIONLESS_H_
+#define WT_DBO_FIXEDSQLCONNECTIONPOOL_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use FixedSqlConnectionPool.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use FixedSqlConnectionPool.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "FixedSqlConnectionPool.h"
+#endif // WT_DBO_FIXEDSQLCONNECTIONPOOL_EXTENSIONLESS_H_

@@ -1,14 +1,16 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(PushButtonPrimary)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WPushButton *button = new Wt::WPushButton("Save", container);
+Wt::WPushButton *button =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
 button->setStyleClass("btn-primary");
 
-button = new Wt::WPushButton("Cancel", container);
-button->setMargin(5, Wt::Left);
+button =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Cancel"));
+button->setMargin(5, Wt::Side::Left);
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

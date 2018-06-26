@@ -3,14 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WLink>
+#include <Wt/WLink.h>
 
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WException>
-#include <Wt/WInteractWidget>
-#include <Wt/WResource>
-#include <Wt/WString>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WException.h>
+#include <Wt/WInteractWidget.h>
+#include <Wt/WResource.h>
+#include <Wt/WString.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -19,8 +19,8 @@
 namespace Wt {
 
 WLink::WLink()
-  : type_(Url),
-    target_(TargetSelf)
+  : type_(LinkType::Url),
+    target_(LinkTarget::Self)
 { 
 #ifdef WT_TARGET_JAVA
   setUrl("");
@@ -28,100 +28,88 @@ WLink::WLink()
 }
 
 WLink::WLink(const char *url)
-  : target_(TargetSelf)
+  : target_(LinkTarget::Self)
 { 
   setUrl(url);
 }
 
 WLink::WLink(const std::string& url)
-  : target_(TargetSelf)
+  : target_(LinkTarget::Self)
 { 
   setUrl(url);
 }
 
-WLink::WLink(Type type, const std::string& value)
-  : target_(TargetSelf)
+WLink::WLink(LinkType type, const std::string& value)
+  : target_(LinkTarget::Self)
 {
   switch (type) {
-  case Url: setUrl(value); break;
-  case InternalPath: setInternalPath(WString::fromUTF8(value)); break;
+  case LinkType::Url: setUrl(value); break;
+  case LinkType::InternalPath: setInternalPath(WString::fromUTF8(value)); break;
   default:
     throw WException("WLink::WLink(type) cannot be used for a Resource");
   }
 }
 
-WLink::WLink(WResource *resource)
-  : target_(TargetSelf)
+WLink::WLink(const std::shared_ptr<WResource>& resource)
+  : target_(LinkTarget::Self)
 {
   setResource(resource);
 }
 
 bool WLink::isNull() const
 {
-  return type_ == Url && url().empty();
+  return type_ == LinkType::Url && url().empty();
 }
 
 void WLink::setUrl(const std::string& url)
 {
-  type_ = Url;
-  value_ = url;
+  type_ = LinkType::Url;
+  stringValue_ = url;
+  resource_.reset();
 }
 
 std::string WLink::url() const
 {
   switch (type_) {
-  case Url:
-#ifndef WT_CNOR
-    return boost::get<std::string>(value_);
-#else
-    return boost::any_cast<std::string>(value_);
-#endif
-  case Resource:
+  case LinkType::Url:
+    return stringValue_;
+  case LinkType::Resource:
     return resource()->url();
-  case InternalPath:
+  case LinkType::InternalPath:
     return WApplication::instance()->bookmarkUrl(internalPath().toUTF8());
   }
 
   return std::string();
 }
 
-void WLink::setResource(WResource *resource)
+void WLink::setResource(const std::shared_ptr<WResource>& resource)
 {
-  type_ = Resource;
-  value_ = resource;
+  type_ = LinkType::Resource;
+  resource_ = resource;
+  stringValue_.clear();
 }
 
-WResource *WLink::resource() const
+std::shared_ptr<WResource> WLink::resource() const
 {
-  if (type_ == Resource) {
-#ifndef WT_CNOR
-    return boost::get<WResource *>(value_);
-#else
-    return boost::any_cast<WResource *>(value_);
-#endif
-  } else
-    return 0;
+  return resource_;
 }
 
 void WLink::setInternalPath(const WT_USTRING& internalPath)
 {
-  type_ = InternalPath;
+  type_ = LinkType::InternalPath;
   std::string path = internalPath.toUTF8();
 
   if (boost::starts_with(path, "#/"))
     path = path.substr(1);
 
-  value_ = path;
+  stringValue_ = path;
+  resource_.reset();
 }
 
 WT_USTRING WLink::internalPath() const
 {
-  if (type_ == InternalPath) {
-#ifndef WT_CNOR
-    return WT_USTRING::fromUTF8(boost::get<std::string>(value_));
-#else
-    return WT_USTRING::fromUTF8(boost::any_cast<std::string>(value_));
-#endif
+  if (type_ == LinkType::InternalPath) {
+    return WT_USTRING::fromUTF8(stringValue_);
   } else {
 #ifndef WT_TARGET_JAVA
     return WT_USTRING::Empty;
@@ -131,14 +119,16 @@ WT_USTRING WLink::internalPath() const
   }
 }
 
-void WLink::setTarget(AnchorTarget target)
+void WLink::setTarget(LinkTarget target)
 {
   target_ = target;
 }
 
 bool WLink::operator==(const WLink& other) const
 {
-  return type_ == other.type_ && value_ == other.value_;
+  return type_ == other.type_ &&
+    stringValue_ == other.stringValue_ &&
+    resource_ == other.resource_;
 }
 
 bool WLink::operator!=(const WLink& other) const
@@ -151,7 +141,7 @@ std::string WLink::resolveUrl(WApplication *app) const
   std::string relativeUrl;
 
   switch (type_) {
-  case InternalPath: {
+  case LinkType::InternalPath: {
     if (app->environment().ajax())
       relativeUrl = app->bookmarkUrl(internalPath().toUTF8());
     else if (app->environment().agentIsSpiderBot())
@@ -174,7 +164,7 @@ JSlot *WLink::manageInternalPathChange(WApplication *app,
 				       WInteractWidget *widget,
 				       JSlot *slot) const
 {
-  if (type_ == InternalPath) {
+  if (type_ == LinkType::InternalPath) {
     if (app->environment().ajax()) {
       if (!slot) {
 	slot = new JSlot();

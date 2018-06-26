@@ -5,14 +5,14 @@
  */
 #include <iostream>
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WLineEdit>
-#include <Wt/WMessageBox>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 #include "DialogExample.h"
 
@@ -20,41 +20,39 @@ using namespace Wt;
 
 DialogExample::DialogExample(const WEnvironment& env)
   : WApplication(env),
-    messageBox_(0)
+    messageBox_(nullptr)
 {
   setTitle("Dialog example");
 
-  WContainerWidget *textdiv = new WContainerWidget(root());
+  WContainerWidget *textdiv = root()->addWidget(cpp14::make_unique<WContainerWidget>());
   textdiv->setStyleClass("text");
 
-  new WText("<h2>Wt dialogs example</h2>", textdiv);
-  new WText("You can use WMessageBox for simple modal dialog boxes. <br />",
-	    textdiv);
+  textdiv->addWidget(cpp14::make_unique<WText>("<h2>Wt dialogs example</h2>"));
+  textdiv->addWidget(cpp14::make_unique<WText>(
+                       "You can use WMessageBox for simple modal dialog boxes. <br />"));
 
-  WContainerWidget *buttons = new WContainerWidget(root());
+  WContainerWidget *buttons = root()->addWidget(cpp14::make_unique<WContainerWidget>());
   buttons->setStyleClass("buttons");
 
-  WPushButton *button;
-
-  button = new WPushButton("One liner", buttons);
+  WPushButton *button = buttons->addWidget(cpp14::make_unique<WPushButton>("One liner"));
   button->clicked().connect(this, &DialogExample::messageBox1);
 
-  button = new WPushButton("Comfortable ?", buttons);
+  button = buttons->addWidget(cpp14::make_unique<WPushButton>("Comfortable?"));
   button->clicked().connect(this, &DialogExample::messageBox2);
 
-  button = new WPushButton("Havoc!", buttons);
+  button = buttons->addWidget(cpp14::make_unique<WPushButton>("Havoc!"));
   button->clicked().connect(this, &DialogExample::messageBox3);
 
-  button = new WPushButton("Discard", buttons);
+  button = buttons->addWidget(cpp14::make_unique<WPushButton>("Discard"));
   button->clicked().connect(this, &DialogExample::messageBox4);
 
-  button = new WPushButton("Familiar", buttons);
+  button = buttons->addWidget(cpp14::make_unique<WPushButton>("Familiar"));
   button->clicked().connect(this, &DialogExample::custom);
 
-  textdiv = new WContainerWidget(root());
+  textdiv = root()->addWidget(cpp14::make_unique<WContainerWidget>());
   textdiv->setStyleClass("text");
 
-  status_ = new WText("Go ahead...", textdiv);
+  status_ = textdiv->addWidget(cpp14::make_unique<WText>("Go ahead..."));
 
   styleSheet().addRule(".buttons",
 		       "padding: 5px;");
@@ -70,32 +68,33 @@ DialogExample::DialogExample(const WEnvironment& env)
 void DialogExample::messageBox1()
 {
   WMessageBox::show("Information",
-		    "Enjoy displaying messages with a one-liner.", Ok);
+                    "Enjoy displaying messages with a one-liner.", StandardButton::Ok);
   setStatus("Ok'ed");
 }
 
 void DialogExample::messageBox2()
 {
   messageBox_
-    = new WMessageBox("Question",
-		      "Are you getting comfortable ?",
-		      Question, Yes | No | Cancel);
+    = cpp14::make_unique<WMessageBox>("Question",
+              "Are you getting comfortable ?",
+            Icon::Question,
+            StandardButton::Yes | StandardButton::No | StandardButton::Cancel);
 
   messageBox_
     ->buttonClicked().connect(this, &DialogExample::messageBoxDone);
 
   messageBox_->animateShow
-    (WAnimation(WAnimation::Pop | WAnimation::Fade, WAnimation::Linear, 250));
+    (WAnimation(AnimationEffect::Pop | AnimationEffect::Fade, TimingFunction::Linear, 250));
 }
 
 void DialogExample::messageBox3()
 {
   StandardButton
     result = WMessageBox::show("Confirm", "About to wreak havoc... Continue ?",
-			       Ok | Cancel,
-			       WAnimation(WAnimation::SlideInFromTop));
+                   StandardButton::Ok | StandardButton::Cancel,
+                   WAnimation(AnimationEffect::SlideInFromTop));
 
-  if (result == Ok)
+  if (result == StandardButton::Ok)
     setStatus("Wreaking havoc.");
   else
     setStatus("Cancelled!");
@@ -104,42 +103,41 @@ void DialogExample::messageBox3()
 void DialogExample::messageBox4()
 {
   messageBox_
-    = new WMessageBox("Warning!",
-		      "Are you sure you want to continue?\n"
-		      "You have unsaved changes.",
-		      NoIcon, NoButton);
+    = cpp14::make_unique<WMessageBox>("Warning!",
+              "Are you sure you want to continue?\n"
+              "You have unsaved changes.",
+	      Icon::None, StandardButton::None);
 
-  messageBox_->addButton("Discard Modifications", Ok);
+  messageBox_->addButton("Discard Modifications", StandardButton::Ok);
   WPushButton *continueButton
-    = messageBox_->addButton("Cancel", Cancel);
+    = messageBox_->addButton("Cancel", StandardButton::Cancel);
   messageBox_->setDefaultButton(continueButton);
 
   messageBox_
     ->buttonClicked().connect(this, &DialogExample::messageBoxDone);
 
-  messageBox_->setOffsets(0, Bottom);
+  messageBox_->setOffsets(0, Side::Bottom);
   messageBox_->animateShow
-    (WAnimation(WAnimation::SlideInFromBottom
-		| WAnimation::Fade, WAnimation::Linear, 250));
+    (WAnimation(AnimationEffect::SlideInFromBottom
+        | AnimationEffect::Fade, TimingFunction::Linear, 250));
 }
 
 void DialogExample::messageBoxDone(StandardButton result)
 {
   switch (result) {
-  case Ok:
+  case StandardButton::Ok:
     setStatus("Ok'ed"); break;
-  case Cancel:
+  case StandardButton::Cancel:
     setStatus("Cancelled!"); break;
-  case Yes:
+  case StandardButton::Yes:
     setStatus("Me too!"); break;
-  case No:
+  case StandardButton::No:
     setStatus("Me neither!"); break;
   default:
     setStatus("Unknown result?");
   }
 
-  delete messageBox_;
-  messageBox_ = 0;
+  messageBox_.reset();
 }
 
 void DialogExample::custom()
@@ -149,16 +147,16 @@ void DialogExample::custom()
   dialog.setResizable(true);
   dialog.rejectWhenEscapePressed(true);
 
-  new WText("Enter your name: ", dialog.contents());
-  WLineEdit edit(dialog.contents());
-  WPushButton ok("Ok", dialog.footer());
-  ok.setDefault(true);
+  dialog.contents()->addWidget(cpp14::make_unique<WText>("Enter your name: "));
+  WLineEdit *edit = dialog.contents()->addWidget(cpp14::make_unique<WLineEdit>());
+  WPushButton *ok = dialog.footer()->addWidget(cpp14::make_unique<WPushButton>("Ok"));
+  ok->setDefault(true);
 
-  edit.setFocus();
-  ok.clicked().connect(&dialog, &WDialog::accept);
+  edit->setFocus();
+  ok->clicked().connect(&dialog, &WDialog::accept);
 
-  if (dialog.exec() == WDialog::Accepted) {
-    setStatus("Welcome, " + edit.text());
+  if (dialog.exec() == DialogCode::Accepted) {
+    setStatus("Welcome, " + edit->text());
   } else {
     setStatus("Oh nevermind!");
   }
@@ -169,9 +167,9 @@ void DialogExample::setStatus(const WString& result)
   status_->setText(result);
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new DialogExample(env);
+  return cpp14::make_unique<DialogExample>(env);
 }
 
 int main(int argc, char **argv)

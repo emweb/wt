@@ -1,12 +1,14 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WInPlaceEdit>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WInPlaceEdit.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(InPlaceEdit)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-Wt::WInPlaceEdit *ipe = new Wt::WInPlaceEdit("This is editable text", container);
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+
+Wt::WInPlaceEdit *ipe =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WInPlaceEdit>("This is editable text"));
 ipe->setPlaceholderText("Enter something");
 ipe->setButtonsEnabled(false);
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

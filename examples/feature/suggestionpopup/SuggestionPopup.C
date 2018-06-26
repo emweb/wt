@@ -4,24 +4,27 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
-#include <Wt/WSuggestionPopup>
-#include <Wt/WLineEdit>
-#include <Wt/WStringListModel>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WSuggestionPopup.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WStringListModel.h>
+#include <Wt/WText.h>
+#include <Wt/WBreak.h>
+
+using namespace Wt;
 
 /*
  * See also: http://www.webtoolkit.eu/wt/blog/2010/03/02/javascript_that_is_c__
  */
 #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
-class SuggestionPopups : public Wt::WApplication
+class SuggestionPopups : public WApplication
 {
 public:
-  SuggestionPopups(const Wt::WEnvironment& env)
-    : Wt::WApplication(env)
+  SuggestionPopups(const WEnvironment& env)
+    : WApplication(env)
   {
     setTitle("WSuggestionPopup example");
     setCssTheme("polished");
@@ -35,11 +38,11 @@ public:
   }
 
 private:
-  Wt::WStringListModel *fourCharModel_;
+  std::shared_ptr<WStringListModel> fourCharModel_;
 
-  Wt::WAbstractItemModel *createSimpleDrugsModel()
+  std::shared_ptr<WAbstractItemModel> createSimpleDrugsModel()
   {
-    const char *hivDrugs[] = {
+    std::vector<std::string> hivDrugs{
       "Delavirdine",
       "Efavirenz",
       "Etravirine",
@@ -61,13 +64,14 @@ private:
       "Ritonavir",
       "Saquinavir",
       "Tipranavir",
-      0
     };
 
-    Wt::WStringListModel *model = new Wt::WStringListModel();
+    std::shared_ptr<WStringListModel> model
+        = std::make_shared<WStringListModel>();
 
-    for (const char **i = hivDrugs; *i; ++i)
-      model->addString(Wt::WString::fromUTF8(*i));
+    for (auto &drug : hivDrugs) {
+      model->addString(drug);
+    }
 
     return model;
   }
@@ -81,9 +85,9 @@ private:
    * The DisplayRole will be interpreted by the special aliasing match
    * function
    */
-  Wt::WAbstractItemModel *createDrugsModel()
+  std::shared_ptr<WAbstractItemModel> createDrugsModel()
   {
-    const char *hivDrugs[] = {
+    std::vector<std::string> hivDrugs{
       "Delavirdine;Rescriptor;DLV",
       "Efavirenz;Sustiva;EFV",
       "Etravirine;Intelence;TMC125;ETR",
@@ -105,22 +109,21 @@ private:
       "Ritonavir;Norvir;RTV",
       "Saquinavir;Invirase;SQV",
       "Tipranavir;Aptivus;TPV",
-      0
     };
 
-    Wt::WStringListModel *model = new Wt::WStringListModel(this);
+    std::shared_ptr<WStringListModel> model
+        = std::make_shared<WStringListModel>();
 
-    for (const char **i = hivDrugs; *i; ++i) {
+    for (auto &drug : hivDrugs) {
       int row = model->rowCount();
 
-      std::string names = *i;
-      model->addString(names);
+      model->addString(drug);
 
-      std::string value = names;
+      std::string value = drug;
       std::size_t sc = value.find(';');
       if (sc != std::string::npos)
 	value = value.substr(0, sc);
-      model->setData(row, 0, value, Wt::UserRole);
+      model->setData(row, 0, value, ItemDataRole::User);
     }
 
     model->sort(0);
@@ -128,78 +131,80 @@ private:
     return model;
   }
 
-  void mostSimplePopup(Wt::WContainerWidget *parent)
+  void mostSimplePopup(WContainerWidget *parent)
   {
-    Wt::WSuggestionPopup::Options simpleOptions;
+    WSuggestionPopup::Options simpleOptions;
+
     simpleOptions.highlightBeginTag = "<b>";
     simpleOptions.highlightEndTag = "</b>";
     simpleOptions.listSeparator = 0;
 
-    Wt::WSuggestionPopup *popup = new Wt::WSuggestionPopup(simpleOptions,
-							   parent);
+    std::unique_ptr<WSuggestionPopup> popup = cpp14::make_unique<WSuggestionPopup>(simpleOptions);
     popup->setModel(createSimpleDrugsModel());
 
-    new Wt::WText(Wt::WString::tr("simplest-popup"), parent);
+    parent->addWidget(cpp14::make_unique<WText>(WString::tr("simplest-popup")));
 
-    Wt::WLineEdit *edit = new Wt::WLineEdit(parent);
-    edit->resize(150, Wt::WLength::Auto);
+    WLineEdit *edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    edit->resize(150, WLength::Auto);
     popup->forEdit(edit);
+
+    parent->addChild(std::move(popup));
   }
 
-  void simplePopup(Wt::WContainerWidget *parent)
+  void simplePopup(WContainerWidget *parent)
   {
-    Wt::WSuggestionPopup *popup = createAliasesMatchingPopup(parent);
+    WSuggestionPopup *popup = createAliasesMatchingPopup(parent);
     popup->setModel(createDrugsModel());
-    popup->setMinimumSize(150, Wt::WLength::Auto);
-    popup->setMaximumSize(Wt::WLength::Auto, 300);
+    popup->setMinimumSize(150, WLength::Auto);
+    popup->setMaximumSize(WLength::Auto, 300);
 
-    new Wt::WText(Wt::WString::tr("simple-popup-editing"), parent);
+    parent->addWidget(cpp14::make_unique<WText>(WString::tr("simple-popup-editing")));
 
-    Wt::WLineEdit *edit = new Wt::WLineEdit(parent);
-    edit->resize(150, Wt::WLength::Auto);
+    WLineEdit *edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    edit->resize(150, WLength::Auto);
     popup->forEdit(edit);
 
-    new Wt::WText(Wt::WString::tr("simple-popup-dropdown"), parent);
+    parent->addWidget(cpp14::make_unique<WText>(WString::tr("simple-popup-dropdown")));
 
-    edit = new Wt::WLineEdit(parent);
-    edit->resize(150, Wt::WLength::Auto);
-    popup->forEdit(edit, Wt::WSuggestionPopup::DropDownIcon);
+    edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    edit->resize(150, WLength::Auto);
+    popup->forEdit(edit, PopupTrigger::DropDownIcon);
 
     /*
       showAt() shows the suggestion popup
 
-      Wt::WPushButton *show = new Wt::WPushButton("show", parent);
-      show->clicked().connect(boost::bind(&Wt::WSuggestionPopup::showAt,
+      WPushButton *show = parent->addWidget(cpp14::make_unique<WPushButton>("show"));
+      show->clicked().connect(std::bind(&WSuggestionPopup::showAt,
 					  popup, edit));
     */
   }
 
-  void serverSideFilteringPopups(Wt::WContainerWidget *parent)
+  void serverSideFilteringPopups(WContainerWidget *parent)
   {
-    fourCharModel_ = new Wt::WStringListModel(this);
+    fourCharModel_ = std::make_shared<WStringListModel>();
 
-    Wt::WSuggestionPopup *popup = createAliasesMatchingPopup(parent);
+    WSuggestionPopup *popup = createAliasesMatchingPopup(parent);
     popup->setModel(fourCharModel_);
     popup->setFilterLength(3);
     popup->filterModel().connect(this, &SuggestionPopups::filter);
-    popup->setMinimumSize(150, Wt::WLength::Auto);
-    popup->setMaximumSize(Wt::WLength::Auto, 300);
+    popup->setMinimumSize(150, WLength::Auto);
+    popup->setMaximumSize(WLength::Auto, 300);
 
-    new Wt::WText(Wt::WString::tr("serverside-popup-editing"), parent);
+    parent->addWidget(cpp14::make_unique<WText>(WString::tr("serverside-popup-editing")));
 
-    Wt::WLineEdit *edit = new Wt::WLineEdit(parent);
+    WLineEdit *edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
 
-    edit->resize(150, Wt::WLength::Auto);
-    popup->forEdit(edit, Wt::WSuggestionPopup::Editing);
+    edit->resize(150, WLength::Auto);
+    popup->forEdit(edit, PopupTrigger::Editing);
 
-    new Wt::WText(Wt::WString::tr("serverside-popup-dropdown"), parent);
+    parent->addWidget(cpp14::make_unique<WText>(WString::tr("serverside-popup-dropdown")));
 
-    edit = new Wt::WLineEdit(parent);
-    edit->resize(150, Wt::WLength::Auto);
-    popup->forEdit(edit, Wt::WSuggestionPopup::DropDownIcon);
+    edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    edit->resize(150, WLength::Auto);
+    popup->forEdit(edit, PopupTrigger::DropDownIcon);
   }
 
-  void filter(const Wt::WString& input)
+  void filter(const WString& input)
   {
     /*
      * We implement a virtual model contains all items that start with
@@ -216,24 +221,24 @@ private:
        */
       if (input.value().length() < 3 && i > 10) {
 	fourCharModel_->addString("...");
-	fourCharModel_->setData(row, 0, std::string(""), Wt::UserRole);
+	fourCharModel_->setData(row, 0, std::string(""), ItemDataRole::User);
 	fourCharModel_->setData(row, 0, std::string("Wt-more-data"),
-				Wt::StyleClassRole);
+				ItemDataRole::StyleClass);
 
 	break;
       }
 
-      std::wstring v = input;
+      std::u32string v = input;
       while (v.length() < 3)
-	v += L'a';
+        v += U"a";
 
-      v += (L'a' + i);
+      v += (U"a"[0] + i);
       
       fourCharModel_->addString(v);
     }
   }
 
-  Wt::WSuggestionPopup *createAliasesMatchingPopup(Wt::WContainerWidget *parent)
+  WSuggestionPopup *createAliasesMatchingPopup(WContainerWidget *parent)
   {
     /*
      * This matcher JavaScript function matches the input against the
@@ -312,16 +317,17 @@ private:
        }
        );
 
-    return new Wt::WSuggestionPopup(matcherJS, replacerJS, parent);
+    return parent->addChild(
+	cpp14::make_unique<WSuggestionPopup>(matcherJS, replacerJS));
   }
 };
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new SuggestionPopups(env);
+  return cpp14::make_unique<SuggestionPopups>(env);
 }
 
 int main(int argc, char **argv)
 {
-  return Wt::WRun(argc, argv, &createApplication);
+  return WRun(argc, argv, &createApplication);
 }

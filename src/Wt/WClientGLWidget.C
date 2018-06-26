@@ -3,17 +3,17 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WClientGLWidget"
+#include "Wt/WClientGLWidget.h"
 #include "WebUtils.h"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WFileResource"
-#include "Wt/WWebWidget"
-#include "Wt/WMemoryResource"
-#include "Wt/WCanvasPaintDevice"
-#include "Wt/WRasterImage"
-#include "Wt/WImage"
-#include "Wt/WVideo"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WFileResource.h"
+#include "Wt/WWebWidget.h"
+#include "Wt/WMemoryResource.h"
+#include "Wt/WCanvasPaintDevice.h"
+#include "Wt/WRasterImage.h"
+#include "Wt/WImage.h"
+#include "Wt/WVideo.h"
 
 #include <ostream>
 #include <fstream>
@@ -518,10 +518,12 @@ void WClientGLWidget::bufferDatafv(WGLWidget::GLenum target,
 				   bool binary)
 {
   if (binary) {
-    WMemoryResource *res = new WMemoryResource("application/octet", this);
+    std::unique_ptr<WMemoryResource> res
+      (new WMemoryResource("application/octet"));
+    auto resPtr = res.get();
     res->setData(Utils::toCharPointer(v), v.size()*sizeof(float));
-    binaryResources_.push_back(res);
-    preloadArrayBuffers_.push_back(PreloadArrayBuffer(currentlyBoundBuffer_.jsRef(), res->url()));
+    binaryResources_.push_back(std::move(res));
+    preloadArrayBuffers_.push_back(PreloadArrayBuffer(currentlyBoundBuffer_.jsRef(), resPtr->url()));
 
     js_ << "ctx.bufferData(" << toString(target) << ",";
     js_ << currentlyBoundBuffer_.jsRef() << ".data, ";
@@ -568,10 +570,11 @@ void WClientGLWidget::bufferDataiv(WGLWidget::GLenum target, IntBuffer &buffer, 
 void WClientGLWidget::bufferSubDatafv(WGLWidget::GLenum target, unsigned offset, const FloatBuffer &buffer, bool binary)
 {
   if (binary) {
-    WMemoryResource *res = new WMemoryResource("application/octet", this);
+    std::unique_ptr<WMemoryResource> res
+      (new WMemoryResource("application/octet"));
     res->setData(Utils::toCharPointer(buffer), buffer.size()*sizeof(float));
-    binaryResources_.push_back(res);
     preloadArrayBuffers_.push_back(PreloadArrayBuffer(currentlyBoundBuffer_.jsRef(), res->url()));
+    binaryResources_.push_back(std::move(res));
 
     js_ << "ctx.bufferSubData(" << toString(target) << ",";
     js_ << offset << ",";
@@ -621,9 +624,6 @@ void WClientGLWidget::bufferSubDataiv(WGLWidget::GLenum target,
 
 void WClientGLWidget::clearBinaryResources()
 {
-  for (unsigned i = 0; i<binaryResources_.size(); i++) {
-    delete binaryResources_[i];
-  }
   binaryResources_.clear();
 }
 
@@ -768,10 +768,11 @@ WGLWidget::Texture WClientGLWidget::createTextureAndLoad(const std::string &url)
   return retval;
 }
 
-WPaintDevice* WClientGLWidget::createPaintDevice(const WLength& width,
-						 const WLength& height)
+std::unique_ptr<WPaintDevice>
+WClientGLWidget::createPaintDevice(const WLength& width,
+				   const WLength& height)
 {
-  return new WCanvasPaintDevice(width, height, this);
+  return std::unique_ptr<WPaintDevice>(new WCanvasPaintDevice(width, height));
 }
 
 void WClientGLWidget::cullFace(WGLWidget::GLenum mode)
@@ -953,7 +954,7 @@ WGLWidget::AttribLocation WClientGLWidget::getAttribLocation(WGLWidget::Program 
   return retval;
 }
 
-WGLWidget::UniformLocation WClientGLWidget::getUniformLocation(WGLWidget::Program program, const std::string location)
+WGLWidget::UniformLocation WClientGLWidget::getUniformLocation(WGLWidget::Program program, const std::string &location)
 {
   WGLWidget::UniformLocation retval(uniforms_++);
   js_ << retval.jsRef() << "=ctx.getUniformLocation(" << program.jsRef() 
@@ -1142,9 +1143,10 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 {
   unsigned imgNb = images_++;
   // note: does not necessarily have to be a png (also tested jpg)
-  WFileResource *imgFile = new WFileResource("image/png", image, this);
+  std::unique_ptr<WFileResource> imgFile(new WFileResource("image/png", image));
   preloadImages_.push_back(PreloadImage(currentlyBoundTexture_.jsRef(),
 					imgFile->url(), imgNb));
+  addChild(std::move(imgFile));
 
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
       << toString(internalformat) << "," << toString(format) 
@@ -1160,10 +1162,10 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 				 WPaintDevice *paintdevice)
 {
   unsigned imgNb = images_++;
-  if (dynamic_cast<WCanvasPaintDevice*>(paintdevice) != 0) {
-    WCanvasPaintDevice *cpd = dynamic_cast<WCanvasPaintDevice*>(paintdevice);
-    std::string jsRef = currentlyBoundTexture_.jsRef()
-      + boost::lexical_cast<std::string>("Canvas");
+  if (dynamic_cast<WCanvasPaintDevice*>(paintdevice) != nullptr) {
+    WCanvasPaintDevice *cpd
+      = dynamic_cast<WCanvasPaintDevice*>(paintdevice);
+    std::string jsRef = currentlyBoundTexture_.jsRef() + "Canvas";
     js_ << jsRef << "=document.createElement('canvas');";
     js_ << jsRef << ".width=" << cpd->width().value() << ";";
     js_ << jsRef << ".height=" << cpd->height().value() << ";";
@@ -1175,12 +1177,13 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
     js_ << "delete " << jsRef << ";";
   }
 #ifdef WT_HAS_WRASTERIMAGE
-   else if (dynamic_cast<WRasterImage*>(paintdevice) != 0) {
+  else if (dynamic_cast<WRasterImage*>(paintdevice) != nullptr) {
     WRasterImage *rpd = dynamic_cast<WRasterImage*>(paintdevice);
     rpd->done();
-    WMemoryResource *mr = rpdToMemResource(rpd);
+    std::unique_ptr<WResource> mr = rpdToMemResource(rpd);
     preloadImages_.push_back(PreloadImage(currentlyBoundTexture_.jsRef(),
 					  mr->url(), imgNb));
+    addChild(std::move(mr));
   }
 #endif
 
@@ -1192,14 +1195,14 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 }
 
 #ifndef WT_TARGET_JAVA
-WMemoryResource* WClientGLWidget::rpdToMemResource(WRasterImage *rpd)
+std::unique_ptr<WResource> WClientGLWidget::rpdToMemResource(WRasterImage *rpd)
 {
   std::stringstream ss;
   rpd->write(ss);
-  WMemoryResource *mr = new WMemoryResource("image/png", this);
+  std::unique_ptr<WMemoryResource> mr(new WMemoryResource("image/png"));
   mr->setData(reinterpret_cast<const unsigned char*>(ss.str().c_str()),
 	      ss.str().size());
-  return mr;
+  return std::move(mr);
 }
 #endif
 
@@ -1238,7 +1241,7 @@ void WClientGLWidget::uniform1fv(const WGLWidget::UniformLocation &location,
 				 const WT_ARRAY float *value)
 {
   js_ << "ctx.uniform1fv(" << location.jsRef() << ",";
-  renderfv(js_, value, 1, Float32Array);
+  renderfv(js_, value, 1, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1283,7 +1286,7 @@ void WClientGLWidget::uniform2fv(const WGLWidget::UniformLocation &location,
 				 const WT_ARRAY float *value)
 {
   js_ << "ctx.uniform2fv(" << location.jsRef() << ",";
-  renderfv(js_, value, 2, Float32Array);
+  renderfv(js_, value, 2, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1330,7 +1333,7 @@ void WClientGLWidget::uniform3fv(const WGLWidget::UniformLocation &location,
 				 const WT_ARRAY float *value)
 {
   js_ << "ctx.uniform3fv(" << location.jsRef() << ",";
-  renderfv(js_, value, 3, Float32Array);
+  renderfv(js_, value, 3, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1379,7 +1382,7 @@ void WClientGLWidget::uniform4fv(const WGLWidget::UniformLocation &location,
 				 const WT_ARRAY float *value)
 {
   js_ << "ctx.uniform4fv(" << location.jsRef() << ",";
-  renderfv(js_, value, 4, Float32Array);
+  renderfv(js_, value, 4, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1419,7 +1422,7 @@ void WClientGLWidget::uniformMatrix2fv(const WGLWidget::UniformLocation &locatio
 {
   js_ << "ctx.uniformMatrix2fv(" << location.jsRef() << ","
       << (transpose?"true":"false") << ",";
-  renderfv(js_, value, 4, Float32Array);
+  renderfv(js_, value, 4, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1429,7 +1432,7 @@ void WClientGLWidget::uniformMatrix2(const WGLWidget::UniformLocation &location,
 {
   js_ << "ctx.uniformMatrix2fv(" << location.jsRef() << ",false,";
   WGenericMatrix<double, 2, 2> t(m.transposed());
-  renderfv(js_, t, Float32Array);
+  renderfv(js_, t, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1440,7 +1443,7 @@ void WClientGLWidget::uniformMatrix3fv(const WGLWidget::UniformLocation &locatio
 {
   js_ << "ctx.uniformMatrix3fv(" << location.jsRef() << ","
       << (transpose?"true":"false") << ",";
-  renderfv(js_, value, 9, Float32Array);
+  renderfv(js_, value, 9, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1450,7 +1453,7 @@ void WClientGLWidget::uniformMatrix3(const WGLWidget::UniformLocation &location,
 {
   js_ << "ctx.uniformMatrix3fv(" << location.jsRef() << ",false,";
   WGenericMatrix<double, 3, 3> t(m.transposed());
-  renderfv(js_, t, Float32Array);
+  renderfv(js_, t, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1461,7 +1464,7 @@ void WClientGLWidget::uniformMatrix4fv(const WGLWidget::UniformLocation &locatio
 {
   js_ << "ctx.uniformMatrix4fv(" << location.jsRef() << ","
       << (transpose?"true":"false") << ",";
-  renderfv(js_, value, 16, Float32Array);
+  renderfv(js_, value, 16, JsArrayType::Float32Array);
   js_ << ");";
   GLDEBUG;
 }
@@ -1568,7 +1571,7 @@ void WClientGLWidget::initJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &mat)
 
   WGenericMatrix<double, 4, 4> m = mat.value();
   js_ << mat.jsRef() << "=";
-  renderfv(js_, m, Float32Array);
+  renderfv(js_, m, JsArrayType::Float32Array);
   js_ << ";";
 
   mat.initialize();
@@ -1579,7 +1582,7 @@ void WClientGLWidget::setJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm,
 {
   js_ << WT_CLASS ".glMatrix.mat4.set(";
   WGenericMatrix<double, 4, 4> t(m.transposed());
-  renderfv(js_, t, Float32Array);
+  renderfv(js_, t, JsArrayType::Float32Array);
   js_ << ", " << jsm.jsRef() << ");";
 }
 
@@ -1599,7 +1602,7 @@ void WClientGLWidget::initJavaScriptVector(WGLWidget::JavaScriptVector &vec)
     } else if (v[i] == -std::numeric_limits<float>::infinity()) {
       val = "-Infinity";
     } else {
-      val = boost::lexical_cast<std::string>(v[i]);
+      val = std::to_string(v[i]);
     }
     if (i != 0)
       js_ << ",";
@@ -1623,7 +1626,7 @@ void WClientGLWidget::setJavaScriptVector(WGLWidget::JavaScriptVector &jsv,
     } else if (v[i] == -std::numeric_limits<float>::infinity()) {
       val = "-Infinity";
     } else {
-      val = boost::lexical_cast<std::string>(v[i]);
+      val = std::to_string(v[i]);
     }
     js_ << jsv.jsRef() << "[" << i << "] = " << val << ";";
   }
@@ -1656,7 +1659,7 @@ void WClientGLWidget::setClientSideWalkHandler(const WGLWidget::JavaScriptMatrix
 
 JsArrayType WClientGLWidget::arrayType() const
 {
-  return Float32Array;
+  return JsArrayType::Float32Array;
 }
 
 void WClientGLWidget::injectJS(const std::string & jsString)
@@ -1714,12 +1717,15 @@ void WClientGLWidget::initializeGL(const std::string &jsRef, std::stringstream &
 
 void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
+  if (flags.test(RenderFlag::Full)) {
     std::stringstream tmp;
     tmp <<
       "{\n"
       """var o = new " WT_CLASS ".WGLWidget(" << wApp->javaScriptClass() << "," << jsRef << ");\n"
-      """o.discoverContext(function(){" << webglNotAvailable_.createCall() << "}, " << (glInterface_->renderOptions_ & WGLWidget::AntiAliasing ? "true" : "false") << ");\n";
+      """o.discoverContext(function(){" << webglNotAvailable_.createCall({}) 
+	<< "}, "
+	<< (glInterface_->renderOptions_.test(GLRenderOption::AntiAliasing)
+	    ? "true" : "false") << ");\n";
 
     initializeGL(jsRef, tmp);
     tmp << "}\n";
@@ -1779,7 +1785,7 @@ void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
       if (preloadImages_.size() > 0) {
 	tmp <<
 	  "o.preloadingTextures++;"
-	  "new Wt._p_.ImagePreloader([";
+	  "new " << wApp->javaScriptClass() << "._p_.ImagePreloader([";
 	for (unsigned i = 0; i < preloadImages_.size(); ++i) {
 	  if (i != 0)
 	    tmp << ',';
@@ -1808,7 +1814,7 @@ void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
       if (preloadArrayBuffers_.size() > 0) {
 	tmp <<
 	  "o.preloadingBuffers++;"
-	  "new Wt._p_.ArrayBufferPreloader([";
+	  "new " << wApp->javaScriptClass() << "._p_.ArrayBufferPreloader([";
 	for (unsigned i = 0; i < preloadArrayBuffers_.size(); ++i) {
 	  if (i != 0)
 	    tmp << ',';
@@ -1845,7 +1851,7 @@ void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
     updateGL_ = updatePaintGL_ = updateResizeGL_ = false;
   }
 
-  //repaintGL(WGLWidget::PAINT_GL | WGLWidget::RESIZE_GL);
+  //repaintGL(GLClientSideRenderer::PAINT_GL | GLClientSideRenderer::RESIZE_GL);
 }
 
 std::string WClientGLWidget::glObjJsRef(const std::string& jsRef)

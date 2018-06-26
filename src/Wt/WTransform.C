@@ -7,15 +7,15 @@
 #include <cassert>
 #include <cmath>
 
-#include "Wt/WLogger"
-#include "Wt/WPainterPath"
-#include "Wt/WPointF"
-#include "Wt/WRectF"
-#include "Wt/WString"
-#include "Wt/WTransform"
+#include "Wt/WLogger.h"
+#include "Wt/WPainterPath.h"
+#include "Wt/WPointF.h"
+#include "Wt/WRectF.h"
+#include "Wt/WString.h"
+#include "Wt/WTransform.h"
 
-#include "Wt/Json/Array"
-#include "Wt/Json/Value"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Value.h"
 
 #include "WebUtils.h"
 
@@ -181,8 +181,8 @@ WPainterPath WTransform::map(const WPainterPath& path) const
 
   for (std::size_t i = 0; i < sourceSegments.size(); ++i) {
     double tx, ty;
-    if (sourceSegments[i].type() == WPainterPath::Segment::ArcR ||
-	sourceSegments[i].type() == WPainterPath::Segment::ArcAngleSweep) {
+    if (sourceSegments[i].type() == SegmentType::ArcR ||
+	sourceSegments[i].type() == SegmentType::ArcAngleSweep) {
       result.segments_.push_back(sourceSegments[i]);
     } else {
       map(sourceSegments[i].x(), sourceSegments[i].y(), &tx, &ty);
@@ -551,12 +551,12 @@ std::string WTransform::jsValue() const
 
   WStringStream ss;
   ss << '[';
-  ss << Utils::round_js_str(m_[0], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[2], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[1], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[3], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[4], 3, buf) << ',';
-  ss << Utils::round_js_str(m_[5], 3, buf) << ']';
+  ss << Utils::round_js_str(m_[0], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[2], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[1], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[3], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[4], 16, buf) << ',';
+  ss << Utils::round_js_str(m_[5], 16, buf) << ']';
   return ss.str();
 }
 

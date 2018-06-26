@@ -1,105 +1,112 @@
 #include "DataSettings.h"
 
-#include <Wt/WLineEdit>
-#include <Wt/WComboBox>
-#include <Wt/WCheckBox>
-#include <Wt/WSlider>
-#include <Wt/WTemplate>
-#include <Wt/WIntValidator>
-#include <Wt/Chart/WAbstractDataSeries3D>
-#include <Wt/Chart/WGridData>
-#include <Wt/Chart/WScatterData>
-#include <Wt/Chart/WStandardColorMap>
+#include <Wt/WLineEdit.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WSlider.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WIntValidator.h>
+#include <Wt/Chart/WAbstractDataSeries3D.h>
+#include <Wt/Chart/WGridData.h>
+#include <Wt/Chart/WScatterData.h>
+#include <Wt/Chart/WStandardColorMap.h>
 
 DataSettings::DataSettings()
   : data_(0)
 {
-  setName_ = new WLineEdit(this);
-  pointsize_ = new WLineEdit(this);
-  pointsize_->setValidator(new WIntValidator(1, 10));
-  pointSprite_ = new WComboBox(this);
+}
+
+// the correct bind-points must be present in the template
+void DataSettings::bindBaseToTemplate(Wt::WTemplate* configtemplate)
+{
+  auto setName = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  setName_ = configtemplate->bindWidget("setname", std::move(setName));
+
+  auto pointsize = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  pointsize_ = configtemplate->bindWidget("ptsize", std::move(pointsize));
+  pointsize_->setValidator(std::make_shared<Wt::WIntValidator>(1, 10));
+
+  auto pointSprite = Wt::cpp14::make_unique<Wt::WComboBox>();
+  pointSprite_ = configtemplate->bindWidget("ptsprite", std::move(pointSprite));
   pointSprite_->addItem("None");
   pointSprite_->addItem("diamond (5x5)");
   pointSprite_->addItem("cross (5x5)");
-  colormap_ = new WComboBox(this);
+
+  auto colormap = Wt::cpp14::make_unique<Wt::WComboBox>();
+  colormap_ = configtemplate->bindWidget("colormap", std::move(colormap));
   colormap_->addItem("None");
   colormap_->addItem("Continuous");
   colormap_->addItem("Continuous (5 bands)");
   colormap_->addItem("Continuous (10 bands)");
-  showColormap_ = new WCheckBox(this);
-  colormapSide_ = new WComboBox(this);
+
+  auto showColormap = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  showColormap_ = configtemplate->bindWidget("showcolormap", std::move(showColormap));
+
+  auto colormapSide = Wt::cpp14::make_unique<Wt::WComboBox>();
+  colormapSide_ = configtemplate->bindWidget("colormapside", std::move(colormapSide));
   colormapSide_->addItem("Left");
   colormapSide_->addItem("Right");
 
-  hide_ = new WCheckBox(this);
+  auto hide = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  hide_ = configtemplate->bindWidget("hide", std::move(hide));
 
   // hook up the UI to the dataset
-  setName_->changed().connect(std::bind([&] () {
-	data_->setTitle(setName_->text());
-      }));
-  pointsize_->changed().connect(std::bind([&] () {
-	data_->setPointSize(Wt::asNumber(pointsize_->text()));
-      }));
-  pointSprite_->changed().connect(std::bind([&] () {
-	switch (pointSprite_->currentIndex()) {
-	case 0:
-	  data_->setPointSprite("");
-	  break;
-	case 1:
-	  data_->setPointSprite("diamond.png");
-	  break;
-	case 2:
-	  data_->setPointSprite("cross.png");
-	  break;
-	}
-      }));
-  colormap_->changed().connect(std::bind([&] () {
-	WStandardColorMap *colMap;
-	switch (colormap_->currentIndex()) {
-	case 0:
-	  data_->setColorMap(0); break;
-	case 1:
-	    data_->setColorMap(new WStandardColorMap(data_->minimum(ZAxis_3D), data_->maximum(ZAxis_3D), true));
-	    break;
-	case 2:
-	  colMap = new WStandardColorMap(data_->minimum(ZAxis_3D), data_->maximum(ZAxis_3D), true);
-	  colMap->discretise(5);
-	  data_->setColorMap(colMap);
-	  break;
-	case 3:
-	  colMap = new WStandardColorMap(data_->minimum(ZAxis_3D), data_->maximum(ZAxis_3D), true);
-	  colMap->discretise(10);
-	  data_->setColorMap(colMap);
-	  break;
-	}
-      }));
-  showColormap_->changed().connect(std::bind([&] () {
-	data_->setColorMapVisible(showColormap_->checkState() == Checked);
-      }));
-  colormapSide_->changed().connect(std::bind([&] () {
-	if (colormapSide_->currentIndex() == 0)
-	  data_->setColorMapSide(Left);
-	else
-	  data_->setColorMapSide(Right);
-      }));
-  hide_->changed().connect(std::bind([&] () {
-	data_->setHidden(hide_->checkState() == Checked);
-      }));
+  setName_->changed().connect([&] () {
+        data_->setTitle(setName_->text());
+      });
+  pointsize_->changed().connect([&] () {
+        data_->setPointSize(Wt::asNumber(pointsize_->text()));
+      });
+  pointSprite_->changed().connect([&] () {
+        switch (pointSprite_->currentIndex()) {
+        case 0:
+          data_->setPointSprite("");
+          break;
+        case 1:
+          data_->setPointSprite("diamond.png");
+          break;
+        case 2:
+          data_->setPointSprite("cross.png");
+          break;
+        }
+      });
+  colormap_->changed().connect([&] () {
+        std::shared_ptr<Wt::Chart::WStandardColorMap> colMap = nullptr;
+        switch (colormap_->currentIndex()) {
+        case 0:
+          data_->setColorMap(nullptr); break;
+        case 1:
+          colMap = std::make_shared<Wt::Chart::WStandardColorMap>(data_->minimum(Wt::Chart::Axis::Z3D),
+                                                                  data_->maximum(Wt::Chart::Axis::Z3D), true);
+          break;
+        case 2:
+          colMap = std::make_shared<Wt::Chart::WStandardColorMap>(data_->minimum(Wt::Chart::Axis::Z3D),
+                                                                  data_->maximum(Wt::Chart::Axis::Z3D), true);
+          colMap->discretise(5);
+          break;
+        case 3:
+          colMap = std::make_shared<Wt::Chart::WStandardColorMap>(data_->minimum(Wt::Chart::Axis::Z3D),
+                                                                  data_->maximum(Wt::Chart::Axis::Z3D), true);
+          colMap->discretise(10);
+          break;
+        }
+        data_->setColorMap(colMap);
+      });
+  showColormap_->changed().connect([&] () {
+        data_->setColorMapVisible(showColormap_->checkState() == Wt::CheckState::Checked);
+      });
+  colormapSide_->changed().connect([&] () {
+        if (colormapSide_->currentIndex() == 0)
+          data_->setColorMapSide(Wt::Side::Left);
+        else
+          data_->setColorMapSide(Wt::Side::Right);
+      });
+  hide_->changed().connect([&] () {
+        data_->setHidden(hide_->checkState() == Wt::CheckState::Checked);
+      });
 }
 
-// the correct bind-points must be present in the template
-void DataSettings::bindBaseToTemplate(WTemplate* configtemplate)
-{
-  configtemplate->bindWidget("setname", setName_);
-  configtemplate->bindWidget("ptsize", pointsize_);
-  configtemplate->bindWidget("ptsprite", pointSprite_);
-  configtemplate->bindWidget("colormap", colormap_);
-  configtemplate->bindWidget("showcolormap", showColormap_);
-  configtemplate->bindWidget("colormapside", colormapSide_);
-  configtemplate->bindWidget("hide", hide_);
-}
-
-void DataSettings::bindBaseDataSet(WAbstractDataSeries3D *data)
+void DataSettings::bindBaseDataSet(Wt::Chart::WAbstractDataSeries3D *data)
 {
   data_ = data;
 
@@ -120,7 +127,7 @@ void DataSettings::bindBaseDataSet(WAbstractDataSeries3D *data)
   if (data->colorMap() == 0) {
     colormap_->setCurrentIndex(0);
   } else {
-    const WStandardColorMap *map = dynamic_cast<const WStandardColorMap*>
+    const Wt::Chart::WStandardColorMap *map = dynamic_cast<const Wt::Chart::WStandardColorMap*>
       (data->colorMap());
     if (!map->continuous()) {
       if (map->colorValuePairs().size() == 5)
@@ -133,19 +140,19 @@ void DataSettings::bindBaseDataSet(WAbstractDataSeries3D *data)
   }
 
   if (data->colorMapVisible())
-    showColormap_->setCheckState(Checked);
+    showColormap_->setCheckState(Wt::CheckState::Checked);
   else
-    showColormap_->setCheckState(Unchecked);
+    showColormap_->setCheckState(Wt::CheckState::Unchecked);
 
-  if (data->colorMapSide() == Left)
+  if (data->colorMapSide() == Wt::Side::Left)
     colormapSide_->setCurrentIndex(0);
   else
     colormapSide_->setCurrentIndex(1);
 
   if (data->isHidden())
-    hide_->setCheckState(Checked);
+    hide_->setCheckState(Wt::CheckState::Checked);
   else
-    hide_->setCheckState(Unchecked);
+    hide_->setCheckState(Wt::CheckState::Unchecked);
 }
 
 
@@ -161,58 +168,70 @@ NumGridDataSettings::NumGridDataSettings()
     changeZClippingMax_(1, this),
     gridData_(0)
 {
-  WTemplate* template_ = new WTemplate(Wt::WString::tr("numgriddata-template"), this);
+  Wt::WTemplate* template_ =
+      this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("numgriddata-template")));
   bindBaseToTemplate(template_);
 
-  typeSelection_ = new WComboBox(this);
+  auto typeSelection = Wt::cpp14::make_unique<Wt::WComboBox>();
+  typeSelection_ = template_->bindWidget("datatype", std::move(typeSelection));
   typeSelection_->addItem("Points");
   typeSelection_->addItem("Surface");
-  template_->bindWidget("datatype", typeSelection_);
-  enableMesh_ = new WCheckBox(this);
-  template_->bindWidget("enablemesh", enableMesh_);
-  penSize_ = new WLineEdit(this);
-  penSize_->setValidator(new WIntValidator(1, 10));
-  template_->bindWidget("pensize", penSize_);
-  penColor_ = new WComboBox(this);
+
+  auto enableMesh = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  enableMesh_ = template_->bindWidget("enablemesh", std::move(enableMesh));
+
+  auto penSize = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  penSize_ = template_->bindWidget("pensize", std::move(penSize));
+  penSize_->setValidator(std::make_shared<Wt::WIntValidator>(1, 10));
+
+  auto penColor = Wt::cpp14::make_unique<Wt::WComboBox>();
+  penColor_ = template_->bindWidget("pencolor", std::move(penColor));
   penColor_->addItem("black");
   penColor_->addItem("red");
   penColor_->addItem("green");
   penColor_->addItem("blue");
-  template_->bindWidget("pencolor", penColor_);
 
-  xClippingMin_ = new WSlider(Wt::Horizontal, this);
+  auto xClippingMin = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  xClippingMin_ = template_->bindWidget("x-clipping-min", std::move(xClippingMin));
   xClippingMin_->setMinimum(-100);
   xClippingMin_->setMaximum(100);
   xClippingMin_->setValue(-100);
-  template_->bindWidget("x-clipping-min", xClippingMin_);
-  xClippingMax_ = new WSlider(Wt::Horizontal, this);
+
+  auto xClippingMax = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  xClippingMax_ = template_->bindWidget("x-clipping-max", std::move(xClippingMax));
   xClippingMax_->setMinimum(-100);
   xClippingMax_->setMaximum(100);
   xClippingMax_->setValue(100);
-  template_->bindWidget("x-clipping-max", xClippingMax_);
-  yClippingMin_ = new WSlider(Wt::Horizontal, this);
+
+  auto yClippingMin = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  yClippingMin_ = template_->bindWidget("y-clipping-min", std::move(yClippingMin));
   yClippingMin_->setMinimum(-100);
   yClippingMin_->setMaximum(100);
   yClippingMin_->setValue(-100);
-  template_->bindWidget("y-clipping-min", yClippingMin_);
-  yClippingMax_ = new WSlider(Wt::Horizontal, this);
+
+  auto yClippingMax = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  yClippingMax_ = template_->bindWidget("y-clipping-max", std::move(yClippingMax));
   yClippingMax_->setMinimum(-100);
   yClippingMax_->setMaximum(100);
   yClippingMax_->setValue(100);
-  template_->bindWidget("y-clipping-max", yClippingMax_);
-  zClippingMin_ = new WSlider(Wt::Horizontal, this);
+
+  auto zClippingMin = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  zClippingMin_ = template_->bindWidget("z-clipping-min", std::move(zClippingMin));
   zClippingMin_->setMinimum(-100);
   zClippingMin_->setMaximum(100);
   zClippingMin_->setValue(-100);
-  template_->bindWidget("z-clipping-min", zClippingMin_);
-  zClippingMax_ = new WSlider(Wt::Horizontal, this);
+
+  auto zClippingMax = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  zClippingMax_ = template_->bindWidget("z-clipping-max", std::move(zClippingMax));
   zClippingMax_->setMinimum(-100);
   zClippingMax_->setMaximum(100);
   zClippingMax_->setValue(100);
-  template_->bindWidget("z-clipping-max", zClippingMax_);
-  showClippingLines_ = new WCheckBox(this);
-  template_->bindWidget("clippinglines", showClippingLines_);
-  clippingLinesColor_ = new WComboBox(this);
+
+  auto showClippingLines = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  showClippingLines_ = template_->bindWidget("clippinglines", std::move(showClippingLines));
+
+  auto clippingLinesColor = Wt::cpp14::make_unique<Wt::WComboBox>();
+  clippingLinesColor_ = template_->bindWidget("clippinglines-color", std::move(clippingLinesColor));
   clippingLinesColor_->addItem("black");
   clippingLinesColor_->addItem("red");
   clippingLinesColor_->addItem("green");
@@ -220,15 +239,16 @@ NumGridDataSettings::NumGridDataSettings()
   clippingLinesColor_->addItem("cyan");
   clippingLinesColor_->addItem("magenta");
   clippingLinesColor_->addItem("yellow");
-  template_->bindWidget("clippinglines-color", clippingLinesColor_);
-  showIsolines_ = new WCheckBox(this);
-  template_->bindWidget("isolines", showIsolines_);
-  isolineColormap_ = new WComboBox(this);
+
+  auto showIsolines = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  showIsolines_ = template_->bindWidget("isolines", std::move(showIsolines));
+
+  auto isolineColormap = Wt::cpp14::make_unique<Wt::WComboBox>();
+  isolineColormap_ = template_->bindWidget("isoline-colormap", std::move(isolineColormap));
   isolineColormap_->addItem("None (use surface's colormap)");
   isolineColormap_->addItem("Continuous");
   isolineColormap_->addItem("Continuous (5 bands)");
   isolineColormap_->addItem("Continuous (10 bands)");
-  template_->bindWidget("isoline-colormap", isolineColormap_);
 
   // make connections
   xClippingMin_->sliderMoved().connect(changeXClippingMin_);
@@ -238,96 +258,98 @@ NumGridDataSettings::NumGridDataSettings()
   zClippingMin_->sliderMoved().connect(changeZClippingMin_);
   zClippingMax_->sliderMoved().connect(changeZClippingMax_);
 
-  showClippingLines_->checked().connect(std::bind([&] () {
+  showClippingLines_->checked().connect([&] () {
 	gridData_->setClippingLinesEnabled(true);
-      }));
-  showClippingLines_->unChecked().connect(std::bind([&] () {
+      });
+  showClippingLines_->unChecked().connect([&] () {
 	gridData_->setClippingLinesEnabled(false);
-      }));
+      });
 
-  typeSelection_->changed().connect(std::bind([&] () {
+  typeSelection_->changed().connect([&] () {
 	switch (typeSelection_->currentIndex()) {
 	case 0:
-	  gridData_->setType(PointSeries3D);
+          gridData_->setType(Wt::Chart::Series3DType::Point);
 	  break;
 	case 1:
-	  gridData_->setType(SurfaceSeries3D);
+          gridData_->setType(Wt::Chart::Series3DType::Surface);
 	  break;
 	}
-      }));
-  enableMesh_->changed().connect(std::bind([&] () {
-	gridData_->setSurfaceMeshEnabled(enableMesh_->checkState() == Checked);
-      }));
-  penSize_->changed().connect(std::bind([&] () {
-	WPen pen = gridData_->pen();
-	pen.setWidth(Wt::asNumber(penSize_->text()));
+      });
+  enableMesh_->changed().connect([&] () {
+        gridData_->setSurfaceMeshEnabled(enableMesh_->checkState() == Wt::CheckState::Checked);
+      });
+  penSize_->changed().connect([&] () {
+        Wt::WPen pen = gridData_->pen();
+	pen.setWidth(asNumber(penSize_->text()));
 	gridData_->setPen(pen);
-      }));
-  penColor_->changed().connect(std::bind([&] () {
-	WPen pen = gridData_->pen();
+      });
+  penColor_->changed().connect([&] () {
+        Wt::WPen pen = gridData_->pen();
 	switch (penColor_->currentIndex()) {
 	case 0:
-	  pen.setColor(black); break;
+          pen.setColor(Wt::WColor(Wt::StandardColor::Black)); break;
 	case 1:
-	  pen.setColor(red); break;
+          pen.setColor(Wt::WColor(Wt::StandardColor::Red)); break;
 	case 2:
-	  pen.setColor(green); break;
+          pen.setColor(Wt::WColor(Wt::StandardColor::Green)); break;
 	case 3:
-	  pen.setColor(blue); break;
+          pen.setColor(Wt::WColor(Wt::StandardColor::Blue)); break;
 	}
 	gridData_->setPen(pen);
-      }));
-  clippingLinesColor_->changed().connect(std::bind([&] () {
+      });
+  clippingLinesColor_->changed().connect([&] () {
 	switch (clippingLinesColor_->currentIndex()) {
 	case 0:
-	  gridData_->setClippingLinesColor(black); break;
+          gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Black)); break;
 	case 1:
-	  gridData_->setClippingLinesColor(red); break;
+          gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Red)); break;
 	case 2:
-	  gridData_->setClippingLinesColor(green); break;
+          gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Green)); break;
 	case 3:
-	  gridData_->setClippingLinesColor(blue); break;
+          gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Blue)); break;
 	case 4:
-	  gridData_->setClippingLinesColor(cyan); break;
+          gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Cyan)); break;
 	case 5:
-	  gridData_->setClippingLinesColor(magenta); break;
+          gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Magenta)); break;
 	case 6:
-	  gridData_->setClippingLinesColor(yellow); break;
+          gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Yellow)); break;
 	}
-      }));
-  showIsolines_->checked().connect(std::bind([&] () {
+      });
+  showIsolines_->checked().connect([&] () {
 	std::vector<double> isoLevels;
 	for (double z = -20.0; z <= 20.0; z += 0.5) {
 	  isoLevels.push_back(z);
 	}
 	gridData_->setIsoLevels(isoLevels);
-      }));
-  showIsolines_->unChecked().connect(std::bind([&] () {
+      });
+  showIsolines_->unChecked().connect([&] () {
 	gridData_->setIsoLevels(std::vector<double>());
-      }));
-  isolineColormap_->changed().connect(std::bind([&] () {
-	WStandardColorMap *colMap;
+      });
+  isolineColormap_->changed().connect([&] () {
+        std::shared_ptr<Wt::Chart::WStandardColorMap> colMap = nullptr;
 	switch (isolineColormap_->currentIndex()) {
 	case 0:
-	  gridData_->setIsoColorMap(0); break;
-	case 1:
-	    gridData_->setIsoColorMap(new WStandardColorMap(gridData_->minimum(ZAxis_3D), gridData_->maximum(ZAxis_3D), true));
-	    break;
-	case 2:
-	  colMap = new WStandardColorMap(gridData_->minimum(ZAxis_3D), gridData_->maximum(ZAxis_3D), true);
-	  colMap->discretise(5);
-	  gridData_->setIsoColorMap(colMap);
 	  break;
-	case 3:
-	  colMap = new WStandardColorMap(gridData_->minimum(ZAxis_3D), gridData_->maximum(ZAxis_3D), true);
+	case 1:
+          colMap = std::make_shared<Wt::Chart::WStandardColorMap>(gridData_->minimum(Wt::Chart::Axis::Z3D),
+                                                                  gridData_->maximum(Wt::Chart::Axis::Z3D), true);
+	  break;
+	case 2:
+          colMap = std::make_shared<Wt::Chart::WStandardColorMap>(gridData_->minimum(Wt::Chart::Axis::Z3D),
+                                                                  gridData_->maximum(Wt::Chart::Axis::Z3D), true);
+          colMap->discretise(5);
+          break;
+        case 3:
+          colMap = std::make_shared<Wt::Chart::WStandardColorMap>(gridData_->minimum(Wt::Chart::Axis::Z3D),
+                                                                  gridData_->maximum(Wt::Chart::Axis::Z3D), true);
 	  colMap->discretise(10);
-	  gridData_->setIsoColorMap(colMap);
 	  break;
 	}
-      }));
+	gridData_->setIsoColorMap(colMap);
+      });
 }
 
-void NumGridDataSettings::bindDataSet(WAbstractGridData *data)
+void NumGridDataSettings::bindDataSet(Wt::Chart::WAbstractGridData *data)
 {
   for (auto &conn : clippingConnections_) {
     conn.disconnect();
@@ -336,85 +358,85 @@ void NumGridDataSettings::bindDataSet(WAbstractGridData *data)
   gridData_ = data;
 
   changeXClippingMin_.setJavaScript(
-      "function (o,e,pos) { " + gridData_->changeClippingMin(XAxis_3D).execJs("o","e","pos / 5.0") + " }", 1);
+      "function (o,e,pos) { " + gridData_->changeClippingMin(Wt::Chart::Axis::X3D).execJs("o","e","pos / 5.0") + " }", 1);
   changeXClippingMax_.setJavaScript(
-      "function (o,e,pos) { " + gridData_->changeClippingMax(XAxis_3D).execJs("o","e","pos / 5.0") + " }", 1);
+      "function (o,e,pos) { " + gridData_->changeClippingMax(Wt::Chart::Axis::X3D).execJs("o","e","pos / 5.0") + " }", 1);
   changeYClippingMin_.setJavaScript(
-      "function (o,e,pos) { " + gridData_->changeClippingMin(YAxis_3D).execJs("o","e","pos / 5.0") + " }", 1);
+      "function (o,e,pos) { " + gridData_->changeClippingMin(Wt::Chart::Axis::Y3D).execJs("o","e","pos / 5.0") + " }", 1);
   changeYClippingMax_.setJavaScript(
-      "function (o,e,pos) { " + gridData_->changeClippingMax(YAxis_3D).execJs("o","e","pos / 5.0") + " }", 1);
+      "function (o,e,pos) { " + gridData_->changeClippingMax(Wt::Chart::Axis::Y3D).execJs("o","e","pos / 5.0") + " }", 1);
   changeZClippingMin_.setJavaScript(
-      "function (o,e,pos) { " + gridData_->changeClippingMin(ZAxis_3D).execJs("o","e","pos / 5.0") + " }", 1);
+      "function (o,e,pos) { " + gridData_->changeClippingMin(Wt::Chart::Axis::Z3D).execJs("o","e","pos / 5.0") + " }", 1);
   changeZClippingMax_.setJavaScript(
-      "function (o,e,pos) { " + gridData_->changeClippingMax(ZAxis_3D).execJs("o","e","pos / 5.0") + " }", 1);
+      "function (o,e,pos) { " + gridData_->changeClippingMax(Wt::Chart::Axis::Z3D).execJs("o","e","pos / 5.0") + " }", 1);
 
-  xClippingMin_->setValue(std::max(gridData_->clippingMin(XAxis_3D) * 5, -100.0f));
-  xClippingMax_->setValue(std::min(gridData_->clippingMax(XAxis_3D) * 5, 100.0f));
-  yClippingMin_->setValue(std::max(gridData_->clippingMin(YAxis_3D) * 5, -100.0f));
-  yClippingMax_->setValue(std::min(gridData_->clippingMax(YAxis_3D) * 5, 100.0f));
-  zClippingMin_->setValue(std::max(gridData_->clippingMin(ZAxis_3D) * 5, -100.0f));
-  zClippingMax_->setValue(std::min(gridData_->clippingMax(ZAxis_3D) * 5, 100.0f));
+  xClippingMin_->setValue(std::max(gridData_->clippingMin(Wt::Chart::Axis::X3D) * 5, -100.0f));
+  xClippingMax_->setValue(std::min(gridData_->clippingMax(Wt::Chart::Axis::X3D) * 5, 100.0f));
+  yClippingMin_->setValue(std::max(gridData_->clippingMin(Wt::Chart::Axis::Y3D) * 5, -100.0f));
+  yClippingMax_->setValue(std::min(gridData_->clippingMax(Wt::Chart::Axis::Y3D) * 5, 100.0f));
+  zClippingMin_->setValue(std::max(gridData_->clippingMin(Wt::Chart::Axis::Z3D) * 5, -100.0f));
+  zClippingMax_->setValue(std::min(gridData_->clippingMax(Wt::Chart::Axis::Z3D) * 5, 100.0f));
 
-  clippingConnections_.push_back(xClippingMin_->valueChanged().connect(std::bind([&] () {
-    gridData_->setClippingMin(XAxis_3D, xClippingMin_->value() / 5.0);
-  })));
-  clippingConnections_.push_back(xClippingMax_->valueChanged().connect(std::bind([&] () {
-    gridData_->setClippingMax(XAxis_3D, xClippingMax_->value() / 5.0);
-  })));
-  clippingConnections_.push_back(yClippingMin_->valueChanged().connect(std::bind([&] () {
-    gridData_->setClippingMin(YAxis_3D, yClippingMin_->value() / 5.0);
-  })));
-  clippingConnections_.push_back(yClippingMax_->valueChanged().connect(std::bind([&] () {
-    gridData_->setClippingMax(YAxis_3D, yClippingMax_->value() / 5.0);
-  })));
-  clippingConnections_.push_back(zClippingMin_->valueChanged().connect(std::bind([&] () {
-    gridData_->setClippingMin(ZAxis_3D, zClippingMin_->value() / 5.0);
-  })));
-  clippingConnections_.push_back(zClippingMax_->valueChanged().connect(std::bind([&] () {
-    gridData_->setClippingMax(ZAxis_3D, zClippingMax_->value() / 5.0);
-  })));
+  clippingConnections_.push_back(xClippingMin_->valueChanged().connect([&] () {
+    gridData_->setClippingMin(Wt::Chart::Axis::X3D, xClippingMin_->value() / 5.0);
+  }));
+  clippingConnections_.push_back(xClippingMax_->valueChanged().connect([&] () {
+    gridData_->setClippingMax(Wt::Chart::Axis::X3D, xClippingMax_->value() / 5.0);
+  }));
+  clippingConnections_.push_back(yClippingMin_->valueChanged().connect([&] () {
+    gridData_->setClippingMin(Wt::Chart::Axis::Y3D, yClippingMin_->value() / 5.0);
+  }));
+  clippingConnections_.push_back(yClippingMax_->valueChanged().connect([&] () {
+    gridData_->setClippingMax(Wt::Chart::Axis::Y3D, yClippingMax_->value() / 5.0);
+  }));
+  clippingConnections_.push_back(zClippingMin_->valueChanged().connect([&] () {
+    gridData_->setClippingMin(Wt::Chart::Axis::Z3D, zClippingMin_->value() / 5.0);
+  }));
+  clippingConnections_.push_back(zClippingMax_->valueChanged().connect([&] () {
+    gridData_->setClippingMax(Wt::Chart::Axis::Z3D, zClippingMax_->value() / 5.0);
+  }));
 
   showClippingLines_->setChecked(gridData_->clippingLinesEnabled());
 
   // update UI fields
   DataSettings::bindBaseDataSet(data);
 
-  if (gridData_->type() == PointSeries3D)
+  if (gridData_->type() == Wt::Chart::Series3DType::Point)
     typeSelection_->setCurrentIndex(0);
-  else if (gridData_->type() == SurfaceSeries3D)
+  else if (gridData_->type() == Wt::Chart::Series3DType::Surface)
     typeSelection_->setCurrentIndex(1);
 
   enableMesh_->setCheckState(gridData_->isSurfaceMeshEnabled() ?
-			     Checked : Unchecked);
+                             Wt::CheckState::Checked : Wt::CheckState::Unchecked);
 
   penSize_->setText(Wt::asString(gridData_->pen().width().value()));
 
-  WPen pen = gridData_->pen();
-  WColor penColor = pen.color();
-  if (penColor == WColor(black)) {
+  Wt::WPen pen = gridData_->pen();
+  Wt::WColor penColor = pen.color();
+  if (penColor == Wt::WColor(Wt::StandardColor::Black)) {
     penColor_->setCurrentIndex(0);
-  } else if (penColor == WColor(red)) {
+  } else if (penColor == Wt::WColor(Wt::StandardColor::Red)) {
     penColor_->setCurrentIndex(1);
-  } else if (penColor == WColor(green)) {
+  } else if (penColor == Wt::WColor(Wt::StandardColor::Green)) {
     penColor_->setCurrentIndex(2);
-  } else if (penColor == WColor(blue)) {
+  } else if (penColor == Wt::WColor(Wt::StandardColor::Blue)) {
     penColor_->setCurrentIndex(3);
   }
 
-  WColor clippingLinesColor = gridData_->clippingLinesColor();
-  if (clippingLinesColor == black) {
+  Wt::WColor clippingLinesColor = gridData_->clippingLinesColor();
+  if (clippingLinesColor == Wt::WColor(Wt::StandardColor::Black)) {
     clippingLinesColor_->setCurrentIndex(0);
-  } else if (clippingLinesColor == red) {
+  } else if (clippingLinesColor == Wt::WColor(Wt::StandardColor::Red)) {
     clippingLinesColor_->setCurrentIndex(1);
-  } else if (clippingLinesColor == green) {
+  } else if (clippingLinesColor == Wt::WColor(Wt::StandardColor::Green)) {
     clippingLinesColor_->setCurrentIndex(2);
-  } else if (clippingLinesColor == blue) {
+  } else if (clippingLinesColor == Wt::WColor(Wt::StandardColor::Blue)) {
     clippingLinesColor_->setCurrentIndex(3);
-  } else if (clippingLinesColor == cyan) {
+  } else if (clippingLinesColor == Wt::WColor(Wt::StandardColor::Cyan)) {
     clippingLinesColor_->setCurrentIndex(4);
-  } else if (clippingLinesColor == magenta) {
+  } else if (clippingLinesColor == Wt::WColor(Wt::StandardColor::Magenta)) {
     clippingLinesColor_->setCurrentIndex(5);
-  } else if (clippingLinesColor == yellow) {
+  } else if (clippingLinesColor == Wt::WColor(Wt::StandardColor::Yellow)) {
     clippingLinesColor_->setCurrentIndex(6);
   }
 
@@ -423,8 +445,8 @@ void NumGridDataSettings::bindDataSet(WAbstractGridData *data)
   if (gridData_->isoColorMap() == 0) {
     isolineColormap_->setCurrentIndex(0);
   } else {
-    const WStandardColorMap *map = dynamic_cast<const WStandardColorMap*>
-      (gridData_->isoColorMap());
+    const std::shared_ptr<Wt::Chart::WStandardColorMap> map
+        = std::dynamic_pointer_cast<Wt::Chart::WStandardColorMap>(gridData_->isoColorMap());
     if (!map->continuous()) {
       if (map->colorValuePairs().size() == 5)
 	isolineColormap_->setCurrentIndex(2);
@@ -443,25 +465,23 @@ void NumGridDataSettings::bindDataSet(WAbstractGridData *data)
 CatGridDataSettings::CatGridDataSettings()
   : gridData_(0)
 {
-  WTemplate* template_ = new WTemplate(Wt::WString::tr("catgriddata-template"), this);
+  Wt::WTemplate* template_ = this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("catgriddata-template")));
   bindBaseToTemplate(template_);
 
-  barWidthX_ = new WLineEdit(this);
-  template_->bindWidget("widthx", barWidthX_);
-  barWidthY_ = new WLineEdit(this);
-  template_->bindWidget("widthy", barWidthY_);
+  barWidthX_ = template_->bindWidget("widthx", Wt::cpp14::make_unique<Wt::WLineEdit>());
+  barWidthY_ = template_->bindWidget("widthy", Wt::cpp14::make_unique<Wt::WLineEdit>());
 
-  barWidthX_->changed().connect(std::bind([&] () {
-	gridData_->setBarWidth(Wt::asNumber(barWidthX_->text()),
-			       Wt::asNumber(barWidthY_->text()));
-      }));
-  barWidthY_->changed().connect(std::bind([&] () {
-	gridData_->setBarWidth(Wt::asNumber(barWidthX_->text()),
-			       Wt::asNumber(barWidthY_->text()));
-      }));
+  barWidthX_->changed().connect([&] () {
+        gridData_->setBarWidth(Wt::asNumber(barWidthX_->text()),
+                               Wt::asNumber(barWidthY_->text()));
+      });
+  barWidthY_->changed().connect([&] () {
+        gridData_->setBarWidth(Wt::asNumber(barWidthX_->text()),
+                               Wt::asNumber(barWidthY_->text()));
+      });
 }
 
-void CatGridDataSettings::bindDataSet(WAbstractGridData *data)
+void CatGridDataSettings::bindDataSet(Wt::Chart::WAbstractGridData *data)
 {
   gridData_ = data;
 
@@ -479,45 +499,48 @@ void CatGridDataSettings::bindDataSet(WAbstractGridData *data)
 ScatterDataSettings::ScatterDataSettings()
   : scatterData_(0)
 {
-  WTemplate* template_ = new WTemplate(Wt::WString::tr("scatterdata-template"), this);
+  Wt::WTemplate* template_ =
+      this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("scatterdata-template")));
   bindBaseToTemplate(template_);
 
-  enableDroplines_ = new WCheckBox(this);
-  template_->bindWidget("enabledroplines", enableDroplines_);
-  penSize_ = new WLineEdit(this);
-  template_->bindWidget("pensize", penSize_);
-  penColor_ = new WComboBox(this);
+  auto enableDropLines = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  enableDroplines_ = template_->bindWidget("enabledroplines", std::move(enableDropLines));
+
+  auto penSize = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  penSize_ = template_->bindWidget("pensize", std::move(penSize));
+
+  auto penColor = Wt::cpp14::make_unique<Wt::WComboBox>();
+  penColor_ = template_->bindWidget("pencolor", std::move(penColor));
   penColor_->addItem("black");
   penColor_->addItem("red");
   penColor_->addItem("green");
   penColor_->addItem("blue");
-  template_->bindWidget("pencolor", penColor_);
 
-  enableDroplines_->changed().connect(std::bind([&] () {
-	scatterData_->setDroplinesEnabled(enableDroplines_->checkState() == Checked);
-      }));
-  penSize_->changed().connect(std::bind([&] () {
-	WPen pen = scatterData_->droplinesPen();
+  enableDroplines_->changed().connect([&] () {
+        scatterData_->setDroplinesEnabled(enableDroplines_->checkState() == Wt::CheckState::Checked);
+      });
+  penSize_->changed().connect([&] () {
+        Wt::WPen pen = scatterData_->droplinesPen();
 	pen.setWidth(Wt::asNumber(penSize_->text()));
 	scatterData_->setDroplinesPen(pen);
-      }));
-  penColor_->changed().connect(std::bind([&] () {
-	WPen pen = scatterData_->droplinesPen();
+      });
+  penColor_->changed().connect([&] () {
+        Wt::WPen pen = scatterData_->droplinesPen();
 	switch (penColor_->currentIndex()) {
 	case 0:
-	  pen.setColor(black); break;
+          pen.setColor(Wt::WColor(Wt::StandardColor::Black)); break;
 	case 1:
-	  pen.setColor(red); break;
+          pen.setColor(Wt::WColor(Wt::StandardColor::Red)); break;
 	case 2:
-	  pen.setColor(green); break;
+          pen.setColor(Wt::WColor(Wt::StandardColor::Green)); break;
 	case 3:
-	  pen.setColor(blue); break;
+          pen.setColor(Wt::WColor(Wt::StandardColor::Blue)); break;
 	}
 	scatterData_->setDroplinesPen(pen);
-      }));
+      });
 }
 
-void ScatterDataSettings::bindDataSet(WScatterData *data)
+void ScatterDataSettings::bindDataSet(Wt::Chart::WScatterData *data)
 {
   scatterData_ = data;
 
@@ -525,19 +548,19 @@ void ScatterDataSettings::bindDataSet(WScatterData *data)
   DataSettings::bindBaseDataSet(data);
 
   enableDroplines_->setCheckState(scatterData_->droplinesEnabled() ?
-				  Checked : Unchecked);
+                                  Wt::CheckState::Checked : Wt::CheckState::Unchecked);
 
   penSize_->setText(Wt::asString(scatterData_->droplinesPen().width().value()));
 
-  WPen pen = scatterData_->droplinesPen();
-  WColor penColor = pen.color();
-  if (penColor == WColor(black)) {
+  Wt::WPen pen = scatterData_->droplinesPen();
+  Wt::WColor penColor = pen.color();
+  if (penColor == Wt::WColor(Wt::StandardColor::Black)) {
     penColor_->setCurrentIndex(0);
-  } else if (penColor == WColor(red)) {
+  } else if (penColor == Wt::WColor(Wt::StandardColor::Red)) {
     penColor_->setCurrentIndex(1);
-  } else if (penColor == WColor(green)) {
+  } else if (penColor == Wt::WColor(Wt::StandardColor::Green)) {
     penColor_->setCurrentIndex(2);
-  } else if (penColor == WColor(blue)) {
+  } else if (penColor == Wt::WColor(Wt::StandardColor::Blue)) {
     penColor_->setCurrentIndex(3);
   }
 }

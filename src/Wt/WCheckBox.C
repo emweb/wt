@@ -4,27 +4,27 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WCheckBox"
+#include "Wt/WCheckBox.h"
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WJavaScript"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WJavaScript.h"
 #include "DomElement.h"
 
 namespace Wt {
 
-WCheckBox::WCheckBox(WContainerWidget *parent)
-  : WAbstractToggleButton(parent),
+WCheckBox::WCheckBox()
+  : WAbstractToggleButton(),
     triState_(false),
-	partialStateSelectable_(false)
+    partialStateSelectable_(false)
 {
   setFormObject(true);
 }
 
-WCheckBox::WCheckBox(const WString& text, WContainerWidget *parent)
-  : WAbstractToggleButton(text, parent),
+WCheckBox::WCheckBox(const WString& text)
+  : WAbstractToggleButton(text),
     triState_(false),
-	partialStateSelectable_(false)
+    partialStateSelectable_(false)
 {
   setFormObject(true);
 }
@@ -35,72 +35,80 @@ void WCheckBox::setTristate(bool tristate)
 
   if (triState_) {
     if (!supportsIndeterminate(WApplication::instance()->environment()))
-	  updateJSlot();
+      updateJSlot();
   }
 }
 
-void WCheckBox::setPartialStateSelectable(bool t) {
-  if(t && !isTristate()) setTristate(true);
-  partialStateSelectable_ = t;
+void WCheckBox::setPartialStateSelectable(bool t)
+{
+  if (t && !isTristate())
+    setTristate(true);
 
+  partialStateSelectable_ = t;
   updateJSlot();
   updateNextState();
 }
 
-void WCheckBox::updateJSlot() {
-  JSlot *slot = 0;
+void WCheckBox::updateJSlot()
+{
+  jslot_ = nullptr;
+  std::unique_ptr<JSlot> slot;
   std::string partialOn, partialOff;
-  if(!supportsIndeterminate(WApplication::instance()->environment())) {
-	partialOff = "obj.style.opacity='';";
-	partialOn = "obj.style.opacity='0.5';";
-	if(triState_ && !partialStateSelectable_) 
-	  slot = new JSlot("function(obj, e) { " + partialOff + "}", this);
+  if (!supportsIndeterminate(WApplication::instance()->environment())) {
+    partialOff = "obj.style.opacity='';";
+    partialOn = "obj.style.opacity='0.5';";
+    if (triState_ && !partialStateSelectable_)
+      slot.reset(new JSlot("function(obj, e) { " + partialOff + "}", this));
   } else {
-	partialOn  = "obj.indeterminate=true;";
-	partialOff = "obj.indeterminate=false;";
+    partialOn  = "obj.indeterminate=true;";
+    partialOff = "obj.indeterminate=false;";
   }
 
-  if(partialStateSelectable_) {
-	std::stringstream ss;
-	ss << "function(obj, e) {\n"
-	   << "if(obj.nextState == 'c'){\n"
-	   << "obj.checked=true;"
-	   <<  partialOff
-	   << " obj.nextState='u';"
-	   << "} else if( obj.nextState=='i') {\n"
-	   << "obj.nextState='c';"
-	   << partialOn 
-	   << " } else if( obj.nextState=='u') {\n"
-	   << "obj.nextState='i';"
-	   << "obj.checked=false;"
-	   << partialOff 
-	   << " } else obj.nextState='i';"
-	   << "}";
-	slot = new JSlot(ss.str(), this);
+  if (partialStateSelectable_) {
+    std::stringstream ss;
+    ss << "function(obj, e) {\n"
+       << "if(obj.nextState == 'c'){\n"
+       << "obj.checked=true;"
+       <<  partialOff
+       << " obj.nextState='u';"
+       << "} else if( obj.nextState=='i') {\n"
+       << "obj.nextState='c';"
+       << partialOn 
+       << " } else if( obj.nextState=='u') {\n"
+       << "obj.nextState='i';"
+       << "obj.checked=false;"
+       << partialOff 
+       << " } else obj.nextState='i';"
+       << "}";
+    slot.reset(new JSlot(ss.str(), this));
   }
-  if(slot)
-	changed().connect(*slot);
+
+  if (slot) {
+    changed().connect(*slot);
+    jslot_ = std::move(slot);
+  }
 }
 
 void WCheckBox::updateNextState() {
   std::string nextState;
-  switch(state_) {
-	case Checked:
-	  nextState="u";
-	  break;
-	case Unchecked:
-	  nextState="i";
-	  break;
-	case PartiallyChecked:
-	  nextState="c";
-	  break;
-  }
-  if(partialStateSelectable_)
-	doJavaScript(this->jsRef() + ".nextState='"+nextState+"'");
-  else 
-	doJavaScript(this->jsRef() + ".nextState=null");
-}
 
+  switch(state_) {
+  case CheckState::Checked:
+    nextState="u";
+    break;
+  case CheckState::Unchecked:
+    nextState="i";
+    break;
+  case CheckState::PartiallyChecked:
+    nextState="c";
+    break;
+  }
+
+  if (partialStateSelectable_)
+    doJavaScript(this->jsRef() + ".nextState='"+nextState+"';");
+  else 
+    doJavaScript(this->jsRef() + ".nextState=null;");
+}
 
 void WCheckBox::setCheckState(CheckState state)
 {

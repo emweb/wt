@@ -1,4 +1,4 @@
-#include "OrderItem"
+#include "OrderItem.h"
 
 namespace Wt {
   namespace Payment {

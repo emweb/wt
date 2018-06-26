@@ -7,19 +7,19 @@
 #include "StyleLayout.h"
 #include "EventDisplayer.h"
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
 
-#include <Wt/WText>
-#include <Wt/WComboBox>
-#include <Wt/WPushButton>
+#include <Wt/WText.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WPushButton.h>
 
-#include <Wt/WDefaultLoadingIndicator>
-#include <Wt/WOverlayLoadingIndicator>
+#include <Wt/WDefaultLoadingIndicator.h>
+#include <Wt/WOverlayLoadingIndicator.h>
 
 #include "EmwebLoadingIndicator.h"
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
-#include <boost/thread.hpp>
+#include <thread>
 #else
 #if WT_WIN32
 #include <windows.h>
@@ -29,39 +29,40 @@
 StyleLayout::StyleLayout(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
-  addText(tr("style-layout-intro"), this);
+  this->addWidget(std::move(addText(tr("style-layout-intro"))));
 }
 
 void StyleLayout::populateSubMenu(WMenu *menu)
 {
-  menu->addItem("CSS", css());
-  menu->addItem("WLoadingIndicator", wLoadingIndicator());
+  menu->addItem("CSS", std::move(css()));
+  menu->addItem("WLoadingIndicator", std::move(wLoadingIndicator()));
 }
 
-WWidget *StyleLayout::css()
+std::unique_ptr<WWidget> StyleLayout::css()
 {
-  return addText(tr("style-and-layout-css"));
+  return std::move(addText(tr("style-and-layout-css")));
 }
 
-WWidget *StyleLayout::wLoadingIndicator()
+std::unique_ptr<WWidget> StyleLayout::wLoadingIndicator()
 {
-  WContainerWidget *result = new WContainerWidget();
+  auto result = cpp14::make_unique<WContainerWidget>();
   topic("WLoadingIndicator", result);
 
-  addText(tr("style-WLoadingIndicator"), result);
+  result->addWidget(std::move(addText(tr("style-WLoadingIndicator"))));
 
   //fix for the WOverlayLoadingIndicator
   WApplication::instance()->styleSheet().addRule("body", "margin: 0px");
 
-  addText("Select a loading indicator:  ", result);
-  WComboBox *cb = new WComboBox(result);
+  result->addWidget(std::move(addText("Select a loading indicator:  ")));
+  WComboBox *cb = result->addWidget(cpp14::make_unique<WComboBox>());
   cb->addItem("WDefaultLoadingIndicator");
   cb->addItem("WOverlayLoadingIndicator");
   cb->addItem("EmwebLoadingIndicator");
   cb->setCurrentIndex(0);
   cb->sactivated().connect(this, &StyleLayout::loadingIndicatorSelected);
-  new WBreak(result);
-  WPushButton *load = new WPushButton("Load!", result);
+  result->addWidget(cpp14::make_unique<WBreak>());
+  WPushButton *load =
+      result->addWidget(cpp14::make_unique<WPushButton>("Load!"));
   load->clicked().connect(this, &StyleLayout::load);
 
   return result;
@@ -71,19 +72,19 @@ void StyleLayout::loadingIndicatorSelected(WString indicator)
 {
   if (indicator.toUTF8() == "WDefaultLoadingIndicator") {
     WApplication::instance()
-      ->setLoadingIndicator(new WDefaultLoadingIndicator());
+      ->setLoadingIndicator(cpp14::make_unique<WDefaultLoadingIndicator>());
   } else if (indicator.toUTF8() == "WOverlayLoadingIndicator") {
     WApplication::instance()
-      ->setLoadingIndicator(new WOverlayLoadingIndicator());
+      ->setLoadingIndicator(cpp14::make_unique<WOverlayLoadingIndicator>());
   } else if (indicator.toUTF8() == "EmwebLoadingIndicator") {
     WApplication::instance()
-      ->setLoadingIndicator(new EmwebLoadingIndicator());
+      ->setLoadingIndicator(cpp14::make_unique<EmwebLoadingIndicator>());
   }
 }
 
-void StyleLayout::load(Wt::WMouseEvent) {
+void StyleLayout::load(WMouseEvent) {
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
-  boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+  std::this_thread::sleep_for(std::chrono::duration(2s));
 #else
 #ifdef WT_WIN32
         Sleep(2000);

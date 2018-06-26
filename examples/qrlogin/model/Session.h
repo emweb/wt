@@ -7,17 +7,18 @@
 #ifndef SESSION_H_
 #define SESSION_H_
 
-#include <Wt/Auth/Login>
+#include <Wt/Auth/Login.h>
 
-#include <Wt/Dbo/Session>
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Session.h>
+#include <Wt/Dbo/ptr.h>
 
 #include "User.h"
 
-namespace dbo = Wt::Dbo;
+using namespace Wt;
 
-typedef Wt::Auth::Dbo::UserDatabase<AuthInfo> UserDatabase;
+namespace dbo = Dbo;
+
+typedef Auth::Dbo::UserDatabase<AuthInfo> UserDatabase;
 
 class QRAuthService;
 class QRTokenDatabase;
@@ -32,20 +33,19 @@ public:
 
   dbo::ptr<User> user() const;
 
-  Wt::Auth::AbstractUserDatabase& users();
+  Auth::AbstractUserDatabase& users();
   QRTokenDatabase& qrTokenDatabase();
-  Wt::Auth::Login& login() { return login_; }
+  Auth::Login& login() { return login_; }
 
-  static const Wt::Auth::AuthService& auth();
-  static const Wt::Auth::PasswordService& passwordAuth();
+  static const Auth::AuthService& auth();
+  static const Auth::PasswordService& passwordAuth();
   static const QRAuthService& qrAuth();
-  static const std::vector<const Wt::Auth::OAuthService *>& oAuth();
+  static const std::vector<const Auth::OAuthService *>& oAuth();
 
 private:
-  dbo::backend::Sqlite3 connection_;
-  UserDatabase *users_;
-  QRTokenDatabase *qrTokens_;
-  Wt::Auth::Login login_;
+  std::unique_ptr<UserDatabase> users_;
+  std::unique_ptr<QRTokenDatabase> qrTokens_;
+  Auth::Login login_;
 };
 
 #endif // SESSION_H_

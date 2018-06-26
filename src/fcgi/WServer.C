@@ -4,8 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WIOService"
-#include "Wt/WServer"
+#include "Wt/WIOService.h"
+#include "Wt/WServer.h"
 
 #include <iostream>
 #include <string>
@@ -18,7 +18,7 @@
 #include "WebMain.h"
 
 namespace {
-  Wt::WebMain *webMainInstance = 0;
+  Wt::WebMain *webMainInstance = nullptr;
 }
 
 namespace Wt {
@@ -30,7 +30,7 @@ struct WServer::Impl
   Impl(WServer& server)
     : server_(server),
       running_(false),
-      webMain_(0)
+      webMain_(nullptr)
   { }
 
   void run()
@@ -60,7 +60,7 @@ struct WServer::Impl
       sleep(1);
 
       delete webMain_;
-      webMainInstance = webMain_ = 0;
+      webMainInstance = webMain_ = nullptr;
 
     } catch (std::exception& e) {
       LOG_ERROR_S(&server_,
@@ -82,7 +82,7 @@ struct WServer::Impl
     Configuration& conf = server_.configuration();
     
     if (!Server::bindUDStoStdin(conf.runDirectory() + "/server-"
-				+ boost::lexical_cast<std::string>(getpid()),
+				+ std::to_string(getpid()),
 				server_))
       exit(1);
 
@@ -92,7 +92,7 @@ struct WServer::Impl
       webMain_->run();
 
       delete webMain_;
-      webMainInstance = webMain_ = 0;
+      webMainInstance = webMain_ = nullptr;
     } catch (std::exception& e) {
       LOG_ERROR_S(&server_,
 		  "fatal: shared session process: caught unhandled exception: "
@@ -159,7 +159,6 @@ WServer::WServer(int argc, char *argv[], const std::string& wtConfigurationFile)
 WServer::~WServer()
 {
   delete impl_;
-
   destroy();
 }
 
@@ -194,6 +193,8 @@ bool WServer::start()
 	     (impl_->sessionId_.empty() ? "shared" : "dedicated") <<
 	     " wtfcgi session process");
 
+  dedicatedProcessEnabled_ = !impl_->sessionId_.empty();
+
   if (configuration().webSockets()) {
     LOG_ERROR_S(this, "FastCGI does not support web-sockets, disabling");
     configuration().setWebSockets(false);
@@ -202,11 +203,14 @@ bool WServer::start()
   configuration().setNeedReadBodyBeforeResponse(true);
 
   if (signal(SIGTERM, Wt::handleSigTerm) == SIG_ERR)
-    LOG_ERROR_S(this, "cannot catch SIGTERM: signal(): " << strerror(errno));
+    LOG_ERROR_S(this, "cannot catch SIGTERM: signal(): "
+		<< (const char *)strerror(errno));
   if (signal(SIGUSR1, Wt::handleSigUsr1) == SIG_ERR) 
-    LOG_ERROR_S(this, "cannot catch SIGUSR1: signal(): " << strerror(errno));
+    LOG_ERROR_S(this, "cannot catch SIGUSR1: signal(): "
+		<< (const char *)strerror(errno));
   if (signal(SIGHUP, Wt::handleSigHup) == SIG_ERR) 
-    LOG_ERROR_S(this, "cannot catch SIGHUP: signal(): " << strerror(errno));
+    LOG_ERROR_S(this, "cannot catch SIGHUP: signal(): "
+		<< (const char *)strerror(errno));
 
   webController_ = new Wt::WebController(*this, impl_->sessionId_, false);
 
@@ -250,8 +254,8 @@ void WServer::resume()
   }
 }
 
-void WServer::setSslPasswordCallback(
-  boost::function<std::string (std::size_t max_length, int purpose)> cb)
+void WServer::setSslPasswordCallback(const std::function<std::string 
+			 (std::size_t max_length, int purpose)>& cb)
 {
   LOG_INFO_S(this,
     "setSslPasswordCallback(): has no effect in fcgi connector");
@@ -264,7 +268,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
     try {
       server.setServerConfiguration(argc, argv);
-      server.addEntryPoint(Application, createApplication);
+      server.addEntryPoint(EntryPointType::Application, createApplication);
       server.start();
 
       return 0;

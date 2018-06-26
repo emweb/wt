@@ -160,7 +160,7 @@ namespace Wt {
       
       bio = BIO_new(BIO_s_mem());
       BIO_puts(bio, pem.c_str());
-      certificate = PEM_read_bio_X509(bio, NULL, NULL, NULL);
+      certificate = PEM_read_bio_X509(bio, nullptr, nullptr, nullptr);
 
       BIO_free_all(bio);
       

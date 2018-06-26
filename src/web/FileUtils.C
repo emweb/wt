@@ -12,11 +12,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <stdexcept>
 #endif //WT_HAVE_POSIX_FILEIO
 
 #include "web/WebUtils.h"
-#include "Wt/WLogger"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
 
 #ifdef WT_WIN32
 #include <windows.h>
@@ -59,7 +59,7 @@ namespace Wt {
 	std::string error 
 	  = "size: stat failed for file \"" + file + "\"";
 	LOG_ERROR(error);
-	throw std::runtime_error(error);
+	throw WException(error);
       }
       return (unsigned long long)sb.st_size;
 #endif //WT_HAVE_POSIX_FILEIO
@@ -85,7 +85,7 @@ namespace Wt {
 	std::string error 
 	  = "lastWriteTime: stat failed for file \"" + file + "\"";
 	LOG_ERROR(error);
-	throw std::runtime_error(error);
+	throw WException(error);
       }
       return (unsigned long long)sb.st_mtime;
 #endif //WT_HAVE_POSIX_FILEIO
@@ -114,7 +114,7 @@ namespace Wt {
 	std::string error 
 	  = "isDirectory: stat failed for file \"" + file + "\"";
 	LOG_ERROR(error);
-	throw std::runtime_error(error);
+	throw WException(error);
       }
       return S_ISDIR(sb.st_mode);
 #endif //WT_HAVE_POSIX_FILEIO
@@ -131,7 +131,7 @@ namespace Wt {
 	std::string error 
 	  = "listFiles: \"" + directory + "\" is not a directory";
 	LOG_ERROR(error);
-	throw std::runtime_error(error);
+	throw WException(error);
       }
       
       for (boost::filesystem::directory_iterator i(path); i != end_itr; ++i) {
@@ -145,7 +145,7 @@ namespace Wt {
 	std::string error 
 	   = "listFiles: opendir failed for file \"" + directory + "\"";
 	LOG_ERROR(error);
-	throw std::runtime_error(error);
+	throw WException(error);
       }
       
       while ((dirp = readdir(dp)) != NULL)
@@ -213,6 +213,22 @@ namespace Wt {
 	return file.substr(pos + 1);
       else
 	return file;
+    }
+
+    void appendFile(const std::string &srcFile,
+		    const std::string &targetFile)
+    {
+      std::ifstream ss(srcFile.c_str(),
+		       std::ios::in | std::ios::binary);
+      std::ofstream ts(targetFile.c_str(),
+		       std::ios::out | std::ios::binary | std::ios::app);
+      
+      const int LEN = 4096;
+      char buffer[LEN];
+      while (!ss.eof()) {
+	ss.read(buffer, LEN);
+	ts.write(buffer, ss.gcount());
+      } 
     }
 
   }

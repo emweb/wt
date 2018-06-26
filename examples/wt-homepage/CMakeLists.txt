@@ -34,7 +34,7 @@ ENDIF(WT_EMWEB_BUILD)
 
 WT_ADD_EXAMPLE(Home.wt ${SRC})
 
-TARGET_LINK_LIBRARIES(Home.wt wtdbo wtdbosqlite3 ${BOOST_FS_LIB})
+TARGET_LINK_LIBRARIES(Home.wt ${EXAMPLES_DBO_LIBS} ${BOOST_FS_LIB} ${BOOST_SYSTEM_LIB})
 
 # Test whether crypt(3) is provided by libc. If it's not, check if
 # libcrypt exists and if it provides crypt(3).
@@ -53,10 +53,8 @@ ENDIF(CRYPT_LIB_EXISTS)
 
 INCLUDE_DIRECTORIES(
   ${WT_SOURCE_DIR}/src
-  ${WT_SOURCE_DIR}/examples/blog
+  ../blog
   )
-
-ADD_DEPENDENCIES(Home.wt wt ${EXAMPLES_CONNECTOR})
 
 ELSE(BOOST_FS_LIB)
   

@@ -3,10 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Query"
+#include "Query.h"
 #include "Query_impl.h"
-#include "SqlTraits"
-#include "ptr"
+#include "SqlTraits.h"
+#include "ptr.h"
 
 #include <string>
 #include <boost/algorithm/string.hpp>
@@ -34,6 +34,7 @@ std::string selectColumns(const std::vector<FieldInfo>& fields) {
       result += ", ";
 
     result += field.sql();
+    // We don't need to add aliases in this case, normally
   }
 
   return result;
@@ -71,13 +72,13 @@ void addGroupBy(std::string& result, const std::string& groupBy,
   }
 }
 
-std::string addLimitQuery(const std::string& sql, int limit, int offset,
+std::string addLimitQuery(const std::string& sql, const std::string &orderBy, int limit, int offset,
 			  LimitQuery limitQueryMethod)
 {
   std::string result = sql;
 
   switch (limitQueryMethod) {
-  case Limit:
+  case LimitQuery::Limit:
     if (limit != -1)
       result += " limit ?";
 
@@ -86,21 +87,41 @@ std::string addLimitQuery(const std::string& sql, int limit, int offset,
 
     break;
 
-  case RowsFromTo:
+  case LimitQuery::RowsFromTo:
     if (limit != -1 || offset != -1) {
       result += " rows ? to ?";
     }
 
     break;
 
-  case Rownum:
+  case LimitQuery::Rownum:
     if (limit != -1 && offset == -1)
       result = " select * from ( " + result + " ) where rownum <= ?";
     else if (limit != -1 && offset != -1)
       result = " select * from ( select row_.*, rownum rownum2 from ( " +
 	result + " ) row_ where rownum <= ?) where rownum2 > ?";
 
-  case NotSupported:
+  case LimitQuery::OffsetFetch:
+    if (offset != -1 || limit != -1) {
+      if (orderBy.empty())
+        result += " order by (select null)";
+      if (offset != -1)
+        result += " offset (?) rows";
+      else
+        result += " offset 0 rows";
+    }
+
+    if (limit != -1)
+      result += " fetch first (?) rows only";
+
+    // SQL Server is a special snowflake that requires an offset
+    // parameter when order by is used in subqueries.
+    if (!orderBy.empty() && offset == -1 && limit == -1)
+      result += " offset 0 rows";
+
+    break;
+  
+  case LimitQuery::NotSupported:
     break;
   }
 
@@ -129,7 +150,7 @@ std::string completeQuerySelectSql(const std::string& sql,
   if (!orderBy.empty())
     result += " order by " + orderBy;
 
-  return addLimitQuery(result, limit, offset, limitQueryMethod);
+  return addLimitQuery(result, orderBy, limit, offset, limitQueryMethod);
 }
 
 std::string createQuerySelectSql(const std::string& from,
@@ -155,71 +176,16 @@ std::string createQuerySelectSql(const std::string& from,
   if (!orderBy.empty())
     result += " order by " + orderBy;
 
-  return addLimitQuery(result, limit, offset, limitQueryMethod);
+  return addLimitQuery(result, orderBy, limit, offset, limitQueryMethod);
 }
 
-std::string createWrappedQueryCountSql(const std::string& query,
-				       bool requireSubqueryAlias)
+std::string createQueryCountSql(const std::string& query,
+				bool requireSubqueryAlias)
 {
   if (requireSubqueryAlias)
     return "select count(1) from (" + query + ") dbocount";
   else
     return "select count(1) from (" + query + ")";
-}
-
-std::string createQueryCountSql(const std::string& query,
-				const std::string& from,
-				const std::string& where,
-				const std::string& groupBy,
-				const std::string& having,
-				const std::string& orderBy,
-				int limit, int offset,
-				const SelectFieldLists& fields,
-				LimitQuery limitQueryMethod,
-				bool requireSubqueryAlias)
-{
-  /*
-   * If there is a " group by ", then we cannot simply substitute
-   * count(1), that still gives multiple results for each group.
-   *
-   * We cannot have " order by " in our query (e.g. on PostgreSQL)
-   * except when ordering by the count (e.g. when we have a group by),
-   * but we cannot simply junk evertything after " order by " since
-   * there may still be parameters referenced in the " limit " or "
-   * offset " clause.
-   *
-   * The Internet consensus is that wrapping like this is not really
-   * a performance loss so we do not take any risk here.
-   *
-   * Also, we cannot count like this when we have a limit or offset
-   * parameter, or when we need to bind something in the select part.
-   */
-  bool selectBoundParameter = false;
-  for (unsigned i = 0; i < fields.size(); ++i) {
-    for (unsigned j = 0; j < fields[i].size(); ++j) {
-      const SelectField& sf = fields[i][j];
-      if (query.substr(sf.begin, sf.end-sf.begin).find("?")
-	  != std::string::npos) {
-	selectBoundParameter = true;
-	break;
-      }
-    }
-  }
-
-  if (selectBoundParameter ||
-      !groupBy.empty() || ifind(from, "group by") != std::string::npos
-      || !having.empty() || ifind(from, "having") != std::string::npos
-      || !orderBy.empty() || ifind(from, "order by") != std::string::npos
-      || limit != -1 || offset != -1)
-    return createWrappedQueryCountSql(query, requireSubqueryAlias);
-  else {
-    std::string result = "select count(1) " + from;
-
-    if (!where.empty())
-      result += " where " + where;
-
-    return addLimitQuery(result, limit, offset, limitQueryMethod);
-  }
 }
 
 void substituteFields(const SelectFieldList& list,
@@ -236,6 +202,7 @@ void substituteFields(const SelectFieldList& list,
 	  dboFields += ", ";
 
 	dboFields += fs[i].sql();
+        dboFields += " as col" + std::to_string(i);
 
 	++i;
 	if (i >= fs.size()
@@ -250,12 +217,19 @@ void substituteFields(const SelectFieldList& list,
       sql.replace(start, count, dboFields);
 
       offset += (dboFields.length() - (list[j].end - list[j].begin));
-    } else
+    } else {
+      if (!fs[i].isAliasedName()) {
+        int start = list[j].end + offset;
+        std::string col = " as col" + std::to_string(i);
+        sql.insert(start, col);
+        offset += col.size();
+      }
       ++i;
+    }
   }
 }
 
     }
   }
 }
-				 
+

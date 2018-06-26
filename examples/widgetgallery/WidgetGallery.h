@@ -8,7 +8,7 @@
 #ifndef WIDGET_GALLERY_APPLICATION_H_
 #define WIDGET_GALLERY_APPLICATION_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class TopicWidget;
 
@@ -23,7 +23,7 @@ private:
 
   Wt::WMenuItem *addToMenu(Wt::WMenu *menu,
 			   const Wt::WString& name,
-			   TopicWidget *topic);
+                           std::unique_ptr<TopicWidget> topic);
 };
 
 #endif // WIDGET_GALLERY_H_

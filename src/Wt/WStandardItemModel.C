@@ -4,25 +4,23 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WStandardItem"
-#include "Wt/WStandardItemModel"
+#include "Wt/WStandardItem.h"
+#include "Wt/WStandardItemModel.h"
+#include "Wt/WEvent.h"
+#include "Wt/WItemSelectionModel.h"
 
 #ifndef DOXYGEN_ONLY
 
 namespace Wt {
 
-WStandardItemModel::WStandardItemModel(WObject *parent)
-  : WAbstractItemModel(parent),
-    sortRole_(DisplayRole),
-    itemChanged_(this)
+WStandardItemModel::WStandardItemModel()
+  : sortRole_(ItemDataRole::Display)
 {
   init();
 }
 
-WStandardItemModel::WStandardItemModel(int rows, int columns, WObject *parent)
-  : WAbstractItemModel(parent),
-    sortRole_(DisplayRole),
-    itemChanged_(this)
+WStandardItemModel::WStandardItemModel(int rows, int columns)
+  : sortRole_(ItemDataRole::Display)
 {
   init();
 
@@ -32,17 +30,14 @@ WStandardItemModel::WStandardItemModel(int rows, int columns, WObject *parent)
 
 void WStandardItemModel::init()
 {
-  invisibleRootItem_ = new WStandardItem();
+  invisibleRootItem_.reset(new WStandardItem());
   invisibleRootItem_->model_ = this;
 
-  itemPrototype_ = new WStandardItem();
+  itemPrototype_.reset(new WStandardItem());
 }
 
 WStandardItemModel::~WStandardItemModel()
-{
-  delete invisibleRootItem_;
-  delete itemPrototype_;
-}
+{ }
 
 void WStandardItemModel::clear()
 {
@@ -59,7 +54,7 @@ void WStandardItemModel::clear()
 
 WModelIndex WStandardItemModel::indexFromItem(const WStandardItem *item) const
 {
-  if (item == invisibleRootItem_)
+  if (item == invisibleRootItem_.get())
     return WModelIndex();
   else
     return createIndex(item->row(), item->column(),
@@ -75,18 +70,19 @@ WStandardItem *WStandardItemModel::itemFromIndex(const WModelIndex& index,
 						 bool lazyCreate) const
 {
   if (!index.isValid())
-    return invisibleRootItem_;
+    return invisibleRootItem_.get();
   else
     if (index.model() != this)
-      return 0;
+      return nullptr;
     else {
       WStandardItem *parent
 	= static_cast<WStandardItem *>(index.internalPointer());
       WStandardItem *c = parent->child(index.row(), index.column());
 
       if (lazyCreate && !c) {
-	c = itemPrototype()->clone();
-	parent->setChild(index.row(), index.column(), c);
+	auto item = itemPrototype()->clone();
+	c = item.get();
+	parent->setChild(index.row(), index.column(), std::move(item));
       }
       
       return c;
@@ -94,36 +90,39 @@ WStandardItem *WStandardItemModel::itemFromIndex(const WModelIndex& index,
 }
 
 
-void WStandardItemModel::appendColumn(const std::vector<WStandardItem *>& items)
+void WStandardItemModel
+::appendColumn(std::vector<std::unique_ptr<WStandardItem>> items)
 {
-  insertColumn(columnCount(), items);
+  insertColumn(columnCount(), std::move(items));
 }
 
-void WStandardItemModel::insertColumn(int column,
-				      const std::vector<WStandardItem *>& items)
+void WStandardItemModel
+::insertColumn(int column, std::vector<std::unique_ptr<WStandardItem>> items)
 {
-  invisibleRootItem_->insertColumn(column, items);
+  invisibleRootItem_->insertColumn(column, std::move(items));
 }
 
-void WStandardItemModel::appendRow(const std::vector<WStandardItem *>& items)
+void WStandardItemModel
+::appendRow(std::vector<std::unique_ptr<WStandardItem>> items)
 {
-  insertRow(rowCount(), items);
+  insertRow(rowCount(), std::move(items));
+}
+
+void WStandardItemModel
+::insertRow(int row, std::vector<std::unique_ptr<WStandardItem>> items)
+{
+  invisibleRootItem_->insertRow(row, std::move(items));
+}
+
+void WStandardItemModel::appendRow(std::unique_ptr<WStandardItem> item)
+{
+  insertRow(rowCount(), std::move(item));
 }
 
 void WStandardItemModel::insertRow(int row,
-				   const std::vector<WStandardItem *>& items)
+				   std::unique_ptr<WStandardItem> item)
 {
-  invisibleRootItem_->insertRow(row, items);
-}
-
-void WStandardItemModel::appendRow(WStandardItem *item)
-{
-  insertRow(rowCount(), item);
-}
-
-void WStandardItemModel::insertRow(int row, WStandardItem *item)
-{
-  invisibleRootItem_->insertRow(row, item);
+  invisibleRootItem_->insertRow(row, std::move(item));
 }
   
 WStandardItem *WStandardItemModel::item(int row, int column) const
@@ -131,33 +130,37 @@ WStandardItem *WStandardItemModel::item(int row, int column) const
   return invisibleRootItem_->child(row, column);
 }
 
-void WStandardItemModel::setItem(int row, int column, WStandardItem *item)
+void WStandardItemModel::setItem(int row, int column,
+				 std::unique_ptr<WStandardItem> item)
 {
-  invisibleRootItem_->setChild(row, column, item);
+  invisibleRootItem_->setChild(row, column, std::move(item));
 }
 
 WStandardItem *WStandardItemModel::itemPrototype() const
 {
-  return itemPrototype_;
+  return itemPrototype_.get();
 }
 
-void WStandardItemModel::setItemPrototype(WStandardItem *item)
+void WStandardItemModel
+::setItemPrototype(std::unique_ptr<WStandardItem> item)
 {
-  delete itemPrototype_;
-  itemPrototype_ = item;
+  itemPrototype_ = std::move(item);
 }
 
-std::vector<WStandardItem *> WStandardItemModel::takeColumn(int column)
+std::vector<std::unique_ptr<WStandardItem>> WStandardItemModel
+::takeColumn(int column)
 {
   return invisibleRootItem_->takeColumn(column);
 }
 
-std::vector<WStandardItem *> WStandardItemModel::takeRow(int row)
+std::vector<std::unique_ptr<WStandardItem>> WStandardItemModel
+::takeRow(int row)
 {
   return invisibleRootItem_->takeRow(row);
 }
 
-WStandardItem *WStandardItemModel::takeItem(int row, int column)
+std::unique_ptr<WStandardItem> WStandardItemModel
+::takeItem(int row, int column)
 {
   return invisibleRootItem_->takeChild(row, column);
 }
@@ -166,7 +169,7 @@ WFlags<ItemFlag> WStandardItemModel::flags(const WModelIndex& index) const
 {
   WStandardItem *item = itemFromIndex(index, false);
 
-  return item ? item->flags() : WFlags<ItemFlag>(0);
+  return item ? item->flags() : WFlags<ItemFlag>(None);
 }
 
 WModelIndex WStandardItemModel::parent(const WModelIndex& index) const
@@ -174,42 +177,39 @@ WModelIndex WStandardItemModel::parent(const WModelIndex& index) const
   if (!index.isValid())
     return index;
 
-  WStandardItem *parent = static_cast<WStandardItem *>(index.internalPointer());
+  WStandardItem *parent
+    = static_cast<WStandardItem *>(index.internalPointer());
 
   return indexFromItem(parent);
 }
 
-boost::any WStandardItemModel::data(const WModelIndex& index, int role) const
+cpp17::any WStandardItemModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   WStandardItem *item = itemFromIndex(index, false);
 
-  return item ? item->data(role) : boost::any();
+  return item ? item->data(role) : cpp17::any();
 }
 
-boost::any WStandardItemModel::headerData(int section, Orientation orientation,
-					  int role) const
+cpp17::any WStandardItemModel::headerData(int section, Orientation orientation,
+                                   ItemDataRole role) const
 {
-  if (role == LevelRole)
+  if (role == ItemDataRole::Level)
     return 0;
 
   const std::vector<HeaderData>& headerData
-    = (orientation == Horizontal) ? columnHeaderData_ : rowHeaderData_;
+    = (orientation == Orientation::Horizontal) 
+    ? columnHeaderData_ : rowHeaderData_;
 
   if (section >= (int)headerData.size())
-    return boost::any();
+    return cpp17::any();
 
   const HeaderData& d = headerData[section];
   HeaderData::const_iterator i = d.find(role);
 
-  if (i != d.end()) {
-    /*
-     * Work around CLang bug, 'return i->second' would try to create
-     * a boost::any<const boost::any> ... ?
-     */
-    boost::any result = i->second;
-    return result;
-  } else
-    return boost::any();
+  if (i != d.end())
+    return i->second;
+  else
+    return cpp17::any();
 }
 
 WModelIndex WStandardItemModel::index(int row, int column,
@@ -326,7 +326,7 @@ void WStandardItemModel::insertHeaderData(std::vector<HeaderData>& headerData,
 					  WStandardItem *item, int index,
 					  int count)
 {
-  if (item == invisibleRootItem_) {
+  if (item == invisibleRootItem_.get()) {
     headerData.insert(headerData.begin() + index, count, HeaderData());
     fl.insert(fl.begin() + index, count, WFlags<HeaderFlag>());
   }
@@ -337,7 +337,7 @@ void WStandardItemModel::removeHeaderData(std::vector<HeaderData>& headerData,
 					  WStandardItem *item, int index,
 					  int count)
 {
-  if (item == invisibleRootItem_) {
+  if (item == invisibleRootItem_.get()) {
     headerData.erase(headerData.begin() + index,
 		     headerData.begin() + index + count);
     fl.erase(fl.begin() + index, fl.begin() + index + count);
@@ -345,7 +345,7 @@ void WStandardItemModel::removeHeaderData(std::vector<HeaderData>& headerData,
 }
 
 bool WStandardItemModel::setData(const WModelIndex& index,
-				 const boost::any& value, int role)
+                                 const cpp17::any& value, ItemDataRole role)
 {
   WStandardItem *item = itemFromIndex(index);
 
@@ -356,15 +356,16 @@ bool WStandardItemModel::setData(const WModelIndex& index,
 }
 
 bool WStandardItemModel::setHeaderData(int section, Orientation orientation,
-				       const boost::any& value, int role)
+                                       const cpp17::any& value, ItemDataRole role)
 {
   std::vector<HeaderData>& header
-    = (orientation == Horizontal) ? columnHeaderData_ : rowHeaderData_;
+    = (orientation == Orientation::Horizontal)
+    ? columnHeaderData_ : rowHeaderData_;
 
   HeaderData& d = header[section];
 
-  if (role == EditRole)
-    role = DisplayRole;
+  if (role == ItemDataRole::Edit)
+    role = ItemDataRole::Display;
 
   d[role] = value;
 
@@ -377,7 +378,8 @@ void WStandardItemModel::setHeaderFlags(int section, Orientation orientation,
 					WFlags<HeaderFlag> flags)
 {
   std::vector<WFlags<HeaderFlag> >& fl
-    = (orientation == Horizontal) ? columnHeaderFlags_ : rowHeaderFlags_;
+    = (orientation == Orientation::Horizontal)
+    ? columnHeaderFlags_ : rowHeaderFlags_;
 
   fl[section] = flags;
 }
@@ -387,7 +389,8 @@ WFlags<HeaderFlag> WStandardItemModel::headerFlags(int section,
   const
 {
   const std::vector<WFlags<HeaderFlag> >& fl
-    = (orientation == Horizontal) ? columnHeaderFlags_ : rowHeaderFlags_;
+    = (orientation == Orientation::Horizontal)
+    ? columnHeaderFlags_ : rowHeaderFlags_;
 
   if (section >= (int)fl.size())
     return WFlags<HeaderFlag>();
@@ -405,7 +408,7 @@ WModelIndex WStandardItemModel::fromRawIndex(void *rawIndex) const
   return indexFromItem(static_cast<WStandardItem *>(rawIndex));
 }
 
-void WStandardItemModel::setSortRole(int role)
+void WStandardItemModel::setSortRole(ItemDataRole role)
 {
   sortRole_ = role;
 }
@@ -413,6 +416,42 @@ void WStandardItemModel::setSortRole(int role)
 void WStandardItemModel::sort(int column, SortOrder order)
 {
   invisibleRootItem_->sortChildren(column, order);
+}
+
+void WStandardItemModel::dropEvent(const WDropEvent& e, DropAction action,
+				   int row, int column,
+				   const WModelIndex& parent)
+{
+  // In case of a move within the model, we simply move the WStandardItem,
+  // this preserves the item-flags
+  WItemSelectionModel *selectionModel
+    = dynamic_cast<WItemSelectionModel *>(e.source());
+  if (selectionModel != 0 &&
+      selectionModel->model().get() == this &&
+      selectionModel->selectionBehavior() == SelectionBehavior::Rows &&
+      action == DropAction::Move) {
+    WModelIndexSet selection = selectionModel->selectedIndexes();
+    int r = row;
+    std::vector< std::vector<std::unique_ptr<WStandardItem>> > rows;
+    for (WModelIndexSet::const_iterator i = selection.begin();
+	 i != selection.end(); ++i) {
+      WModelIndex sourceIndex = *i;
+
+      // remove the row
+      if (sourceIndex.parent() == parent &&
+	  sourceIndex.row() < row)
+	r--;
+      WStandardItem* parentItem = itemFromIndex(sourceIndex.parent());
+      rows.push_back(parentItem->takeRow(sourceIndex.row()));
+    }
+
+    for (unsigned i=0; i < rows.size(); i++) {
+      WStandardItem* parentItem = itemFromIndex(parent);
+      parentItem->insertRow(r+i, std::move(rows[i]));
+    }
+  } else {
+    WAbstractItemModel::dropEvent(e, action, row, column, parent);
+  }
 }
 
 }

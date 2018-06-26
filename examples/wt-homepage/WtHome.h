@@ -7,7 +7,7 @@
 #ifndef WT_HOME_H_
 #define WT_HOME_H_
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
 
 #include "Home.h"
 
@@ -16,33 +16,33 @@ using namespace Wt;
 class WtHome : public Home 
 {
 public:
-  WtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb);
+  WtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb);
 
 protected:
-  virtual WWidget *examples();
-  virtual WWidget *createQuoteForm();
-  virtual WWidget *sourceViewer(const std::string &internalPath);
-  virtual std::string filePrefix() const { return "wt-"; }
+  virtual std::unique_ptr<WWidget> examples() override;
+  virtual std::unique_ptr<WWidget> createQuoteForm() override;
+  virtual std::unique_ptr<WWidget> sourceViewer(const std::string &internalPath) override;
+  virtual std::string filePrefix() const override { return "wt-"; }
 
 private:
   std::string wtExamplePath_;
 
-  WWidget *example(const char *textKey, const std::string& sourceDir);
+  std::unique_ptr<WWidget> example(const char *textKey, const std::string& sourceDir);
 
-  WWidget *helloWorldExample();
-  WWidget *chartExample();
-  WWidget *homepageExample();
-  WWidget *treeviewExample();
-  WWidget *gitExample();
-  WWidget *chatExample();
-  WWidget *composerExample();
-  WWidget *widgetGalleryExample();
-  WWidget *hangmanExample();
+  std::unique_ptr<WWidget> helloWorldExample();
+  std::unique_ptr<WWidget> chartExample();
+  std::unique_ptr<WWidget> homepageExample();
+  std::unique_ptr<WWidget> treeviewExample();
+  std::unique_ptr<WWidget> gitExample();
+  std::unique_ptr<WWidget> chatExample();
+  std::unique_ptr<WWidget> composerExample();
+  std::unique_ptr<WWidget> widgetGalleryExample();
+  std::unique_ptr<WWidget> hangmanExample();
 
-  WWidget *wrapView(WWidget *(WtHome::*createFunction)());
+  std::unique_ptr<WWidget> wrapView(std::unique_ptr<WWidget> (WtHome::*createFunction)());
 };
 
-WApplication *createWtHomeApplication(const WEnvironment& env,
-				      Wt::Dbo::SqlConnectionPool *blogDb);
+std::unique_ptr<WApplication> createWtHomeApplication(const WEnvironment& env,
+                                      Dbo::SqlConnectionPool *blogDb);
 
 #endif // WT_HOME_H_

@@ -1,118 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2010 Emweb bvba, Leuven, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WVIDEO_H_
-#define WVIDEO_H_
-
-#include <Wt/WAbstractMedia>
-
-namespace Wt {
-
-/*! \class WVideo Wt/WVideo Wt/WVideo
- *  \brief A video-playing widget.
- *
- * This is a low-level widget, mapping directly onto a
- * <tt>&lt;video&gt;</tt> element available in HTML5 compliant
- * browsers.
- *
- * In almost every situation you should use the WMediaPlayer widget
- * instead, which has fallback and flexible user-interface options.
- *
- * Usage of the video element consists of adding one or more video
- * sources and setting some options. Since not every browser supports
- * HTML5 video, the class provides a mechanism to display alternative
- * content in browsers that cannot play the video.
- *
- * \if cpp
- * Usage example:
- * \code
- * WVideo *v = new WVideo(parent);
- * v->setOptions(WVideo::Autoplay | WVideo::Controls);
- * // Addsources may be called multiple times for different formats:
- * // Firefox only plays ogg
- * v->addSource("wt.ogv");
- * // many others play mp4
- * v->addSource("wt.mp4", "video/mp4");
- * // Image to be displayed before playback starts
- * v->setPoster("wt.jpg");
- * // You may display a simple text to explain that you need html5 support...
- * // v->setAlternativeContent(new WText("You have no HTML5 Video!"));
- * // ... or provide an alternative player, e.g. Flash-based
- * WFlashObject *f = new WFlashObject("player.swf", root());
- * f->setFlashVariable("startimage", "wt.jpg");
- * f->setFlashVariable("flv", "wt.mp4");
- * f->resize(640, 384);
- * v->setAlternativeContent(f);
- * \endcode
- * \endif
- *
- * There are two reasons why the a browser may use the alternative
- * content: either because the browser does not support the HTML5
- * video tag (alternative content is displayed even when JavaScript
- * is not available), or because none of the specified sources contain
- * a video format that is understood by the browser (requires
- * JavaScript to display the alternative content).
- *
- * The addSource() and setAlternativeContent() may not be called after
- * the widget is rendered.
- *
- * \sa WMediaPlayer
- *
- * \if cpp
- * \note Before %Wt 3.1.11, this was called WHTML5Video, which still
- *       exists as a (deprecated) typedef.
- * \endif
- */
-class WT_API WVideo : public WAbstractMedia
-{
-public:
-  /*! \brief Creates a video widget.
-   *
-   * The constructor sets the 'controls' option, which causes the browser
-   * to display a bar with play/pauze/volume/... controls.
-   *
-   * A freshly constructed video widget has no poster image, no media
-   * sources, has preload mode set to PreloadAuto, and only the
-   * Controls flag is set.
-   */
-  WVideo(WContainerWidget *parent = 0);
-  
-  /*! \brief Set the poster image
-   *
-   * On browsers that support it, the poster image is displayed before
-   * the video is playing. Some browsers display the first frame of the
-   * video stream once the video stream is loaded; it is therefore a
-   * good idea to include the poster image as first frame in the video
-   * feed too.
-   */
-  void setPoster(const std::string &url);
-  
-  /*! \brief Returns the JavaScript reference to the video object, or null.
-   *
-   * It is possible, for compatibility reasons, that jsRef() is not
-   * the video element. jsVideoRef() is guaranteed to be an expression
-   * that evaluates to the video object. This expression may yield
-   * null, if the video object is not rendered at all (e.g. on older
-   * versions of Internet Explorer).
-   */
-  std::string jsVideoRef() const;
-
-  virtual void resize(const WLength &width, const WLength &height);
-
-protected:
-  virtual DomElement *createMediaDomElement();
-  DomElementType domElementType() const;
-  void updateMediaDom(DomElement& element, bool all);
-
-private:
-  std::string posterUrl_;
-  bool sizeChanged_, posterChanged_;
-};
-
-}
-
-#endif // WVIDEO_H_
-
+#ifndef WT_WVIDEO_EXTENSIONLESS_H_
+#define WT_WVIDEO_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WVideo.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WVideo.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WVideo.h"
+#endif // WT_WVIDEO_EXTENSIONLESS_H_

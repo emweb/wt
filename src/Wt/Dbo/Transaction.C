@@ -6,10 +6,10 @@
 
 #include <iostream>
 
-#include "Wt/Dbo/Transaction"
-#include "Wt/Dbo/SqlConnection"
-#include "Wt/Dbo/Session"
-#include "Wt/Dbo/ptr"
+#include "Wt/Dbo/Transaction.h"
+#include "Wt/Dbo/SqlConnection.h"
+#include "Wt/Dbo/Session.h"
+#include "Wt/Dbo/ptr.h"
 
 namespace Wt {
   namespace Dbo {
@@ -30,7 +30,7 @@ Transaction::Transaction(Session& session)
  * About noexcept(false), see
  * http://akrzemi1.wordpress.com/2011/09/21/destructors-that-throw/
  */
-Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
+Transaction::~Transaction() noexcept(false)
 {
   // Either this Transaction shell was not committed (first condition)
   // or the commit failed (we are still active and need to rollback)
@@ -41,7 +41,7 @@ Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
       bool canThrow = !std::uncaught_exception();
       try {
 	rollback();
-      } catch (std::exception&) {
+      } catch (...) {
 	release();
 	if (canThrow)
 	  throw;
@@ -49,12 +49,12 @@ Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
     } else {
       try {
 	commit();
-      } catch (std::exception&) {
+      } catch (...) {
 	try {
 	  if (impl_->transactionCount_ == 1)
 	    rollback();
-	} catch (std::exception&) {
-	  std::cerr << "Unexpected transaction during Transaction::rollback()"
+	} catch (...) {
+	  std::cerr << "Unexpected exception during Transaction::rollback()"
 		    << std::endl;
 	}
 
@@ -109,7 +109,7 @@ Session& Transaction::session() const
 SqlConnection *Transaction::connection() const
 {
   impl_->open();
-  return impl_->connection_;
+  return impl_->connection_.get();
 }
 
 Transaction::Impl::Impl(Session& session)
@@ -125,7 +125,7 @@ Transaction::Impl::Impl(Session& session)
 Transaction::Impl::~Impl()
 {
   if (connection_)
-    session_.returnConnection(connection_);
+    session_.returnConnection(std::move(connection_));
 }
 
 void Transaction::Impl::open()
@@ -139,7 +139,7 @@ void Transaction::Impl::open()
 void Transaction::Impl::commit()
 {
   needsRollback_ = true;
-  if (session_.flushMode() == Auto)
+  if (session_.flushMode() == FlushMode::Auto)
     session_.flush();
 
   if (open_)
@@ -152,9 +152,8 @@ void Transaction::Impl::commit()
 
   objects_.clear();
 
-  session_.returnConnection(connection_);
-  connection_ = 0;
-  session_.transaction_ = 0;
+  session_.returnConnection(std::move(connection_));
+  session_.transaction_ = nullptr;
   active_ = false;
   needsRollback_ = false;
 }
@@ -178,9 +177,8 @@ void Transaction::Impl::rollback()
   objects_.clear();
 
 
-  session_.returnConnection(connection_);
-  connection_ = 0;
-  session_.transaction_ = 0;
+  session_.returnConnection(std::move(connection_));
+  session_.transaction_ = nullptr;
   active_ = false;
 }
 

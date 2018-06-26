@@ -1,10 +1,10 @@
-#include "IssuedToken"
+#include "IssuedToken.h"
 
 #include <string>
-#include "Wt/WDateTime"
-#include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/User"
-#include "Wt/Auth/OAuthClient"
+#include "Wt/WDateTime.h"
+#include "Wt/Auth/AbstractUserDatabase.h"
+#include "Wt/Auth/User.h"
+#include "Wt/Auth/OAuthClient.h"
 
 namespace {
   const char *INVALID_ERROR = "Wt::Auth::IssuedToken invalid";

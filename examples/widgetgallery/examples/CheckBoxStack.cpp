@@ -1,20 +1,21 @@
-#include <Wt/WCheckBox>
-#include <Wt/WContainerWidget>
+#include <Wt/WCheckBox.h>
+#include <Wt/WContainerWidget.h>
 
 SAMPLE_BEGIN(CheckBoxStack)
-Wt::WContainerWidget *result = new Wt::WContainerWidget();
+
+auto result = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 Wt::WCheckBox *cb;
 
-cb = new Wt::WCheckBox("Check me!", result);
+cb = result->addWidget(Wt::cpp14::make_unique<Wt::WCheckBox>("Check me!"));
 cb->setInline(false);
 cb->setChecked(true);
 
-cb = new Wt::WCheckBox("Check me too!", result);
+cb = result->addWidget(Wt::cpp14::make_unique<Wt::WCheckBox>("Check me too!"));
 cb->setInline(false);
 
-cb = new Wt::WCheckBox("Check me, I'm tristate!", result);
+cb = result->addWidget(Wt::cpp14::make_unique<Wt::WCheckBox>("Check me, I'm tristate!"));
 cb->setInline(false);
 cb->setTristate();
-cb->setCheckState(Wt::PartiallyChecked);
+cb->setCheckState(Wt::CheckState::PartiallyChecked);
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))

@@ -1,176 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WTREETABLE_H_
-#define WTREETABLE_H_
-
-#include <Wt/WCompositeWidget>
-
-namespace Wt {
-
-class WTree;
-class WTreeTableNode;
-class WText;
-
-/*! \class WTreeTable Wt/WTreeTable Wt/WTreeTable
- *  \brief A table with a navigatable tree in the first column.
- *
- * A %WTreeTable implements a tree table, where additional data
- * associated is associated with tree items, which are organized in
- * columns.
- *
- * Unlike the MVC-based WTreeView widget, the tree renders a widget
- * hierarchy, rather than a hierarhical standard model. This provides
- * extra flexibility (as any widget can be used as contents), at the
- * cost of server-side, client-side and bandwidth resources
- * (especially for large tree tables).
- *
- * The actual data is organized and provided by WTreeTableNode widgets.
- *
- * To use the tree table, you need <b>first</b> to call addColumn() to
- * specify the additional data columns. Next, you need to set the tree
- * root using setTreeRoot() and bind additional information (text or
- * other widgets) in each node using
- * WTreeTableNode::setColumnWidget(). Thus, you cannot change the
- * number of columns once the tree root has been set.
- *
- * The table cannot be given a height using CSS style rules, instead you
- * must use layout managers, or use resize().
- *
- * \if cpp
- * Usage example:
- * \code
- * Wt::WTreeTable *treeTable = new Wt::WTreeTable();
- * treeTable->resize(650, 300);
- *
- * // Add 3 extra columns
- * treeTable->addColumn("Yuppie Factor", 125);
- * treeTable->addColumn("# Holidays", 125);
- * treeTable->addColumn("Favorite Item", 125);
- *
- * // Create and set the root node
- * Wt::WTreeTableNode *root = new Wt::WTreeTableNode("All Personnel");
- * root->setImagePack("resources/");
- * treeTable->setTreeRoot(root, "Emweb Organigram");
- *
- * // Populate the tree with data nodes.
- * Wt::WTreeTableNode *node1 = new Wt::WTreeTableNode("Upper Management", 0, root);
- * Wt::WTreeTableNode *node2;
- * node2 = new Wt::WTreeTableNode("Chief Anything Officer", 0, node1);
- * node2->setColumnWidget(1, new Wt::WText("-2.8"));
- * node2->setColumnWidget(2, new Wt::WText("20"));
- * node2->setColumnWidget(3, new Wt::WText("Scepter"));
- *
- * node2 = new WTreeTableNode("Vice President of Parties", 0, node1);
- * node2->setColumnWidget(1, new Wt::WText("13.57"));
- * node2->setColumnWidget(2, new Wt::WText("365"));
- * node2->setColumnWidget(3, new Wt::WText("Flag"));
- *
- * root->expand();
- * \endcode
- * \endif
- *
- * A screenshot of the treetable:
- * \image html WTreeTable-default-1.png "An example WTreeTable (default)"
- * \image html WTreeTable-polished-1.png "An example WTreeTable (polished)"
- *
- * \sa WTreeTableNode, WTreeView
- */
-class WT_API WTreeTable : public WCompositeWidget
-{
-public:
-  /*! \brief Creates a new tree table.
-   *
-   * The treeRoot() is \c 0. The table should first be properly dimensioned
-   * using addColumn() calls, and then data using setTreeRoot().
-   */
-  WTreeTable(WContainerWidget *parent = 0);
-
-  /*! \brief Adds an extra column.
-   *
-   * Add an extra column, specifying the column header and a column
-   * width. The extra columns are numbered from 1 as column 0 contains
-   * the tree itself. The header for column 0 (the tree itself) is
-   * specified in setTreeRoot(), and the width of column 0 takes the
-   * remaining available width.
-   */
-  void addColumn(const WString& header, const WLength& width);
-
-  /*! \brief Returns the number of columns in this table.
-   *
-   * Returns the number of columns in the table, including in the count
-   * column 0 (which contains the tree).
-   *
-   * \sa addColumn()
-   */
-  int columnCount() const { return (int)columnWidths_.size(); }
-
-  /*! \brief Sets the tree root.
-   *
-   * Sets the data for the tree table, and specify the header for the
-   * first column.
-   *
-   * The initial \p root is \c 0.
-   *
-   * \sa treeRoot(), setTree()
-   */
-  void setTreeRoot(WTreeTableNode *root, const WString& header);
-
-  /*! \brief Returns the tree root.
-   */
-  WTreeTableNode *treeRoot();
-
-  /*! \brief Sets the tree which provides the data for the tree table.
-   *
-   * \sa setTreeRoot().
-   */
-  void setTree(WTree *tree, const WString& header);
-
-  /*! \brief Returns the tree that provides the data this table.
-   *
-   * \sa setTree().
-   */
-  WTree *tree() const { return tree_; }
-
-  /*! \brief Returns the column width for the given column.
-   *
-   * The width of the first column (with index 0), containing the
-   * tree, is implied by the width set for the table minus the width
-   * of all other columns.
-   *
-   * \sa addColumn(), setTreeRoot()
-   */
-  WLength columnWidth(int column) const { return columnWidths_[column]; }
-
-  /*! \brief Returns the header for the given column.
-   *
-   * \sa addColumn(), setTreeRoot()
-   */
-  WText *header(int column) const;
-
-  /*! \brief Returns the header widget.
-   *
-   * This is the widget that contains the column headers.
-   */
-  WWidget *headerWidget() const;
-
-protected:
-  virtual void render(WFlags<RenderFlag> flags);
-
-private:
-  WContainerWidget *impl_;
-  WContainerWidget *headers_;
-  WContainerWidget *headerContainer_;
-  WTree            *tree_;
-
-  std::vector<WLength> columnWidths_;
-
-  void defineJavaScript();
-};
-
-}
-
-#endif // WTREETABLE_H_
+#ifndef WT_WTREETABLE_EXTENSIONLESS_H_
+#define WT_WTREETABLE_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WTreeTable.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WTreeTable.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WTreeTable.h"
+#endif // WT_WTREETABLE_EXTENSIONLESS_H_

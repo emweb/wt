@@ -1,4 +1,4 @@
-#include <Wt/Auth/GoogleService>
+#include "GoogleService.h"
 
 #define ERROR_MSG(e) WString::tr("Wt.Auth.GoogleService." e)
 
@@ -32,6 +32,7 @@ GoogleService::GoogleService(const AuthService& baseAuth)
 
   setName("google");
   setDescription("Google Account");
+  setPopupWidth(550);
 }
 
 bool GoogleService::configured()
@@ -57,7 +58,6 @@ std::string GoogleService::redirectEndpointPath() const
     return OAuthService::redirectEndpointPath();
   }
 }
-
 
   }
 }

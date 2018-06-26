@@ -7,11 +7,12 @@
 #include <vector>
 #include <iterator>
 #include <cstring>
+#include <memory>
 
 #include "AuthUtils.h"
 #include "base64.h"
 
-#include "Wt/WRandom"
+#include "Wt/WRandom.h"
 
 namespace Wt {
   namespace Auth {
@@ -19,15 +20,13 @@ namespace Wt {
 
 std::string createSalt(unsigned int length)
 {
-  unsigned char *saltBuf = new unsigned char[length];
+  auto saltBuf = std::unique_ptr<unsigned char[]>(new unsigned char[length]);
   for (unsigned i = 0; i < length; i += 3) {
     unsigned r = WRandom::get();
-    std::memcpy(saltBuf + i, &r, 3);
+    std::memcpy(saltBuf.get() + i, &r, 3);
   }
 
-  std::string s(saltBuf, saltBuf + length);
-
-  delete[] saltBuf;
+  std::string s(saltBuf.get(), saltBuf.get() + length);
 
   return s;
 }

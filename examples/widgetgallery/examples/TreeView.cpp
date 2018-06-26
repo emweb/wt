@@ -1,4 +1,4 @@
-#include <Wt/WTreeView>
+#include <Wt/WTreeView.h>
 
 #ifdef WT_EXAMPLE
 #include "GitModel.cpp"
@@ -6,16 +6,16 @@
 #endif // WT_EXAMPLE
 
 SAMPLE_BEGIN(TreeView)
-Wt::WTreeView *treeView = new Wt::WTreeView();
+auto treeView = cpp14::make_unique<WTreeView>();
 treeView->resize(600, 400);
 
-Wt::WAbstractItemModel *model = new GitModel(GIT_REPOSITORY, treeView);
+auto model = std::make_shared<GitModel>(GIT_REPOSITORY);
 treeView->setModel(model);
 
 treeView->setRowHeight(24);
 treeView->setHeaderHeight(24);
 treeView->setSortingEnabled(false);
-treeView->setSelectionMode(Wt::SingleSelection);
-treeView->setEditTriggers(Wt::WAbstractItemView::NoEditTrigger);
+treeView->setSelectionMode(SelectionMode::Single);
+treeView->setEditTriggers(EditTrigger::None);
 
-SAMPLE_END(return treeView)
+SAMPLE_END(return std::move(treeView))

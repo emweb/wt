@@ -7,7 +7,7 @@
 #ifndef ADDRESSEE_EDIT_H_
 #define ADDRESSEE_EDIT_H_
 
-#include <Wt/WTextArea>
+#include <Wt/WTextArea.h>
 
 #include "Contact.h"
 
@@ -36,8 +36,7 @@ public:
    * Constructs also a widget to hold the label in the labelParent.
    * The label will be hidden and shown together with this field.
    */
-  AddresseeEdit(const WString& label, WContainerWidget *parent,
-		WContainerWidget *labelParent);
+  AddresseeEdit(const WString& label, WContainerWidget *labelParent);
 
   /*! \brief Set a list of addressees.
    */

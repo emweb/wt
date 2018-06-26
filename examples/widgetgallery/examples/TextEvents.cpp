@@ -1,47 +1,48 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(TextEvents)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
 // Create four text widgets.
 Wt::WText *text1 =
-    new Wt::WText("This text reacts to <tt>clicked()</tt>", container);
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>(
+                           "This text reacts to <tt>clicked()</tt>"));
 text1->setStyleClass("reactive");
 
 Wt::WText *text2 =
-    new Wt::WText("This text reacts to <tt>doubleClicked()</tt>",
-                  container);
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>(
+                           "This text reacts to <tt>doubleClicked()</tt>"));
 text2->setStyleClass("reactive");
 
 Wt::WText *text3 =
-    new Wt::WText("This text reacts to <tt>mouseWentOver()</tt>",
-                  container);
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>(
+                           "This text reacts to <tt>mouseWentOver()</tt>"));
 text3->setStyleClass("reactive");
 
 Wt::WText *text4 =
-    new Wt::WText("This text reacts to <tt>mouseWentOut()</tt>",
-                  container);
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>(
+                           "This text reacts to <tt>mouseWentOut()</tt>"));
 text4->setStyleClass("reactive");
 
 // Create an additional text control to show status messages.
-Wt::WText *out = new Wt::WText(container);
+Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
 // Assign a signal/slot mechanism to the text controls.
-text1->clicked().connect(std::bind([=] () {
+text1->clicked().connect([=] {
     out->setText("<p>Text was clicked.</p>");
-}));
+});
 
-text2->doubleClicked().connect(std::bind([=] () {
+text2->doubleClicked().connect([=] {
     out->setText("<p>Text was double clicked.</p>");
-}));
+});
 
-text3->mouseWentOver().connect(std::bind([=] () {
+text3->mouseWentOver().connect([=] {
     out->setText("<p>Mouse went over text.</p>");
-}));
+});
 
-text4->mouseWentOut().connect(std::bind([=] () {
+text4->mouseWentOut().connect([=] {
     out->setText("<p>Mouse went out text.</p>");
-}));
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

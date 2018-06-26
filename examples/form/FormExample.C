@@ -7,23 +7,23 @@
 #include "FormExample.h"
 #include "Form.h"
 
-#include <Wt/WApplication>
-#include <Wt/WText>
-#include <Wt/WStringUtil>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
+#include <Wt/WStringUtil.h>
 
-FormExample::FormExample(WContainerWidget *parent)
-  : WContainerWidget(parent)
+FormExample::FormExample()
+    : WContainerWidget()
 {
-  WContainerWidget *langLayout = new WContainerWidget(this);
-  langLayout->setContentAlignment(AlignRight);
-  new WText(tr("language"), langLayout);
+  WContainerWidget *langLayout = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  langLayout->setContentAlignment(AlignmentFlag::Right);
+  langLayout->addWidget(cpp14::make_unique<WText>(tr("language")));
 
   const char *lang[] = { "en", "nl" };
 
   for (int i = 0; i < 2; ++i) {
-    WText *t = new WText(widen(lang[i]), langLayout);
+    WText *t = langLayout->addWidget(cpp14::make_unique<WText>(lang[i]));
     t->setMargin(5);
-    t->clicked().connect(this, &FormExample::changeLanguage);
+    t->clicked().connect(std::bind(&FormExample::changeLanguage, this, t));
 
     languageSelects_.push_back(t);
   }
@@ -33,7 +33,7 @@ FormExample::FormExample(WContainerWidget *parent)
    */
   setLanguage(wApp->locale().name());
 
-  Form *form = new Form(this);
+  Form *form = this->addWidget(cpp14::make_unique<Form>());
   form->setMargin(20);
 }
 
@@ -41,47 +41,47 @@ void FormExample::setLanguage(const std::string lang)
 {
   bool haveLang = false;
 
-  for (unsigned i = 0; i < languageSelects_.size(); ++i) {
-    WText *t = languageSelects_[i];
+  for (auto i : languageSelects_) {
+    WText *t = i;
 
     // prefix match, e.g. en matches en-us.
-    bool isLang = lang.find(narrow(t->text().value())) == 0;
-    t->setStyleClass(isLang ? L"langcurrent" : L"lang");
+    bool isLang = lang.find(t->text().toUTF8()) == 0;
+    t->setStyleClass(isLang ? "langcurrent" : "lang");
 
     haveLang = haveLang || isLang;
   }
 
   if (!haveLang) {
-    languageSelects_[0]->setStyleClass(L"langcurrent");
+    languageSelects_[0]->setStyleClass("langcurrent");
     WApplication::instance()
-      ->setLocale(narrow(languageSelects_[0]->text().value()));
+      ->setLocale(languageSelects_[0]->text().toUTF8());
   } else
     WApplication::instance()->setLocale(lang);
 }
 
-void FormExample::changeLanguage()
+void FormExample::changeLanguage(WText *t)
 {
-  WText *t = (WText *)sender();
-  setLanguage(narrow(t->text().value()));
+  setLanguage(t->text().toUTF8());
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new WApplication(env);
+  std::unique_ptr<WApplication> app
+      = cpp14::make_unique<WApplication>(env);
   app->messageResourceBundle().use(WApplication::appRoot() + "form-example");
   app->setTitle("Form example");
 
-  app->root()->addWidget(new FormExample());
+  app->root()->addWidget(cpp14::make_unique<FormExample>());
 
   WCssDecorationStyle langStyle;
-  langStyle.font().setSize(WFont::Smaller);
-  langStyle.setCursor(PointingHandCursor);
-  langStyle.setForegroundColor(blue);
-  langStyle.setTextDecoration(WCssDecorationStyle::Underline);
+  langStyle.font().setSize(FontSize::Smaller);
+  langStyle.setCursor(Cursor::PointingHand);
+  langStyle.setForegroundColor(WColor("blue"));
+  langStyle.setTextDecoration(TextDecoration::Underline);
   app->styleSheet().addRule(".lang", langStyle);
 
-  langStyle.setCursor(ArrowCursor);
-  langStyle.font().setWeight(WFont::Bold);
+  langStyle.setCursor(Cursor::Arrow);
+  langStyle.font().setWeight(FontWeight::Bold);
   app->styleSheet().addRule(".langcurrent", langStyle);
 
   return app;

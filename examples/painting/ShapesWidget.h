@@ -8,7 +8,7 @@
 #ifndef SHAPES_WIDGET_H_
 #define SHAPES_WIDGET_H_
 
-#include <Wt/WPaintedWidget>
+#include <Wt/WPaintedWidget.h>
 
 namespace Wt {
   class WPainter;
@@ -19,7 +19,7 @@ using namespace Wt;
 class ShapesWidget : public WPaintedWidget
 {
 public:
-  ShapesWidget(WContainerWidget *parent = 0);
+  ShapesWidget();
 
   void setAngle(double angle);
   double angle() const { return angle_; }
@@ -28,7 +28,7 @@ public:
   double relativeSize() const { return size_; }
 
 protected:
-  virtual void paintEvent(WPaintDevice *paintDevice);
+  virtual void paintEvent(WPaintDevice *paintDevice) override;
 
 private:
   double angle_;

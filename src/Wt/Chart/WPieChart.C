@@ -7,19 +7,19 @@
 #include <cmath>
 #include <cstdio>
 
-#include "Wt/Chart/WAbstractChartModel"
-#include "Wt/Chart/WPieChart"
-#include "Wt/Chart/WStandardPalette"
+#include "Wt/Chart/WAbstractChartModel.h"
+#include "Wt/Chart/WPieChart.h"
+#include "Wt/Chart/WStandardPalette.h"
 
-#include "Wt/WContainerWidget"
-#include "Wt/WCssDecorationStyle"
-#include "Wt/WText"
-#include "Wt/WPainter"
-#include "Wt/WPolygonArea"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WModelIndex"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WCssDecorationStyle.h"
+#include "Wt/WText.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPolygonArea.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WModelIndex.h"
 
 #include "WebUtils.h"
 
@@ -35,18 +35,18 @@ WPieChart::PieData::PieData()
     explode(0)
 { }
 
-WPieChart::WPieChart(WContainerWidget *parent)
-  : WAbstractChart(parent),
-    labelsColumn_(-1),
+WPieChart::WPieChart()
+  : labelsColumn_(-1),
     dataColumn_(-1),
     height_(0.0),
     startAngle_(45),
     avoidLabelRendering_(0.0),
-    labelOptions_(0),
+    labelOptions_(None),
     shadow_(false),
     labelFormat_(WString::fromUTF8("%.3g%%"))
 {
-  setPalette(new WStandardPalette(WStandardPalette::Neutral));
+  setPalette
+    (std::make_shared<WStandardPalette>(PaletteFlavour::Neutral));
   setPlotAreaPadding(5);
 }
 
@@ -142,15 +142,14 @@ void WPieChart::setDisplayLabels(WFlags<LabelOption> options)
   update();
 }
 
-WWidget* WPieChart::createLegendItemWidget(int index, 
-					   WFlags<LabelOption> options)
+std::unique_ptr<WWidget>
+WPieChart::createLegendItemWidget(int index, WFlags<LabelOption> options)
 {
-  WContainerWidget* legendItem = new WContainerWidget();
+  std::unique_ptr<WContainerWidget> legendItem(new WContainerWidget());
   legendItem->setPadding(4);
   
-  WText* colorText = new WText();
-  legendItem->addWidget(colorText);
-  colorText->setPadding(10, Left | Right);
+  auto colorText = legendItem->addWidget(std::unique_ptr<WText>());
+  colorText->setPadding(10, Side::Left | Side::Right);
   colorText->decorationStyle().setBackgroundColor(brush(index).color());
 
   if (WApplication::instance()->environment().agentIsIE())
@@ -169,14 +168,14 @@ WWidget* WPieChart::createLegendItemWidget(int index,
   if (!Utils::isNaN(value)) {
     WString label = labelText(index, value, total, options);
     if (!label.empty()) {
-      WText* l = new WText(label);
-      l->setPadding(5, Left);
+      std::unique_ptr<WText> l(new WText(label));
+      l->setPadding(5, Side::Left);
       l->setToolTip(model()->toolTip(index, dataColumn_));
-      legendItem->addWidget(l);
+      legendItem->addWidget(std::move(l));
     }
   }
 
-  return legendItem;
+  return std::move(legendItem);
 }
 
 void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
@@ -198,11 +197,11 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   if (rect.isNull() || rect.isEmpty())
     rect = painter.window();
 
-  rect.setX(rect.x() + plotAreaPadding(Left));
-  rect.setY(rect.y() + plotAreaPadding(Top));
-  rect.setWidth(rect.width() - plotAreaPadding(Left) - plotAreaPadding(Right));
-  rect.setHeight(rect.height() - plotAreaPadding(Top)
-		 - plotAreaPadding(Bottom));
+  rect.setX(rect.x() + plotAreaPadding(Side::Left));
+  rect.setY(rect.y() + plotAreaPadding(Side::Top));
+  rect.setWidth(rect.width() - plotAreaPadding(Side::Left) - plotAreaPadding(Side::Right));
+  rect.setHeight(rect.height() - plotAreaPadding(Side::Top)
+		 - plotAreaPadding(Side::Bottom));
 
   double side = std::min(rect.width(), rect.height());
 
@@ -228,7 +227,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   painter.restore();
 
   painter.translate(0, -h/4);
-  if (labelOptions_) {
+  if (!labelOptions_.empty()) {
     if (total != 0) {
       double currentAngle = startAngle_;
 
@@ -251,7 +250,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	double top;
 
 	double f;
-	if (labelOptions_ & Outside)
+	if (labelOptions_.test(LabelOption::Outside))
 	  f = pie_[i].explode + 1.1;
 	else
 	  f = pie_[i].explode + 0.7;
@@ -263,28 +262,28 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	WFlags<AlignmentFlag> alignment;
 
 	WColor c = painter.pen().color();
-	if (labelOptions_ & Outside) {
+	if (labelOptions_.test(LabelOption::Outside)) {
 	  if (midAngle < 90) {
 	    left = px;
 	    top = py - height;
-	    alignment = AlignLeft | AlignBottom;
+	    alignment = AlignmentFlag::Left | AlignmentFlag::Bottom;
 	  } else if (midAngle < 180) {
 	    left = px - width;
 	    top = py - height;
-	    alignment = AlignRight | AlignBottom;
+	    alignment = AlignmentFlag::Right | AlignmentFlag::Bottom;
 	  } else if (midAngle < 270) {
 	    left = px - width;
 	    top = py + h/2;
-	    alignment = AlignRight | AlignTop;
+	    alignment = AlignmentFlag::Right | AlignmentFlag::Top;
 	  } else {
 	    left = px;
 	    top = py + h/2;
-	    alignment = AlignLeft | AlignTop;
+	    alignment = AlignmentFlag::Left | AlignmentFlag::Top;
 	  }
 	} else {
 	  left = px - width/2;
 	  top = py - height/2;
-	  alignment = AlignCenter | AlignMiddle;
+	  alignment = AlignmentFlag::Center | AlignmentFlag::Middle;
 	  c = palette()->fontColor(i);
 	}
 
@@ -303,14 +302,14 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
     WFont oldFont = painter.font();
     painter.setFont(titleFont());
     painter.drawText(cx - 50, cy - r, 100, 50,
-		     AlignCenter | AlignTop, title());
+		     AlignmentFlag::Center | AlignmentFlag::Top, title());
     painter.setFont(oldFont);
   }
 
   painter.restore();
 }
 
-WContainerWidget *WPieChart::createLabelWidget(WWidget *textWidget,
+std::unique_ptr<WContainerWidget> WPieChart::createLabelWidget(std::unique_ptr<WWidget> textWidget,
     WPainter* painter, const WRectF& rect,
     Wt::WFlags<Wt::AlignmentFlag> alignmentFlags) const
 {
@@ -318,9 +317,9 @@ WContainerWidget *WPieChart::createLabelWidget(WWidget *textWidget,
   AlignmentFlag horizontalAlign = alignmentFlags & AlignHorizontalMask;
 
   // style parent container
-  WContainerWidget *c = new WContainerWidget();
-  c->addWidget(textWidget);
-  c->setPositionScheme(Wt::Absolute);
+  auto c = cpp14::make_unique<WContainerWidget>();
+  WWidget *tw = c->addWidget<WWidget>(std::move(textWidget));
+  c->setPositionScheme(PositionScheme::Absolute);
   c->setAttributeValue("style", "display: flex;");
 
   const WRectF& normRect = rect.normalized();
@@ -336,9 +335,9 @@ WContainerWidget *WPieChart::createLabelWidget(WWidget *textWidget,
     << "display: flex;";
 
   switch (horizontalAlign) {
-  case AlignLeft: containerStyle << " justify-content: flex-start;"; break;
-  case AlignRight: containerStyle << " justify-content: flex-end;"; break;
-  case AlignCenter: containerStyle << " justify-content: center;"; break;
+  case AlignmentFlag::Left: containerStyle << " justify-content: flex-start;"; break;
+  case AlignmentFlag::Right: containerStyle << " justify-content: flex-end;"; break;
+  case AlignmentFlag::Center: containerStyle << " justify-content: center;"; break;
   default: break;
   }
 
@@ -349,13 +348,13 @@ WContainerWidget *WPieChart::createLabelWidget(WWidget *textWidget,
   std::stringstream innerStyle;
 
   switch (verticalAlign) {
-  case AlignTop: innerStyle << "align-self: flex-start;"; break;
-  case AlignBottom: innerStyle << "align-self: flex-end;"; break;
-  case AlignMiddle: innerStyle << " align-self: center;"; break;
+  case AlignmentFlag::Top: innerStyle << "align-self: flex-start;"; break;
+  case AlignmentFlag::Bottom: innerStyle << "align-self: flex-end;"; break;
+  case AlignmentFlag::Middle: innerStyle << " align-self: center;"; break;
   default: break;
   }
 
-  textWidget->setAttributeValue("style", innerStyle.str());
+  tw->setAttributeValue("style", innerStyle.str());
 
   return c;
 }
@@ -372,11 +371,11 @@ WString WPieChart::labelText(int index, double v, double total,
 {
   WString text;
 
-  if (options & TextLabel)
+  if (options.test(LabelOption::TextLabel))
     if (labelsColumn_ != -1)
       text += model()->displayData(index, labelsColumn_);
 
-  if (options & TextPercentage) {
+  if (options.test(LabelOption::TextPercentage)) {
     std::string label;
     double u = v / total * 100;
 
@@ -426,7 +425,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
     } else {
       if (shadow_) {
 	setShadow(painter);
-	painter.setBrush(WBrush(black));
+	painter.setBrush(WBrush(StandardColor::Black));
 	drawSlices(painter, cx, cy + h, r, total, true);
 	painter.setShadow(WShadow());
       }
@@ -539,7 +538,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
       }
 
       /*
-       * Outside
+       * LabelOption::Outside
        */
       for (int j = 0; j < model()->rowCount(); ++j) {
 	int i = (index90 + j) % model()->rowCount();
@@ -620,7 +619,7 @@ void WPieChart::drawSlices(WPainter& painter,
       if (!toolTip.empty() || link) {
         const int SEGMENT_ANGLE = 20;
 
-	WPolygonArea *area = new WPolygonArea();
+	std::unique_ptr<WPolygonArea> area(new WPolygonArea());
 	WTransform t = painter.worldTransform();
 
 	area->addPoint(t.map(WPointF(pcx, pcy)));
@@ -645,7 +644,7 @@ void WPieChart::drawSlices(WPainter& painter,
         if (link)
           area->setLink(*link);
 
-	addDataPointArea(i, dataColumn_, area);
+	addDataPointArea(i, dataColumn_, std::move(area));
       }
     }
 
@@ -657,9 +656,10 @@ void WPieChart::drawSlices(WPainter& painter,
   }
 }
 
-void WPieChart::addDataPointArea(int row, int column, WAbstractArea *area) const
+void WPieChart::addDataPointArea(int row, int column,
+				 std::unique_ptr<WAbstractArea> area) const
 {
-  (const_cast<WPieChart *>(this))->addArea(area);
+  (const_cast<WPieChart *>(this))->addArea(std::move(area));
 }
 
 WBrush WPieChart::darken(const WBrush& brush)
@@ -667,10 +667,7 @@ WBrush WPieChart::darken(const WBrush& brush)
   WBrush result = brush;
   WColor c = result.color();
 
-  c.setRgb(c.red() * 3/4,
-	   c.green() * 3/4,
-	   c.blue() * 3/4,
-	   c.alpha());
+  c.setRgb(c.red() * 3/4, c.green() * 3/4, c.blue() * 3/4, c.alpha());
 
   result.setColor(c);
 
@@ -705,11 +702,13 @@ void WPieChart::drawOuter(WPainter& painter, double pcx, double pcy, double r,
 
 void WPieChart::paintEvent(WPaintDevice *paintDevice)
 {
-  while (!areas().empty())
-    delete areas().front();
+  const std::vector<WAbstractArea *> allAreas = areas();
+  for (auto area : allAreas) {
+    removeArea(area);
+  }
 
   WPainter painter(paintDevice);
-  painter.setRenderHint(WPainter::Antialiasing, true);
+  painter.setRenderHint(RenderHint::Antialiasing, true);
   paint(painter);
 }
 

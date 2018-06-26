@@ -4,11 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "HashFunction"
+#include "HashFunction.h"
 #include "AuthUtils.h"
 
-#include "Wt/Utils"
-#include "Wt/WException"
+#include "Wt/Utils.h"
+#include "Wt/WException.h"
 
 #ifndef WT_TARGET_JAVA
 // for htonl():
@@ -100,12 +100,12 @@ std::string BCryptHashFunction::compute(const std::string& msg,
 
   if (!crypt_gensalt_rn("$2y$", count_, c_salt, 16, setting, 32)) {
     std::perror("crypt_gen_salt_rn");
-    throw std::runtime_error("bcrypt() gensalt internal error");
+    throw WException("bcrypt() gensalt internal error");
   } else {
     char result[64];
     if (!crypt_rn(msg.c_str(), setting, result, 64)) {
       std::perror("crypt_rn");
-      throw std::runtime_error("bcrypt() internal error");
+      throw WException("bcrypt() internal error");
     }
     return result;
   }
@@ -119,7 +119,7 @@ bool BCryptHashFunction::verify(const std::string& msg,
 
   if (!crypt_rn(msg.c_str(), hash.c_str(), result, 64)) {
     std::perror("crypt_rn");
-    throw std::runtime_error("bcrypt() internal error");
+    throw WException("bcrypt() internal error");
   }
 
   return result == hash;

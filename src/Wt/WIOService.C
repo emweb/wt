@@ -4,14 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WIOService"
-#include "Wt/WLogger"
-
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
+#include "Wt/WIOService.h"
+#include "Wt/WLogger.h"
 
 #ifdef WT_THREADED
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 #if !defined(WT_WIN32)
 #include <pthread.h>
 #include <signal.h>
@@ -20,15 +18,9 @@
 #endif // !_WIN32
 #endif // WT_THREADED
 
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
-typedef boost::asio::steady_timer asio_timer;
-typedef std::chrono::milliseconds asio_timer_milliseconds;
-#else
-typedef boost::asio::deadline_timer asio_timer;
-typedef boost::posix_time::milliseconds asio_timer_milliseconds;
-#endif
-
 namespace Wt {
+
+  namespace asio = AsioWrapper::asio;
 
 LOGGER("WIOService");
 
@@ -43,14 +35,14 @@ public:
   {
   }
   int threadCount_;
-  boost::asio::io_service::work *work_;
+  asio::io_service::work *work_;
 
 #ifdef WT_THREADED
-  boost::mutex blockedThreadMutex_;
+  std::mutex blockedThreadMutex_;
   int blockedThreadCounter_;
-#endif
 
-  std::vector<boost::thread *> threads_;
+  std::vector<std::unique_ptr<std::thread>> threads_;
+#endif
 
 };
 
@@ -78,7 +70,7 @@ int WIOService::threadCount() const
 void WIOService::start()
 {
   if (!impl_->work_) {
-    impl_->work_ = new boost::asio::io_service::work(*this);
+    impl_->work_ = new asio::io_service::work(*this);
 
 #ifdef WT_THREADED
 
@@ -92,7 +84,8 @@ void WIOService::start()
 
     for (int i = 0; i < impl_->threadCount_; ++i) {
       impl_->threads_.push_back
-	(new boost::thread(boost::bind(&WIOService::run, this)));
+	(std::unique_ptr<std::thread>
+	 (new std::thread(std::bind(&WIOService::run, this))));
     }
 
 #if !defined(WT_WIN32)
@@ -115,10 +108,8 @@ void WIOService::stop()
   impl_->work_ = 0;
 
 #ifdef WT_THREADED
-  for (unsigned i = 0; i < impl_->threads_.size(); ++i) {
+  for (unsigned i = 0; i < impl_->threads_.size(); ++i)
     impl_->threads_[i]->join();
-    delete impl_->threads_[i];
-  }
 
   impl_->threads_.clear();
 #endif // WT_THREADED
@@ -126,27 +117,27 @@ void WIOService::stop()
   reset();
 }
 
-void WIOService::post(const boost::function<void ()>& function)
+void WIOService::post(const std::function<void ()>& function)
 {
-  schedule(0, function);
+  schedule(std::chrono::milliseconds{0}, function);
 }
 
-void WIOService::schedule(int millis, const boost::function<void()>& function)
+void WIOService::schedule(std::chrono::steady_clock::duration millis, const std::function<void()>& function)
 {
-  if (millis == 0)
+  if (millis.count() == 0)
     strand_.post(function); // guarantees execution order
   else {
-    asio_timer *timer = new asio_timer(*this);
-    timer->expires_from_now(asio_timer_milliseconds(millis));
+    asio::steady_timer *timer = new asio::steady_timer(*this);
+    timer->expires_from_now(millis);
     timer->async_wait
-      (boost::bind(&WIOService::handleTimeout, this, timer, function,
-		   boost::asio::placeholders::error));
+      (std::bind(&WIOService::handleTimeout, this, timer, function,
+		 std::placeholders::_1));
   }
 }
 
-void WIOService::handleTimeout(asio_timer *timer,
-			       const boost::function<void ()>& function,
-			       const boost::system::error_code& e)
+void WIOService::handleTimeout(asio::steady_timer *timer,
+			       const std::function<void ()>& function,
+			       const AsioWrapper::error_code& e)
 {
   if (!e)
     function();
@@ -160,7 +151,7 @@ void WIOService::initializeThread()
 bool WIOService::requestBlockedThread()
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock l(impl_->blockedThreadMutex_);
+  std::unique_lock<std::mutex> l(impl_->blockedThreadMutex_);
   if (impl_->blockedThreadCounter_ >= threadCount() - 1)
     return false;
   else {
@@ -175,7 +166,7 @@ bool WIOService::requestBlockedThread()
 void WIOService::releaseBlockedThread()
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock l(impl_->blockedThreadMutex_);
+  std::unique_lock<std::mutex> l(impl_->blockedThreadMutex_);
   if (impl_->blockedThreadCounter_ > 0)
     impl_->blockedThreadCounter_--;
   else
@@ -186,7 +177,7 @@ void WIOService::releaseBlockedThread()
 void WIOService::run()
 {
   initializeThread();
-  boost::asio::io_service::run();
+  asio::io_service::run();
 }
 
 }

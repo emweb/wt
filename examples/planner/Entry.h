@@ -7,23 +7,25 @@
 #ifndef ENTRY_H_
 #define ENTRY_H_
 
-#include <Wt/WDateTime>
+#include <Wt/WDateTime.h>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+
+using namespace Wt;
 
 class UserAccount;
 
-namespace dbo = Wt::Dbo;
+namespace dbo = Dbo;
 
 class Entry {
 public:
   dbo::ptr<UserAccount> user;
 
-  Wt::WDateTime start;
-  Wt::WDateTime stop;
-  Wt::WString summary;
-  Wt::WString text;
+  WDateTime start;
+  WDateTime stop;
+  WString summary;
+  WString text;
 
   template<class Action>
   void persist(Action& a)

@@ -7,9 +7,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 #include "DboFixture.h"
 
@@ -56,9 +56,9 @@ BOOST_AUTO_TEST_CASE( dbo_json_sql_traits )
   dbo::Session& session = *f.session_;
   dbo::Transaction transaction(session);
 
-  HasJson *hj = new HasJson();
+  auto hj = std::unique_ptr<HasJson>(new HasJson());
   hj->name = "john";
-  session.add(hj);
+  session.add(std::move(hj));
   dbo::ptr<HasJson> hjptr = session
     .find<HasJson>("where \"name\" = ?")
     .bind("john");

@@ -7,15 +7,17 @@
 #ifndef ALL_ENTRIES_DIALOG_H_
 #define ALL_ENTRIES_DIALOG_H_
 
-#include <Wt/WDialog>
-#include <Wt/WString>
+#include <Wt/WDialog.h>
+#include <Wt/WString.h>
 
 #include "CalendarCell.h"
 
-class AllEntriesDialog : public Wt::WDialog
+using namespace Wt;
+
+class AllEntriesDialog : public WDialog
 {
 public:
-  AllEntriesDialog(const Wt::WString& title, CalendarCell* cell);
+  AllEntriesDialog(const WString& title, CalendarCell* cell);
 
 private:
   void closeDialog();

@@ -7,20 +7,21 @@
 #include "AuthWidget.h"
 #include "RegistrationView.h"
 #include "model/Session.h"
+#include "model/UserDetailsModel.h"
 
 AuthWidget::AuthWidget(Session& session)
-  : Wt::Auth::AuthWidget(Session::auth(), session.users(), session.login()),
+  : Auth::AuthWidget(Session::auth(), session.users(), session.login()),
     session_(session)
 {  }
 
-Wt::WWidget *AuthWidget::createRegistrationView(const Wt::Auth::Identity& id)
+std::unique_ptr<WWidget> AuthWidget::createRegistrationView(const Auth::Identity& id)
 {
-  RegistrationView *w = new RegistrationView(session_, this);
-  Wt::Auth::RegistrationModel *model = createRegistrationModel();
+  auto registrationView = cpp14::make_unique<RegistrationView>(session_, this);
+  std::unique_ptr<Auth::RegistrationModel> model = createRegistrationModel();
 
   if (id.isValid())
     model->registerIdentified(id);
 
-  w->setModel(model);
-  return w;
+  registrationView->setModel(std::move(model));
+  return std::move(registrationView);
 }

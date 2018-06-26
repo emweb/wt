@@ -9,13 +9,23 @@
 
 #include <list>
 
-#ifndef HAVE_PANGO
-#include <string>
-#else
-#include <pango/pango.h>
-#endif // HAVE_PANGO
+#include "Wt/WDllDefs.h"
 
-#include <Wt/WPaintDevice>
+#ifdef WT_TARGET_JAVA
+#define WT_FONTSUPPORT_SIMPLE
+#endif // WT_TARGET_JAVA
+#ifdef WT_FONTSUPPORT_SIMPLE
+#include <string>
+#endif // WT_FONTSUPPORT_SIMPLE
+#ifdef WT_FONTSUPPORT_PANGO
+#include <pango/pango.h>
+#endif // WT_FONTSUPPORT_PANGO
+#ifdef WT_FONTSUPPORT_DIRECTWRITE
+#include <dwrite.h>
+#endif // WT_FONTSUPPORT_DIRECTWRITE
+
+#include "Wt/WFont.h"
+#include "Wt/WPaintDevice.h"
 
 namespace Wt {
 
@@ -58,16 +68,7 @@ public:
 
   class FontMatch {
   public:
-#ifdef HAVE_PANGO
-
-    FontMatch(PangoFont *font, PangoFontDescription *desc);
-
-    bool matched() const { return true; }
-    std::string fileName() const;
-    PangoFont *pangoFont() const { return font_; }
-    PangoFontDescription *pangoFontDescription() const { return desc_; }
-
-#else
+#ifdef WT_FONTSUPPORT_SIMPLE
 
     FontMatch();
     FontMatch(const std::string& fileName, double quality);
@@ -79,17 +80,60 @@ public:
     double quality() const { return quality_; }
     void setQuality(double quality) { quality_ = quality; }
 
-#endif
+#endif // WT_FONTSUPPORT_SIMPLE
 
+#ifdef WT_FONTSUPPORT_PANGO
+
+    FontMatch(PangoFont *font, PangoFontDescription *desc);
+
+    bool matched() const { return true; }
+    std::string fileName() const;
+    PangoFont *pangoFont() const { return font_; }
+    PangoFontDescription *pangoFontDescription() const { return desc_; }
+
+#endif // WT_FONTSUPPORT_PANGO
+
+#ifdef WT_FONTSUPPORT_DIRECTWRITE
+    FontMatch();
+    FontMatch(IDWriteTextFormat *textFormat,
+      IDWriteFontFamily *fontFamily,
+      IDWriteFont *font,
+      std::string fontFamilyFileName);
+    ~FontMatch();
+
+    FontMatch(const FontMatch &other);
+    FontMatch &operator=(const FontMatch &other);
+#ifdef WT_CXX11
+    FontMatch(FontMatch &&other);
+    FontMatch &operator=(FontMatch &&other);
+#endif // WT_CXX11
+
+    bool matched() const;
+    std::string fileName() const;
+
+    std::wstring fontFamilyName() const;
+
+    // For use in WRasterImage-d2d1.C
+    IDWriteTextFormat *textFormat() { return textFormat_; }
+    IDWriteFontFamily *fontFamily() { return fontFamily_; }
+    IDWriteFont *font() { return font_; }
+#endif // WT_FONTSUPPORT_DIRECTWRITE
   private:
 
-#ifdef HAVE_PANGO
-    mutable PangoFont *font_;
-    PangoFontDescription *desc_;
-#else
+#ifdef WT_FONTSUPPORT_SIMPLE
     std::string file_;
     double quality_;
-#endif
+#endif // WT_FONTSUPPORT_SIMPLE
+#ifdef WT_FONTSUPPORT_PANGO
+    mutable PangoFont *font_;
+    PangoFontDescription *desc_;
+#endif // WT_FONTSUPPORT_PANGO
+#ifdef WT_FONTSUPPORT_DIRECTWRITE
+    IDWriteTextFormat *textFormat_;
+    IDWriteFontFamily *fontFamily_;
+    IDWriteFont *font_;
+    mutable std::string fontFamilyFileName_;
+#endif // WT_FONTSUPPORT_DIRECTWRITE
   };
 
   FontSupport(WPaintDevice *device, EnabledFontFormats enabledFontFormats=AnyFont);
@@ -120,7 +164,7 @@ public:
    * Draws the text, using pango for font choices, but delegating the actual
    * drawing to the device
    *
-   * Precondition: device_ != 0
+   * Precondition: device_ != nullptr
    */
   void drawText(const WFont& f,
 		const WRectF& rect,
@@ -146,7 +190,7 @@ public:
   /*
    * Draws the text, using pango and libfreetype to do the actual rendering
    *
-   * Precondition: device_ == 0
+   * Precondition: device_ == nullptr
    */
   void drawText(const WFont& f,
 		const WRectF& rect,
@@ -160,35 +204,17 @@ public:
    */
   void addFontCollection(const std::string& directory, bool recursive = true);
 
+#ifdef WT_FONTSUPPORT_DIRECTWRITE
+  /*
+   * Direct access to IDWriteFactory for WRasterImage-d2d1
+   */
+  IDWriteFactory *writeFactory() { return writeFactory_; }
+#endif // WT_FONTSUPPORT_DIRECTWRITE
+
 private:
   WPaintDevice *device_;
 
-#ifdef HAVE_PANGO
-
-  PangoContext *context_;
-  PangoFont *currentFont_;
-  EnabledFontFormats enabledFontFormats_;
-
-  struct Matched {
-    WFont font;
-    PangoFont *match;
-    PangoFontDescription *desc;
-
-    Matched() : font(), match(0), desc(0) { }
-    Matched(const WFont& f, PangoFont *m, PangoFontDescription *d) : font(f), match(m), desc(d) { }
-  };
-
-  typedef std::list<Matched> MatchCache;
-  mutable MatchCache cache_;
-
-  PangoFontDescription *createFontDescription(const WFont& f) const;
-  static std::string fontPath(PangoFont *font);
-  GList *layoutText(const WFont& font, const std::string& utf8,
-		    std::vector<PangoGlyphString *>& glyphs, int& width);
-
-  friend class FontMatch;
-
-#else 
+#ifdef WT_FONTSUPPORT_SIMPLE
 
   struct FontCollection {
     std::string directory;
@@ -221,7 +247,80 @@ private:
 		 const std::string& path,
 		 FontMatch& match) const;
 
-#endif // HAVE_PANGO
+#endif // WT_FONTSUPPORT_SIMPLE
+
+#ifdef WT_FONTSUPPORT_PANGO
+
+  PangoContext *context_;
+  PangoFont *currentFont_;
+  EnabledFontFormats enabledFontFormats_;
+
+  struct Matched {
+    WFont font;
+    PangoFont *match;
+    PangoFontDescription *desc;
+
+    Matched() : font(), match(nullptr), desc(nullptr) { }
+    Matched(const WFont& f, PangoFont *m, PangoFontDescription *d) : font(f), match(m), desc(d) { }
+  };
+
+  typedef std::list<Matched> MatchCache;
+  mutable MatchCache cache_;
+
+  PangoFontDescription *createFontDescription(const WFont& f) const;
+  static std::string fontPath(PangoFont *font);
+  GList *layoutText(const WFont& font, const std::string& utf8,
+		    std::vector<PangoGlyphString *>& glyphs, int& width);
+
+  friend class FontMatch;
+
+#endif // WT_FONTSUPPORT_PANGO
+
+#ifdef WT_FONTSUPPORT_DIRECTWRITE
+  EnabledFontFormats enabledFontFormats_;
+
+  IDWriteFactory *writeFactory_;
+
+  const WFont *font_;
+  std::string drawingFontPath_;
+
+  struct Matched {
+    WFont font;
+    FontMatch match;
+
+    Matched()
+      : font(), match()
+    { }
+
+    Matched(const WFont &f,
+            FontMatch &&m)
+      : font(f), match(m)
+    { }
+  };
+
+  typedef std::list<Matched> MatchCache;
+  mutable MatchCache cache_;
+
+  struct TextFragment {
+    TextFragment(std::string fontPath,
+      std::size_t start,
+      std::size_t length,
+      double width)
+      : fontPath(fontPath),
+        start(start),
+        length(length),
+        width(width)
+    { }
+
+    std::string fontPath;
+    std::size_t start;
+    std::size_t length;
+    double width;
+  };
+  class TextFragmentRenderer;
+
+  void layoutText(const WFont &f, std::vector<TextFragment> &v, const std::wstring &s, double &width, double &nextWidth, double maxWidth, bool wordWrap);
+#endif // WT_FONTSUPPORT_DIRECTWRITE
 };
 
 }

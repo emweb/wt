@@ -107,7 +107,7 @@
 /*
  * Show pointer even if anchor has no href
  */
-.navbar .nav > li > a {
+.nav > li > a {
    cursor: pointer;
 }
 
@@ -125,6 +125,7 @@
  */
 
 .modal-dialog {
+    width: auto;
     display: block;
 
     .movable .modal-header {
@@ -1099,10 +1100,35 @@ body.Wt-rtl {
     background-color: lightgrey;
 }
 
-.Wt-filedropzone-hover {
+.Wt-filedropzone.Wt-dropzone-hover {
     border-color: green;
 }
 
-.Wt-filedropzone-hover * {
+.Wt-filedropzone.Wt-dropzone-hover * {
     pointer-events: none;
+}
+
+.Wt-fileupload-hidden {
+    display: none !important;
+}
+
+.Wt-filedropzone.Wt-dropzone-dragstyle {
+    position: relative;
+    z-index: 20001;
+}
+
+.Wt-filedropzone.Wt-dropzone-indication {
+    border-color: green;
+}
+
+.Wt-dropcover {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: -100;
+}
+.Wt-dropcover.Wt-dropzone-dragstyle {
+    z-index: 20000;
 }

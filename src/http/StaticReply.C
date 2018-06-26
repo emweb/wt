@@ -4,7 +4,6 @@
  * All rights reserved.
  */
 
-#include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "Configuration.h"
@@ -15,12 +14,35 @@
 
 #include "FileUtils.h"
 
-#include "Wt/WLogger"
+#include "Wt/WLogger.h"
 
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 namespace Wt {
   LOGGER("wthttp");
+}
+
+namespace {
+
+static bool openStream(std::ifstream &stream, std::string &path, bool acceptGzip) {
+  bool gzipReply = false;
+  if (acceptGzip) {
+    std::string gzipPath = path + ".gz";
+    stream.open(gzipPath.c_str(), std::ios::in | std::ios::binary);
+
+    if (stream) {
+      path = gzipPath;
+      gzipReply = true;
+    } else {
+      stream.clear();
+      stream.open(path.c_str(), std::ios::in | std::ios::binary);
+    }
+  } else {
+    stream.open(path.c_str(), std::ios::in | std::ios::binary);
+  }
+  return gzipReply;
+}
+
 }
 
 namespace http {
@@ -73,19 +95,14 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
   // Do not consider .gz files if we will respond with a range, as we cannot
   // stream partial data from a .gz file
-  if (request_.acceptGzipEncoding() && !hasRange_) {
-    std::string gzipPath = path_ + ".gz";
-    stream_.open(gzipPath.c_str(), std::ios::in | std::ios::binary);
+  bool acceptGzip = request_.acceptGzipEncoding() && !hasRange_;
+  gzipReply = openStream(stream_, path_, acceptGzip);
 
-    if (stream_) {
-      path_ = gzipPath;
-      gzipReply = true;
-    } else {
-      stream_.clear();
-      stream_.open(path_.c_str(), std::ios::in | std::ios::binary);
-    }
-  } else {
-    stream_.open(path_.c_str(), std::ios::in | std::ios::binary);
+  // Try fallback resources folder if not found
+  if (!stream_ && !configuration().resourcesDir().empty() &&
+      boost::starts_with(request_path, "/resources/")) {
+    path_ = configuration().resourcesDir() + request_path.substr(sizeof("/resources") - 1);
+    gzipReply = openStream(stream_, path_, acceptGzip);
   }
 
   if (!stream_) {
@@ -119,8 +136,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
       if (fileSize_ != -1) {
         // 416 SHOULD include a Content-Range with byte-range-resp-spec * and
         // instance-length set to current lenght
-        sr->addHeader("Content-Range",
-          "bytes */" + boost::lexical_cast<std::string>(fileSize_));
+        sr->addHeader("Content-Range", "bytes */" + std::to_string(fileSize_));
       }
       setRelay(sr);
       stream_.close();
@@ -199,8 +215,7 @@ std::string StaticReply::computeModifiedDate() const
 
 std::string StaticReply::computeETag() const
 {
-  return boost::lexical_cast<std::string>(fileSize_)
-    + "-" + computeModifiedDate();
+  return std::to_string(fileSize_) + "-" + computeModifiedDate();
 }
 
 std::string StaticReply::computeExpires()
@@ -210,8 +225,8 @@ std::string StaticReply::computeExpires()
   return httpDate(t);
 }
 
-bool StaticReply::consumeData(Buffer::const_iterator begin,
-			      Buffer::const_iterator end,
+bool StaticReply::consumeData(const char *begin,
+			      const char *end,
 			      Request::State state)
 {
   if (state != Request::Partial)

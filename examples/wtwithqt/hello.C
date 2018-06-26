@@ -25,11 +25,11 @@
 
 #include <iostream>
 
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 #include "HelloApplication.h"
 #include "QtObject.h"
@@ -52,25 +52,25 @@ void Dictionary::create()
 {
   setTitle("Hello world");
 
-  root()->addWidget(new WText("Your name, please ? "));
-  nameEdit_ = new WLineEdit(root());
+  root()->addWidget(cpp14::make_unique<WText>("Your name, please? "));
+  nameEdit_ = root()->addWidget(cpp14::make_unique<WLineEdit>());
   nameEdit_->setFocus();
 
-  WPushButton *b = new WPushButton("Greet me.", root());
-  b->setMargin(5, Left);
+  WPushButton *b = root()->addWidget(cpp14::make_unique<WPushButton>("Greet me."));
+  b->setMargin(5, Side::Left);
 
-  root()->addWidget(new WBreak());
+  root()->addWidget(cpp14::make_unique<WBreak>());
 
-  greeting_ = new WText(root());
+  greeting_ = root()->addWidget(cpp14::make_unique<WText>());
 
   b->clicked().connect(this, &Dictionary::propagateGreet);
   nameEdit_->enterPressed().connect(this, &Dictionary::propagateGreet);
 
-  qtSender_ = new QtObject(this);
-  qtReceiver_ = new QtObject(this);
+  qtSender_ = cpp14::make_unique<QtObject>(this);
+  qtReceiver_ = cpp14::make_unique<QtObject>(this);
 
-  QObject::connect(qtSender_, SIGNAL(greet(const QString&)),
-		   qtReceiver_, SLOT(doGreet(const QString&)));
+  QObject::connect(qtSender_.get(), SIGNAL(greet(const QString&)),
+		   qtReceiver_.get(), SLOT(doGreet(const QString&)));
 }
 
 void Dictionary::destroy()
@@ -78,8 +78,8 @@ void Dictionary::destroy()
   /*
    * Note: Delete any Qt object from here.
    */
-  delete qtSender_;
-  delete qtReceiver_;
+  qtSender_.reset();
+  qtReceiver_.reset();
 }
 
 void Dictionary::propagateGreet()
@@ -92,9 +92,9 @@ void Dictionary::doGreet(const QString& qname)
   greeting_->setText("Hello there, " + toWString(qname));
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return new Dictionary(env);
+  return cpp14::make_unique<Dictionary>(env);
 }
 
 int main(int argc, char **argv)

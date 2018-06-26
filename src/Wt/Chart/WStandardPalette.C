@@ -4,11 +4,11 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/Chart/WStandardPalette>
+#include <Wt/Chart/WStandardPalette.h>
 
-#include <Wt/WBrush>
-#include <Wt/WColor>
-#include <Wt/WPen>
+#include <Wt/WBrush.h>
+#include <Wt/WColor.h>
+#include <Wt/WPen.h>
 
 namespace {
 
@@ -57,7 +57,7 @@ namespace {
 namespace Wt {
   namespace Chart {
 
-WStandardPalette::WStandardPalette(Flavour flavour)
+WStandardPalette::WStandardPalette(PaletteFlavour flavour)
   : flavour_(flavour)
 { }
 
@@ -69,7 +69,7 @@ WBrush WStandardPalette::brush(int index) const
 WPen WStandardPalette::borderPen(int index) const
 {
   WPen p(WColor(0x44, 0x44, 0x44));
-  p.setCapStyle(SquareCap);
+  p.setCapStyle(PenCapStyle::Square);
   return p;
 }
 
@@ -77,8 +77,8 @@ WPen WStandardPalette::strokePen(int index) const
 {
   WPen p(color(index));
   p.setWidth(2);
-  p.setJoinStyle(RoundJoin);
-  p.setCapStyle(RoundCap);
+  p.setJoinStyle(PenJoinStyle::Round);
+  p.setCapStyle(PenCapStyle::Round);
   return p;
 }
 
@@ -86,15 +86,16 @@ WColor WStandardPalette::fontColor(int index) const
 {
   WColor c = color(index);
   if (c.red() + c.green() + c.blue() > 3*128) {
-    return black;
+    return StandardColor::Black;
   } else
-    return white;
+    return StandardColor::White;
 }
 
 WColor WStandardPalette::color(int index) const
 {
-  if (flavour_ != GrayScale) {
-    unsigned long rgb = standardColors[flavour_][index % 8];
+  if (flavour_ != PaletteFlavour::GrayScale) {
+    unsigned long rgb = standardColors[static_cast<unsigned int>(flavour_)]
+      [index % 8];
 
     return WColor((rgb & 0xFF0000) >> 16,
 		  (rgb & 0x00FF00) >> 8,

@@ -1,16 +1,15 @@
 #include "EditUsers.h"
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WSignalMapper>
-#include <Wt/WTemplate>
-#include <Wt/WText>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
+#include <Wt/WAny.h>
 
-using namespace Wt;
 namespace dbo = Wt::Dbo;
 
 EditUsers::EditUsers(dbo::Session& aSession, const std::string& basePath)
@@ -18,46 +17,48 @@ EditUsers::EditUsers(dbo::Session& aSession, const std::string& basePath)
 {
   setStyleClass("user-editor");
   setTemplateText(tr("edit-users-list"));
-  limitEdit_  = new WLineEdit;
-  WPushButton* goLimit = new WPushButton(tr("go-limit"));
-  goLimit->clicked().connect(SLOT(this,EditUsers::limitList));
-  bindWidget("limit-edit",limitEdit_);
-  bindWidget("limit-button",goLimit);
+  auto limitEdit = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  auto goLimit = Wt::cpp14::make_unique<Wt::WPushButton>(tr("go-limit"));
+  goLimit->clicked().connect(this,&EditUsers::limitList);
+
+  limitEdit_ = bindWidget("limit-edit",std::move(limitEdit));
+  bindWidget("limit-button",std::move(goLimit));
   limitList();
 }
 
 void EditUsers::limitList()
 {
-  WContainerWidget* list = new WContainerWidget;
-  bindWidget("user-list",list);
+  auto listPtr = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+  auto list = listPtr.get();
+  bindWidget("user-list", std::move(listPtr));
 
   typedef dbo::collection<dbo::ptr<User> > UserList;
   dbo::Transaction t(session_);
   UserList users = session_.find<User>().where("name like ?").bind("%"+limitEdit_->text()+"%").orderBy("name");
 
-  for (UserList::const_iterator i = users.begin(); i != users.end(); ++i) {
-    WText* t = new WText((*i)->name, list);
+  for (auto user : users) {
+    Wt::WText* t = list->addWidget(Wt::cpp14::make_unique<Wt::WText>(user->name));
     t->setStyleClass("link");
-    new WBreak(list);
-    t->clicked().connect(boost::bind(&EditUsers::onUserClicked, this, (*i).id()));
+    list->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
+    t->clicked().connect(std::bind(&EditUsers::onUserClicked, this, user.id()));
   }
   if (!users.size())
-    new WText(tr("no-users-found"),list);
+    list->addWidget(Wt::cpp14::make_unique<Wt::WText>(tr("no-users-found")));
 }
 
 void EditUsers::onUserClicked(Wt::Dbo::dbo_traits<User>::IdType id)
 {
-  wApp->setInternalPath(basePath_+"edituser/"+boost::lexical_cast<std::string>(id), true);
+  Wt::WApplication::instance()->setInternalPath(basePath_+"edituser/"+std::to_string(id), true);
 }
 
 
 EditUser::EditUser(Wt::Dbo::Session& aSession)
 : WTemplate(tr("edit-user")),
-  session_(aSession),
-  roleButton_(new WPushButton)
+  session_(aSession)
 {
-  bindWidget("role-button",roleButton_);
-  roleButton_->clicked().connect(SLOT(this, EditUser::switchRole));
+  auto roleButton = Wt::cpp14::make_unique<Wt::WPushButton>();
+  roleButton_ = bindWidget("role-button",std::move(roleButton));
+  roleButton_->clicked().connect(this, &EditUser::switchRole);
 }
 
 void EditUser::switchUser(Wt::Dbo::ptr<User> target)

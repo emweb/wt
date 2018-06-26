@@ -1,28 +1,29 @@
-#include <Wt/WLineEdit>
-#include <Wt/WLink>
-#include <Wt/WPopupMenu>
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
+#include <Wt/WLineEdit.h>
+#include <Wt/WLink.h>
+#include <Wt/WPopupMenu.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(PushButtonDropdownPrepended)
 
-Wt::WTemplate *result =
-    new Wt::WTemplate(Wt::WString::tr("prependedDropdownButton-template"));
+auto result =
+    cpp14::make_unique<WTemplate>(WString::tr("prependedDropdownButton-template"));
 
-Wt::WPopupMenu *popup = new Wt::WPopupMenu();
+auto popup =
+    cpp14::make_unique<WPopupMenu>();
 popup->addItem("Choose a button type");
 popup->addSeparator();
 popup->addSeparator();
-popup->addItem("One-time hit button")->setLink(Wt::WLink("#one-time"));
-popup->addItem("Navigation button")->setLink(Wt::WLink("#navigation"));
-popup->addItem("Button style")->setLink(Wt::WLink("#style"));
+popup->addItem("One-time hit button")->setLink(WLink("#one-time"));
+popup->addItem("Navigation button")->setLink(WLink("#navigation"));
+popup->addItem("Button style")->setLink(WLink("#style"));
 
-Wt::WLineEdit *input  = new Wt::WLineEdit();
-result->bindWidget("input", input);
-input->setStyleClass("span2");
+auto input  = cpp14::make_unique<WLineEdit>();
+auto input_ = result->bindWidget("input", std::move(input));
+input_->setStyleClass("span2");
 
-Wt::WPushButton *prependedDropdownButton = new Wt::WPushButton("Action");
-result->bindWidget("prependedButton", prependedDropdownButton);
-prependedDropdownButton->setMenu(popup);
+auto prependedDropdownButton = cpp14::make_unique<WPushButton>("Action");
+auto button_ = result->bindWidget("prependedButton", std::move(prependedDropdownButton));
+button_->setMenu(std::move(popup));
 
 SAMPLE_END(return result)

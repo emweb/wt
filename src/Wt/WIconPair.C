@@ -3,21 +3,22 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WImage"
-#include "Wt/WContainerWidget"
-#include "Wt/WCssDecorationStyle"
-#include "Wt/WIconPair"
+#include "Wt/WImage.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WCssDecorationStyle.h"
+#include "Wt/WIconPair.h"
 
 namespace Wt {
 
 WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
-		     bool clickIsSwitch, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    impl_(new WContainerWidget()),
-    icon1_(new WImage(icon1URI, impl_)),
-    icon2_(new WImage(icon2URI, impl_))
+		     bool clickIsSwitch)
+  : impl_(new WContainerWidget()),
+    icon1_(new WImage(icon1URI)),
+    icon2_(new WImage(icon2URI))
 {
-  setImplementation(impl_);
+  setImplementation(std::unique_ptr<WWidget>(impl_));
+  impl_->addWidget(std::unique_ptr<WWidget>(icon1_));
+  impl_->addWidget(std::unique_ptr<WWidget>(icon2_));
   impl_->setLoadLaterWhenInvisible(false);
 
   setInline(true);
@@ -44,7 +45,7 @@ WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
     icon1_->clicked().connect(this, &WIconPair::showIcon2);
     icon2_->clicked().connect(this, &WIconPair::showIcon1);
 
-    decorationStyle().setCursor(PointingHandCursor);
+    decorationStyle().setCursor(Cursor::PointingHand);
   }
 }
 

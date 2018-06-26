@@ -17,21 +17,9 @@
 #ifndef HTTP_CONNECTION_HPP
 #define HTTP_CONNECTION_HPP
 
-#include <boost/asio.hpp>
-namespace asio = boost::asio;
-typedef boost::system::error_code asio_error_code;
-typedef boost::system::system_error asio_system_error;
-#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
-#include <boost/asio/steady_timer.hpp>
-typedef boost::asio::steady_timer asio_timer;
-#else
-typedef boost::asio::deadline_timer asio_timer;
-#endif
-
-#include <boost/array.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <Wt/AsioWrapper/asio.hpp>
+#include <Wt/AsioWrapper/strand.hpp>
+#include <Wt/AsioWrapper/steady_timer.hpp>
 
 #include "Buffer.h"
 #include "Reply.h"
@@ -39,23 +27,25 @@ typedef boost::asio::deadline_timer asio_timer;
 #include "RequestHandler.h"
 #include "RequestParser.h"
 
-#include "Wt/WFlags"
+#include "Wt/WFlags.h"
 
 namespace http {
 namespace server {
+
+namespace asio = Wt::AsioWrapper::asio;
 
 class ConnectionManager;
 class Server;
 
 /// Represents a single connection from a client.
-class Connection
-  : public boost::enable_shared_from_this<Connection>,
-    private boost::noncopyable
+class Connection : public std::enable_shared_from_this<Connection>
 {
 public:
   /// Construct a connection with the given io_service.
-  explicit Connection(asio::io_service& io_service, Server *server,
-      ConnectionManager& manager, RequestHandler& handler);
+  Connection(asio::io_service& io_service, Server *server,
+	     ConnectionManager& manager, RequestHandler& handler);
+
+  Connection(const Connection& other) = delete;
 
   /// Get the socket associated with the connection.
   virtual asio::ip::tcp::socket& socket() = 0;
@@ -72,7 +62,7 @@ public:
   virtual ~Connection();
 
   Server *server() const { return server_; }
-  asio::strand& strand() { return strand_; }
+  Wt::AsioWrapper::strand& strand() { return strand_; }
 
   /// Stop all asynchronous operations associated with the connection.
   void scheduleStop();
@@ -92,20 +82,29 @@ public:
   // NOTE: detectDisconnect will only register one callback at a time,
   //       further calls to detectDisconnect are ignored
   void detectDisconnect(ReplyPtr reply,
-			const boost::function<void()>& callback);
+			const std::function<void()>& callback);
+  void asyncDetectDisconnect(ReplyPtr reply,
+			     const std::function<void()>& callback);
 
 protected:
-  void handleWriteResponse(ReplyPtr reply,
-			   const asio_error_code& e,
-			   std::size_t bytes_transferred);
+  /// Get the native handle of the socket
+#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 106600) || (defined(WT_ASIO_IS_STANDALONE_ASIO) && ASIO_VERSION >= 101100)
+  asio::ip::tcp::socket::native_handle_type native();
+#else
+  asio::ip::tcp::socket::native_type native();
+#endif
+
+  void handleWriteResponse0(ReplyPtr reply,
+                            const Wt::AsioWrapper::error_code& e,
+			    std::size_t bytes_transferred);
   void handleWriteResponse(ReplyPtr reply);
-  void handleReadRequest(const asio_error_code& e,
+  void handleReadRequest(const Wt::AsioWrapper::error_code& e,
 			 std::size_t bytes_transferred);
   /// Process read buffer, reading request.
   void handleReadRequest0();
-  void handleReadBody(ReplyPtr reply,
-		      const asio_error_code& e,
-		      std::size_t bytes_transferred);
+  void handleReadBody0(ReplyPtr reply,
+                       const Wt::AsioWrapper::error_code& e,
+		       std::size_t bytes_transferred);
 
   void setReadTimeout(int seconds);
   void setWriteTimeout(int seconds);
@@ -113,7 +112,7 @@ protected:
   /// The manager for this connection.
   ConnectionManager& ConnectionManager_;
 
-  asio::strand strand_;
+  Wt::AsioWrapper::strand strand_;
 
   void finishReply();
 
@@ -143,11 +142,11 @@ private:
    * Asynchronoulsy writing a response
    */
   virtual void startAsyncWriteResponse(ReplyPtr reply,
-			      const std::vector<asio::const_buffer>& buffers, 
+                              const std::vector<asio::const_buffer>& buffers,
 				       int timeout) = 0;
 
   /// Generic I/O error handling: closes the connection and cancels timers
-  void handleError(const asio_error_code& e);
+  void handleError(const Wt::AsioWrapper::error_code& e);
 
   void sendStockReply(Reply::status_type code);
 
@@ -157,18 +156,18 @@ private:
   void cancelReadTimer();
   void cancelWriteTimer();
 
-  void timeout(const asio_error_code& e);
+  void timeout(const Wt::AsioWrapper::error_code& e);
   void doTimeout();
 
   /// Timer for reading data.
-  asio_timer readTimer_, writeTimer_;
+  asio::steady_timer readTimer_, writeTimer_;
 
   /// Current request buffer data
   std::list<Buffer> rcv_buffers_;
 
   /// Size of last buffer and iterator for next request in last buffer
   std::size_t rcv_buffer_size_;
-  Buffer::iterator rcv_remaining_;
+  char *rcv_remaining_;
   bool rcv_body_buffer_;
 
   /// The incoming request.
@@ -195,10 +194,10 @@ private:
   /// current write operation)
   bool responseDone_;
 
-  boost::function<void()> disconnectCallback_;
+  std::function<void()> disconnectCallback_;
 };
 
-typedef boost::shared_ptr<Connection> ConnectionPtr;
+typedef std::shared_ptr<Connection> ConnectionPtr;
 
 } // namespace server
 } // namespace http

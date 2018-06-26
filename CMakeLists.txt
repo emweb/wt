@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 SET(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE true)
 
@@ -6,6 +6,12 @@ IF(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0002 OLD)
   CMAKE_POLICY(SET CMP0003 OLD)
   CMAKE_POLICY(SET CMP0005 OLD)
+  if(POLICY CMP0022)
+    # Stops CMake from warning about CMP0022, even though we don't actually use
+    # the LINK_INTERFACE_LIBRARIES or INTERFACE_LINK_LIBRARIES (only indirectly
+    # through PUBLIC/PRIVATE in TARGET_LINK_LIBRARIES)
+    CMAKE_POLICY(SET CMP0022 NEW)
+  endif(POLICY CMP0022)
 ENDIF(COMMAND CMAKE_POLICY)
 
 PROJECT(WT)
@@ -16,21 +22,21 @@ SET(CMAKE_MODULE_PATH
   ${WT_SOURCE_DIR}/cmake
 )
 
-SET(VERSION_SERIES 3)
-SET(VERSION_MAJOR 3)
-SET(VERSION_MINOR 7)
+SET(VERSION_SERIES 4)
+SET(VERSION_MAJOR 0)
+SET(VERSION_MINOR 3)
 
-SET(WT_SOVERSION 41)
-SET(WTEXT_SOVERSION 41)
-SET(WTHTTP_SOVERSION 41)
-SET(WTFCGI_SOVERSION 41)
-SET(WTISAPI_SOVERSION 17)
-SET(WTDBO_SOVERSION 41)
-SET(WTDBOSQLITE3_SOVERSION 41)
-SET(WTDBOPOSTGRES_SOVERSION 41)
-SET(WTDBOFIREBIRD_SOVERSION 41)
-SET(WTDBOMYSQL_SOVERSION 41)
-SET(WTTEST_SOVERSION 11)
+SET(WT_SOVERSION 47)
+SET(WTHTTP_SOVERSION 47)
+SET(WTFCGI_SOVERSION 47)
+SET(WTISAPI_SOVERSION 23)
+SET(WTDBO_SOVERSION 47)
+SET(WTDBOSQLITE3_SOVERSION 47)
+SET(WTDBOPOSTGRES_SOVERSION 47)
+SET(WTDBOFIREBIRD_SOVERSION 47)
+SET(WTDBOMYSQL_SOVERSION 47)
+SET(WTDBOMSSQLSERVER_SOVERSION 47)
+SET(WTTEST_SOVERSION 17)
 
 IF(NOT SHARED_LIBS)
   IF(WIN32)
@@ -59,7 +65,7 @@ IF(ANDROID)
   ENDIF(NOT DEFINED ANDROID_SDK_TARGET_ID)
 
   SET(SHARED_LIBS OFF)
-  add_definitions(-DANDROID -DWT_NO_STD_WSTRING=ON -DWT_NO_STD_LOCALE=ON)
+  add_definitions(-DANDROID) # TODO(Roel): WT_NO_STD_WSTRING/WT_NO_STD_LOCALE?
 ENDIF(ANDROID)
 
 #
@@ -95,7 +101,6 @@ OPTION(BUILD_EXAMPLES "Build examples" ON)
 OPTION(INSTALL_DOCUMENTATION "Install documentation (tutorials and reference)" OFF)
 OPTION(INSTALL_EXAMPLES "Install examples (binaries and source)" OFF)
 OPTION(INSTALL_RESOURCES "Install resources directory" ON)
-OPTION(INSTALL_FINDWT_CMAKE_FILE "Install FindWt.cmake in systemwide cmake dir (in addition to CMAKE_INSTALL_PREFIX/cmake)" OFF)
 OPTION(ENABLE_SSL "Enable cryptography functions, using OpenSSL" ON)
 OPTION(ENABLE_HARU "Enable Haru Free PDF Library, which is used to provide support for painting to PDF (WPdfImage)" ON)
 OPTION(ENABLE_PANGO "Enable Pango Library, which is used for improved font support (WPdfImage and WRasterImage)" ON)
@@ -104,39 +109,20 @@ OPTION(ENABLE_SQLITE "Build SQLite3 backend for Wt::Dbo" ON)
 OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_FIREBIRD "Build FirebirdSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_MYSQL "Build mariadb/mysql backend for Wt::Dbo" ON)
+OPTION(ENABLE_MSSQLSERVER "Build Microsoft SQL Server backend for Wt::Dbo" ON)
 OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(ENABLE_LIBWTTEST "Build Wt::Test" ON)
 OPTION(ENABLE_LIBWTDBO "Build Wt::Dbo" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
+OPTION(WT_WARN_HEADER_MISSING_H "Output a warning if a Wt header without .h extension is included (deprecated since Wt 4.0.0)" ON)
+OPTION(INSTALL_EXTENSIONLESS_HEADERS "Extensionless headers were deprecated in Wt 4.0.0. Disabling this option will cause extensionless headers not to be installed" ON)
+OPTION(ENABLE_UNWIND "Build Wt with stacktrace support using libunwind" OFF)
 
-# C++11 vs C++98
-# Binary compatibility is not guaranteed. We give our users the choice on
-# how to compile Wt
-# We're not sure yet if you can safely link Wt compiled in 03 mode against
-# an application compiled in 11 mode. Boost probably causes problems here
-# (specially boost.signals2)
-IF(NOT MSVC)
-  # For now, don't auto-detect
-  #IF(CMAKE_COMPILER_IS_GNUCXX)
-  #  execute_process(COMMAND ${CMAKE_C_COMPILER} "-dumpversion"
-  #                  OUTPUT_VARIABLE GCC_VERSION)
-  #  IF(${GCC_VERSION} VERSION_GREATER "4.5.99")
-  #    SET(HAS_CXX11 ON)
-  #  ENDIF(${GCC_VERSION} VERSION_GREATER "4.5.99")
-  #ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-  SET(WT_CPP_11_MODE "" CACHE STRING "C++ mode to compile Wt in (leave empty for your compiler's default, or set to -std=c++11, -std=c++0x, ...)")
-  IF(WT_CPP_11_MODE)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WT_CPP_11_MODE}")
-    SET(HAS_CXX11 ON)
-  ENDIF(WT_CPP_11_MODE)
-ELSE(NOT MSVC)
-  # For once, msvs is easier than gcc/llvm
-  IF(MSVC_VERSION GREATER 1600)
-    SET(HAS_CXX11 ON)
-  ENDIF(MSVC_VERSION GREATER 1600)
-ENDIF(NOT MSVC)
+IF(NOT CMAKE_CXX_STANDARD)
+  SET(CMAKE_CXX_STANDARD 11)
+ENDIF(NOT CMAKE_CXX_STANDARD)
 
 IF(MSVC)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
@@ -156,7 +142,7 @@ ENDIF(NOT EXAMPLES_DESTINATION)
 
 IF(WIN32)
   # required for all that uses boost.asio
-  ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)
+  ADD_DEFINITIONS(-D_WIN32_WINNT=0x0600)
 
   IF(SHARED_LIBS)
     # See http://svn.boost.org/trac/boost/ticket/3465
@@ -174,6 +160,7 @@ IF(NOT SHARED_LIBS)
   SET(WTDBOPOSTGRES_STATIC true)
   SET(WTDBOFIREBIRD_STATIC true)
   SET(WTDBOMYSQL_STATIC true)
+  SET(WTDBOMSSQLSERVER_STATIC true)
 ENDIF(NOT SHARED_LIBS)
 
 IF(NOT MULTI_THREADED)
@@ -216,6 +203,9 @@ SET(DEBUG_LIB_POSTFIX "d" CACHE STRING "String appended to debug libraries")
 
 SET(LIB_INSTALL_DIR "lib" CACHE STRING
   "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
+
+SET(CMAKE_INSTALL_DIR "${LIB_INSTALL_DIR}/cmake" CACHE STRING
+  "Name for CMake package configuration directory within ${CMAKE_INSTALL_PREFIX}")
 
 IF(WIN32)
 
@@ -285,6 +275,8 @@ SET(FCGI_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of fcgi library (overrides USERLIB_PREFIX)")
 SET(POSTGRES_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of postgresql library (overrides USERLIB_PREFIX)")
+SET(ODBC_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of ODBC (unixODBC), required for MS SQL Server, not necessary on Windows (overrides USERLIB_PREFIX)")
 SET(FIREBIRD_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of FirebirdSql library. (overrides USERLIB_PREFIX)")
 SET(IBPP_SRC_DIRECTORY CACHE PATH
@@ -303,6 +295,10 @@ SET(GM_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of GraphicsMagick library (overrides USERLIB_PREFIX)")
 SET(SKIA_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Prefix of skia library (overrides USERLIB_PREFIX)")
+SET(ASIO_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Prefix of Asio (overrides USERLIB_PREFIX), only used when WT_ASIO_IMPLEMENTATION is standalone")
+SET(UNWIND_PREFIX ${UNWIND_PREFIX} CACHE PATH
+  "Prefix of unwind library (overrides USERLIB_PREFIX)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 
@@ -345,11 +341,16 @@ INCLUDE(cmake/WtFindPng.txt)
 INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysql.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
+INCLUDE(cmake/WtFindOdbc.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
 INCLUDE(cmake/WtFindGL.txt)
 INCLUDE(cmake/WtFindSkia.txt)
+
+IF (ENABLE_UNWIND)
+  INCLUDE(cmake/WtFindUnwind.txt)
+ENDIF (ENABLE_UNWIND)
 
 IF (ENABLE_PANGO)
   INCLUDE(cmake/WtFindPangoFt2.txt)
@@ -365,7 +366,11 @@ IF(ENABLE_QT4)
   ENDIF(QT_FOUND)
 ENDIF(ENABLE_QT4)
 
-INCLUDE(FindThreads)
+set(WT_THREAD_LIB "")
+IF(MULTI_THREADED)
+  find_package(Threads)
+  set(WT_THREAD_LIB Threads::Threads)
+ENDIF(MULTI_THREADED)
 
 IF(NOT BOOST_WT_FOUND)
   SET(ERR
@@ -391,9 +396,7 @@ IF(NOT BOOST_WT_FOUND)
       "are not defined). When set to true, method 2 is used.\n"
       "Note 2: the code to discover boost is located in cmake/WtFindBoost.txt\n"
       "Note 3: on windows, set BOOST_PREFIX to the full path, eg "
-      "c:/Program Files/boost/boost_1_38\n\n"
-      "Note 4: if you do not have boost.random, set WT_NO_BOOST_RANDOM to ON"
-      "Wt requires the following C++ boost libraries: date_time, regex, program_options, signals, random, and optionally thread")
+      "c:/Program Files/boost/boost_1_65_1")
   MESSAGE(FATAL_ERROR ${ERR})
 ENDIF(NOT BOOST_WT_FOUND)
 
@@ -414,34 +417,6 @@ ELSE(BOOST_WT_MT_FOUND)
   MESSAGE("** Disabling multi threading: could not find multi-threaded boost libraries")
   ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
 ENDIF(BOOST_WT_MT_FOUND)
-
-# decide on signals vs signals2
-# boost 1.54 deprecated boost signals -> use signals2
-IF (Boost_VERSION GREATER 105300)
-  MESSAGE(STATUS "Boost ${Boost_VERSION} > 1.53, WT_SIGNALS_IMPLEMENTATION = boost.signals2 recommended")
-  SET(DEFAULT_WT_SIGNALS_IMPLEMENTATION "boost.signals2")
-ELSE (Boost_VERSION GREATER 105300)
-  SET(DEFAULT_WT_SIGNALS_IMPLEMENTATION "boost.signals")
-  MESSAGE(STATUS "Boost ${Boost_VERSION} < 1.54, WT_SIGNALS_IMPLEMENTATION = boost.signals recommended")
-ENDIF (Boost_VERSION GREATER 105300)
-SET(WT_SIGNALS_IMPLEMENTATION ${DEFAULT_WT_SIGNALS_IMPLEMENTATION} CACHE STRING "Select what implementation should be used for Wt signals")
-IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
-  MESSAGE(STATUS "Informational: WT_SIGNALS_IMPLEMENTATION should be either boost.signals or boost.signals2")
-ELSE (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
-  SET_PROPERTY(CACHE WT_SIGNALS_IMPLEMENTATION PROPERTY STRINGS boost.signals boost.signals2)
-ENDIF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
-
-
-IF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
-  MESSAGE(STATUS "Selecting boost.signals")
-  SET(WT_USE_BOOST_SIGNALS ON)
-  SET(WT_USE_BOOST_SIGNALS2 OFF)
-ELSEIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals2")
-  MESSAGE(STATUS "Selecting boost.signals2")
-  SET(WT_USE_BOOST_SIGNALS OFF)
-  SET(WT_USE_BOOST_SIGNALS2 ON)
-ENDIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
-
 
 # decide on GraphicsMagick vs skia
 # todo: set default to whatever was found
@@ -475,6 +450,41 @@ ELSEIF (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "Direct2D")
 ELSE (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "GraphicsMagick")
     MESSAGE("** Disabled WRasterimage support. Set WT_WRASTERIMAGE_IMPLEMENTATION to GraphicsMagick, skia, or Direct2D.")
 ENDIF (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "GraphicsMagick")
+
+SET(WT_CPP17_ANY_DEFAULT_IMPLEMENTATION "thelink2012")
+SET(WT_CPP17_ANY_IMPLEMENTATION ${WT_CPP17_ANY_DEFAULT_IMPLEMENTATION} CACHE STRING
+  "Implementation for Wt::cpp17::any. Defaults to \"thelink2012\": an included implementation of any by GitHub user thelink2012. Use \"std\" for std::any, or \"experimental\" for std::experimental::any, if compiler support is available. You may have to change CMAKE_CXX_STANDARD to enable C++17 support in the compiler.")
+SET_PROPERTY(CACHE WT_CPP17_ANY_IMPLEMENTATION PROPERTY STRINGS thelink2012 experimental std)
+
+IF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
+  SET(WT_ANY_IS_THELINK2012_ANY ON)
+ELSEIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "experimental")
+  SET(WT_ANY_IS_EXPERIMENTAL_ANY ON)
+ELSEIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "std")
+  SET(WT_ANY_IS_STD_ANY ON)
+ELSE (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
+  MESSAGE(FATAL_ERROR "WT_CPP17_ANY_IMPLEMENTATION must be one of thelink2012, experimental, or std")
+ENDIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
+
+SET(WT_ASIO_DEFAULT_IMPLEMENTATION "boost")
+SET(WT_ASIO_IMPLEMENTATION ${WT_ASIO_DEFAULT_IMPLEMENTATION} CACHE STRING
+"Implementation of Asio to use. Defaults to \"boost\". Use \"standalone\" and provide its path in ASIO_PREFIX to use the standalone version.")
+SET_PROPERTY(CACHE WT_ASIO_IMPLEMENTATION PROPERTY STRINGS boost standalone)
+
+IF (${WT_ASIO_IMPLEMENTATION} STREQUAL "boost")
+  SET(WT_ASIO_IS_BOOST_ASIO ON)
+ELSEIF(${WT_ASIO_IMPLEMENTATION} STREQUAL "standalone")
+  SET(WT_ASIO_IS_STANDALONE_ASIO ON)
+ELSE(${WT_ASIO_IMPLEMENTATION} STREQUAL "boost")
+  MESSAGE(FATAL_ERROR "WT_ASIO_IMPLEMENTATION must be boost or standalone")
+ENDIF(${WT_ASIO_IMPLEMENTATION} STREQUAL "boost")
+
+IF(WT_ASIO_IS_STANDALONE_ASIO)
+IF(NOT EXISTS "${ASIO_PREFIX}/include/asio.hpp")
+MESSAGE(FATAL_ERROR "WT_ASIO_IMPLEMENTATION is set to standalone, but Asio was not found in ASIO_PREFIX")
+ENDIF(NOT EXISTS "${ASIO_PREFIX}/include/asio.hpp")
+INCLUDE_DIRECTORIES("${ASIO_PREFIX}/include")
+ENDIF(WT_ASIO_IS_STANDALONE_ASIO)
 
 FIND_PACKAGE(Doxygen)
 
@@ -568,15 +578,6 @@ IF(BUILD_TESTS)
   SUBDIRS(test)
 ENDIF(BUILD_TESTS)
 
-IF (INSTALL_FINDWT_CMAKE_FILE)
-  IF( NOT DEFINED WT_CMAKE_FINDER_INSTALL_DIR )
-    SET( WT_CMAKE_FINDER_INSTALL_DIR "${CMAKE_ROOT}/Modules" )
-  ENDIF( NOT DEFINED WT_CMAKE_FINDER_INSTALL_DIR)
-  
-  INSTALL(FILES ${PROJECT_SOURCE_DIR}/cmake/FindWt.cmake DESTINATION
-    ${WT_CMAKE_FINDER_INSTALL_DIR} )
-ENDIF (INSTALL_FINDWT_CMAKE_FILE)
-
 IF(INSTALL_RESOURCES)
 INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION
     ${CMAKE_INSTALL_PREFIX}/share/Wt/)
@@ -595,8 +596,6 @@ IF(INSTALL_DOCUMENTATION)
   INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/doc/examples/html DESTINATION
     ${CMAKE_INSTALL_PREFIX}/${DOCUMENTATION_DESTINATION}/examples)
   INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/doc/tutorial DESTINATION
-    ${CMAKE_INSTALL_PREFIX}/${DOCUMENTATION_DESTINATION})
-  INSTALL(FILES ${PROJECT_SOURCE_DIR}/ReleaseNotes.html DESTINATION
     ${CMAKE_INSTALL_PREFIX}/${DOCUMENTATION_DESTINATION})
 ENDIF(INSTALL_DOCUMENTATION)
 
@@ -623,6 +622,10 @@ IF(ENABLE_OPENGL AND GL_FOUND AND WT_HAS_WRASTERIMAGE)
   SET(HAVE_GL TRUE)
 ENDIF(ENABLE_OPENGL AND GL_FOUND AND WT_HAS_WRASTERIMAGE)
 
+IF(ENABLE_UNWIND AND UNWIND_FOUND)
+  SET(HAVE_UNWIND ON)
+ENDIF(ENABLE_UNWIND AND UNWIND_FOUND)
+
 # Compile time constants & make sure our build finds it
 FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Wt)
 SET(WCONFIG_H_PATH ${CMAKE_CURRENT_BINARY_DIR}/Wt/WConfig.h)
@@ -639,3 +642,18 @@ CONFIGURE_FILE(
   ${WT_BINARY_DIR}/wt_config.xml
 )
 
+# CMake package configuration
+IF (${WT_ASIO_IMPLEMENTATION} STREQUAL "boost" OR (${Boost_USE_STATIC_LIBS}))
+  SET(_WTCONFIG_CMAKE_FIND_BOOST TRUE)
+ELSE()
+  SET(_WTCONFIG_CMAKE_FIND_BOOST FALSE)
+ENDIF()
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/wt-config.cmake.in
+  ${WT_BINARY_DIR}/wt-config.cmake
+  @ONLY
+)
+UNSET(_WTCONFIG_CMAKE_FIND_BOOST)
+INSTALL(FILES
+  ${WT_BINARY_DIR}/wt-config.cmake
+  DESTINATION ${CMAKE_INSTALL_DIR}/wt)

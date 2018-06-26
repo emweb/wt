@@ -1,15 +1,15 @@
-#include <Wt/WAnchor>
-#include <Wt/WContainerWidget>
-#include <Wt/Http/Request>
-#include <Wt/Http/Response>
-#include <Wt/WObject>
-#include <Wt/WResource>
+#include <Wt/WAnchor.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/Http/Request.h>
+#include <Wt/Http/Response.h>
+#include <Wt/WObject.h>
+#include <Wt/WResource.h>
 
 class MyResource : public Wt::WResource
 {
 public:
-    MyResource(Wt::WObject *parent = 0)
-	: Wt::WResource(parent)
+    MyResource()
+        : WResource()
     {
 	suggestFileName("data.txt");
     }
@@ -19,19 +19,21 @@ public:
     }
 
     void handleRequest(const Wt::Http::Request &request,
-		       Wt::Http::Response &response) {
+                       Wt::Http::Response &response) {
 	response.setMimeType("plain/text");
 	response.out() << "I am a text file." << std::endl;
     }
 };
 
 SAMPLE_BEGIN(ResourceCustom)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WResource *textResource = new MyResource(container);
+auto textResource = std::make_shared<MyResource>();
 
-Wt::WAnchor *anchor = new Wt::WAnchor(Wt::WLink(textResource), "Download file", container);
-anchor->setTarget(Wt::TargetNewWindow);
+Wt::WLink link = Wt::WLink(textResource);
+link.setTarget(Wt::LinkTarget::NewWindow);
+Wt::WAnchor *anchor =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WAnchor>(link,"Download file"));
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))
 

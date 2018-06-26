@@ -9,9 +9,11 @@
 #include "Tag.h"
 #include "Token.h"
 
-#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Impl.h>
 
-DBO_INSTANTIATE_TEMPLATES(User);
+#include <string>
+
+DBO_INSTANTIATE_TEMPLATES(User)
 
 User::User()
   : role(Visitor),
@@ -29,4 +31,14 @@ Posts User::allPosts(Post::State state) const
 {
   return posts.find().where("state = ?").bind(state)
     .orderBy("date desc");
+}
+
+dbo::dbo_traits<User>::IdType User::stringToId(const std::string &s)
+{
+  std::size_t pos = std::string::npos;
+  auto result = std::stoll(s, &pos);
+  if (pos != s.size())
+    return dbo::dbo_traits<User>::invalidId();
+  else
+    return result;
 }

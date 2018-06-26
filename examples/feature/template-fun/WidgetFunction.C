@@ -6,11 +6,11 @@
 
 #include "WidgetFunction.h"
 
-#include <Wt/WTemplate>
+#include <Wt/WTemplate.h>
 #include <boost/algorithm/string.hpp>
 
-bool WidgetFunction::operator()(Wt::WTemplate *t,
-				const std::vector<Wt::WString>& args,
+bool WidgetFunction::operator()(WTemplate *t,
+				const std::vector<WString>& args,
 				std::ostream& result)
 {
   std::string name = args[0].toUTF8();
@@ -21,9 +21,9 @@ bool WidgetFunction::operator()(Wt::WTemplate *t,
   } else {
     std::string id = getArg("id", args);
 
-    Wt::WWidget *w = 0;
+    std::unique_ptr<WWidget> w = nullptr;
     if (!id.empty())
-      w = t->resolveWidget(id);
+      w = std::unique_ptr<WWidget>(t->resolveWidget(id));
 
     if (!w) {
       w = i->second(args);
@@ -41,9 +41,9 @@ bool WidgetFunction::operator()(Wt::WTemplate *t,
 	id = w->id();
     }
 
-    t->bindWidget(id, w);
+    t->bindWidget(id, std::move(w));
 
-    Wt::WString text = Wt::WString::fromUTF8("${" + id + "}");
+    WString text = WString("${" + id + "}");
     t->renderTemplateText(result, text);
   }
 
@@ -57,7 +57,7 @@ void WidgetFunction::registerType(const std::string& name,
 }
 
 std::string WidgetFunction::getArg(const std::string& name,
-				   const std::vector<Wt::WString>& args)
+                                   const std::vector<Wt::WString>& args)
 {
   for (unsigned i = 0; i < args.size(); ++i) {
     std::string s = args[i].toUTF8();

@@ -1,9 +1,9 @@
 #include "IssuedToken.h"
 
 #include <string>
-#include <Wt/WDateTime>
-#include <Wt/Dbo/Impl>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/WDateTime.h>
+#include <Wt/Dbo/Impl.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 #include "User.h"
 #include "OAuthClient.h"

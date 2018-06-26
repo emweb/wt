@@ -4,59 +4,63 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WPushButton>
-#include <Wt/WTable>
-#include <Wt/WTableCell>
-#include <Wt/WText>
-#include <boost/lexical_cast.hpp>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
+#include <Wt/WTableCell.h>
+#include <Wt/WText.h>
+#include <Wt/WAny.h>
 
 #include "MandelbrotExample.h"
 #include "MandelbrotImage.h"
 
-MandelbrotExample::MandelbrotExample(WContainerWidget *parent)
-  : WContainerWidget(parent)
+MandelbrotExample::MandelbrotExample()
+  : WContainerWidget()
 {
-  new WText("<div style=\"height:1px; width: 1px;\"/>"
+  this->addWidget(cpp14::make_unique<WText>("<div style=\"height:1px; width: 1px;\"/>"
 	    "<h2>Wt Mandelbrot example</h2>"
 	    "<p>The image below is a WVirtualImage that renders the "
 	    "classic Mandelbrot fractal.</p>"
 	    "<p>It is drawn as a grid of many smaller images, "
 	    "computed on the fly, as you scroll around "
 	    "through the virtual image. You can scroll the image using the "
-	    "buttons, or by dragging the mouse.</p>", this);
+	    "buttons, or by dragging the mouse.</p>"));
 
-  WTable *layout = new WTable(this);
+  WTable *layout = this->addWidget(cpp14::make_unique<WTable>());
 
-  mandelbrot_ = new MandelbrotImage(400, 400,
+  auto mandelbrotPtr = cpp14::make_unique<MandelbrotImage>(400, 400,
 				    3000, 3000,
 				    -2,
 				    -1.5,
 				    1,
-				    1.5, layout->elementAt(0, 0));
+				    1.5);
+  mandelbrot_ = mandelbrotPtr.get();
 
-  WContainerWidget *buttons = new WContainerWidget(layout->elementAt(0, 0));
+  layout->elementAt(0, 0)->addWidget(std::move(mandelbrotPtr));
+
+  WContainerWidget *buttons = layout->elementAt(0,0)
+      ->addWidget(cpp14::make_unique<WContainerWidget>());
   buttons->resize(400, WLength::Auto);
-  buttons->setContentAlignment(AlignCenter);
+  buttons->setContentAlignment(AlignmentFlag::Center);
 
-  (new WPushButton("Left", buttons))
+  (buttons->addWidget(cpp14::make_unique<WPushButton>("Left")))
     ->clicked().connect(this, &MandelbrotExample::moveLeft);
-  (new WPushButton("Right", buttons))
+  (buttons->addWidget(cpp14::make_unique<WPushButton>("Right")))
     ->clicked().connect(this, &MandelbrotExample::moveRight);
-  (new WPushButton("Up", buttons))
+  (buttons->addWidget(cpp14::make_unique<WPushButton>("Up")))
     ->clicked().connect(this, &MandelbrotExample::moveUp);
-  (new WPushButton("Down", buttons))
+  (buttons->addWidget(cpp14::make_unique<WPushButton>("Down")))
     ->clicked().connect(this, &MandelbrotExample::moveDown);
 
-  new WBreak(buttons);
+  buttons->addWidget(cpp14::make_unique<WBreak>());
 
-  (new WPushButton("Zoom in", buttons))
+  (buttons->addWidget(cpp14::make_unique<WPushButton>("Zoom in")))
     ->clicked().connect(this, &MandelbrotExample::zoomIn);
-  (new WPushButton("Zoom out", buttons))
+  (buttons->addWidget(cpp14::make_unique<WPushButton>("Zoom out")))
     ->clicked().connect(this, &MandelbrotExample::zoomOut);
 
-  viewPortText_ = new WText(layout->elementAt(0, 1));
+  viewPortText_ = layout->elementAt(0,1)->addWidget(cpp14::make_unique<WText>());
   layout->elementAt(0, 1)->setPadding(10);
 
   updateViewPortText();
@@ -99,20 +103,20 @@ void MandelbrotExample::updateViewPortText()
 {
   viewPortText_->setText
     ("Current viewport: ("
-     + boost::lexical_cast<std::string>(mandelbrot_->currentX1()) + ","
-     + boost::lexical_cast<std::string>(mandelbrot_->currentY1()) + ") to ("
-     + boost::lexical_cast<std::string>(mandelbrot_->currentX2()) + ","
-     + boost::lexical_cast<std::string>(mandelbrot_->currentY2()) + ")");
+     + asString(mandelbrot_->currentX1()).toUTF8() + ","
+     + asString(mandelbrot_->currentY1()).toUTF8() + ") to ("
+     + asString(mandelbrot_->currentX2()).toUTF8() + ","
+     + asString(mandelbrot_->currentY2()).toUTF8() + ")");
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new WApplication(env);
+  auto app = cpp14::make_unique<WApplication>(env);
   app->setTitle("Wt Mandelbrot example");
 
-  MandelbrotExample *mandelbrot = new MandelbrotExample();
+  auto mandelbrot = cpp14::make_unique<MandelbrotExample>();
   mandelbrot->setPadding(8);
-  app->root()->addWidget(mandelbrot);
+  app->root()->addWidget(std::move(mandelbrot));
 
   app->styleSheet().addRule("html, body",
 			    "border: 0px; margin: 0px; height: 100%;");

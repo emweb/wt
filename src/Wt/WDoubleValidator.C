@@ -4,13 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WDoubleValidator"
-#include "Wt/WString"
-#include "Wt/WStringStream"
-#include "Wt/WApplication"
+#include "Wt/WDoubleValidator.h"
+#include "Wt/WString.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WApplication.h"
 
 
 #ifndef WT_DEBUG_JS
@@ -19,18 +18,16 @@
 
 namespace Wt {
 
-WDoubleValidator::WDoubleValidator(WObject *parent)
-  : WValidator(parent),
-    bottom_(-std::numeric_limits<double>::max()),
+WDoubleValidator::WDoubleValidator()
+  : bottom_(-std::numeric_limits<double>::max()),
     top_(std::numeric_limits<double>::max()),
-	ignoreTrailingSpaces_(false)
+    ignoreTrailingSpaces_(false)
 { }
 
-WDoubleValidator::WDoubleValidator(double bottom, double top, WObject *parent)
-  : WValidator(parent),
-    bottom_(bottom),
+WDoubleValidator::WDoubleValidator(double bottom, double top)
+  : bottom_(bottom),
     top_(top),
-	ignoreTrailingSpaces_(false)
+    ignoreTrailingSpaces_(false)
 { }
 
 void WDoubleValidator::setBottom(double bottom)
@@ -136,13 +133,13 @@ WValidator::Result WDoubleValidator::validate(const WT_USTRING& input) const
     double i = WLocale::currentLocale().toDouble(text);
 
     if (i < bottom_)
-      return Result(Invalid, invalidTooSmallText());
+      return Result(ValidationState::Invalid, invalidTooSmallText());
     else if (i > top_)
-      return Result(Invalid, invalidTooLargeText());
+      return Result(ValidationState::Invalid, invalidTooLargeText());
     else
-      return Result(Valid);
-  } catch (boost::bad_lexical_cast& e) {
-    return Result(Invalid, invalidNotANumberText());
+      return Result(ValidationState::Valid);
+  } catch (std::exception& e) {
+    return Result(ValidationState::Invalid, invalidNotANumberText());
   }
 }
 
@@ -189,26 +186,5 @@ std::string WDoubleValidator::javaScriptValidate() const
 
   return js.str();
 }
-
-#ifndef WT_TARGET_JAVA
-void WDoubleValidator::createExtConfig(std::ostream& config) const
-{
-  if (bottom_ >= 0)
-    config << ",allowNegative:false";
-  if (bottom_ != -std::numeric_limits<double>::max())
-    config << ",minValue:" << bottom_;
-  if (top_ != std::numeric_limits<double>::max())
-    config << ",maxValue:" << top_;
-
-  if (!tooSmallText_.empty())
-    config << ",minText:" << tooSmallText_.jsStringLiteral();
-  if (!tooLargeText_.empty())
-    config << ",maxText:" << tooLargeText_.jsStringLiteral();
-  if (!nanText_.empty())
-    config << ",nanText:" << nanText_.jsStringLiteral();
-
-  WValidator::createExtConfig(config);
-}
-#endif //WT_TARGET_JAVA
 
 }

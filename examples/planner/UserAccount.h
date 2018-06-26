@@ -7,11 +7,13 @@
 #ifndef USER_ACCOUNT_H_
 #define USER_ACCOUNT_H_
 
-#include <Wt/WDate>
-#include <Wt/WString>
+#include <Wt/WDate.h>
+#include <Wt/WString.h>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+
+using namespace Wt;
 
 class Entry;
 
@@ -20,17 +22,17 @@ namespace dbo = Wt::Dbo;
 class UserAccount
 {
 public:
-  Wt::WString name;
+  WString name;
   dbo::collection< dbo::ptr<Entry> > entries;
   
   UserAccount();
-  UserAccount(const Wt::WString& name);
+  UserAccount(const WString& name);
 
   dbo::collection< dbo::ptr<Entry> >
-    entriesInRange(const Wt::WDate& from, const Wt::WDate& until) const;
+    entriesInRange(const WDate& from, const WDate& until) const;
 
   static dbo::ptr<UserAccount> login(dbo::Session& session, 
-				     const Wt::WString& user);
+                                     const WString& user);
   template<class Action>
   void persist(Action& a)
   {

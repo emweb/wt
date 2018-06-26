@@ -8,8 +8,8 @@
 #ifndef MEMBERSHIPID_H
 #define	MEMBERSHIPID_H
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 class Person;
 class Organisation;
@@ -75,7 +75,7 @@ namespace Wt
 
     template <class Action>
     void field(Action& action, MembershipId& mid, const std::string& name,
-	       int size = -1)
+	       int /*size*/ = -1)
     {
       /*
        * Note: here we ignore name because MembershipId is used only

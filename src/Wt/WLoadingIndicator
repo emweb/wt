@@ -1,81 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WLOADING_INDICATOR_H_
-#define WLOADING_INDICATOR_H_
-
-#include <Wt/WDllDefs.h>
-#ifndef WT_TARGET_JAVA
-#include <Wt/WObject>
-#endif //WT_TARGET_JAVA
-
-namespace Wt {
-
-class WString;
-class WWidget;
-
-/*! \class WLoadingIndicator Wt/WLoadingIndicator Wt/WLoadingIndicator
- *  \brief An abstract interface for a loading indicator.
- *
- * The loading indicator displays a message while a response from the
- * server is pending.
- *
- * By providing a custom implementation of this interface, you may use
- * a custom loading indicator using
- * WApplication::setLoadingIndicator(),instead of the default
- * implementation (WDefaultLoadingIndicator).
- *
- * \sa WApplication::setLoadingIndicator()
- */
-#ifndef WT_TARGET_JAVA
-class WT_API WLoadingIndicator : public WObject
-#else 
-class WT_API WLoadingIndicator
-#endif //WT_TARGET_JAVA
-{
-public:
-#ifndef WT_TARGET_JAVA
-  /*! \brief Constructor
-   */
-  WLoadingIndicator(WObject *parent = 0);
-#endif //WT_TARGET_JAVA
-
-  /*! \brief Destructor.
-   *
-   * The destructor must delete the widget().
-   */
-  virtual ~WLoadingIndicator();
-
-  /*! \brief Returns the widget that visually represents the indicator.
-   *
-   * You should reimplement this method to return a widget that will
-   * be shown to indicate that a response is pending. The widget
-   * should be positioned using CSS.
-   *
-   * The widget will be shown and hidden using WWidget::show() and
-   * WWidget::hide(). If you want to customize this behaviour, you
-   * should reimplement the WWidget::setHidden() method. Note that
-   * show() and hide() are stateless slots, and thus you need to make
-   * sure that your implementation comforms to that contract, so that
-   * it may be optimized to JavaScript (the server-side implementation
-   * will only be called during stateless slot prelearning).
-   *
-   * \note The widget will not be added to the WApplication::root() container.
-   */
-  virtual WWidget *widget() = 0;
-
-  /*! \brief Sets the message that you want to be displayed.
-   *
-   * If the indicator is capable of displaying a text message, then
-   * you should reimplement this method to allow this message to be
-   * modified.
-   */
-  virtual void setMessage(const WString& text) = 0;
-};
-
-}
-
-#endif // WLOADING_INDICATOR_H_
+#ifndef WT_WLOADINGINDICATOR_EXTENSIONLESS_H_
+#define WT_WLOADINGINDICATOR_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WLoadingIndicator.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WLoadingIndicator.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WLoadingIndicator.h"
+#endif // WT_WLOADINGINDICATOR_EXTENSIONLESS_H_

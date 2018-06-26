@@ -1,119 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WLOCALIZED_STRINGS_
-#define WLOCALIZED_STRINGS_
-
-#include <string>
-#include <Wt/WDllDefs.h>
-
-namespace Wt {
-
-class WString;
-
-/*! \class WLocalizedStrings Wt/WLocalizedStrings Wt/WLocalizedStrings
- *  \brief An abstract class that provides support for localized strings.
- *
- * This abstract class provides the content to localized WStrings, by
- * resolving the key to a string using the current application locale.
- *
- * \sa WString::tr(), WApplication::setLocalizedStrings()
- */
-class WT_API WLocalizedStrings
-{
-public:
-  /*! \brief Destructor.
-   */
-  virtual ~WLocalizedStrings();
-
-  /*! \brief Rereads the message resources.
-   *
-   * Purge any cached key/values, if applicable.
-   *
-   * The default implementation does nothing.
-   */
-  virtual void refresh();
-
-  /*! \brief Purges memory resources, if possible.
-   * 
-   * This is called afer event handling, and is an opportunity to
-   * conserve memory inbetween events, by freeing memory used for
-   * cached key/value bindings, if applicable.
-   *
-   * The default implementation does nothing.
-   */
-  virtual void hibernate();
-
-  /*! \brief Resolves a key in the current locale.
-   * 
-   * This method is used by WString to obtain the UTF8 value corresponding
-   * to a key in the current locale.
-   *
-   * \if cpp
-   * Returns \c true if the key could be resolved. The value is written
-   * in \p result, encoded using UTF8.
-   * \endif
-   *
-   * \if java
-   * Returns the value if the key could be resolved. Returns \c null otherwise.
-   * \endif
-   *
-   * \sa WApplication::locale(), WString::tr()
-   */
-#ifndef WT_TARGET_JAVA
-  virtual bool resolveKey(const std::string& key, std::string& result) = 0;
-#else // WT_TARGET_JAVA
-  virtual std::string *resolveKey(const std::string& key) = 0;
-#endif // WT_TARGET_JAVA
-
-  /*! \brief Resolves the plural form of a key in the current locale.
-   * 
-   * This method is used by WString to obtain the UTF8 value
-   * corresponding to a key in the current locale, taking into account
-   * the possibility of multiple plural forms, and chosing the right
-   * plural form based on the \p amount passed.
-   *
-   * Throws a std::logic_error if the underlying implementation does not
-   * provide support for plural internationalized strings.
-   *
-   * \if cpp
-   * Returns \c true if the key could be resolved. The value is written
-   * in \p result, encoded as UTF8.
-   * \endif
-   *
-   * \if java
-   * Returns the value if the key could be resolved. Returns \c null
-   * otherwise.
-   * \endif
-   *
-   * \sa WApplication::locale(), WString::trn()
-   */
-#ifndef WT_TARGET_JAVA
-  virtual bool resolvePluralKey(const std::string& key, 
-				std::string& result,
-				::uint64_t amount);
-
-  /*! \brief Utility method to evaluate a plural expression.
-   *
-   * This evaluates C expressions such as used by ngettext for a particular
-   * value, which can be useful to implement plural key resolution.
-   *
-   * \sa resolvePluralKey() 
-   */
-  static int evaluatePluralExpression(const std::string &expression,
-				      ::uint64_t n);
-
-#else // WT_TARGET_JAVA
-  //TODO make this work for java
-  //virtual std::string *resolveKey(const std::string& key) = 0;
-#endif // WT_TARGET_JAVA
-
-
-};
-
-}
-
-#endif // WSTRING_TRANSLATOR_
+#ifndef WT_WLOCALIZEDSTRINGS_EXTENSIONLESS_H_
+#define WT_WLOCALIZEDSTRINGS_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WLocalizedStrings.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WLocalizedStrings.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WLocalizedStrings.h"
+#endif // WT_WLOCALIZEDSTRINGS_EXTENSIONLESS_H_

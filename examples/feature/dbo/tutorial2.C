@@ -9,8 +9,8 @@
  * http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html
  *****/
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 #include <string>
 
 namespace dbo = Wt::Dbo;
@@ -63,14 +63,14 @@ public:
   }
 };
 
+enum class Role {
+  Visitor = 0,
+  Admin = 1,
+  Alien = 42
+};
+
 class User {
 public:
-  enum Role {
-    Visitor = 0,
-    Admin = 1,
-    Alien = 42
-  };
-
   std::string name;
   std::string password;
   Role        role;
@@ -97,10 +97,10 @@ void run()
   /*
    * Setup a session, would typically be done once at application startup.
    */
-  dbo::backend::Sqlite3 sqlite3(":memory:");
-  sqlite3.setProperty("show-queries", "true");
+  std::unique_ptr<dbo::backend::Sqlite3> sqlite3(new dbo::backend::Sqlite3(":memory:"));
+  sqlite3->setProperty("show-queries", "true");
   dbo::Session session;
-  session.setConnection(sqlite3);
+  session.setConnection(std::move(sqlite3));
 
   session.mapClass<User>("user");
   session.mapClass<Post>("post");
@@ -115,13 +115,13 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    User *user = new User();
+    std::unique_ptr<User> user{new User()};
     user->name = "Joe";
     user->password = "Secret";
-    user->role = User::Visitor;
+    user->role = Role::Visitor;
     user->karma = 13;
 
-    dbo::ptr<User> userPtr = session.add(user);
+    dbo::ptr<User> userPtr = session.add(std::move(user));
   }
 
   dbo::ptr<Post> post;
@@ -130,7 +130,7 @@ void run()
 
     dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
 
-    post = session.add(new Post());
+    post = session.add(std::unique_ptr<Post>{new Post()});
     post.modify()->user = joe;
 
     // will print 'Joe has 1 post(s).'
@@ -140,7 +140,7 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    dbo::ptr<Tag> cooking = session.add(new Tag());
+    dbo::ptr<Tag> cooking = session.add(std::unique_ptr<Tag>{new Tag()});
     cooking.modify()->name = "Cooking";
 
     post.modify()->tags.insert(cooking);
@@ -155,7 +155,7 @@ void run()
 
     dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
 
-    dbo::ptr<Settings> settings = session.add(new Settings());
+    dbo::ptr<Settings> settings = session.add(std::unique_ptr<Settings>{new Settings()});
     settings.modify()->theme = "fancy-pink";
     joe.modify()->settings = settings;
 

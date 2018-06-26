@@ -25,16 +25,16 @@
  *
  */
 
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WException"
-#include "Wt/WFontMetrics"
-#include "Wt/WLogger"
-#include "Wt/WPainter"
-#include "Wt/WPainterPath"
-#include "Wt/WRectF"
-#include "Wt/WStringStream"
-#include "Wt/WVmlImage"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WLogger.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPainterPath.h"
+#include "Wt/WRectF.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WVmlImage.h"
 
 #include "EscapeOStream.h"
 #include "WebUtils.h"
@@ -75,10 +75,10 @@ WVmlImage::WVmlImage(const WLength& width, const WLength& height,
 		     bool paintUpdate)
   : width_(width),
     height_(height),
-    painter_(0),
+    painter_(nullptr),
     paintUpdate_(paintUpdate),
     clippingChanged_(false),
-    fontMetrics_(0)
+    fontMetrics_(nullptr)
 { }
 
 WVmlImage::~WVmlImage()
@@ -86,12 +86,12 @@ WVmlImage::~WVmlImage()
   delete fontMetrics_;
 }
 
-WFlags<WPaintDevice::FeatureFlag> WVmlImage::features() const
+WFlags<PaintDeviceFeatureFlag> WVmlImage::features() const
 {
   if (ServerSideFontMetrics::available())
-    return HasFontMetrics;
+    return PaintDeviceFeatureFlag::FontMetrics;
   else
-    return 0;
+    return None;
 }
 
 void WVmlImage::init()
@@ -110,12 +110,14 @@ void WVmlImage::done()
   stopClip();
 }
 
-void WVmlImage::setChanged(WFlags<ChangeFlag> flags)
+void WVmlImage::setChanged(WFlags<PainterChangeFlag> flags)
 {
-  if (flags & (Pen | Brush | Shadow))
+  if (!(flags & (PainterChangeFlag::Pen | 
+	       PainterChangeFlag::Brush | 
+	       PainterChangeFlag::Shadow)).empty())
     penBrushShadowChanged_ = true;
 
-  if (flags & Clipping)
+  if (flags.test(PainterChangeFlag::Clipping))
     clippingChanged_ = true;
 }
 
@@ -176,8 +178,16 @@ void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
 	    << "\"/></v:group>";
 }
 
+void WVmlImage::drawRect(const WRectF& rectangle)
+{
+  drawPath(rectangle.toPath());
+}
+
 void WVmlImage::drawPath(const WPainterPath& path)
 {
+  if (path.isEmpty())
+    return;
+
   if (penBrushShadowChanged_)
     if ((currentPen_ != painter()->pen())
 	|| (currentBrush_ != painter()->brush())
@@ -235,7 +245,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
 #endif // DEBUG_BBOX
 
   if (segments.size() > 0
-      && segments[0].type() != WPainterPath::Segment::MoveTo)
+      && segments[0].type() != SegmentType::MoveTo)
     tmp << "m0,0";
 
   for (unsigned i = 0; i < segments.size(); ++i) {
@@ -246,13 +256,13 @@ void WVmlImage::drawPath(const WPainterPath& path)
      * but this is common after a closeSubPath()
      */
     if ((i == segments.size() - 1)
-	&& (s.type() == WPainterPath::Segment::MoveTo))
+	&& (s.type() == SegmentType::MoveTo))
       break;
 
     double x = s.x();
     double y = s.y();
 
-    if (s.type() == WPainterPath::Segment::ArcC) {
+    if (s.type() == SegmentType::ArcC) {
       double cx = segments[i].x();
       double cy = segments[i].y();
       double rx = segments[i+1].x();
@@ -290,20 +300,20 @@ void WVmlImage::drawPath(const WPainterPath& path)
 	  << "," << myzround(p2.x()) << "," << myzround(p2.y());
     } else {
       switch (s.type()) {
-      case WPainterPath::Segment::MoveTo:
+      case SegmentType::MoveTo:
 	tmp << "m";
 	break;
-      case WPainterPath::Segment::LineTo:
+      case SegmentType::LineTo:
 	tmp << "l";
 	break;
-      case WPainterPath::Segment::CubicC1:
+      case SegmentType::CubicC1:
 	tmp << "c";
 	break;
-      case WPainterPath::Segment::CubicC2:
-      case WPainterPath::Segment::CubicEnd:
+      case SegmentType::CubicC2:
+      case SegmentType::CubicEnd:
 	tmp << ",";
 	break;
-      case WPainterPath::Segment::QuadC: {
+      case SegmentType::QuadC: {
 	/*
 	 * VML's quadratic bezier don't seem to work as advertized ?
 	 */
@@ -327,7 +337,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
 
 	break;
       }
-      case WPainterPath::Segment::QuadEnd:
+      case SegmentType::QuadEnd:
 	tmp << ",";
 	break;
       default:
@@ -372,7 +382,7 @@ void WVmlImage::finishPaths()
      * High quality shadows are created by duplicating the path and
      * blurring it using a filter
      */
-    if (!(painter()->renderHints() & WPainter::LowQualityShadows)
+    if (!(painter()->renderHints() & RenderHint::LowQualityShadows)
 	&& !currentShadow_.none()) {
       const std::string& path = activePaths_[i].path;
       std::size_t pos = path.find("style=\"") + 7;
@@ -412,8 +422,8 @@ void WVmlImage::drawText(const WRectF& rect,
 			 WFlags<AlignmentFlag> flags, TextFlag textFlag,
 			 const WString& text, const WPointF *clipPoint)
 {
-  if (textFlag == TextWordWrap)
-    throw WException("WVmlImage::drawText(): TextWordWrap is not supported");
+  if (textFlag == TextFlag::WordWrap)
+    throw WException("WVmlImage::drawText(): TextFlag::WordWrap is not supported");
 
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
@@ -423,8 +433,8 @@ void WVmlImage::drawText(const WRectF& rect,
 
   finishPaths();
 
-  WFlags<AlignmentFlag> horizontalAlign = flags & AlignHorizontalMask;
-  WFlags<AlignmentFlag> verticalAlign = flags & AlignVerticalMask;
+  AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
+  AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
 #ifdef TEXT_DIVS
   DomElement *e = DomElement::createNew(DomElement::DIV);
@@ -434,50 +444,46 @@ void WVmlImage::drawText(const WRectF& rect,
   /*
    * HTML tricks to center things vertically in IE
    */
-  e->setProperty(PropertyStylePosition, "absolute");
-  e->setProperty(PropertyStyleTop,
-		 boost::lexical_cast<std::string>(pos.y()) + "px");
-  e->setProperty(PropertyStyleLeft,
-		 boost::lexical_cast<std::string>(pos.x()) + "px");
-  e->setProperty(PropertyStyleWidth,
-		 boost::lexical_cast<std::string>(rect.width()) + "px");
-  e->setProperty(PropertyStyleHeight,
-		 boost::lexical_cast<std::string>(rect.height()) + "px");
+  e->setProperty(Property::StylePosition, "absolute");
+  e->setProperty(Property::StyleTop, std::to_string(pos.y()) + "px");
+  e->setProperty(Property::StyleLeft, std::to_string(pos.x()) + "px");
+  e->setProperty(Property::StyleWidth, std::to_string(rect.width()) + "px");
+  e->setProperty(Property::StyleHeight, std::to_string(rect.height()) + "px");
 
   DomElement *t = e;
   DomElement *i = 0;
 
-  if (verticalAlign != AlignTop) {
+  if (verticalAlign != AlignmentFlag::Top) {
     t = DomElement::createNew(DomElement::DIV);
 
-    if (verticalAlign == AlignMiddle) {      
+    if (verticalAlign == AlignmentFlag::Middle) {      
       i = DomElement::createNew(DomElement::DIV);
-      i->setProperty(PropertyStylePosition, "absolute");
-      i->setProperty(PropertyStyleTop, "50%");
+      i->setProperty(Property::StylePosition, "absolute");
+      i->setProperty(Property::StyleTop, "50%");
 
-      t->setProperty(PropertyStylePosition, "relative");
-      t->setProperty(PropertyStyleTop, "-50%");      
-    } else if (verticalAlign == AlignBottom) {
-      t->setProperty(PropertyStylePosition, "absolute");
-      t->setProperty(PropertyStyleWidth, "100%");
-      t->setProperty(PropertyStyleBottom, "0px");
+      t->setProperty(Property::StylePosition, "relative");
+      t->setProperty(Property::StyleTop, "-50%");      
+    } else if (verticalAlign == AlignmentFlag::Bottom) {
+      t->setProperty(Property::StylePosition, "absolute");
+      t->setProperty(Property::StyleWidth, "100%");
+      t->setProperty(Property::StyleBottom, "0px");
     }
   }
 
-  t->setProperty(PropertyInnerHTML,
+  t->setProperty(Property::InnerHTML,
 		 WWebWidget::escapeText(text, true).toUTF8());
 
   WFont f = painter()->font();
   f.updateDomElement(*t, false, true);
 
-  t->setProperty(PropertyStyleColor, painter()->pen().color().cssText());
+  t->setProperty(Property::StyleColor, painter()->pen().color().cssText());
 
-  if (horizontalAlign == AlignRight) {
-    t->setProperty(PropertyStyleTextAlign, "right");
+  if (horizontalAlign == AlignmentFlag::Right) {
+    t->setProperty(Property::StyleTextAlign, "right");
     if (i)
-      i->setProperty(PropertyStyleRight, "0px");
-  } else if (horizontalAlign == AlignCenter)
-    t->setProperty(PropertyStyleTextAlign, "center");
+      i->setProperty(Property::StyleRight, "0px");
+  } else if (horizontalAlign == AlignmentFlag::Center)
+    t->setProperty(Property::StyleTextAlign, "center");
 
   if (i) {
     i->addChild(t);
@@ -499,11 +505,11 @@ void WVmlImage::drawText(const WRectF& rect,
 
   double y = rect.center().y();
   switch (verticalAlign) {
-  case AlignTop:
+  case AlignmentFlag::Top:
     y = rect.top() + fontSize * 0.55; break;
-  case AlignMiddle:
+  case AlignmentFlag::Middle:
     y = rect.center().y(); break;
-  case AlignBottom:
+  case AlignmentFlag::Bottom:
     y = rect.bottom() - fontSize * 0.45 ; break;
   default:
     break;
@@ -528,11 +534,11 @@ void WVmlImage::drawText(const WRectF& rect,
   render << "\" style=\"v-text-align:";
 
   switch (horizontalAlign) {
-  case AlignLeft:
+  case AlignmentFlag::Left:
     render << "left"; break;
-  case AlignCenter:
+  case AlignmentFlag::Center:
     render << "center"; break;
-  case AlignRight:
+  case AlignmentFlag::Right:
     render << "right"; break;
   default:
     break;
@@ -540,8 +546,7 @@ void WVmlImage::drawText(const WRectF& rect,
 
   Wt::WApplication *app = Wt::WApplication::instance();
   Wt::WFont textFont(painter()->font());
-  textFont.setSize(WFont::FixedSize,
-		   textFont.sizeLength() * app->environment().dpiScale());
+  textFont.setSize(textFont.sizeLength() * app->environment().dpiScale());
 
   std::string cssFont = textFont.cssText(false);
   std::size_t i = cssFont.find(',');
@@ -552,7 +557,7 @@ void WVmlImage::drawText(const WRectF& rect,
 
   render << ";" << cssFont << "\"/></v:shape>";
 
-  if (!(painter()->renderHints() & WPainter::LowQualityShadows)
+  if (!(painter()->renderHints() & RenderHint::LowQualityShadows)
       && !currentShadow_.none()) {
     std::string result = render.str();
     std::size_t pos = result.find("style=\"") + 7;
@@ -636,7 +641,7 @@ std::string WVmlImage::skewElement(const WTransform& t) const
 
 std::string WVmlImage::shadowElement(const WShadow& shadow) const
 {
-  if (!(painter()->renderHints() & WPainter::LowQualityShadows))
+  if (!(painter()->renderHints() & RenderHint::LowQualityShadows))
     return std::string();
 
   char buf[30];
@@ -656,7 +661,7 @@ std::string WVmlImage::shadowElement(const WShadow& shadow) const
 
 std::string WVmlImage::fillElement(const WBrush& brush) const
 {
-  if (brush.style() != NoBrush) {
+  if (brush.style() != BrushStyle::None) {
     return "<v:fill " + colorAttributes(brush.color()) + "/>";
   } else
     return "<v:fill on=\"false\" />";
@@ -664,48 +669,48 @@ std::string WVmlImage::fillElement(const WBrush& brush) const
 
 std::string WVmlImage::strokeElement(const WPen& pen) const
 {
-  if (pen.style() != NoPen) {
+  if (pen.style() != PenStyle::None) {
     std::string result;
 
     result = "<v:stroke " + colorAttributes(pen.color());
 
     switch (pen.capStyle()) {
-    case FlatCap:
+    case PenCapStyle::Flat:
       result += " endcap=\"flat\"";
       break;
-    case SquareCap:
+    case PenCapStyle::Square:
       result += " endcap=\"square\"";
       break;
-    case RoundCap:
+    case PenCapStyle::Round:
       break;
     }
 
     switch (pen.joinStyle()) {
-    case MiterJoin:
+    case PenJoinStyle::Miter:
       result += " joinstyle=\"miter\"";
       break;
-    case BevelJoin:
+    case PenJoinStyle::Bevel:
       result += " joinstyle=\"bevel\"";
       break;
-    case RoundJoin:
+    case PenJoinStyle::Round:
       break;
     }
 
     switch (pen.style()) {
-    case NoPen:
+    case PenStyle::None:
       break;
-    case SolidLine:
+    case PenStyle::SolidLine:
       break;
-    case DashLine:
+    case PenStyle::DashLine:
       result += " dashstyle=\"dash\"";
       break;
-    case DotLine:
+    case PenStyle::DotLine:
       result += " dashstyle=\"dot\"";
       break;
-    case DashDotLine:
+    case PenStyle::DashDotLine:
       result += " dashstyle=\"dashdot\"";
       break;
-    case DashDotDotLine:
+    case PenStyle::DashDotDotLine:
       result += " dashstyle=\"2 2 0 2 0 2\"";
       break;
     }

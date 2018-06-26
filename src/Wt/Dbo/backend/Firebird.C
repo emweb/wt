@@ -5,17 +5,18 @@
  *
  * Originally contributed by Lukasz Matuszewski
  */
-#include <Wt/Dbo/backend/Firebird>
+#include <Wt/Dbo/backend/Firebird.h>
 
-#include "Wt/Dbo/Exception"
+#include "Wt/Dbo/Exception.h"
 
 #include <cstdio>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <ctime>
+#include <iostream>
+#include <sstream>
 
 #ifdef WT_WIN32
 #define snprintf _snprintf
+#define timegm _mkgmtime
 #endif
 
 //#define DEBUG(x) x
@@ -28,6 +29,24 @@
   std::cerr << this << " getResult " << x << " " << y << std::endl;
 
 #include <ibpp.h>
+
+namespace {
+#ifndef WT_WIN32
+  thread_local std::tm local_tm;
+#endif
+
+  std::tm *thread_local_gmtime(const time_t *timep)
+  {
+#ifdef WT_WIN32
+    return std::gmtime(timep); // Already returns thread-local pointer
+#else // !WT_WIN32
+    gmtime_r(timep, &local_tm);
+    return &local_tm;
+#endif // WT_WIN32
+  }
+
+  static constexpr int MAX_VARCHAR_LENGTH = 32765;
+}
 
 namespace Wt
 {
@@ -61,7 +80,7 @@ namespace Wt
 	{ }
       };
 
-      class FirebirdStatement : public SqlStatement
+      class FirebirdStatement final : public SqlStatement
       {
       public:
 	FirebirdStatement(Firebird& conn, const std::string& sql)
@@ -92,110 +111,106 @@ namespace Wt
 	virtual ~FirebirdStatement()
 	{ }
 
-	virtual void reset()
+	virtual void reset() override
 	{ }
 
 	// The first column index is 1!
-	virtual void bind(int column, const std::string& value)
+	virtual void bind(int column, const std::string& value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, value);
 	}
 
-	virtual void bind(int column, short value)
+	virtual void bind(int column, short value) override
 	{
 	  DEBUG(bindErr(column, value));
 
 	  m_stmt->Set(column + 1, value);
 	}
 
-	virtual void bind(int column, int value)
+	virtual void bind(int column, int value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, value);
 	}
 
-	virtual void bind(int column, long long value)
+	virtual void bind(int column, long long value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, (int64_t) value);
 	}
 
-	virtual void bind(int column, float value)
+	virtual void bind(int column, float value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, value);
 	}
 
-	virtual void bind(int column, double value)
+	virtual void bind(int column, double value) override
 	{
 	  DEBUG(bindErr(column, value));
 	  
 	  m_stmt->Set(column + 1, value);
 	}
 
-	int getMilliSeconds(const boost::posix_time::time_duration &d) 
-	{
-	  using namespace boost::posix_time;
-	  
-	  time_duration::fractional_seconds_type ticks_per_msec =
-	    time_duration::ticks_per_second() / 1000;
-          time_duration::fractional_seconds_type ticks =
-	    d.fractional_seconds();
-	  
-	  return (int)(ticks / ticks_per_msec);
-	}
+    int getMilliSeconds(const std::chrono::system_clock::time_point &tp)
+    {
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+        return ms.count()%1000;
+    }
 
 	virtual void bind(int column, 
-			  const boost::posix_time::time_duration & value)
-	{
-	  DEBUG(bindErr(column, boost::posix_time::to_simple_string(value)));
-	
-	  int h = value.hours();
-	  int m = value.minutes();
-	  int s = value.seconds();
-	  int ms = getMilliSeconds(value); 
+              const std::chrono::duration<int, std::milli> & value) override
+    {
+      std::chrono::system_clock::time_point tp(value);
+      std::time_t time = std::chrono::system_clock::to_time_t(tp);
+      std::tm *tm = thread_local_gmtime(&time);
+      char mbstr[100];
+      std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
+      DEBUG(bindErr(column, mbstr));
 
+      int h = tm->tm_hour;
+      int m = tm->tm_min;
+      int s = tm->tm_sec;
+      int ms = getMilliSeconds(std::chrono::system_clock::time_point(value));
 	  IBPP::Time t(h, m, s, ms * 10);
 	  
 	  m_stmt->Set(column + 1, t);
 	}
 
 	virtual void bind(int column, 
-			  const boost::posix_time::ptime& value,
-			  SqlDateTimeType type)
+              const std::chrono::system_clock::time_point& value,
+			  SqlDateTimeType type) override
 	{
-	  DEBUG(bindErr(column, boost::posix_time::to_simple_string(value)));
+      std::time_t t = std::chrono::system_clock::to_time_t(value);
+      std::tm *tm = thread_local_gmtime(&t);
+      char mbstr[100];
+      std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
+      DEBUG(bindErr(column, mbstr));
 	  
-	  if (type == SqlDate) {
-	    IBPP::Date idate(value.date().year(), 
-			     value.date().month(), 
-			     value.date().day());
+      if (type == SqlDateTimeType::Date) {
+        IBPP::Date idate(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
 	    
 	    m_stmt->Set(column + 1, idate);
-	  } else {
-	    int h = value.time_of_day().hours();
-	    int m = value.time_of_day().minutes();
-	    int s = value.time_of_day().seconds();
-	    int ms = getMilliSeconds(value.time_of_day()); 
-	    
-	    IBPP::Timestamp ts(value.date().year(), 
-			       value.date().month(), 
-			       value.date().day(),
-			       h, m, s, ms * 10);
+      } else {
+        int h = tm->tm_hour;
+        int m = tm->tm_min;
+        int s = tm->tm_sec;
+        int ms = getMilliSeconds(value);
+
+        IBPP::Timestamp ts(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+                           h, m, s, ms * 10);
 	    
 	    m_stmt->Set(column + 1, ts);
 	  }
 	}
 
-	virtual void bind(int column, const std::vector<unsigned char>& value)
-	{
-	  //DEBUG(bindErr(column, 
-		//	std::string(" (blob, size=") + value.size() + ")"));
+	virtual void bind(int column, const std::vector<unsigned char>& value) override
+    {
 
 	  IBPP::Blob b = IBPP::BlobFactory(conn_.impl_->m_db, 
 					   conn_.impl_->m_tra);
@@ -206,14 +221,14 @@ namespace Wt
 	  m_stmt->Set(column + 1, b);
 	}
 
-	virtual void bindNull(int column)
+	virtual void bindNull(int column) override
 	{
 	  DEBUG(bindErr(column, "null"));
 	  
 	  m_stmt->SetNull(column + 1);
 	}
 
-	virtual void execute()
+	virtual void execute() override
 	{
 	  if (conn_.showQueries())
 	    std::cerr << sql_ << std::endl;
@@ -240,17 +255,17 @@ namespace Wt
 	  }
 	}
 	
-	virtual long long insertedId()
+	virtual long long insertedId() override
 	{
 	  return lastId_;
 	}
 
-	virtual int affectedRowCount()
+	virtual int affectedRowCount() override
 	{
 	  return affectedRows_;
 	}
 
-	virtual bool nextRow()
+	virtual bool nextRow() override
 	{
 	  try {
 	    return m_stmt->Fetch();
@@ -264,7 +279,7 @@ namespace Wt
 	  m_stmt->Get(column, *value);
 	}
 
-	virtual bool getResult(int column, std::string *value, int size)
+	virtual bool getResult(int column, std::string *value, int size) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -276,7 +291,7 @@ namespace Wt
 	  return true;
 	}
 
-	virtual bool getResult(int column, short *value)
+	virtual bool getResult(int column, short *value) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -288,7 +303,7 @@ namespace Wt
 	  return true;
 	}
 
-	virtual bool getResult(int column, int *value)
+	virtual bool getResult(int column, int *value) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -300,7 +315,7 @@ namespace Wt
 	  return true;
 	}
 
-	virtual bool getResult(int column, long long *value)
+	virtual bool getResult(int column, long long *value) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -312,19 +327,19 @@ namespace Wt
 	  return true;
 	}
 
-	virtual bool getResult(int column, float *value)
+	virtual bool getResult(int column, float *value) override
 	{
           if (m_stmt->IsNull(++column))
             return false;
 
-          m_stmt->Get(column, *value);
+	  m_stmt->Get(column, *value);
 	  
 	  DEBUG(resultErr(column, *value));
 	  	  
 	  return true;
 	}
 	
-	virtual bool getResult(int column, double *value)
+	virtual bool getResult(int column, double *value) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -337,66 +352,73 @@ namespace Wt
 	}
 
 	virtual bool getResult(int column, 
-			       boost::posix_time::ptime *value,
-			       SqlDateTimeType type)
-	{
-	  using namespace boost::posix_time;
-	  using namespace boost::gregorian;
+			       std::chrono::system_clock::time_point *value,
+			       SqlDateTimeType type) override
+    {
 
 	  if (m_stmt->IsNull(++column))
             return false;
 	  
           switch(type) {
-	  case SqlDate: { 
+	  case SqlDateTimeType::Date: { 
 	    IBPP::Date d;
 	    m_stmt->Get(column, d);
-	    *value = ptime(date(d.Year(), d.Month(), d.Day()));
+	    std::tm tm = std::tm();
+	    tm.tm_year = d.Year() - 1900;
+	    tm.tm_mon = d.Month() - 1;
+	    tm.tm_mday = d.Day();
+	    std::time_t t = timegm(&tm);
+	    *value = std::chrono::system_clock::from_time_t(t);
 	    break;
 	  }
 	    
-	  case SqlDateTime: {
+	  case SqlDateTimeType::DateTime: {
 	    IBPP::Timestamp tm;
 	    m_stmt->Get(column, tm);
-	    *value = ptime(date(tm.Year(), tm.Month(), tm.Day()), 
-			   hours(tm.Hours()) + 
-			   minutes(tm.Minutes()) + 
-			   seconds(tm.Seconds()) + 
-			   microseconds(tm.SubSeconds() * 100));
+	    std::tm time = std::tm();
+	    time.tm_year = tm.Year() - 1900;
+	    time.tm_mon = tm.Month() - 1;
+	    time.tm_mday = tm.Day();
+	    time.tm_hour = tm.Hours();
+	    time.tm_min = tm.Minutes();
+	    time.tm_sec = tm.Seconds();
+	    std::time_t t = timegm(&time);
+	    *value = std::chrono::system_clock::from_time_t(t);
+	    *value += std::chrono::milliseconds(tm.SubSeconds() / 10);
 	    break;
           }
-	  case SqlTime:
+	  case SqlDateTimeType::Time:
 	    break;
 	  }
-	  
-	  DEBUG(resultErr(column, to_simple_string(*value)));
+          DEBUG(do {
+                  std::time_t t = std::chrono::system_clock::to_time_t(*value);
+                  resultErr(column, std::ctime(&t));
+                } while (0);)
 	  
 	  return true;
 	}
 	
 
 	virtual bool getResult(int column, 
-			       boost::posix_time::time_duration *value)
-	{
-	  using namespace boost::posix_time;
+			       std::chrono::duration<int, std::milli> *value) override
+    {
 	  
 	  if (m_stmt->IsNull(++column))
 	    return false;
 	  
 	  IBPP::Time t;
 	  m_stmt->Get(column, t);
-	  *value = boost::posix_time::hours(t.Hours()) +
-	    boost::posix_time::minutes(t.Minutes()) +
-	    boost::posix_time::seconds(t.Seconds()) +
-	    boost::posix_time::microseconds(t.SubSeconds() * 100);
+	  *value = std::chrono::hours(t.Hours()) + std::chrono::minutes(t.Minutes()) +
+              std::chrono::seconds(t.Seconds()) + std::chrono::milliseconds(t.SubSeconds() / 10);
 	  
-	  DEBUG(resultErr(column, to_simple_string(*value)));
+	  DEBUG(resultErr(column, *value.count()));
 
 	  return true;
 	}
 
 	virtual bool getResult(int column, 
 			       std::vector<unsigned char> *value,
-			       int size)
+			       int size) override
 	{
 	  if (m_stmt->IsNull(++column))
 	    return false;
@@ -410,13 +432,11 @@ namespace Wt
 	  value->resize(size);
 	  if (size > 0)
 	    b->Read((void *)&value->front(), size);
-
-	  //DEBUG(resultErr(column, std::string("blob (size=") + value->size()));
 	  
 	  return true;
 	}
 
-	virtual std::string sql() const 
+	virtual std::string sql() const override
 	{
 	  return sql_;
 	}
@@ -514,14 +534,15 @@ namespace Wt
 	delete impl_;
       }
 
-      Firebird *Firebird::clone() const
+      std::unique_ptr<SqlConnection> Firebird::clone() const
       {
-	return new Firebird(*this);
+	return std::unique_ptr<SqlConnection>(new Firebird(*this));
       }
       
-      SqlStatement *Firebird::prepareStatement(const std::string& sql)
+      std::unique_ptr<SqlStatement> Firebird::prepareStatement(const std::string& sql)
       {
-	return new FirebirdStatement(*this, sql);
+	return std::unique_ptr<SqlStatement>(
+	    new FirebirdStatement(*this, sql));
       }
 
       std::string Firebird::autoincrementType() const
@@ -582,11 +603,11 @@ namespace Wt
       const char *Firebird::dateTimeType(SqlDateTimeType type) const
       {
 	switch (type) {
-	case SqlDate:
+	case SqlDateTimeType::Date:
 	  return "date";
-        case SqlDateTime:
+        case SqlDateTimeType::DateTime:
           return "timestamp";
-        case SqlTime:
+        case SqlDateTimeType::Time:
           return "time";
 	}
 	
@@ -640,7 +661,10 @@ namespace Wt
       
       std::string Firebird::textType(int size) const
       {
-        return std::string("blob sub_type text");
+        if (size != -1 && size <= MAX_VARCHAR_LENGTH)
+          return std::string("varchar (") + std::to_string(size) + ")";
+        else
+          return std::string("blob sub_type text");
       }
 
       const char *Firebird::booleanType() const
@@ -655,7 +679,7 @@ namespace Wt
       
       LimitQuery Firebird::limitQueryMethod() const
       {
-        return RowsFromTo;
+        return LimitQuery::RowsFromTo;
       }
 
       bool Firebird::supportAlterTable() const

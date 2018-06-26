@@ -5,16 +5,18 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WJavaScriptObjectStorage"
+#include "Wt/WJavaScriptObjectStorage.h"
 
-#include "Wt/WApplication"
-#include "Wt/WLogger"
-#include "Wt/WStringStream"
-#include "Wt/WWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WLogger.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WWidget.h"
 
-#include "Wt/Json/Object"
-#include "Wt/Json/Parser"
-#include "Wt/Json/Value"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Parser.h"
+#include "Wt/Json/Value.h"
+
+#include "web/WebUtils.h"
 
 namespace Wt {
 
@@ -37,7 +39,7 @@ int WJavaScriptObjectStorage::doAddObject(WJavaScriptExposableObject *o)
   dirty_.push_back(true);
   std::size_t index = jsValues_.size() - 1;
   o->clientBinding_ = new WJavaScriptExposableObject::JSInfo(
-      this, jsRef() + ".jsValues[" + boost::lexical_cast<std::string>(index) + "]");
+      this, jsRef() + ".jsValues[" + std::to_string(index) + "]");
   return (int)index;
 }
 
@@ -45,7 +47,7 @@ void WJavaScriptObjectStorage::updateJs(WStringStream &js)
 {
   for (std::size_t i = 0; i < jsValues_.size(); ++i) {
     if (dirty_[i]) {
-      js << jsRef() + ".setJsValue(" + boost::lexical_cast<std::string>(i) + ",";
+      js << jsRef() + ".setJsValue(" + std::to_string(i) + ",";
       js << jsValues_[i]->jsValue() << ");";
       dirty_[i] = false;
     }
@@ -69,7 +71,7 @@ void WJavaScriptObjectStorage::assignFromJSON(const std::string &json)
 
     for (Json::Object::iterator i = o.begin();
          i != o.end(); ++i) {
-      std::size_t idx = boost::lexical_cast<std::size_t>(i->first);
+      std::size_t idx = Utils::stoull(i->first);
       if (idx >= jsValues_.size())
         throw WException("JSON value index is outside of bounds");
       if (!dirty_[idx])
@@ -79,7 +81,7 @@ void WJavaScriptObjectStorage::assignFromJSON(const std::string &json)
     LOG_ERROR("Failed to parse JSON: " + std::string(e.what()));
   } catch (const WException &e) {
     LOG_ERROR("Failed to assign value from JSON: " + std::string(e.what()));
-  } catch (const boost::bad_lexical_cast &e) {
+  } catch (const std::invalid_argument &e) {
     LOG_ERROR("Failed to assign value from JSON, couldn't cast index: " + std::string(e.what()));
   }
 }

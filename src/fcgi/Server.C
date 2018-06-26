@@ -15,8 +15,7 @@
 
 #include <csignal>
 #include <fstream>
-#include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
+#include <regex>
 #include <exception>
 #include <vector>
 
@@ -28,9 +27,11 @@
 #include "WebUtils.h"
 #include "WebController.h"
 
-#include "Wt/WIOService"
-#include "Wt/WServer"
-#include "Wt/WLogger"
+#include "Wt/WIOService.h"
+#include "Wt/WServer.h"
+#include "Wt/WLogger.h"
+
+#include <boost/algorithm/string.hpp>
 
 using std::exit;
 using std::strcpy;
@@ -55,7 +56,7 @@ bool Server::bindUDStoStdin(const std::string& socketPath, Wt::WServer& server)
 {
   int s = socket(AF_UNIX, SOCK_STREAM, 0);
   if (s == -1) {
-    LOG_ERROR_S(&server, "fatal: socket(): " << strerror(errno));
+    LOG_ERROR_S(&server, "fatal: socket(): " << (const char *)strerror(errno));
     return false;
   }
 
@@ -69,19 +70,19 @@ bool Server::bindUDStoStdin(const std::string& socketPath, Wt::WServer& server)
     + strlen(local.sun_path) + 1;
 
   if (bind(s, (struct sockaddr *)& local, len) == -1) {
-    LOG_ERROR_S(&server, "fatal: bind(): " << strerror(errno));
+    LOG_ERROR_S(&server, "fatal: bind(): " << (const char *)strerror(errno));
     close(s);
     return false;
   }
 
   if (listen(s, 5) == -1) {
-    LOG_ERROR_S(&server, "fatal: listen(): " << strerror(errno));
+    LOG_ERROR_S(&server, "fatal: listen(): " << (const char *)strerror(errno));
     close(s);
     return false;
   }
 
   if (dup2(s, STDIN_FILENO) == -1) {
-    LOG_ERROR_S(&server, "fatal: dup2(): " << strerror(errno));
+    LOG_ERROR_S(&server, "fatal: dup2(): " << (const char *)strerror(errno));
     close(s);
     return false;
   }
@@ -157,7 +158,7 @@ void Server::spawnSharedProcess()
 {
   pid_t pid = fork();
   if (pid == -1) {
-    LOG_ERROR_S(&wt_, "fatal error: fork(): " << strerror(errno));
+    LOG_ERROR_S(&wt_, "fatal error: fork(): " << (const char *)strerror(errno));
     exit(1);
   } else if (pid == 0) {
     /* the child process */
@@ -166,7 +167,7 @@ void Server::spawnSharedProcess()
   } else {
     LOG_INFO_S(&wt_, "spawned session process: pid = " << pid);
 #ifdef WT_THREADED
-    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+    std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
 #endif
     sessionProcessPids_.push_back(pid);
   }
@@ -244,9 +245,10 @@ void Server::doHandleSigChld()
 
     if (conf.sessionPolicy() == Configuration::DedicatedProcess) {
 #ifdef WT_THREADED
-      boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+      std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
 #endif
-      for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
+      for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
+	   ++i) {
 	if (i->second->childPId() == cpid) {
 	  LOG_INFO_S(&wt_, "deleting session: " << i->second->sessionId());
 
@@ -259,7 +261,7 @@ void Server::doHandleSigChld()
       }
     } else {
 #ifdef WT_THREADED
-      boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+      std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
 #endif
       for (unsigned i = 0; i < sessionProcessPids_.size(); ++i) {
 	if (sessionProcessPids_[i] == cpid) {
@@ -288,13 +290,12 @@ bool Server::getSessionFromQueryString(const std::string& queryString,
 {
   Configuration& conf = wt_.configuration();
 
-  static const boost::regex
-    session_e(".*wtd=([a-zA-Z0-9]{"
-	      + boost::lexical_cast<std::string>(conf.sessionIdLength())
+  static const std::regex
+    session_e(".*wtd=([a-zA-Z0-9]{" + std::to_string(conf.sessionIdLength())
 	      + "}).*");
 
-  boost::smatch what;
-  if (boost::regex_match(queryString, what, session_e)) {
+  std::smatch what;
+  if (std::regex_match(queryString, what, session_e)) {
     sessionId = what[1];
     return true;
   }
@@ -307,7 +308,7 @@ int Server::connectToSession(const std::string& sessionId,
 {
   int s = socket(AF_UNIX, SOCK_STREAM, 0);
   if (s == -1) {
-    LOG_ERROR_S(&wt_, "fatal: socket(): " << strerror(errno));
+    LOG_ERROR_S(&wt_, "fatal: socket(): " << (const char *)strerror(errno));
     exit(1);
   }
 
@@ -326,7 +327,7 @@ int Server::connectToSession(const std::string& sessionId,
   }
 
   if (tries == maxTries) {
-    LOG_ERROR_S(&wt_, "connect(): " << strerror(errno));
+    LOG_ERROR_S(&wt_, "connect(): " << (const char *)strerror(errno));
     LOG_INFO_S(&wt_, "giving up on session: " << sessionId
 	     << " (" << socketPath << ")");
     close(s);
@@ -373,13 +374,17 @@ int Server::run()
   socklen_t socklen = sizeof(clientname);
 
   if (signal(SIGCHLD, Wt::handleSigChld) == SIG_ERR) 
-    LOG_ERROR_S(&wt_, "cannot catch SIGCHLD: signal(): " << strerror(errno));
+    LOG_ERROR_S(&wt_, "cannot catch SIGCHLD: signal(): "
+		<< (const char *)strerror(errno));
   if (signal(SIGTERM, Wt::handleServerSigTerm) == SIG_ERR)
-    LOG_ERROR_S(&wt_, "cannot catch SIGTERM: signal(): " << strerror(errno));
+    LOG_ERROR_S(&wt_, "cannot catch SIGTERM: signal(): "
+		<< (const char *)strerror(errno));
   if (signal(SIGUSR1, Wt::handleServerSigUsr1) == SIG_ERR) 
-    LOG_ERROR_S(&wt_, "cannot catch SIGUSR1: signal(): " << strerror(errno));
+    LOG_ERROR_S(&wt_, "cannot catch SIGUSR1: signal(): "
+		<< (const char *)strerror(errno));
   if (signal(SIGHUP, Wt::handleServerSigHup) == SIG_ERR) 
-    LOG_ERROR_S(&wt_, "cannot catch SIGHUP: signal(): " << strerror(errno));
+    LOG_ERROR_S(&wt_, "cannot catch SIGHUP: signal(): "
+		<< (const char *)strerror(errno));
 
   if (argc_ == 2 && boost::starts_with(argv_[1], "--socket=")) {
     std::string socketName = std::string(argv_[1]).substr(9);
@@ -398,7 +403,7 @@ int Server::run()
 			      &socklen);
 
     if (serverSocket < 0) {
-      LOG_ERROR_S(&wt_, "fatal: accept(): " << strerror(errno));
+      LOG_ERROR_S(&wt_, "fatal: accept(): " << (const char *)strerror(errno));
       exit (1);
     }
 
@@ -425,7 +430,7 @@ void Server::checkAndQueueSigChld()
     if (handleSigChld_ == 1) {
       handleSigChld_ = 0;
 #ifdef WT_THREADED
-      wt_.ioService().post(boost::bind(&Server::doHandleSigChld, this));
+      wt_.ioService().post(std::bind(&Server::doHandleSigChld, this));
 #else
       doHandleSigChld();
 #endif // WT_THREADED
@@ -441,7 +446,7 @@ void Server::checkAndQueueSigChld()
 void Server::handleRequestThreaded(int serverSocket)
 {
 #ifdef WT_THREADED
-  wt_.ioService().post(boost::bind(&Server::handleRequest, this, serverSocket));
+  wt_.ioService().post(std::bind(&Server::handleRequest, this, serverSocket));
 #else
   handleRequest(serverSocket);
 #endif // WT_THREADED
@@ -577,7 +582,7 @@ void Server::handleRequest(int serverSocket)
 
 	pid_t pid = fork();
 	if (pid == -1) {
-	  LOG_ERROR_S(&wt_, "fatal: fork(): " << strerror(errno));
+	  LOG_ERROR_S(&wt_, "fatal: fork(): " << (const char *)strerror(errno));
 	  exit(1);
 	} else if (pid == 0) {
 	  /* the child process */
@@ -588,7 +593,7 @@ void Server::handleRequest(int serverSocket)
 		   << ": pid=" << pid);
 	  {
 #ifdef WT_THREADED
-	    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+	    std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
 #endif
 	    sessions_[sessionId] = new SessionInfo(sessionId, pid);
 	  }
@@ -620,7 +625,7 @@ void Server::handleRequest(int serverSocket)
 	      // element.
 	      int pid = sessionProcessPids_[i];
 	      std::string path = conf.runDirectory() + "/server-"
-		+ boost::lexical_cast<std::string>(pid);
+		+ std::to_string(pid);
 
 	      clientSocket = connectToSession("", path, 100);
 
@@ -667,7 +672,8 @@ void Server::handleRequest(int serverSocket)
       LOG_DEBUG_S(&wt_, "select()");
       if (select(FD_SETSIZE, &rfds, NULL, NULL, NULL) < 0) {
 	if (errno != EINTR)
-	  LOG_ERROR_S(&wt_, "fatal: select(): " << strerror(errno));
+	  LOG_ERROR_S(&wt_, "fatal: select(): "
+		      << (const char *)strerror(errno));
 
 	break;
       }

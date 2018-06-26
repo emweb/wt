@@ -6,14 +6,16 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDate>
-#include <Wt/WDateTime>
-#include <Wt/WTime>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/ptr_tuple>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/ptr_tuple.h>
 
 #include "DboFixture.h"
+
+#include <cmath>
 
 #include <string>
 namespace dbo = Wt::Dbo;
@@ -98,25 +100,25 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
   dbo::Session& session = *f.session_;
   {
     dbo::Transaction transaction(session);
-    FuncTest *f1 = new FuncTest;
+    auto f1 = Wt::cpp14::make_unique<FuncTest>();
     f1->intC = 1;
     f1->doubleC = 1.1;
-    session.add(f1);
+    session.add(std::move(f1));
 
-    FuncTest *f2 = new FuncTest;
+    auto f2 = Wt::cpp14::make_unique<FuncTest>();
     f2->intC = 2;
     f2->doubleC = 2.2;
-    session.add(f2);
+    session.add(std::move(f2));
 
-    FuncTest *f3 = new FuncTest;
+    auto f3 = Wt::cpp14::make_unique<FuncTest>();
     f3->intC = 3;
     f3->doubleC = 3.3;
-    session.add(f3);
+    session.add(std::move(f3));
 
     transaction.commit();
   }
 
-  typedef boost::tuple<int, double> tupel;
+  typedef std::tuple<int, double> tupel;
 
   dbo::Transaction transaction(session);
 
@@ -132,17 +134,17 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
           "SELECT SUM(\"intC\") as sc, \"doubleC\" FROM \"") +
 			      FuncTest::TableName() + "\"").limit(1);
 
-  BOOST_REQUIRE(tupe.get<0>() == 6);
+  BOOST_REQUIRE(std::get<0>(tupe) == 6);
 #endif
 
   tupe = session.query<tupel>(std::string(
           "SELECT SUM(\"intC\") as sc, SUM(\"doubleC\") as dc FROM \"") +
            FuncTest::TableName() + "\"").limit(1);
 
-  BOOST_REQUIRE(tupe.get<0>() == 6);
+  BOOST_REQUIRE(std::get<0>(tupe) == 6);
 
   // NOTE: can fail w/valgrind due to precision of emulated floating point
-  BOOST_REQUIRE(std::abs(tupe.get<1>() - 6.6) < 0.001);
+  BOOST_REQUIRE(std::abs(std::get<1>(tupe) - 6.6) < 0.001);
 
   double d = session.query<double>(std::string(
           "SELECT SUM(\"doubleC\" * \"intC\") as sc FROM \"") +

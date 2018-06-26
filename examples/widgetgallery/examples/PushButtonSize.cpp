@@ -1,23 +1,23 @@
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(PushButtonSize)
-Wt::WTemplate *result =
-    new Wt::WTemplate(Wt::WString::tr("pushButtonSize-template"));
+auto result =
+    Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("pushButtonSize-template"));
 
-Wt::WPushButton *button = new Wt::WPushButton("Large");
+auto button = Wt::cpp14::make_unique<Wt::WPushButton>("Large");
 button->setStyleClass("btn-lg");
-result->bindWidget("button-large", button);
+result->bindWidget("button-large", std::move(button));
 
-button = new Wt::WPushButton("Default");
-result->bindWidget("button-default", button);
+button = Wt::cpp14::make_unique<Wt::WPushButton>("Default");
+result->bindWidget("button-default", std::move(button));
 
-button = new Wt::WPushButton("Small");
+button = Wt::cpp14::make_unique<Wt::WPushButton>("Small");
 button->setStyleClass("btn-sm");
-result->bindWidget("button-small", button);
+result->bindWidget("button-small", std::move(button));
 
-button = new Wt::WPushButton("Mini");
+button = Wt::cpp14::make_unique<Wt::WPushButton>("Mini");
 button->setStyleClass("btn-xs");
-result->bindWidget("button-mini", button);
+result->bindWidget("button-mini", std::move(button));
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))

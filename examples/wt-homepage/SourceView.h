@@ -8,9 +8,11 @@
 #ifndef SOURCEVIEW_H
 #define SOURCEVIEW_H
 
-#include <Wt/WViewWidget>
-#include <Wt/WModelIndex>
-#include <Wt/WMemoryResource>
+#include <Wt/WViewWidget.h>
+#include <Wt/WModelIndex.h>
+#include <Wt/WMemoryResource.h>
+
+using namespace Wt;
 
 /**
  * \defgroup gitmodelexample Git model example
@@ -23,7 +25,7 @@
  * A view class is used so that no server-side memory is used while displaying
  * a potentially large file.
  */
-class SourceView : public Wt::WViewWidget
+class SourceView : public WViewWidget
 {
 public:
   /*! \brief Constructor.
@@ -32,7 +34,9 @@ public:
    * to be displayed. If no data is set for this role, then
    * <i>contentRole</i> should hold the data as a string.
    */
-  SourceView(int fileNameRole, int contentRole, int filePathRole);
+  SourceView(ItemDataRole fileNameRole,
+             ItemDataRole contentRole,
+             ItemDataRole filePathRole);
  
   /*! \brief Destructor
    */
@@ -43,25 +47,25 @@ public:
    * Returns true whether the view will be rerendered. The view will only
    * be rerendered if the index contains new data.
    */
-  bool setIndex(const Wt::WModelIndex& index); 
+  bool setIndex(const WModelIndex& index);
 
   /*! \brief Returns the widget that renders the view.
    *
    * Returns he view contents: renders the file to a WText widget.
    * WViewWidget deletes this widget after every rendering step.
    */
-  virtual Wt::WWidget *renderView(); 
+  virtual std::unique_ptr<WWidget> renderView();
   
 private:
   /// The index that is currently displayed.
-  Wt::WModelIndex index_;
+  WModelIndex index_;
 
   /// The role that is currently displayed.
-  int fileNameRole_;
-  int contentRole_;
-  int filePathRole_;
+  Wt::ItemDataRole fileNameRole_;
+  Wt::ItemDataRole contentRole_;
+  Wt::ItemDataRole filePathRole_;
 
-  Wt::WMemoryResource* imageResource_;
+  std::shared_ptr<WMemoryResource> imageResource_;
 
 private: 
   std::string imageExtension(const std::string& fileName);

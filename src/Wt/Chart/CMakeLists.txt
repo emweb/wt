@@ -1,1 +1,4 @@
-INSTALL_FILES(/include/Wt/Chart "^W.*[^C~]$")
+IF(INSTALL_EXTENSIONLESS_HEADERS)
+  INSTALL_FILES(/include/Wt/Chart "^W.*[^hC~]$")
+ENDIF(INSTALL_EXTENSIONLESS_HEADERS)
+INSTALL_FILES(/include/Wt/Chart "^W.*[.]h$")

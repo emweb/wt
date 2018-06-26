@@ -1,17 +1,17 @@
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 
 SAMPLE_BEGIN(PushButton)
 
-Wt::WTemplate *result = new Wt::WTemplate();
+auto result = Wt::cpp14::make_unique<Wt::WTemplate>();
 
 result->setTemplateText("<div> ${pb1} ${pb2} </div>");
 
-Wt::WPushButton *pb = new Wt::WPushButton("Click me!");
-result->bindWidget("pb1", pb);  // By default the button is enabled.
+auto pb = Wt::cpp14::make_unique<Wt::WPushButton>("Click me!");
+result->bindWidget("pb1", std::move(pb));  // By default the button is enabled.
 
-pb = new Wt::WPushButton("Try to click me...");
-result->bindWidget("pb2", pb);
-pb->setEnabled(false);          // The second button is disabled.
+pb = Wt::cpp14::make_unique<Wt::WPushButton>("Try to click me...");
+auto pb_ = result->bindWidget("pb2", std::move(pb));
+pb_->setEnabled(false);          // The second button is disabled.
 
-SAMPLE_END(return result)
+SAMPLE_END(return std::move(result))

@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WAbstractTableModel>
+#include <Wt/WAbstractTableModel.h>
 
 namespace Wt {
 
-WAbstractTableModel::WAbstractTableModel(WObject *parent)
-  : WAbstractItemModel(parent)
+WAbstractTableModel::WAbstractTableModel()
+  : WAbstractItemModel()
 { }
 
 WAbstractTableModel::~WAbstractTableModel()
@@ -23,7 +23,7 @@ WModelIndex WAbstractTableModel::parent(const WModelIndex& index) const
 WModelIndex WAbstractTableModel::index(int row, int column,
 				       const WModelIndex& parent) const
 {
-  return createIndex(row, column, (void *)0);
+  return createIndex(row, column, nullptr);
 }
 
 }

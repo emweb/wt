@@ -3,17 +3,23 @@ IF(ENABLE_LIBWTTEST)
     test.C
     auth/BCryptTest.C
     auth/SHA1Test.C
+    core/BindTest.C
+    core/ObservingPtrTest.C
     chart/WChartTest.C
     json/JsonParserTest.C
     json/JsonSerializerTest.C
     json/JsonValueTest.C
     http/HttpClientTest.C
     mail/MailClientTest.C
+    matrix/MatrixTest.C
     models/WBatchEditProxyModelTest.C
     models/WStandardItemModelTest.C
+    private/EscapeTest.C
+    private/EventDecodeTest.C
     private/HttpTest.C
     private/CExpressionParserTest.C
     private/I18n.C
+    private/SessionFromCookieTest.C
     private/UrlManipTest.C
     render/BlockCssPropertyTest.C
     render/CssParserTest.C
@@ -24,7 +30,6 @@ IF(ENABLE_LIBWTTEST)
     utf8/XmlTest.C
     utils/Base64Test.C
     utils/EraseWord.C
-    wdatetime/WDateTimeTest.C
     widgets/WSpinBoxTest.C
     length/WLengthTest.C
     color/WColorTest.C
@@ -33,6 +38,8 @@ IF(ENABLE_LIBWTTEST)
     locale/LocaleNumberTest.C
     trampoline/RefEncoder.C
     testenvironment/TestEnvironmentTest.C
+    signals/SignalTest.C
+    wdatetime/WDateTimeTest.C
   )
 
   IF (WT_HAS_WRASTERIMAGE)
@@ -49,7 +56,7 @@ IF(ENABLE_LIBWTTEST)
 	SET_TARGET_PROPERTIES(test.wt PROPERTIES FOLDER "test")
   ENDIF(MSVC)
 
-  TARGET_LINK_LIBRARIES(test.wt wt wttest ${BOOST_FS_LIB})
+  TARGET_LINK_LIBRARIES(test.wt wt wttest ${BOOST_FS_LIB} ${WT_THREAD_LIB})
 
   IF(ENABLE_LIBWTDBO)
     # Test all dbo backends
@@ -59,6 +66,7 @@ IF(ENABLE_LIBWTTEST)
       dbo/DboTest2.C
       dbo/DboTest3.C
       dbo/DboTest4.C
+      dbo/DboTest5.C
       dbo/Benchmark.C
       dbo/Benchmark2.C
       dbo/JsonTest.C
@@ -117,6 +125,16 @@ IF(ENABLE_LIBWTTEST)
       ENDIF(MSVC)
       MESSAGE("** Testing Wt::Dbo using Sqlite3 backend")
     ENDIF(HAVE_SQLITE)
+
+    IF(HAVE_MSSQLSERVER)
+      ADD_EXECUTABLE(       test.mssqlserver ${DBO_TEST_SOURCES})
+      TARGET_LINK_LIBRARIES(test.mssqlserver wt wttest wtdbo wtdbomssqlserver)
+      SET_TARGET_PROPERTIES(test.mssqlserver PROPERTIES COMPILE_FLAGS "-DMSSQLSERVER")
+      IF(MSVC)
+        SET_TARGET_PROPERTIES(test.mssqlserver PROPERTIES FOLDER "test")
+      ENDIF(MSVC)
+      MESSAGE("** Testing Wt::Dbo using Microsoft SQL Server backend")
+    ENDIF(HAVE_MSSQLSERVER)
   ENDIF(ENABLE_LIBWTDBO)
 
   INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
@@ -132,7 +150,7 @@ IF(ENABLE_LIBWTTEST)
     )
 
     ADD_EXECUTABLE(test.http ${HTTP_TEST_SOURCES})
-    TARGET_LINK_LIBRARIES(test.http wt wthttp)  
+    TARGET_LINK_LIBRARIES(test.http wt wthttp ${WT_THREAD_LIB})
 	IF(MSVC)
 	  SET_TARGET_PROPERTIES(test.http PROPERTIES FOLDER "test")
     ENDIF(MSVC)  

@@ -1,27 +1,27 @@
-#include <Wt/WBrush>
-#include <Wt/WColor>
-#include <Wt/WContainerWidget>
-#include <Wt/WPaintDevice>
-#include <Wt/WPaintedWidget>
-#include <Wt/WPainter>
-#include <Wt/WPainterPath>
-#include <Wt/WPen>
-#include <Wt/WPointF>
-#include <Wt/WSpinBox>
+#include <Wt/WBrush.h>
+#include <Wt/WColor.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPaintDevice.h>
+#include <Wt/WPaintedWidget.h>
+#include <Wt/WPainter.h>
+#include <Wt/WPainterPath.h>
+#include <Wt/WPen.h>
+#include <Wt/WPointF.h>
+#include <Wt/WSpinBox.h>
 
 class ShapesWidget : public Wt::WPaintedWidget
 {
 public:
-    ShapesWidget(Wt::WContainerWidget *parent = 0)
-	: Wt::WPaintedWidget(parent)
+    ShapesWidget()
+        : WPaintedWidget()
     {
 	resize(310, 400);  // Provide a default size.
     }
 
 protected:
     void paintEvent(Wt::WPaintDevice *paintDevice) {
-	Wt::WPainter painter(paintDevice);
-	painter.setPen(Wt::red);
+        Wt::WPainter painter(paintDevice);
+        painter.setPen(Wt::WColor(Wt::StandardColor::Red));
 
 	// DRAWING PRIMITIVE SHAPES
 	// Draw a line from (0, 0) to (200, 0) and then 30 px downwards.
@@ -32,7 +32,7 @@ protected:
 	// using the current pen (red) and brush (default: white).
 	painter.drawRect(0, 25, 80, 50);
 	// Set the current brush with the global color name 'green'.
-	painter.setBrush(Wt::WBrush(Wt::green));
+	painter.setBrush(Wt::WBrush(Wt::WColor(Wt::StandardColor::Green)));
 	// Draw the same rectangle from (100, 25) using the current pen and brush.
 	painter.drawRect(100, 25, 80, 50);
 	// Fill a rectangle from (100, 25) with width 80 and height 25.
@@ -51,10 +51,10 @@ protected:
 	painter.drawLine(265, 125, 290, 125);
 
 	// Draw a 6-point polygon and fill it with the current brush.
-	const Wt::WPointF points[] 
-	    = { Wt::WPointF(120, 170), Wt::WPointF(160, 170),
-		Wt::WPointF(180, 204.6), Wt::WPointF(160, 239.2),
-		Wt::WPointF(120, 239.2), Wt::WPointF(100, 204.6) };
+	const Wt::WPointF points[]
+	    = { Wt::WPointF(120, 170),   Wt::WPointF(160, 170),
+	        Wt::WPointF(180, 204.6), Wt::WPointF(160, 239.2),
+	        Wt::WPointF(120, 239.2), Wt::WPointF(100, 204.6) };
 	painter.drawPolygon(points, 6);
 	// DRAWING SHAPES USING A PATH
 	// Create an ellipse path and fill it.
@@ -102,15 +102,15 @@ protected:
 	bezierCurvePath.cubicTo(290,347,  310,325,  310,307.5);
 	bezierCurvePath.cubicTo(310,307.5,310,270,  290,270);
 	bezierCurvePath.cubicTo(265,270,  255,282,  255,285);
-	painter.setBrush(Wt::WBrush(Wt::red));
+	painter.setBrush(Wt::WBrush(Wt::WColor(Wt::StandardColor::Red)));
 	painter.drawPath(bezierCurvePath);
     }
 };
 
 SAMPLE_BEGIN(PaintingShapes)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-new ShapesWidget(container);
+container->addWidget(Wt::cpp14::make_unique<ShapesWidget>());
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))
 

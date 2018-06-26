@@ -8,7 +8,7 @@
 #ifndef DATASETTINGS
 #define DATASETTINGS
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
 class WLineEdit;
@@ -26,93 +26,90 @@ class WScatterData;
   }
 }
 
-using namespace Wt;
-using namespace Wt::Chart;
-
-class DataSettings : public WContainerWidget {
+class DataSettings : public Wt::WContainerWidget {
 public:
   DataSettings();
 
-  void bindBaseToTemplate(WTemplate *configtemplate);
+  void bindBaseToTemplate(Wt::WTemplate *configtemplate);
 
-  void bindBaseDataSet(WAbstractDataSeries3D *data);
+  void bindBaseDataSet(Wt::Chart::WAbstractDataSeries3D *data);
 
 private:
-  WLineEdit *setName_;
-  WLineEdit *pointsize_;
-  WComboBox *pointSprite_;
-  WComboBox *colormap_;
-  WCheckBox *showColormap_;
-  WComboBox *colormapSide_;
+  Wt::WLineEdit *setName_;
+  Wt::WLineEdit *pointsize_;
+  Wt::WComboBox *pointSprite_;
+  Wt::WComboBox *colormap_;
+  Wt::WCheckBox *showColormap_;
+  Wt::WComboBox *colormapSide_;
 
   // WText *description_;
-  WCheckBox *hide_;
+  Wt::WCheckBox *hide_;
 
-  WAbstractDataSeries3D *data_;
+  Wt::Chart::WAbstractDataSeries3D *data_;
 };
 
 class NumGridDataSettings : public DataSettings {
 public:
   NumGridDataSettings();
 
-  void bindDataSet(WAbstractGridData *data);
+  void bindDataSet(Wt::Chart::WAbstractGridData *data);
 
 private:
-  WComboBox *typeSelection_;
-  WCheckBox *enableMesh_;
-  WLineEdit *penSize_;
-  WComboBox *penColor_;
+  Wt::WComboBox *typeSelection_;
+  Wt::WCheckBox *enableMesh_;
+  Wt::WLineEdit *penSize_;
+  Wt::WComboBox *penColor_;
 
-  WSlider *xClippingMin_;
-  WSlider *xClippingMax_;
-  WSlider *yClippingMin_;
-  WSlider *yClippingMax_;
-  WSlider *zClippingMin_;
-  WSlider *zClippingMax_;
+  Wt::WSlider *xClippingMin_;
+  Wt::WSlider *xClippingMax_;
+  Wt::WSlider *yClippingMin_;
+  Wt::WSlider *yClippingMax_;
+  Wt::WSlider *zClippingMin_;
+  Wt::WSlider *zClippingMax_;
 
-  WCheckBox *showClippingLines_;
-  WComboBox *clippingLinesColor_;
+  Wt::WCheckBox *showClippingLines_;
+  Wt::WComboBox *clippingLinesColor_;
 
-  WCheckBox *showIsolines_;
-  WComboBox *isolineColormap_;
+  Wt::WCheckBox *showIsolines_;
+  Wt::WComboBox *isolineColormap_;
 
-  JSlot changeXClippingMin_;
-  JSlot changeXClippingMax_;
-  JSlot changeYClippingMin_;
-  JSlot changeYClippingMax_;
-  JSlot changeZClippingMin_;
-  JSlot changeZClippingMax_;
+  Wt::JSlot changeXClippingMin_;
+  Wt::JSlot changeXClippingMax_;
+  Wt::JSlot changeYClippingMin_;
+  Wt::JSlot changeYClippingMax_;
+  Wt::JSlot changeZClippingMin_;
+  Wt::JSlot changeZClippingMax_;
 
-  std::vector<Signals::connection> clippingConnections_;
+  std::vector<Wt::Signals::connection> clippingConnections_;
 
-  WAbstractGridData *gridData_;
+  Wt::Chart::WAbstractGridData *gridData_;
 };
 
 class CatGridDataSettings : public DataSettings {
 public:
   CatGridDataSettings();
 
-  void bindDataSet(WAbstractGridData *data);
+  void bindDataSet(Wt::Chart::WAbstractGridData *data);
 
 private:
-  WLineEdit *barWidthX_;
-  WLineEdit *barWidthY_;
+  Wt::WLineEdit *barWidthX_;
+  Wt::WLineEdit *barWidthY_;
 
-  WAbstractGridData *gridData_;
+  Wt::Chart::WAbstractGridData *gridData_;
 };
 
 class ScatterDataSettings : public DataSettings {
 public:
   ScatterDataSettings();
 
-  void bindDataSet(WScatterData *data);
+  void bindDataSet(Wt::Chart::WScatterData *data);
 
 private:
-  WCheckBox *enableDroplines_;
-  WLineEdit *penSize_;
-  WComboBox *penColor_;
+  Wt::WCheckBox *enableDroplines_;
+  Wt::WLineEdit *penSize_;
+  Wt::WComboBox *penColor_;
 
-  WScatterData *scatterData_;
+  Wt::Chart::WScatterData *scatterData_;
 };
 
 

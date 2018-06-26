@@ -19,31 +19,31 @@
 #define WT_CONFIG_XML "${CONFIGURATION}"
 #define WTHTTP_CONFIGURATION "${WTHTTP_CONFIGURATION}"
 
-
 #cmakedefine WT_STATIC
 #cmakedefine WTDBO_STATIC
 #cmakedefine WTDBOPOSTGRES_STATIC
 #cmakedefine WTDBOSQLITE3_STATIC
 #cmakedefine WTDBOFIREBIRD_STATIC
 #cmakedefine WTDBOMYSQL_STATIC
+#cmakedefine WTDBOMSSQLSERVER_STATIC
 #cmakedefine WTHTTP_STATIC
-#cmakedefine WT_EXT_STATIC
-#cmakedefine WT_EXT_STATIC
 
 #cmakedefine WT_HAS_WRASTERIMAGE
 #cmakedefine WT_HAS_WPDFIMAGE
 #cmakedefine WT_WITH_SSL
 
-#cmakedefine WT_NO_BOOST_INTRUSIVE
-#cmakedefine WT_NO_BOOST_RANDOM
-#cmakedefine WT_NO_STD_LOCALE
-#cmakedefine WT_NO_STD_WSTRING
 #cmakedefine WT_USE_OPENGL
 #cmakedefine WT_DEBUG_ENABLED
 #cmakedefine WT_THREADED
 
-#cmakedefine WT_USE_BOOST_SIGNALS
-#cmakedefine WT_USE_BOOST_SIGNALS2
+#cmakedefine WT_ANY_IS_THELINK2012_ANY
+#cmakedefine WT_ANY_IS_EXPERIMENTAL_ANY
+#cmakedefine WT_ANY_IS_STD_ANY
+
+#cmakedefine WT_ASIO_IS_BOOST_ASIO
+#cmakedefine WT_ASIO_IS_STANDALONE_ASIO
+
+#cmakedefine WT_WARN_HEADER_MISSING_H
 
 // our win32: WIN32 (gcc) or _WIN32 (MSC)
 #if defined(WIN32) || defined(_WIN32)

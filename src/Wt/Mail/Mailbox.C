@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Mailbox"
-#include "Message"
+#include "Mailbox.h"
+#include "Message.h"
 
 #include <iostream>
 

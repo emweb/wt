@@ -3,9 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WStackedWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WStackedWidget.h"
 
 #include "StdWidgetItemImpl.h"
 
@@ -15,9 +15,8 @@
 
 namespace Wt {
 
-WStackedWidget::WStackedWidget(WContainerWidget *parent)
-  : WContainerWidget(parent),
-    currentIndex_(-1),
+WStackedWidget::WStackedWidget()
+  : currentIndex_(-1),
     widgetsAdded_(false),
     javaScriptDefined_(false),
     loadAnimateJS_(false)
@@ -25,9 +24,9 @@ WStackedWidget::WStackedWidget(WContainerWidget *parent)
   addStyleClass("Wt-stack");
 }
 
-void WStackedWidget::addWidget(WWidget *widget)
+void WStackedWidget::addWidget(std::unique_ptr<WWidget> widget)
 {
-  WContainerWidget::addWidget(widget);
+  WContainerWidget::addWidget(std::move(widget));
 
   if (currentIndex_ == -1)
     currentIndex_ = 0;
@@ -45,12 +44,12 @@ WWidget *WStackedWidget::currentWidget() const
   if (currentIndex_ >= 0 && currentIndex_ < count())
     return widget(currentIndex_);
   else
-    return 0;
+    return nullptr;
 }
 
-void WStackedWidget::insertWidget(int index, WWidget *widget)
+void WStackedWidget::insertWidget(int index, std::unique_ptr<WWidget> widget)
 {
-  WContainerWidget::insertWidget(index, widget);
+  WContainerWidget::insertWidget(index, std::move(widget));
 
   if (currentIndex_ == -1)
     currentIndex_ = 0;
@@ -58,9 +57,9 @@ void WStackedWidget::insertWidget(int index, WWidget *widget)
   widgetsAdded_ = true;
 }
 
-void WStackedWidget::removeChild(WWidget *child)
+std::unique_ptr<WWidget> WStackedWidget::removeWidget(WWidget *widget)
 {
-  WContainerWidget::removeChild(child);
+  auto result = WContainerWidget::removeWidget(widget);
 
   if (currentIndex_ >= count()) {
     if (count() > 0)
@@ -68,6 +67,8 @@ void WStackedWidget::removeChild(WWidget *child)
     else
       currentIndex_ = -1;
   }
+
+  return result;
 }
 
 void WStackedWidget::setTransitionAnimation(const WAnimation& animation,
@@ -167,15 +168,19 @@ void WStackedWidget::defineJavaScript()
 
 void WStackedWidget::render(WFlags<RenderFlag> flags)
 {
-  if (widgetsAdded_ || (flags & RenderFull)) {
+  if (widgetsAdded_ || flags.test(RenderFlag::Full)) {
     for (int i = 0; i < count(); ++i)
       if (!canOptimizeUpdates() || (widget(i)->isHidden() != (currentIndex_ != i)))
 	widget(i)->setHidden(currentIndex_ != i);
     widgetsAdded_ = false;
   }
 
-  if (flags & RenderFull)
+  if (flags.test(RenderFlag::Full)) {
     defineJavaScript();
+    if (currentIndex_ >= 0 && isRendered() && javaScriptDefined_)
+      doJavaScript("$('#" + id() + "').data('obj').setCurrent("
+		   + widget(currentIndex_)->jsRef() + ");");
+  }
 
   WContainerWidget::render(flags);
 }

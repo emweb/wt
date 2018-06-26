@@ -4,21 +4,20 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WFontMetrics"
-#include "Wt/WPainter"
-#include "Wt/WPainterPath"
-#include "Wt/WRectF"
-#include "Wt/WSvgImage"
-#include "Wt/WStringStream"
-#include "Wt/WWebWidget"
-#include "Wt/Http/Response"
+#include "Wt/WApplication.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPainterPath.h"
+#include "Wt/WRectF.h"
+#include "Wt/WSvgImage.h"
+#include "Wt/WStringStream.h"
+#include "Wt/WWebWidget.h"
+#include "Wt/Http/Response.h"
 
 #include "WebUtils.h"
 #include "ServerSideFontMetrics.h"
 
 #include <cmath>
-#include <boost/lexical_cast.hpp>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -48,11 +47,10 @@ int WSvgImage::nextClipId_ = 0;
 int WSvgImage::nextGradientId_ = 0;
 
 WSvgImage::WSvgImage(const WLength& width, const WLength& height,
-		     WObject *parent, bool paintUpdate)
-  : WResource(parent),
-    width_(width),
+		     bool paintUpdate)
+  : width_(width),
     height_(height),
-    painter_(0),
+    painter_(nullptr),
     paintUpdate_(paintUpdate),
     newGroup_(true),
     newClipPath_(false),
@@ -62,7 +60,7 @@ WSvgImage::WSvgImage(const WLength& width, const WLength& height,
     currentStrokeGradientId_(-1),
     currentShadowId_(-1),
     nextShadowId_(0),
-    fontMetrics_(0)
+    fontMetrics_(nullptr)
 { }
 
 WSvgImage::~WSvgImage()
@@ -71,12 +69,15 @@ WSvgImage::~WSvgImage()
   delete fontMetrics_;
 }
 
-WFlags<WPaintDevice::FeatureFlag> WSvgImage::features() const
+WFlags<PaintDeviceFeatureFlag> WSvgImage::features() const
 {
   if (ServerSideFontMetrics::available())
-    return HasFontMetrics | CanWordWrap;
-  else
-    return CanWordWrap; // Actually, only when outputting to inkscape ...
+    return PaintDeviceFeatureFlag::FontMetrics |
+      PaintDeviceFeatureFlag::WordWrap;
+  else {
+    return PaintDeviceFeatureFlag::WordWrap;
+      // Actually, only when outputting to inkscape ...
+  }
 }
 
 void WSvgImage::init()
@@ -124,12 +125,12 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
   }
 }
 
-void WSvgImage::setChanged(WFlags<ChangeFlag> flags)
+void WSvgImage::setChanged(WFlags<PainterChangeFlag> flags)
 {
-  if (flags)
+  if (!flags.empty())
     newGroup_ = true;
 
-  if (flags & Clipping)
+  if (flags.test(PainterChangeFlag::Clipping))
     newClipPath_ = true;
 
   changeFlags_ |= flags;
@@ -140,15 +141,20 @@ void WSvgImage::makeNewGroup()
   if (!newGroup_)
     return;
 
-  bool brushChanged
-    = (changeFlags_ & Brush) && (currentBrush_ != painter()->brush());
-  bool penChanged
-    = changeFlags_ & Hints
-    || ((changeFlags_ & Pen) && (currentPen_ != painter()->pen()));
-  bool fontChanged
-    = (changeFlags_ & Font) && (currentFont_ != painter()->font());
+  bool brushChanged = 
+    changeFlags_.test(PainterChangeFlag::Brush) &&
+    (currentBrush_ != painter()->brush());
+
+  bool penChanged =
+    changeFlags_.test(PainterChangeFlag::Hints) || 
+    (changeFlags_.test(PainterChangeFlag::Pen) && 
+     (currentPen_ != painter()->pen()));
+  bool fontChanged = 
+    changeFlags_.test(PainterChangeFlag::Font) && 
+    (currentFont_ != painter()->font());
   bool shadowChanged = false;
-  if (changeFlags_ & Shadow) {
+
+  if (changeFlags_.test(PainterChangeFlag::Shadow)) {
     if (currentShadowId_ == -1)
       shadowChanged = !painter()->shadow().none();
     else
@@ -163,10 +169,10 @@ void WSvgImage::makeNewGroup()
       WTransform f = painter()->combinedTransform();
 
       if (busyWithPath_) {
-	if (   fequal(f.m11(), currentTransform_.m11())
-	    && fequal(f.m12(), currentTransform_.m12())
-	    && fequal(f.m21(), currentTransform_.m21())
-	    && fequal(f.m22(), currentTransform_.m22())) {
+	if (fequal(f.m11(), currentTransform_.m11()) &&
+	    fequal(f.m12(), currentTransform_.m12()) &&
+	    fequal(f.m21(), currentTransform_.m21()) &&
+	    fequal(f.m22(), currentTransform_.m22())) {
 
 	  /*
 	   * Invert scale/rotate to compute the delta needed
@@ -193,7 +199,7 @@ void WSvgImage::makeNewGroup()
 	  pathTranslation_.setX(dx);
 	  pathTranslation_.setY(dy);
 
-	  changeFlags_ = 0;
+	  changeFlags_ = None;
 
 	  return;
 	}
@@ -201,7 +207,7 @@ void WSvgImage::makeNewGroup()
 	if (!fontChanged && currentTransform_ == f) {
 	  newGroup_ = false;
 
-	  changeFlags_ = 0;
+	  changeFlags_ = None;
 
 	  return;
 	}
@@ -311,7 +317,7 @@ void WSvgImage::makeNewGroup()
 
   shapes_ << '>';
   
-  changeFlags_ = 0;
+  changeFlags_ = None;
 }
 
 int WSvgImage::createShadowFilter(WStringStream& out)
@@ -349,7 +355,7 @@ void WSvgImage::defineGradient(const WGradient& gradient, int id)
   char buf[30];
 
   shapes_ << "<defs>";
-  bool linear = gradient.style() == LinearGradient;
+  bool linear = gradient.style() == GradientStyle::Linear;
 
   // linear or radial + add proper position parameters
   if (linear) {
@@ -372,9 +378,8 @@ void WSvgImage::defineGradient(const WGradient& gradient, int id)
   // add colorstops
   for (unsigned i = 0; i < gradient.colorstops().size(); i++) {
     shapes_ << "<stop ";
-    std::string offset =
-      boost::lexical_cast<std::string>((int)(gradient.colorstops()[i]
-					     .position()*100));
+    std::string offset = std::to_string((int)(gradient.colorstops()[i]
+					      .position()*100));
     offset += '%';
     shapes_ << "offset=\"" << offset << "\" ";
     shapes_ << "stop-color=\"" <<
@@ -408,13 +413,13 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (!segments.empty()
-      && segments[0].type() != WPainterPath::Segment::MoveTo)
+      && segments[0].type() != SegmentType::MoveTo)
     out << "M0,0";
 
   for (unsigned i = 0; i < segments.size(); ++i) {
     const WPainterPath::Segment s = segments[i];
 
-    if (s.type() == WPainterPath::Segment::ArcC) {
+    if (s.type() == SegmentType::ArcC) {
       WPointF current = path.positionAtSegment(i);
 
       const double cx = segments[i].x();
@@ -451,23 +456,23 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
       out << ',' << Utils::round_js_str(y2 + pathTranslation_.y(), 3, buf);
     } else {
       switch (s.type()) {
-      case WPainterPath::Segment::MoveTo:
+      case SegmentType::MoveTo:
 	out << 'M';
 	break;
-      case WPainterPath::Segment::LineTo:
+      case SegmentType::LineTo:
 	out << 'L';
 	break;
-      case WPainterPath::Segment::CubicC1:
+      case SegmentType::CubicC1:
 	out << 'C';
 	break;
-      case WPainterPath::Segment::CubicC2:
-      case WPainterPath::Segment::CubicEnd:
+      case SegmentType::CubicC2:
+      case SegmentType::CubicEnd:
 	out << ' ';
 	break;
-      case WPainterPath::Segment::QuadC:
+      case SegmentType::QuadC:
 	out << 'Q';
 	break;
-      case WPainterPath::Segment::QuadEnd:
+      case SegmentType::QuadEnd:
 	out << ' ';
 	break;
       default:
@@ -489,8 +494,16 @@ void WSvgImage::finishPath()
   }
 }
 
+void WSvgImage::drawRect(const WRectF& rectangle)
+{
+  drawPath(rectangle.toPath());
+}
+
 void WSvgImage::drawPath(const WPainterPath& path)
 {
+  if (path.isEmpty())
+    return;
+
   WRectF bbox = painter()->worldTransform().map(path.controlPointRect());
   if (busyWithPath_) {
     if (pathBoundingBox_.intersects(bbox))
@@ -606,7 +619,7 @@ void WSvgImage::drawText(const WRectF& rect,
   // SVG uses fill color to fill text, but we want pen color.
   style << "style=\"stroke:none;";
   if (painter()->pen().color() != painter()->brush().color()
-      || painter()->brush().style() == NoBrush) {
+      || painter()->brush().style() == BrushStyle::None) {
     const WColor& color = painter()->pen().color();
     style << "fill:" + color.cssText() << ';'
 	  << "fill-opacity:" 
@@ -618,19 +631,19 @@ void WSvgImage::drawText(const WRectF& rect,
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
-  if (textFlag == TextWordWrap) {
+  if (textFlag == TextFlag::WordWrap) {
     std::string hAlign;
     switch (horizontalAlign) {
-    case AlignLeft:
+    case AlignmentFlag::Left:
       hAlign = "start";
       break;
-    case AlignRight:
+    case AlignmentFlag::Right:
       hAlign = "end";
       break;
-    case AlignCenter:
+    case AlignmentFlag::Center:
       hAlign = "center";
       break;
-    case AlignJustify:
+    case AlignmentFlag::Justify:
       hAlign = "justify";
     default:
       break;
@@ -654,14 +667,14 @@ void WSvgImage::drawText(const WRectF& rect,
     shapes_ << "<" SVG "text " << style.str();
 
     switch (horizontalAlign) {
-    case AlignLeft:
+    case AlignmentFlag::Left:
       shapes_ << " x=" << quote(rect.left());
       break;
-    case AlignRight:
+    case AlignmentFlag::Right:
       shapes_ << " x=" << quote(rect.right())
 	      << " text-anchor=\"end\"";
       break;
-    case AlignCenter:
+    case AlignmentFlag::Center:
       shapes_ << " x=" << quote(rect.center().x())
 	      << " text-anchor=\"middle\"";
       break;
@@ -674,15 +687,15 @@ void WSvgImage::drawText(const WRectF& rect,
      */
 #if 0
     switch (verticalAlign) {
-    case AlignTop:
+    case AlignmentFlag::AlignSide::Side::Top:
       shapes_ << " y=" << quote(rect.top())
 	      << " dominant-baseline=\"text-before-edge\"";
       break;
-    case AlignBottom:
+    case AlignmentFlag::AlignBottom:
       shapes_ << " y=" << quote(rect.bottom())
 	      << " dominant-baseline=\"text-after-edge\"";
       break;
-    case AlignMiddle:
+    case AlignmentFlag::Middle:
       shapes_ << " y=" << quote(rect.center().y())
 	      << " dominant-baseline=\"middle\"";
       break;
@@ -703,11 +716,11 @@ void WSvgImage::drawText(const WRectF& rect,
 
     double y = rect.center().y();
     switch (verticalAlign) {
-    case AlignTop:
+    case AlignmentFlag::Top:
       y = rect.top() + fontSize * 0.75; break;
-    case AlignMiddle:
+    case AlignmentFlag::Middle:
       y = rect.center().y() + fontSize * 0.25; break;
-    case AlignBottom:
+    case AlignmentFlag::Bottom:
       y = rect.bottom() - fontSize * 0.25 ; break;
     default:
       break;
@@ -755,10 +768,10 @@ std::string WSvgImage::fillStyle() const
   std::string result;
 
   switch (painter()->brush().style()) {
-  case NoBrush:
+  case BrushStyle::None:
     result += "fill:none;";
     break;
-  case SolidPattern:
+  case BrushStyle::Solid:
     {
       const WColor& color = painter()->brush().color();
       result += "fill:" + color.cssText() + ";";
@@ -770,11 +783,11 @@ std::string WSvgImage::fillStyle() const
 
       break;
     }
-  case GradientPattern:
+  case BrushStyle::Gradient:
     if (!currentBrush_.gradient().isEmpty()) {
       result += "fill:"; 
       result += "url(#gradient";
-      result += boost::lexical_cast<std::string>(currentFillGradientId_);
+      result += std::to_string(currentFillGradientId_);
       result += ");";
     }
   }
@@ -785,8 +798,7 @@ std::string WSvgImage::fillStyle() const
 std::string WSvgImage::clipPath() const
 {
   if (painter()->hasClipping())
-    return " clip-path=\"url(#clip"
-      + boost::lexical_cast<std::string>(currentClipId_) + ")\"";
+    return " clip-path=\"url(#clip" + std::to_string(currentClipId_) + ")\"";
   else
     return std::string();
 }
@@ -803,15 +815,15 @@ std::string WSvgImage::strokeStyle() const
 
   const WPen& pen = painter()->pen();
 
-  if (!(painter()->renderHints() & WPainter::Antialiasing))
+  if (!(painter()->renderHints() & RenderHint::Antialiasing))
     result << "shape-rendering:optimizeSpeed;";
 
-  if (pen.style() != NoPen) {
+  if (pen.style() != PenStyle::None) {
     const WColor& color = pen.color();
 
     if (!pen.gradient().isEmpty()) {
       result << "stroke:url(#gradient"
-	     << boost::lexical_cast<std::string>(currentStrokeGradientId_)
+	     << std::to_string(currentStrokeGradientId_)
 	     << ");";
     } else {
       result << "stroke:" << color.cssText() << ';';
@@ -825,40 +837,40 @@ std::string WSvgImage::strokeStyle() const
       result << "stroke-width:" << w.cssText() << ";";
 
     switch (pen.capStyle()) {
-    case FlatCap:
+    case PenCapStyle::Flat:
       break;
-    case SquareCap:
+    case PenCapStyle::Square:
       result << "stroke-linecap:square;";
       break;
-    case RoundCap:
+    case PenCapStyle::Round:
       result << "stroke-linecap:round;";
     }
 
     switch (pen.joinStyle()) {
-    case MiterJoin:
+    case PenJoinStyle::Miter:
       break;
-    case BevelJoin:
+    case PenJoinStyle::Bevel:
       result << "stroke-linejoin:bevel;";
       break;
-    case RoundJoin:
+    case PenJoinStyle::Round:
       result << "stroke-linejoin:round;";
     }
 
     switch (pen.style()) {
-    case NoPen:
+    case PenStyle::None:
       break;
-    case SolidLine:
+    case PenStyle::SolidLine:
       break;
-    case DashLine:
+    case PenStyle::DashLine:
       result << "stroke-dasharray:4,2;";
       break;
-    case DotLine:
+    case PenStyle::DotLine:
       result << "stroke-dasharray:1,2;";
       break;
-    case DashDotLine:
+    case PenStyle::DashDotLine:
       result << "stroke-dasharray:4,2,1,2;";
       break;
-    case DashDotDotLine:
+    case PenStyle::DashDotDotLine:
       result << "stroke-dasharray:4,2,1,2,1,2;";
       break;
     }

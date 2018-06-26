@@ -3,24 +3,22 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WDoubleSpinBox"
-#include "Wt/WDoubleValidator"
-#include "Wt/WLocale"
+#include "Wt/WDoubleSpinBox.h"
+#include "Wt/WDoubleValidator.h"
+#include "Wt/WLocale.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
 
 namespace Wt {
 
-WDoubleSpinBox::WDoubleSpinBox(WContainerWidget *parent)
-  : WAbstractSpinBox(parent),
-    setup_(false),
+WDoubleSpinBox::WDoubleSpinBox()
+  : setup_(false),
     value_(-1),
     min_(0.0),
     max_(99.99),
     step_(1.0),
-    precision_(2),
-    valueChanged_(this)
+    precision_(2)
 {
   setValidator(createValidator());
   setValue(0.0);
@@ -28,7 +26,7 @@ WDoubleSpinBox::WDoubleSpinBox(WContainerWidget *parent)
 
 void WDoubleSpinBox::setValue(double value)
 {
-  if (value_ != value) {
+  if (value_ != value || text() != textFromValue()) {
     value_ = value;
     setText(textFromValue());
   }
@@ -38,7 +36,8 @@ void WDoubleSpinBox::setMinimum(double minimum)
 {
   min_ = minimum;
 
-  WDoubleValidator *v = dynamic_cast<WDoubleValidator *>(validator());
+  std::shared_ptr<WDoubleValidator> v
+    = std::dynamic_pointer_cast<WDoubleValidator>(validator());
   if (v)
     v->setBottom(min_);
 
@@ -50,7 +49,8 @@ void WDoubleSpinBox::setMaximum(double maximum)
 {
   max_ = maximum;
 
-  WDoubleValidator *v = dynamic_cast<WDoubleValidator *>(validator());
+  std::shared_ptr<WDoubleValidator> v
+    = std::dynamic_pointer_cast<WDoubleValidator>(validator());
   if (v)
     v->setTop(max_);
 
@@ -86,18 +86,17 @@ void WDoubleSpinBox::setDecimals(int decimals)
 
 std::string WDoubleSpinBox::jsMinMaxStep() const
 {
-  return boost::lexical_cast<std::string>(min_) + ","
-    + boost::lexical_cast<std::string>(max_) + ","
-    + boost::lexical_cast<std::string>(step_);
+  return std::to_string(min_) + "," + std::to_string(max_) + ","
+    + std::to_string(step_);
 }
 
 void WDoubleSpinBox::updateDom(DomElement& element, bool all)
 {
   if (all || changed_) {
     if (nativeControl()) {
-      element.setAttribute("min", boost::lexical_cast<std::string>(min_));
-      element.setAttribute("max", boost::lexical_cast<std::string>(max_));
-      element.setAttribute("step", boost::lexical_cast<std::string>(step_));
+      element.setAttribute("min", std::to_string(min_));
+      element.setAttribute("max", std::to_string(max_));
+      element.setAttribute("step", std::to_string(step_));
     } else {
       /* Make sure the JavaScript validator is loaded */
       WDoubleValidator v ;
@@ -123,12 +122,12 @@ void WDoubleSpinBox::onChange()
   valueChanged_.emit(value());
 }
 
-WValidator *WDoubleSpinBox::createValidator()
+std::unique_ptr<WValidator> WDoubleSpinBox::createValidator()
 {
-  WDoubleValidator *validator = new WDoubleValidator();
+  std::unique_ptr<WDoubleValidator>validator(new WDoubleValidator());
   validator->setMandatory(true);
   validator->setRange(min_, max_);
-  return validator;
+  return std::move(validator);
 }
 
 WT_USTRING WDoubleSpinBox::textFromValue() const
@@ -148,7 +147,7 @@ bool WDoubleSpinBox::parseNumberValue(const std::string& text)
       value_ = WLocale::currentLocale().toDouble(WT_USTRING::fromUTF8(text));
 
     return true;
-  } catch (boost::bad_lexical_cast &e) {
+  } catch (std::exception &e) {
     return false;
   }
 }
@@ -175,9 +174,8 @@ void WDoubleSpinBox::render(WFlags<RenderFlag> flags)
 {
   WAbstractSpinBox::render(flags);
 
-  if (!setup_ && flags & RenderFull) {
+  if (!setup_ && flags.test(RenderFlag::Full))
     setup();
-  }
 }
 
 void WDoubleSpinBox::setup()

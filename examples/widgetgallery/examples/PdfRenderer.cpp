@@ -1,9 +1,9 @@
-#include <Wt/WPushButton>
-#include <Wt/WResource>
-#include <Wt/Http/Request>
-#include <Wt/Http/Response>
-#include <Wt/Render/WPdfRenderer>
-#include <Wt/WApplication>
+#include <Wt/WPushButton.h>
+#include <Wt/WResource.h>
+#include <Wt/Http/Request.h>
+#include <Wt/Http/Response.h>
+#include <Wt/Render/WPdfRenderer.h>
+#include <Wt/WApplication.h>
 
 #include <hpdf.h>
 
@@ -18,14 +18,19 @@ namespace {
 class ReportResource : public Wt::WResource
 {
 public:
-    ReportResource(Wt::WObject *parent = 0)
-	: Wt::WResource(parent)
+    ReportResource()
+        : WResource()
     {
 	suggestFileName("report.pdf");
     }
 
+    virtual ~ReportResource()
+    {
+	beingDeleted();
+    }
+
     virtual void handleRequest(const Wt::Http::Request& request,
-			       Wt::Http::Response& response)
+                               Wt::Http::Response& response)
     {
 	response.setMimeType("application/pdf");
 
@@ -65,14 +70,14 @@ private:
 };
 
 SAMPLE_BEGIN(PdfRenderer)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WText *text = new Wt::WText(Wt::WString::tr("report.example"), container);
+Wt::WText *text = container->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("report.example")));
 text->setStyleClass("reset");
 
-Wt::WPushButton *button = new Wt::WPushButton("Create pdf", container);
+Wt::WPushButton *button = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Create pdf"));
 
-Wt::WResource *pdf = new ReportResource(container);
-button->setLink(pdf);
+auto pdf = std::make_shared<ReportResource>();
+button->setLink(Wt::WLink(pdf));
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

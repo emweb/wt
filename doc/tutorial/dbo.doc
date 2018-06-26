@@ -3,21 +3,21 @@
 
 Koen Deforche <koen@emweb.be> +
 
-For Wt 3.2.0 (July 14 2011)
+For Wt 4.0.0 (September 19, 2017)
 
-:doc:           link:../reference/html/
-:cpp:		pass:[C++]
+:doc: link:../reference/html/
+:cpp: pass:[C++]
 
 == Introduction
 
-+Wt::Dbo+ is a {cpp} ORM (Object-Relational-Mapping) library.
++Wt::Dbo+ is a {cpp} ORM (Object Relational Mapping) library.
 
 The library is distributed as part of http://www.webtoolkit.eu/wt[Wt]
 for building database-driven web applications, but may be equally well
 used independently from it.
 
 The library provides a class-based view on database tables which keeps
-an object-hierarchy of database objects automatically synchronized with
+an object hierarchy of database objects automatically synchronized with
 a database by inserting, updating and deleting database
 records. {cpp} classes map to database tables, class fields to
 table columns, and pointers and collections of pointers to database
@@ -58,19 +58,19 @@ and +wtdbosqlite3+ libraries.
 .Mapping a single class (tutorial1.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 #include <string>
 
 namespace dbo = Wt::Dbo;
 
+enum class Role {
+    Visitor = 0,
+    Admin = 1,
+    Alien = 42
+};
+
 class User {
 public:
-    enum Role {
-        Visitor = 0,
-        Admin = 1,
-        Alien = 42
-    };
-
     std::string name;
     std::string password;
     Role        role;
@@ -95,13 +95,13 @@ a call to
 is used to map the field to a table column name.
 
 
-As you may see, standard {cpp} types such as +int+, +std::string+ and
+As you may notice, standard {cpp} types such as +int+, +std::string+ and
 +enum+ types are readily supported by the library (a full list of supported 
 types can be found in the documentation of +{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<T>]+). Support for other
 types can be added by specializing
 +{doc}structWt_1_1Dbo_1_1sql\__value__traits.html[Wt::Dbo::sql_value_traits<T>]+.
 There is also support for built-in Wt types such as WDate, WDateTime, WTime and 
-WString which can be enabled by including +<Wt/Dbo/WtSqlTraits>+.
+WString which can be enabled by including +<Wt/Dbo/WtSqlTraits.h>+.
 
 The library defines a number of actions which will be applied to a
 database object using its +persist()+ method, which applies it in turn
@@ -133,9 +133,9 @@ void run()
     /*
      * Setup a session, would typically be done once at application startup.
      */
-    dbo::backend::Sqlite3 sqlite3("blog.db");
+    std::unique_ptr<dbo::backend::Sqlite3> sqlite3{"blog.db"};
     dbo::Session session;
-    session.setConnection(sqlite3);
+    session.setConnection(std::move(sqlite3));
 
     ...
 ----
@@ -148,7 +148,7 @@ application session, and one per user. None of the
 the connection pools), and session objects are not shared between
 sessions.
 
-The lack of thread-safety is not simply a consequence of laziness on
+The lack of thread safety is not simply a consequence of laziness on
 our part. It coincides with the promises made by transactional
 integrity on the database: you will not want to see the changes made
 by one session in another session while its transaction has not been
@@ -166,8 +166,10 @@ be initialized with a reference to a
 pool].
 
 +Wt::Dbo+ uses an abstraction layer for database access, and currently
-supports {doc}classWt_1_1Dbo_1_1backend_1_1Postgres.html[Postgres]
-and {doc}classWt_1_1Dbo_1_1backend_1_1Sqlite3.html[Sqlite3] as
+supports {doc}classWt_1_1Dbo_1_1backend_1_1Postgres.html[PostgreSQL],
+{doc}classWt_1_1Dbo_1_1backend_1_1Sqlite3.html[Sqlite3],
+{doc}classWt_1_1Dbo_1_1backend_1_1MySQL.html[MySQL], and
+{doc}classWt_1_1Dbo_1_1backend_1_1Firebird.html[Firebird] as
 backends.
 
 .(tutorial1.C continued)
@@ -212,7 +214,7 @@ commit transaction
 As you can see, next to the four columns that map to {cpp} fields, by
 default, +Wt::Dbo+ adds another two columns: +id+ and +version+. The
 id is a surrogate primary key, and version is used for version-based
-optimistic locking. Since Wt 3.1.4, Wt::Dbo you can suppress the
+optimistic locking. You can also suppress the
 version field, and provide natural keys of any type instead of the
 surrogate primary key, see <<customizing,Customizing the mapping>>.
 
@@ -226,15 +228,15 @@ happen within a transaction.
     /*
      * A unit of work happens always within a transaction.
      */
-    dbo::Transaction transaction(session);
+    dbo::Transaction transaction{session};
 
-    User *user = new User();
+    std::unique_ptr<User> user{new User()};
     user->name = "Joe";
     user->password = "Secret";
-    user->role = User::Visitor;
+    user->role = Role::Visitor;
     user->karma = 13;
 
-    dbo::ptr<User> userPtr = session.add(user);
+    dbo::ptr<User> userPtr = session.add(std::move(user));
 }
 ----
 
@@ -259,9 +261,8 @@ transaction, or whenever needed to maintain consistency between the
 transient objects and the database copy (e.g. before doing a query).
 
 The transaction commits automatically if the transaction object goes
-out of scope. If however an exception is thrown, which unwinds the
-stack and causes the transaction to go out of scope, then the
-transaction will roll back instead.
+out of scope. If the transaction object goes out of scope due to
+an exception being thrown, the transaction will rollback instead.
 
 This generates the following SQL:
 
@@ -294,7 +295,7 @@ std::cerr << "Joe has karma: " << joe->karma << std::endl;
 All queries use prepared statements with positional argument
 binding. The +Session::find<T>()+ method returns a
 +{doc}classWt_1_1Dbo_1_1Query.html[Query< ptr<T> >]+ object. The Query object
-can be used to refine the search by defining Sql +where+, +order by+
+can be used to refine the search by defining SQL +where+, +order by+
 and +group by+ definitions, and allows binding of parameters using
 +{doc}classWt_1_1Dbo_1_1Query.html#abe3f72ee7e005c62e4428c399b57d6c5[Query::bind()]+. In
 this case the query should expect a single result and is casted
@@ -303,8 +304,8 @@ directly to a database object pointer.
 [NOTE]
 ===============================
 
-Since Wt 3.1.3, the +Query+ class has a second parameter
-_BindStrategy_ which has two possible values, corresponding two
+The +Query+ class has a second parameter
+_BindStrategy_ which has two possible values, corresponding to two
 different query implementations.
 
 The default strategy is _DynamicBinding_ and allows the query to be a
@@ -313,10 +314,10 @@ multiple times. It also allows you to modify the query by changing
 only the order or the limit/offsets.
 
 An alternative strategy is _DirectBinding_ which passes bound
-parameters directly on to an underlying prepared statement. This
-corresponds to the old behavior of a Query object. Such a query can be
-run only once, but has the benefit of having less ({cpp}) overhead
-because the parameters values are directly passed on to the backend
+parameters directly on to an underlying prepared statement.
+Such a query can be run only once, but has the benefit of
+having less ({cpp}) overhead because the parameters values
+are directly passed on to the backend
 instead of stored within the query object.
 
 ===============================
@@ -372,7 +373,7 @@ have multiple results. A +Session::query<Result>()+ may therefore in
 general return a +dbo::collection< _Result_ >+ (for multiple results)
 and in the examples above they were coerced to a single unique
 +_Result_+ for convenience. Similarly, +Session::find<Dbo>()+ may
-return a +collection< ptr<Dbo> >+ or a unique +_ptr<Dbo>+. If a
+return a +collection< ptr<Dbo> >+ or a unique +ptr<Dbo>+. If a
 unique result is asked, but the query found multiple results, a
 +{doc}classWt_1_1Dbo_1_1NoUniqueResultException.html[NoUniqueResultException]+
 will be thrown.
@@ -395,9 +396,9 @@ Users users = session.find<User>();
 
 std::cerr << "We have " << users.size() << " users:" << std::endl;
 
-for (Users::const_iterator i = users.begin(); i != users.end(); ++i)
-    std::cerr << " user " << (*i)->name
-              << " with karma of " << (*i)->karma << std::endl;
+for (const dbo::ptr<User> &user : users)
+    std::cerr << " user " << user->name
+              << " with karma of " << user->karma << std::endl;
 ----
 
 This code will perform two database queries: one for the call to
@@ -419,7 +420,7 @@ careful to not have two collections with the same statement busy at
 the same time. Thus while iterating the results of a query you cannot
 use that same query again. Therefore it may be necessary to copy the
 results into a standard container (such as +std::vector+) before
-iterating them. Since Wt 3.1.3, concurrent use will be detected and
+iterating them. Concurrent use will be detected and
 an exception will be thrown saying:
 
  A collection for '...' is already in use. Reentrant statement use is
@@ -427,6 +428,7 @@ an exception will be thrown saying:
 
 We plan to remove this restriction in later versions, cloning
 prepared statements as necessary.
+
 ===============================
 
 == Updating objects
@@ -434,7 +436,7 @@ prepared statements as necessary.
 Unlike most other smart pointers, +ptr<Dbo>+ is read-only by
 default: it returns a +const _Dbo_*+. To modify a database object, you
 need to call the +{doc}classWt_1_1Dbo_1_1ptr.html#a8f9f4ec6ed2bd8febe8b62525c9576da[ptr::modify()]+ method, which returns a non-const
-object. This mark the object as dirty and the modifications will later
+object. This marks the object as dirty and the modifications will later
 be synchronized to the database.
 
 .(tutorial1.C continued)
@@ -446,7 +448,7 @@ joe.modify()->karma++;
 joe.modify()->password = "public";
 ----
 
-Database synchronization does not happen instantaneously, instead,
+Database synchronization does not happen instantaneously. Instead,
 they are delayed until explicitly asked, using
 +{doc}classWt_1_1Dbo_1_1ptr.html#aaf91f5ef8bcdabfafcd9abb4182625bd[ptr<Dbo>::flush()]+
 or
@@ -458,7 +460,7 @@ The previous code will generate the following SQL:
 
 [source,sql]
 ----
-select id, version, "name", "password", "role", "karma"
+select "id", "version", "name", "password", "role", "karma"
     from "user"
     where (name = ?)
 update "user"
@@ -491,7 +493,7 @@ does not actually have any effect on the database:
 .(tutorial1.C continued)
 [source,cpp]
 ----
-dbo::ptr<User> silly = session.add(new User());
+dbo::ptr<User> silly = session.add(std::unique_ptr<User>{new User()});
 silly.modify()->name = "Silly";
 silly.remove();
 ----
@@ -508,7 +510,7 @@ ourselves to the statements important for defining the relationship.
 .Many-to-One relation (tutorial2.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 #include <string>
 
 namespace dbo = Wt::Dbo;
@@ -575,7 +577,7 @@ create table "post" (
     ...
 
     "user_id" bigint,
-    constraint "fk_post_user" foreign key ("user_id") references "user" ("id")
+    constraint "fk_post_user" foreign key ("user_id") references "user" ("id") deferrable initially deferred
 )
 ----
 
@@ -593,7 +595,7 @@ Example:
 .(tutorial2.C continued)
 [source,cpp]
 ----
-dbo::ptr<Post> post = session.add(new Post());
+dbo::ptr<Post> post = session.add(std::unique_ptr<Post>{new Post()});
 post.modify()->user = joe; // or joe.modify()->posts.insert(post);
 
 // will print 'Joe has 1 post(s).'
@@ -621,14 +623,14 @@ prepared statements as necessary.
 === _Many-to-Many_ relations
 
 To illustrate _Many-to-Many_ relations, we will add tags to our
-blogging example, and define an _Many-to-Many_ relation between posts
+blogging example, and define a _Many-to-Many_ relation between posts
 and tags. In the code below, we again limit ourselves to the
 statements important for defining the relationship.
 
 .Many-to-Many relation (tutorial2.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 #include <string>
 
 namespace dbo = Wt::Dbo;
@@ -694,9 +696,9 @@ create table "post_tags" (
     "tag_id" bigint not null,
     primary key ("post_id", "tag_id"),
     constraint "fk_post_tags_key1" foreign key ("post_id")
-        references "post" ("id"),
+        references "post" ("id") on delete cascade deferrable initially deferred,
     constraint "fk_post_tags_key2" foreign key ("tag_id")
-        references "tag" ("id")
+        references "tag" ("id") on delete cascade deferrable initially deferred
 )
 
 create index "post_tags_post" on "post_tags" ("post_id")
@@ -704,15 +706,10 @@ create index "post_tags_tag" on "post_tags" ("tag_id")
 ----
 
 The collection at either side of the _Many-to-Many_ relation allows us
-to retrieve all associated elements. Unlike a collection in a
-_Many-to-One_ relation however, we may now also
-+{doc}classWt_1_1Dbo_1_1collection.html#7b497add0d6ac2b1e098820f9ee64c93[insert()]+
-and
-+{doc}classWt_1_1Dbo_1_1collection.html#35d046e991b3fec59af85d501fd49e51[erase()]+
-items from the collection. To define a relation between a post and a
+to retrieve all associated elements. To define a relation between a post and a
 tag, you need to add the post to the tag's _posts_ collection, or the
 tag to the post's _tags_ collection. You may not do both! The change
-will automatically be reflected in the reciproce collection. Likewise,
+will automatically be reflected in the reciprocal collection. Likewise,
 to undo the relation between a post and a tag, you should remove the
 tag from the post's _tags_ collection, or the post from the tag's
 _posts_ collection, but not both.
@@ -723,7 +720,7 @@ Example:
 [source,cpp]
 ----
 dbo::ptr<Post> post = ...
-dbo::ptr<Tag> cooking = session.add(new Tag());
+dbo::ptr<Tag> cooking = session.add(std::unique_ptr<Tag>{new Tag()});
 cooking.modify()->name = "Cooking";
 
 post.modify()->tags.insert(cooking);
@@ -748,7 +745,7 @@ relationship.
 .One-to-One relation (tutorial2.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 #include <string>
 
 namespace dbo = Wt::Dbo;
@@ -786,8 +783,8 @@ public:
 };
 ----
 
-Although a One-to-One relation sounds symmetric, it's implementation
-in a database and Wt::Dbo isn't symmetrical. In the database the
+Although a One-to-One relation sounds symmetrical, its implementation
+in a database and Wt::Dbo isn't. In the database the
 relation is defined by a foreign key from one table to the other (in
 our example, from settings to user). We'll differentiate between both
 sides by stating that one side is _owning_, and the other side is _owned_.
@@ -817,7 +814,7 @@ create table "settings" (
     ...
 
     "user_id" bigint,
-    constraint "fk_settings_user" foreign key ("user_id") references "user" ("id")
+    constraint "fk_settings_user" foreign key ("user_id") references "user" ("id") deferrable initially deferred
 )
 ----
 
@@ -828,7 +825,7 @@ database query. This has as consequence that any operation on it will
 involve a query.
 
 At either side, you may change the value, and this will update the
-reciproce side of the relationship.
+reciprocal side of the relationship.
 Example:
 
 .(tutorial2.C continued)
@@ -836,11 +833,11 @@ Example:
 ----
 dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
 
-dbo::ptr<Settings> settings = session.add(new Settings());
+dbo::ptr<Settings> settings = session.add(std::unique_ptr<Settings>{new Settings()});
 settings.modify()->theme = "fancy-pink";
 joe.modify()->settings = settings;
 
-// will print 'Settings apply to Joe.'
+// will print 'Settings apply to Joe'
 std::cerr << "Settings apply to " << settings->user->name << std::endl;
 ----
 
@@ -868,7 +865,7 @@ Post from +id+ to +post_id+:
 .Changing the "id" field name (tutorial3.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 
 namespace dbo = Wt::Dbo;
 
@@ -904,7 +901,7 @@ for class Post:
 .Disabling the "version" field name (tutorial4.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 
 namespace dbo = Wt::Dbo;
 
@@ -939,7 +936,7 @@ to a string (his username) which maps onto a +varchar (20)+ field
 .Using a natural key (tutorial5.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 
 namespace dbo = Wt::Dbo;
 
@@ -1053,7 +1050,7 @@ namespace Wt {
          struct dbo_traits<GeoTag> : public dbo_default_traits
          {
              typedef Coordinate IdType;
-             static IdType invalidId() { return Coordinate(); }
+             static IdType invalidId() { return Coordinate{}; }
              static const char *surrogateIdField() { return 0; }
          };
     }
@@ -1105,8 +1102,8 @@ User.
 .Using a foreign key as primary key (tutorial7.C)
 [source,cpp]
 ----
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 namespace dbo = Wt::Dbo;
 
@@ -1121,7 +1118,7 @@ namespace Wt {
             typedef ptr<User> IdType;
 
             static IdType invalidId() {
-                return ptr<User>();
+                return ptr<User>{};
             }
 
             static const char *surrogateIdField() { return 0; }
@@ -1166,10 +1163,10 @@ void run()
     /*
      * Setup a session, would typically be done once at application startup.
      */
-    dbo::backend::Sqlite3 sqlite3(":memory:");
-    sqlite3.setProperty("show-queries", "true");
+    std::unique_ptr<dbo::backend::Sqlite3> sqlite3{new dbo::backend::Sqlite3(":memory:")};
+    sqlite3->setProperty("show-queries", "true");
     dbo::Session session;
-    session.setConnection(sqlite3);
+    session.setConnection(std::move(sqlite3));
 
     session.mapClass<User>("user");
     session.mapClass<UserInfo>("user_info");
@@ -1179,23 +1176,23 @@ void run()
      */
     session.createTables();
 
-    dbo::Transaction transaction(session);
+    dbo::Transaction transaction{session};
 
     {
-        User *user = new User();
+        std::unique_ptr<User> user{new User()};
         user->name = "Joe";
 
-        dbo::ptr<User> userPtr = session.add(user);
+        dbo::ptr<User> userPtr = session.add(std::move(user));
 
-        UserInfo *userInfo = new UserInfo();
+        std::unique_ptr<UserInfo> userInfo{new UserInfo()};
         userInfo->user = userPtr;
         userInfo->info = "great guy";
 
-        session.add(userInfo);
+        session.add(std::move(userInfo));
     }
 
     {
-        dbo::Transaction transaction(session);
+        dbo::Transaction transaction{session};
 
         dbo::ptr<UserInfo> info = session.find<UserInfo>();
     
@@ -1250,8 +1247,8 @@ commit transaction
 
 Reading data from the database or flushing changes to the database
 require an active transaction. A
-+{doc}classWt_1_1Dbo_1_1Transaction.html[Transaction]+ is a RIIA
-(Resource-Initialization-is-Acquisition) class which at the same time
++{doc}classWt_1_1Dbo_1_1Transaction.html[Transaction]+ is an RAII
+(Resource Acquisition is Initialization) class which at the same time
 provides isolation between concurrent sessions and atomicity for
 persisting changes to the database.
 
@@ -1274,7 +1271,7 @@ transaction are only visible to other sessions as soon as they are
 committed. This is usually the lowest level of isolation supported by
 a database.
 
-The +Transaction+ class is a light-weight proxy that references a
+The +Transaction+ class is a lightweight proxy that references a
 _logical_ transaction: multiple (usually nested) Transaction objects
 may be instantiated simultaneously, which each need to be committed
 for the logical transaction to be committed. In this way you can
@@ -1284,7 +1281,7 @@ wider transaction if that is available. A transaction will in fact
 defer opening a real transaction in the database until needed, and
 thus there is no penalty for instantiating a transaction to make sure
 a unit of work is atomic, even if you are not yet sure that there will
-be actual work done. Note that there is no need (sinds Wt 3.2.1) to
+be actual work done. Note that there is no need to
 explicitly commit a transaction: a transaction will automatically
 commited when it goes out of scope, unless the transaction goes out of
 scope (and thus its destructor is called) while an exception is being
@@ -1313,12 +1310,12 @@ in a new transaction.
 == Installation
 
 +Wt::Dbo+ is included in Wt, and can thus be installed as part of this
-library for which there may be standard packages availabe for your
+library for which there may be standard packages available for your
 operating system.
 
 The library does however in no way depend on Wt, and can also be
 built, installed and used separately from it. Starting from a Wt
-source package (and on in a UNIX-like environment), you would do the
+source package (and on a UNIX-like environment), you would do the
 following to build and install only +Wt::Dbo+:
 
 .Installing +Wt::Dbo+ from source (UNIX-like)

@@ -1,138 +1,18 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WREGEXPVALIDATOR_H_
-#define WREGEXPVALIDATOR_H_
-
-#include <limits>
-#include <Wt/WValidator>
-
-namespace Wt {
-
-class WRegExp;
-
-/*! \class WRegExpValidator Wt/WRegExpValidator Wt/WRegExpValidator
- *  \brief A validator that checks user input against a regular expression.
- *
- * This validator checks whether user input matches the given (perl-like)
- * regular expression. It checks the complete input; prefix ^ and suffix $
- * are not needed.
- *
- * The following perl features are not supported (since client-side validation
- * cannot handle them):
- * <ul>
- *   <li>No Lookbehind support, i.e. the constructs (?<=text) and (?<!text).
- *     </li>
- *   <li>No atomic grouping, i.e. the construct (?>group).</li>
- *   <li>No conditional expressions, i.e. the consturct (?ifthen|else).</li>
- * </ul>
- *
- * Usage example:
- * \if cpp
- * \code
- * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
- * // an email address validator
- * Wt::WRegExpValidator *validator = new Wt::WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}");
- * lineEdit->setValidator(validator);
- * lineEdit->setText("koen@emweb.be");
- * \endcode
- * \elseif java
- * \code
- * WLineEdit lineEdit = new WLineEdit(this);
- * // an email address validator
- * WRegExpValidator validator = new WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}");
- * lineEdit.setValidator(validator);
- * lineEdit.setText("pieter@emweb.be");
- * \endcode
- * \endif
- *
- * \note This validator does not fully support unicode: it matches on the
- * UTF8-encoded representation of the string.
- *
- * <h3>i18n</h3>
- *
- * The strings used in this class can be translated by overriding
- * the default values for the following localization keys:
- * - Wt.WRegExpValidator.Invalid: Invalid input
- */
-class WT_API WRegExpValidator : public WValidator
-{
-public:
-  /*! \brief Sets a new regular expression validator.
-   */
-  WRegExpValidator(WObject *parent = 0);
-
-  /*! \brief Sets a new regular expression validator that accepts input
-   *         that matches the given regular expression.
-   *
-   * This constructs a validator that matches the perl regular
-   * expression \p expr.
-   */
-  WRegExpValidator(const WT_USTRING& pattern, WObject *parent = 0);
-
-  /*! \brief Destructor.
-   */
-  ~WRegExpValidator();
-
-  /*! \brief Sets the regular expression for valid input.
-   *
-   * Sets the perl regular expression \p expr.
-   */
-  void setRegExp(const WT_USTRING& pattern);
-
-  /*! \brief Returns the regular expression for valid input.
-   *
-   * Returns the perl regular expression.
-   */
-  WT_USTRING regExp() const;
-
-  /*! \brief Sets regular expression matching flags.
-   */
-  void setFlags(WFlags<RegExpFlag> flags);
-
-  /*! \brief Returns regular expression matching flags.
-   */
-  WFlags<RegExpFlag> flags() const;
-
-  /*! \brief Validates the given input.
-   *
-   * The input is considered valid only when it is blank for a
-   * non-mandatory field, or matches the regular expression.
-   */
-  virtual Result validate(const WT_USTRING& input) const;
-
-  virtual void createExtConfig(std::ostream& config) const;
-
-  /*! \brief Sets the text to be shown if no match can be found.
-   *
-   * Sets the text to be shown if no match can be found.
-   */
-  void setNoMatchText(const WString& text);
-
-  /*! \brief Sets the message to display when the input does not match.
-   *
-   * The default value is "Invalid input".
-   */
-  void setInvalidNoMatchText(const WString& text);
-
-  /*! \brief Returns the message displayed when the input does not match.
-   *
-   * \sa setInvalidNoMatchText(const WString&)
-   */
-  WString invalidNoMatchText() const;
-
-  virtual std::string javaScriptValidate() const;
-
-private:
-  WRegExp *regexp_;
-  WString  noMatchText_;
-
-  static void loadJavaScript(WApplication *app);
-};
-
-}
-
-#endif // WREGEXPVALIDATOR_H_
+#ifndef WT_WREGEXPVALIDATOR_EXTENSIONLESS_H_
+#define WT_WREGEXPVALIDATOR_EXTENSIONLESS_H_
+#include <Wt/WConfig.h>
+#if defined(WT_WARN_HEADER_MISSING_H)
+#if defined(__GNUC__) || defined(__clang__)
+#warning "The use of header files without .h is deprecated since Wt 4.0.0, please use WRegExpValidator.h instead"
+#elif defined(_MSC_VER)
+#pragma message("The use of header files without .h is deprecated since Wt 4.0.0, please use WRegExpValidator.h instead")
+#endif
+#endif // defined(WT_WARN_HEADER_MISSING_H)
+#include "WRegExpValidator.h"
+#endif // WT_WREGEXPVALIDATOR_EXTENSIONLESS_H_

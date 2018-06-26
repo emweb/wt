@@ -7,7 +7,7 @@
 #ifndef SOUNDMANAGER_H_
 #define SOUNDMANAGER_H_
 
-#include <Wt/WMediaPlayer>
+#include <Wt/WMediaPlayer.h>
 
 namespace Wt {
 
@@ -17,14 +17,14 @@ class WSound;
 class SoundManager : public WMediaPlayer
 {
 public:
-  SoundManager(WContainerWidget *parent = 0);
+  SoundManager();
 
   void add(WSound *sound);
   void play(WSound *sound, int loops);
   void stop(WSound *sound);
 
   bool isFinished(WSound *sound) const;
-  virtual void refresh();
+  virtual void refresh() override;
 
 private:
   WSound *current_;

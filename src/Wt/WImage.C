@@ -3,13 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WImage"
-#include "Wt/WAbstractArea"
-#include "Wt/WLogger"
-#include "Wt/WResource"
+#include "Wt/WApplication.h"
+#include "Wt/WImage.h"
+#include "Wt/WAbstractArea.h"
+#include "Wt/WLogger.h"
+#include "Wt/WResource.h"
 
 #include "DomElement.h"
+#include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WImage.min.js"
@@ -19,100 +20,87 @@ namespace Wt {
 
 LOGGER("WImage");
 
-  namespace Impl {
+namespace Impl {
 
-    class MapWidget : public WContainerWidget
-    {
-    public:
-      MapWidget() { }
+class MapWidget : public WContainerWidget
+{
+public:
+  MapWidget() { }
 
-    protected:
-      virtual void render(WFlags<RenderFlag> flags)
-      {
-	WContainerWidget::render(flags);
-
-	WImage *parent_img = dynamic_cast<WImage *>(parent());
-	if (!parent_img->targetJS_.empty())
-	  parent_img->doJavaScript(parent_img->setAreaCoordsJS());
-      }
-
-      virtual void updateDom(DomElement& element, bool all)
-      {
-	if (all)
-	  element.setAttribute("name", id());
-
-	WContainerWidget::updateDom(element, all);
-      }
-
-      virtual DomElementType domElementType() const {
-	return DomElement_MAP;
-      }
-    };
-
+  void insertArea(int index, std::unique_ptr<WAbstractArea> area) {
+    insertWidget(index, area->takeWidget());
+    areas_.insert(areas_.begin(), std::move(area));
   }
+
+  std::unique_ptr<WAbstractArea> removeArea(WAbstractArea *area) {
+    int index = indexOf(area->widget());
+    if (index != -1) {
+      area->returnWidget(removeWidget(area->widget()));
+      return Utils::take(areas_, area);
+    } else
+      return std::unique_ptr<WAbstractArea>();
+  }
+
+  WAbstractArea *area(int index) {
+    return areas_[index].get();
+  }
+
+protected:
+  virtual void render(WFlags<RenderFlag> flags) override
+  {
+    WContainerWidget::render(flags);
+
+    WImage *parent_img = dynamic_cast<WImage *>(parent());
+    if(parent_img){
+      if (!parent_img->targetJS_.empty())
+        parent_img->doJavaScript(parent_img->setAreaCoordsJS());
+    }
+  }
+
+  virtual void updateDom(DomElement& element, bool all) override
+  {
+    if (all)
+      element.setAttribute("name", id());
+
+    WContainerWidget::updateDom(element, all);
+  }
+
+  virtual DomElementType domElementType() const override
+  {
+    return DomElementType::MAP;
+  }
+
+private:
+  std::vector<std::unique_ptr<WAbstractArea>> areas_;
+};
+
+}
 
 const char *WImage::LOAD_SIGNAL = "load";
 
-WImage::WImage(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    map_(0)
+WImage::WImage()
 {
   setLoadLaterWhenInvisible(false);
 }
 
-WImage::WImage(const WLink& link, WContainerWidget *parent)
-  : WInteractWidget(parent),
-    map_(0)
+WImage::WImage(const WLink& link)
 { 
   setLoadLaterWhenInvisible(false);
 
   setImageLink(link);
 }
 
-WImage::WImage(const WLink& link, const WString& altText,
-	       WContainerWidget *parent)
-  : WInteractWidget(parent),
-    altText_(altText),
-    map_(0)
+WImage::WImage(const WLink& link, const WString& altText)
+  : altText_(altText)
 { 
   setLoadLaterWhenInvisible(false);
 
   setImageLink(link);
 }
-
-#ifdef WT_TARGET_JAVA
-WImage::WImage(const std::string& imageRef, WContainerWidget *parent)
-  : WInteractWidget(parent),
-    imageLink_(WLink(WLink::Url, imageRef)),
-    map_(0)
-{
-  setLoadLaterWhenInvisible(false);
-}
-
-WImage::WImage(const std::string& imageRef, const WString& altText,
-	       WContainerWidget *parent)
-  : WInteractWidget(parent),
-    imageLink_(WLink(WLink::Url, imageRef)),
-    altText_(altText),
-    map_(0)
-{
-  setLoadLaterWhenInvisible(false);
-}
-
-WImage::WImage(WResource *resource, const WString& altText,
-	       WContainerWidget *parent)
-  : WInteractWidget(parent),
-    altText_(altText),
-    map_(0)
-{
-  setLoadLaterWhenInvisible(false);
-  setImageLink(WLink(resource));
-}
-#endif // WT_TARGET_JAVA
 
 WImage::~WImage()
-{ 
-  delete map_;
+{
+  manageWidget(map_, std::unique_ptr<Impl::MapWidget>());
 }
 
 EventSignal<>& WImage::imageLoaded()
@@ -122,44 +110,24 @@ EventSignal<>& WImage::imageLoaded()
 
 void WImage::setImageLink(const WLink& link)
 {
-  if (link.type() != WLink::Resource && canOptimizeUpdates()
+  if (link.type() != LinkType::Resource && canOptimizeUpdates()
       && (link == imageLink_))
     return;
 
   imageLink_ = link;
 
-  if (link.type() == WLink::Resource)
+  if (link.type() == LinkType::Resource)
     link.resource()->dataChanged().connect(this, &WImage::resourceChanged);
 
   flags_.set(BIT_IMAGE_LINK_CHANGED);
 
-  repaint(RepaintSizeAffected);
-}
-
-void WImage::setResource(WResource *resource)
-{
-  setImageLink(WLink(resource));
-}
-
-WResource *WImage::resource() const
-{
-  return imageLink_.resource();
-}
-
-void WImage::setImageRef(const std::string& ref)
-{
-  setImageLink(WLink(ref));
-}
-
-const std::string WImage::imageRef() const
-{
-  return imageLink_.url();
+  repaint(RepaintFlag::SizeAffected);
 }
 
 void WImage::resourceChanged()
 {
   flags_.set(BIT_IMAGE_LINK_CHANGED);
-  repaint(RepaintSizeAffected);
+  repaint(RepaintFlag::SizeAffected);
 }
 
 void WImage::setAlternateText(const WString& text)
@@ -173,28 +141,28 @@ void WImage::setAlternateText(const WString& text)
   repaint();
 }
 
-void WImage::addArea(WAbstractArea *area)
+void WImage::addArea(std::unique_ptr<WAbstractArea> area)
 {
-  insertArea(map_ ? map_->count() : 0, area);
+  insertArea(map_ ? map_->count() : 0, std::move(area));
 }
 
-void WImage::insertArea(int index, WAbstractArea *area)
+void WImage::insertArea(int index, std::unique_ptr<WAbstractArea> area)
 {
   if (!map_) {
-    addChild(map_ = new Impl::MapWidget());
+    manageWidget(map_, cpp14::make_unique<Impl::MapWidget>());
     flags_.set(BIT_MAP_CREATED);
     repaint();
   }
 
-  map_->insertWidget(index, area->impl());
+  map_->insertArea(index, std::move(area));
 }
 
 WAbstractArea *WImage::area(int index) const
 {
   if (map_ && index < map_->count())
-    return WAbstractArea::areaForImpl(map_->widget(index));
+    return map_->area(index);
   else
-    return 0;
+    return nullptr;
 }
 
 const std::vector<WAbstractArea *> WImage::areas() const
@@ -203,30 +171,33 @@ const std::vector<WAbstractArea *> WImage::areas() const
 
   if (map_) {
     for (int i = 0; i < map_->count(); ++i)
-      result.push_back(WAbstractArea::areaForImpl(map_->widget(i)));
+      result.push_back(map_->area(i));
   }
 
   return result;
 }
 
-void WImage::removeArea(WAbstractArea *area)
+std::unique_ptr<WAbstractArea> WImage::removeArea(WAbstractArea *area)
 {
-  if (!map_) {
-    LOG_ERROR("removeArea(): no such area");
-    return;
-  }
+  std::unique_ptr<WAbstractArea> result;
 
-  map_->removeWidget(area->impl());
+  if (map_)
+    result = map_->removeArea(area);
+
+  if (!result)
+    LOG_ERROR("removeArea(): area was not found");
+
+  return result;
 }
 
 void WImage::updateDom(DomElement& element, bool all)
 {
   DomElement *img = &element;
-  if (all && element.type() == DomElement_SPAN) {
+  if (all && element.type() == DomElementType::SPAN) {
     DomElement *map = map_->createSDomElement(WApplication::instance());
     element.addChild(map);
 
-    img = DomElement::createNew(DomElement_IMG);
+    img = DomElement::createNew(DomElementType::IMG);
     img->setId("i" + id());
   }
 
@@ -240,7 +211,7 @@ void WImage::updateDom(DomElement& element, bool all)
       url = app->onePixelGifUrl();
     }
 
-    img->setProperty(Wt::PropertySrc, url);
+    img->setProperty(Wt::Property::Src, url);
 
     flags_.reset(BIT_IMAGE_LINK_CHANGED);
   }
@@ -268,7 +239,7 @@ void WImage::getDomChanges(std::vector<DomElement *>& result,
     // TODO: check if BIT_MAP_CREATED: then need to replace the whole
     // element with a <span><img /><map /></span>. Currently we document
     // this as a limitation.
-    DomElement *e = DomElement::getForUpdate("i" + id(), DomElement_IMG);
+    DomElement *e = DomElement::getForUpdate("i" + id(), DomElementType::IMG);
     updateDom(*e, false);
     result.push_back(e);
   } else
@@ -297,7 +268,7 @@ void WImage::defineJavaScript()
 
 void WImage::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
+  if (flags.test(RenderFlag::Full)) {
     if (!targetJS_.empty())
       defineJavaScript();
   }
@@ -307,7 +278,7 @@ void WImage::render(WFlags<RenderFlag> flags)
 
 DomElementType WImage::domElementType() const
 {
-  return map_ ? DomElement_SPAN : DomElement_IMG;
+  return map_ ? DomElementType::SPAN : DomElementType::IMG;
 }
 
 void WImage::setTargetJS(std::string targetJS)

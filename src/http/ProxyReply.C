@@ -6,19 +6,20 @@
 
 #include "ProxyReply.h"
 
-#include "Wt/Http/Request"
+#include "Wt/Http/Request.h"
 #include "Connection.h"
 #include "Server.h"
 #include "StockReply.h"
-#include "Wt/Json/Serializer"
-#include "Wt/Json/Value"
-#include "Wt/Json/Array"
-#include "Wt/Json/Object"
-#include "Wt/WSslCertificate"
-#include "Wt/WSslInfo"
+#include "Wt/Json/Serializer.h"
+#include "Wt/Json/Value.h"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Object.h"
+#include "Wt/WSslCertificate.h"
+#include "Wt/WSslInfo.h"
 #include "SslUtils.h"
-#include "Wt/WString"
-#include "Wt/Utils"
+#include "WebUtils.h"
+#include "Wt/WString.h"
+#include "Wt/Utils.h"
 
 namespace Wt {
   LOGGER("wthttp/proxy");
@@ -52,8 +53,8 @@ ProxyReply::~ProxyReply()
 void ProxyReply::closeClientSocket()
 {
   if (socket_) {
-    boost::system::error_code ignored_ec;
-    socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    Wt::AsioWrapper::error_code ignored_ec;
+    socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket_->close();
     socket_.reset();
   }
@@ -101,14 +102,14 @@ void ProxyReply::writeDone(bool success)
       (*socket_, responseBuf_,
        asio::transfer_at_least(1),
        connection()->strand().wrap
-       (boost::bind(&ProxyReply::handleResponseRead,
-		    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-		    asio::placeholders::error)));
+       (std::bind(&ProxyReply::handleResponseRead,
+		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
+		  std::placeholders::_1)));
   }
 }
 
-bool ProxyReply::consumeData(Buffer::const_iterator begin,
-			     Buffer::const_iterator end,
+bool ProxyReply::consumeData(const char *begin,
+			     const char *end,
 			     Request::State state)
 {
   LOG_DEBUG(this << ": consumeData()");
@@ -129,11 +130,11 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
 	(*socket_,
 	 asio::buffer(beginRequestBuf_, endRequestBuf_ - beginRequestBuf_),
 	 connection()->strand().wrap
-	 (boost::bind
+	 (std::bind
 	  (&ProxyReply::handleDataWritten,
-	   boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	   asio::placeholders::error,
-	   asio::placeholders::bytes_transferred)));
+	   std::static_pointer_cast<ProxyReply>(shared_from_this()),
+	   std::placeholders::_1,
+	   std::placeholders::_2)));
     } else {
       /* Connection with child was closed */
       error(service_unavailable);
@@ -186,10 +187,10 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
 	sessionProcess_->asyncExec(
 	    configuration(),
 	    connection()->strand().wrap
-	    (boost::bind
+	    (std::bind
 	     (&ProxyReply::connectToChild,
-	      boost::dynamic_pointer_cast<ProxyReply>(shared_from_this())
-	      , _1)));
+	      std::static_pointer_cast<ProxyReply>(shared_from_this()),
+	      std::placeholders::_1)));
 	sessionManager_.addPendingSessionProcess(sessionProcess_);
       } else {
 	LOG_ERROR("maximum amount of sessions reached!");
@@ -212,16 +213,16 @@ void ProxyReply::connectToChild(bool success)
     socket_->async_connect
       (sessionProcess_->endpoint(),
        connection()->strand().wrap
-       (boost::bind(&ProxyReply::handleChildConnected,
-		    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-		    asio::placeholders::error)));
+       (std::bind(&ProxyReply::handleChildConnected,
+		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
+		  std::placeholders::_1)));
   } else {
     error(service_unavailable);
   }
 }
 
 
-void ProxyReply::handleChildConnected(const boost::system::error_code& ec)
+void ProxyReply::handleChildConnected(const Wt::AsioWrapper::error_code& ec)
 {
   if (ec) {
     LOG_ERROR("error connecting to child: " << ec.message());
@@ -238,11 +239,10 @@ void ProxyReply::handleChildConnected(const boost::system::error_code& ec)
   asio::async_write
     (*socket_, requestBuf_,
      connection()->strand().wrap
-     (boost::bind
+     (std::bind
       (&ProxyReply::handleDataWritten,
-       boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-       asio::placeholders::error,
-       asio::placeholders::bytes_transferred)));
+       std::static_pointer_cast<ProxyReply>(shared_from_this()),
+       std::placeholders::_1, std::placeholders::_2)));
 }
 
 void ProxyReply::assembleRequestHeaders()
@@ -306,7 +306,7 @@ void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
 #ifdef WT_WITH_SSL
   os << "SSL-Client-Certificates: ";
 
-  Wt::Json::Value val(Wt::Json::ObjectType);
+  Wt::Json::Value val(Wt::Json::Type::Object);
   Wt::Json::Object &obj = val;
 
   Wt::WSslCertificate clientCert = sslInfo->clientCertificate();
@@ -314,7 +314,7 @@ void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
 
   obj["client-certificate"] = Wt::WString(pem); 
 
-  Wt::Json::Value arrVal(Wt::Json::ArrayType);
+  Wt::Json::Value arrVal(Wt::Json::Type::Array);
   Wt::Json::Array &sslCertsArr = arrVal;
   for(unsigned int i = 0; i< sslInfo->clientPemCertificateChain().size(); ++i) {
 	sslCertsArr.push_back(Wt::WString(sslInfo->clientPemCertificateChain()[i].toPem()));
@@ -324,12 +324,12 @@ void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
   obj["client-verification-result-state"] = (int)sslInfo->clientVerificationResult().state();
   obj["client-verification-result-message"] = sslInfo->clientVerificationResult().message();
 
-  os <<Wt::Utils::base64Encode(Wt::Json::serialize(obj), false);
+  os << Wt::Utils::base64Encode(Wt::Json::serialize(obj), false);
   os << "\r\n";
 #endif
 }
 
-void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
+void ProxyReply::handleDataWritten(const Wt::AsioWrapper::error_code &ec,
 				   std::size_t transferred)
 {
   if (!ec) {
@@ -341,10 +341,10 @@ void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
       asio::async_read_until
 	(*socket_, responseBuf_, "\r\n",
 	 connection()->strand().wrap
-	 (boost::bind
+	 (std::bind
 	  (&ProxyReply::handleStatusRead,
-	   boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	   asio::placeholders::error)));
+	   std::static_pointer_cast<ProxyReply>(shared_from_this()),
+	   std::placeholders::_1)));
     }
   } else {
     LOG_ERROR("error sending data to child: " << ec.message());
@@ -353,7 +353,7 @@ void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
   }
 }
 
-void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
+void ProxyReply::handleStatusRead(const Wt::AsioWrapper::error_code &ec)
 {
   if (!ec) {
     std::istream response_stream(&responseBuf_);
@@ -374,9 +374,9 @@ void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
     asio::async_read_until
       (*socket_, responseBuf_, "\r\n\r\n",
        connection()->strand().wrap
-       (boost::bind(&ProxyReply::handleHeadersRead,
-		    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-		    asio::placeholders::error)));
+       (std::bind(&ProxyReply::handleHeadersRead,
+		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
+		  std::placeholders::_1)));
   } else {
     LOG_ERROR("error reading status line: " << ec.message());
     if (!sendReload())
@@ -384,7 +384,7 @@ void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
   }
 }
 
-void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
+void ProxyReply::handleHeadersRead(const Wt::AsioWrapper::error_code &ec)
 {
   if (ec) {
     LOG_ERROR("error reading headers: " << ec.message());
@@ -408,8 +408,8 @@ void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
       if (boost::iequals(name, "Content-Type")) {
 	contentType_ = value;
       } else if (boost::iequals(name, "Content-Length")) { 
-		contentLength_ = boost::lexical_cast<int64_t>(value);
-	  } else if (boost::iequals(name, "Date")) {
+	contentLength_ = Wt::Utils::stoll(value);
+      } else if (boost::iequals(name, "Date")) {
 	// Ignore, we're overriding it
       } else if (boost::iequals(name, "Transfer-Encoding") || boost::iequals(name, "Keep-Alive") ||
 	  boost::iequals(name, "TE")) {
@@ -458,7 +458,7 @@ void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
   send();
 }
 
-void ProxyReply::handleResponseRead(const boost::system::error_code &ec)
+void ProxyReply::handleResponseRead(const Wt::AsioWrapper::error_code &ec)
 {
   LOG_DEBUG(this << ": async_read done.");
 
@@ -468,10 +468,10 @@ void ProxyReply::handleResponseRead(const boost::system::error_code &ec)
     }
 
     send();
-  } else if (ec == boost::asio::error::eof
-	     || ec == boost::asio::error::shut_down
-	     || ec == boost::asio::error::operation_aborted
-	     || ec == boost::asio::error::connection_reset) {
+  } else if (ec == asio::error::eof
+	     || ec == asio::error::shut_down
+	     || ec == asio::error::operation_aborted
+	     || ec == asio::error::connection_reset) {
     closeClientSocket();
 
     more_ = false;

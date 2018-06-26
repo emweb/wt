@@ -1,5 +1,5 @@
-#include "Wt/WStatelessSlot"
-#include "Wt/WSignal"
+#include "Wt/WStatelessSlot.h"
+#include "Wt/WSignal.h"
 
 #include <string>
 #include "WebUtils.h"
@@ -9,7 +9,7 @@ namespace Wt {
 WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method)
   : target_(obj),
     method_(method),
-    undoMethod_(0),
+    undoMethod_(nullptr),
     learned_(false)
 { }
 
@@ -25,15 +25,15 @@ WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method,
 			       const std::string& javaScript)
   : target_(obj),
     method_(method),
-    undoMethod_(0),
+    undoMethod_(nullptr),
     learned_(true),
     jscript_(javaScript)
 { }
 
 WStatelessSlot::WStatelessSlot(const std::string& javaScript)
-  : target_(0),
-    method_(0),
-    undoMethod_(0),
+  : target_(nullptr),
+    method_(nullptr),
+    undoMethod_(nullptr),
     learned_(true),
     jscript_(javaScript)
 { }
@@ -70,20 +70,20 @@ void WStatelessSlot::reimplementPreLearn(WObjectMethod undoMethod)
 
 void WStatelessSlot::reimplementJavaScript(const std::string& javaScript)
 {
-  undoMethod_ = 0;
+  undoMethod_ = nullptr;
   learned_ = true;
   setJavaScript(javaScript);
 }
 
 WStatelessSlot::SlotType WStatelessSlot::type() const
 {
-  if (method_ == 0)
-    return JavaScriptSpecified;
+  if (method_ == nullptr)
+    return SlotType::JavaScriptSpecified;
   else
-    if (undoMethod_ == 0)
-      return AutoLearnStateless;
+    if (undoMethod_ == nullptr)
+      return SlotType::AutoLearnStateless;
     else
-      return PreLearnStateless;
+      return SlotType::PreLearnStateless;
 } 
  
 bool WStatelessSlot::learned() const
@@ -102,7 +102,7 @@ void WStatelessSlot::setJavaScript(const std::string& javaScript)
   learned_ = true;
 
   for (size_t i = 0; i < connectingSignals_.size(); i++)
-    connectingSignals_[i]->senderRepaint();
+    connectingSignals_[i]->ownerRepaint();
 }
 
 void WStatelessSlot::invalidate()
@@ -119,7 +119,7 @@ void WStatelessSlot::setNotLearned()
     learned_ = false;
 
     for (size_t i = 0; i < connectingSignals_.size(); i++)
-      connectingSignals_[i]->senderRepaint();    
+      connectingSignals_[i]->ownerRepaint();    
   }
 }
 

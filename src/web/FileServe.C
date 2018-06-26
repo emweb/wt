@@ -5,10 +5,9 @@
  */
 
 #include <cstring>
-#include <boost/lexical_cast.hpp>
 
-#include "Wt/WException"
-#include "Wt/WStringStream"
+#include "Wt/WException.h"
+#include "Wt/WStringStream.h"
 
 #include "FileServe.h"
 
@@ -41,12 +40,12 @@ void FileServe::setVar(const std::string& name, bool value)
 
 void FileServe::setVar(const std::string& name, int value)
 {
-  setVar(name, boost::lexical_cast<std::string>(value));
+  setVar(name, std::to_string(value));
 }
 
 void FileServe::setVar(const std::string& name, unsigned value)
 {
-  setVar(name, boost::lexical_cast<std::string>(value));
+  setVar(name, std::to_string(value));
 }
 
 void FileServe::stream(WStringStream& out)

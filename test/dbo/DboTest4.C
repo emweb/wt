@@ -8,12 +8,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDate>
-#include <Wt/WDateTime>
-#include <Wt/WTime>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/ptr_tuple>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDate.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/ptr_tuple.h>
 
 #include "DboFixture.h"
 
@@ -30,6 +30,12 @@ namespace Wt {
 
     template<>
     struct dbo_traits<Person> : public dbo_default_traits {
+      typedef int IdType;
+
+      static IdType invalidId() {
+        return -1;
+      }
+
       static const char *surrogateIdField() {
 	return 0;
       }
@@ -55,10 +61,10 @@ public:
   void persist(Action &action)
   {
     Wt::Dbo::id(action, name, "name");
-    Wt::Dbo::hasMany(action, friends1_side1, Wt::Dbo::ManyToMany, "friends1", "side1");
-    Wt::Dbo::hasMany(action, friends1_side2, Wt::Dbo::ManyToMany, "friends1", "side2");
-    Wt::Dbo::hasMany(action, friends2_side1, Wt::Dbo::ManyToMany, "friends2", ">side1");
-    Wt::Dbo::hasMany(action, friends2_side2, Wt::Dbo::ManyToMany, "friends2", ">side2");
+    Wt::Dbo::hasMany(action, friends1_side1, Wt::Dbo::ManyToMany, "friends1", "side1", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends1_side2, Wt::Dbo::ManyToMany, "friends1", "side2", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends2_side1, Wt::Dbo::ManyToMany, "friends2", ">side1", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends2_side2, Wt::Dbo::ManyToMany, "friends2", ">side2", Wt::Dbo::ForeignKeyConstraint(0));
     Wt::Dbo::hasMany(action, cars1, Wt::Dbo::ManyToOne, "owner1");
     Wt::Dbo::hasMany(action, cars2, Wt::Dbo::ManyToOne, ">owner2");
     Wt::Dbo::hasOne(action, leftShoe, "owner1");
@@ -85,10 +91,10 @@ public:
     Wt::Dbo::belongsTo(action, owner2, ">owner2");
     Wt::Dbo::hasMany(action, doors1, Wt::Dbo::ManyToOne, "car1");
     Wt::Dbo::hasMany(action, doors2, Wt::Dbo::ManyToOne, ">car2");
-    Wt::Dbo::hasMany(action, friends1_side1, Wt::Dbo::ManyToMany, "car_friends1", "side1");
-    Wt::Dbo::hasMany(action, friends1_side2, Wt::Dbo::ManyToMany, "car_friends1", "side2");
-    Wt::Dbo::hasMany(action, friends2_side1, Wt::Dbo::ManyToMany, "car_friends2", ">side1");
-    Wt::Dbo::hasMany(action, friends2_side2, Wt::Dbo::ManyToMany, "car_friends2", ">side2");
+    Wt::Dbo::hasMany(action, friends1_side1, Wt::Dbo::ManyToMany, "car_friends1", "side1", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends1_side2, Wt::Dbo::ManyToMany, "car_friends1", "side2", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends2_side1, Wt::Dbo::ManyToMany, "car_friends2", ">side1", Wt::Dbo::ForeignKeyConstraint(0));
+    Wt::Dbo::hasMany(action, friends2_side2, Wt::Dbo::ManyToMany, "car_friends2", ">side2", Wt::Dbo::ForeignKeyConstraint(0));
   }
 };
 
@@ -150,15 +156,12 @@ BOOST_AUTO_TEST_CASE( dbo4_test1 )
   dbo::Session& session = *f.session_;
   {
     dbo::Transaction transaction(session);
-    Car *c = new Car;
-    session.add(c);
-    Shoe *s = new Shoe;
-    session.add(s);
-    Door *d = new Door;
-    session.add(d);
-    Person *p = new Person;
+    session.add(Wt::cpp14::make_unique<Car>());
+    session.add(Wt::cpp14::make_unique<Shoe>());
+    session.add(Wt::cpp14::make_unique<Door>());
+    auto p = Wt::cpp14::make_unique<Person>();
     p->name = 13;
-    session.add(p);
+    session.add(std::move(p));
     transaction.commit();
   }
 
@@ -198,10 +201,12 @@ BOOST_AUTO_TEST_CASE( dbo4_test1 )
   }
 
   // None of the following should throw!
-  Wt::Dbo::SqlConnection *connection = f.connectionPool_->getConnection();
-  connection->executeSql("SELECT side1_name,side2_name FROM \"friends1\"");
-  connection->executeSql("SELECT side1,side2 FROM \"friends2\"");
-  connection->executeSql("SELECT side1_id,side2_id FROM \"car_friends1\"");
-  connection->executeSql("SELECT side1,side2 FROM \"car_friends2\"");
-  f.connectionPool_->returnConnection(connection);
+  std::unique_ptr<Wt::Dbo::SqlConnection> connection = f.connectionPool_->getConnection();
+  connection->startTransaction();
+  connection->executeSql("SELECT \"side1_name\",\"side2_name\" FROM \"friends1\"");
+  connection->executeSql("SELECT \"side1\",\"side2\" FROM \"friends2\"");
+  connection->executeSql("SELECT \"side1_id\",\"side2_id\" FROM \"car_friends1\"");
+  connection->executeSql("SELECT \"side1\",\"side2\" FROM \"car_friends2\"");
+  connection->rollbackTransaction();
+  f.connectionPool_->returnConnection(std::move(connection));
 }

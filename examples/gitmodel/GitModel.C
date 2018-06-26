@@ -6,10 +6,11 @@
 
 #include "GitModel.h"
 
-using namespace Wt;
+const ItemDataRole GitModel::ContentsRole = Wt::ItemDataRole::User;
+const ItemDataRole GitModel::FilePathRole = Wt::ItemDataRole::User + 1;
 
-GitModel::GitModel(WObject *parent)
-  : WAbstractItemModel(parent)
+GitModel::GitModel()
+  : WAbstractItemModel()
 { }
 
 void GitModel::setRepositoryPath(const std::string& gitRepositoryPath)
@@ -132,10 +133,10 @@ int GitModel::rowCount(const WModelIndex& index) const
   return treeData_[treeId].rowCount();
 }
 
-boost::any GitModel::data(const WModelIndex& index, int role) const
+cpp17::any GitModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   if (!index.isValid())
-    return boost::any();
+    return cpp17::any();
 
   /* Only 3 data roles on column 0 data are supported:
    * - DisplayRole: the file name
@@ -144,34 +145,34 @@ boost::any GitModel::data(const WModelIndex& index, int role) const
    */
   if (index.column() == 0) {
     Git::Object object = getObject(index);
-    if (role == DisplayRole) {
+    if (role == ItemDataRole::Display) {
       if (object.type == Git::Tree)
 	return object.name + '/';
       else
 	return object.name;
-    } else if (role == DecorationRole) {
+    } else if (role == ItemDataRole::Decoration) {
       if (object.type == Git::Blob)
 	return static_cast<const char*>("icons/git-blob.png");
       else if (object.type == Git::Tree)
 	return static_cast<const char*>("icons/git-tree.png");
     } else if (role == ContentsRole) {
       if (object.type == Git::Blob)
-	return git_.catFile(object.id);
+        return git_.catFile(object.id);
     } else if (role == FilePathRole) {
-      return boost::any();
+      return cpp17::any();
     }
   }
 
-  return boost::any();
+  return cpp17::any();
 }
 
-boost::any GitModel::headerData(int section, Orientation orientation,
-				int role) const
+cpp17::any GitModel::headerData(int section, Orientation orientation,
+                                ItemDataRole role) const
 {
-  if (orientation == Horizontal && role == DisplayRole)
+  if (orientation == Orientation::Horizontal && role == ItemDataRole::Display)
     return static_cast<const char*>("File");
   else
-    return boost::any();
+    return cpp17::any();
 }
 
 Git::Object GitModel::getObject(const WModelIndex& index) const

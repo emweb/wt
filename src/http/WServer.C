@@ -4,10 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/asio.hpp>
-
-#include "Wt/WIOService"
-#include "Wt/WServer"
+#include "Wt/WIOService.h"
+#include "Wt/WServer.h"
 
 #include <iostream>
 #include <string>
@@ -123,16 +121,15 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 
   impl_->serverConfiguration_->setSslPasswordCallback(sslPasswordCallback_);
 
-  if (argc != 0)
-    impl_->serverConfiguration_->setOptions(argc, argv,
-					    serverConfigurationFile);
+  impl_->serverConfiguration_->setOptions(argc, argv,
+					  serverConfigurationFile);
 }
 
 bool WServer::start()
 {
   setCatchSignals(!impl_->serverConfiguration_->gdb());
 
-  stopCallback_ = boost::bind(&WServer::stop, this);
+  stopCallback_ = std::bind(&WServer::stop, this);
 
   if (isRunning()) {
     LOG_ERROR("start(): server already started!");
@@ -163,6 +160,7 @@ bool WServer::start()
 
   if (impl_->serverConfiguration_->parentPort() != -1) {
     configuration().setBehindReverseProxy(true);
+    dedicatedProcessEnabled_ = true;
   }
 
   try {
@@ -170,7 +168,7 @@ bool WServer::start()
 					      *this);
 
 #ifndef WT_THREADED
-    LOG_WARN("No boost thread support, running in main thread.");
+    LOG_WARN("No thread support, running in main thread.");
 #endif // WT_THREADED
 
     webController_->start();
@@ -188,7 +186,7 @@ bool WServer::start()
     return true;
 #endif // WT_THREADED
 
-  } catch (asio_system_error& e) {
+  } catch (Wt::AsioWrapper::system_error& e) {
     throw Exception(std::string("Error (asio): ") + e.what());
   } catch (std::exception& e) {
     throw Exception(std::string("Error: ") + e.what());
@@ -231,7 +229,7 @@ void WServer::stop()
 
     delete impl_->server_;
     impl_->server_ = 0;
-  } catch (asio_system_error& e) {
+  } catch (Wt::AsioWrapper::system_error& e) {
     throw Exception(std::string("Error (asio): ") + e.what());
   } catch (std::exception& e) {
     throw Exception(std::string("Error: ") + e.what());
@@ -280,10 +278,10 @@ std::vector<WServer::SessionInfo> WServer::sessions() const
   }
 }
 
-void WServer::setSslPasswordCallback(
-  boost::function<std::string (std::size_t max_length, int purpose)> cb)
+void WServer::setSslPasswordCallback(const SslPasswordCallback& cb)
 {
   sslPasswordCallback_ = cb;
+
   if (impl_ && impl_->serverConfiguration_)
     impl_->serverConfiguration_->setSslPasswordCallback(sslPasswordCallback_);
 }
@@ -294,12 +292,12 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
     WServer server(argv[0], "");
     try {
       server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
-      server.addEntryPoint(Application, createApplication);
+      server.addEntryPoint(EntryPointType::Application, createApplication);
       if (server.start()) {
 #ifdef WT_THREADED
 	// MacOSX + valgrind:
 	// for (;;) { sleep(100); }
-	int sig = WServer::waitForShutdown(argv[0]);
+	int sig = WServer::waitForShutdown();
 	LOG_INFO_S(&server, "shutdown (signal = " << sig << ")");
 #endif
 	server.stop();
@@ -308,7 +306,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 #ifndef WT_WIN32
 	if (sig == SIGHUP)
 	  // Mac OSX: _NSGetEnviron()
-	  WServer::restart(argc, argv, 0);
+	  WServer::restart(argc, argv, nullptr);
 #endif // WIN32
 #endif // WT_THREADED
       }

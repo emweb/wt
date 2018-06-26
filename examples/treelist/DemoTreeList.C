@@ -3,12 +3,11 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
 
-#include <Wt/WApplication>
-#include <Wt/WText>
-#include <Wt/WImage>
-#include <Wt/WPushButton>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
+#include <Wt/WImage.h>
+#include <Wt/WPushButton.h>
 
 #include "DemoTreeList.h"
 #include "TreeNode.h"
@@ -17,12 +16,12 @@
 using namespace Wt;
 using std::rand;
 
-DemoTreeList::DemoTreeList(WContainerWidget *parent)
-  : WContainerWidget(parent),
+DemoTreeList::DemoTreeList()
+  : WContainerWidget(),
     testCount_(0)
 {
   addWidget
-    (new WText("<h2>Wt Tree List example</h2>"
+    (cpp14::make_unique<WText>("<h2>Wt Tree List example</h2>"
 	       "<p>This is a simple demo of a treelist, implemented using"
 	       " <a href='http://witty.sourceforge.net/'>Wt</a>.</p>"
 	       "<p>The leafs of the tree contain the source code of the "
@@ -30,40 +29,40 @@ DemoTreeList::DemoTreeList(WContainerWidget *parent)
 	       "<b>IconPair</b>, as well as the implementation of this "
 	       "demo itself in the class <b>DemoTreeList</b>.</p>"));
 
-  tree_ = makeTreeMap("Examples", 0);
-  addWidget(tree_);
+  auto tree = makeTreeFolder("Examples");
+  tree_ = addWidget(std::move(tree));
 
-  TreeNode *treelist = makeTreeMap("Tree List", tree_);
-  TreeNode *wstateicon = makeTreeMap("class IconPair", treelist);
+  TreeNode *treelist = makeTreeFolder("Tree List", tree_);
+  TreeNode *wstateicon = makeTreeFolder("class IconPair", treelist);
   makeTreeFile("<a href=\"IconPair.h\">IconPair.h</a>", wstateicon);
   makeTreeFile("<a href=\"IconPair.C\">IconPair.C</a>", wstateicon);
-  TreeNode *wtreenode = makeTreeMap("class TreeNode", treelist);
+  TreeNode *wtreenode = makeTreeFolder("class TreeNode", treelist);
   makeTreeFile("<a href=\"TreeNode.h\">TreeNode.h</a>", wtreenode);
   makeTreeFile("<a href=\"TreeNode.C\">TreeNode.C</a>", wtreenode);
-  TreeNode *demotreelist = makeTreeMap("class DemoTreeList", treelist);
+  TreeNode *demotreelist = makeTreeFolder("class DemoTreeList", treelist);
   makeTreeFile("<a href=\"DemoTreeList.h\">DemoTreeList.h</a>", demotreelist);
   makeTreeFile("<a href=\"DemoTreeList.C\">DemoTreeList.C</a>", demotreelist);
 
-  testMap_ = makeTreeMap("Test map", tree_);
+  testFolder_ = makeTreeFolder("Test folder", tree_);
 
   /*
    * Buttons to dynamically demonstrate changing the tree contents.
    */
   addWidget
-    (new WText("<p>Use the following buttons to change the tree "
+    (cpp14::make_unique<WText>("<p>Use the following buttons to change the tree "
 	       "contents:</p>"));
 
-  addMapButton_
-    = new WPushButton("Add map", this);
-  addMapButton_->clicked().connect(this, &DemoTreeList::addMap);
+  addFolderButton_
+      = this->addWidget(cpp14::make_unique<WPushButton>("Add folder"));
+  addFolderButton_->clicked().connect(this, &DemoTreeList::addFolder);
 
-  removeMapButton_
-    = new WPushButton("Remove map", this);
-  removeMapButton_->clicked().connect(this, &DemoTreeList::removeMap);
-  removeMapButton_->disable();
+  removeFolderButton_
+    = this->addWidget(cpp14::make_unique<WPushButton>("Remove folder"));
+  removeFolderButton_->clicked().connect(this, &DemoTreeList::removeFolder);
+  removeFolderButton_->disable();
 
   addWidget
-    (new WText("<p>Remarks:"
+    (cpp14::make_unique<WText>("<p>Remarks:"
 	       "<ul>"
 	       "<li><p>This is not the instantiation of a pre-defined "
 	       "tree list component, but the full implementation of such "
@@ -99,43 +98,53 @@ DemoTreeList::DemoTreeList(WContainerWidget *parent)
 	       "</ul></p>"));
 }
 
-void DemoTreeList::addMap()
+void DemoTreeList::addFolder()
 {
   TreeNode *node
-    = makeTreeMap("Map " + boost::lexical_cast<std::string>(++testCount_),
-		  testMap_);
-  makeTreeFile("File " + boost::lexical_cast<std::string>(testCount_),
-	       node);
+    = makeTreeFolder("Folder " + std::to_string(++testCount_), testFolder_);
+  makeTreeFile("File " + std::to_string(testCount_), node);
 
-  removeMapButton_->enable();
+  removeFolderButton_->enable();
 }
 
-void DemoTreeList::removeMap()
+void DemoTreeList::removeFolder()
 {
-  int numMaps = testMap_->childNodes().size();
+  int numFolders = testFolder_->childNodes().size();
 
-  if (numMaps > 0) {
-    int c = rand() % numMaps;
+  if (numFolders > 0) {
+    int c = rand() % numFolders;
 
-    TreeNode *child = testMap_->childNodes()[c];
-    testMap_->removeChildNode(child);
-    delete child;
+    TreeNode *child = testFolder_->childNodes()[c];
+    testFolder_->removeChildNode(child, c);
 
-    if (numMaps == 1)
-      removeMapButton_->disable();
+    if (numFolders == 1)
+      removeFolderButton_->disable();
   }
 }
 
-TreeNode *DemoTreeList::makeTreeMap(const std::string name, TreeNode *parent)
+TreeNode *DemoTreeList::makeTreeFolder(const std::string name, TreeNode *parent)
 {
-  IconPair *labelIcon
-    = new IconPair("icons/yellow-folder-closed.png",
+  auto labelIcon = cpp14::make_unique<IconPair>(
+                   "icons/yellow-folder-closed.png",
 		   "icons/yellow-folder-open.png",
 		   false);
 
-  TreeNode *node = new TreeNode(name, PlainText, labelIcon, 0);
-  if (parent)
-    parent->addChildNode(node);
+  auto node =
+      cpp14::make_unique<TreeNode>(name, TextFormat::Plain, std::move(labelIcon));
+  auto node_ = node.get();
+  parent->addChildNode(std::move(node));
+
+  return node_;
+}
+
+std::unique_ptr<TreeNode> DemoTreeList::makeTreeFolder(const std::string name)
+{
+  auto labelIcon = cpp14::make_unique<IconPair>(
+                   "icons/yellow-folder-closed.png",
+                   "icons/yellow-folder-open.png",
+                   false);
+  auto node =
+      cpp14::make_unique<TreeNode>(name, TextFormat::Plain, std::move(labelIcon));
 
   return node;
 }
@@ -143,21 +152,34 @@ TreeNode *DemoTreeList::makeTreeMap(const std::string name, TreeNode *parent)
 TreeNode *DemoTreeList::makeTreeFile(const std::string name,
 				      TreeNode *parent)
 {
-  IconPair *labelIcon
-    = new IconPair("icons/document.png", "icons/yellow-folder-open.png",
+  auto labelIcon
+    = cpp14::make_unique<IconPair>("icons/document.png", "icons/yellow-folder-open.png",
 		   false);
 
-  TreeNode *node = new TreeNode(name, XHTMLText, labelIcon, 0);
+  auto node = cpp14::make_unique<TreeNode>(name, TextFormat::XHTML, std::move(labelIcon));
+  auto node_ = node.get();
   if (parent)
-    parent->addChildNode(node);
+    parent->addChildNode(std::move(node));
+
+  return node_;
+}
+
+std::unique_ptr<TreeNode> DemoTreeList::makeTreeFile(const std::string name)
+{
+  auto labelIcon
+    = cpp14::make_unique<IconPair>("icons/document.png", "icons/yellow-folder-open.png",
+                   false);
+  auto node =
+      cpp14::make_unique<TreeNode>(name, TextFormat::XHTML, std::move(labelIcon));
 
   return node;
 }
 
-WApplication *createApplication(const WEnvironment& env)
+std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  WApplication *app = new WApplication(env);
-  new DemoTreeList(app->root());
+  auto app
+      = cpp14::make_unique<WApplication>(env);
+  app->root()->addWidget(cpp14::make_unique<DemoTreeList>());
 
   /*
    * The look & feel of the tree node is configured using a CSS style sheet.
@@ -165,7 +187,7 @@ WApplication *createApplication(const WEnvironment& env)
    * class ...
    */
   WCssDecorationStyle treeNodeLabelStyle;
-  treeNodeLabelStyle.font().setFamily(WFont::Serif, "Helvetica");
+  treeNodeLabelStyle.font().setFamily(FontFamily::Serif, "Helvetica");
   app->styleSheet().addRule(".treenodelabel", treeNodeLabelStyle);
 
   /*

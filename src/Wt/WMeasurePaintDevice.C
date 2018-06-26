@@ -4,11 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WMeasurePaintDevice"
-#include "Wt/WFontMetrics"
-#include "Wt/WPainter"
-#include "Wt/WPainterPath"
-#include "Wt/WRectF"
+#include "Wt/WMeasurePaintDevice.h"
+#include "Wt/WFontMetrics.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPainterPath.h"
+#include "Wt/WRectF.h"
 
 #include <algorithm>
 #include <iostream>
@@ -16,11 +16,11 @@
 namespace Wt {
 
 WMeasurePaintDevice::WMeasurePaintDevice(WPaintDevice *paintDevice)
-  : painter_(0),
+  : painter_(nullptr),
     device_(paintDevice)
 { }
 
-WFlags<WPaintDevice::FeatureFlag> WMeasurePaintDevice::features() const
+WFlags<PaintDeviceFeatureFlag> WMeasurePaintDevice::features() const
 {
   return device_->features();
 }
@@ -38,7 +38,7 @@ void WMeasurePaintDevice::done()
 {
   if (painter_ == device_->painter()) {
     device_->done();
-    device_->setPainter(0);
+    device_->setPainter(nullptr);
   } else
     device_->painter()->restore();
 }
@@ -80,7 +80,15 @@ void WMeasurePaintDevice::drawImage(const WRectF& rect,
 
 void WMeasurePaintDevice::drawPath(const WPainterPath& path)
 {
+  if (path.isEmpty())
+    return;
+
   expandBounds(path.controlPointRect());
+}
+
+void WMeasurePaintDevice::drawRect(const WRectF& rect)
+{
+  drawPath(rect.toPath());
 }
 
 void WMeasurePaintDevice::drawLine(double x1, double y1, double x2, double y2)
@@ -106,7 +114,7 @@ void WMeasurePaintDevice::drawText(const WRectF& rect,
 
   for (;;) {
     WTextItem t = measureText(line, rect.width(),
-			      textFlag == TextWordWrap ? true : false);
+			      textFlag == TextFlag::WordWrap ? true : false);
 
     h += fm.height();
     w = std::max(w, t.width());
@@ -124,21 +132,21 @@ void WMeasurePaintDevice::drawText(const WRectF& rect,
   double x, y;
 
   switch (horizontalAlign) {
-  case AlignLeft:
+  case AlignmentFlag::Left:
     x = rect.left(); break;
-  case AlignCenter:
+  case AlignmentFlag::Center:
     x = rect.left() + (rect.width() - w) / 2; break;
-  case AlignRight:
+  case AlignmentFlag::Right:
   default:
     x = rect.right() - w; break;
   }
 
   switch (verticalAlign) {
-  case AlignTop:
+  case AlignmentFlag::Top:
     y = rect.top(); break;
-  case AlignMiddle:
+  case AlignmentFlag::Middle:
     y = rect.top() + (rect.height() - h) / 2; break;
-  case AlignBottom:
+  case AlignmentFlag::Bottom:
   default:
     y = rect.bottom() - h; break;
   }
@@ -157,10 +165,10 @@ WFontMetrics WMeasurePaintDevice::fontMetrics()
   return device_->fontMetrics();
 }
 
-void WMeasurePaintDevice::setChanged(WFlags<ChangeFlag> flags)
+void WMeasurePaintDevice::setChanged(WFlags<PainterChangeFlag> flags)
 {
-  if (device_->painter() != painter_ && (flags & Font))
-	  device_->painter()->setFont(painter_->font());
+  if (device_->painter() != painter_ && (flags.test(PainterChangeFlag::Font)))
+    device_->painter()->setFont(painter_->font());
   device_->setChanged(flags);
 }
 

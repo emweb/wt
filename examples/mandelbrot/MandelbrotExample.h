@@ -8,8 +8,8 @@
 #ifndef MANDELBROT_EXAMPLE_H_
 #define MANDELBROT_EXAMPLE_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WGlobal>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WGlobal.h>
 
 using namespace Wt;
 
@@ -18,7 +18,7 @@ class MandelbrotImage;
 class MandelbrotExample : public WContainerWidget
 {
 public:
-  MandelbrotExample(WContainerWidget *parent = 0);
+  MandelbrotExample();
 
 private:
   MandelbrotImage *mandelbrot_;

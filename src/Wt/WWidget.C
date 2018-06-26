@@ -3,14 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WException"
-#include "Wt/WWidget"
-#include "Wt/WWebWidget"
-#include "Wt/WCompositeWidget"
-#include "Wt/WContainerWidget"
-#include "Wt/WLayout"
-#include "Wt/WJavaScript"
+#include "Wt/WApplication.h"
+#include "Wt/WException.h"
+#include "Wt/WWidget.h"
+#include "Wt/WWebWidget.h"
+#include "Wt/WCompositeWidget.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WLayout.h"
+#include "Wt/WJavaScript.h"
 
 #include "DomElement.h"
 #include "EscapeOStream.h"
@@ -22,8 +22,10 @@ namespace Wt {
 const char *WWidget::WT_RESIZE_JS = "wtResize";
 const char *WWidget::WT_GETPS_JS = "wtGetPS";
 
-WWidget::WWidget(WContainerWidget* parent)
-  : WObject(0)
+LOGGER("WWidget");
+
+WWidget::WWidget()
+  : parent_(nullptr)
 { 
   flags_.set(BIT_NEED_RERENDER);
 }
@@ -31,11 +33,7 @@ WWidget::WWidget(WContainerWidget* parent)
 WWidget::~WWidget()
 {
   while (!eventSignals_.empty()) {
-#ifndef WT_NO_BOOST_INTRUSIVE
-    EventSignalBase *s = &eventSignals_.front();
-#else
     EventSignalBase *s = eventSignals_.front();
-#endif
     eventSignals_.pop_front();
 #ifndef WT_TARGET_JAVA
     delete s;
@@ -47,25 +45,23 @@ WWidget::~WWidget()
   renderOk();
 }
 
-void WWidget::setParentWidget(WWidget *p)
+std::unique_ptr<WWidget> WWidget::removeWidget(WWidget *widget)
 {
-  if (p == parent())
-    return;
-
-  if (parent())
-    parent()->removeChild(this);
-  if (p)
-    p->addChild(this);
+  throw std::logic_error("WWidget::removeWidget() ought not to be called");
 }
 
-void WWidget::removeChild(WObject *child)
+void WWidget::setParentWidget(WWidget *p)
 {
-  WWidget *w = dynamic_cast<WWidget *>(child);
+  parent_ = p;
+}
 
-  if (w)
-    removeChild(w);
+std::unique_ptr<WWidget> WWidget::removeFromParent()
+{
+  WWidget *p = parent();
+  if (p)
+    return p->removeWidget(this);
   else
-    WObject::removeChild(child);
+    return std::unique_ptr<WWidget>();
 }
 
 void WWidget::refresh()
@@ -88,12 +84,12 @@ void WWidget::setWidth(const WLength& width)
 
 void WWidget::setJsSize()
 {
-  if (!height().isAuto() && height().unit() != WLength::Percentage
+  if (!height().isAuto() && height().unit() != LengthUnit::Percentage
       && !javaScriptMember(WT_RESIZE_JS).empty())
     callJavaScriptMember
       (WT_RESIZE_JS, jsRef() + ","
-       + boost::lexical_cast<std::string>(width().toPixels()) + ","
-       + boost::lexical_cast<std::string>(height().toPixels()) + ","
+       + std::to_string(width().toPixels()) + ","
+       + std::to_string(height().toPixels()) + ","
        + "false");
 }
 
@@ -129,17 +125,17 @@ void WWidget::scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags)
     WApplication::instance()->session()->renderer().needUpdate(this, laterOnly);
   }
 
-  if ((flags & RepaintSizeAffected) &&
+  if (flags.test(RepaintFlag::SizeAffected) &&
       !flags_.test(BIT_NEED_RERENDER_SIZE_CHANGE)) {
     flags_.set(BIT_NEED_RERENDER_SIZE_CHANGE);
 
-    webWidget()->parentResized(this, Vertical);
+    webWidget()->parentResized(this, Orientation::Vertical);
 
     /*
      * A size change to an absolutely positioned widget will not affect
      * a layout computation, except if it's itself in a layout!
      */
-    if (positionScheme() == Absolute && !isInLayout())
+    if (positionScheme() == PositionScheme::Absolute && !isInLayout())
       return;
 
     /*
@@ -149,7 +145,7 @@ void WWidget::scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags)
     WWidget *p = parent();
 
     if (p)
-      p->childResized(this, Vertical);
+      p->childResized(this, Orientation::Vertical);
   }
 }
 
@@ -158,7 +154,7 @@ void WWidget::childResized(WWidget *child, WFlags<Orientation> directions)
   /*
    * Stop propagation at an absolutely positioned widget
    */
-  if (positionScheme() == Absolute && !isInLayout())
+  if (positionScheme() == PositionScheme::Absolute && !isInLayout())
     return;
 
   WWidget *p = parent();
@@ -374,7 +370,7 @@ DomElement *WWidget::createSDomElement(WApplication *app)
     return result;
   } else {
     webWidget()->setRendered(true);
-    render(RenderFull);
+    render(RenderFlag::Full);
     return webWidget()->createActualElement(this, app);
   }
 }
@@ -395,45 +391,21 @@ std::string WWidget::createJavaScript(WStringStream& js,
   return var;
 }
 
-void WWidget::setLayout(WLayout *layout)
-{
-  layout->setParentWidget(this);
-}
-
-WLayout *WWidget::layout()
-{
-  return 0;
-}
-
-WLayoutItemImpl *WWidget::createLayoutItemImpl(WLayoutItem *item)
-{
-  throw WException("WWidget::setLayout(): widget does not support "
-		   "layout managers");
-}
-
 void WWidget::addEventSignal(EventSignalBase& s)
 {
-#ifndef WT_NO_BOOST_INTRUSIVE
-  eventSignals_.push_back(s);
-#else
   eventSignals_.push_back(&s);
-#endif
 }
 
 EventSignalBase *WWidget::getEventSignal(const char *name)
 {
   for (EventSignalList::iterator i = eventSignals_.begin();
        i != eventSignals_.end(); ++i) {
-#ifndef WT_NO_BOOST_INTRUSIVE
-    EventSignalBase& s = *i;
-#else
     EventSignalBase& s = **i;
-#endif
     if (s.name() == name)
       return &s;
   }
 
-  return 0;
+  return nullptr;
 }
 
 int WWidget::boxPadding(Orientation orientation) const
@@ -451,7 +423,8 @@ void WWidget::positionAt(const WWidget *widget, Orientation orientation)
   if (isHidden())
     show();
 
-  std::string side = (orientation == Horizontal ? ".Horizontal" : ".Vertical");
+  std::string side = (orientation == Orientation::Horizontal 
+		      ? ".Horizontal" : ".Vertical");
 
   doJavaScript(WT_CLASS ".positionAtWidget('"
 	       + id() + "','"
@@ -494,14 +467,14 @@ void WWidget::layoutSizeChanged(int width, int height)
 bool WWidget::isInLayout() const
 {
   WWidget *p = parent();
-  if (p != 0 &&
-      (dynamic_cast<WCompositeWidget *>(p) != 0 ||
+  if (p != nullptr &&
+      (dynamic_cast<WCompositeWidget *>(p) != nullptr ||
        !p->javaScriptMember(WT_RESIZE_JS).empty()))
     return p->isInLayout();
 
   WContainerWidget *c = dynamic_cast<WContainerWidget *>(p);
 
-  return c != 0 && c->layout() != 0;
+  return c != nullptr && c->layout() != nullptr;
 }
 
 void WWidget::setTabOrder(WWidget *first, WWidget *second)
@@ -509,19 +482,9 @@ void WWidget::setTabOrder(WWidget *first, WWidget *second)
   second->setTabIndex(first->tabIndex() + 1);
 }
 
-void WWidget::setHasParent(bool hasParent)
-{
-  flags_.set(BIT_HAS_PARENT, hasParent);
-
-  setParent(parent()); // since hasParent() has changed
-}
-
 bool WWidget::hasParent() const
 {
-  if (flags_.test(BIT_HAS_PARENT))
-    return true;
-  else
-    return WObject::hasParent();
+  return parent_;
 }
 
 bool WWidget::isExposed(WWidget *w)
@@ -541,25 +504,10 @@ WCssTextRule *WWidget::addCssRule(const std::string& selector,
 				  const std::string& ruleName)
 {
   WApplication *app = WApplication::instance();
-  WCssTextRule *result = new WCssTextRule(selector, declarations, this);
-  app->styleSheet().addRule(result, ruleName);
+  std::unique_ptr<WCssTextRule> rule(new WCssTextRule(selector, declarations));
+  WCssTextRule *result = rule.get();
+  app->styleSheet().addRule(std::move(rule), ruleName);
   return result;
-}
-
-void WWidget::setObjectName(const std::string& name)
-{
-  WApplication *app = WApplication::instance();
-  for (std::size_t i = 0; i < jsignals_.size(); ++i) {
-    EventSignalBase *signal = jsignals_[i];
-    if(signal->isExposedSignal())
-      app->removeExposedSignal(signal);
-  }
-  WObject::setObjectName(name);
-  for (std::size_t i = 0; i < jsignals_.size(); ++i) {
-    EventSignalBase *signal = jsignals_[i];
-    if(signal->isExposedSignal())
-      app->addExposedSignal(signal);
-  }
 }
 
 void WWidget::addJSignal(EventSignalBase* signal) 

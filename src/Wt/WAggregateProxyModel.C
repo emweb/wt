@@ -5,8 +5,8 @@
  */
 #include <iostream>
 
-#include "Wt/WAggregateProxyModel"
-#include "Wt/WException"
+#include "Wt/WAggregateProxyModel.h"
+#include "Wt/WException.h"
 
 namespace {
   bool contains2(int a1, int a2, int b1, int b2) {
@@ -97,7 +97,7 @@ WAggregateProxyModel::Aggregate::findAggregate(int parentColumn)
   if (parentSrc_ == parentColumn)
     return this;
   else if (parentSrc_ != -1 && parentColumn > lastChildSrc_)
-    return 0;
+    return nullptr;
   else {
     for (unsigned int i = 0; i < nestedAggregates_.size(); ++i) {
       Aggregate& a = nestedAggregates_[i];
@@ -108,7 +108,7 @@ WAggregateProxyModel::Aggregate::findAggregate(int parentColumn)
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 const WAggregateProxyModel::Aggregate *
@@ -249,23 +249,21 @@ int WAggregateProxyModel::Aggregate::lastVisibleNotAfter(int column) const
   }
 }
 
-WAggregateProxyModel::WAggregateProxyModel(WObject *parent)
-  : WAbstractProxyModel(parent),
-    topLevel_()
+WAggregateProxyModel::WAggregateProxyModel()
+  : topLevel_()
 { }
 
 WAggregateProxyModel::~WAggregateProxyModel()
 { }
 
-void WAggregateProxyModel::setSourceModel(WAbstractItemModel *model)
+void WAggregateProxyModel
+::setSourceModel(const std::shared_ptr<WAbstractItemModel>& model)
 {
-  if (sourceModel()) {
-    for (unsigned i = 0; i < modelConnections_.size(); ++i)
-      modelConnections_[i].disconnect();
-    modelConnections_.clear();
-  }
+  for (unsigned i = 0; i < modelConnections_.size(); ++i)
+    modelConnections_[i].disconnect();
+  modelConnections_.clear();
 
-  WAbstractProxyModel::setSourceModel(model);
+  WAbstractProxyModel::setSourceModel(std::move(model));
 
   modelConnections_.push_back(sourceModel()->columnsAboutToBeInserted().connect
      (this, &WAggregateProxyModel::sourceColumnsAboutToBeInserted));
@@ -296,6 +294,9 @@ void WAggregateProxyModel::setSourceModel(WAbstractItemModel *model)
      (this, &WAggregateProxyModel::sourceLayoutAboutToBeChanged));
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
      (this, &WAggregateProxyModel::sourceLayoutChanged));
+
+  modelConnections_.push_back(sourceModel()->modelReset().connect
+     (this, &WAggregateProxyModel::sourceModelReset));
 
   topLevel_ = Aggregate();
 }
@@ -447,9 +448,8 @@ WModelIndex WAggregateProxyModel::index(int row, int column,
     = sourceModel()->index(sourceRow, sourceColumn, sourceParent);
 
   return createIndex(row, column,
-		     sourceIndex.isValid() ? 
-		     sourceIndex.internalPointer() : 
-		     (void *)0);
+		     sourceIndex.isValid() ? sourceIndex.internalPointer() : 
+		     nullptr);
 }
 
 WModelIndex WAggregateProxyModel::parent(const WModelIndex& index) const
@@ -480,15 +480,14 @@ void WAggregateProxyModel::sort(int column, Wt::SortOrder order)
   sourceModel()->sort(topLevel_.mapToSource(column), order);
 }
 
-boost::any WAggregateProxyModel::headerData(int section,
-					    Orientation orientation, int role)
-  const
+cpp17::any WAggregateProxyModel::headerData(int section,
+                                     Orientation orientation, ItemDataRole role) const
 {
-  if (orientation == Horizontal) {
+  if (orientation == Orientation::Horizontal) {
     section = topLevel_.mapToSource(section);
-    if (role == LevelRole) {
+    if (role == ItemDataRole::Level) {
       const Aggregate *agg = topLevel_.findEnclosingAggregate(section);
-      return boost::any(agg->level_);
+      return cpp17::any(agg->level_);
     } else
       return sourceModel()->headerData(section, orientation, role);
   } else
@@ -496,9 +495,9 @@ boost::any WAggregateProxyModel::headerData(int section,
 }
 
 bool WAggregateProxyModel::setHeaderData(int section, Orientation orientation,
-					 const boost::any& value, int role)
+                                         const cpp17::any& value, ItemDataRole role)
 {
-  if (orientation == Horizontal)
+  if (orientation == Orientation::Horizontal)
     section = topLevel_.mapToSource(section);
 
   return sourceModel()->setHeaderData(section, orientation, value, role);
@@ -508,7 +507,7 @@ WFlags<HeaderFlag> WAggregateProxyModel::headerFlags(int section,
 						     Orientation orientation)
   const
 {
-  if (orientation == Horizontal) {
+  if (orientation == Orientation::Horizontal) {
     int srcColumn = topLevel_.mapToSource(section);
 
     WFlags<HeaderFlag> result
@@ -517,12 +516,12 @@ WFlags<HeaderFlag> WAggregateProxyModel::headerFlags(int section,
     const Aggregate *agg = topLevel_.findAggregate(srcColumn);
     if (agg) {
       if (agg->collapsed_)
-	return result | ColumnIsCollapsed;
+	return result | HeaderFlag::ColumnIsCollapsed;
       else
 	if (agg->parentSrc_ == agg->lastChildSrc_ + 1)
-	  return result | ColumnIsExpandedLeft;
+	  return result | HeaderFlag::ColumnIsExpandedLeft;
 	else // agg->parentSrc_ == firstChildSrc_ - 1
-	  return result | ColumnIsExpandedRight;
+	  return result | HeaderFlag::ColumnIsExpandedRight;
     } else
       return result;
   } else
@@ -623,7 +622,7 @@ void WAggregateProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 void WAggregateProxyModel::sourceHeaderDataChanged(Orientation orientation, 
 						   int start, int end)
 {
-  if (orientation == Vertical) {
+  if (orientation == Orientation::Vertical) {
     headerDataChanged().emit(orientation, start, end);
   } else {
     int l = firstVisibleSourceNotBefore(start);
@@ -646,6 +645,12 @@ void WAggregateProxyModel::sourceLayoutAboutToBeChanged()
 void WAggregateProxyModel::sourceLayoutChanged()
 {
   layoutChanged().emit();
+}
+
+void WAggregateProxyModel::sourceModelReset()
+{
+  topLevel_ = Aggregate();
+  reset();
 }
 
 }

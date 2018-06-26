@@ -7,17 +7,17 @@
 #ifndef TIME_SUGGESTIONS_H_
 #define TIME_SUGGESTIONS_H_
 
-#include <Wt/WSuggestionPopup>
+#include <Wt/WSuggestionPopup.h>
 
-#include <string>
+using namespace Wt;
 
-class TimeSuggestions : public Wt::WSuggestionPopup
+class TimeSuggestions : public WSuggestionPopup
 {
  public:
-  TimeSuggestions(Wt::WContainerWidget *parent = 0);
+  TimeSuggestions();
   
  private:
-  void addSuggestion(const Wt::WString& suggestion);
+  void addSuggestion(const WString& suggestion);
 };
 
 #endif //TIME_SUGGESTIONS_H_

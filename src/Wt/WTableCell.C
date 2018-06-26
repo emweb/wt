@@ -3,35 +3,21 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
-
-#include "Wt/WTableCell"
-#include "Wt/WTable"
+#include "Wt/WTableCell.h"
+#include "Wt/WTable.h"
 #include "DomElement.h"
 
 namespace Wt {
 
 WTableCell::WTableCell()
-  : WContainerWidget(0),
-    row_(0),
+  : row_(nullptr),
     column_(0),
     rowSpan_(1),
     columnSpan_(1),
-    spanChanged_(false)
+    spanChanged_(false),
+    overSpanned_(false)
 {
-  contentAlignment_ = AlignLeft | AlignTop;
-}
-
-WTableCell::WTableCell(WTableRow *row, int column)
-  : WContainerWidget(0),
-    row_(row),
-    column_(column),
-    rowSpan_(1),
-    columnSpan_(1),
-    spanChanged_(false)
-{
-  contentAlignment_ = AlignLeft | AlignTop;
-  setParentWidget(row->table());
+  contentAlignment_ = AlignmentFlag::Left | AlignmentFlag::Top;
 }
 
 int WTableCell::row() const
@@ -62,7 +48,7 @@ void WTableCell::setRowSpan(int rowSpan)
     spanChanged_ = true;
     
     table()->flags_.set(WTable::BIT_GRID_CHANGED);
-    table()->repaint(RepaintSizeAffected);
+    table()->repaint(RepaintFlag::SizeAffected);
   }
 }
 
@@ -74,32 +60,30 @@ void WTableCell::setColumnSpan(int colSpan)
     spanChanged_ = true;
     
     table()->flags_.set(WTable::BIT_GRID_CHANGED);
-    table()->repaint(RepaintSizeAffected);
+    table()->repaint(RepaintFlag::SizeAffected);
   }
 }
 
 DomElementType WTableCell::domElementType() const
 {
-  if (column_ < table()->headerCount(Vertical)
-      || row() < table()->headerCount(Horizontal))
-    return DomElement_TH;
+  if (column_ < table()->headerCount(Orientation::Vertical)
+      || row() < table()->headerCount(Orientation::Horizontal))
+    return DomElementType::TH;
   else
-    return DomElement_TD;
+    return DomElementType::TD;
 }
 
 void WTableCell::updateDom(DomElement& element, bool all)
 {
   if ((all && rowSpan_ != 1) || spanChanged_)
-    element.setProperty(PropertyRowSpan,
-			boost::lexical_cast<std::string>(rowSpan_));
+    element.setProperty(Property::RowSpan, std::to_string(rowSpan_));
 
   if ((all && columnSpan_ != 1) || spanChanged_)
-    element.setProperty(PropertyColSpan,
-			boost::lexical_cast<std::string>(columnSpan_));
+    element.setProperty(Property::ColSpan, std::to_string(columnSpan_));
 
-  if (row() < table()->headerCount(Horizontal))
+  if (row() < table()->headerCount(Orientation::Horizontal))
     element.setAttribute("scope", "col");
-  else if (column_ < table()->headerCount(Vertical))
+  else if (column_ < table()->headerCount(Orientation::Vertical))
     element.setAttribute("scope", "row");
 
   spanChanged_ = false;

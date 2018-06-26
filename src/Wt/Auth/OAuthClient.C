@@ -1,8 +1,14 @@
-#include "OAuthClient"
+/*
+ * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include "OAuthClient.h"
+
 #include <string>
 #include <set>
 
-#include "Wt/WException"
+#include "Wt/WException.h"
 
 namespace {
   const char *INVALID_ERROR = "Wt::Auth::OAuthClient invalid";
@@ -43,7 +49,7 @@ std::string OAuthClient::clientId() const
 bool OAuthClient::verifySecret(const std::string &secret) const
 {
   if (db_)
-    return db_->idpVerifySecret(*this,secret);
+    return db_->idpVerifySecret(*this, secret);
   else
     throw WException(INVALID_ERROR);
 }

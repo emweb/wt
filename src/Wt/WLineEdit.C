@@ -3,15 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
 #include <ctype.h>
 
-#include "Wt/WLineEdit"
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
-#include "Wt/WStringUtil"
-#include "Wt/WTheme"
-#include "Wt/WLogger"
+#include "Wt/WLineEdit.h"
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WStringUtil.h"
+#include "Wt/WTheme.h"
+#include "Wt/WLogger.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -20,21 +19,16 @@
 #include "js/WLineEdit.min.js"
 #endif
 
-#ifdef WT_TARGET_JAVA
-#define WT_NO_STD_WSTRING
-#endif
-
 namespace Wt {
 
 LOGGER("WLineEdit");
 
 const char *WLineEdit::INPUT_SIGNAL = "input";
 
-WLineEdit::WLineEdit(WContainerWidget *parent)
-  : WFormWidget(parent),
-    textSize_(10),
+WLineEdit::WLineEdit()
+  : textSize_(10),
     maxLength_(-1),
-    echoMode_(Normal),
+    echoMode_(EchoMode::Normal),
     autoComplete_(true),
     maskChanged_(false),
     spaceChar_(' '),
@@ -44,18 +38,9 @@ WLineEdit::WLineEdit(WContainerWidget *parent)
   setFormObject(true);
 }
 
-WLineEdit::WLineEdit(const WT_USTRING& text, WContainerWidget *parent)
-  : WFormWidget(parent),
-    textSize_(10),
-    maxLength_(-1),
-    echoMode_(Normal),
-    autoComplete_(true),
-    maskChanged_(false),
-    spaceChar_(' '),
-    javaScriptDefined_(false)
+WLineEdit::WLineEdit(const WT_USTRING& text)
+  : WLineEdit()
 {
-  setInline(true);
-  setFormObject(true);
   setText(text);
 }
 
@@ -84,14 +69,10 @@ void WLineEdit::setText(const WT_USTRING& text)
 
 WT_USTRING WLineEdit::displayText() const
 {
-  if (echoMode_ == Normal) {
+  if (echoMode_ == EchoMode::Normal) {
     return displayContent_;
   } else { // echoMode_ == Password
-#ifndef WT_NO_STD_WSTRING
-    std::wstring text = displayContent_;
-#else
-    std::string text = displayContent_.toUTF8();
-#endif
+    std::u32string text = displayContent_;
 #ifndef WT_TARGET_JAVA
     return WT_USTRING::fromUTF8(std::string(text.length(),'*'));
 #else
@@ -109,7 +90,7 @@ void WLineEdit::setTextSize(int chars)
   if (textSize_ != chars) {
     textSize_ = chars;
     flags_.set(BIT_TEXT_SIZE_CHANGED);
-    repaint(RepaintSizeAffected);
+    repaint(RepaintFlag::SizeAffected);
   }
 }
 
@@ -144,15 +125,17 @@ void WLineEdit::updateDom(DomElement& element, bool all)
 {
   if (all || flags_.test(BIT_CONTENT_CHANGED)) {
     WT_USTRING t = content_;
-    if (!mask_.empty() && (inputMaskFlags_ & KeepMaskWhileBlurred))
+    if (!mask_.empty() && (inputMaskFlags_.test(
+			   InputMaskFlag::KeepMaskWhileBlurred)))
       t = displayContent_;
     if (!all || !t.empty())
-      element.setProperty(Wt::PropertyValue, t.toUTF8());
+      element.setProperty(Wt::Property::Value, t.toUTF8());
     flags_.reset(BIT_CONTENT_CHANGED);
   }
 
   if (all || flags_.test(BIT_ECHO_MODE_CHANGED)) {
-    element.setAttribute("type", echoMode_ == Normal ? "text" : "password");
+    element.setAttribute("type", echoMode_ == EchoMode::Normal 
+			 ? "text" : "password");
     flags_.reset(BIT_ECHO_MODE_CHANGED);
   }
 
@@ -165,15 +148,13 @@ void WLineEdit::updateDom(DomElement& element, bool all)
   }
 
   if (all || flags_.test(BIT_TEXT_SIZE_CHANGED)) {
-    element.setAttribute("size",
-			 boost::lexical_cast<std::string>(textSize_));
+    element.setAttribute("size", std::to_string(textSize_));
     flags_.reset(BIT_TEXT_SIZE_CHANGED);
   }
 
   if (all || flags_.test(BIT_MAX_LENGTH_CHANGED)) {
     if (!all || maxLength_ > 0)
-      element.setAttribute("maxLength",
-			   boost::lexical_cast<std::string>(maxLength_));
+      element.setAttribute("maxLength", std::to_string(maxLength_));
 
     flags_.reset(BIT_MAX_LENGTH_CHANGED);
   }
@@ -205,7 +186,7 @@ void WLineEdit::propagateRenderOk(bool deep)
 
 DomElementType WLineEdit::domElementType() const
 {
-  return DomElement_INPUT;
+  return DomElementType::INPUT;
 }
 
 void WLineEdit::setFormData(const FormData& formData)
@@ -239,7 +220,7 @@ int WLineEdit::boxPadding(Orientation orientation) const
 
   if (env.agentIsIE() || env.agentIsOpera())
     return 1;
-  else if (env.agent() == WEnvironment::Arora)
+  else if (env.agent() == UserAgent::Arora)
     return 0;
   else if (env.userAgent().find("Mac OS X") != std::string::npos)
     return 1;
@@ -257,7 +238,7 @@ int WLineEdit::boxBorder(Orientation orientation) const
   if (env.userAgent().find("Mac OS X") != std::string::npos
       && env.agentIsGecko())
     return 3;
-  else if (env.agent() == WEnvironment::Arora)
+  else if (env.agent() == UserAgent::Arora)
     return 0;
   else
     return 2;
@@ -300,8 +281,8 @@ bool WLineEdit::hasSelectedText() const
   
 void WLineEdit::setSelection(int start, int length)
 {
-  std::string s = boost::lexical_cast<std::string>(start);
-  std::string e = boost::lexical_cast<std::string>(start + length);
+  std::string s = std::to_string(start);
+  std::string e = std::to_string(start + length);
   doJavaScript(WT_CLASS".setUnicodeSelectionRange(" + jsRef() + "," + s + "," + e + ")" );
 }
 
@@ -326,11 +307,7 @@ void WLineEdit::setInputMask(const WT_USTRING &mask,
   inputMaskFlags_ = flags;
 
   if (inputMask_ != mask) {
-#ifndef WT_NO_STD_WSTRING
     inputMask_ = mask;
-#else
-    inputMask_ = mask.toUTF8();
-#endif
     mask_.clear();
     raw_.clear();
     case_.clear();
@@ -343,11 +320,7 @@ void WLineEdit::setInputMask(const WT_USTRING &mask,
     }
 
     if (isRendered() && javaScriptDefined_) {
-#ifndef WT_NO_STD_WSTRING
-      std::wstring space;
-#else
-      std::string space;
-#endif
+      std::u32string space;
       space += spaceChar_;
 
       doJavaScript("jQuery.data(" + jsRef() + ", 'lobj')"
@@ -373,11 +346,7 @@ void WLineEdit::render(WFlags<RenderFlag> flags)
 WT_USTRING WLineEdit::removeSpaces(const WT_USTRING& text) const
 {
   if (!raw_.empty() && !text.empty()) {
-#ifndef WT_NO_STD_WSTRING
-    std::wstring result = text;
-#else
-    std::string result = text.toUTF8();
-#endif
+    std::u32string result = text;
     std::size_t i = 0;
     for (std::size_t j = 0; j < raw_.length(); ++i, ++j) {
       while (j < raw_.length() &&
@@ -406,15 +375,9 @@ WT_USTRING WLineEdit::removeSpaces(const WT_USTRING& text) const
 WT_USTRING WLineEdit::inputText(const WT_USTRING& text) const
 {
   if (!raw_.empty() && !text.empty()) {
-#ifndef WT_NO_STD_WSTRING
-    std::wstring newText = text;
-    std::wstring result = raw_;
-    wchar_t chr;
-#else
-    std::string newText = text.toUTF8();
-    std::string result = raw_;
-    char chr;
-#endif
+    std::u32string newText = text;
+    std::u32string result = raw_;
+    char32_t chr;
     bool hadIgnoredChar = false;
     std::size_t j = 0, i = 0;
 
@@ -463,20 +426,11 @@ void WLineEdit::processInputMask() {
 
   char mode = '!';
   for (std::size_t i = 0; i < inputMask_.length(); ++i) {
-#ifndef WT_NO_STD_WSTRING
-    wchar_t currentChar = inputMask_[i];
-#else
-    char currentChar = inputMask_[i];
-#endif
+    char32_t currentChar = inputMask_[i];
     if (currentChar == '>' || currentChar == '<' || currentChar == '!') {
       mode = static_cast<char>(currentChar);
-#ifndef WT_NO_STD_WSTRING
-    } else if (std::wstring(L"AaNnXx90Dd#HhBb").find(currentChar) 
+    } else if (std::u32string(U"AaNnXx90Dd#HhBb").find(currentChar) 
 	       != std::wstring::npos) {
-#else
-    } else if (std::string("AaNnXx90Dd#HhBb").find(currentChar)
-	       != std::string::npos) {
-#endif
       mask_ += static_cast<char>(currentChar);
       raw_ += spaceChar_;
       case_ += mode;
@@ -492,11 +446,7 @@ void WLineEdit::processInputMask() {
 
 // Check whether the given character can be placed at the given
 // position, according to the input mask.
-#ifndef WT_NO_STD_WSTRING
-bool WLineEdit::acceptChar(wchar_t chr, std::size_t position) const {
-#else
-bool WLineEdit::acceptChar(char chr, std::size_t position) const {
-#endif
+bool WLineEdit::acceptChar(char32_t chr, std::size_t position) const {
   if (position >= mask_.length()) {
     return false;
   }
@@ -549,11 +499,7 @@ void WLineEdit::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WLineEdit.js", "WLineEdit", wtjs1);
 
-#ifndef WT_NO_STD_WSTRING
-  std::wstring space;
-#else
-  std::string space;
-#endif
+  std::u32string space;
   space += spaceChar_;
   std::string jsObj = "new " WT_CLASS ".WLineEdit("
     + app->javaScriptClass() + "," + jsRef() + "," +
@@ -562,7 +508,8 @@ void WLineEdit::defineJavaScript()
       WWebWidget::jsStringLiteral(displayContent_) +  "," +
       WWebWidget::jsStringLiteral(case_) + "," +
       WWebWidget::jsStringLiteral(space) + "," +
-      (inputMaskFlags_ & KeepMaskWhileBlurred ? "0x1" : "0x0") + ");";
+    (inputMaskFlags_.test(InputMaskFlag::KeepMaskWhileBlurred) ? "0x1" : "0x0")
+    + ");";
 
   setJavaScriptMember(" WLineEdit", jsObj);
 
@@ -590,10 +537,10 @@ void WLineEdit::connectJavaScript(Wt::EventSignalBase& s,
   s.connect(jsFunction);
 }
 
-WValidator::State WLineEdit::validate()
+ValidationState WLineEdit::validate()
 {
   if (!inputMask_.empty() && !validateInputMask())
-    return WValidator::Invalid;
+    return ValidationState::Invalid;
   else
     return WFormWidget::validate();
 }
@@ -605,11 +552,7 @@ const std::string WLineEdit::SKIPPABLE_MASK_CHARS = "anx0d#hb";
 // the input string once, going through all of the possible
 // states in parallel, using the positions and nextPositions vector.
 bool WLineEdit::validateInputMask() const {
-#ifndef WT_NO_STD_WSTRING
-  std::wstring toCheck = content_;
-#else
-  std::string toCheck = content_.toUTF8();
-#endif
+  std::u32string toCheck = content_;
   if (toCheck.empty()) {
     toCheck = raw_;
   }

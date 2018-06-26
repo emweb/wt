@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class Session;
 class WordWidget;
@@ -20,26 +20,26 @@ class LettersWidget;
 class HangmanWidget: public Wt::WContainerWidget
 {
 public:
-  HangmanWidget(const std::string &name, Wt::WContainerWidget *parent = 0);
+  HangmanWidget(const std::string &name);
 
   Wt::Signal<int>& scoreUpdated() { return scoreUpdated_; }
   
 private:
-  Wt::WText                     *title_;
+  Wt::WText                 *title_;
 
-  WordWidget                    *word_;
-  ImagesWidget                  *images_;
-  LettersWidget                 *letters_;
+  WordWidget                *word_;
+  ImagesWidget              *images_;
+  LettersWidget             *letters_;
 
-  Wt::WText                     *statusText_;
-  Wt::WComboBox                 *language_;
-  Wt::WPushButton               *newGameButton_;
-  
-  Wt::Signal<int>                scoreUpdated_;
+  Wt::WText                 *statusText_;
+  Wt::WComboBox             *language_;
+  Wt::WPushButton           *newGameButton_;
 
-  std::string                    name_;
+  Wt::Signal<int>            scoreUpdated_;
 
-  int                            badGuesses_;
+  std::string                name_;
+
+  int                        badGuesses_;
   
   void registerGuess(char c);
 

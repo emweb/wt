@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/Http/Response>
-#include <Wt/Utils>
+#include <Wt/Http/Response.h>
+#include <Wt/Utils.h>
 
 #include "BlogRSSFeed.h"
 
@@ -29,10 +29,12 @@ BlogRSSFeed::BlogRSSFeed(dbo::SqlConnectionPool& connectionPool,
 { }
 
 BlogRSSFeed::~BlogRSSFeed()
-{ }
+{
+  beingDeleted();
+}
 
 void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
-				Wt::Http::Response &response)
+                                Wt::Http::Response &response)
 {
   BlogSession session(connectionPool_);
 

@@ -13,16 +13,15 @@ WT_DECLARE_WT_MEMBER
 
    var self = this;
 
-   this.imagePreloader = null;
+   this.imagePreloaders = [];
    this.images = [];
    this.canvas = document.getElementById('c' + widget.id);
    this.repaint = function() {};
    this.widget = widget;
-   this.cancelPreloader = function() {
-      var preloader = self.imagePreloader;
-      if (preloader)
-	 preloader.cancel();
-      self.imagePreloader = null;
+   this.cancelPreloaders = function() {
+      for (var i = 0; i < self.imagePreloaders.length; ++i)
+	 self.imagePreloaders[i].cancel();
+      self.imagePreloaders = [];
    };
  });
 
@@ -65,8 +64,8 @@ WT_DECLARE_WT_MEMBER
 	       // WPointF
 	       var x = t2[0], y = t2[1];
 	       return [
-	         t1[M11] * x + t1[M12] * y + t1[M13],
-	         t1[M21] * x + t1[M22] * y + t1[M23]
+	         t1[M11] * x + t1[M21] * y + t1[M13],
+	         t1[M12] * x + t1[M22] * y + t1[M23]
 	       ];
 	    }
 	    if (t2.length === 3) {
@@ -76,8 +75,8 @@ WT_DECLARE_WT_MEMBER
 	       // WPainterPath component
 	       var x = t2[0], y = t2[1];
 	       return [
-	         t1[M11] * x + t1[M12] * y + t1[M13],
-	         t1[M21] * x + t1[M22] * y + t1[M23],
+	         t1[M11] * x + t1[M21] * y + t1[M13],
+	         t1[M12] * x + t1[M22] * y + t1[M23],
 		 t2[2]
 	       ];
 	    }
@@ -106,12 +105,12 @@ WT_DECLARE_WT_MEMBER
 	    if (t2.length === 6) {
 	       // WTransform
 	       return [
-		  t1[M11] * t2[M11] + t1[M12] * t2[M21],
-		  t1[M11] * t2[M12] + t1[M12] * t2[M22],
-		  t1[M21] * t2[M11] + t1[M22] * t2[M21],
-		  t1[M21] * t2[M12] + t1[M22] * t2[M22],
-		  t1[M11] * t2[M13] + t1[M12] * t2[M23] + t1[M13],
-		  t1[M21] * t2[M13] + t1[M22] * t2[M23] + t1[M23]
+		  t1[M11] * t2[M11] + t1[M21] * t2[M12],
+		  t1[M12] * t2[M11] + t1[M22] * t2[M12],
+		  t1[M11] * t2[M21] + t1[M21] * t2[M22],
+		  t1[M12] * t2[M21] + t1[M22] * t2[M22],
+		  t1[M11] * t2[M13] + t1[M21] * t2[M23] + t1[M13],
+		  t1[M12] * t2[M13] + t1[M22] * t2[M23] + t1[M23]
 	       ];
 	    }
 	    return [];
@@ -223,6 +222,21 @@ WT_DECLARE_WT_MEMBER
 	    }
 	    return res;
 	 };
+         this.rect_intersection = function(rect1, rect2) {
+           rect1 = self.rect_normalized(rect1);
+           rect2 = self.rect_normalized(rect2);
+           var t = self.rect_top;
+           var b = self.rect_bottom;
+           var l = self.rect_left;
+           var r = self.rect_right;
+           var left = Math.max(l(rect1), l(rect2));
+           var right = Math.min(r(rect1), r(rect2));
+           var top = Math.max(t(rect1), t(rect2));
+           var bottom = Math.min(b(rect1), b(rect2));
+           var width = right - left;
+           var height = bottom - top;
+           return [left, top, width, height];
+         };
 	 this.drawRect = function(ctx, rect, fill, stroke) {
 	    rect = self.rect_normalized(rect);
 	    var t = self.rect_top(rect),
@@ -238,6 +252,7 @@ WT_DECLARE_WT_MEMBER
 	 };
 	 this.drawPath = function(ctx, path, fill, stroke, clip) {
 	    var i = 0, bezier = [], arc = [], quad = [];
+            /*const*/ var THRESHOLD = 0x100000;
 	    function x(segment) { return segment[0]; }
 	    function y(segment) { return segment[1]; }
 	    function type(segment) { return segment[2]; }
@@ -250,10 +265,146 @@ WT_DECLARE_WT_MEMBER
 
 	       switch (type(s)) {
 	       case MOVE_TO:
-		  ctx.moveTo(x(s), y(s));
+                  if (Math.abs(x(s)) <= THRESHOLD &&
+                      Math.abs(y(s)) <= THRESHOLD) {
+		    ctx.moveTo(x(s), y(s));
+                  }
 		  break;
 	       case LINE_TO:
-		  ctx.lineTo(x(s), y(s));
+                  (function(){
+                    var pos = i === 0 ? [0, 0] : path[i-1];
+                    var MARGIN = 50;
+                    if (!fill && !clip && stroke &&
+                        (Math.abs(x(pos)) > THRESHOLD ||
+                         Math.abs(y(pos)) > THRESHOLD ||
+                         Math.abs(x(s)) > THRESHOLD ||
+                         Math.abs(y(s)) > THRESHOLD)) {
+                      (function() {
+                        var t = ctx.wtTransform ? ctx.wtTransform : [1,0,0,1,0,0];
+                        var t_inv = self.transform_inverted(t);
+                        var t_pos = self.transform_mult(t, pos);
+                        var t_s = self.transform_mult(t, s);
+                        var dx = x(t_s) - x(t_pos);
+                        var dy = y(t_s) - y(t_pos);
+                        var w = ctx.canvas.width;
+                        var h = ctx.canvas.height;
+                        var left = -MARGIN;
+                        var right = w + MARGIN;
+                        var top = -MARGIN;
+                        var bottom = h + MARGIN;
+                        
+                        // TODO(Roel): maybe refactor?
+
+                        // Find where start + k * diff = test
+                        function find_k(start, diff, test) {
+                          return (test - start) / diff;
+                        }
+                        function calc_other(start, diff, k) {
+                          return start + k * diff;
+                        }
+
+                        var k;
+                        var p1 = null, p2 = null, p3 = null, p4 = null;
+                        var pstart, pend;
+                        if (x(t_pos) < left &&
+                            x(t_s) > left) {
+                          k = find_k(x(t_pos), dx, left);
+                          p1 = [left, calc_other(y(t_pos), dy, k), k];
+                        } else if (x(t_pos) > right &&
+                                   x(t_s) < right) {
+                          k = find_k(x(t_pos), dx, right);
+                          p1 = [right, calc_other(y(t_pos), dy, k), k];
+                        } else if (x(t_pos) > left &&
+                                   x(t_pos) < right) {
+                          p1 = [x(t_pos), y(t_pos), 0];
+                        } else {
+                          return;
+                        }
+
+                        if (y(t_pos) < top &&
+                            y(t_s) > top) {
+                          k = find_k(y(t_pos), dy, top);
+                          p2 = [calc_other(x(t_pos), dx, k), top, k];
+                        } else if (y(t_pos) > bottom &&
+                                   y(t_s) < bottom) {
+                          k = find_k(y(t_pos), dy, bottom);
+                          p2 = [calc_other(x(t_pos), dx, k), bottom, k];
+                        } else if (y(t_pos) > top &&
+                                   y(t_pos) < bottom) {
+                          p2 = [x(t_pos), y(t_pos), 0];
+                        } else {
+                          return;
+                        }
+
+                        if (p1[2] > p2[2]) {
+                          pstart = [p1[0], p1[1]];
+                        } else {
+                          pstart = [p2[0], p2[1]];
+                        }
+
+                        if (x(pstart) < left ||
+                            x(pstart) > right ||
+                            y(pstart) < top ||
+                            y(pstart) > bottom)
+                          return;
+
+                        if (x(t_pos) < right &&
+                            x(t_s) > right) {
+                          k = find_k(x(t_pos), dx, right);
+                          p3 = [right, calc_other(y(t_pos), dy, k), k];
+                        } else if (x(t_pos) > left &&
+                                   x(t_s) < left) {
+                          k = find_k(x(t_pos), dx, left);
+                          p3 = [left, calc_other(y(t_pos), dy, k), k];
+                        } else if (x(t_s) > left &&
+                                   x(t_s) < right) {
+                          p3 = [x(t_s), y(t_s), 1];
+                        } else {
+                          return;
+                        }
+
+                        if (y(t_pos) < bottom &&
+                            y(t_s) > bottom) {
+                          k = find_k(y(t_pos), dy, bottom);
+                          p4 = [calc_other(x(t_pos), dx, k), bottom, k];
+                        } else if (y(t_pos) > top &&
+                                   y(t_s) < top) {
+                          k = find_k(y(t_pos), dy, top);
+                          p4 = [calc_other(x(t_pos), dx, k), top, k];
+                        } else if (x(t_s) > top &&
+                                   y(t_s) < bottom) {
+                          p4 = [x(t_s), y(t_s), 1];
+                        } else {
+                          return;
+                        }
+
+                        if (p3[2] < p4[2]) {
+                          pend = [p3[0], p3[1]];
+                        } else {
+                          pend = [p4[0], p4[1]];
+                        }
+
+                        if (x(pend) < left ||
+                            x(pend) > right ||
+                            y(pend) < top ||
+                            y(pend) > bottom)
+                          return;
+
+                        pstart = self.transform_mult(t_inv, pstart);
+                        pend = self.transform_mult(t_inv, pend);
+
+                        ctx.moveTo(pstart[0], pstart[1]);
+                        ctx.lineTo(pend[0], pend[1]);
+                      })();
+
+                      if (Math.abs(x(s)) <= THRESHOLD &&
+                          Math.abs(y(s)) <= THRESHOLD) {
+                        ctx.moveTo(x(s), y(s));
+                      }
+                    } else {
+		      ctx.lineTo(x(s), y(s));
+                    }
+                  })();
 		  break;
 	       case CUBIC_C1:
 		  bezier.push(x(s), y(s));
@@ -278,7 +429,7 @@ WT_DECLARE_WT_MEMBER
 		  arc = [];
 		  break;
 	       case QUAD_C:
-		  quad.push(x(s));
+		  quad.push(x(s), y(s));
 		  break;
 	       case QUAD_END:
 		  quad.push(x(s), y(s));

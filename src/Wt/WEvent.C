@@ -4,14 +4,15 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WLogger"
-#include "Wt/WEvent"
+#include "Wt/WLogger.h"
+#include "Wt/WEvent.h"
 
 #include "WebRequest.h"
 #include "WebSession.h"
+#include "WebUtils.h"
+
 #include "3rdparty/rapidxml/rapidxml.hpp"
 
 namespace Wt {
@@ -36,11 +37,11 @@ namespace {
 #endif
 
   int asInt(const std::string& v) {
-    return boost::lexical_cast<int>(v);
+    return Utils::stoi(v);
   }
 
-  unsigned asUInt(const std::string& v) {
-    return boost::lexical_cast<unsigned>(v);
+  long long asLongLong(const std::string& v) {
+    return Utils::stoll(v);
   }
 
   int parseIntParameter(const WebRequest& request, const std::string& name,
@@ -50,7 +51,7 @@ namespace {
     if ((p = request.getParameter(name))) {
       try {
 	return asInt(*p);
-      } catch (const boost::bad_lexical_cast& ee) {
+      } catch (const std::exception& ee) {
 	LOG_ERROR("Could not cast event property '" << name 
 		  << ": " << *p << "' to int");
 	return ifMissing;
@@ -83,13 +84,13 @@ namespace {
 
     try {
       for (unsigned i = 0; i < s.size(); i += 9) {
-	result.push_back(Touch(asUInt(s[i + 0]),
+        result.push_back(Touch(asLongLong(s[i + 0]),
 			       asInt(s[i + 1]), asInt(s[i + 2]),
 			       asInt(s[i + 3]), asInt(s[i + 4]),
 			       asInt(s[i + 5]), asInt(s[i + 6]),
 			       asInt(s[i + 7]), asInt(s[i + 8])));
       }
-    } catch (const boost::bad_lexical_cast& ee) {
+    } catch (const std::exception& ee) {
       LOG_ERROR("Could not parse touches array '" << str << "'");
       return;
     }
@@ -101,12 +102,12 @@ namespace Wt {
 EventType WEvent::eventType() const 
 {
   if (!impl_.handler)
-    return OtherEvent;
+    return EventType::Other;
 
   return impl_.handler->session()->getEventType(*this);
 }
 
-Touch::Touch(unsigned identifier,
+Touch::Touch(long long identifier,
 	     int clientX, int clientY,
 	     int documentX, int documentY,
 	     int screenX, int screenY,
@@ -158,13 +159,13 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
 	std::string e = name.substr(name.length() - 2);
 	if (e == ".x") {
 	  try {
-	    widgetX = boost::lexical_cast<int>(i->second[0]);
-	  } catch (const boost::bad_lexical_cast& ee) {
+	    widgetX = Utils::stoi(i->second[0]);
+	  } catch (const std::exception& ee) {
 	  }
 	} else if (e == ".y") {
 	  try {
-	    widgetY = boost::lexical_cast<int>(i->second[0]);
-	  } catch (const boost::bad_lexical_cast& ee) {
+	    widgetY = Utils::stoi(i->second[0]);
+	  } catch (const std::exception& ee) {
 	  }
 	}
       }
@@ -172,18 +173,18 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
   }
   */
 
-  modifiers = 0;
-  if (request.getParameter(concat(s, seLength, "altKey")) != 0)
-    modifiers |= AltModifier;
+  modifiers = None;
+  if (request.getParameter(concat(s, seLength, "altKey")) != nullptr)
+    modifiers |= KeyboardModifier::Alt;
 
-  if (request.getParameter(concat(s, seLength, "ctrlKey")) != 0)
-    modifiers |= ControlModifier;
+  if (request.getParameter(concat(s, seLength, "ctrlKey")) != nullptr)
+    modifiers |= KeyboardModifier::Control;
 
-  if (request.getParameter(concat(s, seLength, "shiftKey")) != 0)
-    modifiers |= ShiftModifier;
+  if (request.getParameter(concat(s, seLength, "shiftKey")) != nullptr)
+    modifiers |= KeyboardModifier::Shift;
 
-  if (request.getParameter(concat(s, seLength, "metaKey")) != 0)
-    modifiers |= MetaModifier;
+  if (request.getParameter(concat(s, seLength, "metaKey")) != nullptr)
+    modifiers |= KeyboardModifier::Meta;
 
   keyCode = parseIntParameter(request, concat(s, seLength, "keyCode"), 0);
   charCode = parseIntParameter(request, concat(s, seLength, "charCode"), 0);
@@ -201,8 +202,7 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
   userEventArgs.clear();
   for (int i = 0; i < uean; ++i) {
     userEventArgs.push_back
-      (getStringParameter(request,
-			  se + "a" + boost::lexical_cast<std::string>(i)));
+      (getStringParameter(request, se + "a" + std::to_string(i)));
   }
 
   decodeTouches(getStringParameter(request, concat(s, seLength, "touches")),
@@ -220,13 +220,13 @@ WMouseEvent::WMouseEvent(const JavaScriptEvent& jsEvent)
   : jsEvent_(jsEvent)
 { }
 
-WMouseEvent::Button WMouseEvent::button() const
+MouseButton WMouseEvent::button() const
 {
   switch (jsEvent_.button) {
-  case 1: return LeftButton;
-  case 2: return MiddleButton;
-  case 4: return RightButton;
-  default: return NoButton;
+  case 1: return MouseButton::Left;
+  case 2: return MouseButton::Middle;
+  case 4: return MouseButton::Right;
+  default: return MouseButton::None;
   }
 }
 
@@ -268,7 +268,7 @@ Key WKeyEvent::key() const
        || (key >= 112 && key <= 123))
     return static_cast<Key>(key);
   else
-    return Key_unknown;
+    return Key::Unknown;
 #else // WT_TARGET_JAVA
   return keyFromValue(key);
 #endif // WT_TARGET_JAVA
@@ -313,14 +313,14 @@ WDropEvent::WDropEvent(WObject *source, const std::string& mimeType,
 #else
     mouseEvent_(&mouseEvent),
 #endif
-    touchEvent_(0)
+    touchEvent_(nullptr)
 { }
 
 WDropEvent::WDropEvent(WObject *source, const std::string& mimeType,
 		       const WTouchEvent& touchEvent)
   : dropSource_(source),
     dropMimeType_(mimeType),
-    mouseEvent_(0),
+    mouseEvent_(nullptr),
 #ifndef WT_TARGET_JAVA
     touchEvent_(new WTouchEvent(touchEvent))
 #else
@@ -332,28 +332,20 @@ WDropEvent::WDropEvent(WObject *source, const std::string& mimeType,
 WDropEvent::WDropEvent(const WDropEvent &other)
   : dropSource_(other.dropSource_),
     dropMimeType_(other.dropMimeType_),
-    mouseEvent_(other.mouseEvent_ ? new WMouseEvent(*other.mouseEvent_) : 0),
-    touchEvent_(other.touchEvent_ ? new WTouchEvent(*other.touchEvent_) : 0)
+    mouseEvent_(other.mouseEvent_ ? new WMouseEvent(*other.mouseEvent_) : nullptr),
+    touchEvent_(other.touchEvent_ ? new WTouchEvent(*other.touchEvent_) : nullptr)
 { }
 
 WDropEvent &WDropEvent::operator=(const WDropEvent &other)
 {
   if (this != &other) {
-    delete mouseEvent_;
-    delete touchEvent_;
     dropSource_ = other.dropSource_;
     dropMimeType_ = other.dropMimeType_;
-    mouseEvent_ = other.mouseEvent_ ? new WMouseEvent(*other.mouseEvent_) : 0;
-    touchEvent_ = other.touchEvent_ ? new WTouchEvent(*other.touchEvent_) : 0;
+    mouseEvent_.reset(other.mouseEvent_ ? new WMouseEvent(*other.mouseEvent_) : nullptr);
+    touchEvent_.reset(other.touchEvent_ ? new WTouchEvent(*other.touchEvent_) : nullptr);
   }
 
   return *this;
-}
-
-WDropEvent::~WDropEvent()
-{
-  delete mouseEvent_;
-  delete touchEvent_;
 }
 #endif
 

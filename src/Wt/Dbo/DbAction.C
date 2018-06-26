@@ -4,11 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/DbAction"
+#include "Wt/Dbo/DbAction.h"
 #include "DbAction_impl.h"
-#include "Wt/Dbo/Session"
-#include "Wt/Dbo/SqlConnection"
-#include "Wt/Dbo/SqlStatement"
+#include "Wt/Dbo/Session.h"
+#include "Wt/Dbo/SqlConnection.h"
+#include "Wt/Dbo/SqlStatement.h"
 
 namespace Wt {
   namespace Dbo {
@@ -32,7 +32,8 @@ namespace Wt {
 InitSchema::InitSchema(Session& session, Impl::MappingInfo& mapping)
   : session_(session),
     mapping_(mapping),
-    idField_(false)
+    idField_(false),
+    fkFlags_(0)
 { }
 
 void InitSchema::actMapping(Impl::MappingInfo *mapping)
@@ -81,14 +82,14 @@ bool DropSchema::isSchema() const { return true; }
 
 DboAction::DboAction(Session *session)
   : session_(session),
-    dbo_(0),
-    mapping_(0),
+    dbo_(nullptr),
+    mapping_(nullptr),
     setStatementIdx_(0),
     setIdx_(0)
 { }
 
 DboAction::DboAction(MetaDboBase& dbo, Impl::MappingInfo& mapping)
-  : session_(0),
+  : session_(nullptr),
     dbo_(&dbo),
     mapping_(&mapping),
     setStatementIdx_(0),
@@ -125,7 +126,8 @@ SaveBaseAction::SaveBaseAction(Session *session, SqlStatement *statement,
   : DboAction(session),
     statement_(statement),
     column_(column),
-    bindNull_(false)
+    bindNull_(false),
+    auxIdOnly_(false)
 {
   pass_ = Self;
 }
@@ -135,7 +137,8 @@ SaveBaseAction::SaveBaseAction(MetaDboBase& dbo, Impl::MappingInfo& mapping,
   : DboAction(dbo, mapping),
     statement_(statement),
     column_(column),
-    bindNull_(false)
+    bindNull_(false),
+    auxIdOnly_(false)
 {
   pass_ = Self;
 }
@@ -209,8 +212,8 @@ bool SetReciproceAction::getsValue() const { return false; }
 bool SetReciproceAction::setsValue() const { return true; }
 bool SetReciproceAction::isSchema() const { return false; }
 
-ToAnysAction::ToAnysAction(std::vector<boost::any>& result)
-  : session_(0),
+ToAnysAction::ToAnysAction(std::vector<cpp17::any>& result)
+  : session_(nullptr),
     result_(result)
 { }
 
@@ -221,8 +224,8 @@ bool ToAnysAction::getsValue() const { return true; }
 bool ToAnysAction::setsValue() const { return false; }
 bool ToAnysAction::isSchema() const { return false; }
 
-FromAnyAction::FromAnyAction(int& index, const boost::any& value)
-  : session_(0),
+FromAnyAction::FromAnyAction(int& index, const cpp17::any& value)
+  : session_(nullptr),
     index_(index),
     value_(value)
 { }

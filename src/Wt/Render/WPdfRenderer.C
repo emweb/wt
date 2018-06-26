@@ -4,10 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WLogger"
-#include "Wt/WPainter"
-#include "Wt/WPdfImage"
-#include "Wt/Render/WPdfRenderer"
+#include "Wt/WLogger.h"
+#include "Wt/WPainter.h"
+#include "Wt/WPdfImage.h"
+#include "Wt/Render/WPdfRenderer.h"
 #include "Wt/Render/RenderUtils.h"
 
 #include <hpdf.h>
@@ -21,7 +21,7 @@ LOGGER("Render.WPdfRendererer");
 WPdfRenderer::WPdfRenderer(HPDF_Doc pdf, HPDF_Page page)
   : pdf_(pdf),
     dpi_(72),
-    painter_(0)
+    painter_(nullptr)
 {
   for (int i = 0; i < 4; ++i)
     margin_[i] = 0;
@@ -39,13 +39,13 @@ void WPdfRenderer::setDpi(int dpi)
 
 void WPdfRenderer::setMargin(double margin, WFlags<Side> sides)
 {
-  if (sides & Top)
+  if (sides.test(Side::Top))
     margin_[0] = margin;
-  if (sides & Right)
+  if (sides.test(Side::Right))
     margin_[1] = margin;
-  if (sides & Bottom)
+  if (sides.test(Side::Bottom))
     margin_[2] = margin;
-  if (sides & Left)
+  if (sides.test(Side::Left))
     margin_[3] = margin;
 }
 
@@ -80,13 +80,13 @@ double WPdfRenderer::margin(Side side) const
   const double CmPerInch = 2.54;
 
   switch (side) {
-  case Top:
+  case Side::Top:
     return margin_[0] / CmPerInch * dpi_;
-  case Right:
+  case Side::Right:
     return margin_[1] / CmPerInch * dpi_;
-  case Bottom:
+  case Side::Bottom:
     return margin_[2] / CmPerInch * dpi_;
-  case Left:
+  case Side::Left:
     return margin_[3] / CmPerInch * dpi_;
   default:
     LOG_ERROR("margin(Side) with invalid side" << (int)side);
@@ -136,7 +136,7 @@ WPaintDevice *WPdfRenderer::startPage(int page)
 void WPdfRenderer::endPage(WPaintDevice *device)
 {
   delete painter_;
-  painter_ = 0;
+  painter_ = nullptr;
 
   delete device;
 

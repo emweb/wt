@@ -1,7 +1,7 @@
 WidgetGallery example
 ---------------------
 
-This is the [widget gallery](http://www.webtoolkit.eu/widgets), which serves more as a directory of widgets available in Wt.
+This is the [widget gallery](https://www.webtoolkit.eu/widgets), which serves more as a directory of widgets available in Wt.
 
 How to run
 ----------

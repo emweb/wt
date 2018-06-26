@@ -3,23 +3,21 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WSpinBox>
-#include <Wt/WIntValidator>
-#include <Wt/WLocale>
+#include <Wt/WSpinBox.h>
+#include <Wt/WIntValidator.h>
+#include <Wt/WLocale.h>
 
 #include "DomElement.h"
 #include "WebUtils.h"
 
 namespace Wt {
 
-WSpinBox::WSpinBox(WContainerWidget *parent)
-  : WAbstractSpinBox(parent),
-    value_(-1),
+WSpinBox::WSpinBox()
+  : value_(-1),
     min_(0),
     max_(99),
     step_(1),
-    wrapAroundEnabled_(false),
-    valueChanged_(this)
+    wrapAroundEnabled_(false)
 { 
   setValidator(createValidator());
   setValue(0);
@@ -27,7 +25,7 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
 
 void WSpinBox::setValue(int value)
 {
-  if (value_ != value) {
+  if (value_ != value || text() != textFromValue()) {
     value_ = value;
     setText(textFromValue());
   }
@@ -37,7 +35,7 @@ void WSpinBox::setMinimum(int minimum)
 {
   min_ = minimum;
 
-  WIntValidator *v = dynamic_cast<WIntValidator *>(validator());
+  WIntValidator *v = dynamic_cast<WIntValidator *>(validator().get());
   if (v)
     v->setBottom(min_);
 
@@ -49,7 +47,7 @@ void WSpinBox::setMaximum(int maximum)
 {
   max_ = maximum;
 
-  WIntValidator *v = dynamic_cast<WIntValidator *>(validator());
+  WIntValidator *v = dynamic_cast<WIntValidator *>(validator().get());
   if (v)
     v->setTop(max_);
 
@@ -78,18 +76,17 @@ int WSpinBox::decimals() const
 
 std::string WSpinBox::jsMinMaxStep() const 
 {
-  return boost::lexical_cast<std::string>(min_) + ","
-    + boost::lexical_cast<std::string>(max_) + ","
-    + boost::lexical_cast<std::string>(step_);
+  return std::to_string(min_) + "," + std::to_string(max_) + ","
+    + std::to_string(step_);
 }
 
 void WSpinBox::updateDom(DomElement& element, bool all)
 {
   if (all || changed_) {
     if (nativeControl()) {
-      element.setAttribute("min", boost::lexical_cast<std::string>(min_));
-      element.setAttribute("max", boost::lexical_cast<std::string>(max_));
-      element.setAttribute("step", boost::lexical_cast<std::string>(step_));
+      element.setAttribute("min", std::to_string(min_));
+      element.setAttribute("max", std::to_string(max_));
+      element.setAttribute("step", std::to_string(step_));
     } else {
       /* Make sure the JavaScript validator is loaded */
       WIntValidator v;
@@ -119,12 +116,12 @@ void WSpinBox::onChange()
   valueChanged_.emit(value());
 }
 
-WValidator *WSpinBox::createValidator()
+std::unique_ptr<WValidator> WSpinBox::createValidator()
 {
-  WIntValidator *validator = new WIntValidator();
+  std::unique_ptr<WIntValidator> validator(new WIntValidator());
   validator->setMandatory(true);
   validator->setRange(min_, max_);
-  return validator;
+  return std::move(validator);
 }
 
 WT_USTRING WSpinBox::textFromValue() const
@@ -145,7 +142,7 @@ bool WSpinBox::parseNumberValue(const std::string& text)
   try {
     value_ = WLocale::currentLocale().toInt(WT_USTRING::fromUTF8(text));
     return true;
-  } catch (boost::bad_lexical_cast &e) {
+  } catch (std::exception& e) {
     return false;
   }
 }

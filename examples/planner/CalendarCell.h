@@ -9,21 +9,24 @@
 
 #include "UserAccount.h"
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
-class CalendarCell : public Wt::WContainerWidget
+using namespace Wt;
+
+class CalendarCell : public WContainerWidget
 {
 public:
   CalendarCell();
 
-  void update(const dbo::ptr<UserAccount>& user, const Wt::WDate& date);
+  void update(const dbo::ptr<UserAccount>& user, const WDate& date);
   
-  Wt::WDate date() {return date_; }
+  WDate date() {return date_; }
   dbo::ptr<UserAccount> user() { return user_; }  
 
 private:
-  Wt::WDate date_;
+  WDate date_;
   dbo::ptr<UserAccount> user_;
+  std::unique_ptr<WDialog> dialog_;
 
   void showEntryDialog();
   void showAllEntriesDialog();

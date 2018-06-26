@@ -32,7 +32,7 @@
 #ifdef WT_HAVE_GNU_REGEX
 #include <regex.h>
 #else
-#include <boost/regex.hpp>
+#include <regex>
 #endif // WT_HAVE_GNU_REGEX
 
 #include "CgiParser.h"
@@ -40,9 +40,9 @@
 #include "WebUtils.h"
 #include "FileUtils.h"
 
-#include "Wt/WException"
-#include "Wt/WLogger"
-#include "Wt/Http/Request"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
+#include "Wt/Http/Request.h"
 
 using std::memmove;
 using std::strcpy;
@@ -50,35 +50,35 @@ using std::strtol;
 
 namespace {
 #ifndef WT_HAVE_GNU_REGEX
-  const boost::regex boundary_e("\\bboundary=(?:(?:\"([^\"]+)\")|(\\S+))",
-			       boost::regex::perl|boost::regex::icase);
-  const boost::regex name_e("\\bname=(?:(?:\"([^\"]+)\")|([^\\s:;]+))",
-			       boost::regex::perl|boost::regex::icase);
-  const boost::regex filename_e("\\bfilename=(?:(?:\"([^\"]*)\")|([^\\s:;]+))",
-			       boost::regex::perl|boost::regex::icase);
-  const boost::regex content_e("^\\s*Content-type:"
-			       "\\s*(?:(?:\"([^\"]+)\")|([^\\s:;]+))",
-			       boost::regex::perl|boost::regex::icase);
-  const boost::regex content_disposition_e("^\\s*Content-Disposition:",
-			       boost::regex::perl|boost::regex::icase);
-  const boost::regex content_type_e("^\\s*Content-Type:",
-			       boost::regex::perl|boost::regex::icase);
+  const std::regex boundary_e("\\bboundary=(?:(?:\"([^\"]+)\")|(\\S+))",
+			      std::regex::icase);
+  const std::regex name_e("\\bname=(?:(?:\"([^\"]+)\")|([^\\s:;]+))",
+			  std::regex::icase);
+  const std::regex filename_e("\\bfilename=(?:(?:\"([^\"]*)\")|([^\\s:;]+))",
+			      std::regex::icase);
+  const std::regex content_e("^\\s*Content-type:"
+			     "\\s*(?:(?:\"([^\"]+)\")|([^\\s:;]+))",
+			     std::regex::icase);
+  const std::regex content_disposition_e("^\\s*Content-Disposition:",
+					 std::regex::icase);
+  const std::regex content_type_e("^\\s*Content-Type:",
+				  std::regex::icase);
 
   bool fishValue(const std::string& text,
-		 const boost::regex& e, std::string& result)
+		 const std::regex& e, std::string& result)
   {
-    boost::smatch what;
+    std::smatch what;
 
-    if (boost::regex_search(text, what, e)) {
-      result = what[1] + what[2];
+    if (std::regex_search(text, what, e)) {
+      result = std::string(what[1]) + std::string(what[2]);
       return true;
     } else
       return false;
   }
 
-  bool regexMatch(const std::string& text, const boost::regex& e)
+  bool regexMatch(const std::string& text, const std::regex& e)
   {
-    return boost::regex_search(text, e);
+    return std::regex_search(text, e);
   }
 
 #else
@@ -174,8 +174,9 @@ void CgiParser::init()
 #endif
 }
 
-CgiParser::CgiParser(::int64_t maxPostData)
-  : maxPostData_(maxPostData)
+CgiParser::CgiParser(::int64_t maxRequestSize, ::int64_t maxFormData)
+  : maxFormData_(maxFormData),
+    maxRequestSize_(maxRequestSize)
 { }
 
 void CgiParser::parse(WebRequest& request, ReadOption readOption)
@@ -189,7 +190,7 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
   const char *type = request.contentType();
   const char *meth = request.requestMethod();
 
-  request.postDataExceeded_ = (len > maxPostData_ ? len : 0);
+  request.postDataExceeded_ = (len > maxRequestSize_ ? len : 0);
 
   std::string queryString = request.queryString();
 
@@ -204,9 +205,9 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
      * TODO: parse this stream-based to avoid the malloc here. For now
      * we protect the maximum that can be POST'ed as form data.
      */
-    if (len > 5*1024*1024)
+    if (len > maxFormData_)
       throw WException("Oversized application/x-www-form-urlencoded ("
-		       + boost::lexical_cast<std::string>(len) + ")");
+		       + std::to_string(len) + ")");
 
     char *buf = new char[len + 1];
 

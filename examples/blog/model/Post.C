@@ -12,10 +12,10 @@
 #include "Tag.h"
 #include "Token.h"
 
-#include <Wt/Dbo/Impl>
-#include <ctype.h>
+#include <Wt/Dbo/Impl.h>
+#include <cctype>
 
-DBO_INSTANTIATE_TEMPLATES(Post);
+DBO_INSTANTIATE_TEMPLATES(Post)
 
 std::string Post::permaLink() const
 {
@@ -28,7 +28,7 @@ std::string Post::commentCount() const
   if (count == 1)
     return "1 comment";
   else
-    return boost::lexical_cast<std::string>(count) + " comments";
+    return std::to_string(count) + " comments";
 }
 
 dbo::ptr<Comment> Post::rootComment() const

@@ -6,7 +6,7 @@ WT_ADD_EXAMPLE(client-ssl-auth.wt
 	model/User.C
 )
 
-TARGET_LINK_LIBRARIES(client-ssl-auth.wt wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(client-ssl-auth.wt ${EXAMPLES_DBO_LIBS})
 
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 

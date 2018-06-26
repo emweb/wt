@@ -1,27 +1,29 @@
-#include <Wt/WContainerWidget>
-#include <Wt/WBreak>
-#include <Wt/WSlider>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WBreak.h>
+#include <Wt/WSlider.h>
+#include <Wt/WText.h>
 
 SAMPLE_BEGIN(Slider)
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-new Wt::WText("In which year are you born?", container);
-new Wt::WBreak(container);
+container->addWidget(Wt::cpp14::make_unique<Wt::WText>("In which year were you born?"));
+container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
 
-Wt::WSlider *slider = new Wt::WSlider(container);
+Wt::WSlider *slider =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WSlider>());
 slider->resize(500, 50);
-slider->setTickPosition(Wt::WSlider::TicksAbove);
+slider->setTickPosition(Wt::WSlider::TickPosition::TicksAbove);
 slider->setTickInterval(10);
 slider->setMinimum(1910);
 slider->setMaximum(2010);
 slider->setValue(1960);
 
-new Wt::WBreak(container);
-Wt::WText *out = new Wt::WText(container);
+container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
+Wt::WText *out =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
 
-slider->valueChanged().connect(std::bind([=] () {
-    out->setText("I'm born in the year " + slider->valueText() + ".");
-}));
+slider->valueChanged().connect([=] {
+    out->setText("I was born in the year " + slider->valueText() + ".");
+});
 
-SAMPLE_END(return container)
+SAMPLE_END(return std::move(container))

@@ -1,10 +1,10 @@
 #include <iostream>
-#include <boost/lexical_cast.hpp>
+#include <Wt/WAny.h>
 
 #include "Character.h"
 
-Character::Character(const std::string& name, WContainerWidget *parent)
-  : WText(parent),
+Character::Character(const std::string& name)
+  : WText(),
     name_(name),
     redDrops_(0),
     blueDrops_(0)
@@ -32,7 +32,7 @@ void Character::dropEvent(WDropEvent event)
   std::string text = name_ + " got ";
 
   if (redDrops_ != 0)
-    text += boost::lexical_cast<std::string>(redDrops_) + " red pill";
+    text += asString(redDrops_).toUTF8() + " red pill";
   if (redDrops_ > 1)
     text += "s";
 
@@ -40,7 +40,7 @@ void Character::dropEvent(WDropEvent event)
     text += " and ";
 
   if (blueDrops_ != 0)
-    text += boost::lexical_cast<std::string>(blueDrops_) + " blue pill";
+    text += asString(blueDrops_).toUTF8() + " blue pill";
   if (blueDrops_ > 1)
     text += "s";
 

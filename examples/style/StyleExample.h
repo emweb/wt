@@ -8,7 +8,7 @@
 #ifndef STYLEEXAMPLE_H_
 #define STYLEEXAMPLE_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 namespace Wt {
   class WLineEdit;
@@ -33,7 +33,7 @@ class StyleExample : public WContainerWidget
 public:
   /*! \brief Create a StyleExample.
    */
-  StyleExample(WContainerWidget *parent = 0);
+  StyleExample();
 
 private:
   RoundedWidget *w_;

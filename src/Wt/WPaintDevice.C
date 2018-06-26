@@ -4,13 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WPaintDevice"
+#include "Wt/WPaintDevice.h"
 
-#include "Wt/WPainterPath"
-#include "Wt/WRectF"
-#include "Wt/WPointF"
+#include "Wt/WPainterPath.h"
+#include "Wt/WRectF.h"
+#include "Wt/WPointF.h"
 
-#include "Wt/WPainter"
+#include "Wt/WPainter.h"
 
 namespace Wt {
 

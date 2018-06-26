@@ -4,9 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WPopupWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WContainerWidget.h"
+#include "Wt/WPopupWidget.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WPopupWidget.min.js"
@@ -14,56 +14,31 @@
 
 namespace Wt {
 
-WPopupWidget::WPopupWidget(WWidget *impl, WObject *parent)
-  : WCompositeWidget(),
-    fakeParent_(0),
-    anchorWidget_(0),
-    orientation_(Vertical),
+WPopupWidget::WPopupWidget(std::unique_ptr<WWidget> impl)
+  : anchorWidget_(nullptr),
+    orientation_(Orientation::Vertical),
     transient_(false),
     autoHideDelay_(0),
-    deleteWhenHidden_(false),
-    hidden_(this),
-    shown_(this),
-    jsHidden_(impl, "hidden"),
-    jsShown_(impl, "shown")
+    jsHidden_(impl.get(), "hidden"),
+    jsShown_(impl.get(), "shown")
 {
-  setImplementation(impl);
-
-  if (parent)
-    parent->addChild(this);
+  setImplementation(std::move(impl));
 
   WApplication::instance()->addGlobalWidget(this);
 
   hide();
   setPopup(true);
-  setPositionScheme(Absolute);
+  setPositionScheme(PositionScheme::Absolute);
 
   jsHidden_.connect(this, &WWidget::hide);
   jsShown_.connect(this, &WWidget::show);
 
-  WApplication::instance()->internalPathChanged().connect(this, &WWidget::hide);
+  WApplication::instance()->internalPathChanged().connect(this, &WPopupWidget::onPathChange);
 }
 
 WPopupWidget::~WPopupWidget()
 {
-  if (fakeParent_)
-    fakeParent_->WObject::removeChild(this);
-
   WApplication::instance()->removeGlobalWidget(this);
-}
-
-void WPopupWidget::setParent(WObject *p)
-{
-  /*
-   * We will only register the dom root as parent, since this
-   * is required for rendering.
-   */
-  if (!p || p == WApplication::instance()->domRoot()) {
-    if (!p)
-      fakeParent_ = 0;
-    WObject::setParent(p);
-  } else if (p)
-    fakeParent_ = p;
 }
 
 void WPopupWidget::setAnchorWidget(WWidget *anchorWidget,
@@ -85,9 +60,9 @@ void WPopupWidget::setTransient(bool isTransient, int autoHideDelay)
   }
 }
 
-void WPopupWidget::setDeleteWhenHidden(bool enable)
+void WPopupWidget::onPathChange()
 {
-  deleteWhenHidden_ = enable;
+  hide();
 }
 
 void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
@@ -98,7 +73,7 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
   WCompositeWidget::setHidden(hidden, animation);
 
   if (!hidden && anchorWidget_)
-    positionAt(anchorWidget_, orientation_);
+    positionAt(anchorWidget_.get(), orientation_);
 
   if (hidden)
     this->hidden().emit();
@@ -113,9 +88,6 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
       doJavaScript("var o = jQuery.data(" + jsRef() + ", 'popup');"
 		   "if (o) o.shown();");
   }
-
-  if (!WWebWidget::canOptimizeUpdates() && hidden && deleteWhenHidden_)
-    delete this;
 }
 
 void WPopupWidget::defineJS()
@@ -136,7 +108,7 @@ void WPopupWidget::defineJS()
 
 void WPopupWidget::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull)
+  if (flags.test(RenderFlag::Full))
     defineJS();
 
   WCompositeWidget::render(flags);

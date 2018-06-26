@@ -4,9 +4,15 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WMatrix4x4"
-#include <boost/numeric/ublas/lu.hpp>
+#include <boost/version.hpp>
+#if BOOST_VERSION == 106400
+// compile fix for boost 1.64. Must be included before other includes.
+#include <boost/serialization/array_wrapper.hpp>
+#endif
 
+#include "Wt/WMatrix4x4.h"
+
+#include <boost/numeric/ublas/lu.hpp>
 
 using namespace Wt;
 
@@ -57,8 +63,7 @@ void WMatrix4x4::flipCoordinates()
 void WMatrix4x4::frustum(double left, double right, double bottom, double top,
 			 double nearPlane, double farPlane)
 {
-  using namespace boost::numeric::ublas;
-  WMatrix4x4 f(0);
+  WGenericMatrix<double, 4, 4> f(0);
   f(0, 0) = 2 * nearPlane / (right - left);
   f(0, 1) = 0;
   f(0, 2) = (right + left) / (right - left);
@@ -78,14 +83,19 @@ void WMatrix4x4::frustum(double left, double right, double bottom, double top,
   f(3, 1) = 0;
   f(3, 2) = -1;
   f(3, 3) = 0;
-  impl() = prod(impl(), f.impl());
+
+#ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  using namespace boost::numeric::ublas;
+  impl() = prod(impl(), f);
+#else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  *this = (*this) * f;
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
 }
 
 void WMatrix4x4::lookAt(double eyeX, double eyeY, double eyeZ,
 			double centerX, double centerY, double centerZ,
 			double upX, double upY, double upZ)
 {
-  using namespace boost::numeric::ublas;
   // A 3D vector class would be handy here
   // Compute and normalize lookDir
   double lookDirX = centerX - eyeX;
@@ -114,20 +124,29 @@ void WMatrix4x4::lookAt(double eyeX, double eyeY, double eyeZ,
 	       -lookDirX, -lookDirY, -lookDirZ, +(+eyeX*lookDirX + eyeY*lookDirY + eyeZ*lookDirZ),
 	       0,      0,         0,     1
 	       );
+#ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  using namespace boost::numeric::ublas;
   impl() = prod(impl(), l.impl());;
+#else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  *this = (*this) * l;
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
 }
 
 void WMatrix4x4::ortho(double left, double right, double bottom, double top,
 		       double nearPlane, double farPlane)
 {
-  using namespace boost::numeric::ublas;
   WMatrix4x4 o(
 	       2 / (right - left), 0, 0, - (right + left) / (right - left),
 	       0, 2 / (top - bottom), 0, - (top + bottom) / (top - bottom),
 	       0, 0, -2 / (farPlane - nearPlane), - (farPlane + nearPlane) / (farPlane - nearPlane),
 	       0, 0, 0, 1
 	       );
+#ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  using namespace boost::numeric::ublas;
   impl() = prod(impl(), o.impl());;
+#else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  *this = (*this) * o;
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
 }
 
 void WMatrix4x4::perspective(double angle, double aspect,
@@ -142,7 +161,6 @@ void WMatrix4x4::perspective(double angle, double aspect,
 
 void WMatrix4x4::rotate(double angle, double x, double y, double z)
 {
-  using namespace boost::numeric::ublas;
   double t = angle / 180.0 * 3.14159265358979323846;
   double norm2 = std::sqrt(x*x + y*y + z*z);
   x /= norm2;
@@ -168,24 +186,40 @@ void WMatrix4x4::rotate(double angle, double x, double y, double z)
   rot(3,2) = 0;
   rot(3,3) = 1;
 
+#ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  using namespace boost::numeric::ublas;
   impl() = prod(impl(), rot.impl());;
+#else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  *this = (*this) * rot;
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
 }
 
 void WMatrix4x4::translate(double x, double y, double z)
 {
-  using namespace boost::numeric::ublas;
   WMatrix4x4 T;
   T(0, 3) = x;
   T(1, 3) = y;
   T(2, 3) = z;
-  impl() = prod(impl(), T.impl());;
+#ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  using namespace boost::numeric::ublas;
+  impl() = prod(impl(), T.impl());
+#else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  *this = (*this) * T;
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
 }
 
 
 double WMatrix4x4::determinant() const
 {
   using namespace boost::numeric::ublas;
-  bounded_matrix<double, 4, 4, row_major> tmp(impl());
+#ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  auto tmp = impl();
+#else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  bounded_matrix<double, 4, 4, row_major> tmp;
+  for (std::size_t i = 0; i < 4; ++i)
+    for (std::size_t j = 0; j < 4; ++j)
+      tmp(i,j) = at(i,j);
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
   boost::numeric::ublas::permutation_matrix<unsigned> pivots(4);
   double det = 1.0;
   if (boost::numeric::ublas::lu_factorize(tmp, pivots)) {
@@ -205,7 +239,19 @@ WMatrix4x4 WMatrix4x4::inverted(bool *invertible) const
 {
   using namespace boost::numeric::ublas;
   WMatrix4x4 retval; // Identity matrix now
-  bounded_matrix<double, 4, 4, row_major> tmp(impl());
+#ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  auto tmp = impl();
+  auto &retvalImpl = retval.impl();
+#else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+  bounded_matrix<double, 4, 4, row_major> tmp;
+  for (std::size_t i = 0; i < 4; ++i)
+    for (std::size_t j = 0; j < 4; ++j)
+      tmp(i,j) = at(i,j);
+  bounded_matrix<double, 4, 4, row_major> retvalImpl;
+  for (std::size_t i = 0; i < 4; ++i)
+    for (std::size_t j = 0; j < 4; ++j)
+	retvalImpl(i,j) = (i == j ? 1 : 0);
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
   boost::numeric::ublas::permutation_matrix<unsigned> pivots(4);
 
   if (boost::numeric::ublas::lu_factorize(tmp, pivots)) {
@@ -216,7 +262,12 @@ WMatrix4x4 WMatrix4x4::inverted(bool *invertible) const
   } else {
     if (invertible)
       *invertible = true;
-    boost::numeric::ublas::lu_substitute(tmp, pivots, retval.impl());
+    boost::numeric::ublas::lu_substitute(tmp, pivots, retvalImpl);
+#ifndef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+    for (std::size_t i = 0; i < 4; ++i)
+      for (std::size_t j = 0; j < 4; ++j)
+	retval(i,j) = retvalImpl(i,j);
+#endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
     return retval;
   }
 }

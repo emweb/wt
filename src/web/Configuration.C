@@ -4,31 +4,39 @@
  * All rights reserved.
  */
 
-#include "Wt/WServer"
-#include "Wt/WLogger"
-#include "Wt/WRegExp"
-#include "Wt/WResource"
+#include "Wt/WServer.h"
+#include "Wt/WLogger.h"
+#include "Wt/WResource.h"
 
 #include "Configuration.h"
+#include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+#ifdef WT_BOOST_CONF_LOCK
+#include <boost/thread.hpp>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <algorithm>
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#include <regex>
 
 #include "3rdparty/rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml_print.hpp"
 
 #ifdef WT_WIN32
 #include <io.h>
 #include <process.h>
 #endif
 
-#ifdef WT_CONF_LOCK
+#if defined(WT_STD_CONF_LOCK)
+#define READ_LOCK std::shared_lock<std::shared_mutex> lock(mutex_)
+#define WRITE_LOCK std::unique_lock<std::shared_mutex> lock(mutex_)
+#elif defined(WT_BOOST_CONF_LOCK)
 #define READ_LOCK boost::shared_lock<boost::shared_mutex> lock(mutex_)
 #define WRITE_LOCK boost::lock_guard<boost::shared_mutex> lock(mutex_)
 #else
@@ -46,9 +54,9 @@ bool regexMatchAny(const std::string& agent,
 		   const std::vector<std::string>& regexList) {
   WT_USTRING s = WT_USTRING::fromUTF8(agent);
   for (unsigned i = 0; i < regexList.size(); ++i) {
-    WRegExp expr(WT_USTRING::fromUTF8(regexList[i]));
+    std::regex expr(regexList[i]);
 
-    if (expr.exactMatch(s))
+    if (std::regex_match(s.toUTF8(), expr))
       return true;
   }
 
@@ -127,8 +135,8 @@ void setInt(xml_node<> *element, const char *tagName, int& result)
 
   if (!v.empty()) {
     try {
-      result = boost::lexical_cast<int>(v);
-    } catch (boost::bad_lexical_cast& e) {
+      result = Utils::stoi(v);
+    } catch (std::exception& e) {
       throw WServer::Exception("<" + std::string(tagName)
 			       + ">: expecting integer value");
     }
@@ -147,36 +155,19 @@ std::vector<xml_node<> *> childElements(xml_node<> *element,
   return result;
 }
 
+static std::string FORWARD_SLASH = "/";
+
 }
 
 namespace Wt {
 
 LOGGER("config");
 
-EntryPoint::EntryPoint(EntryPointType type, ApplicationCreator appCallback,
-		       const std::string& path, const std::string& favicon)
-  : type_(type),
-    resource_(0),
-    appCallback_(appCallback),
-    path_(path),
-    favicon_(favicon)
+HeadMatter::HeadMatter(std::string contents,
+		       std::string userAgent)
+  : contents_(contents),
+    userAgent_(userAgent)
 { }
-
-EntryPoint::EntryPoint(WResource *resource, const std::string& path)
-  : type_(StaticResource),
-    resource_(resource),
-    appCallback_(0),
-    path_(path)
-{ }
-
-EntryPoint::~EntryPoint()
-{
-}
-
-void EntryPoint::setPath(const std::string& path)
-{
-  path_ = path;
-}
 
 Configuration::Configuration(const std::string& applicationPath,
 			     const std::string& appRoot,
@@ -202,6 +193,7 @@ void Configuration::reset()
   numThreads_ = 10;
   maxNumSessions_ = 100;
   maxRequestSize_ = 128 * 1024;
+  maxFormDataSize_ = 5 * 1024 * 1024;
   isapiMaxMemoryRequestSize_ = 128 * 1024;
   sessionTracking_ = URL;
   reloadIsNewSession_ = true;
@@ -233,6 +225,8 @@ void Configuration::reset()
   cookieChecks_ = true;
   webglDetection_ = true;
   bootstrapConfig_.clear();
+  numSessionThreads_ = -1;
+  allowedOrigins_.clear();
 
   if (!appRoot_.empty())
     setAppRoot(appRoot_);
@@ -273,6 +267,12 @@ int Configuration::maxNumSessions() const
   return maxRequestSize_;
 }
 
+  
+::int64_t Configuration::maxFormDataSize() const
+{
+  return maxFormDataSize_;
+}
+
 ::int64_t Configuration::isapiMaxMemoryRequestSize() const
 {
   READ_LOCK;
@@ -304,6 +304,16 @@ int Configuration::keepAlive() const
     return 1000000;
   else
     return timeout / 2;
+}
+
+// The multisession cookie timeout should be longer than
+// sessionTimeout() + keepAlive(), to avoid the situation
+// where the session has not timed out yet, but the multi
+// session cookie has expired. Let's just set
+// multiSessionCookieTimeout() to sessionTimeout() * 2
+int Configuration::multiSessionCookieTimeout() const
+{
+  return sessionTimeout() * 2;
 }
 
 int Configuration::bootstrapTimeout() const
@@ -472,6 +482,27 @@ bool Configuration::webglDetect() const
   return webglDetection_;
 }
 
+int Configuration::numSessionThreads() const
+{
+  READ_LOCK;
+  return numSessionThreads_;
+}
+
+bool Configuration::isAllowedOrigin(const std::string &origin) const
+{
+  READ_LOCK;
+  if (allowedOrigins_.size() == 1 &&
+      allowedOrigins_[0] == "*")
+    return true;
+  else {
+    for (std::size_t i = 0; i < allowedOrigins_.size(); ++i) {
+      if (origin == allowedOrigins_[i])
+        return true;
+    }
+    return false;
+  }
+}
+
 bool Configuration::agentIsBot(const std::string& agent) const
 {
   READ_LOCK;
@@ -540,20 +571,100 @@ std::string Configuration::locateConfigFile(const std::string& appRoot)
   }
 }
 
+void Configuration::registerEntryPoint(const EntryPoint &ep)
+{
+  const std::string &path = ep.path();
+
+  if (path.empty()) {
+    // special case: set entrypoint to root path segment (matches everything)
+    rootPathSegment_.entryPoint = &ep;
+    return;
+  }
+
+  assert(path[0] == '/');
+
+  // The PathSegment in the routing tree where this entrypoint will end up
+  PathSegment *pathSegment = &rootPathSegment_;
+
+  typedef boost::split_iterator<std::string::const_iterator> spliterator;
+  for (spliterator it = spliterator(path.begin() + 1, path.end(),
+                                    boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+       it != spliterator(); ++it) {
+    PathSegment *childSegment = nullptr;
+    if (boost::starts_with(*it, "${") &&
+        boost::ends_with(*it, "}")) {
+      // This is a dynamic segment, e.g. ${var}
+      if (!pathSegment->dynamicChild) {
+        pathSegment->dynamicChild = std::unique_ptr<PathSegment>(new PathSegment("", pathSegment));
+      }
+      childSegment = pathSegment->dynamicChild.get();
+    } else {
+      // This is a normal segment
+      auto &children = pathSegment->children;
+      auto c = std::find_if(children.begin(), children.end(), [&it](const std::unique_ptr<PathSegment> &c) {
+        return c->segment == *it;
+      });
+      if (c != children.end())
+        childSegment = c->get();
+
+      if (!childSegment) {
+        if (it->empty()) {
+          // Empty part (entry point with trailing slash)
+          // Put it in front by convention
+          children.insert(children.begin(), Wt::cpp14::make_unique<PathSegment>("", pathSegment));
+          childSegment = children.front().get();
+        } else {
+          children.push_back(Wt::cpp14::make_unique<PathSegment>(boost::copy_range<std::string>(*it), pathSegment));
+          childSegment = children.back().get();
+        }
+      }
+    }
+    pathSegment = childSegment;
+  }
+
+  pathSegment->entryPoint = &ep;
+}
+
 void Configuration::addEntryPoint(const EntryPoint& ep)
 {
-  if (ep.type() == StaticResource)
+  if (ep.type() == EntryPointType::StaticResource)
+    ep.resource()->currentUrl_ = ep.path();
+
+  WRITE_LOCK;
+  entryPoints_.push_back(ep);
+
+  registerEntryPoint(entryPoints_.back());
+}
+
+bool Configuration::tryAddResource(const EntryPoint& ep)
+{
+  WRITE_LOCK;
+  for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
+    if (entryPoints_[i].path() == ep.path()) {
+      return false;
+    }
+  }
+
+  if (ep.type() == EntryPointType::StaticResource)
     ep.resource()->currentUrl_ = ep.path();
 
   entryPoints_.push_back(ep);
+
+  registerEntryPoint(entryPoints_.back());
+
+  return true;
 }
 
 void Configuration::removeEntryPoint(const std::string& path)
 {
   for (unsigned i = 0; i < entryPoints_.size(); ++i) {
-    EntryPoint &ep = entryPoints_[i];
+    const EntryPoint &ep = entryPoints_[i];
     if (ep.path() == path) {
+      rootPathSegment_.children.clear();
       entryPoints_.erase(entryPoints_.begin() + i);
+      for (std::size_t j = 0; j < entryPoints_.size(); ++j) {
+        registerEntryPoint(entryPoints_[j]);
+      }
       break;
     }
   }
@@ -561,9 +672,139 @@ void Configuration::removeEntryPoint(const std::string& path)
 
 void Configuration::setDefaultEntryPoint(const std::string& path)
 {
-  for (unsigned i = 0; i < entryPoints_.size(); ++i)
-    if (entryPoints_[i].path().empty())
-      entryPoints_[i].setPath(path);
+  if (rootPathSegment_.entryPoint) {
+    for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
+      if (&entryPoints_[i] == rootPathSegment_.entryPoint) {
+        rootPathSegment_.entryPoint = nullptr;
+        entryPoints_[i].setPath(path);
+        registerEntryPoint(entryPoints_[i]);
+        return;
+      }
+    }
+  }
+}
+
+EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
+                                                 const std::string &path,
+                                                 bool matchAfterSlash) const
+{
+  // TODO(Roel): handle scriptName!!!
+  READ_LOCK;
+  // Only one default entry point.
+  if (entryPoints_.size() == 1
+      && entryPoints_[0].path().empty())
+    return EntryPointMatch(&entryPoints_[0], 0);
+
+  assert(path[0] == '/');
+
+  const PathSegment *pathSegment = &rootPathSegment_;
+
+  // Flag marking whether any of the matched segments is dynamic
+  bool dynamic = false;
+
+  // Move down the routing tree, segment per segment
+  typedef boost::split_iterator<std::string::const_iterator> spliterator;
+  for (spliterator it = spliterator(path.begin() + 1, path.end(),
+                                    boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+       it != spliterator(); ++it) {
+    // Find exact path match for segment
+    const auto &children = pathSegment->children;
+    const PathSegment *childSegment = nullptr;
+    auto c = std::find_if(children.begin(), children.end(), [&it](const std::unique_ptr<PathSegment> &c) {
+      return c->segment == *it;
+    });
+    if (c != children.end())
+      childSegment = c->get();
+
+    // No exact match, see if there is a dynamic segment
+    if (!childSegment &&
+        !it->empty() &&
+        pathSegment->dynamicChild) {
+      childSegment = pathSegment->dynamicChild.get();
+      dynamic = true;
+    }
+
+    // No match, deepest match reached
+    if (!childSegment)
+      break;
+
+    // Move to the next segment
+    pathSegment = childSegment;
+  }
+
+  // Move up from the found segment, until we find one that corresponds to an entrypoint
+  const EntryPoint *match = nullptr;
+  for (; pathSegment != nullptr; pathSegment = pathSegment->parent) {
+    // If matchAfterSlash is true,
+    // then the path /head/tail
+    // may match the entry point /head/
+    if (matchAfterSlash) {
+      const auto &children = pathSegment->children;
+      if (!children.empty() && children.front()->segment.empty()) {
+        match = children.front()->entryPoint;
+        break;
+      }
+    }
+    // If the current segment has an entrypoint, we're done
+    if (pathSegment->entryPoint) {
+      match = pathSegment->entryPoint;
+      break;
+    }
+  }
+
+  if (match && dynamic) {
+    // Process path parameters
+    EntryPointMatch result;
+    result.entryPoint = match;
+    // Iterate concurrently over the path (it1),
+    // and the matched endpoint's path (it2)
+    spliterator it1 = spliterator(path.begin() + 1, path.end(),
+                                  boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+    for (spliterator it2 = spliterator(match->path().begin() + 1, match->path().end(),
+                                       boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+         it1 != spliterator() && it2 != spliterator(); ++it1, ++it2) {
+      // Check dynamic segment (e.g. "${var}")
+      if (boost::starts_with(*it2, "${") &&
+          boost::ends_with(*it2, "}")) {
+        auto range = boost::iterator_range<std::string::const_iterator>(it2->begin() + 2, it2->end() - 1);
+        result.urlParams.push_back(std::make_pair(boost::copy_range<std::string>(range),
+                                                  boost::copy_range<std::string>(*it1)));
+      }
+    }
+    if (it1 == spliterator())
+      result.extra = path.size(); // no extra path
+    else
+      result.extra = std::distance(path.begin(), it1->begin()) - 1; // there's more
+    return result;
+  } else if (match) {
+    return EntryPointMatch(match, match->path().size()); // simple match
+  } else
+    return EntryPointMatch(); // no match
+}
+
+bool Configuration::matchesPath(const std::string &path,
+                                const std::string &prefix,
+				bool matchAfterSlash)
+{
+  if (boost::starts_with(path, prefix)) {
+    std::size_t prefixLength = prefix.length();
+
+    if (path.length() > prefixLength) {
+      char next = path[prefixLength];
+
+      if (next == '/')
+	return true;
+      else if (matchAfterSlash) {
+	char last = prefix[prefixLength - 1];
+
+	if (last == '/')
+	  return true;
+      }
+    } else
+      return true;
+  }
+
+  return false;
 }
 
 void Configuration::setSessionTimeout(int sessionTimeout)
@@ -625,6 +866,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     if (dedicated) {
       sessionPolicy_ = DedicatedProcess;
       setInt(dedicated, "max-num-sessions", maxNumSessions_);
+      setInt(dedicated, "num-session-threads", numSessionThreads_);
     }
 
     if (shared) {
@@ -654,7 +896,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   std::string maxRequestStr
     = singleChildElementValue(app, "max-request-size", "");
   if (!maxRequestStr.empty())
-    maxRequestSize_ = boost::lexical_cast< ::int64_t >(maxRequestStr) * 1024;
+    maxRequestSize_ = Utils::stoll(maxRequestStr) * 1024;
+
+  std::string maxFormDataStr =
+    singleChildElementValue(app, "max-formdata-size", "");
+  if (!maxFormDataStr.empty())
+    maxFormDataSize_ = Utils::stoll(maxFormDataStr) * 1024;
 
   std::string debugStr = singleChildElementValue(app, "debug", "");
 
@@ -681,19 +928,14 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   runDirectory_ = singleChildElementValue(fcgi, "run-directory",
 					  runDirectory_);
 
-  setInt(fcgi, "num-threads", numThreads_); // backward compatibility < 3.2.0
-
   xml_node<> *isapi = singleChildElement(app, "connector-isapi");
   if (!isapi)
     isapi = app; // backward compatibility
 
-  setInt(isapi, "num-threads", numThreads_); // backward compatibility < 3.2.0
-
   std::string maxMemoryRequestSizeStr =
     singleChildElementValue(isapi, "max-memory-request-size", "");
   if (!maxMemoryRequestSizeStr.empty()) {
-    isapiMaxMemoryRequestSize_ = boost::lexical_cast< ::int64_t >
-      (maxMemoryRequestSizeStr) * 1024;
+    isapiMaxMemoryRequestSize_ = Utils::stol(maxMemoryRequestSizeStr) * 1024;
   }
 
   setInt(app, "session-id-length", sessionIdLength_);
@@ -766,8 +1008,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     = singleChildElementValue(app, "plain-ajax-sessions-ratio-limit", "");
 
   if (!plainAjaxSessionsRatioLimit.empty())
-    maxPlainSessionsRatio_
-      = boost::lexical_cast<float>(plainAjaxSessionsRatioLimit);
+    maxPlainSessionsRatio_ = Utils::stof(plainAjaxSessionsRatioLimit);
 
   setBoolean(app, "ajax-puzzle", ajaxPuzzle_);
   setInt(app, "indicator-timeout", indicatorTimeout_);
@@ -836,6 +1077,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     }
   }
 
+  // deprecated
   std::vector<xml_node<> *> metaHeaders = childElements(app, "meta-headers");
   for (unsigned i = 0; i < metaHeaders.size(); ++i) {
     xml_node<> *metaHeader = metaHeaders[i];
@@ -855,12 +1097,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
       MetaHeaderType type;
       if (!name.empty())
-	type = MetaName;
+	type = MetaHeaderType::Meta;
       else if (!httpEquiv.empty()) {
-	type = MetaHttpHeader;
+	type = MetaHeaderType::HttpHeader;
 	name = httpEquiv;
       } else if (!property.empty()) {
-	type = MetaProperty;
+	type = MetaHeaderType::Property;
 	name = property;
       } else {
 	throw WServer::Exception
@@ -870,6 +1112,27 @@ void Configuration::readApplicationSettings(xml_node<> *app)
       metaHeaders_.push_back(MetaHeader(type, name, content, "", userAgent));
     }
   }
+
+  std::vector<xml_node<> *> headMatters = childElements(app, "head-matter");
+  for (unsigned i = 0; i < headMatters.size(); ++i) {
+    xml_node<> *headMatter = headMatters[i];
+
+    std::string userAgent;
+    attributeValue(headMatter, "user-agent", userAgent);
+
+    std::stringstream ss;
+    for (xml_node<> *r = headMatter->first_node(); r;
+         r = r->next_sibling()) {
+      rapidxml::print(static_cast<std::ostream&>(ss), *r);
+    }
+    headMatter_.push_back(HeadMatter(ss.str(), userAgent));
+  }
+
+  std::string allowedOrigins
+    = singleChildElementValue(app, "allowed-origins", "");
+  boost::split(allowedOrigins_, allowedOrigins, boost::is_any_of(","));
+  for (std::size_t i = 0; i < allowedOrigins_.size(); ++i)
+    boost::trim(allowedOrigins_[i]);
 }
 
 void Configuration::rereadConfiguration()
@@ -878,7 +1141,7 @@ void Configuration::rereadConfiguration()
 
   try {
     LOG_INFO("Rereading configuration...");
-    Configuration conf(applicationPath_, appRoot_, configurationFile_, 0);
+    Configuration conf(applicationPath_, appRoot_, configurationFile_, nullptr);
     reset();
     readConfiguration(true);
     LOG_INFO("New configuration read.");
@@ -903,7 +1166,7 @@ void Configuration::readConfiguration(bool silent)
   int length = s.tellg();
   s.seekg(0, std::ios::beg);
 
-  boost::scoped_array<char> text(new char[length + 1]);
+  std::unique_ptr<char[]> text(new char[length + 1]);
   s.read(text.get(), length);
   s.close();
   text[length] = 0;

@@ -5,22 +5,36 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/Call"
-#include "Wt/Dbo/Exception"
-#include "Wt/Dbo/Session"
-#include "Wt/Dbo/SqlConnection"
-#include "Wt/Dbo/SqlConnectionPool"
-#include "Wt/Dbo/SqlStatement"
-#include "Wt/Dbo/StdSqlTraits"
+#include "Wt/Dbo/Call.h"
+#include "Wt/Dbo/Exception.h"
+#include "Wt/Dbo/Session.h"
+#include "Wt/Dbo/SqlConnection.h"
+#include "Wt/Dbo/SqlConnectionPool.h"
+#include "Wt/Dbo/SqlStatement.h"
+#include "Wt/Dbo/StdSqlTraits.h"
 
 #include <iostream>
 #include <vector>
 #include <string>
-#include <boost/lexical_cast.hpp>
+
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index/member.hpp>
 
 namespace Wt {
   namespace Dbo {
     namespace Impl {
+
+struct MetaDboBaseSet : public boost::multi_index::multi_index_container<
+    MetaDboBase *,
+    boost::multi_index::indexed_by<
+      boost::multi_index::sequenced<>,
+      boost::multi_index::hashed_unique
+      <boost::multi_index::identity<MetaDboBase *> >
+    >
+  >
+{ };
 
 std::string& replace(std::string& s, char c, const std::string& r)
 {
@@ -126,36 +140,38 @@ Session::Session()
   : schemaInitialized_(false),
     //useRowsFromTo_(false),
     requireSubqueryAlias_(false),
-    connection_(0),
-    connectionPool_(0),
-    transaction_(0),
-    flushMode_(Auto)
+    dirtyObjects_(new Impl::MetaDboBaseSet()),
+    connection_(nullptr),
+    connectionPool_(nullptr),
+    transaction_(nullptr),
+    flushMode_(FlushMode::Auto)
 { }
 
 Session::~Session()
 {
-  if (!dirtyObjects_.empty())
+  if (!dirtyObjects_->empty())
     std::cerr << "Warning: Wt::Dbo::Session exiting with "
-	      << dirtyObjects_.size() << " dirty objects" << std::endl;
+	      << dirtyObjects_->size() << " dirty objects" << std::endl;
 
-  while (!dirtyObjects_.empty()) {
-    MetaDboBase *b = *dirtyObjects_.begin();
+  while (!dirtyObjects_->empty()) {
+    MetaDboBase *b = *dirtyObjects_->begin();
     b->decRef();
   }
 
-  dirtyObjects_.clear();
+  dirtyObjects_->clear();
+  delete dirtyObjects_;
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
     delete i->second;
 }
 
-void Session::setConnection(SqlConnection& connection)
+void Session::setConnection(std::unique_ptr<SqlConnection> connection)
 {
-  connection_ = &connection;
+  connection_ = std::move(connection);
 }
 
-void Session::setConnectionPool(SqlConnectionPool& pool)
+void Session::setConnectionPool(SqlConnectionPool &pool)
 {
   connectionPool_ = &pool;
 }
@@ -168,26 +184,28 @@ SqlConnection *Session::connection(bool openTransaction)
   if (openTransaction)
     transaction_->open();
 
-  return transaction_->connection_;
+  return transaction_->connection_.get();
 }
 
-SqlConnection *Session::useConnection()
+std::unique_ptr<SqlConnection> Session::useConnection()
 {
   if (connectionPool_)
     return connectionPool_->getConnection();
   else
-    return connection_;
+    return std::move(connection_);
 }
 
-void Session::returnConnection(SqlConnection *connection)
+void Session::returnConnection(std::unique_ptr<SqlConnection> connection)
 {
   if (connectionPool_)
-    connectionPool_->returnConnection(connection);
+    connectionPool_->returnConnection(std::move(connection));
+  else
+    connection_ = std::move(connection);
 }
 
 void Session::discardChanges(MetaDboBase *obj)
 {
-  MetaDboBaseSet::nth_index<1>::type& setIndex = dirtyObjects_.get<1>();
+  Impl::MetaDboBaseSet::nth_index<1>::type& setIndex = dirtyObjects_->get<1>();
 
   if (setIndex.erase(obj) > 0)
     obj->decRef();
@@ -262,7 +280,22 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
     firstField = false;
   }
 
-  sql << ") values (";
+  sql << ")";
+
+  std::unique_ptr<SqlConnection> connPtr;
+  SqlConnection *conn;
+  if (transaction_)
+    conn = transaction_->connection_.get();
+  else {
+    connPtr = useConnection();
+    conn = connPtr.get();
+  }
+
+  if (mapping->surrogateIdFieldName) {
+    sql << conn->autoincrementInsertInfix(mapping->surrogateIdFieldName);
+  }
+
+  sql << " values (";
 
   firstField = true;
   if (mapping->versionFieldName) {
@@ -279,18 +312,12 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
 
   sql << ")";
 
-  SqlConnection *conn;
-  if (transaction_)
-    conn = transaction_->connection_;
-  else
-    conn = useConnection();
-
   if (mapping->surrogateIdFieldName) {
     sql << conn->autoincrementInsertSuffix(mapping->surrogateIdFieldName);
   }
 
   if (!transaction_)
-    returnConnection(conn);
+    returnConnection(std::move(connPtr));
 
   mapping->statements.push_back(sql.str()); // SqlInsert
 
@@ -320,6 +347,7 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
   sql << " where ";
 
   std::string idCondition;
+  std::string modifyIdCondition;
 
   if (!mapping->surrogateIdFieldName) {
     firstField = true;
@@ -341,9 +369,17 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
     idCondition
       += std::string() + "\"" + mapping->surrogateIdFieldName + "\" = ?";
 
+  modifyIdCondition = idCondition;
+  for (unsigned i = 0; i < mapping->fields.size(); ++i) {
+    if (mapping->fields[i].isAuxIdField()) {
+      modifyIdCondition += " and ";
+      modifyIdCondition += "\"" + mapping->fields[i].name() + "\" = ?";
+    }
+  }
+
   mapping->idCondition = idCondition;
 
-  sql << idCondition;
+  sql << modifyIdCondition;
 
   if (mapping->versionFieldName)
     sql << " and \"" << mapping->versionFieldName << "\" = ?";
@@ -356,7 +392,7 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
 
   sql.str("");
 
-  sql << "delete from \"" << table << "\" where " << idCondition;
+  sql << "delete from \"" << table << "\" where " << modifyIdCondition;
 
   mapping->statements.push_back(sql.str()); // SqlDelete
 
@@ -682,11 +718,11 @@ void Session::createTables()
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createTable(i->second, tablesCreated, 0, false);
+    createTable(i->second, tablesCreated, nullptr, false);
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createRelations(i->second, tablesCreated, 0);
+    createRelations(i->second, tablesCreated, nullptr);
 
   t.commit();
 }
@@ -907,8 +943,8 @@ void Session::createJoinTable(const std::string& joinName,
   Impl::MappingInfo joinTableMapping;
 
   joinTableMapping.tableName = joinName.c_str();
-  joinTableMapping.versionFieldName = 0;
-  joinTableMapping.surrogateIdFieldName = 0;
+  joinTableMapping.versionFieldName = nullptr;
+  joinTableMapping.surrogateIdFieldName = nullptr;
 
   addJoinTableFields(joinTableMapping, mapping1, joinId1, "key1",
 		     fkConstraints1, literalJoinId1);
@@ -997,7 +1033,7 @@ Session::getJoinIds(Impl::MappingInfo *mapping, const std::string& joinId, bool 
     }
     if (literalJoinId && nbNaturalIdFields != 1) {
       throw Exception(std::string("The literal join id >") + joinId + " was used,"
-		      " but there are " + boost::lexical_cast<std::string>(nbNaturalIdFields) +
+                      " but there are " + std::to_string(nbNaturalIdFields) +
 		      " natural id fields. There may only be one natural id field.");
     }
   }
@@ -1019,7 +1055,7 @@ void Session::addJoinTableFields(Impl::MappingInfo& result,
       (FieldInfo(joinIds[i].joinIdName, &typeid(long long),
 		 joinIds[i].sqlType,
 		 mapping->tableName, keyName,
-		 FieldInfo::NaturalId | FieldInfo::ForeignKey,
+		 FieldFlags::NaturalId | FieldFlags::ForeignKey,
 		 fkConstraints));
 }
 
@@ -1056,7 +1092,7 @@ void Session::dropTables()
 
           j = findLastForeignKeyField(mapping, field, j);
 
-	  executeSql(sql, 0);
+	  executeSql(sql, nullptr);
         }
       }
     }
@@ -1077,13 +1113,13 @@ Impl::MappingInfo *Session::getMapping(const char *tableName) const
   if (i != tableRegistry_.end())
     return i->second;
   else
-    return 0;
+    return nullptr;
 }
 
 void Session::needsFlush(MetaDboBase *obj)
 {
-  typedef MetaDboBaseSet::nth_index<1>::type Set;
-  Set& setIndex = dirtyObjects_.get<1>();
+  typedef Impl::MetaDboBaseSet::nth_index<1>::type Set;
+  Set& setIndex = dirtyObjects_->get<1>();
 
   std::pair<Set::iterator, bool> inserted = setIndex.insert(obj);
 
@@ -1102,10 +1138,10 @@ void Session::needsFlush(MetaDboBase *obj)
   // objects are being deleted
   if (obj->isDeleted()) {
     // was an existing entry, move to back
-    typedef MetaDboBaseSet::nth_index<0>::type List;
-    List& listIndex = dirtyObjects_.get<0>();
+    typedef Impl::MetaDboBaseSet::nth_index<0>::type List;
+    List& listIndex = dirtyObjects_->get<0>();
 
-    List::iterator i = dirtyObjects_.project<0>(inserted.first);
+    List::iterator i = dirtyObjects_->project<0>(inserted.first);
 
     listIndex.splice(listIndex.end(), listIndex, i);
   }
@@ -1118,11 +1154,11 @@ void Session::flush()
 
   objectsToAdd_.clear();
 
-  while (!dirtyObjects_.empty()) {
-    MetaDboBaseSet::iterator i = dirtyObjects_.begin();
+  while (!dirtyObjects_->empty()) {
+    Impl::MetaDboBaseSet::iterator i = dirtyObjects_->begin();
     MetaDboBase *dbo = *i;
     dbo->flush();
-    dirtyObjects_.erase(i);
+    dirtyObjects_->erase(i);
     dbo->decRef();
   }
 }
@@ -1143,8 +1179,7 @@ void Session::discardUnflushed()
 
 std::string Session::statementId(const char *tableName, int statementIdx)
 {  
-  return std::string(tableName) + ":"
-    + boost::lexical_cast<std::string>(statementIdx);
+  return std::string(tableName) + ":" + std::to_string(statementIdx);
 }
 
 SqlStatement *Session::getStatement(const std::string& id)
@@ -1183,8 +1218,9 @@ SqlStatement *Session::prepareStatement(const std::string& id,
 					const std::string& sql)
 {
   SqlConnection *conn = connection(false);
-  SqlStatement *result = conn->prepareStatement(sql);
-  conn->saveStatement(id, result);
+  std::unique_ptr<SqlStatement> stmt = conn->prepareStatement(sql);
+  SqlStatement *result = stmt.get();
+  conn->saveStatement(id, std::move(stmt));
   result->use();
 
   return result;
@@ -1203,13 +1239,13 @@ void Session::getFields(const char *tableName,
     result.push_back(FieldInfo(mapping->surrogateIdFieldName,
 			       &typeid(long long),
 			       longlongType_,
-			       FieldInfo::SurrogateId |
-			       FieldInfo::NeedsQuotes));
+			       FieldFlags::SurrogateId |
+			       FieldFlags::NeedsQuotes));
 
   if (mapping->versionFieldName)
     result.push_back(FieldInfo(mapping->versionFieldName, &typeid(int),
 			       intType_,
-			       FieldInfo::Version | FieldInfo::NeedsQuotes));
+			       FieldFlags::Version | FieldFlags::NeedsQuotes));
 
   result.insert(result.end(), mapping->fields.begin(), mapping->fields.end());
 }

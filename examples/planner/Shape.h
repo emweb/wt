@@ -8,40 +8,40 @@
 #ifndef SHAPE_H_
 #define SHAPE_H_
 
-#include <Wt/WPainter>
-#include <Wt/WColor>
-#include <Wt/WString>
+#include <Wt/WPainter.h>
+#include <Wt/WColor.h>
+#include <Wt/WString.h>
 
-class ShapeColor : public Wt::WColor
+using namespace Wt;
+
+class ShapeColor : public WColor
 {
 public:
-  ShapeColor(const Wt::WColor& color, const Wt::WString& colorName)
+  ShapeColor(const WColor& color, const WString& colorName)
     : WColor(color),
       colorName_(colorName)
   { }
 
-  Wt::WString colorName() {
+  WString colorName() {
     return colorName_;
   }
 
 private:
-  Wt::WString colorName_;
+  WString colorName_;
 };
 
 class Shape
 {
 public:
-  Shape(const Wt::WPointF& center, const ShapeColor& color, const double size) 
+  Shape(const WPointF& center, const ShapeColor& color, const double size)
     : center_(center),
       color_(color),
       size_(size)
   {}
 
-  virtual ~Shape();
-
-  virtual bool contains(const Wt::WPointF& point) const =0;
-  virtual Wt::WString shapeName() const =0;
-  virtual void paint(Wt::WPainter& painter) const =0;
+  virtual bool contains(const WPointF& point) const =0;
+  virtual WString shapeName() const =0;
+  virtual void paint(WPainter& painter) const =0;
 
   ShapeColor color() const {
     return color_;
@@ -52,12 +52,12 @@ public:
   }
 
 protected:
-  Wt::WPointF center() const {
+  WPointF center() const {
     return center_;
   }
 
 private:
-  Wt::WPointF center_;
+  WPointF center_;
   ShapeColor color_;
   double size_;
 };
@@ -65,13 +65,13 @@ private:
 class Circle : public Shape
 {
 public:
-  Circle(const Wt::WPointF& center, 
+  Circle(const WPointF& center,
 	 const ShapeColor& color, 
 	 const double size);
   
-  virtual bool contains(const Wt::WPointF& point) const;
-  virtual Wt::WString shapeName() const;
-  virtual void paint(Wt::WPainter& painter) const;
+  virtual bool contains(const WPointF& point) const override;
+  virtual WString shapeName() const override;
+  virtual void paint(WPainter& painter) const override;
  
  private:
   double distanceTo(const double x1, const double y1, 
@@ -81,13 +81,13 @@ public:
 class Rectangle : public Shape
 {
 public:
-  Rectangle(const Wt::WPointF& center, 
+  Rectangle(const WPointF& center,
 	    const ShapeColor& color, 
 	    const double size);
 
-  virtual bool contains(const Wt::WPointF& point) const;
-  virtual Wt::WString shapeName() const;
-  virtual void paint(Wt::WPainter& painter) const;
+  virtual bool contains(const WPointF& point) const override;
+  virtual WString shapeName() const override;
+  virtual void paint(WPainter& painter) const override;
 };
 
 #endif // SHAPE_H_

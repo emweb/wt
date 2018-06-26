@@ -11,5 +11,3 @@ WT_ADD_EXAMPLE(dragdrop.wt
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
-
-ADD_DEPENDENCIES(dragdrop.wt wt ${EXAMPLES_CONNECTOR})

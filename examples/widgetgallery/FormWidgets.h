@@ -10,7 +10,7 @@
 
 #include "TopicWidget.h"
 
-#include "Wt/WStandardItemModel"
+#include "Wt/WStandardItemModel.h"
 
 class EventDisplayer;
 
@@ -22,21 +22,21 @@ public:
   void populateSubMenu(Wt::WMenu *menu);
 
 private:
-  Wt::WWidget *introduction();
-  Wt::WWidget *textEditors();
-  Wt::WWidget *checkBox();
-  Wt::WWidget *radioButton();
-  Wt::WWidget *comboBox();
-  Wt::WWidget *selectionBox();
-  Wt::WWidget *autoComplete();
-  Wt::WWidget *dateEntry();
-  Wt::WWidget *inPlaceEdit();
-  Wt::WWidget *slider();
-  Wt::WWidget *progressBar();
-  Wt::WWidget *fileUpload();
-  Wt::WWidget *pushButton();
-  Wt::WWidget *validation();
-  Wt::WWidget *example();
+  std::unique_ptr<WWidget> introduction();
+  std::unique_ptr<WWidget> textEditors();
+  std::unique_ptr<WWidget> checkBox();
+  std::unique_ptr<WWidget> radioButton();
+  std::unique_ptr<WWidget> comboBox();
+  std::unique_ptr<WWidget> selectionBox();
+  std::unique_ptr<WWidget> autoComplete();
+  std::unique_ptr<WWidget> dateEntry();
+  std::unique_ptr<WWidget> inPlaceEdit();
+  std::unique_ptr<WWidget> slider();
+  std::unique_ptr<WWidget> progressBar();
+  std::unique_ptr<WWidget> fileUpload();
+  std::unique_ptr<WWidget> pushButton();
+  std::unique_ptr<WWidget> validation();
+  std::unique_ptr<WWidget> example();
 };
 
 #endif // FORMWIDGETS_H_

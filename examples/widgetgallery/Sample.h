@@ -2,7 +2,7 @@
 
 #define SAMPLE_BEGIN(name) \
   namespace { \
-    Wt::WWidget *name() {
+    std::unique_ptr<Wt::WWidget> name() {
 
 #define SAMPLE_BEGIN2(type, name) \
   namespace { \
@@ -18,7 +18,7 @@
 
 #define SAMPLE_BEGIN(name) \
   namespace { \
-    extern Wt::WWidget *name() {
+    extern std::unique_ptr<Wt::WWidget> name() {
 
 #ifdef SAMPLE_BEGIN2
 #undef SAMPLE_BEGIN2

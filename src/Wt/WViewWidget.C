@@ -3,18 +3,21 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WViewWidget"
+#include "Wt/WApplication.h"
+#include "Wt/WViewWidget.h"
 
 #include "WebSession.h"
 #include "DomElement.h"
 
 namespace Wt {
 
-WViewWidget::WViewWidget(WContainerWidget *parent)
-  : WWebWidget(parent),
-    contents_(0)
+WViewWidget::WViewWidget()
 { }
+
+WViewWidget::~WViewWidget()
+{
+  manageWidget(contents_, std::unique_ptr<WWidget>{});
+}
 
 void WViewWidget::load()
 {
@@ -38,14 +41,12 @@ void WViewWidget::refresh()
 
 void WViewWidget::render(WFlags<RenderFlag> flags)
 {
-  if (needContentsUpdate_ || (flags & RenderFull)) {
-    delete contents_; // just to be safe
-
+  if (needContentsUpdate_ || (flags.test(RenderFlag::Full))) {
     WApplication::instance()->setExposeSignals(false);
     contents_ = renderView();
+    widgetAdded(contents_.get());
     WApplication::instance()->setExposeSignals(true);
 
-    addChild(contents_);
     contents_->render(flags); // it may affect isInline(), e.g. WText
     setInline(contents_->isInline());
 
@@ -62,7 +63,7 @@ void WViewWidget::updateDom(DomElement& element, bool all)
   if (!app->session()->renderer().preLearning()) {
     if (all && !contents_) {
       needContentsUpdate_ = true;
-      render(RenderFull);
+      render(RenderFlag::Full);
     }
 
     if (contents_) {
@@ -95,15 +96,15 @@ void WViewWidget::propagateRenderOk(bool deep)
 
 void WViewWidget::doneRerender()
 {
-  setIgnoreChildRemoves(true);
-  delete contents_;
-  contents_ = 0;
-  setIgnoreChildRemoves(false);
+  if(contents_){
+    widgetRemoved(contents_.get(), false);
+    contents_.reset();
+  }
 }
 
 DomElementType WViewWidget::domElementType() const
 {
-  return isInline() ? DomElement_SPAN : DomElement_DIV;
+  return isInline() ? DomElementType::SPAN : DomElementType::DIV;
 }
 
 }

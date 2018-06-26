@@ -1,50 +1,59 @@
-#include <Wt/WIconPair>
-#include <Wt/WText>
-#include <Wt/WTree>
-#include <Wt/WTreeTable>
-#include <Wt/WTreeTableNode>
+#include <Wt/WIconPair.h>
+#include <Wt/WText.h>
+#include <Wt/WTree.h>
+#include <Wt/WTreeTable.h>
+#include <Wt/WTreeTableNode.h>
 
 namespace {
-    Wt::WTreeTableNode *addNode(Wt::WTreeTableNode *parent, const char *name,
+    WTreeTableNode *addNode(WTreeTableNode *parent, const char *name,
 				const char *yuppie, const char *holidays,
 				const char *favorite) {
-	Wt::WTreeTableNode *node = new Wt::WTreeTableNode(name, 0, parent);
-	node->setColumnWidget(1, new Wt::WText(yuppie));
-	node->setColumnWidget(2, new Wt::WText(holidays));
-	node->setColumnWidget(3, new Wt::WText(favorite));
-	return node;
+	auto node = cpp14::make_unique<WTreeTableNode>(name);
+	auto node_ = node.get();
+	parent->addChildNode(std::move(node));
+	node_->setColumnWidget(1, cpp14::make_unique<WText>(yuppie));
+	node_->setColumnWidget(2, cpp14::make_unique<WText>(holidays));
+	node_->setColumnWidget(3, cpp14::make_unique<WText>(favorite));
+	return node_;
     }
 }
 
 SAMPLE_BEGIN(TreeTable)
 
-Wt::WTreeTable *treeTable = new Wt::WTreeTable();
+auto treeTable = cpp14::make_unique<WTreeTable>();
 
 treeTable->resize(650, 200);
-treeTable->tree()->setSelectionMode(Wt::ExtendedSelection);
+treeTable->tree()->setSelectionMode(SelectionMode::Extended);
 treeTable->addColumn("Yuppie Factor", 125);
 treeTable->addColumn("# Holidays", 125);
 treeTable->addColumn("Favorite Item", 125);
 
-Wt::WTreeTableNode *root = new Wt::WTreeTableNode("All Personnel");
-treeTable->setTreeRoot(root, "Emweb Organigram");
+auto root = cpp14::make_unique<WTreeTableNode>("All Personnel");
+treeTable->setTreeRoot(std::move(root), "Emweb Organigram");
 
-Wt::WTreeTableNode *group;
+auto group = cpp14::make_unique<WTreeTableNode>("Upper Management");
+WTreeTableNode *group_ = group.get();
 
-group = new Wt::WTreeTableNode("Upper Management", 0, root);
-addNode(group, "Chief Anything Officer", "-2.8", "20", "Scepter");
-addNode(group, "Vice President of Parties", "13.57", "365", "Flag");
-addNode(group, "Vice President of Staplery", "3.42", "27", "Perforator");
+treeTable->treeRoot()->addChildNode(std::move(group));
+addNode(group_, "Chief Anything Officer", "-2.8", "20", "Scepter");
+addNode(group_, "Vice President of Parties", "13.57", "365", "Flag");
+addNode(group_, "Vice President of Staplery", "3.42", "27", "Perforator");
 
-group = new Wt::WTreeTableNode("Middle management", 0, root);
-addNode(group, "Boss of the house", "9.78", "35", "Happy Animals");
-addNode(group, "Xena caretaker", "8.66", "10", "Yellow bag");
+group = cpp14::make_unique<WTreeTableNode>("Middle management");
+group_ = group.get();
 
-group = new Wt::WTreeTableNode("Actual Workforce", 0, root);
-addNode(group, "The Dork", "9.78", "22", "Mojito");
-addNode(group, "The Stud", "8.66", "46", "Toothbrush");
-addNode(group, "The Ugly", "13.0", "25", "Paper bag");
+treeTable->treeRoot()->addChildNode(std::move(group));
+addNode(group_, "Boss of the house", "9.78", "35", "Happy Animals");
+addNode(group_, "Xena caretaker", "8.66", "10", "Yellow bag");
 
-root->expand();
+group = cpp14::make_unique<WTreeTableNode>("Actual Workforce");
+group_ = group.get();
 
-SAMPLE_END(return treeTable)
+treeTable->treeRoot()->addChildNode(std::move(group));
+addNode(group_, "The Dork", "9.78", "22", "Mojito");
+addNode(group_, "The Stud", "8.66", "46", "Toothbrush");
+addNode(group_, "The Ugly", "13.0", "25", "Paper bag");
+
+treeTable->treeRoot()->expand();
+
+SAMPLE_END(return std::move(treeTable))

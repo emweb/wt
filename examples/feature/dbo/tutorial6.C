@@ -14,8 +14,8 @@
  *  Specifying a natural primary key that is also a foreign key
  *****/
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 namespace dbo = Wt::Dbo;
 
@@ -52,7 +52,7 @@ namespace Wt {
 
     template <class Action>
     void field(Action& action, Coordinate& coordinate, const std::string& name,
-	       int size = -1)
+	       int /*size*/ = -1)
     {
       field(action, coordinate.x, name + "_x");
       field(action, coordinate.y, name + "_y");
@@ -93,10 +93,10 @@ void run()
   /*
    * Setup a session, would typically be done once at application startup.
    */
-  dbo::backend::Sqlite3 sqlite3(":memory:");
-  sqlite3.setProperty("show-queries", "true");
+  std::unique_ptr<dbo::backend::Sqlite3> sqlite3(new dbo::backend::Sqlite3(":memory:"));
+  sqlite3->setProperty("show-queries", "true");
   dbo::Session session;
-  session.setConnection(sqlite3);
+  session.setConnection(std::move(sqlite3));
 
   session.mapClass<GeoTag>("geotag");
 
@@ -108,11 +108,11 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    GeoTag *tag = new GeoTag();
+    std::unique_ptr<GeoTag> tag{new GeoTag()};
     tag->position = Coordinate(5091, 315);
     tag->name = "Oekene";
 
-    dbo::ptr<GeoTag> tagPtr = session.add(tag);
+    dbo::ptr<GeoTag> tagPtr = session.add(std::move(tag));
 
     transaction.commit();
 
