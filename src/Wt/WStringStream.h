@@ -8,6 +8,7 @@
 #define WT_WSTRING_STREAM_H_
 
 #include <Wt/WDllDefs.h>
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -98,31 +99,18 @@ public:
    */
   void append(const char *s, int length);
 
-#ifndef WT_TARGET_JAVA
-  /*
-   * Should not be implemented but is needed to support the specialization
-   * for string literals !
-   */
-  template <typename T>
-    inline WStringStream& operator<< (T t) {
-    WStringStream please_cast_to_a_supported_type = t;
-    please_cast_to_a_supported_type << 'a'; // silence compiler for normal case
-    return *this;
-  }
-
-  template <std::size_t N>
-    WStringStream& operator<< (const char (&s)[N]) {
-    append(s, N-1); return *this; 
-  }
-#endif // WT_TARGET_JAVA
-
   /*! \brief Appends a character.
    */
   WStringStream& operator<< (char);
 
   /*! \brief Appends a C string.
    */
-  WStringStream& operator<< (char *s);
+  WStringStream& operator<< (const char *s)
+  {
+    append(s, std::strlen(s));
+
+    return *this;
+  }
 
   /*! \brief Appends a C++ string.
    */

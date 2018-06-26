@@ -10,6 +10,7 @@
 #include <Wt/WDllDefs.h>
 
 #include <iostream>
+#include <cstring>
 #include <string>
 #include <vector>
 
