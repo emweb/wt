@@ -6,6 +6,68 @@
 #include "topojson.hh"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+//is_topojson
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int is_topojson(const char* file_name)
+{
+  char *buf = 0;
+  size_t length;
+  FILE *f;
+  int json_type = -1;
+
+  f = fopen(file_name, "rb");
+  if (!f)
+  {
+    std::cout << "cannot open " << file_name << std::endl;
+    return -1;
+  }
+
+  fseek(f, 0, SEEK_END);
+  length = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  buf = (char*)malloc(length);
+  if (buf)
+  {
+    fread(buf, 1, length, f);
+  }
+  fclose(f);
+
+  char *endptr;
+  JsonValue value;
+  JsonAllocator allocator;
+  int rc = jsonParse(buf, &endptr, &value, allocator);
+  if (rc != JSON_OK)
+  {
+    std::cout << "invalid JSON format for " << buf << std::endl;
+    return -1;
+  }
+
+  //parse
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
+  {
+    //A topology is a TopoJSON object where the type member’s value is “Topology”.
+    if (std::string(node->key).compare("type") == 0)
+    {
+      assert(node->value.getTag() == JSON_STRING);
+      std::string str = node->value.toString();
+      if (str.compare("Topology") == 0)
+      {
+        json_type++;
+      }
+    }
+    else if (std::string(node->key).compare("arcs") == 0)
+    {
+      assert(node->value.getTag() == JSON_ARRAY);
+      json_type++;
+    }
+  }
+
+  free(buf);
+  return json_type;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 //topojson_t::convert
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +105,7 @@ int topojson_t::convert(const char* file_name)
   }
 
   parse_root(value);
+  make_coordinates();
   free(buf);
   return 0;
 }
@@ -202,7 +265,7 @@ int topojson_t::parse_geometry_object(JsonValue value)
             JsonValue arr_pol = arr_arcs->value;
             assert(arr_pol.getTag() == JSON_ARRAY);
             //indices into arc vector
-            Polygon polygon;
+            Polygon_topojson_t polygon;
             for (JsonNode *arr_values = arr_pol.toNode(); arr_values != nullptr; arr_values = arr_values->next)
             {
               assert(arr_values->value.getTag() == JSON_NUMBER);
@@ -220,7 +283,7 @@ int topojson_t::parse_geometry_object(JsonValue value)
               JsonValue arr_pol = arr_m_values->value;
               assert(arr_pol.getTag() == JSON_ARRAY);
               //indices into arc vector
-              Polygon polygon;
+              Polygon_topojson_t polygon;
               for (JsonNode *arr_values = arr_pol.toNode(); arr_values != nullptr; arr_values = arr_values->next)
               {
                 assert(arr_values->value.getTag() == JSON_NUMBER);
@@ -344,7 +407,7 @@ std::vector<double> topojson_t::get_first()
 {
   std::vector<double> first;
   size_t size_geom = m_geom.size();
-  for (size_t idx_geom = 0; idx_geom < size_geom; idx_geom++)
+  for (idx_geom = 0; idx_geom < size_geom; idx_geom++)
   {
     Geometry_t geometry = m_geom.at(idx_geom);
     if (geometry.type.compare("Polygon") == 0)
@@ -352,7 +415,7 @@ std::vector<double> topojson_t::get_first()
       size_t size_pol = geometry.m_polygon.size();
       for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
       {
-        Polygon polygon = geometry.m_polygon.at(idx_pol);
+        Polygon_topojson_t polygon = geometry.m_polygon.at(idx_pol);
         size_t size_arcs = polygon.arcs.size();
         for (size_t idx_arc = 0; idx_arc < size_arcs; idx_arc++)
         {
@@ -365,4 +428,54 @@ std::vector<double> topojson_t::get_first()
     }
   }
   return first;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//topojson_t::make_coordinates
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void topojson_t::make_coordinates()
+{
+  size_t size_geom = m_geom.size();
+  for (idx_geom = 0; idx_geom < size_geom; idx_geom++)
+  {
+    Geometry_t geometry = m_geom.at(idx_geom);
+    if (geometry.type.compare("Polygon") == 0)
+    {
+      size_t size_pol = geometry.m_polygon.size();
+      for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
+      {
+        Polygon_topojson_t polygon = geometry.m_polygon.at(idx_pol);
+        size_t size_arcs = polygon.arcs.size();
+
+        for (size_t idx_arc = 0; idx_arc < size_arcs; idx_arc++)
+        {
+          int index = polygon.arcs.at(idx_arc);
+          int index_q = index < 0 ? ~index : index;
+          arc_t arc = m_arcs.at(index_q);
+          size_t size_vec_arcs = arc.vec.size();
+          //if a topology is quantized, the positions of each arc in the topology which are quantized 
+          //must be delta-encoded. The first position of the arc is a normal position [x1, y1]. 
+          //The second position [x2, y2] is encoded as [dx2, dy2], where 
+          //x2 = x1 + dx2 and 
+          //y2 = y1 + dx2.
+          //The third position [x3, y3] is encoded as [dx3, dy3], where 
+          //x3 = x2 + dx3 = x1 + dx2 + dx3 and
+          //y3 = y2 + dy3 = y1 + dy2 + dy3 and so on.
+          double x = 0;
+          double y = 0;
+          for (size_t idx = 0; idx < size_vec_arcs; idx++)
+          {
+            double position[2];
+            position[0] = arc.vec.at(idx).at(0);
+            position[1] = arc.vec.at(idx).at(1);
+            position[0] = (x += position[0]) * scale[0] + translate[0];
+            position[1] = (y += position[1]) * scale[1] + translate[1];
+            m_geom.at(idx_geom).m_polygon.at(idx_pol).m_x.push_back(position[0]);
+            m_geom.at(idx_geom).m_polygon.at(idx_pol).m_y.push_back(position[1]);
+          }//size_vec_arcs
+        }//size_arcs
+      }//size_pol
+    }//"Polygon"
+  }//size_geom
 }
