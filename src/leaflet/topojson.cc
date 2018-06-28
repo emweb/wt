@@ -440,7 +440,7 @@ void topojson_t::make_coordinates()
   for (idx_geom = 0; idx_geom < size_geom; idx_geom++)
   {
     Geometry_t geometry = m_geom.at(idx_geom);
-    if (geometry.type.compare("Polygon") == 0)
+    if (geometry.type.compare("Polygon") == 0 || geometry.type.compare("MultiPolygon") == 0)
     {
       size_t size_pol = geometry.m_polygon.size();
       for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
