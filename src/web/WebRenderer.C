@@ -459,6 +459,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   boot.setVar("BOOT_STYLE_URL", bootStyleUrl.str());
 
   setCaching(response, false);
+  response.addHeader("X-Frame-Options", "SAMEORIGIN");
 
   std::string contentType = "text/html; charset=UTF-8";
 
