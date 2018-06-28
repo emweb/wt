@@ -2936,7 +2936,9 @@ function encodePendingEvents() {
     }
   }
 
-  sentEvents = pendingEvents;
+  // With HTTP: sentEvents should be empty before this concat
+  // With WebSockets: sentEvents possibly not empty
+  sentEvents = sentEvents.concat(pendingEvents);
   pendingEvents = [];
 
   return { feedback: feedback, result: result };
@@ -3118,6 +3120,8 @@ function doJavaScript(js) {
 }
 
 function webSocketAckConnect() {
+  nextWsRqId = 0;
+  pendingWsRequests = {};
   websocket.socket.send('&signal=none&connected=' + ackUpdateId);
   websocket.state = WebSocketWorking;
 }
@@ -3356,9 +3360,12 @@ _$_$if_WEB_SOCKETS_$_();
 		  responsePending = null;
 		}
 
-		if (responsePending)
+                if (responsePending)
+                  websocket.state = WebSocketAckConnect;
+                else if (!$.isEmptyObject(pendingWsRequests)) {
+                  pendingEvents = sentEvents.concat(pendingEvents);
 		  websocket.state = WebSocketAckConnect;
-		else
+                } else
 		  webSocketAckConnect();
 	      } else {
 		console.log("WebSocket: was expecting a connect?");
