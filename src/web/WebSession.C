@@ -2205,6 +2205,10 @@ void WebSession::notify(const WEvent& event)
       renderer_.serveResponse(*event.impl_.response);
     } catch (std::exception& e) {
       LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+
+#ifdef WT_TARGET_JAVA
+      e.printStackTrace();
+#endif // WT_TARGET_JAVA
     } catch (...) {
       LOG_ERROR("Exception in WApplication::notify()");
     }
@@ -2219,6 +2223,10 @@ void WebSession::notify(const WEvent& event)
 	render(*event.impl_.handler);
     } catch (std::exception& e) {
       LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+
+#ifdef WT_TARGET_JAVA
+      e.printStackTrace();
+#endif // WT_TARGET_JAVA
     } catch (...) {
       LOG_ERROR("Exception in WApplication::notify()");
     }

@@ -1491,7 +1491,6 @@ void WCartesianChart::assignJSPathsForSeries(const WDataSeries& series)
 
 void WCartesianChart::assignJSTransformsForSeries(const WDataSeries &series)
 {
-  if (!isInteractive()) return;
   WJavaScriptHandle<WTransform> handle;
   if (freeTransforms_.size() > 0) {
     handle = freeTransforms_.back();
