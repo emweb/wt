@@ -685,7 +685,7 @@ public:
     //render topojson
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    size_t idx_color = 0;
+    size_t idx_pal = 0;
     size_t size_geom = topojson.m_geom.size();
     for (size_t idx_geom = 0; idx_geom < size_geom; idx_geom++)
     {
@@ -695,7 +695,7 @@ public:
         size_t size_pol = geometry.m_polygon.size();
         for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
         {
-          Polygon polygon = geometry.m_polygon.at(idx_pol);
+          Polygon_topojson_t polygon = geometry.m_polygon.at(idx_pol);
           size_t size_arcs = polygon.arcs.size();
 
           ///////////////////////////////////////////////////////////////////////////////////////
@@ -705,47 +705,23 @@ public:
           std::vector<double> lat;
           std::vector<double> lon;
 
-          for (size_t idx_arc = 0; idx_arc < size_arcs; idx_arc++)
+          size_t size_points = geometry.m_polygon.at(idx_pol).m_y.size();
+          for (size_t idx_crd = 0; idx_crd < size_points; idx_crd++)
           {
-            int index = polygon.arcs.at(idx_arc);
-            int idx = index < 0 ? ~index : index;
-            arc_t arc = topojson.m_arcs.at(idx);
-            size_t size_vec_arcs = arc.vec.size();
-            //if a topology is quantized, the positions of each arc in the topology which are quantized 
-            //must be delta-encoded. The first position of the arc is a normal position [x1, y1]. 
-            //The second position [x2, y2] is encoded as [dx2, dy2], where 
-            //x2 = x1 + dx2 and 
-            //y2 = y1 + dx2.
-            //The third position [x3, y3] is encoded as [dx3, dy3], where 
-            //x3 = x2 + dx3 = x1 + dx2 + dx3 and
-            //y3 = y2 + dy3 = y1 + dy2 + dy3 and so on.
-            int x0 = arc.vec.at(0).at(0);
-            int y0 = arc.vec.at(0).at(1);
-            std::vector<int> x;
-            std::vector<int> y;
-            x.push_back(x0);
-            y.push_back(y0);
-            for (size_t idx = 1; idx < size_vec_arcs; idx++)
-            {
-              int xn = x[idx - 1] + arc.vec.at(idx).at(0);
-              int yn = y[idx - 1] + arc.vec.at(idx).at(1);
-              x.push_back(xn);
-              y.push_back(yn);
-            }
+            lat.push_back(geometry.m_polygon.at(idx_pol).m_y.at(idx_crd));
+            lon.push_back(geometry.m_polygon.at(idx_pol).m_x.at(idx_crd));
+          }
 
-            for (size_t idx = 0; idx < size_vec_arcs; idx++)
-            {
-              int pos_quant[2];
-              pos_quant[0] = x[idx];
-              pos_quant[1] = y[idx];
-              std::vector<double> coord = topojson.transform_point(pos_quant);
-              lat.push_back(coord[1]);
-              lon.push_back(coord[0]);
+          std::string color = rgb_to_hex(
+            rgb_256.at(idx_pal).red,
+            rgb_256.at(idx_pal).green,
+            rgb_256.at(idx_pal).blue);
+          idx_pal++;
+          if (idx_pal >= rgb_256.size())
+          {
+            idx_pal = 0;
+          }
 
-            }//size_vec_arcs
-          }//size_arcs
-
-          std::string color = rgb_to_hex(0, 0, 0);
           if (geometry.type.compare("Polygon") == 0)
           {
             color = rgb_to_hex(255, 0, 0);

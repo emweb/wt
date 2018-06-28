@@ -464,6 +464,9 @@ void topojson_t::make_coordinates()
           //y3 = y2 + dy3 = y1 + dy2 + dy3 and so on.
           double x = 0;
           double y = 0;
+          //temporary positions
+          std::vector<double> xp;
+          std::vector<double> yp;
           for (size_t idx = 0; idx < size_vec_arcs; idx++)
           {
             double position[2];
@@ -471,9 +474,41 @@ void topojson_t::make_coordinates()
             position[1] = arc.vec.at(idx).at(1);
             position[0] = (x += position[0]) * scale[0] + translate[0];
             position[1] = (y += position[1]) * scale[1] + translate[1];
-            m_geom.at(idx_geom).m_polygon.at(idx_pol).m_x.push_back(position[0]);
-            m_geom.at(idx_geom).m_polygon.at(idx_pol).m_y.push_back(position[1]);
+            xp.push_back(position[0]);
+            yp.push_back(position[1]);
           }//size_vec_arcs
+
+          //@mbostock
+          //TopoJSON allows you to reference a reversed arc in a geometry so that when geometries share an arc, 
+          //but some geometries need the arc in the opposite direction, the geometries can reference the same arc.
+          //This occurs very commonly when you have neighboring geometries.For example, California and Nevada 
+          //share a border, but given that both would typically have the same winding order, 
+          //the shared border must be reversed between the two polygons if you want to share the arc.
+          //A reversed arc means that rather than the arc’s points going p_0, p_1, … p_n, 
+          //the points go p_n, p_{ n - 1 }, … p_0.
+
+           //reverse the subsequences of points represented by the negative arc indexes
+          if (index < 0)
+          {
+            for (size_t idx = 0; idx < size_vec_arcs; idx++)
+            {
+              size_t jdx = size_vec_arcs - idx - 1;
+              m_geom.at(idx_geom).m_polygon.at(idx_pol).m_x.push_back(xp[jdx]);
+              m_geom.at(idx_geom).m_polygon.at(idx_pol).m_y.push_back(yp[jdx]);
+            }
+          }
+          //do not reverse
+          else
+          {
+            for (size_t idx = 0; idx < size_vec_arcs; idx++)
+            {
+              size_t jdx = idx;
+              m_geom.at(idx_geom).m_polygon.at(idx_pol).m_x.push_back(xp[jdx]);
+              m_geom.at(idx_geom).m_polygon.at(idx_pol).m_y.push_back(yp[jdx]);
+            }
+          }
+          assert(xp.size() == size_vec_arcs);
+
         }//size_arcs
       }//size_pol
     }//"Polygon"
