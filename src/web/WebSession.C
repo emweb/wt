@@ -1292,7 +1292,8 @@ void WebSession::handleRequest(Handler& handler)
     } else {
       // Not OK
       if (origin) {
-        LOG_ERROR("WebSocket request refused: Origin '" << origin << "' not allowed");
+        LOG_ERROR("WebSocket request refused: Origin '" << origin <<
+            "' not allowed (trusted origin is '" << trustedOrigin << "')");
       } else {
         LOG_ERROR("WebSocket request refused: missing Origin");
       }
