@@ -62,6 +62,17 @@ public:
   std::vector<Polygon_topojson_t> m_polygon;
 };
 
+class WT_API Object_topojson_t
+{
+public:
+  Object_topojson_t(std::string name_) :
+    name(name_)
+  {
+  }
+  std::string name;
+  std::vector<Geometry_t> m_geom;
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //topojson_t
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,8 +85,10 @@ public:
   {
     scale[0] = scale[1] = translate[0] = translate[1] = 0;
   }
+
+  std::vector<Object_topojson_t> m_objects;
+  void make_coordinates(Object_topojson_t& object);
   int convert(const char* file_name);
-  std::vector<Geometry_t> m_geom;
   std::vector<arc_t> m_arcs;
   std::vector<double> transform_point(const int position_quant[2]);
   std::vector<double> get_first();
@@ -86,7 +99,6 @@ private:
   int parse_transform(JsonValue value);
   int parse_geometry_object(JsonValue value);
   int parse_arcs(JsonValue value);
-  void make_coordinates();
   double scale[2];
   double translate[2];
   size_t idx_geom; //helper

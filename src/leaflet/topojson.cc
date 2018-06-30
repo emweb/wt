@@ -105,7 +105,6 @@ int topojson_t::convert(const char* file_name)
   }
 
   parse_root(value);
-  make_coordinates();
   free(buf);
   return 0;
 }
@@ -161,6 +160,10 @@ int topojson_t::parse_topology(JsonValue value)
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
     std::string object_name = node->key;
+
+    Object_topojson_t topojson_object(object_name);
+    m_objects.push_back(topojson_object);
+
     std::cout << "\tobject name:\t" << object_name << "\n";
     JsonValue object = node->value;
     assert(object.getTag() == JSON_OBJECT);
@@ -172,11 +175,11 @@ int topojson_t::parse_topology(JsonValue value)
       {
         assert(geom_obj->value.getTag() == JSON_STRING);
         std::string str = geom_obj->value.toString();
-        std::cout << "\tgeometry type:\t" << str << "\n";
       }
       else if (std::string(geom_obj->key).compare("geometries") == 0)
       {
         assert(geom_obj->value.getTag() == JSON_ARRAY);
+        //always fills the last Object_topojson_t from vector
         parse_geometry_object(geom_obj->value);
       }//"geometries"
     }//geom_obj
@@ -191,6 +194,8 @@ int topojson_t::parse_topology(JsonValue value)
 
 int topojson_t::parse_geometry_object(JsonValue value)
 {
+  idx_geom = 0; //reset geometry index
+
   assert(value.getTag() == JSON_ARRAY);
   //A TopoJSON geometry object of type “Point” or “MultiPoint” must have a member with the name “coordinates”. 
   //A TopoJSON geometry object of type “LineString”, “MultiLineString”, “Polygon”, or “MultiPolygon” 
@@ -210,11 +215,10 @@ int topojson_t::parse_geometry_object(JsonValue value)
       {
         assert(obj_geometry->value.getTag() == JSON_STRING);
         geometry.type = obj_geometry->value.toString();
-        std::cout << "\t\tgeometry type:\t" << geometry.type << "\n";
       }
     }//obj_geometry
 
-    m_geom.push_back(geometry);
+    m_objects.back().m_geom.push_back(geometry);
   }//node
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +230,7 @@ int topojson_t::parse_geometry_object(JsonValue value)
     JsonValue object = node->value;
     assert(object.getTag() == JSON_OBJECT);
 
-    Geometry_t geometry = m_geom.at(idx_geom);
+    Geometry_t geometry = m_objects.back().m_geom.at(idx_geom);
 
     for (JsonNode *obj_geometry = object.toNode(); obj_geometry != nullptr; obj_geometry = obj_geometry->next)
     {
@@ -234,8 +238,7 @@ int topojson_t::parse_geometry_object(JsonValue value)
       {
         assert(obj_geometry->value.getTag() == JSON_STRING);
         std::string str = obj_geometry->value.toString();
-        std::cout << "\t\tgeometry type:\t" << str << "\n";
-        assert(m_geom.at(idx_geom).type == str);
+        assert(m_objects.back().m_geom.at(idx_geom).type == str);
       }
       else if (std::string(obj_geometry->key).compare("coordinates") == 0)
       {
@@ -253,14 +256,14 @@ int topojson_t::parse_geometry_object(JsonValue value)
         }
         for (JsonNode *arr_arcs = arcs.toNode(); arr_arcs != nullptr; arr_arcs = arr_arcs->next)
         {
-          if (m_geom.at(idx_geom).type.compare("LineString") == 0)
+          if (m_objects.back().m_geom.at(idx_geom).type.compare("LineString") == 0)
           {
             assert(arr_arcs->value.getTag() == JSON_NUMBER);
           }
           //For type “Polygon”, the “arcs” member must be an array of LinearRing arc indexes. 
           //For Polygons with multiple rings, the first must be the exterior ring and 
           //any others must be interior rings or holes.
-          else if (m_geom.at(idx_geom).type.compare("Polygon") == 0)
+          else if (m_objects.back().m_geom.at(idx_geom).type.compare("Polygon") == 0)
           {
             JsonValue arr_pol = arr_arcs->value;
             assert(arr_pol.getTag() == JSON_ARRAY);
@@ -271,7 +274,7 @@ int topojson_t::parse_geometry_object(JsonValue value)
               assert(arr_values->value.getTag() == JSON_NUMBER);
               polygon.arcs.push_back((int)arr_values->value.toNumber());
             }//arr_values
-            m_geom.at(idx_geom).m_polygon.push_back(polygon);
+            m_objects.back().m_geom.at(idx_geom).m_polygon.push_back(polygon);
           }//"Polygon"
           //For type “MultiPolygon”, the “arcs” member must be an array of Polygon arc indexes.
           else if (geometry.type.compare("MultiPolygon") == 0)
@@ -289,7 +292,7 @@ int topojson_t::parse_geometry_object(JsonValue value)
                 assert(arr_values->value.getTag() == JSON_NUMBER);
                 polygon.arcs.push_back((int)arr_values->value.toNumber());
               }//arr_values
-              m_geom.at(idx_geom).m_polygon.push_back(polygon);
+              m_objects.back().m_geom.at(idx_geom).m_polygon.push_back(polygon);
             }//arr_m_values
           }//"MultiPolygon"
         }//arr_obj
@@ -297,7 +300,6 @@ int topojson_t::parse_geometry_object(JsonValue value)
     }//obj_geometry
 
     idx_geom++; //go to next geometry
-    std::cout << idx_geom << "\t";
 
   }//node
 
@@ -389,11 +391,9 @@ int topojson_t::parse_arcs(JsonValue value)
     m_arcs.push_back(arc);
   }//node_arr_0
 
-  std::cout << "arcs size: " << m_arcs.size() << "\n";
   for (size_t idx = 0; idx < m_arcs.size(); idx++)
   {
     arc_t arc = m_arcs.at(idx);
-    std::cout << "\tarc size: " << arc.vec.size() << "\n";
   }
   return 0;
 }
@@ -406,10 +406,10 @@ int topojson_t::parse_arcs(JsonValue value)
 std::vector<double> topojson_t::get_first()
 {
   std::vector<double> first;
-  size_t size_geom = m_geom.size();
+  size_t size_geom = m_objects.at(0).m_geom.size();
   for (idx_geom = 0; idx_geom < size_geom; idx_geom++)
   {
-    Geometry_t geometry = m_geom.at(idx_geom);
+    Geometry_t geometry = m_objects.at(0).m_geom.at(idx_geom);
     if (geometry.type.compare("Polygon") == 0)
     {
       size_t size_pol = geometry.m_polygon.size();
@@ -434,12 +434,12 @@ std::vector<double> topojson_t::get_first()
 //topojson_t::make_coordinates
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void topojson_t::make_coordinates()
+void topojson_t::make_coordinates(Object_topojson_t& object)
 {
-  size_t size_geom = m_geom.size();
+  size_t size_geom = object.m_geom.size();
   for (idx_geom = 0; idx_geom < size_geom; idx_geom++)
   {
-    Geometry_t geometry = m_geom.at(idx_geom);
+    Geometry_t geometry = object.m_geom.at(idx_geom);
     if (geometry.type.compare("Polygon") == 0 || geometry.type.compare("MultiPolygon") == 0)
     {
       size_t size_pol = geometry.m_polygon.size();
@@ -493,8 +493,8 @@ void topojson_t::make_coordinates()
             for (size_t idx = 0; idx < size_vec_arcs; idx++)
             {
               size_t jdx = size_vec_arcs - idx - 1;
-              m_geom.at(idx_geom).m_polygon.at(idx_pol).m_x.push_back(xp[jdx]);
-              m_geom.at(idx_geom).m_polygon.at(idx_pol).m_y.push_back(yp[jdx]);
+              object.m_geom.at(idx_geom).m_polygon.at(idx_pol).m_x.push_back(xp[jdx]);
+              object.m_geom.at(idx_geom).m_polygon.at(idx_pol).m_y.push_back(yp[jdx]);
             }
           }
           //do not reverse
@@ -503,8 +503,8 @@ void topojson_t::make_coordinates()
             for (size_t idx = 0; idx < size_vec_arcs; idx++)
             {
               size_t jdx = idx;
-              m_geom.at(idx_geom).m_polygon.at(idx_pol).m_x.push_back(xp[jdx]);
-              m_geom.at(idx_geom).m_polygon.at(idx_pol).m_y.push_back(yp[jdx]);
+              object.m_geom.at(idx_geom).m_polygon.at(idx_pol).m_x.push_back(xp[jdx]);
+              object.m_geom.at(idx_geom).m_polygon.at(idx_pol).m_y.push_back(yp[jdx]);
             }
           }
           assert(xp.size() == size_vec_arcs);
