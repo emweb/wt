@@ -754,12 +754,12 @@ public:
     //render topojson
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    topojson.make_coordinates(topojson.m_objects.at(0));
-
-    size_t size_geom = topojson.m_objects.at(0).m_geom.size();
+    Object_topojson_t object = topojson.m_objects.at(1); //3 objects: counties, states, land 
+    topojson.make_coordinates(object);
+    size_t size_geom = object.m_geom.size();
     for (size_t idx_geom = 0; idx_geom < size_geom; idx_geom++)
     {
-      Geometry_t geometry = topojson.m_objects.at(0).m_geom.at(idx_geom);
+      Geometry_t geometry = object.m_geom.at(idx_geom);
       if (geometry.type.compare("Polygon") == 0 || geometry.type.compare("MultiPolygon") == 0)
       {
         size_t size_pol = geometry.m_polygon.size();
@@ -774,17 +774,14 @@ public:
 
           std::vector<double> lat;
           std::vector<double> lon;
-
           size_t size_points = geometry.m_polygon.at(idx_pol).m_y.size();
           for (size_t idx_crd = 0; idx_crd < size_points; idx_crd++)
           {
             lat.push_back(geometry.m_polygon.at(idx_pol).m_y.at(idx_crd));
             lon.push_back(geometry.m_polygon.at(idx_pol).m_x.at(idx_crd));
           }
-
           std::string color = rgb_to_hex(128, 0, 0);
           leaflet->Polygon(lat, lon, color);
-
         }//size_pol
       }//"Polygon"
     }//size_geom
