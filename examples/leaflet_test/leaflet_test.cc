@@ -130,14 +130,16 @@ public:
   {
     setTitle("test");
     useStyleSheet("boxes.css");
-    auto hbox = root()->setLayout(cpp14::make_unique<WVBoxLayout>());
-    std::unique_ptr<WText> text = cpp14::make_unique<WText>("item 1");
-    text->setStyleClass("green-box");
-    hbox->addWidget(std::move(text));
-    std::unique_ptr<WLeaflet> leaflet =
-      cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 38.9072, -77.0369, 13);
-    leaflet->setStyleClass("blue-box");
+    root()->setStyleClass("yellow-box");
+    auto hbox = root()->setLayout(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
+    std::unique_ptr<WLeaflet> leaflet = cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 38.9072, -77.0369, 13);
+    leaflet->setStyleClass("green-box");
+    WLength len = leaflet->height();
+    leaflet->resize(800, len);
     hbox->addWidget(std::move(leaflet));
+    std::unique_ptr<WText> text = Wt::cpp14::make_unique<Wt::WText>("item 2");
+    text->setStyleClass("blue-box");
+    hbox->addWidget(std::move(text));
   }
 };
 
@@ -851,11 +853,16 @@ int main(int argc, char **argv)
     usage();
   }
 
+  if (test.compare("1") == 0)
+  {
+
+  }
+
   ///////////////////////////////////////////////////////////////////////////////////////
   //dc_311 test, read CSV data file with -d, geojson with -g 
   ///////////////////////////////////////////////////////////////////////////////////////
 
-  if (test.compare("2") == 0)
+  else if (test.compare("2") == 0)
   {
     if (data_file.empty())
     {
