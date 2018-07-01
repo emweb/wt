@@ -35,7 +35,6 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/src/3rdparty/gason/src # for geojson
 )
 
-
 IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   IF(WIN32)
     # preamble to make this a toplevel CMakeLists.txt for Windows, intended
@@ -271,4 +270,5 @@ SUBDIRS(
   wt-homepage
   wtwithqt
   leaflet_test
+  leaflet_us
 )

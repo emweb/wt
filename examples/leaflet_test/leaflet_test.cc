@@ -72,13 +72,6 @@ star_dataset_t find_dataset(std::string name);
 
 //-t 7 -g ../../../examples/leaflet_test/example.quantized.topojson
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//example 8
-//topojson US counties
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//-t 8 -g ../../../examples/leaflet_test/topojson/us.topojson
-
 std::vector<school_t> schools_list;
 std::vector<double> lat_montgomery;
 std::vector<double> lon_montgomery;
@@ -672,7 +665,20 @@ public:
   {
     setTitle("topojson sample");
 
-    topojson.make_coordinates(topojson.m_objects.at(0));
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render topojson
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    //must make the coordinates for the topology first
+    //3 objects: counties (0), states (1), land (2) 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    size_t topology_index = 0;
+    topojson.make_coordinates(topology_index);
+    topology_object_t topology = topojson.m_topology.at(topology_index);
+
+    size_t size_geom = topology.m_geom.size();
 
     std::vector<double> first = topojson.get_first();
     int ifirst[2];
@@ -688,10 +694,9 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
 
     size_t idx_pal = 0;
-    size_t size_geom = topojson.m_objects.at(0).m_geom.size();
     for (size_t idx_geom = 0; idx_geom < size_geom; idx_geom++)
     {
-      Geometry_t geometry = topojson.m_objects.at(0).m_geom.at(idx_geom);
+      Geometry_t geometry = topology.m_geom.at(idx_geom);
       if (geometry.type.compare("Polygon") == 0 || geometry.type.compare("MultiPolygon") == 0)
       {
         size_t size_pol = geometry.m_polygon.size();
@@ -742,54 +747,6 @@ public:
   }
 };
 
-class Application_us_counties : public WApplication
-{
-public:
-  Application_us_counties(const WEnvironment& env) : WApplication(env)
-  {
-    setTitle("US counties");
-    std::unique_ptr<WLeaflet> leaflet = cpp14::make_unique<WLeaflet>(tile_provider_t::CARTODB, 37.0902, -95.7129, 5);
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //render topojson
-    ///////////////////////////////////////////////////////////////////////////////////////
-
-    Object_topojson_t object = topojson.m_objects.at(1); //3 objects: counties, states, land 
-    topojson.make_coordinates(object);
-    size_t size_geom = object.m_geom.size();
-    for (size_t idx_geom = 0; idx_geom < size_geom; idx_geom++)
-    {
-      Geometry_t geometry = object.m_geom.at(idx_geom);
-      if (geometry.type.compare("Polygon") == 0 || geometry.type.compare("MultiPolygon") == 0)
-      {
-        size_t size_pol = geometry.m_polygon.size();
-        for (size_t idx_pol = 0; idx_pol < size_pol; idx_pol++)
-        {
-          Polygon_topojson_t polygon = geometry.m_polygon.at(idx_pol);
-          size_t size_arcs = polygon.arcs.size();
-
-          ///////////////////////////////////////////////////////////////////////////////////////
-          //render each polygon as a vector of vertices passed to Polygon
-          ///////////////////////////////////////////////////////////////////////////////////////
-
-          std::vector<double> lat;
-          std::vector<double> lon;
-          size_t size_points = geometry.m_polygon.at(idx_pol).m_y.size();
-          for (size_t idx_crd = 0; idx_crd < size_points; idx_crd++)
-          {
-            lat.push_back(geometry.m_polygon.at(idx_pol).m_y.at(idx_crd));
-            lon.push_back(geometry.m_polygon.at(idx_pol).m_x.at(idx_crd));
-          }
-          std::string color = rgb_to_hex(128, 0, 0);
-          leaflet->Polygon(lat, lon, color);
-        }//size_pol
-      }//"Polygon"
-    }//size_geom
-
-    root()->addWidget(std::move(leaflet));
-  }
-};
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //create_application
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -823,10 +780,6 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
   else if (test.compare("7") == 0)
   {
     return cpp14::make_unique<Application_topojson>(env);
-  }
-  else if (test.compare("8") == 0)
-  {
-    return cpp14::make_unique<Application_us_counties>(env);
   }
   assert(0);
 }
@@ -1017,18 +970,9 @@ int main(int argc, char **argv)
       assert(0);
     }
   }
-
-  ///////////////////////////////////////////////////////////////////////////////////////
-  //US counties
-  ///////////////////////////////////////////////////////////////////////////////////////
-
-  else if (test.compare("8") == 0)
+  else
   {
-    std::cout << geojson_file << std::endl;
-    if (topojson.convert(geojson_file.c_str()) < 0)
-    {
-      assert(0);
-    }
+    assert(0);
   }
 
   for (size_t idx = 0; idx < 3 * 256; idx += 3)

@@ -1,4 +1,4 @@
-cmake .. -G "Visual Studio 14" -DBOOST_PREFIX=H:\wt.leaflet\boost_1_65_1 -DBOOST_DYNAMIC=ON -DSHARED_LIBS=ON
-PATH=H:\wt.leaflet\boost_1_65_1\stage\lib;H:\wt.leaflet\wt-4.0.1\build\src\Debug;H:\wt.leaflet\wt-4.0.1\build\src\http\Debug;
+cmake .. -G "Visual Studio 14" -DBOOST_PREFIX=F:\wt.leaflet\boost_1_65_1 -DBOOST_DYNAMIC=ON -DSHARED_LIBS=ON
+PATH=F:\wt.leaflet\boost_1_65_1\stage\lib;F:\wt.leaflet\wt-4.0.1\build\src\Debug;F:\wt.leaflet\wt-4.0.1\build\src\http\Debug;
 cmake .. -DBOOST_PREFIX=/Volumes/Home/git/wt.leaflet/boost_1_65_1 -DBOOST_DYNAMIC=OFF -DSHARED_LIBS=OFF
 cmake .. -DBOOST_PREFIX=/home/pvn/git/wt.leaflet/boost_1_65_1 -DBOOST_DYNAMIC=OFF -DSHARED_LIBS=OFF

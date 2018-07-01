@@ -4,6 +4,14 @@
 #include <stddef.h>
 #include <assert.h>
 
+#ifdef WT_BUILDING
+#include "Wt/WDllDefs.h"
+#else
+#ifndef WT_API
+#define WT_API
+#endif
+#endif
+
 enum JsonTag {
     JSON_NUMBER = 0,
     JSON_STRING,
@@ -21,7 +29,7 @@ struct JsonNode;
 #define JSON_VALUE_TAG_MASK 0xF
 #define JSON_VALUE_TAG_SHIFT 47
 
-union JsonValue {
+union WT_API JsonValue {
     uint64_t ival;
     double fval;
 
@@ -107,7 +115,7 @@ enum JsonErrno {
 
 const char *jsonStrError(int err);
 
-class JsonAllocator {
+class WT_API JsonAllocator {
     struct Zone {
         Zone *next;
         size_t used;
@@ -132,4 +140,4 @@ public:
     void deallocate();
 };
 
-int jsonParse(char *str, char **endptr, JsonValue *value, JsonAllocator &allocator);
+int WT_API jsonParse(char *str, char **endptr, JsonValue *value, JsonAllocator &allocator);
