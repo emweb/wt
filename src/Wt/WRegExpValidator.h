@@ -69,37 +69,23 @@ public:
    */
   WRegExpValidator(const WT_USTRING& pattern);
 
-  /*! \brief Sets a new regular expression validator that accepts input
-   *         that matches the given regular expression.
-   *
-   * This constructs a validator that matches the regular expression
-   * \p expr.
-   */
-  WRegExpValidator(const std::regex& pattern);
-
   /*! \brief Destructor.
    */
   ~WRegExpValidator();
 
   /*! \brief Sets the regular expression for valid input.
    *
-   * Sets the perl regular expression \p expr.
+   * Sets the ECMAscript regular expression \p expr.
    */
   void setRegExp(const WT_USTRING& pattern);
 
-  /*! \brief Sets the regular expression for valid input.
-   */
-  void setRegExp(const std::regex& pattern);
-
   /*! \brief Returns the regular expression for valid input.
    *
-   * Returns the perl regular expression.
+   * Returns the ECMAScript regular expression.
    */
   WT_USTRING regExpPattern() const { return pattern_; }
 
   /*! \brief Returns the regular expression for valid input.
-   *1
-   * Returns the perl regular expression.
    */
   std::regex regExp() const { return regex_; }
 

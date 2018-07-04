@@ -254,8 +254,9 @@ WT_DECLARE_WT_MEMBER
      if ( (e != null &&
 	   e.type === 'load' &&
 	   e.currentTarget.status === 200) ||
-	  e === true)
+	  e === true) {
        APP.emit(dropwidget, 'uploadfinished', uploads[0].id);
+     }
      uploads.splice(0,1);
      if (uploads[0] && uploads[0].ready)
        self.requestSend();
@@ -267,9 +268,10 @@ WT_DECLARE_WT_MEMBER
    
    dropwidget.cancelUpload = function(id) {
      if (uploads[0] && uploads[0].id === id) {
+       uploads[0].skip = true;
        if (uploads[0].request) {
 	 uploads[0].request.abort();
-       } else if (uploadWorker.upload === uploads[0]) {
+       } else if (uploadWorker && uploadWorker.upload === uploads[0]) {
 	 uploadWorker.postMessage({
 	   "cmd" : "cancel",
 	   "upload" : uploads[0]
