@@ -11,6 +11,8 @@
 #include "WebSession.h"
 #include "WebSocketMessage.h"
 
+#include <cstring>
+
 namespace Wt {
 
 LOGGER("WebSocketMessage");
@@ -141,7 +143,12 @@ const std::string& WebSocketMessage::remoteAddr() const
 
 const char *WebSocketMessage::urlScheme() const
 {
-  return "http";
+  const char *wsScheme = webSocket()->urlScheme();
+  if (std::strcmp(wsScheme, "wss") == 0 ||
+      std::strcmp(wsScheme, "https") == 0)
+    return "https";
+  else
+    return "http";
 }
 
 Wt::WSslInfo *WebSocketMessage::sslInfo() const
