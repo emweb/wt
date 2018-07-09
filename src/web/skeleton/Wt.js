@@ -2701,10 +2701,11 @@ function dragEnd(e) {
   }
 };
 
-function encodeTouches(s, touches, widgetCoords) {
+function encodeTouches(touches, widgetCoords) {
   var i, il, result;
 
-  result = s + "=";
+  result = '';
+
   for (i = 0, il = touches.length; i < il; ++i) {
     var t = touches[i];
     if (i != 0)
@@ -2726,16 +2727,15 @@ function encodeEvent(event, i) {
   var se, result, e;
 
   e = event.event;
-  se = i > 0 ? '&e' + i : '&';
-  result = se + 'signal=' + event.signal;
+  result = ['signal=' + event.signal];
 
   if (event.id) {
-    result += se + 'id=' + event.id
-        + se + 'name=' + encodeURIComponent(event.name)
-        + se + 'an=' + event.args.length;
+    result.push('id=' + event.id,
+                'name=' + encodeURIComponent(event.name),
+                'an=' + event.args.length);
 
     for (var j = 0; j < event.args.length; ++j)
-      result += se + 'a' + j + '=' + encodeURIComponent(event.args[j]);
+      result.push('a' + j + '=' + encodeURIComponent(event.args[j]));
   }
 
   for (var x = 0; x < formObjects.length; ++x) {
@@ -2749,8 +2749,8 @@ function encodeEvent(event, i) {
     else if (el.type == 'select-multiple') {
       for (j = 0, jl = el.options.length; j < jl; j++)
 	if (el.options[j].selected) {
-	  result += se + formObjects[x] + '='
-	    + encodeURIComponent(el.options[j].value);
+          result.push(formObjects[x] + '='
+              + encodeURIComponent(el.options[j].value));
 	}
     } else if (el.type == 'checkbox' || el.type == 'radio') {
       if (el.indeterminate || el.style.opacity == '0.5')
@@ -2769,8 +2769,8 @@ function encodeEvent(event, i) {
 
       if (WT.hasFocus(el)) {
 	var range = WT.getUnicodeSelectionRange(el);
-	result += se + "selstart=" + range.start
-	  + se + "selend=" + range.end;
+        result.push('selstart=' + range.start,
+                    'selend=' + range.end);
       }
     }
 
@@ -2778,7 +2778,7 @@ function encodeEvent(event, i) {
       var component;
       try {
 	component = encodeURIComponent(v);
-	result += se + formObjects[x] + '=' + component;
+        result.push(formObjects[x] + '=' + component);
       } catch (e) {
 	// encoding failed, omit this form field
 	// This can happen on Windows when typing a character
@@ -2793,11 +2793,11 @@ function encodeEvent(event, i) {
 
   try {
     if (document.activeElement)
-      result += se + "focus=" + document.activeElement.id;
+      result.push('focus=' + document.activeElement.id);
   } catch (e) { }
 
   if (currentHash != null)
-    result += se + '_=' + encodeURIComponent(currentHash);
+    result.push('_=' + encodeURIComponent(currentHash));
 
   if (!e) {
     event.data = result;
@@ -2808,37 +2808,37 @@ function encodeEvent(event, i) {
   while (t && !t.id && t.parentNode)
     t = t.parentNode;
   if (t && t.id)
-    result += se + 'tid=' + t.id;
+    result.push('tid=' + t.id);
 
   try {
     if (typeof e.type === 'string')
-      result += se + 'type=' + e.type;
+      result.push('type=' + e.type);
   } catch (e) {
   }
 
   if (typeof e.clientX !== UNDEFINED && 
       typeof e.clientX !== UNKNOWN)
-    result += se + 'clientX=' + Math.round(e.clientX) + se
-	+ 'clientY=' + Math.round(e.clientY);
+    result.push('clientX=' + Math.round(e.clientX),
+                'clientY=' + Math.round(e.clientY));
 
   var pageCoords = WT.pageCoordinates(e);
   var posX = pageCoords.x;
   var posY = pageCoords.y;
 
   if (posX || posY) {
-    result += se + 'documentX=' + Math.round(posX) + se
-	  + 'documentY=' + Math.round(posY);
-    result += se + 'dragdX=' + Math.round(posX - downX) + se
-	  + 'dragdY=' + Math.round(posY - downY);
+    result.push('documentX=' + Math.round(posX),
+                'documentY=' + Math.round(posY),
+                'dragdX=' + Math.round(posX - downX),
+                'dragdY=' + Math.round(posY - downY));
 
     var delta = WT.wheelDelta(e);
-    result += se + 'wheel=' + Math.round(delta);
+    result.push('wheel=' + Math.round(delta));
   }
 
   if (typeof e.screenX !== UNDEFINED &&
       typeof e.screenX !== UNKNOWN)
-    result += se + 'screenX=' + Math.round(e.screenX) + se
-	+ 'screenY=' + Math.round(e.screenY);
+    result.push('screenX=' + Math.round(e.screenX),
+                'screenY=' + Math.round(e.screenY));
 
   var widgetCoords = { x: 0, y: 0 };
 
@@ -2849,14 +2849,14 @@ function encodeEvent(event, i) {
 
     if (typeof event.object.scrollLeft !== UNDEFINED &&
 	typeof event.object.scrollLeft !== UNKNOWN) {
-      result += se + 'scrollX=' + Math.round(event.object.scrollLeft)
-	+ se + 'scrollY=' + Math.round(event.object.scrollTop)
-	+ se + 'width=' + Math.round(event.object.clientWidth)
-	+ se + 'height=' + Math.round(event.object.clientHeight);
+      result.push('scrollX=' + Math.round(event.object.scrollLeft),
+                  'scrollY=' + Math.round(event.object.scrollTop),
+                  'width=' + Math.round(event.object.clientWidth),
+                  'height=' + Math.round(event.object.clientHeight));
     }
 
-    result += se + 'widgetX=' + Math.round(posX - objX) + se
-	  + 'widgetY=' + Math.round(posY - objY);
+    result.push('widgetX=' + Math.round(posX - objX),
+                'widgetY=' + Math.round(posY - objY));
   }
 
   var button = WT.button(e);
@@ -2868,11 +2868,11 @@ function encodeEvent(event, i) {
     else if (WT.buttons & 4)
       button = 4;
   }
-  result += se + 'button=' + button;
+  result.push('button=' + button);
 
   if (typeof e.keyCode !== UNDEFINED && 
       typeof e.keyCode !== UNKNOWN)
-    result += se + 'keyCode=' + e.keyCode;
+    result.push('keyCode=' + e.keyCode);
 
   if (typeof e.type === 'string') {
     var charCode = 0;
@@ -2883,40 +2883,40 @@ function encodeEvent(event, i) {
       if (e.type === 'keypress')
 	charCode = e.keyCode;
     }
-    result += se + 'charCode=' + charCode;
+    result.push('charCode=' + charCode);
   }
 
   if (typeof e.altKey !== UNDEFINED && 
       typeof e.altKey !== UNKNOWN &&
       e.altKey)
-    result += se + 'altKey=1';
+    result.push('altKey=1');
   if (typeof e.ctrlKey !== UNDEFINED &&
       typeof e.ctrlKey !== UNKNOWN &&
       e.ctrlKey)
-    result += se + 'ctrlKey=1';
+    result.push('ctrlKey=1');
   if (typeof e.metaKey !== UNDEFINED &&
       typeof e.metaKey !== UNKNOWN &&
       e.metaKey)
-    result += se + 'metaKey=1';
+    result.push('metaKey=1');
   if (typeof e.shiftKey !== UNDEFINED && typeof e.shiftKey !== UNKNOWN &&
       e.shiftKey)
-    result += se + 'shiftKey=1';
+    result.push('shiftKey=1');
 
   if (typeof e.touches !== UNDEFINED)
-    result += encodeTouches(se + "touches", e.touches, widgetCoords);
+    result.push('touches=' + encodeTouches(e.touches, widgetCoords));
   if (typeof e.targetTouches !== UNDEFINED)
-    result += encodeTouches(se + "ttouches", e.targetTouches, widgetCoords);
+    result.push('ttouches=' + encodeTouches(e.targetTouches, widgetCoords));
   if (typeof e.changedTouches !== UNDEFINED)
-    result += encodeTouches(se + "ctouches", e.changedTouches, widgetCoords);
+    result.push('ctouches=' + encodeTouches(e.changedTouches, widgetCoords));
 
   if (typeof e.scale !== UNDEFINED &&
       typeof e.scale !== UNKNOWN &&
       e.scale)
-    result += se + "scale=" + e.scale;
+    result.push('scale=' + e.scale);
   if (typeof e.rotation !== UNDEFINED &&
       typeof e.rotation !== UNKNOWN &&
       e.rotation)
-    result += se + "rotation=" + e.rotation;
+    result.push('rotation=' + e.rotation);
 
   event.data = result;
   return event;
@@ -2925,12 +2925,12 @@ function encodeEvent(event, i) {
 var sentEvents = [], pendingEvents = [];
 
 function encodePendingEvents() {
-  var result = '', feedback = false;
+  var se, result = '', feedback = false;
 
   for (var i = 0; i < pendingEvents.length; ++i) {
+    se = i > 0 ? '&e' + i : '&';
     feedback = feedback || pendingEvents[i].feedback;
-    result += pendingEvents[i].data;
-    var se = i > 0 ? '&e' + i : '&';
+    result += se + pendingEvents[i].data.join(se);
     if (pendingEvents[i].evAckId < ackUpdateId) {
       result += se + 'evAckId=' + pendingEvents[i].evAckId;
     }
@@ -3363,6 +3363,7 @@ _$_$if_WEB_SOCKETS_$_();
                 if (responsePending)
                   websocket.state = WebSocketAckConnect;
                 else if (!$.isEmptyObject(pendingWsRequests)) {
+                  // FIXME: can this cause a double emit?
                   pendingEvents = sentEvents.concat(pendingEvents);
 		  websocket.state = WebSocketAckConnect;
                 } else
@@ -3523,6 +3524,12 @@ function sendUpdate() {
   var useWebSockets = websocket.socket !== null &&
                       websocket.socket.readyState === 1 &&
                       websocket.state === WebSocketWorking;
+
+  if (!useWebSockets &&
+      !$.isEmptyObject(pendingWsRequests)) {
+    // FIXME: can this cause a double emit?
+    pendingEvents = sentEvents.concat(pendingEvents);
+  }
 
   if (pendingEvents.length > 0) {
     data = encodePendingEvents();
