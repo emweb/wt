@@ -3360,13 +3360,10 @@ _$_$if_WEB_SOCKETS_$_();
 		  responsePending = null;
 		}
 
-                if (responsePending)
+                if (responsePending ||
+                    !$.isEmptyObject(pendingWsRequests))
                   websocket.state = WebSocketAckConnect;
-                else if (!$.isEmptyObject(pendingWsRequests)) {
-                  // FIXME: can this cause a double emit?
-                  pendingEvents = sentEvents.concat(pendingEvents);
-		  websocket.state = WebSocketAckConnect;
-                } else
+                else
 		  webSocketAckConnect();
 	      } else {
 		console.log("WebSocket: was expecting a connect?");
@@ -3524,12 +3521,6 @@ function sendUpdate() {
   var useWebSockets = websocket.socket !== null &&
                       websocket.socket.readyState === 1 &&
                       websocket.state === WebSocketWorking;
-
-  if (!useWebSockets &&
-      !$.isEmptyObject(pendingWsRequests)) {
-    // FIXME: can this cause a double emit?
-    pendingEvents = sentEvents.concat(pendingEvents);
-  }
 
   if (pendingEvents.length > 0) {
     data = encodePendingEvents();
