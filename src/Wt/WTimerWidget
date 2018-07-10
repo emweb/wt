@@ -27,6 +27,8 @@ public:
   void timerStart(bool jsRepeat);
   bool timerExpired();
 
+  bool jsRepeat() const { return jsRepeat_; }
+
 private:
   WTimer *timer_;
   bool timerStarted_;

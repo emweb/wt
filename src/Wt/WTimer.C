@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WApplication"
+#include "Wt/WEnvironment"
 #include "Wt/WTimer"
 #include "Wt/WTimerWidget"
 #include "Wt/WContainerWidget"
@@ -49,8 +50,8 @@ void WTimer::setSingleShot(bool singleShot)
 
 void WTimer::start()
 {
+  WApplication *app = WApplication::instance();
   if (!active_) {
-    WApplication *app = WApplication::instance();    
     if (app && app->timerRoot())
       app->timerRoot()->addWidget(timerWidget_);
   }
@@ -58,7 +59,9 @@ void WTimer::start()
   active_ = true;
   *timeout_ = Time() + interval_;
 
-  bool jsRepeat = !timeout().isExposedSignal() && !singleShot_;
+  bool jsRepeat = !singleShot_ &&
+                  ((app && app->environment().ajax()) ||
+                   !timeout().isExposedSignal());
 
   timerWidget_->timerStart(jsRepeat);
 
@@ -88,7 +91,10 @@ void WTimer::gotTimeout()
   if (active_) {
     if (!singleShot_) {
       *timeout_ = Time() + interval_;
-      timerWidget_->timerStart(false);    
+      if (!timerWidget_->jsRepeat()) {
+        WApplication *app = WApplication::instance();
+        timerWidget_->timerStart(app->environment().ajax());
+      }
     } else
       stop();
   }
