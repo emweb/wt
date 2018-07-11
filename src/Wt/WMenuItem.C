@@ -524,7 +524,8 @@ std::unique_ptr<WWidget> WMenuItem::takeContentsForStack()
 void WMenuItem::returnContentsInStack(std::unique_ptr<WWidget> widget)
 {
   if (oContentsContainer_) {
-    uContents_ = oContentsContainer_->removeWidget(oContents_.get());
+    if (!uContents_)
+      uContents_ = oContentsContainer_->removeWidget(oContents_.get());
     oContentsContainer_ = nullptr;
   } else
     uContents_ = std::move(widget);

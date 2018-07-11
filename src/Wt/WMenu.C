@@ -52,25 +52,19 @@ namespace Wt {
 LOGGER("WMenu");
 
 WMenu::WMenu()
-  : contentsStack_(nullptr)
-{ 
-  init();
-}
+  : WMenu(nullptr)
+{ }
 
 WMenu::WMenu(WStackedWidget *contentsStack)
-  : contentsStack_(contentsStack)
+  : ul_(nullptr),
+    contentsStack_(contentsStack),
+    internalPathEnabled_(false),
+    emitPathChange_(false),
+    parentItem_(nullptr),
+    current_(-1),
+    previousStackIndex_(-1),
+    needSelectionEventUpdate_(false)
 {
-  init();
-}
-
-void WMenu::init()
-{
-  internalPathEnabled_ = false;
-  emitPathChange_ = false;
-  parentItem_ = nullptr;
-  needSelectionEventUpdate_ = false;
-  current_ = -1;
-
   if (contentsStack_) {
     contentsStack_->childrenChanged().connect(this,
 					      &WMenu::updateSelectionEvent);
@@ -226,8 +220,7 @@ WMenuItem *WMenu::insertItem(int index, std::unique_ptr<WMenuItem> item)
 
       if (contentsStack_->count() == 1) {
 	setCurrent(0);
-	if (contents)
-	  contentsStack_->setCurrentWidget(contents);
+        contentsStack_->setCurrentWidget(contents);
 
 	renderSelected(result, true);
       } else
@@ -544,6 +537,7 @@ std::vector<WMenuItem *> WMenu::items() const
 {
   std::vector<WMenuItem *> result;
 
+  result.reserve(count());
   for (int i = 0; i < count(); ++i)
     result.push_back(itemAt(i));
 
