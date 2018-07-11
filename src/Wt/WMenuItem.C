@@ -388,7 +388,7 @@ void WMenuItem::selectNotLoaded()
 
 bool WMenuItem::contentsLoaded() const
 {
-  return uContents_ != nullptr;
+  return oContents_.operator bool();
 }
 
 void WMenuItem::loadContents()
