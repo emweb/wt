@@ -49,8 +49,7 @@ WMenuItem::WMenuItem(bool separator, const WString& text)
   internalPathEnabled_ = false;
 
   if (!text.empty()) {
-    text_ = new WLabel();
-    addWidget(std::unique_ptr<WWidget>(text_));
+    text_ = addNew<WLabel>();
     text_->setTextFormat(TextFormat::Plain);
     text_->setText(text);
   }
@@ -76,7 +75,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   setContents(std::move(contents), policy);
 
   if (!separator_) {
-    addWidget(std::unique_ptr<WAnchor>(new WAnchor));
+    addNew<WAnchor>();
     updateInternalPath();
   }
 
@@ -139,8 +138,7 @@ void WMenuItem::setIcon(const std::string& path)
     if (!a)
       return;
 
-    icon_ = new WText(" ");
-    a->insertWidget(0, std::unique_ptr<WText>(icon_));
+    icon_ = a->insertNew<WText>(0, " ");
 
     WApplication *app = WApplication::instance();
     app->theme()->apply(this, icon_, WidgetThemeRole::MenuItemIcon);
@@ -160,8 +158,7 @@ std::string WMenuItem::icon() const
 void WMenuItem::setText(const WString& text)
 {
   if (!text_) {
-    text_ = new WLabel();
-    anchor()->addWidget(std::unique_ptr<WLabel>(text_));
+    text_ = anchor()->addNew<WLabel>();
     text_->setTextFormat(TextFormat::Plain);
   }
 
@@ -277,8 +274,7 @@ void WMenuItem::setCloseable(bool closeable)
     closeable_ = closeable;
 
     if (closeable_) {
-      WText *closeIcon = new WText("");
-      insertWidget(0, std::unique_ptr<WText>(closeIcon));
+      WText *closeIcon = insertNew<WText>(0, "");
       WApplication *app = WApplication::instance();
       app->theme()->apply(this, closeIcon, WidgetThemeRole::MenuItemClose);
 
@@ -292,8 +288,7 @@ void WMenuItem::setCheckable(bool checkable)
 {
   if (isCheckable() != checkable) {
     if (checkable) {
-      std::unique_ptr<WCheckBox> cb(checkBox_ = new WCheckBox());
-      anchor()->insertWidget(0, std::move(cb));
+      checkBox_ = anchor()->insertNew<WCheckBox>(0);
       setText(text());
 
       text_->setBuddy(checkBox_);
@@ -301,7 +296,7 @@ void WMenuItem::setCheckable(bool checkable)
       WApplication *app = WApplication::instance();
       app->theme()->apply(this, checkBox_, WidgetThemeRole::MenuItemCheckBox);
     } else {
-      removeWidget(checkBox_);
+      anchor()->removeWidget(checkBox_);
       checkBox_ = nullptr;
     }
   }
@@ -382,20 +377,20 @@ void WMenuItem::renderSelected(bool selected)
 
 void WMenuItem::selectNotLoaded()
 {
-  if (contentsLoaded())
+  if (!contentsLoaded())
     select();
 }
 
 bool WMenuItem::contentsLoaded() const
 {
-  return uContents_ != nullptr;
+  return oContents_ && !uContents_;
 }
 
 void WMenuItem::loadContents()
 {
   if (!uContents_)
     return;
-  else {
+  else if (!contentsLoaded()) {
     oContentsContainer_->addWidget(std::move(uContents_));
     signalsConnected_ = false;
     connectSignals();
@@ -407,7 +402,7 @@ void WMenuItem::connectSignals()
   if (!signalsConnected_) {
     signalsConnected_ = true;
 
-    if (contentsLoaded())
+    if (!oContents_ || contentsLoaded())
       implementStateless(&WMenuItem::selectVisual,
 			 &WMenuItem::undoSelectVisual);
 
@@ -474,10 +469,12 @@ WWidget *WMenuItem::contents() const
 
 WWidget *WMenuItem::contentsInStack() const
 {
-  if (oContentsContainer_)
+  if (oContentsContainer_ && !uContentsContainer_)
     return oContentsContainer_.get();
-  else
+  else if (oContents_ && !uContents_)
     return oContents_.get();
+  else
+    return nullptr;
 }
 
 std::unique_ptr<WWidget> WMenuItem::removeContents()
