@@ -48,6 +48,8 @@ using namespace Wt::rapidxml;
 
 namespace {
 
+static const std::string EMPTY_STR;
+
 using namespace Wt;
 
 bool regexMatchAny(const std::string& agent,
@@ -688,48 +690,60 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
                                                  const std::string &path,
                                                  bool matchAfterSlash) const
 {
-  // TODO(Roel): handle scriptName!!!
+  if (!scriptName.empty()) {
+    EntryPointMatch m = matchEntryPoint(EMPTY_STR, scriptName + path, matchAfterSlash);
+    if (m.entryPoint)
+      return m;
+    else
+      return matchEntryPoint(EMPTY_STR, path, matchAfterSlash);
+  }
+
   READ_LOCK;
   // Only one default entry point.
   if (entryPoints_.size() == 1
       && entryPoints_[0].path().empty())
     return EntryPointMatch(&entryPoints_[0], 0);
 
-  assert(path[0] == '/');
+  assert(path.empty() || path[0] == '/');
 
   const PathSegment *pathSegment = &rootPathSegment_;
 
   // Flag marking whether any of the matched segments is dynamic
   bool dynamic = false;
 
-  // Move down the routing tree, segment per segment
   typedef boost::split_iterator<std::string::const_iterator> spliterator;
-  for (spliterator it = spliterator(path.begin() + 1, path.end(),
-                                    boost::first_finder(FORWARD_SLASH, boost::is_equal()));
-       it != spliterator(); ++it) {
-    // Find exact path match for segment
-    const auto &children = pathSegment->children;
-    const PathSegment *childSegment = nullptr;
-    auto c = std::find_if(children.begin(), children.end(), [&it](const std::unique_ptr<PathSegment> &c) {
-      return c->segment == *it;
-    });
-    if (c != children.end())
-      childSegment = c->get();
 
-    // No exact match, see if there is a dynamic segment
-    if (!childSegment &&
-        !it->empty() &&
-        pathSegment->dynamicChild) {
-      childSegment = pathSegment->dynamicChild.get();
-      dynamic = true;
+  if (!path.empty()) {
+    // Move down the routing tree, segment per segment
+    for (spliterator it = spliterator(path.begin() + 1, path.end(),
+                                      boost::first_finder(FORWARD_SLASH, boost::is_equal()));
+         it != spliterator(); ++it) {
+      // Find exact path match for segment
+      const auto &children = pathSegment->children;
+      const PathSegment *childSegment = nullptr;
+      auto c = std::find_if(children.begin(), children.end(), [&it](const std::unique_ptr<PathSegment> &c) {
+        return c->segment == *it;
+      });
+      if (c != children.end())
+        childSegment = c->get();
+
+      // No exact match, see if there is a dynamic segment
+      if (!childSegment &&
+          !it->empty() &&
+          pathSegment->dynamicChild) {
+        childSegment = pathSegment->dynamicChild.get();
+        dynamic = true;
+      }
+
+      // No match, deepest match reached
+      if (!childSegment)
+        break;
+
+      // Move to the next segment
+      pathSegment = childSegment;
     }
-
-    // No match, deepest match reached
-    if (!childSegment)
-      break;
-
-    // Move to the next segment
-    pathSegment = childSegment;
+  } else {
+    matchAfterSlash = true;
   }
 
   // Move up from the found segment, until we find one that corresponds to an entrypoint
@@ -777,7 +791,7 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
       result.extra = std::distance(path.begin(), it1->begin()) - 1; // there's more
     return result;
   } else if (match) {
-    return EntryPointMatch(match, match->path().size()); // simple match
+    return EntryPointMatch(match, path.empty() ? 0 : match->path().size()); // simple match
   } else
     return EntryPointMatch(); // no match
 }
