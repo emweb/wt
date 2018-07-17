@@ -89,6 +89,14 @@ public:
    */
   std::regex regExp() const { return regex_; }
 
+  /*! \brief Sets regular expression matching flags.
+   */
+  void setFlags(WFlags<RegExpFlag> flags);
+
+  /*! \brief Returns regular expression matching flags.
+   */
+  WFlags<RegExpFlag> flags() const;
+
   /*! \brief Validates the given input.
    *
    * The input is considered valid only when it is blank for a

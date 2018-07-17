@@ -51,9 +51,6 @@ WT_DECLARE_WT_MEMBER
      scrollTop = headerColumnsContainer.scrollTop
             = contentsContainer.scrollTop;
 
-     if (contentsContainer.scrollTop == 0 && WT.isAndroid)
-       return;
-
      if (contentsContainer.clientWidth && contentsContainer.clientHeight
          && (!scrollToPending)
          && (contentsContainer.scrollTop < scrollY1
