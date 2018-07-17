@@ -94,13 +94,19 @@ WMenuItem::~WMenuItem()
 void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
 			    ContentLoading policy)
 {
-  assert (!oContents_ && !uContents_);
+  int menuIdx = -1;
+  WMenu *menu = menu_;
+  std::unique_ptr<WMenuItem> self;
+  if (menu) {
+    menuIdx = menu->indexOf(this);
+    self = menu->removeItem(this);
+  }
 
   uContents_ = std::move(contents);
   oContents_ = uContents_.get();
   loadPolicy_ = policy;
 
-  if (uContents_ && loadPolicy_ != ContentLoading::NextLevel) {
+  if (uContents_ && loadPolicy_ == ContentLoading::Lazy) {
      if (!oContentsContainer_) {
        uContentsContainer_.reset(new WContainerWidget());
        oContentsContainer_ = uContentsContainer_.get();
@@ -112,6 +118,10 @@ void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
                                   WLength(100, LengthUnit::Percentage));
      }
    }
+
+  if (menu) {
+    menu->insertItem(menuIdx, std::move(self));
+  }
 }
 
 bool WMenuItem::isSectionHeader() const
@@ -502,15 +512,6 @@ std::unique_ptr<WWidget> WMenuItem::takeContentsForStack()
     return nullptr;
   else {
     if (loadPolicy_ == ContentLoading::Lazy) {
-      uContentsContainer_.reset(new WContainerWidget());
-      oContentsContainer_ = uContentsContainer_.get();
-      oContentsContainer_
-	->setJavaScriptMember("wtResize",
-			      StdWidgetItemImpl::childrenResizeJS());
-
-      oContentsContainer_->resize(WLength::Auto,
-				 WLength(100, LengthUnit::Percentage));
-
       return std::move(uContentsContainer_);
     } else {
       return std::move(uContents_);
