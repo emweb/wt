@@ -111,6 +111,19 @@ WMenuItem::~WMenuItem()
 
 void WMenuItem::setContents(WWidget *contents, LoadPolicy policy)
 {
+  int menuIdx = -1;
+  WMenu *menu = menu_;
+  if (menu) {
+    menuIdx = menu->indexOf(this);
+    menu->removeItem(this);
+  }
+
+  if (contentsContainer_) {
+    // if contents_ is a child of contentsContainer_,
+    // it will be deleted and trigger contentsDestroyed
+    delete contentsContainer_;
+    contentsContainer_ = 0;
+  }
   delete contents_;
 
   contents_ = contents;
@@ -128,15 +141,17 @@ void WMenuItem::setContents(WWidget *contents, LoadPolicy policy)
   if (contents && policy != PreLoading) {
     contents_ = contents;
 
-    if (!contentsContainer_) {
-      contentsContainer_ = new WContainerWidget();
-      contentsContainer_
-	->setJavaScriptMember("wtResize",
-			      StdWidgetItemImpl::childrenResizeJS());
+    contentsContainer_ = new WContainerWidget();
+    contentsContainer_
+      ->setJavaScriptMember("wtResize",
+                            StdWidgetItemImpl::childrenResizeJS());
 
-      contentsContainer_->resize(WLength::Auto,
-				 WLength(100, WLength::Percentage));
-    }
+    contentsContainer_->resize(WLength::Auto,
+                               WLength(100, WLength::Percentage));
+  }
+
+  if (menu) {
+    menu->insertItem(menuIdx, this);
   }
 }
 
