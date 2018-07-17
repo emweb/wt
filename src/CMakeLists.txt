@@ -199,7 +199,6 @@ Wt/WRectArea.C
 Wt/WRectF.C
 Wt/WRegExpValidator.C
 Wt/WResource.C
-Wt/WRestResource.C
 Wt/WSelectionBox.C
 Wt/WServer.C
 Wt/WShadow.C
