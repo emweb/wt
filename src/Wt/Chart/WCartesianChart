@@ -642,8 +642,8 @@ public:
    *
    * \if java
    * \code
-   * axis(Y1) == yAxis(0)
-   * axis(Y2) == yAxis(1)
+   * getAxis(Axis.YAxis) == getYAxis(0)
+   * getAxis(Axis.Y2Axis) == getYAxis(1)
    * \endcode
    * \endif
    *
@@ -664,8 +664,8 @@ public:
    *
    * \if java
    * \code
-   * axis(Y1) == yAxis(0)
-   * axis(Y2) == yAxis(1)
+   * getAxis(Axis.YAxis) == getYAxis(0)
+   * getAxis(Axis.Y2Axis) == getYAxis(1)
    * \endcode
    * \endif
    *
