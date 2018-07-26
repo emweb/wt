@@ -2951,6 +2951,8 @@ var sessionUrl,
   responsePending = null,
   pollTimer = null,
   keepAliveTimer = null,
+  idleTimeout = _$_IDLE_TIMEOUT_$_, /* idle timeout in seconds, null if disabled */
+  idleTimeoutTimer = null,
   commErrors = 0,
   serverPush = false,
   updateTimeout = null;
@@ -2961,6 +2963,10 @@ function quit(hasQuitMessage) {
   if (keepAliveTimer) {
     clearInterval(keepAliveTimer);
     keepAliveTimer = null;
+  }
+  if (idleTimeoutTimer) {
+    clearTimeout(idleTimeoutTimer);
+    idleTimeoutTimer = null;
   }
   if (pollTimer) {
     clearTimeout(pollTimer);
@@ -2985,6 +2991,56 @@ function debug(s) {
 function setTitle(title) {
   if (WT.isIEMobile) return;
   document.title = title;
+}
+
+function doIdleTimeout() {
+  self.emit(self, 'Wt-idleTimeout');
+  idleTimeoutTimer = setTimeout(doIdleTimeout, idleTimeout * 1000);
+}
+
+function delayIdleTimeout() {
+  if (idleTimeoutTimer !== null) {
+    clearTimeout(idleTimeoutTimer);
+    idleTimeoutTimer = setTimeout(doIdleTimeout, idleTimeout * 1000);
+  }
+}
+
+function initIdleTimeout() {
+  var opts = true;
+
+  if (idleTimeout === null)
+    return;
+
+  idleTimeoutTimer = setTimeout(doIdleTimeout, idleTimeout * 1000);
+
+  try {
+    var options = Object.defineProperty({}, "passive", {
+      get: function() {
+        //passive supported
+        opts = {
+          capture: true,
+          passive: true
+        };
+      }
+    });
+
+    window.addEventListener('test', options, options);
+    window.removeEventListener('test', options, options);
+  } catch (err) {
+    opts = true; // passive not supported, only specify capture
+  }
+
+  if (document.addEventListener) {
+    document.addEventListener('mousedown', delayIdleTimeout, opts);
+    document.addEventListener('mouseup', delayIdleTimeout, opts);
+    document.addEventListener('wheel', delayIdleTimeout, opts);
+    document.addEventListener('keydown', delayIdleTimeout, opts);
+    document.addEventListener('keyup', delayIdleTimeout, opts);
+    document.addEventListener('touchstart', delayIdleTimeout, opts);
+    document.addEventListener('touchend', delayIdleTimeout, opts);
+    document.addEventListener('pointerdown', delayIdleTimeout, opts);
+    document.addEventListener('pointerup', delayIdleTimeout, opts);
+  }
 }
 
 function load(fullapp) {
@@ -3018,6 +3074,7 @@ function load(fullapp) {
 
   WT.history._initialize();
   initDragDrop();
+  initIdleTimeout();
   loaded = true;
 
   if (fullapp)
