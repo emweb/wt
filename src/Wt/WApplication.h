@@ -2112,8 +2112,15 @@ protected:
 
   /*! \brief Idle timeout handler
    *
+   * \if cpp
    * If <tt>idle-timeout</tt> is set in the configuration, this method is called when
    * the user seems idle for the number of seconds set in <tt>idle-timeout</tt>.
+   * \elseif java
+   * If idle timeout is set in the configuration
+   * ({@link Configuration#setIdleTimeout(int)}), this
+   * method is called when the user seems idle for the number of seconds set as the
+   * idle timeout.
+   * \endif
    *
    * This feature can be useful in security sensitive applications
    * to prevent unauthorized users from taking over the session
@@ -2166,6 +2173,8 @@ protected:
    * };
    * \endcode
    *
+   * \endif
+   *
    * \note The events currently counted as user activity are:
    *  - mousedown
    *  - mouseup
@@ -2176,8 +2185,6 @@ protected:
    *  - touchend
    *  - pointerdown
    *  - pointerup
-   *
-   * \endif
    */
   virtual void idleTimeout();
 

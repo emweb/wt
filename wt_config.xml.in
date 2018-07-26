@@ -109,9 +109,9 @@
 
             <!-- Idle timeout (seconds).
 
-               When the user does not interact with the application for time,
+               When the user does not interact with the application for the set number of seconds,
                WApplication::idleTimeout() is called. By default, this
-               methods quits the application immediately, but it can be overridden
+               method quits the application immediately, but it can be overridden
                if different behaviour is desired.
 
                This feature can be used to prevent others from taking over a session

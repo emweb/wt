@@ -937,7 +937,15 @@ bool Client::request(Http::Method method, const std::string& url,
     asio::ssl::context context
       (*ioService, asio::ssl::context::sslv23);
 #endif
-    long sslOptions = asio::ssl::context::no_sslv2 | asio::ssl::context::no_sslv3;
+    long sslOptions = asio::ssl::context::no_sslv2 |
+                      asio::ssl::context::no_sslv3 |
+                      asio::ssl::context::no_tlsv1;
+
+#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 105800) || \
+     defined(WT_ASIO_IS_STANDALONE_ASIO)
+    sslOptions |= asio::ssl::context::no_tlsv1_1;
+#endif
+
     context.set_options(sslOptions);
 
 
