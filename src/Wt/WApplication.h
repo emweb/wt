@@ -2110,6 +2110,77 @@ protected:
    */
   virtual void unload();
 
+  /*! \brief Idle timeout handler
+   *
+   * If <tt>idle-timeout</tt> is set in the configuration, this method is called when
+   * the user seems idle for the number of seconds set in <tt>idle-timeout</tt>.
+   *
+   * This feature can be useful in security sensitive applications
+   * to prevent unauthorized users from taking over the session
+   * of a user that has moved away from or left behind
+   * the device from which they are accessing the %Wt application.
+   *
+   * The default implementation logs that a timeout has occurred,
+   * and calls quit().
+   *
+   * This method can be overridden to specify different timeout behaviour,
+   * e.g. to show a dialog that a user's session has expired, or that
+   * the session is about to expire.
+   *
+   * \if cpp
+   *
+   * Example for an expiration dialog:
+   *
+   * \code
+   * class MyApplication : public Wt::WApplication {
+   * public:
+   *   MyApplication(Wt::WEnvironment &env)
+   *    : WApplication(env)
+   *   { }
+   *
+   * protected:
+   *   virtual void idleTimeout() override
+   *   {
+   *     if (idleTimeoutDialog_)
+   *       return; // Prevent multiple dialogs
+   *
+   *     idleTimeoutDialog_ = addChild(std::make_unique<Wt::WDialog>("Idle timeout"));
+   *     idleTimeoutDialog_->contents()->addNew<Wt::WText>("This session will automatically quit in 1 minute, "
+   *                                                       "press 'abort' to continue using the application");
+   *     auto btn = idleTimeoutDialog_->footer()->addNew<Wt::WPushButton>("abort");
+   *     btn->clicked().connect([this]{
+   *       removeChild(idleTimeoutDialog_.get());
+   *     });
+   *     auto timer = idleTimeoutDialog_->addChild(std::make_unique<Wt::WTimer>());
+   *     timer->setInterval(std::chrono::seconds{60});
+   *     timer->setSingleShot(true);
+   *     timer->timeout().connect([this]{
+   *       quit();
+   *     });
+   *     timer->start();
+   *     idleTimeoutDialog_->show();
+   *   }
+   *
+   * private:
+   *   Wt::Core::observing_ptr<Wt::WDialog> idleTimeoutDialog_;
+   * };
+   * \endcode
+   *
+   * \note The events currently counted as user activity are:
+   *  - mousedown
+   *  - mouseup
+   *  - wheel
+   *  - keydown
+   *  - keyup
+   *  - touchstart
+   *  - touchend
+   *  - pointerdown
+   *  - pointerup
+   *
+   * \endif
+   */
+  virtual void idleTimeout();
+
   /**
    * @brief handleJavaScriptError print javaScript errors to log file.
    * You may want to overwrite it to render error page for example.
@@ -2231,6 +2302,7 @@ private:
 
   EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
   JSignal<> unloaded_;
+  JSignal<> idleTimeout_;
 
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WEnvironment& env(); // short-hand for session_->env()
@@ -2275,6 +2347,7 @@ private:
   void setExposeSignals(bool how) { exposeSignals_ = how; }
   bool exposeSignals() const { return exposeSignals_; }
   void doUnload();
+  void doIdleTimeout();
 
 #ifndef WT_TARGET_JAVA
   int startWaitingAtLock();

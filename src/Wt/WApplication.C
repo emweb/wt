@@ -127,6 +127,7 @@ WApplication::WApplication(const WEnvironment& env
     showLoadingIndicator_("showload", this),
     hideLoadingIndicator_("hideload", this),
     unloaded_(this, "Wt-unload"),
+    idleTimeout_(this, "Wt-idleTimeout"),
     soundManager_(nullptr)
 {
   session_->setApplication(this);
@@ -281,6 +282,7 @@ WApplication::WApplication(const WEnvironment& env
     (std::unique_ptr<WLoadingIndicator>(new WDefaultLoadingIndicator()));
 
   unloaded_.connect(this, &WApplication::doUnload);
+  idleTimeout_.connect(this, &WApplication::doIdleTimeout);
 }
 
 void WApplication::setJavaScriptClass(const std::string& javaScriptClass)
@@ -763,6 +765,21 @@ void WApplication::doUnload()
 
 void WApplication::unload()
 {
+  quit();
+}
+
+void WApplication::doIdleTimeout()
+{
+  const Configuration& conf = environment().server()->configuration();
+
+  if (conf.idleTimeout() != -1)
+    idleTimeout();
+}
+
+void WApplication::idleTimeout()
+{
+  const Configuration& conf = environment().server()->configuration();
+  LOG_INFO("User idle for " << conf.idleTimeout() << " seconds, quitting due to idle timeout");
   quit();
 }
 

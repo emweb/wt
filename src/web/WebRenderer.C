@@ -1024,6 +1024,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     script.setVar("KEEP_ALIVE", std::to_string(conf.keepAlive()));
 
+    script.setVar("IDLE_TIMEOUT", conf.idleTimeout() != -1 ?
+        std::to_string(conf.idleTimeout()) : std::string("null"));
+
     script.setVar("INDICATOR_TIMEOUT", conf.indicatorTimeout());
     script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
 

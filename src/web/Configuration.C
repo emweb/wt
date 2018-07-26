@@ -200,6 +200,7 @@ void Configuration::reset()
   sessionTracking_ = URL;
   reloadIsNewSession_ = true;
   sessionTimeout_ = 600;
+  idleTimeout_ = -1;
   bootstrapTimeout_ = 10;
   indicatorTimeout_ = 500;
   doubleClickTimeout_ = 200;
@@ -297,6 +298,12 @@ int Configuration::sessionTimeout() const
 {
   READ_LOCK;
   return sessionTimeout_;
+}
+
+int Configuration::idleTimeout() const
+{
+  READ_LOCK;
+  return idleTimeout_;
 }
 
 int Configuration::keepAlive() const
@@ -902,6 +909,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     }
 
     setInt(sess, "timeout", sessionTimeout_);
+    setInt(sess, "idle-timeout", idleTimeout_);
     setInt(sess, "bootstrap-timeout", bootstrapTimeout_);
     setInt(sess, "server-push-timeout", serverPushTimeout_);
     setBoolean(sess, "reload-is-new-session", reloadIsNewSession_);

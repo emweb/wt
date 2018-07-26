@@ -184,6 +184,7 @@ public:
   SessionTracking sessionTracking() const;
   bool reloadIsNewSession() const;
   int sessionTimeout() const;
+  int idleTimeout() const;
   int keepAlive() const; // sessionTimeout() / 2, or if sessionTimeout == -1, 1000000
   int multiSessionCookieTimeout() const; // sessionTimeout() * 2
   int bootstrapTimeout() const;
@@ -278,6 +279,7 @@ private:
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;
   int             sessionTimeout_;
+  int             idleTimeout_;
   int             bootstrapTimeout_;
   int		  indicatorTimeout_;
   int             doubleClickTimeout_;
