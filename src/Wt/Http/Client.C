@@ -943,7 +943,14 @@ bool Client::request(Http::Method method, const std::string& url,
     boost::asio::ssl::context context
       (*ioService, boost::asio::ssl::context::sslv23);
 #endif
-    long sslOptions = boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3;
+    long sslOptions = boost::asio::ssl::context::no_sslv2 |
+                      boost::asio::ssl::context::no_sslv3 |
+                      boost::asio::ssl::context::no_tlsv1;
+
+#if BOOST_VERSION >= 105800
+    sslOptions |= boost::asio::ssl::context::no_tlsv1_1;
+#endif // BOOST_VERSION >= 105800
+
     context.set_options(sslOptions);
 
 

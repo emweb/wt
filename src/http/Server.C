@@ -200,6 +200,11 @@ void Server::start()
     if (!config_.sslEnableV3())
       sslOptions |= asio::ssl::context::no_sslv3;
 
+    sslOptions |= asio::ssl::context::no_tlsv1;
+#if BOOST_VERSION >= 105800
+    sslOptions |= asio::ssl::context::no_tlsv1_1;
+#endif // BOOST_VERSION >= 105800
+
     ssl_context_.set_options(sslOptions);
 
     if (config_.sslClientVerification() == "none") {

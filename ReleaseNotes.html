@@ -92,6 +92,14 @@ allows for any amount of Y axes, and extends the interactive functionality to su
 
 <p>Note that the data must be ordered on X axis value for this feature to work properly.</p>
 
+<h3>Idle timeout</h3>
+
+<p>Added an <tt>&lt;idle-timeout&gt;</tt> option to the configuration (<tt>wt_config.xml</tt>). If set,
+<a href="classWt_1_1WApplication.html#a4e8020fca24d09661ee4bf13400354d9"><tt>WApplication::idleTimeout()</a></tt> will be triggered after the configured number of seconds.</p>
+
+<p>This is intended to prevent unauthorized people from using an active session from a
+device that's been abandoned by the user.</p>
+
 <a href="classWt_1_1WFileDropWidget.html"><h3>WFileDropWidget</h3></a>
 
 <p>Added the ability to set a
@@ -113,6 +121,9 @@ compress uploads client side. See the filedrop example in <tt>examples/filedrop<
   <li>
     Added <tt>insertTab</tt>, <tt>itemAt</tt> and <tt>currentItem</tt> to
     <a href="classWt_1_1WTabWidget.html"><tt>WTabWidget</tt></a>
+  </li>
+  <li>
+    Disabled TLS v. 1.0 and 1.1 support
   </li>
 </ul>
 
