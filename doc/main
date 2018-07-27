@@ -613,6 +613,18 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       resulting in a lower server load, but at the same time will
       detect a dead session with a longer delay, and thus have on
       average more sessions in memory that are no longer used.</dd>
+
+    <dt><strong>idle-timeout</strong></dt>
+
+    <dd><p>The timeout (in seconds) for detecting whether the user is idle.
+      When the user does not interact with the application for the set
+      number of seconds, WApplication::idleTimeout() is called. By default,
+      this method quits the application immediately, but it can be overridden
+      if different behaviour is desired.</p><p>This feature can be used to
+      prvent others from taking over a session when the device that the %Wt
+      application is being used from is left behind, and is most effective in
+      combination with a fairly short session timeout.</p><p>When omitted,
+      or left empty, this feature is disabled</p></dd>
   
     <dt><strong>server-push-timeout</strong></dt>
 
