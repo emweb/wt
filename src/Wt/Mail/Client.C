@@ -15,6 +15,8 @@
 
 #include "WebUtils.h"
 
+#include <string>
+
 namespace Wt {
 
 LOGGER("Mail.Client");
@@ -35,7 +37,9 @@ public:
   enum class ReplyCode {
     Ready = 220,
     Bye = 221,
+    AuthOk = 235,
     Ok = 250,
+    OkGoOn = 334,
     StartMailInput = 354
   };
 
@@ -64,10 +68,9 @@ public:
 
     try {
       failIfReplyCodeNot(ReplyCode::Ready);
-
       send("EHLO " + selfFQDN + "\r\n");
-
       failIfReplyCodeNot(ReplyCode::Ok);
+      authenticate();
     } catch (std::exception& e) {
       socket_.close();
       LOG_ERROR(e.what());
@@ -122,6 +125,18 @@ public:
       return false;
     }
     return true;
+  }
+
+  void authenticate()
+  {
+    std::string passwd;
+    WApplication::readConfigurationProperty("smtp-plain-auth", passwd);
+    if (!passwd.empty()) {
+      send("AUTH PLAIN\r\n");
+      failIfReplyCodeNot(ReplyCode::OkGoOn);
+      send(passwd + "\r\n");
+      failIfReplyCodeNot(ReplyCode::AuthOk);
+    }
   }
 
 private:
