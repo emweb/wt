@@ -12,6 +12,7 @@
 #include "gason.h"
 #include "leaflet/WLeaflet.hh"
 #include "leaflet/WPlotly.hh"
+#include "leaflet/WCelsium.hh"
 #include "leaflet/csv.hh"
 #include "leaflet/geojson.hh"
 #include "leaflet/topojson.hh"
@@ -30,6 +31,32 @@ using namespace Wt;
 
 std::string rgb_to_hex(int r, int g, int b);
 topojson_t topojson;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//to_hex
+//convert int to hex string, apply zero padding
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string to_hex(int n)
+{
+  std::stringstream ss;
+  ss << std::hex << n;
+  std::string str(ss.str());
+  return str.size() == 1 ? "0" + str : str;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//rgb_to_hex
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string rgb_to_hex(int r, int g, int b)
+{
+  std::string str("#");
+  str += to_hex(r);
+  str += to_hex(g);
+  str += to_hex(b);
+  return str;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //Application_us_counties
@@ -118,12 +145,30 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
+//Application_celsium
+///////////////////////////////////////////////////////////////////////////////////////
+
+class Application_celsium : public WApplication
+{
+public:
+  Application_celsium(const WEnvironment& env) : WApplication(env)
+  {
+    setTitle("Celsium");
+    std::string js;
+
+    std::unique_ptr<WCelsium> celsium = cpp14::make_unique<WCelsium>(js);
+    root()->addWidget(std::move(celsium));
+  }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////////
 //create_application
 ///////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<WApplication> create_application(const WEnvironment& env)
 {
-  return cpp14::make_unique<Application_plotly>(env);
+  return cpp14::make_unique<Application_celsium>(env);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +177,7 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
 
 void usage()
 {
-  std::cout << "usage: ./leaflet_test.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. ";
+  std::cout << "usage: ./leaflet_us.wt --http-address=0.0.0.0 --http-port=8080  --docroot=. ";
   std::cout << "-g GEOJSON: geojson file" << std::endl;
   exit(0);
 }
@@ -171,31 +216,6 @@ int main(int argc, char **argv)
 
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//to_hex
-//convert int to hex string, apply zero padding
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string to_hex(int n)
-{
-  std::stringstream ss;
-  ss << std::hex << n;
-  std::string str(ss.str());
-  return str.size() == 1 ? "0" + str : str;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//rgb_to_hex
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string rgb_to_hex(int r, int g, int b)
-{
-  std::string str("#");
-  str += to_hex(r);
-  str += to_hex(g);
-  str += to_hex(b);
-  return str;
-}
 
 
 

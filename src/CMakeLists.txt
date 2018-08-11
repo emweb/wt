@@ -389,7 +389,9 @@ JQuery_js.C
 leaflet/WLeaflet.cc
 leaflet/WLeaflet.hh
 leaflet/WPlotly.cc
-leaflet/WPlotly.cc
+leaflet/WPlotly.hh
+leaflet/WCelsium.cc
+leaflet/WCelsium.hh
 leaflet/geojson.hh
 leaflet/geojson.cc
 leaflet/topojson.hh
