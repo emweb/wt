@@ -12,6 +12,7 @@
 #include "gason.h"
 #include "leaflet/WLeaflet.hh"
 #include "leaflet/WPlotly.hh"
+#include "leaflet/WCelsium.hh"
 #include "leaflet/csv.hh"
 #include "leaflet/geojson.hh"
 #include "leaflet/topojson.hh"
@@ -751,6 +752,27 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
+//Application_celsium
+///////////////////////////////////////////////////////////////////////////////////////
+
+class Application_celsium : public WApplication
+{
+public:
+  Application_celsium(const WEnvironment& env) : WApplication(env)
+  {
+    setTitle("Celsium");
+    std::string js;
+
+    //DC coordinates
+    js += "var center = Cesium.Cartesian3.fromDegrees(-77.0369, 38.9072); \
+      viewer.camera.lookAt(center, new Cesium.Cartesian3(0.0, 0.0, 20000.0)); ";
+
+    std::unique_ptr<WCelsium> celsium = cpp14::make_unique<WCelsium>(js);
+    root()->addWidget(std::move(celsium));
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
 //create_application
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -783,6 +805,10 @@ std::unique_ptr<WApplication> create_application(const WEnvironment& env)
   else if (test.compare("7") == 0)
   {
     return cpp14::make_unique<Application_topojson>(env);
+  }
+  else if (test.compare("8") == 0)
+  {
+    return cpp14::make_unique<Application_celsium>(env);
   }
   assert(0);
 }
@@ -977,6 +1003,15 @@ int main(int argc, char **argv)
     {
       assert(0);
     }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //celsium
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  else if (test.compare("8") == 0)
+  {
+
   }
   else
   {

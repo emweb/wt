@@ -55,6 +55,9 @@ namespace Wt
       strm
         << "  var viewer = new Cesium.Viewer(" << jsRef() << ");\n";
 
+      //rendering code (assume 'viewer' variable)
+      strm << m_javascrit;
+
       strm
         << "  setTimeout(function(){ delete " << initFunction.toUTF8() << ";}, 0)};\n"
         << "}\n"
