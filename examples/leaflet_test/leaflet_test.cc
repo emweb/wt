@@ -42,7 +42,7 @@ using namespace Wt;
 //NOAA ATMS data
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//-t 4 -d ../../../examples/leaflet_test/TATMS_npp_d20141130_t1817273_e1817589_b16023_c20141201005810987954_noaa_ops.h5.star.json
+//-t 4 -d ../../../examples/leaflet_test/data/TATMS_npp_d20141130_t1817273_e1817589_b16023_c20141201005810987954_noaa_ops.h5.star.json
 
 std::vector<star_dataset_t> datasets;
 star_dataset_t find_dataset(std::string name);
@@ -81,6 +81,14 @@ star_dataset_t find_dataset(std::string name);
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //-t 8 -d ../../../examples/leaflet_test/data/dc_311-2016.csv.s0311.csv 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 9
+//Celsium render
+//NOAA ATMS
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//-t 9 -d ../../../examples/leaflet_test/data/TATMS_npp_d20141130_t1817273_e1817589_b16023_c20141201005810987954_noaa_ops.h5.star.json 
 
 
 std::vector<school_t> schools_list;
@@ -831,6 +839,24 @@ public:
     setTitle("Celsium NOAA ATMS");
     std::string js;
 
+    star_dataset_t temperature = find_dataset("AntennaTemperature");
+    star_dataset_t latitude = find_dataset("latitude");
+    star_dataset_t longitude = find_dataset("longitude");
+    size_t nbr_rows = temperature.m_shape[0];
+    size_t nbr_cols = temperature.m_shape[1];
+    size_t nbr_lev = temperature.m_shape[2];
+    double temp_min;
+    double temp_max;
+    double lat_min;
+    double lat_max;
+    double lon_min;
+    double lon_max;
+    temperature.do_min_max(temp_min, temp_max);
+    latitude.do_min_max(lat_min, lat_max);
+    longitude.do_min_max(lon_min, lon_max);
+    double lat = (lat_max + lat_min) / 2;
+    double lon = (lon_max + lon_min) / 2;
+
     js += "var lon = -72;";
     js += "var lat = 40;";
     js += "var center = Cesium.Cartesian3.fromDegrees(lon, lat);";
@@ -1116,7 +1142,14 @@ int main(int argc, char **argv)
   }
   else if (test.compare("9") == 0)
   {
-
+    if (data_file.empty())
+    {
+      usage();
+    }
+    if (read_datasets(data_file.c_str(), datasets) < 0)
+    {
+      assert(0);
+    }
   }
   else
   {
