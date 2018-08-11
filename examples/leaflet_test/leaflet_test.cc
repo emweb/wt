@@ -914,10 +914,15 @@ public:
         double value = temperature.value_at(idx_row, idx_col, idx_channel);
         size_t idx_pal = (size_t)(nbr_palette_entries * ((value - value_min) / value_range));
         idx_pal = (idx_pal < 0 ? 0 : (idx_pal >= nbr_palette_entries ? nbr_palette_entries - 1 : idx_pal));
-        std::string color = rgb_to_hex(
-          rgb_256.at(idx_pal).red,
-          rgb_256.at(idx_pal).green,
-          rgb_256.at(idx_pal).blue);
+
+        double r = rgb_256.at(idx_pal).red / 255.0;
+        double g = rgb_256.at(idx_pal).green / 255.0;
+        double b = rgb_256.at(idx_pal).blue / 255.0;
+
+        std::string clr = std::to_string(r); clr += ",";
+        clr += std::to_string(g); clr += ",";
+        clr += std::to_string(b); clr += ",";
+        clr += "0.1"; //alpha
 
         js += "instances.push(new Cesium.GeometryInstance({";
         js += "  geometry : new Cesium.PolygonGeometry({";
@@ -934,7 +939,9 @@ public:
         js += "    vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT";
         js += "   }),"; //PolygonGeometry
         js += "  attributes : {";
-        js += "    color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 0.2)";
+        js += "    color : new Cesium.ColorGeometryInstanceAttribute(";
+        js += clr;
+        js += "    )";
         js += "  }";//attributes
         js += "}));";//push
 
