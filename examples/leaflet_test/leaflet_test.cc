@@ -28,7 +28,7 @@ using namespace Wt;
 //DC311 rodent complaints and DC wards geojson
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//-t 2 -d ../../../examples/leaflet_test/dc_311-2016.csv.s0311.csv -g ../../../examples/leaflet_test/ward-2012.geojson
+//-t 2 -d ../../../examples/leaflet_test/data/dc_311-2016.csv.s0311.csv -g ../../../examples/leaflet_test/data/ward-2012.geojson
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //example 3
@@ -73,6 +73,15 @@ star_dataset_t find_dataset(std::string name);
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //-t 7 -g ../../../examples/leaflet_test/example.quantized.topojson
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//example 8
+//Celsium render
+//DC311 rodent complaints 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//-t 8 -d ../../../examples/leaflet_test/data/dc_311-2016.csv.s0311.csv 
+
 
 std::vector<school_t> schools_list;
 std::vector<double> lat_montgomery;
@@ -763,9 +772,39 @@ public:
     setTitle("Celsium");
     std::string js;
 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render CSV points from DC_311 database
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    size_t size = dc311_data.size();
+    for (size_t idx = 0; idx < size; idx++)
+    {
+      dc311_data_t data = dc311_data.at(idx);
+    }
+
     //DC coordinates
-    js += "var center = Cesium.Cartesian3.fromDegrees(-77.0369, 38.9072); \
-      viewer.camera.lookAt(center, new Cesium.Cartesian3(0.0, 0.0, 20000.0)); ";
+    js += "var lon = -77.0369;";
+    js += "var lat = 38.9072;";
+    js += "var center = Cesium.Cartesian3.fromDegrees(lon, lat);";
+    js += "viewer.camera.lookAt(center, new Cesium.Cartesian3(0.0, 0.0, 20000.0)); ";
+
+    js += "var scene = viewer.scene;";
+    js += "var instances = [];";
+
+    js += "instances.push(new Cesium.GeometryInstance({";
+    js += "  geometry : new Cesium.RectangleGeometry({";
+    js += "    rectangle : Cesium.Rectangle.fromDegrees(lon, lat, lon + 2.0, lat + 2.0),";
+    js += "    vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT";
+    js += "   }),"; //geometry
+    js += "  attributes : {";
+    js += "    color : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromRandom({alpha : 0.5}))";
+    js += "  }";//attributes
+    js += "}));";//push
+
+    js += "scene.primitives.add(new Cesium.Primitive({";
+    js += "  geometryInstances : instances,";
+    js += "  appearance : new Cesium.PerInstanceColorAppearance()";
+    js += "}));";//add
 
     std::unique_ptr<WCelsium> celsium = cpp14::make_unique<WCelsium>(js);
     root()->addWidget(std::move(celsium));
@@ -897,11 +936,11 @@ int main(int argc, char **argv)
     }
     if (read_dc311(data_file) < 0)
     {
-      exit(0);
+      assert(0);
     }
     if (geojson.convert(geojson_file.c_str()) < 0)
     {
-      exit(0);
+      assert(0);
     }
   }
 
@@ -917,7 +956,7 @@ int main(int argc, char **argv)
     }
     if (geojson.convert(geojson_file.c_str()) < 0)
     {
-      exit(0);
+      assert(0);
     }
   }
 
@@ -958,11 +997,11 @@ int main(int argc, char **argv)
     }
     if (read_ep_pop(data_file, data_file_us_states_pop) < 0)
     {
-      exit(0);
+      assert(0);
     }
     if (geojson.convert(geojson_file.c_str()) < 0)
     {
-      exit(0);
+      assert(0);
     }
   }
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -1011,6 +1050,10 @@ int main(int argc, char **argv)
 
   else if (test.compare("8") == 0)
   {
+    if (read_dc311(data_file) < 0)
+    {
+      assert(0);
+    }
 
   }
   else
