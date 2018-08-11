@@ -782,22 +782,31 @@ public:
       dc311_data_t data = dc311_data.at(idx);
     }
 
+    dc311_data_t dc = dc311_data.at(0);
+
     //DC coordinates
     js += "var lon = -77.0369;";
     js += "var lat = 38.9072;";
     js += "var center = Cesium.Cartesian3.fromDegrees(lon, lat);";
-    js += "viewer.camera.lookAt(center, new Cesium.Cartesian3(0.0, 0.0, 20000.0)); ";
+    js += "viewer.camera.lookAt(center, new Cesium.Cartesian3(0.0, 0.0, 9000.0)); ";
 
     js += "var scene = viewer.scene;";
     js += "var instances = [];";
 
     js += "instances.push(new Cesium.GeometryInstance({";
-    js += "  geometry : new Cesium.RectangleGeometry({";
-    js += "    rectangle : Cesium.Rectangle.fromDegrees(lon, lat, lon + 2.0, lat + 2.0),";
+    js += "  geometry : new Cesium.CircleGeometry({";
+    js += "    center : Cesium.Cartesian3.fromDegrees(";
+    std::string str_ll;
+    str_ll = dc.lon;
+    str_ll += ",";
+    str_ll += dc.lat;
+    js += str_ll;
+    js += "     ),";
+    js += "    radius : 100.0,";
     js += "    vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT";
     js += "   }),"; //geometry
     js += "  attributes : {";
-    js += "    color : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromRandom({alpha : 0.5}))";
+    js += "    color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 0.4)";
     js += "  }";//attributes
     js += "}));";//push
 
