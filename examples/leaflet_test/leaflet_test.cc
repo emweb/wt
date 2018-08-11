@@ -831,6 +831,15 @@ public:
 //Application_celsium_atms
 ///////////////////////////////////////////////////////////////////////////////////////
 
+std::string str_lon_lat(double lon, double lat)
+{
+  std::string str;
+  str = std::to_string(lon);
+  str += ",";
+  str += std::to_string(lat);
+  return str;
+}
+
 class Application_celsium_atms : public WApplication
 {
 public:
@@ -857,35 +866,84 @@ public:
     double lat = (lat_max + lat_min) / 2;
     double lon = (lon_max + lon_min) / 2;
 
-    js += "var lon = -72;";
-    js += "var lat = 40;";
+    js += "var lon = ";
+    js += std::to_string(lon);
+    js += ";";
+    js += "var lat = ";
+    js += std::to_string(lat);
+    js += ";";
     js += "var center = Cesium.Cartesian3.fromDegrees(lon, lat);";
     js += "viewer.camera.lookAt(center, new Cesium.Cartesian3(0.0, 0.0, 4000000.0)); ";
 
     js += "var scene = viewer.scene;";
     js += "var instances = [];";
 
-    js += "instances.push(new Cesium.GeometryInstance({";
-    js += "  geometry : new Cesium.PolygonGeometry({";
-    js += "    polygonHierarchy : new Cesium.PolygonHierarchy(";
-    js += "     Cesium.Cartesian3.fromDegreesArray([";
-    js += "       -72.0, 40.0,";
-    js += "       -70.0, 40.0,";
-    js += "       -70.0, 30.0,";
-    js += "       -72.0, 30.0";
-    js += "     ])";//array
-    js += "     ),";//PolygonHierarchy
-    js += "    vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT";
-    js += "   }),"; //PolygonGeometry
-    js += "  attributes : {";
-    js += "    color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 0.2)";
-    js += "  }";//attributes
-    js += "}));";//push
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //render data
+    ///////////////////////////////////////////////////////////////////////////////////////
 
-    js += "scene.primitives.add(new Cesium.Primitive({";
-    js += "  geometryInstances : instances,";
-    js += "  appearance : new Cesium.PerInstanceColorAppearance()";
-    js += "}));";//add
+    size_t idx_channel = 0;
+
+    for (size_t idx_row = 0; idx_row < nbr_rows - 1; idx_row++)
+    {
+      for (size_t idx_col = 0; idx_col < nbr_cols - 1; idx_col++)
+      {
+        ///////////////////////////////////////////////////////////////////////////
+        //polygon coordinates for a granule
+        ///////////////////////////////////////////////////////////////////////////
+
+        std::vector<double> vlat(4);
+        std::vector<double> vlon(4);
+        vlat[0] = latitude.value_at(idx_row, idx_col);
+        vlon[0] = longitude.value_at(idx_row, idx_col);
+        vlat[1] = latitude.value_at(idx_row, idx_col + 1);
+        vlon[1] = longitude.value_at(idx_row, idx_col + 1);
+        vlat[2] = latitude.value_at(idx_row + 1, idx_col + 1);
+        vlon[2] = longitude.value_at(idx_row + 1, idx_col + 1);
+        vlat[3] = latitude.value_at(idx_row + 1, idx_col);
+        vlon[3] = longitude.value_at(idx_row + 1, idx_col);
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        //color
+        //The Vizualization Toolkit, pg.156
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        size_t nbr_palette_entries = rgb_256.size();
+        double value_range = temp_max - temp_min;
+        double value_min = temp_min;
+        double value = temperature.value_at(idx_row, idx_col, idx_channel);
+        size_t idx_pal = (size_t)(nbr_palette_entries * ((value - value_min) / value_range));
+        idx_pal = (idx_pal < 0 ? 0 : (idx_pal >= nbr_palette_entries ? nbr_palette_entries - 1 : idx_pal));
+        std::string color = rgb_to_hex(
+          rgb_256.at(idx_pal).red,
+          rgb_256.at(idx_pal).green,
+          rgb_256.at(idx_pal).blue);
+
+        js += "instances.push(new Cesium.GeometryInstance({";
+        js += "  geometry : new Cesium.PolygonGeometry({";
+        js += "    polygonHierarchy : new Cesium.PolygonHierarchy(";
+        js += "     Cesium.Cartesian3.fromDegreesArray([";
+
+        js += str_lon_lat(vlon[0], vlat[0]); js += ",";
+        js += str_lon_lat(vlon[1], vlat[1]); js += ",";
+        js += str_lon_lat(vlon[2], vlat[2]); js += ",";
+        js += str_lon_lat(vlon[3], vlat[3]);
+
+        js += "     ])";//array
+        js += "     ),";//PolygonHierarchy
+        js += "    vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT";
+        js += "   }),"; //PolygonGeometry
+        js += "  attributes : {";
+        js += "    color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 0.2)";
+        js += "  }";//attributes
+        js += "}));";//push
+
+        js += "scene.primitives.add(new Cesium.Primitive({";
+        js += "  geometryInstances : instances,";
+        js += "  appearance : new Cesium.PerInstanceColorAppearance()";
+        js += "}));";//add
+      }
+    }
 
     std::unique_ptr<WCelsium> celsium = cpp14::make_unique<WCelsium>(js);
     root()->addWidget(std::move(celsium));
