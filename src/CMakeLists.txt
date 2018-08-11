@@ -386,8 +386,10 @@ Bootstrap3Theme_xml.C
 AuthCssTheme_xml.C
 JQuery_js.C
 #leaflet
-leaflet/WLeaflet.hh
 leaflet/WLeaflet.cc
+leaflet/WLeaflet.hh
+leaflet/WPlotly.cc
+leaflet/WPlotly.cc
 leaflet/geojson.hh
 leaflet/geojson.cc
 leaflet/topojson.hh

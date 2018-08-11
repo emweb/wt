@@ -1,10 +1,10 @@
 #ifndef WLEAFLET_H_
 #define WLEAFLET_H_
 
-#include <Wt/WColor>
-#include <Wt/WCompositeWidget>
-#include <Wt/WJavaScript>
-#include <Wt/WSignal>
+#include <Wt/WColor.h>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WJavaScript.h>
+#include <Wt/WSignal.h>
 #include <vector>
 #include <string>
 
@@ -69,6 +69,7 @@ namespace Wt
   {
   public:
     WLeaflet(tile_provider_t tile, double lat, double lon, int zoom);
+    void MouseDown(const Wt::WMouseEvent &e);
 
     void Circle(const std::string &lat, const std::string &lon);
     void Circle(const double lat, const double lon, const std::string &color);

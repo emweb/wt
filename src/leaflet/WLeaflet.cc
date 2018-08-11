@@ -1,6 +1,7 @@
-#include "Wt/WLogger"
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
+#include "Wt/WLogger.h"
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPointF.h>
 #include "web/WebUtils.h"
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -25,7 +26,9 @@ namespace Wt
     m_lon(lon),
     m_zoom(zoom)
   {
-    setImplementation(std::unique_ptr<WWidget>(new WContainerWidget()));
+    auto container{ new Wt::WContainerWidget };
+    setImplementation(std::unique_ptr<WWidget>(container));
+    container->mouseWentDown().connect(this, &WLeaflet::MouseDown);
     this->addCssRule("html", "height: 100%");
     this->addCssRule("body", "height: 100%");
     this->addCssRule("#" + id(), "position:relative; top:0; bottom:0; height: 100%");
@@ -33,6 +36,14 @@ namespace Wt
     app->useStyleSheet("https://unpkg.com/leaflet@1.2.0/dist/leaflet.css");
     const std::string leaflet = "https://unpkg.com/leaflet@1.2.0/dist/leaflet.js";
     app->require(leaflet, "leaflet");
+  }
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //WLeaflet::render
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  void WLeaflet::MouseDown(const Wt::WMouseEvent &e)
+  {
+    Wt::WPointF p = Wt::WPointF(e.widget().x, e.widget().y);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////

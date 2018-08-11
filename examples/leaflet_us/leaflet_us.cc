@@ -1,16 +1,17 @@
-#include <Wt/WApplication>
-#include <Wt/WText>
-#include <Wt/WCheckBox>
-#include <Wt/WComboBox>
-#include <Wt/WContainerWidget>
-#include <Wt/WHBoxLayout>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WHBoxLayout.h>
 #include <Wt/WVBoxLayout.h>
-#include <Wt/WPushButton>
-#include <Wt/WStringListModel>
-#include <Wt/WTemplate>
+#include <Wt/WPushButton.h>
+#include <Wt/WStringListModel.h>
+#include <Wt/WTemplate.h>
 #include "leaflet_us.hh"
 #include "gason.h"
 #include "leaflet/WLeaflet.hh"
+#include "leaflet/WPlotly.hh"
 #include "leaflet/csv.hh"
 #include "leaflet/geojson.hh"
 #include "leaflet/topojson.hh"
@@ -51,7 +52,7 @@ public:
     //3 objects: counties (0), states (1), land (2) 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    size_t topology_index = 0;
+    size_t topology_index = 1;
     topojson.make_coordinates(topology_index);
     topology_object_t topology = topojson.m_topology.at(topology_index);
 
@@ -90,12 +91,39 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
+//Application_plotly
+///////////////////////////////////////////////////////////////////////////////////////
+
+class Application_plotly : public WApplication
+{
+public:
+  Application_plotly(const WEnvironment& env) : WApplication(env)
+  {
+    setTitle("Chart");
+    std::string js;
+
+    js += "var trace1 = {";
+    js += "x: [1, 2, 3, 4],";
+    js += "y: [10, 15, 13, 17],";
+    js += "type: 'scatter'";
+    js += "};";
+    js += "var data = [trace1];";
+
+    js += "var layout = {};";
+
+    std::unique_ptr<WPlotly> plotly = cpp14::make_unique<WPlotly>(js);
+    root()->addWidget(Wt::cpp14::make_unique<Wt::WText>("Plot"));
+    root()->addWidget(std::move(plotly));
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
 //create_application
 ///////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<WApplication> create_application(const WEnvironment& env)
 {
-  return cpp14::make_unique<Application_us_counties>(env);
+  return cpp14::make_unique<Application_plotly>(env);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
