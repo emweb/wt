@@ -1180,7 +1180,7 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 
 .close {
   position: relative;
-  z-index: 1050;
+  z-index: 10;
 }
 
 /*
