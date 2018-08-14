@@ -138,6 +138,11 @@ void RequestParser::consumeToString(buffer_string& result, int maxSize)
 
 void RequestParser::consumeComplete(Buffer::iterator d)
 {
+  if (currentString_->data == 0) {
+    // Empty string
+    currentString_->data = &(*d);
+  }
+
   // We 0-terminate for convenient C-string manipulations
   // Note that for headers, we may change this in a ',' when concatenating
   // values.
