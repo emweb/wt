@@ -7,28 +7,18 @@
 #include "FileDropApplication.h"
 
 #include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
 #include <Wt/WPushButton>
 #include <Wt/WText>
 #include <Wt/WFileDropWidget>
 #include "Wt/Utils"
 
-#include <boost/algorithm/string/predicate.hpp>
-
 #include <iostream>
 #include <fstream>
 
-#define MULTILINE(...) #__VA_ARGS__
-
 using namespace Wt;
-using namespace boost::algorithm;
 
 static const std::string UPLOAD_FOLDER = "./uploaded/";
 static const int MAX_FILES = 36;
-
-static const std::string gzipFilter =
-#include "createFilterFn.js"
-  ;
 
 FileDropApplication::FileDropApplication(const WEnvironment& env)
   : WApplication(env),
@@ -37,8 +27,6 @@ FileDropApplication::FileDropApplication(const WEnvironment& env)
   setTitle("File Drop Example");
   useStyleSheet("style.css");
 
-  require("https://cdn.jsdelivr.net/pako/1.0.3/pako.min.js");
-
   new WText("<h1>Try dropping a file in the widget below</h1>", root());
 
   drop_ = new WFileDropWidget(root());
@@ -46,10 +34,6 @@ FileDropApplication::FileDropApplication(const WEnvironment& env)
   drop_->setDropIndicationEnabled(true);
   // drop_->setGlobalDropEnabled(true);
   
-  std::vector<std::string> filterFnImports;
-  filterFnImports.push_back("https://cdn.jsdelivr.net/pako/1.0.3/pako.min.js");
-  drop_->setJavaScriptFilter(gzipFilter, 1*512*1024, filterFnImports);
-
   drop_->drop().connect(this, &FileDropApplication::handleDrop);
   drop_->newUpload().connect(this,&FileDropApplication::updateProgressListener);
   drop_->uploaded().connect(this, &FileDropApplication::saveFile);
@@ -62,8 +46,6 @@ FileDropApplication::FileDropApplication(const WEnvironment& env)
 
   WPushButton *abort = new WPushButton("Abort current upload", root());
   abort->clicked().connect(this, &FileDropApplication::cancelUpload);
-
-  new WLineEdit(root()); // to check responsiveness
 }
 
 void FileDropApplication::handleDrop(std::vector<WFileDropWidget::File *> files)
@@ -74,8 +56,6 @@ void FileDropApplication::handleDrop(std::vector<WFileDropWidget::File *> files)
       drop_->cancelUpload(file);
       continue;
     }
-
-    file->setFilterEnabled(ends_with(file->clientFileName(), ".fastq"));
 
     WContainerWidget *block = new WContainerWidget(drop_);
     block->setToolTip(file->clientFileName() + " [" + file->mimeType() + "]");
@@ -120,10 +100,7 @@ void FileDropApplication::saveFile(WFileDropWidget::File *file)
   std::string spool = file->uploadedFile().spoolFileName();
   std::ifstream src(spool.c_str(), std::ios::binary);
 
-  bool isFiltered = ends_with(file->clientFileName(), ".fastq");
-  std::string saveName = isFiltered ?
-    (UPLOAD_FOLDER + file->clientFileName() + ".gz") :
-    (UPLOAD_FOLDER + file->clientFileName());
+  std::string saveName = UPLOAD_FOLDER + file->clientFileName();
   
   std::ofstream dest(saveName.c_str(), std::ios::binary);
   if (dest.fail()) {
