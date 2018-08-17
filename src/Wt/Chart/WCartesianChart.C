@@ -2257,7 +2257,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 	   dynamic_cast<ExtremesIterator *>(iterator))))
       continue;
 
-    groupWidth = series_[g]->barWidth() * (map(2, 0).x() - map(1, 0).x());
+    groupWidth = series_[g]->barWidth() * (axis(XAxis).mapToDevice(2) - axis(XAxis).mapToDevice(1));
 
     if (containsBars)
       ++currentBarGroup;
