@@ -149,10 +149,12 @@ public:
     WJavaScriptExposableObject::JSInfo *binding = value_->clientBinding_;
     value_->clientBinding_ = nullptr;
 
+    bool changed = *value_ != v;
     (*value_) = v;
 
     value_->clientBinding_ = binding;
-    value_->clientBinding_->context_->dirty_[id_] = true;
+    if (changed)
+      value_->clientBinding_->context_->dirty_[id_] = true;
   }
 
   /*! \brief Method::Get the value for this handle.
