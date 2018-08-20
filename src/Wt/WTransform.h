@@ -361,6 +361,8 @@ public:
    */
   static const WTransform Identity;
 
+  bool closeTo(const WTransform& other) const;
+
   virtual std::string jsValue() const override;
 
 protected:
