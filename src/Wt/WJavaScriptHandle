@@ -111,7 +111,7 @@ public:
     WJavaScriptExposableObject::JSInfo *binding = value_->clientBinding_;
     value_->clientBinding_ = 0;
 
-    bool changed = *value_ != v;
+    bool changed = !value_->closeTo(v);
     (*value_) = v;
 
     value_->clientBinding_ = binding;

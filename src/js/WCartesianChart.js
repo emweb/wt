@@ -728,8 +728,10 @@ WT_DECLARE_WT_MEMBER_BIG
     this.mouseDrag = function(o, event) {
       if (pointerActive)
         return;
-      if (dragPreviousXY === null)
+      if (dragPreviousXY === null) {
+        self.mouseDown(o, event);
         return;
+      }
       var c = WT.widgetCoordinates(target.canvas, event);
       if (WT.buttons === 1) {
         if (dragCurrentYAxis === -1 && !dragXAxis &&
