@@ -23,6 +23,7 @@
 #include "Wt/WLogger"
 
 #include <fstream>
+#include <cstring>
 
 using std::exit;
 using std::strcpy;

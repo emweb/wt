@@ -56,7 +56,7 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
     // Try to configure async mode (synchronous_ must be set right, also
     // if only used for write)
     if (ecb->ServerSupportFunction(ecb->ConnID, HSE_REQ_IO_COMPLETION,
-        &IsapiRequest::completionCallback, 0, (LPDWORD)this)) {
+        (LPVOID)&IsapiRequest::completionCallback, 0, (LPDWORD)this)) {
       // Note: we don't expect this to happen
       synchronous_ = false;
     }
