@@ -11,7 +11,7 @@
 
 #ifdef WT_WIN32
 #define NOMINMAX
-#include <Windows.h>
+#include <windows.h>
 #endif // WT_WIN32
 #include <sql.h>
 #include <sqlext.h>

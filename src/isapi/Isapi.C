@@ -3,7 +3,7 @@
 #include "IsapiRequest.h"
 
 #include <windows.h>
-#include <WtsApi32.h>
+#include <wtsapi32.h>
 #include <httpext.h>
 
 #include <fstream>

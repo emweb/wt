@@ -10,7 +10,7 @@
 #include "WebMain.h"
 #include "WebController.h"
 
-#include <Windows.h>
+#include <windows.h>
 #include <fstream>
 
 namespace Wt {
