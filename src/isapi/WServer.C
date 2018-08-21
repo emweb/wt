@@ -12,7 +12,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <Windows.h>
+#include <windows.h>
 #include <fstream>
 
 namespace Wt {

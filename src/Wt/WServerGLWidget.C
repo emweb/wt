@@ -15,7 +15,7 @@
 
 #ifdef WIN32_GL
 #include <GL/wglew.h>
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include "Wt/WApplication"

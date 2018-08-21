@@ -13,21 +13,8 @@
 #include <Wt/Auth/IssuedToken>
 #include <Wt/Auth/OAuthClient>
 #include <Wt/Auth/WAuthGlobal>
+#include <Wt/WDllDefs.h>
 #include <Wt/Json/Value>
-
-#ifndef WT_CX11
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-#define WT_CXX11
-#endif
-
-#ifdef WT_CXX11
-#define WT_CXX11ONLY(x) x
-#else
-#define WT_CXX11ONLY(x)
-#endif
-
-#endif
 
 namespace Wt {
   namespace Auth {

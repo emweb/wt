@@ -43,7 +43,7 @@
 
 #ifndef WT_CXX11
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L || _MSC_VER >= 1900
+#if (defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L || _MSC_VER >= 1900) && !defined(WT_TARGET_JAVA)
 #define WT_CXX11
 #endif
 

@@ -8,7 +8,7 @@
 #include "Wt/Dbo/Exception"
 
 #ifdef WT_WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif // WT_WIN32
 #include <sql.h>
 #include <sqlext.h>

@@ -31,9 +31,9 @@
 // WIC
 #include <wincodec.h>
 // DirectWrite
-#include <Dwrite.h>
+#include <dwrite.h>
 
-#include <Shlwapi.h> // for SHCreateMemStream
+#include <shlwapi.h> // for SHCreateMemStream
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

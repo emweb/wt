@@ -593,12 +593,12 @@ bool WTransform::closeTo(const WTransform &other) const
 
   static const double EPS = 1E-12;
 
-  return std::abs(m_[0] - other.m_[0]) <= EPS &&
-         std::abs(m_[1] - other.m_[1]) <= EPS &&
-         std::abs(m_[2] - other.m_[2]) <= EPS &&
-         std::abs(m_[3] - other.m_[3]) <= EPS &&
-         std::abs(m_[4] - other.m_[4]) <= EPS &&
-         std::abs(m_[5] - other.m_[5]) <= EPS;
+  return std::fabs(m_[0] - other.m_[0]) <= EPS &&
+         std::fabs(m_[1] - other.m_[1]) <= EPS &&
+         std::fabs(m_[2] - other.m_[2]) <= EPS &&
+         std::fabs(m_[3] - other.m_[3]) <= EPS &&
+         std::fabs(m_[4] - other.m_[4]) <= EPS &&
+         std::fabs(m_[5] - other.m_[5]) <= EPS;
 }
 
 }
