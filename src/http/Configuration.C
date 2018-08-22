@@ -74,7 +74,8 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
 
 Configuration::~Configuration()
 {
-  unlink(pidPath_.c_str());
+  if (parentPort_ == -1)
+    unlink(pidPath_.c_str());
 }
 
 void Configuration::createOptions(po::options_description& options,
@@ -285,7 +286,7 @@ std::vector<std::string> Configuration::options() const
 
 void Configuration::readOptions(const po::variables_map& vm)
 {
-  if (!pidPath_.empty()) {
+  if (!pidPath_.empty() && parentPort_ == -1) {
     std::ofstream pidFile(pidPath_.c_str());
 
     if (!pidFile)
