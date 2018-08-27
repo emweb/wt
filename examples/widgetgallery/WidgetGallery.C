@@ -60,7 +60,6 @@ WidgetGallery::WidgetGallery()
    * Add it all inside a layout
    */
   auto layout = this->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
-  layout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
   layout->addWidget(std::move(navigation), 0);
   layout->addWidget(std::move(contentsStack), 1);
   layout->setContentsMargins(0, 0, 0, 0);
@@ -77,20 +76,17 @@ Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,
   auto pane_ = pane.get();
 
   auto vLayout = result->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
-  vLayout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
   vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->addWidget(std::move(topic));
   vLayout->addWidget(std::move(pane), 1);
 
   auto hLayout = pane_->setLayout(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
-  hLayout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
 
   auto item = Wt::cpp14::make_unique<Wt::WMenuItem>(name, std::move(result));
   auto item_ = menu->addItem(std::move(item));
 
   auto subStack = Wt::cpp14::make_unique<Wt::WStackedWidget>();
   subStack->addStyleClass("contents");
-  subStack->setOverflow(Wt::Overflow::Auto);
 
   /*
   WAnimation animation(AnimationEffect::Fade,

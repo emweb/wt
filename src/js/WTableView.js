@@ -65,7 +65,7 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
-   contentsContainer.wtResize = function(o, w, h) {
+   contentsContainer.wtResize = function(o, w, h, setSize) {
      if ((w - currentWidth) > (scrollX2 - scrollX1)/2 ||
          (h - currentHeight) > (scrollY2 - scrollY1)/2) {
        currentWidth = w; currentHeight = h;

@@ -11,6 +11,26 @@ WT_DECLARE_WT_MEMBER
  function(APP, id) {
    var WT = APP.WT;
 
+   function init() {
+     var el = WT.getElement(id);
+     if (!el) return;
+
+     var children = el.childNodes;
+     for (var i = 0; i < children.length; ++i) {
+       var c = children[i];
+       if (c.style.display == 'none' || 
+	   $(c).hasClass('out') ||
+	   c.className == 'resize-sensor')
+	 continue;
+
+       var of = WT.css(c, 'overflow');
+       if (of === 'visible' || of === '')
+	 c.style.overflow = 'hidden';
+     }
+   }
+
+   setTimeout(init, 0);
+   
    this.adjust = function(spacing) {
      setTimeout(function() {
        var el = WT.getElement(id);
@@ -36,11 +56,16 @@ WT_DECLARE_WT_MEMBER
 
        for (var i = 0; i < children.length; ++i) {
 	 var c = children[i];
+
 	 if (c.style.display == 'none' || 
 	     $(c).hasClass('out') ||
 	     c.className == 'resize-sensor')
 	   continue;
 
+	 /* Re-trigger resize-sensor */
+	 if (c.resizeSensor)
+	   c.resizeSensor.trigger();
+	 
 	 var stretch;
 
 	 if (totalStretch === 0)

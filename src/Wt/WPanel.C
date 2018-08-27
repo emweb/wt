@@ -41,9 +41,9 @@ WPanel::WPanel()
 
   setJavaScriptMember
     (WT_RESIZE_JS,
-     "function(self, w, h, l) {"
-     """var defined = h >= 0;"
-     """if (defined) {"
+     "function(self, w, h, s) {"
+     """var hdefined = h >= 0;"
+     """if (hdefined) {"
      ""  "var mh = " WT_CLASS ".px(self, 'maxHeight');"
      ""  "if (mh > 0) h = Math.min(h, mh);"
      """}"
@@ -56,8 +56,8 @@ WPanel::WPanel()
      """if (t)"
      ""  "h -= t.offsetHeight;"
      """h -= 8;" // padding
-     """if (defined && h > 0) {"
-     ""  "c.lh = l;"
+     """if (hdefined && h > 0) {"
+     ""  "c.lh = true;"
      ""  "c.style.height = h + 'px';"
      // this seems golden, but, JQuery docs say it doesn't work when
      // the panel is indirectly hidden: will this back-fire ?
@@ -65,14 +65,14 @@ WPanel::WPanel()
      ""      "var self = $(this), "
      ""          "padding = self.outerHeight() - self.height();"
      ""      "self.height(h - padding);"
-     ""      "this.lh = l;"
+     ""      "this.lh = true;"
      ""  "});"
      """} else {"
-     ""  "c.lh = false;"
      ""  "c.style.height = '';"
+     ""  "c.lh = false;"
      ""  "$(c).children().each(function() { "
-     ""      "this.style.height = '';"
-     ""      "this.lh = false;"
+     ""    "this.style.height = '';"
+     ""    "this.lh = false;"
      ""  "});"
      """}"
      "};");

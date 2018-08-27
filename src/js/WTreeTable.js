@@ -16,16 +16,20 @@ WT_DECLARE_WT_MEMBER
    var content = $(table).find('.Wt-content').get(0),
        spacer = $(table).find('.Wt-sbspacer').get(0);
 
-   this.wtResize = function(el, w, h) {
+   this.wtResize = function(el, w, h, setSize) {
      var hdefined = h >= 0;
-     if (hdefined)
-       el.style.height = h + 'px';
-     else
-       el.style.height = '';
+
+     if (setSize) {
+     	if (hdefined)
+	  el.style.height = h + 'px';
+	else
+	  el.style.height = '';
+     }
 
      var c = el.lastChild;
      var t = el.firstChild;
      h -= $(t).outerHeight();
+
      if (hdefined && h > 0) {
        if (c.style.height != h + 'px')
 	 c.style.height = h + 'px';
@@ -43,7 +47,7 @@ WT_DECLARE_WT_MEMBER
 
        var h = WT.pxself(table, 'height');
        if (h)
-	 self.wtResize(table, 0, h, true);
+	 self.wtResize(table, 0, h, false);
      }
    };
  });

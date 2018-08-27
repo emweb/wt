@@ -155,7 +155,7 @@ WT_DECLARE_WT_MEMBER
    /*
     * The dialog layout manager resizes the dialog
     */
-   function layoutResize(ignored, w, h) {
+   function layoutResize(ignored, w, h, setSize) {
      if (el.style.position == '') {
        el.style.position = WT.isIE6 ? 'absolute' : 'fixed';
      }
@@ -167,8 +167,10 @@ WT_DECLARE_WT_MEMBER
      percentageHeight = WT.parsePct(el.style.height, percentageHeight);
      percentageWidth = WT.parsePct(el.style.width, percentageWidth);
 
-     el.style.height = Math.max(0, h) + 'px';
-     el.style.width = Math.max(0, w) + 'px';
+     if (setSize) {
+       el.style.height = Math.max(0, h) + 'px';
+       el.style.width = Math.max(0, w) + 'px';
+     }
 
      newSize(w, h);
 
@@ -205,20 +207,22 @@ WT_DECLARE_WT_MEMBER
    /*
     * C++ dialog.resize() was called
     */
-   function wtResize(ignored, w, h) {
-     if (w > 0)
-       layoutContainer.style.width = w +
+   function wtResize(ignored, w, h, setSize) {
+     if (setSize) {
+       if (w > 0)
+	 layoutContainer.style.width = w +
            WT.parsePx($(layoutContainer).css('borderLeftWidth')) +
            WT.parsePx($(layoutContainer).css('borderRightWidth')) + 'px';
-     if (h > 0)
-       layoutContainer.style.height = h +
+       if (h > 0)
+	 layoutContainer.style.height = h +
            WT.parsePx($(layoutContainer).css('borderTopWidth')) +
            WT.parsePx($(layoutContainer).css('borderBottomWidth')) + 'px';
+     }
 
      self.centerDialog();
 
      if (el.wtResize)
-       el.wtResize(el, w, h);
+       el.wtResize(el, w, h, true);
    };
 
    function wtPosition() {
@@ -254,7 +258,7 @@ WT_DECLARE_WT_MEMBER
      centerX = centerY = false;
 
      resizeBusy = !done;
-     wtResize(el, w, h);
+     wtResize(el, w, h, true);
 
      var layout = jQuery.data(layoutContainer.firstChild, 'layout');
      if (layout && layout.setMaxSize)
