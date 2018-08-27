@@ -11,6 +11,7 @@ WT_DECLARE_WT_MEMBER_BIG
   // target: the WPaintedWidget JavaScript obj, with:
   //   repaint
   //   canvas
+  //   combinedTransform is set by WCartesianChart
   // config: the initial configuration (can be overridden with updateConfig)
   //   curveManipulation (determines whether series manipulation is enabled)
   //   seriesSelection (determines whether series selection is enabled)
@@ -375,7 +376,7 @@ WT_DECLARE_WT_MEMBER_BIG
       }
       if (tobj.tooltipOuterDiv) {
         document.body.removeChild(tobj.tooltipOuterDiv);
-        tobj.tooltipEl = null;
+        tobj.toolTipEl = null;
         tobj.tooltipOuterDiv = null;
       }
     }
@@ -638,6 +639,8 @@ WT_DECLARE_WT_MEMBER_BIG
     }
 
     function loadTooltip() {
+      if (tobj.toolTipEl)
+        return;
       APP.emit(target.widget, "loadTooltip", tobj.tooltipPosition[X], tobj.tooltipPosition[Y]);
     }
 
@@ -684,7 +687,7 @@ WT_DECLARE_WT_MEMBER_BIG
         var c = WT.widgetCoordinates(target.canvas, event);
         if (!isPointInRect(c, configArea())) return;
 
-        if (!tobj.tooltipEl && hasToolTips()) {
+        if (hasToolTips()) {
           tobj.tooltipPosition = [c.x,c.y];
           tobj.tooltipTimeout = setTimeout(function() {
             loadTooltip();

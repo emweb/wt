@@ -41,7 +41,7 @@ std::string backtrace() {
     if (unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0) {
       char* nameptr = sym;
       int status;
-      char* demangled = abi::__cxa_demangle(sym, nullptr, nullptr, &status);
+      char* demangled = abi::__cxa_demangle(sym, 0, 0, &status);
       if (status == 0) {
         nameptr = demangled;
       }
