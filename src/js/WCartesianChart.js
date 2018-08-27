@@ -421,6 +421,9 @@ WT_DECLARE_WT_MEMBER_BIG
 
 
     function combinedTransform(ax) {
+      if (ax === undefined) {
+        ax = 0;
+      }
       var l, b, t;
       if (isHorizontal()) {
         l = left(configArea());
