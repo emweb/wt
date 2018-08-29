@@ -9,6 +9,7 @@
 #include "Wt/WApplication"
 #include "Wt/WAnchor"
 #include "Wt/WContainerWidget"
+#include "Wt/WEnvironment"
 #include "Wt/WFormWidget"
 #include "Wt/WLogger"
 #include "Wt/WLineEdit"
@@ -146,7 +147,8 @@ void WSuggestionPopup::render(WFlags<RenderFlag> flags)
   if (flags & RenderFull)
     defineJavaScript();
 
-  doFilter(currentInputText_);
+  if (WApplication::instance()->environment().ajax())
+    doFilter(currentInputText_);
 
   WPopupWidget::render(flags);
 }
