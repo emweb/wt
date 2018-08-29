@@ -311,6 +311,11 @@ public:
    */
   void setTimeout(int msec, bool jsRepeat);
 
+  /*! \brief Configures the DOM element as a source for timed events,
+   *         with given initial delay and interval, always repeating.
+   */
+  void setTimeout(int delay, int interval);
+
   /*! \brief Calls a JavaScript method on the DOM element.
    */
   void callMethod(const std::string& method);
@@ -369,10 +374,10 @@ public:
   struct TimeoutEvent {
     int msec;
     std::string event;
-    bool repeat;
+    int repeat;
 
     TimeoutEvent() { }
-    TimeoutEvent(int m, const std::string& e, bool r)
+    TimeoutEvent(int m, const std::string& e, int r)
       : msec(m), event(e), repeat(r) { }
   };
 
@@ -553,7 +558,7 @@ private:
   std::string  id_;
   int          numManipulations_;
   int          timeOut_;
-  bool         timeOutJSRepeat_;
+  int          timeOutJSRepeat_;
   EStream      javaScript_;
   std::string  javaScriptEvenWhenDeleted_;
   mutable std::string var_;

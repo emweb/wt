@@ -59,7 +59,10 @@ void WTimerWidget::updateDom(DomElement& element, bool all)
   if (timerStarted_
       || ((!WApplication::instance()->environment().javaScript() || all)
 	  && timer_->isActive())) {
-    element.setTimeout(timer_->getRemainingInterval(), jsRepeat_);
+    if (jsRepeat_)
+      element.setTimeout(timer_->getRemainingInterval(), timer_->interval());
+    else
+      element.setTimeout(timer_->getRemainingInterval(), false);
 
     timerStarted_ = false;
   }

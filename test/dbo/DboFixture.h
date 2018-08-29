@@ -97,8 +97,8 @@ struct DboFixtureBase
 
     connection = new dbo::backend::MSSQLServer(
 	"Driver={ODBC Driver 13 for SQL Server};"
-	"Server=vendetta;"
-	"UID=test_user;"
+	"Server=10.1.0.44;"
+	"UID=wt_test;"
 	"PWD=test_pwd;"
 	"Database=wt_test;");
 #endif // MSSQLSERVER

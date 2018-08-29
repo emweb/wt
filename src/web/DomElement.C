@@ -192,6 +192,7 @@ DomElement::DomElement(Mode mode, DomElementType type)
     type_(type),
     numManipulations_(0),
     timeOut_(-1),
+    timeOutJSRepeat_(-1),
     globalUnfocused_(false)
 { }
 
@@ -481,7 +482,14 @@ void DomElement::setTimeout(int msec, bool jsRepeat)
 {
   ++numManipulations_;
   timeOut_ = msec;
-  timeOutJSRepeat_ = jsRepeat;
+  timeOutJSRepeat_ = jsRepeat ? msec : -1;
+}
+
+void DomElement::setTimeout(int delay, int interval)
+{
+  ++numManipulations_;
+  timeOut_ = delay;
+  timeOutJSRepeat_ = interval;
 }
 
 void DomElement::callJavaScript(const std::string& jsCode,
