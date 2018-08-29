@@ -3723,8 +3723,8 @@ function addTimerEvent(timerid, msec, repeat) {
   var tm = function() {
     var obj = WT.getElement(timerid);
     if (obj) {
-      if (repeat)
-	obj.timer = setTimeout(obj.tm, msec);
+      if (repeat != -1)
+	obj.timer = setTimeout(obj.tm, repeat);
       else {
 	obj.timer = null;
 	obj.tm = null;
