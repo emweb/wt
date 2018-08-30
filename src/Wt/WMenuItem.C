@@ -563,6 +563,7 @@ void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
   subMenu_ = menu.get();
   subMenu_->parentItem_ = this;
 
+  Wt::WApplication::instance()->removeGlobalWidget(menu.get());
   addWidget(std::move(menu));
 
   if (subMenu_->isPopup() &&
