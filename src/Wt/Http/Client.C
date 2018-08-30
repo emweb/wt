@@ -114,7 +114,7 @@ public:
       request_stream << "Content-Length: " << message.body().length() 
 		     << "\r\n";
 
-    request_stream << "Connection: close\r\n\r\n";
+    request_stream << "\r\n";
 
     if (method == "POST" || method == "PUT" || method == "DELETE" || method == "PATCH")
       request_stream << message.body();
@@ -481,8 +481,24 @@ private:
 	       && err != boost::asio::error::shut_down
 	       && err != boost::asio::error::bad_descriptor
 	       && err != boost::asio::error::operation_aborted
+	       && err != boost::asio::ssl::error::stream_truncated
 	       && err.value() != 335544539) {
       err_ = err;
+      complete();
+    } else if (!aborted_
+	       && err == boost::asio::ssl::error::stream_truncated) {
+      const std::string *clHeader = response_.getHeader("Content-Length");
+      if (clHeader != 0) {
+	int contentLength = 0;
+	
+	std::stringstream ss(*clHeader);
+	ss >> contentLength;
+
+	if (contentLength != response_.body().size())
+	  err_ = err;
+      } else {
+	err_ = err;
+      }
       complete();
     } else {
       if (aborted_)
