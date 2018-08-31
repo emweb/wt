@@ -36,7 +36,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 
 #ifdef WIN32_GL
 #include <GL/wglew.h>
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #ifdef APPLE_GL

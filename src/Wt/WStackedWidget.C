@@ -21,6 +21,7 @@ WStackedWidget::WStackedWidget()
     javaScriptDefined_(false),
     loadAnimateJS_(false)
 {
+  setOverflow(Overflow::Hidden);
   addStyleClass("Wt-stack");
 }
 

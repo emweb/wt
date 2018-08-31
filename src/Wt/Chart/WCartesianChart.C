@@ -1500,7 +1500,6 @@ void WCartesianChart::assignJSPathsForSeries(const WDataSeries& series)
 
 void WCartesianChart::assignJSTransformsForSeries(const WDataSeries &series)
 {
-  if (!isInteractive()) return;
   WJavaScriptHandle<WTransform> handle;
   if (freeTransforms_.size() > 0) {
     handle = freeTransforms_.back();
@@ -2239,7 +2238,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 	   dynamic_cast<ExtremesIterator *>(iterator))))
       continue;
 
-    groupWidth = series_[g]->barWidth() * (map(2, 0).x() - map(1, 0).x());
+    groupWidth = series_[g]->barWidth() * (axis(Axis::X).mapToDevice(2) - axis(Axis::X).mapToDevice(1));
 
     if (containsBars)
       ++currentBarGroup;

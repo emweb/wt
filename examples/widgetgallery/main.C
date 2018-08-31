@@ -63,7 +63,6 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
 
   auto layout =
       app->root()->setLayout(cpp14::make_unique<WHBoxLayout>());
-  layout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(cpp14::make_unique<WidgetGallery>());
 

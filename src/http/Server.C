@@ -211,6 +211,12 @@ void Server::start()
     if (!config_.sslEnableV3())
       sslOptions |= asio::ssl::context::no_sslv3;
 
+    sslOptions |= asio::ssl::context::no_tlsv1;
+#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 105800) || \
+     defined(WT_ASIO_IS_STANDALONE_ASIO)
+    sslOptions |= asio::ssl::context::no_tlsv1_1;
+#endif
+
     ssl_context_.set_options(sslOptions);
 
     if (config_.sslClientVerification() == "none") {

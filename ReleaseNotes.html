@@ -22,20 +22,120 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.0.4 (2018)</h2>
-<p>
-WCartesianChart:
+<h2>Release 4.0.4 (August 22, 2018)</h2>
+<p>This release brings with it the usual bugfixes, but also some new features:</p>
+
+<h3>WCartesianChart improvements</h3>
+
+<h4>Multiple Y axis support</h4>
+
+<p>In previous versions of Wt, it was already possible to have two separate Y axes. This release
+allows for any amount of Y axes, and extends the interactive functionality to support multiple Y axes.</p>
+
+<p>The following methods have been added:</p>
+
 <dl>
-  <dt>Support for multiple axes</dt>
+  <dt><a href="classWt_1_1Chart_1_1WCartesianChart.html"><tt>WCartesianChart</tt></a></dt>
   <dd>
-    <p>...</p>
-    <p>Somewhat breaking change: <tt>WCartesianChart::prepareAxes</tt> now takes a <tt>WPaintDevice</tt> argument:
-       breaks derived classes that override this method.</p>
+    <ul>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a44f9ac7c63b7ccf0be2cc925c8159094"><tt>std::vector&lt;WAxis*&gt; yAxes()</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a457197f9f6a0215a260922a47dde9115"><tt>std::vector&lt;const WAxis*&gt; yAxes() const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a3b0038712fce477634c39cdc736c2388"><tt>WAxis&amp; yAxis(int i)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#ab301c3aed79917163a093ca102cc4563"><tt>const WAxis&amp; yAxis(int i) const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#aa9d7bbc307118d222aca64deb76b60d5"><tt>int yAxisCount() const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a0abfca1c61508d49f9c8b5e95e896b4b"><tt>int addYAxis(std::unique_ptr&lt;WAxis&gt; waxis)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a8e884bd514607231e025b1c06aed6b8e"><tt>std::unique_ptr&lt;WAxis&gt; removeYAxis(int yAxisId)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a34329c849eaa8761f730d027c9c47af9"><tt>void clearYAxes()</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a191d840f367d27f66612b8e68009f888"><tt>WPointF mapFromDevice(const WPointF &amp;point, int ordinateAxis) const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#aad25e33c3a389c99ea63f606a30e2f65"><tt>WPointF mapToDevice(const Wt::cpp17::any &amp;xValue, const Wt::cpp17::any &amp;yValue, int yAxis, int xSegment = 0, int ySegment = 0) const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a9f31ca5174b6127e49ad92c9da481adc"><tt>void setCrosshairYAxis(int yAxis)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#abdac8c6bf3f39c524054645f8b063383"><tt>int crosshairYAxis() const</tt></a></li>
+    </ul>
+    <b>Small breaking change</b>: note that the virtual method <a href="classWt_1_1Chart_1_1WCartesianChart.html#a1813b0cfd8692b5b5720b5b9e7fa807b"><tt>prepareAxes</tt></a> has been modified to take a <a href="classWt_1_1WPaintDevice.html"><tt>WPaintDevice*</tt></a> argument. If your code overrides this method, be sure to add this argument to your overridden version.
   </dd>
-  <dt>On-demand loading</dt>
-  <dd>...</dd>
+  <dt><a href="classWt_1_1Chart_1_1WDataSeries.html"><tt>WDataSeries</tt></a></dt>
+  <dd>
+    <ul>
+      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#aafffe717e28c00afea645652a9b6a655"><tt>WDataSeries(int modelColumn, SeriesType seriesType, int yAxis)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#ae3abca77e796e8d0c1b1e5830ef80866"><tt>void bindToYAxis(int yAxis)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#a338558cb67b5114f7d9de07192a3c1a8"><tt>int yAxis() const</tt></a></li>
+    </ul>
+  </dd>
 </dl>
-</p>
+
+<p>It's also possible to pan and zoom individual axes by scrolling on or dragging the axis itself, or by touch dragging and pinching.</p>
+
+<h4>On-demand loading</h4>
+
+<p>We've added on-demand loading functionality to <a href="classWt_1_1Chart_1_1WCartesianChart.html"><tt>WCartesianChart</tt></a>. Enable on-demand loading when you have a lot of data and/or need the ability to zoom in very far. This will make it so that only the data for the visible X range is loaded, and will improve performance of data series with large amounts data. This becomes especially useful in combination with the ability to set a maximum zoom range, so that you can't zoom all the way out to see all data.</p>
+
+<p>The following methods have been added:</p>
+
+<dl>
+  <dt><a href="classWt_1_1Chart_1_1WCartesianChart.html"><tt>WCartesianChart</tt></a></dt>
+  <dd>
+    <ul>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a97f7f38a9f751b0b41d67f4546cc32f9"><tt>void setOnDemandLoadingEnabled(bool enabled)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a2380aeb17e103bae1f332fd4c56d6b2b"><tt>bool onDemandLoadingEnabled() const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a9072e157f556bd8eea1eef14426d4f29"><tt>void setLoadingBackground(const WBrush &amp;brush)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a3e33918e5cbee75d172ab820e71f69bc"><tt>const WBrush&amp; loadingBackground() const</tt></a></li>
+    </ul>
+  </dd>
+  <dt><a href="classWt_1_1Chart_1_1WAxis.html"><tt>WAxis</tt></a></dt>
+  <dd>
+    <ul>
+      <li><a href="classWt_1_1Chart_1_1WAxis.html#ada743ccf44212cfb1f4a6fa83b79e581"><tt>void setMaximumZoomRange(double size)</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WAxis.html#a10742d531e8141474ea707d3c4730386"><tt>double maximumZoomRange() const</tt></a></li>
+    </ul>
+  </dd>
+</dl>
+
+<p>Note that the data must be ordered on X axis value for this feature to work properly.</p>
+
+<h3>Path parameters</h3>
+
+<p>It's now possible to use variables in <a href="classWt_1_1WServer.html#a7b78b5e35d2dc3086faa54f82124cf38"><tt>WServer::addResource()</tt></a>, e.g. <tt>server.addResource(&amp;resource, &quot;/users/${user}&quot;)</tt>.</p>
+
+<p>These parameters are then accessible in the <tt>WResource</tt>'s <tt>handleRequest()</tt> function through
+<a href="classWt_1_1Http_1_1Request.html#af6917bd5182e9a33f74e3e7191899495"><tt>Http::Request::urlParams()</tt></a>
+and <a href="classWt_1_1Http_1_1Request.html#a0100186e6bc33bd221e25799e2059f7d"><tt>Http::Request::urlParam(const std::string&amp;)</tt></a>.</p>
+
+<p>A feature example demonstrating this was added in <tt>examples/feature/urlparams</tt>.</p>
+
+<h3>Idle timeout</h3>
+
+<p>Added an <tt>&lt;idle-timeout&gt;</tt> option to the configuration (<tt>wt_config.xml</tt>). If set,
+<a href="classWt_1_1WApplication.html#a4e8020fca24d09661ee4bf13400354d9"><tt>WApplication::idleTimeout()</a></tt> will be triggered after the configured number of seconds.</p>
+
+<p>This is intended to prevent unauthorized people from using an active session from a
+device that's been abandoned by the user.</p>
+
+<a href="classWt_1_1WFileDropWidget.html"><h3>WFileDropWidget</h3></a>
+
+<p>Added the ability to set a
+<a href="classWt_1_1WFileDropWidget.html#a9ad41a8986a7bbb25178e0cda850333d">JavaScript filter</a>, e.g. to
+compress uploads client side.
+
+<h3>Miscellaneous improvements</h3>
+
+<ul>
+  <li>Added support for transparency in PDFs</li>
+  <li>Rudimentary support for drawing SVGs on HTML canvas with <tt>WPainter::drawImage</tt></li>
+  <li>
+    <a href="classWt_1_1Dbo_1_1backend_1_1MySQL.html"><tt>Wt::Dbo::backend::MySQL</tt></a>:
+    Fixed compatibility with MySQL Connector/C 8.0 and MariaDB Connector/C 3.0
+  </li>
+  <li>
+    Added <a href="classWt_1_1WEnvironment.html#ad2846f6fd581cd6c8c6933eff0e5fa73"><tt>WEnvironment::timeZoneName()</tt></a>
+  </li>
+  <li>
+    Added <tt>insertTab</tt>, <tt>itemAt</tt> and <tt>currentItem</tt> to
+    <a href="classWt_1_1WTabWidget.html"><tt>WTabWidget</tt></a>
+  </li>
+  <li>
+    Disabled TLS v. 1.0 and 1.1 support
+  </li>
+</ul>
 
 <h2>Release 4.0.3 (April 12, 2018)</h2>
 <p>This release fixes compatibility with Boost 1.66, fixes some bugs, and adds

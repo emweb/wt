@@ -47,8 +47,6 @@ IF(ENABLE_LIBWTDBO)
     IF(MULTI_THREADED_BUILD)
       TARGET_LINK_LIBRARIES(wtdbo
                             PRIVATE
-                              ${BOOST_THREAD_LIB}
-                              ${BOOST_SYSTEM_LIB}
                               ${WT_THREAD_LIB})
     ENDIF(MULTI_THREADED_BUILD)
   ENDIF(MSVC)

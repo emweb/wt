@@ -1062,8 +1062,8 @@ void WTreeView::defineJavaScript()
 		      + "');");
 
   setJavaScriptMember(WT_RESIZE_JS,
-		      "function(self,w,h) {"
-		      "$(self).data('obj').wtResize();"
+		      "function(self,w,h,s) {"
+		      """$(self).data('obj').wtResize();"
 		      "}");
 }
 

@@ -926,7 +926,7 @@ void Postgres::exec(const std::string& sql, bool showQuery)
   for (;;) {
     PGresult *result = PQgetResult(conn_);
     if (result == 0)
-      return;
+      break;
 
     err = PQresultStatus(result);
 

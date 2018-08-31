@@ -21,6 +21,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <cstring>
 
 using std::exit;
 using std::strcpy;

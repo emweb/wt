@@ -312,7 +312,7 @@ int FlexLayoutImpl::getTotalStretch(Orientation orientation)
     Impl::Grid::Item& it = item(orientation, i);
     if (!it.item_.get()->widget() ||
 	!it.item_.get()->widget()->isHidden())
-      totalStretch += s.stretch_;
+      totalStretch += std::max(0, s.stretch_);
   }
 
   return totalStretch;
@@ -471,10 +471,11 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
       
   {
     WStringStream flexProperty;
-    int flexGrow = totalStretch == 0 ? 1 : s.stretch_;
-    int flexShrink = totalStretch == 0 ? 1 : (s.stretch_ == 0 ? 0 : 1);
+    int stretch = std::max(0, s.stretch_);
+    int flexGrow = totalStretch == 0 ? 1 : stretch;
+    int flexShrink = totalStretch == 0 ? 1 : (stretch == 0 ? 0 : 1);
     flexProperty << flexGrow << ' ' << flexShrink << ' ' << s.initialSize_.cssText();
-    if (s.stretch_ == 0)
+    if (stretch == 0)
       el->setAttribute("flg", "0");
     el->setProperty(Property::StyleFlex, flexProperty.str());
   }

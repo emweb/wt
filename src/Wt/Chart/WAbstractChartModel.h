@@ -79,6 +79,11 @@ public:
    *       this may cause client-side performance issues. If deferred tooltips
    *       are used, this will cause some load on the server, as it calculates
    *       server-side what marker or bar the user is hovering over.
+   * 
+   * \note If the chart is interactive, and tooltips are not deferred,
+   *       they will be scaled according to the first Y axis, and thus
+   *       multiple Y axes will not be supported in combination with plain
+   *       tooltips.
    */
   virtual WFlags<ItemFlag> flags(int row, int column) const;
 

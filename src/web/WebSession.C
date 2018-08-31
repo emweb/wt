@@ -1269,7 +1269,8 @@ void WebSession::handleRequest(Handler& handler)
     } else {
       // Not OK
       if (origin) {
-        LOG_ERROR("WebSocket request refused: Origin '" << origin << "' not allowed");
+        LOG_ERROR("WebSocket request refused: Origin '" << origin <<
+            "' not allowed (trusted origin is '" << trustedOrigin << "')");
       } else {
         LOG_ERROR("WebSocket request refused: missing Origin");
       }
@@ -2191,6 +2192,10 @@ void WebSession::notify(const WEvent& event)
       renderer_.serveResponse(*event.impl_.response);
     } catch (std::exception& e) {
       LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+
+#ifdef WT_TARGET_JAVA
+      e.printStackTrace();
+#endif // WT_TARGET_JAVA
     } catch (...) {
       LOG_ERROR("Exception in WApplication::notify()");
     }
@@ -2205,6 +2210,10 @@ void WebSession::notify(const WEvent& event)
 	render(*event.impl_.handler);
     } catch (std::exception& e) {
       LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+
+#ifdef WT_TARGET_JAVA
+      e.printStackTrace();
+#endif // WT_TARGET_JAVA
     } catch (...) {
       LOG_ERROR("Exception in WApplication::notify()");
     }

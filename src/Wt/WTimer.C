@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
 #include "Wt/WTimer.h"
 #include "Wt/WTimerWidget.h"
 #include "Wt/WContainerWidget.h"
@@ -48,8 +49,8 @@ void WTimer::setSingleShot(bool singleShot)
 
 void WTimer::start()
 {
+  WApplication *app = WApplication::instance();
   if (!active_) {
-    WApplication *app = WApplication::instance();    
     if (app && app->timerRoot())
       app->timerRoot()->addWidget(std::move(uTimerWidget_));
   }
@@ -57,7 +58,9 @@ void WTimer::start()
   active_ = true;
   *timeout_ = Time() + interval_.count();
 
-  bool jsRepeat = !timeout().isExposedSignal() && !singleShot_;
+  bool jsRepeat = !singleShot_ &&
+                  ((app && app->environment().ajax()) ||
+                   !timeout().isExposedSignal());
 
   timerWidget_->timerStart(jsRepeat);
 
@@ -84,7 +87,10 @@ void WTimer::gotTimeout()
   if (active_) {
     if (!singleShot_) {
       *timeout_ = Time() + interval_.count();
-      timerWidget_->timerStart(false);    
+      if (!timerWidget_->jsRepeat()) {
+        WApplication *app = WApplication::instance();
+        timerWidget_->timerStart(app->environment().ajax());
+      }
     } else
       stop();
   }

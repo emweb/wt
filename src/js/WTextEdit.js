@@ -68,9 +68,9 @@ WT_DECLARE_WT_MEMBER
      topLevel.wtResize = el.wtResize;
 
      if (WT.isGecko)
-       setTimeout(function() { self.wtResize(el, lastW, lastH); }, 100);
+       setTimeout(function() { self.wtResize(el, lastW, lastH, true); }, 100);
      else
-       self.wtResize(el, lastW, lastH);
+       self.wtResize(el, lastW, lastH, true);
 
      var doc;
 
@@ -107,7 +107,7 @@ WT_DECLARE_WT_MEMBER
        });
    };
 
-   this.wtResize = function(e, w, h) {
+   this.wtResize = function(e, w, h, setSize) {
      if (h < 0)
        return;
 
@@ -176,7 +176,8 @@ WT_DECLARE_WT_MEMBER
        if (h < 0) {
 	 if (badHeightCount < 10) {
 	   var timeoutDelay = Math.pow(2, badHeightCount) * 100;
-	   setTimeout(function() { self.wtResize(el, lastW, lastH); }, timeoutDelay);
+	   setTimeout(function() { self.wtResize(el, lastW, lastH, true); },
+		      timeoutDelay);
 	 }
 	 badHeightCount += 1;
 	 return;

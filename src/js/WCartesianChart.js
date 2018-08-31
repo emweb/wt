@@ -11,6 +11,7 @@ WT_DECLARE_WT_MEMBER_BIG
   // target: the WPaintedWidget JavaScript obj, with:
   //   repaint
   //   canvas
+  //   combinedTransform is set by WCartesianChart
   // config: the initial configuration (can be overridden with updateConfig)
   //   curveManipulation (determines whether series manipulation is enabled)
   //   seriesSelection (determines whether series selection is enabled)
@@ -375,7 +376,7 @@ WT_DECLARE_WT_MEMBER_BIG
       }
       if (tobj.tooltipOuterDiv) {
         document.body.removeChild(tobj.tooltipOuterDiv);
-        tobj.tooltipEl = null;
+        tobj.toolTipEl = null;
         tobj.tooltipOuterDiv = null;
       }
     }
@@ -420,6 +421,9 @@ WT_DECLARE_WT_MEMBER_BIG
 
 
     function combinedTransform(ax) {
+      if (ax === undefined) {
+        ax = 0;
+      }
       var l, b, t;
       if (isHorizontal()) {
         l = left(configArea());
@@ -638,6 +642,8 @@ WT_DECLARE_WT_MEMBER_BIG
     }
 
     function loadTooltip() {
+      if (tobj.toolTipEl)
+        return;
       APP.emit(target.widget, "loadTooltip", tobj.tooltipPosition[X], tobj.tooltipPosition[Y]);
     }
 
@@ -684,7 +690,7 @@ WT_DECLARE_WT_MEMBER_BIG
         var c = WT.widgetCoordinates(target.canvas, event);
         if (!isPointInRect(c, configArea())) return;
 
-        if (!tobj.tooltipEl && hasToolTips()) {
+        if (hasToolTips()) {
           tobj.tooltipPosition = [c.x,c.y];
           tobj.tooltipTimeout = setTimeout(function() {
             loadTooltip();
@@ -728,8 +734,10 @@ WT_DECLARE_WT_MEMBER_BIG
     this.mouseDrag = function(o, event) {
       if (pointerActive)
         return;
-      if (dragPreviousXY === null)
+      if (dragPreviousXY === null) {
+        self.mouseDown(o, event);
         return;
+      }
       var c = WT.widgetCoordinates(target.canvas, event);
       if (WT.buttons === 1) {
         if (dragCurrentYAxis === -1 && !dragXAxis &&

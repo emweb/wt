@@ -92,11 +92,8 @@ WTreeNode::WTreeNode(const WString& labelText,
     labelIcon_->setVerticalAlignment(AlignmentFlag::Middle);
   }
 
-  if (!labelText.empty()) {
-    labelText_ = labelArea()->addWidget(cpp14::make_unique<WText>(labelText));
-    labelText_->setStyleClass("Wt-label");
-  } else
-    labelText_ = nullptr;
+  labelText_ = labelArea()->addWidget(cpp14::make_unique<WText>(labelText));
+  labelText_->setStyleClass("Wt-label");
 
   childrenLoaded_ = false;
 

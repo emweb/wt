@@ -161,16 +161,6 @@ void EscapeOStream::append(const char *s, std::size_t len)
     put(s, *this);
 }
 
-EscapeOStream& EscapeOStream::operator<< (char *s)
-{
-  if (c_special_ == 0)
-    stream_ << s;
-  else
-    put(s, *this);
-
-  return *this;
-}
-
 void EscapeOStream::append(const std::string& s, const EscapeOStream& rules)
 {
   if (rules.c_special_ == 0)

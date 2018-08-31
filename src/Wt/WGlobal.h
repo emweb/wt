@@ -1059,6 +1059,14 @@ enum class MediaReadyState {
   HaveEnoughData = 4   //!< Enough to reach the end without stalling
 };
 
+/*! \brief Enumeration that indicates a regular expression option.
+ */
+enum class RegExpFlag {
+  MatchCaseInsensitive = 0x1 //!< Case insensitive matching
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(RegExpFlag)
+
 }
 
 #endif // WGLOBALS_H_

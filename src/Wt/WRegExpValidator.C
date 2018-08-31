@@ -65,6 +65,29 @@ void WRegExpValidator::loadJavaScript(WApplication *app)
   LOAD_JAVASCRIPT(app, "js/WRegExpValidator.js", "WRegExpValidator", wtjs1);
 }
 
+void WRegExpValidator::setFlags(WFlags<RegExpFlag> flags)
+{
+  if (flags == this->flags())
+    return;
+
+  if (flags.test(RegExpFlag::MatchCaseInsensitive))
+    regex_.assign(pattern_.toUTF8(),
+                  std::regex::ECMAScript | std::regex::icase);
+  else
+    regex_.assign(pattern_.toUTF8(),
+                  std::regex::ECMAScript);
+
+  repaint();
+}
+
+WFlags<RegExpFlag> WRegExpValidator::flags() const
+{
+  if (regex_.flags() & std::regex::icase)
+    return RegExpFlag::MatchCaseInsensitive;
+  else
+    return WFlags<RegExpFlag>();
+}
+
 std::string WRegExpValidator::javaScriptValidate() const
 {
   loadJavaScript(WApplication::instance());

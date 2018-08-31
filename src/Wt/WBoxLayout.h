@@ -368,6 +368,7 @@ private:
 
   virtual void setParentWidget(WWidget *parent) override;
 
+  void setImplementation();
   bool implementationIsFlexLayout() const;
 };
 

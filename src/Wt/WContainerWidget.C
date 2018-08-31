@@ -74,6 +74,7 @@ void WContainerWidget::setLayout(std::unique_ptr<WLayout> layout)
     layout_->setParentWidget(this);
   contentAlignment_ = AlignmentFlag::Justify;
   flags_.set(BIT_LAYOUT_NEEDS_RERENDER);
+  repaint();
 #else
   assert(false);
 #endif

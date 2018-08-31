@@ -19,7 +19,7 @@
 #ifndef WT_WIN32
 #include <ctime>
 #else
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include <chrono>

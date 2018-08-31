@@ -107,6 +107,21 @@
 	      -->
 	    <timeout>600</timeout>
 
+            <!-- Idle timeout (seconds).
+
+               When the user does not interact with the application for the set number of seconds,
+               WApplication::idleTimeout() is called. By default, this
+               method quits the application immediately, but it can be overridden
+               if different behaviour is desired.
+
+               This feature can be used to prevent others from taking over a session
+               when the device that the Wt application is being used from is left behind,
+               and is most effective in combination with a fairly short session timeout (<timeout>)
+
+               When omitted, or left empty, this feature is disabled.
+               -->
+            <!--<idle-timeout>900</idle-timeout>-->
+
 	    <!-- Server push timeout (seconds).
 
                When using server-initiated updates, the client uses

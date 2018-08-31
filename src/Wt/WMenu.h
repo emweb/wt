@@ -61,7 +61,7 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * After contruction, the first entry will be selected. At any time,
+ * After construction, the first entry will be selected. At any time,
  * it is possible to select a particular item using select().
  *
  * Each item of %WMenu may be closeable (see WMenuItem::setCloseable(bool).
@@ -624,7 +624,6 @@ private:
   int previousStackIndex_;
   bool needSelectionEventUpdate_;
 
-  void init();
   void updateItemsInternalPath();
   void itemPathChanged(WMenuItem *item);
   void selectVisual(WMenuItem *item);

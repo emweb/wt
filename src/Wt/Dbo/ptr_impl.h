@@ -456,7 +456,7 @@ const C& ptr<C>::operator*() const
   if (obj_)
     return *obj_->obj();
   else
-    throw Exception("Wt::Dbo::ptr: null dereference");
+    throw Exception("Wt::Dbo::ptr<" + std::string(typeid(C).name()) + ">: null dereference");
 }
 
 template <class C>
@@ -465,7 +465,7 @@ typename ptr<C>::mutator ptr<C>::modify() const
   if (obj_)
     return mutator(obj_);
   else
-    throw Exception("Wt::Dbo::ptr: null dereference");
+    throw Exception("Wt::Dbo::ptr<" + std::string(typeid(C).name()) + ">: null dereference");
 }
 
 template <class C>

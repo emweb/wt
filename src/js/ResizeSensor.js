@@ -77,15 +77,19 @@ function(WT, element) {
         shrink.scrollTop = 100000;
     };
 
+    element.resizeSensor.trigger = function() {
+      if (element.wtResize)
+	element.wtResize(element, lastWidth, lastHeight, false);
+    };
+    
     reset();
     var dirty = false;
     var lastWidth, lastHeight;
 
     var dirtyChecking = function() {
         if (dirty) {
-	    if (element.wtResize)
-		element.wtResize(element, lastWidth, lastHeight);
-            dirty = false;
+	  element.resizeSensor.trigger();
+	  dirty = false;
         }
 
         requestAnimationFrame(dirtyChecking);
