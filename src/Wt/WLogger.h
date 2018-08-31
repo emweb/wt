@@ -320,7 +320,10 @@ public:
   WLogEntry& operator<< (T t) {
     startField();
     if (impl_)
-      impl_->line_ << std::to_string(t);
+    {
+      using std::to_string;
+      impl_->line_ << to_string(t);
+    }
     return *this;
   }
 
