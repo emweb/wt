@@ -135,6 +135,10 @@ WebSession::WebSession(WebController *controller,
 {
   env_ = env ? env : &embeddedEnv_;
 
+  // Update the URL scheme so we can set the session cookie correctly (with secure for https)
+  if (request)
+    env_->updateUrlScheme(*request);
+
   /*
    * Obtain the applicationName_ as soon as possible for log().
    */
