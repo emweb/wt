@@ -577,8 +577,8 @@ public:
 
   /*! \brief Refreshes the application.
    *
-   * This lets the application to refresh its data, including strings
-   * from message-resource bundles. This done by propagating
+   * This lets the application refresh its data, including strings
+   * from message resource bundles. This is done by propagating
    * WWidget::refresh() through the widget hierarchy.
    *
    * This method is also called when the user hits the refresh (or
