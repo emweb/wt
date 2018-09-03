@@ -382,6 +382,7 @@ private:
       }
 
       chunkedResponse_ = false;
+      contentLength_ = -1;
 
       // Process the response headers.
       std::istream response_stream(&responseBuf_);
@@ -399,6 +400,9 @@ private:
 	    chunkState_.size = 0;
 	    chunkState_.parsePos = 0;
 	    chunkState_.state = ChunkState::State::Size;
+	  } else if (boost::iequals(name, "Content-Length")) {
+	    std::stringstream ss(value);
+	    ss >> contentLength_;
 	  }
 	}
       }
@@ -475,24 +479,8 @@ private:
 	       && err != asio::error::shut_down
 	       && err != asio::error::bad_descriptor
 	       && err != asio::error::operation_aborted
-	       && err != asio::ssl::error::stream_truncated
 	       && err.value() != 335544539) {
       err_ = err;
-      complete();
-    } else if (!aborted_
-	       && err == boost::asio::ssl::error::stream_truncated) {
-      const std::string *clHeader = response_.getHeader("Content-Length");
-      if (clHeader != 0) {
-	int contentLength = 0;
-	
-	std::stringstream ss(*clHeader);
-	ss >> contentLength;
-
-	if (contentLength != response_.body().size())
-	  err_ = err;
-      } else {
-	err_ = err;
-      }
       complete();
     } else {
       if (aborted_)
@@ -519,7 +507,9 @@ private:
 
       LOG_DEBUG("Data: " << text);
       haveBodyData(text);
-      return false;
+
+      return (contentLength_ >= 0) &&
+	(response_.body().size() >= contentLength_);
     }
   }
 
@@ -671,6 +661,7 @@ private:
   std::size_t maximumResponseSize_, responseSize_;
   bool chunkedResponse_;
   ChunkState chunkState_;
+  int contentLength_;
   AsioWrapper::error_code err_;
   Message response_;
   Signal<AsioWrapper::error_code, Message> done_;
