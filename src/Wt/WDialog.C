@@ -193,7 +193,8 @@ WDialog::WDialog()
   : WPopupWidget(std::unique_ptr<WWidget>
 		 (new WTemplate(tr("Wt.WDialog.template")))),
     moved_(this, "moved"),
-    resized_(this, "resized")
+    resized_(this, "resized"),
+    zIndexChanged_(this, "zIndexChanged")
 {
   create();
 }
@@ -309,6 +310,8 @@ void WDialog::create()
 		      ? PositionScheme::Absolute : PositionScheme::Fixed);
 
   setMovable(true);
+
+  zIndexChanged_.connect(this, &WDialog::zIndexChanged);
 }
 
 WDialog::~WDialog()
@@ -409,6 +412,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
 		 + "," + (resized_.isConnected()
 			  ? '"' + resized_.name() + '"' 
 			  : "null")
+                 + ",\"" + zIndexChanged_.name() + '"'
 		 + ");");
 
     for (std::size_t i = 0; i < delayedJs_.size(); ++i) {
@@ -691,6 +695,11 @@ void WDialog::raiseToFront()
   doJSAfterLoad("jQuery.data(" + jsRef() + ", 'obj').bringToFront()");
   DialogCover *c = cover();
   c->bringToFront(this);  
+}
+
+void WDialog::zIndexChanged(int zIndex)
+{
+  impl_->layoutImpl_->zIndex_ = zIndex;
 }
 
 EventSignal<WKeyEvent>& WDialog::keyWentDown()

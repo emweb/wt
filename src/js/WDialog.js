@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WDialog",
- function(APP, el, titlebar, movable, centerX, centerY, movedSignal, resizedSignal)
+ function(APP, el, titlebar, movable, centerX, centerY, movedSignal, resizedSignal, zIndexChangedSignal)
  {
    jQuery.data(el, 'obj', this);
 
@@ -247,8 +247,11 @@ WT_DECLARE_WT_MEMBER
        }
      );
 
-     if (maxz > el.style['zIndex'])
-       el.style['zIndex'] = maxz + 1;
+     if (maxz > el.style['zIndex']) {
+       var newZIndex = maxz + 1;
+       el.style['zIndex'] = newZIndex;
+       APP.emit(el, zIndexChangedSignal, newZIndex);
+     }
    };
 
    /*
