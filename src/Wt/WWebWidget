@@ -599,6 +599,7 @@ protected:
   friend class WContainerWidget;
   friend class WCssDecorationStyle;
   friend class WCssTemplateRule;
+  friend class WDialog;
   friend class WFont;
   friend class WGLWidget;
   friend class WInteractWidget;
