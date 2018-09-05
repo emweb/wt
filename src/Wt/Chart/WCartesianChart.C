@@ -133,8 +133,13 @@ WColor WCartesianChart::lightenColor(const WColor& in)
 }
 
 CurveLabel::CurveLabel(const WDataSeries &series, const WPointF &point, const WT_USTRING &label)
+  : CurveLabel(series, point.x(), point.y(), label)
+{ }
+
+CurveLabel::CurveLabel(const WDataSeries &series, const cpp17::any &x, const cpp17::any &y,const WT_USTRING &label)
   : series_(&series),
-    point_(point),
+    x_(x),
+    y_(y),
     label_(label),
     offset_(60, -20),
     width_(0),
@@ -151,7 +156,19 @@ void CurveLabel::setSeries(const WDataSeries &series)
 
 void CurveLabel::setPoint(const WPointF &point)
 {
-  point_ = point;
+  x_ = point.x();
+  y_ = point.y();
+}
+
+void CurveLabel::setPoint(const cpp17::any &x, const cpp17::any &y)
+{
+  x_ = x;
+  y_ = y;
+}
+
+const WPointF CurveLabel::point() const
+{
+  return WPointF(asNumber(x_), asNumber(y_));
 }
 
 void CurveLabel::setLabel(const WT_USTRING &label)
@@ -3942,28 +3959,30 @@ void WCartesianChart::renderCurveLabels(WPainter &painter) const
 
 	// Find the right x and y segment
 	int xSegment = 0;
+        double x = axis(Axis::X).getValue(label.x());
 	if (!isInteractive())
 	  while (xSegment < axis(Axis::X).segmentCount() && 
-		 (axis(Axis::X).segments_[xSegment].renderMinimum > label.point().x() || 
-		  axis(Axis::X).segments_[xSegment].renderMaximum < label.point().x())) {
+		 (axis(Axis::X).segments_[xSegment].renderMinimum > x || 
+		  axis(Axis::X).segments_[xSegment].renderMaximum < x)) {
 	    ++xSegment;
 	  }
 
 	int ySegment = 0;
+        double y = yAxis(series.yAxis()).getValue(label.y());
 	if (!isInteractive())
-	  while (ySegment < axis(series.axis()).segmentCount() && 
-		 (axis(series.axis()).segments_[ySegment].renderMinimum > label.point().y() || 
-		  axis(series.axis()).segments_[ySegment].renderMaximum < label.point().y())) {
+          while (ySegment < yAxis(series.yAxis()).segmentCount() &&
+                 (yAxis(series.yAxis()).segments_[ySegment].renderMinimum > y ||
+                  yAxis(series.yAxis()).segments_[ySegment].renderMaximum < y)) {
 	    ++ySegment;
 	  }
 
 	// Only draw the label if it is actually on a segment
 	if (xSegment < axis(Axis::X).segmentCount() && 
-	    ySegment < axis(series.axis()).segmentCount()) {
+            ySegment < yAxis(series.yAxis()).segmentCount()) {
 	  // Figure out the device coordinates of the point to draw a label at.
 	  WPointF devicePoint = 
-            mapToDeviceWithoutTransform(label.point().x(), label.point().y(),
-			series.axis(), xSegment, ySegment);
+            mapToDeviceWithoutTransform(label.x(), label.y(),
+                        series.yAxis(), xSegment, ySegment);
 	  WTransform translation = WTransform().translate(t.map(devicePoint));
 	  painter.save();
 	  painter.setWorldTransform(translation);

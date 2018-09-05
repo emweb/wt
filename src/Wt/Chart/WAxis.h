@@ -1092,7 +1092,6 @@ private:
   void computeRange(const Segment& segment) const;
 
   double getValue(const cpp17::any& v) const;
-  static double getDateValue(const cpp17::any& value);
 
   double calcAutoNumLabels(Orientation orientation, const Segment& s) const;
   WString defaultDateTimeFormat(const Segment& s) const;

@@ -1013,6 +1013,10 @@ double WAxis::getValue(const cpp17::any& v) const
     }
 #endif
 
+    else if (v.type() == typeid(double)) {
+      return cpp17::any_cast<double>(v);
+    }
+
     else {
       return std::numeric_limits<double>::signaling_NaN();
     }
@@ -1030,6 +1034,10 @@ double WAxis::getValue(const cpp17::any& v) const
       return static_cast<double>(dt.toTime_t());
     }
 #endif
+
+    else if (v.type() == typeid(double)) {
+      return cpp17::any_cast<double>(v);
+    }
 
     else {
       return std::numeric_limits<double>::signaling_NaN();
