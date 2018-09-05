@@ -41,10 +41,10 @@ int WJavaScriptObjectStorage::doAddObject(WJavaScriptExposableObject *o)
   return (int)index;
 }
 
-void WJavaScriptObjectStorage::updateJs(WStringStream &js)
+void WJavaScriptObjectStorage::updateJs(WStringStream &js, bool all)
 {
   for (std::size_t i = 0; i < jsValues_.size(); ++i) {
-    if (dirty_[i]) {
+    if (dirty_[i] || all) {
       js << jsRef() + ".setJsValue(" + boost::lexical_cast<std::string>(i) + ",";
       js << jsValues_[i]->jsValue() << ");";
       dirty_[i] = false;
