@@ -36,6 +36,12 @@
 namespace Wt {
   namespace Json {
 
+namespace {
+
+static constexpr int MAX_RECURSION_DEPTH = 1000;
+
+}
+
 ParseError::ParseError()
   : WException(std::string())
 { }
@@ -62,7 +68,8 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
 
   json_grammar(Value& result)
     : json_grammar::base_type(root),
-      result_(result)
+      result_(result),
+      recursionDepth_(0)
   {
     create();
 
@@ -92,20 +99,26 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
     root
       = object | array;
 
-    const auto startObject = [this](){
+    const auto startObject = [this](bool &pass){
       refCurrent();
 
       *currentValue_ = Value(Type::Object);
       objectStack_.push_back(&((Object&) (*currentValue_)));
       state_.push_back(State::InObject);
+
+      ++recursionDepth_;
+
+      pass = recursionDepth_ <= MAX_RECURSION_DEPTH;
     };
     const auto endObject = [this](){
       state_.pop_back();
       objectStack_.pop_back();
+
+      --recursionDepth_;
     };
     
     object
-      =  lit('{')[startObject]
+      =  lit('{')[std::bind(startObject, std::placeholders::_3)]
       >> -(member % ',')
       >> lit('}')[endObject]
       ;
@@ -124,22 +137,28 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
       >> value
       ;
 
-    const auto startArray = [this]()
+    const auto startArray = [this](bool &pass)
     {
       refCurrent();
 
       *currentValue_ = Value(Type::Array);
       arrayStack_.push_back(&((Array&) (*currentValue_)));
       state_.push_back(State::InArray);
+
+      ++recursionDepth_;
+
+      pass = recursionDepth_ <= MAX_RECURSION_DEPTH;
     };
     const auto endArray = [this]()
     {
       state_.pop_back();
       arrayStack_.pop_back();
+
+      --recursionDepth_;
     };
                 
     array 
-      = lit('[')[startArray]
+      = lit('[')[std::bind(startArray, std::placeholders::_3)]
       >> -(value % ',')
       >> lit(']')[endArray]
       ;
@@ -242,6 +261,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
 private:
   Value& result_;
   Value *currentValue_;
+  int recursionDepth_;
 
   std::list<Object *> objectStack_;
   std::list<Array *> arrayStack_;
