@@ -36,10 +36,6 @@
 #include <process.h>
 #endif
 
-#ifdef WT_BOOST_THREADS
-#include <boost/thread/tss.hpp>
-#endif
-
 #ifdef WT_TARGET_JAVA
 #define RETHROW(e) throw e
 #else
@@ -88,10 +84,10 @@ namespace Wt {
 
 LOGGER("Wt");
 
-#ifdef WT_BOOST_THREADS
-boost::thread_specific_ptr<WebSession::Handler> threadHandler_;
+#ifdef WT_THREADED
+static thread_local WebSession::Handler * threadHandler_ = nullptr;
 #else
-WebSession::Handler * threadHandler_;
+static WebSession::Handler * threadHandler_ = nullptr;
 #endif
 
 WebSession::WebSession(WebController *controller,
@@ -261,9 +257,9 @@ WebSession::~WebSession()
     deferredResponse_ = nullptr;
   }    
 
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
   updatesPendingEvent_.notify_one();
-#endif // WT_BOOST_THREADS
+#endif // WT_THREADED
 
   flushBootStyleResponse();
 
@@ -849,11 +845,7 @@ WebSession::Handler::Handler(const std::shared_ptr<WebSession>& session,
 
 WebSession::Handler *WebSession::Handler::instance()
 {
-#ifdef WT_BOOST_THREADS
-  return threadHandler_.get();
-#else
   return threadHandler_;
-#endif
 }
 
 bool WebSession::Handler::haveLock() const
@@ -896,13 +888,8 @@ WebSession::Handler::attachThreadToHandler(Handler *handler)
 {
   WebSession::Handler *result;
 
-#ifdef WT_BOOST_THREADS
-  result = threadHandler_.release();
-  threadHandler_.reset(handler);
-#else
   result = threadHandler_;
   threadHandler_ = handler;
-#endif
 
   return result;
 }
@@ -932,7 +919,7 @@ void WebSession
 {
   attachThreadToHandler(nullptr);
 
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
   if (!session.get())
     return;
 
@@ -964,13 +951,13 @@ void WebSession
 
 ApplicationEvent WebSession::popQueuedEvent()
 {
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
 #ifndef WT_TARGET_JAVA
   std::unique_lock<std::mutex> lock(eventQueueMutex_);
 #else
   eventQueueMutex_.lock();
 #endif // WT_TARGET_JAVA
-#endif // WT_BOOST_THREADS
+#endif // WT_THREADED
 
   ApplicationEvent result;
 
@@ -990,13 +977,13 @@ ApplicationEvent WebSession::popQueuedEvent()
 
 void WebSession::queueEvent(const ApplicationEvent& event)
 {
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
 #ifndef WT_TARGET_JAVA
   std::unique_lock<std::mutex> lock(eventQueueMutex_);
 #else
   eventQueueMutex_.lock();
 #endif // WT_TARGET_JAVA
-#endif // WT_BOOST_THREADS
+#endif // WT_THREADED
 
   eventQueue_.push_back(event);
 
@@ -1125,7 +1112,7 @@ void WebSession::doRecursiveEventLoop()
 {
   Handler *handler = WebSession::Handler::instance();
 
-#ifndef WT_BOOST_THREADS
+#ifndef WT_THREADED
   LOG_ERROR("cannot do recursive event loop without threads");
 #else
 
@@ -1220,7 +1207,7 @@ void WebSession::doRecursiveEventLoop()
   recursiveEventDone_.notify_one();
 
   recursiveEventHandler_ = prevRecursiveEventHandler;
-#endif // WT_BOOST_THREADS
+#endif // WT_THREADED
 }
 
 void WebSession::expire()
@@ -1243,7 +1230,7 @@ bool WebSession::unlockRecursiveEventLoop()
 
   newRecursiveEvent_ = new WEvent::Impl(recursiveEventHandler_);
 
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
   recursiveEvent_.notify_one();
 #endif
 
@@ -2091,7 +2078,7 @@ void WebSession::pushUpdates()
 
   if (updatesPending_) {
     LOG_DEBUG("pushUpdates(): cannot write now");
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
     updatesPendingEvent_.notify_one();
 #endif
   }
@@ -2170,7 +2157,7 @@ void WebSession::externalNotify(const WEvent::Impl& event)
 {
   if (recursiveEventHandler_ &&
       !newRecursiveEvent_) {
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
     newRecursiveEvent_ = new WEvent::Impl(event);
     recursiveEvent_.notify_one();
     while (newRecursiveEvent_) {
@@ -2482,7 +2469,7 @@ void WebSession::notify(const WEvent& event)
 	  }
 
 	  if (*signalE == "poll") {
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
 	    /*
 	     * If we cannot do async I/O, we cannot suspend the current
 	     * request and return. Thus we need to block the thread, waiting
@@ -2506,7 +2493,7 @@ void WebSession::notify(const WEvent& event)
 		return;
 	      }
 	    }
-#endif // WT_BOOST_THREADS
+#endif // WT_THREADED
 
 	    // LOG_DEBUG("poll: " << updatesPending_ << ", " << (asyncResponse_ ? "async" : "no async"));
             if (!updatesPending_ && renderer_.jsSynced()) {
@@ -2533,7 +2520,7 @@ void WebSession::notify(const WEvent& event)
 	    } else
 	      pollRequestsIgnored_ = 0;
 	  } else {
-#ifdef WT_BOOST_THREADS
+#ifdef WT_THREADED
 	    if (!WebController::isAsyncSupported()) {
 	      updatesPending_ = false;
 	      updatesPendingEvent_.notify_one();
