@@ -39,6 +39,9 @@
 #include <boost/math/special_functions/sign.hpp>
 #endif // SPIRIT_FLOAT_FORMAT
 
+#include <boost/spirit/include/qi_parse.hpp>
+#include <boost/spirit/include/qi_numeric.hpp>
+
 // Qnx gcc 4.4.2
 #ifdef isnan
 #undef isnan
@@ -420,63 +423,70 @@ WString formatFloat(const WString &format, double value)
 
 long stol(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stol(v, &pos);
-  if (pos != v.length())
+  auto it = v.cbegin();
+  long result = 0;
+  bool success = boost::spirit::qi::parse(it, v.cend(), boost::spirit::long_, result);
+  if (!success || it != v.cend())
     throw std::invalid_argument("stol() of " + v + " failed");
   return result;
 }
 
 unsigned long stoul(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stoul(v, &pos);
-  if (pos != v.length())
+  auto it = v.cbegin();
+  unsigned long result = 0;
+  bool success = boost::spirit::qi::parse(it, v.cend(), boost::spirit::ulong_, result);
+  if (!success || it != v.cend())
     throw std::invalid_argument("stoul() of " + v + " failed");
   return result;
 }
 
 long long stoll(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stoll(v, &pos);
-  if (pos != v.length())
-    throw std::invalid_argument("stoul() of " + v + " failed");
+  auto it = v.cbegin();
+  long long result = 0;
+  bool success = boost::spirit::qi::parse(it, v.cend(), boost::spirit::long_long, result);
+  if (!success || it != v.cend())
+    throw std::invalid_argument("stoll() of " + v + " failed");
   return result;
 }
 
 unsigned long long stoull(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stoull(v, &pos);
-  if (pos != v.length())
+  auto it = v.cbegin();
+  unsigned long long result = 0;
+  bool success = boost::spirit::qi::parse(it, v.cend(), boost::spirit::ulong_long, result);
+  if (!success || it != v.cend())
     throw std::invalid_argument("stoull() of " + v + " failed");
   return result;
 }
 
 int stoi(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stoi(v, &pos);
-  if (pos != v.length())
+  auto it = v.cbegin();
+  int result = 0;
+  bool success = boost::spirit::qi::parse(it, v.cend(), boost::spirit::int_, result);
+  if (!success || it != v.cend())
     throw std::invalid_argument("stoi() of " + v + " failed");
   return result;
 }
 
 double stod(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stod(v, &pos);
-  if (pos != v.length())
+  auto it = v.cbegin();
+  double result = 0;
+  bool success = boost::spirit::qi::parse(it, v.cend(), boost::spirit::double_, result);
+  if (!success || it != v.cend())
     throw std::invalid_argument("stod() of " + v + " failed");
   return result;
 }
 
 float stof(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stof(v, &pos);
-  if (pos != v.length())
+  auto it = v.cbegin();
+  float result = 0;
+  bool success = boost::spirit::qi::parse(it, v.cend(), boost::spirit::float_, result);
+  if (!success || it != v.cend())
     throw std::invalid_argument("stof() of " + v + " failed");
   return result;
 }

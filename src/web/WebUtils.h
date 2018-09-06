@@ -344,13 +344,13 @@ int sizeofFunction(const int[]);
 int sizeofFunction(const std::string[]);
 #endif
 
-extern long stol(const std::string& v);
-extern unsigned long stoul(const std::string& v);
+extern long WT_API stol(const std::string& v);
+extern unsigned long WT_API stoul(const std::string& v);
 extern long long WT_API stoll(const std::string& v);
-extern unsigned long long stoull(const std::string& v);
+extern unsigned long long WT_API stoull(const std::string& v);
 extern int WT_API stoi(const std::string& v);
-extern double stod(const std::string& v);
-extern float stof(const std::string& v);
+extern double WT_API stod(const std::string& v);
+extern float WT_API stof(const std::string& v);
 
   }
 }
