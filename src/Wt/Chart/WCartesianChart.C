@@ -135,8 +135,10 @@ WColor WCartesianChart::lightenColor(const WColor& in)
 
 CurveLabel::CurveLabel(const WDataSeries &series, const WPointF &point, const WT_USTRING &label)
   : series_(&series),
+#ifndef WT_TARGET_JAVA
     x_(point.x()),
     y_(point.y()),
+#endif // WT_TARGET_JAVA
     label_(label),
     offset_(60, -20),
     width_(0),
@@ -144,7 +146,12 @@ CurveLabel::CurveLabel(const WDataSeries &series, const WPointF &point, const WT
     textPen_(WColor(0,0,0)),
     boxBrush_(WColor(255,255,255)),
     markerBrush_(WColor(0,0,0))
-{ }
+{
+#ifdef WT_TARGET_JAVA
+  x_ = point.x();
+  y_ = point.y();
+#endif // WT_TARGET_JAVA
+}
 
 CurveLabel::CurveLabel(const WDataSeries &series, const boost::any &x, const boost::any &y,const WT_USTRING &label)
   : series_(&series),
