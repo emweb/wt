@@ -286,7 +286,13 @@ namespace {
 
     std::string::const_iterator begin = validated_string.begin();
     std::string::const_iterator end = validated_string.end();
-    bool success = qi::phrase_parse(begin, end, g, ascii::space);
+    bool success = false;
+
+    try {
+      success = qi::phrase_parse(begin, end, g, ascii::space);
+    } catch (const std::exception &e) {
+      throw ParseError(e.what());
+    }
 
     if (success) {
       if (begin != end)
@@ -316,7 +322,7 @@ bool parse(const std::string& input, Value& result, ParseError& error, bool vali
   try {
     parseJson(input, result, validateUTF8);
     return true;
-  } catch (ParseError& e) {
+  } catch (const ParseError& e) {
     error.setError(e.what());
     return false;
   }
@@ -338,7 +344,7 @@ bool parse(const std::string& input, Object& result, ParseError& error, bool val
   try {
     parse(input, result, validateUTF8);
     return true;
-  } catch (std::exception& e) {
+  } catch (const ParseError& e) {
     error.setError(e.what());
     return false;
   }
@@ -360,7 +366,7 @@ bool parse(const std::string& input, Array& result, ParseError& error, bool vali
   try {
     parse(input, result, validateUTF8);
     return true;
-  } catch (std::exception& e) {
+  } catch (const ParseError& e) {
     error.setError(e.what());
     return false;
   }
