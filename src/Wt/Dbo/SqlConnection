@@ -113,9 +113,12 @@ public:
    *
    * Returns 0 if no such statement was already added.
    *
+   * \note This will create a copy of the prepared statement
+   *       if all instances are in use.
+   *
    * \sa saveStatement()
    */
-  virtual SqlStatement *getStatement(const std::string& id) const;
+  virtual SqlStatement *getStatement(const std::string& id);
 
   /*! \brief Saves a statement with the given id.
    *
@@ -309,7 +312,7 @@ protected:
   const std::vector<std::string>& getStatefulSql() const { return statefulSql_; }
     
 private:
-  typedef std::map<std::string, SqlStatement *> StatementMap;
+  typedef std::multimap<std::string, SqlStatement *> StatementMap;
 
   StatementMap statementCache_;
   std::map<std::string, std::string> properties_;

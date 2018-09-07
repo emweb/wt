@@ -11,9 +11,14 @@
 #include <boost/lexical_cast.hpp>
 
 #include <cassert>
+#include <iostream>
 
 namespace Wt {
   namespace Dbo {
+
+namespace {
+  static const std::size_t WARN_NUM_STATEMENTS_THRESHOLD = 10;
+}
 
 SqlConnection::SqlConnection()
 { }
@@ -49,28 +54,36 @@ void SqlConnection::executeSqlStateful(const std::string& sql)
   executeSql(sql);
 }
 
-SqlStatement *SqlConnection::getStatement(const std::string& id) const
+SqlStatement *SqlConnection::getStatement(const std::string& id)
 {
-  StatementMap::const_iterator i = statementCache_.find(id);
-  if (i != statementCache_.end()) {
-    SqlStatement *result = i->second;
-    /*
-     * Later, if already in use, manage reentrant use by cloning the statement
-     * and adding it to a linked list in the statementCache_
-     */
-    if (!result->use())
-      throw Exception("A collection for '" + id + "' is already in use."
-		      " Reentrant statement use is not yet implemented."); 
-
-    return result;
-  } else
-    return 0;
+  std::pair<StatementMap::const_iterator, StatementMap::const_iterator> range =
+      statementCache_.equal_range(id);
+  const StatementMap::const_iterator &start = range.first;
+  const StatementMap::const_iterator &end = range.second;
+  SqlStatement *result = 0;
+  for (StatementMap::const_iterator i = start; i != end; ++i) {
+    result = i->second;
+    if (result->use())
+      return result;
+  }
+  if (result) {
+    std::size_t count = statementCache_.count(id);
+    if (count >= WARN_NUM_STATEMENTS_THRESHOLD) {
+      std::cerr << "Warning: number of instances (" << (count + 1) << ") of prepared statement '"
+                << id << "' for this "
+                   "connection exceeds threshold (" << WARN_NUM_STATEMENTS_THRESHOLD << ")"
+                   ". This could indicate a programming error.\n";
+    }
+    result = prepareStatement(result->sql());
+    saveStatement(id, result);
+  }
+  return 0;
 }
 
 void SqlConnection::saveStatement(const std::string& id,
 				  SqlStatement *statement)
 {
-  statementCache_[id] = statement;
+  statementCache_.insert(std::make_pair(id, statement));
 }
 
 std::string SqlConnection::property(const std::string& name) const
