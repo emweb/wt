@@ -2854,3 +2854,58 @@ BOOST_AUTO_TEST_CASE ( dbo_test34 )
     }
   }
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test35 )
+{
+  // Test reentrant statement use
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+    for (int i = 0; i < 4; ++i)
+      session_->addNew<A>();
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+    As allAs1 = session_->find<A>();
+    for (auto it1 = allAs1.begin(); it1 != allAs1.end(); ++it1) {
+      As allAs2 = session_->find<A>();
+      for (auto it2 = allAs2.begin(); it2 != allAs2.end(); ++it2) {
+        BOOST_REQUIRE(true);
+      }
+    }
+  }
+}
+
+namespace {
+  void recursiveQuery(dbo::Session &session, int i = 0) {
+    As allAs = session.find<A>();
+    for (auto it = allAs.begin(); it != allAs.end(); ++it) {
+      if (i < 20)
+        recursiveQuery(session, i + 1);
+      else
+        BOOST_REQUIRE(true);
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test36 )
+{
+  // Test reentrant statement use
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+    session_->addNew<A>();
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+    recursiveQuery(*session_);
+  }
+}
