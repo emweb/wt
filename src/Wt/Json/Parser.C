@@ -29,7 +29,8 @@
 #else
 #include <boost/phoenix.hpp>
 #endif
-#include <functional>
+
+#include <boost/bind.hpp>
 
 #endif // JSON_PARSER
 
@@ -79,6 +80,32 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
 
   typedef boost::iterator_range<std::string::const_iterator> StrValue;
 
+  void startObject(bool &pass)
+  {
+    refCurrent();
+
+    *currentValue_ = Value(Type::Object);
+    objectStack_.push_back(&((Object&)(*currentValue_)));
+    state_.push_back(State::InObject);
+
+    ++recursionDepth_;
+
+    pass = recursionDepth_ <= MAX_RECURSION_DEPTH;
+  }
+
+  void startArray(bool &pass)
+  {
+    refCurrent();
+
+    *currentValue_ = Value(Type::Array);
+    arrayStack_.push_back(&((Array&)(*currentValue_)));
+    state_.push_back(State::InArray);
+
+    ++recursionDepth_;
+
+    pass = recursionDepth_ <= MAX_RECURSION_DEPTH;
+  }
+
   void create()
   {
     using qi::lit;
@@ -99,17 +126,6 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
     root
       = object | array;
 
-    const auto startObject = [this](bool &pass){
-      refCurrent();
-
-      *currentValue_ = Value(Type::Object);
-      objectStack_.push_back(&((Object&) (*currentValue_)));
-      state_.push_back(State::InObject);
-
-      ++recursionDepth_;
-
-      pass = recursionDepth_ <= MAX_RECURSION_DEPTH;
-    };
     const auto endObject = [this](){
       state_.pop_back();
       objectStack_.pop_back();
@@ -118,7 +134,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
     };
     
     object
-      =  lit('{')[std::bind(startObject, std::placeholders::_3)]
+      =  lit('{')[boost::bind(&Self::startObject, this, _3)]
       >> -(member % ',')
       >> lit('}')[endObject]
       ;
@@ -137,18 +153,6 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
       >> value
       ;
 
-    const auto startArray = [this](bool &pass)
-    {
-      refCurrent();
-
-      *currentValue_ = Value(Type::Array);
-      arrayStack_.push_back(&((Array&) (*currentValue_)));
-      state_.push_back(State::InArray);
-
-      ++recursionDepth_;
-
-      pass = recursionDepth_ <= MAX_RECURSION_DEPTH;
-    };
     const auto endArray = [this]()
     {
       state_.pop_back();
@@ -158,7 +162,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
     };
                 
     array 
-      = lit('[')[std::bind(startArray, std::placeholders::_3)]
+      = lit('[')[boost::bind(&Self::startArray, this, _3)]
       >> -(value % ',')
       >> lit(']')[endArray]
       ;
