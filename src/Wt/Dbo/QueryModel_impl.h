@@ -124,7 +124,10 @@ int QueryModel<Result>::rowCount(const WModelIndex& parent) const
 
       query_.limit(queryLimit_);
       query_.offset(queryOffset_);
-      cachedRowCount_ = static_cast<int>(query_.resultList().size());
+
+      Query<Result> unorderedQuery(query_);
+      unorderedQuery.orderBy("");
+      cachedRowCount_ = static_cast<int>(unorderedQuery.resultList().size());
 
       transaction.commit();
     }
