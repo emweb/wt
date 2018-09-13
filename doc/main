@@ -786,10 +786,13 @@ appRoot=C:\Program Files\MyApplications\AppRoot
   <user-agent>.*Bot.*</user-agent>
   <user-agent>.*ia_archiver.*</user-agent>
   <user-agent>.*Twiceler.*</user-agent>
-  <user-agent>Yandex.*</user-agent>
+  <user-agent>.*Yandex.*</user-agent>
   <user-agent>.*Nutch.*</user-agent>
   <user-agent>.*MJ12bot.*</user-agent>
-  <user-agent>Baiduspider.*</user-agent>
+  <user-agent>.*Baiduspider.*</user-agent>
+  <user-agent>.*Ezooms.*</user-agent>
+  <user-agent>.*Sogou web spider.*</user-agent>
+  <user-agent>.*AhrefsBot.*</user-agent>
 </user-agents>
       \endcode
 
