@@ -340,8 +340,6 @@ void WebRenderer::streamBootContent(WebResponse& response,
 
   WStringStream out(response.out());
 
-  FileServe bootJs(skeletons::Boot_js1);
-
   boot.setVar("BLANK_HTML",
 	      session_.bootstrapUrl(response, 
 				    WebSession::BootstrapOption::ClearInternalPath)
@@ -350,39 +348,44 @@ void WebRenderer::streamBootContent(WebResponse& response,
   //TODO remove APP_CLASS, will later only be used in the javascript
   boot.setVar("APP_CLASS", "Wt");
 
-  bootJs.setVar("SELF_URL",
-		safeJsStringLiteral
-		(session_.bootstrapUrl
-		 (response, WebSession::BootstrapOption::ClearInternalPath)));
-  bootJs.setVar("SESSION_ID", session_.sessionId());
-
-  expectedAckId_ = scriptId_ = WRandom::get();
-  ackErrs_ = 0;
-
-  bootJs.setVar("SCRIPT_ID", scriptId_);
-  bootJs.setVar("RANDOMSEED", WRandom::get());
-  bootJs.setVar("RELOAD_IS_NEWSESSION", conf.reloadIsNewSession());
-  bootJs.setVar("USE_COOKIES",
-		conf.sessionTracking() == Configuration::CookiesURL);
-  bootJs.setVar("AJAX_CANONICAL_URL",
-		safeJsStringLiteral(session_.ajaxCanonicalUrl(response)));
-  bootJs.setVar("APP_CLASS", "Wt");
-  bootJs.setVar("PATH_INFO", safeJsStringLiteral
-		(session_.pagePathInfo_));
-
-  bootJs.setCondition("COOKIE_CHECKS", conf.cookieChecks());
-  bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
-  bootJs.setCondition("HYBRID", hybrid);
-  bootJs.setCondition("PROGRESS", hybrid && !session_.env().ajax());
-  bootJs.setCondition("DEFER_SCRIPT", true);
-  bootJs.setCondition("WEBGL_DETECT", conf.webglDetect());
-
-  std::string internalPath
-    = hybrid ? session_.app()->internalPath() : session_.env().internalPath();
-  bootJs.setVar("INTERNAL_PATH", safeJsStringLiteral(internalPath));
-
   boot.streamUntil(out, "BOOT_JS");
-  bootJs.stream(out);
+
+  if (!(hybrid && session_.app()->hasQuit())) {
+    FileServe bootJs(skeletons::Boot_js1);
+
+    bootJs.setVar("SELF_URL",
+          	safeJsStringLiteral
+          	(session_.bootstrapUrl
+          	 (response, WebSession::BootstrapOption::ClearInternalPath)));
+    bootJs.setVar("SESSION_ID", session_.sessionId());
+
+    expectedAckId_ = scriptId_ = WRandom::get();
+    ackErrs_ = 0;
+
+    bootJs.setVar("SCRIPT_ID", scriptId_);
+    bootJs.setVar("RANDOMSEED", WRandom::get());
+    bootJs.setVar("RELOAD_IS_NEWSESSION", conf.reloadIsNewSession());
+    bootJs.setVar("USE_COOKIES",
+          	conf.sessionTracking() == Configuration::CookiesURL);
+    bootJs.setVar("AJAX_CANONICAL_URL",
+          	safeJsStringLiteral(session_.ajaxCanonicalUrl(response)));
+    bootJs.setVar("APP_CLASS", "Wt");
+    bootJs.setVar("PATH_INFO", safeJsStringLiteral
+          	(session_.pagePathInfo_));
+
+    bootJs.setCondition("COOKIE_CHECKS", conf.cookieChecks());
+    bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
+    bootJs.setCondition("HYBRID", hybrid);
+    bootJs.setCondition("PROGRESS", hybrid && !session_.env().ajax());
+    bootJs.setCondition("DEFER_SCRIPT", true);
+    bootJs.setCondition("WEBGL_DETECT", conf.webglDetect());
+
+    std::string internalPath
+      = hybrid ? session_.app()->internalPath() : session_.env().internalPath();
+    bootJs.setVar("INTERNAL_PATH", safeJsStringLiteral(internalPath));
+
+    bootJs.stream(out);
+  }
 
   out.spool(response.out());
 }
