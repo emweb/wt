@@ -1,6 +1,6 @@
 window.onresize = function() { };
 
-function loadScript(url, callback) {
+function loadScript(url, callback, type) {
   var h = document.getElementsByTagName('head')[0];
   var agent = navigator.userAgent.toLowerCase();
   var re = /firefox\/(\d+)\./;
@@ -40,6 +40,9 @@ function loadScript(url, callback) {
     }
 
     s.setAttribute('src', url);
+    if (type) {
+      s.setAttribute('type', type);
+    }
     h.appendChild(s);
   }
 }

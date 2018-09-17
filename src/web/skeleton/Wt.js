@@ -3774,7 +3774,7 @@ function jsLoaded(path)
   }
 };
 
-function loadScript(uri, symbol, tries)
+function loadScript(uri, symbol, tries, type)
 {
   var loaded = false, error = false;
 
@@ -3813,6 +3813,9 @@ function loadScript(uri, symbol, tries)
   if (!loaded) {
     var s = document.createElement('script');
     s.setAttribute('src', uri);
+    if (type) {
+        s.setAttribute('type', type);
+    }
     s.onload = onload;
     s.onerror = onerror;
     s.onreadystatechange = function() {

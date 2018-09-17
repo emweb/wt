@@ -1447,7 +1447,10 @@ void WebRenderer::serveMainpage(WebResponse& response)
   beforeLoadJS_.clear();
   for (unsigned i = 0; i < app->scriptLibraries_.size(); ++i) {
     std::string url = app->scriptLibraries_[i].uri;
-    styleSheets << "<script src=";
+    styleSheets << "<script ";
+    if (app->scriptLibraries_[i].type.size())
+        styleSheets << "type=\"" << app->scriptLibraries_[i].type << "\" ";
+    styleSheets << "src=";
     DomElement::htmlAttributeValue(styleSheets, session_.fixRelativeUrl(url));
     styleSheets << "></script>\n";
 
@@ -1555,6 +1558,9 @@ int WebRenderer::loadScriptLibraries(WStringStream& out,
       out << app->scriptLibraries_[i].beforeLoadJS
 	  << app->javaScriptClass() << "._p_.loadScript('" << uri << "',";
       DomElement::jsStringLiteral(out, app->scriptLibraries_[i].symbol, '\'');
+      if (app->scriptLibraries_[i].type.size())
+          out << ",3,'" << app->scriptLibraries_[i].type << "'";
+
       out << ");\n";
       out << app->javaScriptClass() << "._p_.onJsLoad(\""
 	  << uri << "\",function() {\n";

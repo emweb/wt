@@ -57,8 +57,9 @@ MetaHeader::MetaHeader(MetaHeaderType aType,
 { }
 
 WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
+        std::string const & type,
 					   const std::string& aSymbol)
-  : uri(anUri), symbol(aSymbol)
+  : uri(anUri), type(type), symbol(aSymbol)
 { }
 
 WApplication::MetaLink::MetaLink(const std::string &aHref,
@@ -1534,9 +1535,9 @@ void WApplication::waitForEvent()
     session_->doRecursiveEventLoop();
 }
 
-bool WApplication::require(const std::string& uri, const std::string& symbol)
+bool WApplication::require(const std::string& uri, std::string const & type, const std::string& symbol)
 {
-  ScriptLibrary sl(uri, symbol);
+  ScriptLibrary sl(uri, type, symbol);
 
   if (Utils::indexOf(scriptLibraries_, sl) == -1) {
     WStringStream ss;
@@ -1547,8 +1548,8 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
     ++scriptLibrariesAdded_;
 
     return true;
-  } else
-    return false;
+  }
+  return false;
 }
 
 bool WApplication::requireJQuery(const std::string& uri)
