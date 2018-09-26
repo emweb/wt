@@ -18,6 +18,9 @@ BOOST_AUTO_TEST_CASE( ParseNumber_test1 )
   BOOST_CHECK_EQUAL(Wt::Utils::stoi("2147483647"), 2147483647);
   BOOST_CHECK_EQUAL(Wt::Utils::stod("0.25"), 0.25);
   BOOST_CHECK_EQUAL(Wt::Utils::stof("0.125"), 0.125f);
+  BOOST_CHECK_EQUAL(Wt::Utils::stod(" 0.875"), 0.875);
+  BOOST_CHECK_EQUAL(Wt::Utils::stod(" 0.875 "), 0.875);
+  BOOST_CHECK_EQUAL(Wt::Utils::stod("0.875 "), 0.875);
 }
 
 BOOST_AUTO_TEST_CASE( ParseNumber_test2 )
