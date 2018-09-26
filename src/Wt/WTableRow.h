@@ -142,7 +142,7 @@ private:
   void expand(int numCells);
 
   WTable *table_;
-  std::vector<std::unique_ptr<WTableCell>> cells_;
+  std::vector<std::unique_ptr<WTableCell> > cells_;
 
   WLength height_;
   std::string id_;

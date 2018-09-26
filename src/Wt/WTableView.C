@@ -11,7 +11,9 @@
 #include "Wt/WAbstractItemModel.h"
 #include "Wt/WContainerWidget.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
 #include "Wt/WGridLayout.h"
+#include "Wt/WLogger.h"
 #include "Wt/WModelIndex.h"
 #include "Wt/WStringStream.h"
 #include "Wt/WTable.h"
@@ -276,13 +278,13 @@ void WTableView::updateTableBackground()
 {
   if (ajaxMode()) {
     WApplication::instance()->theme()->apply
-      (this, table_, WidgetThemeRole::TableViewRowContainer);
+      (this, table_, TableViewRowContainer);
     WApplication::instance()->theme()->apply
-      (this, headerColumnsTable_, WidgetThemeRole::TableViewRowContainer);
+      (this, headerColumnsTable_, TableViewRowContainer);
   } else
     // FIXME avoid background on header row ?
     WApplication::instance()->theme()->apply
-      (this, plainTable_, WidgetThemeRole::TableViewRowContainer);
+      (this, plainTable_, TableViewRowContainer);
 }
 
 void WTableView::setModel(const std::shared_ptr<WAbstractItemModel>& model)

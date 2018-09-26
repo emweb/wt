@@ -7,6 +7,7 @@
 #include "Block.h"
 #include "Line.h"
 #include "WebUtils.h"
+#include "Wt/WLogger.h"
 
 namespace Wt {
 

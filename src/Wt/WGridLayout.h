@@ -43,7 +43,7 @@ struct Grid {
 
   std::vector<Section> rows_;
   std::vector<Section> columns_;
-  std::vector<std::vector<Item>> items_; // [row][column]
+  std::vector<std::vector<Item> > items_; // [row][column]
 
   Grid();
   ~Grid();
@@ -263,6 +263,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
                       WFlags<AlignmentFlag> alignment = None)
@@ -271,6 +272,10 @@ public:
     addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Adds a widget to the grid.
    *
@@ -306,6 +311,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
                       int rowSpan, int columnSpan,
@@ -316,6 +322,11 @@ public:
               rowSpan, columnSpan, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
+                      int rowSpan, int columnSpan);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Sets the horizontal spacing.
    *

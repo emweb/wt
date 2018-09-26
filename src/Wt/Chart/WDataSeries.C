@@ -13,7 +13,27 @@ namespace Wt {
   namespace Chart {
 
 WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
-  : WDataSeries(modelColumn, type, axis == Axis::Y1 ? 0 : 1)
+  : chart_(nullptr),
+    model_(nullptr),
+    modelColumn_(modelColumn),
+    XSeriesColumn_(-1),
+    stacked_(false),
+    type_(type),
+    yAxis_(axis == Axis::Y1 ? 0 : 1),
+    customFlags_(None),
+    fillRange_(FillRangeType::None),
+    marker_(type == SeriesType::Point ? 
+	    MarkerType::Circle : MarkerType::None),
+    markerSize_(6),
+    legend_(true),
+    xLabel_(false),
+    yLabel_(false),
+    barWidth_(0.8),
+    hidden_(false),
+    offset_(0.0),
+    scale_(1.0),
+    offsetDirty_(true),
+    scaleDirty_(true)
 { }
 
 WDataSeries::WDataSeries(int modelColumn, SeriesType type, int axis)

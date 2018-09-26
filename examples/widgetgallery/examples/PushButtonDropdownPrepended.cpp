@@ -4,6 +4,10 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WTemplate.h>
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 SAMPLE_BEGIN(PushButtonDropdownPrepended)
 
 auto result =

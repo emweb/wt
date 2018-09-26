@@ -99,7 +99,7 @@ void WAbstractGridData::setType(Series3DType type)
   if (seriesType_ != type) {
     seriesType_ = type;
     if (chart_)
-      chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+      chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
   }
 }
 
@@ -111,7 +111,7 @@ void WAbstractGridData::setSurfaceMeshEnabled(bool enabled)
     surfaceMeshEnabled_ = enabled;
     if (seriesType_ == Series3DType::Surface)
       if (chart_)
-        chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+        chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
   }
 }
 
@@ -123,7 +123,7 @@ void WAbstractGridData::setBarWidth(double xWidth, double yWidth)
     barWidthX_ = xWidth;
     barWidthY_ = yWidth;
     if (chart_)
-      chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+      chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
   }
 }
 
@@ -134,7 +134,7 @@ void WAbstractGridData::setPen(const WPen &pen)
   meshPen_ = pen;
 
   if (chart_)
-    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+    chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
 }
 
 float WAbstractGridData::stackAllValues(std::vector<WAbstractGridData*> dataseries,
@@ -156,14 +156,14 @@ void WAbstractGridData::setClippingLinesEnabled(bool clippingLinesEnabled)
 {
   clippingLinesEnabled_ = clippingLinesEnabled;
   if (chart_)
-    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+    chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
 }
 
 void WAbstractGridData::setClippingLinesColor(WColor clippingLinesColor)
 {
   clippingLinesColor_ = clippingLinesColor;
   if (chart_)
-    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+    chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
 }
 
 void WAbstractGridData::updateGL()
@@ -699,7 +699,7 @@ void WAbstractGridData::setIsoLevels(const std::vector<double> &isoLevels)
 {
   isoLineHeights_ = isoLevels;
   if (chart_)
-    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+    chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
 }
 
 const std::vector<double> &WAbstractGridData::isoLevels() const
@@ -712,7 +712,7 @@ void WAbstractGridData
 {
   isoLineColorMap_ = colormap;
   if (chart_)
-    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+    chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
 }
 
 double WAbstractGridData::rayTriangleIntersect(const WVector3& re, const WVector3& rd, const WVector3 &camera, const WVector3& v0, const WVector3& v1, const WVector3& v2, WVector3 &point) const
@@ -1173,7 +1173,7 @@ void WAbstractGridData::setClippingMin(Axis axis, float v)
     minPt_ = jsMinPt_.value();
   minPt_[axisToIndex(axis)] = v;
   if (chart_)
-    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+    chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
 }
 
 float WAbstractGridData::clippingMin(Axis axis) const
@@ -1202,7 +1202,7 @@ void WAbstractGridData::setClippingMax(Axis axis, float v)
     maxPt_ = jsMaxPt_.value();
   maxPt_[axisToIndex(axis)] = v;
   if (chart_)
-    chart_->updateChart(ChartUpdates::GLContext | ChartUpdates::GLTextures);
+    chart_->updateChart(WFlags<ChartUpdates>(ChartUpdates::GLContext) | ChartUpdates::GLTextures);
 }
 
 float WAbstractGridData::clippingMax(Axis axis) const

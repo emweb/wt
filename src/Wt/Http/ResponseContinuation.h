@@ -45,7 +45,9 @@ namespace Wt {
  * \ingroup http
  */
 class WT_API ResponseContinuation 
+#ifndef WT_TARGET_JAVA
   : public std::enable_shared_from_this<ResponseContinuation>
+#endif
 {
 public:
   ~ResponseContinuation();

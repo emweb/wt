@@ -163,7 +163,7 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
 void WInPlaceEdit::render(WFlags<RenderFlag> flags)
 {
   if (save_ && flags.test(RenderFlag::Full))
-    wApp->theme()->apply(this, editing_, WidgetThemeRole::InPlaceEditing);
+    wApp->theme()->apply(this, editing_, InPlaceEditing);
 
   WCompositeWidget::render(flags);
 }

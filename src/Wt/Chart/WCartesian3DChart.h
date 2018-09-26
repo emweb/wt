@@ -546,7 +546,7 @@ private:
 
   WMatrix4x4 worldTransform_;
   bool isViewSet_;
-  std::vector<std::unique_ptr<WAbstractDataSeries3D>> dataSeriesVector_;
+  std::vector<std::unique_ptr<WAbstractDataSeries3D> > dataSeriesVector_;
   WAxis XAxis_, YAxis_, ZAxis_;
   ChartType chartType_;
 

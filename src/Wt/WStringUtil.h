@@ -26,6 +26,7 @@ namespace Wt {
   extern WT_API std::wstring widen(const std::string& s,
       const std::locale &loc = std::locale());
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Convert a narrow string to UTF-16.
    *
    * Convert a narrow string to UTF-16. This method will interpret
@@ -51,6 +52,7 @@ namespace Wt {
    */
   extern WT_API std::u32string toUTF32(const std::string& s,
                                        const std::locale& loc = std::locale());
+#endif // WT_TARGET_JAVA
 
   /*! \brief Convert a wide to a narrow string.
    *
@@ -67,6 +69,7 @@ namespace Wt {
   extern WT_API std::string narrow(const std::wstring& s,
       const std::locale &loc = std::locale());
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Convert a UTF-16 to a narrow string.
    *
    * Convert a UTF-16 string to a narrow string. This method will encode
@@ -96,6 +99,7 @@ namespace Wt {
    */
   extern WT_API std::string narrow(const std::u32string& s,
                                    const std::locale& loc = std::locale());
+#endif // WT_TARGET_JAVA
 
   /*! \brief Decode a UTF-8 string a wide string.
    *
@@ -111,6 +115,7 @@ namespace Wt {
    */
   extern WT_API std::wstring fromUTF8(const std::string& s);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Decode a UTF-8 string a UTF-16 string.
    *
    * Decode a UTF-8 string to a UTF-16 string. In a UTF-8 encoded unicode string,
@@ -138,6 +143,7 @@ namespace Wt {
    * \relates WString
    */
   extern WT_API std::u32string utf8ToUTF32(const std::string &s);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Decode a UTF-8 string into a (narrow) string.
    *
@@ -172,6 +178,7 @@ namespace Wt {
    */
   extern WT_API std::string toUTF8(const std::wstring& s);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Encode a UTF-16 string to UTF-8.
    *
    * Convert a UTF-16 string to UTF-8. This method will encode the given
@@ -197,6 +204,7 @@ namespace Wt {
    * \relates WString
    */
   extern WT_API std::string toUTF8(const std::u32string& s);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Encode a character string (encoding known) to UTF-8.
    *
@@ -217,6 +225,7 @@ namespace Wt {
   extern WT_API std::string toUTF8(const std::string& s,
       const std::locale &loc = std::locale());
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Convert a wide string to UTF-16.
    *
    * Convert a wide string to UTF-16. If sizeof(wchar_t) == 2, then the
@@ -244,6 +253,7 @@ namespace Wt {
   /*! \brief Convert a UTF-16 string to UTF-32
    */
   extern WT_API std::u32string toUTF32(const std::u16string &s);
+#endif // WT_TARGET_JAVA
 
   extern WT_API std::wostream& streamUTF8(std::wostream &os, const std::string &s);
 

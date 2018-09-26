@@ -257,11 +257,15 @@ public:
 
   template <typename Rule>
   Rule *addRule(std::unique_ptr<Rule> rule)
+#ifndef WT_TARGET_JAVA
   {
     Rule *result = rule.get();
     addRule(std::unique_ptr<WCssRule>(std::move(rule)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns if a rule was already defined in this style sheet.
    *
@@ -282,7 +286,7 @@ public:
   void javaScriptUpdate(WApplication *app, WStringStream& js, bool all);
 
 private:
-  typedef std::vector<std::unique_ptr<WCssRule>> RuleList;
+  typedef std::vector<std::unique_ptr<WCssRule> > RuleList;
   typedef std::set<WCssRule *> RuleSet;
 
   RuleList rules_;

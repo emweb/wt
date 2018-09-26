@@ -20,13 +20,13 @@ public:
   void populateSubMenu(Wt::WMenu *menu);
 
 private:
-  std::unique_ptr<WWidget> mediaPlayer();
-  std::unique_ptr<WWidget> sound();
-  std::unique_ptr<WWidget> audio();
-  std::unique_ptr<WWidget> video();
-  std::unique_ptr<WWidget> flashObject();
-  std::unique_ptr<WWidget> resources();
-  std::unique_ptr<WWidget> pdf();
+  std::unique_ptr<Wt::WWidget> mediaPlayer();
+  std::unique_ptr<Wt::WWidget> sound();
+  std::unique_ptr<Wt::WWidget> audio();
+  std::unique_ptr<Wt::WWidget> video();
+  std::unique_ptr<Wt::WWidget> flashObject();
+  std::unique_ptr<Wt::WWidget> resources();
+  std::unique_ptr<Wt::WWidget> pdf();
 };
 
 #endif // MEDIA_H_

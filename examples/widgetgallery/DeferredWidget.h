@@ -35,13 +35,13 @@ std::unique_ptr<DeferredWidget<Function>> deferCreate(Function f)
   return Wt::cpp14::make_unique<DeferredWidget<Function>>(f);
 }
 #else
-class DeferredWidget : public WContainerWidget {
+class DeferredWidget : public Wt::WContainerWidget {
 public:
-  DeferredWidget(std::fuction<std::unique_ptr<WWidget>>() f) {}
+  DeferredWidget(std::bound f) {}
 };
-std::unique_ptr<DeferredWidget> deferCreate(std::function<std::unique_ptr<WWidget>> b)
+std::unique_ptr<DeferredWidget> deferCreate(std::bound b)
 {
-  return cpp14::make_unique<DeferredWidget>(b);
+  return Wt::cpp14::make_unique<DeferredWidget>(b);
 }
 
 #endif

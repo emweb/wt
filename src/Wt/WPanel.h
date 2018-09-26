@@ -160,11 +160,15 @@ public:
 
   template <typename Widget>
     Widget *setCentralWidget(std::unique_ptr<Widget> widget)
+#ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
     setCentralWidget(std::unique_ptr<WWidget>(std::move(widget)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns the central widget.
    *

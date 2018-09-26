@@ -99,11 +99,15 @@ public:
 
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, LayoutPosition position)
+#ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
     addWidget(std::unique_ptr<WWidget>(std::move(widget)), position);
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Adds a layout item to the given position.
    *

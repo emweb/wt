@@ -245,7 +245,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
 #endif // DEBUG_BBOX
 
   if (segments.size() > 0
-      && segments[0].type() != SegmentType::MoveTo)
+      && segments[0].type() != MoveTo)
     tmp << "m0,0";
 
   for (unsigned i = 0; i < segments.size(); ++i) {
@@ -256,13 +256,13 @@ void WVmlImage::drawPath(const WPainterPath& path)
      * but this is common after a closeSubPath()
      */
     if ((i == segments.size() - 1)
-	&& (s.type() == SegmentType::MoveTo))
+	&& (s.type() == MoveTo))
       break;
 
     double x = s.x();
     double y = s.y();
 
-    if (s.type() == SegmentType::ArcC) {
+    if (s.type() == ArcC) {
       double cx = segments[i].x();
       double cy = segments[i].y();
       double rx = segments[i+1].x();
@@ -300,20 +300,20 @@ void WVmlImage::drawPath(const WPainterPath& path)
 	  << "," << myzround(p2.x()) << "," << myzround(p2.y());
     } else {
       switch (s.type()) {
-      case SegmentType::MoveTo:
+      case MoveTo:
 	tmp << "m";
 	break;
-      case SegmentType::LineTo:
+      case LineTo:
 	tmp << "l";
 	break;
-      case SegmentType::CubicC1:
+      case CubicC1:
 	tmp << "c";
 	break;
-      case SegmentType::CubicC2:
-      case SegmentType::CubicEnd:
+      case CubicC2:
+      case CubicEnd:
 	tmp << ",";
 	break;
-      case SegmentType::QuadC: {
+      case QuadC: {
 	/*
 	 * VML's quadratic bezier don't seem to work as advertized ?
 	 */
@@ -337,7 +337,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
 
 	break;
       }
-      case SegmentType::QuadEnd:
+      case QuadEnd:
 	tmp << ",";
 	break;
       default:

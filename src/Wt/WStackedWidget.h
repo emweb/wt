@@ -43,11 +43,15 @@ public:
 
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget)
+#ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
     addWidget(std::unique_ptr<WWidget>(std::move(widget)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
   virtual std::unique_ptr<WWidget> removeWidget(WWidget* widget) override;
 

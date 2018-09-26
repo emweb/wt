@@ -38,7 +38,11 @@ for (int row = 0; row < model->rowCount(); ++row) {
 Chart::WCartesianChart *chart =
     container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
 chart->setBackground(WColor(220, 220, 220));
+#ifndef WT_TARGET_JAVA
 chart->setModel(model);
+#else // WT_TARGET_JAVA
+chart->setModel(std::shared_ptr<WAbstractItemModel>(model));
+#endif // WT_TARGET_JAVA
 chart->setXSeriesColumn(0);
 chart->setType(Chart::ChartType::Scatter);
 chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::Date);

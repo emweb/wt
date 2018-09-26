@@ -133,7 +133,11 @@ void WGoogleMap::streamJSListener(const JSignal<Coordinate> &signal,
       """google.maps.Event.addListener(map, \"" << signalName << "\", "
       ""                              "function(overlay, latlng) {"
       ""  "if (latlng) {"
+#ifndef WT_TARGET_JAVA
 	<< signal.createCall({"latlng.lat() +' '+ latlng.lng()"}) << ";"
+#else
+	<< signal.createCall("latlng.lat() +' '+ latlng.lng()") << ";"
+#endif
       ""  "}"
       """});";
   } else {
@@ -141,7 +145,11 @@ void WGoogleMap::streamJSListener(const JSignal<Coordinate> &signal,
       """google.maps.event.addListener(map, \"" << signalName << "\", "
       ""                              "function(event) {"
       ""  "if (event && event.latLng) {"
+#ifndef WT_TARGET_JAVA
 	 << signal.createCall({"event.latLng.lat() +' '+ event.latLng.lng()"}) 
+#else
+	 << signal.createCall("event.latLng.lat() +' '+ event.latLng.lng()")
+#endif
 	 << ";"
       ""  "}"
       """});";

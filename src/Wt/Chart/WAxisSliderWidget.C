@@ -11,6 +11,7 @@
 #include "Wt/WBrush.h"
 #include "Wt/WColor.h"
 #include "Wt/WJavaScript.h"
+#include "Wt/WLogger.h"
 #include "Wt/WPainter.h"
 #include "Wt/WStringStream.h"
 #include "Wt/WTransform.h"
@@ -30,8 +31,17 @@ LOGGER("Chart.WAxisSliderWidget");
   namespace Chart {
 
 WAxisSliderWidget::WAxisSliderWidget()
-  : WAxisSliderWidget(nullptr)
-{ }
+  : series_(nullptr),
+    selectedSeriesPen_(&seriesPen_),
+    handleBrush_(WColor(0,0,200)),
+    background_(WColor(230, 230, 230)),
+    selectedAreaBrush_(WColor(255, 255, 255)),
+    autoPadding_(false),
+    labelsEnabled_(true),
+    yAxisZoomEnabled_(true)
+{
+  init();
+}
 
 WAxisSliderWidget::WAxisSliderWidget(WDataSeries *series)
   : series_(series),
@@ -59,7 +69,7 @@ void WAxisSliderWidget::init()
   touchMoved().connect("function(o, e){var o=" + this->sObjJsRef() + ";if(o){o.touchMoved(o, e);}}");
 
   setSelectionAreaPadding(0, Side::Top);
-  setSelectionAreaPadding(20, Side::Left | Side::Right);
+  setSelectionAreaPadding(20, WFlags<Side>(Side::Left) | Side::Right);
   setSelectionAreaPadding(30, Side::Bottom);
 
   if (chart()) {
@@ -265,10 +275,10 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 	  (static_cast<int>
 	   (std::max(chart()->axis(Axis::X).calcMaxTickLabelSize
 		     (paintDevice, Orientation::Horizontal) / 2,
-		     10.0)), Side::Left | Side::Right);
+		     10.0)), WFlags<Side>(Side::Left) | Side::Right);
       } else {
 	setSelectionAreaPadding(0, Side::Top);
-	setSelectionAreaPadding(5, Side::Left | Side::Right | Side::Bottom);
+	setSelectionAreaPadding(5, WFlags<Side>(Side::Left) | Side::Right | Side::Bottom);
       }
     } else {
       if (labelsEnabled_) {
@@ -277,14 +287,14 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 	  (static_cast<int>
 	   (std::max(chart()->axis(Axis::X).calcMaxTickLabelSize
 		     (paintDevice, Orientation::Vertical) / 2,
-		     10.0)), Side::Top | Side::Bottom);
+		     10.0)), WFlags<Side>(Side::Top) | Side::Bottom);
 	setSelectionAreaPadding
 	  (static_cast<int>(chart()->axis(Axis::X).calcMaxTickLabelSize
 			    (paintDevice, Orientation::Horizontal) + 10), 
 	   Side::Left);
       } else {
 	setSelectionAreaPadding(0, Side::Right);
-	setSelectionAreaPadding(5, Side::Top | Side::Bottom | Side::Left);
+	setSelectionAreaPadding(5, WFlags<Side>(Side::Top) | Side::Bottom | Side::Left);
       }
     }
   }
@@ -388,7 +398,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 	WPointF(drawArea.left(), h - bottom),
 	WPointF(drawArea.right(), h - bottom),
 	tickStart, tickEnd, labelPos,
-	labelHFlag | labelVFlag);
+	WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
     WPainterPath line;
     line.moveTo(drawArea.left() + 0.5, h - (bottom - 0.5));
     line.lineTo(drawArea.right(), h - (bottom - 0.5));
@@ -400,7 +410,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 	WPointF(selectionAreaPadding(Side::Left) - 1, drawArea.left()),
 	WPointF(selectionAreaPadding(Side::Left) - 1, drawArea.right()),
 	tickStart, tickEnd, labelPos,
-	labelHFlag | labelVFlag);
+	WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
     WPainterPath line;
     line.moveTo(selectionAreaPadding(Side::Left) - 0.5, drawArea.left() + 0.5);
     line.lineTo(selectionAreaPadding(Side::Left) - 0.5, drawArea.right());

@@ -23,7 +23,7 @@ WSplitButton::WSplitButton(const WString& label)
 
 void WSplitButton::init(const WString& label)
 {
-  impl_ = setNewImplementation<WToolBar>();
+  impl_ = setImplementation(std::unique_ptr<WToolBar>(new WToolBar()));
 
   impl_->setInline(true);
   impl_->addButton(std::unique_ptr<WPushButton>(new WPushButton(label)));

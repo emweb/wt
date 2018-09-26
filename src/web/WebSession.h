@@ -7,6 +7,7 @@
 #ifndef WEBSESSION_H_
 #define WEBSESSION_H_
 
+#include <mutex>
 #include <string>
 #include <vector>
 #include <deque>

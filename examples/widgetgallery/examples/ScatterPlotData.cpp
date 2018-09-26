@@ -62,7 +62,11 @@ table->setItemDelegateForColumn(0, std::make_shared<WItemDelegate>());
 Chart::WCartesianChart *chart =
     container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
 chart->setBackground(WColor(220, 220, 220));
+#ifndef WT_TARGET_JAVA
 chart->setModel(model);
+#else // WT_TARGET_JAVA
+chart->setModel(std::shared_ptr<WAbstractItemModel>(model));
+#endif // WT_TARGET_JAVA
 chart->setXSeriesColumn(0);
 chart->setLegendEnabled(true);
 chart->setType(Chart::ChartType::Scatter);

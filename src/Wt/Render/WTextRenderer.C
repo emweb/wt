@@ -5,6 +5,7 @@
  */
 
 #include "web/FileUtils.h"
+#include <Wt/WLogger.h>
 #include <Wt/WPainter.h>
 #include <Wt/Render/WTextRenderer.h>
 #include <Wt/Render/CssParser.h>
@@ -64,7 +65,7 @@ public:
 
 private:
   std::vector<StyleSheet *> sheets_;
-  std::vector<std::unique_ptr<StyleSheet>> sheets_owned_;
+  std::vector<std::unique_ptr<StyleSheet> > sheets_owned_;
 };
 
 WTextRenderer::Node::Node(Block& block, LayoutBox& lb,

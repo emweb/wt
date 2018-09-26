@@ -1722,7 +1722,11 @@ void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
     tmp <<
       "{\n"
       """var o = new " WT_CLASS ".WGLWidget(" << wApp->javaScriptClass() << "," << jsRef << ");\n"
+#ifndef WT_TARGET_JAVA
       """o.discoverContext(function(){" << webglNotAvailable_.createCall({}) 
+#else // WT_TARGET_JAVA
+      """o.discoverContext(function(){" << webglNotAvailable_.createCall() 
+#endif // WT_TARGET_JAVA
 	<< "}, "
 	<< (glInterface_->renderOptions_.test(GLRenderOption::AntiAliasing)
 	    ? "true" : "false") << ");\n";

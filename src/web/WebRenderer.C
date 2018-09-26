@@ -1019,7 +1019,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     // WS_ID = empty for C++, servlet ID for Java
 #ifdef WT_TARGET_JAVA
     script.setVar("WS_PATH", WWebWidget::jsStringLiteral(session_.controller()->getContextPath() + "/ws"));
-    script.setVar("WS_ID", WWebWidget::jsStringLiteral(boost::lexical_cast<std::string>(session_.controller()->getIdForWebSocket())));
+    script.setVar("WS_ID", WWebWidget::jsStringLiteral(session_.controller()->getIdForWebSocket()));
 #else
     script.setVar("WS_PATH", WWebWidget::jsStringLiteral(deployPath));
     script.setVar("WS_ID", WWebWidget::jsStringLiteral(std::string("")));

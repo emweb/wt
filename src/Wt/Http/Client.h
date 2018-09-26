@@ -20,6 +20,7 @@
 #include <chrono>
 #include <string>
 
+#ifndef WT_TARGET_JAVA
 #ifdef WT_ASIO_IS_BOOST_ASIO
 #include <boost/version.hpp>
 namespace boost {
@@ -43,8 +44,17 @@ namespace asio {
 #endif
 }
 #endif // WT_ASIO_IS_BOOST_ASIO
+#endif // WT_TARGET_JAVA
 
 namespace Wt {
+
+#ifdef WT_TARGET_JAVA
+  namespace AsioWrapper {
+    namespace asio {
+      struct io_service;
+    }
+  }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Namespace for \ref http handling
    */

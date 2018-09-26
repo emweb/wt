@@ -14,7 +14,18 @@
 namespace Wt {
 
 WFont::WFont()
-  : WFont(FontFamily::Default)
+  : widget_(nullptr),
+    genericFamily_(FontFamily::Default),
+    style_(FontStyle::Normal),
+    variant_(FontVariant::Normal),
+    weight_(FontWeight::Normal),
+    weightValue_(400),
+    size_(FontSize::Medium),
+    familyChanged_(false),
+    styleChanged_(false),
+    variantChanged_(false),
+    weightChanged_(false),
+    sizeChanged_(false)
 { }
 
 WFont::WFont(FontFamily family)

@@ -8,6 +8,8 @@
 #define WLAYOUT_ITEM_H_
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WWebWidget.h>
+
 #include <functional>
 
 namespace Wt {
@@ -55,7 +57,9 @@ public:
 
   virtual WLayoutItemImpl *impl() const = 0;
 
+#ifndef WT_TARGET_JAVA
   typedef std::function<void (WWidget *)> HandleWidgetMethod;
+#endif
   virtual void iterateWidgets(const HandleWidgetMethod& method) const = 0;
 
 private:

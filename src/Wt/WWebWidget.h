@@ -62,6 +62,14 @@ class DomElement;
 template <typename... A> class JSignal;
 #endif
 
+#ifdef WT_TARGET_JAVA
+struct HandleWidgetMethod {
+  HandleWidgetMethod();
+  HandleWidgetMethod(void (*)(WWidget*));
+  void handle(WWidget *) const;
+};
+#endif // WT_TARGET_JAVA
+
 /*! \class WWebWidget Wt/WWebWidget.h Wt/WWebWidget.h
  *  \brief A base class for widgets with an HTML counterpart.
  *
@@ -290,7 +298,9 @@ public:
 
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
+#ifndef WT_TARGET_JAVA
   typedef std::function<void (WWidget *)> HandleWidgetMethod;
+#endif
 
   void repaint(WFlags<RepaintFlag> flags = None);
 
@@ -318,7 +328,9 @@ protected:
 
   template <class Widget>
   std::unique_ptr<WWidget> manageWidget(std::unique_ptr<Widget>& managed,
-					std::unique_ptr<Widget> w) {
+					std::unique_ptr<Widget> w)
+#ifndef WT_TARGET_JAVA
+  {
     if (managed)
       widgetRemoved(managed.get(), true);
     std::unique_ptr<WWidget> result = std::move(managed);
@@ -327,6 +339,9 @@ protected:
       widgetAdded(managed.get());
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
   virtual void render(WFlags<RenderFlag> flags) override;
 
@@ -476,15 +491,15 @@ private:
 
     std::unique_ptr<std::string> elementTagName_;
     std::unique_ptr<std::string> id_;
-    std::unique_ptr<std::map<std::string, WT_USTRING>> attributes_;
-    std::unique_ptr<std::vector<Member>> jsMembers_;
-    std::unique_ptr<std::vector<JavaScriptStatement>> jsStatements_;
-    std::unique_ptr<JSignal<int, int>> resized_;
+    std::unique_ptr<std::map<std::string, WT_USTRING> > attributes_;
+    std::unique_ptr<std::vector<Member> > jsMembers_;
+    std::unique_ptr<std::vector<JavaScriptStatement> > jsStatements_;
+    std::unique_ptr<JSignal<int, int> > resized_;
     int tabIndex_;
 
     // drag source id, drag mime type
-    std::unique_ptr<JSignal<std::string, std::string, WMouseEvent>> dropSignal_;
-    std::unique_ptr<JSignal<std::string, std::string, WTouchEvent>> dropSignal2_;
+    std::unique_ptr<JSignal<std::string, std::string, WMouseEvent> > dropSignal_;
+    std::unique_ptr<JSignal<std::string, std::string, WTouchEvent> > dropSignal2_;
 
     typedef std::map<std::string, DropMimeType> MimeTypesMap;
     std::unique_ptr<MimeTypesMap> acceptedDropMimeTypes_;

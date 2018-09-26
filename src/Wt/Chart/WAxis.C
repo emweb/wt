@@ -2016,7 +2016,7 @@ void WAxis::renderLabels(WPainter &painter,
   if (painter.device()->features().test(PaintDeviceFeatureFlag::FontMetrics)) {
     WMeasurePaintDevice device(painter.device());
     WPainter measPainter(&device);
-    measPainter.drawText(WRectF(0,0,100,100), AlignmentFlag::Middle | AlignmentFlag::Center, TextFlag::SingleLine, "Sfjh", 0);
+    measPainter.drawText(WRectF(0,0,100,100), WFlags<AlignmentFlag>(AlignmentFlag::Middle) | AlignmentFlag::Center, TextFlag::SingleLine, "Sfjh", 0);
     lineHeight = device.boundingRect().height();
   }
 
@@ -2028,7 +2028,7 @@ void WAxis::renderLabels(WPainter &painter,
   }
 
   painter.drawTextOnPath(WRectF(left, top, width, height),
-			 horizontalAlign | verticalAlign,
+			 WFlags<AlignmentFlag>(horizontalAlign) | verticalAlign,
 			 labels, transform,
 			 path,
 			 angle, lineHeight,

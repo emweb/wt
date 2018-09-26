@@ -131,8 +131,7 @@ private:
       setStyleClass(userCoverClasses(dialog));
 
       WApplication *app = WApplication::instance();
-      app->theme()->apply(app->domRoot(), this, 
-			  WidgetThemeRole::DialogCoverWidget);
+      app->theme()->apply(app->domRoot(), this, DialogCoverWidget);
     } else {
 	//call updateGlobal(null)
       WApplication::instance()->doJavaScript("setTimeout(function() {"
@@ -200,8 +199,13 @@ WDialog::WDialog()
 }
 
 WDialog::WDialog(const WString& windowTitle)
-  : WDialog()
+  : WPopupWidget(std::unique_ptr<WWidget>
+		 (new WTemplate(tr("Wt.WDialog.template")))),
+    moved_(this, "moved"),
+    resized_(this, "resized"),
+    zIndexChanged_(this, "zIndexChanged")
 {
+  create();
   setWindowTitle(windowTitle);
 }
 
@@ -267,7 +271,7 @@ void WDialog::create()
   std::unique_ptr<WContainerWidget> layoutContainer(new WContainerWidget());
   layoutContainer_ = layoutContainer.get();
   layoutContainer->setGlobalUnfocused(true);
-  wApp->theme()->apply(this, layoutContainer.get(), WidgetThemeRole::DialogContent);
+  wApp->theme()->apply(this, layoutContainer.get(), DialogContent);
   layoutContainer->addStyleClass("dialog-layout");
   std::unique_ptr<WVBoxLayout> layoutPtr(new WVBoxLayout());
   WVBoxLayout *layout = layoutPtr.get();
@@ -277,14 +281,14 @@ void WDialog::create()
   impl_->bindWidget("layout", std::move(layoutContainer));
 
   titleBar_ = new WContainerWidget();
-  app->theme()->apply(this, titleBar_, WidgetThemeRole::DialogTitleBar);
+  app->theme()->apply(this, titleBar_, DialogTitleBar);
 
   caption_ = new WText();
   caption_->setInline(false);
   titleBar_->addWidget(std::unique_ptr<WText>(caption_));
   
   contents_ = new WContainerWidget();
-  app->theme()->apply(this, contents_, WidgetThemeRole::DialogBody);
+  app->theme()->apply(this, contents_, DialogBody);
 
   layout->addWidget(std::unique_ptr<WWidget>(titleBar_));
   layout->addWidget(std::unique_ptr<WWidget>(contents_), 1);
@@ -324,7 +328,7 @@ WContainerWidget *WDialog::footer() const
   if (!footer_) {
     std::unique_ptr<WContainerWidget> footer(footer_ = new WContainerWidget());
     WApplication::instance()->theme()->apply
-      (const_cast<WDialog *>(this), footer_, WidgetThemeRole::DialogFooter);
+      (const_cast<WDialog *>(this), footer_, DialogFooter);
 
     WContainerWidget *layoutContainer
       = impl_->resolve<WContainerWidget *>("layout");
@@ -487,7 +491,7 @@ void WDialog::setClosable(bool closable)
       std::unique_ptr<WText> closeIcon(closeIcon_ = new WText());
       titleBar_->insertWidget(0, std::move(closeIcon));
       WApplication::instance()->theme()->apply
-	(this, closeIcon_, WidgetThemeRole::DialogCloseIcon);
+	(this, closeIcon_, DialogCloseIcon);
       closeIcon_->clicked().connect(this, &WDialog::reject);
     }
   } else {

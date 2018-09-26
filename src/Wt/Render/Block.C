@@ -6,6 +6,7 @@
 
 // #define DEBUG_LAYOUT
 
+#include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
 #include "Wt/WPaintDevice.h"
@@ -3281,25 +3282,25 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
     for (unsigned i = 0; i < 4; ++i)
       siblings[i] = siblingTableCell(sides[i]);
 
-    cornerMaxWidth[Corner::TopLeft] = maxBorderWidth(siblings[3], Side::Top,
+    cornerMaxWidth[TopLeft] = maxBorderWidth(siblings[3], Side::Top,
 						     this, Side::Top,
 						     siblings[0], Side::Left,
 						     this, Side::Left,
 						     renderer.fontScale());
 
-    cornerMaxWidth[Corner::TopRight] = maxBorderWidth(siblings[1], Side::Top,
+    cornerMaxWidth[TopRight] = maxBorderWidth(siblings[1], Side::Top,
 						      this, Side::Top,
 						      siblings[0], Side::Right,
 						      this, Side::Right,
 						      renderer.fontScale());
 
-    cornerMaxWidth[Corner::BottomLeft] = maxBorderWidth(siblings[3], Side::Bottom,
+    cornerMaxWidth[BottomLeft] = maxBorderWidth(siblings[3], Side::Bottom,
 							this, Side::Bottom,
 							siblings[2], Side::Left,
 							this, Side::Left,
 							renderer.fontScale());
 
-    cornerMaxWidth[Corner::BottomRight] = maxBorderWidth(siblings[1], Side::Bottom,
+    cornerMaxWidth[BottomRight] = maxBorderWidth(siblings[1], Side::Bottom,
 							 this, Side::Bottom,
 							 siblings[2], Side::Right,
 							 this, Side::Right,
@@ -3319,13 +3320,13 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
 	if (verticals.test(Side::Top)) {
 	  double leftOffset = 0, rightOffset = 0;
 
-	  if (borderWidth[i] < cornerMaxWidth[Corner::TopLeft])
-	    leftOffset = cornerMaxWidth[Corner::TopLeft] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[TopLeft])
+	    leftOffset = cornerMaxWidth[TopLeft] / 2;
 	  else if (offsetFactor == 0)
 	    leftOffset = -borderWidth[i] / 2;
 
-	  if (borderWidth[i] < cornerMaxWidth[Corner::TopRight])
-	    rightOffset = cornerMaxWidth[Corner::TopRight] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[TopRight])
+	    rightOffset = cornerMaxWidth[TopRight] / 2;
 	  else if (offsetFactor == 0)
 	    rightOffset = -borderWidth[i] / 2;
 
@@ -3341,13 +3342,13 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
 	{
 	  double topOffset = 0, bottomOffset = 0;
 
-	  if (borderWidth[i] < cornerMaxWidth[Corner::TopRight])
-	    topOffset = cornerMaxWidth[Corner::TopRight] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[TopRight])
+	    topOffset = cornerMaxWidth[TopRight] / 2;
 	  else if (offsetFactor == 0)
 	    topOffset = -borderWidth[i] / 2;
 
-	  if (borderWidth[i] < cornerMaxWidth[Corner::BottomRight])
-	    bottomOffset = cornerMaxWidth[Corner::BottomRight] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[BottomRight])
+	    bottomOffset = cornerMaxWidth[BottomRight] / 2;
 	  else if (offsetFactor == 0)
 	    bottomOffset = -borderWidth[i] / 2;
 
@@ -3362,13 +3363,13 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
 	if (verticals.test(Side::Bottom)) {
 	  double leftOffset = 0, rightOffset = 0;
 
-	  if (borderWidth[i] < cornerMaxWidth[Corner::BottomLeft])
-	    leftOffset = cornerMaxWidth[Corner::BottomLeft] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[BottomLeft])
+	    leftOffset = cornerMaxWidth[BottomLeft] / 2;
 	  else if (offsetFactor == 0)
 	    leftOffset = -borderWidth[i] / 2;
 
-	  if (borderWidth[i] < cornerMaxWidth[Corner::TopRight])
-	    rightOffset = cornerMaxWidth[Corner::BottomRight] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[TopRight])
+	    rightOffset = cornerMaxWidth[BottomRight] / 2;
 	  else if (offsetFactor == 0)
 	    rightOffset = -borderWidth[i] / 2;
 
@@ -3383,13 +3384,13 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
 	{
 	  double topOffset = 0, bottomOffset = 0;
 
-	  if (borderWidth[i] < cornerMaxWidth[Corner::TopLeft])
-	    topOffset = cornerMaxWidth[Corner::TopLeft] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[TopLeft])
+	    topOffset = cornerMaxWidth[TopLeft] / 2;
 	  else if (offsetFactor == 0)
 	    topOffset = -borderWidth[i] / 2;
 
-	  if (borderWidth[i] < cornerMaxWidth[Corner::BottomLeft])
-	    bottomOffset = cornerMaxWidth[Corner::BottomLeft] / 2;
+	  if (borderWidth[i] < cornerMaxWidth[BottomLeft])
+	    bottomOffset = cornerMaxWidth[BottomLeft] / 2;
 	  else if (offsetFactor == 0)
 	    bottomOffset = -borderWidth[i] / 2;
 

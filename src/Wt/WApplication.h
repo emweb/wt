@@ -23,6 +23,7 @@ namespace boost {
 #include <Wt/WCssStyleSheet.h>
 #include <Wt/WEvent.h>
 #include <Wt/WJavaScriptPreamble.h>
+#include <Wt/WJavaScriptSlot.h>
 #include <Wt/WLocale.h>
 #include <Wt/WMessageResourceBundle.h>
 #include <Wt/WSignal.h>
@@ -54,16 +55,13 @@ class RootContainer;
 class UpdateLockImpl;
 class SoundManager;
 
-#ifndef WT_TARGET_JAVA
 /*! \brief Typedef for a function that creates WApplication objects.
  *
  * \sa WRun()
  *
  * \relates WApplication
  */
-  typedef std::function<std::unique_ptr<WApplication> (const WEnvironment&)>
-    ApplicationCreator;
-#endif // !WT_TARGET_JAVA
+typedef std::function<std::unique_ptr<WApplication> (const WEnvironment&)> ApplicationCreator;
 
 #ifdef WT_TARGET_JAVA
 /*! \brief An HTML Meta Header
@@ -206,13 +204,11 @@ public:
 class WT_API WApplication : public WObject
 {
 public:
-#ifndef WT_TARGET_JAVA
   /*! \brief Typedef for a function that creates WApplication objects.
    *
    * \sa WRun()
    */
   typedef Wt::ApplicationCreator ApplicationCreator;
-#endif // WT_TARGET_JAVA
 
   /*! \brief Creates a new application instance.
    *
@@ -1843,7 +1839,7 @@ public:
    *
    * The integer parameter is the request size that was received in bytes.
    */
-  Signal<::int64_t>& requestTooLarge() { return requestTooLarge_; }
+  Signal< ::int64_t>& requestTooLarge() { return requestTooLarge_; }
 
   /** @name Global keyboard and mouse events
    */

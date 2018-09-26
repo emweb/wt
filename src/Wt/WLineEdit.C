@@ -39,7 +39,13 @@ WLineEdit::WLineEdit()
 }
 
 WLineEdit::WLineEdit(const WT_USTRING& text)
-  : WLineEdit()
+  : textSize_(10),
+    maxLength_(-1),
+    echoMode_(EchoMode::Normal),
+    autoComplete_(true),
+    maskChanged_(false),
+    spaceChar_(' '),
+    javaScriptDefined_(false)
 {
   setText(text);
 }
@@ -430,7 +436,7 @@ void WLineEdit::processInputMask() {
     if (currentChar == '>' || currentChar == '<' || currentChar == '!') {
       mode = static_cast<char>(currentChar);
     } else if (std::u32string(U"AaNnXx90Dd#HhBb").find(currentChar) 
-	       != std::wstring::npos) {
+	       != std::u32string::npos) {
       mask_ += static_cast<char>(currentChar);
       raw_ += spaceChar_;
       case_ += mode;

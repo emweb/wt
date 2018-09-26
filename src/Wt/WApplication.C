@@ -143,7 +143,7 @@ WApplication::WApplication(const WEnvironment& env
 #ifndef WT_TARGET_JAVA
   setLocalizedStrings(std::make_shared<WMessageResourceBundle>());
 #else
-  setLocalizedStrings(nullptr);
+  setLocalizedStrings(std::shared_ptr<WLocalizedStrings>());
 #endif // !WT_TARGET_JAVA
 
   if (!environment().javaScript() && environment().agentIsIE()) {
@@ -175,13 +175,13 @@ WApplication::WApplication(const WEnvironment& env
   if (session_->type() == EntryPointType::Application)
     domRoot_->resize(WLength::Auto, WLength(100, LengthUnit::Percentage));
 
-  timerRoot_ = domRoot_->addWidget(cpp14::make_unique<WContainerWidget>());
+  timerRoot_ = domRoot_->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
   timerRoot_->setId("Wt-timers");
   timerRoot_->resize(WLength::Auto, 0);
   timerRoot_->setPositionScheme(PositionScheme::Absolute);
 
   if (session_->type() == EntryPointType::Application) {
-    widgetRoot_ = domRoot_->addWidget(cpp14::make_unique<WContainerWidget>());
+    widgetRoot_ = domRoot_->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
     widgetRoot_->resize(WLength::Auto, WLength(100, LengthUnit::Percentage));
   } else {
     domRoot2_.reset(new WContainerWidget());
@@ -381,10 +381,15 @@ std::string WApplication::onePixelGifUrl()
 WApplication::~WApplication()
 {
   // First remove all children owned by this WApplication (issue #6282)
-  for (WContainerWidget *domRoot : {domRoot_.get(), domRoot2_.get()}) {
-    if (domRoot)
-      for (WWidget *child : domRoot->children())
-        removeChild(child);
+  if (domRoot_) {
+    auto domRoot = domRoot_.get();
+    for (WWidget *child : domRoot->children())
+      removeChild(child);
+  }
+  if (domRoot2_) {
+    auto domRoot = domRoot_.get();
+    for (WWidget *child : domRoot->children())
+      removeChild(child);
   }
 
   /* Clear domRoot */
@@ -982,7 +987,7 @@ void WApplication
   if (!localizedStrings_) {
     localizedStrings_.reset(new WCombinedLocalizedStrings());
 
-    auto defaultMessages = std::make_shared<WMessageResourceBundle>();
+    auto defaultMessages = std::shared_ptr<WMessageResourceBundle>(new WMessageResourceBundle());
     defaultMessages->useBuiltin(skeletons::Wt_xml1);
     localizedStrings_->add(defaultMessages);
   }
@@ -1450,7 +1455,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
   if (handler && handler->haveLock() && handler->session() == app->session_)
     return;
 
-  new WebSession::Handler(app->session_, WebSession::Handler::TakeLock);
+  new WebSession::Handler(app->session_, WebSession::Handler::LockOption::TakeLock);
 
   createdHandler_ = true;
 }
@@ -1582,7 +1587,7 @@ bool WApplication::debug() const
 SoundManager *WApplication::getSoundManager()
 {
   if (!soundManager_)
-    soundManager_ = domRoot_->addWidget(cpp14::make_unique<SoundManager>());
+    soundManager_ = domRoot_->addWidget(std::unique_ptr<SoundManager>(new SoundManager()));
 
   return soundManager_;
 }

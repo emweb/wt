@@ -86,7 +86,7 @@ void WSortFilterProxyModel
     modelConnections_[i].disconnect();
   modelConnections_.clear();
 
-  WAbstractProxyModel::setSourceModel(std::move(model));
+  WAbstractProxyModel::setSourceModel(model);
 
   modelConnections_.push_back(sourceModel()->columnsAboutToBeInserted().connect
      (this, &WSortFilterProxyModel::sourceColumnsAboutToBeInserted));

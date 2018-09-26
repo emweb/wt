@@ -58,7 +58,7 @@ public:
    */
   void remove(const std::shared_ptr<WLocalizedStrings>& resolver);
 
-  const std::vector<std::shared_ptr<WLocalizedStrings>>& items() const;
+  const std::vector<std::shared_ptr<WLocalizedStrings> >& items() const;
 
   virtual void hibernate() override;
 
@@ -73,7 +73,7 @@ public:
   //virtual std::string *resolveKey(const std::string& key) = 0;
 #endif // WT_TARGET_JAVA
 private:
-  std::vector<std::shared_ptr<WLocalizedStrings>> localizedStrings_;
+  std::vector<std::shared_ptr<WLocalizedStrings> > localizedStrings_;
 };
 
 }

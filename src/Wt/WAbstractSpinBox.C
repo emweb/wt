@@ -118,7 +118,11 @@ void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
     function << "jQuery.data(" + jsRef() + ",'obj').jsValueChanged=";
     if (jsValueChanged().isConnected()) {
       function << "function(oldv, v){"
+#ifndef WT_TARGET_JAVA
                << "var o=null;var e=null;" << jsValueChanged().createCall({"oldv", "v"}) << "};";
+#else // WT_TARGET_JAVA
+               << "var o=null;var e=null;" << jsValueChanged().createCall("oldv", "v") << "};";
+#endif // WT_TARGET_JAVA
     } else {
       function << "function() {};";
     }
@@ -226,7 +230,7 @@ void WAbstractSpinBox::setup()
     connectJavaScript(keyWentUp(), "keyUp");
 
     if (!prefix_.empty() || !suffix_.empty())
-      setValidator(std::make_shared<SpinBoxValidator>(this));
+      setValidator(std::shared_ptr<SpinBoxValidator>(new SpinBoxValidator(this)));
   }
 }
 

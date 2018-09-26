@@ -14,6 +14,7 @@
 #include "Wt/WMenuItem.h"
 #include "Wt/WMenu.h"
 #include "Wt/WPopupMenu.h"
+#include "Wt/WSignal.h"
 #include "Wt/WStackedWidget.h"
 #include "Wt/WText.h"
 #include "Wt/WTheme.h"
@@ -49,7 +50,7 @@ WMenuItem::WMenuItem(bool separator, const WString& text)
   internalPathEnabled_ = false;
 
   if (!text.empty()) {
-    text_ = addNew<WLabel>();
+    text_ = addWidget(std::unique_ptr<WLabel>(new WLabel()));
     text_->setTextFormat(TextFormat::Plain);
     text_->setText(text);
   }
@@ -75,7 +76,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   setContents(std::move(contents), policy);
 
   if (!separator_) {
-    addNew<WAnchor>();
+    addWidget(std::unique_ptr<WAnchor>(new WAnchor()));
     updateInternalPath();
   }
 
@@ -148,10 +149,10 @@ void WMenuItem::setIcon(const std::string& path)
     if (!a)
       return;
 
-    icon_ = a->insertNew<WText>(0, " ");
+    icon_ = a->insertWidget(0, std::unique_ptr<WText>(new WText(" ")));
 
     WApplication *app = WApplication::instance();
-    app->theme()->apply(this, icon_, WidgetThemeRole::MenuItemIcon);
+    app->theme()->apply(this, icon_, MenuItemIcon);
   }
 
   icon_->decorationStyle().setBackgroundImage(WLink(path));
@@ -168,7 +169,7 @@ std::string WMenuItem::icon() const
 void WMenuItem::setText(const WString& text)
 {
   if (!text_) {
-    text_ = anchor()->addNew<WLabel>();
+    text_ = anchor()->addWidget(std::unique_ptr<WLabel>(new WLabel()));
     text_->setTextFormat(TextFormat::Plain);
   }
 
@@ -284,9 +285,9 @@ void WMenuItem::setCloseable(bool closeable)
     closeable_ = closeable;
 
     if (closeable_) {
-      WText *closeIcon = insertNew<WText>(0, "");
+      WText *closeIcon = insertWidget(0, std::unique_ptr<WText>(new WText("")));
       WApplication *app = WApplication::instance();
-      app->theme()->apply(this, closeIcon, WidgetThemeRole::MenuItemClose);
+      app->theme()->apply(this, closeIcon, MenuItemClose);
 
       closeIcon->clicked().connect(this, &WMenuItem::close);
     } else
@@ -298,13 +299,13 @@ void WMenuItem::setCheckable(bool checkable)
 {
   if (isCheckable() != checkable) {
     if (checkable) {
-      checkBox_ = anchor()->insertNew<WCheckBox>(0);
+      checkBox_ = anchor()->insertWidget(0, std::unique_ptr<WCheckBox>(new WCheckBox()));
       setText(text());
 
       text_->setBuddy(checkBox_);
 
       WApplication *app = WApplication::instance();
-      app->theme()->apply(this, checkBox_, WidgetThemeRole::MenuItemCheckBox);
+      app->theme()->apply(this, checkBox_, MenuItemCheckBox);
     } else {
       anchor()->removeWidget(checkBox_);
       checkBox_ = nullptr;

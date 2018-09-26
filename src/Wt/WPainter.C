@@ -442,10 +442,10 @@ void WPainter::drawStencilAlongPath(const WPainterPath &stencil,
 	    .isPointInPath(worldTransform().map(WPointF(seg.x(),seg.y())))) {
 	continue;
       }
-      if (seg.type() == SegmentType::LineTo ||
-	  seg.type() == SegmentType::MoveTo ||
-	  seg.type() == SegmentType::CubicEnd ||
-	  seg.type() == SegmentType::QuadEnd) {
+      if (seg.type() == LineTo ||
+	  seg.type() == MoveTo ||
+	  seg.type() == CubicEnd ||
+	  seg.type() == QuadEnd) {
 	WPointF p = WPointF(seg.x(), seg.y());
 	drawPath((WTransform().translate(p)).map(stencil));
       }
@@ -682,10 +682,10 @@ void WPainter::drawTextOnPath(const WRectF &rect,
       const WPainterPath::Segment &seg = path.segments()[i];
       const WPainterPath::Segment &tseg = tpath.segments()[i];
       std::vector<WString> splitText = splitLabel(text[i]);
-      if (seg.type() == SegmentType::MoveTo ||
-	  seg.type() == SegmentType::LineTo ||
-	  seg.type() == SegmentType::QuadEnd ||
-	  seg.type() == SegmentType::CubicEnd) {
+      if (seg.type() == MoveTo ||
+	  seg.type() == LineTo ||
+	  seg.type() == QuadEnd ||
+	  seg.type() == CubicEnd) {
 	save();
 	setClipping(false);
 	translate(tseg.x(), tseg.y());

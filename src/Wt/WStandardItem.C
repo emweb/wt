@@ -368,14 +368,14 @@ int WStandardItem::columnCount() const
 }
 
 void WStandardItem
-::appendColumn(std::vector<std::unique_ptr<WStandardItem>> items)
+::appendColumn(std::vector<std::unique_ptr<WStandardItem> > items)
 {
   insertColumn(columnCount(), std::move(items));
 }
 
 void WStandardItem
 ::insertColumn(int column,
-	       std::vector<std::unique_ptr<WStandardItem>> items)
+	       std::vector<std::unique_ptr<WStandardItem> > items)
 {
   unsigned rc = rowCount();
 
@@ -414,13 +414,13 @@ void WStandardItem
   }
 }
 
-void WStandardItem::appendRow(std::vector<std::unique_ptr<WStandardItem>> items)
+void WStandardItem::appendRow(std::vector<std::unique_ptr<WStandardItem> > items)
 {
   insertRow(rowCount(), std::move(items));
 }
 
 void WStandardItem::insertRow(int row,
-			      std::vector<std::unique_ptr<WStandardItem>> items)
+			      std::vector<std::unique_ptr<WStandardItem> > items)
 {
   if (!columns_)
     setColumnCount(1);
@@ -507,22 +507,22 @@ void WStandardItem::appendRow(std::unique_ptr<WStandardItem> item)
 
 void WStandardItem::insertRow(int row, std::unique_ptr<WStandardItem> item)
 {
-  std::vector<std::unique_ptr<WStandardItem>> r;
+  std::vector<std::unique_ptr<WStandardItem> > r;
   r.push_back(std::move(item));
   insertRow(row, std::move(r));
 }
 
-void WStandardItem::appendRows(std::vector<std::unique_ptr<WStandardItem>>
+void WStandardItem::appendRows(std::vector<std::unique_ptr<WStandardItem> >
 			       items)
 {
   insertRows(rowCount(), std::move(items));
 }
 
 void WStandardItem
-::insertRows(int row, std::vector<std::unique_ptr<WStandardItem>> items)
+::insertRows(int row, std::vector<std::unique_ptr<WStandardItem> > items)
 {
   for (unsigned i = 0; i < items.size(); ++i) {
-    std::vector<std::unique_ptr<WStandardItem>> r;
+    std::vector<std::unique_ptr<WStandardItem> > r;
     r.push_back(std::move(items[i]));
     insertRow(row + i, std::move(r));
   }
@@ -620,13 +620,13 @@ std::unique_ptr<WStandardItem> WStandardItem::takeChild(int row, int column)
   return result;
 }
 
-std::vector<std::unique_ptr<WStandardItem>> WStandardItem
+std::vector<std::unique_ptr<WStandardItem> > WStandardItem
 ::takeColumn(int column)
 {
   if (model_)
     model_->beginRemoveColumns(index(), column, column);
 
-  std::vector<std::unique_ptr<WStandardItem>> result
+  std::vector<std::unique_ptr<WStandardItem> > result
     = std::move((*columns_)[column]);
 
   columns_->erase(columns_->begin() + column);
@@ -645,15 +645,15 @@ std::vector<std::unique_ptr<WStandardItem>> WStandardItem
   return result;
 }
 
-std::vector<std::unique_ptr<WStandardItem>> WStandardItem::takeRow(int row)
+std::vector<std::unique_ptr<WStandardItem> > WStandardItem::takeRow(int row)
 {
   if (model_)
     model_->beginRemoveRows(index(), row, row);
 
 #ifndef WT_TARGET_JAVA
-  std::vector<std::unique_ptr<WStandardItem>> result(columnCount());
+  std::vector<std::unique_ptr<WStandardItem> > result(columnCount());
 #else
-  std::vector<std::unique_ptr<WStandardItem>> result;
+  std::vector<std::unique_ptr<WStandardItem> > result;
   result.insert(result.end(), columnCount(), std::unique_ptr<WStandardItem>());
 #endif
 

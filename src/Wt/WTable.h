@@ -188,8 +188,8 @@ private:
 
   std::bitset<3> flags_;
 
-  std::vector<std::unique_ptr<WTableRow>> rows_;
-  std::vector<std::unique_ptr<WTableColumn>> columns_;
+  std::vector<std::unique_ptr<WTableRow> > rows_;
+  std::vector<std::unique_ptr<WTableColumn> > columns_;
   std::set<WTableRow *> rowsChanged_;
   unsigned rowsAdded_;
   int headerRowCount_, headerColumnCount_;

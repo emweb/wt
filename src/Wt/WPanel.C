@@ -34,7 +34,7 @@ WPanel::WPanel()
   WApplication *app = WApplication::instance();
 
   std::unique_ptr<WContainerWidget> centralArea(new WContainerWidget());
-  app->theme()->apply(this, centralArea.get(), WidgetThemeRole::PanelBody);
+  app->theme()->apply(this, centralArea.get(), PanelBody);
 
   impl_->bindEmpty("titlebar");
   impl_->bindWidget("contents", std::move(centralArea));
@@ -85,9 +85,9 @@ void WPanel::setTitle(const WString& title)
   setTitleBar(true);
 
   if (!title_) {
-    title_ = titleBarWidget()->addWidget(cpp14::make_unique<WText>());
+    title_ = titleBarWidget()->addWidget(std::unique_ptr<WText>(new WText()));
     WApplication *app = WApplication::instance();
-    app->theme()->apply(this, title_, WidgetThemeRole::PanelTitle);
+    app->theme()->apply(this, title_, PanelTitle);
   }
 
   title_->setText(title);
@@ -115,10 +115,10 @@ void WPanel::setTitleBar(bool enable)
 {
   if (enable && !titleBarWidget()) {
     auto titleBar = impl_->bindWidget("titlebar",
-				      cpp14::make_unique<WContainerWidget>());
+				      std::unique_ptr<WContainerWidget>(new WContainerWidget()));
 
     WApplication *app = WApplication::instance();
-    app->theme()->apply(this, titleBar, WidgetThemeRole::PanelTitleBar);
+    app->theme()->apply(this, titleBar, PanelTitleBar);
   } else if (!enable && titleBar()) {
     impl_->bindEmpty("titlebar");
     title_ = nullptr;
@@ -138,8 +138,7 @@ void WPanel::setCollapsible(bool on)
     collapseIcon_->setFloatSide(Side::Left);
     
     WApplication *app = WApplication::instance();
-    app->theme()->apply(this, collapseIcon_, 
-			WidgetThemeRole::PanelCollapseButton);
+    app->theme()->apply(this, collapseIcon_, PanelCollapseButton);
     titleBarWidget()->insertWidget(0, std::move(icon));
 
     collapseIcon_->icon1Clicked().connect(this, &WPanel::doCollapse);

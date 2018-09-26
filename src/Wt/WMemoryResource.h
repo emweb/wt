@@ -7,6 +7,7 @@
 #ifndef WMEMORY_RESOURCE_H_
 #define WMEMORY_RESOURCE_H_
 
+#include <mutex>
 #include <string>
 #include <thread>
 

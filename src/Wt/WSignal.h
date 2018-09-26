@@ -10,7 +10,9 @@
 #include <Wt/WObject.h>
 #include <bitset>
 
+#ifndef WT_TARGET_JAVA
 #include <Wt/Signals/signals.hpp>
+#endif // WT_TARGET_JAVA
 
 #include <functional>
 
@@ -20,6 +22,26 @@ class JSlot;
 class SlotLearnerInterface;
 class WStatelessSlot;
 class JavaScriptEvent;
+
+struct NoClass
+{
+  NoClass() { }
+  NoClass(const JavaScriptEvent&) { }
+
+  static NoClass none;
+};
+
+#ifdef WT_TARGET_JAVA
+namespace Signals {
+  struct connection {
+    connection();
+    connection(const connection &);
+
+    void disconnect();
+    bool isConnected() const;
+  };
+}
+#endif // WT_TARGET_JAVA
 
 /*! \defgroup signalslot Signal/slot system
     \brief Support for event handling using signals and slots.
@@ -194,7 +216,13 @@ private:
  *
  * \ingroup signalslot
  */
+#ifndef WT_CNOR
 template <class... A>
+#else // WT_CNOR
+template <typename A1 = NoClass, typename A2 = NoClass,
+	  typename A3 = NoClass, typename A4 = NoClass,
+	  typename A5 = NoClass, typename A6 = NoClass>
+#endif // WT_CNOR
 class Signal : public SignalBase
 {
 public:
@@ -218,14 +246,9 @@ public:
    * (e.g. using std::bind placeholders _1 to _N) that may be bound
    * to values passed by the signal.
    */
-#ifndef WT_CNOR
   template <class F> Wt::Signals::connection connect(F function);
   template <class F> Wt::Signals::connection connect(const WObject *target,
 						     F function);
-#else
-  Wt::Signals::connection connect(const boost::bound& f);
-  Wt::Signals::connection connect(const WObject *target, const boost::bound& f);
-#endif
 
   /*! \brief Connects a slot.
    *
@@ -241,8 +264,54 @@ public:
    * the \p target, class \p T must be also be a descendant of WObject,
    * but this is not enforced by the interface.
    */
+#ifndef WT_CNOR
   template<class T, class V, class... B>
     Wt::Signals::connection connect(T *target, void (V::*method)(B...));
+#else // WT_CNOR
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)());
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(A1));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(const A1&));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(A1, A2));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
+								    A2));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(A1,
+								    const A2&));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
+								    const A2&));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3));
+
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
+								    A2,A3));
+
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
+								    const A2&,
+								    A3));
+
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
+								    const A2&,
+								    const A3&));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4,A5));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4,A5,A6));
+#endif // WT_CNOR
 
   /*! \brief Emits the signal.
    *
@@ -252,7 +321,13 @@ public:
    * This will cause all connected slots to be triggered, with the given
    * arguments.
    */
+#ifndef WT_CNOR
   void emit(A... args) const;
+#else // WT_CNOR
+  void emit(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
+	    A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+	    A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
+#endif // WT_CNOR
 
   /*! \brief Emits the signal.
    *
@@ -260,18 +335,26 @@ public:
    *
    * \sa emit
    */
+#ifndef WT_CNOR
   void operator()(A... args) const;
+#else // WT_CNOR
+  void operator()(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
+		  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+		  A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
+#endif // WT_CNOR
 
   virtual bool isConnected() const override;
 
+#ifndef WT_CNOR
 private:
   typedef Signals::Signal<A...> SignalType;
   SignalType impl_;
+#endif // WT_CNOR
 };
 
 #ifdef WT_CNOR
 
-class WT_API Signal0 : public Signal<>
+class WT_API Signal0 : public Signal<NoClass>
 {
 public:
   Signal0();
@@ -280,7 +363,9 @@ public:
 
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)());
-  Wt::Signals::connection connect(const boost::bound& f);
+  template <class F> Wt::Signals::connection connect(F function);
+  template <class F> Wt::Signals::connection connect(const WObject *target,
+						     F function);
 };
 
 #endif // WT_CNOR
@@ -348,11 +433,23 @@ public:
    */
   bool propagationPrevented() const;
 
+#ifndef WT_CNOR
   const std::string createUserEventCall(const std::string& jsObject,
 					const std::string& jsEvent,
 					const std::string& eventName,
 					std::initializer_list<std::string> args)
     const;
+#else // WT_CNOR
+  const std::string createUserEventCall(const std::string& jsObject,
+					const std::string& jsEvent,
+					const std::string& eventName,
+					const std::string& arg1,
+					const std::string& arg2,
+					const std::string& arg3,
+					const std::string& arg4,
+					const std::string& arg5,
+					const std::string& arg6) const;
+#endif // WT_CNOR
 
   Wt::Signals::connection connectStateless(WObject::Method method, 
 					   WObject *target,
@@ -396,7 +493,9 @@ protected:
    * Dummy signal used for knowing if stateless connections are still
    * connected.
    */
+#ifndef WT_CNOR
   Signals::Signal<> dummy_;
+#endif
 
   EventSignalBase(const char *name, WObject *owner, bool autoLearn);
 
@@ -433,16 +532,6 @@ private:
   friend class WebSession;
 };
 
-class JavaScriptEvent;
-
-struct WT_API NoClass
-{
-  NoClass() { }
-  NoClass(const JavaScriptEvent&) { }
-
-  static NoClass none;
-};
-
 /*! \class EventSignal Wt/WSignal.h Wt/WSignal.h
  *  \brief A signal that conveys user-interface events.
  *
@@ -475,7 +564,7 @@ public:
 
   EventSignal(const char *name, WObject *object);
 #else
-  EventSignal(const char *name, const E& e);
+  EventSignal(const char *name, WObject *object, const E& e);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns whether the signal is connected.
@@ -491,13 +580,9 @@ public:
    * automatically be disconnected when the object is deleted, as long as the
    * object inherits from WObject (or Wt::Signals::trackable).
    */
-#ifndef WT_CNOR
   template <class F> Wt::Signals::connection connect(F function);
   template <class F> Wt::Signals::connection connect(const WObject *target,
 						     F function);
-#else
-  Wt::Signals::connection connect(const boost::bound& function);
-#endif
 
   /*! \brief Connects a slot that takes no arguments.
    *
@@ -587,12 +672,18 @@ public:
   virtual Wt::Signals::connection connect(WObject *target,
 					  WObject::Method method) override;
 
+#ifdef WT_CNOR
+  void senderRepaint();
+#endif // WT_CNOR
+
 protected:
   virtual int argumentCount() const override;
 
 private:
+#ifndef WT_CNOR
   typedef Signals::Signal<E> SignalType;
   SignalType dynamic_;
+#endif // WT_CNOR
 
   void processDynamic(const JavaScriptEvent& e) const override;
 };
@@ -607,7 +698,9 @@ public:
 
   virtual bool isConnected() const override;
 
-  Wt::Signals::connection connect(const boost::bound& f);
+  template <class F> Wt::Signals::connection connect(F function);
+  template <class F> Wt::Signals::connection connect(const WObject *target,
+						     F function);
   void connect(const std::string& function);
   void connect(JSlot& slot);
   template<class T, class V>

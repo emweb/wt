@@ -326,7 +326,7 @@ public:
    *
    * \sa setUploadProgress()
    */
-  Signal<::uint64_t, ::uint64_t>& dataReceived() { return dataReceived_; }
+  Signal< ::uint64_t, ::uint64_t>& dataReceived() { return dataReceived_; }
 
   Signal< ::uint64_t >& dataExceeded() { return dataExceeded_; }
 

@@ -14,7 +14,7 @@ namespace Wt {
 
 void WLegend3D
 ::renderLegend(WPainter* painter,
-	       const std::vector<std::unique_ptr<WAbstractDataSeries3D>>
+	       const std::vector<std::unique_ptr<WAbstractDataSeries3D> >
 	       & dataseries)
 {
   if (!legendEnabled_)
@@ -64,7 +64,7 @@ void WLegend3D
 
     // draw label
     painter->drawText( labelWidth + 10, 0, 100, lineHeight,
-		       AlignmentFlag::Left | AlignmentFlag::Middle,
+		       WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
 		       series->title() );
 
     // offset painter
@@ -85,7 +85,7 @@ int WLegend3D::width()
   return (int)(legendColumns_*legendColumnWidth_.value() + 2*boxPadding);
 }
 
-int WLegend3D::height(const std::vector<std::unique_ptr<WAbstractDataSeries3D>>
+int WLegend3D::height(const std::vector<std::unique_ptr<WAbstractDataSeries3D> >
 		      &dataseries)
 {
   int nbItems = 0;

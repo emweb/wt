@@ -9,6 +9,10 @@
 
 #include <Wt/WDllDefs.h>
 
+#ifdef WT_TARGET_JAVA
+#define WT_GENERIC_MATRIX_USE_BOOST_UBLAS
+#endif // WT_TARGET_JAVA
+
 #ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
 #ifdef _MSC_VER
 // Avoid 64-bit related warnings on MSVC
@@ -67,10 +71,8 @@ class WGenericMatrix
 {
 public:
 #ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
-  using MatrixType =
-    boost::numeric::ublas::bounded_matrix<T, Rows, Cols,
-    boost::numeric::ublas::row_major>;
-  using ArrayType = MatrixType::array_type;
+  typedef boost::numeric::ublas::bounded_matrix<T, Rows, Cols, boost::numeric::ublas::row_major> MatrixType;
+  typedef boost::numeric::ublas::bounded_matrix<T, Rows, Cols, boost::numeric::ublas::row_major> ArrayType;
 #else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
   using MatrixType = std::array<T, Rows * Cols>;
   using ArrayType = std::array<T, Rows * Cols>;

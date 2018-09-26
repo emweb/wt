@@ -23,7 +23,7 @@ LOGGER("WTimeEdit");
 WTimeEdit::WTimeEdit()
   : WLineEdit()
 {
-  setValidator(std::make_shared<WTimeValidator>());
+  setValidator(std::shared_ptr<WTimeValidator>(new WTimeValidator()));
   changed().connect(this, &WTimeEdit::setFromLineEdit);
 
   timePicker_ = new WTimePicker(this);
@@ -61,7 +61,7 @@ void WTimeEdit::load()
   popup_->setTransient(true);
 
   WApplication::instance()
-    ->theme()->apply(this, popup_.get(), WidgetThemeRole::TimePickerPopup);
+    ->theme()->apply(this, popup_.get(), TimePickerPopup);
 
   escapePressed().connect(popup_.get(), &WPopupWidget::hide);
   escapePressed().connect(this, &WWidget::setFocus);

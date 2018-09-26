@@ -13,6 +13,7 @@
 #include "Wt/WContainerWidget.h"
 #include "Wt/WLogger.h"
 #include "Wt/WJavaScript.h"
+#include "Wt/WStringStream.h"
 #include "Wt/WTheme.h"
 #include "Wt/WWebWidget.h"
 
@@ -272,7 +273,7 @@ void WWebWidget::setDecorationStyle(const WCssDecorationStyle& style)
   if (!lookImpl_)
     lookImpl_.reset(new LookImpl(this));
 
-  lookImpl_->decorationStyle_ = &style;
+  lookImpl_->decorationStyle_.reset(&style);
 #endif // WT_TARGET_JAVA
 }
 
@@ -281,28 +282,28 @@ void WWebWidget::iterateChildren(const HandleWidgetMethod& method) const
 
 std::string WWebWidget::renderRemoveJs(bool recursive)
 {
-  std::string result;
+  Wt::WStringStream result;
 
   if (isRendered() && scrollVisibilityEnabled()) {
-    result += WT_CLASS ".scrollVisibility.remove("
-        + jsStringLiteral(id()) + ");";
+    result << WT_CLASS ".scrollVisibility.remove("
+        << jsStringLiteral(id()) << ");";
     flags_.set(BIT_SCROLL_VISIBILITY_CHANGED);
     flags_.reset(BIT_SCROLL_VISIBILITY_LOADED);
   }
 
   iterateChildren
     ([&](WWidget *c) {
-      result += c->webWidget()->renderRemoveJs(true);
+      result << c->webWidget()->renderRemoveJs(true);
     });
 
   if (!recursive) {
     if (result.empty())
-      result = "_" + id();
+      result << "_" << id();
     else
-      result += WT_CLASS ".remove('" + id() + "');";
+      result << WT_CLASS ".remove('" << id() << "');";
   }
 
-  return result;
+  return result.str();
 }
 
 void WWebWidget::widgetRemoved(WWidget *child, bool renderRemove)
@@ -1090,7 +1091,7 @@ void WWebWidget::parentResized(WWidget *parent, WFlags<Orientation> directions)
 {
   if (flags_.test(BIT_CONTAINS_LAYOUT)) {
     iterateChildren
-      ([&](WWidget *c) {
+      ([=](WWidget *c) {
 	if (!c->isHidden())
 	  c->webWidget()->parentResized(parent, directions);
       });
@@ -1150,7 +1151,7 @@ void WWebWidget::setDisabled(bool disabled)
 void WWebWidget::propagateSetEnabled(bool enabled)
 {
   iterateChildren
-    ([&](WWidget *c) {
+    ([=](WWidget *c) {
       if (!c->isDisabled())
 	c->webWidget()->propagateSetEnabled(enabled);
       });
@@ -1159,7 +1160,7 @@ void WWebWidget::propagateSetEnabled(bool enabled)
 void WWebWidget::propagateSetVisible(bool visible)
 {
   iterateChildren
-    ([&](WWidget *c) {
+    ([=](WWidget *c) {
       if (!c->isHidden())
         c->webWidget()->propagateSetVisible(visible);
       });
@@ -1564,10 +1565,10 @@ void WWebWidget::updateDom(DomElement& element, bool all)
                                  + ", " + deferred
                                  + ", " +
                                  jsStringLiteral(app->theme()->
-                                                 utilityCssClass(UtilityCssClassRole::ToolTipInner))
+                                                 utilityCssClass(ToolTipInner))
                                  + ", " +
                                  jsStringLiteral(app->theme()->
-                                                 utilityCssClass(UtilityCssClassRole::ToolTipOuter))
+                                                 utilityCssClass(ToolTipOuter))
                                  + ");");
 
           if (flags_.test(BIT_TOOLTIP_DEFERRED) &&
@@ -1985,12 +1986,13 @@ bool WWebWidget::setFirstFocus()
       return true;
     }
 
-    bool result = false;
-    iterateChildren([&result](Wt::WWidget *w){
-      if (!result)
-        result = w->setFirstFocus();
+    bool result[1];
+    result[0] = false;
+    iterateChildren([&](Wt::WWidget *w){
+      if (!result[0])
+        result[0] = w->setFirstFocus();
     });
-    if (result)
+    if (result[0])
       return true;
 
     return false;
@@ -2094,7 +2096,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 void WWebWidget::doneRerender()
 {
   iterateChildren
-    ([&](WWidget *c) {
+    ([](WWidget *c) {
       c->webWidget()->doneRerender();
     });
 }
@@ -2124,7 +2126,7 @@ void WWebWidget::propagateRenderOk(bool deep)
 
   if (deep)
     iterateChildren
-      ([&](WWidget *c) {
+      ([](WWidget *c) {
 	c->webWidget()->propagateRenderOk();
       });
 
@@ -2141,7 +2143,7 @@ void WWebWidget::setRendered(bool rendered)
     renderOk();
 
     iterateChildren
-      ([&](WWidget *c) {
+      ([](WWidget *c) {
 	c->webWidget()->setRendered(false);
       });
   }
@@ -2189,15 +2191,15 @@ WWidget *WWebWidget::find(const std::string& name)
   if (objectName() == name)
     return this;
   else {
-    WWidget *result = nullptr;
-
+    WWidget *result[1];
+    result[0] = nullptr;
     iterateChildren
       ([&](WWidget *c) {
-	if (!result)
-	  result = c->find(name);
+	if (!result[0])
+	  result[0] = c->find(name);
       });
 
-    return result;
+    return result[0];
   }
 }
 
@@ -2206,15 +2208,14 @@ WWidget *WWebWidget::findById(const std::string& id)
   if (this->id() == id)
     return this;
   else {
-    WWidget *result = nullptr;
-
+    WWidget *result[1];
     iterateChildren
       ([&](WWidget *c) {
-	if (!result)
-	  result = c->findById(id);
+	if (!result[0])
+	  result[0] = c->findById(id);
       });
-    if (result)
-      return result;
+    if (result[0])
+      return result[0];
   }
 
   return nullptr;
@@ -2239,11 +2240,12 @@ DomElement *WWebWidget::createDomElement(WApplication *app)
 
 bool WWebWidget::domCanBeSaved() const
 {
-  bool canBeSaved = true;
-  iterateChildren([&canBeSaved](WWidget *child){
-    canBeSaved = canBeSaved && child->webWidget()->domCanBeSaved();
+  bool canBeSaved[1];
+  canBeSaved[0] = true;
+  iterateChildren([&](WWidget *child){
+    canBeSaved[0] = canBeSaved[0] && child->webWidget()->domCanBeSaved();
   });
-  return canBeSaved;
+  return canBeSaved[0];
 }
 
 bool WWebWidget::isRendered() const
@@ -2286,7 +2288,7 @@ DomElement *WWebWidget::createActualElement(WWidget *self, WApplication *app)
 
   DomElement *result = createDomElement(app);
 
-  app->theme()->apply(self, *result, ElementThemeRole::MainElement);
+  app->theme()->apply(self, *result, MainElement);
 
   /* Make sure addStyleClass() does not mess up later */
   std::string styleClass = result->getProperty(Property::Class);
@@ -2309,7 +2311,7 @@ void WWebWidget::refresh()
     }
 
   iterateChildren
-    ([&](WWidget *c) {
+    ([](WWidget *c) {
       c->refresh();
     });
 
@@ -2340,7 +2342,7 @@ void WWebWidget::enableAjax()
   }
 
   iterateChildren
-    ([&](WWidget *c) {
+    ([](WWidget *c) {
       c->enableAjax();
     });
 }
@@ -2372,6 +2374,7 @@ std::string& WWebWidget::escapeText(std::string& text, bool newlinestoo)
 
 std::string& WWebWidget::unescapeText(std::string &text)
 {
+#ifndef WT_TARGET_JAVA
   char *inP = &text[0];
   char *const inEndP = &text[text.size()];
   char *outP = &text[0];
@@ -2424,6 +2427,8 @@ std::string& WWebWidget::unescapeText(std::string &text)
   std::size_t s = (std::size_t)(outP - (&text[0]));
   assert(s <= text.size());
   text.resize(s);
+  return text;
+#endif // WT_TARGET_JAVA
   return text;
 }
 

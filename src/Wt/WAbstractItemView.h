@@ -10,6 +10,7 @@
 #include <Wt/WCompositeWidget.h>
 #include <Wt/WModelIndex.h>
 #include <Wt/WItemSelectionModel.h>
+#include <Wt/WJavaScriptSlot.h>
 #include <Wt/WValidator.h>
 
 namespace Wt {

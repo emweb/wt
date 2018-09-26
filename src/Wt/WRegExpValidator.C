@@ -18,11 +18,15 @@
 namespace Wt {
 
 WRegExpValidator::WRegExpValidator()
+  : pattern_(),
+    regex_(),
+    noMatchText_()
 { }
 
 WRegExpValidator::WRegExpValidator(const WT_USTRING& pattern)
   : pattern_(pattern),
-    regex_(pattern.toUTF8())
+    regex_(pattern.toUTF8()),
+    noMatchText_()
 { }
 
 WRegExpValidator::~WRegExpValidator()

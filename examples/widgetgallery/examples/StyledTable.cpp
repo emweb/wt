@@ -4,6 +4,10 @@
 #include <Wt/WText.h>
 #include <Wt/WCheckBox.h>
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 namespace {
 #ifdef WT_EXAMPLE
     struct Employee {

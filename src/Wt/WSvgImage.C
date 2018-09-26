@@ -413,13 +413,13 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (!segments.empty()
-      && segments[0].type() != SegmentType::MoveTo)
+      && segments[0].type() != MoveTo)
     out << "M0,0";
 
   for (unsigned i = 0; i < segments.size(); ++i) {
     const WPainterPath::Segment s = segments[i];
 
-    if (s.type() == SegmentType::ArcC) {
+    if (s.type() == ArcC) {
       WPointF current = path.positionAtSegment(i);
 
       const double cx = segments[i].x();
@@ -456,23 +456,23 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
       out << ',' << Utils::round_js_str(y2 + pathTranslation_.y(), 3, buf);
     } else {
       switch (s.type()) {
-      case SegmentType::MoveTo:
+      case MoveTo:
 	out << 'M';
 	break;
-      case SegmentType::LineTo:
+      case LineTo:
 	out << 'L';
 	break;
-      case SegmentType::CubicC1:
+      case CubicC1:
 	out << 'C';
 	break;
-      case SegmentType::CubicC2:
-      case SegmentType::CubicEnd:
+      case CubicC2:
+      case CubicEnd:
 	out << ' ';
 	break;
-      case SegmentType::QuadC:
+      case QuadC:
 	out << 'Q';
 	break;
-      case SegmentType::QuadEnd:
+      case QuadEnd:
 	out << ' ';
 	break;
       default:

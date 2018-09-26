@@ -7,6 +7,7 @@
 #ifndef WFILEUPLOAD_H_
 #define WFILEUPLOAD_H_
 
+#include <Wt/WJavaScriptSlot.h>
 #include <Wt/WWebWidget.h>
 
 namespace Wt {
@@ -225,7 +226,7 @@ public:
    * \sa uploaded()
    * \sa WApplication::requestTooLarge()
    */
-  JSignal<::int64_t>& fileTooLarge() { return fileTooLarge_; }
+  JSignal< ::int64_t>& fileTooLarge() { return fileTooLarge_; }
 
   /*! \brief %Signal emitted when the user selected a new file.
    *
@@ -304,7 +305,7 @@ public:
    * The first argument is the number of bytes received so far,
    * and the second argument is the total number of bytes.
    */
-  Signal<::uint64_t, ::uint64_t>& dataReceived() { return dataReceived_; }
+  Signal< ::uint64_t, ::uint64_t>& dataReceived() { return dataReceived_; }
 
   virtual void enableAjax() override;
 
@@ -340,9 +341,9 @@ private:
 
   std::vector<Http::UploadedFile> uploadedFiles_;
 
-  JSignal<::int64_t> fileTooLarge_;
+  JSignal< ::int64_t> fileTooLarge_;
 
-  Signal<::uint64_t, ::uint64_t> dataReceived_;
+  Signal< ::uint64_t, ::uint64_t> dataReceived_;
 
   Core::observing_ptr<WInteractWidget> displayWidget_;
   JSlot displayWidgetRedirect_;

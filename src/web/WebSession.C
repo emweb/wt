@@ -909,7 +909,7 @@ bool WebSession::attachThreadToLockedHandler()
 
   return false;
 #else
-  Handler::attachThreadToHandler(new Handler(this, Handler::NoLock));
+  Handler::attachThreadToHandler(new Handler(this, Handler::LockOption::NoLock));
   return true;
 #endif
 }
@@ -1825,14 +1825,14 @@ void WebSession::handleWebSocketMessage(Handler& handler)
   if (!closing) {
     const std::string *connectedE = message->getParameter("connected");
     if (connectedE) {
-      renderer_.ackUpdate(boost::lexical_cast<int>(connectedE));
+      renderer_.ackUpdate(Utils::stoi(*connectedE));
       webSocketConnected_ = true;
       canWriteWebSocket_ = true;
     }
 
     const std::string *wsRqIdE = message->getParameter("wsRqId");
     if (wsRqIdE) {
-      int wsRqId = boost::lexical_cast<int>(*wsRqIdE);
+      int wsRqId = Utils::stoi(*wsRqIdE);
       renderer_.addWsRequestId(wsRqId);
     }
 
@@ -1849,7 +1849,7 @@ void WebSession::handleWebSocketMessage(Handler& handler)
 
     const std::string *pageIdE = message->getParameter("pageId");
 
-    if (pageIdE && *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
+    if (pageIdE && *pageIdE != std::to_string(renderer_.pageId())) {
       closing = true;
     }
 
@@ -2068,7 +2068,7 @@ void WebSession::pushUpdates()
 		   std::weak_ptr<WebSession>(shared_from_this()),
 		   std::placeholders::_1));
 #else
-      webSocket_->setResponseType(WebResponse::Update);
+      webSocket_->setResponseType(WebRequest::ResponseType::Update);
       app_->notify(WEvent(WEvent::Impl(webSocket_)));
       updatesPending_ = false;
       webSocket_->flushBuffer();

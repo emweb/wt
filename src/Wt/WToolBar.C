@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WContainerWidget.h"
+#include "Wt/WLogger.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WSplitButton.h"
 #include "Wt/WToolBar.h"

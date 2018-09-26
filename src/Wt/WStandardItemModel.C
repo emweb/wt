@@ -91,25 +91,25 @@ WStandardItem *WStandardItemModel::itemFromIndex(const WModelIndex& index,
 
 
 void WStandardItemModel
-::appendColumn(std::vector<std::unique_ptr<WStandardItem>> items)
+::appendColumn(std::vector<std::unique_ptr<WStandardItem> > items)
 {
   insertColumn(columnCount(), std::move(items));
 }
 
 void WStandardItemModel
-::insertColumn(int column, std::vector<std::unique_ptr<WStandardItem>> items)
+::insertColumn(int column, std::vector<std::unique_ptr<WStandardItem> > items)
 {
   invisibleRootItem_->insertColumn(column, std::move(items));
 }
 
 void WStandardItemModel
-::appendRow(std::vector<std::unique_ptr<WStandardItem>> items)
+::appendRow(std::vector<std::unique_ptr<WStandardItem> > items)
 {
   insertRow(rowCount(), std::move(items));
 }
 
 void WStandardItemModel
-::insertRow(int row, std::vector<std::unique_ptr<WStandardItem>> items)
+::insertRow(int row, std::vector<std::unique_ptr<WStandardItem> > items)
 {
   invisibleRootItem_->insertRow(row, std::move(items));
 }
@@ -147,13 +147,13 @@ void WStandardItemModel
   itemPrototype_ = std::move(item);
 }
 
-std::vector<std::unique_ptr<WStandardItem>> WStandardItemModel
+std::vector<std::unique_ptr<WStandardItem> > WStandardItemModel
 ::takeColumn(int column)
 {
   return invisibleRootItem_->takeColumn(column);
 }
 
-std::vector<std::unique_ptr<WStandardItem>> WStandardItemModel
+std::vector<std::unique_ptr<WStandardItem> > WStandardItemModel
 ::takeRow(int row)
 {
   return invisibleRootItem_->takeRow(row);
@@ -432,7 +432,7 @@ void WStandardItemModel::dropEvent(const WDropEvent& e, DropAction action,
       action == DropAction::Move) {
     WModelIndexSet selection = selectionModel->selectedIndexes();
     int r = row;
-    std::vector< std::vector<std::unique_ptr<WStandardItem>> > rows;
+    std::vector< std::vector<std::unique_ptr<WStandardItem> > > rows;
     for (WModelIndexSet::const_iterator i = selection.begin();
 	 i != selection.end(); ++i) {
       WModelIndex sourceIndex = *i;

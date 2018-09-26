@@ -14,6 +14,7 @@
 #include <Wt/WSignal.h>
 #include <Wt/WJavaScript.h>
 
+#include <bitset>
 #include <list>
 #include <vector>
 #include <sstream>

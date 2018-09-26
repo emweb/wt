@@ -20,14 +20,18 @@ WLabel::WLabel()
 { }
 
 WLabel::WLabel(const WString& text)
-  : WLabel()
+  : buddyChanged_(false),
+    newImage_(false),
+    newText_(false)
 {
   manageWidget(text_, std::unique_ptr<WText>(new WText(text)));
   text_->setWordWrap(false);
 }
 
 WLabel::WLabel(std::unique_ptr<WImage> image)
-  : WLabel()
+  : buddyChanged_(false),
+    newImage_(false),
+    newText_(false)
 { 
   manageWidget(image_, std::move(image));
 }
@@ -209,9 +213,17 @@ void WLabel::getDomChanges(std::vector<DomElement *>& result,
 void WLabel::iterateChildren(const HandleWidgetMethod &method) const
 {
   if (text_)
+#ifndef WT_TARGET_JAVA
     method(text_.get());
+#else
+    method.handle(text_.get());
+#endif
   if (image_)
+#ifndef WT_TARGET_JAVA
     method(image_.get());
+#else
+    method.handle(image_.get());
+#endif
 }
 
 }

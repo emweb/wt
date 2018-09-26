@@ -365,7 +365,7 @@ protected:
 private:
   bool collapsed_, selectable_, visible_, childrenDecorated_;
   WTreeNode *parentNode_;
-  std::vector<std::unique_ptr<WTreeNode>> notLoadedChildren_;
+  std::vector<std::unique_ptr<WTreeNode> > notLoadedChildren_;
   ContentLoading loadPolicy_;
   ChildCountPolicy childCountPolicy_;
 
@@ -379,6 +379,7 @@ private:
 
   Signal<bool> selected_;
 
+  void init(const WString &labelText, std::unique_ptr<WIconPair> labelIcon);
   WContainerWidget *childContainer() const;
   int childCount() const;
   void loadChildren();

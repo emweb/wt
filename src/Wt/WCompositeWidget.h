@@ -194,12 +194,17 @@ protected:
 
   template <typename Widget>
     Widget *setImplementation(std::unique_ptr<Widget> widget)
+#ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
     setImplementation(std::unique_ptr<WWidget>(std::move(widget)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   template <typename W, typename... Args>
   W *setNewImplementation(Args&&... args)
   {
@@ -208,6 +213,16 @@ protected:
     setImplementation(std::move(w));
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename W>
+  W *setNewImplementation();
+  template <typename W, typename Arg1>
+  W *setNewImplementation(Arg1);
+  template <typename W, typename Arg1, typename Arg2>
+  W *setNewImplementation(Arg1, Arg2);
+  template <typename W, typename Arg1, typename Arg2, typename Arg3>
+  W *setNewImplementation(Arg1, Arg2, Arg3);
+#endif // WT_TARGET_JAVA
  
   /*! \brief Method::Get the implementation widget
    *

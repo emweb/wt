@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WApplication.h"
+#include "Wt/WException.h"
 #include "Wt/WJavaScriptSlot.h"
 #include "Wt/WStatelessSlot.h"
 #include "Wt/WWidget.h"

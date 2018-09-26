@@ -5,6 +5,10 @@
 #define GIT_REPOSITORY "/path/to/repository/.git"
 #endif // WT_EXAMPLE
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 SAMPLE_BEGIN(TreeView)
 auto treeView = cpp14::make_unique<WTreeView>();
 treeView->resize(600, 400);

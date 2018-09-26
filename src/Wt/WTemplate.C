@@ -155,8 +155,18 @@ bool WTemplate::IdFunction::evaluate(WTemplate *t,
 #endif
 
 WTemplate::WTemplate()
-  : WTemplate(WString::Empty)
-{ }
+  : previouslyRendered_(nullptr),
+    newlyRendered_(nullptr),
+    encodeInternalPaths_(false),
+    encodeTemplateText_(true),
+    changed_(false),
+    widgetIdMode_(TemplateWidgetIdMode::None)
+{
+  plainTextNewLineEscStream_ = new EscapeOStream();
+  plainTextNewLineEscStream_->pushEscape(EscapeOStream::PlainTextNewLines);
+  setInline(false);
+  setTemplateText(WString::Empty);
+}
 
 WTemplate::WTemplate(const WString& text)
   : previouslyRendered_(nullptr),
@@ -239,7 +249,11 @@ void WTemplate::iterateChildren(const HandleWidgetMethod& method) const
 {
   for (auto& i : widgets_) {
     if (i.second)
+#ifndef WT_TARGET_JAVA
       method(i.second.get());
+#else
+      method.handle(i.second.get());
+#endif
   }
 }
 
@@ -268,7 +282,10 @@ void WTemplate::bindWidget(const std::string& varName,
   }
 
   removeWidget(varName);
-  manageWidget(widgets_[varName], std::move(widget));
+#ifdef WT_TARGET_JAVA
+  auto res =
+#endif // WT_TARGET_JAVA
+    manageWidget(widgets_[varName], std::move(widget));
 
   changed_ = true;
   repaint(RepaintFlag::SizeAffected);  

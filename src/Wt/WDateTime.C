@@ -452,7 +452,7 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
     }
   }
 
-  std::stringstream result;
+  WStringStream result;
   std::string f = format.toUTF8() + std::string(3, 0);
 
   bool inQuote = false;
@@ -473,11 +473,11 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
 	  gotQuoteInQuote = false;
 	  inQuote = false;
 	} else
-	  result.put(f[i]);
+          result << f[i];
       } else {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
-	  result.put(f[i]);
+          result << f[i];
 	} else
 	  gotQuoteInQuote = true;
       }
@@ -495,7 +495,7 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
 	  inQuote = true;
 	  gotQuoteInQuote = false;
 	} else
-	  result.put(f[i]);
+          result << f[i];
       }
     }
   }

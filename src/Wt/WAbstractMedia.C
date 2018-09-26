@@ -422,7 +422,11 @@ void WAbstractMedia::setAlternativeContent(std::unique_ptr<WWidget> alternative)
 void WAbstractMedia::iterateChildren(const HandleWidgetMethod& method) const
 {
   if (alternative_)
+#ifndef WT_TARGET_JAVA
     method(alternative_.get());
+#else
+    method.handle(alternative_.get());
+#endif
 }
 
 void WAbstractMedia::enableAjax() 

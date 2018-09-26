@@ -25,28 +25,28 @@ namespace {
 }
 
 SAMPLE_BEGIN(PlainTable)
-auto table = cpp14::make_unique<WTable>();
+auto table = Wt::cpp14::make_unique<Wt::WTable>();
 table->setHeaderCount(1);
-table->setWidth(WLength("100%"));
+table->setWidth(Wt::WLength("100%"));
 
-table->elementAt(0, 0)->addWidget(cpp14::make_unique<WText>("#"));
-table->elementAt(0, 1)->addWidget(cpp14::make_unique<WText>("First Name"));
-table->elementAt(0, 2)->addWidget(cpp14::make_unique<WText>("Last Name"));
-table->elementAt(0, 3)->addWidget(cpp14::make_unique<WText>("Pay"));
+table->elementAt(0, 0)->addWidget(Wt::cpp14::make_unique<Wt::WText>("#"));
+table->elementAt(0, 1)->addWidget(Wt::cpp14::make_unique<Wt::WText>("First Name"));
+table->elementAt(0, 2)->addWidget(Wt::cpp14::make_unique<Wt::WText>("Last Name"));
+table->elementAt(0, 3)->addWidget(Wt::cpp14::make_unique<Wt::WText>("Pay"));
 
 for (unsigned i = 0; i < 3; ++i) {
     Employee& employee = employees[i];
     int row = i + 1;
 
     table->elementAt(row, 0)
-        ->addWidget(cpp14::make_unique<WText>(WString("{1}")
+        ->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString("{1}")
 				  .arg(row)));
     table->elementAt(row, 1)
-        ->addWidget(cpp14::make_unique<WText>(employee.firstName));
+        ->addWidget(Wt::cpp14::make_unique<Wt::WText>(employee.firstName));
     table->elementAt(row, 2)
-        ->addWidget(cpp14::make_unique<WText>(employee.lastName));
+        ->addWidget(Wt::cpp14::make_unique<Wt::WText>(employee.lastName));
     table->elementAt(row, 3)
-        ->addWidget(cpp14::make_unique<WLineEdit>(WString("{1}")
+        ->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>(Wt::WString("{1}")
 				      .arg(employee.pay)));
 }
 

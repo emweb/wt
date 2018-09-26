@@ -4,6 +4,10 @@
 #include <Wt/WTreeTable.h>
 #include <Wt/WTreeTableNode.h>
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 namespace {
     WTreeTableNode *addNode(WTreeTableNode *parent, const char *name,
 				const char *yuppie, const char *holidays,

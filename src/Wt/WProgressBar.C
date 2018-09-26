@@ -132,11 +132,11 @@ void WProgressBar::updateDom(DomElement& element, bool all)
     bar = DomElement::createNew(DomElementType::DIV);
     bar->setId("bar" + id());
     bar->setProperty(Property::Class, valueStyleClass_);
-    app->theme()->apply(this, *bar, ElementThemeRole::ProgressBarBar);
+    app->theme()->apply(this, *bar, ProgressBarBar);
 
     label = DomElement::createNew(DomElementType::DIV);
     label->setId("lbl" + id());
-    app->theme()->apply(this, *label, ElementThemeRole::ProgressBarLabel);
+    app->theme()->apply(this, *label, ProgressBarLabel);
   }
 
   if (changed_ || all) {

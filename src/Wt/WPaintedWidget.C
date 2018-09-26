@@ -515,7 +515,7 @@ const std::vector<WAbstractArea *> WPaintedWidget::areas() const
 {
   return areaImage_ 
     ? areaImage_->areas()
-    : static_cast<const std::vector<WAbstractArea *>>
+    : static_cast<const std::vector<WAbstractArea *> >
     (std::vector<WAbstractArea *>());
 }
 

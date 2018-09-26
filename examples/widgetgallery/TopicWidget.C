@@ -6,6 +6,7 @@
 
 #include "TopicWidget.h"
 
+#include <Wt/WString.h>
 #include <Wt/WText.h>
 
 #include <sstream>
@@ -77,7 +78,7 @@ Wt::WText *TopicWidget::addText(const Wt::WString& s, Wt::WContainerWidget *pare
 #ifndef WT_TARGET_JAVA
   literal = s.literal();
 #else
-  literal = WString(s).literal();
+  literal = Wt::WString(s).literal();
 #endif
   if (!literal)
     text->setInternalPathEncoding(true);

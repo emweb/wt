@@ -171,6 +171,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int stretch = 0,
                       WFlags<AlignmentFlag> alignment = None)
@@ -179,6 +180,12 @@ public:
     addWidget(std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget);
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget, int stretch);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Adds a nested layout to the layout.
    *
@@ -199,6 +206,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Layout>
     Layout *addLayout(std::unique_ptr<Layout> layout, int stretch = 0,
                       WFlags<AlignmentFlag> alignment = None)
@@ -207,6 +215,12 @@ public:
     addLayout(std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Layout>
+    Layout *addLayout(std::unique_ptr<Layout> layout);
+  template <typename Layout>
+    Layout *addLayout(std::unique_ptr<Layout> layout, int stretch);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Adds extra spacing.
    *
@@ -255,6 +269,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Widget>
     Widget *insertWidget(int index, std::unique_ptr<Widget> widget, int stretch = 0,
 			 WFlags<AlignmentFlag> alignment = None)
@@ -263,6 +278,10 @@ public:
     insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Widget>
+    Widget *insertWidget(int index, std::unique_ptr<Widget> widget, int stretch);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Inserts a nested layout in the layout.
    *
@@ -283,6 +302,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Layout>
     Layout *insertLayout(int index, std::unique_ptr<Layout> layout, int stretch = 0,
 	                 WFlags<AlignmentFlag> alignment = None)
@@ -291,6 +311,10 @@ public:
     insertLayout(index, std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Layout>
+    Layout *insertLayout(int index, std::unique_ptr<Layout> layout, int stretch);
+#endif
 
   /*! \brief Inserts extra spacing in the layout.
    *

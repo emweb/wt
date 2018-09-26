@@ -73,7 +73,7 @@ WLink *WStandardChartProxyModel::link(int row, int column) const
     link_ = cpp17::any_cast<WLink>(result);
     return &link_;
 #else
-    WLink c = boost::any_cast<WLink>(result);
+    WLink c = cpp17::any_cast<WLink>(result);
     return &c;
 #endif
   }

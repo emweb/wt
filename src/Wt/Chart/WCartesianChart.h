@@ -534,7 +534,7 @@ public:
    *
    * \sa series(), addSeries(WDataSeries *), removeSeries(WDataSeries *)
    */
-  void setSeries(std::vector<std::unique_ptr<WDataSeries>> series);
+  void setSeries(std::vector<std::unique_ptr<WDataSeries> > series);
 
   /*! \brief Returns a data series corresponding to a data column.
    *
@@ -556,7 +556,7 @@ public:
    *
    * \sa setSeries(const std::vector<WDataSeries>&)
    */
-  const std::vector<std::unique_ptr<WDataSeries>>& series() const { return series_; }
+  const std::vector<std::unique_ptr<WDataSeries> >& series() const { return series_; }
 
   /*! \brief Returns a chart axis.
    *
@@ -1513,7 +1513,7 @@ private:
   Orientation orientation_;
   int XSeriesColumn_;
   ChartType type_;
-  std::vector<std::unique_ptr<WDataSeries>> series_;
+  std::vector<std::unique_ptr<WDataSeries> > series_;
   AxisStruct xAxis_;
   std::vector<AxisStruct> yAxes_;
   double barMargin_;
@@ -1553,7 +1553,7 @@ private:
   mutable TransformMap curveTransforms_;
   std::vector<WJavaScriptHandle<WTransform> > freeTransforms_;
 
-  std::vector<WJavaScriptHandle<WPen>> freePens_;
+  std::vector<WJavaScriptHandle<WPen> > freePens_;
 
   std::vector<CurveLabel> curveLabels_;
 

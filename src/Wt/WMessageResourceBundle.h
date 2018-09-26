@@ -170,7 +170,7 @@ public:
 #endif // WT_TARGET_JAVA
 
 private:
-  std::vector<std::unique_ptr<WMessageResources>> messageResources_;
+  std::vector<std::unique_ptr<WMessageResources> > messageResources_;
 };
 
 }

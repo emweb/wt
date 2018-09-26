@@ -12,6 +12,8 @@ namespace Wt {
   namespace Pdf {
 #ifdef WT_TARGET_JAVA	
     class PdfUtils {
+    private:
+      PdfUtils() { }
     };
 #endif //WT_TARGET_JAVA
 

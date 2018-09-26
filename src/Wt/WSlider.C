@@ -251,8 +251,13 @@ void PaintedSlider::updateState()
 	       <<     "var f = objb.onValueChange;"
 	       <<     "if (f) f(vs);";
 
-  if (slider_->sliderMoved().needsUpdate(true))
+  if (slider_->sliderMoved().needsUpdate(true)) {
+#ifndef WT_TARGET_JAVA
     mouseMovedJS << slider_->sliderMoved().createCall({"vs"});
+#else
+    mouseMovedJS << slider_->sliderMoved().createCall("vs");
+#endif
+  }
 
   mouseMovedJS <<   "}"
 	       << "}";
@@ -263,7 +268,11 @@ void PaintedSlider::updateState()
 	    << "if (down != null && down != '') {"
 	    <<    computeD.str()
 	    <<   "d += " << (slider_->handleWidth() / 2) << ";"
+#ifndef WT_TARGET_JAVA
 	    <<    sliderReleased_.createCall({"Math.round(d)"})
+#else
+	    <<    sliderReleased_.createCall("Math.round(d)")
+#endif
 	    <<   "obj.removeAttribute('down');"
 	    << "}";
 
@@ -378,7 +387,17 @@ void PaintedSlider::updateSliderPosition()
 }
 
 WSlider::WSlider()
-  : WSlider(Orientation::Horizontal)
+  : orientation_(Orientation::Horizontal),
+    tickInterval_(0),
+    tickPosition_(None),
+    preferNative_(false),
+    changed_(false),
+    changedConnected_(false),
+    handleWidth_(20),
+    minimum_(0),
+    maximum_(99),
+    value_(0),
+    sliderMoved_(this, "moved", true)
 { 
   resize(150, 50);
 }

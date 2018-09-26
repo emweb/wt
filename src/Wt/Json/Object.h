@@ -59,7 +59,7 @@ public:
 
   /*! \brief Initializer list constructor.
    */
-  Object(std::initializer_list<std::pair<const std::string,Value>> list);
+  Object(std::initializer_list<std::pair<const std::string,Value> > list);
 
   /*! \brief Move assignment operator.
    */

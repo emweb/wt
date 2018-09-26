@@ -134,7 +134,11 @@ public:
         "function load() { "
         """if (window.opener." << appJs << ") {"
         ""  "var " << appJs << "= window.opener." << appJs << ";"
+#ifndef WT_TARGET_JAVA
         <<  process_->redirected_.createCall({}) << ";"
+#else // WT_TARGET_JAVA
+        <<  process_->redirected_.createCall() << ";"
+#endif // WT_TARGET_JAVA
         ""  "window.close();"
         "}\n"
         "}\n"
@@ -324,7 +328,7 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
      << "&code=" << authorizationCode;
 
   httpClient_.reset(new Http::Client());
-  httpClient_->setTimeout(std::chrono::seconds{15});
+  httpClient_->setTimeout(std::chrono::seconds(15));
   httpClient_->done().connect
     (this, std::bind(&OAuthProcess::handleToken, this,
 		     std::placeholders::_1, std::placeholders::_2));
@@ -682,7 +686,7 @@ void OAuthService::configureRedirectEndpoint() const
     std::unique_lock<std::mutex> guard(impl_->mutex_);
 #endif
     if (!impl_->redirectResource_) {
-      auto r = Wt::cpp14::make_unique<Impl::RedirectEndpoint>(*this);
+      auto r = std::unique_ptr<Impl::RedirectEndpoint>(new Impl::RedirectEndpoint(*this));
       std::string path = redirectEndpointPath();
 
       LOG_INFO("deploying endpoint at " << path);
