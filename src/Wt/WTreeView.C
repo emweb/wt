@@ -2600,7 +2600,6 @@ int WTreeView::pruneNodes(WTreeViewNode *node, int nodeRow)
 	node->addTopSpacerHeight(c->renderedHeight());
 	nodeRow += c->renderedHeight();
 	c->removeFromParent();
-	c = nullptr;
       } else {
 	nodeRow = pruneNodes(c, nodeRow);
 	break;
@@ -2632,7 +2631,6 @@ int WTreeView::pruneNodes(WTreeViewNode *node, int nodeRow)
 	  if (c) {
 	    prunedHeight += c->renderedHeight();
 	    c->removeFromParent();
-	    c = nullptr;
 	  }
 	}
 
