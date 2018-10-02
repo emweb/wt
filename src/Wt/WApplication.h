@@ -1936,8 +1936,6 @@ public:
    */
   void setConfirmCloseMessage(const WString& message);
 
-  /*! \brief Sets the message for the user when the application was .
-   */
   void enableInternalPaths();
 
   // should we move this into an InternalPaths utility class / namespace ?
