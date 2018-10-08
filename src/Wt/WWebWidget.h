@@ -302,7 +302,7 @@ protected:
   typedef std::function<void (WWidget *)> HandleWidgetMethod;
 #endif
 
-  void repaint(WFlags<RepaintFlag> flags = None);
+  void repaint(WFlags<RepaintFlag> flags = WFlags<RepaintFlag>());
 
   virtual void iterateChildren(const HandleWidgetMethod& method) const;
   virtual void getFormObjects(FormObjectsMap& formObjects);
@@ -326,10 +326,15 @@ protected:
   void widgetAdded(WWidget *child);
   void widgetRemoved(WWidget *child, bool renderRemove);
 
+#ifndef WT_TARGET_JAVA
   template <class Widget>
   std::unique_ptr<WWidget> manageWidget(std::unique_ptr<Widget>& managed,
 					std::unique_ptr<Widget> w)
-#ifndef WT_TARGET_JAVA
+#else // WT_TARGET_JAVA
+  std::unique_ptr<WWidget> manageWidget(std::unique_ptr<WWidget> managed, std::unique_ptr<WWidget> w);
+  std::unique_ptr<WWidget> manageWidgetImpl(std::unique_ptr<WWidget> managed,
+                                            std::unique_ptr<WWidget> w)
+#endif // WT_TARGET_JAVA
   {
     if (managed)
       widgetRemoved(managed.get(), true);
@@ -339,9 +344,6 @@ protected:
       widgetAdded(managed.get());
     return result;
   }
-#else // WT_TARGET_JAVA
-  ;
-#endif // WT_TARGET_JAVA
 
   virtual void render(WFlags<RenderFlag> flags) override;
 

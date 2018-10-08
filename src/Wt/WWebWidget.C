@@ -86,7 +86,7 @@ WWebWidget::TransientImpl::~TransientImpl()
 WWebWidget::LayoutImpl::LayoutImpl()
   : positionScheme_(PositionScheme::Static),
     floatSide_(static_cast<Side>(0)),
-    clearSides_(None),
+    clearSides_(),
     minimumWidth_(0),
     minimumHeight_(0),
     baseZIndex_(DEFAULT_BASE_Z_INDEX),
@@ -243,8 +243,10 @@ WWebWidget::~WWebWidget()
 {
   beingDeleted();
   std::unique_ptr<WWidget> unique_this = removeFromParent();
+#ifndef WT_TARGET_JAVA
   // removeFromParent should always return a nullptr if it is called in the destructor!
   assert(unique_this == nullptr);
+#endif // WT_TARGET_JAVA
 }
 
 WCssDecorationStyle& WWebWidget::decorationStyle()
@@ -508,7 +510,7 @@ WFlags<Side> WWebWidget::clearSides() const
   if (layoutImpl_)
     return layoutImpl_->clearSides_;
   else
-    return WFlags<Side>(None);
+    return WFlags<Side>();
 }
 
 void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,

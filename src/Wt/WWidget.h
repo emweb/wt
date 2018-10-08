@@ -1271,7 +1271,7 @@ protected:
    *
    * \sa render()
    */
-  void scheduleRender(WFlags<RepaintFlag> flags = None);
+  void scheduleRender(WFlags<RepaintFlag> flags = WFlags<RepaintFlag>());
 
   /*! \brief Renders the widget.
    *
@@ -1299,7 +1299,7 @@ protected:
   virtual WStatelessSlot *getStateless(Method method) override;
 
   void renderOk();
-  void scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags = None);
+  void scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags = WFlags<RepaintFlag>());
   bool needRerender() const { return flags_.test(BIT_NEED_RERENDER); }
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,

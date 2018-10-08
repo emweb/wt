@@ -414,6 +414,7 @@ public:
    */
   WSslInfo *sslInfo() const;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Get the value for the given URL parameter
    *
    * Example:
@@ -431,6 +432,7 @@ public:
    * \sa urlParam()
    */
   const std::vector<std::pair<std::string, std::string> > &urlParams() const;
+#endif // WT_TARGET_JAVA
 
   static ByteRangeSpecifier getRanges(const std::string &header,
 				      ::int64_t filesize);
