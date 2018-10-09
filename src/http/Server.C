@@ -37,6 +37,11 @@ typedef std::chrono::seconds asio_timer_seconds;
 typedef boost::posix_time::seconds asio_timer_seconds;
 #endif
 
+#ifndef WT_WIN32
+#include <unistd.h>
+#include <fcntl.h>
+#endif // WT_WIN32
+
 namespace {
   std::string bindError(asio::ip::tcp::endpoint ep, 
 			boost::system::system_error e) {
@@ -60,6 +65,18 @@ namespace {
 #endif //BOOST_VERSION >= 104700
   }
 #endif //HTTP_WITH_SSL
+
+#ifndef WT_WIN32
+  template<typename Acceptor>
+  int nativeHandle(Acceptor &acceptor)
+  {
+#if BOOST_VERSION >= 104700
+    return acceptor.native_handle();
+#else // BOOST_VERSION < 104700
+    return acceptor.native();
+#endif // BOOST_VERSION >= 104700
+  }
+#endif // WT_WIN32
 
   // The interval to run WebController::expireSessions()
   static const int SESSION_EXPIRE_INTERVAL = 5;
@@ -168,6 +185,12 @@ void Server::start()
 
     tcp_acceptor_.open(tcp_endpoint.protocol());
     tcp_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+
+#ifndef WT_WIN32
+    // Patch by Thales, make sure socket close after fork/exec.
+    fcntl(nativeHandle(tcp_acceptor_), F_SETFD, fcntl(nativeHandle(tcp_acceptor_), F_GETFD) | FD_CLOEXEC);
+#endif // WT_WIN32
+
     try {
       tcp_acceptor_.bind(tcp_endpoint);
     } catch (boost::system::system_error e) {
@@ -261,6 +284,12 @@ void Server::start()
 
     ssl_acceptor_.open(ssl_endpoint.protocol());
     ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+
+#ifndef WT_WIN32
+    // Patch by Thales, make sure socket close after fork/exec.
+    fcntl(nativeHandle(ssl_acceptor_), F_SETFD, fcntl(nativeHandle(ssl_acceptor_), F_GETFD) | FD_CLOEXEC);
+#endif // WT_WIN32
+
     try {
       ssl_acceptor_.bind(ssl_endpoint);
     } catch (boost::system::system_error e) {
