@@ -672,7 +672,7 @@ public:
    */
   void setZoomRange(double minimum, double maximum);
 
-  /*! \brief Method::Get the zoom range minimum for this axis.
+  /*! \brief Get the zoom range minimum for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -680,7 +680,7 @@ public:
    */
   double zoomMinimum() const;
 
-  /*! \brief Method::Get the zoom range maximum for this axis.
+  /*! \brief Get the zoom range maximum for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -706,7 +706,7 @@ public:
    */
   void setZoom(double zoom);
 
-  /*! \brief Method::Get the zoom level for this axis.
+  /*! \brief Get the zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -725,7 +725,7 @@ public:
    */
   void setMaxZoom(double maxZoom);
 
-  /*! \brief Method::Get the maximum zoom level for this axis.
+  /*! \brief Get the maximum zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -744,7 +744,7 @@ public:
    */
   void setMinimumZoomRange(double size);
 
-  /*! \brief Method::Get the minimum zoom range for this axis.
+  /*! \brief Get the minimum zoom range for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -810,7 +810,7 @@ public:
    */
   void setPan(double pan);
 
-  /*! \brief Method::Get the value to pan to for this axis, when pan is enabled on the chart.
+  /*! \brief Get the value to pan to for this axis, when pan is enabled on the chart.
    *
    * Only applies to a WCartesianChart in interactive mode.
    *
@@ -927,7 +927,7 @@ public:
    */
   void setInverted(bool inverted = true);
 
-  /*! \brief Method::Get whether this axis is inverted.
+  /*! \brief Get whether this axis is inverted.
    *
    * \sa setInverted()
    */
@@ -987,7 +987,7 @@ public:
    */
   void setLabelTransform(const LabelTransform& transform, AxisValue side);
 
-  /*! \brief Method::Get the label transform configured for the given side.
+  /*! \brief Get the label transform configured for the given side.
    *
    * If no transform is configured for the given side, the identity
    * function is returned.

@@ -16,7 +16,7 @@ namespace {
   using namespace Wt;
 
   /*
-   * Method::Get the ancestors of n as a list, starting from the tree root,
+   * Get the ancestors of n as a list, starting from the tree root,
    * and including n.
    *
    * Returns false if node n is currently not visible because one of its

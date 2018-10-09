@@ -184,7 +184,7 @@ public:
 #endif
   virtual DomElement *createDomElement(WApplication *app);
 #ifdef WT_TARGET_JAVA
-  /*! \brief Method::Get DOM changes for this widget
+  /*! \brief Get DOM changes for this widget
    *
    * This is an internal function, and should not be called directly,
    * or be overridden!

@@ -457,7 +457,7 @@ double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation)
 
   std::vector<TickLabel> ticks;
 
-  // Method::Get all the ticks for the axis
+  // Get all the ticks for the axis
   for(int i = 0; i< segmentCount(); ++i) {
     AxisConfig cfg;
     cfg.zoomLevel = 1;

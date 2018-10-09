@@ -157,7 +157,7 @@ public:
       value_->clientBinding_->context_->dirty_[id_] = true;
   }
 
-  /*! \brief Method::Get the value for this handle.
+  /*! \brief Get the value for this handle.
    *
    * \warning You should not modify this value or any copy of it on the server side,
    *	      because this will not be synced to the client side. Use setValue() instead.

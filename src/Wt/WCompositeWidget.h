@@ -224,7 +224,7 @@ protected:
   W *setNewImplementation(Arg1, Arg2, Arg3);
 #endif // WT_TARGET_JAVA
  
-  /*! \brief Method::Get the implementation widget
+  /*! \brief Get the implementation widget
    *
    * This returns the widget that implements this compositeWidget.
    */
