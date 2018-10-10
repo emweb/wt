@@ -187,7 +187,6 @@ void Server::start()
     tcp_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 
 #ifndef WT_WIN32
-    // Patch by Thales, make sure socket close after fork/exec.
     fcntl(nativeHandle(tcp_acceptor_), F_SETFD, fcntl(nativeHandle(tcp_acceptor_), F_GETFD) | FD_CLOEXEC);
 #endif // WT_WIN32
 
@@ -286,7 +285,6 @@ void Server::start()
     ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 
 #ifndef WT_WIN32
-    // Patch by Thales, make sure socket close after fork/exec.
     fcntl(nativeHandle(ssl_acceptor_), F_SETFD, fcntl(nativeHandle(ssl_acceptor_), F_GETFD) | FD_CLOEXEC);
 #endif // WT_WIN32
 
