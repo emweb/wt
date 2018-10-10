@@ -396,7 +396,6 @@ void Server::addTcpEndpoint(const asio::ip::tcp::endpoint &endpoint,
   tcp_acceptor.open(endpoint.protocol());
   tcp_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 #ifndef WT_WIN32
-  // Patch by Thales, make sure socket close after fork/exec.
   fcntl(tcp_acceptor.native_handle(), F_SETFD, fcntl(tcp_acceptor.native_handle(), F_GETFD) | FD_CLOEXEC);
 #endif // WT_WIN32
   tcp_acceptor.bind(endpoint, errc);
@@ -454,7 +453,6 @@ void Server::addSslEndpoint(const asio::ip::tcp::endpoint &endpoint,
   ssl_acceptor.open(endpoint.protocol());
   ssl_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 #ifndef WT_WIN32
-  // Patch by Thales, make sure socket close after fork/exec.
   fcntl(tcp_acceptor.native_handle(), F_SETFD, fcntl(tcp_acceptor.native_handle(), F_GETFD) | FD_CLOEXEC);
 #endif // WT_WIN32
   ssl_acceptor.bind(endpoint, errc);
