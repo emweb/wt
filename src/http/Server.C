@@ -453,7 +453,7 @@ void Server::addSslEndpoint(const asio::ip::tcp::endpoint &endpoint,
   ssl_acceptor.open(endpoint.protocol());
   ssl_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 #ifndef WT_WIN32
-  fcntl(tcp_acceptor.native_handle(), F_SETFD, fcntl(tcp_acceptor.native_handle(), F_GETFD) | FD_CLOEXEC);
+  fcntl(ssl_acceptor.native_handle(), F_SETFD, fcntl(ssl_acceptor.native_handle(), F_GETFD) | FD_CLOEXEC);
 #endif // WT_WIN32
   ssl_acceptor.bind(endpoint, errc);
   if (!errc) {
