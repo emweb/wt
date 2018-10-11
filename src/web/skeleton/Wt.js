@@ -1839,6 +1839,11 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
    */
   if (!w.wtNoReparent && !$(w).hasClass("wt-no-reparent")) {
     var p, pp = atw, domRoot = $('.Wt-domRoot').get(0);
+    // Save all the jquery data as this will be deleted when the child is removed
+    // Widgets like WSuggestionPopup and WDateEdit store data in the nodes themselves
+    var tmp = null;
+    if (jQuery.hasData(w))
+        tmp = jQuery.data(w);
     w.parentNode.removeChild(w);
   
     for (p = pp.parentNode; p != domRoot; p = p.parentNode) {
@@ -1870,6 +1875,10 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
     
     p.appendChild(w);
     $(w).addClass('wt-reparented');
+    // Put any data back into the new child so that WSuggestionPopup and
+    // similar widgets will still work
+    if (tmp != null)
+      jQuery.data($('#' + w.id)[0], tmp);
   }
 
   WT.fitToWindow(w, x, y, rightx, bottomy);
