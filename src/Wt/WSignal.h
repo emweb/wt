@@ -23,7 +23,7 @@ class SlotLearnerInterface;
 class WStatelessSlot;
 class JavaScriptEvent;
 
-struct NoClass
+struct WT_API NoClass
 {
   NoClass() { }
   NoClass(const JavaScriptEvent&) { }
