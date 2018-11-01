@@ -32,9 +32,9 @@ IF(CONNECTOR_ISAPI)
           wtisapi
         PROPERTIES
           COMPILE_FLAGS "${BUILD_PARALLEL} /wd4267 /wd4251 /wd4275"
-          COMPILE_PDB_NAME "wtisapi"
-          COMPILE_PDB_NAME_DEBUG "wtisapi${DEBUG_LIB_POSTFIX}"
       )
+
+      SetupAndInstallPdb(wtisapi)
     ENDIF(MSVC)
 
     INSTALL(TARGETS wtisapi

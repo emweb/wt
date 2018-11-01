@@ -36,6 +36,10 @@ IF(CONNECTOR_FCGI)
       DEBUG_POSTFIX ${DEBUG_LIB_POSTFIX}
     )
 
+    IF(MSVC)
+      SetupAndInstallPdb(wtfcgi)
+    ENDIF(MSVC)
+
     INSTALL(TARGETS wtfcgi
       EXPORT wt-target-fcgi
       RUNTIME DESTINATION bin
@@ -45,6 +49,7 @@ IF(CONNECTOR_FCGI)
     INSTALL(EXPORT wt-target-fcgi
             DESTINATION ${CMAKE_INSTALL_DIR}/wt
             NAMESPACE Wt::)
+
 
   ENDIF(NOT FCGI_FOUND)
 ELSE(CONNECTOR_FCGI)

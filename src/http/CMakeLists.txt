@@ -125,6 +125,7 @@ IF(CONNECTOR_HTTP)
       PROPERTIES
         COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4355 /wd4800 /wd4996 /wd4101 /wd4267 /wd4267"
     )
+    SetupAndInstallPdb(wthttp)
   ENDIF(MSVC)
 
   ADD_DEPENDENCIES(wthttp wt ${EXAMPLES_CONNECTOR})

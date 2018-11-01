@@ -91,7 +91,8 @@ IF(ENABLE_SQLITE)
     PROPERTIES
       COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4267"
     )
-	SET_TARGET_PROPERTIES(wtdbosqlite3 PROPERTIES FOLDER "dbo")
+    SetupAndInstallPdb(wtdbosqlite3)
+    SET_TARGET_PROPERTIES(wtdbosqlite3 PROPERTIES FOLDER "dbo")
   ENDIF(MSVC)
 
   IF(INSTALL_EXTENSIONLESS_HEADERS)
@@ -144,6 +145,10 @@ IF(ENABLE_POSTGRES AND POSTGRES_FOUND)
   INSTALL(EXPORT wt-target-dbopostgres
           DESTINATION ${CMAKE_INSTALL_DIR}/wt
           NAMESPACE Wt::)
+
+  IF(MSVC)
+    SetupAndInstallPdb(wtdbopostgres)
+  ENDIF(MSVC)
 
   SET_TARGET_PROPERTIES(
     wtdbopostgres
@@ -232,6 +237,10 @@ IF(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
+  IF(MSVC)
+    SetupAndInstallPdb(wtdbofirebird)
+  ENDIF(MSVC)
+
   INSTALL(EXPORT wt-target-dbofirebird
           DESTINATION ${CMAKE_INSTALL_DIR}/wt
           NAMESPACE Wt::)
@@ -312,6 +321,8 @@ IF(ENABLE_MYSQL AND MYSQL_FOUND)
   ENDIF(INSTALL_EXTENSIONLESS_HEADERS)
   INSTALL_FILES(/include/Wt/Dbo/backend "^.*MySQL.*h$")
   IF(MSVC)
+    SetupAndInstallPdb(wtdbomysql)
+
     SET_TARGET_PROPERTIES(wtdbomysql PROPERTIES FOLDER "dbo")
   ENDIF(MSVC)
 ELSE(ENABLE_MYSQL AND MYSQL_FOUND)
@@ -379,6 +390,7 @@ IF(ENABLE_MSSQLSERVER AND ODBC_FOUND)
     PROPERTIES
       COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4267"
     )
+    SetupAndInstallPdb(wtdbomssqlserver)
     SET_TARGET_PROPERTIES(wtdbomssqlserver PROPERTIES FOLDER "dbo")
   endif(MSVC)
 
