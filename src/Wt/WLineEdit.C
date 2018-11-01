@@ -47,6 +47,8 @@ WLineEdit::WLineEdit(const WT_USTRING& text)
     spaceChar_(' '),
     javaScriptDefined_(false)
 {
+  setInline(true);
+  setFormObject(true);
   setText(text);
 }
 
