@@ -1,9 +1,9 @@
-﻿A hands-on introduction to Wt::Dbo
+A hands-on introduction to Wt::Dbo
 ==================================
 
 Koen Deforche <koen@emweb.be> +
 
-For Wt 3.2.0 (July 14 2011)
+For Wt 3.3.12 (December 2018)
 
 :doc:           link:../reference/html/
 :cpp:		pass:[C++]
@@ -409,26 +409,6 @@ select count(1) from "user"
 select id, version, "name", "password", "role", "karma" from "user"
 ----
 
-[WARNING]
-===============================
-A query uses a prepared statement to execute, and prepares a new
-statement if no statement was yet prepared for that query. Because a
-prepared statement is not reentrant and at the same time a
-query will use an existing statement if one exists, you need to be
-careful to not have two collections with the same statement busy at
-the same time. Thus while iterating the results of a query you cannot
-use that same query again. Therefore it may be necessary to copy the
-results into a standard container (such as +std::vector+) before
-iterating them. Since Wt 3.1.3, concurrent use will be detected and
-an exception will be thrown saying:
-
- A collection for '...' is already in use. Reentrant statement use is
- not yet implemented.
-
-We plan to remove this restriction in later versions, cloning
-prepared statements as necessary.
-===============================
-
 == Updating objects
 
 Unlike most other smart pointers, +ptr<Dbo>+ is read-only by
@@ -602,21 +582,6 @@ std::cerr << "Joe has " << joe->posts.size() << " post(s)." << std::endl;
 
 As you can see, as soon as _joe_ is set as _user_ for the new post, the
 post is reflected in the _posts_ collection of _joe_, and vice-versa.
-
-[WARNING]
-===============================
-The collection uses a prepared statement to execute. Collections will
-try to share a single prepared statement, but prepared statements are
-not reentrant. As a result, you need to be careful to not have
-two collections with the same statement busy at the same time. Thus
-while iterating a collection, you need to be sure you will not
-reentrantly iterate the same collection (of the same or another
-object). Therefore it may be necessary to copy the results into a
-standard container (such as +std::vector+) before iterating them.
-
-We plan to remove this restriction in later versions, cloning
-prepared statements as necessary.
-===============================
 
 === _Many-to-Many_ relations
 
