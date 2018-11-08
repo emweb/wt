@@ -1074,6 +1074,7 @@ enum class MediaReadyState {
   HaveEnoughData = 4   //!< Enough to reach the end without stalling
 };
 
+#ifndef WT_TARGET_JAVA
 /*! \brief Enumeration that indicates a regular expression option.
  */
 enum class RegExpFlag {
@@ -1081,6 +1082,7 @@ enum class RegExpFlag {
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RegExpFlag)
+#endif // WT_TARGET_JAVA
 
 }
 

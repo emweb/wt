@@ -250,9 +250,15 @@ public:
    *
    * \sa addWidget(WWidget *, int, int, int, int, WFlags<AlignmentFlag>) 
    */
+#ifndef WT_TARGET_JAVA
   void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
                  WFlags<AlignmentFlag> alignment);
+#else // WT_TARGET_JAVA
+  void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
+                 WFlags<AlignmentFlag> alignment = None);
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Adds a widget to the grid, returning a raw pointer to the widget.
    *
    * This is implemented as:
@@ -263,7 +269,6 @@ public:
    * return result;
    * \endcode
    */
-#ifndef WT_TARGET_JAVA
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
                       WFlags<AlignmentFlag> alignment = None)
@@ -272,9 +277,6 @@ public:
     addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column, alignment);
     return result;
   }
-#else // WT_TARGET_JAVA
-  template <typename Widget>
-    Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Adds a widget to the grid.
@@ -296,10 +298,17 @@ public:
    *
    * \sa addWidget(WWidget *, int, int, WFlags<AlignmentFlag>)
    */
+#ifndef WT_TARGET_JAVA
   void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
 		 int rowSpan, int columnSpan,
 		 WFlags<AlignmentFlag> alignment);
+#else // WT_TARGET_JAVA
+  void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
+		 int rowSpan, int columnSpan,
+		 WFlags<AlignmentFlag> alignment = None);
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Adds a widget to the grid, returning a raw pointer to the widget.
    *
    * This is implemented as:
@@ -311,7 +320,6 @@ public:
    * return result;
    * \endcode
    */
-#ifndef WT_TARGET_JAVA
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
                       int rowSpan, int columnSpan,
@@ -322,10 +330,6 @@ public:
               rowSpan, columnSpan, alignment);
     return result;
   }
-#else // WT_TARGET_JAVA
-  template <typename Widget>
-    Widget *addWidget(std::unique_ptr<Widget> widget, int row, int column,
-                      int rowSpan, int columnSpan);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Sets the horizontal spacing.
@@ -450,7 +454,6 @@ public:
    */
   bool rowIsResizable(int row) const;
 
-protected:
   virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
 
 private:

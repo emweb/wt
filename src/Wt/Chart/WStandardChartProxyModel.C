@@ -80,7 +80,7 @@ WLink *WStandardChartProxyModel::link(int row, int column) const
 }
 
 
-const WColor *WStandardChartProxyModel::color(int row, int column, int colorDataRole) const
+const WColor *WStandardChartProxyModel::color(int row, int column, ItemDataRole colorDataRole) const
 {
   cpp17::any result = sourceModel_->data(row, column, colorDataRole);
 

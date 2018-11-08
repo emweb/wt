@@ -145,6 +145,7 @@ public:
     return role_ < rhs.role_;
   }
 
+#ifndef WT_TARGET_JAVA
   static constexpr const int Display = 0;       //!< Role for textual representation
   static constexpr const int Decoration = 1;    //!< Role for the url of an icon
   static constexpr const int Edit = 2;          //!< Role for the edited value
@@ -169,6 +170,23 @@ public:
   static constexpr const int BarBrushColor = 19; //!< Bar brush color (for Chart::WCartesianChart)
 
   static constexpr const int User = 32;           //!< First role reserved for user purposes
+#else // WT_TARGET_JAVA
+  static const ItemDataRole Display;
+  static const ItemDataRole Decoration;
+  static const ItemDataRole Edit;
+  static const ItemDataRole StyleClass;
+  static const ItemDataRole Checked;
+  static const ItemDataRole ToolTip;
+  static const ItemDataRole Link;
+  static const ItemDataRole MimeType;
+  static const ItemDataRole Level;
+  static const ItemDataRole MarkerPenColor;
+  static const ItemDataRole MarkerBrushColor;
+  static const ItemDataRole MarkerScaleFactor;
+  static const ItemDataRole BarPenColor;
+  static const ItemDataRole BarBrushColor;
+  static const ItemDataRole User;
+#endif
 
 private:
   int role_;

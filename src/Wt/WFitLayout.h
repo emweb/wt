@@ -35,8 +35,9 @@ public:
   virtual int indexOf(WLayoutItem *item) const override;
   virtual int count() const override;
 
-protected:
   virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
+
+protected:
   virtual void updateImplementation() override;
 
 private:

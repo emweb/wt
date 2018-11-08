@@ -800,7 +800,7 @@ WColor Block::rawCssBorderColor(Side side) const
   if (!borderColorStr.empty())
     return WColor(WString::fromUTF8(borderColorStr));
 
-  return StandardColor::Black;
+  return WColor(StandardColor::Black);
 }
 
 WColor Block::cssColor() const
@@ -810,7 +810,7 @@ WColor Block::cssColor() const
   if (!color.empty())
     return WColor(WString::fromUTF8(color));
   else
-    return StandardColor::Black;
+    return WColor(StandardColor::Black);
 }
 
 double Block::cssBoxMargin(Side side, double fontScale) const

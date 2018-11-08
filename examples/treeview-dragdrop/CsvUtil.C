@@ -18,7 +18,7 @@ public:
     return std::unique_ptr<NumericItem>(cpp14::make_unique<NumericItem>());
   }
 
-  virtual void setData(const cpp17::any &data, int role = ItemDataRole::User) {
+  virtual void setData(const cpp17::any &data, ItemDataRole role = ItemDataRole::User) {
     cpp17::any dt;
 
     if (role == ItemDataRole::Edit) {

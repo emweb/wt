@@ -192,9 +192,10 @@ void WTemplate::clear()
 {
   // Widgets should be orphaned before they are deleted, because
   // when WWebWidget calls removeFromParent(), the parent should be null.
-  for (auto& i : widgets_) {
-      if(i.second)
-        widgetRemoved(i.second.get(), false);
+  for (WidgetMap::iterator it = widgets_.begin(); it != widgets_.end(); ++it) {
+    WWidget *w = it->second.get();
+    if (w)
+      widgetRemoved(w, false);
   }
 
   widgets_.clear();
@@ -238,21 +239,22 @@ bool WTemplate::conditionValue(const std::string& name) const
 
 std::unique_ptr<WWidget> WTemplate::removeWidget(WWidget *widget)
 {
-  for (auto& i : widgets_)
-    if (i.second.get() == widget)
-      return removeWidget(i.first);
-
-  return std::unique_ptr<WWidget>();
+  const std::string *k = Utils::keyForUniquePtrValue(widgets_, widget);
+  if (k)
+    return removeWidget(*k);
+  else
+    return std::unique_ptr<WWidget>();
 }
 
 void WTemplate::iterateChildren(const HandleWidgetMethod& method) const
 {
-  for (auto& i : widgets_) {
-    if (i.second)
+  for (WidgetMap::const_iterator it = widgets_.begin(); it != widgets_.end(); ++it) {
+    WWidget *w = it->second.get();
+    if (w)
 #ifndef WT_TARGET_JAVA
-      method(i.second.get());
+      method(w);
 #else
-      method.handle(i.second.get());
+      method.handle(w);
 #endif
   }
 }
@@ -282,7 +284,13 @@ void WTemplate::bindWidget(const std::string& varName,
   }
 
   removeWidget(varName);
+#ifndef WT_TARGET_JAVA
   manageWidget(widgets_[varName], std::move(widget));
+#else // WT_TARGET_JAVA
+  std::unique_ptr<WWidget> oldWidget = widgets_[varName];
+  widgets_[varName] = widget;
+  manageWidgetImpl(oldWidget, widget);
+#endif // WT_TARGET_JAVA
 
   changed_ = true;
   repaint(RepaintFlag::SizeAffected);  
@@ -567,10 +575,17 @@ bool WTemplate::renderTemplateText(std::ostream& result, const WString& template
   errorText_ = "";
 
   std::string text;
+#ifndef WT_TARGET_JAVA
   if (encodeTemplateText_)
     text = encode(templateText.toXhtmlUTF8());
   else
     text = templateText.toXhtmlUTF8();
+#else // WT_TARGET_JAVA
+  if (encodeTemplateText_)
+    text = encode(WString(templateText).toXhtmlUTF8());
+  else
+    text = WString(templateText).toXhtmlUTF8();
+#endif
 
   std::size_t lastPos = 0;
   std::vector<WString> args;

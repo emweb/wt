@@ -1051,8 +1051,7 @@ void WAbstractItemView::saveExtraHeaderWidgets()
   for (int i = 0; i < columnCount(); ++i) {
     WWidget *w = columnInfo(i).extraHeaderWidget.get();
     if (w && w->parent()) {
-      auto p = w->parent()->removeWidget(w);
-      p.release();
+      w->parent()->removeWidget(w).release();
     }
   }
 }

@@ -131,7 +131,6 @@ public:
    */
   LayoutPosition position(WLayoutItem *item) const;
 
-protected:
   virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
 
 private:

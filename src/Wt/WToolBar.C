@@ -19,7 +19,7 @@ WToolBar::WToolBar()
     compact_(true),
     lastGroup_(nullptr)
 {
-  impl_ = setNewImplementation<WContainerWidget>();
+  setImplementation(std::unique_ptr<WContainerWidget>(impl_ = new WContainerWidget()));
   setStyleClass("btn-group");
 }
 

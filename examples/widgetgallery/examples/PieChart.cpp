@@ -21,7 +21,7 @@ namespace {
             return cpp14::make_unique<NumericItem>();
 	}
 
-        virtual void setData(const cpp17::any &data, int role = ItemDataRole::User) {
+        virtual void setData(const cpp17::any &data, ItemDataRole role = ItemDataRole::User) {
     if (role == ItemDataRole::Edit) {
       cpp17::any dt;
 

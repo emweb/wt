@@ -997,7 +997,7 @@ void WTableView::rerenderData()
       for (int j = firstColumn(); j <= lastColumn(); ++j) {
 	int renderedCol = j - firstColumn();
 
-	WModelIndex index = model()->index(i, j, rootIndex());
+	const WModelIndex index = model()->index(i, j, rootIndex());
 	std::unique_ptr<WWidget> w = renderWidget(nullptr, index);
 	WTableCell *cell = plainTable_->elementAt
 	  (renderedRow + 1, renderedCol);

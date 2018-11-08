@@ -152,6 +152,20 @@ inline std::unique_ptr<T> take(std::vector<std::unique_ptr<T> >& v,
 }
 
 template<typename K, typename V>
+inline const K * keyForUniquePtrValue(const std::map<K, std::unique_ptr<V> >& m, const V *v)
+#ifndef WT_TARGET_JAVA
+{
+  for (auto& i : m)
+    if (i.second.get() == v)
+      return &i.first;
+
+  return nullptr;
+}
+#else // WT_TARGET_JAVA
+;
+#endif
+
+template<typename K, typename V>
 void eraseAndNext(std::map<K, V>& m, typename std::map<K, V>::iterator& i)
 {
 #ifndef WT_TARGET_JAVA

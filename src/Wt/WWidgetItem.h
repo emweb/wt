@@ -41,7 +41,6 @@ public:
 
   std::unique_ptr<WWidget> takeWidget();
 
-protected:
   virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
 
 private:

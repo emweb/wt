@@ -161,7 +161,11 @@ double WTextRenderer::textHeight(int page) const
 
 double WTextRenderer::render(const WString& text, double y)
 {
+#ifndef WT_TARGET_JAVA
   std::string xhtml = text.toXhtmlUTF8();
+#else
+  std::string xhtml = WString(text).toXhtmlUTF8();
+#endif
 
 #ifndef WT_TARGET_JAVA
   unsigned l = xhtml.length();

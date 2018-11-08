@@ -125,7 +125,6 @@ public:
    */
   int ZSeriesColumn() const { return ZSeriesColumn_; }
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Configure a column in the model to be used for the color of the 
    * points.
    *
@@ -149,10 +148,6 @@ public:
    * /sa setZSeriesColumn()
    */
   void setSizeColumn(int columnNumber, ItemDataRole role = ItemDataRole::Display);
-#else
-  void setColorColumn(int columnNumber, int role = ItemDataRole::Display); 
-  void setSizeColumn(int columnNumber, int role = ItemDataRole::Display);
-#endif
 
   /*! \brief Pick points on this WScatterData using a single pixel.
    *
@@ -201,13 +196,8 @@ private:
   int ZSeriesColumn_;
 
   int colorColumn_;
-#ifndef WT_TARGET_JAVA
   ItemDataRole asColorRole_;
   ItemDataRole asSizeRole_;
-#else
-  int asColorRole_;
-  int asSizeRole_;
-#endif
   int sizeColumn_;
 
   bool droplinesEnabled_;

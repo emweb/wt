@@ -8,7 +8,11 @@ public:
     /*
      * A custom role for the file contents of a Git BLOB object.
      */
+#ifndef WT_TARGET_JAVA
     static constexpr Wt::ItemDataRole ContentsRole = Wt::ItemDataRole::User + 1;
+#else
+    static constexpr Wt::ItemDataRole ContentsRole = Wt::ItemDataRole::User.value() + 1;
+#endif
 
     GitModel(const std::string& repository)
         : WAbstractItemModel()

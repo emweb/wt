@@ -27,14 +27,13 @@ public:
 
   virtual Wt::cpp17::any data(const Wt::WModelIndex& index, Wt::ItemDataRole role = Wt::ItemDataRole::Display) const
   {
-    switch (role.value()) {
-    case Wt::ItemDataRole::Display:
+    if (role == Wt::ItemDataRole::Display) {
       if (index.column() == 0)
         return Wt::WString("Row {1}").arg(index.row());
       else
         return Wt::WString("Item row {1}, col {2}")
 	  .arg(index.row()).arg(index.column());
-    default:
+    } else {
       return Wt::cpp17::any();
     }
   }
@@ -44,10 +43,9 @@ public:
                                 Wt::ItemDataRole role = Wt::ItemDataRole::Display) const
   {
     if (orientation == Wt::Orientation::Horizontal) {
-      switch (role.value()) {
-      case Wt::ItemDataRole::Display:
+      if (role == Wt::ItemDataRole::Display) {
         return Wt::WString("Column {1}").arg(section);
-      default:
+      } else {
         return Wt::cpp17::any();
       }
     } else

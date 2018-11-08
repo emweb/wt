@@ -29,7 +29,7 @@ WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
     currentX_(0),
     currentY_(0)
 {
-  impl_ = setNewImplementation<WContainerWidget>();
+  setImplementation(std::unique_ptr<WContainerWidget>(impl_ = new WContainerWidget()));
 
   impl_->resize(viewPortWidth_, viewPortHeight_);
   impl_->setPositionScheme(PositionScheme::Relative);

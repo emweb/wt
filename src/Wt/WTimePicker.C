@@ -27,7 +27,8 @@ WTimePicker::WTimePicker(WTimeEdit *timeEdit)
 
 void WTimePicker::init(const WTime &time)
 {
-    WTemplate *container = setImplementation(std::unique_ptr<WTemplate>(new WTemplate()));
+    WTemplate *container = new WTemplate();
+    setImplementation(std::unique_ptr<WTemplate>(container));
     container->addStyleClass("form-inline");
     container->setTemplateText(tr("Wt.WTimePicker.template"));
 

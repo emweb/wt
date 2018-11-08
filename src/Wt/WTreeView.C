@@ -539,10 +539,12 @@ void WTreeViewNode::setCellWidget(int column, std::unique_ptr<WWidget> newW)
 
   if (!WApplication::instance()->environment().ajax()) {
     WInteractWidget *wi = dynamic_cast<WInteractWidget *>(newW.get());
-    if (wi)
+    const WModelIndex ci = childIndex(column);
+    if (wi) {
       wi->clicked().connect
-	(view_, std::bind(&WTreeView::handleClick, view_, childIndex(column),
+	(view_, std::bind(&WTreeView::handleClick, view_, ci,
 			  std::placeholders::_1));
+    }
   }
 
   if (column == 0) {

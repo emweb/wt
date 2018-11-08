@@ -41,6 +41,8 @@ protected:
 private:
   AbstractUserDatabase& users_;
   const AuthService& baseAuth_;
+
+  void deleteBox(Wt::WMessageBox *box) const;
 };
 
   }

@@ -99,12 +99,12 @@ public:
   static void setPenColor(WPen& pen, const WDataSeries& series,
 		   int xRow, int xColumn,
 		   int yRow, int yColumn,
-		   int colorRole);
+		   ItemDataRole colorRole);
 
   static void setBrushColor(WBrush& brush, const WDataSeries& series,
 		     int xRow, int xColumn,
 		     int yRow, int yColumn,
-		     int colorRole);
+		     ItemDataRole colorRole);
 
 private:
   int currentXSegment_, currentYSegment_;

@@ -169,7 +169,7 @@ public:
    */
   void setIsoLevels(const std::vector<double> &isoLevels);
 
-  /*! \brief Method::Get all of the isoline levels.
+  /*! \brief Get all of the isoline levels.
    *
    * \sa addIsoLevel()
    */
@@ -186,7 +186,7 @@ public:
    */
   void setIsoColorMap(const std::shared_ptr<WAbstractColorMap>& colormap);
 
-  /*! \brief Method::Get the color map for the isolines.
+  /*! \brief Get the color map for the isolines.
    *
    * \sa setIsoColorMap()
    */

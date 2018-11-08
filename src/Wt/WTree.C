@@ -117,7 +117,7 @@ WTree::WTree()
     treeRoot_(nullptr),
     selectionMode_(SelectionMode::None)
 {
-  sentinelRoot_ = setImplementation(std::unique_ptr<Impl::SentinelTreeNode>(new Impl::SentinelTreeNode(this)));
+  setImplementation(std::unique_ptr<Impl::SentinelTreeNode>(sentinelRoot_ = new Impl::SentinelTreeNode(this)));
 }
 
 void WTree::setTreeRoot(std::unique_ptr<WTreeNode> node)

@@ -318,7 +318,8 @@ std::unique_ptr<WContainerWidget> WPieChart::createLabelWidget(std::unique_ptr<W
 
   // style parent container
   auto c = cpp14::make_unique<WContainerWidget>();
-  WWidget *tw = c->addWidget<WWidget>(std::move(textWidget));
+  WWidget *tw = textWidget.get();
+  c->addWidget(std::move(textWidget));
   c->setPositionScheme(PositionScheme::Absolute);
   c->setAttributeValue("style", "display: flex;");
 

@@ -55,7 +55,7 @@ WTreeNode::WTreeNode()
 
 void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelIcon)
 {
-  layout_ = setNewImplementation<WTemplate>(tr("Wt.WTreeNode.template"));
+  setImplementation(std::unique_ptr<WTemplate>(layout_ = new WTemplate(tr("Wt.WTreeNode.template"))));
   setStyleClass("Wt-tree");
   layout_->setSelectable(false);
 

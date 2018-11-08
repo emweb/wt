@@ -277,8 +277,9 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
       }
 
       wc->insertWidget(0, std::move(newBox));
+      IndexCheckBox *const cb = checkBox;
       checkBox->changed().connect
-        (this, std::bind(&WItemDelegate::onCheckedChange, this, checkBox));
+        (this, std::bind(&WItemDelegate::onCheckedChange, this, cb));
     } else
       return nullptr;
   }
@@ -421,10 +422,11 @@ std::unique_ptr<WWidget> WItemDelegate
 
   std::unique_ptr<WLineEdit> lineEdit(new WLineEdit());
   lineEdit->setText(asString(index.data(ItemDataRole::Edit), textFormat_));
+  IndexContainerWidget *const resultPtr = result.get();
   lineEdit->enterPressed().connect
-    (this, std::bind(&WItemDelegate::doCloseEditor, this, result.get(), true));
+    (this, std::bind(&WItemDelegate::doCloseEditor, this, resultPtr, true));
   lineEdit->escapePressed().connect
-    (this, std::bind(&WItemDelegate::doCloseEditor, this, result.get(), false));
+    (this, std::bind(&WItemDelegate::doCloseEditor, this, resultPtr, false));
   lineEdit->escapePressed().preventPropagation();
 
   if (flags.test(ViewItemRenderFlag::Focused))

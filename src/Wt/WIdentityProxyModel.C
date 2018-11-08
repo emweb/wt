@@ -130,7 +130,7 @@ bool WIdentityProxyModel::removeRows(int row, int count,
 
 bool WIdentityProxyModel::setHeaderData(int section,
 					Orientation orientation,
-					const cpp17::any& value, int role)
+					const cpp17::any& value, ItemDataRole role)
 {
   return sourceModel()->setHeaderData(section, orientation, value, role);
 }

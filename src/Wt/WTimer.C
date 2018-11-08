@@ -56,7 +56,7 @@ void WTimer::start()
   }
 
   active_ = true;
-  *timeout_ = Time() + interval_.count();
+  *timeout_ = Time() + static_cast<int>(interval_.count());
 
   bool jsRepeat = !singleShot_ &&
                   ((app && app->environment().ajax()) ||
@@ -86,7 +86,7 @@ void WTimer::gotTimeout()
 {
   if (active_) {
     if (!singleShot_) {
-      *timeout_ = Time() + interval_.count();
+      *timeout_ = Time() + static_cast<int>(interval_.count());
       if (!timerWidget_->jsRepeat()) {
         WApplication *app = WApplication::instance();
         timerWidget_->timerStart(app->environment().ajax());

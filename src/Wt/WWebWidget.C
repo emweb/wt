@@ -86,7 +86,7 @@ WWebWidget::TransientImpl::~TransientImpl()
 WWebWidget::LayoutImpl::LayoutImpl()
   : positionScheme_(PositionScheme::Static),
     floatSide_(static_cast<Side>(0)),
-    clearSides_(),
+    clearSides_(None),
     minimumWidth_(0),
     minimumHeight_(0),
     baseZIndex_(DEFAULT_BASE_Z_INDEX),
@@ -116,7 +116,9 @@ WWebWidget::OtherImpl::JavaScriptStatement::JavaScriptStatement
 { }
 
 WWebWidget::OtherImpl::OtherImpl(WWebWidget *const self)
-  : tabIndex_(std::numeric_limits<int>::min()),
+  : elementTagName_(nullptr),
+    id_(nullptr),
+    tabIndex_(std::numeric_limits<int>::min()),
     scrollVisibilityMargin_(0),
     jsScrollVisibilityChanged_(self, "scrollVisibilityChanged")
 {
@@ -510,7 +512,7 @@ WFlags<Side> WWebWidget::clearSides() const
   if (layoutImpl_)
     return layoutImpl_->clearSides_;
   else
-    return WFlags<Side>();
+    return None;
 }
 
 void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,

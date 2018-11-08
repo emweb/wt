@@ -45,7 +45,7 @@ LocalizedString WCombinedLocalizedStrings::resolveKey(const WLocale& locale,
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
     LocalizedString result = localizedStrings_[i]->resolveKey(locale, key);
-    if (result)
+    if (result.success)
       return result;
   }
 
@@ -59,7 +59,7 @@ LocalizedString WCombinedLocalizedStrings::resolvePluralKey(const WLocale& local
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
     LocalizedString result = localizedStrings_[i]->resolvePluralKey(locale, key, amount);
-    if (result)
+    if (result.success)
       return result;
   }
 

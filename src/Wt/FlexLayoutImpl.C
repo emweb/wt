@@ -344,7 +344,6 @@ Orientation FlexLayoutImpl::getOrientation() const
   case LayoutDirection::LeftToRight:
   case LayoutDirection::RightToLeft:
     return Orientation::Horizontal;
-    break;
   case LayoutDirection::TopToBottom:
   case LayoutDirection::BottomToTop:
     return Orientation::Vertical;

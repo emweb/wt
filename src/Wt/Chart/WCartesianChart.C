@@ -135,8 +135,6 @@ WColor WCartesianChart::lightenColor(const WColor& in)
 
 CurveLabel::CurveLabel(const WDataSeries &series, const WPointF &point, const WT_USTRING &label)
   : series_(&series),
-    x_(point.x()),
-    y_(point.y()),
     label_(label),
     offset_(60, -20),
     width_(0),
@@ -144,7 +142,10 @@ CurveLabel::CurveLabel(const WDataSeries &series, const WPointF &point, const WT
     textPen_(WColor(0,0,0)),
     boxBrush_(WColor(255,255,255)),
     markerBrush_(WColor(0,0,0))
-{ }
+{
+  x_ = point.x();
+  y_ = point.y();
+}
 
 CurveLabel::CurveLabel(const WDataSeries &series, const cpp17::any &x, const cpp17::any &y,const WT_USTRING &label)
   : series_(&series),
@@ -328,7 +329,7 @@ void SeriesIterator::newValue(const WDataSeries& series,
 void SeriesIterator::setPenColor(WPen& pen, const WDataSeries &series,
 				 int xRow, int xColumn,
 				 int yRow, int yColumn,
-				 int colorRole)
+				 ItemDataRole colorRole)
 {
   const WColor *color = nullptr;
 
@@ -355,7 +356,7 @@ void SeriesIterator::setPenColor(WPen& pen, const WDataSeries &series,
 void SeriesIterator::setBrushColor(WBrush& brush, const WDataSeries &series,
 				   int xRow, int xColumn,
 				   int yRow, int yColumn,
-				   int colorRole) 
+				   ItemDataRole colorRole) 
 {
   const WColor *color = nullptr;
 
@@ -1412,8 +1413,8 @@ void WCartesianChart::init()
 {
   setPalette(std::make_shared<WStandardPalette>(PaletteFlavour::Muted));
 
-  yAxes_.emplace_back();
-  yAxes_.emplace_back();
+  yAxes_.push_back(AxisStruct());
+  yAxes_.push_back(AxisStruct());
   yAxes_.back().axis->setLocation(AxisValue::Maximum);
 
   axis(Axis::X).init(interface_.get(), Axis::X);
@@ -2727,7 +2728,7 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
            onDemandLoadingEnabled()) &&
           !yAxes_[i].transformChanged->isConnected()) {
         const int axis = i; // Fix for JWt
-        yAxes_[i].transformChanged->connect(std::bind(&WCartesianChart::yTransformChanged, this, axis));
+        yAxes_[i].transformChanged->connect(this, std::bind(&WCartesianChart::yTransformChanged, this, axis));
       }
     }
 

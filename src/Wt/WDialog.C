@@ -235,7 +235,7 @@ void WDialog::create()
 
     // we use left: 50%, top: 50%, margin hack when JavaScript is not available
     // see below for an IE workaround
-    app->styleSheet().addRule("div.Wt-dialog", std::string() +
+    app->styleSheet().addRule("div.Wt-dialog", std::string()
 			      //"position: " + position + ';'
 			      + (!app->environment().ajax() ?
 				 "left: 50%; top: 50%;"

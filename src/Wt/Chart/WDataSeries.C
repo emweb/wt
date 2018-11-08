@@ -172,7 +172,7 @@ WColor WDataSeries::labelColor() const
     if (chart_)
       return chart_->palette()->fontColor(chart_->seriesIndexOf(*this));
     else
-      return StandardColor::Black;
+      return WColor(StandardColor::Black);
 }
 
 void WDataSeries::setLabelColor(const WColor& color)
@@ -344,7 +344,11 @@ void WDataSeries::setModel(const std::shared_ptr<WAbstractChartModel>& model)
   model_ = model;
 
   if (model_) {
+#ifdef WT_TARGET_JAVA
+    modelConnections_.push_back(model_->changed().connect(this, std::bind(&WDataSeries::modelReset, this)));
+#else // !WT_TARGET_JAVA
     modelConnections_.push_back(model_->changed().connect(std::bind(&WDataSeries::modelReset, this)));
+#endif // WT_TARGET_JAVA
   }
 
   if (chart_)
