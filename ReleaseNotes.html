@@ -22,6 +22,49 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.0.5 (December 2018)</h2>
+<p>Wt 4.0.5 is almost entirely a bugfix release. Here are the key changes:</p>
+
+<h3>Minor API breaking changes</h3>
+
+<h4>ItemDataRole</h4>
+<p>One of the things we changed in Wt 4 is the type of roles in the
+<a href="group__modelview.html">MVC system</a>. They are no longer
+represented by an enum, but now through a
+<a href="classWt_1_1ItemDataRole.html">class that's a thin wrapper
+around an int</a>. We however forgot to update the role's type in
+a few places, and this release rectifies that. The following methods
+have been updated:</p>
+
+<ul>
+  <li><a href="classWt_1_1WIdentityProxyModel.html#acfa2c2b201f8919e462e1a2d498b75ab">WIdentityProxyModel::setHeaderData()</a></li>
+  <li><a href="classWt_1_1WSuggestionPopup.html#a0abf89a25ea7eece7d36391d56130cf7">WSuggestionPopup::setEditRole()</a></li>
+  <li><a href="classWt_1_1WSuggestionPopup.html#acba647adde23e76f2ce5446b60145aa0">WSuggestionPopup::editRole()</a></li>
+</ul>
+
+<h4>Wt::Auth::UpdatePasswordWidget</h4>
+<p>The <a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html">UpdatePasswordWidget</a>,
+part of the authentication subsystem of Wt, would delete itself when done.
+This was harmless when it was inside of a <a href="classWt_1_1WDialog.html">WDialog</a>, but it's less practical when
+used elsewhere. We've changed the behavior of <tt>UpdatePasswordWidget</tt> to emit the
+<a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html#a6c6bedf0628488cbb09d44c6df441004">updated()</a> and
+<a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html#a640d20893579fcc2642ac62f0a550b6a">canceled()</a>
+signals instead.</p>
+
+<h3>Dbo: reentrant statement use</h3>
+<p>For the longest time, the Dbo tutorial has mentioned that
+&ldquo;you need to be careful to not have two collections with the same statement busy at the same time&rdquo;.
+If you did attempt concurrent use of statements, an exception mentioned that
+&ldquo;Reentrant statement use is not yet implemented&rdquo;. Starting from
+Wt 4.0.5, you won't see that error anymore. We've done the necessary work to make this happen. Dbo will now
+clone the prepared statement as needed.</p>
+
+<h3>Flex layout fixes</h3>
+One of Wt 4's niceties is the fact that the layout managers now rely less on JavaScript, but employ flexbox instead. This
+did not work perfectly, though, so it was still possible to switch the implementation to the old JavaScript method if things
+did not work correctly. We went and fixed many issues in the flex layout implementation, and now the widget gallery works
+correctly using flexbox (pending an overhaul to make the widget gallery more responsive and more in line with the Wt homepage theme).
+
 <h2>Release 4.0.4 (August 22, 2018)</h2>
 <p>This release brings with it the usual bugfixes, but also some new features:</p>
 

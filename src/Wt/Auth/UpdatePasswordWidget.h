@@ -16,7 +16,7 @@ namespace Wt {
 class AuthModel;
 class RegistrationModel;
 
-/*! \class UpdatePasswordWidget Auth/UpdatePasswordWidget
+/*! \class UpdatePasswordWidget Wt/Auth/UpdatePasswordWidget.h
  *  \brief A widget which allows a user to choose a new password.
  *
  * This widget lets a user choose a new password.
