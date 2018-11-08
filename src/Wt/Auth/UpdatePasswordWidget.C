@@ -80,7 +80,7 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
     password->setFocus(true);
 
   okButton->clicked().connect(this, &UpdatePasswordWidget::doUpdate);
-  cancelButton->clicked().connect(this, &UpdatePasswordWidget::close);
+  cancelButton->clicked().connect(this, &UpdatePasswordWidget::cancel);
 
   bindWidget("ok-button", okButton);
   bindWidget("cancel-button", cancelButton);
@@ -163,14 +163,13 @@ void UpdatePasswordWidget::doUpdate()
     registrationModel_->passwordAuth()->updatePassword(user_, password);
     registrationModel_->login().login(user_);
 
-    close();
+    updated_.emit();
   }
 }
 
-void UpdatePasswordWidget::close()
+void UpdatePasswordWidget::cancel()
 {
-  delete this;
+  canceled_.emit();
 }
-
   }
 }
