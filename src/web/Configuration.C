@@ -760,10 +760,7 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
     // If matchAfterSlash is true,
     // then the path /head/tail
     // may match the entry point /head/
-    if (matchAfterSlash &&
-        (pathSegment == &rootPathSegment_ ||
-         (it != spliterator() &&
-          it->end() < path.end()))) {
+    if (matchAfterSlash && it != spliterator()) {
       const auto &children = pathSegment->children;
       if (!children.empty() && children.front()->segment.empty()) {
         match = children.front()->entryPoint;
