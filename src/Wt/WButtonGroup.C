@@ -27,7 +27,11 @@ void WButtonGroup::addButton(WRadioButton *button, int id)
   b.id = id != -1 ? id : generateId();
   buttons_.push_back(b);
 
+#ifndef WT_TARGET_JAVA
   button->setGroup(this->shared_from_this());
+#else
+  button->setGroup(std::shared_ptr<WButtonGroup>(this));
+#endif
 
   if (checkedChangedConnected_)
     button->changed().connect(this, &WButtonGroup::onButtonChange);

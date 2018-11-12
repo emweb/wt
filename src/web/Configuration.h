@@ -15,7 +15,7 @@
 #include <vector>
 
 #if defined(WT_THREADED) && !defined(WT_CONF_NO_SHARED_LOCK)
-#if _MSC_VER >= 1900
+#if _MSC_VER >= 1900 || __cplusplus >= 201703L
 // we're using Visual Studio 2015 or higher, so we can use std::shared_mutex
 #define WT_STD_CONF_LOCK
 #define WT_CONF_LOCK

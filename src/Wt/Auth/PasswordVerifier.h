@@ -107,7 +107,7 @@ public:
   virtual bool verify(const WString& password, const PasswordHash& hash) const override;
 
 private:
-  std::vector<std::unique_ptr<HashFunction>> hashFunctions_;
+  std::vector<std::unique_ptr<HashFunction> > hashFunctions_;
   int saltLength_;
 };
 

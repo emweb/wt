@@ -4,6 +4,10 @@
 #include "VirtualModel.cpp"
 #endif // WT_EXAMPLE
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 SAMPLE_BEGIN(LargeTableView)
 
 auto tableView = cpp14::make_unique<WTableView>();

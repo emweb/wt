@@ -8,6 +8,7 @@
 #define WEB_REQUEST_H_
 
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <Wt/WDllDefs.h>
 #include <Wt/WGlobal.h>

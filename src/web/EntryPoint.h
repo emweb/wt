@@ -54,7 +54,7 @@ struct WT_API EntryPointMatch {
   { }
 
   const EntryPoint *entryPoint;
-  std::vector<std::pair<std::string, std::string>> urlParams;
+  std::vector<std::pair<std::string, std::string> > urlParams;
   std::size_t extra;
 };
 

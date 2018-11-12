@@ -173,7 +173,7 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
   }
   */
 
-  modifiers = None;
+  modifiers = KeyboardModifier::None;
   if (request.getParameter(concat(s, seLength, "altKey")) != nullptr)
     modifiers |= KeyboardModifier::Alt;
 

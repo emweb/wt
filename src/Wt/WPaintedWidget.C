@@ -515,7 +515,7 @@ const std::vector<WAbstractArea *> WPaintedWidget::areas() const
 {
   return areaImage_ 
     ? areaImage_->areas()
-    : static_cast<const std::vector<WAbstractArea *>>
+    : static_cast<const std::vector<WAbstractArea *> >
     (std::vector<WAbstractArea *>());
 }
 
@@ -686,7 +686,7 @@ void WWidgetCanvasPainter
     WStringStream ss;
     ss << "new " WT_CLASS ".WJavaScriptObjectStorage("
        << app->javaScriptClass() << "," << widget_->jsRef() << ");";
-    widget_->jsObjects_.updateJs(ss);
+    widget_->jsObjects_.updateJs(ss, true);
     el->callJavaScript(ss.str());
     if (widget_->areaImage_) {
       widget_->areaImage_->setTargetJS(widget_->objJsRef());
@@ -731,7 +731,7 @@ void WWidgetCanvasPainter
   std::string updateAreasJs;
   if (hasJsObjects) {
     WStringStream ss;
-    widget_->jsObjects_.updateJs(ss);
+    widget_->jsObjects_.updateJs(ss, false);
     el->callJavaScript(ss.str());
     if (widget_->areaImage_) {
       widget_->areaImage_->setTargetJS(widget_->objJsRef());

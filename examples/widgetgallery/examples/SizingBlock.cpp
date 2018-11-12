@@ -5,25 +5,25 @@
 #include <Wt/WTextArea.h>
 
 SAMPLE_BEGIN(SizingBlock)
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-WLineEdit *edit =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
+Wt::WLineEdit *edit =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
 edit->setStyleClass("input-block-level");
-edit->setEmptyText("This is a line edit with style class"
+edit->setPlaceholderText("This is a line edit with style class"
                    " .input-block-level applied to it.");
 
-WComboBox *combo =
-    container->addWidget(cpp14::make_unique<WComboBox>());
+Wt::WComboBox *combo =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WComboBox>());
 combo->setStyleClass("input-block-level");
 for (int i=1; i<5; ++i)
     combo->addItem("Combo box with style class .input-block-level - item"
-                   + toString(i));
+                   + std::to_string(i));
 
-WTextArea *area =
-    container->addWidget(cpp14::make_unique<WTextArea>());
+Wt::WTextArea *area =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WTextArea>());
 area->setStyleClass("input-block-level");
-area->setEmptyText("This is a text area with style class"
+area->setPlaceholderText("This is a text area with style class"
                    " .input-block-level applied to it.");
 
 SAMPLE_END(return container)

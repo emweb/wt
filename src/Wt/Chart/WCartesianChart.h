@@ -99,12 +99,12 @@ public:
   static void setPenColor(WPen& pen, const WDataSeries& series,
 		   int xRow, int xColumn,
 		   int yRow, int yColumn,
-		   int colorRole);
+		   ItemDataRole colorRole);
 
   static void setBrushColor(WBrush& brush, const WDataSeries& series,
 		     int xRow, int xColumn,
 		     int yRow, int yColumn,
-		     int colorRole);
+		     ItemDataRole colorRole);
 
 private:
   int currentXSegment_, currentYSegment_;
@@ -130,6 +130,13 @@ public:
    */
   CurveLabel(const WDataSeries &series, const WPointF &point, const WT_USTRING &label);
 
+  /*! \brief Create a new curve label.
+   *
+   * Create a new curve label for given series,
+   * at the given x, y coordinates and the given text.
+   */
+  CurveLabel(const WDataSeries &series, const cpp17::any &x, const cpp17::any &y, const WT_USTRING &label);
+
   /*! \brief Set the series this curve label is associated with.
    */
   void setSeries(const WDataSeries &series);
@@ -144,11 +151,31 @@ public:
    */
   void setPoint(const WPointF &point);
 
+  /*! \brief Set the point in model coordinates this label is associated with.
+   */
+  void setPoint(const cpp17::any &x, const cpp17::any &y);
+
   /*! \brief Get the point in model coordinates this label is associated with.
+   *
+   * \note This uses asNumber(), which may not be the same conversion that
+   *       WCartesianChart::mapToDevice() uses, depending on the scale of the
+   *       axis. x() and y() will perform no conversion, so they may be safer to use.
    *
    * \sa setPoint()
    */
-  const WPointF &point() const { return point_; }
+  const WPointF point() const;
+
+  /*! \brief Get the x position for this label.
+   *
+   * \sa setPoint()
+   */
+  const cpp17::any &x() const { return x_; }
+
+  /*! \brief Get the y position for this label.
+   *
+   * \sa setPoint()
+   */
+  const cpp17::any &y() const { return y_; }
 
   /*! \brief Set the label that should be drawn in the box.
    */
@@ -243,7 +270,7 @@ public:
 
 private:
   const WDataSeries *series_;
-  WPointF point_;
+  cpp17::any x_, y_;
   WT_USTRING label_;
   WPointF offset_;
   int width_;
@@ -507,7 +534,7 @@ public:
    *
    * \sa series(), addSeries(WDataSeries *), removeSeries(WDataSeries *)
    */
-  void setSeries(std::vector<std::unique_ptr<WDataSeries>> series);
+  void setSeries(std::vector<std::unique_ptr<WDataSeries> > series);
 
   /*! \brief Returns a data series corresponding to a data column.
    *
@@ -529,7 +556,7 @@ public:
    *
    * \sa setSeries(const std::vector<WDataSeries>&)
    */
-  const std::vector<std::unique_ptr<WDataSeries>>& series() const { return series_; }
+  const std::vector<std::unique_ptr<WDataSeries> >& series() const { return series_; }
 
   /*! \brief Returns a chart axis.
    *
@@ -1486,7 +1513,7 @@ private:
   Orientation orientation_;
   int XSeriesColumn_;
   ChartType type_;
-  std::vector<std::unique_ptr<WDataSeries>> series_;
+  std::vector<std::unique_ptr<WDataSeries> > series_;
   AxisStruct xAxis_;
   std::vector<AxisStruct> yAxes_;
   double barMargin_;
@@ -1526,7 +1553,7 @@ private:
   mutable TransformMap curveTransforms_;
   std::vector<WJavaScriptHandle<WTransform> > freeTransforms_;
 
-  std::vector<WJavaScriptHandle<WPen>> freePens_;
+  std::vector<WJavaScriptHandle<WPen> > freePens_;
 
   std::vector<CurveLabel> curveLabels_;
 

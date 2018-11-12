@@ -65,14 +65,13 @@ void WTemplateFormView
 #else
 
 void WTemplateFormView
-::setFormWidget(WFormModel::Field field, WWidget *formWidget,
-		FieldView *fieldView)
+::setFormWidget(WFormModel::Field field, std::unique_ptr<WWidget> formWidget, std::unique_ptr<FieldView> fieldView)
 {
   fields_[field] = FieldData();
-  fields_[field].formWidget = formWidget;
-  fields_[field].updateFunctions = fieldView;
+  fields_[field].formWidget = formWidget.get();
+  fields_[field].updateFunctions = fieldView.release();
 
-  bindWidget(field, formWidget); 
+  bindWidget(field, std::move(formWidget));
 }
 
 #endif // WT_TARGET_JAVA

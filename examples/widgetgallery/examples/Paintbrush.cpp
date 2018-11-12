@@ -122,6 +122,7 @@ canvas->setColor(blue);
 canvas->decorationStyle().setBorder
     (Wt::WBorder(Wt::BorderStyle::Solid, Wt::BorderWidth::Medium, black));
 
+#ifndef WT_TARGET_JAVA
 std::vector<Wt::WPushButton *> colorButtons {
   createColorToggle("btn-primary", blue, canvas.get()),
   createColorToggle("btn-danger", red, canvas.get()),
@@ -130,6 +131,15 @@ std::vector<Wt::WPushButton *> colorButtons {
   createColorToggle("btn-inverse", black, canvas.get()),
   createColorToggle("" /* default */, gray, canvas.get())
 };
+#else // WT_TARGET_JAVA
+std::vector<Wt::WPushButton *> colorButtons;
+colorButtons.push_back(createColorToggle("btn-primary", blue, canvas.get()));
+colorButtons.push_back(createColorToggle("btn-danger", red, canvas.get()));
+colorButtons.push_back(createColorToggle("btn-success", green, canvas.get()));
+colorButtons.push_back(createColorToggle("btn-warning", orange, canvas.get()));
+colorButtons.push_back(createColorToggle("btn-inverse", black, canvas.get()));
+colorButtons.push_back(createColorToggle("" /* default */, gray, canvas.get()));
+#endif // WT_TARGET_JAVA
 
 auto toolBar = Wt::cpp14::make_unique<Wt::WToolBar>();
 

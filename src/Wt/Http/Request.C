@@ -27,7 +27,9 @@ namespace {
     return s ? std::string(s) : std::string();
   }
 
+#ifndef WT_TARGET_JAVA
   static std::vector<std::pair<std::string, std::string> > EMPTY_URL_PARAMS;
+#endif // WT_TARGET_JAVA
 }
 
 namespace Wt {
@@ -425,6 +427,7 @@ const std::string *Request::getCookieValue(const std::string& cookieName) const
     return &i->second;
 }
 
+#ifndef WT_TARGET_JAVA
 std::string Request::urlParam(const std::string &param) const
 {
   if (!request_)
@@ -442,6 +445,7 @@ const std::vector<std::pair<std::string, std::string> >& Request::urlParams() co
 {
   return request_ ? request_->urlParams() : EMPTY_URL_PARAMS;
 }
+#endif // WT_TARGET_JAVA
 
   }
 }

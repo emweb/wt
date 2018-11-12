@@ -31,10 +31,24 @@ image->addArea(std::move(rectPtr));
 
 auto polygonPtr = Wt::cpp14::make_unique<Wt::WPolygonArea>();
 auto polygon = polygonPtr.get();
+#ifndef WT_TARGET_JAVA
 std::vector<Wt::WPoint> points = { Wt::WPoint(92,330), Wt::WPoint(66,261), Wt::WPoint(122,176),
                                Wt::WPoint(143,33), Wt::WPoint(164,33), Wt::WPoint(157,88),
                                Wt::WPoint(210,90), Wt::WPoint(263,264), Wt::WPoint(228,330),
                                Wt::WPoint(92,330) };
+#else // WT_TARGET_JAVA
+std::vector<Wt::WPoint> points;
+points.push_back(Wt::WPoint(92,330));
+points.push_back(Wt::WPoint(66,261));
+points.push_back(Wt::WPoint(122,176));
+points.push_back(Wt::WPoint(143,33));
+points.push_back(Wt::WPoint(164,33));
+points.push_back(Wt::WPoint(157,88));
+points.push_back(Wt::WPoint(210,90));
+points.push_back(Wt::WPoint(263,264));
+points.push_back(Wt::WPoint(228,330));
+points.push_back(Wt::WPoint(92,330));
+#endif // WT_TARGET_JAVA
 polygon->setPoints(points);
 polygon->setToolTip("person");
 polygon->setCursor(Wt::Cursor::Cross);

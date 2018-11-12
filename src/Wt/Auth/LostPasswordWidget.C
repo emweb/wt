@@ -13,9 +13,6 @@
 #include "Wt/WPushButton.h"
 
 namespace {
-  void deleteBox(Wt::WMessageBox *box) {
-    Wt::WApplication::instance()->removeChild(box);
-  }
 }
 
 namespace Wt {
@@ -59,13 +56,19 @@ void LostPasswordWidget::send()
                      Icon::None, StandardButton::Ok));
   box->show();
 
-  box->buttonClicked().connect(std::bind(&deleteBox, box.get()));
+  WMessageBox *const boxPtr = box.get();
+  box->buttonClicked().connect(this, std::bind(&LostPasswordWidget::deleteBox, this, boxPtr));
   WApplication::instance()->addChild(std::move(box));
 }
 
 void LostPasswordWidget::cancel()
 {
   removeFromParent();
+}
+
+void LostPasswordWidget::deleteBox(Wt::WMessageBox *box) const
+{
+  Wt::WApplication::instance()->removeChild(box);
 }
 
   }

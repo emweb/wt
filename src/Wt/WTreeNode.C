@@ -29,13 +29,33 @@ WTreeNode::WTreeNode(const WString& labelText,
     visible_(true),
     childrenDecorated_(true),
     parentNode_(nullptr),
-    childCountPolicy_(ChildCountPolicy::Disabled),
+    childCountPolicy_(Disabled),
     labelIcon_(labelIcon.get()),
     childrenLoaded_(false),
     populated_(false),
     interactive_(true)
 {
-  layout_ = setNewImplementation<WTemplate>(tr("Wt.WTreeNode.template"));
+  init(labelText, std::move(labelIcon));
+}
+
+WTreeNode::WTreeNode()
+  : collapsed_(true),
+    selectable_(true),
+    visible_(true),
+    childrenDecorated_(true),
+    parentNode_(nullptr),
+    childCountPolicy_(Disabled),
+    labelIcon_(nullptr),
+    childrenLoaded_(false),
+    populated_(false),
+    interactive_(true)
+{
+  init(WString::Empty, nullptr);
+}
+
+void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelIcon)
+{
+  setImplementation(std::unique_ptr<WTemplate>(layout_ = new WTemplate(tr("Wt.WTreeNode.template"))));
   setStyleClass("Wt-tree");
   layout_->setSelectable(false);
 
@@ -99,10 +119,6 @@ WTreeNode::WTreeNode(const WString& labelText,
 
   setLoadPolicy(ContentLoading::Lazy);
 }
-
-WTreeNode::WTreeNode()
-  : WTreeNode(WString::Empty)
-{ }
 
 EventSignal<WMouseEvent>& WTreeNode::expanded()
 {
@@ -205,7 +221,7 @@ void WTreeNode::setChildrenDecorated(bool decorated)
 
 void WTreeNode::setChildCountPolicy(ChildCountPolicy policy)
 {
-  if (policy != ChildCountPolicy::Disabled && !childCountLabel_) {
+  if (policy != Disabled && !childCountLabel_) {
     childCountLabel_ = labelArea()->addWidget(cpp14::make_unique<WText>());
     childCountLabel_->setMargin(WLength(7), Side::Left);
     childCountLabel_->setStyleClass("Wt-childcount");
@@ -254,7 +270,7 @@ void WTreeNode::setLoadPolicy(ContentLoading loadPolicy)
     if (isExpanded())
       loadChildren();
     else {
-      if (childCountPolicy_ == ChildCountPolicy::Enabled) {
+      if (childCountPolicy_ == Enabled) {
 	WTreeNode *parent = parentNode();
 	if (parent && parent->isExpanded())
 	  doPopulate();

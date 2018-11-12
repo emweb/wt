@@ -91,7 +91,7 @@ public:
 
   /*! \brief Returns the current selection (in Wt::SelectionMode::Extended mode).
    *
-   * Method::Get the list of currently selected items. This method is only defined
+   * Get the list of currently selected items. This method is only defined
    * when selectionMode() is Wt::SelectionMode::Extended. Otherwise, you should use
    * currentIndex() to get item currently selected.
    *

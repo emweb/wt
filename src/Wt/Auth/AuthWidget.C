@@ -23,6 +23,7 @@
 #include "Wt/WEnvironment.h"
 #include "Wt/WImage.h"
 #include "Wt/WLineEdit.h"
+#include "Wt/WLogger.h"
 #include "Wt/WMessageBox.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WText.h"
@@ -73,7 +74,7 @@ void AuthWidget::init()
 
   WApplication *app = WApplication::instance();
   app->internalPathChanged().connect(this, &AuthWidget::onPathChange);
-  app->theme()->apply(this, this, WidgetThemeRole::AuthWidgets);
+  app->theme()->apply(this, this, AuthWidgets);
 }
 
 void AuthWidget::setModel(std::unique_ptr<AuthModel> model)

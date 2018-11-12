@@ -69,8 +69,12 @@ WAbstractItemModel::itemData(const WModelIndex& index) const
   DataMap result;
 
   if (index.isValid()) {
+#ifndef WT_TARGET_JAVA
     for (int i = 0; i <= ItemDataRole::BarBrushColor; ++i)
-      result[i] = data(index, i);
+#else
+    for (int i = 0; i <= ItemDataRole::BarBrushColor.value(); ++i)
+#endif
+      result[ItemDataRole(i)] = data(index, ItemDataRole(i));
     result[ItemDataRole::User] = data(index, ItemDataRole::User);
   }
 

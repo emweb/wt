@@ -40,6 +40,9 @@ public:
     beingDeleted();
   }
 
+  void setCurrentFile(File *file) { currentFile_ = file; }
+
+protected:
   virtual void handleRequest(const Http::Request &request,
 			     Http::Response &response) override
   {
@@ -86,8 +89,6 @@ public:
     lock.release();
 #endif
   }
-
-  void setCurrentFile(File *file) { currentFile_ = file; }
 
 private:
   WFileDropWidget *parent_;

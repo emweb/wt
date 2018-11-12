@@ -151,7 +151,7 @@ public:
    *
    * \sa insertColumn(), appendRow()
    */
-  void appendColumn(std::vector<std::unique_ptr<WStandardItem>> items);
+  void appendColumn(std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Inserts a single column of top level items.
    *
@@ -166,7 +166,7 @@ public:
    * \sa WStandardItem::insertColumn()
    */
   void insertColumn(int column,
-		    std::vector<std::unique_ptr<WStandardItem>> items);
+		    std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Adds a single row of top level items.
    *
@@ -180,7 +180,7 @@ public:
    *
    * \sa insertRow(), appendColumn()
    */
-  void appendRow(std::vector<std::unique_ptr<WStandardItem>> items);
+  void appendRow(std::vector<std::unique_ptr<WStandardItem> > items);
 
   using WAbstractItemModel::insertRow;
   using WAbstractItemModel::insertColumn;
@@ -197,7 +197,7 @@ public:
    *
    * \sa WStandardItem::insertRow()
    */
-  void insertRow(int row, std::vector<std::unique_ptr<WStandardItem>> items);
+  void insertRow(int row, std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Appends a single row containing a single item.
    *
@@ -291,7 +291,7 @@ public:
    *
    * \sa WStandardItem::takeColumn(), WStandardItem::takeRow()
    */
-  std::vector<std::unique_ptr<WStandardItem>> takeColumn(int column);
+  std::vector<std::unique_ptr<WStandardItem> > takeColumn(int column);
 
   /*! \brief Takes a row out of the model.
    *
@@ -305,7 +305,7 @@ public:
    *
    * \sa WStandardItem::takeRow(), takeColumn()
    */
-  std::vector<std::unique_ptr<WStandardItem>> takeRow(int row);
+  std::vector<std::unique_ptr<WStandardItem> > takeRow(int row);
 
   /*! \brief Takes an item out of the model.
    *

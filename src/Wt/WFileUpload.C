@@ -98,9 +98,13 @@ protected:
 
         // postMessage does not work for IE6,7
         if (agent == UserAgent::IE6 || 
-	    agent == UserAgent::IE7)
+	    agent == UserAgent::IE7) {
+#ifndef WT_TARGET_JAVA
           o << fileUpload_->fileTooLarge().createCall({s});
-        else
+#else
+          o << fileUpload_->fileTooLarge().createCall(s);
+#endif
+        } else
           o << " window.parent.postMessage("
             << "JSON.stringify({" << "fileTooLargeSize: '" << s
             << "',type: 'file_too_large'" << "'}), '*');";
@@ -377,7 +381,11 @@ void WFileUpload::updateDom(DomElement& element, bool all)
       ""    "var f = x.files[i];"
       ""      "if (f.size > " + maxFileSize + ") {"
       ""        "submit = false;"
+#ifndef WT_TARGET_JAVA
       ""       + fileTooLarge().createCall({"f.size"}) + ";"
+#else
+      ""       + fileTooLarge().createCall("f.size") + ";"
+#endif
       ""        "break;"
       ""      "}"
       ""    "}"
@@ -521,7 +529,11 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
      +        app->javaScriptClass()
      +        "._p_.update(null, data.signal, null, true);"
      ""  "} else if (data.type === 'file_too_large') {"
+#ifndef WT_TARGET_JAVA
      ""    + fileTooLarge().createCall({"data.fileTooLargeSize"}) +
+#else
+     ""    + fileTooLarge().createCall("data.fileTooLargeSize") +
+#endif
 		 "  ""}"
 		 """}"
 		 "};"

@@ -72,7 +72,11 @@ for (int i = 1; i < model->columnCount(); ++i)
  * Create the category chart.
  */
 auto chart = container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
+#ifndef WT_TARGET_JAVA
 chart->setModel(model);
+#else // WT_TARGET_JAVA
+chart->setModel(std::shared_ptr<WAbstractItemModel>(model));
+#endif // WT_TARGET_JAVA
 chart->setXSeriesColumn(0);
 chart->setLegendEnabled(true);
 

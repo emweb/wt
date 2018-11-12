@@ -7,6 +7,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WLineEdit.h"
+#include "Wt/WLogger.h"
 #include "Wt/WMenu.h"
 #include "Wt/WNavigationBar.h"
 #include "Wt/WPushButton.h"
@@ -69,7 +70,7 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
 
   if (!titleLink) {
     titleLink = bindWidget("title-link", cpp14::make_unique<WAnchor>());
-    wApp->theme()->apply(this, titleLink, WidgetThemeRole::NavBrand);
+    wApp->theme()->apply(this, titleLink, NavBrand);
   }
 
   titleLink->setText(title);
@@ -127,7 +128,7 @@ void WNavigationBar::setResponsive(bool responsive)
                                       &WNavigationBar::expandContents);
     }
 
-    wApp->theme()->apply(this, contents, WidgetThemeRole::NavCollapse);
+    wApp->theme()->apply(this, contents, NavCollapse);
 
     contents->hide();
 
@@ -150,7 +151,7 @@ WMenu *WNavigationBar::addMenu(std::unique_ptr<WMenu> menu,
 {
   WMenu *m = menu.get();
   addWidget(std::move(menu), alignment);
-  wApp->theme()->apply(this, m, WidgetThemeRole::NavbarMenu);
+  wApp->theme()->apply(this, m, NavbarMenu);
   return m;
 }
 
@@ -201,7 +202,7 @@ void WNavigationBar::addWrapped(std::unique_ptr<WWidget> widget,
 void WNavigationBar::addSearch(std::unique_ptr<WLineEdit> field,
                                AlignmentFlag alignment)
 {
-  wApp->theme()->apply(this, field.get(), WidgetThemeRole::NavbarSearch);
+  wApp->theme()->apply(this, field.get(), NavbarSearch);
   addWrapped(std::move(field), alignment, "navbar-form");
 }
 
@@ -209,10 +210,10 @@ void WNavigationBar::align(WWidget *widget, AlignmentFlag alignment)
 {
   switch (alignment) {
   case AlignmentFlag::Left:
-    wApp->theme()->apply(this, widget, WidgetThemeRole::NavbarAlignLeft);
+    wApp->theme()->apply(this, widget, NavbarAlignLeft);
     break;
   case AlignmentFlag::Right:
-    wApp->theme()->apply(this, widget, WidgetThemeRole::NavbarAlignRight);
+    wApp->theme()->apply(this, widget, NavbarAlignRight);
     break;
   default:
     LOG_ERROR("addWidget(...): unsupported alignment "
@@ -292,7 +293,7 @@ std::unique_ptr<WInteractWidget> WNavigationBar::createExpandButton()
   std::unique_ptr<WPushButton> result
     (new WPushButton(tr("Wt.WNavigationBar.expand-button")));
   result->setTextFormat(TextFormat::XHTML);
-  wApp->theme()->apply(this, result.get(), WidgetThemeRole::NavbarBtn);
+  wApp->theme()->apply(this, result.get(), NavbarBtn);
   return std::move(result);
 }
 

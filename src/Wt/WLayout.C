@@ -21,7 +21,9 @@ WLayout::WLayout()
   : parentLayout_(nullptr),
     parentWidget_(nullptr),
     preferredImplementation_(defaultImplementation_)
-{ }
+{
+  margins_[0] = margins_[1] = margins_[2] = margins_[3] = 9;
+}
 
 WLayout::~WLayout()
 { }
@@ -59,26 +61,16 @@ LayoutImplementation WLayout::preferredImplementation() const
 void WLayout::getContentsMargins(int *left, int *top, int *right, int *bottom)
   const
 {
-  if (margins_) {
-    *left = margins_[0];
-    *top = margins_[1];
-    *right = margins_[2];
-    *bottom = margins_[3];
-  } else {
-    *left = 9;
-    *right = 9;
-    *top = 9;
-    *bottom = 9;
-  }
+  *left = margins_[0];
+  *top = margins_[1];
+  *right = margins_[2];
+  *bottom = margins_[3];
 }
 
 #else // WT_TARGET_JAVA
 
 int WLayout::getContentsMargin(Side side) const
 {
-  if (!margins_)
-    return 9;
-
   switch (side) {
   case Side::Left:
     return margins_[0];
@@ -96,9 +88,6 @@ int WLayout::getContentsMargin(Side side) const
 
 void WLayout::setContentsMargins(int left, int top, int right, int bottom)
 {
-  if (!margins_)
-    margins_.reset(new int[4]);
-
   margins_[0] = left;
   margins_[1] = top;
   margins_[2] = right;

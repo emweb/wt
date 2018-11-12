@@ -39,7 +39,7 @@ namespace {
 
     asio::io_service io_service;
 
-    // Method::Get a list of endpoints corresponding to the server name.
+    // Get a list of endpoints corresponding to the server name.
     tcp::resolver resolver(io_service);
 
     tcp::resolver::query query(host, port);

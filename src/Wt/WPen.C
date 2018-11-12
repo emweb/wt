@@ -18,7 +18,11 @@ namespace Wt {
 LOGGER("WPen");
 
 WPen::WPen()
-  : WPen(PenStyle::SolidLine)
+  : penStyle_(PenStyle::SolidLine),
+    penCapStyle_(PenCapStyle::Square),
+    penJoinStyle_(PenJoinStyle::Bevel),
+    width_(0),
+    color_(StandardColor::Black)
 { }
 
 WPen::WPen(PenStyle style)
@@ -38,11 +42,19 @@ WPen::WPen(const WColor& color)
 { }
 
 WPen::WPen(StandardColor color)
-  : WPen(WColor(color))
+  : penStyle_(PenStyle::SolidLine),
+    penCapStyle_(PenCapStyle::Square),
+    penJoinStyle_(PenJoinStyle::Bevel),
+    width_(0),
+    color_(WColor(color))
 { }
 
 WPen::WPen(const WGradient& gradient)
-  : WPen()
+  : penStyle_(PenStyle::SolidLine),
+    penCapStyle_(PenCapStyle::Square),
+    penJoinStyle_(PenJoinStyle::Bevel),
+    width_(0),
+    color_(StandardColor::Black)
 {
   gradient_ = gradient;
 }

@@ -8,7 +8,7 @@
 class AgeFormModel : public Wt::WFormModel
 {
 public:
-    static constexpr Field AgeField = "age";
+    static const Field AgeField;
 
     // inline constructor
     AgeFormModel() : WFormModel()
@@ -23,6 +23,8 @@ private:
         return std::make_shared<Wt::WIntValidator>(0, 150);
     }
 };
+
+const Wt::WFormModel::Field AgeFormModel::AgeField = "age";
 
 class AgeFormView : public Wt::WTemplateFormView
 {

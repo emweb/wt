@@ -253,17 +253,21 @@ void WCalendar::render(WFlags<RenderFlag> flags)
 	  if (clicked().isConnected()
 	      || (selectionMode_ == SelectionMode::Extended)
 	      || (selectionMode_ != SelectionMode::Extended && 
-		  singleClickSelect_ && activated().isConnected()))
+		  singleClickSelect_ && activated().isConnected())) {
+            const Coordinate c(i, j);
 	    iw->clicked().connect
 	      (this,
-	       std::bind(&WCalendar::cellClicked, this, Coordinate(i, j)));
+	       std::bind(&WCalendar::cellClicked, this, c));
+          }
 
 	  if ((selectionMode_ != SelectionMode::Extended &&
 	       !singleClickSelect_ && (activated().isConnected() ||
-		   selectionChanged().isConnected())))
+		   selectionChanged().isConnected()))) {
+            const Coordinate c(i, j);
 	    iw->doubleClicked().connect
 	      (this,
-	       std::bind(&WCalendar::cellDblClicked, this, Coordinate(i, j)));
+	       std::bind(&WCalendar::cellDblClicked, this, c));
+          }
 	}
 
     d = d.addDays(1);

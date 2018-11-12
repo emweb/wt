@@ -7,6 +7,7 @@
 #ifndef WEBSESSION_H_
 #define WEBSESSION_H_
 
+#include <mutex>
 #include <string>
 #include <vector>
 #include <deque>
@@ -19,6 +20,10 @@
 #include <thread>
 #include <condition_variable>
 #endif
+
+#ifdef WT_TARGET_JAVA
+#include <boost/thread.hpp>
+#endif // WT_TARGET_JAVA
 
 #include "TimeUtil.h"
 #include "WebRenderer.h"
@@ -244,6 +249,9 @@ public:
 
 #ifdef WT_BOOST_THREADS
   std::mutex& mutex() { return mutex_; }
+#ifdef WT_TARGET_JAVA
+  static boost::thread_specific_ptr<Handler> threadHandler_;
+#endif // WT_TARGET_JAVA
 #endif
 
   void setExpectLoad();

@@ -1,5 +1,7 @@
 #include "GoogleService.h"
 
+#include "Wt/WLogger.h"
+
 #define ERROR_MSG(e) WString::tr("Wt.Auth.GoogleService." e)
 
 namespace {

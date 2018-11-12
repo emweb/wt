@@ -7,6 +7,7 @@
 #include "Wt/WWidgetItem.h"
 
 #include "Wt/WContainerWidget.h"
+#include "Wt/WException.h"
 #include "Wt/WLayout.h"
 #include "Wt/WLayoutItemImpl.h"
 
@@ -80,7 +81,11 @@ void WWidgetItem::setParentLayout(WLayout *parentLayout)
 void WWidgetItem::iterateWidgets(const HandleWidgetMethod& method) const
 {
   if (widget_)
+#ifndef WT_TARGET_JAVA
     method(widget_.get());
+#else
+    method.handle(widget_.get());
+#endif
 }
 
 WWidget *WWidgetItem::parentWidget() const

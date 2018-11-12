@@ -149,7 +149,7 @@ WPieChart::createLegendItemWidget(int index, WFlags<LabelOption> options)
   legendItem->setPadding(4);
   
   auto colorText = legendItem->addWidget(std::unique_ptr<WText>());
-  colorText->setPadding(10, Side::Left | Side::Right);
+  colorText->setPadding(10, WFlags<Side>(Side::Left) | Side::Right);
   colorText->decorationStyle().setBackgroundColor(brush(index).color());
 
   if (WApplication::instance()->environment().agentIsIE())
@@ -266,24 +266,24 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	  if (midAngle < 90) {
 	    left = px;
 	    top = py - height;
-	    alignment = AlignmentFlag::Left | AlignmentFlag::Bottom;
+	    alignment = WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Bottom;
 	  } else if (midAngle < 180) {
 	    left = px - width;
 	    top = py - height;
-	    alignment = AlignmentFlag::Right | AlignmentFlag::Bottom;
+	    alignment = WFlags<AlignmentFlag>(AlignmentFlag::Right) | AlignmentFlag::Bottom;
 	  } else if (midAngle < 270) {
 	    left = px - width;
 	    top = py + h/2;
-	    alignment = AlignmentFlag::Right | AlignmentFlag::Top;
+	    alignment = WFlags<AlignmentFlag>(AlignmentFlag::Right) | AlignmentFlag::Top;
 	  } else {
 	    left = px;
 	    top = py + h/2;
-	    alignment = AlignmentFlag::Left | AlignmentFlag::Top;
+	    alignment = WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Top;
 	  }
 	} else {
 	  left = px - width/2;
 	  top = py - height/2;
-	  alignment = AlignmentFlag::Center | AlignmentFlag::Middle;
+	  alignment = WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Middle;
 	  c = palette()->fontColor(i);
 	}
 
@@ -302,7 +302,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
     WFont oldFont = painter.font();
     painter.setFont(titleFont());
     painter.drawText(cx - 50, cy - r, 100, 50,
-		     AlignmentFlag::Center | AlignmentFlag::Top, title());
+		     WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, title());
     painter.setFont(oldFont);
   }
 
@@ -318,7 +318,8 @@ std::unique_ptr<WContainerWidget> WPieChart::createLabelWidget(std::unique_ptr<W
 
   // style parent container
   auto c = cpp14::make_unique<WContainerWidget>();
-  WWidget *tw = c->addWidget<WWidget>(std::move(textWidget));
+  WWidget *tw = textWidget.get();
+  c->addWidget(std::move(textWidget));
   c->setPositionScheme(PositionScheme::Absolute);
   c->setAttributeValue("style", "display: flex;");
 

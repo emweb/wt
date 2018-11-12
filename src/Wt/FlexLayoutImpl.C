@@ -344,7 +344,6 @@ Orientation FlexLayoutImpl::getOrientation() const
   case LayoutDirection::LeftToRight:
   case LayoutDirection::RightToLeft:
     return Orientation::Horizontal;
-    break;
   case LayoutDirection::TopToBottom:
   case LayoutDirection::BottomToTop:
     return Orientation::Vertical;
@@ -369,7 +368,8 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
   }
 
   int m[] = { 0, 0, 0, 0 };
-  if (FlexLayoutImpl *flexImpl = dynamic_cast<FlexLayoutImpl*>(getImpl(it.item_.get()))) {
+  FlexLayoutImpl *flexImpl = dynamic_cast<FlexLayoutImpl*>(getImpl(it.item_.get()));
+  if (flexImpl) {
     Orientation elOrientation = flexImpl->getOrientation();
     if (elOrientation == Orientation::Horizontal) {
       m[3] -= (flexImpl->grid_.horizontalSpacing_) / 2;

@@ -16,6 +16,7 @@
 #include "Wt/WDialog.h"
 #include "Wt/WImage.h"
 #include "Wt/WLineEdit.h"
+#include "Wt/WLogger.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WText.h"
 #include "Wt/WTheme.h"
@@ -38,7 +39,7 @@ RegistrationWidget::RegistrationWidget(AuthWidget *authWidget)
   setWidgetIdMode(TemplateWidgetIdMode::SetObjectName);
 
   WApplication *app = WApplication::instance();
-  app->theme()->apply(this, this, WidgetThemeRole::AuthWidgets);
+  app->theme()->apply(this, this, AuthWidgets);
 }
 
 void RegistrationWidget::setModel(std::unique_ptr<RegistrationModel> model)

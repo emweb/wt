@@ -720,11 +720,12 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
 
   typedef boost::split_iterator<std::string::const_iterator> spliterator;
 
+  spliterator it;
   if (!path.empty()) {
+    it = spliterator(path.begin() + 1, path.end(),
+                     boost::first_finder(FORWARD_SLASH, boost::is_equal()));
     // Move down the routing tree, segment per segment
-    for (spliterator it = spliterator(path.begin() + 1, path.end(),
-                                      boost::first_finder(FORWARD_SLASH, boost::is_equal()));
-         it != spliterator(); ++it) {
+    for (;it != spliterator(); ++it) {
       // Find exact path match for segment
       const auto &children = pathSegment->children;
       const PathSegment *childSegment = nullptr;
@@ -759,7 +760,7 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
     // If matchAfterSlash is true,
     // then the path /head/tail
     // may match the entry point /head/
-    if (matchAfterSlash) {
+    if (matchAfterSlash && it != spliterator()) {
       const auto &children = pathSegment->children;
       if (!children.empty() && children.front()->segment.empty()) {
         match = children.front()->entryPoint;

@@ -23,6 +23,7 @@
 #include "Wt/WJavaScriptHandle.h"
 #include "Wt/WJavaScriptObjectStorage.h"
 #include "Wt/WJavaScriptPreamble.h"
+#include "Wt/WLogger.h"
 #include "Wt/WMeasurePaintDevice.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPolygonArea.h"
@@ -134,7 +135,22 @@ WColor WCartesianChart::lightenColor(const WColor& in)
 
 CurveLabel::CurveLabel(const WDataSeries &series, const WPointF &point, const WT_USTRING &label)
   : series_(&series),
-    point_(point),
+    label_(label),
+    offset_(60, -20),
+    width_(0),
+    linePen_(WColor(0,0,0)),
+    textPen_(WColor(0,0,0)),
+    boxBrush_(WColor(255,255,255)),
+    markerBrush_(WColor(0,0,0))
+{
+  x_ = point.x();
+  y_ = point.y();
+}
+
+CurveLabel::CurveLabel(const WDataSeries &series, const cpp17::any &x, const cpp17::any &y,const WT_USTRING &label)
+  : series_(&series),
+    x_(x),
+    y_(y),
     label_(label),
     offset_(60, -20),
     width_(0),
@@ -151,7 +167,19 @@ void CurveLabel::setSeries(const WDataSeries &series)
 
 void CurveLabel::setPoint(const WPointF &point)
 {
-  point_ = point;
+  x_ = point.x();
+  y_ = point.y();
+}
+
+void CurveLabel::setPoint(const cpp17::any &x, const cpp17::any &y)
+{
+  x_ = x;
+  y_ = y;
+}
+
+const WPointF CurveLabel::point() const
+{
+  return WPointF(asNumber(x_), asNumber(y_));
 }
 
 void CurveLabel::setLabel(const WT_USTRING &label)
@@ -218,7 +246,7 @@ void CurveLabel::render(WPainter &painter) const
       WMeasurePaintDevice device(painter.device());
       WPainter measPainter(&device);
       measPainter.drawText(WRectF(0,0,100,100),
-			   AlignmentFlag::Middle | AlignmentFlag::Center,
+			   Wt::WFlags<AlignmentFlag>(AlignmentFlag::Middle) | AlignmentFlag::Center,
 			   TextFlag::SingleLine, label(), nullptr);
       rectWidth = device.boundingRect().width() + CURVE_LABEL_PADDING / 2;
     }
@@ -264,7 +292,7 @@ void CurveLabel::render(WPainter &painter) const
   painter.strokePath(translation.map(rectPath).crisp(), linePen());
   painter.setPen(textPen());
   painter.drawText(translation.map(rect), 
-		   AlignmentFlag::Middle | AlignmentFlag::Center, 
+		   WFlags<AlignmentFlag>(AlignmentFlag::Middle) | AlignmentFlag::Center, 
 		   TextFlag::SingleLine, label(), nullptr);
 }
 
@@ -301,7 +329,7 @@ void SeriesIterator::newValue(const WDataSeries& series,
 void SeriesIterator::setPenColor(WPen& pen, const WDataSeries &series,
 				 int xRow, int xColumn,
 				 int yRow, int yColumn,
-				 int colorRole)
+				 ItemDataRole colorRole)
 {
   const WColor *color = nullptr;
 
@@ -328,7 +356,7 @@ void SeriesIterator::setPenColor(WPen& pen, const WDataSeries &series,
 void SeriesIterator::setBrushColor(WBrush& brush, const WDataSeries &series,
 				   int xRow, int xColumn,
 				   int yRow, int yColumn,
-				   int colorRole) 
+				   ItemDataRole colorRole) 
 {
   const WColor *color = nullptr;
 
@@ -967,11 +995,11 @@ public:
       WFlags<AlignmentFlag> alignment;
       if (series.type() == SeriesType::Bar) {
 	if (y < 0)
-	  alignment = AlignmentFlag::Center | AlignmentFlag::Bottom;
+	  alignment = WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom;
 	else
-	  alignment = AlignmentFlag::Center | AlignmentFlag::Top;
+	  alignment = WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top;
       } else {
-	alignment = AlignmentFlag::Center | AlignmentFlag::Bottom;
+	alignment = WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom;
 	p.setY(p.y() - 3);
       }
 
@@ -1313,8 +1341,33 @@ WCartesianChart::AxisStruct::~AxisStruct()
 { }
 
 WCartesianChart::WCartesianChart()
-  : WCartesianChart(ChartType::Category)
-{ }
+  : interface_(new WChart2DImplementation(this)),
+    orientation_(Orientation::Vertical),
+    XSeriesColumn_(-1),
+    type_(ChartType::Category),
+    barMargin_(0),
+    axisPadding_(5),
+    borderPen_(PenStyle::None),
+    hasDeferredToolTips_(false),
+    jsDefined_(false),
+    zoomEnabled_(false),
+    panEnabled_(false),
+    rubberBandEnabled_(true),
+    crosshairEnabled_(false),
+    crosshairColor_(StandardColor::Black),
+    crosshairYAxis_(0),
+    seriesSelectionEnabled_(false),
+    selectedSeries_(nullptr),
+    followCurve_(nullptr),
+    curveManipulationEnabled_(false),
+    onDemandLoadingEnabled_(false),
+    loadingBackground_(StandardColor::LightGray),
+    cObjCreated_(false),
+    jsSeriesSelected_(this, "seriesSelected"),
+    loadTooltip_(this, "loadTooltip")
+{
+  init();
+}
 
 WCartesianChart::WCartesianChart(ChartType type)
   : interface_(new WChart2DImplementation(this)),
@@ -1360,8 +1413,8 @@ void WCartesianChart::init()
 {
   setPalette(std::make_shared<WStandardPalette>(PaletteFlavour::Muted));
 
-  yAxes_.emplace_back();
-  yAxes_.emplace_back();
+  yAxes_.push_back(AxisStruct());
+  yAxes_.push_back(AxisStruct());
   yAxes_.back().axis->setLocation(AxisValue::Maximum);
 
   axis(Axis::X).init(interface_.get(), Axis::X);
@@ -1377,8 +1430,8 @@ void WCartesianChart::init()
   axis(Axis::Y1).setSoftLabelClipping(true);
   axis(Axis::Y2).setSoftLabelClipping(true);
   
-  setPlotAreaPadding(40, Side::Left | Side::Right);
-  setPlotAreaPadding(30, Side::Top | Side::Bottom);
+  setPlotAreaPadding(40, WFlags<Side>(Side::Left) | Side::Right);
+  setPlotAreaPadding(30, WFlags<Side>(Side::Top) | Side::Bottom);
 
   xAxis_.transformHandle = createJSTransform();
   xAxis_.transformChanged.reset(new JSignal<>(this, "xTransformChanged"));
@@ -1404,12 +1457,12 @@ void WCartesianChart::init()
   }
 
   wheelActions_[KeyboardModifier::None] = InteractiveAction::PanMatching;
-  wheelActions_[KeyboardModifier::Alt |
+  wheelActions_[WFlags<KeyboardModifier>(KeyboardModifier::Alt) |
 		KeyboardModifier::Control] = InteractiveAction::ZoomX;
-  wheelActions_[KeyboardModifier::Control |
+  wheelActions_[WFlags<KeyboardModifier>(KeyboardModifier::Control) |
 		KeyboardModifier::Shift] = InteractiveAction::ZoomY;
   wheelActions_[KeyboardModifier::Control] = InteractiveAction::ZoomXY;
-  wheelActions_[KeyboardModifier::Alt |
+  wheelActions_[WFlags<KeyboardModifier>(KeyboardModifier::Alt) |
 		KeyboardModifier::Control |
 		KeyboardModifier::Shift] = InteractiveAction::ZoomXY;
 }
@@ -1587,7 +1640,7 @@ const WDataSeries& WCartesianChart::series(int modelColumn) const
 }
 
 void WCartesianChart
-::setSeries(std::vector<std::unique_ptr<WDataSeries>> series)
+::setSeries(std::vector<std::unique_ptr<WDataSeries> > series)
 {
   series_ = std::move(series);
 
@@ -2479,7 +2532,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 {
 
-  for (auto area: areas())
+  for (WAbstractArea *area: areas())
     const_cast<WCartesianChart *>(this)->removeArea(area);
 
   if (!painter.isActive())
@@ -2675,7 +2728,7 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
            onDemandLoadingEnabled()) &&
           !yAxes_[i].transformChanged->isConnected()) {
         const int axis = i; // Fix for JWt
-        yAxes_[i].transformChanged->connect(std::bind(&WCartesianChart::yTransformChanged, this, axis));
+        yAxes_[i].transformChanged->connect(this, std::bind(&WCartesianChart::yTransformChanged, this, axis));
       }
     }
 
@@ -2877,8 +2930,8 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
   }
 
   if (autoLayout) {
-    self->setPlotAreaPadding(40, Side::Left | Side::Right);
-    self->setPlotAreaPadding(30, Side::Top | Side::Bottom);
+    self->setPlotAreaPadding(40, WFlags<Side>(Side::Left) | Side::Right);
+    self->setPlotAreaPadding(30, WFlags<Side>(Side::Top) | Side::Bottom);
 
     calcChartArea();
 
@@ -3096,7 +3149,7 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
   if (width < 100)
     width = 100;
   painter.drawText(pos.x() + 23, pos.y() - 9, width, 20,
-		   AlignmentFlag::Left | AlignmentFlag::Middle,
+		   WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
 		   series.model()->headerData(series.modelColumn()));
 }
 
@@ -3676,7 +3729,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	      (painter, axis.title(),
 	       WPointF(u + (labelHFlag == AlignmentFlag::Right ? 15 : -15),
 		       chartArea_.top() - 8),
-	       labelHFlag | AlignmentFlag::Bottom, 0, 10);
+	       WFlags<AlignmentFlag>(labelHFlag) | AlignmentFlag::Bottom, 0, 10);
 	  } else {
 	    WPaintDevice *device = painter.device();
 	    double size = 0, titleSizeW = 0;
@@ -3693,11 +3746,11 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	    }
 
 	    renderLabel(painter, axis.title(),
-		WPointF(u + (labelHFlag == AlignmentFlag::Right 
+		WPointF(u + (labelHFlag == AlignmentFlag::Right
 			     ? -( size + titleSizeW + 5) 
 			     : +( size + titleSizeW + 5)),
 			chartArea_.center().y()), 
-			AlignmentFlag::Center | AlignmentFlag::Middle,
+			WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Middle,
 			locations[l] == AxisValue::Maximum ? -90 : 90, 10);
 	  }
 	} else {
@@ -3711,7 +3764,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
           }
           if (locations[l] != AxisValue::Maximum)
             extraMargin = -extraMargin;
-          WFlags<AlignmentFlag> alignment = (locations[l] == AxisValue::Maximum ? AlignmentFlag::Left : AlignmentFlag::Right) | AlignmentFlag::Middle;
+          WFlags<AlignmentFlag> alignment = WFlags<AlignmentFlag>(locations[l] == AxisValue::Maximum ? AlignmentFlag::Left : AlignmentFlag::Right) | AlignmentFlag::Middle;
 	  renderLabel(painter, axis.title(),
 		      WPointF(u + extraMargin, chartArea_.center().y()),
 		      alignment, 0, 10);
@@ -3733,7 +3786,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	  if (locations[l] == AxisValue::Maximum)
 	    extraMargin = -extraMargin;
 	  WFlags<AlignmentFlag> alignment = 
-	    (locations[l] == AxisValue::Maximum ?
+	    WFlags<AlignmentFlag>(locations[l] == AxisValue::Maximum ?
 	     AlignmentFlag::Bottom : AlignmentFlag::Top) |
 	    AlignmentFlag::Center;
 	  renderLabel(painter, axis.title(),
@@ -3757,11 +3810,11 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 
 	    renderLabel(painter, axis.title(),
 			WPointF(chartArea_.center().x(), u + extraMargin),
-			AlignmentFlag::Middle | AlignmentFlag::Center,
+			WFlags<AlignmentFlag>(AlignmentFlag::Middle) | AlignmentFlag::Center,
 			locations[l] == AxisValue::Maximum ? -90 : 90, 10);
 	  } else {
 	    WFlags<AlignmentFlag> alignment = 
-	      (locations[l] == AxisValue::Maximum ? 
+	      WFlags<AlignmentFlag>(locations[l] == AxisValue::Maximum ? 
 	       AlignmentFlag::Bottom : AlignmentFlag::Top) |
 	      AlignmentFlag::Left;
 	    renderLabel(painter, axis.title(), WPointF(chartArea_.right(), u),
@@ -3872,7 +3925,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
     AxisValue side = location == AxisValue::Both ? locations[l] : axis.location();
 
     axis.render(painter, properties, axisStart, axisEnd, tickStart, tickEnd,
-		labelPos, labelHFlag | labelVFlag, transform, 
+		labelPos, WFlags<AlignmentFlag>(labelHFlag) | labelVFlag, transform, 
 		side, pens, textPens);
   }
 
@@ -3942,28 +3995,30 @@ void WCartesianChart::renderCurveLabels(WPainter &painter) const
 
 	// Find the right x and y segment
 	int xSegment = 0;
+        double x = axis(Axis::X).getValue(label.x());
 	if (!isInteractive())
 	  while (xSegment < axis(Axis::X).segmentCount() && 
-		 (axis(Axis::X).segments_[xSegment].renderMinimum > label.point().x() || 
-		  axis(Axis::X).segments_[xSegment].renderMaximum < label.point().x())) {
+		 (axis(Axis::X).segments_[xSegment].renderMinimum > x || 
+		  axis(Axis::X).segments_[xSegment].renderMaximum < x)) {
 	    ++xSegment;
 	  }
 
 	int ySegment = 0;
+        double y = yAxis(series.yAxis()).getValue(label.y());
 	if (!isInteractive())
-	  while (ySegment < axis(series.axis()).segmentCount() && 
-		 (axis(series.axis()).segments_[ySegment].renderMinimum > label.point().y() || 
-		  axis(series.axis()).segments_[ySegment].renderMaximum < label.point().y())) {
+          while (ySegment < yAxis(series.yAxis()).segmentCount() &&
+                 (yAxis(series.yAxis()).segments_[ySegment].renderMinimum > y ||
+                  yAxis(series.yAxis()).segments_[ySegment].renderMaximum < y)) {
 	    ++ySegment;
 	  }
 
 	// Only draw the label if it is actually on a segment
 	if (xSegment < axis(Axis::X).segmentCount() && 
-	    ySegment < axis(series.axis()).segmentCount()) {
+            ySegment < yAxis(series.yAxis()).segmentCount()) {
 	  // Figure out the device coordinates of the point to draw a label at.
 	  WPointF devicePoint = 
-            mapToDeviceWithoutTransform(label.point().x(), label.point().y(),
-			series.axis(), xSegment, ySegment);
+            mapToDeviceWithoutTransform(label.x(), label.y(),
+                        series.yAxis(), xSegment, ySegment);
 	  WTransform translation = WTransform().translate(t.map(devicePoint));
 	  painter.save();
 	  painter.setWorldTransform(translation);
@@ -4304,7 +4359,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
     }
     painter.drawText(x - TITLE_WIDTH / 2,
                      plotAreaPadding(Side::Top) - titleHeight - TITLE_PADDING - titleOffset,
-                     TITLE_WIDTH, titleHeight, AlignmentFlag::Center | AlignmentFlag::Top, title());
+                     TITLE_WIDTH, titleHeight, WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, title());
     painter.restore();
   }
 }
@@ -4392,11 +4447,11 @@ void WCartesianChart::renderLabel(WPainter& painter, const WString& text,
 
   if (angle == 0) {
     painter.drawText(WRectF(left, top, width, height),
-		     rHorizontalAlign | rVerticalAlign, text);
+		     WFlags<AlignmentFlag>(rHorizontalAlign) | rVerticalAlign, text);
   } else {
     painter.rotate(-angle);
     painter.drawText(WRectF(left, top, width, height),
-		     rHorizontalAlign | rVerticalAlign, text);
+		     WFlags<AlignmentFlag>(rHorizontalAlign) | rVerticalAlign, text);
   }
 
   painter.setWorldTransform(oldTransform, false);
@@ -4804,9 +4859,9 @@ void WCartesianChart::jsSeriesSelected(double x, double y)
       WTransform t = curveTransform(series);
       for (std::size_t j = 0; j < path.segments().size(); ++j) {
 	const WPainterPath::Segment &seg = path.segments()[j];
-	if (seg.type() != SegmentType::CubicC1 &&
-	    seg.type() != SegmentType::CubicC2 &&
-	    seg.type() != SegmentType::QuadC) {
+	if (seg.type() != CubicC1 &&
+	    seg.type() != CubicC2 &&
+	    seg.type() != QuadC) {
 	  WPointF segP = t.map(WPointF(seg.x(), seg.y()));
 	  double dx = p.x() - segP.x();
 	  double dy = p.y() - segP.y();

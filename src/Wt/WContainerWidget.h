@@ -158,11 +158,15 @@ public:
 
   template <typename Layout>
     Layout *setLayout(std::unique_ptr<Layout> layout)
+#ifndef WT_TARGET_JAVA
   {
     Layout *result = layout.get();
     setLayout(std::unique_ptr<WLayout>(std::move(layout)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns the layout manager that was set for the container.
    *
@@ -203,12 +207,17 @@ public:
    */
   template <typename Widget>
     Widget *addWidget(std::unique_ptr<Widget> widget)
+#ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
     addWidget(std::unique_ptr<WWidget>(std::move(widget)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Creates a widget and adds it, returning a reference to it.
    *
    * This is implemented as:
@@ -236,6 +245,7 @@ public:
     addWidget(std::unique_ptr<WWidget>{std::move(w)});
     return result;
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Inserts a child widget in this container, before another
    *         widget.
@@ -263,11 +273,15 @@ public:
    */
   template <typename Widget>
     Widget *insertBefore(std::unique_ptr<Widget> widget, WWidget *before)
+#ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
     insertBefore(std::unique_ptr<WWidget>(std::move(widget)), before);
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Inserts a child widget in this container at given index.
    *
@@ -294,12 +308,17 @@ public:
    */
   template <typename Widget>
     Widget *insertWidget(int index, std::unique_ptr<Widget> widget)
+#ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
     insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Creates a widget and inserts it, returning a reference to it.
    *
    * This is implemented as:
@@ -319,6 +338,7 @@ public:
     insertWidget(index, std::unique_ptr<WWidget>{std::move(w)});
     return result;
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Removes a child widget from this container.
    *
@@ -476,7 +496,7 @@ private:
   std::vector<WWidget *> children_;
   std::unique_ptr<WLayout> layout_;
 
-  std::unique_ptr<std::vector<WWidget *>> addedChildren_;
+  std::unique_ptr<std::vector<WWidget *> > addedChildren_;
 
   bool globalUnfocused_;
   int scrollTop_, scrollLeft_;

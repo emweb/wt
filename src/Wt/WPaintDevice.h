@@ -104,8 +104,10 @@ private:
 class WT_API WPaintDevice
 {
 public:
+#ifndef WT_TARGET_JAVA
   /*! \brief Typedef for enum Wt::PaintDeviceFeatureFlag */
   typedef PaintDeviceFeatureFlag FeatureFlag;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Destructor.
    *

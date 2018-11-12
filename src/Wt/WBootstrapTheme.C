@@ -120,40 +120,40 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
     return;
 
   switch (widgetRole) {
-  case WidgetThemeRole::MenuItemIcon:
+  case MenuItemIcon:
     child->addStyleClass("Wt-icon");
     break;
-  case WidgetThemeRole::MenuItemCheckBox:
+  case MenuItemCheckBox:
     child->setStyleClass("Wt-chkbox");
     ((WFormWidget *)child)->label()->addStyleClass("checkbox-inline");
     break;
-  case WidgetThemeRole::MenuItemClose:
+  case MenuItemClose:
     {
       child->addStyleClass("close");
       WText *t = dynamic_cast<WText *>(child);
       t->setText("&times;");
       break;
     }
-  case WidgetThemeRole::DialogContent:
+  case DialogContent:
     if (version_ == BootstrapVersion::v3)
       child->addStyleClass("modal-content");
     break;
-  case WidgetThemeRole::DialogCoverWidget:
+  case DialogCoverWidget:
     if (version_ == BootstrapVersion::v3)
       child->addStyleClass("modal-backdrop in");
     else
       child->addStyleClass("modal-backdrop Wt-bootstrap2");
     break;
-  case WidgetThemeRole::DialogTitleBar:
+  case DialogTitleBar:
        child->addStyleClass("modal-header");
     break;
-  case WidgetThemeRole::DialogBody:
+  case DialogBody:
       child->addStyleClass("modal-body");
     break;
-  case WidgetThemeRole::DialogFooter:
+  case DialogFooter:
     child->addStyleClass("modal-footer");
     break;
-  case WidgetThemeRole::DialogCloseIcon:
+  case DialogCloseIcon:
     {
       child->addStyleClass("close");
       WText *t = dynamic_cast<WText *>(child);
@@ -161,58 +161,58 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
       break;
     }
 
-  case WidgetThemeRole::TableViewRowContainer:
+  case TableViewRowContainer:
     {
       WAbstractItemView *view = dynamic_cast<WAbstractItemView *>(widget);
       child->toggleStyleClass("Wt-striped", view->alternatingRowColors());
       break;
     }
 
-  case WidgetThemeRole::DatePickerPopup:
+  case DatePickerPopup:
     child->addStyleClass("Wt-datepicker");
     break;
 
-  case WidgetThemeRole::TimePickerPopup:
+  case TimePickerPopup:
     child->addStyleClass("Wt-timepicker");
     break;
 
-  case WidgetThemeRole::PanelTitleBar:
+  case PanelTitleBar:
     child->addStyleClass(classAccordionHeading());
     break;
 
-  case WidgetThemeRole::PanelCollapseButton:
-  case WidgetThemeRole::PanelTitle:
+  case PanelCollapseButton:
+  case PanelTitle:
     child->addStyleClass("accordion-toggle");
     break;
 
-  case WidgetThemeRole::PanelBody:
+  case PanelBody:
     child->addStyleClass(classAccordionInner());
     break;
-  case WidgetThemeRole::InPlaceEditing:
+  case InPlaceEditing:
     if (version_ == BootstrapVersion::v2)
       child->addStyleClass("input-append");
     else
       child->addStyleClass("input-group");
     break;
-  case WidgetThemeRole::NavCollapse:
+  case NavCollapse:
     child->addStyleClass(classNavCollapse());
     break;
-  case WidgetThemeRole::NavBrand:
+  case NavBrand:
     child->addStyleClass(classBrand());
     break;
-  case WidgetThemeRole::NavbarSearch:
+  case NavbarSearch:
     child->addStyleClass(classNavbarSearch());
     break;
-  case WidgetThemeRole::NavbarAlignLeft:
+  case NavbarAlignLeft:
     child->addStyleClass(classNavbarLeft());
     break;
-  case WidgetThemeRole::NavbarAlignRight:
+  case NavbarAlignRight:
     child->addStyleClass(classNavbarRight());
     break;
-  case WidgetThemeRole::NavbarMenu:
+  case NavbarMenu:
     child->addStyleClass(classNavbarMenu());
     break;
-  case WidgetThemeRole::NavbarBtn:
+  case NavbarBtn:
     child->addStyleClass(classNavbarBtn());
     break;
   }
@@ -490,9 +490,9 @@ std::string WBootstrapTheme::activeClass() const
 std::string WBootstrapTheme::utilityCssClass(int utilityCssClassRole) const
 {
   switch (utilityCssClassRole) {
-  case UtilityCssClassRole::ToolTipInner:
+  case ToolTipInner:
     return "tooltip-inner";
-  case UtilityCssClassRole::ToolTipOuter:
+  case ToolTipOuter:
     return "tooltip fade top in";
   default:
     return "";

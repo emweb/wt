@@ -43,7 +43,7 @@ struct Grid {
 
   std::vector<Section> rows_;
   std::vector<Section> columns_;
-  std::vector<std::vector<Item>> items_; // [row][column]
+  std::vector<std::vector<Item> > items_; // [row][column]
 
   Grid();
   ~Grid();
@@ -250,9 +250,15 @@ public:
    *
    * \sa addWidget(WWidget *, int, int, int, int, WFlags<AlignmentFlag>) 
    */
+#ifndef WT_TARGET_JAVA
   void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
                  WFlags<AlignmentFlag> alignment);
+#else // WT_TARGET_JAVA
+  void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
+                 WFlags<AlignmentFlag> alignment = None);
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Adds a widget to the grid, returning a raw pointer to the widget.
    *
    * This is implemented as:
@@ -271,6 +277,7 @@ public:
     addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column, alignment);
     return result;
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Adds a widget to the grid.
    *
@@ -291,10 +298,17 @@ public:
    *
    * \sa addWidget(WWidget *, int, int, WFlags<AlignmentFlag>)
    */
+#ifndef WT_TARGET_JAVA
   void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
 		 int rowSpan, int columnSpan,
 		 WFlags<AlignmentFlag> alignment);
+#else // WT_TARGET_JAVA
+  void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
+		 int rowSpan, int columnSpan,
+		 WFlags<AlignmentFlag> alignment = None);
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Adds a widget to the grid, returning a raw pointer to the widget.
    *
    * This is implemented as:
@@ -316,6 +330,7 @@ public:
               rowSpan, columnSpan, alignment);
     return result;
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Sets the horizontal spacing.
    *
@@ -439,7 +454,6 @@ public:
    */
   bool rowIsResizable(int row) const;
 
-protected:
   virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
 
 private:

@@ -640,7 +640,7 @@ void WebController::handleRequest(WebRequest *request)
   std::string sessionId;
 
   /*
-   * Method::Get session from request.
+   * Get session from request.
    */
   const std::string *wtdE = request->getParameter("wtd");
 

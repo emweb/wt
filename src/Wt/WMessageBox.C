@@ -83,7 +83,7 @@ WPushButton *WMessageBox::addButton(const WString& text, StandardButton result)
 }
 
 void WMessageBox::addButton(std::unique_ptr<WPushButton> button,
-			    StandardButton result)
+			    const StandardButton result)
 {
   buttons_.push_back(Button());
   buttons_.back().button = button.get();

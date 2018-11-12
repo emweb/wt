@@ -71,34 +71,34 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
     return;
 
   switch (widgetRole) {
-  case WidgetThemeRole::MenuItemIcon:
+  case MenuItemIcon:
     child->addStyleClass("Wt-icon");
     break;
-  case WidgetThemeRole::MenuItemCheckBox:
+  case MenuItemCheckBox:
     child->addStyleClass("Wt-chkbox");
     break;
-  case WidgetThemeRole::MenuItemClose:
+  case MenuItemClose:
     widget->addStyleClass("Wt-closable");
     child->addStyleClass("closeicon");
     break;
 
-  case WidgetThemeRole::DialogCoverWidget:
+  case DialogCoverWidget:
     child->setStyleClass("Wt-dialogcover in");
     break;
-  case WidgetThemeRole::DialogTitleBar:
+  case DialogTitleBar:
     child->addStyleClass("titlebar");
     break;
-  case WidgetThemeRole::DialogBody:
+  case DialogBody:
     child->addStyleClass("body");
     break;
-  case WidgetThemeRole::DialogFooter:
+  case DialogFooter:
     child->addStyleClass("footer");
     break;
-  case WidgetThemeRole::DialogCloseIcon:
+  case DialogCloseIcon:
     child->addStyleClass("closeicon");
     break;
 
-  case WidgetThemeRole::TableViewRowContainer:
+  case TableViewRowContainer:
     {
       WAbstractItemView *view = dynamic_cast<WAbstractItemView *>(widget);
 
@@ -118,17 +118,17 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
       break;
     }
 
-  case WidgetThemeRole::DatePickerPopup:
+  case DatePickerPopup:
     child->addStyleClass("Wt-datepicker");
     break;
-  case WidgetThemeRole::PanelTitleBar:
+  case PanelTitleBar:
     child->addStyleClass("titlebar");
     break;
-  case WidgetThemeRole::PanelBody:
+  case PanelBody:
     child->addStyleClass("body");
     break;
 
-  case WidgetThemeRole::AuthWidgets:
+  case AuthWidgets:
     WApplication *app = WApplication::instance();
     app->useStyleSheet(WApplication::relativeResourcesUrl() + "form.css");
     app->builtinLocalizedStrings().useBuiltin(skeletons::AuthCssTheme_xml1);
@@ -215,13 +215,13 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
       WProgressBar *bar = dynamic_cast<WProgressBar *>(widget);
       if (bar) {
 	switch (elementRole) {
-	case ElementThemeRole::MainElement:
+	case MainElement:
 	  element.addPropertyWord(Property::Class, "Wt-progressbar");
 	  break;
-	case ElementThemeRole::ProgressBarBar:
+	case ProgressBarBar:
 	  element.addPropertyWord(Property::Class, "Wt-pgb-bar");
 	  break;
-	case ElementThemeRole::ProgressBarLabel:
+	case ProgressBarLabel:
 	  element.addPropertyWord(Property::Class, "Wt-pgb-label");
 	}
 	return;
@@ -270,7 +270,7 @@ std::string WCssTheme::activeClass() const
 std::string WCssTheme::utilityCssClass(int utilityCssClassRole) const
 {
   switch (utilityCssClassRole) {
-  case UtilityCssClassRole::ToolTipOuter:
+  case ToolTipOuter:
     return "Wt-tooltip";
   default:
     return "";

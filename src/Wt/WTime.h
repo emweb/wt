@@ -9,6 +9,7 @@
 
 #include <Wt/WDateTime.h>
 #include <Wt/WString.h>
+#include <Wt/WStringStream.h>
 #include <exception>
 
 namespace Wt {
@@ -253,8 +254,13 @@ public:
 
   static RegExpInfo formatToRegExp(const WT_USTRING& format);
 
+#ifndef WT_TARGET_JAVA
   std::chrono::duration<int, std::milli> toTimeDuration() const;
   static WTime fromTimeDuration(const std::chrono::duration<int, std::milli>& duration);
+#else
+  std::chrono::milliseconds toTimeDuration() const;
+  static WTime fromTimeDuration(const std::chrono::milliseconds& duration);
+#endif
 
 private:
   bool valid_, null_;
@@ -277,7 +283,7 @@ private:
 					    unsigned& vi, ParseState& parse,
 					    const WString& format);
 
-  bool writeSpecial(const std::string& f, unsigned& i, std::stringstream& result,
+  bool writeSpecial(const std::string& f, unsigned& i, WStringStream& result,
 		    bool useAMPM, int zoneOffset) const;
 
   int pmhour() const;

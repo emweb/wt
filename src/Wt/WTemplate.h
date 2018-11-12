@@ -466,12 +466,17 @@ public:
   template <typename Widget>
     Widget *bindWidget(const std::string& varName,
                        std::unique_ptr<Widget> widget)
+#ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
     bindWidget(varName, std::unique_ptr<WWidget>(std::move(widget)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Creates a new widget with the given arguments, and binds it, returning a raw pointer.
    *
    * This is implemented as:
@@ -494,6 +499,7 @@ public:
     bindWidget(varName, std::unique_ptr<WWidget>(std::move(w)));
     return result;
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Unbinds a widget by variable name.
    *
@@ -815,7 +821,7 @@ protected:
 private:
   typedef std::map<std::string, Function> FunctionMap;
   typedef std::map<std::string, WString> StringMap;
-  typedef std::map<std::string, std::unique_ptr<WWidget>> WidgetMap;
+  typedef std::map<std::string, std::unique_ptr<WWidget> > WidgetMap;
   typedef std::set<std::string> ConditionSet;
 
   std::set<WWidget *> *previouslyRendered_;

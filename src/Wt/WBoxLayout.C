@@ -9,6 +9,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WBoxLayout.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
 #include "Wt/WWebWidget.h"
 #include "Wt/WWidgetItem.h"
 
@@ -53,18 +54,20 @@ std::unique_ptr<WLayoutItem> WBoxLayout::removeItem(WLayoutItem *item)
     case LayoutDirection::RightToLeft:
       if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
 	index = grid_.columns_.size() - 1 - index;
-    case LayoutDirection::LeftToRight:
-      result = std::move(grid_.items_[0][index].item_);
-      grid_.columns_.erase(grid_.columns_.begin() + index);
-      grid_.items_[0].erase(grid_.items_[0].begin() + index);
-      break;
+    case LayoutDirection::LeftToRight: {
+        result = std::move(grid_.items_[0][index].item_);
+        grid_.columns_.erase(grid_.columns_.begin() + index);
+        grid_.items_[0].erase(grid_.items_[0].begin() + index);
+        break;
+      }
     case LayoutDirection::BottomToTop:
       if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
         index = grid_.rows_.size() - 1 - index;
-    case LayoutDirection::TopToBottom:
-      result = std::move(grid_.items_[index][0].item_);
-      grid_.rows_.erase(grid_.rows_.begin() + index);
-      grid_.items_.erase(grid_.items_.begin() + index);
+    case LayoutDirection::TopToBottom: {
+        result = std::move(grid_.items_[index][0].item_);
+        grid_.rows_.erase(grid_.rows_.begin() + index);
+        grid_.items_.erase(grid_.items_.begin() + index);
+      }
     }
 
     itemRemoved(item);

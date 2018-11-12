@@ -37,6 +37,7 @@ namespace Wt {
 
   namespace Utils {
 
+#ifndef WT_TARGET_JAVA
 template<typename Derived, typename Base>
 std::unique_ptr<Derived> dynamic_unique_ptr_cast(std::unique_ptr<Base>&& p)
 {
@@ -46,6 +47,10 @@ std::unique_ptr<Derived> dynamic_unique_ptr_cast(std::unique_ptr<Base>&& p)
   } else
     return std::unique_ptr<Derived>();
 }
+#else
+template<typename Derived, typename Base>
+std::unique_ptr<Derived> dynamic_unique_ptr_cast(std::unique_ptr<Base> p);
+#endif
 
 // appends the character to the string if it does not end with it
 extern std::string append(const std::string& s, char c);
@@ -130,19 +135,35 @@ inline bool erase(std::vector<T>& v, const T& value)
 }
 
 template<typename T>
-inline std::unique_ptr<T> take(std::vector<std::unique_ptr<T>>& v,
+inline std::unique_ptr<T> take(std::vector<std::unique_ptr<T> >& v,
 			       const T *value)
 {
-  for (auto i = v.begin(); i != v.end(); ++i) {
-    if (i->get() == value) {
-      auto result = std::move(*i);
-      v.erase(i);
+  for (std::size_t i = 0; i < v.size();) {
+    if (v[i].get() == value) {
+      auto result = std::move(v[i]);
+      v.erase(v.begin() + i);
       return result;
+    } else {
+      ++i;
     }
   }
 
   return std::unique_ptr<T>();
 }
+
+template<typename K, typename V>
+inline const K * keyForUniquePtrValue(const std::map<K, std::unique_ptr<V> >& m, const V *v)
+#ifndef WT_TARGET_JAVA
+{
+  for (auto& i : m)
+    if (i.second.get() == v)
+      return &i.first;
+
+  return nullptr;
+}
+#else // WT_TARGET_JAVA
+;
+#endif
 
 template<typename K, typename V>
 void eraseAndNext(std::map<K, V>& m, typename std::map<K, V>::iterator& i)
@@ -344,13 +365,13 @@ int sizeofFunction(const int[]);
 int sizeofFunction(const std::string[]);
 #endif
 
-extern long stol(const std::string& v);
-extern unsigned long stoul(const std::string& v);
+extern long WT_API stol(const std::string& v);
+extern unsigned long WT_API stoul(const std::string& v);
 extern long long WT_API stoll(const std::string& v);
-extern unsigned long long stoull(const std::string& v);
+extern unsigned long long WT_API stoull(const std::string& v);
 extern int WT_API stoi(const std::string& v);
-extern double stod(const std::string& v);
-extern float stof(const std::string& v);
+extern double WT_API stod(const std::string& v);
+extern float WT_API stof(const std::string& v);
 
   }
 }

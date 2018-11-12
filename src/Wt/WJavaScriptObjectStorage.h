@@ -32,7 +32,7 @@ public:
     return WJavaScriptHandle<T>(index, o);
   }
 
-  void updateJs(WStringStream &js);
+  void updateJs(WStringStream &js, bool all);
 
   std::size_t size() const;
 

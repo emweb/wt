@@ -1,4 +1,5 @@
 #include "Wt/WApplication.h"
+#include "Wt/WLogger.h"
 #include "Wt/Json/Object.h"
 #include "Wt/Json/Parser.h"
 #include "Wt/Http/Client.h"
@@ -31,10 +32,10 @@ LOGGER("Auth.OidcService");
     }
 
     httpClient_.reset(new Http::Client());
-    httpClient_->setTimeout(std::chrono::seconds{15});
+    httpClient_->setTimeout(std::chrono::seconds(15));
     httpClient_->setMaximumResponseSize(10 * 1024);
 
-    httpClient_->done().connect(std::bind(&OidcProcess::handleResponse,
+    httpClient_->done().connect(this, std::bind(&OidcProcess::handleResponse,
                                        this, std::placeholders::_1, std::placeholders::_2));
 
     std::vector<Http::Message::Header> headers;

@@ -6,6 +6,11 @@
 #include <Wt/WStandardItem.h>
 #include <Wt/WTableView.h>
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+using namespace Wt::Chart;
+#endif // WT_TARGET_JAVA
+
 namespace {
     /*
      * A standard item which converts text edits to numbers
@@ -16,7 +21,7 @@ namespace {
             return cpp14::make_unique<NumericItem>();
 	}
 
-        virtual void setData(const cpp17::any &data, int role = ItemDataRole::User) {
+        virtual void setData(const cpp17::any &data, ItemDataRole role = ItemDataRole::User) {
     if (role == ItemDataRole::Edit) {
       cpp17::any dt;
 
@@ -96,7 +101,11 @@ else
  */
 Chart::WPieChart *chart =
     container->addWidget(cpp14::make_unique<Chart::WPieChart>());
+#ifndef WT_TARGET_JAVA
 chart->setModel(model);       // Set the model.
+#else // WT_TARGET_JAVA
+chart->setModel(std::shared_ptr<WAbstractItemModel>(model));       // Set the model.
+#endif // WT_TARGET_JAVA
 chart->setLabelsColumn(0);    // Set the column that holds the labels.
 chart->setDataColumn(1);      // Set the column that holds the data.
 

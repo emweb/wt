@@ -18,11 +18,7 @@ OAuthWidget::OAuthWidget(const OAuthService& oAuthService)
   setVerticalAlignment(AlignmentFlag::Middle);
 
   process_ = oAuthService.createProcess(oAuthService.authenticationScope());
-#ifndef WT_TARGET_JAVA
   clicked().connect(process_.get(), &OAuthProcess::startAuthenticate);
-#else
-  process_->connectStartAuthenticate(w->clicked());
-#endif
 
   process_->authenticated().connect(this, &OAuthWidget::oAuthDone);
 }

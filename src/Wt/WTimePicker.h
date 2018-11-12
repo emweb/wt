@@ -7,12 +7,13 @@
 #ifndef WTIME_PICKER_H_
 #define WTIME_PICKER_H_
 
-#include "WCompositeWidget.h"
-#include "WContainerWidget.h"
-#include "WTime.h"
-#include "WSpinBox.h"
-#include "WStringStream.h"
-#include "WComboBox.h"
+#include <Wt/WComboBox.h>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WJavaScriptSlot.h>
+#include <Wt/WSpinBox.h>
+#include <Wt/WStringStream.h>
+#include <Wt/WTime.h>
 
 namespace Wt {
 

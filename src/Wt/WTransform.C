@@ -181,8 +181,8 @@ WPainterPath WTransform::map(const WPainterPath& path) const
 
   for (std::size_t i = 0; i < sourceSegments.size(); ++i) {
     double tx, ty;
-    if (sourceSegments[i].type() == SegmentType::ArcR ||
-	sourceSegments[i].type() == SegmentType::ArcAngleSweep) {
+    if (sourceSegments[i].type() == ArcR ||
+	sourceSegments[i].type() == ArcAngleSweep) {
       result.segments_.push_back(sourceSegments[i]);
     } else {
       map(sourceSegments[i].x(), sourceSegments[i].y(), &tx, &ty);

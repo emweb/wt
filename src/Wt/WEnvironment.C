@@ -59,7 +59,18 @@ namespace Wt {
 LOGGER("WEnvironment");
 
 WEnvironment::WEnvironment()
-  : WEnvironment(nullptr)
+  : session_(nullptr),
+    doesAjax_(false),
+    doesCookies_(false),
+    internalPathUsingFragments_(false),
+    screenWidth_(-1),
+    screenHeight_(-1),
+    dpiScale_(1),
+    webGLsupported_(false),
+    timeZoneOffset_(0)
+#ifndef WT_TARGET_JAVA
+    , sslInfo_(nullptr)
+#endif
 { }
 
 WEnvironment::WEnvironment(WebSession *session)
@@ -319,7 +330,7 @@ void WEnvironment::enableAjax(const WebRequest& request)
   const std::string *tzE = request.getParameter("tz");
 
   try {
-    timeZoneOffset_ = std::chrono::minutes{tzE ? Utils::stoi(*tzE) : 0};
+    timeZoneOffset_ = std::chrono::minutes(tzE ? Utils::stoi(*tzE) : 0);
   } catch (std::exception& e) {
   }
 

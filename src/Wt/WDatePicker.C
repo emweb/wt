@@ -91,8 +91,7 @@ void WDatePicker::create(std::unique_ptr<WInteractWidget> displayWidget,
   popup_->setTransient(true);
   calendar_->activated().connect(popup_.get(), &WWidget::hide);
 
-  WApplication::instance()->theme()->apply(this, popup_.get(),
-					   WidgetThemeRole::DatePickerPopup);
+  WApplication::instance()->theme()->apply(this, popup_.get(), DatePickerPopup);
 
   displayWidget_->clicked().connect(popup_.get(), &WWidget::show);
   displayWidget_->clicked().connect(this, &WDatePicker::setFromLineEdit);

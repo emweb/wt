@@ -9,6 +9,7 @@
 #include "Wt/WException.h"
 #include "Wt/WLocalDateTime.h"
 #include "Wt/WLogger.h"
+
 #include "Wt/Date/date.h"
 
 #include "WebUtils.h"
@@ -607,7 +608,7 @@ WString WDate::toString(const WString& format) const
 }
 
 bool WDate::writeSpecial(const std::string& f, unsigned& i,
-			 std::stringstream& result, bool localized) const
+			 WStringStream& result, bool localized) const
 {
   char buf[30];
 

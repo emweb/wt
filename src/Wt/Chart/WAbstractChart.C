@@ -110,7 +110,7 @@ void WAbstractChart::setModel(const std::shared_ptr<WAbstractChartModel>& model)
 
 void WAbstractChart::setModel(const std::shared_ptr<WAbstractItemModel>& model)
 {
-  setModel(std::make_shared<WStandardChartProxyModel>(model));
+  setModel(std::shared_ptr<WAbstractChartModel>(std::make_shared<WStandardChartProxyModel>(model)));
 }
 
 std::shared_ptr<WAbstractItemModel> WAbstractChart::itemModel() const

@@ -73,14 +73,14 @@ WLink *WStandardChartProxyModel::link(int row, int column) const
     link_ = cpp17::any_cast<WLink>(result);
     return &link_;
 #else
-    WLink c = boost::any_cast<WLink>(result);
+    WLink c = cpp17::any_cast<WLink>(result);
     return &c;
 #endif
   }
 }
 
 
-const WColor *WStandardChartProxyModel::color(int row, int column, int colorDataRole) const
+const WColor *WStandardChartProxyModel::color(int row, int column, ItemDataRole colorDataRole) const
 {
   cpp17::any result = sourceModel_->data(row, column, colorDataRole);
 

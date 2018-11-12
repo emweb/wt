@@ -71,7 +71,7 @@ protected:
   }
 
 private:
-  std::vector<std::unique_ptr<WAbstractArea>> areas_;
+  std::vector<std::unique_ptr<WAbstractArea> > areas_;
 };
 
 }

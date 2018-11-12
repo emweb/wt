@@ -182,7 +182,7 @@ void WStandardColorMap::paintLegend(WPainter *painter,
     for (int i=0; i < nbTicks; i++) {
       painter->drawLine(0, 0.5, 4, 0.5);
       painter->drawText(10, -textHeight/2, 40, textHeight,
-			AlignmentFlag::Left | AlignmentFlag::Middle, 
+			WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle, 
 			Wt::asString(value, format_));
       value -= valDiff;
 
@@ -198,7 +198,7 @@ void WStandardColorMap::paintLegend(WPainter *painter,
     // first paint tick for maximum value
     painter->drawLine(0, 0.5, 4, 0.5);
     painter->drawText(10, -textHeight/2, 100, textHeight,
-		      AlignmentFlag::Left | AlignmentFlag::Middle,
+		      WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
 		      Wt::asString(max_, format_));
     // paint the rest of the ticks
     int nbTicks = colors_.size();
@@ -210,7 +210,7 @@ void WStandardColorMap::paintLegend(WPainter *painter,
       painter->translate(0, roundedDiff-prevDiff);
       painter->drawLine(0, 0.5, 4, 0.5);
       painter->drawText(10, -textHeight/2, 40, textHeight,
-			AlignmentFlag::Left | AlignmentFlag::Middle,
+			WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
 			Wt::asString(colors_[i].value(), format_));
       prevDiff = roundedDiff;
     }

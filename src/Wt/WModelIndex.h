@@ -34,6 +34,10 @@ extern std::size_t hash_value(const Wt::WModelIndex& index);
 typedef std::treeset<WModelIndex> WModelIndexSet;
 #endif
 
+#ifdef WT_TARGET_JAVA
+#define constexpr
+#endif // WT_TARGET_JAVA
+
 /*! \defgroup modelview Model/view system
  *  \brief Classes that implement %Wt's model/view system.
  *
@@ -116,7 +120,7 @@ public:
   /*! \brief Create a new role with a certain int value.
    */
   constexpr ItemDataRole(int role) noexcept
-    : role_{role}
+    : role_(role)
   { }
 
   /*! \brief Returns the underlying int of this role.
@@ -141,10 +145,11 @@ public:
     return role_ < rhs.role_;
   }
 
-  static constexpr int Display = 0;       //!< Role for textual representation
-  static constexpr int Decoration = 1;    //!< Role for the url of an icon
-  static constexpr int Edit = 2;          //!< Role for the edited value
-  static constexpr int StyleClass = 3;    //!< Role for the style class
+#ifndef WT_TARGET_JAVA
+  static constexpr const int Display = 0;       //!< Role for textual representation
+  static constexpr const int Decoration = 1;    //!< Role for the url of an icon
+  static constexpr const int Edit = 2;          //!< Role for the edited value
+  static constexpr const int StyleClass = 3;    //!< Role for the style class
 
   /*! Role that indicates the check state.
    *
@@ -152,19 +157,36 @@ public:
    * Wt::ItemIsTristate flag is set for the item, data for this role
    * should be of type Wt::CheckState.
    */
-  static constexpr int Checked = 4;
-  static constexpr int ToolTip = 5;         //!< Role for a (plain) tooltip
-  static constexpr int Link = 6;            //!< Role for a link
-  static constexpr int MimeType = 7;        //!< Role for mime type information
-  static constexpr int Level = 8;           //!< Level in aggregation, for header data.
+  static constexpr const int Checked = 4;
+  static constexpr const int ToolTip = 5;         //!< Role for a (plain) tooltip
+  static constexpr const int Link = 6;            //!< Role for a link
+  static constexpr const int MimeType = 7;        //!< Role for mime type information
+  static constexpr const int Level = 8;           //!< Level in aggregation, for header data.
 
-  static constexpr int MarkerPenColor = 16;    //!< Marker pen color (for Chart::WCartesianChart)
-  static constexpr int MarkerBrushColor = 17;  //!< Marker brush color (for Chart::WCartesianChart)
-  static constexpr int MarkerScaleFactor = 20; //!< Marker size (for Chart::WCartesianChart)
-  static constexpr int BarPenColor = 18;   //!< Bar pen color (for Chart::WCartesianChart)
-  static constexpr int BarBrushColor = 19; //!< Bar brush color (for Chart::WCartesianChart)
+  static constexpr const int MarkerPenColor = 16;    //!< Marker pen color (for Chart::WCartesianChart)
+  static constexpr const int MarkerBrushColor = 17;  //!< Marker brush color (for Chart::WCartesianChart)
+  static constexpr const int MarkerScaleFactor = 20; //!< Marker size (for Chart::WCartesianChart)
+  static constexpr const int BarPenColor = 18;   //!< Bar pen color (for Chart::WCartesianChart)
+  static constexpr const int BarBrushColor = 19; //!< Bar brush color (for Chart::WCartesianChart)
 
-  static constexpr int User = 32;           //!< First role reserved for user purposes
+  static constexpr const int User = 32;           //!< First role reserved for user purposes
+#else // WT_TARGET_JAVA
+  static const ItemDataRole Display;
+  static const ItemDataRole Decoration;
+  static const ItemDataRole Edit;
+  static const ItemDataRole StyleClass;
+  static const ItemDataRole Checked;
+  static const ItemDataRole ToolTip;
+  static const ItemDataRole Link;
+  static const ItemDataRole MimeType;
+  static const ItemDataRole Level;
+  static const ItemDataRole MarkerPenColor;
+  static const ItemDataRole MarkerBrushColor;
+  static const ItemDataRole MarkerScaleFactor;
+  static const ItemDataRole BarPenColor;
+  static const ItemDataRole BarBrushColor;
+  static const ItemDataRole User;
+#endif
 
 private:
   int role_;
@@ -473,6 +495,7 @@ typedef std::vector<WModelIndex> WModelIndexList;
 
 }
 
+#ifndef WT_TARGET_JAVA
 namespace std {
   template<>
   struct hash<Wt::WModelIndex>
@@ -492,6 +515,7 @@ namespace std {
     }
   };
 }
+#endif // WT_TARGET_JAVA
 
 /*! @} */
 

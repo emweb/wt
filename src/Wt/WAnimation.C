@@ -8,7 +8,7 @@
 namespace Wt {
 
 WAnimation::WAnimation()
-  : effects_(None),
+  : effects_(),
     timing_(TimingFunction::Linear),
     duration_(250)
 { }

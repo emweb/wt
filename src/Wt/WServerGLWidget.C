@@ -131,7 +131,7 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
     samples = 0;
   }
 
-  // Method::Get a matching FB config
+  // Get a matching FB config
   int visual_attribs[] =
     {
       GLX_X_RENDERABLE    , True,

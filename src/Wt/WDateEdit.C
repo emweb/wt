@@ -69,7 +69,7 @@ void WDateEdit::load()
   temp->bindWidget("calendar", std::move(uCalendar_));
 
   WApplication::instance()->theme()->apply
-    (this, popup_.get(), WidgetThemeRole::DatePickerPopup);
+    (this, popup_.get(), DatePickerPopup);
 
   escapePressed().connect(popup_.get(), &WPopupWidget::hide);
   escapePressed().connect(this, &WDateEdit::setFocusTrue);

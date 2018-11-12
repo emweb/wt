@@ -116,6 +116,7 @@ public:
    */
   WString(const std::wstring& value);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Creates a %WString from a UTF-16 C string.
    *
    * The UTF-16 string is implicitly converted to UTF-8.
@@ -139,6 +140,7 @@ public:
    * The UTF-32 string is implicitly converted to UTF-8.
    */
   WString(const std::u32string &value);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Creates a %WString from a C string.
    *
@@ -263,6 +265,7 @@ public:
    */
   WString& operator+= (const std::wstring& rhs);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Self-concatenation operator
    *
    * Appends a string to the current value. If the string was localized,
@@ -278,6 +281,7 @@ public:
    * string using the current WLocale.
    */
   WString& operator+= (const std::u32string& rhs);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Self-concatenation operator
    *
@@ -287,6 +291,7 @@ public:
    */
   WString& operator+= (const wchar_t *rhs);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Self-concatenation operator
    *
    * Appends a string to the current value. If the string was localized,
@@ -302,6 +307,7 @@ public:
    * string using the current WLocale.
    */
   WString& operator+= (const char32_t *rhs);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Self-concatenation operator
    *
@@ -444,6 +450,7 @@ public:
    */
   std::wstring value() const;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Returns the value as a UTF-16 C++ string.
    *
    * A localized string is resolved using the WApplication::localizedStrings().
@@ -459,6 +466,7 @@ public:
    * Argument place holders are substitued with actual arguments.
    */
   std::u32string toUTF32() const;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns the value as a narrow C++ string.
    *
@@ -482,6 +490,7 @@ public:
    */
   operator std::wstring() const;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Returns the value as a UTF-16 C++ string.
    *
    * A localized string is resolved using the WApplication::localizedStrings().
@@ -497,6 +506,7 @@ public:
    * Argument place holders are substitued with actual arguments.
    */
   operator std::u32string() const;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns whether the string is literal or localized.
    *
@@ -534,6 +544,7 @@ public:
    */
   WString& arg(const wchar_t *value);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Substitutes the next positional argument with a string value.
    *
    * In the string, the \p n-th argument is referred to as using
@@ -581,6 +592,7 @@ public:
    * the shop.</tt>"
    */
   WString& arg(const char32_t *value);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Substitutes the next positional argument with a string value.
    *

@@ -4,6 +4,10 @@
 #include <Wt/WText.h>
 #include <Wt/WTable.h>
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 SAMPLE_BEGIN(CSS)
 // Add an external style sheet to the application.
 Wt::WApplication::instance()->useStyleSheet("style/CSSexample.css");

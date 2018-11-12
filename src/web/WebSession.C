@@ -36,10 +36,6 @@
 #include <process.h>
 #endif
 
-#ifdef WT_BOOST_THREADS
-#include <boost/thread/tss.hpp>
-#endif
-
 #ifdef WT_TARGET_JAVA
 #define RETHROW(e) throw e
 #else
@@ -88,11 +84,15 @@ namespace Wt {
 
 LOGGER("Wt");
 
-#ifdef WT_BOOST_THREADS
-boost::thread_specific_ptr<WebSession::Handler> threadHandler_;
-#else
-WebSession::Handler * threadHandler_;
-#endif
+#ifdef WT_TARGET_JAVA
+boost::thread_specific_ptr<WebSession::Handler> WebSession::threadHandler_;
+#else // WT_TARGET_JAVA
+#ifdef WT_THREADED
+static thread_local WebSession::Handler * threadHandler_ = nullptr;
+#else // !WT_THREADED
+static WebSession::Handler * threadHandler_ = nullptr;
+#endif // WT_THREADED
+#endif // WT_TARGET_JAVA
 
 WebSession::WebSession(WebController *controller,
 		       const std::string& sessionId,
@@ -134,6 +134,10 @@ WebSession::WebSession(WebController *controller,
     recursiveEventHandler_(nullptr)
 {
   env_ = env ? env : &embeddedEnv_;
+
+  // Update the URL scheme so we can set the session cookie correctly (with secure for https)
+  if (request)
+    env_->updateUrlScheme(*request);
 
   /*
    * Obtain the applicationName_ as soon as possible for log().
@@ -845,7 +849,7 @@ WebSession::Handler::Handler(const std::shared_ptr<WebSession>& session,
 
 WebSession::Handler *WebSession::Handler::instance()
 {
-#ifdef WT_BOOST_THREADS
+#ifdef WT_TARGET_JAVA
   return threadHandler_.get();
 #else
   return threadHandler_;
@@ -892,7 +896,7 @@ WebSession::Handler::attachThreadToHandler(Handler *handler)
 {
   WebSession::Handler *result;
 
-#ifdef WT_BOOST_THREADS
+#ifdef WT_TARGET_JAVA
   result = threadHandler_.release();
   threadHandler_.reset(handler);
 #else
@@ -918,7 +922,7 @@ bool WebSession::attachThreadToLockedHandler()
 
   return false;
 #else
-  Handler::attachThreadToHandler(new Handler(this, Handler::NoLock));
+  Handler::attachThreadToHandler(new Handler(this, Handler::LockOption::NoLock));
   return true;
 #endif
 }
@@ -1834,14 +1838,14 @@ void WebSession::handleWebSocketMessage(Handler& handler)
   if (!closing) {
     const std::string *connectedE = message->getParameter("connected");
     if (connectedE) {
-      renderer_.ackUpdate(boost::lexical_cast<int>(connectedE));
+      renderer_.ackUpdate(Utils::stoi(*connectedE));
       webSocketConnected_ = true;
       canWriteWebSocket_ = true;
     }
 
     const std::string *wsRqIdE = message->getParameter("wsRqId");
     if (wsRqIdE) {
-      int wsRqId = boost::lexical_cast<int>(*wsRqIdE);
+      int wsRqId = Utils::stoi(*wsRqIdE);
       renderer_.addWsRequestId(wsRqId);
     }
 
@@ -1858,7 +1862,7 @@ void WebSession::handleWebSocketMessage(Handler& handler)
 
     const std::string *pageIdE = message->getParameter("pageId");
 
-    if (pageIdE && *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
+    if (pageIdE && *pageIdE != std::to_string(renderer_.pageId())) {
       closing = true;
     }
 
@@ -2077,7 +2081,7 @@ void WebSession::pushUpdates()
 		   std::weak_ptr<WebSession>(shared_from_this()),
 		   std::placeholders::_1));
 #else
-      webSocket_->setResponseType(WebResponse::Update);
+      webSocket_->setResponseType(WebRequest::ResponseType::Update);
       app_->notify(WEvent(WEvent::Impl(webSocket_)));
       updatesPending_ = false;
       webSocket_->flushBuffer();

@@ -207,7 +207,7 @@ public:
   void setIntersectionPlanes
     (const std::vector<IntersectionPlane> &intersectionPlanes);
 
-  /*! \brief Method::Get the invisible planes with which intersections are drawn.
+  /*! \brief Get the invisible planes with which intersections are drawn.
    *
    * \sa setIntersectionPlanes()
    */
@@ -457,7 +457,7 @@ public:
    */
   void setCameraMatrix(const WMatrix4x4& matrix);
 
-  /*! \brief Method::Get the current camera-matrix.
+  /*! \brief Get the current camera-matrix.
    *
    * The matrix represents the current view on the scene. It corresponds to
    * a coordinate system where the chart's axes run from 0 to 1 in all three
@@ -467,7 +467,7 @@ public:
    */
   WMatrix4x4 cameraMatrix() const;
 
-  /*! \brief Method::Get the current camera matrix as a JavaScriptMatrix4x4.
+  /*! \brief Get the current camera matrix as a JavaScriptMatrix4x4.
    *
    * This JavaScriptMatrix4x4 can be used to implement a custom mouse
    * handler using setClientSideMouseHandler().
@@ -546,7 +546,7 @@ private:
 
   WMatrix4x4 worldTransform_;
   bool isViewSet_;
-  std::vector<std::unique_ptr<WAbstractDataSeries3D>> dataSeriesVector_;
+  std::vector<std::unique_ptr<WAbstractDataSeries3D> > dataSeriesVector_;
   WAxis XAxis_, YAxis_, ZAxis_;
   ChartType chartType_;
 

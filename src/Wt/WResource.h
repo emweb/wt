@@ -321,9 +321,12 @@ public:
    * interface, you need to use a WTimer or enable \link
    * WApplication::enableUpdates() server-push\endlink.
    *
+   * The first argument is the number of bytes received so far,
+   * and the second argument is the total number of bytes.
+   *
    * \sa setUploadProgress()
    */
-  Signal<::uint64_t, ::uint64_t>& dataReceived() { return dataReceived_; }
+  Signal< ::uint64_t, ::uint64_t>& dataReceived() { return dataReceived_; }
 
   Signal< ::uint64_t >& dataExceeded() { return dataExceeded_; }
 

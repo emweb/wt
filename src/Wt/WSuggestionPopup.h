@@ -7,6 +7,7 @@
 #ifndef WSUGGESTION_POPUP_H_
 #define WSUGGESTION_POPUP_H_
 
+#include <Wt/WModelIndex.h>
 #include <Wt/WPopupWidget.h>
 #include <Wt/WJavaScript.h>
 
@@ -462,13 +463,13 @@ public:
    *
    * The default value is ItemDataRole::User.
    */
-  void setEditRole(int role) { editRole_ = role; }
+  void setEditRole(ItemDataRole role) { editRole_ = role; }
 
   /*! Returns the role used for editing the line edit.
    *
    * \a setEditRole()
    */
-  int editRole() const { return editRole_; }
+  ItemDataRole editRole() const { return editRole_; }
 
 private:
   WContainerWidget *impl_;
@@ -479,7 +480,7 @@ private:
   int defaultValue_;
   bool isDropDownIconUnfiltered_;
   int currentItem_;
-  int editRole_;
+  ItemDataRole editRole_;
 
   std::string       matcherJS_;
   std::string       replacerJS_;

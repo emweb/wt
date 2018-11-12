@@ -8,6 +8,7 @@
 #include "DeferredWidget.h"
 
 #include <Wt/WMenu.h>
+#include <Wt/WString.h>
 
 FormWidgets::FormWidgets()
   : TopicWidget()

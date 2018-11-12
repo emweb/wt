@@ -198,19 +198,71 @@ const Wt::WFormModel::Field UserFormModel::BirthField = "birth";
 const Wt::WFormModel::Field UserFormModel::ChildrenField = "children";
 const Wt::WFormModel::Field UserFormModel::RemarksField = "remarks";
 
+#ifndef WT_TARGET_JAVA
 const UserFormModel::CountryMap UserFormModel::countries = {
   { "BE", { "Belgium" } },
   { "NL", { "Netherlands" } },
   { "UK", { "United Kingdom" } },
   { "US", { "United States" } }
 };
+#else // WT_TARGET_JAVA
+namespace {
+  UserFormModel::CountryMap getCountryMap() {
+    UserFormModel::CountryMap retval;
+    retval["BE"] = "Belgium";
+    retval["NL"] = "Netherlands";
+    retval["UK"] = "United Kingdom";
+    retval["US"] = "United States";
+    return retval;
+  }
+}
+const UserFormModel::CountryMap UserFormModel::countries = getCountryMap();
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
 const UserFormModel::CityMap UserFormModel::cities = {
   { "BE", { "Antwerp", "Bruges", "Brussels", "Ghent" } },
   { "NL", { "Amsterdam", "Eindhoven", "Rotterdam", "The Hague"} },
   { "UK", { "London", "Bristol", "Oxford", "Stonehenge"} },
   { "US", { "Boston", "Chicago", "Los Angeles", "New York"} }
 };
+#else // WT_TARGET_JAVA
+namespace {
+  UserFormModel::CityMap getCityMap() {
+    std::vector<std::string> beCities;
+    beCities.push_back("Antwerp");
+    beCities.push_back("Bruges");
+    beCities.push_back("Brussels");
+    beCities.push_back("Ghent");
+    
+    std::vector<std::string> nlCities;
+    nlCities.push_back("Amsterdam");
+    nlCities.push_back("Eindhoven");
+    nlCities.push_back("Rotterdam");
+    nlCities.push_back("The Hague");
+    
+    std::vector<std::string> ukCities;
+    ukCities.push_back("London");
+    ukCities.push_back("Bristol");
+    ukCities.push_back("Oxford");
+    ukCities.push_back("Stonehenge");
+    
+    std::vector<std::string> usCities;
+    usCities.push_back("Boston");
+    usCities.push_back("Chicago");
+    usCities.push_back("Los Angeles");
+    usCities.push_back("New York");
+    
+    UserFormModel::CityMap retval;
+    retval["BE"] = beCities;
+    retval["NL"] = nlCities;
+    retval["UK"] = ukCities;
+    retval["US"] = usCities;
+    return retval;
+  }
+}
+const UserFormModel::CityMap UserFormModel::cities = getCityMap();
+#endif // WT_TARGET_JAVA
 
 class UserFormView : public Wt::WTemplateFormView
 {

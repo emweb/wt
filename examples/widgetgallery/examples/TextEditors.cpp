@@ -3,14 +3,14 @@
 #include <Wt/WTextEdit.h>
 
 SAMPLE_BEGIN(TextEditors)
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-WLineEdit *le =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
-le->setEmptyText("Edit me");
+Wt::WLineEdit *le =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+le->setPlaceholderText("Edit me");
 
-WLineEdit *out =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
+Wt::WLineEdit *out =
+    container->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
 out->setReadOnly(true);
 
 le->keyWentUp().connect([=] {

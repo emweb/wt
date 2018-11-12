@@ -44,7 +44,7 @@ public:
   std::set<std::string> keys(const WLocale& locale) const;
 
 private:
-  typedef std::map<std::string, std::vector<std::string>> KeyValuesMap;
+  typedef std::map<std::string, std::vector<std::string> > KeyValuesMap;
 
   struct Resource {
     KeyValuesMap map_;

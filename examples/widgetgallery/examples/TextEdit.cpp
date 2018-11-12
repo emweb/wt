@@ -4,6 +4,10 @@
 #include <Wt/WText.h>
 #include <Wt/WTextEdit.h>
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 SAMPLE_BEGIN(TextEdit)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 

@@ -43,7 +43,7 @@ enum class ValidationState {
  * This %WValidator only checks that mandatory fields are not empty.
  * This class is reimplemented in WDateValidator, WIntValidator,
  * WDoubleValidator, WLengthValidator and WRegExpValidator. All these
- * validators provibe both client-side and server-side validation.
+ * validators provide both client-side and server-side validation.
  *
  * If these validators are not suitable, you can inherit from this
  * class, and provide a suitable implementation to validate() which

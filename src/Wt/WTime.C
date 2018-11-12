@@ -379,7 +379,7 @@ int WTime::pmhour() const
 }
 
 bool WTime::writeSpecial(const std::string& f, unsigned& i,
-                         std::stringstream& result, bool useAMPM,
+                         WStringStream& result, bool useAMPM,
                          int zoneOffset) const
 {
   char buf[30];

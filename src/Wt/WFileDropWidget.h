@@ -69,6 +69,9 @@ public:
     bool uploadFinished() const { return uploadFinished_; }
 
     /*! \brief This signal allows you to track the upload progress of the file.
+     *
+     * The first argument is the number of bytes received so far,
+     * and the second argument is the total number of bytes.
      */
     Signal< ::uint64_t, ::uint64_t >& dataReceived() { return dataReceived_; }
 
@@ -229,6 +232,8 @@ public:
   /*! \brief The signal triggers when a file is too large for upload.
    *
    * This signal is triggered when the widget attempts to upload the file.
+   *
+   * The second argument is the size of the file in bytes.
    */
   Signal<File*, ::uint64_t>& tooLarge() { return tooLarge_; }
 

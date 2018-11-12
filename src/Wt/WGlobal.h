@@ -17,11 +17,26 @@ namespace Wt {
 
   /* Since we target C++11, we're sorely missing std::make_unique */
   namespace cpp14 {
+#ifndef WT_TARGET_JAVA
     template<typename T, typename ...Args>
     std::unique_ptr<T> make_unique( Args&& ...args )
     {
       return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
     }
+#else // WT_TARGET_JAVA
+    template<typename T>
+    std::unique_ptr<T> make_unique();
+    template<typename T, typename Arg1>
+    std::unique_ptr<T> make_unique(Arg1 arg1);
+    template<typename T, typename Arg1, typename Arg2>
+    std::unique_ptr<T> make_unique(Arg1 arg1, Arg2 arg2);
+    template<typename T, typename Arg1, typename Arg2, typename Arg3>
+    std::unique_ptr<T> make_unique(Arg1 arg1, Arg2 arg2, Arg3 arg3);
+    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+    std::unique_ptr<T> make_unique(Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4);
+    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
+    std::unique_ptr<T> make_unique(Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4, Arg5);
+#endif // WT_TARGET_JAVA
   }
 
   class EventSignalBase;
@@ -1059,6 +1074,7 @@ enum class MediaReadyState {
   HaveEnoughData = 4   //!< Enough to reach the end without stalling
 };
 
+#ifndef WT_TARGET_JAVA
 /*! \brief Enumeration that indicates a regular expression option.
  */
 enum class RegExpFlag {
@@ -1066,6 +1082,7 @@ enum class RegExpFlag {
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RegExpFlag)
+#endif // WT_TARGET_JAVA
 
 }
 

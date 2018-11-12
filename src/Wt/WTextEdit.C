@@ -4,10 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WAny.h"
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
 #include "Wt/WTextEdit.h"
-#include "Wt/WAny.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"

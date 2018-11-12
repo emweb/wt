@@ -16,7 +16,7 @@ namespace Wt {
 class AuthModel;
 class RegistrationModel;
 
-/*! \class UpdatePasswordWidget Auth/UpdatePasswordWidget
+/*! \class UpdatePasswordWidget Wt/Auth/UpdatePasswordWidget.h
  *  \brief A widget which allows a user to choose a new password.
  *
  * This widget lets a user choose a new password.
@@ -41,6 +41,14 @@ public:
 		       std::unique_ptr<RegistrationModel> registrationModel,
 		       const std::shared_ptr<AuthModel>& authModel);
 
+  /*! \brief Signal emitted when the password was updated.
+   */
+  Signal<>& updated() { return updated_; }
+
+  /*! \brief Signal emitted when cancel clicked.
+   */
+  Signal<>& canceled() { return canceled_; }
+
 protected:
   virtual std::unique_ptr<WWidget> createFormWidget(WFormModel::Field field)
     override;
@@ -50,12 +58,14 @@ private:
 
   std::unique_ptr<RegistrationModel> registrationModel_;
   std::shared_ptr<AuthModel> authModel_;
+  Signal<> updated_;
+  Signal<> canceled_;
 
   void checkPassword();
   void checkPassword2();
   bool validate();
   void doUpdate();
-  void close();
+  void cancel();
 };
 
   }

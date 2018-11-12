@@ -138,7 +138,7 @@ std::unique_ptr<WWidget> WItemDelegate::update(WWidget *widget, const WModelInde
 
     if (!widgetRef.w) {
       isNew = true;
-      widgetRef.created = std::unique_ptr<WWidget>{new IndexText(index)};
+      widgetRef.created = std::unique_ptr<WWidget>(new IndexText(index));
       IndexText *t = static_cast<IndexText*>(widgetRef.created.get());
       t->setObjectName("t");
       if (index.isValid() && !(index.flags() & ItemFlag::XHTMLText))
@@ -260,7 +260,7 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
         std::unique_ptr<WWidget> oldW;
         if (w.created)
           oldW = std::move(w.created);
-        w.created = std::unique_ptr<WWidget>{new IndexContainerWidget(index)};
+        w.created = std::unique_ptr<WWidget>(new IndexContainerWidget(index));
         wc = static_cast<IndexContainerWidget*>(w.created.get());
         wc->setObjectName("o");
         w.w->setInline(true);
@@ -277,8 +277,9 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
       }
 
       wc->insertWidget(0, std::move(newBox));
+      IndexCheckBox *const cb = checkBox;
       checkBox->changed().connect
-        (this, std::bind(&WItemDelegate::onCheckedChange, this, checkBox));
+        (this, std::bind(&WItemDelegate::onCheckedChange, this, cb));
     } else
       return nullptr;
   }
@@ -308,7 +309,7 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w,
     wc = dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
 
   if (!wc) {
-    std::unique_ptr<WWidget> newWc{new IndexContainerWidget(index)};
+    std::unique_ptr<WWidget> newWc(new IndexContainerWidget(index));
     wc = static_cast<IndexContainerWidget*>(newWc.get());
     wc->setObjectName("o");
     wc->addWidget(w.created ? std::move(w.created) : w.w->removeFromParent());
@@ -316,7 +317,7 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w,
     w.w = wc;
   }
 
-  std::unique_ptr<WWidget> newImage{new WImage()};
+  std::unique_ptr<WWidget> newImage(new WImage());
   image = static_cast<WImage*>(newImage.get());
   image->setObjectName("i");
   image->setStyleClass("icon");
@@ -339,7 +340,7 @@ IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index,
   if (anchor || !autoCreate)
     return anchor;
 
-  std::unique_ptr<WWidget> newAnchor{new IndexAnchor(index)};
+  std::unique_ptr<WWidget> newAnchor(new IndexAnchor(index));
   anchor = static_cast<IndexAnchor*>(newAnchor.get());
   anchor->setObjectName("a");
 
@@ -421,10 +422,11 @@ std::unique_ptr<WWidget> WItemDelegate
 
   std::unique_ptr<WLineEdit> lineEdit(new WLineEdit());
   lineEdit->setText(asString(index.data(ItemDataRole::Edit), textFormat_));
+  IndexContainerWidget *const resultPtr = result.get();
   lineEdit->enterPressed().connect
-    (this, std::bind(&WItemDelegate::doCloseEditor, this, result.get(), true));
+    (this, std::bind(&WItemDelegate::doCloseEditor, this, resultPtr, true));
   lineEdit->escapePressed().connect
-    (this, std::bind(&WItemDelegate::doCloseEditor, this, result.get(), false));
+    (this, std::bind(&WItemDelegate::doCloseEditor, this, resultPtr, false));
   lineEdit->escapePressed().preventPropagation();
 
   if (flags.test(ViewItemRenderFlag::Focused))

@@ -457,7 +457,7 @@ double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation)
 
   std::vector<TickLabel> ticks;
 
-  // Method::Get all the ticks for the axis
+  // Get all the ticks for the axis
   for(int i = 0; i< segmentCount(); ++i) {
     AxisConfig cfg;
     cfg.zoomLevel = 1;
@@ -1013,6 +1013,10 @@ double WAxis::getValue(const cpp17::any& v) const
     }
 #endif
 
+    else if (v.type() == typeid(double)) {
+      return cpp17::any_cast<double>(v);
+    }
+
     else {
       return std::numeric_limits<double>::signaling_NaN();
     }
@@ -1030,6 +1034,10 @@ double WAxis::getValue(const cpp17::any& v) const
       return static_cast<double>(dt.toTime_t());
     }
 #endif
+
+    else if (v.type() == typeid(double)) {
+      return cpp17::any_cast<double>(v);
+    }
 
     else {
       return std::numeric_limits<double>::signaling_NaN();
@@ -2008,7 +2016,7 @@ void WAxis::renderLabels(WPainter &painter,
   if (painter.device()->features().test(PaintDeviceFeatureFlag::FontMetrics)) {
     WMeasurePaintDevice device(painter.device());
     WPainter measPainter(&device);
-    measPainter.drawText(WRectF(0,0,100,100), AlignmentFlag::Middle | AlignmentFlag::Center, TextFlag::SingleLine, "Sfjh", 0);
+    measPainter.drawText(WRectF(0,0,100,100), WFlags<AlignmentFlag>(AlignmentFlag::Middle) | AlignmentFlag::Center, TextFlag::SingleLine, "Sfjh", 0);
     lineHeight = device.boundingRect().height();
   }
 
@@ -2020,7 +2028,7 @@ void WAxis::renderLabels(WPainter &painter,
   }
 
   painter.drawTextOnPath(WRectF(left, top, width, height),
-			 horizontalAlign | verticalAlign,
+			 WFlags<AlignmentFlag>(horizontalAlign) | verticalAlign,
 			 labels, transform,
 			 path,
 			 angle, lineHeight,

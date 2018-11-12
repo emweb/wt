@@ -52,8 +52,18 @@ namespace Wt {
 LOGGER("WMenu");
 
 WMenu::WMenu()
-  : WMenu(nullptr)
-{ }
+  : ul_(nullptr),
+    contentsStack_(nullptr),
+    internalPathEnabled_(false),
+    emitPathChange_(false),
+    parentItem_(nullptr),
+    current_(-1),
+    previousStackIndex_(-1),
+    needSelectionEventUpdate_(false)
+{
+  setImplementation(std::unique_ptr<WWidget>(ul_ = new WContainerWidget()));
+  ul_->setList(true);
+}
 
 WMenu::WMenu(WStackedWidget *contentsStack)
   : ul_(nullptr),

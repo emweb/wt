@@ -23,7 +23,7 @@ namespace Wt {
 
 WTreeTable::WTreeTable()
 {
-  impl_ = setNewImplementation<WContainerWidget>();
+  setImplementation(std::unique_ptr<WContainerWidget>(impl_ = new WContainerWidget()));
 
   setStyleClass("Wt-treetable");
   setPositionScheme(PositionScheme::Relative);

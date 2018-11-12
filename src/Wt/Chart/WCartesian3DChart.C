@@ -47,8 +47,35 @@ namespace Wt {
   namespace Chart {
 
 WCartesian3DChart::WCartesian3DChart()
-  : WCartesian3DChart(ChartType::Scatter)
-{ }
+  : isViewSet_(false),
+    chartType_(ChartType::Scatter),
+    background_(StandardColor::White),
+    chartPalette_(std::make_shared<WStandardPalette>(PaletteFlavour::Muted)),
+    interface_(new WChart3DImplementation(this)),
+    axisRenderWidth_(1024),
+    axisRenderHeight_(256),
+    gridRenderWidth_(512),
+    textureScaling_(0),
+    seriesCounter_(0),
+    currentTopOffset_(0),
+    currentBottomOffset_(0),
+    currentLeftOffset_(0),
+    currentRightOffset_(0),
+    intersectionLinesEnabled_(false)
+{
+  XYGridEnabled_[0] = false; XYGridEnabled_[1] = false;
+  XZGridEnabled_[0] = false; XZGridEnabled_[1] = false;
+  YZGridEnabled_[0] = false; YZGridEnabled_[1] = false;
+
+  XAxis_.init(interface_.get(), Axis::X3D);
+  YAxis_.init(interface_.get(), Axis::Y3D);
+  ZAxis_.init(interface_.get(), Axis::Z3D);
+
+  titleFont_.setFamily(FontFamily::SansSerif);
+  titleFont_.setSize(WLength(15, LengthUnit::Point));
+
+  addJavaScriptMatrix4(jsMatrix_);
+}
 
 WCartesian3DChart::WCartesian3DChart(ChartType type)
   : isViewSet_(false),
@@ -945,7 +972,7 @@ void WCartesian3DChart::initTitle()
   WPainter painter(titlePaintDev.get());
   painter.setFont(titleFont_);
   painter.drawText(WRectF(0, 0, width().value(), pixelHeight),
-		   AlignmentFlag::Center | AlignmentFlag::Middle, title_);
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Middle, title_);
   painter.end();
 
   titleTexture_ = createTexture();
@@ -2252,7 +2279,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   double addOffset = XAxis_.titleOffset();
@@ -2260,7 +2287,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   painter.setFont(XAxis_.titleFont());
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Top, XAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, XAxis_.title());
 
   // draw X-axis( RTL, labels underneath)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2278,12 +2305,12 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Top, XAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, XAxis_.title());
 
   // draw X-axis( LTR, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2311,11 +2338,11 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Bottom, XAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, XAxis_.title());
 
   // draw X-axis( RTL, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2333,11 +2360,11 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Bottom, XAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, XAxis_.title());
   painter.setFont(oldFont);
 
   // draw Y-axis (LTR, label underneath)
@@ -2366,14 +2393,14 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   addOffset = YAxis_.titleOffset();
   painter.setFont(YAxis_.titleFont());
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Top, YAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, YAxis_.title());
 
   // draw Y-axis (RTL, label underneath)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2391,12 +2418,12 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Top, YAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, YAxis_.title());
 
   // draw Y-axis (LTR, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2424,11 +2451,11 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Bottom, YAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, YAxis_.title());
 
   // draw Y-axis (RTL, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2446,11 +2473,11 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Bottom, YAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, YAxis_.title());
   painter.setFont(oldFont);
 
   if (labelAngleMirrored) {
@@ -2494,7 +2521,7 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   double addOffset = ZAxis_.titleOffset();
@@ -2503,7 +2530,7 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   painter.setFont(ZAxis_.titleFont());
   painter.drawText(WRectF(-axisWidth, 0,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   AlignmentFlag::Center | AlignmentFlag::Bottom, ZAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, ZAxis_.title());
   painter.rotate(90);
 
   // draw Z-axis (labels right)
@@ -2527,13 +2554,13 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
-		labelHFlag | labelVFlag);
+		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.rotate(-90);
   painter.drawText(WRectF(-axisWidth, axisHeight+TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-			  AlignmentFlag::Center | AlignmentFlag::Top, ZAxis_.title());
+			  WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, ZAxis_.title());
   painter.setFont(oldFont);
   painter.rotate(90);
   painter.end();

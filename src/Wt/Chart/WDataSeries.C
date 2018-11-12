@@ -13,7 +13,27 @@ namespace Wt {
   namespace Chart {
 
 WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
-  : WDataSeries(modelColumn, type, axis == Axis::Y1 ? 0 : 1)
+  : chart_(nullptr),
+    model_(nullptr),
+    modelColumn_(modelColumn),
+    XSeriesColumn_(-1),
+    stacked_(false),
+    type_(type),
+    yAxis_(axis == Axis::Y1 ? 0 : 1),
+    customFlags_(None),
+    fillRange_(FillRangeType::None),
+    marker_(type == SeriesType::Point ? 
+	    MarkerType::Circle : MarkerType::None),
+    markerSize_(6),
+    legend_(true),
+    xLabel_(false),
+    yLabel_(false),
+    barWidth_(0.8),
+    hidden_(false),
+    offset_(0.0),
+    scale_(1.0),
+    offsetDirty_(true),
+    scaleDirty_(true)
 { }
 
 WDataSeries::WDataSeries(int modelColumn, SeriesType type, int axis)
@@ -152,7 +172,7 @@ WColor WDataSeries::labelColor() const
     if (chart_)
       return chart_->palette()->fontColor(chart_->seriesIndexOf(*this));
     else
-      return StandardColor::Black;
+      return WColor(StandardColor::Black);
 }
 
 void WDataSeries::setLabelColor(const WColor& color)
@@ -324,7 +344,11 @@ void WDataSeries::setModel(const std::shared_ptr<WAbstractChartModel>& model)
   model_ = model;
 
   if (model_) {
+#ifdef WT_TARGET_JAVA
+    modelConnections_.push_back(model_->changed().connect(this, std::bind(&WDataSeries::modelReset, this)));
+#else // !WT_TARGET_JAVA
     modelConnections_.push_back(model_->changed().connect(std::bind(&WDataSeries::modelReset, this)));
+#endif // WT_TARGET_JAVA
   }
 
   if (chart_)

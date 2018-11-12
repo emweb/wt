@@ -3,6 +3,10 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WResource.h>
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 class SamplePdfResource : public Wt::WPdfImage
 {
 public:

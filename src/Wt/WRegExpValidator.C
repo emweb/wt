@@ -15,14 +15,26 @@
 #include "js/WRegExpValidator.min.js"
 #endif
 
+namespace {
+#ifndef WT_TARGET_JAVA
+  static Wt::RegExpFlag MatchCaseInsensitive = Wt::RegExpFlag::MatchCaseInsensitive;
+#else // WT_TARGET_JAVA
+  static int MatchCaseInsensitive = 1;
+#endif // WT_TARGET_JAVA
+}
+
 namespace Wt {
 
 WRegExpValidator::WRegExpValidator()
+  : pattern_(),
+    regex_(),
+    noMatchText_()
 { }
 
 WRegExpValidator::WRegExpValidator(const WT_USTRING& pattern)
   : pattern_(pattern),
-    regex_(pattern.toUTF8())
+    regex_(pattern.toUTF8()),
+    noMatchText_()
 { }
 
 WRegExpValidator::~WRegExpValidator()
@@ -67,15 +79,13 @@ void WRegExpValidator::loadJavaScript(WApplication *app)
 
 void WRegExpValidator::setFlags(WFlags<RegExpFlag> flags)
 {
-  if (flags == this->flags())
+  if (flags.value() == this->flags().value())
     return;
 
-  if (flags.test(RegExpFlag::MatchCaseInsensitive))
-    regex_.assign(pattern_.toUTF8(),
-                  std::regex::ECMAScript | std::regex::icase);
+  if (flags.value() & static_cast<int>(MatchCaseInsensitive))
+    regex_.assign(pattern_.toUTF8(), std::regex::icase);
   else
-    regex_.assign(pattern_.toUTF8(),
-                  std::regex::ECMAScript);
+    regex_.assign(pattern_.toUTF8());
 
   repaint();
 }
@@ -83,9 +93,14 @@ void WRegExpValidator::setFlags(WFlags<RegExpFlag> flags)
 WFlags<RegExpFlag> WRegExpValidator::flags() const
 {
   if (regex_.flags() & std::regex::icase)
-    return RegExpFlag::MatchCaseInsensitive;
-  else
+    return MatchCaseInsensitive;
+  else {
+#ifndef WT_TARGET_JAVA
     return WFlags<RegExpFlag>();
+#else
+    return (int)0;
+#endif
+  }
 }
 
 std::string WRegExpValidator::javaScriptValidate() const

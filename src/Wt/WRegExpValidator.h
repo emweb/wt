@@ -14,6 +14,10 @@
 
 namespace Wt {
 
+#ifdef WT_TARGET_JAVA
+struct RegExpFlag { };
+#endif // WT_TARGET_JAVA
+
 class WRegExp;
 
 /*! \class WRegExpValidator Wt/WRegExpValidator.h Wt/WRegExpValidator.h

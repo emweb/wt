@@ -180,9 +180,9 @@ protected:
  * \relates WStaticModelView
  */
 template <typename R>
-std::unique_ptr<WStaticModelView<R>> makeStaticModel(R f)
+std::unique_ptr<WStaticModelView<R> > makeStaticModel(R f)
 {
-  return std::unique_ptr<WStaticModelView<R>>(new WStaticModelView<R>(f));
+  return std::unique_ptr<WStaticModelView<R> >(new WStaticModelView<R>(f));
 }
 
 }

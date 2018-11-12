@@ -11,6 +11,7 @@
 #include <Wt/WJavaScript.h>
 #include <Wt/WJavaScriptExposableObject.h>
 #include <Wt/WJavaScriptHandle.h>
+#include <Wt/WJavaScriptSlot.h>
 
 #include <Wt/WJavaScriptObjectStorage.h>
 

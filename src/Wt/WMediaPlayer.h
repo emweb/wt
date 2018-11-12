@@ -10,6 +10,7 @@
 #include <Wt/WCompositeWidget.h>
 #include <Wt/WJavaScript.h>
 #include <Wt/WLink.h>
+#include <Wt/WString.h>
 
 namespace Wt {
 

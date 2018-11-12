@@ -222,7 +222,7 @@ private:
       : x1(x1_), y1(y1_), x2(x2_), y2(y2_) { }
   };
 
-  typedef std::map<::int64_t, WImage *> GridMap;
+  typedef std::map< ::int64_t, WImage *> GridMap;
   GridMap grid_;
 
   int gridImageSize_;

@@ -10,6 +10,7 @@
 #include <Wt/WDateTime.h>
 #include <Wt/WException.h>
 #include <Wt/WString.h>
+#include <Wt/WStringStream.h>
 #include <exception>
 #include <chrono>
 
@@ -434,7 +435,7 @@ private:
 					    unsigned& vi, ParseState& parse,
 					    const WString& format);
 
-  bool writeSpecial(const std::string& f, unsigned& i, std::stringstream& result,
+  bool writeSpecial(const std::string& f, unsigned& i, WStringStream& result,
                     bool localized = true)
     const;
 

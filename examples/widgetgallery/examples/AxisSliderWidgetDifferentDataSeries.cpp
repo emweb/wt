@@ -13,6 +13,10 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#ifdef WT_TARGET_JAVA
+using namespace Wt;
+#endif // WT_TARGET_JAVA
+
 class SinModel : public Chart::WAbstractChartModel {
 public:
   SinModel(double minimum, double maximum, int rows)

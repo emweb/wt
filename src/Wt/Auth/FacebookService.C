@@ -1,5 +1,7 @@
-#include "Wt/WApplication.h"
 #include "Wt/Auth/FacebookService.h"
+
+#include "Wt/WApplication.h"
+#include "Wt/WLogger.h"
 #include "Wt/Json/Object.h"
 #include "Wt/Json/Parser.h"
 #include "Wt/Http/Client.h"
@@ -35,7 +37,7 @@ public:
   virtual void getIdentity(const OAuthAccessToken& token) override
   {
     httpClient_.reset(new Http::Client());
-    httpClient_->setTimeout(std::chrono::seconds{15});
+    httpClient_->setTimeout(std::chrono::seconds(15));
     httpClient_->setMaximumResponseSize(10*1024);
 
     httpClient_->done().connect

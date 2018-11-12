@@ -5,6 +5,7 @@
  */
 
 #include "web/FileUtils.h"
+#include <Wt/WLogger.h>
 #include <Wt/WPainter.h>
 #include <Wt/Render/WTextRenderer.h>
 #include <Wt/Render/CssParser.h>
@@ -64,7 +65,7 @@ public:
 
 private:
   std::vector<StyleSheet *> sheets_;
-  std::vector<std::unique_ptr<StyleSheet>> sheets_owned_;
+  std::vector<std::unique_ptr<StyleSheet> > sheets_owned_;
 };
 
 WTextRenderer::Node::Node(Block& block, LayoutBox& lb,
@@ -160,7 +161,11 @@ double WTextRenderer::textHeight(int page) const
 
 double WTextRenderer::render(const WString& text, double y)
 {
+#ifndef WT_TARGET_JAVA
   std::string xhtml = text.toXhtmlUTF8();
+#else
+  std::string xhtml = WString(text).toXhtmlUTF8();
+#endif
 
 #ifndef WT_TARGET_JAVA
   unsigned l = xhtml.length();

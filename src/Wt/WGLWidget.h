@@ -7,7 +7,9 @@
 #ifndef WGLWIDGET_H_
 #define WGLWIDGET_H_
 
+#include <Wt/WException.h>
 #include <Wt/WInteractWidget.h>
+#include <Wt/WJavaScriptSlot.h>
 #include <Wt/WGenericMatrix.h>
 #include <Wt/WMatrix4x4.h>
 

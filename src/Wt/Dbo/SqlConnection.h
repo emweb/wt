@@ -116,7 +116,7 @@ public:
    *
    * \sa saveStatement()
    */
-  virtual SqlStatement *getStatement(const std::string& id) const;
+  virtual SqlStatement *getStatement(const std::string& id);
 
   /*! \brief Saves a statement with the given id.
    *
@@ -312,7 +312,7 @@ protected:
   const std::vector<std::string>& getStatefulSql() const { return statefulSql_; }
   
 private:
-  typedef std::map<std::string, std::unique_ptr<SqlStatement>> StatementMap;
+  typedef std::multimap<std::string, std::unique_ptr<SqlStatement>> StatementMap;
 
   StatementMap statementCache_;
   std::map<std::string, std::string> properties_;

@@ -213,7 +213,7 @@ protected:
 private:
   WLayout *parentLayout_;
   WWidget *parentWidget_;
-  std::unique_ptr<int[]> margins_;
+  int margins_[4];
   std::unique_ptr<WLayoutImpl> impl_;
   LayoutImplementation preferredImplementation_;
   static LayoutImplementation defaultImplementation_;

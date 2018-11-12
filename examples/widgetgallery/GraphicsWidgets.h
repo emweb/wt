@@ -18,16 +18,16 @@ public:
   virtual void populateSubMenu(Wt::WMenu *menu);
 
 private:
-  std::unique_ptr<WWidget> painting2d();
-  std::unique_ptr<WWidget> paintbrush();
-  std::unique_ptr<WWidget> categoryChart();
-  std::unique_ptr<WWidget> scatterPlot();
-  std::unique_ptr<WWidget> axisSliderWidget();
-  std::unique_ptr<WWidget> pieChart();
-  std::unique_ptr<WWidget> googleMap();
-  std::unique_ptr<WWidget> painting3d();
-  std::unique_ptr<WWidget> numCharts3d();
-  std::unique_ptr<WWidget> catCharts3d();
+  std::unique_ptr<Wt::WWidget> painting2d();
+  std::unique_ptr<Wt::WWidget> paintbrush();
+  std::unique_ptr<Wt::WWidget> categoryChart();
+  std::unique_ptr<Wt::WWidget> scatterPlot();
+  std::unique_ptr<Wt::WWidget> axisSliderWidget();
+  std::unique_ptr<Wt::WWidget> pieChart();
+  std::unique_ptr<Wt::WWidget> googleMap();
+  std::unique_ptr<Wt::WWidget> painting3d();
+  std::unique_ptr<Wt::WWidget> numCharts3d();
+  std::unique_ptr<Wt::WWidget> catCharts3d();
 
   Wt::WAbstractItemModel *readCsvFile(const std::string &fname,
 		  WContainerWidget *parent);

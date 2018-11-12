@@ -219,7 +219,7 @@ private:
   void renderSource(DomElement* element, WAbstractMedia::Source &source,
 		    bool isLast);
 
-  std::vector<std::unique_ptr<Source>> sources_;
+  std::vector<std::unique_ptr<Source> > sources_;
   std::size_t sourcesRendered_;
   std::string mediaId_;
   WFlags<PlayerOption> flags_;

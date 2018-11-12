@@ -236,23 +236,12 @@ WT_DECLARE_WT_MEMBER
        $to = $(to),
        h = stack.scrollHeight, w = stack.scrollWidth;
 
-     /* Remember original height, also used by layout managers to analyze
-      * the widget should it be a container with a layout manager */
-     to.nativeHeight = to.style.height;
-
      function restoreTo() {
        $to.removeClass(anim + ' in');
        to.style.position = '';
        to.style.left = '';
        to.style.width = '';
        to.style.top = '';
-
-       /* If fade-only animation within a layout, retain set height */
-       if (!effects
-           || typeof jQuery.data(stack.parentNode, 'layout') === 'undefined')
-         to.style.height = to.nativeHeight;
-
-       to.nativeHeight = null;
 
        if (WT.isGecko && (effects & Fade))
          to.style.opacity = '1';

@@ -86,9 +86,9 @@ WColor WStandardPalette::fontColor(int index) const
 {
   WColor c = color(index);
   if (c.red() + c.green() + c.blue() > 3*128) {
-    return StandardColor::Black;
+    return WColor(StandardColor::Black);
   } else
-    return StandardColor::White;
+    return WColor(StandardColor::White);
 }
 
 WColor WStandardPalette::color(int index) const

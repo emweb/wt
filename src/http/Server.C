@@ -21,6 +21,11 @@
 #include "WebController.h"
 #include "WebUtils.h"
 
+#ifndef WT_WIN32
+#include <unistd.h>
+#include <fcntl.h>
+#endif // WT_WIN32
+
 namespace {
   bool parseAddressPort(const std::string &str,
                         const char *defaultPort,
@@ -390,6 +395,9 @@ void Server::addTcpEndpoint(const asio::ip::tcp::endpoint &endpoint,
   asio::ip::tcp::acceptor &tcp_acceptor = tcp_listeners_.back().acceptor;
   tcp_acceptor.open(endpoint.protocol());
   tcp_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+#ifndef WT_WIN32
+  fcntl(tcp_acceptor.native_handle(), F_SETFD, fcntl(tcp_acceptor.native_handle(), F_GETFD) | FD_CLOEXEC);
+#endif // WT_WIN32
   tcp_acceptor.bind(endpoint, errc);
   if (!errc) {
     tcp_acceptor.listen();
@@ -444,6 +452,9 @@ void Server::addSslEndpoint(const asio::ip::tcp::endpoint &endpoint,
   asio::ip::tcp::acceptor &ssl_acceptor = ssl_listeners_.back().acceptor;
   ssl_acceptor.open(endpoint.protocol());
   ssl_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+#ifndef WT_WIN32
+  fcntl(ssl_acceptor.native_handle(), F_SETFD, fcntl(ssl_acceptor.native_handle(), F_GETFD) | FD_CLOEXEC);
+#endif // WT_WIN32
   ssl_acceptor.bind(endpoint, errc);
   if (!errc) {
     ssl_acceptor.listen();

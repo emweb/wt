@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WContainerWidget.h"
+#include "Wt/WLogger.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WSplitButton.h"
 #include "Wt/WToolBar.h"
@@ -18,7 +19,7 @@ WToolBar::WToolBar()
     compact_(true),
     lastGroup_(nullptr)
 {
-  impl_ = setNewImplementation<WContainerWidget>();
+  setImplementation(std::unique_ptr<WContainerWidget>(impl_ = new WContainerWidget()));
   setStyleClass("btn-group");
 }
 

@@ -112,7 +112,7 @@ public:
   std::string computeRedirectHash(const std::string& url);
 
 #ifdef WT_TARGET_JAVA
-  std::string getIdForWebSocket(); 
+  int getIdForWebSocket(); 
   std::string getContextPath();
 #else // WT_TARGET_JAVA
   WebController(WServer& server,

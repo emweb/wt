@@ -158,7 +158,7 @@ void WAbstractDataSeries3D::setHidden(bool enabled)
 WGLWidget::Texture WAbstractDataSeries3D::colorTexture()
 {
   std::unique_ptr<WPaintDevice> cpd;
-  if (colormap_ == 0) {
+  if (!colormap_) {
     cpd = chart_->createPaintDevice(WLength(1),WLength(1));
     WColor seriesColor = chartpaletteColor();
     WPainter painter(cpd.get());

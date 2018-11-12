@@ -65,7 +65,10 @@ class WRadioButton;
  *
  * \sa WRadioButton
  */
-class WT_API WButtonGroup : public WObject, public std::enable_shared_from_this<WButtonGroup>
+class WT_API WButtonGroup : public WObject
+#ifndef WT_TARGET_JAVA
+                            , public std::enable_shared_from_this<WButtonGroup>
+#endif
 {
 public:
   /*! \brief Creates a new empty button group.

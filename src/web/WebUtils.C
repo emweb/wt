@@ -39,6 +39,9 @@
 #include <boost/math/special_functions/sign.hpp>
 #endif // SPIRIT_FLOAT_FORMAT
 
+#include <boost/spirit/include/qi_parse.hpp>
+#include <boost/spirit/include/qi_numeric.hpp>
+
 // Qnx gcc 4.4.2
 #ifdef isnan
 #undef isnan
@@ -418,67 +421,54 @@ WString formatFloat(const WString &format, double value)
   return result;
 }
 
+template<typename ResultType, typename SpiritType>
+ResultType convert(const char *fname, const SpiritType &t, const std::string& v)
+{
+  auto is_space = [](char c) { return c == ' '; };
+  auto it = std::find_if_not(v.cbegin(), v.cend(), is_space);
+  ResultType result{0};
+  bool success =
+      it < v.cend() &&
+      boost::spirit::qi::parse(it, v.cend(), t, result) &&
+      std::all_of(it, v.cend(), is_space);
+  if (!success)
+    throw std::invalid_argument(std::string(fname) + "() of " + v + " failed");
+  return result;
+}
+
 long stol(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stol(v, &pos);
-  if (pos != v.length())
-    throw std::invalid_argument("stol() of " + v + " failed");
-  return result;
+  return convert<long>("stol", boost::spirit::long_, v);
 }
 
 unsigned long stoul(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stoul(v, &pos);
-  if (pos != v.length())
-    throw std::invalid_argument("stoul() of " + v + " failed");
-  return result;
+  return convert<unsigned long>("stoul", boost::spirit::ulong_, v);
 }
 
 long long stoll(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stoll(v, &pos);
-  if (pos != v.length())
-    throw std::invalid_argument("stoul() of " + v + " failed");
-  return result;
+  return convert<long long>("stoll", boost::spirit::long_long, v);
 }
 
 unsigned long long stoull(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stoull(v, &pos);
-  if (pos != v.length())
-    throw std::invalid_argument("stoull() of " + v + " failed");
-  return result;
+  return convert<unsigned long long>("stoull", boost::spirit::ulong_long, v);
 }
 
 int stoi(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stoi(v, &pos);
-  if (pos != v.length())
-    throw std::invalid_argument("stoi() of " + v + " failed");
-  return result;
+  return convert<int>("stoi", boost::spirit::int_, v);
 }
 
 double stod(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stod(v, &pos);
-  if (pos != v.length())
-    throw std::invalid_argument("stod() of " + v + " failed");
-  return result;
+  return convert<double>("stod", boost::spirit::double_, v);
 }
 
 float stof(const std::string& v)
 {
-  std::size_t pos;
-  auto result = std::stof(v, &pos);
-  if (pos != v.length())
-    throw std::invalid_argument("stof() of " + v + " failed");
-  return result;
+  return convert<float>("stof", boost::spirit::float_, v);
 }
 
 

@@ -320,7 +320,7 @@ public:
    *
    * \sa insertColumn(), appendRow()
    */
-  void appendColumn(std::vector<std::unique_ptr<WStandardItem>> items);
+  void appendColumn(std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Inserts a single column of items.
    *
@@ -330,7 +330,7 @@ public:
    * \sa WStandardItem::insertRow()
    */
   void insertColumn(int column,
-		    std::vector<std::unique_ptr<WStandardItem>> items);
+		    std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Add a single row of items.
    *
@@ -344,7 +344,7 @@ public:
    *
    * \sa insertRow(), appendColumn()
    */
-  void appendRow(std::vector<std::unique_ptr<WStandardItem>> items);
+  void appendRow(std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Inserts a single row of items.
    *
@@ -353,7 +353,7 @@ public:
    * 
    * \sa insertColumn()
    */
-  void insertRow(int row, std::vector<std::unique_ptr<WStandardItem>> items);
+  void insertRow(int row, std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Inserts a number of empty columns.
    *
@@ -421,7 +421,7 @@ public:
    * 
    * \sa insertRows(int, const std::vector<WStandardItem *>&)
    */
-  void appendRows(std::vector<std::unique_ptr<WStandardItem>> items);
+  void appendRows(std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Inserts multiple rows containing one item.
    *
@@ -439,7 +439,7 @@ public:
    * \sa insertRow(int, std::unique_ptr<WStandardItem>)
    */
   void insertRows(int row,
-		  std::vector<std::unique_ptr<WStandardItem>> items);
+		  std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Sets a child item.
    *
@@ -492,7 +492,7 @@ public:
    *
    * \sa takeRow(), removeColumn()
    */
-  std::vector<std::unique_ptr<WStandardItem>> takeColumn(int column);
+  std::vector<std::unique_ptr<WStandardItem> > takeColumn(int column);
 
   /*! \brief Takes a row of children out of the item.
    *
@@ -502,7 +502,7 @@ public:
    *
    * \sa takeColumn(), removeRow()
    */
-  std::vector<std::unique_ptr<WStandardItem>> takeRow(int row);
+  std::vector<std::unique_ptr<WStandardItem> > takeRow(int row);
 
   /*! \brief Removes a single column.
    *
@@ -631,9 +631,9 @@ private:
 #ifndef WT_TARGET_JAVA
   typedef std::map<ItemDataRole, cpp17::any> DataMap;
 #else
-  typedef std::treemap<int, cpp17::any> DataMap;
+  typedef std::treemap<ItemDataRole, cpp17::any> DataMap;
 #endif
-  typedef std::vector<std::unique_ptr<WStandardItem>> Column;
+  typedef std::vector<std::unique_ptr<WStandardItem> > Column;
   typedef std::vector<Column> ColumnList;
 
   /*! \brief Compares the item with another item.

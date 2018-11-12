@@ -42,7 +42,7 @@ public:
   Impl(const std::string& host, const std::string& selfFQDN, int port)
     : socket_(io_service_)
   {
-    // Method::Get a list of endpoints corresponding to the server name.
+    // Get a list of endpoints corresponding to the server name.
     tcp::resolver resolver(io_service_);
 
     tcp::resolver::query query(host, std::to_string(port));

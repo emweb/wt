@@ -206,9 +206,13 @@ void WContainerWidget::iterateChildren(const HandleWidgetMethod& method) const
   // the iterator. That's why we're iterating over children_
   // the old school way, with an index. Then there's no iterator
   // that ends up invalidated.
-  for (decltype(children_.size()) i = 0;
+  for (std::size_t i = 0;
        i < children_.size(); ++i)
+#ifndef WT_TARGET_JAVA
     method(children_[i]);
+#else
+    method.handle(children_[i]);
+#endif
 
   if (layout_)
     layout_->iterateWidgets(method);

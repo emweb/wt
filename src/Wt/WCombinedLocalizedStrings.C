@@ -34,39 +34,23 @@ void WCombinedLocalizedStrings
   Utils::erase(localizedStrings_, resolver);
 }
 
-const std::vector<std::shared_ptr<WLocalizedStrings>> &
+const std::vector<std::shared_ptr<WLocalizedStrings> > &
 WCombinedLocalizedStrings::items() const
 {
   return localizedStrings_;
 }
 
-#ifndef WT_TARGET_JAVA
 LocalizedString WCombinedLocalizedStrings::resolveKey(const WLocale& locale,
                                            const std::string& key)
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
     LocalizedString result = localizedStrings_[i]->resolveKey(locale, key);
-    if (result)
+    if (result.success)
       return result;
   }
 
-  return LocalizedString{};
+  return LocalizedString();
 }
-#else
-std::string *WCombinedLocalizedStrings::resolveKey(const WLocale& locale, 
-						   const std::string& key)
-{
-  std::string *result = 0; 
-
-  for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
-    result = localizedStrings_[i]->resolveKey(locale, key);
-    if (result)
-      return result;
-  }
-
-  return 0;
-}
-#endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
 LocalizedString WCombinedLocalizedStrings::resolvePluralKey(const WLocale& locale,
@@ -75,7 +59,7 @@ LocalizedString WCombinedLocalizedStrings::resolvePluralKey(const WLocale& local
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
     LocalizedString result = localizedStrings_[i]->resolvePluralKey(locale, key, amount);
-    if (result)
+    if (result.success)
       return result;
   }
 

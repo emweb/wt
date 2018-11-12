@@ -14,6 +14,7 @@
 #include "Wt/WImage.h"
 #include "Wt/WItemSelectionModel.h"
 #include "Wt/WItemDelegate.h"
+#include "Wt/WLogger.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WText.h"
 #include "Wt/WTheme.h"
@@ -35,16 +36,16 @@ public:
     setStyleClass("Wt-pagingbar");
 
     firstButton_ = addWidget(
-          cpp14::make_unique<WPushButton>(
-            tr("Wt.WAbstractItemView.PageBar.First")));
+          std::unique_ptr<WPushButton>(new WPushButton(
+            tr("Wt.WAbstractItemView.PageBar.First"))));
     firstButton_->clicked().connect(this, &DefaultPagingBar::showFirstPage);
 
     prevButton_ = addWidget(
-          cpp14::make_unique<WPushButton>(
-            tr("Wt.WAbstractItemView.PageBar.Previous")));
+          std::unique_ptr<WPushButton>(new WPushButton(
+            tr("Wt.WAbstractItemView.PageBar.Previous"))));
     prevButton_->clicked().connect(this, &DefaultPagingBar::showPreviousPage);
 
-    current_ = addWidget(cpp14::make_unique<WText>());
+    current_ = addWidget(std::unique_ptr<WText>(new WText()));
 
     nextButton_ = addWidget(
           cpp14::make_unique<WPushButton>(
@@ -550,7 +551,7 @@ std::shared_ptr<WAbstractItemDelegate> WAbstractItemView
 void WAbstractItemView::
 setHeaderItemDelegate(const std::shared_ptr<WAbstractItemDelegate>& delegate)
 {
-  headerItemDelegate_ = std::move(delegate);
+  headerItemDelegate_ = delegate;
 }
 
 std::shared_ptr<WAbstractItemDelegate> WAbstractItemView::headerItemDelegate()
@@ -1050,8 +1051,7 @@ void WAbstractItemView::saveExtraHeaderWidgets()
   for (int i = 0; i < columnCount(); ++i) {
     WWidget *w = columnInfo(i).extraHeaderWidget.get();
     if (w && w->parent()) {
-      auto p = w->parent()->removeWidget(w);
-      p.release();
+      w->parent()->removeWidget(w).release();
     }
   }
 }
@@ -1224,7 +1224,7 @@ void WAbstractItemView::setDragEnabled(bool enable)
     dragEnabled_ = enable;
 
     if (enable) {
-      uDragWidget_ = cpp14::make_unique<WText>();
+      uDragWidget_ = std::unique_ptr<WText>(new WText());
       dragWidget_ = uDragWidget_.get();
       dragWidget_->setId(id() + "dw");
       dragWidget_->setInline(false);

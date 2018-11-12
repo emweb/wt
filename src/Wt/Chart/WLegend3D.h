@@ -20,11 +20,11 @@ class WLegend3D : public WLegend
 public:
   void renderLegend
     (WPainter* painter,
-     const std::vector<std::unique_ptr<WAbstractDataSeries3D>>& dataseries);
+     const std::vector<std::unique_ptr<WAbstractDataSeries3D> >& dataseries);
 
   int width();
   int height
-    (const std::vector<std::unique_ptr<WAbstractDataSeries3D>>& dataseries);
+    (const std::vector<std::unique_ptr<WAbstractDataSeries3D> >& dataseries);
 };
  
   }

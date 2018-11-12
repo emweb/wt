@@ -607,7 +607,11 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     ss << jsPlayerRef();
     for (unsigned i = boundSignals_; i < signals_.size(); ++i)
       ss << ".bind('" << signals_[i]->name() << "', function(o, e) { "
+#ifndef WT_TARGET_JAVA
 	 << signals_[i]->createCall({}) << "})";
+#else
+	 << signals_[i]->createCall() << "})";
+#endif
     ss << ';';
 
     doJavaScript(ss.str());
@@ -620,7 +624,11 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     for (unsigned i = boundSignalsDouble_; i < signalsDouble_.size(); ++i)
       ss << ".bind('" << signalsDouble_[i].signal->name()
 	 << "', function(o, e) { "
+#ifndef WT_TARGET_JAVA
 	 << signalsDouble_[i].signal->createCall({signalsDouble_[i].jsExprA1})
+#else
+	 << signalsDouble_[i].signal->createCall(signalsDouble_[i].jsExprA1)
+#endif
 	 << "})";
     ss << ';';
 

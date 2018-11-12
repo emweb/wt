@@ -105,7 +105,13 @@ namespace Wt {
  *
  * \ingroup signalslot
  */
+#ifndef WT_CNOR
 template <typename... A>
+#else // WT_CNOR
+template <typename A1 = NoClass, typename A2 = NoClass,
+	  typename A3 = NoClass, typename A4 = NoClass,
+	  typename A5 = NoClass, typename A6 = NoClass>
+#endif // WT_CNOR
 class JSignal : public EventSignalBase
 {
 public:
@@ -157,7 +163,16 @@ public:
    *
    * \sa createEventCall()
    */
+#ifndef WT_TARGET_JAVA
   const std::string createCall(std::initializer_list<std::string> args) const;
+#else // WT_TARGET_JAVA
+  const std::string createCall(const std::string& arg1 = std::string(),
+			       const std::string& arg2 = std::string(),
+			       const std::string& arg3 = std::string(),
+			       const std::string& arg4 = std::string(),
+			       const std::string& arg5 = std::string(),
+			       const std::string& arg6 = std::string()) const;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns a JavaScript call that triggers the signal, passing
    *         the original event too.
@@ -179,10 +194,21 @@ public:
    *       subsequent connections are ignored.
    *
    */
+#ifndef WT_TARGET_JAVA
   const std::string createEventCall(const std::string& jsObject,
 				    const std::string& jsEvent,
 				    std::initializer_list<std::string> args)
     const;
+#else // WT_TARGET_JAVA
+  const std::string createEventCall(const std::string& jsObject,
+				    const std::string& jsEvent,
+				    const std::string& arg1 = std::string(),
+				    const std::string& arg2 = std::string(),
+				    const std::string& arg3 = std::string(),
+				    const std::string& arg4 = std::string(),
+				    const std::string& arg5 = std::string())
+    const;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns whether the signal is connected to at least one slot.
    */
@@ -203,8 +229,32 @@ public:
 
   /*! \brief Connect a slot that takes no arguments.
    */
+#ifndef WT_CNOR
   template<class T, class V, class... B>
     Wt::Signals::connection connect(T *target, void (V::*method)(B...));
+#else // WT_CNOR
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)());
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(A1));
+
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(const A1&));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target, void (V::*method)(A1, A2));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4,A5));
+  template<class T, class V>
+    Wt::Signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4,A5,A6));
+#endif // WT_CNOR
 
   /*! \brief Connects a JavaScript function.
    *
@@ -243,7 +293,13 @@ public:
    * This will cause all connected slots to be triggered, with the given
    * arguments.
    */
+#ifndef WT_CNOR
   void emit(A... args) const;
+#else // WT_CNOR
+  void emit(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
+	    A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+	    A5 a5 = NoClass::none, A6 a6 = NoClass::none);
+#endif // WT_CNOR
 
   /*! \brief Emit the signal.
    *
@@ -251,7 +307,13 @@ public:
    *
    * \sa emit
    */
+#ifndef WT_CNOR
   void operator()(A... args) const;
+#else // WT_CNOR
+  void operator()(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
+		  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+		  A5 a5 = NoClass::none, A6 a6 = NoClass::none);
+#endif // WT_CNOR
 
   virtual Wt::Signals::connection connect(WObject *target,
 					  void (WObject::*method)()) override;
@@ -260,10 +322,14 @@ protected:
   virtual int argumentCount() const override;
 
 private:
+#ifndef WT_CNOR
   typedef Signals::Signal<A...> SignalType;
+#endif // WT_CNOR
 
   std::string name_;
+#ifndef WT_CNOR
   SignalType impl_;
+#endif // WT_CNOR
 
   virtual void processDynamic(const JavaScriptEvent& e) const override;
 };
@@ -278,7 +344,9 @@ public:
 
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)());
-  Wt::Signals::connection connect(const boost::bound& f);
+  template<class F> Wt::Signals::connection connect(F f);
+  template<class F> Wt::Signals::connection connect(const WObject *target,
+						    F function);
   
   void connect(const std::string& function);
   void connect(const char * function);

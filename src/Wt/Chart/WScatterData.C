@@ -36,7 +36,6 @@ WScatterData::WScatterData(std::shared_ptr<WAbstractItemModel> model)
 {
 }
 
-#ifndef WT_TARGET_JAVA
 void WScatterData::setColorColumn(int columnNumber, ItemDataRole role)
 {
   colorColumn_ = columnNumber;
@@ -48,19 +47,6 @@ void WScatterData::setSizeColumn(int columnNumber, ItemDataRole role)
   sizeColumn_ = columnNumber;
   asSizeRole_ = role;
 }
-#else
-void WScatterData::setColorColumn(int columnNumber, int role)
-{
-  colorColumn_ = columnNumber;
-  asColorRole_ = role;
-}
-
-void WScatterData::setSizeColumn(int columnNumber, int role)
-{
-  sizeColumn_ = columnNumber;
-  asSizeRole_ = role;
-}
-#endif
 
 void WScatterData::setDroplinesEnabled(bool enabled)
 {

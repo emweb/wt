@@ -10,9 +10,14 @@
 #include "SqlConnection.h"
 
 #include <cassert>
+#include <iostream>
 
 namespace Wt {
   namespace Dbo {
+
+namespace {
+  static const std::size_t WARN_NUM_STATEMENTS_THRESHOLD = 10;
+}
 
 SqlConnection::SqlConnection()
 { }
@@ -43,28 +48,36 @@ void SqlConnection::executeSqlStateful(const std::string& sql)
   executeSql(sql);
 }
 
-SqlStatement *SqlConnection::getStatement(const std::string& id) const
+SqlStatement *SqlConnection::getStatement(const std::string& id)
 {
-  StatementMap::const_iterator i = statementCache_.find(id);
-  if (i != statementCache_.end()) {
-    SqlStatement *result = i->second.get();
-    /*
-     * Later, if already in use, manage reentrant use by cloning the statement
-     * and adding it to a linked list in the statementCache_
-     */
-    if (!result->use())
-      throw Exception("A collection for '" + id + "' is already in use."
-		      " Reentrant statement use is not yet implemented."); 
-
-    return result;
-  } else
-    return 0;
+  StatementMap::const_iterator start;
+  StatementMap::const_iterator end;
+  std::tie(start, end) = statementCache_.equal_range(id);
+  SqlStatement *result = nullptr;
+  for (auto i = start; i != end; ++i) {
+    result = i->second.get();
+    if (result->use())
+      return result;
+  }
+  if (result) {
+    auto count = statementCache_.count(id);
+    if (count >= WARN_NUM_STATEMENTS_THRESHOLD) {
+      std::cerr << "Warning: number of instances (" << (count + 1) << ") of prepared statement '"
+                << id << "' for this "
+                   "connection exceeds threshold (" << WARN_NUM_STATEMENTS_THRESHOLD << ")"
+                   ". This could indicate a programming error.\n";
+    }
+    auto stmt = prepareStatement(result->sql());
+    result = stmt.get();
+    saveStatement(id, std::move(stmt));
+  }
+  return nullptr;
 }
 
 void SqlConnection::saveStatement(const std::string& id,
 				  std::unique_ptr<SqlStatement> statement)
 {
-  statementCache_[id] = std::move(statement);
+  statementCache_.emplace(id, std::move(statement));
 }
 
 std::string SqlConnection::property(const std::string& name) const

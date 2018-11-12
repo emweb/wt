@@ -84,7 +84,7 @@ UpdatePasswordWidget
     password->setFocus(true);
 
   okButton->clicked().connect(this, &UpdatePasswordWidget::doUpdate);
-  cancelButton->clicked().connect(this, &UpdatePasswordWidget::close);
+  cancelButton->clicked().connect(this, &UpdatePasswordWidget::cancel);
 }
 
 std::unique_ptr<WWidget> UpdatePasswordWidget
@@ -165,13 +165,13 @@ void UpdatePasswordWidget::doUpdate()
     registrationModel_->passwordAuth()->updatePassword(user_, password);
     registrationModel_->login().login(user_);
 
-    close();
+    updated_.emit();
   }
 }
 
-void UpdatePasswordWidget::close()
+void UpdatePasswordWidget::cancel()
 {
-  removeFromParent();
+  canceled_.emit();
 }
 
   }

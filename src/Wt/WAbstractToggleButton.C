@@ -6,6 +6,7 @@
 #include "Wt/WAbstractToggleButton.h"
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
 #include "Wt/WTheme.h"
 
 #include "DomElement.h"

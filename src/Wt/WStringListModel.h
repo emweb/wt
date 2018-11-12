@@ -110,7 +110,7 @@ private:
 #ifndef WT_TARGET_JAVA
   typedef std::map<ItemDataRole, cpp17::any> DataMap;
 #else
-  typedef std::treemap<int, cpp17::any> DataMap;
+  typedef std::treemap<ItemDataRole, cpp17::any> DataMap;
 #endif
 
   std::vector<WString> displayData_;

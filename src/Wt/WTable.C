@@ -5,6 +5,7 @@
  */
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
 #include "Wt/WTable.h"
 #include "Wt/WTableCell.h"
 #include "Wt/WTableRow.h"
@@ -454,7 +455,11 @@ void WTable::iterateChildren(const HandleWidgetMethod &method) const
 {
   for (const auto &row : rows_) {
     for (const auto &cell : row->cells_) {
+#ifndef WT_TARGET_JAVA
       method(cell.get());
+#else
+      method.handle(cell.get());
+#endif
     }
   }
 }

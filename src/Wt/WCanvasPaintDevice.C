@@ -7,6 +7,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WCanvasPaintDevice.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPainterPath.h"
@@ -345,49 +346,49 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (segments.size() > 0
-      && segments[0].type() != SegmentType::MoveTo)
+      && segments[0].type() != MoveTo)
     out << "ctx.moveTo(0,0);";
 
   for (unsigned i = 0; i < segments.size(); ++i) {
     const WPainterPath::Segment s = segments[i];
 
     switch (s.type()) {
-    case SegmentType::MoveTo:
+    case MoveTo:
       out << "ctx.moveTo(" << Utils::round_js_str(s.x() + pathTranslation_.x(),
 						  3, buf);
       out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(),
 				     3, buf) << ");";
       break;
-    case SegmentType::LineTo:
+    case LineTo:
       out << "ctx.lineTo(" << Utils::round_js_str(s.x() + pathTranslation_.x(),
 						  3, buf);
       out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(),
 					3, buf) << ");";
       break;
-    case SegmentType::CubicC1:
+    case CubicC1:
       out << "ctx.bezierCurveTo("
 	  << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf);
       out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
-    case SegmentType::CubicC2:
+    case CubicC2:
       out << ',' << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf)
 	  << ',';
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
-    case SegmentType::CubicEnd:
+    case CubicEnd:
       out << ',' << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf)
 	  << ',';
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
       break;
-    case SegmentType::ArcC:
+    case ArcC:
       out << "ctx.arc(" << Utils::round_js_str(s.x() + pathTranslation_.x(), 3,
 					       buf) << ',';
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
-    case SegmentType::ArcR:
+    case ArcR:
       out << ',' << Utils::round_js_str(std::max(0.0, s.x()), 3, buf);
       break;
-    case SegmentType::ArcAngleSweep:
+    case ArcAngleSweep:
       {
 	WPointF r = normalizedDegreesToRadians(s.x(), s.y());
 
@@ -396,7 +397,7 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 	out << ',' << (s.y() > 0 ? "true" : "false") << ");";
       }
       break;
-    case SegmentType::QuadC: {
+    case QuadC: {
       const double cpx = s.x();
       const double cpy = s.y();
       out << "ctx.quadraticCurveTo("
@@ -405,7 +406,7 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 
       break;
     }
-    case SegmentType::QuadEnd:
+    case QuadEnd:
       out << ','
 	  << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf) << ',';
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf) << ");";

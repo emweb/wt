@@ -427,7 +427,7 @@ private:
 
   WGLWidget::Buffer currentlyBoundBuffer_;
   WGLWidget::Texture currentlyBoundTexture_;
-  std::vector<std::unique_ptr<WResource>> binaryResources_;
+  std::vector<std::unique_ptr<WResource> > binaryResources_;
   struct PreloadImage {
     PreloadImage(const std::string& r, const std::string& u, unsigned i) :
       jsRef(r), url(u), id(i) {}

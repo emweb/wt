@@ -16,7 +16,7 @@ namespace {
   using namespace Wt;
 
   /*
-   * Method::Get the ancestors of n as a list, starting from the tree root,
+   * Get the ancestors of n as a list, starting from the tree root,
    * and including n.
    *
    * Returns false if node n is currently not visible because one of its
@@ -117,7 +117,7 @@ WTree::WTree()
     treeRoot_(nullptr),
     selectionMode_(SelectionMode::None)
 {
-  sentinelRoot_ = setNewImplementation<Impl::SentinelTreeNode>(this);
+  setImplementation(std::unique_ptr<Impl::SentinelTreeNode>(sentinelRoot_ = new Impl::SentinelTreeNode(this)));
 }
 
 void WTree::setTreeRoot(std::unique_ptr<WTreeNode> node)

@@ -158,9 +158,15 @@ public:
    *
    * \sa addLayout(), insertWidget()
    */
+#ifndef WT_TARGET_JAVA
   void addWidget(std::unique_ptr<WWidget> widget, int stretch,
                  WFlags<AlignmentFlag> alignment);
+#else // WT_TARGET_JAVA
+  void addWidget(std::unique_ptr<WWidget> widget, int stretch = 0,
+                 WFlags<AlignmentFlag> alignment = None);
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Adds a widget to the layout, returning a raw pointer.
    *
    * This is implemented as:
@@ -179,6 +185,7 @@ public:
     addWidget(std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
     return result;
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Adds a nested layout to the layout.
    *
@@ -199,6 +206,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Layout>
     Layout *addLayout(std::unique_ptr<Layout> layout, int stretch = 0,
                       WFlags<AlignmentFlag> alignment = None)
@@ -207,6 +215,12 @@ public:
     addLayout(std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Layout>
+    Layout *addLayout(std::unique_ptr<Layout> layout);
+  template <typename Layout>
+    Layout *addLayout(std::unique_ptr<Layout> layout, int stretch);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Adds extra spacing.
    *
@@ -255,6 +269,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Widget>
     Widget *insertWidget(int index, std::unique_ptr<Widget> widget, int stretch = 0,
 			 WFlags<AlignmentFlag> alignment = None)
@@ -263,6 +278,10 @@ public:
     insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Widget>
+    Widget *insertWidget(int index, std::unique_ptr<Widget> widget, int stretch);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Inserts a nested layout in the layout.
    *
@@ -283,6 +302,7 @@ public:
    * return result;
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <typename Layout>
     Layout *insertLayout(int index, std::unique_ptr<Layout> layout, int stretch = 0,
 	                 WFlags<AlignmentFlag> alignment = None)
@@ -291,6 +311,10 @@ public:
     insertLayout(index, std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Layout>
+    Layout *insertLayout(int index, std::unique_ptr<Layout> layout, int stretch);
+#endif
 
   /*! \brief Inserts extra spacing in the layout.
    *
@@ -351,9 +375,9 @@ public:
    */
   bool isResizable(int index) const;
 
-protected:
   virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
 
+protected:
   void insertItem(int index, std::unique_ptr<WLayoutItem> item, int stretch,
 		  WFlags<AlignmentFlag> alignment);
 

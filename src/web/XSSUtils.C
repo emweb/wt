@@ -13,6 +13,8 @@ namespace Wt {
 
 #ifdef WT_TARGET_JAVA	
     class XSSUtils {
+    private:
+      XSSUtils() { }
     };
 #endif //WT_TARGET_JAVA
 

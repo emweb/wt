@@ -2,6 +2,7 @@
 
 #include "WStringStream.h"
 #include "WTemplate.h"
+#include "WLogger.h"
 #include "WPushButton.h"
 #include "WText.h"
 #include "WIcon.h"
@@ -26,16 +27,17 @@ WTimePicker::WTimePicker(WTimeEdit *timeEdit)
 
 void WTimePicker::init(const WTime &time)
 {
-    WTemplate *container = setNewImplementation<WTemplate>();
+    WTemplate *container = new WTemplate();
+    setImplementation(std::unique_ptr<WTemplate>(container));
     container->addStyleClass("form-inline");
     container->setTemplateText(tr("Wt.WTimePicker.template"));
 
-    sbhour_ = container->bindWidget("hour", cpp14::make_unique<WSpinBox>());
+    sbhour_ = container->bindWidget("hour", std::unique_ptr<WSpinBox>(new WSpinBox()));
     sbhour_->setWidth(70);
     sbhour_->setSingleStep(1);
     sbhour_->changed().connect(this, &WTimePicker::hourValueChanged);
 
-    sbminute_ = container->bindWidget("minute", cpp14::make_unique<WSpinBox>());
+    sbminute_ = container->bindWidget("minute", std::unique_ptr<WSpinBox>(new WSpinBox()));
     sbminute_->setWidth(70);
     sbminute_->setRange(0, 59);
     sbminute_->setSingleStep(1);
@@ -119,7 +121,7 @@ void WTimePicker::configure()
 
     if (formatS()) {
       sbsecond_ = container->bindWidget("second",
-					cpp14::make_unique<WSpinBox>());
+					std::unique_ptr<WSpinBox>(new WSpinBox()));
       sbsecond_->setWidth(70);
       sbsecond_->setRange(0, 59);
       sbsecond_->setSingleStep(1);
@@ -137,7 +139,7 @@ void WTimePicker::configure()
     if (formatMs()) {
       if (!sbmillisecond_) {
 	sbmillisecond_ = container->bindWidget("millisecond",
-					       cpp14::make_unique<WSpinBox>());
+					       std::unique_ptr<WSpinBox>(new WSpinBox()));
 	sbmillisecond_->setWidth(70);
 	sbmillisecond_->setRange(0, 999);
 	sbmillisecond_->setSingleStep(1);
@@ -155,7 +157,7 @@ void WTimePicker::configure()
 
     if (formatAp()) {
       if (!cbAP_) {
-	cbAP_ = container->bindWidget("ampm", cpp14::make_unique<WComboBox>());
+	cbAP_ = container->bindWidget("ampm", std::unique_ptr<WComboBox>(new WComboBox()));
 	cbAP_->setWidth(90);
 	cbAP_->addItem("AM");
 	cbAP_->addItem("PM");
