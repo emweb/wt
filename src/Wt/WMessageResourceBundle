@@ -56,7 +56,7 @@ class WMessageResources;
  * app->messageResourceBundle().use("general");
  *
  * // resolve a string using the resource bundle
- * Wt::WText *welcome = new Wt::WText(tr("welcome-visitor").arg("Bart"));
+ * Wt::WText *welcome = new Wt::WText(tr("welcome-text").arg("Bart"));
  * \endcode
  * \endif
  *
