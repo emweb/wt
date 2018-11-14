@@ -94,10 +94,10 @@ WT_DECLARE_WT_MEMBER
        function mouseup(event) {
          domRoot.style['pointer-events'] = oldPointerEvents;
          document.body.style['cursor'] = oldCursorStyle;
-         document.removeEventListener('mousemove', mousemove);
-         document.removeEventListener('mouseup', mouseup);
-         document.removeEventListener('touchmove', mousemove);
-         document.removeEventListener('touchend', mouseup);
+         document.removeEventListener('mousemove', mousemove, {capture: true});
+         document.removeEventListener('mouseup', mouseup, {capture: true});
+         document.removeEventListener('touchmove', mousemove, {capture: true});
+         document.removeEventListener('touchend', mouseup, {capture: true});
          mouseup_common(event);
        }
        document.addEventListener('mousemove', mousemove, {capture: true});
