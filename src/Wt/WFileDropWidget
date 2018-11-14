@@ -317,7 +317,8 @@ private:
   static const int BIT_DRAGOPTIONS_CHANGED = 3;
   static const int BIT_JSFILTER_CHANGED    = 4;
   std::bitset<5> updateFlags_;
-  
+  bool updatesEnabled_; // track if this widget enabled updates.
+
   friend class WFileDropUploadResource;
 };
   
