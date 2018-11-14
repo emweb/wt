@@ -118,7 +118,7 @@ WFileDropWidget::File::File(int id, const std::string& fileName,
 
 const Http::UploadedFile& WFileDropWidget::File::uploadedFile() const {
   if (!uploadFinished_)
-    throw std::exception();
+    throw WException("Can not access uploaded files before upload is done.");
   else
     return uploadedFile_;
 }
@@ -189,7 +189,8 @@ WFileDropWidget::WFileDropWidget()
     fileTooLarge_(this, "filetoolarge"),
     uploadFinished_(this, "uploadfinished"),
     doneSending_(this, "donesending"),
-    jsFilterNotSupported_(this, "filternotsupported")
+    jsFilterNotSupported_(this, "filternotsupported"),
+    updatesEnabled_(false)
 {
   WApplication *app = WApplication::instance();
   if (!app->environment().ajax())
@@ -309,6 +310,7 @@ void WFileDropWidget::handleSendRequest(int id)
   if (!fileFound)
     doJavaScript(jsRef() + ".cancelUpload(" + std::to_string(id) + ");");
   else {
+    updatesEnabled_ = true;
     WApplication::instance()->enableUpdates(true);
   }
 }
@@ -335,7 +337,10 @@ void WFileDropWidget::stopReceiving()
     // 	      << "cancelling expected uploads"
     // 	      << std::endl;
     currentFileIdx_ = uploads_.size();
-    WApplication::instance()->enableUpdates(false);
+    if (updatesEnabled_) {
+      WApplication::instance()->enableUpdates(false);
+      updatesEnabled_ = false;
+    }
   }
 }
 
@@ -351,7 +356,10 @@ void WFileDropWidget::proceedToNextFile()
 
   currentFileIdx_++;
   if (currentFileIdx_ == uploads_.size()) {
-    WApplication::instance()->enableUpdates(false);
+    if (updatesEnabled_) {
+      WApplication::instance()->enableUpdates(false);
+      updatesEnabled_ = false;
+    }
   }
 }
 
