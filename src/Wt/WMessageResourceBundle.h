@@ -57,7 +57,7 @@ class WMessageResources;
  *
  * // resolve a string using the resource bundle
  * auto welcome = std::make_unique<Wt::WText>(
- *                  tr("welcome-visitor").arg("Bart"));
+ *                  tr("welcome-text").arg("Bart"));
  * \endcode
  * \endif
  *
