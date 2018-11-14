@@ -2213,6 +2213,7 @@ WWidget *WWebWidget::findById(const std::string& id)
     return this;
   else {
     WWidget *result[1];
+    result[0] = nullptr;
     iterateChildren
       ([&](WWidget *c) {
 	if (!result[0])
