@@ -750,7 +750,7 @@ WT_DECLARE_WT_MEMBER_BIG
             dy = c.y - dragPreviousXY.y;
           }
           assign(seriesTransform(curve),
-              mult([1,0,0,1,0,dy / yTransform(seriesAxis(seriesNb))[3]],
+              mult([1,0,0,1,0,dy / yTransform(seriesAxis(configSelectedCurve()))[3]],
                 seriesTransform(curve)));
           repaint();
         } else if (config.pan) {
