@@ -7,7 +7,7 @@ namespace Wt {
 
 class IsapiServer;
 
-class IsapiRequest : public WebRequest
+class IsapiRequest : public WebResponse
 {
 public:
   IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb, IsapiServer *server,

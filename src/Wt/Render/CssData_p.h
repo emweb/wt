@@ -14,7 +14,8 @@ namespace Render {
 struct SimpleSelectorImpl final : public SimpleSelector
 {
 public:
-  SimpleSelectorImpl(){}
+  SimpleSelectorImpl()
+   : elementType_(DomElementType::UNKNOWN) {}
   virtual const std::string& elementName() const override { return elementName_; }
   virtual DomElementType elementType() const override { return elementType_; }
   virtual const std::string& hashId()      const override { return hashid_; }

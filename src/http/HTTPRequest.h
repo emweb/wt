@@ -16,7 +16,7 @@
 namespace http {
 namespace server {
 
-class HTTPRequest final : public Wt::WebRequest
+class HTTPRequest final : public Wt::WebResponse
 {
 public:
   HTTPRequest(WtReplyPtr wtReply, const Wt::EntryPoint *entryPoint);

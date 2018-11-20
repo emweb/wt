@@ -16,7 +16,8 @@
 namespace Wt {
 
 WStackedWidget::WStackedWidget()
-  : currentIndex_(-1),
+  : autoReverseAnimation_(false),
+    currentIndex_(-1),
     widgetsAdded_(false),
     javaScriptDefined_(false),
     loadAnimateJS_(false)

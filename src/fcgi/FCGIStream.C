@@ -43,7 +43,7 @@ namespace {
     return v ? std::string(v) : std::string();
   }
 
-  class FCGIRequest final : public WebRequest
+  class FCGIRequest final : public WebResponse
   {
     mutable std::string scriptName_, serverName_, queryString_,
       serverPort_, pathInfo_, remoteAddr_;
