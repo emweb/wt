@@ -14,7 +14,8 @@ namespace Render {
 struct SimpleSelectorImpl : public SimpleSelector
 {
 public:
-  SimpleSelectorImpl(){}
+  SimpleSelectorImpl()
+   : elementType_(DomElement_UNKNOWN) {}
   virtual const std::string& elementName() const { return elementName_; }
   virtual DomElementType elementType() const { return elementType_; }
   virtual const std::string& hashId()      const { return hashid_; }

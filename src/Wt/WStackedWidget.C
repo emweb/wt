@@ -17,6 +17,7 @@ namespace Wt {
 
 WStackedWidget::WStackedWidget(WContainerWidget *parent)
   : WContainerWidget(parent),
+    autoReverseAnimation_(false),
     currentIndex_(-1),
     widgetsAdded_(false),
     javaScriptDefined_(false),

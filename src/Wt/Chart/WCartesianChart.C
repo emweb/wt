@@ -1058,7 +1058,8 @@ public:
 
   virtual void endSeries()
   {
-    finishPathFragment(*series_);
+    if (series_)
+      finishPathFragment(*series_);
     series_ = 0;
 
     if (needRestore_)
