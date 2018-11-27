@@ -1072,7 +1072,7 @@ public:
 			int yRow, int yColumn)
   {
     if (!Utils::isNaN(x) && !Utils::isNaN(y)) {
-      WPointF p = chart_.map(x, y, series.axis(),
+      WPointF p = chart_.map(x, y, series.yAxis(),
 			     currentXSegment(), currentYSegment());
 
       if (!marker_.isEmpty()) {
@@ -1253,7 +1253,7 @@ public:
       double scaledRx = scaleFactor * rX_;
       double scaledRy = scaleFactor * rYs_[series.yAxis()];
       
-      WPointF p = chart_.map(x, y, series.axis(), currentXSegment(), currentYSegment());
+      WPointF p = chart_.map(x, y, series.yAxis(), currentXSegment(), currentYSegment());
       double dx = p.x() - matchX_;
       double dy = p.y() - matchYs_[series.yAxis()];
       double dx2 = dx * dx;
