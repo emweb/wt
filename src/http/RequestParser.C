@@ -1175,7 +1175,9 @@ Reply::status_type RequestParser::validate(Request& req)
   const Request::Header *h = req.getHeader("Content-Length");
 
   if (h) {
-    if (!h->value.next) {
+    if (h->value.empty()) {
+      return Reply::bad_request;
+    } else if (!h->value.next) {
       char *endptr;
       const char *cl = h->value.data;
       req.contentLength = strtoll(cl, &endptr, 10);
