@@ -1416,6 +1416,9 @@ void WAbstractItemView::handleMouseUp(const WModelIndex& index,
 void WAbstractItemView::handleTouchSelect(const std::vector<WModelIndex>& indices,
                                           const WTouchEvent& event)
 {
+  if (indices.empty())
+    return; // no indices, likely due to faulty input
+
   const WModelIndex& index = indices[0];
   touchRegistered_ = true;
   delayedClearAndSelectIndex_ = WModelIndex();

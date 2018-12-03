@@ -1647,7 +1647,7 @@
   </message>
 
   <message id="forms-comboBox">
-    <h2 id="combo-boxes">Combo box</h2>
+    <h2 id="combo-box">Combo box</h2>
     <p>
       A combo box is a drop-down list allowing you to choose one option from a
       list of options.
@@ -1683,7 +1683,7 @@
       ${src ComboBoxActivated}
     </fieldset>
 
-    <p><a href="#combo-boxes">Top</a></p>
+    <p><a href="#combo-box">Top</a></p>
 
     <h3 id="model">Model</h3>
     <p>
@@ -1713,12 +1713,12 @@
       ${src ComboBoxModel}
     </fieldset>
 
-    <p><a href="#combo-boxes">Top</a></p>
+    <p><a href="#combo-box">Top</a></p>
 
   </message>
 
   <message id="forms-selectionBox">
-    <h2 id="selection-boxes">Selection box</h2>
+    <h2 id="selection-box">Selection box</h2>
     <p>
       A selection box shows an immediately visible list allowing you to choose
       one (by default) or <a href="#selection-multiple">more</a> options.
@@ -1736,7 +1736,7 @@
       methods <tt>addItem()</tt>, <tt>insertItem()</tt> and <tt>
       removeItem()</tt> manipulate the model. You can set the model
       with <tt>setModel()</tt>. See the Combo box section for an <a
-      href="#/forms/combo-boxes">example</a>.
+      href="#/forms/combo-box">example</a>.
     </p>
     <p>
       A model supports different roles like
@@ -1768,7 +1768,7 @@
       ${src SelectionBoxSimple}
     </fieldset>
 
-    <p><a href="#selection-boxes">Top</a></p>
+    <p><a href="#selection-box">Top</a></p>
 
     <h3 id="selection-multiple">Multiple option selection box</h3>
     <p>Use shift and/or ctrl-click to select your pizza toppings...</p>
@@ -1779,7 +1779,7 @@
       ${src SelectionBoxExtended}
     </fieldset>
 
-    <p><a href="#selection-boxes">Top</a></p>
+    <p><a href="#selection-box">Top</a></p>
 
   </message>
 
@@ -1828,7 +1828,7 @@
       methods <tt>clearSuggestions()</tt> and <tt>addSuggestion()</tt>
       manipulate this model. You can set another model with
       <tt>setModel()</tt>. See the Combo box section for an <a
-      href="#/forms/combo-boxes">example</a>.
+      href="#/forms/combo-box">example</a>.
     </p>
 
     <h3>Server-side filtering</h3>
