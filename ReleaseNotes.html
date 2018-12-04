@@ -22,7 +22,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.0.5 (2018)</h2>
+<h2>Release 4.0.5 (December 2018)</h2>
 <p>Wt 4.0.5 is almost entirely a bugfix release. Here are the key changes:</p>
 
 <h3>Minor API breaking changes</h3>
@@ -56,13 +56,13 @@ signals instead.</p>
 &ldquo;you need to be careful to not have two collections with the same statement busy at the same time&rdquo;.
 If you did attempt concurrent use of statements, an exception mentioned that
 &ldquo;Reentrant statement use is not yet implemented&rdquo;. Starting from
-Wt 4.0.5, you won't see that error anymore. We've done the necessary work to make this happen. Dbo will now
+Wt 4.0.5, you won't see that error anymore. Dbo will now
 clone the prepared statement as needed.</p>
 
 <h3>Flex layout fixes</h3>
 One of Wt 4's niceties is the fact that the layout managers now rely less on JavaScript, but employ flexbox instead. This
 did not work perfectly, though, so it was still possible to switch the implementation to the old JavaScript method if things
-did not work correctly. We went and fixed many issues in the flex layout implementation, and now the widget gallery works
+did not work correctly. We fixed many issues in the flex layout implementation, and now the widget gallery works
 correctly using flexbox (pending an overhaul to make the widget gallery more responsive and more in line with the Wt homepage theme).
 
 <h2>Release 4.0.4 (August 22, 2018)</h2>
