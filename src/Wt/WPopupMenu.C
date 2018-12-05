@@ -32,6 +32,7 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     cancel_(this, "cancel"),
     recursiveEventLoop_(false),
     willPopup_(false),
+    hideOnSelect_(true),
     autoHideDelay_(-1)
 {
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";
@@ -123,14 +124,18 @@ void WPopupMenu::done(WMenuItem *result)
   location_ = nullptr;
   result_ = result;
 
-  hide();
+  bool shouldHide = !result || static_cast<WPopupMenu*>(result->parentMenu())->hideOnSelect();
+
+  if (shouldHide)
+    hide();
 
   recursiveEventLoop_ = false;
 
   if (result_)
     triggered_.emit(result_);
 
-  aboutToHide_.emit();
+  if (shouldHide)
+    aboutToHide_.emit();
 }
 
 void WPopupMenu::cancel()
@@ -313,6 +318,11 @@ void WPopupMenu::render(WFlags<RenderFlag> flags)
 {
   WMenu::render(flags);
   willPopup_ = false;
+}
+
+void WPopupMenu::setHideOnSelect(bool enabled)
+{
+  hideOnSelect_ = enabled;
 }
 
 }

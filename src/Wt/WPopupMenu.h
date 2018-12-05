@@ -178,7 +178,7 @@ public:
 
   /*! \brief Returns the last triggered menu item.
    *
-   * The result is \c 0 when the user cancelled the popup menu.
+   * The result is \c nullptr when the user cancelled the popup menu.
    */
   WMenuItem *result() const { return result_; }
 
@@ -194,7 +194,7 @@ public:
    * by the toplevel popup menu (and not by submenus), and is also
    * emitted when no item was selected.
    *
-   * You can use result() to get the selected item, which may be \c 0.
+   * You can use result() to get the selected item, which may be \c nullptr.
    *
    * \sa triggered(), itemSelected()
    */
@@ -220,6 +220,20 @@ public:
    */
   void setAutoHide(bool enabled, int autoHideDelay = 0);
 
+  /*! \brief Set whether this popup menu should hide when an item is selected.
+   *
+   * Defaults to true.
+   *
+   * \sa hideOnSelect()
+   */
+  void setHideOnSelect(bool enabled = true);
+
+  /*! \brief Returns whether this popup menu should hide when an item is selected.
+   *
+   * \sa setHideOnSelect()
+   */
+  bool hideOnSelect() const { return hideOnSelect_; }
+
 protected:
   virtual void renderSelected(WMenuItem *item, bool selected) override;
   virtual void setCurrent(int index) override;
@@ -238,6 +252,7 @@ private:
 
   bool recursiveEventLoop_;
   bool willPopup_;
+  bool hideOnSelect_;
   int autoHideDelay_;
 
   void exec();
