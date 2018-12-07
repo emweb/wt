@@ -205,6 +205,20 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime3 )
   BOOST_REQUIRE(!wdt.isNull());
 }
 
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime4 )
+{
+  Wt::WDateTime d
+    = Wt::WDateTime::fromString("Sat, 24 Nov 2018 06:44:33 GMT",
+				"ddd, dd MMM yyyy hh:mm:ss 'GMT'");
+
+  BOOST_REQUIRE(d.date().year() == 2018);
+  BOOST_REQUIRE(d.date().month() == 11);
+  BOOST_REQUIRE(d.date().day() == 24);
+  BOOST_REQUIRE(d.time().hour() == 6);
+  BOOST_REQUIRE(d.time().minute() == 44);
+  BOOST_REQUIRE(d.time().second() == 33);
+}
+
 BOOST_AUTO_TEST_CASE( WDateTime_testspecial_WDateTime )
 {
   Wt::WDateTime wdt;

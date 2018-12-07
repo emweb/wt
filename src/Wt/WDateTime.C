@@ -392,12 +392,12 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
 	  gotQuoteInQuote = false;
 	  if (vi >= v.length() || (v[vi++] != c))
 	    return;
-	} else
+	} else {
 	  gotQuoteInQuote = true;
+	  inQuote = false;
+	}
       }
-    }
-
-    if (!inQuote) {
+    } else {
       CharState state = CharUnhandled;
 
       if (date) {
