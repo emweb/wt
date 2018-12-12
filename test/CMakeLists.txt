@@ -13,6 +13,7 @@ IF(ENABLE_LIBWTTEST)
     models/WStandardItemModelTest.C
     private/HttpTest.C
     private/CExpressionParserTest.C
+    private/ColorTest.C
     private/I18n.C
     private/UrlManipTest.C
     render/BlockCssPropertyTest.C

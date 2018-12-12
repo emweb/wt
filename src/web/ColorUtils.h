@@ -20,7 +20,7 @@ namespace Wt {
     };
 #endif //WT_TARGET_JAVA
 
-    extern WColor parseCssColor(const std::string &name);
+    extern WT_API WColor parseCssColor(const std::string &name);
   }
 }
 

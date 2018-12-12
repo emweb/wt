@@ -62,37 +62,37 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
   }
 
   {
-    Wt::WColor c("rgba(18,160,207,50)");
+    Wt::WColor c("rgba(18,160,207,0.2)");
     BOOST_REQUIRE(c.red() == 18);
     BOOST_REQUIRE(c.green() == 160);
     BOOST_REQUIRE(c.blue() == 207);
-    BOOST_REQUIRE(c.alpha() == 50); 
+    BOOST_REQUIRE(c.alpha() == 51); 
   }
 
   {
-    Wt::WColor c("rgba(18 , 160  ,  207 , 50)");
+    Wt::WColor c("rgba(18 , 160  ,  207 , 0.2)");
     BOOST_REQUIRE(c.red() == 18);
     BOOST_REQUIRE(c.green() == 160);
     BOOST_REQUIRE(c.blue() == 207);
-    BOOST_REQUIRE(c.alpha() == 50); 
+    BOOST_REQUIRE(c.alpha() == 51); 
   }
 
   {
-    Wt::WColor c("rgba( 50%  , 25%  ,  0%, 55)");
+    Wt::WColor c("rgba( 50%  , 25%  ,  0%, 0.22)");
     BOOST_REQUIRE(c.red() == 127);
     BOOST_REQUIRE(c.green() == 63);
     BOOST_REQUIRE(c.blue() == 0);
-    BOOST_REQUIRE(c.alpha() == 55); 
+    BOOST_REQUIRE(c.alpha() == 56); 
+  }
+
+  {
+    Wt::WColor c("#ff80");
+    BOOST_REQUIRE(c.red() == 255 && c.green() == 255 && c.blue() == 0x88 && c.alpha() == 0);
   }
 
   //try to mess things up
   {
     Wt::WColor c("#f8 0");
-    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
-  }
-  
-  {
-    Wt::WColor c("#ff80");
     BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
   }
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
   }
 
   {
-    Wt::WColor c("rgb(30%,20%,50%,50)");
+    Wt::WColor c("rgb(30%,20%,50%,0.2)");
     BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
   }
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
   }
 
   {
-    Wt::WColor c("rgba(30%,20%,50%,50,x)");
+    Wt::WColor c("rgba(30%,20%,50%,0.2,x)");
     BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
   }
 
