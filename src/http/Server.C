@@ -86,7 +86,8 @@ namespace {
   }
 
   std::string bindError(Wt::AsioWrapper::asio::ip::tcp::endpoint ep,
-			Wt::AsioWrapper::system_error e) {
+                        Wt::AsioWrapper::error_code errc) {
+    Wt::AsioWrapper::system_error e{errc};
     std::stringstream ss;
     ss << "Error occurred when binding to " 
        << ep.address().to_string() 

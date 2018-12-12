@@ -6,12 +6,25 @@
 
 #include "ColorUtils.h"
 
+#include "Wt/WException.h"
 #include "Wt/WLogger.h"
 #include "web/WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
 
+#include <algorithm>
+#include <cmath>
 #include <string>
+
+namespace {
+
+inline bool ishex(char c) {
+  return (c >= '0' && c <= '9') ||
+         (c >= 'a' && c <= 'f') ||
+         (c >= 'A' && c <= 'F');
+}
+
+}
 
 namespace Wt {
 
@@ -51,14 +64,24 @@ WColor parseCssColor(const std::string &name)
   int alpha = 255;
 
   if (boost::starts_with(n, "#")) {
-    if (n.size() - 1 == 3) {                // #rgb
+    if (n.size() - 1 == 3 && std::count_if(n.begin() + 1, n.end(), ishex) == 3) {                // #rgb
       red = replicateHex(n.substr(1, 1));
       green = replicateHex(n.substr(2,1));
       blue = replicateHex(n.substr(3,1));
-    } else if (n.size() - 1 == 6) {         // #rrggbb 
+    } else if (n.size() - 1 == 4 && std::count_if(n.begin() + 1, n.end(), ishex) == 4) {                // #rgba
+      red = replicateHex(n.substr(1, 1));
+      green = replicateHex(n.substr(2,1));
+      blue = replicateHex(n.substr(3,1));
+      alpha = replicateHex(n.substr(4,1));
+    } else if (n.size() - 1 == 6 && std::count_if(n.begin() + 1, n.end(), ishex) == 6) {         // #rrggbb 
       red = Utils::hexToInt(n.substr(1,2).c_str());
       green = Utils::hexToInt(n.substr(3,2).c_str());
       blue = Utils::hexToInt(n.substr(5,2).c_str());
+    } else if (n.size() - 1 == 8 && std::count_if(n.begin() + 1, n.end(), ishex) == 8) {         // #rrggbbaa
+      red = Utils::hexToInt(n.substr(1,2).c_str());
+      green = Utils::hexToInt(n.substr(3,2).c_str());
+      blue = Utils::hexToInt(n.substr(5,2).c_str());
+      alpha = Utils::hexToInt(n.substr(7,2).c_str());
     } else {
       LOG_ERROR("could not parse rgb format: " << n);
       red = green = blue = -1;
@@ -102,8 +125,11 @@ WColor parseCssColor(const std::string &name)
 	
     if (has_alpha) {
       try {
-	alpha = Utils::stoi(boost::trim_copy(arguments[3]));
-      } catch (std::exception& e) {
+        double alpha_d = Utils::stod(boost::trim_copy(arguments[3]));
+        if (alpha_d < 0.0 || alpha_d > 1.0)
+          throw WException("parseCssColor: alpha value out of range 0.0 to 1.0");
+        alpha = static_cast<int>(std::round(alpha_d * 255.));
+      } catch (std::exception &e) {
 	LOG_ERROR("could not parse rgb format: " << n);
 	alpha = 255;
 	return WColor(red, green, blue, alpha);

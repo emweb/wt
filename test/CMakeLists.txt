@@ -18,6 +18,7 @@ IF(ENABLE_LIBWTTEST)
     private/EventDecodeTest.C
     private/HttpTest.C
     private/CExpressionParserTest.C
+    private/ColorTest.C
     private/I18n.C
     private/SessionFromCookieTest.C
     private/UrlManipTest.C
