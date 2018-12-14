@@ -56,9 +56,13 @@ WDate WDate::addDays(int ndays) const
 {
   if (isValid()) {
     date d(year(), month(), day());
-    d += date_duration(ndays);
-    if (d.year() > 9999 || d.year() < 1400)
+    try {
+      d += date_duration(ndays);
+      if (d.year() > 9999 || d.year() < 1400)
+        return WDate();
+    } catch (const std::out_of_range &e) {
       return WDate();
+    }
     return WDate(d.year(), d.month(), d.day());
   } else
     return WDate();
@@ -68,9 +72,13 @@ WDate WDate::addMonths(int nmonths) const
 {
   if (isValid()) {
     date d(year(), month(), day());
-    d += months(nmonths);
-    if (d.year() > 9999 || d.year() < 1400)
+    try {
+      d += months(nmonths);
+      if (d.year() > 9999 || d.year() < 1400)
+        return WDate();
+    } catch (const std::out_of_range &e) {
       return WDate();
+    }
     return WDate(d.year(), d.month(), d.day());
   } else
     return WDate();
@@ -80,9 +88,13 @@ WDate WDate::addYears(int nyears) const
 {
   if (isValid()) {
     date d(year(), month(), day());
-    d += years(nyears);
-    if (d.year() > 9999 || d.year() < 1400)
+    try {
+      d += years(nyears);
+      if (d.year() > 9999 || d.year() < 1400)
+        return WDate();
+    } catch (const std::out_of_range &e) {
       return WDate();
+    }
     return WDate(d.year(), d.month(), d.day());
   } else
     return WDate();

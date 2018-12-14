@@ -25,6 +25,14 @@ inline bool ishex(char c) {
          (c >= 'A' && c <= 'F');
 }
 
+inline bool tailIsHex(const std::string &str) {
+  for (std::size_t i = 1; i < str.size(); ++i) {
+    if (!ishex(str[i]))
+      return false;
+  }
+  return true;
+}
+
 }
 
 namespace Wt {
@@ -66,20 +74,20 @@ WColor parseCssColor(const std::string &name)
   int alpha = 255;
 
   if (boost::starts_with(n, "#")) {
-    if (n.size() - 1 == 3 && std::count_if(n.begin() + 1, n.end(), ishex) == 3) {                // #rgb
+    if (n.size() - 1 == 3 && tailIsHex(n)) {          // #rgb
       red = replicateHex(n.substr(1, 1));
       green = replicateHex(n.substr(2,1));
       blue = replicateHex(n.substr(3,1));
-    } else if (n.size() - 1 == 4 && std::count_if(n.begin() + 1, n.end(), ishex) == 4) {                // #rgba
+    } else if (n.size() - 1 == 4 && tailIsHex(n)) {   // #rgba
       red = replicateHex(n.substr(1, 1));
       green = replicateHex(n.substr(2,1));
       blue = replicateHex(n.substr(3,1));
       alpha = replicateHex(n.substr(4,1));
-    } else if (n.size() - 1 == 6 && std::count_if(n.begin() + 1, n.end(), ishex) == 6) {         // #rrggbb 
+    } else if (n.size() - 1 == 6 && tailIsHex(n)) {   // #rrggbb
       red = Utils::hexToInt(n.substr(1,2).c_str());
       green = Utils::hexToInt(n.substr(3,2).c_str());
       blue = Utils::hexToInt(n.substr(5,2).c_str());
-    } else if (n.size() - 1 == 8 && std::count_if(n.begin() + 1, n.end(), ishex) == 8) {         // #rrggbbaa
+    } else if (n.size() - 1 == 8 && tailIsHex(n)) {   // #rrggbbaa
       red = Utils::hexToInt(n.substr(1,2).c_str());
       green = Utils::hexToInt(n.substr(3,2).c_str());
       blue = Utils::hexToInt(n.substr(5,2).c_str());
