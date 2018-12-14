@@ -186,9 +186,6 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
     HPDF_Page_GRestore(page_);
     HPDF_Page_GSave(page_);
 
-    HPDF_ExtGState gstate;
-    gstate = HPDF_CreateExtGState (pdf_);
-
     currentFont_ = WFont();
 
     if (painter()->hasClipping()) {
