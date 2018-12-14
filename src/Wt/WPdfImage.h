@@ -16,6 +16,8 @@
 
 #include <hpdf.h>
 
+#include <map>
+
 namespace Wt {
 
   class FontSupport;
@@ -190,6 +192,8 @@ private:
   std::map<std::string, const char *> ttfFonts_;
   WFont currentFont_;
   std::string currentTtfFont_;
+  std::map<int, HPDF_ExtGState> alphaStrokeExtGStateMap_;
+  std::map<int, HPDF_ExtGState> alphaFillExtGStateMap_;
 
   bool myPdf_;
   double x_, y_;
@@ -199,6 +203,8 @@ private:
   void paintPath();
   void drawPlainPath(const WPainterPath& path);
   void applyTransform(const WTransform& f);
+  void setStrokeColor(WColor color);
+  void setFillColor(WColor color);
 };
 
 }

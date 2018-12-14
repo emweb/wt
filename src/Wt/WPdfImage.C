@@ -131,6 +131,44 @@ void WPdfImage::done()
   HPDF_Page_GRestore(page_); // for Wt -> HPDF
 }
 
+void WPdfImage::setStrokeColor(WColor color)
+{
+  HPDF_Page_SetRGBStroke(page_,
+                         color.red() / 255.,
+                         color.green() / 255.,
+                         color.blue() / 255.);
+
+  auto it = alphaStrokeExtGStateMap_.find(color.alpha());
+  HPDF_ExtGState gstate;
+  if (it == alphaStrokeExtGStateMap_.end()) {
+    gstate = HPDF_CreateExtGState(pdf_);
+    HPDF_ExtGState_SetAlphaStroke(gstate, color.alpha()/255.);
+    alphaStrokeExtGStateMap_[color.alpha()] = gstate;
+  } else {
+    gstate = it->second;
+  }
+  HPDF_Page_SetExtGState(page_, gstate);
+}
+
+void WPdfImage::setFillColor(WColor color)
+{
+  HPDF_Page_SetRGBFill(page_,
+                       color.red() / 255.,
+                       color.green() / 255.,
+                       color.blue() / 255.);
+
+  auto it = alphaFillExtGStateMap_.find(color.alpha());
+  HPDF_ExtGState gstate;
+  if (it == alphaFillExtGStateMap_.end()) {
+    gstate = HPDF_CreateExtGState(pdf_);
+    HPDF_ExtGState_SetAlphaFill(gstate, color.alpha()/255.);
+    alphaFillExtGStateMap_[color.alpha()] = gstate;
+  } else {
+    gstate = it->second;
+  }
+  HPDF_Page_SetExtGState(page_, gstate);
+}
+
 void WPdfImage::addFontCollection(const std::string& directory, bool recursive)
 {
   trueTypeFonts_->addFontCollection(directory, recursive);
@@ -144,7 +182,7 @@ void WPdfImage::applyTransform(const WTransform& t)
 
 void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
 {
-  if (!flags.empty()) {
+  if (flags.test(PainterChangeFlag::Transform) || flags.test(PainterChangeFlag::Clipping)) {
     HPDF_Page_GRestore(page_);
     HPDF_Page_GSave(page_);
 
@@ -169,17 +207,14 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
 
     applyTransform(painter()->combinedTransform());
 
+    flags = PainterChangeFlag::Pen | PainterChangeFlag::Brush | PainterChangeFlag::Font;
+  }
+
+  if (flags.test(PainterChangeFlag::Pen)) {
     const WPen& pen = painter()->pen();
 
     if (pen.style() != PenStyle::None) {
-      const WColor& color = pen.color();
-
-      HPDF_Page_SetRGBStroke(page_,
-                             color.red() / 255.,
-                             color.green() / 255.,
-                             color.blue() / 255.);
-
-      HPDF_ExtGState_SetAlphaStroke (gstate, color.alpha()/255.);
+      setStrokeColor(pen.color());
 
       WLength w = painter()->normalizedPenWidth(pen.width(), false);
       HPDF_Page_SetLineWidth(page_, w.toPixels());
@@ -236,24 +271,17 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
       }
       }
     }
+  }
 
+  if (flags.test(PainterChangeFlag::Brush)) {
     const WBrush& brush = painter()->brush();
 
     if (brush.style() != BrushStyle::None) {
-      const WColor& color = painter()->brush().color();
-
-      HPDF_Page_SetRGBFill(page_,
-                           color.red() / 255.,
-                           color.green() / 255.,
-                           color.blue() / 255.);
-
-      HPDF_ExtGState_SetAlphaFill (gstate, color.alpha()/255.);
+      setFillColor(brush.color());
     }
+  }
 
-    HPDF_Page_SetExtGState (page_, gstate);
-
-    
-
+  if (flags.test(PainterChangeFlag::Font)) {
     const WFont& font = painter()->font();
 
     if (font == currentFont_ && !trueTypeFonts_->busy())
@@ -608,17 +636,14 @@ void WPdfImage::drawText(const WRectF& rect,
 
     HPDF_Page_GSave(page_);
 
+    // Need to fill text using pen color
+    const WColor& penColor = painter()->pen().color();
+    setFillColor(penColor);
+
     // Undo the global inversion
     HPDF_Page_Concat(page_, 1, 0, 0, -1, 0, bottom);
 
     HPDF_Page_BeginText(page_);
-
-    // Need to fill text using pen color
-    const WColor& penColor = painter()->pen().color();
-    HPDF_Page_SetRGBFill(page_,
-			 penColor.red() / 255.,
-			 penColor.green() / 255.,
-			 penColor.blue() / 255.);
 
     std::string s = trueTypeFont_ ? text.toUTF8() : text.narrow();
 
