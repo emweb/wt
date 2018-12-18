@@ -129,7 +129,7 @@ public:
 
   /*! \brief Adds a marker overlay to the map.
    */
-  void addMarker(const Coordinate &pos);
+  void addMarker(const Coordinate &pos, const WString &toolTip = WString());
 
   /*! \brief Adds a polyline overlay to the map.
    *
@@ -152,7 +152,7 @@ public:
 
   /*! \brief Adds a icon marker overlay to the map.
    */
-  void addIconMarker(const Coordinate &pos, const std::string& iconURL);
+  void addIconMarker(const Coordinate &pos, const std::string& iconURL, const WString &toolTip = WString());
 
   /*! \brief Removes all overlays from the map.
    */

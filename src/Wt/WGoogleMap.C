@@ -294,7 +294,7 @@ void WGoogleMap::doGmJavaScript(const std::string& jscode)
     additions_.push_back(jscode);
 }
 
-void WGoogleMap::addMarker(const Coordinate& pos)
+void WGoogleMap::addMarker(const Coordinate& pos, const WString &toolTip)
 {
   std::stringstream strm;
 
@@ -309,16 +309,19 @@ void WGoogleMap::addMarker(const Coordinate& pos)
     strm << ";"
 	 << "var marker = new google.maps.Marker({"
 	 << "position: position,"
-	 << "map: " << jsRef() << ".map"
-	 << "});"
-	 << jsRef() << ".map.overlays.push(marker);";
+	 << "map: " << jsRef() << ".map";
+	 if (!toolTip.empty())
+           strm << ", title: " << WWebWidget::jsStringLiteral(toolTip);
+
+	 strm << "});"
+	      << jsRef() << ".map.overlays.push(marker);";
   }
 
   doGmJavaScript(strm.str());
 }
 
 void WGoogleMap::addIconMarker(const Coordinate &pos,
-                               const std::string& iconURL)
+                               const std::string& iconURL, const WString &toolTip)
 {
   std::stringstream strm;
   
@@ -332,10 +335,11 @@ void WGoogleMap::addIconMarker(const Coordinate &pos,
          << "var marker = new google.maps.Marker({"
 	 << "position: position,"
 	 << "icon: \"" <<  iconURL << "\","
-         << "map: " << jsRef() << ".map"
-	 << "});"
-      
-         << jsRef() << ".map.overlays.push(marker);";
+         << "map: " << jsRef() << ".map";
+	 if (!toolTip.empty())
+           strm << ", title: " << WWebWidget::jsStringLiteral(toolTip);
+         strm << "});"
+              << jsRef() << ".map.overlays.push(marker);";
   }
  
   doGmJavaScript(strm.str());
