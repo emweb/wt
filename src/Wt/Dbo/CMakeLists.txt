@@ -81,10 +81,6 @@ IF(ENABLE_LIBWTDBO)
   SUBDIRS(backend)
 
   INSTALL_FILES(/include/Wt/Dbo "^[^.]+\\.h$")
-  IF(INSTALL_EXTENSIONLESS_HEADERS)
-    INSTALL_FILES(/include/Wt/Dbo "^[^b][^.]+$")
-    INSTALL_FILES(/include/Wt/Dbo "^[^b.][^.]+$")
-  ENDIF(INSTALL_EXTENSIONLESS_HEADERS)
   INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
 
   IF (ASCIIDOC_FOUND)
