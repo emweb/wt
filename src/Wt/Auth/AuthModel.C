@@ -66,7 +66,7 @@ bool AuthModel::isVisible(Field field) const
   if (field == RememberMeField)
     return baseAuth()->authTokensEnabled();
   else
-    return true;
+    return WFormModel::isVisible(field);
 }
 
 void AuthModel::configureThrottling(WInteractWidget *button)
