@@ -109,6 +109,13 @@ public:
   int currentClipPathRendered_;
   WRasterImage *rasterImage_;
 
+  // Required for WResource implementation
+  std::size_t dataSize_;
+  std::shared_ptr<char> data_;
+#ifdef WT_THREADED
+  std::mutex dataMutex_;
+#endif // WT_THREADED
+
   void internalInit(bool applyChanges = true);
   void internalDone();
   void paintPath();
@@ -151,6 +158,8 @@ WRasterImage::WRasterImage(const std::string& type,
     impl_->pixels_[i*4] = impl_->pixels_[i*4 + 1] = impl_->pixels_[i*4 + 2] = 254;
     impl_->pixels_[i*4 + 3] = 0;
   }
+
+  impl_->dataSize_ = 0;
 
   ExceptionInfo exception;
   GetExceptionInfo(&exception);
@@ -250,6 +259,36 @@ void WRasterImage::done()
 
   delete impl_->fontSupport_;
   impl_->fontSupport_ = nullptr;
+
+  if (impl_->image_) {
+    ImageInfo info;
+    GetImageInfo(&info);
+
+    ExceptionInfo exception;
+    GetExceptionInfo(&exception);
+
+    std::size_t size;
+    char* data = static_cast<char*>(ImageToBlob(&info, impl_->image_, &size, &exception));
+    
+    if (!data) {
+      DestroyExceptionInfo(&exception);
+      throw WException("WRasterImage::done() image could not be "
+                       "converted to blob - is your image type supported "
+                       "by GraphicsMagick?");
+    }
+
+    {
+#ifdef WT_THREADED
+      std::lock_guard<std::mutex> lock(impl_->dataMutex_);
+#endif // WT_THREADED
+      impl_->data_.reset(data, &free);
+      impl_->dataSize_ = size;
+    }
+
+    DestroyExceptionInfo(&exception);
+
+    WResource::setChanged();
+  }
 }
 
 void WRasterImage::Impl::internalDone()
@@ -267,6 +306,28 @@ void WRasterImage::Impl::internalDone()
 
     SetImageClipMask(image_, nullptr);
     currentClipPathRendered_ = -1;
+  }
+}
+
+void WRasterImage::handleRequest(const Http::Request &request,
+                                 Http::Response &response)
+{
+  std::size_t size = 0;
+  std::shared_ptr<char> data;
+  {
+#ifdef WT_THREADED
+    std::lock_guard<std::mutex> lock(impl_->dataMutex_);
+#endif // WT_THREADED
+
+    data = impl_->data_;
+    size = impl_->dataSize_;
+  }
+
+  if (data) {
+    response.setMimeType("image/" + impl_->type_);
+    response.out().write(data.get(), size);
+  } else {
+    response.setStatus(500);
   }
 }
 
@@ -1020,35 +1081,6 @@ WFontMetrics WRasterImage::fontMetrics()
     throw WException("WRasterImage::fontMetrics() not supported");
   else
     return impl_->fontSupport_->fontMetrics(painter_->font());
-}
-
-void WRasterImage::handleRequest(const Http::Request& request,
-				 Http::Response& response)
-{
-  response.setMimeType("image/" + impl_->type_);
-
-  if (impl_->image_) {
-    ImageInfo info;
-    GetImageInfo(&info);
-
-    ExceptionInfo exception;
-    GetExceptionInfo(&exception);
-
-    std::size_t size;
-    void *data = ImageToBlob(&info, impl_->image_, &size, &exception);
-
-    if(!data) {
-      DestroyExceptionInfo(&exception);
-      throw WException("WRasterImage::handleRequest() image could not be "
-                       "converted to blob - is your image type supported "
-		       "by graphicsmagick?");
-    }
-
-    response.out().write((const char *)data, size);
- 
-    free(data);
-    DestroyExceptionInfo(&exception);
-  }
 }
 
 }
