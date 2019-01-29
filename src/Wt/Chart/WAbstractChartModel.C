@@ -53,6 +53,11 @@ const WColor *WAbstractChartModel::markerBrushColor(int row, int column) const
   return 0;
 }
 
+const MarkerType *WAbstractChartModel::markerType(int row, int column) const
+{
+  return 0;
+}
+
 const WColor *WAbstractChartModel::barPenColor(int row, int column) const
 {
   return 0;
