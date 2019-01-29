@@ -276,7 +276,7 @@ WRasterImage::WRasterImage(const std::string& type,
 
   // Create a Direct2D factory.
   if (SUCCEEDED(hr))
-    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &impl_->factory_);
+    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &impl_->factory_);
 
   if (SUCCEEDED(hr))
     hr = CoCreateInstance(CLSID_WICImagingFactory, 0, CLSCTX_INPROC_SERVER,

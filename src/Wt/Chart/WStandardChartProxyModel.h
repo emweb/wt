@@ -111,6 +111,16 @@ public:
    */
   virtual const WColor *markerBrushColor(int row, int column) const override;
 
+  /*!\brief Returns the marker type to use for a given row and column.
+   *
+   * Returns the result of WAbstractItemModel::data() for the given
+   * row and column with the \link ItemDataRole MarkerTypeRole\endlink, or null if no marker type
+   * is defined.
+   *
+   * \sa WAbstractItemModel::data()
+   */
+  virtual const MarkerType *markerType(int row, int column) const override;
+
   /*!\brief Returns the bar pen color to use for a given row and column.
    *
    * Returns the result of WAbstractItemModel::data() for the given
@@ -162,8 +172,9 @@ private:
   std::shared_ptr<WAbstractItemModel> sourceModel_;
 #ifndef WT_TARGET_JAVA
   mutable WColor color_;
-  mutable double scale_;
   mutable WLink link_;
+  mutable MarkerType markerType_;
+  mutable double markerScaleFactor_;
 #endif
 
   void sourceModelModified();

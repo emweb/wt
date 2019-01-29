@@ -1043,6 +1043,7 @@ public:
   MarkerRenderIterator(const WCartesianChart& chart, WPainter& painter)
     : chart_(chart),
       painter_(painter),
+      currentMarkerType_(MarkerType::None),
       currentScale_(0),
       series_(0)
   { }
@@ -1081,7 +1082,15 @@ public:
       WPointF p = chart_.map(x, y, series.yAxis(),
 			     currentXSegment(), currentYSegment());
 
-      if (!marker_.isEmpty()) {
+      const MarkerType *pointMarker = series.model()->markerType(yRow, yColumn);
+      if (!pointMarker) {
+        pointMarker = series.model()->markerType(xRow, xColumn);
+      }
+      MarkerType markerType = series.marker();
+      if (pointMarker) {
+        markerType = *pointMarker;
+      }
+      if (markerType != MarkerType::None) {
 	WPen pen = WPen(series.markerPen());
 	SeriesIterator::setPenColor(pen, series, xRow, xColumn, yRow, yColumn, ItemDataRole::MarkerPenColor);
 	if (chart_.seriesSelectionEnabled() &&
@@ -1102,7 +1111,8 @@ public:
 	if (!series_ ||
 	    brush != currentBrush_ ||
 	    pen != currentPen_ ||
-	    scale != currentScale_) {
+            scale != currentScale_ ||
+            markerType != currentMarkerType_) {
 	  if (series_) {
 	    finishPathFragment(*series_);
 	  }
@@ -1111,6 +1121,20 @@ public:
 	  currentBrush_ = brush;
 	  currentPen_ = pen;
 	  currentScale_ = scale;
+
+          if (markerType != currentMarkerType_) {
+            marker_ = WPainterPath();
+            currentMarkerType_ = markerType;
+            if (pointMarker) {
+              chart_.drawMarker(series, markerType, marker_);
+            } else {
+              chart_.drawMarker(series, marker_);
+            }
+            if (!needRestore_) {
+              painter_.save();
+              needRestore_ = true;
+            }
+          }
 	}
 
 	pathFragment_.moveTo(hv(p));
@@ -1163,6 +1187,7 @@ private:
   WPainterPath pathFragment_;
   WPen currentPen_;
   WBrush currentBrush_;
+  MarkerType currentMarkerType_;
   double currentScale_;
   const WDataSeries *series_;
 
@@ -1201,10 +1226,10 @@ private:
     painter_.setPen(PenStyle::None);
     painter_.setBrush(BrushStyle::None);
     painter_.setShadow(series.shadow());
-    if (series.marker() != MarkerType::Cross &&
-	series.marker() != MarkerType::XCross &&
-	series.marker() != MarkerType::Asterisk &&
-	series.marker() != MarkerType::Star) {
+    if (currentMarkerType_ != MarkerType::Cross &&
+	currentMarkerType_ != MarkerType::XCross &&
+	currentMarkerType_ != MarkerType::Asterisk &&
+	currentMarkerType_ != MarkerType::Star) {
       painter_.setBrush(currentBrush_);
 
       if (!series.shadow().none())
@@ -3008,10 +3033,17 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
 void WCartesianChart::drawMarker(const WDataSeries& series,
 				 WPainterPath& result) const
 {
+  drawMarker(series, series.marker(), result);
+}
+
+void WCartesianChart::drawMarker(const WDataSeries &series,
+                                 MarkerType marker,
+                                 WPainterPath &result) const
+{
   const double size = 6.0;
   const double hsize = size/2;
 
-  switch (series.marker()) {
+  switch (marker) {
   case MarkerType::Circle:
     result.addEllipse(-hsize, -hsize, size, size);
     break;

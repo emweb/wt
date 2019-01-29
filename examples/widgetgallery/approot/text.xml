@@ -3447,8 +3447,8 @@
 
     <p>A common data model involves lists, tables and trees of more or
     less uniform items. Several standard widgets provided by the
-    library use such a model. The abstract #{doc-link
-    WAbstractItemModel} base class provides the interface which is
+    library use such a model. The abstract ${doc-link WAbstractItemModel}
+    base class provides the interface which is
     used by these view classes.</p>
 
     <p>Not only <a href="#/trees-tables/mvc-table-views">Table

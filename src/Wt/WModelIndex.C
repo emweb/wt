@@ -25,6 +25,7 @@ const int ItemDataRole::Level;
 const int ItemDataRole::MarkerPenColor;
 const int ItemDataRole::MarkerBrushColor;
 const int ItemDataRole::MarkerScaleFactor;
+const int ItemDataRole::MarkerType;
 const int ItemDataRole::BarPenColor;
 const int ItemDataRole::BarBrushColor;
 const int ItemDataRole::User;

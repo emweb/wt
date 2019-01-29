@@ -48,6 +48,9 @@ namespace Wt {
 
 WCartesian3DChart::WCartesian3DChart()
   : isViewSet_(false),
+    xAxis_(cpp14::make_unique<WAxis>()),
+    yAxis_(cpp14::make_unique<WAxis>()),
+    zAxis_(cpp14::make_unique<WAxis>()),
     chartType_(ChartType::Scatter),
     background_(StandardColor::White),
     chartPalette_(std::make_shared<WStandardPalette>(PaletteFlavour::Muted)),
@@ -67,9 +70,9 @@ WCartesian3DChart::WCartesian3DChart()
   XZGridEnabled_[0] = false; XZGridEnabled_[1] = false;
   YZGridEnabled_[0] = false; YZGridEnabled_[1] = false;
 
-  XAxis_.init(interface_.get(), Axis::X3D);
-  YAxis_.init(interface_.get(), Axis::Y3D);
-  ZAxis_.init(interface_.get(), Axis::Z3D);
+  xAxis_->init(interface_.get(), Axis::X3D);
+  yAxis_->init(interface_.get(), Axis::Y3D);
+  zAxis_->init(interface_.get(), Axis::Z3D);
 
   titleFont_.setFamily(FontFamily::SansSerif);
   titleFont_.setSize(WLength(15, LengthUnit::Point));
@@ -79,6 +82,9 @@ WCartesian3DChart::WCartesian3DChart()
 
 WCartesian3DChart::WCartesian3DChart(ChartType type)
   : isViewSet_(false),
+    xAxis_(cpp14::make_unique<WAxis>()),
+    yAxis_(cpp14::make_unique<WAxis>()),
+    zAxis_(cpp14::make_unique<WAxis>()),
     chartType_(type),
     background_(StandardColor::White),
     chartPalette_(std::make_shared<WStandardPalette>(PaletteFlavour::Muted)),
@@ -98,9 +104,9 @@ WCartesian3DChart::WCartesian3DChart(ChartType type)
   XZGridEnabled_[0] = false; XZGridEnabled_[1] = false;
   YZGridEnabled_[0] = false; YZGridEnabled_[1] = false;
 
-  XAxis_.init(interface_.get(), Axis::X3D);
-  YAxis_.init(interface_.get(), Axis::Y3D);
-  ZAxis_.init(interface_.get(), Axis::Z3D);
+  xAxis_->init(interface_.get(), Axis::X3D);
+  yAxis_->init(interface_.get(), Axis::Y3D);
+  zAxis_->init(interface_.get(), Axis::Z3D);
 
   titleFont_.setFamily(FontFamily::SansSerif);
   titleFont_.setSize(WLength(15, LengthUnit::Point));
@@ -155,11 +161,27 @@ std::vector<WAbstractDataSeries3D *> WCartesian3DChart::dataSeries() const
 WAxis& WCartesian3DChart::axis(Axis axis)
 {
   if (axis == Axis::X3D) {
-    return XAxis_;
+    return *xAxis_;
   } else if (axis == Axis::Y3D) {
-    return YAxis_;
+    return *yAxis_;
   } else if (axis == Axis::Z3D) {
-    return ZAxis_;
+    return *zAxis_;
+  } else {
+    throw WException("WCartesian3DChart: don't know this type of axis");
+  }
+}
+
+void WCartesian3DChart::setAxis(std::unique_ptr<WAxis> waxis, Axis axis)
+{
+  if (axis == Axis::X3D) {
+    xAxis_ = std::move(waxis);
+    xAxis_->init(interface_.get(), Axis::X3D);
+  } else if (axis == Axis::Y3D) {
+    yAxis_ = std::move(waxis);
+    yAxis_->init(interface_.get(), Axis::Y3D);
+  } else if (axis == Axis::Z3D) {
+    zAxis_ = std::move(waxis);
+    zAxis_->init(interface_.get(), Axis::Z3D);
   } else {
     throw WException("WCartesian3DChart: don't know this type of axis");
   }
@@ -259,9 +281,9 @@ void WCartesian3DChart::setType(ChartType type)
 {
   chartType_ = type;
 
-  XAxis_.init(interface_.get(), Axis::X3D);
-  YAxis_.init(interface_.get(), Axis::Y3D);
-  ZAxis_.init(interface_.get(), Axis::Z3D);
+  xAxis_->init(interface_.get(), Axis::X3D);
+  yAxis_->init(interface_.get(), Axis::Y3D);
+  zAxis_->init(interface_.get(), Axis::Z3D);
 }
 
 void WCartesian3DChart::setLegendEnabled(bool enabled)
@@ -303,9 +325,9 @@ void WCartesian3DChart::initLayout()
   int axisOffset = (int)(axisRenderWidth_/textureScaling_/1.6*0.3);
   int axisWidth = axisRenderWidth_/textureScaling_;
 
-  XAxis_.prepareRender(Orientation::Horizontal, axisWidth-2*axisOffset);
-  YAxis_.prepareRender(Orientation::Horizontal, axisWidth-2*axisOffset);
-  ZAxis_.prepareRender(Orientation::Vertical, axisWidth-2*axisOffset);
+  xAxis_->prepareRender(Orientation::Horizontal, axisWidth-2*axisOffset);
+  yAxis_->prepareRender(Orientation::Horizontal, axisWidth-2*axisOffset);
+  zAxis_->prepareRender(Orientation::Vertical, axisWidth-2*axisOffset);
 }
 
 WMatrix4x4 WCartesian3DChart::cameraMatrix() const
@@ -1795,12 +1817,12 @@ void WCartesian3DChart::renderIntersectionLinesWithInvisiblePlanes()
 
     useProgram(clippingPlaneProgram_);
 
-    double minX = XAxis_.minimum();
-    double maxX = XAxis_.maximum();
-    double minY = YAxis_.minimum();
-    double maxY = YAxis_.maximum();
-    double minZ = ZAxis_.minimum();
-    double maxZ = ZAxis_.maximum();
+    double minX = xAxis_->minimum();
+    double maxX = xAxis_->maximum();
+    double minY = yAxis_->minimum();
+    double maxY = yAxis_->maximum();
+    double minZ = zAxis_->minimum();
+    double maxZ = zAxis_->maximum();
 
     IntersectionPlane plane = intersectionPlanes_[i];
     if (plane.axis == Axis::X3D) {
@@ -1950,12 +1972,12 @@ void WCartesian3DChart::renderClippingLines(WAbstractGridData *data)
     disable(CULL_FACE);
     enable(DEPTH_TEST);
 
-    double minX = XAxis_.minimum();
-    double maxX = XAxis_.maximum();
-    double minY = YAxis_.minimum();
-    double maxY = YAxis_.maximum();
-    double minZ = ZAxis_.minimum();
-    double maxZ = ZAxis_.maximum();
+    double minX = xAxis_->minimum();
+    double maxX = xAxis_->maximum();
+    double minY = yAxis_->minimum();
+    double maxY = yAxis_->maximum();
+    double minZ = zAxis_->minimum();
+    double maxZ = zAxis_->maximum();
 
     useProgram(clippingPlaneProgram_);
 
@@ -2232,12 +2254,12 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 
   double oldLabelAngleX = 0.0, oldLabelAngleY = 0.0;
   if (labelAngleMirrored) {
-    XAxis_.setRenderMirror(true);
-    YAxis_.setRenderMirror(true);
-    oldLabelAngleX = XAxis_.labelAngle();
-    XAxis_.setLabelAngle(-oldLabelAngleX);
-    oldLabelAngleY = YAxis_.labelAngle();
-    YAxis_.setLabelAngle(-oldLabelAngleY);
+    xAxis_->setRenderMirror(true);
+    yAxis_->setRenderMirror(true);
+    oldLabelAngleX = xAxis_->labelAngle();
+    xAxis_->setLabelAngle(-oldLabelAngleX);
+    oldLabelAngleY = yAxis_->labelAngle();
+    yAxis_->setLabelAngle(-oldLabelAngleY);
   }
 
   WPainter painter(paintDevice);
@@ -2264,30 +2286,30 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   tickStart = 0.0; tickEnd = TICKLENGTH;
   labelPos = tickEnd;
   labelHFlag = AlignmentFlag::Center; labelVFlag = AlignmentFlag::Top;
-  if (XAxis_.labelAngle() > ANGLE1) {
+  if (xAxis_->labelAngle() > ANGLE1) {
     labelHFlag = labelPos > 0 ? AlignmentFlag::Right : AlignmentFlag::Left;
-    if (XAxis_.labelAngle() > ANGLE2)
+    if (xAxis_->labelAngle() > ANGLE2)
       labelVFlag = AlignmentFlag::Middle;
-  } else if (XAxis_.labelAngle() < -ANGLE1) {
+  } else if (xAxis_->labelAngle() < -ANGLE1) {
     labelHFlag = labelPos > 0 ? AlignmentFlag::Left : AlignmentFlag::Right;
-    if (XAxis_.labelAngle() < -ANGLE2)
+    if (xAxis_->labelAngle() < -ANGLE2)
       labelVFlag = AlignmentFlag::Middle;
   }
 
-  XAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
-		axisStart,
-		axisEnd,
-		tickStart, tickEnd, labelPos,
-		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+  xAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
+		 axisStart,
+		 axisEnd,
+		 tickStart, tickEnd, labelPos,
+		 WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
-  double addOffset = XAxis_.titleOffset();
+  double addOffset = xAxis_->titleOffset();
   WFont oldFont = painter.font();
-  painter.setFont(XAxis_.titleFont());
+  painter.setFont(xAxis_->titleFont());
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, XAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, xAxis_->title());
 
   // draw X-axis( RTL, labels underneath)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2300,8 +2322,8 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   tickStart = 0.0; tickEnd = TICKLENGTH;
   labelPos = tickEnd;
 
-  XAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
+  xAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
 		tickStart, tickEnd, labelPos,
@@ -2310,7 +2332,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   // draw title
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, XAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, xAxis_->title());
 
   // draw X-axis( LTR, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2323,26 +2345,26 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   tickStart = -TICKLENGTH; tickEnd = 0.0;
   labelPos = tickEnd - 4;
   labelHFlag = AlignmentFlag::Center; labelVFlag = AlignmentFlag::Bottom;
-  if (XAxis_.labelAngle() > ANGLE1) {
+  if (xAxis_->labelAngle() > ANGLE1) {
     labelHFlag = labelPos > 0 ? AlignmentFlag::Right : AlignmentFlag::Left;
-    if (XAxis_.labelAngle() > ANGLE2)
+    if (xAxis_->labelAngle() > ANGLE2)
       labelVFlag = AlignmentFlag::Middle;
-  } else if (XAxis_.labelAngle() < -ANGLE1) {
+  } else if (xAxis_->labelAngle() < -ANGLE1) {
     labelHFlag = labelPos > 0 ? AlignmentFlag::Left : AlignmentFlag::Right;
-    if (XAxis_.labelAngle() < -ANGLE2)
+    if (xAxis_->labelAngle() < -ANGLE2)
       labelVFlag = AlignmentFlag::Middle;
   }
 
-  XAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
-		axisStart,
-		axisEnd,
-		tickStart, tickEnd, labelPos,
-		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+  xAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
+		 axisStart,
+		 axisEnd,
+		 tickStart, tickEnd, labelPos,
+		 WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, XAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, xAxis_->title());
 
   // draw X-axis( RTL, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2355,16 +2377,16 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   tickStart = -TICKLENGTH; tickEnd = 0.0;
   labelPos = tickEnd - 4;
 
-  XAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
-		axisStart,
-		axisEnd,
-		tickStart, tickEnd, labelPos,
-		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+  xAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
+		 axisStart,
+		 axisEnd,
+		 tickStart, tickEnd, labelPos,
+		 WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, XAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, xAxis_->title());
   painter.setFont(oldFont);
 
   // draw Y-axis (LTR, label underneath)
@@ -2378,29 +2400,29 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   tickStart = 0.0; tickEnd = TICKLENGTH;
   labelPos = tickEnd;
   labelHFlag = AlignmentFlag::Center; labelVFlag = AlignmentFlag::Top;
-  if (YAxis_.labelAngle() > ANGLE1) {
+  if (yAxis_->labelAngle() > ANGLE1) {
     labelHFlag = labelPos > 0 ? AlignmentFlag::Right : AlignmentFlag::Left;
-    if (YAxis_.labelAngle() > ANGLE2)
+    if (yAxis_->labelAngle() > ANGLE2)
       labelVFlag = AlignmentFlag::Middle;
-  } else if (YAxis_.labelAngle() < -ANGLE1) {
+  } else if (yAxis_->labelAngle() < -ANGLE1) {
     labelHFlag = labelPos > 0 ? AlignmentFlag::Left : AlignmentFlag::Right;
-    if (YAxis_.labelAngle() < -ANGLE2)
+    if (yAxis_->labelAngle() < -ANGLE2)
       labelVFlag = AlignmentFlag::Middle;
   }
 
-  YAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
-		axisStart,
-		axisEnd,
-		tickStart, tickEnd, labelPos,
-		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+  yAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
+		 axisStart,
+		 axisEnd,
+		 tickStart, tickEnd, labelPos,
+		 WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
-  addOffset = YAxis_.titleOffset();
-  painter.setFont(YAxis_.titleFont());
+  addOffset = yAxis_->titleOffset();
+  painter.setFont(yAxis_->titleFont());
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, YAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, yAxis_->title());
 
   // draw Y-axis (RTL, label underneath)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2413,17 +2435,17 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   tickStart = 0.0; tickEnd = TICKLENGTH;
   labelPos = tickEnd;
 
-  YAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
-		axisStart,
-		axisEnd,
-		tickStart, tickEnd, labelPos,
-		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+  yAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
+		 axisStart,
+		 axisEnd,
+		 tickStart, tickEnd, labelPos,
+		 WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, YAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, yAxis_->title());
 
   // draw Y-axis (LTR, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2436,26 +2458,26 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   tickStart = -TICKLENGTH; tickEnd = 0.0;
   labelPos = tickEnd - 4;
   labelHFlag = AlignmentFlag::Center; labelVFlag = AlignmentFlag::Bottom;
-  if (YAxis_.labelAngle() > ANGLE1) {
+  if (yAxis_->labelAngle() > ANGLE1) {
     labelHFlag = labelPos > 0 ? AlignmentFlag::Right : AlignmentFlag::Left;
-    if (YAxis_.labelAngle() > ANGLE2)
+    if (yAxis_->labelAngle() > ANGLE2)
       labelVFlag = AlignmentFlag::Middle;
-  } else if (YAxis_.labelAngle() < -ANGLE1) {
+  } else if (yAxis_->labelAngle() < -ANGLE1) {
     labelHFlag = labelPos > 0 ? AlignmentFlag::Left : AlignmentFlag::Right;
-    if (YAxis_.labelAngle() < -ANGLE2)
+    if (yAxis_->labelAngle() < -ANGLE2)
       labelVFlag = AlignmentFlag::Middle;
   }
 
-  YAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
-		axisStart,
-		axisEnd,
-		tickStart, tickEnd, labelPos,
-		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+  yAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
+		 axisStart,
+		 axisEnd,
+		 tickStart, tickEnd, labelPos,
+		 WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, YAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, yAxis_->title());
 
   // draw Y-axis (RTL, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2468,23 +2490,23 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   tickStart = -TICKLENGTH; tickEnd = 0.0;
   labelPos = tickEnd - 4;
 
-  YAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
-		axisStart,
-		axisEnd,
-		tickStart, tickEnd, labelPos,
-		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+  yAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
+		 axisStart,
+		 axisEnd,
+		 tickStart, tickEnd, labelPos,
+		 WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, YAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, yAxis_->title());
   painter.setFont(oldFont);
 
   if (labelAngleMirrored) {
-    XAxis_.setLabelAngle(oldLabelAngleX);
-    YAxis_.setLabelAngle(oldLabelAngleY);
-    XAxis_.setRenderMirror(false);
-    YAxis_.setRenderMirror(false);
+    xAxis_->setLabelAngle(oldLabelAngleX);
+    yAxis_->setLabelAngle(oldLabelAngleY);
+    xAxis_->setRenderMirror(false);
+    yAxis_->setRenderMirror(false);
   }
   painter.end();
 }
@@ -2506,17 +2528,17 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   double labelPos = tickEnd - 4;
   AlignmentFlag labelHFlag = AlignmentFlag::Right;
   AlignmentFlag labelVFlag = AlignmentFlag::Middle;
-  if (ZAxis_.labelAngle() > ANGLE1) {
+  if (zAxis_->labelAngle() > ANGLE1) {
     labelVFlag = labelPos < 0 ? AlignmentFlag::Bottom : AlignmentFlag::Top;
-    if (ZAxis_.labelAngle() > ANGLE2)
+    if (zAxis_->labelAngle() > ANGLE2)
       labelHFlag = AlignmentFlag::Center;
-  } else if (ZAxis_.labelAngle() < -ANGLE1) {
+  } else if (zAxis_->labelAngle() < -ANGLE1) {
     labelVFlag = labelPos < 0 ? AlignmentFlag::Top : AlignmentFlag::Bottom;
-    if (ZAxis_.labelAngle() < -ANGLE2)
+    if (zAxis_->labelAngle() < -ANGLE2)
       labelHFlag = AlignmentFlag::Center;
   }
 
-  ZAxis_.render(painter,
+  zAxis_->render(painter,
 		AxisProperty::Line | AxisProperty::Labels,
 		axisStart,
 		axisEnd,
@@ -2524,13 +2546,13 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
 		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
-  double addOffset = ZAxis_.titleOffset();
+  double addOffset = zAxis_->titleOffset();
   painter.rotate(-90);
-  WFont oldFont = ZAxis_.titleFont();
-  painter.setFont(ZAxis_.titleFont());
+  WFont oldFont = zAxis_->titleFont();
+  painter.setFont(zAxis_->titleFont());
   painter.drawText(WRectF(-axisWidth, 0,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, ZAxis_.title());
+		   WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Bottom, zAxis_->title());
   painter.rotate(90);
 
   // draw Z-axis (labels right)
@@ -2539,28 +2561,28 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   tickStart = 0.0; tickEnd = TICKLENGTH;
   labelPos = tickEnd;
   labelHFlag = AlignmentFlag::Left; labelVFlag = AlignmentFlag::Middle;
-  if (ZAxis_.labelAngle() > ANGLE1) {
+  if (zAxis_->labelAngle() > ANGLE1) {
     labelVFlag = labelPos < 0 ? AlignmentFlag::Bottom : AlignmentFlag::Top;
-    if (ZAxis_.labelAngle() > ANGLE2)
+    if (zAxis_->labelAngle() > ANGLE2)
       labelHFlag = AlignmentFlag::Center;
-  } else if (ZAxis_.labelAngle() < -ANGLE1) {
+  } else if (zAxis_->labelAngle() < -ANGLE1) {
     labelVFlag = labelPos < 0 ? AlignmentFlag::Top : AlignmentFlag::Bottom;
-    if (ZAxis_.labelAngle() < -ANGLE2)
+    if (zAxis_->labelAngle() < -ANGLE2)
       labelHFlag = AlignmentFlag::Center;
   }
 
-  ZAxis_.render(painter,
-		AxisProperty::Line | AxisProperty::Labels,
-		axisStart,
-		axisEnd,
-		tickStart, tickEnd, labelPos,
-		WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+  zAxis_->render(painter,
+		 AxisProperty::Line | AxisProperty::Labels,
+		 axisStart,
+		 axisEnd,
+		 tickStart, tickEnd, labelPos,
+		 WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
 
   // draw title
   painter.rotate(-90);
   painter.drawText(WRectF(-axisWidth, axisHeight+TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
-			  WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, ZAxis_.title());
+			  WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, zAxis_->title());
   painter.setFont(oldFont);
   painter.rotate(90);
   painter.end();
@@ -2582,7 +2604,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
   switch (plane) {
   case Plane::XY:
     if (XYGridEnabled_[0]) {
-      std::vector<double> pos = XAxis_.gridLinePositions(AxisConfig());
+      std::vector<double> pos = xAxis_->gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2593,7 +2615,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
       }
     }
     if (XYGridEnabled_[1]) {
-      std::vector<double> pos = YAxis_.gridLinePositions(AxisConfig());
+      std::vector<double> pos = yAxis_->gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2606,7 +2628,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
     break;
   case Plane::XZ:
     if (XZGridEnabled_[0]) {
-      std::vector<double> pos = XAxis_.gridLinePositions(AxisConfig());
+      std::vector<double> pos = xAxis_->gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2615,7 +2637,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
       }
     }
     if (XZGridEnabled_[1]) {
-      std::vector<double> pos = ZAxis_.gridLinePositions(AxisConfig());
+      std::vector<double> pos = zAxis_->gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2626,7 +2648,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
     break;
   case Plane::YZ:
     if (YZGridEnabled_[0]) {
-      std::vector<double> pos = YAxis_.gridLinePositions(AxisConfig());
+      std::vector<double> pos = yAxis_->gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2635,7 +2657,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
       }
     }
     if (YZGridEnabled_[1]) {
-      std::vector<double> pos = ZAxis_.gridLinePositions(AxisConfig());
+      std::vector<double> pos = zAxis_->gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2653,14 +2675,14 @@ double WCartesian3DChart::toPlotCubeCoords(double value, Axis axis)
   double min = 0.0, max = 1.0;
 
   if (axis == Axis::X3D) {
-    min = XAxis_.minimum();
-    max = XAxis_.maximum();
+    min = xAxis_->minimum();
+    max = xAxis_->maximum();
   } else if (axis == Axis::Y3D) {
-    min = YAxis_.minimum();
-    max = YAxis_.maximum();
+    min = yAxis_->minimum();
+    max = yAxis_->maximum();
   } else if (axis == Axis::Z3D) {
-    min = ZAxis_.minimum();
-    max = ZAxis_.maximum();
+    min = zAxis_->minimum();
+    max = zAxis_->maximum();
   } else {
     throw WException("WCartesian3DChart: don't know this type of axis");
   }

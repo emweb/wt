@@ -13,6 +13,11 @@ WStandardChartProxyModel
 ::WStandardChartProxyModel(const std::shared_ptr<WAbstractItemModel>&
 			   sourceModel)
   : sourceModel_(sourceModel)
+#ifndef WT_TARGET_JAVA
+    ,
+    markerType_(MarkerType::None),
+    markerScaleFactor_(0.0)
+#endif // WT_TARGET_JAVA
 {
   sourceModel->columnsInserted().connect(
 	this, &WStandardChartProxyModel::sourceModelModified);
@@ -107,6 +112,23 @@ const WColor *WStandardChartProxyModel::markerBrushColor(int row, int column) co
   return color(row, column, ItemDataRole::MarkerBrushColor);
 }
 
+const MarkerType *WStandardChartProxyModel::markerType(int row, int column) const
+{
+  cpp17::any result = sourceModel_->data(row, column, ItemDataRole::MarkerType);
+
+  if (result.empty())
+    return 0;
+  else {
+#ifndef WT_TARGET_JAVA
+    markerType_ = cpp17::any_cast<MarkerType>(result);
+    return &markerType_;
+#else
+    MarkerType t = cpp17::any_cast<MarkerType>(result);
+    return &t;
+#endif
+  }
+}
+
 const WColor *WStandardChartProxyModel::barPenColor(int row, int column) const
 {
   return color(row, column, ItemDataRole::BarPenColor);
@@ -126,8 +148,8 @@ const double *WStandardChartProxyModel::markerScaleFactor(int row, int column) c
     return WAbstractChartModel::markerScaleFactor(row, column);
   } else {
 #ifndef WT_TARGET_JAVA
-    scale_ = asNumber(result);
-    return &scale_;
+    markerScaleFactor_ = asNumber(result);
+    return &markerScaleFactor_;
 #else
     double scale = asNumber(result);
     return &scale;
