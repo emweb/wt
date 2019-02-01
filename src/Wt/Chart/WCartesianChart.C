@@ -3461,6 +3461,9 @@ void WCartesianChart::renderGrid(WPainter& painter, const WAxis& ax) const
     return;
 
   bool isYAxis = ax.id() != XAxis;
+  
+  if (!isYAxis && yAxes_.empty())
+    return;
 
   const WAxis& other = isYAxis ? axis(XAxis) : axis(Y1Axis);
   const WAxis::Segment& s0 = other.segments_.front();
