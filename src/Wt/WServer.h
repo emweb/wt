@@ -214,11 +214,13 @@ public:
    *
    * The \p path is the local URL at which the application is
    * deployed: when a user visits this URL, the callback will be
-   * called to create a new application. If empty, the URL is inferred
-   * from the server configuration's deploy-path (see also \ref
-   * config_wthttpd "Built-in httpd configuration").
+   * called to create a new application.
    *
-   * The path must start with a '/'.
+   * If the \p path does not start with a slash ('/'), the deployment path
+   * will be prepended. The deployment path defaults to '/' but can be overridden
+   * in the wthttp connector with the --deploy-path option (see also \ref
+   * config_wthttpd "Built-in httpd configuration"). This implies that when
+   * the \p path is empty (the default), it is set to the deployment path.
    *
    * The optional \p favicon is a URL path (which should not
    * contain the host part!) to a favicon, which is the icon displayed
@@ -543,6 +545,8 @@ private:
 	           const std::string& configurationFile);
   WT_API void destroy();
   WT_API void setCatchSignals(bool catchSignals);
+  WT_API std::string prependDefaultPath(const std::string& path);
+
 
   WT_API static WServer *instance_;
   std::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;

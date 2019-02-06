@@ -227,23 +227,33 @@ void WServer::schedule(std::chrono::steady_clock::duration millis,
   });
 }
 
+std::string WServer::prependDefaultPath(const std::string& path)
+{
+  assert(!configuration().defaultEntryPoint().empty() &&
+         configuration().defaultEntryPoint()[0] == '/');
+  if (path.empty())
+    return configuration().defaultEntryPoint();
+  else if (path[0] != '/') {
+    const std::string &defaultPath = configuration().defaultEntryPoint();
+    if (defaultPath[defaultPath.size() - 1] != '/')
+      return defaultPath + "/" + path;
+    else
+      return defaultPath + path;
+  } else
+    return path;
+}
+
 void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
 			    const std::string& path, const std::string& favicon)
 {
-  if (!path.empty() && !boost::starts_with(path, "/")) 
-    throw WServer::Exception("WServer::addEntryPoint() error: "
-			     "deployment path should start with \'/\'");
-
-  configuration().addEntryPoint(EntryPoint(type, callback, path, favicon));
+  configuration().addEntryPoint(
+        EntryPoint(type, callback, prependDefaultPath(path), favicon));
 }
 
 void WServer::addResource(WResource *resource, const std::string& path)
 {
-  if (!boost::starts_with(path, "/")) 
-    throw WServer::Exception("WServer::addResource() error: "
-			     "static resource path should start with \'/\'");
-
-  bool success = configuration().tryAddResource(EntryPoint(resource, path));
+  bool success = configuration().tryAddResource(
+        EntryPoint(resource, prependDefaultPath(path)));
   if (success)
     resource->setInternalPath(path);
   else {

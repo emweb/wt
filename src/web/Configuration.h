@@ -242,7 +242,7 @@ public:
   bool registerSessionId(const std::string& oldId, const std::string& newId);
 
   std::string sessionSocketPath(const std::string& sessionId);
-
+  const std::string &defaultEntryPoint() const { return defaultEntryPoint_; }
 private:
   struct BootstrapEntry {
     bool prefix;
@@ -316,6 +316,7 @@ private:
   bool connectorNeedReadBody_;
   bool connectorWebSockets_;
   std::string connectorSessionIdPrefix_;
+  std::string defaultEntryPoint_;
 
   void reset();
   void readApplicationSettings(Wt::rapidxml::xml_node<char> *app);
