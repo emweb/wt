@@ -284,6 +284,9 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
 
 std::string FlexLayoutImpl::styleDisplay() const
 {
+  if( container()->isHidden())
+    return "none";
+    
   return container()->isInline() ? "inline-flex" : "flex";
 }
 
