@@ -20,7 +20,8 @@ enum Method {
   Post,   //!< a HTTP POST
   Put,    //!< a HTTP PUT
   Delete, //!< a HTTP DELETE
-  Patch   //!< a HTTP PATCH
+  Patch,  //!< a HTTP PATCH
+  Head    //!< a HTTP HEAD
 };
 
   }
