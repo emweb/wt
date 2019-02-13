@@ -97,6 +97,12 @@ FlexLayoutImpl::~FlexLayoutImpl()
       app->setBodyClass("");
       app->setHtmlClass("");
     }
+
+    WContainerWidget *c = container();
+
+    if (c) {
+      c->setFlexBox(false);
+    }
   }
 }
 
@@ -169,8 +175,12 @@ void FlexLayoutImpl::update()
 {
   WContainerWidget *c = container();
 
-  if (c)
+  if (c) {
+    if (layout()->parentLayout() == nullptr) {
+      c->setFlexBox(true);
+    }
     c->layoutChanged(false);
+  }
 }
 
 int FlexLayoutImpl::count(Orientation orientation) const
@@ -241,7 +251,6 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
     }
 
     ResizeSensor::applyIfNeeded(container());
-    container()->setFlexBox(true);
 
     result = parent;
     elId_ = container()->id();
@@ -260,7 +269,6 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
 
   // FIXME minsize/maxsize
 
-  result->setProperty(Property::StyleDisplay, styleDisplay());
   result->setProperty(Property::StyleFlexFlow, styleFlex());
 
   Orientation orientation = getOrientation();

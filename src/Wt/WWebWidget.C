@@ -1759,7 +1759,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	}
 	element.callJavaScript("$('#" + id() + "').removeClass('Wt-hidden');");
 	element.setProperty(Property::StyleVisibility, "visible");
-	element.setProperty(Property::StyleDisplay, ""); // XXX
       }
     }
   }
