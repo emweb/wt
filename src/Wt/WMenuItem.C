@@ -564,7 +564,10 @@ void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
   subMenu_ = menu.get();
   subMenu_->parentItem_ = this;
 
-  Wt::WApplication::instance()->removeGlobalWidget(menu.get());
+  WPopupMenu *popup = dynamic_cast<WPopupMenu *>(subMenu_);
+  if (popup) {
+    Wt::WApplication::instance()->removeGlobalWidget(menu.get());
+  }
   addWidget(std::move(menu));
 
   if (subMenu_->isPopup() &&
@@ -572,7 +575,6 @@ void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
     subMenu_->webWidget()->setZIndex(std::max(parentMenu()->zIndex() + 100, subMenu_->zIndex()));
   }
 
-  WPopupMenu *popup = dynamic_cast<WPopupMenu *>(subMenu_);
   if (popup) {
     popup->setJavaScriptMember("wtNoReparent", "true");
     setSelectable(false);
