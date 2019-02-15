@@ -120,6 +120,25 @@ public:
    */
   void setOverflow(WContainerWidget::Overflow overflow, WFlags< Orientation > orientation=(Horizontal|Vertical));
 
+  /*! \brief Sets the amount of rows to preload.
+   *
+   * Configures the amount of rows before and after the currently visible
+   * range that should be loaded. If N rows are shown, and C is the margin,
+   * then N + 2C rows are loaded: N visible, C rows before, and C rows after.
+   *
+   * Set to 0 if you don't want to load more rows than are currently visible.
+   *
+   * Set to -1 if you want to keep default behaviour. This means that if N rows
+   * are visible, then 3N rows are loaded: N visible, N rows before, and N rows after.
+   */
+  void setPreloadMarginRows(int rows);
+
+  /*! \brief Get the preload margin.
+   *
+   * \sa setPreloadMarginRows()
+   */
+  int preloadMarginRows() const { return preloadMarginRows_; }
+
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
@@ -172,6 +191,8 @@ private:
   Signals::connection touchStartConnection_;
   Signals::connection touchMoveConnection_;
   Signals::connection touchEndConnection_;
+
+  int preloadMarginRows_;
 
   /* Ajax only: First and last columns rendered (this somewhat
    * redundant with the state contained in the widgets, but because
