@@ -57,7 +57,6 @@ WTableView::WTableView(WContainerWidget *parent)
     dropEvent_(impl_, "dropEvent"),
     scrolled_(impl_, "scrolled"),
     itemTouchSelectEvent_(impl_, "itemTouchSelectEvent"),
-    preloadMarginRows_(-1),
     firstColumn_(-1),
     lastColumn_(-1),
     viewportLeft_(0),
@@ -68,6 +67,8 @@ WTableView::WTableView(WContainerWidget *parent)
     scrollToHint_(EnsureVisible),
     columnResizeConnected_(false)
 {
+  preloadMargin_[0] = preloadMargin_[1] = preloadMargin_[2] = preloadMargin_[3] = WLength();
+
   setSelectable(false);
 
   setStyleClass("Wt-itemview Wt-tableview");
@@ -666,14 +667,15 @@ void WTableView::renderTable(const int fr, const int lr,
   assert(lastRow() == lr && firstRow() == fr);
   assert(lastColumn() == lc && firstColumn() == fc);
 
-  const int marginHeight = preloadMarginRows_ == -1 ?
-        viewportHeight_ / 2 :
-        static_cast<int>(preloadMarginRows_ * rowHeight().toPixels()) / 2;
+  const int marginTop = static_cast<int>(std::floor(((preloadMargin(Top).isAuto() ? viewportHeight_ : preloadMargin(Top).toPixels()) / 2) + 0.5));
+  const int marginBottom = static_cast<int>(std::floor(((preloadMargin(Bottom).isAuto() ? viewportHeight_ : preloadMargin(Bottom).toPixels()) / 2) + 0.5));
+  const int marginLeft = static_cast<int>(std::floor(((preloadMargin(Left).isAuto() ? viewportWidth_ : preloadMargin(Left).toPixels()) / 2) + 0.5));
+  const int marginRight = static_cast<int>(std::floor(((preloadMargin(Right).isAuto() ? viewportWidth_ : preloadMargin(Right).toPixels()) / 2) + 0.5));
 
-  int scrollX1 = std::max(0, viewportLeft_ - viewportWidth_ / 2);
-  int scrollX2 = viewportLeft_ + viewportWidth_ / 2;
-  int scrollY1 = std::max(0, viewportTop_ - marginHeight);
-  int scrollY2 = viewportTop_ + marginHeight;
+  int scrollX1 = std::max(0, viewportLeft_ - marginLeft);
+  int scrollX2 = viewportLeft_ + marginRight;
+  int scrollY1 = std::max(0, viewportTop_ - marginTop);
+  int scrollY2 = viewportTop_ + marginBottom;
 
   WStringStream s;
 
@@ -1593,7 +1595,6 @@ void WTableView::computeRenderedArea()
 {
   if (ajaxMode()) {
     const int borderRows = 5;
-    const int borderColumnPixels = 200;
 
     int modelHeight = 0;
     if (model())
@@ -1607,19 +1608,22 @@ void WTableView::computeRenderedArea()
       const int height = std::min(viewportHeight_,
 			    static_cast<int>(canvas_->height().toPixels()));
 
-      const int renderedRows = static_cast<int>(height / rowHeight().toPixels()
-					  + 0.5);
+      const int renderedRows = static_cast<int>(std::ceil(height / rowHeight().toPixels()));
+
+      const int renderedRowsAbove = preloadMargin(Top).isAuto() ? renderedRows + borderRows :
+                                                               static_cast<int>(std::floor(preloadMargin(Top).toPixels() / rowHeight().toPixels() + 0.5));
+
+      const int renderedRowsBelow = preloadMargin(Bottom).isAuto() ? renderedRows + borderRows :
+                                                                  static_cast<int>(std::floor(preloadMargin(Bottom).toPixels() / rowHeight().toPixels() + 0.5));
 
       renderedFirstRow_ = static_cast<int>(top / rowHeight().toPixels());
 
-      const int marginRows = preloadMarginRows_ == -1 ? renderedRows + borderRows : preloadMarginRows_;
-
       renderedLastRow_
-        = static_cast<int>(std::min(static_cast<long long>(renderedFirstRow_) + renderedRows + marginRows,
+        = static_cast<int>(std::min(static_cast<long long>(renderedFirstRow_) + renderedRows + renderedRowsBelow,
                    static_cast<long long>(modelHeight - 1)));
       renderedFirstRow_
-        = static_cast<int>(std::max(static_cast<long long>(renderedFirstRow_) - marginRows,
-                                    0LL));
+        = static_cast<int>(std::max(static_cast<long long>(renderedFirstRow_) - renderedRowsAbove,
+                                    static_cast<long long>(0)));
     } else {
       renderedFirstRow_ = 0;
       renderedLastRow_ = modelHeight - 1;
@@ -1628,17 +1632,22 @@ void WTableView::computeRenderedArea()
     if (renderedFirstRow_ % 2 == 1)
       --renderedFirstRow_;
 
+    const int borderColumnPixels = 200;
+    const int marginLeft = static_cast<int>(std::floor((preloadMargin(Left).isAuto() ? viewportWidth_ + borderColumnPixels : preloadMargin(Left).toPixels()) + 0.5));
+    const int marginRight = static_cast<int>(std::floor((preloadMargin(Right).isAuto() ? viewportWidth_ + borderColumnPixels : preloadMargin(Right).toPixels()) + 0.5));
+
     /* column range */
     int left
-      = std::max(0, viewportLeft_ - viewportWidth_ - borderColumnPixels);
+      = static_cast<int>(std::max(static_cast<long long>(0),
+                                  static_cast<long long>(viewportLeft_) - marginLeft));
     int right
-      = std::min(std::max(static_cast<int>(canvas_->width().toPixels()),
-                          viewportWidth_), // When a column was made wider, and the
-                                           // canvas is narrower than the viewport,
-                                           // the size of the canvas will not have
-                                           // been updated yet, so we use the viewport
-                                           // width instead.
-		 viewportLeft_ + 2 * viewportWidth_ + borderColumnPixels);
+      = static_cast<int>(std::min(static_cast<long long>(std::max(static_cast<int>(canvas_->width().toPixels()),
+                                        viewportWidth_)), // When a column was made wider, and the
+                                                         // canvas is narrower than the viewport,
+                                                         // the size of the canvas will not have
+                                                         // been updated yet, so we use the viewport
+                                                         // width instead.
+                         static_cast<long long>(viewportLeft_) + viewportWidth_ + marginRight));
 
     int total = 0;
     renderedFirstColumn_ = rowHeaderCount();
@@ -2070,13 +2079,40 @@ void WTableView::setOverflow(WContainerWidget::Overflow overflow, WFlags< Orient
     contentsContainer_->setOverflow(overflow, orientation);
 }
 
-void WTableView::setPreloadMarginRows(int rows)
+void WTableView::setPreloadMargin(const WLength &margin, WFlags<Side> side)
 {
-  preloadMarginRows_ = rows;
+  if (side & Top) {
+    preloadMargin_[0] = margin;
+  }
+  if (side & Right) {
+    preloadMargin_[1] = margin;
+  }
+  if (side & Bottom) {
+    preloadMargin_[2] = margin;
+  }
+  if (side & Left) {
+    preloadMargin_[3] = margin;
+  }
 
   computeRenderedArea();
 
   scheduleRerender(NeedAdjustViewPort);
+}
+
+WLength WTableView::preloadMargin(Side side) const
+{
+  switch (side) {
+  case Top:
+    return preloadMargin_[0];
+  case Right:
+    return preloadMargin_[1];
+  case Bottom:
+    return preloadMargin_[2];
+  case Left:
+    return preloadMargin_[3];
+  default:
+    return WLength();
+  }
 }
 
 void WTableView::setRowHeaderCount(int count)
