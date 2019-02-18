@@ -19,6 +19,8 @@
 #include "Wt/WTable.h"
 #include "Wt/WTheme.h"
 
+#include "WebUtils.h"
+
 #ifndef WT_DEBUG_JS
 
 #include "js/WTableView.min.js"
@@ -687,21 +689,25 @@ void WTableView::renderTable(const int fr, const int lr,
   assert(lastRow() == lr && firstRow() == fr);
   assert(lastColumn() == lc && firstColumn() == fc);
 
-  const int marginTop = static_cast<int>(std::round((preloadMargin(Side::Top).isAuto() ? viewportHeight_ : preloadMargin(Side::Top).toPixels()) / 2));
-  const int marginBottom = static_cast<int>(std::round((preloadMargin(Side::Bottom).isAuto() ? viewportHeight_ : preloadMargin(Side::Bottom).toPixels()) / 2));
-  const int marginLeft = static_cast<int>(std::round((preloadMargin(Side::Left).isAuto() ? viewportWidth_ : preloadMargin(Side::Left).toPixels()) / 2));
-  const int marginRight = static_cast<int>(std::round((preloadMargin(Side::Right).isAuto() ? viewportWidth_ : preloadMargin(Side::Right).toPixels()) / 2));
+  const double marginTop = (preloadMargin(Side::Top).isAuto() ? viewportHeight_ : preloadMargin(Side::Top).toPixels()) / 2;
+  const double marginBottom = (preloadMargin(Side::Bottom).isAuto() ? viewportHeight_ : preloadMargin(Side::Bottom).toPixels()) / 2;
+  const double marginLeft = (preloadMargin(Side::Left).isAuto() ? viewportWidth_ : preloadMargin(Side::Left).toPixels()) / 2;
+  const double marginRight = (preloadMargin(Side::Right).isAuto() ? viewportWidth_ : preloadMargin(Side::Right).toPixels()) / 2;
 
-  int scrollX1 = std::max(0, viewportLeft_ - marginLeft);
-  int scrollX2 = viewportLeft_ + marginRight;
-  int scrollY1 = std::max(0, viewportTop_ - marginTop);
-  int scrollY2 = viewportTop_ + marginBottom;
+  const double scrollX1 = round(std::max(0.0, viewportLeft_ - marginLeft));
+  const double scrollX2 = round(viewportLeft_ + marginRight);
+  const double scrollY1 = round(std::max(0.0, viewportTop_ - marginTop));
+  const double scrollY2 = round(viewportTop_ + marginBottom);
 
   WStringStream s;
 
-  s << "jQuery.data(" << jsRef() << ", 'obj').scrolled("
-    << scrollX1 << ", " << scrollX2 << ", " << scrollY1 << ", " << scrollY2
-    << ");";
+  char buf[30];
+
+  s << "jQuery.data(" << jsRef() << ", 'obj').scrolled(";
+  s << Utils::round_js_str(scrollX1, 3, buf) << ", ";
+  s << Utils::round_js_str(scrollX2, 3, buf) << ", ";
+  s << Utils::round_js_str(scrollY1, 3, buf) << ", ";
+  s << Utils::round_js_str(scrollY2, 3, buf) << ");";
 
   doJavaScript(s.str());			
 }
@@ -1652,22 +1658,20 @@ void WTableView::computeRenderedArea()
       const int height = std::min(viewportHeight_,
 			    static_cast<int>(canvas_->height().toPixels()));
 
-      const int renderedRows = static_cast<int>(std::ceil(height / rowHeight().toPixels()));
+      const double renderedRows = height / rowHeight().toPixels();
 
-      const int renderedRowsAbove = preloadMargin(Side::Top).isAuto() ? renderedRows + borderRows :
-                                                               static_cast<int>(std::round(preloadMargin(Side::Top).toPixels() / rowHeight().toPixels()));
+      const double renderedRowsAbove = preloadMargin(Side::Top).isAuto() ? renderedRows + borderRows :
+                                                                           preloadMargin(Side::Top).toPixels() / rowHeight().toPixels();
 
-      const int renderedRowsBelow = preloadMargin(Side::Bottom).isAuto() ? renderedRows + borderRows :
-                                                                  static_cast<int>(std::round(preloadMargin(Side::Bottom).toPixels() / rowHeight().toPixels()));
+      const double renderedRowsBelow = preloadMargin(Side::Bottom).isAuto() ? renderedRows + borderRows :
+                                                                              preloadMargin(Side::Bottom).toPixels() / rowHeight().toPixels();
 
-      renderedFirstRow_ = static_cast<int>(top / rowHeight().toPixels());
+      renderedFirstRow_ = static_cast<int>(std::floor(top / rowHeight().toPixels()));
 
       renderedLastRow_
-        = static_cast<int>(std::min(static_cast<long long>(renderedFirstRow_) + renderedRows + renderedRowsBelow,
-                   static_cast<long long>(modelHeight - 1)));
+        = static_cast<int>(std::ceil(std::min(renderedFirstRow_ + renderedRows + renderedRowsBelow, modelHeight - 1.0)));
       renderedFirstRow_
-        = static_cast<int>(std::max(static_cast<long long>(renderedFirstRow_) - renderedRowsAbove,
-                                    static_cast<long long>(0)));
+        = static_cast<int>(std::floor(std::max(renderedFirstRow_ - renderedRowsAbove, 0.0)));
     } else {
       renderedFirstRow_ = 0;
       renderedLastRow_ = modelHeight - 1;
@@ -1677,21 +1681,20 @@ void WTableView::computeRenderedArea()
       --renderedFirstRow_;
 
     const int borderColumnPixels = 200;
-    const int marginLeft = static_cast<int>(std::round(preloadMargin(Side::Left).isAuto() ? viewportWidth_ + borderColumnPixels : preloadMargin(Side::Left).toPixels()));
-    const int marginRight = static_cast<int>(std::round(preloadMargin(Side::Right).isAuto() ? viewportWidth_ + borderColumnPixels : preloadMargin(Side::Right).toPixels()));
+    const double marginLeft = preloadMargin(Side::Left).isAuto() ? viewportWidth_ + borderColumnPixels : preloadMargin(Side::Left).toPixels();
+    const double marginRight = preloadMargin(Side::Right).isAuto() ? viewportWidth_ + borderColumnPixels : preloadMargin(Side::Right).toPixels();
 
     /* column range */
     int left
-      = static_cast<int>(std::max(static_cast<long long>(0),
-                                  static_cast<long long>(viewportLeft_) - marginLeft));
+      = static_cast<int>(std::floor(std::max(0.0, viewportLeft_ - marginLeft)));
     int right
-      = static_cast<int>(std::min(static_cast<long long>(std::max(static_cast<int>(canvas_->width().toPixels()),
-                                        viewportWidth_)), // When a column was made wider, and the
-                                                         // canvas is narrower than the viewport,
-                                                         // the size of the canvas will not have
-                                                         // been updated yet, so we use the viewport
-                                                         // width instead.
-                         static_cast<long long>(viewportLeft_) + viewportWidth_ + marginRight));
+      = static_cast<int>(std::ceil(std::min(std::max(canvas_->width().toPixels(),
+                                            viewportWidth_ * 1.0), // When a column was made wider, and the
+                                                                   // canvas is narrower than the viewport,
+                                                                   // the size of the canvas will not have
+                                                                   // been updated yet, so we use the viewport
+                                                                   // width instead.
+                                   viewportLeft_ + viewportWidth_ + marginRight)));
 
     int total = 0;
     renderedFirstColumn_ = rowHeaderCount();
