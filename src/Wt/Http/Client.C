@@ -72,7 +72,8 @@ public:
       timeout_(0),
       maximumResponseSize_(0),
       responseSize_(0),
-      aborted_(false)
+      aborted_(false),
+      headersOnly_(false)
   { }
 
   virtual ~Impl() { }
@@ -89,6 +90,8 @@ public:
 	       const std::string& server, int port, const std::string& path,
 	       const Message& message)
   {
+    headersOnly_ = (method == "HEAD");
+
     std::ostream request_stream(&requestBuf_);
     request_stream << method << " " << path << " HTTP/1.1\r\n";
     if ((protocol == "http" && port == 80) || (protocol == "https" && port == 443))
@@ -406,7 +409,8 @@ private:
 	    chunkState_.size = 0;
 	    chunkState_.parsePos = 0;
 	    chunkState_.state = ChunkState::Size;
-	  } else if (boost::iequals(name, "Content-Length")) {
+          } else if (!headersOnly_ &&
+                     boost::iequals(name, "Content-Length")) {
 	    std::stringstream ss(value);
 	    ss >> contentLength_;
 	  }
@@ -422,7 +426,7 @@ private:
 	  emitHeadersReceived();
       }
 
-      bool done = false;
+      bool done = headersOnly_;
       // Write whatever content we already have to output.
       if (responseBuf_.size() > 0) {
 	std::stringstream ss;
@@ -674,6 +678,7 @@ private:
   Signal<Message> headersReceived_;
   Signal<std::string> bodyDataReceived_;
   bool aborted_;
+  bool headersOnly_;
 };
 
 class Client::TcpImpl : public Client::Impl
@@ -882,6 +887,18 @@ bool Client::get(const std::string& url,
   return request(Get, url, m);
 }
 
+bool Client::head(const std::string& url)
+{
+  return request(Head, url, Message());
+}
+
+bool Client::head(const std::string& url,
+                  const std::vector<Message::Header> headers)
+{
+  Message m(headers);
+  return request(Head, url, m);
+}
+
 bool Client::post(const std::string& url, const Message& message)
 {
   return request(Post, url, message);
@@ -1001,7 +1018,7 @@ bool Client::request(Http::Method method, const std::string& url,
   impl_->setTimeout(timeout_);
   impl_->setMaximumResponseSize(maximumResponseSize_);
 
-  const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE", "PATCH" };
+  const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD" };
 
   LOG_DEBUG(methodNames_[method] << " " << url);
 

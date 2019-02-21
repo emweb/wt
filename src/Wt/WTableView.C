@@ -17,6 +17,8 @@
 #include "Wt/WTable"
 #include "Wt/WTheme"
 
+#include "WebUtils.h"
+
 #ifndef WT_DEBUG_JS
 
 #include "js/WTableView.min.js"
@@ -67,6 +69,8 @@ WTableView::WTableView(WContainerWidget *parent)
     scrollToHint_(EnsureVisible),
     columnResizeConnected_(false)
 {
+  preloadMargin_[0] = preloadMargin_[1] = preloadMargin_[2] = preloadMargin_[3] = WLength();
+
   setSelectable(false);
 
   setStyleClass("Wt-itemview Wt-tableview");
@@ -665,16 +669,25 @@ void WTableView::renderTable(const int fr, const int lr,
   assert(lastRow() == lr && firstRow() == fr);
   assert(lastColumn() == lc && firstColumn() == fc);
 
-  int scrollX1 = std::max(0, viewportLeft_ - viewportWidth_ / 2);
-  int scrollX2 = viewportLeft_ + viewportWidth_ / 2;
-  int scrollY1 = std::max(0, viewportTop_ - viewportHeight_ / 2);
-  int scrollY2 = viewportTop_ + viewportHeight_ / 2;
+  const double marginTop = (preloadMargin(Top).isAuto() ? viewportHeight_ : preloadMargin(Top).toPixels()) / 2;
+  const double marginBottom = (preloadMargin(Bottom).isAuto() ? viewportHeight_ : preloadMargin(Bottom).toPixels()) / 2;
+  const double marginLeft = (preloadMargin(Left).isAuto() ? viewportWidth_ : preloadMargin(Left).toPixels()) / 2;
+  const double marginRight = (preloadMargin(Right).isAuto() ? viewportWidth_ : preloadMargin(Right).toPixels()) / 2;
+
+  const double scrollX1 = round(std::max(0.0, viewportLeft_ - marginLeft));
+  const double scrollX2 = round(viewportLeft_ + marginRight);
+  const double scrollY1 = round(std::max(0.0, viewportTop_ - marginTop));
+  const double scrollY2 = round(viewportTop_ + marginBottom);
 
   WStringStream s;
 
-  s << "jQuery.data(" << jsRef() << ", 'obj').scrolled("
-    << scrollX1 << ", " << scrollX2 << ", " << scrollY1 << ", " << scrollY2
-    << ");";
+  char buf[30];
+
+  s << "jQuery.data(" << jsRef() << ", 'obj').scrolled(";
+  s << Utils::round_js_str(scrollX1, 3, buf) << ", ";
+  s << Utils::round_js_str(scrollX2, 3, buf) << ", ";
+  s << Utils::round_js_str(scrollY1, 3, buf) << ", ";
+  s << Utils::round_js_str(scrollY2, 3, buf) << ");";
 
   doJavaScript(s.str());			
 }
@@ -1588,7 +1601,6 @@ void WTableView::computeRenderedArea()
 {
   if (ajaxMode()) {
     const int borderRows = 5;
-    const int borderColumnPixels = 200;
 
     int modelHeight = 0;
     if (model())
@@ -1596,22 +1608,26 @@ void WTableView::computeRenderedArea()
 
     if (viewportHeight_ != -1) {
       /* row range */
-      int top = std::min(viewportTop_,
+      const int top = std::min(viewportTop_,
 			 static_cast<int>(canvas_->height().toPixels()));
 
-      int height = std::min(viewportHeight_,
+      const int height = std::min(viewportHeight_,
 			    static_cast<int>(canvas_->height().toPixels()));
 
-      int renderedRows = static_cast<int>(height / rowHeight().toPixels()
-					  + 0.5);
+      const double renderedRows = height / rowHeight().toPixels();
 
-      renderedFirstRow_ = static_cast<int>(top / rowHeight().toPixels());
+      const double renderedRowsAbove = preloadMargin(Top).isAuto() ? renderedRows + borderRows :
+                                                                     preloadMargin(Top).toPixels() / rowHeight().toPixels();
+
+      const double renderedRowsBelow = preloadMargin(Bottom).isAuto() ? renderedRows + borderRows :
+                                                                        preloadMargin(Bottom).toPixels() / rowHeight().toPixels();
+
+      renderedFirstRow_ = static_cast<int>(std::floor(top / rowHeight().toPixels()));
 
       renderedLastRow_
-	= std::min(renderedFirstRow_ + renderedRows * 2 + borderRows,
-		   modelHeight - 1);
+        = static_cast<int>(std::ceil(std::min(renderedFirstRow_ + renderedRows + renderedRowsBelow, modelHeight - 1.0)));
       renderedFirstRow_
-	= std::max(renderedFirstRow_ - renderedRows - borderRows, 0);
+        = static_cast<int>(std::floor(std::max(renderedFirstRow_ - renderedRowsAbove, 0.0)));
     } else {
       renderedFirstRow_ = 0;
       renderedLastRow_ = modelHeight - 1;
@@ -1620,17 +1636,21 @@ void WTableView::computeRenderedArea()
     if (renderedFirstRow_ % 2 == 1)
       --renderedFirstRow_;
 
+    const int borderColumnPixels = 200;
+    const double marginLeft = preloadMargin(Left).isAuto() ? viewportWidth_ + borderColumnPixels : preloadMargin(Left).toPixels();
+    const double marginRight = preloadMargin(Right).isAuto() ? viewportWidth_ + borderColumnPixels : preloadMargin(Right).toPixels();
+
     /* column range */
     int left
-      = std::max(0, viewportLeft_ - viewportWidth_ - borderColumnPixels);
+      = static_cast<int>(std::floor(std::max(0.0, viewportLeft_ - marginLeft)));
     int right
-      = std::min(std::max(static_cast<int>(canvas_->width().toPixels()),
-                          viewportWidth_), // When a column was made wider, and the
-                                           // canvas is narrower than the viewport,
-                                           // the size of the canvas will not have
-                                           // been updated yet, so we use the viewport
-                                           // width instead.
-		 viewportLeft_ + 2 * viewportWidth_ + borderColumnPixels);
+      = static_cast<int>(std::ceil(std::min(std::max(canvas_->width().toPixels(),
+                                            viewportWidth_ * 1.0), // When a column was made wider, and the
+                                                                   // canvas is narrower than the viewport,
+                                                                   // the size of the canvas will not have
+                                                                   // been updated yet, so we use the viewport
+                                                                   // width instead.
+                                   viewportLeft_ + viewportWidth_ + marginRight)));
 
     int total = 0;
     renderedFirstColumn_ = rowHeaderCount();
@@ -2060,6 +2080,42 @@ void WTableView::scrollTo(int x, int y)
 void WTableView::setOverflow(WContainerWidget::Overflow overflow, WFlags< Orientation > orientation){
   if (contentsContainer_)
     contentsContainer_->setOverflow(overflow, orientation);
+}
+
+void WTableView::setPreloadMargin(const WLength &margin, WFlags<Side> side)
+{
+  if (side & Top) {
+    preloadMargin_[0] = margin;
+  }
+  if (side & Right) {
+    preloadMargin_[1] = margin;
+  }
+  if (side & Bottom) {
+    preloadMargin_[2] = margin;
+  }
+  if (side & Left) {
+    preloadMargin_[3] = margin;
+  }
+
+  computeRenderedArea();
+
+  scheduleRerender(NeedAdjustViewPort);
+}
+
+WLength WTableView::preloadMargin(Side side) const
+{
+  switch (side) {
+  case Top:
+    return preloadMargin_[0];
+  case Right:
+    return preloadMargin_[1];
+  case Bottom:
+    return preloadMargin_[2];
+  case Left:
+    return preloadMargin_[3];
+  default:
+    return WLength();
+  }
 }
 
 void WTableView::setRowHeaderCount(int count)

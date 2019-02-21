@@ -140,6 +140,7 @@ enum ItemDataRole {
   MarkerPenColorRole = 16,    //!< Marker pen color (for Chart::WCartesianChart)
   MarkerBrushColorRole = 17,  //!< Marker brush color (for Chart::WCartesianChart)
   MarkerScaleFactorRole = 20, //!< Marker size (for Chart::WCartesianChart)
+  MarkerTypeRole = 21, //!< Marker type (for Chart::WCartesianChart)
   BarPenColorRole = 18,   //!< Bar pen color (for Chart::WCartesianChart)
   BarBrushColorRole = 19, //!< Bar brush color (for Chart::WCartesianChart)
 

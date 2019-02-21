@@ -120,6 +120,31 @@ public:
    */
   void setOverflow(WContainerWidget::Overflow overflow, WFlags< Orientation > orientation=(Horizontal|Vertical));
 
+  /*! \brief Sets preloading margin
+   *
+   * By default the table view loads in an area equal to 3 times its height
+   * and 3 times its width. This makes it so that the user can scroll a full
+   * page in each direction without the delay caused when the table view
+   * dynamically needs to load more data.
+   *
+   * setPreloadMargin() allows to customize this margin.
+   *
+   * e.g. if the table view is H pixels high, and C is the preload margin in pixels
+   * set on the top and bottom, then enough rows are loaded to fill the area
+   * that is H + 2C pixels high. H pixels visible, C pixels above, and C pixels below.
+   *
+   * Set to 0 pixels if you don't want to load more rows or columns than are currently visible.
+   *
+   * Set to a default-constructed WLength (auto) if you want to keep default behaviour.
+   */
+  void setPreloadMargin(const WLength &margin, WFlags<Side> side = All);
+
+  /*! \brief Retrieves the preloading margin
+   *
+   * \sa setPreloadMargin
+   */
+  WLength preloadMargin(Side side) const;
+
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
@@ -172,6 +197,8 @@ private:
   Signals::connection touchStartConnection_;
   Signals::connection touchMoveConnection_;
   Signals::connection touchEndConnection_;
+
+  WLength preloadMargin_[4];
 
   /* Ajax only: First and last columns rendered (this somewhat
    * redundant with the state contained in the widgets, but because

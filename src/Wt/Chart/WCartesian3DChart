@@ -165,6 +165,17 @@ public:
    */
   const WAxis& axis(Axis axis) const;
 
+  /*! \brief Sets an axis
+   *
+   * \if cpp
+   * Ownership is transferred and a previously set (default) axis is deleted
+   * first.
+   * \endif
+   *
+   * \sa axis(Axis axis)
+   */
+  void setAxis(WAxis *waxis, Axis axis);
+
   /*! \brief Enable/disable gridlines.
    *
    * Enables or disables gridlines in the given plane, along the given axis. 
@@ -550,7 +561,7 @@ private:
   WMatrix4x4 worldTransform_;
   bool isViewSet_;
   std::vector<WAbstractDataSeries3D*> dataSeriesVector_;
-  WAxis XAxis_, YAxis_, ZAxis_;
+  WAxis *xAxis_, *yAxis_, *zAxis_;
   ChartType chartType_;
 
   bool XYGridEnabled_[2], XZGridEnabled_[2], YZGridEnabled_[2];

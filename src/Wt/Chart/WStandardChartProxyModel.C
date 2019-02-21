@@ -13,6 +13,11 @@ namespace Wt {
 WStandardChartProxyModel::WStandardChartProxyModel(WAbstractItemModel *sourceModel, WObject *parent)
   : WAbstractChartModel(parent),
     sourceModel_(sourceModel)
+#ifndef WT_TARGET_JAVA
+    ,
+    markerType_(NoMarker),
+    markerScaleFactor_(0.0)
+#endif // WT_TARGET_JAVA
 {
   sourceModel->columnsInserted().connect(
 	this, &WStandardChartProxyModel::sourceModelModified);
@@ -105,6 +110,23 @@ const WColor *WStandardChartProxyModel::markerBrushColor(int row, int column) co
   return color(row, column, MarkerBrushColorRole);
 }
 
+const MarkerType *WStandardChartProxyModel::markerType(int row, int column) const
+{
+  boost::any result = sourceModel_->data(row, column, MarkerTypeRole);
+
+  if (result.empty())
+    return 0;
+  else {
+#ifndef WT_TARGET_JAVA
+    markerType_ = boost::any_cast<MarkerType>(result);
+    return &markerType_;
+#else
+    MarkerType t = boost::any_cast<MarkerType>(result);
+    return &t;
+#endif
+  }
+}
+
 const WColor *WStandardChartProxyModel::barPenColor(int row, int column) const
 {
   return color(row, column, BarPenColorRole);
@@ -123,7 +145,8 @@ const double *WStandardChartProxyModel::markerScaleFactor(int row, int column) c
     return WAbstractChartModel::markerScaleFactor(row, column);
   } else {
 #ifndef WT_TARGET_JAVA
-    return new double(asNumber(result));
+    markerScaleFactor_ = asNumber(result);
+    return &markerScaleFactor_;
 #else
     double tmp = asNumber(result);
     return &tmp;
