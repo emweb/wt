@@ -291,7 +291,7 @@ bool Server::getSessionFromQueryString(const std::string& queryString,
   Configuration& conf = wt_.configuration();
 
   static const std::regex
-    session_e(".*wtd=([a-zA-Z0-9]{" + std::to_string(conf.sessionIdLength())
+    session_e(".*wtd=([a-zA-Z0-9]{" + std::to_string(conf.fullSessionIdLength())
 	      + "}).*");
 
   std::smatch what;
@@ -528,7 +528,7 @@ void Server::handleRequest(int serverSocket)
 	&& !conf.reloadIsNewSession()) {
       std::string cookieSessionId
 	= WebController::sessionFromCookie(cookies.c_str(), scriptName,
-					   conf.sessionIdLength());
+					   conf.fullSessionIdLength());
       if (!cookieSessionId.empty()) {
 	sessionId = cookieSessionId;
 	haveSessionId = true;

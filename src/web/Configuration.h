@@ -197,6 +197,7 @@ public:
   std::string runDirectory() const;
   int sessionIdLength() const;
   std::string sessionIdPrefix() const;
+  int fullSessionIdLength() const; // length of prefix + session id
   int numSessionThreads() const;
 
   bool isAllowedOrigin(const std::string &origin) const;
