@@ -623,7 +623,7 @@ void WebController::handleRequest(WebRequest *request)
       && !conf_.reloadIsNewSession())
     sessionId = sessionFromCookie(request->headerValue("Cookie"),
 				  request->scriptName(),
-				  conf_.sessionIdLength());
+				  conf_.fullSessionIdLength());
 
   std::string multiSessionCookie;
   if (conf_.sessionTracking() == Configuration::Combined)

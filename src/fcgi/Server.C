@@ -290,7 +290,7 @@ bool Server::getSessionFromQueryString(const std::string& queryString,
 
   static const boost::regex
     session_e(".*wtd=([a-zA-Z0-9]{"
-	      + boost::lexical_cast<std::string>(conf.sessionIdLength())
+	      + boost::lexical_cast<std::string>(conf.fullSessionIdLength())
 	      + "}).*");
 
   boost::smatch what;
@@ -523,7 +523,7 @@ void Server::handleRequest(int serverSocket)
 	&& !conf.reloadIsNewSession()) {
       std::string cookieSessionId
 	= WebController::sessionFromCookie(cookies.c_str(), scriptName,
-					   conf.sessionIdLength());
+					   conf.fullSessionIdLength());
       if (!cookieSessionId.empty()) {
 	sessionId = cookieSessionId;
 	haveSessionId = true;
