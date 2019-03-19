@@ -109,7 +109,7 @@ WT_DECLARE_WT_MEMBER
          resizeHandles: []
        }];
 
-   jQuery.data(document.getElementById(id), 'layout', this);
+   document.getElementById(id).wtLayout = this;
 
    function getItem(id) {
      var i, il;
@@ -781,7 +781,7 @@ WT_DECLARE_WT_MEMBER
        var piw = WT.$(parentItemWidget.id);
        if (piw) {
 	 if (parentItemWidget != piw) {
-	   parent = jQuery.data(piw.parentNode, 'layout');
+	   parent = piw.parentNode.wtLayout;
 	   if (!parent) {
 	     /* The parent item widget is no longer in the DOM. Need a test
 	      * case for that. */
@@ -1599,7 +1599,7 @@ WT_DECLARE_WT_MEMBER
        parentWithWtPS = false;
 
        if (!topLevel) {
-	 parent = jQuery.data(document.getElementById(parentId), 'layout');
+	 parent = document.getElementById(parentId).wtLayout;
 	 parentItemWidget = widget;
 	 parentMargin[HORIZONTAL] = boxMargin(parentItemWidget, HORIZONTAL);
 	 parentMargin[VERTICAL] = boxMargin(parentItemWidget, VERTICAL);
@@ -1622,7 +1622,7 @@ WT_DECLARE_WT_MEMBER
 	   if (p.wtGetPS)
 	     parentWithWtPS = true;
 
-	   var l = jQuery.data(p.parentNode, 'layout');
+	   var l = p.parentNode.wtLayout;
 	   if (l) {
 	     parentItemWidget = p;
 	     parent = l;
@@ -1711,7 +1711,7 @@ WT_DECLARE_APP_MEMBER
 
     this.find = function(id) {
       var el = document.getElementById(id);
-      return el ? jQuery.data(el, 'layout') : null;
+      return el ? el.wtLayout : null;
     };
 
     this.setDirty = function(id) {
@@ -1730,7 +1730,7 @@ WT_DECLARE_APP_MEMBER
       var item = el;
       el = el.parentNode;
       while (el && el != document.body) {
-	var layout = jQuery.data(el, 'layout');
+	var layout = el.wtLayout;
 	if (layout)
 	  layout.setElDirty(item);
 	item = el;

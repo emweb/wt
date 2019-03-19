@@ -106,7 +106,7 @@ WT_DECLARE_WT_MEMBER
      if (pctMaxWidth !== 0) {
        var ws = WT.windowSize();
        
-       var layout = jQuery.data(layoutContainer.firstChild, 'layout');
+       var layout = layoutContainer.firstChild.wtLayout;
        if (layout) {
 	 layout.setMaxSize(ws.x * pctMaxWidth / 100,
 			   ws.y * pctMaxHeight / 100);
@@ -247,7 +247,7 @@ WT_DECLARE_WT_MEMBER
      resizeBusy = !done;
      wtResize(el, w, h);
 
-     var layout = jQuery.data(layoutContainer.firstChild, 'layout');
+     var layout = layoutContainer.firstChild.wtLayout;
      layout.setMaxSize(0, 0);
 
      APP.layouts2.scheduleAdjust();

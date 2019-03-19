@@ -229,7 +229,7 @@ WT_DECLARE_WT_MEMBER
 
        /* If fade-only animation within a layout, retain set height */
        if (!effects
-           || typeof jQuery.data(stack.parentNode, 'layout') === 'undefined')
+           || typeof stack.parentNode.wtLayout === 'undefined')
          to.style.height = to.nativeHeight;
 
        to.nativeHeight = null;
