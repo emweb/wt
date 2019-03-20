@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTreeTable",
  function(APP, table) {
-   jQuery.data(table, 'obj', this);
+   table.wtObj = this;
 
    var self = this, WT = APP.WT;
 

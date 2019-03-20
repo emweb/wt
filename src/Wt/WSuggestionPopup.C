@@ -158,7 +158,7 @@ void WSuggestionPopup::connectObjJS(EventSignalBase& s,
 {
   std::string jsFunction = 
     "function(obj, event) {"
-    """var o = jQuery.data(" + jsRef() + ", 'obj');"
+    """var o = " + jsRef() + ".wtObj;"
     """if (o) o." + methodName + "(obj, event);"
     "}";
   s.connect(jsFunction);
@@ -204,7 +204,7 @@ void WSuggestionPopup::setDefaultIndex(int row)
     defaultValue_ = row;
 
     if (isRendered())
-      doJavaScript("jQuery.data(" + jsRef() + ", 'obj').defaultValue = "
+      doJavaScript(jsRef() + ".wtObj.defaultValue = "
 		   + boost::lexical_cast<std::string>(defaultValue_)
 		   + ';');      
   }
@@ -325,7 +325,7 @@ void WSuggestionPopup::setDropDownIconUnfiltered(bool isUnfiltered)
 
 void WSuggestionPopup::showAt(WFormWidget *edit)
 {
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').showAt("
+  doJavaScript(jsRef() + ".wtObj.showAt("
 	       + edit->jsRef() + ");");
 }
 
@@ -377,7 +377,7 @@ void WSuggestionPopup::doFilter(std::string input)
    * before the updated children (suggestions) are rendered.
    */
   WApplication::instance()->
-    doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
+    doJavaScript(jsRef() + ".wtObj.filtered("
 		 + WWebWidget::jsStringLiteral(input) + ","
 		 + (partialResults() ? "1" : "0") + ");");
 }

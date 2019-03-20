@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WImage",
  function(APP, el, target) {
-   jQuery.data(el, 'obj', this);
+   el.wtObj = this;
 
    var self = this;
    var WT = APP.WT;

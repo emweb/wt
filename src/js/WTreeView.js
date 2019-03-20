@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTreeView",
  function(APP, el, contentsContainer, headerContainer, rowHeaderCount, selectedClass) {
-   jQuery.data(el, 'obj', this);
+   el.wtObj = this;
 
    var contents = contentsContainer.firstChild;
    var headers = headerContainer.firstChild;

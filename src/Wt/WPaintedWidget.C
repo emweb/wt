@@ -842,7 +842,7 @@ WJavaScriptHandle<WPointF> WPaintedWidget::createJSPoint()
 
 std::string WPaintedWidget::objJsRef() const
 {
-  return "jQuery.data(" + jsRef() + ",'obj')";
+  return jsRef() + ".wtObj";
 }
 
 }

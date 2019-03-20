@@ -198,7 +198,7 @@ void WTimeEdit::connectJavaScript(Wt::EventSignalBase& s,
 {
   std::string jsFunction =
     "function(dobj, event) {"
-    """var o = jQuery.data(" + jsRef() + ", 'dobj');"
+    """var o = " + jsRef() + ".wtDObj;"
     """if(o) o." + methodName + "(dobj, event);"
     "}";
   s.connect(jsFunction);

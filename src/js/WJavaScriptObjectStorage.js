@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (20, JavaScriptConstructor, "WJavaScriptObjectStorage",
   function(APP, widget) {
-    jQuery.data(widget, 'jsobj', this);
+    widget.wtJSObj = this;
 
     var self = this;
     var WT = APP.WT;

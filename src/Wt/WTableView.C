@@ -683,7 +683,7 @@ void WTableView::renderTable(const int fr, const int lr,
 
   char buf[30];
 
-  s << "jQuery.data(" << jsRef() << ", 'obj').scrolled(";
+  s << jsRef() << ".wtObj.scrolled(";
   s << Utils::round_js_str(scrollX1, 3, buf) << ", ";
   s << Utils::round_js_str(scrollX2, 3, buf) << ", ";
   s << Utils::round_js_str(scrollY1, 3, buf) << ", ";
@@ -708,7 +708,7 @@ void WTableView::setHidden(bool hidden, const WAnimation& animation)
 	&& app->environment().agentIsIE()
 	&& !app->environment().agentIsIElt(9)) {
       WStringStream s;
-      s << "jQuery.data(" << jsRef() << ", 'obj').resetScroll();";
+      s << jsRef() << ".wtObj.resetScroll();";
       doJavaScript(s.str());
     }
   }
@@ -807,7 +807,7 @@ void WTableView::defineJavaScript()
 
   if (canvas_) {
     app->addAutoJavaScript
-      ("{var obj = $('#" + id() + "').data('obj');"
+      ("{var obj = " + jsRef() + ".wtObj;"
        "if (obj) obj.autoJavaScript();}");
   
     connectObjJS(canvas_->mouseWentDown(), "mouseDown");
@@ -2050,10 +2050,9 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
       if (isRendered()) {
 	WStringStream s;
 
-	s << "jQuery.data("
-	  << jsRef() << ", 'obj').setScrollToPending();"
-	  << "setTimeout(function() { jQuery.data("
-	  << jsRef() << ", 'obj').scrollTo(-1, "
+	s << jsRef() << ".wtObj.setScrollToPending();"
+	  << "setTimeout(function() {"
+	  << jsRef() << ".wtObj.scrollTo(-1, "
 	  << rowY << "," << (int)hint << "); }, 0);";
 
 	doJavaScript(s.str());
@@ -2069,7 +2068,7 @@ void WTableView::scrollTo(int x, int y)
     if (isRendered()) {
       WStringStream s;
 
-      s << "jQuery.data(" << jsRef() << ", 'obj').scrollToPx(" << x << ", "
+      s << jsRef() << ".wtObj.scrollToPx(" << x << ", "
         << y << ");";
 
       doJavaScript(s.str());

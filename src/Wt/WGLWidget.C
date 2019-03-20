@@ -141,7 +141,7 @@ std::string WGLWidget::glObjJsRef() const
 {
   return "(function(){"
     "var r = " + jsRef() + ";"
-    "var o = r ? jQuery.data(r,'obj') : null;"
+    "var o = r ? r.wtObj : null;"
     "return o ? o : {ctx: null};"
     "})()";
 }

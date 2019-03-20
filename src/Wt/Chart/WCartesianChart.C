@@ -4742,7 +4742,7 @@ WTransform WCartesianChart::curveTransform(const WDataSeries &series) const
 
 std::string WCartesianChart::cObjJsRef() const
 {
-  return "jQuery.data(" + jsRef() + ",'cobj')";
+  return jsRef() + ".wtCObj";
 }
 
 void WCartesianChart::addAxisSliderWidget(WAxisSliderWidget *slider)

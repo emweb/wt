@@ -73,12 +73,12 @@ void WTreeTable::render(WFlags<RenderFlag> flags)
     defineJavaScript();
 
     setJavaScriptMember(WT_RESIZE_JS,
-			"$('#" + id() + "').data('obj').wtResize");
+                        jsRef() + ".wtObj.wtResize");
 
     resize(width(), height());
 
     WApplication::instance()->addAutoJavaScript
-      ("{var obj = $('#" + id() + "').data('obj');"
+      ("{var obj = " + jsRef() + ".wtObj;"
        "if (obj) obj.autoJavaScript();}");
   }
 

@@ -86,7 +86,7 @@ void WJavaScriptObjectStorage::assignFromJSON(const std::string &json)
 
 std::string WJavaScriptObjectStorage::jsRef() const
 {
-  return "jQuery.data(" + widget_->jsRef() + ",'jsobj')";
+  return widget_->jsRef() + ".wtJSObj";
 }
 
 }

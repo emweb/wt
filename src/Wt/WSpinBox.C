@@ -95,8 +95,8 @@ void WSpinBox::updateDom(DomElement& element, bool all)
       WIntValidator v;
       v.javaScriptValidate();
 
-      doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
-		   + ".setWrapAroundEnabled("
+      doJavaScript(jsRef() + ".wtObj"
+		   ".setWrapAroundEnabled("
 		   + (wrapAroundEnabled() ? "true" : "false") + ");");
     }
   }
