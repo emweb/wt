@@ -30,7 +30,7 @@ WT_DECLARE_WT_MEMBER
     /** @const */ var NINE_CHAR = '9'.charCodeAt(0);
     /** @const */ var KEEP_MASK_WHEN_BLURRED_FLAG = 0x1;
 
-    jQuery.data(edit, 'lobj', this);
+    edit.wtLObj = this;
 
     var self = this, WT = APP.WT, $edit = $(edit);
 

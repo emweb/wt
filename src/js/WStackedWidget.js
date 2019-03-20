@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WStackedWidget",
  function (APP, widget) {
-  jQuery.data(widget, 'obj', this);
+  widget.wtObj = this;
 
   var WT = APP.WT, scrollTops = [], scrollLefts = [],
     lastResizeWidth = null, lastResizeHeight = null;

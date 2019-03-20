@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WPopupWidget",
  function(APP, el, tr, ahd, shown) {
-   jQuery.data(el, 'popup', this);
+   el.wtPopup = this;
 
    var self = this,
        WT = APP.WT,

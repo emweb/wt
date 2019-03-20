@@ -58,7 +58,7 @@ void WInteractWidget::setPopup(bool popup)
   if (popup && wApp->environment().ajax()) {
     clicked().connect
       ("function(o,e) { "
-       " if (" WT_CLASS ".WPopupWidget && $.data(o,'popup')) {"
+       " if (" WT_CLASS ".WPopupWidget && o.wtPopup) {"
            WT_CLASS ".WPopupWidget.popupClicked = o;"
            "$(document).trigger('click', e);"
            WT_CLASS ".WPopupWidget.popupClicked = null;"

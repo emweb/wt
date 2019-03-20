@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (10, JavaScriptConstructor, "WPaintedWidget",
  function(APP, widget) {
-   jQuery.data(widget, 'obj', this);
+   widget.wtObj = this;
 
    var self = this;
 

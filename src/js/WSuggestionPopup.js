@@ -12,7 +12,7 @@ WT_DECLARE_WT_MEMBER
 	  defaultValue, isDropDownIconUnfiltered) {
    $('.Wt-domRoot').add(el);
 
-   jQuery.data(el, 'obj', this);
+   el.wtObj = this;
 
    var self = this;
    var WT = APP.WT;

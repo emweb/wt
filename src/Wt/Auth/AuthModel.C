@@ -88,7 +88,7 @@ void AuthModel::updateThrottling(WInteractWidget *button)
 {
   if (passwordAuth() && passwordAuth()->attemptThrottlingEnabled()) {
     WStringStream s;
-    s << "jQuery.data(" << button->jsRef() << ", 'throttle').reset("
+    s << button->jsRef() << ".wtThrottle.reset("
       << throttlingDelay_ << ");";
 
     button->doJavaScript(s.str());

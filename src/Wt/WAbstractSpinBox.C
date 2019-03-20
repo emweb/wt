@@ -38,7 +38,7 @@ public:
     return 
       "new function() { "
       """this.validate = function(t) {"
-      ""  "return jQuery.data(" + spinBox_->jsRef() + ", 'obj').validate(t);"
+      ""  "return " + spinBox_->jsRef() + ".wtObj.validate(t);"
       """};"
       "}";
   }
@@ -115,7 +115,7 @@ void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
 
   if (jsValueChanged().needsUpdate(true)) {
     WStringStream function;
-    function << "jQuery.data(" + jsRef() + ",'obj').jsValueChanged=";
+    function << jsRef() << ".wtObj.jsValueChanged=";
     if (jsValueChanged().isConnected()) {
       function << "function(oldv, v){"
 #ifndef WT_TARGET_JAVA
@@ -137,7 +137,7 @@ void WAbstractSpinBox::connectJavaScript(Wt::EventSignalBase& s,
 {
   std::string jsFunction = 
     "function(obj, event) {"
-    """var o = jQuery.data(" + jsRef() + ", 'obj');"
+    """var o = " + jsRef() + ".wtObj;"
     """if (o) o." + methodName + "(obj, event);"
     "}";
 
@@ -183,7 +183,7 @@ void WAbstractSpinBox::updateDom(DomElement& element, bool all)
   if (all || changed_) {
     if (!all) {
       if (!nativeControl())
-	doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+	doJavaScript(jsRef() + ".wtObj"
 		     ".configure("
 		     + std::to_string(decimals()) + ","
 		     + prefix().jsStringLiteral() + ","
@@ -242,7 +242,7 @@ ValidationState WAbstractSpinBox::validate()
 void WAbstractSpinBox::refresh()
 {
   doJavaScript
-    ("jQuery.data(" + jsRef() + ", 'obj')"
+    (jsRef() + ".wtObj"
      ".setLocale(" 
      + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
      + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");");

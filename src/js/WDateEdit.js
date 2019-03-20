@@ -13,7 +13,7 @@ WT_DECLARE_WT_MEMBER
    /** @const */ var CLASS_ACTIVE = 'active';
    /** @const */ var CLASS_UNSELECTABLE = 'unselectable';
 
-   jQuery.data(edit, 'dobj', this);
+   edit.wtDObj = this;
 
    var self = this, WT = APP.WT, $edit = $(edit);
 
@@ -27,7 +27,7 @@ WT_DECLARE_WT_MEMBER
 
    function getPopup() {
      var p = $('#' + popup).get(0);
-     return jQuery.data(p, 'popup');
+     return p.wtPopup;
    }
 
    function resetButton() {

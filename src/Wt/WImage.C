@@ -294,7 +294,7 @@ std::string WImage::updateAreasJS()
       "(function(){"
       """var w = " << jsRef() << ";"
       """if (w) {"
-      ""  "var o = jQuery.data(" << jsRef() << ", 'obj');"
+      ""  "var o = " << jsRef() << ".wtObj;"
       ""  "if (o) { o.updateAreas(); }"
       """}"
       "})();";
@@ -306,7 +306,7 @@ std::string WImage::setAreaCoordsJS()
 {
   WStringStream ss;
   if (!targetJS_.empty()) {
-    ss << "jQuery.data(" << jsRef() << ", 'obj').setAreaCoordsJSON("
+    ss << jsRef() << ".wtObj.setAreaCoordsJSON("
        << updateAreaCoordsJSON() << ");";
   }
   return ss.str();

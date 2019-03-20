@@ -185,7 +185,7 @@ void WDoubleSpinBox::render(WFlags<RenderFlag> flags)
 void WDoubleSpinBox::setup()
 {
   setup_ = true;
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+  doJavaScript(jsRef() + ".wtObj"
       ".setIsDoubleSpinBox(true);");
 }
 

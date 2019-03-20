@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WGLWidget",
  function(APP, canvas) {
-   jQuery.data(canvas, 'obj', this);
+   canvas.wtObj = this;
 
    var self = this;
    var WT = APP.WT;
@@ -315,7 +315,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    function encodeJSValues() {
-     var obj = jQuery.data(canvas, 'obj');
+     var obj = canvas.wtObj;
      var str = '';
      for (var index in obj.jsValues) {
 	if (obj.jsValues.hasOwnProperty(index)) {

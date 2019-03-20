@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "AuthThrottle",
  function(WT, button, text) {
-   jQuery.data(button, 'throttle', this);
+   button.wtThrottle = this;
 
    var timer = null, originalText = null, counter = 0;
 
