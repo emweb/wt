@@ -31,7 +31,7 @@ namespace Wt {
  * layout->addWidget(std::make_unique<Wt::WText>("Three"));
  * layout->addWidget(std::make_unique<Wt::WText>("Four"));
  *
- * w->setLayout(std::move(layout), AlignmentFlag::Top | AlignmentFlag::Justify);
+ * w->setLayout(std::move(layout));
  * \endcode
  * \elseif java
  * \code
@@ -43,7 +43,7 @@ namespace Wt {
  * layout.addWidget(new WText("Three"));
  * layout.addWidget(new WText("Four"));
  *	 
- * w.setLayout(layout, AlignmentFlag.AlignmentFlag::Top, AlignmentFlag.AlignmentFlag::Justify);
+ * w.setLayout(layout);
  * \endcode
  * \endif
  *
