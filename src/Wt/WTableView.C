@@ -827,8 +827,8 @@ void WTableView::defineJavaScript()
 
   if (canvas_) {
     app->addAutoJavaScript
-      ("{var obj = " + jsRef() + ".wtObj;"
-       "if (obj) obj.autoJavaScript();}");
+      ("{var obj = " + jsRef() + ";"
+       "if (obj && obj.wtObj) obj.wtObj.autoJavaScript();}");
   
     connectObjJS(canvas_->mouseWentDown(), "mouseDown");
     connectObjJS(canvas_->mouseWentUp(), "mouseUp");

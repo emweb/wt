@@ -82,11 +82,11 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
 
   if (!WWebWidget::canOptimizeUpdates() || isRendered()) {
     if (hidden)
-      doJavaScript("var o = " + jsRef() + ".wtPopup;"
-		   "if (o) o.hidden();");
+      doJavaScript("var o = " + jsRef() + ";"
+		   "if (o && o.wtPopup) o.wtPopup.hidden();");
     else
-      doJavaScript("var o = " + jsRef() + ".wtPopup;"
-		   "if (o) o.shown();");
+      doJavaScript("var o = " + jsRef() + ";"
+		   "if (o && o.wtPopup) o.wtPopup.shown();");
   }
 }
 

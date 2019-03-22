@@ -538,8 +538,8 @@ void WLineEdit::connectJavaScript(Wt::EventSignalBase& s,
 {
   std::string jsFunction =
     "function(lobj, event) {"
-    """var o = " + jsRef() + ".wtLObj;"
-    """if (o) o." + methodName + "(lobj, event);"
+    """var o = " + jsRef() + ";"
+    """if (o && o.wtLObj) o.wtLObj." + methodName + "(lobj, event);"
     "}";
 
   s.connect(jsFunction);

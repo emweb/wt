@@ -293,10 +293,7 @@ std::string WImage::updateAreasJS()
     ss <<
       "(function(){"
       """var w = " << jsRef() << ";"
-      """if (w) {"
-      ""  "var o = " << jsRef() << ".wtObj;"
-      ""  "if (o) { o.updateAreas(); }"
-      """}"
+      """if (w && w.wtObj) { o.wtObj.updateAreas(); }"
       "})();";
   }
   return ss.str();
