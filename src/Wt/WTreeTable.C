@@ -78,8 +78,8 @@ void WTreeTable::render(WFlags<RenderFlag> flags)
     resize(width(), height());
 
     WApplication::instance()->addAutoJavaScript
-      ("{var obj = " + jsRef() + ".wtObj;"
-       "if (obj) obj.autoJavaScript();}");
+      ("{var obj = " + jsRef() + ";"
+       "if (obj && obj.wtObj) obj.wtObj.autoJavaScript();}");
   }
 
   WCompositeWidget::render(flags);

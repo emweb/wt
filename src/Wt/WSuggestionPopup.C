@@ -158,8 +158,8 @@ void WSuggestionPopup::connectObjJS(EventSignalBase& s,
 {
   std::string jsFunction = 
     "function(obj, event) {"
-    """var o = " + jsRef() + ".wtObj;"
-    """if (o) o." + methodName + "(obj, event);"
+    """var o = " + jsRef() + ";"
+    """if (o && o.wtObj) o.wtObj." + methodName + "(obj, event);"
     "}";
   s.connect(jsFunction);
 }

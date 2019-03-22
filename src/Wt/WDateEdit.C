@@ -218,8 +218,8 @@ void WDateEdit::connectJavaScript(Wt::EventSignalBase& s,
 {
   std::string jsFunction = 
     "function(dobj, event) {"
-    """var o = " + jsRef() + ".wtDObj;"
-    """if (o) o." + methodName + "(dobj, event);"
+    """var o = " + jsRef() + ";"
+    """if (o && o.wtDObj) o.wtDObj." + methodName + "(dobj, event);"
     "}";
 
   s.connect(jsFunction);
