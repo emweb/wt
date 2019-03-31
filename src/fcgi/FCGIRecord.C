@@ -50,7 +50,7 @@ FCGIRecord::~FCGIRecord()
 
 void FCGIRecord::clear()
 {
-  delete contentData_;
+  delete [] contentData_;
 
   if (plainTextBuf_)
     free(plainTextBuf_);
