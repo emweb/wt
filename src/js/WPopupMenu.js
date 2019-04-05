@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WPopupMenu",
  function(APP, el, autoHideDelay) {
-   jQuery.data(el, 'obj', this);
+   el.wtObj = this;
 
    var self = this,
        WT = APP.WT,

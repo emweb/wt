@@ -26,7 +26,7 @@ namespace Wt {
    - \ref Releasenotes - Release notes.
    - \ref ext - Using %Ext widgets, widgets based on ExtJS.
    - \ref example - A line-by-line explanation, mainly shows how to implement
-      client-side event handling in C++ (a parodox!).
+      client-side event handling in C++ (a paradox!).
    - <a href="../../tutorial/dbo.html">Tutorial for Dbo</a> - %Wt's C++ ORM
      library.
    - <a href="../../tutorial/auth.html">Tutorial for Auth</a> - %Wt's

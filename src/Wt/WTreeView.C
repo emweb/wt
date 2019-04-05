@@ -1064,7 +1064,7 @@ void WTreeView::defineJavaScript()
 
   setJavaScriptMember(WT_RESIZE_JS,
 		      "function(self,w,h) {"
-		      "$(self).data('obj').wtResize();"
+                      "self.wtObj.wtResize();"
 		      "}");
 }
 
@@ -1197,7 +1197,7 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
   WApplication *app = WApplication::instance();
 
   if (app->environment().ajax() && renderState_ < NeedRerenderHeader)
-    doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+    doJavaScript(jsRef() + ".wtObj.adjustColumns();");
 
   if (!app->environment().ajax() && column == 0 && !width.isAuto()) {
     double total = 0;
@@ -1469,8 +1469,7 @@ void WTreeView::render(WFlags<RenderFlag> flags)
 
   // update the rowHeight (needed for scrolling fix)
   WStringStream s;
-  s << "jQuery.data(" << jsRef()
-    << ", 'obj').setRowHeight("
+  s << jsRef() << ".wtObj.setRowHeight("
     <<  static_cast<int>(this->rowHeight().toPixels())
     << ");";
 
@@ -1508,7 +1507,7 @@ void WTreeView::rerenderHeader()
   }
 
   if (app->environment().ajax())
-    doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+    doJavaScript(jsRef() + ".wtObj.adjustColumns();");
 }
 
 void WTreeView::enableAjax()
@@ -1896,7 +1895,7 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
 	scheduleRerender(NeedRerenderHeader);
       else {
 	if (app->environment().ajax())
-	  doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+	  doJavaScript(jsRef() + ".wtObj.adjustColumns();");
 
 	WContainerWidget *row = headerRow();
 
@@ -1931,7 +1930,7 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
     if (renderState_ < NeedRerenderHeader) {
       WApplication *app = wApp;
       if (app->environment().ajax())
-	doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+	doJavaScript(jsRef() + ".wtObj.adjustColumns();");
     }
 
     for (int i=start; i<start+count; i++)
@@ -2921,8 +2920,8 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
     WStringStream s;
 
-    s << "setTimeout(function() { jQuery.data(" << jsRef()
-      << ", 'obj').scrollTo(-1, "
+    s << "setTimeout(function() { " << jsRef()
+      << ".wtObj.scrollTo(-1, "
       << row << "," << static_cast<int>(rowHeight().toPixels())
       << "," << (int)hint << ");});";
 

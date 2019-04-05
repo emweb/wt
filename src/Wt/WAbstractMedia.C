@@ -137,13 +137,13 @@ void WAbstractMedia::setFormData(const FormData& formData)
 void WAbstractMedia::play()
 {
   loadJavaScript();
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').play();");
+  doJavaScript(jsRef() + ".wtObj.play();");
 }
 
 void WAbstractMedia::pause()
 {
   loadJavaScript();
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').pause();");
+  doJavaScript(jsRef() + ".wtObj.pause();");
 }
 
 void WAbstractMedia::renderSource(DomElement* element,

@@ -34,7 +34,8 @@ namespace Wt {
 	void fieldsForSelect(const SelectFieldList& list,
 			     std::vector<FieldInfo>& result) const;
         std::pair<SqlStatement *, SqlStatement *>
-        statements(const std::string &where, const std::string &groupBy,
+        statements(const std::string& join, const std::string &where,
+		   const std::string &groupBy,
                    const std::string &having, const std::string &orderBy,
                    int limit, int offset) const;
         Session &session() const;
@@ -71,6 +72,182 @@ struct DynamicBinding { };
 
 class Session;
 
+/*! \class AbstractQuery Wt/Dbo/Query Wt/Dbo/Query
+ *  \brief An abstract dynamic database query.
+ *
+ * \sa Query
+ *
+ * \ingroup dbo
+ */
+class AbstractQuery
+{
+public:
+  /*! \brief Binds a value to the next positional marker.
+   *
+   * This binds the \p value to the next positional marker in the
+   * query condition.
+   */
+  template<typename T> AbstractQuery& bind(const T& value);
+
+  /*! \brief Resets bound values.
+   *
+   * This undoes all previous calls to bind().
+   */
+  void reset();
+
+  /*! \brief Adds a join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>join</i> to the current query.
+   *
+   * The join should be a valid SQL join expression, e.g. 
+   * "customer c on o.customer_id = c.id"
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  AbstractQuery& join(const std::string& other);
+
+  /*! \brief Adds a left join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>left join</i> to the current query.
+   *
+   * The join should be a valid SQL join expression, e.g. 
+   * "customer c on o.customer_id = c.id"
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  AbstractQuery& leftJoin(const std::string& other);
+
+  /*! \brief Adds a right join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>right join</i> to the current query.
+   *
+   * The join should be a valid SQL join expression, e.g. 
+   * "customer c on o.customer_id = c.id"
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  AbstractQuery& rightJoin(const std::string& other);
+  
+  /*! \brief Adds a query condition.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>where</i> condition expression to the
+   * current query.
+   *
+   * The condition must be a valid SQL condition expression.
+   *
+   * Multiple conditions may be provided by successive calls to
+   * where(), which must each be fulfilled, and are concatenated
+   * together using 'and'.
+   *
+   * As with any part of the SQL query, a condition may contain
+   * positional markers '?' to which values may be bound using bind().
+   */
+  AbstractQuery& where(const std::string& condition);
+
+  /*! \brief Sets the result order.
+   *
+   * This is a convenience method for creating a SQL query, and sets an
+   * <i>order by</i> field expression for the current query.
+   *
+   * Orders the results based on the given field name (or multiple
+   * names, comma-separated).
+   */
+  AbstractQuery& orderBy(const std::string& fieldName);
+
+  /*! \brief Sets the grouping field(s).
+   *
+   * This is a convenience method for creating a SQL query, and sets a
+   * <i>group by</i> field expression for the current query.
+   *
+   * Groups results based on unique values of the indicated field(s),
+   * which is a comma separated list of fields. Only fields on which
+   * you group and aggregate functions can be selected by a query.
+   *
+   * A field that refers to a database object that is selected by the
+   * query is expanded to all the corresponding fields of that
+   * database object (as in the select statement).
+   */
+  AbstractQuery& groupBy(const std::string& fields);
+
+  /*! \brief Sets the grouping filter(s).
+   *
+   * It's like where(), but for aggregate fields.
+   *
+   * For example you can't go:
+   *
+   *   select department.name, count(employees) from department
+   *    where count(employees) > 5
+   *    group by count(employees);
+   *          
+   * Because you can't have aggregate fields in a where clause, but you can go:
+   *
+   *   select department.name, count(employees) from department
+   *    group by count(employees)
+   *   having count(employees) > 5;
+   *          
+   * This will of course return all the departments with more than 5 employees
+   * (and their employee count).
+   *
+   * \note You must have a group by clause, in order to have a 'having' clause
+   */  
+  AbstractQuery& having(const std::string& fields);
+
+  /*! \brief Sets a result offset.
+   *
+   * Sets a result offset. This has the effect that the next
+   * resultList() call will skip as many results as the offset
+   * indicates. Use -1 to indicate no offset.
+   *
+   * This provides the (non standard) <i>offset</i> part of an SQL query.
+   *
+   * \sa limit()
+   */
+  AbstractQuery& offset(int count);
+
+  /*! \brief Returns an offset set for this query.
+   *
+   * \sa offset(int)
+   */
+  int offset() const;
+
+  /*! \brief Sets a result limit.
+   *
+   * Sets a result limit. This has the effect that the next
+   * resultList() call will return up to \p count results. Use -1 to
+   * indicate no limit.
+   *
+   * This provides the (non standard) <i>limit</i> part of an SQL query.
+   *
+   * \sa offset()
+   */
+  AbstractQuery& limit(int count);
+
+  /*! \brief Returns a limit set for this query.
+   *
+   * \sa limit(int)
+   */  
+  int limit() const;
+
+protected:
+  std::string join_, where_, groupBy_, having_, orderBy_;
+  int limit_, offset_;
+
+  AbstractQuery();
+  ~AbstractQuery();
+  AbstractQuery(const AbstractQuery& other);
+  AbstractQuery& operator= (const AbstractQuery& other);
+  void bindParameters(Session *session, SqlStatement *statement) const;
+
+  std::vector<Impl::ParameterBase *> parameters_;
+};
+  
 /*! \class Query Wt/Dbo/Query Wt/Dbo/Query
  *  \brief A database query.
  *
@@ -128,6 +305,9 @@ class Session;
  */
 template <class Result, typename BindStrategy = DynamicBinding>
 class Query
+#ifdef DOXYGEN_ONLY
+  : public AbstractQuery
+#endif
 {
 #ifdef DOXYGEN_ONLY
 public:
@@ -206,6 +386,45 @@ public:
   /** @name Methods for composing a query (DynamicBinding only)
    */
   //@{
+  /*! \brief Adds a join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>join</i> to the current query.
+   *
+   * The join should be a valid SQL join expression, e.g. 
+   * "customer c on o.customer_id = c.id"
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& join(const std::string& other);
+
+  /*! \brief Adds a left join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>left join</i> to the current query.
+   *
+   * The join should be a valid SQL join expression, e.g. 
+   * "customer c on o.customer_id = c.id"
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& leftJoin(const std::string& other);
+
+  /*! \brief Adds a right join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>right join</i> to the current query.
+   *
+   * The join should be a valid SQL join expression, e.g. 
+   * "customer c on o.customer_id = c.id"
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& rightJoin(const std::string& other);
+  
   /*! \brief Adds a query condition.
    *
    * This is a convenience method for creating a SQL query, and
@@ -358,26 +577,28 @@ private:
 };
 
 template <class Result>
-class Query<Result, DynamicBinding> : private Impl::QueryBase<Result>
+class Query<Result, DynamicBinding> : public AbstractQuery, private Impl::QueryBase<Result>
 {
 public:
   using Impl::QueryBase<Result>::fields;
   using Impl::QueryBase<Result>::session;
+  using AbstractQuery::limit;
+  using AbstractQuery::offset;
 
   Query();
   ~Query();
   Query(const Query& other);
   Query& operator= (const Query& other);
   template<typename T> Query<Result, DynamicBinding>& bind(const T& value);
-  void reset();
+  Query<Result, DynamicBinding>& join(const std::string& other);
+  Query<Result, DynamicBinding>& leftJoin(const std::string& other);
+  Query<Result, DynamicBinding>& rightJoin(const std::string& other);
   Query<Result, DynamicBinding>& where(const std::string& condition);
   Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);
   Query<Result, DynamicBinding>& groupBy(const std::string& fields);
   Query<Result, DynamicBinding>& having(const std::string& fields);
   Query<Result, DynamicBinding>& offset(int count);
-  int offset() const;
   Query<Result, DynamicBinding>& limit(int count);
-  int limit() const;
   Result resultValue() const;
   collection< Result > resultList() const;
   operator Result () const;
@@ -387,23 +608,24 @@ private:
   Query(Session& session, const std::string& sql);
   Query(Session& session, const std::string& table, const std::string& where);
 
-  std::string where_, groupBy_, having_, orderBy_;
-  int limit_, offset_;
-
-  std::vector<Impl::ParameterBase *> parameters_;
-
-  void bindParameters(SqlStatement *statement) const;
-
   friend class Session;
   template <class C> friend class collection;
 };
+
+template <typename T>
+AbstractQuery& AbstractQuery::bind(const T& value)
+{
+  parameters_.push_back(new Impl::Parameter<T>(value));
+
+  return *this;
+}
 
 template <class Result>
 template <typename T>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::bind(const T& value)
 {
-  parameters_.push_back(new Impl::Parameter<T>(value));
+  AbstractQuery::bind(value);
 
   return *this;
 }

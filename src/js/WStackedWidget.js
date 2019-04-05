@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WStackedWidget",
  function (APP, widget) {
-  jQuery.data(widget, 'obj', this);
+  widget.wtObj = this;
 
   var WT = APP.WT, scrollTops = [], scrollLefts = [];
 
@@ -229,7 +229,7 @@ WT_DECLARE_WT_MEMBER
 
        /* If fade-only animation within a layout, retain set height */
        if (!effects
-           || typeof jQuery.data(stack.parentNode, 'layout') === 'undefined')
+           || typeof stack.parentNode.wtLayout === 'undefined')
          to.style.height = to.nativeHeight;
 
        to.nativeHeight = null;

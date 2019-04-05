@@ -31,7 +31,7 @@ namespace Wt {
  * layout->addWidget(new Wt::WText("Three"));
  * layout->addWidget(new Wt::WText("Four"));
  *
- * w->setLayout(layout, AlignTop | AlignJustify);
+ * w->setLayout(layout);
  * \endcode
  * \elseif java
  * \code
@@ -43,7 +43,7 @@ namespace Wt {
  * layout.addWidget(new WText("Three"));
  * layout.addWidget(new WText("Four"));
  *	 
- * w.setLayout(layout, AlignmentFlag.AlignTop, AlignmentFlag.AlignJustify);
+ * w.setLayout(layout);
  * \endcode
  * \endif
  *

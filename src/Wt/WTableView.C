@@ -683,7 +683,7 @@ void WTableView::renderTable(const int fr, const int lr,
 
   char buf[30];
 
-  s << "jQuery.data(" << jsRef() << ", 'obj').scrolled(";
+  s << jsRef() << ".wtObj.scrolled(";
   s << Utils::round_js_str(scrollX1, 3, buf) << ", ";
   s << Utils::round_js_str(scrollX2, 3, buf) << ", ";
   s << Utils::round_js_str(scrollY1, 3, buf) << ", ";
@@ -708,7 +708,7 @@ void WTableView::setHidden(bool hidden, const WAnimation& animation)
 	&& app->environment().agentIsIE()
 	&& !app->environment().agentIsIElt(9)) {
       WStringStream s;
-      s << "jQuery.data(" << jsRef() << ", 'obj').resetScroll();";
+      s << jsRef() << ".wtObj.resetScroll();";
       doJavaScript(s.str());
     }
   }
@@ -807,8 +807,8 @@ void WTableView::defineJavaScript()
 
   if (canvas_) {
     app->addAutoJavaScript
-      ("{var obj = $('#" + id() + "').data('obj');"
-       "if (obj) obj.autoJavaScript();}");
+      ("{var obj = " + jsRef() + ";"
+       "if (obj && obj.wtObj) obj.wtObj.autoJavaScript();}");
   
     connectObjJS(canvas_->mouseWentDown(), "mouseDown");
     connectObjJS(canvas_->mouseWentUp(), "mouseUp");
@@ -1458,6 +1458,14 @@ void WTableView::modelRowsInserted(const WModelIndex& parent,
   adjustSize();
 }
 
+int calcOverlap(int start1, int end1,
+		int start2, int end2)
+{
+  int s = std::max(start1, start2);
+  int e = std::min(end1, end2);
+  return std::max(0, e - s);
+}
+
 void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 					   int start, int end)
 {
@@ -1471,9 +1479,32 @@ void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
   }
 
   shiftModelIndexRows(start, -(end - start + 1));  
+
+  int overlapTop = calcOverlap(0, spannerCount(Top),
+			       start, end + 1);
+  int overlapMiddle = calcOverlap(firstRow(), lastRow() + 1,
+				  start, end + 1);
+
+  if (overlapMiddle > 0) {
+    int first = std::min(start, firstRow());
+  
+    for (int i = 0; i < renderedColumnsCount(); ++i) {
+      ColumnWidget *column = columnContainer(i);
+      for (int j = 0; j < overlapMiddle; ++j)
+	delete column->widget(first);
+    }
+
+    setSpannerCount(Bottom, spannerCount(Bottom) + overlapMiddle);
+  }
+
+  if (overlapTop > 0) {
+    setSpannerCount(Top, spannerCount(Top) - overlapTop);
+    setSpannerCount(Bottom, spannerCount(Bottom) + overlapTop);
+  }
 }
 
-void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
+void WTableView::modelRowsRemoved(const WModelIndex& parent,
+				  int start, int end)
 {
   if (parent != rootIndex())
     return;
@@ -1482,28 +1513,13 @@ void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
     canvas_->setHeight(canvasHeight());
     headerColumnsCanvas_->setHeight(canvasHeight());
     scheduleRerender(NeedAdjustViewPort);
-
-    if (start >= firstRow() && start <= lastRow()) {
-      int toRemove = std::min(lastRow(), end) - start + 1;
-      int first = start - firstRow();
-      
-      for (int i = 0; i < renderedColumnsCount(); ++i) {
-	ColumnWidget *column = columnContainer(i);
-	for (int j = 0; j < toRemove; ++j)
-	  delete column->widget(first);
-      }
-
-      setSpannerCount(Bottom, spannerCount(Bottom) + toRemove);
-    }
   }
 
-  if (start <= lastRow())
-    scheduleRerender(NeedUpdateModelIndexes);
+  scheduleRerender(NeedUpdateModelIndexes);
 
   computeRenderedArea();
   adjustSize();
 }
-
 
 void WTableView::modelDataChanged(const WModelIndex& topLeft, 
 				  const WModelIndex& bottomRight)
@@ -1690,6 +1706,8 @@ void WTableView::computeRenderedArea()
 void WTableView::adjustToViewport()
 {
   assert(ajaxMode());
+
+  computeRenderedArea();
 
   if (renderedFirstRow_ != firstRow() || 
       renderedLastRow_ != lastRow() ||
@@ -2039,7 +2057,6 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
 	if (hint != EnsureVisible) {
 	  computeRenderedArea();
-
 	  scheduleRerender(NeedAdjustViewPort);
 	}
       } else {
@@ -2050,10 +2067,9 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
       if (isRendered()) {
 	WStringStream s;
 
-	s << "jQuery.data("
-	  << jsRef() << ", 'obj').setScrollToPending();"
-	  << "setTimeout(function() { jQuery.data("
-	  << jsRef() << ", 'obj').scrollTo(-1, "
+	s << jsRef() << ".wtObj.setScrollToPending();"
+	  << "setTimeout(function() {"
+	  << jsRef() << ".wtObj.scrollTo(-1, "
 	  << rowY << "," << (int)hint << "); }, 0);";
 
 	doJavaScript(s.str());
@@ -2069,7 +2085,7 @@ void WTableView::scrollTo(int x, int y)
     if (isRendered()) {
       WStringStream s;
 
-      s << "jQuery.data(" << jsRef() << ", 'obj').scrollToPx(" << x << ", "
+      s << jsRef() << ".wtObj.scrollToPx(" << x << ", "
         << y << ");";
 
       doJavaScript(s.str());
@@ -2098,7 +2114,6 @@ void WTableView::setPreloadMargin(const WLength &margin, WFlags<Side> side)
   }
 
   computeRenderedArea();
-
   scheduleRerender(NeedAdjustViewPort);
 }
 

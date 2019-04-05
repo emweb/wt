@@ -1292,7 +1292,7 @@ void WAbstractItemView::bindObjJS(JSlot& slot, const std::string& jsMethod)
 {
   slot.setJavaScript
     ("function(obj, event) {"
-     """jQuery.data(" + jsRef() + ", 'obj')." + jsMethod + "(obj, event);"
+     """" + jsRef() + ".wtObj." + jsMethod + "(obj, event);"
      "}");
 }
 
@@ -1301,7 +1301,7 @@ void WAbstractItemView::connectObjJS(EventSignalBase& s,
 {
   s.connect
     ("function(obj, event) {"
-     """jQuery.data(" + jsRef() + ", 'obj')." + jsMethod + "(obj, event);"
+     """" + jsRef() + ".wtObj." + jsMethod + "(obj, event);"
      "}");
 }
 

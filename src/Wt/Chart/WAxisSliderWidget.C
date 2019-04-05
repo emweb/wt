@@ -235,7 +235,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
       series_->type() != CurveSeries) {
     if (getMethod() == HtmlCanvas) {
       WStringStream ss;
-      ss << "jQuery.removeData(" << jsRef() << ",'sobj');";
+      ss << "\ndelete " << jsRef() << ".wtSObj;";
       ss << "\nif (" << objJsRef() << ") {"
 	   << objJsRef() << ".canvas.style.cursor = 'auto';"
 	   << "setTimeout(" << objJsRef() << ".repaint,0);"
@@ -508,7 +508,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 
 std::string WAxisSliderWidget::sObjJsRef() const
 {
-  return "jQuery.data(" + jsRef() + ",'sobj')";
+  return jsRef() + ".wtSObj";
 }
 
 WCartesianChart *WAxisSliderWidget::chart()

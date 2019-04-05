@@ -126,7 +126,7 @@ void WFormWidget::setPlaceholderText(const WString& placeholderText)
 
 	  std::string jsFunction =
 	    "function(obj, event) {"
-	    """jQuery.data(" + jsRef() + ", 'obj').applyEmptyText();"
+	    """" + jsRef() + ".wtObj.applyEmptyText();"
 	    "}";
 	  removeEmptyText_->setJavaScript(jsFunction);
 	}
@@ -180,7 +180,7 @@ void WFormWidget::updateEmptyText()
   WApplication *app = WApplication::instance();
   const WEnvironment &env = app->environment();
   if (env.agentIsIElt(10) && isRendered())
-    doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+    doJavaScript(jsRef() + ".wtObj"
 		 ".setEmptyText(" + emptyText_.jsStringLiteral() + ");");
 }
 
@@ -189,7 +189,7 @@ void WFormWidget::applyEmptyText()
   WApplication *app = WApplication::instance();
   const WEnvironment &env = app->environment();
   if (env.agentIsIElt(10) && isRendered() && !emptyText_.empty())
-    doJavaScript("jQuery.data(" + jsRef() + ", 'obj').applyEmptyText();");
+    doJavaScript(jsRef() + ".wtObj.applyEmptyText();");
 }
 
 void WFormWidget::refresh()

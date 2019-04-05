@@ -24,6 +24,7 @@ namespace Wt {
 
 extern std::string WTDBO_API
 completeQuerySelectSql(const std::string& sql,
+		       const std::string& join,
 		       const std::string& where,
 		       const std::string& groupBy,
 		       const std::string& having,
@@ -34,6 +35,7 @@ completeQuerySelectSql(const std::string& sql,
 
 extern std::string WTDBO_API
 createQuerySelectSql(const std::string& from,
+		     const std::string& join,
 		     const std::string& where,
 		     const std::string& groupBy,
 		     const std::string& having,
@@ -106,7 +108,8 @@ std::vector<FieldInfo> QueryBase<Result>::fields() const
 
 template <class Result>
 std::pair<SqlStatement *, SqlStatement *>
-QueryBase<Result>::statements(const std::string& where,
+QueryBase<Result>::statements(const std::string& join,
+			      const std::string& where,
 			      const std::string& groupBy,
 			      const std::string& having,
 			      const std::string& orderBy,
@@ -121,7 +124,7 @@ QueryBase<Result>::statements(const std::string& where,
     std::string sql;
 
     std::vector<FieldInfo> fs = this->fields();
-    sql = Impl::createQuerySelectSql(sql_, where, groupBy, having, orderBy,
+    sql = Impl::createQuerySelectSql(sql_, join, where, groupBy, having, orderBy,
                                      limit, offset, fs,
                                      this->session_->limitQueryMethod_);
     statement = this->session_->getOrPrepareStatement(sql);
@@ -146,7 +149,7 @@ QueryBase<Result>::statements(const std::string& where,
       Impl::substituteFields(list, fs, sql, sql_offset);
     }
 
-    sql = Impl::completeQuerySelectSql(sql, where, groupBy, having, orderBy,
+    sql = Impl::completeQuerySelectSql(sql, join, where, groupBy, having, orderBy,
                                        limit, offset, fs,
                                        this->session_->limitQueryMethod_);
 
@@ -295,7 +298,7 @@ void Query<Result, DirectBinding>::prepareStatements() const
   this->session_->flush();
 
   boost::tie(this->statement_, this->countStatement_) = this->statements(
-      std::string(), std::string(), std::string(), std::string(), -1, -1);
+      std::string(), std::string(), std::string(), std::string(), std::string(), -1, -1);
 
   column_ = 0;
 }
@@ -314,42 +317,30 @@ namespace Impl {
   }
 }
 
+
+
 template <class Result>
 Query<Result, DynamicBinding>::Query()
-  : limit_(-1),
-    offset_(-1)
 { }
 
 template <class Result>
 Query<Result, DynamicBinding>::Query(Session& session, const std::string& sql)
-  : Impl::QueryBase<Result>(session, sql),
-    limit_(-1),
-    offset_(-1)
+  : Impl::QueryBase<Result>(session, sql)
 { }
 
 template <class Result>
 Query<Result, DynamicBinding>::Query(Session& session,
 				     const std::string& table,
 				     const std::string& where)
-  : Impl::QueryBase<Result>(session, table, where),
-    limit_(-1),
-    offset_(-1)
+  : Impl::QueryBase<Result>(session, table, where)
 { }
 
 template <class Result>
 Query<Result, DynamicBinding>
 ::Query(const Query<Result, DynamicBinding>& other)
-  : Impl::QueryBase<Result>(other),
-    where_(other.where_),
-    groupBy_(other.groupBy_),
-    having_(other.having_),
-    orderBy_(other.orderBy_),
-    limit_(other.limit_),
-    offset_(other.offset_)
-{ 
-  for (unsigned i = 0; i < other.parameters_.size(); ++i)
-    parameters_.push_back(other.parameters_[i]->clone());
-}
+  : AbstractQuery(other),
+    Impl::QueryBase<Result>(other)
+{ }
 
 template <class Result>
 Query<Result, DynamicBinding>&
@@ -357,18 +348,7 @@ Query<Result, DynamicBinding>::operator=
 (const Query<Result, DynamicBinding>& other)
 {
   Impl::QueryBase<Result>::operator=(other);
-  where_ = other.where_;
-  groupBy_ = other.groupBy_;
-  having_ = other.having_;
-  orderBy_ = other.orderBy_;
-  limit_ = other.limit_;
-  offset_ = other.offset_;
-
-  reset();
-
-  for (unsigned i = 0; i < other.parameters_.size(); ++i)
-    parameters_.push_back(other.parameters_[i]->clone());
-
+  AbstractQuery::operator=(other);
   return *this;
 }
 
@@ -380,14 +360,36 @@ Query<Result, DynamicBinding>::~Query()
 
 template <class Result>
 Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::join(const std::string& other)
+{
+  AbstractQuery::join(other);
+
+  return *this;
+}
+
+template <class Result>
+Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::leftJoin(const std::string& other)
+{
+  AbstractQuery::leftJoin(other);
+
+  return *this;
+}
+
+template <class Result>
+Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::rightJoin(const std::string& other)
+{
+  AbstractQuery::rightJoin(other);
+
+  return *this;
+}
+
+template <class Result>
+Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::where(const std::string& where)
 {
-  if (!where.empty()) {
-    if (!where_.empty())
-      where_ += " and ";
-
-    where_ += "(" + where + ")";
-  }
+  AbstractQuery::where(where);
 
   return *this;
 }
@@ -396,7 +398,7 @@ template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::orderBy(const std::string& orderBy)
 {
-  orderBy_ = orderBy;
+  AbstractQuery::orderBy(orderBy);
 
   return *this;
 }
@@ -405,7 +407,7 @@ template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::groupBy(const std::string& groupBy)
 {
-  groupBy_ = groupBy;
+  AbstractQuery::groupBy(groupBy);
 
   return *this;
 }
@@ -414,12 +416,7 @@ template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::having(const std::string& having)
 {
-  if (!having.empty()) {
-    if (!having_.empty())
-      having_ += " and ";
-
-    having_ += "(" + having + ")";
-  }
+  AbstractQuery::having(having);
 
   return *this;
 }
@@ -427,30 +424,18 @@ template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::offset(int offset)
 {
-  offset_ = offset;
+  AbstractQuery::offset(offset);
 
   return *this;
-}
-
-template <class Result>
-int Query<Result, DynamicBinding>::offset() const
-{
-  return offset_;
 }
 
 template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::limit(int limit)
 {
-  limit_ = limit;
+  AbstractQuery::limit(limit);
 
   return *this;
-}
-
-template <class Result>
-int Query<Result, DynamicBinding>::limit() const
-{
-  return limit_;
 }
 
 template <class Result>
@@ -470,10 +455,11 @@ collection<Result> Query<Result, DynamicBinding>::resultList() const
   SqlStatement *statement, *countStatement;
 
   boost::tie(statement, countStatement)
-    = this->statements(where_, groupBy_, having_, orderBy_, limit_, offset_);
+    = this->statements(join_, where_, groupBy_, having_, orderBy_,
+		       limit_, offset_);
 
-  bindParameters(statement);
-  bindParameters(countStatement);
+  bindParameters(this->session_, statement);
+  bindParameters(this->session_, countStatement);
 
   return collection<Result>(this->session_, statement, countStatement);
 }
@@ -488,80 +474,6 @@ template <class Result>
 Query<Result, DynamicBinding>::operator collection<Result> () const
 {
   return resultList();
-}
-
-template <class Result>
-void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
-  const
-{
-  SaveBaseAction binder(this->session_, statement, 0);
-
-  for (unsigned i = 0; i < parameters_.size(); ++i)
-    parameters_[i]->bind(binder);
-
-  switch (this->session_->limitQueryMethod_) {
-  case Limit:
-    if (limit_ != -1) {
-      int v = limit_;
-      field(binder, v, "limit");
-    }
-
-    if (offset_ != -1) {
-      int v = offset_;
-      field(binder, v, "offset");
-    }
-
-    break;
-
-  case RowsFromTo:
-    if (limit_ != -1 || offset_ != -1) {
-      int from = offset_ == -1 ? 1 : offset_ + 1;
-      field(binder, from, "from");
-
-      int to = (limit_ == -1) ? (1 << 30) : (from + limit_ - 1);
-      field(binder, to, "to");
-    }
-
-    break;
-
-  case Rownum:
-    if (limit_ != -1){
-      int v = limit_;
-      field(binder, v, "rownum");
-    }
-
-    if (offset_ != -1){
-      int v = offset_;
-      field(binder, v, "rownum2");
-    }
-
-    break;
-
-  case OffsetFetch:
-    if (offset_ != -1) {
-      int v = offset_;
-      field(binder, v, "offset");
-    }
-
-    if (limit_ != -1) {
-      int v = limit_;
-      field(binder, v, "limit");
-    }
-
-    break;
-
-  case NotSupported:
-    break;
-  }
-}
-
-template <class Result>
-void Query<Result, DynamicBinding>::reset()
-{
-  for (unsigned i = 0; i < parameters_.size(); ++i)
-    delete parameters_[i];
-
-  parameters_.clear();
 }
 
   }

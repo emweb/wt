@@ -1702,7 +1702,7 @@ std::string WServerGLWidget::glObjJsRef(const std::string& jsRef)
 {
   return "(function(){"
     "var r = " + jsRef + ";"
-    "var o = r ? jQuery.data(r,'obj') : null;"
+    "var o = r ? r.wtObj : null;"
     "return o ? o : {ctx: null};"
     "})()";
 }
@@ -1806,7 +1806,7 @@ void WServerGLWidget::render(const std::string& jsRef,
   impl_->unmakeCurrent();
 
   std::stringstream ss;
-  ss << "jQuery.data(" << jsRef << ",'obj').loadImage(" << WWebWidget::jsStringLiteral(memres_->url()) << ");";
+  ss << jsRef << ".wtObj.loadImage(" << WWebWidget::jsStringLiteral(memres_->url()) << ");";
   glInterface_->doJavaScript(ss.str());
 }
 

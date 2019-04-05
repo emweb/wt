@@ -21,7 +21,7 @@ WT_DECLARE_WT_MEMBER
    /** @const */ var CLASS_UP = 'up';
    /** @const */ var CLASS_UNSELECTABLE = 'unselectable';
 
-   jQuery.data(edit, 'obj', this);
+   edit.wtObj = this;
 
    var self = this, WT = APP.WT, key_up = 38, key_down = 40, CH = 'crosshair',
      $edit = $(edit);
@@ -45,7 +45,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function getValue() {
-     var lineEdit = $edit.data("lobj");
+     var lineEdit = edit.wtLObj;
      var v = "";
      if (lineEdit !== undefined) {
        v = lineEdit.getValue();
@@ -72,7 +72,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function setValue(v) {
-     var lineEdit = $edit.data("lobj");
+     var lineEdit = edit.wtLObj;
      if (v > maxValue)
        if (wrapAround) {
      range = maxValue - minValue ;

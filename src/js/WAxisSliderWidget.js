@@ -31,7 +31,7 @@ WT_DECLARE_WT_MEMBER
 
    var touchHandlers = {};
 
-   jQuery.data(widget, 'sobj', this);
+   widget.wtSObj = this;
 
    var self = this;
    var WT = APP.WT;
@@ -103,7 +103,7 @@ WT_DECLARE_WT_MEMBER
 	    touchHandlers.moved(widget, {touches:pointers.slice(0)});
 	 }
 
-	 var o = jQuery.data(widget, 'eobj');
+	 var o = widget.wtEObj;
 	 if (o) {
 	    if (!window.PointerEvent) {
 	       widget.removeEventListener('MSPointerDown', o.pointerDown);
@@ -117,11 +117,11 @@ WT_DECLARE_WT_MEMBER
 	       widget.removeEventListener('pointermove', o.pointerMove);
 	    }
 	 }
-	 jQuery.data(widget, 'eobj', {
+         widget.wtEObj = {
 	    pointerDown: pointerDown,
 	    pointerUp: pointerUp,
 	    pointerMove: pointerMove
-	 });
+	 };
 	 if (!window.PointerEvent) {
 	    widget.addEventListener('MSPointerDown', pointerDown);
 	    widget.addEventListener('MSPointerUp', pointerUp);
