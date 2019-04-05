@@ -898,6 +898,7 @@ void WTableView::render(WFlags<RenderFlag> flags)
 	break;
       case NeedUpdateModelIndexes:
 	updateModelIndexes();
+        /* fallthrough */
       case NeedAdjustViewPort:
 	adjustToViewport();
 	break;
@@ -1458,12 +1459,16 @@ void WTableView::modelRowsInserted(const WModelIndex& parent,
   adjustSize();
 }
 
+namespace {
+
 int calcOverlap(int start1, int end1,
 		int start2, int end2)
 {
   int s = std::max(start1, start2);
   int e = std::min(end1, end2);
   return std::max(0, e - s);
+}
+
 }
 
 void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,

@@ -234,8 +234,17 @@ WWidget *AuthWidget::createLostPasswordView()
 
 void AuthWidget::letUpdatePassword(const User& user, bool promptPassword)
 {
-  showDialog(tr("Wt.Auth.updatepassword"),
-	     createUpdatePasswordView(user, promptPassword));
+  WWidget *updatePasswordView = createUpdatePasswordView(user, promptPassword);
+
+  UpdatePasswordWidget *defaultUpdatePasswordWidget =
+      dynamic_cast<UpdatePasswordWidget*>(updatePasswordView);
+
+  showDialog(tr("Wt.Auth.updatepassword"), updatePasswordView);
+
+  if (defaultUpdatePasswordWidget) {
+    defaultUpdatePasswordWidget->updated().connect(this, &AuthWidget::closeDialog);
+    defaultUpdatePasswordWidget->canceled().connect(this, &AuthWidget::closeDialog);
+  }
 }
 
 WWidget *AuthWidget::createUpdatePasswordView(const User& user,

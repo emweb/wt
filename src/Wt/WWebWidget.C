@@ -381,8 +381,7 @@ void WWebWidget::removeChild(WWidget *child)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(child->webWidget(), true);
 
-  if (otherImpl_)
-    otherImpl_->childrenChanged_.emit();
+  emitChildrenChanged();
 }
 
 Signal<>& WWebWidget::childrenChanged()
@@ -1244,8 +1243,7 @@ void WWebWidget::childAdded(WWidget *child)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, false);
 
-  if (otherImpl_)
-    otherImpl_->childrenChanged_.emit();
+  emitChildrenChanged();
 }
 
 const std::vector<WWidget *>& WWebWidget::children() const
@@ -2725,6 +2723,13 @@ void WWebWidget::setBaseZIndex(int zIndex)
     layoutImpl_ = new LayoutImpl();
 
   layoutImpl_->baseZIndex_ = zIndex;
+}
+
+void WWebWidget::emitChildrenChanged()
+{
+  if (!flags_.test(BIT_BEING_DELETED) && otherImpl_) {
+    otherImpl_->childrenChanged_.emit();
+  }
 }
 
 }
