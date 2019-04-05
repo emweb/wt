@@ -213,8 +213,17 @@ std::unique_ptr<WWidget> AuthWidget::createLostPasswordView()
 
 void AuthWidget::letUpdatePassword(const User& user, bool promptPassword)
 {
-  showDialog(tr("Wt.Auth.updatepassword"),
-	     createUpdatePasswordView(user, promptPassword));
+  std::unique_ptr<WWidget> updatePasswordView = createUpdatePasswordView(user, promptPassword);
+
+  UpdatePasswordWidget *defaultUpdatePasswordWidget =
+      dynamic_cast<UpdatePasswordWidget*>(updatePasswordView.get());
+
+  showDialog(tr("Wt.Auth.updatepassword"), std::move(updatePasswordView));
+
+  if (defaultUpdatePasswordWidget) {
+    defaultUpdatePasswordWidget->updated().connect(this, &AuthWidget::closeDialog);
+    defaultUpdatePasswordWidget->canceled().connect(this, &AuthWidget::closeDialog);
+  }
 }
 
 std::unique_ptr<WWidget> AuthWidget

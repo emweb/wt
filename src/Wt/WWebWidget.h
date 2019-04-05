@@ -548,6 +548,8 @@ private:
 
   void jsScrollVisibilityChanged(bool visible);
 
+  void emitChildrenChanged();
+
 protected:
   virtual void setParentWidget(WWidget *parent) override;
   void setRendered(bool rendered);

@@ -133,7 +133,7 @@ void run()
     /*
      * Setup a session, would typically be done once at application startup.
      */
-    std::unique_ptr<dbo::backend::Sqlite3> sqlite3{"blog.db"};
+    std::unique_ptr<dbo::backend::Sqlite3> sqlite3{new dbo::backend::Sqlite3("blog.db")};
     dbo::Session session;
     session.setConnection(std::move(sqlite3));
 
