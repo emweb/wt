@@ -870,9 +870,7 @@ private:
       /*StrLen_or_IndPtr*/&strLen_or_ind
     );
     handleErr(SQL_HANDLE_STMT, stmt_, rc);
-    if (strLen_or_ind == SQL_NULL_DATA)
-      return false; // null
-    return true;
+    return strLen_or_ind != SQL_NULL_DATA;
   }
 };
 

@@ -43,12 +43,12 @@ class SqlStatement;
  *  - <tt>std::vector<unsigned char></tt> (binary data)
  *  - <tt>boost::optional<T></tt>: to make the type optional
  *    (allowing an SQL <tt>null</tt> value)
- *  - <tt>boost::posix_time::ptime</tt>: time stamp, an invalid value (e.g.
- *    default constructed), maps to <tt>null</tt>
- *  - <tt>boost::posix_time::time_duration</tt>: time interval, an invalid
- *    value (boost::posix_time::not_a_date_time), maps to <tt>null</tt>
+ *  - <tt>std::optional<T></tt>: to make the type optional
+ *    (allowing an SQL <tt>null</tt> value, C++17 only)
+ *  - <tt>std::chrono::system_clock::time_point</tt>: time stamp
+ *  - <tt>std::chrono::duration<int, std::milli</tt>: time interval
  *
- * In <Wt/Dbo/WtSqlTraits>, traits classes are also provided for:
+ * In <Wt/Dbo/WtSqlTraits.h>, traits classes are also provided for:
  *  - WDate
  *  - WDateTime
  *  - WTime
