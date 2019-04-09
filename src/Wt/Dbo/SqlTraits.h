@@ -46,7 +46,7 @@ class SqlStatement;
  *  - <tt>std::optional<T></tt>: to make the type optional
  *    (allowing an SQL <tt>null</tt> value, C++17 only)
  *  - <tt>std::chrono::system_clock::time_point</tt>: time stamp
- *  - <tt>std::chrono::duration<int, std::milli</tt>: time interval
+ *  - <tt>std::chrono::duration<int, std::milli></tt>: time interval
  *
  * In <Wt/Dbo/WtSqlTraits.h>, traits classes are also provided for:
  *  - WDate
