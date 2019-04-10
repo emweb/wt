@@ -52,6 +52,68 @@ class SqlStatement;
  *  - Json::Object
  *  - Json::Array
  *
+ * Example for an enum that is saved as a string rather than an int:
+ * \code
+ * enum Pet {
+ *   Cat,
+ *   Dog,
+ *   Other
+ * };
+ *
+ * std::string petToString(Pet p) {
+ *   switch (p) {
+ *   case Cat:
+ *     return "cat";
+ *   case Dog:
+ *     return "dog";
+ *   case Other:
+ *     return "other";
+ *   }
+ *   throw std::invalid_argument("Unknown pet type: " + boost::lexical_cast<std::string>(static_cast<int>(p)));
+ * }
+ *
+ * Pet petFromString(const std::string &s) {
+ *   if (s == "cat")
+ *     return Cat;
+ *   else if (s == "dog")
+ *     return Dog;
+ *   else if (s == "other")
+ *     return Other;
+ *   else
+ *     throw std::invalid_argument("Unknown pet type: " + s);
+ * }
+ *
+ * namespace Wt {
+ * namespace Dbo {
+ *
+ * template<>
+ * struct sql_value_traits<Pet>
+ * {
+ *   static std::string type(SqlConnection *conn, int size)
+ *   {
+ *     return sql_value_traits<std::string>::type(conn, size);
+ *   }
+
+ *   static void bind(Pet p, SqlStatement *statement, int column, int size)
+ *   {
+ *     statement->bind(column, petToString(p));
+ *   }
+
+ *   static bool read(Pet &p, SqlStatement *statement, int column, int size)
+ *   {
+ *     std::string s;
+ *     bool result = statement->getResult(column, &s, size);
+ *     if (!result)
+ *       return false;
+ *     p = petFromString(s);
+ *     return true;
+ *   }
+ * };
+ *
+ * } // Dbo
+ * } // Wt
+ * \endcode
+ *
  * \sa query_result_traits
  *
  * \ingroup dbo
@@ -121,8 +183,8 @@ public:
     ForeignKey = 0x20, //!< Field is (part of) a foreign key
     FirstDboField = 0x40,
     LiteralJoinId = 0x80,
-    AuxId = 0x81,
-    AliasedName = 0x100 // there is an AS in the field, so the name is aliased
+    AuxId = 0x100,
+    AliasedName = 0x200 // there is an AS in the field, so the name is aliased
   };
 
   /*! \brief Creates a field description.
@@ -166,7 +228,7 @@ public:
    */
   bool isNaturalIdField() const { return (flags_ & NaturalId) != 0; }
 
-  /*! \brief Returns whether the field is a Surroaget Id field.
+  /*! \brief Returns whether the field is a Surrogate Id field.
    */
   bool isSurrogateIdField() const { return flags_ & SurrogateId; }
 
