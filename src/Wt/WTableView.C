@@ -1528,7 +1528,7 @@ void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 				  start, end + 1);
 
   if (overlapMiddle > 0) {
-    int first = std::min(start, firstRow());
+    int first = std::max(0, start - firstRow());
   
     for (int i = 0; i < renderedColumnsCount(); ++i) {
       ColumnWidget *column = columnContainer(i);

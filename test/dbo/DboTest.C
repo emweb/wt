@@ -72,6 +72,35 @@ struct Coordinate {
   }
 };
 
+enum class Pet {
+  Cat,
+  Dog,
+  Other
+};
+
+std::string petToString(Pet p) {
+  switch (p) {
+  case Pet::Cat:
+    return "cat";
+  case Pet::Dog:
+    return "dog";
+  case Pet::Other:
+    return "other";
+  }
+  throw std::invalid_argument("Unknown pet type: " + std::to_string(static_cast<int>(p)));
+}
+
+Pet petFromString(const std::string &s) {
+  if (s == "cat")
+    return Pet::Cat;
+  else if (s == "dog")
+    return Pet::Dog;
+  else if (s == "other")
+    return Pet::Other;
+  else
+    throw std::invalid_argument("Unknown pet type: " + s);
+}
+
 std::ostream& operator<< (std::ostream& o, const Coordinate& c)
 {
   return o << "(" << c.x << ", " << c.y << ")";
@@ -87,6 +116,30 @@ namespace Wt {
       field(action, coordinate.x, name + "_x", 1000);
       field(action, coordinate.y, name + "_y", 1000);
     }
+
+    template<>
+    struct sql_value_traits<Pet>
+    {
+      static std::string type(SqlConnection *conn, int size)
+      {
+        return sql_value_traits<std::string>::type(conn, size);
+      }
+
+      static void bind(Pet p, SqlStatement *statement, int column, int size)
+      {
+        statement->bind(column, petToString(p));
+      }
+
+      static bool read(Pet &p, SqlStatement *statement, int column, int size)
+      {
+        std::string s;
+        bool result = statement->getResult(column, &s, size);
+        if (!result)
+          return false;
+        p = petFromString(s);
+        return true;
+      }
+    };
   }
 }
 
@@ -172,10 +225,21 @@ public:
   std::chrono::duration<int, std::milli> timeduration;
   bool checked;
   int i;
+  Pet pet;
   ::int64_t i64;
   long long ll;
   float f;
   double d;
+
+  A()
+    : checked(false),
+      i(0),
+      pet(Pet::Other),
+      i64(0),
+      ll(0),
+      f(0),
+      d(0)
+  { }
 
   bool operator== (const A& other) const {
     if (binary.size() != other.binary.size()){
@@ -261,6 +325,9 @@ public:
     if (i != other.i) {
       DEBUG(std::cerr << "ERROR: i = " << i << " | " << other.i << std::endl);
     }
+    if (pet != other.pet) {
+      DEBUG(std::cerr << "ERROR: pet = " << petToString(pet) << " | " << petToString(other.pet) << std::endl);
+    }
     if (i64 != other.i64) {
       DEBUG(std::cerr << "ERROR: i64 = " <<i64  << " | "
             << other.i64 << std::endl);
@@ -299,6 +366,7 @@ public:
     std::cout << "date = " << date.toString() << " ; " << other.date.toString() << std::endl;
     std::cout << "datetime = " << datetime.toString() << " ; " << other.datetime.toString() << std::endl;
     std::cout << "i = " << i << " ; " << other.i << std::endl;
+    std::cout << "pet = " << petToString(pet) << " ; " << petToString(other.pet) << std::endl;
     std::cout << "i64 = " << i64 << " ; " << other.i64 << std::endl;
     std::cout << "ll = " << ll << " ; " << other.ll << std::endl;
     std::cout << "f = " << f << " ; " << other.f << std::endl;
@@ -323,6 +391,7 @@ public:
       && timepoint == other.timepoint
       && timeduration == other.timeduration
       && i == other.i
+      && pet == other.pet
       && i64 == other.i64
       && ll == other.ll
       && checked == other.checked
@@ -355,6 +424,7 @@ public:
     dbo::field(a, timepoint, "timepoint");
     dbo::field(a, timeduration, "timeduration");
     dbo::field(a, i, "i");
+    dbo::field(a, pet, "pet");
     dbo::field(a, i64, "i64");
     dbo::field(a, ll, "ll");
     dbo::field(a, checked, "checked");
@@ -558,6 +628,7 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
   a1.timeduration = std::chrono::hours(1) + std::chrono::seconds(10);
   a1.checked = true;
   a1.i = 42;
+  a1.pet = Pet::Cat;
   a1.i64 = 9223372036854775805LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
@@ -651,6 +722,7 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
   a1.string = "There";
   a1.checked = false;
   a1.i = 42;
+  a1.pet = Pet::Dog;
   a1.i64 = 9223372036854775804LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
@@ -826,6 +898,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     a1.modify()->wstring = "Hello";
     a1.modify()->string = "There";
     a1.modify()->i = 42;
+    a1.modify()->pet = Pet::Cat;
     a1.modify()->i64 = 9223372036854775803LL;
     a1.modify()->ll = 6066005651767220LL;
     a1.modify()->f = (float)42.42;
@@ -1658,6 +1731,7 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
   a1.string = "There";
   a1.checked = false;
   a1.i = 42;
+  a1.pet = Pet::Other;
   a1.i64 = 9223372036854775804LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
