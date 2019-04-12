@@ -29,6 +29,10 @@
 #define VERIFY_CERTIFICATE
 #endif
 
+#ifdef WT_WIN32
+#include "web/SslUtils.h"
+#endif // WT_WIN32
+
 #endif // WT_WITH_SSL
 
 #ifdef WT_WIN32
@@ -977,10 +981,13 @@ bool Client::request(Http::Method method, const std::string& url,
 
     context.set_options(sslOptions);
 
-
 #ifdef VERIFY_CERTIFICATE
-    if (verifyEnabled_)
+    if (verifyEnabled_) {
       context.set_default_verify_paths();
+#ifdef WT_WIN32
+      Ssl::addWindowsCACertificates(context);
+#endif // WT_WIN32
+    }
 
     if (!verifyFile_.empty() || !verifyPath_.empty()) {
       if (!verifyFile_.empty())
