@@ -232,7 +232,8 @@ public:
   double d;
 
   A()
-    : checked(false),
+    : timeduration(0),
+      checked(false),
       i(0),
       pet(Pet::Other),
       i64(0),

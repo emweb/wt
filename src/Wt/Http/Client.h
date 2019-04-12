@@ -224,8 +224,6 @@ public:
    *
    * This setting only affects a https request: it configures a certificate
    * file to be used to verify the identity of the server.
-   *
-   * \note Certificate verification does not work reliably yet.
    */
   void setSslVerifyFile(const std::string& verifyFile);
 
@@ -234,8 +232,6 @@ public:
    * This setting only affects a https request: it configures a
    * directory containing certificates to be used to verify the
    * identity of the server.
-   *
-   * \note Certificate verification does not work reliably yet.
    */
   void setSslVerifyPath(const std::string& verifyPath);
 
