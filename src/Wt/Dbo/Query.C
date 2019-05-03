@@ -194,7 +194,7 @@ std::string createQueryCountSql(const std::string& query,
 void substituteFields(const SelectFieldList& list,
 		      const std::vector<FieldInfo>& fs,
 		      std::string& sql,
-		      int offset)
+                      int& offset)
 {
   for (unsigned i = 0, j = 0; j < list.size(); ++j) {
     if (fs[i].isFirstDboField()) {

@@ -690,7 +690,7 @@ public:
    * The shadow effect is applied to all things drawn (paths, text and images).
    *
    * \note With the VML backend (IE), the shadow is not applied to images,
-   *       and the shadow color is always StandardColor::Black; only the opacity (alpha)
+   *       and the shadow color is always black; only the opacity (alpha)
    *       channel is taken into account.
    * \sa LowQualityShadows
    */

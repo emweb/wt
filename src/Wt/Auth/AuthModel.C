@@ -236,14 +236,17 @@ User AuthModel::processAuthToken()
       AuthTokenResult result = baseAuth()->processAuthToken(*token, users());
 
       switch(result.state()) {
-      case AuthTokenState::Valid:
-	/*
-	 * Only extend the validity from what we had currently.
-	 */
-	app->setCookie(baseAuth()->authTokenCookieName(), result.newToken(),
-		       result.newTokenValidity(), "", "", app->environment().urlScheme() == "https");
+      case AuthTokenState::Valid: {
+        if (!result.newToken().empty()) {
+          /*
+           * Only extend the validity from what we had currently.
+           */
+          app->setCookie(baseAuth()->authTokenCookieName(), result.newToken(),
+                         result.newTokenValidity(), "", "", app->environment().urlScheme() == "https");
+        }
 
 	return result.user();
+      }
       case AuthTokenState::Invalid:
         app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0, "", "", app->environment().urlScheme() == "https");
 

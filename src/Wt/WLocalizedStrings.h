@@ -51,9 +51,9 @@ struct LocalizedString
   bool success;
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Implicit bool conversion, for checking success.
+  /*! \brief Bool conversion, for checking success.
    */
-  inline operator bool() const { return success; }
+  explicit inline operator bool() const { return success; }
   inline bool operator!() const { return !success; }
 #endif // WT_TARGET_JAVA
 };

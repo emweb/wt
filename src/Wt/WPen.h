@@ -55,17 +55,17 @@ public:
   /*! \brief Typedef for enum Wt::PenJoinStyle */
   typedef PenJoinStyle JoinStyle;
 
-  /*! \brief Creates a StandardColor::Black cosmetic pen.
+  /*! \brief Creates a black cosmetic pen.
    *
-   * Constructs a StandardColor::Black solid pen of 0 width (i.e. cosmetic single
+   * Constructs a black solid pen of 0 width (i.e. cosmetic single
    * pixel width), with \link Wt::PenCapStyle::Square PenCapStyle::Square\endlink line
    * ends and \link Wt::PenJoinStyle::Bevel PenJoinStyle::Bevel\endlink line join style.
    */
   WPen();
 
-  /*! \brief Creates a StandardColor::Black pen with a particular style.
+  /*! \brief Creates a black pen with a particular style.
    *
-   * Constructs a StandardColor::Black pen of 0 width (i.e. cosmetic single pixel
+   * Constructs a black pen of 0 width (i.e. cosmetic single pixel
    * width), with \link Wt::PenCapStyle::Square PenCapStyle::Square\endlink line ends and
    * \link Wt::PenJoinStyle::Bevel PenJoinStyle::Bevel\endlink line join style.
    *

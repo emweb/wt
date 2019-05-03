@@ -52,7 +52,7 @@ extern void WTDBO_API
 substituteFields(const SelectFieldList& list,
 		 const std::vector<FieldInfo>& fs,
 		 std::string& sql,
-		 int offset);
+                 int& offset);
 
 extern void WTDBO_API 
 parseSql(const std::string& sql, SelectFieldLists& fieldLists);

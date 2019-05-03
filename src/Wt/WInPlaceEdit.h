@@ -59,7 +59,7 @@ class WPushButton;
  * CSS stylesheet:
  * \code
  * .inplace span:hover {
- *    background-color: StandardColor::Gray;
+ *    background-color: gray;
  * }
  * \endcode
  */

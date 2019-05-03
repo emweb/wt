@@ -1731,7 +1731,7 @@ void WAbstractGridData::paintGLIndex(unsigned index, double marginX, double marg
 
     // Encoding the index as a color value.
     //
-    // Since StandardColor::White is the clear color of the index texture,
+    // Since white is the clear color of the index texture,
     // this allows for 16777215 meshes. That should be enough,
     // or is even a tad excessive.
     float r = ((index >> 16) & 0xff) / 255.0f;

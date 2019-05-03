@@ -192,8 +192,8 @@ public:
 
   /*! \brief Returns a new token for this user.
    *
-   * An authentication token can be used only once, and needs to be
-   * replaced by a new token.
+   * Returns the empty string if there is no new token. See
+   * AuthService::authTokenUpdateEnabled().
    *
    * The returned token is valid only if the state() == AuthTokenState::Valid.
    */
@@ -202,6 +202,8 @@ public:
   /*! \brief Returns the validity of the new token.
    *
    * This returns the token validity in seconds.
+   *
+   * Returns -1 if there is no new token, or result() != Valid.
    *
    * \sa newToken()
    */
@@ -331,6 +333,32 @@ public:
    */
   bool authTokensEnabled() const { return authTokens_; }
 
+  /*! \brief Set whether processAuthToken() updates the auth token
+   *
+   * If this option is enabled, processAuthToken() will replace the auth token
+   * with a new token. This is a bit more secure, because an auth token can
+   * only be used once. This is enabled by default.
+   *
+   * However, this means that if a user concurrently opens multiple sessions within
+   * the same browsers (e.g. multiple tabs being restored at the same time)
+   * or refreshes before they receive the new cookie, the user will be logged out,
+   * unless the AbstractUserDatabase implementation takes this into account
+   * (e.g. keeps the old token valid for a little bit longer)
+   *
+   * The default Dbo UserDatabase does not handle concurrent token updates well,
+   * so disable this option if you want to prevent that issue.
+   *
+   * \sa processAuthToken()
+   * \sa authTokenUpdateEnabled()
+   */
+  void setAuthTokenUpdateEnabled(bool enabled) { authTokenUpdateEnabled_ = enabled; }
+
+  /*! \brief Returns whether the auth token is updated
+   *
+   * \sa setAuthTokenUpdateEnabled()
+   */
+  bool authTokenUpdateEnabled() const { return authTokenUpdateEnabled_; }
+
   /*! \brief Returns the authentication token cookie name.
    *
    * This is the default cookie name used for storing the authentication
@@ -380,8 +408,11 @@ public:
   /*! \brief Processes an authentication token.
    *
    * This verifies an authentication token, and considers whether it matches
-   * with a token hash value stored in database. If it matches, the token
-   * is removed and a new token is created for the identified user.
+   * with a token hash value stored in database. If it matches and auth token
+   * update is enabled, the token is updated with a new hash.
+   *
+   * \sa setAuthTokenUpdateEnabled()
+   * \sa AbstractUserDatabase::updateAuthToken()
    */
   virtual AuthTokenResult processAuthToken(const std::string& token,
 					   AbstractUserDatabase& users) const;
@@ -585,6 +616,7 @@ private:
   std::string redirectInternalPath_;
 
   bool authTokens_;
+  bool authTokenUpdateEnabled_;
   int authTokenValidity_;  // minutes
   std::string authTokenCookieName_;
   std::string authTokenCookieDomain_;
