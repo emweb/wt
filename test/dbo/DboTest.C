@@ -2938,7 +2938,7 @@ BOOST_AUTO_TEST_CASE( dbo_test35c )
   {
     dbo::Transaction t(*session_);
 
-    As as = session_->query<Wt::Dbo::ptr<A> >("select a from table_a a where i >= 3 except select a from table_a a where i == 4");
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from table_a a where i >= 3 except select a from table_a a where i = 4");
 
     BOOST_REQUIRE(as.size() == 2);
 
