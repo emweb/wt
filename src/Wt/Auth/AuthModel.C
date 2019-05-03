@@ -24,9 +24,10 @@
 #include <memory>
 
 #ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
+#define SCOPED_PTR std::unique_ptr
 #else
-#define AUTO_PTR std::auto_ptr
+#include <boost/scoped_ptr.hpp>
+#define SCOPED_PTR boost::scoped_ptr
 #endif
 
 namespace Wt {
@@ -164,7 +165,7 @@ bool AuthModel::validateField(Field field)
 
 bool AuthModel::validate()
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction>
+  SCOPED_PTR<AbstractUserDatabase::Transaction>
     t(users().startTransaction());
 
   bool result = WFormModel::validate();
@@ -242,14 +243,17 @@ User AuthModel::processAuthToken()
       AuthTokenResult result = baseAuth()->processAuthToken(*token, users());
 
       switch(result.result()) {
-      case AuthTokenResult::Valid:
-	/*
-	 * Only extend the validity from what we had currently.
-	 */
-	app->setCookie(baseAuth()->authTokenCookieName(), result.newToken(),
-		       result.newTokenValidity(), "", "", app->environment().urlScheme() == "https");
+      case AuthTokenResult::Valid: {
+        if (!result.newToken().empty()) {
+          /*
+           * Only extend the validity from what we had currently.
+           */
+          app->setCookie(baseAuth()->authTokenCookieName(), result.newToken(),
+                         result.newTokenValidity(), "", "", app->environment().urlScheme() == "https");
+        }
 
 	return result.user();
+      }
       case AuthTokenResult::Invalid:
 	app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0, "", "", app->environment().urlScheme() == "https");
 

@@ -14,9 +14,10 @@
 #include <memory>
 
 #ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
+#define SCOPED_PTR std::unique_ptr
 #else
-#define AUTO_PTR std::auto_ptr
+#include <boost/scoped_ptr.hpp>
+#define SCOPED_PTR boost::scoped_ptr
 #endif
 
 /*
@@ -97,7 +98,7 @@ int PasswordService::getPasswordThrottle(int failedAttempts) const
 PasswordResult PasswordService::verifyPassword(const User& user,
 					    const WT_USTRING& password) const
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction> t
+  SCOPED_PTR<AbstractUserDatabase::Transaction> t
     (user.database()->startTransaction());
 
   if (delayForNextAttempt(user) > 0)

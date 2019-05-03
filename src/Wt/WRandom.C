@@ -52,9 +52,10 @@
 #include "Wt/WDllDefs.h"
 
 #ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
+#define SCOPED_PTR std::unique_ptr
 #else
-#define AUTO_PTR std::auto_ptr
+#include <boost/scoped_ptr.hpp>
+#define SCOPED_PTR boost::scoped_ptr
 #endif
 
 namespace {
@@ -75,7 +76,7 @@ namespace {
   boost::mutex randomInstanceMutex;
 #endif // WT_THREADED
 
-  AUTO_PTR<RandomDevice> instance;
+  SCOPED_PTR<RandomDevice> instance;
 }
 
 namespace Wt {
@@ -83,10 +84,10 @@ namespace Wt {
 unsigned int WRandom::get()
 {
 #ifdef USE_NDT_RANDOM_DEVICE
-  if (!instance.get()) {
+  if (!instance) {
 #ifdef WT_THREADED
     boost::mutex::scoped_lock l(randomInstanceMutex);
-    if (!instance.get())
+    if (!instance)
 #endif
       instance.reset(new RandomDevice);
   }

@@ -123,11 +123,17 @@ NestedResource::~WFileDropUploadResource()
 void NestedResource::handleRequest(const Http::Request& request,
 				   Http::Response& response)
 {
+  // In JWt we still have the update lock
 #ifndef WT_TARGET_JAVA
+  /**
+   * Taking the update-lock (rather than posting to the event loop):
+   *   - guarantee that the updates to WFileDropWidget happen immediately, 
+   *     before any application-code is called by the finished upload.
+   *   - only Wt-code is executed within this lock
+   */
   WApplication::UpdateLock lock(WApplication::instance());
-#else
-  WApplication::UpdateLock lock = WApplication::instance()->getUpdateLock();
-#endif
+#endif // WT_TARGET_JAVA
+  
   const std::string *fileId = request.getParameter("file-id");
   if (fileId == 0 || (*fileId).empty()) {
     response.setStatus(404);
@@ -162,9 +168,6 @@ void NestedResource::handleRequest(const Http::Request& request,
   }
 
   response.setMimeType("text/plain"); // else firefox complains
-#ifdef WT_TARGET_JAVA
-  lock.release();
-#endif
 }
 
 

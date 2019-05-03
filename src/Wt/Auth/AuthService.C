@@ -20,9 +20,10 @@
 #include <memory>
 
 #ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
+#define SCOPED_PTR std::unique_ptr
 #else
-#define AUTO_PTR std::auto_ptr
+#include <boost/scoped_ptr.hpp>
+#define SCOPED_PTR boost::scoped_ptr
 #endif
 
 namespace Wt {
@@ -134,6 +135,7 @@ AuthService::AuthService()
     emailVerification_(false),
     emailTokenValidity_(3 * 24 * 60),  // three days
     authTokens_(false),
+    authTokenUpdateEnabled_(true),
     authTokenValidity_(14 * 24 * 60)   // two weeks
 {
   redirectInternalPath_ = "/auth/mail/";
@@ -179,7 +181,7 @@ void AuthService::setAuthTokensEnabled(bool enabled, const std::string& cookieNa
 User AuthService::identifyUser(const Identity& identity,
 			    AbstractUserDatabase& users) const
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction> t(users.startTransaction());
+  SCOPED_PTR<AbstractUserDatabase::Transaction> t(users.startTransaction());
 
   User user = users.findWithIdentity(identity.provider(),
 				     WString::fromUTF8(identity.id()));
@@ -238,7 +240,7 @@ std::string AuthService::createAuthToken(const User& user) const
   if (!user.isValid())
     throw WException("Auth: createAuthToken(): user invalid");
 
-  AUTO_PTR<AbstractUserDatabase::Transaction>
+  SCOPED_PTR<AbstractUserDatabase::Transaction>
     t(user.database()->startTransaction());
 
   std::string random = WRandom::generateId(tokenLength_);
@@ -256,32 +258,38 @@ std::string AuthService::createAuthToken(const User& user) const
 AuthTokenResult AuthService::processAuthToken(const std::string& token,
 					      AbstractUserDatabase& users) const
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction> t(users.startTransaction());
+  SCOPED_PTR<AbstractUserDatabase::Transaction> t(users.startTransaction());
 
   std::string hash = tokenHashFunction()->compute(token, std::string());
 
   User user = users.findWithAuthToken(hash);
 
   if (user.isValid()) {
-    std::string newToken = WRandom::generateId(tokenLength_);
-    std::string newHash = tokenHashFunction()->compute(newToken, std::string());
-    int validity = user.updateAuthToken(hash, newHash);
+    if (authTokenUpdateEnabled_) {
+      std::string newToken = WRandom::generateId(tokenLength_);
+      std::string newHash = tokenHashFunction()->compute(newToken, std::string());
+      int validity = user.updateAuthToken(hash, newHash);
 
-    if (validity < 0) {
-      /*
-       * Old API, this is bad since we always extend the lifetime of the
-       * token.
-       */
-      user.removeAuthToken(hash);
-      newToken = createAuthToken(user);
-      validity = authTokenValidity_ * 60;
+      if (validity < 0) {
+        /*
+         * Old API, this is bad since we always extend the lifetime of the
+         * token.
+         */
+        user.removeAuthToken(hash);
+        newToken = createAuthToken(user);
+        validity = authTokenValidity_ * 60;
+      }
+
+      if (t.get())
+        t->commit();
+
+      return AuthTokenResult(AuthTokenResult::Valid, user, newToken, validity);
+    } else {
+      return AuthTokenResult(AuthTokenResult::Valid, user);
     }
-
-    if (t.get()) t->commit();
-
-    return AuthTokenResult(AuthTokenResult::Valid, user, newToken, validity);
   } else {
-    if (t.get()) t->commit();
+    if (t.get())
+      t->commit();
     
     return AuthTokenResult(AuthTokenResult::Invalid);
   }
@@ -335,7 +343,7 @@ std::string AuthService::parseEmailToken(const std::string& internalPath) const
 EmailTokenResult AuthService::processEmailToken(const std::string& token,
 					     AbstractUserDatabase& users) const
 {
-  AUTO_PTR<AbstractUserDatabase::Transaction> tr(users.startTransaction());
+  SCOPED_PTR<AbstractUserDatabase::Transaction> tr(users.startTransaction());
 
   std::string hash = tokenHashFunction()->compute(token, std::string());
 
