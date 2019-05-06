@@ -2892,7 +2892,7 @@ BOOST_AUTO_TEST_CASE( dbo_test35a )
   {
     dbo::Transaction t(*session_);
 
-    As as = session_->query<Wt::Dbo::ptr<A> >("select a from table_a a where i = 3 union select a from table_a a where i = 5");
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" = 3 union select a from \"table_a\" a where a.\"i\" = 5");
 
     BOOST_REQUIRE(as.size() == 2);
 
@@ -2907,6 +2907,7 @@ BOOST_AUTO_TEST_CASE( dbo_test35a )
 
 BOOST_AUTO_TEST_CASE( dbo_test35b )
 {
+#if !defined(MYSQL) && !defined(FIREBIRD) // MySQL and Firebird don't do INTERSECT
   // Test INTERSECT
   DboFixture f;
   dbo::Session *session_ = f.session_;
@@ -2916,7 +2917,7 @@ BOOST_AUTO_TEST_CASE( dbo_test35b )
   {
     dbo::Transaction t(*session_);
 
-    As as = session_->query<Wt::Dbo::ptr<A> >("select a from table_a a where i > 3 intersect select a from table_a a where i < 5");
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" > 3 intersect select a from \"table_a\" a where a.\"i\" < 5");
 
     BOOST_REQUIRE(as.size() == 1);
 
@@ -2925,10 +2926,12 @@ BOOST_AUTO_TEST_CASE( dbo_test35b )
     ++it;
     BOOST_REQUIRE(it == as.end());
   }
+#endif
 }
 
 BOOST_AUTO_TEST_CASE( dbo_test35c )
 {
+#if !defined(MYSQL) && !defined(FIREBIRD) // MySQL and Firebird don't do EXCEPT
   // Test EXCEPT
   DboFixture f;
   dbo::Session *session_ = f.session_;
@@ -2938,7 +2941,7 @@ BOOST_AUTO_TEST_CASE( dbo_test35c )
   {
     dbo::Transaction t(*session_);
 
-    As as = session_->query<Wt::Dbo::ptr<A> >("select a from table_a a where i >= 3 except select a from table_a a where i = 4");
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" >= 3 except select a from \"table_a\" a where a.\"i\" = 4");
 
     BOOST_REQUIRE(as.size() == 2);
 
@@ -2949,4 +2952,5 @@ BOOST_AUTO_TEST_CASE( dbo_test35c )
     ++it;
     BOOST_REQUIRE(it == as.end());
   }
+#endif
 }
