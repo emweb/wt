@@ -26,19 +26,23 @@ WTableRow::WTableRow()
 WTableRow::~WTableRow()
 { }
 
-std::unique_ptr<WTableCell> WTableRow::createCell(int column)
+std::unique_ptr<WTableCell> WTableRow::createCell(int column, int row)
 {
-  if (table_)
-    return table_->createCell(rowNum(), column);
+  if (table_) {
+    if (-1 == row) {
+      row = rowNum();
+    }
+    return table_->createCell(row, column);
+  }
   else
     return std::unique_ptr<WTableCell>(new WTableCell());
 }
 
-void WTableRow::expand(int numCells)
+void WTableRow::expand(int numCells, int row)
 {
   int cursize = cells_.size();
   for (int col = cursize; col < numCells; ++col) {
-    cells_.push_back(createCell(col));
+    cells_.push_back(createCell(col, row));
     WTableCell *cell = cells_.back().get();
     if (table_)
       table_->widgetAdded(cell);
@@ -47,9 +51,9 @@ void WTableRow::expand(int numCells)
   }
 }
 
-void WTableRow::insertColumn(int column)
+void WTableRow::insertColumn(int column, int row)
 {
-  cells_.insert(cells_.begin() + column, createCell(column));
+  cells_.insert(cells_.begin() + column, createCell(column, row));
   WTableCell *cell = cells_[column].get();
   if (table_)
     table_->widgetAdded(cell);
