@@ -182,7 +182,8 @@ Configuration::Configuration(const std::string& applicationPath,
     runDirectory_(RUNDIR),
     connectorSlashException_(false), // need to use ?_=
     connectorNeedReadBody_(false),
-    connectorWebSockets_(true)
+    connectorWebSockets_(true),
+    defaultEntryPoint_("/")
 {
   reset();
   readConfiguration(false);
@@ -385,6 +386,12 @@ std::string Configuration::sessionIdPrefix() const
   return connectorSessionIdPrefix_;
 }
 
+int Configuration::fullSessionIdLength() const
+{
+  READ_LOCK;
+  return sessionIdLength_ + static_cast<int>(connectorSessionIdPrefix_.size());
+}
+
 bool Configuration::behindReverseProxy() const
 {
   READ_LOCK;
@@ -584,12 +591,6 @@ void Configuration::registerEntryPoint(const EntryPoint &ep)
 {
   const std::string &path = ep.path();
 
-  if (path.empty()) {
-    // special case: set entrypoint to root path segment (matches everything)
-    rootPathSegment_.entryPoint = &ep;
-    return;
-  }
-
   assert(path[0] == '/');
 
   // The PathSegment in the routing tree where this entrypoint will end up
@@ -681,16 +682,7 @@ void Configuration::removeEntryPoint(const std::string& path)
 
 void Configuration::setDefaultEntryPoint(const std::string& path)
 {
-  if (rootPathSegment_.entryPoint) {
-    for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
-      if (&entryPoints_[i] == rootPathSegment_.entryPoint) {
-        rootPathSegment_.entryPoint = nullptr;
-        entryPoints_[i].setPath(path);
-        registerEntryPoint(entryPoints_[i]);
-        return;
-      }
-    }
-  }
+  defaultEntryPoint_ = path;
 }
 
 EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
@@ -1291,7 +1283,7 @@ bool Configuration::registerSessionId(const std::string& oldId,
 std::string Configuration::generateSessionId()
 {
   std::string sessionId = sessionIdPrefix();
-  sessionId += WRandom::generateId(sessionIdLength() - sessionId.length());
+  sessionId += WRandom::generateId(sessionIdLength());
   return sessionId;
 }
 

@@ -47,6 +47,8 @@ WLineEdit::WLineEdit(const WT_USTRING& text)
     spaceChar_(' '),
     javaScriptDefined_(false)
 {
+  setInline(true);
+  setFormObject(true);
   setText(text);
 }
 
@@ -60,7 +62,7 @@ void WLineEdit::setText(const WT_USTRING& text)
     displayContent_ = newDisplayText;
 
     if (isRendered() && !inputMask_.empty()) {
-      doJavaScript("jQuery.data(" + jsRef() + ", 'lobj')"
+      doJavaScript(jsRef() + ".wtLObj"
 	 ".setValue(" + WWebWidget::jsStringLiteral(newDisplayText) + ");");
     }
 
@@ -329,7 +331,7 @@ void WLineEdit::setInputMask(const WT_USTRING &mask,
       std::u32string space;
       space += spaceChar_;
 
-      doJavaScript("jQuery.data(" + jsRef() + ", 'lobj')"
+      doJavaScript(jsRef() + ".wtLObj"
         ".setInputMask(" + WWebWidget::jsStringLiteral(mask_) + "," +
 			   WWebWidget::jsStringLiteral(raw_) +  "," +
 			   WWebWidget::jsStringLiteral(displayContent_) + "," +
@@ -536,8 +538,8 @@ void WLineEdit::connectJavaScript(Wt::EventSignalBase& s,
 {
   std::string jsFunction =
     "function(lobj, event) {"
-    """var o = jQuery.data(" + jsRef() + ", 'lobj');"
-    """if (o) o." + methodName + "(lobj, event);"
+    """var o = " + jsRef() + ";"
+    """if (o && o.wtLObj) o.wtLObj." + methodName + "(lobj, event);"
     "}";
 
   s.connect(jsFunction);

@@ -13,6 +13,8 @@
 #include "Wt/WSignal.h"
 #include "Wt/WString.h"
 
+#include "Wt/Chart/WChartGlobal.h"
+
 namespace Wt {
   namespace Chart {
 
@@ -112,6 +114,16 @@ public:
    * \sa WDataSeries::setMarkerBrush()
    */
   virtual const WColor *markerBrushColor(int row, int column) const;
+
+  /*!\brief Returns the marker type to use for a given row and column.
+   *
+   * This is used as the shape of the marker used when drawing a
+   * PointSeries. The default is null, indicating that the default marker,
+   * as determined by WDataSeries::marker(), should be used.
+   *
+   * \sa WDataSeries::setMarker()
+   */
+  virtual const MarkerType *markerType(int row, int column) const;
 
   /*!\brief Returns the bar pen color to use for a given row and column.
    *

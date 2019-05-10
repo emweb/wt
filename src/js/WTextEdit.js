@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTextEdit",
  function(APP, el) {
-   jQuery.data(el, 'obj', this);
+   el.wtObj = this;
 
    var lastW, lastH;
    var badHeightCount = 0;

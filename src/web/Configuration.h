@@ -197,6 +197,7 @@ public:
   std::string runDirectory() const;
   int sessionIdLength() const;
   std::string sessionIdPrefix() const;
+  int fullSessionIdLength() const; // length of prefix + session id
   int numSessionThreads() const;
 
   bool isAllowedOrigin(const std::string &origin) const;
@@ -242,7 +243,7 @@ public:
   bool registerSessionId(const std::string& oldId, const std::string& newId);
 
   std::string sessionSocketPath(const std::string& sessionId);
-
+  const std::string &defaultEntryPoint() const { return defaultEntryPoint_; }
 private:
   struct BootstrapEntry {
     bool prefix;
@@ -316,6 +317,7 @@ private:
   bool connectorNeedReadBody_;
   bool connectorWebSockets_;
   std::string connectorSessionIdPrefix_;
+  std::string defaultEntryPoint_;
 
   void reset();
   void readApplicationSettings(Wt::rapidxml::xml_node<char> *app);

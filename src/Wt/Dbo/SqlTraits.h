@@ -43,18 +43,80 @@ class SqlStatement;
  *  - <tt>std::vector<unsigned char></tt> (binary data)
  *  - <tt>boost::optional<T></tt>: to make the type optional
  *    (allowing an SQL <tt>null</tt> value)
- *  - <tt>boost::posix_time::ptime</tt>: time stamp, an invalid value (e.g.
- *    default constructed), maps to <tt>null</tt>
- *  - <tt>boost::posix_time::time_duration</tt>: time interval, an invalid
- *    value (boost::posix_time::not_a_date_time), maps to <tt>null</tt>
+ *  - <tt>std::optional<T></tt>: to make the type optional
+ *    (allowing an SQL <tt>null</tt> value, C++17 only)
+ *  - <tt>std::chrono::system_clock::time_point</tt>: time stamp
+ *  - <tt>std::chrono::duration<int, std::milli></tt>: time interval
  *
- * In <Wt/Dbo/WtSqlTraits>, traits classes are also provided for:
+ * In <Wt/Dbo/WtSqlTraits.h>, traits classes are also provided for:
  *  - WDate
  *  - WDateTime
  *  - WTime
  *  - WString
  *  - Json::Object
  *  - Json::Array
+ *
+ * Example for an enum that is saved as a string rather than an int:
+ * \code
+ * enum class Pet {
+ *   Cat,
+ *   Dog,
+ *   Other
+ * };
+ * 
+ * std::string petToString(Pet p) {
+ *   switch (p) {
+ *   case Pet::Cat:
+ *     return "cat";
+ *   case Pet::Dog:
+ *     return "dog";
+ *   case Pet::Other:
+ *     return "other";
+ *   }
+ *   throw std::invalid_argument("Unknown pet type: " + std::to_string(static_cast<int>(p)));
+ * }
+ * 
+ * Pet petFromString(const std::string &s) {
+ *   if (s == "cat")
+ *     return Pet::Cat;
+ *   else if (s == "dog")
+ *     return Pet::Dog;
+ *   else if (s == "other")
+ *     return Pet::Other;
+ *   else
+ *     throw std::invalid_argument("Unknown pet type: " + s);
+ * }
+ *
+ * namespace Wt {
+ * namespace Dbo {
+ *
+ * template<>
+ * struct sql_value_traits<Pet>
+ * {
+ *   static std::string type(SqlConnection *conn, int size)
+ *   {
+ *     return sql_value_traits<std::string>::type(conn, size);
+ *   }
+
+ *   static void bind(Pet p, SqlStatement *statement, int column, int size)
+ *   {
+ *     statement->bind(column, petToString(p));
+ *   }
+
+ *   static bool read(Pet &p, SqlStatement *statement, int column, int size)
+ *   {
+ *     std::string s;
+ *     bool result = statement->getResult(column, &s, size);
+ *     if (!result)
+ *       return false;
+ *     p = petFromString(s);
+ *     return true;
+ *   }
+ * };
+ *
+ * } // Dbo
+ * } // Wt
+ * \endcode
  *
  * \sa query_result_traits
  *
@@ -115,8 +177,8 @@ enum FieldFlags {
   ForeignKey = 0x20, //!< Field is (part of) a foreign key
   FirstDboField = 0x40,
   LiteralJoinId = 0x80,
-  AuxId = 0x81,
-  AliasedName = 0x100 // there is an AS in the field, so the name is aliased
+  AuxId = 0x100,
+  AliasedName = 0x200 // there is an AS in the field, so the name is aliased
 };
 
 /*! \class FieldInfo Wt/Dbo/SqlTraits.h Wt/Dbo/SqlTraits.h
@@ -170,7 +232,7 @@ public:
    */
   bool isNaturalIdField() const { return (flags_ & NaturalId) != 0; }
 
-  /*! \brief Returns whether the field is a Surroaget Id field.
+  /*! \brief Returns whether the field is a Surrogate Id field.
    */
   bool isSurrogateIdField() const { return flags_ & SurrogateId; }
 

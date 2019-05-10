@@ -43,7 +43,7 @@ WT_DECLARE_WT_MEMBER_BIG
   //
   function(APP, widget, target, config) {
 
-    jQuery.data(widget, 'cobj', this);
+    widget.wtCObj = this;
 
     var self = this;
     var WT = APP.WT;
@@ -235,7 +235,7 @@ WT_DECLARE_WT_MEMBER_BIG
 
     // eobj2: an object to hold the context menu listener, that simply prevents the default behaviour,
     //        so that a long press in order to select a series is not interpreted as a right click
-    var eobj2 = jQuery.data(widget, 'eobj2');
+    var eobj2 = widget.wtEObj2;
     if (!eobj2) {
       eobj2 = {};
       eobj2.contextmenuListener = function(e) {
@@ -243,7 +243,7 @@ WT_DECLARE_WT_MEMBER_BIG
         removeEventListener('contextmenu', eobj2.contextmenuListener);
       };
     }
-    jQuery.data(widget, 'eobj2', eobj2);
+    widget.wtEObj2 = eobj2;
 
     var touchHandlers = {};
 
@@ -304,7 +304,7 @@ WT_DECLARE_WT_MEMBER_BIG
 
         // eobj: an object for holding the handlers so we can properly register/unregister them,
         //       even when the chart gets updated
-        var o = jQuery.data(widget, 'eobj');
+        var o = widget.wtEObj;
         if (o) {
           if (!window.PointerEvent) {
             removeEventListener('MSPointerDown', o.pointerDown);
@@ -318,11 +318,11 @@ WT_DECLARE_WT_MEMBER_BIG
             removeEventListener('pointermove', o.pointerMove);
           }
         }
-        jQuery.data(widget, 'eobj', {
+        widget.wtEObj = {
           pointerDown: pointerDown,
           pointerUp: pointerUp,
           pointerMove: pointerMove
-        });
+        };
         if (!window.PointerEvent) {
           addEventListener('MSPointerDown', pointerDown);
           addEventListener('MSPointerUp', pointerUp);
@@ -338,7 +338,7 @@ WT_DECLARE_WT_MEMBER_BIG
     }
 
     // oobj: the <canvas> for drawing the crosshair
-    var overlay = jQuery.data(widget, 'oobj');
+    var overlay = widget.wtOObj;
 
     var crosshair = null;
 
@@ -358,10 +358,10 @@ WT_DECLARE_WT_MEMBER_BIG
     var seriesSelectionTimeout = null;
     var lastDate = null;
 
-    var tobj = jQuery.data(widget, 'tobj');
+    var tobj = widget.wtTObj;
     if (!tobj) {
       tobj = {overTooltip:false};
-      jQuery.data(widget, 'tobj', tobj);
+      widget.wtTObj = tobj;
     }
 
     function hideTooltip() {
@@ -750,7 +750,7 @@ WT_DECLARE_WT_MEMBER_BIG
             dy = c.y - dragPreviousXY.y;
           }
           assign(seriesTransform(curve),
-              mult([1,0,0,1,0,dy / yTransform(seriesAxis(seriesNb))[3]],
+              mult([1,0,0,1,0,dy / yTransform(seriesAxis(configSelectedCurve()))[3]],
                 seriesTransform(curve)));
           repaint();
         } else if (config.pan) {
@@ -775,7 +775,7 @@ WT_DECLARE_WT_MEMBER_BIG
       if (showCrosshair() && (isUndefined(overlay) || target.canvas.width !== overlay.width || target.canvas.height !== overlay.height)) {
         if (overlay) {
           overlay.parentNode.removeChild(overlay);
-          jQuery.removeData(widget, 'oobj');
+          delete widget.wtOObj;
           overlay = undefined;
         }
         var c = document.createElement("canvas");
@@ -791,11 +791,11 @@ WT_DECLARE_WT_MEMBER_BIG
         }
         target.canvas.parentNode.appendChild(c);
         overlay = c;
-        jQuery.data(widget, 'oobj', overlay);
+        widget.wtOObj = overlay;
       } else if (!isUndefined(overlay) && !showCrosshair()) {
         // If the mouse handler is not reinitialized, we don't actually get here!
         overlay.parentNode.removeChild(overlay);
-        jQuery.removeData(widget, 'oobj');
+        delete widget.wtOObj;
         overlay = undefined;
       }
 

@@ -6,6 +6,7 @@
 #include "Query.h"
 #include "Query_impl.h"
 #include "SqlTraits.h"
+#include "StdSqlTraits.h"
 #include "ptr.h"
 
 #include <string>
@@ -128,6 +129,7 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
   return result;
 }
 std::string completeQuerySelectSql(const std::string& sql,
+				   const std::string& join,
 				   const std::string& where,
 				   const std::string& groupBy,
 				   const std::string& having,
@@ -136,7 +138,7 @@ std::string completeQuerySelectSql(const std::string& sql,
 				   const std::vector<FieldInfo>& fields,
 				   LimitQuery limitQueryMethod)
 {
-  std::string result = sql;
+  std::string result = sql + join;
 
   if (!where.empty())
     result += " where " + where;
@@ -154,6 +156,7 @@ std::string completeQuerySelectSql(const std::string& sql,
 }
 
 std::string createQuerySelectSql(const std::string& from,
+				 const std::string& join,
 				 const std::string& where,
 				 const std::string& groupBy,
 				 const std::string& having,
@@ -162,7 +165,7 @@ std::string createQuerySelectSql(const std::string& from,
 				 const std::vector<FieldInfo>& fields,
 				 LimitQuery limitQueryMethod)
 {
-  std::string result = "select " + selectColumns(fields) + ' ' + from;
+  std::string result = "select " + selectColumns(fields) + ' ' + from + join;
 
   if (!where.empty())
     result += " where " + where;
@@ -191,7 +194,7 @@ std::string createQueryCountSql(const std::string& query,
 void substituteFields(const SelectFieldList& list,
 		      const std::vector<FieldInfo>& fs,
 		      std::string& sql,
-		      int offset)
+                      int& offset)
 {
   for (unsigned i = 0, j = 0; j < list.size(); ++j) {
     if (fs[i].isFirstDboField()) {
@@ -230,6 +233,198 @@ void substituteFields(const SelectFieldList& list,
 }
 
     }
+
+AbstractQuery& AbstractQuery::join(const std::string& other)
+{
+  join_ += " join " + other;
+
+  return *this;
+}
+
+AbstractQuery& AbstractQuery::leftJoin(const std::string& other)
+{
+  join_ += " left join " + other;
+
+  return *this;
+}
+
+AbstractQuery& AbstractQuery::rightJoin(const std::string& other)
+{
+  join_ += " right join " + other;
+
+  return *this;
+}
+
+AbstractQuery& AbstractQuery::where(const std::string& where)
+{
+  if (!where.empty()) {
+    if (!where_.empty())
+      where_ += " and ";
+
+    where_ += "(" + where + ")";
+  }
+
+  return *this;
+}
+
+AbstractQuery& AbstractQuery::orderBy(const std::string& orderBy)
+{
+  orderBy_ = orderBy;
+
+  return *this;
+}
+
+AbstractQuery& AbstractQuery::groupBy(const std::string& groupBy)
+{
+  groupBy_ = groupBy;
+
+  return *this;
+}
+
+AbstractQuery& AbstractQuery::having(const std::string& having)
+{
+  if (!having.empty()) {
+    if (!having_.empty())
+      having_ += " and ";
+
+    having_ += "(" + having + ")";
+  }
+
+  return *this;
+}
+
+AbstractQuery& AbstractQuery::offset(int offset)
+{
+  offset_ = offset;
+
+  return *this;
+}
+
+int AbstractQuery::offset() const
+{
+  return offset_;
+}
+
+AbstractQuery& AbstractQuery::limit(int limit)
+{
+  limit_ = limit;
+
+  return *this;
+}
+
+int AbstractQuery::limit() const
+{
+  return limit_;
+}
+
+void AbstractQuery::reset()
+{
+  for (unsigned i = 0; i < parameters_.size(); ++i)
+    delete parameters_[i];
+
+  parameters_.clear();
+}
+
+AbstractQuery::AbstractQuery()
+  : limit_(-1),
+    offset_(-1)
+{ }
+
+AbstractQuery::~AbstractQuery()
+{ }
+
+AbstractQuery::AbstractQuery(const AbstractQuery& other)
+  : where_(other.where_),
+    groupBy_(other.groupBy_),
+    having_(other.having_),
+    orderBy_(other.orderBy_),
+    limit_(other.limit_),
+    offset_(other.offset_)
+{
+  for (unsigned i = 0; i < other.parameters_.size(); ++i)
+    parameters_.push_back(other.parameters_[i]->clone());
+}
+
+AbstractQuery& AbstractQuery::operator=(const AbstractQuery& other)
+{
+  where_ = other.where_;
+  groupBy_ = other.groupBy_;
+  having_ = other.having_;
+  orderBy_ = other.orderBy_;
+  limit_ = other.limit_;
+  offset_ = other.offset_;
+
+  reset();
+
+  for (unsigned i = 0; i < other.parameters_.size(); ++i)
+    parameters_.push_back(other.parameters_[i]->clone());
+
+  return *this;
+}
+
+void AbstractQuery::bindParameters(Session *session, SqlStatement *statement) const
+{
+  SaveBaseAction binder(session, statement, 0);
+
+  for (unsigned i = 0; i < parameters_.size(); ++i)
+    parameters_[i]->bind(binder);
+
+  switch (session->limitQueryMethod_) {
+  case LimitQuery::Limit:
+    if (limit_ != -1) {
+      int v = limit_;
+      field(binder, v, "limit");
+    }
+
+    if (offset_ != -1) {
+      int v = offset_;
+      field(binder, v, "offset");
+    }
+
+    break;
+
+  case LimitQuery::RowsFromTo:
+    if (limit_ != -1 || offset_ != -1) {
+      int from = offset_ == -1 ? 1 : offset_ + 1;
+      field(binder, from, "from");
+
+      int to = (limit_ == -1) ? (1 << 30) : (from + limit_ - 1);
+      field(binder, to, "to");
+    }
+
+    break;
+
+  case LimitQuery::Rownum:
+    if (limit_ != -1){
+      int v = limit_;
+      field(binder, v, "rownum");
+    }
+
+    if (offset_ != -1){
+      int v = offset_;
+      field(binder, v, "rownum2");
+    }
+
+    break;
+
+  case LimitQuery::OffsetFetch:
+    if (offset_ != -1) {
+      int v = offset_;
+      field(binder, v, "offset");
+    }
+
+    if (limit_ != -1) {
+      int v = limit_;
+      field(binder, v, "limit");
+    }
+
+    break;
+
+  case LimitQuery::NotSupported:
+    break;
+  }
+}
+
   }
 }
 

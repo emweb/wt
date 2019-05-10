@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WStackedWidget",
  function (APP, widget) {
-  jQuery.data(widget, 'obj', this);
+  widget.wtObj = this;
 
   var WT = APP.WT, scrollTops = [], scrollLefts = [],
     lastResizeWidth = null, lastResizeHeight = null;
@@ -242,6 +242,11 @@ WT_DECLARE_WT_MEMBER
        to.style.left = '';
        to.style.width = '';
        to.style.top = '';
+       if (!stack.lh) { // stack has no layout-set height
+	 if (!to.lh)    // child has no layout-set height (by itself)
+	   to.style.height = '';
+       } else
+	 to.lh = true;  // height was set before animation
 
        if (WT.isGecko && (effects & Fade))
          to.style.opacity = '1';
@@ -252,6 +257,13 @@ WT_DECLARE_WT_MEMBER
      function restoreFrom() {
        $from.removeClass(anim + ' out');
        from.style.display = 'none';
+       if (stack.lh) { // stack has a layout-set height
+	 if (to.lh) { // child had a layout-set height
+	   to.style.height = '';
+	   to.lh = false;
+	 }
+       }
+	 
        from.style[WT.styleAttribute('animation-duration')] = '';
        from.style[WT.styleAttribute('animation-timing-function')] = '';
      }
@@ -295,6 +307,7 @@ WT_DECLARE_WT_MEMBER
 
      to.style.left = from.style.left || WT.px(stack, 'paddingLeft');
      to.style.top = from.style.top || WT.px(stack, 'paddingTop');
+
      to.style.width = w + 'px';
      to.style.height = h + 'px';
      to.style.position = 'absolute';

@@ -116,7 +116,7 @@ public:
    * Returns if the pointer does not point to \c null and the pointed
    * object isn't deleted.
    */
-  operator bool() const noexcept;
+  explicit operator bool() const noexcept;
 
   /*! \brief Returns whether the observed object has been deleted.
    *

@@ -128,7 +128,7 @@ public:
    * \link WString::literal() literal text\endlink is used, the path
    * is based on the text itself, otherwise on the \link
    * WString::key() key\endlink. It is converted to lower case, and
-   * replacing StandardColor::White space and special characters with '_'.
+   * replacing whitespace and special characters with '_'.
    *
    * \sa setText(), WMenu::setInternalPathEnabled()
    *

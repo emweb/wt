@@ -14,7 +14,7 @@ namespace Wt {
 /*
  * Wraps a WebSocket message as a web request.
  */
-class WT_API WebSocketMessage final : public WebRequest
+class WT_API WebSocketMessage final : public WebResponse
 {
 public:
   WebSocketMessage(WebSession *session);

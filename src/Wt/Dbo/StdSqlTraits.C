@@ -235,12 +235,7 @@ bool sql_value_traits<std::chrono::system_clock::time_point>
 ::read(std::chrono::system_clock::time_point& v, SqlStatement *statement, int column,
        int size)
 {
-  if (statement->getResult(column, &v, SqlDateTimeType::DateTime))
-    return true;
-  else {
-    v = std::chrono::system_clock::time_point();
-    return false;
-  }
+  return statement->getResult(column, &v, SqlDateTimeType::DateTime);
 }
 
   /*
@@ -257,22 +252,14 @@ void sql_value_traits<std::chrono::duration<int, std::milli>>
 ::bind(const std::chrono::duration<int, std::milli>& v, SqlStatement *statement,
        int column, int size)
 {
-  if(v == std::chrono::duration<int, std::milli>::zero())
-    statement->bindNull(column);
-  else
-    statement->bind(column, v);
+  statement->bind(column, v);
 }
 
 bool sql_value_traits<std::chrono::duration<int, std::milli>>
 ::read(std::chrono::duration<int, std::milli>& v, SqlStatement *statement,
        int column, int size)
 {
-  if (statement->getResult(column, &v))
-    return true;
-  else {
-    v = std::chrono::duration<int, std::milli>::zero();
-    return false;
-  }
+  return statement->getResult(column, &v);
 }
 
    /*

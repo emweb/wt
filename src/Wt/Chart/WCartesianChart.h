@@ -1849,6 +1849,9 @@ private:
   WRectF insideChartArea() const;
   int calcAxisSize(const WAxis &axis, WPaintDevice *device) const;
   void defineJavaScript();
+  void drawMarker(const WDataSeries &series,
+                  MarkerType marker,
+                  WPainterPath &result) const;
 
   bool axisSliderWidgetForSeries(WDataSeries *series) const;
 

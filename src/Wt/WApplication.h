@@ -1312,7 +1312,7 @@ public:
      * finalizer/destructor has run to notify helper threads that the
      * application is destroyed).
      */
-    operator bool() const { return ok_; }
+    explicit operator bool() const { return ok_; }
 
     /*! \brief Releases the lock.
      */

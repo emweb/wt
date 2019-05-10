@@ -128,6 +128,7 @@ AuthService::AuthService()
     emailVerification_(false),
     emailTokenValidity_(3 * 24 * 60),  // three days
     authTokens_(false),
+    authTokenUpdateEnabled_(true),
     authTokenValidity_(14 * 24 * 60)   // two weeks
 {
   redirectInternalPath_ = "/auth/mail/";
@@ -254,26 +255,31 @@ AuthTokenResult AuthService::processAuthToken(const std::string& token,
   User user = users.findWithAuthToken(hash);
 
   if (user.isValid()) {
-    std::string newToken = WRandom::generateId(tokenLength_);
-    std::string newHash = tokenHashFunction()->compute(newToken, std::string());
-    int validity = user.updateAuthToken(hash, newHash);
+    if (authTokenUpdateEnabled_) {
+      std::string newToken = WRandom::generateId(tokenLength_);
+      std::string newHash = tokenHashFunction()->compute(newToken, std::string());
+      int validity = user.updateAuthToken(hash, newHash);
 
-    if (validity < 0) {
-      /*
-       * Old API, this is bad since we always extend the lifetime of the
-       * token.
-       */
-      user.removeAuthToken(hash);
-      newToken = createAuthToken(user);
-      validity = authTokenValidity_ * 60;
+      if (validity < 0) {
+        /*
+         * Old API, this is bad since we always extend the lifetime of the
+         * token.
+         */
+        user.removeAuthToken(hash);
+        newToken = createAuthToken(user);
+        validity = authTokenValidity_ * 60;
+      }
+
+      if (t.get())
+        t->commit();
+
+      return AuthTokenResult(AuthTokenState::Valid, user, newToken, validity);
+    } else {
+      return AuthTokenResult(AuthTokenState::Valid, user);
     }
-
-    if (t.get()) t->commit();
-
-    return AuthTokenResult(AuthTokenState::Valid, 
-			   user, newToken, validity);
   } else {
-    if (t.get()) t->commit();
+    if (t.get())
+      t->commit();
     
     return AuthTokenResult(AuthTokenState::Invalid);
   }

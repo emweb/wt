@@ -224,8 +224,6 @@ public:
    *
    * This setting only affects a https request: it configures a certificate
    * file to be used to verify the identity of the server.
-   *
-   * \note Certificate verification does not work reliably yet.
    */
   void setSslVerifyFile(const std::string& verifyFile);
 
@@ -234,8 +232,6 @@ public:
    * This setting only affects a https request: it configures a
    * directory containing certificates to be used to verify the
    * identity of the server.
-   *
-   * \note Certificate verification does not work reliably yet.
    */
   void setSslVerifyPath(const std::string& verifyPath);
 
@@ -272,6 +268,40 @@ public:
    * \sa request(), done()
    */
   bool get(const std::string& url, const std::vector<Message::Header> headers);
+
+  /*! \brief Starts a HEAD request.
+   *
+   * The function starts an asynchronous HEAD request, and returns
+   * immediately.
+   *
+   * The function returns \c true when the HEAD request has been
+   * scheduled, and thus done() will be emitted eventually.
+   *
+   * The function returns \c false if the client could not schedule
+   * the request, for example if the \p url is invalid or if the %URL
+   * scheme is not supported.
+   *
+   * \sa request(), done()
+   */
+  bool head(const std::string &url);
+
+  /*! \brief Starts a HEAD request.
+   *
+   * The function starts an asynchronous HEAD request, and returns
+   * immediately.
+   *
+   * The function returns \c true when the HEAD request has been
+   * scheduled, and thus done() will be emitted eventually.
+   *
+   * The function returns \c false if the client could not schedule
+   * the request, for example if the \p url is invalid or if the %URL
+   * scheme is not supported.
+   *
+   * This function accepts one or more headers.
+   *
+   * \sa request(), done()
+   */
+  bool head(const std::string &url, const std::vector<Message::Header> headers);
 
   /*! \brief Starts a POST request.
    *

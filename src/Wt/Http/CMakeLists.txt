@@ -1,16 +1,3 @@
-IF(INSTALL_EXTENSIONLESS_HEADERS)
-  INSTALL(FILES
-    Client
-    Message
-    Method
-    Request
-    Response
-    ResponseContinuation
-    WtClient
-    DESTINATION include/Wt/Http
-  )
-ENDIF(INSTALL_EXTENSIONLESS_HEADERS)
-
 INSTALL(FILES
   Client.h
   Message.h

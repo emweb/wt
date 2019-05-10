@@ -54,7 +54,7 @@ void WPopupWidget::setTransient(bool isTransient, int autoHideDelay)
   autoHideDelay_ = autoHideDelay;
   if (isRendered()) {
     WStringStream ss;
-    ss << "jQuery.data(" << jsRef() << ", 'popup').setTransient("
+    ss << jsRef() << ".wtPopup.setTransient("
        << transient_ << ',' << autoHideDelay_ << ");";
     doJavaScript(ss.str());
   }
@@ -82,11 +82,11 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
 
   if (!WWebWidget::canOptimizeUpdates() || isRendered()) {
     if (hidden)
-      doJavaScript("var o = jQuery.data(" + jsRef() + ", 'popup');"
-		   "if (o) o.hidden();");
+      doJavaScript("var o = " + jsRef() + ";"
+		   "if (o && o.wtPopup) o.wtPopup.hidden();");
     else
-      doJavaScript("var o = jQuery.data(" + jsRef() + ", 'popup');"
-		   "if (o) o.shown();");
+      doJavaScript("var o = " + jsRef() + ";"
+		   "if (o && o.wtPopup) o.wtPopup.shown();");
   }
 }
 

@@ -29,7 +29,7 @@ namespace Wt {
  *
  * Usage examples:
  * \code
- * auto imageResource = std::make_unique<Wt::WMemoryResource>("image/gif");
+ * auto imageResource = std::make_shared<Wt::WMemoryResource>("image/gif");
  *
  * static const unsigned char gifData[]
  *    = { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00,
@@ -39,7 +39,7 @@ namespace Wt {
  *        0x01, 0x00, 0x3b };
  *
  * imageResource->setData(gifData, 43);
- * auto image = std::make_unique<Wt::WImage>(imageResource.get(), "1 transparent pixel");
+ * auto image = std::make_unique<Wt::WImage>(Wt::WLink(imageResource), "1 transparent pixel");
  * \endcode
  *
  * \sa WFileResource.

@@ -1731,7 +1731,7 @@ void WAbstractGridData::paintGLIndex(unsigned index, double marginX, double marg
 
     // Encoding the index as a color value.
     //
-    // Since StandardColor::White is the clear color of the index texture,
+    // Since white is the clear color of the index texture,
     // this allows for 16777215 meshes. That should be enough,
     // or is even a tad excessive.
     float r = ((index >> 16) & 0xff) / 255.0f;
@@ -1808,27 +1808,27 @@ void WAbstractGridData::setChart(WCartesian3DChart *chart)
   minPtChanged_ = true;
   maxPtChanged_ = true;
   changeClippingMinX_.setJavaScript("function(o,e,pos) {"
-      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      "var obj = " + chart_->jsRef() + ".wtObj;" +
       jsMinPt_.jsRef() + "[0] = pos;" +
       chart->repaintSlot().execJs() + " }", 1);
   changeClippingMaxX_.setJavaScript("function(o,e,pos) {"
-      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      "var obj = " + chart_->jsRef() + ".wtObj;" +
       jsMaxPt_.jsRef() + "[0] = pos;" +
       chart->repaintSlot().execJs() + " }", 1);
   changeClippingMinY_.setJavaScript("function(o,e,pos) {"
-      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      "var obj = " + chart_->jsRef() + ".wtObj;" +
       jsMinPt_.jsRef() + "[1] = pos;" +
       chart->repaintSlot().execJs() + " }", 1);
   changeClippingMaxY_.setJavaScript("function(o,e,pos) {"
-      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      "var obj = " + chart_->jsRef() + ".wtObj;" +
       jsMaxPt_.jsRef() + "[1] = pos;" +
       chart->repaintSlot().execJs() + " }", 1);
   changeClippingMinZ_.setJavaScript("function(o,e,pos) {"
-      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      "var obj = " + chart_->jsRef() + ".wtObj;" +
       jsMinPt_.jsRef() + "[2] = pos;" +
       chart->repaintSlot().execJs() + " }", 1);
   changeClippingMaxZ_.setJavaScript("function(o,e,pos) {"
-      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      "var obj = " + chart_->jsRef() + ".wtObj;" +
       jsMaxPt_.jsRef() + "[2] = pos;" +
       chart->repaintSlot().execJs() + " }", 1);
 }

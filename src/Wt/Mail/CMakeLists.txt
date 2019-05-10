@@ -1,5 +1,1 @@
-IF(INSTALL_EXTENSIONLESS_HEADERS)
-  INSTALL_FILES(/include/Wt/Mail "^[^.]+([.][^C~])?$")
-ELSE(INSTALL_EXTENSIONLESS_HEADERS)
-  INSTALL_FILES(/include/Wt/Mail "^[^.]+[.]h$")
-ENDIF(INSTALL_EXTENSIONLESS_HEADERS)
+INSTALL_FILES(/include/Wt/Mail "^[^.]+[.]h$")

@@ -343,8 +343,7 @@ void WWebWidget::widgetRemoved(WWidget *child, bool renderRemove)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(child->webWidget(), true);
 
-  if (otherImpl_)
-    otherImpl_->childrenChanged_.emit();
+  emitChildrenChanged();
 }
 
 Signal<>& WWebWidget::childrenChanged()
@@ -1197,8 +1196,7 @@ void WWebWidget::widgetAdded(WWidget *child)
     transientImpl_.reset(new TransientImpl());
   ++transientImpl_->addedChildren_;
 
-  if (otherImpl_)
-    otherImpl_->childrenChanged_.emit();
+  emitChildrenChanged();
 }
 
 std::vector<WWidget *> WWebWidget::children() const
@@ -1759,7 +1757,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	}
 	element.callJavaScript("$('#" + id() + "').removeClass('Wt-hidden');");
 	element.setProperty(Property::StyleVisibility, "visible");
-	element.setProperty(Property::StyleDisplay, ""); // XXX
       }
     }
   }
@@ -2213,6 +2210,7 @@ WWidget *WWebWidget::findById(const std::string& id)
     return this;
   else {
     WWidget *result[1];
+    result[0] = nullptr;
     iterateChildren
       ([&](WWidget *c) {
 	if (!result[0])
@@ -2787,6 +2785,13 @@ void WWebWidget::setBaseZIndex(int zIndex)
     layoutImpl_.reset(new LayoutImpl());
 
   layoutImpl_->baseZIndex_ = zIndex;
+}
+
+void WWebWidget::emitChildrenChanged()
+{
+  if (!flags_.test(BIT_BEING_DELETED) && otherImpl_) {
+    otherImpl_->childrenChanged_.emit();
+  }
 }
 
 }

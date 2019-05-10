@@ -123,6 +123,9 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 
   impl_->serverConfiguration_->setOptions(argc, argv,
 					  serverConfigurationFile);
+
+  configuration().setDefaultEntryPoint(impl_->serverConfiguration_
+                                       ->deployPath());
 }
 
 bool WServer::start()
@@ -151,9 +154,6 @@ bool WServer::start()
   if (!impl_->serverConfiguration_->sessionIdPrefix().empty())
     configuration().setSessionIdPrefix(impl_->serverConfiguration_
 				       ->sessionIdPrefix());
-
-  configuration().setDefaultEntryPoint(impl_->serverConfiguration_
-				       ->deployPath());
 
   if (impl_->serverConfiguration_->threads() != -1)
     configuration().setNumThreads(impl_->serverConfiguration_->threads());

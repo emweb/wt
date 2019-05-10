@@ -646,16 +646,6 @@
               -->
 	    <property name="resourcesURL">resources/</property>
 
-	    <!-- extBaseURL property
-
-               Used in conjunction with Ext:: widgets, and points to the
-	       URL of Ext JavaScript and resource files (css, images).
-	       See the documentation for the Ext namespace for details.
-
-	       The default value is 'ext/'
-              -->
-	    <property name="extBaseURL">ext/</property>
-
 	    <!-- favicon property
 
 	       By default, a browser will try to fetch a /favicon.ico icon

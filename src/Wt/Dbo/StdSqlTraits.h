@@ -18,6 +18,12 @@ namespace boost {
   template<typename T> class optional;
 }
 
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+#include <optional>
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
+
 namespace Wt {
   namespace Dbo {
 
@@ -188,6 +194,45 @@ struct sql_value_traits<boost::optional<T>, void>
     }
   }
 };
+
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+template<typename T>
+struct sql_value_traits<std::optional<T>, void>
+{
+  static const bool specialized = true;
+
+  static std::string type(SqlConnection *conn, int size) {
+    std::string nested = sql_value_traits<T>::type(conn, size);
+    if (nested.length() > 9
+        && nested.substr(nested.length() - 9) == " not null")
+      return nested.substr(0, nested.length() - 9);
+    else
+      return nested;
+  }
+
+  static void bind(const std::optional<T>& v,
+                   SqlStatement *statement, int column, int size) {
+    if (v)
+      sql_value_traits<T>::bind(*v, statement, column, size);
+    else
+      statement->bindNull(column);
+  }
+
+  static bool read(std::optional<T>& v, SqlStatement *statement, int column,
+                   int size) {
+    T result;
+    if (sql_value_traits<T>::read(result, statement, column, size)) {
+      v = result;
+      return true;
+    } else {
+      v = std::nullopt;
+      return false;
+    }
+  }
+};
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
 
   }
 }

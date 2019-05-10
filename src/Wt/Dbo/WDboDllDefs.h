@@ -41,4 +41,32 @@
   #endif
 #endif
 
+#ifndef WT_CXX14
+
+#if __cplusplus >= 201402L || _MSVC_LANG >= 201402L
+#define WT_CXX14
+#endif
+
+#ifdef WT_CXX14
+#define WT_CXX14ONLY(x) x
+#else
+#define WT_CXX14ONLY(x)
+#endif
+
+#endif // end outer ifndef WT_CXX14
+
+#ifndef WT_CXX17
+
+#if (__cplusplus >= 201703L) || (defined(_MSVC_LANG) && (_MSVC_LANG >= 201703L) && (_MSC_VER >= 1913))
+#define WT_CXX17
+#endif
+
+#ifdef WT_CXX17
+#define WT_CXX17ONLY(x) x
+#else
+#define WT_CXX17ONLY(x)
+#endif
+
+#endif // end outer ifndef WT_CXX17
+
 #endif // DLLDEFS_H_

@@ -39,7 +39,7 @@ WFlags<ItemFlag> WAbstractChartModel::flags(int row, int column) const
 
 WLink *WAbstractChartModel::link(int row, int column) const
 {
-  return 0;
+  return nullptr;
 }
 
 const WColor *WAbstractChartModel::markerPenColor(int row, int column) const
@@ -48,6 +48,11 @@ const WColor *WAbstractChartModel::markerPenColor(int row, int column) const
 }
 
 const WColor *WAbstractChartModel::markerBrushColor(int row, int column) const
+{
+  return nullptr;
+}
+
+const MarkerType *WAbstractChartModel::markerType(int row, int column) const
 {
   return nullptr;
 }

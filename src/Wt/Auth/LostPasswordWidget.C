@@ -50,6 +50,7 @@ void LostPasswordWidget::send()
   baseAuth_.lostPassword(email->valueText().toUTF8(), users_);
 
   cancel();
+  // AFTER THIS CANCEL "this" IS DELETED, I.E. NOT VALID ANYMORE!
 
   std::unique_ptr<WMessageBox> box
     (new WMessageBox(tr("Wt.Auth.lost-password"), tr("Wt.Auth.mail-sent"),
@@ -57,7 +58,7 @@ void LostPasswordWidget::send()
   box->show();
 
   WMessageBox *const boxPtr = box.get();
-  box->buttonClicked().connect(this, std::bind(&LostPasswordWidget::deleteBox, this, boxPtr));
+  box->buttonClicked().connect(nullptr, std::bind(&LostPasswordWidget::deleteBox, boxPtr));
   WApplication::instance()->addChild(std::move(box));
 }
 
@@ -66,7 +67,7 @@ void LostPasswordWidget::cancel()
   removeFromParent();
 }
 
-void LostPasswordWidget::deleteBox(Wt::WMessageBox *box) const
+void LostPasswordWidget::deleteBox(Wt::WMessageBox *box)
 {
   Wt::WApplication::instance()->removeChild(box);
 }

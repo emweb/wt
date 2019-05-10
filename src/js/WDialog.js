@@ -10,7 +10,7 @@ WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WDialog",
  function(APP, el, titlebar, movable, centerX, centerY, movedSignal, resizedSignal, zIndexChangedSignal)
  {
-   jQuery.data(el, 'obj', this);
+   el.wtObj = this;
 
    var self = this;
    var layoutContainer = $(el).find(".dialog-layout").get(0);
@@ -106,7 +106,7 @@ WT_DECLARE_WT_MEMBER
      if (pctMaxWidth !== 0) {
        var ws = WT.windowSize();
        
-       var layout = jQuery.data(layoutContainer.firstChild, 'layout');
+       var layout = layoutContainer.firstChild.wtLayout;
        if (layout && layout.setMaxSize) {
 	 layout.setMaxSize(ws.x * pctMaxWidth / 100,
 			   ws.y * pctMaxHeight / 100);
@@ -263,7 +263,7 @@ WT_DECLARE_WT_MEMBER
      resizeBusy = !done;
      wtResize(el, w, h, true);
 
-     var layout = jQuery.data(layoutContainer.firstChild, 'layout');
+     var layout = layoutContainer.firstChild.wtLayout;
      if (layout && layout.setMaxSize)
         layout.setMaxSize(0, 0);
 

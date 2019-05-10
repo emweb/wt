@@ -40,10 +40,10 @@ namespace Wt {
   
 unsigned int WRandom::get()
 {
-  if (!instance.get()) {
+  if (!instance) {
 #ifdef WT_THREADED
     std::unique_lock<std::mutex> l(randomInstanceMutex);
-    if (!instance.get())
+    if (!instance)
       instance.reset(new RandomDevice);
 #else
     instance.reset(new RandomDevice);

@@ -28,9 +28,6 @@ namespace Wt {
  * from the browser, if possible, and message resources are deduced
  * based on that. All other parameters have to be configured.
  *
- * We plan to leverage the C++ std::locale to deduce these parameters,
- * but this is currently not implemented.
- *
  * \sa WApplication::locale()
  */
 class WT_API WLocale

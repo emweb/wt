@@ -3,11 +3,22 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <Wt/WConfig.h>
+
+#ifdef WT_WITH_SSL
+#ifdef WT_WIN32
+#include <Wt/AsioWrapper/ssl.hpp>
+#endif // WT_WIN32
+#endif // WT_WITH_SSL
 
 #include "SslUtils.h"
 
 #ifdef WT_WITH_SSL
 #include <openssl/ssl.h>
+
+#ifdef WT_WIN32
+#include <wincrypt.h>
+#endif // WT_WIN32
 #endif //WT_WITH_SSL
 
 #ifdef WT_WITH_SSL
@@ -166,6 +177,32 @@ namespace Wt {
       
       return certificate;
     }
+
+#ifdef WT_WIN32
+    void addWindowsCACertificates(asio::ssl::context &ctx) {
+      HCERTSTORE hStore = CertOpenSystemStore(0, "ROOT");
+      if (hStore == NULL) {
+        return;
+      }
+
+      X509_STORE *store = X509_STORE_new();
+      PCCERT_CONTEXT pContext = NULL;
+      while ((pContext = CertEnumCertificatesInStore(hStore, pContext)) != NULL) {
+        X509 *x509 = d2i_X509(NULL,
+          (const unsigned char **)&pContext->pbCertEncoded,
+          pContext->cbCertEncoded);
+        if (x509 != NULL) {
+          X509_STORE_add_cert(store, x509);
+          X509_free(x509);
+        }
+      }
+
+      CertFreeCertificateContext(pContext);
+      CertCloseStore(hStore, 0);
+
+      SSL_CTX_set_cert_store(ctx.native_handle(), store);
+    }
+#endif // WT_WIN32
   }
 }
 #endif //WT_WITH_SSL

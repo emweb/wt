@@ -166,6 +166,7 @@ public:
   static constexpr const int MarkerPenColor = 16;    //!< Marker pen color (for Chart::WCartesianChart)
   static constexpr const int MarkerBrushColor = 17;  //!< Marker brush color (for Chart::WCartesianChart)
   static constexpr const int MarkerScaleFactor = 20; //!< Marker size (for Chart::WCartesianChart)
+  static constexpr const int MarkerType = 21; //!< Marker type (for Chart::WCartesianChart)
   static constexpr const int BarPenColor = 18;   //!< Bar pen color (for Chart::WCartesianChart)
   static constexpr const int BarBrushColor = 19; //!< Bar brush color (for Chart::WCartesianChart)
 

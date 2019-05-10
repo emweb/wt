@@ -133,7 +133,7 @@ void run()
     /*
      * Setup a session, would typically be done once at application startup.
      */
-    std::unique_ptr<dbo::backend::Sqlite3> sqlite3{"blog.db"};
+    std::unique_ptr<dbo::backend::Sqlite3> sqlite3{new dbo::backend::Sqlite3("blog.db")};
     dbo::Session session;
     session.setConnection(std::move(sqlite3));
 
@@ -820,7 +820,7 @@ mapping so that you can map to virtually any existing database schema.
 === Changing or disabling the surrogate primary key "id" field
 
 To change the field name used for the surrogate primary key for a
-mapped class, or to disable the surrogate primary key for a class and use a nautral key instead, you need to specialize
+mapped class, or to disable the surrogate primary key for a class and use a natural key instead, you need to specialize
 +{doc}structWt_1_1Dbo_1_1dbo__traits.html[Wt::Dbo::dbo_traits<C>]+.
 
 For example, the code below changes the primary key field for class

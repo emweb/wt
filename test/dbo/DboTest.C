@@ -22,6 +22,12 @@
 
 #include <boost/optional.hpp>
 
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+#include <optional>
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
+
 //#define SCHEMA "test."
 #define SCHEMA ""
 
@@ -66,6 +72,35 @@ struct Coordinate {
   }
 };
 
+enum class Pet {
+  Cat,
+  Dog,
+  Other
+};
+
+std::string petToString(Pet p) {
+  switch (p) {
+  case Pet::Cat:
+    return "cat";
+  case Pet::Dog:
+    return "dog";
+  case Pet::Other:
+    return "other";
+  }
+  throw std::invalid_argument("Unknown pet type: " + std::to_string(static_cast<int>(p)));
+}
+
+Pet petFromString(const std::string &s) {
+  if (s == "cat")
+    return Pet::Cat;
+  else if (s == "dog")
+    return Pet::Dog;
+  else if (s == "other")
+    return Pet::Other;
+  else
+    throw std::invalid_argument("Unknown pet type: " + s);
+}
+
 std::ostream& operator<< (std::ostream& o, const Coordinate& c)
 {
   return o << "(" << c.x << ", " << c.y << ")";
@@ -81,6 +116,30 @@ namespace Wt {
       field(action, coordinate.x, name + "_x", 1000);
       field(action, coordinate.y, name + "_y", 1000);
     }
+
+    template<>
+    struct sql_value_traits<Pet>
+    {
+      static std::string type(SqlConnection *conn, int size)
+      {
+        return sql_value_traits<std::string>::type(conn, size);
+      }
+
+      static void bind(Pet p, SqlStatement *statement, int column, int size)
+      {
+        statement->bind(column, petToString(p));
+      }
+
+      static bool read(Pet &p, SqlStatement *statement, int column, int size)
+      {
+        std::string s;
+        bool result = statement->getResult(column, &s, size);
+        if (!result)
+          return false;
+        p = petFromString(s);
+        return true;
+      }
+    };
   }
 }
 
@@ -157,14 +216,31 @@ public:
   std::string string;
   std::string string2;
   boost::optional<std::string> string3;
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+  std::optional<std::string> string4;
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
   std::chrono::system_clock::time_point timepoint;
   std::chrono::duration<int, std::milli> timeduration;
   bool checked;
   int i;
+  Pet pet;
   ::int64_t i64;
   long long ll;
   float f;
   double d;
+
+  A()
+    : timeduration(0),
+      checked(false),
+      i(0),
+      pet(Pet::Other),
+      i64(0),
+      ll(0),
+      f(0),
+      d(0)
+  { }
 
   bool operator== (const A& other) const {
     if (binary.size() != other.binary.size()){
@@ -212,6 +288,14 @@ public:
       DEBUG(std::cerr << "ERROR: string3 = " << (string3 ? *string3 : "<optional empty>") << " | "
         << (other.string3 ? *other.string3 : "<optional empty>") << std::endl);
     }
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+    if (string4 != other.string4) {
+      DEBUG(std::cerr << "ERROR: string4 = " << (string4 ? *string4 : "<optional empty>") << " | "
+        << (other.string4 ? *other.string4 : "<optional empty>") << std::endl);
+    }
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
     if (timepoint  != other.timepoint) {
       std::time_t t = std::chrono::system_clock::to_time_t(timepoint);
       std::tm *tm = std::gmtime(&t);
@@ -241,6 +325,9 @@ public:
     }
     if (i != other.i) {
       DEBUG(std::cerr << "ERROR: i = " << i << " | " << other.i << std::endl);
+    }
+    if (pet != other.pet) {
+      DEBUG(std::cerr << "ERROR: pet = " << petToString(pet) << " | " << petToString(other.pet) << std::endl);
     }
     if (i64 != other.i64) {
       DEBUG(std::cerr << "ERROR: i64 = " <<i64  << " | "
@@ -280,6 +367,7 @@ public:
     std::cout << "date = " << date.toString() << " ; " << other.date.toString() << std::endl;
     std::cout << "datetime = " << datetime.toString() << " ; " << other.datetime.toString() << std::endl;
     std::cout << "i = " << i << " ; " << other.i << std::endl;
+    std::cout << "pet = " << petToString(pet) << " ; " << petToString(other.pet) << std::endl;
     std::cout << "i64 = " << i64 << " ; " << other.i64 << std::endl;
     std::cout << "ll = " << ll << " ; " << other.ll << std::endl;
     std::cout << "f = " << f << " ; " << other.f << std::endl;
@@ -296,9 +384,15 @@ public:
       && string == other.string
       && string2 == other.string2
       && string3 == other.string3
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+      && string4 == other.string4
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
       && timepoint == other.timepoint
       && timeduration == other.timeduration
       && i == other.i
+      && pet == other.pet
       && i64 == other.i64
       && ll == other.ll
       && checked == other.checked
@@ -323,9 +417,15 @@ public:
     dbo::field(a, string, "string");
     dbo::field(a, string2, "string2", 50);
     dbo::field(a, string3, "string3");
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+    dbo::field(a, string4, "string4");
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
     dbo::field(a, timepoint, "timepoint");
     dbo::field(a, timeduration, "timeduration");
     dbo::field(a, i, "i");
+    dbo::field(a, pet, "pet");
     dbo::field(a, i64, "i64");
     dbo::field(a, ll, "ll");
     dbo::field(a, checked, "checked");
@@ -529,6 +629,7 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
   a1.timeduration = std::chrono::hours(1) + std::chrono::seconds(10);
   a1.checked = true;
   a1.i = 42;
+  a1.pet = Pet::Cat;
   a1.i64 = 9223372036854775805LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
@@ -622,6 +723,7 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
   a1.string = "There";
   a1.checked = false;
   a1.i = 42;
+  a1.pet = Pet::Dog;
   a1.i64 = 9223372036854775804LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
@@ -797,6 +899,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     a1.modify()->wstring = "Hello";
     a1.modify()->string = "There";
     a1.modify()->i = 42;
+    a1.modify()->pet = Pet::Cat;
     a1.modify()->i64 = 9223372036854775803LL;
     a1.modify()->ll = 6066005651767220LL;
     a1.modify()->f = (float)42.42;
@@ -1629,6 +1732,7 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
   a1.string = "There";
   a1.checked = false;
   a1.i = 42;
+  a1.pet = Pet::Other;
   a1.i64 = 9223372036854775804LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
@@ -2908,4 +3012,145 @@ BOOST_AUTO_TEST_CASE( dbo_test36 )
     dbo::Transaction t(*session_);
     recursiveQuery(*session_);
   }
+}
+
+// Test Boost optional
+BOOST_AUTO_TEST_CASE( dbo_test37 )
+{
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+    auto a = session_->addNew<A>();
+    a.modify()->string3 = "String 3";
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->string3 == std::string("String 3"));
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+    BOOST_REQUIRE(a->string4 == std::nullopt);
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
+  }
+}
+
+// Test std::optional
+BOOST_AUTO_TEST_CASE( dbo_test38 )
+{
+#ifdef WT_CXX17
+#if __has_include(<optional>)
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+    auto a = session_->addNew<A>();
+    a.modify()->string4 = "String 4";
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+    BOOST_REQUIRE(a->string3 == boost::optional<std::string>());
+    BOOST_REQUIRE(a->string4 == std::string("String 4"));
+  }
+#endif // __has_include(<optional>)
+#endif // WT_CXX17
+}
+
+namespace {
+  void setupTest39(dbo::Session &session) {
+    dbo::Transaction t(session);
+
+    Wt::Dbo::ptr<A> a1 = session.addNew<A>();
+    a1.modify()->i = 3;
+
+    Wt::Dbo::ptr<A> a2 = session.addNew<A>();
+    a2.modify()->i = 4;
+
+    Wt::Dbo::ptr<A> a3 = session.addNew<A>();
+    a3.modify()->i = 5;
+
+    t.commit();
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test39a )
+{
+  // Test UNION
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  setupTest39(*session_);
+
+  {
+    dbo::Transaction t(*session_);
+
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" = 3 union select a from \"table_a\" a where a.\"i\" = 5");
+
+    BOOST_REQUIRE(as.size() == 2);
+
+    As::iterator it = as.begin();
+    BOOST_REQUIRE((*it)->i == 3);
+    ++it;
+    BOOST_REQUIRE((*it)->i == 5);
+    ++it;
+    BOOST_REQUIRE(it == as.end());
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test39b )
+{
+#if !defined(MYSQL) && !defined(FIREBIRD) // MySQL and Firebird don't do INTERSECT
+  // Test INTERSECT
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  setupTest39(*session_);
+
+  {
+    dbo::Transaction t(*session_);
+
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" > 3 intersect select a from \"table_a\" a where a.\"i\" < 5");
+
+    BOOST_REQUIRE(as.size() == 1);
+
+    As::iterator it = as.begin();
+    BOOST_REQUIRE((*it)->i == 4);
+    ++it;
+    BOOST_REQUIRE(it == as.end());
+  }
+#endif
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test39c )
+{
+#if !defined(MYSQL) && !defined(FIREBIRD) // MySQL and Firebird don't do EXCEPT
+  // Test EXCEPT
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  setupTest39(*session_);
+
+  {
+    dbo::Transaction t(*session_);
+
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" >= 3 except select a from \"table_a\" a where a.\"i\" = 4");
+
+    BOOST_REQUIRE(as.size() == 2);
+
+    As::iterator it = as.begin();
+    BOOST_REQUIRE((*it)->i == 3);
+    ++it;
+    BOOST_REQUIRE((*it)->i == 5);
+    ++it;
+    BOOST_REQUIRE(it == as.end());
+  }
+#endif
 }

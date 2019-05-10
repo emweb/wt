@@ -55,8 +55,8 @@ struct LayoutBox;
  * - only "display: inline" or "display: block" elements are supported.
  *   "display: none" and "display: inline-block" are not (yet) recognized. 
  * - only colors defined in terms of RGB values are supported: CSS named colors
- *   (e.g. 'StandardColor::Blue') are not allowed.
- * - Bidi (Side::Right-to-Side::Left) text rendering is not supported
+ *   (e.g. 'blue') are not allowed.
+ * - Bidi (Right-to-Left) text rendering is not supported
  *
  * The renderer is not CSS compliant (simply because it is still lacking
  * alot of features), but the subset of CSS that is supported is a pragmatic

@@ -505,7 +505,7 @@ std::string ProxyReply::getSessionId() const
       std::string cookie = cookieHeader->value.str();
       sessionId = Wt::WebController::sessionFromCookie
 	(cookie.c_str(), request_.request_path,
-	 wtConfiguration.sessionIdLength());
+	 wtConfiguration.fullSessionIdLength());
     }
   }
 

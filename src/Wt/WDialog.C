@@ -354,7 +354,7 @@ void WDialog::setResizable(bool resizable)
 	(" Resizable",
 	 "(new " WT_CLASS ".Resizable("
 	 WT_CLASS "," + jsRef() + ")).onresize(function(w, h, done) {"
-	 "var obj = $('#" + id() + "').data('obj');"
+	 "var obj = " + jsRef() + ".wtObj;"
 	 "if (obj) obj.onresize(w, h, done);"
 	 " });");
     }
@@ -696,7 +696,7 @@ void WDialog::bringToFront(const WMouseEvent &e)
 
 void WDialog::raiseToFront()
 {
-  doJSAfterLoad("jQuery.data(" + jsRef() + ", 'obj').bringToFront()");
+  doJSAfterLoad(jsRef() + ".wtObj.bringToFront()");
   DialogCover *c = cover();
   c->bringToFront(this);  
 }

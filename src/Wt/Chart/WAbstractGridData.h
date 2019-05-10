@@ -120,7 +120,7 @@ public:
   /*! \brief Sets the WPen that is used for drawing the mesh.
    *
    * Used when drawing the mesh on a surface or the lines around bars. The
-   * default is a default constructed WPen (StandardColor::Black and one pixel wide).
+   * default is a default constructed WPen (black and one pixel wide).
    *
    * Note: only the width and color of this WPen are used.
    *

@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WFormWidget",
  function(APP, el, emptyText) {
-   jQuery.data(el, 'obj', this);
+   el.wtObj = this;
 
    var self = this, WT = APP.WT, emptyTextStyle = 'Wt-edit-emptyText';
 
