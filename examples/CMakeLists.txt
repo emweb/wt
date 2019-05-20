@@ -226,6 +226,7 @@ SUBDIRS(
   hangman
   hello
   javascript
+  leaflet
   mandelbrot
   mission
   onethread

@@ -154,6 +154,7 @@ Wt/WLabel.C
 Wt/WLayout.C
 Wt/WLayoutItem.C
 Wt/WLayoutItemImpl.C
+Wt/WLeafletMap.C
 Wt/WLength.C
 Wt/WLengthValidator.C
 Wt/WLineEdit.C

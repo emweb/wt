@@ -79,7 +79,7 @@ class Session;
  *
  * \ingroup dbo
  */
-class AbstractQuery
+class WTDBO_API AbstractQuery
 {
 public:
   /*! \brief Binds a value to the next positional marker.
