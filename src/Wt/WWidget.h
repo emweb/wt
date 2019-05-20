@@ -15,9 +15,11 @@
 #include <Wt/WJavaScript.h>
 
 #include <bitset>
+#include <cassert>
 #include <list>
 #include <vector>
 #include <sstream>
+#include <type_traits>
 
 namespace Wt {
 
@@ -81,6 +83,28 @@ public:
   /*! \brief Removes a child widget.
    */
   virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget);
+
+  /*! \brief Removes a child widget.
+   *
+   * This is an overload that automatically casts the returned value to a unique_ptr<Widget> for convenience
+   *
+   * This is implemented as:
+   * \code
+   * return std::unique_ptr<Widget>(static_cast<Widget*>(removeWidget(static_cast<WWidget*>(widget)).release()));
+   * \endcode
+   */
+  template<typename Widget>
+#ifdef DOXYGEN_ONLY
+  std::unique_ptr<Widget> removeWidget(Widget *widget)
+#else // DOXYGEN_ONLY
+  typename std::enable_if<std::is_convertible<Widget*,WWidget*>::value && !std::is_same<Widget,WWidget>::value, std::unique_ptr<Widget>>::type removeWidget(Widget *widget)
+#endif // DOXYGEN_ONLY
+  {
+    std::unique_ptr<WWidget> result = removeWidget(static_cast<WWidget*>(widget));
+    // The result is null or the given widget, guaranteeing that result.release() can be casted to Widget*
+    assert(result == nullptr || result.get() == widget);
+    return std::unique_ptr<Widget>(static_cast<Widget*>(result.release()));
+  }
 
   /*! \brief Removes the widget from its parent.
    *

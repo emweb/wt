@@ -64,6 +64,7 @@ public:
   ~WCompositeWidget();
 
   virtual std::vector<WWidget *> children() const override;
+  using WWidget::removeWidget;
   virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
   virtual void setObjectName(const std::string& name) override;
   virtual std::string objectName() const override;

@@ -74,9 +74,7 @@ void WTimer::stop()
 {
   if (active_) {
     if (timerWidget_ && timerWidget_->parent()) {
-      uTimerWidget_ = std::unique_ptr<WTimerWidget>(static_cast<WTimerWidget*>(
-                        timerWidget_->parent()->removeWidget(timerWidget_.get()).release()));
-
+      uTimerWidget_ = timerWidget_->parent()->removeWidget(timerWidget_.get());
     }
     active_ = false;
   }

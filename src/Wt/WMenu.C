@@ -264,8 +264,7 @@ std::unique_ptr<WMenuItem> WMenu::removeItem(WMenuItem *item)
   if (item->parent() == items) {
     int itemIndex = items->indexOf(item);
 
-    result = Utils::dynamic_unique_ptr_cast<WMenuItem>
-      (items->removeWidget(item));
+    result = items->removeWidget(item);
 
     if (contentsStack_ && item->contentsInStack())
       item->returnContentsInStack

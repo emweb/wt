@@ -340,6 +340,8 @@ public:
   }
 #endif // WT_TARGET_JAVA
 
+  using WWidget::removeWidget;
+
   /*! \brief Removes a child widget from this container.
    *
    * If the WContainerWidget owns the given widget (i.e. if it was added

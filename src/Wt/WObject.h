@@ -13,8 +13,9 @@
 #include <Wt/Http/Request.h>
 
 #include <cassert>
-#include <vector>
 #include <map>
+#include <type_traits>
+#include <vector>
 
 namespace Wt {
 
@@ -117,6 +118,28 @@ public:
   /*! \brief Remove a child WObject, so its lifetime is no longer determined by this WObject
    */
   std::unique_ptr<WObject> removeChild(WObject *child);
+
+  /*! \brief Remove a child WObject, so its lifetime is no longer determined by this WObject
+   *
+   * This is an overload that automatically casts the returned value to a unique_ptr<Child> for convenience
+   *
+   * This is implemented as:
+   * \code
+   * return std::unique_ptr<Child>(static_cast<Child*>(removeChild(static_cast<WObject*>(child)).release()));
+   * \endcode
+   */
+  template <typename Child>
+#ifdef DOXYGEN_ONLY
+  std::unique_ptr<Child> removeChild(Child *child)
+#else // DOXYGEN_ONLY
+  typename std::enable_if<std::is_convertible<Child*,WObject*>::value && !std::is_same<Child,WObject>::value, std::unique_ptr<Child>>::type removeChild(Child *child)
+#endif // DOXYGEN_ONLY
+  {
+    std::unique_ptr<WObject> result = removeChild(static_cast<WObject*>(child));
+    // The result is null or the given child, guaranteeing that result.release() can be casted to Child*
+    assert(result == nullptr || result.get() == child);
+    return std::unique_ptr<Child>(static_cast<Child*>(result.release()));
+  }
 
   /*
    * Unique id's

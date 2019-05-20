@@ -174,8 +174,7 @@ std::unique_ptr<WWidget> WContainerWidget::removeWidget(WWidget *widget)
     children_.erase(children_.begin() + index);
 
     // NOTE: result may be null if the widget is not owned by this WContainerWidget!
-    std::unique_ptr<WWidget> result
-      = Utils::dynamic_unique_ptr_cast<WWidget>(removeChild(widget));
+    std::unique_ptr<WWidget> result = removeChild(widget);
 
     repaint(RepaintFlag::SizeAffected);
 

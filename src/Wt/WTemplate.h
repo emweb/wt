@@ -501,6 +501,8 @@ public:
   }
 #endif // WT_TARGET_JAVA
 
+  using WWidget::removeWidget;
+
   /*! \brief Unbinds a widget by variable name.
    *
    * This removes a previously bound widget and unbinds the

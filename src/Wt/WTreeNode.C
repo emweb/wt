@@ -383,8 +383,7 @@ std::unique_ptr<WTreeNode> WTreeNode::removeChildNode(WTreeNode *node)
 
   std::unique_ptr<WTreeNode> result;
   if (childrenLoaded_)
-    result = Utils::dynamic_unique_ptr_cast<WTreeNode>
-      (childContainer()->removeWidget(node));
+    result = childContainer()->removeWidget(node);
   else
     result = Utils::take(notLoadedChildren_, node);
 

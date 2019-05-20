@@ -56,6 +56,7 @@ public:
   void addWidget(std::unique_ptr<WWidget> widget,
 		 AlignmentFlag alignmentFlag = AlignmentFlag::Left);
 
+  using WWidget::removeWidget;
   virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
 
   /*! \brief Adds a separator.

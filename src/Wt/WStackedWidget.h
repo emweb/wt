@@ -53,6 +53,8 @@ public:
   ;
 #endif // WT_TARGET_JAVA
 
+  using WWidget::removeWidget;
+
   virtual std::unique_ptr<WWidget> removeWidget(WWidget* widget) override;
 
   /*! \brief Returns the index of the widget that is currently shown.
