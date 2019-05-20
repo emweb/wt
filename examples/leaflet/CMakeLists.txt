@@ -1,0 +1,3 @@
+WT_ADD_EXAMPLE(leaflet.wt leaflet.C)
+
+INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)

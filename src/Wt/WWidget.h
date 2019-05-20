@@ -1346,6 +1346,7 @@ private:
   friend class WCompositeWidget;
   friend class WFileUpload;
   friend class WGLWidget;
+  friend class WLeafletMap;
   friend class WMenuItem;
   friend class WPaintedWidget;
   friend class WPopupWidget;

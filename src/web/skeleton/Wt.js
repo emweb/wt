@@ -732,58 +732,17 @@ this.filter = function(edit, event, tokens) {
 // Get coordinates of element relative to an ancestor object (or page origin).
 // It computes the location of the left-top corner of the margin-box.
 this.widgetPageCoordinates = function(obj, reference) {
-  var objX = 0, objY = 0, op;
+  var pageXOffset = window.pageXOffset !== undefined ? window.pageXOffset : document.documentElement.scrollLeft;
+  var pageYOffset = window.pageYOffset !== undefined ? window.pageYOffset : document.documentElement.scrollTop;
 
-  if (!obj.parentNode)
-    return { x: 0, y: 0 };
-
-  // bug in safari, according to W3C, offsetParent for an area element should
-  // be the map element, but safari returns null.
-  if (WT.hasTag(obj, "AREA"))
-    obj = obj.parentNode.nextSibling; // img after map
-
-  var rtl = $(document.body).hasClass('Wt-rtl');
-
-  while (obj && obj !== reference) {
-    objX += obj.offsetLeft;
-    objY += obj.offsetTop;
-
-    var f = WT.css(obj, 'position');
-    if (f == 'fixed') {
-      objX += document.body.scrollLeft
-	+ document.documentElement.scrollLeft;
-      objY += document.body.scrollTop
-	+ document.documentElement.scrollTop;
-      break;
-    }
-
-    op = obj.offsetParent;
-
-    if (op == null)
-      obj = null;
-    else {
-      do {
-	obj = obj.parentNode;
-	if (WT.hasTag(obj, "DIV")) {
-	  if (rtl && !WT.isGecko) {
-	    if (obj.scrollWidth > obj.parentNode.scrollWidth) {
-	      /*
-	       * This seems to be a bug in every browser out there,
-	       * except for Gecko ?
-	       */
-	      var sl = obj.scrollLeft
-		+ obj.parentNode.scrollWidth - obj.scrollWidth;
-	      objX -= sl;
-	    }
-	  } else
-	    objX -= obj.scrollLeft;
-	  objY -= obj.scrollTop;
-	}
-      } while (obj != null && obj != op);
-    }
+  var rect = obj.getBoundingClientRect();
+  var refLeft = -pageXOffset, refTop = -pageYOffset;
+  if (reference) {
+    var refRect = reference.getBoundingClientRect();
+    refLeft = refRect.left;
+    refTop = refRect.top;
   }
-
-  return { x: objX, y: objY };
+  return {x: rect.left - refLeft, y: rect.top - refTop};
 };
 
 // Get coordinates of (mouse) event relative to a element.

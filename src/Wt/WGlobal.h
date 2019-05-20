@@ -119,6 +119,7 @@ namespace Wt {
   class WLabel;
   class WLayout;
   class WLayoutItem;
+  class WLeafletMap;
   class WLength;
   class WLengthValidator;
   class WLineEdit;

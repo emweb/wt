@@ -586,6 +586,7 @@ protected:
   friend class WFont;
   friend class WGLWidget;
   friend class WInteractWidget;
+  friend class WLeafletMap;
   friend class JSlot;
   friend class WTable;
   friend class WViewWidget;
