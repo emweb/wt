@@ -121,8 +121,10 @@ public:
   public:
     /*! \brief Create a new WidgetMarker at the given position with the given widget.
      *
+     * \if cpp
      * The marker will take ownership of the widget.
      *
+     * \endif
      * The widget should have a predetermined width and height to be
      * rendered correctly, with \p pos in the center of the widget.
      */
@@ -212,15 +214,19 @@ public:
 
   /*! \brief Add the given marker
    *
+   * \if cpp
    * The map takes ownership of the marker.
+   * \endif
    */
   void addMarker(Marker *marker);
 
   /*! \brief Remove the given marker
    *
+   * \if cpp
    * The map will no longer own the marker.
    *
    * \note This does not delete the marker!
+   * \endif
    */
   void removeMarker(Marker *marker);
 
