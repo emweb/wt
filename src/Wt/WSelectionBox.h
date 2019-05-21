@@ -24,7 +24,7 @@ namespace Wt {
  * selectedIndexes() for Wt::SelectionMode::Extended mode. 
  * The activated() and sactivated()
  * signals are not emited in the Wt::SelectionMode::Extended mode, use the
- * changed() signal changed().
+ * changed() signal.
  *
  * %WSelectionBox is an MVC view class, using a simple string list
  * model by default. The model may be populated using WComboBox::addItem() 
