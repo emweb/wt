@@ -328,10 +328,9 @@ void WBoxLayout::iterateWidgets(const HandleWidgetMethod& method) const
 
 void WBoxLayout::setParentWidget(WWidget *parent)
 {
-  if (parent)
-    setImplementation();
-
   WLayout::setParentWidget(parent);
+
+  updateImplementation();
 }
 
 bool WBoxLayout::implementationIsFlexLayout() const

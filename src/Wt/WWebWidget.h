@@ -363,40 +363,41 @@ private:
   static const int BIT_STUBBED = 4;
   static const int BIT_FORM_OBJECT = 5;
   static const int BIT_FLEX_BOX = 6;
-  static const int BIT_GEOMETRY_CHANGED = 7;
-  static const int BIT_HIDE_WITH_OFFSETS = 8;
-  static const int BIT_BEING_DELETED = 9;
-  static const int BIT_DONOT_STUB = 10;
-  static const int BIT_FLOAT_SIDE_CHANGED = 11;
-  static const int BIT_REPAINT_TO_AJAX = 12;
-  static const int BIT_HIDE_WITH_VISIBILITY = 13;
-  static const int BIT_HIDDEN_CHANGED = 14;
-  static const int BIT_ENABLED = 15; // caches isEnabled() for WInteractWidget
-  static const int BIT_TOOLTIP_CHANGED = 16;
-  static const int BIT_MARGINS_CHANGED = 17;
-  static const int BIT_STYLECLASS_CHANGED = 18;
-  static const int BIT_SET_UNSELECTABLE = 19;
-  static const int BIT_SET_SELECTABLE = 20;
-  static const int BIT_SELECTABLE_CHANGED = 21;
-  static const int BIT_WIDTH_CHANGED = 22;
-  static const int BIT_HEIGHT_CHANGED = 23;
-  static const int BIT_DISABLED = 24;
-  static const int BIT_DISABLED_CHANGED = 25;
-  static const int BIT_CONTAINS_LAYOUT = 26;
-  static const int BIT_ZINDEX_CHANGED = 27;
-  static const int BIT_TOOLTIP_DEFERRED = 28;
-  static const int BIT_GOT_FOCUS        = 29;
-  static const int BIT_TABINDEX_CHANGED = 30;
-  static const int BIT_SCROLL_VISIBILITY_ENABLED = 31;
+  static const int BIT_FLEX_BOX_CHANGED = 7;
+  static const int BIT_GEOMETRY_CHANGED = 8;
+  static const int BIT_HIDE_WITH_OFFSETS = 9;
+  static const int BIT_BEING_DELETED = 10;
+  static const int BIT_DONOT_STUB = 11;
+  static const int BIT_FLOAT_SIDE_CHANGED = 12;
+  static const int BIT_REPAINT_TO_AJAX = 13;
+  static const int BIT_HIDE_WITH_VISIBILITY = 14;
+  static const int BIT_HIDDEN_CHANGED = 15;
+  static const int BIT_ENABLED = 16; // caches isEnabled() for WInteractWidget
+  static const int BIT_TOOLTIP_CHANGED = 17;
+  static const int BIT_MARGINS_CHANGED = 18;
+  static const int BIT_STYLECLASS_CHANGED = 19;
+  static const int BIT_SET_UNSELECTABLE = 20;
+  static const int BIT_SET_SELECTABLE = 21;
+  static const int BIT_SELECTABLE_CHANGED = 22;
+  static const int BIT_WIDTH_CHANGED = 23;
+  static const int BIT_HEIGHT_CHANGED = 24;
+  static const int BIT_DISABLED = 25;
+  static const int BIT_DISABLED_CHANGED = 26;
+  static const int BIT_CONTAINS_LAYOUT = 27;
+  static const int BIT_ZINDEX_CHANGED = 28;
+  static const int BIT_TOOLTIP_DEFERRED = 29;
+  static const int BIT_GOT_FOCUS        = 30;
+  static const int BIT_TABINDEX_CHANGED = 31;
+  static const int BIT_SCROLL_VISIBILITY_ENABLED = 32;
   // BIT_SCROLL_VISIBILITY_LOADED makes sure that scrollVisibility.remove is never
   // called for widgets that never had scroll visibility enabled
-  static const int BIT_SCROLL_VISIBILITY_LOADED = 32;
-  static const int BIT_IS_SCROLL_VISIBLE = 33; // tracks whether the widget is currently "scroll visible"
+  static const int BIT_SCROLL_VISIBILITY_LOADED = 33;
+  static const int BIT_IS_SCROLL_VISIBLE = 34; // tracks whether the widget is currently "scroll visible"
   // Tracks whether scroll visibility is enabled/disabled, and whether the
   // scroll visibility margin has been modified.
-  static const int BIT_SCROLL_VISIBILITY_CHANGED = 34;
-  static const int BIT_THEME_STYLE_DISABLED = 35;
-  static const int BIT_OBJECT_NAME_CHANGED = 36;
+  static const int BIT_SCROLL_VISIBILITY_CHANGED = 35;
+  static const int BIT_THEME_STYLE_DISABLED = 36;
+  static const int BIT_OBJECT_NAME_CHANGED = 37;
 
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
@@ -406,7 +407,7 @@ private:
   std::string elementTagName_;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<37> AllChangeFlags;
+  static const std::bitset<38> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -414,7 +415,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<37> flags_;
+  std::bitset<38> flags_;
   std::unique_ptr<WLength> width_;
   std::unique_ptr<WLength> height_;
 

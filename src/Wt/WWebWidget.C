@@ -58,7 +58,8 @@ const char *WWebWidget::BLUR_SIGNAL = "blur";
 const int WWebWidget::DEFAULT_BASE_Z_INDEX = 100;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<37> WWebWidget::AllChangeFlags = std::bitset<37>()
+const std::bitset<38> WWebWidget::AllChangeFlags = std::bitset<38>()
+  .set(BIT_FLEX_BOX_CHANGED)
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -610,6 +611,7 @@ bool WWebWidget::isInline() const
 void WWebWidget::setFlexBox(bool enabled)
 {
   flags_.set(BIT_FLEX_BOX, enabled);
+  flags_.set(BIT_FLEX_BOX_CHANGED);
 }
 
 void WWebWidget::setPopup(bool popup)
@@ -1272,6 +1274,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
    */
 
   if (flags_.test(BIT_GEOMETRY_CHANGED) || 
+      flags_.test(BIT_FLEX_BOX_CHANGED) ||
       (!flags_.test(BIT_HIDE_WITH_VISIBILITY) &&
         flags_.test(BIT_HIDDEN_CHANGED)) ||
       all) {
@@ -1312,6 +1315,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
       if (flags_.test(BIT_FLEX_BOX))
 	display = flags_.test(BIT_INLINE) ? FlexInline : Flex;
+      else if (flags_.test(BIT_FLEX_BOX_CHANGED) && !display)
+        display = Empty;
 
       if (display)
 	element.setProperty(Property::StyleDisplay, display);
@@ -2108,6 +2113,7 @@ void WWebWidget::propagateRenderOk(bool deep)
 #ifndef WT_TARGET_JAVA
   flags_ &= ~AllChangeFlags;
 #else
+  flags_.reset(BIT_FLEX_BOX_CHANGED);
   flags_.reset(BIT_HIDDEN_CHANGED);
   flags_.reset(BIT_GEOMETRY_CHANGED);
   flags_.reset(BIT_FLOAT_SIDE_CHANGED);

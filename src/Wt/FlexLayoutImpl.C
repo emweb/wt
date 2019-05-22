@@ -35,6 +35,12 @@ FlexLayoutImpl::FlexLayoutImpl(WLayout *layout, Impl::Grid& grid)
   if (!app->javaScriptLoaded(THIS_JS)) {
     LOAD_JAVASCRIPT(app, THIS_JS, "FlexLayout", wtjs1);
   }
+
+  WContainerWidget *c = container();
+
+  if (c) {
+    c->setFlexBox(true);
+  }
 }
 
 bool FlexLayoutImpl::itemResized(WLayoutItem *item)
@@ -176,9 +182,6 @@ void FlexLayoutImpl::update()
   WContainerWidget *c = container();
 
   if (c) {
-    if (layout()->parentLayout() == nullptr) {
-      c->setFlexBox(true);
-    }
     c->layoutChanged(false);
   }
 }
@@ -258,6 +261,7 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
     result = DomElement::createNew(DomElementType::DIV);
     elId_ = id();
     result->setId(elId_);
+    result->setProperty(Property::StyleDisplay, styleDisplay());
   }
 
   if (margin[0] != 0 || margin[1] != 0 || margin[2] != 0 || margin[3] != 0) {
