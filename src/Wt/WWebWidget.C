@@ -1317,7 +1317,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  && flags_.test(BIT_HIDDEN_CHANGED))
       || all) {
     if (flags_.test(BIT_HIDE_WITH_VISIBILITY) || !flags_.test(BIT_HIDDEN)) {
-      if (element.isDefaultInline() != flags_.test(BIT_INLINE)) {
+      const bool defaultInline = element.type() == DomElement_OTHER ? DomElement::isDefaultInline(domElementType()) : element.isDefaultInline();
+      if (defaultInline != flags_.test(BIT_INLINE)) {
 	if (flags_.test(BIT_INLINE)) {
 	  if (element.type() == DomElement_TABLE)
 	    element.setProperty(PropertyStyleDisplay, "inline-table");
@@ -1335,7 +1336,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  element.setProperty(PropertyStyleDisplay, "block");
 	}
       } else if (!all && flags_.test(BIT_HIDDEN_CHANGED)) {
-	if (element.isDefaultInline() == flags_.test(BIT_INLINE))
+        if (defaultInline == flags_.test(BIT_INLINE))
 	  element.setProperty(PropertyStyleDisplay, "");
 	else
 	  element.setProperty(PropertyStyleDisplay,
