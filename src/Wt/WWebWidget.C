@@ -1285,7 +1285,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       const char *Empty = "";
       const char *display = nullptr;
 
-      if (element.isDefaultInline() != flags_.test(BIT_INLINE)) {
+      const bool defaultInline = element.type() == DomElementType::OTHER ? DomElement::isDefaultInline(domElementType()) : element.isDefaultInline();
+      if (defaultInline != flags_.test(BIT_INLINE)) {
 	if (flags_.test(BIT_INLINE)) {
 	  if (element.type() == DomElementType::TABLE)
 	    display = InlineTable;
@@ -1303,7 +1304,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  display = Block;
 	}
       } else if (!all && flags_.test(BIT_HIDDEN_CHANGED)) {
-	if (element.isDefaultInline() == flags_.test(BIT_INLINE))
+	if (defaultInline == flags_.test(BIT_INLINE))
 	  display = Empty;
 	else
 	  display = flags_.test(BIT_INLINE) ? Inline : Block;

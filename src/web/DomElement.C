@@ -144,6 +144,9 @@ inline char hexLookup(int n) {
   return "0123456789abcdef"[(n & 0xF)];
 }
 
+static_assert(sizeof(elementNames_) / sizeof(elementNames_[0]) == static_cast<unsigned int>(Wt::DomElementType::UNKNOWN), "There should be as many element names as there are dom elements (excluding unknown and other)");
+static_assert(sizeof(defaultInline_) / sizeof(defaultInline_[0]) == static_cast<unsigned int>(Wt::DomElementType::UNKNOWN), "defaultInline_ should be the same size as the number of dom elements (excluding unknown and other)");
+
 }
 
 namespace Wt {
@@ -1728,6 +1731,7 @@ bool DomElement::isDefaultInline() const
 
 bool DomElement::isDefaultInline(DomElementType type)
 {
+  assert(static_cast<unsigned int>(type) < static_cast<unsigned int>(DomElementType::UNKNOWN));
   return defaultInline_[static_cast<unsigned int>(type)];
 }
 
@@ -1762,6 +1766,7 @@ DomElementType DomElement::parseTagName(const std::string& tag)
 
 std::string DomElement::tagName(DomElementType type)
 {
+  assert(static_cast<unsigned int>(type) < static_cast<unsigned int>(DomElementType::UNKNOWN));
   return elementNames_[static_cast<unsigned int>(type)];
 }
 
