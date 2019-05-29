@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTableView",
- function(APP, el, contentsContainer, headerContainer, headerColumnsContainer,
+ function(APP, el, contentsContainer, initialScrollTop, headerContainer, headerColumnsContainer,
       selectedClass) {
    el.wtObj = this;
 
@@ -33,6 +33,7 @@ WT_DECLARE_WT_MEMBER
 
    var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
    var scrollToPending = false;
+   var initialScrollTopSet = initialScrollTop === 0;
 
    /*
     * We need to remember this for when going through a hide()
@@ -66,6 +67,11 @@ WT_DECLARE_WT_MEMBER
    };
 
    contentsContainer.wtResize = function(o, w, h, setSize) {
+     if (!initialScrollTopSet) {
+       o.scrollTop = initialScrollTop;
+       o.onscroll();
+       initialScrollTopSet = true;
+     }
      if ((w - currentWidth) > (scrollX2 - scrollX1)/2 ||
          (h - currentHeight) > (scrollY2 - scrollY1)/2) {
        currentWidth = w; currentHeight = h;

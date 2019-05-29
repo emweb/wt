@@ -791,13 +791,16 @@ void WTableView::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WTableView.js", "WTableView", wtjs1);
 
-  setJavaScriptMember(" WTableView", "new " WT_CLASS ".WTableView("
-		      + app->javaScriptClass() + "," + jsRef() + ","
-		      + contentsContainer_->jsRef() + ","
-		      + headerContainer_->jsRef() + ","
-		      + headerColumnsContainer_->jsRef() + ",'"
-		      + WApplication::instance()->theme()->activeClass()
-		      + "');");
+  WStringStream s;
+  s << "new " WT_CLASS ".WTableView("
+    << app->javaScriptClass() << ',' << jsRef() << ','
+    << contentsContainer_->jsRef() << ','
+    << viewportTop_ << ','
+    << headerContainer_->jsRef() << ','
+    << headerColumnsContainer_->jsRef() << ",'"
+    << WApplication::instance()->theme()->activeClass()
+    << "');";
+  setJavaScriptMember(" WTableView", s.str());
 
   if (!dropEvent_.isConnected())
     dropEvent_.connect(this, &WTableView::onDropEvent);
@@ -811,18 +814,6 @@ void WTableView::defineJavaScript()
   if (!columnResizeConnected_) {
     columnResized().connect(this, &WTableView::onColumnResize);
     columnResizeConnected_ = true;
-  }
-
-  if (viewportTop_ != 0) {
-    WStringStream s;
-    s << "function(o, w, h) {"
-      <<   "if (!o.scrollTopSet) {"
-      <<     "o.scrollTop = " << viewportTop_ << ";"
-      <<     "o.onscroll();"
-      <<     "o.scrollTopSet = true;"
-      <<   "}"
-      << "}";
-    contentsContainer_->setJavaScriptMember(WT_RESIZE_JS, s.str());
   }
 
   if (canvas_) {
