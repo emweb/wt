@@ -116,7 +116,7 @@ const MarkerType *WStandardChartProxyModel::markerType(int row, int column) cons
 {
   cpp17::any result = sourceModel_->data(row, column, ItemDataRole::MarkerType);
 
-  if (result.empty())
+  if (!cpp17::any_has_value(result))
     return 0;
   else {
 #ifndef WT_TARGET_JAVA

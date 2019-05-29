@@ -568,6 +568,8 @@ void WLeafletMap::defineJavaScript()
   ss << Utils::round_js_str(zoomLevel_, 16, buf) << ");";
 
   setJavaScriptMember(" WLeafletMap", ss.str());
+  setJavaScriptMember(WT_RESIZE_JS,
+                      jsRef() + ".wtObj.wtResize");
 }
 
 void WLeafletMap::render(WFlags<RenderFlag> flags)
