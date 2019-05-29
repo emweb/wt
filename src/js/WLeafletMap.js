@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER
     var self = this;
     var WT = APP.WT;
 
-    var map;
+    this.map = null;
     var markers = {};
 
     var lastZoom = zoom;
@@ -22,38 +22,38 @@ WT_DECLARE_WT_MEMBER
 
     this.addTileLayer = function(url_template, options_str) {
       var options = JSON.parse(options_str);
-      L.tileLayer(url_template, options).addTo(map);
+      L.tileLayer(url_template, options).addTo(self.map);
     };
 
     this.zoom = function(zoom) {
       lastZoom = zoom;
-      map.setZoom(zoom);
+      self.map.setZoom(zoom);
     };
     
     this.panTo = function(lat, lng) {
       lastLatLng = [lat, lng];
-      map.panTo([lat, lng]);
+      self.map.panTo([lat, lng]);
     };
 
     this.addPolyline = function(points, options_str) {
       var options = JSON.parse(options_str);
-      L.polyline(points, options).addTo(map);
+      L.polyline(points, options).addTo(self.map);
     };
 
     this.addCircle = function(center, options_str) {
       var options = JSON.parse(options_str);
-      L.circle(center, options).addTo(map);
+      L.circle(center, options).addTo(self.map);
     };
 
     this.addMarker = function(marker_id, marker) {
-      marker.addTo(map);
+      marker.addTo(self.map);
       markers[marker_id] = marker;
     };
 
     this.removeMarker = function(marker_id) {
       var marker = markers[marker_id];
       if (marker) {
-        map.removeLayer(marker);
+        self.map.removeLayer(marker);
         delete markers[marker_id];
       }
     };
@@ -65,10 +65,14 @@ WT_DECLARE_WT_MEMBER
       }
     };
 
+    this.wtResize = function() {
+      self.map.invalidateSize();
+    };
+
     el.wtEncodeValue = function() {
-      var center = map.getCenter();
+      var center = self.map.getCenter();
       var position = [center.lat, center.lng];
-      var zoom = map.getZoom();
+      var zoom = self.map.getZoom();
       return JSON.stringify({
         position: position,
         zoom: zoom
@@ -76,19 +80,19 @@ WT_DECLARE_WT_MEMBER
     };
 
     this.init = function(position, zoom) {
-      map = L.map(el, {
+      self.map = L.map(el, {
         center: position,
         zoom: zoom
       });
-      map.on('zoomend', function() {
-        var zoom = map.getZoom();
+      self.map.on('zoomend', function() {
+        var zoom = self.map.getZoom();
         if (zoom != lastZoom) {
           APP.emit(el, 'zoomLevelChanged', zoom);
           lastZoom = zoom;
         }
       });
-      map.on('moveend', function() {
-        var center = map.getCenter();
+      self.map.on('moveend', function() {
+        var center = self.map.getCenter();
         if (center.lat != lastLatLng[0] ||
             center.lng != lastLatLng[1]) {
           APP.emit(el, 'panChanged', center.lat, center.lng);
