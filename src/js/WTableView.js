@@ -32,7 +32,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
-   var scrollToPending = false;
+   var scrollToPendingCount = 0;
    var initialScrollTopSet = initialScrollTop === 0;
 
    /*
@@ -53,7 +53,7 @@ WT_DECLARE_WT_MEMBER
             = contentsContainer.scrollTop;
 
      if (contentsContainer.clientWidth && contentsContainer.clientHeight
-         && (!scrollToPending)
+         && (scrollToPendingCount === 0)
          && (contentsContainer.scrollTop < scrollY1
      || contentsContainer.scrollTop > scrollY2
      || contentsContainer.scrollLeft < scrollX1
@@ -311,7 +311,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.setScrollToPending = function() {
-     scrollToPending = true;
+     scrollToPendingCount += 1;
    };
 
    this.scrollToPx = function(x, y) {
@@ -321,7 +321,8 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.scrollTo = function(x, y, hint) {
-     scrollToPending = false;
+     if (scrollToPendingCount > 0)
+       scrollToPendingCount -= 1;
      if (y != -1) {
        var top = contentsContainer.scrollTop,
        height = contentsContainer.clientHeight;
