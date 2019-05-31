@@ -40,10 +40,6 @@ public:
     map_->addPolyline(roadDescription(), pen);
 
     layout->addWidget(map_, 1);
-
-    clicked().connect(std::bind([this]{
-      doJavaScript("console.log(" + map_->mapJsRef() + ");");
-    }));
   }
 
 private:
