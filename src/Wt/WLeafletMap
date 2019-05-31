@@ -316,6 +316,8 @@ private:
       static const int BIT_ADDED = 0;
       static const int BIT_REMOVED = 1;
 
+      MarkerEntry();
+
       Marker *marker;
       long long id;
       std::bitset<2> flags;

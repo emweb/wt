@@ -364,9 +364,12 @@ WLeafletMap::WLeafletMap(WContainerWidget *parent)
 
   WApplication *app = WApplication::instance();
   if (app) {
-    std::string leafletJSURL, leafletCSSURL;
-    if (Wt::WApplication::readConfigurationProperty("leafletJSURL", leafletJSURL) &&
-        Wt::WApplication::readConfigurationProperty("leafletCSSURL", leafletCSSURL)) {
+    std::string leafletJSURL;
+    std::string leafletCSSURL;
+    Wt::WApplication::readConfigurationProperty("leafletJSURL", leafletJSURL);
+    Wt::WApplication::readConfigurationProperty("leafletCSSURL", leafletCSSURL);
+    if (!leafletJSURL.empty() &&
+        !leafletCSSURL.empty()) {
       app->require(leafletJSURL);
       app->useStyleSheet(WLink(leafletCSSURL));
     } else {
@@ -698,5 +701,11 @@ std::string WLeafletMap::mapJsRef() const
 {
   return "((function(){var o=" + jsRef() + ";if(o&&o.wtObj){return o.wtObj.map;}return null;})())";
 }
+
+WLeafletMap::MarkerEntry::MarkerEntry()
+  : marker(0),
+    id(-1),
+    flags()
+{ }
 
 }

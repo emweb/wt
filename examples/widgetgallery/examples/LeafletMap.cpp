@@ -8,6 +8,7 @@
 #include <Wt/WLink>
 
 #include <Wt/Json/Object>
+#include <Wt/Json/Value>
 
 #include <vector>
 
@@ -25,8 +26,13 @@ public:
     map_ = new Wt::WLeafletMap();
 
     Wt::Json::Object options;
+#ifndef WT_TARGET_JAVA
     options["maxZoom"] = 19;
     options["attribution"] = "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors";
+#else // WT_TARGET_JAVA
+    options["maxZoom"] = Wt::Json::Value(19);
+    options["attribution"] = Wt::Json::Value("&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors");
+#endif // WT_TARGET_JAVA
     map_->addTileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", options);
 
     map_->panTo(EMWEB_COORDS);
