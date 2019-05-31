@@ -24,6 +24,7 @@ private:
   Wt::WWidget *scatterPlot();
   Wt::WWidget *axisSliderWidget();
   Wt::WWidget *pieChart();
+  Wt::WWidget *leafletMap();
   Wt::WWidget *googleMap();
   Wt::WWidget *painting3d();
   Wt::WWidget *numCharts3d();

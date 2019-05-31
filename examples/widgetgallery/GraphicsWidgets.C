@@ -39,7 +39,10 @@ void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
   menu->addItem("Pie chart", 
 		deferCreate(boost::bind
 			    (&GraphicsWidgets::pieChart, this)));
-  menu->addItem("Maps",
+  menu->addItem("Leaflet maps",
+                deferCreate(boost::bind
+                            (&GraphicsWidgets::leafletMap, this)));
+  menu->addItem("Google maps",
                 deferCreate(boost::bind
 			    (&GraphicsWidgets::googleMap, this)));
   menu->addItem("3D painting", 
@@ -138,6 +141,17 @@ Wt::WWidget *GraphicsWidgets::pieChart()
   Wt::WTemplate *result = new TopicTemplate("graphics-PieChart");
 
   result->bindWidget("PieChart", PieChart());
+
+  return result;
+}
+
+#include "examples/LeafletMap.cpp"
+
+Wt::WWidget *GraphicsWidgets::leafletMap()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-LeafletMap");
+
+  result->bindWidget("LeafletMap", LeafletMap());
 
   return result;
 }
