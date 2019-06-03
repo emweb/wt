@@ -252,6 +252,7 @@ SUBDIRS(
   gitmodel
   hangman
   hello
+  http-client
   javascript
   leaflet
   mandelbrot
