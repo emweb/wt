@@ -1,7 +1,5 @@
-#include <Wt/WBorder>
 #include <Wt/WColor>
 #include <Wt/WContainerWidget>
-#include <Wt/WCssDecorationStyle>
 #include <Wt/WHBoxLayout>
 #include <Wt/WImage>
 #include <Wt/WLeafletMap>

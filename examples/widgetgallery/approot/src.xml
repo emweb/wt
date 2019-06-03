@@ -2442,16 +2442,15 @@
 </pre></div>
   </message>
   <message id="src-LeafletMap">
-<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;Wt/WBorder&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WColor&gt;</span><span class="cp"></span>
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;Wt/WColor&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WContainerWidget&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WCssDecorationStyle&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WHBoxLayout&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WImage&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WLeafletMap&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WLink&gt;</span><span class="cp"></span>
 
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/Json/Object&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;Wt/Json/Value&gt;</span><span class="cp"></span>
 
 <span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp"></span>
 
@@ -2484,10 +2483,6 @@
     <span class="n">map_</span><span class="o">-&gt;</span><span class="n">addPolyline</span><span class="p">(</span><span class="n">roadDescription</span><span class="p">(),</span> <span class="n">pen</span><span class="p">);</span>
 
     <span class="n">layout</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">map_</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-
-    <span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="k">this</span><span class="p">]{</span>
-      <span class="n">doJavaScript</span><span class="p">(</span><span class="s">&quot;console.log(&quot;</span> <span class="o">+</span> <span class="n">map_</span><span class="o">-&gt;</span><span class="n">mapJsRef</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;);&quot;</span><span class="p">);</span>
-    <span class="p">}));</span>
   <span class="p">}</span>
 
 <span class="k">private</span><span class="o">:</span>
