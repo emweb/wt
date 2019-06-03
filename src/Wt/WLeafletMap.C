@@ -224,7 +224,7 @@ WLeafletMap::WidgetMarker::WidgetMarker(const Coordinate &pos,
   : Marker(pos),
     container_(new WContainerWidget())
 {
-  container_->setJavaScriptMember("wtNoReparent", "true");
+  container_->setJavaScriptMember("wtReparentBarrier", "true");
   container_->addWidget(std::move(widget));
 }
 
@@ -326,9 +326,19 @@ WLeafletMap::WLeafletMap()
 
   WApplication *app = WApplication::instance();
   if (app) {
-    // TODO(Roel): custom URL?
-    app->require("https://unpkg.com/leaflet@1.5.1/dist/leaflet.js");
-    app->useStyleSheet(WLink("https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"));
+    std::string leafletJSURL;
+    std::string leafletCSSURL;
+    Wt::WApplication::readConfigurationProperty("leafletJSURL", leafletJSURL);
+    Wt::WApplication::readConfigurationProperty("leafletCSSURL", leafletCSSURL);
+    if (!leafletJSURL.empty() &&
+        !leafletCSSURL.empty()) {
+      app->require(leafletJSURL);
+      app->useStyleSheet(WLink(leafletCSSURL));
+    } else {
+      throw Wt::WException("Trying to create a WLeafletMap, but the leafletJSURL and/or leafletCSSURL properties are not configured");
+    }
+  } else {
+    throw Wt::WException("Trying to create a WLeafletMap without an active WApplication");
   }
 }
 
@@ -634,5 +644,17 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
 
   WCompositeWidget::render(flags);
 }
+
+std::string WLeafletMap::mapJsRef() const
+{
+  return "((function(){var o=" + jsRef() + ";if(o&&o.wtObj){return o.wtObj.map;}return null;})())";
+}
+
+WLeafletMap::MarkerEntry::MarkerEntry()
+  : uMarker(nullptr),
+    marker(nullptr),
+    id(-1),
+    flags()
+{ }
 
 }

@@ -40,7 +40,10 @@ void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
   menu->addItem("Pie chart", 
                 deferCreate(std::bind
                             (&GraphicsWidgets::pieChart, this)));
-  menu->addItem("Maps",
+  menu->addItem("Leaflet maps",
+                deferCreate(std::bind
+                            (&GraphicsWidgets::leafletMap, this)));
+  menu->addItem("Google maps",
                 deferCreate(std::bind
                             (&GraphicsWidgets::googleMap, this)));
   menu->addItem("3D painting", 
@@ -139,6 +142,17 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::pieChart()
   auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-PieChart");
 
   result->bindWidget("PieChart", PieChart());
+
+  return std::move(result);
+}
+
+#include "examples/LeafletMap.cpp"
+
+std::unique_ptr<Wt::WWidget> GraphicsWidgets::leafletMap()
+{
+  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-LeafletMap");
+
+  result->bindWidget("LeafletMap", LeafletMap());
 
   return std::move(result);
 }

@@ -655,6 +655,14 @@
 	       entry point by passing a location to WServer::addEntryPoint().
 	      -->
 	    <!-- <property name="favicon">images/favicon.ico</property> -->
+
+            <!-- leafletJSURL and leafletCSSURL properties
+
+               This is required if you want to use WLeafletMap, since leaflet itself is not bundled with Wt.
+               leafletJSURL should be a valid URL leading to the leaflet JavaScript, and leafletCSSURL to the leaflet CSS.
+              -->
+            <!-- <property name="leafletJSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.js</property> -->
+            <!-- <property name="leafletCSSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.css</property> -->
 	</properties>
 
     </application-settings>

@@ -24,6 +24,7 @@ private:
   std::unique_ptr<Wt::WWidget> scatterPlot();
   std::unique_ptr<Wt::WWidget> axisSliderWidget();
   std::unique_ptr<Wt::WWidget> pieChart();
+  std::unique_ptr<Wt::WWidget> leafletMap();
   std::unique_ptr<Wt::WWidget> googleMap();
   std::unique_ptr<Wt::WWidget> painting3d();
   std::unique_ptr<Wt::WWidget> numCharts3d();

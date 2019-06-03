@@ -62,6 +62,11 @@ WDate WDate::addMonths(int nmonths) const
   if(isValid()){
       date::year_month_day ymd = date::day(day())/month()/year();
       ymd += date::months(nmonths);
+      if(!ymd.ok() &&
+         ymd.year().ok() &&
+         ymd.month().ok() &&
+         ymd.day() > (ymd.year() / ymd.month() / date::last).day())
+        ymd = ymd.year() / ymd.month() / date::last;
       if(!ymd.ok())
           return WDate();
       return WDate((int)ymd.year(), (unsigned int)ymd.month(), (unsigned int)ymd.day());
@@ -74,6 +79,11 @@ WDate WDate::addYears(int nyears) const
   if(isValid()){
       date::year_month_day ymd = date::day(day())/month()/year();
       ymd += date::years(nyears);
+      if (!ymd.ok() &&
+          ymd.year().ok() &&
+          ymd.month().ok() &&
+          ymd.day() > (ymd.year() / ymd.month() / date::last).day())
+        ymd = ymd.year() / ymd.month() / date::last;
       if(!ymd.ok())
           return WDate();
       return WDate((int)ymd.year(), (unsigned int)ymd.month(), (unsigned int)ymd.day());

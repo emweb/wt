@@ -265,6 +265,14 @@ public:
    */
   JSignal<double, double> &panChanged() { return panChanged_; }
 
+  /*! \brief Returns a JavaScript expression to the Leaflet map object.
+   *
+   * You may want to use this in conjunction with JSlot or
+   * doJavaScript() in custom JavaScript code, e.g. to access
+   * features not built-in to %WLeafletMap.
+   */
+  std::string mapJsRef() const;
+
 protected:
   virtual void render(WFlags<RenderFlag> flags) override;
 
@@ -297,6 +305,8 @@ private:
   struct WT_API MarkerEntry {
       static const int BIT_ADDED = 0;
       static const int BIT_REMOVED = 1;
+
+      MarkerEntry();
 
       std::unique_ptr<Marker> uMarker;
       Marker *marker;

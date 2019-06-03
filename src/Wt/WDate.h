@@ -116,6 +116,10 @@ public:
    * \p nmonths will result in a date that is as many months
    * earlier.
    *
+   * If the day does not exist in the resulting month/year
+   * then the date is set to the last day of that month
+   * (e.g. 2019-05-31 + 1 month = 2019-06-30)
+   *
    * Returns a null date if the current date is invalid or the new
    * date is out of range.
    *
@@ -128,6 +132,10 @@ public:
    * Returns a date that is \p nyears later than this
    * date. Negative values for \p nyears will result in a date
    * that is as many years earlier.
+   *
+   * If the day does not exist in the resulting month/year
+   * then the date is set to the last day of that month
+   * (e.g. 2016-02-29 + 1 year = 2017-02-28)
    *
    * Returns a null date if the current date is invalid or the new
    * date is out of range.

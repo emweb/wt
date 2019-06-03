@@ -82,6 +82,30 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDate5 )
   BOOST_REQUIRE(wd.isNull());
 }
 
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDate6 )
+{
+  // Testing day being set to last valid day in resulting month/year when doing addMonths
+  Wt::WDate wd(2019, 5, 31);
+  wd = wd.addMonths(6);
+
+  BOOST_REQUIRE(wd.isValid());
+  BOOST_REQUIRE(wd.day() == 30);
+  BOOST_REQUIRE(wd.month() == 11);
+  BOOST_REQUIRE(wd.year() == 2019);
+}
+
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDate7 )
+{
+  // Testing day being set to last valid day in resulting month/year when doing addYears
+  Wt::WDate wd(2016, 2, 29);
+  wd = wd.addYears(1);
+
+  BOOST_REQUIRE(wd.isValid());
+  BOOST_REQUIRE(wd.day() == 28);
+  BOOST_REQUIRE(wd.month() == 2);
+  BOOST_REQUIRE(wd.year() == 2017);
+}
+
 BOOST_AUTO_TEST_CASE( WDateTime_test_WTime )
 {
   Wt::WTime wt(22, 11, 31);
