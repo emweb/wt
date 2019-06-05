@@ -98,7 +98,8 @@ OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_FIREBIRD "Build FirebirdSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_MYSQL "Build mariadb/mysql backend for Wt::Dbo" ON)
 OPTION(ENABLE_MSSQLSERVER "Build Microsoft SQL Server backend for Wt::Dbo" ON)
-OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
+OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt)" ON)
+OPTION(ENABLE_QT5 "Build Qt5 interworking library (libwtwithqt5)" ON)
 OPTION(ENABLE_LIBWTTEST "Build Wt::Test" ON)
 OPTION(ENABLE_LIBWTDBO "Build Wt::Dbo" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
@@ -155,36 +156,6 @@ IF(NOT MULTI_THREADED)
 ENDIF(NOT MULTI_THREADED)
 
 SET(BUILD_SHARED_LIBS ${SHARED_LIBS})
-
-# Default is to use cmake's boost discovery. The default will use wt's own
-# boost detection mechanism if one of the following is true:
-# - cmake version is too old (prior to 2.6 series)
-# - BOOST_COMPILER or BOOST_VERSION was defined (compatibility with existing
-#   build scripts)
-# - USE_BOOST_FRAMEWORK: we've adapted the vintage boost cmake find
-#   script to locate a boost.framework
-#
-IF(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION OR USE_BOOST_FRAMEWORK)
-  SET(DEFAULT_WT_BOOST_DISCOVERY TRUE)
-ELSE(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION OR USE_BOOST_FRAMEWORK)
-  SET(DEFAULT_WT_BOOST_DISCOVERY FALSE)
-ENDIF(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION OR USE_BOOST_FRAMEWORK)
-
-# There's no decent boost discovery prior to cmake 2.6
-IF(CMAKE_MAJOR_VERSION LESS 2)
-  SET(DEFAULT_WT_BOOST_DISCOVERY TRUE)
-ELSEIF(CMAKE_MAJOR_VERSION EQUAL 2)
-    IF(CMAKE_MINOR_VERSION LESS 6)
-      SET(DEFAULT_WT_BOOST_DISCOVERY TRUE)
-    ELSEIF(CMAKE_MINOR_VERSION EQUAL 6)
-      IF(CMAKE_TINY_VERSION LESS 2)
-        # Pau says: 2.6.0 and 2.6.1 are not very good
-        SET(DEFAULT_WT_BOOST_DISCOVERY TRUE)
-      ENDIF(CMAKE_TINY_VERSION LESS 2)
-    ENDIF(CMAKE_MINOR_VERSION LESS 6)
-ENDIF(CMAKE_MAJOR_VERSION LESS 2)
-
-SET(WT_BOOST_DISCOVERY ${DEFAULT_WT_BOOST_DISCOVERY} CACHE BOOL "Use Wt's boost discovery method rather than the cmake 2.6+ method")
 
 SET(DEBUG_LIB_POSTFIX "d" CACHE STRING "String appended to debug libraries")
 
@@ -355,6 +326,10 @@ IF(ENABLE_QT4)
   ENDIF(QT_FOUND)
 ENDIF(ENABLE_QT4)
 
+IF(ENABLE_QT5)
+  FIND_PACKAGE(Qt5Core)
+ENDIF(ENABLE_QT5)
+
 set(WT_THREAD_LIB "")
 IF(MULTI_THREADED)
   find_package(Threads)
@@ -379,12 +354,8 @@ IF(NOT BOOST_WT_FOUND)
       "library names (e.g.: gcc42)\n"
       "BOOST_VERSION: set to the boost version, again as you find them in "
       "the library names (e.g.: 1_38)\n\n"
-      "Note 1: WT_BOOST_DISCOVERY is the variable that selects the boost "
-      "discovery method. When set to false, method 1 is used (default if "
-      "cmake version is recent enough and BOOST_COMPILER and BOOST_VERSION "
-      "are not defined). When set to true, method 2 is used.\n"
-      "Note 2: the code to discover boost is located in cmake/WtFindBoost.txt\n"
-      "Note 3: on windows, set BOOST_PREFIX to the full path, eg "
+      "Note 1: the code to discover boost is located in cmake/WtFindBoost.txt\n"
+      "Note 2: on windows, set BOOST_PREFIX to the full path, eg "
       "c:/Program Files/boost/boost_1_65_1")
   MESSAGE(FATAL_ERROR ${ERR})
 ENDIF(NOT BOOST_WT_FOUND)
