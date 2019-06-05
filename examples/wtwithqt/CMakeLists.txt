@@ -81,16 +81,7 @@ ELSE (NOT BUILD_WTWITHQT5)
 
   TARGET_LINK_LIBRARIES(helloqt5.wt
     wtwithqt5
-    Qt5Core
   )
-
-  IF(NOT MSVC)
-    TARGET_COMPILE_OPTIONS(
-      helloqt5.wt
-    PRIVATE
-      -fPIC
-    )
-  ENDIF(NOT MSVC)
 
   TARGET_COMPILE_DEFINITIONS(
     helloqt5.wt
@@ -109,7 +100,6 @@ ELSE (NOT BUILD_WTWITHQT5)
   PRIVATE
     ${WT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/lib
-    ${Qt5Core_INCLUDE_DIRS}
   )
 
 ENDIF (NOT BUILD_WTWITHQT5)
