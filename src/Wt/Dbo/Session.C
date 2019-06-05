@@ -1042,9 +1042,16 @@ void Session::dropTables()
 {
   initSchema();
 
-  if (connectionPool_)
+  if (transaction_) {
+    flush();
+  }
+
+  if (connectionPool_) {
     connectionPool_->prepareForDropTables();
-  else
+    if (transaction_) {
+      transaction_->connection_->prepareForDropTables();
+    }
+  } else
     connection_->prepareForDropTables();
 
   Transaction t(*this);
