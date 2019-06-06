@@ -204,6 +204,7 @@ Wt/WLayout,Wt/WLayout.h
 Wt/WLayoutImpl,Wt/WLayoutImpl.h
 Wt/WLayoutItem,Wt/WLayoutItem.h
 Wt/WLayoutItemImpl,Wt/WLayoutItemImpl.h
+Wt/WLeafletMap,Wt/WLeafletMap.h
 Wt/WLength,Wt/WLength.h
 Wt/WLengthValidator,Wt/WLengthValidator.h
 Wt/WLineEdit,Wt/WLineEdit.h
