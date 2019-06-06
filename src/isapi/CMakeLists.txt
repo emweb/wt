@@ -7,11 +7,11 @@ IF(CONNECTOR_ISAPI)
     ADD_DEFINITIONS(-D_WIN32_WINNT=0x0600 -DWTISAPI_STATIC)
 
     SET(libsapisources
-      Server.C
+      Server.h Server.C
       WServer.C
       Isapi.C
-      IsapiRequest.C
-      IsapiStream.C
+      IsapiRequest.h IsapiRequest.C
+      IsapiStream.h IsapiStream.C
     )
 
     INCLUDE_DIRECTORIES(${FCGI_INCLUDE_DIRS})

@@ -15,26 +15,26 @@ IF(CONNECTOR_HTTP)
   ENDIF (HAVE_STRCASECMP)
 
   SET(libhttpsources
-    Android.C
-    Configuration.C
-    Connection.C
-    ConnectionManager.C
-    HTTPRequest.C
-    MimeTypes.C
-    ProxyReply.C
-    Reply.C
-    Request.C
-    RequestHandler.C
-    RequestParser.C
-    Server.C
-    SessionProcess.C
-    SessionProcessManager.C
-    SslConnection.C
-    StaticReply.C
-    StockReply.C
-    TcpConnection.C
+    Android.h Android.C
+    Configuration.h Configuration.C
+    Connection.h Connection.C
+    ConnectionManager.h ConnectionManager.C
+    HTTPRequest.h HTTPRequest.C
+    MimeTypes.h MimeTypes.C
+    ProxyReply.h ProxyReply.C
+    Reply.h Reply.C
+    Request.h Request.C
+    RequestHandler.h RequestHandler.C
+    RequestParser.h RequestParser.C
+    Server.h Server.C
+    SessionProcess.h SessionProcess.C
+    SessionProcessManager.h SessionProcessManager.C
+    SslConnection.h SslConnection.C
+    StaticReply.h StaticReply.C
+    StockReply.h StockReply.C
+    TcpConnection.h TcpConnection.C
     WServer.C
-    WtReply.C
+    WtReply.h WtReply.C
   )
 
  OPTION(HTTP_WITH_ZLIB "Support for zlib (http compression)" ${ZLIB_FOUND})

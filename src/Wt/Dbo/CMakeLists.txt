@@ -10,25 +10,25 @@ IF(ENABLE_LIBWTDBO)
 
   ADD_LIBRARY(wtdbo
     ${wtdboversionrc}
-    ptr.C
-    Call.C
-    DbAction.C
-    Exception.C
-    FixedSqlConnectionPool.C
-    Json.C
-    Query.C
-    QueryColumn.C
+    ptr.h ptr_impl.h ptr.C
+    Call.h Call_impl.h Call.C
+    DbAction.h DbAction_impl.h DbAction.C
+    Exception.h Exception.C
+    FixedSqlConnectionPool.h FixedSqlConnectionPool.C
+    Json.h Json.C
+    Query.h Query_impl.h Query.C
+    QueryColumn.h QueryColumn.C
     SqlQueryParse.C
-    Session.C
-    SqlConnection.C
-    SqlConnectionPool.C
-    SqlStatement.C
-    SqlTraits.C
-    StdSqlTraits.C
-    Transaction.C
-    WtSqlTraits.C
-    EscapeOStream.C
-    StringStream.C
+    Session.h Session_impl.h Session.C
+    SqlConnection.h SqlConnection.C
+    SqlConnectionPool.h SqlConnectionPool.C
+    SqlStatement.h SqlStatement.C
+    SqlTraits.h SqlTraits_impl.h SqlTraits.C
+    StdSqlTraits.h StdSqlTraits.C
+    Transaction.h Transaction.C
+    WtSqlTraits.h WtSqlTraits.C
+    EscapeOStream.h EscapeOStream.C
+    StringStream.h StringStream.C
   )
 
   IF(HAVE_UNWIND)

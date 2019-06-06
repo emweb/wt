@@ -8,10 +8,10 @@ IF(CONNECTOR_FCGI)
     MESSAGE("** Enabling FastCGI connector.")
 
     SET(libfcgisources
-      FCGIRecord.C
-      FCGIStream.C
-      Server.C
-      SessionInfo.C
+      FCGIRecord.h FCGIRecord.C
+      FCGIStream.h FCGIStream.C
+      Server.h Server.C
+      SessionInfo.h SessionInfo.C
       WServer.C
     )
 

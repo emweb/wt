@@ -41,7 +41,7 @@ IF(ENABLE_SQLITE)
   ENDIF(WIN32)
 
   ADD_LIBRARY(wtdbosqlite3
-    Sqlite3.C
+    Sqlite3.h Sqlite3.C
     ${Sqlite3_SRCS}
     )
 
@@ -116,7 +116,7 @@ IF(ENABLE_POSTGRES AND POSTGRES_FOUND)
   ENDIF(WIN32)
 
   ADD_LIBRARY(wtdbopostgres
-    Postgres.C
+    Postgres.h Postgres.C
     ${postgres_SRCS}
     )
   TARGET_LINK_LIBRARIES(wtdbopostgres
@@ -200,7 +200,7 @@ IF(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
   ENDIF(WIN32)
 
   ADD_LIBRARY(wtdbofirebird
-    Firebird.C
+    Firebird.h Firebird.C
     ${IBPP_ALL_IN_ONE_FILE}
     ${firebird_SRCS}
   )
@@ -268,7 +268,7 @@ IF(ENABLE_MYSQL AND MYSQL_FOUND)
   ENDIF(WIN32)
 
   ADD_LIBRARY(wtdbomysql
-    MySQL.C
+    MySQL.h MySQL.C
     ${mysql_SRCS}
     )
   TARGET_LINK_LIBRARIES(wtdbomysql
@@ -330,7 +330,7 @@ IF(ENABLE_MSSQLSERVER AND ODBC_FOUND)
   ENDIF(WIN32)
 
   ADD_LIBRARY(wtdbomssqlserver
-    MSSQLServer.C
+    MSSQLServer.h MSSQLServer.C
     ${mssqlserver_SRCS}
   )
   TARGET_LINK_LIBRARIES(wtdbomssqlserver
