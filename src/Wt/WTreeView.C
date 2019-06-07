@@ -1046,6 +1046,18 @@ void WTreeView::setup()
   }
 
   setRowHeight(rowHeight());
+
+  bindObjJS(itemClickedJS_, "click");
+  bindObjJS(rootClickedJS_, "rootClick");
+  bindObjJS(itemDoubleClickedJS_, "dblClick");
+  bindObjJS(rootDoubleClickedJS_, "rootDblClick");
+  bindObjJS(itemMouseDownJS_, "mouseDown");
+  bindObjJS(rootMouseDownJS_, "rootMouseDown");
+  bindObjJS(itemMouseUpJS_, "mouseUp");
+  bindObjJS(rootMouseUpJS_, "rootMouseUp");
+  bindObjJS(touchStartedJS_, "touchStart");
+  bindObjJS(touchMovedJS_, "touchMove");
+  bindObjJS(touchEndedJS_, "touchEnd");
 }
 
 void WTreeView::defineJavaScript()
@@ -1508,7 +1520,6 @@ void WTreeView::rerenderTree()
   WContainerWidget *wrapRoot
     = dynamic_cast<WContainerWidget *>(contents_->widget(0));
 
-  bool firstTime = rootNode_ == nullptr;
   wrapRoot->clear();
 
   firstRenderedRow_ = calcOptimalFirstRenderedRow();
@@ -1521,27 +1532,23 @@ void WTreeView::rerenderTree()
 
     if (editTriggers().test(EditTrigger::SingleClicked) || 
 	clicked().isConnected()) {
-      connectObjJS(rootNode_->clicked(), "click");
-      if (firstTime)
-	connectObjJS(contentsContainer_->clicked(), "rootClick");
+      rootNode_->clicked().connect(itemClickedJS_);
+      contentsContainer_->clicked().connect(rootClickedJS_);
     }
 
     if (editTriggers().test(EditTrigger::DoubleClicked) || 
 	doubleClicked().isConnected()) {
-      connectObjJS(rootNode_->doubleClicked(), "dblClick");
-      if (firstTime)
-	connectObjJS(contentsContainer_->doubleClicked(), "rootDblClick");
+      rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
+      contentsContainer_->doubleClicked().connect(rootDoubleClickedJS_);
     }
 
-    connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
-    if (firstTime)
-      connectObjJS(contentsContainer_->mouseWentDown(), "rootMouseDown");
+    rootNode_->mouseWentDown().connect(itemMouseDownJS_);
+    contentsContainer_->mouseWentDown().connect(rootMouseDownJS_);
 
     if (mouseWentUp().isConnected()) { 
 	  // Do not stop propagation to avoid mouseDrag event being emitted 
-      connectObjJS(rootNode_->mouseWentUp(), "mouseUp");
-      if (firstTime)
-	connectObjJS(contentsContainer_->mouseWentUp(), "rootMouseUp");
+      rootNode_->mouseWentUp().connect(itemMouseUpJS_);
+      contentsContainer_->mouseWentUp().connect(rootMouseUpJS_);
     }
 
 #ifdef WT_CNOR
@@ -1550,9 +1557,9 @@ void WTreeView::rerenderTree()
     EventSignalBase& a = rootNode_->touchStarted();
 #endif
    
-    connectObjJS(rootNode_->touchStarted(), "touchStart");
-    connectObjJS(rootNode_->touchMoved(), "touchMove");
-    connectObjJS(rootNode_->touchEnded(), "touchEnd");
+    rootNode_->touchStarted().connect(touchStartedJS_);
+    rootNode_->touchMoved().connect(touchMovedJS_);
+    rootNode_->touchEnded().connect(touchEndedJS_);
   }
 
   setRootNodeStyle();
@@ -2937,6 +2944,13 @@ EventSignal<WScrollEvent>& WTreeView::scrolled(){
 
   throw WException("Scrolled signal existes only with ajax.");
 }
+
+void WTreeView::setId(const std::string &id)
+{
+  WAbstractItemView::setId(id);
+  setup();
+}
+
 }
 
 #endif // DOXYGEN_ONLY

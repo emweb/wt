@@ -223,6 +223,8 @@ public:
 			ScrollHint hint = ScrollHint::EnsureVisible) override;
   virtual EventSignal<WScrollEvent>& scrolled() override;
 
+  virtual void setId(const std::string &id) override;
+
 protected:
   virtual void render(WFlags<RenderFlag> flags) override;
   virtual void enableAjax() override;
@@ -272,7 +274,12 @@ private:
 
   std::unique_ptr<ToggleButtonConfig> expandConfig_;
 
-  JSlot tieRowsScrollJS_;
+  JSlot tieRowsScrollJS_,
+        itemClickedJS_, rootClickedJS_,
+        itemDoubleClickedJS_, rootDoubleClickedJS_,
+        itemMouseDownJS_, rootMouseDownJS_,
+        itemMouseUpJS_, rootMouseUpJS_,
+        touchStartedJS_, touchMovedJS_, touchEndedJS_;
   
   virtual ColumnInfo createColumnInfo(int column) const override;
 
