@@ -32,7 +32,7 @@ Requirements
      * Compiler: Any compiler with sufficient support for C++11, like GCC
        5.1 or higher, or Clang 3.3 or higher.
      * [4]CMake 3.1 or higher
-     * [5]C++ boost library
+     * [5]C++ boost library 1.50.0 or higher
      * Optionally, [6]OpenSSL, which is used to support the HTTPS protocol
        in the web client, and the HTTPS protocol in the built-in wthttpd
        connector.
@@ -402,9 +402,9 @@ N/foobar/
 
 References
 
-   1. file:///home/roel/project/wt4/git/wt4/INSTALL.html#requirements
-   2. file:///home/roel/project/wt4/git/wt4/INSTALL.html#build
-   3. file:///home/roel/project/wt4/git/wt4/INSTALL.html#examples
+   1. file:///home/roel/project/wt/git/wt4/INSTALL.html#requirements
+   2. file:///home/roel/project/wt/git/wt4/INSTALL.html#build
+   3. file:///home/roel/project/wt/git/wt4/INSTALL.html#examples
    4. http://www.cmake.org/
    5. http://www.boost.org/
    6. http://www.openssl.org/
