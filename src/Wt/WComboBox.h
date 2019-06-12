@@ -184,7 +184,11 @@ public:
 
   /*! \brief Returns the current value.
    *
-   * Returns currentText() converted from a WString to a string.
+   * \if cpp
+   * Returns currentText().
+   * \else
+   * Returns currentText() as a String.
+   * \endif
    */
   virtual WT_USTRING valueText() const override;
 
