@@ -194,16 +194,12 @@ void WLeafletMap::Coordinate::setLongitude(double longitude)
 
 WLeafletMap::Marker::Marker(const Coordinate &pos)
   : pos_(pos),
-    map_(0),
+    map_(nullptr),
     moved_(false)
 { }
 
 WLeafletMap::Marker::~Marker()
-{
-  if (map_) {
-    map_->removeMarker(this);
-  }
-}
+{ }
 
 void WLeafletMap::Marker::move(const Coordinate &pos)
 {
@@ -312,12 +308,31 @@ void WLeafletMap::LeafletMarker::createMarkerJS(WStringStream &ss, WStringStream
 
 WLeafletMap::WLeafletMap()
   : impl_(nullptr),
+    options_(),
     zoomLevelChanged_(this, "zoomLevelChanged"),
     panChanged_(this, "panChanged"),
     zoomLevel_(13),
     nextMarkerId_(0),
     renderedTileLayersSize_(0),
     renderedOverlaysSize_(0)
+{
+  setup();
+}
+
+WLeafletMap::WLeafletMap(const Json::Object &options)
+  : options_(options),
+    zoomLevelChanged_(this, "zoomLevelChanged"),
+    panChanged_(this, "panChanged"),
+    zoomLevel_(13),
+    nextMarkerId_(0),
+    renderedTileLayersSize_(0),
+    renderedOverlaysSize_(0)
+{
+  setup();
+}
+
+// called from constructors to reduce code duplication (not currently designed to be run again)
+void WLeafletMap::setup()
 {
   impl_ = setImplementation(cpp14::make_unique<Impl>());
 
@@ -569,13 +584,20 @@ void WLeafletMap::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WLeafletMap.js", "WLeafletMap", wtjs1);
 
+  std::string optionsStr = Json::serialize(options_);
+
   WStringStream ss;
-  ss << "new " WT_CLASS ".WLeafletMap("
-     << app->javaScriptClass() << "," << jsRef() << ",";
+  EscapeOStream es(ss);
+  es << "new " WT_CLASS ".WLeafletMap("
+     << app->javaScriptClass() << "," << jsRef() << ",'";
+  es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+  es << optionsStr;
+  es.popEscape();
+  es << "',";
   char buf[30];
-  ss << Utils::round_js_str(position_.latitude(), 16, buf) << ",";
-  ss << Utils::round_js_str(position_.longitude(), 16, buf) << ",";
-  ss << Utils::round_js_str(zoomLevel_, 16, buf) << ");";
+  es << Utils::round_js_str(position_.latitude(), 16, buf) << ",";
+  es << Utils::round_js_str(position_.longitude(), 16, buf) << ",";
+  es << Utils::round_js_str(zoomLevel_, 16, buf) << ");";
 
   setJavaScriptMember(" WLeafletMap", ss.str());
   setJavaScriptMember(WT_RESIZE_JS,

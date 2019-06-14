@@ -173,6 +173,10 @@ public:
    */
   WLeafletMap();
 
+  /*! \brief Create a new WLeafletMap with the given options
+   */
+  explicit WLeafletMap(const Json::Object &options);
+
   virtual ~WLeafletMap();
 
   WLeafletMap(const WLeafletMap &) = delete;
@@ -281,6 +285,7 @@ private:
   static const int BIT_PAN_CHANGED = 1;
 
   Impl *impl_;
+  Json::Object options_;
   std::bitset<2> flags_;
   JSignal<int> zoomLevelChanged_;
   JSignal<double, double> panChanged_;
@@ -316,6 +321,7 @@ private:
 
   std::vector<MarkerEntry> markers_; // goes on the markerPane, z-index 600
 
+  void setup(); // called from constructors to reduce code duplication
   void defineJavaScript();
   void addTileLayerJS(WStringStream &ss, const TileLayer &layer) const;
   void panToJS(WStringStream &ss, const Coordinate &position) const;
