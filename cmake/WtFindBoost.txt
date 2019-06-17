@@ -108,11 +108,11 @@ IF (Boost_FOUND)
   SET(BOOST_WTHTTP_MT_FOUND TRUE)
   SET(BOOST_WTHTTP_FOUND TRUE)
 
-  IF(MSVC)
+  IF(MSVC AND NOT TARGET Boost::disable_autolinking)
     # use autolink
     SET(BOOST_WT_LIBRARIES "")
     SET(BOOST_WTHTTP_LIBRARIES "")
-  ELSE(MSVC)
+  ELSE()
     SET(BOOST_WT_LIBRARIES
         ${Boost_THREAD_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
@@ -122,5 +122,14 @@ IF (Boost_FOUND)
         ${Boost_PROGRAM_OPTIONS_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_FILESYSTEM_LIBRARY})
-  ENDIF(MSVC)
+  ENDIF()
+
+  IF(MSVC AND Boost::disable_autolinking)
+    SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} Boost::disable_autolinking)
+    SET(BOOST_WTHTTP_LIBRARIES ${BOOST_WTHTTP_LIBRARIES} Boost::disable_autolinking)
+  ENDIF()
+  IF(TARGET Boost::headers)
+    SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} Boost::headers)
+    SET(BOOST_WTHTTP_LIBRARIES ${BOOST_WTHTTP_LIBRARIES} Boost::headers)
+  ENDIF()
 ENDIF (Boost_FOUND)

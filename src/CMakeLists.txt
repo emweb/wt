@@ -423,7 +423,6 @@ SET(libsources ${libsources}
 
 IF(HAVE_HARU)
   SET(libsources ${libsources} Wt/WPdfImage.h Wt/WPdfImage.C Wt/Render/WPdfRenderer.h Wt/Render/WPdfRenderer.C)
-  SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES})
   ADD_DEFINITIONS(-DHAVE_PDF_IMAGE)
 ENDIF(HAVE_HARU)
 
@@ -517,6 +516,14 @@ IF(ENABLE_LIBWTTEST)
   )
 
   TARGET_LINK_LIBRARIES(wttest PUBLIC wt)
+
+  IF(TARGET Boost::headers)
+    TARGET_LINK_LIBRARIES(
+      wttest
+    PRIVATE
+      Boost::headers
+    )
+  ENDIF()
 
   IF(MULTI_THREADED_BUILD)
     TARGET_LINK_LIBRARIES(wttest PRIVATE ${WT_THREAD_LIB})

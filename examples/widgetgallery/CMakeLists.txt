@@ -37,6 +37,10 @@ WT_ADD_EXAMPLE(widgetgallery.wt
   ${WIDGETGALLERY_SOURCES}
 )
 
+IF(TARGET Boost::headers)
+  TARGET_LINK_LIBRARIES(widgetgallery.wt Boost::headers)
+ENDIF()
+
 IF (HAVE_HARU)
   INCLUDE_DIRECTORIES(${HARU_INCLUDE_DIRS})
   TARGET_LINK_LIBRARIES(widgetgallery.wt ${HARU_LIB})

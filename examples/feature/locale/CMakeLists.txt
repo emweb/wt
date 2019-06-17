@@ -1,5 +1,8 @@
 IF(BOOST_WT_FOUND)
 WT_ADD_EXAMPLE(locale.wt locale.C)
+IF(TARGET Boost::headers)
+  TARGET_LINK_LIBRARIES(locale.wt Boost::headers)
+ENDIF()
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 ELSE(BOOST_WT_FOUND)
   MESSAGE(STATUS "** Not building locale example: requires boost headers.")

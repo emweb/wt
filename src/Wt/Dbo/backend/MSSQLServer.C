@@ -22,8 +22,7 @@
 #include <string>
 #endif // WT_WIN32
 
-#include <boost/lexical_cast.hpp>
-
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -204,7 +203,7 @@ public:
     handleErr(SQL_HANDLE_STMT, stmt_, rc);
     if (parameterCount_ > 0) {
       paramValues_ = new Value[parameterCount_];
-      memset(paramValues_, 0, parameterCount_ * sizeof(Value));
+      std::memset(paramValues_, 0, parameterCount_ * sizeof(Value));
     }
   }
 
@@ -780,7 +779,7 @@ private:
 
     Value()
     {
-      memset(&v, 0, sizeof(v));
+      std::memset(&v, 0, sizeof(v));
       lengthOrInd = 0;
       type = 0;
     }
@@ -805,7 +804,7 @@ private:
           type == SQL_C_WCHAR)
         free(v.buf.p);
 
-      memset(&v, 0, sizeof(v));
+      std::memset(&v, 0, sizeof(v));
       lengthOrInd = 0;
       type = 0;
     }
@@ -831,9 +830,9 @@ private:
     if (column >= parameterCount_)
       throw MSSQLServerException(
         std::string("Trying to bind too many parameters (parameter count = ") +
-          boost::lexical_cast<std::string>(parameterCount_) +
+          std::to_string(parameterCount_) +
           ", column = " +
-          boost::lexical_cast<std::string>(column) +
+          std::to_string(column) +
           std::string(")"));
   }
 
@@ -1065,8 +1064,7 @@ std::string MSSQLServer::textType(int size) const
   if (size == -1)
     return "nvarchar(max)";
   else
-    return std::string("nvarchar(") +
-      boost::lexical_cast<std::string>(size) + ")";
+    return std::string("nvarchar(") + std::to_string(size) + ")";
 }
 
 LimitQuery MSSQLServer::limitQueryMethod() const

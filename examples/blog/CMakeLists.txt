@@ -24,6 +24,10 @@ WT_ADD_EXAMPLE(blog.wt
   blog.C
 )
 
+IF(TARGET Boost::headers)
+  TARGET_LINK_LIBRARIES(blog.wt Boost::headers)
+ENDIF()
+
 TARGET_LINK_LIBRARIES(blog.wt ${EXAMPLES_DBO_LIBS})
 
 # Test whether crypt(3) is provided by libc. If it's not, check if

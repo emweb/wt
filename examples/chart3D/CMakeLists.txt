@@ -1,7 +1,4 @@
 IF(BOOST_WT_FOUND)
-IF(CMAKE_COMPILER_IS_GNUCXX)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 #
 # The ADD_EXAMPLE macro (defined in examples/CMakeLists.txt) ensures that
@@ -20,6 +17,9 @@ WT_ADD_EXAMPLE(chart3D.wt
   DataSettings.C
   Models.C
   CsvUtil.C)
+IF(TARGET Boost::headers)
+  TARGET_LINK_LIBRARIES(chart3D.wt Boost::headers)
+ENDIF()
 
 #
 # If you have Wt installed somehwere, you should use the

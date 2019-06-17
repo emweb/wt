@@ -35,21 +35,15 @@ IF(ENABLE_LIBWTDBO)
     TARGET_LINK_LIBRARIES(wtdbo PRIVATE ${UNWIND_LIBRARIES})
   ENDIF(HAVE_UNWIND)
 
-  IF(MSVC)
-    #win32 links automatically against boost libs; specifying too much causes
-    #trouble
-    IF(MULTI_THREADED_BUILD)
-      TARGET_LINK_LIBRARIES(wtdbo
-                            PRIVATE
-                            ${WT_THREAD_LIB})
-    ENDIF(MULTI_THREADED_BUILD)
-  ELSE(MSVC)
-    IF(MULTI_THREADED_BUILD)
-      TARGET_LINK_LIBRARIES(wtdbo
-                            PRIVATE
-                              ${WT_THREAD_LIB})
-    ENDIF(MULTI_THREADED_BUILD)
-  ENDIF(MSVC)
+  IF(TARGET Boost::headers)
+    TARGET_LINK_LIBRARIES(wtdbo PRIVATE Boost::headers)
+  ENDIF()
+
+  IF(MULTI_THREADED_BUILD)
+    TARGET_LINK_LIBRARIES(wtdbo
+                          PRIVATE
+                          ${WT_THREAD_LIB})
+  ENDIF(MULTI_THREADED_BUILD)
 
   TARGET_INCLUDE_DIRECTORIES(wtdbo INTERFACE $<INSTALL_INTERFACE:include>)
 

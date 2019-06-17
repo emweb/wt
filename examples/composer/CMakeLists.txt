@@ -9,6 +9,9 @@ WT_ADD_EXAMPLE(composer.wt
   Option.C
   OptionList.C
 )
+IF(TARGET Boost::headers)
+  TARGET_LINK_LIBRARIES(composer.wt Boost::headers)
+ENDIF()
 
 #
 # If you have Wt installed somehwere, you should use the

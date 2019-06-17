@@ -6,6 +6,9 @@ WT_ADD_EXAMPLE(charts.wt
 	CsvUtil.C
 	ChartsApplication.C
 )
+IF(TARGET Boost::headers)
+  TARGET_LINK_LIBRARIES(charts.wt Boost::headers)
+ENDIF()
 
 #
 # If you have Wt installed somehwere, you should use the

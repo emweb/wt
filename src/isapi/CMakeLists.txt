@@ -17,7 +17,11 @@ IF(CONNECTOR_ISAPI)
     INCLUDE_DIRECTORIES(${FCGI_INCLUDE_DIRS})
 
     ADD_LIBRARY(wtisapi STATIC ${libsapisources})
-    TARGET_LINK_LIBRARIES(wtisapi wt)
+    TARGET_LINK_LIBRARIES(wtisapi PUBLIC wt)
+
+    IF(TARGET Boost::headers)
+      TARGET_LINK_LIBRARIES(wtisapi PRIVATE Boost::headers)
+    ENDIF()
 
     SET_TARGET_PROPERTIES(
       wtisapi

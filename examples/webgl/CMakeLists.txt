@@ -9,6 +9,9 @@ IF(BOOST_WT_FOUND)
 # build a DLL with the proper symbols exported.
 #
 WT_ADD_EXAMPLE(webgl.wt teapot.C readObj.C PaintWidget.C)
+IF(TARGET Boost::headers)
+  TARGET_LINK_LIBRARIES(webgl.wt Boost::headers)
+ENDIF()
 
 #
 # If you have Wt installed somehwere, you should use the
