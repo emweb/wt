@@ -522,7 +522,7 @@ void WMenuItem::setParentMenu(WMenu *menu)
 
   if (menu && menu->isPopup() &&
       subMenu_ && subMenu_->isPopup()) {
-    subMenu_->webWidget()->setZIndex(std::max(menu->zIndex() + 100, subMenu_->zIndex()));
+    subMenu_->webWidget()->setZIndex(std::max(menu->zIndex() + 1000, subMenu_->zIndex()));
   }
 }
 
@@ -609,7 +609,7 @@ void WMenuItem::setMenu(WMenu *menu)
   addWidget(subMenu_);
   if (subMenu_->isPopup() &&
       parentMenu() && parentMenu()->isPopup()) {
-    subMenu_->webWidget()->setZIndex(std::max(parentMenu()->zIndex() + 100, subMenu_->zIndex()));
+    subMenu_->webWidget()->setZIndex(std::max(parentMenu()->zIndex() + 1000, subMenu_->zIndex()));
   }
 
   WPopupMenu *popup = dynamic_cast<WPopupMenu *>(subMenu_);

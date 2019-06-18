@@ -84,6 +84,27 @@ WT_DECLARE_WT_MEMBER
       options.center = position;
       options.zoom = zoom;
       self.map = L.map(el, options);
+
+      var baseZIndex = parseInt((function(){
+        var p = el.parentNode;
+        while (p) {
+          if (p.wtPopup) {
+            return p.style.zIndex;
+          }
+          p = p.parentNode;
+        }
+        return 0;
+      })(), 10);
+
+      if (baseZIndex > 0) {
+        self.map.getPane('tilePane').style.zIndex = baseZIndex + 200;
+        self.map.getPane('overlayPane').style.zIndex = baseZIndex + 400;
+        self.map.getPane('shadowPane').style.zIndex = baseZIndex + 500;
+        self.map.getPane('markerPane').style.zIndex = baseZIndex + 600;
+        self.map.getPane('tooltipPane').style.zIndex = baseZIndex + 650;
+        self.map.getPane('popupPane').style.zIndex = baseZIndex + 700;
+      }
+
       self.map.on('zoomend', function() {
         var zoom = self.map.getZoom();
         if (zoom != lastZoom) {

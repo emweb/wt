@@ -51,7 +51,7 @@ std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 const char *WWebWidget::FOCUS_SIGNAL = "focus";
 const char *WWebWidget::BLUR_SIGNAL = "blur";
-const int WWebWidget::DEFAULT_BASE_Z_INDEX = 100;
+const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1000;
 
 #ifndef WT_TARGET_JAVA
 const std::bitset<36> WWebWidget::AllChangeFlags = std::bitset<36>()
@@ -717,7 +717,7 @@ void WWebWidget::calcZIndex()
         maxZ = std::max(maxZ, wi->zIndex());
     }
 
-    layoutImpl_->zIndex_ = std::max(baseZIndex(), maxZ + 100);
+    layoutImpl_->zIndex_ = std::max(baseZIndex(), maxZ + 1000);
   }
 }
 
