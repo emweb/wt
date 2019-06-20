@@ -135,6 +135,13 @@ UNSET(_target)
 UNSET(_TARGET)
 
 IF (Boost_FOUND)
+  IF(Boost_VERSION_MAJOR AND NOT Boost_MAJOR_VERSION)
+    set(Boost_MAJOR_VERSION ${Boost_VERSION_MAJOR})
+  ENDIF()
+  IF(Boost_VERSION_MINOR AND NOT Boost_MINOR_VERSION)
+    set(Boost_MINOR_VERSION ${Boost_VERSION_MINOR})
+  ENDIF()
+
   # Translate variables from official cmake names to internally used names
   SET(BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
   SET(BOOST_LIB_DIRS ${Boost_LIBRARY_DIRS})
@@ -158,7 +165,7 @@ IF (Boost_FOUND)
   SET(BOOST_WTHTTP_MT_FOUND TRUE)
   SET(BOOST_WTHTTP_FOUND TRUE)
 
-  IF(MSVC AND NOT TARGET Boost::disable_autolinking)
+  IF(MSVC AND Boost_MAJOR_VERSION EQUAL 1 AND Boost_MINOR_VERSION LESS 70)
     # use autolink
     SET(BOOST_WT_LIBRARIES "")
     SET(BOOST_WTHTTP_LIBRARIES "")
@@ -179,10 +186,6 @@ IF (Boost_FOUND)
         ${Boost_DATE_TIME_LIBRARY})
   ENDIF()
 
-  IF(MSVC AND Boost::disable_autolinking)
-    SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} Boost::disable_autolinking)
-    SET(BOOST_WTHTTP_LIBRARIES ${BOOST_WTHTTP_LIBRARIES} Boost::disable_autolinking)
-  ENDIF()
   IF(TARGET Boost::headers)
     SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} Boost::headers)
     SET(BOOST_WTHTTP_LIBRARIES ${BOOST_WTHTTP_LIBRARIES} Boost::headers)
