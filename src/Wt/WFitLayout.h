@@ -26,6 +26,26 @@ public:
   WFitLayout();
   ~WFitLayout();
 
+#ifndef WT_TARGET_JAVA
+  /*! \brief Adds a widget to the layout, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Widget *result = widget.get();
+   * WLayout::addWidget(std::unique_ptr<WWidget>(std::move(widget)));
+   * return result;
+   * \endcode
+   */
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget)
+  {
+    Widget *result = widget.get();
+    WLayout::addWidget(std::unique_ptr<WWidget>(std::move(widget)));
+    return result;
+  }
+#endif // WT_TARGET_JAVA
+
   static void fitWidget(WContainerWidget *container,
 			std::unique_ptr<WWidget> widget);
 
