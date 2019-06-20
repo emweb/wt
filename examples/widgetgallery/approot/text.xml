@@ -3600,9 +3600,11 @@
         (combo-boxes and the like).</li>
       </ul>
 
+      ${<if:cpp>}
       One particarly useful standard model is the ${doc-link
       Dbo-QueryModel} which is a tabular model backed by database
       data.
+      ${</if:cpp>}
     </p>
 
     <h3>Custom models</h3>
