@@ -272,10 +272,13 @@ SET(EXAMPLES_CONNECTOR wthttp CACHE STRING "Connector used for examples")
 
 include (CheckSymbolExists)
 
+find_package(PNG)
+
+set(ZLIB_ROOT ${ZLIB_PREFIX})
+find_package(ZLIB)
+
 INCLUDE(cmake/WtFindBoost.txt)
 INCLUDE(cmake/WtFindFcgi.txt)
-INCLUDE(cmake/WtFindZlib.txt)
-INCLUDE(cmake/WtFindPng.txt)
 INCLUDE(cmake/WtFindMysql.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindOdbc.txt)
