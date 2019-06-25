@@ -708,6 +708,15 @@ void WebController::handleRequest(WebRequest *request)
 	  }
 	}
 
+        if (request->isWebSocketRequest()) {
+          LOG_INFO_S(&server_, "WebSocket request for non-existing session rejected. "
+                               "This is likely because of a browser with an old session "
+                               "trying to reconnect (e.g. when the server was restarted)");
+          request->setStatus(403);
+          request->flush(WebResponse::ResponseDone);
+          return;
+        }
+
 	if (singleSessionId_.empty()) {
 	  do {
 	    sessionId = conf_.generateSessionId();
