@@ -713,7 +713,7 @@ void WebController::handleRequest(WebRequest *request)
                                "This is likely because of a browser with an old session "
                                "trying to reconnect (e.g. when the server was restarted)");
           request->setStatus(403);
-          request->flush(WebResponse::ResponseDone);
+          request->flush(WebResponse::ResponseState::ResponseDone);
           return;
         }
 
