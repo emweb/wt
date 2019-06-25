@@ -138,7 +138,7 @@ void WPdfImage::setStrokeColor(WColor color)
                          color.green() / 255.,
                          color.blue() / 255.);
 
-  typename std::map<int, HPDF_ExtGState>::const_iterator it =
+  const std::map<int, HPDF_ExtGState>::const_iterator it =
     alphaStrokeExtGStateMap_.find(color.alpha());
   HPDF_ExtGState gstate;
   if (it == alphaStrokeExtGStateMap_.end()) {
