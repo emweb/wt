@@ -29,7 +29,6 @@ public:
   WFileDropUploadResource(WFileDropWidget *fileDropWidget, File *file)
     : WResource(),
       parent_(fileDropWidget),
-      app_(WApplication::instance()),
       currentFile_(file)
   {
     setUploadProgress(true);
@@ -95,7 +94,6 @@ protected:
 
 private:
   WFileDropWidget *parent_;
-  WApplication *app_;
   File *currentFile_;
 };
 

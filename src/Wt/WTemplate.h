@@ -316,6 +316,9 @@ public:
      *
      * The function will consider the first argument as the condition, and the
      * second argument as the key for a localized string that is a macro block.
+     *
+     * Just like the block() function, you can provide additional arguments, so the third
+     * argument will be what is filled in into <tt>{1}</tt> in the macro block, etc.
      */
 #ifndef WT_TARGET_JAVA
     static bool while_f(WTemplate *t, const std::vector<WString>& args,
