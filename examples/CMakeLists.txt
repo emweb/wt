@@ -45,8 +45,16 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
       debug libhpdfd optimized libhpdf
     )
 
+    set(BOOST_ROOT ${CMAKE_SOURCE_DIR}/../../..)
+    set(Boost_USE_STATIC_LIBS ON)
+    find_package(Boost COMPONENTS filesystem)
+    if(TARGET Boost::filesystem)
+      set(BOOST_FS_LIB Boost::filesystem)
+    endif()
+
     INCLUDE_DIRECTORIES($(CMAKE_SOURCE_DIR)/../../../include)
     LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/../../../lib)
+    set(WT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/..)
 
     # We ship libharu as DLL. Compiling/linking against libharu DLL requires
     # this definition to be set.
@@ -54,6 +62,8 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     # Windows SDK is always multithreaded
     SET(BOOST_WT_MT_FOUND true)
     SET(MULTI_THREADED true)
+    set(MULTI_THREADED_BUILD true)
+    set(WT_HAS_WRASTERIMAGE true) # uses Direct2D on Windows, so we have it by default
   ENDIF(WIN32)
 ENDIF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   

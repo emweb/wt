@@ -261,7 +261,6 @@ private:
 
   private:
     WFileDropWidget *parent_;
-    WApplication *app_;
     File *currentFile_;
   };
 

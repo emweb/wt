@@ -109,7 +109,6 @@ NestedResource::WFileDropUploadResource(WFileDropWidget *fileDropWidget,
 					File *file)
   : WResource(fileDropWidget),
     parent_(fileDropWidget),
-    app_(WApplication::instance()),
     currentFile_(file)
 {
   setUploadProgress(true);
