@@ -215,12 +215,15 @@ void WLeafletMap::Marker::setMap(WLeafletMap *map)
   map_ = map;
 }
 
+void WLeafletMap::Marker::unrender()
+{ }
+
 WLeafletMap::WidgetMarker::WidgetMarker(const Coordinate &pos,
                                         std::unique_ptr<WWidget> widget)
   : Marker(pos),
-    container_(new WContainerWidget())
+    container_(nullptr)
 {
-  container_->setJavaScriptMember("wtReparentBarrier", "true");
+  createContainer();
   container_->addWidget(std::move(widget));
 }
 
@@ -291,6 +294,26 @@ void WLeafletMap::WidgetMarker::createMarkerJS(WStringStream &ss, WStringStream 
         "});})()";
 }
 
+void WLeafletMap::WidgetMarker::unrender()
+{
+  WWidget *w = widget();
+  std::unique_ptr<WWidget> uW;
+  if (w) {
+    uW = container_->removeWidget(w);
+  }
+  container_.reset();
+  createContainer();
+  if (uW) {
+    container_->addWidget(std::move(uW));
+  }
+}
+
+void WLeafletMap::WidgetMarker::createContainer()
+{
+  container_.reset(new Wt::WContainerWidget());
+  container_->setJavaScriptMember("wtReparentBarrier", "true");
+}
+
 WLeafletMap::LeafletMarker::LeafletMarker(const Coordinate &pos)
   : Marker(pos)
 { }
@@ -355,6 +378,23 @@ void WLeafletMap::setup()
   } else {
     throw Wt::WException("Trying to create a WLeafletMap without an active WApplication");
   }
+}
+
+void WLeafletMap::setOptions(const Json::Object &options)
+{
+  options_ = options;
+  flags_.set(BIT_OPTIONS_CHANGED);
+
+  if (isRendered()) {
+    for (std::size_t i = 0; i < markers_.size(); ++i) {
+      if (!markers_[i].flags.test(MarkerEntry::BIT_ADDED) &&
+          !markers_[i].flags.test(MarkerEntry::BIT_REMOVED)) {
+        markers_[i].marker->unrender();
+      }
+    }
+  }
+
+  scheduleRender();
 }
 
 WLeafletMap::~WLeafletMap()
@@ -606,7 +646,7 @@ void WLeafletMap::defineJavaScript()
 
 void WLeafletMap::render(WFlags<RenderFlag> flags)
 {
-  if (flags.test(RenderFlag::Full)) {
+  if (flags.test(RenderFlag::Full) || flags_.test(BIT_OPTIONS_CHANGED)) {
     defineJavaScript();
 
     // Just created, no tile layers or overlays have been rendered yet
@@ -642,7 +682,9 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
 
   for (std::size_t i = 0; i < markers_.size();) {
     if (markers_[i].flags.test(MarkerEntry::BIT_REMOVED)) {
-      removeMarkerJS(ss, markers_[i].id);
+      if (!flags_.test(BIT_OPTIONS_CHANGED)) {
+        removeMarkerJS(ss, markers_[i].id);
+      }
       markers_.erase(markers_.begin() + i);
     } else {
       ++i;
@@ -651,6 +693,7 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
 
   for (std::size_t i = 0; i < markers_.size(); ++i) {
     if (flags.test(RenderFlag::Full) ||
+        flags_.test(BIT_OPTIONS_CHANGED) ||
         markers_[i].flags.test(MarkerEntry::BIT_ADDED)) {
       addMarkerJS(ss, markers_[i].id, markers_[i].marker);
       markers_[i].flags.reset(MarkerEntry::BIT_ADDED);

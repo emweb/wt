@@ -98,6 +98,7 @@ public:
 
     virtual void setMap(WLeafletMap *map);
     virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const = 0;
+    virtual void unrender();
 
   private:
     Coordinate pos_;
@@ -142,9 +143,12 @@ public:
   protected:
     virtual void setMap(WLeafletMap *map) override;
     virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const override;
+    virtual void unrender() override;
 
   private:
     std::unique_ptr<WContainerWidget> container_;
+
+    void createContainer();
   };
 
   /*! \class LeafletMarker
@@ -174,6 +178,8 @@ public:
   WLeafletMap();
 
   /*! \brief Create a new WLeafletMap with the given options
+   *
+   * \sa setOptions()
    */
   explicit WLeafletMap(const Json::Object &options);
 
@@ -183,6 +189,16 @@ public:
   WLeafletMap& operator=(const WLeafletMap &) = delete;
   WLeafletMap(WLeafletMap &&) = delete;
   WLeafletMap& operator=(WLeafletMap &&) = delete;
+
+  /*! \brief Change the options of the %WLeafletMap
+   *
+   * \note This fully rerenders the map, because it creates a new Leaflet map,
+   * so any custom JavaScript modifying the map with e.g. doJavaScript() is undone,
+   * much like reloading the page when <tt>reload-is-new-session</tt> is set to false.
+   *
+   * See https://leafletjs.com/reference.html#map for a list of options.
+   */
+  void setOptions(const Json::Object &options);
 
   /*! \brief Add a new tile layer
    *
@@ -283,10 +299,11 @@ protected:
 private:
   static const int BIT_ZOOM_CHANGED = 0;
   static const int BIT_PAN_CHANGED = 1;
+  static const int BIT_OPTIONS_CHANGED = 2;
 
   Impl *impl_;
   Json::Object options_;
-  std::bitset<2> flags_;
+  std::bitset<3> flags_;
   JSignal<int> zoomLevelChanged_;
   JSignal<double, double> panChanged_;
   Coordinate position_;

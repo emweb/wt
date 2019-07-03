@@ -9,6 +9,11 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WLeafletMap",
   function(APP, el, options_str, lat, lng, zoom) {
+    if (el.wtObj) {
+      // uninit existing WLeafletMap
+      el.wtObj.map.remove();
+    }
+
     el.wtObj = this;
 
     var self = this;
