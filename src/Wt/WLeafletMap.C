@@ -243,7 +243,9 @@ void WLeafletMap::Marker::unrender()
 WLeafletMap::WidgetMarker::WidgetMarker(const Coordinate &pos,
                                         WWidget *widget)
   : Marker(pos),
-    container_(0)
+    container_(0),
+    anchorX_(-1),
+    anchorY_(-1)
 {
   createContainer();
   container_->addWidget(widget);
@@ -318,6 +320,13 @@ void WLeafletMap::WidgetMarker::createMarkerJS(WStringStream &ss, WStringStream 
     es << "iconSize:[";
     es << Utils::round_js_str(widget()->width().toPixels(), 16, buf) << ',';
     es << Utils::round_js_str(widget()->height().toPixels(), 16, buf) << "],";
+    if (anchorX_ >= 0 || anchorY_ >= 0) {
+      double x = anchorX_ >= 0 ? anchorX_ : widget()->width().toPixels() / 2.0;
+      double y = anchorY_ >= 0 ? anchorY_ : widget()->height().toPixels() / 2.0;
+      es << "iconAnchor:[";
+      es << Utils::round_js_str(x, 16, buf) << ',';
+      es << Utils::round_js_str(y, 16, buf) << "],";
+    }
   }
   es << "html:'";
   es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
@@ -333,6 +342,12 @@ void WLeafletMap::WidgetMarker::createMarkerJS(WStringStream &ss, WStringStream 
         "});})()";
 
   delete element;
+}
+
+void WLeafletMap::WidgetMarker::setAnchorPoint(double x, double y)
+{
+  anchorX_ = x;
+  anchorY_ = y;
 }
 
 void WLeafletMap::WidgetMarker::unrender()
