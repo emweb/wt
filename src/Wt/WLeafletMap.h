@@ -140,6 +140,20 @@ public:
      */
     const WWidget *widget() const;
 
+    /*! \brief Set the anchor point of the marker.
+     *
+     * This determines the "tip" of the marker (relative to its
+     * top left corner). The marker will be aligned so that this
+     * point is at the marker's geographical location.
+     *
+     * If x is negative, the anchor point is in the
+     * horizontal center of the widget. If y is negative,
+     * the anchor point is in the vertical center of the widget.
+     *
+     * By default the anchor point is in the middle (horizontal and vertical center).
+     */
+    void setAnchorPoint(double x, double y);
+
   protected:
     virtual void setMap(WLeafletMap *map) override;
     virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const override;
@@ -147,6 +161,7 @@ public:
 
   private:
     std::unique_ptr<WContainerWidget> container_;
+    double anchorX_, anchorY_;
 
     void createContainer();
   };
