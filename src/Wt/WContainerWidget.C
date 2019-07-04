@@ -67,7 +67,7 @@ void WContainerWidget::setLayout(std::unique_ptr<WLayout> layout)
   // we need to delete the old value first, otherwise we run into problems
   // FIXME: maybe the code should be fixed so this is not necessary? Having
   //        to call reset() first feels dirty
-  layout_.reset();
+  clear();
 
   layout_ = std::move(layout);
   if (layout_)

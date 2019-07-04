@@ -46,7 +46,7 @@ LOGGER("Auth.AuthWidget");
 AuthWidget::AuthWidget(const AuthService& baseAuth,
 		       AbstractUserDatabase& users, Login& login)
   : WTemplateFormView(WString::Empty),
-    model_(new AuthModel(baseAuth, users)),
+    model_(std::make_shared<AuthModel>(baseAuth, users)),
     login_(login)
 {
   init();
@@ -171,11 +171,6 @@ void AuthWidget::closeDialog()
   }
 }
 
-std::unique_ptr<RegistrationModel> AuthWidget::registrationModel()
-{
-  return createRegistrationModel();
-}
-
 std::unique_ptr<RegistrationModel> AuthWidget::createRegistrationModel()
 {
   auto result = std::unique_ptr<RegistrationModel>
@@ -190,7 +185,7 @@ std::unique_ptr<RegistrationModel> AuthWidget::createRegistrationModel()
 
 std::unique_ptr<WWidget> AuthWidget::createRegistrationView(const Identity& id)
 {
-  auto model = registrationModel();
+  auto model = createRegistrationModel();
 
   if (id.isValid())
     model->registerIdentified(id);
@@ -231,7 +226,7 @@ std::unique_ptr<WWidget> AuthWidget
 {
   return std::unique_ptr<WWidget>
     (new UpdatePasswordWidget
-     (user, registrationModel(),
+     (user, createRegistrationModel(),
       promptPassword ? model_ : std::shared_ptr<AuthModel>()));
 }
 

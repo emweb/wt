@@ -12,6 +12,8 @@
 #include <Wt/Auth/Identity.h>
 #include <Wt/Auth/User.h>
 
+#include <memory>
+
 namespace Wt {
   namespace Auth {
 
@@ -52,7 +54,7 @@ class OAuthService;
  *
  * \ingroup auth
  */
-class WT_API AuthModel : public FormBaseModel
+class WT_API AuthModel : public FormBaseModel, public std::enable_shared_from_this<AuthModel>
 {
 public:
   //! \brief Password field

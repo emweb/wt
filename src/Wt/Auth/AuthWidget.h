@@ -374,8 +374,6 @@ private:
   void oAuthStateChange(OAuthProcess *process);
   void oAuthDone(OAuthProcess *process, const Identity& identity);
   void updatePasswordLoginView();
-
-  std::unique_ptr<RegistrationModel> registrationModel();
 };
 
   }
