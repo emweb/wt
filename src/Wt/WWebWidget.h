@@ -403,6 +403,7 @@ private:
   static const char *BLUR_SIGNAL;
 
   static const int DEFAULT_BASE_Z_INDEX;
+  static const int Z_INDEX_INCREMENT;
 
   std::string elementTagName_;
 
