@@ -180,7 +180,10 @@ RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply
 			      char *& begin, char *end)
 {
   if (req.type == Request::WebSocket) {
-    Request::State state = parseWebSocketMessage(req, reply, begin, end);
+    Request::State state;
+    do {
+      state = parseWebSocketMessage(req, reply, begin, end);
+    } while (begin != end && state == Request::Partial);
 
     if (state == Request::Error)
       reply->consumeData(begin, begin, Request::Error);
@@ -509,7 +512,16 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
   Request::State state = Request::Partial;
 
-  while (begin < end && state == Request::Partial) {
+  // we may be at the end of the frame (that is not the final frame
+  // of a message) without having fully consumed the input, in that
+  // case state == Request::Partial and begin < end, but we still
+  // need to inflate the frame (if using PMD), and let the reply
+  // consume it
+  bool endOfPartialFrame = false;
+
+  while (begin < end &&
+         state == Request::Partial &&
+         !endOfPartialFrame) {
     switch (wsState_) {
     case ws00_frame_start:
       wsFrameType_ = *begin;
@@ -587,7 +599,6 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	if (frameType & 0x70 && (!req.pmdState_.enabled && frameType & 0x30)) 
 	  return Request::Error;
 	
-	frameCompressed_ = frameType & 0x40;
 #else
 	if(frameType & 0x70)
 	  return Request::Error;
@@ -606,6 +617,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	case 0x9: // Ping
 	case 0xA: // Pong
 	  wsFrameType_ = frameType;
+	  frameCompressed_ = frameType & 0x40;
 
 	  break;
 	default:
@@ -683,7 +695,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	} else {
 	  // Frame without data (like pong)
 	  if (wsFrameType_ & 0x80)
-	    state = Request::Complete;
+            state = Request::Complete;
 	  wsState_ = ws13_frame_start;
 	}
       }
@@ -712,8 +724,11 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	LOG_DEBUG("ws: reading payload, remains = " << remainder_);
 
 	if (remainder_ == 0) {
-	  if (wsFrameType_ & 0x80)
-	    state = Request::Complete;
+          if (wsFrameType_ & 0x80) {
+            state = Request::Complete;
+          } else {
+            endOfPartialFrame = true;
+          }
 
 	  wsState_ = ws13_frame_start;
 	}
