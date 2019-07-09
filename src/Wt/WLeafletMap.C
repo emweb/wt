@@ -10,6 +10,7 @@
 #include "Wt/WBrush.h"
 #include "Wt/WColor.h"
 #include "Wt/WContainerWidget.h"
+#include "Wt/WCssStyleSheet.h"
 #include "Wt/WJavaScriptPreamble.h"
 #include "Wt/WLink.h"
 #include "Wt/WLogger.h"
@@ -32,6 +33,11 @@
 namespace Wt {
 
 LOGGER("WLeafletMap");
+
+const std::string WLeafletMap::WIDGETMARKER_CONTAINER_RULENAME = "WLeafletMap::WidgetMarker::container";
+const std::string WLeafletMap::WIDGETMARKER_CONTAINER_CHILDREN_RULENAME = "WLeafletMap::WidgetMarker::container-children";
+
+#define WIDGETMARKER_CONTAINER_CLASS "Wt-leaflet-widgetmarker-container"
 
 class WLeafletMap::Impl : public WWebWidget {
 public:
@@ -218,12 +224,21 @@ void WLeafletMap::Marker::setMap(WLeafletMap *map)
 void WLeafletMap::Marker::unrender()
 { }
 
+bool WLeafletMap::Marker::needsUpdate() const
+{
+  return false;
+}
+
+void WLeafletMap::Marker::update(WStringStream &js)
+{ }
+
 WLeafletMap::WidgetMarker::WidgetMarker(const Coordinate &pos,
                                         std::unique_ptr<WWidget> widget)
   : Marker(pos),
     container_(nullptr),
     anchorX_(-1),
-    anchorY_(-1)
+    anchorY_(-1),
+    anchorPointChanged_(false)
 {
   createContainer();
   container_->addWidget(std::move(widget));
@@ -265,30 +280,20 @@ void WLeafletMap::WidgetMarker::createMarkerJS(WStringStream &ss, WStringStream 
 
   DomElement::TimeoutList timeouts;
 
+  char buf[30];
+
+  if (anchorX_ >= 0 || anchorY_ >= 0) {
+    updateAnchorJS(postJS);
+  }
+
   EscapeOStream js(postJS);
-  // FIXME: allow control over disabling/enabling pointerdown propagation?
-  js << "var o=" << container_->jsRef() << ";if(o){"
-        "" "o.addEventListener('pointerdown',function(e){e.stopPropagation();},false);"
-        "}";
 
   EscapeOStream es(ss);
-  char buf[30];
   es << "(function(){";
   es << "var wIcon=L.divIcon({"
-        "className:'',";
-  if (!widget()->width().isAuto() &&
-      !widget()->height().isAuto()) {
-    es << "iconSize:[";
-    es << Utils::round_js_str(widget()->width().toPixels(), 16, buf) << ',';
-    es << Utils::round_js_str(widget()->height().toPixels(), 16, buf) << "],";
-    if (anchorX_ >= 0 || anchorY_ >= 0) {
-      double x = anchorX_ >= 0 ? anchorX_ : widget()->width().toPixels() / 2.0;
-      double y = anchorY_ >= 0 ? anchorY_ : widget()->height().toPixels() / 2.0;
-      es << "iconAnchor:[";
-      es << Utils::round_js_str(x, 16, buf) << ',';
-      es << Utils::round_js_str(y, 16, buf) << "],";
-    }
-  }
+        "className:'',"
+        "iconSize:null,"
+        "iconAnchor:null,";
   es << "html:'";
   es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
   element->asHTML(es, js, timeouts);
@@ -298,6 +303,7 @@ void WLeafletMap::WidgetMarker::createMarkerJS(WStringStream &ss, WStringStream 
   es << Utils::round_js_str(position().latitude(), 16, buf) << ",";
   es << Utils::round_js_str(position().longitude(), 16, buf) << "],";
   es << "{"
+          "interactive:false,"
           "icon:wIcon,"
           "keyboard:false"
         "});})()";
@@ -307,6 +313,11 @@ void WLeafletMap::WidgetMarker::setAnchorPoint(double x, double y)
 {
   anchorX_ = x;
   anchorY_ = y;
+
+  if (map() && map()->isRendered()) {
+    anchorPointChanged_ = true;
+    map()->scheduleRender();
+  }
 }
 
 void WLeafletMap::WidgetMarker::unrender()
@@ -326,7 +337,41 @@ void WLeafletMap::WidgetMarker::unrender()
 void WLeafletMap::WidgetMarker::createContainer()
 {
   container_.reset(new Wt::WContainerWidget());
+  container_->addStyleClass(WIDGETMARKER_CONTAINER_CLASS);
   container_->setJavaScriptMember("wtReparentBarrier", "true");
+}
+
+bool WLeafletMap::WidgetMarker::needsUpdate() const
+{
+  return anchorPointChanged_;
+}
+
+void WLeafletMap::WidgetMarker::update(WStringStream &js)
+{
+  if (anchorPointChanged_) {
+    updateAnchorJS(js);
+    anchorPointChanged_ = false;
+  }
+}
+
+void WLeafletMap::WidgetMarker::updateAnchorJS(WStringStream &js) const
+{
+  char buf[30];
+  js << "var o=" << container_->jsRef() << ";if(o){"
+        "" "o.style.transform='translate(";
+  if (anchorX_ >= 0) {
+    js << Utils::round_js_str(-anchorX_, 16, buf) << "px";
+  } else {
+    js << "-50%";
+  }
+  js << ',';
+  if (anchorY_ >= 0) {
+    js << Utils::round_js_str(-anchorY_, 16, buf) << "px";
+  } else {
+    js << "-50%";
+  }
+  js << ")';"
+        "}";
 }
 
 WLeafletMap::LeafletMarker::LeafletMarker(const Coordinate &pos)
@@ -379,6 +424,13 @@ void WLeafletMap::setup()
 
   WApplication *app = WApplication::instance();
   if (app) {
+    if (!app->styleSheet().isDefined(WIDGETMARKER_CONTAINER_RULENAME)) {
+      app->styleSheet().addRule("." WIDGETMARKER_CONTAINER_CLASS, "transform: translate(-50%, -50%);", WIDGETMARKER_CONTAINER_RULENAME);
+    }
+    if (!app->styleSheet().isDefined(WIDGETMARKER_CONTAINER_CHILDREN_RULENAME)) {
+      app->styleSheet().addRule("." WIDGETMARKER_CONTAINER_CLASS " > *", "pointer-events: auto;", WIDGETMARKER_CONTAINER_CHILDREN_RULENAME);
+    }
+
     std::string leafletJSURL;
     std::string leafletCSSURL;
     Wt::WApplication::readConfigurationProperty("leafletJSURL", leafletJSURL);
@@ -712,8 +764,13 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
         markers_[i].flags.test(MarkerEntry::BIT_ADDED)) {
       addMarkerJS(ss, markers_[i].id, markers_[i].marker);
       markers_[i].flags.reset(MarkerEntry::BIT_ADDED);
-    } else if (markers_[i].marker->moved_) {
-      moveMarkerJS(ss, markers_[i].id, markers_[i].marker->position());
+    } else {
+      if (markers_[i].marker->moved_) {
+        moveMarkerJS(ss, markers_[i].id, markers_[i].marker->position());
+      }
+      if (markers_[i].marker->needsUpdate()) {
+        markers_[i].marker->update(ss);
+      }
     }
     markers_[i].marker->moved_ = false;
   }

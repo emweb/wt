@@ -96,9 +96,14 @@ public:
   protected:
     explicit Marker(const Coordinate &pos);
 
+    WLeafletMap *map() { return map_; }
+    const WLeafletMap *map() const { return map_; }
+
     virtual void setMap(WLeafletMap *map);
     virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const = 0;
     virtual void unrender();
+    virtual bool needsUpdate() const;
+    virtual void update(WStringStream &js);
 
   private:
     Coordinate pos_;
@@ -119,9 +124,6 @@ public:
   class WT_API WidgetMarker : public Marker {
   public:
     /*! \brief Create a new WidgetMarker at the given position with the given widget.
-     *
-     * The widget should have a predetermined width and height to be
-     * rendered correctly, with \p pos in the center of the widget.
      */
     explicit WidgetMarker(const Coordinate &pos, std::unique_ptr<WWidget> widget);
 
@@ -158,12 +160,16 @@ public:
     virtual void setMap(WLeafletMap *map) override;
     virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const override;
     virtual void unrender() override;
+    virtual bool needsUpdate() const override;
+    virtual void update(WStringStream &js) override;
 
   private:
     std::unique_ptr<WContainerWidget> container_;
     double anchorX_, anchorY_;
+    bool anchorPointChanged_;
 
     void createContainer();
+    void updateAnchorJS(WStringStream &js) const;
   };
 
   /*! \class LeafletMarker
@@ -315,6 +321,9 @@ private:
   static const int BIT_ZOOM_CHANGED = 0;
   static const int BIT_PAN_CHANGED = 1;
   static const int BIT_OPTIONS_CHANGED = 2;
+
+  static const std::string WIDGETMARKER_CONTAINER_RULENAME;
+  static const std::string WIDGETMARKER_CONTAINER_CHILDREN_RULENAME;
 
   Impl *impl_;
   Json::Object options_;
