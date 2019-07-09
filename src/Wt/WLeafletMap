@@ -91,9 +91,14 @@ public:
   protected:
     explicit Marker(const Coordinate &pos);
 
+    WLeafletMap *map() { return map_; }
+    const WLeafletMap *map() const { return map_; }
+
     virtual void setMap(WLeafletMap *map);
     virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const = 0;
     virtual void unrender();
+    virtual bool needsUpdate() const;
+    virtual void update(WStringStream &js);
 
   private:
     Coordinate pos_;
@@ -124,10 +129,7 @@ public:
      *
      * \if cpp
      * The marker will take ownership of the widget.
-     *
      * \endif
-     * The widget should have a predetermined width and height to be
-     * rendered correctly, with \p pos in the center of the widget.
      */
     explicit WidgetMarker(const Coordinate &pos, WWidget *widget);
 
@@ -159,13 +161,18 @@ public:
     virtual void setMap(WLeafletMap *map) WT_CXX11ONLY(override);
     virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const WT_CXX11ONLY(override);
     virtual void unrender() WT_CXX11ONLY(override);
+    virtual bool needsUpdate() const WT_CXX11ONLY(override);
+    virtual void update(WStringStream &js) WT_CXX11ONLY(override);
 
   private:
     WContainerWidget *container_;
     double anchorX_, anchorY_;
+    bool anchorPointChanged_;
+
+    void createContainer();
+    void updateAnchorJS(WStringStream &js) const;
 
 #ifndef WT_TARGET_JAVA
-    void createContainer();
     void widgetDestroyed();
 #endif // WT_TARGET_JAVA
 
@@ -324,6 +331,9 @@ private:
   static const int BIT_ZOOM_CHANGED = 0;
   static const int BIT_PAN_CHANGED = 1;
   static const int BIT_OPTIONS_CHANGED = 2;
+
+  static const std::string WIDGETMARKER_CONTAINER_RULENAME;
+  static const std::string WIDGETMARKER_CONTAINER_CHILDREN_RULENAME;
 
   Impl *impl_;
   Json::Object options_;
