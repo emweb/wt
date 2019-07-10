@@ -617,7 +617,9 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	case 0x9: // Ping
 	case 0xA: // Pong
 	  wsFrameType_ = frameType;
+#ifdef WTHTTP_WITH_ZLIB
 	  frameCompressed_ = frameType & 0x40;
+#endif // WTHTTP_WITH_ZLIB
 
 	  break;
 	default:
