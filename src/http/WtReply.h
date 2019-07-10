@@ -47,7 +47,7 @@ public:
 			   Buffer::const_iterator end,
 			   Request::State state);
 
-  virtual void consumeWebSocketMessage(ws_opcode opcode,
+  virtual bool consumeWebSocketMessage(ws_opcode opcode,
 				       const char* begin,
 				       const char* end,
 				       Request::State state);

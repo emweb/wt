@@ -42,18 +42,16 @@
  */
 
 
-static std::size_t MAX_REQUEST_HEADER_SIZE = 112*1024;
-static int MAX_URI_SIZE = 10*1024;
-static int MAX_FIELD_VALUE_SIZE = 80*1024;
-static int MAX_FIELD_NAME_SIZE = 256;
-static int MAX_METHOD_SIZE = 16;
-
-static int64_t MAX_WEBSOCKET_MESSAGE_LENGTH = 112*1024;
+static const std::size_t MAX_REQUEST_HEADER_SIZE = 112*1024;
+static const int MAX_URI_SIZE = 10*1024;
+static const int MAX_FIELD_VALUE_SIZE = 80*1024;
+static const int MAX_FIELD_NAME_SIZE = 256;
+static const int MAX_METHOD_SIZE = 16;
 
 #ifdef WTHTTP_WITH_ZLIB
-static int SERVER_DEFAULT_WINDOW_BITS = 15;
-static int CLIENT_MAX_WINDOW_BITS = 15;
-static int SERVER_MAX_WINDOW_BITS = 15;
+static const int SERVER_DEFAULT_WINDOW_BITS = 15;
+static const int CLIENT_MAX_WINDOW_BITS = 15;
+static const int SERVER_MAX_WINDOW_BITS = 15;
 #endif
 
 namespace Wt {
@@ -69,7 +67,6 @@ RequestParser::RequestParser(Server *server) :
 #endif
   server_(server)
 {
-  MAX_WEBSOCKET_MESSAGE_LENGTH = server->configuration().maxMemoryRequestSize();
   reset();
 }
 
@@ -520,6 +517,8 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
   // consume it
   bool endOfPartialFrame = false;
 
+  const ::int64_t maxFrameLength = server_->configuration().maxMemoryRequestSize();
+
   while (begin < end &&
          state == Request::Partial &&
          !endOfPartialFrame) {
@@ -546,7 +545,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       }
       remainder_ = remainder_ << 7 | (*begin & 0x7F);
       if ((*begin & 0x80) == 0) {
-	if (remainder_ == 0 || remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH) {
+	if (remainder_ == 0 || remainder_ >= maxFrameLength) {
 	  LOG_ERROR("ws: oversized binary frame of length " << remainder_);
 	  return Request::Error;
 	}
@@ -564,7 +563,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       } else {
 	++remainder_;
 
-	if (remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH) {
+	if (remainder_ >= maxFrameLength) {
 	  LOG_ERROR("ws: oversized text frame of length " << remainder_);
 	  return Request::Error;
 	}
@@ -672,8 +671,8 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
       if (wsCount_ == 0) {
 	LOG_DEBUG("ws: new frame length " << remainder_);
-	if (remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH) {
-	  LOG_ERROR("ws: oversized frame of length " << remainder_);
+	if (remainder_ >= maxFrameLength) {
+          LOG_ERROR("ws: oversized frame of length " << remainder_ << " exceeds --max-memory-request-size (= " << maxFrameLength << " bytes)");
 	  return Request::Error;
 	}
 	wsMask_ = 0;
@@ -761,10 +760,13 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 		bool ret1 =  inflate(reinterpret_cast<unsigned char*>(&*beg), 
 			end - beg, reinterpret_cast<unsigned char*>(buffer), hasMore);
 
-		if(!ret1) return Request::Error;
+                if (!ret1)
+                  return Request::Error;
 		
-		reply->consumeWebSocketMessage(opcode, &buffer[0], &buffer[read_], hasMore ? Request::Partial : state);
+                bool ret2 = reply->consumeWebSocketMessage(opcode, &buffer[0], &buffer[read_], hasMore ? Request::Partial : state);
 
+                if (!ret2)
+                  return Request::Error;
 	  } while (hasMore);
 
 	  if (state == Request::Complete) 
@@ -777,12 +779,17 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
 	// handle uncompressed frame
 	if (wsState_ < ws13_frame_start) {
-	  if (wsFrameType_ == 0x00)
-		reply->consumeWebSocketMessage(Reply::text_frame,
-			beg, end, state);
+          if (wsFrameType_ == 0x00) {
+            bool ret = reply->consumeWebSocketMessage(Reply::text_frame,
+                         beg, end, state);
+            if (!ret)
+              return Request::Error;
+          }
 	} else {
 	  Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
-	  reply->consumeWebSocketMessage(opcode, beg, end, state);
+          bool ret = reply->consumeWebSocketMessage(opcode, beg, end, state);
+          if (!ret)
+            return Request::Error;
 	}
   }
 

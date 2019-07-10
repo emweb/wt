@@ -112,7 +112,10 @@ public:
 			   Buffer::const_iterator end,
 			   Request::State state) = 0;
 
-  virtual void consumeWebSocketMessage(ws_opcode opcode,
+  /*
+   * Returns false on failure (should abort reading more)
+   */
+  virtual bool consumeWebSocketMessage(ws_opcode opcode,
 				       const char* begin,
 				       const char* end,
 				       Request::State state);

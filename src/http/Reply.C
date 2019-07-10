@@ -20,6 +20,7 @@
 #include "Server.h"
 
 #include <time.h>
+#include <cassert>
 #include <string>
 #include <boost/lexical_cast.hpp>
 
@@ -228,12 +229,14 @@ void Reply::setStatus(status_type status)
   status_ = status;
 }
 
-void Reply::consumeWebSocketMessage(ws_opcode opcode,
+bool Reply::consumeWebSocketMessage(ws_opcode opcode,
 				    const char* begin,
 				    const char* end,
 				    Request::State state)
 {
   LOG_ERROR("Reply::consumeWebSocketMessage() is pure virtual");
+  assert(false);
+  return false;
 }
 
 std::string Reply::location()
