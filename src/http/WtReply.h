@@ -47,7 +47,7 @@ public:
 			   const char *end,
 			   Request::State state) override;
 
-  virtual void consumeWebSocketMessage(ws_opcode opcode,
+  virtual bool consumeWebSocketMessage(ws_opcode opcode,
 				       const char* begin,
 				       const char* end,
 				       Request::State state) override;
