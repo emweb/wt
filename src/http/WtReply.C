@@ -331,7 +331,7 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
 				      const char* end,
 				      Request::State state)
 {
-  if (in_mem_.tellp() + static_cast<std::streamsize>(end - begin) >
+  if (static_cast<::int64_t>(in_mem_.tellp()) + static_cast<::int64_t>(end - begin) >
       configuration().maxMemoryRequestSize()) {
     LOG_ERROR("Rejecting WebSocket message because it exceeds "
               "--max-memory-request-size (= " << configuration().maxMemoryRequestSize() << " bytes)");
