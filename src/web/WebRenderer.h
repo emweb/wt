@@ -61,7 +61,7 @@ public:
   void letReloadHTML(WebResponse& request, bool newSession);
 
   bool isDirty() const;
-  int scriptId() const { return scriptId_; }
+  unsigned int scriptId() const { return scriptId_; }
   int pageId() const { return pageId_; }
 
   void serveResponse(WebResponse& request);
