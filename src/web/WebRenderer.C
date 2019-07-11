@@ -195,6 +195,8 @@ std::string WebRenderer::bodyClassRtl() const
 
 void WebRenderer::saveChanges()
 {
+  collectedJS1_ << invisibleJS_.str();
+  invisibleJS_.clear();
   collectJS(&collectedJS1_);
 }
 
