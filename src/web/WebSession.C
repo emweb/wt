@@ -1943,7 +1943,7 @@ void WebSession::handleWebSocketMessage(std::weak_ptr<WebSession> session,
 	      lock->asyncResponse_ = nullptr;
 	    }
 
-	    lock->renderer_.ackUpdate(Utils::stoi(*connectedE));
+	    lock->renderer_.ackUpdate(static_cast<unsigned int>(Utils::stoul(*connectedE)));
 	    lock->webSocketConnected_ = true;
 	  }
 
@@ -2443,7 +2443,7 @@ void WebSession::notify(const WEvent& event)
 	  WebRenderer::AckState ackState = WebRenderer::CorrectAck;
 	  if (invalidAckId && ackIdE) {
 	    try {
-	      ackState = renderer_.ackUpdate(Utils::stoi(*ackIdE));
+	      ackState = renderer_.ackUpdate(static_cast<unsigned int>(Utils::stoul(*ackIdE)));
 	      if (ackState != WebRenderer::BadAck)
 		invalidAckId = false;
 	    } catch (const std::exception& e) {

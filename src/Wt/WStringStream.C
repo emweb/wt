@@ -130,6 +130,13 @@ WStringStream& WStringStream::operator<< (int v)
   return *this << buf;
 }
 
+WStringStream& WStringStream::operator<< (unsigned int v)
+{
+  char buf[20];
+  Utils::lltoa(v, buf);
+  return *this << buf;
+}
+
 WStringStream& WStringStream::operator<< (bool v)
 {
   if (v)

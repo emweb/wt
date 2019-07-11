@@ -112,9 +112,9 @@ WebRenderer::WebRenderer(WebSession& session)
     initialStyleRendered_(false),
     twoPhaseThreshold_(5000),
     pageId_(0),
+    ackErrs_(0),
     expectedAckId_(0),
     scriptId_(0),
-    ackErrs_(0),
     linkedCssCount_(-1),
     currentStatelessSlotIsActuallyStateless_(true),
     formObjectsChanged_(true),
@@ -203,7 +203,7 @@ void WebRenderer::discardChanges()
   collectJS(nullptr);
 }
 
-WebRenderer::AckState WebRenderer::ackUpdate(int updateId)
+WebRenderer::AckState WebRenderer::ackUpdate(unsigned int updateId)
 {
   /*
    * If we are using an unreliable transport, then we remember
@@ -225,8 +225,7 @@ WebRenderer::AckState WebRenderer::ackUpdate(int updateId)
     setJSSynced(false);
     ackErrs_ = 0;
     return CorrectAck;
-  } else if ((updateId < expectedAckId_ && expectedAckId_ - updateId < 5)
-	     || (expectedAckId_ - 5 < updateId)) {
+  } else if (expectedAckId_ - updateId < 5) {
     ++ackErrs_;
     return ackErrs_ < 3 ? ReasonableAck : BadAck; // That's still acceptible but no longer plausible
   } else

@@ -126,6 +126,10 @@ public:
    */
   WStringStream& operator<< (int);
 
+  /*! \brief Appends an unsigned integer number.
+   */
+  WStringStream& operator<< (unsigned int);
+
   /*! \brief Appends an integer number.
    */
   WStringStream& operator<< (long long);

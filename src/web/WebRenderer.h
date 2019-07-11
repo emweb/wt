@@ -84,7 +84,7 @@ public:
     BadAck
   };
   
-  AckState ackUpdate(int updateId);
+  AckState ackUpdate(unsigned int updateId);
 
   void streamRedirectJS(WStringStream& out, const std::string& redirect);
 
@@ -121,7 +121,8 @@ private:
   WebSession& session_;
 
   bool visibleOnly_, rendered_, initialStyleRendered_;
-  int twoPhaseThreshold_, pageId_, expectedAckId_, scriptId_, ackErrs_;
+  int twoPhaseThreshold_, pageId_, ackErrs_;
+  unsigned int expectedAckId_, scriptId_;
   int linkedCssCount_;
   std::string solution_;
 
