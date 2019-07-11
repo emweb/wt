@@ -1959,7 +1959,7 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	      lock->asyncResponse_ = 0;
 	    }
 
-	    lock->renderer_.ackUpdate(boost::lexical_cast<int>(*connectedE));
+            lock->renderer_.ackUpdate(boost::lexical_cast<unsigned int>(*connectedE));
 	    lock->webSocketConnected_ = true;
 	  }
 
@@ -2459,7 +2459,7 @@ void WebSession::notify(const WEvent& event)
 	  WebRenderer::AckState ackState = WebRenderer::CorrectAck;
 	  if (invalidAckId && ackIdE) {
 	    try {
-	      ackState = renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE));
+              ackState = renderer_.ackUpdate(boost::lexical_cast<unsigned int>(*ackIdE));
 	      if (ackState != WebRenderer::BadAck)
 		invalidAckId = false;
 	    } catch (const boost::bad_lexical_cast& e) {
