@@ -113,6 +113,7 @@ WebSession::WebSession(WebController *controller,
     webSocket_(nullptr),
     bootStyleResponse_(nullptr),
     canWriteWebSocket_(false),
+    webSocketConnected_(false),
     pollRequestsIgnored_(0),
     progressiveBoot_(false),
     deferredRequest_(nullptr),
@@ -379,7 +380,7 @@ void WebSession::init(const WebRequest& request)
   bool useAbsoluteUrls;
 #ifndef WT_TARGET_JAVA
   useAbsoluteUrls 
-    = app_->readConfigurationProperty("baseURL", absoluteBaseUrl_);
+    = env_->server()->readConfigurationProperty("baseURL", absoluteBaseUrl_);
 #else
   std::string* absoluteBaseUrl 
     = app_->readConfigurationProperty("baseURL", absoluteBaseUrl_);
@@ -2946,10 +2947,6 @@ void WebSession::notifySignal(const WEvent& e)
 
       handler.nextSignal = i + 1;
 
-      const std::string *evAckIdE = request.getParameter(se + "evAckId");
-      bool checkWasStubbed = evAckIdE &&
-          Utils::stoi(*evAckIdE) <= renderer_.scriptId() + 1;
-
       if (*signalE == "hash") {
 	const std::string *hashE = request.getParameter(se + "_");
 	if (hashE) {
@@ -2958,7 +2955,7 @@ void WebSession::notifySignal(const WEvent& e)
 	} else
 	  changeInternalPath("", handler.response());
       } else {
-        for (unsigned k = 0; k < 4; ++k) {
+        for (unsigned k = 0; k < 3; ++k) {
 	  SignalKind kind = (SignalKind)k;
 
 	  if (kind == SignalKind::AutoLearnStateless && request.postDataExceeded())
@@ -2976,7 +2973,7 @@ void WebSession::notifySignal(const WEvent& e)
 	  } else
 	    s = decodeSignal(*signalE, k == 0);
 
-          processSignal(s, se, request, kind, checkWasStubbed);
+          processSignal(s, se, request, kind);
 
 	  if (kind == SignalKind::LearnedStateless && discardStateless)
 	    renderer_.discardChanges();
@@ -2989,20 +2986,14 @@ void WebSession::notifySignal(const WEvent& e)
 }
 
 void WebSession::processSignal(EventSignalBase *s, const std::string& se,
-                               const WebRequest& request, SignalKind kind,
-                               bool checkWasStubbed)
+                               const WebRequest& request, SignalKind kind)
 {
   if (!s)
     return;
 
   switch (kind) {
   case SignalKind::LearnedStateless:
-    s->processLearnedStateless(checkWasStubbed);
-    break;
-  case SignalKind::StubbedStateless:
-    if (checkWasStubbed) {
-      s->processStubbedStateless();
-    }
+    s->processLearnedStateless();
     break;
   case SignalKind::AutoLearnStateless:
     s->processAutoLearnStateless(&renderer_);

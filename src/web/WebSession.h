@@ -354,13 +354,10 @@ private:
   void serveResponse(Handler& handler);
 
   enum class SignalKind { LearnedStateless = 0,
-                          StubbedStateless = 1, // Edge case: slots that belong to a previously stubbed widget,
-                                                // but the widget was unstubbed after the signal was emitted
-                          AutoLearnStateless = 2,
-                          Dynamic = 3 };
+                          AutoLearnStateless = 1,
+                          Dynamic = 2 };
   void processSignal(EventSignalBase *s, const std::string& se,
-                     const WebRequest& request, SignalKind kind,
-                     bool checkWasStubbed);
+                     const WebRequest& request, SignalKind kind);
 
   std::vector<unsigned int> getSignalProcessingOrder(const WEvent& e) const;
   void notifySignal(const WEvent& e);

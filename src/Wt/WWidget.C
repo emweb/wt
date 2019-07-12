@@ -366,7 +366,6 @@ DomElement *WWidget::createSDomElement(WApplication *app)
     DomElement *result = webWidget()->createStubElement(app);
     renderOk();
     scheduleRerender(true);
-    WApplication::instance()->session()->renderer().markAsStubbed(this);
     return result;
   } else {
     webWidget()->setRendered(true);

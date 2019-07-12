@@ -501,16 +501,7 @@ protected:
 
   void prepareDestruct();
   void exposeSignal();
-  // If checkWasStubbed is true, processLearnedStateless will
-  // skip all slots belonging to widgets that were stubbed.
-  // It should only be set to true for events sent before the
-  // widgets were unstubbed.
-  void processLearnedStateless(bool checkWasStubbed) const;
-  // processStubbedStateless will only execute the slots
-  // belonging to widgets that were stubbed.
-  // It should only be executed for events sent before the
-  // widgets were unstubbed.
-  void processStubbedStateless() const;
+  void processLearnedStateless() const;
   void processNonLearnedStateless() const;
   virtual int argumentCount() const = 0;
 
@@ -901,8 +892,7 @@ void EventSignal<E>::emit(E e) const
   if (isBlocked())
     return;
 
-  processLearnedStateless(false);
-
+  processLearnedStateless();
   processNonLearnedStateless();
 
   dynamic_.emit(e);
