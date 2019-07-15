@@ -1933,10 +1933,11 @@ void WebSession::handleWebSocketMessage(std::weak_ptr<WebSession> session,
 	    cgi.parse(*message, CgiParser::ReadDefault);
 	  } catch (std::exception& e) {
 	    LOG_ERROR("could not parse ws message: " << e.what());
-	    delete message;
 	    closing = true;
 	  }
+        }
 
+        if (!closing) {
 	  const std::string *connectedE = message->getParameter("connected");
 	  if (connectedE) {
 	    if (lock->asyncResponse_) {
