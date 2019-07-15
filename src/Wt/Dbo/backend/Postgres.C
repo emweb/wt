@@ -693,7 +693,14 @@ private:
 	else if (sql_[i] == '"')
 	  state = DQuote;
 	else if (sql_[i] == '?') {
-	  result << '$' << placeholder++;
+          if (i + 1 != sql_.length() &&
+              sql_[i + 1] == '?') {
+            // escape question mark with double question mark
+            result << '?';
+            ++i;
+          } else {
+	    result << '$' << placeholder++;
+          }
 	  continue;
 	}
 	break;

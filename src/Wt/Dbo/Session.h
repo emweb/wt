@@ -391,6 +391,10 @@ public:
    * parameter binding. Parameter binding is possible for all types
    * for which sql_value_traits is specialized.
    *
+   * \note PostgreSQL uses a literal question mark ('?') as an operator. To
+   * distinguish between a positional placeholder and a literal '?', use a
+   * double question mark ('??') if you mean a literal '?'.
+   *
    * \note The query must be a ASCII-7 string: UTF-8 is not supported by
    * the underlying query parser. To add a non-English string to the query
    * use parameter binding instead (which prevents against SQL injection
