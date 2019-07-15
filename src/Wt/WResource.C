@@ -17,6 +17,15 @@
 
 #ifdef WT_THREADED
 #include <boost/thread/recursive_mutex.hpp>
+
+#ifdef WT_CXX11
+#include <memory>
+#define SCOPED_PTR std::unique_ptr
+#else
+#include <boost/scoped_ptr.hpp>
+#define SCOPED_PTR boost::scoped_ptr
+#endif
+
 #endif // WT_THREADED
 
 namespace Wt {
@@ -71,7 +80,9 @@ WResource::WResource(WObject* parent)
   : WObject(parent),
     dataChanged_(this),
     trackUploadProgress_(false),
-    dispositionType_(NoDisposition)
+    takesUpdateLock_(false),
+    dispositionType_(NoDisposition),
+    app_(0)
 { 
 #ifdef WT_THREADED
   mutex_.reset(new boost::recursive_mutex());
@@ -193,19 +204,29 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   WebSession::Handler *handler = WebSession::Handler::instance();
   UseLock useLock;
 
-  if (handler && !continuation) {
 #ifdef WT_THREADED
+  SCOPED_PTR<Wt::WApplication::UpdateLock> lock;
+  if (takesUpdateLock() && continuation && app_) {
+    lock.reset(new Wt::WApplication::UpdateLock(app_));
+    if (!*lock) {
+      return;
+    }
+  }
+
+  if (handler && !continuation) {
     boost::recursive_mutex::scoped_lock lock(*mutex_);
 
     if (!useLock.use(this))
       return;
 
-    if (handler->haveLock() && 
+    if (!takesUpdateLock() &&
+        handler->haveLock() &&
 	handler->lockOwner() == boost::this_thread::get_id()) {
       handler->unlock();
     }
-#endif // WT_THREADED
   }
+
+#endif // WT_THREADED
 
   Http::Request request(*webRequest, continuation.get());
   Http::Response response(this, webResponse, continuation);
@@ -214,6 +235,10 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
     response.setStatus(200);
 
   handleRequest(request, response);
+
+#ifdef WT_THREADED
+  lock.reset();
+#endif // WT_THREADED
 
   if (!response.continuation_ || !response.continuation_->resource_) {
     if (response.continuation_)
@@ -287,6 +312,7 @@ const std::string& WResource::generateUrl()
     if (c && !currentUrl_.empty())
       c->removeUploadProgressUrl(currentUrl_);
     currentUrl_ = app->addExposedResource(this);
+    app_ = app;
     if (c)
       c->addUploadProgressUrl(currentUrl_);    
   } else
@@ -311,6 +337,11 @@ void WResource::write(WT_BOSTREAM& out,
 
     handleRequest(request, response);
   }
+}
+
+void WResource::setTakesUpdateLock(bool enabled)
+{
+  takesUpdateLock_ = enabled;
 }
 
 }
