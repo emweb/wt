@@ -95,7 +95,8 @@ enum class ContentDisposition {
  * notifications to a %Wt application, resource requests are not
  * serialized, but are handled concurrently. You need to grab the
  * application lock if you want to access or modify other widget state
- * from within the resource. When deleting a resource, any pending
+ * from within the resource. You can enable takesUpdateLock() to let
+ * %WResource do that for you. When deleting a resource, any pending
  * request is cancelled first. For this mechanism to work you need to
  * specialize the destructor and call beingDeleted(). This method may
  * safely be called multiple times (i.e. from within each destructor
@@ -393,6 +394,27 @@ public:
    */
   void haveMoreData();
 
+  /*! \brief Set whether this resource takes the %WApplication's update lock
+   *
+   * By default, %WResource does not keep the WApplication's update lock,
+   * so handleRequest() is done outside of the %WApplication's event loop.
+   * This makes sure that resources don't block the event loop, and multiple
+   * requests to a %WResource can be handled concurrently.
+   *
+   * However, if necessary you can either manually grab the update lock,
+   * (see WApplication::UpdateLock) or enable this option.
+   *
+   * \note This is not applicable to static resources, since static resources
+   * do not have a %WApplication associated with them.
+   */
+  void setTakesUpdateLock(bool enabled);
+
+  /*! \brief Returns whether this resources takes the %WApplication's update lock
+   *
+   * \sa setTakesUpdateLock()
+   */
+  bool takesUpdateLock() const { return takesUpdateLock_; }
+
 protected:
   /*! \brief Prepares the resource for deletion.
    *
@@ -425,6 +447,7 @@ private:
   Signal< ::uint64_t > dataExceeded_;
 
   bool trackUploadProgress_;
+  bool takesUpdateLock_;
 
   std::vector<Http::ResponseContinuationPtr> continuations_;
 
@@ -439,6 +462,8 @@ private:
   ContentDisposition dispositionType_;
   std::string currentUrl_;
   std::string internalPath_;
+
+  WApplication *app_; // associated app (for non-static resources)
 
   friend class Http::ResponseContinuation;
   friend class Http::Response;

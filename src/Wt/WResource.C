@@ -15,6 +15,8 @@
 #include "WebSession.h"
 #include "WebUtils.h"
 
+#include <memory>
+
 namespace Wt {
 
 LOGGER("WResource");
@@ -65,7 +67,9 @@ WResource::UseLock::~UseLock()
 
 WResource::WResource()
   : trackUploadProgress_(false),
-    dispositionType_(ContentDisposition::None)
+    takesUpdateLock_(false),
+    dispositionType_(ContentDisposition::None),
+    app_(nullptr)
 { 
 #ifdef WT_THREADED
   mutex_.reset(new std::recursive_mutex());
@@ -187,19 +191,28 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   WebSession::Handler *handler = WebSession::Handler::instance();
   UseLock useLock;
 
-  if (handler && !continuation) {
 #ifdef WT_THREADED
+  std::unique_ptr<Wt::WApplication::UpdateLock> updateLock;
+  if (takesUpdateLock() && continuation && app_) {
+    updateLock.reset(new Wt::WApplication::UpdateLock(app_));
+    if (!*updateLock) {
+      return;
+    }
+  }
+
+  if (handler && !continuation) {
     std::unique_lock<std::recursive_mutex> lock(*mutex_);
 
     if (!useLock.use(this))
       return;
 
-    if (handler->haveLock() && 
+    if (!takesUpdateLock() &&
+        handler->haveLock() && 
 	handler->lockOwner() == std::this_thread::get_id()) {
       handler->unlock();
     }
-#endif // WT_THREADED
   }
+#endif // WT_THREADED
 
   if (!handler) {
     WLocale locale = webRequest->parseLocale();
@@ -213,6 +226,10 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
     response.setStatus(200);
 
   handleRequest(request, response);
+
+#ifdef WT_THREADED
+  updateLock.reset();
+#endif // WT_THREADED
 
   if (!response.continuation_ || !response.continuation_->resource_) {
     if (response.continuation_)
@@ -287,6 +304,7 @@ const std::string& WResource::generateUrl()
     if (c && !currentUrl_.empty())
       c->removeUploadProgressUrl(currentUrl_);
     currentUrl_ = app->addExposedResource(this);
+    app_ = app;
     if (c)
       c->addUploadProgressUrl(currentUrl_);    
   } else
@@ -311,6 +329,11 @@ void WResource::write(WT_BOSTREAM& out,
 
     handleRequest(request, response);
   }
+}
+
+void WResource::setTakesUpdateLock(bool enabled)
+{
+  takesUpdateLock_ = enabled;
 }
 
 }
