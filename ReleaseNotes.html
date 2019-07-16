@@ -22,6 +22,208 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.1.0 (July 2019)</h2>
+<p>
+  This is the first release to change the versioning scheme to be more aligned with semantic versioning.
+  From now on, the last number is reserved for patches (i.e. important bug fixes), not extra features, as long as
+  those bug fixes don't require major changes. Patches will be released up until the next minor version bump.
+</p>
+<p>
+  From now on, a 4.1-release branch will track any bug fixes, while the master branch will become the next release (in this case 4.2.0)
+</p>
+<p>
+  We won't completely ban small API-breaking changes from the minor version, but we will as always avoid them as best as we can.
+</p>
+<p>
+  This also does <em>not</em> mean that Wt will now have a stable ABI. You will always have to recompile in order to do
+  a minor version upgrade of Wt. Wt has never had a stable ABI, and that isn't going to change.
+</p>
+<p>
+  Apart from that, this release features one new widget (<a href="classWt_1_1WLeafletMap.html">WLeafletMap</a>) and many little tweaks, features, and bug fixes.
+</p>
+<h3>Notable backwards-incompatible changes</h3>
+<ul>
+  <li>Extensionless headers (e.g. <tt>#include &lt;Wt/WApplication&gt;</tt> instead of <tt>#include &lt;Wt/WApplication.h&gt;</tt>) have
+      been deprecated since Wt 4.0.0. These headers were now removed. Use the script <tt>migrate/wt4_add_h_to_includes.py</tt> if you
+      want to automate the rewriting of extensionless headers.</li>
+  <li>When using the GraphicsMagick implementation of <a href="classWt_1_1WRasterImage.html">WRasterImage</a>, the rendering to
+      raster image is now done in <a href="classWt_1_1WPaintDevice.html#a75827be2076716985533dbc75dfdc512">done()</a> instead of <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6">handleRequest()</a>.
+      You were always supposed to destroy your instance of <a href="classWt_1_1WPainter.html">WPainter</a>, or call <a href="classWt_1_1WPainter.html#a50beb0c8cb77c12e2dee807e4fe4bcb4">WPainter::end()</a>
+      before e.g. using <a href="classWt_1_1WResource.html#ad8bbe65a888cc43e0d356f18509b9a0f">write()</a>, but Wt used to be rather forgiving&mdash;it would just work.
+      If you are getting empty images after updating, this would likely be the reason.
+  </li>
+  <li>
+    <a href="classWt_1_1WApplication_1_1UpdateLock.html#a09011389bb0b9319acbcd32800852918">WApplication::UpdateLock::operator bool()</a> and
+    <a href="classWt_1_1Core_1_1observing__ptr.html#a93ae9f0dd2a1553dc081faad7e1078ee">observing_ptr::operator bool()</a> were made <tt>explicit</tt>,
+    so they will no longer implicitly convert to <tt>bool</tt>, only
+    <a href="https://en.cppreference.com/w/cpp/language/implicit_conversion#Contextual_conversions">contextually</a>.
+    This may cause some valid code to no longer compile, but it is more likely that it will actually uncover bugs.
+  </li>
+  <li>
+    The default z-index of <a href="classWt_1_1WPopupWidget.html">WPopupWidget</a> was changed to 1100 instead of 100, since 1000
+    is the highest z-index used by Leaflet. This is generally considered an implementation detail, but if you have written any custom
+    CSS that sets the z-index, then you may have to update this CSS.
+  </li>
+</ul>
+<h3>New widgets</h3>
+<ul>
+  <li><b><a href="classWt_1_1WLeafletMap.html">WLeafletMap</a></b>: this is a wrapper around the <a href="https://leafletjs.com/">Leaflet</a>
+         JavaScript library.</li>
+</ul>
+<h3>New examples</h3>
+<ul>
+  <li>
+    Added a <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a> example to the <a href="https://www.webtoolkit.eu/widgets/graphics-charts/leaflet-maps">widget gallery</a>
+    and in <tt>examples/leaflet</tt>.
+  </li>
+  <li>
+    Added an <a href="classWt_1_1Http_1_1Client.html">Http::Client</a> example in <tt>examples/http-client</tt>.
+  </li>
+</ul>
+<h3>CMake changes</h3>
+<ul>
+  <li>
+    Wt now uses CMake's included FindOpenSSL, FindZLIB and FindPNG modules instead of its own.
+  </li>
+  <li>
+    <tt>WT_CPP17_ANY_IMPLEMENTATION</tt> is now set to <tt>any</tt> by default when <tt>CMAKE_CXX_STANDARD</tt> is set to
+    17 or higher, i.e. it defaults to <tt>std::any</tt>.
+  </li>
+  <li>
+    Removed the "vintage" method of finding Boost, because it has been obsolete for a long time already.
+  </li>
+  <li>
+    Fixed building with Boost 1.70 when using Boost's included package configuration files for CMake.
+  </li>
+  <li>
+    Made the <tt>wtwithqt</tt> example build with Qt 5 too, not just with Qt 4.
+  </li>
+  <li>
+    Made sure we can properly build <tt>wtdbomysql</tt> with a static MariaDB client library on Windows.
+  </li>
+</ul>
+<h3>Auth</h3>
+<ul>
+  <li>
+    Added <a href="classWt_1_1Auth_1_1AuthService.html#aee229af97b12975d00e7448e486f9cb2">AuthService::setAuthTokenUpdateEnabled()</a>. Previously, when using the
+    remember me functionality the auth token (remember me cookie) would be changed. When accessing the application from two tabs at the same time, however, or when
+    refreshing quickly, this could cause the session to be logged out: the auth token has changed, but the client still uses the old one. This is still the default
+    behavior, but you can disable it by using <tt>setAuthTokenUpdateEnabled(false)</tt>.
+  </li>
+  <li>
+    Fixed a use-after-free issue when <a href="classWt_1_1Auth_1_1Login.html#aafb1d791aeee8b59d28faeda88e8392b">Auth::Login::changed()</a> is connected to a slot that
+    removes the <a href="classWt_1_1Auth_1_1AuthWidget.html">AuthWidget</a>.
+  </li>
+</ul>
+<h3>Dbo</h3>
+<ul>
+  <li>
+    Added <a href="classWt_1_1Dbo_1_1AbstractQuery.html">AbstractQuery</a>, an abstract base class of <a href="classWt_1_1Dbo_1_1Query.html">Query</a>,
+    to facilitate the dynamic generation of queries.
+  </li>
+  <li>
+    Added <a href="classWt_1_1Dbo_1_1Query.html#a3e76ffc9857381684303d46457399701">Query::join()</a>,
+    <a href="classWt_1_1Dbo_1_1Query.html#aeee3f10d74361e49cce4dc049f0bdc0b">Query::leftJoin()</a>,
+    and <a href="classWt_1_1Dbo_1_1Query.html#a1dd4a3461a4d99377dee24227325c63c">Query::rightJoin()</a>.
+  </li>
+  <li>
+    Added support for <tt>std::optional</tt> when using C++ &ge; 17.
+  </li>
+  <li>
+    <tt>std::chrono::time_point</tt> and <tt>std::chrono::duration</tt> were treated as nullable, while they should be non-nullable, since they have
+    no reasonable "null" value. Use <tt>std::optional</tt> or <tt>boost::optional</tt> to make them nullable instead.
+  </li>
+  <li>
+    Fixed a query corruption bug when using <tt>UNION</tt>, <tt>INTERSECT</tt>, or <tt>EXCEPT</tt> (<a href="https://redmine.webtoolkit.eu/issues/7028">issue #7028</a>).
+  </li>
+  <li>
+    Fixed a crash when using <tt>Session::dropTables()</tt> while there is an active transaction, <a href="https://redmine.webtoolkit.eu/boards/2/topics/16123">as reported on the forum</a>.
+  </li>
+  <li>
+    PostgreSQL uses <tt>?</tt> for some operators, but that is also the character we use for placeholders in prepared statements. If the literal <tt>?</tt> is meant instead of a placeholder, you can now use <tt>??</tt>. This is similar to how PostgreSQL's JDBC driver handles it.
+  </li>
+</ul>
+<h3>Miscellaneous features</h3>
+<ul>
+  <li>
+    wthttp: <tt>--deploy-path</tt> is now prepended to <a href="classWt_1_1WServer.html#a84f84652ccb139850adcf5ea75f50fa5">entry points</a> and <a href="classWt_1_1WServer.html#a7b78b5e35d2dc3086faa54f82124cf38">static resources</a> when they don't start with a forward slash (<tt>/</tt>). Omitting the slash used to be an error.
+  </li>
+  <li>
+    <a href="classWt_1_1Chart_1_1WCartesian3DChart.html">WCartesian3DChart</a>: added <a href="classWt_1_1Chart_1_1WCartesian3DChart.html#ac097e1922b519592a6b3732f3e8b8119">setAxis()</a>, allowing custom <tt>WAxis</tt> implementations e.g. axes with <a href="classWt_1_1Chart_1_1WAxis.html#a7a6e079a7a0b136f77dad65b2c1abcc1">custom labels and ticks</a>.
+  </li>
+  <li>
+    Added <a href="classWt_1_1ItemDataRole.html#af593515a1cc8e972679cc00e362db4ce">ItemDataRole::MarkerType</a>, to change the <a href="group__charts.html#ga9f38f3460fb2575d5f4f1a1ac51a7db6">MarkerType</a> of individual data points on a <a href="classWt_1_1Chart_1_1WCartesianChart.html">2D chart</a>.
+  </li>
+  <li>
+    <a href="classWt_1_1Http_1_1Client.html">Http::Client</a>:
+    <ul>
+      <li>
+        added <a href="classWt_1_1Http_1_1Client.html#a28336ba9677e6e3cc6c890f490f2965a">HEAD request</a> support
+      </li>
+      <li>
+        On Windows: uses Windows root certificates. It is no longer necessary to provide a <a href="classWt_1_1Http_1_1Client.html#a7c9fbf7fc9f671519b0652f3bbe38521">path</a> with certificates for validation (or worse, disable verification altogether) when using TLS to talk to a server that uses a certificate issued by a CA that is trusted by Windows. Now the <tt>Http::Client</tt> will generally just work with <tt>https</tt> sites on Windows, just like it did on Linux. This also fixes other parts of Wt that use <tt>Http::Client</tt>, like <a href="classWt_1_1Payment_1_1PayPalService.html">PayPalService</a> and <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a>.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="classWt_1_1WWidget.html#a1f5151154770b4956b4870cb4ecc38d3">removeWidget()</a> and <a href="classWt_1_1WObject.html#a00f32a263b742f42b73a9353eaa3c7ca">removeChild()</a> now return a more concrete <tt>std::unique_ptr</tt>, for convenience. Also added a similar <a href="classWt_1_1WFitLayout.html#a071ea55ea16e71213b3bbd2f5f497932">WFitLayout::addWidget()</a>.
+  </li>
+  <li>
+    Wt's widget coordinate calculation code now uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect">getBoundingClientRect()</a>, which means that coordinate calculations are still accurate even when CSS transforms are used to position widgets. This was necessary for <a href="classWt_1_1WLeafletMap_1_1WidgetMarker.html">WidgetMarker</a> support.
+  </li>
+  <li>
+    <a href="classWt_1_1WTemplate.html">WTemplate</a>'s <a href="structWt_1_1WTemplate_1_1Functions.html#ab070ae026639fb7edc0c70db6510abc7">while_f</a> function now takes extra arguments, similar to the <a href="structWt_1_1WTemplate_1_1Functions.html#a734f46b7a8155cbc6cf0407dd3dbe85d">block</a> function.
+  </li>
+  <li>
+    Added <a href="classWt_1_1WResource.html#a6695dad28a25c7cbfef93c371e7c5a1e">WResource::setTakesUpdateLock()</a> as a way to make a (non-static) resource grab the <a href="classWt_1_1WApplication.html">WApplication</a>'s <a href="classWt_1_1WApplication_1_1UpdateLock.html">UpdateLock</a> before <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6">handleRequest()</a>.
+  </li>
+  <li>
+    Made it possible to set a <a href="classWt_1_1WTableView.html#afc65ef8675ae2d53300eaa511c1fad6b">preload margin</a> on <tt>WTableView</tt>. This
+    allows to customize how much of the table's contents should be loaded. Higher preload margin means fewer but larger updates of the table's contents
+    when scrolling.
+  </li>
+</ul>
+<h3>Miscellaneous bug fixes</h3>
+<ul>
+  <li>Fixed an issue where JavaScript could be sent to the browser in the wrong order when doing background updates of hidden widgets
+    (<a href="https://redmine.webtoolkit.eu/issues/7023">issue #7023</a>)</li>
+  <li>Fixed a client side memory leak caused by misuse of jQuery's data feature (<a href="https://redmine.webtoolkit.eu/boards/2/topics/15941">reported on the forums</a>)</li>
+  <li><a href="classWt_1_1WTableView.html">WTableView</a>: fixed row deletion behavior</li>
+  <li>Fixed icons not showing up on tabs and menu items when using <a href="classWt_1_1WBootstrapTheme.html">WBootstrapTheme</a>, as <a href="https://redmine.webtoolkit.eu/boards/1/topics/15664">reported on the forums</a>.</li>
+  <li>Fixed wrong <a href="classWt_1_1WStackedWidget.html">WStackedWidget</a> height when animating transitions (<a href="https://redmine.webtoolkit.eu/issues/6788">issue #6788</a>)</li>
+  <li>Fixed not able to hide widgets with a flexbox-based layout (<a href="https://redmine.webtoolkit.eu/issues/6884">issue #6884</a>)</li>
+  <li>Fixed out of bounds array access when using a widget with a custom HTML tag name (<a href="https://redmine.webtoolkit.eu/issues/7059">issue #7059</a>). Widgets will now derive whether they are default inline based on the widget's default DOM element type.</li>
+  <li>Fixed a regression in <a href="classWt_1_1WDate.html#a6d604c9c4409729abbe4a334c4d69368">WDate::addMonths()</a> and <a href="classWt_1_1WDate.html#ab03f57a16749501343b8368047199002">addYears()</a>, introduced in Wt 4.0.0. When a day would not exist in the resulting month, this would yield an invalid month. Instead, it will now (as it did in Wt 3) set the date to the last day of that month, e.g. May 31, 2019 + 6 months becomes November 30, 2019.</li>
+  <li>Fixed an issue where mouse signals of a <a href="classWt_1_1WTreeView.html">WTreeView</a> would fire multiple times (<a href="https://redmine.webtoolkit.eu/issues/6260">issue #6260</a>)</li>
+  <li>
+    wthttp WebSocket fixes:
+    <ul>
+      <li>
+        WebSocket requests for non-existent sessions (often the result of restarting the server) no longer create a new bogus session.
+      </li>
+      <li>
+        WebSocket messages with continuation frames (as sent by Google Chrome when the messages become very large) could become corrupted,
+        especially when per-message-deflate is used (<a href="https://redmine.webtoolkit.eu/issues/7039">issue #7039</a>,
+        <a href="https://redmine.webtoolkit.eu/issues/7034">#7034</a>).
+      </li>
+      <li>
+        WebSocket message size is now properly limited by <tt>--max-memory-request-size</tt>. Previously, this would only limit the size
+        of individual frames, not the entire message.
+      </li>
+      <li>
+        Fixed a possible use-after-free or double delete issue when an invalid WebSocket message was received.
+      </li>
+    </ul>
+  </li>
+  <li>
+    Fixed undefined <tt>ackId</tt> overflow behavior (which could very rarely cause a session to fail)
+  </li>
+  <li>
+    <a href="classWt_1_1WContainerWidget.html#a60e57a8860785d6b587a36b616cb5e12">WContainerWidget::setLayout()</a> now properly clears any existing contents of the container.
+    This would previously cause JavaScript errors (<a href="https://redmine.webtoolkit.eu/issues/7128">issue #7128</a>).
+  </li>
+</ul>
+
 <h2>Release 4.0.5 (December 14, 2018)</h2>
 <p>Wt 4.0.5 is almost entirely a bugfix release. Here are the key changes:</p>
 
