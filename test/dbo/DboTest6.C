@@ -7,12 +7,6 @@
 
 #include <Wt/Dbo/Dbo>
 
-#include <Wt/Json/Array>
-#include <Wt/Json/Object>
-#include <Wt/Json/Parser>
-#include <Wt/Json/Serializer>
-#include <Wt/Json/Value>
-
 #include "DboFixture.h"
 
 #ifdef POSTGRES
@@ -39,10 +33,11 @@ struct Dbo6Fixture : DboFixtureBase
     }
 
     dbo::Transaction transaction(*session_);
+    session_->execute("CREATE EXTENSION IF NOT EXISTS hstore");
     session_->execute("CREATE TABLE \"table_emails\" ("
                       "" "\"id\" bigserial,"
                       "" "\"version\" integer,"
-                      "" "\"emails\" json"
+                      "" "\"emails\" hstore"
                       ")");
   }
 };
@@ -54,12 +49,7 @@ BOOST_AUTO_TEST_CASE( dbo6_test1 )
   dbo::Session& session = *f.session_;
 
   {
-    Wt::Json::Object o;
-    Wt::Json::Array ar;
-    ar.push_back(Wt::Json::Value("test@example.com"));
-    o["emails"] = ar;
-
-    std::string const emailsStr = Wt::Json::serialize(o);
+    char const * const emailsStr = "test => test@example.com";
 
     dbo::Transaction transaction(session);
     Emails *emails = new Emails();
@@ -69,18 +59,14 @@ BOOST_AUTO_TEST_CASE( dbo6_test1 )
 
   {
     dbo::Transaction transaction(session);
-    Wt::Dbo::ptr<Emails> result = session.query<Wt::Dbo::ptr<Emails> >("SELECT e FROM \"table_emails\" e WHERE \"emails\"->'emails' ?? ?").bind("test@example.com");
+    Wt::Dbo::ptr<Emails> result = session.query<Wt::Dbo::ptr<Emails> >("SELECT e FROM \"table_emails\" e WHERE \"emails\" ?? ?").bind("test");
 
-    Wt::Json::Object o;
-    Wt::Json::parse(result->emails, o);
-    Wt::Json::Array ar = o["emails"];
-
-    BOOST_REQUIRE(ar[0] == "test@example.com");
+    BOOST_REQUIRE(result);
   }
 
   {
     dbo::Transaction transaction(session);
-    Wt::Dbo::ptr<Emails> result = session.query<Wt::Dbo::ptr<Emails> >("SELECT e FROM \"table_emails\" e WHERE \"emails\"->'emails' ?? ?").bind("test2@example.com");
+    Wt::Dbo::ptr<Emails> result = session.query<Wt::Dbo::ptr<Emails> >("SELECT e FROM \"table_emails\" e WHERE \"emails\" ?? ?").bind("test2");
 
     BOOST_REQUIRE(!result);
   }
