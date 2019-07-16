@@ -15,6 +15,8 @@
 
 #include "MimeTypes.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 namespace http {
 namespace server {
 namespace mime_types {
@@ -49,7 +51,7 @@ struct mapping
 const char *extensionToType(const std::string& extension)
 {
   for (mapping* m = mappings; m->extension; ++m) {
-    if (m->extension == extension) {
+    if (boost::iequals(m->extension, extension)) {
       return m->mime_type;
     }
   }
