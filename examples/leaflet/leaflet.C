@@ -18,15 +18,11 @@ public:
 private:
   Wt::WLeafletMap *map_;
   Wt::WLeafletMap::Marker *marker_;
-  Wt::WSpinBox *zoomLevelSpinBox_;
   bool markerAdded_;
 
   void panToEmweb();
   void panToParis();
   void toggleMarker();
-  void zoomToLevel();
-  void panChanged(double lat, double lng);
-  void zoomLevelChanged(int zoom);
 };
 
 LeafletApplication::LeafletApplication(const Wt::WEnvironment &env)
@@ -37,17 +33,20 @@ LeafletApplication::LeafletApplication(const Wt::WEnvironment &env)
 {
   map_->resize(500, 500);
 
+  // Add OpenStreetMap tile layer
   Wt::Json::Object options;
   options["maxZoom"] = 19;
   options["attribution"] = "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors";
-
   map_->addTileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", options);
 
+  // Pan to Emweb
   map_->panTo(Wt::WLeafletMap::Coordinate(50.906705, 4.655800));
 
+  // Add marker
   map_->addMarker(marker_);
   markerAdded_ = true;
 
+  // Add a polyline from the center of Leuven to Emweb
   std::vector<Wt::WLeafletMap::Coordinate> points;
   points.push_back(Wt::WLeafletMap::Coordinate(50.9082,  4.66056));
   points.push_back(Wt::WLeafletMap::Coordinate(50.90901, 4.66426));
@@ -117,6 +116,7 @@ LeafletApplication::LeafletApplication(const Wt::WEnvironment &env)
   pen.setWidth(3.0);
   map_->addPolyline(points, pen);
 
+  // Add a circle around Emweb
   Wt::WBrush brush = Wt::WColor(0, 191, 255, 100);
   map_->addCircle(COORD_EMWEB, 50.0, pen, brush);
 
@@ -128,13 +128,6 @@ LeafletApplication::LeafletApplication(const Wt::WEnvironment &env)
 
   Wt::WPushButton *toggleMarkerBtn = new Wt::WPushButton(Wt::utf8("toggle marker"), root());
   toggleMarkerBtn->clicked().connect(this, &LeafletApplication::toggleMarker);
-
-  zoomLevelSpinBox_ = new Wt::WSpinBox(root());
-  zoomLevelSpinBox_->setRange(0, 19);
-  zoomLevelSpinBox_->changed().connect(this, &LeafletApplication::zoomToLevel);
-
-  map_->panChanged().connect(this, &LeafletApplication::panChanged);
-  map_->zoomLevelChanged().connect(this, &LeafletApplication::zoomLevelChanged);
 }
 
 LeafletApplication::~LeafletApplication()
@@ -165,23 +158,6 @@ void LeafletApplication::toggleMarker()
     map_->addMarker(marker_);
     markerAdded_ = true;
   }
-}
-
-void LeafletApplication::zoomToLevel()
-{
-  map_->setZoomLevel(zoomLevelSpinBox_->value());
-}
-
-void LeafletApplication::panChanged(double lat,
-                                    double lng)
-{
-  std::cout << "lat: " << lat << ", lng: " << lng << '\n';
-}
-
-void LeafletApplication::zoomLevelChanged(int zoom)
-{
-  std::cout << "zoom: " << zoom << '\n';
-  zoomLevelSpinBox_->setValue(zoom);
 }
 
 Wt::WApplication *createApplication(const Wt::WEnvironment &env)

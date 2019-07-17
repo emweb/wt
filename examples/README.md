@@ -9,8 +9,7 @@ deploying using FastCGI or ISAPI.
 You typically need the following commands to run an example (`foobar`):
 
     cd foobar # source directory for example foobar
-    ln -s ../../resources . # include standard Wt resource files
-    ../../build/examples/foobar/foobar.wt --docroot . --http-address 0.0.0.0 --http-port 8080
+    ../../build/examples/foobar/foobar.wt --docroot . --http-address 0.0.0.0 --http-port 8080 --resources-dir=../../resources
 
 By running the examples from within their source directory, in this way the
 examples will find the auxiliary files in the expected places.
