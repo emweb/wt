@@ -52,7 +52,17 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
       MAP_IMPORTED_CONFIG_MINSIZEREL RelWithDebInfo
     )
 
+    get_filename_component(WT_INSTALL_DIR "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
+
     SET(HAVE_HARU true)
+    add_library(libhpdf SHARED IMPORTED)
+    set_target_properties(libhpdf PROPERTIES
+      IMPORTED_IMPLIB "${WT_INSTALL_DIR}/lib/libhpdf.lib"
+      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/libhpdf.dll")
+    add_library(libhpdfd SHARED IMPORTED)
+    set_target_properties(libhpdfd PROPERTIES
+      IMPORTED_IMPLIB "${WT_INSTALL_DIR}/lib/libhpdfd.lib"
+      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/libhpdfd.dll")
     SET(HARU_LIB optimized libhpdf debug libhpdfd)
 
     SET(EXAMPLES_CONNECTOR Wt::HTTP)
