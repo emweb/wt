@@ -61,8 +61,11 @@ behaviour.
 </ul>
 <h3>New widgets</h3>
 <ul>
-  <li><b><a href="classWt_1_1WLeafletMap.html">WLeafletMap</a></b>: this is a wrapper around the <a href="https://leafletjs.com/">Leaflet</a>
-         JavaScript library.</li>
+  <li>
+    <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a>: this is a wrapper around the <a href="https://leafletjs.com/" target="_blank">Leaflet</a>
+         JavaScript library. It has support for some basic features of Leaflet, and one special feature: the ability to add arbitrary
+         widgets (within reason) as markers to the map using <a href="classWt_1_1WLeafletMap_1_1WidgetMarker.html">WidgetMarker</a>.
+  </li>
 </ul>
 <h3>New examples</h3>
 <ul>
@@ -108,10 +111,10 @@ behaviour.
     and <a href="classWt_1_1Dbo_1_1Query.html#a1dd4a3461a4d99377dee24227325c63c">Query::rightJoin()</a>.
   </li>
   <li>
-    Fixed a query corruption bug when using <tt>UNION</tt>, <tt>INTERSECT</tt>, or <tt>EXCEPT</tt> (<a href="https://redmine.webtoolkit.eu/issues/7028">issue #7028</a>).
+    Fixed a query corruption bug when using <tt>UNION</tt>, <tt>INTERSECT</tt>, or <tt>EXCEPT</tt> (<a href="https://redmine.webtoolkit.eu/issues/7028" target="_blank">issue #7028</a>).
   </li>
   <li>
-    Fixed a crash when using <tt>Session::dropTables()</tt> while there is an active transaction, <a href="https://redmine.webtoolkit.eu/boards/2/topics/16123">as reported on the forum</a>.
+    Fixed a crash when using <tt>Session::dropTables()</tt> while there is an active transaction, <a href="https://redmine.webtoolkit.eu/boards/2/topics/16123" target="_blank">as reported on the forum</a>.
   </li>
   <li>
     PostgreSQL uses <tt>?</tt> for some operators, but that is also the character we use for placeholders in prepared statements. If the literal <tt>?</tt> is meant instead of a placeholder, you can now use <tt>??</tt>. This is similar to how PostgreSQL's JDBC driver handles it.
@@ -138,7 +141,7 @@ behaviour.
     </ul>
   </li>
   <li>
-    Wt's widget coordinate calculation code now uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect">getBoundingClientRect()</a>, which means that coordinate calculations are still accurate even when CSS transforms are used to position widgets. This was necessary for <a href="classWt_1_1WLeafletMap_1_1WidgetMarker.html">WidgetMarker</a> support.
+    Wt's widget coordinate calculation code now uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect" target="_blank">getBoundingClientRect()</a>, which means that coordinate calculations are still accurate even when CSS transforms are used to position widgets. This was necessary for <a href="classWt_1_1WLeafletMap_1_1WidgetMarker.html">WidgetMarker</a> support.
   </li>
   <li>
     <a href="classWt_1_1WTemplate.html">WTemplate</a>'s <a href="structWt_1_1WTemplate_1_1Functions.html#ab070ae026639fb7edc0c70db6510abc7">while_f</a> function now takes extra arguments, similar to the <a href="structWt_1_1WTemplate_1_1Functions.html#a734f46b7a8155cbc6cf0407dd3dbe85d">block</a> function.
@@ -155,11 +158,11 @@ behaviour.
 <h3>Miscellaneous bug fixes</h3>
 <ul>
   <li>Fixed an issue where JavaScript could be sent to the browser in the wrong order when doing background updates of hidden widgets
-    (<a href="https://redmine.webtoolkit.eu/issues/7023">issue #7023</a>)</li>
-  <li>Fixed a client side memory leak caused by misuse of jQuery's data feature (<a href="https://redmine.webtoolkit.eu/boards/2/topics/15941">reported on the forums</a>)</li>
+    (<a href="https://redmine.webtoolkit.eu/issues/7023" target="_blank">issue #7023</a>)</li>
+  <li>Fixed a client side memory leak caused by misuse of jQuery's data feature (<a href="https://redmine.webtoolkit.eu/boards/2/topics/15941" target="_blank">reported on the forums</a>)</li>
   <li><a href="classWt_1_1WTableView.html">WTableView</a>: fixed row deletion behavior</li>
-  <li>Fixed out of bounds array access when using a widget with a custom HTML tag name (<a href="https://redmine.webtoolkit.eu/issues/7059">issue #7059</a>). Widgets will now derive whether they are default inline based on the widget's default DOM element type.</li>
-  <li>Fixed an issue where mouse signals of a <a href="classWt_1_1WTreeView.html">WTreeView</a> would fire multiple times (<a href="https://redmine.webtoolkit.eu/issues/6260">issue #6260</a>)</li>
+  <li>Fixed out of bounds array access when using a widget with a custom HTML tag name (<a href="https://redmine.webtoolkit.eu/issues/7059" target="_blank">issue #7059</a>). Widgets will now derive whether they are default inline based on the widget's default DOM element type.</li>
+  <li>Fixed an issue where mouse signals of a <a href="classWt_1_1WTreeView.html">WTreeView</a> would fire multiple times (<a href="https://redmine.webtoolkit.eu/issues/6260" target="_blank">issue #6260</a>)</li>
   <li>
     wthttp WebSocket fixes:
     <ul>
@@ -168,8 +171,8 @@ behaviour.
       </li>
       <li>
         WebSocket messages with continuation frames (as sent by Google Chrome when the messages become very large) could become corrupted,
-        especially when per-message-deflate is used (<a href="https://redmine.webtoolkit.eu/issues/7039">issue #7039</a>,
-        <a href="https://redmine.webtoolkit.eu/issues/7034">#7034</a>).
+        especially when per-message-deflate is used (<a href="https://redmine.webtoolkit.eu/issues/7039" target="_blank">issue #7039</a>,
+        <a href="https://redmine.webtoolkit.eu/issues/7034" target="_blank">#7034</a>).
       </li>
       <li>
         WebSocket message size is now properly limited by <tt>--max-memory-request-size</tt>. Previously, this would only limit the size
