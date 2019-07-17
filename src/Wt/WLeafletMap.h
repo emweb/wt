@@ -18,6 +18,33 @@ namespace Wt {
 
 /*! \class WLeafletMap Wt/WLeafletMap Wt/WLeafletMap
  *  \brief A widget that displays a leaflet map.
+ *
+ * This is a simple wrapper around the <a href="https://leafletjs.com/" target="_blank">Leaflet</a> JavaScript library.
+ *
+ * Leaflet itself does not provide maps. It is a JavaScript library that enables you to use any "tile server",
+ * like OpenStreetMap. If you just create a %WLeafletMap (and give it a size), then you will be presented with
+ * an empty map. You can then add tile layers to the map using addTileLayer().
+ *
+ * %WLeafletMap is not exhaustive in its support for Leaflet features. It supports a subset out of the box.
+ * One of these features is markers, which come in two flavors: standard leaflet markers (WLeafletMap::LeafletMarker)
+ * and widget markers (WLeafletMap::WidgetMarker). Using a widget marker, you can place arbitrary widgets on the map.
+ *
+ * If you need direct access to the leaflet map in your own custom JavaScript, you can use mapJsRef().
+ *
+ * \if cpp
+ * Leaflet itself is not bundled with %Wt. Use the <tt>leafletJSURL</tt> and <tt>leafletCSSURL</tt> properties
+ * to configure where the JavaScript and CSS of Leaflet should be loaded from.
+ * You can add these properties to <tt>wt_config.xml</tt>:
+ * \code
+ * <property name="leafletJSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.js</property>
+ * <property name="leafletCSSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.css</property>
+ * \endcode
+ * \endif
+ *
+ * \if java
+ * Leaflet itself is not bundled with %JWt. Use the <tt>leafletJSURL</tt> and <tt>leafletCSSURL</tt> properties
+ * to configure where the JavaScript and CSS of Leaflet should be loaded from.
+ * \endif
  */
 class WT_API WLeafletMap : public WCompositeWidget
 {
