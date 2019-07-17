@@ -35,7 +35,7 @@ namespace Wt {
  * Leaflet itself is not bundled with %Wt. Use the <tt>leafletJSURL</tt> and <tt>leafletCSSURL</tt> properties
  * to configure where the JavaScript and CSS of Leaflet should be loaded from.
  * You can add these properties to <tt>wt_config.xml</tt>:
- * \code
+ * \code{.xml}
  * <property name="leafletJSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.js</property>
  * <property name="leafletCSSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.css</property>
  * \endcode
