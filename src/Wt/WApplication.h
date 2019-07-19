@@ -40,6 +40,12 @@ struct WtLibVersion { };
 extern WT_API const WtLibVersion WT_INCLUDED_VERSION;
 #endif
 
+#ifdef WT_TARGET_JAVA
+struct AutoCloseable {
+  virtual void close() = 0;
+};
+#endif // WT_TARGET_JAVA
+
 class WApplication;
 class WCombinedLocalizedStrings;
 class WContainerWidget;
@@ -1281,6 +1287,9 @@ public:
    */
 #endif // WT_TARGET_JAVA
   class WT_API UpdateLock
+#ifdef WT_TARGET_JAVA
+    : public AutoCloseable
+#endif // WT_TARGET_JAVA
   {
   public:
 #ifndef WT_TARGET_JAVA
@@ -1323,6 +1332,10 @@ public:
      */
     void release();
 #endif
+
+#ifdef WT_TARGET_JAVA
+    virtual void close();
+#endif // WT_TARGET_JAVA
 
   private:
 #ifdef WT_TARGET_JAVA
