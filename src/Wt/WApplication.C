@@ -1481,6 +1481,11 @@ void WApplication::UpdateLock::release()
   }
 }
 
+void WApplication::UpdateLock::close()
+{
+  release();
+}
+
 #endif // WT_TARGET_JAVA
 
 void WApplication::doJavaScript(const std::string& javascript,
