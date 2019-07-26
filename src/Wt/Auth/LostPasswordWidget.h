@@ -42,7 +42,10 @@ private:
   AbstractUserDatabase& users_;
   const AuthService& baseAuth_;
 
-  static void deleteBox(Wt::WMessageBox *box);
+#ifndef WT_TARGET_JAVA
+  static
+#endif // WT_TARGET_JAVA
+    void deleteBox(Wt::WMessageBox *box);
 };
 
   }

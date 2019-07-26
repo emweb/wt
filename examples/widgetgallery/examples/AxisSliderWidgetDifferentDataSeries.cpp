@@ -60,7 +60,7 @@ SAMPLE_BEGIN(AxisSliderWidgetDifferentDataSeries)
 auto container = cpp14::make_unique<WContainerWidget>();
 
 auto chart =
-    container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
+    container->addNew<Chart::WCartesianChart>();
 chart->setBackground(WColor(220, 220, 220));
 chart->setType(Chart::ChartType::Scatter);
 
@@ -112,7 +112,7 @@ chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontall
 
 // Add a WAxisSliderWidget for the chart using the data series for column 2
 auto sliderWidget =
-    container->addWidget(cpp14::make_unique<Chart::WAxisSliderWidget>(roughSeries_));
+    container->addNew<Chart::WAxisSliderWidget>(roughSeries_);
 sliderWidget->resize(800, 80);
 sliderWidget->setSelectionAreaPadding(40, Side::Left | Side::Right);
 sliderWidget->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally

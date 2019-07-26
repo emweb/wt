@@ -20,11 +20,15 @@
 namespace Wt
 {
 
+/*! \brief Google Maps API version
+ */
 enum class GoogleMapsVersion {
   v2, //!< API Version 2.x
   v3  //!< API Version 3.x
 };
-  
+
+/*! \brief Google Maps map type control
+ */
 enum class MapTypeControl {
   None,         //!< Show no maptype control
   Default,      //!< Show the default maptype control 

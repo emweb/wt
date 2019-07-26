@@ -5,12 +5,10 @@
 SAMPLE_BEGIN(TextEditors)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WLineEdit *le =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+Wt::WLineEdit *le = container->addNew<Wt::WLineEdit>();
 le->setPlaceholderText("Edit me");
 
-Wt::WLineEdit *out =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+Wt::WLineEdit *out = container->addNew<Wt::WLineEdit>();
 out->setReadOnly(true);
 
 le->keyWentUp().connect([=] {

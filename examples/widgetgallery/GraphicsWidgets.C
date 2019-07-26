@@ -26,35 +26,25 @@ void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
 
   menu->addItem("2D painting", painting2d())->setPathComponent("");
   menu->addItem("Paintbrush", 
-                deferCreate(std::bind
-                            (&GraphicsWidgets::paintbrush, this)));
-  menu->addItem("Category chart", 
-                deferCreate(std::bind
-                            (&GraphicsWidgets::categoryChart, this)));
-  menu->addItem("Scatter plot", 
-                deferCreate(std::bind
-                            (&GraphicsWidgets::scatterPlot, this)));
+                deferCreate([this]{ return paintbrush(); }));
+  menu->addItem("Category chart",
+                deferCreate([this]{ return categoryChart(); }));
+  menu->addItem("Scatter plot",
+                deferCreate([this]{ return scatterPlot(); }));
   menu->addItem("Axis slider widget",
-                deferCreate(std::bind
-                            (&GraphicsWidgets::axisSliderWidget, this)));
+                deferCreate([this]{ return axisSliderWidget(); }));
   menu->addItem("Pie chart", 
-                deferCreate(std::bind
-                            (&GraphicsWidgets::pieChart, this)));
+                deferCreate([this]{ return pieChart(); }));
   menu->addItem("Leaflet maps",
-                deferCreate(std::bind
-                            (&GraphicsWidgets::leafletMap, this)));
+                deferCreate([this]{ return leafletMap(); }));
   menu->addItem("Google maps",
-                deferCreate(std::bind
-                            (&GraphicsWidgets::googleMap, this)));
+                deferCreate([this]{ return googleMap(); }));
   menu->addItem("3D painting", 
-                deferCreate(std::bind
-                            (&GraphicsWidgets::painting3d, this)));
+                deferCreate([this]{ return painting3d(); }));
   menu->addItem("3D numerical chart",
-                deferCreate(std::bind
-                            (&GraphicsWidgets::numCharts3d, this)));
+                deferCreate([this]{ return numCharts3d(); }));
   menu->addItem("3D category chart",
-                deferCreate(std::bind
-                            (&GraphicsWidgets::catCharts3d, this)));
+                deferCreate([this]{ return catCharts3d(); }));
 }
 
 

@@ -17,7 +17,7 @@ auto container = cpp14::make_unique<WContainerWidget>();
 
 // create the chart
 auto chart
-    = container->addWidget(cpp14::make_unique<Chart::WCartesian3DChart>());
+    = container->addNew<Chart::WCartesian3DChart>();
 chart->setType(Chart::ChartType::Category);
 
 // disable server-side rendering fallback; our VPSes don't have that

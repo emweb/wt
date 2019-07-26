@@ -6,10 +6,9 @@
 SAMPLE_BEGIN(MessageBox)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WPushButton *button =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Status"));
+Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Status");
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 out->setMargin(10, Wt::Side::Left);
 
 auto c = container.get();

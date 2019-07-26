@@ -77,7 +77,7 @@ subMenu->addItem("About")->triggered().connect([=] {
 // Assign the submenu to the parent popup menu.
 popup->addMenu("Help", std::move(subMenuPtr));
 
-Wt::WPushButton *button = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>());
+Wt::WPushButton *button = container->addNew<Wt::WPushButton>();
 button->setMenu(std::move(popupPtr));
 
 // React to an item selection

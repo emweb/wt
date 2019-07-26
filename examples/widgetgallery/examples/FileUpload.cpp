@@ -13,18 +13,16 @@ SAMPLE_BEGIN(FileUpload)
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WFileUpload *fu =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WFileUpload>());
+Wt::WFileUpload *fu = container->addNew<Wt::WFileUpload>();
 fu->setFileTextSize(50); // Set the maximum file size to 50 kB.
 fu->setProgressBar(Wt::cpp14::make_unique<Wt::WProgressBar>());
 fu->setMargin(10, Wt::Side::Right);
 
 // Provide a button to start uploading.
-Wt::WPushButton *uploadButton =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Send"));
+Wt::WPushButton *uploadButton = container->addNew<Wt::WPushButton>("Send");
 uploadButton->setMargin(10, Wt::Side::Left | Wt::Side::Right);
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 
 // Upload when the button is clicked.
 uploadButton->clicked().connect([=] {

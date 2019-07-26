@@ -72,10 +72,10 @@ private:
 SAMPLE_BEGIN(PdfRenderer)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WText *text = container->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("report.example")));
+Wt::WText *text = container->addNew<Wt::WText>(Wt::WString::tr("report.example"));
 text->setStyleClass("reset");
 
-Wt::WPushButton *button = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Create pdf"));
+Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Create pdf");
 
 auto pdf = std::make_shared<ReportResource>();
 button->setLink(Wt::WLink(pdf));

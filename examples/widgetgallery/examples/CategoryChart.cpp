@@ -31,7 +31,7 @@ for (int row = 0; row < model->rowCount(); ++row)
 /*
  * Shows a table, allowing editing of the model
  */
-auto table = container->addWidget(cpp14::make_unique<WTableView>());
+auto table = container->addNew<WTableView>();
 table->setModel(model);
 table->setSortingEnabled(true);
 table->setColumnResizeEnabled(true);
@@ -71,7 +71,7 @@ for (int i = 1; i < model->columnCount(); ++i)
 /*
  * Create the category chart.
  */
-auto chart = container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
+auto chart = container->addNew<Chart::WCartesianChart>();
 #ifndef WT_TARGET_JAVA
 chart->setModel(model);
 #else // WT_TARGET_JAVA

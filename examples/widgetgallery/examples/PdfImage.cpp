@@ -38,7 +38,6 @@ auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
 auto pdf = std::make_shared<SamplePdfResource>();
 
-Wt::WPushButton *button =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Create pdf"));
+Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Create pdf");
 button->setLink(Wt::WLink(pdf));
 SAMPLE_END(return std::move(container))

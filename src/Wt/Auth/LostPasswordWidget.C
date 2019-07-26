@@ -58,7 +58,11 @@ void LostPasswordWidget::send()
   box->show();
 
   WMessageBox *const boxPtr = box.get();
+#ifndef WT_TARGET_JAVA
   box->buttonClicked().connect(nullptr, std::bind(&LostPasswordWidget::deleteBox, boxPtr));
+#else // WT_TARGET_JAVA
+  box->buttonClicked().connect(nullptr, std::bind(&LostPasswordWidget::deleteBox, this, boxPtr));
+#endif // WT_TARGET_JAVA
   WApplication::instance()->addChild(std::move(box));
 }
 

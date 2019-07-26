@@ -6,11 +6,10 @@
 SAMPLE_BEGIN(Image)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WImage *image =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WImage>(Wt::WLink("icons/wt_powered.jpg")));
+Wt::WImage *image = container->addNew<Wt::WImage>(Wt::WLink("icons/wt_powered.jpg"));
 image->setAlternateText("Wt logo");
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 out->setMargin(10, Wt::Side::Left);
 
 image->clicked().connect([=] (const Wt::WMouseEvent& e) {

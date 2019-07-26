@@ -27,14 +27,14 @@ flash->setFlashVariable("showfullscreen", "1");
 flash->setAlternativeContent(Wt::cpp14::make_unique<Wt::WImage>(poster));
 flash->resize(640, 360);
 
-Wt::WVideo *video = container->addWidget(Wt::cpp14::make_unique<Wt::WVideo>());
+Wt::WVideo *video = container->addNew<Wt::WVideo>();
 video->addSource(Wt::WLink(mp4Video));
 video->addSource(Wt::WLink(ogvVideo));
 video->setAlternativeContent(std::move(flash));
 video->setPoster(poster);
 video->resize(640, 360);
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 
 video->playbackStarted().connect([=] {
         out->setText("<p>Video playing</p>");

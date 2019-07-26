@@ -13,6 +13,14 @@
 
 namespace Wt {
 
+#ifdef WT_TARGET_JAVA
+struct Runnable {
+  Runnable();
+  Runnable(void (*)());
+  void run() const;
+};
+#endif // WT_TARGET_JAVA
+
 /*! \class WTemplateFormView Wt/WTemplateFormView.h
  *  \brief A template-based View class form models.
  *
@@ -129,7 +137,6 @@ public:
   void setFormWidget(WFormModel::Field field,
 		     std::unique_ptr<WWidget> widget);
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Sets the form widget for a given field.
    *
    * This overloaded functions allows functions to be provided to update the view
@@ -137,38 +144,14 @@ public:
    */
   void setFormWidget(WFormModel::Field field,
 		     std::unique_ptr<WWidget> widget,
+#ifndef WT_TARGET_JAVA
 		     const std::function<void ()>& updateViewValue,
-		     const std::function<void ()>& updateModelValue);
-#else
-#ifdef WT_BUILDING
-  template<typename F1, typename F2>
-  void setFormWidget(WFormModel::Field field,
-		     std::unique_ptr<WWidget> widget,
-		     F1 updateViewValue, F2 updateModelValue);
-#endif
-  /*! \brief Interface for custom update methods for field data.
-   */
-  class FieldView
-  {
-  public:
-    /*! \brief Update the widget's value based on the model's data.
-     */
-    void updateViewValue() = 0;
-
-    /*! \brief Update the model's data based on the widget's value.
-     */
-    void updateModelValue() = 0;
-  };
-
-  /*! \brief Sets the form widget for a given field.
-   *
-   * This overloaded functions allows functions to be provided
-   * to update the view and model for this field.
-   */
-  void setFormWidget(WFormModel::Field field,
-		     std::unique_ptr<WWidget> formWidget,
-		     std::unique_ptr<FieldView> fieldView);
-#endif
+		     const std::function<void ()>& updateModelValue
+#else // WT_TARGET_JAVA
+		     const Runnable& updateViewValue,
+		     const Runnable& updateModelValue
+#endif // WT_TARGET_JAVA
+      );
 
   /*! \brief Updates the View.
    *
@@ -277,7 +260,7 @@ private:
 #ifndef WT_TARGET_JAVA
     std::function<void ()> updateView, updateModel;
 #else
-    FieldView *updateFunctions;
+    const Runnable *updateView, *updateModel;
 #endif
   };
 

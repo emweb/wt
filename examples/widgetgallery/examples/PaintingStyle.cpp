@@ -231,6 +231,6 @@ protected:
 SAMPLE_BEGIN(PaintingStyle)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-container->addWidget(Wt::cpp14::make_unique<StyleWidget>());
+container->addNew<StyleWidget>();
 
 SAMPLE_END(return std::move(container))

@@ -73,7 +73,7 @@ std::string TopicWidget::docAnchor(const std::string &classname) const
 
 Wt::WText *TopicWidget::addText(const Wt::WString& s, Wt::WContainerWidget *parent)
 {
-  auto text = parent->addWidget(Wt::cpp14::make_unique<Wt::WText>(s));
+  auto text = parent->addNew<Wt::WText>(s);
   bool literal;
 #ifndef WT_TARGET_JAVA
   literal = s.literal();

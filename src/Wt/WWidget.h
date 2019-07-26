@@ -19,7 +19,10 @@
 #include <list>
 #include <vector>
 #include <sstream>
+
+#ifndef WT_TARGET_JAVA
 #include <type_traits>
+#endif // WT_TARGET_JAVA
 
 namespace Wt {
 
@@ -84,6 +87,7 @@ public:
    */
   virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Removes a child widget.
    *
    * This is an overload that automatically casts the returned value to a unique_ptr<Widget> for convenience
@@ -105,6 +109,7 @@ public:
     assert(result == nullptr || result.get() == widget);
     return std::unique_ptr<Widget>(static_cast<Widget*>(result.release()));
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Removes the widget from its parent.
    *

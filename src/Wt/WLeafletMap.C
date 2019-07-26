@@ -417,7 +417,7 @@ WLeafletMap::WLeafletMap(const Json::Object &options)
 // called from constructors to reduce code duplication (not currently designed to be run again)
 void WLeafletMap::setup()
 {
-  impl_ = setImplementation(cpp14::make_unique<Impl>());
+  setImplementation(std::unique_ptr<Impl>(impl_ = new Impl()));
 
   zoomLevelChanged().connect(this, &WLeafletMap::handleZoomLevelChanged);
   panChanged().connect(this, &WLeafletMap::handlePanChanged);

@@ -6,18 +6,16 @@
 SAMPLE_BEGIN(SliderVertical)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-container->addWidget(Wt::cpp14::make_unique<Wt::WText>("How much does Wt increase your efficiency?"));
-container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
+container->addNew<Wt::WText>("How much does Wt increase your efficiency?");
+container->addNew<Wt::WBreak>();
 
-Wt::WSlider *verticalSlider =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Vertical));
+Wt::WSlider *verticalSlider = container->addNew<Wt::WSlider>(Wt::Orientation::Vertical);
 verticalSlider->resize(50, 150);
 verticalSlider->setTickPosition(Wt::WSlider::TicksBothSides);
 verticalSlider->setRange(5, 50);
 
-container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
-Wt::WText *out =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+container->addNew<Wt::WBreak>();
+Wt::WText *out = container->addNew<Wt::WText>();
 out->setMargin(10, Wt::Side::Left);
 
 verticalSlider->valueChanged().connect([=] {

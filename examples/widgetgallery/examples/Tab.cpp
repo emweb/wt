@@ -6,7 +6,7 @@
 SAMPLE_BEGIN(Tab)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WTabWidget *tabW = container->addWidget(Wt::cpp14::make_unique<Wt::WTabWidget>());
+Wt::WTabWidget *tabW = container->addNew<Wt::WTabWidget>();
 tabW->addTab(Wt::cpp14::make_unique<Wt::WTextArea>("This is the contents of the first tab."),
              "First", Wt::ContentLoading::Eager);
 tabW->addTab(Wt::cpp14::make_unique<Wt::WTextArea>("The contents of the tabs are pre-loaded in"

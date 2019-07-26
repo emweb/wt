@@ -48,33 +48,29 @@ void WTemplateFormView::setFormWidget(WFormModel::Field field,
   bindWidget(field, std::move(formWidget));
 }
 
-#ifndef WT_TARGET_JAVA
-
 void WTemplateFormView
 ::setFormWidget(WFormModel::Field field, std::unique_ptr<WWidget> formWidget,
+#ifndef WT_TARGET_JAVA
 		const std::function<void()>& updateViewValue,
-		const std::function<void()>& updateModelValue)
-{
-  fields_[field].formWidget = formWidget.get();
-  fields_[field].updateView = updateViewValue;
-  fields_[field].updateModel = updateModelValue;
-
-  bindWidget(field, std::move(formWidget));
-}
-
-#else
-
-void WTemplateFormView
-::setFormWidget(WFormModel::Field field, std::unique_ptr<WWidget> formWidget, std::unique_ptr<FieldView> fieldView)
+		const std::function<void()>& updateModelValue
+#else // WT_TARGET_JAVA
+		const Runnable& updateViewValue,
+		const Runnable& updateModelValue
+#endif // WT_TARGET_JAVA
+    )
 {
   fields_[field] = FieldData();
   fields_[field].formWidget = formWidget.get();
-  fields_[field].updateFunctions = fieldView.release();
+#ifndef WT_TARGET_JAVA
+  fields_[field].updateView = updateViewValue;
+  fields_[field].updateModel = updateModelValue;
+#else // WT_TARGET_JAVA
+  fields_[field].updateView = &updateViewValue;
+  fields_[field].updateModel = &updateModelValue;
+#endif // WT_TARGET_JAVA
 
   bindWidget(field, std::move(formWidget));
 }
-
-#endif // WT_TARGET_JAVA
 
 std::unique_ptr<WWidget> WTemplateFormView
 ::createFormWidget(WFormModel::Field field)
@@ -107,17 +103,14 @@ bool WTemplateFormView::updateViewValue(WFormModel *model,
   FieldMap::const_iterator fi = fields_.find(field);
 
   if (fi != fields_.end()) {
-#ifndef WT_TARGET_JAVA
     if (fi->second.updateView) {
+#ifndef WT_TARGET_JAVA
       fi->second.updateView();
+#else // WT_TARGET_JAVA
+      fi->second.updateView->run();
+#endif // WT_TARGET_JAVA
       return true;
     }
-#else
-    if (fi->second.updateFunctions) {
-      fi->second.updateFunctions->updateViewValue();
-      return true;
-    }
-#endif
   }
 
   return false;
@@ -226,17 +219,14 @@ bool WTemplateFormView::updateModelValue(WFormModel *model,
   FieldMap::const_iterator fi = fields_.find(field);
 
   if (fi != fields_.end()) {
-#ifndef WT_TARGET_JAVA
     if (fi->second.updateModel) {
+#ifndef WT_TARGET_JAVA
       fi->second.updateModel();
+#else // WT_TARGET_JAVA
+      fi->second.updateModel->run();
+#endif // WT_TARGET_JAVA
       return true;
     }
-#else
-    if (fi->second.updateFunctions) {
-      fi->second.updateFunctions->updateModelValue();
-      return true;
-    }
-#endif
   }
    
   return false;

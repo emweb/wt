@@ -7,11 +7,9 @@
 SAMPLE_BEGIN(SplitButton)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WSplitButton *sb =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WSplitButton>("Save"));
+Wt::WSplitButton *sb = container->addNew<Wt::WSplitButton>("Save");
 
-Wt::WText *out =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 out->setMargin(10, Wt::Side::Left);
 
 auto popup = Wt::cpp14::make_unique<Wt::WPopupMenu>();

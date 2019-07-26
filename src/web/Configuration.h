@@ -153,10 +153,6 @@ public:
   void setSessionIdPrefix(const std::string& prefix);
 
 #ifndef WT_TARGET_JAVA
-  // Add the given entryPoint to the routing tree
-  // NOTE: Server may not be running, or you should have WRITE_LOCK
-  // when registering an entry point
-  void registerEntryPoint(const EntryPoint &entryPoint);
   void addEntryPoint(const EntryPoint& entryPoint);
   bool tryAddResource(const EntryPoint& entryPoint); // Returns bool indicating success:
 						     // false if entry point existed already
@@ -323,6 +319,13 @@ private:
   void readApplicationSettings(Wt::rapidxml::xml_node<char> *app);
   void readConfiguration(bool silent);
   WLogEntry log(const std::string& type) const;
+
+  // Add the given entryPoint to the routing tree
+  // NOTE: Server may not be running, or WRITE_LOCK should
+  // be grabbed before registerEntryPoint is invoked.
+  // This is to be used by the other entry point functions
+  // (addEntryPoint, tryAddResource, removeEntryPoint,...)
+  void registerEntryPoint(const EntryPoint &entryPoint);
 };
 
 }

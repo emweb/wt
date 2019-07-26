@@ -23,8 +23,8 @@ WAbstractChart::WAbstractChart()
   titleFont_.setFamily(FontFamily::SansSerif);
   titleFont_.setSize(WLength(15, LengthUnit::Point));
 
-  setPlotAreaPadding(5, Side::Left | Side::Right);
-  setPlotAreaPadding(5, Side::Top | Side::Bottom);
+  setPlotAreaPadding(5, WFlags<Side>(Side::Left) | Side::Right);
+  setPlotAreaPadding(5, WFlags<Side>(Side::Top) | Side::Bottom);
 }
 
 WAbstractChart::~WAbstractChart()

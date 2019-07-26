@@ -15,14 +15,14 @@ std::string poster = "pics/sintel_trailer.jpg";
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-auto video = container->addWidget(Wt::cpp14::make_unique<Wt::WVideo>());
+auto video = container->addNew<Wt::WVideo>();
 video->addSource(Wt::WLink(mp4Video));
 video->addSource(Wt::WLink(ogvVideo));
 video->setPoster(poster);
 video->setAlternativeContent(Wt::cpp14::make_unique<Wt::WImage>(poster));
 video->resize(640, 360);
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 
 video->playbackStarted().connect([=] {
         out->setText("<p>Video playing</p>");

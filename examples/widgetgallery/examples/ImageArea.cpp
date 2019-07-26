@@ -10,12 +10,11 @@
 SAMPLE_BEGIN(ImageArea)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WImage *image =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WImage>(Wt::WLink("pics/sintel_trailer.jpg")));
+Wt::WImage *image = container->addNew<Wt::WImage>(Wt::WLink("pics/sintel_trailer.jpg"));
 image->setAlternateText("Sintel trailer");
 
-container->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+container->addNew<Wt::WBreak>();
+Wt::WText *out = container->addNew<Wt::WText>();
 
 auto circlePtr = Wt::cpp14::make_unique<Wt::WCircleArea>(427, 149, 58);
 auto circle = circlePtr.get();

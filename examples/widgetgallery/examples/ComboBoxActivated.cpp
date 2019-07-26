@@ -6,14 +6,14 @@ SAMPLE_BEGIN(ComboBoxActivated)
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-auto cb = container->addWidget(Wt::cpp14::make_unique<Wt::WComboBox>());
+auto cb = container->addNew<Wt::WComboBox>();
 cb->addItem("Heavy");
 cb->addItem("Medium");
 cb->addItem("Light");
 cb->setCurrentIndex(1); // Show 'Medium' initially.
 cb->setMargin(10, Wt::Side::Right);
 
-auto out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+auto out = container->addNew<Wt::WText>();
 out->addStyleClass("help-block");
 
 cb->changed().connect([=] {

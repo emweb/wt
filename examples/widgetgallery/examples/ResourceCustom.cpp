@@ -32,8 +32,7 @@ auto textResource = std::make_shared<MyResource>();
 
 Wt::WLink link = Wt::WLink(textResource);
 link.setTarget(Wt::LinkTarget::NewWindow);
-Wt::WAnchor *anchor =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WAnchor>(link,"Download file"));
+Wt::WAnchor *anchor = container->addNew<Wt::WAnchor>(link,"Download file");
 
 SAMPLE_END(return std::move(container))
 

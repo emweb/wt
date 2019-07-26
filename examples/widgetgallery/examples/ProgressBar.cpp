@@ -7,16 +7,12 @@ SAMPLE_BEGIN(ProgressBar)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 container->setStyleClass("inline-buttons");
 
-Wt::WProgressBar *bar =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WProgressBar>());
+Wt::WProgressBar *bar = container->addNew<Wt::WProgressBar>();
 bar->setRange(0, 10);
 
-Wt::WPushButton *startButton =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Start"));
-Wt::WPushButton *stopButton =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Stop"));
-Wt::WPushButton *resetButton =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Reset"));
+Wt::WPushButton *startButton = container->addNew<Wt::WPushButton>("Start");
+Wt::WPushButton *stopButton = container->addNew<Wt::WPushButton>("Stop");
+Wt::WPushButton *resetButton = container->addNew<Wt::WPushButton>("Reset");
 
 // Initially, only the start button is enabled.
 stopButton->disable();

@@ -52,7 +52,7 @@ protected:
                                       Wt::WFlags<Wt::ViewItemRenderFlag> flags) const override
     {
         auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
-        auto combo = container->addWidget(Wt::cpp14::make_unique<Wt::WComboBox>());
+        auto combo = container->addNew<Wt::WComboBox>();
 	combo->setModel(items_);
 	combo->setCurrentIndex((int)Wt::asNumber(index.data(Wt::ItemDataRole::User)));
 

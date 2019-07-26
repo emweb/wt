@@ -12,14 +12,12 @@ SAMPLE_BEGIN(NavigationBar)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
 // Create a navigation bar with a link to a web page.
-Wt::WNavigationBar *navigation =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WNavigationBar>());
+Wt::WNavigationBar *navigation = container->addNew<Wt::WNavigationBar>();
 navigation->setTitle("Corpy Inc.",
 		     "https://www.google.com/search?q=corpy+inc");
 navigation->setResponsive(true);
 
-Wt::WStackedWidget *contentsStack =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WStackedWidget>());
+Wt::WStackedWidget *contentsStack = container->addNew<Wt::WStackedWidget>();
 contentsStack->addStyleClass("contents");
 
 // Setup a Left-aligned menu.

@@ -89,15 +89,14 @@ private:
 SAMPLE_BEGIN(PaintingInteractive)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-PaintingInteractiveWidget *widget =
-    container->addWidget(Wt::cpp14::make_unique<PaintingInteractiveWidget>());
+PaintingInteractiveWidget *widget = container->addNew<PaintingInteractiveWidget>();
 
-Wt::WSpinBox *sb = container->addWidget(Wt::cpp14::make_unique<Wt::WSpinBox>());
+Wt::WSpinBox *sb = container->addNew<Wt::WSpinBox>();
 sb->setWidth(300);
 sb->setRange(0, 360);
 sb->setValue(0);
 
-Wt::WSlider *slider = container->addWidget(Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal));
+Wt::WSlider *slider = container->addNew<Wt::WSlider>(Wt::Orientation::Horizontal);
 slider->resize(300, 50);
 slider->setRange(0, 360);
 

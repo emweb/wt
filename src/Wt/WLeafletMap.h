@@ -269,6 +269,7 @@ public:
    */
   void addMarker(std::unique_ptr<Marker> marker);
 
+#ifndef WT_TARGET_JAVA
   template<typename M>
   M *addMarker(std::unique_ptr<M> marker)
   {
@@ -276,17 +277,20 @@ public:
     addMarker(std::unique_ptr<Marker>(std::move(marker)));
     return result;
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Remove the given marker
    */
   std::unique_ptr<Marker> removeMarker(Marker *marker);
 
+#ifndef WT_TARGET_JAVA
   template<typename M>
   std::unique_ptr<M> removeMarker(M *marker)
   {
     auto result = removeMarker(static_cast<Marker*>(marker));
     return std::unique_ptr<M>(static_cast<M*>(result.release()));
   }
+#endif // WT_TARGET_JAVA
 
   /*! \brief Add a polyline
    *

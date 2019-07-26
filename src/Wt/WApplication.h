@@ -1334,6 +1334,12 @@ public:
 #endif
 
 #ifdef WT_TARGET_JAVA
+    /*! \brief Releases the lock.
+     *
+     * Calls release()
+     *
+     * Implemented in order to support the AutoCloseable interface.
+     */
     virtual void close();
 #endif // WT_TARGET_JAVA
 

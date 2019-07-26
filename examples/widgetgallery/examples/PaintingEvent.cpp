@@ -32,11 +32,9 @@ private:
 SAMPLE_BEGIN(PaintingEvent)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-MyPaintedWidget *painting =
-    container->addWidget(Wt::cpp14::make_unique<MyPaintedWidget>());
+MyPaintedWidget *painting = container->addNew<MyPaintedWidget>();
 
-Wt::WSpinBox *sb =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WSpinBox>());
+Wt::WSpinBox *sb = container->addNew<Wt::WSpinBox>();
 sb->setRange(10,200);
 sb->setValue(100);
 

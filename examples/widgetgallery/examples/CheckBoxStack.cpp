@@ -6,14 +6,14 @@ SAMPLE_BEGIN(CheckBoxStack)
 auto result = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 Wt::WCheckBox *cb;
 
-cb = result->addWidget(Wt::cpp14::make_unique<Wt::WCheckBox>("Check me!"));
+cb = result->addNew<Wt::WCheckBox>("Check me!");
 cb->setInline(false);
 cb->setChecked(true);
 
-cb = result->addWidget(Wt::cpp14::make_unique<Wt::WCheckBox>("Check me too!"));
+cb = result->addNew<Wt::WCheckBox>("Check me too!");
 cb->setInline(false);
 
-cb = result->addWidget(Wt::cpp14::make_unique<Wt::WCheckBox>("Check me, I'm tristate!"));
+cb = result->addNew<Wt::WCheckBox>("Check me, I'm tristate!");
 cb->setInline(false);
 cb->setTristate();
 cb->setCheckState(Wt::CheckState::PartiallyChecked);

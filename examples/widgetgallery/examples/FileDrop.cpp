@@ -15,7 +15,7 @@ dropWidget->drop().connect([=] (const std::vector<Wt::WFileDropWidget::File*>& f
       continue;
     }
     
-    Wt::WContainerWidget *block = dropWidget->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>());
+    Wt::WContainerWidget *block = dropWidget->addNew<Wt::WContainerWidget>();
     block->setToolTip(files[i]->clientFileName());
     block->addStyleClass("upload-block spinner");
   }

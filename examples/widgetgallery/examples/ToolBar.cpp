@@ -21,7 +21,7 @@ SAMPLE_BEGIN(ToolBar)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
 Wt::WToolBar *toolBar =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WToolBar>());
+    container->addNew<Wt::WToolBar>();
 
 toolBar->addButton(createColorButton("btn-primary", "Primary"));
 toolBar->addButton(createColorButton("btn-danger", "Danger"));

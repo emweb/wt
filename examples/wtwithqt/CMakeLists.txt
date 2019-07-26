@@ -36,12 +36,6 @@ ELSE (NOT BUILD_WTWITHQT4)
     ${CMAKE_CURRENT_BINARY_DIR}/moccedQtObject.C
   )
 
-  TARGET_COMPILE_DEFINITIONS(
-    helloqt.wt
-  PRIVATE
-    -DWT_NO_SLOT_MACROS
-  )
-
   TARGET_LINK_LIBRARIES(helloqt.wt
     wtwithqt
     ${QT_LIBRARIES}
@@ -81,12 +75,6 @@ ELSE (NOT BUILD_WTWITHQT5)
 
   TARGET_LINK_LIBRARIES(helloqt5.wt
     wtwithqt5
-  )
-
-  TARGET_COMPILE_DEFINITIONS(
-    helloqt5.wt
-  PRIVATE
-    -DWT_NO_SLOT_MACROS
   )
 
   #

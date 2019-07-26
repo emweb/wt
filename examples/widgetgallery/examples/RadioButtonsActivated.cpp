@@ -10,25 +10,25 @@ auto group = std::make_shared<Wt::WButtonGroup>();
 
 Wt::WRadioButton *rb;
 
-rb = container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("sleeping"));
+rb = container->addNew<Wt::WRadioButton>("sleeping");
 rb->setInline(false);
 group->addButton(rb, 1);
 
-rb = container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("eating"));
+rb = container->addNew<Wt::WRadioButton>("eating");
 rb->setInline(false);
 group->addButton(rb, 2);
 
-rb = container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("driving"));
+rb = container->addNew<Wt::WRadioButton>("driving");
 rb->setInline(false);
 group->addButton(rb, 3);
 
-rb = container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("learning Wt"));
+rb = container->addNew<Wt::WRadioButton>("learning Wt");
 rb->setInline(false);
 group->addButton(rb, 4);
 
 group->setSelectedButtonIndex(0); // Select the first button by default.
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 
 // Use a raw pointer inside the lambda to prevent memory leak
 auto rawGroup = group.get();

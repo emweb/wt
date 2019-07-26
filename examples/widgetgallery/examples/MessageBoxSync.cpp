@@ -11,10 +11,9 @@ SAMPLE_BEGIN(MessageBoxSync)
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WPushButton *button =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Start"));
+Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Start");
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 out->setMargin(10, Wt::Side::Left);
 
 button->clicked().connect([=] {

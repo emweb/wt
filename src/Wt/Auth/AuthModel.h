@@ -54,7 +54,10 @@ class OAuthService;
  *
  * \ingroup auth
  */
-class WT_API AuthModel : public FormBaseModel, public std::enable_shared_from_this<AuthModel>
+class WT_API AuthModel : public FormBaseModel
+#ifndef WT_TARGET_JAVA
+                         , public std::enable_shared_from_this<AuthModel>
+#endif // WT_TARGET_JAVA
 {
 public:
   //! \brief Password field

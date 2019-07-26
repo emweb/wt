@@ -16,9 +16,9 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
     auto dialog = owner->addChild(Wt::cpp14::make_unique<Wt::WDialog>("Go to cell"));
 
     Wt::WLabel *label =
-        dialog->contents()->addWidget(Wt::cpp14::make_unique<Wt::WLabel>("Cell location (A1..Z999)"));
+        dialog->contents()->addNew<Wt::WLabel>("Cell location (A1..Z999)");
     Wt::WLineEdit *edit =
-        dialog->contents()->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+        dialog->contents()->addNew<Wt::WLineEdit>();
     label->setBuddy(edit);
 
     dialog->contents()->addStyleClass("form-group");
@@ -29,13 +29,13 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
     edit->setValidator(validator);
 
     Wt::WPushButton *ok =
-        dialog->footer()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("OK"));
+        dialog->footer()->addNew<Wt::WPushButton>("OK");
     ok->setDefault(true);
     if (wApp->environment().ajax())
       ok->disable();
 
     Wt::WPushButton *cancel =
-        dialog->footer()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Cancel"));
+        dialog->footer()->addNew<Wt::WPushButton>("Cancel");
     dialog->rejectWhenEscapePressed();
 
     edit->keyWentUp().connect([=] {
@@ -74,9 +74,9 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
 SAMPLE_BEGIN(Dialog)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WPushButton *button = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Jump"));
+Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Jump");
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 out->setStyleClass("help-block");
 
 auto c = container.get();

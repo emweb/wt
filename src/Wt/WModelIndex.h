@@ -184,6 +184,7 @@ public:
   static const ItemDataRole MarkerPenColor;
   static const ItemDataRole MarkerBrushColor;
   static const ItemDataRole MarkerScaleFactor;
+  static const ItemDataRole MarkerType;
   static const ItemDataRole BarPenColor;
   static const ItemDataRole BarBrushColor;
   static const ItemDataRole User;

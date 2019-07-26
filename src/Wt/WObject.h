@@ -14,8 +14,11 @@
 
 #include <cassert>
 #include <map>
-#include <type_traits>
 #include <vector>
+
+#ifndef WT_TARGET_JAVA
+#include <type_traits>
+#endif // WT_TARGET_JAVA
 
 namespace Wt {
 
@@ -119,6 +122,7 @@ public:
    */
   std::unique_ptr<WObject> removeChild(WObject *child);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Remove a child WObject, so its lifetime is no longer determined by this WObject
    *
    * This is an overload that automatically casts the returned value to a unique_ptr<Child> for convenience
@@ -140,6 +144,7 @@ public:
     assert(result == nullptr || result.get() == child);
     return std::unique_ptr<Child>(static_cast<Child*>(result.release()));
   }
+#endif // WT_TARGET_JAVA
 
   /*
    * Unique id's

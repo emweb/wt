@@ -13,14 +13,14 @@ std::string oggAudio =
 
 auto container(Wt::cpp14::make_unique<Wt::WContainerWidget>());
 
-Wt::WAudio *audio = container->addWidget(Wt::cpp14::make_unique<Wt::WAudio>());
+Wt::WAudio *audio = container->addNew<Wt::WAudio>();
 audio->addSource(Wt::WLink(mp3Audio));
 audio->addSource(Wt::WLink(oggAudio));
 audio->setOptions(Wt::PlayerOption::Controls);
 audio->setAlternativeContent
   (Wt::cpp14::make_unique<Wt::WText>("You don't have HTML5 audio support!"));
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 
 audio->playbackStarted().connect([=] {
         out->setText("<p>Audio playing</p>");

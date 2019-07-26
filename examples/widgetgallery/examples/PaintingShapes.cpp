@@ -110,7 +110,7 @@ protected:
 SAMPLE_BEGIN(PaintingShapes)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-container->addWidget(Wt::cpp14::make_unique<ShapesWidget>());
+container->addNew<ShapesWidget>();
 
 SAMPLE_END(return std::move(container))
 

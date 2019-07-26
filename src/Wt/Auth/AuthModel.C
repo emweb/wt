@@ -185,11 +185,15 @@ void AuthModel::setRememberMeCookie(const User& user)
 bool AuthModel::login(Login& login)
 {
   if (valid()) {
+#ifndef WT_TARGET_JAVA
     // self: keep model alive until function returns
     // loginUser can cause Login::changed() signal
     // to be emitted. A slot may be connected that
     // deletes the widget that is the sole owner of this model
     auto self = shared_from_this();
+#else // WT_TARGET_JAVA
+    auto self = this;
+#endif // WT_TARGET_JAVA
     User user = users().findWithIdentity(Identity::LoginName,
 					 valueText(LoginNameField));
     cpp17::any v = value(RememberMeField);

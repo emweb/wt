@@ -7,11 +7,9 @@ SAMPLE_BEGIN(SpinBox)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 container->addStyleClass("form-group");
 
-Wt::WLabel *label =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WLabel>("Enter a number (0 - 100):"));
+Wt::WLabel *label = container->addNew<Wt::WLabel>("Enter a number (0 - 100):");
 
-Wt::WDoubleSpinBox *sb =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WDoubleSpinBox>());
+Wt::WDoubleSpinBox *sb = container->addNew<Wt::WDoubleSpinBox>();
 sb->setRange(0,100);
 sb->setValue(50);
 sb->setDecimals(2);
@@ -19,8 +17,7 @@ sb->setSingleStep(0.1);
 
 label->setBuddy(sb);
 
-Wt::WText *out =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WText>(""));
+Wt::WText *out = container->addNew<Wt::WText>("");
 out->addStyleClass("help-block");
 
 sb->changed().connect([=] {

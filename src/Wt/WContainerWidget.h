@@ -258,6 +258,19 @@ public:
     addWidget(std::unique_ptr<WWidget>{std::move(w)});
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Widget>
+    Widget *addNew();
+  template <typename Widget, typename Arg1>
+    Widget *addNew(Arg1 arg1);
+  template <typename Widget, typename Arg1, typename Arg2>
+    Widget *addNew(Arg1 arg1, Arg2 arg2);
+  template <typename Widget, typename Arg1, typename Arg2, typename Arg3>
+    Widget *addNew(Arg1 arg1, Arg2 arg2, Arg3 arg3);
+  template <typename Widget, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+    Widget *addNew(Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4);
+  template <typename Widget, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
+    Widget *addNew(Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4, Arg5 arg5);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Inserts a child widget in this container, before another

@@ -22,29 +22,21 @@ void Navigation::populateSubMenu(Wt::WMenu *menu)
 {
   menu->addItem("Internal paths", internalPaths())->setPathComponent("");
   menu->addItem("Anchor", 
-                deferCreate(std::bind
-                            (&Navigation::anchor, this)));
+                deferCreate([this]{ return anchor(); }));
   menu->addItem("Stacked widget", 
-                deferCreate(std::bind
-                            (&Navigation::stackedWidget, this)));
+                deferCreate([this]{ return stackedWidget(); }));
   menu->addItem("Menu", 
-                deferCreate(std::bind
-                            (&Navigation::menuWidget, this)));
+                deferCreate([this]{ return menuWidget(); }));
   menu->addItem("Tab widget", 
-                deferCreate(std::bind
-                            (&Navigation::tabWidget, this)));
+                deferCreate([this]{ return tabWidget(); }));
   menu->addItem("Navigation bar", 
-                deferCreate(std::bind
-                            (&Navigation::navigationBar, this)));
+                deferCreate([this]{ return navigationBar(); }));
   menu->addItem("Popup menu", 
-                deferCreate(std::bind
-                            (&Navigation::popupMenu, this)));
+                deferCreate([this]{ return popupMenu(); }));
   menu->addItem("Split button", 
-                deferCreate(std::bind
-                            (&Navigation::splitButton, this)));
+                deferCreate([this]{ return splitButton(); }));
   menu->addItem("Toolbar", 
-                deferCreate(std::bind
-                            (&Navigation::toolBar, this)));
+                deferCreate([this]{ return toolBar(); }));
 }
 
 

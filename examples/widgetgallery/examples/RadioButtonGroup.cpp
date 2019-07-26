@@ -9,16 +9,13 @@ auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 auto group = std::make_shared<Wt::WButtonGroup>();
 Wt::WRadioButton *button;
 
-button =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("Radio me!"));
+button = container->addNew<Wt::WRadioButton>("Radio me!");
 group->addButton(button);
 
-button =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("No, radio me!"));
+button = container->addNew<Wt::WRadioButton>("No, radio me!");
 group->addButton(button);
 
-button =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WRadioButton>("Nono, radio me!"));
+button = container->addNew<Wt::WRadioButton>("Nono, radio me!");
 group->addButton(button);
 
 group->setSelectedButtonIndex(0); // Select the first button by default.

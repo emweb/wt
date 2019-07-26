@@ -65,6 +65,6 @@ protected:
 SAMPLE_BEGIN(PaintingImages)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-container->addWidget(Wt::cpp14::make_unique<PaintingImagesWidget>());
+container->addNew<PaintingImagesWidget>();
 
 SAMPLE_END(return std::move(container))

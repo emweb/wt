@@ -17,39 +17,31 @@ auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 // The class .CSS-example is used as selector.
 container->setStyleClass("CSS-example");
 
-Wt::WPushButton *allB = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Set all classes"));
+Wt::WPushButton *allB = container->addNew<Wt::WPushButton>("Set all classes");
 
-Wt::WPushButton *removeB = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Remove info class"));
+Wt::WPushButton *removeB = container->addNew<Wt::WPushButton>("Remove info class");
 removeB->setMargin(10, Wt::Side::Left | Wt::Side::Right);
 removeB->disable();
 
-Wt::WPushButton *toggleB = container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Toggle condensed"));
+Wt::WPushButton *toggleB = container->addNew<Wt::WPushButton>("Toggle condensed");
 toggleB->disable();
 
-Wt::WText *text = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *text = container->addNew<Wt::WText>();
 text->setText("<p>These are the most import API classes and methods for"
               " working with CSS:</p>");
 
-Wt::WTable *table = container->addWidget(Wt::cpp14::make_unique<Wt::WTable>());
+Wt::WTable *table = container->addNew<Wt::WTable>();
 table->setHeaderCount(1);
-table->elementAt(0, 0)->addWidget(Wt::cpp14::make_unique<Wt::WText>("Method"));
-table->elementAt(0, 1)->addWidget(Wt::cpp14::make_unique<Wt::WText>("Description"));
-table->elementAt(1, 0)->addWidget(
-                        Wt::cpp14::make_unique<Wt::WText>("WApplication::useStyleSheet()"));
-table->elementAt(1, 1)->addWidget(
-                        Wt::cpp14::make_unique<Wt::WText>("Adds an external style sheet"));
-table->elementAt(2, 0)->addWidget(
-                        Wt::cpp14::make_unique<Wt::WText>("WWidget::setStyleClass()"));
-table->elementAt(2, 1)->addWidget(
-                        Wt::cpp14::make_unique<Wt::WText>("Sets (one or more) CSS style classes"));
-table->elementAt(3, 0)->addWidget(
-                        Wt::cpp14::make_unique<Wt::WText>("WWidget::removeStyleClass()"));
-table->elementAt(3, 1)->addWidget(
-                        Wt::cpp14::make_unique<Wt::WText>("Removes a CSS style class"));
-table->elementAt(4, 0)->addWidget(
-                        Wt::cpp14::make_unique<Wt::WText>("WWidget::toggleStyleClass()"));
-table->elementAt(4, 1)->addWidget(
-                        Wt::cpp14::make_unique<Wt::WText>("Toggles a CSS style class"));
+table->elementAt(0, 0)->addNew<Wt::WText>("Method");
+table->elementAt(0, 1)->addNew<Wt::WText>("Description");
+table->elementAt(1, 0)->addNew<Wt::WText>("WApplication::useStyleSheet()");
+table->elementAt(1, 1)->addNew<Wt::WText>("Adds an external style sheet");
+table->elementAt(2, 0)->addNew<Wt::WText>("WWidget::setStyleClass()");
+table->elementAt(2, 1)->addNew<Wt::WText>("Sets (one or more) CSS style classes");
+table->elementAt(3, 0)->addNew<Wt::WText>("WWidget::removeStyleClass()");
+table->elementAt(3, 1)->addNew<Wt::WText>("Removes a CSS style class");
+table->elementAt(4, 0)->addNew<Wt::WText>("WWidget::toggleStyleClass()");
+table->elementAt(4, 1)->addNew<Wt::WText>("Toggles a CSS style class");
 
 allB->clicked().connect([=] {
     // Set style classes for the complete table.

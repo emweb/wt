@@ -20,29 +20,21 @@ void Layout::populateSubMenu(Wt::WMenu *menu)
 {
   menu->addItem("Containers", containers())->setPathComponent("");
   menu->addItem("HTML Templates",
-                deferCreate(std::bind
-			    (&Layout::templates, this)));
+                deferCreate([this]{ return templates(); }));
   menu->addItem("Text", 
-                deferCreate(std::bind
-			    (&Layout::text, this)));
+                deferCreate([this]{ return text(); }));
   menu->addItem("Grouping widgets", 
-                deferCreate(std::bind
-			    (&Layout::grouping, this)));
+                deferCreate([this]{ return grouping(); }));
   menu->addItem("Layout managers", 
-                deferCreate(std::bind
-			    (&Layout::layoutManagers, this)));
+                deferCreate([this]{ return layoutManagers(); }));
   menu->addItem("Dialogs", 
-                deferCreate(std::bind
-			    (&Layout::dialogs, this)));
+                deferCreate([this]{ return dialogs(); }));
   menu->addItem("Images", 
-                deferCreate(std::bind
-			    (&Layout::images, this)));
+                deferCreate([this]{ return images(); }));
   menu->addItem("CSS", 
-                deferCreate(std::bind
-			    (&Layout::css, this)));
+                deferCreate([this]{ return css(); }));
   menu->addItem("Themes", 
-                deferCreate(std::bind
-			    (&Layout::themes, this)));
+                deferCreate([this]{ return themes(); }));
 }
 
 #include "examples/Container.cpp"

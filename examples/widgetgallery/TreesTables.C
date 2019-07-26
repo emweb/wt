@@ -27,20 +27,15 @@ void TreesTables::populateSubMenu(WMenu *menu)
 
   menu->addItem("Tables", tables())->setPathComponent("");
   menu->addItem("Trees",
-                deferCreate(std::bind
-			    (&TreesTables::trees, this)));
+                deferCreate([this]{ return trees(); }));
   menu->addItem("Tree Tables",
-                deferCreate(std::bind
-			    (&TreesTables::treeTables, this)));
+                deferCreate([this]{ return treeTables(); }));
   menu->addItem("MVC Table Views",
-                deferCreate(std::bind
-			    (&TreesTables::tableViews, this)));
+                deferCreate([this]{ return tableViews(); }));
   menu->addItem("MVC Tree Views",
-                deferCreate(std::bind
-			    (&TreesTables::treeViews, this)));
+                deferCreate([this]{ return treeViews(); }));
   menu->addItem("MVC Item models",
-                deferCreate(std::bind
-			    (&TreesTables::itemModels, this)));
+                deferCreate([this]{ return itemModels(); }));
   // menu->addItem("Proxy item models", proxyModels());
 }
 

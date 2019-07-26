@@ -10,8 +10,7 @@ auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 // Create a stack where the contents will be located.
 auto contents = Wt::cpp14::make_unique<Wt::WStackedWidget>();
 
-Wt::WMenu *menu =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WMenu>(contents.get()));
+Wt::WMenu *menu = container->addNew<Wt::WMenu>(contents.get());
 menu->setStyleClass("nav nav-pills nav-stacked");
 menu->setWidth(150);
 

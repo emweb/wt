@@ -7,10 +7,10 @@ SAMPLE_BEGIN(CalendarExtended)
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WCalendar *c2 = container->addWidget(Wt::cpp14::make_unique<Wt::WCalendar>());
+Wt::WCalendar *c2 = container->addNew<Wt::WCalendar>();
 c2->setSelectionMode(Wt::SelectionMode::Extended);
 
-Wt::WText* out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText* out = container->addNew<Wt::WText>();
 out->addStyleClass("help-block");
 
 c2->selectionChanged().connect([=] {

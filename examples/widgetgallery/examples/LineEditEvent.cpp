@@ -6,11 +6,10 @@ SAMPLE_BEGIN(LineEditEvent)
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WLineEdit *edit =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+Wt::WLineEdit *edit = container->addNew<Wt::WLineEdit>();
 edit->setPlaceholderText("Edit me");
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>(""));
+Wt::WText *out = container->addNew<Wt::WText>("");
 out->addStyleClass("help-block");
 
 edit->keyPressed().connect([=] (const Wt::WKeyEvent& e) {

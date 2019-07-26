@@ -11,8 +11,7 @@ using namespace Wt;
 SAMPLE_BEGIN(TextEdit)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WTextEdit *edit =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WTextEdit>());
+Wt::WTextEdit *edit = container->addNew<Wt::WTextEdit>();
 edit->setHeight(300);
 edit->setText("<p>"
     "<span style=\"font-family: 'courier new', courier; font-size: medium;\">"
@@ -29,12 +28,10 @@ edit->setText("<p>"
       "</ul>"
     "<p>don't have style.</p>");
 
-Wt::WPushButton *button =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Get text"));
+Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Get text");
 button->setMargin(10, Wt::Side::Top | Wt::Side::Bottom);
 
-Wt::WText *out =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 out->setStyleClass("xhtml-output");
 
 button->clicked().connect([=] {

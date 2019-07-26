@@ -193,9 +193,15 @@ public:
    *
    * \sa addWidget(WWidget *, int, WFlags<AlignmentFlag>), insertLayout()
    */
+#ifndef WT_TARGET_JAVA
   void addLayout(std::unique_ptr<WLayout> layout, int stretch,
                  WFlags<AlignmentFlag> alignment);
+#else // WT_TARGET_JAVA
+  void addLayout(std::unique_ptr<WLayout> layout, int stretch = 0,
+                 WFlags<AlignmentFlag> alignment = None);
+#endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
   /*! \briefs Adds a nested layout to the layout, returning a raw pointer.
    *
    * This is implemented as:
@@ -206,7 +212,6 @@ public:
    * return result;
    * \endcode
    */
-#ifndef WT_TARGET_JAVA
   template <typename Layout>
     Layout *addLayout(std::unique_ptr<Layout> layout, int stretch = 0,
                       WFlags<AlignmentFlag> alignment = None)
@@ -215,11 +220,6 @@ public:
     addLayout(std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
     return result;
   }
-#else // WT_TARGET_JAVA
-  template <typename Layout>
-    Layout *addLayout(std::unique_ptr<Layout> layout);
-  template <typename Layout>
-    Layout *addLayout(std::unique_ptr<Layout> layout, int stretch);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Adds extra spacing.

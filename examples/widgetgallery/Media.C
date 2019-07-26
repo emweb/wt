@@ -19,20 +19,20 @@ Media::Media()
 void Media::populateSubMenu(Wt::WMenu *menu)
 {
   menu->addItem("WMediaPlayer",
-                deferCreate(std::bind(&Media::mediaPlayer, this)))
+                deferCreate([this]{ return mediaPlayer(); }))
     ->setPathComponent("");
   menu->addItem("WSound",
-                deferCreate(std::bind(&Media::sound, this)));
+                deferCreate([this]{ return sound(); }));
   menu->addItem("WAudio",
-                deferCreate(std::bind(&Media::audio, this)));
+                deferCreate([this]{ return audio(); }));
   menu->addItem("WVideo",
-                deferCreate(std::bind(&Media::video, this)));
+                deferCreate([this]{ return video(); }));
   menu->addItem("WFlashObject",
-                deferCreate(std::bind(&Media::flashObject, this)));
+                deferCreate([this]{ return flashObject(); }));
   menu->addItem("Resources",
-                deferCreate(std::bind(&Media::resources, this)));
+                deferCreate([this]{ return resources(); }));
   menu->addItem("PDF output",
-                deferCreate(std::bind(&Media::pdf, this)));
+                deferCreate([this]{ return pdf(); }));
 
 }
 

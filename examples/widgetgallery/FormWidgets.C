@@ -20,33 +20,33 @@ void FormWidgets::populateSubMenu(Wt::WMenu *menu)
 {
   menu->addItem("Introduction", introduction())->setPathComponent("");
   menu->addItem("Line/Text editor",
-		deferCreate(std::bind(&FormWidgets::textEditors, this)));
+                deferCreate([this]{ return textEditors(); }));
   menu->addItem("Check boxes", 
-		deferCreate(std::bind(&FormWidgets::checkBox, this)));
+                deferCreate([this]{ return checkBox(); }));
   menu->addItem("Radio buttons", 
-		deferCreate(std::bind(&FormWidgets::radioButton, this)));
+                deferCreate([this]{ return radioButton(); }));
   menu->addItem("Combo box", 
-		deferCreate(std::bind(&FormWidgets::comboBox, this)));
+                deferCreate([this]{ return comboBox(); }));
   menu->addItem("Selection box", 
-		deferCreate(std::bind(&FormWidgets::selectionBox, this)));
+                deferCreate([this]{ return selectionBox(); }));
   menu->addItem("Autocomplete", 
-		deferCreate(std::bind(&FormWidgets::autoComplete, this)));
+                deferCreate([this]{ return autoComplete(); }));
   menu->addItem("Date & Time entry",
-		deferCreate(std::bind(&FormWidgets::dateEntry, this)));
+                deferCreate([this]{ return dateEntry(); }));
   menu->addItem("In-place edit", 
-		deferCreate(std::bind(&FormWidgets::inPlaceEdit, this)));
+                deferCreate([this]{ return inPlaceEdit(); }));
   menu->addItem("Slider", 
-		deferCreate(std::bind(&FormWidgets::slider, this)));
+                deferCreate([this]{ return slider(); }));
   menu->addItem("Progress bar", 
-		deferCreate(std::bind(&FormWidgets::progressBar, this)));
+                deferCreate([this]{ return progressBar(); }));
   menu->addItem("File upload", 
-		deferCreate(std::bind(&FormWidgets::fileUpload, this)));
+                deferCreate([this]{ return fileUpload(); }));
   menu->addItem("Push button", 
-		deferCreate(std::bind(&FormWidgets::pushButton, this)));
+                deferCreate([this]{ return pushButton(); }));
   menu->addItem("Validation", 
-		deferCreate(std::bind(&FormWidgets::validation, this)));
+                deferCreate([this]{ return validation(); }));
   menu->addItem("Integration example", 
-		deferCreate(std::bind(&FormWidgets::example, this)));
+                deferCreate([this]{ return example(); }));
 }
 
 

@@ -8,7 +8,7 @@ SAMPLE_BEGIN(ComboBoxModel)
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-auto cb = container->addWidget(Wt::cpp14::make_unique<Wt::WComboBox>());
+auto cb = container->addNew<Wt::WComboBox>();
 cb->setMargin(10, Wt::Side::Right);
 
 auto model = std::make_shared<Wt::WStringListModel>();
@@ -25,7 +25,7 @@ model->setFlags(3, Wt::ItemFlag::Selectable);
 cb->setNoSelectionEnabled(true);
 cb->setModel(model);
 
-auto out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+auto out = container->addNew<Wt::WText>();
 out->addStyleClass("help-block");
 
 cb->changed().connect([=] {

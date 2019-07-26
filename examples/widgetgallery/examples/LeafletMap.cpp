@@ -19,7 +19,12 @@ public:
 
     setHeight(400);
 
+#ifndef WT_TARGET_JAVA
     map_ = layout->addWidget(Wt::cpp14::make_unique<Wt::WLeafletMap>(), 1);
+#else // WT_TARGET_JAVA
+    map_ = new Wt::WLeafletMap();
+    layout->addWidget(std::unique_ptr<Wt::WLeafletMap>(map_), 1);
+#endif // WT_TARGET_JAVA
 
     Wt::Json::Object options;
 #ifndef WT_TARGET_JAVA

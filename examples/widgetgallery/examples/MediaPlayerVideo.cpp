@@ -14,15 +14,14 @@ std::string poster = "pics/sintel_trailer.jpg";
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WMediaPlayer *player =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WMediaPlayer>(Wt::MediaType::Video));
+Wt::WMediaPlayer *player = container->addNew<Wt::WMediaPlayer>(Wt::MediaType::Video);
 player->addSource(Wt::MediaEncoding::M4V, Wt::WLink(mp4Video));
 player->addSource(Wt::MediaEncoding::OGV, Wt::WLink(ogvVideo));
 player->addSource(Wt::MediaEncoding::PosterImage, Wt::WLink(poster));
 player->setTitle("<a href=\"https://durian.blender.org/\""
 		 "target=\"_blank\">Sintel</a>, (c) copyright Blender Foundation");
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 
 player->playbackStarted().connect([=] {
     out->setText("<p>Video playing</p>");

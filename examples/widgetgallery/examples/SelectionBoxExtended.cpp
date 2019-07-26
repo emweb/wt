@@ -6,8 +6,7 @@ SAMPLE_BEGIN(SelectionBoxExtended)
 
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WSelectionBox *sb2 =
-    container->addWidget(Wt::cpp14::make_unique<Wt::WSelectionBox>());
+Wt::WSelectionBox *sb2 = container->addNew<Wt::WSelectionBox>();
 sb2->addItem("Bacon");
 sb2->addItem("Cheese");
 sb2->addItem("Mushrooms");
@@ -23,7 +22,7 @@ selection.insert(4);        // Index 4 corresponds to the 5th item.
 sb2->setSelectedIndexes(selection);
 sb2->setMargin(10, Wt::Side::Right);
 
-Wt::WText *out = container->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+Wt::WText *out = container->addNew<Wt::WText>();
 out->addStyleClass("help-block");
 
 sb2->activated().connect([=] {

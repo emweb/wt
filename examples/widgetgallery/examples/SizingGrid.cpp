@@ -6,31 +6,26 @@
 SAMPLE_BEGIN(SizingGrid)
 auto parentContainer = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
-Wt::WLineEdit *edit =
-    parentContainer->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+Wt::WLineEdit *edit = parentContainer->addNew<Wt::WLineEdit>();
 edit->setPlaceholderText(".span8");
 edit->setStyleClass("span8");
 
 auto childContainer = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 childContainer->setStyleClass("controls-row");
 
-edit =
-    childContainer->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+edit = childContainer->addNew<Wt::WLineEdit>();
 edit->setPlaceholderText(".span1");
 edit->setStyleClass("span1");
 
-edit =
-    childContainer->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+edit = childContainer->addNew<Wt::WLineEdit>();
 edit->setPlaceholderText(".span2");
 edit->setStyleClass("span2");
 
-edit =
-    childContainer->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+edit = childContainer->addNew<Wt::WLineEdit>();
 edit->setPlaceholderText(".span3");
 edit->setStyleClass("span3");
 
-edit =
-    childContainer->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+edit = childContainer->addNew<Wt::WLineEdit>();
 edit->setPlaceholderText(".span2");
 edit->setStyleClass("span2");
 
