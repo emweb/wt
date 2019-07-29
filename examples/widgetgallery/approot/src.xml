@@ -2278,7 +2278,7 @@
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
 
-<span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span> <span class="o">*</span><span class="n">image</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;icons/wt_powered.jpg&quot;</span><span class="p">),</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span> <span class="o">*</span><span class="n">image</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;icons/wt.png&quot;</span><span class="p">),</span>
                                    <span class="n">container</span><span class="p">);</span>
 <span class="n">image</span><span class="o">-&gt;</span><span class="n">setAlternateText</span><span class="p">(</span><span class="s">&quot;Wt logo&quot;</span><span class="p">);</span>
 
