@@ -57,4 +57,4 @@ private:
 };
 
 SAMPLE_BEGIN(virtualModel)
-SAMPLE_END(return 0)
+SAMPLE_END(return nullptr)

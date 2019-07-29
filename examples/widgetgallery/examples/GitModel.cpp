@@ -271,4 +271,4 @@ constexpr Wt::ItemDataRole GitModel::ContentsRole;
 #endif // WT_TARGET_JAVA
 
 SAMPLE_BEGIN(gitModel)
-SAMPLE_END(return 0)
+SAMPLE_END(return nullptr)
