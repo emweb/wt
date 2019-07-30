@@ -569,7 +569,11 @@ void WFileDropWidget::createWorkerResource() {
   if (jsFilterFn_.empty())
     return;
   
+#ifndef WT_TARGET_JAVA
   uploadWorkerResource_ = addChild(cpp14::make_unique<WMemoryResource>("text/javascript"));
+#else // WT_TARGET_JAVA
+  uploadWorkerResource_ = new WMemoryResource("text/javascript");
+#endif // WT_TARGET_JAVA
 
   std::stringstream ss;
   ss << "importScripts(";

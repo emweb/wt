@@ -67,12 +67,6 @@ class WStatelessSlot;
  * \endcode
  * As the example illustrates, slots are ordinary %WObject methods.
  *
- * A second feature of %WObject is that they allow ownership
- * organization in ownership object trees. When an object is created
- * with another object as parent, it's ownership is transferred to the
- * parent. The child object will be deleted together with the
- * parent, unless they are removed first, in which owernship is released.
- *
  * In conjunction with EventSignal, %WObject also facilitates learning
  * of client-side event handling (in JavaScript) through invocation of
  * the slot method. This is only possible when the slot behaviour is
@@ -96,6 +90,7 @@ public:
 
   virtual ~WObject();  
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Add a child WObject whose lifetime is determined by this WObject
    */
   void addChild(std::unique_ptr<WObject> child);
@@ -122,7 +117,6 @@ public:
    */
   std::unique_ptr<WObject> removeChild(WObject *child);
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Remove a child WObject, so its lifetime is no longer determined by this WObject
    *
    * This is an overload that automatically casts the returned value to a unique_ptr<Child> for convenience

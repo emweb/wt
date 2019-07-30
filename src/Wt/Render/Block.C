@@ -68,9 +68,7 @@ Block::Block(xml_node<> *node, Block *parent)
     parent_(parent),
     offsetParent_(0),
     type_(DomElementType::UNKNOWN),
-#ifndef WT_TARGET_JAVA
-    float_(static_cast<Side>(0)),
-#endif
+    float_(FloatSide::None),
     inline_(false),
     currentTheadBlock_(nullptr),
     currentWidth_(0),
@@ -151,9 +149,9 @@ void Block::determineDisplay()
 
   if (!fl.empty()) {
     if (fl == "left")
-      float_ = Side::Left;
+      float_ = FloatSide::Left;
     else if (fl == "right")
-      float_ = Side::Right;
+      float_ = FloatSide::Right;
     else {
       unsupportedCssValue(Property::StyleFloat, fl);
     }
@@ -161,9 +159,9 @@ void Block::determineDisplay()
     std::string align = attributeValue("align");
     if (!align.empty()) {
       if (align == "left")
-	float_ = Side::Left;
+        float_ = FloatSide::Left;
       else if (align == "right")
-	float_ = Side::Right;
+        float_ = FloatSide::Right;
       else
 	unsupportedAttributeValue("align", align);
     }
@@ -2726,7 +2724,7 @@ void Block::adjustAvailableWidth(double y, int page,
 
       if (block.page == page) {
 	if (block.y <= y && y < block.y + block.height) {
-	  if (floats[i]->floatSide() == Side::Left)
+	  if (floats[i]->floatSide() == FloatSide::Left)
 	    rangeX.start = std::max(rangeX.start, block.x + block.width);
 	  else
 	    rangeX.end = std::min(rangeX.end, block.x);
@@ -2762,7 +2760,7 @@ double Block::positionFloat(double x, PageState &ps,
 			    double lineHeight, double width,
 			    bool canIncreaseWidth,
 			    const WTextRenderer& renderer,
-			    Side floatSide)
+			    FloatSide floatSide)
 {
   if (!ps.floats.empty()) {
     double minY = ps.floats.back()->blockLayout[0].y;
@@ -2807,7 +2805,7 @@ double Block::positionFloat(double x, PageState &ps,
   adjustAvailableWidth(ps.y, ps.page, ps.floats, rangeX);
   ps.maxX = rangeX.end;
 
-  if (floatSide == Side::Left)
+  if (floatSide == FloatSide::Left)
     x = rangeX.start;
   else
     x = rangeX.end - width;

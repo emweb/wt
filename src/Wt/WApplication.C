@@ -380,6 +380,7 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
+#ifndef WT_TARGET_JAVA
   // First remove all children owned by this WApplication (issue #6282)
   if (domRoot_) {
     auto domRoot = domRoot_.get();
@@ -391,6 +392,7 @@ WApplication::~WApplication()
     for (WWidget *child : domRoot->children())
       removeChild(child);
   }
+#endif // WT_TARGET_JAVA
 
   /* Clear domRoot */
   domRoot_.reset();
@@ -525,7 +527,9 @@ void WApplication::popExposedConstraint(WWidget *w)
 void WApplication::addGlobalWidget(WWidget *w)
 {
   domRoot_->addWidget(std::unique_ptr<WWidget>(w)); // take ownership
+#ifndef WT_TARGET_JAVA
   domRoot_->removeChild(w).release();               // return ownership
+#endif // WT_TARGET_JAVA
 }
 
 void WApplication::removeGlobalWidget(WWidget *w)

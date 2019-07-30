@@ -1146,7 +1146,9 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
   std::unique_ptr<WFileResource> imgFile(new WFileResource("image/png", image));
   preloadImages_.push_back(PreloadImage(currentlyBoundTexture_.jsRef(),
 					imgFile->url(), imgNb));
+#ifndef WT_TARGET_JAVA
   addChild(std::move(imgFile));
+#endif // WT_TARGET_JAVA
 
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
       << toString(internalformat) << "," << toString(format) 
@@ -1183,7 +1185,9 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
     std::unique_ptr<WResource> mr = rpdToMemResource(rpd);
     preloadImages_.push_back(PreloadImage(currentlyBoundTexture_.jsRef(),
 					  mr->url(), imgNb));
+#ifndef WT_TARGET_JAVA
     addChild(std::move(mr));
+#endif // WT_TARGET_JAVA
   }
 #endif
 

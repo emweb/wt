@@ -17,7 +17,11 @@ class WString;
 /*! \class LocalizedString Wt/LocalizedString Wt/LocalizedString
  *  \brief The result of resolving a localized string.
  *
- * This struct contains the result (in UTF-8 encoding) of resolving a localized string, consisting of
+ * This struct contains the result
+ * \if cpp
+ * (in UTF-8 encoding)
+ * \endif
+ * of resolving a localized string, consisting of
  * its value, its format (TextFormat::Plain or TextFormat::XHTML), and a success
  * value indicating whether the string was successfully resolved.
  */
@@ -38,7 +42,9 @@ struct LocalizedString
 
   /*! \brief The value of the resolved localized string.
    *
+   * \if cpp
    * This value is UTF-8 encoded
+   * \endif
    */
   std::string value;
 
@@ -85,8 +91,11 @@ public:
 
   /*! \brief Resolves a key in the given locale.
    * 
-   * This method is used by WString to obtain the UTF-8 value corresponding
-   * to a key in the given locale.
+   * This method is used by WString to obtain the
+   * \if cpp
+   * UTF-8
+   * \endif
+   * value corresponding to a key in the given locale.
    *
    * Returns a successful LocalizedString if the key could be resolved.
    *
@@ -96,8 +105,11 @@ public:
 
   /*! \brief Resolves the plural form of a key in the given locale.
    * 
-   * This method is used by WString to obtain the UTF-8 value
-   * corresponding to a key in the current locale, taking into account
+   * This method is used by WString to obtain the
+   * \if cpp
+   * UTF-8
+   * \endif
+   * value corresponding to a key in the current locale, taking into account
    * the possibility of multiple plural forms, and chosing the right
    * plural form based on the \p amount passed.
    *

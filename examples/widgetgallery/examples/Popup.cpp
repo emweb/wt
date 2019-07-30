@@ -64,13 +64,26 @@ subMenu->addItem("Index")->triggered().connect([=] {
 
 subMenu->addSeparator();
 subMenu->addItem("About")->triggered().connect([=] {
+#ifndef WT_TARGET_JAVA
     auto messageBox = subMenu->addChild(
 	    Wt::cpp14::make_unique<Wt::WMessageBox>
+#else // WT_TARGET_JAVA
+    auto messageBox = new Wt::WMessageBox
+#endif // WT_TARGET_JAVA
 	    ("About", "<p>This is a program to make connections.</p>",
-	     Wt::Icon::Information, Wt::StandardButton::Ok));
+	     Wt::Icon::Information,
+#ifndef WT_TARGET_JAVA
+             Wt::StandardButton::Ok));
+#else // WT_TARGET_JAVA
+             Wt::WFlags<Wt::StandardButton>(Wt::StandardButton::Ok));
+#endif // WT_TARGET_JAVA
     messageBox->show();
     messageBox->buttonClicked().connect([=] {
+#ifndef WT_TARGET_JAVA
       subMenu->removeChild(messageBox);
+#else // WT_TARGET_JAVA
+      delete messageBox;
+#endif // WT_TARGET_JAVA
     });
 });
 
@@ -81,10 +94,10 @@ Wt::WPushButton *button = container->addNew<Wt::WPushButton>();
 button->setMenu(std::move(popupPtr));
 
 // React to an item selection
-popup->itemSelected().connect([=] (Wt::WMenuItem *item) {
+popup->itemSelected().connect([=] (Wt::WMenuItem *selectedItem) {
     status->setText
         (Wt::WString("Selected menu item: {1}.")
-	 .arg(item->text()));
+	 .arg(selectedItem->text()));
 });
 
 container->addWidget(std::move(statusPtr));

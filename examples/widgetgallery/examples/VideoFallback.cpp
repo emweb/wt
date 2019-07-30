@@ -24,7 +24,7 @@ flash->setFlashParameter("allowFullScreen", "true");
 flash->setFlashVariable("flv", mp4Video);
 flash->setFlashVariable("showvolume", "1");
 flash->setFlashVariable("showfullscreen", "1");
-flash->setAlternativeContent(Wt::cpp14::make_unique<Wt::WImage>(poster));
+flash->setAlternativeContent(Wt::cpp14::make_unique<Wt::WImage>(Wt::WLink(poster)));
 flash->resize(640, 360);
 
 Wt::WVideo *video = container->addNew<Wt::WVideo>();

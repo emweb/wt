@@ -28,9 +28,9 @@ out->addStyleClass("help-block");
 sb2->activated().connect([=] {
     Wt::WString selected;
 
-    std::set<int> selection = sb2->selectedIndexes();
-    for (std::set<int>::iterator it = selection.begin();
-	 it != selection.end(); ++it) {
+    std::set<int> newSelection = sb2->selectedIndexes();
+    for (std::set<int>::iterator it = newSelection.begin();
+	 it != newSelection.end(); ++it) {
 	if (!selected.empty())
 	    selected += ", ";
 

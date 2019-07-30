@@ -6,8 +6,12 @@
 SAMPLE_BEGIN(Sound)
 auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 
+#ifndef WT_TARGET_JAVA
 auto sound = container->addChild(
 	Wt::cpp14::make_unique<Wt::WSound>("sounds/beep.mp3"));
+#else // WT_TARGET_JAVA
+auto sound = new Wt::WSound("sounds/beep.mp3");
+#endif // WT_TARGET_JAVA
 sound->setLoops(3);
 
 auto playButton = container->addNew<Wt::WPushButton>("Beep!");

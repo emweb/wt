@@ -55,6 +55,12 @@ struct Range
   double start, end;
 };
 
+enum class FloatSide {
+  None,
+  Left,
+  Right
+};
+
 // exported for test.exe
 class WT_API Block
 {
@@ -68,7 +74,7 @@ public:
   bool normalizeWhitespace(bool haveWhitespace,
 			   Wt::rapidxml::xml_document<> &doc);
 
-  bool isFloat() const { return static_cast<int>(float_) != 0; }
+  bool isFloat() const { return float_ != FloatSide::None; }
   bool isInline() const { return inline_; }
   DomElementType type() const { return type_; }
   bool isText() const;
@@ -76,7 +82,7 @@ public:
   bool inlineChildren() const;
   AlignmentFlag horizontalAlignment() const;
   AlignmentFlag verticalAlignment() const;
-  Side floatSide() const { return float_; }
+  FloatSide floatSide() const { return float_; }
 
   bool isTableCell() const
     { return type_ == DomElementType::TD || type_ == DomElementType::TH; }
@@ -163,7 +169,7 @@ private:
   Block *offsetParent_;
   DomElementType type_;
   std::vector<std::string> classes_;
-  Side float_;
+  FloatSide float_;
   bool inline_;
   BlockList children_;
   const LayoutBox *currentTheadBlock_;
@@ -316,7 +322,7 @@ private:
 			      double lineHeight, double width,
 			      bool canIncreaseWidth,
 			      const WTextRenderer& renderer,
-			      Side floatSide);
+			      FloatSide floatSide);
 
   static void unsupportedAttributeValue(const char *attribute,
 					const std::string& value);

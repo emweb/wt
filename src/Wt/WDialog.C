@@ -63,9 +63,13 @@ public:
 
     coverFor(topModal, animation);
 
-    if (dialogs_.empty())
+    if (dialogs_.empty()) {
+#ifndef WT_TARGET_JAVA
       WApplication::instance()->removeChild(this);
-    else
+#else // WT_TARGET_JAVA
+      delete this;
+#endif // WT_TARGET_JAVA
+    } else
       scheduleRender();
   }
 
@@ -679,7 +683,9 @@ DialogCover *WDialog::cover()
       std::unique_ptr<DialogCover> d(new DialogCover());
       auto result = d.get();
       app->addGlobalWidget(result);
+#ifndef WT_TARGET_JAVA
       app->addChild(std::move(d));
+#endif // WT_TARGET_JAVA
       return result;
     }
   } else

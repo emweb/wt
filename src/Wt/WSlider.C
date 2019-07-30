@@ -119,8 +119,10 @@ PaintedSlider::PaintedSlider(WSlider *slider)
     slider_->setOffsets(0, Side::Left | Side::Top);
   }
 
-  manageWidget(fill_, std::unique_ptr<WInteractWidget>(new WContainerWidget()));
-  manageWidget(handle_, slider_->createHandle());
+  auto fill = std::unique_ptr<WInteractWidget>(new WContainerWidget());
+  manageWidget(fill_, std::move(fill));
+  auto handle = slider_->createHandle();
+  manageWidget(handle_, std::move(handle));
 
   fill_->setPositionScheme(PositionScheme::Absolute);
   fill_->setStyleClass("fill");
@@ -583,9 +585,8 @@ void WSlider::render(WFlags<RenderFlag> flags)
 
     if (!useNative) {
       if (!paintedSlider_) {
-	manageWidget
-	  (paintedSlider_,
-	   std::unique_ptr<PaintedSlider>(new PaintedSlider(this)));
+        auto paintedSlider = cpp14::make_unique<PaintedSlider>(this);
+	manageWidget(paintedSlider_, std::move(paintedSlider));
 	paintedSlider_->sliderResized(width(), height());
       }
     } else {

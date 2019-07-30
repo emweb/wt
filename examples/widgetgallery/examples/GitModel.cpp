@@ -11,7 +11,7 @@ public:
 #ifndef WT_TARGET_JAVA
     static constexpr Wt::ItemDataRole ContentsRole = Wt::ItemDataRole::User + 1;
 #else
-    static constexpr Wt::ItemDataRole ContentsRole = Wt::ItemDataRole::User.value() + 1;
+    static constexpr Wt::ItemDataRole ContentsRole = Wt::ItemDataRole(Wt::ItemDataRole::User.value() + 1);
 #endif
 
     GitModel(const std::string& repository)

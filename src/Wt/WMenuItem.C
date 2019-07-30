@@ -403,6 +403,7 @@ void WMenuItem::loadContents()
     return;
   else if (!contentsLoaded()) {
     oContentsContainer_->addWidget(std::move(uContents_));
+    uContents_.reset();
     signalsConnected_ = false;
     connectSignals();
   }
@@ -503,8 +504,11 @@ std::unique_ptr<WWidget> WMenuItem::removeContents()
       return oContentsContainer_->removeWidget(contents);
     else
       return w;
-  } else
-    return std::move(uContents_);
+  } else {
+    auto result = std::move(uContents_);
+    uContents_.reset();
+    return result;
+  }
 }
 
 std::unique_ptr<WWidget> WMenuItem::takeContentsForStack()
@@ -513,9 +517,13 @@ std::unique_ptr<WWidget> WMenuItem::takeContentsForStack()
     return nullptr;
   else {
     if (loadPolicy_ == ContentLoading::Lazy) {
-      return std::move(uContentsContainer_);
+      auto result = std::move(uContentsContainer_);
+      uContentsContainer_.reset();
+      return result;
     } else {
-      return std::move(uContents_);
+      auto result = std::move(uContents_);
+      uContents_.reset();
+      return result;
     }
   }
 }

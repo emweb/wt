@@ -13,7 +13,11 @@ namespace {
 
 extern void showDialog(Wt::WObject *owner, Wt::WText *out)
 {
+#ifndef WT_TARGET_JAVA
     auto dialog = owner->addChild(Wt::cpp14::make_unique<Wt::WDialog>("Go to cell"));
+#else // WT_TARGET_JAVA
+    auto dialog = new Wt::WDialog("Go to cell");
+#endif // WT_TARGET_JAVA
 
     Wt::WLabel *label =
         dialog->contents()->addNew<Wt::WLabel>("Cell location (A1..Z999)");
@@ -64,7 +68,11 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
 	else
 	    out->setText("No location selected.");
 
+#ifndef WT_TARGET_JAVA
         owner->removeChild(dialog);
+#else // WT_TARGET_JAVA
+        delete dialog;
+#endif // WT_TARGET_JAVA
     });
 
     dialog->show();

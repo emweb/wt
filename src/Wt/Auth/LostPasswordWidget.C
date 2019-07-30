@@ -63,7 +63,9 @@ void LostPasswordWidget::send()
 #else // WT_TARGET_JAVA
   box->buttonClicked().connect(nullptr, std::bind(&LostPasswordWidget::deleteBox, this, boxPtr));
 #endif // WT_TARGET_JAVA
+#ifndef WT_TARGET_JAVA
   WApplication::instance()->addChild(std::move(box));
+#endif // WT_TARGET_JAVA
 }
 
 void LostPasswordWidget::cancel()
@@ -73,7 +75,11 @@ void LostPasswordWidget::cancel()
 
 void LostPasswordWidget::deleteBox(Wt::WMessageBox *box)
 {
+#ifndef WT_TARGET_JAVA
   Wt::WApplication::instance()->removeChild(box);
+#else // WT_TARGET_JAVA
+  delete box;
+#endif // WT_TARGET_JAVA
 }
 
   }

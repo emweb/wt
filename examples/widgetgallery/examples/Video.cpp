@@ -19,7 +19,7 @@ auto video = container->addNew<Wt::WVideo>();
 video->addSource(Wt::WLink(mp4Video));
 video->addSource(Wt::WLink(ogvVideo));
 video->setPoster(poster);
-video->setAlternativeContent(Wt::cpp14::make_unique<Wt::WImage>(poster));
+video->setAlternativeContent(Wt::cpp14::make_unique<Wt::WImage>(Wt::WLink(poster)));
 video->resize(640, 360);
 
 Wt::WText *out = container->addNew<Wt::WText>();

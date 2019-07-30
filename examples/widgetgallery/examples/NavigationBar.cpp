@@ -45,14 +45,27 @@ popup->addSeparator();
 popup->addItem("About");
 
 popup->itemSelected().connect([=] (Wt::WMenuItem *item) {
+#ifndef WT_TARGET_JAVA
     auto messageBox = popup->addChild(
             Wt::cpp14::make_unique<Wt::WMessageBox>
+#else // WT_TARGET_JAVA
+    auto messageBox = new Wt::WMessageBox
+#endif // WT_TARGET_JAVA
             ("Help",
              Wt::WString("<p>Showing Help: {1}</p>").arg(item->text()),
-             Wt::Icon::Information, Wt::StandardButton::Ok));
+             Wt::Icon::Information,
+#ifndef WT_TARGET_JAVA
+             Wt::StandardButton::Ok));
+#else // WT_TARGET_JAVA
+             Wt::WFlags<Wt::StandardButton>(Wt::StandardButton::Ok));
+#endif // WT_TARGET_JAVA
 
     messageBox->buttonClicked().connect([=] {
+#ifndef WT_TARGET_JAVA
         popup->removeChild(messageBox);
+#else // WT_TARGET_JAVA
+        delete messageBox;
+#endif // WT_TARGET_JAVA
     });
 
     messageBox->show();

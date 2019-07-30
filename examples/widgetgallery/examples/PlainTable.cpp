@@ -44,8 +44,13 @@ for (unsigned i = 0; i < 3; ++i) {
         ->addNew<Wt::WText>(employee.firstName);
     table->elementAt(row, 2)
         ->addNew<Wt::WText>(employee.lastName);
+#ifndef WT_TARGET_JAVA
     table->elementAt(row, 3)
         ->addNew<Wt::WLineEdit>(Wt::WString("{1}").arg(employee.pay));
+#else // WT_TARGET_JAVA
+    table->elementAt(row, 3)
+        ->addNew<Wt::WLineEdit>(Wt::WString("{1}").arg(employee.pay).toUTF8());
+#endif // WT_TARGET_JAVA
 }
 
 SAMPLE_END(return std::move(table))

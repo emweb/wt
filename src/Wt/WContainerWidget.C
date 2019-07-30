@@ -145,7 +145,9 @@ void WContainerWidget::insertWidget(int index, std::unique_ptr<WWidget> widget)
 
   addedChildren_->push_back(widget.get());
   children_.insert(children_.begin() + index, widget.get());
+#ifndef WT_TARGET_JAVA
   addChild(std::move(widget));
+#endif // WT_TARGET_JAVA
   flags_.set(BIT_ADJUST_CHILDREN_ALIGN); // children margins hacks
   repaint(RepaintFlag::SizeAffected);
 
@@ -174,7 +176,11 @@ std::unique_ptr<WWidget> WContainerWidget::removeWidget(WWidget *widget)
     children_.erase(children_.begin() + index);
 
     // NOTE: result may be null if the widget is not owned by this WContainerWidget!
+#ifndef WT_TARGET_JAVA
     std::unique_ptr<WWidget> result = removeChild(widget);
+#else // WT_TARGET_JAVA
+    std::unique_ptr<WWidget> result = std::unique_ptr<WWidget>(widget);
+#endif // WT_TARGET_JAVA
 
     repaint(RepaintFlag::SizeAffected);
 

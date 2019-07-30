@@ -1259,6 +1259,7 @@
   <message id="src-Flash">
 <div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WImage.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;Wt/WLink.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WFlashObject.h&gt;</span><span class="cp"></span>
 
 <span class="c1">// Define poster image location</span>
@@ -1268,7 +1269,7 @@
 
 <span class="k">auto</span> <span class="n">flash</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WFlashObject</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;https://www.youtube.com/v/HOfdboHvshg&quot;</span><span class="p">);</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setFlashParameter</span><span class="p">(</span><span class="s">&quot;allowFullScreen&quot;</span><span class="p">,</span> <span class="s">&quot;true&quot;</span><span class="p">);</span>
-<span class="n">flash</span><span class="o">-&gt;</span><span class="n">setAlternativeContent</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">poster</span><span class="p">));</span>
+<span class="n">flash</span><span class="o">-&gt;</span><span class="n">setAlternativeContent</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">poster</span><span class="p">)));</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">360</span><span class="p">);</span>
 </pre></div>
   </message>
@@ -2713,11 +2714,13 @@
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
     <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;The status button is clicked.&quot;</span><span class="p">);</span>
 
-    <span class="k">auto</span> <span class="n">messageBox</span> <span class="o">=</span> <span class="n">c</span><span class="o">-&gt;</span><span class="n">addChild</span><span class="p">(</span>
-	    <span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Status&quot;</span><span class="p">,</span>
+    <span class="k">auto</span> <span class="n">messageBox</span> <span class="o">=</span>
+      <span class="n">c</span><span class="o">-&gt;</span><span class="n">addChild</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span><span class="o">&gt;</span><span class="p">(</span>
+                  <span class="s">&quot;Status&quot;</span><span class="p">,</span>
 	          <span class="s">&quot;&lt;p&gt;Ready to launch the rocket...&lt;/p&gt;&quot;</span>
 	          <span class="s">&quot;&lt;p&gt;Launch the rocket immediately?&lt;/p&gt;&quot;</span><span class="p">,</span>
-                  <span class="n">Wt</span><span class="o">::</span><span class="n">Icon</span><span class="o">::</span><span class="n">Information</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">StandardButton</span><span class="o">::</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">StandardButton</span><span class="o">::</span><span class="n">No</span><span class="p">));</span>
+                  <span class="n">Wt</span><span class="o">::</span><span class="n">Icon</span><span class="o">::</span><span class="n">Information</span><span class="p">,</span>
+                  <span class="n">Wt</span><span class="o">::</span><span class="n">StandardButton</span><span class="o">::</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">StandardButton</span><span class="o">::</span><span class="n">No</span><span class="p">));</span>
 
     <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">setModal</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
 
@@ -2814,7 +2817,8 @@
             <span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span><span class="o">&gt;</span>
             <span class="p">(</span><span class="s">&quot;Help&quot;</span><span class="p">,</span>
              <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Showing Help: {1}&lt;/p&gt;&quot;</span><span class="p">).</span><span class="n">arg</span><span class="p">(</span><span class="n">item</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()),</span>
-             <span class="n">Wt</span><span class="o">::</span><span class="n">Icon</span><span class="o">::</span><span class="n">Information</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">StandardButton</span><span class="o">::</span><span class="n">Ok</span><span class="p">));</span>
+             <span class="n">Wt</span><span class="o">::</span><span class="n">Icon</span><span class="o">::</span><span class="n">Information</span><span class="p">,</span>
+             <span class="n">Wt</span><span class="o">::</span><span class="n">StandardButton</span><span class="o">::</span><span class="n">Ok</span><span class="p">));</span>
 
     <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">buttonClicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
         <span class="n">popup</span><span class="o">-&gt;</span><span class="n">removeChild</span><span class="p">(</span><span class="n">messageBox</span><span class="p">);</span>
@@ -4342,7 +4346,8 @@
     <span class="k">auto</span> <span class="n">messageBox</span> <span class="o">=</span> <span class="n">subMenu</span><span class="o">-&gt;</span><span class="n">addChild</span><span class="p">(</span>
 	    <span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span><span class="o">&gt;</span>
 	    <span class="p">(</span><span class="s">&quot;About&quot;</span><span class="p">,</span> <span class="s">&quot;&lt;p&gt;This is a program to make connections.&lt;/p&gt;&quot;</span><span class="p">,</span>
-	     <span class="n">Wt</span><span class="o">::</span><span class="n">Icon</span><span class="o">::</span><span class="n">Information</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">StandardButton</span><span class="o">::</span><span class="n">Ok</span><span class="p">));</span>
+	     <span class="n">Wt</span><span class="o">::</span><span class="n">Icon</span><span class="o">::</span><span class="n">Information</span><span class="p">,</span>
+             <span class="n">Wt</span><span class="o">::</span><span class="n">StandardButton</span><span class="o">::</span><span class="n">Ok</span><span class="p">));</span>
     <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">show</span><span class="p">();</span>
     <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">buttonClicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
       <span class="n">subMenu</span><span class="o">-&gt;</span><span class="n">removeChild</span><span class="p">(</span><span class="n">messageBox</span><span class="p">);</span>
@@ -4356,10 +4361,10 @@
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">setMenu</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">popupPtr</span><span class="p">));</span>
 
 <span class="c1">// React to an item selection</span>
-<span class="n">popup</span><span class="o">-&gt;</span><span class="n">itemSelected</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMenuItem</span> <span class="o">*</span><span class="n">item</span><span class="p">)</span> <span class="p">{</span>
+<span class="n">popup</span><span class="o">-&gt;</span><span class="n">itemSelected</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMenuItem</span> <span class="o">*</span><span class="n">selectedItem</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">status</span><span class="o">-&gt;</span><span class="n">setText</span>
         <span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;Selected menu item: {1}.&quot;</span><span class="p">)</span>
-	 <span class="p">.</span><span class="n">arg</span><span class="p">(</span><span class="n">item</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()));</span>
+	 <span class="p">.</span><span class="n">arg</span><span class="p">(</span><span class="n">selectedItem</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()));</span>
 <span class="p">});</span>
 
 <span class="n">container</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">statusPtr</span><span class="p">));</span>
@@ -5044,9 +5049,9 @@
 <span class="n">sb2</span><span class="o">-&gt;</span><span class="n">activated</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
     <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span> <span class="n">selected</span><span class="p">;</span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">selection</span> <span class="o">=</span> <span class="n">sb2</span><span class="o">-&gt;</span><span class="n">selectedIndexes</span><span class="p">();</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">selection</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
-	 <span class="n">it</span> <span class="o">!=</span> <span class="n">selection</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">newSelection</span> <span class="o">=</span> <span class="n">sb2</span><span class="o">-&gt;</span><span class="n">selectedIndexes</span><span class="p">();</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">newSelection</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+	 <span class="n">it</span> <span class="o">!=</span> <span class="n">newSelection</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
 	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">selected</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
 	    <span class="n">selected</span> <span class="o">+=</span> <span class="s">&quot;, &quot;</span><span class="p">;</span>
 
@@ -6194,7 +6199,7 @@
 <span class="n">video</span><span class="o">-&gt;</span><span class="n">addSource</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">mp4Video</span><span class="p">));</span>
 <span class="n">video</span><span class="o">-&gt;</span><span class="n">addSource</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">ogvVideo</span><span class="p">));</span>
 <span class="n">video</span><span class="o">-&gt;</span><span class="n">setPoster</span><span class="p">(</span><span class="n">poster</span><span class="p">);</span>
-<span class="n">video</span><span class="o">-&gt;</span><span class="n">setAlternativeContent</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">poster</span><span class="p">));</span>
+<span class="n">video</span><span class="o">-&gt;</span><span class="n">setAlternativeContent</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">poster</span><span class="p">)));</span>
 <span class="n">video</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">360</span><span class="p">);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span> <span class="o">*</span><span class="n">out</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span>
@@ -6242,7 +6247,7 @@
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setFlashVariable</span><span class="p">(</span><span class="s">&quot;flv&quot;</span><span class="p">,</span> <span class="n">mp4Video</span><span class="p">);</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setFlashVariable</span><span class="p">(</span><span class="s">&quot;showvolume&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">);</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">setFlashVariable</span><span class="p">(</span><span class="s">&quot;showfullscreen&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">);</span>
-<span class="n">flash</span><span class="o">-&gt;</span><span class="n">setAlternativeContent</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">poster</span><span class="p">));</span>
+<span class="n">flash</span><span class="o">-&gt;</span><span class="n">setAlternativeContent</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">cpp14</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">poster</span><span class="p">)));</span>
 <span class="n">flash</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">360</span><span class="p">);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WVideo</span> <span class="o">*</span><span class="n">video</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WVideo</span><span class="o">&gt;</span><span class="p">();</span>

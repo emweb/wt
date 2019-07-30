@@ -19,7 +19,11 @@ stopButton->disable();
 resetButton->disable();
 
 // setup an interval timer which generates a timeout() signal every second.
+#ifndef WT_TARGET_JAVA
 auto intervalTimer = container->addChild(Wt::cpp14::make_unique<Wt::WTimer>());
+#else // WT_TARGET_JAVA
+auto intervalTimer = new Wt::WTimer();
+#endif // WT_TARGET_JAVA
 intervalTimer->setInterval(std::chrono::milliseconds(1000));
 
 startButton->clicked().connect([=] {

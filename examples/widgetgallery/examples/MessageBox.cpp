@@ -15,11 +15,21 @@ auto c = container.get();
 button->clicked().connect([=] {
     out->setText("The status button is clicked.");
 
-    auto messageBox = c->addChild(
-	    Wt::cpp14::make_unique<Wt::WMessageBox>("Status",
+    auto messageBox =
+#ifndef WT_TARGET_JAVA
+      c->addChild(Wt::cpp14::make_unique<Wt::WMessageBox>(
+#else // WT_TARGET_JAVA
+            new Wt::WMessageBox(
+#endif // WT_TARGET_JAVA
+                  "Status",
 	          "<p>Ready to launch the rocket...</p>"
 	          "<p>Launch the rocket immediately?</p>",
-                  Wt::Icon::Information, Wt::StandardButton::Yes | Wt::StandardButton::No));
+                  Wt::Icon::Information,
+#ifndef WT_TARGET_JAVA
+                  Wt::StandardButton::Yes | Wt::StandardButton::No));
+#else // WT_TARGET_JAVA
+                  Wt::WFlags<Wt::StandardButton>(Wt::StandardButton::Yes) | Wt::StandardButton::No);
+#endif // WT_TARGET_JAVA
 
     messageBox->setModal(false);
 
@@ -29,7 +39,11 @@ button->clicked().connect([=] {
 	else
 	    out->setText("The rocket is ready for launch...");
 
+#ifndef WT_TARGET_JAVA
         c->removeChild(messageBox);
+#else // WT_TARGET_JAVA
+        delete messageBox;
+#endif // WT_TARGET_JAVA
     });
 
     messageBox->show();

@@ -62,8 +62,13 @@ for (unsigned i = 0; i < 3; ++i) {
         addWidget(cpp14::make_unique<WText>(employee.firstName));
     table_->elementAt(row,2)->
         addWidget(cpp14::make_unique<WText>(employee.lastName));
+#ifndef WT_TARGET_JAVA
     table_->elementAt(row,3)->
         addWidget(cpp14::make_unique<WLineEdit>(WString("{1}").arg(employee.pay)));
+#else // WT_TARGET_JAVA
+    table_->elementAt(row,3)->
+        addWidget(cpp14::make_unique<WLineEdit>(WString("{1}").arg(employee.pay).toUTF8()));
+#endif // WT_TARGET_JAVA
 }
 
 table_->addStyleClass("table form-inline");
