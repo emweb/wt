@@ -517,7 +517,7 @@ std::unique_ptr<WWidget> WMenuItem::takeContentsForStack()
     return nullptr;
   else {
     if (loadPolicy_ == ContentLoading::Lazy) {
-      auto result = std::move(uContentsContainer_);
+      std::unique_ptr<WWidget> result = std::move(uContentsContainer_);
       uContentsContainer_.reset();
       return result;
     } else {
