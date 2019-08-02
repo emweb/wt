@@ -35,23 +35,15 @@ WT_DECLARE_WT_MEMBER
    var scrollToPendingCount = 0;
    var initialScrollTopSet = initialScrollTop === 0;
 
+   var ignoreScrollEvent = false;
+
    /*
     * We need to remember this for when going through a hide()
     * show() cycle.
     */
    var scrollTop = 0, scrollLeft = 0, currentWidth = 0, currentHeight = 0;
 
-   headerContainer.onscroll = function(obj, event) {
-       contentsContainer.scrollLeft = headerContainer.scrollLeft;
-       self.onContentsContainerScroll();
-   };
-
-   this.onContentsContainerScroll = function() {
-     scrollLeft = headerContainer.scrollLeft
-           = contentsContainer.scrollLeft;
-     scrollTop = headerColumnsContainer.scrollTop
-            = contentsContainer.scrollTop;
-
+   function maybeEmitScrolled() {
      if (contentsContainer.clientWidth && contentsContainer.clientHeight
          && (scrollToPendingCount === 0)
          && (contentsContainer.scrollTop < scrollY1
@@ -63,6 +55,29 @@ WT_DECLARE_WT_MEMBER
             Math.round(contentsContainer.scrollTop),
         Math.round(contentsContainer.clientWidth),
             Math.round(contentsContainer.clientHeight));
+     }
+   }
+
+   headerContainer.onscroll = function(obj, event) {
+     if (ignoreScrollEvent) {
+       ignoreScrollEvent = false;
+     } else {
+       ignoreScrollEvent = true;
+       scrollLeft = contentsContainer.scrollLeft = headerContainer.scrollLeft;
+       maybeEmitScrolled();
+     }
+   };
+
+   this.onContentsContainerScroll = function() {
+     if (ignoreScrollEvent) {
+       ignoreScrollEvent = false;
+     } else {
+       ignoreScrollEvent = true;
+       scrollLeft = headerContainer.scrollLeft
+             = contentsContainer.scrollLeft;
+       scrollTop = headerColumnsContainer.scrollTop
+              = contentsContainer.scrollTop;
+       maybeEmitScrolled();
      }
    };
 
