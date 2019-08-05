@@ -204,7 +204,9 @@ void Server::start()
   }
 
   // HTTPS
-  if (!config_.httpsAddress().empty() && config_.parentPort() == -1) {
+  if ((!config_.httpsAddress().empty() ||
+       !config_.httpsListen().empty())
+      && config_.parentPort() == -1) {
 #ifdef HTTP_WITH_SSL
     // Configure SSL context
     if (config_.hasSslPasswordCallback())
