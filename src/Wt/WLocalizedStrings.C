@@ -16,7 +16,6 @@ WLocalizedStrings::~WLocalizedStrings()
 void WLocalizedStrings::hibernate()
 { }
 
-#ifndef WT_TARGET_JAVA
 LocalizedString WLocalizedStrings::resolvePluralKey(const WLocale& locale,
 					 const std::string& key, 
 					 ::uint64_t amount)
@@ -29,9 +28,5 @@ int WLocalizedStrings::evaluatePluralExpression(const std::string& expression,
 {
   return WMessageResources::evalPluralCase(expression, n);
 }
-
-#else
-  //TODO
-#endif
 
 }

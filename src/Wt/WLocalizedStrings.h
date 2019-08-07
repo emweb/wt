@@ -108,7 +108,6 @@ public:
    *
    * \sa WString::trn()
    */
-#ifndef WT_TARGET_JAVA
   virtual LocalizedString resolvePluralKey(const WLocale& locale,
 				const std::string& key, 
                                 ::uint64_t amount);
@@ -123,7 +122,6 @@ public:
   static int evaluatePluralExpression(const std::string &expression,
 				      ::uint64_t n);
 
-#endif // WT_TARGET_JAVA
 
 };
 

@@ -64,14 +64,8 @@ public:
 
   virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key) override;
 
-#ifndef WT_TARGET_JAVA
-  virtual LocalizedString resolvePluralKey(const WLocale& locale,
-				const std::string& key, 
-				::uint64_t amount) override;
-#else // WT_TARGET_JAVA
-  //TODO make this work for java
-  //virtual std::string *resolveKey(const std::string& key) = 0;
-#endif // WT_TARGET_JAVA
+  virtual LocalizedString resolvePluralKey(const WLocale& locale, const std::string& key, ::uint64_t amount) override;
+
 private:
   std::vector<std::shared_ptr<WLocalizedStrings> > localizedStrings_;
 };

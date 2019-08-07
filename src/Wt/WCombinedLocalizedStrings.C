@@ -52,7 +52,6 @@ LocalizedString WCombinedLocalizedStrings::resolveKey(const WLocale& locale,
   return LocalizedString();
 }
 
-#ifndef WT_TARGET_JAVA
 LocalizedString WCombinedLocalizedStrings::resolvePluralKey(const WLocale& locale,
 						 const std::string& key,
 						 ::uint64_t amount)
@@ -63,11 +62,8 @@ LocalizedString WCombinedLocalizedStrings::resolvePluralKey(const WLocale& local
       return result;
   }
 
-  return LocalizedString{};
+  return LocalizedString();
 }
-#else
-  //TODO
-#endif // WT_TARGET_JAVA
 
 void WCombinedLocalizedStrings::hibernate()
 {

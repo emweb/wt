@@ -9,6 +9,8 @@
 
 #include "observable.hpp"
 
+#include <stdexcept>
+
 namespace Wt { namespace Core {
 
 template<typename T>

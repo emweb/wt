@@ -2438,8 +2438,9 @@ std::string& WWebWidget::unescapeText(std::string &text)
   assert(s <= text.size());
   text.resize(s);
   return text;
+#else // WT_TARGET_JAVA
+  return doUnescapeText(text);
 #endif // WT_TARGET_JAVA
-  return text;
 }
 
 std::string WWebWidget::jsStringLiteral(const std::string& value,
