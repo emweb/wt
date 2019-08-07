@@ -1958,8 +1958,8 @@ int WTableView::renderedColumnsCount() const
 
 WWidget *WTableView::itemWidget(const WModelIndex& index) const
 {
-  if (index.column() < rowHeaderCount() ||
-      (isRowRendered(index.row()) && isColumnRendered(index.column())))
+  if ((index.column() < rowHeaderCount() || isColumnRendered(index.column())) &&
+      isRowRendered(index.row()))
   {
     int renderedRow = index.row() - firstRow();
     int renderedCol;
