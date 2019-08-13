@@ -121,7 +121,8 @@ WT_DECLARE_WT_MEMBER
     self.lh = false;
 
   var t = self.lastChild;
-  while (t && t.nodeType == 1 && $(t).hasClass("wt-reparented"))
+  while (t && t.nodeType == 1 &&
+         ($(t).hasClass("wt-reparented") || $(t).hasClass('resize-sensor')))
     t = t.previousSibling;
 
   if (!t)

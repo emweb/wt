@@ -78,8 +78,23 @@ function(WT, element) {
     };
 
     element.resizeSensor.trigger = function() {
+      var w = lastWidth;
+      var h = lastHeight;
+
+      if (!WT.boxSizing(element)) {
+        h -= WT.px(element, 'borderTopWidth');
+        h -= WT.px(element, 'borderBottomWidth');
+        h -= WT.px(element, 'paddingTop');
+        h -= WT.px(element, 'paddingBottom');
+
+        w -= WT.px(element, 'borderLeftWidth');
+        w -= WT.px(element, 'borderRightWidth');
+        w -= WT.px(element, 'paddingLeft');
+        w -= WT.px(element, 'paddingRight');
+      }
+
       if (element.wtResize)
-	element.wtResize(element, lastWidth, lastHeight, false);
+        element.wtResize(element, w, h, false);
     };
     
     reset();
