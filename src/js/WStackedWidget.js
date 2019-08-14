@@ -15,7 +15,7 @@ WT_DECLARE_WT_MEMBER
     lastResizeWidth = null, lastResizeHeight = null;
 
   function isProperChild(el) {
-    return el.nodeType == 1 && !$(el).hasClass("wt-reparented");
+    return el.nodeType == 1 && !$(el).hasClass("wt-reparented") && !$(el).hasClass("resize-sensor");
   }
 
   this.reApplySize = function() {
