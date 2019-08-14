@@ -113,9 +113,13 @@ public:
 
   /*! \brief A %signal that indicates when the value has changed.
    *
-   * This signal is emitted when setValue() is called.
+   * This signal is emitted when changed() is emitted, but supplies the
+   * new value as an argument. The changed() signal is emitted
+   * when the user changes the value of the spinbox
+   * by pressing the up/down arrow, or entering a different value and pressing
+   * enter or moving focus.
    *
-   * \sa setValue()
+   * \sa changed()
    */
   Signal<double>& valueChanged() { return valueChanged_; }
 
