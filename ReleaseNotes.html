@@ -626,6 +626,11 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 	<a href="classWt_1_1WLayout.html#a9cd0547c710e357e4c688ccfdb790d8f">WBoxLayout::setPreferredImplementation</a>
 	to set a preferred implementation.
       </li>
+      <li>
+        <a href="classWt_1_1WObject.html#a64ce31cadb378c4eba81224f43bf493d">setObjectName()</a> no longer affects the <tt>id</tt> of a widget. Instead, it is
+        placed into an extra attribute called <tt>data-object-name</tt>. <tt>selenium/wtLocators.js</tt>
+        has been updated to reflect this change.
+      </li>
     </ul>
   <h3>Removal of deprecated functionality</h3>
     <ul>
