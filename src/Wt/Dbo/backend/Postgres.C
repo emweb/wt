@@ -669,7 +669,7 @@ private:
 
   void setValue(int column, const std::string& value) {
     if (column >= paramCount_)
-      throw PostgresException("Binding too much parameters");
+      throw PostgresException("Binding too many parameters");
 
     for (int i = (int)params_.size(); i <= column; ++i)
       params_.push_back(Param());
