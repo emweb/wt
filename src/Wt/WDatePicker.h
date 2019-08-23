@@ -196,18 +196,6 @@ public:
    */
   Signal<>& changed() { return changed_; }
 
-  /*! \brief Controls how the calendar popup is positioned.
-   *
-   * When \p global is \c true, then the popup will position itself
-   * globally. This avoids that the popup is affected by enclosing
-   * parents with overflow settings that clip the popup. This makes
-   * the popup however no longer follow the popup button when this
-   * button moves.
-   *
-   * The default is \c false.
-   */
-  void setGlobalPopup(bool global);
-
   /*! \brief Shows or hides the popup.
    */
   void setPopupVisible(bool visible);

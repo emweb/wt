@@ -584,7 +584,6 @@ void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
   }
 
   if (popup) {
-    popup->setJavaScriptMember("wtNoReparent", "true");
     setSelectable(false);
     popup->setButton(anchor());
     updateInternalPath();
