@@ -116,9 +116,9 @@ void WDatePicker::onPopupHidden()
   popupClosed();
 }
 
-void WDatePicker::setGlobalPopup(bool global)
+void WDatePicker::setGlobalPopup(bool /*global*/)
 { 
-  popup_->toggleStyleClass("wt-no-reparent", global);
+  // Deprecated, does nothing
 }
 
 void WDatePicker::setFormat(const WT_USTRING& format)

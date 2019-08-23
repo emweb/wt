@@ -614,7 +614,6 @@ void WMenuItem::setMenu(WMenu *menu)
 
   WPopupMenu *popup = dynamic_cast<WPopupMenu *>(subMenu_);
   if (popup) {
-    popup->setJavaScriptMember("wtNoReparent", "true");
     setSelectable(false);
     popup->setButton(anchor());
     updateInternalPath();
