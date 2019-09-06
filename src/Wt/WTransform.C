@@ -216,7 +216,7 @@ WTransform& WTransform::rotate(double angle)
 
 double WTransform::degreesToRadians(double angle)
 {
-  return (angle / 180.) * M_PI;  
+  return (angle / 180.) * M_PI;
 }
 
 WTransform& WTransform::scale(double sx, double sy)
