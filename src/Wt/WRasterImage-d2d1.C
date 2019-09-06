@@ -43,6 +43,25 @@
 
 namespace {
 
+double adjust360(double d)
+{
+  if (d > 360.0)
+    return 360.0;
+  else if (d < -360.0)
+    return -360.0;
+  else
+    return d;
+}
+
+double adjustPositive360(double d)
+{
+  const double result = std::fmod(d, 360.0);
+  if (result < 0)
+    return result + 360.0;
+  else
+    return result;
+}
+
 template <class T> void SafeRelease(T *&ppT)
 {
   if (ppT) {
@@ -606,8 +625,8 @@ void WRasterImage::drawArc(const WRectF& rect,
   const double rx = rect.width() / 2.0;
   const double ry = rect.height() / 2.0;
 
-  const double startAngleRad = startAngle / 180.0 * M_PI;
-  const double spanAngleRad = min(spanAngle / 180.0 * M_PI, 2 * M_PI);
+  const double startAngleRad = adjustPositive360(startAngle) / 180.0 * M_PI;
+  const double spanAngleRad = adjust360(spanAngle) / 180.0 * M_PI;
   const double midAngle = startAngleRad + spanAngleRad / 2.0;
   const double endAngle = startAngleRad + spanAngleRad;
   D2D1_POINT_2F startPoint = D2D1::Point2F(
@@ -624,14 +643,14 @@ void WRasterImage::drawArc(const WRectF& rect,
     midPoint,
     D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
     0.f,
-    D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+    spanAngle > 0 ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE : D2D1_SWEEP_DIRECTION_CLOCKWISE,
     D2D1_ARC_SIZE_SMALL
   );
   D2D1_ARC_SEGMENT arc2 = D2D1::ArcSegment(
     endPoint,
     D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
     0.f,
-    D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+    spanAngle > 0 ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE : D2D1_SWEEP_DIRECTION_CLOCKWISE,
     D2D1_ARC_SIZE_SMALL
   );
 
@@ -860,8 +879,8 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
       const double cy = s.y();
       const double rx = segments[i+1].x();
       const double ry = segments[i+1].y();
-      const double startAngle = segments[i+2].x() / 180.0 * M_PI;
-      const double sweepAngle = min(segments[i+2].y() / 180.0 * M_PI, 2 * M_PI);
+      const double startAngle = adjustPositive360(segments[i+2].x()) / 180.0 * M_PI;
+      const double sweepAngle = adjust360(segments[i+2].y()) / 180.0 * M_PI;
 
       const double endAngle = startAngle + sweepAngle;
       const double midAngle = startAngle + sweepAngle / 2.0;

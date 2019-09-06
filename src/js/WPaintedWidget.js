@@ -424,9 +424,42 @@ WT_DECLARE_WT_MEMBER
 		  arc.push(x(s));
 		  break;
 	       case ARC_ANGLE_SWEEP:
-		  arc.push((x(s) * Math.PI)/180.0, (y(s) * Math.PI)/180.0, y(s) > 0);
-		  ctx.arc.apply(ctx, arc);
-		  arc = [];
+                  (function() {
+                    function adjust360(d) {
+                      if (d > 360.0)
+                        return 360.0;
+                      else if (d < -360.0)
+                        return -360.0;
+                      else
+                        return d;
+                    }
+
+                    function adjustPostive360(d) {
+                      var result = d % 360.0;
+                      if (result < 0)
+                        return result + 360.0;
+                      else
+                        return result;
+                    }
+
+                    function deg2rad(d) {
+                      return d * Math.PI / 180.0;
+                    }
+
+                    var startAngle = x(s);
+                    var spanAngle = y(s);
+                    var rStartAngle = deg2rad(adjustPostive360(-startAngle));
+                    var rEndAngle;
+                    if (spanAngle >= 360.0 || spanAngle <= -360.0) {
+                      rEndAngle = rStartAngle - 2.0 * Math.PI * (spanAngle > 0 ? 1.0 : -1.0);
+                    } else {
+                      rEndAngle = deg2rad(adjustPostive360(-startAngle - adjust360(spanAngle)));
+                    }
+                    var anticlockwise = spanAngle > 0;
+		    arc.push(rStartAngle, rEndAngle, anticlockwise);
+		    ctx.arc.apply(ctx, arc);
+		    arc = [];
+                  })();
 		  break;
 	       case QUAD_C:
 		  quad.push(x(s), y(s));

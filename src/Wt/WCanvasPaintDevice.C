@@ -22,6 +22,10 @@
 #include <cmath>
 #include <sstream>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace {
   static const double EPSILON = 1E-5;
 }
@@ -29,23 +33,21 @@ namespace {
 namespace Wt {
 
 namespace {
-  WPointF normalizedDegreesToRadians(double angle, double sweep) {
-    angle = 360 - angle;
-    int i = (int)angle / 360;
-    angle -= (i * 360);
+  double adjust360(double d) {
+    if (d > 360.0)
+      return 360.0;
+    else if (d < -360.0)
+      return -360.0;
+    else
+      return d;
+  }
 
-    double r1 = WTransform::degreesToRadians(angle);
-
-    if (std::fabs(sweep - 360) < 0.01)
-      sweep = 359.9;
-    else if (std::fabs(sweep + 360) < 0.01)
-      sweep = -359.9;
-
-    double a2 = angle - sweep;
-
-    double r2 = WTransform::degreesToRadians(a2);
-
-    return WPointF(r1, r2);
+  double adjustPositive360(double d) {
+    const double result = std::fmod(d, 360.0);
+    if (result < 0)
+      return result + 360.0;
+    else
+      return result;
   }
 
   bool fequal(double d1, double d2) {
@@ -254,19 +256,28 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
 
   renderStateChanges(true);
 
-  WPointF ra = normalizedDegreesToRadians(startAngle, spanAngle);
+  const double rStartAngle = WTransform::degreesToRadians(adjustPositive360(-startAngle));
+  double rEndAngle;
+  if (spanAngle >= 360.0 || spanAngle <= -360.0) {
+    rEndAngle = rStartAngle - 2.0 * M_PI * (spanAngle > 0 ? 1.0 : -1.0);
+  } else {
+    rEndAngle = WTransform::degreesToRadians(adjustPositive360(-startAngle - adjust360(spanAngle)));
+  }
+  const bool anticlockwise = spanAngle > 0;
 
   double sx, sy, r, lw;
   if (rect.width() > rect.height()) {
     sx = 1;
     sy = std::max(0.005, rect.height() / rect.width());
     r = rect.width()/2;
-  } else {
+  } else if (rect.width() < rect.height()) {
     sx = std::max(0.005, rect.width() / rect.height());
     sy = 1;
-    lw = painter()->normalizedPenWidth(painter()->pen().width(), true).value()
-      * 1 / std::min(sx, sy);
     r = rect.height()/2;
+  } else {
+    sx = 1;
+    sy = 1;
+    r = rect.width() / 2;
   }
 
   const WPen& pen = painter()->pen();
@@ -288,8 +299,9 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   js_ << "ctx.lineWidth = " << Utils::round_js_str(lw, 3, buf) << ";"
       << "ctx.beginPath();";
   js_ << "ctx.arc(0,0," << Utils::round_js_str(r, 3, buf);
-  js_ << ',' << Utils::round_js_str(ra.x(), 3, buf);
-  js_ << "," << Utils::round_js_str(ra.y(), 3, buf) << ",true);";
+  js_ << ',' << Utils::round_js_str(rStartAngle, 6, buf);
+  js_ << ',' << Utils::round_js_str(rEndAngle, 6, buf) << ',';
+  js_ << (anticlockwise ? "true" : "false") << ");";
 
   // restore comes before fill and stroke, otherwise the gradient will use 
   // this temporary coordinate system
@@ -390,11 +402,20 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
       break;
     case ArcAngleSweep:
       {
-	WPointF r = normalizedDegreesToRadians(s.x(), s.y());
+        const double startAngle = s.x();
+        const double spanAngle = s.y();
+        const double rStartAngle = WTransform::degreesToRadians(adjustPositive360(-startAngle));
+        double rEndAngle;
+        if (spanAngle >= 360.0 || spanAngle <= -360.0) {
+          rEndAngle = rStartAngle - 2.0 * M_PI * (spanAngle > 0 ? 1.0 : -1.0);
+        } else {
+          rEndAngle = WTransform::degreesToRadians(adjustPositive360(-startAngle - adjust360(spanAngle)));
+        }
+        const bool anticlockwise = spanAngle > 0;
 
-	out << ',' << Utils::round_js_str(r.x(), 3, buf);
-	out << ',' << Utils::round_js_str(r.y(), 3, buf);
-	out << ',' << (s.y() > 0 ? "true" : "false") << ");";
+        out << ',' << Utils::round_js_str(rStartAngle, 6, buf);
+        out << ',' << Utils::round_js_str(rEndAngle, 6, buf);
+        out << ',' << (anticlockwise ? "true" : "false") << ");";
       }
       break;
     case QuadC: {

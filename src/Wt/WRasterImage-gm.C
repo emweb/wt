@@ -54,14 +54,17 @@ namespace {
 }
 #endif
 
+#include <algorithm>
+#include <utility>
+
 namespace {
   static const double EPSILON = 1E-5;
 
   double adjust360(double d) {
-    if (std::fabs(d - 360) < 0.01)
-      return 359.5;
-    else if (std::fabs(d + 360) < 0.01)
-      return -359.5;
+    if (d > 360.0)
+      return 360.0;
+    else if (d < -360.0)
+      return -360.0;
     else 
       return d;
   }
@@ -646,8 +649,14 @@ void WRasterImage::drawArc(const WRectF& rect,
 {
   impl_->internalInit();
 
-  DrawArc(impl_->context_, rect.left(), rect.top(), rect.right(), rect.bottom(), 
-	  startAngle, startAngle + spanAngle);
+  double start = - startAngle;
+  double end = - startAngle - spanAngle;
+
+  if (end < start)
+    std::swap(start, end);
+
+  DrawArc(impl_->context_, rect.left(), rect.top(), rect.right(), rect.bottom(),
+          start, end);
 }
 
 void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
@@ -843,16 +852,20 @@ void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)
 
       const double x1 = rx * std::cos(theta1) + cx;
       const double y1 = ry * std::sin(theta1) + cy;
-      const double x2 = rx * std::cos(theta1 + deltaTheta) + cx;
-      const double y2 = ry * std::sin(theta1 + deltaTheta) + cy;
-      const int fa = (std::fabs(deltaTheta) > M_PI ? 1 : 0);
-      const int fs = (deltaTheta > 0 ? 1 : 0);
+      const double x2 = rx * std::cos(theta1 + deltaTheta / 2.0) + cx;
+      const double y2 = ry * std::sin(theta1 + deltaTheta / 2.0) + cy;
+      const double x3 = rx * std::cos(theta1 + deltaTheta) + cx;
+      const double y3 = ry * std::sin(theta1 + deltaTheta) + cy;
+      const int fa = 0;
+      const unsigned int fs = (deltaTheta > 0 ? 1 : 0);
 
       if (!fequal(current.x(), x1) || !fequal(current.y(), y1))
 	DrawPathLineToAbsolute(context_, x1 - 0.5, y1 - 0.5);
 
       DrawPathEllipticArcAbsolute(context_, rx, ry, 0, fa, fs,
 				  x2 - 0.5, y2 - 0.5);
+      DrawPathEllipticArcAbsolute(context_, rx, ry, 0, fa, fs,
+                                  x3 - 0.5, y3 - 0.5);
 
       i += 2;
       break;

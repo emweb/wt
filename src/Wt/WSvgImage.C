@@ -28,10 +28,10 @@
 
 namespace {
   double adjust360(double d) {
-    if (std::fabs(d - 360) < 0.01)
-      return 359.5;
-    else if (std::fabs(d + 360) < 0.01)
-      return -359.5;
+    if (d > 360.0)
+      return 360.0;
+    else if (d < -360.0)
+      return -360.0;
     else 
       return d;
   }
@@ -104,7 +104,7 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
 {
   char buf[30];
 
-  if (std::fabs(spanAngle - 360.0) < 0.01) {
+  if (std::fabs(spanAngle - 360.0) < 0.01 || spanAngle > 360.0) {
     finishPath();
     makeNewGroup();
 
@@ -439,9 +439,12 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
        */
       const double x1 = rx * std::cos(theta1) + cx;
       const double y1 = ry * std::sin(theta1) + cy;
-      const double x2 = rx * std::cos(theta1 + deltaTheta) + cx;
-      const double y2 = ry * std::sin(theta1 + deltaTheta) + cy;
-      const int fa = (std::fabs(deltaTheta) > M_PI ? 1 : 0);
+      const double x2 = rx * std::cos(theta1 + deltaTheta / 2.0) + cx;
+      const double y2 = ry * std::sin(theta1 + deltaTheta / 2.0) + cy;
+      const double x3 = rx * std::cos(theta1 + deltaTheta) + cx;
+      const double y3 = ry * std::sin(theta1 + deltaTheta) + cy;
+      // const int fa = (std::fabs(deltaTheta) > M_PI ? 1 : 0);
+      const int fa = 0;
       const int fs = (deltaTheta > 0 ? 1 : 0);
 
       if (!fequal(current.x(), x1) || !fequal(current.y(), y1)) {
@@ -454,6 +457,12 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
       out << " 0 " << fa << "," << fs;
       out << ' ' << Utils::round_js_str(x2 + pathTranslation_.x(), 3, buf);
       out << ',' << Utils::round_js_str(y2 + pathTranslation_.y(), 3, buf);
+
+      out << 'A' << Utils::round_js_str(rx, 3, buf);
+      out << ',' << Utils::round_js_str(ry, 3, buf);
+      out << " 0 " << fa << "," << fs;
+      out << ' ' << Utils::round_js_str(x3 + pathTranslation_.x(), 3, buf);
+      out << ',' << Utils::round_js_str(y3 + pathTranslation_.y(), 3, buf);
     } else {
       switch (s.type()) {
       case MoveTo:
