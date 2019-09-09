@@ -22,6 +22,22 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.1.1 (September 9, 2019)</h2>
+<p>
+  This release fixes the following issues:
+</p>
+<ul>
+  <li>Fixed horizontal scrolling stutter on mobile browsers in <tt>WTableView</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7000">issue #7000</a>: possible out of bounds access in <tt>WTableView::itemWidget()</tt></li>
+  <li>Fixed <tt>valueChanged()</tt> documentation of <tt>WSpinBox</tt> and <tt>WDoubleSpinBox</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7164">issue #7164</a>: Added missing <tt>&lt;stdexcept&gt;</tt> include to <tt>observing_ptr_impl.hpp</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7167">issue #7167</a>: configure SSL context when using <tt>--https-listen</tt> too (not just when using <tt>--https-address</tt>/<tt>--https-port</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7187">issue #7187</a>: contents of <tt>WTabWidget</tt> did not properly stretch in height</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7193">issue #7193</a>: compatibility with Pango 1.44: added harfbuzz include dir</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7195">issue #7195</a>: contents of <tt>WStackedWidget</tt> would not properly respond to window size change</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7206">issue #7206</a>: added mention in Wt 4.0.0 release notes that <tt>setObjectName()</tt> does not change a widget's <tt>id</tt> anymore. It is now in an extra attribute called <tt>data-object-name</tt>.</li>
+</ul>
+
 <h2>Release 4.1.0 (July 31, 2019)</h2>
 <p>
   This is the first release to change the versioning scheme to be more aligned with semantic versioning.
