@@ -112,6 +112,7 @@ public:
    * The timezone is used by WLocalDateTime.
    *
    * \sa https://howardhinnant.github.io/date/date.html
+   * \sa https://howardhinnant.github.io/date/tz.html
    * \sa WEnvironment::timeZoneName()
    * \sa WEnvironment::timeZoneOffset()
    */
