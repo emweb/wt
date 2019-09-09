@@ -96,28 +96,23 @@ public:
 
   /*! \brief Sets the time zone.
    *
-   * This sets the time zone (used by the client). The \p
-   * posixTimeZone must be an IEEE Std 1003.1 zone string in the form
-   * of: "std offset dst [offset],start[/time],end[/time]" and
-   * specifies all aspects of UTC to local time conversion for the
-   * user, including taking into account daylight savings time.
+   * This sets the time zone (used by the client). This
+   * is a time zone from Howard Hinnant's date library,
+   * which will become integrated into the C++20 standard.
    *
-   * e.g. "EST-5EDT,M4.1.0,M10.5.0" represents the time zone configuration
-   *      suitable for USA EastCoast (NYC).
+   * A time zone can be retrieved with \p date::locate_zone using
+   * the name of the time zone. The time zone name may be retrieved with
+   * WEnvironment::timeZoneName(), if supported by the browser.
    *
-   * The time zone is not provided by the browser and therefore you
-   * will need to ask the user to select an appropriate time
-   * zone. This can be done using for example
-   * boost::local_time::tz_database by asking the user to select his
-   * region from this database, and retrieving the corresponding time
-   * zone string. You may want to propose a suitable default time zone
-   * by using WEnvironment::timeZoneOffset() and pre-selecting a
-   * region that matches this offset.
-   *
-   * The default value is empty.
+   * WEnvironment::timeZoneOffset() will also (if available) contain
+   * an offset. This offset could be used to let the user select a
+   * time zone from a list of timezones. You can get a list of
+   * zones with \p date::get_tzdb().zones.
    *
    * The timezone is used by WLocalDateTime.
    *
+   * \sa https://howardhinnant.github.io/date/date.html
+   * \sa WEnvironment::timeZoneName()
    * \sa WEnvironment::timeZoneOffset()
    */
   void setTimeZone(const date::time_zone *zone);
