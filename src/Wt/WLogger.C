@@ -255,9 +255,6 @@ void WLogger::setFile(const std::string& path)
 #endif
   
   if (ofs->is_open()) {
-    std::cerr 
-      << "INFO: Opened log file (" << path.c_str() << ")." 
-      << std::endl;
     o_ = ofs;
     ownStream_ = true;
   } else {
