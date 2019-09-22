@@ -22,15 +22,15 @@ WColorPicker::WColorPicker(const WColor& color)
   setInline(true);
   setFormObject(true);
   setAttributeValue("type", "color");
-  setValue(color);
+  setColor(color);
 }
 
-WColor WColorPicker::value() const
+WColor WColorPicker::color() const
 {
   return color_;
 }
 
-void WColorPicker::setValue(const WColor& value)
+void WColorPicker::setColor(const WColor& value)
 {
   color_ = value;
   doJavaScript(jsRef() + ".value = " + WWebWidget::jsStringLiteral(value.cssText()) + ";");
@@ -54,18 +54,18 @@ void WColorPicker::setFormData(const FormData& formData)
   if (!Utils::isEmpty(formData.values))
   {
     const std::string& value = formData.values[0];
-    color_ = {value};
+    color_ = WColor(value);
   }
 }
 
 WT_USTRING WColorPicker::valueText() const
 {
-  return value().cssText();
+  return color().cssText();
 }
 
 void WColorPicker::setValueText(const WT_USTRING& value)
 {
-  setValue({value});
+  setColor(WColor(value));
 }
 
 }
