@@ -1,7 +1,12 @@
 #include <Wt/WColor.h>
 #include <Wt/WColorPicker.h>
+#include <Wt/WDllDefs.h>
+#include <Wt/WFormWidget.h>
+#include <Wt/WObject.h>
 #include <Wt/WSignal.h>
 #include <Wt/WString.h>
+#include <Wt/WWebWidget.h>
+
 #include <web/WebUtils.h>
 
 #include <string>

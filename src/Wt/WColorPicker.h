@@ -8,7 +8,11 @@
 #define WCOLORPICKER_H_
 
 #include <Wt/WColor.h>
+#include <Wt/WDllDefs.h>
 #include <Wt/WFormWidget.h>
+#include <Wt/WObject.h>
+#include <Wt/WSignal.h>
+#include <Wt/WWebWidget.h>
 
 namespace Wt {
 
