@@ -16,9 +16,4 @@ examples/widgetgallery/docroot/resources
 resources/tiny_mce
 test/interactive
 debug/
-
-
-
-
-
-
+.vscode/
