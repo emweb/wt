@@ -6,6 +6,10 @@
 
 #include <string>
 
+namespace Wt {
+
+LOGGER("WColorPicker");
+
 WColorPicker::WColorPicker()
 {
     setInline(true);
@@ -13,7 +17,7 @@ WColorPicker::WColorPicker()
     setAttributeValue("type", "color");
 }
 
-WColorPicker::WColorPicker(const Wt::WColor& color)
+WColorPicker::WColorPicker(const WColor& color)
 {
     setInline(true);
     setFormObject(true);
@@ -21,25 +25,25 @@ WColorPicker::WColorPicker(const Wt::WColor& color)
     setValue(color);
 }
 
-Wt::WColor WColorPicker::value() const
+WColor WColorPicker::value() const
 {
     return color_;
 }
 
-void WColorPicker::setValue(const Wt::WColor& value)
+void WColorPicker::setValue(const WColor& value)
 {
     color_ = value;
     doJavaScript(jsRef() + ".value = " + WWebWidget::jsStringLiteral(value.cssText()) + ";");
 }
 
-Wt::EventSignal<>& WColorPicker::colorInput()
+EventSignal<>& WColorPicker::colorInput()
 {
     return *voidEventSignal(INPUT_SIGNAL, true);
 }
 
-Wt::DomElementType WColorPicker::domElementType() const
+DomElementType WColorPicker::domElementType() const
 {
-    return Wt::DomElementType::INPUT;
+    return DomElementType::INPUT;
 }
 
 void WColorPicker::setFormData(const FormData& formData)
@@ -47,7 +51,7 @@ void WColorPicker::setFormData(const FormData& formData)
     if (isReadOnly())
         return;
 
-    if (!Wt::Utils::isEmpty(formData.values))
+    if (!Utils::isEmpty(formData.values))
     {
         const std::string& value = formData.values[0];
         color_ = {value};
@@ -62,4 +66,6 @@ WT_USTRING WColorPicker::valueText() const
 void WColorPicker::setValueText(const WT_USTRING& value)
 {
     setValue({value});
+}
+
 }
