@@ -9,24 +9,24 @@ namespace Wt {
 class WT_API WColorPicker : public WFormWidget
 {
 public:
-    WColorPicker();
-    WColorPicker(const WColor& color);
+  WColorPicker();
+  WColorPicker(const WColor& color);
 
-    WColor value() const;
-    void setValue(const WColor& value);
+  WColor value() const;
+  void setValue(const WColor& value);
 
-    EventSignal<>& colorInput();
+  EventSignal<>& colorInput();
 
-    virtual WT_USTRING valueText() const override;
-    virtual void setValueText(const WT_USTRING& value) override;
+  virtual WT_USTRING valueText() const override;
+  virtual void setValueText(const WT_USTRING& value) override;
 
 private:
-    WColor color_;
-    static constexpr const char* INPUT_SIGNAL = "input";
+  WColor color_;
+  static constexpr const char* INPUT_SIGNAL = "input";
 
 protected:
-    virtual DomElementType domElementType() const override;
-    virtual void setFormData(const FormData& formData) override;
+  virtual DomElementType domElementType() const override;
+  virtual void setFormData(const FormData& formData) override;
 };
 
 }
