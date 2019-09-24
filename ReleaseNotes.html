@@ -428,15 +428,15 @@ some functionality:</p>
     <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a>.</p>
   </dd>
   <dt>
-    Added <tt>&lt;allowed-hosts&gt;</tt> configuration option for CORS
+    Added <tt>&lt;allowed-origins&gt;</tt> configuration option for CORS
   </dt>
   <dd>
     Wt used to allow almost any origin, to allow Wt applications to be embedded in any page using
     WidgetSet mode. Although Wt encodes session IDs in URLs rather than cookies by default, this
     could still pose a security risk in some cases. In Wt 3.3.8, CORS support has been updated:
     Wt now only allows cross-origin resource sharing for WidgetSet entry points, and trusts no
-    host by default. You can specify the allowed hosts using the <tt>&lt;allowed-hosts&gt;</tt>
-    tag in the configuration file. Using <tt>&lt;allowed-hosts&gt;*&lt;/allowed-hosts&gt;</tt> 
+    origin by default. You can specify the allowed origins using the <tt>&lt;allowed-origins&gt;</tt>
+    tag in the configuration file. Using <tt>&lt;allowed-origins&gt;*&lt;/allowed-origins&gt;</tt> 
     restores the old behaviour.
   </dd>
   <dt>
