@@ -56,6 +56,7 @@ BOOST_AUTO_TEST_CASE( Utf8_test2 )
 
 BOOST_AUTO_TEST_CASE( Utf8_test3 )
 {
+#ifndef WT_WIN32
   std::locale sys_locale("");
   std::locale other_locale = sys_locale;
   if (!(endswith(sys_locale.name(), ".UTF-8") ||
@@ -77,6 +78,7 @@ BOOST_AUTO_TEST_CASE( Utf8_test3 )
   std::string s = ws.narrow(l);
 
   BOOST_REQUIRE(s == ws.toUTF8());
+#endif // WT_WIN32
 }
  
 BOOST_AUTO_TEST_CASE( Utf8_test4 )
@@ -120,6 +122,7 @@ BOOST_AUTO_TEST_CASE( Utf8_test4 )
 // There was an issue in Wt::narrow that caused a heap buffer overflow.
 BOOST_AUTO_TEST_CASE( Utf8_test5 )
 {
+#ifndef WT_WIN32
   std::locale sys_locale("");
   std::locale other_locale = sys_locale;
   if (!(endswith(sys_locale.name(), ".UTF-8") ||
@@ -138,6 +141,7 @@ BOOST_AUTO_TEST_CASE( Utf8_test5 )
   std::string s2 = "\xF0\x9F\x98\xB8\xF0\x9F\x98\xB1";
 
   BOOST_REQUIRE(Wt::narrow(s1, l) == s2);
+#endif // WT_WIN32
 }
 
 BOOST_AUTO_TEST_CASE( Utf8_test6 )

@@ -22,8 +22,7 @@ popup->addItem("Button style")->setLink(Wt::WLink("#style"));
 auto input = Wt::cpp14::make_unique<Wt::WLineEdit>();
 result->bindWidget("input", std::move(input));
 
-auto appendedDropdownButton = Wt::cpp14::make_unique<Wt::WPushButton>("Action");
-auto button = result->bindWidget("appendedButton", std::move(appendedDropdownButton));
+auto button = result->bindWidget("appendedButton", Wt::cpp14::make_unique<Wt::WPushButton>("Action"));
 button->setMenu(std::move(popup));
 
 SAMPLE_END(return std::move(result))

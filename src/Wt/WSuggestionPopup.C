@@ -215,7 +215,7 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
     return;
 
   for (int i = start; i <= end; ++i) {
-    WContainerWidget *line = impl_->insertWidget(i, std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+    WContainerWidget *line = impl_->insertWidget(i, cpp14::make_unique<WContainerWidget>());
 
     WModelIndex index = model_->index(i, modelColumn_);
 
@@ -223,8 +223,8 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
 
     TextFormat format = index.flags().test(ItemFlag::XHTMLText) ? 
       TextFormat::XHTML : TextFormat::Plain;
-    WAnchor *anchor = line->addWidget(std::unique_ptr<WAnchor>(new WAnchor()));
-    WText *value = anchor->addWidget(std::unique_ptr<WText>(new WText(asString(d), format)));
+    WAnchor *anchor = line->addWidget(cpp14::make_unique<WAnchor>());
+    WText *value = anchor->addWidget(cpp14::make_unique<WText>(asString(d), format));
 
     cpp17::any d2 = index.data(editRole_);
     if (!cpp17::any_has_value(d2))

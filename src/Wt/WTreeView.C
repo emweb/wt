@@ -328,8 +328,7 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
     parentNode_(parent),
     childrenLoaded_(false)
 {
-  nodeWidget_ = addWidget(std::unique_ptr<WTemplate>(new WTemplate
-			  (tr("Wt.WTreeViewNode.template"))));
+  nodeWidget_ = addWidget(cpp14::make_unique<WTemplate>(tr("Wt.WTreeViewNode.template")));
   nodeWidget_->setStyleClass("Wt-item");
   nodeWidget_->bindEmpty("cols-row");
   nodeWidget_->bindEmpty("expand");
@@ -449,7 +448,7 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
       nodeWidget_->bindEmpty("no-expand");
       expandButton = 
 	nodeWidget_->bindWidget
-	("expand", std::unique_ptr<ToggleButton>(new ToggleButton(view_->expandConfig_.get())));
+	("expand", cpp14::make_unique<ToggleButton>(view_->expandConfig_.get()));
 
       if (WApplication::instance()->environment().agentIsIE())
 	expandButton->setWidth(19);
@@ -463,7 +462,7 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
     WText *noExpandIcon = nodeWidget_->resolve<WText *>("no-expand");
     if (!noExpandIcon) {
       noExpandIcon
-	= nodeWidget_->bindWidget("no-expand", std::unique_ptr<WText>(new WText()));
+	= nodeWidget_->bindWidget("no-expand", cpp14::make_unique<WText>());
       noExpandIcon->setInline(false);
       noExpandIcon->setStyleClass("Wt-ctrl rh noexpand");
       if (WApplication::instance()->environment().agentIsIE())
@@ -689,7 +688,7 @@ void WTreeViewNode::adjustChildrenHeight(int diff)
 WContainerWidget *WTreeViewNode::childContainer()
 {
   if (!childContainer_) {
-    childContainer_ = addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+    childContainer_ = addWidget(cpp14::make_unique<WContainerWidget>());
     childContainer_->setList(true);
 
     if (index_ == view_->rootIndex())
@@ -845,7 +844,7 @@ RowSpacer *WTreeViewNode::bottomSpacer(bool create)
     if (!create)
       return nullptr;
     else {
-      result = c->addWidget(std::unique_ptr<RowSpacer>(new RowSpacer(this, 0)));
+      result = c->addWidget(cpp14::make_unique<RowSpacer>(this, 0));
     }
   }
 
@@ -999,7 +998,7 @@ void WTreeView::setup()
 
   contents_ = new WContainerWidget();
   WContainerWidget *wrapRoot 
-    = contents_->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+    = contents_->addWidget(cpp14::make_unique<WContainerWidget>());
 
   if (app->environment().agentIsIE()) {
     wrapRoot->setAttributeValue("style", "zoom: 1");
@@ -1136,7 +1135,7 @@ void WTreeView::setRowHeaderCount(int count)
     scrollBarContainer->setStyleClass("cwidth");
     scrollBarContainer->setHeight(SCROLLBAR_WIDTH);
     scrollBarC_ 
-      = scrollBarContainer->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+      = scrollBarContainer->addWidget(cpp14::make_unique<WContainerWidget>());
     scrollBarC_->setStyleClass("Wt-tv-row Wt-scroll");
     scrollBarC_->scrolled().connect(tieRowsScrollJS_);
 
@@ -1150,7 +1149,7 @@ void WTreeView::setRowHeaderCount(int count)
     }
 
     WContainerWidget *scrollBar 
-      = scrollBarC_->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+      = scrollBarC_->addWidget(cpp14::make_unique<WContainerWidget>());
     scrollBar->setStyleClass("Wt-tv-rowc");
     if (useStyleLeft)
       scrollBar->setAttributeValue("style", "left: 0px;");
@@ -1479,12 +1478,12 @@ void WTreeView::rerenderHeader()
   headers_->clear();
 
   WContainerWidget *row
-    = headers_->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+    = headers_->addWidget(cpp14::make_unique<WContainerWidget>());
   row->setFloatSide(Side::Right);
 
   if (rowHeaderCount()) {
     row->setStyleClass("Wt-tv-row headerrh background");
-    row = row->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+    row = row->addWidget(cpp14::make_unique<WContainerWidget>());
     row->setStyleClass("Wt-tv-rowc headerrh");
   } else
     row->setStyleClass("Wt-tv-row");
@@ -1526,7 +1525,7 @@ void WTreeView::rerenderTree()
   validRowCount_ = 0;
 
   rootNode_ = wrapRoot->addWidget
-    (std::unique_ptr<WTreeViewNode>(new WTreeViewNode(this, rootIndex(), -1, true, nullptr)));
+    (cpp14::make_unique<WTreeViewNode>(this, rootIndex(), -1, true, nullptr));
 
   if (WApplication::instance()->environment().ajax()) {
 
@@ -2482,8 +2481,7 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 	  // assert(rootNode_->rowCount() == 1);
 
 	  WTreeViewNode *n = node->childContainer()->addWidget
-	    (std::unique_ptr<WTreeViewNode>(new WTreeViewNode
-	     (this, childIndex, childHeight - 1, i == childCount - 1, node)));
+	    (cpp14::make_unique<WTreeViewNode>(this, childIndex, childHeight - 1, i == childCount - 1, node));
 
 	  int nestedNodeRow = nodeRow;
 	  nestedNodeRow = adjustRenderedNode(n, nestedNodeRow);

@@ -355,12 +355,11 @@ public:
 	Wt::WString title = Wt::WString("Create new user");
         bindString("title", title);
 
-        auto button = Wt::cpp14::make_unique<Wt::WPushButton>("Save");
-        auto button_ = bindWidget("submit-button", std::move(button));
+        auto button = bindWidget("submit-button", Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
 
         bindString("submit-info", Wt::WString());
 
-        button_->clicked().connect(this, &UserFormView::process);
+        button->clicked().connect(this, &UserFormView::process);
 
         updateView(model.get());
     }

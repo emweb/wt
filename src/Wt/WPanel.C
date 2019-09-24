@@ -85,7 +85,7 @@ void WPanel::setTitle(const WString& title)
   setTitleBar(true);
 
   if (!title_) {
-    title_ = titleBarWidget()->addWidget(std::unique_ptr<WText>(new WText()));
+    title_ = titleBarWidget()->addWidget(cpp14::make_unique<WText>());
     WApplication *app = WApplication::instance();
     app->theme()->apply(this, title_, PanelTitle);
   }
@@ -114,8 +114,7 @@ WContainerWidget *WPanel::titleBarWidget() const
 void WPanel::setTitleBar(bool enable)
 {
   if (enable && !titleBarWidget()) {
-    auto titleBar = impl_->bindWidget("titlebar",
-				      std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+    auto titleBar = impl_->bindWidget("titlebar", cpp14::make_unique<WContainerWidget>());
 
     WApplication *app = WApplication::instance();
     app->theme()->apply(this, titleBar, PanelTitleBar);

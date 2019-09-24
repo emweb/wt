@@ -185,6 +185,11 @@ public:
     addWidget(std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget);
+  template <typename Widget>
+    Widget *addWidget(std::unique_ptr<Widget> widget, int stretch);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Adds a nested layout to the layout.

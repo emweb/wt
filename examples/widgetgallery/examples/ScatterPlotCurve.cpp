@@ -27,8 +27,7 @@ for (unsigned i = 0; i < 40; ++i) {
 /*
  * Create the scatter plot.
  */
-Chart::WCartesianChart *chart =
-    container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
+Chart::WCartesianChart *chart = container->addNew<Chart::WCartesianChart>();
 #ifndef WT_TARGET_JAVA
 chart->setModel(model);        // Set the model.
 #else // WT_TARGET_JAVA

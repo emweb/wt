@@ -345,8 +345,7 @@ void AuthWidget::updatePasswordLoginView()
     WInteractWidget *login = resolve<WInteractWidget *>("login");
 
     if (!login) {
-      login = bindWidget("login",
-			 cpp14::make_unique<WPushButton>(tr("Wt.Auth.login")));
+      login = bindWidget("login", cpp14::make_unique<WPushButton>(tr("Wt.Auth.login")));
       login->clicked().connect(this, &AuthWidget::attemptPasswordLogin);
 
       model_->configureThrottling(login);

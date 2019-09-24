@@ -22,11 +22,11 @@ namespace Wt {
     WLogger defaultLogger;
   }
 
-WLogEntry::WLogEntry(const WLogEntry& other)
-  : impl_(other.impl_)
-{
-  other.impl_ = 0;
-}
+LOGGER("WLogger");
+
+WLogEntry::WLogEntry(WLogEntry&& other)
+  : impl_(std::move(other.impl_))
+{ }
 
 WLogEntry::~WLogEntry()
 {
@@ -34,8 +34,6 @@ WLogEntry::~WLogEntry()
     impl_->finish();
     impl_->logger_.addLine(impl_->type_, impl_->scope_, impl_->line_);
   }
-
-  delete impl_;
 }
 
 WLogEntry& WLogEntry::operator<< (const WLogger::Sep&)
@@ -132,10 +130,8 @@ WLogEntry& WLogEntry::operator<< (double v)
 WLogEntry::WLogEntry(const WLogger& logger, const std::string& type,
 		     bool mute)
 {
-  if (mute)
-    impl_ = 0;
-  else
-    impl_ = new Impl(logger, type);
+  if (!mute)
+    impl_ = cpp14::make_unique<Impl>(logger, type);
 }
 
 void WLogEntry::startField()
@@ -233,8 +229,11 @@ void WLogger::setStream(std::ostream& o)
 
 void WLogger::setFile(const std::string& path)
 {
-  if (ownStream_)
+  if (ownStream_) {
     delete o_;
+    o_ = &std::cerr;
+    ownStream_ = false;
+  }
 
   std::ofstream *ofs;
 #ifdef _MSC_VER
@@ -255,18 +254,14 @@ void WLogger::setFile(const std::string& path)
 #endif
   
   if (ofs->is_open()) {
-    std::cerr 
-      << "INFO: Opened log file (" << path.c_str() << ")." 
-      << std::endl;
+    LOG_INFO("Opened log file (" << path << ").");
     o_ = ofs;
     ownStream_ = true;
   } else {
     delete ofs;
 
-    std::cerr 
-      << "ERROR: Could not open log file (" << path.c_str() << ")." 
-      << "We will be logging to std::cerr again."
-      << std::endl;
+    LOG_ERROR("Could not open log file (" << path << "). "
+              "We will be logging to std::cerr again.");
     o_ = &std::cerr;
     ownStream_ = false;
   }

@@ -79,8 +79,7 @@ for (row = 0; row < model->rowCount(); ++row)
     for (int col = 0; col < model->columnCount(); ++col)
         model->item(row, col)->setFlags(ItemFlag::Editable);
 
-WTableView* table =
-    container->addWidget(cpp14::make_unique<WTableView>());
+WTableView* table = container->addNew<WTableView>();
 
 table->setMargin(10, Side::Top | Side::Bottom);
 table->setMargin(WLength::Auto, Side::Left | Side::Right);
@@ -99,8 +98,7 @@ else
 /*
  * Create the pie chart.
  */
-Chart::WPieChart *chart =
-    container->addWidget(cpp14::make_unique<Chart::WPieChart>());
+Chart::WPieChart *chart = container->addNew<Chart::WPieChart>();
 #ifndef WT_TARGET_JAVA
 chart->setModel(model);       // Set the model.
 #else // WT_TARGET_JAVA

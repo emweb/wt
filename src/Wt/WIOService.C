@@ -127,7 +127,7 @@ void WIOService::schedule(std::chrono::steady_clock::duration millis, const std:
   if (millis.count() == 0)
     strand_.post(function); // guarantees execution order
   else {
-    asio::steady_timer *timer = new asio::steady_timer(*this);
+    std::shared_ptr<asio::steady_timer> timer = std::make_shared<asio::steady_timer>(*this);
     timer->expires_from_now(millis);
     timer->async_wait
       (std::bind(&WIOService::handleTimeout, this, timer, function,
@@ -135,14 +135,14 @@ void WIOService::schedule(std::chrono::steady_clock::duration millis, const std:
   }
 }
 
-void WIOService::handleTimeout(asio::steady_timer *timer,
+void WIOService::handleTimeout(const std::shared_ptr<asio::steady_timer>& timer,
 			       const std::function<void ()>& function,
 			       const AsioWrapper::error_code& e)
 {
   if (!e)
     function();
 
-  delete timer;
+  (void)timer;
 }
 
 void WIOService::initializeThread()

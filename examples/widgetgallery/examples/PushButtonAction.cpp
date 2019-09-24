@@ -6,11 +6,9 @@ SAMPLE_BEGIN(PushButtonAction)
 auto result =
     Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("pushButtonAction-template"));
 
-auto button = Wt::cpp14::make_unique<Wt::WPushButton>("Save");
-auto button_ = result->bindWidget("button-save", std::move(button));
-button_->setStyleClass("btn-primary");
+auto button = result->bindWidget("button-save", Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
+button->setStyleClass("btn-primary");
 
-button = Wt::cpp14::make_unique<Wt::WPushButton>("Cancel");
-result->bindWidget("button-cancel", std::move(button));
+result->bindWidget("button-cancel", Wt::cpp14::make_unique<Wt::WPushButton>("Cancel"));
 
 SAMPLE_END(return std::move(result))

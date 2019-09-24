@@ -16,8 +16,7 @@ SAMPLE_BEGIN(NumChart3d)
 auto container = cpp14::make_unique<WContainerWidget>();
 
 // create the chart and add a border to the widget
-Chart::WCartesian3DChart *chart
-    = container->addWidget(cpp14::make_unique<Chart::WCartesian3DChart>());
+Chart::WCartesian3DChart *chart = container->addNew<Chart::WCartesian3DChart>();
 chart->setType(Chart::ChartType::Scatter);
 
 // disable server-side rendering fallback; our VPSes don't have that

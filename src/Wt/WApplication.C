@@ -175,13 +175,13 @@ WApplication::WApplication(const WEnvironment& env
   if (session_->type() == EntryPointType::Application)
     domRoot_->resize(WLength::Auto, WLength(100, LengthUnit::Percentage));
 
-  timerRoot_ = domRoot_->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+  timerRoot_ = domRoot_->addWidget(cpp14::make_unique<WContainerWidget>());
   timerRoot_->setId("Wt-timers");
   timerRoot_->resize(WLength::Auto, 0);
   timerRoot_->setPositionScheme(PositionScheme::Absolute);
 
   if (session_->type() == EntryPointType::Application) {
-    widgetRoot_ = domRoot_->addWidget(std::unique_ptr<WContainerWidget>(new WContainerWidget()));
+    widgetRoot_ = domRoot_->addWidget(cpp14::make_unique<WContainerWidget>());
     widgetRoot_->resize(WLength::Auto, WLength(100, LengthUnit::Percentage));
   } else {
     domRoot2_.reset(new WContainerWidget());
@@ -1596,7 +1596,7 @@ bool WApplication::debug() const
 SoundManager *WApplication::getSoundManager()
 {
   if (!soundManager_)
-    soundManager_ = domRoot_->addWidget(std::unique_ptr<SoundManager>(new SoundManager()));
+    soundManager_ = domRoot_->addWidget(cpp14::make_unique<SoundManager>());
 
   return soundManager_;
 }

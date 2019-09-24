@@ -33,8 +33,7 @@ namespace {
 extern 
     void addOptionToggle(WWidget *widget, const char *option,
                          const char *styleClass, WContainerWidget *parent) {
-        WCheckBox *checkBox =
-            parent->addWidget(cpp14::make_unique<WCheckBox>(option));
+        WCheckBox *checkBox = parent->addNew<WCheckBox>(option);
 	checkBox->setInline(false);
 	checkBox->changed().connect([=] {
 	      widget->toggleStyleClass(styleClass, checkBox->isChecked());
@@ -47,41 +46,54 @@ auto table = cpp14::make_unique<WTable>();
 auto table_ = table.get();
 table_->setHeaderCount(1);
 
-table_->elementAt(0, 0)->addWidget(cpp14::make_unique<WText>("#"));
-table_->elementAt(0, 1)->addWidget(cpp14::make_unique<WText>("First Name"));
-table_->elementAt(0, 2)->addWidget(cpp14::make_unique<WText>("Last Name"));
-table_->elementAt(0, 3)->addWidget(cpp14::make_unique<WText>("Pay"));
+table_->elementAt(0, 0)->addNew<WText>("#");
+table_->elementAt(0, 1)->addNew<WText>("First Name");
+table_->elementAt(0, 2)->addNew<WText>("Last Name");
+table_->elementAt(0, 3)->addNew<WText>("Pay");
 
 for (unsigned i = 0; i < 3; ++i) {
     Employee& employee = employees[i];
     int row = i + 1;
 
     table_->elementAt(row,0)->
-        addWidget(cpp14::make_unique<WText>(WString("{1}").arg(row)));
+        addNew<WText>(WString("{1}").arg(row));
     table_->elementAt(row,1)->
-        addWidget(cpp14::make_unique<WText>(employee.firstName));
+        addNew<WText>(employee.firstName);
     table_->elementAt(row,2)->
-        addWidget(cpp14::make_unique<WText>(employee.lastName));
+        addNew<WText>(employee.lastName);
 #ifndef WT_TARGET_JAVA
     table_->elementAt(row,3)->
-        addWidget(cpp14::make_unique<WLineEdit>(WString("{1}").arg(employee.pay)));
+        addNew<WLineEdit>(WString("{1}").arg(employee.pay));
 #else // WT_TARGET_JAVA
     table_->elementAt(row,3)->
-        addWidget(cpp14::make_unique<WLineEdit>(WString("{1}").arg(employee.pay).toUTF8()));
+        addNew<WLineEdit>(WString("{1}").arg(employee.pay).toUTF8());
 #endif // WT_TARGET_JAVA
 }
 
 table_->addStyleClass("table form-inline");
 
-auto result = cpp14::make_unique<WContainerWidget>();
-auto result_ = result.get();
-result_->addWidget(std::move(table));
+#ifndef WT_TARGET_JAVA
+auto resultPtr = cpp14::make_unique<WContainerWidget>();
+auto result = resultPtr.get();
+#else // WT_TARGET_JAVA
+auto result = new WContainerWidget();
+#endif // WT_TARGET_JAVA
 
-result_->addWidget(cpp14::make_unique<WText>("Options:"));
+#ifndef WT_TARGET_JAVA
+result->addWidget(std::move(table));
+#else // WT_TARGET_JAVA
+result->addWidget(std::unique_ptr<Wt::WWidget>(table));
+#endif // WT_TARGET_JAVA
 
-addOptionToggle(table_, "borders", "table-bordered", result_);
-addOptionToggle(table_, "hover", "table-hover", result_);
-addOptionToggle(table_, "condensed", "table-condensed", result_);
-addOptionToggle(table_, "stripes", "table-striped", result_);
+result->addNew<WText>("Options:");
 
+addOptionToggle(table_, "borders", "table-bordered", result);
+addOptionToggle(table_, "hover", "table-hover", result);
+addOptionToggle(table_, "condensed", "table-condensed", result);
+addOptionToggle(table_, "stripes", "table-striped", result);
+
+#ifndef WT_TARGET_JAVA
+SAMPLE_END(return std::move(resultPtr))
+#else // WT_TARGET_JAVA
 SAMPLE_END(return std::move(result))
+#endif // WT_TARGET_JAVA

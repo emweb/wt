@@ -33,8 +33,7 @@ for (int row = 0; row < model->rowCount(); ++row) {
   }
 
 // Renders the data in a table.
-WTableView *table =
-    container->addWidget(cpp14::make_unique<WTableView>());
+WTableView *table = container->addNew<WTableView>();
 table->setModel(model);
 table->setSortingEnabled(false);
 table->setColumnResizeEnabled(true);
@@ -59,8 +58,7 @@ table->setItemDelegateForColumn(0, std::make_shared<WItemDelegate>());
 /*
  * Creates the scatter plot.
  */
-Chart::WCartesianChart *chart =
-    container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
+Chart::WCartesianChart *chart = container->addNew<Chart::WCartesianChart>();
 chart->setBackground(WColor(220, 220, 220));
 #ifndef WT_TARGET_JAVA
 chart->setModel(model);

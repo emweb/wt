@@ -160,11 +160,11 @@ bool WServer::dedicatedSessionProcess() const {
 void WServer::initLogger(const std::string& logFile,
 			 const std::string& logConfig)
 {
-  if (!logFile.empty())
-    logger_.setFile(logFile);
-
   if (!logConfig.empty())
     logger_.configure(logConfig);
+
+  if (!logFile.empty())
+    logger_.setFile(logFile);
 
   if (!description_.empty())
     LOG_INFO("initializing " << description_);

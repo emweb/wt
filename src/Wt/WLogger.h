@@ -10,6 +10,7 @@
 #include <Wt/WStringStream.h>
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -136,6 +137,20 @@ public:
    * Opens a file output stream for \p path.
    * The default logger outputs to stderr.
    *
+   * This logs a message notifying the user whether
+   * the file was successfully opened for writing to
+   * the previous ostream (usually std::cerr).
+   *
+   * If you want to suppress the info message,
+   * you can configure the logger with "-info:WLogger".
+   * The error when the file was not successfully opened
+   * is logged at the error log level.
+   *
+   * \note If the previous ostream was a file set with this
+   * method, the message will be logged to std::cerr instead
+   * of the previous file, because the previous file
+   * is closed first.
+   *
    * \sa setStream()
    */
   void setFile(const std::string& path);
@@ -249,12 +264,17 @@ private:
 class WT_API WLogEntry
 {
 public:
-  /*! \brief Copy constructor.
+  /*! \brief Move constructor.
    *
-   * Only the new object can be used, the original object is no longer
-   * valid.
+   * This is mostly for returning a (newly constructed) %WLogEntry from a function.
+   *
+   * Appending to the from object after move construction has no effect.
    */
-  WLogEntry(const WLogEntry& from);
+  WLogEntry(WLogEntry&& from);
+
+  WLogEntry(const WLogEntry&) = delete;
+  WLogEntry& operator=(const WLogEntry&) = delete;
+  WLogEntry& operator=(WLogEntry&&) = delete;
 
   /*! \brief Destructor.
    */
@@ -342,7 +362,7 @@ private:
     void startField();
   };
 
-  mutable Impl *impl_;
+  mutable std::unique_ptr<Impl> impl_;
 
   WLogEntry(const WLogger& logger, const std::string& type, bool mute);
 

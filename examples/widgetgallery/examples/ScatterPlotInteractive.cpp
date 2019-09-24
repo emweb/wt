@@ -35,8 +35,7 @@ for (int row = 0; row < model->rowCount(); ++row) {
 /*
  * Creates the scatter plot.
  */
-Chart::WCartesianChart *chart =
-    container->addWidget(cpp14::make_unique<Chart::WCartesianChart>());
+Chart::WCartesianChart *chart = container->addNew<Chart::WCartesianChart>();
 chart->setBackground(WColor(220, 220, 220));
 #ifndef WT_TARGET_JAVA
 chart->setModel(model);

@@ -17,31 +17,25 @@ public:
 
 	setHeight(400);
 
-	auto map = Wt::cpp14::make_unique<Wt::WGoogleMap>(Wt::GoogleMapsVersion::v3);
-	map_ = map.get();
-	layout->addWidget(std::move(map), 1);
+	map_ = layout->addWidget(Wt::cpp14::make_unique<Wt::WGoogleMap>(Wt::GoogleMapsVersion::v3), 1);
 
 	map_->setMapTypeControl(Wt::MapTypeControl::Default);
 	map_->enableScrollWheelZoom();
 
-	auto controls =
-	    Wt::cpp14::make_unique<Wt::WTemplate>(tr("graphics-GoogleMap-controls"));
-	auto controls_ = controls.get();
-	layout->addWidget(std::move(controls));
+	auto controls = layout->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(
+              tr("graphics-GoogleMap-controls")));
 
-	auto zoomIn = Wt::cpp14::make_unique<Wt::WPushButton>("+");
-	auto zoomIn_ = controls_->bindWidget("zoom-in", std::move(zoomIn));
-	zoomIn_->addStyleClass("zoom");
+	auto zoomIn = controls->bindWidget("zoom-in", Wt::cpp14::make_unique<Wt::WPushButton>("+"));
+	zoomIn->addStyleClass("zoom");
 
-	zoomIn_->clicked().connect([=] {
+	zoomIn->clicked().connect([=] {
 	    map_->zoomIn();
 	});
 
-	auto zoomOut = Wt::cpp14::make_unique<Wt::WPushButton>("-");
-	auto zoomOut_ = controls_->bindWidget("zoom-out", std::move(zoomOut));
-	zoomOut_->addStyleClass("zoom");
+	auto zoomOut = controls->bindWidget("zoom-out", Wt::cpp14::make_unique<Wt::WPushButton>("-"));
+	zoomOut->addStyleClass("zoom");
 
-        zoomOut_->clicked().connect([=] {
+        zoomOut->clicked().connect([=] {
             map_->zoomOut();
 	});
 
@@ -53,32 +47,30 @@ public:
 	};
 	    
 	for (unsigned i = 0; i < 3; ++i) {
-	    auto city = Wt::cpp14::make_unique<Wt::WPushButton>(cityNames[i]);
-	    auto city_ = controls_->bindWidget(cityNames[i], std::move(city));
+	    auto city = controls->bindWidget(cityNames[i],
+                Wt::cpp14::make_unique<Wt::WPushButton>(cityNames[i]));
 
             Wt::WGoogleMap::Coordinate coord = cityCoords[i];
-	    city_->clicked().connect([=] {
+	    city->clicked().connect([=] {
 		map_->panTo(coord);
 	    });
 	}
 
-	auto reset = Wt::cpp14::make_unique<Wt::WPushButton>("Reset");
-	auto reset_ = controls_->bindWidget("emweb", std::move(reset));
+	auto reset = controls->bindWidget("emweb", Wt::cpp14::make_unique<Wt::WPushButton>("Reset"));
 
-        reset_->clicked().connect([=] {
+        reset->clicked().connect([=] {
             this->panToEmWeb();
         });
 
-	auto savePosition =
-	    Wt::cpp14::make_unique<Wt::WPushButton>("Save current position");
-	auto savePosition_ = controls_->bindWidget("save-position", std::move(savePosition));
+	auto savePosition = controls->bindWidget("save-position",
+            Wt::cpp14::make_unique<Wt::WPushButton>("Save current position"));
 
-        savePosition_->clicked().connect([=] {
+        savePosition->clicked().connect([=] {
             this->savePosition();
         });
 
-	auto returnToPosition = Wt::cpp14::make_unique<Wt::WPushButton>("Return to saved position");
-	returnToPosition_ = controls_->bindWidget("return-to-saved-position", std::move(returnToPosition));
+	returnToPosition_ = controls->bindWidget("return-to-saved-position",
+            Wt::cpp14::make_unique<Wt::WPushButton>("Return to saved position"));
 	returnToPosition_->setEnabled(false);
 
 	returnToPosition_->clicked().connect([=] {
@@ -96,55 +88,53 @@ public:
 	    addMapTypeControl("Horizontal bar",
 			      Wt::MapTypeControl::HorizontalBar);
 
-	auto menuControls = Wt::cpp14::make_unique<Wt::WComboBox>();
-	auto menuControls_ = controls_->bindWidget("control-menu-combo", std::move(menuControls));
-	menuControls_->setModel(mapTypeModel_);
-	menuControls_->setCurrentIndex(1);
+	auto menuControls = controls->bindWidget("control-menu-combo",
+            Wt::cpp14::make_unique<Wt::WComboBox>());
+	menuControls->setModel(mapTypeModel_);
+	menuControls->setCurrentIndex(1);
 
-        menuControls_->activated().connect([=] (int mapType) {
+        menuControls->activated().connect([=] (int mapType) {
             this->setMapTypeControl(mapType);
         });
 
-	auto draggingCB = Wt::cpp14::make_unique<Wt::WCheckBox>("Enable dragging");
-	auto draggingCB_ = controls_->bindWidget("dragging-cb", std::move(draggingCB));
-	draggingCB_->setChecked(true);
+	auto draggingCB = controls->bindWidget("dragging-cb",
+            Wt::cpp14::make_unique<Wt::WCheckBox>("Enable dragging"));
+	draggingCB->setChecked(true);
 	map_->enableDragging();
 
-        draggingCB_->checked().connect([=] {
+        draggingCB->checked().connect([=] {
             map_->enableDragging();
         });
 
-        draggingCB_->unChecked().connect([=] {
+        draggingCB->unChecked().connect([=] {
             map_->disableDragging();
         });
 
         auto enableDoubleClickZoomCB =
-            Wt::cpp14::make_unique<Wt::WCheckBox>("Enable double click zoom");
-        auto enableDoubleClickZoomCB_ =
-            controls_->bindWidget("double-click-zoom-cb", std::move(enableDoubleClickZoomCB));
-        enableDoubleClickZoomCB_->setChecked(false);
+            controls->bindWidget("double-click-zoom-cb",
+                Wt::cpp14::make_unique<Wt::WCheckBox>("Enable double click zoom"));
+        enableDoubleClickZoomCB->setChecked(false);
 	map_->disableDoubleClickZoom();
 
-        enableDoubleClickZoomCB_->checked().connect([=] {
+        enableDoubleClickZoomCB->checked().connect([=] {
             map_->enableDoubleClickZoom();
 	});
 
-        enableDoubleClickZoomCB_->unChecked().connect([=] {
+        enableDoubleClickZoomCB->unChecked().connect([=] {
             map_->disableDoubleClickZoom();
         });
 
         auto enableScrollWheelZoomCB =
-            Wt::cpp14::make_unique<Wt::WCheckBox>("Enable scroll wheel zoom");
-        auto enableScrollWheelZoomCB_ =
-            controls_->bindWidget("scroll-wheel-zoom-cb", std::move(enableScrollWheelZoomCB));
-        enableScrollWheelZoomCB_->setChecked(true);
+            controls->bindWidget("scroll-wheel-zoom-cb",
+                Wt::cpp14::make_unique<Wt::WCheckBox>("Enable scroll wheel zoom"));
+        enableScrollWheelZoomCB->setChecked(true);
 	map_->enableScrollWheelZoom();
 
-        enableScrollWheelZoomCB_->checked().connect([=] {
+        enableScrollWheelZoomCB->checked().connect([=] {
             map_->enableScrollWheelZoom();
         });
 
-        enableScrollWheelZoomCB_->unChecked().connect([=] {
+        enableScrollWheelZoomCB->unChecked().connect([=] {
             map_->disableScrollWheelZoom();
         });
 

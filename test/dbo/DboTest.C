@@ -16,6 +16,7 @@
 
 #include "DboFixture.h"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <iomanip>
@@ -269,12 +270,12 @@ public:
             << other.datetime.toString() << std::endl);
     }
     if (wstring  != other.wstring) {
-      DEBUG(std::cerr << "ERROR: wstring = " << wstring << " | "
-            << other.wstring << std::endl);
+      DEBUG(std::cerr << "ERROR: wstring = " << wstring.toUTF8() << " | "
+            << other.wstring.toUTF8() << std::endl);
     }
     if (wstring2  != other.wstring2) {
-      DEBUG(std::cerr << "ERROR: wstring2 = " << wstring2 << " | "
-            << other.wstring2 << std::endl);
+      DEBUG(std::cerr << "ERROR: wstring2 = " << wstring2.toUTF8() << " | "
+            << other.wstring2.toUTF8() << std::endl);
     }
     if (string  != other.string) {
       DEBUG(std::cerr << "ERROR: string = " << string << " | " << other.string
@@ -3145,12 +3146,16 @@ BOOST_AUTO_TEST_CASE( dbo_test39c )
 
     BOOST_REQUIRE(as.size() == 2);
 
-    As::iterator it = as.begin();
-    BOOST_REQUIRE((*it)->i == 3);
-    ++it;
-    BOOST_REQUIRE((*it)->i == 5);
-    ++it;
-    BOOST_REQUIRE(it == as.end());
+    std::vector<int> results;
+    for (As::iterator it = as.begin();
+         it != as.end(); ++it) {
+      results.push_back((*it)->i);
+    }
+
+    std::sort(results.begin(), results.end());
+
+    BOOST_REQUIRE(results[0] == 3);
+    BOOST_REQUIRE(results[1] == 5);
   }
 #endif
 }

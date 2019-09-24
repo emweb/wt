@@ -8,12 +8,7 @@ auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 container->resize(200, 200);
 container->setStyleClass("yellow-box centered");
 
-#ifndef WT_TARGET_JAVA
 auto vbox = container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
-#else // WT_TARGET_JAVA
-auto vbox = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-container->setLayout(vbox);
-#endif // WT_TARGET_JAVA
 
 auto item = Wt::cpp14::make_unique<Wt::WText>("Item 1");
 item->setStyleClass("green-box");

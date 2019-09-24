@@ -17,12 +17,20 @@ auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 auto popupPtr = Wt::cpp14::make_unique<Wt::WPopupMenu>();
 auto popup = popupPtr.get();
 
+#ifndef WT_TARGET_JAVA
 auto statusPtr = Wt::cpp14::make_unique<Wt::WText>();
 auto status = statusPtr.get();
+#else // WT_TARGET_JAVA
+auto status = new Wt::WText();
+#endif // WT_TARGET_JAVA
 status->setMargin(10, Wt::Side::Left | Wt::Side::Right);
 
+#ifndef WT_TARGET_JAVA
 auto outPtr = Wt::cpp14::make_unique<Wt::WText>();
 auto out = outPtr.get();
+#else // WT_TARGET_JAVA
+auto out = new Wt::WText();
+#endif // WT_TARGET_JAVA
 
 // Create some menu items for the popup menu
 popup->addItem("Connect")->triggered().connect([=] {
@@ -100,7 +108,12 @@ popup->itemSelected().connect([=] (Wt::WMenuItem *selectedItem) {
 	 .arg(selectedItem->text()));
 });
 
+#ifndef WT_TARGET_JAVA
 container->addWidget(std::move(statusPtr));
 container->addWidget(std::move(outPtr));
+#else // WT_TARGET_JAVA
+container->addWidget(std::unique_ptr<Wt::WWidget>(status));
+container->addWidget(std::unique_ptr<Wt::WWidget>(out));
+#endif // WT_TARGET_JAVA
 
 SAMPLE_END(return std::move(container))

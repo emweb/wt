@@ -68,7 +68,7 @@ chart->setZoomEnabled(true);
 chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
 // Add a WAxisSliderWidget for the chart using the data series for column 2
-auto sliderWidget = container->addWidget(cpp14::make_unique<Chart::WAxisSliderWidget>(s_));
+auto sliderWidget = container->addNew<Chart::WAxisSliderWidget>(s_);
 sliderWidget->resize(800, 80);
 sliderWidget->setSelectionAreaPadding(40, Side::Left | Side::Right);
 sliderWidget->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally

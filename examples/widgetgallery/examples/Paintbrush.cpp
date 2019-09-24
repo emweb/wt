@@ -166,7 +166,12 @@ clearButton->clicked().connect([=] {
 toolBar->addSeparator();
 toolBar->addButton(std::move(clearButton));
 
+#ifndef WT_TARGET_JAVA
 result->addWidget(std::move(toolBar));
 result->addWidget(std::move(canvas));
+#else // WT_TARGET_JAVA
+result->addWidget(std::unique_ptr<Wt::WWidget>(toolBar));
+result->addWidget(std::unique_ptr<Wt::WWidget>(canvas));
+#endif // WT_TARGET_JAVA
 
 SAMPLE_END(return std::move(result))

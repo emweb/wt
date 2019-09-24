@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <functional>
+#include <memory>
 
 namespace Wt {
 
@@ -97,7 +98,7 @@ public:
 private:
   WIOServiceImpl *impl_;
   strand strand_;
-  void handleTimeout(AsioWrapper::asio::steady_timer *timer,
+  void handleTimeout(const std::shared_ptr<AsioWrapper::asio::steady_timer>& timer,
 		     const std::function<void ()>& function,
 		     const AsioWrapper::error_code& e);
   void run();
