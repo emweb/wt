@@ -59,10 +59,10 @@ namespace {
 	if (item2)
           result = item1->compare(*item2);
 	else
-	  result = -UNSPECIFIED_RESULT;
+	  result = 1;
       else
 	if (item2)
-	  result = UNSPECIFIED_RESULT;
+	  result = -1;
 	else
 	  result = 0;
 

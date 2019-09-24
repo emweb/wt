@@ -1577,7 +1577,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
             && app->environment().ajax()) {
           LOAD_JAVASCRIPT(app, "js/ToolTip.js", "toolTip", wtjs10);
 
-	  WString tooltipText = *lookImpl_->toolTip_;
+	  WString tooltipText(lookImpl_->toolTip_->toUTF8()); // UTF8 Guarantees copy for JWt
           if (lookImpl_->toolTipTextFormat_ == PlainText) {
             tooltipText = escapeText(*lookImpl_->toolTip_);
           } else if (lookImpl_->toolTipTextFormat_ == XHTMLText) {
