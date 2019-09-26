@@ -24,7 +24,8 @@ WLabel::WLabel(const WString& text)
     newImage_(false),
     newText_(false)
 {
-  manageWidget(text_, std::unique_ptr<WText>(new WText(text)));
+  auto wtext = cpp14::make_unique<WText>(text);
+  manageWidget(text_, std::move(wtext));
   text_->setWordWrap(false);
 }
 
@@ -68,7 +69,8 @@ void WLabel::setText(const WString& text)
     return;
 
   if (!text_) {
-    manageWidget(text_, std::unique_ptr<WText>(new WText(text)));
+    auto wtext = cpp14::make_unique<WText>(text);
+    manageWidget(text_, std::move(wtext));
     text_->setWordWrap(false);
     newText_ = true;
     repaint(RepaintFlag::SizeAffected);
