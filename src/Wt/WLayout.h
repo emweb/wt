@@ -189,6 +189,9 @@ public:
   int getContentsMargin(Side side) const;
 #endif // WT_TARGET_JAVA
 
+  // true if flex is preferred and supported (by the layout and the browser)
+  virtual bool implementationIsFlexLayout() const;
+
 protected:
   /*! \brief Create a layout.
    */
