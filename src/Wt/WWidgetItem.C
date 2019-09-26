@@ -49,8 +49,7 @@ void WWidgetItem::setParentWidget(WWidget *parent)
     } else
       pc->widgetAdded(widget_.get());
 
-    bool flexLayout = dynamic_cast<FlexLayoutImpl *>
-      (parentLayout_->impl()) != 0;
+    bool flexLayout = parentLayout_->implementationIsFlexLayout();
 
     if (flexLayout)
       impl_ = cpp14::make_unique<FlexItemImpl>(this);

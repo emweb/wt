@@ -99,16 +99,19 @@ void WFitLayout::updateImplementation()
   if (!parentWidget())
     return;
 
-  bool flexLayout = preferredImplementation() == LayoutImplementation::Flex;
+  bool isFlexLayout = implementationIsFlexLayout();
 
-  const WEnvironment& env = WApplication::instance()->environment();
-  if (env.agentIsIElt(10))
-    flexLayout = false;
-
-  if (flexLayout)
+  if (isFlexLayout)
     setImpl(cpp14::make_unique<FlexLayoutImpl>(this, grid_));
   else
     setImpl(cpp14::make_unique<StdGridLayoutImpl2>(this, grid_));
+}
+
+bool WFitLayout::implementationIsFlexLayout() const
+{
+  const WEnvironment &env = WApplication::instance()->environment();
+  return preferredImplementation() == LayoutImplementation::Flex &&
+         !env.agentIsIElt(10);
 }
 
 }

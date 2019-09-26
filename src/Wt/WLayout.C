@@ -206,6 +206,12 @@ void WLayout::setImpl(std::unique_ptr<WLayoutImpl> impl)
   impl_ = std::move(impl);
 }
 
+bool WLayout::implementationIsFlexLayout() const
+{
+  // If StdGridLayoutImpl2 is the only option, just return false
+  return false;
+}
+
 void WLayout::updateImplementation()
 {
   // If StdGridLayoutImpl2 is the only option, don't update anything

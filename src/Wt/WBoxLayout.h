@@ -381,6 +381,7 @@ public:
   bool isResizable(int index) const;
 
   virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
+  virtual bool implementationIsFlexLayout() const override;
 
 protected:
   void insertItem(int index, std::unique_ptr<WLayoutItem> item, int stretch,
@@ -398,7 +399,6 @@ private:
   virtual void setParentWidget(WWidget *parent) override;
 
   void setImplementation();
-  bool implementationIsFlexLayout() const;
 };
 
 }

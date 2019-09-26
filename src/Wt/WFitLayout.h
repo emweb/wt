@@ -56,6 +56,7 @@ public:
   virtual int count() const override;
 
   virtual void iterateWidgets(const HandleWidgetMethod& method) const override;
+  virtual bool implementationIsFlexLayout() const override;
 
 protected:
   virtual void updateImplementation() override;
