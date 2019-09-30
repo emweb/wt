@@ -1483,7 +1483,8 @@ void WTreeView::rerenderHeader()
 
   if (rowHeaderCount()) {
     row->setStyleClass("Wt-tv-row headerrh background");
-    row = row->addWidget(cpp14::make_unique<WContainerWidget>());
+    auto r = row->addWidget(cpp14::make_unique<WContainerWidget>());
+    row = r;
     row->setStyleClass("Wt-tv-rowc headerrh");
   } else
     row->setStyleClass("Wt-tv-row");

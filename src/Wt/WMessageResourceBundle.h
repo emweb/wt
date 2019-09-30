@@ -156,18 +156,10 @@ public:
 
   virtual void hibernate() override;
 
-#ifndef WT_TARGET_JAVA
   virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key) override;
   virtual LocalizedString resolvePluralKey(const WLocale& locale,
 				const std::string& key,
 				::uint64_t amount) override;
-#else // WT_TARGET_JAVA
-  virtual std::string *resolveKey(const WLocale& locale,
-				  const std::string& key) = 0;
-  virtual std::string *resolvePluralKey(const WLocale& locale,
-					const std::string& key, 
-					::uint64_t amount) = 0;
-#endif // WT_TARGET_JAVA
 
 private:
   std::vector<std::unique_ptr<WMessageResources> > messageResources_;

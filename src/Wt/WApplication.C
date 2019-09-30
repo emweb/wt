@@ -537,8 +537,13 @@ void WApplication::removeGlobalWidget(WWidget *w)
   // In the destructor domRoot_->reset() can cause domRoot_
   // to be null. In that case, we don't need to remove this
   // widget from the domRoot.
-  if (domRoot_)
-    domRoot_->removeWidget(w);
+  if (domRoot_) {
+    auto removed = domRoot_->removeWidget(w);
+    // domRoot_ should never own the global widget
+#ifndef WT_TARGET_JAVA
+    assert(!removed);
+#endif // WT_TARGET_JAVA
+  }
 }
 
 bool WApplication::isExposed(WWidget *w) const

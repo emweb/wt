@@ -287,13 +287,7 @@ void WTemplate::bindWidget(const std::string& varName,
   }
 
   removeWidget(varName);
-#ifndef WT_TARGET_JAVA
   manageWidget(widgets_[varName], std::move(widget));
-#else // WT_TARGET_JAVA
-  std::unique_ptr<WWidget> oldWidget = widgets_[varName];
-  widgets_[varName] = widget;
-  manageWidgetImpl(oldWidget, widget);
-#endif // WT_TARGET_JAVA
 
   changed_ = true;
   repaint(RepaintFlag::SizeAffected);  
@@ -305,12 +299,10 @@ std::unique_ptr<WWidget> WTemplate::removeWidget(const std::string& varName)
 
   WidgetMap::iterator i = widgets_.find(varName);
   if (i != widgets_.end()) {
-#ifndef WT_TARGET_JAVA
     result = manageWidget(i->second, std::unique_ptr<WWidget>());
+#ifndef WT_TARGET_JAVA
     widgets_.erase(i);
 #else
-    result = i->second;
-    manageWidget(i->second, std::unique_ptr<WWidget>());
     widgets_.erase(varName);
 #endif
 

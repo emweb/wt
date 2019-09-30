@@ -38,9 +38,8 @@ void WMessageResourceBundle::useBuiltin(const char *xmlbundle)
      std::unique_ptr<WMessageResources>(new WMessageResources(xmlbundle)));
 }
 
-#ifndef WT_TARGET_JAVA
-  LocalizedString WMessageResourceBundle::resolveKey(const WLocale& locale,
-                                          const std::string& key)
+LocalizedString WMessageResourceBundle::resolveKey(const WLocale& locale,
+                                                   const std::string& key)
 {
   for (unsigned i = 0; i < messageResources_.size(); ++i) {
     LocalizedString result = messageResources_[i]->resolveKey(locale, key);
@@ -50,18 +49,10 @@ void WMessageResourceBundle::useBuiltin(const char *xmlbundle)
 
   return LocalizedString{};
 }
-#else
-std::string *WMessageResourceBundle::resolveKey(const WLocale& locale,
-						const std::string& key)
-{
-  return 0;
-}
-#endif // WT_TARGET_JAVA
 
-#ifndef WT_TARGET_JAVA
 LocalizedString WMessageResourceBundle::resolvePluralKey(const WLocale& locale,
-					      const std::string& key,
-					      ::uint64_t amount)
+                                                         const std::string& key,
+                                                         ::uint64_t amount)
 {
   for (unsigned i = 0; i < messageResources_.size(); ++i) {
     LocalizedString result = messageResources_[i]->resolvePluralKey(locale, key, amount);
@@ -71,14 +62,6 @@ LocalizedString WMessageResourceBundle::resolvePluralKey(const WLocale& locale,
 
   return LocalizedString{};
 }
-#else
-std::string *WMessageResourceBundle::resolvePluralKey(const WLocale& locale,
-						      const std::string& key,
-						      ::uint64_t amount)
-{
-  return 0;
-}
-#endif // WT_TARGET_JAVA
 
 void WMessageResourceBundle::hibernate()
 {
