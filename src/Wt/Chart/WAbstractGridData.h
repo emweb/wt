@@ -34,7 +34,7 @@ enum class Series3DType {
 /*! \class WAbstractGridData
  *  \brief Class representing grid-based data for on a 3D chart.
  *
-* General information can be found at WAbstractDataSeries3D. Icon::Information on
+ * General information can be found at WAbstractDataSeries3D. Information on
  * how the model is structured is provided in the subclasses. GridData can be
  * represented in three ways. This is indicated by \ref Series3DType and can be
  * either Series3DType::Point, Series3DType::Surface or Series3DType::Bar. Note that points and

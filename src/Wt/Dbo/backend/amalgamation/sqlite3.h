@@ -5860,7 +5860,7 @@ struct sqlite3_module {
 };
 
 /*
-** CAPI3REF: Virtual Table Indexing Icon::Information
+** CAPI3REF: Virtual Table Indexing Information
 ** KEYWORDS: sqlite3_index_info
 **
 ** The sqlite3_index_info structure and its substructures is used as part
@@ -5888,7 +5888,7 @@ struct sqlite3_module {
 ** ^The aConstraint[] array only reports WHERE clause terms that are
 ** relevant to the particular virtual table being queried.
 **
-** ^Icon::Information about the ORDER BY clause is stored in aOrderBy[].
+** ^Information about the ORDER BY clause is stored in aOrderBy[].
 ** ^Each term of aOrderBy records a column of the ORDER BY clause.
 **
 ** The colUsed field indicates which columns of the virtual table may be
@@ -8125,7 +8125,7 @@ SQLITE_API int sqlite3_vtab_on_conflict(sqlite3 *);
 SQLITE_API int sqlite3_stmt_scanstatus(
   sqlite3_stmt *pStmt,      /* Prepared statement for which info desired */
   int idx,                  /* Index of loop to report on */
-  int iScanStatusOp,        /* Icon::Information desired.  SQLITE_SCANSTAT_* */
+  int iScanStatusOp,        /* Information desired.  SQLITE_SCANSTAT_* */
   void *pOut                /* Result written here */
 );     
 

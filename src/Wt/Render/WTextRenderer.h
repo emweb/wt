@@ -222,7 +222,7 @@ public:
    *
    * setStyleSheetText stores all parse errors inside. Use
    * getStyleSheetParseErrors to access information about them.
-   * Icon::Information is newline(\ n) separated.
+   * Information is newline(\ n) separated.
    *
    * \sa setStyleSheetText(const WString& contents)
   */
