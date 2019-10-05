@@ -102,7 +102,11 @@ WTableRow* WTable::insertRow(int row, std::unique_ptr<WTableRow> tableRow)
   for (auto &cell : tableRow->cells_) {
     widgetAdded(cell.get());
   }
+
+  int old_end = rows_.size();
   rows_.insert(rows_.begin() + row, std::move(tableRow));
+  updateRowNumbers(std::min(old_end, row), rowCount() - 1);
+
   rows_[row].get()->expand(columnCount());
   repaint(RepaintFlag::SizeAffected);
 
@@ -143,6 +147,8 @@ std::unique_ptr<WTableRow> WTable::removeRow(int row)
 
   std::unique_ptr<WTableRow> result = std::move(rows_[row]);
   rows_.erase(rows_.begin() + row);
+  updateRowNumbers(row, rowCount() - 1);
+
   result->setTable(nullptr);
 
   for (auto &cell : result->cells_)
@@ -408,6 +414,7 @@ void WTable::moveRow(int from, int to)
   if (to > (int)rows_.size())
     rowAt(to);
   rows_.insert(rows_.begin() + to, std::move(from_tr));
+  updateRowNumbers(std::min(from, to), std::max(from, to));
 
   // make sure spans don't cause segmentation faults during rendering
   auto& cells = rows_[to]->cells_;
@@ -449,6 +456,16 @@ void WTable::moveColumn(int from, int to)
 
   flags_.set(BIT_GRID_CHANGED);
   repaint(RepaintFlag::SizeAffected);
+}
+
+void WTable::updateRowNumbers(int begin, int end) {
+  if (begin < 0 || begin >= rowCount() || end < 0 || end >= rowCount()) {
+    return;
+  }
+
+  for (size_t i = begin; i <= end; ++i) {
+    rows_[i]->rowNumber_ = i;
+  }
 }
 
 void WTable::iterateChildren(const HandleWidgetMethod &method) const

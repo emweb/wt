@@ -148,6 +148,7 @@ private:
   std::string id_;
   WT_USTRING styleClass_;
   bool hidden_, hiddenChanged_, wasHidden_;
+  size_t rowNumber_;
 
   void updateDom(DomElement& element, bool all);
   void setTable(WTable *table);
