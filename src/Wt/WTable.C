@@ -103,7 +103,7 @@ WTableRow* WTable::insertRow(int row, std::unique_ptr<WTableRow> tableRow)
     widgetAdded(cell.get());
   }
   rows_.insert(rows_.begin() + row, std::move(tableRow));
-  rows_[row].get()->expand(columnCount(), row);
+  rows_[row].get()->expand(columnCount());
   repaint(RepaintFlag::SizeAffected);
 
   return rows_[row].get();
@@ -113,7 +113,7 @@ WTableColumn* WTable::insertColumn(int column,
 				   std::unique_ptr<WTableColumn> tableColumn)
 {
   for (unsigned i = 0; i < rows_.size(); ++i)
-    rows_[i]->insertColumn(column, i);
+    rows_[i]->insertColumn(column);
 
   if ((unsigned)column <= columns_.size()) {
     if (!tableColumn){

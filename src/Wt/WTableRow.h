@@ -136,10 +136,10 @@ public:
   virtual const std::string id() const override;
 
 protected:
-  virtual std::unique_ptr<WTableCell> createCell(int column, int row = -1);
+  virtual std::unique_ptr<WTableCell> createCell(int column);
 
 private:
-  void expand(int numCells, int row = -1);
+  void expand(int numCells);
 
   WTable *table_;
   std::vector<std::unique_ptr<WTableCell> > cells_;
@@ -151,7 +151,7 @@ private:
 
   void updateDom(DomElement& element, bool all);
   void setTable(WTable *table);
-  void insertColumn(int column, int row = -1);
+  void insertColumn(int column);
   std::unique_ptr<WTableCell> removeColumn(int column);
 
   void undoHide();
