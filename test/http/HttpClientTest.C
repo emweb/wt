@@ -171,4 +171,36 @@ BOOST_AUTO_TEST_CASE( http_client_test4 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( http_client_test5 )
+{
+  // Test parseUrl
+  Wt::Http::Client::URL url;
+  bool result = Wt::Http::Client::parseUrl(
+        "https://www.googleapis.com/calendar/v3/calendars/abcdefgh112233344444@group.calendar.google.com",
+        url);
+
+  BOOST_REQUIRE(result);
+  BOOST_CHECK_EQUAL(url.auth, "");
+  BOOST_CHECK_EQUAL(url.protocol, "https");
+  BOOST_CHECK_EQUAL(url.host, "www.googleapis.com");
+  BOOST_CHECK_EQUAL(url.port, 443);
+  BOOST_CHECK_EQUAL(url.path, "/calendar/v3/calendars/abcdefgh112233344444@group.calendar.google.com");
+}
+
+BOOST_AUTO_TEST_CASE( http_client_test6 )
+{
+  // Test parseUrl with auth
+  Wt::Http::Client::URL url;
+  bool result = Wt::Http::Client::parseUrl(
+        "http://foo:bar@example.com/a/b/c",
+        url);
+
+  BOOST_REQUIRE(result);
+  BOOST_CHECK_EQUAL(url.auth, "foo:bar");
+  BOOST_CHECK_EQUAL(url.protocol, "http");
+  BOOST_CHECK_EQUAL(url.host, "example.com");
+  BOOST_CHECK_EQUAL(url.port, 80);
+  BOOST_CHECK_EQUAL(url.path, "/a/b/c");
+}
+
 #endif // WT_THREADED

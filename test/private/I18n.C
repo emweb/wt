@@ -11,6 +11,8 @@
 
 #include "web/FileUtils.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 #include <iostream>
 
 namespace {
@@ -150,9 +152,9 @@ BOOST_AUTO_TEST_CASE( I18n_findCaseException1 )
     error = e.what();
   }
 
-  BOOST_REQUIRE(error == 
-		"Expression 'n-10' evaluates to '-9' for n=1 and values "
-		"smaller than 0 are not allowed.");
+  BOOST_REQUIRE(boost::starts_with(error,
+                "Expression 'n-10' evaluates to '-9' for n=1 and values "
+                "smaller than 0 are not allowed."));
 }
 
 BOOST_AUTO_TEST_CASE( I18n_findCaseException2 )
@@ -170,9 +172,9 @@ BOOST_AUTO_TEST_CASE( I18n_findCaseException2 )
     error = e.what();
   }
 
-  BOOST_REQUIRE(error == 
-		"Expression '2' evaluates to '2' for n=1 which is greater "
-		"than the list of cases (size=1).");
+  BOOST_REQUIRE(boost::starts_with(error,
+                "Expression '2' evaluates to '2' for n=1 which is greater "
+                "than the list of cases (size=1)."));
 }
 
 BOOST_AUTO_TEST_CASE( I18n_internalArgument1 )
