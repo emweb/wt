@@ -251,7 +251,7 @@ public:
 
   /*! \brief Returns the number of rows.
    *
-   * Returns the number of rows return from the underlying query.
+   * Returns the number of rows returned from the underlying query.
    *
    * Since the query model implements a flat table model, this returns
    * 0 when \p parent is valid.
