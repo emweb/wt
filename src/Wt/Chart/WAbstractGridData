@@ -36,10 +36,11 @@ enum Series3DType {
  *
 * General information can be found at WAbstractDataSeries3D. Information on
  * how the model is structured is provided in the subclasses. GridData can be
- * represented in three ways. This is indicated by \ref Series3DType and can be
+ * represented in three ways. This is indicated by \link Series3DType\endlink and can be
  * either PointSeries3D, SurfaceSeries3D or BarSeries3D. Note that points and
- * surfaces can only be added to charts of type \ref ScatterPlot, while bars
- * can only be added to charts of type \ref CategoryChart.
+ * surfaces can only be added to charts of type
+ * \link ChartType ScatterPlot\endlink, while bars
+ * can only be added to charts of type \link ChartType CategoryChart\endlink.
  *
  * When the data is shown as a surface, a mesh can be added to the surface.
  * This draws lines over the surface at the positions of the x- and y-values.
@@ -66,10 +67,11 @@ public:
 
   /*! \brief Sets the type of representation that will be used for the data.
    *
-   * All representations in \ref Series3DType are possible for the data. Note
-   * that \ref PointSeries3D and \ref SurfaceSeries3D can only be used on a
-   * chart that is configured as a \ref ScatterPlot and \ref BarSeries3D can
-   * only be used on a chart that is configured to be a \ref CategoryChart.
+   * All representations in \link Series3DType\endlink are possible for the data. Note
+   * that PointSeries3D and SurfaceSeries3D can only be used on a
+   * chart that is configured as a \link ChartType ScatterPlot\endlink and
+   * BarSeries3D can only be used on a chart that is configured to be a
+   * \link ChartType CategoryChart\endlink.
    *
    * The default value is PointSeries3D.
    */
@@ -84,7 +86,7 @@ public:
   /*! \brief Enables or disables a mesh for when a surface is drawn.
    *
    * The default value is false. This option only takes effect when the type of
-   * this WGridData is \ref SurfaceSeries3D. The mesh is drawn at the position
+   * this WGridData is \link Series3DType SurfaceSeries3D\endlink. The mesh is drawn at the position
    * of the x-axis and y-axis values.
    */
   void setSurfaceMeshEnabled(bool enabled = true);

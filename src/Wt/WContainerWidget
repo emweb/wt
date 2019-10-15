@@ -125,7 +125,8 @@ class StdLayoutImpl;
 class WT_API WContainerWidget : public WInteractWidget
 {
 public:
-  /*! \brief How to handle overflow of inner content
+  /*! \enum Overflow
+   *  \brief How to handle overflow of inner content
    */
   enum Overflow {
     OverflowVisible=0x0,//!< Show content that overflows.

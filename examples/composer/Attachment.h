@@ -10,7 +10,7 @@
 /**
  * @addtogroup composerexample
  */
-/*@{*/
+//!@{
 
 /*! \brief An email attachment.
  *
@@ -42,6 +42,6 @@ public:
   { }
 };
 
-/*@}*/
+//!@}
 
 #endif // ATTACHMENT_H_

@@ -98,7 +98,7 @@ namespace Wt {
 
         /** @name Methods that return dialect information
          */
-        //@{
+        //!@{
         virtual std::string autoincrementSql() const;
         virtual std::vector<std::string> 
 	  autoincrementCreateSequenceSql(const std::string &table,
@@ -115,7 +115,7 @@ namespace Wt {
 	virtual LimitQuery limitQueryMethod() const;
 	virtual bool supportAlterTable() const;
         virtual bool usesRowsFromTo() const {return false;}
-	//@}
+	//!@}
  
 	virtual void prepareForDropTables();
 	

@@ -10,7 +10,7 @@
 /**
  * @addtogroup composerexample
  */
-/*@{*/
+//!@{
 
 /*! \brief An email contact.
  *
@@ -40,6 +40,6 @@ struct Contact
   }
 };
 
-/*@}*/
+//!@}
 
 #endif // CONTACT_H_

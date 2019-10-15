@@ -94,7 +94,7 @@ public:
 
   /** @name Methods that return dialect information
    */
-  //@{
+  //!@{
   virtual std::string autoincrementSql() const;
   virtual std::vector<std::string> autoincrementCreateSequenceSql(const std::string &table, const std::string &id) const;
   virtual std::vector<std::string> autoincrementDropSequenceSql(const std::string &table, const std::string &id) const;
@@ -108,7 +108,7 @@ public:
   virtual bool supportAlterTable() const;
   virtual std::string textType(int size) const;
   virtual LimitQuery limitQueryMethod() const;
-  //@}
+  //!@}
 
 private:
   struct Impl;

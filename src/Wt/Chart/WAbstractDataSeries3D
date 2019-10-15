@@ -31,8 +31,8 @@ namespace Wt {
  * data of a dataseries. Implementations of this class format the data for 
  * representation on the chart and perform all necessary drawing operations. 
  * Note that if a dataseries holds numerical data it should be added to a chart 
- * of type \ref ScatterPlot, if it holds categorical data it should be added to 
- * a chart of type \ref CategoryChart.
+ * of type \link ChartType ScatterPlot\endlink, if it holds categorical data it should be added to 
+ * a chart of type \link ChartType CategoryChart\endlink.
  *
  * <h3>Color</h3>
  *

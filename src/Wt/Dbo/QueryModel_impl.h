@@ -9,6 +9,8 @@
 
 #include <Wt/Dbo/QueryColumn>
 
+#include <boost/lexical_cast.hpp>
+
 namespace Wt {
   namespace Dbo {
 
@@ -255,7 +257,10 @@ Result& QueryModel<Result>::resultRow(int row)
   cacheRow(row);
 
   if (row >= cacheStart_ + static_cast<int>(cache_.size()))
-    throw Exception("QueryModel: geometry inconsistent with database");
+    throw Exception("QueryModel: geometry inconsistent with database: "
+                    "row (= " + boost::lexical_cast<std::string>(row) + ") >= "
+                    "cacheStart_ (= " + boost::lexical_cast<std::string>(cacheStart_) + ") + "
+                    "cache_.size() (= " + boost::lexical_cast<std::string>(cache_.size()) + ")");
 
   return cache_[row - cacheStart_];
 }

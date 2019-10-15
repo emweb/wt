@@ -135,7 +135,7 @@ public:
 
   /** @name Methods that return dialect information
    */
-  //@{
+  //!@{
   virtual std::string autoincrementSql() const;
   virtual std::vector<std::string> 
     autoincrementCreateSequenceSql(const std::string &table,
@@ -150,7 +150,7 @@ public:
   virtual bool supportAlterTable() const;
   virtual bool supportDeferrableFKConstraint() const;
   virtual bool requireSubqueryAlias() const;
-  //@}
+  //!@}
 
   void checkConnection(int margin);
 

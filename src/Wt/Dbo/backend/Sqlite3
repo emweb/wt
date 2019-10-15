@@ -111,7 +111,7 @@ public:
   
   /** @name Methods that return dialect information
    */
-  //@{
+  //!@{
   virtual std::string autoincrementSql() const;
   virtual std::vector<std::string> 
     autoincrementCreateSequenceSql(const std::string &table,
@@ -124,7 +124,7 @@ public:
   virtual const char *dateTimeType(SqlDateTimeType type) const;
   virtual const char *blobType() const;
   virtual bool supportDeferrableFKConstraint() const;
-  //@}
+  //!@}
 private:
   DateTimeStorage dateTimeStorage_[2];
 
