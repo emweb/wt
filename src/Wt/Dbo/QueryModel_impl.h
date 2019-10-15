@@ -9,6 +9,8 @@
 
 #include <Wt/Dbo/QueryColumn.h>
 
+#include <string>
+
 namespace Wt {
   namespace Dbo {
 
@@ -254,7 +256,10 @@ Result& QueryModel<Result>::resultRow(int row)
   cacheRow(row);
 
   if (row >= cacheStart_ + static_cast<int>(cache_.size()))
-    throw Exception("QueryModel: geometry inconsistent with database");
+    throw Exception("QueryModel: geometry inconsistent with database: "
+                    "row (= " + std::to_string(row) + ") >= "
+                    "cacheStart_ (= " + std::to_string(cacheStart_) + ") + "
+                    "cache_.size() (= " + std::to_string(cache_.size()) + ")");
 
   return cache_[row - cacheStart_];
 }
