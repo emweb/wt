@@ -627,7 +627,8 @@ enum class CharEncoding {
   UTF8
 };
 
-/*! \brief Enumeration that indicates a pen style.
+/*! \enum PenStyle
+ *  \brief Enumeration that indicates a pen style.
  *
  * \ingroup painting
  *
@@ -642,7 +643,8 @@ enum class PenStyle {
   DashDotDotLine  //!< Stroke with a dash dot dot line
 };
 
-/*! \brief Enumeration that indicates how line end points are rendered
+/*! \enum PenCapStyle
+ *  \brief Enumeration that indicates how line end points are rendered
  *
  * \ingroup painting
  *
@@ -654,7 +656,8 @@ enum class PenCapStyle {
   Round        //!< Rounded ends (terminates with a half circle)
 };
 
-/*! \brief Enumeration that indicates how line joins are rendered.
+/*! \enum PenJoinStyle
+ *  \brief Enumeration that indicates how line joins are rendered.
  *
  * \ingroup painting
  *
@@ -666,7 +669,8 @@ enum class PenJoinStyle {
   Round       //!< Rounded joins
 };
 
-/*! \brief Enumeration that indicates a fill style.
+/*! \enum BrushStyle
+ *  \brief Enumeration that indicates a fill style.
  *
  * \ingroup painting
  *
@@ -678,15 +682,16 @@ enum class BrushStyle {
   Gradient //!< Fill with a color gradient
 };
 
-/*! \brief Enumeration that indicates a gradient style.
+/*! \enum GradientStyle
+ *  \brief Enumeration that indicates a gradient style.
  *
  * \ingroup painting
  *
  * \relates WGradient
  */
 enum class GradientStyle {
-  Linear,
-  Radial
+  Linear, //!< Linear gradient
+  Radial //!< Radial gradient
 };
 
 /*! \brief Enumeration that specifies where the target of an anchor should
@@ -937,7 +942,8 @@ enum class EntryPointType {
 };
 
 
-/*! \brief Enum for internal use.
+/*! \enum RenderFlag
+ *  \brief Enum for internal use.
  */
 enum class RenderFlag {
   Full    = 0x1,

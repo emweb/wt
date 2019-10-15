@@ -322,15 +322,6 @@ public:
    */
   const WFont& titleFont() const { return titleFont_; }
 
-  //void resetView();
-
-  // /*! \brief 
-  //  */
-  // WLegend & legend() { return legend_; }
-  // /*! \brief 
-  //  */
-  // const WLegend & legend() const { return legend_; }
-
   /*! \brief Enables the legend.
    *
    * The location of the legend can be configured using
@@ -446,6 +437,7 @@ public:
    * method of WMatrix4x4. A common use-case when manipulating the matrix is to
    * translate the center to the origin and then rotate.
    * 
+   * \if cpp
    * For example:
    * \code{.cpp}
    *   ...
@@ -460,6 +452,7 @@ public:
    * 
    *   camera.translate(-0.5, -0.5, -0.5);
    * \endcode
+   * \endif
    */
   void setCameraMatrix(const WMatrix4x4& matrix);
 

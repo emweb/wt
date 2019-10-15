@@ -130,7 +130,7 @@ public:
   /*! \brief Detects and processes an authentication token.
    *
    * This returns a user that was identified with an authentication token
-   * found in the application environment, or an invalid \link User\endlink
+   * found in the application environment, or an invalid User
    * object if this feature is not configured, or no valid cookie was found.
    *
    * \sa AuthService::processAuthToken()

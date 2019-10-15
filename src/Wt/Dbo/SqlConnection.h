@@ -153,7 +153,7 @@ public:
 
   /** @name Methods that return dialect information
    */
-  //@{
+  //!@{
   /*! \brief Returns the 'autoincrement' SQL type modifier.
    *
    * This is used by Session::createTables() to create the <i>id</i>
@@ -297,7 +297,7 @@ public:
    * Default: ALTER TABLE .. DROP CONSTRAINT ..
    */
   virtual const char *alterTableConstraintString() const;
-  //@}
+  //!@}
 
   bool showQueries() const;
 

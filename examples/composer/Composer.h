@@ -31,7 +31,7 @@ using namespace Wt;
 /**
  * @addtogroup composerexample
  */
-/*@{*/
+//!@{
 
 /*! \brief An E-mail composer widget.
  *
@@ -194,6 +194,6 @@ private:
   friend class AttachmentEdit;
 };
 
-/*@}*/
+//!@}
 
 #endif // COMPOSER_H_

@@ -301,7 +301,7 @@ public:
 
   /** @name Authentication token support
    */
-  //@{
+  //!@{
   /*! \brief Configures authentication token support.
    *
    * This method allows you to configure whether authentication tokens
@@ -428,11 +428,11 @@ public:
    * \sa setAuthTokenValidity()
    */
   int authTokenValidity() const { return authTokenValidity_; }
-  //@}
+  //!@}
 
   /** @name Email verification
    */
-  //@{
+  //!@{
 
   /*! \brief Configures email verification.
    *
@@ -564,7 +564,7 @@ public:
    * \endif
    */
   virtual void sendMail(const Mail::Message& message) const;
-  //@}
+  //!@}
 
 protected:
   /*! \brief Sends a confirmation email to the user to verify his email address.

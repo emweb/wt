@@ -380,7 +380,7 @@ public:
 
   /** @name keyboard and mouse events
    */
-  //@{
+  //!@{
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    *
    *  The event will be triggered if nothing in the WDialog has focus
@@ -421,7 +421,7 @@ public:
    *
    */
   EventSignal<>& escapePressed();
-  //@}
+  //!@}
 
   /*! \brief Event signal emitted when a finger is placed on the screen.
    */

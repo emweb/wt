@@ -95,12 +95,14 @@ private:
  * changed afterwards. \if cpp A "const OidcService" object is
  * thread-safe. \endif
  *
+ * <p>
  * The OpenID Connect protocol, including the subsequent use for
  * authentication, consists of a number of consecutive steps, some of
  * which require user interaction, and some which require the use of
  * remote web services. The state machine for this process is
  * implemented in an OidcProcess. To use OpenID Connect, you need to
  * create such a process and listen for state changes.
+ * </p>
  *
  * \ingroup auth
  */

@@ -1136,9 +1136,8 @@ public:
    *	     They may be clipped off outside of the chart area, and when
    *         zooming, the axis ticks will change size.
    *       - WAxis::setBreak() is incompatible with interactive mode
-   *
-   * @{
    */
+  //!@{
 
   /*! \brief Returns whether this chart is interactive.
    *
@@ -1449,8 +1448,7 @@ public:
    */
   const WBrush& loadingBackground() const { return loadingBackground_; }
 
-  /*! @}
-   */
+  //!@}
 
   void iterateSeries(SeriesIterator *iterator,
 		     WPainter *painter, bool reverseStacked = false, bool extremesOnly = false) const;
@@ -1591,7 +1589,7 @@ protected:
 
   /** @name Rendering logic
    */
-  //@{
+  //!@{
   /*! \brief Paints the widget.
    *
    * This calls render() to paint on the paint device.
@@ -1791,7 +1789,7 @@ protected:
    */
   int calcNumBarGroups();
 
-  //@}
+  //!@}
 
   virtual void render(WFlags<RenderFlag> flags) override ;
   virtual void setFormData(const FormData& formData) override ;

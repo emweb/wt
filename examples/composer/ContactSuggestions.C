@@ -17,8 +17,8 @@ namespace {
   = { "<b>",         // highlightBeginTag
       "</b>",        // highlightEndTag
       ',',           // listSeparator
-      " \\n",        // whitespace
-      "-., \"@\\n;", // wordSeparators
+      " \n",        // whitespace
+      "-., \"@\n;", // wordSeparators
       ", "           // appendReplacedText
     };
 }

@@ -412,7 +412,7 @@ private:
  * \code
  * OAuthService oauth = ...;
  *
- * // Creates an icon which prompts for authentication using this %OAuth service.
+ * // Creates an icon which prompts for authentication using this OAuth service.
  * WImage icon = new WImage("css/oauth-" + auth.getName() + ".png", icons);
  * icon.setToolTip(auth.getDescription());
  *
@@ -595,7 +595,7 @@ public:
   * The default implementation returns HttpAuthorizationBasic
   * (the recommended method).
   */
-  virtual enum ClientSecretMethod clientSecretMethod() const = 0;
+  virtual ClientSecretMethod clientSecretMethod() const = 0;
 
   std::string generateRedirectEndpoint() const;
 

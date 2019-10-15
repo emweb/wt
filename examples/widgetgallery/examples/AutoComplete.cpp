@@ -11,8 +11,8 @@ Wt::WSuggestionPopup::Options contactOptions;
 contactOptions.highlightBeginTag = "<span class=\"highlight\">";
 contactOptions.highlightEndTag = "</span>";
 contactOptions.listSeparator = ',';
-contactOptions.whitespace = " \\n";
-contactOptions.wordSeparators = "-., \"@\\n;";
+contactOptions.whitespace = " \n";
+contactOptions.wordSeparators = "-., \"@\n;";
 contactOptions.appendReplacedText = ", ";
 
 Wt::WSuggestionPopup *sp =

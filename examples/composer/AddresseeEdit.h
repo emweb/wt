@@ -22,7 +22,7 @@ class Label;
 /**
  * @addtogroup composerexample
  */
-/*@{*/
+//!@{
 
 /*! \brief An edit field for an email addressee.
  *
@@ -57,7 +57,7 @@ private:
   bool parse(std::vector<Contact>& contacts) const;
 };
 
-/*@}*/
+//!@}
 
 
 #endif // ADDRESSEE_EDIT_H_

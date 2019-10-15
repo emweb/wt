@@ -35,7 +35,8 @@ namespace Wt {
  *
  * The Wt::TextFormat::XHTML format will automatically change to
  * Wt::TextFormat::Plain if the text is not valid XML. Properly
- * formatted HTML, which is not valid XHTML (e.g. a <br> tag without
+ * formatted HTML, which is not valid XHTML (e.g. a
+ * <tt>&lt;br&gt;</tt> tag without
  * closing tag) will thus be shown literally, since the HTML markup
  * will be escaped. Wt does this as a safety measure, since it cannot
  * reliably run the XSS filter without parsing the XML successfully.

@@ -385,7 +385,7 @@ public:
 
   /** @name Methods for composing a query (DynamicBinding only)
    */
-  //@{
+  //!@{
   /*! \brief Adds a join.
    *
    * This is a convenience method for creating a SQL query, and
@@ -543,7 +543,7 @@ public:
    */
   int limit() const;
 
-  //@}
+  //!@}
 
 #endif // DOXYGEN_ONLY
  };

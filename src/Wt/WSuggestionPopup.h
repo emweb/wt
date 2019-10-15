@@ -128,8 +128,8 @@ enum class PopupTrigger {
  * = { "<b>",         // highlightBeginTag
  *     "</b>",        // highlightEndTag
  *     ',',           // listSeparator      (for multiple addresses)
- *     " \\n",        // whitespace
- *     "-., \"@\\n;", // wordSeparators     (within an address)
+ *     " \n",        // whitespace
+ *     "-., \"@\n;", // wordSeparators     (within an address)
  *     ", "           // appendReplacedText (prepare next email address)
  *    };
  *
@@ -148,8 +148,8 @@ enum class PopupTrigger {
  * contactOptions.highlightBeginTag = "<b>";
  * contactOptions.highlightEndTag = "</b>";
  * contactOptions.listSeparator = ','; //for multiple addresses)
- * contactOptions.whitespace = " \\n";
- * contactOptions.wordSeparators = "-., \"@\\n;"; //within an address
+ * contactOptions.whitespace = " \n";
+ * contactOptions.wordSeparators = "-., \"@\n;"; //within an address
  * contactOptions.appendReplacedText = ", "; //prepare next email address
  *	
  * WSuggestionPopup popup = new WSuggestionPopup(contactOptions, this);
@@ -226,7 +226,7 @@ public:
     /*! \brief When editing a value, the whitespace characters ignored
      *         before the current value.
      *
-     * For example, " \\n" to ignore spaces and newlines.
+     * For example, " \n" to ignore spaces and newlines.
      *
      * Used during matching and replacing.
      */

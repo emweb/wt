@@ -300,7 +300,7 @@ public:
 
   /** @name Style sheets and CSS
    */
-  //@{
+  //!@{
   /*! \brief Returns a reference to the inline style sheet.
    *
    * Widgets may allow configuration of their look and feel through
@@ -467,7 +467,7 @@ public:
    * \sa setHtmlClass()
    */
   std::string htmlClass() const { return htmlClass_; }
-  //@}
+  //!@}
 
   /*! \brief Sets the window title.
    *
@@ -619,7 +619,7 @@ public:
 
   /** @name URLs and internal paths
    */
-  //@{
+  //!@{
   /*! \brief Returns a URL for the current session
    *
    * Returns the (relative) URL for this application session
@@ -993,7 +993,7 @@ public:
    * connection.
    */
   void redirect(const std::string& url);
-  //@}
+  //!@}
 
   /*! \brief Returns the URL at which the resources are deployed.
    *
@@ -1121,7 +1121,7 @@ public:
 
   /** @name Manipulation outside the main event loop
    */
-  //@{
+  //!@{
   /*! \brief Enables server-initiated updates.
    *
    * By default, updates to the user interface are possible only at
@@ -1392,11 +1392,11 @@ public:
    * current thread.
    */
   void attachThread(bool attach = true);
-  //@}
+  //!@}
 
   /** @name Invoking JavaScript or including scripts
    */
-  //@{
+  //!@{
   /*! \brief Executes some JavaScript code.
    *
    * This method may be used to call some custom \p javaScript code as
@@ -1505,7 +1505,7 @@ public:
    * page in Wt::WidgtSet mode, without interfering.
    */
   std::string javaScriptClass() { return javaScriptClass_; }
-  //@}
+  //!@}
 
   /*! \brief Processes UI events.
    *
@@ -1862,7 +1862,7 @@ public:
 
   /** @name Global keyboard and mouse events
    */
-  //@{
+  //!@{
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    *
    * The application receives key events when no widget currently
@@ -1912,7 +1912,7 @@ public:
    * \sa See WInteractWidget::escapePressed()
    */
   EventSignal<>& globalEscapePressed();
-  //@}
+  //!@}
 
   /*
    * Returns whether debug was configured.

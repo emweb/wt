@@ -107,7 +107,7 @@ public:
 
   /** @name Methods that return dialect information
    */
-  //@{
+  //!@{
   virtual std::string autoincrementSql() const override;
   virtual std::string autoincrementType() const override;
   virtual std::string autoincrementInsertSuffix(const std::string& id) const override;
@@ -123,7 +123,7 @@ public:
   virtual bool supportAlterTable() const override;
   virtual const char *alterTableConstraintString() const override;
   virtual bool requireSubqueryAlias() const override {return true;}
-  //@}
+  //!@}
 
   /*! \brief Returns the supported fractional seconds part
   *

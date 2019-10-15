@@ -35,7 +35,7 @@ namespace Wt {
  * from the list {"0.0 - StandardColor::DarkRed", "1.0 - StandardColor::Red",
  * "2.0 - StandardColor::Gray"}. The discrete map 
  * (on the left) has the range [0, 3], the continuous map (on the right) has  
- * the range [0, 2]. The utility-method \ref discretise() is also applied to 
+ * the range [0, 2]. The utility method discretise() is also applied to 
  * the continuous colormap to obtain a colormap with 5 bands in the same range.
  *
  * \image html standardcolormaps.png "Different uses of WStandardColorMap"

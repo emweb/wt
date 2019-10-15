@@ -413,7 +413,7 @@ A good location to add these service classes are inside a specialized
 instance, of which you usually also have only one in a Wt process. You
 could also create a singleton for them. To keep the example simple, we
 will declare them simply as global variables (but within file scope):
-+myAuthService+, +myPasswordService+, and +myOAuth+.
++myAuthService+, +myPasswordService+, and +myOAuthServices+.
 
 .Session.C (authentication services)
 [source,cpp]
@@ -430,7 +430,7 @@ will declare them simply as global variables (but within file scope):
 namespace {
   Wt::Auth::AuthService myAuthService;
   Wt::Auth::PasswordService myPasswordService{myAuthService};
-  std::vector<std::unique_ptr<Wt::Auth::OAuthService>> myOAuth;
+  std::vector<std::unique_ptr<Wt::Auth::OAuthService>> myOAuthServices;
 }
 
 void Session::configureAuth()

@@ -16,7 +16,7 @@ class Option;
 /**
  * @addtogroup composerexample
  */
-/*@{*/
+//!@{
 
 /*! \brief A list of options, separated by '|'
  *
@@ -66,6 +66,6 @@ private:
   friend class Option;
 };
 
-/*@}*/
+//!@}
 
 #endif // OPTIONLIST_H_

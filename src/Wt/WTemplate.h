@@ -103,7 +103,7 @@ enum class TemplateWidgetIdMode {
  * bindString() or bindInt() or by reimplementing the resolveString()
  * and resolveWidget() methods.
  *
- * \note The use of XML comments (<tt>&lt;!-- ... --&gt;</tt>)
+ * \note The use of XML comments (<tt>&lt;!\-- ... \--&gt;</tt>)
  *       around variables that are bound to widgets will result in bad
  *       behaviour since the template parser is ignorant about these
  *       comments and the corresponding widgets will believe that they
