@@ -1112,14 +1112,19 @@ bool Client::parseUrl(const std::string &url, URL &parsedUrl)
   std::string rest = url.substr(i + 3);
   // find auth
   std::size_t l = rest.find('@');
-  if (l != std::string::npos) {
+  // find host
+  std::size_t j = rest.find('/');
+  if (l != std::string::npos &&
+      (j == std::string::npos || j > l)) {
+    // above check: userinfo can not contain a forward slash
+    // path may contain @ (issue #7272)
     parsedUrl.auth = rest.substr(0, l);
     parsedUrl.auth = Wt::Utils::urlDecode(parsedUrl.auth);
     rest = rest.substr(l+1);
+    if (j != std::string::npos) {
+      j -= l + 1;
+    }
   }
-
-  // find host
-  std::size_t j = rest.find('/');
 
   if (j == std::string::npos) {
     parsedUrl.host = rest;
