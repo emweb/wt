@@ -16,8 +16,6 @@
 
 namespace Wt {
 
-Wt::NoClass Wt::NoClass::none;
-
 SignalBase::SignalBase()
   : blocked_(false)
 { }

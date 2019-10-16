@@ -25,10 +25,12 @@ class JavaScriptEvent;
 
 struct NoClass
 {
-  NoClass() { }
+  constexpr NoClass() { }
   NoClass(const JavaScriptEvent&) { }
 
-  static NoClass none;
+#ifdef WT_TARGET_JAVA
+  static const NoClass none;
+#endif // WT_TARGET_JAVA
 };
 
 #ifdef WT_TARGET_JAVA
@@ -650,7 +652,7 @@ public:
    * This will cause all connected slots to be triggered, with the given
    * argument.
    */
-  void emit(E e = NoClass::none) const;
+  void emit(E e = NoClass()) const;
 
   /*! \brief Emits the signal.
    *
