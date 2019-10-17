@@ -142,6 +142,12 @@ public:
    */
   void collapse(const WModelIndex& index);
 
+  /*! \brief Collapse all expanded nodes.
+   *
+   * \sa collapse(), expand()
+   */
+  void collapseAll();
+
   /*! \brief Expands a node.
    *
    * \sa setExpanded(), collapse()

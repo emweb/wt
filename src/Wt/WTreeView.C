@@ -1801,6 +1801,12 @@ void WTreeView::collapse(const WModelIndex& index)
   setExpanded(index, false);
 }
 
+void WTreeView::collapseAll()
+{
+  while (!expandedSet_.empty())
+    collapse(*expandedSet_.begin());
+}
+
 void WTreeView::expandToDepth(int depth)
 {
   if (depth > 0)
