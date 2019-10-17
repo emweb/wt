@@ -156,6 +156,16 @@ WServer::WServer(int argc, char *argv[], const std::string& wtConfigurationFile)
   setServerConfiguration(argc, argv, wtConfigurationFile);
 }
 
+WServer::WServer(const std::string &applicationPath,
+                 const std::vector<std::string> &args,
+                 const std::string &wtConfigurationFile)
+  : impl_(new Impl(*this))
+{
+  init(applicationPath, "");
+
+  setServerConfiguration(applicationPath, args, wtConfigurationFile);
+}
+
 WServer::~WServer()
 {
   delete impl_;
@@ -170,15 +180,25 @@ std::vector<WServer::SessionInfo> WServer::sessions() const
 void WServer::setServerConfiguration(int argc, char *argv[],
 				     const std::string&)
 {
-  bool isRelayServer = argc < 2 || strcmp(argv[1], "client") != 0; 
+  std::string applicationPath = argv[0];
+  std::vector<std::string> args(argv + 1, argv + argc);
+
+  setServerConfiguration(applicationPath, args);
+}
+
+void WServer::setServerConfiguration(const std::string &applicationPath,
+                                     const std::vector<std::string> &args,
+                                     const std::string &wtConfigurationFile)
+{
+  bool isRelayServer = args.size() < 1 || args[0] != "client";
 
   if (isRelayServer) {
     LOG_INFO_S(this, "initializing relay server");
-    Server relayServer(*this, argc, argv);
+    Server relayServer(*this, applicationPath, args);
     exit(relayServer.run());
   } else {
-    if (argc >= 3)
-      impl_->sessionId_ = argv[2];
+    if (args.size() >= 2)
+      impl_->sessionId_ = args[1];
   }
 }
 
@@ -263,11 +283,21 @@ void WServer::setSslPasswordCallback(const std::function<std::string
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
+  std::string applicationPath = argv[0];
+  std::vector<std::string> args(argv + 1, argv + argc);
+
+  return WRun(applicationPath, args, createApplication);
+}
+
+int WRun(const std::string &applicationName,
+         const std::vector<std::string> &args,
+         ApplicationCreator createApplication)
+{
   try {
-    WServer server(argv[0], "");
+    WServer server(applicationName, "");
 
     try {
-      server.setServerConfiguration(argc, argv);
+      server.setServerConfiguration(applicationName, args);
       server.addEntryPoint(EntryPointType::Application, createApplication);
       server.start();
 

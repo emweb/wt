@@ -90,10 +90,12 @@ bool Server::bindUDStoStdin(const std::string& socketPath, Wt::WServer& server)
   return true;
 }
 
-Server::Server(WServer& wt, int argc, char *argv[])
+Server::Server(WServer& wt,
+               const std::string &applicationName,
+               const std::vector<std::string> &args)
   : wt_(wt),
-    argc_(argc),
-    argv_(argv),
+    applicationName_(applicationName),
+    args_(args),
     childrenDied_(0),
     handleSigChld_(0)
 {
@@ -130,7 +132,7 @@ void Server::execChild(bool debug, const std::string& extraArg)
   for (; i < prependArgv.size(); ++i)
     argv[i] = prependArgv[i].c_str();
 
-  argv[i++] = argv_[0];
+  argv[i++] = applicationName_.c_str();
   argv[i++] = "client";
   if (!extraArg.empty())
     argv[i++] = extraArg.c_str();
@@ -386,8 +388,8 @@ int Server::run()
     LOG_ERROR_S(&wt_, "cannot catch SIGHUP: signal(): "
 		<< (const char *)strerror(errno));
 
-  if (argc_ == 2 && boost::starts_with(argv_[1], "--socket=")) {
-    std::string socketName = std::string(argv_[1]).substr(9);
+  if (args_.size() == 1 && boost::starts_with(args_[0], "--socket=")) {
+    std::string socketName = args_[0].substr(9);
     boost::trim(socketName);
     if (!bindUDStoStdin(socketName, wt_))
       return -1;

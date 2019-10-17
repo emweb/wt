@@ -2453,6 +2453,51 @@ WRun(int argc, char** argv,
      ApplicationCreator createApplication = ApplicationCreator());
 
 #endif // DOXYGEN_ONLY
+
+#ifdef DOXYGEN_ONLY
+/*! \brief Runs the %Wt application server.
+ *
+ * This function runs the application server, and should be called
+ * only once (e.g. from within your main function).
+ *
+ * The \p createApplication parameter is a <tt>std::function</tt>
+ * object that should create a new application instance for a new user
+ * visiting the application. It is of type:
+ * <tt>std::function<Wt::WApplication* (const
+ * Wt::WEnvironment&)></tt>, and thus you can pass to it a function
+ * like:
+ *
+ * <pre>
+ * Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+ * {
+ *   // ...
+ * }
+ * </pre>
+ *
+ * When using the built-in httpd, the implementation listens for POSIX
+ * termination signals (or console CTRL-C) event. You can use the
+ * WServer class for more flexible control on starting and stopping
+ * the server.
+ *
+ * This version of WRun() takes a std::string
+ * for the application path, and a vector of arguments (not including
+ * argv[0], the application path) instead of argc and argv,
+ * for better convenience when arguments are not provided via
+ * the command line.
+ *
+ * \relates WServer
+ * \sa WApplication
+ */
+extern int WRun(const std::string &applicationPath,
+                const std::vector<std::string> &args,
+                ApplicationCreator createApplication = 0);
+#else // DOXYGEN_ONLY
+extern int WTCONNECTOR_API
+WRun(const std::string &applicationPath,
+     const std::vector<std::string> &args,
+     ApplicationCreator createApplication = ApplicationCreator());
+
+#endif // DOXYGEN_ONLY
 #endif // WT_TARGET_JAVA
 
 /*! \def wApp

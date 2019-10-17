@@ -7,8 +7,9 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 #ifdef WT_THREADED
 #include <thread>
@@ -28,7 +29,9 @@ public:
   static bool bindUDStoStdin(const std::string& socketPath,
 			     Wt::WServer& server);
 
-  Server(WServer& wt, int argc, char *argv[]);
+  Server(WServer& wt,
+         const std::string &applicationName,
+         const std::vector<std::string> &args);
   int run();
 
   static Server *instance;
@@ -38,8 +41,8 @@ public:
 
 private:
   WServer& wt_;
-  int argc_;
-  char **argv_;
+  std::string applicationName_;
+  std::vector<std::string> args_;
 
   int childrenDied_;
   volatile sig_atomic_t handleSigChld_;

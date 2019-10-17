@@ -256,8 +256,9 @@ void Configuration::createOptions(po::options_description& options,
   visibleOptions.add(general).add(http).add(https);
 }
 
-void Configuration::setOptions(int argc, char **argv,
-			       const std::string& configurationFile)
+void Configuration::setOptions(const std::string &applicationPath,
+                               const std::vector<std::string> &args,
+                               const std::string &configurationFile)
 {
   po::options_description all_options("Allowed options");
   po::options_description visible_options("Allowed options");
@@ -266,17 +267,17 @@ void Configuration::setOptions(int argc, char **argv,
   try {
     po::variables_map vm;
 
-    if (argc)
-      po::store(po::command_line_parser(argc, argv).options(all_options).allow_unregistered().run(), vm);
-      
+    if (!args.empty())
+      po::store(po::command_line_parser(args).options(all_options).allow_unregistered().run(), vm);
+
     if (!configurationFile.empty()) {
       std::ifstream cfgFile(configurationFile.c_str(),
-	std::ios::in | std::ios::binary);
+        std::ios::in | std::ios::binary);
       if (cfgFile) {
-	if (!silent_)
-	  LOG_INFO_S(this, "reading wthttpd configuration from: "
-		     << configurationFile);
-	po::store(po::parse_config_file(cfgFile, all_options), vm);
+        if (!silent_)
+          LOG_INFO_S(this, "reading wthttpd configuration from: "
+                     << configurationFile);
+        po::store(po::parse_config_file(cfgFile, all_options), vm);
       }
     }
 
@@ -286,8 +287,8 @@ void Configuration::setOptions(int argc, char **argv,
       std::cout << visible_options << std::endl;
 
       if (!configurationFile.empty())
-	std::cout << "Settings may be set in the configuration file "
-		  << configurationFile << std::endl;
+        std::cout << "Settings may be set in the configuration file "
+                  << configurationFile << std::endl;
 
       std::cout << std::endl;
 
@@ -303,9 +304,9 @@ void Configuration::setOptions(int argc, char **argv,
     throw Wt::WServer::Exception("Exception of unknown type!\n");
   }
 
-  for (int i = 0; i < argc; ++i) {
-    options_.push_back(argv[i]);
-  }
+  options_.clear();
+  options_.push_back(applicationPath);
+  options_.insert(end(options_), begin(args), end(args));
 }
 
 std::vector<std::string> Configuration::options() const

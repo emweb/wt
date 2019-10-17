@@ -142,6 +142,30 @@ public:
   WTCONNECTOR_API
     WServer(int argc, char *argv[], const std::string& wtConfigurationFile = std::string());
 
+  /*! \brief Creates a new server instance and configures it.
+   *
+   * This is equivalent to:
+   * \code
+    WServer server(applicationPath);
+    server.setServerConfiguration(applicationPath, args, wtConfigurationFile);
+    \endcode
+   *
+   * This version of the WServer constructor takes a std::string
+   * for the application path, and a vector of arguments (not including
+   * argv[0], the application path) instead of argc and argv,
+   * for better convenience when arguments are not provided via
+   * the command line.
+   *
+   * \throws Exception : indicates a configuration problem.
+   *
+   * \sa WServer(const std::string&, const std::string&)
+   * \sa setServerConfiguration()
+   */
+  WTCONNECTOR_API
+    WServer(const std::string &applicationPath,
+            const std::vector<std::string> &args,
+            const std::string& wtConfigurationFile = std::string());
+
   /*! \brief Destructor.
    *
    * If the server was still running, it is stopped first by calling
@@ -208,6 +232,37 @@ public:
     void setServerConfiguration(int argc, char *argv[],
 				const std::string& serverConfigurationFile
 				= std::string());
+
+  /*! \brief Configures the HTTP(S) server or FastCGI process.
+   *
+   * Configures the HTTP(S) server using command-line arguments, a
+   * configuration file, or both. The valid options are described in
+   * \ref config_wthttpd "Built-in httpd configuration".
+   *
+   * The applications themselves are configured using the configuration
+   * file passed to the constructor.
+   *
+   * The server configuration must be set before any other
+   * functionality can be used.
+   *
+   * In case of FastCGI deployment, the \p serverConfigurationFile
+   * argument is ignored, and depending on the command-line arguments,
+   * this process may become a FastCGI protocol relay process which
+   * never returning from this call but directs the FastCGI stream to
+   * the correct session, rather than a Wt application server.
+   *
+   * This version of setServerConfiguration() takes a std::string
+   * for the application path, and a vector of arguments (not including
+   * argv[0], the application path) instead of argc and argv,
+   * for better convenience when arguments are not provided via
+   * the command line.
+   *
+   * \throws Exception : indicates a configuration problem.
+   */
+  WTCONNECTOR_API
+    void setServerConfiguration(const std::string &applicationPath,
+                                const std::vector<std::string> &args,
+                                const std::string &serverConfigurationFile = std::string());
 
   /*! \brief Binds an entry-point to a callback function to create
    *         a new application.
@@ -336,6 +391,20 @@ public:
    * loading a newly deployed version. <i>(Experimental, UNIX only)</i>
    */
   WT_API static void restart(int argc, char **argv, char **envp);
+
+  /*! \brief A utility method to restart.
+   *
+   * This will result the application with the new image (applicationPath), effectively
+   * loading a newly deployed version. <i>(Experimental, UNIX only)</i>
+   *
+   * This version of restart() takes a std::string
+   * for the application path, and a vector of arguments (not including
+   * argv[0], the application path) instead of argc and argv,
+   * for better convenience when arguments are not provided via
+   * the command line.
+   */
+  WT_API static void restart(const std::string &applicationPath,
+                             const std::vector<std::string> &args);
 
   /*! \brief Returns the server HTTP port number.
    *

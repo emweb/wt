@@ -29,22 +29,27 @@
 #endif
 
 namespace {
-  static void parseArgsPartially(int argc, char *argv[],
-				 const std::string& configurationFile,
-				 std::string& wtConfigXml,
-				 std::string& appRoot)
+  struct PartialArgParseResult {
+    std::string wtConfigXml;
+    std::string appRoot;
+  };
+
+  static PartialArgParseResult parseArgsPartially(const std::string &applicationPath,
+                                                  const std::vector<std::string> &args,
+                                                  const std::string &configurationFile)
   {
     std::string wt_config_xml;
     Wt::WLogger stderrLogger;
     stderrLogger.setStream(std::cerr);
-    
-    http::server::Configuration serverConfiguration(stderrLogger, true);
-    serverConfiguration.setOptions(argc, argv, configurationFile);
-    
-    wtConfigXml = serverConfiguration.configPath();
-    appRoot = serverConfiguration.appRoot();
-  }
 
+    http::server::Configuration serverConfiguration(stderrLogger, true);
+    serverConfiguration.setOptions(applicationPath, args, configurationFile);
+
+    return PartialArgParseResult {
+      serverConfiguration.configPath(),
+      serverConfiguration.appRoot()
+    };
+  }
 }
 
 namespace Wt {
@@ -86,6 +91,16 @@ WServer::WServer(int argc, char *argv[], const std::string& wtConfigurationFile)
   setServerConfiguration(argc, argv, wtConfigurationFile);
 }
 
+WServer::WServer(const std::string &applicationPath,
+                 const std::vector<std::string> &args,
+                 const std::string &wtConfigurationFile)
+  : impl_(new Impl())
+{
+  init(applicationPath, "");
+
+  setServerConfiguration(applicationPath, args, wtConfigurationFile);
+}
+
 WServer::~WServer()
 {
   if (impl_->server_) {
@@ -104,16 +119,23 @@ WServer::~WServer()
 void WServer::setServerConfiguration(int argc, char *argv[],
 				     const std::string& serverConfigurationFile)
 {
-  std::string wtConfigFile, appRoot;
+  std::string applicationPath = argv[0];
+  std::vector<std::string> args(argv + 1, argv + argc);
 
-  parseArgsPartially(argc, argv, serverConfigurationFile,
-		     wtConfigFile, appRoot);
+  setServerConfiguration(applicationPath, args, serverConfigurationFile);
+}
 
-  if (!appRoot.empty())
-    setAppRoot(appRoot);
+void WServer::setServerConfiguration(const std::string &applicationPath,
+                                     const std::vector<std::string> &args,
+                                     const std::string &serverConfigurationFile)
+{
+  auto result = parseArgsPartially(applicationPath, args, serverConfigurationFile);
+
+  if (!result.appRoot.empty())
+    setAppRoot(result.appRoot);
 
   if (configurationFile().empty())
-    setConfiguration(wtConfigFile);
+    setConfiguration(result.wtConfigXml);
 
   webController_ = new Wt::WebController(*this);
 
@@ -121,8 +143,7 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 
   impl_->serverConfiguration_->setSslPasswordCallback(sslPasswordCallback_);
 
-  impl_->serverConfiguration_->setOptions(argc, argv,
-					  serverConfigurationFile);
+  impl_->serverConfiguration_->setOptions(applicationPath, args, serverConfigurationFile);
 
   configuration().setDefaultEntryPoint(impl_->serverConfiguration_
                                        ->deployPath());
@@ -288,25 +309,35 @@ void WServer::setSslPasswordCallback(const SslPasswordCallback& cb)
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
+  std::string applicationPath = argv[0];
+  std::vector<std::string> args(argv + 1, argv + argc);
+
+  return WRun(applicationPath, args, createApplication);
+}
+
+int WRun(const std::string &applicationPath,
+         const std::vector<std::string> &args,
+         ApplicationCreator createApplication)
+{
   try {
-    WServer server(argv[0], "");
+    WServer server(applicationPath, "");
     try {
-      server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+      server.setServerConfiguration(applicationPath, args, WTHTTP_CONFIGURATION);
       server.addEntryPoint(EntryPointType::Application, createApplication);
       if (server.start()) {
 #ifdef WT_THREADED
-	// MacOSX + valgrind:
-	// for (;;) { sleep(100); }
-	int sig = WServer::waitForShutdown();
-	LOG_INFO_S(&server, "shutdown (signal = " << sig << ")");
+        // MacOSX + valgrind:
+        // for (;;) { sleep(100); }
+        int sig = WServer::waitForShutdown();
+        LOG_INFO_S(&server, "shutdown (signal = " << sig << ")");
 #endif
-	server.stop();
+        server.stop();
 
 #ifdef WT_THREADED
 #ifndef WT_WIN32
-	if (sig == SIGHUP)
-	  // Mac OSX: _NSGetEnviron()
-	  WServer::restart(argc, argv, nullptr);
+        if (sig == SIGHUP)
+          // Mac OSX: _NSGetEnviron()
+          WServer::restart(applicationPath, args);
 #endif // WIN32
 #endif // WT_THREADED
       }

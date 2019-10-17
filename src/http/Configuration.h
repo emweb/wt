@@ -38,7 +38,9 @@ public:
   Configuration(Wt::WLogger& logger, bool silent = false);
   ~Configuration();
 
-  void setOptions(int argc, char **argv, const std::string& configurationFile);
+  void setOptions(const std::string &applicationPath,
+                  const std::vector<std::string> &args,
+                  const std::string &configurationFile);
 
   std::vector<std::string> options() const;
 

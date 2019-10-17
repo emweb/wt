@@ -284,6 +284,20 @@ void WServer::restart(int argc, char **argv, char **envp)
 #endif
 }
 
+void WServer::restart(const std::string &applicationPath,
+                      const std::vector<std::string> &args)
+{
+#ifndef WT_WIN32
+  std::unique_ptr<char*[]> argv(new char*[args.size() + 1]);
+  argv[0] = const_cast<char*>(applicationPath.c_str());
+  for (int i = 0; i < args.size(); ++i) {
+    argv[i+1] = const_cast<char*>(args[i].c_str());
+  }
+
+  restart(static_cast<int>(args.size() + 1), argv.get(), nullptr);
+#endif
+}
+
 void WServer::setCatchSignals(bool catchSignals)
 {
   CatchSignals = catchSignals;

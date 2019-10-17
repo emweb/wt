@@ -71,6 +71,18 @@ WServer::WServer(int argc, char *argv[], const std::string& wtConfigurationFile)
   setServerConfiguration(argc, argv, wtConfigurationFile);
 }
 
+WServer::WServer(const std::string &applicationName,
+                 const std::vector<std::string> &args,
+                 const std::string &wtConfigurationFile)
+  : impl_(new Impl())
+{
+  init(applicationName, wtConfigurationFile);
+  impl_->init(this, applicationName, wtConfigurationFile);
+  // setServerConfiguration doesn't actually do anything, but I'll
+  // just call it here just in case it starts doing anything.
+  setServerConfiguration(applicationName, args, wtConfigurationFile);
+}
+
 WServer::~WServer()
 {
   isapi::IsapiServer::instance()->removeServer(this);
@@ -84,9 +96,12 @@ std::vector<WServer::SessionInfo> WServer::sessions() const
 
 void WServer::setServerConfiguration(int argc, char *argv[],
 				     const std::string& serverConfigurationFile)
-{
+{ }
 
-}
+void WServer::setServerConfiguration(const std::string &applicationName,
+                                     const std::vector<std::string> &args,
+                                     const std::string &wtConfigurationFile)
+{ }
 
 //void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
 //			    const std::string& path, const std::string& favicon)
@@ -222,7 +237,6 @@ void WServer::setSslPasswordCallback(const SslPasswordCallback& cb)
   log("info") << "setSslPasswordCallback(): has no effect in isapi connector";
 }
 
-
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {
@@ -230,6 +244,32 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
     try {
       server.setServerConfiguration(argc, argv);
+      server.addEntryPoint(EntryPointType::Application, createApplication);
+      server.start();
+
+      return 0;
+    } catch (std::exception& e) {
+      server.log("fatal") << e.what();
+      return 1;
+    }
+  } catch (Wt::WServer::Exception&) {
+    //std::cerr << e.what() << std::endl;
+    return 1;
+  } catch (std::exception&) {
+    //std::cerr << "exception: " << e.what() << std::endl;
+    return 1;
+  }
+}
+
+int WRun(const std::string &applicationName,
+         const std::vector<std::string> &args,
+         ApplicationCreator createApplication)
+{
+  try {
+    WServer server(applicationName, "");
+
+    try {
+      server.setServerConfiguration(applicationName, args);
       server.addEntryPoint(EntryPointType::Application, createApplication);
       server.start();
 
