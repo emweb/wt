@@ -18,17 +18,10 @@
   #define WT_DLLLOCAL
   #define WT_DLLPUBLIC
 #else
-  #if __GNUC__ >= 4
-    #define WT_IMPORT __attribute__ ((visibility("default")))
-    #define WT_EXPORT __attribute__ ((visibility("default")))
-    #define WT_DLLLOCAL __attribute__ ((visibility("hidden")))
-    #define WT_DLLPUBLIC __attribute__ ((visibility("default")))
-  #else
-    #define WT_IMPORT
-    #define WT_EXPORT
-    #define WT_DLLLOCAL
-    #define WT_DLLPUBLIC
-  #endif
+  #define WT_IMPORT __attribute__ ((visibility("default")))
+  #define WT_EXPORT __attribute__ ((visibility("default")))
+  #define WT_DLLLOCAL __attribute__ ((visibility("hidden")))
+  #define WT_DLLPUBLIC __attribute__ ((visibility("default")))
 #endif
 
 // Define wt_EXPORTS for DLL builds

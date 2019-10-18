@@ -17,17 +17,10 @@
   #define WTDBO_DLLLOCAL
   #define WTDBO_DLLPUBLIC
 #else
-  #if __GNUC__ >= 4
-    #define WTDBO_IMPORT __attribute__ ((visibility("default")))
-    #define WTDBO_EXPORT __attribute__ ((visibility("default")))
-    #define WTDBO_DLLLOCAL __attribute__ ((visibility("hidden")))
-    #define WTDBO_DLLPUBLIC __attribute__ ((visibility("default")))
-  #else
-    #define WTDBO_IMPORT
-    #define WTDBO_EXPORT
-    #define WTDBO_DLLLOCAL
-    #define WTDBO_DLLPUBLIC
-  #endif
+  #define WTDBO_IMPORT __attribute__ ((visibility("default")))
+  #define WTDBO_EXPORT __attribute__ ((visibility("default")))
+  #define WTDBO_DLLLOCAL __attribute__ ((visibility("hidden")))
+  #define WTDBO_DLLPUBLIC __attribute__ ((visibility("default")))
 #endif
 
 // Define wt_EXPORTS for DLL builds

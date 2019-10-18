@@ -17,31 +17,20 @@
   #define WTDBOFIREBIRD_DLLLOCAL
   #define WTDBOFIREBIRD_DLLPUBLIC
 #else
-  #ifdef GCC_HASCLASSVISIBILITY
-    #define WTDBOFIREBIRD_IMPORT __attribute__ ((visibility("default")))
-    #define WTDBOFIREBIRD_EXPORT __attribute__ ((visibility("default")))
-    #define WTDBOFIREBIRD_DLLLOCAL __attribute__ ((visibility("hidden")))
-    #define WTDBOFIREBIRD_DLLPUBLIC __attribute__ ((visibility("default")))
-  #else
-    #define WTDBOFIREBIRD_IMPORT
-    #define WTDBOFIREBIRD_EXPORT
-    #define WTDBOFIREBIRD_DLLLOCAL
-    #define WTDBOFIREBIRD_DLLPUBLIC
-  #endif
+  #define WTDBOFIREBIRD_IMPORT __attribute__ ((visibility("default")))
+  #define WTDBOFIREBIRD_EXPORT __attribute__ ((visibility("default")))
+  #define WTDBOFIREBIRD_DLLLOCAL __attribute__ ((visibility("hidden")))
+  #define WTDBOFIREBIRD_DLLPUBLIC __attribute__ ((visibility("default")))
 #endif
 
-#ifdef WT_WIN32
-  #ifdef wtdbofirebird_EXPORTS
-    #define WTDBOFIREBIRD_API WTDBOFIREBIRD_EXPORT
-  #else
-    #ifdef WTDBOFIREBIRD_STATIC
-      #define WTDBOFIREBIRD_API
-    #else
-      #define WTDBOFIREBIRD_API WTDBOFIREBIRD_IMPORT
-    #endif
-  #endif
+#ifdef wtdbofirebird_EXPORTS
+  #define WTDBOFIREBIRD_API WTDBOFIREBIRD_EXPORT
 #else
-  #define WTDBOFIREBIRD_API
+  #ifdef WTDBOFIREBIRD_STATIC
+    #define WTDBOFIREBIRD_API
+  #else
+    #define WTDBOFIREBIRD_API WTDBOFIREBIRD_IMPORT
+  #endif
 #endif
 
 #endif // DLLDEFS_H_

@@ -17,31 +17,20 @@
   #define WTDBOMYSQL_DLLLOCAL
   #define WTDBOMYSQL_DLLPUBLIC
 #else
-  #ifdef GCC_HASCLASSVISIBILITY
-    #define WTDBOMYSQL_IMPORT __attribute__ ((visibility("default")))
-    #define WTDBOMYSQL_EXPORT __attribute__ ((visibility("default")))
-    #define WTDBOMYSQL_DLLLOCAL __attribute__ ((visibility("hidden")))
-    #define WTDBOMYSQL_DLLPUBLIC __attribute__ ((visibility("default")))
-  #else
-    #define WTDBOMYSQL_IMPORT
-    #define WTDBOMYSQL_EXPORT
-    #define WTDBOMYSQL_DLLLOCAL
-    #define WTDBOMYSQL_DLLPUBLIC
-  #endif
+  #define WTDBOMYSQL_IMPORT __attribute__ ((visibility("default")))
+  #define WTDBOMYSQL_EXPORT __attribute__ ((visibility("default")))
+  #define WTDBOMYSQL_DLLLOCAL __attribute__ ((visibility("hidden")))
+  #define WTDBOMYSQL_DLLPUBLIC __attribute__ ((visibility("default")))
 #endif
 
-#ifdef WT_WIN32
-  #ifdef wtdbomysql_EXPORTS
-    #define WTDBOMYSQL_API WTDBOMYSQL_EXPORT
-  #else
-    #ifdef WTDBOMYSQL_STATIC
-      #define WTDBOMYSQL_API
-    #else
-      #define WTDBOMYSQL_API WTDBOMYSQL_IMPORT
-    #endif
-  #endif
+#ifdef wtdbomysql_EXPORTS
+  #define WTDBOMYSQL_API WTDBOMYSQL_EXPORT
 #else
-  #define WTDBOMYSQL_API
+  #ifdef WTDBOMYSQL_STATIC
+    #define WTDBOMYSQL_API
+  #else
+    #define WTDBOMYSQL_API WTDBOMYSQL_IMPORT
+  #endif
 #endif
 
 #endif // DLLDEFS_H_

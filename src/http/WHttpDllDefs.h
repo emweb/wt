@@ -17,34 +17,21 @@
   #define WTHTTP_DLLLOCAL
   #define WTHTTP_DLLPUBLIC
 #else
-  #define WTHTTP_IMPORT
-  #ifdef GCC_HASCLASSVISIBILITY
-    #define WTHTTP_IMPORT __attribute__ ((visibility("default")))
-    #define WTHTTP_EXPORT __attribute__ ((visibility("default")))
-    #define WTHTTP_DLLLOCAL __attribute__ ((visibility("hidden")))
-    #define WTHTTP_DLLPUBLIC __attribute__ ((visibility("default")))
-  #else
-    #define WTHTTP_IMPORT
-    #define WTHTTP_EXPORT
-    #define WTHTTP_DLLLOCAL
-    #define WTHTTP_DLLPUBLIC
-  #endif
+  #define WTHTTP_IMPORT __attribute__ ((visibility("default")))
+  #define WTHTTP_EXPORT __attribute__ ((visibility("default")))
+  #define WTHTTP_DLLLOCAL __attribute__ ((visibility("hidden")))
+  #define WTHTTP_DLLPUBLIC __attribute__ ((visibility("default")))
 #endif
 
 // Define wthttp_EXPORTS for DLL builds
-#ifdef WT_WIN32
-  #ifdef wthttp_EXPORTS
-    #define WTHTTP_API WTHTTP_EXPORT
-  #else
-    #ifdef WTHTTP_STATIC
-      #define WTHTTP_API
-    #else
-      #define WTHTTP_API WTHTTP_IMPORT
-    #endif
-  #endif
+#if defined(wthttp_EXPORTS)
+  #define WTHTTP_API WTHTTP_EXPORT
 #else
-  #define WTHTTP_API
+  #if defined(WTHTTP_STATIC)
+    #define WTHTTP_API
+  #else
+    #define WTHTTP_API WTHTTP_IMPORT
+  #endif
 #endif
 
 #endif
-

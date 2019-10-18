@@ -75,7 +75,11 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 }
  * \endcode
  */
+#ifdef WT_WIN32
 class WServer
+#else // WT_WIN32
+class WTCONNECTOR_API WServer
+#endif // WT_WIN32
 {
 public:
   typedef std::function<std::string (std::size_t max_length, int purpose)>

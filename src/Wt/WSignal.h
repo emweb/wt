@@ -25,7 +25,10 @@ class JavaScriptEvent;
 
 struct NoClass
 {
-  constexpr NoClass() { }
+#ifndef WT_TARGET_JAVA
+  constexpr
+#endif // WT_TARGET_JAVA
+    NoClass() { }
   NoClass(const JavaScriptEvent&) { }
 
 #ifdef WT_TARGET_JAVA

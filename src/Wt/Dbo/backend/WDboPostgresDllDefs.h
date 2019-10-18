@@ -17,31 +17,20 @@
   #define WTDBOPOSTGRES_DLLLOCAL
   #define WTDBOPOSTGRES_DLLPUBLIC
 #else
-  #ifdef GCC_HASCLASSVISIBILITY
-    #define WTDBOPOSTGRES_IMPORT __attribute__ ((visibility("default")))
-    #define WTDBOPOSTGRES_EXPORT __attribute__ ((visibility("default")))
-    #define WTDBOPOSTGRES_DLLLOCAL __attribute__ ((visibility("hidden")))
-    #define WTDBOPOSTGRES_DLLPUBLIC __attribute__ ((visibility("default")))
-  #else
-    #define WTDBOPOSTGRES_IMPORT
-    #define WTDBOPOSTGRES_EXPORT
-    #define WTDBOPOSTGRES_DLLLOCAL
-    #define WTDBOPOSTGRES_DLLPUBLIC
-  #endif
+  #define WTDBOPOSTGRES_IMPORT __attribute__ ((visibility("default")))
+  #define WTDBOPOSTGRES_EXPORT __attribute__ ((visibility("default")))
+  #define WTDBOPOSTGRES_DLLLOCAL __attribute__ ((visibility("hidden")))
+  #define WTDBOPOSTGRES_DLLPUBLIC __attribute__ ((visibility("default")))
 #endif
 
-#ifdef WT_WIN32
-  #ifdef wtdbopostgres_EXPORTS
-    #define WTDBOPOSTGRES_API WTDBOPOSTGRES_EXPORT
-  #else
-    #ifdef WTDBOPOSTGRES_STATIC
-      #define WTDBOPOSTGRES_API
-    #else
-      #define WTDBOPOSTGRES_API WTDBOPOSTGRES_IMPORT
-    #endif
-  #endif
+#ifdef wtdbopostgres_EXPORTS
+  #define WTDBOPOSTGRES_API WTDBOPOSTGRES_EXPORT
 #else
-  #define WTDBOPOSTGRES_API
+  #ifdef WTDBOPOSTGRES_STATIC
+    #define WTDBOPOSTGRES_API
+  #else
+    #define WTDBOPOSTGRES_API WTDBOPOSTGRES_IMPORT
+  #endif
 #endif
 
 #endif // DLLDEFS_H_

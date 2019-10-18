@@ -17,32 +17,20 @@
   #define WTDBOSQLITE3_DLLLOCAL
   #define WTDBOSQLITE3_DLLPUBLIC
 #else
-  #ifdef GCC_HASCLASSVISIBILITY
-    #define WTDBOSQLITE3_IMPORT __attribute__ ((visibility("default")))
-    #define WTDBOSQLITE3_EXPORT __attribute__ ((visibility("default")))
-    #define WTDBOSQLITE3_DLLLOCAL __attribute__ ((visibility("hidden")))
-    #define WTDBOSQLITE3_DLLPUBLIC __attribute__ ((visibility("default")))
-  #else
-    #define WTDBOSQLITE3_IMPORT
-    #define WTDBOSQLITE3_EXPORT
-    #define WTDBOSQLITE3_DLLLOCAL
-    #define WTDBOSQLITE3_DLLPUBLIC
-  #endif
+  #define WTDBOSQLITE3_IMPORT __attribute__ ((visibility("default")))
+  #define WTDBOSQLITE3_EXPORT __attribute__ ((visibility("default")))
+  #define WTDBOSQLITE3_DLLLOCAL __attribute__ ((visibility("hidden")))
+  #define WTDBOSQLITE3_DLLPUBLIC __attribute__ ((visibility("default")))
 #endif
 
-// Define wt_EXPORTS for DLL builds
-#ifdef WT_WIN32
-  #ifdef wtdbosqlite3_EXPORTS
-    #define WTDBOSQLITE3_API WTDBOSQLITE3_EXPORT
-  #else
-    #ifdef WTDBOSQLITE3_STATIC
-      #define WTDBOSQLITE3_API
-    #else
-      #define WTDBOSQLITE3_API WTDBOSQLITE3_IMPORT
-    #endif
-  #endif
+#ifdef wtdbosqlite3_EXPORTS
+  #define WTDBOSQLITE3_API WTDBOSQLITE3_EXPORT
 #else
-  #define WTDBOSQLITE3_API
+  #ifdef WTDBOSQLITE3_STATIC
+    #define WTDBOSQLITE3_API
+  #else
+    #define WTDBOSQLITE3_API WTDBOSQLITE3_IMPORT
+  #endif
 #endif
 
 #endif // DLLDEFS_H_
