@@ -568,6 +568,12 @@ CONFIGURE_FILE(
 )
 UNSET(_WTCONFIG_CMAKE_FIND_BOOST)
 UNSET(_WTCONFIG_BOOST_STATIC)
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/wt-config-version.cmake.in
+  ${WT_BINARY_DIR}/wt-config-version.cmake
+  @ONLY
+)
 INSTALL(FILES
   ${WT_BINARY_DIR}/wt-config.cmake
+  ${WT_BINARY_DIR}/wt-config-version.cmake
   DESTINATION ${CMAKE_INSTALL_DIR}/wt)
