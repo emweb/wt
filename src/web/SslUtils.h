@@ -48,7 +48,7 @@ namespace Wt {
 
     std::string exportToPem(struct x509_st *x509);
 
-    struct x509_st *readFromPem(const std::string &pem);
+    WT_API struct x509_st *readFromPem(const std::string &pem);
 
 #ifdef WT_WIN32
     extern void addWindowsCACertificates(asio::ssl::context &ctx);
