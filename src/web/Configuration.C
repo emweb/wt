@@ -697,6 +697,8 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
       return matchEntryPoint(EMPTY_STR, path, matchAfterSlash);
   }
 
+  LOG_DEBUG("Matching entry point, scriptName: '" << scriptName << "', path: '" << path << '\'');
+
   READ_LOCK;
   // Only one default entry point.
   if (entryPoints_.size() == 1
@@ -752,7 +754,7 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
     // If matchAfterSlash is true,
     // then the path /head/tail
     // may match the entry point /head/
-    if (matchAfterSlash && it != spliterator()) {
+    if (matchAfterSlash && (path.empty() || it != spliterator())) {
       const auto &children = pathSegment->children;
       if (!children.empty() && children.front()->segment.empty()) {
         match = children.front()->entryPoint;
