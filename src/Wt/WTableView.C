@@ -490,7 +490,7 @@ void WTableView::addSection(const Side side)
     setSpannerCount(side, spannerCount(side) - 1);
     break;
   case Side::Left: {
-    ColumnWidget *w = new ColumnWidget(this, firstColumn() - 1);
+    ColumnWidget *w = createColumnWidget(firstColumn() - 1);
 
     if (!columnInfo(w->column()).hidden)
       table_->setOffsets(table_->offset(Side::Left).toPixels()
@@ -502,7 +502,7 @@ void WTableView::addSection(const Side side)
     break;
   }
   case Side::Right: {
-    ColumnWidget *w = new ColumnWidget(this, lastColumn() + 1);
+    ColumnWidget *w = createColumnWidget(lastColumn() + 1);
 
     if (columnInfo(w->column()).hidden)
       w->hide();
@@ -782,7 +782,7 @@ void WTableView::reset()
   headerColumnsTable_->clear();
 
   for (int i = 0; i < rowHeaderCount(); ++i)
-    new ColumnWidget(this, i);
+    createColumnWidget(i);
 }
 
 void WTableView::defineJavaScript()
@@ -1144,29 +1144,35 @@ bool WTableView::isColumnRendered(const int column) const
   return column >= firstColumn() && column <= lastColumn();
 }
 
-WTableView::ColumnWidget::ColumnWidget(WTableView *view, int column)
-  : column_(column)
+WTableView::ColumnWidget *WTableView::createColumnWidget(int column)
 {
-  assert(view->ajaxMode());
+  assert(ajaxMode());
 
-  WTableView::ColumnInfo& ci = view->columnInfo(column);
-  setStyleClass(ci.styleClass());
-  setPositionScheme(PositionScheme::Absolute);
-  setOffsets(0, Side::Top | Side::Left);
-  setOverflow(Overflow::Hidden);
-  setHeight(view->table_->height());
+  ColumnWidget *result = new ColumnWidget(column);
+  std::unique_ptr<ColumnWidget> columnWidget(result);
 
-  std::unique_ptr<WWidget> self(this);
+  WTableView::ColumnInfo& ci = columnInfo(column);
+  columnWidget->setStyleClass(ci.styleClass());
+  columnWidget->setPositionScheme(PositionScheme::Absolute);
+  columnWidget->setOffsets(0, Side::Top | Side::Left);
+  columnWidget->setOverflow(Overflow::Hidden);
+  columnWidget->setHeight(table_->height());
 
-  if (column >= view->rowHeaderCount()) {
-    if (view->table_->count() == 0
-	|| column > view->columnContainer(-1)->column())
-      view->table_->addWidget(std::move(self));
+  if (column >= rowHeaderCount()) {
+    if (table_->count() == 0
+        || column > columnContainer(-1)->column())
+      table_->addWidget(std::move(columnWidget));
     else
-      view->table_->insertWidget(0, std::move(self));
+      table_->insertWidget(0, std::move(columnWidget));
   } else
-    view->headerColumnsTable_->insertWidget(column, std::move(self));
+    headerColumnsTable_->insertWidget(column, std::move(columnWidget));
+
+  return result;
 }
+
+WTableView::ColumnWidget::ColumnWidget(int column)
+  : column_(column)
+{ }
 
 WTableView::ColumnWidget *WTableView::columnContainer(int renderedColumn) const
 {

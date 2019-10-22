@@ -174,14 +174,21 @@ public:
   virtual void enableAjax() override;
 
 private:
+  class ColumnWidget;
+
+  ColumnWidget *createColumnWidget(int column);
+
   class ColumnWidget : public WContainerWidget
   {
   public:
-    ColumnWidget(WTableView *view, int column);
     int column() const { return column_; }
 
   private:
+    ColumnWidget(int column);
+
     int column_;
+
+    friend ColumnWidget *WTableView::createColumnWidget(int column);
   };
 
   /* For Ajax implementation */

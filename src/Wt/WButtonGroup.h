@@ -102,6 +102,8 @@ public:
 
   /*! \brief Returns the button for the given id.
    *
+   * Returns \c nullptr if no button exists for the given id.
+   *
    * \sa id(), addButton()
    */
   WRadioButton *button(int id) const;
@@ -143,7 +145,7 @@ public:
   /*! \brief Returns the checked radiobutton.
    *
    * If there is no radiobutton currently checked this function
-   * returns \c 0.
+   * returns \c nullptr.
    *
    * \sa setCheckedButton(), selectedButtonIndex()
    */
