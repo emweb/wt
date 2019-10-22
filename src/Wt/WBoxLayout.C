@@ -38,6 +38,9 @@ WBoxLayout::WBoxLayout(LayoutDirection dir)
   : direction_(dir)
 { }
 
+WBoxLayout::~WBoxLayout()
+{ }
+
 void WBoxLayout::addItem(std::unique_ptr<WLayoutItem> item)
 {
   insertItem(count(), std::move(item), 0, None);

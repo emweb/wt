@@ -107,6 +107,8 @@ public:
    */
   WBoxLayout(LayoutDirection dir);
 
+  virtual ~WBoxLayout() override;
+
   virtual void addItem(std::unique_ptr<WLayoutItem> item) override;
   virtual std::unique_ptr<WLayoutItem> removeItem(WLayoutItem *item) override;
   virtual WLayoutItem *itemAt(int index) const override;
