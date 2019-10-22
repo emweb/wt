@@ -70,7 +70,7 @@ public:
 
   /*! \brief Destructor.
    */
-  ~WBorderLayout();
+  virtual ~WBorderLayout() override;
 
   /*! \brief Sets spacing between each item.
    *

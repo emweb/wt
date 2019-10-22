@@ -53,6 +53,9 @@ void Grid::clear()
 WGridLayout::WGridLayout()
 { }
 
+WGridLayout::~WGridLayout()
+{ }
+
 void WGridLayout::addItem(std::unique_ptr<WLayoutItem> item)
 {
   addItem(std::move(item), 0, columnCount());
