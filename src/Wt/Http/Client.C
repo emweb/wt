@@ -50,6 +50,14 @@ typedef boost::asio::deadline_timer asio_timer;
 typedef boost::posix_time::seconds asio_timer_seconds;
 #endif
 
+namespace {
+const int STATUS_NO_CONTENT = 204;
+const int STATUS_MOVED_PERMANENTLY = 301;
+const int STATUS_FOUND = 302;
+const int STATUS_SEE_OTHER = 303;
+const int STATUS_TEMPORARY_REDIRECT = 307;
+}
+
 namespace Wt {
 
 LOGGER("Http.Client");
@@ -430,7 +438,7 @@ private:
 	  emitHeadersReceived();
       }
 
-      bool done = headersOnly_;
+      bool done = headersOnly_ || response_.status() == STATUS_NO_CONTENT;
       // Write whatever content we already have to output.
       if (responseBuf_.size() > 0) {
 	std::stringstream ss;
@@ -1068,7 +1076,10 @@ void Client::handleRedirect(Http::Method method, boost::system::error_code err, 
   }
   impl_.reset();
   int status = response.status();
-  if (!err && (((status == 301 || status == 302 || status == 307) && method == Get) || status == 303)) {
+  if (!err && (((status == STATUS_MOVED_PERMANENTLY ||
+                 status == STATUS_FOUND ||
+                 status == STATUS_TEMPORARY_REDIRECT) && method == Get) ||
+               status == STATUS_SEE_OTHER)) {
     const std::string *newUrl = response.getHeader("Location");
     ++ redirectCount_;
     if (newUrl) {
