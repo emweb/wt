@@ -26,57 +26,31 @@ WCssDecorationStyle::WCssDecorationStyle()
     backgroundImageChanged_(false),
     fontChanged_(false),
     textDecorationChanged_(false)
-{
-  for (unsigned i = 0; i < 4; ++i)
-    border_[i] = nullptr;
-}
+{ }
 
 WCssDecorationStyle::~WCssDecorationStyle()
-{
-  for (unsigned i = 0; i < 4; ++i)
-    delete border_[i];
-}
+{ }
 
 WCssDecorationStyle::WCssDecorationStyle(const WCssDecorationStyle& other)
   : WObject(),
     widget_(0)
 {
-  for (unsigned i = 0; i < 4; ++i)
-    border_[i] = 0;
-
   copy(other);
-  // *this = other;
 }
 
 WCssDecorationStyle&
 WCssDecorationStyle::operator= (const WCssDecorationStyle& other)
 {
   copy(other);
-  // setCursor(other.cursor_);
-  // setBackgroundColor(other.backgroundColor());
-  // setBackgroundImage(other.backgroundImage(),
-  // 		     other.backgroundImageRepeat(),
-  // 		     other.backgroundImageLocation_);
-  // setForegroundColor(other.foregroundColor());
-
-  // for (unsigned i = 0; i < 4; ++i) {
-  //   delete border_[i];
-  //   if (other.border_[i])
-  //     border_[i] = new WBorder(*other.border_[i]);
-  //   else
-  //     border_[i] = 0;
-  // }
-
-  // borderChanged_ = true;
-
-  // setFont(other.font_);
-  // setTextDecoration(other.textDecoration());
 
   return *this;
 }
 
 void WCssDecorationStyle::copy(const WCssDecorationStyle& other)
 {
+  if (this == &other)
+    return;
+
   setCursor(other.cursor_);
   setBackgroundColor(other.backgroundColor());
   setBackgroundImage(other.backgroundImage(),
@@ -85,9 +59,8 @@ void WCssDecorationStyle::copy(const WCssDecorationStyle& other)
   setForegroundColor(other.foregroundColor());
 
   for (unsigned i = 0; i < 4; ++i) {
-    delete border_[i];
     if (other.border_[i])
-      border_[i] = new WBorder(*other.border_[i]);
+      border_[i] = cpp14::make_unique<WBorder>(*other.border_[i]);
     else
       border_[i] = nullptr;
   }
@@ -208,8 +181,7 @@ void WCssDecorationStyle::setBorder(WBorder border, WFlags<Side> sides)
 
   for (unsigned i = 0; i < 4; ++i) {
     if (sides.test(theSides[i])) {
-      delete border_[i];
-      border_[i] = new WBorder(border);
+      border_[i] = cpp14::make_unique<WBorder>(border);
     }
 
     borderChanged_ = true;

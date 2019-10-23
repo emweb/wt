@@ -211,7 +211,7 @@ private:
   WWebWidget               *widget_;
   Cursor                    cursor_;
   std::string               cursorImage_;
-  WBorder                  *border_[4];
+  std::unique_ptr<WBorder>  border_[4];
   WColor                    backgroundColor_;
   WColor	            foregroundColor_;
   WLink	                    backgroundImage_;
