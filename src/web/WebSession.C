@@ -1431,7 +1431,8 @@ void WebSession::handleRequest(Handler& handler)
 	      kill();
 	      break;
 	    } else if (*requestE != "page") {
-	      LOG_INFO("not serving this.");
+              LOG_INFO("Not serving this: request of type '" << *requestE << "' "
+                       "in a brand new session (probably coming from an old session)");
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
