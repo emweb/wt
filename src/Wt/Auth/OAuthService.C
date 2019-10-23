@@ -498,7 +498,7 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 	if (secs > 0)
 	  expires = WDateTime::currentDateTime().addSecs(secs);
 
-	std::string refreshToken = root.get("refreshToken").orIfNull("");
+        std::string refreshToken = root.get("refresh_token").orIfNull("");
         std::string idToken = root.get("id_token").orIfNull("");
 
 	return OAuthAccessToken(accessToken, expires, refreshToken, idToken);
