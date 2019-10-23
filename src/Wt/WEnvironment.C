@@ -175,8 +175,11 @@ void WEnvironment::init(const WebRequest& request)
 	session_->controller()->redirectSecret_ = str(request.headerValue("Redirect-Secret"));
 
   sslInfo_         = request.sslInfo();
-  if(!sslInfo_ && !str(request.headerValue("SSL-Client-Certificates")).empty()) {
-	parseSSLInfo(str(request.headerValue("SSL-Client-Certificates")));
+  if(!sslInfo_ &&
+     conf.behindReverseProxy()) {
+    const char *sslClientCertificates = request.headerValue("X-Wt-Ssl-Client-Certificates");
+    if (sslClientCertificates)
+      parseSSLInfo(str(sslClientCertificates));
   }
 #endif
 
