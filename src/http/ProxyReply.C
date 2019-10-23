@@ -255,6 +255,8 @@ void ProxyReply::assembleRequestHeaders()
   std::string forwardedFor;
   std::string forwardedProto = request_.urlScheme;
   std::string forwardedPort;
+  const Wt::Configuration& wtConfiguration
+    = connection()->server()->controller()->configuration();
   for (Request::HeaderList::const_iterator it = request_.headers.begin();
        it != request_.headers.end(); ++it) {
     if (it->name.iequals("Connection") || it->name.iequals("Keep-Alive") ||
@@ -267,20 +269,22 @@ void ProxyReply::assembleRequestHeaders()
                  "requests to a child process. Maybe someone is trying to spoof this "
                  "header?");
     } else if (it->name.iequals("X-Forwarded-For") ||
-	       it->name.iequals("Client-IP")) {
-      const Wt::Configuration& wtConfiguration
-	= connection()->server()->controller()->configuration();
+               it->name.iequals("Client-IP")) {
       if (wtConfiguration.behindReverseProxy()) {
-	forwardedFor = it->value.str() + ", ";
+        forwardedFor = it->value.str() + ", ";
       }
     } else if (it->name.iequals("Upgrade")) {
       if (it->value.iequals("websocket")) {
-	establishWebSockets = true;
+        establishWebSockets = true;
       }
     } else if (it->name.iequals("X-Forwarded-Proto")) { 
-      forwardedProto = it->value.str();
+      if (wtConfiguration.behindReverseProxy()) {
+        forwardedProto = it->value.str();
+      }
     } else if(it->name.iequals("X-Forwarded-Port")) {
-      forwardedPort = it->value.str();
+      if (wtConfiguration.behindReverseProxy()) {
+        forwardedPort = it->value.str();
+      }
     } else if (it->name.length() > 0) {
       os << it->name << ": " << it->value << "\r\n";
     }
@@ -293,10 +297,10 @@ void ProxyReply::assembleRequestHeaders()
   }
   os << "X-Forwarded-For: " << forwardedFor << request_.remoteIP << "\r\n";
   os << "X-Forwarded-Proto: " <<  forwardedProto  << "\r\n";
-  if(forwardedPort.size() > 0)
-	os << "X-Forwarded-Port: " <<  forwardedPort << "\r\n";
+  if(!forwardedPort.empty())
+    os << "X-Forwarded-Port: " <<  forwardedPort << "\r\n";
   else
-	os << "X-Forwarded-Port: " <<  request_.port << "\r\n";
+    os << "X-Forwarded-Port: " <<  request_.port << "\r\n";
   // Forward SSL Certificate to session only for first request
   if (request_.sslInfo() && fwCertificates_) {
     appendSSLInfo(request_.sslInfo(), os);
