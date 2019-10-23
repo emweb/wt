@@ -49,8 +49,8 @@ WAnchor::WAnchor(const WLink& link, std::unique_ptr<WImage> image)
   setLink(link);
 
   if (image) {
-    addWidget(std::move(image));
     image_ = image.get();
+    addWidget(std::move(image));
   }
 }
 
