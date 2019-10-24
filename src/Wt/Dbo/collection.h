@@ -159,7 +159,7 @@ namespace Wt {
        */
       iterator& operator++ ();
 
-      /*! \brief Method::Post increment operator.
+      /*! \brief Post increment operator.
        */
       iterator  operator++ (int);
 
@@ -236,7 +236,7 @@ namespace Wt {
        */
       const_iterator& operator++ ();
 
-      /*! \brief Method::Post increment operator.
+      /*! \brief Post increment operator.
        */
       const_iterator  operator++ (int);
 

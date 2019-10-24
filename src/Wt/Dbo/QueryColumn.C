@@ -12,10 +12,10 @@ namespace Wt {
    Editing ramblings
 
    Scenario:
-    - query a Method::Post, join its author User, and the number of comments
+    - query a Post, join its author User, and the number of comments
 
    Three different kinds of edits:
-    - change a Method::Post property
+    - change a Post property
     - change a User property
     - change the author
     - cannot change the number of comments
