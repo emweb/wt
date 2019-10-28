@@ -62,7 +62,7 @@ public:
 
   /*! \brief Returns the certificate chain used for client authentication.
    *
-   * Icon::Warning: for the ISAPI connector, the certificate chain will always be
+   * Warning: for the ISAPI connector, the certificate chain will always be
    * empty.
    */
   const std::vector<WSslCertificate> &clientPemCertificateChain() const {

@@ -386,6 +386,7 @@ private:
   static const char *GESTURE_START_SIGNAL;
   static const char *GESTURE_CHANGE_SIGNAL;
   static const char *GESTURE_END_SIGNAL;
+  static const char *DRAGSTART_SIGNAL;
 
   friend class DomElement;
   friend class WAbstractToggleButton;

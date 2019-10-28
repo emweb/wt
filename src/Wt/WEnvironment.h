@@ -223,9 +223,6 @@ public:
    *
    * Returns a header value, or an empty string if the header was 
    * present.
-   *
-   * \note Currently, the header name is case sensitive, although this should
-   * not be the case according to RFC2616
    */
   const std::string headerValue(const std::string& field) const;
 

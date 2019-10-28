@@ -45,6 +45,7 @@ const char *WInteractWidget::TOUCH_END_SIGNAL = "touchend";
 const char *WInteractWidget::GESTURE_START_SIGNAL = "gesturestart";
 const char *WInteractWidget::GESTURE_CHANGE_SIGNAL = "gesturechange";
 const char *WInteractWidget::GESTURE_END_SIGNAL = "gestureend";
+const char *WInteractWidget::DRAGSTART_SIGNAL = "dragstart";
 
 WInteractWidget::WInteractWidget()
   : mouseOverDelay_(0)
@@ -590,6 +591,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
   }
 
+  EventSignal<> *dragStart = voidEventSignal(DRAGSTART_SIGNAL, false);
+  if (dragStart && dragStart->needsUpdate(all)) {
+    element.setEventSignal("dragstart", *dragStart);
+    dragStart->updateOk();
+  }
+
   updateEventSignals(element, all);
 
   WWebWidget::updateDom(element, all);
@@ -704,6 +711,8 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
 				+ "._p_.touchEnded();" + "}");
   }
 
+  voidEventSignal(DRAGSTART_SIGNAL, true)->preventDefaultAction(true);
+
   mouseWentDown().connect(*dragSlot_);
   touchStarted().connect(*dragTouchSlot_);
   touchStarted().preventDefaultAction(true);
@@ -725,6 +734,11 @@ void WInteractWidget::unsetDraggable()
   if (dragTouchEndSlot_) {
     touchEnded().disconnect(*dragTouchEndSlot_);
     dragTouchEndSlot_.reset();
+  }
+
+  EventSignal<> *dragStart = voidEventSignal(DRAGSTART_SIGNAL, false);
+  if (dragStart) {
+    dragStart->preventDefaultAction(false);
   }
 }
 

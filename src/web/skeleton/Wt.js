@@ -2414,12 +2414,6 @@ var dragState = {
   xy: null
 };
 
-function initDragDrop() {
-  document.body.ondragstart=function() {
-    return false;
-  };
-}
-
 var touchTimer;
 var touchduration = 1000;
 
@@ -3034,7 +3028,6 @@ function load(fullapp) {
   $(document).mousedown(WT.mouseDown).mouseup(WT.mouseUp);
 
   WT.history._initialize();
-  initDragDrop();
   initIdleTimeout();
   loaded = true;
 
