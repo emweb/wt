@@ -190,11 +190,10 @@ public:
   ResponseType responseType() const { return responseType_; }
 
   /* 
-   * Returns \c 0 if the request does not have SSL client certificate
-   * information. When sslInfo() does return a pointer, the ownership of the
-   * pointer is transferred to the caller, which must delete it.
+   * Returns \c nullptr if the request does not have SSL client certificate
+   * information.
    */
-  virtual WSslInfo *sslInfo() const = 0;
+  virtual std::unique_ptr<WSslInfo> sslInfo(bool behindReverseProxy) const = 0;
 
   virtual const std::vector<std::pair<std::string, std::string> >& urlParams() const;
 

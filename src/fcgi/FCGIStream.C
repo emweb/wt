@@ -257,7 +257,7 @@ namespace {
       return true;
     }
 
-    virtual WSslInfo *sslInfo() const override
+    virtual std::unique_ptr<WSslInfo> sslInfo(bool) const override
     {
 #ifdef WT_WITH_SSL
       std::string clientCert = str(envValue("SSL_CLIENT_CERT"));
@@ -298,9 +298,9 @@ namespace {
 	  }
 	  Wt::WValidator::Result clientVerificationResult(state, verifyInfo);
 
-	  return new Wt::WSslInfo(clientCert, 
-                                  clientCertChain, 
-				  clientVerificationResult);
+          return cpp14::make_unique<Wt::WSslInfo>(clientCert,
+                                                  clientCertChain,
+                                                  clientVerificationResult);
 	}
       }
 #endif

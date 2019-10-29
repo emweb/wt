@@ -9,6 +9,7 @@
 
 #include "Wt/WEvent.h"
 #include "Wt/WPointF.h"
+#include "Wt/WSslInfo.h"
 #include "web/CgiParser.h"
 #include "web/WebRequest.h"
 
@@ -116,7 +117,7 @@ public:
     return std::vector<Wt::Http::Message::Header>{};
   }
 
-  virtual Wt::WSslInfo *sslInfo() const override
+  virtual std::unique_ptr<Wt::WSslInfo> sslInfo(bool) const override
   {
     return nullptr;
   }

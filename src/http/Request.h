@@ -57,12 +57,21 @@ struct buffer_string
   bool contains(const char *s) const;
   bool icontains(const char *s) const;
   bool iequals(const char *s) const;
+
+  template<unsigned int N>
+  bool istarts_with(const char (&str)[N]) const {
+    return istarts_with(str, N-1);
+  }
+
   void write(std::ostream &os) const;
 
   bool operator==(const buffer_string& other) const;
   bool operator==(const std::string& other) const;
   bool operator==(const char *other) const;
   bool operator!=(const char *other) const;
+
+private:
+  bool istarts_with(const char *s, unsigned int len) const;
 };
 
 std::ostream& operator<< (std::ostream &os, const buffer_string &str);
@@ -125,7 +134,7 @@ public:
 #ifdef HTTP_WITH_SSL
   SSL *ssl;
 #endif
-  Wt::WSslInfo *sslInfo() const;
+  std::unique_ptr<Wt::WSslInfo> sslInfo() const;
 
   void reset();
   void process();

@@ -54,13 +54,20 @@ public:
   virtual const std::string& remoteAddr() const override;
   virtual const char *urlScheme() const override;
   bool isSynchronous() const;
-  virtual Wt::WSslInfo *sslInfo() const override;
+  virtual std::unique_ptr<Wt::WSslInfo> sslInfo(bool behindReverseProxy) const override;
   virtual const std::vector<std::pair<std::string, std::string> > &urlParams() const override;
 
 private:
   WtReplyPtr reply_;
   mutable std::string serverPort_;
   mutable std::vector<std::string> s_;
+
+  // Extracts SSL info from internal Wt-specific base64-encoded JSON implementation,
+  // used for Wt's own reverse proxy (dedicated session processes).
+  std::unique_ptr<Wt::WSslInfo> sslInfoFromJson() const;
+  // Extract SSL info from X-SSL-Client-* headers. Can be used when Wt is behind an SSL-terminating
+  // proxy like nginx or Apache (HAProxy's headers are not currently supported).
+  std::unique_ptr<Wt::WSslInfo> sslInfoFromHeaders() const;
 
   const char *cstr(const buffer_string& bs) const;
 

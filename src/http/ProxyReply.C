@@ -268,6 +268,12 @@ void ProxyReply::assembleRequestHeaders()
                  "This header is only meant for internal use by Wt when proxying "
                  "requests to a child process. Maybe someone is trying to spoof this "
                  "header?");
+    } else if (it->name.istarts_with("X-SSL-Client-")) {
+      if (wtConfiguration.behindReverseProxy()) {
+        os << it->name << ": " << it->value << "\r\n";
+      } else {
+        LOG_SECURE("wthttp is not behind a reverse proxy, dropping " << it->name.str() << " header");
+      }
     } else if (it->name.iequals("X-Forwarded-For") ||
                it->name.iequals("Client-IP")) {
       if (wtConfiguration.behindReverseProxy()) {
@@ -302,8 +308,11 @@ void ProxyReply::assembleRequestHeaders()
   else
     os << "X-Forwarded-Port: " <<  request_.port << "\r\n";
   // Forward SSL Certificate to session only for first request
-  if (request_.sslInfo() && fwCertificates_) {
-    appendSSLInfo(request_.sslInfo(), os);
+  if (fwCertificates_) {
+    auto sslInfo = request_.sslInfo();
+    if (sslInfo) {
+      appendSSLInfo(sslInfo.get(), os);
+    }
   }
 
   // Append redirect secret

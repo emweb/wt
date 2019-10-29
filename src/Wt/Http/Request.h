@@ -410,6 +410,8 @@ public:
    * The object returned is owned by Request and will be deleted
    * when the Request object is destroyed.
    *
+   * \includedoc ssl_client_headers.dox
+   *
    * \sa WEnvironment::sslInfo()
    */
   WSslInfo *sslInfo() const;
@@ -449,7 +451,7 @@ private:
   const UploadedFileMap& files_;
   ResponseContinuation *continuation_;
   std::map<std::string, std::string> cookies_;
-  mutable WSslInfo *sslInfo_;
+  mutable std::unique_ptr<WSslInfo> sslInfo_;
 
   Request(const WebRequest& request, ResponseContinuation *continuation);
   Request(const ParameterMap& parameters, const UploadedFileMap& files);

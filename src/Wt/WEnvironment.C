@@ -68,9 +68,6 @@ WEnvironment::WEnvironment()
     dpiScale_(1),
     webGLsupported_(false),
     timeZoneOffset_(0)
-#ifndef WT_TARGET_JAVA
-    , sslInfo_(nullptr)
-#endif
 { }
 
 WEnvironment::WEnvironment(WebSession *session)
@@ -83,19 +80,10 @@ WEnvironment::WEnvironment(WebSession *session)
     dpiScale_(1),
     webGLsupported_(false),
     timeZoneOffset_(0)
-#ifndef WT_TARGET_JAVA
-    , sslInfo_(nullptr)
-#endif
 { }
 
 WEnvironment::~WEnvironment()
-{
-#ifndef WT_TARGET_JAVA
-#ifdef WT_WITH_SSL
-  delete sslInfo_;
-#endif
-#endif
-}
+{ }
 
 void WEnvironment::setInternalPath(const std::string& path)
 {
@@ -174,13 +162,7 @@ void WEnvironment::init(const WebRequest& request)
   if(!str(request.headerValue("Redirect-Secret")).empty())
 	session_->controller()->redirectSecret_ = str(request.headerValue("Redirect-Secret"));
 
-  sslInfo_         = request.sslInfo();
-  if(!sslInfo_ &&
-     conf.behindReverseProxy()) {
-    const char *sslClientCertificates = request.headerValue("X-Wt-Ssl-Client-Certificates");
-    if (sslClientCertificates)
-      parseSSLInfo(str(sslClientCertificates));
-  }
+  sslInfo_ = request.sslInfo(conf.behindReverseProxy());
 #endif
 
   setUserAgent(str(request.headerValue("User-Agent")));
@@ -229,41 +211,6 @@ void WEnvironment::init(const WebRequest& request)
 
   locale_ = request.parseLocale();
 }
-
-#ifndef WT_TARGET_JAVA
-void WEnvironment::parseSSLInfo(const std::string& json) {
-#ifdef WT_WITH_SSL
-	Wt::Json::Object obj;
-	Wt::Json::ParseError error;
-	if(!Wt::Json::parse(Wt::Utils::base64Decode(json), obj, error)) {
-	  LOG_ERROR("error while parsing client certificates");
-	  return;
-	}
-
-	std::string clientCertificatePem = obj["client-certificate"];
-  
-	X509* cert = Wt::Ssl::readFromPem(clientCertificatePem);
-
-	if(cert) {
-	  Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(cert);
-	  X509_free(cert);
-
-	  Wt::Json::Array arr = obj["client-pem-certification-chain"];
-
-	  std::vector<Wt::WSslCertificate> clientCertChain;
-
-	  for(unsigned int i = 0; i < arr.size(); ++i ) {
-		clientCertChain.push_back(Wt::Ssl::x509ToWSslCertificate(Wt::Ssl::readFromPem(arr[i])));
-	  }
-
-	  Wt::ValidationState state = static_cast<Wt::ValidationState>((int)obj["client-verification-result-state"]);
-	  Wt::WString message = obj["client-verification-result-message"];
-
-	  sslInfo_ = new Wt::WSslInfo(clientCert, clientCertChain, Wt::WValidator::Result(state, message));
-	}
-#endif // WT_WITH_SSL
-}
-#endif // WT_TARGET_JAVA
 
 std::string WEnvironment::getClientAddress(const WebRequest& request,
 					   const Configuration& conf)

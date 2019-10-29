@@ -8,12 +8,16 @@
 
 #include "Wt/WException.h"
 #include "Wt/WLogger.h"
+#include "Wt/WStringStream.h"
 #include "Wt/Utils.h"
 
-#include <sstream>
 #include <stdexcept>
 #include <cstring>
 #include <cctype>
+
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #ifdef WT_WITH_SSL
 
@@ -21,16 +25,53 @@
 #define PEM_FOOTER "-----END CERTIFICATE-----"
 
 namespace {
-  std::string 
-  attributesToString(const std::vector<Wt::WSslCertificate::DnAttribute> &DN) {
-    std::stringstream ss;
-    for (unsigned i = 0; i < DN.size(); ++i) {
-      ss << DN[i].shortName() << "=" << DN[i].value();
-      if (i != DN.size() - 1)
-	ss << ",";
+  std::string attributesToString(const std::vector<Wt::WSslCertificate::DnAttribute> &DN) {
+    Wt::WStringStream ss;
+    bool first = true;
+    for (const Wt::WSslCertificate::DnAttribute &rdn : DN) {
+      if (!first)
+        ss << ',';
+      first = false;
+      ss << rdn.shortName() << '=' << rdn.value();
     }
     return ss.str();
   }
+
+  const std::string DN_ATTR_SHORT_NAMES[] = {
+    "C",
+    "CN",
+    "L",
+    "S",
+    "G",
+    "SN",
+    "T",
+    "I",
+    "O",
+    "OU",
+    "ST",
+    "P"
+  };
+
+  static_assert(sizeof(DN_ATTR_SHORT_NAMES) / sizeof(std::string) == Wt::WSslCertificate::DnAttributeNameCount,
+                "There should be as many short names as the cardinality of DnAttributeName");
+
+  const std::string DN_ATTR_LONG_NAMES[] = {
+    "countryName",
+    "commonName",
+    "localityName",
+    "surname",
+    "givenName",
+    "serialNumber",
+    "title",
+    "initials",
+    "organizationName",
+    "organizationalUnitName",
+    "stateOrProvinceName",
+    "pseudonym"
+  };
+
+  static_assert(sizeof(DN_ATTR_LONG_NAMES) / sizeof(std::string) == Wt::WSslCertificate::DnAttributeNameCount,
+                "There should be as many long names as the cardinality of DnAttributeName");
 }
 
 namespace Wt {
@@ -54,68 +95,49 @@ WSslCertificate::WSslCertificate(const std::vector<DnAttribute> &subjectDn,
 
 std::string WSslCertificate::DnAttribute::shortName() const
 {
-  switch (name_) {
-  case CountryName:
-    return "C";
-  case CommonName:
-    return "CN";
-  case LocalityName:
-    return "L";
-  case Surname:
-    return "S";
-  case GivenName:
-    return "G";
-  case SerialNumber:
-    return "SN";
-  case Title:
-    return "T";
-  case Initials:
-    return "I";
-  case OrganizationName:
-    return "O";
-  case OrganizationalUnitName:
-    return "OU";
-  case StateOrProvinceName:
-    return "ST";
-  case Pseudonym:
-    return "P";
-  default:
-    throw Wt::WException("WSslCertificate::shortName(): "
-      "Unknown DnAttributeName");
+  if (name_ >= DnAttributeNameCount) {
+    throw Wt::WException("WSslCertificate::shortName(): Unknown DnAttributeName");
   }
+  return DN_ATTR_SHORT_NAMES[static_cast<unsigned int>(name_)];
 }
 
 std::string WSslCertificate::DnAttribute::longName() const
 {
-  switch (name_) {
-  case CountryName:
-    return "countryName";
-  case CommonName:
-    return "commonName";
-  case LocalityName:
-    return "localityName";
-  case Surname:
-    return "surname";
-  case GivenName:
-    return "givenName";
-  case SerialNumber:
-    return "serialNumber";
-  case Title:
-    return "title";
-  case Initials:
-    return "initials";
-  case OrganizationName:
-    return "organizationName";
-  case OrganizationalUnitName:
-    return "organizationalUnitName";
-  case StateOrProvinceName:
-    return "stateOrProvinceName";
-  case Pseudonym:
-    return "pseudonym";
-  default:
-    throw Wt::WException("WSslCertificate::DnAttribute::longName(): "
-      "Unknown DnAttributeName");
+  if (name_ >= DnAttributeNameCount) {
+    throw Wt::WException("WSslCertificate::longName(): Unknown DnAttributeName");
   }
+  return DN_ATTR_LONG_NAMES[static_cast<unsigned int>(name_)];
+}
+
+std::vector<WSslCertificate::DnAttribute>
+WSslCertificate::dnFromString(const std::string &dn)
+{
+  std::vector<std::string> rdns;
+  boost::split(rdns, dn, boost::is_any_of(","));
+
+  std::vector<DnAttribute> result;
+  result.reserve(rdns.size());
+
+  for (const auto &rdn : rdns) {
+    auto eqPos = rdn.find('=');
+    if (eqPos == std::string::npos)
+      return std::vector<DnAttribute>();
+    bool match = false;
+    std::string attr = rdn.substr(0, eqPos);
+    for (int i = 0; i < DnAttributeNameCount; ++i) {
+      if (boost::iequals(attr, DN_ATTR_SHORT_NAMES[i]) ||
+          boost::iequals(attr, DN_ATTR_LONG_NAMES[i])) {
+        std::string value = rdn.substr(eqPos + 1);
+        result.push_back(DnAttribute(static_cast<DnAttributeName>(i), value));
+        match = true;
+        break;
+      }
+    }
+    if (!match)
+      return std::vector<DnAttribute>();
+  }
+
+  return result;
 }
 
 std::string WSslCertificate::issuerDnString() const
@@ -162,13 +184,13 @@ std::string WSslCertificate::pemToDer(const std::string &pem)
 
 std::string WSslCertificate::gdb() const
 {
-  std::stringstream ss;
+  Wt::WStringStream ss;
   ss 
-    << "subject DN: " << subjectDnString() << std::endl
-    << "issuer DN: " << issuerDnString() << std::endl
-    << "validity start: " << validityStart_.toString() << std::endl
-    << "validity end: " << validityEnd_.toString() << std::endl
-    << "client cert: " << pemCert_ << std::endl;
+    << "subject DN: " << subjectDnString() << '\n'
+    << "issuer DN: " << issuerDnString() << '\n'
+    << "validity start: " << validityStart_.toString().toUTF8() << '\n'
+    << "validity end: " << validityEnd_.toString().toUTF8() << '\n'
+    << "client cert: " << pemCert_ << '\n';
  
   return ss.str();
 }

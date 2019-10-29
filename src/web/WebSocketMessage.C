@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WLogger.h"
+#include "Wt/WSslInfo.h"
 
 #include "WebSession.h"
 #include "WebSocketMessage.h"
@@ -150,9 +151,9 @@ const char *WebSocketMessage::urlScheme() const
     return "http";
 }
 
-Wt::WSslInfo *WebSocketMessage::sslInfo() const
+std::unique_ptr<Wt::WSslInfo> WebSocketMessage::sslInfo(bool behindReverseProxy) const
 {
-  return webSocket()->sslInfo();
+  return webSocket()->sslInfo(behindReverseProxy);
 }
 
 const char *WebSocketMessage::headerValue(const char *name) const

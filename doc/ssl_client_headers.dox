@@ -1,0 +1,31 @@
+\par Client certificates with wthttp behind a reverse proxy
+If %Wt is using the wthttp connector and is behind a reverse proxy, %Wt
+can still obtain client certificate information if it is passed
+through the following headers:
+<table>
+  <tr>
+    <th>Header</th><th>Description</th><th>Apache variable</th><th>nginx variable</th><th>Notes</th>
+  </tr>
+  <tr>
+    <td><tt>X-SSL-Client-Verify</tt></td><td>Verification state: NONE, SUCCESS, FAILED:<i>reason</i>, or GENEROUS. Only SUCCESS is treated as valid.</td><td><tt>%{SSL_CLIENT_VERIFY}s</tt></td><td><tt>$ssl_client_verify</tt></td><td>Always required</td>
+  </tr>
+  <tr>
+    <td><tt>X-SSL-Client-S-DN</tt></td><td>Subject DN</td><td><tt>%{SSL_CLIENT_S_DN}s</tt></td><td><tt>$ssl_client_s_dn</tt></td><td>Required if <tt>X-SSL-Client-Cert</tt> is not present</td>
+  </tr>
+  <tr>
+    <td><tt>X-SSL-Client-I-DN</tt></td><td>Issuer DN</td><td><tt>%{SSL_CLIENT_I_DN}s</tt></td><td><tt>$ssl_client_i_dn</tt></td><td>Required if <tt>X-SSL-Client-Cert</tt> is not present</td>
+  </tr>
+  <tr>
+    <td><tt>X-SSL-Client-V-Start</tt></td><td>Validity Start, formatted like: Oct 29 15:19:20 2019 GMT</td><td><tt>%{SSL_CLIENT_V_START}s</tt></td><td><tt>$ssl_client_v_start</tt></td><td>Required if <tt>X-SSL-Client-Cert</tt> is not present</td>
+  </tr>
+  <tr>
+    <td><tt>X-SSL-Client-V-End</tt></td><td>Validity End, formatted like: Oct 29 15:19:20 2019 GMT</td><td><tt>%{SSL_CLIENT_V_END}s</tt></td><td><tt>$ssl_client_v_end</tt></td><td>Required if <tt>X-SSL-Client-Cert</tt> is not present</td>
+  </tr>
+  <tr>
+    <td><tt>X-SSL-Client-Cert</tt></td><td>PEM encoded client certificate</td><td><tt>%{SSL_CLIENT_CERT}s</tt></td><td><tt>$ssl_client_cert</tt></td><td>Required if previous four headers are not present, needs %Wt to be built with OpenSSL</td>
+  </tr>
+</table>
+Note that the <tt>X-SSL-Client-Cert</tt> header will significantly increase the size of all requests. If it is not provided,
+then WSslCertificate::toPem() and WSslCertificate::toDer() will return the empty string.
+The certificate chain is not passed through, so WSslInfo::clientPemCertificateChain() will be empty.
+HAProxy also has variables containing client certificate information, but they are in a different format that is not currently supported.

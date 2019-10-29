@@ -7,7 +7,21 @@
 #include "HTTPRequest.h"
 #include "Configuration.h"
 #include "WtReply.h"
+
+#include "Wt/Utils.h"
+#include "Wt/WConfig.h"
+#include "Wt/WLogger.h"
+#include "Wt/WSslInfo.h"
 #include "Wt/Http/Message.h"
+#include "Wt/Json/Array.h"
+#include "Wt/Json/Object.h"
+#include "Wt/Json/Parser.h"
+
+#include "web/SslUtils.h"
+
+namespace Wt {
+  LOGGER("wthttp");
+}
 
 namespace http {
 namespace server {
@@ -36,8 +50,8 @@ bool HTTPRequest::done() const
 void HTTPRequest::flush(ResponseState state, const WriteCallback& callback)
 {
   WtReplyPtr ptr = reply_;
-  
-  if (done()) 
+
+  if (done())
     return;
 
   if (state == ResponseState::ResponseDone)
@@ -241,9 +255,135 @@ bool HTTPRequest::isSynchronous() const
   return false;
 }
 
-Wt::WSslInfo *HTTPRequest::sslInfo() const
+std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfo(bool behindReverseProxy) const
 {
-  return reply_->request().sslInfo();
+  auto result = reply_->request().sslInfo();
+  if (behindReverseProxy) {
+    if (!result)
+      result = sslInfoFromJson();
+    if (!result)
+      result = sslInfoFromHeaders();
+  }
+  return result;
+}
+
+std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfoFromJson() const
+{
+  const char * const ssl_client_certificates = headerValue("X-Wt-Ssl-Client-Certificates");
+
+  if (!ssl_client_certificates)
+    return nullptr;
+
+  Wt::Json::Object obj;
+  Wt::Json::ParseError error;
+  if (!Wt::Json::parse(Wt::Utils::base64Decode(ssl_client_certificates), obj, error)) {
+    LOG_ERROR("error while parsing client certificates");
+    return nullptr;
+  }
+
+  std::string clientCertificatePem = obj["client-certificate"];
+
+  X509 *cert = Wt::Ssl::readFromPem(clientCertificatePem);
+
+  if (cert) {
+    Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(cert);
+    X509_free(cert);
+
+    const Wt::Json::Array &arr = obj["client-pem-certification-chain"];
+
+    std::vector<Wt::WSslCertificate> clientCertChain;
+
+    for (const auto &cert : arr) {
+      clientCertChain.push_back(Wt::Ssl::x509ToWSslCertificate(Wt::Ssl::readFromPem(cert)));
+    }
+
+    Wt::ValidationState state = static_cast<Wt::ValidationState>(static_cast<int>(obj["client-verification-result-state"]));
+    Wt::WString message = obj["client-verification-result-message"];
+
+    return Wt::cpp14::make_unique<Wt::WSslInfo>(clientCert,
+                                                clientCertChain,
+                                                Wt::WValidator::Result(state, message));
+  }
+
+  return nullptr;
+}
+
+std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfoFromHeaders() const
+{
+  const char * const client_verify = headerValue("X-SSL-Client-Verify");
+  const char * const client_s_dn = headerValue("X-SSL-Client-S-DN");
+  const char * const client_i_dn = headerValue("X-SSL-Client-I-DN");
+  const char * const validity_start = headerValue("X-SSL-Client-V-Start");
+  const char * const validity_end = headerValue("X-SSL-Client-V-End");
+  const char * const client_cert = headerValue("X-SSL-Client-Cert");
+
+  if (!client_verify)
+    return nullptr;
+
+  if (boost::iequals(client_verify, "NONE"))
+    return nullptr;
+
+  enum Verify {
+    SUCCESS,
+    FAILED,
+    GENEROUS
+  };
+
+  const char *failedReason = nullptr;
+
+  Verify v = FAILED;
+  if (boost::iequals(client_verify, "SUCCESS"))
+    v = SUCCESS;
+  else if (boost::iequals(client_verify, "GENEROUS"))
+    v = GENEROUS;
+  else if (boost::istarts_with(client_verify, "FAILED:")) {
+    v = FAILED;
+    failedReason = client_verify + sizeof("FAILED");
+  } else
+    return nullptr;
+
+#ifdef WT_WITH_SSL
+  if (client_cert) {
+    // try parse cert, use cert for all other info
+    X509 *cert = Wt::Ssl::readFromPem(client_cert);
+
+    if (cert) {
+      Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(cert);
+      return Wt::cpp14::make_unique<Wt::WSslInfo>(clientCert,
+                                                  std::vector<Wt::WSslCertificate>(),
+                                                  Wt::WValidator::Result(v == SUCCESS ? Wt::ValidationState::Valid : Wt::ValidationState::Invalid,
+                                                                         failedReason ? Wt::utf8(failedReason) : Wt::WString::Empty));
+    }
+  }
+#endif // WT_WITH_SSL
+
+  if (client_s_dn &&
+      client_i_dn &&
+      validity_start &&
+      validity_end) {
+    std::vector<Wt::WSslCertificate::DnAttribute> subjectDn =
+        Wt::WSslCertificate::dnFromString(client_s_dn);
+    std::vector<Wt::WSslCertificate::DnAttribute> issuerDn =
+        Wt::WSslCertificate::dnFromString(client_i_dn);
+
+    const Wt::WString validityFormat = Wt::utf8("MMM dd hh:mm:ss yyyy 'GMT'");
+    Wt::WDateTime validityStart = Wt::WDateTime::fromString(
+          Wt::utf8(validity_start), validityFormat);
+    Wt::WDateTime validityEnd = Wt::WDateTime::fromString(
+          Wt::utf8(validity_end), validityFormat);
+
+    Wt::WSslCertificate clientCert(subjectDn,
+                                   issuerDn,
+                                   validityStart,
+                                   validityEnd,
+                                   client_cert ? std::string(client_cert) : empty_);
+    return Wt::cpp14::make_unique<Wt::WSslInfo>(clientCert,
+                                                std::vector<Wt::WSslCertificate>(),
+                                                Wt::WValidator::Result(v == SUCCESS ? Wt::ValidationState::Valid : Wt::ValidationState::Invalid,
+                                                                       failedReason ? Wt::utf8(failedReason) : Wt::WString::Empty));
+  }
+
+  return nullptr;
 }
 
 const std::vector<std::pair<std::string, std::string> > &HTTPRequest::urlParams() const

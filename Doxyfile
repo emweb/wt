@@ -740,6 +740,7 @@ EXCLUDE_SYMBOLS        =
 # the \include command).
 
 EXAMPLE_PATH           = examples \
+                         doc \
                          ReleaseNotes.html \
                          INSTALL.html \
                          INSTALL.win32.html

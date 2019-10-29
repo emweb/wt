@@ -12,7 +12,10 @@
 #include "Wt/Http/Request.h"
 #include "Wt/Utils.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WServer.h"
 #include "Wt/WSslInfo.h"
+
+#include "Configuration.h"
 #include "WebUtils.h"
 #include "WebRequest.h"
 #include "Message.h"
@@ -224,10 +227,13 @@ std::string Request::clientAddress() const
 WSslInfo *Request::sslInfo() const
 {
   if (sslInfo_)
-    return sslInfo_;
-  if (request_)
-    sslInfo_ = request_->sslInfo();
-  return sslInfo_;
+    return sslInfo_.get();
+  if (request_) {
+    auto server = WServer::instance();
+    bool behindReverseProxy = server && server->configuration().behindReverseProxy();
+    sslInfo_ = request_->sslInfo(behindReverseProxy);
+  }
+  return sslInfo_.get();
 }
 
 Request::ByteRangeSpecifier Request::getRanges(::int64_t filesize) const
@@ -352,8 +358,7 @@ Request::Request(const WebRequest& request, ResponseContinuation *continuation)
   : request_(&request),
     parameters_(request.getParameterMap()),
     files_(request.uploadedFiles()),
-    continuation_(continuation),
-    sslInfo_(nullptr)
+    continuation_(continuation)
 {
   if (!continuation) {
     const char *cookie = request_->headerValue("Cookie");
@@ -366,16 +371,11 @@ Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)
   : request_(nullptr),
     parameters_(parameters),
     files_(files),
-    continuation_(0),
-    sslInfo_(nullptr)
+    continuation_(0)
 { }
 
 Request::~Request()
-{
-#ifdef WT_WITH_SSL
-  delete sslInfo_;
-#endif
-}
+{ }
 
 #ifndef WT_TARGET_JAVA
 void Request::parseFormUrlEncoded(const std::string& s,

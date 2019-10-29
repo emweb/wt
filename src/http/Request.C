@@ -22,7 +22,16 @@
 
 #ifdef WT_WIN32
 #define strcasecmp _stricmp
+#define strncasecmp _strnicmp
 #define HAVE_STRCASECMP
+#define HAVE_STRNCASECMP
+#endif
+
+#ifdef __QNXNTO__
+#define strcasecmp stricmp
+#define strncasecmp strnicmp
+#define HAVE_STRCASECMP
+#define HAVE_STRNCASECMP
 #endif
 
 namespace Wt {
@@ -31,11 +40,6 @@ namespace Wt {
 
 namespace http {
 namespace server {
-
-#ifdef __QNXNTO__
-#define HAVE_STRCASECMP
-#define strcasecmp stricmp
-#endif
 
 std::string buffer_string::str() const
 {
@@ -102,6 +106,25 @@ bool buffer_string::iequals(const char *s) const
     return boost::iequals(s, str().c_str());
   else if (data)
     return boost::iequals(s, data);
+  else
+    return false;
+#endif
+}
+
+bool buffer_string::istarts_with(const char *s, unsigned int len) const
+{
+#ifdef HAVE_STRNCASECMP
+  if (next)
+    return strncasecmp(s, str().c_str(), len) == 0;
+  else if (data)
+    return strncasecmp(s, data, len) == 0;
+  else
+    return false;
+#else
+  if (next)
+    return boost::istarts_with(str().c_str(), s);
+  else if (data)
+    return boost::istarts_with(data, s);
   else
     return false;
 #endif
@@ -248,7 +271,7 @@ bool Request::acceptGzipEncoding() const
     return false;
 }
 
-Wt::WSslInfo *Request::sslInfo() const
+std::unique_ptr<Wt::WSslInfo> Request::sslInfo() const
 {
 #ifdef HTTP_WITH_SSL
   if (!ssl)
@@ -282,9 +305,9 @@ Wt::WSslInfo *Request::sslInfo() const
     }
     Wt::WValidator::Result clientVerificationResult(state, info);
     
-    return new Wt::WSslInfo(clientCert, 
-			    clientCertChain, 
-			    clientVerificationResult);
+    return Wt::cpp14::make_unique<Wt::WSslInfo>(clientCert,
+                                                clientCertChain,
+                                                clientVerificationResult);
   }
 #endif
   return nullptr;
