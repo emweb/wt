@@ -22,7 +22,7 @@ through the following headers:
     <td><tt>X-SSL-Client-V-End</tt></td><td>Validity End, formatted like: Oct 29 15:19:20 2019 GMT</td><td><tt>%{SSL_CLIENT_V_END}s</tt></td><td><tt>$ssl_client_v_end</tt></td><td>Required if <tt>X-SSL-Client-Cert</tt> is not present</td>
   </tr>
   <tr>
-    <td><tt>X-SSL-Client-Cert</tt></td><td>PEM encoded client certificate</td><td><tt>%{SSL_CLIENT_CERT}s</tt></td><td><tt>$ssl_client_cert</tt></td><td>Required if previous four headers are not present, needs %Wt to be built with OpenSSL</td>
+    <td><tt>X-SSL-Client-Cert</tt></td><td>PEM encoded client certificate</td><td><tt>%{SSL_CLIENT_CERT}s</tt></td><td><tt>$ssl_client_escaped_cert</tt></td><td>Required if previous four headers are not present, needs %Wt to be built with OpenSSL</td>
   </tr>
 </table>
 Note that the <tt>X-SSL-Client-Cert</tt> header will significantly increase the size of all requests. If it is not provided,

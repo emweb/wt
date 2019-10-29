@@ -19,8 +19,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-#ifdef WT_WITH_SSL
-
 #define PEM_HEADER "-----BEGIN CERTIFICATE-----"
 #define PEM_FOOTER "-----END CERTIFICATE-----"
 
@@ -122,19 +120,15 @@ WSslCertificate::dnFromString(const std::string &dn)
     auto eqPos = rdn.find('=');
     if (eqPos == std::string::npos)
       return std::vector<DnAttribute>();
-    bool match = false;
     std::string attr = rdn.substr(0, eqPos);
     for (int i = 0; i < DnAttributeNameCount; ++i) {
       if (boost::iequals(attr, DN_ATTR_SHORT_NAMES[i]) ||
           boost::iequals(attr, DN_ATTR_LONG_NAMES[i])) {
         std::string value = rdn.substr(eqPos + 1);
         result.push_back(DnAttribute(static_cast<DnAttributeName>(i), value));
-        match = true;
         break;
       }
     }
-    if (!match)
-      return std::vector<DnAttribute>();
   }
 
   return result;
@@ -196,6 +190,4 @@ std::string WSslCertificate::gdb() const
 }
 
 }
-
-#endif
 

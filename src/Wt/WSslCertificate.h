@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#if defined(WT_WITH_SSL) || defined(DOXYGEN_ONLY)
+#ifndef WT_TARGET_JAVA
 
 namespace Wt {
 

@@ -12,8 +12,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#ifdef WT_WITH_SSL
-
 namespace Wt {
 
 LOGGER("WSslInfo");
@@ -49,6 +47,3 @@ std::string WSslInfo::gdb() const
 }
 
 }
-
-#endif
-

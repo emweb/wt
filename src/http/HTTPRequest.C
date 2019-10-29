@@ -19,6 +19,12 @@
 
 #include "web/SslUtils.h"
 
+#define PEM_HEADER "-----BEGIN CERTIFICATE-----"
+#define PEM_FOOTER "-----END CERTIFICATE-----"
+
+#define PEM_ESCAPED_HEADER "-----BEGIN%20CERTIFICATE-----"
+#define PEM_ESCAPED_FOOTER "-----END%20CERTIFICATE-----%0A"
+
 namespace Wt {
   LOGGER("wthttp");
 }
@@ -259,14 +265,17 @@ std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfo(bool behindReverseProxy) cons
 {
   auto result = reply_->request().sslInfo();
   if (behindReverseProxy) {
+#ifdef HTTP_WITH_SSL
     if (!result)
       result = sslInfoFromJson();
+#endif // HTTP_WITH_SSL
     if (!result)
       result = sslInfoFromHeaders();
   }
   return result;
 }
 
+#ifdef HTTP_WITH_SSL
 std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfoFromJson() const
 {
   const char * const ssl_client_certificates = headerValue("X-Wt-Ssl-Client-Certificates");
@@ -307,6 +316,7 @@ std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfoFromJson() const
 
   return nullptr;
 }
+#endif // HTTP_WITH_SSL
 
 std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfoFromHeaders() const
 {
@@ -342,10 +352,33 @@ std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfoFromHeaders() const
   } else
     return nullptr;
 
-#ifdef WT_WITH_SSL
+  std::string clientCertStr;
   if (client_cert) {
+    clientCertStr = client_cert;
+    boost::trim(clientCertStr);
+    if (boost::starts_with(clientCertStr, PEM_HEADER)) {
+      const std::size_t start = sizeof(PEM_HEADER) - 1;
+      const std::size_t end = clientCertStr.find(PEM_FOOTER);
+      if (end != std::string::npos) {
+        for (std::size_t i = start; i < end; ++i) {
+          if (clientCertStr[i] == ' ')
+            clientCertStr[i] = '\n';
+        }
+      } else {
+        clientCertStr.clear();
+      }
+    } else if (boost::starts_with(clientCertStr, PEM_ESCAPED_HEADER) &&
+               boost::ends_with(clientCertStr, PEM_ESCAPED_FOOTER)) {
+      clientCertStr = Wt::Utils::urlDecode(clientCertStr);
+    } else {
+      clientCertStr.clear();
+    }
+  }
+
+#ifdef WT_WITH_SSL
+  if (!clientCertStr.empty()) {
     // try parse cert, use cert for all other info
-    X509 *cert = Wt::Ssl::readFromPem(client_cert);
+    X509 *cert = Wt::Ssl::readFromPem(clientCertStr);
 
     if (cert) {
       Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(cert);
@@ -376,7 +409,7 @@ std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfoFromHeaders() const
                                    issuerDn,
                                    validityStart,
                                    validityEnd,
-                                   client_cert ? std::string(client_cert) : empty_);
+                                   clientCertStr);
     return Wt::cpp14::make_unique<Wt::WSslInfo>(clientCert,
                                                 std::vector<Wt::WSslCertificate>(),
                                                 Wt::WValidator::Result(v == SUCCESS ? Wt::ValidationState::Valid : Wt::ValidationState::Invalid,
