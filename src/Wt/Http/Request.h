@@ -403,7 +403,7 @@ public:
    *
    * Session-bound resources will probably not use this method, but rely on
    * the validation done at the start of the session (see sslInfo() in
-   * WEnvironment). PositionScheme::Static resources on the other hand don't have an
+   * WEnvironment). Static resources on the other hand don't have an
    * associated session, so using this method you can perform client
    * authentication verification.
    *

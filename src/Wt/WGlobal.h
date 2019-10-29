@@ -543,7 +543,7 @@ enum class PositionScheme {
    *  wrapping around at the end of the line to continue on the next
    *  line. Block widgets are stacked vertically.
    *
-   *  PositionScheme::Static widgets may also float to the left or
+   *  Static widgets may also float to the left or
    *  right border, using setFloatSide().
    */
   Static,
@@ -551,7 +551,7 @@ enum class PositionScheme {
   /*! \brief Relative position scheme.
    *
    *  The widget is first layed out according to
-   *  PositionScheme::Static layout rules, but after layout, the
+   *  Static layout rules, but after layout, the
    *  widget may be offset relative to where it would be in a static
    *  layout, using setOffsets().
    *
