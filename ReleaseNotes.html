@@ -22,6 +22,33 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.4.2 (October 30, 2019)</h2>
+<p>
+  This release fixes the following issues:
+</p>
+<ul>
+  <li><b>wthttp security issues</b>:
+    <ul>
+      <li>Wt internally used an <tt>SSL-Client-Certificates</tt> header to send client certificates to child processes when using dedicated process mode. It was however <i>always accepted even when Wt was not behind a reverse proxy</i>, and sent to child processes as-is. <tt>wthttp</tt> now correctly disregards it when not received from a reverse proxy. The header was also renamed to <tt>X-Wt-Ssl-Client-Certificates</tt> to clarify that it is a non-standard internal Wt header.</li>
+      <li>When using dedicated session processes with wthttp, the parent process would trust <tt>X-Forwarded-Proto</tt> and <tt>X-Forwarded-Port</tt> even when Wt was not configured to be behind a reverse proxy. These are now discarded.</li>
+    </ul>
+  </li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/7292">issue #7292</a>: <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a> now correctly uses <tt>refresh_token</tt> instead of <tt>refreshToken</tt></li>
+  <li><a href="classWt_1_1Http_1_1Client.html">Http::Client</a> fixes:
+    <ul>
+      <li>fixed <a href="https://redmine.webtoolkit.eu/issues/7272">issue #7272</a>: support <tt>@</tt> character in the path of a URL</li>
+      <li>fixed 204 No Content response code behavior (would hang before, waiting for content) (<a href="https://redmine.webtoolkit.eu/issues/7273">issue #7273</a>)</li>
+    </ul>
+  </li>
+  <li>More informative error and exception messages:
+    <ul>
+      <li><a href="classWt_1_1Dbo_1_1QueryModel.html"><tt>QueryModel</tt></a>'s "geometry inconsistent with database" exception now contains row and cache start and size information</li>
+      <li><tt>WebSession</tt>'s "not serving this" info message contains more context so it's less confusing</li>
+    </ul>
+  </li>
+  <li>Documentation fix: The release notes for Wt 3.3.8 incorrectly referred to <tt>allowed-hosts</tt>, while this property is actually named <tt>allowed-origins</tt></li>
+</ul>
+
 <h2>Release 3.4.1 (September 9, 2019)</h2>
 <p>
   This release fixes the following issues:
