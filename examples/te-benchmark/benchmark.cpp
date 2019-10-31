@@ -23,6 +23,10 @@
 #include <boost/random/taus88.hpp>
 #include <boost/thread/tss.hpp>
 
+#ifndef WT_WIN32
+extern char **environ;
+#endif // WT_WIN32
+
 class MyMessage {
 public:
   std::string message;
