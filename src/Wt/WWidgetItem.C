@@ -58,8 +58,11 @@ void WWidgetItem::setParentWidget(WWidget *parent)
   } else {
     WContainerWidget *pc = dynamic_cast<WContainerWidget *>(widget_->parent());
 
-    if (pc)
-      pc->widgetRemoved(widget_.get(), true);
+    if (pc) {
+      assert(impl_);
+      bool flex = dynamic_cast<FlexItemImpl*>(impl());
+      pc->widgetRemoved(widget_.get(), flex);
+    }
 
     impl_.reset();
   }
