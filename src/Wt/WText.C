@@ -174,10 +174,21 @@ void WText::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_PADDINGS_CHANGED)
       || (all && padding_ &&
-	  !(padding_[0].isAuto() && padding_[1].isAuto()))) {
-    
-    element.setProperty(Property::StylePaddingRight, padding_[0].cssText());
-    element.setProperty(Property::StylePaddingLeft, padding_[1].cssText());
+          !(   padding_[0].isAuto() && padding_[1].isAuto()
+            && padding_[2].isAuto() && padding_[3].isAuto()))) {
+
+    if ((padding_[0] == padding_[1]) && (padding_[0] == padding_[2])
+        && (padding_[0] == padding_[3]))
+      element.setProperty(Property::StylePadding, padding_[0].cssText());
+    else {
+      WStringStream s;
+      for (unsigned i = 0; i < 4; ++i) {
+        if (i != 0)
+          s << ' ';
+        s << (padding_[i].isAuto() ? "0" : padding_[i].cssText());
+      }
+      element.setProperty(Property::StylePadding, s.str());
+    }
 
     flags_.reset(BIT_PADDINGS_CHANGED);
   }
@@ -224,22 +235,32 @@ void WText::setInternalPathEncoding(bool enabled)
 void WText::setPadding(const WLength& length, WFlags<Side> sides)
 {
   if (!padding_) {
-    padding_ = new WLength[2];
+    padding_ = new WLength[4];
 #ifdef WT_TARGET_JAVA
-    padding_[0] = padding_[1] = WLength::Auto;
+    padding_[0] = padding_[1] = padding_[2] = padding_[3] = WLength::Auto;
 #endif // WT_TARGET_JAVA
   }
 
-  if (sides.test(Side::Right))
+  if (sides.test(Side::Top)) {
+    if (isInline()) {
+      LOG_WARN("setPadding(..., Side::Top) is not supported for inline WText. "
+               "If your WText is not inline, you can call setInline(true) before setPadding(...) "
+               "to disable this warning.");
+    }
     padding_[0] = length;
-  if (sides.test(Side::Left))
+  }
+  if (sides.test(Side::Right))
     padding_[1] = length;
-
-  if (sides.test(Side::Top))
-    LOG_ERROR("setPadding(..., Side::Top) is not supported.");
-
-  if (sides.test(Side::Bottom))
-    LOG_ERROR("setPadding(..., Side::Bottom) is not supported.");
+  if (sides.test(Side::Bottom)) {
+    if (isInline()) {
+      LOG_WARN("setPadding(..., Side::Bottom) is not supported for inline WText. "
+               "If your WText is not inline, you can call setInline(true) before setPadding(...) "
+               "to disable this warning.");
+    }
+    padding_[2] = length;
+  }
+  if (sides.test(Side::Left))
+    padding_[3] = length;
 
   flags_.set(BIT_PADDINGS_CHANGED);
   repaint(RepaintFlag::SizeAffected);
@@ -252,16 +273,15 @@ WLength WText::padding(Side side) const
 
   switch (side) {
   case Side::Top:
-    LOG_ERROR("padding(Side::Top) is not supported.");
-    return WLength();
+    return padding_[0];
   case Side::Right:
     return padding_[1];
   case Side::Bottom:
-    LOG_ERROR("padding(Side::Bottom) is not supported.");
+    return padding_[2];
   case Side::Left:
     return padding_[3];
   default:
-    LOG_ERROR("padding(Side) with invalid side: " << (int)side);
+    LOG_ERROR("padding(): improper side.");
     return WLength();
   }
 }

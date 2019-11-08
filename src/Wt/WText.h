@@ -221,8 +221,11 @@ public:
   /*! \brief Sets padding inside the widget
    *
    * Setting padding has the effect of adding distance between the
-   * widget children and the border, for a WText padding is only supported
-   * on the left and/or right.
+   * widget children and the border.
+   *
+   * \note for an \link setInline() inline\endlink %WText padding
+   * is only supported on the left and/or right. Setting padding on
+   * the top or bottom has no effect.
    */
   void setPadding(const WLength& padding, 
 		  WFlags<Side> sides = Side::Left | Side::Right);
