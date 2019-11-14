@@ -110,17 +110,7 @@ public:
   {
     WApplication *app = WApplication::instance();
 
-    /*
-     * WObject::bindSafe() is a functor that protects calling the passed
-     * method or function against calling it when the object has already
-     * been deleted.
-     */
-    server.connect(this, bindSafe(&ClientWidget::updateData));
-
-    /*
-     * You can also bindSafe() a lambda, for example:
-     */
-    // server.connect(this, bindSafe([this]() { updateData(); }));
+    server.connect(this, std::bind(&ClientWidget::updateData, this));
 
     app->enableUpdates(true);
 
