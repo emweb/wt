@@ -111,8 +111,8 @@ enum SegmentType {
  * path.lineTo(30, 20);
  * path.closeSubPath();
  *		 
- * painter.setPen(new WPen(WColor.StandardColor::Red));
- * painter.setBrush(new WBrush(WColor.StandardColor::Blue));
+ * painter.setPen(new WPen(WColor.red));
+ * painter.setBrush(new WBrush(WColor.blue));
  * painter.drawPath(path);
  * \endcode
  * \endif

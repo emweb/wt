@@ -182,7 +182,7 @@ public:
    */
   virtual User registerNew(); 
 
-  /*! \brief Method::Delete a user.
+  /*! \brief Delete a user.
    *
    * This deletes a user from the database.
    */

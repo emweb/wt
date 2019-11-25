@@ -325,7 +325,7 @@ public:
 
   /*! \brief Selects an item.
    *
-   * SelectionFlag::Select the menu item \p item.
+   * Select the menu item \p item.
    *
    * When \p item is \c 0, the current selection is removed.
    *

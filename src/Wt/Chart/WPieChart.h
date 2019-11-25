@@ -226,8 +226,10 @@ public:
    * values.
    *
    * The format string must be a format string that is accepted by
-   * snprintf() and which formats one double. If the format string is
-   * an empty string, then WLocale::toString() is used.
+   * snprintf() and which formats one double.
+   * \if cpp
+   * If the format string is an empty string, then WLocale::toString() is used.
+   * \endif
    *
    * The default value is "%.3g%%".
    *
@@ -272,6 +274,7 @@ public:
    * on an other layer that has the same dimensions as the WPieChart.
    * \sa drawLabel()
    *
+   * \if cpp
    * Usage example, PieChart with label links.
    * \code
    * class PChart : public Wt::Chart::WPieChart {
@@ -299,6 +302,7 @@ public:
    *   }
    * };
    * \endcode
+   * \endif
    */
   virtual std::unique_ptr<WContainerWidget> createLabelWidget(std::unique_ptr<WWidget> textWidget,
       WPainter* painter, const WRectF& rect,

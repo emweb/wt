@@ -60,7 +60,7 @@ void WCssDecorationStyle::copy(const WCssDecorationStyle& other)
 
   for (unsigned i = 0; i < 4; ++i) {
     if (other.border_[i])
-      border_[i] = cpp14::make_unique<WBorder>(*other.border_[i]);
+      border_[i] = std::unique_ptr<WBorder>(new WBorder(*other.border_[i]));
     else
       border_[i] = nullptr;
   }
@@ -181,7 +181,7 @@ void WCssDecorationStyle::setBorder(WBorder border, WFlags<Side> sides)
 
   for (unsigned i = 0; i < 4; ++i) {
     if (sides.test(theSides[i])) {
-      border_[i] = cpp14::make_unique<WBorder>(border);
+      border_[i] = std::unique_ptr<WBorder>(new WBorder(border));
     }
 
     borderChanged_ = true;

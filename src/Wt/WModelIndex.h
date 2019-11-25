@@ -145,7 +145,7 @@ public:
     return role_ < rhs.role_;
   }
 
-#ifndef WT_TARGET_JAVA
+#if !defined(WT_TARGET_JAVA) || defined(DOXYGEN_ONLY)
   static constexpr const int Display = 0;       //!< Role for textual representation
   static constexpr const int Decoration = 1;    //!< Role for the url of an icon
   static constexpr const int Edit = 2;          //!< Role for the edited value
@@ -154,7 +154,7 @@ public:
   /*! Role that indicates the check state.
    *
    * Data for this role should be a <tt>bool</tt>. When the
-   * Wt::ItemIsTristate flag is set for the item, data for this role
+   * Wt::ItemFlag::Tristate flag is set for the item, data for this role
    * should be of type Wt::CheckState.
    */
   static constexpr const int Checked = 4;
@@ -171,7 +171,7 @@ public:
   static constexpr const int BarBrushColor = 19; //!< Bar brush color (for Chart::WCartesianChart)
 
   static constexpr const int User = 32;           //!< First role reserved for user purposes
-#else // WT_TARGET_JAVA
+#else
   static const ItemDataRole Display;
   static const ItemDataRole Decoration;
   static const ItemDataRole Edit;
@@ -208,11 +208,11 @@ enum class ItemFlag {
   DropEnabled = 0x10,     //!< Item can be a drop target
   /*! Item has tree states.
    *
-   * When set, Wt::CheckStateRole data is of type
+   * When set, Wt::ItemDataRole::Checked data is of type
    * Wt::CheckState
    */
   Tristate = 0x20,
-  XHTMLText = 0x40,        //!< Item's text (Display, ToolTip) is HTML
+  XHTMLText = 0x40,        //!< Item's text (ItemDataRole::Display, ItemDataRole::ToolTip) is HTML
   Dirty = 0x80,            //!< Item's value has been modified
   DeferredToolTip = 0x100 //!< Item's tooltip is deferred
 };

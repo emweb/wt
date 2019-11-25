@@ -2651,8 +2651,7 @@ void uniform2iv(const UniformLocation &location,
    */
   void viewport(int x, int y, unsigned width, unsigned height);
 
-  /*! @}
-   */
+  //!@}
 
   /*! @name Client-side vectors and matrices
    *
@@ -2771,8 +2770,7 @@ void uniform2iv(const UniformLocation &location,
   void setJavaScriptVector(JavaScriptVector &jsv,
 			   const std::vector<float> &v);
 
-  /*! @}
-   */
+  //!@}
 
   /*! \brief Set a custom mouse handler based on the given JavaScript code.
    *

@@ -192,7 +192,7 @@ public:
  * - inline and external JavaScript using doJavaScript() and require().
  * - the top-level widget in root(), representing the entire browser window,
  *   or multiple top-level widgets using bindWidget() when deployed in
- *   %EntryPointType::WidgetSet mode to manage a number of widgets within a 3rd party page.
+ *   EntryPointType::WidgetSet mode to manage a number of widgets within a 3rd party page.
  * - definition of cookies using setCookie() to persist information across
  *   sessions, which may be read using WEnvironment::getCookie() in a future
  *   session.
@@ -653,7 +653,7 @@ public:
    *
    * The default implementation is not complete: it does not handle relative
    * URL path segments with '..'. It just handles the cases that are necessary for
-   * Wt.
+   * %Wt.
    *
    * This is not used in the library, except when a public URL is
    * needed, e.g. for inclusion in an email.
@@ -806,7 +806,6 @@ public:
    * \code
    * http://www.mydomain.com/stuff/app.wt#/project/z3cbc/details/
    * \endcode
-   * </li><li>
    * </li><li>
    * in a plain HTML session:
    * \code

@@ -45,7 +45,7 @@ enum class InputMaskFlag {
  * You may specify a maximum length for the input using
  * setMaxLength(). If you wish to provide more detailed input
  * validation, you may set a validator using the
- * setValidator(WValidator *) method. Validators provide, in general,
+ * setValidator(const std::shared_ptr<WValidator> &) method. Validators provide, in general,
  * both client-side validation (as visual feed-back only) and
  * server-side validation when calling validate().
  *

@@ -47,7 +47,7 @@ class WWidget;
  * function(sender, event) {
  *   // handle the event, and sender is a reference to the DOM element
  *   // which captured the event (and holds the signal). Therefore it
- *   // equivalent to the sender for a normal %Wt slot.
+ *   // equivalent to the sender for a normal Wt slot.
  *
  *   // You can prevent the default action using:
  *   var fixed = jQuery.event.fix(event);

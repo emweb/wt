@@ -68,8 +68,11 @@ public:
    *
    * Responsive features can be enabled only at application
    * startup. For bootstrap 3, you need to use the progressive
-   * bootstrap feature of %Wt (see see \ref config_general) as it
-   * requires setting HTML meta flags.
+   * bootstrap feature of %Wt
+   * \if cpp
+   * (see \ref config_general)
+   * \endif
+   * as it requires setting HTML meta flags.
    *
    * Responsive features are disabled by default.
    */

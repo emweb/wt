@@ -38,11 +38,12 @@ struct Runnable {
  * A typical template uses blocks of the following-format (in the example below
  * illustrated for a field 'UserName'):
  *
- * \verbatim
-   ${<if:UserName>}
-     <label for="${id:UserName}">${UserName-label}</label>
-     ${UserName} ${UserName-info}
-   ${</if:UserName>}\endverbatim
+ * \code{.unparsed}
+ * ${<if:UserName>}
+ *   <label for="${id:UserName}">${UserName-label}</label>
+ *   ${UserName} ${UserName-info}
+ * ${</if:UserName>}
+ * \endcode
  *
  * The View may render fields of more than one model, and does not
  * necessarily need to render all information of each model. The latter

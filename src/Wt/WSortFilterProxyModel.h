@@ -75,7 +75,7 @@ namespace Wt {
  * proxy.setSourceModel(model);
  * proxy.setDynamicSortFilter(true);
  * proxy.setFilterKeyColumn(0);
- * proxy.setFilterRole(ItemDataRole.ItemDataRole::User);
+ * proxy.setFilterRole(ItemDataRole.User);
  * proxy.setFilterRegExp(".*");
  *		 
  * // configure a view to use the proxy model instead of the source model

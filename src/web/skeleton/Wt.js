@@ -1904,7 +1904,12 @@ if (html5History) {
   // state anymore at the moment that onPopState() is called.
   // For navigation, when pushState() is called, the scroll
   // history can be updated before the pushState() call.
-  function coalesceEvents(callback, minPeriod) {
+
+  // delayCallback: delay the calling of the callback by delay
+  //
+  // as long as events keep coming in, we delay it further, so
+  // the callback will only run "delay" ms after the last invocation.
+  function delayCallback(callback, delay) {
     var timer = null;
     var args = null;
 
@@ -1918,9 +1923,11 @@ if (html5History) {
     function proxy() {
       args = arguments;
 
-      if (!timer) {
-        timer = setTimeout(dispatch, minPeriod);
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
       }
+      timer = setTimeout(dispatch, delay);
     }
 
     return proxy;
@@ -1944,7 +1951,7 @@ if (html5History) {
       console.log(error.toString());
     }
   }
-  window.addEventListener('scroll', coalesceEvents(updateScrollHistory, 10));
+  window.addEventListener('scroll', delayCallback(updateScrollHistory, 100));
 
   // the 'auto' scrollRestoration gives too much flicker, since it
   // updates the scroll state before the page is updated

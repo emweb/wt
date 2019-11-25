@@ -23,7 +23,7 @@ class WLabel;
  * changes to its focus.
  *
  * Form widgets also have built-in support for validation, using
- * setValidator(WValidator *). If the validator provide client-side
+ * setValidator(const std::shared_ptr<WValidator> &). If the validator provide client-side
  * validation, then an invalid validation state is reflected using the
  * style class <tt>"Wt-invalid"</tt>. All validators provided by %Wt
  * implement client-side validation.

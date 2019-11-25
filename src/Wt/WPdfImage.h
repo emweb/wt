@@ -110,19 +110,18 @@ public:
    * is used by pango) to only return TrueType fonts. This can be
    * done using a fonts.conf configuration %file:
    *
-   * \htmlonly
-   * <pre>
-&lt;?xml version='1.0'?&gt;
-&lt;!DOCTYPE fontconfig SYSTEM 'fonts.dtd'&gt;
-&lt;fontconfig&gt;
-    &lt;selectfont&gt;
-      &lt;rejectfont&gt;
-	 &lt;glob&gt;*.pfb&lt;/glob&gt;
-      &lt;/rejectfont&gt;
-    &lt;/selectfont&gt;
-&lt;/fontconfig&gt;
-   * </pre>
-   * \endhtmlonly
+   * \code{.xml}
+   * <?xml version='1.0'?>
+   * <!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+   * <fontconfig>
+   *   <selectfont>
+   *     <rejectfont>
+   *       <glob>*.pfb</glob>
+   *     </rejectfont>
+   *   </selectfont>
+   * </fontconfig>
+   * \endcode
+   *
    * You may need to add more glob patterns to exclude other fonts
    * than TrueType, and also to exclude TrueType fonts which do not
    * work properly with libharu.

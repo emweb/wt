@@ -61,8 +61,8 @@ public:
    * - text using the Wt::ItemDataRole::Display data, with the format specified
    *   by setTextFormat()
    * - a check box depending on the Wt::ItemFlag::UserCheckable flag and
-   *   Wt::ItemDataRole::CheckState data
-   * - an anchor depending on Wt::InternalPathRole or Wt::UrlRole values
+   *   Wt::ItemDataRole::Checked data
+   * - an anchor depending on the value of Wt::ItemDataRole::Link
    * - an icon depending on the value of Wt::ItemDataRole::Decoration
    * - a tooltip depending on the value of Wt::ItemDataRole::ToolTip
    * - a custom style class depending on the value of Wt::ItemDataRole::StyleClass

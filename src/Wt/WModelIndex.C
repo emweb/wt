@@ -216,8 +216,13 @@ bool WModelIndex::isRawIndex() const
 
 void WModelIndex::encodeAsRawIndexes(WModelIndexSet& indexes)
 {
-  for (WModelIndexSet::iterator i = indexes.begin(); i != indexes.end(); ++i)
-    (const_cast<WModelIndex &>(*i)).encodeAsRawIndex();
+  WModelIndexSet newSet;
+  for (WModelIndexSet::iterator i = indexes.begin(); i != indexes.end(); ++i) {
+    WModelIndex copy = *i;
+    copy.encodeAsRawIndex();
+    newSet.insert(copy);
+  }
+  std::swap(newSet, indexes);
 }
 
 WModelIndexSet

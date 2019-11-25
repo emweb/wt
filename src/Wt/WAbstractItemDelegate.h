@@ -37,7 +37,7 @@ class WModelIndex;
  *
  * Rendering of an item in a WAbstractItemView is delegated to an
  * implementation of this delegate class. The default implementation
- * used by Wt's item views is WItemDelegate. To provide specialized
+ * used by %Wt's item views is WItemDelegate. To provide specialized
  * rendering support, you can reimplement this class (or specialize
  * WItemDelegate).
  *

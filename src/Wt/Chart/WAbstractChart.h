@@ -95,16 +95,16 @@ public:
 
   /*! \brief Returns the model.
    *
-   * \sa setModel(WAbstractChartModel *)
+   * \sa setModel(const std::shared_ptr<WAbstractChartModel> &)
    */
   std::shared_ptr<WAbstractChartModel> model() const { return model_; }
 
   /*! \brief Returns the model.
    *
-   * If a model was set using setModel(WAbstractItemModel *), then this
+   * If a model was set using setModel(const std::shared_ptr<WAbstractItemModel>&), then this
    * model will be returned by this call.
    *
-   * \sa setModel(WAbstractChartModel *)
+   * \sa setModel(const std::shared_ptr<WAbstractChartModel> &)
    */
   std::shared_ptr<WAbstractItemModel> itemModel() const;
 

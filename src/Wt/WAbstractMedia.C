@@ -352,7 +352,7 @@ void WAbstractMedia::getDomChanges(std::vector<DomElement *>& result,
     if (sourcesChanged_) {
       // Updating source elements seems to be ill-supported in at least FF,
       // so we delete them all and reinsert them.
-      // Method::Delete source elements that are no longer required
+      // Delete source elements that are no longer required
       for (std::size_t i = 0; i < sourcesRendered_; ++i)
 	media->callJavaScript
 	  (WT_CLASS ".remove('" + mediaId_ + "s" + std::to_string(i) + "');",

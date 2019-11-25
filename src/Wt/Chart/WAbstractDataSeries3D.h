@@ -40,7 +40,7 @@ namespace Wt {
  * The priority of this is as follows (1 being the highest):
  *
  * <ol>
- * <li>\c ItemDataRole::MarkerBrushColor set on a value in the model</li>
+ * <li>ItemDataRole::MarkerBrushColor set on a value in the model</li>
  * <li>WAbstractColorMap set on the dataseries</li>
  * <li>WChartPalette present in the chart</li>
  * </ol>
@@ -55,8 +55,8 @@ namespace Wt {
  *
  * The roles on the model which are taken into account are:\n
  * <ul>
- * <li>\c ItemDataRole::MarkerBrushColor: this determines the color of a datapoint and overrides the default</li>
- * <li>\c ItemDataRole::MarkerScaleFactor: this determines the size of a datapoint and overrides the default</li>
+ * <li>ItemDataRole::MarkerBrushColor: this determines the color of a datapoint and overrides the default</li>
+ * <li>ItemDataRole::MarkerScaleFactor: this determines the size of a datapoint and overrides the default</li>
  * </ul> 
  *
  * Some representations of the data ignore these roles. For example, when a 
@@ -309,7 +309,7 @@ public:
    */
   virtual void resizeGL() = 0;
 
-  /*! \brief Method::Delete GL resources
+  /*! \brief Delete GL resources
    *
    * This function is called by updateGL() in the chart to which this 
    * dataseries was added.

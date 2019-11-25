@@ -197,7 +197,7 @@ public:
 
   /*! \brief Sets the content alignment for a column.
    *
-   * The default value is Wt::AlignmentFlag::AlignLeft.
+   * The default value is Wt::AlignmentFlag::Left.
    *
    * \sa setHeaderAlignment()
    */
@@ -212,13 +212,13 @@ public:
   /*! \brief Sets the header alignment for a column.
    *
    * The default alignemnt is horizontally left, and vertically centered.
-   * (Wt::AlignmentFlag::AlignLeft | Wt::AlignmentFlag::AlignMiddle).
+   * (Wt::AlignmentFlag::Left | Wt::AlignmentFlag::Middle).
    *
-   * Valid options for horizontal alignment are Wt::AlignmentFlag::AlignLeft,
-   * Wt::AlignmentFlag::AlignCenter or Wt::AlignmentFlag::AlignRight.
+   * Valid options for horizontal alignment are Wt::AlignmentFlag::Left,
+   * Wt::AlignmentFlag::Center or Wt::AlignmentFlag::Right.
    *
-   * Valid options for vertical alignment are Wt::AlignmentFlag::AlignMiddle or
-   * Wt::AlignmentFlag::AlignTop. In the latter case, other contents may be added
+   * Valid options for vertical alignment are Wt::AlignmentFlag::Middle or
+   * Wt::AlignmentFlag::Top. In the latter case, other contents may be added
    * below the label in createExtraHeaderWidget().
    *
    * \sa setColumnAlignment()
@@ -343,12 +343,12 @@ public:
    * The selection behavior indicates whether whole rows or individual
    * items can be selected. It is a property of the selectionModel().
    *
-   * By default, selection operates on rows (\link Wt::SelectRows
-   * SelectRows\endlink), in which case model indexes will always be
+   * By default, selection operates on rows (SelectionBehavior::Rows),
+   * in which case model indexes will always be
    * in the first column (column \c 0).
    *
    * Alternatively, you can allow selection for individual items
-   * (\link Wt::SelectItems SelectItems\endlink).
+   * (SelectionBehavior::Items)
    *
    * \sa WItemSelectionModel::setSelectionBehavior(), setSelectionMode()
    */
@@ -362,8 +362,7 @@ public:
 
   /*! \brief Sets the selection mode.
    *
-   * By default selection is disabled (\link Wt::NoSelection
-   * NoSelection \endlink).
+   * By default selection is disabled (SelectionMode::None).
    *
    * \sa setSelectionBehavior()
    */
@@ -385,7 +384,7 @@ public:
    *
    * Replaces the current selection with \p indexes.
    * 
-   * When selection operates on rows (\link Wt::SelectRows SelectRows\endlink), 
+   * When selection operates on rows (SelectionBehavior::Rows), 
    * it is sufficient to pass the first element in a row (column \c 0 )
    * to select the entire row.
    *
@@ -408,7 +407,7 @@ public:
 
   /*! \brief Returns wheter an item is selected.
    *
-   * When selection operates on rows (\link Wt::SelectRows SelectRows\endlink),
+   * When selection operates on rows (SelectionBehavior::Rows),
    * this method returns true for each element in a selected row.
    *
    * This is a convenience method for:
@@ -425,7 +424,7 @@ public:
    * The model indexes are returned as a set, topologically ordered (in
    * the order they appear in the view).
    *
-   * When selection operates on rows (\link Wt::SelectRows SelectRows\endlink),
+   * When selection operates on rows (SelectionBehavior::Rows),
    * this method only returns the model index of first column's element of the 
    * selected rows.
    *
@@ -444,9 +443,8 @@ public:
    * selection using setSelectionMode().
    *
    * Whether an individual item may be dragged is controlled by the
-   * item's \link Wt::ItemIsDragEnabled ItemIsDragEnabled \endlink
-   * flag. The selection can be dragged only if all items currently
-   * selected can be dragged.
+   * item's ItemFlag::DragEnabled flag. The selection can be dragged
+   * only if all items currently selected can be dragged.
    *
    * \sa setDropsEnabled() 
    */
@@ -460,7 +458,7 @@ public:
    * WAbstractItemModel::acceptDropMimeTypes()) or this widget's
    * accepted drop mime-types (see WWidget::acceptDrops()), and the
    * target item has drop enabled (which is controlled by the item's
-   * \link Wt::ItemIsDropEnabled ItemIsDropEnabled \endlink flag).
+   * ItemFlag::DropEnabled flag).
    *
    * Drop events must be handled in dropEvent().
    *
@@ -475,7 +473,7 @@ public:
    *
    * The default value is 20 pixels.
    *
-   * \note The height must be specified in WLength::Pixel units.
+   * \note The height must be specified in LengthUnit::Pixel units.
    *
    * \sa setColumnWidth()
    */
@@ -489,7 +487,7 @@ public:
    *
    * The default column width is 150 pixels.
    *
-   * \note The width must be specified in WLength::Pixel units.
+   * \note The width must be specified in LengthUnit::Pixel units.
    *
    * \note The actual space occupied by each column is the column width
    *       augmented by 7 pixels for internal padding and a border.
@@ -530,7 +528,7 @@ public:
    *
    * The default value is 20 pixels.
    *
-   * \note The height must be specified in WLength::Pixel units.
+   * \note The height must be specified in LengthUnit::Pixel units.
    */
   virtual void setHeaderHeight(const WLength& height);
 
@@ -886,9 +884,8 @@ protected:
    * the model. The default implementation checks if the mime-type is
    * accepted by the model, and if so passes the drop event to the
    * model. If the source is the view's own selection model, then the
-   * drop event will be handled as a \link Wt::MoveAction
-   * MoveAction\endlink, otherwise the drop event will be handled as a
-   * \link Wt::CopyAction CopyAction\endlink.
+   * drop event will be handled as a DropAction::Move, otherwise the
+   * drop event will be handled as a DropAction::Copy.
    *
    * \sa WAbstractItemModel::dropEvent()
    */

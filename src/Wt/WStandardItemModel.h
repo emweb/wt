@@ -26,7 +26,7 @@ class WStandardItem;
  * data internally operate on this root item.
  *
  * If you want to use the model as a table, then you can use
- * WStandardItemModel(int, int, WObject *) to set the initial table
+ * WStandardItemModel(int, int) to set the initial table
  * size, and use the item() and setItem() methods to set data. You can
  * change the geometry by inserting rows (insertRow()) or columns
  * (insertColumn()) or removing rows (removeRow()) or columns

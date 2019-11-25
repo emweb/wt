@@ -25,15 +25,17 @@ namespace Wt {
  * to position itself above the anchor widget if space is lacking
  * below.
  *
+ * \if cpp
  * Before Wt 4, WPopupWidget had a setDeleteWhenHidden(bool) function,
  * causing the WPopupWidget to be deleted when it's hidden. This function
  * has been removed. To achieve the same effect, the following code can be used:
  *
  * \code
-// Assuming that popupWidget_ is a std::unique_ptr<WPopupWidget>, and a
-// member of "this".
-popupWidget_->hidden().connect([this](){ popupWidget_.reset(); });
-\endcode
+ * // Assuming that popupWidget_ is a std::unique_ptr<WPopupWidget>, and a
+ * // member of "this".
+ * popupWidget_->hidden().connect([this](){ popupWidget_.reset(); });
+ * \endcode
+ * \endif
  */
 class WT_API WPopupWidget : public WCompositeWidget
 {

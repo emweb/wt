@@ -483,7 +483,8 @@ public:
 
   /*! \brief return the number of pixels the container is scrolled horizontally
    *
-   *  This value is only set if setOverflow() has been called 
+   * This value is only set if setOverflow() has been called 
+   *
    * \sa setOverflow()
    * \sa scrollLeft();
    */
@@ -491,7 +492,8 @@ public:
 
   /*! \brief return the number of pixels the container is scrolled vertically
    *
-   *  This value is only set if setOverflow() has been called 
+   * This value is only set if setOverflow() has been called 
+   *
    * \sa setOverflow()
    * \sa scrollTop();
    */

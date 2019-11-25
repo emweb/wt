@@ -134,8 +134,10 @@ public:
 
   /*! \brief Returns the buttons.
    *
+   * \if cpp
    * \note buttons() returning WFlags<StandardButton> has been renamed
    *       to standardButtons() in %Wt 3.3.1
+   * \endif
    */
   std::vector<WPushButton *> buttons() const;
 
