@@ -202,10 +202,8 @@ public:
 
   /*! \brief Sets the accept header.
    *
-   * \htmlonly
    * The default value is
    * "text/html,application/xhtml+xml,application/xml;q=0.9,*<span>/</span>*;q=0.8".
-   * \endhtmlonly
    *
    * \sa accept()
    */

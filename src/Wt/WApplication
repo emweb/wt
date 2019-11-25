@@ -673,7 +673,7 @@ public:
    *
    * The default implementation is not complete: it does not handle relative
    * URL path segments with '..'. It just handles the cases that are necessary for
-   * Wt.
+   * %Wt.
    *
    * This is not used in the library, except when a public URL is
    * needed, e.g. for inclusion in an email.
@@ -826,7 +826,6 @@ public:
    * \code
    * http://www.mydomain.com/stuff/app.wt#/project/z3cbc/details/
    * \endcode
-   * </li><li>
    * </li><li>
    * in a plain HTML session:
    * \code

@@ -136,7 +136,7 @@ public:
   typedef std::map<std::string, std::string> CookieMap;
 
 #ifdef WT_TARGET_JAVA
-  /*! \brief Wt's JavaScript scope.
+  /*! \brief %Wt's JavaScript scope.
    */
   static std::string javaScriptWtScope() { return WT_CLASS; } 
 #endif //WT_TARGET_JAVA

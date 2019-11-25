@@ -36,13 +36,13 @@ class WRectF;
  *
  * There are also 2 methods to decompose an arbitrary matrix into
  * elementary operations:
- * - decomposeTranslateRotateScaleSkew() \htmlonly
+ * - decomposeTranslateRotateScaleSkew() 
  * decomposes into a <i>T</i> &#x2218; <i>R</i> &#x2218; <i>Sxx</i>
- * &#x2218; <i>Sxy</i>\endhtmlonly
- * - decomposeTranslateRotateScaleRotate() \htmlonly
+ * &#x2218; <i>Sxy</i>
+ * - decomposeTranslateRotateScaleRotate()
  * decomposes into a <i>T</i> &#x2218; <i>R1</i> &#x2218; <i>Sxx</i>
- * &#x2218; <i>R2</i>\endhtmlonly
- *
+ * &#x2218; <i>R2</i>
+ * 
  * with <i>T</i> a translation, <i>R</i> a rotation, <i>Sxx</i> a scale, and <i>Sxy</i> a skew component.
  *
  * <h3>JavaScript exposability</h3>

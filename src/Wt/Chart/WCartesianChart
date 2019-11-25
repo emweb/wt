@@ -1832,7 +1832,7 @@ protected:
    * This method can be overridden to draw extra content onto
    * the chart.
    *
-   * Chart coordinates can be mapped to device coordinates with
+   * %Chart coordinates can be mapped to device coordinates with
    * mapToDeviceWithoutTransform(). If these need to move and scale
    * along with the zoom range, those points can be transformed with
    * zoomRangeTransform().
