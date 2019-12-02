@@ -22,6 +22,36 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.5.0 (December 2, 2019)</h2>
+
+<p>
+Wt 3.5.0 comes with no major new features, just the following fixes and tweaks:
+</p>
+
+<h3>Notable backwards-incompatible changes</h3>
+<ul>
+  <li><a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>: <a href="structWt_1_1WSuggestionPopup_1_1Options.html#a3e29211108f2b156a0b983a5a15ecece">wordSeparators</a> no longer requires (extra) escaping, so a newline is indicated with the string literal "\n", not "\\n". Similarly, the <a href="structWt_1_1WSuggestionPopup_1_1Options.html#aef3e98b66b4cc136e2c726079d6681de">whitespace</a> property was incorrectly documented as requiring (extra) escaping.</li>
+</ul>
+
+<h3>Fixes</h3>
+<ul>
+  <li>
+    Limited prevention of default action of the <tt>dragstart</tt> event to only draggable widgets. This used to be global (set on <tt>document.body</tt>), but could conflict with other JavaScript libraries, especially when Wt is used in WidgetSet mode.
+  </li>
+  <li>
+    <a href="classWt_1_1WPainter.html">WPainter</a> fixed arc drawing code to be consistent across different backends, and with Qt's QPainter. Its behavior used to be erratic when angles larger than 360 degrees or lower than 0 were used.
+  </li>
+  <li>
+    Many documentation tweaks and fixes that were discovered when working on JWt 4.
+  </li>
+  <li>
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7139">#7139</a>: some widgets would fail to be correctly reparented.
+  </li>
+  <li>
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7336">#7336</a>: Wt was touching the history API every 10 ms when scrolling to store the scroll position, causing sluggishness, especially on mobile browsers with smooth scrolling. The scroll position is now saved after the user has stopped scrolling.
+  </li>
+</ul>
+
 <h2>Release 3.4.2 (October 30, 2019)</h2>
 <p>
   This release fixes the following issues:
