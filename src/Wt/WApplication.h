@@ -422,7 +422,7 @@ public:
    *
    * The library sets <tt>"Wt-ltr"</tt> or <tt>"Wt-rtl"</tt> as style
    * classes for the document body. You may use this if to override
-   * certain style rules for a Side::Right-to-Side::Left document.
+   * certain style rules for a Right-to-Left document.
    *
    * The only valid values are LayoutDirection::LeftToRight or
    * LayoutDirection::RightToLeft.

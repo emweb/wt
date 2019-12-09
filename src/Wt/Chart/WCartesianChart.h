@@ -723,14 +723,12 @@ public:
    * The \p alignment specifies how the legend is aligned. This can be
    * a horizontal alignment flag (Wt::AlignmentFlag::Left, Wt::AlignmentFlag::Center, or
    * Wt::AlignmentFlag::Right), when the \p side is Side::Bottom or Side::Top, or a vertical
-   * alignment flag (\link Wt::AlignmentFlag Wt::AlignmentFlag::Top\endlink,
-   * \link Wt::AlignmentFlag Wt::AlignmentFlag::Middle\endlink, or
-   * \link Wt::AlignmentFlag Wt::AlignmentFlag::Bottom\endlink)
-   * when the \p side is \link Wt::Side Side::Left\endlink or \link Wt::Side Side::Right\endlink.
+   * alignment flag (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
+   * Wt::AlignmentFlag::Bottom) when the \p side is Side::Left or Side::Right.
    *
    * The default location is \link Wt::Chart::LegendLocation::Outside
-   * Chart::LegendLocation::Outside\endlink, \link Wt::Side Wt::Side::Right\endlink and
-   * \link Wt::AlignmentFlag Wt::AlignmentFlag::Middle\endlink.
+   * Chart::LegendLocation::Outside\endlink, Wt::Side::Right and
+   * Wt::AlignmentFlag::Middle.
    *
    * To have more control over the legend, you could reimplement the
    * renderLegendItem() method to customize how one item in the legend

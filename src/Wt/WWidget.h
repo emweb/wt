@@ -151,7 +151,7 @@ public:
    * scheme. The widget may be shifted to the left or right by
    * specifying an offset for the \link Wt::Side::Left left\endlink or \link
    * Wt::Side::Right right\endlink) side. The widget may be shifted
-   * vertically, by specifying an offset for the \link Wt::AlignmentFlag::Top
+   * vertically, by specifying an offset for the \link Wt::Side::Top
    * top\endlink or \link Wt::Side::Bottom bottom\endlink side.
    *
    * For an \link Wt::PositionScheme::Absolute absolutely positioned\endlink widget,
@@ -392,8 +392,7 @@ public:
    *
    * This lets the widget float to one of the sides of the parent
    * widget, at the current line. A typical use is to position images
-   * within text. Valid values for Side or \if cpp Wt::None \elseif
-   * java {javadoclink Side#None None} \endif, Wt::Side::Left or Wt::Side::Right.
+   * within text. Valid values for Side Side::Left, or Side::Right.
    *
    * This applies to CSS-based layout.
    */
