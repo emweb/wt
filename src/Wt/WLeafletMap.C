@@ -779,6 +779,8 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
     doJavaScript(ss.str());
   }
 
+  flags_.reset(BIT_OPTIONS_CHANGED);
+
   WCompositeWidget::render(flags);
 }
 

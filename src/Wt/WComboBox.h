@@ -169,7 +169,7 @@ public:
    */
   int findText(const WString& text,
 	       WFlags<MatchFlag> flags 
-	       = MatchFlag::Exactly | MatchFlag::CaseSensitive);
+	       = MatchFlag::Exactly | MatchFlag::CaseSensitive) const;
 
   /*! \brief Returns the selection mode.
    *

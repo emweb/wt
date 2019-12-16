@@ -40,7 +40,7 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
 
     Project(WtExamples)
 
-    find_package(Boost)
+    find_package(Boost COMPONENTS filesystem)
     find_package(Wt REQUIRED Wt HTTP)
 
     set_target_properties(Wt::Wt PROPERTIES

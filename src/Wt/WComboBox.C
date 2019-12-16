@@ -427,7 +427,7 @@ void WComboBox::layoutChanged()
   restoreSelection();
 }
 
-int WComboBox::findText(const WString& text, WFlags<MatchFlag> flags)
+int WComboBox::findText(const WString& text, WFlags<MatchFlag> flags) const
 {
   WModelIndexList list = model_->match(model_->index(0, modelColumn_),
 				       ItemDataRole::Display, cpp17::any(text),

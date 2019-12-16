@@ -107,7 +107,7 @@ public:
 
   /*! \brief %Signal emitted when the popup is shown.
    *
-   * This signal is emitted when the popup is being hidden because of a
+   * This signal is emitted when the popup is being shown because of a
    * client-side event (not when setHidden() or show() is called).
    */
   Signal<>& shown() { return shown_; }
