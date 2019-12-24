@@ -17,8 +17,9 @@ namespace Wt {
 
 WTableRow::WTableRow()
   : hidden_(false),
-    hiddenChanged_(false)
-{ 
+    hiddenChanged_(false),
+    rowNumber_(-1)
+{
   implementStateless(&WTableRow::hide, &WTableRow::undoHide);
   implementStateless(&WTableRow::show, &WTableRow::undoHide);
 }
@@ -87,6 +88,7 @@ WTableCell *WTableRow::elementAt(int column)
 int WTableRow::rowNum() const
 {
   if (table_)
+    if (rowNumber_ != -1) return rowNumber_;
     for (unsigned i = 0; i < table_->rows_.size(); ++i)
       if (table_->rows_[i].get() == this)
 	return i;

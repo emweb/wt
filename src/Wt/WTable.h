@@ -197,6 +197,7 @@ private:
   void expand(int row, int column, int rowSpan, int columnSpan);
   WTableCell *itemAt(int row, int column);
   void setItemAt(int row, int column, std::unique_ptr<WTableCell> cell);
+  void updateRowNumbers(int begin, int end);
 
   void repaintRow(WTableRow *row);
   void repaintColumn(WTableColumn *col);
