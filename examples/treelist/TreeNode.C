@@ -13,7 +13,6 @@
 #include "TreeNode.h"
 #include "IconPair.h"
 
-using std::find;
 using namespace Wt;
 
 std::string TreeNode::imageLine_[] = { "icons/line-middle.gif",
@@ -26,8 +25,7 @@ std::string TreeNode::imageMin_[] = { "icons/nav-minus-line-middle.gif",
 TreeNode::TreeNode(const std::string labelText,
 		   TextFormat labelFormat,
 		   std::unique_ptr<IconPair> labelIcon)
-  : WCompositeWidget(),
-    parentNode_(nullptr),
+  : parentNode_(nullptr),
     labelIcon_(labelIcon.get())
 {
   // pre-learned stateless implementations ...
@@ -39,44 +37,31 @@ TreeNode::TreeNode(const std::string labelText,
   //implementStateless(&TreeNode::expand);
   //implementStateless(&TreeNode::collapse);
 
-  auto layout = cpp14::make_unique<WTable>();
-  layout_ = layout.get();
-  setImplementation(std::move(layout));
+  layout_ = setNewImplementation<WTable>();
 
-  auto expandIcon =
-      cpp14::make_unique<IconPair>(imagePlus_[Last], imageMin_[Last]);
-  expandIcon_ = expandIcon.get();
+  expandIcon_ = layout_->elementAt(0, 0)->addNew<IconPair>(imagePlus_[Last], imageMin_[Last]);
   expandIcon_->hide();
 
-  auto noExpandIcon =
-      cpp14::make_unique<WImage>(imageLine_[Last]);
+  noExpandIcon_ = layout_->elementAt(0, 0)->addNew<WImage>(imageLine_[Last]);
 
-  noExpandIcon_ = noExpandIcon.get();
-
-  auto expandedContent = cpp14::make_unique<WContainerWidget>();
-  expandedContent_ = expandedContent.get();
+  expandedContent_ = layout_->elementAt(1, 1)->addNew<WContainerWidget>();
   expandedContent_->hide();
 
-  labelText_ = cpp14::make_unique<WText>(labelText);
-  labelText_->setTextFormat(labelFormat);
-  labelText_->setStyleClass("treenodelabel");
+  auto labelTextWidget = cpp14::make_unique<WText>(labelText);
+  labelTextWidget->setTextFormat(labelFormat);
+  labelTextWidget->setStyleClass("treenodelabel");
 
   auto childCountLabel = cpp14::make_unique<WText>();
   childCountLabel_ = childCountLabel.get();
   childCountLabel_->setMargin(7, Side::Left);
   childCountLabel_->setStyleClass("treenodechildcount");
 
-  layout_->elementAt(0, 0)->addWidget(std::move(expandIcon));
-  layout_->elementAt(0, 0)->addWidget(std::move(noExpandIcon));
-
   if (labelIcon) {
     layout_->elementAt(0, 1)->addWidget(std::move(labelIcon));
     labelIcon_->setVerticalAlignment(AlignmentFlag::Middle);
   }
-  layout_->elementAt(0, 1)->addWidget(std::move(labelText_));
+  layout_->elementAt(0, 1)->addWidget(std::move(labelTextWidget));
   layout_->elementAt(0, 1)->addWidget(std::move(childCountLabel));
-
-  layout_->elementAt(1, 1)->addWidget(std::move(expandedContent));
 
   layout_->elementAt(0, 0)->setContentAlignment(AlignmentFlag::Top);
   layout_->elementAt(0, 1)->setContentAlignment(AlignmentFlag::Middle);
@@ -121,12 +106,11 @@ void TreeNode::childNodesChanged()
 
   adjustExpandIcon();
 
-  if (childNodes_.size())
-    childCountLabel_
-      ->setText("(" + std::to_string(childNodes_.size())
-		+ ")");
-  else
+  if (!childNodes_.empty()) {
+    childCountLabel_ ->setText("(" + std::to_string(childNodes_.size()) + ")");
+  } else {
     childCountLabel_->setText("");
+  }
 
   resetLearnedSlots();
 } //

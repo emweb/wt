@@ -110,9 +110,6 @@ private:
   //! The icon next to the label.
   IconPair                 *labelIcon_;
 
-  //! The label.
-  std::unique_ptr<WText>    labelText_;
-
   //! The children count '(x)' for x children.
   WText                    *childCountLabel_;
 

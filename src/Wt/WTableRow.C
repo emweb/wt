@@ -16,7 +16,8 @@
 namespace Wt {
 
 WTableRow::WTableRow()
-  : hidden_(false),
+  : table_(nullptr),
+    hidden_(false),
     hiddenChanged_(false)
 { 
   implementStateless(&WTableRow::hide, &WTableRow::undoHide);
