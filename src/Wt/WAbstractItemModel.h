@@ -478,7 +478,7 @@ public:
   /*! \brief Expands a column.
    *
    * Expands a column. This may only be called by a view when the
-   * Wt::MatchFlag::ColumnIsCollapsed flag is set.
+   * Wt::HeaderFlag::ColumnIsCollapsed flag is set.
    *
    * The default implementation does nothing.
    *
@@ -489,7 +489,7 @@ public:
   /*! \brief Collapses a column.
    *
    * Collapses a column. This may only be called by a view when the
-   * Wt::MatchFlag::ColumnIsExpandedLeft or Wt::MatchFlag::ColumnIsExpandedRight flag is set.
+   * Wt::HeaderFlag::ColumnIsExpandedLeft or Wt::HeaderFlag::ColumnIsExpandedRight flag is set.
    *
    * The default implementation does nothing.
    *

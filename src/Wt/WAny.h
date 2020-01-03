@@ -190,8 +190,8 @@ namespace Impl {
   };
 
   extern WT_API AbstractTypeHandler *getRegisteredType
-    (const std::type_info *type, bool takeLock);
-  extern WT_API void registerType(const std::type_info *type,
+    (const std::type_info &type, bool takeLock);
+  extern WT_API void registerType(const std::type_info &type,
 				  AbstractTypeHandler *handler);
 
   extern WT_API void lockTypeRegistry();
@@ -211,8 +211,8 @@ template <typename Type> void registerType()
 {
   Impl::lockTypeRegistry();
   try {
-    if (!Impl::getRegisteredType(&typeid(Type), false))
-      Impl::registerType(&typeid(Type), new Impl::TypeHandler<Type>());
+    if (!Impl::getRegisteredType(typeid(Type), false))
+      Impl::registerType(typeid(Type), new Impl::TypeHandler<Type>());
 
     Impl::unlockTypeRegistry();
   } catch (...) {

@@ -168,7 +168,7 @@ public:
 
   /*! \brief Sets the horizontal header format.
    *
-   * The default horizontal header format is WCalendar::ShortDayNames.
+   * The default horizontal header format is CalendarHeaderFormat::ShortDayNames.
    */
   void setHorizontalHeaderFormat(CalendarHeaderFormat format);
 

@@ -312,8 +312,7 @@ public:
    * In a multi-threaded environment, this may only be done when the
    * server is not running.
    *
-   * When a resource has been bound to the path, the resource will not
-   * be deleted.
+   * \note If the entry point is a resource, the resource will not be deleted
    *
    * \sa addEntryPoint(), addResource()
    */

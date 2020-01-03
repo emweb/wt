@@ -115,8 +115,8 @@ public:
    * When \p autoReverse is set to \c true, then the reverse animation
    * is chosen when the new index precedes the current index. This
    * only applies to AnimationEffect::SlideInFromLeft,
-   * AnimationEffect::SlideInFromRight, WAnimation::SlideInFromUp or
-   * WAnimation::SlideInFromDown transition effects.
+   * AnimationEffect::SlideInFromRight, AnimationEffect::SlideInFromTop or
+   * AnimationEffect::SlideInFromBottom transition effects.
    *
    * \note If you intend to use a transition animation with a WStackedWidget
    * you should set it before it is first rendered. Otherwise, transition
@@ -124,7 +124,7 @@ public:
    * If you do want to force this change you can use WApplication::processEvents
    * before calling setCurrentIndex().
    *
-   * \note It is also not supported to use a WAnimation::Pop animation on a WStackedWidget.
+   * \note It is also not supported to use a AnimationEffect::Pop animation on a WStackedWidget.
    *
    *
    *

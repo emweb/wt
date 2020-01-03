@@ -79,7 +79,7 @@ public:
    * A transient popup will automatically hide when the user clicks
    * outside of the popup. When \p autoHideDelay is not 0, then it
    * will also automatically hide when the user moves the mouse
-   * outside the widget for longer than this delay.
+   * outside the widget for longer than this delay (in ms).
    */
   void setTransient(bool transient, int autoHideDelay = 0);
 
@@ -107,7 +107,7 @@ public:
 
   /*! \brief %Signal emitted when the popup is shown.
    *
-   * This signal is emitted when the popup is being hidden because of a
+   * This signal is emitted when the popup is being shown because of a
    * client-side event (not when setHidden() or show() is called).
    */
   Signal<>& shown() { return shown_; }

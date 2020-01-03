@@ -24,6 +24,8 @@
 
 #include "WebUtils.h"
 
+#include <typeindex>
+
 #ifdef WT_WIN32
 #define snprintf _snprintf
 #endif
@@ -38,7 +40,7 @@ LOGGER("WAbstractItemModel");
 std::mutex registryMutex_;
 #endif // WT_THREADED
 
-typedef std::map<const std::type_info *,
+typedef std::map<std::type_index,
 		 std::shared_ptr<AbstractTypeHandler> > TypeRegistryMap;
 
 typedef std::chrono::duration<int, std::milli> time_duration;
@@ -65,13 +67,13 @@ void unlockTypeRegistry()
 #endif // WT_THREADED
 }
 
-AbstractTypeHandler *getRegisteredType(const std::type_info *type,
+AbstractTypeHandler *getRegisteredType(const std::type_info &type,
 				       bool takeLock)
 {
   if (takeLock)
     lockTypeRegistry();
 
-  TypeRegistryMap::iterator i = typeRegistry_.find(type);
+  TypeRegistryMap::iterator i = typeRegistry_.find(std::type_index(type));
 
   AbstractTypeHandler *result = nullptr;
 
@@ -84,9 +86,9 @@ AbstractTypeHandler *getRegisteredType(const std::type_info *type,
   return result;
 }
 
-void registerType(const std::type_info *type, AbstractTypeHandler *handler)
+void registerType(const std::type_info &type, AbstractTypeHandler *handler)
 {
-  typeRegistry_[type].reset(handler);
+  typeRegistry_[std::type_index(type)].reset(handler);
 }
 
 bool matchValue(const cpp17::any& value, const cpp17::any& query,
@@ -226,7 +228,7 @@ std::string asJSLiteral(const cpp17::any& v, TextFormat textFormat)
 #undef ELSE_LEXICAL_ANY
 
   else {
-    AbstractTypeHandler *handler = getRegisteredType(&v.type(), true);
+    AbstractTypeHandler *handler = getRegisteredType(v.type(), true);
     if (handler)
       return handler->asString(v, WString::Empty).jsStringLiteral();
     else {
@@ -338,7 +340,7 @@ int compare(const cpp17::any& d1, const cpp17::any& d2)
 
 #undef ELSE_COMPARE_ANY
 	else {
-	  AbstractTypeHandler *handler = getRegisteredType(&d1.type(), true);
+	  AbstractTypeHandler *handler = getRegisteredType(d1.type(), true);
 	  if (handler)
 	    return handler->compare(d1, d2);
 	  else {
@@ -478,7 +480,7 @@ WString asString(const cpp17::any& v, const WT_USTRING& format)
   }
 
   else {
-    Impl::AbstractTypeHandler *handler = Impl::getRegisteredType(&v.type(),
+    Impl::AbstractTypeHandler *handler = Impl::getRegisteredType(v.type(),
 								 true);
     if (handler)
       return handler->asString(v, format);
@@ -553,7 +555,7 @@ double asNumber(const cpp17::any& v)
 #undef ELSE_NUMERICAL_ANY
 
   else {
-    Impl::AbstractTypeHandler *handler = Impl::getRegisteredType(&v.type(),
+    Impl::AbstractTypeHandler *handler = Impl::getRegisteredType(v.type(),
 								 true);
     if (handler)
       return handler->asNumber(v);

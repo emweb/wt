@@ -193,6 +193,20 @@ protected:
    */
   void setImplementation(std::unique_ptr<WWidget> widget);
 
+  /*! \brief Sets the implementation widget, returning a raw pointer
+   *
+   * This sets the widget that implements this compositeWidget.
+   *
+   * This is implemented as:
+   * \code
+   * Widget *result = widget.get();
+   * setImplementation(std::unique_ptr<WWidget>(std::move(widget)));
+   * return result;
+   * \endcode
+   *
+   * \note You cannot change the implementation of a composite widget after
+   *       it has been rendered.
+   */
   template <typename Widget>
     Widget *setImplementation(std::unique_ptr<Widget> widget)
 #ifndef WT_TARGET_JAVA
@@ -206,6 +220,21 @@ protected:
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
+  /*! \brief Creates the implementation widget and sets it, returning a raw pointer
+   *
+   * This is implemented as:
+   * \code
+   * std::unique_ptr<W> w(new W(std::forward<Args>(args)...));
+   * W *result = w.get();
+   * setImplementation(std::move(w));
+   * return result;
+   * \endcode
+   *
+   * This is a useful shorthand for creating a new implementation, setting it, and returning
+   * a reference to it.
+   *
+   * \sa setImplementation()
+   */
   template <typename W, typename... Args>
   W *setNewImplementation(Args&&... args)
   {

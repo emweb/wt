@@ -730,7 +730,7 @@ public:
     painter_.strokePath(transform.map(bar).crisp(), pen);
 
     WString toolTip = series_.model()->toolTip(yRow, yColumn);
-    if (!toolTip.empty()) {
+    if (!toolTip.empty() && nonZeroWidth) {
       WTransform t = painter_.worldTransform();
 
       WPointF tl = t.map(segmentPoint(bar, 0));
