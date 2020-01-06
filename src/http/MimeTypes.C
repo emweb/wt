@@ -34,6 +34,7 @@ struct mapping
   { "jpg", "image/jpeg" },
   { "png", "image/png" },
   { "js", "text/javascript" },
+  { "wasm", "application/wasm" },
   { "oga", "audio/ogg" },
   { "ogg", "audio/ogg" },
   { "ogv", "video/ogg" },
