@@ -133,6 +133,7 @@ Wt/WAny,Wt/WAny.h
 Wt/WApplication,Wt/WApplication.h
 Wt/WAudio,Wt/WAudio.h
 Wt/WBatchEditProxyModel,Wt/WBatchEditProxyModel.h
+Wt/WBoostAny,Wt/WAny.h
 Wt/WBootstrapTheme,Wt/WBootstrapTheme.h
 Wt/WBorder,Wt/WBorder.h
 Wt/WBorderLayout,Wt/WBorderLayout.h
