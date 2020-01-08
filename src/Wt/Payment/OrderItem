@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2012 Emweb bv, Herent, Belgium.
  */
 #ifndef WT_PAYMENT_ORDER_ITEM_H
 #define WT_PAYMENT_ORDER_ITEM_H

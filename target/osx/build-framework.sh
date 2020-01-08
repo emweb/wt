@@ -1,6 +1,6 @@
 #
 # Builds Wt as a framework for iPhone/iPad devices.
-# Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+# Copyright (C) 2011 Emweb bv, Herent, Belgium.
 #
 # Inspired by Pete Goodliffe's boost.sh script
 #
