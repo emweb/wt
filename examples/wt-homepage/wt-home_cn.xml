@@ -831,7 +831,7 @@ href="//www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">安装指
 <p>
 Wt最初由<a
 href="mailto:koen@emweb.be">Koen Deforche</a>开发，目前由
-<a href="//www.emweb.be/">Emweb bvba</a>公司维护。</p>
+<a href="//www.emweb.be/">Emweb bv</a>公司维护。</p>
 
 <p>我们非常感谢以下开源项目（代码借鉴）：</p>
 <ul>
@@ -879,7 +879,7 @@ gateway</a>搜索或浏览邮件列表存档内容（向建立者 Pau Garcia i Q
 <table>
   <tr>
     <td class="sponsor-logo"><a href="//www.emweb.be/">
-      Emweb bvba</a>
+      Emweb bv</a>
     </td>
     <td class="sponsor-role">
       Wt创建者、官方维护者以及相关支持的提供者

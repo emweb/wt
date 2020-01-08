@@ -4,7 +4,7 @@
 // 1. Boost Software License - Version 1.0 - August 17th, 2003
 // ===============================================================================
 
-// Copyright (c) 2010 Emweb bvba (Heverlee, Belgium)
+// Copyright (c) 2010 Emweb bv, Herent, Belgium
 
 // Permission is hereby granted, free of charge, to any person or organization
 // obtaining a copy of the software and accompanying documentation covered by
@@ -31,7 +31,7 @@
 // 2. The MIT License
 // ===============================================================================
 
-// Copyright (c) 2010 Emweb bvba (Heverlee, Belgium)
+// Copyright (c) 2010 Emweb bv, Herent, Belgium
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy 
 // of this software and associated documentation files (the "Software"), to deal 
