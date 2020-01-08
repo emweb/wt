@@ -1,6 +1,6 @@
 
 /**
- * @preserve Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ * @preserve Copyright (C) 2010 Emweb bv, Herent, Belgium.
  *
  * For terms of use, see LICENSE.
  */

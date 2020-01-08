@@ -6,10 +6,10 @@
 #define VER_PRODUCTVERSION_STR "@VERSION_SERIES@.@VERSION_MAJOR@.@VERSION_MINOR@"
 #define VER_FILEVERSION       @VERSION_SERIES@,@VERSION_MAJOR@,@VERSION_MINOR@,0
 #define VER_FILEVERSION_STR   "@VERSION_SERIES@.@VERSION_MAJOR@.@VERSION_MINOR@"
-#define VER_COMPANYNAME_STR   "Emweb bvba, Belgium"
+#define VER_COMPANYNAME_STR   "Emweb bv, Belgium"
 #define VER_FILEDESCRIPTION_STR "Wt C++ Dbo library DLL"
 #define VER_INTERNALNAME_STR ""
-#define VER_LEGALCOPYRIGHT_STR "(c) 2014 emweb bvba, Belgium. See LICENSE file for details"
+#define VER_LEGALCOPYRIGHT_STR "(c) 2020 emweb bv, Belgium. See LICENSE file for details"
 #define VER_PRODUCTNAME_STR "Wt C++ Wt::DBO library"
 #define VER_ORIGINALFILENAME_STR "wtdbo.dll"
 

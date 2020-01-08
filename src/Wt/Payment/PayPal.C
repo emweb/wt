@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  */
 
 #include <Wt/Payment/PayPal.h>

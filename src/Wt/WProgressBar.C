@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 Thomas Suckow.
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  *   progressCompleted() and valueChanged() contributed by Omer Katz.
  *

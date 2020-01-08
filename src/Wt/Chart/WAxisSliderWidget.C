@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Emweb bvba, Herent, Belgium.
+ * Copyright (C) 2015 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
