@@ -343,6 +343,11 @@ WT_DECLARE_WT_MEMBER
          || event.keyCode == key_left
          || event.keyCode == key_right) {
        hidePopup();
+     } else if (event.keyCode == key_down
+             || event.keyCode == key_up
+             || event.keyCode == key_pdown
+             || event.keyCode == key_pup) {
+       // do nothing
      } else {
        if (edit.value != lastFilterValue) {
 		 editId = edit.id;
