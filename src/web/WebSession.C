@@ -2233,6 +2233,11 @@ void WebSession::notify(const WEvent& event)
   if (!app_->initialized_) {
     app_->initialized_ = true;
     app_->initialize();
+    if (!app_->internalPathValid_) {
+      WebResponse *response = handler.response();
+      if (response && response->responseType() == WebResponse::ResponseType::Page)
+        response->setStatus(404);
+    }
   }
 #endif
 
