@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <set>
+#include <unordered_set>
 
 #include <Wt/WDllDefs.h>
 #include <Wt/WFlags.h>
@@ -463,12 +464,24 @@ public:
    */
   static void encodeAsRawIndexes(WModelIndexSet& indexes);
 
+  /*! \brief Utility method for converting an entire set of indexes to raw.
+   *
+   * \sa encodeAsRawIndex()
+   */
+  static void encodeAsRawIndexes(std::unordered_set<WModelIndex>& indexes);
+
   /*! \brief Utility method to decode an entire set of raw indexes.
    *
    * \sa decodeFromRawIndex()
    */
   static
     WModelIndexSet decodeFromRawIndexes(const WModelIndexSet& encodedIndexes);
+
+  /*! \brief Utility method to decode an entire set of raw indexes.
+   *
+   * \sa decodeFromRawIndex()
+   */
+  static std::unordered_set<WModelIndex> decodeFromRawIndexes(const std::unordered_set<WModelIndex>& encodedIndexes);
 
   struct UnorderedLess {
     bool operator()(const WModelIndex& i1, const WModelIndex& i2) const;

@@ -2743,6 +2743,75 @@ shiftModelIndexes(const WModelIndex& parent, int start, int count,
   return removed;
 }
 
+int WTreeView::
+shiftModelIndexes(const WModelIndex& parent, int start, int count,
+                  const std::shared_ptr<WAbstractItemModel>& model,
+                  std::unordered_set<WModelIndex>& set)
+{
+  /*
+   * handle the set of exanded model indexes:
+   *  - collect indexes in the same parent at lower rows that need to
+   *    be shifted
+   *  - if deleting, delete indexes that are within the range of deleted
+   *    rows
+   */
+  std::vector<WModelIndex> toShift;
+  std::vector<WModelIndex> toErase;
+
+  WModelIndexSet sortedSet(set.begin(), set.end());
+  for (WModelIndexSet::iterator it
+         = sortedSet.lower_bound(model->index(start, 0, parent)); it != sortedSet.end();) {
+#ifndef WT_TARGET_JAVA
+    WModelIndexSet::iterator n = it;
+    ++n;
+#endif
+
+    WModelIndex i = *it;
+
+    WModelIndex p = i.parent();
+    if (p != parent && !WModelIndex::isAncestor(p, parent))
+      break;
+
+    if (p == parent) {
+      toShift.push_back(i);
+      toErase.push_back(i);
+    } else if (count < 0) {
+      // delete indexes that are about to be deleted, if they are within
+      // the range of deleted indexes
+      do {
+        if (p.parent() == parent
+            && p.row() >= start
+            && p.row() < start - count) {
+          toErase.push_back(i);
+          break;
+        } else
+          p = p.parent();
+      } while (p != parent);
+    }
+
+#ifndef WT_TARGET_JAVA
+    it = n;
+#endif
+  }
+
+  for (unsigned i = 0; i < toErase.size(); ++i)
+    set.erase(toErase[i]);
+
+  int removed = 0;
+  for (unsigned i = 0; i < toShift.size(); ++i) {
+    // for negative count: only reinsert model indexes that need
+    // not be removed (they are currently all removed)
+    if (toShift[i].row() + count >= start) {
+      WModelIndex newIndex = model->index(toShift[i].row() + count,
+                                          toShift[i].column(), parent);
+      set.insert(newIndex);
+    } else
+      ++removed;
+  }
+
+  return removed;
+}
+
 void WTreeView::shiftModelIndexes(const WModelIndex& parent,
 				  int start, int count)
 {

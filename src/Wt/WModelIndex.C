@@ -241,12 +241,40 @@ void WModelIndex::encodeAsRawIndexes(WModelIndexSet& indexes)
   std::swap(newSet, indexes);
 }
 
+void WModelIndex::encodeAsRawIndexes(std::unordered_set<WModelIndex>& indexes)
+{
+  std::unordered_set<WModelIndex> newSet;
+
+  for (auto i = indexes.begin(); i != indexes.end(); ++i) {
+    WModelIndex copy = *i;
+    copy.encodeAsRawIndex();
+    newSet.insert(copy);
+  }
+
+  std::swap(newSet, indexes);
+}
+
 WModelIndexSet
 WModelIndex::decodeFromRawIndexes(const WModelIndexSet& encodedIndexes)
 {
   WModelIndexSet result;
 
   for (WModelIndexSet::const_iterator i = encodedIndexes.begin();
+       i != encodedIndexes.end(); ++i) {
+    WModelIndex n = i->decodeFromRawIndex();
+    if (n.isValid())
+      result.insert(n);
+  }
+
+  return result;
+}
+
+std::unordered_set<WModelIndex>
+WModelIndex::decodeFromRawIndexes(const std::unordered_set<WModelIndex>& encodedIndexes)
+{
+  std::unordered_set<WModelIndex> result;
+
+  for (auto i = encodedIndexes.begin();
        i != encodedIndexes.end(); ++i) {
     WModelIndex n = i->decodeFromRawIndex();
     if (n.isValid())
