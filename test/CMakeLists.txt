@@ -10,6 +10,7 @@ IF(ENABLE_LIBWTTEST)
     http/HttpClientTest.C
     mail/MailClientTest.C
     models/WBatchEditProxyModelTest.C
+    models/WModelIndexTest.C
     models/WStandardItemModelTest.C
     private/HttpTest.C
     private/CExpressionParserTest.C

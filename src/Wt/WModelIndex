@@ -367,6 +367,11 @@ public:
    * Topological order follows the order in which the indexes would be
    * displayed in a tree table view, from top to bottom followed by
    * left to right.
+   *
+   * An invalid index comes before all other indexes.
+   * Indexes \link encodeAsRawIndex() encoded as raw index\endlink
+   * come after the invalid index and before all other indexes, and
+   * are ordered according to their internalId().
    */
   bool operator< (const WModelIndex& other) const;
 
