@@ -3,7 +3,7 @@ if(@_WTCONFIG_CMAKE_FIND_BOOST@)
   set(Boost_USE_STATIC_LIBS @_WTCONFIG_BOOST_STATIC@)
   set(Boost_USE_MULTITHREADED @Boost_USE_MULTITHREADED@)
   find_package(Boost QUIET
-    COMPONENTS "@Boost_COMPONENTS@")
+    COMPONENTS @Boost_COMPONENTS@)
 endif()
 
 # Required target
