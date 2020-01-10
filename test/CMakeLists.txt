@@ -13,6 +13,7 @@ IF(ENABLE_LIBWTTEST)
     mail/MailClientTest.C
     matrix/MatrixTest.C
     models/WBatchEditProxyModelTest.C
+    models/WModelIndexTest.C
     models/WStandardItemModelTest.C
     private/EscapeTest.C
     private/EventDecodeTest.C

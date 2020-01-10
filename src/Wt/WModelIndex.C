@@ -3,8 +3,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <algorithm>
 #include <cstring>
+#include <utility>
 
 #include <boost/functional/hash.hpp>
 
@@ -101,6 +101,17 @@ bool WModelIndex::operator< (const WModelIndex& i2) const
     return false;
   else if (i1.model() != i2.model()) {
     LOG_ERROR("comparing indexes from different models are you?");
+    return false;
+  }
+
+  if (i1.isRawIndex() &&
+      i2.isRawIndex()) {
+    return i1.internalId() < i2.internalId();
+  } else if (i1.isRawIndex()) {
+    assert(!i2.isRawIndex());
+    return true;
+  } else if (i2.isRawIndex()) {
+    assert(!i1.isRawIndex());
     return false;
   }
 
@@ -219,8 +230,15 @@ bool WModelIndex::isRawIndex() const
 
 void WModelIndex::encodeAsRawIndexes(WModelIndexSet& indexes)
 {
-  for (WModelIndexSet::iterator i = indexes.begin(); i != indexes.end(); ++i)
-    (const_cast<WModelIndex &>(*i)).encodeAsRawIndex();
+  WModelIndexSet newSet;
+
+  for (WModelIndexSet::iterator i = indexes.begin(); i != indexes.end(); ++i) {
+    WModelIndex copy = *i;
+    copy.encodeAsRawIndex();
+    newSet.insert(copy);
+  }
+
+  std::swap(newSet, indexes);
 }
 
 WModelIndexSet
