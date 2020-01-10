@@ -5,7 +5,8 @@
  */
 #include <algorithm>
 #include <cstring>
-#include <functional>
+
+#include <boost/functional/hash.hpp>
 
 #include "Wt/WModelIndex.h"
 #include "Wt/WAbstractItemModel.h"
@@ -176,11 +177,13 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
 { }
 
 std::size_t hash_value(const Wt::WModelIndex& index) {
-  std::hash<int> intHasher;
-  std::hash< ::uint64_t > longHasher;
+  std::size_t seed = 0;
 
-  return intHasher(index.row()) + intHasher(index.column())
-    + longHasher(index.internalId());
+  boost::hash_combine(seed, index.row());
+  boost::hash_combine(seed, index.column());
+  boost::hash_combine(seed, index.internalId());
+
+  return seed;
 }
 
 void WModelIndex::encodeAsRawIndex()
