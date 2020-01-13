@@ -1804,7 +1804,7 @@ void WTreeView::collapse(const WModelIndex& index)
 void WTreeView::collapseAll()
 {
   while (!expandedSet_.empty())
-    collapse(*expandedSet_.begin());
+    collapse(Utils::first(expandedSet_));
 }
 
 void WTreeView::expandToDepth(int depth)
@@ -2750,9 +2750,8 @@ void removalsFromSet(std::vector<WModelIndex> &toErase,
                      std::unordered_set<WModelIndex> &set,
                      const Wt::WModelIndex &i) {
   {
-    auto it = set.find(i);
-    if (it != set.end())
-      toErase.push_back(*it);
+    if (set.find(i) != set.end())
+      toErase.push_back(i);
   }
 
   const int rowCount = i.model()->rowCount(i);

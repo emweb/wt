@@ -14,6 +14,7 @@
 #include <set>
 #include <string>
 #include <sstream>
+#include <unordered_set>
 #include <vector>
 #include <cstdlib>
 
@@ -243,6 +244,12 @@ inline void insert(std::map<K, V>& m, const K& key, const V& value)
 
 template <typename T>
 inline const T& first(const std::set<T>& s)
+{
+  return *s.begin();
+}
+
+template <typename T>
+inline const T& first(const std::unordered_set<T>& s)
 {
   return *s.begin();
 }

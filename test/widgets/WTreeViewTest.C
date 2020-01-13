@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE( treeview_test1 )
       for (int k = 0; k < 3; ++k) {
         auto subsubItem = cpp14::make_unique<WStandardItem>(Wt::utf8("level 3, row {1}").arg(k));
         subsubItem->appendRow(cpp14::make_unique<WStandardItem>(Wt::utf8("level 4")));
-        item->appendRow(std::move(subsubItem));
+        subItem->appendRow(std::move(subsubItem));
       }
       item->appendRow(std::move(subItem));
     }
