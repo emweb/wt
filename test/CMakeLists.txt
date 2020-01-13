@@ -34,6 +34,7 @@ IF(ENABLE_LIBWTTEST)
     utils/EraseWord.C
     utils/ParseNumber.C
     widgets/WSpinBoxTest.C
+    widgets/WTreeViewTest.C
     length/WLengthTest.C
     color/WColorTest.C
     paintdevice/WSvgTest.C

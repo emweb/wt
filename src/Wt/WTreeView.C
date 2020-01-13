@@ -2743,11 +2743,35 @@ shiftModelIndexes(const WModelIndex& parent, int start, int count,
   return removed;
 }
 
+namespace {
+
+// Add all indexes under index i that are in set to toErase
+void removalsFromSet(std::vector<WModelIndex> &toErase,
+                     std::unordered_set<WModelIndex> &set,
+                     const Wt::WModelIndex &i) {
+  {
+    auto it = set.find(i);
+    if (it != set.end())
+      toErase.push_back(*it);
+  }
+
+  const int rowCount = i.model()->rowCount(i);
+  for (int row = 0; row < rowCount; ++row) {
+    WModelIndex c = i.model()->index(row, 0, i);
+    removalsFromSet(toErase, set, c);
+  }
+}
+
+}
+
 int WTreeView::
 shiftModelIndexes(const WModelIndex& parent, int start, int count,
                   const std::shared_ptr<WAbstractItemModel>& model,
                   std::unordered_set<WModelIndex>& set)
 {
+  if (set.empty())
+    return 0;
+
   /*
    * handle the set of exanded model indexes:
    *  - collect indexes in the same parent at lower rows that need to
@@ -2758,40 +2782,15 @@ shiftModelIndexes(const WModelIndex& parent, int start, int count,
   std::vector<WModelIndex> toShift;
   std::vector<WModelIndex> toErase;
 
-  WModelIndexSet sortedSet(set.begin(), set.end());
-  for (WModelIndexSet::iterator it
-         = sortedSet.lower_bound(model->index(start, 0, parent)); it != sortedSet.end();) {
-#ifndef WT_TARGET_JAVA
-    WModelIndexSet::iterator n = it;
-    ++n;
-#endif
-
-    WModelIndex i = *it;
-
-    WModelIndex p = i.parent();
-    if (p != parent && !WModelIndex::isAncestor(p, parent))
-      break;
-
-    if (p == parent) {
+  const int rowCount = model->rowCount(parent);
+  for (int row = start; row < rowCount; ++row) {
+    WModelIndex i = model->index(row, 0, parent);
+    if (row < start - count) {
+      removalsFromSet(toErase, set, i);
+    } else if (set.find(i) != set.end()) {
       toShift.push_back(i);
       toErase.push_back(i);
-    } else if (count < 0) {
-      // delete indexes that are about to be deleted, if they are within
-      // the range of deleted indexes
-      do {
-        if (p.parent() == parent
-            && p.row() >= start
-            && p.row() < start - count) {
-          toErase.push_back(i);
-          break;
-        } else
-          p = p.parent();
-      } while (p != parent);
     }
-
-#ifndef WT_TARGET_JAVA
-    it = n;
-#endif
   }
 
   for (unsigned i = 0; i < toErase.size(); ++i)
