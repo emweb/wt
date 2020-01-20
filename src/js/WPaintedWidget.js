@@ -657,6 +657,23 @@ WT_DECLARE_WT_MEMBER
 	    }
 	    return [x,y,w,h];
 	 };
+
+         this.drawImage = function(ctx,
+                                   image,
+                                   uri,
+                                   src_rect,
+                                   tgt_rect) {
+           try {
+             ctx.drawImage(image, src_rect[0], src_rect[1], src_rect[2], src_rect[3],
+                                  tgt_rect[0], tgt_rect[1], tgt_rect[2], tgt_rect[3]);
+           } catch (e) {
+             var msg = "Error while drawing image: '" + uri + "': " + e.name;
+             if (e.message) {
+               msg += ": " + e.message;
+             }
+             console.error(msg);
+           }
+         };
       }
 
       return new Utils();
