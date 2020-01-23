@@ -274,7 +274,7 @@ private:
  *
  * The library provides by default support for primitive types, using
  * sql_value_traits, mapped objects held by ptr types, and
- * boost::tuple<> of any combination of these.
+ * boost::tuple<> or any combination of these.
  *
  * \sa sql_value_traits, ptr
  *
