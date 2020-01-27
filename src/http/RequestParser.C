@@ -1051,12 +1051,6 @@ boost::tribool& RequestParser::consume(Request& req, Buffer::iterator it)
       httpState_ = expecting_newline_3;
       return Indeterminate;
     }
-    else if ((input == ' ' || input == '\t') && haveHeader_)
-    {
-      // continuation of previous header
-      httpState_ = header_lws;
-      return Indeterminate;
-    }
     else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
     {
       return False;
@@ -1068,26 +1062,6 @@ boost::tribool& RequestParser::consume(Request& req, Buffer::iterator it)
       consumeToString(req.headers.back().name, MAX_FIELD_NAME_SIZE);
       consumeChar(it);
       httpState_ = header_name;
-      return Indeterminate;
-    }
-  case header_lws:
-    if (input == '\r')
-    {
-      httpState_ = expecting_newline_2;
-      return Indeterminate;
-    }
-    else if (input == ' ' || input == '\t')
-    {
-      return Indeterminate;
-    }
-    else if (is_ctl(input))
-    {
-      return False;
-    }
-    else
-    {
-      httpState_ = header_value;
-      consumeChar(it);
       return Indeterminate;
     }
   case header_name:
