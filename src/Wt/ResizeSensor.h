@@ -10,6 +10,7 @@
 namespace Wt {
 
   class WApplication;
+  class WWidget;
 
   class ResizeSensor {
   public:
