@@ -22,6 +22,74 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.2.1 (January 2020)</h2>
+
+<p>
+  This release fixes the following issues:
+</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7393" target="_blank">Issue #7393</a>: if the internal path is set to invalid in initialize, Wt should still send a 404 status code.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7390" target="_blank">Issue #7390</a>: added MIME type for <tt>.wasm</tt> files to wthttp.
+  </li>
+  <li>
+    Fixed several issues with <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a> that were
+    <a href="https://redmine.emweb.be/boards/2/topics/16718" target="_blank">reported on the forum</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7384" target="_blank">Issue #7384</a>: setting the <tt>--docroot</tt> of wthttp
+    to <tt>.;</tt> will now correctly make it so that no path is interpreted as being a static resource.
+  </li>
+  <li>
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>: when there were so many bars on
+    a bar chart that the width of a bar became 0, placing tooltips would cause a crash. Wt will now skip
+    tooltip placement when bars get too narrow.
+  </li>
+  <li>
+    <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>: when
+    <a href="classWt_1_1WSuggestionPopup.html#a0395bd5080856eb95ccb50748f25d1c7"><tt>setDropDownIconUnfiltered(true)</tt></a>
+    was used, pressing the up/down arrows to move through the list would cause it to be filtered.
+  </li>
+  <li>
+    Reverted a previous change to <a href="classWt_1_1WModelIndex.html">WModelIndex</a>: since the comparison operator of model indexes uses the parent, we can't insert raw indexes into a <tt>std::set</tt>.
+  </li>
+  <li>
+    <a href="group__modelview.html#gaeb2f9c583490833afd55d65402b4fea9">registerType</a> now uses <tt>std::type_index</tt> instead of comparing <tt>type_info</tt> pointers.
+  </li>
+  <li>
+    Some widgets (like <a href="classWt_1_1WTreeView.html">WTreeView</a>) would not be properly sized when they were initially hidden.
+  </li>
+  <li>
+    Fixed a segfault in <a href="classWt_1_1WTableRow.html">WTableRow</a>, <a href="https://redmine.webtoolkit.eu/boards/2/topics/16732" target="_blank">reported on the forum</a>.
+  </li>
+  <li>
+    Miscellaneous documentation fixes.
+  </li>
+  <li>
+    <b>CMake fixes:</b>
+    <ul>
+      <li>
+        <tt>wt-config.cmake</tt>: CMake would look for Boost even when Wt was linked dynamically, and
+        Boost was linked statically, like in our Windows builds.
+      </li>
+      <li>
+        <tt>wt-config-version.cmake</tt>: <tt>match</tt> function needed to be <tt>math</tt>
+      </li>
+      <li>
+        CMake needed to look for <tt>Boost::filesystem</tt> for some examples (but didn't).
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>
+  If you diff this release with the last one, it looks like we've changed a lot more, but this
+  is simply because we needed to update Emweb bvba to Emweb bv everywhere.
+</p>
+
 <h2>Release 4.2.0 (December 3, 2019)</h2>
 
 <p>
@@ -66,7 +134,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     <a href="classWt_1_1WTreeView.html">WTreeView</a>: added <a href="classWt_1_1WTreeView.html#ab7c527ce5304cdbe7f5bcb3e51880641">collapseAll()</a>.
   </li>
   <li>
-    Issue <a href="https://redmine.webtoolkit.eu/issues/7307">#7307</a>: enabled top and bottom padding on a non-inline <a href="classWt_1_1WText.html">WText</a>.
+    Issue <a href="https://redmine.webtoolkit.eu/issues/7307" target="_blank">#7307</a>: enabled top and bottom padding on a non-inline <a href="classWt_1_1WText.html">WText</a>.
   </li>
 </ul>
 <h3>Fixes</h3>
@@ -75,7 +143,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     Limited prevention of default action of the <tt>dragstart</tt> event to only draggable widgets. This used to be global (set on <tt>document.body</tt>), but could conflict with other JavaScript libraries, especially when Wt is used in WidgetSet mode.
   </li>
   <li>
-    Issue <a href="https://redmine.webtoolkit.eu/issues/7210">#7210</a>: fixed removal of all widgets in a layout causing a JavaScript error
+    Issue <a href="https://redmine.webtoolkit.eu/issues/7210" target="_blank">#7210</a>: fixed removal of all widgets in a layout causing a JavaScript error
   </li>
   <li>
     Fix for PR <a href="https://github.com/emweb/wt/pull/145">#145</a>: fixed linking error on Windows (unresolved external symbol "public: static struct Wt::NoClass Wt::NoClass::none")
@@ -87,13 +155,13 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     Many documentation tweaks and fixes that were discovered when working on JWt 4.
   </li>
   <li>
-    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7139">#7139</a>: some widgets would fail to be correctly reparented.
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7139" target="_blank">#7139</a>: some widgets would fail to be correctly reparented.
   </li>
   <li>
-    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7336">#7336</a>: Wt was touching the history API every 10 ms when scrolling to store the scroll position, causing sluggishness, especially on mobile browsers with smooth scrolling. The scroll position is now saved after the user has stopped scrolling.
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7336" target="_blank">#7336</a>: Wt was touching the history API every 10 ms when scrolling to store the scroll position, causing sluggishness, especially on mobile browsers with smooth scrolling. The scroll position is now saved after the user has stopped scrolling.
   </li>
   <li>
-    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7323">#7323</a>: updated the <a href="https://github.com/emweb/wt/tree/master/examples/feature/broadcast">broadcast</a> feature example: its use of <tt>bindSafe()</tt> was incorrect
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7323" target="_blank">#7323</a>: updated the <a href="https://github.com/emweb/wt/tree/master/examples/feature/broadcast" target="_blank">broadcast</a> feature example: its use of <tt>bindSafe()</tt> was incorrect
   </li>
 </ul>
 
@@ -109,10 +177,10 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     </ul>
   </li>
   <li>
-    Fixed <a href="https://redmine.webtoolkit.eu/boards/2/topics/16551">an issue raised on the forum</a> causing <tt>WTreeView</tt> to not properly react to certain size changes.
+    Fixed <a href="https://redmine.webtoolkit.eu/boards/2/topics/16551" target="_blank">an issue raised on the forum</a> causing <tt>WTreeView</tt> to not properly react to certain size changes.
   </li>
   <li>
-    Fixed <a href="https://redmine.webtoolkit.eu/issues/7291">issue #7291</a>: wtfcgi would not properly match default entry point
+    Fixed <a href="https://redmine.webtoolkit.eu/issues/7291" target="_blank">issue #7291</a>: wtfcgi would not properly match default entry point
   </li>
   <li>
     Fixed a few issues found by clang-analyzer:
@@ -128,11 +196,11 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
   <li>
     Made tests succeed even if Wt is built with <tt>ENABLE_UNWIND=ON</tt>.
   </li>
-  <li><a href="https://redmine.webtoolkit.eu/issues/7292">issue #7292</a>: <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a> now correctly uses <tt>refresh_token</tt> instead of <tt>refreshToken</tt></li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/7292" target="_blank">issue #7292</a>: <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a> now correctly uses <tt>refresh_token</tt> instead of <tt>refreshToken</tt></li>
   <li><a href="classWt_1_1Http_1_1Client.html">Http::Client</a> fixes:
     <ul>
-      <li>fixed <a href="https://redmine.webtoolkit.eu/issues/7272">issue #7272</a>: support <tt>@</tt> character in the path of a URL</li>
-      <li>fixed 204 No Content response code behavior (would hang before, waiting for content) (<a href="https://redmine.webtoolkit.eu/issues/7273">issue #7273</a>)</li>
+      <li>fixed <a href="https://redmine.webtoolkit.eu/issues/7272" target="_blank">issue #7272</a>: support <tt>@</tt> character in the path of a URL</li>
+      <li>fixed 204 No Content response code behavior (would hang before, waiting for content) (<a href="https://redmine.webtoolkit.eu/issues/7273" target="_blank">issue #7273</a>)</li>
     </ul>
   </li>
   <li>More informative error and exception messages:
@@ -154,14 +222,14 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
 </p>
 <ul>
   <li>Fixed horizontal scrolling stutter on mobile browsers in <tt>WTableView</tt></li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7000">issue #7000</a>: possible out of bounds access in <tt>WTableView::itemWidget()</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7000" target="_blank">issue #7000</a>: possible out of bounds access in <tt>WTableView::itemWidget()</tt></li>
   <li>Fixed <tt>valueChanged()</tt> documentation of <tt>WSpinBox</tt> and <tt>WDoubleSpinBox</tt></li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7164">issue #7164</a>: Added missing <tt>&lt;stdexcept&gt;</tt> include to <tt>observing_ptr_impl.hpp</tt></li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7167">issue #7167</a>: configure SSL context when using <tt>--https-listen</tt> too (not just when using <tt>--https-address</tt>/<tt>--https-port</tt></li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7187">issue #7187</a>: contents of <tt>WTabWidget</tt> did not properly stretch in height</li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7193">issue #7193</a>: compatibility with Pango 1.44: added harfbuzz include dir</li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7195">issue #7195</a>: contents of <tt>WStackedWidget</tt> would not properly respond to window size change</li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7206">issue #7206</a>: added mention in Wt 4.0.0 release notes that <tt>setObjectName()</tt> does not change a widget's <tt>id</tt> anymore. It is now in an extra attribute called <tt>data-object-name</tt>.</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7164" target="_blank">issue #7164</a>: Added missing <tt>&lt;stdexcept&gt;</tt> include to <tt>observing_ptr_impl.hpp</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7167" target="_blank">issue #7167</a>: configure SSL context when using <tt>--https-listen</tt> too (not just when using <tt>--https-address</tt>/<tt>--https-port</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7187" target="_blank">issue #7187</a>: contents of <tt>WTabWidget</tt> did not properly stretch in height</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7193" target="_blank">issue #7193</a>: compatibility with Pango 1.44: added harfbuzz include dir</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7195" target="_blank">issue #7195</a>: contents of <tt>WStackedWidget</tt> would not properly respond to window size change</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7206" target="_blank">issue #7206</a>: added mention in Wt 4.0.0 release notes that <tt>setObjectName()</tt> does not change a widget's <tt>id</tt> anymore. It is now in an extra attribute called <tt>data-object-name</tt>.</li>
 </ul>
 
 <h2>Release 4.1.0 (July 31, 2019)</h2>
