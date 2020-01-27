@@ -124,7 +124,6 @@ private:
     http_version_minor,
     expecting_newline_1,
     header_line_start,
-    header_lws,
     header_name,
     space_before_header_value,
     header_value,
