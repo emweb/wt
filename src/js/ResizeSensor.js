@@ -66,7 +66,26 @@ function(WT, element) {
     var expandChild = expand.childNodes[0];
     var shrink = element.resizeSensor.childNodes[1];
 
+    var initialHiddenCheck = true;
+    var lastAnimationFrameForInvisibleCheck = 0;
+
     var reset = function() {
+        // Check if element is hidden
+        if (initialHiddenCheck) {
+            var invisible = element.offsetWidth === 0 && element.offsetHeight === 0;
+            if (invisible) {
+                // Check in next frame
+                if (!lastAnimationFrameForInvisibleCheck) {
+                    lastAnimationFrameForInvisibleCheck = requestAnimationFrame(function(){
+                        lastAnimationFrameForInvisibleCheck = 0;
+                        reset();
+                    });
+                }
+            } else {
+                // Stop checking
+                initialHiddenCheck = false;
+            }
+        }
         expandChild.style.width  = 100000 + 'px';
         expandChild.style.height = 100000 + 'px';
 
@@ -134,4 +153,9 @@ function(WT, element) {
 
     addEvent(expand, 'scroll', onScroll);
     addEvent(shrink, 'scroll', onScroll);
+
+    lastAnimationFrameForInvisibleCheck = requestAnimationFrame(function(){
+        lastAnimationFrameForInvisibleCheck = 0;
+        reset();
+    });
 });
