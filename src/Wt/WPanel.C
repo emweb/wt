@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "ResizeSensor.h"
 
 #include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
@@ -53,8 +52,6 @@ WPanel::WPanel()
      ""       WT_CLASS ".px(self, 'borderBottomWidth');"
      """}"
      """var c = self.lastChild;"
-     """if (c.className=='resize-sensor')"
-     ""  "c = c.previousSibling;"
      """var t = c.previousSibling;"
      """if (t)"
      ""  "h -= t.offsetHeight;"
@@ -81,8 +78,6 @@ WPanel::WPanel()
      "};");
 
   setJavaScriptMember(WT_GETPS_JS, StdWidgetItemImpl::secondGetPSJS());
-
-  ResizeSensor::applyIfNeeded(this);
 }
 
 void WPanel::setTitle(const WString& title)
