@@ -89,9 +89,12 @@ public:
     std::string name_, value_;
   };
 
+  /*! \class Recipient
+   *  \brief A struct representing a recipient
+   */
   struct Recipient {
-    RecipientType type;
-    Mailbox mailbox;
+    RecipientType type; //!< The type of recipient
+    Mailbox mailbox; //!< The mailbox
   };
 
   /*! \brief Default constructor.
