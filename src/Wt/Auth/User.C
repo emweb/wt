@@ -42,6 +42,8 @@ void User::setPassword(const PasswordHash& password) const
   checkValid();
 
   db_->setPassword(*this, password);
+
+  clearEmailToken();
 }
 
 std::string User::email() const

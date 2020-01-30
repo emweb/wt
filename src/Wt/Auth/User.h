@@ -140,7 +140,10 @@ public:
 
   /*! \brief Sets a password.
    *
+   * This also clears the email token.
+   *
    * \sa AbstractUserDatabase::setPassword()
+   * \sa clearEmailToken()
    */
   void setPassword(const PasswordHash& password) const;
 

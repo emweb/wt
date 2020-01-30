@@ -515,14 +515,18 @@ public:
 
   /*! \brief Processes an email token.
    *
-   * This processes a token received through an email. If successful, the
-   * token is removed from the database.
+   * This processes a token received through an email. If it is an
+   * email verification token, the token is removed from the database.
    *
    * This may return two successful results:
    * - EmailTokenState::EmailConfirmed: a token was presented which proves
    *   that the user is tied to the email address.
    * - EmailTokenState::UpdatePassword: a token was presented which requires
    *   the user to enter a new password.
+   *
+   * \note Since Wt 4.3.0, the behavior of this function changed. The lost password
+   *       token is no longer removed by processEmailToken(). Instead, it is now
+   *       removed in User::setPassword().
    *
    * \sa verifyEmailAddress()
    * \sa lostPassword()

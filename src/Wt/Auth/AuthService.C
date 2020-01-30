@@ -353,8 +353,6 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
 
     switch (user.emailTokenRole()) {
     case EmailTokenRole::LostPassword:
-      user.clearEmailToken();
-
       if (tr.get())
 	tr->commit();
 
