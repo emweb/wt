@@ -35,8 +35,6 @@ WT_DECLARE_WT_MEMBER
    var scrollToPendingCount = 0;
    var initialScrollTopSet = initialScrollTop === 0;
 
-   var ignoreScrollEvent = false;
-
    /*
     * We need to remember this for when going through a hide()
     * show() cycle.
@@ -58,27 +56,12 @@ WT_DECLARE_WT_MEMBER
      }
    }
 
-   headerContainer.onscroll = function(obj, event) {
-     if (ignoreScrollEvent) {
-       ignoreScrollEvent = false;
-     } else {
-       ignoreScrollEvent = true;
-       scrollLeft = contentsContainer.scrollLeft = headerContainer.scrollLeft;
-       maybeEmitScrolled();
-     }
-   };
-
    this.onContentsContainerScroll = function() {
-     if (ignoreScrollEvent) {
-       ignoreScrollEvent = false;
-     } else {
-       ignoreScrollEvent = true;
-       scrollLeft = headerContainer.scrollLeft
-             = contentsContainer.scrollLeft;
-       scrollTop = headerColumnsContainer.scrollTop
-              = contentsContainer.scrollTop;
-       maybeEmitScrolled();
-     }
+     scrollLeft = headerContainer.scrollLeft
+           = contentsContainer.scrollLeft;
+     scrollTop = headerColumnsContainer.scrollTop
+            = contentsContainer.scrollTop;
+     maybeEmitScrolled();
    };
 
    contentsContainer.wtResize = function(o, w, h) {
