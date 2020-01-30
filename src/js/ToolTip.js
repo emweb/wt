@@ -11,7 +11,7 @@ WT_DECLARE_WT_MEMBER
  function(APP, id, text, deferred, ToolTipInnerStyle, ToolTipOuterStyle) {
 
 
-     var $el = $("#" + id), el = $el.get(0);
+     var el = document.getElementById(id);
      var WT = APP.WT;
 
      var obj = el.toolTip;
@@ -100,9 +100,15 @@ WT_DECLARE_WT_MEMBER
                      showTimer = setTimeout(function() { el.toolTip.showToolTip(); }, Delay);
              }
 
-             $el.mouseenter(resetTimer);
-             $el.mousemove(resetTimer);
-             $el.mouseleave(hideToolTip);
+             if (el.addEventListener) {
+               el.addEventListener('mouseenter', resetTimer);
+               el.addEventListener('mousemove', resetTimer);
+               el.addEventListener('mouseleave', hideToolTip);
+             } else {
+               el.attachEvent('mouseenter', resetTimer);
+               el.attachEvent('mousemove', resetTimer);
+               el.attachEvent('mouseleave', hideToolTip);
+             }
          };
      }
 
