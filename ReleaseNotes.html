@@ -57,6 +57,10 @@ behaviour.
     Reverted a previous change to <a href="classWt_1_1WModelIndex.html">WModelIndex</a>: since the comparison operator of model indexes uses the parent, we can't insert raw indexes into a <tt>std::set</tt>.
   </li>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7353" target="_blank">Issue #7353</a>: added mention in 3.5.0 release notes about
+    <a href="classWt_1_1WPdfImage.html">WPdfImage</a> pen width fix.
+  </li>
+  <li>
     <a href="group__modelview.html#gaeb2f9c583490833afd55d65402b4fea9">registerType</a> now uses <tt>std::type_index</tt> instead of comparing <tt>type_info</tt> pointers.
   </li>
   <li>
@@ -150,6 +154,9 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
   </li>
   <li>
     <a href="classWt_1_1WPainter.html">WPainter</a>: fixed arc drawing code to be consistent across different backends, and with Qt's QPainter. Its behavior used to be erratic when angles larger than 360 degrees or lower than 0 were used.
+  </li>
+  <li>
+    <a href="classWt_1_1WPdfImage.html">WPdfImage</a>: fixed double scaling of pen width (e.g. a pen of width 4 pixels, and a scaling factor of 2 would result in a 16 pixel wide pen instead of an 8 pixel wide pen).
   </li>
   <li>
     Many documentation tweaks and fixes that were discovered when working on JWt 4.
