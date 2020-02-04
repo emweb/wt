@@ -117,7 +117,7 @@ enum class DialogCode {
  * {
  *   if (code == Wt::WDialog::Accepted)
  *     setStatus("Welcome, " + edit_->text());
- *   dialog_->removeFromParent();
+ *   removeChild(dialog_);
  * }
  * \endcode
  * \endif
