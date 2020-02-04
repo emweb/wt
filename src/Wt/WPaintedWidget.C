@@ -373,8 +373,12 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 			"""var u = $(self).find('canvas, img');"
 			"""if (w >= 0) "
 			""  "u.width(w);"
+                        """else "
+                        ""  "u.width('auto');"
 			"""if (h >= 0) "
 			""  "u.height(h);"
+                        """else "
+                        ""  "u.height('auto');"
 			"}");
   }
 
