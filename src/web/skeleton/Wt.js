@@ -1804,7 +1804,7 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
   w.parentNode.removeChild(w);
   
   for (p = pp.parentNode; p != domRoot; p = p.parentNode) {
-    if (p.wtResize || p.wtReparentBarrier) {
+    if (p.wtReparentBarrier) {
       break;
     }
 
