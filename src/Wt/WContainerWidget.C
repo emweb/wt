@@ -464,7 +464,7 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 	+ ".wtEncodeValue = function() {"
 	+ "return " + this->jsRef() + ".scrollTop"
 	+ " + ';' + " + this->jsRef() + ".scrollLeft;"
-	+ "}");
+	+ "};");
 
     flags_.reset(BIT_OVERFLOW_CHANGED);
 
