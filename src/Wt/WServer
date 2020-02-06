@@ -386,6 +386,14 @@ public:
    */
   WT_API void postAll(const boost::function<void ()>& function);
 
+  /*! \brief Schedules a function to be executed in a session.
+   *
+   * The \p function will run in the session specified by \p sessionId,
+   * after \p milliSeconds ms. If the session does not exist anymore,
+   * \p fallBackFunction will be executed.
+   *
+   * \sa post()
+   */
   WT_API void schedule(int milliSeconds,
 		       const std::string& sessionId,
 		       const boost::function<void ()>& function,
