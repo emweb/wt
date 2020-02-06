@@ -22,26 +22,53 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.2.1 (January 2020)</h2>
+<h2>Release 4.2.1 (February 6, 2020)</h2>
 
 <p>
   This release fixes the following issues:
 </p>
 
 <ul>
+  <li>wthttp fixes:
+    <ul>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7406" target="_blank">Issue #7406</a>: requests for absolute-form URLs (e.g. <tt>GET http://localhost:8080/ HTTP/1.1</tt> instead of <tt>GET / HTTP/1.1</tt>) are now rejected. No client normally sends requests like this to an origin server. See <a href="https://tools.ietf.org/html/rfc7230#section-5.3.2" target="_blank">RFC 7230, section 5.3.2</a>.
+      </li>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7405" target="_blank">Issue #7405</a>: multiline HTTP headers (line folding) were causing
+        wthttp to segfault. This was fixed by removing support for (obsolete) line folding. See <a href="https://tools.ietf.org/html/rfc7230#section-3.2.4" target="_blank">RFC 7230, section 3.2.4</a>.
+      </li>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7390" target="_blank">Issue #7390</a>: added MIME type for <tt>.wasm</tt> files.
+      </li>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7384" target="_blank">Issue #7384</a>: setting the <tt>--docroot</tt> of wthttp
+        to <tt>.;</tt> will now correctly make it so that no path is interpreted as being a static resource.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7350" target="_blank">Issue #7350</a>: fixed <a href="classWt_1_1WPaintedWidget.html">WPaintedWidget</a>'s <tt>wtResize</tt> JavaScript to assume its preferred size when called with a size of -1.
+  </li>
+  <li>
+    Fixed possible JavaScript errors caused by <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>'s <tt>wtEncodeValue</tt> JavaScript not    being terminated by a semicolon.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7407" target="_blank">Issue #7407</a>: fixed JavaScript memory leak related to deferred or HTML tooltips.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7360" target="_blank">Issue #7360</a>: documented <a href="structWt_1_1Mail_1_1Message_1_1Recipient.html">Wt::Mail::Message::Recipient</a>.
+  </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7393" target="_blank">Issue #7393</a>: if the internal path is set to invalid in initialize, Wt should still send a 404 status code.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/7390" target="_blank">Issue #7390</a>: added MIME type for <tt>.wasm</tt> files to wthttp.
+    <a href="https://redmine.webtoolkit.eu/issues/7361" target="_blank">Issue #7361</a>: a previous attempt at fixing horizontal scrolling stutter
+    in Wt 4.1.1 caused a regression in <a href="classWt_1_1WTableView.html#a093b661f93551c1d6f73c423ae8ef459">WTableView::scrollTo()</a>.
   </li>
   <li>
     Fixed several issues with <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a> that were
     <a href="https://redmine.emweb.be/boards/2/topics/16718" target="_blank">reported on the forum</a>.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/7384" target="_blank">Issue #7384</a>: setting the <tt>--docroot</tt> of wthttp
-    to <tt>.;</tt> will now correctly make it so that no path is interpreted as being a static resource.
   </li>
   <li>
     <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>: when there were so many bars on
