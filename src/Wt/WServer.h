@@ -468,7 +468,15 @@ public:
    */
   WT_API void postAll(const std::function<void ()>& function);
 
-  WT_API void schedule(std::chrono::steady_clock::duration millis,
+  /*! \brief Schedules a function to be executed in a session.
+   *
+   * The \p function will run in the session specified by \p sessionId,
+   * after \p duration. If the session does not exist anymore,
+   * \p fallBackFunction will be executed.
+   *
+   * \sa post()
+   */
+  WT_API void schedule(std::chrono::steady_clock::duration duration,
 		       const std::string& sessionId,
 		       const std::function<void ()>& function,
 		       const std::function<void ()>& fallBackFunction

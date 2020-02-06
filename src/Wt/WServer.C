@@ -215,14 +215,14 @@ void WServer::postAll(const std::function<void ()>& function)
   }
 }
 
-void WServer::schedule(std::chrono::steady_clock::duration millis,
+void WServer::schedule(std::chrono::steady_clock::duration duration,
 		       const std::string& sessionId,
 		       const std::function<void ()>& function,
 		       const std::function<void ()>& fallbackFunction)
 {
   ApplicationEvent event(sessionId, function, fallbackFunction);
 
-  ioService().schedule(millis, [this, event] () {
+  ioService().schedule(duration, [this, event] () {
           webController_->handleApplicationEvent(event);
   });
 }
