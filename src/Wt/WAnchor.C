@@ -95,10 +95,7 @@ void WAnchor::setText(const WString& text)
     text_ = t.get();
     addWidget(std::move(t));
   } else
-    if (!text.empty())
-      text_->setText(text);
-    else
-      text_->parent()->removeWidget(text_.get());
+    text_->setText(text);
 }
 
 void WAnchor::setWordWrap(bool wordWrap)
