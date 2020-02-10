@@ -56,8 +56,10 @@ public:
 
   /*! \brief Returns the client file name.
    *
-   * This is the location that was indicated by the browser. Depending on
-   * the browser this is an absolute path or only the file name.
+   * This is the location that was indicated by the browser.
+   *
+   * \note Depending on the browser this is an absolute path
+   *       or only the file name.
    */
   const std::string& clientFileName() const;
 
