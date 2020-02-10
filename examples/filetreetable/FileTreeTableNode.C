@@ -11,9 +11,10 @@
 #include <boost/filesystem/exception.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
-#include <time.h>
 
+#include <Wt/WDateTime.h>
 #include <Wt/WIconPair.h>
+#include <Wt/WLocalDateTime.h>
 #include <Wt/WStringUtil.h>
 #include <Wt/WText.h>
 #include <Wt/WAny.h>
@@ -37,17 +38,11 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
       setSelectable(false);
 
     std::time_t t = boost::filesystem::last_write_time(path);
-    struct tm ttm;
-#if WIN32
-    ttm=*localtime(&t);
-#else
-    localtime_r(&t, &ttm);
-#endif
+    Wt::WDateTime dateTime = Wt::WDateTime::fromTime_t(t);
+    Wt::WLocalDateTime localDateTime = dateTime.toLocalTime();
+    Wt::WString dateTimeStr = localDateTime.toString(Wt::utf8("MMM dd yyyy"));
 
-    char c[100];
-    strftime(c, 100, "%b %d %Y", &ttm);
-
-    setColumnWidget(2, cpp14::make_unique<WText>(c));
+    setColumnWidget(2, cpp14::make_unique<WText>(dateTimeStr));
     columnWidget(2)->setStyleClass("date");
   }
 }
