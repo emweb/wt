@@ -389,6 +389,9 @@ void WLeafletMap::WidgetMarker::createContainer()
   container_ = new Wt::WContainerWidget();
   container_->addStyleClass(WIDGETMARKER_CONTAINER_CLASS);
   container_->setJavaScriptMember("wtReparentBarrier", "true");
+  WLeafletMap *m = map();
+  if (m)
+    container_->setParentWidget(m);
 }
 
 bool WLeafletMap::WidgetMarker::needsUpdate() const
