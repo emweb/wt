@@ -150,6 +150,7 @@ public:
 
     paramValues_ = nullptr;
     paramTypes_ = paramLengths_ = paramFormats_ = nullptr;
+    columnCount_ = 0;
  
     snprintf(name_, 64, "SQL%p%08X", (void*)this, rand());
 
@@ -336,6 +337,7 @@ public:
       result_ = PQprepare(conn_.connection(), name_, sql_.c_str(),
 			  paramTypes_ ? params_.size() : 0, (Oid *)paramTypes_);
       handleErr(PQresultStatus(result_), result_);
+      columnCount_ = PQnfields(result_);
     }
 
     for (unsigned i = 0; i < params_.size(); ++i) {
@@ -389,7 +391,7 @@ public:
 
     PQclear(result_);
     result_ = PQgetResult(conn_.connection());
-    
+
     row_ = 0;
     if (PQresultStatus(result_) == PGRES_COMMAND_OK) {
       std::string s = PQcmdTuples(result_);
@@ -399,6 +401,8 @@ public:
 	affectedRows_ = 0;
     } else if (PQresultStatus(result_) == PGRES_TUPLES_OK)
       affectedRows_ = PQntuples(result_);
+
+    columnCount_ = PQnfields(result_);
 
     bool isInsertReturningId = false;
     if (affectedRows_ == 1) {
@@ -464,6 +468,10 @@ public:
     }
 
     return false;
+  }
+
+  virtual int columnCount() const override {
+    return columnCount_;
   }
 
   virtual bool getResult(int column, std::string *value, int size) override
@@ -650,7 +658,7 @@ private:
   char **paramValues_;
   int *paramTypes_, *paramLengths_, *paramFormats_;
  
-  int lastId_, row_, affectedRows_;
+  int lastId_, row_, affectedRows_, columnCount_;
 
   void handleErr(int err, PGresult *result)
   {

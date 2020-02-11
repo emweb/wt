@@ -201,6 +201,10 @@ public:
     handleErr(SQL_HANDLE_STMT, stmt_, rc);
     rc = SQLNumParams(stmt_, &parameterCount_);
     handleErr(SQL_HANDLE_STMT, stmt_, rc);
+    SQLSMALLINT numCols = 0;
+    rc = SQLNumResultCols(stmt_, &numCols);
+    handleErr(SQL_HANDLE_STMT, stmt_, rc);
+    resultColCount_ = numCols;
     if (parameterCount_ > 0) {
       paramValues_ = new Value[parameterCount_];
       std::memset(paramValues_, 0, parameterCount_ * sizeof(Value));
@@ -219,12 +223,12 @@ public:
   }
 
 
-  virtual void reset()
+  virtual void reset() override
   {
     SQLFreeStmt(stmt_, SQL_CLOSE);
   }
 
-  virtual void bind(int column, const std::string &value)
+  virtual void bind(int column, const std::string &value) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -271,7 +275,7 @@ public:
     }
   }
 
-  virtual void bind(int column, short value)
+  virtual void bind(int column, short value) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -298,7 +302,7 @@ public:
     }
   }
 
-  virtual void bind(int column, int value)
+  virtual void bind(int column, int value) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -325,7 +329,7 @@ public:
     }
   }
 
-  virtual void bind(int column, long long value)
+  virtual void bind(int column, long long value) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -352,7 +356,7 @@ public:
     }
   }
 
-  virtual void bind(int column, float value)
+  virtual void bind(int column, float value) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -379,7 +383,7 @@ public:
     }
   }
 
-  virtual void bind(int column, double value)
+  virtual void bind(int column, double value) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -409,7 +413,7 @@ public:
   virtual void bind(
     int column,
     const std::chrono::system_clock::time_point& value,
-    SqlDateTimeType type)
+    SqlDateTimeType type) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -476,7 +480,7 @@ public:
 
   virtual void bind(
     int column,
-    const std::chrono::duration<int, std::milli>& value)
+    const std::chrono::duration<int, std::milli>& value) override
   {
     long long msec = value.count();
     bind(column, msec);
@@ -484,7 +488,7 @@ public:
 
   virtual void bind(
     int column,
-    const std::vector<unsigned char>& value)
+    const std::vector<unsigned char>& value) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -509,7 +513,7 @@ public:
     }
   }
 
-  virtual void bindNull(int column)
+  virtual void bindNull(int column) override
   {
     checkColumnIndex(column);
     Value &v = paramValues_[column];
@@ -536,7 +540,7 @@ public:
     }
   }
 
-  virtual void execute()
+  virtual void execute() override
   {
     if (conn_.showQueries())
       std::cerr << sql_ << std::endl;
@@ -549,11 +553,6 @@ public:
     //        maybe this is because of OUTPUT Inserted.?
     rc = SQLRowCount(stmt_, &affectedRows_);
     handleErr(SQL_HANDLE_STMT, stmt_, rc);
-
-    SQLSMALLINT numCols = 0;
-    rc = SQLNumResultCols(stmt_, &numCols);
-    handleErr(SQL_HANDLE_STMT, stmt_, rc);
-    resultColCount_ = numCols;
 
     bool isInsertReturningId = false;
     const std::string returning = " OUTPUT Inserted.";
@@ -572,17 +571,17 @@ public:
     }
   }
 
-  virtual long long insertedId()
+  virtual long long insertedId() override
   {
     return lastId_;
   }
 
-  virtual int affectedRowCount()
+  virtual int affectedRowCount() override
   {
     return static_cast<int>(affectedRows_);
   }
 
-  virtual bool nextRow()
+  virtual bool nextRow() override
   {
     SQLRETURN rc = SQLFetch(stmt_);
     if (rc == SQL_NO_DATA)
@@ -593,7 +592,12 @@ public:
     }
   }
 
-  virtual bool getResult(int column, std::string *value, int /*size*/)
+  virtual int columnCount() const override
+  {
+    return resultColCount_;
+  }
+
+  virtual bool getResult(int column, std::string *value, int /*size*/) override
   {
     MSSQLServer::Impl::ResultBuffer &resultBuffer = conn_.impl_->resultBuffer;
     std::size_t resultBufferPos = 0;
@@ -648,27 +652,27 @@ public:
     return true;
   }
 
-  virtual bool getResult(int column, short * value)
+  virtual bool getResult(int column, short * value) override
   {
     return getRes<SQL_C_SSHORT>(column, value);
   }
 
-  virtual bool getResult(int column, int * value)
+  virtual bool getResult(int column, int * value) override
   {
     return getRes<SQL_C_SLONG>(column, value);
   }
 
-  virtual bool getResult(int column, long long * value)
+  virtual bool getResult(int column, long long * value) override
   {
     return getRes<SQL_C_SBIGINT>(column, value);
   }
 
-  virtual bool getResult(int column, float * value)
+  virtual bool getResult(int column, float * value) override
   {
     return getRes<SQL_C_FLOAT>(column, value);
   }
 
-  virtual bool getResult(int column, double * value)
+  virtual bool getResult(int column, double * value) override
   {
     return getRes<SQL_C_DOUBLE>(column, value);
   }
@@ -676,7 +680,7 @@ public:
   virtual bool getResult(
     int column,
     std::chrono::system_clock::time_point *value,
-    SqlDateTimeType type)
+    SqlDateTimeType type) override
   {
     if (type == SqlDateTimeType::Date) {
       SQL_DATE_STRUCT date;
@@ -706,7 +710,7 @@ public:
 
   virtual bool getResult(
     int column,
-    std::chrono::duration<int, std::milli> *value)
+    std::chrono::duration<int, std::milli> *value) override
   {
     long long msec;
     bool res = getResult(column, &msec);
@@ -720,7 +724,7 @@ public:
   virtual bool getResult(
     int column,
     std::vector<unsigned char> *value,
-    int size)
+    int size) override
   {
     MSSQLServer::Impl::ResultBuffer &resultBuffer = conn_.impl_->resultBuffer;
     std::size_t resultBufferPos = 0;
@@ -753,7 +757,7 @@ public:
     return true;
   }
 
-  virtual std::string sql() const
+  virtual std::string sql() const override
   {
     return sql_;
   }

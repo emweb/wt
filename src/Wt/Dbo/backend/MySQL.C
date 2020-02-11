@@ -112,6 +112,7 @@ class MySQLStatement final : public SqlStatement
     {
       lastId_ = -1;
       row_ = affectedRows_ = 0;
+      columnCount_ = 0;
       result_ = nullptr;
       out_pars_ = nullptr;
       errors_ = nullptr;
@@ -125,6 +126,8 @@ class MySQLStatement final : public SqlStatement
         throw MySQLException("error creating prepared statement: '"
 			      + sql + "': " + mysql_stmt_error(stmt_));
       }
+
+      columnCount_ = static_cast<int>(mysql_stmt_field_count(stmt_));
 
       paramCount_ = mysql_stmt_param_count(stmt_);
 
@@ -408,7 +411,7 @@ class MySQLStatement final : public SqlStatement
       conn_.checkConnection();
       if(mysql_stmt_bind_param(stmt_, &in_pars_[0]) == 0){
         if (mysql_stmt_execute(stmt_) == 0) {
-          if(mysql_stmt_field_count(stmt_) == 0) { // assume not select
+          if(columnCount_ == 0) { // assume not select
             affectedRows_ = mysql_stmt_affected_rows(stmt_);
            state_ = NoFirstRow;
             if (affectedRows_ == 1 ) {
@@ -500,6 +503,10 @@ class MySQLStatement final : public SqlStatement
       }
 
       return false;
+    }
+
+    virtual int columnCount() const override {
+      return columnCount_;
     }
 
     virtual bool getResult(int column, std::string *value, int size) override
@@ -822,6 +829,7 @@ class MySQLStatement final : public SqlStatement
     static const WT_MY_BOOL mysqltrue_;
     enum { NoFirstRow, NextRow, Done } state_;
     long long lastId_, row_, affectedRows_;
+    int columnCount_;
 
     void bind_output() {
       if (!out_pars_) {

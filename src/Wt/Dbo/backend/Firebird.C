@@ -89,6 +89,7 @@ namespace Wt
 	{
 	  lastId_ = -1;
 	  row_ = affectedRows_ = 0;
+          columnCount_ = 0;
 	  
           snprintf(name_, 64, "SQL%p%08X", (void*)this, rand());
 	  
@@ -106,6 +107,8 @@ namespace Wt
 	  } catch(IBPP::LogicException &e) {
 	    throw FirebirdException(e.what());
 	  }
+
+          columnCount_ = m_stmt->Columns();
 	}
 
 	virtual ~FirebirdStatement()
@@ -273,6 +276,11 @@ namespace Wt
 	    throw FirebirdException(e.what());
 	  }
 	}
+
+        virtual int columnCount() const override
+        {
+          return columnCount_;
+        }
 
 	void getString(int column, std::string *value, int size)
 	{
@@ -448,6 +456,7 @@ namespace Wt
 	char name_[64];
 	
 	int lastId_, row_, affectedRows_;
+        int columnCount_;
 
 
 	void setValue(int column, const std::string& value)

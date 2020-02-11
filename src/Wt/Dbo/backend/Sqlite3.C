@@ -321,6 +321,10 @@ public:
     return false;
   }
 
+  virtual int columnCount() const override {
+    return sqlite3_column_count(st_);
+  }
+
   virtual bool getResult(int column, std::string *value, int size) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)

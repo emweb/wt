@@ -120,6 +120,13 @@ public:
    */
   virtual bool nextRow() = 0;
 
+  /*! \brief Returns the number of columns in the result.
+   *
+   * \note The column count may only be available after the
+   *       query was executed.
+   */
+  virtual int columnCount() const = 0;
+
   /*! \brief Fetches a result value.
    *
    * Returns \c true when the value was not \c null.
