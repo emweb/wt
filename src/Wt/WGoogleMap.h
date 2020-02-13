@@ -289,6 +289,7 @@ private:
   JSignal<Coordinate> clicked_;
   JSignal<Coordinate> doubleClicked_;
   JSignal<Coordinate> *mouseMoved_;
+  std::string googlekey_;
 
 protected:
   virtual void render(WFlags<RenderFlag> flags) override;
