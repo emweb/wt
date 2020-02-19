@@ -22,6 +22,36 @@
 #endif //WT_WITH_SSL
 
 #ifdef WT_WITH_SSL
+namespace {
+
+#ifdef WT_WIN32
+void addWindowsCACertificates(asio::ssl::context &ctx) {
+  HCERTSTORE hStore = CertOpenSystemStore(0, "ROOT");
+  if (hStore == NULL) {
+    return;
+  }
+
+  X509_STORE *store = X509_STORE_new();
+  PCCERT_CONTEXT pContext = NULL;
+  while ((pContext = CertEnumCertificatesInStore(hStore, pContext)) != NULL) {
+    X509 *x509 = d2i_X509(NULL,
+      (const unsigned char **)&pContext->pbCertEncoded,
+      pContext->cbCertEncoded);
+    if (x509 != NULL) {
+      X509_STORE_add_cert(store, x509);
+      X509_free(x509);
+    }
+  }
+
+  CertFreeCertificateContext(pContext);
+  CertCloseStore(hStore, 0);
+
+  SSL_CTX_set_cert_store(ctx.native_handle(), store);
+}
+#endif // WT_WIN32
+
+}
+
 namespace Wt {
   namespace Ssl {  
     std::vector<Wt::WSslCertificate::DnAttribute>
@@ -178,31 +208,40 @@ namespace Wt {
       return certificate;
     }
 
+    asio::ssl::context createSslContext(asio::io_service &io_service,
+                                        bool addCACerts)
+    {
+#if defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 106600
+      (void)io_service;
+      asio::ssl::context context(asio::ssl::context::tls);
+#elif defined(WT_ASIO_IS_STANDALONE_ASIO) && ASIO_VERSION >= 101100
+      (void)io_service;
+      asio::ssl::context context(asio::ssl::context::sslv23);
+#else
+      asio::ssl::context context
+        (io_service, asio::ssl::context::sslv23);
+#endif
+
+      long sslOptions = asio::ssl::context::no_sslv2 |
+                        asio::ssl::context::no_sslv3 |
+                        asio::ssl::context::no_tlsv1;
+
+#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 105800) || \
+     defined(WT_ASIO_IS_STANDALONE_ASIO)
+      sslOptions |= asio::ssl::context::no_tlsv1_1;
+#endif
+
+      context.set_options(sslOptions);
+
+      if (addCACerts) {
+        context.set_default_verify_paths();
 #ifdef WT_WIN32
-    void addWindowsCACertificates(asio::ssl::context &ctx) {
-      HCERTSTORE hStore = CertOpenSystemStore(0, "ROOT");
-      if (hStore == NULL) {
-        return;
-      }
-
-      X509_STORE *store = X509_STORE_new();
-      PCCERT_CONTEXT pContext = NULL;
-      while ((pContext = CertEnumCertificatesInStore(hStore, pContext)) != NULL) {
-        X509 *x509 = d2i_X509(NULL,
-          (const unsigned char **)&pContext->pbCertEncoded,
-          pContext->cbCertEncoded);
-        if (x509 != NULL) {
-          X509_STORE_add_cert(store, x509);
-          X509_free(x509);
-        }
-      }
-
-      CertFreeCertificateContext(pContext);
-      CertCloseStore(hStore, 0);
-
-      SSL_CTX_set_cert_store(ctx.native_handle(), store);
-    }
+        addWindowsCACertificates(context);
 #endif // WT_WIN32
+      }
+
+      return context;
+    }
   }
 }
 #endif //WT_WITH_SSL

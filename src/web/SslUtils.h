@@ -18,24 +18,12 @@
 #ifdef WT_WITH_SSL
 #include <openssl/ssl.h>
 
-#ifdef WT_WIN32
+#include <Wt/AsioWrapper/asio.hpp>
+#include <Wt/AsioWrapper/ssl.hpp>
+
 #ifdef WT_ASIO_IS_BOOST_ASIO
-namespace boost {
-  namespace asio {
-    namespace ssl {
-      class context;
-    }
-  }
-}
 namespace asio = boost::asio;
-#else // WT_ASIO_IS_STANDALONE_ASIO
-namespace asio {
-  namespace ssl {
-    class context;
-  }
-}
-#endif // WT_ASIO_IS_STANDALONE_ASIO
-#endif // WT_WIN32
+#endif // WT_ASIO_IS_BOOST_ASIO
 
 namespace Wt {
   namespace Ssl {
@@ -50,9 +38,8 @@ namespace Wt {
 
     WT_API struct x509_st *readFromPem(const std::string &pem);
 
-#ifdef WT_WIN32
-    extern void addWindowsCACertificates(asio::ssl::context &ctx);
-#endif // WT_WIN32
+    extern asio::ssl::context createSslContext(asio::io_service &io_service,
+                                               bool addCACerts);
   }
 }
 #endif //WT_WITH_SSL

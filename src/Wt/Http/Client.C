@@ -23,12 +23,7 @@
 #ifdef WT_WITH_SSL
 
 #include <Wt/AsioWrapper/ssl.hpp>
-
-#define VERIFY_CERTIFICATE
-
-#ifdef WT_WIN32
 #include "web/SslUtils.h"
-#endif // WT_WIN32
 
 #endif // WT_WITH_SSL
 
@@ -769,14 +764,12 @@ protected:
 
   virtual void asyncHandshake(const ConnectHandler& handler) override
   {
-#ifdef VERIFY_CERTIFICATE
     if (verifyEnabled_) {
       socket_.set_verify_mode(asio::ssl::verify_peer);
       LOG_DEBUG("verifying that peer is " << hostName_);
       socket_.set_verify_callback
         (asio::ssl::rfc2818_verification(hostName_));
     }
-#endif // VERIFY_CERTIFICATE
     socket_.async_handshake(asio::ssl::stream_base::client, handler);
   }
 
@@ -810,7 +803,7 @@ Client::Client()
   : ioService_(0),
     timeout_(std::chrono::seconds{10}),
     maximumResponseSize_(64*1024),
-#ifdef VERIFY_CERTIFICATE
+#ifdef WT_WITH_SSL
     verifyEnabled_(true),
 #else
     verifyEnabled_(false),
@@ -824,7 +817,7 @@ Client::Client(asio::io_service& ioService)
   : ioService_(&ioService),
     timeout_(std::chrono::seconds{10}),
     maximumResponseSize_(64*1024),
-#ifdef VERIFY_CERTIFICATE
+#ifdef WT_WITH_SSL
     verifyEnabled_(true),
 #else
     verifyEnabled_(false),
@@ -965,32 +958,7 @@ bool Client::request(Http::Method method, const std::string& url,
 
 #ifdef WT_WITH_SSL
   } else if (parsedUrl.protocol == "https") {
-#if defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 106600
-    asio::ssl::context context(asio::ssl::context::tls);
-#elif defined(WT_ASIO_IS_STANDALONE_ASIO) && ASIO_VERSION >= 101100
-    asio::ssl::context context(asio::ssl::context::sslv23);
-#else
-    asio::ssl::context context
-      (*ioService, asio::ssl::context::sslv23);
-#endif
-    long sslOptions = asio::ssl::context::no_sslv2 |
-                      asio::ssl::context::no_sslv3 |
-                      asio::ssl::context::no_tlsv1;
-
-#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 105800) || \
-     defined(WT_ASIO_IS_STANDALONE_ASIO)
-    sslOptions |= asio::ssl::context::no_tlsv1_1;
-#endif
-
-    context.set_options(sslOptions);
-
-#ifdef VERIFY_CERTIFICATE
-    if (verifyEnabled_) {
-      context.set_default_verify_paths();
-#ifdef WT_WIN32
-      Ssl::addWindowsCACertificates(context);
-#endif // WT_WIN32
-    }
+    asio::ssl::context context = Ssl::createSslContext(*ioService_, verifyEnabled_);
 
     if (!verifyFile_.empty() || !verifyPath_.empty()) {
       if (!verifyFile_.empty())
@@ -998,7 +966,6 @@ bool Client::request(Http::Method method, const std::string& url,
       if (!verifyPath_.empty())
 	context.add_verify_path(verifyPath_);
     }
-#endif // VERIFY_CERTIFICATE
 
     impl_.reset(new SslImpl(*ioService, verifyEnabled_,
 			    server, 
