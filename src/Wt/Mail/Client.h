@@ -10,6 +10,8 @@
 #include <string>
 #include <Wt/WDllDefs.h>
 
+#include <memory>
+
 namespace Wt {
 
   /*! \brief Namespace for the \ref mail
@@ -21,6 +23,23 @@ class Message;
 /*! \defgroup mail SMTP client library (Wt::Mail)
  *  \brief An SMTP client implementation.
  */
+
+/*! \enum AuthenticationMethod
+ *  \brief Indicates the authentication method to use
+ */
+enum class AuthenticationMethod {
+  Plain, //!< PLAIN authentication
+  Login //!< LOGIN authentication
+};
+
+/*! \enum TransportEncryption
+ *  \brief Indicates the transport encryption method to use
+ */
+enum class TransportEncryption {
+  None, //!< No encryption
+  StartTLS, //!< Use STARTTLS (fail if not accepted by server)
+  TLS //!< Use TLS directly, don't use STARTTLS
+};
 
 /*! \class Client Wt/Mail/Client.h Wt/Mail/Client.h
  *  \brief An SMTP mail client.
@@ -77,6 +96,48 @@ public:
    */
   ~Client();
 
+  /*! \brief Enables authentication
+   */
+  void enableAuthentication(const std::string &username,
+                            const std::string &password,
+                            AuthenticationMethod method = AuthenticationMethod::Plain);
+
+  /*! \brief Returns the authentication method
+   *
+   * \sa enableAuthentication
+   */
+  AuthenticationMethod authenticationMethod() const { return configuration_.authenticationMethod_; }
+
+  /*! \brief Returns whether authentication is enabled
+   *
+   * \sa enableAuthentication
+   */
+  bool authenticationEnabled() const { return !configuration_.username_.empty() && !configuration_.password_.empty(); }
+
+  /*! \brief Sets whether SSL certificate verification is enabled
+   *
+   * Defaults to true
+   */
+  void setSslCertificateVerificationEnabled(bool enabled);
+
+  /*! \brief Gets whether SSL certificate verification is enabled
+   *
+   * \sa setSslCertificateVerificationEnabled
+   */
+  bool isSslCertificateVerificationEnabled() const { return configuration_.certificateVerificationEnabled_; }
+
+  /*! \brief Sets the transport encryption method
+   *
+   * The default is TransportEncryption::None
+   */
+  void setTransportEncryption(TransportEncryption method);
+
+  /*! \brief Get the encryption method
+   *
+   * \sa setTransportEncryption
+   */
+  TransportEncryption transportEncryption() const { return configuration_.transportEncryption_; }
+
   /*! \brief Connects to the default SMTP server.
    *
    * This connects to the SMTP server defined by the "smtp-host"
@@ -111,10 +172,22 @@ public:
 
 private:
   Client(const Client&);
+  class BaseImpl;
+  template<bool ssl>
   class Impl;
 
-  Impl *impl_;
-  std::string selfHost_;
+  std::unique_ptr<BaseImpl> impl_;
+
+  struct Configuration {
+    std::string selfHost_;
+    std::string username_;
+    std::string password_;
+    AuthenticationMethod authenticationMethod_;
+    TransportEncryption transportEncryption_;
+    bool certificateVerificationEnabled_;
+  };
+
+  Configuration configuration_;
 };
 
   }
