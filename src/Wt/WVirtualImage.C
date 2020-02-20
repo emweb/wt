@@ -187,17 +187,19 @@ void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)
 	    brx = std::min(brx, imageWidth_);
 	    bry = std::min(bry, imageHeight_);
 
-	    WImage *img = createImage(i * gridImageSize_, j * gridImageSize_,
-				      (int)(brx - i * gridImageSize_),
-				      (int)(bry - j * gridImageSize_));
+            const int width = static_cast<int>(brx - i * gridImageSize_);
+            const int height = static_cast<int>(bry - j * gridImageSize_);
+            if (width > 0 && height > 0) {
+	      WImage *img = createImage(i * gridImageSize_, j * gridImageSize_, width, height);
 
-	    img->setAttributeValue("onmousedown", "return false;");
-	    contents_->addWidget(img);
-	    img->setPositionScheme(Absolute);
-	    img->setOffsets((double)i * gridImageSize_, Left);
-	    img->setOffsets((double)j * gridImageSize_, Top);
+	      img->setAttributeValue("onmousedown", "return false;");
+	      contents_->addWidget(img);
+	      img->setPositionScheme(Absolute);
+	      img->setOffsets((double)i * gridImageSize_, Left);
+	      img->setOffsets((double)j * gridImageSize_, Top);
 
-	    grid_[key] = img;
+	      grid_[key] = img;
+            }
 	  }
 	}
       }
