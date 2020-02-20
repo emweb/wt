@@ -138,7 +138,7 @@ std::unique_ptr<WImage> WVirtualImage
 {
   auto r = render(x, y, width, height);
   return std::unique_ptr<WImage>
-    (new WImage(std::shared_ptr<WResource>(r.release()), ""));
+    (new WImage(std::shared_ptr<WResource>(std::move(r)), ""));
 }
 
 std::unique_ptr<WResource> WVirtualImage
@@ -174,19 +174,21 @@ void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)
 	    brx = std::min(brx, imageWidth_);
 	    bry = std::min(bry, imageHeight_);
 
-	    std::unique_ptr<WImage> img
-	      = createImage(i * gridImageSize_, j * gridImageSize_,
-			    (int)(brx - i * gridImageSize_),
-			    (int)(bry - j * gridImageSize_));
+            const int width = static_cast<int>(brx - i * gridImageSize_);
+            const int height = static_cast<int>(bry - j * gridImageSize_);
+            if (width > 0 && height > 0) {
+	      std::unique_ptr<WImage> img
+	        = createImage(i * gridImageSize_, j * gridImageSize_, width, height);
 
-	    img->setAttributeValue("onmousedown", "return false;");
-	    img->setPositionScheme(PositionScheme::Absolute);
-	    img->setOffsets((double)i * gridImageSize_, Side::Left);
-	    img->setOffsets((double)j * gridImageSize_, Side::Top);
+	      img->setAttributeValue("onmousedown", "return false;");
+	      img->setPositionScheme(PositionScheme::Absolute);
+	      img->setOffsets((double)i * gridImageSize_, Side::Left);
+	      img->setOffsets((double)j * gridImageSize_, Side::Top);
 
-	    grid_[key] = img.get();
+	      grid_[key] = img.get();
 
-	    contents_->addWidget(std::move(img));
+	      contents_->addWidget(std::move(img));
+            }
 	  }
 	}
       }
