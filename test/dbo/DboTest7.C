@@ -79,7 +79,11 @@ BOOST_AUTO_TEST_CASE( dbo7_test1 )
   {
     dbo::Transaction t(*session_);
 
-    auto query = session_->query<std::vector<double>>("select 1, 2, 3, 4");
+    auto query = session_->query<std::vector<double>>("select 1, 2, 3, 4"
+#ifdef FIREBIRD
+        " from RDB$DATABASE"
+#endif
+        );
     auto result = query.resultValue();
 
     BOOST_REQUIRE(result.size() == 4);
