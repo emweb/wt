@@ -14,6 +14,17 @@
 #include "Wt/WVirtualImage"
 #include "WebUtils.h"
 
+#include <algorithm>
+
+namespace {
+
+inline ::int64_t clamp(::int64_t v, ::int64_t min, ::int64_t max)
+{
+  return std::max(min, std::min(v, max));
+}
+
+}
+
 namespace Wt {
 
 const ::int64_t WVirtualImage::Infinite
@@ -126,11 +137,9 @@ void WVirtualImage::internalScrollTo(::int64_t newX, ::int64_t newY,
 				     bool moveViewPort)
 {
   if (imageWidth_ != Infinite)
-    newX = std::min(imageWidth_ - viewPortWidth_,
-		    std::max((::int64_t)0, newX));
+    newX = clamp(newX, 0, imageWidth_ - viewPortWidth_);
   if (imageHeight_ != Infinite)
-    newY = std::min(imageHeight_ - viewPortHeight_,
-		    std::max((::int64_t)0, newY));
+    newY = clamp(newY, 0, imageHeight_ - viewPortHeight_);
 
   if (moveViewPort) {
     contents_->setOffsets((double)-newX, Left);
