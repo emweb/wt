@@ -43,12 +43,6 @@ struct WtLibVersion { };
 extern WT_API const WtLibVersion WT_INCLUDED_VERSION;
 #endif
 
-#ifdef WT_TARGET_JAVA
-struct AutoCloseable {
-  virtual void close() = 0;
-};
-#endif // WT_TARGET_JAVA
-
 class WApplication;
 class WCombinedLocalizedStrings;
 class WContainerWidget;

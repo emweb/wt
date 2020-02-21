@@ -1049,6 +1049,12 @@ enum WebReadEvent {
   ReadPing     // Read Ping message
 };
 
+#ifdef WT_TARGET_JAVA
+struct AutoCloseable {
+  virtual void close() = 0;
+};
+#endif // WT_TARGET_JAVA
+
 }
 
 #endif // WGLOBALS_H_
