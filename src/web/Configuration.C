@@ -690,20 +690,22 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
                                                  bool matchAfterSlash) const
 {
   if (!scriptName.empty()) {
+    LOG_DEBUG("matchEntryPoint: matching entry point, scriptName: '" << scriptName << "', path: '" << path << '\'');
     EntryPointMatch m = matchEntryPoint(EMPTY_STR, scriptName + path, matchAfterSlash);
     if (m.entryPoint)
       return m;
     else
       return matchEntryPoint(EMPTY_STR, path, matchAfterSlash);
   }
-
-  LOG_DEBUG("Matching entry point, scriptName: '" << scriptName << "', path: '" << path << '\'');
+  LOG_DEBUG("matchEntryPoint: matching entry point, path: '" << path << '\'');
 
   READ_LOCK;
   // Only one default entry point.
   if (entryPoints_.size() == 1
-      && entryPoints_[0].path().empty())
+      && entryPoints_[0].path().empty()) {
+    LOG_DEBUG("matchEntryPoint: only one entry point: matching path '" << path << "' with default entry point");
     return EntryPointMatch(&entryPoints_[0], 0);
+  }
 
   assert(path.empty() || path[0] == '/');
 
@@ -791,11 +793,16 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
       result.extra = path.size(); // no extra path
     else
       result.extra = std::distance(path.begin(), it1->begin()) - 1; // there's more
+
+    LOG_DEBUG("matchEntryPoint: path '" << path << "' matches dynamic entry point: '" << match->path() << '\'');
     return result;
   } else if (match) {
+    LOG_DEBUG("matchEntryPoint: path '" << path << "' matches entry point: '" << match->path() << '\'');
     return EntryPointMatch(match, path.empty() ? 0 : match->path().size()); // simple match
-  } else
+  } else {
+    LOG_DEBUG("matchEntryPoint: no entry point match found for path: '" << path << '\'');
     return EntryPointMatch(); // no match
+  }
 }
 
 bool Configuration::matchesPath(const std::string &path,
