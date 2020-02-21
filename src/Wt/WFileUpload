@@ -153,6 +153,9 @@ public:
    *
    * When multiple files were uploaded, this returns the information
    * from the first file.
+   *
+   * \note Depending on the browser this is an absolute path
+   *       or only the file name.
    */
   WT_USTRING clientFileName() const;
 

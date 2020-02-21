@@ -217,12 +217,7 @@ void WAnchor::setText(const WString& text)
   if (!text_) {
     text_ = new WText(text, this);
   } else
-    if (!text.empty())
-      text_->setText(text);
-    else {
-      delete text_;
-      text_ = 0;
-    }
+    text_->setText(text);
 }
 
 void WAnchor::setWordWrap(bool wordWrap)

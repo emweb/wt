@@ -121,6 +121,8 @@ WGoogleMap::WGoogleMap(ApiVersion version, WContainerWidget *parent)
 {
   setImplementation(new WContainerWidget());
 
+  init();
+
   if (parent)
     parent->addWidget(this);
 }
@@ -133,6 +135,8 @@ WGoogleMap::WGoogleMap(WContainerWidget *parent)
 {
   setImplementation(new WContainerWidget());
 
+  init();
+
   if (parent)
     parent->addWidget(this);
 }
@@ -140,6 +144,17 @@ WGoogleMap::WGoogleMap(WContainerWidget *parent)
 WGoogleMap::~WGoogleMap()
 { 
   delete mouseMoved_;
+}
+
+void WGoogleMap::init()
+{
+  WApplication *app = WApplication::instance();
+  googlekey_ = localhost_key;
+  WApplication::readConfigurationProperty("google_api_key", googlekey_);
+
+  // init the google javascript api
+  const std::string gmuri = "//www.google.com/jsapi?key=" + googlekey_;
+  app->require(gmuri, "google");
 }
 
 void WGoogleMap::streamJSListener(const JSignal<Coordinate> &signal, 
@@ -178,13 +193,6 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
 {
   if (flags & RenderFull) {
     WApplication *app = WApplication::instance();
-
-    std::string googlekey = localhost_key;
-    Wt::WApplication::readConfigurationProperty("google_api_key", googlekey);
-      
-    // init the google javascript api
-    const std::string gmuri = "//www.google.com/jsapi?key=" + googlekey;
-    app->require(gmuri, "google");
 
     std::string initFunction = 
       app->javaScriptClass() + ".init_google_maps_" + id();
@@ -248,7 +256,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
     strm << "setTimeout(function(){ delete " << initFunction << ";}, 0)};"
 	 << "google.load(\"maps\", \"" << (apiVersion_ == Version2 ? '2' : '3')
 	 << "\", {other_params:\"key="
-         << googlekey
+         << googlekey_
          << "\", callback: "
 	 << initFunction << "});"
 	 << "}"; // private scope
