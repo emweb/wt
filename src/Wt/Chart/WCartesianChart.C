@@ -1452,6 +1452,7 @@ void WCartesianChart::init()
     clicked().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.clicked(o, e);}}");
     jsSeriesSelected_.connect(this, &WCartesianChart::jsSeriesSelected);
     loadTooltip_.connect(this, &WCartesianChart::loadTooltip);
+    voidEventSignal("dragstart", true)->preventDefaultAction(true);
   }
 
   wheelActions_[NoModifier] = PanMatching;
