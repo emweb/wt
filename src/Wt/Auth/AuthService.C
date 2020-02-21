@@ -317,7 +317,7 @@ void AuthService::lostPassword(const std::string& emailAddress,
 
     Token t(hash, expires);
     user.setEmailToken(t, EmailTokenRole::LostPassword);
-    sendLostPasswordMail(emailAddress, user, random);
+    sendLostPasswordMail(user.email(), user, random);
   }
 }
 

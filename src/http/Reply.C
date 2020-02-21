@@ -23,26 +23,18 @@
 #include <cassert>
 #include <string>
 
-#ifdef WT_WIN32
-#ifndef __MINGW32__
-// gmtime_r can be defined by mingw
-#ifndef gmtime_r
 namespace {
-struct tm* gmtime_r(const time_t* t, struct tm* r)
+
+inline struct tm* my_gmtime_r(const time_t* t, struct tm* r)
 {
-  // gmtime is threadsafe in windows because it uses TLS
-  struct tm *theTm = gmtime(t);
-  if (theTm) {
-    *r = *theTm;
-    return r;
-  } else {
-    return 0;
-  }
+#ifdef WT_WIN32
+  return gmtime_s(r, t) ? 0 : r;
+#else // !WT_WIN32
+  return gmtime_r(t, r);
+#endif // WT_WIN32
 }
+
 }
-#endif // gmtime_r
-#endif
-#endif
 
 namespace Wt {
   LOGGER("wthttp");
@@ -71,7 +63,7 @@ inline asio::const_buffer asio_cstring_buf(const char (&s) [N])
 void httpDateBuf(time_t t, Wt::WStringStream& buf)
 {
   struct tm td;
-  gmtime_r(&t, &td);
+  my_gmtime_r(&t, &td);
 
   static const char dayOfWeekStr[7][4]
     = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };

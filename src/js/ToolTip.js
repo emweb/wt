@@ -65,6 +65,20 @@ WT_DECLARE_WT_MEMBER
                      WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance,
                                     x - MouseDistance, y - MouseDistance);
 
+                     // bring tooltip to front if there are dialogs
+                     var maxz = 0;
+                     var oldZIndex = parseInt(WT.css(outerDiv, 'zIndex'), 10);
+                     $('.Wt-dialog, .modal, .modal-dialog').each
+                       (function(index, value)
+                         {
+                           maxz = Math.max(maxz, parseInt(WT.css(value, 'zIndex'), 10));
+                           if (maxz > oldZIndex) {
+                             var newZIndex = maxz + 1000;
+                             outerDiv.style['zIndex'] = newZIndex;
+                           }
+                         }
+                       );
+
                      $(toolTipEl).mouseenter(function() {
                        overTooltip = true;
                      });
