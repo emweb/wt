@@ -74,6 +74,9 @@ public:
    * \sa startTransaction()
    */
   class WT_API Transaction
+#ifdef WT_TARGET_JAVA
+    : public AutoCloseable
+#endif // WT_TARGET_JAVA
   {
   public:
     /*! \brief Destructor.

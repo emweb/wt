@@ -1091,6 +1091,12 @@ enum class RegExpFlag {
 W_DECLARE_OPERATORS_FOR_FLAGS(RegExpFlag)
 #endif // WT_TARGET_JAVA
 
+#ifdef WT_TARGET_JAVA
+struct AutoCloseable {
+  virtual void close() = 0;
+};
+#endif // WT_TARGET_JAVA
+
 }
 
 #endif // WGLOBALS_H_
