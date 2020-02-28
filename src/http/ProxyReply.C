@@ -399,7 +399,7 @@ void ProxyReply::handleStatusRead(const Wt::AsioWrapper::error_code &ec)
 		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
 		  std::placeholders::_1)));
   } else {
-    LOG_ERROR("error reading status line: " << ec.message());
+    LOG_ERROR("error reading status line from child process " << sessionProcess_->pid() << ": " << ec.message());
     if (!sendReload())
       error(service_unavailable);
   }
@@ -408,7 +408,7 @@ void ProxyReply::handleStatusRead(const Wt::AsioWrapper::error_code &ec)
 void ProxyReply::handleHeadersRead(const Wt::AsioWrapper::error_code &ec)
 {
   if (ec) {
-    LOG_ERROR("error reading headers: " << ec.message());
+    LOG_ERROR("error reading headers from child process " << sessionProcess_->pid() << ": " << ec.message());
     if (!sendReload())
       error(service_unavailable);
     return;
@@ -501,7 +501,7 @@ void ProxyReply::handleResponseRead(const Wt::AsioWrapper::error_code &ec)
       send();
     }
   } else {
-    LOG_ERROR("error reading response: " << ec.message());
+    LOG_ERROR("error reading response from child process " << sessionProcess_->pid() << ": " << ec.message());
     if (!sendReload()) 
       error(service_unavailable);
   }

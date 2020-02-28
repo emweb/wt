@@ -45,6 +45,7 @@ public:
 #ifndef WT_WIN32
   pid_t pid() const { return pid_; }
 #else // WT_WIN32
+  DWORD pid() const { return processInfo_.dwProcessId; }
   PROCESS_INFORMATION& processInfo() { return processInfo_; }
 #endif // WT_WIN32
 
