@@ -727,8 +727,6 @@ private:
   void enableAjax(const WebRequest& request);
 
   bool agentSupportsAjax() const;
-  static std::string getClientAddress(const WebRequest& request,
-				      const Configuration& conf);
   static void parseCookies(const std::string& cookie,
 			   std::map<std::string, std::string>& result);
 

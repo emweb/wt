@@ -34,24 +34,6 @@ namespace {
   inline std::string str(const char *s) {
     return s ? std::string(s) : std::string();
   }
-
-  bool isPrivateIP(const std::string &s) {
-    return boost::starts_with(s, "127.") ||
-           boost::starts_with(s, "10.") ||
-           boost::starts_with(s, "192.168.") ||
-           (s.size() >= 7 &&
-            boost::starts_with(s, "172.") &&
-            s[6] == '.' &&
-            ((s[4] == '1' &&
-              s[5] >= '6' &&
-              s[5] <= '9') ||
-             (s[4] == '2' &&
-              s[5] >= '0' &&
-              s[5] <= '9') ||
-             (s[4] == '3' &&
-              s[5] >= '0' &&
-              s[5] <= '1')));
-  }
 }
 
 namespace Wt {
@@ -201,7 +183,7 @@ void WEnvironment::init(const WebRequest& request)
       host_ += ":" + request.serverPort();
   }
 
-  clientAddress_ = getClientAddress(request, conf);
+  clientAddress_ = request.clientAddress(conf.behindReverseProxy());
 
   const char *cookie = request.headerValue("Cookie");
   doesCookies_ = cookie;
@@ -212,48 +194,6 @@ void WEnvironment::init(const WebRequest& request)
   locale_ = request.parseLocale();
 }
 
-std::string WEnvironment::getClientAddress(const WebRequest& request,
-					   const Configuration& conf)
-{
-  std::string result;
-
-  /*
-   * Determine client address, taking into account proxies
-   */
-  if (conf.behindReverseProxy()) {
-    std::string clientIp = str(request.headerValue("Client-IP"));
-    boost::trim(clientIp);
-
-    std::vector<std::string> ips;
-    if (!clientIp.empty())
-      boost::split(ips, clientIp, boost::is_any_of(","));
-
-    std::string forwardedFor = str(request.headerValue("X-Forwarded-For"));
-    boost::trim(forwardedFor);
-
-    std::vector<std::string> forwardedIps;
-    if (!forwardedFor.empty())
-      boost::split(forwardedIps, forwardedFor, boost::is_any_of(","));
-
-    Utils::insert(ips, forwardedIps);
-
-    for (unsigned i = 0; i < ips.size(); ++i) {
-      result = ips[i];
-
-      boost::trim(result);
-
-      if (!result.empty()
-          && !isPrivateIP(result)) {
-	break;
-      }
-    }
-  }
-
-  if (result.empty())
-    result = str(request.envValue("REMOTE_ADDR"));
-
-  return result;
-}
 
 void WEnvironment::enableAjax(const WebRequest& request)
 {

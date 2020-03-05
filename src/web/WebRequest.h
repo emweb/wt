@@ -197,6 +197,8 @@ public:
 
   virtual const std::vector<std::pair<std::string, std::string> >& urlParams() const;
 
+  std::string clientAddress(bool behindReverseProxy) const;
+
 protected:
   const EntryPoint *entryPoint_;
 

@@ -2322,8 +2322,8 @@ void WebSession::notify(const WEvent& event)
 	  return;
 	}
 
-      std::string ca = WEnvironment::getClientAddress
-	(*handler.request(), controller_->configuration());
+      std::string ca = handler.request()->clientAddress(
+            controller_->configuration().behindReverseProxy());
 
       if (ca != env_->clientAddress()) {
 	bool isInvalid = sessionIdCookie_.empty();
