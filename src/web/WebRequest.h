@@ -195,6 +195,8 @@ public:
    */
   virtual WSslInfo *sslInfo() const = 0;
 
+  std::string clientAddress(bool behindReverseProxy) const;
+
 protected:
   const EntryPoint *entryPoint_;
 
