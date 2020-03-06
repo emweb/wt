@@ -546,7 +546,8 @@ private:
   char **paramValues_;
   int *paramTypes_, *paramLengths_, *paramFormats_;
  
-  int lastId_, row_, affectedRows_;
+  long long lastId_;
+  int row_, affectedRows_;
 
   void handleErr(int err, PGresult *result)
   {
