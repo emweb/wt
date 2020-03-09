@@ -21,6 +21,9 @@
 #ifdef X3_QUERY_PARSE
 
 #include <boost/spirit/home/x3.hpp>
+#include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
+
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -281,7 +284,9 @@ using FieldsAttr = std::vector<FieldAttr>;
 using DistinctClauseAttr = FieldsAttr;
 using QueryExprAttr = std::vector<FieldsAttr>;
 
-x3::rule<class query_expression, QueryExprAttr> const query_expression = "query_expression";
+struct query_expression_class;
+
+x3::rule<query_expression_class, QueryExprAttr> const query_expression = "query_expression";
 x3::rule<class select_expression, FieldsAttr> const select_expression = "select_expression";
 x3::rule<class distinct_clause, DistinctClauseAttr> const distinct_clause = "distinct_clause";
 x3::rule<class compound_operator> const compound_operator = "compound_operator";
@@ -345,21 +350,37 @@ const auto dquoted_def = x3::lexeme[ '"' > *(x3::char_ - '"') > '"' ];
 const auto other_def = x3::lexeme[ +(x3::graph - special) ];
 const auto special_def = x3::char_("()'\",");
 
-BOOST_SPIRIT_DEFINE(query_expression);
-BOOST_SPIRIT_DEFINE(select_expression);
-BOOST_SPIRIT_DEFINE(distinct_clause);
-BOOST_SPIRIT_DEFINE(compound_operator);
-BOOST_SPIRIT_DEFINE(with_clause);
-BOOST_SPIRIT_DEFINE(from_clause);
-BOOST_SPIRIT_DEFINE(fields);
-BOOST_SPIRIT_DEFINE(field);
-BOOST_SPIRIT_DEFINE(sql_word);
-BOOST_SPIRIT_DEFINE(sub_expression);
-BOOST_SPIRIT_DEFINE(identifier);
-BOOST_SPIRIT_DEFINE(squoted);
-BOOST_SPIRIT_DEFINE(dquoted);
-BOOST_SPIRIT_DEFINE(other);
-BOOST_SPIRIT_DEFINE(special);
+BOOST_SPIRIT_DEFINE(query_expression,
+                    select_expression,
+                    distinct_clause,
+                    compound_operator,
+                    with_clause,
+                    from_clause,
+                    fields,
+                    field,
+                    sql_word,
+                    sub_expression,
+                    identifier,
+                    squoted,
+                    dquoted,
+                    other,
+                    special);
+
+struct error_handler
+{
+  template<typename Iterator, typename Exception, typename Context>
+  x3::error_handler_result on_error(
+      Iterator &first, Iterator const &last,
+      Exception const &x, Context const &context)
+  {
+    auto& error_handler = x3::get<x3::error_handler_tag>(context).get();
+    std::string message = "Error parsing SQL query: Expected " + x.which() + " here:";
+    error_handler(x.where(), message);
+    return x3::error_handler_result::fail;
+  }
+};
+
+struct query_expression_class : error_handler {};
 
 }
 
@@ -369,8 +390,18 @@ void parseSql(const std::string &sql,
   std::string::const_iterator iter = sql.begin();
   std::string::const_iterator end = sql.end();
 
+  using error_handler_type = x3::error_handler<std::string::const_iterator>;
+  error_handler_type error_handler(iter, end, std::cerr);
+
+  using sql_parser::query_expression;
+  auto const parser =
+      x3::with<x3::error_handler_tag>(std::ref(error_handler))
+      [
+        query_expression
+      ];
+
   sql_parser::QueryExprAttr result;
-  bool success = x3::phrase_parse(iter, end, sql_parser::query_expression, x3::ascii::space, result);
+  bool success = x3::phrase_parse(iter, end, parser, x3::ascii::space, result);
 
   if (success) {
     if (iter != end) {
