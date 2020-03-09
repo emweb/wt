@@ -10,9 +10,21 @@
 
 #include <boost/version.hpp>
 
-#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104100
+#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 106800
+#  define X3_QUERY_PARSE
+#elif !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104100
 #  define SPIRIT_QUERY_PARSE
+#else
+#  define NO_SPIRIT_QUERY_PARSE
 #endif
+
+#ifdef X3_QUERY_PARSE
+
+#include <boost/spirit/home/x3.hpp>
+#include <string>
+#include <vector>
+
+#endif // X3_QUERY_PARSE
 
 #ifdef SPIRIT_QUERY_PARSE
 
@@ -28,17 +40,20 @@
 #include <boost/bind.hpp>
 #include <iostream>
 
-#else
+#endif // SPIRIT_QUERY_PARSE
+
+#ifdef NO_SPIRIT_QUERY_PARSE
+
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string.hpp>
 
-#endif // SPIRIT_QUERY_PARSE
+#endif // NO_SPIRIT_QUERY_PARSE
 
 namespace Wt {
   namespace Dbo {
     namespace Impl {
 
-#ifndef SPIRIT_QUERY_PARSE
+#ifdef NO_SPIRIT_QUERY_PARSE
 void parseSql(const std::string& sql, SelectFieldLists& fieldLists)
 {
   fieldLists.clear();
@@ -92,7 +107,9 @@ void parseSql(const std::string& sql, SelectFieldLists& fieldLists)
   }
 }
 
-#else // SPIRIT_QUERY_PARSE
+#endif // NO_SPIRIT_QUERY_PARSE
+
+#ifdef SPIRIT_QUERY_PARSE
 
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
@@ -245,13 +262,137 @@ void parseSql(const std::string& sql, SelectFieldLists& fieldLists)
 
   if (success) {
     if (iter != end)
-      throw Exception("Error parsing SQL query: Expected end here:\""
+      throw Exception("Error parsing SQL query: Expected end here: \""
 		      + std::string(iter, end) + "\"");
   } else
     throw Exception("Error parsing SQL query: \"" + sql + "\"");
 }
 
 #endif // SPIRIT_QUERY_PARSE
+
+#ifdef X3_QUERY_PARSE
+
+namespace x3 = boost::spirit::x3;
+
+namespace sql_parser {
+
+using FieldAttr = boost::iterator_range<std::string::const_iterator>;
+using FieldsAttr = std::vector<FieldAttr>;
+using DistinctClauseAttr = FieldsAttr;
+using QueryExprAttr = std::vector<FieldsAttr>;
+
+x3::rule<class query_expression, QueryExprAttr> const query_expression = "query_expression";
+x3::rule<class select_expression, FieldsAttr> const select_expression = "select_expression";
+x3::rule<class distinct_clause, DistinctClauseAttr> const distinct_clause = "distinct_clause";
+x3::rule<class compound_operator> const compound_operator = "compound_operator";
+x3::rule<class with_clause> const with_clause = "with_clause";
+x3::rule<class from_clause> const from_clause = "from_clause";
+x3::rule<class fields, FieldsAttr> const fields = "fields";
+x3::rule<class field, FieldAttr> const field = "field";
+x3::rule<class sql_word> const sql_word = "sql_word";
+x3::rule<class sub_expression> const sub_expression = "sub_expression";
+x3::rule<class identifier> const identifier = "identifier";
+x3::rule<class squoted> const squoted = "squoted";
+x3::rule<class dquoted> const dquoted = "dquoted";
+x3::rule<class other> const other = "other";
+x3::rule<class special> const special = "other";
+
+const auto query_expression_def
+  = select_expression % compound_operator
+  ;
+const auto select_expression_def
+  = with_clause
+    >> x3::no_case["select"]
+    >> - ( distinct_clause
+           | x3::no_case["all"]
+           )
+    >> fields
+    >> -(x3::no_case["from"] > from_clause )
+  ;
+const auto distinct_clause_def
+  = x3::no_case["distinct"] >>
+    -(x3::no_case["on"] >> '(' >> fields >> ')')
+  ;
+const auto compound_operator_def
+  = ( x3::no_case["union"] >> -x3::no_case["all"] )
+  | x3::no_case["intersect"]
+  | x3::no_case["except"]
+  ;
+const auto with_clause_def
+  = *(sql_word - x3::no_case["select"])
+  ;
+const auto from_clause_def
+  = +(sql_word - compound_operator)
+  ;
+const auto fields_def
+  = field % ','
+  ;
+const auto field_def
+  = x3::raw[+(sub_expression | (identifier - x3::lexeme[x3::no_case["from"] >> +x3::ascii::space]))]
+  ;
+const auto sql_word_def
+  = ',' | sub_expression | identifier
+  ;
+const auto sub_expression_def
+  = '(' > *sql_word > ')'
+  ;
+const auto identifier_def
+  = squoted
+  | dquoted
+  | other;
+const auto squoted_def = x3::lexeme[ '\'' > ( *(x3::char_ - '\'') % "''" ) > '\'' ];
+const auto dquoted_def = x3::lexeme[ '"' > *(x3::char_ - '"') > '"' ];
+const auto other_def = x3::lexeme[ +(x3::graph - special) ];
+const auto special_def = x3::char_("()'\",");
+
+BOOST_SPIRIT_DEFINE(query_expression);
+BOOST_SPIRIT_DEFINE(select_expression);
+BOOST_SPIRIT_DEFINE(distinct_clause);
+BOOST_SPIRIT_DEFINE(compound_operator);
+BOOST_SPIRIT_DEFINE(with_clause);
+BOOST_SPIRIT_DEFINE(from_clause);
+BOOST_SPIRIT_DEFINE(fields);
+BOOST_SPIRIT_DEFINE(field);
+BOOST_SPIRIT_DEFINE(sql_word);
+BOOST_SPIRIT_DEFINE(sub_expression);
+BOOST_SPIRIT_DEFINE(identifier);
+BOOST_SPIRIT_DEFINE(squoted);
+BOOST_SPIRIT_DEFINE(dquoted);
+BOOST_SPIRIT_DEFINE(other);
+BOOST_SPIRIT_DEFINE(special);
+
+}
+
+void parseSql(const std::string &sql,
+              SelectFieldLists &fieldLists)
+{
+  std::string::const_iterator iter = sql.begin();
+  std::string::const_iterator end = sql.end();
+
+  sql_parser::QueryExprAttr result;
+  bool success = x3::phrase_parse(iter, end, sql_parser::query_expression, x3::ascii::space, result);
+
+  if (success) {
+    if (iter != end) {
+      throw Exception("Error parsing SQL query: Expected end here: \""
+                      + std::string(iter, end) + "\"");
+    } else {
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        fieldLists.push_back(SelectFieldList());
+        SelectFieldList &list = fieldLists.back();
+        for (std::size_t j = 0; j < result[i].size(); ++j) {
+          list.push_back(SelectField());
+          SelectField &field = list.back();
+          field.begin = result[i][j].begin() - sql.begin();
+          field.end = result[i][j].end() - sql.begin();
+        }
+      }
+    }
+  } else
+    throw Exception("Error parsing SQL query: \"" + sql + "\"");
+}
+
+#endif // X3_QUERY_PARSE
 
     }
   }
