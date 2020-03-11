@@ -9,13 +9,19 @@
 
 #include <Wt/WStringStream.h>
 
+#ifndef WT_DBO_ESCAPEOSTREAM
+#define WT_ESCAPEOSTREAM_API WT_API
+#else // WT_DBO_ESCAPEOSTREAM
+#define WT_ESCAPEOSTREAM_API WTDBO_API
+#endif // WT_DBO_ESCAPEOSTREAM
+
 namespace Wt {
 
 #ifdef WT_DBO_ESCAPEOSTREAM
 namespace Dbo {
 #endif
 
-class WT_API EscapeOStream
+class WT_ESCAPEOSTREAM_API EscapeOStream
 {
 public:
   enum RuleSet { Empty = 0, HtmlAttribute = 1,
