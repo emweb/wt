@@ -26,6 +26,7 @@
 #include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -231,12 +232,17 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
             Iterator const&,
             qi::info const&> args,
        qi::unused_type, qi::unused_type) {
-      LOG_ERROR("Error parsing SQL query: expected "
-                << boost::fusion::at_c<3>(args)
-                << " here: \""
-                << std::string(boost::fusion::at_c<2>(args),
-                               boost::fusion::at_c<1>(args))
-                << "\"\n");
+      if (Wt::Dbo::logging("error", Wt::Dbo::logger)) {
+        boost::spirit::operator<<(
+                  Wt::Dbo::log("error") <<
+                  Wt::Dbo::logger << ": "
+                  << "Error parsing SQL query: expected ",
+                  boost::fusion::at_c<3>(args))
+                  << " here: \""
+                  << std::string(boost::fusion::at_c<2>(args),
+                                 boost::fusion::at_c<1>(args))
+                  << "\"\n";
+      }
     });
   }
 
@@ -401,8 +407,11 @@ void parseSql(const std::string &sql,
   std::string::const_iterator iter = sql.begin();
   std::string::const_iterator end = sql.end();
 
+  std::ostringstream err_s;
+  err_s.imbue(std::locale::classic());
+
   using error_handler_type = x3::error_handler<std::string::const_iterator>;
-  error_handler_type error_handler(iter, end, std::cerr);
+  error_handler_type error_handler(iter, end, err_s);
 
   using sql_parser::query_expression;
   auto const parser =
@@ -413,6 +422,10 @@ void parseSql(const std::string &sql,
 
   sql_parser::QueryExprAttr result;
   bool success = x3::phrase_parse(iter, end, parser, x3::ascii::space, result);
+
+  if (!err_s.str().empty()) {
+    LOG_ERROR(err_s.str());
+  }
 
   if (success) {
     if (iter != end) {
