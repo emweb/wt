@@ -36,9 +36,6 @@ inline void logToWt()
   setCustomLogger(*::Wt::Impl::logSink);
 }
 
-WTDBO_API extern bool logging(const std::string &type,
-                              const std::string &scope) noexcept;
-
 } // Dbo
 } // Wt
 

@@ -414,8 +414,10 @@ private:
 
 WT_LOGGER_API extern WLogger& logInstance();
 
+#ifdef WT_BUILDING
 WT_LOGGER_API extern bool logging(const std::string &type,
                                   const std::string &scope) noexcept;
+#endif // WT_BUILDING
 
 #ifdef DOXYGEN_ONLY
 /*! \file */
