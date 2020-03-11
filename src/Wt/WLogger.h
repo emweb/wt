@@ -7,19 +7,40 @@
 #ifndef WLOGGER_H_
 #define WLOGGER_H_
 
+#include <Wt/WLogSink.h>
+
+#ifndef WT_DBO_LOGGER
 #include <Wt/WStringStream.h>
+#endif // WT_DBO_LOGGER
+
+#ifdef WT_DBO_LOGGER
+#include <Wt/Dbo/StringStream.h>
+#endif // WT_DBO_LOGGER
 
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
+#if !defined(WT_DBO_LOGGER) || DOXYGEN_ONLY
+#define WT_LOGGER_API WT_API
+#else
+#define WT_LOGGER_API WTDBO_API
+#endif
+
 #ifndef WT_TARGET_JAVA
 
 namespace Wt {
 
-class WLogEntry;
+#ifndef WT_DBO_LOGGER
 class WString;
+#endif // WT_DBO_LOGGER
+
+#ifdef WT_DBO_LOGGER
+namespace Dbo {
+#endif // WT_DBO_LOGGER
+
+class WLogEntry;
 
 /*! \class WLogger Wt/WLogger.h Wt/WLogger.h
  *  \brief A simple logging class.
@@ -61,7 +82,7 @@ class WString;
  *
  * \sa WApplication::log()
  */
-class WT_API WLogger
+class WT_LOGGER_API WLogger
 {
 public:
   /*! \brief Class that indicates a field separator.
@@ -261,7 +282,7 @@ private:
  * This class is returned by WLogger::entry() and creates a log entry using
  * a stream-like interface.
  */
-class WT_API WLogEntry
+class WT_LOGGER_API WLogEntry
 {
 public:
   /*! \brief Move constructor.
@@ -287,11 +308,13 @@ public:
    */
   WLogEntry& operator<< (const WLogger::Sep&);
 
+#ifndef WT_DBO_LOGGER
   /*! \brief Writes a time stamp in the current field.
    *
    * Formats a timestamp (date+time) to the current field.
    */
   WLogEntry& operator<< (const WLogger::TimeStamp&);
+#endif // WT_DBO_LOGGER
 
   /*! \brief Writes a string in the current field.
    */
@@ -301,9 +324,11 @@ public:
    */
   WLogEntry& operator<< (const std::string&);
 
+#ifndef WT_DBO_LOGGER
   /*! \brief Writes a string in the current field.
    */
   WLogEntry& operator<< (const WString&);
+#endif // WT_DBO_LOGGER
 
   /*! \brief Writes a char value in the current field.
    */
@@ -349,13 +374,15 @@ public:
 
 private:
   struct Impl {
-    const WLogger& logger_;
+    const WLogger *logger_;
+    const WLogSink *customLogger_;
     WStringStream line_;
     std::string type_, scope_;
     int field_;
     bool fieldStarted_;
 
     Impl(const WLogger& logger, const std::string& type);
+    Impl(const WLogSink& customLogger, const std::string& type);
 
     bool quote() const;
 
@@ -369,12 +396,26 @@ private:
 
   WLogEntry(const WLogger& logger, const std::string& type, bool mute);
 
+#ifdef WT_DBO_LOGGER
+public:
+#endif // WT_DBO_LOGGER
+  WLogEntry(const WLogSink& customLogger,
+            const std::string& type);
+#ifdef WT_DBO_LOGGER
+private:
+#endif // WT_DBO_LOGGER
+
   void startField();
 
+  friend class WebSession;
   friend class WLogger;
+  friend class WServer;
 };
 
-WT_API WLogger& logInstance();
+WT_LOGGER_API extern WLogger& logInstance();
+
+WT_LOGGER_API extern bool logging(const std::string &type,
+                                  const std::string &scope) noexcept;
 
 #ifdef DOXYGEN_ONLY
 /*! \file */
@@ -390,70 +431,63 @@ WT_API WLogger& logInstance();
  */
 extern WLogEntry log(const std::string& type);
 #else
-WT_API extern WLogEntry log(const std::string& type);
+WT_LOGGER_API extern WLogEntry log(const std::string& type);
 #endif
 
-}
+#ifdef WT_DBO_LOGGER
+} // namespace Dbo
+#endif // WT_DBO_LOGGER
+
+} // namespace Wt
 
 #endif // WT_TARGET_JAVA
 
 #ifdef WT_BUILDING
 # ifndef WT_TARGET_JAVA
-#  ifndef LOG4CPLUS
+#   ifdef WT_DBO_LOGGER
+#     define WT_LOG Wt::Dbo::log
+#     define WT_LOGGER Wt::Dbo::logger
+#     define WT_LOGGING Wt::Dbo::logging
+#   else // WT_DBO_LOGGER
+#     define WT_LOG Wt::log
+#     define WT_LOGGER Wt::logger
+#     define WT_LOGGING Wt::logging
+#   endif // WT_DBO_LOGGER
+
 #   define LOGGER(s) static const char *logger = s
 
 #   ifdef WT_DEBUG_ENABLED
-#    define LOG_DEBUG_S(s,m) (s)->log("debug") << Wt::logger << ": " << m
-#    define LOG_DEBUG(m) Wt::log("debug") << Wt::logger << ": " << m
+#    define LOG_DEBUG_S(s,m) (s)->log("debug") << WT_LOGGER << ": " << m
+#    define LOG_DEBUG(m) do { \
+     if ( WT_LOGGING("debug", WT_LOGGER)) \
+       WT_LOG("debug") << WT_LOGGER << ": " << m; \
+     } while (0)
 #   else
 #    define LOG_DEBUG_S(s,m)
 #    define LOG_DEBUG(m)
 #   endif
 
-#   define LOG_INFO_S(s,m) (s)->log("info") << Wt::logger << ": " << m
+#   define LOG_INFO_S(s,m) (s)->log("info") << WT_LOGGER << ": " << m
 #   define LOG_INFO(m) do { \
-    if (Wt::logInstance().logging("info", Wt::logger))	\
-      Wt::log("info") << Wt::logger << ": " << m;	\
+    if ( WT_LOGGING("info", WT_LOGGER))	\
+      WT_LOG("info") << WT_LOGGER << ": " << m;	\
     }  while(0)
-#   define LOG_WARN_S(s,m) (s)->log("warning") << Wt::logger << ": " << m
+#   define LOG_WARN_S(s,m) (s)->log("warning") << WT_LOGGER << ": " << m
 #   define LOG_WARN(m) do { \
-    if (Wt::logInstance().logging("warning", Wt::logger)) \
-      Wt::log("warning") << Wt::logger << ": " << m; \
+    if ( WT_LOGGING("warning", WT_LOGGER)) \
+      WT_LOG("warning") << WT_LOGGER << ": " << m; \
     } while(0)
-#   define LOG_SECURE_S(s,m) (s)->log("secure") << Wt::logger << ": " << m
+#   define LOG_SECURE_S(s,m) (s)->log("secure") << WT_LOGGER << ": " << m
 #   define LOG_SECURE(m) do { \
-    if (Wt::logInstance().logging("secure", Wt::logger)) \
-      Wt::log("secure") << Wt::logger << ": " << m; \
+    if ( WT_LOGGING("secure", WT_LOGGER)) \
+      WT_LOG("secure") << WT_LOGGER << ": " << m; \
     } while(0)
-#   define LOG_ERROR_S(s,m) (s)->log("error") << Wt::logger << ": " << m
+#   define LOG_ERROR_S(s,m) (s)->log("error") << WT_LOGGER << ": " << m
 #   define LOG_ERROR(m) do { \
-    if (Wt::logInstance().logging("error", Wt::logger)) \
-      Wt::log("error") << Wt::logger << ": " << m; \
+    if ( WT_LOGGING("error", WT_LOGGER)) \
+      WT_LOG("error") << WT_LOGGER << ": " << m; \
     } while(0)
 
-#  else // !LOG4CPLUS
-
-#   define LOGGER(s) \
-      static log4cplus::Logger logger = log4cplus::Logger::getInstance(s)
-
-#   ifdef WT_DEBUG_ENABLED
-#    define LOG_DEBUG(m) LOG4CPLUS_DEBUG(Wt::logger, m)
-#    define LOG_DEBUG_S(s,m) LOG_DEBUG(m)
-#   else
-#    define LOG_DEBUG(m)
-#    define LOG_DEBUG_S(s,m)
-#   endif
-
-#   define LOG_INFO(m) LOG4CPLUS_INFO(Wt::logger, m)
-#   define LOG_INFO_S(s,m) LOG_NOTICE(m)
-#   define LOG_WARN(m) LOG4CPLUS_WARN(Wt::logger, m)
-#   define LOG_WARN_S(s,m) LOG_WARN(m)
-#   define LOG_SECURE(m) LOG4CPLUS_ERROR(Wt::logger, "auth: " << m)
-#   define LOG_SECURE_S(s,m) LOG_SECURE(m)
-#   define LOG_ERROR(m) LOG4CPLUS_ERROR(Wt::logger, m)
-#   define LOG_ERROR_S(s,m) LOG_ERROR(m)
-
-#  endif // LOG4CPLUS
 # else // WT_TARGET_JAVA
 
 class Logger {

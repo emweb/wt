@@ -7,13 +7,13 @@
 #include <cstring>
 #include <stdio.h>
 
-#ifndef NO_ASIO
-#include <Wt/AsioWrapper/asio.hpp>
-#endif
-
 #include "Wt/WStringStream.h"
 
+#ifndef WT_DBO_STRINGSTREAM
+#include <Wt/AsioWrapper/asio.hpp>
+
 #include "WebUtils.h"
+#endif // WT_DBO_STRINGSTREAM
 
 #ifdef WT_WIN32
 #define snprintf _snprintf
@@ -25,6 +25,10 @@
  */
 
 namespace Wt {
+
+#ifdef WT_DBO_STRINGSTREAM
+namespace Dbo {
+#endif
 
 WStringStream::WStringStream()
   : sink_(0),
@@ -203,7 +207,7 @@ std::string WStringStream::str() const
   return result;
 }
 
-#ifndef NO_ASIO
+#ifndef WT_DBO_STRINGSTREAM
 void WStringStream::asioBuffers(std::vector<AsioWrapper::asio::const_buffer>& result) const
 {
   result.reserve(result.size() + bufs_.size() + 1);
@@ -254,4 +258,8 @@ WStringStream::iterator::iterator(WStringStream& stream)
   : stream_(&stream)
 { }
 
-}
+#ifdef WT_DBO_STRINGSTREAM
+} // namespace Dbo
+#endif
+
+} // namespace Wt

@@ -6,6 +6,8 @@
 
 #include "Wt/Dbo/backend/Sqlite3.h"
 #include "Wt/Dbo/Exception.h"
+#include "Wt/Dbo/Logger.h"
+#include "Wt/Dbo/StringStream.h"
 
 #ifdef SQLITE3_BDB
 #include <db.h>
@@ -21,8 +23,6 @@
 #define timegm _mkgmtime
 #endif
 
-//#define DEBUG(x) x
-#define DEBUG(x)
 #define USEC_PER_DAY (24.0 * 60 * 60 * 1000 * 1000)
 
 namespace {
@@ -43,6 +43,9 @@ namespace {
 
 namespace Wt {
   namespace Dbo {
+
+LOGGER("Dbo.backend.Sqlite3");
+
     namespace backend {
 
 inline bool isNaN(double d) {
@@ -70,7 +73,7 @@ public:
     : db_(db),
       sql_(sql)
   {
-    DEBUG(std::cerr << this << " for: " << sql << std::endl);
+    LOG_DEBUG(this << " for: " << sql);
 
 #if SQLITE_VERSION_NUMBER >= 3003009
     int err = sqlite3_prepare_v2(db_.connection(), sql.c_str(),
@@ -107,7 +110,7 @@ public:
 
   virtual void bind(int column, const std::string& value) override
   {
-    DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
+    LOG_DEBUG(this << " bind " << column << " " << value);
 
     int err = sqlite3_bind_text(st_, column + 1, value.c_str(),
 				static_cast<int>(value.length()),
@@ -118,7 +121,7 @@ public:
 
   virtual void bind(int column, short value) override
   {
-    DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
+    LOG_DEBUG(this << " bind " << column << " " << value);
 
     int err = sqlite3_bind_int(st_, column + 1, value);
 
@@ -127,7 +130,7 @@ public:
 
   virtual void bind(int column, int value) override
   {
-    DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
+    LOG_DEBUG(this << " bind " << column << " " << value);
 
     int err = sqlite3_bind_int(st_, column + 1, value);
 
@@ -136,7 +139,7 @@ public:
 
   virtual void bind(int column, long long value) override
   {
-    DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
+    LOG_DEBUG(this << " bind " << column << " " << value);
 
     int err = sqlite3_bind_int64(st_, column + 1, value);
 
@@ -150,7 +153,7 @@ public:
 
   virtual void bind(int column, double value) override
   {
-    DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
+    LOG_DEBUG(this << " bind " << column << " " << value);
 
     int err;
     if (isNaN(value))
@@ -163,8 +166,7 @@ public:
 
   virtual void bind(int column, const std::chrono::duration<int, std::milli> & value) override
   {
-    DEBUG(std::cerr << this << " bind " << column << " "
-          << value.count() << "ms" << std::endl);
+    LOG_DEBUG(this << " bind " << column << " " << value.count() << "ms");
 
     long long msec = value.count();
     int err = sqlite3_bind_int64(st_, column + 1, msec);
@@ -238,8 +240,7 @@ public:
 
   virtual void bind(int column, const std::vector<unsigned char>& value) override
   {
-    DEBUG(std::cerr << this << " bind " << column << " (blob, size=" <<
-	  value.size() << ")" << std::endl);
+    LOG_DEBUG(this << " bind " << column << " (blob, size=" << value.size() << ")");
 
     int err;
 
@@ -254,7 +255,7 @@ public:
 
   virtual void bindNull(int column) override
   {
-    DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
+    LOG_DEBUG(this << " bind " << column << " null");
 
     int err = sqlite3_bind_null(st_, column + 1);
 
@@ -263,8 +264,9 @@ public:
 
   virtual void execute() override
   {
-    if (db_.showQueries())
-      std::cerr << sql_ << std::endl;
+    if (db_.showQueries()) {
+      LOG_INFO(sql_);
+    }
 
     int result = sqlite3_step(st_);
 
@@ -332,8 +334,7 @@ public:
 
     *value = (const char *)sqlite3_column_text(st_, column);
 
-    DEBUG(std::cerr << this 
-	  << " result string " << column << " " << *value << std::endl);
+    LOG_DEBUG(this << " result string " << column << " " << *value);
 
     return true;
   }
@@ -356,8 +357,7 @@ public:
     *value = 42;
     *value = sqlite3_column_int(st_, column);
 
-    DEBUG(std::cerr << this 
-	  << " result int " << column << " " << *value << std::endl);
+    LOG_DEBUG(this << " result int " << column << " " << *value);
 
     return true;
   }
@@ -369,8 +369,7 @@ public:
 
     *value = sqlite3_column_int64(st_, column);
 
-    DEBUG(std::cerr << this 
-	  << " result long long " << column << " " << *value << std::endl);
+    LOG_DEBUG(this << " result long long " << column << " " << *value);
 
     return true;
   }
@@ -388,8 +387,7 @@ public:
       }
     }
 
-    DEBUG(std::cerr << this 
-	  << " result float " << column << " " << *value << std::endl);
+    LOG_DEBUG(this << " result float " << column << " " << *value);
 
     return true;
   }
@@ -407,8 +405,7 @@ public:
       }
     }
 
-    DEBUG(std::cerr << this 
-	  << " result double " << column << " " << *value << std::endl);
+    LOG_DEBUG(this << " result double " << column << " " << *value);
 
     return true;
   }
@@ -422,8 +419,7 @@ public:
 
     *value = std::chrono::milliseconds(msec);
 
-    DEBUG(std::cerr << this 
-      << " result time_duration " << column << " " << value->count() << "ms" << std::endl);
+    LOG_DEBUG(this << " result time_duration " << column << " " << value->count() << "ms");
 
     return true;
   }
@@ -472,7 +468,7 @@ public:
       *value += std::chrono::milliseconds(ms);
 	}
       } catch (std::exception& e) {
-	std::cerr << "Sqlite3::getResult(ptime): " << e.what() << std::endl;
+        LOG_ERROR("Sqlite3::getResult(ptime): " << e.what());
 	return false;
       }
 
@@ -537,9 +533,7 @@ public:
     value->resize(s);
     std::copy(v, v + s, value->begin());
 
-    DEBUG(std::cerr << this 
-	  << " result blob " << column << " (blob, size = " << s << ")"
-	  << std::endl);
+    LOG_DEBUG(this << " result blob " << column << " (blob, size = " << s << ")");
 
     return true;
   }

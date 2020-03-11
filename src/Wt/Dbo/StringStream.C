@@ -60,10 +60,9 @@ char *lltoa(long long value, char *result, int base = 10) {
 }
 
     } // namespace Utils
-
-#define NO_ASIO
-#define WT_WEB_UTILS_H_
-#include "../WStringStream.C"
-
   }
 }
+
+#define WT_DBO_STRINGSTREAM
+#include "../WStringStream.C"
+#undef WT_DBO_STRINGSTREAM

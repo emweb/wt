@@ -11,6 +11,10 @@
 
 namespace Wt {
 
+#ifdef WT_DBO_ESCAPEOSTREAM
+namespace Dbo {
+#endif
+
 class WT_API EscapeOStream
 {
 public:
@@ -87,6 +91,10 @@ private:
   static const Entry plainTextNewLinesEntries_[4];
 };
 
-}
+#ifdef WT_DBO_ESCAPEOSTREAM
+} // namespace Dbo
+#endif
+
+} // namespace Wt
 
 #endif // ESCAPE_OSTREAM_H_

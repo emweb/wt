@@ -5,9 +5,16 @@
  */
 
 #include "EscapeOStream.h"
+
+#ifndef WT_DBO_ESCAPEOSTREAM
 #include "WebUtils.h"
+#endif
 
 namespace Wt {
+
+#ifdef WT_DBO_ESCAPEOSTREAM
+namespace Dbo {
+#endif
 
 const EscapeOStream::Entry EscapeOStream::htmlAttributeEntries_[] = {
   { '&', "&amp;" },
@@ -250,4 +257,8 @@ bool EscapeOStream::empty() const
   return stream_.empty();
 }
 
-}
+#ifdef WT_DBO_ESCAPEOSTREAM
+} // namespace Dbo
+#endif
+
+} // namespace Wt

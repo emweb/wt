@@ -29,6 +29,7 @@ IF(ENABLE_LIBWTDBO)
     WtSqlTraits.h WtSqlTraits.C
     EscapeOStream.h EscapeOStream.C
     StringStream.h StringStream.C
+    Logger.h Logger.C
   )
 
   SET_PROPERTY(TARGET wtdbo PROPERTY C_VISIBILITY_PRESET hidden)

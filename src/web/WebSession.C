@@ -214,6 +214,10 @@ WLogger& WebSession::logInstance() const
 
 WLogEntry WebSession::log(const std::string& type) const
 {
+  if (controller_->server()->customLogger()) {
+    return WLogEntry(*controller_->server()->customLogger(), type);
+  }
+
   WLogEntry e = controller_->server()->logger().entry(type);
 
 #ifndef WT_TARGET_JAVA

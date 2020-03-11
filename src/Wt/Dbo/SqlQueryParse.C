@@ -6,6 +6,8 @@
 #include "Query.h"
 #include "Query_impl.h"
 #include "Exception.h"
+#include "Logger.h"
+#include "StringStream.h"
 #include "ptr.h"
 
 #include <boost/version.hpp>
@@ -54,6 +56,9 @@
 
 namespace Wt {
   namespace Dbo {
+
+LOGGER("Dbo.SqlQueryParse");
+
     namespace Impl {
 
 #ifdef NO_SPIRIT_QUERY_PARSE
@@ -220,13 +225,19 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
     */
     on_error<fail>
       (query_expression,
-       std::cerr 
-       << val("Error parsing SQL query: Expected ")
-       << boost::spirit::_4
-       << val(" here: \"")
-       << construct<std::string>(boost::spirit::_3, boost::spirit::_2)
-       << val("\"")
-       << std::endl);
+       [](boost::fusion::vector<
+            Iterator&,
+            Iterator const&,
+            Iterator const&,
+            qi::info const&> args,
+       qi::unused_type, qi::unused_type) {
+      LOG_ERROR("Error parsing SQL query: expected "
+                << boost::fusion::at_c<3>(args)
+                << " here: \""
+                << std::string(boost::fusion::at_c<2>(args),
+                               boost::fusion::at_c<1>(args))
+                << "\"\n");
+    });
   }
 
   Iterator parseBegin_;

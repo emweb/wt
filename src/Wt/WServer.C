@@ -40,6 +40,8 @@ WServer::Exception::Exception(const std::string& what)
 void WServer::init(const std::string& wtApplicationPath,
 		   const std::string& configurationFile)
 {
+  customLogger_ = nullptr;
+
   application_ = wtApplicationPath;
   configurationFile_ = configurationFile; 
 
@@ -141,8 +143,22 @@ WLogger& WServer::logger()
   return logger_;
 }
 
+void WServer::setCustomLogger(const WLogSink& customLogger)
+{
+  customLogger_ = &customLogger;
+}
+
+const WLogSink * WServer::customLogger() const
+{
+  return customLogger_;
+}
+
 WLogEntry WServer::log(const std::string& type) const
 {
+  if (customLogger_) {
+    return WLogEntry(*customLogger_, type);
+  }
+
   WLogEntry e = logger_.entry(type);
 
   e << WLogger::timestamp << WLogger::sep

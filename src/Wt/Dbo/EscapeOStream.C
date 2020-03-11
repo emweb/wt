@@ -25,8 +25,9 @@ std::string& replace(std::string& s, char c, const std::string& r)
 
     }
 
-#define WT_WEB_UTILS_H_
-#include "../../web/EscapeOStream.C"
-
   }
 }
+
+#define WT_DBO_ESCAPEOSTREAM
+#include "../../web/EscapeOStream.C"
+#undef WT_DBO_ESCAPEOSTREAM

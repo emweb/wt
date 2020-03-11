@@ -167,6 +167,7 @@ Wt/WLinkedCssStyleSheet.h Wt/WLinkedCssStyleSheet.C
 Wt/WLoadingIndicator.h Wt/WLoadingIndicator.C
 Wt/WLocalizedStrings.h Wt/WLocalizedStrings.C
 Wt/WLogger.h Wt/WLogger.C
+Wt/WLogSink.h Wt/WLogSink.C
 Wt/WMatrix4x4.h Wt/WMatrix4x4.C
 Wt/WMeasurePaintDevice.h Wt/WMeasurePaintDevice.C
 Wt/WMediaPlayer.h Wt/WMediaPlayer.C

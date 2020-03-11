@@ -6,6 +6,8 @@
 #include "Wt/Dbo/backend/MSSQLServer.h"
 
 #include "Wt/Dbo/Exception.h"
+#include "Wt/Dbo/Logger.h"
+#include "Wt/Dbo/StringStream.h"
 
 #include "Wt/Date/date.h"
 
@@ -35,6 +37,9 @@
 
 namespace Wt {
   namespace Dbo {
+
+LOGGER("Dbo.backend.MSSQLServer");
+
     namespace backend {
 
 class MSSQLServerException : public Exception
@@ -542,8 +547,9 @@ public:
 
   virtual void execute() override
   {
-    if (conn_.showQueries())
-      std::cerr << sql_ << std::endl;
+    if (conn_.showQueries()) {
+      LOG_INFO(sql_);
+    }
 
     SQLRETURN rc = SQLExecute(stmt_);
     if (rc != SQL_NO_DATA) // SQL_NO_DATA can occur when no rows are affected
@@ -938,8 +944,9 @@ bool MSSQLServer::connect(const std::string &connectionString)
 
 void MSSQLServer::executeSql(const std::string &sql)
 {
-  if (showQueries())
-    std::cerr << sql << std::endl;
+  if (showQueries()) {
+    LOG_INFO(sql);
+  }
 
   SQLRETURN rc = SQL_SUCCESS;
   if (!impl_->stmt) {
@@ -975,14 +982,16 @@ void MSSQLServer::executeSql(const std::string &sql)
 
 void MSSQLServer::startTransaction()
 {
-  if (showQueries())
-    std::cerr << "begin transaction -- implicit" << std::endl;
+  if (showQueries()) {
+    LOG_INFO("begin transaction -- implicit");
+  }
 }
 
 void MSSQLServer::commitTransaction()
 {
-  if (showQueries())
-    std::cerr << "commit transaction -- using SQLEndTran" << std::endl;
+  if (showQueries()) {
+    LOG_INFO("commit transaction -- using SQLEndTran");
+  }
 
   SQLRETURN rc = SQLEndTran(SQL_HANDLE_DBC, impl_->dbc, SQL_COMMIT);
   handleErr(SQL_HANDLE_DBC, impl_->dbc, rc);
@@ -990,8 +999,9 @@ void MSSQLServer::commitTransaction()
 
 void MSSQLServer::rollbackTransaction()
 {
-  if (showQueries())
-    std::cerr << "rollback transaction -- using SQLEndTran" << std::endl;
+  if (showQueries()) {
+    LOG_INFO("rollback transaction -- using SQLEndTran");
+  }
 
   SQLRETURN rc = SQLEndTran(SQL_HANDLE_DBC, impl_->dbc, SQL_ROLLBACK);
   handleErr(SQL_HANDLE_DBC, impl_->dbc, rc);

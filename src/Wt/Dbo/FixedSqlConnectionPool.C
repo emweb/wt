@@ -4,9 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Dbo/FixedSqlConnectionPool.h"
-#include "Wt/Dbo/SqlConnection.h"
 #include "Wt/Dbo/Exception.h"
+#include "Wt/Dbo/FixedSqlConnectionPool.h"
+#include "Wt/Dbo/Logger.h"
+#include "Wt/Dbo/SqlConnection.h"
+#include "Wt/Dbo/StringStream.h"
 
 #ifdef WT_THREADED
 #include <thread>
@@ -18,6 +20,8 @@
 
 namespace Wt {
   namespace Dbo {
+
+LOGGER("Dbo.FixedSqlConnectionPool");
 
 struct FixedSqlConnectionPool::Impl {
 #ifdef WT_THREADED
@@ -61,7 +65,7 @@ std::unique_ptr<SqlConnection> FixedSqlConnectionPool::getConnection()
   std::unique_lock<std::mutex> lock(impl_->mutex);
 
   while (impl_->freeList.empty()) {
-    std::cerr << "Warning: FixedSqlConnectionPool: waiting for connection" << std::endl;
+    LOG_WARN("no free connections, waiting for connection");
     if (impl_->timeout > std::chrono::steady_clock::duration::zero()) {
       if (impl_->connectionAvailable.wait_for(lock, impl_->timeout) == std::cv_status::timeout) {
 	handleTimeout();

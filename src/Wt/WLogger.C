@@ -6,17 +6,23 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 
+#ifndef WT_DBO_LOGGER
 #include "Wt/WLogger.h"
 #include "Wt/WServer.h"
 #include "Wt/WString.h"
 #include "Wt/WLocalDateTime.h"
 #include "Wt/WTime.h"
-
 #include "WebUtils.h"
-#include "StringUtils.h"
 #include "WebSession.h"
+#endif // WT_DBO_LOGGER
+
+#include "StringUtils.h"
 
 namespace Wt {
+
+#ifdef WT_DBO_LOGGER
+namespace Dbo {
+#endif
 
   namespace {
     WLogger defaultLogger;
@@ -32,7 +38,10 @@ WLogEntry::~WLogEntry()
 {
   if (impl_) {
     impl_->finish();
-    impl_->logger_.addLine(impl_->type_, impl_->scope_, impl_->line_);
+    if (impl_->logger_)
+      impl_->logger_->addLine(impl_->type_, impl_->scope_, impl_->line_);
+    else if (impl_->customLogger_)
+      impl_->customLogger_->log(impl_->type_, impl_->scope_, impl_->line_.str());
   }
 }
 
@@ -44,6 +53,7 @@ WLogEntry& WLogEntry::operator<< (const WLogger::Sep&)
   return *this;
 }
 
+#ifndef WT_DBO_LOGGER
 WLogEntry& WLogEntry::operator<< (const WLogger::TimeStamp&)
 {
   std::string dt = WLocalDateTime::currentServerDateTime()
@@ -51,16 +61,19 @@ WLogEntry& WLogEntry::operator<< (const WLogger::TimeStamp&)
 
   return *this << '[' << dt << ']';
 }
+#endif // WT_DBO_LOGGER
 
 WLogEntry& WLogEntry::operator<< (const char *s)
 {
   return *this << std::string(s);
 }
 
+#ifndef WT_DBO_LOGGER
 WLogEntry& WLogEntry::operator<< (const WString& s)
 {
   return *this << s.toUTF8();
 }
+#endif // WT_DBO_LOGGER
 
 WLogEntry& WLogEntry::operator<< (const std::string& s)
 {
@@ -69,7 +82,7 @@ WLogEntry& WLogEntry::operator<< (const std::string& s)
       startField();
 
       std::string ss(s);
-      Wt::Utils::replace(ss, '"', "\"\"");
+      Utils::replace(ss, '"', "\"\"");
 
       impl_->line_ << ss;
     } else {
@@ -79,7 +92,8 @@ WLogEntry& WLogEntry::operator<< (const std::string& s)
       }
     }
 
-    if (impl_->field_ == (int)impl_->logger_.fields().size() - 1
+    if ((impl_->customLogger_ ||
+         impl_->field_ == (int)impl_->logger_->fields().size() - 1)
 	&& impl_->scope_.empty())
       impl_->scope_ = s;
   }
@@ -131,7 +145,13 @@ WLogEntry::WLogEntry(const WLogger& logger, const std::string& type,
 		     bool mute)
 {
   if (!mute)
-    impl_ = cpp14::make_unique<Impl>(logger, type);
+    impl_.reset(new Impl(logger, type));
+}
+
+WLogEntry::WLogEntry(const WLogSink& customLogger,
+                     const std::string& type)
+{
+  impl_.reset(new Impl(customLogger, type));
 }
 
 void WLogEntry::startField()
@@ -141,7 +161,17 @@ void WLogEntry::startField()
 }
 
 WLogEntry::Impl::Impl(const WLogger& logger, const std::string& type)
-  : logger_(logger),
+  : logger_(&logger),
+    customLogger_(nullptr),
+    type_(type),
+    field_(0),
+    fieldStarted_(false)
+{ }
+
+WLogEntry::Impl::Impl(const WLogSink& customLogger,
+                      const std::string& type)
+  : logger_(nullptr),
+    customLogger_(&customLogger),
     type_(type),
     field_(0),
     fieldStarted_(false)
@@ -176,16 +206,20 @@ void WLogEntry::Impl::nextField()
 
 void WLogEntry::Impl::finish()
 {
-  while (field_ < (int)logger_.fields().size() - 1)
-    nextField();
+  if (!customLogger_) {
+    while (field_ < (int)logger_->fields().size() - 1)
+      nextField();
+  }
 
   finishField();
 }
 
 bool WLogEntry::Impl::quote() const
 {
-  if (field_ < (int)logger_.fields().size())
-    return logger_.fields()[field_].isString();
+  if (customLogger_)
+    return false;
+  else if (field_ < (int)logger_->fields().size())
+    return logger_->fields()[field_].isString();
   else
     return false;
 }
@@ -289,12 +323,12 @@ void WLogger::configure(const std::string& config)
 {
   rules_.clear();
 
-  Utils::SplitVector rules;
+  Wt::Utils::SplitVector rules;
   boost::split(rules, config, boost::algorithm::is_space(),
 	       boost::algorithm::token_compress_on);
 
   for (unsigned i = 0; i < rules.size(); ++i) {
-    Utils::SplitVector type_scope;
+    Wt::Utils::SplitVector type_scope;
     boost::split(type_scope, rules[i], boost::is_any_of(":"));
 
     Rule r;
@@ -351,6 +385,9 @@ bool WLogger::logging(const std::string& type, const std::string& scope) const
 
 WLogger& logInstance()
 { 
+#ifdef WT_DBO_LOGGER
+  return defaultLogger;
+#else // WT_DBO_LOGGER
   WebSession *session = WebSession::instance();
 
   if (session)
@@ -363,10 +400,41 @@ WLogger& logInstance()
     else
       return defaultLogger;
   }
+#endif // WT_DBO_LOGGER
+}
+
+bool logging(const std::string &type,
+             const std::string &scope) noexcept
+{
+#ifdef WT_DBO_LOGGER
+  if (customLogger_)
+    return customLogger_->logging(type, scope);
+
+  return logging(type, scope);
+#else // WT_DBO_LOGGER
+  WebSession *session = WebSession::instance();
+
+  Wt::WServer *server = session ? session->controller()->server() : WServer::instance();
+  if (server) {
+    if (server->customLogger())
+      return server->customLogger()->logging(type, scope);
+    else
+      return server->logger().logging(type, scope);
+  } else {
+    return defaultLogger.logging(type, scope);
+  }
+#endif // WT_DBO_LOGGER
 }
 
 WLogEntry log(const std::string& type)
 {
+#ifdef WT_DBO_LOGGER
+  if (customLogger_) {
+    return WLogEntry(*customLogger_, type);
+  }
+
+  return defaultLogger.entry(type);
+#else // WT_DBO_LOGGER
   WebSession *session = WebSession::instance();
 
   if (session)
@@ -379,6 +447,11 @@ WLogEntry log(const std::string& type)
     else
       return defaultLogger.entry(type);
   }
+#endif // WT_DBO_LOGGER
 }
+
+#ifdef WT_DBO_LOGGER
+} // namespace Dbo
+#endif
 
 }

@@ -23,7 +23,17 @@ namespace asio {
 }
 #endif
 
+#if !defined(WT_DBO_STRINGSTREAM) || DOXYGEN_ONLY
+#define WT_STRINGSTREAM_API WT_API
+#else
+#define WT_STRINGSTREAM_API WTDBO_API
+#endif
+
 namespace Wt {
+
+#ifdef WT_DBO_STRINGSTREAM
+namespace Dbo {
+#endif // WT_DBO_STRINGSTREAM
 
 /*! \class WStringStream Wt/WStringStream.h Wt/WStringStream.h
  *
@@ -37,7 +47,7 @@ namespace Wt {
  * use of the std::locale, which apparently hampers std::ostream
  * performance (%Wt internally uses UTF-8 encoding throughout).
  */
-class WT_API WStringStream
+class WT_STRINGSTREAM_API WStringStream
 {
 public:
   /*! \brief An implementation of an output generator for appending data.
@@ -160,11 +170,13 @@ public:
    */
   std::string str() const;
 
+#ifndef WT_DBO_STRINGSTREAM
 #ifdef WT_ASIO_IS_BOOST_ASIO
   void asioBuffers(std::vector<boost::asio::const_buffer>& result) const;
 #else
   void asioBuffers(std::vector<asio::const_buffer>& result) const;
 #endif
+#endif // WT_DBO_STRINGSTREAM
 
   /*! \brief Returns whether the contents is empty.
    *
@@ -213,6 +225,10 @@ private:
   void pushBuf();
 };
 
-}
+#ifdef WT_DBO_STRINGSTREAM
+} // namespace Dbo
+#endif // WT_DBO_STRINGSTREAM
+
+} // namespace Wt
 
 #endif // WT_WSTRING_STREAM_H_

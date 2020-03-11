@@ -4,16 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/Dbo/Exception.h"
+#include "Wt/Dbo/Logger.h"
 #include "Wt/Dbo/SqlConnection.h"
 #include "Wt/Dbo/SqlStatement.h"
-#include "Wt/Dbo/Exception.h"
-#include "SqlConnection.h"
+#include "Wt/Dbo/StringStream.h"
 
 #include <cassert>
 #include <iostream>
 
 namespace Wt {
   namespace Dbo {
+
+LOGGER("Dbo.SqlConnection");
 
 namespace {
   static const std::size_t WARN_NUM_STATEMENTS_THRESHOLD = 10;
@@ -62,10 +65,10 @@ SqlStatement *SqlConnection::getStatement(const std::string& id)
   if (result) {
     auto count = statementCache_.count(id);
     if (count >= WARN_NUM_STATEMENTS_THRESHOLD) {
-      std::cerr << "Warning: number of instances (" << (count + 1) << ") of prepared statement '"
-                << id << "' for this "
-                   "connection exceeds threshold (" << WARN_NUM_STATEMENTS_THRESHOLD << ")"
-                   ". This could indicate a programming error.\n";
+      LOG_WARN("Warning: number of instances (" << (count + 1) << ") of prepared statement '"
+               << id << "' for this "
+                  "connection exceeds threshold (" << WARN_NUM_STATEMENTS_THRESHOLD << ")"
+                  ". This could indicate a programming error.");
     }
     auto stmt = prepareStatement(result->sql());
     result = stmt.get();
