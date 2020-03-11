@@ -10,7 +10,7 @@
 
 #include <boost/version.hpp>
 
-#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 106800
+#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 106900
 #  define X3_QUERY_PARSE
 #elif !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104100
 #  define SPIRIT_QUERY_PARSE
