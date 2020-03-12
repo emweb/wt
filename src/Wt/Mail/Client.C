@@ -22,6 +22,8 @@
 
 #include "WebUtils.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 namespace Wt {
 
 LOGGER("Mail.Client");
@@ -467,7 +469,7 @@ Client::Client(const std::string& selfHost)
       selfHost,
       "",
       "",
-      AuthenticationMethod::Plain,
+      AuthenticationMethod::None,
       TransportEncryption::None,
       true
     })
@@ -482,6 +484,47 @@ Client::Client(const std::string& selfHost)
   } else
     if (!logged)
       LOG_INFO("using '" << configuration_.selfHost_ << "' as self host");
+
+  {
+    std::string authMethod = "none";
+    if (WApplication::readConfigurationProperty("smtp-auth-method", authMethod)) {
+      if (boost::iequals(authMethod, "plain")) {
+        configuration_.authenticationMethod_ = AuthenticationMethod::Plain;
+      } else if (boost::iequals(authMethod, "login")) {
+        configuration_.authenticationMethod_ = AuthenticationMethod::Login;
+      } else if (!boost::iequals(authMethod, "none")) {
+        LOG_WARN("Unrecognized authentication method in 'smtp-auth-method' property: '" << authMethod << '\'');
+      }
+    }
+  }
+
+  if (configuration_.authenticationMethod_ != AuthenticationMethod::None) {
+    const bool haveUsername = WApplication::readConfigurationProperty("smtp-auth-username", configuration_.username_);
+    const bool havePassword = WApplication::readConfigurationProperty("smtp-auth-password", configuration_.password_);
+    if (!haveUsername) {
+      LOG_ERROR("Authentication enabled, but 'smtp-auth-username' property not configured, disabling authentication");
+    }
+    if (!havePassword) {
+      LOG_ERROR("Authentication enabled, but 'smtp-auth-password' property not configured, disabling authentication");
+    }
+    if (!haveUsername ||
+        !havePassword) {
+      configuration_.authenticationMethod_ = AuthenticationMethod::None;
+    }
+  }
+
+  {
+    std::string encryptionMethod = "none";
+    if (WApplication::readConfigurationProperty("smtp-transport-encryption", encryptionMethod)) {
+      if (boost::iequals(encryptionMethod, "starttls")) {
+        configuration_.transportEncryption_ = TransportEncryption::StartTLS;
+      } else if (boost::iequals(encryptionMethod, "tls")) {
+        configuration_.transportEncryption_ = TransportEncryption::TLS;
+      } else if (!boost::iequals(encryptionMethod, "none")) {
+        LOG_WARN("Unrecognized encryption method in 'smtp-transport-encryption' property: '" << encryptionMethod << '\'');
+      }
+    }
+  }
 }
 
 Client::~Client()
@@ -515,7 +558,6 @@ bool Client::connect()
   
   WApplication::readConfigurationProperty("smtp-host", smtpHost);
   WApplication::readConfigurationProperty("smtp-port", smtpPortStr);
-  // TODO(Roel): read auth config?
 
   int smtpPort = Utils::stoi(smtpPortStr);
 

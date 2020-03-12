@@ -28,6 +28,7 @@ class Message;
  *  \brief Indicates the authentication method to use
  */
 enum class AuthenticationMethod {
+  None, //!< No authentication
   Plain, //!< PLAIN authentication
   Login //!< LOGIN authentication
 };
@@ -97,6 +98,15 @@ public:
   ~Client();
 
   /*! \brief Enables authentication
+   *
+   * Enable authentication either through this method, or by specifying
+   * the following configuration properties:
+   *
+   *  - smtp-auth-username
+   *  - smtp-auth-password
+   *  - smtp-auth-method
+   *
+   * "smtp-auth-method" can be one of: "none", "plain", or "login".
    */
   void enableAuthentication(const std::string &username,
                             const std::string &password,
@@ -112,7 +122,7 @@ public:
    *
    * \sa enableAuthentication
    */
-  bool authenticationEnabled() const { return !configuration_.username_.empty() && !configuration_.password_.empty(); }
+  bool authenticationEnabled() const { return configuration_.authenticationMethod_ != AuthenticationMethod::None; }
 
   /*! \brief Sets whether SSL certificate verification is enabled
    *
@@ -129,6 +139,10 @@ public:
   /*! \brief Sets the transport encryption method
    *
    * The default is TransportEncryption::None
+   *
+   * Enable transport encryption either through this method, or by specifying the
+   * "smtp-transport-encryption" configuration property. Its value can be one of:
+   * "none", "starttls", or "tls".
    */
   void setTransportEncryption(TransportEncryption method);
 
