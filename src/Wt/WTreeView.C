@@ -340,7 +340,7 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
   nodeWidget_->bindEmpty("no-expand");
   nodeWidget_->bindEmpty("col0");
 
-  int selfHeight = 0;
+  const int selfHeight = index_ == view_->rootIndex() ? 0 : 1;
   bool needLoad = view_->isExpanded(index_);
 
   if (index_ != view_->rootIndex() && !needLoad)
@@ -359,8 +359,6 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
   if (index_ != view_->rootIndex()) {
     updateGraphics(isLast, !view_->model()->hasChildren(index_));
     insertColumns(0, view_->columnCount());
-
-    selfHeight = 1;
 
     if (view_->selectionBehavior() == SelectRows && view_->isSelected(index_))
       renderSelected(true, 0);
@@ -2349,8 +2347,11 @@ int WTreeView::getIndexRow(const WModelIndex& child,
 	return result;
     }
 
-    return result + getIndexRow(parent, ancestor,
-				lowerBound - result, upperBound - result);
+    if (parent != ancestor)
+      return result + 1 + getIndexRow(parent, ancestor,
+                                      lowerBound - result, upperBound - result);
+    else
+      return result;
   }
 }
 
@@ -2895,18 +2896,18 @@ int WTreeView::pageSize() const
 
 void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
 {
-  int row = getIndexRow(index, rootIndex(), 0,
-			std::numeric_limits<int>::max()) + 1;
+  const int row = getIndexRow(index, rootIndex(), 0,
+                              std::numeric_limits<int>::max());
 
   WApplication *app = WApplication::instance();
 
   if (app->environment().ajax()) {
     if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
       if (hint == EnsureVisible) {
-	if (viewportTop_ + viewportHeight_ < row)
-	  hint = PositionAtTop;
-	else if (row < viewportTop_)
-	  hint = PositionAtBottom;
+        if (viewportTop_ + viewportHeight_ <= row)
+          hint = PositionAtBottom;
+        else if (row < viewportTop_)
+          hint = PositionAtTop;
       }
 
       switch (hint) {
