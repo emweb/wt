@@ -22,6 +22,64 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.5.2 (March 16, 2020)</h2>
+
+<p>
+  This release fixes the following issues:
+</p>
+
+<ul>
+  <li>
+    Security-related: in Wt::Auth the lost password email would be sent to the email
+    address provided in the form, rather than the user's configured email address. While
+    we treat email addresses as case insensitive, it is possible that the mail server may not,
+    and that could potentially be used to steal an account. It is however quite rare for
+    email services to be case sensitive.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7439" target="_blank">Issue #7439</a>:
+    ensure that tooltips are always on top, even inside of a dialog.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7448" target="_blank">Issue #7448</a>:
+    fixed compilation error on recent versions of MinGW, by using the <tt>gmtime_s</tt>
+    function on Windows.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7447" target="_blank">Issue #7447</a>:
+    fixed text format being reset when the text of a <a href="classWt_1_1WAnchor.html">WAnchor</a> is cleared.
+  </li>
+  <li>
+    Fix for <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a> issue that was <a href="https://redmine.emweb.be/boards/2/topics/16718" target="_blank">reported on the forum</a>: signals would get unexposed when options were changed.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7457" target="_blank">Issue #7457</a>:
+    moved call to <a href="classWt_1_1WApplication.html#ae88546224ed32cade783da188b145138">WApplication::require()</a> to the constructor, since calling it in the render function may cause issues.
+  </li>
+  <li>
+    Fixes for <a href="classWt_1_1WVirtualImage.html">WVirtualImage</a>:
+    <ul>
+      <li>Do not render zero width or zero height images. This was possible when <tt>imageWidth</tt> or <tt>imageHeight</tt> was
+        a multiple of the <tt>gridImageSize</tt>.</li>
+      <li>Fixed <a href="classWt_1_1WVirtualImage.html#a0feb746fc22b907f779423bd9768109c">scrollTo()</a> when the image is narrower than the viewport: <tt>scrollTo(0, 0)</tt> would not put <tt>(0, 0)</tt> at
+        the top left when the image was narrower (or taller) than the viewport.</li>
+    </ul>
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7480" target="_blank">Issue #7480</a>: prefix Wt's crypt functions to fix issues
+    when linking with <tt>libxcrypt</tt>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7468" target="_blank">Issue #7468</a>: fixed panning not working properly for a <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a> with plain tooltips.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7482" target="_blank">Issue #7482</a>: <tt>lastId_</tt> in Postgres backend should be <tt>long long</tt>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/6774" target="_blank">Issue #6774</a>: misc. <a href="classWt_1_1WTreeView.html">WTreeView</a> fixes.
+  </li>
+</ul>
+
 <h2>Release 3.5.1 (February 6, 2020)</h2>
 
 <p>
