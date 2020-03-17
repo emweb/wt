@@ -410,7 +410,7 @@ bool logging(const std::string &type,
   if (customLogger_)
     return customLogger_->logging(type, scope);
 
-  return logging(type, scope);
+  return true;
 #else // WT_DBO_LOGGER
   WebSession *session = WebSession::instance();
 
