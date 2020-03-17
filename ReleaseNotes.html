@@ -22,6 +22,44 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.6.0 (March 2020)</h2>
+
+<p>Wt 3 releases have mostly focused on tweaks and bug fixes lately with new features being focused on Wt 4, and this release is no different. There's a handful of little changes:</p>
+
+<p>Some small changes in behaviour that you may want to be aware of:</p>
+
+<ul>
+  <li>
+    <a href="classWt_1_1WCanvasPaintDevice.html">WCanvasPaintDevice</a>: instead of stopping the drawing entirely when <tt>drawImage()</tt> fails (e.g. because of a missing image),
+    the image will be skipped but drawing will continue. An error will be logged to the console.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7060" target="_blank">Issue #7060</a>: fixed
+    <a href="classWt_1_1Http_1_1Request.html#a5f18be4100482713c257bea43a3c913b">Request::clientAddress()</a> when behind a reverse proxy to
+    be the same as <a href="classWt_1_1WEnvironment.html#aedad4a59684dc41c9985a713ee4eb00a">WEnvironment::clientAddress()</a>, and as mentioned in the documentation.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7404" target="_blank">Issue #7404</a>: reparenting of popup widgets should only stop at scroll bars.
+  </li>
+</ul>
+
+<p>Other changes and fixes:</p>
+
+<ul>
+  <li>
+    Updated the <tt>composer</tt> and <tt>filetreetable</tt> examples to use <a href="classWt_1_1WLocalDateTime.html">WLocalDateTime</a> rather than OS specific functions.
+  </li>
+  <li>
+    <a href="classWt_1_1WModelIndex.html">WModelIndex</a> now has a proper ordering, even for raw indexes. This means they can properly be inserted into and retrieved from a <tt>std::set</tt>.
+  </li>
+  <li>
+    <a href="classWt_1_1WServer.html">WServer</a>: documented the <a href="classWt_1_1WServer.html#ada45818842ad301522cff96a8dd3dcd5">schedule()</a> function.
+  </li>
+  <li>
+    wthttp: added child process id to some of the logging related to dedicated session processes
+  </li>
+</ul>
+
 <h2>Release 3.5.2 (March 16, 2020)</h2>
 
 <p>
