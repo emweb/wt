@@ -15,15 +15,35 @@ namespace Wt {
 /*! \brief CSS length unit type
  */
 enum class LengthUnit {
-  FontEm,     //!< The relative font size
-  FontEx,     //!< The height of an 'x' in the font
-  Pixel,      //!< Pixel, relative to canvas resolution
-  Inch,       //!< Inch
-  Centimeter, //!< Centimeter
-  Millimeter, //!< Millimeter
-  Point,      //!< Point (1/72 Inch)
-  Pica,       //!< Pica (12 Point)
-  Percentage  //!< Percentage (meaning context-sensitive)
+  FontEm,         //!< The relative font size (em)
+  FontEx,         //!< The height of an 'x' in the font (ex)
+  Pixel,          //!< Pixel, relative to canvas resolution (px)
+  Inch,           //!< Inch (in)
+  Centimeter,     //!< Centimeter (cm)
+  Millimeter,     //!< Millimeter (mm)
+  Point,          //!< Point (1/72 Inch) (pt)
+  Pica,           //!< Pica (12 Point) (pc)
+  Percentage,     //!< Percentage (meaning context-sensitive) (%)
+  /*! \brief A percentage of the viewport's width (vw)
+   *
+   * \note Internet Explorer only supports vw since version 9
+   */
+  ViewportWidth,
+  /*! \brief A percentage of the viewport's height (vh)
+   *
+   * \note Internet Explorer only supports vh since version 9
+   */
+  ViewportHeight,
+  /*! \brief A percentage of the viewport's smaller dimension (vmin)
+   *
+   * \note Internet Explorer only supports vmin since version 9
+   */
+  ViewportMin,
+  /*! \brief A percentage of the viewport's larger dimension (vmax)
+   *
+   * \note Not supported on Internet Explorer
+   */
+  ViewportMax
 };
 
 /*! \class WLength Wt/WLength.h Wt/WLength.h
@@ -113,6 +133,10 @@ public:
    *
    * When the length isAuto(), 0 is returned, otherwise the approximate
    * length in pixels.
+   *
+   * \note For percentages (LengthUnit::Percentage), and units relative to viewport size
+   *       (LengthUnit::ViewportWidth, LengthUnit::ViewportHeight, LengthUnit::ViewportMin,
+   *        LengthUnit::ViewportMax), a percentage of the font size is used.
    */
   double toPixels(double fontSize = 16.0) const;
   
