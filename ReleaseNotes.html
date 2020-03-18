@@ -22,6 +22,102 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.3.0 (March 2020)</h2>
+
+<p>Wt 4.3.0 mainly adds the ability to redirect logging to a custom logging function, and login and transport encryption to the mail client, among some other fixes and tweaks.</p>
+
+<h3>Logging redirection (<a href="https://redmine.webtoolkit.eu/issues/7240" target="_blank">issue #7240</a>)</h3>
+
+<p>
+Before, it was possible to send logging to a file or an <tt>std::ostream</tt>, and configure which messages were logged in <tt>wt_config.xml</tt>. Wt 4.3.0 extends
+this with the ability to send all logging to a function, allowing users to redirect Wt's logs to whathever logging framework they prefer to use.
+</p>
+
+<p>The few log messages coming from Wt::Dbo would always be logged to <tt>std::cerr</tt>. It is now possible to change this to use Wt's logger, or a custom log function.</p>
+
+<p>To allow for this new functionality, we introduced an abstract <a href="classWt_1_1WLogSink.html">WLogSink</a> class, and the following functions:</p>
+
+<ul>
+  <li><a href="classWt_1_1WServer.html#a45fdbea913a16a310e10e337e5933072">WServer::setCustomLogger()</a>: sets a custom logger on the WServer level</li>
+  <li><a href="namespaceWt_1_1Dbo.html#a9a326a13084b93cbb33bf1c470879b0d">Wt::Dbo::setCustomLogger()</a>: sets a custom logger globally for all of Wt::Dbo</li>
+  <li><a href="namespaceWt_1_1Dbo.html#ac1c13200d17c21ab7a8dfe4cbf3aed05">Wt::Dbo::logToWt()</a>: sends all of Wt::Dbo's logging to Wt's logger</li>
+</ul>
+
+<h3>Mail client: support for login and encryption (<a href="https://redmine.webtoolkit.eu/issues/7444" target="_blank">issue #7444</a>)</h3>
+
+<p>
+We added basic support for <a href="namespaceWt_1_1Mail.html#a2e673920327e6df099fe3ec0191fdc93a4cd8413207629a963225f4314b53adcd">PLAIN</a> and
+<a href="namespaceWt_1_1Mail.html#a2e673920327e6df099fe3ec0191fdc93a99dea78007133396a7b8ed70578ac6ae">LOGIN</a> authentication methods, and
+encryption using <a href="namespaceWt_1_1Mail.html#a55d819f240a3553f33e6416ecd05b91fafa91df952500d196f6a10117d98843fe">StartTLS</a> or just
+simple <a href="namespaceWt_1_1Mail.html#a55d819f240a3553f33e6416ecd05b91fa099d7d04319e5191b7473e016c55e320">TLS</a>.
+</p>
+
+<p>
+You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861b5d0157663d803a3edcb97f651f4">Client::enableAuthentication()</a>, and encryption with
+<a href="classWt_1_1Mail_1_1Client.html#a170288f392a84a1e4e560422843c9a74">Client::setTransportEncryption()</a>, or using the configuration properties <tt>smtp-auth-username</tt>, <tt>smtp-auth-password</tt>,
+<tt>smtp-auth-method</tt>, and <tt>smtp-transport-encryption</tt>.
+</p>
+
+<h3>Other changes</h3>
+
+<p>Some small changes in behaviour that you may want to be aware of:</p>
+
+<ul>
+  <li>
+    Wt::Auth: lost password tokens used to be removed as soon as the link was used, even when they were not actually used to change the password. Now, the
+    token will stay valid until the password is actually changed. Also, if the password is changed through other means, the update password token is invalidated.
+  </li>
+  <li>
+    <a href="classWt_1_1WCanvasPaintDevice.html">WCanvasPaintDevice</a>: instead of stopping the drawing entirely when <tt>drawImage()</tt> fails (e.g. because of a missing image),
+    the image will be skipped but drawing will continue. An error will be logged to the console.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7060" target="_blank">Issue #7060</a>: fixed
+    <a href="classWt_1_1Http_1_1Request.html#a5f18be4100482713c257bea43a3c913b">Request::clientAddress()</a> when behind a reverse proxy to
+    be the same as <a href="classWt_1_1WEnvironment.html#aedad4a59684dc41c9985a713ee4eb00a">WEnvironment::clientAddress()</a>, and as mentioned in the documentation.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7404" target="_blank">Issue #7404</a>: reparenting of popup widgets should only stop at scroll bars.
+  </li>
+</ul>
+
+<p>Other changes and fixes:</p>
+
+<ul>
+  <li>
+    <a href="classWt_1_1WLength.html">WLength</a>: added
+    <a href="namespaceWt.html#a736803866293d189d852d2c7adb7d94ea67bbbcb8c3f0869b19682f3dd5f27893">LengthUnit::ViewportWidth</a>,
+    <a href="namespaceWt.html#a736803866293d189d852d2c7adb7d94ea1cc83e088aae799b9acb909c10c3d8b2">LengthUnit::ViewportHeight</a>,
+    <a href="namespaceWt.html#a736803866293d189d852d2c7adb7d94eae21d04628175a77110405adc9338b9c2">LengthUnit::ViewportMin</a>,
+    and <a href="namespaceWt.html#a736803866293d189d852d2c7adb7d94ea91b2f19f5c34f05a401200359e38e3c3">LengthUnit::ViewportMax</a>.
+  </li>
+  <li>
+    Updated the <tt>composer</tt> and <tt>filetreetable</tt> examples to use <a href="classWt_1_1WLocalDateTime.html">WLocalDateTime</a> rather than OS specific functions.
+  </li>
+  <li>
+    Refactored the <tt>treelist</tt> example.
+  </li>
+  <li>
+    Wt::Dbo:
+    <ul>
+      <li>added query parsing implementation based on X3 instead of Spirit Qi, which reduces compile time and memory usage.</li>
+    </ul>
+    <ul>
+      <li>added <a href="classWt_1_1Dbo_1_1SqlStatement.html#a4868a3639566171ac3d58e15e3bf77f3">SqlStatement::columnCount()</a>. This
+        makes it possible to create <tt>query_result_traits</tt> for result types with a variable number of columns, like <tt>std::vector</tt>.</li>
+    </ul>
+  </li>
+  <li>
+    <a href="classWt_1_1WModelIndex.html">WModelIndex</a> now has a proper ordering, even for raw indexes. This means they can properly be inserted into and retrieved from a <tt>std::set</tt>.
+  </li>
+  <li>
+    <a href="classWt_1_1WServer.html">WServer</a>: documented the <a href="classWt_1_1WServer.html#a5f850e30f9bd54a946c3f832d60f5b2a">schedule()</a> function.
+  </li>
+  <li>
+    wthttp: added child process id to some of the logging related to dedicated session processes
+  </li>
+</ul>
+
 <h2>Release 4.2.2 (March 16, 2020)</h2>
 
 <p>
