@@ -285,8 +285,7 @@ public:
    * contain the host part!) to a favicon, which is the icon displayed
    * in the browser for your application. Alternatively, you may
    * specify a favicon using the "favicon" property in the
-   * configuration file (see als \ref config_general "EntryPointType::Application
-   * settings (wt_config.xml)").
+   * configuration file (see also \ref config_general).
    *
    * \sa removeEntryPoint()
    */

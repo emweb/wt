@@ -39,10 +39,6 @@ class WRectF;
   In addition, a PDF backend is included in the library, which can be used
   to make a PDF version of a painting, or to embed a painting in a
   PDF document.
-
-  To use inline SVG, you need to enable xhtml support in your
-  configuration file by enabling send-xhtml-mimetype, see \ref
-  config_general.
 */
 
 /*! \brief Enumeration for render hints
