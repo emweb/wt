@@ -22,6 +22,8 @@
 
 #ifdef X3_QUERY_PARSE
 
+#define BOOST_SPIRIT_X3_NO_FILESYSTEM
+
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
 
