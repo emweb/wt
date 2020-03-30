@@ -663,6 +663,89 @@
               -->
             <!-- <property name="leafletJSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.js</property> -->
             <!-- <property name="leafletCSSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.css</property> -->
+
+            <!-- google_api_key property
+
+                The Google API key to be used with WGoogleMap.
+            -->
+            <!-- <property name="google_api_key"></property> -->
+
+            <!-- Mail properties
+
+              These properties can be used to change the default settings used by Wt::Mail::Client.
+
+             - smtp-host: the hostname (or IP address) of the SMTP server to connect to (defaults to "localhost")
+             - smtp-port: the port of the SMTP server to connect to (defaults to 25)
+             - smtp-self-host: the hostname that the mail client uses to identify itself (defaults to "localhost")
+             - smtp-transport-encryption: the encryption method to use in the mail client. This can be "none", "starttls", or "tls".
+                                          The default is "none" for no encryption.
+             - smtp-auth-method: the method to use for authentication. This can be "none", "plain", or "login".
+                                 The default is "none" for no authentication.
+             - smtp-auth-username: the username to use for authentication (defaults to empty)
+             - smtp-auth-password: the password to use for authentication (defaults to empty)
+            -->
+            <!-- <property name="smtp-host">localhost</property> -->
+            <!-- <property name="smtp-port">25</property> -->
+            <!-- <property name="smtp-self-host">localhost</property> -->
+            <!-- <property name="smtp-transport-encryption>none</property> -->
+            <!-- <property name="smtp-auth-method">none</property> -->
+            <!-- <property name="smtp-auth-username"></property> -->
+            <!-- <property name="smtp-auth-password"></property> -->
+
+            <!-- AuthService properties
+
+              These properties are used to configure AuthService.
+
+             - auth-mail-sender-name: the sender name when AuthService sends emails, defaults to "Wt Auth module"
+             - auth-mail-sender-address: the sender address when AuthService sends emails, defaults to "noreply-auth@www.webtoolkit.eu"
+            -->
+            <!-- <property name="auth-mail-sender-name">Wt Auth module</property> -->
+            <!-- <property name="auth-mail-sender-address">noreply-auth@www.webtoolkit.eu</property> -->
+
+            <!-- OAuthService properties
+
+              These properties are used to configure OAuthService. There is currently one property:
+
+             - oauth2-secret: the secret used to create the OAuth2 'state' hash. By default,
+                              this is randomly generated, which is sufficient for single-process
+                              deployments, but for multi-process deployments the same value must
+                              be used in all processes and thus needs to be pre-configured.
+            -->
+            <!-- <property name="oauth2-secret"></property> -->
+
+            <!-- PayPal properties
+
+              These properties can be used to configure Wt::Payment::PayPalService,
+              by calling configureFromProperties().
+
+             - paypal-user: the PayPal API username
+             - paypal-password: the PayPal API password
+             - paypal-signature: the PayPal API signature
+             - paypal-api-server-url: the URL of the PayPal API server
+             - paypal-pay-server-url: the URL of the server where the user is redirected for the payment
+             - paypal-version: the PayPal API version
+            -->
+            <!-- <property name="paypal-user"></property>
+                 <property name="paypal-password"></property>
+                 <property name="paypal-signature"></property>
+                 <property name="paypal-api-server-url"></property>
+                 <property name="paypal-pay-server-url"></property>
+                 <property name="paypal-version"></property> -->
+
+            <!-- TinyMCE properties
+
+              These properties are used to configure TinyMCE for WTextEdit.
+
+             - tinyMCEVersion: the version of TinyMCE to use, currently version 3.x and 4.x are supported
+             - tinyMCEURL: the URL to the main TinyMCE script file
+             - tinyMCEBaseURL: the base URL where TinyMCE is deployed.
+                               The default is resourcesURL/tiny_mce for TinyMCE 3,
+                               and resourcesURL/tinymce for TinyMCE 4 or later.
+                               Note: resourcesURL refers to the resourcesURL property, which itself defaults to "resources/"
+            -->
+            <!-- <property name="tinyMCEVersion">3</property> -->
+            <!-- <property name="tinyMCEURL"></property> -->
+            <!-- <property name="tinyMCEBaseURL">resources/tiny_mce</property> -->
 	</properties>
 
     </application-settings>
