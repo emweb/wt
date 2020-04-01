@@ -421,6 +421,13 @@ private:
   std::unique_ptr<WLength> height_;
 
   /*
+   * id_ is separate instead of in OtherImpl,
+   * because it is accessed when OtherImpl is being destroyed,
+   * from the destructor of jsScrollVisibilityChanged_
+   */
+  std::unique_ptr<std::string> id_;
+
+  /*
    * Data only stored transiently, during event handling.
    */
   struct TransientImpl {
@@ -495,7 +502,6 @@ private:
     };
 
     std::unique_ptr<std::string> elementTagName_;
-    std::unique_ptr<std::string> id_;
     std::unique_ptr<std::map<std::string, WT_USTRING> > attributes_;
     std::unique_ptr<std::vector<Member> > jsMembers_;
     std::unique_ptr<std::vector<JavaScriptStatement> > jsStatements_;

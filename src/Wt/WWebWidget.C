@@ -119,7 +119,6 @@ WWebWidget::OtherImpl::JavaScriptStatement::JavaScriptStatement
 
 WWebWidget::OtherImpl::OtherImpl(WWebWidget *const self)
   : elementTagName_(nullptr),
-    id_(nullptr),
     tabIndex_(std::numeric_limits<int>::min()),
     scrollVisibilityMargin_(0),
     jsScrollVisibilityChanged_(self, "scrollVisibilityChanged")
@@ -172,10 +171,10 @@ void WWebWidget::setId(const std::string& id)
       app->removeExposedSignal(signal);
   }
 
-  if (!otherImpl_->id_)
-    otherImpl_->id_.reset(new std::string());
+  if (!id_)
+    id_.reset(new std::string());
 
-  *otherImpl_->id_ = id;
+  *id_ = id;
 
   for (std::size_t i = 0; i < jsignals_.size(); ++i) {
     EventSignalBase* signal = jsignals_[i];
@@ -195,8 +194,8 @@ void WWebWidget::setSelectable(bool selectable)
 
 const std::string WWebWidget::id() const
 {
-  if (otherImpl_ && otherImpl_->id_)
-    return *otherImpl_->id_;
+  if (id_)
+    return *id_;
   else
     return WWidget::id();  
 }
@@ -2195,7 +2194,7 @@ std::string WWebWidget::htmlTagName() const
 void WWebWidget::setId(DomElement *element, WApplication *app)
 {
   if (!app->environment().agentIsSpiderBot()
-      || (otherImpl_ && otherImpl_->id_)) {
+      || id_) {
     if (!flags_.test(BIT_FORM_OBJECT))
       element->setId(id());
     else
@@ -2294,7 +2293,7 @@ DomElement *WWebWidget::createStubElement(WApplication *app)
     stub->setProperty(Property::InnerHTML, "...");
 
   if (!app->environment().agentIsSpiderBot()
-      || (otherImpl_ && otherImpl_->id_))
+      || id_)
     stub->setId(id());
 
   return stub;
