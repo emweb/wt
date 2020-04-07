@@ -117,9 +117,6 @@ public:
    */
   virtual bool isConnected() const = 0;
 
-  void setBlocked(bool block);
-  bool isBlocked() const { return blocked_; }
-
   /*! \brief Connects to a slot.
    *
    * Every signal can be connected to a slot which does not take any
@@ -141,8 +138,6 @@ protected:
 
 private:
   SignalBase(const SignalBase& other);
-
-  bool blocked_;
 };
 
 /*
@@ -894,9 +889,6 @@ EventSignal<E>::connect(WObject *target, WObject::Method method)
 template <typename E>
 void EventSignal<E>::emit(E e) const
 {
-  if (isBlocked())
-    return;
-
   processLearnedStateless();
   processNonLearnedStateless();
 

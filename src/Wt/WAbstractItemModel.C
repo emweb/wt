@@ -151,15 +151,11 @@ bool WAbstractItemModel::setItemData(const WModelIndex& index,
 {
   bool result = true;
 
-  bool wasBlocked = dataChanged().isBlocked();
-  dataChanged().setBlocked(true);
-
   for (DataMap::const_iterator i = values.begin(); i != values.end(); ++i)
     // if (i->first != ItemDataRole::Edit)
       if (!setData(index, i->second, i->first))
 	result = false;
 
-  dataChanged().setBlocked(wasBlocked);
   dataChanged().emit(index, index);
 
   return result;

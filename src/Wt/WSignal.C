@@ -17,16 +17,10 @@
 namespace Wt {
 
 SignalBase::SignalBase()
-  : blocked_(false)
 { }
 
 SignalBase::~SignalBase()
 { }
-
-void SignalBase::setBlocked(bool blocked)
-{
-  blocked_ = blocked;
-}
 
 EventSignalBase::EventSignalBase(const char *name, WObject *owner,
 				 bool autoLearn)
