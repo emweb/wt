@@ -46,6 +46,7 @@ struct mapping
   { "webm", "video/webm" },
   { "xml", "application/xml" },
   { "pdf", "application/pdf" },
+  { "txt", "text/plain" },
   { 0, 0 } // Marks end of list.
 };
 
