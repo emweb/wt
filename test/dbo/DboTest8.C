@@ -45,7 +45,6 @@ BOOST_AUTO_TEST_CASE(foreign_key_constraints_test)
 {
     dbo::Session session;
     auto conn = std::make_unique<dbo::backend::Sqlite3>(":memory:");
-    conn->setProperty("show-queries", "true");
     session.setConnection(std::move(conn));
 
     session.mapClass<TableSrc1>("table_src1");
