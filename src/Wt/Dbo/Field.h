@@ -16,11 +16,13 @@ namespace Wt {
     template <class C> class collection;
 
     namespace Impl {
-const int FKNotNull = 0x01;
-const int FKOnUpdateCascade = 0x02;
-const int FKOnUpdateSetNull = 0x04;
-const int FKOnDeleteCascade = 0x08;
-const int FKOnDeleteSetNull = 0x10;
+const int FKNotNull          = 0x01;
+const int FKOnUpdateCascade  = 0x02;
+const int FKOnUpdateSetNull  = 0x04;
+const int FKOnUpdateRestrict = 0x08;
+const int FKOnDeleteCascade  = 0x10;
+const int FKOnDeleteSetNull  = 0x20;
+const int FKOnDeleteRestrict = 0x40;
     }
 
 /*! \brief Type that indicates one or more foreign key constraints.
@@ -31,8 +33,10 @@ const int FKOnDeleteSetNull = 0x10;
  * \sa \link Wt::Dbo::NotNull NotNull\endlink
  * \sa \link Wt::Dbo::OnUpdateCascade OnUpdateCascade\endlink,
  *     \link Wt::Dbo::OnUpdateSetNull OnUpdateSetNull\endlink
+ *     \link Wt::Dbo::OnUpdateRestrict OnUpdateRestrict\endlink
  * \sa \link Wt::Dbo::OnDeleteCascade OnDeleteCascade\endlink
  *     \link Wt::Dbo::OnDeleteSetNull OnDeleteSetNull\endlink
+ *     \link Wt::Dbo::OnDeleteRestrict OnDeleteRestrict\endlink
  *
  * \sa belongsTo(), hasMany()
  *
@@ -105,6 +109,23 @@ const ForeignKeyConstraint OnUpdateSetNull;
 const ForeignKeyConstraint OnUpdateSetNull(Impl::FKOnUpdateSetNull);
 #endif
 
+/*! \brief A constraint that restricts updates.
+ *
+ * A database constraint which restricts updates to the natural primary key
+ * in the referenced table.
+ *
+ * \note This constraint only affects the database schema creation. Currently
+ *       it is not possible to update a natural Id of an already saved object
+ *       through %Dbo itself.
+ *
+ * \ingroup dbo
+ */
+#ifdef DOXYGEN_ONLY
+const ForeignKeyConstraint OnUpdateRestrict;
+#else
+const ForeignKeyConstraint OnUpdateRestrict(Impl::FKOnUpdateRestrict);
+#endif
+
 /*! \brief A constraint that cascades deletes.
  *
  * A database constraint which propagates deletes of the referenced object
@@ -133,6 +154,21 @@ const ForeignKeyConstraint OnDeleteCascade(Impl::FKOnDeleteCascade);
 const ForeignKeyConstraint OnDeleteSetNull;
 #else
 const ForeignKeyConstraint OnDeleteSetNull(Impl::FKOnDeleteSetNull);
+#endif
+
+/*! \brief A constraint that restricts deletes.
+ *
+ * A database constraint which restricts deletes of the referenced object
+ * to also restrict deletion of the objects that reference.
+ *
+ * \note This constraint only affects the database schema creation.
+ *
+ * \ingroup dbo
+ */
+#ifdef DOXYGEN_ONLY
+const ForeignKeyConstraint OnDeleteRestrict;
+#else
+const ForeignKeyConstraint OnDeleteRestrict(Impl::FKOnDeleteRestrict);
 #endif
 
 class Session;
