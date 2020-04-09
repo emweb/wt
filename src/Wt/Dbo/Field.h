@@ -16,7 +16,7 @@ namespace Wt {
     template <class C> class collection;
 
     namespace Impl {
-const int FKNotNull = 0x01;
+const int FKNotNull          = 0x01;
 const int FKOnUpdateCascade  = 0x02;
 const int FKOnUpdateSetNull  = 0x04;
 const int FKOnUpdateRestrict = 0x08;
