@@ -908,11 +908,16 @@ std::string Session::constraintString(Impl::MappingInfo *mapping,
   else if (field.fkConstraints() & Impl::FKOnUpdateSetNull
 	   && haveSupportUpdateCascade_)
     sql << " on update set null";
+  else if (field.fkConstraints() & Impl::FKOnUpdateRestrict
+           && haveSupportUpdateCascade_)
+    sql << " on update restrict";
 
   if (field.fkConstraints() & Impl::FKOnDeleteCascade)
     sql << " on delete cascade";
   else if (field.fkConstraints() & Impl::FKOnDeleteSetNull)
     sql << " on delete set null";
+  else if (field.fkConstraints() & Impl::FKOnDeleteRestrict)
+    sql << " on delete restrict";
 
   if (connection(false)->supportDeferrableFKConstraint()) //backend condition
     sql << " deferrable initially deferred";
