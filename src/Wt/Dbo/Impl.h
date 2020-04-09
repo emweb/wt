@@ -19,7 +19,6 @@
 #include <Wt/Dbo/SqlTraits_impl.h>
 #include <Wt/Dbo/Session_impl.h>
 
-#if !defined(_MSC_VER) && !defined(__SUNPRO_C)
 #define DBO_INSTANTIATE_TEMPLATES(C)					\
   template class Wt::Dbo::ptr<C>;					\
   template class Wt::Dbo::Dbo<C>;					\
@@ -41,10 +40,5 @@
   template Wt::Dbo::Query< Wt::Dbo::ptr<C>, Wt::Dbo::DirectBinding >	\
 	Wt::Dbo::Session::find<C, Wt::Dbo::DirectBinding>		\
 	(const std::string&);
-#else
-// Functionality is broken on MSVC 2005 and 2008
-// Functionality is broken on Sun Studio Express
-#define DBO_INSTANTIATE_TEMPLATES(C)
-#endif
 
 #endif // WT_DBO_IMPL_H_

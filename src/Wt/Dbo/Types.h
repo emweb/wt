@@ -19,7 +19,6 @@
 #include <Wt/Dbo/StdSqlTraits.h>
 #include <Wt/Dbo/ptr_tuple.h>
 
-#if !defined(_MSC_VER) && !defined(__SUNPRO_C)
 #define DBO_EXTERN_TEMPLATES(C)						\
   extern template class Wt::Dbo::ptr<C>;				\
   extern template class Wt::Dbo::Dbo<C>;				\
@@ -43,13 +42,5 @@
 				  Wt::Dbo::DirectBinding>		\
 	Wt::Dbo::Session::find<C, Wt::Dbo::DirectBinding>		\
 	(const std::string&);
-
-#else
-// Broken on MSVC 2005 and 2008 (cannot redeclare extern declared template
-// methods to be defined after all)
-// Broken on SUN StudioExpress
-#define DBO_EXTERN_TEMPLATES(C)
-#include <Wt/Dbo/Impl.h>
-#endif
 
 #endif // WT_DBO_TYPES_H_
