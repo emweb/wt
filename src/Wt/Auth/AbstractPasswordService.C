@@ -21,15 +21,29 @@ AbstractPasswordService::StrengthValidatorResult
   : valid_(valid), message_(message), strength_(strength)
 {}
 
+AbstractPasswordService::AbstractStrengthValidator::AbstractStrengthValidator()
+{
+  setMandatory(true);
+}
+
 WValidator::Result AbstractPasswordService::AbstractStrengthValidator
 ::validate(const WT_USTRING& password, const WT_USTRING& loginName,
 	   const std::string& email) const
 {
+  if (!isMandatory() && password.empty()) {
+      return Result(Valid);
+  }
+
   AbstractPasswordService::StrengthValidatorResult result 
     = evaluateStrength(password, loginName, email);
 
-  return WValidator::Result(result.isValid() ? Valid : Invalid, 
-			    result.message());
+  if (result.isValid()) {
+    return WValidator::Result(Valid,  result.message());
+  } else if (isMandatory() && password.empty()) {
+    return WValidator::Result(InvalidEmpty, result.message());
+  } else {
+    return WValidator::Result(Invalid, result.message());
+  }
 }
 
 WValidator::Result AbstractPasswordService::AbstractStrengthValidator
