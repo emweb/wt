@@ -3159,3 +3159,61 @@ BOOST_AUTO_TEST_CASE( dbo_test39c )
   }
 #endif
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test40 )
+{
+  // Test join function
+  DboFixture f;
+  dbo::Session &session = *f.session_;
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::ptr<A> a = session.addNew<A>();
+    a.modify()->i = 5;
+    dbo::ptr<B> b = session.addNew<B>();
+    b.modify()->name = "Test";
+    dbo::ptr<B> b2 = session.addNew<B>();
+    b2.modify()->name = "Test2";
+
+    a.modify()->b = b;
+  }
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::collection<dbo::ptr<A> > results = session.query<dbo::ptr<A> >("select a from \"table_a\" a")
+                                                                     .join("\"table_b\" b on a.\"b_id\" = b.\"id\"")
+                                                                     .where("b.\"name\" = ?")
+                                                                     .bind("Test");
+
+    BOOST_REQUIRE(results.size() == 1);
+
+    dbo::ptr<A> first = *results.begin();
+
+    BOOST_REQUIRE(first);
+
+    BOOST_REQUIRE(first->i == 5);
+  }
+
+  {
+    // This was a bug: AbstractQuery's copy ctor would not copy over the join_ field,
+    // causing an error
+
+    dbo::Transaction t(session);
+    dbo::Query<dbo::ptr<A> > q = session.query<dbo::ptr<A> >("select a from \"table_a\" a")
+                                                            .join("\"table_b\" b on a.\"b_id\" = b.\"id\"");
+
+    q.where("b.\"name\" = ?").bind("Test");
+
+    dbo::collection<dbo::ptr<A> > results = q.resultList();
+
+    BOOST_REQUIRE(results.size() == 1);
+
+    dbo::ptr<A> first = *results.begin();
+
+    BOOST_REQUIRE(first);
+
+    BOOST_REQUIRE(first->i == 5);
+  }
+}

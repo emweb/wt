@@ -4218,7 +4218,7 @@
       values corresponding to each category are plotted consecutively in model
       row order. Each data series corresponds to a column from the model and
       may be rendered differently (This is configured in the data series - See
-      ${doc-link WDataSeries} for more information).
+      ${doc-link Chart-WDataSeries} for more information).
     </p>
     <p>
       As a cartesian chart it provides automatic configuration of the axes, and
