@@ -335,7 +335,8 @@ AbstractQuery::~AbstractQuery()
 { }
 
 AbstractQuery::AbstractQuery(const AbstractQuery& other)
-  : where_(other.where_),
+  : join_(other.join_),
+    where_(other.where_),
     groupBy_(other.groupBy_),
     having_(other.having_),
     orderBy_(other.orderBy_),
@@ -348,6 +349,7 @@ AbstractQuery::AbstractQuery(const AbstractQuery& other)
 
 AbstractQuery& AbstractQuery::operator=(const AbstractQuery& other)
 {
+  join_ = other.join_;
   where_ = other.where_;
   groupBy_ = other.groupBy_;
   having_ = other.having_;
