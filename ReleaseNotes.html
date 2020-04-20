@@ -22,6 +22,25 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.6.1 (April 2020)</h2>
+
+<p>
+  This release fixes the following issues:
+</p>
+
+<ul>
+  <li>
+    Fixed join information not being copied over when copying
+    <a href="classWt_1_1Dbo_1_1AbstractQuery.html">Wt::Dbo::AbstractQuery</a>.
+  </li>
+  <li>
+    MinGW fixes: Direct2D/DirectWrite were disabled and are now enabled
+    by default. Libraries were changed to lowercase for cross-compiling
+    from Linux. Windows is case-insensitive, and MinGW libraries on Linux
+    are lowercase.
+  </li>
+</ul>
+
 <h2>Release 3.6.0 (March 26, 2020)</h2>
 
 <p>Wt 3 releases have mostly focused on tweaks and bug fixes lately with new features being focused on Wt 4, and this release is no different. There's a handful of little changes:</p>
