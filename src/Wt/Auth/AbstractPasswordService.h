@@ -98,6 +98,10 @@ public:
   class WT_API AbstractStrengthValidator : public Wt::WValidator
   {
   public:
+    /*! \brief Constructor.
+     */
+    AbstractStrengthValidator();
+
     /*! \brief Evaluates the strength of a password.
      *
      * The result is an instance of StrengthValidatorResult which 
