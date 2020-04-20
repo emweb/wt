@@ -22,6 +22,33 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.3.1 (April 2020)</h2>
+
+<p>This release fixes the following issues:</p>
+
+<ul>
+  <li>
+    <a href="classWt_1_1WWebWidget.html">WWebWidget:</a> moved <tt>id_</tt> out of <tt>OtherImpl</tt>:
+    this fixes issues caused by the <tt>id_</tt> being removed before other things that depend on it,
+    like the <tt>jsScrollVisibilityChanged_</tt> signal. Fixes
+    <a href="https://redmine.webtoolkit.eu/issues/7508" target="_blank">issue #7508</a>.
+  </li>
+  <li>
+    Fixed join information not being copied over when copying
+    <a href="classWt_1_1Dbo_1_1AbstractQuery.html">Wt::Dbo::AbstractQuery</a>.
+  </li>
+  <li>
+    MinGW fixes: Direct2D/DirectWrite were disabled and are now enabled
+    by default. Libraries were changed to lowercase for cross-compiling
+    from Linux. Windows is case-insensitive, and MinGW libraries on Linux
+    are lowercase.
+    Fixes <a href="https://redmine.webtoolkit.eu/issues/7505" target="_blank">issue #7505</a>.
+  </li>
+  <li>
+    Fixed a wrong documentation link in the widget gallery.
+  </li>
+</ul>
+
 <h2>Release 4.3.0 (March 26, 2020)</h2>
 
 <p>Wt 4.3.0 mainly adds the ability to redirect logging to a custom logging function, and login and transport encryption to the mail client, among some other fixes and tweaks.</p>
