@@ -4020,6 +4020,29 @@ function refreshMultiSessionCookie() {
   comm.sendUpdate('request=jsupdate&signal=keepAlive&ackId=' + ackUpdateId, false, ackUpdateId, -1);
 }
 
+var googleMapsLoaded = false;
+var googleMapsLoadedCallbacks = [];
+
+function loadGoogleMaps(version, key, callback) {
+  if (googleMapsLoaded) {
+    callback();
+  } else {
+    googleMapsLoadedCallbacks.push(callback);
+    if (googleMapsLoadedCallbacks.length === 1) {
+      google.load("maps", version, {
+        other_params: "key=" + key,
+        callback: function() {
+          googleMapsLoaded = true;
+          for (var i = 0; i < googleMapsLoadedCallbacks.length; ++i) {
+            googleMapsLoadedCallbacks[i]();
+          }
+          googleMapsLoadedCallbacks = [];
+        }
+      });
+    }
+  }
+}
+
 this._p_ = {
   ieAlternative : ieAlternative,
   loadScript : loadScript,
@@ -4060,7 +4083,9 @@ this._p_ = {
   bindGlobal: bindGlobal,
   refreshCookie: refreshMultiSessionCookie,
 
-  propagateSize : propagateSize
+  propagateSize : propagateSize,
+
+  loadGoogleMaps : loadGoogleMaps
 };
 
 this.WT = _$_WT_CLASS_$_;

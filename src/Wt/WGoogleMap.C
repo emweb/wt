@@ -237,12 +237,10 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
       strm << additions_[i];
 
     strm << "setTimeout(function(){ delete " << initFunction << ";}, 0)};"
-	 << "google.load(\"maps\", \"" 
-	 << (apiVersion_ == GoogleMapsVersion::v2 ? '2' : '3')
-	 << "\", {other_params:\"key="
-         << googlekey_
-         << "\", callback: "
-	 << initFunction << "});"
+         << app->javaScriptClass() << "._p_.loadGoogleMaps('"
+         << (apiVersion_ == GoogleMapsVersion::v2 ? '2' : '3')
+         << "'," << Wt::WWebWidget::jsStringLiteral(googlekey_)
+         << "," << initFunction << ");"
 	 << "}"; // private scope
 
     additions_.clear();
