@@ -79,6 +79,8 @@ void AuthWidget::init()
   WApplication *app = WApplication::instance();
   app->internalPathChanged().connect(this, &AuthWidget::onPathChange);
   app->theme()->apply(this, this, AuthWidgets);
+
+  login_.changed().connect(this, &AuthWidget::onLoginChange);
 }
 
 void AuthWidget::setModel(AuthModel *model)
@@ -302,7 +304,6 @@ void AuthWidget::create()
   if (created_)
     return;
 
-  login_.changed().connect(this, &AuthWidget::onLoginChange);
   onLoginChange();
 
   created_ = true;
@@ -310,6 +311,9 @@ void AuthWidget::create()
 
 void AuthWidget::onLoginChange()
 {
+  if (!(isRendered() || created_))
+    return;
+
   clear();
 
   if (login_.loggedIn()) {
