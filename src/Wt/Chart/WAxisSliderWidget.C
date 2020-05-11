@@ -265,12 +265,12 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
       if (labelsEnabled_) {
 	setSelectionAreaPadding(0, Top);
 	setSelectionAreaPadding(
-	    static_cast<int>(chart()->axis(XAxis).calcMaxTickLabelSize(
+            static_cast<int>(chart()->xAxis(series_->xAxis()).calcMaxTickLabelSize(
 	      paintDevice,
 	      Vertical
 	    ) + 10), Bottom);
 	setSelectionAreaPadding(
-	    static_cast<int>(std::max(chart()->axis(XAxis).calcMaxTickLabelSize(
+            static_cast<int>(std::max(chart()->xAxis(series_->xAxis()).calcMaxTickLabelSize(
 	      paintDevice,
 	      Horizontal
 	    ) / 2, 10.0)), Left | Right);
@@ -282,12 +282,12 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
       if (labelsEnabled_) {
 	setSelectionAreaPadding(0, Right);
 	setSelectionAreaPadding(
-	    static_cast<int>(std::max(chart()->axis(XAxis).calcMaxTickLabelSize(
+            static_cast<int>(std::max(chart()->xAxis(series_->xAxis()).calcMaxTickLabelSize(
 	      paintDevice,
 	      Vertical
 	    ) / 2, 10.0)), Top | Bottom);
 	setSelectionAreaPadding(
-	    static_cast<int>(chart()->axis(XAxis).calcMaxTickLabelSize(
+            static_cast<int>(chart()->xAxis(series_->xAxis()).calcMaxTickLabelSize(
 	      paintDevice,
 	      Horizontal
 	    ) + 10), Left);
@@ -306,26 +306,26 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   double maxW = w - left - right;
   WRectF drawArea(left, 0, maxW, h);
 #ifndef WT_TARGET_JAVA
-  std::vector<WAxis::Segment> segmentsBak = chart()->axis(XAxis).segments_;
+  std::vector<WAxis::Segment> segmentsBak = chart()->xAxis(series_->xAxis()).segments_;
 #else
   std::vector<WAxis::Segment> segmentsBak;
-  for (std::size_t i = 0; i < chart()->axis(XAxis).segments_.size(); ++i) {
-    segmentsBak.push_back(WAxis::Segment(chart()->axis(XAxis).segments_[i]));
+  for (std::size_t i = 0; i < chart()->xAxis(series_->xAxis()).segments_.size(); ++i) {
+    segmentsBak.push_back(WAxis::Segment(chart()->xAxis(series_->xAxis()).segments_[i]));
   }
 #endif
-  double renderIntervalBak = chart()->axis(XAxis).renderInterval_;
-  double fullRenderLengthBak = chart()->axis(XAxis).fullRenderLength_;
-  chart()->axis(XAxis).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
+  double renderIntervalBak = chart()->xAxis(series_->xAxis()).renderInterval_;
+  double fullRenderLengthBak = chart()->xAxis(series_->xAxis()).fullRenderLength_;
+  chart()->xAxis(series_->xAxis()).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
 
   const WRectF& chartArea = chart()->chartArea_;
   WRectF selectionRect;
   {
     // Determine initial position based on xTransform of chart
-    double u = -chart()->xAxis_.transformHandle.value().dx() /
-        (chartArea.width() * chart()->xAxis_.transformHandle.value().m11());
+    double u = -chart()->xAxes_[series_->xAxis()]->transformHandle.value().dx() /
+        (chartArea.width() * chart()->xAxes_[series_->xAxis()]->transformHandle.value().m11());
     selectionRect = WRectF(0, top, maxW, h - (top + bottom));
     transform_.setValue(
-          WTransform(1 / chart()->xAxis_.transformHandle.value().m11(), 0, 0, 1, u * maxW, 0));
+          WTransform(1 / chart()->xAxes_[series_->xAxis()]->transformHandle.value().m11(), 0, 0, 1, u * maxW, 0));
   }
   WRectF seriesArea(left, top + 5, maxW, h - (top + bottom + 5));
   WTransform selectionTransform = hv(WTransform(1,0,0,1,left,0) * transform_.value());
@@ -343,7 +343,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   double tickStart = 0.0, tickEnd = 0.0, labelPos = 0.0;
   AlignmentFlag labelHFlag = AlignCenter, labelVFlag = AlignMiddle;
 
-  WAxis &axis = chart()->axis(XAxis);
+  WAxis &axis = chart()->xAxis(series_->xAxis());
 
   if (horizontal) {
     tickStart = 0;
@@ -395,7 +395,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     WPainterPath line;
     line.moveTo(drawArea.left() + 0.5, h - (bottom - 0.5));
     line.lineTo(drawArea.right(), h - (bottom - 0.5));
-    painter.strokePath(line, chart()->axis(XAxis).pen());
+    painter.strokePath(line, chart()->xAxis(series_->xAxis()).pen());
   } else {
     axis.render(
 	painter,
@@ -407,7 +407,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     WPainterPath line;
     line.moveTo(selectionAreaPadding(Left) - 0.5, drawArea.left() + 0.5);
     line.lineTo(selectionAreaPadding(Left) - 0.5, drawArea.right());
-    painter.strokePath(line, chart()->axis(XAxis).pen());
+    painter.strokePath(line, chart()->xAxis(series_->xAxis()).pen());
   }
 
   WPainterPath curve;
@@ -495,15 +495,15 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   }
 
 #ifndef WT_TARGET_JAVA
-  chart()->axis(XAxis).segments_ = segmentsBak;
+  chart()->xAxis(series_->xAxis()).segments_ = segmentsBak;
 #else
-  chart()->axis(XAxis).segments_.clear();
+  chart()->xAxis(series_->xAxis()).segments_.clear();
   for (std::size_t i = 0; i < segmentsBak.size(); ++i) {
-    chart()->axis(XAxis).segments_.push_back(WAxis::Segment(segmentsBak[i]));
+    chart()->xAxis(series_->xAxis()).segments_.push_back(WAxis::Segment(segmentsBak[i]));
   }
 #endif
-  chart()->axis(XAxis).renderInterval_ = renderIntervalBak;
-  chart()->axis(XAxis).fullRenderLength_ = fullRenderLengthBak;
+  chart()->xAxis(series_->xAxis()).renderInterval_ = renderIntervalBak;
+  chart()->xAxis(series_->xAxis()).fullRenderLength_ = fullRenderLengthBak;
 }
 
 std::string WAxisSliderWidget::sObjJsRef() const

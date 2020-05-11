@@ -146,6 +146,7 @@ WAxis::Segment::Segment(const Segment &other)
 WAxis::WAxis()
   : chart_(0),
     axis_(XAxis),
+    xAxis_(0),
     yAxis_(0),
     visible_(true),
     location_(MinimumValue),
@@ -194,6 +195,7 @@ void WAxis::init(WAbstractChartImplementation* chart,
 {
   chart_ = chart;
   axis_ = axis;
+  xAxis_ = 0;
   yAxis_ = axis == Y2Axis ? 1 : 0;
 
   if (axis == XAxis || axis_ == XAxis_3D || axis_ == YAxis_3D) {
@@ -201,6 +203,18 @@ void WAxis::init(WAbstractChartImplementation* chart,
       scale_ = CategoryScale;
     } else if (scale_ == CategoryScale)
       scale_ = LinearScale;
+  }
+}
+
+void WAxis::initXAxis(WAbstractChartImplementation* chart,
+                      int xAxis)
+{
+  if (xAxis == 0)
+    init(chart, XAxis);
+  else {
+    chart_ = chart;
+    axis_ = XAxis;
+    xAxis_ = xAxis;
   }
 }
 
@@ -877,7 +891,7 @@ void WAxis::computeRange(const Segment& segment) const
       double maximum = -std::numeric_limits<double>::max();
 
       WAbstractChartImplementation::RenderRange rr =
-        chart_->computeRenderRange(axis_, yAxis_, scale_);
+        chart_->computeRenderRange(axis_, xAxis_, yAxis_, scale_);
       minimum = rr.minimum;
       maximum = rr.maximum;
 

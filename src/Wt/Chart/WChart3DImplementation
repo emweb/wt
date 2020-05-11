@@ -31,7 +31,7 @@ public:
   virtual int numberOfCategories(Axis axis = XAxis) const;
   virtual WString categoryLabel(int u, Axis axis) const;
   
-  virtual RenderRange computeRenderRange(Axis axis, int yAxis, AxisScale scale = LinearScale) const;
+  virtual RenderRange computeRenderRange(Axis axis, int xAxis, int yAxis, AxisScale scale = LinearScale) const;
 
   virtual bool onDemandLoadingEnabled() const;
   

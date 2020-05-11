@@ -261,31 +261,55 @@ WT_DECLARE_WT_MEMBER
       return {xZoom: xZoom, yZoom: yZoom, panPoint: panPoint};
    };
 
-   this.matchesXAxis = function(x, y, area, xAxis, isHorizontal) {
+   this.matchXAxis = function(x, y, area, xAxes, isHorizontal) {
+     function xAxisCount() {
+       return xAxes.length;
+     }
+     function xAxisSide(ax) {
+       return xAxes[ax].side;
+     }
+     function xAxisWidth(ax) {
+       return xAxes[ax].width;
+     }
+     function xAxisMinOffset(ax) {
+       return xAxes[ax].minOffset;
+     }
+     function xAxisMaxOffset(ax) {
+       return xAxes[ax].maxOffset;
+     }
+     // Check if the given x, y position (in pixels) matches an axis.
+     // If so, this returns the axis id, otherwise this returns -1.
      if (isHorizontal) {
        if (y < top(area) || y > bottom(area))
-         return false;
-       if ((xAxis.side === 'min' || xAxis.side === 'both') &&
-           x >= left(area) - xAxis.width &&
-           x <= left(area))
-         return true;
-       if ((xAxis.side === 'max' || xAxis.side === 'both') &&
-           x <= right(area) + xAxis.width &&
-           x >= right(area))
-         return true;
+         return -1;
      } else {
        if (x < left(area) || x > right(area))
-         return false;
-       if ((xAxis.side === 'min' || xAxis.side === 'both') &&
-           y <= bottom(area) + xAxis.width &&
-           y >= bottom(area))
-         return true;
-       if ((xAxis.side === 'max' || xAxis.side === 'both') &&
-           y >= top(area) - xAxis.width &&
-           y <= top(area))
-         return true;
+         return -1;
      }
-     return false;
+     for (var xAx = 0; xAx < xAxisCount(); ++xAx) {
+       if (isHorizontal) {
+         if ((xAxisSide(xAx) === 'min' || xAxisSide(xAx) === 'both') &&
+             x >= left(area) - xAxisMinOffset(xAx) - xAxisWidth(xAx) &&
+             x <= left(area) - xAxisMinOffset(xAx)) {
+           return xAx;
+         } else if ((xAxisSide(xAx) === 'max' || xAxisSide(xAx) === 'both') &&
+             x >= right(area) + xAxisMaxOffset(xAx) &&
+             x <= right(area) + xAxisMaxOffset(xAx) + xAxisWidth(xAx)) {
+           return xAx;
+         }
+       } else {
+         if ((xAxisSide(xAx) === 'min' || xAxisSide(xAx) === 'both') &&
+             y <= bottom(area) + xAxisMinOffset(xAx) + xAxisWidth(xAx) &&
+             y >= bottom(area) + xAxisMinOffset(xAx)) {
+           return xAx;
+         } else if ((xAxisSide(xAx) === 'max' || xAxisSide(xAx) === 'both') &&
+             y <= top(area) - xAxisMaxOffset(xAx) &&
+             y >= top(area) - xAxisMaxOffset(xAx) - xAxisWidth(xAx)) {
+           return xAx;
+         }
+       }
+     }
+     return -1;
    }
 
    this.matchYAxis = function(x, y, area, yAxes, isHorizontal) {

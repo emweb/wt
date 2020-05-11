@@ -19,6 +19,7 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     XSeriesColumn_(-1),
     stacked_(false),
     type_(type),
+    xAxis_(0),
     yAxis_(axis == Y1Axis ? 0 : 1),
     customFlags_(0),
     fillRange_(NoFill),
@@ -42,6 +43,7 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, int yAxis)
     XSeriesColumn_(-1),
     stacked_(false),
     type_(type),
+    xAxis_(0),
     yAxis_(yAxis),
     customFlags_(0),
     fillRange_(NoFill),
@@ -65,6 +67,7 @@ WDataSeries::WDataSeries(const WDataSeries &other)
     XSeriesColumn_(other.XSeriesColumn_),
     stacked_(other.stacked_),
     type_(other.type_),
+    xAxis_(other.xAxis_),
     yAxis_(other.yAxis_),
     customFlags_(other.customFlags_),
     pen_(other.pen_),
@@ -110,6 +113,7 @@ WDataSeries &WDataSeries::operator=(const WDataSeries &rhs)
   XSeriesColumn_ = rhs.XSeriesColumn_;
   stacked_ = rhs.stacked_;
   type_ = rhs.type_;
+  xAxis_ = rhs.xAxis_;
   yAxis_ = rhs.yAxis_;
   customFlags_ = rhs.customFlags_;
   pen_ = rhs.pen_;
@@ -171,6 +175,11 @@ void WDataSeries::setModelColumn(int modelColumn)
 void WDataSeries::bindToAxis(Axis axis)
 {
   set(yAxis_, axis == Y1Axis ? 0 : 1);
+}
+
+void WDataSeries::bindToXAxis(int xAxis)
+{
+  set(xAxis_, xAxis);
 }
 
 void WDataSeries::bindToYAxis(int yAxis)
@@ -368,7 +377,9 @@ void WDataSeries::update()
 WPointF WDataSeries::mapFromDevice(const WPointF& deviceCoordinates) const
 {
   if (chart_)
-    return chart_->mapFromDevice(deviceCoordinates, yAxis_);
+    return chart_->mapFromDevice(deviceCoordinates,
+                                 chart_->xAxis(xAxis_),
+                                 chart_->yAxis(yAxis_));
   else
     return WPointF();
 }
@@ -378,7 +389,10 @@ WPointF WDataSeries::mapToDevice(const boost::any& xValue,
 				 int segment) const
 {
   if (chart_)
-    return chart_->mapToDevice(xValue, yValue, yAxis_, segment);
+    return chart_->mapToDevice(xValue, yValue,
+                               chart_->xAxis(xAxis_),
+                               chart_->yAxis(yAxis_),
+                               segment);
   else
     return WPointF();
 }
