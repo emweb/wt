@@ -74,7 +74,7 @@ WString WChart3DImplementation::categoryLabel(int u, Axis axis) const
   return first->axisLabel(u, axis);
 }
 
-WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderRange(Axis axis, int yAxis, AxisScale scale) const
+WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderRange(Axis axis, int xAxis, int yAxis, AxisScale scale) const
 {
   WAbstractChartImplementation::RenderRange range;
   

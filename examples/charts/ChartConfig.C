@@ -63,12 +63,12 @@ namespace {
     return -1;
   }
 
-  WString axisName(Axis axis, int yAxis)
+  WString axisName(Axis axis, int axisId)
   {
-    if (axis == Axis::X)
-      return Wt::utf8("X Axis");
-    else {
-      return Wt::utf8("Y axis {1}").arg(yAxis + 1);
+    if (axis == Axis::X) {
+      return Wt::utf8("X Axis {1}").arg(axisId + 1);
+    } else {
+      return Wt::utf8("Y axis {1}").arg(axisId + 1);
     }
   }
 }
@@ -221,6 +221,9 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   addEntry(markers, "Asterisk");
   addEntry(markers, "Diamond");
 
+  xAxesModel_ = std::make_shared<WStandardItemModel>(0, 1);
+  addEntry(xAxesModel_, axisName(Axis::X, 0));
+
   yAxesModel_ = std::make_shared<WStandardItemModel>(0, 1);
   addEntry(yAxesModel_, axisName(Axis::Y, 0));
   addEntry(yAxesModel_, axisName(Axis::Y, 1));
@@ -240,6 +243,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   ::addHeader(seriesConfigPtr, "Enabled");
   ::addHeader(seriesConfigPtr, "Type");
   ::addHeader(seriesConfigPtr, "Marker");
+  ::addHeader(seriesConfigPtr, "X axis");
   ::addHeader(seriesConfigPtr, "Y axis");
   ::addHeader(seriesConfigPtr, "Legend");
   ::addHeader(seriesConfigPtr, "Shadow");
@@ -265,18 +269,23 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
     sc.markerEdit->setCurrentIndex(0);
     connectSignals(sc.markerEdit);
 
-    sc.axisEdit = seriesConfig->elementAt(j,4)->addNew<WComboBox>();
-    sc.axisEdit->setModel(yAxesModel_);
-    sc.axisEdit->setCurrentIndex(0);
-    connectSignals(sc.axisEdit);
+    sc.xAxisEdit = seriesConfig->elementAt(j, 4)->addNew<WComboBox>();
+    sc.xAxisEdit->setModel(xAxesModel_);
+    sc.xAxisEdit->setCurrentIndex(0);
+    connectSignals(sc.xAxisEdit);
 
-    sc.legendEdit = seriesConfig->elementAt(j, 5)->addWidget(cpp14::make_unique<WCheckBox>());
+    sc.yAxisEdit = seriesConfig->elementAt(j, 5)->addNew<WComboBox>();
+    sc.yAxisEdit->setModel(yAxesModel_);
+    sc.yAxisEdit->setCurrentIndex(0);
+    connectSignals(sc.yAxisEdit);
+
+    sc.legendEdit = seriesConfig->elementAt(j, 6)->addWidget(cpp14::make_unique<WCheckBox>());
     connectSignals(sc.legendEdit);
 
-    sc.shadowEdit = seriesConfig->elementAt(j,6)->addWidget(cpp14::make_unique<WCheckBox>());
+    sc.shadowEdit = seriesConfig->elementAt(j, 7)->addWidget(cpp14::make_unique<WCheckBox>());
     connectSignals(sc.shadowEdit);
 
-    sc.labelsEdit = seriesConfig->elementAt(j,7)->addWidget(cpp14::make_unique<WComboBox>());
+    sc.labelsEdit = seriesConfig->elementAt(j, 8)->addWidget(cpp14::make_unique<WComboBox>());
     sc.labelsEdit->setModel(labels);
 	sc.labelsEdit->setCurrentIndex(0);
     connectSignals(sc.labelsEdit);
@@ -350,12 +359,18 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   addAxis(Axis::Y, 0);
   addAxis(Axis::Y, 1);
 
-  WPushButton *addAxisBtn =
+  WPushButton *addXAxisBtn =
+      axisConfig->addNew<WPushButton>(Wt::utf8("Add X axis"));
+  addXAxisBtn->clicked().connect(this, &ChartConfig::addXAxis);
+  WPushButton *clearXAxesBtn =
+      axisConfig->addNew<WPushButton>(Wt::utf8("Clear X axes"));
+  clearXAxesBtn->clicked().connect(this, &ChartConfig::clearXAxes);
+  WPushButton *addYAxisBtn =
       axisConfig->addNew<WPushButton>(utf8("Add Y axis"));
-  addAxisBtn->clicked().connect(this, &ChartConfig::addYAxis);
-  WPushButton *clearAxesBtn =
+  addYAxisBtn->clicked().connect(this, &ChartConfig::addYAxis);
+  WPushButton *clearYAxesBtn =
       axisConfig->addNew<WPushButton>(utf8("Clear Y axes"));
-  clearAxesBtn->clicked().connect(this, &ChartConfig::clearYAxes);
+  clearYAxesBtn->clicked().connect(this, &ChartConfig::clearYAxes);
 
   p = list->addWidget("Axis properties", std::move(axisConfig));
   p->setMargin(WLength::Auto, Side::Left | Side::Right);
@@ -440,7 +455,8 @@ void ChartConfig::update()
 
       s->setMarker(static_cast<MarkerType>(sc.markerEdit->currentIndex()));
 
-      s->bindToYAxis(sc.axisEdit->currentIndex());
+      s->bindToXAxis(sc.xAxisEdit->currentIndex());
+      s->bindToYAxis(sc.yAxisEdit->currentIndex());
 
       if (sc.legendEdit->isChecked()) {
         s->setLegendEnabled(true);
@@ -474,7 +490,7 @@ void ChartConfig::update()
 
   for (std::size_t i = 0; i < axisControls_.size(); ++i) {
     AxisControl& sc = axisControls_[i];
-    WAxis& axis = i == 0 ? chart_->axis(Axis::X) : chart_->yAxis(i - 1);
+    WAxis& axis = static_cast<int>(i) < chart_->xAxisCount() ? chart_->xAxis(i) : chart_->yAxis(i - chart_->xAxisCount());
 
     axis.setVisible(sc.visibleEdit->isChecked());
 
@@ -655,6 +671,15 @@ void ChartConfig::connectSignals(WFormWidget *w)
     w->enterPressed().connect(this, &ChartConfig::update);
 }
 
+void ChartConfig::addXAxis()
+{
+  int xAxis = chart_->addXAxis(cpp14::make_unique<WAxis>());
+  addAxis(Axis::X, xAxis);
+  addEntry(xAxesModel_, axisName(Axis::X, xAxis));
+  if (xAxis == 0)
+    update();
+}
+
 void ChartConfig::addYAxis()
 {
   int yAxis = chart_->addYAxis(cpp14::make_unique<WAxis>());
@@ -664,13 +689,14 @@ void ChartConfig::addYAxis()
     update();
 }
 
-void ChartConfig::addAxis(Axis ax, int yAxis)
+void ChartConfig::addAxis(Axis ax, int axisId)
 {
-  int j = ax == Axis::X ? 1 : yAxis + 2;
+  int j = ax == Axis::X ? 1 + axisId : 1 + chart_->xAxisCount() + axisId;
 
-  const WAxis& axis = ax == Axis::X ? chart_->axis(Axis::X) : chart_->yAxis(yAxis);
+  const WAxis& axis = ax == Axis::X ? chart_->xAxis(axisId) : chart_->yAxis(axisId);
   AxisControl sc;
 
+  axisConfig_->insertRow(j);
   axisConfig_->elementAt(j, 0)->addNew<WText>(axisName(axis.id(), axis.yAxisId()));
 
   sc.visibleEdit = axisConfig_->elementAt(j, 1)->addNew<WCheckBox>();
@@ -752,15 +778,31 @@ void ChartConfig::addAxis(Axis ax, int yAxis)
   }
   connectSignals(sc.locationEdit);
 
-  if (ax != Axis::X) {
-    WPushButton *removeAxisButton =
-        axisConfig_->elementAt(j, 12)->addNew<WPushButton>(utf8("x"));
+  WPushButton *removeAxisButton =
+      axisConfig_->elementAt(j, 12)->addNew<WPushButton>(utf8("x"));
+  if (ax == Axis::X) {
+    removeAxisButton->clicked().connect(std::bind(&ChartConfig::removeXAxis, this, &axis));
+  } else {
     removeAxisButton->clicked().connect(std::bind(&ChartConfig::removeYAxis, this, &axis));
   }
 
   axisConfig_->rowAt(j)->setStyleClass("trdata");
 
-  axisControls_.push_back(sc);
+  axisControls_.insert(axisControls_.begin() + j - 1, sc);
+}
+
+void ChartConfig::removeXAxis(const WAxis *axis)
+{
+  int xAxis = axis->xAxisId();
+  for (std::size_t i = 0; i < chart_->series().size(); ++i) {
+    if (chart_->series()[i]->xAxis() == xAxis)
+      chart_->series()[i]->bindToXAxis(-1);
+  }
+  chart_->removeXAxis(xAxis);
+  axisConfig_->removeRow(1 + xAxis);
+  xAxesModel_->removeRow(xAxis);
+  axisControls_.erase(axisControls_.begin() + xAxis);
+  update();
 }
 
 void ChartConfig::removeYAxis(const WAxis *axis)
@@ -771,10 +813,27 @@ void ChartConfig::removeYAxis(const WAxis *axis)
       chart_->series()[i]->bindToYAxis(-1);
   }
   chart_->removeYAxis(yAxis);
-  axisConfig_->removeRow(yAxis + 2);
+  axisConfig_->removeRow(1 + chart_->xAxisCount() + yAxis);
   yAxesModel_->removeRow(yAxis);
-  axisControls_.erase(axisControls_.begin() + yAxis + 1);
+  axisControls_.erase(axisControls_.begin() + chart_->xAxisCount() + yAxis);
   update();
+}
+
+void ChartConfig::clearXAxes()
+{
+  if (chart_->xAxisCount() == 0)
+    return;
+
+  for (std::size_t i = 0; i < chart_->series().size(); ++i) {
+    chart_->series()[i]->bindToXAxis(-1);
+  }
+  const int xAxisCount = chart_->xAxisCount();
+  chart_->clearXAxes();
+  for (int i = 0; i < xAxisCount; ++i) {
+    axisConfig_->removeRow(1);
+  }
+  xAxesModel_->clear();
+  axisControls_.erase(axisControls_.begin(), axisControls_.begin() + xAxisCount);
 }
 
 void ChartConfig::clearYAxes()
@@ -785,9 +844,11 @@ void ChartConfig::clearYAxes()
   for (std::size_t i = 0; i < chart_->series().size(); ++i) {
     chart_->series()[i]->bindToYAxis(-1);
   }
+  const int yAxisCount = chart_->yAxisCount();
   chart_->clearYAxes();
-  while (axisConfig_->rowCount() > 2)
-    axisConfig_->removeRow(2);
+  for (int i = 0; i < yAxisCount; ++i) {
+    axisConfig_->removeRow(axisConfig_->rowCount() - 1);
+  }
   yAxesModel_->clear();
-  axisControls_.resize(1);
+  axisControls_.resize(chart_->xAxisCount());
 }

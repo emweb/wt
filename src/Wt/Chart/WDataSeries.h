@@ -221,10 +221,19 @@ public:
    */
   void bindToAxis(Axis axis);
 
-  /*! \brief Binds this series to a chart axis.
+  /*! \brief Binds this series to a chart's X axis.
    *
-   * A data series can only be bound to a Y axis. Note that
-   * the second Y axis will not be displayed by default.
+   * Note that the second Y axis will not be displayed by default.
+   *
+   * The default value is the first X axis.
+   *
+   * \sa WAxis::setVisible()
+   */
+  void bindToXAxis(int xAxis);
+
+  /*! \brief Binds this series to a chart's Y axis.
+   *
+   * Note that the second Y axis will not be displayed by default.
    *
    * The default value is the first Y axis.
    *
@@ -232,11 +241,17 @@ public:
    */
   void bindToYAxis(int yAxis);
 
-  /*! \brief Returns the chart axis used for this series.
+  /*! \brief Returns the Y axis used for this series.
    *
    * \sa bindToAxis()
    */
   Axis axis() const { return yAxis_ == 1 ? Axis::Y2 : Axis::Y1; }
+
+  /*! \brief Returns the Y axis used for this series.
+   *
+   * \sa bindToXAxis()
+   */
+  int xAxis() const { return xAxis_; }
 
   /*! \brief Returns the Y axis used for this series.
    *
@@ -579,6 +594,7 @@ private:
   int                XSeriesColumn_;
   bool               stacked_;
   SeriesType         type_;
+  int                xAxis_;
   int                yAxis_;
   WFlags<CustomFlag> customFlags_;
   WPen               pen_, markerPen_;

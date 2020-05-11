@@ -55,7 +55,8 @@ private:
     Wt::WCheckBox *enabledEdit;
     Wt::WComboBox *typeEdit;
     Wt::WComboBox *markerEdit;
-    Wt::WComboBox *axisEdit;
+    Wt::WComboBox *xAxisEdit;
+    Wt::WComboBox *yAxisEdit;
     Wt::WCheckBox *legendEdit;
     Wt::WCheckBox *shadowEdit;
     Wt::WComboBox *labelsEdit;
@@ -91,15 +92,18 @@ private:
   Wt::WComboBox *legendAlignmentEdit_;
   Wt::WCheckBox *borderEdit_;
 
-  std::shared_ptr<Wt::WStandardItemModel> yAxesModel_, xScales_, yScales_;
+  std::shared_ptr<Wt::WStandardItemModel> xAxesModel_, yAxesModel_, xScales_, yScales_;
   Wt::WTable *axisConfig_;
   std::shared_ptr<Wt::WValidator> anyNumberValidator_, angleValidator_;
 
   void connectSignals(Wt::WFormWidget *w);
   void update();
+  void addXAxis();
   void addYAxis();
-  void addAxis(Wt::Chart::Axis axis, int yAxis);
+  void addAxis(Wt::Chart::Axis axis, int axisId);
+  void removeXAxis(const Wt::Chart::WAxis *axis);
   void removeYAxis(const Wt::Chart::WAxis *axis);
+  void clearXAxes();
   void clearYAxes();
 
   static bool validate(Wt::WFormWidget *w);

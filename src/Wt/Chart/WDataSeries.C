@@ -19,11 +19,12 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     XSeriesColumn_(-1),
     stacked_(false),
     type_(type),
+    xAxis_(0),
     yAxis_(axis == Axis::Y1 ? 0 : 1),
     customFlags_(None),
     fillRange_(FillRangeType::None),
-    marker_(type == SeriesType::Point ? 
-	    MarkerType::Circle : MarkerType::None),
+    marker_(type == SeriesType::Point ?
+            MarkerType::Circle : MarkerType::None),
     markerSize_(6),
     legend_(true),
     xLabel_(false),
@@ -43,6 +44,7 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, int axis)
     XSeriesColumn_(-1),
     stacked_(false),
     type_(type),
+    xAxis_(0),
     yAxis_(axis),
     customFlags_(None),
     fillRange_(FillRangeType::None),
@@ -59,7 +61,6 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, int axis)
     offsetDirty_(true),
     scaleDirty_(true)
 { }
-
 
 WDataSeries::~WDataSeries()
 {
@@ -97,6 +98,11 @@ void WDataSeries::setModelColumn(int modelColumn)
 void WDataSeries::bindToAxis(Axis axis)
 {
   set(yAxis_, axis == Axis::Y1 ? 0 : 1);
+}
+
+void WDataSeries::bindToXAxis(int xAxis)
+{
+  set(xAxis_, xAxis);
 }
 
 void WDataSeries::bindToYAxis(int yAxis)
@@ -294,7 +300,9 @@ void WDataSeries::update()
 WPointF WDataSeries::mapFromDevice(const WPointF& deviceCoordinates) const
 {
   if (chart_)
-    return chart_->mapFromDevice(deviceCoordinates, yAxis_);
+    return chart_->mapFromDevice(deviceCoordinates,
+                                 chart_->xAxis(xAxis_),
+                                 chart_->yAxis(yAxis_));
   else
     return WPointF();
 }
@@ -303,7 +311,10 @@ WPointF WDataSeries::mapToDevice(const cpp17::any& xValue, const cpp17::any& yVa
 				 int segment) const
 {
   if (chart_)
-    return chart_->mapToDevice(xValue, yValue, yAxis_, segment);
+    return chart_->mapToDevice(xValue, yValue,
+                               chart_->xAxis(xAxis_),
+                               chart_->yAxis(yAxis_),
+                               segment);
   else
     return WPointF();
 }

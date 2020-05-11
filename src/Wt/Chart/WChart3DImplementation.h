@@ -32,7 +32,7 @@ public:
   virtual WString categoryLabel(int u, Axis axis) const override;
   
   virtual RenderRange computeRenderRange(
-      Axis axis, int yAxis, AxisScale scale = AxisScale::Linear)
+      Axis axis, int xAxis, int yAxis, AxisScale scale = AxisScale::Linear)
     const override;
 
   virtual bool onDemandLoadingEnabled() const override;

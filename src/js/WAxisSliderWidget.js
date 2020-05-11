@@ -144,6 +144,22 @@ WT_DECLARE_WT_MEMBER
        mult = WT.gfxUtils.transform_mult,
        apply = WT.gfxUtils.transform_apply;
 
+   function configSeries() {
+     return config.chart.config.series[config.series];
+   }
+
+   function seriesXAxis() {
+     return configSeries().xAxis;
+   }
+   this.xAxis = seriesXAxis;
+
+   function minXZoom() {
+     return config.chart.config.minZoom.x[seriesXAxis()];
+   }
+   function maxXZoom() {
+     return config.chart.config.maxZoom.x[seriesXAxis()];
+   }
+
    var previousXY = null;
 
    // positions:
@@ -243,9 +259,9 @@ WT_DECLARE_WT_MEMBER
 	 return;
       }
       var newZoom = 1 / (v - uAfter);
-      if (newZoom > config.chart.config.maxZoom.x)
+      if (newZoom > maxXZoom())
 	 return;
-      if (newZoom < config.chart.config.minZoom.x)
+      if (newZoom < minXZoom())
         return;
       if (uAfter < 0)
 	 uAfter = 0;
@@ -272,9 +288,9 @@ WT_DECLARE_WT_MEMBER
 	 return;
       }
       var newZoom = 1 / (vAfter - u);
-      if (newZoom > config.chart.config.maxZoom.x)
+      if (newZoom > maxXZoom())
 	 return;
-      if (newZoom < config.chart.config.minZoom.x)
+      if (newZoom < minXZoom())
 	 return;
       if (vAfter < 0) vAfter = 0;
       if (vAfter > 1) vAfter = 1;
