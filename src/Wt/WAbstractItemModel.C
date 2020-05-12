@@ -411,6 +411,10 @@ WModelIndex WAbstractItemModel::traverse(const WModelIndex &start_idx, std::func
     if(this != start_idx.model() || !func)
         return WModelIndex();
 
+    // If start node is a leaf, there is nothing to traverse
+    if(!rowCount(start_idx))
+        return start_idx;
+
     // Set the initial condition
     auto current_node = start_idx;
     auto last_node    = current_node;
@@ -466,7 +470,7 @@ WModelIndex WAbstractItemModel::traverse(const WModelIndex &start_idx, std::func
 
     } while ( current_node != last_node );
 
-    return current_node;
+    return start_idx;
 }
 
 }
