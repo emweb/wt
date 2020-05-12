@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2020 Emweb bv, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
 #include <Wt/WColor.h>
 #include <Wt/WColorPicker.h>
 #include <Wt/WDllDefs.h>
@@ -7,27 +12,30 @@
 #include <Wt/WString.h>
 #include <Wt/WWebWidget.h>
 
-#include <web/WebUtils.h>
+#include "ColorUtils.h"
+#include "DomElement.h"
+#include "WebUtils.h"
 
 #include <string>
 
 namespace Wt {
 
-LOGGER("WColorPicker");
+const char *WColorPicker::INPUT_SIGNAL = "input";
 
 WColorPicker::WColorPicker()
+  : color_(StandardColor::Black),
+    colorChanged_(false)
 {
   setInline(true);
   setFormObject(true);
-  setAttributeValue("type", "color");
 }
 
 WColorPicker::WColorPicker(const WColor& color)
+  : color_(color),
+    colorChanged_(false)
 {
   setInline(true);
   setFormObject(true);
-  setAttributeValue("type", "color");
-  setColor(color);
 }
 
 WColor WColorPicker::color() const
@@ -37,8 +45,11 @@ WColor WColorPicker::color() const
 
 void WColorPicker::setColor(const WColor& value)
 {
-  color_ = value;
-  doJavaScript(jsRef() + ".value = " + WWebWidget::jsStringLiteral(value.cssText()) + ";");
+  if (value != color_) {
+    color_ = value;
+    colorChanged_ = true;
+    repaint();
+  }
 }
 
 EventSignal<>& WColorPicker::colorInput()
@@ -46,18 +57,37 @@ EventSignal<>& WColorPicker::colorInput()
   return *voidEventSignal(INPUT_SIGNAL, true);
 }
 
+void WColorPicker::updateDom(DomElement& element, bool all)
+{
+  if (all) {
+    element.setAttribute("type", "color");
+  }
+
+  if (colorChanged_ || all) {
+    element.setProperty(Property::Value, Color::colorToHex(color_));
+    colorChanged_ = false;
+  }
+
+  WFormWidget::updateDom(element, all);
+}
+
 DomElementType WColorPicker::domElementType() const
 {
   return DomElementType::INPUT;
 }
 
+void WColorPicker::propagateRenderOk(bool deep)
+{
+  (void)deep;
+  colorChanged_ = false;
+}
+
 void WColorPicker::setFormData(const FormData& formData)
 {
-  if (isReadOnly())
+  if (colorChanged_ || isReadOnly())
     return;
 
-  if (!Utils::isEmpty(formData.values))
-  {
+  if (!Utils::isEmpty(formData.values)) {
     const std::string& value = formData.values[0];
     color_ = WColor(value);
   }

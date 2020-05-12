@@ -1,11 +1,11 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2020 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WCOLORPICKER_H_
-#define WCOLORPICKER_H_
+#ifndef WT_WCOLORPICKER_H_
+#define WT_WCOLORPICKER_H_
 
 #include <Wt/WColor.h>
 #include <Wt/WDllDefs.h>
@@ -47,6 +47,7 @@ public:
 
   /*! \brief Creates a color picker with the given color value.
    * Ensure the color has valid RGB values, or the color will be reset to #000000.
+   *
    * \sa WColor::WColor(const WString&)
    */
   WColorPicker(const WColor& color);
@@ -106,14 +107,17 @@ public:
   virtual void setValueText(const WT_USTRING& value) override;
 
 private:
+  static const char *INPUT_SIGNAL;
   WColor color_;
-  static constexpr const char* INPUT_SIGNAL = "input";
+  bool colorChanged_;
 
 protected:
+  virtual void updateDom(DomElement& element, bool all) override;
   virtual DomElementType domElementType() const override;
+  virtual void propagateRenderOk(bool deep) override;
   virtual void setFormData(const FormData& formData) override;
 };
 
 }
 
-#endif  // WCOLORPICKER_H_
+#endif  // WT_WCOLORPICKER_H_
