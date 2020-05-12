@@ -405,4 +405,68 @@ WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
   return result;
 }
 
+WModelIndex WAbstractItemModel::traverse(const WModelIndex &start_idx, std::function<bool (const WModelIndex &)> func) const
+{
+    // The index must belong to this model and a callback must be set
+    if(this != start_idx.model() || !func)
+        return WModelIndex();
+
+    // Set the initial condition
+    auto current_node = start_idx;
+    auto last_node    = current_node;
+
+    do
+    {
+        // A flag indicating that the index is visited for the first time
+        bool is_new = false;
+
+        // Forward direction
+        if ( parent(current_node) == last_node || /*Initial condition --> */ current_node == last_node )
+        {
+            // Node is not a leaf. Go forward to the first child
+            if ( rowCount(current_node) )
+            {
+                last_node    = current_node;
+                // current_node becomes it's first child
+                current_node = index(0, 0, current_node);
+                is_new       = true;
+            }
+            // Reached a leaf. Go in backward direction one level up
+            else
+            {
+                last_node    = current_node;
+                current_node = parent(current_node);
+            }
+        }
+        // Backward direction
+        else if ( parent(last_node) == current_node )
+        {
+            // Has more unvisited siblings. Go to next sibling
+            if ( last_node.row_ + 1 < rowCount(current_node) )
+            {
+                // current_node becomes the next sibling
+                current_node = index(last_node.row_ + 1, 0, current_node);
+                last_node    = parent(last_node);
+                is_new       = true;
+            }
+            // Doesn't have more siblings. Go in backward direction one level up
+            else
+            {
+                last_node = current_node;
+                /* End condition is when there are no more siblings and current_node == start_idx
+                 * The traversing will continue as long as current_node != start_idx */
+                if ( current_node != start_idx )
+                    current_node = parent(current_node);
+            }
+        }
+
+        // If the callback returns 'true' stop the traversing and return the current index
+        if ( is_new && func(current_node) )
+            return current_node;
+
+    } while ( current_node != last_node );
+
+    return current_node;
+}
+
 }

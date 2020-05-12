@@ -50,6 +50,14 @@ WFlags<ItemFlag> WModelIndex::flags() const
   return model_ ? model_->flags(*this) : WFlags<ItemFlag>();
 }
 
+WModelIndex Wt::WModelIndex::traverse(std::function<bool (const WModelIndex &)> func) const
+{
+    if(!isValid())
+        return WModelIndex();
+
+    return model()->traverse(*this, func);
+}
+
 WModelIndex WModelIndex::child(int row, int column) const
 {
   return model_ ? model_->index(row, column, *this) : WModelIndex();

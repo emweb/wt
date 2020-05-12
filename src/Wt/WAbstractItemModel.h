@@ -326,6 +326,29 @@ public:
 						    | MatchFlag::Wrap))
     const;
 
+  /*!
+   * \brief traverse Traverse the subtree of an index
+   *
+   * Traverse the whole sub tree of a valid index and for each new visited
+   * index, a callback function is called.
+   *
+   * \param start_idx  The start index at which the traversing starts
+   *
+   * \param func A callback function, called for each traversed index.
+   * The parameter of the callback is a const reference to the currently
+   * traversed index.
+   * Return value of 'true' will interrupt the traversing.
+   * Return value of 'false' will continue the traversing.
+   *
+   * \return The last traversed index.
+   * If the callback interrupts the traversing by returning 'true', returned
+   * value will be the current index at which the traversing stopped.
+   * If the traversing is not interrupted by the callback, the returned value
+   * is the start index.
+   *
+   */
+  Wt::WModelIndex traverse(const WModelIndex &start_idx, std::function<bool(const Wt::WModelIndex &)> func) const;
+
   /*! \brief Returns the data item at the given column and row.
    *
    * This is a convenience method, and is equivalent to:
