@@ -23,6 +23,7 @@ namespace Wt {
 #endif //WT_TARGET_JAVA
 
     extern WT_API WColor parseCssColor(const std::string &name);
+    extern std::string colorToHex(const Wt::WColor &color);
   }
 }
 

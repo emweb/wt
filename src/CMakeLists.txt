@@ -98,6 +98,7 @@ Wt/WCanvasPaintDevice.h Wt/WCanvasPaintDevice.C
 Wt/WCheckBox.h Wt/WCheckBox.C
 Wt/WCircleArea.h Wt/WCircleArea.C
 Wt/WColor.h Wt/WColor.C
+Wt/WColorPicker.h Wt/WColorPicker.C
 Wt/WCombinedLocalizedStrings.h Wt/WCombinedLocalizedStrings.C
 Wt/WComboBox.h Wt/WComboBox.C
 Wt/WCompositeWidget.h Wt/WCompositeWidget.C

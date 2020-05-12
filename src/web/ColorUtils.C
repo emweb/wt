@@ -14,7 +14,12 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
+#include <ios>
+#include <locale>
+#include <sstream>
 #include <string>
+
 
 namespace {
 
@@ -146,6 +151,22 @@ WColor parseCssColor(const std::string &name)
   }
 
   return WColor(red, green, blue, alpha);
+}
+
+std::string colorToHex(const Wt::WColor &color)
+{
+  std::ostringstream ss;
+  ss.imbue(std::locale::classic());
+  ss << '#'
+     << std::hex
+     << std::setfill('0')
+     << std::setw(2)
+     << color.red()
+     << std::setw(2)
+     << color.green()
+     << std::setw(2)
+     << color.blue();
+  return ss.str();
 }
     
   }
