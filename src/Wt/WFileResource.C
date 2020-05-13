@@ -7,8 +7,11 @@
 #include <fstream>
 
 #include "Wt/WFileResource"
+#include "Wt/WLogger"
 
 namespace Wt {
+
+LOGGER("WFileResource");
 
 WFileResource::WFileResource(WObject *parent)
   : WStreamResource(parent)
@@ -40,6 +43,9 @@ void WFileResource::handleRequest(const Http::Request& request,
 				  Http::Response& response)
 {
   std::ifstream r(fileName_.c_str(), std::ios::in | std::ios::binary);
+  if (!r) {
+    LOG_ERROR("Could not open file for reading: " << fileName_);
+  }
   handleRequestPiecewise(request, response, r);
 }
 
