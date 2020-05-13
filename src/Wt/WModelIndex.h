@@ -291,6 +291,8 @@ enum class DropAction {
 class WT_API WModelIndex
 {
 public:
+  class iterator;
+
   /*! \brief Create an invalid WModelIndex.
    *
    * Returns a model index for which isValid() return \c false.
@@ -520,6 +522,39 @@ private:
  * The list is defined as std::vector<WModelIndex>.
  */
 typedef std::vector<WModelIndex> WModelIndexList;
+
+class WModelIndex::iterator : public std::iterator<std::forward_iterator_tag,  // iterator_category
+                                      WModelIndex,                // value_type
+                                      long,                       // difference_type
+                                      const WModelIndex *,        // pointer
+                                      WModelIndex &               // reference
+                                      >
+{
+   public:
+    explicit iterator(WModelIndex idx = WModelIndex()) : model_(idx.model()), start_node_(idx), current_node_(idx), last_node_(idx) {}
+
+    iterator &operator++();
+    iterator operator++(int);
+    bool operator==(iterator other) const;
+    bool operator!=(iterator other) const;
+    reference operator*();
+
+   private:
+    const WAbstractItemModel *model_;
+    value_type start_node_;
+    value_type current_node_;
+    value_type last_node_;
+    bool finished_ = false;
+};
+
+//WModelIndex::iterator begin()
+//{
+//    return WModelIndex::iterator();
+//}
+//WModelIndex::iterator end()
+//{
+//    return WModelIndex::iterator();
+//}
 
 }
 

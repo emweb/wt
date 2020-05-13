@@ -305,4 +305,76 @@ bool WModelIndex::isAncestor(const Wt::WModelIndex& i1,
   return !i2.isValid();
 }
 
+WModelIndex::iterator &WModelIndex::iterator::operator++()
+{
+    if ( finished_ )
+        return *this;
+
+    // A flag indicating that the index is visited for the first time
+    bool is_new = false;
+
+    do
+    {
+        // Forward direction
+        if ( model_->parent(current_node_) == last_node_ || /*Initial condition --> */ current_node_ == last_node_ )
+        {
+            // Node is not a leaf. Go forward to the first child
+            if ( model_->rowCount(current_node_) )
+            {
+                last_node_ = current_node_;
+                // current_node_ becomes it's first child
+                current_node_ = model_->index(0, 0, current_node_);
+                is_new        = true;
+            }
+            // Reached a leaf. Go in backward direction one level up
+            else
+            {
+                last_node_    = current_node_;
+                current_node_ = model_->parent(current_node_);
+            }
+        }
+        // Backward direction
+        else if ( model_->parent(last_node_) == current_node_ )
+        {
+            // Has more unvisited siblings. Go to next sibling
+            if ( last_node_.row() + 1 < model_->rowCount(current_node_) )
+            {
+                // current_node_ becomes the next sibling
+                current_node_ = model_->index(last_node_.row() + 1, 0, current_node_);
+                last_node_    = model_->parent(last_node_);
+                is_new        = true;
+            }
+            // Doesn't have more siblings. Go in backward direction one level up
+            else
+            {
+                last_node_ = current_node_;
+                /* End condition is when there are no more siblings and current_node_ == start_idx
+                             * The traversing will continue as long as current_node_ != start_idx */
+                if ( current_node_ != start_node_ )
+                    current_node_ = model_->parent(current_node_);
+            }
+        }
+
+        finished_ = current_node_ == last_node_;
+    } while ( !finished_ && !is_new );
+
+    if ( finished_ )
+        current_node_ = WModelIndex();
+
+    return *this;
+}
+
+Wt::WModelIndex::iterator Wt::WModelIndex::iterator::operator++(int)
+{
+    iterator retval = *this;
+    ++(*this);
+    return retval;
+}
+
+bool WModelIndex::iterator::operator==(WModelIndex::iterator other) const { return current_node_ == other.current_node_; }
+
+bool WModelIndex::iterator::operator!=(WModelIndex::iterator other) const { return !(*this == other); }
+
+WModelIndex::iterator::reference WModelIndex::iterator::operator*() { return current_node_; }
+
 }
