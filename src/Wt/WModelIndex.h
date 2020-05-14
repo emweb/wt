@@ -524,37 +524,36 @@ private:
  */
 typedef std::vector<WModelIndex> WModelIndexList;
 
-class WModelIndex::iterator : public std::iterator<std::forward_iterator_tag,  // iterator_category
-                                      WModelIndex,                             // value_type
-                                      long,                                    // difference_type
-                                      const WModelIndex *,                     // pointer
-                                      WModelIndex &                            // reference
-                                      >
+class WModelIndex::iterator
 {
-   public:
-    explicit iterator(value_type idx = value_type());
+    public:
+        // iterator traits
+        /// One of the iterator_tags tag types
+        using iterator_category = std::forward_iterator_tag;
+        /// The type "pointed to" by the iterator.
+        using value_type = WModelIndex;
+        /// Distance between iterators is represented as this type.
+        using difference_type = long;
+        /// This type represents a pointer-to-value_type.
+        using pointer = const WModelIndex *;
+        /// This type represents a reference-to-value_type.
+        using reference = const WModelIndex&;
 
-    iterator &operator++();
-    iterator operator++(int);
-    reference operator*();
-    bool operator==(const iterator &other) const;
-    bool operator!=(const iterator &other) const;
+        explicit iterator(value_type idx = value_type());
 
-   private:
-    const WAbstractItemModel *model_;
-    value_type start_node_;
-    value_type current_node_;
-    value_type last_node_;
+        iterator &operator++();
+        iterator operator++(int);
+        reference operator*() const;
+        pointer operator->() const;
+        bool operator==(const iterator &other) const;
+        bool operator!=(const iterator &other) const;
+
+    private:
+        const WAbstractItemModel *model_;
+        value_type start_node_;
+        value_type current_node_;
+        value_type last_node_;
 };
-
-//WModelIndex::iterator begin()
-//{
-//    return WModelIndex::iterator();
-//}
-//WModelIndex::iterator end()
-//{
-//    return WModelIndex::iterator();
-//}
 
 }
 

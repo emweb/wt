@@ -388,12 +388,20 @@ WModelIndex::iterator WModelIndex::iterator::operator++(int)
     return retval;
 }
 
-WModelIndex::iterator::reference WModelIndex::iterator::operator*()
+WModelIndex::iterator::reference WModelIndex::iterator::operator*() const
 {
     if(!current_node_.isValid())
         return start_node_;
 
     return current_node_;
+}
+
+WModelIndex::iterator::pointer WModelIndex::iterator::operator->() const
+{
+    if(!current_node_.isValid())
+        return nullptr;
+
+    return &current_node_;
 }
 
 bool WModelIndex::iterator::operator==(const WModelIndex::iterator &other) const
