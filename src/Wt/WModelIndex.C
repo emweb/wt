@@ -50,7 +50,7 @@ WFlags<ItemFlag> WModelIndex::flags() const
   return model_ ? model_->flags(*this) : WFlags<ItemFlag>();
 }
 
-WModelIndex Wt::WModelIndex::traverse(std::function<bool (const WModelIndex &)> func) const
+WModelIndex WModelIndex::traverse(std::function<bool (const WModelIndex &)> func) const
 {
     if(!isValid())
         return WModelIndex();
@@ -195,7 +195,7 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
     internalId_(id)
 { }
 
-std::size_t hash_value(const Wt::WModelIndex& index) {
+std::size_t hash_value(const WModelIndex& index) {
   std::size_t seed = 0;
 
   boost::hash_combine(seed, index.row());
@@ -292,12 +292,12 @@ WModelIndex::decodeFromRawIndexes(const std::unordered_set<WModelIndex>& encoded
   return result;
 }
 
-bool WModelIndex::isAncestor(const Wt::WModelIndex& i1,
-			     const Wt::WModelIndex& i2) {
+bool WModelIndex::isAncestor(const WModelIndex& i1,
+                             const WModelIndex& i2) {
   if (!i1.isValid())
     return false;
 
-  for (Wt::WModelIndex p = i1.parent(); p.isValid(); p = p.parent()) {
+  for (WModelIndex p = i1.parent(); p.isValid(); p = p.parent()) {
     if (p == i2)
       return true;
   }
@@ -305,10 +305,21 @@ bool WModelIndex::isAncestor(const Wt::WModelIndex& i1,
   return !i2.isValid();
 }
 
+WModelIndex::iterator::iterator(value_type idx) : model_(idx.model()), start_node_(idx), current_node_(idx), last_node_(idx)
+{
+}
+
 WModelIndex::iterator &WModelIndex::iterator::operator++()
 {
-    if ( finished_ )
+    if( !current_node_.isValid() )
+        return  *this;
+
+    if( current_node_ == last_node_ && model_->rowCount(current_node_) == 0 )
+    {
+        last_node_    =  value_type();
+        current_node_ = value_type();
         return *this;
+    }
 
     // A flag indicating that the index is visited for the first time
     bool is_new = false;
@@ -347,34 +358,54 @@ WModelIndex::iterator &WModelIndex::iterator::operator++()
             // Doesn't have more siblings. Go in backward direction one level up
             else
             {
-                last_node_ = current_node_;
-                /* End condition is when there are no more siblings and current_node_ == start_idx
-                             * The traversing will continue as long as current_node_ != start_idx */
+
                 if ( current_node_ != start_node_ )
+                {
+                    last_node_    = current_node_;
                     current_node_ = model_->parent(current_node_);
+                }
+                // Prevent escaping to the parent and set an end condition
+                else
+                {
+                    last_node_    =  value_type();
+                    current_node_ = value_type();
+                }
             }
         }
 
-        finished_ = current_node_ == last_node_;
-    } while ( !finished_ && !is_new );
-
-    if ( finished_ )
-        current_node_ = WModelIndex();
+        /* Two stop conditions: 1. End condition; 2. Reached an unvisited index
+         * End condition is as soon as current_node_ becomes invalid
+         * The traversing will continue as long as current_node_ is valid */
+    } while ( current_node_.isValid() && !is_new );
 
     return *this;
 }
 
-Wt::WModelIndex::iterator Wt::WModelIndex::iterator::operator++(int)
+WModelIndex::iterator WModelIndex::iterator::operator++(int)
 {
     iterator retval = *this;
     ++(*this);
     return retval;
 }
 
-bool WModelIndex::iterator::operator==(WModelIndex::iterator other) const { return current_node_ == other.current_node_; }
+WModelIndex::iterator::reference WModelIndex::iterator::operator*()
+{
+    if(!current_node_.isValid())
+        return start_node_;
 
-bool WModelIndex::iterator::operator!=(WModelIndex::iterator other) const { return !(*this == other); }
+    return current_node_;
+}
 
-WModelIndex::iterator::reference WModelIndex::iterator::operator*() { return current_node_; }
+bool WModelIndex::iterator::operator==(const WModelIndex::iterator &other) const
+{
+    return (current_node_ == other.current_node_) &&
+           (last_node_ == other.last_node_);
+}
+
+bool WModelIndex::iterator::operator!=(const WModelIndex::iterator &other) const
+{
+    return !(*this == other);
+}
+
 
 }
