@@ -527,7 +527,6 @@ typedef std::vector<WModelIndex> WModelIndexList;
 class WModelIndex::iterator
 {
     public:
-        // iterator traits
         /// One of the iterator_tags tag types
         using iterator_category = std::forward_iterator_tag;
         /// The type "pointed to" by the iterator.
@@ -540,6 +539,9 @@ class WModelIndex::iterator
         using reference = const WModelIndex&;
 
         explicit iterator(value_type idx = value_type());
+        iterator(const iterator&)  = default;
+        iterator &operator=(const iterator&) = default;
+        ~iterator() = default;
 
         iterator &operator++();
         iterator operator++(int);
@@ -547,6 +549,9 @@ class WModelIndex::iterator
         pointer operator->() const;
         bool operator==(const iterator &other) const;
         bool operator!=(const iterator &other) const;
+
+        iterator &begin();
+        iterator &end();
 
     private:
         const WAbstractItemModel *model_;

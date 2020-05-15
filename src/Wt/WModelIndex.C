@@ -315,11 +315,7 @@ WModelIndex::iterator &WModelIndex::iterator::operator++()
         return  *this;
 
     if( current_node_ == last_node_ && model_->rowCount(current_node_) == 0 )
-    {
-        last_node_    =  value_type();
-        current_node_ = value_type();
-        return *this;
-    }
+        return end();
 
     // A flag indicating that the index is visited for the first time
     bool is_new = false;
@@ -364,12 +360,9 @@ WModelIndex::iterator &WModelIndex::iterator::operator++()
                     last_node_    = current_node_;
                     current_node_ = model_->parent(current_node_);
                 }
-                // Prevent escaping to the parent and set an end condition
+                // Set the end condition
                 else
-                {
-                    last_node_    =  value_type();
-                    current_node_ = value_type();
-                }
+                    return end();
             }
         }
 
@@ -406,14 +399,32 @@ WModelIndex::iterator::pointer WModelIndex::iterator::operator->() const
 
 bool WModelIndex::iterator::operator==(const WModelIndex::iterator &other) const
 {
-    return (current_node_ == other.current_node_) &&
-           (last_node_ == other.last_node_);
+    return (model_ == other.model_) &&
+           (current_node_ == other.current_node_);
 }
 
 bool WModelIndex::iterator::operator!=(const WModelIndex::iterator &other) const
 {
     return !(*this == other);
 }
+
+WModelIndex::iterator &WModelIndex::iterator::begin()
+{
+    current_node_ = start_node_;
+    last_node_    = start_node_;
+    model_        = start_node_.model();
+    return *this;
+}
+
+WModelIndex::iterator &WModelIndex::iterator::end()
+{
+    last_node_    = value_type();
+    current_node_ = value_type();
+    model_        = nullptr;
+    return *this;
+}
+
+
 
 
 }
