@@ -78,7 +78,6 @@ DomElementType WColorPicker::domElementType() const
 
 void WColorPicker::propagateRenderOk(bool deep)
 {
-  (void)deep;
   colorChanged_ = false;
 }
 

@@ -153,6 +153,7 @@ WColor parseCssColor(const std::string &name)
   return WColor(red, green, blue, alpha);
 }
 
+#ifndef WT_TARGET_JAVA
 std::string colorToHex(const Wt::WColor &color)
 {
   std::ostringstream ss;
@@ -168,6 +169,7 @@ std::string colorToHex(const Wt::WColor &color)
      << color.blue();
   return ss.str();
 }
+#endif // WT_TARGET_JAVA
     
   }
 }

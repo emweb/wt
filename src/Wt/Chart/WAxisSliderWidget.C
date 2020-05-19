@@ -279,7 +279,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
             static_cast<int>(std::max(xAxis.calcMaxTickLabelSize(
 	      paintDevice,
               Orientation::Horizontal
-            ) / 2, 10.0)), Side::Left | Side::Right);
+            ) / 2, 10.0)), WFlags<Side>(Side::Left) | Side::Right);
       } else {
 	setSelectionAreaPadding(0, Side::Top);
 	setSelectionAreaPadding(5, WFlags<Side>(Side::Left) | Side::Right | Side::Bottom);
@@ -291,7 +291,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
             static_cast<int>(std::max(xAxis.calcMaxTickLabelSize(
 	      paintDevice,
               Orientation::Vertical
-            ) / 2, 10.0)), Side::Top | Side::Bottom);
+            ) / 2, 10.0)), WFlags<Side>(Side::Top) | Side::Bottom);
 	setSelectionAreaPadding(
             static_cast<int>(xAxis.calcMaxTickLabelSize(
 	      paintDevice,
