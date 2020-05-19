@@ -3001,9 +3001,14 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     }
     ss << "],";
     ss << "hasToolTips:" << asString(hasDeferredToolTips_).toUTF8() << ","
-          "notifyTransform:{x:" << asString(axis(Axis::X).zoomRangeChanged().isConnected() ||
-                                            onDemandLoadingEnabled()).toUTF8() << ","
-                           "y:[";
+          "notifyTransform:{x:[";
+    for (int i = 0; i < xAxisCount(); ++i) {
+      if (i != 0)
+        ss << ',';
+      ss << asString(xAxis(i).zoomRangeChanged().isConnected() ||
+                     onDemandLoadingEnabled()).toUTF8();
+    }
+    ss << "], y:[";
     for (int i = 0; i < yAxisCount(); ++i) {
       if (i != 0)
         ss << ',';
