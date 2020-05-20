@@ -398,14 +398,6 @@ public:
    */
   const WAbstractItemModel *model() const { return model_; }
 
-  /*! \brief traverse Traverse the subtree of the index
-   *
-   * This is a convenience method for WAbstractItemModel::traverse().
-   *
-   * \sa WAbstractItemModel::traverse()
-   */
-  Wt::WModelIndex traverse(std::function<bool(const Wt::WModelIndex &)> func) const;
-
   /*! \brief Comparison operator.
    *
    * Returns \c true only if the indexes point at the same data, in the
