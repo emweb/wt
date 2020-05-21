@@ -292,8 +292,6 @@ class WT_API WModelIndex
 {
 public:
 
-  class iterator;
-
   /*! \brief Create an invalid WModelIndex.
    *
    * Returns a model index for which isValid() return \c false.
