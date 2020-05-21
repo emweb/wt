@@ -484,8 +484,8 @@ WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::operat
   /*
    * A flag indicating that the node is visited for the first time
    * There are two situations when the node is considered as unvisited:
-   * 1. When the iterator is going to the first child of the current node
-   * 2. When the iterator is going to the next child of the current node
+   * 1. When the iterator is going to the first child of the lead node
+   * 2. When the iterator is going to the next child of the lead node
    */
   bool visited = true;
 
