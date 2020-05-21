@@ -405,30 +405,38 @@ WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
   return result;
 }
 
-WAbstractItemModel::column_iterator::column_iterator(value_type idx, int column) : model_(idx.model()), start_node_(idx), current_node_(idx), last_node_(idx), column_(column)
+WAbstractItemModel::column_iterator::column_iterator(value_type idx, int column) : start_node_(idx), column_(column)
 {
+  begin();
 }
 
 WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::operator++()
 {
-  if( !current_node_.isValid() )
+  if( pastTheEnd() )
     return  *this;
 
+  // If starting from a leaf node, set the past the end condition
   if( current_node_ == last_node_ && model_->rowCount(current_node_) == 0 )
     return end();
 
-  // A flag indicating that the index is visited for the first time
-  bool is_new = false;
+  /*
+   * A flag indicating that the node is visited for the first time
+   * There are two situations when the node is considered as unvisited:
+   * 1. When the iterator is going to the first child of the current node
+   * 2. When the iterator is going to the next sibling of the current node
+   */
+  bool visited = true;
 
+  // Traverse until a unvisited node is reached or past the end condition is met
   do {
     // Forward direction
-    if ( model_->parent(current_node_) == last_node_ || /*Initial condition --> */ current_node_ == last_node_ ){
+    if ( model_->parent(current_node_) == last_node_ || current_node_ == last_node_ /* <-- Initial condition */) {
       // Node is not a leaf. Go forward to the first child
-      if ( model_->rowCount(current_node_) ){
+      if ( model_->rowCount(current_node_) ) {
         last_node_ = current_node_;
         // current_node_ becomes it's first child
         current_node_ = model_->index(0, column_, current_node_);
-        is_new        = true;
+        visited       = false;
       }
       // Reached a leaf. Go in backward direction one level up
       else {
@@ -437,31 +445,29 @@ WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::operat
       }
     }
     // Backward direction
-    else if ( model_->parent(last_node_) == current_node_ ){
-        // Has more unvisited siblings. Go to next sibling
-        if ( last_node_.row() + 1 < model_->rowCount(current_node_) ){
-          // current_node_ becomes the next sibling
-          current_node_ = model_->index(last_node_.row() + 1, column_, current_node_);
-          last_node_    = model_->parent(last_node_);
-          is_new        = true;
-        }
-        // Doesn't have more siblings. Go in backward direction one level up
-        else {
-          // When current_node_ != start_node_ , can still go backward
-          if ( current_node_ != start_node_ ){
-            last_node_    = current_node_;
-            current_node_ = model_->parent(current_node_);
-          }
-          // Can not go backward. Set the end condition
-          else
-            return end();
-        }
+    else if ( model_->parent(last_node_) == current_node_ ) {
+      // Has more unvisited siblings. Go to next sibling
+      if ( last_node_.row() + 1 < model_->rowCount(current_node_) ) {
+        // current_node_ becomes the next sibling
+        current_node_ = model_->index(last_node_.row() + 1, column_, current_node_);
+        last_node_    = model_->parent(last_node_);
+        visited       = false;
       }
+      // Doesn't have more siblings. Go in backward direction one level up
+      else {
+        // When current_node_ != start_node_ , can still go backward
+        if ( current_node_ != start_node_ ) {
+          last_node_    = current_node_;
+          current_node_ = model_->parent(current_node_);
+        }
+        // End of traversal. Can not go backward. Set past the end condition
+        else
+          return end();
+      }
+    }
 
-      /* Two stop conditions: 1. End condition; 2. Reached an unvisited node
-       * End condition is as soon as current_node_ becomes invalid
-       * The traversing will continue as long as current_node_ is valid */
-  } while ( current_node_.isValid() && !is_new );
+  // The traversing will stop when a unvisited node is reached
+  } while ( visited );
 
   return *this;
 }
@@ -475,7 +481,7 @@ WAbstractItemModel::column_iterator WAbstractItemModel::column_iterator::operato
 
 WAbstractItemModel::column_iterator::reference WAbstractItemModel::column_iterator::operator*() const
 {
-  if(!current_node_.isValid())
+  if( pastTheEnd() )
     return start_node_;
 
   return current_node_;
@@ -483,16 +489,16 @@ WAbstractItemModel::column_iterator::reference WAbstractItemModel::column_iterat
 
 WAbstractItemModel::column_iterator::pointer WAbstractItemModel::column_iterator::operator->() const
 {
-  if(!current_node_.isValid())
-      return nullptr;
+  if( pastTheEnd() )
+    return nullptr;
 
   return &current_node_;
 }
 
 bool WAbstractItemModel::column_iterator::operator==(const WAbstractItemModel::column_iterator &other) const
 {
-  return (model_ == other.model_) &&
-         (current_node_ == other.current_node_);
+  // An equality is considered true when both indexes are equal
+  return current_node_ == other.current_node_;
 }
 
 bool WAbstractItemModel::column_iterator::operator!=(const WAbstractItemModel::column_iterator &other) const
@@ -502,6 +508,11 @@ bool WAbstractItemModel::column_iterator::operator!=(const WAbstractItemModel::c
 
 WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::begin()
 {
+  /*
+   * Reset the iterator to point to the first node
+   *
+   * Begin condition is when all the members are equal to the start_node_
+   */
   current_node_ = start_node_;
   last_node_    = start_node_;
   model_        = start_node_.model();
@@ -510,10 +521,22 @@ WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::begin(
 
 WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::end()
 {
+  /*
+   * Set to past the end condition
+   *
+   * Past the end condition is when every member is zeroed, except
+   * the start_node_
+   */
   last_node_    = value_type();
   current_node_ = value_type();
   model_        = nullptr;
   return *this;
+}
+
+bool WAbstractItemModel::column_iterator::pastTheEnd() const
+{
+  auto empty_node = value_type();
+  return (last_node_ == empty_node) && (last_node_ == empty_node) && !model_;
 }
 
 }
