@@ -947,7 +947,7 @@ class WAbstractItemModel::column_iterator
     value_type start_node_;
     value_type lead_node_;
     value_type follow_node_;
-    const int column_;
+    int column_;
 };
 
 }
