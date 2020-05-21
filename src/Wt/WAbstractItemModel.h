@@ -945,8 +945,8 @@ class WAbstractItemModel::column_iterator
   private:
     const WAbstractItemModel *model_;
     value_type start_node_;
-    value_type current_node_;
-    value_type last_node_;
+    value_type lead_node_;
+    value_type follow_node_;
     const int column_;
 };
 
