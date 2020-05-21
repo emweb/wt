@@ -174,6 +174,8 @@ namespace Wt {
 class WT_API WAbstractItemModel : public WObject
 {
 public:
+  class column_iterator;
+
   /*! \brief Data map.
    *
    * A map of data, indexed by a role.
@@ -902,6 +904,43 @@ private:
 		       const WModelIndex& dIndex);
 
   friend class WAbstractProxyModel;
+};
+
+class WAbstractItemModel::column_iterator
+{
+    public:
+        /// One of the iterator_tags tag types
+        using iterator_category = std::forward_iterator_tag;
+        /// The type "pointed to" by the iterator.
+        using value_type = WModelIndex;
+        /// Distance between iterators is represented as this type.
+        using difference_type = long;
+        /// This type represents a pointer-to-value_type.
+        using pointer = const WModelIndex *;
+        /// This type represents a reference-to-value_type.
+        using reference = const WModelIndex&;
+
+        explicit column_iterator(value_type idx = value_type(), int column = 0);
+        column_iterator(const column_iterator&)  = default;
+        column_iterator &operator=(const column_iterator&) = default;
+        ~column_iterator() = default;
+
+        column_iterator &operator++();
+        column_iterator operator++(int);
+        reference operator*() const;
+        pointer operator->() const;
+        bool operator==(const column_iterator &other) const;
+        bool operator!=(const column_iterator &other) const;
+
+        column_iterator &begin();
+        column_iterator &end();
+
+    private:
+        const WAbstractItemModel *model_;
+        value_type start_node_;
+        value_type current_node_;
+        value_type last_node_;
+        const int column_;
 };
 
 }

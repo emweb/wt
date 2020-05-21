@@ -516,42 +516,6 @@ private:
  */
 typedef std::vector<WModelIndex> WModelIndexList;
 
-class WModelIndex::iterator
-{
-    public:
-        /// One of the iterator_tags tag types
-        using iterator_category = std::forward_iterator_tag;
-        /// The type "pointed to" by the iterator.
-        using value_type = WModelIndex;
-        /// Distance between iterators is represented as this type.
-        using difference_type = long;
-        /// This type represents a pointer-to-value_type.
-        using pointer = const WModelIndex *;
-        /// This type represents a reference-to-value_type.
-        using reference = const WModelIndex&;
-
-        explicit iterator(value_type idx = value_type());
-        iterator(const iterator&)  = default;
-        iterator &operator=(const iterator&) = default;
-        ~iterator() = default;
-
-        iterator &operator++();
-        iterator operator++(int);
-        reference operator*() const;
-        pointer operator->() const;
-        bool operator==(const iterator &other) const;
-        bool operator!=(const iterator &other) const;
-
-        iterator &begin();
-        iterator &end();
-
-    private:
-        const WAbstractItemModel *model_;
-        value_type start_node_;
-        value_type current_node_;
-        value_type last_node_;
-};
-
 }
 
 #ifndef WT_TARGET_JAVA
