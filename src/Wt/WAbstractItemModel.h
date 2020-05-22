@@ -918,17 +918,17 @@ class WAbstractItemModel::column_iterator
     /// This type represents a pointer-to-value_type.
     using pointer = const WModelIndex *;
     /// This type represents a reference-to-value_type.
-    using reference = const WModelIndex&;
+    using reference = const WModelIndex &;
 
-    explicit column_iterator(value_type idx = value_type(), int column = 0);
-    column_iterator(const column_iterator&)  = default;
-    column_iterator &operator=(const column_iterator&) = default;
+    explicit column_iterator(value_type idx = value_type());
+    column_iterator(const column_iterator &) = default;
+    column_iterator &operator=(const column_iterator &) = default;
     ~column_iterator() = default;
 
     /*!
-    * \brief operator ++ Increment the iterator the next unvisited node
-    * \return Reference to itself
-    */
+     * \brief operator ++ Increment the iterator the next unvisited node
+     * \return Reference to itself
+     */
     column_iterator &operator++();
     column_iterator operator++(int);
     reference operator*() const;
@@ -940,7 +940,7 @@ class WAbstractItemModel::column_iterator
     column_iterator &end();
 
   private:
-    bool pastTheEnd() const;
+    inline bool pastTheEnd() const;
 
   private:
     const WAbstractItemModel *model_;

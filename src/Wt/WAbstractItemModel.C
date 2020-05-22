@@ -405,127 +405,120 @@ WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
   return result;
 }
 
-WAbstractItemModel::column_iterator::column_iterator(value_type idx, int column) : start_node_(idx), column_(column)
+WAbstractItemModel::column_iterator::column_iterator(value_type idx) : start_node_(idx)
 {
   begin();
+
+  model_  = start_node_.model();
+  column_ = start_node_.column();
 }
 
 WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::operator++()
 {
-    /*
-     * Algorithm description
-     *
-     * The algorithm traverses the tree structure of a selected index.
-     * The column used for traversing is set in the constructor.
-     *
-     * With each increment, the iterator points to the next unvisited node
-     * in the tree. For it's navigation around the tree structure, the algorithm uses
-     * two variables: lead_node_ and follow_node_. The lead node is the current node at
-     * which the itterator is pointing at. The follow node as the name suggest, allways
-     * lag behing one step.
-     * The initial condition is when the lead and the
-     * follow node are equal, which are both set to the start node in the constructor.
-     *
-     *     DO {
-     * (1)   IF(following node is above(one level up) lead node or the initial condition is met)
-     *       {
-     *         IF(lead node has children)
-     *         {
-     *           Go forward. Follow node is set to the lead node and lead node
-     *           is set to it's first child. This will go on until a leaf is
-     *           reached.
-     *           This condition is also a sign that the node has not been
-     *           visited before, so mark it as unvisited. This will break the while
-     *           cycle and the itterator will point at the lead node.
-     *         }
-     *         ELSE(lead node is a leaf)
-     *         {
-     *           Go backwards. Set the lead node one level up and the follow node one
-     *           level below, by switching them. The next iteration will fall in (2)
-     *         }
-     *       }
-     * (2)   ELSE IF(follow node is below(one level down) lead node)
-     *       {
-     *         IF(lead node has more unvisited children)
-     *         {
-     *           Lead node is set to the next child and the follow node is set to
-     *           the parent of that child. This condition is
-     *           also a sign that the node has not been visited before, so mark it as
-     *           unvisited. This will break the while cycle and the itterator will
-     *           point at the lead node. Next iteration will fall in (1)
-     *         }
-     *         ELSE(the lead node has no more children to visit)
-     *         {
-     *           There is notihng more to traverse here. The only way is backwards.
-     *
-     *           IF(start node has not been reached)
-     *           {
-     *             We can go backward one step. Set the lead node one level up and
-     *             the follow node one level below it. Next iteration will fall in (2)
-     *           }
-     *           ELSE(reached the start node)
-     *           {
-     *             Do not traverse beyond the start node. Set the iterator past the end
-     *             and return from the method
-     *           }
-     *         }
-     *       }
-     *     }
-     *     while(until a unvisited node is reached)
-     */
+  /*
+   * Algorithm description
+   *
+   * The algorithm traverses the tree structure of a selected index.
+   * The column used for traversing is set in the constructor.
+   *
+   * With each increment, the iterator points to the next unvisited node
+   * in the tree. For it's navigation around the tree structure, the algorithm uses
+   * two variables: lead_node_ and follow_node_. The lead node is the current node at
+   * which the itterator is pointing at. The follow node as the name suggest, allways
+   * lag behing one step.
+   * The initial condition is when the lead and the
+   * follow node are equal, which are both set to the start node in the constructor.
+   *
+   *     DO {
+   * (1)   IF(following node is above(one level up) lead node or the initial condition is met)
+   *       {
+   *         IF(lead node has children)
+   *         {
+   *           Go forward. Follow node is set to the lead node and lead node
+   *           is set to it's first child. This will go on until a leaf is
+   *           reached.
+   *           This condition is also a sign that the node has not been
+   *           visited before, so mark it as unvisited. This will break the while
+   *           cycle and the itterator will point at the lead node.
+   *         }
+   *         ELSE(lead node is a leaf)
+   *         {
+   *           Go backwards. Set the lead node one level up and the follow node one
+   *           level below, by switching them. The next iteration will fall in (2)
+   *         }
+   *       }
+   * (2)   ELSE IF(follow node is below(one level down) lead node)
+   *       {
+   *         IF(lead node has more unvisited children)
+   *         {
+   *           Lead node is set to the next child and the follow node is set to
+   *           the parent of that child. This condition is
+   *           also a sign that the node has not been visited before, so mark it as
+   *           unvisited. This will break the while cycle and the itterator will
+   *           point at the lead node. Next iteration will fall in (1)
+   *         }
+   *         ELSE(the lead node has no more children to visit)
+   *         {
+   *           There is notihng more to traverse here. The only way is backwards.
+   *
+   *           IF(start node has not been reached)
+   *           {
+   *             We can go backward one step. Set the lead node one level up and
+   *             the follow node one level below it. Next iteration will fall in (2)
+   *           }
+   *           ELSE(reached the start node)
+   *           {
+   *             Do not traverse beyond the start node. Set the iterator past the end
+   *             and return from the method
+   *           }
+   *         }
+   *       }
+   *     }
+   *     while(until a unvisited node is reached)
+   */
 
-  if( pastTheEnd() )
-    return  *this;
+  if (pastTheEnd())
+    return *this;
 
   // If starting from a leaf node, set the past the end condition
-  if( lead_node_ == follow_node_ && model_->rowCount(lead_node_) == 0 )
+  if (model_->rowCount(start_node_) == 0)
     return end();
-
-  /*
-   * A flag indicating that the node is visited for the first time
-   * There are two situations when the node is considered as unvisited:
-   * 1. When the iterator is going to the first child of the lead node
-   * 2. When the iterator is going to the next child of the lead node
-   */
-  bool visited = true;
 
   // Traverse until a unvisited node is reached or past the end condition is met
   do {
     // Forward direction
-    if ( model_->parent(lead_node_) == follow_node_ || lead_node_ == follow_node_ /* <-- Initial condition */) {
+    if (model_->parent(lead_node_) == follow_node_ || lead_node_ == follow_node_ /* <-- Initial condition */) {
       // Node is not a leaf. Go forward to the first child
-      if ( model_->rowCount(lead_node_) ) {
+      if (auto child = model_->index(0, column_, lead_node_); child.isValid()) {
         follow_node_ = lead_node_;
-        lead_node_   = model_->index(0, column_, lead_node_);  // lead_node_ becomes it's first child
-        visited      = false;
+        lead_node_   = child;  // lead_node_ becomes it's first child
+        break;  // This node has not been visited before, thus stop the iterator
       }
+
       // Reached a leaf. Go in backward direction one level up
-      else
-        std::swap(lead_node_, follow_node_);
+      std::swap(lead_node_, follow_node_);
     }
     // Backward direction
-    else if ( model_->parent(follow_node_) == lead_node_ ) {
+    else if (model_->parent(follow_node_) == lead_node_) {
       // Has more unvisited children. Go to next child
-      if ( follow_node_.row() + 1 < model_->rowCount(lead_node_) ) {
-        lead_node_   = model_->index(follow_node_.row() + 1, column_, lead_node_);  // lead_node_ becomes the next child
-        follow_node_ = model_->parent(follow_node_);
-        visited      = false;
+      if (auto child = model_->index(follow_node_.row() + 1, column_, lead_node_); child.isValid()) {
+        follow_node_ = lead_node_;
+        lead_node_   = child;  // lead_node_ becomes the next child
+        break;  // This node has not been visited before, thus stop the iterator
       }
-      // Doesn't have more children. Go in backward direction one level up
-      else {
-        // When lead_node_ != start_node_ , can still go backward
-        if ( lead_node_ != start_node_ ) {
-          follow_node_ = lead_node_;
-          lead_node_   = model_->parent(lead_node_);
-        }
-        // End of traversal. Can not go backward. Set past the end condition
-        else
-          return end();
-      }
-    }
 
-  // The traversing will stop when a unvisited node is reached
-  } while ( visited );
+      // Doesn't have more children. Go in backward direction one level up
+      // When lead_node_ != start_node_ , can still go backward
+      if (lead_node_ != start_node_) {
+        follow_node_ = lead_node_;
+        lead_node_   = model_->parent(lead_node_);
+      }
+      // End of traversal. Can not go backward. Set past the end condition
+      else
+        return end();
+    }
+    // The traversing will stop when a unvisited node is reached
+  } while (true);
 
   return *this;
 }
@@ -539,7 +532,7 @@ WAbstractItemModel::column_iterator WAbstractItemModel::column_iterator::operato
 
 WAbstractItemModel::column_iterator::reference WAbstractItemModel::column_iterator::operator*() const
 {
-  if( pastTheEnd() )
+  if (pastTheEnd())
     return start_node_;
 
   return lead_node_;
@@ -547,19 +540,19 @@ WAbstractItemModel::column_iterator::reference WAbstractItemModel::column_iterat
 
 WAbstractItemModel::column_iterator::pointer WAbstractItemModel::column_iterator::operator->() const
 {
-  if( pastTheEnd() )
+  if (pastTheEnd())
     return nullptr;
 
   return &lead_node_;
 }
 
-bool WAbstractItemModel::column_iterator::operator==(const WAbstractItemModel::column_iterator &other) const
+bool WAbstractItemModel::column_iterator::operator==(const column_iterator &other) const
 {
   // An equality is considered true when both indexes are equal
   return lead_node_ == other.lead_node_;
 }
 
-bool WAbstractItemModel::column_iterator::operator!=(const WAbstractItemModel::column_iterator &other) const
+bool WAbstractItemModel::column_iterator::operator!=(const column_iterator &other) const
 {
   return !(*this == other);
 }
@@ -573,7 +566,6 @@ WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::begin(
    */
   lead_node_   = start_node_;
   follow_node_ = start_node_;
-  model_       = start_node_.model();
   return *this;
 }
 
@@ -587,14 +579,12 @@ WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::end()
    */
   follow_node_ = value_type();
   lead_node_   = value_type();
-  model_       = nullptr;
   return *this;
 }
 
 bool WAbstractItemModel::column_iterator::pastTheEnd() const
 {
-  auto empty_node = value_type();
-  return (follow_node_ == empty_node) && (follow_node_ == empty_node) && !model_;
+  return lead_node_ == value_type();
 }
 
 }
