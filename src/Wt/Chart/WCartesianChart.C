@@ -2841,7 +2841,9 @@ void WCartesianChart::setZoomAndPan()
     yAxes_[i]->transformHandle.setValue(yTransforms[i]);
   }
 
-  axis(XAxis).zoomRangeDirty_ = false;
+  for (int i = 0; i < xAxisCount(); ++i) {
+    xAxis(i).zoomRangeDirty_ = false;
+  }
   for (int i = 0; i < yAxisCount(); ++i) {
     yAxis(i).zoomRangeDirty_ = false;
   }
