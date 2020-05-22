@@ -427,7 +427,7 @@ WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::operat
      * follow node are equal, which are both set to the start node in the constructor.
      *
      *     DO {
-     * (1)   IF(following node is one level up than lead node or the initial condition is met)
+     * (1)   IF(following node is above(one level up) lead node or the initial condition is met)
      *       {
      *         IF(lead node has children)
      *         {
@@ -444,12 +444,12 @@ WAbstractItemModel::column_iterator &WAbstractItemModel::column_iterator::operat
      *           level below, by switching them. The next iteration will fall in (2)
      *         }
      *       }
-     * (2)   ELSE IF(follow node is one level down than lead node)
+     * (2)   ELSE IF(follow node is below(one level down) lead node)
      *       {
      *         IF(lead node has more unvisited children)
      *         {
      *           Lead node is set to the next child and the follow node is set to
-     *           the parent of that child(which is one level up). This condition is
+     *           the parent of that child. This condition is
      *           also a sign that the node has not been visited before, so mark it as
      *           unvisited. This will break the while cycle and the itterator will
      *           point at the lead node. Next iteration will fall in (1)
