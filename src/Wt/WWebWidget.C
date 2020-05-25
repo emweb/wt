@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -51,7 +51,8 @@ std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 const char *WWebWidget::FOCUS_SIGNAL = "focus";
 const char *WWebWidget::BLUR_SIGNAL = "blur";
-const int WWebWidget::DEFAULT_BASE_Z_INDEX = 100;
+const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1100;
+const int WWebWidget::Z_INDEX_INCREMENT = 1100;
 
 #ifndef WT_TARGET_JAVA
 const std::bitset<36> WWebWidget::AllChangeFlags = std::bitset<36>()
@@ -381,8 +382,7 @@ void WWebWidget::removeChild(WWidget *child)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(child->webWidget(), true);
 
-  if (otherImpl_)
-    otherImpl_->childrenChanged_.emit();
+  emitChildrenChanged();
 }
 
 Signal<>& WWebWidget::childrenChanged()
@@ -718,7 +718,7 @@ void WWebWidget::calcZIndex()
         maxZ = std::max(maxZ, wi->zIndex());
     }
 
-    layoutImpl_->zIndex_ = std::max(baseZIndex(), maxZ + 100);
+    layoutImpl_->zIndex_ = std::max(baseZIndex(), maxZ + Z_INDEX_INCREMENT);
   }
 }
 
@@ -1244,8 +1244,7 @@ void WWebWidget::childAdded(WWidget *child)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, false);
 
-  if (otherImpl_)
-    otherImpl_->childrenChanged_.emit();
+  emitChildrenChanged();
 }
 
 const std::vector<WWidget *>& WWebWidget::children() const
@@ -1319,7 +1318,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  && flags_.test(BIT_HIDDEN_CHANGED))
       || all) {
     if (flags_.test(BIT_HIDE_WITH_VISIBILITY) || !flags_.test(BIT_HIDDEN)) {
-      if (element.isDefaultInline() != flags_.test(BIT_INLINE)) {
+      const bool defaultInline = element.type() == DomElement_OTHER ? DomElement::isDefaultInline(domElementType()) : element.isDefaultInline();
+      if (defaultInline != flags_.test(BIT_INLINE)) {
 	if (flags_.test(BIT_INLINE)) {
 	  if (element.type() == DomElement_TABLE)
 	    element.setProperty(PropertyStyleDisplay, "inline-table");
@@ -1337,7 +1337,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  element.setProperty(PropertyStyleDisplay, "block");
 	}
       } else if (!all && flags_.test(BIT_HIDDEN_CHANGED)) {
-	if (element.isDefaultInline() == flags_.test(BIT_INLINE))
+        if (defaultInline == flags_.test(BIT_INLINE))
 	  element.setProperty(PropertyStyleDisplay, "");
 	else
 	  element.setProperty(PropertyStyleDisplay,
@@ -1577,7 +1577,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
             && app->environment().ajax()) {
           LOAD_JAVASCRIPT(app, "js/ToolTip.js", "toolTip", wtjs10);
 
-	  WString tooltipText = *lookImpl_->toolTip_;
+	  WString tooltipText(lookImpl_->toolTip_->toUTF8()); // UTF8 Guarantees copy for JWt
           if (lookImpl_->toolTipTextFormat_ == PlainText) {
             tooltipText = escapeText(*lookImpl_->toolTip_);
           } else if (lookImpl_->toolTipTextFormat_ == XHTMLText) {
@@ -2725,6 +2725,13 @@ void WWebWidget::setBaseZIndex(int zIndex)
     layoutImpl_ = new LayoutImpl();
 
   layoutImpl_->baseZIndex_ = zIndex;
+}
+
+void WWebWidget::emitChildrenChanged()
+{
+  if (!flags_.test(BIT_BEING_DELETED) && otherImpl_) {
+    otherImpl_->childrenChanged_.emit();
+  }
 }
 
 }

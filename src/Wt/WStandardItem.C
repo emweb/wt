@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -59,10 +59,10 @@ namespace {
 	if (item2)
           result = item1->compare(*item2);
 	else
-	  result = -UNSPECIFIED_RESULT;
+	  result = 1;
       else
 	if (item2)
-	  result = UNSPECIFIED_RESULT;
+	  result = -1;
 	else
 	  result = 0;
 

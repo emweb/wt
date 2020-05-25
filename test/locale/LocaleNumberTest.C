@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( formatGrouping )
 
   s = l.toString(d * 1E30);
 
-#ifdef WT_WIN32
+#if defined(WT_WIN32) && !defined(__GNUC__)
   BOOST_REQUIRE(s == "1.23456782345e+037");
 #else
   BOOST_REQUIRE(s == "1.23456782345e+37");
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( formatGrouping )
 
   s = l.toString(d * -1E30);
 
-#ifdef WT_WIN32
+#if defined(WT_WIN32) && !defined(__GNUC__)
   BOOST_REQUIRE(s == "-1.23456782345e+037");
 #else
   BOOST_REQUIRE(s == "-1.23456782345e+37");
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( formatNegGrouping )
 
   s = l.toString(d * 1E30);
 
-#ifdef WT_WIN32
+#if defined(WT_WIN32) && !defined(__GNUC__)
   BOOST_REQUIRE(s == "-1.23456782345e+037");
 #else
   BOOST_REQUIRE(s == "-1.23456782345e+37");
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( formatNegGrouping )
 
   s = l.toString(d * -1E30);
 
-#ifdef WT_WIN32
+#if defined(WT_WIN32) && !defined(__GNUC__)
   BOOST_REQUIRE(s == "1.23456782345e+037");
 #else
   BOOST_REQUIRE(s == "1.23456782345e+37");

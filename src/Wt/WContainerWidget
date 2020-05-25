@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -125,7 +125,8 @@ class StdLayoutImpl;
 class WT_API WContainerWidget : public WInteractWidget
 {
 public:
-  /*! \brief How to handle overflow of inner content
+  /*! \enum Overflow
+   *  \brief How to handle overflow of inner content
    */
   enum Overflow {
     OverflowVisible=0x0,//!< Show content that overflows.
@@ -351,7 +352,8 @@ public:
 
   /*! \brief return the number of pixels the container is scrolled horizontally
    *
-   *  This value is only set if setOverflow() has been called 
+   * This value is only set if setOverflow() has been called 
+   *
    * \sa setOverflow()
    * \sa scrollLeft();
    */
@@ -359,7 +361,8 @@ public:
 
   /*! \brief return the number of pixels the container is scrolled vertically
    *
-   *  This value is only set if setOverflow() has been called 
+   * This value is only set if setOverflow() has been called 
+   *
    * \sa setOverflow()
    * \sa scrollTop();
    */

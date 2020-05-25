@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -165,6 +165,10 @@ bool RequestHandler::url_decode(const buffer_string& in, std::string& path,
     d = in.data;
     len = in.len;
   }
+
+  // Only allow origin form and asterisk form (RFC 7230 5.3.1 and 5.3.4)
+  if (len > 0 && d[0] != '/' && !(len == 1 && d[0] == '*'))
+    return false;
 
   path.reserve(len);
 

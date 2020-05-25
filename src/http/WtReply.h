@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -47,7 +47,7 @@ public:
 			   Buffer::const_iterator end,
 			   Request::State state);
 
-  virtual void consumeWebSocketMessage(ws_opcode opcode,
+  virtual bool consumeWebSocketMessage(ws_opcode opcode,
 				       const char* begin,
 				       const char* end,
 				       Request::State state);

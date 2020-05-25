@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -20,27 +20,22 @@
 #include "Server.h"
 
 #include <time.h>
+#include <cassert>
 #include <string>
 #include <boost/lexical_cast.hpp>
 
-#ifdef WT_WIN32
-#ifndef __MINGW32__
-// gmtime_r can be defined by mingw
-#ifndef gmtime_r
-static struct tm* gmtime_r(const time_t* t, struct tm* r)
+namespace {
+
+inline struct tm* my_gmtime_r(const time_t* t, struct tm* r)
 {
-  // gmtime is threadsafe in windows because it uses TLS
-  struct tm *theTm = gmtime(t);
-  if (theTm) {
-    *r = *theTm;
-    return r;
-  } else {
-    return 0;
-  }
+#ifdef WT_WIN32
+  return gmtime_s(r, t) ? 0 : r;
+#else // !WT_WIN32
+  return gmtime_r(t, r);
+#endif // WT_WIN32
 }
-#endif // gmtime_r
-#endif
-#endif
+
+}
 
 namespace Wt {
   LOGGER("wthttp");
@@ -69,7 +64,7 @@ inline asio::const_buffer asio_cstring_buf(const char (&s) [N])
 void httpDateBuf(time_t t, Wt::WStringStream& buf)
 {
   struct tm td;
-  gmtime_r(&t, &td);
+  my_gmtime_r(&t, &td);
 
   static const char dayOfWeekStr[7][4]
     = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
@@ -228,12 +223,14 @@ void Reply::setStatus(status_type status)
   status_ = status;
 }
 
-void Reply::consumeWebSocketMessage(ws_opcode opcode,
+bool Reply::consumeWebSocketMessage(ws_opcode opcode,
 				    const char* begin,
 				    const char* end,
 				    Request::State state)
 {
   LOG_ERROR("Reply::consumeWebSocketMessage() is pure virtual");
+  assert(false);
+  return false;
 }
 
 std::string Reply::location()

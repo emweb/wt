@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -11,9 +11,10 @@
 #include <boost/filesystem/exception.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
-#include <time.h>
 
+#include <Wt/WDateTime>
 #include <Wt/WIconPair>
+#include <Wt/WLocalDateTime>
 #include <Wt/WStringUtil>
 #include <Wt/WText>
 
@@ -42,17 +43,11 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
       setSelectable(false);
 
     std::time_t t = boost::filesystem::last_write_time(path);
-    struct tm ttm;
-#if WIN32
-    ttm=*localtime(&t);
-#else
-    localtime_r(&t, &ttm);
-#endif
+    Wt::WDateTime dateTime = Wt::WDateTime::fromTime_t(t);
+    Wt::WLocalDateTime localDateTime = dateTime.toLocalTime();
+    Wt::WString dateTimeStr = localDateTime.toString(Wt::utf8("MMM dd yyyy"));
 
-    char c[100];
-    strftime(c, 100, "%b %d %Y", &ttm);
-
-    setColumnWidget(2, new WText(c));
+    setColumnWidget(2, new WText(dateTimeStr));
     columnWidget(2)->setStyleClass("date");
   }
 }

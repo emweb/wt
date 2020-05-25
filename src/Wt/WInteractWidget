@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -384,6 +384,7 @@ private:
   static const char *GESTURE_START_SIGNAL;
   static const char *GESTURE_CHANGE_SIGNAL;
   static const char *GESTURE_END_SIGNAL;
+  static const char *DRAGSTART_SIGNAL;
 
   friend class DomElement;
   friend class WAbstractToggleButton;

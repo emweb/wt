@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -13,6 +13,17 @@
 #include "Wt/WScrollArea"
 #include "Wt/WVirtualImage"
 #include "WebUtils.h"
+
+#include <algorithm>
+
+namespace {
+
+inline ::int64_t clamp(::int64_t v, ::int64_t min, ::int64_t max)
+{
+  return std::max(min, std::min(v, max));
+}
+
+}
 
 namespace Wt {
 
@@ -126,11 +137,9 @@ void WVirtualImage::internalScrollTo(::int64_t newX, ::int64_t newY,
 				     bool moveViewPort)
 {
   if (imageWidth_ != Infinite)
-    newX = std::min(imageWidth_ - viewPortWidth_,
-		    std::max((::int64_t)0, newX));
+    newX = clamp(newX, 0, imageWidth_ - viewPortWidth_);
   if (imageHeight_ != Infinite)
-    newY = std::min(imageHeight_ - viewPortHeight_,
-		    std::max((::int64_t)0, newY));
+    newY = clamp(newY, 0, imageHeight_ - viewPortHeight_);
 
   if (moveViewPort) {
     contents_->setOffsets((double)-newX, Left);
@@ -187,17 +196,19 @@ void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)
 	    brx = std::min(brx, imageWidth_);
 	    bry = std::min(bry, imageHeight_);
 
-	    WImage *img = createImage(i * gridImageSize_, j * gridImageSize_,
-				      (int)(brx - i * gridImageSize_),
-				      (int)(bry - j * gridImageSize_));
+            const int width = static_cast<int>(brx - i * gridImageSize_);
+            const int height = static_cast<int>(bry - j * gridImageSize_);
+            if (width > 0 && height > 0) {
+	      WImage *img = createImage(i * gridImageSize_, j * gridImageSize_, width, height);
 
-	    img->setAttributeValue("onmousedown", "return false;");
-	    contents_->addWidget(img);
-	    img->setPositionScheme(Absolute);
-	    img->setOffsets((double)i * gridImageSize_, Left);
-	    img->setOffsets((double)j * gridImageSize_, Top);
+	      img->setAttributeValue("onmousedown", "return false;");
+	      contents_->addWidget(img);
+	      img->setPositionScheme(Absolute);
+	      img->setOffsets((double)i * gridImageSize_, Left);
+	      img->setOffsets((double)j * gridImageSize_, Top);
 
-	    grid_[key] = img;
+	      grid_[key] = img;
+            }
 	  }
 	}
       }

@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -52,7 +52,7 @@ extern void WTDBO_API
 substituteFields(const SelectFieldList& list,
 		 const std::vector<FieldInfo>& fs,
 		 std::string& sql,
-		 int offset);
+                 int& offset);
 
 extern void WTDBO_API 
 parseSql(const std::string& sql, SelectFieldLists& fieldLists);

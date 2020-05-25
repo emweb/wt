@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  *
@@ -107,7 +107,7 @@ public:
 
   /** @name Methods that return dialect information
    */
-  //@{
+  //!@{
   virtual std::string autoincrementSql() const;
   virtual std::string autoincrementType() const;
   virtual std::string autoincrementInsertSuffix(const std::string& id) const;
@@ -123,7 +123,7 @@ public:
   virtual bool supportAlterTable() const;
   virtual const char *alterTableConstraintString() const;
   virtual bool requireSubqueryAlias() const {return true;}
-  //@}
+  //!@}
 
   /*! \brief Returns the supported fractional seconds part
   *

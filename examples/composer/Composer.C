@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -16,6 +16,7 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WImage>
 #include <Wt/WLineEdit>
+#include <Wt/WLocalDateTime>
 #include <Wt/WPushButton>
 #include <Wt/WText>
 #include <Wt/WTable>
@@ -361,17 +362,9 @@ void Composer::saved()
   if (attachmentsFailed) {
     setStatus(tr("msg.attachment.failed"), "error");
   } else {
-#ifndef WIN32
-    time_t t = time(0);
-    struct tm td;
-    gmtime_r(&t, &td);
-    char buffer[100];
-    strftime(buffer, 100, "%H:%M", &td);
-#else
-    char buffer[] = "server"; // Should fix this; for now just make sense
-#endif
     setStatus(tr("msg.ok"), "status");
-    statusMsg_->setText(std::string("Draft saved at ") + buffer);
+    WString timeStr = Wt::WLocalDateTime::currentDateTime().toString("HH:mm");
+    statusMsg_->setText(Wt::utf8("Draft saved at {1}").arg(timeStr));
 
     if (sending_) {
       send.emit();

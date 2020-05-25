@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Emweb bvba, Herent, Belgium.
+ * Copyright (C) 2015 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -424,9 +424,42 @@ WT_DECLARE_WT_MEMBER
 		  arc.push(x(s));
 		  break;
 	       case ARC_ANGLE_SWEEP:
-		  arc.push((x(s) * Math.PI)/180.0, (y(s) * Math.PI)/180.0, y(s) > 0);
-		  ctx.arc.apply(ctx, arc);
-		  arc = [];
+                  (function() {
+                    function adjust360(d) {
+                      if (d > 360.0)
+                        return 360.0;
+                      else if (d < -360.0)
+                        return -360.0;
+                      else
+                        return d;
+                    }
+
+                    function adjustPostive360(d) {
+                      var result = d % 360.0;
+                      if (result < 0)
+                        return result + 360.0;
+                      else
+                        return result;
+                    }
+
+                    function deg2rad(d) {
+                      return d * Math.PI / 180.0;
+                    }
+
+                    var startAngle = x(s);
+                    var spanAngle = y(s);
+                    var rStartAngle = deg2rad(adjustPostive360(-startAngle));
+                    var rEndAngle;
+                    if (spanAngle >= 360.0 || spanAngle <= -360.0) {
+                      rEndAngle = rStartAngle - 2.0 * Math.PI * (spanAngle > 0 ? 1.0 : -1.0);
+                    } else {
+                      rEndAngle = deg2rad(adjustPostive360(-startAngle - adjust360(spanAngle)));
+                    }
+                    var anticlockwise = spanAngle > 0;
+		    arc.push(rStartAngle, rEndAngle, anticlockwise);
+		    ctx.arc.apply(ctx, arc);
+		    arc = [];
+                  })();
 		  break;
 	       case QUAD_C:
 		  quad.push(x(s), y(s));
@@ -624,6 +657,23 @@ WT_DECLARE_WT_MEMBER
 	    }
 	    return [x,y,w,h];
 	 };
+
+         this.drawImage = function(ctx,
+                                   image,
+                                   uri,
+                                   src_rect,
+                                   tgt_rect) {
+           try {
+             ctx.drawImage(image, src_rect[0], src_rect[1], src_rect[2], src_rect[3],
+                                  tgt_rect[0], tgt_rect[1], tgt_rect[2], tgt_rect[3]);
+           } catch (e) {
+             var msg = "Error while drawing image: '" + uri + "': " + e.name;
+             if (e.message) {
+               msg += ": " + e.message;
+             }
+             console.error(msg);
+           }
+         };
       }
 
       return new Utils();

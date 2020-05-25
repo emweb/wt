@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2014 Emweb bvba, Herent, Belgium.
+ * Copyright (C) 2014 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -45,6 +45,7 @@ public:
 #ifndef WT_WIN32
   pid_t pid() const { return pid_; }
 #else // WT_WIN32
+  DWORD pid() const { return processInfo_.dwProcessId; }
   PROCESS_INFORMATION& processInfo() { return processInfo_; }
 #endif // WT_WIN32
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -110,9 +110,9 @@ WebRenderer::WebRenderer(WebSession& session)
     initialStyleRendered_(false),
     twoPhaseThreshold_(5000),
     pageId_(0),
+    ackErrs_(0),
     expectedAckId_(0),
     scriptId_(0),
-    ackErrs_(0),
     linkedCssCount_(-1),
     currentStatelessSlotIsActuallyStateless_(true),
     formObjectsChanged_(true),
@@ -193,6 +193,8 @@ std::string WebRenderer::bodyClassRtl() const
 
 void WebRenderer::saveChanges()
 {
+  collectedJS1_ << invisibleJS_.str();
+  invisibleJS_.clear();
   collectJS(&collectedJS1_);
 }
 
@@ -201,7 +203,7 @@ void WebRenderer::discardChanges()
   collectJS(0);
 }
 
-WebRenderer::AckState WebRenderer::ackUpdate(int updateId)
+WebRenderer::AckState WebRenderer::ackUpdate(unsigned int updateId)
 {
   /*
    * If we are using an unreliable transport, then we remember
@@ -223,8 +225,7 @@ WebRenderer::AckState WebRenderer::ackUpdate(int updateId)
     setJSSynced(false);
     ackErrs_ = 0;
     return CorrectAck;
-  } else if ((updateId < expectedAckId_ && expectedAckId_ - updateId < 5)
-	     || (expectedAckId_ - 5 < updateId)) {
+  } else if (expectedAckId_ - updateId < 5) {
     ++ackErrs_;
     return ackErrs_ < 3 ? ReasonableAck : BadAck; // That's still acceptible but no longer plausible
   } else
@@ -1122,8 +1123,6 @@ void WebRenderer::serveMainscript(WebResponse& response)
     currentFormObjectsList_.clear();
     collectJavaScript();
     updateLoadIndicator(collectedJS1_, app, true);
-
-    clearStubbedWidgets();
 
     LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
@@ -2067,27 +2066,6 @@ std::string WebRenderer::headDeclarations() const
 void WebRenderer::addWsRequestId(int wsRqId)
 {
   wsRequestsToHandle_.push_back(wsRqId);
-}
-
-void WebRenderer::markAsStubbed(const WWidget *widget)
-{
-  stubbedWidgets_.push_back(widget);
-}
-
-bool WebRenderer::wasStubbed(const WObject *widget) const
-{
-  for (std::size_t i = 0; i < stubbedWidgets_.size(); ++i) {
-    if (stubbedWidgets_[i] == widget)
-      return true;
-  }
-  return false;
-}
-
-void WebRenderer::clearStubbedWidgets()
-{
-  if (expectedAckId_ - scriptId_ > 1) {
-    stubbedWidgets_.clear();
-  }
 }
 
 }

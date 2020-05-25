@@ -1,0 +1,8 @@
+<server>
+  <application-settings location="*">
+    <properties>
+      <property name="leafletJSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.js</property>
+      <property name="leafletCSSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.css</property>
+    </properties>
+  </application-settings>
+</server>

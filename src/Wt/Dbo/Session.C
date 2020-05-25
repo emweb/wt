@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -1042,9 +1042,16 @@ void Session::dropTables()
 {
   initSchema();
 
-  if (connectionPool_)
+  if (transaction_) {
+    flush();
+  }
+
+  if (connectionPool_) {
     connectionPool_->prepareForDropTables();
-  else
+    if (transaction_) {
+      transaction_->connection_->prepareForDropTables();
+    }
+  } else
     connection_->prepareForDropTables();
 
   Transaction t(*this);

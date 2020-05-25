@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -380,6 +380,10 @@ public:
    * most of the backends themselves using prepared statements and
    * parameter binding. Parameter binding is possible for all types
    * for which sql_value_traits is specialized.
+   *
+   * \note PostgreSQL uses a literal question mark ('?') as an operator. To
+   * distinguish between a positional placeholder and a literal '?', use a
+   * double question mark ('??') if you mean a literal '?'.
    *
    * \note The query must be a ASCII-7 string: UTF-8 is not supported by
    * the underlying query parser. To add a non-English string to the query

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -354,8 +354,12 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 			"""var u = $(self).find('canvas, img');"
 			"""if (w >= 0) "
 			""  "u.width(w);"
+                        """else "
+                        ""  "u.width('auto');"
 			"""if (h >= 0) "
 			""  "u.height(h);"
+                        """else "
+                        ""  "u.height('auto');"
 			"}");
   }
 

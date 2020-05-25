@@ -37,9 +37,6 @@
 #define CRYPT_OUTPUT_SIZE		(7 + 22 + 31 + 1)
 #define CRYPT_GENSALT_OUTPUT_SIZE	(7 + 22 + 1)
 
-#if defined(__GLIBC__) && defined(_LIBC)
-#define __SKIP_GNU
-#endif
 #include "ow-crypt.h"
 
 #include "crypt_blowfish.h"
@@ -109,7 +106,7 @@ static char *_crypt_retval_magic(char *retval, const char *setting,
  * hashing algorithms use less than 128 bytes of the data area.
  */
 
-char *__crypt_rn(__const char *key, __const char *setting,
+char *wt_crypt_rn(__const char *key, __const char *setting,
 	void *data, int size)
 {
 	if (setting[0] == '$' && setting[1] == '2')
@@ -126,7 +123,7 @@ char *__crypt_rn(__const char *key, __const char *setting,
 	return NULL;
 }
 
-char *__crypt_ra(__const char *key, __const char *setting,
+char *wt_crypt_ra(__const char *key, __const char *setting,
 	void **data, int *size)
 {
 	if (setting[0] == '$' && setting[1] == '2') {
@@ -148,27 +145,27 @@ char *__crypt_ra(__const char *key, __const char *setting,
 	return __des_crypt_r(key, setting, (struct crypt_data *)*data);
 }
 
-char *__crypt_r(__const char *key, __const char *setting,
+char *wt_crypt_r(__const char *key, __const char *setting,
 	struct crypt_data *data)
 {
 	return _crypt_retval_magic(
-		__crypt_rn(key, setting, data, sizeof(*data)),
+		wt_crypt_rn(key, setting, data, sizeof(*data)),
 		setting, (char *)data, sizeof(*data));
 }
 
-char *__crypt(__const char *key, __const char *setting)
+char *wt_crypt(__const char *key, __const char *setting)
 {
 	return _crypt_retval_magic(
-		__crypt_rn(key, setting, &_ufc_foobar, sizeof(_ufc_foobar)),
+		wt_crypt_rn(key, setting, &_ufc_foobar, sizeof(_ufc_foobar)),
 		setting, (char *)&_ufc_foobar, sizeof(_ufc_foobar));
 }
 #else
-char *crypt_rn(const char *key, const char *setting, void *data, int size)
+char *wt_crypt_rn(const char *key, const char *setting, void *data, int size)
 {
 	return _crypt_blowfish_rn(key, setting, (char *)data, size);
 }
 
-char *crypt_ra(const char *key, const char *setting,
+char *wt_crypt_ra(const char *key, const char *setting,
 	void **data, int *size)
 {
 	if (_crypt_data_alloc(data, size, CRYPT_OUTPUT_SIZE))
@@ -201,7 +198,7 @@ char *crypt(const char *key, const char *setting)
 #endif
 #endif
 
-char *__crypt_gensalt_rn(const char *prefix, unsigned long count,
+char *wt_crypt_gensalt_rn(const char *prefix, unsigned long count,
 	const char *input, int size, char *output, int output_size)
 {
 	char *(*use)(const char *_prefix, unsigned long _count,
@@ -236,13 +233,13 @@ char *__crypt_gensalt_rn(const char *prefix, unsigned long count,
 	return use(prefix, count, input, size, output, output_size);
 }
 
-char *__crypt_gensalt_ra(const char *prefix, unsigned long count,
+char *wt_crypt_gensalt_ra(const char *prefix, unsigned long count,
 	const char *input, int size)
 {
 	char output[CRYPT_GENSALT_OUTPUT_SIZE];
 	char *retval;
 
-	retval = __crypt_gensalt_rn(prefix, count,
+	retval = wt_crypt_gensalt_rn(prefix, count,
 		input, size, output, sizeof(output));
 
 	if (retval) {
@@ -257,29 +254,14 @@ char *__crypt_gensalt_ra(const char *prefix, unsigned long count,
 	return retval;
 }
 
-char *__crypt_gensalt(const char *prefix, unsigned long count,
+char *wt_crypt_gensalt(const char *prefix, unsigned long count,
 	const char *input, int size)
 {
 	static char output[CRYPT_GENSALT_OUTPUT_SIZE];
 
-	return __crypt_gensalt_rn(prefix, count,
+	return wt_crypt_gensalt_rn(prefix, count,
 		input, size, output, sizeof(output));
 }
-
-#if defined(__GLIBC__) && defined(_LIBC)
-weak_alias(__crypt_rn, crypt_rn)
-weak_alias(__crypt_ra, crypt_ra)
-#if 0
-weak_alias(__crypt_r, crypt_r)
-weak_alias(__crypt, crypt)
-#endif
-weak_alias(__crypt_gensalt_rn, crypt_gensalt_rn)
-weak_alias(__crypt_gensalt_ra, crypt_gensalt_ra)
-#if 0
-weak_alias(__crypt_gensalt, crypt_gensalt)
-weak_alias(crypt, fcrypt)
-#endif
-#endif
 
 #ifdef TEST
 static const char *tests[][3] = {

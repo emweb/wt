@@ -50,9 +50,9 @@ IF(CONNECTOR_HTTP)
 # boost asio has a serious bug causing subtle data corruption
 # https://svn.boost.org/trac/boost/ticket/8935
 # https://svn.boost.org/trac/boost/ticket/8933
-  IF (Boost_VERSION EQUAL 105400)
+  IF (Boost_VERSION EQUAL 105400 OR Boost_VERSION STREQUAL "1.54.0")
     MESSAGE(FATAL_ERROR "** boost 1.54 is blacklisted for httpd on Windows (boost ticket #8935)")
-  ENDIF (Boost_VERSION EQUAL 105400)
+  ENDIF()
  ENDIF(WIN32)
 
  IF (HAVE_SSL)
@@ -109,7 +109,6 @@ IF(CONNECTOR_HTTP)
     wthttp
   PROPERTIES
     VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
-    SOVERSION ${WTHTTP_SOVERSION}
     DEBUG_POSTFIX ${DEBUG_LIB_POSTFIX}
   )
 

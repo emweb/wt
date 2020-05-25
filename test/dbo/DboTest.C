@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2009 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -17,6 +17,8 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "DboFixture.h"
+
+#include <algorithm>
 
 //#define SCHEMA "test."
 #define SCHEMA ""
@@ -58,6 +60,35 @@ struct Coordinate {
   }
 };
 
+enum Pet {
+  Cat,
+  Dog,
+  Other
+};
+
+std::string petToString(Pet p) {
+  switch (p) {
+  case Cat:
+    return "cat";
+  case Dog:
+    return "dog";
+  case Other:
+    return "other";
+  }
+  throw std::invalid_argument("Unknown pet type: " + boost::lexical_cast<std::string>(static_cast<int>(p)));
+}
+
+Pet petFromString(const std::string &s) {
+  if (s == "cat")
+    return Cat;
+  else if (s == "dog")
+    return Dog;
+  else if (s == "other")
+    return Other;
+  else
+    throw std::invalid_argument("Unknown pet type: " + s);
+}
+
 std::ostream& operator<< (std::ostream& o, const Coordinate& c)
 {
   return o << "(" << c.x << ", " << c.y << ")";
@@ -73,6 +104,30 @@ namespace Wt {
       field(action, coordinate.x, name + "_x", 1000);
       field(action, coordinate.y, name + "_y", 1000);
     }
+
+    template<>
+    struct sql_value_traits<Pet>
+    {
+      static std::string type(SqlConnection *conn, int size)
+      {
+        return sql_value_traits<std::string>::type(conn, size);
+      }
+
+      static void bind(Pet p, SqlStatement *statement, int column, int size)
+      {
+        statement->bind(column, petToString(p));
+      }
+
+      static bool read(Pet &p, SqlStatement *statement, int column, int size)
+      {
+        std::string s;
+        bool result = statement->getResult(column, &s, size);
+        if (!result)
+          return false;
+        p = petFromString(s);
+        return true;
+      }
+    };
   }
 }
 
@@ -153,10 +208,21 @@ public:
   boost::posix_time::time_duration pduration;
   bool checked;
   int i;
+  Pet pet;
   ::int64_t i64;
   long long ll;
   float f;
   double d;
+
+  A()
+    : checked(false),
+      i(0),
+      pet(Other),
+      i64(0),
+      ll(0),
+      f(0),
+      d(0)
+  { }
 
   bool operator== (const A& other) const {
     if (binary.size() != other.binary.size()){
@@ -185,12 +251,12 @@ public:
             << other.datetime.toString() << std::endl);
     }
     if (wstring  != other.wstring) {
-      DEBUG(std::cerr << "ERROR: wstring = " << wstring << " | "
-            << other.wstring << std::endl);
+      DEBUG(std::cerr << "ERROR: wstring = " << wstring.toUTF8() << " | "
+            << other.wstring.toUTF8() << std::endl);
     }
     if (wstring2  != other.wstring2) {
-      DEBUG(std::cerr << "ERROR: wstring2 = " << wstring2 << " | "
-            << other.wstring2 << std::endl);
+      DEBUG(std::cerr << "ERROR: wstring2 = " << wstring2.toUTF8() << " | "
+            << other.wstring2.toUTF8() << std::endl);
     }
     if (string  != other.string) {
       DEBUG(std::cerr << "ERROR: string = " << string << " | " << other.string
@@ -214,6 +280,9 @@ public:
     }
     if (i != other.i) {
       DEBUG(std::cerr << "ERROR: i = " << i << " | " << other.i << std::endl);
+    }
+    if (pet != other.pet) {
+      DEBUG(std::cerr << "ERROR: pet = " << petToString(pet) << " | " << petToString(other.pet) << std::endl);
     }
     if (i64 != other.i64) {
       DEBUG(std::cerr << "ERROR: i64 = " <<i64  << " | "
@@ -253,6 +322,7 @@ public:
     std::cout << "date = " << date.toString() << " ; " << other.date.toString() << std::endl;
     std::cout << "datetime = " << datetime.toString() << " ; " << other.datetime.toString() << std::endl;
     std::cout << "i = " << i << " ; " << other.i << std::endl;
+    std::cout << "pet = " << petToString(pet) << " ; " << petToString(other.pet) << std::endl;
     std::cout << "i64 = " << i64 << " ; " << other.i64 << std::endl;
     std::cout << "ll = " << ll << " ; " << other.ll << std::endl;
     std::cout << "f = " << f << " ; " << other.f << std::endl;
@@ -272,6 +342,7 @@ public:
       && ptime == other.ptime
       && pduration == pduration
       && i == other.i
+      && pet == other.pet
       && i64 == other.i64
       && ll == other.ll
       && checked == other.checked
@@ -299,6 +370,7 @@ public:
     dbo::field(a, ptime, "ptime");
     dbo::field(a, pduration, "pduration");
     dbo::field(a, i, "i");
+    dbo::field(a, pet, "pet");
     dbo::field(a, i64, "i64");
     dbo::field(a, ll, "ll");
     dbo::field(a, checked, "checked");
@@ -498,6 +570,7 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
     boost::posix_time::seconds(10);
   a1.checked = true;
   a1.i = 42;
+  a1.pet = Cat;
   a1.i64 = 9223372036854775805LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
@@ -590,6 +663,7 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
   a1.string = "There";
   a1.checked = false;
   a1.i = 42;
+  a1.pet = Dog;
   a1.i64 = 9223372036854775804LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
@@ -762,6 +836,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     a1.modify()->wstring = "Hello";
     a1.modify()->string = "There";
     a1.modify()->i = 42;
+    a1.modify()->pet = Cat;
     a1.modify()->i64 = 9223372036854775803LL;
     a1.modify()->ll = 6066005651767220LL;
     a1.modify()->f = (float)42.42;
@@ -1594,6 +1669,7 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
   a1.string = "There";
   a1.checked = false;
   a1.i = 42;
+  a1.pet = Other;
   a1.i64 = 9223372036854775804LL;
   a1.ll = 6066005651767221LL;
   a1.f = (float)42.42;
@@ -2787,5 +2863,158 @@ BOOST_AUTO_TEST_CASE( dbo_test34 )
   {
     dbo::Transaction t(*session_);
     recursiveQuery(*session_);
+  }
+}
+
+namespace {
+  void setupTest35(dbo::Session &session) {
+    dbo::Transaction t(session);
+
+    Wt::Dbo::ptr<A> a1 = session.add(new A());
+    a1.modify()->i = 3;
+
+    Wt::Dbo::ptr<A> a2 = session.add(new A());
+    a2.modify()->i = 4;
+
+    Wt::Dbo::ptr<A> a3 = session.add(new A());
+    a3.modify()->i = 5;
+
+    t.commit();
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test35a )
+{
+  // Test UNION
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  setupTest35(*session_);
+
+  {
+    dbo::Transaction t(*session_);
+
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" = 3 union select a from \"table_a\" a where a.\"i\" = 5");
+
+    BOOST_REQUIRE(as.size() == 2);
+
+    As::iterator it = as.begin();
+    BOOST_REQUIRE((*it)->i == 3);
+    ++it;
+    BOOST_REQUIRE((*it)->i == 5);
+    ++it;
+    BOOST_REQUIRE(it == as.end());
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test35b )
+{
+#if !defined(MYSQL) && !defined(FIREBIRD) // MySQL and Firebird don't do INTERSECT
+  // Test INTERSECT
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  setupTest35(*session_);
+
+  {
+    dbo::Transaction t(*session_);
+
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" > 3 intersect select a from \"table_a\" a where a.\"i\" < 5");
+
+    BOOST_REQUIRE(as.size() == 1);
+
+    As::iterator it = as.begin();
+    BOOST_REQUIRE((*it)->i == 4);
+    ++it;
+    BOOST_REQUIRE(it == as.end());
+  }
+#endif
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test35c )
+{
+#if !defined(MYSQL) && !defined(FIREBIRD) // MySQL and Firebird don't do EXCEPT
+  // Test EXCEPT
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  setupTest35(*session_);
+
+  {
+    dbo::Transaction t(*session_);
+
+    As as = session_->query<Wt::Dbo::ptr<A> >("select a from \"table_a\" a where a.\"i\" >= 3 except select a from \"table_a\" a where a.\"i\" = 4");
+
+    BOOST_REQUIRE(as.size() == 2);
+
+    std::vector<int> results;
+    for (As::iterator it = as.begin();
+         it != as.end(); ++it) {
+      results.push_back((*it)->i);
+    }
+
+    std::sort(results.begin(), results.end());
+
+    BOOST_REQUIRE(results[0] == 3);
+    BOOST_REQUIRE(results[1] == 5);
+  }
+#endif
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test36 )
+{
+  // Test join function
+  DboFixture f;
+  dbo::Session &session = *f.session_;
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::ptr<A> a = session.add(new A());
+    a.modify()->i = 5;
+    dbo::ptr<B> b = session.add(new B());
+    b.modify()->name = "Test";
+    dbo::ptr<B> b2 = session.add(new B());
+    b2.modify()->name = "Test2";
+
+    a.modify()->b = b;
+  }
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::collection<dbo::ptr<A> > results = session.query<dbo::ptr<A> >("select a from \"table_a\" a")
+                                                                     .join("\"table_b\" b on a.\"b_id\" = b.\"id\"")
+                                                                     .where("b.\"name\" = ?")
+                                                                     .bind("Test");
+
+    BOOST_REQUIRE(results.size() == 1);
+
+    dbo::ptr<A> first = *results.begin();
+
+    BOOST_REQUIRE(first);
+
+    BOOST_REQUIRE(first->i == 5);
+  }
+
+  {
+    // This was a bug: AbstractQuery's copy ctor would not copy over the join_ field,
+    // causing an error
+
+    dbo::Transaction t(session);
+    dbo::Query<dbo::ptr<A> > q = session.query<dbo::ptr<A> >("select a from \"table_a\" a")
+                                                            .join("\"table_b\" b on a.\"b_id\" = b.\"id\"");
+
+    q.where("b.\"name\" = ?").bind("Test");
+
+    dbo::collection<dbo::ptr<A> > results = q.resultList();
+
+    BOOST_REQUIRE(results.size() == 1);
+
+    dbo::ptr<A> first = *results.begin();
+
+    BOOST_REQUIRE(first);
+
+    BOOST_REQUIRE(first->i == 5);
   }
 }

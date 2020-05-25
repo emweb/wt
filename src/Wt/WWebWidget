@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -408,6 +408,7 @@ private:
   static const char *BLUR_SIGNAL;
 
   static const int DEFAULT_BASE_Z_INDEX;
+  static const int Z_INDEX_INCREMENT;
 
   std::string elementTagName_;
 
@@ -569,6 +570,8 @@ private:
 
   void jsScrollVisibilityChanged(bool visible);
 
+  void emitChildrenChanged();
+
 protected:
   void setRendered(bool rendered);
 
@@ -603,6 +606,7 @@ protected:
   friend class WFont;
   friend class WGLWidget;
   friend class WInteractWidget;
+  friend class WLeafletMap;
   friend class JSlot;
   friend class WTable;
   friend class WViewWidget;

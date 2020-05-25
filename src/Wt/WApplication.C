@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -1479,6 +1479,11 @@ void WApplication::UpdateLock::release()
   if (createdHandler_) {
     WebSession::Handler::instance()->release();
   }
+}
+
+void WApplication::UpdateLock::close()
+{
+  release();
 }
 
 #endif // WT_TARGET_JAVA

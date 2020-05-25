@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -55,7 +55,8 @@ private:
     Wt::WCheckBox *enabledEdit;
     Wt::WComboBox *typeEdit;
     Wt::WComboBox *markerEdit;
-    Wt::WComboBox *axisEdit;
+    Wt::WComboBox *xAxisEdit;
+    Wt::WComboBox *yAxisEdit;
     Wt::WCheckBox *legendEdit;
     Wt::WCheckBox *shadowEdit;
     Wt::WComboBox *labelsEdit;
@@ -91,15 +92,18 @@ private:
   Wt::WComboBox *legendAlignmentEdit_;
   Wt::WCheckBox *borderEdit_;
 
-  Wt::WStandardItemModel *yAxesModel_, *xScales_, *yScales_;
+  Wt::WStandardItemModel *xAxesModel_, *yAxesModel_, *xScales_, *yScales_;
   Wt::WTable *axisConfig_;
   Wt::WValidator *anyNumberValidator_, *angleValidator_;
 
   void connectSignals(Wt::WFormWidget *w);
   void update();
+  void addXAxis();
   void addYAxis();
-  void addAxis(Wt::Chart::Axis axis, int yAxis);
+  void addAxis(Wt::Chart::Axis axis, int axisId);
+  void removeXAxis(const Wt::Chart::WAxis *axis);
   void removeYAxis(const Wt::Chart::WAxis *axis);
+  void clearXAxes();
   void clearYAxes();
 
   static bool validate(Wt::WFormWidget *w);

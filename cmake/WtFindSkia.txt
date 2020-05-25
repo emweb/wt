@@ -113,7 +113,7 @@ IF(WIN32)
       optimized ${SKIA_SKGPU_LIB_R}
       debug ${SKIA_SKGPU_LIB_D}
       Usp10.lib
-      Opengl32.lib
+      opengl32.lib
     )
 
     IF(SKIA_OPTS_SSE41_LIB_D AND SKIA_OPTS_SSE41_LIB_R)

@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2009 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -55,8 +55,10 @@ public:
 
   /*! \brief Returns the client file name.
    *
-   * This is the location that was indicated by the browser. Depending on
-   * the browser this is an absolute path or only the file name.
+   * This is the location that was indicated by the browser.
+   *
+   * \note Depending on the browser this is an absolute path
+   *       or only the file name.
    */
   const std::string& clientFileName() const;
 

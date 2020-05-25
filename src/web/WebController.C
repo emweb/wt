@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -682,6 +682,15 @@ void WebController::handleRequest(WebRequest *request)
 	    return;
 	  }
 	}
+
+        if (request->isWebSocketRequest()) {
+          LOG_INFO_S(&server_, "WebSocket request for non-existing session rejected. "
+                               "This is likely because of a browser with an old session "
+                               "trying to reconnect (e.g. when the server was restarted)");
+          request->setStatus(403);
+          request->flush(WebResponse::ResponseDone);
+          return;
+        }
 
 	if (singleSessionId_.empty()) {
 	  do {

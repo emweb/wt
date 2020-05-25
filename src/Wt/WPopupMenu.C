@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -46,7 +46,7 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
 
   app->addGlobalWidget(this);
   // Set high ZIndex so WPopupMenu is above pretty much every dialog by default
-  webWidget()->setBaseZIndex(10000);
+  webWidget()->setBaseZIndex(110000);
   setPopup(true);
 
   hide();

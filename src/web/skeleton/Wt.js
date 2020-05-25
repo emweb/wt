@@ -1,6 +1,6 @@
 
 /**
- * @preserve Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ * @preserve Copyright (C) 2010 Emweb bv, Herent, Belgium.
  *
  * For terms of use, see LICENSE.
  */
@@ -732,58 +732,21 @@ this.filter = function(edit, event, tokens) {
 // Get coordinates of element relative to an ancestor object (or page origin).
 // It computes the location of the left-top corner of the margin-box.
 this.widgetPageCoordinates = function(obj, reference) {
-  var objX = 0, objY = 0, op;
-
-  if (!obj.parentNode)
-    return { x: 0, y: 0 };
-
-  // bug in safari, according to W3C, offsetParent for an area element should
-  // be the map element, but safari returns null.
-  if (WT.hasTag(obj, "AREA"))
-    obj = obj.parentNode.nextSibling; // img after map
-
-  var rtl = $(document.body).hasClass('Wt-rtl');
-
-  while (obj && obj !== reference) {
-    objX += obj.offsetLeft;
-    objY += obj.offsetTop;
-
-    var f = WT.css(obj, 'position');
-    if (f == 'fixed') {
-      objX += document.body.scrollLeft
-	+ document.documentElement.scrollLeft;
-      objY += document.body.scrollTop
-	+ document.documentElement.scrollTop;
-      break;
-    }
-
-    op = obj.offsetParent;
-
-    if (op == null)
-      obj = null;
-    else {
-      do {
-	obj = obj.parentNode;
-	if (WT.hasTag(obj, "DIV")) {
-	  if (rtl && !WT.isGecko) {
-	    if (obj.scrollWidth > obj.parentNode.scrollWidth) {
-	      /*
-	       * This seems to be a bug in every browser out there,
-	       * except for Gecko ?
-	       */
-	      var sl = obj.scrollLeft
-		+ obj.parentNode.scrollWidth - obj.scrollWidth;
-	      objX -= sl;
-	    }
-	  } else
-	    objX -= obj.scrollLeft;
-	  objY -= obj.scrollTop;
-	}
-      } while (obj != null && obj != op);
-    }
+  if (!obj.getBoundingClientRect) {
+    return {x: 0, y: 0};
   }
 
-  return { x: objX, y: objY };
+  var pageXOffset = window.pageXOffset !== undefined ? window.pageXOffset : document.documentElement.scrollLeft;
+  var pageYOffset = window.pageYOffset !== undefined ? window.pageYOffset : document.documentElement.scrollTop;
+
+  var rect = obj.getBoundingClientRect();
+  var refLeft = -pageXOffset, refTop = -pageYOffset;
+  if (reference) {
+    var refRect = reference.getBoundingClientRect();
+    refLeft = refRect.left;
+    refTop = refRect.top;
+  }
+  return {x: rect.left - refLeft, y: rect.top - refTop};
 };
 
 // Get coordinates of (mouse) event relative to a element.
@@ -1837,40 +1800,40 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
    * Reparent the widget in a suitable parent:
    *  an ancestor of w which isn't overflowing
    */
-  if (!w.wtNoReparent && !$(w).hasClass("wt-no-reparent")) {
-    var p, pp = atw, domRoot = $('.Wt-domRoot').get(0);
-    w.parentNode.removeChild(w);
+  var p, pp = atw, domRoot = $('.Wt-domRoot').get(0);
+  w.parentNode.removeChild(w);
   
-    for (p = pp.parentNode; p != domRoot; p = p.parentNode) {
-      if (p.wtResize) {
-	break;
-      }
-
-      // e.g. a layout widget has clientHeight=0 since it's relative
-      // with only absolutely positioned children. We are a bit more liberal
-      // here to catch other simular situations, and 100px seems like space
-      // needed anyway?
-      //
-      // We need to check whether overflowX or overflowY is not visible, because
-      // of an issue on Firefox where clientWidth !== scrollWidth and
-      // clientHeight !== scrollHeight when using the border-collapse CSS property.
-      if (WT.css(p, 'display') != 'inline' &&
-	  p.clientHeight > 100 &&
-	  ((p.scrollHeight > p.clientHeight && getComputedStyle(p).overflowY !== 'visible') ||
-	   (p.scrollWidth > p.clientWidth && getComputedStyle(p).overflowX !== 'visible'))) {
-	break;
-      }
-
-      pp = p;
+  for (p = pp.parentNode; p != domRoot; p = p.parentNode) {
+    if (p.wtReparentBarrier) {
+      break;
     }
 
-    var posP = WT.css(p, 'position');
-    if (posP != 'absolute' && posP != 'relative')
-      p.style.position = 'relative';
-    
-    p.appendChild(w);
-    $(w).addClass('wt-reparented');
+    // e.g. a layout widget has clientHeight=0 since it's relative
+    // with only absolutely positioned children. We are a bit more liberal
+    // here to catch other simular situations, and 100px seems like space
+    // needed anyway?
+    //
+    // We need to check whether overflowX or overflowY is not visible, because
+    // of an issue on Firefox where clientWidth !== scrollWidth and
+    // clientHeight !== scrollHeight when using the border-collapse CSS property.
+    if (WT.css(p, 'display') != 'inline' &&
+        p.clientHeight > 100 &&
+        (getComputedStyle(p).overflowY === 'scroll' ||
+         getComputedStyle(p).overflowX === 'scroll' ||
+         (p.scrollHeight > p.clientHeight && getComputedStyle(p).overflowY === 'auto') ||
+         (p.scrollWidth > p.clientWidth && getComputedStyle(p).overflowX === 'auto'))) {
+      break;
+    }
+
+    pp = p;
   }
+
+  var posP = WT.css(p, 'position');
+  if (posP != 'absolute' && posP != 'relative')
+    p.style.position = 'relative';
+  
+  p.appendChild(w);
+  $(w).addClass('wt-reparented');
 
   WT.fitToWindow(w, x, y, rightx, bottomy);
 
@@ -1943,7 +1906,12 @@ if (html5History) {
   // state anymore at the moment that onPopState() is called.
   // For navigation, when pushState() is called, the scroll
   // history can be updated before the pushState() call.
-  function coalesceEvents(callback, minPeriod) {
+
+  // delayCallback: delay the calling of the callback by delay
+  //
+  // as long as events keep coming in, we delay it further, so
+  // the callback will only run "delay" ms after the last invocation.
+  function delayCallback(callback, delay) {
     var timer = null;
     var args = null;
 
@@ -1957,9 +1925,11 @@ if (html5History) {
     function proxy() {
       args = arguments;
 
-      if (!timer) {
-        timer = setTimeout(dispatch, minPeriod);
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
       }
+      timer = setTimeout(dispatch, delay);
     }
 
     return proxy;
@@ -1983,7 +1953,7 @@ if (html5History) {
       console.log(error.toString());
     }
   }
-  window.addEventListener('scroll', coalesceEvents(updateScrollHistory, 10));
+  window.addEventListener('scroll', delayCallback(updateScrollHistory, 100));
 
   // the 'auto' scrollRestoration gives too much flicker, since it
   // updates the scroll state before the page is updated
@@ -2452,12 +2422,6 @@ var dragState = {
   objectPrevStyle: null,
   xy: null
 };
-
-function initDragDrop() {
-  document.body.ondragstart=function() {
-    return false;
-  };
-}
 
 var touchTimer;
 var touchduration = 1000;
@@ -3073,7 +3037,6 @@ function load(fullapp) {
   $(document).mousedown(WT.mouseDown).mouseup(WT.mouseUp);
 
   WT.history._initialize();
-  initDragDrop();
   initIdleTimeout();
   loaded = true;
 
@@ -4057,6 +4020,29 @@ function refreshMultiSessionCookie() {
   comm.sendUpdate('request=jsupdate&signal=keepAlive&ackId=' + ackUpdateId, false, ackUpdateId, -1);
 }
 
+var googleMapsLoaded = false;
+var googleMapsLoadedCallbacks = [];
+
+function loadGoogleMaps(version, key, callback) {
+  if (googleMapsLoaded) {
+    callback();
+  } else {
+    googleMapsLoadedCallbacks.push(callback);
+    if (googleMapsLoadedCallbacks.length === 1) {
+      google.load("maps", version, {
+        other_params: "key=" + key,
+        callback: function() {
+          googleMapsLoaded = true;
+          for (var i = 0; i < googleMapsLoadedCallbacks.length; ++i) {
+            googleMapsLoadedCallbacks[i]();
+          }
+          googleMapsLoadedCallbacks = [];
+        }
+      });
+    }
+  }
+}
+
 this._p_ = {
   ieAlternative : ieAlternative,
   loadScript : loadScript,
@@ -4097,7 +4083,9 @@ this._p_ = {
   bindGlobal: bindGlobal,
   refreshCookie: refreshMultiSessionCookie,
 
-  propagateSize : propagateSize
+  propagateSize : propagateSize,
+
+  loadGoogleMaps : loadGoogleMaps
 };
 
 this.WT = _$_WT_CLASS_$_;

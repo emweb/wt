@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2010 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTableView",
- function(APP, el, contentsContainer, headerContainer, headerColumnsContainer,
+ function(APP, el, contentsContainer, initialScrollTop, headerContainer, headerColumnsContainer,
       selectedClass) {
    el.wtObj = this;
 
@@ -32,7 +32,8 @@ WT_DECLARE_WT_MEMBER
    }
 
    var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
-   var scrollToPending = false;
+   var scrollToPendingCount = 0;
+   var initialScrollTopSet = initialScrollTop === 0;
 
    /*
     * We need to remember this for when going through a hide()
@@ -40,19 +41,9 @@ WT_DECLARE_WT_MEMBER
     */
    var scrollTop = 0, scrollLeft = 0, currentWidth = 0, currentHeight = 0;
 
-   headerContainer.onscroll = function(obj, event) {
-       contentsContainer.scrollLeft = headerContainer.scrollLeft;
-       self.onContentsContainerScroll();
-   };
-
-   this.onContentsContainerScroll = function() {
-     scrollLeft = headerContainer.scrollLeft
-           = contentsContainer.scrollLeft;
-     scrollTop = headerColumnsContainer.scrollTop
-            = contentsContainer.scrollTop;
-
+   function maybeEmitScrolled() {
      if (contentsContainer.clientWidth && contentsContainer.clientHeight
-         && (!scrollToPending)
+         && (scrollToPendingCount === 0)
          && (contentsContainer.scrollTop < scrollY1
      || contentsContainer.scrollTop > scrollY2
      || contentsContainer.scrollLeft < scrollX1
@@ -63,9 +54,22 @@ WT_DECLARE_WT_MEMBER
         Math.round(contentsContainer.clientWidth),
             Math.round(contentsContainer.clientHeight));
      }
+   }
+
+   this.onContentsContainerScroll = function() {
+     scrollLeft = headerContainer.scrollLeft
+           = contentsContainer.scrollLeft;
+     scrollTop = headerColumnsContainer.scrollTop
+            = contentsContainer.scrollTop;
+     maybeEmitScrolled();
    };
 
    contentsContainer.wtResize = function(o, w, h) {
+     if (!initialScrollTopSet) {
+       o.scrollTop = initialScrollTop;
+       o.onscroll();
+       initialScrollTopSet = true;
+     }
      if ((w - currentWidth) > (scrollX2 - scrollX1)/2 ||
          (h - currentHeight) > (scrollY2 - scrollY1)/2) {
        currentWidth = w; currentHeight = h;
@@ -305,7 +309,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.setScrollToPending = function() {
-     scrollToPending = true;
+     scrollToPendingCount += 1;
    };
 
    this.scrollToPx = function(x, y) {
@@ -315,7 +319,8 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.scrollTo = function(x, y, hint) {
-     scrollToPending = false;
+     if (scrollToPendingCount > 0)
+       scrollToPendingCount -= 1;
      if (y != -1) {
        var top = contentsContainer.scrollTop,
        height = contentsContainer.clientHeight;

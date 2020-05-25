@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -7,9 +7,13 @@
 #include "Wt/WException"
 #include "Wt/WLocale"
 #include "Wt/WLogger"
+
 #include "WebRequest.h"
+#include "WebUtils.h"
 
 #include <cstdlib>
+
+#include <boost/algorithm/string.hpp>
 
 #ifndef WT_NO_SPIRIT
 
@@ -27,6 +31,32 @@
 #endif // WT_NO_SPIRIT
 
 using std::atoi;
+
+namespace {
+
+inline std::string str(const char *s) {
+  return s ? std::string(s) : std::string();
+}
+
+bool isPrivateIP(const std::string &s) {
+  return boost::starts_with(s, "127.") ||
+         boost::starts_with(s, "10.") ||
+         boost::starts_with(s, "192.168.") ||
+         (s.size() >= 7 &&
+          boost::starts_with(s, "172.") &&
+          s[6] == '.' &&
+          ((s[4] == '1' &&
+            s[5] >= '6' &&
+            s[5] <= '9') ||
+           (s[4] == '2' &&
+            s[5] >= '0' &&
+            s[5] <= '9') ||
+           (s[4] == '3' &&
+            s[5] >= '0' &&
+            s[5] <= '1')));
+}
+
+}
 
 namespace Wt {
 
@@ -328,6 +358,48 @@ void WebRequest::emulateAsync(ResponseState state)
 void WebRequest::setResponseType(ResponseType responseType)
 {
   responseType_ = responseType;
+}
+
+std::string WebRequest::clientAddress(const bool behindReverseProxy) const
+{
+  std::string result;
+
+  /*
+   * Determine client address, taking into account proxies
+   */
+  if (behindReverseProxy) {
+    std::string clientIp = str(headerValue("Client-IP"));
+    boost::trim(clientIp);
+
+    std::vector<std::string> ips;
+    if (!clientIp.empty())
+      boost::split(ips, clientIp, boost::is_any_of(","));
+
+    std::string forwardedFor = str(headerValue("X-Forwarded-For"));
+    boost::trim(forwardedFor);
+
+    std::vector<std::string> forwardedIps;
+    if (!forwardedFor.empty())
+      boost::split(forwardedIps, forwardedFor, boost::is_any_of(","));
+
+    Utils::insert(ips, forwardedIps);
+
+    for (unsigned i = 0; i < ips.size(); ++i) {
+      result = ips[i];
+
+      boost::trim(result);
+
+      if (!result.empty()
+          && !isPrivateIP(result)) {
+        break;
+      }
+    }
+  }
+
+  if (result.empty())
+    result = str(envValue("REMOTE_ADDR"));
+
+  return result;
 }
 
 }

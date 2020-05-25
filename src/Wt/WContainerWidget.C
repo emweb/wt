@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -548,7 +548,7 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 	+ ".wtEncodeValue = function() {"
 	+ "return " + this->jsRef() + ".scrollTop"
 	+ " + ';' + " + this->jsRef() + ".scrollLeft;"
-	+ "}");
+	+ "};");
 
     flags_.reset(BIT_OVERFLOW_CHANGED);
 

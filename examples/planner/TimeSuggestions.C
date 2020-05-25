@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2010 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -17,7 +17,7 @@ namespace {
   = { "<b>",         // highlightBeginTag
       "</b>",        // highlightEndTag
       0,             // listSeparator
-      " \\n",        // whitespace
+      " \n",        // whitespace
       "0",           // wordSeparators
       ""             // appendReplacedText
     };

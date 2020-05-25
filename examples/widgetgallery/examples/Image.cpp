@@ -6,7 +6,7 @@
 SAMPLE_BEGIN(Image)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-Wt::WImage *image = new Wt::WImage(Wt::WLink("icons/wt_powered.jpg"),
+Wt::WImage *image = new Wt::WImage(Wt::WLink("icons/wt.png"),
                                    container);
 image->setAlternateText("Wt logo");
 

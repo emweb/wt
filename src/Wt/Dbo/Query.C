@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2010 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -195,7 +195,7 @@ std::string createQueryCountSql(const std::string& query,
 void substituteFields(const SelectFieldList& list,
 		      const std::vector<FieldInfo>& fs,
 		      std::string& sql,
-		      int offset)
+                      int& offset)
 {
   for (unsigned i = 0, j = 0; j < list.size(); ++j) {
     if (fs[i].isFirstDboField()) {
@@ -335,7 +335,8 @@ AbstractQuery::~AbstractQuery()
 { }
 
 AbstractQuery::AbstractQuery(const AbstractQuery& other)
-  : where_(other.where_),
+  : join_(other.join_),
+    where_(other.where_),
     groupBy_(other.groupBy_),
     having_(other.having_),
     orderBy_(other.orderBy_),
@@ -348,6 +349,7 @@ AbstractQuery::AbstractQuery(const AbstractQuery& other)
 
 AbstractQuery& AbstractQuery::operator=(const AbstractQuery& other)
 {
+  join_ = other.join_;
   where_ = other.where_;
   groupBy_ = other.groupBy_;
   having_ = other.having_;

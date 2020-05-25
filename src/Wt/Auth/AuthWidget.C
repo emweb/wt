@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -36,9 +36,10 @@
 #include <memory>
 
 #ifdef WT_CXX11
-#define AUTO_PTR std::unique_ptr
+#define SCOPED_PTR std::unique_ptr
 #else
-#define AUTO_PTR std::auto_ptr
+#include <boost/scoped_ptr.hpp>
+#define SCOPED_PTR boost::scoped_ptr
 #endif
 
 namespace Wt {
@@ -78,6 +79,8 @@ void AuthWidget::init()
   WApplication *app = WApplication::instance();
   app->internalPathChanged().connect(this, &AuthWidget::onPathChange);
   app->theme()->apply(this, this, AuthWidgets);
+
+  login_.changed().connect(this, &AuthWidget::onLoginChange);
 }
 
 void AuthWidget::setModel(AuthModel *model)
@@ -234,8 +237,17 @@ WWidget *AuthWidget::createLostPasswordView()
 
 void AuthWidget::letUpdatePassword(const User& user, bool promptPassword)
 {
-  showDialog(tr("Wt.Auth.updatepassword"),
-	     createUpdatePasswordView(user, promptPassword));
+  WWidget *updatePasswordView = createUpdatePasswordView(user, promptPassword);
+
+  UpdatePasswordWidget *defaultUpdatePasswordWidget =
+      dynamic_cast<UpdatePasswordWidget*>(updatePasswordView);
+
+  showDialog(tr("Wt.Auth.updatepassword"), updatePasswordView);
+
+  if (defaultUpdatePasswordWidget) {
+    defaultUpdatePasswordWidget->updated().connect(this, &AuthWidget::closeDialog);
+    defaultUpdatePasswordWidget->canceled().connect(this, &AuthWidget::closeDialog);
+  }
 }
 
 WWidget *AuthWidget::createUpdatePasswordView(const User& user,
@@ -292,7 +304,6 @@ void AuthWidget::create()
   if (created_)
     return;
 
-  login_.changed().connect(this, &AuthWidget::onLoginChange);
   onLoginChange();
 
   created_ = true;
@@ -300,6 +311,9 @@ void AuthWidget::create()
 
 void AuthWidget::onLoginChange()
 {
+  if (!(isRendered() || created_))
+    return;
+
   clear();
 
   if (login_.loggedIn()) {
@@ -455,7 +469,7 @@ void AuthWidget::oAuthDone(OAuthProcess *oauth, const Identity& identity)
 	       << identity.id() << ", "
 	       << identity.name() << ", " << identity.email());
 
-    AUTO_PTR<AbstractUserDatabase::Transaction>
+    SCOPED_PTR<AbstractUserDatabase::Transaction>
       t(model_->users().startTransaction());
 
     User user = model_->baseAuth()->identifyUser(identity, model_->users());

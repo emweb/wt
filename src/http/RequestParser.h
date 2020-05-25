@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -124,7 +124,6 @@ private:
     http_version_minor,
     expecting_newline_1,
     header_line_start,
-    header_lws,
     header_name,
     space_before_header_value,
     header_value,

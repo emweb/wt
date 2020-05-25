@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -340,7 +340,7 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
   nodeWidget_->bindEmpty("no-expand");
   nodeWidget_->bindEmpty("col0");
 
-  int selfHeight = 0;
+  const int selfHeight = index_ == view_->rootIndex() ? 0 : 1;
   bool needLoad = view_->isExpanded(index_);
 
   if (index_ != view_->rootIndex() && !needLoad)
@@ -359,8 +359,6 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
   if (index_ != view_->rootIndex()) {
     updateGraphics(isLast, !view_->model()->hasChildren(index_));
     insertColumns(0, view_->columnCount());
-
-    selfHeight = 1;
 
     if (view_->selectionBehavior() == SelectRows && view_->isSelected(index_))
       renderSelected(true, 0);
@@ -1043,6 +1041,18 @@ void WTreeView::setup()
   }
 
   setRowHeight(rowHeight());
+
+  bindObjJS(itemClickedJS_, "click");
+  bindObjJS(rootClickedJS_, "rootClick");
+  bindObjJS(itemDoubleClickedJS_, "dblClick");
+  bindObjJS(rootDoubleClickedJS_, "rootDblClick");
+  bindObjJS(itemMouseDownJS_, "mouseDown");
+  bindObjJS(rootMouseDownJS_, "rootMouseDown");
+  bindObjJS(itemMouseUpJS_, "mouseUp");
+  bindObjJS(rootMouseUpJS_, "rootMouseUp");
+  bindObjJS(touchStartedJS_, "touchStart");
+  bindObjJS(touchMovedJS_, "touchMove");
+  bindObjJS(touchEndedJS_, "touchEnd");
 }
 
 void WTreeView::defineJavaScript()
@@ -1527,7 +1537,6 @@ void WTreeView::rerenderTree()
   WContainerWidget *wrapRoot
     = dynamic_cast<WContainerWidget *>(contents_->widget(0));
 
-  bool firstTime = rootNode_ == 0;
   wrapRoot->clear();
 
   firstRenderedRow_ = calcOptimalFirstRenderedRow();
@@ -1538,26 +1547,22 @@ void WTreeView::rerenderTree()
   if (WApplication::instance()->environment().ajax()) {
 
     if (editTriggers() & SingleClicked || clicked().isConnected()) {
-      connectObjJS(rootNode_->clicked(), "click");
-      if (firstTime)
-	connectObjJS(contentsContainer_->clicked(), "rootClick");
+      rootNode_->clicked().connect(itemClickedJS_);
+      contentsContainer_->clicked().connect(rootClickedJS_);
     }
 
     if (editTriggers() & DoubleClicked || doubleClicked().isConnected()) {
-      connectObjJS(rootNode_->doubleClicked(), "dblClick");
-      if (firstTime)
-	connectObjJS(contentsContainer_->doubleClicked(), "rootDblClick");
+      rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
+      contentsContainer_->doubleClicked().connect(rootDoubleClickedJS_);
     }
 
-    connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
-    if (firstTime)
-      connectObjJS(contentsContainer_->mouseWentDown(), "rootMouseDown");
+    rootNode_->mouseWentDown().connect(itemMouseDownJS_);
+    contentsContainer_->mouseWentDown().connect(rootMouseDownJS_);
 
     if (mouseWentUp().isConnected()) { 
 	  // Do not stop propagation to avoid mouseDrag event being emitted 
-      connectObjJS(rootNode_->mouseWentUp(), "mouseUp");
-      if (firstTime)
-	connectObjJS(contentsContainer_->mouseWentUp(), "rootMouseUp");
+      rootNode_->mouseWentUp().connect(itemMouseUpJS_);
+      contentsContainer_->mouseWentUp().connect(rootMouseUpJS_);
     }
 
 #ifdef WT_CNOR
@@ -1566,9 +1571,9 @@ void WTreeView::rerenderTree()
     EventSignalBase& a = rootNode_->touchStarted();
 #endif
    
-    connectObjJS(rootNode_->touchStarted(), "touchStart");
-    connectObjJS(rootNode_->touchMoved(), "touchMove");
-    connectObjJS(rootNode_->touchEnded(), "touchEnd");
+    rootNode_->touchStarted().connect(touchStartedJS_);
+    rootNode_->touchMoved().connect(touchMovedJS_);
+    rootNode_->touchEnded().connect(touchEndedJS_);
   }
 
   setRootNodeStyle();
@@ -2342,8 +2347,11 @@ int WTreeView::getIndexRow(const WModelIndex& child,
 	return result;
     }
 
-    return result + getIndexRow(parent, ancestor,
-				lowerBound - result, upperBound - result);
+    if (parent != ancestor)
+      return result + 1 + getIndexRow(parent, ancestor,
+                                      lowerBound - result, upperBound - result);
+    else
+      return result;
   }
 }
 
@@ -2888,18 +2896,18 @@ int WTreeView::pageSize() const
 
 void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
 {
-  int row = getIndexRow(index, rootIndex(), 0,
-			std::numeric_limits<int>::max()) + 1;
+  const int row = getIndexRow(index, rootIndex(), 0,
+                              std::numeric_limits<int>::max());
 
   WApplication *app = WApplication::instance();
 
   if (app->environment().ajax()) {
     if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
       if (hint == EnsureVisible) {
-	if (viewportTop_ + viewportHeight_ < row)
-	  hint = PositionAtTop;
-	else if (row < viewportTop_)
-	  hint = PositionAtBottom;
+        if (viewportTop_ + viewportHeight_ <= row)
+          hint = PositionAtBottom;
+        else if (row < viewportTop_)
+          hint = PositionAtTop;
       }
 
       switch (hint) {
@@ -2936,6 +2944,19 @@ EventSignal<WScrollEvent>& WTreeView::scrolled(){
 
   throw WException("Scrolled signal existes only with ajax.");
 }
+
+void WTreeView::setId(const std::string &id)
+{
+  WAbstractItemView::setId(id);
+  setup();
+}
+
+void WTreeView::setObjectName(const std::string &objectName)
+{
+  WAbstractItemView::setObjectName(objectName);
+  setup();
+}
+
 }
 
 #endif // DOXYGEN_ONLY

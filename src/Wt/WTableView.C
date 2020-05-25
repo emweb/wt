@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2009 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -771,13 +771,16 @@ void WTableView::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WTableView.js", "WTableView", wtjs1);
 
-  setJavaScriptMember(" WTableView", "new " WT_CLASS ".WTableView("
-		      + app->javaScriptClass() + "," + jsRef() + ","
-		      + contentsContainer_->jsRef() + ","
-		      + headerContainer_->jsRef() + ","
-		      + headerColumnsContainer_->jsRef() + ",'"
-		      + WApplication::instance()->theme()->activeClass()
-		      + "');");
+  WStringStream s;
+  s << "new " WT_CLASS ".WTableView("
+    << app->javaScriptClass() << ',' << jsRef() << ','
+    << contentsContainer_->jsRef() << ','
+    << viewportTop_ << ','
+    << headerContainer_->jsRef() << ','
+    << headerColumnsContainer_->jsRef() << ",'"
+    << WApplication::instance()->theme()->activeClass()
+    << "');";
+  setJavaScriptMember(" WTableView", s.str());
 
   if (!dropEvent_.isConnected())
     dropEvent_.connect(this, &WTableView::onDropEvent);
@@ -791,18 +794,6 @@ void WTableView::defineJavaScript()
   if (!columnResizeConnected_) {
     columnResized().connect(this, &WTableView::onColumnResize);
     columnResizeConnected_ = true;
-  }
-
-  if (viewportTop_ != 0) {
-    WStringStream s;
-    s << "function(o, w, h) {"
-      <<   "if (!o.scrollTopSet) {"
-      <<     "o.scrollTop = " << viewportTop_ << ";"
-      <<     "o.onscroll();"
-      <<     "o.scrollTopSet = true;"
-      <<   "}"
-      << "}";
-    contentsContainer_->setJavaScriptMember(WT_RESIZE_JS, s.str());
   }
 
   if (canvas_) {
@@ -898,6 +889,7 @@ void WTableView::render(WFlags<RenderFlag> flags)
 	break;
       case NeedUpdateModelIndexes:
 	updateModelIndexes();
+        /* fallthrough */
       case NeedAdjustViewPort:
 	adjustToViewport();
 	break;
@@ -1458,12 +1450,16 @@ void WTableView::modelRowsInserted(const WModelIndex& parent,
   adjustSize();
 }
 
+namespace {
+
 int calcOverlap(int start1, int end1,
 		int start2, int end2)
 {
   int s = std::max(start1, start2);
   int e = std::min(end1, end2);
   return std::max(0, e - s);
+}
+
 }
 
 void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
@@ -1486,7 +1482,7 @@ void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 				  start, end + 1);
 
   if (overlapMiddle > 0) {
-    int first = std::min(start, firstRow());
+    int first = std::max(0, start - firstRow());
   
     for (int i = 0; i < renderedColumnsCount(); ++i) {
       ColumnWidget *column = columnContainer(i);
@@ -1917,8 +1913,8 @@ int WTableView::renderedColumnsCount() const
 
 WWidget *WTableView::itemWidget(const WModelIndex& index) const
 {
-  if (index.column() < rowHeaderCount() ||
-      (isRowRendered(index.row()) && isColumnRendered(index.column())))
+  if ((index.column() < rowHeaderCount() || isColumnRendered(index.column())) &&
+      isRowRendered(index.row()))
   {
     int renderedRow = index.row() - firstRow();
     int renderedCol;

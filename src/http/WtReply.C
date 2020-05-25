@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -326,12 +326,19 @@ void WtReply::readRestWebSocketHandshake()
   connection()->handleReadBody(shared_from_this());
 }
 
-void WtReply::consumeWebSocketMessage(ws_opcode opcode,
+bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
 				      const char* begin,
 				      const char* end,
 				      Request::State state)
 {
-  in_mem_.write(begin, static_cast<std::streamsize>(end - begin));
+  if (static_cast< ::int64_t>(in_mem_.tellp()) + static_cast< ::int64_t>(end - begin) >
+      configuration().maxMemoryRequestSize()) {
+    LOG_ERROR("Rejecting WebSocket message because it exceeds "
+              "--max-memory-request-size (= " << configuration().maxMemoryRequestSize() << " bytes)");
+    state = Request::Error;
+  } else {
+    in_mem_.write(begin, static_cast<std::streamsize>(end - begin));
+  }
 
   if (state != Request::Partial) {
     if (state == Request::Error) {
@@ -346,6 +353,8 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
       // loop and we need to release the strand
       connection()->server()->service().post
 	(boost::bind(cb, Wt::ReadError));
+
+      return false;
     } else
       in_mem_.seekg(0);
 
@@ -413,6 +422,8 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
       break;
     }
   }
+
+  return true;
 }
 
 void WtReply::setContentLength(::int64_t length)

@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ * Copyright (C) 2013 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -73,7 +73,7 @@ WString WChart3DImplementation::categoryLabel(int u, Axis axis) const
   return first->axisLabel(u, axis);
 }
 
-WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderRange(Axis axis, int yAxis, AxisScale scale) const
+WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderRange(Axis axis, int xAxis, int yAxis, AxisScale scale) const
 {
   WAbstractChartImplementation::RenderRange range;
   

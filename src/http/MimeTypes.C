@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -14,6 +14,8 @@
 //
 
 #include "MimeTypes.h"
+
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace http {
 namespace server {
@@ -32,6 +34,7 @@ struct mapping
   { "jpg", "image/jpeg" },
   { "png", "image/png" },
   { "js", "text/javascript" },
+  { "wasm", "application/wasm" },
   { "oga", "audio/ogg" },
   { "ogg", "audio/ogg" },
   { "ogv", "video/ogg" },
@@ -43,13 +46,14 @@ struct mapping
   { "webm", "video/webm" },
   { "xml", "application/xml" },
   { "pdf", "application/pdf" },
+  { "txt", "text/plain" },
   { 0, 0 } // Marks end of list.
 };
 
 const char *extensionToType(const std::string& extension)
 {
   for (mapping* m = mappings; m->extension; ++m) {
-    if (m->extension == extension) {
+    if (boost::iequals(m->extension, extension)) {
       return m->mime_type;
     }
   }

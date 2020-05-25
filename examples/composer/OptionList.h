@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -16,7 +16,7 @@ class Option;
 /**
  * @addtogroup composerexample
  */
-/*@{*/
+//!@{
 
 /*! \brief A list of options, separated by '|'
  *
@@ -66,6 +66,6 @@ private:
   friend class Option;
 };
 
-/*@}*/
+//!@}
 
 #endif // OPTIONLIST_H_

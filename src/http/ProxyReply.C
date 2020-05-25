@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Emweb bvba, Herent, Belgium.
+ * Copyright (C) 2014 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -23,6 +23,8 @@
 namespace Wt {
   LOGGER("wthttp/proxy");
 }
+
+#define SSL_CLIENT_CERTIFICATES_HEADER "X-Wt-Ssl-Client-Certificates"
 
 namespace http {
 namespace server {
@@ -253,29 +255,39 @@ void ProxyReply::assembleRequestHeaders()
   std::string forwardedFor;
   std::string forwardedProto = request_.urlScheme;
   std::string forwardedPort;
+  const Wt::Configuration& wtConfiguration
+    = connection()->server()->controller()->configuration();
   for (Request::HeaderList::const_iterator it = request_.headers.begin();
        it != request_.headers.end(); ++it) {
     if (it->name.iequals("Connection") || it->name.iequals("Keep-Alive") ||
 	it->name.iequals("TE") || it->name.iequals("Transfer-Encoding")) {
       // Remove hop-by-hop header
+    } else if (it->name.iequals(SSL_CLIENT_CERTIFICATES_HEADER)) {
+      // Remove Wt-specific client certificates header (only we are allowed to send it)
+      LOG_SECURE("Received external " SSL_CLIENT_CERTIFICATES_HEADER " header. "
+                 "This header is only meant for internal use by Wt when proxying "
+                 "requests to a child process. Maybe someone is trying to spoof this "
+                 "header?");
     } else if (it->name.iequals("X-Forwarded-For") ||
-	       it->name.iequals("Client-IP")) {
-      const Wt::Configuration& wtConfiguration
-	= connection()->server()->controller()->configuration();
+               it->name.iequals("Client-IP")) {
       if (wtConfiguration.behindReverseProxy()) {
-	forwardedFor = it->value.str() + ", ";
+        forwardedFor = it->value.str() + ", ";
       }
     } else if (it->name.iequals("Upgrade")) {
       if (it->value.iequals("websocket")) {
-	establishWebSockets = true;
+        establishWebSockets = true;
       }
     } else if (it->name.iequals("X-Forwarded-Proto")) { 
-      forwardedProto = it->value.str();
+      if (wtConfiguration.behindReverseProxy()) {
+        forwardedProto = it->value.str();
+      }
     } else if(it->name.iequals("X-Forwarded-Port")) {
-      forwardedPort = it->value.str();
+      if (wtConfiguration.behindReverseProxy()) {
+        forwardedPort = it->value.str();
+      }
     } else if (it->name.length() > 0) {
       os << it->name << ": " << it->value << "\r\n";
-  }
+    }
   }
   if (establishWebSockets) {
     os << "Connection: Upgrade\r\n";
@@ -285,10 +297,10 @@ void ProxyReply::assembleRequestHeaders()
   }
   os << "X-Forwarded-For: " << forwardedFor << request_.remoteIP << "\r\n";
   os << "X-Forwarded-Proto: " <<  forwardedProto  << "\r\n";
-  if(forwardedPort.size() > 0)
-	os << "X-Forwarded-Port: " <<  forwardedPort << "\r\n";
+  if(!forwardedPort.empty())
+    os << "X-Forwarded-Port: " <<  forwardedPort << "\r\n";
   else
-	os << "X-Forwarded-Port: " <<  request_.port << "\r\n";
+    os << "X-Forwarded-Port: " <<  request_.port << "\r\n";
   // Forward SSL Certificate to session only for first request
   if (request_.sslInfo() && fwCertificates_) {
     appendSSLInfo(request_.sslInfo(), os);
@@ -304,7 +316,7 @@ void ProxyReply::assembleRequestHeaders()
 
 void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
 #ifdef WT_WITH_SSL
-  os << "SSL-Client-Certificates: ";
+  os << SSL_CLIENT_CERTIFICATES_HEADER ": ";
 
   Wt::Json::Value val(Wt::Json::ObjectType);
   Wt::Json::Object &obj = val;
@@ -378,7 +390,7 @@ void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
 		    boost::static_pointer_cast<ProxyReply>(shared_from_this()),
 		    asio::placeholders::error)));
   } else {
-    LOG_ERROR("error reading status line: " << ec.message());
+    LOG_ERROR("error reading status line from child process " << sessionProcess_->pid() << ": " << ec.message());
     if (!sendReload())
       error(service_unavailable);
   }
@@ -387,7 +399,7 @@ void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
 void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
 {
   if (ec) {
-    LOG_ERROR("error reading headers: " << ec.message());
+    LOG_ERROR("error reading headers from child process " << sessionProcess_->pid() << ": " << ec.message());
     if (!sendReload())
       error(service_unavailable);
     return;
@@ -480,7 +492,7 @@ void ProxyReply::handleResponseRead(const boost::system::error_code &ec)
       send();
     }
   } else {
-    LOG_ERROR("error reading response: " << ec.message());
+    LOG_ERROR("error reading response from child process " << sessionProcess_->pid() << ": " << ec.message());
     if (!sendReload()) 
       error(service_unavailable);
   }

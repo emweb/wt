@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -98,12 +98,12 @@ std::string BCryptHashFunction::compute(const std::string& msg,
   if (salt.length() < 16)
     std::memset(c_salt + salt.length(), 'A', 16 - salt.length());
 
-  if (!crypt_gensalt_rn("$2y$", count_, c_salt, 16, setting, 32)) {
+  if (!wt_crypt_gensalt_rn("$2y$", count_, c_salt, 16, setting, 32)) {
     std::perror("crypt_gen_salt_rn");
     throw WException("bcrypt() gensalt internal error");
   } else {
     char result[64];
-    if (!crypt_rn(msg.c_str(), setting, result, 64)) {
+    if (!wt_crypt_rn(msg.c_str(), setting, result, 64)) {
       std::perror("crypt_rn");
       throw WException("bcrypt() internal error");
     }
@@ -117,7 +117,7 @@ bool BCryptHashFunction::verify(const std::string& msg,
 {
   char result[64];
 
-  if (!crypt_rn(msg.c_str(), hash.c_str(), result, 64)) {
+  if (!wt_crypt_rn(msg.c_str(), hash.c_str(), result, 64)) {
     std::perror("crypt_rn");
     throw WException("bcrypt() internal error");
   }

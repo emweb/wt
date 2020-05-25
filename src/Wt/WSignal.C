@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -436,29 +436,14 @@ void EventSignalBase::processNonLearnedStateless() const
   }
 }
 
-void EventSignalBase::processLearnedStateless(bool checkWasStubbed) const
+void EventSignalBase::processLearnedStateless() const
 {
   std::vector<StatelessConnection> copy = connections_;
 
   for (unsigned i = 0; i < copy.size(); ++i) {
     StatelessConnection& c = copy[i];
 
-    if (c.ok() && c.slot->learned() &&
-        (!checkWasStubbed ||
-         !WApplication::instance()->session()->renderer().wasStubbed(c.target)))
-      c.slot->trigger();
-  }
-}
-
-void EventSignalBase::processStubbedStateless() const
-{
-  std::vector<StatelessConnection> copy = connections_;
-
-  for (unsigned i = 0; i < copy.size(); ++i) {
-    StatelessConnection& c = copy[i];
-
-    if (c.ok() && c.slot->learned() &&
-        WApplication::instance()->session()->renderer().wasStubbed(c.target))
+    if (c.ok() && c.slot->learned())
       c.slot->trigger();
   }
 }

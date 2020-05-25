@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2009 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -84,7 +84,7 @@ class EscapeOStream;
  * bindString() or bindInt() or by reimplementing the resolveString()
  * and resolveWidget() methods.
  *
- * \note The use of XML comments (<tt>&lt;!-- ... --&gt;</tt>)
+ * \note The use of XML comments (<tt>&lt;!\-- ... \--&gt;</tt>)
  *       around variables that are bound to widgets will result in bad
  *       behaviour since the template parser is ignorant about these
  *       comments and the corresponding widgets will believe that they
@@ -294,6 +294,9 @@ public:
      *
      * The function will consider the first argument as the condition, and the
      * second argument as the key for a localized string that is a macro block.
+     *
+     * Just like the block() function, you can provide additional arguments, so the third
+     * argument will be what is filled in into <tt>{1}</tt> in the macro block, etc.
      */
 #ifndef WT_TARGET_JAVA
     static bool while_f(WTemplate *t, const std::vector<WString>& args,

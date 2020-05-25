@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -409,7 +409,7 @@ private:
  * \code
  * OAuthService oauth = ...;
  *
- * // Creates an icon which prompts for authentication using this %OAuth service.
+ * // Creates an icon which prompts for authentication using this OAuth service.
  * WImage icon = new WImage("css/oauth-" + auth.getName() + ".png", icons);
  * icon.setToolTip(auth.getDescription());
  *
@@ -591,7 +591,7 @@ public:
   * The default implementation returns HttpAuthorizationBasic
   * (the recommended method).
   */
-  virtual enum ClientSecretMethod clientSecretMethod() const = 0;
+  virtual ClientSecretMethod clientSecretMethod() const = 0;
 
   std::string generateRedirectEndpoint() const;
 

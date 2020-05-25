@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -20,6 +20,7 @@
 #include <process.h> // for getpid()
 #include <winsock2.h> // for gethostname()
 #endif
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 
@@ -322,6 +323,7 @@ void Configuration::readOptions(const po::variables_map& vm)
 	throw Wt::WServer::Exception("Document root (--docroot) should be "
 				     "of format path[;./p1[,p2[,...]]]");
       boost::split(staticPaths_, parts[1], boost::is_any_of(","));
+      staticPaths_.erase(std::remove(staticPaths_.begin(), staticPaths_.end(), ""), staticPaths_.end());
       defaultStatic_ = false;
     }
 

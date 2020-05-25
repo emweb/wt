@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -52,7 +52,7 @@ FCGIRecord::~FCGIRecord()
 
 void FCGIRecord::clear()
 {
-  delete contentData_;
+  delete [] contentData_;
 
   if (plainTextBuf_)
     free(plainTextBuf_);

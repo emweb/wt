@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -195,13 +195,7 @@ public:
 
   /*! \brief Controls how the calendar popup is positioned.
    *
-   * When \p global is \c true, then the popup will position itself
-   * globally. This avoids that the popup is affected by enclosing
-   * parents with overflow settings that clip the popup. This makes
-   * the popup however no longer follow the popup button when this
-   * button moves.
-   *
-   * The default is \c false.
+   * \deprecated since 3.3.0, this does nothing
    */
   void setGlobalPopup(bool global);
 

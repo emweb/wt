@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -22,7 +22,7 @@ class Label;
 /**
  * @addtogroup composerexample
  */
-/*@{*/
+//!@{
 
 /*! \brief An edit field for an email addressee.
  *
@@ -58,7 +58,7 @@ private:
   bool parse(std::vector<Contact>& contacts) const;
 };
 
-/*@}*/
+//!@}
 
 
 #endif // ADDRESSEE_EDIT_H_

@@ -3600,9 +3600,11 @@
         (combo-boxes and the like).</li>
       </ul>
 
+      ${<if:cpp>}
       One particarly useful standard model is the ${doc-link
       Dbo-QueryModel} which is a tabular model backed by database
       data.
+      ${</if:cpp>}
     </p>
 
     <h3>Custom models</h3>
@@ -4385,6 +4387,39 @@
 
     <p><a href="#pie-chart">Top</a></p>
 
+  </message>
+
+  <message id="graphics-LeafletMap">
+    <h2 id="leaflet-map">Leaflet Maps</h2>
+    <p>
+      The ${doc-link WLeafletMap} widget displays a <a href="https://leafletjs.com/">leaflet</a> map.
+      It implements a Wt wrapper around the Leaflet functionality.
+    </p>
+    <p>
+      Leaflet itself does not provide maps. It is a JavaScript library that enables you to use any
+      "tile server", like OpenStreetMap's tile server in this example. If you just create a ${doc-link WLeafletMap},
+      (and give it a size), then you will be presented with an empty map. You can then add tile layers to the
+      map using <tt>addTileLayer()</tt>.
+    </p>
+    <p>
+      ${doc-link WLeafletMap} is not exhaustive in its support for Leaflet features. It supports a subset
+      out of the box. One of these features is markers, which come in two flavors: standard leaflet markers
+      (${doc-link WLeafletMap-LeafletMarker}) and widget markers (${doc-link WLeafletMap-WidgetMarker}).
+      Using a widget marker, you can place arbitrary widgets on the map. In this case, a ${doc-link WImage} with
+      the Emweb logo. If you need direct access to the leaflet map in your own custom JavaScript, you can use
+      <tt>mapJsRef()</tt>.
+    </p>
+    <p>
+      Leaflet itself is not bundled with Wt. Use the <tt>leafletJSURL</tt> and <tt>leafletCSSURL</tt> properties
+      to configure where the JavaScript and CSS of Leaflet should be loaded from.
+    </p>
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${LeafletMap}
+      ${src LeafletMap}
+    </fieldset>
+
+    <p><a href="#leaflet-map">Top</a></p>
   </message>
 
   <message id="graphics-GoogleMap">

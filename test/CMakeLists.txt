@@ -10,6 +10,7 @@ IF(ENABLE_LIBWTTEST)
     http/HttpClientTest.C
     mail/MailClientTest.C
     models/WBatchEditProxyModelTest.C
+    models/WModelIndexTest.C
     models/WStandardItemModelTest.C
     private/HttpTest.C
     private/CExpressionParserTest.C
@@ -61,6 +62,7 @@ IF(ENABLE_LIBWTTEST)
       dbo/DboTest3.C
       dbo/DboTest4.C
       dbo/DboTest5.C
+      dbo/DboTest6.C
       dbo/Benchmark.C
       dbo/Benchmark2.C
       dbo/JsonTest.C

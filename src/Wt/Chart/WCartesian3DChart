@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ * Copyright (C) 2013 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -56,7 +56,8 @@ enum ChartUpdates {
  * The chart consists of a plotcube, which is always open on the front, and 
  * adapts to the data which is shown on the chart. The plotcube has three axes 
  * of type WAxis. Each of these can be manually configured as in the 2D case. 
- * The chart can be either a \ref ScatterPlot or a \ref CategoryChart. This influences 
+ * The chart can be either a \link Wt::Chart::ChartType ScatterPlot\endlink
+ * or a \link Wt::Chart::ChartType CategoryChart\endlink. This influences 
  * how the data is positioned in relation to the x/y-axis. Gridlines can also 
  * be drawn on each of the plotcube-planes. The chart has a mouse-handler which 
  * allows rotation of the chart around the center of the plotcube. Zooming in 
@@ -330,15 +331,6 @@ public:
    */
   const WFont& titleFont() const { return titleFont_; }
 
-  //void resetView();
-
-  // /*! \brief 
-  //  */
-  // WLegend & legend() { return legend_; }
-  // /*! \brief 
-  //  */
-  // const WLegend & legend() const { return legend_; }
-
   /*! \brief Enables the legend.
    *
    * The location of the legend can be configured using
@@ -454,6 +446,7 @@ public:
    * method of WMatrix4x4. A common use-case when manipulating the matrix is to
    * translate the center to the origin and then rotate.
    * 
+   * \if cpp
    * For example:
    * \code{.cpp}
    *   ...
@@ -468,6 +461,7 @@ public:
    * 
    *   camera.translate(-0.5, -0.5, -0.5);
    * \endcode
+   * \endif
    */
   void setCameraMatrix(const WMatrix4x4& matrix);
 

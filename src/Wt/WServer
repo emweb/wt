@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -217,8 +217,7 @@ public:
    * contain the host part!) to a favicon, which is the icon displayed
    * in the browser for your application. Alternatively, you may
    * specify a favicon using the "favicon" property in the
-   * configuration file (see als \ref config_general "Application
-   * settings (wt_config.xml)").
+   * configuration file (see also \ref config_general).
    *
    * \sa removeEntryPoint()
    */
@@ -244,8 +243,7 @@ public:
    * In a multi-threaded environment, this may only be done when the
    * server is not running.
    *
-   * When a resource has been bound to the path, the resource will not
-   * be deleted.
+   * \note If the entry point is a resource, the resource will not be deleted
    *
    * \sa addEntryPoint(), addResource()
    */
@@ -387,6 +385,14 @@ public:
    */
   WT_API void postAll(const boost::function<void ()>& function);
 
+  /*! \brief Schedules a function to be executed in a session.
+   *
+   * The \p function will run in the session specified by \p sessionId,
+   * after \p milliSeconds ms. If the session does not exist anymore,
+   * \p fallBackFunction will be executed.
+   *
+   * \sa post()
+   */
   WT_API void schedule(int milliSeconds,
 		       const std::string& sessionId,
 		       const boost::function<void ()>& function,

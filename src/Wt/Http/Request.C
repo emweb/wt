@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2009 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -9,13 +9,17 @@
 #include <unistd.h>
 #endif
 
-#include "Wt/Http/Request"
 #include "Wt/Utils"
 #include "Wt/WEnvironment"
+#include "Wt/WServer"
 #include "Wt/WSslInfo"
-#include "WebUtils.h"
+
+#include "Wt/Http/Request"
+#include "Wt/Http/Message"
+
+#include "Configuration.h"
 #include "WebRequest.h"
-#include "Message"
+#include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -215,7 +219,12 @@ std::string Request::userAgent() const
 
 std::string Request::clientAddress() const
 {
-  return request_ ? request_->remoteAddr() : std::string();
+  if (!request_)
+    return std::string();
+
+  WServer *server = WServer::instance();
+  const bool behindReverseProxy = server && server->configuration().behindReverseProxy();
+  return request_->clientAddress(behindReverseProxy);
 }
 
 WSslInfo *Request::sslInfo() const

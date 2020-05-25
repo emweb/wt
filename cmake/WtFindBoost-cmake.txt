@@ -32,8 +32,7 @@ SET(BOOST_SUPPORT_LIBRARIES "")
 
 IF(NOT DEFINED Boost_ADDITIONAL_VERSIONS)
   SET(Boost_ADDITIONAL_VERSIONS
-  "1.35" "1.36" "1.37" "1.38" "1.39"
-  "1.40" "1.41" "1.42" "1.43" "1.44" "1.45" "1.46" "1.47" "1.48" "1.49"
+  "1.41" "1.42" "1.43" "1.44" "1.45" "1.46" "1.47" "1.48" "1.49"
   "1.50" "1.51" "1.52" "1.53" "1.54" "1.55" "1.56" "1.57" "1.58" "1.59"
   "1.60" "1.61" "1.62" "1.63" "1.64" "1.65" "1.65.1" "1.66" "1.67" "1.68" "1.69"
   "1.70" "1.71" "1.72" "1.73" "1.74" "1.75" "1.76" "1.77" "1.78" "1.79")
@@ -72,29 +71,77 @@ IF(NOT WT_NO_BOOST_RANDOM)
   )
 ENDIF(NOT WT_NO_BOOST_RANDOM)
 
-FIND_PACKAGE(Boost 1.35
-  COMPONENTS
-    signals
-)
-IF(Boost_SIGNALS_FOUND)
+function(find_boost_signals)
+  find_package(Boost 1.41 QUIET
+    COMPONENTS
+      signals
+  )
+  set(_BOOST_SIGNALS_FOUND ${Boost_SIGNALS_FOUND} PARENT_SCOPE)
+endfunction(find_boost_signals)
+
+find_boost_signals()
+
+IF(_BOOST_SIGNALS_FOUND)
   SET(Boost_COMPONENTS
     ${Boost_COMPONENTS}
     signals
   )
 ENDIF()
-IF(Boost_FOUND AND Boost_VERSION LESS 106900)
+
+set(_BOOST_SIGNALS_FOUND)
+
+function(find_boost_system)
+  find_package(Boost 1.41 QUIET
+    COMPONENTS
+      system
+  )
+  set(_BOOST_FOUND ${Boost_FOUND} PARENT_SCOPE)
+  if(Boost_VERSION_MAJOR)
+    set(_BOOST_MAJOR_VERSION ${Boost_VERSION_MAJOR} PARENT_SCOPE)
+    set(_BOOST_MINOR_VERSION ${Boost_VERSION_MINOR} PARENT_SCOPE)
+  else()
+    set(_BOOST_MAJOR_VERSION ${Boost_MAJOR_VERSION} PARENT_SCOPE)
+    set(_BOOST_MINOR_VERSION ${Boost_MINOR_VERSION} PARENT_SCOPE)
+  endif()
+endfunction(find_boost_system)
+
+find_boost_system()
+
+IF(_BOOST_FOUND AND _BOOST_MAJOR_VERSION EQUAL 1 AND _BOOST_MINOR_VERSION LESS 69)
   SET(Boost_COMPONENTS
     ${Boost_COMPONENTS}
     system
   )
 ENDIF()
-FIND_PACKAGE(Boost 1.35
+
+set(_BOOST_FOUND)
+set(_BOOST_MAJOR_VERSION)
+set(_BOOST_MINOR_VERSION)
+
+FIND_PACKAGE(Boost 1.41
   COMPONENTS
     ${Boost_COMPONENTS}
   REQUIRED
 )
 
+# Use IMPORTED targets if defined
+FOREACH(_target ${Boost_COMPONENTS})
+  IF(TARGET Boost::${_target})
+    STRING(TOUPPER ${_target} _TARGET)
+    SET(Boost_${_TARGET}_LIBRARY Boost::${_target})
+  ENDIF(TARGET Boost::${_target})
+ENDFOREACH(_target ${Boost_COMPONENTS})
+UNSET(_target)
+UNSET(_TARGET)
+
 IF (Boost_FOUND)
+  IF(Boost_VERSION_MAJOR AND NOT Boost_MAJOR_VERSION)
+    set(Boost_MAJOR_VERSION ${Boost_VERSION_MAJOR})
+  ENDIF()
+  IF(Boost_VERSION_MINOR AND NOT Boost_MINOR_VERSION)
+    set(Boost_MINOR_VERSION ${Boost_VERSION_MINOR})
+  ENDIF()
+
   # Translate variables from official cmake names to internally used names
   SET(BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
   SET(BOOST_LIB_DIRS ${Boost_LIBRARY_DIRS})
@@ -118,11 +165,11 @@ IF (Boost_FOUND)
   SET(BOOST_WTHTTP_MT_FOUND TRUE)
   SET(BOOST_WTHTTP_FOUND TRUE)
 
-  IF(MSVC)
+  IF(MSVC AND Boost_MAJOR_VERSION EQUAL 1 AND Boost_MINOR_VERSION LESS 70)
     # use autolink
     SET(BOOST_WT_LIBRARIES "")
     SET(BOOST_WTHTTP_LIBRARIES "")
-  ELSE(MSVC)
+  ELSE()
     SET(BOOST_WT_LIBRARIES
         ${Boost_THREAD_LIBRARY}
         ${BOOST_RANDOM_LIB}
@@ -137,5 +184,10 @@ IF (Boost_FOUND)
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_DATE_TIME_LIBRARY})
-  ENDIF(MSVC)
+  ENDIF()
+
+  IF(TARGET Boost::headers)
+    SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} Boost::headers)
+    SET(BOOST_WTHTTP_LIBRARIES ${BOOST_WTHTTP_LIBRARIES} Boost::headers)
+  ENDIF()
 ENDIF (Boost_FOUND)

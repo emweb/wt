@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -522,7 +522,7 @@ void WMenuItem::setParentMenu(WMenu *menu)
 
   if (menu && menu->isPopup() &&
       subMenu_ && subMenu_->isPopup()) {
-    subMenu_->webWidget()->setZIndex(std::max(menu->zIndex() + 100, subMenu_->zIndex()));
+    subMenu_->webWidget()->setZIndex(std::max(menu->zIndex() + 1000, subMenu_->zIndex()));
   }
 }
 
@@ -609,12 +609,11 @@ void WMenuItem::setMenu(WMenu *menu)
   addWidget(subMenu_);
   if (subMenu_->isPopup() &&
       parentMenu() && parentMenu()->isPopup()) {
-    subMenu_->webWidget()->setZIndex(std::max(parentMenu()->zIndex() + 100, subMenu_->zIndex()));
+    subMenu_->webWidget()->setZIndex(std::max(parentMenu()->zIndex() + 1000, subMenu_->zIndex()));
   }
 
   WPopupMenu *popup = dynamic_cast<WPopupMenu *>(subMenu_);
   if (popup) {
-    popup->setJavaScriptMember("wtNoReparent", "true");
     setSelectable(false);
     popup->setButton(anchor());
     updateInternalPath();

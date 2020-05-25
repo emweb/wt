@@ -22,6 +22,428 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.6.1 (April 20, 2020)</h2>
+
+<p>
+  This release fixes the following issues:
+</p>
+
+<ul>
+  <li>
+    Fixed join information not being copied over when copying
+    <a href="classWt_1_1Dbo_1_1AbstractQuery.html">Wt::Dbo::AbstractQuery</a>.
+  </li>
+  <li>
+    MinGW fixes: Direct2D/DirectWrite were disabled and are now enabled
+    by default. Libraries were changed to lowercase for cross-compiling
+    from Linux. Windows is case-insensitive, and MinGW libraries on Linux
+    are lowercase.
+  </li>
+</ul>
+
+<h2>Release 3.6.0 (March 26, 2020)</h2>
+
+<p>Wt 3 releases have mostly focused on tweaks and bug fixes lately with new features being focused on Wt 4, and this release is no different. There's a handful of little changes:</p>
+
+<p>Some small changes in behaviour that you may want to be aware of:</p>
+
+<ul>
+  <li>
+    <a href="classWt_1_1WCanvasPaintDevice.html">WCanvasPaintDevice</a>: instead of stopping the drawing entirely when <tt>drawImage()</tt> fails (e.g. because of a missing image),
+    the image will be skipped but drawing will continue. An error will be logged to the console.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7060" target="_blank">Issue #7060</a>: fixed
+    <a href="classWt_1_1Http_1_1Request.html#a5f18be4100482713c257bea43a3c913b">Request::clientAddress()</a> when behind a reverse proxy to
+    be the same as <a href="classWt_1_1WEnvironment.html#aedad4a59684dc41c9985a713ee4eb00a">WEnvironment::clientAddress()</a>, and as mentioned in the documentation.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7404" target="_blank">Issue #7404</a>: reparenting of popup widgets should only stop at scroll bars.
+  </li>
+</ul>
+
+<p>Other changes and fixes:</p>
+
+<ul>
+  <li>
+    Updated the <tt>composer</tt> and <tt>filetreetable</tt> examples to use <a href="classWt_1_1WLocalDateTime.html">WLocalDateTime</a> rather than OS specific functions.
+  </li>
+  <li>
+    <a href="classWt_1_1WModelIndex.html">WModelIndex</a> now has a proper ordering, even for raw indexes. This means they can properly be inserted into and retrieved from a <tt>std::set</tt>.
+  </li>
+  <li>
+    <a href="classWt_1_1WServer.html">WServer</a>: documented the <a href="classWt_1_1WServer.html#ada45818842ad301522cff96a8dd3dcd5">schedule()</a> function.
+  </li>
+  <li>
+    wthttp: added child process id to some of the logging related to dedicated session processes
+  </li>
+</ul>
+
+<h2>Release 3.5.2 (March 16, 2020)</h2>
+
+<p>
+  This release fixes the following issues:
+</p>
+
+<ul>
+  <li>
+    Security-related: in Wt::Auth the lost password email would be sent to the email
+    address provided in the form, rather than the user's configured email address. While
+    we treat email addresses as case insensitive, it is possible that the mail server may not,
+    and that could potentially be used to steal an account. It is however quite rare for
+    email services to be case sensitive.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7439" target="_blank">Issue #7439</a>:
+    ensure that tooltips are always on top, even inside of a dialog.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7448" target="_blank">Issue #7448</a>:
+    fixed compilation error on recent versions of MinGW, by using the <tt>gmtime_s</tt>
+    function on Windows.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7447" target="_blank">Issue #7447</a>:
+    fixed text format being reset when the text of a <a href="classWt_1_1WAnchor.html">WAnchor</a> is cleared.
+  </li>
+  <li>
+    Fix for <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a> issue that was <a href="https://redmine.emweb.be/boards/2/topics/16718" target="_blank">reported on the forum</a>: signals would get unexposed when options were changed.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7457" target="_blank">Issue #7457</a>:
+    moved call to <a href="classWt_1_1WApplication.html#ae88546224ed32cade783da188b145138">WApplication::require()</a> to the constructor, since calling it in the render function may cause issues.
+  </li>
+  <li>
+    Fixes for <a href="classWt_1_1WVirtualImage.html">WVirtualImage</a>:
+    <ul>
+      <li>Do not render zero width or zero height images. This was possible when <tt>imageWidth</tt> or <tt>imageHeight</tt> was
+        a multiple of the <tt>gridImageSize</tt>.</li>
+      <li>Fixed <a href="classWt_1_1WVirtualImage.html#a0feb746fc22b907f779423bd9768109c">scrollTo()</a> when the image is narrower than the viewport: <tt>scrollTo(0, 0)</tt> would not put <tt>(0, 0)</tt> at
+        the top left when the image was narrower (or taller) than the viewport.</li>
+    </ul>
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7480" target="_blank">Issue #7480</a>: prefix Wt's crypt functions to fix issues
+    when linking with <tt>libxcrypt</tt>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7468" target="_blank">Issue #7468</a>: fixed panning not working properly for a <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a> with plain tooltips.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7482" target="_blank">Issue #7482</a>: <tt>lastId_</tt> in Postgres backend should be <tt>long long</tt>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/6774" target="_blank">Issue #6774</a>: misc. <a href="classWt_1_1WTreeView.html">WTreeView</a> fixes.
+  </li>
+</ul>
+
+<h2>Release 3.5.1 (February 6, 2020)</h2>
+
+<p>
+  This release fixes the following issues:
+</p>
+
+<ul>
+  <li>wthttp fixes:
+    <ul>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7406" target="_blank">Issue #7406</a>: requests for absolute-form URLs (e.g. <tt>GET http://localhost:8080/ HTTP/1.1</tt> instead of <tt>GET / HTTP/1.1</tt>) are now rejected. No client normally sends requests like this to an origin server. See <a href="https://tools.ietf.org/html/rfc7230#section-5.3.2" target="_blank">RFC 7230, section 5.3.2</a>.
+      </li>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7405" target="_blank">Issue #7405</a>: multiline HTTP headers (line folding) were causing
+        wthttp to segfault. This was fixed by removing support for (obsolete) line folding. See <a href="https://tools.ietf.org/html/rfc7230#section-3.2.4" target="_blank">RFC 7230, section 3.2.4</a>.
+      </li>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7390" target="_blank">Issue #7390</a>: added MIME type for <tt>.wasm</tt> files.
+      </li>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7384" target="_blank">Issue #7384</a>: setting the <tt>--docroot</tt> of wthttp
+        to <tt>.;</tt> will now correctly make it so that no path is interpreted as being a static resource.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7350" target="_blank">Issue #7350</a>: fixed <a href="classWt_1_1WPaintedWidget.html">WPaintedWidget</a>'s <tt>wtResize</tt> JavaScript to assume its preferred size when called with a size of -1.
+  </li>
+  <li>
+    Fixed possible JavaScript errors caused by <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>'s <tt>wtEncodeValue</tt> JavaScript not    being terminated by a semicolon.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7407" target="_blank">Issue #7407</a>: fixed JavaScript memory leak related to deferred or HTML tooltips.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7360" target="_blank">Issue #7360</a>: documented <a href="structWt_1_1Mail_1_1Message_1_1Recipient.html">Wt::Mail::Message::Recipient</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7361" target="_blank">Issue #7361</a>: a previous attempt at fixing horizontal scrolling stutter
+    in Wt 3.4.1 caused a regression in <a href="classWt_1_1WTableView.html#a093b661f93551c1d6f73c423ae8ef459">WTableView::scrollTo()</a>.
+  </li>
+  <li>
+    Fixed several issues with <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a> that were
+    <a href="https://redmine.emweb.be/boards/2/topics/16718" target="_blank">reported on the forum</a>.
+  </li>
+  <li>
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>: when there were so many bars on
+    a bar chart that the width of a bar became 0, placing tooltips would cause a crash. Wt will now skip
+    tooltip placement when bars get too narrow.
+  </li>
+  <li>
+    <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>: when
+    <a href="classWt_1_1WSuggestionPopup.html#a0395bd5080856eb95ccb50748f25d1c7"><tt>setDropDownIconUnfiltered(true)</tt></a>
+    was used, pressing the up/down arrows to move through the list would cause it to be filtered.
+  </li>
+  <li>
+    Reverted a previous change to <a href="classWt_1_1WModelIndex.html">WModelIndex</a>: since the comparison operator of model indexes uses the parent, we can't insert raw indexes into a <tt>std::set</tt>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7353" target="_blank">Issue #7353</a>: added mention in 3.5.0 release notes about
+    <a href="classWt_1_1WPdfImage.html">WPdfImage</a> pen width fix.
+  </li>
+</ul>
+
+<p>
+  If you diff this release with the last one, it looks like we've changed a lot more, but this
+  is simply because we needed to update Emweb bvba to Emweb bv everywhere.
+</p>
+
+<h2>Release 3.5.0 (December 3, 2019)</h2>
+
+<p>
+Wt 3.5.0 comes with no major new features, just the following fixes and tweaks:
+</p>
+
+<h3>Notable backwards-incompatible changes</h3>
+<ul>
+  <li><a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>: <a href="structWt_1_1WSuggestionPopup_1_1Options.html#a3e29211108f2b156a0b983a5a15ecece">wordSeparators</a> no longer requires (extra) escaping, so a newline is indicated with the string literal "\n", not "\\n". Similarly, the <a href="structWt_1_1WSuggestionPopup_1_1Options.html#aef3e98b66b4cc136e2c726079d6681de">whitespace</a> property was incorrectly documented as requiring (extra) escaping.</li>
+</ul>
+
+<h3>Fixes</h3>
+<ul>
+  <li>
+    Limited prevention of default action of the <tt>dragstart</tt> event to only draggable widgets. This used to be global (set on <tt>document.body</tt>), but could conflict with other JavaScript libraries, especially when Wt is used in WidgetSet mode.
+  </li>
+  <li>
+    <a href="classWt_1_1WPainter.html">WPainter</a>: fixed arc drawing code to be consistent across different backends, and with Qt's QPainter. Its behavior used to be erratic when angles larger than 360 degrees or lower than 0 were used.
+  </li>
+  <li>
+    <a href="classWt_1_1WPdfImage.html">WPdfImage</a>: fixed double scaling of pen width (e.g. a pen of width 4 pixels, and a scaling factor of 2 would result in a 16 pixel wide pen instead of an 8 pixel wide pen).
+  </li>
+  <li>
+    Many documentation tweaks and fixes that were discovered when working on JWt 4.
+  </li>
+  <li>
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7139" target="_blank">#7139</a>: some widgets would fail to be correctly reparented.
+  </li>
+  <li>
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7336" target="_blank">#7336</a>: Wt was touching the history API every 10 ms when scrolling to store the scroll position, causing sluggishness, especially on mobile browsers with smooth scrolling. The scroll position is now saved after the user has stopped scrolling.
+  </li>
+</ul>
+
+<h2>Release 3.4.2 (October 30, 2019)</h2>
+<p>
+  This release fixes the following issues:
+</p>
+<ul>
+  <li><b>wthttp security issues</b>:
+    <ul>
+      <li>Wt internally used an <tt>SSL-Client-Certificates</tt> header to send client certificates to child processes when using dedicated process mode. It was however <i>always accepted even when Wt was not behind a reverse proxy</i>, and sent to child processes as-is. <tt>wthttp</tt> now correctly disregards it when not received from a reverse proxy. The header was also renamed to <tt>X-Wt-Ssl-Client-Certificates</tt> to clarify that it is a non-standard internal Wt header.</li>
+      <li>When using dedicated session processes with wthttp, the parent process would trust <tt>X-Forwarded-Proto</tt> and <tt>X-Forwarded-Port</tt> even when Wt was not configured to be behind a reverse proxy. These are now discarded.</li>
+    </ul>
+  </li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/7292" target="_blank">issue #7292</a>: <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a> now correctly uses <tt>refresh_token</tt> instead of <tt>refreshToken</tt></li>
+  <li><a href="classWt_1_1Http_1_1Client.html">Http::Client</a> fixes:
+    <ul>
+      <li>fixed <a href="https://redmine.webtoolkit.eu/issues/7272" target="_blank">issue #7272</a>: support <tt>@</tt> character in the path of a URL</li>
+      <li>fixed 204 No Content response code behavior (would hang before, waiting for content) (<a href="https://redmine.webtoolkit.eu/issues/7273" target="_blank">issue #7273</a>)</li>
+    </ul>
+  </li>
+  <li>More informative error and exception messages:
+    <ul>
+      <li><a href="classWt_1_1Dbo_1_1QueryModel.html"><tt>QueryModel</tt></a>'s "geometry inconsistent with database" exception now contains row and cache start and size information</li>
+      <li><tt>WebSession</tt>'s "not serving this" info message contains more context so it's less confusing</li>
+    </ul>
+  </li>
+  <li>Documentation fix: The release notes for Wt 3.3.8 incorrectly referred to <tt>allowed-hosts</tt>, while this property is actually named <tt>allowed-origins</tt></li>
+</ul>
+
+<h2>Release 3.4.1 (September 9, 2019)</h2>
+<p>
+  This release fixes the following issues:
+</p>
+<ul>
+  <li>Fixed horizontal scrolling stutter on mobile browsers in <tt>WTableView</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7000" target="_blank">issue #7000</a>: possible out of bounds access in <tt>WTableView::itemWidget()</tt></li>
+  <li>Fixed <tt>valueChanged()</tt> documentation of <tt>WSpinBox</tt> and <tt>WDoubleSpinBox</tt></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7193" target="_blank">issue #7193</a>: compatibility with Pango 1.44: added harfbuzz include dir</li>
+</ul>
+
+
+<h2>Release 3.4.0 (July 31, 2019)</h2>
+<p>
+  This is the first release to change the versioning scheme to be more aligned with semantic versioning.
+  From now on, the last number is reserved for patches (i.e. important bug fixes), not extra features, as long as
+  those bug fixes don't require major changes. Patches will be released up until the next minor version bump.
+</p>
+<p>
+  From now on, a 3.4-release branch will track any bug fixes, while the wt3 branch will become the next Wt 3 release (in this case 3.5.0)
+</p>
+<p>
+  We won't completely ban small API-breaking changes from the minor version, but we will as always avoid them as best as we can.
+</p>
+<p>
+  This also does <em>not</em> mean that Wt will now have a stable ABI. You will always have to recompile in order to do
+  a minor version upgrade of Wt. Wt has never had a stable ABI, and that isn't going to change.
+</p>
+<p>
+  Apart from that, this release features one new widget (<a href="classWt_1_1WLeafletMap.html">WLeafletMap</a>) and many little tweaks, features, and bug fixes.
+</p>
+<h3>Notable backwards-incompatible changes</h3>
+<ul>
+  <li>When using the GraphicsMagick implementation of <a href="classWt_1_1WRasterImage.html">WRasterImage</a>, the rendering to
+      raster image is now done in <a href="classWt_1_1WPaintDevice.html#a75827be2076716985533dbc75dfdc512">done()</a> instead of <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6">handleRequest()</a>.
+      You were always supposed to destroy your instance of <a href="classWt_1_1WPainter.html">WPainter</a>, or call <a href="classWt_1_1WPainter.html#a50beb0c8cb77c12e2dee807e4fe4bcb4">WPainter::end()</a>
+      before e.g. using <a href="classWt_1_1WResource.html#ad8bbe65a888cc43e0d356f18509b9a0f">write()</a>, but Wt used to be rather forgiving&mdash;it would just work.
+      If you are getting empty images after updating, this would likely be the reason.
+  </li>
+  <li>
+    When using C++11 or higher, <tt>operator bool()</tt> was made <tt>explicit</tt>, to disallow (unsafe) implicit conversion to <tt>bool</tt>,
+    but allow for the safer <a href="https://en.cppreference.com/w/cpp/language/implicit_conversion#Contextual_conversions">contextual conversion</a> instead. This may cause some valid code to no longer compile, but it is more likely that it will actually uncover bugs.
+  </li>
+  <li>
+    The default z-index of <a href="classWt_1_1WPopupWidget.html">WPopupWidget</a> was changed to 1100 instead of 100, since 1000
+    is the highest z-index used by Leaflet. This is generally considered an implementation detail, but if you have written any custom
+    CSS that sets the z-index, then you may have to update this CSS.
+  </li>
+</ul>
+<h3>New widgets</h3>
+<ul>
+  <li>
+    <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a>: this is a wrapper around the <a href="https://leafletjs.com/" target="_blank">Leaflet</a>
+         JavaScript library. It has support for some basic features of Leaflet, and one special feature: the ability to add arbitrary
+         widgets (within reason) as markers to the map using <a href="classWt_1_1WLeafletMap_1_1WidgetMarker.html">WidgetMarker</a>.
+  </li>
+</ul>
+<h3>New examples</h3>
+<ul>
+  <li>
+    Added a <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a> example to the widget gallery
+    and in <tt>examples/leaflet</tt>.
+  </li>
+  <li>
+    Added an <a href="classWt_1_1Http_1_1Client.html">Http::Client</a> example in <tt>examples/http-client</tt>.
+  </li>
+</ul>
+<h3>CMake changes</h3>
+<ul>
+  <li>
+    Wt now uses CMake's included FindZLIB and FindPNG modules instead of its own.
+  </li>
+  <li>
+    Fixed building with Boost 1.70 when using Boost's included package configuration files for CMake.
+  </li>
+  <li>
+    Made sure we can properly build <tt>wtdbomysql</tt> with a static MariaDB client library on Windows.
+  </li>
+</ul>
+<h3>Auth</h3>
+<ul>
+  <li>
+    Added <a href="classWt_1_1Auth_1_1AuthService.html#aee229af97b12975d00e7448e486f9cb2">AuthService::setAuthTokenUpdateEnabled()</a>. Previously, when using the
+    remember me functionality the auth token (remember me cookie) would be changed. When accessing the application from two tabs at the same time, however, or when
+    refreshing quickly, this could cause the session to be logged out: the auth token has changed, but the client still uses the old one. This is still the default
+    behavior, but you can disable it by using <tt>setAuthTokenUpdateEnabled(false)</tt>.
+  </li>
+</ul>
+
+<h3>Dbo</h3>
+<ul>
+  <li>
+    Added <a href="classWt_1_1Dbo_1_1AbstractQuery.html">AbstractQuery</a>, an abstract base class of <a href="classWt_1_1Dbo_1_1Query.html">Query</a>,
+    to facilitate the dynamic generation of queries.
+  </li>
+  <li>
+    Added <a href="classWt_1_1Dbo_1_1Query.html#a3e76ffc9857381684303d46457399701">Query::join()</a>,
+    <a href="classWt_1_1Dbo_1_1Query.html#aeee3f10d74361e49cce4dc049f0bdc0b">Query::leftJoin()</a>,
+    and <a href="classWt_1_1Dbo_1_1Query.html#a1dd4a3461a4d99377dee24227325c63c">Query::rightJoin()</a>.
+  </li>
+  <li>
+    Fixed a query corruption bug when using <tt>UNION</tt>, <tt>INTERSECT</tt>, or <tt>EXCEPT</tt> (<a href="https://redmine.webtoolkit.eu/issues/7028" target="_blank">issue #7028</a>).
+  </li>
+  <li>
+    Fixed a crash when using <tt>Session::dropTables()</tt> while there is an active transaction, <a href="https://redmine.webtoolkit.eu/boards/2/topics/16123" target="_blank">as reported on the forum</a>.
+  </li>
+  <li>
+    PostgreSQL uses <tt>?</tt> for some operators, but that is also the character we use for placeholders in prepared statements. If the literal <tt>?</tt> is meant instead of a placeholder, you can now use <tt>??</tt>. This is similar to how PostgreSQL's JDBC driver handles it.
+  </li>
+</ul>
+
+<h3>Miscellaneous features</h3>
+<ul>
+  <li>
+    <a href="classWt_1_1Chart_1_1WCartesian3DChart.html">WCartesian3DChart</a>: added <a href="classWt_1_1Chart_1_1WCartesian3DChart.html#afebb8c9ebbaec477c9c8ae18eb8384ec">setAxis()</a>, allowing custom <tt>WAxis</tt> implementations e.g. axes with <a href="classWt_1_1Chart_1_1WAxis.html#a7a6e079a7a0b136f77dad65b2c1abcc1">custom labels and ticks</a>.
+  </li>
+  <li>
+    Added <a href="group__modelview.html#gga0ae864e12320f9f89172735e075ed068aa3fc36103462737a3807f63fc4686334">MarkerTypeRole</a>, to change the <a href="group__charts.html#ga9f38f3460fb2575d5f4f1a1ac51a7db6">MarkerType</a> of individual data points on a <a href="classWt_1_1Chart_1_1WCartesianChart.html">2D chart</a>.
+  </li>
+  <li>
+    <a href="classWt_1_1Http_1_1Client.html">Http::Client</a>:
+    <ul>
+      <li>
+        added <a href="classWt_1_1Http_1_1Client.html#a28336ba9677e6e3cc6c890f490f2965a">HEAD request</a> support
+      </li>
+      <li>
+        On Windows: uses Windows root certificates. It is no longer necessary to provide a <a href="classWt_1_1Http_1_1Client.html#a7c9fbf7fc9f671519b0652f3bbe38521">path</a> with certificates for validation (or worse, disable verification altogether) when using TLS to talk to a server that uses a certificate issued by a CA that is trusted by Windows. Now the <tt>Http::Client</tt> will generally just work with <tt>https</tt> sites on Windows, just like it did on Linux. This also fixes other parts of Wt that use <tt>Http::Client</tt>, like <a href="classWt_1_1Payment_1_1PayPalService.html">PayPalService</a> and <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a>.
+      </li>
+    </ul>
+  </li>
+  <li>
+    Wt's widget coordinate calculation code now uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect" target="_blank">getBoundingClientRect()</a>, which means that coordinate calculations are still accurate even when CSS transforms are used to position widgets. This was necessary for <a href="classWt_1_1WLeafletMap_1_1WidgetMarker.html">WidgetMarker</a> support.
+  </li>
+  <li>
+    <a href="classWt_1_1WTemplate.html">WTemplate</a>'s <a href="structWt_1_1WTemplate_1_1Functions.html#ab070ae026639fb7edc0c70db6510abc7">while_f</a> function now takes extra arguments, similar to the <a href="structWt_1_1WTemplate_1_1Functions.html#a734f46b7a8155cbc6cf0407dd3dbe85d">block</a> function.
+  </li>
+  <li>
+    Added <a href="classWt_1_1WResource.html#a6695dad28a25c7cbfef93c371e7c5a1e">WResource::setTakesUpdateLock()</a> as a way to make a (non-static) resource grab the <a href="classWt_1_1WApplication.html">WApplication</a>'s <a href="classWt_1_1WApplication_1_1UpdateLock.html">UpdateLock</a> before <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6">handleRequest()</a>.
+  </li>
+  <li>
+    Made it possible to set a <a href="classWt_1_1WTableView.html#a90f7950002e37cf5144cee5bae2b340f">preload margin</a> on <tt>WTableView</tt>. This
+    allows to customize how much of the table's contents should be loaded. Higher preload margin means fewer but larger updates of the table's contents
+    when scrolling.
+  </li>
+</ul>
+<h3>Miscellaneous bug fixes</h3>
+<ul>
+  <li>Fixed an issue where JavaScript could be sent to the browser in the wrong order when doing background updates of hidden widgets
+    (<a href="https://redmine.webtoolkit.eu/issues/7023" target="_blank">issue #7023</a>)</li>
+  <li>Fixed a client side memory leak caused by misuse of jQuery's data feature (<a href="https://redmine.webtoolkit.eu/boards/2/topics/15941" target="_blank">reported on the forums</a>)</li>
+  <li><a href="classWt_1_1WTableView.html">WTableView</a>: fixed row deletion behavior</li>
+  <li>Fixed out of bounds array access when using a widget with a custom HTML tag name (<a href="https://redmine.webtoolkit.eu/issues/7059" target="_blank">issue #7059</a>). Widgets will now derive whether they are default inline based on the widget's default DOM element type.</li>
+  <li>Fixed an issue where mouse signals of a <a href="classWt_1_1WTreeView.html">WTreeView</a> would fire multiple times (<a href="https://redmine.webtoolkit.eu/issues/6260" target="_blank">issue #6260</a>)</li>
+  <li>
+    wthttp WebSocket fixes:
+    <ul>
+      <li>
+        WebSocket requests for non-existent sessions (often the result of restarting the server) no longer create a new bogus session.
+      </li>
+      <li>
+        WebSocket messages with continuation frames (as sent by Google Chrome when the messages become very large) could become corrupted,
+        especially when per-message-deflate is used (<a href="https://redmine.webtoolkit.eu/issues/7039" target="_blank">issue #7039</a>,
+        <a href="https://redmine.webtoolkit.eu/issues/7034" target="_blank">#7034</a>).
+      </li>
+      <li>
+        WebSocket message size is now properly limited by <tt>--max-memory-request-size</tt>. Previously, this would only limit the size
+        of individual frames, not the entire message.
+      </li>
+      <li>
+        Fixed a possible use-after-free or double delete issue when an invalid WebSocket message was received.
+      </li>
+    </ul>
+  </li>
+  <li>
+    Fixed undefined <tt>ackId</tt> overflow behavior (which could very rarely cause a session to fail)
+  </li>
+</ul>
+
 <h2>Release 3.3.12 (December 14, 2018)</h2>
 <p>Wt 3.3.12 is almost entirely a bugfix release. Here are the key changes:</p>
 
@@ -250,15 +672,15 @@ some functionality:</p>
     <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a>.</p>
   </dd>
   <dt>
-    Added <tt>&lt;allowed-hosts&gt;</tt> configuration option for CORS
+    Added <tt>&lt;allowed-origins&gt;</tt> configuration option for CORS
   </dt>
   <dd>
     Wt used to allow almost any origin, to allow Wt applications to be embedded in any page using
     WidgetSet mode. Although Wt encodes session IDs in URLs rather than cookies by default, this
     could still pose a security risk in some cases. In Wt 3.3.8, CORS support has been updated:
     Wt now only allows cross-origin resource sharing for WidgetSet entry points, and trusts no
-    host by default. You can specify the allowed hosts using the <tt>&lt;allowed-hosts&gt;</tt>
-    tag in the configuration file. Using <tt>&lt;allowed-hosts&gt;*&lt;/allowed-hosts&gt;</tt> 
+    origin by default. You can specify the allowed origins using the <tt>&lt;allowed-origins&gt;</tt>
+    tag in the configuration file. Using <tt>&lt;allowed-origins&gt;*&lt;/allowed-origins&gt;</tt> 
     restores the old behaviour.
   </dd>
   <dt>

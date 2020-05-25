@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * All rights reserved.
  */
@@ -42,18 +42,16 @@
  */
 
 
-static std::size_t MAX_REQUEST_HEADER_SIZE = 112*1024;
-static int MAX_URI_SIZE = 10*1024;
-static int MAX_FIELD_VALUE_SIZE = 80*1024;
-static int MAX_FIELD_NAME_SIZE = 256;
-static int MAX_METHOD_SIZE = 16;
-
-static int64_t MAX_WEBSOCKET_MESSAGE_LENGTH = 112*1024;
+static const std::size_t MAX_REQUEST_HEADER_SIZE = 112*1024;
+static const int MAX_URI_SIZE = 10*1024;
+static const int MAX_FIELD_VALUE_SIZE = 80*1024;
+static const int MAX_FIELD_NAME_SIZE = 256;
+static const int MAX_METHOD_SIZE = 16;
 
 #ifdef WTHTTP_WITH_ZLIB
-static int SERVER_DEFAULT_WINDOW_BITS = 15;
-static int CLIENT_MAX_WINDOW_BITS = 15;
-static int SERVER_MAX_WINDOW_BITS = 15;
+static const int SERVER_DEFAULT_WINDOW_BITS = 15;
+static const int CLIENT_MAX_WINDOW_BITS = 15;
+static const int SERVER_MAX_WINDOW_BITS = 15;
 #endif
 
 namespace Wt {
@@ -69,7 +67,6 @@ RequestParser::RequestParser(Server *server) :
 #endif
   server_(server)
 {
-  MAX_WEBSOCKET_MESSAGE_LENGTH = server->configuration().maxMemoryRequestSize();
   reset();
 }
 
@@ -181,7 +178,10 @@ RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply
 			      Buffer::iterator& begin, Buffer::iterator end)
 {
   if (req.type == Request::WebSocket) {
-    Request::State state = parseWebSocketMessage(req, reply, begin, end);
+    Request::State state;
+    do {
+      state = parseWebSocketMessage(req, reply, begin, end);
+    } while (begin != end && state == Request::Partial);
 
     if (state == Request::Error)
       reply->consumeData(begin, begin, Request::Error);
@@ -510,7 +510,18 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
   Request::State state = Request::Partial;
 
-  while (begin < end && state == Request::Partial) {
+  // we may be at the end of the frame (that is not the final frame
+  // of a message) without having fully consumed the input, in that
+  // case state == Request::Partial and begin < end, but we still
+  // need to inflate the frame (if using PMD), and let the reply
+  // consume it
+  bool endOfPartialFrame = false;
+
+  const ::int64_t maxFrameLength = server_->configuration().maxMemoryRequestSize();
+
+  while (begin < end &&
+         state == Request::Partial &&
+         !endOfPartialFrame) {
     switch (wsState_) {
     case ws00_frame_start:
       wsFrameType_ = *begin;
@@ -534,7 +545,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       }
       remainder_ = remainder_ << 7 | (*begin & 0x7F);
       if ((*begin & 0x80) == 0) {
-	if (remainder_ == 0 || remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH) {
+	if (remainder_ == 0 || remainder_ >= maxFrameLength) {
 	  LOG_ERROR("ws: oversized binary frame of length " << remainder_);
 	  return Request::Error;
 	}
@@ -552,7 +563,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       } else {
 	++remainder_;
 
-	if (remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH) {
+	if (remainder_ >= maxFrameLength) {
 	  LOG_ERROR("ws: oversized text frame of length " << remainder_);
 	  return Request::Error;
 	}
@@ -588,7 +599,6 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	if (frameType & 0x70 && (!req.pmdState_.enabled && frameType & 0x30)) 
 	  return Request::Error;
 	
-	frameCompressed_ = frameType & 0x40;
 #else
 	if(frameType & 0x70)
 	  return Request::Error;
@@ -607,6 +617,9 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	case 0x9: // Ping
 	case 0xA: // Pong
 	  wsFrameType_ = frameType;
+#ifdef WTHTTP_WITH_ZLIB
+	  frameCompressed_ = frameType & 0x40;
+#endif // WTHTTP_WITH_ZLIB
 
 	  break;
 	default:
@@ -660,8 +673,8 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
       if (wsCount_ == 0) {
 	LOG_DEBUG("ws: new frame length " << remainder_);
-	if (remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH) {
-	  LOG_ERROR("ws: oversized frame of length " << remainder_);
+	if (remainder_ >= maxFrameLength) {
+          LOG_ERROR("ws: oversized frame of length " << remainder_ << " exceeds --max-memory-request-size (= " << maxFrameLength << " bytes)");
 	  return Request::Error;
 	}
 	wsMask_ = 0;
@@ -684,7 +697,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	} else {
 	  // Frame without data (like pong)
 	  if (wsFrameType_ & 0x80)
-	    state = Request::Complete;
+            state = Request::Complete;
 	  wsState_ = ws13_frame_start;
 	}
       }
@@ -713,8 +726,11 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	LOG_DEBUG("ws: reading payload, remains = " << remainder_);
 
 	if (remainder_ == 0) {
-	  if (wsFrameType_ & 0x80)
-	    state = Request::Complete;
+          if (wsFrameType_ & 0x80) {
+            state = Request::Complete;
+          } else {
+            endOfPartialFrame = true;
+          }
 
 	  wsState_ = ws13_frame_start;
 	}
@@ -746,10 +762,13 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 		bool ret1 =  inflate(reinterpret_cast<unsigned char*>(&*beg), 
 			end - beg, reinterpret_cast<unsigned char*>(buffer), hasMore);
 
-		if(!ret1) return Request::Error;
+                if (!ret1)
+                  return Request::Error;
 		
-		reply->consumeWebSocketMessage(opcode, &buffer[0], &buffer[read_], hasMore ? Request::Partial : state);
+                bool ret2 = reply->consumeWebSocketMessage(opcode, &buffer[0], &buffer[read_], hasMore ? Request::Partial : state);
 
+                if (!ret2)
+                  return Request::Error;
 	  } while (hasMore);
 
 	  if (state == Request::Complete) 
@@ -762,12 +781,17 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
 	// handle uncompressed frame
 	if (wsState_ < ws13_frame_start) {
-	  if (wsFrameType_ == 0x00)
-		reply->consumeWebSocketMessage(Reply::text_frame,
-			beg, end, state);
+          if (wsFrameType_ == 0x00) {
+            bool ret = reply->consumeWebSocketMessage(Reply::text_frame,
+                         beg, end, state);
+            if (!ret)
+              return Request::Error;
+          }
 	} else {
 	  Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
-	  reply->consumeWebSocketMessage(opcode, beg, end, state);
+          bool ret = reply->consumeWebSocketMessage(opcode, beg, end, state);
+          if (!ret)
+            return Request::Error;
 	}
   }
 
@@ -1027,12 +1051,6 @@ boost::tribool& RequestParser::consume(Request& req, Buffer::iterator it)
       httpState_ = expecting_newline_3;
       return Indeterminate;
     }
-    else if ((input == ' ' || input == '\t') && haveHeader_)
-    {
-      // continuation of previous header
-      httpState_ = header_lws;
-      return Indeterminate;
-    }
     else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
     {
       return False;
@@ -1044,26 +1062,6 @@ boost::tribool& RequestParser::consume(Request& req, Buffer::iterator it)
       consumeToString(req.headers.back().name, MAX_FIELD_NAME_SIZE);
       consumeChar(it);
       httpState_ = header_name;
-      return Indeterminate;
-    }
-  case header_lws:
-    if (input == '\r')
-    {
-      httpState_ = expecting_newline_2;
-      return Indeterminate;
-    }
-    else if (input == ' ' || input == '\t')
-    {
-      return Indeterminate;
-    }
-    else if (is_ctl(input))
-    {
-      return False;
-    }
-    else
-    {
-      httpState_ = header_value;
-      consumeChar(it);
       return Indeterminate;
     }
   case header_name:

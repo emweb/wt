@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -61,7 +61,7 @@ public:
   void letReloadHTML(WebResponse& request, bool newSession);
 
   bool isDirty() const;
-  int scriptId() const { return scriptId_; }
+  unsigned int scriptId() const { return scriptId_; }
   int pageId() const { return pageId_; }
 
   void serveResponse(WebResponse& request);
@@ -84,7 +84,7 @@ public:
     BadAck
   };
   
-  AckState ackUpdate(int updateId);
+  AckState ackUpdate(unsigned int updateId);
 
   void streamRedirectJS(WStringStream& out, const std::string& redirect);
 
@@ -95,15 +95,6 @@ public:
   void setJSSynced(bool invisibleToo);
 
   void setStatelessSlotNotStateless() { currentStatelessSlotIsActuallyStateless_ = false; }
-
-  // Keep stubbed widget in vector marking it as stubbed,
-  // so we don't discard the JavaScript effects of a stateless
-  // slot executed before the widget was unstubbed.
-  void markAsStubbed(const WWidget *widget);
-
-  // Check whether the given object (which should be a widget)
-  // was marked as stubbed.
-  bool wasStubbed(const WObject *widget) const;
 
 private:
   struct CookieValue {
@@ -121,7 +112,8 @@ private:
   WebSession& session_;
 
   bool visibleOnly_, rendered_, initialStyleRendered_;
-  int twoPhaseThreshold_, pageId_, expectedAckId_, scriptId_, ackErrs_;
+  int twoPhaseThreshold_, pageId_, ackErrs_;
+  unsigned int expectedAckId_, scriptId_;
   int linkedCssCount_;
   std::string solution_;
 
@@ -136,11 +128,6 @@ private:
 
   std::vector<int> wsRequestsToHandle_;
   bool multiSessionCookieUpdateNeeded_;
-
-  // A vector of all widgets that were stubbed.
-  // Kept around until the first event after they're unstubbed,
-  // then the vector is cleared.
-  std::vector<const WWidget*> stubbedWidgets_;
 
   void setHeaders(WebResponse& request, const std::string mimeType);
   void setCaching(WebResponse& response, bool allowCache);
@@ -196,10 +183,6 @@ private:
 
   void updateMultiSessionCookie(const WebRequest &request);
   void renderMultiSessionCookieUpdate(WStringStream &out);
-
-  // If we're already past the loading phase, and the first non-load
-  // event was handled, we can clear the vector of stubbed widgets
-  void clearStubbedWidgets();
 
 public:
   std::string       learn(WStatelessSlot* slot);

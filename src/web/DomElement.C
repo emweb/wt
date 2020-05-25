@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -140,6 +140,11 @@ const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`/";
 inline char hexLookup(int n) {
   return "0123456789abcdef"[(n & 0xF)];
 }
+
+#ifdef WT_CXX11
+static_assert(sizeof(elementNames_) / sizeof(elementNames_[0]) == Wt::DomElement_UNKNOWN, "There should be as many element names as there are dom elements (excluding unknown and other)");
+static_assert(sizeof(defaultInline_) / sizeof(defaultInline_[0]) == Wt::DomElement_UNKNOWN, "defaultInline_ should be the same size as the number of dom elements (excluding unknown and other)");
+#endif // WT_CXX11
 
 }
 
@@ -1710,6 +1715,7 @@ bool DomElement::isDefaultInline() const
 
 bool DomElement::isDefaultInline(DomElementType type)
 {
+  assert(type < DomElement_UNKNOWN);
   return defaultInline_[type];
 }
 
@@ -1744,6 +1750,7 @@ DomElementType DomElement::parseTagName(const std::string& tag)
 
 std::string DomElement::tagName(DomElementType type)
 {
+  assert(type < DomElement_UNKNOWN);
   return elementNames_[type];
 }
 

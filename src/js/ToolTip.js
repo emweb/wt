@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -11,7 +11,7 @@ WT_DECLARE_WT_MEMBER
  function(APP, id, text, deferred, ToolTipInnerStyle, ToolTipOuterStyle) {
 
 
-     var $el = $("#" + id), el = $el.get(0);
+     var el = document.getElementById(id);
      var WT = APP.WT;
 
      var obj = el.toolTip;
@@ -65,6 +65,20 @@ WT_DECLARE_WT_MEMBER
                      WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance,
                                     x - MouseDistance, y - MouseDistance);
 
+                     // bring tooltip to front if there are dialogs
+                     var maxz = 0;
+                     var oldZIndex = parseInt(WT.css(outerDiv, 'zIndex'), 10);
+                     $('.Wt-dialog, .modal, .modal-dialog').each
+                       (function(index, value)
+                         {
+                           maxz = Math.max(maxz, parseInt(WT.css(value, 'zIndex'), 10));
+                           if (maxz > oldZIndex) {
+                             var newZIndex = maxz + 1000;
+                             outerDiv.style['zIndex'] = newZIndex;
+                           }
+                         }
+                       );
+
                      $(toolTipEl).mouseenter(function() {
                        overTooltip = true;
                      });
@@ -100,9 +114,15 @@ WT_DECLARE_WT_MEMBER
                      showTimer = setTimeout(function() { el.toolTip.showToolTip(); }, Delay);
              }
 
-             $el.mouseenter(resetTimer);
-             $el.mousemove(resetTimer);
-             $el.mouseleave(hideToolTip);
+             if (el.addEventListener) {
+               el.addEventListener('mouseenter', resetTimer);
+               el.addEventListener('mousemove', resetTimer);
+               el.addEventListener('mouseleave', hideToolTip);
+             } else {
+               el.attachEvent('mouseenter', resetTimer);
+               el.attachEvent('mousemove', resetTimer);
+               el.attachEvent('mouseleave', hideToolTip);
+             }
          };
      }
 

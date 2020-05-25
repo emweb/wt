@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ * Copyright (C) 2013 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -31,7 +31,7 @@ public:
   virtual int numberOfCategories(Axis axis = XAxis) const;
   virtual WString categoryLabel(int u, Axis axis) const;
   
-  virtual RenderRange computeRenderRange(Axis axis, int yAxis, AxisScale scale = LinearScale) const;
+  virtual RenderRange computeRenderRange(Axis axis, int xAxis, int yAxis, AxisScale scale = LinearScale) const;
 
   virtual bool onDemandLoadingEnabled() const;
   

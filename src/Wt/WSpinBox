@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2010, 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2010, 2011 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -107,9 +107,13 @@ public:
 
   /*! \brief A %signal that indicates when the value has changed.
    *
-   * This signal is emitted when setValue() is called.
+   * This signal is emitted when changed() is emitted, but supplies the
+   * new value as an argument. The changed() signal is emitted
+   * when the user changes the value of the spinbox
+   * by pressing the up/down arrow, or entering a different value and pressing
+   * enter or moving focus.
    *
-   * \sa setValue()
+   * \sa changed()
    */
   Signal<int>& valueChanged() { return valueChanged_; }
 

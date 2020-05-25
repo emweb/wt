@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -202,10 +202,8 @@ public:
 
   /*! \brief Sets the accept header.
    *
-   * \htmlonly
    * The default value is
    * "text/html,application/xhtml+xml,application/xml;q=0.9,*<span>/</span>*;q=0.8".
-   * \endhtmlonly
    *
    * \sa accept()
    */

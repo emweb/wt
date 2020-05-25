@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -111,6 +111,7 @@ WebSession::WebSession(WebController *controller,
     webSocket_(0),
     bootStyleResponse_(0),
     canWriteWebSocket_(false),
+    webSocketConnected_(false),
     pollRequestsIgnored_(0),
     progressiveBoot_(false),
     deferredRequest_(0),
@@ -384,7 +385,7 @@ void WebSession::init(const WebRequest& request)
   bool useAbsoluteUrls;
 #ifndef WT_TARGET_JAVA
   useAbsoluteUrls 
-    = app_->readConfigurationProperty("baseURL", absoluteBaseUrl_);
+    = env_->server()->readConfigurationProperty("baseURL", absoluteBaseUrl_);
 #else
   std::string* absoluteBaseUrl 
     = app_->readConfigurationProperty("baseURL", absoluteBaseUrl_);
@@ -1452,7 +1453,8 @@ void WebSession::handleRequest(Handler& handler)
 	      kill();
 	      break;
 	    } else if (*requestE != "page") {
-	      LOG_INFO("not serving this.");
+              LOG_INFO("Not serving this: request of type '" << *requestE << "' "
+                       "in a brand new session (probably coming from an old session)");
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
@@ -1948,10 +1950,11 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	    cgi.parse(*message, CgiParser::ReadDefault);
 	  } catch (std::exception& e) {
 	    LOG_ERROR("could not parse ws message: " << e.what());
-	    delete message;
 	    closing = true;
 	  }
+        }
 
+        if (!closing) {
 	  const std::string *connectedE = message->getParameter("connected");
 	  if (connectedE) {
 	    if (lock->asyncResponse_) {
@@ -1959,7 +1962,7 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	      lock->asyncResponse_ = 0;
 	    }
 
-	    lock->renderer_.ackUpdate(boost::lexical_cast<int>(*connectedE));
+            lock->renderer_.ackUpdate(boost::lexical_cast<unsigned int>(*connectedE));
 	    lock->webSocketConnected_ = true;
 	  }
 
@@ -2329,8 +2332,8 @@ void WebSession::notify(const WEvent& event)
 	  return;
 	}
 
-      std::string ca = WEnvironment::getClientAddress
-	(*handler.request(), controller_->configuration());
+      std::string ca = handler.request()->clientAddress(
+            controller_->configuration().behindReverseProxy());
 
       if (ca != env_->clientAddress()) {
 	bool isInvalid = sessionIdCookie_.empty();
@@ -2459,7 +2462,7 @@ void WebSession::notify(const WEvent& event)
 	  WebRenderer::AckState ackState = WebRenderer::CorrectAck;
 	  if (invalidAckId && ackIdE) {
 	    try {
-	      ackState = renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE));
+              ackState = renderer_.ackUpdate(boost::lexical_cast<unsigned int>(*ackIdE));
 	      if (ackState != WebRenderer::BadAck)
 		invalidAckId = false;
 	    } catch (const boost::bad_lexical_cast& e) {
@@ -2992,10 +2995,6 @@ void WebSession::notifySignal(const WEvent& e)
 
       handler.nextSignal = i + 1;
 
-      const std::string *evAckIdE = request.getParameter(se + "evAckId");
-      bool checkWasStubbed = evAckIdE &&
-          boost::lexical_cast<int>(*evAckIdE) <= renderer_.scriptId() + 1;
-
       if (*signalE == "hash") {
 	const std::string *hashE = request.getParameter(se + "_");
 	if (hashE) {
@@ -3004,7 +3003,7 @@ void WebSession::notifySignal(const WEvent& e)
 	} else
 	  changeInternalPath("", handler.response());
       } else {
-        for (unsigned k = 0; k < 4; ++k) {
+        for (unsigned k = 0; k < 3; ++k) {
 	  SignalKind kind = (SignalKind)k;
 
 	  if (kind == AutoLearnStateless && request.postDataExceeded())
@@ -3022,7 +3021,7 @@ void WebSession::notifySignal(const WEvent& e)
 	  } else
 	    s = decodeSignal(*signalE, k == 0);
 
-          processSignal(s, se, request, kind, checkWasStubbed);
+          processSignal(s, se, request, kind);
 
 	  if (kind == LearnedStateless && discardStateless)
 	    renderer_.discardChanges();
@@ -3035,20 +3034,14 @@ void WebSession::notifySignal(const WEvent& e)
 }
 
 void WebSession::processSignal(EventSignalBase *s, const std::string& se,
-                               const WebRequest& request, SignalKind kind,
-                               bool checkWasStubbed)
+                               const WebRequest& request, SignalKind kind)
 {
   if (!s)
     return;
 
   switch (kind) {
   case LearnedStateless:
-    s->processLearnedStateless(checkWasStubbed);
-    break;
-  case StubbedStateless:
-    if (checkWasStubbed) {
-      s->processStubbedStateless();
-    }
+    s->processLearnedStateless();
     break;
   case AutoLearnStateless:
     s->processAutoLearnStateless(&renderer_);

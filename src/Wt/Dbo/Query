@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -79,7 +79,7 @@ class Session;
  *
  * \ingroup dbo
  */
-class AbstractQuery
+class WTDBO_API AbstractQuery
 {
 public:
   /*! \brief Binds a value to the next positional marker.
@@ -385,7 +385,7 @@ public:
 
   /** @name Methods for composing a query (DynamicBinding only)
    */
-  //@{
+  //!@{
   /*! \brief Adds a join.
    *
    * This is a convenience method for creating a SQL query, and
@@ -543,7 +543,7 @@ public:
    */
   int limit() const;
 
-  //@}
+  //!@}
 
 #endif // DOXYGEN_ONLY
  };

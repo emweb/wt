@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -60,6 +60,9 @@ bool WTemplate::_while(const std::vector<WString>& args,
     return false;
 
   WString tblock = WString::tr(args[1].toUTF8());
+  for (unsigned i = 2; i < args.size(); ++i)
+    tblock.arg(args[i]);
+
   while (conditionValue(args[0].toUTF8()))
     this->renderTemplateText(result, tblock);
 

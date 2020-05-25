@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2010 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -141,7 +141,7 @@ void WPdfImage::setStrokeColor(WColor color)
                          color.green() / 255.,
                          color.blue() / 255.);
 
-  typename std::map<int, HPDF_ExtGState>::const_iterator it =
+  const std::map<int, HPDF_ExtGState>::const_iterator it =
     alphaStrokeExtGStateMap_.find(color.alpha());
   HPDF_ExtGState gstate;
   if (it == alphaStrokeExtGStateMap_.end()) {
@@ -218,7 +218,10 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
     if (pen.style() != NoPen) {
       setStrokeColor(pen.color());
 
-      WLength w = painter()->normalizedPenWidth(pen.width(), false);
+      // Pen width is already scaled by the PDF transform (Page_Concat)
+      // Cosmetic pens are also correctly drawn as 1px
+      WLength w = pen.width();
+
       HPDF_Page_SetLineWidth(page_, w.toPixels());
 
       switch (pen.capStyle()) {
@@ -391,7 +394,7 @@ void WPdfImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
   if (end < start)
     std::swap(start, end);
 
-  if (spanAngle < (360 - EPSILON) )
+  if (std::fabs(spanAngle) < (360 - EPSILON) )
     HPDF_Page_Arc(page_, 0, 0, rect.width() / 2, start + 90, end + 90);
   else
     HPDF_Page_Circle(page_, 0, 0, rect.width() / 2);
@@ -538,10 +541,15 @@ void WPdfImage::drawPlainPath(const WPainterPath& path)
       const double x = s.x();
       const double y = s.y();
       const double radius = segments[i+1].x();
-      double ang1 = segments[i+2].x();
-      double ang2 = ang1 + segments[i+2].y();
+      const double startAngle = segments[i+2].x();
+      double spanAngle = segments[i+2].y();
+      if (std::fabs(spanAngle) >= (360 - EPSILON))
+        spanAngle = 360;
+      const double betweenAngle = startAngle + spanAngle / 2;
+      const double endAngle = startAngle + spanAngle;
 
-      HPDF_Page_Arc(page_, x, y, radius, ang1 + 90, ang2 + 90);
+      HPDF_Page_Arc(page_, x, y, radius, startAngle + 90, betweenAngle + 90);
+      HPDF_Page_Arc(page_, x, y, radius, betweenAngle + 90, endAngle + 90);
 
       i += 2;
       break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -322,7 +322,7 @@ std::string WImage::updateAreasJS()
     ss <<
       "(function(){"
       """var w = " << jsRef() << ";"
-      """if (w && w.wtObj) { o.wtObj.updateAreas(); }"
+      """if (w && w.wtObj) { w.wtObj.updateAreas(); }"
       "})();";
   }
   return ss.str();

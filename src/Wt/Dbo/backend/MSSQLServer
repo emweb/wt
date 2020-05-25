@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2017 Emweb bvba, Herent, Belgium.
+ * Copyright (C) 2017 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -94,7 +94,7 @@ public:
 
   /** @name Methods that return dialect information
    */
-  //@{
+  //!@{
   virtual std::string autoincrementSql() const;
   virtual std::vector<std::string> autoincrementCreateSequenceSql(const std::string &table, const std::string &id) const;
   virtual std::vector<std::string> autoincrementDropSequenceSql(const std::string &table, const std::string &id) const;
@@ -108,7 +108,7 @@ public:
   virtual bool supportAlterTable() const;
   virtual std::string textType(int size) const;
   virtual LimitQuery limitQueryMethod() const;
-  //@}
+  //!@}
 
 private:
   struct Impl;

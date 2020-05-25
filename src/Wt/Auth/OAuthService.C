@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -493,7 +493,7 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 	if (secs > 0)
 	  expires = WDateTime::currentDateTime().addSecs(secs);
 
-	std::string refreshToken = root.get("refreshToken").orIfNull("");
+        std::string refreshToken = root.get("refresh_token").orIfNull("");
         std::string idToken = root.get("id_token").orIfNull("");
 
 	return OAuthAccessToken(accessToken, expires, refreshToken, idToken);

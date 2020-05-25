@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  *
@@ -546,7 +546,8 @@ private:
   char **paramValues_;
   int *paramTypes_, *paramLengths_, *paramFormats_;
  
-  int lastId_, row_, affectedRows_;
+  long long lastId_;
+  int row_, affectedRows_;
 
   void handleErr(int err, PGresult *result)
   {
@@ -565,7 +566,7 @@ private:
 
   void setValue(int column, const std::string& value) {
     if (column >= paramCount_)
-      throw PostgresException("Binding too much parameters");
+      throw PostgresException("Binding too many parameters");
 
     for (int i = (int)params_.size(); i <= column; ++i)
       params_.push_back(Param());
@@ -589,7 +590,14 @@ private:
 	else if (sql_[i] == '"')
 	  state = DQuote;
 	else if (sql_[i] == '?') {
-	  result << '$' << placeholder++;
+          if (i + 1 != sql_.length() &&
+              sql_[i + 1] == '?') {
+            // escape question mark with double question mark
+            result << '?';
+            ++i;
+          } else {
+	    result << '$' << placeholder++;
+          }
 	  continue;
 	}
 	break;
