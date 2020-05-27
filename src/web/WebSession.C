@@ -1344,7 +1344,7 @@ void WebSession::handleRequest(Handler& handler)
   }
 
   const std::string *requestE = request.getParameter("request");
-
+  bool requestForResource = requestE && *requestE == "resource";
 
   if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {
     LOG_ERROR("invalid WebSocket request, ignoring");
@@ -1384,11 +1384,25 @@ void WebSession::handleRequest(Handler& handler)
    * Only handle GET, POST and OPTIONS requests, unless a resource is
    * listening.
    */
-  if (!((requestE && *requestE == "resource")
+  if (!(requestForResource
 	|| isEqual(request.requestMethod(), "POST")
 	|| isEqual(request.requestMethod(), "GET"))) {
     handler.response()->setStatus(400); // Bad Request
     handler.flushResponse();
+    return;
+  }
+
+  /*
+   * If ajax session is already established, reject GET with wtd parameter
+   * matching sessionId_, unless resource request or reloadIsNewSession() is false
+   */
+  if (env_->ajax()
+      && isEqual(request.requestMethod(), "GET")
+      && !requestForResource
+      && conf.reloadIsNewSession()
+      && wtdE && *wtdE == sessionId_) {
+    LOG_SECURE("Unexpected GET request with wtd of existing Ajax session");
+    serveError(403, handler, "Forbidden");
     return;
   }
 
@@ -1508,7 +1522,7 @@ void WebSession::handleRequest(Handler& handler)
 	  }
 	  break; }
 	case WidgetSet:
-	  if (requestE && *requestE == "resource") {
+	  if (requestForResource) {
 	    const std::string *resourceE = request.getParameter("resource");
 	    if (resourceE && *resourceE == "blank") {
 	      handler.response()->setContentType("text/html");
@@ -1639,8 +1653,6 @@ void WebSession::handleRequest(Handler& handler)
 	    break;
 	  }
 	}
-
-	bool requestForResource = requestE && *requestE == "resource";
 
 	if (!app_) {
 	  const std::string *resourceE = request.getParameter("resource");
