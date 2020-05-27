@@ -19,7 +19,6 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
-#include <utility>
 
 namespace Wt { namespace Signals { namespace Impl {
 
@@ -240,7 +239,7 @@ public:
       do {
         if (link->active()) {
           try {
-            link->function(std::forward<Args>(args) ...);
+            link->function(args...);
           } catch (...) {
             link->decref();
 
@@ -328,7 +327,7 @@ struct ConnectHelper {
 			    T *target, void (V::*method)(B...))
   { 
     return signal.connect
-      ([target, method](Args... a) { (target ->* method) (std::forward<Args>(a)...); },
+      ([target, method](Args... a) { (target ->* method) (a...); },
        target);
   }
 };
@@ -369,7 +368,7 @@ struct ConnectHelper<1, Args...> {
   {
     return signal.connect
       ([target, method](B1 b1, An...) {
-        (target ->* method) (std::forward<B1>(b1));
+	(target ->* method) (b1);
       }, target);
   }
 };
@@ -391,7 +390,7 @@ struct ConnectHelper<2, Args...> {
   {
     return signal.connect
       ([target, method](B1 b1, B2 b2, An...) {
-        (target ->* method) (std::forward<B1>(b1), std::forward<B2>(b2));
+	(target ->* method) (b1, b2);
       }, target);
   }
 };
@@ -416,7 +415,7 @@ struct ConnectHelper<3, Args...> {
   {
     return signal.connect
       ([target, method](B1 b1, B2 b2, B3 b3, An...) {
-        (target ->* method) (std::forward<B1>(b1), std::forward<B2>(b2), std::forward<B3>(b3));
+	(target ->* method) (b1, b2, b3);
       }, target);
   }
 };

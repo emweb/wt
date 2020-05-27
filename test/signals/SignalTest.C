@@ -398,3 +398,33 @@ BOOST_AUTO_TEST_CASE( test_signals14 )
   BOOST_REQUIRE(!signal.isConnected());
 }
 #endif
+
+BOOST_AUTO_TEST_CASE( test_signals15 )
+{
+  Wt::Signal<std::string> signal;
+
+  signal.connect([](const std::string &s) {
+    BOOST_REQUIRE(s == "Hello");
+  });
+
+  signal.connect([](const std::string &s) {
+    BOOST_REQUIRE(s == "Hello");
+  });
+
+  signal.emit(std::string("Hello"));
+}
+
+BOOST_AUTO_TEST_CASE( test_signals16 )
+{
+  Wt::Signal<const std::string &> signal;
+
+  signal.connect([](const std::string &s) {
+    BOOST_REQUIRE(s == "Hello");
+  });
+
+  signal.connect([](const std::string &s) {
+    BOOST_REQUIRE(s == "Hello");
+  });
+
+  signal.emit(std::string("Hello"));
+}

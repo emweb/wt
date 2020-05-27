@@ -15,7 +15,6 @@
 #endif // WT_TARGET_JAVA
 
 #include <functional>
-#include <utility>
 
 namespace Wt {
 
@@ -753,13 +752,13 @@ Wt::Signals::connection Signal<A...>
 template <class... A>
 void Signal<A...>::emit(A... args) const
 {
-  impl_.emit(std::forward<A>(args)...);
+  impl_.emit(args...);
 }
 
 template <class... A>
 void Signal<A...>::operator()(A... args) const
 {
-  emit(std::forward<A>(args)...);
+  emit(args...);
 }
 
 template <class... A>

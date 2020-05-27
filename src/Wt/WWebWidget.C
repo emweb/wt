@@ -130,6 +130,7 @@ WWebWidget::OtherImpl::~OtherImpl()
 { }
 
 WWebWidget::WWebWidget()
+  : id_(nullptr) // CNOR needs an extra hint so it sets id_ to null instead of empty string
 {
   flags_.set(BIT_INLINE);
   flags_.set(BIT_ENABLED);
