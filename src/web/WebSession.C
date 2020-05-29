@@ -1327,7 +1327,6 @@ void WebSession::handleRequest(Handler& handler)
   const std::string *requestE = request.getParameter("request");
   bool requestForResource = requestE && *requestE == "resource";
 
-
   if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {
     LOG_ERROR("invalid WebSocket request, ignoring");
 

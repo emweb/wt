@@ -3450,48 +3450,6 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
     if (!yAxes_[i].axis->prepareRender(yDir, chartArea_.height()))
       return false;
 
-  // TODO(Roel): is there some special case for CategoryScale?
-#if 0
-  if (xAxis.scale() == AxisScale::Discrete) {
-    switch (xAxis.location()) {
-    case AxisValue::Minimum:
-    case AxisValue::Zero:
-      xAxis_.location.initLoc = AxisValue::Minimum;
-      xAxis_.location.finLoc = AxisValue::Minimum;
-      break;
-    case AxisValue::Maximum:
-      xAxis_.location.initLoc = AxisValue::Maximum;
-      xAxis_.location.finLoc = AxisValue::Maximum;
-      break;
-    case AxisValue::Both:
-      xAxis_.location.initLoc = AxisValue::Both;
-      xAxis_.location.finLoc = AxisValue::Both;
-    }
-  } else {
-    AxisValue xLocation = xAxis_.axis->location();
-    xAxis_.location.initLoc = xLocation;
-
-    if (xLocation == AxisValue::Zero) {
-      if (yAxes_[0].axis->segments_.back().renderMaximum < 0)
-        xLocation = AxisValue::Maximum;
-      else if (yAxes_[0].axis->segments_.back().renderMinimum > 0)
-        xLocation = AxisValue::Minimum;
-      else if (!yAxes_[0].axis->isOnAxis(0.0))
-        xLocation = AxisValue::Minimum;
-      xAxis_.location.initLoc = xLocation;
-    } else if (xLocation == AxisValue::Minimum) {
-      if (yAxes_[0].axis->segments_.front().renderMinimum == 0 && yAxes_[0].axis->tickDirection() == TickDirection::Outwards)
-        xLocation = AxisValue::Zero;
-    } else if (xLocation == AxisValue::Maximum)
-      if (yAxes_[0].axis->segments_.back().renderMaximum == 0)
-        xLocation = AxisValue::Zero;
-
-    xAxis_.location.finLoc = xLocation;
-  }
-
-  xAxis_.calculatedWidth = calcAxisSize(xAxis, device) + 10;
-#endif
-
   for (std::size_t i = 0; i < xAxes_.size(); ++i)
     xAxes_[i].location.initLoc = xAxes_[i].axis->location();
 
@@ -3530,6 +3488,7 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
 
   if (!minimumXaxes.empty() &&
       minimumXaxes[0]->location() == AxisValue::Minimum &&
+      minimumXaxes[0]->scale() != AxisScale::Discrete &&
       (axis(Axis::Y).inverted() ?
        yAxes_[0].axis->segments_.back().renderMaximum == 0 :
        yAxes_[0].axis->segments_.front().renderMinimum == 0) &&
@@ -3539,6 +3498,7 @@ bool WCartesianChart::prepareAxes(WPaintDevice *device) const
 
   if (!maximumXaxes.empty() &&
       maximumXaxes[0]->location() == AxisValue::Maximum &&
+      maximumXaxes[0]->scale() != AxisScale::Discrete &&
       (axis(Axis::Y).inverted() ?
        yAxes_[0].axis->segments_.front().renderMinimum == 0 :
        yAxes_[0].axis->segments_.back().renderMaximum == 0)) {
@@ -3620,7 +3580,8 @@ std::vector<const WAxis*> WCartesianChart::collectAxesAtLocation(Axis ax, AxisVa
     // For ZeroValue: look at the first of the other axes
     if (axis.location() == AxisValue::Zero) {
       if (side == AxisValue::Minimum) {
-        if (otherAxes[0].axis->segments_.front().renderMinimum >= 0 ||
+        if (axis.scale() == AxisScale::Discrete ||
+            otherAxes[0].axis->segments_.front().renderMinimum >= 0 ||
             (!otherAxes[0].axis->isOnAxis(0.0) &&
              otherAxes[0].axis->segments_.back().renderMaximum > 0))
           result.push_back(&axis);
