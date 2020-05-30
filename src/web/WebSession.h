@@ -84,8 +84,9 @@ public:
   };
 
   WebSession(WebController *controller, const std::string& sessionId,
-             EntryPointType type, const std::string& favicon,
-             const WebRequest *request, WEnvironment *env = nullptr);
+             const std::string& weakSessionId, EntryPointType type,
+             const std::string& favicon, const WebRequest *request,
+             WEnvironment *env = nullptr);
   ~WebSession();
 
 #ifdef WT_TARGET_JAVA
@@ -102,6 +103,7 @@ public:
   std::string docType() const;
 
   std::string sessionId() const { return sessionId_; }
+  std::string weakSessionId() const { return weakSessionId_; }
   std::string multiSessionId() const { return multiSessionId_; }
   void setMultiSessionId(const std::string &multiSessionId);
 
@@ -164,16 +166,22 @@ public:
   void setPagePathInfo(const std::string& path);
   std::string pagePathInfo() const { return pagePathInfo_; }
 
+  enum class SessionOption {
+    UseSessionId,
+    UseWeakSessionId
+  };
   //    (http://www.bigapp.com/myapp/app.wt) ?wtd=ABCD
   // or (http://www.bigapp.com/myapp/) app.wt/path?wtd=ABCD
   std::string mostRelativeUrl(const std::string& internalPath = std::string(),
-                              bool excludeBot = false) const;
+                              bool excludeBot = false,
+                              SessionOption sessionOption = SessionOption::UseSessionId) const;
 
   std::string appendInternalPath(const std::string& url,
                                  const std::string& internalPath) const;
 
   std::string appendSessionQuery(const std::string& url,
-                                 bool force = false) const;
+                                 bool force = false,
+                                 SessionOption sessionOption = SessionOption::UseSessionId) const;
 
   std::string ajaxCanonicalUrl(const WebResponse& request) const;
 
@@ -320,7 +328,7 @@ private:
   std::unique_ptr<WFavicon> defaultFavicon_;
   State state_;
 
-  std::string sessionId_, sessionIdCookie_, multiSessionId_;
+  std::string sessionId_, weakSessionId_, sessionIdCookie_, multiSessionId_;
   bool sessionIdChanged_, sessionIdCookieChanged_, sessionIdInUrl_;
 
   WebController *controller_;
@@ -410,7 +418,8 @@ private:
   void init(const WebRequest& request);
   bool start(WebResponse *response);
 
-  std::string sessionQuery() const;
+  std::string sessionQuery(
+          SessionOption sessionOption = SessionOption::UseSessionId) const;
   void flushBootStyleResponse();
   void changeInternalPath(const std::string& path, WebResponse *response);
 

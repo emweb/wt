@@ -85,7 +85,7 @@ WTestEnvironment::WTestEnvironment(Configuration *configuration,
 
 void WTestEnvironment::init(EntryPointType type)
 {
-  session_ = new WebSession(controller_, "testwtd", type, "", 0, this);
+  session_ = new WebSession(controller_, "testwtd", "weaktestwtd", type, "", 0, this);
   theSession_.reset(session_);
 
 #ifndef WT_TARGET_JAVA

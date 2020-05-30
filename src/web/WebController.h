@@ -13,6 +13,11 @@
 #include <map>
 #include <atomic>
 
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/member.hpp>
+
 #include <Wt/WDllDefs.h>
 #include <Wt/WServer.h>
 #include <Wt/WSocketNotifier.h>
@@ -152,6 +157,10 @@ public:
   // returns false if removeSocketNotifier was called while processing
   void socketSelected(int descriptor, WSocketNotifier::Type type);
 
+  bool findAvailableSessionIds (std::string registrationOldId,
+                                std::string& sessionId,
+                                std::string& weakSessionId);
+
   std::string generateNewSessionId(const std::shared_ptr<WebSession>& session);
 
 #ifdef WT_TEST_VISIBILITY
@@ -172,7 +181,40 @@ private:
 #endif // WT_THREADED
   std::set<std::string> uploadProgressUrls_;
 
-  typedef std::map<std::string, std::shared_ptr<WebSession> > SessionMap;
+  class SessionMap;
+  class SessionEntry {
+  public:
+    SessionEntry(std::string sessionId, std::string weakSessionId, std::shared_ptr<WebSession> session) :
+      sessionId_(sessionId), weakSessionId_(weakSessionId), session_(session) {}
+
+    std::string sessionId() const { return sessionId_; }
+    std::string weakSessionId() const { return weakSessionId_; }
+    std::shared_ptr<WebSession> session() const { return session_; }
+
+  private:
+    std::string sessionId_;
+    std::string weakSessionId_;
+    std::shared_ptr<WebSession> session_;
+
+  friend class SessionMap;
+  };
+
+  struct SessionIdTag { };
+  struct WeakSessionIdTag { };
+  class SessionMap : public boost::multi_index_container<
+    SessionEntry,
+    boost::multi_index::indexed_by<
+      boost::multi_index::ordered_unique<
+        boost::multi_index::tag<SessionIdTag>,
+        boost::multi_index::member<SessionEntry, std::string, &SessionEntry::sessionId_>
+      >,
+      boost::multi_index::hashed_unique<
+        boost::multi_index::tag<WeakSessionIdTag>,
+        boost::multi_index::member<SessionEntry, std::string, &SessionEntry::weakSessionId_>
+      >
+    >
+  >{ };
+
   SessionMap sessions_;
 
 #ifdef WT_THREADED

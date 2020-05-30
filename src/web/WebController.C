@@ -114,7 +114,7 @@ void WebController::shutdown()
 
       for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
            ++i)
-        sessionList.push_back(i->second);
+        sessionList.push_back(i->session());
 
       sessions_.clear();
 
@@ -170,8 +170,8 @@ std::vector<std::string> WebController::sessions(bool onlyRendered)
 #endif
   std::vector<std::string> sessionIds;
   for (SessionMap::const_iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
-    if (!onlyRendered || i->second->app() != nullptr)
-      sessionIds.push_back(i->first);
+    if (!onlyRendered || i->session()->app() != nullptr)
+      sessionIds.push_back(i->sessionId());
   }
   return sessionIds;
 }
@@ -189,7 +189,7 @@ bool WebController::expireSessions()
 #endif // WT_THREADED
 
     for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
-      std::shared_ptr<WebSession> session = i->second;
+      std::shared_ptr<WebSession> session = i->session();
 
       int diff = session->expireTime() - now;
 
@@ -257,13 +257,17 @@ bool WebController::expireSessions()
   return result;
 }
 
+/*
+ * addSession is called from WTestEnvironment w/hard-coded sessionId and weakSessionId
+ * ...so we can avoid checking that these ids are distinct from one another
+ */
 void WebController::addSession(const std::shared_ptr<WebSession>& session)
 {
 #ifdef WT_THREADED
   std::unique_lock<std::recursive_mutex> lock(mutex_);
 #endif // WT_THREADED
 
-  sessions_[session->sessionId()] = session;
+  sessions_.insert(SessionEntry(session->sessionId(), session->weakSessionId(), session));
 }
 
 void WebController::removeSession(const std::string& sessionId)
@@ -277,7 +281,7 @@ void WebController::removeSession(const std::string& sessionId)
   SessionMap::iterator i = sessions_.find(sessionId);
   if (i != sessions_.end()) {
     ++zombieSessions_;
-    if (i->second->env().ajax())
+    if (i->session()->env().ajax())
       --ajaxSessions_;
     else
       --plainHtmlSessions_;
@@ -509,6 +513,21 @@ bool WebController::requestDataReceived(WebRequest *request,
       return false;
 
     std::string sessionId = *wtdE;
+    /*
+     * This could be a weak sessionId, but we need to post event to
+     * a normal sessionId. So, look it up as a weakSessionId and replace
+     * with the corresponding sessionId, if found...
+     */
+    {
+#ifdef WT_THREADED
+      std::unique_lock<std::recursive_mutex> lock(mutex_);
+      SessionMap::index<WeakSessionIdTag>::type::iterator iw =
+        sessions_.get<WeakSessionIdTag>().find(sessionId);
+      if (iw != sessions_.get<WeakSessionIdTag>().end()) {
+        sessionId = iw->sessionId();
+      }
+#endif // WT_THREADED
+    }
 
     UpdateResourceProgressParams params {
       str(request->getParameter("request")),
@@ -573,8 +592,8 @@ bool WebController::handleApplicationEvent(const std::shared_ptr<ApplicationEven
 
     SessionMap::iterator i = sessions_.find(event->sessionId);
 
-    if (i != sessions_.end() && !i->second->dead())
-      session = i->second;
+    if (i != sessions_.end() && !i->session()->dead())
+      session = i->session();
   }
 
   if (!session) {
@@ -730,7 +749,7 @@ void WebController::handleRequest(WebRequest *request)
     return;
   }
 
-  std::string sessionId;
+  std::string sessionId, weakSessionId;
 
   const std::string *wtdE = request->getParameter("wtd");
 
@@ -797,14 +816,25 @@ void WebController::handleRequest(WebRequest *request)
 
     SessionMap::iterator i = sessions_.find(sessionId);
 
+    // Not a valid regular sessionId, perhaps it is a weakSessionId (used for resources)?
+    if (i == sessions_.end()) {
+      SessionMap::index<WeakSessionIdTag>::type::iterator iw =
+        sessions_.get<WeakSessionIdTag>().find(sessionId);
+
+      // if matched a weakSessionId, set i iterator to point at SessionElement
+      if (iw != sessions_.get<WeakSessionIdTag>().end()) {
+        i = sessions_.project<SessionIdTag>(iw);
+      }
+    }
+
     Configuration::SessionTracking sessionTracking = configuration().sessionTracking();
 
-    if (i == sessions_.end() || i->second->dead() ||
+    if (i == sessions_.end() || i->session()->dead() ||
         (sessionTracking == Configuration::Combined &&
-         (multiSessionCookie.empty() || multiSessionCookie != i->second->multiSessionId()))) {
+         (multiSessionCookie.empty() || multiSessionCookie != i->session()->multiSessionId()))) {
       try {
         if (sessionTracking == Configuration::Combined &&
-            i != sessions_.end() && !i->second->dead()) {
+            i != sessions_.end() && !i->session()->dead()) {
           if (!request->headerValue("Cookie")) {
             LOG_ERROR_S(&server_, "Valid session id: " << sessionId << ", but "
                         "no cookie received (expecting multi session cookie)");
@@ -823,19 +853,23 @@ void WebController::handleRequest(WebRequest *request)
           return;
         }
 
-        if (singleSessionId_.empty()) {
-          do {
-            sessionId = conf_.generateSessionId();
-            if (!conf_.registerSessionId(std::string(), sessionId))
-              sessionId.clear();
-          } while (sessionId.empty());
-        }
+	      if (singleSessionId_.empty()) {
+          sessionId.clear();
+          weakSessionId.clear();
+
+          if (!findAvailableSessionIds("", sessionId, weakSessionId)) {
+            LOG_ERROR_S(&server_, "Could not allocate session ids. Consider increasing session-id-length");
+            request->setStatus(500);
+            request->flush(WebResponse::ResponseState::ResponseDone);
+            return;
+          }
+	      }
 
         std::string favicon = request->entryPoint_->favicon();
         if (favicon.empty())
           conf_.readConfigurationProperty("favicon", favicon);
 
-        session.reset(new WebSession(this, sessionId,
+        session.reset(new WebSession(this, sessionId, weakSessionId,
                                      request->entryPoint_->type(),
                                      favicon, request));
 
@@ -846,14 +880,14 @@ void WebController::handleRequest(WebRequest *request)
         }
 
         if (sessionTracking == Configuration::CookiesURL)
-	  request->addHeader("Set-Cookie",
-			     appSessionCookie(request->scriptName())
-			     + "=" + sessionId + "; Version=1;"
-			     + " Path=" + session->env().deploymentPath()
-			     + "; httponly;" + (session->env().urlScheme() == "https" ? " secure;" : "")
-                             + " SameSite=Strict;");
+	        request->addHeader("Set-Cookie",
+                            appSessionCookie(request->scriptName())
+                            + "=" + sessionId + "; Version=1;"
+                            + " Path=" + session->env().deploymentPath()
+                            + "; httponly;" + (session->env().urlScheme() == "https" ? " secure;" : "")
+                                              + " SameSite=Strict;");
 
-        sessions_[sessionId] = session;
+        sessions_.insert(SessionEntry(sessionId, weakSessionId, session));
         ++plainHtmlSessions_;
 #ifdef WT_TEST_VISIBILITY
         addedSessionId_.emit(sessionId);
@@ -868,7 +902,7 @@ void WebController::handleRequest(WebRequest *request)
         return;
       }
     } else {
-      session = i->second;
+      session = i->session();
     }
   }
 
@@ -933,6 +967,59 @@ EntryPointMatch WebController::getEntryPoint(WebRequest *request)
   return conf_.matchEntryPoint(scriptName, pathInfo, true);
 }
 
+/*
+ * If either sessionId or WeakSessionId in/out parameter is empty,
+ * replace it with a newly generated sessionId -- if one is available.
+ * For a sessionId to be considered available, it must be:
+ *
+ * 1. unused in the SessionIdTag index to sessions_
+ * 2. unused in the WeakSessionIdTag index to sessions_
+ *
+ * For the SessionId, the registerSessionId method must also
+ * succeed (used by FCGI connector).
+ *
+ * Return true on success.
+ *
+ * NOTE: The WebController mutex_ must be held when calling this method
+ */
+bool WebController::findAvailableSessionIds(std::string registrationOldId,
+                                            std::string& sessionId,
+                                            std::string& weakSessionId)
+{
+  // With default length session ids, the likelihood of any retries is very small
+  for (int retry = 0; weakSessionId.empty() && retry < 10; ++retry) {
+    weakSessionId = conf_.generateSessionId();
+    if (sessions_.get<WeakSessionIdTag>().find(weakSessionId) !=
+        sessions_.get<WeakSessionIdTag>().end()) {
+      weakSessionId.clear();
+      continue;
+    }
+    if (sessions_.find(weakSessionId) != sessions_.end())
+      weakSessionId.clear();
+  }
+
+  for (int retry = 0; sessionId.empty() && retry < 10; ++retry) {
+    sessionId = conf_.generateSessionId();
+    if (sessionId == weakSessionId) {
+      sessionId.clear();
+      continue;
+    }
+    if (sessions_.get<WeakSessionIdTag>().find(sessionId) !=
+        sessions_.get<WeakSessionIdTag>().end()) {
+      sessionId.clear();
+      continue;
+    }
+    if (sessions_.find(sessionId) != sessions_.end()) {
+      sessionId.clear();
+      continue;
+    }
+    if (!conf_.registerSessionId(registrationOldId, sessionId))
+      sessionId.clear();
+  }
+
+  return !sessionId.empty() && !weakSessionId.empty();
+}
+
 std::string
 WebController::generateNewSessionId(const std::shared_ptr<WebSession>& session)
 {
@@ -940,14 +1027,13 @@ WebController::generateNewSessionId(const std::shared_ptr<WebSession>& session)
   std::unique_lock<std::recursive_mutex> lock(mutex_);
 #endif // WT_THREADED
 
-  std::string newSessionId;
-  do {
-    newSessionId = conf_.generateSessionId();
-    if (!conf_.registerSessionId(session->sessionId(), newSessionId))
-      newSessionId.clear();
-  } while (newSessionId.empty());
+  std::string newSessionId, newWeakSessionId;
+  if (!findAvailableSessionIds(session->sessionId(), newSessionId, newWeakSessionId)) {
+    throw WException(
+      "generateNewSessionId: out of session ids. Consider increasing session-id-length");
+  }
 
-  sessions_[newSessionId] = session;
+  sessions_.insert(SessionEntry(newSessionId, newWeakSessionId, session));
 
   SessionMap::iterator i = sessions_.find(session->sessionId());
   sessions_.erase(i);

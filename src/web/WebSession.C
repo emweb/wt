@@ -100,6 +100,7 @@ static WebSession::Handler * threadHandler_ = nullptr;
 
 WebSession::WebSession(WebController *controller,
                        const std::string& sessionId,
+                       const std::string& weakSessionId,
                        EntryPointType type,
                        const std::string& favicon,
                        const WebRequest *request,
@@ -108,6 +109,7 @@ WebSession::WebSession(WebController *controller,
     defaultFavicon_(std::make_unique<WUrlFavicon>(favicon)),
     state_(State::JustCreated),
     sessionId_(sessionId),
+    weakSessionId_(weakSessionId),
     sessionIdChanged_(false),
     sessionIdCookieChanged_(false),
     sessionIdInUrl_(false),
@@ -401,9 +403,15 @@ void WebSession::setState(State state, int timeout)
   }
 }
 
-std::string WebSession::sessionQuery() const
+std::string WebSession::sessionQuery(SessionOption sessionOption) const
 {
-  std::string wtd = env_->treatLikeBot() ? "bot" : sessionId_;
+  std::string wtd =
+    (sessionOption == SessionOption::UseSessionId ?  sessionId_ : weakSessionId_);
+
+  if (env_->treatLikeBot()) {
+    wtd = "bot";
+  }
+
   std::string result ="?wtd=" + DomElement::urlEncodeS(wtd);
   if (type() == EntryPointType::WidgetSet)
     result += "&wtt=widgetset";
@@ -632,12 +640,15 @@ std::string WebSession::makeAbsoluteUrl(const std::string& url) const
 }
 
 std::string WebSession::mostRelativeUrl(const std::string& internalPath,
-                                        bool excludeBot) const
+                                        bool excludeBot,
+                                        SessionOption sessionOption) const
 {
-  return appendSessionQuery(bookmarkUrl(internalPath), excludeBot);
+  return appendSessionQuery(bookmarkUrl(internalPath), excludeBot, sessionOption);
 }
 
-std::string WebSession::appendSessionQuery(const std::string& url, bool force) const
+std::string WebSession::appendSessionQuery(const std::string& url,
+                                           bool force,
+                                           SessionOption sessionOption) const
 {
   std::string result = url;
 
@@ -648,11 +659,11 @@ std::string WebSession::appendSessionQuery(const std::string& url, bool force) c
   std::size_t questionPos = result.find('?');
 
   if (questionPos == std::string::npos)
-    result += sessionQuery();
+    result += sessionQuery(sessionOption);
   else if (questionPos == result.length() - 1)
-    result += sessionQuery().substr(1);
+    result += sessionQuery(sessionOption).substr(1);
   else
-    result += '&' + sessionQuery().substr(1);
+    result += '&' + sessionQuery(sessionOption).substr(1);
 
 #ifndef WT_TARGET_JAVA
   return result;
