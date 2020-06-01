@@ -992,7 +992,7 @@ std::string WApplication::addExposedResource(WResource *resource)
            + Utils::urlEncode(resource->botResourceId())
            + fn;
   } else if (resource->internalPath().empty()) {
-    return session_->mostRelativeUrl(fn, true)
+    return session_->mostRelativeUrl(fn, true, WebSession::SessionOption::UseWeakSessionId)
       + "&request=resource&resource=" + Utils::urlEncode(resource->id())
       + "&ver=" + std::to_string(resource->version());
   } else {

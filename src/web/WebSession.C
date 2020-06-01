@@ -1456,6 +1456,14 @@ void WebSession::handleRequest(Handler& handler)
     return;
   }
 
+  bool weakSession = (wtdE && *wtdE == weakSessionId_);
+
+  if (weakSession && !requestForResource) {
+    LOG_SECURE("Received request from weakSessionId that is not for a resource");
+    serveError(403, handler, "Forbidden");
+    return;
+  }
+
   /*
    * If ajax session is already established, reject GET with wtd parameter
    * matching sessionId_, unless resource request or reloadIsNewSession() is false
@@ -1480,13 +1488,14 @@ void WebSession::handleRequest(Handler& handler)
    *
    * in other cases: discard the request
    */
-  if ((!wtdE || (*wtdE != sessionId_))
+  if ((!wtdE || (*wtdE != sessionId_ && !weakSession))
       && state_ != State::JustCreated
       && (requestE && (*requestE == "jsupdate" ||
                        *requestE == "jserror" ||
                        *requestE == "resource"))) {
-    LOG_DEBUG("CSRF: " << (wtdE ? *wtdE : "no wtd") << " != " << sessionId_ <<
-              ", requestE: " << (requestE ? *requestE : "none"));
+    LOG_DEBUG("CSRF: " << (wtdE ? *wtdE : "no wtd") << " != (" << sessionId_ <<
+              "or weakSessionId " << weakSessionId_ <<
+	      "), requestE: " << (requestE ? *requestE : "none"));
     LOG_SECURE("CSRF prevention kicked in.");
     serveError(403, handler, "Forbidden");
   } else

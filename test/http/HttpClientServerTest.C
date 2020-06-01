@@ -598,7 +598,7 @@ BOOST_AUTO_TEST_CASE( resource_link_after_session_id_change )
 
   auto resource = std::make_shared<TestResource>();
   WLink link(resource);
-  const std::string oldSessionId = app->sessionId();
+  const std::string oldSessionId = app->session()->weakSessionId();
   const std::string oldUrl = link.url();
   BOOST_REQUIRE(oldUrl.find("wtd=" + oldSessionId) != std::string::npos);
 
@@ -607,7 +607,7 @@ BOOST_AUTO_TEST_CASE( resource_link_after_session_id_change )
 
   app->changeSessionId();
 
-  const std::string newSessionId = app->sessionId();
+  const std::string newSessionId = app->session()->weakSessionId();
   BOOST_REQUIRE_NE(newSessionId, oldSessionId);
   BOOST_CHECK_NE(link.url(), oldUrl);
   BOOST_CHECK(link.url().find("wtd=" + newSessionId) != std::string::npos);
