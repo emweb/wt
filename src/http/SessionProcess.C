@@ -21,6 +21,8 @@
 
 #include "SessionProcessManager.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace Wt {
   LOGGER("wthttp/proxy");
 }
@@ -186,8 +188,16 @@ bool SessionProcess::handleChildMessage(const std::string& message) noexcept
       return false;
     }
   } else if (key == "session-id") {
-    if (manager_)
-      manager_->updateSessionId(value, shared_from_this());
+    if (manager_) {
+        std::vector<std::string> id_v;
+        boost::split(id_v, value, boost::is_any_of(","));
+        if (id_v.size() != 2) {
+          LOG_ERROR("Unexpected session ID format: " << value);
+          return false;
+        }
+
+      manager_->updateSessionId(id_v[0], id_v[1], shared_from_this());
+    }
   } else {
     LOG_ERROR("received invalid message from child process: " << message);
     return false;
@@ -199,6 +209,11 @@ bool SessionProcess::handleChildMessage(const std::string& message) noexcept
 void SessionProcess::setSessionId(const std::string& sessionId) noexcept
 {
   sessionId_ = sessionId;
+}
+
+void SessionProcess::setWeakSessionId(const std::string& weakSessionId) noexcept
+{
+  weakSessionId_ = weakSessionId;
 }
 
 asio::ip::tcp::endpoint SessionProcess::endpoint() const noexcept

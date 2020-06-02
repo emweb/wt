@@ -189,9 +189,9 @@ bool WServer::start()
     Utils::add(trustedProxies, Configuration::Network::fromString("127.0.0.1"));
     Utils::add(trustedProxies, Configuration::Network::fromString("::1"));
     configuration().setTrustedProxies(trustedProxies);
-    updateProcessSessionIdCallback_ = [this] (const std::string& sessionId)
+    updateProcessSessionIdCallback_ = [this] (const std::string& sessionId, const std::string& weakSessionId)
     {
-      impl_->server_->updateProcessSessionId(sessionId);
+      impl_->server_->updateProcessSessionId(sessionId, weakSessionId);
     };
   }
 

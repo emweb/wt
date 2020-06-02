@@ -64,6 +64,9 @@ public:
   const std::string& sessionId() const noexcept { return sessionId_; }
   void setSessionId(const std::string& sessionId) noexcept;
 
+  const std::string& weakSessionId() const noexcept { return weakSessionId_; }
+  void setWeakSessionId(const std::string& weakSessionId) noexcept;
+
   // Get the endpoint to connect to
   asio::ip::tcp::endpoint endpoint() const noexcept;
 
@@ -97,6 +100,7 @@ private:
   int                      port_;
 
   std::string              sessionId_;
+  std::string              weakSessionId_;
 #ifndef WT_WIN32
   pid_t                    pid_;
 #else // WT_WIN32

@@ -71,7 +71,7 @@ public:
 
   SessionProcessManager *sessionManager() { return sessionManager_; }
 
-  void updateProcessSessionId(const std::string& sessionId);
+  void updateProcessSessionId(const std::string& sessionId, const std::string& weakSessionId);
 
   AccessLogger& accessLogger() { return accessLogger_; }
 

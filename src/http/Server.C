@@ -726,14 +726,14 @@ void Server::expireSessions(Wt::AsioWrapper::error_code ec)
   }
 }
 
-void Server::updateProcessSessionId(const std::string& sessionId)
+void Server::updateProcessSessionId(const std::string& sessionId, const std::string& weakSessionId)
 {
   if (!parentSocket_->is_open()) {
     LOG_ERROR_S(&wt_, "cannot update process session-id, no active socket");
     return;
   }
 
-  std::string msg("session-id:" + sessionId + "\n");
+  std::string msg("session-id:" + sessionId + "," + weakSessionId + "\n");
   auto buf = std::make_shared<std::string>(msg);
   parentSocket_->async_send(asio::buffer(*buf),
                             std::bind(&Server::handleMessageSent, this,

@@ -3340,7 +3340,7 @@ void WebSession::generateNewSessionId()
   }
 
   if (controller_->server()->dedicatedSessionProcess()) {
-    controller_->server()->updateProcessSessionId(sessionId_);
+    controller_->server()->updateProcessSessionId(sessionId_, weakSessionId_);
   }
 }
 #endif // WT_TARGET_JAVA

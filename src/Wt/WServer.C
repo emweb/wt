@@ -680,9 +680,9 @@ void WServer::scheduleStop()
 #endif // WT_THREADED
 }
 
-void WServer::updateProcessSessionId(const std::string& sessionId) {
+void WServer::updateProcessSessionId(const std::string& sessionId, const std::string& weakSessionId) {
   if (updateProcessSessionIdCallback_)
-    updateProcessSessionIdCallback_(sessionId);
+    updateProcessSessionIdCallback_(sessionId, weakSessionId);
 }
 
 }

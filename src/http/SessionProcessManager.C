@@ -93,8 +93,17 @@ const std::shared_ptr<SessionProcess>& SessionProcessManager
 #endif // WT_THREADED
   SessionMap::const_iterator it = sessions_.find(sessionId);
   if (it != sessions_.end()) {
-    return it->second;
+    return it->sessionProcessRef();
   }
+
+  // Not a valid regular sessionId, perhaps it is a weakSessionId (used for resources)?
+  SessionMap::index<WeakSessionIdTag>::type::iterator itw =
+    sessions_.get<WeakSessionIdTag>().find(sessionId);
+
+  if (itw != sessions_.get<WeakSessionIdTag>().end()) {
+    return itw->sessionProcessRef();
+  }
+
   return nullProcessPtr;
 }
 
@@ -110,14 +119,14 @@ std::shared_ptr<SessionProcess> SessionProcessManager::createSessionProcess()
 }
 
 void SessionProcessManager
-::updateSessionId(std::string sessionId,
+::updateSessionId(std::string sessionId, std::string weakSessionId,
                     const std::shared_ptr<SessionProcess>& process)
 {
 #ifdef WT_THREADED
   std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
 
-  LOG_DEBUG("addSessionProcess()" << sessionId);
+  LOG_DEBUG("addSessionProcess(): sessionId: " << sessionId << ", weakSessionId" << weakSessionId);
   for (SessionProcessList::iterator it = pendingProcesses_.begin();
        it != pendingProcesses_.end(); ++it) {
     if (process == *it) {
@@ -134,7 +143,8 @@ void SessionProcessManager
   }
 
   process->setSessionId(sessionId);
-  sessions_[sessionId] = process;
+  process->setWeakSessionId(weakSessionId);
+  sessions_.insert(SessionEntry(sessionId, weakSessionId, process));
 }
 
 std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
@@ -147,11 +157,11 @@ std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
        it != sessions_.end(); ++it) {
     Wt::WServer::SessionInfo sessionInfo;
 #ifndef WT_WIN32
-    sessionInfo.processId = it->second->pid();
+    sessionInfo.processId = it->sessionProcessRef()->pid();
 #else // WT_WIN32
-    sessionInfo.processId = it->second->processInfo().dwProcessId;
+    sessionInfo.processId = it->sessionProcessRef()->processInfo().dwProcessId;
 #endif // WT_WIN32
-    sessionInfo.sessionId = it->first;
+    sessionInfo.sessionId = it->sessionId();
     result.push_back(sessionInfo);
   }
   return result;
@@ -192,17 +202,18 @@ void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
   std::vector<std::string> toErase;
   for (SessionMap::iterator it = sessions_.begin();
         it != sessions_.end(); ++it) {
-    DWORD result = WaitForSingleObject(it->second->processInfo().hProcess, 0);
+    DWORD result = WaitForSingleObject(it->sessionProcessRef()->processInfo().hProcess, 0);
     if (result == WAIT_OBJECT_0) {
-      toErase.push_back(it->first);
+      toErase.push_back(it->sessionId());
     }
   }
 
   for (std::vector<std::string>::iterator it = toErase.begin();
        it != toErase.end(); ++it) {
-    LOG_INFO("Child process " << sessions_[*it]->processInfo().dwProcessId << " died, removing session " << *it
+    auto process = sessions_.get<SessionIdTag>().find(*it)->sessionProcessRef();
+    LOG_INFO("Child process " << process->processInfo().dwProcessId << " died, removing session " << *it
         << " (#sessions: " << (sessions_.size() - 1) << ")");
-    sessions_[*it]->requestStop();
+    process->requestStop();
     sessions_.erase(*it);
     -- numSessions_;
   }
@@ -287,10 +298,10 @@ void SessionProcessManager::removeSessionForPid(pid_t cpid)
 #endif // WT_THREADED
   for (SessionMap::iterator it = sessions_.begin();
        it != sessions_.end(); ++it) {
-    if(it->second->pid() == cpid) {
-      LOG_INFO("Child process " << cpid << " died, removing session " << it->first
-          << " (#sessions: " << (sessions_.size() - 1) << ")");
-      it->second->requestStop();
+    if(it->sessionProcessRef()->pid() == cpid) {
+      LOG_INFO("Child process " << cpid << " died, removing session " << it->sessionId()
+	          << " (#sessions: " << (sessions_.size() - 1) << ")");
+      it->sessionProcessRef()->requestStop();
       sessions_.erase(it);
       -- numSessions_;
       return;

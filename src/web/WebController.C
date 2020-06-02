@@ -894,7 +894,7 @@ void WebController::handleRequest(WebRequest *request)
 #endif // WT_TEST_VISIBILITY
 
         if (server_.dedicatedSessionProcess()) {
-          server_.updateProcessSessionId(sessionId);
+          server_.updateProcessSessionId(sessionId, weakSessionId);
         }
       } catch (std::exception& e) {
         LOG_ERROR_S(&server_, "could not create new session: " << e.what());

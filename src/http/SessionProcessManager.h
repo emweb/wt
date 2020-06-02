@@ -17,7 +17,6 @@
 namespace http {
 namespace server {
 
-typedef std::map<std::string, std::shared_ptr<SessionProcess> > SessionMap;
 typedef std::vector<std::shared_ptr<SessionProcess> > SessionProcessList;
 
 /// For dedicated processes: maps session ids to child processes and their sockets
@@ -36,7 +35,7 @@ public:
 
   std::shared_ptr<SessionProcess> createSessionProcess();
   const std::shared_ptr<SessionProcess>& sessionProcess(std::string sessionId);
-  void updateSessionId(std::string sessionId,
+  void updateSessionId(std::string sessionId, std::string weakSessionId,
                        const std::shared_ptr<SessionProcess>& process);
 
   std::vector<Wt::WServer::SessionInfo> sessions() const;
@@ -44,6 +43,41 @@ public:
   asio::io_service& ioService();
 
 private:
+  class SessionMap;
+  class SessionEntry {
+  public:
+    SessionEntry(std::string sessionId, std::string weakSessionId, std::shared_ptr<SessionProcess> sessionProcess) :
+      sessionId_(sessionId), weakSessionId_(weakSessionId), sessionProcess_(sessionProcess) {}
+
+    std::string sessionId() const { return sessionId_; }
+    std::string weakSessionId() const { return weakSessionId_; }
+    std::shared_ptr<SessionProcess> sessionProcess() const { return sessionProcess_; }
+    const std::shared_ptr<SessionProcess>& sessionProcessRef() const { return sessionProcess_; }
+
+  private:
+    std::string sessionId_;
+    std::string weakSessionId_;
+    std::shared_ptr<SessionProcess> sessionProcess_;
+
+  friend class SessionMap;
+  };
+
+  struct SessionIdTag { };
+  struct WeakSessionIdTag { };
+  class SessionMap : public boost::multi_index_container<
+    SessionEntry,
+    boost::multi_index::indexed_by<
+      boost::multi_index::ordered_unique<
+        boost::multi_index::tag<SessionIdTag>,
+        boost::multi_index::member<SessionEntry, std::string, &SessionEntry::sessionId_>
+      >,
+      boost::multi_index::hashed_unique<
+        boost::multi_index::tag<WeakSessionIdTag>,
+        boost::multi_index::member<SessionEntry, std::string, &SessionEntry::weakSessionId_>
+      >
+    >
+  >{ };
+
   void processDeadChildren(Wt::AsioWrapper::error_code ec);
 #ifndef WT_WIN32
   void logExit(pid_t cpid, int wstatus);
