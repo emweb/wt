@@ -121,6 +121,7 @@ void WServer::init(const std::string& wtApplicationPath,
 
   ownsIOService_ = true;
   dedicatedProcessEnabled_ = false;
+  weakSessionIdEnabled_ = false;
   ioService_ = 0;
   webController_ = 0;
   configuration_ = 0;
@@ -373,6 +374,10 @@ WLogEntry WServer::log(const std::string& type) const
 
 bool WServer::dedicatedSessionProcess() const {
   return dedicatedProcessEnabled_;
+}
+
+bool WServer::weakSessionIdEnabled() const {
+  return weakSessionIdEnabled_;
 }
 
 void WServer::initLogger(const std::string& logFile,

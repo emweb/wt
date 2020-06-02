@@ -992,7 +992,16 @@ std::string WApplication::addExposedResource(WResource *resource)
            + Utils::urlEncode(resource->botResourceId())
            + fn;
   } else if (resource->internalPath().empty()) {
-    return session_->mostRelativeUrl(fn, true, WebSession::SessionOption::UseWeakSessionId)
+    // We generally want to use a weak session id for resources...
+    WebSession::SessionOption sessionOption =
+      WebSession::SessionOption::UseWeakSessionId;
+
+    // Unless the connector does not support weak session ids
+    if (!environment().server()->weakSessionIdEnabled()) {
+      sessionOption = WebSession::SessionOption::UseSessionId;
+    }
+
+    return session_->mostRelativeUrl(fn, true, sessionOption)
       + "&request=resource&resource=" + Utils::urlEncode(resource->id())
       + "&ver=" + std::to_string(resource->version());
   } else {

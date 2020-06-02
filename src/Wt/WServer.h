@@ -716,6 +716,8 @@ public:
    *       configures the server.
    */
   WT_API bool dedicatedSessionProcess() const;
+
+  WT_API bool weakSessionIdEnabled() const;
 #endif // WT_TARGET_JAVA
 
   WT_API bool expireSessions();
@@ -765,6 +767,7 @@ private:
   WIOService *ioService_;
 
   bool dedicatedProcessEnabled_;
+  bool weakSessionIdEnabled_;
 
   struct Impl;
   Impl *impl_;

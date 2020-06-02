@@ -195,6 +195,9 @@ bool WServer::start()
     };
   }
 
+  // Support weakSessionIds in resource urls
+  weakSessionIdEnabled_ = true;
+
   try {
     impl_->server_ = new http::server::Server(*impl_->serverConfiguration_,
                                               *this);
