@@ -68,9 +68,6 @@ enum class TransportEncryption {
  * Only the bare essentials of the SMTP protocol are current implemented,
  * although the Message itself supports proper unicode handling.
  *
- * \note Currently only a plain-text SMTP protocol is supported. SSL
- *       transport will be added in the future.
- *
  * \note Currently the client sends an email synchronously, and thus a slow
  *       connection to the SMTP server may block the current thread. We plan
  *       to change this in the future. It is thus beneficial to connect to a
