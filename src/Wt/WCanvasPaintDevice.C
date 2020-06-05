@@ -169,9 +169,7 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 
   tmp << "};";
 
-  if (paintUpdate_)
-    tmp << paintedWidgetJsRef << ".repaint=function(){};";
-  else {
+  if (!paintUpdate_) {
     tmp << paintedWidgetJsRef << ".repaint=pF;";
     tmp << "pF=function(){"
         << paintedWidgetJsRef << ".repaint();"
