@@ -2241,12 +2241,19 @@ private:
     bool disabled;
   };
 
+  struct ExposedResourceInfo {
+    ExposedResourceInfo(WResource* resource=nullptr, unsigned long sequence=0);
+
+    WResource* resource;
+    unsigned long sequence;
+  };
+
 #ifndef WT_TARGET_JAVA
   typedef std::map<std::string, EventSignalBase *> SignalMap;
-  typedef std::map<std::string, WResource *> ResourceMap;
+  typedef std::map<std::string, ExposedResourceInfo> ResourceMap;
 #else
   typedef std::weak_value_map<std::string, EventSignalBase *> SignalMap;
-  typedef std::weak_value_map<std::string, WResource *> ResourceMap;
+  typedef std::weak_value_map<std::string, ExposedResourceInfo> ResourceMap;
 #endif
   typedef std::map<std::string, WObject *> ObjectMap;
 
@@ -2347,6 +2354,8 @@ private:
   std::string addExposedResource(WResource *resource);
   bool removeExposedResource(WResource *resource);
   WResource *decodeExposedResource(const std::string& resourceMapKey) const;
+  WResource *decodeExposedResource(const std::string& resourceMapKey,
+                                   unsigned long rand) const;
 
   /*
    * Methods for application state handling

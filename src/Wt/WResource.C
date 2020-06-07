@@ -68,6 +68,7 @@ WResource::UseLock::~UseLock()
 WResource::WResource()
   : trackUploadProgress_(false),
     takesUpdateLock_(false),
+    invalidAfterChanged_(false),
     dispositionType_(ContentDisposition::None),
     app_(nullptr)
 { 
@@ -283,6 +284,11 @@ void WResource::setChanged()
     generateUrl();
 
   dataChanged_.emit();
+}
+
+void WResource::setInvalidAfterChanged(bool enabled)
+{
+  invalidAfterChanged_ = enabled;
 }
 
 const std::string& WResource::url() const

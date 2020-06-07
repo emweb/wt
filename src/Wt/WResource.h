@@ -239,8 +239,28 @@ public:
    *
    * This does not work when the resource is deployed at an internal path using
    * setInternalPath().
+   *
+   * \sa setInvalidAfterChanged()
    */
   void setChanged();
+
+  /*! \brief Return "page not found" for prior resource URLs after change
+   *
+   * This option invalidates earlier versions of the resource url prior to
+   * the last call of setChanged() or generateUrl(). The default value is false.
+   *
+   * This does not work when the resource is deployed at an internal path using
+   * setInternalPath().
+   *
+   * \sa setChanged(), generateUrl()
+   */
+  void setInvalidAfterChanged(bool enabled);
+
+  /*! \brief Should "page not found" be returned for outdated resource URLs
+   *
+   * \sa setInvalidAfterChanged()
+   */
+  bool invalidAfterChanged() const { return invalidAfterChanged_; }
 
   /*! \brief Sets an internal path for this resource.
    *
@@ -274,7 +294,8 @@ public:
    * can thus be used to refer to a new "version" of the resource,
    * which can be indicated by emitting the dataChanged() signal.
    *
-   * The old urls are not invalidated by calling this method.
+   * The old urls are not invalidated by calling this method, unless
+   * you enable setInvalidAfterChanged().
    */
   const std::string& generateUrl();
 
@@ -448,6 +469,7 @@ private:
 
   bool trackUploadProgress_;
   bool takesUpdateLock_;
+  bool invalidAfterChanged_;
 
   std::vector<Http::ResponseContinuationPtr> continuations_;
 
