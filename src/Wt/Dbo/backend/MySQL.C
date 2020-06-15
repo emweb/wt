@@ -1051,7 +1051,7 @@ void MySQL::checkConnection()
     try {
       connect(dbname_, dbuser_, dbpasswd_, dbhost_, dbport_, dbsocket_);
       return;
-    } catch (MySQLException e) {
+    } catch (const MySQLException& e) {
       throw MySQLException("checkConnection: Error when reconnecting: " + std::string(e.what()));
     }
   }
