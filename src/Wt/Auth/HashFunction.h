@@ -136,7 +136,7 @@ public:
    * The \p count parameter controls the number of iterations, and
    * thus the computational complexity. With a value of 0, a small
    * default is chosen. The computational complexity increases
-   * exponentionally with increasing values f \p count. The parameter
+   * exponentionally with increasing values of \p count. The parameter
    * only affects new hashes computed with compute(), and its value is
    * stored in the computed hash.
    *
