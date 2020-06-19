@@ -774,9 +774,9 @@ class MySQLStatement final : public SqlStatement
 	}
         mysql_stmt_fetch_column(stmt_,  &out_pars_[column], column, 0);
 
-      if (*out_pars_[column].error)
-	throw MySQLException("MySQL: getResult(): truncated result for column "
-	  + std::to_string(column));
+        if (*out_pars_[column].error)
+	  throw MySQLException("MySQL: getResult(): truncated result for column "
+	    + std::to_string(column));
 
 
 	std::size_t vlength = *(out_pars_[column].length);
@@ -822,7 +822,7 @@ class MySQLStatement final : public SqlStatement
       if (!out_pars_) {
 	out_pars_ =(MYSQL_BIND *)malloc(
 	      mysql_num_fields(result_) * sizeof(MYSQL_BIND));
-    std::memset(out_pars_, 0,
+        std::memset(out_pars_, 0,
 		mysql_num_fields(result_) * sizeof(MYSQL_BIND));
 	errors_ = new WT_MY_BOOL[mysql_num_fields(result_)];
         is_nulls_ = new WT_MY_BOOL[mysql_num_fields(result_)];
