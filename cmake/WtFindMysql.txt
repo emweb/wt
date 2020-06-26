@@ -70,7 +70,7 @@ IF(WIN32)
     # on zlib, depends on ws2_32 and Shlwapi on Windows
     IF(_MYSQL_DEBUG_LIB_FILENAME STREQUAL "mariadbclientd" OR
        _MYSQL_LIB_FILENAME STREQUAL "mariadbclient")
-      SET(MYSQL_LIBRARIES ${MYSQL_LIBRARIES} ${ZLIB_LIBRARIES} ws2_32 shlwapi)
+      SET(MYSQL_LIBRARIES ${MYSQL_LIBRARIES} ${ZLIB_LIBRARIES} ws2_32 shlwapi secur32 crypt32)
     ENDIF()
     set(_MYSQL_DEBUG_LIB_FILENAME)
     set(_MYSQL_LIB_FILENAME)
