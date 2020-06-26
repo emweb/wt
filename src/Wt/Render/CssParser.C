@@ -21,7 +21,6 @@ using namespace Wt::Render;
 #define WIN32_LEAN_AND_MEAN
 
 #include <boost/algorithm/string.hpp>
-#include <boost/bind.hpp>
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_repeat.hpp>

@@ -45,7 +45,7 @@
 #else
 #include <boost/phoenix.hpp>
 #endif
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <iostream>
 
 #endif // SPIRIT_QUERY_PARSE
@@ -189,7 +189,7 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
 
     fields
       = raw[field][
-		   boost::bind(&Self::handleField, this, _1)
+		   boost::bind(&Self::handleField, this, boost::arg<1>())
 		   ] 
         % ','
       ;

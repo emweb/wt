@@ -30,7 +30,7 @@
 #include <boost/phoenix.hpp>
 #endif
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #endif // JSON_PARSER
 
@@ -134,7 +134,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
     };
     
     object
-      =  lit('{')[boost::bind(&Self::startObject, this, _3)]
+      =  lit('{')[boost::bind(&Self::startObject, this, boost::arg<3>())]
       >> -(member % ',')
       >> lit('}')[endObject]
       ;
@@ -162,7 +162,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
     };
                 
     array 
-      = lit('[')[boost::bind(&Self::startArray, this, _3)]
+      = lit('[')[boost::bind(&Self::startArray, this, boost::arg<3>())]
       >> -(value % ',')
       >> lit(']')[endArray]
       ;

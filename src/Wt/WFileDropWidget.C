@@ -14,7 +14,6 @@
 #include "WebUtils.h"
 #include "WebSession.h"
 #include <exception>
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
 

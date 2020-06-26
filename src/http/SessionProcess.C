@@ -5,8 +5,6 @@
  */
 #include "SessionProcess.h"
 
-#include <boost/bind.hpp>
-
 #ifdef __linux__
 #include <sys/time.h>
 #include <sys/resource.h>
