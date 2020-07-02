@@ -22,6 +22,70 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.7.0 (July 2020)</h2>
+
+<p>Wt 3.7.0 adds support for multiple X axes to the charts, among other fixes and tweaks.</p>
+
+<h3>Security related</h3>
+
+Wt now rejects GET requests for Ajax-enabled sessions that are not for resources, as an
+extra means to prevent session hijacking attempts. Patch provided by Bruce Toll in
+<a href="https://redmine.webtoolkit.eu/issues/7585" target="_blank">issue #7585</a>.
+
+<h3>Multiple X axes</h3>
+
+<p>
+  <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>: similar to how
+  Wt 3.3.11 added support for multiple Y axes, Wt 3.7.0 adds support for multiple X axes,
+  too. Instead of trying to squeeze another <tt>int</tt> argument to functions like
+  <a href="classWt_1_1Chart_1_1WCartesianChart.html#a37b22e4bdc17c45d193848cca443dd28">WCartesianChart::map</a>,
+  we decided to add overloads that take two <a href="classWt_1_1Chart_1_1WAxis.html">WAxis</a> references.
+</p>
+
+<h3>Minor features</h3>
+
+<ul>
+  <li>
+    <a href="classWt_1_1WFileResource.html">WFileResource</a>: added a log message when failing to open a file. Previously,
+    it would not be very clear why nothing was downloaded.
+  </li>
+  <li>
+    Added the MIME type for <tt>.txt</tt> files to <tt>wthttp</tt>, so that
+    they are displayed in the browser rather than prompt a download.
+  </li>
+</ul>
+
+<h3>Bug fixes</h3>
+
+<ul>
+  <li>
+    Wt:: Auth:
+    <ul>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7518" target="_blank">Issue #7518</a>: previously, it was
+        not possible to set
+        <a href="classWt_1_1Auth_1_1AbstractPasswordService_1_1AbstractStrengthValidator.html">AbstractStrengthValidator</a>
+        to non-mandatory. This has now been fixed. It now also correctly reports
+        <a href="classWt_1_1WValidator.html#a638a1feefca259ea2f806a8add2d18a3a5e6ab5b841b3066a2d228b9ce7f4f447">InvalidEmpty</a>
+        when the input left empty.
+      </li>
+      <li>
+        Fixed an issue where slots connected to
+        <a href="classWt_1_1Auth_1_1Login.html#aafb1d791aeee8b59d28faeda88e8392b">Login::changed()</a> would still have
+        the old session id, which would afterwards be updated, causing resource urls created in the slot to have the wrong session id.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="classWt_1_1WPaintedWidget.html">WPaintedWidget</a>: fixed an issue where combining incremental painting
+    (<a href="namespaceWt.html#a23a1002020ee93ed4679d351b7350de3">PaintUpdate</a>) with images could cause the first
+    paint event to be discarded, resulting in an incomplete result.
+  </li>
+  <li>
+    Previously, having multiple instances of <a href="classWt_1_1WGoogleMap.html">WGoogleMap</a> could cause JavaScript errors. This has now been resolved.
+  </li>
+</ul>
+
 <h2>Release 3.6.1 (April 20, 2020)</h2>
 
 <p>
