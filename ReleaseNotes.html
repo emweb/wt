@@ -22,6 +22,98 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.4.0 (July 2020)</h2>
+
+<p>Wt 4.4.0 adds a couple of new features, like multiple X axes, and WColorPicker, among other fixes and tweaks.</p>
+
+<h3>Security related</h3>
+
+Wt now rejects GET requests for Ajax-enabled sessions that are not for resources, as an
+extra means to prevent session hijacking attempts. Patch provided by Bruce Toll in
+<a href="https://redmine.webtoolkit.eu/issues/7585" target="_blank">issue #7585</a>.
+
+<h3>Major new features</h3>
+
+<ul>
+  <li>
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>: similar to how
+    Wt 4.0.4 added support for multiple Y axes, Wt 4.4.0 adds support for multiple X axes,
+    too. Instead of trying to squeeze another <tt>int</tt> argument to functions like
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html#a37b22e4bdc17c45d193848cca443dd28">WCartesianChart::map</a>,
+    we decided to add overloads that take two <a href="classWt_1_1Chart_1_1WAxis.html">WAxis</a> references.
+  </li>
+  <li>
+    Added <a href="classWt_1_1WColorPicker.html">WColorPicker</a>: a simple form widget that display a browser-native
+    color picker. Patch provided in <a href="https://github.com/emweb/wt/pull/158" target="_blank">PR #158</a>.
+  </li>
+</ul>
+
+<h3>Minor features</h3>
+
+<ul>
+  <li>
+    Wt::Dbo:
+    <ul>
+      <li>
+        <a href="https://github.com/emweb/wt/pull/161" target="_blank">PR #161</a>: added support for
+        <a href="group__dbo.html#ga4987bb75aacce8ada8662cc86a6fc3b5"><tt>ON UPDATE RESTRICT</tt></a> and
+        <a href="group__dbo.html#gaae0942000fa56b27ca4185f76395c388">ON DELETE RESTRICT</a> foreign key constraints in Wt::Dbo.
+      </li>
+      <li>
+        <tt>DBO_INSTANTIATE_TEMPLATES</tt> and the <tt>DBO_EXTERN_TEMPLATES</tt> macros used to be disabled with
+        Visual Studio since they wouldn't work with old versions of Visual Studio. We reenabled those macros, since
+        they've been working for a while now.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="classWt_1_1WFileResource.html">WFileResource</a>: added a log message when failing to open a file. Previously,
+    it would not be very clear why nothing was downloaded.
+  </li>
+  <li>
+    Added the MIME type for <tt>.txt</tt> files to <tt>wthttp</tt>, so that
+    they are displayed in the browser rather than prompt a download.
+  </li>
+  <li>
+    All of the properties that Wt uses are now listed in the default <tt>wt_config.xml</tt> to make it easier
+    to get an overview of all of them without having to find them in the reference documentation.
+  </li>
+</ul>
+
+<h3>Updates</h3>
+
+<ul>
+  <li>
+    <a href="https://github.com/emweb/wt/pull/162" target="_blank">PR #162</a>: Updated included Bootstrap 3 version to 3.4.1 (from 3.3.7)
+  </li>
+</ul>
+
+<h3>Bug fixes</h3>
+
+<ul>
+  <li>
+    Wt:: Auth:
+    <ul>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7518" target="_blank">Issue #7518</a>: previously, it was
+        not possible to set
+        <a href="classWt_1_1Auth_1_1AbstractPasswordService_1_1AbstractStrengthValidator.html">AbstractStrengthValidator</a>
+        to non-mandatory. This has now been fixed. It now also correctly reports
+        <a href="namespaceWt.html#a06744b1cf5fdeae2a8a6c0d0084fdf25">InvalidEmpty</a> when the input left empty.
+      </li>
+      <li>
+        Fixed an issue where slots connected to <a href="classWt_1_1Auth_1_1Login.html#aafb1d791aeee8b59d28faeda88e8392b">Login::changed()</a> would still have the old session id, which would afterwards be updated, causing resource urls created in the slot to have the wrong session id.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="classWt_1_1WPaintedWidget.html">WPaintedWidget</a>: fixed an issue where combining incremental painting (<a href="namespaceWt.html#a23a1002020ee93ed4679d351b7350de3">PaintFlag::Update</a>) with images could cause the first paint event to be discarded, resulting in an incomplete result.
+  </li>
+  <li>
+    Previously, having multiple instances of <a href="classWt_1_1WGoogleMap.html">WGoogleMap</a> could cause JavaScript errors. This has now been resolved.
+  </li>
+</ul>
+
 <h2>Release 4.3.1 (April 20, 2020)</h2>
 
 <p>This release fixes the following issues:</p>
