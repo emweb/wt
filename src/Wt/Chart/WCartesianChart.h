@@ -1820,6 +1820,16 @@ protected:
    *
    * The result needs further transformation using hv() to painter
    * coordinates.
+   *
+   * \if cpp
+   *
+   * The default implementation is:
+   *
+   * \code
+   * return map(xValue, yValue, yAxis == Y1Axis ? 0 : 1, currentXSegment, currentYSegment);
+   * \endcode
+   *
+   * \endif
    */
   virtual WPointF map(double xValue, double yValue, 
 		      Axis yAxis = Axis::Ordinate,
@@ -1829,6 +1839,16 @@ protected:
    *
    * The result needs further transformation using hv() to painter
    * coordinates.
+   *
+   * \if cpp
+   *
+   * The default implementation is:
+   *
+   * \code
+   * return map(xValue, yValue, xAxis(0), this->yAxis(yAxis), currentXSegment, currentYSegment);
+   * \endcode
+   *
+   * \endif
    */
   virtual WPointF map(double xValue, double yValue, int yAxis,
                       int currentXSegment = 0, int currentYSegment = 0)
