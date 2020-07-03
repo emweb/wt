@@ -28,16 +28,18 @@ behaviour.
 
 <h3>Security related</h3>
 
-Wt now rejects GET requests for Ajax-enabled sessions that are not for resources, as an
-extra means to prevent session hijacking attempts. Patch provided by Bruce Toll in
-<a href="https://redmine.webtoolkit.eu/issues/7585" target="_blank">issue #7585</a>.
+<p>
+  Wt now rejects GET requests for Ajax-enabled sessions that are not for resources, as an
+  extra means to prevent session hijacking attempts. Patch provided by Bruce Toll in
+  <a href="https://redmine.webtoolkit.eu/issues/7585" target="_blank">issue #7585</a>.
+</p>
 
 <h3>Multiple X axes</h3>
 
 <p>
   <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>: similar to how
   Wt 3.3.11 added support for multiple Y axes, Wt 3.7.0 adds support for multiple X axes,
-  too. Instead of trying to squeeze another <tt>int</tt> argument to functions like
+  too. Instead of trying to squeeze another <tt>int</tt> argument into functions like
   <a href="classWt_1_1Chart_1_1WCartesianChart.html#a37b22e4bdc17c45d193848cca443dd28">WCartesianChart::map</a>,
   we decided to add overloads that take two <a href="classWt_1_1Chart_1_1WAxis.html">WAxis</a> references.
 </p>
@@ -67,7 +69,7 @@ extra means to prevent session hijacking attempts. Patch provided by Bruce Toll 
         <a href="classWt_1_1Auth_1_1AbstractPasswordService_1_1AbstractStrengthValidator.html">AbstractStrengthValidator</a>
         to non-mandatory. This has now been fixed. It now also correctly reports
         <a href="classWt_1_1WValidator.html#a638a1feefca259ea2f806a8add2d18a3a5e6ab5b841b3066a2d228b9ce7f4f447">InvalidEmpty</a>
-        when the input left empty.
+        when the input is left empty.
       </li>
       <li>
         Fixed an issue where slots connected to
