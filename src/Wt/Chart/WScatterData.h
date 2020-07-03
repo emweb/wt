@@ -133,7 +133,7 @@ public:
    * ItemDataRole::MarkerBrushColor (if present) is then active. The Z-seriescolumn is 
    * checked for the presence of this Role.
    *
-   * /sa setZSeriesColumn()
+   * \sa setZSeriesColumn()
    */
   void setColorColumn(int columnNumber, ItemDataRole role = ItemDataRole::Display);
 
@@ -145,7 +145,7 @@ public:
    * ItemDataRole::MarkerScaleFactor (if present) is then active. The Z-seriescolumn is 
    * checked for the presence of this Role.
    *
-   * /sa setZSeriesColumn()
+   * \sa setZSeriesColumn()
    */
   void setSizeColumn(int columnNumber, ItemDataRole role = ItemDataRole::Display);
 
