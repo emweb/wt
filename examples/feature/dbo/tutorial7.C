@@ -86,9 +86,9 @@ void run()
    */
   session.createTables();
 
-  dbo::Transaction transaction(session);
-
   {
+    dbo::Transaction transaction(session);
+
     std::unique_ptr<User> user{new User()};
     user->name = "Joe";
 
