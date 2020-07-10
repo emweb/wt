@@ -22,12 +22,12 @@ struct Runnable {
 #endif // WT_TARGET_JAVA
 
 /*! \class WTemplateFormView Wt/WTemplateFormView.h
- *  \brief A template-based View class form models.
+ *  \brief A template-based View class for form models.
  *
  * This implements a View to be used in conjunction with WFormModel
  * models to implement forms.
  *
- * For each model field, it uses a number of conventional template placholder
+ * For each model field, it uses a number of conventional template placeholder
  * variables to represent the label, editor, and validation messages in the
  * template. For a field name '<i>field</i>', we have:
  * - '<i>field</i>': the actual (form) widget for viewing/editing the value
