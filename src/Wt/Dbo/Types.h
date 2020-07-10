@@ -28,6 +28,7 @@
 					Wt::Dbo::DynamicBinding >;	\
   extern template class Wt::Dbo::Query< Wt::Dbo::ptr<C>,		\
 					Wt::Dbo::DirectBinding >;	\
+  extern template class Wt::Dbo::query_result_traits< Wt::Dbo::ptr<C> >;\
   extern template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(ptr<C>&);	\
   extern template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(std::unique_ptr<C>);	\
   extern template Wt::Dbo::ptr<C> Wt::Dbo::Session::load<C>		\
