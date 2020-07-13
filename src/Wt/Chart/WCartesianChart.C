@@ -4489,7 +4489,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
           } else {
             for (int i = xAxisCount() - 1; i >= 0; --i) {
               if (xAxis(i).isVisible() &&
-                  (xAxes_[i]->location.initLoc == MinimumValue ||
+                  (xAxes_[i]->location.initLoc == MaximumValue ||
                    xAxes_[i]->location.initLoc == BothSides)) {
                 yOffset = - (xAxes_[i]->location.minOffset +
                              xAxes_[i]->calculatedWidth);
@@ -4514,7 +4514,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
           } else {
             for (int i = xAxisCount() - 1; i >= 0; --i) {
               if (xAxis(i).isVisible() &&
-                  (xAxes_[i]->location.initLoc == MaximumValue ||
+                  (xAxes_[i]->location.initLoc == MinimumValue ||
                    xAxes_[i]->location.initLoc == BothSides)) {
                 yOffset = xAxes_[i]->location.maxOffset +
                           xAxes_[i]->calculatedWidth;
