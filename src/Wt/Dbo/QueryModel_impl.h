@@ -7,6 +7,7 @@
 #ifndef WT_DBO_QUERY_MODEL_IMPL_H_
 #define WT_DBO_QUERY_MODEL_IMPL_H_
 
+#include <Wt/Dbo/QueryModel.h>
 #include <Wt/Dbo/QueryColumn.h>
 
 #include <string>
