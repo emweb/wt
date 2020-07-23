@@ -153,10 +153,9 @@ private:
   observing_ptr<WTimerWidget> timerWidget_;
   std::unique_ptr<WTimerWidget> uTimerWidget_;
 
-  bool singleShot_;
   std::chrono::milliseconds  interval_;
+  bool singleShot_;
   bool active_;
-  bool timeoutConnected_;
 
   std::unique_ptr<Time> timeout_;
 

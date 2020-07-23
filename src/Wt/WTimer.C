@@ -17,13 +17,13 @@ namespace Wt {
 
 WTimer::WTimer()
   : uTimerWidget_(new WTimerWidget(this)),
-    singleShot_(false),
     interval_(0),
+    singleShot_(false),
     active_(false),
-    timeoutConnected_(false),
     timeout_(new Time())
 {
   timerWidget_ = uTimerWidget_.get();
+  timeout().connect(this, &WTimer::gotTimeout);
 }
 
 EventSignal<WMouseEvent>& WTimer::timeout()
@@ -63,11 +63,6 @@ void WTimer::start()
                    !timeout().isExposedSignal());
 
   timerWidget_->timerStart(jsRepeat);
-
-  if (!timeoutConnected_) {
-    timeout().connect(this, &WTimer::gotTimeout);
-    timeoutConnected_ = true;
-  }
 }
 
 void WTimer::stop()
