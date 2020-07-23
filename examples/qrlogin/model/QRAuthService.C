@@ -30,7 +30,9 @@ public:
       database_(database),
       users_(users),
       login_(login)
-  { }
+  {
+    setTakesUpdateLock(true);
+  }
 
   virtual ~QRLoginResource()
   {
