@@ -339,6 +339,7 @@ private:
   static unsigned nextObjId_;
 
   friend class EventSignalBase;
+  friend class WApplication;
   friend class WebSession;
 };
 
