@@ -94,7 +94,7 @@ public:
    * The resulting function object has the same signature as the
    * passed function.
    *
-   * The past function object can be a std::function or a lambda.
+   * The passed function object can be a std::function or a lambda.
    */
   template <typename Function>
   auto bindSafe(const Function& function) noexcept;
