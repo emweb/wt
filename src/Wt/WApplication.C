@@ -398,7 +398,7 @@ WApplication::~WApplication()
       removeChild(child);
   }
   if (domRoot2_) {
-    auto domRoot = domRoot_.get();
+    auto domRoot = domRoot2_.get();
     for (WWidget *child : domRoot->children())
       removeChild(child);
   }
