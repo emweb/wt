@@ -258,7 +258,7 @@ public:
   void setLoaded();
 
   void generateNewSessionId();
-  void queueEvent(const ApplicationEvent& event);
+  void queueEvent(const std::shared_ptr<ApplicationEvent>& event);
 
 #ifdef WT_TARGET_JAVA
   void handleWebSocketMessage(Handler& handler);
@@ -288,7 +288,7 @@ private:
   std::mutex eventQueueMutex_;
 #endif
 
-  std::deque<ApplicationEvent> eventQueue_;
+  std::deque<std::shared_ptr<ApplicationEvent> > eventQueue_;
 
   EntryPointType type_;
   std::string favicon_;
@@ -374,7 +374,7 @@ private:
   void changeInternalPath(const std::string& path, WebResponse *response);
 
   void processQueuedEvents(WebSession::Handler& handler);
-  ApplicationEvent popQueuedEvent();
+  std::shared_ptr<ApplicationEvent> popQueuedEvent();
 
   friend class WebSocketMessage;
   friend class WebRenderer;

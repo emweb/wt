@@ -236,7 +236,7 @@ void WServer::schedule(std::chrono::steady_clock::duration duration,
 		       const std::function<void ()>& function,
 		       const std::function<void ()>& fallbackFunction)
 {
-  ApplicationEvent event(sessionId, function, fallbackFunction);
+  auto event = std::make_shared<ApplicationEvent>(sessionId, function, fallbackFunction);
 
   ioService().schedule(duration, [this, event] () {
           webController_->handleApplicationEvent(event);

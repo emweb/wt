@@ -467,9 +467,9 @@ bool WebController::requestDataReceived(WebRequest *request,
 
     std::string sessionId = *wtdE;
 
-    ApplicationEvent event(sessionId,
-			   std::bind(&WebController::updateResourceProgress,
-				       this, request, current, total));
+    auto event = std::make_shared<ApplicationEvent>(sessionId,
+                                                    std::bind(&WebController::updateResourceProgress,
+                                                              this, request, current, total));
 
     if (handleApplicationEvent(event))
       return !request->postDataExceeded();
@@ -506,7 +506,7 @@ void WebController::updateResourceProgress(WebRequest *request,
   }
 }
 
-bool WebController::handleApplicationEvent(const ApplicationEvent& event)
+bool WebController::handleApplicationEvent(const std::shared_ptr<ApplicationEvent>& event)
 {
   /*
    * This should always be run from within a virgin thread of the
@@ -523,15 +523,15 @@ bool WebController::handleApplicationEvent(const ApplicationEvent& event)
     std::unique_lock<std::recursive_mutex> lock(mutex_);
 #endif // WT_THREADED
 
-    SessionMap::iterator i = sessions_.find(event.sessionId);
+    SessionMap::iterator i = sessions_.find(event->sessionId);
 
     if (i != sessions_.end() && !i->second->dead())
       session = i->second;
   }
 
   if (!session) {
-    if (event.fallbackFunction)
-      event.fallbackFunction();
+    if (event->fallbackFunction)
+      event->fallbackFunction();
     return false;
   } else
     session->queueEvent(event);

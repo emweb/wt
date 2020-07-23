@@ -967,7 +967,7 @@ void WebSession
 #endif
 }
 
-ApplicationEvent WebSession::popQueuedEvent()
+std::shared_ptr<ApplicationEvent> WebSession::popQueuedEvent()
 {
 #ifdef WT_BOOST_THREADS
 #ifndef WT_TARGET_JAVA
@@ -977,7 +977,7 @@ ApplicationEvent WebSession::popQueuedEvent()
 #endif // WT_TARGET_JAVA
 #endif // WT_BOOST_THREADS
 
-  ApplicationEvent result;
+  std::shared_ptr<ApplicationEvent> result;
 
   LOG_DEBUG("popQueuedEvent(): " << eventQueue_.size());
 
@@ -993,7 +993,7 @@ ApplicationEvent WebSession::popQueuedEvent()
   return result;
 }
 
-void WebSession::queueEvent(const ApplicationEvent& event)
+void WebSession::queueEvent(const std::shared_ptr<ApplicationEvent>& event)
 {
 #ifdef WT_BOOST_THREADS
 #ifndef WT_TARGET_JAVA
@@ -1015,20 +1015,20 @@ void WebSession::queueEvent(const ApplicationEvent& event)
 void WebSession::processQueuedEvents(WebSession::Handler& handler)
 {
   for (;;) {
-    ApplicationEvent event = popQueuedEvent();
+    std::shared_ptr<ApplicationEvent> event = popQueuedEvent();
 
-    if (!event.empty()) {
+    if (event) {
       if (!dead()) {
-	externalNotify(WEvent::Impl(&handler, event.function));
+        externalNotify(WEvent::Impl(&handler, event->function));
 
 	if (app() && app()->hasQuit())
 	  kill();
 
 	if (dead())
-	  controller()->removeSession(event.sessionId);
+          controller()->removeSession(event->sessionId);
       } else {
-	if (event.fallbackFunction)
-	  WT_CALL_FUNCTION(event.fallbackFunction);
+        if (event->fallbackFunction)
+          WT_CALL_FUNCTION(event->fallbackFunction);
       }
     } else
       break;

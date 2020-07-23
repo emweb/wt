@@ -61,8 +61,6 @@ typedef std::function<void ()>  Function;
  * request (or, probably not one for that session).
  */
 struct ApplicationEvent {
-  ApplicationEvent() { }
-
   ApplicationEvent(const std::string& aSessionId,
 		   const Function& aFunction,
                    const Function& aFallbackFunction = Function())
@@ -70,8 +68,6 @@ struct ApplicationEvent {
       function(aFunction),
       fallbackFunction(aFallbackFunction)
   { }
-
-  bool empty() const { return !function; }
 
   std::string sessionId;
   Function function;
@@ -129,7 +125,7 @@ public:
   void handleRequest(WebRequest *request);
 
 #ifndef WT_CNOR
-  bool handleApplicationEvent(const ApplicationEvent& event);
+  bool handleApplicationEvent(const std::shared_ptr<ApplicationEvent>& event);
 #endif // WT_CNOR
 
   std::vector<std::string> sessions();
