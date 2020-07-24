@@ -7,6 +7,7 @@
 #include "SessionProcessManager.h"
 
 #include <boost/bind.hpp>
+#include <boost/optional.hpp>
 
 #ifndef WT_WIN32
 #include <signal.h>
@@ -163,9 +164,10 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
 
 #ifndef WT_WIN32
   pid_t cpid;
-  int status;
+  int wstatus;
 
-  while ((cpid = waitpid(0, &status, WNOHANG)) > 0) {
+  while ((cpid = waitpid(0, &wstatus, WNOHANG)) > 0) {
+    logExit(cpid, wstatus);
     removeSessionForPid(cpid);
   }
 #else // WT_WIN32
@@ -221,6 +223,47 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
 }
 
 #ifndef WT_WIN32
+void SessionProcessManager::logExit(pid_t cpid,
+                                    int wstatus)
+{
+  boost::optional<int> status;
+  if (WIFEXITED(wstatus)) {
+    status = WEXITSTATUS(wstatus);
+  }
+  boost::optional<int> signal;
+  bool coredump = false;
+  if (WIFSIGNALED(wstatus)) {
+    signal = WTERMSIG(wstatus);
+#ifdef WCOREDUMP
+    coredump = WCOREDUMP(wstatus);
+#endif // WCOREDUMP
+  }
+
+  if (status && status.get() == 0) {
+    if (signal) {
+      LOG_INFO("Child process " << cpid << " terminated normally after "
+               "receiving signal: " << signal.get());
+    } else {
+      LOG_DEBUG("Child process " << cpid << " terminated normally");
+    }
+  } else {
+    if (Wt::logInstance().logging("error", Wt::logger)) {
+      Wt::WLogEntry logEntry = Wt::log("error");
+      logEntry << Wt::logger << ": ";
+      logEntry << "Child process " << cpid << " terminated";
+      if (status) {
+        logEntry << " with status code " << status.get();
+      }
+      if (signal) {
+        logEntry << " after receiving signal " << signal.get();
+      }
+      if (coredump) {
+        logEntry << " (core dumped)";
+      }
+    }
+  }
+}
+
 void SessionProcessManager::removeSessionForPid(pid_t cpid)
 {
 #ifdef WT_THREADED
