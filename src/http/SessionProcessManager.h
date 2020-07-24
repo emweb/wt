@@ -43,6 +43,7 @@ public:
 private:
   void processDeadChildren(Wt::AsioWrapper::error_code ec);
 #ifndef WT_WIN32
+  void logExit(pid_t cpid, int wstatus);
   void removeSessionForPid(pid_t cpid);
 #endif
 
