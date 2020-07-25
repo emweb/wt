@@ -120,11 +120,8 @@ WWebWidget::OtherImpl::JavaScriptStatement::JavaScriptStatement
 WWebWidget::OtherImpl::OtherImpl(WWebWidget *const self)
   : elementTagName_(nullptr),
     tabIndex_(std::numeric_limits<int>::min()),
-    scrollVisibilityMargin_(0),
-    jsScrollVisibilityChanged_(self, "scrollVisibilityChanged")
-{
-  jsScrollVisibilityChanged_.connect(self, &WWebWidget::jsScrollVisibilityChanged);
-}
+    scrollVisibilityMargin_(0)
+{ }
 
 WWebWidget::OtherImpl::~OtherImpl()
 { }
@@ -2718,8 +2715,13 @@ bool WWebWidget::scrollVisibilityEnabled() const
 
 void WWebWidget::setScrollVisibilityEnabled(bool enabled)
 {
-  if (enabled && !otherImpl_)
+  if (enabled && !otherImpl_) {
     otherImpl_.reset(new OtherImpl(this));
+    if (!otherImpl_->jsScrollVisibilityChanged_) {
+      otherImpl_->jsScrollVisibilityChanged_.reset(new JSignal<bool>(this, "scrollVisibilityChanged"));
+      otherImpl_->jsScrollVisibilityChanged_->connect(this, &WWebWidget::jsScrollVisibilityChanged);
+    }
+  }
 
   if (scrollVisibilityEnabled() != enabled) {
     flags_.set(BIT_SCROLL_VISIBILITY_ENABLED, enabled);

@@ -518,7 +518,7 @@ private:
 
     int scrollVisibilityMargin_;
     Signal<bool> scrollVisibilityChanged_;
-    JSignal<bool> jsScrollVisibilityChanged_;
+    std::unique_ptr<JSignal<bool> > jsScrollVisibilityChanged_;
 
     OtherImpl(WWebWidget *const self);
     ~OtherImpl();
