@@ -16,9 +16,10 @@ contactOptions.wordSeparators = "-., \"@\n;";
 contactOptions.appendReplacedText = ", ";
 
 Wt::WSuggestionPopup *sp =
-    container->addNew<Wt::WSuggestionPopup>(
+    container->addChild(
+      Wt::cpp14::make_unique<Wt::WSuggestionPopup>(
             Wt::WSuggestionPopup::generateMatcherJS(contactOptions),
-            Wt::WSuggestionPopup::generateReplacerJS(contactOptions));
+            Wt::WSuggestionPopup::generateReplacerJS(contactOptions)));
 
 Wt::WLineEdit *le = container->addNew<Wt::WLineEdit>();
 le->setPlaceholderText("Enter a name starting with 'J'");

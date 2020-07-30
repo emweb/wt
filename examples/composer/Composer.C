@@ -143,7 +143,7 @@ void Composer::createUi()
   /*
    * Addressbook suggestions popup
    */
-  contactSuggestions_ = layout_->addWidget(cpp14::make_unique<ContactSuggestions>());
+  contactSuggestions_ = layout_->addChild(cpp14::make_unique<ContactSuggestions>());
 
   contactSuggestions_->forEdit(toEdit_);
   contactSuggestions_->forEdit(ccEdit_);

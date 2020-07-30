@@ -47,7 +47,7 @@ EntryDialog::EntryDialog(const WString& title, CalendarCell* cell)
   auto descriptionPtr = cpp14::make_unique<WTextArea>();
   description_ = t->bindWidget("description", std::move(descriptionPtr));
 		
-  TimeSuggestions* suggestions = contents()->addWidget(cpp14::make_unique<TimeSuggestions>());
+  TimeSuggestions* suggestions = contents()->addChild(cpp14::make_unique<TimeSuggestions>());
   suggestions->forEdit(start_);
   suggestions->forEdit(stop_);
 
