@@ -397,6 +397,15 @@ Query<Result, DynamicBinding>::where(const std::string& where)
 
 template <class Result>
 Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::orWhere(const std::string& where)
+{
+  AbstractQuery::orWhere(where);
+
+  return *this;
+}
+
+template <class Result>
+Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::orderBy(const std::string& orderBy)
 {
   AbstractQuery::orderBy(orderBy);

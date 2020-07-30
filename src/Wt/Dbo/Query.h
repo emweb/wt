@@ -151,6 +151,32 @@ public:
    */
   AbstractQuery& where(const std::string& condition);
 
+  /*! \brief Adds a query condition.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>where</i> condition expression to the
+   * current query.
+   *
+   * The condition must be a valid SQL condition expression.
+   *
+   * Multiple conditions may be provided by successive calls to
+   * orWhere(), and are concatenated
+   * together using 'or'.
+   * Previous conditions will be surrounded by brackets and the
+   * new condition will be concatenated using 'or'. For example:
+   * \code
+   *  query.where("column_a = ?").bind("A")
+   *    .where("column_b = ?").bind("B")
+   *    .orWhere("column_c = ?").bind("C");
+   * \endcode
+   * results in:
+   * "where ((column_a = 'A') and (column_b = 'B')) or column_c = 'C'"
+   *
+   * As with any part of the SQL query, a condition may contain
+   * positional markers '?' to which values may be bound using bind().
+   */
+  AbstractQuery& orWhere(const std::string& condition);
+
   /*! \brief Sets the result order.
    *
    * This is a convenience method for creating a SQL query, and sets an
@@ -283,11 +309,11 @@ protected:
  * When using DynamicBinding (which is the default), parameter binding
  * to an actual sql statement is deferred until the query is run. This
  * has the advantage that you can compose the query definition using
- * helper methods provided in the query object (where(), groupBy(),
+ * helper methods provided in the query object (where(), orWhere(), groupBy(),
  * having() and orderBy()), possibly intermixing this with parameter
  * binding, and you can keep the query around and run the query
  * multiple times, perhaps with different parameter values or to scroll
- * through the query results. The where(), groupBy(), having(), and
+ * through the query results. The where(), orWhere(), groupBy(), having(), and
  * orderBy() are merely convenience methods which you may use to
  * compose the querys incrementally, but you may just as well 
  * specify the entire SQL as a single string.
@@ -445,6 +471,35 @@ public:
    */
   Query<Result, BindStrategy>& where(const std::string& condition);
 
+  /*! \brief Adds a query condition.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>where</i> condition expression to the
+   * current query.
+   *
+   * The condition must be a valid SQL condition expression.
+   *
+   * Multiple conditions may be provided by successive calls to
+   * orWhere(), and are concatenated
+   * together using 'or'.
+   * Previous conditions will be surrounded by brackets and the
+   * new condition will be concatenated using 'or'. For example:
+   * \code
+   *  query.where("column_a = ?").bind("A")
+   *    .where("column_b = ?").bind("B")
+   *    .orWhere("column_c = ?").bind("C");
+   * \endcode
+   * results in:
+   * "where ((column_a = 'A') and (column_b = 'B')) or column_c = 'C'"
+   *
+   * As with any part of the SQL query, a condition may contain
+   * positional markers '?' to which values may be bound using bind().
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& orWhere(const std::string& condition);
+
   /*! \brief Sets the result order.
    *
    * This is a convenience method for creating a SQL query, and sets an
@@ -594,6 +649,7 @@ public:
   Query<Result, DynamicBinding>& leftJoin(const std::string& other);
   Query<Result, DynamicBinding>& rightJoin(const std::string& other);
   Query<Result, DynamicBinding>& where(const std::string& condition);
+  Query<Result, DynamicBinding>& orWhere(const std::string& condition);
   Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);
   Query<Result, DynamicBinding>& groupBy(const std::string& fields);
   Query<Result, DynamicBinding>& having(const std::string& fields);

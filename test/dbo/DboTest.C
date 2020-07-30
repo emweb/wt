@@ -3217,3 +3217,39 @@ BOOST_AUTO_TEST_CASE( dbo_test40 )
     BOOST_REQUIRE(first->i == 5);
   }
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test41 )
+{
+  // Test orWhere function
+  DboFixture f;
+  dbo::Session &session = *f.session_;
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::ptr<B> b = session.addNew<B>();
+    b.modify()->name = "Test";
+    dbo::ptr<B> b2 = session.addNew<B>();
+    b2.modify()->name = "Test2";
+    dbo::ptr<B> b3 = session.addNew<B>();
+    b3.modify()->name = "Test3";
+    dbo::ptr<B> b4 = session.addNew<B>();
+    b4.modify()->name = "Test4";
+  }
+
+  {
+    dbo::Transaction t(session);
+    dbo::collection<dbo::ptr<B>> results = session.query<dbo::ptr<B>>("select b from \"table_b\" b")
+                                                                     .where("b.\"name\" = ?").bind("Test")
+                                                                     .orWhere("b.\"name\" = ?").bind("Test2");
+
+    BOOST_REQUIRE(results.size() == 2);
+
+    std::vector<std::string> names;
+    for (dbo::ptr<B> b : results)
+      names.push_back(b->name);
+
+    BOOST_REQUIRE(names[0] == "Test" || names[0] == "Test2");
+    BOOST_REQUIRE(names[1] == "Test" || names[1] == "Test2");
+  }
+}

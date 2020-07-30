@@ -267,6 +267,18 @@ AbstractQuery& AbstractQuery::where(const std::string& where)
   return *this;
 }
 
+AbstractQuery& AbstractQuery::orWhere(const std::string& where)
+{
+  if (!where.empty()) {
+    if (!where_.empty())
+      where_ = "(" + where_ + ") or ";
+
+    where_ += "(" + where + ")";
+  }
+
+  return *this;
+}
+
 AbstractQuery& AbstractQuery::orderBy(const std::string& orderBy)
 {
   orderBy_ = orderBy;
