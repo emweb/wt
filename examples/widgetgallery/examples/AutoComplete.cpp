@@ -23,7 +23,7 @@ Wt::WSuggestionPopup *sp =
             Wt::WSuggestionPopup::generateReplacerJS(contactOptions)));
 #else
 Wt::WSuggestionPopup *sp =
-    new WSuggestionPopup(
+    new Wt::WSuggestionPopup(
             Wt::WSuggestionPopup::generateMatcherJS(contactOptions),
             Wt::WSuggestionPopup::generateReplacerJS(contactOptions));
 #endif
