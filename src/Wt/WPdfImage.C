@@ -332,14 +332,18 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
 	std::string suffix
 	  = Utils::lowerCase(ttfFont.substr(ttfFont.length() - 4));
 
-	if (suffix == ".ttf") {
-	  font_name = HPDF_LoadTTFontFromFile (pdf_, ttfFont.c_str(),
-					       HPDF_TRUE);
-	} else if (suffix == ".ttc") {
-	  /* Oops, pango didn't tell us which font to load ... */
-	  font_name = HPDF_LoadTTFontFromFile2(pdf_, ttfFont.c_str(),
-					       0, HPDF_TRUE);
-	}
+        try {
+          if (suffix == ".ttf") {
+            font_name = HPDF_LoadTTFontFromFile(pdf_, ttfFont.c_str(),
+              HPDF_TRUE);
+          } else if (suffix == ".ttc") {
+            /* Oops, pango didn't tell us which font to load ... */
+            font_name = HPDF_LoadTTFontFromFile2(pdf_, ttfFont.c_str(),
+              0, HPDF_TRUE);
+          }
+        } catch (const Wt::WException& e) {
+          LOG_ERROR("error reading font: '" << ttfFont << "': " << e.what());
+        }
 
 	if (!font_name)
 	  HPDF_ResetError (pdf_);
