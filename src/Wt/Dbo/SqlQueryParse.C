@@ -335,7 +335,7 @@ const auto select_expression_def
   ;
 const auto distinct_clause_def
   = x3::no_case["distinct"] >>
-    -(x3::no_case["on"] >> '(' >> fields >> ')')
+    -(x3::no_case["on"] >> '(' >> x3::omit[fields] >> ')')
   ;
 const auto compound_operator_def
   = ( x3::no_case["union"] >> -x3::no_case["all"] )
