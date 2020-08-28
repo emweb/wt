@@ -3253,3 +3253,44 @@ BOOST_AUTO_TEST_CASE( dbo_test41 )
     BOOST_REQUIRE(names[1] == "Test" || names[1] == "Test2");
   }
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test42 )
+{
+  // Test distinct on
+#ifdef POSTGRES
+  DboFixture f;
+  dbo::Session &session = *f.session_;
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::ptr<A> a = session.addNew<A>();
+    a.modify()->i = 1;
+    a.modify()->ll = 1L;
+    dbo::ptr<A> a2 = session.addNew<A>();
+    a2.modify()->i = 1;
+    a2.modify()->ll = 2L;
+    dbo::ptr<A> a3 = session.addNew<A>();
+    a3.modify()->i = 2;
+    a3.modify()->ll = 3L;
+    dbo::ptr<A> a4 = session.addNew<A>();
+    a4.modify()->i = 2;
+    a4.modify()->ll = 4L;
+  }
+
+  {
+    dbo::Transaction t(session);
+    dbo::collection<dbo::ptr<A>> results = session.query<dbo::ptr<A>>("select distinct on (a.\"i\") a "
+                                                                      "from \"table_a\" a order by a.\"i\" asc");
+
+    BOOST_REQUIRE(results.size() == 2);
+
+    std::vector<dbo::ptr<A>> as(results.begin(), results.end());
+
+    BOOST_REQUIRE(as[0]->i == 1);
+    BOOST_REQUIRE(as[0]->ll == 1L || as[0]->ll == 2L);
+    BOOST_REQUIRE(as[1]->i == 2);
+    BOOST_REQUIRE(as[1]->ll == 3L || as[1]->ll == 4L);
+  }
+#endif // POSTGRES
+}
