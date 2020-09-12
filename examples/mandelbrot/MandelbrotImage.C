@@ -112,6 +112,8 @@ void MandelbrotImage::generate(int64_t x, int64_t y, WRasterImage *img)
 
       img->setPixel(i, j, WColor(r, g, b));
     }
+  
+  img->done();
 }
 
 double MandelbrotImage::convertPixelX(int64_t x) const
