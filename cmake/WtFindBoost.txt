@@ -54,6 +54,7 @@ SET(Boost_COMPONENTS
     program_options
     filesystem
     thread
+    unit_test_framework
 )
 
 function(find_boost_system)
@@ -116,6 +117,7 @@ IF (Boost_FOUND)
   SET(BOOST_PO_LIB ${Boost_PROGRAM_OPTIONS_LIBRARY})
   SET(BOOST_SYSTEM_LIB ${Boost_SYSTEM_LIBRARY})
   SET(BOOST_THREAD_LIB ${Boost_THREAD_LIBRARY})
+  SET(BOOST_UT_LIB ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
   SET(BOOST_WT_MT_FOUND TRUE)
   SET(BOOST_WT_FOUND TRUE)
