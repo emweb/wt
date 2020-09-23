@@ -559,7 +559,6 @@ public:
    */
   WT_API WLogger& logger();
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Sets a custom logger to redirect all logging to.
    *
    * Instead of using the server's default logger, this will send
@@ -568,7 +567,6 @@ public:
   WT_API void setCustomLogger(const WLogSink &customLogger);
 
   const WLogSink * customLogger() const;
-#endif // WT_TARGET_JAVA
 
   /*! \brief Adds an entry to the log.
    *
