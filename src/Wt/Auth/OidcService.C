@@ -156,7 +156,7 @@ std::unique_ptr<OAuthProcess> OidcService::createProcess(const std::string& scop
   if (configured_)
     return std::unique_ptr<OAuthProcess>(new OidcProcess(*this, scope));
   else
-    throw new WException("OidcService not configured correctly");
+    throw WException("OidcService not configured correctly");
 }
 
 void OidcService::setRedirectEndpoint(const std::string& url)

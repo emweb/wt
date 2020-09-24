@@ -641,7 +641,7 @@ LOGGER("Dbo.backend.Firebird");
 	}
 
 	if (!impl_->m_tra.intf())
-	  throw new FirebirdException("Could not start transaction!");
+	  throw FirebirdException("Could not start transaction!");
 
 	impl_->m_tra->Start();
       }
@@ -649,7 +649,7 @@ LOGGER("Dbo.backend.Firebird");
       void Firebird::commitTransaction()
       {
 	if (!impl_->m_tra.intf())
-	  throw new FirebirdException("Transaction was not started yet!");
+	  throw FirebirdException("Transaction was not started yet!");
 
 	impl_->m_tra->Commit();
       }
@@ -657,7 +657,7 @@ LOGGER("Dbo.backend.Firebird");
       void Firebird::rollbackTransaction()
       {	
 	if (!impl_->m_tra.intf())
-	  throw new FirebirdException("Transaction was not started yet!");
+	  throw FirebirdException("Transaction was not started yet!");
 
 	impl_->m_tra->Rollback();
       }

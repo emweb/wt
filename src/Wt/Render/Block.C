@@ -1877,7 +1877,7 @@ void Block::advance(PageState &ps, double height,
     if (height < 0)
       height = 0;
     if ((renderer.textHeight(ps.page) - ps.y) < 0 && height >= 0)
-      throw new WException("The margin is too large");
+      throw WException("The margin is too large");
   }
 
   ps.y += height;
