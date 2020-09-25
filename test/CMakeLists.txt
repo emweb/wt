@@ -1,6 +1,7 @@
 IF(ENABLE_LIBWTTEST)
   SET(TEST_SOURCES
     test.C
+    any/AnyTest.C
     auth/BCryptTest.C
     auth/SHA1Test.C
     core/BindTest.C
