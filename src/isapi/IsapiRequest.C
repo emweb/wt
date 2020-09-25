@@ -603,7 +603,7 @@ const char *IsapiRequest::urlScheme() const {
     return "http";
 }
 
-std::unique_ptr<WSslInfo> IsapiRequest::sslInfo(bool) const {
+std::unique_ptr<WSslInfo> IsapiRequest::sslInfo(const Configuration &) const {
 #ifdef WT_WITH_SSL
   CERT_CONTEXT_EX cce;
   memset(&cce, 0, sizeof(CERT_CONTEXT_EX));

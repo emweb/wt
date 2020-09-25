@@ -43,6 +43,10 @@
 #include "Wt/WRandom.h"
 
 #ifndef WT_TARGET_JAVA
+#include "Wt/AsioWrapper/asio.hpp"
+#endif // WT_TARGET_JAVA
+
+#ifndef WT_TARGET_JAVA
 #include "EntryPoint.h"
 #endif // WT_TARGET_JAVA
 
@@ -205,9 +209,26 @@ public:
   const std::string *property(const std::string& name) const;
 #endif
 
+#ifndef WT_TARGET_JAVA
+  using IpAddress = AsioWrapper::asio::ip::address;
+#else
+  struct IpAddress {};
+#endif
+
+  struct WT_API Network {
+      IpAddress address;
+      unsigned char prefixLength;
+
+      static Network fromString(const std::string &s);
+      bool contains(const IpAddress &address) const;
+  };
+
   void setAppRoot(const std::string& path);
   std::string appRoot() const;
-  bool behindReverseProxy() const;
+  bool behindReverseProxy() const; // Deprecated
+  std::string originalIPHeader() const;
+  std::vector<Network> trustedProxies() const;
+  bool isTrustedProxy(const std::string &ipAddress) const;
   std::string redirectMessage() const;
   bool serializedEvents() const;
   bool webSockets() const;
@@ -234,6 +255,8 @@ public:
   void setUseSlashExceptionForInternalPaths(bool enabled);
   void setNeedReadBodyBeforeResponse(bool needed);
   void setBehindReverseProxy(bool enabled);
+  void setOriginalIPHeader(const std::string &originalIPHeader);
+  void setTrustedProxies(const std::vector<Network> &trustedProxies);
 
   std::string generateSessionId();
   bool registerSessionId(const std::string& oldId, const std::string& newId);
@@ -288,6 +311,11 @@ private:
   PropertyMap     properties_;
   bool            xhtmlMimeType_;
   bool            behindReverseProxy_;
+
+  // trusted-proxy-config
+  std::string     originalIPHeader_;
+  std::vector<Network> trustedProxies_;
+
   std::string     redirectMsg_;
   bool            serializedEvents_;
   bool		  webSockets_;

@@ -19,11 +19,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <algorithm>
+#include <array>
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <regex>
+
+#include <Wt/AsioWrapper/system_error.hpp>
 
 #include "3rdparty/rapidxml/rapidxml.hpp"
 #include "3rdparty/rapidxml/rapidxml_print.hpp"
@@ -157,6 +160,24 @@ std::vector<xml_node<> *> childElements(xml_node<> *element,
   return result;
 }
 
+template<std::size_t N>
+bool prefixMatches(const std::array<unsigned char, N> &networkBytes,
+                   const std::array<unsigned char, N> &addressBytes,
+                   const unsigned char prefixLength)
+{
+  for (std::size_t i = 0; i < N; ++i) {
+    if ((i + 1) * 8 < prefixLength) {
+      if (networkBytes[i] != addressBytes[i]) {
+        return false;
+      }
+    } else {
+      const unsigned char shift = (i + 1) * 8 - prefixLength;
+      return (networkBytes[i] >> shift) == (addressBytes[i] >> shift);
+    }
+  }
+  return true;
+}
+
 static std::string FORWARD_SLASH = "/";
 
 }
@@ -170,6 +191,49 @@ HeadMatter::HeadMatter(std::string contents,
   : contents_(contents),
     userAgent_(userAgent)
 { }
+
+Configuration::Network Configuration::Network::fromString(const std::string &s)
+{
+  const auto slashPos = s.find('/');
+  if (slashPos == std::string::npos) {
+    AsioWrapper::error_code ec;
+    const auto address = AsioWrapper::asio::ip::address::from_string(s, ec);
+    if (ec) {
+      throw std::invalid_argument("'" + s + "' is not a valid IP address");
+    }
+    const unsigned char prefixLength = address.is_v6() ? 128 : 32;
+    return Network { address, prefixLength };
+  } else {
+    AsioWrapper::error_code ec;
+    const auto address = AsioWrapper::asio::ip::address::from_string(s.substr(0, slashPos), ec);
+    if (ec) {
+      throw std::invalid_argument("'" + s + "' is not a valid IP address");
+    }
+    const unsigned int prefixLength = Utils::stoi(s.substr(slashPos + 1));
+    if (prefixLength < 0 ||
+        (address.is_v4() && prefixLength > 32) ||
+        (address.is_v6() && prefixLength > 128)) {
+      throw std::invalid_argument("Invalid prefix length " + s.substr(slashPos + 1) + " for IPv" +
+                                  std::string(address.is_v4() ? "4" : "6") + " address");
+    }
+    return Network { address, static_cast<unsigned char>(prefixLength) };
+  }
+}
+
+bool Configuration::Network::contains(const AsioWrapper::asio::ip::address &address) const
+{
+  if (this->address.is_v6() && address.is_v6()) {
+    const auto networkBytes = this->address.to_v6().to_bytes();
+    const auto addressBytes = address.to_v6().to_bytes();
+    return prefixMatches(networkBytes, addressBytes, prefixLength);
+  } else if (this->address.is_v4() && address.is_v4()) {
+    const auto networkBytes = this->address.to_v4().to_bytes();
+    const auto addressBytes = address.to_v4().to_bytes();
+    return prefixMatches(networkBytes, addressBytes, prefixLength);
+  } else {
+    return false;
+  }
+}
 
 Configuration::Configuration(const std::string& applicationPath,
 			     const std::string& appRoot,
@@ -214,6 +278,8 @@ void Configuration::reset()
   properties_.clear();
   xhtmlMimeType_ = false;
   behindReverseProxy_ = false;
+  originalIPHeader_ = "X-Forwarded-For";
+  trustedProxies_.clear();
   redirectMsg_ = "Load basic HTML";
   serializedEvents_ = false;
   webSockets_ = false;
@@ -396,6 +462,28 @@ bool Configuration::behindReverseProxy() const
 {
   READ_LOCK;
   return behindReverseProxy_;
+}
+
+std::string Configuration::originalIPHeader() const {
+  READ_LOCK;
+  return originalIPHeader_;
+}
+
+std::vector<Configuration::Network> Configuration::trustedProxies() const {
+  READ_LOCK;
+  return trustedProxies_;
+}
+
+bool Configuration::isTrustedProxy(const std::string &ipAddress) const {
+  READ_LOCK;
+  AsioWrapper::error_code ec;
+  const auto address = AsioWrapper::asio::ip::address::from_string(ipAddress, ec);
+  if (ec) {
+    return false;
+  }
+  return std::any_of(begin(trustedProxies_), end(trustedProxies_), [&address](const Network &network) {
+    return network.contains(address);
+  });
 }
 
 std::string Configuration::redirectMessage() const
@@ -872,6 +960,16 @@ void Configuration::setBehindReverseProxy(bool enabled)
   behindReverseProxy_ = enabled;
 }
 
+void Configuration::setOriginalIPHeader(const std::string &originalIPHeader)
+{
+  originalIPHeader_ = originalIPHeader;
+}
+
+void Configuration::setTrustedProxies(const std::vector<Network> &trustedProxies)
+{
+  trustedProxies_ = trustedProxies;
+}
+
 void Configuration::readApplicationSettings(xml_node<> *app)
 {
   xml_node<> *sess = singleChildElement(app, "session-management");
@@ -978,6 +1076,30 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   redirectMsg_ = singleChildElementValue(app, "redirect-message", redirectMsg_);
 
   setBoolean(app, "behind-reverse-proxy", behindReverseProxy_);
+  if (behindReverseProxy_) {
+    LOG_WARN("The behind-reverse-proxy configuration option is deprecated, "
+             "use a <trusted-proxy-config> block instead");
+  }
+
+  xml_node<> *trustedProxyCfg = singleChildElement(app, "trusted-proxy-config");
+
+  if (trustedProxyCfg) {
+    originalIPHeader_ = singleChildElementValue(app, "original-ip-header", originalIPHeader_);
+
+    xml_node<> *trustedProxies = singleChildElement(trustedProxyCfg, "trusted-proxies");
+
+    std::vector<xml_node<> *> proxies = childElements(trustedProxies, "proxy");
+    for (const auto *proxyNode : proxies) {
+      try {
+        std::string value = proxyNode->value();
+        boost::trim(value);
+        trustedProxies_.push_back(Network::fromString(value));
+      } catch (const std::invalid_argument &e) {
+        throw WServer::Exception("Invalid trusted <proxy>: " + std::string(e.what()));
+      }
+    }
+  }
+
   setBoolean(app, "strict-event-serialization", serializedEvents_);
   setBoolean(app, "web-sockets", webSockets_);
 

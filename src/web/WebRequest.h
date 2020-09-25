@@ -19,6 +19,7 @@
 
 namespace Wt {
 
+class Configuration;
 class EntryPoint;
 class WSslInfo;
 
@@ -193,11 +194,11 @@ public:
    * Returns \c nullptr if the request does not have SSL client certificate
    * information.
    */
-  virtual std::unique_ptr<WSslInfo> sslInfo(bool behindReverseProxy) const = 0;
+  virtual std::unique_ptr<WSslInfo> sslInfo(const Configuration & conf) const = 0;
 
   virtual const std::vector<std::pair<std::string, std::string> >& urlParams() const;
 
-  std::string clientAddress(bool behindReverseProxy) const;
+  std::string clientAddress(const Configuration & conf) const;
 
 protected:
   const EntryPoint *entryPoint_;

@@ -261,10 +261,11 @@ bool HTTPRequest::isSynchronous() const
   return false;
 }
 
-std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfo(bool behindReverseProxy) const
+std::unique_ptr<Wt::WSslInfo> HTTPRequest::sslInfo(const Wt::Configuration &conf) const
 {
   auto result = reply_->request().sslInfo();
-  if (behindReverseProxy) {
+  if (conf.behindReverseProxy() ||
+      conf.isTrustedProxy(remoteAddr())) {
 #ifdef HTTP_WITH_SSL
     if (!result)
       result = sslInfoFromJson();

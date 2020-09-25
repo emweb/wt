@@ -225,8 +225,7 @@ std::string Request::clientAddress() const
     return std::string();
 
   WServer *server = WServer::instance();
-  const bool behindReverseProxy = server && server->configuration().behindReverseProxy();
-  return request_->clientAddress(behindReverseProxy);
+  return request_->clientAddress(server->configuration());
 }
 
 WSslInfo *Request::sslInfo() const
@@ -235,8 +234,7 @@ WSslInfo *Request::sslInfo() const
     return sslInfo_.get();
   if (request_) {
     auto server = WServer::instance();
-    bool behindReverseProxy = server && server->configuration().behindReverseProxy();
-    sslInfo_ = request_->sslInfo(behindReverseProxy);
+    sslInfo_ = request_->sslInfo(server->configuration());
   }
   return sslInfo_.get();
 }

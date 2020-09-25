@@ -255,8 +255,11 @@ void ProxyReply::assembleRequestHeaders()
   std::string forwardedFor;
   std::string forwardedProto = request_.urlScheme;
   std::string forwardedPort;
+  std::string forwardedHost;
   const Wt::Configuration& wtConfiguration
     = connection()->server()->controller()->configuration();
+  const bool trustedProxy = wtConfiguration.behindReverseProxy() ||
+                            wtConfiguration.isTrustedProxy(request_.remoteIP);
   for (Request::HeaderList::const_iterator it = request_.headers.begin();
        it != request_.headers.end(); ++it) {
     if (it->name.iequals("Connection") || it->name.iequals("Keep-Alive") ||
@@ -269,27 +272,38 @@ void ProxyReply::assembleRequestHeaders()
                  "requests to a child process. Maybe someone is trying to spoof this "
                  "header?");
     } else if (it->name.istarts_with("X-SSL-Client-")) {
-      if (wtConfiguration.behindReverseProxy()) {
+      if (trustedProxy) {
         os << it->name << ": " << it->value << "\r\n";
       } else {
-        LOG_SECURE("wthttp is not behind a reverse proxy, dropping " << it->name.str() << " header");
+        LOG_SECURE("wthttp is not behind a trusted reverse proxy, dropping " << it->name.str() << " header");
       }
-    } else if (it->name.iequals("X-Forwarded-For") ||
-               it->name.iequals("Client-IP")) {
-      if (wtConfiguration.behindReverseProxy()) {
+    } else if (it->name.iequals(wtConfiguration.originalIPHeader().c_str())) {
+      if (trustedProxy) {
         forwardedFor = it->value.str() + ", ";
+      } else {
+        LOG_SECURE("wthttp is not behind a trusted reverse proxy, dropping " << it->name.str() << " header");
       }
     } else if (it->name.iequals("Upgrade")) {
       if (it->value.iequals("websocket")) {
         establishWebSockets = true;
       }
     } else if (it->name.iequals("X-Forwarded-Proto")) { 
-      if (wtConfiguration.behindReverseProxy()) {
+      if (trustedProxy) {
         forwardedProto = it->value.str();
+      } else {
+        LOG_SECURE("wthttp is not behind a trusted reverse proxy, dropping " << it->name.str() << " header");
       }
     } else if(it->name.iequals("X-Forwarded-Port")) {
-      if (wtConfiguration.behindReverseProxy()) {
+      if (trustedProxy) {
         forwardedPort = it->value.str();
+      } else {
+        LOG_SECURE("wthttp is not behind a trusted reverse proxy, dropping " << it->name.str() << " header");
+      }
+    } else if (it->name.iequals("X-Forwarded-Host")) {
+      if (trustedProxy) {
+        forwardedHost = it->value.str();
+      } else {
+        LOG_SECURE("wthttp is not behind a trusted reverse proxy, dropping " << it->name.str() << " header");
       }
     } else if (it->name.length() > 0) {
       os << it->name << ": " << it->value << "\r\n";
@@ -307,6 +321,8 @@ void ProxyReply::assembleRequestHeaders()
     os << "X-Forwarded-Port: " <<  forwardedPort << "\r\n";
   else
     os << "X-Forwarded-Port: " <<  request_.port << "\r\n";
+  if (!forwardedHost.empty())
+    os << "X-Forwarded-Host: " << forwardedHost << "\r\n";
   // Forward SSL Certificate to session only for first request
   if (fwCertificates_) {
     auto sslInfo = request_.sslInfo();

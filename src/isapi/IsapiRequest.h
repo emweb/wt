@@ -71,7 +71,7 @@ public:
 
   virtual const char *urlScheme() const;
 
-  virtual std::unique_ptr<WSslInfo> sslInfo(bool behindReverseProxy) const;
+  virtual std::unique_ptr<WSslInfo> sslInfo(const Configuration &conf) const;
 
 private:
   LPEXTENSION_CONTROL_BLOCK ecb_;

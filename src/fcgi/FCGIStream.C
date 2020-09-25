@@ -257,7 +257,7 @@ namespace {
       return true;
     }
 
-    virtual std::unique_ptr<WSslInfo> sslInfo(bool) const override
+    virtual std::unique_ptr<WSslInfo> sslInfo(const Wt::Configuration &) const override
     {
 #ifdef WT_WITH_SSL
       std::string clientCert = str(envValue("SSL_CLIENT_CERT"));

@@ -11,6 +11,7 @@
 
 #include "WebRequest.h"
 #include "WebUtils.h"
+#include "Configuration.h"
 
 #include <cstdlib>
 
@@ -365,23 +366,18 @@ const std::vector<std::pair<std::string, std::string> > &WebRequest::urlParams()
   return urlParams_;
 }
 
-std::string WebRequest::clientAddress(const bool behindReverseProxy) const
+std::string WebRequest::clientAddress(const Configuration &conf) const
 {
-  std::string result;
-
-  /*
-   * Determine client address, taking into account proxies
-   */
-  if (behindReverseProxy) {
+  std::string remoteAddr = str(envValue("REMOTE_ADDR"));
+  if (conf.behindReverseProxy()) {
+    // Old, deprecated behavior
     std::string clientIp = str(headerValue("Client-IP"));
-    boost::trim(clientIp);
 
     std::vector<std::string> ips;
     if (!clientIp.empty())
       boost::split(ips, clientIp, boost::is_any_of(","));
 
     std::string forwardedFor = str(headerValue("X-Forwarded-For"));
-    boost::trim(forwardedFor);
 
     std::vector<std::string> forwardedIps;
     if (!forwardedFor.empty())
@@ -389,22 +385,40 @@ std::string WebRequest::clientAddress(const bool behindReverseProxy) const
 
     Utils::insert(ips, forwardedIps);
 
-    for (unsigned i = 0; i < ips.size(); ++i) {
-      result = ips[i];
+    for (auto &ip : ips) {
+      boost::trim(ip);
 
-      boost::trim(result);
-
-      if (!result.empty()
-          && !isPrivateIP(result)) {
-        break;
+      if (!ip.empty()
+          && !isPrivateIP(ip)) {
+        return ip;
       }
     }
+
+    return remoteAddr;
+  } else {
+    if (conf.isTrustedProxy(remoteAddr)) {
+      std::string forwardedFor = str(headerValue(conf.originalIPHeader().c_str()));
+      boost::trim(forwardedFor);
+      std::vector<std::string> forwardedIps;
+      boost::split(forwardedIps, forwardedFor, boost::is_any_of(","));
+      for (auto it = forwardedIps.rbegin();
+           it != forwardedIps.rend(); ++it) {
+        boost::trim(*it);
+        if (!it->empty()) {
+          if (!conf.isTrustedProxy(*it)) {
+            return *it;
+          } else {
+            /*
+             * When the left-most address in a forwardedHeader is contained
+             * within a trustedProxy subnet, it should be returned as the clientAddress
+             */
+            remoteAddr = *it;
+          }
+        }
+      }
+    }
+    return remoteAddr;
   }
-
-  if (result.empty())
-    result = str(envValue("REMOTE_ADDR"));
-
-  return result;
 }
 
 }

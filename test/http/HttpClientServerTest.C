@@ -17,6 +17,8 @@
 #include <Wt/Http/ResponseContinuation.h>
 #include <Wt/Http/Request.h>
 
+#include <web/Configuration.h>
+
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
@@ -34,6 +36,7 @@ namespace {
 	delaySendingBody_(false),
 	haveEverMoreData_(false),
 	haveRandomMoreData_(false),
+	clientAddressTest_(false),
 	aborted_(0)
     { }
 
@@ -57,6 +60,10 @@ namespace {
       haveRandomMoreData_ = true;
     }
 
+    void clientAddressTest() {
+      clientAddressTest_ = true;
+    }
+
     int abortedCount() const {
       return aborted_;
     }
@@ -66,6 +73,8 @@ namespace {
     {
       if (continuation_)
 	handleWithContinuation(request, response);
+      else if (clientAddressTest_)
+        handleClientAddress(request, response);
       else
 	handleSimple(request, response);
     }
@@ -80,6 +89,7 @@ namespace {
     bool delaySendingBody_;
     bool haveEverMoreData_;
     bool haveRandomMoreData_;
+    bool clientAddressTest_;
     int aborted_;
 
     void handleSimple(const Http::Request& request,
@@ -87,6 +97,13 @@ namespace {
     {
       response.setStatus(200);
       response.out() << "Hello";
+    }
+
+    void handleClientAddress(const Http::Request& request,
+                             Http::Response &response)
+    {
+      response.setStatus(200);
+      response.out() << request.clientAddress();
     }
 
     void handleWithContinuation(const Http::Request& request,
@@ -249,7 +266,8 @@ BOOST_AUTO_TEST_CASE( http_client_server_test3 )
     client.get("http://" + server.address() + "/test");
     client.waitDone();
 
-    BOOST_REQUIRE(client.err() == Wt::AsioWrapper::asio::error::bad_descriptor);
+    BOOST_REQUIRE(client.err() == Wt::AsioWrapper::asio::error::bad_descriptor ||
+                  client.err() == Wt::AsioWrapper::asio::error::operation_aborted);
   }
 
   server.resource().haveMoreData();
@@ -327,11 +345,169 @@ BOOST_AUTO_TEST_CASE( http_client_server_test5 )
   }
 }
 
+// Reserved example IP ranges:
+// - 192.0.2.0/24
+// - 198.51.100.0/24
+// - 203.0.113.0/24
+// - 2001:db8::/32
+
+BOOST_AUTO_TEST_CASE( http_client_address_not_behind_reverse_proxy )
+{
+  Server server;
+  server.resource().clientAddressTest();
+
+  if (server.start()) {
+    Client client;
+
+    std::vector<Http::Message::Header> headers {
+            {"X-Forwarded-For", "198.51.100.1"},
+            {"Client-IP", "203.0.113.1"}
+    };
+
+    client.get("http://" + server.address() + "/test", headers);
+    client.waitDone();
+
+    BOOST_REQUIRE(!client.err());
+    BOOST_REQUIRE(client.message().status() == 200);
+
+    // Client-IP and X-Forwarded-For headers are ignored if not behind reverse proxy
+    BOOST_REQUIRE(client.message().body() == "127.0.0.1");
+  }
+}
+
+BOOST_AUTO_TEST_CASE( http_client_address_forwarded_for )
+{
+  Server server;
+  server.resource().clientAddressTest();
+  server.configuration().setBehindReverseProxy(true);
+
+  if (server.start()) {
+    Client client;
+
+    std::vector<Http::Message::Header> headers {
+            {"X-Forwarded-For", "198.51.100.1"},
+            {"Client-IP", "203.0.113.1"}
+    };
+
+    client.get("http://" + server.address() + "/test", headers);
+    client.waitDone();
+
+    BOOST_REQUIRE(!client.err());
+    BOOST_REQUIRE(client.message().status() == 200);
+
+    // Should get IP address from X-Forwarded-For
+    BOOST_REQUIRE(client.message().body() == "198.51.100.1");
+  }
+}
+
+BOOST_AUTO_TEST_CASE( http_client_address_client_ip )
+{
+  Server server;
+  server.resource().clientAddressTest();
+  server.configuration().setOriginalIPHeader("Client-IP");
+
+  if (server.start()) {
+    Client client;
+
+    std::vector<Http::Message::Header> headers {
+            {"X-Forwarded-For", "198.51.100.1"},
+            {"Client-IP", "203.0.113.1"}
+    };
+
+    client.get("http://" + server.address() + "/test", headers);
+    client.waitDone();
+
+    BOOST_REQUIRE(!client.err());
+    BOOST_REQUIRE(client.message().status() == 200);
+
+    // Should get IP address from X-Forwarded-For
+    BOOST_REQUIRE(client.message().body() == "203.0.113.1");
+  }
+}
+
+BOOST_AUTO_TEST_CASE( http_multiple_proxies )
+{
+  Server server;
+  server.resource().clientAddressTest();
+  server.configuration().setTrustedProxies({
+                                                   Configuration::Network::fromString("127.0.0.1"),
+                                                   Configuration::Network::fromString("198.51.100.0/24")
+                                           });
+
+  if (server.start()) {
+    Client client;
+
+    std::vector<Http::Message::Header> headers {
+            {"X-Forwarded-For", "192.0.2.1, 203.0.113.1, 198.51.100.1"},
+    };
+
+    client.get("http://" + server.address() + "/test", headers);
+    client.waitDone();
+
+    BOOST_REQUIRE(!client.err());
+    BOOST_REQUIRE(client.message().status() == 200);
+
+    // Should get IP address from X-Forwarded-For
+    BOOST_REQUIRE(client.message().body() == "203.0.113.1");
+  }
+}
+
+
+BOOST_AUTO_TEST_CASE( http_multiple_proxies2 )
+{
+  Server server;
+  server.resource().clientAddressTest();
+  server.configuration().setTrustedProxies({
+                                                   Configuration::Network::fromString("127.0.0.1"),
+                                                   Configuration::Network::fromString("198.51.100.0/24"),
+                                                   Configuration::Network::fromString("203.0.113.0/24")
+                                           });
+
+  if (server.start()) {
+    Client client;
+
+    std::vector<Http::Message::Header> headers {
+            {"X-Forwarded-For", "192.0.2.1, 203.0.113.1, 198.51.100.1"},
+    };
+
+    client.get("http://" + server.address() + "/test", headers);
+    client.waitDone();
+
+    BOOST_REQUIRE(!client.err());
+    BOOST_REQUIRE(client.message().status() == 200);
+
+    // Should get IP address from X-Forwarded-For
+    BOOST_REQUIRE(client.message().body() == "192.0.2.1");
+  }
+}
+
+
+BOOST_AUTO_TEST_CASE( http_client_address_forward_for_includes_us_on_subnet )
+{
+  Server server;
+  server.resource().clientAddressTest();
+  server.configuration().setTrustedProxies({
+                                                   Configuration::Network::fromString("127.0.0.0/8"),
+                                                   Configuration::Network::fromString("198.51.100.0/24"),
+                                                   Configuration::Network::fromString("203.0.113.0/24")
+                                           });
+
+  if (server.start()) {
+    Client client;
+
+    std::vector<Http::Message::Header> headers {
+            {"X-Forwarded-For", "127.0.0.10, 203.0.113.1, 198.51.100.1"},
+    };
+
+    client.get("http://" + server.address() + "/test", headers);
+    client.waitDone();
+
+    BOOST_REQUIRE(!client.err());
+    BOOST_REQUIRE(client.message().status() == 200);
+
+    // Should get IP address from X-Forwarded-For
+    BOOST_REQUIRE(client.message().body() == "127.0.0.10");
+  }
+}
+
 #endif // WT_THREADED
-
-
-
-
-
-
-

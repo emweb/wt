@@ -117,7 +117,7 @@ public:
     return std::vector<Wt::Http::Message::Header>{};
   }
 
-  virtual std::unique_ptr<Wt::WSslInfo> sslInfo(bool) const override
+  virtual std::unique_ptr<Wt::WSslInfo> sslInfo(const Wt::Configuration &) const override
   {
     return nullptr;
   }

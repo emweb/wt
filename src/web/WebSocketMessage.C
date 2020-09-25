@@ -151,9 +151,9 @@ const char *WebSocketMessage::urlScheme() const
     return "http";
 }
 
-std::unique_ptr<Wt::WSslInfo> WebSocketMessage::sslInfo(bool behindReverseProxy) const
+std::unique_ptr<Wt::WSslInfo> WebSocketMessage::sslInfo(const Configuration & conf) const
 {
-  return webSocket()->sslInfo(behindReverseProxy);
+  return webSocket()->sslInfo(conf);
 }
 
 const char *WebSocketMessage::headerValue(const char *name) const

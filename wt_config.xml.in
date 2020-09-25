@@ -401,8 +401,53 @@
 
            This option is required to make e.g. clientAddress() return the
            correct address.
+
+           Deprecated: use trusted-proxy-config instead. If this option is
+           set to true, Wt will take the first non-local IP address from the
+           X-Forwarded-For and Client-IP headers to determine the clientAddress().
 	  -->
-	<behind-reverse-proxy>false</behind-reverse-proxy>
+        <!--<behind-reverse-proxy>false</behind-reverse-proxy>-->
+
+        <!-- The following configuration options can be used when Wt is behind a reverse proxy.
+          -->
+        <trusted-proxy-config>
+          <!-- Which header to use to get the real client IP address when behind a reverse proxy.
+
+               This could be X-Forwarded-For (default), CF-Connecting-IP for Cloudflare,
+               True-Client-IP, Fastly-Client-IP,...
+
+               This will influence the IP address returned by WEnvironment::clientAddress() and
+               Http::Request::clientAddress().
+            -->
+          <original-ip-header>X-Forwarded-For</original-ip-header>
+
+          <!-- Which proxy servers are trusted
+
+               You can use single IP addresses or subnets in CIDR notation.
+
+               By default, no proxy servers are trusted and any proxy headers are ignored, e.g.
+               X-Forwarded-For, X-Forwarded-Proto, etc.
+            -->
+          <trusted-proxies>
+            <!-- loopback -->
+            <!--
+            <proxy>127.0.0.1/8</proxy>
+            <proxy>::1/128</proxy>
+            -->
+            <!-- link local -->
+            <!--
+            <proxy>169.254.0.0/16</proxy>
+            <proxy>fe80::/10</proxy>
+            -->
+            <!-- local -->
+            <!--
+            <proxy>10.0.0.0/8</proxy>
+            <proxy>172.16.0.0/12</proxy>
+            <proxy>192.168.0.0/16</proxy>
+            <proxy>fc00::/7</proxy>
+            -->
+          </trusted-proxies>
+        </trusted-proxy-config>
 
 	<!-- Whether inline CSS is allowed.
 

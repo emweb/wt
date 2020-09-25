@@ -180,7 +180,12 @@ bool WServer::start()
     configuration().setNumThreads(impl_->serverConfiguration_->threads());
 
   if (impl_->serverConfiguration_->parentPort() != -1) {
-    configuration().setBehindReverseProxy(true);
+    configuration().setBehindReverseProxy(false);
+    configuration().setOriginalIPHeader("X-Forwarded-For");
+    configuration().setTrustedProxies({
+      Configuration::Network::fromString("127.0.0.1"),
+      Configuration::Network::fromString("::1")
+    });
     dedicatedProcessEnabled_ = true;
   }
 

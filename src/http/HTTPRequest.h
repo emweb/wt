@@ -54,7 +54,7 @@ public:
   virtual const std::string& remoteAddr() const override;
   virtual const char *urlScheme() const override;
   bool isSynchronous() const;
-  virtual std::unique_ptr<Wt::WSslInfo> sslInfo(bool behindReverseProxy) const override;
+  virtual std::unique_ptr<Wt::WSslInfo> sslInfo(const Wt::Configuration & conf) const override;
   virtual const std::vector<std::pair<std::string, std::string> > &urlParams() const override;
 
 private:

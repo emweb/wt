@@ -735,13 +735,52 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     in the link which redirects to the user to a plain HTML version, in
     case his user agent does not support the automatic redirect.</dd>
 
-    <dt><strong>behind-reverse-proxy</strong></dt>
+    <dt><strong>behind-reverse-proxy</strong> <em>(deprecated)</em></dt>
 
-    <dd>When enabling this option to indicate that the application is
+    <dd>
+      When enabling this option to indicate that the application is
       deployed behind a reverse proxy (as would be common if you use
       the wthttpd connector), the server location is not read from the
       "Host" header, but from the <tt>X-Forwarded-For</tt> header, if
-      present.</dd>
+      present.
+
+      <strong>This option has been deprecated in favor of the safer
+              <tt>&lt;trusted-proxy-config&gt;</tt>.</strong>
+    </dd>
+
+    <dt><strong>trusted-proxy-config</strong></dt>
+
+    <dd>
+      When %Wt is deployed behind a reverse proxy, and the wthttp connector
+      is used, these options can be used so %Wt can report the real client's
+      IP address, as well as reacting to other headers, like <tt>X-Forwarded-Proto</tt>
+      and <tt>X-Forwarded-Host</tt>.
+
+      <dl>
+        <dt><strong>original-ip-header</strong></dt>
+
+        <dd>This is the header %Wt should look at to determine the original IP address. This
+            defaults to <tt>X-Forwarded-For</tt>.</dd>
+
+        <dt><strong>trusted-proxies</strong></dt>
+
+        <dd>
+          Here you can list the IP addresses or subnets (in CIDR notation) of trusted
+          reverse proxies. These are filtered out of <tt>X-Forwarded-For</tt> (or any header
+          configured in <tt>original-ip-header</tt>). %Wt will only look at the <tt>X-Forwarded-*</tt>
+          headers if the request is coming from a trusted reverse proxy.</p>
+
+          For example, to trust any loopback IP addresses:
+
+          \code
+<trusted-proxies>
+  <proxy>127.0.0.1/8</proxy>
+  <proxy>::1</proxy>
+</trusted-proxies>
+          \endcode
+        </dd>
+      </dl>
+    </dd>
 
     <dt><strong>user-agents</strong></dt>
 

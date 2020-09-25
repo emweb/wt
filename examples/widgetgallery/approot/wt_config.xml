@@ -19,6 +19,15 @@
         </user-agents>
 
         <web-sockets>true</web-sockets>
+
+        <trusted-proxy-config>
+          <original-ip-header>X-Forwarded-For</original-ip-header>
+          <trusted-proxies>
+            <proxy>127.0.0.1</proxy>
+            <proxy>::1</proxy>
+          </trusted-proxies>
+        </trusted-proxy-config>
+
 	<bootstrap-method>
 	  <for path="*">progressive</for>
 	  <for path="/forms/line_text-editor">default</for>
