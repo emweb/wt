@@ -459,11 +459,11 @@ WString asString(const cpp17::any& v, const WT_USTRING& format)
     if (sizeof(long) == 4) {
       if (format.empty())
 	return WLocale::currentLocale().toString
-	  ((unsigned)cpp17::any_cast<long>(v));
+	  ((unsigned)cpp17::any_cast<unsigned long>(v));
       else {
 	char buf[100];
 	snprintf(buf, 100, format.toUTF8().c_str(),
-		 (unsigned)cpp17::any_cast<long>(v));
+		 (unsigned)cpp17::any_cast<unsigned long>(v));
 	return WString::fromUTF8(buf);
       }
     } else {
