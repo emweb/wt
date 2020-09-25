@@ -444,24 +444,24 @@ WString asString(const boost::any& v, const WT_USTRING& format)
       }
     }
   } else if (v.type() == typeid(unsigned long)) {
-    if (sizeof(long) == 4) {
+    if (sizeof(unsigned long) == 4) {
       if (format.empty())
 	return WLocale::currentLocale().toString
-	  ((unsigned)boost::any_cast<long>(v));
+	  ((unsigned)boost::any_cast<unsigned long>(v));
       else {
 	char buf[100];
 	snprintf(buf, 100, format.toUTF8().c_str(),
-		 (unsigned)boost::any_cast<long>(v));
+		 (unsigned)boost::any_cast<unsigned long>(v));
 	return WString::fromUTF8(buf);
       }
     } else {
       if (format.empty())
 	return WLocale::currentLocale()
-	  .toString((::uint64_t)boost::any_cast<long>(v));
+	  .toString((::uint64_t)boost::any_cast<unsigned long>(v));
       else {
 	char buf[100];
 	snprintf(buf, 100, format.toUTF8().c_str(),
-		 (::uint64_t)boost::any_cast<long>(v));
+		 (::uint64_t)boost::any_cast<unsigned long>(v));
 	return WString::fromUTF8(buf);
       }
     }
