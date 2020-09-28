@@ -9,6 +9,7 @@
 
 #include <Wt/WFlags.h>
 #include <Wt/Core/observing_ptr.hpp>
+
 #include <memory>
 
 /*! \file */

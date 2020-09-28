@@ -231,16 +231,8 @@ public:
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
+
   /*! \brief Creates a widget and adds it, returning a reference to it.
-   *
-   * This is implemented as:
-   *
-   * \code
-   * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
-   * Widget *result = w.get();
-   * addWidget(std::unique_ptr<WWidget>{std::move(w)});
-   * return result;
-   * \endcode
    *
    * This is a useful shorthand for adding a new widget to the container, and
    * getting a reference to it, e.g.:
@@ -249,13 +241,39 @@ public:
    * Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Click me!");
    * // do something with button, including safely using it in a lambda function
    * \endcode
+   *
+   * The implementation is equivalent to the following code:
+   *
+   * \code
+   * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
+   * Widget *result = w.get();
+   * addWidget(std::unique_ptr<WWidget>{std::move(w)});
+   * return result;
+   * \endcode
+   *
+   * There's an exception for global widgets, like WPopupWidget. In this case
+   * the implementation is equivalent to:
+   *
+   * \code
+   * std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
+   * Widget *result = w.get();
+   * addChild(std::unique_ptr<WObject>(std::move(w)));
+   * return result;
+   * \endcode
+   *
+   * Since popup widgets (and similar widgets) are always and automatically placed
+   * in a global location in the widget tree, only their ownership is transferred.
    */
   template <typename Widget, typename ...Args>
-    Widget *addNew( Args&& ...args )
+  Widget *addNew( Args&& ...args )
   {
     std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
     Widget *result = w.get();
-    addWidget(std::unique_ptr<WWidget>{std::move(w)});
+    if (w->isGlobalWidget()) {
+      addChild(std::unique_ptr<WObject>{std::move(w)});
+    } else {
+      addWidget(std::unique_ptr<WWidget>{std::move(w)});
+    }
     return result;
   }
 #else // WT_TARGET_JAVA

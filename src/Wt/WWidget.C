@@ -513,4 +513,15 @@ void WWidget::addJSignal(EventSignalBase* signal)
 {
   jsignals_.push_back(signal);
 }
+
+bool WWidget::isGlobalWidget() const
+{
+  return flags_.test(BIT_GLOBAL_WIDGET);
+}
+
+void WWidget::setGlobalWidget(bool globalWidget)
+{
+  flags_.set(BIT_GLOBAL_WIDGET, globalWidget);
+}
+
 }

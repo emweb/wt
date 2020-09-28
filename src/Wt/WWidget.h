@@ -1356,7 +1356,8 @@ private:
   static const int BIT_HAS_PARENT = 4;
   static const int BIT_RESIZE_AWARE = 5;
   static const int BIT_SCROLL_VISIBILITY_ENABLED = 6;
-  std::bitset<7> flags_;
+  static const int BIT_GLOBAL_WIDGET = 7;
+  std::bitset<8> flags_;
 
   EventSignalList eventSignals_;
   std::vector<EventSignalBase*> jsignals_;
@@ -1366,6 +1367,9 @@ private:
   void undoHideShow();
   void undoDisableEnable();
   virtual void setParentWidget(WWidget *parent);
+
+  bool isGlobalWidget() const;
+  void setGlobalWidget(bool globalWidget);
 
   virtual WWebWidget *webWidget() = 0;
 

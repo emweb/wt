@@ -540,6 +540,7 @@ void WApplication::addGlobalWidget(WWidget *w)
 #ifndef WT_TARGET_JAVA
   domRoot_->removeChild(w).release();               // return ownership
 #endif // WT_TARGET_JAVA
+  w->setGlobalWidget(true);
 }
 
 void WApplication::removeGlobalWidget(WWidget *w)
