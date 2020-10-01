@@ -469,11 +469,11 @@ WString asString(const cpp17::any& v, const WT_USTRING& format)
     } else {
       if (format.empty())
 	return WLocale::currentLocale()
-	  .toString((::uint64_t)cpp17::any_cast<long>(v));
+	  .toString((::uint64_t)cpp17::any_cast<unsigned long>(v));
       else {
 	char buf[100];
 	snprintf(buf, 100, format.toUTF8().c_str(),
-		 (::uint64_t)cpp17::any_cast<long>(v));
+		 (::uint64_t)cpp17::any_cast<unsigned long>(v));
 	return WString::fromUTF8(buf);
       }
     }
