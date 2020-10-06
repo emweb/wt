@@ -3,7 +3,7 @@
 
 SAMPLE_BEGIN(FileDrop)
 
-auto dropWidgetPtr = Wt::cpp14::make_unique<Wt::WFileDropWidget>();
+auto dropWidgetPtr = std::make_unique<Wt::WFileDropWidget>();
 auto dropWidget = dropWidgetPtr.get();
 
 dropWidget->drop().connect([=] (const std::vector<Wt::WFileDropWidget::File*>& files) {

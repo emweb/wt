@@ -30,7 +30,7 @@ const Wt::Render::Block* childBlock(const Wt::Render::Block* parent,
 
 std::unique_ptr<Wt::rapidxml::xml_document<>> createXHtml(const char *xhtml)
 {
-  auto doc = Wt::cpp14::make_unique<Wt::rapidxml::xml_document<>>();
+  auto doc = std::make_unique<Wt::rapidxml::xml_document<>>();
 
   char *cxhtml = doc->allocate_string(xhtml);
   doc->parse<Wt::rapidxml::parse_xhtml_entity_translation>(cxhtml);

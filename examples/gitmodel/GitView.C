@@ -50,18 +50,18 @@ public:
     const char *gitRepo = getenv("GITVIEW_REPOSITORY_PATH");
 
     auto grid
-        = cpp14::make_unique<WGridLayout>();
-    grid->addWidget(cpp14::make_unique<WText>("Git repository path:"), 0, 0);
+        = std::make_unique<WGridLayout>();
+    grid->addWidget(std::make_unique<WText>("Git repository path:"), 0, 0);
 
-    repositoryEdit_ = grid->addWidget(cpp14::make_unique<WLineEdit>(gitRepo ? gitRepo : ""),
+    repositoryEdit_ = grid->addWidget(std::make_unique<WLineEdit>(gitRepo ? gitRepo : ""),
                                       0, 1, AlignmentFlag::Left);
-    repositoryError_ = grid->addWidget(cpp14::make_unique<WText>(), 0, 2);
+    repositoryError_ = grid->addWidget(std::make_unique<WText>(), 0, 2);
 
-    grid->addWidget(cpp14::make_unique<WText>("Revision:"), 1, 0);
+    grid->addWidget(std::make_unique<WText>("Revision:"), 1, 0);
 
-    revisionEdit_ = grid->addWidget(cpp14::make_unique<WLineEdit>("master"),
+    revisionEdit_ = grid->addWidget(std::make_unique<WLineEdit>("master"),
                                     1, 1, AlignmentFlag::Left);
-    revisionError_ = grid->addWidget(cpp14::make_unique<WText>(), 1, 2);
+    revisionError_ = grid->addWidget(std::make_unique<WText>(), 1, 2);
 
     repositoryEdit_->setTextSize(30);
     revisionEdit_->setTextSize(20);
@@ -73,11 +73,11 @@ public:
     revisionEdit_->enterPressed()
       .connect(this, &GitViewApplication::loadGitModel);
 
-    auto button = grid->addWidget(cpp14::make_unique<WPushButton>("Load"),
+    auto button = grid->addWidget(std::make_unique<WPushButton>("Load"),
                                   2, 0, AlignmentFlag::Left);
     button->clicked().connect(this, &GitViewApplication::loadGitModel);
 
-    auto gitView = cpp14::make_unique<WTreeView>();
+    auto gitView = std::make_unique<WTreeView>();
     gitView_ = gitView.get();
     gitView_->resize(300, WLength::Auto);
     gitView_->setSortingEnabled(false);
@@ -89,7 +89,7 @@ public:
     gitView_->selectionChanged().connect(this, &GitViewApplication::showFile);
 
     auto sourceView
-        = cpp14::make_unique<SourceView>(ItemDataRole::Display,
+        = std::make_unique<SourceView>(ItemDataRole::Display,
                                          GitModel::ContentsRole, GitModel::FilePathRole);
     sourceView_ = sourceView.get();
     sourceView_->setStyleClass("source-view");
@@ -100,11 +100,11 @@ public:
        * We have JavaScript: We can use layout managers so everything will
        * always fit nicely in the window.
        */
-      auto topLayout = root()->setLayout(cpp14::make_unique<WVBoxLayout>());
+      auto topLayout = root()->setLayout(std::make_unique<WVBoxLayout>());
       root()->setStyleClass("maindiv");
       topLayout->addLayout(std::move(grid),0);
 
-      auto gitLayout = cpp14::make_unique<WHBoxLayout>();
+      auto gitLayout = std::make_unique<WHBoxLayout>();
       gitLayout->addWidget(std::move(gitView),0);
       gitLayout->addWidget(std::move(sourceView),1);
       topLayout->addLayout(std::move(gitLayout),1);
@@ -115,7 +115,7 @@ public:
        */
       root()->setStyleClass("maindiv");
       auto top
-          = cpp14::make_unique<WContainerWidget>();
+          = std::make_unique<WContainerWidget>();
       top->setLayout(std::move(grid));
       root()->addWidget(std::move(top));
       root()->addWidget(std::move(gitView));
@@ -164,7 +164,7 @@ private:
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<GitViewApplication>(env);
+  return std::make_unique<GitViewApplication>(env);
 }
 
 int main(int argc, char **argv)

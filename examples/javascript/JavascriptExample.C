@@ -35,7 +35,7 @@ JavascriptExample::JavascriptExample(const WEnvironment& env)
   confirmPay_ = Popup::createConfirm("");
   confirmPay_->okPressed().connect(this, &JavascriptExample::confirmed);
 
-  root()->addWidget(cpp14::make_unique<WText>("<h2>Wt Javascript example</h2>"
+  root()->addWidget(std::make_unique<WText>("<h2>Wt Javascript example</h2>"
 	    "<p>Wt makes abstraction of Javascript, and therefore allows you"
 	    " to develop web applications without any knowledge of Javascript,"
 	    " and which are not dependent on Javascript."
@@ -52,17 +52,17 @@ JavascriptExample::JavascriptExample(const WEnvironment& env)
 	    " JavaScript using the JSlot and JSignal classes.</p>"));
 
   currentAmount_
-    = root()->addWidget(cpp14::make_unique<WText>("Current amount: $" +
+    = root()->addWidget(std::make_unique<WText>("Current amount: $" +
                                                   promptAmount_->defaultValue()));
 
   auto amountButton =
-      root()->addWidget(cpp14::make_unique<WPushButton>("Change ..."));
+      root()->addWidget(std::make_unique<WPushButton>("Change ..."));
   amountButton->setMargin(10, Side::Left | Side::Right);
 
-  root()->addWidget(cpp14::make_unique<WBreak>());
+  root()->addWidget(std::make_unique<WBreak>());
 
   auto confirmButton =
-      root()->addWidget(cpp14::make_unique<WPushButton>("Pay now."));
+      root()->addWidget(std::make_unique<WPushButton>("Pay now."));
   confirmButton->setMargin(10, Side::Top | Side::Bottom);
 
   // Connect the event handlers to a JSlot: this will execute the JavaScript
@@ -88,13 +88,13 @@ void JavascriptExample::setAmount(const std::string amount)
 
 void JavascriptExample::confirmed()
 {
-  root()->addWidget(cpp14::make_unique<WText>("<br/>Just payed $" +
+  root()->addWidget(std::make_unique<WText>("<br/>Just payed $" +
                                               promptAmount_->defaultValue() + "."));
 }
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<JavascriptExample>(env);
+  return std::make_unique<JavascriptExample>(env);
 }
 
 int main(int argc, char **argv)

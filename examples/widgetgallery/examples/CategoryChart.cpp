@@ -13,7 +13,7 @@
 
 SAMPLE_BEGIN(CategoryChart)
 
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 auto model
     = csvToModel(WApplication::appRoot() + "category.csv");
@@ -90,7 +90,7 @@ chart->setPlotAreaPadding(120, Side::Right);
  * Add all (but first) column as bar series.
  */
 for (int column = 1; column < model->columnCount(); ++column) {
-    auto series = cpp14::make_unique<Chart::WDataSeries>(column, Chart::SeriesType::Bar);
+    auto series = std::make_unique<Chart::WDataSeries>(column, Chart::SeriesType::Bar);
     series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     chart->addSeries(std::move(series));
 }

@@ -585,7 +585,7 @@ void WSlider::render(WFlags<RenderFlag> flags)
 
     if (!useNative) {
       if (!paintedSlider_) {
-        auto paintedSlider = cpp14::make_unique<PaintedSlider>(this);
+        auto paintedSlider = std::make_unique<PaintedSlider>(this);
 	manageWidget(paintedSlider_, std::move(paintedSlider));
 	paintedSlider_->sliderResized(width(), height());
       }

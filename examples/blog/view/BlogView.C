@@ -68,30 +68,30 @@ public:
     app->useStyleSheet("/css/asciidoc.css");
     app->internalPathChanged().connect(this, &BlogImpl::handlePathChange);
 
-    loginStatus_ = this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-login-status")));
-    panel_ = this->addWidget(Wt::cpp14::make_unique<Wt::WStackedWidget>());
-    items_ = this->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>());
+    loginStatus_ = this->addWidget(std::make_unique<Wt::WTemplate>(tr("blog-login-status")));
+    panel_ = this->addWidget(std::make_unique<Wt::WStackedWidget>());
+    items_ = this->addWidget(std::make_unique<Wt::WContainerWidget>());
 
     session_.login().changed().connect(this, &BlogImpl::onUserChanged);
 
     auto loginWidget
-        = Wt::cpp14::make_unique<BlogLoginWidget>(session_, basePath);
+        = std::make_unique<BlogLoginWidget>(session_, basePath);
     loginWidget_ = loginWidget.get();
     loginWidget_->hide();
 
-    auto loginLink = Wt::cpp14::make_unique<Wt::WText>(tr("login"));
+    auto loginLink = std::make_unique<Wt::WText>(tr("login"));
     auto lPtr = loginLink.get();
     loginLink->setStyleClass("link");
     loginLink->clicked().connect(loginWidget_, &WWidget::show);
     loginLink->clicked().connect(lPtr, &WWidget::hide);
 
-    auto registerLink = Wt::cpp14::make_unique<Wt::WText>(tr("Wt.Auth.register"));
+    auto registerLink = std::make_unique<Wt::WText>(tr("Wt.Auth.register"));
     registerLink->setStyleClass("link");
     registerLink->clicked().connect(loginWidget_,
 				    &BlogLoginWidget::registerNewUser);
 
     auto archiveLink
-        = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath, basePath_ + "all"),
+        = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath, basePath_ + "all"),
                                       tr("archive"));
 
     loginStatus_->bindWidget("login", std::move(loginWidget));
@@ -164,19 +164,19 @@ private:
     loginStatus_->resolveWidget("login-link")->hide();
     loginStatus_->resolveWidget("register-link")->hide();
 
-    auto profileLink = Wt::cpp14::make_unique<Wt::WText>(tr("profile"));
+    auto profileLink = std::make_unique<Wt::WText>(tr("profile"));
     profileLink->setStyleClass("link");
     profileLink->clicked().connect(this, &BlogImpl::editProfile);
 
     dbo::ptr<User> user = session().user();
 
     if (user->role == User::Admin) {
-      auto editUsersLink = Wt::cpp14::make_unique<Wt::WText>(tr("edit-users"));
+      auto editUsersLink = std::make_unique<Wt::WText>(tr("edit-users"));
       editUsersLink->setStyleClass("link");
       editUsersLink->clicked().connect(this, &BlogImpl::editUsers);
       loginStatus_->bindWidget("userlist-link", std::move(editUsersLink));
 
-      auto authorPanelLink = Wt::cpp14::make_unique<Wt::WText>(tr("author-post"));
+      auto authorPanelLink = std::make_unique<Wt::WText>(tr("author-post"));
       authorPanelLink->setStyleClass("link");
       authorPanelLink->clicked().connect(this, &BlogImpl::authorPanel);
       loginStatus_->bindWidget("author-panel-link", std::move(authorPanelLink));
@@ -197,9 +197,9 @@ private:
     dbo::Transaction t(session_);
 
     if (authorPanel_) {
-      auto newPost = Wt::cpp14::make_unique<Wt::WPushButton>(tr("new-post"));
+      auto newPost = std::make_unique<Wt::WPushButton>(tr("new-post"));
       newPost->clicked().connect(this, &BlogImpl::newPost);
-      auto unpublishedPosts = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+      auto unpublishedPosts = std::make_unique<Wt::WContainerWidget>();
       showPosts(session_.user()->allPosts(Post::Unpublished), unpublishedPosts.get());
 
       authorPanel_->bindString("user", session_.user()->name);
@@ -222,7 +222,7 @@ private:
     if (!users_)
     {
       users_ =
-          panel_->addWidget(Wt::cpp14::make_unique<EditUsers>(session_, basePath_));
+          panel_->addWidget(std::make_unique<EditUsers>(session_, basePath_));
       bindPanelTemplates();
     }
 
@@ -234,7 +234,7 @@ private:
     if (!authorPanel_)
     {
       authorPanel_ =
-          panel_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-author-panel")));
+          panel_->addWidget(std::make_unique<Wt::WTemplate>(tr("blog-author-panel")));
       bindPanelTemplates();
     }
     panel_->setCurrentWidget(authorPanel_);
@@ -299,7 +299,7 @@ private:
       dbo::Transaction t(session_);
       dbo::ptr<User> target(session_.load<User>(id));
       if (!userEditor_){
-        userEditor_ = panel_->addWidget(Wt::cpp14::make_unique<EditUser>(session_));
+        userEditor_ = panel_->addWidget(std::make_unique<EditUser>(session_));
       }
       userEditor_->switchUser(target);
       panel_->setCurrentWidget(userEditor_);
@@ -307,7 +307,7 @@ private:
     catch (Wt::Dbo::ObjectNotFoundException) {
       if (!invalidUser_){
         invalidUser_ =
-            panel_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-invaliduser")));
+            panel_->addWidget(std::make_unique<Wt::WTemplate>(tr("blog-invaliduser")));
       }
       panel_->setCurrentWidget(invalidUser_);
     }
@@ -319,7 +319,7 @@ private:
     panel_->show();
     if (!mustLoginWarning_){
       mustLoginWarning_ =
-        panel_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-mustlogin")));
+        panel_->addWidget(std::make_unique<Wt::WTemplate>(tr("blog-mustlogin")));
     }
     panel_->setCurrentWidget(mustLoginWarning_);
     return false;
@@ -331,7 +331,7 @@ private:
     panel_->show();
     if (!mustBeAdministratorWarning_){
       mustBeAdministratorWarning_ =
-          panel_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("blog-mustbeadministrator")));
+          panel_->addWidget(std::make_unique<Wt::WTemplate>(tr("blog-mustbeadministrator")));
     }
     panel_->setCurrentWidget(mustBeAdministratorWarning_);
     return false;
@@ -349,7 +349,7 @@ private:
   void showArchive(WContainerWidget *parent) {
     static const char* dateFormat = "MMMM yyyy";
     
-    parent->addWidget(Wt::cpp14::make_unique<Wt::WText>(tr("archive-title")));
+    parent->addWidget(std::make_unique<Wt::WText>(tr("archive-title")));
 
     Posts posts = session_.find<Post>("order by date desc");
 
@@ -361,11 +361,11 @@ private:
       if (formerDate.isNull() 
           || yearMonthDiffer(formerDate, post->date)) {
         Wt::WText *title
-          = parent->addWidget(Wt::cpp14::make_unique<Wt::WText>(post->date.date().toString(dateFormat)));
+          = parent->addWidget(std::make_unique<Wt::WText>(post->date.date().toString(dateFormat)));
 	title->setStyleClass("archive-month-title");
       }
       
-      Wt::WAnchor *a = parent->addWidget(Wt::cpp14::make_unique<Wt::WAnchor>(
+      Wt::WAnchor *a = parent->addWidget(std::make_unique<Wt::WAnchor>(
                                        Wt::WLink(Wt::LinkType::InternalPath,
                                        basePath_ + post->permaLink()),
                                        post->title));
@@ -440,7 +440,7 @@ private:
     WContainerWidget *unpublishedPosts
       = authorPanel_->resolve<WContainerWidget *>("unpublished-posts");
 
-    dbo::ptr<Post> post(Wt::cpp14::make_unique<Post>());
+    dbo::ptr<Post> post(std::make_unique<Post>());
 
     Post *p = post.modify();
     p->state = Post::Unpublished;
@@ -461,11 +461,11 @@ private:
 
   void showPost(const dbo::ptr<Post> post, PostView::RenderType type,
 		WContainerWidget *parent) {
-    parent->addWidget(Wt::cpp14::make_unique<PostView>(session_, basePath_, post, type));
+    parent->addWidget(std::make_unique<PostView>(session_, basePath_, post, type));
   }
 
   void showError(const Wt::WString& msg) {
-    items_->addWidget(Wt::cpp14::make_unique<Wt::WText>(msg));
+    items_->addWidget(std::make_unique<Wt::WText>(msg));
   }
 };
 
@@ -474,7 +474,7 @@ BlogView::BlogView(const std::string& basePath, dbo::SqlConnectionPool& db,
   : WCompositeWidget(),
     userChanged_()
 {
-  impl_ = setImplementation(Wt::cpp14::make_unique<BlogImpl>(basePath, db, rssFeedUrl, this));
+  impl_ = setImplementation(std::make_unique<BlogImpl>(basePath, db, rssFeedUrl, this));
 }
 
 void BlogView::setInternalBasePath(const std::string& basePath)

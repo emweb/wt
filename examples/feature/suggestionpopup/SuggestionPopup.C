@@ -139,12 +139,12 @@ private:
     simpleOptions.highlightEndTag = "</b>";
     simpleOptions.listSeparator = 0;
 
-    std::unique_ptr<WSuggestionPopup> popup = cpp14::make_unique<WSuggestionPopup>(simpleOptions);
+    std::unique_ptr<WSuggestionPopup> popup = std::make_unique<WSuggestionPopup>(simpleOptions);
     popup->setModel(createSimpleDrugsModel());
 
-    parent->addWidget(cpp14::make_unique<WText>(WString::tr("simplest-popup")));
+    parent->addWidget(std::make_unique<WText>(WString::tr("simplest-popup")));
 
-    WLineEdit *edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    WLineEdit *edit = parent->addWidget(std::make_unique<WLineEdit>());
     edit->resize(150, WLength::Auto);
     popup->forEdit(edit);
 
@@ -158,22 +158,22 @@ private:
     popup->setMinimumSize(150, WLength::Auto);
     popup->setMaximumSize(WLength::Auto, 300);
 
-    parent->addWidget(cpp14::make_unique<WText>(WString::tr("simple-popup-editing")));
+    parent->addWidget(std::make_unique<WText>(WString::tr("simple-popup-editing")));
 
-    WLineEdit *edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    WLineEdit *edit = parent->addWidget(std::make_unique<WLineEdit>());
     edit->resize(150, WLength::Auto);
     popup->forEdit(edit);
 
-    parent->addWidget(cpp14::make_unique<WText>(WString::tr("simple-popup-dropdown")));
+    parent->addWidget(std::make_unique<WText>(WString::tr("simple-popup-dropdown")));
 
-    edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    edit = parent->addWidget(std::make_unique<WLineEdit>());
     edit->resize(150, WLength::Auto);
     popup->forEdit(edit, PopupTrigger::DropDownIcon);
 
     /*
       showAt() shows the suggestion popup
 
-      WPushButton *show = parent->addWidget(cpp14::make_unique<WPushButton>("show"));
+      WPushButton *show = parent->addWidget(std::make_unique<WPushButton>("show"));
       show->clicked().connect(std::bind(&WSuggestionPopup::showAt,
 					  popup, edit));
     */
@@ -190,16 +190,16 @@ private:
     popup->setMinimumSize(150, WLength::Auto);
     popup->setMaximumSize(WLength::Auto, 300);
 
-    parent->addWidget(cpp14::make_unique<WText>(WString::tr("serverside-popup-editing")));
+    parent->addWidget(std::make_unique<WText>(WString::tr("serverside-popup-editing")));
 
-    WLineEdit *edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    WLineEdit *edit = parent->addWidget(std::make_unique<WLineEdit>());
 
     edit->resize(150, WLength::Auto);
     popup->forEdit(edit, PopupTrigger::Editing);
 
-    parent->addWidget(cpp14::make_unique<WText>(WString::tr("serverside-popup-dropdown")));
+    parent->addWidget(std::make_unique<WText>(WString::tr("serverside-popup-dropdown")));
 
-    edit = parent->addWidget(cpp14::make_unique<WLineEdit>());
+    edit = parent->addWidget(std::make_unique<WLineEdit>());
     edit->resize(150, WLength::Auto);
     popup->forEdit(edit, PopupTrigger::DropDownIcon);
   }
@@ -318,13 +318,13 @@ private:
        );
 
     return parent->addChild(
-	cpp14::make_unique<WSuggestionPopup>(matcherJS, replacerJS));
+	std::make_unique<WSuggestionPopup>(matcherJS, replacerJS));
   }
 };
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<SuggestionPopups>(env);
+  return std::make_unique<SuggestionPopups>(env);
 }
 
 int main(int argc, char **argv)

@@ -25,7 +25,7 @@ namespace {
 }
 
 SAMPLE_BEGIN(PlainTable)
-auto table = Wt::cpp14::make_unique<Wt::WTable>();
+auto table = std::make_unique<Wt::WTable>();
 table->setHeaderCount(1);
 table->setWidth(Wt::WLength("100%"));
 

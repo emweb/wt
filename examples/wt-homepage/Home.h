@@ -61,7 +61,7 @@ private:
 template <typename Function>
 std::unique_ptr<DeferredWidget<Function>> deferCreate(Function f)
 {
-  return cpp14::make_unique<DeferredWidget<Function>>(f);
+  return std::make_unique<DeferredWidget<Function>>(f);
 }
 
 class Home : public WApplication

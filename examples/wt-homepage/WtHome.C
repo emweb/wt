@@ -44,8 +44,8 @@ WtHome::WtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb)
 
 std::unique_ptr<WWidget> WtHome::example(const char *textKey, const std::string& sourceDir)
 {
-  auto result = cpp14::make_unique<WContainerWidget>();
-  WText *w = result->addWidget(cpp14::make_unique<WText>(tr(textKey)));
+  auto result = std::make_unique<WContainerWidget>();
+  WText *w = result->addWidget(std::make_unique<WText>(tr(textKey)));
   w->setInternalPathEncoding(true);
   result->addWidget(linkSourceBrowser(sourceDir));
   return std::move(result);
@@ -98,13 +98,13 @@ std::unique_ptr<WWidget> WtHome::hangmanExample()
 
 std::unique_ptr<WWidget> WtHome::examples()
 {
-  auto result = cpp14::make_unique<WContainerWidget>();
+  auto result = std::make_unique<WContainerWidget>();
 
-  auto intro = cpp14::make_unique<WText>(tr("home.examples"));
+  auto intro = std::make_unique<WText>(tr("home.examples"));
   intro->setInternalPathEncoding(true);
   result->addWidget(std::move(intro));
 
-  examplesMenu_ = result->addWidget(cpp14::make_unique<WTabWidget>());
+  examplesMenu_ = result->addWidget(std::make_unique<WTabWidget>());
 
   WAnimation animation(AnimationEffect::SlideInFromRight, TimingFunction::EaseIn);
   examplesMenu_->contentsStack()->setTransitionAnimation(animation, true);
@@ -153,7 +153,7 @@ std::unique_ptr<WWidget> WtHome::examples()
 std::unique_ptr<WWidget> WtHome::createQuoteForm()
 {
 #ifdef WT_EMWEB_BUILD
-  return cpp14::make_unique<QuoteForm>(QuoteForm::Wt);
+  return std::make_unique<QuoteForm>(QuoteForm::Wt);
 #else
   return nullptr;
 #endif
@@ -161,7 +161,7 @@ std::unique_ptr<WWidget> WtHome::createQuoteForm()
 
 std::unique_ptr<WWidget> WtHome::sourceViewer(const std::string& deployPath)
 {
-  return cpp14::make_unique<ExampleSourceViewer>(deployPath, wtExamplePath_ + "/", "CPP");
+  return std::make_unique<ExampleSourceViewer>(deployPath, wtExamplePath_ + "/", "CPP");
 }
 
 std::unique_ptr<WWidget> WtHome::wrapView(std::unique_ptr<WWidget> (WtHome::*createWidget)())
@@ -172,5 +172,5 @@ std::unique_ptr<WWidget> WtHome::wrapView(std::unique_ptr<WWidget> (WtHome::*cre
 std::unique_ptr<WApplication> createWtHomeApplication(const WEnvironment& env,
                                       Dbo::SqlConnectionPool *blogDb)
 {
-  return cpp14::make_unique<WtHome>(env, *blogDb);
+  return std::make_unique<WtHome>(env, *blogDb);
 }

@@ -21,7 +21,7 @@ WidgetGallery::WidgetGallery()
 {
   setOverflow(Wt::Overflow::Hidden);
 
-  auto navigation = Wt::cpp14::make_unique<Wt::WNavigationBar>();
+  auto navigation = std::make_unique<Wt::WNavigationBar>();
   navigation_ = navigation.get();
 
   navigation_->addStyleClass("main-nav");
@@ -30,7 +30,7 @@ WidgetGallery::WidgetGallery()
   navigation_->setResponsive(true);
 
   auto contentsStack
-      = Wt::cpp14::make_unique<Wt::WStackedWidget>();
+      = std::make_unique<Wt::WStackedWidget>();
   contentsStack_ = contentsStack.get();
 
   Wt::WAnimation animation(Wt::AnimationEffect::Fade,
@@ -41,25 +41,25 @@ WidgetGallery::WidgetGallery()
   /*
    * Setup the top-level menu
    */
-  auto menu = Wt::cpp14::make_unique<Wt::WMenu>(contentsStack_);
+  auto menu = std::make_unique<Wt::WMenu>(contentsStack_);
   menu->setInternalPathEnabled();
   menu->setInternalBasePath("/");
 
-  addToMenu(menu.get(), "Layout", Wt::cpp14::make_unique<Layout>());
-  addToMenu(menu.get(), "Forms", Wt::cpp14::make_unique<FormWidgets>());
-  addToMenu(menu.get(), "Navigation", Wt::cpp14::make_unique<Navigation>());
-  addToMenu(menu.get(), "Trees & Tables", Wt::cpp14::make_unique<TreesTables>())
+  addToMenu(menu.get(), "Layout", std::make_unique<Layout>());
+  addToMenu(menu.get(), "Forms", std::make_unique<FormWidgets>());
+  addToMenu(menu.get(), "Navigation", std::make_unique<Navigation>());
+  addToMenu(menu.get(), "Trees & Tables", std::make_unique<TreesTables>())
     ->setPathComponent("trees-tables");
-  addToMenu(menu.get(), "Graphics & Charts", Wt::cpp14::make_unique<GraphicsWidgets>())
+  addToMenu(menu.get(), "Graphics & Charts", std::make_unique<GraphicsWidgets>())
     ->setPathComponent("graphics-charts");
-  //addToMenu(menu.get(), "Events", Wt::cpp14::make_unique<EventsDemo>());
-  addToMenu(menu.get(), "Media", Wt::cpp14::make_unique<Media>());
+  //addToMenu(menu.get(), "Events", std::make_unique<EventsDemo>());
+  addToMenu(menu.get(), "Media", std::make_unique<Media>());
   navigation_->addMenu(std::move(menu));
 
   /*
    * Add it all inside a layout
    */
-  auto layout = this->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  auto layout = this->setLayout(std::make_unique<Wt::WVBoxLayout>());
   layout->addWidget(std::move(navigation), 0);
   layout->addWidget(std::move(contentsStack), 1);
   layout->setContentsMargins(0, 0, 0, 0);
@@ -70,22 +70,22 @@ Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,
 					std::unique_ptr<TopicWidget> topic)
 {
   auto topic_ = topic.get();
-  auto result = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+  auto result = std::make_unique<Wt::WContainerWidget>();
 
-  auto pane = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+  auto pane = std::make_unique<Wt::WContainerWidget>();
   auto pane_ = pane.get();
 
-  auto vLayout = result->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  auto vLayout = result->setLayout(std::make_unique<Wt::WVBoxLayout>());
   vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->addWidget(std::move(topic));
   vLayout->addWidget(std::move(pane), 1);
 
-  auto hLayout = pane_->setLayout(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
+  auto hLayout = pane_->setLayout(std::make_unique<Wt::WHBoxLayout>());
 
-  auto item = Wt::cpp14::make_unique<Wt::WMenuItem>(name, std::move(result));
+  auto item = std::make_unique<Wt::WMenuItem>(name, std::move(result));
   auto item_ = menu->addItem(std::move(item));
 
-  auto subStack = Wt::cpp14::make_unique<Wt::WStackedWidget>();
+  auto subStack = std::make_unique<Wt::WStackedWidget>();
   subStack->addStyleClass("contents");
 
   /*
@@ -95,7 +95,7 @@ Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,
   subStack->setTransitionAnimation(animation, true);
   */
 
-  auto subMenu = Wt::cpp14::make_unique<Wt::WMenu>(subStack.get());
+  auto subMenu = std::make_unique<Wt::WMenu>(subStack.get());
   auto subMenu_ = subMenu.get();
   subMenu_->addStyleClass("nav-pills nav-stacked submenu");
   subMenu_->setWidth(200);

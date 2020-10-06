@@ -4,7 +4,7 @@
 #include <Wt/WText.h>
 
 SAMPLE_BEGIN(Slider)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 container->addNew<Wt::WText>("In which year were you born?");
 container->addNew<Wt::WBreak>();

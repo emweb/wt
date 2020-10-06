@@ -32,15 +32,15 @@ TreeViewExample::TreeViewExample(std::shared_ptr<WStandardItemModel> model,
 {
   belgium_ = model_->item(0, 0)->child(0, 0);
 
-  this->addWidget(cpp14::make_unique<WText>(titleText));
+  this->addWidget(std::make_unique<WText>(titleText));
 
   /*
    * Now create the view
    */
-  WPanel *panel = this->addWidget(cpp14::make_unique<WPanel>());
+  WPanel *panel = this->addWidget(std::make_unique<WPanel>());
   panel->resize(600, 300);
 
-  auto treeView = cpp14::make_unique<WTreeView>();
+  auto treeView = std::make_unique<WTreeView>();
   treeView_ = treeView.get();
   panel->setCentralWidget(std::move(treeView));
   
@@ -73,22 +73,22 @@ TreeViewExample::TreeViewExample(std::shared_ptr<WStandardItemModel> model,
    * Setup some buttons to manipulate the view and the model.
    */
   WContainerWidget *wc =
-      this->addWidget(cpp14::make_unique<WContainerWidget>());
+      this->addWidget(std::make_unique<WContainerWidget>());
   WPushButton *b;
   
-  b = wc->addWidget(cpp14::make_unique<WPushButton>("Toggle row height"));
+  b = wc->addWidget(std::make_unique<WPushButton>("Toggle row height"));
   b->clicked().connect(this, &TreeViewExample::toggleRowHeight);
   b->setToolTip("Toggles row height between 31px and 25px");
   
-  b = wc->addWidget(cpp14::make_unique<WPushButton>("Toggle stripes"));
+  b = wc->addWidget(std::make_unique<WPushButton>("Toggle stripes"));
   b->clicked().connect(this, &TreeViewExample::toggleStripes);
   b->setToolTip("Toggle alternating row colors");
   
-  b = wc->addWidget(cpp14::make_unique<WPushButton>("Toggle root"));
+  b = wc->addWidget(std::make_unique<WPushButton>("Toggle root"));
   b->clicked().connect(this, &TreeViewExample::toggleRoot);
   b->setToolTip("Toggles root item between all and the first continent.");
 
-  b = wc->addWidget(cpp14::make_unique<WPushButton>("Add rows"));
+  b = wc->addWidget(std::make_unique<WPushButton>("Add rows"));
   b->clicked().connect(this, &TreeViewExample::addRows);
   b->setToolTip("Adds some cities to Belgium");
 }
@@ -162,7 +162,7 @@ std::shared_ptr<WStandardItemModel> TreeViewExample::createModel(bool useInterna
 std::unique_ptr<WStandardItem> TreeViewExample::continentItem(const std::string& continent)
 {
   std::unique_ptr<WStandardItem> result
-      = cpp14::make_unique<WStandardItem>(continent);
+      = std::make_unique<WStandardItem>(continent);
   result->setColumnCount(4);
   return result;
 }
@@ -171,7 +171,7 @@ std::unique_ptr<WStandardItem> TreeViewExample::countryItem(const std::string& c
 					    const std::string& code)
 {
   std::unique_ptr<WStandardItem> result
-      = cpp14::make_unique<WStandardItem>(WString(country));
+      = std::make_unique<WStandardItem>(WString(country));
   result->setIcon("icons/flag_" + code + ".png");
   return result;
 }
@@ -186,22 +186,22 @@ TreeViewExample::cityItems(const std::string& city,
   std::unique_ptr<WStandardItem> item;
   
   // column 0: country
-  item = cpp14::make_unique<WStandardItem>(WString(city));
+  item = std::make_unique<WStandardItem>(WString(city));
   result.push_back(std::move(item));
   
   // column 1: weather
-  item = cpp14::make_unique<WStandardItem>();
+  item = std::make_unique<WStandardItem>();
   item->setIcon(std::string("icons/") + weatherIcons[weather]);
   result.push_back(std::move(item));
   
   // column 2: drink
-  item = cpp14::make_unique<WStandardItem>(drink);
+  item = std::make_unique<WStandardItem>(drink);
   if (useInternalPath)
     item->setLink(WLink(LinkType::InternalPath, "/drinks/" + drink));
   result.push_back(std::move(item));
   
   // column 3: visited
-  item = cpp14::make_unique<WStandardItem>();
+  item = std::make_unique<WStandardItem>();
   item->setCheckable(true);
   item->setChecked(visited);
   result.push_back(std::move(item));

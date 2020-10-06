@@ -18,12 +18,12 @@ OAuthAuthorizationEndpoint::OAuthAuthorizationEndpoint(const Wt::WEnvironment& e
   messageResourceBundle().use("strings");
   messageResourceBundle().use("templates");
 
-  auto authwidget = Wt::cpp14::make_unique<OAuthWidget>(*session_);
+  auto authwidget = std::make_unique<OAuthWidget>(*session_);
   authwidget->model()->addPasswordAuth(&Session::passwordAuth());
   authwidget->setRegistrationEnabled(true);
   authwidget->processEnvironment();
 
-  process_ = Wt::cpp14::make_unique<Wt::Auth::OAuthAuthorizationEndpointProcess>(
+  process_ = std::make_unique<Wt::Auth::OAuthAuthorizationEndpointProcess>(
       session_->login(),
       session_->users());
   process_->authorized().connect(
@@ -34,5 +34,5 @@ OAuthAuthorizationEndpoint::OAuthAuthorizationEndpoint(const Wt::WEnvironment& e
   if (process_->validRequest()) {
     root()->addWidget(std::move(authwidget));
   } else
-    root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString("The request was invalid.")));
+    root()->addWidget(std::make_unique<Wt::WText>(Wt::WString("The request was invalid.")));
 }

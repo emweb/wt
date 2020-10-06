@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( performance_test2 )
               << std::endl;
 
     for (int i = 0; i < total_objects - current_objects; ++i) {
-      auto p = Wt::cpp14::make_unique<Perf2::Post>();
+      auto p = std::make_unique<Perf2::Post>();
       p->counter = 1;
       session.add(std::move(p));
     }

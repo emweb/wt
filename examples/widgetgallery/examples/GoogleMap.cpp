@@ -13,26 +13,26 @@ public:
     GoogleMapExample()
         : WContainerWidget()
     {
-        auto layout = setLayout(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
+        auto layout = setLayout(std::make_unique<Wt::WHBoxLayout>());
 
 	setHeight(400);
 
-	map_ = layout->addWidget(Wt::cpp14::make_unique<Wt::WGoogleMap>(Wt::GoogleMapsVersion::v3), 1);
+	map_ = layout->addWidget(std::make_unique<Wt::WGoogleMap>(Wt::GoogleMapsVersion::v3), 1);
 
 	map_->setMapTypeControl(Wt::MapTypeControl::Default);
 	map_->enableScrollWheelZoom();
 
-	auto controls = layout->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(
+	auto controls = layout->addWidget(std::make_unique<Wt::WTemplate>(
               tr("graphics-GoogleMap-controls")));
 
-	auto zoomIn = controls->bindWidget("zoom-in", Wt::cpp14::make_unique<Wt::WPushButton>("+"));
+	auto zoomIn = controls->bindWidget("zoom-in", std::make_unique<Wt::WPushButton>("+"));
 	zoomIn->addStyleClass("zoom");
 
 	zoomIn->clicked().connect([=] {
 	    map_->zoomIn();
 	});
 
-	auto zoomOut = controls->bindWidget("zoom-out", Wt::cpp14::make_unique<Wt::WPushButton>("-"));
+	auto zoomOut = controls->bindWidget("zoom-out", std::make_unique<Wt::WPushButton>("-"));
 	zoomOut->addStyleClass("zoom");
 
         zoomOut->clicked().connect([=] {
@@ -48,7 +48,7 @@ public:
 	    
 	for (unsigned i = 0; i < 3; ++i) {
 	    auto city = controls->bindWidget(cityNames[i],
-                Wt::cpp14::make_unique<Wt::WPushButton>(cityNames[i]));
+                std::make_unique<Wt::WPushButton>(cityNames[i]));
 
             Wt::WGoogleMap::Coordinate coord = cityCoords[i];
 	    city->clicked().connect([=] {
@@ -56,21 +56,21 @@ public:
 	    });
 	}
 
-	auto reset = controls->bindWidget("emweb", Wt::cpp14::make_unique<Wt::WPushButton>("Reset"));
+	auto reset = controls->bindWidget("emweb", std::make_unique<Wt::WPushButton>("Reset"));
 
         reset->clicked().connect([=] {
             this->panToEmWeb();
         });
 
 	auto savePosition = controls->bindWidget("save-position",
-            Wt::cpp14::make_unique<Wt::WPushButton>("Save current position"));
+            std::make_unique<Wt::WPushButton>("Save current position"));
 
         savePosition->clicked().connect([=] {
             this->savePosition();
         });
 
 	returnToPosition_ = controls->bindWidget("return-to-saved-position",
-            Wt::cpp14::make_unique<Wt::WPushButton>("Return to saved position"));
+            std::make_unique<Wt::WPushButton>("Return to saved position"));
 	returnToPosition_->setEnabled(false);
 
 	returnToPosition_->clicked().connect([=] {
@@ -89,7 +89,7 @@ public:
 			      Wt::MapTypeControl::HorizontalBar);
 
 	auto menuControls = controls->bindWidget("control-menu-combo",
-            Wt::cpp14::make_unique<Wt::WComboBox>());
+            std::make_unique<Wt::WComboBox>());
 	menuControls->setModel(mapTypeModel_);
 	menuControls->setCurrentIndex(1);
 
@@ -98,7 +98,7 @@ public:
         });
 
 	auto draggingCB = controls->bindWidget("dragging-cb",
-            Wt::cpp14::make_unique<Wt::WCheckBox>("Enable dragging"));
+            std::make_unique<Wt::WCheckBox>("Enable dragging"));
 	draggingCB->setChecked(true);
 	map_->enableDragging();
 
@@ -112,7 +112,7 @@ public:
 
         auto enableDoubleClickZoomCB =
             controls->bindWidget("double-click-zoom-cb",
-                Wt::cpp14::make_unique<Wt::WCheckBox>("Enable double click zoom"));
+                std::make_unique<Wt::WCheckBox>("Enable double click zoom"));
         enableDoubleClickZoomCB->setChecked(false);
 	map_->disableDoubleClickZoom();
 
@@ -126,7 +126,7 @@ public:
 
         auto enableScrollWheelZoomCB =
             controls->bindWidget("scroll-wheel-zoom-cb",
-                Wt::cpp14::make_unique<Wt::WCheckBox>("Enable scroll wheel zoom"));
+                std::make_unique<Wt::WCheckBox>("Enable scroll wheel zoom"));
         enableScrollWheelZoomCB->setChecked(true);
 	map_->enableScrollWheelZoom();
 
@@ -271,6 +271,6 @@ private:
 
 SAMPLE_BEGIN(GoogleMap)
 
-auto map = Wt::cpp14::make_unique<GoogleMapExample>();
+auto map = std::make_unique<GoogleMapExample>();
 
 SAMPLE_END(return std::move(map))

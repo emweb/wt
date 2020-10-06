@@ -1336,7 +1336,7 @@ private:
 const double MarkerMatchIterator::MATCH_RADIUS = 5;
 
 WCartesianChart::AxisStruct::AxisStruct() noexcept
-  : axis(cpp14::make_unique<WAxis>()),
+  : axis(std::make_unique<WAxis>()),
     calculatedWidth(0)
 { }
 

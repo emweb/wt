@@ -587,7 +587,7 @@ struct OAuthService::Impl
 
 OAuthService::OAuthService(const AuthService& auth)
   : baseAuth_(auth),
-    impl_(cpp14::make_unique<Impl>())
+    impl_(std::make_unique<Impl>())
 { }
 
 OAuthService::~OAuthService()

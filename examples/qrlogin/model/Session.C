@@ -41,13 +41,13 @@ void Session::configureAuth()
 {
   myAuthService.setAuthTokensEnabled(true, "logincookie");
 
-  auto verifier = cpp14::make_unique<Auth::PasswordVerifier>();
-  verifier->addHashFunction(cpp14::make_unique<Auth::BCryptHashFunction>(7));
+  auto verifier = std::make_unique<Auth::PasswordVerifier>();
+  verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
   myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setAttemptThrottlingEnabled(true);
 
   auto validator
-    = cpp14::make_unique<Auth::PasswordStrengthValidator>();
+    = std::make_unique<Auth::PasswordStrengthValidator>();
   /* Relax these a bit -- it's not the main point of this example */
   validator->setMinimumLength(Auth::PasswordStrengthType::TwoCharClass, 8);
   validator->setMinimumLength(Auth::PasswordStrengthType::ThreeCharClass, 8);
@@ -59,7 +59,7 @@ void Session::configureAuth()
 
 Session::Session(const std::string& sqliteDb)
 {
-  auto connection = cpp14::make_unique<Dbo::backend::Sqlite3>(sqliteDb);
+  auto connection = std::make_unique<Dbo::backend::Sqlite3>(sqliteDb);
   connection->setProperty("show-queries", "true");
   setConnection(std::move(connection));
 
@@ -68,7 +68,7 @@ Session::Session(const std::string& sqliteDb)
   mapClass<AuthInfo::AuthIdentityType>("auth_identity");
   mapClass<AuthInfo::AuthTokenType>("auth_token");
 
-  qrTokens_ = cpp14::make_unique<QRTokenDatabase>(*this);
+  qrTokens_ = std::make_unique<QRTokenDatabase>(*this);
 
   try {
     createTables();
@@ -78,7 +78,7 @@ Session::Session(const std::string& sqliteDb)
     std::cerr << "Using existing database";
   }
 
-  users_ = cpp14::make_unique<UserDatabase>(*this);
+  users_ = std::make_unique<UserDatabase>(*this);
 }
 
 Session::~Session()

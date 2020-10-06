@@ -110,20 +110,20 @@ MiniWebGL::MiniWebGL(const WEnvironment& env)
 {
   setTitle("Minimalistic WebGL Demo");
 
-  root()->addWidget(cpp14::make_unique<WText>("This is a minimalistic demonstration "
+  root()->addWidget(std::make_unique<WText>("This is a minimalistic demonstration "
     "application for WebGL. If your browser supports WebGL, or if Wt is built "
     "with OpenGL support, you will "
     "see a black square with a triangle inside."));
 
-  root()->addWidget(cpp14::make_unique<WBreak>());
+  root()->addWidget(std::make_unique<WBreak>());
 
-  PaintWidget *gl = root()->addWidget(cpp14::make_unique<PaintWidget>());
+  PaintWidget *gl = root()->addWidget(std::make_unique<PaintWidget>());
   gl->resize(640, 640);
 }
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<MiniWebGL>(env);
+  return std::make_unique<MiniWebGL>(env);
 }
 
 int main(int argc, char **argv)

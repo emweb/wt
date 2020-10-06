@@ -29,7 +29,7 @@ void Form::createUI()
   elementAt(row, 0)->setColumnSpan(3);
   elementAt(row, 0)->setContentAlignment(AlignmentFlag::Top | AlignmentFlag::Center);
   elementAt(row, 0)->setPadding(10);
-  WText *title = elementAt(row,0)->addWidget(cpp14::make_unique<WText>(tr("example.form")));
+  WText *title = elementAt(row,0)->addWidget(std::make_unique<WText>(tr("example.form")));
   title->decorationStyle().font().setSize(FontSize::XLarge);
 
   // error messages
@@ -46,66 +46,66 @@ void Form::createUI()
 
   // Name
   ++row;
-  nameEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WLineEdit>());
-  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.name")));
+  nameEdit_ = elementAt(row,2)->addWidget(std::make_unique<WLineEdit>());
+  label = elementAt(row,0)->addWidget(std::make_unique<WLabel>(tr("example.name")));
   label->setBuddy(nameEdit_);
   nameEdit_->setValidator(std::make_shared<WValidator>(true));
   nameEdit_->enterPressed().connect(this, &Form::submit);
 
   // First name
   ++row;
-  firstNameEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WLineEdit>());
-  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.firstname")));
+  firstNameEdit_ = elementAt(row,2)->addWidget(std::make_unique<WLineEdit>());
+  label = elementAt(row,0)->addWidget(std::make_unique<WLabel>(tr("example.firstname")));
   label->setBuddy(firstNameEdit_);
 
   // Country
   ++row;
-  countryEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WComboBox>());
+  countryEdit_ = elementAt(row,2)->addWidget(std::make_unique<WComboBox>());
   countryEdit_->addItem("");
   countryEdit_->addItem("Belgium");
   countryEdit_->addItem("Netherlands");
   countryEdit_->addItem("United Kingdom");
   countryEdit_->addItem("United States");
-  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.country")));
+  label = elementAt(row,0)->addWidget(std::make_unique<WLabel>(tr("example.country")));
   label->setBuddy(countryEdit_);
   countryEdit_->setValidator(std::make_shared<WValidator>(true));
   countryEdit_->changed().connect(this, &Form::countryChanged);
 
   // City
   ++row;
-  cityEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WComboBox>());
+  cityEdit_ = elementAt(row,2)->addWidget(std::make_unique<WComboBox>());
   cityEdit_->addItem(tr("example.choosecountry"));
-  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.city")));
+  label = elementAt(row,0)->addWidget(std::make_unique<WLabel>(tr("example.city")));
   label->setBuddy(cityEdit_);
 
   // Birth date
   ++row;
-  birthDateEdit_ = elementAt(row, 2)->addWidget(cpp14::make_unique<WDateEdit>());
+  birthDateEdit_ = elementAt(row, 2)->addWidget(std::make_unique<WDateEdit>());
   birthDateEdit_->setBottom(WDate(1900, 1, 1));
   birthDateEdit_->setTop(WDate::currentDate());
-  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.birthdate")));
+  label = elementAt(row,0)->addWidget(std::make_unique<WLabel>(tr("example.birthdate")));
   label->setBuddy(birthDateEdit_);
   birthDateEdit_->setFormat("dd/MM/yyyy");
   birthDateEdit_->validator()->setMandatory(true);
 
   // Child count
   ++row;
-  childCountEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WLineEdit>("0"));
-  label = elementAt(row, 0)->addWidget(cpp14::make_unique<WLabel>(tr("example.childcount")));
+  childCountEdit_ = elementAt(row,2)->addWidget(std::make_unique<WLineEdit>("0"));
+  label = elementAt(row, 0)->addWidget(std::make_unique<WLabel>(tr("example.childcount")));
   label->setBuddy(childCountEdit_);
   childCountEdit_->setValidator(std::make_shared<WIntValidator>(0,30));
   childCountEdit_->validator()->setMandatory(true);
 
   ++row;
-  remarksEdit_ = elementAt(row,2)->addWidget(cpp14::make_unique<WTextArea>());
+  remarksEdit_ = elementAt(row,2)->addWidget(std::make_unique<WTextArea>());
   remarksEdit_->setColumns(40);
   remarksEdit_->setRows(5);
-  label = elementAt(row,0)->addWidget(cpp14::make_unique<WLabel>(tr("example.remarks")));
+  label = elementAt(row,0)->addWidget(std::make_unique<WLabel>(tr("example.remarks")));
   label->setBuddy(remarksEdit_);
 
   // Submit
   ++row;
-  WPushButton *submit = elementAt(row,0)->addWidget(cpp14::make_unique<WPushButton>(tr("submit")));
+  WPushButton *submit = elementAt(row,0)->addWidget(std::make_unique<WPushButton>(tr("submit")));
   submit->clicked().connect(this, &Form::submit);
   submit->setMargin(15, Side::Top);
   elementAt(row, 0)->setColumnSpan(3);
@@ -153,8 +153,8 @@ void Form::countryChanged()
 bool Form::checkValid(WFormWidget *edit, const WString& text)
 {
   if (edit->validate() != ValidationState::Valid) {
-    feedbackMessages_->addWidget(cpp14::make_unique<WText>(text));
-    feedbackMessages_->addWidget(cpp14::make_unique<WBreak>());
+    feedbackMessages_->addWidget(std::make_unique<WText>(text));
+    feedbackMessages_->addWidget(std::make_unique<WBreak>());
     edit->label()->decorationStyle().setForegroundColor(WColor("red"));
     edit->setStyleClass("Wt-invalid");
     return false;
@@ -196,12 +196,12 @@ void Form::submit()
 
     clear();
 
-    elementAt(0,0)->addWidget(cpp14::make_unique<WText>(
+    elementAt(0,0)->addWidget(std::make_unique<WText>(
                                 WString("<p>Thank you, {1}, "
                                "for all this precious data.</p>").arg(name)));
 
     if (!remarks.empty())
-      elementAt(0,0)->addWidget(cpp14::make_unique<WText>(
+      elementAt(0,0)->addWidget(std::make_unique<WText>(
 				  WString("<p>You had some remarks. Splendid !</p>")));
 
     wApp->quit();

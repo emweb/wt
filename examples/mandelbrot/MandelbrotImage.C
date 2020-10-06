@@ -82,7 +82,7 @@ void MandelbrotImage::zoomOut()
 
 std::unique_ptr<WResource> MandelbrotImage::render(int64_t x, int64_t y, int w, int h)
 {
-  return cpp14::make_unique<MandelbrotResource>(this, x, y, w, h);
+  return std::make_unique<MandelbrotResource>(this, x, y, w, h);
 }
 
 void MandelbrotImage::generate(int64_t x, int64_t y, WRasterImage *img)

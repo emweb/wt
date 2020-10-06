@@ -2,7 +2,7 @@
 #include <Wt/WText.h>
 
 SAMPLE_BEGIN(GroupBox)
-auto groupBox = Wt::cpp14::make_unique<Wt::WGroupBox>("A group box");
+auto groupBox = std::make_unique<Wt::WGroupBox>("A group box");
 groupBox->addStyleClass("centered-example");
 groupBox->addNew<Wt::WText>("<p>Some contents.</p>");
 groupBox->addNew<Wt::WText>("<p>More contents.</p>");

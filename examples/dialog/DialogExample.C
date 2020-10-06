@@ -24,35 +24,35 @@ DialogExample::DialogExample(const WEnvironment& env)
 {
   setTitle("Dialog example");
 
-  WContainerWidget *textdiv = root()->addWidget(cpp14::make_unique<WContainerWidget>());
+  WContainerWidget *textdiv = root()->addWidget(std::make_unique<WContainerWidget>());
   textdiv->setStyleClass("text");
 
-  textdiv->addWidget(cpp14::make_unique<WText>("<h2>Wt dialogs example</h2>"));
-  textdiv->addWidget(cpp14::make_unique<WText>(
+  textdiv->addWidget(std::make_unique<WText>("<h2>Wt dialogs example</h2>"));
+  textdiv->addWidget(std::make_unique<WText>(
                        "You can use WMessageBox for simple modal dialog boxes. <br />"));
 
-  WContainerWidget *buttons = root()->addWidget(cpp14::make_unique<WContainerWidget>());
+  WContainerWidget *buttons = root()->addWidget(std::make_unique<WContainerWidget>());
   buttons->setStyleClass("buttons");
 
-  WPushButton *button = buttons->addWidget(cpp14::make_unique<WPushButton>("One liner"));
+  WPushButton *button = buttons->addWidget(std::make_unique<WPushButton>("One liner"));
   button->clicked().connect(this, &DialogExample::messageBox1);
 
-  button = buttons->addWidget(cpp14::make_unique<WPushButton>("Comfortable?"));
+  button = buttons->addWidget(std::make_unique<WPushButton>("Comfortable?"));
   button->clicked().connect(this, &DialogExample::messageBox2);
 
-  button = buttons->addWidget(cpp14::make_unique<WPushButton>("Havoc!"));
+  button = buttons->addWidget(std::make_unique<WPushButton>("Havoc!"));
   button->clicked().connect(this, &DialogExample::messageBox3);
 
-  button = buttons->addWidget(cpp14::make_unique<WPushButton>("Discard"));
+  button = buttons->addWidget(std::make_unique<WPushButton>("Discard"));
   button->clicked().connect(this, &DialogExample::messageBox4);
 
-  button = buttons->addWidget(cpp14::make_unique<WPushButton>("Familiar"));
+  button = buttons->addWidget(std::make_unique<WPushButton>("Familiar"));
   button->clicked().connect(this, &DialogExample::custom);
 
-  textdiv = root()->addWidget(cpp14::make_unique<WContainerWidget>());
+  textdiv = root()->addWidget(std::make_unique<WContainerWidget>());
   textdiv->setStyleClass("text");
 
-  status_ = textdiv->addWidget(cpp14::make_unique<WText>("Go ahead..."));
+  status_ = textdiv->addWidget(std::make_unique<WText>("Go ahead..."));
 
   styleSheet().addRule(".buttons",
 		       "padding: 5px;");
@@ -75,7 +75,7 @@ void DialogExample::messageBox1()
 void DialogExample::messageBox2()
 {
   messageBox_
-    = cpp14::make_unique<WMessageBox>("Question",
+    = std::make_unique<WMessageBox>("Question",
               "Are you getting comfortable ?",
             Icon::Question,
             StandardButton::Yes | StandardButton::No | StandardButton::Cancel);
@@ -103,7 +103,7 @@ void DialogExample::messageBox3()
 void DialogExample::messageBox4()
 {
   messageBox_
-    = cpp14::make_unique<WMessageBox>("Warning!",
+    = std::make_unique<WMessageBox>("Warning!",
               "Are you sure you want to continue?\n"
               "You have unsaved changes.",
 	      Icon::None, StandardButton::None);
@@ -147,9 +147,9 @@ void DialogExample::custom()
   dialog.setResizable(true);
   dialog.rejectWhenEscapePressed(true);
 
-  dialog.contents()->addWidget(cpp14::make_unique<WText>("Enter your name: "));
-  WLineEdit *edit = dialog.contents()->addWidget(cpp14::make_unique<WLineEdit>());
-  WPushButton *ok = dialog.footer()->addWidget(cpp14::make_unique<WPushButton>("Ok"));
+  dialog.contents()->addWidget(std::make_unique<WText>("Enter your name: "));
+  WLineEdit *edit = dialog.contents()->addWidget(std::make_unique<WLineEdit>());
+  WPushButton *ok = dialog.footer()->addWidget(std::make_unique<WPushButton>("Ok"));
   ok->setDefault(true);
 
   edit->setFocus();
@@ -169,7 +169,7 @@ void DialogExample::setStatus(const WString& result)
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<DialogExample>(env);
+  return std::make_unique<DialogExample>(env);
 }
 
 int main(int argc, char **argv)

@@ -8,10 +8,10 @@
 
 SAMPLE_BEGIN(ValidationDate)
 
-auto t = Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("date-template"));
+auto t = std::make_unique<Wt::WTemplate>(Wt::WString::tr("date-template"));
 t->addFunction("id", &Wt::WTemplate::Functions::id);
 
-auto dateEdit = t->bindWidget("birth-date", Wt::cpp14::make_unique<Wt::WDateEdit>());
+auto dateEdit = t->bindWidget("birth-date", std::make_unique<Wt::WDateEdit>());
 
 auto dv = std::make_shared<Wt::WDateValidator>();
 dv->setBottom(Wt::WDate(1900, 1, 1));
@@ -30,9 +30,9 @@ dv->setInvalidTooLateText
 
 dateEdit->setValidator(dv);
 
-auto button = t->bindWidget("button", Wt::cpp14::make_unique<Wt::WPushButton>("Ok"));
+auto button = t->bindWidget("button", std::make_unique<Wt::WPushButton>("Ok"));
 
-auto out = t->bindWidget("info", Wt::cpp14::make_unique<Wt::WText>());
+auto out = t->bindWidget("info", std::make_unique<Wt::WText>());
 out->setInline(false);
 out->hide();
 

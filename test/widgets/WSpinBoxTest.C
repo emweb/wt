@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE( spinbox_validate )
   Wt::WApplication testApp(environment);
 
   {
-    auto sb = cpp14::make_unique<WSpinBox>();
+    auto sb = std::make_unique<WSpinBox>();
     sb->setRange(100, 200);
     sb->setValue(150);
     ValidationState result = sb->validate();

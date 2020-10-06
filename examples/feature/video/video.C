@@ -16,7 +16,7 @@ using namespace Wt;
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  auto app = cpp14::make_unique<WApplication>(env);
+  auto app = std::make_unique<WApplication>(env);
 
   app->messageResourceBundle().use(WApplication::appRoot() + "text");
 
@@ -26,28 +26,28 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
     "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
   std::string poster = "sintel_trailer.jpg";
 
-  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("intro")));
+  app->root()->addWidget(std::make_unique<WText>(WString::tr("intro")));
 
-  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("html5")));
-  WVideo *v1 = app->root()->addWidget(cpp14::make_unique<WVideo>());
+  app->root()->addWidget(std::make_unique<WText>(WString::tr("html5")));
+  WVideo *v1 = app->root()->addWidget(std::make_unique<WVideo>());
   v1->addSource(mp4Video);
   v1->addSource(ogvVideo);
   v1->setPoster(poster);
-  v1->setAlternativeContent(cpp14::make_unique<WImage>(poster));
+  v1->setAlternativeContent(std::make_unique<WImage>(poster));
   v1->resize(640, 360);
 
-  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("flash-fallback")));
+  app->root()->addWidget(std::make_unique<WText>(WString::tr("flash-fallback")));
   std::unique_ptr<WFlashObject> flash2
-      = cpp14::make_unique<WFlashObject>("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
+      = std::make_unique<WFlashObject>("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
   flash2->setFlashVariable("startimage", "sintel_trailer.jpg");
   flash2->setFlashParameter("allowFullScreen", "true");
   flash2->setFlashVariable("flv", mp4Video);
   flash2->setFlashVariable("showvolume", "1");
   flash2->setFlashVariable("showfullscreen", "1");
-  flash2->setAlternativeContent(cpp14::make_unique<WImage>(poster));
+  flash2->setAlternativeContent(std::make_unique<WImage>(poster));
   flash2->resize(640, 360);
   WVideo *v2 =
-      app->root()->addWidget(cpp14::make_unique<WVideo>());
+      app->root()->addWidget(std::make_unique<WVideo>());
   v2->addSource(mp4Video);
   v2->addSource(ogvVideo);
   v2->setAlternativeContent(std::move(flash2));

@@ -111,12 +111,12 @@ WRasterImage::WRasterImage(const std::string& type,
   impl_->device_ = new SkBitmapDevice(*impl_->bitmap_);
   impl_->canvas_ = new SkCanvas(impl_->device_);
 #else
-  impl_->bitmap_ = cpp14::make_unique<SkBitmap>();
+  impl_->bitmap_ = std::make_unique<SkBitmap>();
   SkImageInfo ii = SkImageInfo::MakeN32Premul(impl_->w_, impl_->h_);
   impl_->bitmap_->allocPixels(ii);
   impl_->bitmap_->eraseARGB(0, 0, 0, 0);
-  impl_->device_ = cpp14::make_unique<SkBitmapDevice>(*impl_->bitmap_);
-  impl_->canvas_ = cpp14::make_unique<SkCanvas>(impl_->device_.get());
+  impl_->device_ = std::make_unique<SkBitmapDevice>(*impl_->bitmap_);
+  impl_->canvas_ = std::make_unique<SkCanvas>(impl_->device_.get());
 #endif
 
   impl_->textPaint_.setStyle(SkPaint::kStrokeAndFill_Style);

@@ -18,7 +18,7 @@ namespace {
     class NumericItem : public WStandardItem {
     public:
         virtual std::unique_ptr<WStandardItem> clone() const {
-            return cpp14::make_unique<NumericItem>();
+            return std::make_unique<NumericItem>();
 	}
 
         virtual void setData(const cpp17::any &data, ItemDataRole role = ItemDataRole::User) {
@@ -41,10 +41,10 @@ namespace {
 }
 
 SAMPLE_BEGIN(PieChart)
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 auto model = std::make_shared<WStandardItemModel>();
-model->setItemPrototype(cpp14::make_unique<NumericItem>());
+model->setItemPrototype(std::make_unique<NumericItem>());
 
 // Configure the header.
 model->insertColumns(model->columnCount(), 2);

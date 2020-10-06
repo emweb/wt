@@ -444,7 +444,7 @@ CssParser::CssParser()
 std::unique_ptr<StyleSheet> CssParser::parse(const WString& styleSheetContents)
 {
   error_.clear();
-  std::unique_ptr<StyleSheetImpl> style = cpp14::make_unique<StyleSheetImpl>();
+  std::unique_ptr<StyleSheetImpl> style = std::make_unique<StyleSheetImpl>();
   CssGrammar<std::string::const_iterator> cssGrammar;
   std::string s = styleSheetContents.toUTF8();
   bool success = cssGrammar.parse(s.begin(), s.end(), style.get());
@@ -469,7 +469,7 @@ std::unique_ptr<StyleSheet> CssParser::parseFile(const WString& filename)
   boost::spirit::classic::file_iterator<> last = first.make_end();
 
 
-  std::unique_ptr<StyleSheetImpl> style = cpp14::make_unique<StyleSheetImpl>();
+  std::unique_ptr<StyleSheetImpl> style = std::make_unique<StyleSheetImpl>();
   CssGrammar<boost::spirit::classic::file_iterator<> > cssGrammar;
   bool success = cssGrammar.parse(first, last, style.get());
   if(!success)
@@ -505,7 +505,7 @@ std::unique_ptr<StyleSheet> CssParser::parse(const WString& styleSheetContents)
   error_.clear();
 
   if (styleSheetContents.empty())
-    return cpp14::make_unique<StyleSheetImpl>();
+    return std::make_unique<StyleSheetImpl>();
   else {
     error_ = "Wt::Render: CSSParser requires Boost 1.47 or later";
     return nullptr;

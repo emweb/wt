@@ -48,9 +48,9 @@ namespace Wt {
 
 WCartesian3DChart::WCartesian3DChart()
   : isViewSet_(false),
-    xAxis_(cpp14::make_unique<WAxis>()),
-    yAxis_(cpp14::make_unique<WAxis>()),
-    zAxis_(cpp14::make_unique<WAxis>()),
+    xAxis_(std::make_unique<WAxis>()),
+    yAxis_(std::make_unique<WAxis>()),
+    zAxis_(std::make_unique<WAxis>()),
     chartType_(ChartType::Scatter),
     background_(StandardColor::White),
     chartPalette_(std::make_shared<WStandardPalette>(PaletteFlavour::Muted)),
@@ -82,9 +82,9 @@ WCartesian3DChart::WCartesian3DChart()
 
 WCartesian3DChart::WCartesian3DChart(ChartType type)
   : isViewSet_(false),
-    xAxis_(cpp14::make_unique<WAxis>()),
-    yAxis_(cpp14::make_unique<WAxis>()),
-    zAxis_(cpp14::make_unique<WAxis>()),
+    xAxis_(std::make_unique<WAxis>()),
+    yAxis_(std::make_unique<WAxis>()),
+    zAxis_(std::make_unique<WAxis>()),
     chartType_(type),
     background_(StandardColor::White),
     chartPalette_(std::make_shared<WStandardPalette>(PaletteFlavour::Muted)),

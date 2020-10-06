@@ -21,10 +21,10 @@ public:
     WApplication::instance()->require("prettify/prettify.min.js");
     WApplication::instance()->useStyleSheet("prettify/prettify.css");
 
-    this->addWidget(cpp14::make_unique<WText>("File: "));
-    bufferName_ = this->addWidget(cpp14::make_unique<WText>());
+    this->addWidget(std::make_unique<WText>("File: "));
+    bufferName_ = this->addWidget(std::make_unique<WText>());
 
-    bufferText_ = this->addWidget(cpp14::make_unique<WText>());
+    bufferText_ = this->addWidget(std::make_unique<WText>());
     bufferText_->setInline(false);
     bufferText_->setStyleClass("prettyprint");
   }
@@ -71,7 +71,7 @@ ObserverWidget::~ObserverWidget()
 
 void ObserverWidget::insertBuffer(const CodeSession::Buffer& buffer, int i)
 {
-  std::unique_ptr<BufferViewWidget> w(cpp14::make_unique<BufferViewWidget>());
+  std::unique_ptr<BufferViewWidget> w(std::make_unique<BufferViewWidget>());
   w->setName(buffer.name);
   w->setText(buffer.text);
 

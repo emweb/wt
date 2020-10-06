@@ -28,16 +28,16 @@ LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
   addFunction("tr", &Functions::tr);
   addFunction("block", &Functions::block);
 
-  WLineEdit *email = bindWidget("email", cpp14::make_unique<WLineEdit>());
+  WLineEdit *email = bindWidget("email", std::make_unique<WLineEdit>());
   email->setFocus(true);
 
   WPushButton *okButton = bindWidget
     ("send-button",
-     cpp14::make_unique<WPushButton>(tr("Wt.Auth.send")));
+     std::make_unique<WPushButton>(tr("Wt.Auth.send")));
 
   WPushButton *cancelButton = bindWidget
     ("cancel-button",
-     cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
+     std::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
 
   okButton->clicked().connect(this, &LostPasswordWidget::send);
   cancelButton->clicked().connect(this, &LostPasswordWidget::cancel);

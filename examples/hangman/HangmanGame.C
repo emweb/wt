@@ -25,17 +25,17 @@ HangmanGame::HangmanGame():
   session_.login().changed().connect(this, &HangmanGame::onAuthEvent);
 
   std::unique_ptr<Auth::AuthModel> authModel
-      = cpp14::make_unique<Auth::AuthModel>(Session::auth(), session_.users());
+      = std::make_unique<Auth::AuthModel>(Session::auth(), session_.users());
   authModel->addPasswordAuth(&Session::passwordAuth());
   authModel->addOAuth(Session::oAuth());
 
   std::unique_ptr<Auth::AuthWidget> authWidget
-      = cpp14::make_unique<Auth::AuthWidget>(session_.login());
+      = std::make_unique<Auth::AuthWidget>(session_.login());
   auto authWidgetPtr = authWidget.get();
   authWidget->setModel(std::move(authModel));
   authWidget->setRegistrationEnabled(true);
 
-  std::unique_ptr<WText> title(cpp14::make_unique<WText>("<h1>A Witty game: Hangman</h1>"));
+  std::unique_ptr<WText> title(std::make_unique<WText>("<h1>A Witty game: Hangman</h1>"));
   addWidget(std::move(title));
 
   addWidget(std::move(authWidget));
@@ -49,10 +49,10 @@ HangmanGame::HangmanGame():
   links_->hide();
   addWidget(std::unique_ptr<WContainerWidget>(links_));
 
-  backToGameAnchor_ = links_->addWidget(cpp14::make_unique<WAnchor>("/play", "Gaming Grounds"));
+  backToGameAnchor_ = links_->addWidget(std::make_unique<WAnchor>("/play", "Gaming Grounds"));
   backToGameAnchor_->setLink(WLink(LinkType::InternalPath, "/play"));
 
-  scoresAnchor_ = links_->addWidget(cpp14::make_unique<WAnchor>("/highscores", "Highscores"));
+  scoresAnchor_ = links_->addWidget(std::make_unique<WAnchor>("/highscores", "Highscores"));
   scoresAnchor_->setLink(WLink(LinkType::InternalPath, "/highscores"));
 
   WApplication::instance()->internalPathChanged()
@@ -89,7 +89,7 @@ void HangmanGame::handleInternalPath(const std::string &internalPath)
 void HangmanGame::showHighScores()
 {
   if (!scores_)
-    scores_ = mainStack_->addWidget(cpp14::make_unique<HighScoresWidget>(&session_));
+    scores_ = mainStack_->addWidget(std::make_unique<HighScoresWidget>(&session_));
 
   mainStack_->setCurrentWidget(scores_);
   scores_->update();
@@ -101,7 +101,7 @@ void HangmanGame::showHighScores()
 void HangmanGame::showGame()
 {
   if (!game_) {
-    game_ = mainStack_->addWidget(cpp14::make_unique<HangmanWidget>(session_.userName()));
+    game_ = mainStack_->addWidget(std::make_unique<HangmanWidget>(session_.userName()));
     game_->scoreUpdated().connect(std::bind(&Session::addToScore,&session_,std::placeholders::_1));
   }
 

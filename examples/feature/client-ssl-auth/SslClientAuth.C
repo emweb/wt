@@ -69,7 +69,7 @@ public:
 
       root()->addWidget(std::move(authWidget));
     } else {
-      root()->addWidget(cpp14::make_unique<WText>("Not an SSL session, or no "
+      root()->addWidget(std::make_unique<WText>("Not an SSL session, or no "
           "client certificate available. Please read the readme file in "
           "examples/feature/client-ssl-auth for more info."));
       quit();
@@ -84,7 +84,7 @@ public:
     else {
       log("notice") << "User logged out.";
       root()->clear();
-      root()->addWidget(cpp14::make_unique<WText>("You are logged out"));
+      root()->addWidget(std::make_unique<WText>("You are logged out"));
       quit();
     }
   }
@@ -95,7 +95,7 @@ private:
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<AuthApplication>(env);
+  return std::make_unique<AuthApplication>(env);
 }
 
 int main(int argc, char **argv)

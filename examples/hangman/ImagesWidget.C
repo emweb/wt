@@ -16,7 +16,7 @@ ImagesWidget::ImagesWidget(int maxGuesses)
   for (int i = 0; i <= maxGuesses; ++i) {
     std::string fname = "icons/hangman";
     fname += std::to_string(i) + ".jpg";
-    WImage *theImage = addWidget(cpp14::make_unique<WImage>(fname));
+    WImage *theImage = addWidget(std::make_unique<WImage>(fname));
     images_.push_back(theImage);
 
     // Although not necessary, we can avoid flicker (on konqueror)
@@ -25,7 +25,7 @@ ImagesWidget::ImagesWidget(int maxGuesses)
     theImage->hide();
   }
 
-  WImage *hurray = addWidget(cpp14::make_unique<WImage>("icons/hangmanhurray.jpg"));
+  WImage *hurray = addWidget(std::make_unique<WImage>("icons/hangmanhurray.jpg"));
   hurray->hide();
   images_.push_back(hurray);
 

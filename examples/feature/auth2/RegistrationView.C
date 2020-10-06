@@ -16,7 +16,7 @@ RegistrationView::RegistrationView(Session& session,
     session_(session)
 {
   setTemplateText(tr("template.registration"));
-  detailsModel_ = cpp14::make_unique<UserDetailsModel>(session_);
+  detailsModel_ = std::make_unique<UserDetailsModel>(session_);
 
   updateView(detailsModel_.get());
 }
@@ -24,7 +24,7 @@ RegistrationView::RegistrationView(Session& session,
 std::unique_ptr<WWidget> RegistrationView::createFormWidget(WFormModel::Field field)
 {
   if (field == UserDetailsModel::FavouritePetField)
-    return cpp14::make_unique<WLineEdit>();
+    return std::make_unique<WLineEdit>();
   else
     return Auth::RegistrationWidget::createFormWidget(field);
 }

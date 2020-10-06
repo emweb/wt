@@ -17,8 +17,8 @@ EditUsers::EditUsers(dbo::Session& aSession, const std::string& basePath)
 {
   setStyleClass("user-editor");
   setTemplateText(tr("edit-users-list"));
-  auto limitEdit = Wt::cpp14::make_unique<Wt::WLineEdit>();
-  auto goLimit = Wt::cpp14::make_unique<Wt::WPushButton>(tr("go-limit"));
+  auto limitEdit = std::make_unique<Wt::WLineEdit>();
+  auto goLimit = std::make_unique<Wt::WPushButton>(tr("go-limit"));
   goLimit->clicked().connect(this,&EditUsers::limitList);
 
   limitEdit_ = bindWidget("limit-edit",std::move(limitEdit));
@@ -28,7 +28,7 @@ EditUsers::EditUsers(dbo::Session& aSession, const std::string& basePath)
 
 void EditUsers::limitList()
 {
-  auto listPtr = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+  auto listPtr = std::make_unique<Wt::WContainerWidget>();
   auto list = listPtr.get();
   bindWidget("user-list", std::move(listPtr));
 
@@ -37,13 +37,13 @@ void EditUsers::limitList()
   UserList users = session_.find<User>().where("name like ?").bind("%"+limitEdit_->text()+"%").orderBy("name");
 
   for (auto user : users) {
-    Wt::WText* t = list->addWidget(Wt::cpp14::make_unique<Wt::WText>(user->name));
+    Wt::WText* t = list->addWidget(std::make_unique<Wt::WText>(user->name));
     t->setStyleClass("link");
-    list->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
+    list->addWidget(std::make_unique<Wt::WBreak>());
     t->clicked().connect(std::bind(&EditUsers::onUserClicked, this, user.id()));
   }
   if (!users.size())
-    list->addWidget(Wt::cpp14::make_unique<Wt::WText>(tr("no-users-found")));
+    list->addWidget(std::make_unique<Wt::WText>(tr("no-users-found")));
 }
 
 void EditUsers::onUserClicked(Wt::Dbo::dbo_traits<User>::IdType id)
@@ -56,7 +56,7 @@ EditUser::EditUser(Wt::Dbo::Session& aSession)
 : WTemplate(tr("edit-user")),
   session_(aSession)
 {
-  auto roleButton = Wt::cpp14::make_unique<Wt::WPushButton>();
+  auto roleButton = std::make_unique<Wt::WPushButton>();
   roleButton_ = bindWidget("role-button",std::move(roleButton));
   roleButton_->clicked().connect(this, &EditUser::switchRole);
 }

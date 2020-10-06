@@ -83,18 +83,18 @@ void BlogSession::configureAuth()
   blogAuth.setAuthTokensEnabled(true, "bloglogin");
 
   std::unique_ptr<Wt::Auth::PasswordVerifier> verifier
-      = Wt::cpp14::make_unique<Wt::Auth::PasswordVerifier>();
-  verifier->addHashFunction(Wt::cpp14::make_unique<Wt::Auth::BCryptHashFunction>(7));
+      = std::make_unique<Wt::Auth::PasswordVerifier>();
+  verifier->addHashFunction(std::make_unique<Wt::Auth::BCryptHashFunction>(7));
 #ifdef WT_WITH_SSL
-  verifier->addHashFunction(Wt::cpp14::make_unique<Wt::Auth::SHA1HashFunction>());
+  verifier->addHashFunction(std::make_unique<Wt::Auth::SHA1HashFunction>());
 #endif
 #ifdef HAVE_CRYPT
-  verifier->addHashFunction(Wt::cpp14::make_unique<UnixCryptHashFunction>());
+  verifier->addHashFunction(std::make_unique<UnixCryptHashFunction>());
 #endif
   blogPasswords.setVerifier(std::move(verifier));
   blogPasswords.setAttemptThrottlingEnabled(true);
   blogPasswords.setStrengthValidator
-    (Wt::cpp14::make_unique<Wt::Auth::PasswordStrengthValidator>());
+    (std::make_unique<Wt::Auth::PasswordStrengthValidator>());
 
   if (Wt::Auth::GoogleService::configured())
     blogOAuth.push_back(new Wt::Auth::GoogleService(blogAuth));
@@ -102,12 +102,12 @@ void BlogSession::configureAuth()
 
 std::unique_ptr<dbo::SqlConnectionPool> BlogSession::createConnectionPool(const std::string& sqliteDb)
 {
-  auto connection = Wt::cpp14::make_unique<dbo::backend::Sqlite3>(sqliteDb);
+  auto connection = std::make_unique<dbo::backend::Sqlite3>(sqliteDb);
 
   connection->setProperty("show-queries", "true");
   connection->setDateTimeStorage(Wt::Dbo::SqlDateTimeType::DateTime, Wt::Dbo::backend::DateTimeStorage::PseudoISO8601AsText);
 
-  return Wt::cpp14::make_unique<dbo::FixedSqlConnectionPool>(std::move(connection), 10);
+  return std::make_unique<dbo::FixedSqlConnectionPool>(std::move(connection), 10);
 }
 
 BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
@@ -126,7 +126,7 @@ BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
     dbo::Transaction t(*this);
     createTables();
 
-    dbo::ptr<User> admin = add(Wt::cpp14::make_unique<User>());
+    dbo::ptr<User> admin = add(std::make_unique<User>());
     User *a = admin.modify();
     a->name = ADMIN_USERNAME;
     a->role = User::Admin;
@@ -135,7 +135,7 @@ BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
       = users_.findWithIdentity(Wt::Auth::Identity::LoginName, a->name);
     blogPasswords.updatePassword(authAdmin, ADMIN_PASSWORD);
 
-    dbo::ptr<Post> post = add(Wt::cpp14::make_unique<Post>());
+    dbo::ptr<Post> post = add(std::make_unique<Post>());
     Post *p = post.modify();
 
     p->state = Post::Published;
@@ -148,7 +148,7 @@ BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
     p->bodyHtml = asciidoc(p->bodySrc);
     p->date = Wt::WDateTime::currentDateTime();
 
-    dbo::ptr<Comment> rootComment = add(Wt::cpp14::make_unique<Comment>());
+    dbo::ptr<Comment> rootComment = add(std::make_unique<Comment>());
     rootComment.modify()->post = post;
 
     t.commit();

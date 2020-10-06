@@ -20,13 +20,13 @@ public:
         model(TreeViewExample::createModel(true));
 
     root()->addWidget
-      (cpp14::make_unique<TreeViewExample>(
+      (std::make_unique<TreeViewExample>(
          model, WString::tr("treeview-introduction")));
 
     /*
      * Stub for the drink info
      */
-    aboutDrink_ = root()->addWidget(cpp14::make_unique<WText>(""));
+    aboutDrink_ = root()->addWidget(std::make_unique<WText>(""));
     
     internalPathChanged().connect(this, &TreeViewApplication::handlePathChange);
 
@@ -46,7 +46,7 @@ private:
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  auto app = cpp14::make_unique<TreeViewApplication>(env);
+  auto app = std::make_unique<TreeViewApplication>(env);
   app->setTitle("WTreeView example");
   app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
   app->styleSheet().addRule("button", "margin: 2px");

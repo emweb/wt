@@ -3,17 +3,17 @@
 #include <Wt/WVBoxLayout.h>
 
 SAMPLE_BEGIN(VBoxLayout)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 container->resize(150, 150);
 container->setStyleClass("yellow-box centered");
 
-auto vbox = container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+auto vbox = container->setLayout(std::make_unique<Wt::WVBoxLayout>());
 
-auto item = Wt::cpp14::make_unique<Wt::WText>("Item 1");
+auto item = std::make_unique<Wt::WText>("Item 1");
 item->setStyleClass("green-box");
 vbox->addWidget(std::move(item));
   
-item = Wt::cpp14::make_unique<Wt::WText>("Item 2");
+item = std::make_unique<Wt::WText>("Item 2");
 item->setStyleClass("blue-box");
 vbox->addWidget(std::move(item));
 

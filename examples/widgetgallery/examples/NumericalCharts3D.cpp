@@ -13,7 +13,7 @@
 
 SAMPLE_BEGIN(NumChart3d)
 
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 // create the chart and add a border to the widget
 Chart::WCartesian3DChart *chart = container->addNew<Chart::WCartesian3DChart>();
@@ -44,7 +44,7 @@ chart->setIntersectionLinesColor(WColor(0, 255, 255));
 
 // make first dataset (WGridData)
 auto model1 = std::make_shared<SombreroData>(40, 40);
-auto dataset1 = cpp14::make_unique<Chart::WGridData>(model1);
+auto dataset1 = std::make_unique<Chart::WGridData>(model1);
 dataset1->setType(Chart::Series3DType::Surface);
 dataset1->setSurfaceMeshEnabled(true);
 auto colormap =
@@ -73,17 +73,17 @@ for (int i=0; i < model2->rowCount(); i++) { // set a few color-roles
 }
 
 auto dataset2 =
-    cpp14::make_unique<Chart::WEquidistantGridData>(model2, -10, 0.5f, -10, 0.5f);
+    std::make_unique<Chart::WEquidistantGridData>(model2, -10, 0.5f, -10, 0.5f);
 
 // make third dataset (WScatterData)
 auto model3 = std::make_shared<SpiralData>(100);
-auto dataset3 = cpp14::make_unique<Chart::WScatterData>(model3);
+auto dataset3 = std::make_unique<Chart::WScatterData>(model3);
 dataset3->setPointSize(5);
 
 // make fourth dataset (WEquidistantGridData, intersecting with dataset1)
 auto model4 = std::make_shared<HorizontalPlaneData>(20, 20);
 auto dataset4 =
-  cpp14::make_unique<Chart::WEquidistantGridData>(model4, -10, 1.0f, -10, 1.0f);
+  std::make_unique<Chart::WEquidistantGridData>(model4, -10, 1.0f, -10, 1.0f);
 dataset4->setType(Chart::Series3DType::Surface);
 dataset4->setSurfaceMeshEnabled(true);
 
@@ -94,6 +94,6 @@ chart->addDataSeries(std::move(dataset3));
 chart->addDataSeries(std::move(dataset4));
 
 chart->setAlternativeContent
-    (cpp14::make_unique<WImage>(WLink("pics/numericalChartScreenshot.png")));
+    (std::make_unique<WImage>(WLink("pics/numericalChartScreenshot.png")));
 
 SAMPLE_END(return std::move(container))

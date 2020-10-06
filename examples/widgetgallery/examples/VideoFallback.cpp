@@ -15,16 +15,16 @@ std::string ogvVideo = "https://www.webtoolkit.eu/videos/sintel_trailer.ogv";
 // Define poster image location
 std::string poster = "pics/sintel_trailer.jpg";
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 auto flash =
-    Wt::cpp14::make_unique<Wt::WFlashObject>("https://www.webtoolkit.eu/videos/player_flv_maxi.swf");
+    std::make_unique<Wt::WFlashObject>("https://www.webtoolkit.eu/videos/player_flv_maxi.swf");
 flash->setFlashVariable("startimage", "pics/sintel_trailer.jpg");
 flash->setFlashParameter("allowFullScreen", "true");
 flash->setFlashVariable("flv", mp4Video);
 flash->setFlashVariable("showvolume", "1");
 flash->setFlashVariable("showfullscreen", "1");
-flash->setAlternativeContent(Wt::cpp14::make_unique<Wt::WImage>(Wt::WLink(poster)));
+flash->setAlternativeContent(std::make_unique<Wt::WImage>(Wt::WLink(poster)));
 flash->resize(640, 360);
 
 Wt::WVideo *video = container->addNew<Wt::WVideo>();

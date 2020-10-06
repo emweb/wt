@@ -4,7 +4,7 @@
 
 SAMPLE_BEGIN(AutoComplete)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 // Set options for email address suggestions:
 Wt::WSuggestionPopup::Options contactOptions;
@@ -18,7 +18,7 @@ contactOptions.appendReplacedText = ", ";
 #ifndef WT_TARGET_JAVA
 Wt::WSuggestionPopup *sp =
     container->addChild(
-      Wt::cpp14::make_unique<Wt::WSuggestionPopup>(
+      std::make_unique<Wt::WSuggestionPopup>(
             Wt::WSuggestionPopup::generateMatcherJS(contactOptions),
             Wt::WSuggestionPopup::generateReplacerJS(contactOptions)));
 #else

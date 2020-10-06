@@ -55,16 +55,16 @@ ChatApplication::ChatApplication(const Wt::WEnvironment& env,
 
   javaScriptTest();
 
-  root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("introduction")));
+  root()->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("introduction")));
 
   SimpleChatWidget *chatWidget =
-      root()->addWidget(Wt::cpp14::make_unique<SimpleChatWidget>(server_));
+      root()->addWidget(std::make_unique<SimpleChatWidget>(server_));
   chatWidget->setStyleClass("chat");
 
-  root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("details")));
+  root()->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("details")));
 
   Wt::WPushButton *b =
-      root()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("I'm schizophrenic ..."));
+      root()->addWidget(std::make_unique<Wt::WPushButton>("I'm schizophrenic ..."));
   b->clicked().connect(b, &Wt::WPushButton::hide);
   b->clicked().connect(this, &ChatApplication::addChatWidget);
 }
@@ -73,11 +73,11 @@ void ChatApplication::javaScriptTest()
 {
   if(!env_.javaScript()){
     javaScriptError_ =
-	root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("serverpushwarning")));
+	root()->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("serverpushwarning")));
 
     // The 5 second timer is a fallback for real server push. The updated
     // server state will piggy back on the response to this timeout.
-    timer_ = Wt::cpp14::make_unique<Wt::WTimer>();
+    timer_ = std::make_unique<Wt::WTimer>();
     timer_->setInterval(std::chrono::milliseconds{5000});
     timer_->timeout().connect(this, &ChatApplication::emptyFunc);
     timer_->start();
@@ -90,7 +90,7 @@ void ChatApplication::emptyFunc()
 void ChatApplication::addChatWidget()
 {
   SimpleChatWidget *chatWidget2 =
-      root()->addWidget(Wt::cpp14::make_unique<SimpleChatWidget>(server_));
+      root()->addWidget(std::make_unique<SimpleChatWidget>(server_));
   chatWidget2->setStyleClass("chat");
 }
 
@@ -123,7 +123,7 @@ ChatWidget::ChatWidget(const Wt::WEnvironment& env, SimpleChatServer& server)
   if (div) {
     setJavaScriptClass(*div);
     std::unique_ptr<PopupChatWidget> chatWidgetPtr =
-	Wt::cpp14::make_unique<PopupChatWidget>(server, *div);
+	std::make_unique<PopupChatWidget>(server, *div);
     PopupChatWidget *chatWidget = chatWidgetPtr.get();
     bindWidget(std::move(chatWidgetPtr), *div);
 
@@ -142,12 +142,12 @@ ChatWidget::ChatWidget(const Wt::WEnvironment& env, SimpleChatServer& server)
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env,
 				SimpleChatServer& server)
 {
-  return Wt::cpp14::make_unique<ChatApplication>(env, server);
+  return std::make_unique<ChatApplication>(env, server);
 }
 
 std::unique_ptr<Wt::WApplication> createWidget(const Wt::WEnvironment& env, SimpleChatServer& server)
 {
-  return Wt::cpp14::make_unique<ChatWidget>(env, server);
+  return std::make_unique<ChatWidget>(env, server);
 }
 
 int main(int argc, char **argv)

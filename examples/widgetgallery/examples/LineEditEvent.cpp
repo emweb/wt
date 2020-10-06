@@ -4,7 +4,7 @@
 
 SAMPLE_BEGIN(LineEditEvent)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WLineEdit *edit = container->addNew<Wt::WLineEdit>();
 edit->setPlaceholderText("Edit me");

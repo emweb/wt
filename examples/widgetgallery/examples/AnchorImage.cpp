@@ -9,7 +9,7 @@ SAMPLE_BEGIN(AnchorImage)
 Wt::WLink link = Wt::WLink("https://www.emweb.be/");
 link.setTarget(Wt::LinkTarget::NewWindow);
 
-std::unique_ptr<Wt::WAnchor> anchor = Wt::cpp14::make_unique<Wt::WAnchor>(link);
+std::unique_ptr<Wt::WAnchor> anchor = std::make_unique<Wt::WAnchor>(link);
 anchor->addNew<Wt::WImage>(Wt::WLink("https://www.emweb.be/css/emweb_small.png"));
 
 SAMPLE_END(return std::move(anchor))

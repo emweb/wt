@@ -57,27 +57,27 @@ void SimpleChatWidget::letLogin()
 {
   clear();
 
-  auto vLayout = setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  auto vLayout = setLayout(std::make_unique<Wt::WVBoxLayout>());
 
-  auto hLayout_(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
+  auto hLayout_(std::make_unique<Wt::WHBoxLayout>());
   auto hLayout = hLayout_.get();
   vLayout->addLayout(std::move(hLayout_), 0,
 		     Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Left);
 
-  hLayout->addWidget(Wt::cpp14::make_unique<Wt::WLabel>("User name:"),
+  hLayout->addWidget(std::make_unique<Wt::WLabel>("User name:"),
 		     0, Wt::AlignmentFlag::Middle);
 
-  userNameEdit_ = hLayout->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>(user_),
+  userNameEdit_ = hLayout->addWidget(std::make_unique<Wt::WLineEdit>(user_),
 				     0, Wt::AlignmentFlag::Middle);
   userNameEdit_->setFocus();
 
-  auto button = hLayout->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Login"),
+  auto button = hLayout->addWidget(std::make_unique<Wt::WPushButton>("Login"),
 				    0, Wt::AlignmentFlag::Middle);
 
   button->clicked().connect(this, &SimpleChatWidget::login);
   userNameEdit_->enterPressed().connect(this, &SimpleChatWidget::login);
 
-  statusMsg_ = vLayout->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+  statusMsg_ = vLayout->addWidget(std::make_unique<Wt::WText>());
   statusMsg_->setTextFormat(Wt::TextFormat::Plain);
 }
 
@@ -87,7 +87,7 @@ void SimpleChatWidget::login()
     Wt::WString name = userNameEdit_->text();
 
     if (!messageReceived_)
-      messageReceived_ = Wt::cpp14::make_unique<Wt::WSound>("sounds/message_received.mp3");
+      messageReceived_ = std::make_unique<Wt::WSound>("sounds/message_received.mp3");
 
     if (!startChat(name))
       statusMsg_->setText("Sorry, name '" + escapeText(name) +
@@ -128,10 +128,10 @@ void SimpleChatWidget::createLayout(std::unique_ptr<WWidget> messages, std::uniq
    * | send | logout                            |
    * --------------------------------------------
    */
-  auto vLayout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
+  auto vLayout = std::make_unique<Wt::WVBoxLayout>();
 
   // Create a horizontal layout for the messages | userslist.
-  auto hLayout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
+  auto hLayout = std::make_unique<Wt::WHBoxLayout>();
 
   // Choose JavaScript implementation explicitly to avoid log warning (needed for resizable layout)
   hLayout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
@@ -154,7 +154,7 @@ void SimpleChatWidget::createLayout(std::unique_ptr<WWidget> messages, std::uniq
   vLayout->addWidget(std::move(messageEdit));
 
   // Create a horizontal layout for the buttons.
-  hLayout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
+  hLayout = std::make_unique<Wt::WHBoxLayout>();
 
   // Add button to horizontal layout with stretch = 0
   hLayout->addWidget(std::move(sendButton));
@@ -203,11 +203,11 @@ bool SimpleChatWidget::startChat(const Wt::WString& user)
     clear();
     userNameEdit_ = 0;
 
-    auto messagesPtr = Wt::cpp14::make_unique<WContainerWidget>();
-    auto userListPtr = Wt::cpp14::make_unique<WContainerWidget>();
-    auto messageEditPtr = Wt::cpp14::make_unique<Wt::WTextArea>();
-    auto sendButtonPtr = Wt::cpp14::make_unique<Wt::WPushButton>("Send");
-    auto logoutButtonPtr = Wt::cpp14::make_unique<Wt::WPushButton>("Logout");
+    auto messagesPtr = std::make_unique<WContainerWidget>();
+    auto userListPtr = std::make_unique<WContainerWidget>();
+    auto messageEditPtr = std::make_unique<Wt::WTextArea>();
+    auto sendButtonPtr = std::make_unique<Wt::WPushButton>("Send");
+    auto logoutButtonPtr = std::make_unique<Wt::WPushButton>("Logout");
 
     messages_ = messagesPtr.get();
     userList_ = userListPtr.get();
@@ -286,13 +286,13 @@ bool SimpleChatWidget::startChat(const Wt::WString& user)
     if (logoutButton)
       logoutButton->clicked().connect(this, &SimpleChatWidget::logout);
 
-    auto nameEdit = Wt::cpp14::make_unique<Wt::WInPlaceEdit>();
+    auto nameEdit = std::make_unique<Wt::WInPlaceEdit>();
     nameEdit->addStyleClass("name-edit");
     nameEdit->setButtonsEnabled(false);
     nameEdit->setText(user_);
     nameEdit->valueChanged().connect(this, &SimpleChatWidget::changeName);
 
-    Wt::WTemplate *joinMsg = messages_->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(tr("join-msg.template")));
+    Wt::WTemplate *joinMsg = messages_->addWidget(std::make_unique<Wt::WTemplate>(tr("join-msg.template")));
     joinMsg->bindWidget("name", std::move(nameEdit));
     joinMsg->setStyleClass("chat-msg");
 
@@ -329,7 +329,7 @@ void SimpleChatWidget::updateUsers()
 
     for (SimpleChatServer::UserSet::iterator i = users.begin();
 	 i != users.end(); ++i) {
-      Wt::WCheckBox *w = userList_->addWidget(Wt::cpp14::make_unique<Wt::WCheckBox>(escapeText(*i)));
+      Wt::WCheckBox *w = userList_->addWidget(std::make_unique<Wt::WCheckBox>(escapeText(*i)));
       w->setInline(false);
 
       UserMap::const_iterator j = oldUsers.find(*i);
@@ -404,7 +404,7 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
     || (users_.find(event.user()) != users_.end() && users_[event.user()]);
 
   if (display) {
-    Wt::WText *w = messages_->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+    Wt::WText *w = messages_->addWidget(std::make_unique<Wt::WText>());
 
     /*
      * If it fails, it is because the content wasn't valid XHTML

@@ -32,7 +32,7 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
   if (boost::filesystem::exists(path)) {
     if (!boost::filesystem::is_directory(path)) {
       int fsize = (int)boost::filesystem::file_size(path);
-      setColumnWidget(1, cpp14::make_unique<WText>(asString(fsize)));
+      setColumnWidget(1, std::make_unique<WText>(asString(fsize)));
       columnWidget(1)->setStyleClass("fsize");
     } else
       setSelectable(false);
@@ -42,7 +42,7 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
     Wt::WLocalDateTime localDateTime = dateTime.toLocalTime();
     Wt::WString dateTimeStr = localDateTime.toString(Wt::utf8("MMM dd yyyy"));
 
-    setColumnWidget(2, cpp14::make_unique<WText>(dateTimeStr));
+    setColumnWidget(2, std::make_unique<WText>(dateTimeStr));
     columnWidget(2)->setStyleClass("date");
   }
 }
@@ -51,10 +51,10 @@ std::unique_ptr<WIconPair> FileTreeTableNode::createIcon(const boost::filesystem
 {
   if (boost::filesystem::exists(path)
       && boost::filesystem::is_directory(path))
-    return cpp14::make_unique<WIconPair>("icons/yellow-folder-closed.png",
+    return std::make_unique<WIconPair>("icons/yellow-folder-closed.png",
                          "icons/yellow-folder-open.png", false);
   else
-    return cpp14::make_unique<WIconPair>("icons/document.png",
+    return std::make_unique<WIconPair>("icons/document.png",
                          "icons/yellow-folder-open.png", false);
 }
 
@@ -74,7 +74,7 @@ void FileTreeTableNode::populate()
     for (std::set<boost::filesystem::path>::iterator i = paths.begin();
       i != paths.end(); ++i)
       try {
-        addChildNode(cpp14::make_unique<FileTreeTableNode>(*i));
+        addChildNode(std::make_unique<FileTreeTableNode>(*i));
       } catch (boost::filesystem::filesystem_error& e) {
         std::cerr << e.what() << std::endl;
       }

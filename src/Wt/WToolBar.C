@@ -120,7 +120,7 @@ void WToolBar::setCompact(bool compact)
 WContainerWidget *WToolBar::lastGroup()
 {
   if (!lastGroup_) {
-    lastGroup_ = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
+    lastGroup_ = impl_->addWidget(std::make_unique<WContainerWidget>());
     lastGroup_->addStyleClass("btn-group");
   }
 

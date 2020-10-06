@@ -709,10 +709,10 @@ void Configuration::registerEntryPoint(const EntryPoint &ep)
         if (it->empty()) {
           // Empty part (entry point with trailing slash)
           // Put it in front by convention
-          children.insert(children.begin(), Wt::cpp14::make_unique<PathSegment>("", pathSegment));
+          children.insert(children.begin(), std::make_unique<PathSegment>("", pathSegment));
           childSegment = children.front().get();
         } else {
-          children.push_back(Wt::cpp14::make_unique<PathSegment>(boost::copy_range<std::string>(*it), pathSegment));
+          children.push_back(std::make_unique<PathSegment>(boost::copy_range<std::string>(*it), pathSegment));
           childSegment = children.back().get();
         }
       }

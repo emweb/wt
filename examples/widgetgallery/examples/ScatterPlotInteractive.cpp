@@ -15,7 +15,7 @@
 #include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(ScatterPlotInteractive)
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 auto model
     = csvToModel(WApplication::appRoot() + "timeseries.csv");
@@ -55,13 +55,13 @@ chart->axis(Chart::Axis::X).setMinimumZoomRange((max - min) / 16.0);
  */
 {
   auto s =
-      cpp14::make_unique<Chart::WDataSeries>(2, Chart::SeriesType::Line);
+      std::make_unique<Chart::WDataSeries>(2, Chart::SeriesType::Line);
   s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
   chart->addSeries(std::move(s));
 }
 {
   auto s =
-      cpp14::make_unique<Chart::WDataSeries>(3, Chart::SeriesType::Line);
+      std::make_unique<Chart::WDataSeries>(3, Chart::SeriesType::Line);
   s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
   chart->addSeries(std::move(s));
 }

@@ -4,7 +4,7 @@
 
 SAMPLE_BEGIN(CalendarSimple)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WCalendar *c1 = container->addNew<Wt::WCalendar>();
 

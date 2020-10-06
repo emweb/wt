@@ -67,7 +67,7 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
   WAnchor *titleLink = resolve<WAnchor *>("title-link");
 
   if (!titleLink) {
-    titleLink = bindWidget("title-link", cpp14::make_unique<WAnchor>());
+    titleLink = bindWidget("title-link", std::make_unique<WAnchor>());
     wApp->theme()->apply(this, titleLink, NavBrand);
   }
 
@@ -153,7 +153,7 @@ void WNavigationBar::addWrapped(std::unique_ptr<WWidget> widget,
   WContainerWidget *contents = resolve<WContainerWidget *>("contents");
 
   WContainerWidget *wrap
-    = contents->addWidget(cpp14::make_unique<WContainerWidget>());
+    = contents->addWidget(std::make_unique<WContainerWidget>());
   wrap->setStyleClass(wrapClass);
   align(wrap, alignment);
   wrap->addWidget(std::move(widget));
@@ -166,7 +166,7 @@ void WNavigationBar::addWrapped(std::unique_ptr<WWidget> widget,
   WContainerWidget *contents = resolve<WContainerWidget *>("contents");
 
   WContainerWidget *wrap
-    = contents->addWidget(cpp14::make_unique<WContainerWidget>());
+    = contents->addWidget(std::make_unique<WContainerWidget>());
   wApp->theme()->apply(widget.get(), parent, role);
   align(wrap, alignment);
   wrap->addWidget(std::move(widget));

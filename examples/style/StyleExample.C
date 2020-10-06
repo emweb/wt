@@ -27,34 +27,34 @@ char loremipsum[] = "Lorem ipsum dolor sit amet, consectetur adipisicing "
 StyleExample::StyleExample()
   : WContainerWidget()
 {
-  w_ = this->addWidget(cpp14::make_unique<RoundedWidget>());
+  w_ = this->addWidget(std::make_unique<RoundedWidget>());
 
-  w_->contents()->addWidget(cpp14::make_unique<WText>(loremipsum));
-  this->addWidget(cpp14::make_unique<WBreak>());
+  w_->contents()->addWidget(std::make_unique<WText>(loremipsum));
+  this->addWidget(std::make_unique<WBreak>());
 
-  this->addWidget(cpp14::make_unique<WText>("Color (rgb): "));
+  this->addWidget(std::make_unique<WText>("Color (rgb): "));
   r_ = createValidateLineEdit(w_->backgroundColor().red(), 0, 255);
   g_ = createValidateLineEdit(w_->backgroundColor().green(), 0, 255);
   b_ = createValidateLineEdit(w_->backgroundColor().blue(), 0, 255);
 
-  this->addWidget(cpp14::make_unique<WBreak>());
+  this->addWidget(std::make_unique<WBreak>());
 
-  this->addWidget(cpp14::make_unique<WText>("Radius (px): "));
+  this->addWidget(std::make_unique<WText>("Radius (px): "));
   radius_ = createValidateLineEdit(w_->cornerRadius(), 1, 500);
 
-  this->addWidget(cpp14::make_unique<WBreak>());
+  this->addWidget(std::make_unique<WBreak>());
 
-  WPushButton *p = this->addWidget(cpp14::make_unique<WPushButton>("Update!"));
+  WPushButton *p = this->addWidget(std::make_unique<WPushButton>("Update!"));
   p->clicked().connect(this, &StyleExample::updateStyle);
 
-  this->addWidget(cpp14::make_unique<WBreak>());
+  this->addWidget(std::make_unique<WBreak>());
 
-  error_ = this->addWidget(cpp14::make_unique<WText>(""));
+  error_ = this->addWidget(std::make_unique<WText>(""));
 }
 
 WLineEdit *StyleExample::createValidateLineEdit(int value, int min, int max)
 {
-  WLineEdit *le = this->addWidget(cpp14::make_unique<WLineEdit>(std::to_string(value)));
+  WLineEdit *le = this->addWidget(std::make_unique<WLineEdit>(std::to_string(value)));
   le->setTextSize(3);
   le->setValidator(std::make_shared<WIntValidator>(min,max));
 
@@ -83,10 +83,10 @@ void StyleExample::updateStyle()
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   std::unique_ptr<WApplication> app
-      = cpp14::make_unique<WApplication>(env);
+      = std::make_unique<WApplication>(env);
   app->setTitle("Style example");
 
-  app->root()->addWidget(cpp14::make_unique<StyleExample>());
+  app->root()->addWidget(std::make_unique<StyleExample>());
   return app;
 }
 

@@ -9,7 +9,7 @@ public:
 
 SAMPLE_BEGIN(PdfRenderer)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WText *text =
     container->addNew<Wt::WText>(Wt::WString::tr("report.example"));

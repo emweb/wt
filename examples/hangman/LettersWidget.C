@@ -25,7 +25,7 @@ LettersWidget::LettersWidget()
   for (unsigned int i = 0; i < 26; ++i) {
     std::string c(1, 'A' + i);
     WPushButton *character
-        = impl_->elementAt(i / 13, i % 13)->addWidget(cpp14::make_unique<WPushButton>(c));
+        = impl_->elementAt(i / 13, i % 13)->addWidget(std::make_unique<WPushButton>(c));
     letterButtons_.push_back(character);
     character->resize(WLength(30), WLength::Auto);
 

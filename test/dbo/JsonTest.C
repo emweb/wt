@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_surrogate_id_test )
   {
     dbo::Transaction transaction(session);
 
-    hasSurrogate = session.add(Wt::cpp14::make_unique<HasSurrogate>());
+    hasSurrogate = session.add(std::make_unique<HasSurrogate>());
     hasSurrogate.modify()->foo = "bar";
   }
 
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_natural_id_test )
   {
     dbo::Transaction transaction(session);
 
-    hasNatural = session.add(Wt::cpp14::make_unique<HasNatural>());
+    hasNatural = session.add(std::make_unique<HasNatural>());
     hasNatural.modify()->myNaturalId = "Nature!";
     hasNatural.modify()->foo = "bar";
   }
@@ -366,7 +366,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_composite_key_test )
   {
     dbo::Transaction transaction(session);
 
-    hasCoordinateId = session.add(Wt::cpp14::make_unique<HasCoordinateId>());
+    hasCoordinateId = session.add(std::make_unique<HasCoordinateId>());
     hasCoordinateId.modify()->position = Coordinate(3, 4);
     hasCoordinateId.modify()->name = "foo";
   }
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_complex_test )
   {
     dbo::Transaction transaction(session);
 
-    auto user = Wt::cpp14::make_unique<User>();
+    auto user = std::make_unique<User>();
     user->name = "Joe";
     user->password = "Secret";
     user->role = User::Visitor;
@@ -406,12 +406,12 @@ BOOST_AUTO_TEST_CASE( dbo_json_complex_test )
 
     dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
 
-    post = session.add(Wt::cpp14::make_unique<Post>());
+    post = session.add(std::make_unique<Post>());
     post.modify()->user = joe;
     post.modify()->body = "Lorem ipsum dolor sit amet \"escape me\" something something";
     post.modify()->title = "Hello";
 
-    nestedThing = session.add(Wt::cpp14::make_unique<NestedThing>());
+    nestedThing = session.add(std::make_unique<NestedThing>());
     nestedThing.modify()->one = 1;
     nestedThing.modify()->two = 2;
     nestedThing.modify()->three = 3;
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_complex_test )
 
     dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
 
-    dbo::ptr<Settings> settings = session.add(Wt::cpp14::make_unique<Settings>());
+    dbo::ptr<Settings> settings = session.add(std::make_unique<Settings>());
     settings.modify()->theme = "fancy-pink";
     joe.modify()->settings = settings;
   }

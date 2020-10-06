@@ -349,7 +349,7 @@ void AuthWidget::updatePasswordLoginView()
     WInteractWidget *login = resolve<WInteractWidget *>("login");
 
     if (!login) {
-      login = bindWidget("login", cpp14::make_unique<WPushButton>(tr("Wt.Auth.login")));
+      login = bindWidget("login", std::make_unique<WPushButton>(tr("Wt.Auth.login")));
       login->clicked().connect(this, &AuthWidget::attemptPasswordLogin);
 
       model_->configureThrottling(login);
@@ -357,7 +357,7 @@ void AuthWidget::updatePasswordLoginView()
       if (model_->baseAuth()->emailVerificationEnabled()) {
 	WText *text =
 	  bindWidget("lost-password",
-		     cpp14::make_unique<WText>(tr("Wt.Auth.lost-password")));
+		     std::make_unique<WText>(tr("Wt.Auth.lost-password")));
 	text->clicked().connect(this, &AuthWidget::handleLostPassword);
       } else
 	bindEmpty("lost-password");
@@ -365,13 +365,13 @@ void AuthWidget::updatePasswordLoginView()
       if (registrationEnabled_) {
 	if (!basePath_.empty()) {
 	  bindWidget("register",
-		     cpp14::make_unique<WAnchor>
+		     std::make_unique<WAnchor>
 		     (WLink(LinkType::InternalPath, basePath_ + "register"),
 		      tr("Wt.Auth.register")));
 	} else {
 	  WText *t = 
 	    bindWidget("register",
-		       cpp14::make_unique<WText>(tr("Wt.Auth.register")));
+		       std::make_unique<WText>(tr("Wt.Auth.register")));
 	  t->clicked().connect(this, &AuthWidget::registerNewUser);
 	}
       } else
@@ -399,14 +399,14 @@ void AuthWidget::createOAuthLoginView()
     setCondition("if:oauth", true);
 
     WContainerWidget *icons
-      = bindWidget("icons", cpp14::make_unique<WContainerWidget>());
+      = bindWidget("icons", std::make_unique<WContainerWidget>());
     icons->setInline(isInline());
 
     for (unsigned i = 0; i < model_->oAuth().size(); ++i) {
       const OAuthService *service = model_->oAuth()[i];
 
       OAuthWidget *w
-	= icons->addWidget(cpp14::make_unique<OAuthWidget>(*service));
+	= icons->addWidget(std::make_unique<OAuthWidget>(*service));
       w->authenticated().connect(this, &AuthWidget::oAuthDone);
     }
   }
@@ -459,7 +459,7 @@ void AuthWidget::createLoggedInView()
 
   WPushButton *logout
     = bindWidget("logout",
-		 cpp14::make_unique<WPushButton>(tr("Wt.Auth.logout")));
+		 std::make_unique<WPushButton>(tr("Wt.Auth.logout")));
   logout->clicked().connect(this, &AuthWidget::logout);
 }
 

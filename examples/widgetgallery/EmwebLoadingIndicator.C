@@ -17,14 +17,14 @@ EmwebLoadingIndicator::EmwebLoadingIndicator()
 
   WApplication *app = WApplication::instance();
 
-  cover_ = this->addWidget(cpp14::make_unique<WContainerWidget>());
-  center_ = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  cover_ = this->addWidget(std::make_unique<WContainerWidget>());
+  center_ = this->addWidget(std::make_unique<WContainerWidget>());
 
   WImage *img =
-      center_->addWidget(cpp14::make_unique<WImage>(WLink("icons/emweb.jpg")));
+      center_->addWidget(std::make_unique<WImage>(WLink("icons/emweb.jpg")));
   img->setMargin(7, Side::Top | Side::Bottom);
 
-  text_ = center_->addWidget(cpp14::make_unique<WText>("Loading..."));
+  text_ = center_->addWidget(std::make_unique<WText>("Loading..."));
   text_->setInline(false);
   text_->setMargin(WLength::Auto, Side::Left | Side::Right);
 

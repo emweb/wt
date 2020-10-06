@@ -40,7 +40,7 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
   day += std::to_string(date.day());
   if (date.day() == 1)
     day += " " + WDate::longMonthName(date.month());
-  auto header = cpp14::make_unique<WText>(day);
+  auto header = std::make_unique<WText>(day);
   header->setStyleClass("cell-header");
   addWidget(std::move(header));
 
@@ -53,7 +53,7 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
        i != entries.end(); ++i, ++counter) {
     if (counter == maxEntries) {
       auto extra =
-        cpp14::make_unique<WText>(tr("calendar.cell.extra")
+        std::make_unique<WText>(tr("calendar.cell.extra")
 		  .arg((int)(entries.size() - maxEntries)));
       auto extraPtr = addWidget(std::move(extra));
       extraPtr->setStyleClass("cell-extra");
@@ -64,7 +64,7 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
     }
 
     WString format = EntryDialog::timeFormat;
-    addWidget(cpp14::make_unique<WText>((*i)->start.toString(format) +
+    addWidget(std::make_unique<WText>((*i)->start.toString(format) +
 			"-" + 
 			(*i)->stop.toString(format) + 
 			": " + (*i)->summary));
@@ -78,7 +78,7 @@ void CalendarCell::showEntryDialog()
   WString title =
     tr("calendar.entry.title").arg(date_.toString("ddd, d MMM yyyy"));
 
-    dialog_ = cpp14::make_unique<EntryDialog>(title, this);
+    dialog_ = std::make_unique<EntryDialog>(title, this);
     dialog_->show();
 }
 
@@ -88,6 +88,6 @@ void CalendarCell::showAllEntriesDialog()
     tr("calendar.cell.all-entries.title")
     .arg(date_.toString("ddd, d MMM yyyy"));
   
-  dialog_ = cpp14::make_unique<AllEntriesDialog>(title, this);
+  dialog_ = std::make_unique<AllEntriesDialog>(title, this);
   dialog_->show();
 }

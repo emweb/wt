@@ -148,7 +148,7 @@ WPieChart::createLegendItemWidget(int index, WFlags<LabelOption> options)
   std::unique_ptr<WContainerWidget> legendItem(new WContainerWidget());
   legendItem->setPadding(4);
   
-  auto colorText = legendItem->addWidget(cpp14::make_unique<WText>());
+  auto colorText = legendItem->addWidget(std::make_unique<WText>());
   colorText->setPadding(10, WFlags<Side>(Side::Left) | Side::Right);
   colorText->decorationStyle().setBackgroundColor(brush(index).color());
 
@@ -317,7 +317,7 @@ std::unique_ptr<WContainerWidget> WPieChart::createLabelWidget(std::unique_ptr<W
   AlignmentFlag horizontalAlign = alignmentFlags & AlignHorizontalMask;
 
   // style parent container
-  auto c = cpp14::make_unique<WContainerWidget>();
+  auto c = std::make_unique<WContainerWidget>();
   WWidget *tw = textWidget.get();
   c->addWidget(std::move(textWidget));
   c->setPositionScheme(PositionScheme::Absolute);

@@ -19,7 +19,7 @@ using namespace Wt;
 
 std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
 {
-  auto app = cpp14::make_unique<WApplication>(env);
+  auto app = std::make_unique<WApplication>(env);
 
   if (app->appRoot().empty()) {
     std::cerr << "!!!!!!!!!!" << std::endl
@@ -62,9 +62,9 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
  
 
   auto layout =
-      app->root()->setLayout(cpp14::make_unique<WHBoxLayout>());
+      app->root()->setLayout(std::make_unique<WHBoxLayout>());
   layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(cpp14::make_unique<WidgetGallery>());
+  layout->addWidget(std::make_unique<WidgetGallery>());
 
   app->setTitle("Wt Widget Gallery");
 

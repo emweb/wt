@@ -31,14 +31,14 @@ class AgeFormView : public Wt::WTemplateFormView
 public:
     // inline constructor
     AgeFormView() {
-        model_ = Wt::cpp14::make_unique<AgeFormModel>();
+        model_ = std::make_unique<AgeFormModel>();
 
         setTemplateText(tr("validation-template"));
 
-        setFormWidget(AgeFormModel::AgeField, Wt::cpp14::make_unique<Wt::WLineEdit>());
+        setFormWidget(AgeFormModel::AgeField, std::make_unique<Wt::WLineEdit>());
 
         auto button = bindWidget("button",
-                                 Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
+                                 std::make_unique<Wt::WPushButton>("Save"));
 
         button->clicked().connect(this, &AgeFormView::process);
 
@@ -68,6 +68,6 @@ private:
 
 SAMPLE_BEGIN(ValidationModel)
 
-auto view = Wt::cpp14::make_unique<AgeFormView>();
+auto view = std::make_unique<AgeFormView>();
 
 SAMPLE_END(return std::move(view))

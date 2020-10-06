@@ -13,7 +13,7 @@
 
 SAMPLE_BEGIN(CatChart3d)
 
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 // create the chart
 auto chart
@@ -51,7 +51,7 @@ for (int i=0; i < model->rowCount(); i++) {
     }
 }
 
-auto isotopes = cpp14::make_unique<Chart::WGridData>(model);
+auto isotopes = std::make_unique<Chart::WGridData>(model);
 isotopes->setTitle("made-up data");
 isotopes->setType(Chart::Series3DType::Bar);
 
@@ -59,6 +59,6 @@ isotopes->setType(Chart::Series3DType::Bar);
 chart->addDataSeries(std::move(isotopes));
 
 chart->setAlternativeContent
-    (cpp14::make_unique<WImage>(WLink("pics/categoricalChartScreenshot.png")));
+    (std::make_unique<WImage>(WLink("pics/categoricalChartScreenshot.png")));
 
 SAMPLE_END(return std::move(container))

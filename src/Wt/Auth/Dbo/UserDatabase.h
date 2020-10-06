@@ -148,7 +148,7 @@ public:
   }
 
   virtual User registerNew() override {
-    auto user = Wt::cpp14::make_unique<DboType>();
+    auto user = std::make_unique<DboType>();
     user->setStatus(newUserStatus_);
     setUser(session_.add(std::move(user)));
     user_.flush();
@@ -202,7 +202,7 @@ public:
      */
     user_.modify()->authIdentities().insert
       (Wt::Dbo::ptr<AuthIdentityType>(
-         Wt::cpp14::make_unique<AuthIdentityType>(provider, identity)));
+         std::make_unique<AuthIdentityType>(provider, identity)));
   }
 
   virtual void setIdentity(const User& user, const std::string& provider,
@@ -219,7 +219,7 @@ public:
     else
       user_.modify()->authIdentities().insert
         (Wt::Dbo::ptr<AuthIdentityType>(
-           Wt::cpp14::make_unique<AuthIdentityType>(provider, identity)));
+           std::make_unique<AuthIdentityType>(provider, identity)));
   }
 
   virtual bool setEmail(const User& user, const std::string& address) override {
@@ -321,7 +321,7 @@ public:
 
     user_.modify()->authTokens().insert
       (Wt::Dbo::ptr<AuthTokenType>
-       (Wt::cpp14::make_unique<AuthTokenType>(token.hash(), token.expirationTime())));
+       (std::make_unique<AuthTokenType>(token.hash(), token.expirationTime())));
   }
 
   virtual void removeAuthToken(const User& user, const std::string& hash) override {

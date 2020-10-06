@@ -78,17 +78,17 @@ void Session::configureAuth()
   myAuthService.setEmailVerificationEnabled(true);
 
   std::unique_ptr<Auth::PasswordVerifier> verifier
-      = cpp14::make_unique<Auth::PasswordVerifier>();
-  verifier->addHashFunction(cpp14::make_unique<Auth::BCryptHashFunction>(7));
+      = std::make_unique<Auth::PasswordVerifier>();
+  verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
 
 #ifdef HAVE_CRYPT
   // We want to still support users registered in the pre - Wt::Auth
   // version of the hangman example
-  verifier->addHashFunction(cpp14::make_unique<UnixCryptHashFunction>());
+  verifier->addHashFunction(std::make_unique<UnixCryptHashFunction>());
 #endif
 
   myPasswordService.setVerifier(std::move(verifier));
-  myPasswordService.setStrengthValidator(cpp14::make_unique<Auth::PasswordStrengthValidator>());
+  myPasswordService.setStrengthValidator(std::make_unique<Auth::PasswordStrengthValidator>());
   myPasswordService.setAttemptThrottlingEnabled(true);
 
   if (Auth::GoogleService::configured())
@@ -97,7 +97,7 @@ void Session::configureAuth()
 
 Session::Session()
 {
-  auto sqlite3 = cpp14::make_unique<Dbo::backend::Sqlite3>(WApplication::instance()->appRoot() + "hangman.db");
+  auto sqlite3 = std::make_unique<Dbo::backend::Sqlite3>(WApplication::instance()->appRoot() + "hangman.db");
   sqlite3->setProperty("show-queries", "true");
   session_.setConnection(std::move(sqlite3));
 
@@ -106,7 +106,7 @@ Session::Session()
   session_.mapClass<AuthInfo::AuthIdentityType>("auth_identity");
   session_.mapClass<AuthInfo::AuthTokenType>("auth_token");
 
-  users_ = cpp14::make_unique<UserDatabase>(session_);
+  users_ = std::make_unique<UserDatabase>(session_);
 
   dbo::Transaction transaction(session_);
   try {
@@ -138,7 +138,7 @@ dbo::ptr<User> Session::user() const
     dbo::ptr<User> user = authInfo->user();
 
     if (!user) {
-      user = session_.add(Wt::cpp14::make_unique<User>());
+      user = session_.add(std::make_unique<User>());
       authInfo.modify()->setUser(user);
     }
 

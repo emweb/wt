@@ -5,7 +5,7 @@
 #include <Wt/WTextArea.h>
 
 SAMPLE_BEGIN(SizingBlock)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WLineEdit *edit = container->addNew<Wt::WLineEdit>();
 edit->setStyleClass("input-block-level");

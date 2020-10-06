@@ -40,7 +40,7 @@ double plotTimeSeriesChart(const std::shared_ptr<WStandardItemModel>& model,
   chart.setPlotAreaPadding(50, Side::Top | Side::Bottom);
 
   for (int i = 1; i < model->columnCount(); ++i) {
-    auto s = cpp14::make_unique<WDataSeries>(i, SeriesType::Line);
+    auto s = std::make_unique<WDataSeries>(i, SeriesType::Line);
     chart.addSeries(std::move(s));
   }
 

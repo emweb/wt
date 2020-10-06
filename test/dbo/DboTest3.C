@@ -100,17 +100,17 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
   dbo::Session& session = *f.session_;
   {
     dbo::Transaction transaction(session);
-    auto f1 = Wt::cpp14::make_unique<FuncTest>();
+    auto f1 = std::make_unique<FuncTest>();
     f1->intC = 1;
     f1->doubleC = 1.1;
     session.add(std::move(f1));
 
-    auto f2 = Wt::cpp14::make_unique<FuncTest>();
+    auto f2 = std::make_unique<FuncTest>();
     f2->intC = 2;
     f2->doubleC = 2.2;
     session.add(std::move(f2));
 
-    auto f3 = Wt::cpp14::make_unique<FuncTest>();
+    auto f3 = std::make_unique<FuncTest>();
     f3->intC = 3;
     f3->doubleC = 3.3;
     session.add(std::move(f3));

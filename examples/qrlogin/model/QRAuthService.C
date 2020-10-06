@@ -101,7 +101,7 @@ QRAuthService::createLoginResource(QRTokenDatabase& database,
 				   Auth::AbstractUserDatabase& users,
 				   Auth::Login& login) const
 {
-  return cpp14::make_unique<QRLoginResource>(database, users, login);
+  return std::make_unique<QRLoginResource>(database, users, login);
 }
 
 void QRAuthService::remoteLogin(QRTokenDatabase& database,

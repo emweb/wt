@@ -18,13 +18,13 @@ public:
     
     useStyleSheet("painting.css");
     
-    root()->addWidget(cpp14::make_unique<PaintExample>());
+    root()->addWidget(std::make_unique<PaintExample>());
   }
 };
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<PaintApplication>(env);
+  return std::make_unique<PaintApplication>(env);
 }
 
 int main(int argc, char **argv)

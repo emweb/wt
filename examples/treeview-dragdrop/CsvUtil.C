@@ -15,7 +15,7 @@
 class NumericItem : public WStandardItem {
 public:
   virtual std::unique_ptr<WStandardItem> clone() const {
-    return std::unique_ptr<NumericItem>(cpp14::make_unique<NumericItem>());
+    return std::unique_ptr<NumericItem>(std::make_unique<NumericItem>());
   }
 
   virtual void setData(const cpp17::any &data, ItemDataRole role = ItemDataRole::User) {
@@ -44,7 +44,7 @@ std::shared_ptr<WStandardItemModel> csvToModel(const std::string& csvFile,
 
   if (f) {
     std::shared_ptr<WStandardItemModel> result = std::make_shared<WStandardItemModel>(0, 0);
-    result->setItemPrototype(cpp14::make_unique<NumericItem>());
+    result->setItemPrototype(std::make_unique<NumericItem>());
     readFromCsv(f, result, -1, firstLineIsHeaders);
     return result;
   } else

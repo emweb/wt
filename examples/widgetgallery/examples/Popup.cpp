@@ -12,13 +12,13 @@ using namespace Wt;
 
 SAMPLE_BEGIN(Popup)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
-auto popupPtr = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+auto popupPtr = std::make_unique<Wt::WPopupMenu>();
 auto popup = popupPtr.get();
 
 #ifndef WT_TARGET_JAVA
-auto statusPtr = Wt::cpp14::make_unique<Wt::WText>();
+auto statusPtr = std::make_unique<Wt::WText>();
 auto status = statusPtr.get();
 #else // WT_TARGET_JAVA
 auto status = new Wt::WText();
@@ -26,7 +26,7 @@ auto status = new Wt::WText();
 status->setMargin(10, Wt::Side::Left | Wt::Side::Right);
 
 #ifndef WT_TARGET_JAVA
-auto outPtr = Wt::cpp14::make_unique<Wt::WText>();
+auto outPtr = std::make_unique<Wt::WText>();
 auto out = outPtr.get();
 #else // WT_TARGET_JAVA
 auto out = new Wt::WText();
@@ -59,7 +59,7 @@ item->triggered().connect([=] {
 popup->addSeparator();
 
 // Create a submenu for the popup menu.
-auto subMenuPtr = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+auto subMenuPtr = std::make_unique<Wt::WPopupMenu>();
 auto subMenu = subMenuPtr.get();
 
 subMenu->addItem("Contents")->triggered().connect([=] {
@@ -74,7 +74,7 @@ subMenu->addSeparator();
 subMenu->addItem("About")->triggered().connect([=] {
 #ifndef WT_TARGET_JAVA
     auto messageBox = subMenu->addChild(
-	    Wt::cpp14::make_unique<Wt::WMessageBox>
+	    std::make_unique<Wt::WMessageBox>
 #else // WT_TARGET_JAVA
     auto messageBox = new Wt::WMessageBox
 #endif // WT_TARGET_JAVA

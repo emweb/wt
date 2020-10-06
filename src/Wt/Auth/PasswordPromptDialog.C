@@ -24,7 +24,7 @@ PasswordPromptDialog
     login_(login),
     model_(model)
 {
-  impl_ = contents()->addWidget(cpp14::make_unique<WTemplateFormView>
+  impl_ = contents()->addWidget(std::make_unique<WTemplateFormView>
 				(tr("Wt.Auth.template.password-prompt")));
 
   model_->reset();
@@ -44,10 +44,10 @@ PasswordPromptDialog
 
   WPushButton *okButton =
     impl_->bindWidget("ok-button",
-                      cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Ok")));
+                      std::make_unique<WPushButton>(tr("Wt.WMessageBox.Ok")));
   WPushButton *cancelButton =
     impl_->bindWidget("cancel-button",
-		      cpp14::make_unique<WPushButton>
+		      std::make_unique<WPushButton>
 		      (tr("Wt.WMessageBox.Cancel")));
 
   model_->configureThrottling(okButton);

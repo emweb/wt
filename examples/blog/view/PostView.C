@@ -75,8 +75,8 @@ void PostView::render(RenderType type)
     session_.commentsChanged().connect(this, &PostView::updateCommentCount);
 
     commentCount_ =
-        bindWidget("comment-count", Wt::cpp14::make_unique<Wt::WText>(post_->commentCount()));
-    bindWidget("comments", Wt::cpp14::make_unique<CommentView>(session_, post_->rootComment()));
+        bindWidget("comment-count", std::make_unique<Wt::WText>(post_->commentCount()));
+    bindWidget("comments", std::make_unique<CommentView>(session_, post_->rootComment()));
     bindString("anchor", basePath_ + post_->permaLink());
 
     break;
@@ -85,14 +85,14 @@ void PostView::render(RenderType type)
     setTemplateText(tr("blog-post-brief"));
 
     auto titleAnchor
-      = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
+      = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
                                           basePath_ + post_->permaLink()),
                                     post_->title);
     bindWidget("title", std::move(titleAnchor));
 
     if (!post_->briefSrc.empty()) {
       auto moreAnchor
-        = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
+        = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
                                             basePath_ + post_->permaLink() + "/more"),
                                       tr("blog-read-more"));
       bindWidget("read-more", std::move(moreAnchor));
@@ -101,22 +101,22 @@ void PostView::render(RenderType type)
     }
 
     auto commentsAnchor
-      = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
+      = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
                                     basePath_ + post_->permaLink() + "/comments"));
     commentCount_ =
-        commentsAnchor->addWidget(Wt::cpp14::make_unique<Wt::WText>("(" + post_->commentCount() + ")"));
+        commentsAnchor->addWidget(std::make_unique<Wt::WText>("(" + post_->commentCount() + ")"));
     bindWidget("comment-count", std::move(commentsAnchor));
 
     break; }
   case Edit: {
     setTemplateText(tr("blog-post-edit"));
 
-    titleEdit_ = bindWidget("title-edit", Wt::cpp14::make_unique<Wt::WLineEdit>(post_->title));
-    briefEdit_ = bindWidget("brief-edit", Wt::cpp14::make_unique<Wt::WTextArea>(post_->briefSrc));
-    bodyEdit_ = bindWidget("body-edit", Wt::cpp14::make_unique<Wt::WTextArea>(post_->bodySrc));
+    titleEdit_ = bindWidget("title-edit", std::make_unique<Wt::WLineEdit>(post_->title));
+    briefEdit_ = bindWidget("brief-edit", std::make_unique<Wt::WTextArea>(post_->briefSrc));
+    bodyEdit_ = bindWidget("body-edit", std::make_unique<Wt::WTextArea>(post_->bodySrc));
 
-    auto saveButton = bindWidget("save", Wt::cpp14::make_unique<Wt::WPushButton>(tr("save")));
-    auto cancelButton = bindWidget("cancel", Wt::cpp14::make_unique<Wt::WPushButton>(tr("cancel")));
+    auto saveButton = bindWidget("save", std::make_unique<Wt::WPushButton>(tr("save")));
+    auto cancelButton = bindWidget("cancel", std::make_unique<Wt::WPushButton>(tr("cancel")));
 
     saveButton->clicked().connect(this, &PostView::saveEdit);
     cancelButton->clicked().connect(this, &PostView::showView);
@@ -129,20 +129,20 @@ void PostView::render(RenderType type)
       std::unique_ptr<Wt::WPushButton> publishButton;
       if (post_->state != Post::Published) {
         publishButton
-            = Wt::cpp14::make_unique<Wt::WPushButton>(tr("publish"));
+            = std::make_unique<Wt::WPushButton>(tr("publish"));
 	publishButton->clicked().connect(this, &PostView::publish);
       } else {
         publishButton
-            = Wt::cpp14::make_unique<Wt::WPushButton>(tr("retract"));
+            = std::make_unique<Wt::WPushButton>(tr("retract"));
 	publishButton->clicked().connect(this, &PostView::retract);
       }
       bindWidget("publish", std::move(publishButton));
 
-      auto editButton(Wt::cpp14::make_unique<Wt::WPushButton>(tr("edit")));
+      auto editButton(std::make_unique<Wt::WPushButton>(tr("edit")));
       editButton->clicked().connect(this, &PostView::showEdit);
       bindWidget("edit", std::move(editButton));
 
-      auto deleteButton(Wt::cpp14::make_unique<Wt::WPushButton>(tr("delete")));
+      auto deleteButton(std::make_unique<Wt::WPushButton>(tr("delete")));
       deleteButton->clicked().connect(this, &PostView::rm);
       bindWidget("delete", std::move(deleteButton));
     } else {
@@ -152,7 +152,7 @@ void PostView::render(RenderType type)
     }
   }
 
-  auto postAnchor = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
+  auto postAnchor = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
 			basePath_ + "author/" + post_->author->name.toUTF8()),
 		  post_->author->name);
   bindWidget("author", std::move(postAnchor));
@@ -180,7 +180,7 @@ void PostView::saveEdit()
     post->state = Post::Unpublished;
     post->author = session_.user();
 
-    dbo::ptr<Comment> rootComment = session_.add(Wt::cpp14::make_unique<Comment>());
+    dbo::ptr<Comment> rootComment = session_.add(std::make_unique<Comment>());
     rootComment.modify()->post = post_;
   }
 

@@ -16,7 +16,7 @@
 AddresseeEdit::AddresseeEdit(const WString& label, WContainerWidget *labelParent)
   : WTextArea()
 {
-  label_ = labelParent->addWidget(cpp14::make_unique<Label>(label, labelParent));
+  label_ = labelParent->addWidget(std::make_unique<Label>(label, labelParent));
 
   setRows(3); setColumns(55);
   resize(WLength(99, LengthUnit::Percentage), WLength::Auto);

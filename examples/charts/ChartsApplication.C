@@ -23,7 +23,7 @@ public:
     root()->setPadding(10);
     root()->resize(WLength::Auto, WLength::Auto);
 
-    root()->addWidget(cpp14::make_unique<ChartsExample>());
+    root()->addWidget(std::make_unique<ChartsExample>());
 
     /*
      * Set our style sheet last, so that it loaded after the ext stylesheets.
@@ -34,7 +34,7 @@ public:
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<ChartsApplication>(env);
+  return std::make_unique<ChartsApplication>(env);
 }
 
 int main(int argc, char **argv)

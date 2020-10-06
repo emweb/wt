@@ -20,10 +20,10 @@ IconPair::IconPair(const std::string icon1URI, const std::string icon2URI,
     icon1Clicked(nullptr),
     icon2Clicked(nullptr)
 {
-  auto impl = cpp14::make_unique<WContainerWidget>();
+  auto impl = std::make_unique<WContainerWidget>();
   impl_ = impl.get();
-  icon1_ = impl_->addWidget(cpp14::make_unique<WImage>(icon1URI));
-  icon2_ = impl_->addWidget(cpp14::make_unique<WImage>(icon2URI));
+  icon1_ = impl_->addWidget(std::make_unique<WImage>(icon1URI));
+  icon2_ = impl_->addWidget(std::make_unique<WImage>(icon2URI));
   icon1Clicked = &icon1_->clicked();
   icon2Clicked = &icon2_->clicked();
 

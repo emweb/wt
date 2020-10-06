@@ -72,16 +72,16 @@ void Popup::setDefaultValue(const std::string defaultValue)
 
 std::unique_ptr<Popup> Popup::createConfirm(const WString& message)
 {
-  return cpp14::make_unique<Popup>(Type::Confirm, message, std::string());
+  return std::make_unique<Popup>(Type::Confirm, message, std::string());
 }
 
 std::unique_ptr<Popup> Popup::createAlert(const WString& message)
 {
-  return cpp14::make_unique<Popup>(Type::Alert, message, std::string());
+  return std::make_unique<Popup>(Type::Alert, message, std::string());
 }
 
 std::unique_ptr<Popup> Popup::createPrompt(const WString& message,
                            const std::string defaultValue)
 {
-  return cpp14::make_unique<Popup>(Type::Prompt, message, defaultValue);
+  return std::make_unique<Popup>(Type::Prompt, message, defaultValue);
 }

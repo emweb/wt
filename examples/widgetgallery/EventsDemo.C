@@ -31,50 +31,50 @@ void EventsDemo::populateSubMenu(WMenu *menu)
 
 std::unique_ptr<WWidget> EventsDemo::wKeyEvent()
 {
-  auto result = cpp14::make_unique<WContainerWidget>();
+  auto result = std::make_unique<WContainerWidget>();
 
   topic("WKeyEvent", result.get());
   result->addWidget(std::move(addText(tr("events-WKeyEvent-1"))));
-  WLineEdit *l = result->addWidget(cpp14::make_unique<WLineEdit>());
+  WLineEdit *l = result->addWidget(std::make_unique<WLineEdit>());
   l->setTextSize(50);
   l->keyWentUp().connect(this, &EventsDemo::showKeyWentUp);
   l->keyWentDown().connect(this, &EventsDemo::showKeyWentDown);
   
   result->addWidget(std::move(addText(tr("events-WKeyEvent-2"))));
-  l = result->addWidget(cpp14::make_unique<WLineEdit>());
+  l = result->addWidget(std::make_unique<WLineEdit>());
   l->setTextSize(50);
   l->keyPressed().connect(this, &EventsDemo::showKeyPressed);
   
   result->addWidget(std::move(addText(tr("events-WKeyEvent-3"))));
-  l = result->addWidget(cpp14::make_unique<WLineEdit>());
+  l = result->addWidget(std::make_unique<WLineEdit>());
   l->setTextSize(50);
   l->enterPressed().connect(this, &EventsDemo::showEnterPressed);
   l->escapePressed().connect(this, &EventsDemo::showEscapePressed);
 
-  result->addWidget(cpp14::make_unique<WBreak>());
+  result->addWidget(std::make_unique<WBreak>());
   result->addWidget(std::move(addText("Last event: ")));
-  keyEventType_ = result->addWidget(cpp14::make_unique<WText>());
-  result->addWidget(cpp14::make_unique<WBreak>());
-  keyEventDescription_ = result->addWidget(cpp14::make_unique<WText>());
+  keyEventType_ = result->addWidget(std::make_unique<WText>());
+  result->addWidget(std::make_unique<WBreak>());
+  keyEventDescription_ = result->addWidget(std::make_unique<WText>());
 
   return result;
 }
 
 WWidget *EventsDemo::wMouseEvent()
 {
-  auto result = cpp14::make_unique<WContainerWidget>();
+  auto result = std::make_unique<WContainerWidget>();
 
   topic("WMouseEvent", result.get());
   result->addWidget(std::move(addText(tr("events-WMouseEvent"))));
 
   WContainerWidget *c =
-      result->addWidget(cpp14::make_unique<WContainerWidget>());
-  auto hlayout = c->setLayout(cpp14::make_unique<WHBoxLayout>());
+      result->addWidget(std::make_unique<WContainerWidget>());
+  auto hlayout = c->setLayout(std::make_unique<WHBoxLayout>());
 
-  auto l = hlayout->addWidget(cpp14::make_unique<WContainerWidget>());
-  auto r = hlayout->addWidget(cpp14::make_unique<WContainerWidget>());
-  l->addWidget(cpp14::make_unique<WText>("clicked<br/>doubleClicked<br/>mouseWentOut<br/>mouseWentOver"));
-  r->addWidget(cpp14::make_unique<WText>("mouseWentDown<br/>mouseWentUp<br/>mouseMoved<br/>mouseWheel"));
+  auto l = hlayout->addWidget(std::make_unique<WContainerWidget>());
+  auto r = hlayout->addWidget(std::make_unique<WContainerWidget>());
+  l->addWidget(std::make_unique<WText>("clicked<br/>doubleClicked<br/>mouseWentOut<br/>mouseWentOver"));
+  r->addWidget(std::make_unique<WText>("mouseWentDown<br/>mouseWentUp<br/>mouseMoved<br/>mouseWheel"));
 
   c->resize(600, 300);
   l->decorationStyle().setBackgroundColor(WColor(StandardColor::Gray));
@@ -99,22 +99,22 @@ WWidget *EventsDemo::wMouseEvent()
     ("oncontextmenu",
      "event.cancelBubble = true; event.returnValue = false; return false;");
 
-  result->addWidget(cpp14::make_unique<WBreak>());
-  result->addWidget(cpp14::make_unique<WText>("Last event: "));
-  mouseEventType_ = result->addWidget(cpp14::make_unique<WText>());
-  result->addWidget(cpp14::make_unique<WBreak>());
-  mouseEventDescription_ = result->addwidget(cpp14::make_unique<WText>());
+  result->addWidget(std::make_unique<WBreak>());
+  result->addWidget(std::make_unique<WText>("Last event: "));
+  mouseEventType_ = result->addWidget(std::make_unique<WText>());
+  result->addWidget(std::make_unique<WBreak>());
+  mouseEventDescription_ = result->addwidget(std::make_unique<WText>());
 
   return result;
 }
 
 std::unique_ptr<WWidget> EventsDemo::wDropEvent()
 {
-  auto result = cpp14::make_unique<WContainerWidget>();
+  auto result = std::make_unique<WContainerWidget>();
 
   topic("WDropEvent", result.get());
   result->addWidget(std::move(addText(tr("events-WDropEvent"))));
-  result->addWidget(cpp14::make_unique<DragExample>());
+  result->addWidget(std::make_unique<DragExample>());
 
   return result;
 }

@@ -19,35 +19,35 @@ DataSettings::DataSettings()
 // the correct bind-points must be present in the template
 void DataSettings::bindBaseToTemplate(Wt::WTemplate* configtemplate)
 {
-  auto setName = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  auto setName = std::make_unique<Wt::WLineEdit>();
   setName_ = configtemplate->bindWidget("setname", std::move(setName));
 
-  auto pointsize = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  auto pointsize = std::make_unique<Wt::WLineEdit>();
   pointsize_ = configtemplate->bindWidget("ptsize", std::move(pointsize));
   pointsize_->setValidator(std::make_shared<Wt::WIntValidator>(1, 10));
 
-  auto pointSprite = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto pointSprite = std::make_unique<Wt::WComboBox>();
   pointSprite_ = configtemplate->bindWidget("ptsprite", std::move(pointSprite));
   pointSprite_->addItem("None");
   pointSprite_->addItem("diamond (5x5)");
   pointSprite_->addItem("cross (5x5)");
 
-  auto colormap = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto colormap = std::make_unique<Wt::WComboBox>();
   colormap_ = configtemplate->bindWidget("colormap", std::move(colormap));
   colormap_->addItem("None");
   colormap_->addItem("Continuous");
   colormap_->addItem("Continuous (5 bands)");
   colormap_->addItem("Continuous (10 bands)");
 
-  auto showColormap = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto showColormap = std::make_unique<Wt::WCheckBox>();
   showColormap_ = configtemplate->bindWidget("showcolormap", std::move(showColormap));
 
-  auto colormapSide = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto colormapSide = std::make_unique<Wt::WComboBox>();
   colormapSide_ = configtemplate->bindWidget("colormapside", std::move(colormapSide));
   colormapSide_->addItem("Left");
   colormapSide_->addItem("Right");
 
-  auto hide = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto hide = std::make_unique<Wt::WCheckBox>();
   hide_ = configtemplate->bindWidget("hide", std::move(hide));
 
   // hook up the UI to the dataset
@@ -169,68 +169,68 @@ NumGridDataSettings::NumGridDataSettings()
     gridData_(0)
 {
   Wt::WTemplate* template_ =
-      this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("numgriddata-template")));
+      this->addWidget(std::make_unique<Wt::WTemplate>(Wt::WString::tr("numgriddata-template")));
   bindBaseToTemplate(template_);
 
-  auto typeSelection = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto typeSelection = std::make_unique<Wt::WComboBox>();
   typeSelection_ = template_->bindWidget("datatype", std::move(typeSelection));
   typeSelection_->addItem("Points");
   typeSelection_->addItem("Surface");
 
-  auto enableMesh = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto enableMesh = std::make_unique<Wt::WCheckBox>();
   enableMesh_ = template_->bindWidget("enablemesh", std::move(enableMesh));
 
-  auto penSize = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  auto penSize = std::make_unique<Wt::WLineEdit>();
   penSize_ = template_->bindWidget("pensize", std::move(penSize));
   penSize_->setValidator(std::make_shared<Wt::WIntValidator>(1, 10));
 
-  auto penColor = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto penColor = std::make_unique<Wt::WComboBox>();
   penColor_ = template_->bindWidget("pencolor", std::move(penColor));
   penColor_->addItem("black");
   penColor_->addItem("red");
   penColor_->addItem("green");
   penColor_->addItem("blue");
 
-  auto xClippingMin = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  auto xClippingMin = std::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
   xClippingMin_ = template_->bindWidget("x-clipping-min", std::move(xClippingMin));
   xClippingMin_->setMinimum(-100);
   xClippingMin_->setMaximum(100);
   xClippingMin_->setValue(-100);
 
-  auto xClippingMax = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  auto xClippingMax = std::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
   xClippingMax_ = template_->bindWidget("x-clipping-max", std::move(xClippingMax));
   xClippingMax_->setMinimum(-100);
   xClippingMax_->setMaximum(100);
   xClippingMax_->setValue(100);
 
-  auto yClippingMin = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  auto yClippingMin = std::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
   yClippingMin_ = template_->bindWidget("y-clipping-min", std::move(yClippingMin));
   yClippingMin_->setMinimum(-100);
   yClippingMin_->setMaximum(100);
   yClippingMin_->setValue(-100);
 
-  auto yClippingMax = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  auto yClippingMax = std::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
   yClippingMax_ = template_->bindWidget("y-clipping-max", std::move(yClippingMax));
   yClippingMax_->setMinimum(-100);
   yClippingMax_->setMaximum(100);
   yClippingMax_->setValue(100);
 
-  auto zClippingMin = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  auto zClippingMin = std::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
   zClippingMin_ = template_->bindWidget("z-clipping-min", std::move(zClippingMin));
   zClippingMin_->setMinimum(-100);
   zClippingMin_->setMaximum(100);
   zClippingMin_->setValue(-100);
 
-  auto zClippingMax = Wt::cpp14::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
+  auto zClippingMax = std::make_unique<Wt::WSlider>(Wt::Orientation::Horizontal);
   zClippingMax_ = template_->bindWidget("z-clipping-max", std::move(zClippingMax));
   zClippingMax_->setMinimum(-100);
   zClippingMax_->setMaximum(100);
   zClippingMax_->setValue(100);
 
-  auto showClippingLines = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto showClippingLines = std::make_unique<Wt::WCheckBox>();
   showClippingLines_ = template_->bindWidget("clippinglines", std::move(showClippingLines));
 
-  auto clippingLinesColor = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto clippingLinesColor = std::make_unique<Wt::WComboBox>();
   clippingLinesColor_ = template_->bindWidget("clippinglines-color", std::move(clippingLinesColor));
   clippingLinesColor_->addItem("black");
   clippingLinesColor_->addItem("red");
@@ -240,10 +240,10 @@ NumGridDataSettings::NumGridDataSettings()
   clippingLinesColor_->addItem("magenta");
   clippingLinesColor_->addItem("yellow");
 
-  auto showIsolines = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto showIsolines = std::make_unique<Wt::WCheckBox>();
   showIsolines_ = template_->bindWidget("isolines", std::move(showIsolines));
 
-  auto isolineColormap = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto isolineColormap = std::make_unique<Wt::WComboBox>();
   isolineColormap_ = template_->bindWidget("isoline-colormap", std::move(isolineColormap));
   isolineColormap_->addItem("None (use surface's colormap)");
   isolineColormap_->addItem("Continuous");
@@ -465,11 +465,11 @@ void NumGridDataSettings::bindDataSet(Wt::Chart::WAbstractGridData *data)
 CatGridDataSettings::CatGridDataSettings()
   : gridData_(0)
 {
-  Wt::WTemplate* template_ = this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("catgriddata-template")));
+  Wt::WTemplate* template_ = this->addWidget(std::make_unique<Wt::WTemplate>(Wt::WString::tr("catgriddata-template")));
   bindBaseToTemplate(template_);
 
-  barWidthX_ = template_->bindWidget("widthx", Wt::cpp14::make_unique<Wt::WLineEdit>());
-  barWidthY_ = template_->bindWidget("widthy", Wt::cpp14::make_unique<Wt::WLineEdit>());
+  barWidthX_ = template_->bindWidget("widthx", std::make_unique<Wt::WLineEdit>());
+  barWidthY_ = template_->bindWidget("widthy", std::make_unique<Wt::WLineEdit>());
 
   barWidthX_->changed().connect([&] () {
         gridData_->setBarWidth(Wt::asNumber(barWidthX_->text()),
@@ -500,16 +500,16 @@ ScatterDataSettings::ScatterDataSettings()
   : scatterData_(0)
 {
   Wt::WTemplate* template_ =
-      this->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("scatterdata-template")));
+      this->addWidget(std::make_unique<Wt::WTemplate>(Wt::WString::tr("scatterdata-template")));
   bindBaseToTemplate(template_);
 
-  auto enableDropLines = Wt::cpp14::make_unique<Wt::WCheckBox>();
+  auto enableDropLines = std::make_unique<Wt::WCheckBox>();
   enableDroplines_ = template_->bindWidget("enabledroplines", std::move(enableDropLines));
 
-  auto penSize = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  auto penSize = std::make_unique<Wt::WLineEdit>();
   penSize_ = template_->bindWidget("pensize", std::move(penSize));
 
-  auto penColor = Wt::cpp14::make_unique<Wt::WComboBox>();
+  auto penColor = std::make_unique<Wt::WComboBox>();
   penColor_ = template_->bindWidget("pencolor", std::move(penColor));
   penColor_->addItem("black");
   penColor_->addItem("red");

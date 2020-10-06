@@ -11,14 +11,14 @@ std::string mp3Audio =
 std::string oggAudio =
             "https://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg";
 
-auto container(Wt::cpp14::make_unique<Wt::WContainerWidget>());
+auto container(std::make_unique<Wt::WContainerWidget>());
 
 Wt::WAudio *audio = container->addNew<Wt::WAudio>();
 audio->addSource(Wt::WLink(mp3Audio));
 audio->addSource(Wt::WLink(oggAudio));
 audio->setOptions(Wt::PlayerOption::Controls);
 audio->setAlternativeContent
-  (Wt::cpp14::make_unique<Wt::WText>("You don't have HTML5 audio support!"));
+  (std::make_unique<Wt::WText>("You don't have HTML5 audio support!"));
 
 Wt::WText *out = container->addNew<Wt::WText>();
 

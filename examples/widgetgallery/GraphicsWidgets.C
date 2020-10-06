@@ -58,7 +58,7 @@ void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::painting2d()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-Painting2D");
+  auto result = std::make_unique<TopicTemplate>("graphics-Painting2D");
 
   result->bindWidget("PaintingEvent", PaintingEvent());
   result->bindWidget("PaintingShapes", PaintingShapes());
@@ -76,7 +76,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::painting2d()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::paintbrush()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-Paintbrush");
+  auto result = std::make_unique<TopicTemplate>("graphics-Paintbrush");
 
   result->bindWidget("Paintbrush", Paintbrush());
 
@@ -88,7 +88,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::paintbrush()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::categoryChart()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-CategoryChart");
+  auto result = std::make_unique<TopicTemplate>("graphics-CategoryChart");
 
   result->bindWidget("CategoryChart", CategoryChart());
 
@@ -102,7 +102,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::categoryChart()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::scatterPlot()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-ScatterPlot");
+  auto result = std::make_unique<TopicTemplate>("graphics-ScatterPlot");
 
   result->bindWidget("ScatterPlotData", ScatterPlotData());
   result->bindWidget("ScatterPlotCurve", ScatterPlotCurve());
@@ -116,7 +116,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::scatterPlot()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::axisSliderWidget()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-AxisSliderWidget");
+  auto result = std::make_unique<TopicTemplate>("graphics-AxisSliderWidget");
 
   result->bindWidget("AxisSliderWidget", AxisSliderWidget());
   result->bindWidget("AxisSliderWidgetDifferentDataSeries", AxisSliderWidgetDifferentDataSeries());
@@ -129,7 +129,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::axisSliderWidget()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::pieChart()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-PieChart");
+  auto result = std::make_unique<TopicTemplate>("graphics-PieChart");
 
   result->bindWidget("PieChart", PieChart());
 
@@ -140,7 +140,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::pieChart()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::leafletMap()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-LeafletMap");
+  auto result = std::make_unique<TopicTemplate>("graphics-LeafletMap");
 
   result->bindWidget("LeafletMap", LeafletMap());
 
@@ -152,7 +152,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::leafletMap()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::googleMap()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-GoogleMap");
+  auto result = std::make_unique<TopicTemplate>("graphics-GoogleMap");
 
   result->bindWidget("GoogleMap", GoogleMap());
 
@@ -168,7 +168,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::googleMap()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::painting3d()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-Painting3D");
+  auto result = std::make_unique<TopicTemplate>("graphics-Painting3D");
 
   result->bindWidget("Painting3D", Painting3D());
 
@@ -179,7 +179,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::painting3d()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::numCharts3d()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-NumCharts3D");
+  auto result = std::make_unique<TopicTemplate>("graphics-NumCharts3D");
 
   result->bindWidget("NumericalCharts3D", NumChart3d());
  
@@ -190,7 +190,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::numCharts3d()
 
 std::unique_ptr<Wt::WWidget> GraphicsWidgets::catCharts3d()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("graphics-CatCharts3D");
+  auto result = std::make_unique<TopicTemplate>("graphics-CatCharts3D");
 
   result->bindWidget("CategoryCharts3D", CatChart3d());
 

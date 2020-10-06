@@ -10,7 +10,7 @@ using namespace Wt;
 
 SAMPLE_BEGIN(LargeTableView)
 
-auto tableView = cpp14::make_unique<WTableView>();
+auto tableView = std::make_unique<WTableView>();
 tableView->setModel(std::make_shared<VirtualModel>(10000, 50));
 tableView->setRowHeaderCount(1); // treat first column as 'fixed' row headers
 tableView->setSortingEnabled(false);

@@ -8,14 +8,14 @@
 #include <Wt/WString.h>
 
 SAMPLE_BEGIN(TimeEdit)
-auto form = Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("timeEdit-template"));
+auto form = std::make_unique<Wt::WTemplate>(Wt::WString::tr("timeEdit-template"));
 form->addFunction("id", &Wt::WTemplate::Functions::id);
 
-auto te1 = form->bindWidget("from", Wt::cpp14::make_unique<Wt::WTimeEdit>());
+auto te1 = form->bindWidget("from", std::make_unique<Wt::WTimeEdit>());
 form->bindString("from-format", te1->format());
 te1->setTime(Wt::WTime::currentTime());
 
-auto te2 = form->bindWidget("to", Wt::cpp14::make_unique<Wt::WTimeEdit>());
+auto te2 = form->bindWidget("to", std::make_unique<Wt::WTimeEdit>());
 #ifndef WT_TARGET_JAVA
 te2->setFormat("h:mm:ss.zzz AP");
 #else
@@ -24,9 +24,9 @@ te2->setFormat("h:mm:ss.SSS a");
 te2->setTime(Wt::WTime::currentTime().addSecs(60*15));
 form->bindString("to-format", te2->format());
 
-auto button = form->bindWidget("save", Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
+auto button = form->bindWidget("save", std::make_unique<Wt::WPushButton>("Save"));
 
-auto out = form->bindWidget("out", Wt::cpp14::make_unique<Wt::WText>());
+auto out = form->bindWidget("out", std::make_unique<Wt::WText>());
 
 te1->changed().connect([=] {
     if (te1->validate() == Wt::ValidationState::Valid) {

@@ -18,10 +18,10 @@ RoundedWidget::RoundedWidget(WFlags<Corner> corners)
     radius_(10),
     corners_(corners)
 {
-  std::unique_ptr<WContainerWidget> impl(cpp14::make_unique<WContainerWidget>());
+  std::unique_ptr<WContainerWidget> impl(std::make_unique<WContainerWidget>());
   impl_ = impl.get();
   setImplementation(std::move(impl));
-  contents_ = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
+  contents_ = impl_->addWidget(std::make_unique<WContainerWidget>());
 
   create();
 }
@@ -31,7 +31,7 @@ void RoundedWidget::create()
   std::array<std::unique_ptr<CornerImage>, 4> images;
 
   if (corners_.test(Corner::TopLeft)) {
-    images[0] = Wt::cpp14::make_unique<CornerImage>(
+    images[0] = std::make_unique<CornerImage>(
 				Corner::TopLeft, backgroundColor_,
 				surroundingColor_, radius_);
     images[0]->setPositionScheme(PositionScheme::Absolute);
@@ -39,12 +39,12 @@ void RoundedWidget::create()
   }
 
   if (corners_.test(Corner::TopRight))
-    images[1] = Wt::cpp14::make_unique<CornerImage>(
+    images[1] = std::make_unique<CornerImage>(
 				Corner::TopRight, backgroundColor_,
 				surroundingColor_, radius_);
 
   if (corners_.test(Corner::BottomLeft)) {
-    images[2] = Wt::cpp14::make_unique<CornerImage>(
+    images[2] = std::make_unique<CornerImage>(
 				Corner::BottomLeft, backgroundColor_,
 				surroundingColor_, radius_);
     images[2]->setPositionScheme(PositionScheme::Absolute);
@@ -52,7 +52,7 @@ void RoundedWidget::create()
   }
 
   if (corners_.test(Corner::BottomRight))
-    images[3] = Wt::cpp14::make_unique<CornerImage>(
+    images[3] = std::make_unique<CornerImage>(
 				Corner::BottomRight, backgroundColor_,
 				surroundingColor_, radius_);
 
@@ -63,7 +63,7 @@ void RoundedWidget::create()
    * At the top: an image (top left corner) inside
    * a container widget with background image top right.
    */
-  std::unique_ptr<WContainerWidget> top(cpp14::make_unique<WContainerWidget>());
+  std::unique_ptr<WContainerWidget> top(std::make_unique<WContainerWidget>());
   top_ = top.get();
   top_->resize(WLength::Auto, radius_);
   top_->setPositionScheme(PositionScheme::Relative);
@@ -82,7 +82,7 @@ void RoundedWidget::create()
    * At the bottom: an image (bottom left corner) inside
    * a container widget with background image bottom right.
    */
-  std::unique_ptr<WContainerWidget> bottom(cpp14::make_unique<WContainerWidget>());
+  std::unique_ptr<WContainerWidget> bottom(std::make_unique<WContainerWidget>());
   bottom_ = bottom.get();
   bottom_->setPositionScheme(PositionScheme::Relative);
   bottom_->resize(WLength::Auto, radius_);

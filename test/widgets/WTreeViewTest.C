@@ -21,12 +21,12 @@ BOOST_AUTO_TEST_CASE( treeview_test1 )
 
   auto root = model->invisibleRootItem();
   for (int i = 0; i < 6; ++i) {
-    auto item = cpp14::make_unique<WStandardItem>(Wt::utf8("level 1, row {1}").arg(i));
+    auto item = std::make_unique<WStandardItem>(Wt::utf8("level 1, row {1}").arg(i));
     for (int j = 0; j < 4; ++j) {
-      auto subItem = cpp14::make_unique<WStandardItem>(Wt::utf8("level 2, row {1}").arg(j));
+      auto subItem = std::make_unique<WStandardItem>(Wt::utf8("level 2, row {1}").arg(j));
       for (int k = 0; k < 3; ++k) {
-        auto subsubItem = cpp14::make_unique<WStandardItem>(Wt::utf8("level 3, row {1}").arg(k));
-        subsubItem->appendRow(cpp14::make_unique<WStandardItem>(Wt::utf8("level 4")));
+        auto subsubItem = std::make_unique<WStandardItem>(Wt::utf8("level 3, row {1}").arg(k));
+        subsubItem->appendRow(std::make_unique<WStandardItem>(Wt::utf8("level 4")));
         subItem->appendRow(std::move(subsubItem));
       }
       item->appendRow(std::move(subItem));

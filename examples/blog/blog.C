@@ -23,7 +23,7 @@ public:
   BlogApplication(const Wt::WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb)
     : Wt::WApplication(env)
   {
-    root()->addWidget(Wt::cpp14::make_unique<BlogView>("/", blogDb, FeedUrl));
+    root()->addWidget(std::make_unique<BlogView>("/", blogDb, FeedUrl));
     useStyleSheet("css/blogexample.css");
   }
 };
@@ -31,7 +31,7 @@ public:
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env,
                                 Wt::Dbo::SqlConnectionPool *blogDb)
 {
-  return Wt::cpp14::make_unique<BlogApplication>(env, *blogDb);
+  return std::make_unique<BlogApplication>(env, *blogDb);
 }
 
 int main(int argc, char **argv)

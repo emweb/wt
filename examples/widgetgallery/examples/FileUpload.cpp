@@ -11,11 +11,11 @@ using namespace Wt;
 
 SAMPLE_BEGIN(FileUpload)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WFileUpload *fu = container->addNew<Wt::WFileUpload>();
 fu->setFileTextSize(50); // Set the maximum file size to 50 kB.
-fu->setProgressBar(Wt::cpp14::make_unique<Wt::WProgressBar>());
+fu->setProgressBar(std::make_unique<Wt::WProgressBar>());
 fu->setMargin(10, Wt::Side::Right);
 
 // Provide a button to start uploading.

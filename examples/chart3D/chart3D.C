@@ -35,19 +35,19 @@ TestApp::TestApp(const Wt::WEnvironment& env)
 
   messageResourceBundle().use(appRoot() + "configTemplates");
 
-  Wt::WContainerWidget *wrapper = root()->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>());
+  Wt::WContainerWidget *wrapper = root()->addWidget(std::make_unique<Wt::WContainerWidget>());
   wrapper->setContentAlignment(Wt::AlignmentFlag::Center);
-  wrapper->addWidget(Wt::cpp14::make_unique<Wt::WText>("<h1>3D Charts Demo</h1>"));
-  chartExPicker_ = wrapper->addWidget(Wt::cpp14::make_unique<Wt::WComboBox>());
+  wrapper->addWidget(std::make_unique<Wt::WText>("<h1>3D Charts Demo</h1>"));
+  chartExPicker_ = wrapper->addWidget(std::make_unique<Wt::WComboBox>());
   chartExPicker_->addItem("Numerical Grid-Based Data");
   chartExPicker_->addItem("Categorical Data");
   chartExPicker_->addItem("Colormap Example");
   chartExPicker_->changed().connect(this, &TestApp::switchExamples);
   
-  stack_ = wrapper->addWidget(Wt::cpp14::make_unique<Wt::WStackedWidget>());
-  numEx_ = stack_->addWidget(Wt::cpp14::make_unique<NumericalExample>());
-  categoryEx_ = stack_->addWidget(Wt::cpp14::make_unique<CategoryExample>());
-  colormap_ = stack_->addWidget(Wt::cpp14::make_unique<ColorMapTest>());
+  stack_ = wrapper->addWidget(std::make_unique<Wt::WStackedWidget>());
+  numEx_ = stack_->addWidget(std::make_unique<NumericalExample>());
+  categoryEx_ = stack_->addWidget(std::make_unique<CategoryExample>());
+  colormap_ = stack_->addWidget(std::make_unique<ColorMapTest>());
   
   chartExPicker_->setCurrentIndex(0);
   stack_->setCurrentWidget(numEx_);
@@ -70,7 +70,7 @@ void TestApp::switchExamples()
 
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
 {
-  return Wt::cpp14::make_unique<TestApp>(env);
+  return std::make_unique<TestApp>(env);
 }
 
 int main(int argc, char **argv)

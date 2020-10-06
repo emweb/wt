@@ -36,24 +36,24 @@ public:
     setStyleClass("Wt-pagingbar");
 
     firstButton_ = addWidget(
-          cpp14::make_unique<WPushButton>(
+          std::make_unique<WPushButton>(
             tr("Wt.WAbstractItemView.PageBar.First")));
     firstButton_->clicked().connect(this, &DefaultPagingBar::showFirstPage);
 
     prevButton_ = addWidget(
-          cpp14::make_unique<WPushButton>(
+          std::make_unique<WPushButton>(
             tr("Wt.WAbstractItemView.PageBar.Previous")));
     prevButton_->clicked().connect(this, &DefaultPagingBar::showPreviousPage);
 
-    current_ = addWidget(cpp14::make_unique<WText>());
+    current_ = addWidget(std::make_unique<WText>());
 
     nextButton_ = addWidget(
-          cpp14::make_unique<WPushButton>(
+          std::make_unique<WPushButton>(
             tr("Wt.WAbstractItemView.PageBar.Next")));
     nextButton_->clicked().connect(this, &DefaultPagingBar::showNextPage);
 
     lastButton_ = addWidget(
-          cpp14::make_unique<WPushButton>(
+          std::make_unique<WPushButton>(
             tr("Wt.WAbstractItemView.PageBar.Last")));
     lastButton_->clicked().connect(this, &DefaultPagingBar::showLastPage);
 

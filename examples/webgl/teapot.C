@@ -83,30 +83,30 @@ WebGLDemo::WebGLDemo(const WEnvironment& env)
 {
   setTitle("WebGL Demo");
 
-  root()->addWidget(cpp14::make_unique<WText>("If your browser supports WebGL, you'll "
+  root()->addWidget(std::make_unique<WText>("If your browser supports WebGL, you'll "
     "see a teapot below.<br/>Use your mouse to move around the teapot.<br/>"
     "Edit the shaders below the teapot to change how the teapot is rendered."));
-  root()->addWidget(cpp14::make_unique<WBreak>());
+  root()->addWidget(std::make_unique<WBreak>());
 
   paintWidget_ = 0;
 
-  glContainer_ = root()->addWidget(cpp14::make_unique<WContainerWidget>());
+  glContainer_ = root()->addWidget(std::make_unique<WContainerWidget>());
   glContainer_->resize(500, 500);
   glContainer_->setInline(false);
 
-  WPushButton *updateButton = root()->addWidget(cpp14::make_unique<WPushButton>("Update shaders"));
+  WPushButton *updateButton = root()->addWidget(std::make_unique<WPushButton>("Update shaders"));
   updateButton->clicked().connect(this, &WebGLDemo::updateShaders);
-  WPushButton *resetButton = root()->addWidget(cpp14::make_unique<WPushButton>("Reset shaders"));
+  WPushButton *resetButton = root()->addWidget(std::make_unique<WPushButton>("Reset shaders"));
   resetButton->clicked().connect(this, &WebGLDemo::resetShaders);
 
-  WTabWidget *tabs = root()->addWidget(cpp14::make_unique<WTabWidget>());
+  WTabWidget *tabs = root()->addWidget(std::make_unique<WTabWidget>());
 
-  auto fragmentShaderText = cpp14::make_unique<WTextArea>();
+  auto fragmentShaderText = std::make_unique<WTextArea>();
   fragmentShaderText_ = fragmentShaderText.get();
   fragmentShaderText_->resize(750, 250);
   tabs->addTab(std::move(fragmentShaderText), "Fragment Shader");
 
-  auto vertexShaderText = cpp14::make_unique<WTextArea>();
+  auto vertexShaderText = std::make_unique<WTextArea>();
   vertexShaderText_ = vertexShaderText.get();
   vertexShaderText_->resize(750, 250);
   tabs->addTab(std::move(vertexShaderText), "Vertex Shader");
@@ -130,11 +130,11 @@ void WebGLDemo::updateShaders()
   if(paintWidget_)
     paintWidget_->removeFromParent(); //FIXME: reset the current paintWidget to replace it with a new one
 
-  paintWidget_ = glContainer_->addWidget(cpp14::make_unique<PaintWidget>(useBinaryBuffers));
+  paintWidget_ = glContainer_->addWidget(std::make_unique<PaintWidget>(useBinaryBuffers));
   paintWidget_->resize(500, 500);
   paintWidget_->setShaders(vertexShaderText_->text().toUTF8(),
     fragmentShaderText_->text().toUTF8());
-  paintWidget_->setAlternativeContent(cpp14::make_unique<WImage>("nowebgl.png"));
+  paintWidget_->setAlternativeContent(std::make_unique<WImage>("nowebgl.png"));
 }
 
 void WebGLDemo::resetShaders()
@@ -146,7 +146,7 @@ void WebGLDemo::resetShaders()
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<WebGLDemo>(env);
+  return std::make_unique<WebGLDemo>(env);
 }
 
 int main(int argc, char **argv)

@@ -149,7 +149,7 @@ void WImage::addArea(std::unique_ptr<WAbstractArea> area)
 void WImage::insertArea(int index, std::unique_ptr<WAbstractArea> area)
 {
   if (!map_) {
-    auto map = cpp14::make_unique<Impl::MapWidget>();
+    auto map = std::make_unique<Impl::MapWidget>();
     manageWidget(map_, std::move(map));
     flags_.set(BIT_MAP_CREATED);
     repaint();

@@ -166,7 +166,7 @@ Wt::Auth::User BlogUserDatabase::findWithIdentity(const std::string& provider,
 
 Wt::Auth::User BlogUserDatabase::registerNew()
 {
-  user_ = session_.add(Wt::cpp14::make_unique<User>());
+  user_ = session_.add(std::make_unique<User>());
   user_.flush();
   return Wt::Auth::User(std::to_string(user_.id()), *this);
 }
@@ -191,7 +191,7 @@ void BlogUserDatabase::addAuthToken(const Wt::Auth::User& user,
     return;
 
   user_.modify()->authTokens.insert
-    (dbo::ptr<Token>(Wt::cpp14::make_unique<Token>(token.hash(), token.expirationTime())));
+    (dbo::ptr<Token>(std::make_unique<Token>(token.hash(), token.expirationTime())));
 }
 
 int BlogUserDatabase::updateAuthToken(const Wt::Auth::User& user,

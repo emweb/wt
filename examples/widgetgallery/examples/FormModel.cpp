@@ -82,13 +82,13 @@ public:
 
             // The initial text shown in the city combo box should be an empty
             // string.
-            cityModel_->appendRow(Wt::cpp14::make_unique<Wt::WStandardItem>());
+            cityModel_->appendRow(std::make_unique<Wt::WStandardItem>());
 
             for (unsigned j = 0; j < cities.size(); ++j)
-                cityModel_->appendRow(Wt::cpp14::make_unique<Wt::WStandardItem>(cities[j]));
+                cityModel_->appendRow(std::make_unique<Wt::WStandardItem>(cities[j]));
         } else {
             cityModel_->appendRow(
-                        Wt::cpp14::make_unique<Wt::WStandardItem>("(Choose Country first)"));
+                        std::make_unique<Wt::WStandardItem>("(Choose Country first)"));
         }
     }
 
@@ -279,18 +279,18 @@ public:
 	 * First Name
 	 */
 	setFormWidget(UserFormModel::FirstNameField,
-	              Wt::cpp14::make_unique<Wt::WLineEdit>());
+	              std::make_unique<Wt::WLineEdit>());
 
 	/*
 	 * Last Name
 	 */
 	setFormWidget(UserFormModel::LastNameField,
-	              Wt::cpp14::make_unique<Wt::WLineEdit>());
+	              std::make_unique<Wt::WLineEdit>());
 
 	/*
 	 * Country
 	 */
-	auto countryCB = Wt::cpp14::make_unique<Wt::WComboBox>();
+	auto countryCB = std::make_unique<Wt::WComboBox>();
 	auto countryCB_ = countryCB.get();
 	countryCB->setModel(model->countryModel());
 
@@ -315,14 +315,14 @@ public:
 	/*
 	 * City
 	 */
-	auto cityCB = Wt::cpp14::make_unique<Wt::WComboBox>();
+	auto cityCB = std::make_unique<Wt::WComboBox>();
 	cityCB->setModel(model->cityModel());
 	setFormWidget(UserFormModel::CityField, std::move(cityCB));
 
 	/*
 	 * Birth Date
 	 */
-	auto dateEdit = Wt::cpp14::make_unique<Wt::WDateEdit>();
+	auto dateEdit = std::make_unique<Wt::WDateEdit>();
 	auto dateEdit_ = dateEdit.get();
 	setFormWidget(UserFormModel::BirthField, std::move(dateEdit),
 	    [=] { // updateViewValue()
@@ -339,12 +339,12 @@ public:
         /*
 	 * Children
 	 */ 
-	setFormWidget(UserFormModel::ChildrenField, Wt::cpp14::make_unique<Wt::WSpinBox>());
+	setFormWidget(UserFormModel::ChildrenField, std::make_unique<Wt::WSpinBox>());
 
 	/*
 	 * Remarks
 	 */
-	auto remarksTA = Wt::cpp14::make_unique<Wt::WTextArea>();
+	auto remarksTA = std::make_unique<Wt::WTextArea>();
 	remarksTA->setColumns(40);
 	remarksTA->setRows(5);
 	setFormWidget(UserFormModel::RemarksField, std::move(remarksTA));
@@ -355,7 +355,7 @@ public:
 	Wt::WString title = Wt::WString("Create new user");
         bindString("title", title);
 
-        auto button = bindWidget("submit-button", Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
+        auto button = bindWidget("submit-button", std::make_unique<Wt::WPushButton>("Save"));
 
         bindString("submit-info", Wt::WString());
 
@@ -390,6 +390,6 @@ private:
 
 SAMPLE_BEGIN(FormModel)
 
-auto view = Wt::cpp14::make_unique<UserFormView>();
+auto view = std::make_unique<UserFormView>();
 
 SAMPLE_END(return std::move(view))

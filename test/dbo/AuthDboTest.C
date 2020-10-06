@@ -49,12 +49,12 @@ struct AuthDboFixture : DboFixtureBase
   AuthDboFixture(const char* tablenames[], const char* schema = "") :
     DboFixtureBase(), schema_(schema)
   {
-    myAuthService_ = cpp14::make_unique<Auth::AuthService>();
-    myPasswordService_ = cpp14::make_unique<Auth::PasswordService>(*myAuthService_);
+    myAuthService_ = std::make_unique<Auth::AuthService>();
+    myPasswordService_ = std::make_unique<Auth::PasswordService>(*myAuthService_);
 
     std::unique_ptr<Auth::PasswordVerifier> verifier
       (new Auth::PasswordVerifier());
-    verifier->addHashFunction(cpp14::make_unique<Auth::BCryptHashFunction>(7));
+    verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
     myPasswordService_->setVerifier(std::move(verifier));
 
     session_->mapClass<TestUser>(tablenames[0]);
@@ -62,7 +62,7 @@ struct AuthDboFixture : DboFixtureBase
     session_->mapClass<AuthInfo::AuthIdentityType>(tablenames[2]);
     session_->mapClass<AuthInfo::AuthTokenType>(tablenames[3]);
 
-    users_ = cpp14::make_unique<UserDatabase>(*session_);
+    users_ = std::make_unique<UserDatabase>(*session_);
 
     try {
       dbo::Transaction transaction(*session_);
@@ -105,7 +105,7 @@ struct AuthDboFixture : DboFixtureBase
       dbo::ptr<AuthInfo> authInfo = users_->find(login_.user());
       dbo::ptr<TestUser> testUser = authInfo->user();
       if (!testUser) {
-        testUser = session_->add(Wt::cpp14::make_unique<TestUser>());
+        testUser = session_->add(std::make_unique<TestUser>());
         authInfo.modify()->setUser(testUser);
       }
       return testUser;

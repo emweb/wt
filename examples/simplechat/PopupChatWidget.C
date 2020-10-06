@@ -67,10 +67,10 @@ void PopupChatWidget::setName(const Wt::WString& name)
 
 std::unique_ptr<Wt::WContainerWidget> PopupChatWidget::createBar()
 {
-  auto bar(Wt::cpp14::make_unique<Wt::WContainerWidget>());
+  auto bar(std::make_unique<Wt::WContainerWidget>());
   bar->setStyleClass("chat-bar");
 
-  auto toggleButton(Wt::cpp14::make_unique<Wt::WText>());
+  auto toggleButton(std::make_unique<Wt::WText>());
   toggleButton->setInline(false);
   toggleButton->setStyleClass("chat-minmax");
   bar->clicked().connect(this, &PopupChatWidget::toggleSize);
@@ -78,7 +78,7 @@ std::unique_ptr<Wt::WContainerWidget> PopupChatWidget::createBar()
 
   bar->addWidget(std::move(toggleButton));
 
-  title_ = bar->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+  title_ = bar->addWidget(std::make_unique<Wt::WText>());
 
   bar_ = bar.get();
 
@@ -120,7 +120,7 @@ void PopupChatWidget::createLayout(std::unique_ptr<Wt::WWidget> messages,
 				   std::unique_ptr<Wt::WWidget> sendButton,
 				   std::unique_ptr<Wt::WWidget> logoutButton)
 {
-  auto layout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  auto layout(std::make_unique<Wt::WVBoxLayout>());
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 

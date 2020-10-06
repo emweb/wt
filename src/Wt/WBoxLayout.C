@@ -356,9 +356,9 @@ void WBoxLayout::setImplementation()
   bool isFlexLayout = implementationIsFlexLayout();
 
   if (isFlexLayout)
-    setImpl(cpp14::make_unique<FlexLayoutImpl>(this, grid_));
+    setImpl(std::make_unique<FlexLayoutImpl>(this, grid_));
   else
-    setImpl(cpp14::make_unique<StdGridLayoutImpl2>(this, grid_));
+    setImpl(std::make_unique<StdGridLayoutImpl2>(this, grid_));
 }
 
 }

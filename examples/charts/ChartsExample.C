@@ -38,7 +38,7 @@ namespace {
   class NumericItem : public WStandardItem {
   public:
     virtual std::unique_ptr<WStandardItem> clone() const override {
-      return cpp14::make_unique<NumericItem>();
+      return std::make_unique<NumericItem>();
     }
 
     virtual void setData(const cpp17::any &data, ItemDataRole role = ItemDataRole::User) override {
@@ -67,7 +67,7 @@ namespace {
     std::shared_ptr<WStandardItemModel> model
         = std::make_shared<WStandardItemModel>(0, 0);
     std::unique_ptr<NumericItem> prototype
-        = cpp14::make_unique<NumericItem>();
+        = std::make_unique<NumericItem>();
     model->setItemPrototype(std::move(prototype));
     std::ifstream f(fname.c_str());
 
@@ -94,7 +94,7 @@ namespace {
     } else {
       WString error(WString::tr("error-missing-data"));
       error.arg(fname, CharEncoding::UTF8);
-      parent->addWidget(cpp14::make_unique<WText>(error));
+      parent->addWidget(std::make_unique<WText>(error));
       return 0;
     }
   }
@@ -103,18 +103,18 @@ namespace {
 ChartsExample::ChartsExample()
   : WContainerWidget()
 {
-  this->addWidget(cpp14::make_unique<WText>(WString::tr("introduction")));
+  this->addWidget(std::make_unique<WText>(WString::tr("introduction")));
 
-  this->addWidget(cpp14::make_unique<CategoryExample>());
-  this->addWidget(cpp14::make_unique<TimeSeriesExample>());
-  this->addWidget(cpp14::make_unique<ScatterPlotExample>());
-  this->addWidget(cpp14::make_unique<PieExample>());
+  this->addWidget(std::make_unique<CategoryExample>());
+  this->addWidget(std::make_unique<TimeSeriesExample>());
+  this->addWidget(std::make_unique<ScatterPlotExample>());
+  this->addWidget(std::make_unique<PieExample>());
 }
 
 CategoryExample::CategoryExample():
   WContainerWidget()
 {
-  this->addWidget(cpp14::make_unique<WText>(WString::tr("category chart")));
+  this->addWidget(std::make_unique<WText>(WString::tr("category chart")));
 
   std::shared_ptr<WAbstractItemModel> model
     = readCsvFile(WApplication::appRoot() + "category.csv", this);
@@ -123,8 +123,8 @@ CategoryExample::CategoryExample():
     return;
 
   // Show a view that allows editing of the model.
-  auto *w = this->addWidget(cpp14::make_unique<WContainerWidget>());
-  auto *table = w->addWidget(cpp14::make_unique<WTableView>());
+  auto *w = this->addWidget(std::make_unique<WContainerWidget>());
+  auto *table = w->addWidget(std::make_unique<WTableView>());
 
   table->setMargin(10, Side::Top | Side::Bottom);
   table->setMargin(WLength::Auto, Side::Left | Side::Right);
@@ -162,7 +162,7 @@ CategoryExample::CategoryExample():
   /*
    * Create the category chart.
    */
-  WCartesianChart *chart = this->addWidget(cpp14::make_unique<WCartesianChart>());
+  WCartesianChart *chart = this->addWidget(std::make_unique<WCartesianChart>());
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the categories
   chart->setLegendEnabled(true); // enable the legend
@@ -179,7 +179,7 @@ CategoryExample::CategoryExample():
    */
   for (int i = 1; i < model->columnCount(); ++i) {
     std::unique_ptr<WDataSeries> s
-        = cpp14::make_unique<WDataSeries>(i, SeriesType::Bar);
+        = std::make_unique<WDataSeries>(i, SeriesType::Bar);
     s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     chart->addSeries(std::move(s));
   }
@@ -192,13 +192,13 @@ CategoryExample::CategoryExample():
   /*
    * Provide a widget to manipulate chart properties
    */
-  this->addWidget(cpp14::make_unique<ChartConfig>(chart));
+  this->addWidget(std::make_unique<ChartConfig>(chart));
 }
 
 TimeSeriesExample::TimeSeriesExample():
   WContainerWidget()
 {
-  this->addWidget(cpp14::make_unique<WText>(WString::tr("scatter plot")));
+  this->addWidget(std::make_unique<WText>(WString::tr("scatter plot")));
 
   std::shared_ptr<WAbstractItemModel> model
       = readCsvFile(WApplication::appRoot() + "timeseries.csv", this);
@@ -216,8 +216,8 @@ TimeSeriesExample::TimeSeriesExample():
   }
 
   // Show a view that allows editing of the model.
-  auto *w = this->addWidget(cpp14::make_unique<WContainerWidget>());
-  auto *table = w->addWidget(cpp14::make_unique<WTableView>());
+  auto *w = this->addWidget(std::make_unique<WContainerWidget>());
+  auto *table = w->addWidget(std::make_unique<WTableView>());
 
   table->setMargin(10, Side::Top | Side::Bottom);
   table->setMargin(WLength::Auto, Side::Left | Side::Right);
@@ -257,7 +257,7 @@ TimeSeriesExample::TimeSeriesExample():
   /*
    * Create the scatter plot.
    */
-  WCartesianChart *chart = this->addWidget(cpp14::make_unique<WCartesianChart>());
+  WCartesianChart *chart = this->addWidget(std::make_unique<WCartesianChart>());
   //chart->setPreferredMethod(WPaintedWidget::PngImage);
   //chart->setBackground(gray);
   chart->setModel(model);        // set the model
@@ -278,7 +278,7 @@ TimeSeriesExample::TimeSeriesExample():
    */
   for (int i = 1; i < 3; ++i) {
     std::unique_ptr<WDataSeries> s
-        = cpp14::make_unique<WDataSeries>(i, SeriesType::Line);
+        = std::make_unique<WDataSeries>(i, SeriesType::Line);
     s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     chart->addSeries(std::move(s));
   }
@@ -288,18 +288,18 @@ TimeSeriesExample::TimeSeriesExample():
   chart->setMargin(10, Side::Top | Side::Bottom);            // add margin vertically
   chart->setMargin(WLength::Auto, Side::Left | Side::Right); // center horizontally
 
-  this->addWidget(cpp14::make_unique<ChartConfig>(chart));
+  this->addWidget(std::make_unique<ChartConfig>(chart));
 }
 
 ScatterPlotExample::ScatterPlotExample():
   WContainerWidget()
 {
-  this->addWidget(cpp14::make_unique<WText>(WString::tr("scatter plot 2")));
+  this->addWidget(std::make_unique<WText>(WString::tr("scatter plot 2")));
 
   std::shared_ptr<WStandardItemModel> model
       = std::make_shared<WStandardItemModel>(40, 2);
   std::unique_ptr<NumericItem> prototype
-      = cpp14::make_unique<NumericItem>();
+      = std::make_unique<NumericItem>();
   model->setItemPrototype(std::move(prototype));
   model->setHeaderData(0, WString("X"));
   model->setHeaderData(1, WString("Y = sin(X)"));
@@ -314,7 +314,7 @@ ScatterPlotExample::ScatterPlotExample():
   /*
    * Create the scatter plot.
    */
-  WCartesianChart *chart = this->addWidget(cpp14::make_unique<WCartesianChart>());
+  WCartesianChart *chart = this->addWidget(std::make_unique<WCartesianChart>());
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the X data
   chart->setLegendEnabled(true); // enable the legend
@@ -336,7 +336,7 @@ ScatterPlotExample::ScatterPlotExample():
 
   // Add the curves
   std::unique_ptr<WDataSeries> s
-      = cpp14::make_unique<WDataSeries>(1, SeriesType::Curve);
+      = std::make_unique<WDataSeries>(1, SeriesType::Curve);
   s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
   chart->addSeries(std::move(s));
 
@@ -345,19 +345,19 @@ ScatterPlotExample::ScatterPlotExample():
   chart->setMargin(10, Side::Top | Side::Bottom);            // add margin vertically
   chart->setMargin(WLength::Auto, Side::Left | Side::Right); // center horizontally
 
-  ChartConfig *config = this->addWidget(cpp14::make_unique<ChartConfig>(chart));
+  ChartConfig *config = this->addWidget(std::make_unique<ChartConfig>(chart));
   config->setValueFill(FillRangeType::ZeroValue);
 }
 
 PieExample::PieExample():
   WContainerWidget()
 {
-  this->addWidget(cpp14::make_unique<WText>(WString::tr("pie chart")));
+  this->addWidget(std::make_unique<WText>(WString::tr("pie chart")));
 
   std::shared_ptr<WStandardItemModel> model
       = std::make_shared<WStandardItemModel>();
   std::unique_ptr<NumericItem> prototype
-      = cpp14::make_unique<NumericItem>();
+      = std::make_unique<NumericItem>();
   model->setItemPrototype(std::move(prototype));
   
   //headers
@@ -393,8 +393,8 @@ PieExample::PieExample():
     for (int col = 0; col < model->columnCount(); ++col)
       model->item(row, col)->setFlags(ItemFlag::Selectable | ItemFlag::Editable);
 
-  WContainerWidget *w = this->addWidget(cpp14::make_unique<WContainerWidget>());
-  WTableView* table = w->addWidget(cpp14::make_unique<WTableView>());
+  WContainerWidget *w = this->addWidget(std::make_unique<WContainerWidget>());
+  WTableView* table = w->addWidget(std::make_unique<WTableView>());
 
   table->setMargin(10, Side::Top | Side::Bottom);
   table->setMargin(WLength::Auto, Side::Left | Side::Right);
@@ -414,7 +414,7 @@ PieExample::PieExample():
   /*
    * Create the pie chart.
    */
-  WPieChart *chart = this->addWidget(cpp14::make_unique<WPieChart>());
+  WPieChart *chart = this->addWidget(std::make_unique<WPieChart>());
   chart->setModel(model);       // set the model
   chart->setLabelsColumn(0);    // set the column that holds the labels
   chart->setDataColumn(1);      // set the column that holds the data

@@ -57,7 +57,7 @@ private:
 
 SAMPLE_BEGIN(AxisSliderWidgetDifferentDataSeries)
 
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 auto chart =
     container->addNew<Chart::WCartesianChart>();
@@ -69,7 +69,7 @@ chart->setType(Chart::ChartType::Scatter);
  */
 auto roughModel = std::make_shared<SinModel>(-M_PI, M_PI, 100);
 auto roughSeries =
-    cpp14::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Line);
+    std::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Line);
 auto roughSeries_ = roughSeries.get();
 roughSeries_->setModel(roughModel);
 roughSeries_->setXSeriesColumn(0);
@@ -82,7 +82,7 @@ chart->addSeries(std::move(roughSeries));
  */
 auto detailedModel = std::make_shared<SinModel>(-M_PI, M_PI, 10000);
 auto seriesPtr =
-    cpp14::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Line);
+    std::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Line);
 auto series = seriesPtr.get();
 series->setModel(detailedModel);
 series->setXSeriesColumn(0);

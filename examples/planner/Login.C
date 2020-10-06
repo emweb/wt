@@ -14,8 +14,8 @@ Login::Login()
   setStyleClass("login");
 		 
   WLabel* userNameL =
-      this->addWidget(cpp14::make_unique<WLabel>(tr("login.userName")));
-  userNameEdit_ = this->addWidget(cpp14::make_unique<WLineEdit>());
+      this->addWidget(std::make_unique<WLabel>(tr("login.userName")));
+  userNameEdit_ = this->addWidget(std::make_unique<WLineEdit>());
   userNameEdit_->setFocus();
   userNameEdit_->setValidator(std::make_shared<WValidator>(true));
   userNameL->setBuddy(userNameEdit_);
@@ -23,12 +23,12 @@ Login::Login()
   userNameEdit_->enterPressed().connect(this, &Login::userNameEnterPressed);
   
   loginButton_ =
-      this->addWidget(cpp14::make_unique<WPushButton>(tr("login.loginButton")));
+      this->addWidget(std::make_unique<WPushButton>(tr("login.loginButton")));
   loginButton_->hide();
   loginButton_->clicked().connect(this, &Login::loginClicked);
 
   captcha_ =
-      this->addWidget(cpp14::make_unique<MyCaptcha>(150, 70));
+      this->addWidget(std::make_unique<MyCaptcha>(150, 70));
   captcha_->completed().connect(this, &Login::captchaCompleted);
 }
 

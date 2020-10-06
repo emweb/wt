@@ -38,17 +38,17 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env)
 {
   setTitle("Hello world");                            // application title
 
-  root()->addWidget(Wt::cpp14::make_unique<Wt::WText>("Your name, please ? ")); // show some text
+  root()->addWidget(std::make_unique<Wt::WText>("Your name, please ? ")); // show some text
 
-  nameEdit_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>()); // allow text input
+  nameEdit_ = root()->addWidget(std::make_unique<Wt::WLineEdit>()); // allow text input
   nameEdit_->setFocus();                              // give focus
 
-  auto button = root()->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Greet me."));
+  auto button = root()->addWidget(std::make_unique<Wt::WPushButton>("Greet me."));
                                                       // create a button
   button->setMargin(5, Wt::Side::Left);                   // add 5 pixels margin
 
-  root()->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());    // insert a line break
-  greeting_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WText>()); // empty text
+  root()->addWidget(std::make_unique<Wt::WBreak>());    // insert a line break
+  greeting_ = root()->addWidget(std::make_unique<Wt::WText>()); // empty text
 
   /*
    * Connect signals with slots
@@ -97,6 +97,6 @@ int main(int argc, char **argv)
      * You could read information from the environment to decide whether
      * the user has permission to start a new application
      */
-    return Wt::cpp14::make_unique<HelloApplication>(env);
+    return std::make_unique<HelloApplication>(env);
   });
 }

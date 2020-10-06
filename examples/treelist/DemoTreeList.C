@@ -21,7 +21,7 @@ DemoTreeList::DemoTreeList()
     testCount_(0)
 {
   addWidget
-    (cpp14::make_unique<WText>("<h2>Wt Tree List example</h2>"
+    (std::make_unique<WText>("<h2>Wt Tree List example</h2>"
 	       "<p>This is a simple demo of a treelist, implemented using"
 	       " <a href='http://witty.sourceforge.net/'>Wt</a>.</p>"
 	       "<p>The leafs of the tree contain the source code of the "
@@ -49,20 +49,20 @@ DemoTreeList::DemoTreeList()
    * Buttons to dynamically demonstrate changing the tree contents.
    */
   addWidget
-    (cpp14::make_unique<WText>("<p>Use the following buttons to change the tree "
+    (std::make_unique<WText>("<p>Use the following buttons to change the tree "
 	       "contents:</p>"));
 
   addFolderButton_
-      = this->addWidget(cpp14::make_unique<WPushButton>("Add folder"));
+      = this->addWidget(std::make_unique<WPushButton>("Add folder"));
   addFolderButton_->clicked().connect(this, &DemoTreeList::addFolder);
 
   removeFolderButton_
-    = this->addWidget(cpp14::make_unique<WPushButton>("Remove folder"));
+    = this->addWidget(std::make_unique<WPushButton>("Remove folder"));
   removeFolderButton_->clicked().connect(this, &DemoTreeList::removeFolder);
   removeFolderButton_->disable();
 
   addWidget
-    (cpp14::make_unique<WText>("<p>Remarks:"
+    (std::make_unique<WText>("<p>Remarks:"
 	       "<ul>"
 	       "<li><p>This is not the instantiation of a pre-defined "
 	       "tree list component, but the full implementation of such "
@@ -124,13 +124,13 @@ void DemoTreeList::removeFolder()
 
 TreeNode *DemoTreeList::makeTreeFolder(const std::string name, TreeNode *parent)
 {
-  auto labelIcon = cpp14::make_unique<IconPair>(
+  auto labelIcon = std::make_unique<IconPair>(
                    "icons/yellow-folder-closed.png",
 		   "icons/yellow-folder-open.png",
 		   false);
 
   auto node =
-      cpp14::make_unique<TreeNode>(name, TextFormat::Plain, std::move(labelIcon));
+      std::make_unique<TreeNode>(name, TextFormat::Plain, std::move(labelIcon));
   auto node_ = node.get();
   parent->addChildNode(std::move(node));
 
@@ -139,12 +139,12 @@ TreeNode *DemoTreeList::makeTreeFolder(const std::string name, TreeNode *parent)
 
 std::unique_ptr<TreeNode> DemoTreeList::makeTreeFolder(const std::string name)
 {
-  auto labelIcon = cpp14::make_unique<IconPair>(
+  auto labelIcon = std::make_unique<IconPair>(
                    "icons/yellow-folder-closed.png",
                    "icons/yellow-folder-open.png",
                    false);
   auto node =
-      cpp14::make_unique<TreeNode>(name, TextFormat::Plain, std::move(labelIcon));
+      std::make_unique<TreeNode>(name, TextFormat::Plain, std::move(labelIcon));
 
   return node;
 }
@@ -153,10 +153,10 @@ TreeNode *DemoTreeList::makeTreeFile(const std::string name,
 				      TreeNode *parent)
 {
   auto labelIcon
-    = cpp14::make_unique<IconPair>("icons/document.png", "icons/yellow-folder-open.png",
+    = std::make_unique<IconPair>("icons/document.png", "icons/yellow-folder-open.png",
 		   false);
 
-  auto node = cpp14::make_unique<TreeNode>(name, TextFormat::XHTML, std::move(labelIcon));
+  auto node = std::make_unique<TreeNode>(name, TextFormat::XHTML, std::move(labelIcon));
   auto node_ = node.get();
   if (parent)
     parent->addChildNode(std::move(node));
@@ -167,10 +167,10 @@ TreeNode *DemoTreeList::makeTreeFile(const std::string name,
 std::unique_ptr<TreeNode> DemoTreeList::makeTreeFile(const std::string name)
 {
   auto labelIcon
-    = cpp14::make_unique<IconPair>("icons/document.png", "icons/yellow-folder-open.png",
+    = std::make_unique<IconPair>("icons/document.png", "icons/yellow-folder-open.png",
                    false);
   auto node =
-      cpp14::make_unique<TreeNode>(name, TextFormat::XHTML, std::move(labelIcon));
+      std::make_unique<TreeNode>(name, TextFormat::XHTML, std::move(labelIcon));
 
   return node;
 }
@@ -178,8 +178,8 @@ std::unique_ptr<TreeNode> DemoTreeList::makeTreeFile(const std::string name)
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   auto app
-      = cpp14::make_unique<WApplication>(env);
-  app->root()->addWidget(cpp14::make_unique<DemoTreeList>());
+      = std::make_unique<WApplication>(env);
+  app->root()->addWidget(std::make_unique<DemoTreeList>());
 
   /*
    * The look & feel of the tree node is configured using a CSS style sheet.

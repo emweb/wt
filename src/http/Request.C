@@ -305,7 +305,7 @@ std::unique_ptr<Wt::WSslInfo> Request::sslInfo() const
     }
     Wt::WValidator::Result clientVerificationResult(state, info);
     
-    return Wt::cpp14::make_unique<Wt::WSslInfo>(clientCert,
+    return std::make_unique<Wt::WSslInfo>(clientCert,
                                                 clientCertChain,
                                                 clientVerificationResult);
   }

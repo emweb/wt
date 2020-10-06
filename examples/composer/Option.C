@@ -16,7 +16,7 @@ Option::Option(const WString& text)
 {
   setInline(true);
 
-  option_ = this->addWidget(cpp14::make_unique<WText>(text));
+  option_ = this->addWidget(std::make_unique<WText>(text));
   option_->setStyleClass("option");
 }
 
@@ -32,7 +32,7 @@ void Option::setOptionList(OptionList *l)
 
 void Option::addSeparator()
 {
-  sep_ = this->addWidget(cpp14::make_unique<WText>("|"));
+  sep_ = this->addWidget(std::make_unique<WText>("|"));
   sep_->setStyleClass("sep");
 }
 

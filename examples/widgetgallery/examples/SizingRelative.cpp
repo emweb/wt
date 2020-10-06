@@ -9,40 +9,40 @@ using namespace Wt;
 #endif // WT_TARGET_JAVA
 
 SAMPLE_BEGIN(SizingRelative)
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 WLineEdit *edit =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
+    container->addWidget(std::make_unique<WLineEdit>());
 edit->setPlaceholderText(".input-mini");
 edit->setStyleClass("input-mini");
-container->addWidget(cpp14::make_unique<WBreak>());
+container->addWidget(std::make_unique<WBreak>());
 
 edit =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
+    container->addWidget(std::make_unique<WLineEdit>());
 edit->setPlaceholderText(".input-small");
 edit->setStyleClass("input-small");
-container->addWidget(cpp14::make_unique<WBreak>());
+container->addWidget(std::make_unique<WBreak>());
 
 edit =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
+    container->addWidget(std::make_unique<WLineEdit>());
 edit->setPlaceholderText(".input-medium");
 edit->setStyleClass("input-medium");
-container->addWidget(cpp14::make_unique<WBreak>());
+container->addWidget(std::make_unique<WBreak>());
 
 edit =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
+    container->addWidget(std::make_unique<WLineEdit>());
 edit->setPlaceholderText(".input-large");
 edit->setStyleClass("input-large");
-container->addWidget(cpp14::make_unique<WBreak>());
+container->addWidget(std::make_unique<WBreak>());
 
 edit =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
+    container->addWidget(std::make_unique<WLineEdit>());
 edit->setPlaceholderText(".input-xlarge");
 edit->setStyleClass("input-xlarge");
-container->addWidget(cpp14::make_unique<WBreak>());
+container->addWidget(std::make_unique<WBreak>());
 
 edit =
-    container->addWidget(cpp14::make_unique<WLineEdit>());
+    container->addWidget(std::make_unique<WLineEdit>());
 edit->setPlaceholderText(".input-xxlarge");
 edit->setStyleClass("input-xxlarge");
 

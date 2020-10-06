@@ -94,7 +94,7 @@ void HttpClientApplication::requestDone(Wt::AsioWrapper::error_code ec, const Wt
 
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment &env)
 {
-  return Wt::cpp14::make_unique<HttpClientApplication>(env);
+  return std::make_unique<HttpClientApplication>(env);
 }
 
 int main(int argc, char *argv[])

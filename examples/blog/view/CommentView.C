@@ -32,7 +32,7 @@ CommentView::CommentView(BlogSession& session, long long parentId)
 {
   dbo::ptr<Comment> parent = session_.load<Comment>(parentId);
 
-  comment_ = Wt::cpp14::make_unique<Comment>();
+  comment_ = std::make_unique<Comment>();
   comment_.modify()->parent = parent;
   comment_.modify()->post = parent->post;
 
@@ -52,15 +52,15 @@ void CommentView::edit()
 
   setTemplateText(tr("blog-edit-comment"));
 
-  auto editArea = Wt::cpp14::make_unique<Wt::WTextArea>();
+  auto editArea = std::make_unique<Wt::WTextArea>();
   editArea_ = editArea.get();
   editArea_->setText(comment_->textSrc());
   editArea_->setFocus();
 
-  auto save = Wt::cpp14::make_unique<Wt::WPushButton>(tr("save"));
+  auto save = std::make_unique<Wt::WPushButton>(tr("save"));
   save->clicked().connect(this, &CommentView::save);
 
-  auto cancel = Wt::cpp14::make_unique<Wt::WPushButton>(tr("cancel"));
+  auto cancel = std::make_unique<Wt::WPushButton>(tr("cancel"));
   cancel->clicked().connect(this, &CommentView::cancel);
 
   bindWidget("area", std::move(editArea));
@@ -118,7 +118,7 @@ void CommentView::renderView()
   bindString("collapse-expand", Wt::WString::Empty); // NYI
 
   auto replyText
-      = Wt::cpp14::make_unique<Wt::WText>(isRootComment ? tr("comment-add")
+      = std::make_unique<Wt::WText>(isRootComment ? tr("comment-add")
 			       : tr("comment-reply"));
   replyText->setStyleClass("link");
   replyText->clicked().connect(this, &CommentView::reply);
@@ -130,7 +130,7 @@ void CommentView::renderView()
 
   if (mayEdit) {
     auto editText
-        = Wt::cpp14::make_unique<Wt::WText>(tr("comment-edit"));
+        = std::make_unique<Wt::WText>(tr("comment-edit"));
     editText->setStyleClass("link");
     editText->clicked().connect(this, &CommentView::edit);
     bindWidget("edit", std::move(editText));
@@ -143,7 +143,7 @@ void CommentView::renderView()
 
   if (mayDelete) {
     auto deleteText
-        = Wt::cpp14::make_unique<Wt::WText>(tr("comment-delete"));
+        = std::make_unique<Wt::WText>(tr("comment-delete"));
     deleteText->setStyleClass("link");
     deleteText->clicked().connect(this, &CommentView::rm);
     bindWidget("delete", std::move(deleteText));
@@ -159,9 +159,9 @@ void CommentView::renderView()
   }
 
   auto children
-      = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+      = std::make_unique<Wt::WContainerWidget>();
   for (int i = (int)comments.size() - 1; i >= 0; --i)
-    children->addWidget(Wt::cpp14::make_unique<CommentView>(session_, comments[i]));
+    children->addWidget(std::make_unique<CommentView>(session_, comments[i]));
 
   bindWidget("children", std::move(children));
 }
@@ -193,7 +193,7 @@ void CommentView::reply()
   dbo::Transaction t(session_);
 
   Wt::WContainerWidget *c = resolve<Wt::WContainerWidget *>("children");
-  c->insertWidget(0, Wt::cpp14::make_unique<CommentView>(session_, comment_.id()));
+  c->insertWidget(0, std::make_unique<CommentView>(session_, comment_.id()));
 
   t.commit();
 }

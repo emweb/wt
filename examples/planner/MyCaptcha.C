@@ -11,9 +11,9 @@ MyCaptcha::MyCaptcha(const int width, const int height)
 {
   setStyleClass("captcha");
 		
-  captchaMessage_ = this->addWidget(cpp14::make_unique<WText>());
+  captchaMessage_ = this->addWidget(std::make_unique<WText>());
 
-  shapesWidget_ = this->addWidget(cpp14::make_unique<ShapesWidget>());
+  shapesWidget_ = this->addWidget(std::make_unique<ShapesWidget>());
   shapesWidget_->resize(width, height);
 
   shapesWidget_->clicked().connect(this, &MyCaptcha::handleClick);

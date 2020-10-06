@@ -42,7 +42,7 @@ extern
 }
 
 SAMPLE_BEGIN(StyledTable)
-auto table = cpp14::make_unique<WTable>();
+auto table = std::make_unique<WTable>();
 auto table_ = table.get();
 table_->setHeaderCount(1);
 
@@ -73,7 +73,7 @@ for (unsigned i = 0; i < 3; ++i) {
 table_->addStyleClass("table form-inline");
 
 #ifndef WT_TARGET_JAVA
-auto resultPtr = cpp14::make_unique<WContainerWidget>();
+auto resultPtr = std::make_unique<WContainerWidget>();
 auto result = resultPtr.get();
 #else // WT_TARGET_JAVA
 auto result = new WContainerWidget();

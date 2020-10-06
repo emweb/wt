@@ -26,17 +26,17 @@ void Session::configureAuth()
   myAuthService.setAuthTokensEnabled(true, "logincookie");
   myAuthService.setEmailVerificationEnabled(true);
 
-  auto verifier = Wt::cpp14::make_unique<Wt::Auth::PasswordVerifier>();
-  verifier->addHashFunction(Wt::cpp14::make_unique<Wt::Auth::BCryptHashFunction>());
+  auto verifier = std::make_unique<Wt::Auth::PasswordVerifier>();
+  verifier->addHashFunction(std::make_unique<Wt::Auth::BCryptHashFunction>());
   myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setAttemptThrottlingEnabled(true);
 //  myPasswordService.setStrengthValidator
-//    (Wt::cpp14::make_unique<Wt::Auth::PasswordStrengthValidator>());
+//    (std::make_unique<Wt::Auth::PasswordStrengthValidator>());
 }
 
 Session::Session(const std::string& db)
 {
-  auto connection = Wt::cpp14::make_unique<Wt::Dbo::backend::Sqlite3>(db);
+  auto connection = std::make_unique<Wt::Dbo::backend::Sqlite3>(db);
 
   connection->setProperty("show-queries", "true");
 
@@ -56,7 +56,7 @@ Session::Session(const std::string& db)
     std::cerr << "Using existing database";
   }
 
-  users_ = Wt::cpp14::make_unique<OidcUserDatabase>(*this);
+  users_ = std::make_unique<OidcUserDatabase>(*this);
 }
 
 Wt::Auth::AbstractUserDatabase& Session::users()

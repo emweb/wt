@@ -50,7 +50,7 @@ WMenuItem::WMenuItem(bool separator, const WString& text)
   internalPathEnabled_ = false;
 
   if (!text.empty()) {
-    text_ = addWidget(cpp14::make_unique<WLabel>());
+    text_ = addWidget(std::make_unique<WLabel>());
     text_->setTextFormat(TextFormat::Plain);
     text_->setText(text);
   }
@@ -76,7 +76,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   setContents(std::move(contents), policy);
 
   if (!separator_) {
-    addWidget(cpp14::make_unique<WAnchor>());
+    addWidget(std::make_unique<WAnchor>());
     updateInternalPath();
   }
 
@@ -149,7 +149,7 @@ void WMenuItem::setIcon(const std::string& path)
     if (!a)
       return;
 
-    icon_ = a->insertWidget(0, cpp14::make_unique<WText>(" "));
+    icon_ = a->insertWidget(0, std::make_unique<WText>(" "));
 
     WApplication *app = WApplication::instance();
     app->theme()->apply(this, icon_, MenuItemIcon);
@@ -169,7 +169,7 @@ std::string WMenuItem::icon() const
 void WMenuItem::setText(const WString& text)
 {
   if (!text_) {
-    text_ = anchor()->addWidget(cpp14::make_unique<WLabel>());
+    text_ = anchor()->addWidget(std::make_unique<WLabel>());
     text_->setTextFormat(TextFormat::Plain);
   }
 
@@ -285,7 +285,7 @@ void WMenuItem::setCloseable(bool closeable)
     closeable_ = closeable;
 
     if (closeable_) {
-      WText *closeIcon = insertWidget(0, cpp14::make_unique<WText>(""));
+      WText *closeIcon = insertWidget(0, std::make_unique<WText>(""));
       WApplication *app = WApplication::instance();
       app->theme()->apply(this, closeIcon, MenuItemClose);
 
@@ -299,7 +299,7 @@ void WMenuItem::setCheckable(bool checkable)
 {
   if (isCheckable() != checkable) {
     if (checkable) {
-      checkBox_ = anchor()->insertWidget(0, cpp14::make_unique<WCheckBox>());
+      checkBox_ = anchor()->insertWidget(0, std::make_unique<WCheckBox>());
       setText(text());
 
       text_->setBuddy(checkBox_);

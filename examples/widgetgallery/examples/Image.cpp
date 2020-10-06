@@ -4,7 +4,7 @@
 #include <Wt/WText.h>
 
 SAMPLE_BEGIN(Image)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WImage *image = container->addNew<Wt::WImage>(Wt::WLink("icons/wt.png"));
 image->setAlternateText("Wt logo");

@@ -30,7 +30,7 @@ namespace Wt {
  * \warning The Field type is 'const char *, and instead of string
  *          comparisons to identify fields, pointer comparisons are used.
  *          Thus you really should use the same field constant throughout
- *          your code to refer to a given field, and you cannot use C++11
+ *          your code to refer to a given field, and you cannot use
  *          constexpr for the field constant since that does not have a unique
  *          value (since it has no storage).
  * \endif
@@ -99,7 +99,7 @@ public:
    * \warning Instead of string comparisons to identify fields, pointer
    *          comparisons are used.
    *          Thus you really should use the same field constant throughout
-   *          your code to refer to a given field, and you cannot use C++11
+   *          your code to refer to a given field, and you cannot use
    *          constexpr for the field constant since that does not have a unique
    *          value (since it has no storage).
    * \endif

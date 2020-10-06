@@ -20,10 +20,10 @@ public:
   {
     setStyleClass("editor");
 
-    this->addWidget(cpp14::make_unique<WText>("File: "));
-    nameEdit_ = this->addWidget(cpp14::make_unique<WLineEdit>());
+    this->addWidget(std::make_unique<WText>("File: "));
+    nameEdit_ = this->addWidget(std::make_unique<WLineEdit>());
 
-    textArea_ = this->addWidget(cpp14::make_unique<WTextArea>());
+    textArea_ = this->addWidget(std::make_unique<WTextArea>());
     textArea_->setAttributeValue("spellcheck", "false");
     textArea_->setInline(false);
     textArea_->setColumns(80);
@@ -85,12 +85,12 @@ CoderWidget::CoderWidget()
 
   WApplication::instance()->setInternalPath("/" + session_->id());
 
-  auto *addBuffer = this->addWidget(cpp14::make_unique<WPushButton>("Add file"));
-  observerCount_ = this->addWidget(cpp14::make_unique<WText>("Observers: 0"));
+  auto *addBuffer = this->addWidget(std::make_unique<WPushButton>("Add file"));
+  observerCount_ = this->addWidget(std::make_unique<WText>("Observers: 0"));
 
   addBuffer->clicked().connect(this, &CoderWidget::addBuffer);
 
-  buffers_ = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  buffers_ = this->addWidget(std::make_unique<WContainerWidget>());
 
   insertBuffer(0);
 }
@@ -110,7 +110,7 @@ void CoderWidget::insertBuffer(int index)
 {
   session_->insertBuffer(index);
 
-  std::unique_ptr<BufferEditorWidget> editor(cpp14::make_unique<BufferEditorWidget>());
+  std::unique_ptr<BufferEditorWidget> editor(std::make_unique<BufferEditorWidget>());
   editor->keyWentUp().connect(std::bind(&CoderWidget::changed, this, editor.get()));
   editor->clicked().connect(std::bind(&CoderWidget::changed, this, editor.get()));
   editor->textArea()->blurred()

@@ -41,7 +41,7 @@ void Layout::populateSubMenu(Wt::WMenu *menu)
 
 std::unique_ptr<Wt::WWidget> Layout::containers()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-Containers");
+  auto result = std::make_unique<TopicTemplate>("layout-Containers");
 
   result->bindWidget("Container", Container());
 
@@ -53,7 +53,7 @@ std::unique_ptr<Wt::WWidget> Layout::containers()
 
 std::unique_ptr<Wt::WWidget> Layout::templates()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-Template");
+  auto result = std::make_unique<TopicTemplate>("layout-Template");
 
   result->bindWidget("Template", Template());
 
@@ -74,7 +74,7 @@ std::unique_ptr<Wt::WWidget> Layout::templates()
 
 std::unique_ptr<Wt::WWidget> Layout::text()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-Text");
+  auto result = std::make_unique<TopicTemplate>("layout-Text");
 
   result->bindWidget("TextPlain", TextPlain());
   result->bindWidget("TextXHTML", TextXHTML());
@@ -94,7 +94,7 @@ std::unique_ptr<Wt::WWidget> Layout::text()
 
 std::unique_ptr<Wt::WWidget> Layout::grouping()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-Grouping");
+  auto result = std::make_unique<TopicTemplate>("layout-Grouping");
 
   result->bindWidget("GroupBox", GroupBox());
   result->bindWidget("PanelNoTitle", PanelNoTitle());
@@ -115,7 +115,7 @@ std::unique_ptr<Wt::WWidget> Layout::grouping()
 
 std::unique_ptr<Wt::WWidget> Layout::layoutManagers()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-Managers");
+  auto result = std::make_unique<TopicTemplate>("layout-Managers");
 
   result->bindWidget("HBoxLayout", HBoxLayout());
   result->bindWidget("HBoxLayoutStretch", HBoxLayoutStretch());
@@ -135,7 +135,7 @@ std::unique_ptr<Wt::WWidget> Layout::layoutManagers()
 
 std::unique_ptr<Wt::WWidget> Layout::dialogs()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-Dialogs");
+  auto result = std::make_unique<TopicTemplate>("layout-Dialogs");
 
   result->bindWidget("Dialog", Dialog());
   result->bindWidget("MessageBox", MessageBox());
@@ -150,7 +150,7 @@ std::unique_ptr<Wt::WWidget> Layout::dialogs()
 
 std::unique_ptr<Wt::WWidget> Layout::images()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-Images");
+  auto result = std::make_unique<TopicTemplate>("layout-Images");
 
   result->bindWidget("Image", Image());
   result->bindWidget("ImageArea", ImageArea());
@@ -163,7 +163,7 @@ std::unique_ptr<Wt::WWidget> Layout::images()
 
 std::unique_ptr<Wt::WWidget> Layout::css()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-CSS");
+  auto result = std::make_unique<TopicTemplate>("layout-CSS");
 
   result->bindWidget("CSS", CSS());
 
@@ -177,7 +177,7 @@ std::unique_ptr<Wt::WWidget> Layout::css()
 
 std::unique_ptr<Wt::WWidget> Layout::themes()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("layout-Themes");
+  auto result = std::make_unique<TopicTemplate>("layout-Themes");
 
   // Show the source code only for the theme example.
   result->bindString("Theme", reindent(tr("theme")), Wt::TextFormat::Plain);

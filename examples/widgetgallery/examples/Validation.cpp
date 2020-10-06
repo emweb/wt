@@ -6,18 +6,18 @@
 
 SAMPLE_BEGIN(Validation)
 
-auto t = Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("validation-template"));
+auto t = std::make_unique<Wt::WTemplate>(Wt::WString::tr("validation-template"));
 t->addFunction("id", &Wt::WTemplate::Functions::id);
 
-auto ageEdit = t->bindWidget("age", Wt::cpp14::make_unique<Wt::WLineEdit>());
+auto ageEdit = t->bindWidget("age", std::make_unique<Wt::WLineEdit>());
 
 auto validator = std::make_shared<Wt::WIntValidator>(0, 150);
 validator->setMandatory(true);
 ageEdit->setValidator(validator);
 
-auto button = t->bindWidget("button", Wt::cpp14::make_unique<Wt::WPushButton>("Save"));
+auto button = t->bindWidget("button", std::make_unique<Wt::WPushButton>("Save"));
 
-auto out = t->bindWidget("age-info", Wt::cpp14::make_unique<Wt::WText>());
+auto out = t->bindWidget("age-info", std::make_unique<Wt::WText>());
 out->setInline(false);
 out->hide();
 

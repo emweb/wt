@@ -33,7 +33,7 @@ using namespace Wt::Chart;
 
 namespace {
   void addHeader(WTable *t, const char *value) {
-    t->elementAt(0, t->columnCount())->addWidget(cpp14::make_unique<WText>(value));
+    t->elementAt(0, t->columnCount())->addWidget(std::make_unique<WText>(value));
   }
 
   void addEntry(const std::shared_ptr<WAbstractItemModel>& model, const char *value) {
@@ -81,7 +81,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   chart_->setLegendStyle(chart_->legendFont(), WPen(WColor("black")),
 			 WBrush(WColor(0xFF, 0xFA, 0xE5)));
 
-  PanelList *list = this->addWidget(cpp14::make_unique<PanelList>());
+  PanelList *list = this->addWidget(std::make_unique<PanelList>());
 
   std::shared_ptr<WIntValidator> sizeValidator
       = std::make_shared<WIntValidator>(200,2000);
@@ -122,17 +122,17 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   addEntry(legendAlignment, "AlignBottom");
 
   std::unique_ptr<WTable> chartConfig
-      = cpp14::make_unique<WTable>();
+      = std::make_unique<WTable>();
   chartConfig->setMargin(WLength::Auto, Side::Left | Side::Right);
 
   int row = 0;
-  chartConfig->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>("Title:"));
-  titleEdit_ = chartConfig->elementAt(row,1)->addWidget(cpp14::make_unique<WLineEdit>());
+  chartConfig->elementAt(row, 0)->addWidget(std::make_unique<WText>("Title:"));
+  titleEdit_ = chartConfig->elementAt(row,1)->addWidget(std::make_unique<WLineEdit>());
   connectSignals(titleEdit_);
   ++row;
 
-  chartConfig->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>("Width:"));
-  chartWidthEdit_ = chartConfig->elementAt(row,1)->addWidget(cpp14::make_unique<WLineEdit>());
+  chartConfig->elementAt(row, 0)->addWidget(std::make_unique<WText>("Width:"));
+  chartWidthEdit_ = chartConfig->elementAt(row,1)->addWidget(std::make_unique<WLineEdit>());
   chartWidthEdit_
     ->setText(WLocale::currentLocale().toString(chart_->width().value()));
   chartWidthEdit_->setValidator(sizeValidator);
@@ -140,8 +140,8 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   connectSignals(chartWidthEdit_);
   ++row;
 
-  chartConfig->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>("Height:"));
-  chartHeightEdit_ = chartConfig->elementAt(row,1)->addWidget(cpp14::make_unique<WLineEdit>());
+  chartConfig->elementAt(row, 0)->addWidget(std::make_unique<WText>("Height:"));
+  chartHeightEdit_ = chartConfig->elementAt(row,1)->addWidget(std::make_unique<WLineEdit>());
   chartHeightEdit_
     ->setText(WLocale::currentLocale().toString(chart_->height().value()));
   chartHeightEdit_->setValidator(sizeValidator);
@@ -149,36 +149,36 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   connectSignals(chartHeightEdit_);
   ++row;
 
-  chartConfig->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>("Orientation:"));
-  chartOrientationEdit_ = chartConfig->elementAt(row,1)->addWidget(cpp14::make_unique<WComboBox>());
+  chartConfig->elementAt(row, 0)->addWidget(std::make_unique<WText>("Orientation:"));
+  chartOrientationEdit_ = chartConfig->elementAt(row,1)->addWidget(std::make_unique<WComboBox>());
   chartOrientationEdit_->setModel(orientation);
   chartOrientationEdit_->setCurrentIndex(0);
   connectSignals(chartOrientationEdit_);
   ++row;
 
-  chartConfig->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>("Legend location:"));
-  legendLocationEdit_ = chartConfig->elementAt(row,1)->addWidget(cpp14::make_unique<WComboBox>());
+  chartConfig->elementAt(row, 0)->addWidget(std::make_unique<WText>("Legend location:"));
+  legendLocationEdit_ = chartConfig->elementAt(row,1)->addWidget(std::make_unique<WComboBox>());
   legendLocationEdit_->setModel(legendLocation);
   legendLocationEdit_->setCurrentIndex(0);
   connectSignals(legendLocationEdit_);
   ++row;
 
-  chartConfig->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>("Legend side:"));
-  legendSideEdit_ = chartConfig->elementAt(row,1)->addWidget(cpp14::make_unique<WComboBox>());
+  chartConfig->elementAt(row, 0)->addWidget(std::make_unique<WText>("Legend side:"));
+  legendSideEdit_ = chartConfig->elementAt(row,1)->addWidget(std::make_unique<WComboBox>());
   legendSideEdit_->setModel(legendSide);
   legendSideEdit_->setCurrentIndex(1);
   connectSignals(legendSideEdit_);
   ++row;
 
-  chartConfig->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>("Legend alignment:"));
-  legendAlignmentEdit_ = chartConfig->elementAt(row,1)->addWidget(cpp14::make_unique<WComboBox>());
+  chartConfig->elementAt(row, 0)->addWidget(std::make_unique<WText>("Legend alignment:"));
+  legendAlignmentEdit_ = chartConfig->elementAt(row,1)->addWidget(std::make_unique<WComboBox>());
   legendAlignmentEdit_->setModel(legendAlignment);
   legendAlignmentEdit_->setCurrentIndex(4);
   connectSignals(legendAlignmentEdit_);
   ++row;
 
-  chartConfig->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>("Border:"));
-  borderEdit_ = chartConfig->elementAt(row,1)->addWidget(cpp14::make_unique<WCheckBox>());
+  chartConfig->elementAt(row, 0)->addWidget(std::make_unique<WText>("Border:"));
+  borderEdit_ = chartConfig->elementAt(row,1)->addWidget(std::make_unique<WCheckBox>());
   borderEdit_->setChecked(false);
   connectSignals(borderEdit_);
   ++row;
@@ -236,7 +236,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   addEntry(labels, "X: Y");
 
   std::unique_ptr<WTable> seriesConfig
-      = cpp14::make_unique<WTable>();
+      = std::make_unique<WTable>();
   WTable *seriesConfigPtr = seriesConfig.get();
   seriesConfig->setMargin(WLength::Auto, Side::Left | Side::Right);
   ::addHeader(seriesConfigPtr, "Name");
@@ -254,17 +254,17 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   for (int j = 1; j < chart->model()->columnCount(); ++j) {
     SeriesControl sc;
 
-    seriesConfig->elementAt(j,0)->addWidget(cpp14::make_unique<WText>(chart->model()->headerData(j)));
+    seriesConfig->elementAt(j,0)->addWidget(std::make_unique<WText>(chart->model()->headerData(j)));
 
-    sc.enabledEdit = seriesConfig->elementAt(j,1)->addWidget(cpp14::make_unique<WCheckBox>());
+    sc.enabledEdit = seriesConfig->elementAt(j,1)->addWidget(std::make_unique<WCheckBox>());
     connectSignals(sc.enabledEdit);
 
-    sc.typeEdit = seriesConfig->elementAt(j,2)->addWidget(cpp14::make_unique<WComboBox>());
+    sc.typeEdit = seriesConfig->elementAt(j,2)->addWidget(std::make_unique<WComboBox>());
     sc.typeEdit->setModel(types);
 	sc.typeEdit->setCurrentIndex(0);
     connectSignals(sc.typeEdit);
 
-    sc.markerEdit = seriesConfig->elementAt(j,3)->addWidget(cpp14::make_unique<WComboBox>());
+    sc.markerEdit = seriesConfig->elementAt(j,3)->addWidget(std::make_unique<WComboBox>());
     sc.markerEdit->setModel(markers);
     sc.markerEdit->setCurrentIndex(0);
     connectSignals(sc.markerEdit);
@@ -279,13 +279,13 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
     sc.yAxisEdit->setCurrentIndex(0);
     connectSignals(sc.yAxisEdit);
 
-    sc.legendEdit = seriesConfig->elementAt(j, 6)->addWidget(cpp14::make_unique<WCheckBox>());
+    sc.legendEdit = seriesConfig->elementAt(j, 6)->addWidget(std::make_unique<WCheckBox>());
     connectSignals(sc.legendEdit);
 
-    sc.shadowEdit = seriesConfig->elementAt(j, 7)->addWidget(cpp14::make_unique<WCheckBox>());
+    sc.shadowEdit = seriesConfig->elementAt(j, 7)->addWidget(std::make_unique<WCheckBox>());
     connectSignals(sc.shadowEdit);
 
-    sc.labelsEdit = seriesConfig->elementAt(j, 8)->addWidget(cpp14::make_unique<WComboBox>());
+    sc.labelsEdit = seriesConfig->elementAt(j, 8)->addWidget(std::make_unique<WComboBox>());
     sc.labelsEdit->setModel(labels);
 	sc.labelsEdit->setCurrentIndex(0);
     connectSignals(sc.labelsEdit);
@@ -336,7 +336,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
   addEntry(xScales_, "Log scale");
   addEntry(xScales_, "Date scale");
 
-  auto axisConfig = cpp14::make_unique<WContainerWidget>();
+  auto axisConfig = std::make_unique<WContainerWidget>();
   axisConfig_ = axisConfig->addNew<WTable>();
   axisConfig_->setMargin(WLength::Auto, Side::Left | Side::Right);
 
@@ -382,7 +382,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
    * the chart.
    */
   if (!WApplication::instance()->environment().javaScript()) {
-    auto *b = this->addWidget(cpp14::make_unique<WPushButton>());
+    auto *b = this->addWidget(std::make_unique<WPushButton>());
     b->setText("Update chart");
     b->setInline(false); // so we can add margin to center horizontally
     b->setMargin(WLength::Auto, Side::Left | Side::Right);
@@ -405,7 +405,7 @@ void ChartConfig::update()
 
     if (sc.enabledEdit->isChecked()) {
       std::unique_ptr<WDataSeries> s
-          = cpp14::make_unique<WDataSeries>(i);
+          = std::make_unique<WDataSeries>(i);
 
       switch (sc.typeEdit->currentIndex()) {
       case 0:
@@ -673,7 +673,7 @@ void ChartConfig::connectSignals(WFormWidget *w)
 
 void ChartConfig::addXAxis()
 {
-  int xAxis = chart_->addXAxis(cpp14::make_unique<WAxis>());
+  int xAxis = chart_->addXAxis(std::make_unique<WAxis>());
   addAxis(Axis::X, xAxis);
   addEntry(xAxesModel_, axisName(Axis::X, xAxis));
   if (xAxis == 0)
@@ -682,7 +682,7 @@ void ChartConfig::addXAxis()
 
 void ChartConfig::addYAxis()
 {
-  int yAxis = chart_->addYAxis(cpp14::make_unique<WAxis>());
+  int yAxis = chart_->addYAxis(std::make_unique<WAxis>());
   addAxis(Axis::Y, yAxis);
   addEntry(yAxesModel_, axisName(Axis::Y, yAxis));
   if (yAxis == 0)

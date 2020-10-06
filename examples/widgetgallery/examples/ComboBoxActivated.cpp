@@ -4,7 +4,7 @@
 
 SAMPLE_BEGIN(ComboBoxActivated)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 auto cb = container->addNew<Wt::WComboBox>();
 cb->addItem("Heavy");

@@ -41,15 +41,15 @@ PaintExample::PaintExample(bool showTitle)
     "angles (SVG or HTML canvas)."
     "</p>";
 
-  this->addWidget(cpp14::make_unique<WText>(text));
+  this->addWidget(std::make_unique<WText>(text));
 
-  WContainerWidget *emweb = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  WContainerWidget *emweb = this->addWidget(std::make_unique<WContainerWidget>());
   emweb->setMargin(WLength::Auto, Side::Left | Side::Right);
 
-  auto layout = cpp14::make_unique<WGridLayout>();
+  auto layout = std::make_unique<WGridLayout>();
   auto layout_ = emweb->setLayout(std::move(layout));
 
-  std::unique_ptr<WSlider> scaleSlider(cpp14::make_unique<WSlider>());
+  std::unique_ptr<WSlider> scaleSlider(std::make_unique<WSlider>());
   scaleSlider->setMinimum(0);
   scaleSlider->setMaximum(20);
   scaleSlider->setValue(10);
@@ -60,7 +60,7 @@ PaintExample::PaintExample(bool showTitle)
 
   layout_->addWidget(std::move(scaleSlider), 0, 1, AlignmentFlag::Center | AlignmentFlag::Middle);
 
-  auto rotateSlider = cpp14::make_unique<WSlider>(Orientation::Vertical);
+  auto rotateSlider = std::make_unique<WSlider>(Orientation::Vertical);
   rotateSlider->setMinimum(-30);
   rotateSlider->setMaximum(30);
   rotateSlider->setValue(0);
@@ -71,7 +71,7 @@ PaintExample::PaintExample(bool showTitle)
 
   layout_->addWidget(std::move(rotateSlider), 1, 0, AlignmentFlag::Center | AlignmentFlag::Middle);
 
-  auto shapes = cpp14::make_unique<ShapesWidget>();
+  auto shapes = std::make_unique<ShapesWidget>();
   shapes_ = shapes.get();
   shapes_->setAngle(0.0);
   shapes_->setRelativeSize(0.5);

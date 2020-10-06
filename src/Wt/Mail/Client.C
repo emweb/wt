@@ -578,10 +578,10 @@ bool Client::connect(const std::string& smtpHost, int smtpPort)
   // Exception safety: make sure old impl is removed before we create a new one
   impl_ = nullptr;
   if (transportEncryption() == TransportEncryption::None) {
-    impl_ = cpp14::make_unique<Impl<false>>(configuration_, smtpHost, smtpPort);
+    impl_ = std::make_unique<Impl<false>>(configuration_, smtpHost, smtpPort);
   } else {
 #ifdef WT_WITH_SSL
-    impl_ = cpp14::make_unique<Impl<true>>(configuration_, smtpHost, smtpPort);
+    impl_ = std::make_unique<Impl<true>>(configuration_, smtpHost, smtpPort);
 #else // WT_WITH_SSL
     LOG_ERROR("TLS requested, but Wt built without OpenSSL");
     return false;

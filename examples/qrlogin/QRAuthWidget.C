@@ -53,7 +53,7 @@ void QRAuthWidget::confirmRemoteLogin()
 {
   if (!qrToken_.empty() && login().loggedIn()) {
     auto mb
-      = cpp14::make_unique<WMessageBox>("Remote login",
+      = std::make_unique<WMessageBox>("Remote login",
 			    "<p>Do you want to login the desktop user too ?</p>"
 			    "<p><b>WARNING !</b><br/>"
 			    "You should only do this if you arrived here "
@@ -82,7 +82,7 @@ void QRAuthWidget::createLoginView()
 {
   Auth::AuthWidget::createLoginView();
 
-  auto button = cpp14::make_unique<WImage>("css/QRcode.png");
+  auto button = std::make_unique<WImage>("css/QRcode.png");
   button->setToolTip("Sign in using your mobile phone");
   button->setVerticalAlignment(AlignmentFlag::Middle);
   button->clicked().connect(this, &QRAuthWidget::showQRDialog);
@@ -92,7 +92,7 @@ void QRAuthWidget::createLoginView()
 
 void QRAuthWidget::showQRDialog()
 {
-  dialog_ = cpp14::make_unique<WDialog>("Sign in with your mobile phone.");
+  dialog_ = std::make_unique<WDialog>("Sign in with your mobile phone.");
   dialog_->animateShow
     (WAnimation(AnimationEffect::Pop | AnimationEffect::Fade,
                     TimingFunction::Linear, 300));
@@ -117,15 +117,15 @@ void QRAuthWidget::showQRDialog()
 
   qrUrl = app->makeAbsoluteUrl(qrUrl);
 
-  dialog_->contents()->addWidget(cpp14::make_unique<WText>("Use the barcode scanner to scan the QR code below."));
+  dialog_->contents()->addWidget(std::make_unique<WText>("Use the barcode scanner to scan the QR code below."));
 
-  auto image = dialog_->contents()->addWidget(cpp14::make_unique<WImage>(GOOGLE_QR_CHART_URL
+  auto image = dialog_->contents()->addWidget(std::make_unique<WImage>(GOOGLE_QR_CHART_URL
                                      + Utils::urlEncode(qrUrl)));
   image->resize(300, 300);
   image->setMargin(20);
   image->setInline(false);
 
-  auto cancel = dialog_->contents()->addWidget(cpp14::make_unique<WPushButton>("Cancel"));
+  auto cancel = dialog_->contents()->addWidget(std::make_unique<WPushButton>("Cancel"));
   cancel->clicked().connect(dialog_.get(), &WDialog::reject);
 
   dialog_->finished().connect(this, &QRAuthWidget::dialogDone);

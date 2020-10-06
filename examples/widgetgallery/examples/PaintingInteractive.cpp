@@ -87,7 +87,7 @@ private:
 };
 
 SAMPLE_BEGIN(PaintingInteractive)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 PaintingInteractiveWidget *widget = container->addNew<PaintingInteractiveWidget>();
 

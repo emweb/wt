@@ -8,7 +8,7 @@
 #include <Wt/WAny.h>
 
 SAMPLE_BEGIN(ImageArea)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WImage *image = container->addNew<Wt::WImage>(Wt::WLink("pics/sintel_trailer.jpg"));
 image->setAlternateText("Sintel trailer");
@@ -16,19 +16,19 @@ image->setAlternateText("Sintel trailer");
 container->addNew<Wt::WBreak>();
 Wt::WText *out = container->addNew<Wt::WText>();
 
-auto circlePtr = Wt::cpp14::make_unique<Wt::WCircleArea>(427, 149, 58);
+auto circlePtr = std::make_unique<Wt::WCircleArea>(427, 149, 58);
 auto circle = circlePtr.get();
 circle->setToolTip("tree");
 circle->setCursor(Wt::Cursor::Cross);
 image->addArea(std::move(circlePtr));
 
-auto rectPtr = Wt::cpp14::make_unique<Wt::WRectArea>(294, 226, 265, 41);
+auto rectPtr = std::make_unique<Wt::WRectArea>(294, 226, 265, 41);
 auto rect = rectPtr.get();
 rect->setToolTip("title");
 rect->setCursor(Wt::Cursor::Cross);
 image->addArea(std::move(rectPtr));
 
-auto polygonPtr = Wt::cpp14::make_unique<Wt::WPolygonArea>();
+auto polygonPtr = std::make_unique<Wt::WPolygonArea>();
 auto polygon = polygonPtr.get();
 #ifndef WT_TARGET_JAVA
 std::vector<Wt::WPoint> points = { Wt::WPoint(92,330), Wt::WPoint(66,261), Wt::WPoint(122,176),

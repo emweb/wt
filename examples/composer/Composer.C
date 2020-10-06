@@ -30,7 +30,7 @@ Composer::Composer()
     sending_(false)
 {
   std::unique_ptr<WContainerWidget> layout
-      = cpp14::make_unique<WContainerWidget>();
+      = std::make_unique<WContainerWidget>();
   layout_ = layout.get();
   setImplementation(std::move(layout));
 
@@ -105,15 +105,15 @@ void Composer::createUi()
   /*
    * Top buttons
    */
-  horiz = layout_->addWidget(cpp14::make_unique<WContainerWidget>());
+  horiz = layout_->addWidget(std::make_unique<WContainerWidget>());
   horiz->setPadding(5);
-  topSendButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.send")));
+  topSendButton_ = horiz->addWidget(std::make_unique<WPushButton>(tr("msg.send")));
   topSendButton_->setStyleClass("default"); // default action
-  topSaveNowButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.savenow")));
-  topDiscardButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.discard")));
+  topSaveNowButton_ = horiz->addWidget(std::make_unique<WPushButton>(tr("msg.savenow")));
+  topDiscardButton_ = horiz->addWidget(std::make_unique<WPushButton>(tr("msg.discard")));
 
   // Text widget which shows status messages, next to the top buttons.
-  statusMsg_ = horiz->addWidget(cpp14::make_unique<WText>());
+  statusMsg_ = horiz->addWidget(std::make_unique<WText>());
   statusMsg_->setMargin(15, Side::Left);
 
   /*
@@ -122,7 +122,7 @@ void Composer::createUi()
    * They are organized in a two-column table: left column for
    * labels, and right column for the edit.
    */
-  edits_ = layout_->addWidget(cpp14::make_unique<WTable>());
+  edits_ = layout_->addWidget(std::make_unique<WTable>());
   edits_->setStyleClass("lighter");
   edits_->resize(WLength(100, LengthUnit::Percentage), WLength::Auto);
   edits_->elementAt(0, 0)->resize(WLength(1, LengthUnit::Percentage),
@@ -131,11 +131,11 @@ void Composer::createUi()
   /*
    * To, Cc, Bcc
    */
-  toEdit_ = edits_->elementAt(0,1)->addWidget(cpp14::make_unique<AddresseeEdit>(tr("msg.to"), edits_->elementAt(0, 0)));
+  toEdit_ = edits_->elementAt(0,1)->addWidget(std::make_unique<AddresseeEdit>(tr("msg.to"), edits_->elementAt(0, 0)));
   // add some space above To:
   edits_->elementAt(0, 1)->setMargin(5, Side::Top);
-  ccEdit_ = edits_->elementAt(1,1)->addWidget(cpp14::make_unique<AddresseeEdit>(tr("msg.cc"), edits_->elementAt(1, 0)));
-  bccEdit_ = edits_->elementAt(2,1)->addWidget(cpp14::make_unique<AddresseeEdit>(tr("msg.bcc"), edits_->elementAt(2, 0)));
+  ccEdit_ = edits_->elementAt(1,1)->addWidget(std::make_unique<AddresseeEdit>(tr("msg.cc"), edits_->elementAt(1, 0)));
+  bccEdit_ = edits_->elementAt(2,1)->addWidget(std::make_unique<AddresseeEdit>(tr("msg.bcc"), edits_->elementAt(2, 0)));
 
   ccEdit_->hide();
   bccEdit_->hide();
@@ -143,7 +143,7 @@ void Composer::createUi()
   /*
    * Addressbook suggestions popup
    */
-  contactSuggestions_ = layout_->addChild(cpp14::make_unique<ContactSuggestions>());
+  contactSuggestions_ = layout_->addChild(std::make_unique<ContactSuggestions>());
 
   contactSuggestions_->forEdit(toEdit_);
   contactSuggestions_->forEdit(ccEdit_);
@@ -154,7 +154,7 @@ void Composer::createUi()
    * ccEdit_ and bccEdit_ nicely next to each other, separated
    * by pipe characters.
    */
-  options_ = edits_->elementAt(3, 1)->addWidget(cpp14::make_unique<OptionList>());
+  options_ = edits_->elementAt(3, 1)->addWidget(std::make_unique<OptionList>());
   std::unique_ptr<Option> addcc(new Option(tr("msg.addcc")));
   addcc_ = addcc.get();
   std::unique_ptr<Option> addbcc(new Option(tr("msg.addbcc")));
@@ -166,35 +166,35 @@ void Composer::createUi()
   /*
    * Subject
    */
-  edits_->elementAt(4, 0)->addWidget(cpp14::make_unique<Label>(tr("msg.subject"), edits_->elementAt(4, 0)));
-  subject_ = edits_->elementAt(4, 1)->addWidget(cpp14::make_unique<WLineEdit>());
+  edits_->elementAt(4, 0)->addWidget(std::make_unique<Label>(tr("msg.subject"), edits_->elementAt(4, 0)));
+  subject_ = edits_->elementAt(4, 1)->addWidget(std::make_unique<WLineEdit>());
   subject_->resize(WLength(99, LengthUnit::Percentage), WLength::Auto);
 
   /*
    * Attachments
    */
-  edits_->elementAt(5, 0)->addWidget(cpp14::make_unique<WImage>("icons/paperclip.png"));
+  edits_->elementAt(5, 0)->addWidget(std::make_unique<WImage>("icons/paperclip.png"));
   edits_->elementAt(5, 0)->setContentAlignment(AlignmentFlag::Right | AlignmentFlag::Top);
   edits_->elementAt(5, 0)->setPadding(3);
   
   // Attachment edits: we always have the next attachmentedit ready
   // but hidden. This improves the response time, since the show()
   // and hide() slots are stateless.
-  AttachmentEdit *attachmentEdit = edits_->elementAt(5, 1)->addWidget(cpp14::make_unique<AttachmentEdit>(this));
+  AttachmentEdit *attachmentEdit = edits_->elementAt(5, 1)->addWidget(std::make_unique<AttachmentEdit>(this));
   attachments_.push_back(attachmentEdit);
   attachments_.back()->hide();
 
   /*
    * Two options for attaching files. The first does not say 'another'.
    */
-  attachFile_ = edits_->elementAt(5, 1)->addWidget(cpp14::make_unique<Option>(tr("msg.attachfile")));
-  attachOtherFile_ = edits_->elementAt(5, 1)->addWidget(cpp14::make_unique<Option>(tr("msg.attachanother")));
+  attachFile_ = edits_->elementAt(5, 1)->addWidget(std::make_unique<Option>(tr("msg.attachfile")));
+  attachOtherFile_ = edits_->elementAt(5, 1)->addWidget(std::make_unique<Option>(tr("msg.attachanother")));
   attachOtherFile_->hide();
 
   /*
    * Message
    */
-  message_ = layout_->addWidget(cpp14::make_unique<WTextArea>());
+  message_ = layout_->addWidget(std::make_unique<WTextArea>());
   message_->setColumns(80);
   message_->setRows(10); // should be 20, but let's keep it smaller
   message_->setMargin(10);
@@ -202,12 +202,12 @@ void Composer::createUi()
   /*
    * Bottom buttons
    */
-  horiz = layout_->addWidget(cpp14::make_unique<WContainerWidget>());
+  horiz = layout_->addWidget(std::make_unique<WContainerWidget>());
   horiz->setPadding(5);
-  botSendButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.send")));
+  botSendButton_ = horiz->addWidget(std::make_unique<WPushButton>(tr("msg.send")));
   botSendButton_->setStyleClass("default");
-  botSaveNowButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.savenow")));
-  botDiscardButton_ = horiz->addWidget(cpp14::make_unique<WPushButton>(tr("msg.discard")));
+  botSaveNowButton_ = horiz->addWidget(std::make_unique<WPushButton>(tr("msg.savenow")));
+  botDiscardButton_ = horiz->addWidget(std::make_unique<WPushButton>(tr("msg.discard")));
 
   /*
    * Button events.
@@ -257,7 +257,7 @@ void Composer::attachMore()
    * Create and append the next AttachmentEdit, that will be hidden.
    */
   std::unique_ptr<AttachmentEdit> edit
-        = cpp14::make_unique<AttachmentEdit>(this);
+        = std::make_unique<AttachmentEdit>(this);
   AttachmentEdit *editPtr = edit.get();
   edits_->elementAt(5, 1)->insertBefore(std::move(edit), attachOtherFile_);
   attachments_.push_back(editPtr);

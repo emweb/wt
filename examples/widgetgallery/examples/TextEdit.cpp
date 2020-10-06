@@ -9,7 +9,7 @@ using namespace Wt;
 #endif // WT_TARGET_JAVA
 
 SAMPLE_BEGIN(TextEdit)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WTextEdit *edit = container->addNew<Wt::WTextEdit>();
 edit->setHeight(300);

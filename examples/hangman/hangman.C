@@ -14,7 +14,7 @@ using namespace Wt;
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  auto app = cpp14::make_unique<WApplication>(env);
+  auto app = std::make_unique<WApplication>(env);
   
   app->setTitle("Hangman");
 
@@ -23,7 +23,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 
   app->useStyleSheet("css/hangman.css");
 
-  app->root()->addWidget(cpp14::make_unique<HangmanGame>());
+  app->root()->addWidget(std::make_unique<HangmanGame>());
 
   return app;
 }

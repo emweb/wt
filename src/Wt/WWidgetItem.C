@@ -52,9 +52,9 @@ void WWidgetItem::setParentWidget(WWidget *parent)
     bool flexLayout = parentLayout_->implementationIsFlexLayout();
 
     if (flexLayout)
-      impl_ = cpp14::make_unique<FlexItemImpl>(this);
+      impl_ = std::make_unique<FlexItemImpl>(this);
     else
-      impl_ = cpp14::make_unique<StdWidgetItemImpl>(this);
+      impl_ = std::make_unique<StdWidgetItemImpl>(this);
   } else {
     WContainerWidget *pc = dynamic_cast<WContainerWidget *>(widget_->parent());
 

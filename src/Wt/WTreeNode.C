@@ -71,7 +71,7 @@ void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelI
    * Children
    */
   WContainerWidget *children 
-    = layout_->bindWidget("children", cpp14::make_unique<WContainerWidget>());
+    = layout_->bindWidget("children", std::make_unique<WContainerWidget>());
   children->setList(true);
   children->hide();
 
@@ -82,13 +82,13 @@ void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelI
       LayoutDirection::RightToLeft)
     expandIcon_ = layout_->bindWidget
       ("expand",
-       cpp14::make_unique<WIconPair>
+       std::make_unique<WIconPair>
        (app->theme()->resourcesUrl() + imagePlusRtl_,
 	app->theme()->resourcesUrl() + imageMinRtl_));
   else
     expandIcon_ = layout_->bindWidget
       ("expand",
-       cpp14::make_unique<WIconPair>
+       std::make_unique<WIconPair>
        (app->theme()->resourcesUrl() + imagePlus_,
 	app->theme()->resourcesUrl() + imageMin_));
 
@@ -96,14 +96,14 @@ void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelI
   expandIcon_->hide();
 
   noExpandIcon_ = layout_->bindWidget("no-expand",
-				      cpp14::make_unique<WText>());
+				      std::make_unique<WText>());
   noExpandIcon_->setStyleClass("Wt-ctrl Wt-noexpand");
   addStyleClass("Wt-trunk");
 
   /*
    * Label
    */
-  layout_->bindWidget("label-area", cpp14::make_unique<WContainerWidget>());
+  layout_->bindWidget("label-area", std::make_unique<WContainerWidget>());
 
   childCountLabel_ = nullptr;
 
@@ -112,7 +112,7 @@ void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelI
     labelIcon_->setVerticalAlignment(AlignmentFlag::Middle);
   }
 
-  labelText_ = labelArea()->addWidget(cpp14::make_unique<WText>(labelText));
+  labelText_ = labelArea()->addWidget(std::make_unique<WText>(labelText));
   labelText_->setStyleClass("Wt-label");
 
   childrenLoaded_ = false;
@@ -222,7 +222,7 @@ void WTreeNode::setChildrenDecorated(bool decorated)
 void WTreeNode::setChildCountPolicy(ChildCountPolicy policy)
 {
   if (policy != Disabled && !childCountLabel_) {
-    childCountLabel_ = labelArea()->addWidget(cpp14::make_unique<WText>());
+    childCountLabel_ = labelArea()->addWidget(std::make_unique<WText>());
     childCountLabel_->setMargin(WLength(7), Side::Left);
     childCountLabel_->setStyleClass("Wt-childcount");
   }

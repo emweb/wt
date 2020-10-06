@@ -26,9 +26,9 @@ CoderApplication::CoderApplication(const WEnvironment& env)
 void CoderApplication::createUI(const std::string& path)
 {
   if (path.length() <= 1)
-    root()->addWidget(cpp14::make_unique<CoderWidget>());
+    root()->addWidget(std::make_unique<CoderWidget>());
   else
-    root()->addWidget(cpp14::make_unique<ObserverWidget>(path.substr(1)));
+    root()->addWidget(std::make_unique<ObserverWidget>(path.substr(1)));
 }
 
 void CoderApplication::handlePathChange()
@@ -40,7 +40,7 @@ void CoderApplication::handlePathChange()
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<CoderApplication>(env);
+  return std::make_unique<CoderApplication>(env);
 }
 
 int main(int argc, char **argv)

@@ -12,7 +12,7 @@ SAMPLE_BEGIN(CSS)
 // Add an external style sheet to the application.
 Wt::WApplication::instance()->useStyleSheet("style/CSSexample.css");
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 // The style sheet should be applied to this container only.
 // The class .CSS-example is used as selector.
 container->setStyleClass("CSS-example");

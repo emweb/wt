@@ -32,7 +32,7 @@ private:
 template <typename Function>
 std::unique_ptr<DeferredWidget<Function>> deferCreate(Function f)
 {
-  return Wt::cpp14::make_unique<DeferredWidget<Function>>(f);
+  return std::make_unique<DeferredWidget<Function>>(f);
 }
 #else
 struct WidgetCreator {
@@ -45,7 +45,7 @@ public:
 };
 std::unique_ptr<DeferredWidget> deferCreate(const WidgetCreator &f)
 {
-  return Wt::cpp14::make_unique<DeferredWidget>(f);
+  return std::make_unique<DeferredWidget>(f);
 }
 
 #endif

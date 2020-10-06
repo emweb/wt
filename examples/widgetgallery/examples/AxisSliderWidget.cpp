@@ -16,7 +16,7 @@
 
 SAMPLE_BEGIN(AxisSliderWidget)
 
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 std::shared_ptr<WStandardItemModel> model
     = csvToModel(WApplication::appRoot() + "timeseries.csv");
@@ -54,7 +54,7 @@ chart->axis(Chart::Axis::X).setMinimumZoomRange((max - min) / 16.0);
 /*
  * Add the second and the third column as line series.
  */
-auto s = cpp14::make_unique<Chart::WDataSeries>(2, Chart::SeriesType::Line);
+auto s = std::make_unique<Chart::WDataSeries>(2, Chart::SeriesType::Line);
 auto s_ = s.get();
 s_->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
 chart->addSeries(std::move(s));

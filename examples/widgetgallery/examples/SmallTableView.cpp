@@ -4,7 +4,7 @@
 #include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(SmallTableView)
-auto tableView = cpp14::make_unique<WTableView>();
+auto tableView = std::make_unique<WTableView>();
 tableView->setModel(csvToModel(WApplication::appRoot() + "table.csv"));
 
 tableView->setColumnResizeEnabled(false);

@@ -28,25 +28,25 @@ WTreeTable::WTreeTable()
   setStyleClass("Wt-treetable");
   setPositionScheme(PositionScheme::Relative);
 
-  headers_ = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
+  headers_ = impl_->addWidget(std::make_unique<WContainerWidget>());
   headers_->setStyleClass("Wt-header header");
 
   /*
    * spacer for when a scroll bar is visible
    */
   WContainerWidget *spacer
-    = headers_->addWidget(cpp14::make_unique<WContainerWidget>());
+    = headers_->addWidget(std::make_unique<WContainerWidget>());
   spacer->setStyleClass("Wt-sbspacer");
 
   headerContainer_
-    = headers_->addWidget(cpp14::make_unique<WContainerWidget>());
+    = headers_->addWidget(std::make_unique<WContainerWidget>());
   headerContainer_->setFloatSide(Side::Right);
 
-  headers_->addWidget(cpp14::make_unique<WText>());
+  headers_->addWidget(std::make_unique<WText>());
   columnWidths_.push_back(WLength::Auto);
 
   WContainerWidget *content
-    = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
+    = impl_->addWidget(std::make_unique<WContainerWidget>());
   content->setStyleClass("Wt-content");
   if (!wApp->environment().agentIsIE())
     content->setOverflow(Overflow::Auto);
@@ -54,7 +54,7 @@ WTreeTable::WTreeTable()
     content->setAttributeValue
       ("style", "overflow-y: auto; overflow-x: hidden; zoom: 1");
 
-  tree_ = content->addWidget(cpp14::make_unique<WTree>());
+  tree_ = content->addWidget(std::make_unique<WTree>());
   tree_->setMargin(3, Side::Top);
   tree_->resize(WLength(100, LengthUnit::Percentage), WLength::Auto);
 }

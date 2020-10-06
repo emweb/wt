@@ -17,7 +17,7 @@ PanelList::PanelList()
 WPanel *PanelList::addWidget(const WString& text, std::unique_ptr<WWidget> w)
 {
   std::unique_ptr<WPanel> p
-      = cpp14::make_unique<WPanel>();
+      = std::make_unique<WPanel>();
   WPanel *result = p.get();
   p->setTitle(text);
   p->setCentralWidget(std::move(w));

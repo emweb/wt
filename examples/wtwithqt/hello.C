@@ -52,22 +52,22 @@ void Dictionary::create()
 {
   setTitle("Hello world");
 
-  root()->addWidget(cpp14::make_unique<WText>("Your name, please? "));
-  nameEdit_ = root()->addWidget(cpp14::make_unique<WLineEdit>());
+  root()->addWidget(std::make_unique<WText>("Your name, please? "));
+  nameEdit_ = root()->addWidget(std::make_unique<WLineEdit>());
   nameEdit_->setFocus();
 
-  WPushButton *b = root()->addWidget(cpp14::make_unique<WPushButton>("Greet me."));
+  WPushButton *b = root()->addWidget(std::make_unique<WPushButton>("Greet me."));
   b->setMargin(5, Side::Left);
 
-  root()->addWidget(cpp14::make_unique<WBreak>());
+  root()->addWidget(std::make_unique<WBreak>());
 
-  greeting_ = root()->addWidget(cpp14::make_unique<WText>());
+  greeting_ = root()->addWidget(std::make_unique<WText>());
 
   b->clicked().connect(this, &Dictionary::propagateGreet);
   nameEdit_->enterPressed().connect(this, &Dictionary::propagateGreet);
 
-  qtSender_ = cpp14::make_unique<QtObject>(this);
-  qtReceiver_ = cpp14::make_unique<QtObject>(this);
+  qtSender_ = std::make_unique<QtObject>(this);
+  qtReceiver_ = std::make_unique<QtObject>(this);
 
   QObject::connect(qtSender_.get(), SIGNAL(greet(const QString&)),
 		   qtReceiver_.get(), SLOT(doGreet(const QString&)));
@@ -94,7 +94,7 @@ void Dictionary::doGreet(const QString& qname)
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<Dictionary>(env);
+  return std::make_unique<Dictionary>(env);
 }
 
 int main(int argc, char **argv)

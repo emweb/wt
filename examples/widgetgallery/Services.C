@@ -45,7 +45,7 @@ std::unique_ptr<WWidget> StyleLayout::css()
 
 std::unique_ptr<WWidget> StyleLayout::wLoadingIndicator()
 {
-  auto result = cpp14::make_unique<WContainerWidget>();
+  auto result = std::make_unique<WContainerWidget>();
   topic("WLoadingIndicator", result);
 
   result->addWidget(std::move(addText(tr("style-WLoadingIndicator"))));
@@ -54,15 +54,15 @@ std::unique_ptr<WWidget> StyleLayout::wLoadingIndicator()
   WApplication::instance()->styleSheet().addRule("body", "margin: 0px");
 
   result->addWidget(std::move(addText("Select a loading indicator:  ")));
-  WComboBox *cb = result->addWidget(cpp14::make_unique<WComboBox>());
+  WComboBox *cb = result->addWidget(std::make_unique<WComboBox>());
   cb->addItem("WDefaultLoadingIndicator");
   cb->addItem("WOverlayLoadingIndicator");
   cb->addItem("EmwebLoadingIndicator");
   cb->setCurrentIndex(0);
   cb->sactivated().connect(this, &StyleLayout::loadingIndicatorSelected);
-  result->addWidget(cpp14::make_unique<WBreak>());
+  result->addWidget(std::make_unique<WBreak>());
   WPushButton *load =
-      result->addWidget(cpp14::make_unique<WPushButton>("Load!"));
+      result->addWidget(std::make_unique<WPushButton>("Load!"));
   load->clicked().connect(this, &StyleLayout::load);
 
   return result;
@@ -72,13 +72,13 @@ void StyleLayout::loadingIndicatorSelected(WString indicator)
 {
   if (indicator.toUTF8() == "WDefaultLoadingIndicator") {
     WApplication::instance()
-      ->setLoadingIndicator(cpp14::make_unique<WDefaultLoadingIndicator>());
+      ->setLoadingIndicator(std::make_unique<WDefaultLoadingIndicator>());
   } else if (indicator.toUTF8() == "WOverlayLoadingIndicator") {
     WApplication::instance()
-      ->setLoadingIndicator(cpp14::make_unique<WOverlayLoadingIndicator>());
+      ->setLoadingIndicator(std::make_unique<WOverlayLoadingIndicator>());
   } else if (indicator.toUTF8() == "EmwebLoadingIndicator") {
     WApplication::instance()
-      ->setLoadingIndicator(cpp14::make_unique<EmwebLoadingIndicator>());
+      ->setLoadingIndicator(std::make_unique<EmwebLoadingIndicator>());
   }
 }
 

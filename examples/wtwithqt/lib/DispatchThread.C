@@ -59,7 +59,7 @@ DispatchThread::DispatchThread(WQApplication *app,
 void DispatchThread::run()
 {
   if (qtEventLoop_)
-    dispatchObject_ = Wt::cpp14::make_unique<DispatchObject>(this);
+    dispatchObject_ = std::make_unique<DispatchObject>(this);
 
   signalDone();
 

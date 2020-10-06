@@ -86,7 +86,7 @@ private:
 
 SAMPLE_BEGIN(PaintingTransformations)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 container->addNew<TransformationsWidget>();
 
 SAMPLE_END(return std::move(container))

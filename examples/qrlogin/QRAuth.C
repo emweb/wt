@@ -36,9 +36,9 @@ public:
     useStyleSheet("css/style.css");
     messageResourceBundle().use(appRoot() + "templates");
 
-    auto authWidget = cpp14::make_unique<QRAuthWidget>(session_.login());
+    auto authWidget = std::make_unique<QRAuthWidget>(session_.login());
 
-    auto model = cpp14::make_unique<Auth::AuthModel>(Session::auth(), session_.users());
+    auto model = std::make_unique<Auth::AuthModel>(Session::auth(), session_.users());
 
     model->addPasswordAuth(&Session::passwordAuth());
     model->addOAuth(Session::oAuth());
@@ -65,7 +65,7 @@ private:
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<AuthApplication>(env);
+  return std::make_unique<AuthApplication>(env);
 }
 
 int main(int argc, char **argv)

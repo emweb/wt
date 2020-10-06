@@ -18,7 +18,7 @@ NumericalExample::NumericalExample()
 {
   setContentAlignment(Wt::AlignmentFlag::Center);
 
-  chart_ = this->addWidget(Wt::cpp14::make_unique<Wt::Chart::WCartesian3DChart>());
+  chart_ = this->addWidget(std::make_unique<Wt::Chart::WCartesian3DChart>());
   // Disabling server side rendering for Wt website.
   chart_->setRenderOptions(Wt::GLRenderOption::ClientSide | Wt::GLRenderOption::AntiAliasing);
   chart_->setLegendStyle(Wt::WFont(), Wt::WPen(), Wt::WBrush(Wt::WColor("lightGray")));
@@ -70,7 +70,7 @@ NumericalExample::NumericalExample()
   chart_->resize(600,600);
 
   // Data configuration widget
-  auto dataconfig = Wt::cpp14::make_unique<DataConfig>(chart_);
+  auto dataconfig = std::make_unique<DataConfig>(chart_);
   dataconfig->addDataToCollection("Sombrero data", sombreroFunc_);
   dataconfig->addDataToCollection("Plane tilted along x", xPlaneFunc_);
   dataconfig->addDataToCollection("Plane tilted along y", yPlaneFunc_);
@@ -80,12 +80,12 @@ NumericalExample::NumericalExample()
   dataconfig->addDataToCollection("parabola", parabola1_);
   dataconfig->addDataToCollection("parabola (with colorRoles)", parabola2_);
 
-  configuration_ = this->addWidget(Wt::cpp14::make_unique<Wt::WTabWidget>());
-  configuration_->addTab(Wt::cpp14::make_unique<ChartSettings>(chart_), "General Chart Settings", Wt::ContentLoading::Eager);
+  configuration_ = this->addWidget(std::make_unique<Wt::WTabWidget>());
+  configuration_->addTab(std::make_unique<ChartSettings>(chart_), "General Chart Settings", Wt::ContentLoading::Eager);
   configuration_->addTab(std::move(dataconfig), "Data selection and configuration", Wt::ContentLoading::Eager);
 
-//   Wt::WPushButton *button = this->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("show camera-matrix"));
-//   Wt::WText *box = this->addWidget(Wt::cpp14::make_unique<Wt::WText>("Nothing yet"));
+//   Wt::WPushButton *button = this->addWidget(std::make_unique<Wt::WPushButton>("show camera-matrix"));
+//   Wt::WText *box = this->addWidget(std::make_unique<Wt::WText>("Nothing yet"));
 //   button->clicked().connect([=]() {
 //   	const Wt::WMatrix4x4& mat = chart_->cameraMatrix();
 //   	std::stringstream matrep;
@@ -99,9 +99,9 @@ NumericalExample::NumericalExample()
 //   	}
 //   	box->setText(matrep.str());
 //       });
-  Wt::WPushButton *button1 = this->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("perspective view"));
-  Wt::WPushButton *button2 = this->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("top view"));
-  Wt::WPushButton *button3 = this->addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("side view"));
+  Wt::WPushButton *button1 = this->addWidget(std::make_unique<Wt::WPushButton>("perspective view"));
+  Wt::WPushButton *button2 = this->addWidget(std::make_unique<Wt::WPushButton>("top view"));
+  Wt::WPushButton *button3 = this->addWidget(std::make_unique<Wt::WPushButton>("side view"));
   Wt::WMatrix4x4 worldTransform;
   worldTransform.lookAt(
 		   0.5, 0.5, 5, // camera position

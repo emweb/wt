@@ -21,7 +21,7 @@
 ComposeExample::ComposeExample()
   : WContainerWidget()
 {
-  composer_ = this->addWidget(cpp14::make_unique<Composer>());
+  composer_ = this->addWidget(std::make_unique<Composer>());
 
   std::vector<Contact> addressBook;
   addressBook.push_back(Contact(U"Koen Deforche",
@@ -45,75 +45,75 @@ ComposeExample::ComposeExample()
   composer_->send.connect(this, &ComposeExample::send);
   composer_->discard.connect(this, &ComposeExample::discard);
 
-  details_ = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  details_ = this->addWidget(std::make_unique<WContainerWidget>());
 
-  details_->addWidget(cpp14::make_unique<WText>(tr("example.info")));
+  details_->addWidget(std::make_unique<WText>(tr("example.info")));
 }
 
 void ComposeExample::send()
 {
-  WContainerWidget *feedback = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  WContainerWidget *feedback = this->addWidget(std::make_unique<WContainerWidget>());
   feedback->setStyleClass(U"feedback");
 
-  WContainerWidget *horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
-  horiz->addWidget(cpp14::make_unique<WText>(U"<p>We could have, but did not send the following email:</p>"));
+  WContainerWidget *horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
+  horiz->addWidget(std::make_unique<WText>(U"<p>We could have, but did not send the following email:</p>"));
 
   std::vector<Contact> contacts = composer_->to();
   if (!contacts.empty())
-    horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
+    horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < contacts.size(); ++i) {
-    horiz->addWidget(cpp14::make_unique<WText>(U"To: \"" + contacts[i].name + U"\" <"
+    horiz->addWidget(std::make_unique<WText>(U"To: \"" + contacts[i].name + U"\" <"
               + contacts[i].email + U">", TextFormat::Plain));
-    horiz->addWidget(cpp14::make_unique<WBreak>());
+    horiz->addWidget(std::make_unique<WBreak>());
   }
 
   contacts = composer_->cc();
   if (!contacts.empty())
-    horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
+    horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < contacts.size(); ++i) {
-    horiz->addWidget(cpp14::make_unique<WText>(U"Cc: \"" + contacts[i].name + U"\" <"
+    horiz->addWidget(std::make_unique<WText>(U"Cc: \"" + contacts[i].name + U"\" <"
               + contacts[i].email + U">", TextFormat::Plain));
-    horiz->addWidget(cpp14::make_unique<WBreak>());
+    horiz->addWidget(std::make_unique<WBreak>());
   }
   
   contacts = composer_->bcc();
   if (!contacts.empty())
-    horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
+    horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < contacts.size(); ++i) {
-      horiz->addWidget(cpp14::make_unique<WText>(U"Bcc: \"" + contacts[i].name + U"\" <"
+      horiz->addWidget(std::make_unique<WText>(U"Bcc: \"" + contacts[i].name + U"\" <"
                 + contacts[i].email + U">", TextFormat::Plain));
-      horiz->addWidget(cpp14::make_unique<WBreak>());
+      horiz->addWidget(std::make_unique<WBreak>());
   }
 
-  horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
-  horiz->addWidget(cpp14::make_unique<WText>("Subject: \"" + composer_->subject() + "\"", TextFormat::Plain));
+  horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
+  horiz->addWidget(std::make_unique<WText>("Subject: \"" + composer_->subject() + "\"", TextFormat::Plain));
 
   std::vector<Attachment> attachments = composer_->attachments();
   if (!attachments.empty())
-    horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
+    horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < attachments.size(); ++i) {
-    horiz->addWidget(cpp14::make_unique<WText>(U"Attachment: \""
+    horiz->addWidget(std::make_unique<WText>(U"Attachment: \""
 	      + attachments[i].fileName
               + U"\" (" + attachments[i].contentDescription
               + U")", TextFormat::Plain));
 
     unlink(attachments[i].spoolFileName.c_str());
 
-    horiz->addWidget(cpp14::make_unique<WText>(", was in spool file: "
+    horiz->addWidget(std::make_unique<WText>(", was in spool file: "
               + attachments[i].spoolFileName));
-    horiz->addWidget(cpp14::make_unique<WBreak>());
+    horiz->addWidget(std::make_unique<WBreak>());
   }
 
   std::u32string message = composer_->message();
 
-  horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
-  horiz->addWidget(cpp14::make_unique<WText>("Message body: "));
-  horiz->addWidget(cpp14::make_unique<WBreak>());
+  horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
+  horiz->addWidget(std::make_unique<WText>("Message body: "));
+  horiz->addWidget(std::make_unique<WBreak>());
 
   if (!message.empty()) {
-    horiz->addWidget(cpp14::make_unique<WText>(message, TextFormat::Plain));
+    horiz->addWidget(std::make_unique<WText>(message, TextFormat::Plain));
   } else
-    horiz->addWidget(cpp14::make_unique<WText>("<i>(empty)</i>"));
+    horiz->addWidget(std::make_unique<WText>("<i>(empty)</i>"));
 
   removeWidget(composer_);
   composer_ = nullptr;
@@ -125,11 +125,11 @@ void ComposeExample::send()
 
 void ComposeExample::discard()
 {
-  WContainerWidget *feedback = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  WContainerWidget *feedback = this->addWidget(std::make_unique<WContainerWidget>());
   feedback->setStyleClass("feedback");
 
-  WContainerWidget *horiz = feedback->addWidget(cpp14::make_unique<WContainerWidget>());
-  horiz->addWidget(cpp14::make_unique<WText>("<p>Wise decision! Everyone's mailbox is already full anyway.</p>"));
+  WContainerWidget *horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
+  horiz->addWidget(std::make_unique<WText>("<p>Wise decision! Everyone's mailbox is already full anyway.</p>"));
 
   removeWidget(composer_);
   composer_ = nullptr;
@@ -142,7 +142,7 @@ void ComposeExample::discard()
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   std::unique_ptr<WApplication> app
-      = cpp14::make_unique<WApplication>(env);
+      = std::make_unique<WApplication>(env);
 
   // The following assumes composer.xml is in the webserver working directory
   // (but does not need to be deployed within docroot):
@@ -154,7 +154,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 
   app->setTitle("Composer example");
 
-  app->root()->addWidget(cpp14::make_unique<ComposeExample>());
+  app->root()->addWidget(std::make_unique<ComposeExample>());
 
   return app;
 }

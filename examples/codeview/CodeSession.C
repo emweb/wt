@@ -18,7 +18,7 @@ CodeSession::CodeSession(const CoderCallback& coderCallback)
 {
   generateId();
 
-  coder_ = Wt::cpp14::make_unique<Coder>();
+  coder_ = std::make_unique<Coder>();
   coder_->sessionId = Wt::WApplication::instance()->sessionId();
   coder_->callback = coderCallback;
 }

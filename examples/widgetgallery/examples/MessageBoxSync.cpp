@@ -9,7 +9,7 @@ using namespace Wt;
 
 SAMPLE_BEGIN(MessageBoxSync)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Start");
 

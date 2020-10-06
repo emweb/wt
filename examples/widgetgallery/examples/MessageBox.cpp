@@ -4,7 +4,7 @@
 #include <Wt/WText.h>
 
 SAMPLE_BEGIN(MessageBox)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Status");
 
@@ -17,7 +17,7 @@ button->clicked().connect([=] {
 
     auto messageBox =
 #ifndef WT_TARGET_JAVA
-      c->addChild(Wt::cpp14::make_unique<Wt::WMessageBox>(
+      c->addChild(std::make_unique<Wt::WMessageBox>(
 #else // WT_TARGET_JAVA
             new Wt::WMessageBox(
 #endif // WT_TARGET_JAVA

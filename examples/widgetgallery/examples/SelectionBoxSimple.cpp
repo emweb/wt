@@ -3,7 +3,7 @@
 #include <Wt/WText.h>
 
 SAMPLE_BEGIN(SelectionBoxSimple)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WSelectionBox *sb1 = container->addNew<Wt::WSelectionBox>();
 sb1->addItem("Heavy");

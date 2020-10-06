@@ -16,15 +16,15 @@ WidgetFunction widgetFunction;
 
 std::unique_ptr<WWidget> createLineEdit(const std::vector<WString>& args)
 {
-  return cpp14::make_unique<WLineEdit>();
+  return std::make_unique<WLineEdit>();
 }
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  auto app = cpp14::make_unique<WApplication>(env);
+  auto app = std::make_unique<WApplication>(env);
 
   WTemplate *t =
-      app->root()->addWidget(cpp14::make_unique<WTemplate>("${widget:line-edit}"));
+      app->root()->addWidget(std::make_unique<WTemplate>("${widget:line-edit}"));
   t->addFunction("widget", widgetFunction);
   return app;
 }

@@ -33,12 +33,12 @@ public:
   BigWorkWidget()
     : WContainerWidget()
   {
-    startButton_ = this->addWidget(cpp14::make_unique<WPushButton>("Start"));
+    startButton_ = this->addWidget(std::make_unique<WPushButton>("Start"));
     startButton_->clicked().connect(startButton_, &WPushButton::disable);
     startButton_->clicked().connect(this, &BigWorkWidget::startBigWork);
     startButton_->setMargin(2);
 
-    progress_ = this->addWidget(cpp14::make_unique<WProgressBar>());
+    progress_ = this->addWidget(std::make_unique<WProgressBar>());
     progress_->setInline(false);
     progress_->setMinimum(0);
     progress_->setMaximum(20);
@@ -112,9 +112,9 @@ private:
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  std::unique_ptr<WApplication> app = cpp14::make_unique<WApplication>(env);
+  std::unique_ptr<WApplication> app = std::make_unique<WApplication>(env);
   app->setCssTheme("polished");
-  app->root()->addWidget(cpp14::make_unique<BigWorkWidget>());
+  app->root()->addWidget(std::make_unique<BigWorkWidget>());
 
   return app;
 }

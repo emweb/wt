@@ -51,10 +51,10 @@ UpdatePasswordWidget
 
   WPushButton *okButton =
     bindWidget("ok-button",
-               cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Ok")));
+               std::make_unique<WPushButton>(tr("Wt.WMessageBox.Ok")));
   WPushButton *cancelButton = 
     bindWidget("cancel-button",
-               cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
+               std::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
 
   if (authModel_) {
     authModel_->setValue(AuthModel::LoginNameField,

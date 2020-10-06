@@ -130,10 +130,10 @@ struct DbStruct {
     if (dbHost)
       dbHostStr = std::string(dbHost);
 #ifndef BENCHMARK_USE_POSTGRES
-    auto c = Wt::cpp14::make_unique<MyConnection>("hello_world", "benchmarkdbuser", "benchmarkdbpass", dbHostStr, 3306);
+    auto c = std::make_unique<MyConnection>("hello_world", "benchmarkdbuser", "benchmarkdbpass", dbHostStr, 3306);
 #else
     auto connStr = std::string("host=") + dbHostStr + " port=5432 user=benchmarkdbuser password=benchmarkdbpass dbname=hello_world";
-    auto c = Wt::cpp14::make_unique<MyConnection>(connStr);
+    auto c = std::make_unique<MyConnection>(connStr);
 #endif
 
     connection = c.get();
@@ -261,7 +261,7 @@ public:
     VFortunes vFortunes;
     for (Fortunes::const_iterator i = fortunes.begin(); i != fortunes.end(); ++i)
       vFortunes.push_back(*i);
-    auto additionalFortune = Wt::cpp14::make_unique<Fortune>();
+    auto additionalFortune = std::make_unique<Fortune>();
     additionalFortune->message = "Additional fortune added at request time.";
     vFortunes.push_back(Wt::Dbo::ptr<Fortune>(std::move(additionalFortune)));
 

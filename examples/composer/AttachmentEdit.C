@@ -33,7 +33,7 @@ AttachmentEdit::UploadInfo::UploadInfo(const Http::UploadedFile& f)
   /*
    * Include the file ?
    */
-  keep_ = this->addWidget(cpp14::make_unique<WCheckBox>());
+  keep_ = this->addWidget(std::make_unique<WCheckBox>());
   keep_->setChecked();
 
   /*
@@ -57,7 +57,7 @@ AttachmentEdit::UploadInfo::UploadInfo(const Http::UploadedFile& f)
     (escapeText(WString(info_.clientFileName())));
 
   downloadLink_
-    = this->addWidget(cpp14::make_unique<WAnchor>("", fn + U" (<i>" + WString(info_.contentType())
+    = this->addWidget(std::make_unique<WAnchor>("", fn + U" (<i>" + WString(info_.contentType())
                   + U"</i>) " + size));
 
   auto res = std::make_shared<WFileResource>(info_.contentType(),info_.spoolFileName());
@@ -74,14 +74,14 @@ AttachmentEdit::AttachmentEdit(Composer *composer)
   /*
    * The file upload itself.
    */
-  upload_ = this->addWidget(cpp14::make_unique<WFileUpload>());
+  upload_ = this->addWidget(std::make_unique<WFileUpload>());
   upload_->setMultiple(true);
   upload_->setFileTextSize(40);
 
   /*
    * A progress bar
    */
-  std::unique_ptr<WProgressBar> progress = cpp14::make_unique<WProgressBar>();
+  std::unique_ptr<WProgressBar> progress = std::make_unique<WProgressBar>();
   progress->setFormat(WString::Empty);
   progress->setVerticalAlignment(AlignmentFlag::Middle);
   upload_->setProgressBar(std::move(progress));
@@ -89,7 +89,7 @@ AttachmentEdit::AttachmentEdit(Composer *composer)
   /*
    * The 'remove' option.
    */
-  remove_ = this->addWidget(cpp14::make_unique<Option>(tr("msg.remove")));
+  remove_ = this->addWidget(std::make_unique<Option>(tr("msg.remove")));
   upload_->decorationStyle().font().setSize(FontSize::Smaller);
   upload_->setVerticalAlignment(AlignmentFlag::Middle);
   remove_->setMargin(5, Side::Left);
@@ -97,7 +97,7 @@ AttachmentEdit::AttachmentEdit(Composer *composer)
   remove_->item()->clicked().connect(this, &AttachmentEdit::remove);
 
   // The error message.
-  error_ = this->addWidget(cpp14::make_unique<WText>(""));
+  error_ = this->addWidget(std::make_unique<WText>(""));
   error_->setStyleClass("error");
   error_->setMargin(WLength(5), Side::Left);
 
@@ -154,7 +154,7 @@ void AttachmentEdit::uploaded()
     error_ = 0;
 
     for (unsigned i = 0; i < files.size(); ++i) {
-      UploadInfo *info = this->addWidget(cpp14::make_unique<UploadInfo>(files[i]));
+      UploadInfo *info = this->addWidget(std::make_unique<UploadInfo>(files[i]));
       uploadInfo_.push_back(info);
     }
   } else {

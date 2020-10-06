@@ -16,7 +16,7 @@ AuthWidget::AuthWidget(Session& session)
 
 std::unique_ptr<WWidget> AuthWidget::createRegistrationView(const Auth::Identity& id)
 {
-  auto registrationView = cpp14::make_unique<RegistrationView>(session_, this);
+  auto registrationView = std::make_unique<RegistrationView>(session_, this);
   std::unique_ptr<Auth::RegistrationModel> model = createRegistrationModel();
 
   if (id.isValid())

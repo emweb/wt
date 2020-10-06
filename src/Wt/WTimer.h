@@ -169,7 +169,7 @@ private:
 template <class T, class V>
 void WTimer::singleShot(std::chrono::milliseconds interval, T *receiver, void (V::*method)())
 {
-  auto timer = WApplication::instance()->addChild(cpp14::make_unique<WTimer>());
+  auto timer = WApplication::instance()->addChild(std::make_unique<WTimer>());
   timer->setSingleShot(true);
   timer->setInterval(interval);
   timer->start();
@@ -180,7 +180,7 @@ void WTimer::singleShot(std::chrono::milliseconds interval, T *receiver, void (V
 template <class F>
 void WTimer::singleShot(std::chrono::milliseconds interval, const F& f)
 {
-  auto timer = WApplication::instance()->addChild(cpp14::make_unique<WTimer>());
+  auto timer = WApplication::instance()->addChild(std::make_unique<WTimer>());
   timer->setSingleShot(true);
   timer->setInterval(interval);
   timer->start();

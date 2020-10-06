@@ -32,7 +32,7 @@ WDateEdit::WDateEdit()
 {
   changed().connect(this, &WDateEdit::setFromLineEdit);
 
-  uCalendar_ = cpp14::make_unique<WCalendar>();
+  uCalendar_ = std::make_unique<WCalendar>();
   calendar_ = uCalendar_.get();
   calendar_->setSingleClickSelect(true);
   calendar_->activated().connect(this, &WDateEdit::setFocusTrue);

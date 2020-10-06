@@ -26,7 +26,7 @@ void HighScoresWidget::update()
 {
   clear();
   
-  this->addWidget(cpp14::make_unique<WText>("<h2>Hall of fame</h2>"));
+  this->addWidget(std::make_unique<WText>("<h2>Hall of fame</h2>"));
   
   int ranking = session_->findRanking();
   
@@ -39,18 +39,18 @@ void HighScoresWidget::update()
       + ". Almost there !";
   }
 
-  WText *score = this->addWidget(cpp14::make_unique<WText>("<p>" + yourScore + "</p>"));
+  WText *score = this->addWidget(std::make_unique<WText>("<p>" + yourScore + "</p>"));
   score->addStyleClass("score");
   
   std::vector<User> top = session_->topUsers(20);
 
-  WTable *table = this->addWidget(cpp14::make_unique<WTable>());
+  WTable *table = this->addWidget(std::make_unique<WTable>());
 
-  table->elementAt(0, 0)->addWidget(cpp14::make_unique<WText>("Rank"));
-  table->elementAt(0, 1)->addWidget(cpp14::make_unique<WText>("User"));
-  table->elementAt(0, 2)->addWidget(cpp14::make_unique<WText>("Games"));
-  table->elementAt(0, 3)->addWidget(cpp14::make_unique<WText>("Score"));
-  table->elementAt(0, 4)->addWidget(cpp14::make_unique<WText>("Last game"));
+  table->elementAt(0, 0)->addWidget(std::make_unique<WText>("Rank"));
+  table->elementAt(0, 1)->addWidget(std::make_unique<WText>("User"));
+  table->elementAt(0, 2)->addWidget(std::make_unique<WText>("Games"));
+  table->elementAt(0, 3)->addWidget(std::make_unique<WText>("Score"));
+  table->elementAt(0, 4)->addWidget(std::make_unique<WText>("Last game"));
   table->setHeaderCount(1);
 
   int formerScore = -1;
@@ -63,20 +63,20 @@ void HighScoresWidget::update()
     }
     
     int row = table->rowCount();
-    table->elementAt(row, 0)->addWidget(cpp14::make_unique<WText>(asString(rank)));
-    table->elementAt(row, 1)->addWidget(cpp14::make_unique<WText>(user.name));
-    table->elementAt(row, 2)->addWidget(cpp14::make_unique<WText>(asString(user.gamesPlayed)));
-    table->elementAt(row, 3)->addWidget(cpp14::make_unique<WText>(asString(user.score)));
+    table->elementAt(row, 0)->addWidget(std::make_unique<WText>(asString(rank)));
+    table->elementAt(row, 1)->addWidget(std::make_unique<WText>(user.name));
+    table->elementAt(row, 2)->addWidget(std::make_unique<WText>(asString(user.gamesPlayed)));
+    table->elementAt(row, 3)->addWidget(std::make_unique<WText>(asString(user.score)));
     if (!user.lastGame.isNull())
-      table->elementAt(row, 4)->addWidget(cpp14::make_unique<WText>(user.lastGame.timeTo(WDateTime::currentDateTime())
+      table->elementAt(row, 4)->addWidget(std::make_unique<WText>(user.lastGame.timeTo(WDateTime::currentDateTime())
                 + " ago"));
     else
-      table->elementAt(row, 4)->addWidget(cpp14::make_unique<WText>("---"));
+      table->elementAt(row, 4)->addWidget(std::make_unique<WText>("---"));
     
     if (session_->login().loggedIn() && session_->userName() == user.name)
       table->rowAt(row)->setId("self");
   }
 
-  WText *fineprint = this->addWidget(cpp14::make_unique<WText>(tr("highscore.info")));
+  WText *fineprint = this->addWidget(std::make_unique<WText>(tr("highscore.info")));
   fineprint->addStyleClass("fineprint");
 }

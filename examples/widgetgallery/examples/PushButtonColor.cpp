@@ -4,36 +4,36 @@
 SAMPLE_BEGIN(PushButtonColor)
 
 auto result =
-    Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("pushButtonColor-template"));
+    std::make_unique<Wt::WTemplate>(Wt::WString::tr("pushButtonColor-template"));
 
-auto button = Wt::cpp14::make_unique<Wt::WPushButton>("Default");
+auto button = std::make_unique<Wt::WPushButton>("Default");
 result->bindWidget("button-default", std::move(button));
 
-button = Wt::cpp14::make_unique<Wt::WPushButton>("Primary");
+button = std::make_unique<Wt::WPushButton>("Primary");
 button->setStyleClass("btn-primary");
 result->bindWidget("button-primary", std::move(button));
 
-button = Wt::cpp14::make_unique<Wt::WPushButton>("Info");
+button = std::make_unique<Wt::WPushButton>("Info");
 button->setStyleClass("btn-info");
 result->bindWidget("button-info", std::move(button));
 
-button = Wt::cpp14::make_unique<Wt::WPushButton>("Success");
+button = std::make_unique<Wt::WPushButton>("Success");
 button->setStyleClass("btn-success");
 result->bindWidget("button-success", std::move(button));
 
-button = Wt::cpp14::make_unique<Wt::WPushButton>("Warning");
+button = std::make_unique<Wt::WPushButton>("Warning");
 button->setStyleClass("btn-warning");
 result->bindWidget("button-warning", std::move(button));
 
-button = Wt::cpp14::make_unique<Wt::WPushButton>("Danger");
+button = std::make_unique<Wt::WPushButton>("Danger");
 button->setStyleClass("btn-danger");
 result->bindWidget("button-danger", std::move(button));
 
-button = Wt::cpp14::make_unique<Wt::WPushButton>("Inverse");
+button = std::make_unique<Wt::WPushButton>("Inverse");
 button->setStyleClass("btn-inverse");
 result->bindWidget("button-inverse", std::move(button));
 
-button = Wt::cpp14::make_unique<Wt::WPushButton>("Link");
+button = std::make_unique<Wt::WPushButton>("Link");
 button->setStyleClass("btn-link");
 result->bindWidget("button-link", std::move(button));
 

@@ -118,7 +118,7 @@ std::unique_ptr<Shape> ShapesWidget::createRandomShape()
   
   unsigned shapeId = randomInt(amountOfShapes);
   if (shapeId == 0)
-    return cpp14::make_unique<Circle>(WPointF(x, y), c, size);
+    return std::make_unique<Circle>(WPointF(x, y), c, size);
   else
-    return cpp14::make_unique<Rectangle>(WPointF(x, y), c, size);
+    return std::make_unique<Rectangle>(WPointF(x, y), c, size);
 }

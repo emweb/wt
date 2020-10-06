@@ -632,7 +632,7 @@ std::unique_ptr<WSslInfo> IsapiRequest::sslInfo(const Configuration &) const {
           clientVerificationResult(invalid ? Wt::ValidationState::Invalid
 				   : Wt::ValidationState::Valid);
 
-        return cpp14::make_unique<Wt::WSslInfo>(clientCert,
+        return std::make_unique<Wt::WSslInfo>(clientCert,
                                                 clientCertChain,
                                                 clientVerificationResult);
       }

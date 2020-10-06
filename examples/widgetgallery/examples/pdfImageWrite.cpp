@@ -1,7 +1,7 @@
 #include <Wt/Chart/WCartesianChart.h>
 #include <Wt/WPdfImage.h>
 
-auto chart = cpp14::make_unique<Chart::WCartesianChart>();
+auto chart = std::make_unique<Chart::WCartesianChart>();
 
 WPdfImage pdfImage("4cm", "3cm");
 {

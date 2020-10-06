@@ -26,13 +26,13 @@ public:
   BigWorkWidget()
     : WContainerWidget()
   {
-    startButton_ = addWidget(Wt::cpp14::make_unique<Wt::WPushButton>("Start"));
+    startButton_ = addWidget(std::make_unique<Wt::WPushButton>("Start"));
     startButton_->setObjectName("startbutton");
     startButton_->clicked().connect(startButton_, &Wt::WPushButton::disable);
     startButton_->clicked().connect(this, &BigWorkWidget::startBigWork);
     startButton_->setMargin(2);
 
-    progress_ = addWidget(Wt::cpp14::make_unique<Wt::WProgressBar>());
+    progress_ = addWidget(std::make_unique<Wt::WProgressBar>());
     progress_->setObjectName("progress");
     progress_->setInline(false);
     progress_->setMinimum(0);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_serverpush_test )
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
 
-  app.root()->addWidget(cpp14::make_unique<BigWorkWidget>());
+  app.root()->addWidget(std::make_unique<BigWorkWidget>());
 
   Wt::WPushButton *b
     = dynamic_cast<Wt::WPushButton *>(app.findWidget("startbutton"));

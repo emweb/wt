@@ -4,7 +4,7 @@
 #include <Wt/WTimer.h>
 
 SAMPLE_BEGIN(ProgressBar)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 container->setStyleClass("inline-buttons");
 
 Wt::WProgressBar *bar = container->addNew<Wt::WProgressBar>();
@@ -20,7 +20,7 @@ resetButton->disable();
 
 // setup an interval timer which generates a timeout() signal every second.
 #ifndef WT_TARGET_JAVA
-auto intervalTimer = container->addChild(Wt::cpp14::make_unique<Wt::WTimer>());
+auto intervalTimer = container->addChild(std::make_unique<Wt::WTimer>());
 #else // WT_TARGET_JAVA
 auto intervalTimer = new Wt::WTimer();
 #endif // WT_TARGET_JAVA

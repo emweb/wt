@@ -2,7 +2,7 @@
 
 SAMPLE_BEGIN(TextToolTip)
 auto text
-  = Wt::cpp14::make_unique<Wt::WText>("Some text", Wt::TextFormat::Plain);
+  = std::make_unique<Wt::WText>("Some text", Wt::TextFormat::Plain);
 
 text->setToolTip("ToolTip",  Wt::TextFormat::XHTML);
 

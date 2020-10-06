@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
 
   dbo::Transaction transaction(session);
 
-  auto user = Wt::cpp14::make_unique<User>();
+  auto user = std::make_unique<User>();
   user->name = "Joe";
   user->password = "Secret";
   user->role = User::Visitor;
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
 
   dbo::ptr<User> userPtr = session.add(std::move(user));
 
-  auto user2 = Wt::cpp14::make_unique<User>();
+  auto user2 = std::make_unique<User>();
   user2->name = "Daisy";
   user2->password = "Secret2";
   user2->role = User::Visitor;
@@ -158,10 +158,10 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
   joe.modify()->karma++;
   joe.modify()->password = "public";
 
-  dbo::ptr<User> silly = session.add(Wt::cpp14::make_unique<User>());
+  dbo::ptr<User> silly = session.add(std::make_unique<User>());
   silly.remove();
 
-  dbo::ptr<Post> post = session.add(Wt::cpp14::make_unique<Post>());
+  dbo::ptr<Post> post = session.add(std::make_unique<Post>());
   post.modify()->user = joe;
 
 #if 0
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
 
   std::cerr << "Joe has " << joe->posts.size() << " posts." << std::endl;
 
-  dbo::ptr<Tag> cooking = session.add(Wt::cpp14::make_unique<Tag>());
+  dbo::ptr<Tag> cooking = session.add(std::make_unique<Tag>());
   cooking.modify()->name = "Cooking";
 
   post.modify()->tags.insert(cooking);
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
     // test limit offset
 
     for (int i = 0; i < 10; i++) {
-      auto user = Wt::cpp14::make_unique<User>();
+      auto user = std::make_unique<User>();
       std::ostringstream os;
       os << "User" << i;
       user->name = os.str();
@@ -262,11 +262,11 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
     dbo::Session& session = *f.session_;
     dbo::Transaction transactionBindTooMuch(session);
 
-    auto sn = Wt::cpp14::make_unique<User>();
+    auto sn = std::make_unique<User>();
     sn->name = "sn";
     session.add(std::move(sn));
 
-    auto ln = Wt::cpp14::make_unique<User>();
+    auto ln = std::make_unique<User>();
     std::string s = "longname";
     for(int i = 0; i<99;i++)
       s+="longname";
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test2 )
     dbo::Transaction transaction(session);
 
     for (size_t i = 0; i < USER_COUNT; i++) {
-      auto user = Wt::cpp14::make_unique<User>();
+      auto user = std::make_unique<User>();
       std::ostringstream os;
       os << "User" << i;
       user->name = os.str();
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test2 )
       dbo::ptr<User> user = *i;
 
       commonPost.user = user;
-      dbo::ptr<Post> post = session.add(Wt::cpp14::make_unique<Post>(commonPost));
+      dbo::ptr<Post> post = session.add(std::make_unique<Post>(commonPost));
     }
   }
 
@@ -378,7 +378,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test2 )
       i != existingPosts.end(); ++i) {
 
       commonPost.user = (*i)->user;
-      dbo::ptr<Post> post = session.add(Wt::cpp14::make_unique<Post>(commonPost));
+      dbo::ptr<Post> post = session.add(std::make_unique<Post>(commonPost));
     }
   }
 
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test2 )
     Users allUsers = session.find<User > ();
     for (Users::const_iterator i = allUsers.begin();
       i != allUsers.end(); ++i) {
-      i->modify()->posts.insert(Wt::cpp14::make_unique<Post>(commonPost));
+      i->modify()->posts.insert(std::make_unique<Post>(commonPost));
     }
   }
 
@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test2 )
     for (UserIds::const_iterator i = allUserIds.begin();
       i != allUserIds.end(); ++i) {
       commonPost.user = session.load<User>(*i);
-      dbo::ptr<Post> post = session.add(Wt::cpp14::make_unique<Post>(commonPost));
+      dbo::ptr<Post> post = session.add(std::make_unique<Post>(commonPost));
     }
   }
 
@@ -441,7 +441,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test2 )
     for (UserIds::const_iterator i = allUserIds.begin();
       i != allUserIds.end(); ++i) {
       commonPost.user = session.loadLazy<User>(*i);
-      dbo::ptr<Post> post = session.add(Wt::cpp14::make_unique<Post>(commonPost));
+      dbo::ptr<Post> post = session.add(std::make_unique<Post>(commonPost));
     }
   }
 

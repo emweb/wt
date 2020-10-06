@@ -67,7 +67,7 @@ private:
 
 SAMPLE_BEGIN(PaintingClipping)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 container->addNew<ClippingWidget>();
 

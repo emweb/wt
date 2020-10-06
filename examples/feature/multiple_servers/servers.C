@@ -16,9 +16,9 @@ using namespace Wt;
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  auto app = cpp14::make_unique<WApplication>(env);
+  auto app = std::make_unique<WApplication>(env);
   app->setTitle("Multiple servers @ " + env.hostName());
-  app->root()->addWidget(cpp14::make_unique<WText>("Well hello there"));
+  app->root()->addWidget(std::make_unique<WText>("Well hello there"));
 
   return app;
 }

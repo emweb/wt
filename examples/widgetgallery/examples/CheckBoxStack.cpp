@@ -3,7 +3,7 @@
 
 SAMPLE_BEGIN(CheckBoxStack)
 
-auto result = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto result = std::make_unique<Wt::WContainerWidget>();
 Wt::WCheckBox *cb;
 
 cb = result->addNew<Wt::WCheckBox>("Check me!");

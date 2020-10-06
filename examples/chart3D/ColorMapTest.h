@@ -21,8 +21,8 @@ public:
     colormap.push_back(Wt::Chart::WStandardColorMap::Pair(0, Wt::WColor(Wt::StandardColor::DarkRed)));
     colormap.push_back(Wt::Chart::WStandardColorMap::Pair(1, Wt::WColor(Wt::StandardColor::Red)));
     colormap.push_back(Wt::Chart::WStandardColorMap::Pair(2, Wt::WColor(Wt::StandardColor::Gray)));
-    colormap_ = Wt::cpp14::make_unique<Wt::Chart::WStandardColorMap>(0,3,colormap, false);
-    colormap2_ = Wt::cpp14::make_unique<Wt::Chart::WStandardColorMap>(0,2,colormap, true);
+    colormap_ = std::make_unique<Wt::Chart::WStandardColorMap>(0,3,colormap, false);
+    colormap2_ = std::make_unique<Wt::Chart::WStandardColorMap>(0,2,colormap, true);
   }
 
   ~ColorMapTest()

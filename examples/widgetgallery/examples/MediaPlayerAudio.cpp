@@ -11,7 +11,7 @@ std::string mp3Audio =
 std::string oggAudio =
     "https://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg";
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WMediaPlayer *player = container->addNew<Wt::WMediaPlayer>(Wt::MediaType::Audio);
 player->addSource(Wt::MediaEncoding::MP3, Wt::WLink(mp3Audio));

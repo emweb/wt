@@ -9,7 +9,7 @@
 
 SAMPLE_BEGIN(NavigationBar)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 // Create a navigation bar with a link to a web page.
 Wt::WNavigationBar *navigation = container->addNew<Wt::WNavigationBar>();
@@ -21,23 +21,23 @@ Wt::WStackedWidget *contentsStack = container->addNew<Wt::WStackedWidget>();
 contentsStack->addStyleClass("contents");
 
 // Setup a Left-aligned menu.
-auto leftMenu = Wt::cpp14::make_unique<Wt::WMenu>(contentsStack);
+auto leftMenu = std::make_unique<Wt::WMenu>(contentsStack);
 auto leftMenu_ = navigation->addMenu(std::move(leftMenu));
 
-auto searchResult = Wt::cpp14::make_unique<Wt::WText>("Buy or Sell... Bye!");
+auto searchResult = std::make_unique<Wt::WText>("Buy or Sell... Bye!");
 auto searchResult_ = searchResult.get();
 
-leftMenu_->addItem("Home", Wt::cpp14::make_unique<Wt::WText>("There is no better place!"));
-leftMenu_->addItem("Layout", Wt::cpp14::make_unique<Wt::WText>("Layout contents"))
+leftMenu_->addItem("Home", std::make_unique<Wt::WText>("There is no better place!"));
+leftMenu_->addItem("Layout", std::make_unique<Wt::WText>("Layout contents"))
     ->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/layout"));
 leftMenu_->addItem("Sales", std::move(searchResult));
 
 // Setup a Right-aligned menu.
-auto rightMenu = Wt::cpp14::make_unique<Wt::WMenu>();
+auto rightMenu = std::make_unique<Wt::WMenu>();
 auto rightMenu_ = navigation->addMenu(std::move(rightMenu), Wt::AlignmentFlag::Right);
 
 // Create a popup submenu for the Help menu.
-auto popupPtr = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+auto popupPtr = std::make_unique<Wt::WPopupMenu>();
 auto popup = popupPtr.get();
 popup->addItem("Contents");
 popup->addItem("Index");
@@ -47,7 +47,7 @@ popup->addItem("About");
 popup->itemSelected().connect([=] (Wt::WMenuItem *item) {
 #ifndef WT_TARGET_JAVA
     auto messageBox = popup->addChild(
-            Wt::cpp14::make_unique<Wt::WMessageBox>
+            std::make_unique<Wt::WMessageBox>
 #else // WT_TARGET_JAVA
     auto messageBox = new Wt::WMessageBox
 #endif // WT_TARGET_JAVA
@@ -71,12 +71,12 @@ popup->itemSelected().connect([=] (Wt::WMenuItem *item) {
     messageBox->show();
 });
 
-auto item = Wt::cpp14::make_unique<Wt::WMenuItem>("Help");
+auto item = std::make_unique<Wt::WMenuItem>("Help");
 item->setMenu(std::move(popupPtr));
 rightMenu_->addItem(std::move(item));
 
 // Add a Search control.
-auto editPtr = Wt::cpp14::make_unique<Wt::WLineEdit>();
+auto editPtr = std::make_unique<Wt::WLineEdit>();
 auto edit = editPtr.get();
 edit->setPlaceholderText("Enter a search item");
 

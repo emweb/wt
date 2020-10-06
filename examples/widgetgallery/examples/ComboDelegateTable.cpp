@@ -51,7 +51,7 @@ protected:
     virtual std::unique_ptr<Wt::WWidget> createEditor(const Wt::WModelIndex &index,
                                       Wt::WFlags<Wt::ViewItemRenderFlag> flags) const override
     {
-        auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+        auto container = std::make_unique<Wt::WContainerWidget>();
         auto combo = container->addNew<Wt::WComboBox>();
 	combo->setModel(items_);
 	combo->setCurrentIndex((int)Wt::asNumber(index.data(Wt::ItemDataRole::User)));
@@ -77,7 +77,7 @@ private:
 
 SAMPLE_BEGIN(ComboDelegateTable)
 
-auto table = Wt::cpp14::make_unique<Wt::WTableView>();
+auto table = std::make_unique<Wt::WTableView>();
 
 // create model
 #ifndef WT_TARGET_JAVA
@@ -93,7 +93,7 @@ options.push_back("cherries");
 auto model = std::make_shared<Wt::WStandardItemModel>();
 for (unsigned i=0; i < 2; i++) {
   for (unsigned j=0; j < 2; j++) {
-    auto item = Wt::cpp14::make_unique<Wt::WStandardItem>();
+    auto item = std::make_unique<Wt::WStandardItem>();
     item->setData(0, Wt::ItemDataRole::User);
     item->setData(options[0], Wt::ItemDataRole::Display);
     item->setFlags(Wt::ItemFlag::Editable);

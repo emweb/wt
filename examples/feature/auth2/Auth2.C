@@ -29,7 +29,7 @@ public:
     messageResourceBundle().use("strings");
     messageResourceBundle().use("templates");
 
-    auto authWidget = cpp14::make_unique<AuthWidget>(session_);
+    auto authWidget = std::make_unique<AuthWidget>(session_);
 
     authWidget->model()->addPasswordAuth(&Session::passwordAuth());
     authWidget->model()->addOAuth(Session::oAuth());
@@ -57,7 +57,7 @@ private:
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<AuthApplication>(env);
+  return std::make_unique<AuthApplication>(env);
 }
 
 int main(int argc, char **argv)

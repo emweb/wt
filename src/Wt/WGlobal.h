@@ -15,14 +15,22 @@
 
 namespace Wt {
 
-  /* Since we target C++11, we're sorely missing std::make_unique */
+  /* make_unique implementation for backwards compatibility for Wt versions before 4.5.0 */
   namespace cpp14 {
 #ifndef WT_TARGET_JAVA
+#ifdef WT_CXX14
+    template<typename T, typename ...Args>
+    auto make_unique(Args&& ...args) -> decltype(std::make_unique<T, Args...>(std::forward<Args>(args)...))
+    {
+      return std::make_unique<T, Args...>(std::forward<Args>(args)...);
+    }
+#else // WT_CXX14
     template<typename T, typename ...Args>
     std::unique_ptr<T> make_unique( Args&& ...args )
     {
       return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
     }
+#endif // WT_CXX14
 #else // WT_TARGET_JAVA
     template<typename T>
     std::unique_ptr<T> make_unique();

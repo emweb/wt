@@ -18,8 +18,8 @@ WImage *createDragImage(const char *url, const char *smallurl,
 			const char *mimeType,
 			WContainerWidget *p)
 {
-  WImage *result = p->addWidget(cpp14::make_unique<WImage>(url));
-  WImage *dragImage = p->addWidget(cpp14::make_unique<WImage>(smallurl));
+  WImage *result = p->addWidget(std::make_unique<WImage>(url));
+  WImage *dragImage = p->addWidget(std::make_unique<WImage>(smallurl));
   dragImage->setMargin(-15, Side::Left | Side::Top);
 
   /*
@@ -34,15 +34,15 @@ WImage *createDragImage(const char *url, const char *smallurl,
 DragExample::DragExample():
   WContainerWidget()
 {
-  this->addWidget(cpp14::make_unique<WText>("<p>Help these people with their decision by dragging one of "
+  this->addWidget(std::make_unique<WText>("<p>Help these people with their decision by dragging one of "
             "the pills.</p>"));
 
   if (!wApp->environment().javaScript()) {
-    this->addWidget(cpp14::make_unique<WText>("<i>This examples requires that javascript support is "
+    this->addWidget(std::make_unique<WText>("<i>This examples requires that javascript support is "
               "enabled.</i>"));
   }
 
-  WContainerWidget *pills = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  WContainerWidget *pills = this->addWidget(std::make_unique<WContainerWidget>());
   pills->setContentAlignment(AlignmentFlag::Center);
 
   createDragImage("icons/blue-pill.jpg",
@@ -52,11 +52,11 @@ DragExample::DragExample():
 		  "icons/red-pill-small.png",
 		  "red-pill", pills);
 
-  WContainerWidget *dropSites = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  WContainerWidget *dropSites = this->addWidget(std::make_unique<WContainerWidget>());
 
-  dropSites->addWidget(cpp14::make_unique<Character>("Neo"));
-  dropSites->addWidget(cpp14::make_unique<Character>("Morpheus"));
-  dropSites->addWidget(cpp14::make_unique<Character>("Trinity"));
+  dropSites->addWidget(std::make_unique<Character>("Neo"));
+  dropSites->addWidget(std::make_unique<Character>("Morpheus"));
+  dropSites->addWidget(std::make_unique<Character>("Trinity"));
 
 }
 

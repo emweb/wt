@@ -52,16 +52,16 @@ public:
       state_(CONNECT),
       bytesSent_(0)
   {
-    this->addWidget(cpp14::make_unique<WText>("Click 'Start' to download the Wt homepage RSS feed<br/>"
+    this->addWidget(std::make_unique<WText>("Click 'Start' to download the Wt homepage RSS feed<br/>"
       "The download will be done asynchronously and this page will update its "
       "contents to inform you about the progress using server push.<br/>"));
-    startButton_ = this->addWidget(cpp14::make_unique<WPushButton>("Start"));
+    startButton_ = this->addWidget(std::make_unique<WPushButton>("Start"));
     startButton_->clicked().connect(startButton_, &WPushButton::disable);
     startButton_->clicked().connect(this, &RssReader::startDownload);
 
-    resultText_ = this->addWidget(cpp14::make_unique<WText>());
+    resultText_ = this->addWidget(std::make_unique<WText>());
     resultText_->setInline(false);
-    rssText_ = this->addWidget(cpp14::make_unique<WText>());
+    rssText_ = this->addWidget(std::make_unique<WText>());
     rssText_->setInline(false);
   }
 
@@ -110,11 +110,11 @@ private:
        * in a call to select, and activated() will be called whenever
        * select decides that the socket is ready for read or write.
        */
-      readNotifier_ = cpp14::make_unique<WSocketNotifier>(socket_,
+      readNotifier_ = std::make_unique<WSocketNotifier>(socket_,
           WSocketNotifier::Type::Read);
       readNotifier_->setEnabled(false); // Linux fires this on connect, weird
       readNotifier_->activated().connect(this, &RssReader::read);
-      writeNotifier_ = cpp14::make_unique<WSocketNotifier>(socket_,
+      writeNotifier_ = std::make_unique<WSocketNotifier>(socket_,
           WSocketNotifier::Type::Write);
       writeNotifier_->activated().connect(this, &RssReader::write);
 
@@ -271,8 +271,8 @@ private:
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   std::unique_ptr<WApplication> app
-      = cpp14::make_unique<WApplication>(env);
-  app->root()->addWidget(cpp14::make_unique<RssReader>());
+      = std::make_unique<WApplication>(env);
+  app->root()->addWidget(std::make_unique<RssReader>());
 
   return app;
 }

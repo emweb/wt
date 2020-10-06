@@ -298,9 +298,9 @@ namespace {
 	  }
 	  Wt::WValidator::Result clientVerificationResult(state, verifyInfo);
 
-          return cpp14::make_unique<Wt::WSslInfo>(clientCert,
-                                                  clientCertChain,
-                                                  clientVerificationResult);
+          return std::make_unique<Wt::WSslInfo>(clientCert,
+                                                clientCertChain,
+                                                clientVerificationResult);
 	}
       }
 #endif

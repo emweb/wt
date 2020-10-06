@@ -18,7 +18,7 @@ CountDownWidget::CountDownWidget(int start, int stop, std::chrono::milliseconds 
   stop_ = std::min(start_ - 1, stop_);  // stop must be smaller than start
   current_ = start_;
 
-  timer_ = cpp14::make_unique<WTimer>();
+  timer_ = std::make_unique<WTimer>();
   timer_->setInterval(msec);
   timer_->timeout().connect(this, &CountDownWidget::timerTick);
   timer_->start();

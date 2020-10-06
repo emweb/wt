@@ -21,7 +21,7 @@ BlogLoginWidget::BlogLoginWidget(BlogSession& session,
   setInline(true);
 
   auto model
-    = Wt::cpp14::make_unique<Wt::Auth::AuthModel>(session.passwordAuth()->baseAuth(),
+    = std::make_unique<Wt::Auth::AuthModel>(session.passwordAuth()->baseAuth(),
                           session.users());
   model->addPasswordAuth(session.passwordAuth());
   model->addOAuth(session.oAuth());
@@ -50,7 +50,7 @@ void BlogLoginWidget::createLoggedInView()
 {
   AuthWidget::createLoggedInView();
 
-  auto logout = Wt::cpp14::make_unique<Wt::WText>(tr("logout"));
+  auto logout = std::make_unique<Wt::WText>(tr("logout"));
   logout->setStyleClass("link");
   logout->clicked().connect(&login(), &Wt::Auth::Login::logout);
   bindWidget("logout", std::move(logout));

@@ -4,7 +4,7 @@
 #include <Wt/WDateTime.h>
 
 SAMPLE_BEGIN(TextArea)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WTextArea *ta =
     container->addNew<Wt::WTextArea>();

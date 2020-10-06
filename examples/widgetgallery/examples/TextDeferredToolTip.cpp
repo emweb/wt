@@ -20,7 +20,7 @@ public:
 
 SAMPLE_BEGIN(TextDeferredToolTip)
 
-auto text = Wt::cpp14::make_unique<Text>();
+auto text = std::make_unique<Text>();
 text->setText("Text");
 text->setDeferredToolTip(true);
 

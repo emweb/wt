@@ -15,7 +15,7 @@
 #include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(ScatterPlotData)
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 auto model
     = csvToModel(WApplication::appRoot() + "timeseries.csv");
@@ -80,7 +80,7 @@ chart->setPlotAreaPadding(120, Side::Right);
  * Add the second and the third column as line series.
  */
 for (int i = 2; i < 4; ++i) {
-    auto s = cpp14::make_unique<Chart::WDataSeries>(i, Chart::SeriesType::Line);
+    auto s = std::make_unique<Chart::WDataSeries>(i, Chart::SeriesType::Line);
     s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     chart->addSeries(std::move(s));
 }

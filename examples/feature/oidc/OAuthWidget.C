@@ -26,7 +26,7 @@ void OAuthWidget::createLoggedInView()
 
 std::unique_ptr<Wt::WWidget> OAuthWidget::createRegistrationView(const Wt::Auth::Identity& id)
 {
-  auto w = Wt::cpp14::make_unique<RegistrationView>(session_, this);
+  auto w = std::make_unique<RegistrationView>(session_, this);
   auto model = createRegistrationModel();
 
   if (id.isValid())

@@ -55,7 +55,7 @@ void FormWidgets::populateSubMenu(Wt::WMenu *menu)
 
 std::unique_ptr<Wt::WWidget> FormWidgets::introduction()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-introduction");
+  auto result = std::make_unique<TopicTemplate>("forms-introduction");
   result->bindWidget("SimpleForm", SimpleForm());
   result->bindWidget("FormModel", FormModel());
 
@@ -81,7 +81,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::introduction()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::textEditors()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-textEditors");
+  auto result = std::make_unique<TopicTemplate>("forms-textEditors");
   result->bindWidget("LineEdit", LineEdit());
   result->bindWidget("LineEditEvent", LineEditEvent());
   result->bindWidget("TextArea", TextArea());
@@ -104,7 +104,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::textEditors()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::checkBox()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-checkBox");
+  auto result = std::make_unique<TopicTemplate>("forms-checkBox");
   result->bindWidget("CheckBoxInline", CheckBoxInline());
   result->bindWidget("CheckBoxStack", CheckBoxStack());
 
@@ -119,7 +119,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::checkBox()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::radioButton()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-radioButton");
+  auto result = std::make_unique<TopicTemplate>("forms-radioButton");
   result->bindWidget("RadioButtonsLoose", RadioButtonsLoose());
   result->bindWidget("RadioButtonGroup", RadioButtonGroup());
   result->bindWidget("RadioButtonStack", RadioButtonStack());
@@ -135,7 +135,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::radioButton()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::comboBox()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-comboBox");
+  auto result = std::make_unique<TopicTemplate>("forms-comboBox");
   result->bindWidget("ComboBox", ComboBox());
   result->bindWidget("ComboBoxActivated", ComboBoxActivated());
   result->bindWidget("ComboBoxModel", ComboBoxModel());
@@ -149,7 +149,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::comboBox()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::selectionBox()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-selectionBox");
+  auto result = std::make_unique<TopicTemplate>("forms-selectionBox");
   result->bindWidget("SelectionBoxSimple", SelectionBoxSimple());
   result->bindWidget("SelectionBoxExtended", SelectionBoxExtended());
 
@@ -161,7 +161,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::selectionBox()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::autoComplete()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-autoComplete");
+  auto result = std::make_unique<TopicTemplate>("forms-autoComplete");
   result->bindWidget("AutoComplete", AutoComplete());
 
   return std::move(result);
@@ -176,7 +176,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::autoComplete()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::dateEntry()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-dateEntry");
+  auto result = std::make_unique<TopicTemplate>("forms-dateEntry");
   result->bindWidget("CalendarSimple", CalendarSimple());
   result->bindWidget("CalendarExtended", CalendarExtended());
   result->bindWidget("DateEdit", DateEdit());
@@ -192,7 +192,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::dateEntry()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::inPlaceEdit()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-inPlaceEdit");
+  auto result = std::make_unique<TopicTemplate>("forms-inPlaceEdit");
   result->bindWidget("InPlaceEditButtons", InPlaceEditButtons());
   result->bindWidget("InPlaceEdit", InPlaceEdit());
 
@@ -205,7 +205,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::inPlaceEdit()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::slider()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-slider");
+  auto result = std::make_unique<TopicTemplate>("forms-slider");
   result->bindWidget("Slider", Slider());
   result->bindWidget("SliderVertical", SliderVertical());
 
@@ -217,7 +217,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::slider()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::progressBar()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-progressBar");
+  auto result = std::make_unique<TopicTemplate>("forms-progressBar");
   result->bindWidget("ProgressBar", ProgressBar());
 
   return std::move(result);
@@ -229,7 +229,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::progressBar()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::fileUpload()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-fileUpload");
+  auto result = std::make_unique<TopicTemplate>("forms-fileUpload");
   result->bindWidget("FileUpload", FileUpload());
   result->bindWidget("FileDrop", FileDrop());
 
@@ -248,7 +248,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::fileUpload()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::pushButton()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-pushButton");
+  auto result = std::make_unique<TopicTemplate>("forms-pushButton");
   result->bindWidget("PushButton", PushButton());
   result->bindWidget("PushButtonOnce", PushButtonOnce());
   result->bindWidget("PushButtonLink", PushButtonLink());
@@ -279,7 +279,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::pushButton()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::validation()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-validation");
+  auto result = std::make_unique<TopicTemplate>("forms-validation");
   result->bindWidget("Validation", Validation());
   result->bindWidget("ValidationDate", ValidationDate());
   result->bindWidget("ValidationModel", ValidationModel());
@@ -293,7 +293,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::validation()
 
 std::unique_ptr<Wt::WWidget> FormWidgets::example()
 {
-  auto result = Wt::cpp14::make_unique<TopicTemplate>("forms-integration-example");
+  auto result = std::make_unique<TopicTemplate>("forms-integration-example");
   result->bindWidget("FormModel", FormModel());
 
   // Show the XML-templates as text

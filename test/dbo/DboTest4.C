@@ -156,10 +156,10 @@ BOOST_AUTO_TEST_CASE( dbo4_test1 )
   dbo::Session& session = *f.session_;
   {
     dbo::Transaction transaction(session);
-    session.add(Wt::cpp14::make_unique<Car>());
-    session.add(Wt::cpp14::make_unique<Shoe>());
-    session.add(Wt::cpp14::make_unique<Door>());
-    auto p = Wt::cpp14::make_unique<Person>();
+    session.add(std::make_unique<Car>());
+    session.add(std::make_unique<Shoe>());
+    session.add(std::make_unique<Door>());
+    auto p = std::make_unique<Person>();
     p->name = 13;
     session.add(std::move(p));
     transaction.commit();

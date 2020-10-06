@@ -5,14 +5,14 @@
 #include <Wt/WText.h>
 
 SAMPLE_BEGIN(SplitButton)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WSplitButton *sb = container->addNew<Wt::WSplitButton>("Save");
 
 Wt::WText *out = container->addNew<Wt::WText>();
 out->setMargin(10, Wt::Side::Left);
 
-auto popup = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+auto popup = std::make_unique<Wt::WPopupMenu>();
 auto popup_ = popup.get();
 popup_->addItem("Save As ...");
 popup_->addItem("Save Template");

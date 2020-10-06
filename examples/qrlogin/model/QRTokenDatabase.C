@@ -47,7 +47,7 @@ void QRTokenDatabase::addToken(const std::string& sessionId,
 {
   Dbo::Transaction t(session_);
 
-  session_.add(Wt::cpp14::make_unique<QRToken>(sessionId, hash, url));
+  session_.add(std::make_unique<QRToken>(sessionId, hash, url));
 }
 
 void QRTokenDatabase::removeToken(const std::string& sessionId)

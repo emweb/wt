@@ -15,12 +15,12 @@ using namespace Wt;
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  auto app = cpp14::make_unique<WApplication>(env);
+  auto app = std::make_unique<WApplication>(env);
   app->setTitle("File explorer example");
   app->useStyleSheet("filetree.css");
 
   std::unique_ptr<FileTreeTable> treeTable
-      = cpp14::make_unique<FileTreeTable>(".");
+      = std::make_unique<FileTreeTable>(".");
   treeTable->resize(500, 300);
   treeTable->tree()->setSelectionMode(SelectionMode::Extended);
   treeTable->treeRoot()->setNodeVisible(false);

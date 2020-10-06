@@ -193,10 +193,10 @@ public:
   {
     messageResourceBundle().use("templates");
 
-    root()->addWidget(Wt::cpp14::make_unique<Wt::WLabel>("Select your time zone: "));
-    localeCombo_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WComboBox>());
+    root()->addWidget(std::make_unique<Wt::WLabel>("Select your time zone: "));
+    localeCombo_ = root()->addWidget(std::make_unique<Wt::WComboBox>());
 
-    info_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WTemplate>
+    info_ = root()->addWidget(std::make_unique<Wt::WTemplate>
                               (Wt::WString::tr("info")));
     auto regions = std::make_shared<Wt::WReadOnlyProxyModel>();
     regions->setSourceModel(timeZones);
@@ -241,7 +241,7 @@ private:
 
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
 {
-  return Wt::cpp14::make_unique<LocaleApplication>(env);
+  return std::make_unique<LocaleApplication>(env);
 }
 
 int main(int argc, char **argv)

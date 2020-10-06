@@ -14,7 +14,7 @@ namespace {
 extern void showDialog(Wt::WObject *owner, Wt::WText *out)
 {
 #ifndef WT_TARGET_JAVA
-    auto dialog = owner->addChild(Wt::cpp14::make_unique<Wt::WDialog>("Go to cell"));
+    auto dialog = owner->addChild(std::make_unique<Wt::WDialog>("Go to cell"));
 #else // WT_TARGET_JAVA
     auto dialog = new Wt::WDialog("Go to cell");
 #endif // WT_TARGET_JAVA
@@ -80,7 +80,7 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
 
 }
 SAMPLE_BEGIN(Dialog)
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Jump");
 

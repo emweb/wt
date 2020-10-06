@@ -14,14 +14,14 @@
 FormExample::FormExample()
     : WContainerWidget()
 {
-  WContainerWidget *langLayout = this->addWidget(cpp14::make_unique<WContainerWidget>());
+  WContainerWidget *langLayout = this->addWidget(std::make_unique<WContainerWidget>());
   langLayout->setContentAlignment(AlignmentFlag::Right);
-  langLayout->addWidget(cpp14::make_unique<WText>(tr("language")));
+  langLayout->addWidget(std::make_unique<WText>(tr("language")));
 
   const char *lang[] = { "en", "nl" };
 
   for (int i = 0; i < 2; ++i) {
-    WText *t = langLayout->addWidget(cpp14::make_unique<WText>(lang[i]));
+    WText *t = langLayout->addWidget(std::make_unique<WText>(lang[i]));
     t->setMargin(5);
     t->clicked().connect(std::bind(&FormExample::changeLanguage, this, t));
 
@@ -33,7 +33,7 @@ FormExample::FormExample()
    */
   setLanguage(wApp->locale().name());
 
-  Form *form = this->addWidget(cpp14::make_unique<Form>());
+  Form *form = this->addWidget(std::make_unique<Form>());
   form->setMargin(20);
 }
 
@@ -67,11 +67,11 @@ void FormExample::changeLanguage(WText *t)
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   std::unique_ptr<WApplication> app
-      = cpp14::make_unique<WApplication>(env);
+      = std::make_unique<WApplication>(env);
   app->messageResourceBundle().use(WApplication::appRoot() + "form-example");
   app->setTitle("Form example");
 
-  app->root()->addWidget(cpp14::make_unique<FormExample>());
+  app->root()->addWidget(std::make_unique<FormExample>());
 
   WCssDecorationStyle langStyle;
   langStyle.font().setSize(FontSize::Smaller);

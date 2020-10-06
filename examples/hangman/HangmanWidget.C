@@ -31,22 +31,22 @@ HangmanWidget::HangmanWidget(const std::string &name)
 {
   setContentAlignment(AlignmentFlag::Center);
   
-  title_ = addWidget(cpp14::make_unique<WText>(tr("hangman.readyToPlay")));
+  title_ = addWidget(std::make_unique<WText>(tr("hangman.readyToPlay")));
 
-  word_ = addWidget(cpp14::make_unique<WordWidget>());
-  statusText_ = addWidget(cpp14::make_unique<WText>());
-  images_ = addWidget(cpp14::make_unique<ImagesWidget>(MaxGuesses));
+  word_ = addWidget(std::make_unique<WordWidget>());
+  statusText_ = addWidget(std::make_unique<WText>());
+  images_ = addWidget(std::make_unique<ImagesWidget>(MaxGuesses));
 
-  letters_ = addWidget(cpp14::make_unique<LettersWidget>());
+  letters_ = addWidget(std::make_unique<LettersWidget>());
   letters_->letterPushed().connect(this, &HangmanWidget::registerGuess);
 
-  language_ = addWidget(cpp14::make_unique<WComboBox>());
+  language_ = addWidget(std::make_unique<WComboBox>());
   language_->addItem(tr("hangman.englishWords").arg(18957));
   language_->addItem(tr("hangman.dutchWords").arg(1688));
 
-  addWidget(cpp14::make_unique<WBreak>());
+  addWidget(std::make_unique<WBreak>());
 
-  newGameButton_ = addWidget(cpp14::make_unique<WPushButton>(tr("hangman.newGame")));
+  newGameButton_ = addWidget(std::make_unique<WPushButton>(tr("hangman.newGame")));
   newGameButton_->clicked().connect(this, &HangmanWidget::newGame);
 
   letters_->hide();

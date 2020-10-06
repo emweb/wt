@@ -16,7 +16,7 @@
 namespace {
   std::unique_ptr<Wt::WStandardItemModel> readCsvFile(const std::string &fname)
   {
-    std::unique_ptr<Wt::WStandardItemModel> model(Wt::cpp14::make_unique<Wt::WStandardItemModel>(0, 0));
+    std::unique_ptr<Wt::WStandardItemModel> model(std::make_unique<Wt::WStandardItemModel>(0, 0));
     std::ifstream f(fname.c_str());
 
     if (!f) {
@@ -31,7 +31,7 @@ CategoryExample::CategoryExample()
   : WContainerWidget()
 {
   setContentAlignment(Wt::AlignmentFlag::Center);
-  chart_ = this->addWidget(Wt::cpp14::make_unique<Wt::Chart::WCartesian3DChart>());
+  chart_ = this->addWidget(std::make_unique<Wt::Chart::WCartesian3DChart>());
   // Disabling server side rendering for Wt website.
   chart_->setRenderOptions(Wt::GLRenderOption::ClientSide | Wt::GLRenderOption::AntiAliasing);
   chart_->setType(Wt::Chart::ChartType::Category);
@@ -92,7 +92,7 @@ CategoryExample::CategoryExample()
   xPlaneFuncColor_->setType(Wt::Chart::Series3DType::Bar);
   
   // Data configuration widget
-  std::unique_ptr<DataConfig> dataconfig(Wt::cpp14::make_unique<DataConfig>(chart_));
+  std::unique_ptr<DataConfig> dataconfig(std::make_unique<DataConfig>(chart_));
   dataconfig->addDataToCollection("Isotope data (10x10) with ColorRoles", isotopes_);
   dataconfig->addDataToCollection("Horizontal Plane (10x10)", horPlane_);
   dataconfig->addDataToCollection("Random Data (10x10)", randomPlane_);
@@ -100,8 +100,8 @@ CategoryExample::CategoryExample()
   // dataconfig->addDataToCollection("tilted plane x (20x20)", xPlaneFunc_);
   // dataconfig->addDataToCollection("tilted plane x (20x20) with ColorRoles", xPlaneFuncColor_);
   
-  Wt::WTabWidget *configuration_ = this->addWidget(Wt::cpp14::make_unique<Wt::WTabWidget>());
-  configuration_->addTab(Wt::cpp14::make_unique<ChartSettings>(chart_), "General Chart Settings", Wt::ContentLoading::Eager);
+  Wt::WTabWidget *configuration_ = this->addWidget(std::make_unique<Wt::WTabWidget>());
+  configuration_->addTab(std::make_unique<ChartSettings>(chart_), "General Chart Settings", Wt::ContentLoading::Eager);
   configuration_->addTab(std::move(dataconfig), "Data selection and configuration", Wt::ContentLoading::Eager);
 }
 

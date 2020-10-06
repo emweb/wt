@@ -155,7 +155,7 @@ void LeafletApplication::toggleMarker()
 
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment &env)
 {
-  return Wt::cpp14::make_unique<LeafletApplication>(env);
+  return std::make_unique<LeafletApplication>(env);
 }
 
 int main(int argc, char *argv[])

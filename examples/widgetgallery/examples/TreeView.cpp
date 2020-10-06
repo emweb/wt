@@ -10,7 +10,7 @@ using namespace Wt;
 #endif // WT_TARGET_JAVA
 
 SAMPLE_BEGIN(TreeView)
-auto treeView = cpp14::make_unique<WTreeView>();
+auto treeView = std::make_unique<WTreeView>();
 treeView->resize(600, 400);
 
 auto model = std::make_shared<GitModel>(GIT_REPOSITORY);

@@ -2183,7 +2183,7 @@ BOOST_AUTO_TEST_CASE( dbo_test23a )
   {
     dbo::Transaction t(*session_);
 
-    auto a1 = Wt::cpp14::make_unique<A>();
+    auto a1 = std::make_unique<A>();
     a1->ll = 123456L;
     dbo::ptr<const A> aPtr(std::move(a1));
 
@@ -2216,11 +2216,11 @@ BOOST_AUTO_TEST_CASE( dbo_test23b )
   {
     dbo::Transaction t(*session_);
 
-    auto a1 = Wt::cpp14::make_unique<A>();
+    auto a1 = std::make_unique<A>();
     a1->ll = 123456L;
     dbo::ptr<A> aPtr1(std::move(a1));
 
-    auto c1 = Wt::cpp14::make_unique<C>();
+    auto c1 = std::make_unique<C>();
     c1->name = "Jos";
     dbo::ptr<C> cPtr1(std::move(c1));
 
@@ -2264,7 +2264,7 @@ BOOST_AUTO_TEST_CASE( dbo_test23c )
   {
     dbo::Transaction t(*session_);
 
-    auto d = Wt::cpp14::make_unique<D>();
+    auto d = std::make_unique<D>();
     d->id = Coordinate(2, 4);
 
     dbo::ptr<D> dPtr = session_->add(std::move(d));

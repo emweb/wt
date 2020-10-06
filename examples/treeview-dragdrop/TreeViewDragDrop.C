@@ -92,11 +92,11 @@ public:
      */
 
     // name
-    auto nameEdit = cpp14::make_unique<WLineEdit>(asString(model_->data(modelRow, 1)));
+    auto nameEdit = std::make_unique<WLineEdit>(asString(model_->data(modelRow, 1)));
     nameEdit_ = nameEdit.get();
 
     // type
-    auto typeEdit = cpp14::make_unique<WComboBox>();
+    auto typeEdit = std::make_unique<WComboBox>();
     typeEdit_ = typeEdit.get();
     typeEdit_->addItem("Document");
     typeEdit_->addItem("Spreadsheet");
@@ -105,21 +105,21 @@ public:
       (typeEdit_->findText(asString(model_->data(modelRow, 2))));
 
     // size
-    auto sizeEdit = cpp14::make_unique<WLineEdit>(asString(model_->data(modelRow, 3)));
+    auto sizeEdit = std::make_unique<WLineEdit>(asString(model_->data(modelRow, 3)));
     sizeEdit_ = sizeEdit.get();
     sizeEdit_->setValidator
       (std::make_shared<WIntValidator>(0, std::numeric_limits<int>::max()));
 
 
     // created
-    auto createdPicker = cpp14::make_unique<WDatePicker>();
+    auto createdPicker = std::make_unique<WDatePicker>();
     createdPicker_ = createdPicker.get();
     createdPicker_->lineEdit()->validator()->setMandatory(true);
     createdPicker_->setFormat(FileModel::dateEditFormat);
     createdPicker_->setDate(cpp17::any_cast<WDate>(model_->data(modelRow, 4)));
 
     // modified
-    auto modifiedPicker = cpp14::make_unique<WDatePicker>();
+    auto modifiedPicker = std::make_unique<WDatePicker>();
     modifiedPicker_ = modifiedPicker.get();
     modifiedPicker_->lineEdit()->validator()->setMandatory(true);
     modifiedPicker_->setFormat(FileModel::dateEditFormat);
@@ -128,49 +128,49 @@ public:
     /*
      * Use a grid layout for the labels and fields
      */
-    auto layout = cpp14::make_unique<WGridLayout>();
+    auto layout = std::make_unique<WGridLayout>();
 
     std::unique_ptr<WLabel> label;
     int row = 0;
 
-    label = cpp14::make_unique<WLabel>("Name:");
+    label = std::make_unique<WLabel>("Name:");
     label->setBuddy(nameEdit_);
     layout->addWidget(std::move(label), row, 0);
     layout->addWidget(std::move(nameEdit), row, 1);
     ++row;
 
-    label = cpp14::make_unique<WLabel>("Type:");
+    label = std::make_unique<WLabel>("Type:");
     label->setBuddy(typeEdit_);
     layout->addWidget(std::move(label), row, 0);
     layout->addWidget(std::move(typeEdit), row, 1);
     ++row;
 
-    label = cpp14::make_unique<WLabel>("Size");
+    label = std::make_unique<WLabel>("Size");
     label->setBuddy(sizeEdit_);
     layout->addWidget(std::move(label), row, 0);
     layout->addWidget(std::move(sizeEdit), row, 1);
     ++row;
 
-    label = cpp14::make_unique<WLabel>("Created:");
+    label = std::make_unique<WLabel>("Created:");
     label->setBuddy(createdPicker_->lineEdit());
     layout->addWidget(std::move(label), row, 0);
     layout->addWidget(std::move(createdPicker), row, 2);
     ++row;
 
-    label = cpp14::make_unique<WLabel>("Modified:");
+    label = std::make_unique<WLabel>("Modified:");
     label->setBuddy(modifiedPicker_->lineEdit());
     layout->addWidget(std::move(label), row, 0);
     layout->addWidget(std::move(modifiedPicker), row, 2);
     ++row;
 
     std::unique_ptr<WPushButton>button;
-    auto buttons = cpp14::make_unique<WContainerWidget>();
+    auto buttons = std::make_unique<WContainerWidget>();
 
-    button = cpp14::make_unique<WPushButton>("Save");
+    button = std::make_unique<WPushButton>("Save");
     button->clicked().connect(this, &WDialog::accept);
     buttons->addWidget(std::move(button));
 
-    button = cpp14::make_unique<WPushButton>("Cancel");
+    button = std::make_unique<WPushButton>("Cancel");
     contents()->enterPressed().connect(this, &WDialog::accept);
     button->clicked().connect(this, &WDialog::reject);
     buttons->addWidget(std::move(button));
@@ -338,7 +338,7 @@ private:
      * The main layout is a 3x2 grid layout.
      */
     std::unique_ptr<WGridLayout> layout =
-        cpp14::make_unique<WGridLayout>();
+        std::make_unique<WGridLayout>();
     layout->addWidget(createTitle("Folders"), 0, 0);
     layout->addWidget(createTitle("Files"), 0, 1);
     layout->addWidget(folderView(), 1, 0);
@@ -348,7 +348,7 @@ private:
     folderView_->select(folderModel_->index(0, 0, folderModel_->index(0, 0)));
 
     std::unique_ptr<WVBoxLayout> vbox =
-        cpp14::make_unique<WVBoxLayout>();
+        std::make_unique<WVBoxLayout>();
     vbox->addWidget(fileView(), 1);
     vbox->addWidget(pieChart(), 1);
     vbox->setResizable(0);
@@ -369,7 +369,7 @@ private:
   /*! \brief Creates a title widget.
    */
   std::unique_ptr<WText> createTitle(const WString& title) {
-    auto result = cpp14::make_unique<WText>(title);
+    auto result = std::make_unique<WText>(title);
     result->setInline(false);
     result->setStyleClass("title");
 
@@ -379,7 +379,7 @@ private:
   /*! \brief Creates the folder WTreeView
    */
   std::unique_ptr<WTreeView> folderView() {
-    auto treeView = cpp14::make_unique<FolderView>();
+    auto treeView = std::make_unique<FolderView>();
 
     /*
      * To support right-click, we need to disable the built-in browser
@@ -409,7 +409,7 @@ private:
    */
   std::unique_ptr<WTableView> fileView() {
     auto tableView
-        = cpp14::make_unique<WTableView>();
+        = std::make_unique<WTableView>();
 
     tableView->setAlternatingRowColors(true);
 
@@ -446,7 +446,7 @@ private:
   /*! \brief Edit a particular row.
    */
   void editFile(const WModelIndex& item) {
-    dialog_ = cpp14::make_unique<FileEditDialog>(fileView_->model(), item);
+    dialog_ = std::make_unique<FileEditDialog>(fileView_->model(), item);
   }
 
   /*! \brief Creates the chart.
@@ -454,7 +454,7 @@ private:
   std::unique_ptr<WWidget> pieChart() {
     using namespace Chart;
 
-    auto chart = cpp14::make_unique<WPieChart>();
+    auto chart = std::make_unique<WPieChart>();
     // chart->setPreferredMethod(WPaintedWidget::PngImage);
     chart->setModel(fileFilterModel_);
     chart->setTitle("File sizes");
@@ -469,7 +469,7 @@ private:
       chart->resize(500, 200);
       chart->setMargin(WLength::Auto, Side::Left | Side::Right);
 
-      auto w = cpp14::make_unique<WContainerWidget>();
+      auto w = std::make_unique<WContainerWidget>();
       w->addWidget(std::move(chart));
       w->setStyleClass("about");
       return std::move(w);
@@ -483,7 +483,7 @@ private:
    */
   std::unique_ptr<WWidget> aboutDisplay() {
     std::unique_ptr<WText> result
-        = cpp14::make_unique<WText>(WString::tr("about-text"));
+        = std::make_unique<WText>(WString::tr("about-text"));
     result->setStyleClass("about");
     return std::move(result);
   }
@@ -517,7 +517,7 @@ private:
 	folderView_->select(item);
 
       if (!popup_) {
-        popup_ = cpp14::make_unique<WPopupMenu>();
+        popup_ = std::make_unique<WPopupMenu>();
 	popup_->addItem("icons/folder_new.gif", "Create a New Folder");
 	popup_->addItem("Rename this Folder")->setCheckable(true);
 	popup_->addItem("Delete this Folder");
@@ -528,7 +528,7 @@ private:
 	popup_->addItem("Hardware Inventory");
 	popup_->addSeparator();
 
-	std::unique_ptr<WPopupMenu> subMenu = cpp14::make_unique<WPopupMenu>();
+	std::unique_ptr<WPopupMenu> subMenu = std::make_unique<WPopupMenu>();
 	subMenu->addItem("Sub Item 1");
 	subMenu->addItem("Sub Item 2");
 	popup_->addMenu("File Deployments", std::move(subMenu));
@@ -561,7 +561,7 @@ private:
       WString text = popup_->result()->text();
       popup_->hide();
 
-      popupActionBox_ = cpp14::make_unique<WMessageBox>("Sorry.","Action '"
+      popupActionBox_ = std::make_unique<WMessageBox>("Sorry.","Action '"
                                         + text + "' is not implemented.",
                                         Icon::None,
                                         StandardButton::Ok);
@@ -665,7 +665,7 @@ private:
 				  const std::string& folderId = std::string())
   {
     auto result
-        = cpp14::make_unique<WStandardItem>(location);
+        = std::make_unique<WStandardItem>(location);
 
     if (!folderId.empty()) {
       result->setData(cpp17::any(folderId));
@@ -682,7 +682,7 @@ private:
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  auto app = cpp14::make_unique<TreeViewDragDrop>(env);
+  auto app = std::make_unique<TreeViewDragDrop>(env);
   app->setTwoPhaseRenderingThreshold(0);
   app->setTitle("WTreeView Drag & Drop");
   app->useStyleSheet("styles.css");

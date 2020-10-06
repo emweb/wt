@@ -51,7 +51,7 @@ public:
     process_ = oidcService->createProcess("email profile");
 
     Wt::WImage *image =
-      root()->addWidget(Wt::cpp14::make_unique<Wt::WImage>("img/Wt_vol_gradient.png"));
+      root()->addWidget(std::make_unique<Wt::WImage>("img/Wt_vol_gradient.png"));
     image->clicked().connect(process_.get(), &Wt::Auth::OAuthProcess::startAuthenticate);
 
     process_->authenticated().connect(this, &OidcClient::authenticated);
@@ -64,7 +64,7 @@ private:
   void authenticated(Wt::Auth::Identity id)
   {
     root()->clear();
-    root()->addWidget(Wt::cpp14::make_unique<Wt::WText>(
+    root()->addWidget(std::make_unique<Wt::WText>(
           Wt::WString("Welcome, {1}").arg(id.name()), Wt::TextFormat::Plain));
   }
 };
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 
   std::string dbPath = server.appRoot() + "auth.db";
   Wt::ApplicationCreator callback = [dbPath](const Wt::WEnvironment &env) {
-    auto session = Wt::cpp14::make_unique<Session>(dbPath);
+    auto session = std::make_unique<Session>(dbPath);
 
     // add an example client
     if (!session->users().idpClientFindWithId("example_client_id").checkValid()) {
@@ -94,12 +94,12 @@ int main(int argc, char** argv)
           "example_client_secret");
     }
 
-    return Wt::cpp14::make_unique<OAuthAuthorizationEndpoint>(env, std::move(session));
+    return std::make_unique<OAuthAuthorizationEndpoint>(env, std::move(session));
   };
   server.addEntryPoint(Wt::EntryPointType::Application, callback, "/oauth2");
 
   server.addEntryPoint(Wt::EntryPointType::Application, [](const Wt::WEnvironment& env) {
-    return Wt::cpp14::make_unique<OidcClient>(env);
+    return std::make_unique<OidcClient>(env);
   });
 
   Session tokenSession(dbPath);

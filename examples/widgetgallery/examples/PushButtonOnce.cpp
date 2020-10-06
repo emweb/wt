@@ -1,7 +1,7 @@
 #include <Wt/WPushButton.h>
 
 SAMPLE_BEGIN(PushButtonOnce)
-auto okPtr = Wt::cpp14::make_unique<Wt::WPushButton>("Send");
+auto okPtr = std::make_unique<Wt::WPushButton>("Send");
 auto ok = okPtr.get();
 
 ok->clicked().connect(ok, &Wt::WPushButton::disable);

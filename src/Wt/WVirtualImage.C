@@ -46,13 +46,13 @@ WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
   impl_->setPositionScheme(PositionScheme::Relative);
 
   WContainerWidget *scrollArea
-    = impl_->addWidget(cpp14::make_unique<WContainerWidget>());
+    = impl_->addWidget(std::make_unique<WContainerWidget>());
   scrollArea->resize(WLength(100, LengthUnit::Percentage),
 		     WLength(100, LengthUnit::Percentage));
   scrollArea->setPositionScheme(PositionScheme::Absolute);
   scrollArea->setOverflow(Overflow::Hidden);
 
-  contents_ = scrollArea->addWidget(cpp14::make_unique<WContainerWidget>());
+  contents_ = scrollArea->addWidget(std::make_unique<WContainerWidget>());
   contents_->setPositionScheme(PositionScheme::Absolute);
 }
 

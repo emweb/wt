@@ -28,7 +28,7 @@ public:
     useStyleSheet("css/style.css");
 
     std::unique_ptr<Wt::Auth::AuthWidget> authWidget
-        = Wt::cpp14::make_unique<Wt::Auth::AuthWidget>(Session::auth(), session_.users(), session_.login());
+        = std::make_unique<Wt::Auth::AuthWidget>(Session::auth(), session_.users(), session_.login());
 
     authWidget->model()->addPasswordAuth(&Session::passwordAuth());
     authWidget->model()->addOAuth(Session::oAuth());
@@ -56,7 +56,7 @@ private:
 
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
 {
-  return Wt::cpp14::make_unique<AuthApplication>(env);
+  return std::make_unique<AuthApplication>(env);
 }
 
 int main(int argc, char **argv)

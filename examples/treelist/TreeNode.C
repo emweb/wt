@@ -47,11 +47,11 @@ TreeNode::TreeNode(const std::string labelText,
   expandedContent_ = layout_->elementAt(1, 1)->addNew<WContainerWidget>();
   expandedContent_->hide();
 
-  auto labelTextWidget = cpp14::make_unique<WText>(labelText);
+  auto labelTextWidget = std::make_unique<WText>(labelText);
   labelTextWidget->setTextFormat(labelFormat);
   labelTextWidget->setStyleClass("treenodelabel");
 
-  auto childCountLabel = cpp14::make_unique<WText>();
+  auto childCountLabel = std::make_unique<WText>();
   childCountLabel_ = childCountLabel.get();
   childCountLabel_->setMargin(7, Side::Left);
   childCountLabel_->setStyleClass("treenodechildcount");

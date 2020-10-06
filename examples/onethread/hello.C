@@ -43,16 +43,16 @@ void HelloApplication::create()
 {
   setTitle("Hello world");
 
-  root()->addWidget(cpp14::make_unique<WText>("Your name, please? "));
-  nameEdit_ = root()->addWidget(cpp14::make_unique<WLineEdit>());
+  root()->addWidget(std::make_unique<WText>("Your name, please? "));
+  nameEdit_ = root()->addWidget(std::make_unique<WLineEdit>());
   nameEdit_->setFocus();
 
-  auto button = root()->addWidget(cpp14::make_unique<WPushButton>("Greet me"));
+  auto button = root()->addWidget(std::make_unique<WPushButton>("Greet me"));
   button->setMargin(5, Side::Left);
 
-  root()->addWidget(cpp14::make_unique<WBreak>());
+  root()->addWidget(std::make_unique<WBreak>());
 
-  greeting_ = root()->addWidget(cpp14::make_unique<WText>());
+  greeting_ = root()->addWidget(std::make_unique<WText>());
 
   button->clicked().connect(this, &HelloApplication::greet);
   nameEdit_->enterPressed().connect
@@ -75,7 +75,7 @@ void HelloApplication::greet()
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<HelloApplication>(env);
+  return std::make_unique<HelloApplication>(env);
 }
 
 int main(int argc, char **argv)

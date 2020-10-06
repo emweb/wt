@@ -90,7 +90,7 @@ void Home::setup()
 
       root()->clear();
 
-      auto layout = cpp14::make_unique<WVBoxLayout>();
+      auto layout = std::make_unique<WVBoxLayout>();
       layout->setContentsMargins(0, 0, 0, 0);
       auto source = sourceViewer("/" + SRC_INTERNAL_PATH + "/");
       sourceViewer_ = source.get();
@@ -113,27 +113,27 @@ void Home::setup()
 
 void Home::createHome()
 {
-  WTemplate *result = root()->addWidget(cpp14::make_unique<WTemplate>(tr("template")));
+  WTemplate *result = root()->addWidget(std::make_unique<WTemplate>(tr("template")));
   homePage_ = result;
 
-  auto languagesDiv = cpp14::make_unique<WContainerWidget>();
+  auto languagesDiv = std::make_unique<WContainerWidget>();
   languagesDiv->setId("top_languages");
 
   for (unsigned i = 0; i < languages.size(); ++i) {
     if (i != 0)
-      languagesDiv->addWidget(cpp14::make_unique<WText>("- "));
+      languagesDiv->addWidget(std::make_unique<WText>("- "));
 
     const Lang& l = languages[i];
 
-    languagesDiv->addWidget(cpp14::make_unique<WAnchor>(WLink(LinkType::InternalPath, l.path_), l.longDescription_));
+    languagesDiv->addWidget(std::make_unique<WAnchor>(WLink(LinkType::InternalPath, l.path_), l.longDescription_));
   }
 
-  auto contents = cpp14::make_unique<WStackedWidget>();
+  auto contents = std::make_unique<WStackedWidget>();
   WAnimation fade(AnimationEffect::Fade, TimingFunction::Linear, 250);
   contents->setTransitionAnimation(fade);
   contents->setId("main_page");
 
-  auto mainMenu = cpp14::make_unique<WMenu>(contents.get());
+  auto mainMenu = std::make_unique<WMenu>(contents.get());
   mainMenu_ = mainMenu.get();
   mainMenu_->addItem
     (tr("introduction"), introduction())->setPathComponent("");
@@ -172,7 +172,7 @@ void Home::createHome()
   // Make the menu be internal-path aware.
   mainMenu_->setInternalPathEnabled("/");
 
-  sideBarContent_ = cpp14::make_unique<WContainerWidget>();
+  sideBarContent_ = std::make_unique<WContainerWidget>();
 
   result->bindWidget("languages", std::move(languagesDiv));
   result->bindWidget("menu", std::move(mainMenu));
@@ -207,7 +207,7 @@ std::unique_ptr<WWidget> Home::linkSourceBrowser(const std::string& example)
    * a WText which contains an anchor, and enable internal path encoding.
    */
   std::string path = "#/" + SRC_INTERNAL_PATH + "/" + example;
-  std::unique_ptr<WText> a(cpp14::make_unique<WText>(tr("source-browser-link").arg(path)));
+  std::unique_ptr<WText> a(std::make_unique<WText>(tr("source-browser-link").arg(path)));
   a->setInternalPathEncoding(true);
   return std::move(a);
 }
@@ -254,7 +254,7 @@ void Home::logInternalPath(const std::string& path)
 
 std::unique_ptr<WWidget> Home::introduction()
 {
-  return cpp14::make_unique<WText>(tr("home.intro"));
+  return std::make_unique<WText>(tr("home.intro"));
 }
 
 std::unique_ptr<WWidget> Home::blog()
@@ -262,7 +262,7 @@ std::unique_ptr<WWidget> Home::blog()
   const Lang& l = languages[language_];
   std::string langPath = l.path_;
   std::unique_ptr<BlogView> blog
-      = cpp14::make_unique<BlogView>(langPath + "blog/",
+      = std::make_unique<BlogView>(langPath + "blog/",
                                 blogDb_, "/wt/blog/feed/");
   blog->setObjectName("blog");
 
@@ -290,25 +290,25 @@ void Home::chatSetUser(const WString& userName)
 
 std::unique_ptr<WWidget> Home::status()
 {
-  return cpp14::make_unique<WText>(tr("home.status"));
+  return std::make_unique<WText>(tr("home.status"));
 }
 
 std::unique_ptr<WWidget> Home::features()
 {
-  return std::unique_ptr<WText>(cpp14::make_unique<WText>(tr("home.features")));
+  return std::unique_ptr<WText>(std::make_unique<WText>(tr("home.features")));
 }
 
 std::unique_ptr<WWidget> Home::documentation()
 {
   std::unique_ptr<WText> result
-      = cpp14::make_unique<WText>(tr("home.documentation"));
+      = std::make_unique<WText>(tr("home.documentation"));
   result->setInternalPathEncoding(true);
   return std::move(result);
 }
 
 std::unique_ptr<WWidget> Home::otherLanguage()
 {
-  return std::unique_ptr<WText>(cpp14::make_unique<WText>(tr("home.other-language")));
+  return std::unique_ptr<WText>(std::make_unique<WText>(tr("home.other-language")));
 }
 
 std::unique_ptr<WWidget> Home::wrapView(std::unique_ptr<WWidget> (Home::*createWidget)())
@@ -323,7 +323,7 @@ std::string Home::href(const std::string& url, const std::string& description)
 
 std::unique_ptr<WWidget> Home::community()
 {
-  return cpp14::make_unique<WText>(tr("home.community"));
+  return std::make_unique<WText>(tr("home.community"));
 }
 
 void Home::readReleases(WTable *releaseTable)
@@ -333,11 +333,11 @@ void Home::readReleases(WTable *releaseTable)
   releaseTable->clear();
 
   releaseTable->elementAt(0, 0)
-    ->addWidget(cpp14::make_unique<WText>(tr("home.download.version")));
+    ->addWidget(std::make_unique<WText>(tr("home.download.version")));
   releaseTable->elementAt(0, 1)
-    ->addWidget(cpp14::make_unique<WText>(tr("home.download.date")));
+    ->addWidget(std::make_unique<WText>(tr("home.download.date")));
   releaseTable->elementAt(0, 2)
-    ->addWidget(cpp14::make_unique<WText>(tr("home.download.description")));
+    ->addWidget(std::make_unique<WText>(tr("home.download.description")));
 
   releaseTable->elementAt(0, 0)->resize(WLength(15, LengthUnit::FontEx),
 					WLength::Auto);
@@ -359,8 +359,8 @@ void Home::readReleases(WTable *releaseTable)
 
       std::string fileName = *i;
       std::string description = *(++i);
-      releaseTable->elementAt(row, 1)->addWidget(cpp14::make_unique<WText>(*(++i)));
-      releaseTable->elementAt(row, 2)->addWidget(cpp14::make_unique<WText>(*(++i)));
+      releaseTable->elementAt(row, 1)->addWidget(std::make_unique<WText>(*(++i)));
+      releaseTable->elementAt(row, 2)->addWidget(std::make_unique<WText>(*(++i)));
 
       ++i;
       std::string url = "http://prdownloads.sourceforge.net/witty/" 
@@ -369,7 +369,7 @@ void Home::readReleases(WTable *releaseTable)
 	url = *i;
 	
       releaseTable->elementAt(row, 0)->addWidget
-        (cpp14::make_unique<WText>(href(url, description)));
+        (std::make_unique<WText>(href(url, description)));
 
       ++row;
     }
@@ -379,13 +379,13 @@ void Home::readReleases(WTable *releaseTable)
 #ifdef WT_EMWEB_BUILD
 std::unique_ptr<WWidget> Home::quoteForm()
 {
-  auto result = cpp14::make_unique<WContainerWidget>();
+  auto result = std::make_unique<WContainerWidget>();
   result->setStyleClass("quote");
 
   WTemplate *requestTemplate =
-      result->addWidget(cpp14::make_unique<WTemplate>(tr("quote.request")));
+      result->addWidget(std::make_unique<WTemplate>(tr("quote.request")));
 
-  auto quoteButton = cpp14::make_unique<WPushButton>(tr("quote.requestbutton"));
+  auto quoteButton = std::make_unique<WPushButton>(tr("quote.requestbutton"));
   auto quoteButtonPtr = requestTemplate->bindWidget("button", std::move(quoteButton));
 
   auto quoteForm = result->addWidget(std::move(createQuoteForm()));
@@ -401,22 +401,22 @@ std::unique_ptr<WWidget> Home::quoteForm()
 
 std::unique_ptr<WWidget> Home::download()
 {
-  auto result = cpp14::make_unique<WContainerWidget>();
-  result->addWidget(cpp14::make_unique<WText>(tr("home.download")));
+  auto result = std::make_unique<WContainerWidget>();
+  result->addWidget(std::make_unique<WText>(tr("home.download")));
 
-  result->addWidget(cpp14::make_unique<WText>(tr("home.download.license")));
+  result->addWidget(std::make_unique<WText>(tr("home.download.license")));
 
 #ifdef WT_EMWEB_BUILD
   result->addWidget(std::move(quoteForm()));
 #endif // WT_EMWEB_BUILD
 
-  result->addWidget(cpp14::make_unique<WText>(tr("home.download.packages")));
+  result->addWidget(std::make_unique<WText>(tr("home.download.packages")));
 
-  auto releases = cpp14::make_unique<WTable>();
+  auto releases = std::make_unique<WTable>();
   readReleases(releases.get());
   releases_ = result->addWidget(std::move(releases));
 
-  result->addWidget(cpp14::make_unique<WText>(tr("home.download.other")));
+  result->addWidget(std::make_unique<WText>(tr("home.download.other")));
 
   return std::move(result);
 }

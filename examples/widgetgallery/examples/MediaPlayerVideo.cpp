@@ -12,7 +12,7 @@ std::string ogvVideo = "https://www.webtoolkit.eu/videos/sintel_trailer.ogv";
 // Define poster image location
 std::string poster = "pics/sintel_trailer.jpg";
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WMediaPlayer *player = container->addNew<Wt::WMediaPlayer>(Wt::MediaType::Video);
 player->addSource(Wt::MediaEncoding::M4V, Wt::WLink(mp4Video));

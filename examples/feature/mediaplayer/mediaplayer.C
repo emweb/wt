@@ -14,7 +14,7 @@ using namespace Wt;
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   std::unique_ptr<WApplication> app
-      = cpp14::make_unique<WApplication>(env);
+      = std::make_unique<WApplication>(env);
 
   app->messageResourceBundle().use(WApplication::appRoot() + "text");
 
@@ -27,12 +27,12 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 
   std::string poster = "sintel_trailer.jpg";
   
-  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("intro")));
+  app->root()->addWidget(std::make_unique<WText>(WString::tr("intro")));
 
-  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("video")));
+  app->root()->addWidget(std::make_unique<WText>(WString::tr("video")));
 
   WMediaPlayer *player = app->root()->addWidget(
-        cpp14::make_unique<WMediaPlayer>(MediaType::Video));
+        std::make_unique<WMediaPlayer>(MediaType::Video));
 
   player->addSource(MediaEncoding::M4V, mp4Video);
   player->addSource(MediaEncoding::OGV, ogvVideo);
@@ -41,9 +41,9 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 		   "target=\"_blank\">Sintel</a>, "
 		   "(c) copyright Blender Foundation");
 
-  app->root()->addWidget(cpp14::make_unique<WText>(WString::tr("audio")));
+  app->root()->addWidget(std::make_unique<WText>(WString::tr("audio")));
 
-  player = app->root()->addWidget(cpp14::make_unique<WMediaPlayer>(MediaType::Audio));
+  player = app->root()->addWidget(std::make_unique<WMediaPlayer>(MediaType::Audio));
 
   player->addSource(MediaEncoding::MP3, mp3Audio);
   player->setTitle("La Sera - Never Come Around");

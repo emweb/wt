@@ -49,7 +49,7 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
      */
 
       std::unique_ptr<WContainerWidget> topPtr
-          = cpp14::make_unique<WContainerWidget>();
+          = std::make_unique<WContainerWidget>();
       top = topPtr.get();
 
       const std::string *div = env.getParameter("div");
@@ -64,7 +64,7 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
 
 
   if (!embedded)
-    root()->addWidget(cpp14::make_unique<WText>(
+    root()->addWidget(std::make_unique<WText>(
        "<p><emph>Note: you can also run this application "
        "from within <a href=\"hello.html\">a web page</a>.</emph></p>"));
 
@@ -72,16 +72,16 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
    * Everything else is business as usual.
    */
 
-  top->addWidget(cpp14::make_unique<WText>("Your name, please ? "));
-  nameEdit_ = top->addWidget(cpp14::make_unique<WLineEdit>());
+  top->addWidget(std::make_unique<WText>("Your name, please ? "));
+  nameEdit_ = top->addWidget(std::make_unique<WLineEdit>());
   nameEdit_->setFocus();
 
-  auto b = top->addWidget(cpp14::make_unique<WPushButton>("Greet me."));
+  auto b = top->addWidget(std::make_unique<WPushButton>("Greet me."));
   b->setMargin(5, Side::Left);
 
-  top->addWidget(cpp14::make_unique<WBreak>());
+  top->addWidget(std::make_unique<WBreak>());
 
-  greeting_ = top->addWidget(cpp14::make_unique<WText>());
+  greeting_ = top->addWidget(std::make_unique<WText>());
 
   /*
    * Connect signals with slots
@@ -100,12 +100,12 @@ void HelloApplication::greet()
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  return cpp14::make_unique<HelloApplication>(env, false);
+  return std::make_unique<HelloApplication>(env, false);
 }
 
 std::unique_ptr<WApplication> createWidgetSet(const WEnvironment& env)
 {
-  return cpp14::make_unique<HelloApplication>(env, true);
+  return std::make_unique<HelloApplication>(env, true);
 }
 
 int main(int argc, char **argv)

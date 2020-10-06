@@ -8,14 +8,14 @@ using namespace Wt;
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   std::unique_ptr<WApplication> app
-      = cpp14::make_unique<WApplication>(env);
+      = std::make_unique<WApplication>(env);
   app->setTitle("Drag & drop");
 
   app->root()->setStyleClass("root");
 
-  app->root()->addWidget(cpp14::make_unique<WText>("<h1>Wt Drag &amp; drop example.</h1>"));
+  app->root()->addWidget(std::make_unique<WText>("<h1>Wt Drag &amp; drop example.</h1>"));
 
-  app->root()->addWidget(cpp14::make_unique<DragExample>());
+  app->root()->addWidget(std::make_unique<DragExample>());
 
   app->useStyleSheet("dragdrop.css");
 

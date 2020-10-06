@@ -114,9 +114,9 @@ const Wt::WColor orange(250, 168, 52);                  // btn-warning
 const Wt::WColor black = Wt::WColor(Wt::StandardColor::Black);  // btn-inverse
 const Wt::WColor gray(210, 210, 210);                   // (default)
 
-auto result = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto result = std::make_unique<Wt::WContainerWidget>();
 
-auto canvas = Wt::cpp14::make_unique<PaintBrush>(710, 400);
+auto canvas = std::make_unique<PaintBrush>(710, 400);
 auto canvas_ = canvas.get();
 canvas->setColor(blue);
 canvas->decorationStyle().setBorder
@@ -141,7 +141,7 @@ colorButtons.push_back(createColorToggle("btn-inverse", black, canvas.get()));
 colorButtons.push_back(createColorToggle("" /* default */, gray, canvas.get()));
 #endif // WT_TARGET_JAVA
 
-auto toolBar = Wt::cpp14::make_unique<Wt::WToolBar>();
+auto toolBar = std::make_unique<Wt::WToolBar>();
 
 for (unsigned i = 0; i < colorButtons.size(); ++i) {
     Wt::WPushButton *button = colorButtons[i];
@@ -157,7 +157,7 @@ for (unsigned i = 0; i < colorButtons.size(); ++i) {
         }
 }
 
-auto clearButton = Wt::cpp14::make_unique<Wt::WPushButton>("Clear");
+auto clearButton = std::make_unique<Wt::WPushButton>("Clear");
 
 clearButton->clicked().connect([=] {
     canvas_->clear();

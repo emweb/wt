@@ -40,7 +40,7 @@ FileDropApplication::FileDropApplication(const Wt::WEnvironment& env)
   drop_->uploadFailed().connect(this, &FileDropApplication::failed);
   drop_->tooLarge().connect(this, &FileDropApplication::tooLarge);
   
-  log_ = root()->addWidget(Wt::cpp14::make_unique<Wt::WText>());
+  log_ = root()->addWidget(std::make_unique<Wt::WText>());
   log_->setInline(false);
   log_->setTextFormat(Wt::TextFormat::XHTML);
 

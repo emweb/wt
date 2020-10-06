@@ -22,7 +22,7 @@ FileTreeTable::FileTreeTable(const boost::filesystem::path& path)
   header(2)->setStyleClass("date");
 
   auto tableNode
-      = cpp14::make_unique<FileTreeTableNode>(path);
+      = std::make_unique<FileTreeTableNode>(path);
   setTreeRoot(std::move(tableNode), "File");
 
   //treeRoot()->setImagePack("icons/");

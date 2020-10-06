@@ -32,12 +32,12 @@ void WTimePicker::init(const WTime &time)
     container->addStyleClass("form-inline");
     container->setTemplateText(tr("Wt.WTimePicker.template"));
 
-    sbhour_ = container->bindWidget("hour", cpp14::make_unique<WSpinBox>());
+    sbhour_ = container->bindWidget("hour", std::make_unique<WSpinBox>());
     sbhour_->setWidth(70);
     sbhour_->setSingleStep(1);
     sbhour_->changed().connect(this, &WTimePicker::hourValueChanged);
 
-    sbminute_ = container->bindWidget("minute", cpp14::make_unique<WSpinBox>());
+    sbminute_ = container->bindWidget("minute", std::make_unique<WSpinBox>());
     sbminute_->setWidth(70);
     sbminute_->setRange(0, 59);
     sbminute_->setSingleStep(1);
@@ -120,7 +120,7 @@ void WTimePicker::configure()
     WTemplate *container = dynamic_cast<WTemplate *>(implementation());
 
     if (formatS()) {
-      sbsecond_ = container->bindWidget("second", cpp14::make_unique<WSpinBox>());
+      sbsecond_ = container->bindWidget("second", std::make_unique<WSpinBox>());
       sbsecond_->setWidth(70);
       sbsecond_->setRange(0, 59);
       sbsecond_->setSingleStep(1);
@@ -137,7 +137,7 @@ void WTimePicker::configure()
 
     if (formatMs()) {
       if (!sbmillisecond_) {
-	sbmillisecond_ = container->bindWidget("millisecond", cpp14::make_unique<WSpinBox>());
+	sbmillisecond_ = container->bindWidget("millisecond", std::make_unique<WSpinBox>());
 	sbmillisecond_->setWidth(70);
 	sbmillisecond_->setRange(0, 999);
 	sbmillisecond_->setSingleStep(1);
@@ -155,7 +155,7 @@ void WTimePicker::configure()
 
     if (formatAp()) {
       if (!cbAP_) {
-	cbAP_ = container->bindWidget("ampm", cpp14::make_unique<WComboBox>());
+	cbAP_ = container->bindWidget("ampm", std::make_unique<WComboBox>());
 	cbAP_->setWidth(90);
 	cbAP_->addItem("AM");
 	cbAP_->addItem("PM");

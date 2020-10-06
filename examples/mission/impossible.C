@@ -15,25 +15,25 @@
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   std::unique_ptr<WApplication> appl
-      = cpp14::make_unique<WApplication>(env);
+      = std::make_unique<WApplication>(env);
 
-  appl->root()->addWidget(cpp14::make_unique<WText>("<h1>Your mission</h1>"));
+  appl->root()->addWidget(std::make_unique<WText>("<h1>Your mission</h1>"));
   WText *secret 
-    = appl->root()->addWidget(cpp14::make_unique<WText>("Your mission, Jim, should you accept, is to create solid "
+    = appl->root()->addWidget(std::make_unique<WText>("Your mission, Jim, should you accept, is to create solid "
                 "web applications."));
 
-  appl->root()->addWidget(cpp14::make_unique<WBreak>());
-  appl->root()->addWidget(cpp14::make_unique<WBreak>());
+  appl->root()->addWidget(std::make_unique<WBreak>());
+  appl->root()->addWidget(std::make_unique<WBreak>());
 
-  appl->root()->addWidget(cpp14::make_unique<WText>("This program will quit in "));
-  CountDownWidget *countdown = appl->root()->addWidget(cpp14::make_unique<CountDownWidget>(10, 0, std::chrono::milliseconds{1000}));
-  appl->root()->addWidget(cpp14::make_unique<WText>(" seconds."));
+  appl->root()->addWidget(std::make_unique<WText>("This program will quit in "));
+  CountDownWidget *countdown = appl->root()->addWidget(std::make_unique<CountDownWidget>(10, 0, std::chrono::milliseconds{1000}));
+  appl->root()->addWidget(std::make_unique<WText>(" seconds."));
 
-  appl->root()->addWidget(cpp14::make_unique<WBreak>());
-  appl->root()->addWidget(cpp14::make_unique<WBreak>());
+  appl->root()->addWidget(std::make_unique<WBreak>());
+  appl->root()->addWidget(std::make_unique<WBreak>());
 
-  WPushButton *cancelButton = appl->root()->addWidget(cpp14::make_unique<WPushButton>("Cancel!"));
-  WPushButton *quitButton = appl->root()->addWidget(cpp14::make_unique<WPushButton>("Quit"));
+  WPushButton *cancelButton = appl->root()->addWidget(std::make_unique<WPushButton>("Cancel!"));
+  WPushButton *quitButton = appl->root()->addWidget(std::make_unique<WPushButton>("Quit"));
   quitButton->clicked().connect(appl.get(), &WApplication::quit);
 
   countdown->done().connect([](){ WApplication::instance()->quit(); });

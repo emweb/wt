@@ -57,7 +57,7 @@ void WTreeTableNode::setColumnWidget(int column,
 void WTreeTableNode::createExtraColumns(int numColumns)
 {
   if (!row_) {
-    row_ = impl()->bindWidget("cols-row", cpp14::make_unique<WContainerWidget>());
+    row_ = impl()->bindWidget("cols-row", std::make_unique<WContainerWidget>());
     row_->addStyleClass("cols-row");
   }
 

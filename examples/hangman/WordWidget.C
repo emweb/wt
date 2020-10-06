@@ -24,7 +24,7 @@ void WordWidget::init(const std::wstring &word)
   clear();
   wordLetters_.clear();
   for(unsigned int i = 0; i < word_.size(); ++i) {
-    WText *c = this->addWidget(cpp14::make_unique<WText>("-"));
+    WText *c = this->addWidget(std::make_unique<WText>("-"));
     wordLetters_.push_back(c);
   }
 }

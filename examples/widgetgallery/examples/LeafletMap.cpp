@@ -15,12 +15,12 @@ class LeafletMapExample : public Wt::WContainerWidget
 public:
   LeafletMapExample()
   {
-    auto layout = setLayout(Wt::cpp14::make_unique<Wt::WHBoxLayout>());
+    auto layout = setLayout(std::make_unique<Wt::WHBoxLayout>());
 
     setHeight(400);
 
 #ifndef WT_TARGET_JAVA
-    map_ = layout->addWidget(Wt::cpp14::make_unique<Wt::WLeafletMap>(), 1);
+    map_ = layout->addWidget(std::make_unique<Wt::WLeafletMap>(), 1);
 #else // WT_TARGET_JAVA
     map_ = new Wt::WLeafletMap();
     layout->addWidget(std::unique_ptr<Wt::WLeafletMap>(map_), 1);
@@ -52,11 +52,11 @@ private:
 
   void addEmwebLogoMarker()
   {
-    auto emwebLogo = Wt::cpp14::make_unique<Wt::WImage>(
+    auto emwebLogo = std::make_unique<Wt::WImage>(
           Wt::WLink("https://www.emweb.be/css/emweb_small_filled.png"));
     emwebLogo->setInline(false);
     emwebLogo->resize(118, 32);
-    auto emwebMarker = Wt::cpp14::make_unique<Wt::WLeafletMap::WidgetMarker>(EMWEB_COORDS, std::move(emwebLogo));
+    auto emwebMarker = std::make_unique<Wt::WLeafletMap::WidgetMarker>(EMWEB_COORDS, std::move(emwebLogo));
     map_->addMarker(std::move(emwebMarker));
   }
 
@@ -136,6 +136,6 @@ const Wt::WLeafletMap::Coordinate LeafletMapExample::EMWEB_COORDS(50.906901, 4.6
 
 SAMPLE_BEGIN(LeafletMap)
 
-auto map = Wt::cpp14::make_unique<LeafletMapExample>();
+auto map = std::make_unique<LeafletMapExample>();
 
 SAMPLE_END(return std::move(map))

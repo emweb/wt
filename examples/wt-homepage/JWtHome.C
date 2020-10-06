@@ -42,13 +42,13 @@ JWtHome::JWtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb)
 
 std::unique_ptr<WWidget> JWtHome::examples()
 {
-  std::unique_ptr<WContainerWidget> result(cpp14::make_unique<WContainerWidget>());
+  std::unique_ptr<WContainerWidget> result(std::make_unique<WContainerWidget>());
 
-  std::unique_ptr<WText> intro(cpp14::make_unique<WText>(tr("home.examples")));
+  std::unique_ptr<WText> intro(std::make_unique<WText>(tr("home.examples")));
   intro->setInternalPathEncoding(true);
   result->addWidget(std::move(intro));
 
-  examplesMenu_ = result->addWidget(cpp14::make_unique<WTabWidget>());
+  examplesMenu_ = result->addWidget(std::make_unique<WTabWidget>());
   WAnimation animation(AnimationEffect::SlideInFromRight, TimingFunction::EaseIn);
   examplesMenu_->contentsStack()->setTransitionAnimation(animation, true);
 
@@ -92,7 +92,7 @@ std::unique_ptr<WWidget> JWtHome::examples()
 std::unique_ptr<WWidget> JWtHome::createQuoteForm()
 {
 #ifdef WT_EMWEB_BUILD
-  return cpp14::make_unique<QuoteForm>(QuoteForm::JWt);
+  return std::make_unique<QuoteForm>(QuoteForm::JWt);
 #else
   return nullptr;
 #endif
@@ -100,13 +100,13 @@ std::unique_ptr<WWidget> JWtHome::createQuoteForm()
 
 std::unique_ptr<WWidget> JWtHome::sourceViewer(const std::string &deployPath)
 {
-  return cpp14::make_unique<ExampleSourceViewer>(deployPath, jwtExamplePath_ + "/", "JAVA");
+  return std::make_unique<ExampleSourceViewer>(deployPath, jwtExamplePath_ + "/", "JAVA");
 }
 
 std::unique_ptr<WWidget> JWtHome::example(const char *textKey, const std::string& sourceDir)
 {
-  std::unique_ptr<WContainerWidget> result = cpp14::make_unique<WContainerWidget>();
-  result->addWidget(cpp14::make_unique<WText>(tr(textKey)));
+  std::unique_ptr<WContainerWidget> result = std::make_unique<WContainerWidget>();
+  result->addWidget(std::make_unique<WText>(tr(textKey)));
   result->addWidget(linkSourceBrowser(sourceDir));
   return std::move(result);
 }
@@ -138,8 +138,8 @@ std::unique_ptr<WWidget> JWtHome::chatExample()
 
 std::unique_ptr<WWidget> JWtHome::figtreeExample()
 {
-  std::unique_ptr<WContainerWidget> result(cpp14::make_unique<WContainerWidget>());
-  WText *text = result->addWidget(cpp14::make_unique<WText>(tr("home.examples.figtree")));
+  std::unique_ptr<WContainerWidget> result(std::make_unique<WContainerWidget>());
+  WText *text = result->addWidget(std::make_unique<WText>(tr("home.examples.figtree")));
   text->setInternalPathEncoding(true);
   return std::move(result);
 }
@@ -157,5 +157,5 @@ std::unique_ptr<WWidget> JWtHome::wrapView(std::unique_ptr<WWidget> (JWtHome::*c
 std::unique_ptr<WApplication> createJWtHomeApplication(const WEnvironment& env,
                                        Dbo::SqlConnectionPool *blogDb)
 {
-  return cpp14::make_unique<JWtHome>(env, *blogDb);
+  return std::make_unique<JWtHome>(env, *blogDb);
 }

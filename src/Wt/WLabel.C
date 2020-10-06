@@ -24,7 +24,7 @@ WLabel::WLabel(const WString& text)
     newImage_(false),
     newText_(false)
 {
-  auto wtext = cpp14::make_unique<WText>(text);
+  auto wtext = std::make_unique<WText>(text);
   manageWidget(text_, std::move(wtext));
   text_->setWordWrap(false);
 }
@@ -69,7 +69,7 @@ void WLabel::setText(const WString& text)
     return;
 
   if (!text_) {
-    auto wtext = cpp14::make_unique<WText>(text);
+    auto wtext = std::make_unique<WText>(text);
     manageWidget(text_, std::move(wtext));
     text_->setWordWrap(false);
     newText_ = true;

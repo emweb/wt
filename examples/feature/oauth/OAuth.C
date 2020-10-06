@@ -24,7 +24,7 @@ public:
     : WApplication(env)
   {
     if (!googleService) {
-      root()->addWidget(cpp14::make_unique<WText>(
+      root()->addWidget(std::make_unique<WText>(
                     "This example requires a Google Auth service "
                     "configuration"));
       return;
@@ -32,7 +32,7 @@ public:
 
     process_ = googleService->createProcess
       (googleService->authenticationScope());
-    auto ggi = root()->addWidget(cpp14::make_unique<WImage>("css/oauth-google.png"));
+    auto ggi = root()->addWidget(std::make_unique<WImage>("css/oauth-google.png"));
     ggi->clicked().connect(process_.get(),
                            &Auth::OAuthProcess::startAuthenticate);
 
@@ -41,7 +41,7 @@ public:
 
   void authenticated(const Auth::Identity& identity) {
     root()->clear();
-    root()->addWidget(cpp14::make_unique<WText>("Welcome, " + identity.name()));
+    root()->addWidget(std::make_unique<WText>("Welcome, " + identity.name()));
   }
 
 private:
@@ -50,7 +50,7 @@ private:
 
 std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
 {
-  return cpp14::make_unique<OAuthApplication>(env);
+  return std::make_unique<OAuthApplication>(env);
 }
 
 int main(int argc, char **argv)
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     server.addEntryPoint(EntryPointType::Application, createApplication);
 
     if (Auth::GoogleService::configured()) {
-      googleService = cpp14::make_unique<Auth::GoogleService>(authService);
+      googleService = std::make_unique<Auth::GoogleService>(authService);
     }
 
     server.run();

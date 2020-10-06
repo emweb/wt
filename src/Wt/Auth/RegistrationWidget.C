@@ -134,14 +134,14 @@ void RegistrationWidget::update()
 	bindString("oauth-description", tr("Wt.Auth.oauth-registration"));
 
       WContainerWidget *icons = 
-	bindWidget("icons", cpp14::make_unique<WContainerWidget>());
+	bindWidget("icons", std::make_unique<WContainerWidget>());
       icons->addStyleClass("Wt-field");
 
       for (unsigned i = 0; i < model_->oAuth().size(); ++i) {
 	const OAuthService *service = model_->oAuth()[i];
 
 	OAuthWidget *w
-	  = icons->addWidget(cpp14::make_unique<OAuthWidget>(*service));
+	  = icons->addWidget(std::make_unique<OAuthWidget>(*service));
 	w->authenticated().connect(this, &RegistrationWidget::oAuthDone);
       }
     }
@@ -153,10 +153,10 @@ void RegistrationWidget::update()
   if (!created_) {
     WPushButton *okButton =
       bindWidget("ok-button",
-		 cpp14::make_unique<WPushButton>(tr("Wt.Auth.register")));
+		 std::make_unique<WPushButton>(tr("Wt.Auth.register")));
     WPushButton *cancelButton =
       bindWidget("cancel-button",
-                 cpp14::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
+                 std::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
 
     okButton->clicked().connect(this, &RegistrationWidget::doRegister);
     cancelButton->clicked().connect(this, &RegistrationWidget::close);

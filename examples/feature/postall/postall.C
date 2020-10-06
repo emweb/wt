@@ -16,12 +16,12 @@ public:
     // Enable server push
     enableUpdates(true);
 
-    auto msgEdit = root()->addWidget(Wt::cpp14::make_unique<Wt::WLineEdit>());
+    auto msgEdit = root()->addWidget(std::make_unique<Wt::WLineEdit>());
     auto sendBtn = root()->addWidget(
-          Wt::cpp14::make_unique<Wt::WPushButton>("Send message"));
-    root()->addWidget(Wt::cpp14::make_unique<Wt::WBreak>());
+          std::make_unique<Wt::WPushButton>("Send message"));
+    root()->addWidget(std::make_unique<Wt::WBreak>());
     lastMsg_ = root()->addWidget(
-          Wt::cpp14::make_unique<Wt::WText>("No messages received yet."));
+          std::make_unique<Wt::WText>("No messages received yet."));
 
     sendBtn->clicked().connect([msgEdit]{
       auto server = Wt::WServer::instance();
@@ -51,6 +51,6 @@ private:
 int main(int argc, char *argv[])
 {
   return Wt::WRun(argc, argv, [](const Wt::WEnvironment &env){
-    return Wt::cpp14::make_unique<PostAllExample>(env);
+    return std::make_unique<PostAllExample>(env);
   });
 }

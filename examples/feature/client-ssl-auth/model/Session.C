@@ -23,7 +23,7 @@ void Session::configureAuth()
 
 Session::Session(const std::string& sqliteDb)
 {
-  auto connection = cpp14::make_unique<Dbo::backend::Sqlite3>(sqliteDb);
+  auto connection = std::make_unique<Dbo::backend::Sqlite3>(sqliteDb);
 
   connection->setProperty("show-queries", "true");
 
@@ -42,7 +42,7 @@ Session::Session(const std::string& sqliteDb)
     std::cerr << "Using existing database";
   }
 
-  users_ = cpp14::make_unique<UserDatabase>(*this);
+  users_ = std::make_unique<UserDatabase>(*this);
 }
 
 Auth::AbstractUserDatabase& Session::users()

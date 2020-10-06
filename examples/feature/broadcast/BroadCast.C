@@ -158,9 +158,9 @@ void Server::run()
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
-  std::unique_ptr<WApplication> app = cpp14::make_unique<WApplication>(env);
+  std::unique_ptr<WApplication> app = std::make_unique<WApplication>(env);
   app->setCssTheme("");
-  app->root()->addWidget(cpp14::make_unique<ClientWidget>());
+  app->root()->addWidget(std::make_unique<ClientWidget>());
   return app;
 }
 

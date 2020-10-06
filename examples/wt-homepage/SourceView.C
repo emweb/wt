@@ -98,7 +98,7 @@ std::unique_ptr<WWidget> SourceView::renderView()
 {
   if (!index_.isValid()) {
     // no content
-    auto result = cpp14::make_unique<WText>();
+    auto result = std::make_unique<WText>();
     result->setInline(false);
     return std::move(result);
   }
@@ -175,7 +175,7 @@ std::unique_ptr<WWidget> SourceView::renderView()
   std::unique_ptr<WWidget> result;
 
   if (!imageExtension(fileName).empty()) {
-    std::unique_ptr<WImage> image(cpp14::make_unique<WImage>());
+    std::unique_ptr<WImage> image(std::make_unique<WImage>());
     imageResource_ = std::make_shared<WMemoryResource>();
     imageResource_->setMimeType("mime/" + imageExtension(fileName));
     imageResource_->setData((const unsigned char*)content.data(),
@@ -183,12 +183,12 @@ std::unique_ptr<WWidget> SourceView::renderView()
     image->setImageLink(WLink(imageResource_));
     result = std::move(image);
   } else if (lang != "") {
-    auto text = cpp14::make_unique<WText>();
+    auto text = std::make_unique<WText>();
     text->setTextFormat(TextFormat::UnsafeXHTML);
     text->setText(content);
     result = std::move(text);
   } else {
-    auto text = cpp14::make_unique<WText>();
+    auto text = std::make_unique<WText>();
     text->setTextFormat(TextFormat::Plain);
     text->setText(content);
     result = std::move(text);

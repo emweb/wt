@@ -6,7 +6,7 @@
 
 SAMPLE_BEGIN(ComboBoxModel)
 
-auto container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+auto container = std::make_unique<Wt::WContainerWidget>();
 
 auto cb = container->addNew<Wt::WComboBox>();
 cb->setMargin(10, Wt::Side::Right);

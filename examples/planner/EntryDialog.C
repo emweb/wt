@@ -25,37 +25,37 @@ EntryDialog::EntryDialog(const WString& title, CalendarCell* cell)
 {
   cell_ = cell;
 
-  WTemplate* t = contents()->addWidget(cpp14::make_unique<WTemplate>());
+  WTemplate* t = contents()->addWidget(std::make_unique<WTemplate>());
   t->setTemplateText(tr("calendar.entry"));
   
-  auto summaryPtr = cpp14::make_unique<WLineEdit>();
+  auto summaryPtr = std::make_unique<WLineEdit>();
   summary_ = t->bindWidget("summary", std::move(summaryPtr));
   summary_->setValidator(std::make_shared<WValidator>());
 		
   auto timeValidator =
     std::make_shared<WRegExpValidator>("^([0-1][0-9]|[2][0-3]):([0-5][0-9])$");
-  auto startPtr = cpp14::make_unique<WLineEdit>();
+  auto startPtr = std::make_unique<WLineEdit>();
   start_ = t->bindWidget("start", std::move(startPtr));
   start_->setTextSize(5);
   start_->setValidator(timeValidator);
 
-  auto stopPtr = cpp14::make_unique<WLineEdit>();
+  auto stopPtr = std::make_unique<WLineEdit>();
   stop_ = t->bindWidget("stop", std::move(stopPtr));
   stop_->setTextSize(5);
   stop_->setValidator(timeValidator);
 
-  auto descriptionPtr = cpp14::make_unique<WTextArea>();
+  auto descriptionPtr = std::make_unique<WTextArea>();
   description_ = t->bindWidget("description", std::move(descriptionPtr));
 		
-  TimeSuggestions* suggestions = contents()->addChild(cpp14::make_unique<TimeSuggestions>());
+  TimeSuggestions* suggestions = contents()->addChild(std::make_unique<TimeSuggestions>());
   suggestions->forEdit(start_);
   suggestions->forEdit(stop_);
 
-  auto okPtr = cpp14::make_unique<WPushButton>(tr("calendar.entry.ok"));
+  auto okPtr = std::make_unique<WPushButton>(tr("calendar.entry.ok"));
   auto ok = t->bindWidget("ok", std::move(okPtr));
   ok->clicked().connect(this, &EntryDialog::ok);
 
-  auto cancelPtr = cpp14::make_unique<WPushButton>(tr("calendar.entry.cancel"));
+  auto cancelPtr = std::make_unique<WPushButton>(tr("calendar.entry.cancel"));
   auto cancel = t->bindWidget("cancel", std::move(cancelPtr));
   cancel->clicked().connect(this, &EntryDialog::cancel);
 }
@@ -79,7 +79,7 @@ void EntryDialog::ok()
 
   ptr<Entry> e = 
     PlannerApplication::plannerApplication()->session.add(
-        Wt::cpp14::make_unique<Entry>());
+        std::make_unique<Entry>());
   e.modify()->start = timeStamp(start_->text(), cell_->date());
   e.modify()->stop = timeStamp(stop_->text(), cell_->date());
   e.modify()->summary = summary_->text().toUTF8();

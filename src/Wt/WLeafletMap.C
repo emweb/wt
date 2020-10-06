@@ -575,7 +575,7 @@ void WLeafletMap::moveMarkerJS(WStringStream &ss,
 void WLeafletMap::addPolyline(const std::vector<Coordinate> &points,
                               const WPen &pen)
 {
-  overlays_.push_back(cpp14::make_unique<Polyline>(points, pen));
+  overlays_.push_back(std::make_unique<Polyline>(points, pen));
   scheduleRender();
 }
 
@@ -584,7 +584,7 @@ void WLeafletMap::addCircle(const Coordinate &center,
                             const WPen &stroke,
                             const WBrush &fill)
 {
-  overlays_.push_back(cpp14::make_unique<Circle>(center, radius, stroke, fill));
+  overlays_.push_back(std::make_unique<Circle>(center, radius, stroke, fill));
   scheduleRender();
 }
 

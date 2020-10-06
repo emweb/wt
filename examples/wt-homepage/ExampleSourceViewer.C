@@ -110,7 +110,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
 
   if (!exists) {
     WApplication::instance()->setInternalPathValid(false);
-    addWidget(cpp14::make_unique<WText>("No such example: " + exampleDir));
+    addWidget(std::make_unique<WText>("No such example: " + exampleDir));
     return;
   }
 
@@ -122,11 +122,11 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
   }
 
   WApplication::instance()->setTitle(tr("srcview.title." + example));
-  std::unique_ptr<WText> title(cpp14::make_unique<WText>(
+  std::unique_ptr<WText> title(std::make_unique<WText>(
                                  tr("srcview.title." + examplesType_ + "." + example)));
   title->setInternalPathEncoding(true);
 
-  auto exampleView = cpp14::make_unique<WTreeView>();
+  auto exampleView = std::make_unique<WTreeView>();
   exampleView_ = exampleView.get();
   exampleView_->setHeaderHeight(0);
   exampleView_->resize(300, WLength::Auto);
@@ -139,7 +139,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
     (this, &ExampleSourceViewer::showFile);
 
   auto sourceView =
-        cpp14::make_unique<SourceView>(FileItem::FileNameRole,
+        std::make_unique<SourceView>(FileItem::FileNameRole,
                                        FileItem::ContentsRole,
                                        FileItem::FilePathRole);
   sourceView_ = sourceView.get();
@@ -159,10 +159,10 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
     }
   } while (w);
 
-  auto topLayout = cpp14::make_unique<WVBoxLayout>();
+  auto topLayout = std::make_unique<WVBoxLayout>();
   topLayout->addWidget(std::move(title));
 
-  auto gitLayout = cpp14::make_unique<WHBoxLayout>();
+  auto gitLayout = std::make_unique<WHBoxLayout>();
   WHBoxLayout *g = gitLayout.get();
   gitLayout->addWidget(std::move(exampleView), 0);
   gitLayout->addWidget(std::move(sourceView), 1);
@@ -201,7 +201,7 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
     ".C", ".cpp", ".h", ".css", ".xml", ".png", ".gif", ".csv", ".ico", 0
   };
 
-  auto dir = cpp14::make_unique<FileItem>("/icons/yellow-folder-open.png",
+  auto dir = std::make_unique<FileItem>("/icons/yellow-folder-open.png",
                                                              filename(path),
                                                              "");
   FileItem *dirPtr = dir.get();
@@ -250,14 +250,14 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
 	    std::string label = "<i>class</i> " + className;
 
 	    std::unique_ptr<FileItem> classItem =
-	      cpp14::make_unique<FileItem>("/icons/cppclass.png", label, std::string());
+	      std::make_unique<FileItem>("/icons/cppclass.png", label, std::string());
 	    classItem->setFlags(classItem->flags() | ItemFlag::XHTMLText);
 
 	    auto header
-		= cpp14::make_unique<FileItem>("/icons/document.png", filename(p),
+		= std::make_unique<FileItem>("/icons/document.png", filename(p),
 					    p.string());
 	    auto cpp
-		= cpp14::make_unique<FileItem>("/icons/document.png",
+		= std::make_unique<FileItem>("/icons/document.png",
 					 filename(*it_companion),
 					 (*it_companion).string());
 	    classItem->appendRow(std::move(header));
@@ -267,7 +267,7 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
 	    paths.erase(it_companion);
 	  } else {
 	    auto file
-		= cpp14::make_unique<FileItem>("/icons/document.png", filename(p),
+		= std::make_unique<FileItem>("/icons/document.png", filename(p),
 					  p.string());
 	    files.push_back(std::move(file));
 	  }
@@ -275,7 +275,7 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
 	dirs.push_back(p);
       } else {
         auto file
-            = cpp14::make_unique<FileItem>("/icons/document.png", filename(p),
+            = std::make_unique<FileItem>("/icons/document.png", filename(p),
 				      p.string());
 	files.push_back(std::move(file));
       }
@@ -307,13 +307,13 @@ void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
     fs::path p = *i;
     if (fs::is_regular(p)) {
       if (!packageItem) {
-        auto item = cpp14::make_unique<FileItem>("/icons/package.png", packageName, "");
+        auto item = std::make_unique<FileItem>("/icons/package.png", packageName, "");
         packageItem = item.get();
         parent->appendRow(std::move(item));
       }
 
       auto file
-          = cpp14::make_unique<FileItem>("/icons/javaclass.png", filename(p),
+          = std::make_unique<FileItem>("/icons/javaclass.png", filename(p),
 				    p.string());
       packageItem->appendRow(std::move(file));
     }
@@ -336,7 +336,7 @@ void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent,
 					  const fs::path& path)
 {
   auto dir
-      = cpp14::make_unique<FileItem>("/icons/yellow-folder-open.png",
+      = std::make_unique<FileItem>("/icons/yellow-folder-open.png",
                                      filename(path),"");
   FileItem *dirPtr = dir.get();
   parent->appendRow(std::move(dir));
@@ -350,7 +350,7 @@ void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent,
     if (fs::is_directory(p)) {
       if (filename(p) == "src") {
         auto dir
-            = cpp14::make_unique<FileItem>("/icons/package-folder-open.png",
+            = std::make_unique<FileItem>("/icons/package-folder-open.png",
 				     filename(p), "");
 	FileItem *dirPtr = dir.get();
 	parent->appendRow(std::move(dir));
@@ -370,7 +370,7 @@ void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent,
 
   for (auto item : files) {
     auto file
-        = cpp14::make_unique<FileItem>("/icons/document.png", filename(item),
+        = std::make_unique<FileItem>("/icons/document.png", filename(item),
                                   item.string());
     parent->appendRow(std::move(file));
   }

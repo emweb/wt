@@ -61,7 +61,7 @@ void WQApplication::notify(const WEvent& e)
 {
   if (!thread_) {
     log("debug") << "WQApplication: starting thread";
-    thread_ = cpp14::make_unique<DispatchThread>(this, withEventLoop_);
+    thread_ = std::make_unique<DispatchThread>(this, withEventLoop_);
     thread_->start();
     thread_->waitDone();
   }

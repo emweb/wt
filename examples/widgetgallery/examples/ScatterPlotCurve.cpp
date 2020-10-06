@@ -10,7 +10,7 @@ using namespace Wt;
 #endif // WT_TARGET_JAVA
 
 SAMPLE_BEGIN(ScatterPlotCurve)
-auto container = cpp14::make_unique<WContainerWidget>();
+auto container = std::make_unique<WContainerWidget>();
 
 auto model =
     std::make_shared<WStandardItemModel>(40, 2);
@@ -48,7 +48,7 @@ chart->setPlotAreaPadding(120, Side::Right);
 chart->setPlotAreaPadding(40, Side::Top | Side::Bottom);
 
 // Add the curves
-auto s = cpp14::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Curve);
+auto s = std::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Curve);
 s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
 chart->addSeries(std::move(s));
 
