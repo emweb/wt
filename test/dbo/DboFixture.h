@@ -47,8 +47,7 @@ struct DboFixtureBase
     }
 
     connection = std::unique_ptr<dbo::SqlConnection>(new dbo::backend::Postgres
-        ("user=postgres_test password=postgres_test port=5432 dbname=wt_test"));
-    // use host=vendetta for testing.
+        ("host=db user=postgres_test password=postgres_test port=5432 dbname=wt_test"));
 
 #endif // POSTGRES");
 
@@ -59,7 +58,7 @@ struct DboFixtureBase
     }
 
     std::unique_ptr<dbo::backend::MySQL> mysql(
-        new dbo::backend::MySQL("wt_test_db", "test_user", "test_pw", "vendetta", 3306));
+        new dbo::backend::MySQL("wt_test_db", "test_user", "test_pw", "db", 3306));
     mysql->setFractionalSecondsPart(3);
     connection = std::move(mysql);
 #endif // MYSQL
@@ -73,7 +72,7 @@ struct DboFixtureBase
 #ifdef WT_WIN32
     file = "C:\\opt\\db\\firebird\\wt_test.fdb";
 #else
-    file = "/opt/db/firebird/wt_test.fdb";
+    file = "/firebird/data/wt_test.fdb";
 #endif
 
     if (!logged) {
@@ -82,7 +81,7 @@ struct DboFixtureBase
     }
 
     connection = std::unique_ptr<dbo::SqlConnection>(
-          new dbo::backend::Firebird ("localhost",
+          new dbo::backend::Firebird ("db",
                                       file,
                                       "test_user", "test_pwd",
                                       "", "", ""));
@@ -96,11 +95,10 @@ struct DboFixtureBase
 
     connection = std::unique_ptr<dbo::SqlConnection>(
 	new dbo::backend::MSSQLServer(
-	"Driver={ODBC Driver 13 for SQL Server};"
-	"Server=10.1.0.44;"
-	"UID=wt_test;"
-	"PWD=test_pwd;"
-	"Database=wt_test;"));
+	"Driver={ODBC Driver 17 for SQL Server};"
+	"Server=db;"
+	"UID=sa;"
+	"PWD={hereIsMyPassword_1234};"));
 #endif // MSSQLSERVER
 
     if (showQueries)
