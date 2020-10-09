@@ -358,9 +358,14 @@ bool RequestParser::doWebSocketPerMessageDeflateNegotiation(const Request& req, 
 		boost::trim(key);
 		size_t pos = key.find("=");
 		if (pos != std::string::npos) {
-		  hasServerWBit = true; 
-		  int ws = boost::lexical_cast<int>(key.substr(pos + 1));
-		  
+		  hasServerWBit = true;
+		  int ws = 0;
+		  try {
+		    ws = Wt::Utils::stoi(key.substr(pos + 1));
+		  } catch (const std::invalid_argument &e) {
+		    return false;
+		  }
+
 		  if (ws < 8 || ws > 15) return false;
 
 		  req.pmdState_.server_max_window_bits  = ws;
@@ -373,9 +378,14 @@ bool RequestParser::doWebSocketPerMessageDeflateNegotiation(const Request& req, 
 		boost::trim(key);
 		size_t pos = key.find("=");
 		if (pos != std::string::npos) {
-		  hasClientWBit = true; 
-		  int ws = boost::lexical_cast<int>(key.substr(pos + 1));
-		  
+		  hasClientWBit = true;
+		  int ws = 0;
+		  try {
+		    ws = Wt::Utils::stoi(key.substr(pos + 1));
+		  } catch (const std::invalid_argument &e) {
+		    return false;
+		  }
+
 		  if (ws < 8 || ws > 15) return false;
 
 		  req.pmdState_.client_max_window_bits = ws;
@@ -453,9 +463,11 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	  reply->addHeader("Sec-WebSocket-Accept", accept);
 #ifdef WTHTTP_WITH_ZLIB
 	  std::string compressHeader;
-	  if(!doWebSocketPerMessageDeflateNegotiation(req, compressHeader))
-		return Request::Error;
-	  
+	  if(!doWebSocketPerMessageDeflateNegotiation(req, compressHeader)) {
+	    LOG_ERROR("ws: error during per_message_deflate negotiation");
+	    return Request::Error;
+	  }
+
 	  if(!compressHeader.empty())  {
 		// We can use per message deflate
 		if(initInflate()) {
