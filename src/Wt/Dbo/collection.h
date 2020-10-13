@@ -45,6 +45,7 @@ namespace Wt {
    *     i != allUsers.end(); ++i){
    *   dbo::ptr<User> user = *i;
    * }
+   * \endcode
    *
    * The container is read only when it reflects results of a query.
    * Otherwise, when involved in a Many-to-One or Many-to-Many
@@ -73,7 +74,7 @@ namespace Wt {
    * }
    * \endcode
    *
-   * If you cannot gaurantee that during its iteration the same query
+   * If you cannot guarantee that during its iteration the same query
    * will be reused, you should copy the results in a standard
    * container. Note that this is no big overhead since dbo pointers
    * are lightweight.
