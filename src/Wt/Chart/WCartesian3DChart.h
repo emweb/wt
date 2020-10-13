@@ -111,14 +111,14 @@ public:
 
   /*! \brief Constructor
    *
-   * Constructs a cartesian 3D chart, with the type set to ChartType::Scatter, a 
+   * Constructs a cartesian 3D chart, with the type set to ChartType::Scatter, a
    * transparent background, a PaletteFlavour::Muted palette and no gridlines.
    */
   WCartesian3DChart();
 
   /*! \brief Constructor
    *
-   * Construct a cartesian 3D chart with the specified type , a transparent  
+   * Construct a cartesian 3D chart with the specified type, a transparent
    * background, a PaletteFlavour::Muted palette and no gridlines.
    */
   WCartesian3DChart(ChartType type);

@@ -65,7 +65,7 @@ namespace Wt {
      \ref wthttpd <br>
      \ref fastcgi <br>
      \ref wtisapi <br>
-     </div>  
+     </div>
    \ref configuration_sec
      <div style="margin-left: 10px; margin-bottom: 7px;">
      \ref config_session <br>

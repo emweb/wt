@@ -751,7 +751,7 @@ public:
    *
    * The widget must actualize its contents in response.
    *
-   * \note This does *not* rerender the widget! Calling refresh() usually
+   * \note This does **not** rerender the widget! Calling refresh() usually
    *       does not have any effect (unless you've reimplemented refresh()
    *       to attach to it an effect).
    */
