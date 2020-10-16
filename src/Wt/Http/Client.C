@@ -427,7 +427,7 @@ private:
 	  emitHeadersReceived();
       }
 
-      bool done = headersOnly_ || response_.status() == STATUS_NO_CONTENT;
+      bool done = headersOnly_ || response_.status() == STATUS_NO_CONTENT || contentLength_ == 0;
       // Write whatever content we already have to output.
       if (responseBuf_.size() > 0) {
 	std::stringstream ss;
