@@ -16,6 +16,18 @@
 
 namespace dbo = Wt::Dbo;
 
+#if defined(SQLITE3)
+#define DBO_TEST_SUITE_NAME Sqlite3_Test_Suite
+#elif defined(POSTGRES)
+#define DBO_TEST_SUITE_NAME PostgreSQL_Test_Suite
+#elif defined(MYSQL)
+#define DBO_TEST_SUITE_NAME MariaDB_MySQL_Test_Suite
+#elif defined(FIREBIRD)
+#define DBO_TEST_SUITE_NAME Firebird_Test_Suite
+#elif defined(MSSQLSERVER)
+#define DBO_TEST_SUITE_NAME MSSqlServer_Test_Suite
+#endif
+
 struct DboFixtureBase
 {
 

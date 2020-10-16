@@ -56,6 +56,8 @@ struct Dbo5Fixture : DboFixtureBase
   }
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( dbo5_test1 )
 {
   Dbo5Fixture f;
@@ -92,3 +94,4 @@ BOOST_AUTO_TEST_CASE( dbo5_test1 )
   }
 }
 
+BOOST_AUTO_TEST_SUITE_END()

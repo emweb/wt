@@ -596,6 +596,8 @@ public:
   }
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( dbo_test1 )
 {
   DboFixture f;
@@ -3294,3 +3296,5 @@ BOOST_AUTO_TEST_CASE( dbo_test42 )
   }
 #endif // POSTGRES
 }
+
+BOOST_AUTO_TEST_SUITE_END()

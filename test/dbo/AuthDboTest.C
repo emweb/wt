@@ -122,6 +122,8 @@ struct AuthDboFixture : DboFixtureBase
   std::string schema_;
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( auth_dbo_test1 )
 {
   const char* tablenames[] = {"test_user", "auth_info", "auth_identity", "auth_token"};
@@ -180,3 +182,5 @@ BOOST_AUTO_TEST_CASE( auth_dbo_test2 )
   }
 #endif //POSTGRES
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -42,6 +42,8 @@ struct Dbo6Fixture : DboFixtureBase
   }
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( dbo6_test1 )
 {
   Dbo6Fixture f;
@@ -70,5 +72,7 @@ BOOST_AUTO_TEST_CASE( dbo6_test1 )
     BOOST_REQUIRE(!result);
   }
 }
+
+BOOST_AUTO_TEST_SUITE_END()
 
 #endif // POSTGRES

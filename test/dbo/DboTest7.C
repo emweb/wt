@@ -77,6 +77,8 @@ struct Dbo7Fixture : DboFixtureBase
   { }
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( dbo7_test1 )
 {
   Dbo7Fixture f;
@@ -100,3 +102,5 @@ BOOST_AUTO_TEST_CASE( dbo7_test1 )
     BOOST_CHECK_EQUAL(result[3], 4);
   }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

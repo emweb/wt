@@ -149,6 +149,8 @@ struct Dbo4Fixture : DboFixtureBase
   }
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( dbo4_test1 )
 {
   Dbo4Fixture f;
@@ -210,3 +212,5 @@ BOOST_AUTO_TEST_CASE( dbo4_test1 )
   connection->rollbackTransaction();
   f.connectionPool_->returnConnection(std::move(connection));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -103,6 +103,8 @@ struct Dbo2Fixture : DboFixtureBase
   }
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( dbo2_test1 )
 {
   Dbo2Fixture f;
@@ -462,3 +464,5 @@ BOOST_AUTO_TEST_CASE( dbo2_test2 )
     }
   }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

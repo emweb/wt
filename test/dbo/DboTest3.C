@@ -93,6 +93,8 @@ struct Dbo3Fixture : DboFixtureBase
   }
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( dbo3_test2 )
 {
   Dbo3Fixture f;
@@ -172,3 +174,5 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
 
   transaction.commit();
 }
+
+BOOST_AUTO_TEST_SUITE_END()

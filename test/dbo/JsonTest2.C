@@ -50,6 +50,8 @@ struct DboFixture : DboFixtureBase
   }
 };
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( dbo_json_sql_traits )
 {
   DboFixture f;
@@ -83,5 +85,7 @@ BOOST_AUTO_TEST_CASE( dbo_json_sql_traits )
 }
 
 }
+
+BOOST_AUTO_TEST_SUITE_END()
 
 #endif

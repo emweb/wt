@@ -90,6 +90,8 @@ namespace Wt {
   }
 }
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( performance_test )
 {
   DboBenchmarkFixture f;
@@ -145,3 +147,4 @@ BOOST_AUTO_TEST_CASE( performance_test )
   //session.dropTables();
 }
 
+BOOST_AUTO_TEST_SUITE_END()

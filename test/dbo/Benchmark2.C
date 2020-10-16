@@ -126,6 +126,8 @@ long benchmarkQuery(
   return std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
 }
 
+BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
+
 BOOST_AUTO_TEST_CASE( performance_test2 )
 {
   DboBenchmark2Fixture f;
@@ -197,3 +199,5 @@ BOOST_AUTO_TEST_CASE( performance_test2 )
     std::cerr << std::endl;
   }
 }
+
+BOOST_AUTO_TEST_SUITE_END()
