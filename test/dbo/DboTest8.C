@@ -58,6 +58,9 @@ struct Dbo8Fixture : DboFixtureBase {
   }
 };
 
+// MS SQL Server does not have restrict keyword
+#ifndef MSSQLSERVER
+
 BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
 
 BOOST_AUTO_TEST_CASE( dbo8_test1 )
@@ -87,3 +90,5 @@ BOOST_AUTO_TEST_CASE( dbo8_test1 )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+#endif // MSSQLSERVER
