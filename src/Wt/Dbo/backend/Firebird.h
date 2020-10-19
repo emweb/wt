@@ -32,6 +32,13 @@ namespace Wt {
        * databases. It supports %Firebird databases with version 2.1
        * or higher.
        *
+       * \warning
+       * The %Firebird backend is **UNMAINTAINED**, and may not work at all
+       * with recent versions of %Firebird. This backend is based on
+       * IBPP, a project which has not seen any activity in a very
+       * long time. Emweb has no plans to continue supporting the
+       * %Firebird backend.
+       *
        * \ingroup dbo
        */
       class WTDBOFIREBIRD_API Firebird : public SqlConnection
