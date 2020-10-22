@@ -82,7 +82,9 @@ void DispatchThread::myExec()
   for (;;) {
     if (!newEvent_) {
       log("debug") << "WQApplication: [thread] waiting for event";
-      newEventCondition_.wait(lock);
+      while (!newEvent_) {
+        newEventCondition_.wait(lock);
+      }
     }
 
     doEvent();
@@ -117,10 +119,9 @@ void DispatchThread::waitDone()
 {
   boost::mutex::scoped_lock lock(doneMutex_);
 
-  if (done_)
-    return;
-  else
+  while (!done_) {
     doneCondition_.wait(lock);
+  }
  }
 
 void DispatchThread::notify(const WEvent& event)
