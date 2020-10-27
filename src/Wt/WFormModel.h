@@ -11,6 +11,8 @@
 #include <Wt/WObject.h>
 #include <Wt/WValidator.h>
 
+#include <cstring>
+
 namespace Wt {
 
 /*! \class WFormModel Wt/WFormModel.h
@@ -94,15 +96,6 @@ public:
   /*! \brief A type to identify a field.
    *
    * Fields are identified by a string literal constant.
-   *
-   * \if cpp
-   * \warning Instead of string comparisons to identify fields, pointer
-   *          comparisons are used.
-   *          Thus you really should use the same field constant throughout
-   *          your code to refer to a given field, and you cannot use
-   *          constexpr for the field constant since that does not have a unique
-   *          value (since it has no storage).
-   * \endif
    */
   typedef const char *Field;
 
@@ -121,6 +114,16 @@ public:
    * validated.
    *
    * If the \p field was already in the model, its data is reset.
+   *
+   * \if cpp
+   * Note that Field is a const char *. In versions of Wt before 4.5.0,
+   * a field would be identified by a string literal and pointer comparison
+   * would be used. In Wt 4.5.0 this has changed to string comparison.
+   * However, you should still make sure the \p field argument to this
+   * function should either be a string literal like before, or otherwise
+   * outlive the %WFormModel. Ideally, Field would simply become a std::string
+   * in the future.
+   * \endif
    */
   void addField(Field field, const WString& info = WString::Empty);
 
@@ -288,7 +291,19 @@ private:
     bool visible, readOnly, validated;
   };
 
+#ifndef WT_TARGET_JAVA
+  struct FieldComparator {
+      bool operator()(const char *left, const char *right) const
+      {
+        return std::strcmp(left, right) < 0;
+      }
+  };
+
+  typedef std::map<Field, FieldData, FieldComparator> FieldMap;
+#else
   typedef std::map<Field, FieldData> FieldMap;
+#endif
+
   FieldMap fields_;
 
   static const WValidator::Result Valid;
