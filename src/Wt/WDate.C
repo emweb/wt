@@ -214,9 +214,7 @@ bool WDate::operator>= (const WDate& other) const
 
 WDate WDate::currentServerDate()
 {
-  date::sys_days dp = date::floor<date::days>(std::chrono::system_clock::now());
-  date::year_month_day ymd(dp);
-  return WDate((int)ymd.year(), (unsigned int)ymd.month(), (unsigned int)ymd.day());
+  return WLocalDateTime::currentServerDateTime().date();
 }
 
 WDate WDate::currentDate()

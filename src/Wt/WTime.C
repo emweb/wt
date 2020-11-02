@@ -142,11 +142,7 @@ WTime WTime::currentTime()
 
 WTime WTime::currentServerTime()
 {
-  std::chrono::system_clock::time_point utc = std::chrono::system_clock::now();
-  date::sys_days dp = date::floor<date::days>(utc);
-  auto time = date::make_time(utc - dp);
-  std::chrono::duration<int, std::milli> ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.subseconds());
-  return WTime(time.hours().count(), time.minutes().count(), time.seconds().count(), ms.count());
+  return WLocalDateTime::currentServerDateTime().time();
 }
 
 WString WTime::defaultFormat()
