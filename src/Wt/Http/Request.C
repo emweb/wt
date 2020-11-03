@@ -387,6 +387,12 @@ void Request::parseFormUrlEncoded(const std::string& s,
   for (std::size_t pos = 0; pos < s.length();) {
     std::size_t next = s.find_first_of("&=", pos);
 
+    if (next == pos && s[next] == '&') {
+      // skip empty
+      pos = next + 1;
+      continue;
+    }
+
     if (next == std::string::npos || s[next] == '&') {
       if (next == std::string::npos)
 	next = s.length();
