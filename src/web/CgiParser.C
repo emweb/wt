@@ -215,12 +215,11 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
       throw WException("Oversized application/x-www-form-urlencoded ("
 		       + std::to_string(len) + ")");
 
-    char *buf = new char[len + 1];
+    auto buf = std::unique_ptr<char[]>(new char[len + 1]);
 
-    request.in().read(buf, len);
+    request.in().read(buf.get(), len);
 
     if (request.in().gcount() != (int)len) {
-      delete[] buf;
       throw WException("Unexpected short read.");
     }
 
@@ -229,8 +228,7 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
     // This is a special Wt feature, I do not think it standard.
     // For POST, parameters in url-encoded URL are still parsed.
 
-    std::string formQueryString = buf;
-    delete[] buf;
+    std::string formQueryString = buf.get();
 
     LOG_DEBUG("formQueryString (len=" << len << "): " << formQueryString);
     if (!formQueryString.empty()) {
