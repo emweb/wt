@@ -39,7 +39,7 @@ class OAuthRedirectEndpoint;
  *
  * \ingroup auth
  */
-class OAuthAccessToken
+class WT_API OAuthAccessToken
 {
 public:
 
@@ -147,7 +147,7 @@ private:
  *
  * \ingroup auth
  */
-class OAuthProcess : public WObject 
+class WT_API OAuthProcess : public WObject
 {
 public:
   virtual ~OAuthProcess();
