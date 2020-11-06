@@ -22,6 +22,124 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.5.0 (December 2020)</h2>
+
+<h3>Notable changes</h3>
+
+<ul>
+  <li>Wt now targets C++14, and <tt>CMAKE_CXX_STANDARD</tt> defaults to "14". There appears to
+      be no good reason to maintain C++11 support, since every compiler that supports enough C++11
+      for Wt also supports enough C++14. You should still be able to use C++11 mode when using Wt
+      as a library, but Wt itself no longer builds in C++11 mode.</li>
+  <li>Wt::Dbo: the <a href="classWt_1_1Dbo_1_1backend_1_1Firebird.html">Firebird</a> backend
+    has been marked as unmaintained. The Firebird tests were not succeeding, likely because
+    of an incompatibility with the unmaintained IBPP that the Firebird backend is based on
+    and recent versions of Firebird.</li>
+</ul>
+
+<h3>Features and improvements</h3>
+
+<ul>
+  <li><a href="https://redmine.webtoolkit.eu/issues/7586" target="_blank">Issue #7586</a>:
+    The <tt>&lt;behind-reverse-proxy&gt;</tt> option has been deprecated in favor of a new
+    <tt>&lt;trusted-proxy-config&gt;</tt> option. It's now possible to specify the IP header
+    that Wt should look for using <tt>&lt;remote-ip-header&gt;</tt> (defaults to <tt>X-Forwarded-For</tt>).
+    Wt will trust all proxies listed in <tt>&lt;trusted-proxies&gt;</tt>.
+    When <tt>&lt;behind-reverse-proxy&gt;</tt> is set to <tt>true</tt>, the behavior stays the
+    same as it was before. <a href="overview.html#config_general">See the library overview for more
+    information about this option.</a>
+  </li>
+  <li>
+    <a href="classWt_1_1WFormModel.html">WFormModel</a> now uses string comparison instead of pointer comparison
+    for its fields.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7666" target="_blank">Issue #7666</a>: In some cases Wt 4.4.0 would
+    connect <tt>jsScrollVisibilityChanged</tt> even if it was not actually being used, causing extra unnecessary
+    requests.
+  </li>
+  <li>
+    Added Jenkins pipelines in the
+    <tt><a href="https://github.com/emweb/wt/tree/master/jenkins" target="_blank">jenkins</a></tt> folder.
+    We use Jenkins to test Wt at Emweb but we would usually
+    keep this configuration in Jenkins. Our pipelines for Linux and FreeBSD have now been updated a bit and moved
+    into the Wt repository, since they may be of use to people looking to contribute to Wt.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7669" target="_blank">Issue #7669</a>: Wt now automatically uses
+    <a href="classWt_1_1WObject.html#a3de0f0baf35f42aa4e77a90d427f2e11">addChild</a> instead of
+    <a href="classWt_1_1WContainerWidget.html#ad17b653b6f0487e42b2a63ab9de03f20">addWidget</a> when
+    <a href="classWt_1_1WContainerWidget.html#acf75dda5024db05cf847c282f8a99117">addNew</a> is used
+    on a global widget, like <a href="classWt_1_1WPopupWidget.html">WPopupWidget</a>.
+  </li>
+</ul>
+
+<h3>Bug fixes</h3>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/6367" target="_blank">Issue #6367</a>:
+    fixed issue where wthttp would no longer accept new connections when an error occurred
+    while accepting a connection, e.g. if the open file limit was reached.
+  </li>
+  <li>
+    <a href="classWt_1_1WDate.html#a57a614e3408f39c70605027fe3e3f3f5">WDate::currentServerDate()</a> and
+    <a href="classWt_1_1WTime.html#a271bd124707e50cc15872e263ffa71f2">WTime::currentServerTime()</a> now
+    correctly return the local date and time on the server instead of UTC.
+  </li>
+  <li>
+    Fixed visibility of
+    <a href="classWt_1_1Auth_1_1OAuthProcess.html">OAuthProcess</a> and
+    <a href="classWt_1_1Auth_1_1OAuthAccessToken.html">OAuthAccessToken</a>.
+  </li>
+  <li>Partially fixed issues
+    <a href="https://redmine.webtoolkit.eu/issues/6548" target="_blank">#6548</a> and
+    <a href="https://redmine.webtoolkit.eu/issues/7749" target="_blank">#7749</a>:
+    URL parameters were being parsed more than once for file uploads, causing a rapid
+    accumulation of duplicate values during uploads, and potentially causing segmentation
+    faults. The
+    <a href="https://github.com/emweb/wt/tree/master/examples/wtwithqt" target="_blank">wtwithqt</a>
+    example was also updated so that it properly waits for condition variables in a loop,
+    to deal with spurious wakeups.
+  </li>
+  <li>
+    Fixed an issue where the <a href="classWt_1_1Http_1_1Client.html">HTTP Client</a>
+    would wait indefinitely for data when <tt>Content-Length</tt> is zero.
+  </li>
+  <li>
+    WebSockets: If a bad value for <tt>server_max_window_bits</tt> or
+    <tt>client_max_window_bits</tt> was encountered, this would cause
+    an uncaught exception and a crash. This is now handled properly.
+  </li>
+  <li>
+    Fixed issue with <tt>DISTINCT ON</tt> in X3 based query parser: the fields listed
+    there would incorrectly be regarded as fields being returned.
+  </li>
+  <li>
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7677" target="_blank">#7677</a>:
+    when a font could not be loaded in <a href="classWt_1_1WPdfImage.html">WPdfImage</a>,
+    this would throw an uncaught exception. This was changed to logging an error.
+  </li>
+  <li>
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7719" target="_blank">#7719</a>:
+    <a href="group__modelview.html#gaac976f394f370d3d62c29791b13a0049">Wt::asString</a>
+    did not properly handle <tt>unsigned long</tt>.
+  </li>
+  <li>
+    <a href="https://github.com/emweb/wt/pull/166" target="_blank">PR #166</a>:
+    fixed <a href="https://github.com/emweb/wt/tree/master/examples/mandelbrot" target="_blank">mandelbrot</a> example:
+    missing call to <a href="classWt_1_1WRasterImage.html#af06beb3b09289d373fb7855750afdc83">done()</a>.
+  </li>
+  <li>
+    <a href="https://github.com/emweb/wt/pull/167" target="_blank">PR #167</a>:
+    we need to link with Boost unit_test_framework on Windows when <tt>BOOST_DYNAMIC</tt> is <tt>ON</tt>.
+  </li>
+  <li>
+    Fixed an issue where <a href="classWt_1_1WMediaPlayer.html">WMediaPlayer</a> would not get properly
+    loaded when <tt>reload-is-new-session</tt> is <tt>false</tt>, and the page is refreshed.
+  </li>
+</ul>
+
 <h2>Release 4.4.0 (August 3, 2020)</h2>
 
 <p>Wt 4.4.0 adds a couple of new features, like multiple X axes, and WColorPicker, among other fixes and tweaks.</p>
