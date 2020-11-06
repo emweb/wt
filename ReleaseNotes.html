@@ -22,6 +22,61 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.7.1 (December 2020)</h2>
+
+<h3>Bug fixes</h3>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/6367" target="_blank">Issue #6367</a>:
+    fixed issue where wthttp would no longer accept new connections when an error occurred
+    while accepting a connection, e.g. if the open file limit was reached.
+  </li>
+  <li>
+    Fixed visibility of
+    <a href="classWt_1_1Auth_1_1OAuthProcess.html">OAuthProcess</a> and
+    <a href="classWt_1_1Auth_1_1OAuthAccessToken.html">OAuthAccessToken</a>.
+  </li>
+  <li>Partially fixed issues
+    <a href="https://redmine.webtoolkit.eu/issues/6548" target="_blank">#6548</a> and
+    <a href="https://redmine.webtoolkit.eu/issues/7749" target="_blank">#7749</a>:
+    URL parameters were being parsed more than once for file uploads, causing a rapid
+    accumulation of duplicate values during uploads, and potentially causing segmentation
+    faults. The
+    <a href="https://github.com/emweb/wt/tree/master/examples/wtwithqt" target="_blank">wtwithqt</a>
+    example was also updated so that it properly waits for condition variables in a loop,
+    to deal with spurious wakeups.
+  </li>
+  <li>
+    Fixed an issue where the <a href="classWt_1_1Http_1_1Client.html">HTTP Client</a>
+    would wait indefinitely for data when <tt>Content-Length</tt> is zero.
+  </li>
+  <li>
+    WebSockets: If a bad value for <tt>server_max_window_bits</tt> or
+    <tt>client_max_window_bits</tt> was encountered, this would cause
+    an uncaught exception and a crash. This is now handled properly.
+  </li>
+  <li>
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7677" target="_blank">#7677</a>:
+    when a font could not be loaded in <a href="classWt_1_1WPdfImage.html">WPdfImage</a>,
+    this would throw an uncaught exception. This was changed to logging an error.
+  </li>
+  <li>
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7719" target="_blank">#7719</a>:
+    <a href="group__modelview.html#gaac976f394f370d3d62c29791b13a0049">Wt::asString</a>
+    did not properly handle <tt>unsigned long</tt>.
+  </li>
+  <li>
+    <a href="https://github.com/emweb/wt/pull/166" target="_blank">PR #166</a>:
+    fixed <a href="https://github.com/emweb/wt/tree/master/examples/mandelbrot" target="_blank">mandelbrot</a> example:
+    missing call to <a href="classWt_1_1WRasterImage.html#af06beb3b09289d373fb7855750afdc83">done()</a>.
+  </li>
+  <li>
+    Fixed an issue where <a href="classWt_1_1WMediaPlayer.html">WMediaPlayer</a> would not get properly
+    loaded when <tt>reload-is-new-session</tt> is <tt>false</tt>, and the page is refreshed.
+  </li>
+</ul>
+
 <h2>Release 3.7.0 (August 3, 2020)</h2>
 
 <p>Wt 3.7.0 adds support for multiple X axes to the charts, among other fixes and tweaks.</p>
