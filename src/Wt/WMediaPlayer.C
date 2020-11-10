@@ -104,7 +104,8 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType)
     videoHeight_(0),
     gui_(this),
     boundSignals_(0),
-    boundSignalsDouble_(0)
+    boundSignalsDouble_(0),
+    mediaUpdated_(false)
 {
   for (unsigned i = 0; i < 11; ++i)
     control_[i] = nullptr;
