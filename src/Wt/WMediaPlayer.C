@@ -127,8 +127,8 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType)
 
   std::string res = WApplication::relativeResourcesUrl() + "jPlayer/";
 
-  if (!app->environment().ajax())
-    app->require(res + "jquery.min.js");
+  if (!app->customJQuery())
+    app->requireJQuery(res + "jquery.min.js");
 
   if (app->require(res + "jquery.jplayer.min.js"))
     app->useStyleSheet(res + "skin/jplayer.blue.monday.css");
@@ -446,7 +446,8 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 
   WApplication *app = WApplication::instance();
 
-  if (mediaUpdated_) {
+  if (mediaUpdated_ ||
+      (flags.test(RenderFlag::Full) && !media_.empty())) {
     WStringStream ss;
 
     ss << '{';
