@@ -1,4 +1,5 @@
 INCLUDE(CheckFunctionExists)
+INCLUDE(CheckLibraryExists)
 WT_ADD_EXAMPLE(hangman.wt
   hangman.C
   User.C

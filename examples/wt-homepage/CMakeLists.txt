@@ -1,6 +1,7 @@
 IF(BOOST_FS_LIB)
 
 INCLUDE(CheckFunctionExists)
+INCLUDE(CheckLibraryExists)
 
 SET(SRC
 	main.C
