@@ -427,26 +427,39 @@ void Server::handleTcpAccept(const asio_error_code& e)
     connection_manager_.start(new_tcpconnection_);
     new_tcpconnection_.reset(new TcpConnection(wt_.ioService(), this,
 	  connection_manager_, request_handler_));
-    tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
+  } else if (!tcp_acceptor_.is_open()) {
+    // server shutdown
+    LOG_DEBUG("handleTcpAccept: async_accept error (acceptor closed, probably server shutdown): " << e.message());
+    return;
+  } else {
+    LOG_ERROR("handleTcpAccept: async_accept error: " << e.message());
+  }
+
+  tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
 			accept_strand_.wrap(
 		    boost::bind(&Server::handleTcpAccept, this,
 				asio::placeholders::error)));
-  }
 }
 
 #ifdef HTTP_WITH_SSL
 void Server::handleSslAccept(const asio_error_code& e)
 {
-  if (!e)
-  {
+  if (!e) {
     connection_manager_.start(new_sslconnection_);
     new_sslconnection_.reset(new SslConnection(wt_.ioService(), this,
           ssl_context_, connection_manager_, request_handler_));
-    ssl_acceptor_.async_accept(new_sslconnection_->socket(),
-	                accept_strand_.wrap(
-	           boost::bind(&Server::handleSslAccept, this,
-			       asio::placeholders::error)));
+  } else if (!ssl_acceptor_.is_open()) {
+    // server shutdown
+    LOG_DEBUG("handleSslAccept: async_accept error (acceptor closed, probably server shutdown): " << e.message());
+    return;
+  } else {
+    LOG_ERROR("handleSslAccept: async_accept error: " << e.message());
   }
+
+  ssl_acceptor_.async_accept(new_sslconnection_->socket(),
+                      accept_strand_.wrap(
+                 boost::bind(&Server::handleSslAccept, this,
+                             asio::placeholders::error)));
 }
 #endif // HTTP_WITH_SSL
 
