@@ -609,27 +609,40 @@ void Server::handleTcpAccept(TcpListener *listener, const Wt::AsioWrapper::error
   if (!e) {
     connection_manager_.start(listener->new_connection);
     listener->new_connection.reset(new TcpConnection(wt_.ioService(), this,
-	  connection_manager_, request_handler_));
-    listener->acceptor.async_accept(listener->new_connection->socket(),
-                                    accept_strand_.wrap(
-                                      std::bind(&Server::handleTcpAccept, this,
-                                      listener, std::placeholders::_1)));
+                                                     connection_manager_, request_handler_));
+  } else if (!listener->acceptor.is_open()) {
+    // server shutdown
+    LOG_DEBUG("handleTcpAccept: async_accept error (acceptor closed, probably server shutdown): " << e.message());
+    return;
+  } else {
+    LOG_ERROR("handleTcpAccept: async_accept error: " << e.message());
   }
+
+  listener->acceptor.async_accept(listener->new_connection->socket(),
+                                  accept_strand_.wrap(
+                                          std::bind(&Server::handleTcpAccept, this,
+                                                    listener, std::placeholders::_1)));
 }
 
 #ifdef HTTP_WITH_SSL
 void Server::handleSslAccept(SslListener *listener, const Wt::AsioWrapper::error_code& e)
 {
-  if (!e)
-  {
+  if (!e) {
     connection_manager_.start(listener->new_connection);
     listener->new_connection.reset(new SslConnection(wt_.ioService(), this,
-          ssl_context_, connection_manager_, request_handler_));
-    listener->acceptor.async_accept(listener->new_connection->socket(),
-                                    accept_strand_.wrap(
-                                      std::bind(&Server::handleSslAccept, this,
-                                      listener, std::placeholders::_1)));
+                                                     ssl_context_, connection_manager_, request_handler_));
+  } else if (!listener->acceptor.is_open()) {
+    // server shutdown
+    LOG_DEBUG("handleSslAccept: async_accept error (acceptor closed, probably server shutdown): " << e.message());
+    return;
+  } else {
+    LOG_ERROR("handleSslAccept: async_accept error: " << e.message());
   }
+
+  listener->acceptor.async_accept(listener->new_connection->socket(),
+                                  accept_strand_.wrap(
+                                          std::bind(&Server::handleSslAccept, this,
+                                                    listener, std::placeholders::_1)));
 }
 #endif // HTTP_WITH_SSL
 
