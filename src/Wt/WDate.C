@@ -124,8 +124,7 @@ int WDate::dayOfWeek() const
   if (!isValid())
     return 0;
 
-  unsigned dow = (unsigned)date::weekday(date::day(day())/month()/year());
-  return (dow == 0 ? 7 : dow);
+  return date::weekday(date::day(day())/month()/year()).iso_encoding();
 }
 
 int WDate::daysTo(const WDate& other) const
