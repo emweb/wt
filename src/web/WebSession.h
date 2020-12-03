@@ -34,6 +34,10 @@
 #include "Wt/WEnvironment.h"
 #include "Wt/WLogger.h"
 
+#ifdef WT_THREADED
+#include <atomic>
+#endif // WT_THREADED
+
 namespace Wt {
 
 class WebController;
@@ -118,7 +122,7 @@ public:
   WObject *emitStackTop();
 
 #ifndef WT_TARGET_JAVA
-  const Time& expireTime() const { return expire_; }
+  Time expireTime() const { return expire_; }
 #endif // WT_TARGET_JAVA
 
   bool dead() { return state_ == State::Dead; }
@@ -315,7 +319,11 @@ private:
   int deferCount_;
 
 #ifndef WT_TARGET_JAVA
+#ifdef WT_THREADED
+  std::atomic<Time> expire_;
+#else
   Time             expire_;
+#endif
 #endif
 
 #ifdef WT_BOOST_THREADS
