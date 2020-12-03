@@ -40,6 +40,17 @@
 #include <algorithm>
 #include <csignal>
 
+namespace {
+  std::string str(const std::string *strPtr)
+  {
+    if (strPtr) {
+      return *strPtr;
+    } else {
+      return std::string();
+    }
+  }
+}
+
 namespace Wt {
 
 LOGGER("WebController");
@@ -467,9 +478,17 @@ bool WebController::requestDataReceived(WebRequest *request,
 
     std::string sessionId = *wtdE;
 
+    UpdateResourceProgressParams params {
+      str(request->getParameter("request")),
+      str(request->getParameter("resource")),
+      request->postDataExceeded(),
+      request->pathInfo(),
+      current,
+      total
+    };
     auto event = std::make_shared<ApplicationEvent>(sessionId,
                                                     std::bind(&WebController::updateResourceProgress,
-                                                              this, request, current, total));
+                                                              this, params));
 
     if (handleApplicationEvent(event))
       return !request->postDataExceeded();
@@ -480,29 +499,26 @@ bool WebController::requestDataReceived(WebRequest *request,
   return true;
 }
 
-void WebController::updateResourceProgress(WebRequest *request,
-					   std::uintmax_t current,
-					   std::uintmax_t total)
+void WebController::updateResourceProgress(const UpdateResourceProgressParams &params)
 {
   WApplication *app = WApplication::instance();
 
-  const std::string *requestE = request->getParameter("request");
-
   WResource *resource = nullptr;
-  if (!requestE && !request->pathInfo().empty())
-    resource = app->decodeExposedResource("/path/" + request->pathInfo());
+  if (!params.requestParam.empty() &&
+      !params.pathInfo.empty()) {
+    resource = app->decodeExposedResource("/path/" + params.pathInfo);
+  }
 
   if (!resource) {
-    const std::string *resourceE = request->getParameter("resource");
-    resource = app->decodeExposedResource(*resourceE);
+    resource = app->decodeExposedResource(params.resourceParam);
   }
 
   if (resource) {
-    ::int64_t dataExceeded = request->postDataExceeded();
+    ::int64_t dataExceeded = params.postDataExceeded;
     if (dataExceeded)
       resource->dataExceeded().emit(dataExceeded);
     else
-      resource->dataReceived().emit(current, total);
+      resource->dataReceived().emit(params.current, params.total);
   }
 }
 
