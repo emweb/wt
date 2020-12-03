@@ -189,8 +189,15 @@ private:
   void socketNotify(int descriptor, WSocketNotifier::Type type);
 #endif
 
-  void updateResourceProgress(WebRequest *request,
-			      boost::uintmax_t current, boost::uintmax_t total);
+  struct UpdateResourceProgressParams {
+      std::string requestParam;
+      std::string resourceParam;
+      ::int64_t postDataExceeded;
+      std::string pathInfo;
+      boost::uintmax_t current;
+      boost::uintmax_t total;
+  };
+  void updateResourceProgress(const UpdateResourceProgressParams &params);
 
   const EntryPoint *getEntryPoint(WebRequest *request);
 
