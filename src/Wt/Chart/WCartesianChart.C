@@ -1410,6 +1410,10 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
 
 WCartesianChart::~WCartesianChart()
 {
+  while (!xAxes_.empty()) {
+    delete xAxes_.back();
+    xAxes_.pop_back();
+  }
   while (!yAxes_.empty()) {
     delete yAxes_.back();
     yAxes_.pop_back();
