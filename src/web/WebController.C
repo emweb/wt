@@ -164,6 +164,9 @@ Configuration& WebController::configuration()
 
 int WebController::sessionCount() const
 {
+#ifdef WT_THREADED
+  std::unique_lock<std::recursive_mutex> lock(mutex_);
+#endif
   return sessions_.size();
 }
 
