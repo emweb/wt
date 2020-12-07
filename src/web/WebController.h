@@ -172,7 +172,7 @@ private:
 #ifdef WT_THREADED
   // mutex to protect access to the sessions map and plain/ajax session
   // counts
-  std::recursive_mutex mutex_;
+  mutable std::recursive_mutex mutex_;
 
   SocketNotifier socketNotifier_;
   // mutex to protect access to notifier maps. This cannot be protected
