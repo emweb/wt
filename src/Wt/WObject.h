@@ -166,8 +166,13 @@ public:
    * in the DOM, and does not need to be unique. It will usually
    * reflect the widget type or role.
    *
-   * The object name is present in the DOM in the 'data-object-name'
-   * attribute.
+   * If a WWidget has an object name, the object name is reflected
+   * in the `data-object-name` attribute. You can use this to find
+   * widgets in JavaScript (e.g. for automated testing) using:
+   *
+   * ```
+   * document.querySelector('*[data-object-name="yourObjectNameHere"]')
+   * ```
    *
    * The default object name is empty (no object name).
    */

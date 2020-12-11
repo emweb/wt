@@ -947,6 +947,13 @@ public:
    * letters, digits ([0-9]), hyphens ("-"), underscores ("_"), colons (":"),
    * and periods (".").
    *
+   * \warning We recommend that you leave the id of a widget unchanged. %Wt
+   * uses the id to identify widgets in the JavaScript it generates,
+   * and this can often leads to bugs. If you do change the id, **only** change
+   * the id right after widget construction. However, usually
+   * there's a more preferable alternative, like setting the object name
+   * (WObject::setObjectName), or adding style classes (WWidget::addStyleClass).
+   *
    * \sa WObject::id()
    */
   virtual void setId(const std::string& id) = 0;
