@@ -512,7 +512,7 @@ public:
    *
    * \sa tr()
    */
-  bool literal() const { return !impl_ || impl_->key_.empty(); }
+  bool literal() const { return !impl_ || (impl_->key_.empty() && impl_->arguments_.empty()); }
 
   /*! \brief Returns the key for a localized string.
    *
