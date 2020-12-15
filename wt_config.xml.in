@@ -659,6 +659,8 @@
             <!-- <property name="leafletCSSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.css</property> -->
 	</properties>
 
+  <x-frame-same-origin>true</x-frame-same-origin>
+
     </application-settings>
 
 
