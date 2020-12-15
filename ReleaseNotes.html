@@ -22,7 +22,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 3.7.1 (December 2020)</h2>
+<h2>Release 3.7.1 (December 15, 2020)</h2>
 
 <h3>Bug fixes</h3>
 
@@ -37,7 +37,7 @@ behaviour.
     <a href="classWt_1_1Auth_1_1OAuthProcess.html">OAuthProcess</a> and
     <a href="classWt_1_1Auth_1_1OAuthAccessToken.html">OAuthAccessToken</a>.
   </li>
-  <li>Partially fixed issues
+  <li>Fixed issues
     <a href="https://redmine.webtoolkit.eu/issues/6548" target="_blank">#6548</a> and
     <a href="https://redmine.webtoolkit.eu/issues/7749" target="_blank">#7749</a>:
     URL parameters were being parsed more than once for file uploads, causing a rapid
@@ -45,7 +45,8 @@ behaviour.
     faults. The
     <a href="https://github.com/emweb/wt/tree/master/examples/wtwithqt" target="_blank">wtwithqt</a>
     example was also updated so that it properly waits for condition variables in a loop,
-    to deal with spurious wakeups.
+    to deal with spurious wakeups. Also fixed a potential use-after-free when updating resource
+    progress.
   </li>
   <li>
     Fixed an issue where the <a href="classWt_1_1Http_1_1Client.html">HTTP Client</a>
