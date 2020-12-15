@@ -237,7 +237,8 @@ void Configuration::reset()
   bootstrapConfig_.clear();
   numSessionThreads_ = -1;
   allowedOrigins_.clear();
-
+  xFrameSameOrigin_ = true;
+  
   if (!appRoot_.empty())
     setAppRoot(appRoot_);
 }
@@ -475,6 +476,13 @@ std::string Configuration::uaCompatible() const
   READ_LOCK;
   return uaCompatible_;
 }
+  
+bool Configuration::xFrameSameOrigin() const
+{
+  READ_LOCK;
+  return xFrameSameOrigin_;
+}
+
 
 bool Configuration::sessionIdCookie() const
 {
@@ -1021,6 +1029,8 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   boost::split(allowedOrigins_, allowedOrigins, boost::is_any_of(","));
   for (std::size_t i = 0; i < allowedOrigins_.size(); ++i)
     boost::trim(allowedOrigins_[i]);
+  
+  setBoolean(app, "x-frame-same-origin", xFrameSameOrigin_);
 }
 
 void Configuration::rereadConfiguration()
