@@ -195,6 +195,8 @@ public:
   bool agentIsBot(const std::string& agent) const;
   bool agentSupportsAjax(const std::string& agent) const;
   std::string uaCompatible() const;
+  
+  bool xFrameSameOrigin() const;
 
   // Things which are overridden by the connector
   void setSessionTimeout(int sessionTimeout);
@@ -277,6 +279,8 @@ private:
   bool connectorWebSockets_;
   std::string connectorSessionIdPrefix_;
 
+  bool xFrameSameOrigin_;
+  
   void reset();
   void readApplicationSettings(Wt::rapidxml::xml_node<char> *app);
   void readConfiguration(bool silent);
