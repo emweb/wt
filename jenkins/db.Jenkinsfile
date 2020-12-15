@@ -1,6 +1,6 @@
 properties([
     pipelineTriggers([
-        pollSCM('@daily')
+        pollSCM('@midnight')
     ])
 ])
 

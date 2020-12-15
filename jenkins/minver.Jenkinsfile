@@ -53,7 +53,7 @@ pipeline {
         }
     }
     triggers {
-        pollSCM('@daily')
+        pollSCM('@midnight')
     }
     stages {
         stage('Single-threaded') {

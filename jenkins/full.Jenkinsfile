@@ -56,7 +56,7 @@ pipeline {
         }
     }
     triggers {
-        pollSCM('@daily')
+        pollSCM('@midnight')
     }
     stages {
         stage('Build wthttp') {
