@@ -219,6 +219,18 @@ public:
       IpAddress address;
       unsigned char prefixLength;
 
+#ifndef WT_TARGET_JAVA
+      bool operator==(const Network &other) const noexcept
+      {
+        return address == other.address && prefixLength == other.prefixLength;
+      }
+
+      bool operator!=(const Network &other) const noexcept
+      {
+        return !operator==(other);
+      }
+#endif
+
       static Network fromString(const std::string &s);
       bool contains(const IpAddress &address) const;
   };
