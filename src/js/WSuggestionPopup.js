@@ -165,7 +165,21 @@ WT_DECLARE_WT_MEMBER
      }
 
      var sel = selId ? WT.getElement(selId) : null;
-
+     
+    if (visible() && !sel) {
+       var sels = el.childNodes;
+       if (event.keyCode == key_down || event.keyCode == key_pdown)
+        sel = sels[0];
+       if (event.keyCode == key_up || event.keyCode == key_pup) {
+         sel = sels[F.length - 1];
+         WT.cancelEvent(event, WT.CancelDefaultAction);
+       }
+       if (event.keyCode == key_enter)
+         hidePopup();
+       selId = sel.id;
+       
+       return;
+     }
      if (visible() && sel) {
        if ((event.keyCode == key_enter) || (event.keyCode == key_tab)) {
 	 /*
@@ -203,8 +217,11 @@ WT_DECLARE_WT_MEMBER
 
 	 for (i = 0; n && i < count; ++i) {
 	   var l = next(n, down);
-	   if (!l)
-	     break;
+	   if (!l) {
+       l.className = "";
+       selId = l = null;
+       break;
+     }
 	   n = l;
 	 }
 
