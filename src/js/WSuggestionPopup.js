@@ -331,15 +331,6 @@ WT_DECLARE_WT_MEMBER
 	 self.showPopup(edit);
 	 sel = null;
        }
-
-       if (!sel || (sel.style.display == 'none')) {
-	 sel = toselect || first ;
-	 sel.parentNode.scrollTop = 0;
-         selId = sel.id;
-       }
-
-       sel.className = 'active';
-       scrollToSelected(sel);
      }
    };
 
