@@ -168,13 +168,18 @@ WT_DECLARE_WT_MEMBER
      
     if (visible() && !sel) {
        var sels = el.childNodes;
-       if (event.keyCode == key_down || event.keyCode == key_pdown)
+       if (event.keyCode == key_down || event.keyCode == key_pdown){
         sel = sels[0];
+        if (sel.style.display == 'none')
+           sel = next(sel, 1);
+       }
        if (event.keyCode == key_up || event.keyCode == key_pup) {
          sel = sels[F.length - 1];
+         if (sel.style.display == 'none')
+           sel = next(sel, 0);
          WT.cancelEvent(event, WT.CancelDefaultAction);
        }
-       if (event.keyCode == key_enter)
+       if (event.keyCode == key_enter)//TODO propagate event to edit
          hidePopup();
        selId = sel.id;
        
