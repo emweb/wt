@@ -1331,6 +1331,7 @@ void WebSession::handleRequest(Handler& handler)
 
   const std::string *requestE = request.getParameter("request");
   bool requestForResource = requestE && *requestE == "resource";
+  bool requestForStyle = requestE && *requestE == "style";
 
   if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {
     LOG_ERROR("invalid WebSocket request, ignoring");
@@ -1385,6 +1386,7 @@ void WebSession::handleRequest(Handler& handler)
   if (env_->ajax()
       && isEqual(request.requestMethod(), "GET")
       && !requestForResource
+      && !requestForStyle
       && conf.reloadIsNewSession()
       && !suspended()
       && wtdE && *wtdE == sessionId_) {
@@ -1510,7 +1512,7 @@ void WebSession::handleRequest(Handler& handler)
 	  }
 	  break; }
 	case EntryPointType::WidgetSet:
-	  if (requestForResource) {
+	  if (requestForResource || requestForStyle) {
 	    const std::string *resourceE = request.getParameter("resource");
 	    if (resourceE && *resourceE == "blank") {
 	      handler.response()->setContentType("text/html");
@@ -1518,7 +1520,7 @@ void WebSession::handleRequest(Handler& handler)
 		"<html><head><title>bhm</title></head>"
 		"<body> </body></html>";
 	    } else {
-	      LOG_INFO("not starting session for resource.");
+	      LOG_INFO("not starting session for unexpected request type.");
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
