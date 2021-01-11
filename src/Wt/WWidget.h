@@ -825,9 +825,8 @@ public:
 
   /*! \brief Loads content just before the widget is used.
    *
-   * This method is called after a widget is inserted in the widget
-   * hierarchy and fully constructed, but before the widget is rendered.
-   * Widgets that get inserted in the widget hierarchy will
+   * This function is called when a widget is inserted in the
+   * widget hierarchy. Widgets that get inserted in the widget hierarchy will
    * be rendered. Visible widgets are rendered immediately, and
    * invisible widgets in the back-ground (or not for a plain HTML
    * session). This method is called when the widget is directly or

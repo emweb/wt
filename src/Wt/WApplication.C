@@ -171,6 +171,7 @@ WApplication::WApplication(const WEnvironment& env
   domRoot_.reset(new WContainerWidget());
   domRoot_->setGlobalUnfocused(true);
   domRoot_->setStyleClass("Wt-domRoot");
+  domRoot_->load();
 
   if (session_->type() == EntryPointType::Application)
     domRoot_->resize(WLength::Auto, WLength(100, LengthUnit::Percentage));
@@ -185,6 +186,7 @@ WApplication::WApplication(const WEnvironment& env
     widgetRoot_->resize(WLength::Auto, WLength(100, LengthUnit::Percentage));
   } else {
     domRoot2_.reset(new WContainerWidget());
+    domRoot2_->load();
   }
 
   // a define so that it shouts at us !

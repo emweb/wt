@@ -230,6 +230,9 @@ WMenuItem *WMenu::insertItem(int index, std::unique_ptr<WMenuItem> item)
 
       if (contentsStack_->count() == 1) {
 	setCurrent(0);
+	if (loaded()) {
+	  currentItem()->loadContents();
+	}
         contentsStack_->setCurrentWidget(contents);
 
 	renderSelected(result, true);

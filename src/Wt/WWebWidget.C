@@ -1197,6 +1197,10 @@ void WWebWidget::widgetAdded(WWidget *child)
 {
   child->setParentWidget(this);
 
+  if (flags_.test(BIT_LOADED)) {
+    doLoad(child);
+  }
+
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, false);
 
