@@ -179,8 +179,11 @@ WT_DECLARE_WT_MEMBER
            sel = next(sel, 0);
          WT.cancelEvent(event, WT.CancelDefaultAction);
        }
-       if (event.keyCode == key_enter)//TODO propagate event to edit
+       if (event.keyCode == key_enter){//TODO propagate event to edit
          hidePopup();
+         const ke = new KeyboardEvent('keydown', { bubbles: false, cancelable: true, keyCode: 13 }); 
+         e.getElement(editId).dispatchEvent(ke); 
+       }
        selId = sel.id;
        
        return;
