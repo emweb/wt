@@ -520,6 +520,7 @@ void WApplication::bindWidget(std::unique_ptr<WWidget> widget,
 		     "in WidgetSet mode.");
 
   widget->setId(domId);
+  widget->setJavaScriptMember("wtReparentBarrier", "true");
   domRoot2_->addWidget(std::move(widget));
 }
 
