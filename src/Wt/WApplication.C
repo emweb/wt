@@ -550,6 +550,7 @@ void WApplication::removeGlobalWidget(WWidget *w)
   // to be null. In that case, we don't need to remove this
   // widget from the domRoot.
   if (domRoot_) {
+    w->setGlobalWidget(false);
     auto removed = domRoot_->removeWidget(w);
     // domRoot_ should never own the global widget
 #ifndef WT_TARGET_JAVA

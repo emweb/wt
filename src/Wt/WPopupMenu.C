@@ -59,7 +59,9 @@ WPopupMenu::~WPopupMenu()
       b->setMenu(nullptr);
   }
 
-  wApp->removeGlobalWidget(this);
+  if (isGlobalWidget()) {
+    wApp->removeGlobalWidget(this);
+  }
 }
 
 void WPopupMenu::setButton(WInteractWidget *button)
