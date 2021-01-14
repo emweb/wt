@@ -1352,6 +1352,8 @@ protected:
 			   const std::string& declarations,
 			   const std::string& ruleName = std::string());
 
+  bool isGlobalWidget() const;
+
 private:
   /*
    * Booleans packed in a bitset.
@@ -1375,7 +1377,6 @@ private:
   void undoDisableEnable();
   virtual void setParentWidget(WWidget *parent);
 
-  bool isGlobalWidget() const;
   void setGlobalWidget(bool globalWidget);
 
   virtual WWebWidget *webWidget() = 0;
