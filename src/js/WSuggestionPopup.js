@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WSuggestionPopup",
  function(APP, el, replacerJS, matcherJS, filterMinLength, filterMore,
-	  defaultValue, isDropDownIconUnfiltered) {
+	  defaultValue, isDropDownIconUnfiltered, autoSelectEnabled) {
    $('.Wt-domRoot').add(el);
 
    el.wtObj = this;
@@ -134,6 +134,18 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
+   function first(down) {
+     var sels = el.childNodes;
+     for (n = down ? sels[0] : sels[sels.length-1];
+	  n;
+	  n = down ? n.nextSibling : n.previousSibling) {
+       if (WT.hasTag(n, 'LI') && n.style.display != 'none')
+	 return n;
+     }
+     
+     return null;
+   }
+
    function next(n, down) {
      for (n = down ? n.nextSibling : n.previousSibling;
 	  n;
@@ -164,16 +176,20 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
-     var sel = selId ? WT.getElement(selId) : null;
-
-     if (visible() && sel) {
+     if (visible()) {
+       var sel = selId ? WT.getElement(selId) : null;
+       
        if ((event.keyCode == key_enter) || (event.keyCode == key_tab)) {
 	 /*
 	  * Select currently selectd
 	  */
-         suggestionClicked(sel);
-         WT.cancelEvent(event);
-	 setTimeout(function() { edit.focus(); }, 0);
+	 if (sel) {
+           suggestionClicked(sel);
+           WT.cancelEvent(event);
+	   setTimeout(function() { edit.focus(); }, 0);
+	 } else {
+	   hidePopup();
+	 }
 	 return false;
        } else if (   event.keyCode == key_down
 		  || event.keyCode == key_up
@@ -195,21 +211,32 @@ WT_DECLARE_WT_MEMBER
 	 /*
 	  * Find next selected node
 	  */
-         var n = sel,
-	     down = event.keyCode == key_down || event.keyCode == key_pdown,
-	     count = (event.keyCode == key_pdown || event.keyCode == key_pup ?
-		      el.clientHeight / sel.offsetHeight : 1),
-	     i;
+	 var n = sel,
+	     down = event.keyCode == key_down || event.keyCode == key_pdown;
+	 if (!n) {
+	   n = first(down);
+	   scrollToSelected(n);
+	 } else {
+           var count = (event.keyCode == key_pdown || event.keyCode == key_pup ?
+			el.clientHeight / sel.offsetHeight : 1),
+	       i;
 
-	 for (i = 0; n && i < count; ++i) {
-	   var l = next(n, down);
-	   if (!l)
-	     break;
-	   n = l;
+	   for (i = 0; n && i < count; ++i) {
+	     var l = next(n, down);
+	     if (!l && autoSelectEnabled)
+	       break;
+	     n = l;
+	   }
 	 }
 
-         if (n && WT.hasTag(n, 'LI')) {
+	 /*
+	  * Update selection
+	  */
+	 if (sel) {
            sel.className = '';
+	   selId = null;
+	 }
+	 if (n && WT.hasTag(n, 'LI')) {
            n.className = 'active';
            selId = n.id;
          }
@@ -315,14 +342,16 @@ WT_DECLARE_WT_MEMBER
 	 sel = null;
        }
 
-       if (!sel || (sel.style.display == 'none')) {
+       if ((autoSelectEnabled || toselect) && (!sel || (sel.style.display == 'none'))) {
 	 sel = toselect || first ;
 	 sel.parentNode.scrollTop = 0;
          selId = sel.id;
        }
 
-       sel.className = 'active';
-       scrollToSelected(sel);
+       if (sel) {
+	 sel.className = 'active';
+	 scrollToSelected(sel);
+       }
      }
    };
 

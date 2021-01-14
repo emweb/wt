@@ -451,6 +451,13 @@ public:
    */
   void setDropDownIconUnfiltered(bool isUnfiltered);
 
+  /*! \brief When the popup is opened the first item is automatically selected.
+   *
+   * This cannot be changed after the widget is rendered. The default value is
+   * true.
+   */
+  void setAutoSelectEnabled(bool enabled);
+
   /*! \brief Returns the last activated index
    * 
    * Returns -1 if the popup hasn't been activated yet.
@@ -479,6 +486,7 @@ private:
   bool filtering_;
   int defaultValue_;
   bool isDropDownIconUnfiltered_;
+  bool isAutoSelectEnabled_;
   int currentItem_;
   ItemDataRole editRole_;
 
