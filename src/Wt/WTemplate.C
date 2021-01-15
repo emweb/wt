@@ -537,7 +537,7 @@ void WTemplate::updateDom(DomElement& element, bool all)
 
 void WTemplate::unrenderWidget(WWidget *w, DomElement &el)
 {
-  std::string removeJs = w->webWidget()->renderRemoveJs(false);
+  std::string removeJs = w->renderRemoveJs(false);
   if (removeJs[0] == '_')
     el.callJavaScript(WT_CLASS ".remove('" + removeJs.substr(1) + "');", true);
   else

@@ -578,4 +578,9 @@ int WCompositeWidget::baseZIndex() const
   return impl_->baseZIndex();
 }
 
+std::string WCompositeWidget::renderRemoveJs(bool recursive)
+{
+  return impl_->renderRemoveJs(recursive);
+}
+
 }
