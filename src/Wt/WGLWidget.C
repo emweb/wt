@@ -138,7 +138,7 @@ std::string WGLWidget::renderRemoveJs(bool recursive)
 {
   if (webGlNotAvailable_) {
     // The canvas was already deleted client-side
-    return alternative_->webWidget()->renderRemoveJs(recursive);
+    return alternative_->renderRemoveJs(recursive);
   } else {
     // Nothing special, behave as usual
     return WInteractWidget::renderRemoveJs(recursive);

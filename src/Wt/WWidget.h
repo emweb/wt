@@ -1354,6 +1354,8 @@ protected:
 
   bool isGlobalWidget() const;
 
+  virtual std::string renderRemoveJs(bool recursive) = 0;
+
 private:
   /*
    * Booleans packed in a bitset.

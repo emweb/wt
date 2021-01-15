@@ -313,7 +313,7 @@ protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual bool domCanBeSaved() const;
   virtual void propagateRenderOk(bool deep = true);
-  virtual std::string renderRemoveJs(bool recursive);
+  virtual std::string renderRemoveJs(bool recursive) override;
 
   virtual void propagateSetEnabled(bool enabled) override;
   virtual void propagateSetVisible(bool visible) override;
