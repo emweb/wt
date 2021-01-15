@@ -322,6 +322,15 @@ void WPopupMenu::render(WFlags<RenderFlag> flags)
   willPopup_ = false;
 }
 
+std::string WPopupMenu::renderRemoveJs(bool recursive)
+{
+  // Removal of WPopupMenu may not be simplified, because
+  // it may have been reparented by JavaScript
+  auto result = WMenu::renderRemoveJs(true);
+  result += WT_CLASS ".remove('" + id() + "');";
+  return result;
+}
+
 void WPopupMenu::setHideOnSelect(bool enabled)
 {
   hideOnSelect_ = enabled;
