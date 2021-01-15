@@ -239,6 +239,7 @@ protected:
   virtual void setCurrent(int index) override;
   virtual void getSDomChanges(std::vector<DomElement *>& result, WApplication *app) override;
   virtual void render(WFlags<RenderFlag> flags) override;
+  virtual std::string renderRemoveJs(bool recursive) override;
 
 private:
   WPopupMenu *topLevel_;
