@@ -2490,7 +2490,7 @@ function dragStart(obj, e) {
   ds.object.parentNode.removeChild(ds.object);
   ds.object.style.position = 'absolute';
   ds.object.className = ds.objectPrevStyle.className + '';
-  ds.object.style.zIndex = '1000';
+  ds.object.style.zIndex = '200000';
   document.body.appendChild(ds.object);
 
   WT.capture(null);
