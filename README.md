@@ -69,3 +69,15 @@ Demos, examples
 
 [The homepage](https://www.webtoolkit.eu/wt), itself a Wt application,
 contains also [various examples](https://www.webtoolkit.eu/wt/documentation/examples).
+
+License
+-------
+
+Wt is available under two licenses:
+
+- the GNU General Public License, Version 2, with OpenSSL exception. Only version 2 of the GPL applies. See the [`LICENSE`](LICENSE) file for more information.
+- a [commercial license](https://www.webtoolkit.eu/wt/license/Wt%20License%20Agreement.pdf), which does not require you to distribute the source code of your application. Request a quotation [online](https://www.webtoolkit.eu/wt/download) or contact sales@emweb.be for more information.
+
+See [`doc/licenses.md`](doc/licenses.md) for an exhaustive list of the licenses
+used by Wt, source code from external sources included in Wt
+and common (optional) external dependencies.
