@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Wim Dumon, Leuven, Belgium.
+ * Copyright (C) Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */

@@ -1,6 +1,6 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2006 Wim Dumon, Leuven, Belgium.
+ * Copyright (C) Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
