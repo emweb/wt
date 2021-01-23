@@ -28,7 +28,7 @@
 				 Wt::Dbo::DynamicBinding >;		\
   template class Wt::Dbo::Query< Wt::Dbo::ptr<C>,			\
 				 Wt::Dbo::DirectBinding >;		\
-  template class Wt::Dbo::query_result_traits< Wt::Dbo::ptr<C> >;       \
+  template struct Wt::Dbo::query_result_traits< Wt::Dbo::ptr<C> >;       \
   template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(ptr<C>&);		\
   template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(std::unique_ptr<C>);\
   template Wt::Dbo::ptr<C> Wt::Dbo::Session::load<C>			\
