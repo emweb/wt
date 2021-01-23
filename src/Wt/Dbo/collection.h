@@ -122,9 +122,16 @@ namespace Wt {
 
     /*! \brief Iterator.
      */
-    class iterator : public std::iterator<std::input_iterator_tag, C>
+    class iterator
     {
     public:
+
+      typedef std::input_iterator_tag iterator_category;
+      typedef                       C value_type;
+      typedef          std::ptrdiff_t difference_type;
+      typedef             value_type *pointer;
+      typedef             value_type& reference;
+
       /*! \brief Copy constructor.
        */
       iterator(const iterator& other);
@@ -195,9 +202,16 @@ namespace Wt {
 
     /*! \brief Const Iterator.
      */
-    class const_iterator : public std::iterator<std::input_iterator_tag, C>
+    class const_iterator
     {
     public:
+
+      typedef std::input_iterator_tag iterator_category;
+      typedef                       C value_type;
+      typedef          std::ptrdiff_t difference_type;
+      typedef             value_type *pointer;
+      typedef             value_type& reference;
+
       /*! \brief Copy constructor.
        */
       const_iterator(const const_iterator& other);
