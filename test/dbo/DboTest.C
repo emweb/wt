@@ -3297,4 +3297,38 @@ BOOST_AUTO_TEST_CASE( dbo_test42 )
 #endif // POSTGRES
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test43 )
+{
+  // Test for collection iterator's operator== for pull request #177
+  // This will crash without that patch
+  DboFixture f;
+  dbo::Session &session = *f.session_;
+
+  {
+    dbo::Transaction t(session);
+    dbo::ptr<B> b1 = session.addNew<B>();
+    b1.modify()->name = "Test1";
+    dbo::ptr<B> b2 = session.addNew<B>();
+    b2.modify()->name = "Test2";
+  }
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::collection<dbo::ptr<B>> collection = session.find<B>().resultList();
+
+    auto begin = collection.begin();
+    auto end = collection.end();
+
+    BOOST_REQUIRE(begin == begin);
+    BOOST_REQUIRE(!(begin != begin));
+    BOOST_REQUIRE(end == end);
+    BOOST_REQUIRE(!(end != end));
+    BOOST_REQUIRE(!(begin == end));
+    BOOST_REQUIRE(begin != end);
+    BOOST_REQUIRE(!(end == begin));
+    BOOST_REQUIRE(end != begin);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
