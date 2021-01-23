@@ -230,6 +230,15 @@ collection<C>::const_iterator::operator= (const const_iterator& other)
 }
 
 template <class C>
+typename collection<C>::const_iterator&
+collection<C>::const_iterator::operator= (const iterator& other)
+{
+  impl_ = other;
+
+  return *this;
+}
+
+template <class C>
 C
 collection<C>::const_iterator::operator* ()
 {
