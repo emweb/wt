@@ -110,7 +110,7 @@ bool collection<C>::iterator::operator== (const iterator& other) const
 {
   return impl_ == other.impl_
     || (!impl_ && other.impl_->ended_)
-    || (impl_->ended_ && !other.impl_);
+    || (impl_ && impl_->ended_ && !other.impl_);
 }
 
 template <class C>
