@@ -531,11 +531,11 @@ typename collection<C>::size_type collection<C>::size() const
     }
 
     if (type_ != QueryCollection) {
-      result += manualModeInsertions_.size();
-      result -= manualModeRemovals_.size();
+      result += static_cast<int>(manualModeInsertions_.size());
+      result -= static_cast<int>(manualModeRemovals_.size());
     }
 
-    return result;
+    return static_cast<typename collection<C>::size_type>(result);
   } else
     return 0;
 }
@@ -697,13 +697,13 @@ int collection<C>::count(C c) const
 
   Query<C, DynamicBinding> q = find().where(mapping->idCondition);
   c.obj()->bindId(q.parameters_);
-  int result = q.resultList().size();
+  std::size_t result = q.resultList().size();
 
   result += 
     std::count(manualModeInsertions_.begin(), manualModeInsertions_.end(), c);
   result -=
     std::count(manualModeRemovals_.begin(), manualModeRemovals_.end(), c);
-  return result;
+  return static_cast<int>(result);
 }
 
 template <class C>
