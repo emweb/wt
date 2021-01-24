@@ -2938,7 +2938,7 @@ function quit(hasQuitMessage) {
   }
   comm.cancel();
   var tr = $('#Wt-timers');
-  if (tr.size() > 0)
+  if (tr.length > 0)
     WT.setHtml(tr.get(0), '', false);
 }
 
