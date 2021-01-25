@@ -119,7 +119,7 @@ public:
    */
   EventSignal<>& escapePressed();
 
-  /*! \brief Event signal emitted when a mouse key was clicked on this
+  /*! \brief Event signal emitted when the primary mouse button was clicked on this
    *         widget.
    *
    * The event details contains information such as the \link
@@ -130,12 +130,14 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
+   * For more details, see the [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event).
+   *
    * \note When JavaScript is disabled, the event details contain
    * invalid information.
    */
   EventSignal<WMouseEvent>& clicked();
 
-  /*! \brief Event signal emitted when a mouse key was double clicked
+  /*! \brief Event signal emitted when the primary mouse button was double clicked
    *         on this widget.
    *
    * The event details contains information such as the \link
@@ -146,11 +148,13 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
+   * For more details, see the [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event).
+   *
    * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& doubleClicked();
 
-  /*! \brief Event signal emitted when a mouse key was pushed down on this
+  /*! \brief Event signal emitted when a mouse button was pushed down on this
    *         widget.
    *
    * The event details contains information such as the \link
@@ -165,7 +169,7 @@ public:
    */
   EventSignal<WMouseEvent>& mouseWentDown();
 
-  /*! \brief Event signal emitted when a mouse key was released on this
+  /*! \brief Event signal emitted when a mouse button was released on this
    *         widget.
    *
    * The event details contains information such as the \link
