@@ -29,6 +29,7 @@ namespace Wt {
 class WLogSink {
 public:
   virtual ~WLogSink() = default;
+
   /*! \brief Logs a message
    *
    * \param type The type of the log message (e.g. debug, info, ...)
