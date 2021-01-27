@@ -668,6 +668,17 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       request will result in a WApplication::requestTooLarge() signal.
       </dd>
 
+    <dt><strong>max-formdata-size</strong></dt>
+
+    <dd>The maximum size of the data in a POST request of type
+      'application/x-www-form-urlencoded' (used for %Wt form values).
+      </dd>
+
+     <dt><strong>max-pending-events</strong></dt>
+
+     <dd>The maximum number of client-side events that are allowed to queue
+       before the session stops.</dd>
+
     <dt><strong>num-threads</strong></dt>
 
     <dd>Sets the number of threads to be used to handle %Wt traffic.

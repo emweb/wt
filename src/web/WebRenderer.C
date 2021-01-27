@@ -1009,6 +1009,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setVar("SESSION_URL", WWebWidget::jsStringLiteral(sessionUrl()));
     script.setVar("QUITTED_STR",
 		  WString::tr("Wt.QuittedMessage").jsStringLiteral());
+    script.setVar("MAX_FORMDATA_SIZE", conf.maxFormDataSize());
+    script.setVar("MAX_PENDING_EVENTS", conf.maxPendingEvents());
 
     std::string deployPath = session_.env().publicDeploymentPath_;
     if (deployPath.empty())

@@ -37,6 +37,8 @@ public:
   void setVar(const std::string& name, const char *value);
   void setVar(const std::string& name, bool value);
   void setVar(const std::string& name, int value);
+  void setVar(const std::string& name, long value);
+  void setVar(const std::string& name, long long value);
   void setVar(const std::string& name, unsigned value);
   void setCondition(const std::string& name, bool value);
   void stream(WStringStream& out);

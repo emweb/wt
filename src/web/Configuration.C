@@ -261,6 +261,7 @@ void Configuration::reset()
   maxNumSessions_ = 100;
   maxRequestSize_ = 128 * 1024;
   maxFormDataSize_ = 5 * 1024 * 1024;
+  maxPendingEvents_ = 1000;
   isapiMaxMemoryRequestSize_ = 128 * 1024;
   sessionTracking_ = URL;
   reloadIsNewSession_ = true;
@@ -341,6 +342,11 @@ int Configuration::maxNumSessions() const
 ::int64_t Configuration::maxFormDataSize() const
 {
   return maxFormDataSize_;
+}
+
+int Configuration::maxPendingEvents() const
+{
+  return maxPendingEvents_;
 }
 
 ::int64_t Configuration::isapiMaxMemoryRequestSize() const
@@ -1024,6 +1030,11 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     singleChildElementValue(app, "max-formdata-size", "");
   if (!maxFormDataStr.empty())
     maxFormDataSize_ = Utils::stoll(maxFormDataStr) * 1024;
+  
+  std::string maxPendingEventsStr =
+    singleChildElementValue(app, "max-pending-events", "");
+  if (!maxPendingEventsStr.empty())
+    maxPendingEvents_ = Utils::stoi(maxPendingEventsStr);
 
   std::string debugStr = singleChildElementValue(app, "debug", "");
 

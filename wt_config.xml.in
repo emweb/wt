@@ -258,6 +258,17 @@
 	-->
 	<max-formdata-size>5120</max-formdata-size>
 
+        <!--- Maximum number of pending events
+            
+            Client-side events (user-interaction, WTimer, custom js signals) are
+            queued if the server did not yet respond to a previous update.
+            This allows you to configure the maximum number of events in the queue.
+            When the maximum is exceeded, the session stops and an error is logged
+            in the server.
+            Setting it to zero will disable the limit.
+        -->
+        <max-pending-events>1000</max-pending-events>
+
         <!-- Number of threads per process
 
            You may want to change this value if you would like to

@@ -2888,22 +2888,35 @@ function encodeEvent(event, i) {
 
 var sentEvents = [], pendingEvents = [];
 
-function encodePendingEvents() {
+function encodePendingEvents(maxLength) {
   var se, result = '', feedback = false;
 
-  for (var i = 0; i < pendingEvents.length; ++i) {
+  var i = 0;
+  for (; i < pendingEvents.length; ++i) {
     se = i > 0 ? '&e' + i : '&';
-    feedback = feedback || pendingEvents[i].feedback;
-    result += se + pendingEvents[i].data.join(se);
-    if (pendingEvents[i].evAckId < ackUpdateId) {
-      result += se + 'evAckId=' + pendingEvents[i].evAckId;
+    var eventData = se + pendingEvents[i].data.join(se);
+    if (pendingEvents[i].evAckId < ackUpdateId)
+      eventData += se + 'evAckId=' + pendingEvents[i].evAckId;
+    
+    if ((result.length + eventData.length) < maxLength) {
+      feedback = feedback || pendingEvents[i].feedback;
+      result += eventData;
+    } else {
+      console.warn("splitting up pending events: max-formdata-size reached (" + _$_MAX_FORMDATA_SIZE_$_ + " bytes)");
+      break;
     }
+  }
+
+  if (i == 0) {
+    var errMsg = "single event exceeds max-formdata-size, cannot proceed";
+    sendError(errMsg, "Wt internal error; description: " + errMsg);
+    throw new Error(errMsg);
   }
 
   // With HTTP: sentEvents should be empty before this concat
   // With WebSockets: sentEvents possibly not empty
-  sentEvents = sentEvents.concat(pendingEvents);
-  pendingEvents = [];
+  sentEvents = sentEvents.concat(pendingEvents.slice(0,i));
+  pendingEvents = pendingEvents.slice(i);
 
   return { feedback: feedback, result: result };
 }
@@ -3254,6 +3267,8 @@ function setConnectionMonitor(aMonitor) {
 var updating = false;
 
 function update(el, signalName, e, feedback) {
+  checkEventOverflow();
+  
   /*
    * Konqueror may recurisvely call update() because
    * /reading/ offsetLeft or offsetTop triggers an onscroll event ??
@@ -3536,28 +3551,17 @@ function sendUpdate() {
   if (hasQuit)
     return;
 
-  var data, tm, poll;
+  var data = "", tm, poll;
 
   var useWebSockets = websocket.socket !== null &&
                       websocket.socket.readyState === 1 &&
                       websocket.state === WebSocketWorking;
 
-  if (pendingEvents.length > 0) {
-    data = encodePendingEvents();
-    tm = data.feedback ? setTimeout(useWebSockets ? wsWaitFeedback : waitFeedback, _$_INDICATOR_TIMEOUT_$_)
-      : null;
-    poll = false;
-  } else {
-    data = {result: '&signal=poll' };
-    tm = null;
-    poll = true;
-  }
-
   if (!useWebSockets) {
-    data.result += '&ackId=' + ackUpdateId;
+    data += '&ackId=' + ackUpdateId;
   }
 
-  data.result += '&pageId=' + pageId;
+  data += '&pageId=' + pageId;
 
   if (ackPuzzle) {
     var solution = '';
@@ -3573,7 +3577,7 @@ function sendUpdate() {
       }
     }
 
-    data.result += '&ackPuzzle=' + encodeURIComponent(solution);
+    data += '&ackPuzzle=' + encodeURIComponent(solution);
   }
 
   function getParams() {
@@ -3582,7 +3586,24 @@ function sendUpdate() {
   }
   var params = getParams();
   if (params.length > 0)
-    data.result += '&Wt-params=' + encodeURIComponent(params);
+    data += '&Wt-params=' + encodeURIComponent(params);
+
+  
+  if (pendingEvents.length > 0) {
+    var maxEventsSize = _$_MAX_FORMDATA_SIZE_$_ - data.length;
+    if (useWebSockets)
+      maxEventsSize -= ('&wsRqId=' + nextWsRqId).length;
+
+    var eventsData = encodePendingEvents(maxEventsSize);
+    tm = eventsData.feedback ? setTimeout(useWebSockets ? wsWaitFeedback : waitFeedback, _$_INDICATOR_TIMEOUT_$_)
+      : null;
+    data += eventsData.result;
+    poll = false;
+  } else {
+    data +='&signal=poll';
+    tm = null;
+    poll = true;
+  }
 
   if (useWebSockets) {
     responsePending = null;
@@ -3592,10 +3613,10 @@ function sendUpdate() {
 	var wsRqId = nextWsRqId;
 	pendingWsRequests[wsRqId] = {time: Date.now(), tm: tm};
 	++nextWsRqId;
-	data.result += '&wsRqId=' + wsRqId;
+	data += '&wsRqId=' + wsRqId;
       }
 
-      websocket.socket.send(data.result);
+      websocket.socket.send(data);
     }
   } else {
     if (responsePending) {
@@ -3616,7 +3637,7 @@ function sendUpdate() {
 
     responsePending = 1;
     responsePending = comm.sendUpdate
-      ('request=jsupdate' + data.result, tm, ackUpdateId, -1);
+      ('request=jsupdate' + data, tm, ackUpdateId, -1);
   }
 }
 
@@ -3642,6 +3663,8 @@ function propagateSize(element, width, height) {
 }
 
 function emit(object, config) {
+  checkEventOverflow();
+  
   var userEvent = new Object(), ei = pendingEvents.length;
   userEvent.signal = "user";
 
@@ -3680,6 +3703,17 @@ function emit(object, config) {
   pendingEvents[ei] = encodeEvent(userEvent, ei);
 
   scheduleUpdate();
+}
+
+function checkEventOverflow() {
+  if (_$_MAX_PENDING_EVENTS_$_ > 0 &&
+      pendingEvents.length >= _$_MAX_PENDING_EVENTS_$_) {
+    var errMsg = "too many pending events";
+    sendError(errMsg, "Wt internal error; description: " + errMsg);
+    
+    pendingEvents = [];
+    throw new Error(errMsg);
+  }
 }
 
 function addTimerEvent(timerid, msec, repeat) {
