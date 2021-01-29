@@ -163,6 +163,14 @@ enum class PopupTrigger {
  * \endcode
  * \endif
  *
+ * \note This widget is not supposed to be added explicitly, as it is a global widget
+ * (much like WPopupWidget). Managing its lifetime can be achieved with
+ * WContainerWidget::addNew() or WObject::addChild(), where the former uses the latter.
+ * Do NOT bind it to a template using WTemplate::bindWidget(), WTemplate::bindNew() or
+ * WLayout::addWidget(). If bound this way, the placeholder is not replaced with the
+ * correct list of suggestions, since this causes the widget to be placed into the widget
+ * tree twice.
+ *
  * A screenshot of this example:
  * <TABLE border="0" align="center"> <TR> <TD> 
  * \image html WSuggestionPopup-default-1.png "An example WSuggestionPopup (default)"
