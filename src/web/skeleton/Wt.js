@@ -3171,6 +3171,11 @@ function handleResponse(status, msg, timer) {
     return;
   }
 
+  if (pollTimer) {
+    clearTimeout(pollTimer);
+    pollTimer = null;
+  }
+
   if (status == 0) {
     WT.resolveRelativeAnchors();
 _$_$if_CATCH_ERROR_$_();
@@ -3199,11 +3204,6 @@ _$_$endif_$_();
   }
 
   sentEvents = [];
-
-  if (pollTimer) {
-    clearTimeout(pollTimer);
-    pollTimer = null;
-  }
 
   responsePending = null;
 
