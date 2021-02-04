@@ -57,10 +57,7 @@ public:
   date::local_time<typename std::common_type<Duration, std::chrono::minutes>::type>
   to_local(date::sys_time<Duration> tp) const
   {
-    using namespace date;
-    using namespace std;
-    using namespace std::chrono;
-    using LT = local_time<typename common_type<Duration, minutes>::type>;
+    using LT = date::local_time<typename std::common_type<Duration, std::chrono::minutes>::type>;
     return LT{(tp + offset_).time_since_epoch()};
   }
 
@@ -68,10 +65,7 @@ public:
   date::sys_time<typename std::common_type<Duration, std::chrono::minutes>::type>
   to_sys(date::local_time<Duration> tp) const
   {
-    using namespace date;
-    using namespace std;
-    using namespace std::chrono;
-    using ST = sys_time<typename common_type<Duration, minutes>::type>;
+    using ST = date::sys_time<typename std::common_type<Duration, std::chrono::minutes>::type>;
     return ST{(tp - offset_).time_since_epoch()};
   }
 
