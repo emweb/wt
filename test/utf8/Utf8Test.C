@@ -19,7 +19,7 @@ namespace {
 
 BOOST_AUTO_TEST_CASE( Utf8_test1 )
 {
-  std::string u8 = u8"This costs 100\u20AC (greek \u0194 special \U000103A7)";
+  std::string u8 = reinterpret_cast<const char*>(u8"This costs 100\u20AC (greek \u0194 special \U000103A7)");
   std::wstring w = L"This costs 100\u20AC (greek \u0194 special \U000103A7)";
   std::u16string u16 = u"This costs 100\u20AC (greek \u0194 special \U000103A7)";
   std::u32string u32 = U"This costs 100\u20AC (greek \u0194 special \U000103A7)";
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( Utf8_test5 )
 
 BOOST_AUTO_TEST_CASE( Utf8_test6 )
 {
-  std::string u8s = u8"This costs 100\u20AC (greek \u0194 special \U000103A7)";
+  std::string u8s = reinterpret_cast<const char*>(u8"This costs 100\u20AC (greek \u0194 special \U000103A7)");
   std::u16string u16s = u"This costs 100\u20AC (greek \u0194 special \U000103A7)";
   std::u32string u32s = U"This costs 100\u20AC (greek \u0194 special \U000103A7)";
 
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( Utf8_test7 )
 {
   std::wstringstream ss;
 
-  Wt::WString ws = Wt::utf8(u8"This costs 100\u20AC (greek \u0194 special \U000103A7)");
+  Wt::WString ws = Wt::utf8(reinterpret_cast<const char*>(u8"This costs 100\u20AC (greek \u0194 special \U000103A7)"));
 
   ss << ws;
 
