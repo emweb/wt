@@ -717,82 +717,82 @@ WString operator+ (const char *lhs, const WString& rhs)
 
 bool operator== (const char *lhs, const WString& rhs)
 {
-  return rhs == lhs;
+  return WString(lhs) == rhs;
 }
 
 bool operator== (const std::string& lhs, const WString& rhs)
 {
-  return rhs == lhs;
+  return WString(lhs) == rhs;
 }
 
 bool operator== (const std::wstring& lhs, const WString& rhs)
 {
-  return rhs == lhs;
+  return WString(lhs) == rhs;
 }
 
 bool operator== (const std::u16string& lhs, const WString& rhs)
 {
-  return rhs == lhs;
+  return WString(lhs) == rhs;
 }
 
 bool operator== (const std::u32string& lhs, const WString& rhs)
 {
-  return rhs == lhs;
+  return WString(lhs) == rhs;
 }
 
 bool operator== (const wchar_t *lhs, const WString& rhs)
 {
-  return rhs == lhs;
+  return WString(lhs) == rhs;
 }
 
 bool operator== (const char16_t *lhs, const WString& rhs)
 {
-  return rhs == lhs;
+  return WString(lhs) == rhs;
 }
 
 bool operator== (const char32_t *lhs, const WString& rhs)
 {
-  return rhs == lhs;
+  return WString(lhs) == rhs;
 }
 
 bool operator!= (const char *lhs, const WString& rhs)
 {
-  return !(rhs == lhs);
+  return WString(lhs) != rhs;
 }
 
 bool operator!= (const std::string& lhs, const WString& rhs)
 {
-  return !(rhs == lhs);
+  return WString(lhs) != rhs;
 }
 
 bool operator!= (const std::wstring& lhs, const WString& rhs)
 {
-  return !(rhs == lhs);
+  return WString(lhs) != rhs;
 }
 
 bool operator!= (const std::u16string& lhs, const WString& rhs)
 {
-  return !(rhs == lhs);
+  return WString(lhs) != rhs;
 }
 
 bool operator!= (const std::u32string& lhs, const WString& rhs)
 {
-  return !(rhs == lhs);
+  return WString(lhs) != rhs;
 }
 
 bool operator!= (const wchar_t *lhs, const WString& rhs)
 {
-  return !(rhs == lhs);
+  return WString(lhs) != rhs;
 }
 
 bool operator!= (const char16_t *lhs, const WString& rhs)
 {
-  return !(rhs == lhs);
+  return WString(lhs) != rhs;
 }
 
 bool operator!= (const char32_t *lhs, const WString& rhs)
 {
-  return !(rhs == lhs);
+  return WString(lhs) != rhs;
 }
 
 void WString::makeLiteral()
