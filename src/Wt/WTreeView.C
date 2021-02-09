@@ -1449,6 +1449,9 @@ void WTreeView::render(WFlags<RenderFlag> flags)
     }
   }
 
+  // set contents height to retain scroll-position (issue #7998)
+  contents_->setHeight(subTreeHeight(rootIndex()) * rowHeight().toPixels());
+
   if (app->environment().ajax() && rowHeaderCount() && renderedNodesAdded_) {
     doJavaScript("{var s=" + scrollBarC_->jsRef() + ";"
 		 """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
