@@ -284,7 +284,6 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
       * 1 / std::min(sx, sy);
   else
     lw = 0;
-  r = std::max(0.005, r - lw/2);
 
   char buf[30];
 
