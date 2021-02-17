@@ -39,8 +39,7 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
 
     std::time_t t = boost::filesystem::last_write_time(path);
     Wt::WDateTime dateTime = Wt::WDateTime::fromTime_t(t);
-    Wt::WLocalDateTime localDateTime = dateTime.toLocalTime();
-    Wt::WString dateTimeStr = localDateTime.toString(Wt::utf8("MMM dd yyyy"));
+    Wt::WString dateTimeStr = dateTime.toString(Wt::utf8("MMM dd yyyy"));
 
     setColumnWidget(2, std::make_unique<WText>(dateTimeStr));
     columnWidget(2)->setStyleClass("date");
