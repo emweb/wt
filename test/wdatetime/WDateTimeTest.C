@@ -376,6 +376,27 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WLocalDateTime )
   BOOST_REQUIRE(utc == wdt);
 }
 
+BOOST_AUTO_TEST_CASE( WDateTime_test_WLocalDateTime2 )
+{
+  // initialize without timezone info
+  Wt::WLocalDateTime ldt(Wt::WLocale("en-US"));
+
+  BOOST_REQUIRE(!ldt.isValid());
+  BOOST_REQUIRE(ldt.isNull());
+
+  Wt::WDate wd(2021, 2, 19);
+  Wt::WTime wt(11, 03);
+  ldt.setDateTime(wd, wt);
+
+  // still invalid since there is no timezone info
+  BOOST_REQUIRE(!ldt.isValid());
+  BOOST_CHECK_THROW(ldt.timeZoneOffset(), Wt::WException);
+
+  ldt = Wt::WLocalDateTime::currentServerDateTime();
+  BOOST_REQUIRE(ldt.isValid());
+  BOOST_REQUIRE(!ldt.isNull());
+}
+
 BOOST_AUTO_TEST_CASE( WDateTime_testspecial_WLocalDateTime )
 {
   Wt::WDateTime wdt;

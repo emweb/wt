@@ -88,6 +88,9 @@ WLocalDateTime::WLocalDateTime(const std::chrono::system_clock::time_point& dt,
     valid_(false),
     null_(false)
 {
+  if (!zone_)
+    LOG_WARN("Invalid local date time: <no zone>");
+  else
     valid_ = WDateTime(dt).isValid();
 }
 
@@ -283,8 +286,10 @@ int WLocalDateTime::timeZoneOffset() const
   if (zone_) {
     auto info = zone_->get_info(datetime_);
     return info.offset.count() / 60;
-  } else {
+  } else if (customZone_) {
     return customZone_->offset().count();
+  } else {
+    throw WException("WLocalDateTime: timezone is null");
   }
 }
 
