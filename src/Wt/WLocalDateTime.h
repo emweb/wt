@@ -124,6 +124,8 @@ public:
    *
    * This returns the time zone offset to UTC in minutes. A positive value
    * thus means that the local time is ahead of UTC.
+   *
+   * \throws WException if this object was initialized without timezone information
    */
   int timeZoneOffset() const;
 
