@@ -243,7 +243,7 @@ WString& WString::operator+= (const char *rhs)
 
 bool WString::empty() const
 {
-  if (literal())
+  if (!impl_)
     return utf8_.empty();
   else
     return toUTF8().empty();
