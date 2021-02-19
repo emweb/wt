@@ -1,4 +1,4 @@
-SUBDIRS(Auth Core Chart Dbo Json Http Mail Payment Render Signals Test)
+SUBDIRS(Auth Core Chart Dbo Form Json Http Mail Payment Render Signals Test)
 
 INSTALL_FILES(/include/Wt "^W.*[.]h$")
 INSTALL_FILES(/include/Wt "^Utils[.]h$")
