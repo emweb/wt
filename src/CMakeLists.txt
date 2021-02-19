@@ -324,6 +324,7 @@ Wt/Core/observing_ptr.hpp Wt/Core/observing_ptr.cpp
 Wt/cpp17/any.hpp Wt/cpp17/any/any.hpp
 Wt/cpp20/date.hpp Wt/cpp20/tz.hpp
 Wt/Form/WAbstractFormDelegate.h Wt/Form/WAbstractFormDelegate.C
+Wt/Form/WFormDelegate.h Wt/Form/WFormDelegate.C
 Wt/Json/Array.h Wt/Json/Array.C
 Wt/Json/Object.h Wt/Json/Object.C
 Wt/Json/Parser.h Wt/Json/Parser.C
