@@ -11,6 +11,7 @@
 
 #include <Wt/Dbo/Session.h>
 
+#include <Wt/Form/Dbo/FieldOptions.h>
 #include <Wt/Form/Dbo/FormModelBase.h>
 #include <Wt/Form/WFormDelegate.h>
 
@@ -332,9 +333,10 @@ private:
 class ModelAction
 {
 public:
-  ModelAction(Wt::Dbo::Session& session, std::vector<std::string>& fields)
+  ModelAction(Wt::Dbo::Session& session, std::vector<std::string>& fields, Wt::WFlags<FieldOptions> options)
     : session_(session),
-      fields_(fields)
+      fields_(fields),
+      options_(options)
   {
   }
 
@@ -347,7 +349,9 @@ public:
   template<class C>
   void actId(Wt::Dbo::ptr<C>& value, const std::string& name, int size, int fkConstraints)
   {
-    insertField(name);
+    if (!options_.test(FieldOptions::ExcludeForeignKeys)) {
+      insertField(name);
+    }
   }
 
   template<typename V>
@@ -359,19 +363,25 @@ public:
   template<class C>
   void actPtr(const Wt::Dbo::PtrRef<C>& ref)
   {
-    insertField(ref.name());
+    if (!options_.test(FieldOptions::ExcludeForeignKeys)) {
+      insertField(ref.name());
+    }
   }
 
   template<class C>
   void actWeakPtr(const Wt::Dbo::WeakPtrRef<C>& ref)
   {
-    insertField(ref.joinName());
+    if (!options_.test(FieldOptions::ExcludeForeignKeys)) {
+      insertField(ref.joinName());
+    }
   }
 
   template<class C>
   void actCollection(const Wt::Dbo::CollectionRef<C>& ref)
   {
-    insertField(ref.joinName());
+    if (!options_.test(FieldOptions::ExcludeForeignKeys)) {
+      insertField(ref.joinName());
+    }
   }
 
   bool getsValue() const { return false; }
@@ -383,6 +393,7 @@ public:
 private:
   Wt::Dbo::Session& session_;
   std::vector<std::string>& fields_;
+  Wt::WFlags<FieldOptions> options_;
 
   void insertField(const std::string& name)
   {
