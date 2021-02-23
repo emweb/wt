@@ -1,0 +1,16 @@
+<messages>
+  <message id="int_value.label">Integer</message>
+  <message id="double_value.label">Double</message>
+  <message id="bool_value.label">Boolean</message>
+  <message id="enum_value.label">Enum</message>
+  <message id="other_enum_value.label">Other Enum</message>
+  <message id="std_string_value.label">Standard String</message>
+  <message id="string_value.label">String</message>
+  <message id="other_string_value.label">Other String</message>
+  <message id="date_value.label">Date</message>
+  <message id="time_value.label">Time</message>
+  <message id="date_time_value.label">Date Time</message>
+  <message id="text_value.label">Text</message>
+  <message id="ptr.label">Pointer</message>
+  <message id="ptr_collection.label">Pointer Collection</message>
+</messages>

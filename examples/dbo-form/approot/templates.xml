@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <message id="field">
+    ${<if:{1}>}
+      <div class="form-group">
+        <label for="${id:{1}}" class="control-label">${tr:{1}.label}</label>
+        ${{1}} ${{1}-info}
+      </div>
+    ${</if:{1}>}
+  </message>
+
+  <message id="dbo-form-view">
+    <div class="container-fluid">
+      <div class="form-horizontal">
+        ${block:field int_value}
+        ${block:field double_value}
+        ${block:field bool_value}
+        ${block:field enum_value}
+        ${block:field std_string_value}
+        ${block:field string_value}
+        ${block:field other_string_value}
+        ${block:field date_value}
+        ${block:field time_value}
+        ${block:field date_time_value}
+        ${block:field text_value}
+        ${block:field ptr}
+        ${block:field ptr_collection}
+      </div>
+      ${save-btn}
+    </div>
+  </message>
+</messages>
