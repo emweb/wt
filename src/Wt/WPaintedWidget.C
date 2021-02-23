@@ -698,7 +698,7 @@ void WWidgetCanvasPainter
     }
   }
 
-  canvasDevice->render(widget_->objJsRef(), 'c' + widget_->id(), el, updateAreasJs);
+  canvasDevice->render(widget_->jsRef(), 'c' + widget_->id(), el, updateAreasJs);
 
   if (text)
     result->addChild(text);
@@ -743,7 +743,7 @@ void WWidgetCanvasPainter
     }
   }
 
-  canvasDevice->render(widget_->objJsRef(), 'c' + widget_->id(), el, updateAreasJs);
+  canvasDevice->render(widget_->jsRef(), 'c' + widget_->id(), el, updateAreasJs);
 
   result.push_back(el);
 }
