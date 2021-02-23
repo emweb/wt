@@ -136,6 +136,7 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
                                 const std::string& updateAreasJs)
 {
   std::string canvasVar = WT_CLASS ".getElement('" + canvasId + "')";
+  std::string paintedWidgetObjRef = paintedWidgetJsRef + ".wtObj";
 
   WStringStream tmp;
 
@@ -148,7 +149,7 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
     "if(" << canvasVar << ".getContext){";
 
   if (!images_.empty()) {
-    tmp << "var images=" << paintedWidgetJsRef << ".images;";
+    tmp << "var images=" << paintedWidgetObjRef << ".images;";
   }
   tmp << "var ctx=" << canvasVar << ".getContext('2d');";
   // Older browsers don't have setLineDash
@@ -171,13 +172,13 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
   tmp << "};";
 
   if (!paintUpdate_) {
-    tmp << paintedWidgetJsRef << ".repaint=pF;";
+    tmp << paintedWidgetObjRef << ".repaint=pF;";
     tmp << "pF=function(){"
-        << paintedWidgetJsRef << ".repaint();"
+        << paintedWidgetObjRef << ".repaint();"
         << "};";
   }
 
-  tmp << "var o=" << paintedWidgetJsRef << ";";
+  tmp << "var o=" << paintedWidgetObjRef << ";";
   if (!paintUpdate_)
     tmp << "o.cancelPreloaders();";
   tmp << "if(" << canvasVar << ".getContext){";
@@ -191,8 +192,10 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
   }
 
   tmp << "],function(images){"
+           "if (!" << paintedWidgetJsRef << ")"
+             "return;"
            "this.done = true;"
-           "var o=" << paintedWidgetJsRef << ";"
+           "var o=" << paintedWidgetObjRef << ";"
            "if(o.imagePreloaders.length===0||"
              "this===o.imagePreloaders[0]){"
              "o.images=images;"
