@@ -1025,11 +1025,14 @@ void WRasterImage::drawText(const WRectF& rect,
 
     int w, h, x0, y0;
     if (isTranslation(t)) {
-      x0 = round(t.dx() + rect.x());
-      y0 = round(t.dy() + rect.y());
-      w = rect.width();
-      h = rect.height();
-      renderRect = WRectF(0, 0, rect.width(), rect.height());
+      // #8025: make bitmap bigger to avoid unexpected text clipping
+      int dX = round(rect.width()/2);
+      int dY = round(rect.height()/2);
+      x0 = round(t.dx() + rect.x()) - dX;
+      y0 = round(t.dy() + rect.y()) - dY;
+      w = 2 * rect.width();
+      h = 2 * rect.height();
+      renderRect = WRectF(dX, dY, rect.width(), rect.height());
       t = WTransform();
     } else {
       x0 = 0;
