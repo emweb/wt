@@ -621,6 +621,20 @@ public:
   virtual void sortChildren(int column, SortOrder order);
 
 protected:
+  /*! \brief Create a copy of other.
+   *
+   * Copies other's data and flags to this item. This function is useful when
+   * reimplementing clone().
+   */
+  WStandardItem(const WStandardItem &other);
+
+  /*! \brief Assign other to this item
+   *
+   * Assigns others's data and flags to this item. This function is useful when
+   * reimplementing clone().
+   */
+  WStandardItem& operator=(const WStandardItem &other);
+
   /*! \brief Set the model for this WStandardItem and its children.
    *
    * You may override this method if you want to change its behaviour.
