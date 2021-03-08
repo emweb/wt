@@ -1178,7 +1178,7 @@ WTableView::ColumnWidget *WTableView::columnContainer(int renderedColumn) const
 {
   assert(ajaxMode());
 
-  if (renderedColumn < rowHeaderCount() && renderedColumn >= 0)
+  if (renderedColumn < headerColumnsTable_->count() && renderedColumn >= 0)
     return dynamic_cast<ColumnWidget *>
       (headerColumnsTable_->widget(renderedColumn));
   else if (table_->count() > 0) {
@@ -1187,7 +1187,7 @@ WTableView::ColumnWidget *WTableView::columnContainer(int renderedColumn) const
       return dynamic_cast<ColumnWidget *>(table_->widget(table_->count() - 1));
     else
       return dynamic_cast<ColumnWidget *>
-        (table_->widget(renderedColumn - rowHeaderCount()));
+        (table_->widget(renderedColumn - headerColumnsTable_->count()));
   } else
     return nullptr;
 }
@@ -1297,11 +1297,11 @@ WWidget* WTableView::headerWidget(int column, bool contentsOnly)
 
   if (ajaxMode()) {
     if (headers_) {
-      if (column < rowHeaderCount()) {
+      if (column < headerColumnsTable_->count()) {
 	if (column < headerColumnsHeaderContainer_->count())
 	  result = headerColumnsHeaderContainer_->widget(column);
-      } else if (column - rowHeaderCount() < headers_->count())
-	result = headers_->widget(column - rowHeaderCount());
+      } else if (column - headerColumnsTable_->count() < headers_->count())
+	result = headers_->widget(column - headerColumnsTable_->count());
     }
   } else
     if (plainTable_ && column < plainTable_->columnCount())
@@ -1964,16 +1964,16 @@ int WTableView::renderedColumnsCount() const
 
 WWidget *WTableView::itemWidget(const WModelIndex& index) const
 {
-  if ((index.column() < rowHeaderCount() || isColumnRendered(index.column())) &&
+  if ((index.column() < headerColumnsTable_->count() || isColumnRendered(index.column())) &&
       isRowRendered(index.row()))
   {
     int renderedRow = index.row() - firstRow();
     int renderedCol;
 
-    if (index.column() < rowHeaderCount())
+    if (index.column() < headerColumnsTable_->count())
       renderedCol = index.column();
     else
-      renderedCol = rowHeaderCount() + index.column() - firstColumn();
+      renderedCol = headerColumnsTable_->count() + index.column() - firstColumn();
 
     if (ajaxMode()) {
       ColumnWidget *column = columnContainer(renderedCol);
@@ -2189,16 +2189,7 @@ void WTableView::setRowHeaderCount(int count)
 {
   WAbstractItemView::setRowHeaderCount(count);
 
-  if (ajaxMode()) {
-    int total = 0;
-    for (int i = 0; i < count; i++)
-      if (!columnInfo(i).hidden)
-	total += (int)columnInfo(i).width.toPixels() + 7;
-
-    headerColumnsContainer_->setWidth(total);
-    headerColumnsContainer_->setHidden(count == 0);
-    headerColumnsHeaderContainer_->setHidden(count == 0);
-  }
+  scheduleRerender(RenderState::NeedRerender);
 }
 
 EventSignal<WScrollEvent>& WTableView::scrolled(){
