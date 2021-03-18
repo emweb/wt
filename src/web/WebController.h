@@ -128,7 +128,7 @@ public:
   bool handleApplicationEvent(const std::shared_ptr<ApplicationEvent>& event);
 #endif // WT_CNOR
 
-  std::vector<std::string> sessions();
+  std::vector<std::string> sessions(bool onlyRendered = false);
   bool expireSessions();
   void start();
   void shutdown();
