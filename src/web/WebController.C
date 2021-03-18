@@ -167,14 +167,15 @@ int WebController::sessionCount() const
   return sessions_.size();
 }
 
-std::vector<std::string> WebController::sessions()
+std::vector<std::string> WebController::sessions(bool onlyRendered)
 {
 #ifdef WT_THREADED
   std::unique_lock<std::recursive_mutex> lock(mutex_);
 #endif
   std::vector<std::string> sessionIds;
   for (SessionMap::const_iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
-    sessionIds.push_back(i->first);
+    if (!onlyRendered || i->second->app() != nullptr)
+      sessionIds.push_back(i->first);
   }
   return sessionIds;
 }
