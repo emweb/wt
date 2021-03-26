@@ -667,6 +667,7 @@ WARN_LOGFILE           =
 
 INPUT                  = src/Wt \
                          doc/main \
+                         doc/saml \
                          src/web
 
 # This tag can be used to specify the character encoding of the source files
