@@ -424,6 +424,23 @@ IF (WT_CPP20_DATE_TZ_IMPLEMENTATION STREQUAL "date")
   unset(_TZ_BUILD_DEFS)
 ENDIF ()
 
+IF(WT_HAS_SAML)
+  set(samlsources
+    Wt/Auth/Saml/Assertion.h Wt/Auth/Saml/Assertion.C
+    Wt/Auth/Saml/Process.h Wt/Auth/Saml/Process.C
+    Wt/Auth/Saml/ProcessImpl.h Wt/Auth/Saml/ProcessImpl.C
+    Wt/Auth/Saml/Service.h Wt/Auth/Saml/Service.C
+    Wt/Auth/Saml/ServiceImpl.h Wt/Auth/Saml/ServiceImpl.C
+    Wt/Auth/Saml/Widget.h Wt/Auth/Saml/Widget.C
+  )
+  set_source_files_properties(
+    ${samlsources} PROPERTIES
+    COMPILE_DEFINITIONS
+      XSEC_HAVE_OPENSSL=1
+  )
+  list(APPEND libsources ${samlsources})
+ENDIF(WT_HAS_SAML)
+
 ADD_DEFINITIONS(-DWT_BUILDING)
 
 IF (MULTI_THREADED_BUILD)
@@ -525,6 +542,7 @@ TARGET_LINK_LIBRARIES(wt
   PUBLIC
     ${WT_SOCKET_LIBRARY}
   PRIVATE
+    ${WT_SAML_LIBS}
     ${WT_MATH_LIBRARY}
     ${RT_LIBRARY}
     )

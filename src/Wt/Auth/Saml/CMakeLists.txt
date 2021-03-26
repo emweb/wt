@@ -1,0 +1,4 @@
+file(GLOB AUTH_SAML_H_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
+LIST(REMOVE_ITEM AUTH_H_FILES ProcessImpl.h ServiceImpl.h)
+install(FILES ${AUTH_SAML_H_FILES}
+        DESTINATION include/Wt/Auth/Saml)

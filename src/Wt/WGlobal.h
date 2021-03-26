@@ -256,6 +256,17 @@ namespace Wt {
       template <class UserType> class AuthInfo;
       template <class DboType> class UserDatabase;
     }
+
+#ifdef WT_HAS_SAML
+    namespace Saml {
+      struct Assertion;
+      struct Attribute;
+      class Process;
+      class Service;
+      struct Subject;
+      class Widget;
+    }
+#endif // WT_HAS_SAML
   }
 
   namespace Chart {

@@ -10,3 +10,7 @@ IF (ASCIIDOC_FOUND)
     ${CMAKE_SOURCE_DIR}/doc/tutorial/auth.doc
     ${CMAKE_SOURCE_DIR}/doc/tutorial/auth.html)
 ENDIF (ASCIIDOC_FOUND)
+
+if(WT_HAS_SAML)
+  add_subdirectory(Saml)
+endif()
