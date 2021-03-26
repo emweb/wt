@@ -44,6 +44,20 @@ void FormBaseModel::addOAuth(const std::vector<const OAuthService *>& auth)
     addOAuth(auth[i]);
 }
 
+#ifdef WT_HAS_SAML
+void FormBaseModel::addSaml(const Saml::Service *auth)
+{
+  Utils::add(saml_, auth);
+}
+
+void FormBaseModel::addSaml(const std::vector<const Saml::Service *> &auth)
+{
+  for (auto &a : auth) {
+    addSaml(a);
+  }
+}
+#endif // WT_HAS_SAML
+
 WString FormBaseModel::label(Field field) const
 {
   if (field == LoginNameField

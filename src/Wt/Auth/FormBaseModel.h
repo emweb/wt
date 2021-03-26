@@ -85,6 +85,24 @@ public:
    */
   std::vector<const OAuthService *> oAuth() const { return oAuth_; }
 
+#ifdef WT_HAS_SAML
+  /*! \brief Adds a %SAML authentication service provider.
+   */
+   virtual void addSaml(const Saml::Service *auth);
+
+  /*! \brief Adds a list of %SAML authentication service providers.
+   *
+   * \sa addSaml()
+   */
+  virtual void addSaml(const std::vector<const Saml::Service *>& auth);
+
+  /*! \brief Returns the list of SAML authentication service providers.
+   *
+   * \sa addSaml()
+   */
+  std::vector<const Saml::Service *> saml() const { return saml_; }
+#endif // WT_HAS_SAML
+
   virtual WString label(Field field) const override;
 
   /*! \brief Logs the user in.
@@ -109,6 +127,9 @@ private:
 
   const AbstractPasswordService *passwordAuth_;
   std::vector<const OAuthService *> oAuth_;
+#ifdef WT_HAS_SAML
+  std::vector<const Saml::Service *> saml_;
+#endif // WT_HAS_SAML
 };
 
   }

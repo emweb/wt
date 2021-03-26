@@ -326,6 +326,22 @@ protected:
    */
   virtual void createOAuthLoginView();
 
+#ifdef WT_HAS_SAML
+  /*! \brief Creates a widget to login using SAML.
+   *
+   * The default implementation adds an icon for each SAML service
+   * provider available. The icon that will be used for each service
+   * is a PNG file with a path based on the
+   * \link Saml::Service::name name \endlink of the service. If the
+   * name is "myService", then the icon path will be "css/saml-myService.png".
+   * Wt does not bundle any icons by default, so you should make sure that
+   * the icon is in place.
+   *
+   * \sa createLoginView()
+   */
+  virtual void createSamlLoginView();
+#endif // WT_HAS_SAML
+
   /*! \brief Shows a dialog.
    *
    * This shows a dialog. The default method creates a standard WDialog,
@@ -373,6 +389,9 @@ private:
 
   void oAuthStateChange(OAuthProcess *process);
   void oAuthDone(OAuthProcess *process, const Identity& identity);
+#ifdef WT_HAS_SAML
+  void samlDone(Saml::Process *process, const Identity& identity);
+#endif // WT_HAS_SAML
   void updatePasswordLoginView();
 };
 

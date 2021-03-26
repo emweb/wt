@@ -119,6 +119,9 @@ private:
   void confirmIsYou();
   void confirmedIsYou();
   void oAuthDone(OAuthProcess *oauth, const Identity& identity);
+#ifdef WT_HAS_SAML
+  void samlDone(Saml::Process *saml, const Identity &Identity);
+#endif // WT_HAS_SAML
 };
 
   }
