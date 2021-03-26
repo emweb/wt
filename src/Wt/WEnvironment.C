@@ -86,23 +86,11 @@ const std::string& WEnvironment::deploymentPath() const
 void WEnvironment::updateHostName(const WebRequest& request)
 {
   Configuration& conf = session_->controller()->configuration();
-  std::string oldHost = host_;
-  host_ = str(request.headerValue("Host"));
+  std::string newHost = request.hostName(conf);
 
-  if (conf.behindReverseProxy() ||
-      conf.isTrustedProxy(request.remoteAddr())) {
-	std::string forwardedHost = str(request.headerValue("X-Forwarded-Host"));
-
-	if (!forwardedHost.empty()) {
-	  std::string::size_type i = forwardedHost.rfind(',');
-	  if (i == std::string::npos)
-		host_ = forwardedHost;
-	  else
-		host_ = forwardedHost.substr(i+1);
-	}
-
+  if (!newHost.empty()) {
+    host_ = newHost;
   }
-  if(host_.size() == 0) host_ = oldHost;
 }
 
 void WEnvironment::updateUrlScheme(const WebRequest& request) 

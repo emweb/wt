@@ -228,6 +228,15 @@ std::string Request::clientAddress() const
   return request_->clientAddress(server->configuration());
 }
 
+std::string Request::hostName() const
+{
+  if (!request_)
+    return std::string();
+
+  WServer *server = WServer::instance();
+  return request_->hostName(server->configuration());
+}
+
 WSslInfo *Request::sslInfo() const
 {
   if (sslInfo_)

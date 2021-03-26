@@ -334,6 +334,14 @@ public:
    */
   std::string clientAddress() const;
 
+  /*! \brief Returns the host name used in the request.
+   *
+   * This returns the value of the Host header, or if behind a
+   * trusted reverse proxy, the value of the X-Forwarded-Host header
+   * if it is present.
+   */
+  std::string hostName() const;
+
   /*! \brief Returns the cookies.
    *
    * This returns all cookies set for this request.
