@@ -726,30 +726,7 @@ std::string OAuthService::userInfoEndpoint() const
 
 std::string OAuthService::configurationProperty(const std::string& property)
 {
-  WServer *instance = WServer::instance(); // Xx hmmmm...
-
-  if (instance) {
-    std::string result;
-
-      bool error;
-#ifndef WT_TARGET_JAVA
-      error = !instance->readConfigurationProperty(property, result);
-#else
-      std::string* v = instance->readConfigurationProperty(property, result);
-      if (v != &result) {
-        error = false;
-        result = *v;
-      } else {
-        error = true;
-      }
-#endif
-
-    if (error)
-      throw WException("OAuth: no '" + property + "' property configured");
-
-    return result;
-  } else
-    throw WException("OAuth: could not find a WServer instance");
+  return Utils::configurationProperty("OAuth", property);
 }
 
 Http::Method OAuthService::tokenRequestMethod() const

@@ -23,6 +23,9 @@ namespace Wt {
 
       extern std::string encodeState(const std::string &secret, const std::string &url);
       extern std::string decodeState(const std::string &secret, const std::string &state);
+
+      extern std::string configurationProperty(const std::string &prefix,
+                                               const std::string &property);
     }
   }
 }

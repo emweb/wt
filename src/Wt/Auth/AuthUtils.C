@@ -16,7 +16,9 @@
 #include "AuthUtils.h"
 #include "base64.h"
 
+#include "Wt/WException.h"
 #include "Wt/WRandom.h"
+#include "Wt/WServer.h"
 
 namespace Wt {
   namespace Auth {
@@ -107,6 +109,35 @@ std::string decodeState(const std::string &secret, const std::string &state)
       return std::string();
   } else
     return std::string();
+}
+
+std::string configurationProperty(const std::string &prefix,
+                                  const std::string &property)
+{
+  WServer *instance = WServer::instance();
+
+  if (instance) {
+    std::string result;
+
+    bool error;
+#ifndef WT_TARGET_JAVA
+    error = !instance->readConfigurationProperty(property, result);
+#else
+    std::string* v = instance->readConfigurationProperty(property, result);
+      if (v != &result) {
+        error = false;
+        result = *v;
+      } else {
+        error = true;
+      }
+#endif
+
+    if (error)
+      throw WException(prefix + ": no '" + property + "' property configured");
+
+    return result;
+  } else
+    throw WException(prefix + ": could not find a WServer instance");
 }
 
     }
