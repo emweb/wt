@@ -108,6 +108,26 @@ Wt source code, their licenses may change.
 | TinyMCE | Client side, `WTextEdit` widget | [GNU Lesser General Public License v2.1](https://spdx.org/licenses/LGPL-2.1-only.html) | https://www.tiny.cloud/ |
 | Leaflet | Client side, `WLeafletMap` widget | [BSD 2-Clause "Simplified" License](https://spdx.org/licenses/BSD-2-Clause.html) | https://leafletjs.com/ |
 
+### OpenSAML
+
+If Wt Auth is built with SAML support, Wt also depends on OpenSAML (and its dependencies).
+
+> :warning: **Note: The license for OpenSAML is Apache License 2.0. This license is not compatible with the GNU General
+Public License v2 used by Wt**. As a consequence, unless you use the commercial Wt license, you may not distribute
+derived works that use Wt with SAML support enabled.
+
+These are additional dependencies if you enable SAML support:
+
+| Library  | License | URL |
+| -------- | ------- | --- |
+| OpenSAML | [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html) | https://wiki.shibboleth.net/confluence/display/OS30/Home |
+| XMLTooling | [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html) | https://wiki.shibboleth.net/confluence/display/OS30/Home |
+| Log4Shib | [GNU Lesser General Public License v2.1](https://spdx.org/licenses/LGPL-2.1-only.html) | https://wiki.shibboleth.net/confluence/display/OS30/Home |
+| libcurl | [MIT/X inspired](https://curl.se/docs/copyright.html) | https://curl.se |
+| OpenSSL (already an optional Wt dependency) | [OpenSSL License](https://spdx.org/licenses/OpenSSL.html) | https://www.openssl.org |
+| Apache Santuario / Apache XML Security for C++ | [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html) | https://santuario.apache.org/cindex.html |
+| Apache Xerces-C++ | [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html) | https://xerces.apache.org/xerces-c/ |
+
 ## Appendix: special licenses
 
 ### CGI Parser
