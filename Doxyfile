@@ -1539,6 +1539,7 @@ INCLUDE_FILE_PATTERNS  =
 # instead of the = operator.
 
 PREDEFINED             = DOXYGEN_ONLY \
+                         WT_HAS_SAML \
                          WT_USTRING=WString \
                          WT_UCHAR=std::string \
                          WT_BOSTREAM=std::ostream \
