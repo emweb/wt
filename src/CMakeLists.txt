@@ -529,6 +529,10 @@ TARGET_LINK_LIBRARIES(wt
     ${RT_LIBRARY}
     )
 
+IF(WT_HAS_SAML)
+  TARGET_LINK_LIBRARIES(wt PRIVATE Shibboleth::OpenSAML)
+ENDIF()
+
 IF(ENABLE_LIBWTTEST)
   ADD_LIBRARY(wttest
     Wt/Test/WTestEnvironment.C
