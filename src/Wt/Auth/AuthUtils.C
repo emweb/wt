@@ -9,6 +9,10 @@
 #include <cstring>
 #include <memory>
 
+#include "web/WebUtils.h"
+
+#include "Wt/Utils.h"
+
 #include "AuthUtils.h"
 #include "base64.h"
 
@@ -62,6 +66,47 @@ std::string decodeAscii(const std::string& a)
   base64::decode(msg.begin(), msg.end(), std::back_inserter(v));
 
   return std::string(v.begin(), v.end());
+}
+
+std::string encodeState(const std::string &secret, const std::string &url)
+{
+  std::string hash(Wt::Utils::base64Encode(Wt::Utils::hmac_sha1(url, secret)));
+
+  std::string b = Wt::Utils::base64Encode(hash + "|" + url, false);
+
+  /* Variant of base64 encoding which is resistant to broken OAuth2 peers
+   * that do not properly re-encode the state */
+  b = Wt::Utils::replace(b, "+", "-");
+  b = Wt::Utils::replace(b, "/", "_");
+  b = Wt::Utils::replace(b, "=", ".");
+
+  return b;
+}
+
+std::string decodeState(const std::string &secret, const std::string &state)
+{
+  std::string s = state;
+  s = Wt::Utils::replace(s, "-", "+");
+  s = Wt::Utils::replace(s, "_", "/");
+  s = Wt::Utils::replace(s, ".", "=");
+
+#ifndef WT_TARGET_JAVA
+  s = Wt::Utils::base64Decode(s);
+#else
+  s = Wt::Utils::base64DecodeS(s);
+#endif
+
+  std::size_t i = s.find('|');
+  if (i != std::string::npos) {
+    std::string url = s.substr(i + 1);
+
+    std::string check = encodeState(secret, url);
+    if (check == state)
+      return url;
+    else
+      return std::string();
+  } else
+    return std::string();
 }
 
     }
