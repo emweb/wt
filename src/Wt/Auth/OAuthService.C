@@ -554,7 +554,7 @@ struct OAuthService::Impl
     : redirectResource_(nullptr)
   {
     try {
-      secret_ = configurationProperty("oauth2-secret");
+      secret_ = OAuthService::configurationProperty("oauth2-secret");
     } catch (std::exception& e) {    
       secret_ = WRandom::generateId(32);
     }
