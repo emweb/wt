@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetadataProvider type="XML" path="./xml/idp_metadata.xml" validate="0">
+  <KeyInfoResolver type="Inline" keyInfoReferences="true" />
+</MetadataProvider>
