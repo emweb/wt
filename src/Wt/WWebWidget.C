@@ -2719,8 +2719,9 @@ bool WWebWidget::scrollVisibilityEnabled() const
 
 void WWebWidget::setScrollVisibilityEnabled(bool enabled)
 {
-  if (enabled && !otherImpl_) {
-    otherImpl_.reset(new OtherImpl(this));
+  if (enabled) {
+    if (!otherImpl_)
+      otherImpl_.reset(new OtherImpl(this));
     if (!otherImpl_->jsScrollVisibilityChanged_) {
       otherImpl_->jsScrollVisibilityChanged_.reset(new JSignal<bool>(this, "scrollVisibilityChanged"));
       otherImpl_->jsScrollVisibilityChanged_->connect(this, &WWebWidget::jsScrollVisibilityChanged);
