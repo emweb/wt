@@ -5,6 +5,7 @@
  */
 #include "Wt/Form/WFormDelegate.h"
 
+#include <Wt/WCheckBox.h>
 #include <Wt/WDateEdit.h>
 #include <Wt/WDateValidator.h>
 #include <Wt/WLineEdit.h>
@@ -75,6 +76,47 @@ void WFormDelegate<Wt::WTime, void>::updateModelValue(Wt::WFormModel *model, Wt:
     model->setValue(field, timeEdit->time());
   } else {
     LOG_ERROR("Could not cast edit to WTimeEdit!");
+  }
+}
+
+WFormDelegate<bool,void>::WFormDelegate()
+  : WAbstractFormDelegate()
+{
+}
+
+std::unique_ptr<Wt::WWidget> WFormDelegate<bool, void>::createFormWidget()
+{
+  return std::make_unique<Wt::WCheckBox>();
+}
+
+void WFormDelegate<bool, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  Wt::WCheckBox *box = dynamic_cast<Wt::WCheckBox *>(edit);
+  if (box) {
+    model->setValue(field, box->isChecked());
+  } else {
+    LOG_ERROR("Could not cast edit to WCheckBox!");
+  }
+}
+
+void WFormDelegate<bool, void>::updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  Wt::WCheckBox *box = dynamic_cast<Wt::WCheckBox *>(edit);
+  if (box) {
+    Wt::cpp17::any v = model->value(field);
+
+    bool value = false;
+    if (Wt::cpp17::any_has_value(v)) {
+      try {
+        value = Wt::cpp17::any_cast<bool>(v);
+      } catch (std::exception& e) {
+	LOG_ERROR("Could not convert value to bool: " << e.what());
+      }
+    }
+
+    box->setChecked(value);
+  } else {
+    LOG_ERROR("Could not cast edit to WCheckBox!");
   }
 }
   }

@@ -84,6 +84,32 @@ public:
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
 };
+
+/*! \brief Form delegate class for boolean
+ *
+ * This will create a WCheckBox to display the boolean value
+ * in the view
+ */
+template<>
+class WT_API WFormDelegate<bool, void> : public WAbstractFormDelegate
+{
+public:
+  /*! \brief Create a form delegate
+   */
+  WFormDelegate();
+
+  /*! \brief Create WCheckBox to be used in the View
+   */
+  std::unique_ptr<Wt::WWidget> createFormWidget() override;
+
+  /*! \brief Update the value in the Model
+   */
+  void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+
+  /*! \brief Update the value in the View
+   */
+  void updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+};
   }
 }
 
