@@ -8,6 +8,7 @@
 #include <Wt/WCheckBox.h>
 #include <Wt/WDateEdit.h>
 #include <Wt/WDateValidator.h>
+#include <Wt/WIntValidator.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WLogger.h>
 #include <Wt/WTimeEdit.h>
@@ -117,6 +118,51 @@ void WFormDelegate<bool, void>::updateViewValue(Wt::WFormModel *model, Wt::WForm
     box->setChecked(value);
   } else {
     LOG_ERROR("Could not cast edit to WCheckBox!");
+  }
+}
+
+WFormDelegate<int, void>::WFormDelegate()
+  : WAbstractFormDelegate()
+{
+}
+
+std::unique_ptr<Wt::WWidget> WFormDelegate<int, void>::createFormWidget()
+{
+  return std::make_unique<Wt::WLineEdit>();
+}
+
+std::shared_ptr<Wt::WValidator> WFormDelegate<int, void>::createValidator()
+{
+  return std::make_shared<Wt::WIntValidator>();
+}
+
+void WFormDelegate<int, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  if (!edit->valueText().empty()) {
+    int value = 0;
+    try {
+      value = Wt::WLocale::currentLocale().toInt(edit->valueText());
+    } catch (std::exception& e) {
+      LOG_ERROR("Could not convert '" << edit->valueText() << "' to integer: " << e.what());
+
+      std::shared_ptr<Wt::WValidator> validator = edit->validator();
+      if (validator) {
+        model->setValue(field, validator->validate(edit->valueText()));
+      }
+
+      return;
+    }
+    model->setValue(field, value);
+  } else {
+    model->setValue(field, 0);
+  }
+}
+
+void WFormDelegate<int, void>::updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  Wt::cpp17::any v = model->value(field);
+  if (v.type() != typeid(Wt::WValidator::Result)) {
+    edit->setValueText(Wt::asString(v));
   }
 }
   }
