@@ -166,6 +166,37 @@ public:
    */
   void updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
 };
+
+/*! \brief Form delegate for double
+ *
+ * This will create a WLineEdit to display the double value
+ * in the View. Additionally the delegate will also initialize
+ * the WDoubleValidator for validation.
+ */
+template<>
+class WT_API WFormDelegate<double, void> : public WAbstractFormDelegate
+{
+public:
+  /*! \brief Create a form delegate
+   */
+  WFormDelegate();
+
+  /*! \brief Create WLineEdit to be used in the View
+   */
+  std::unique_ptr<Wt::WWidget> createFormWidget() override;
+
+  /*! \brief Create WDoubleValidator for validation
+   */
+  std::shared_ptr<Wt::WValidator> createValidator() override;
+
+  /*! \brief Update the value in the model
+   */
+  void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+
+  /*! \brief Update the value in the View
+   */
+  void updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+};
   }
 }
 

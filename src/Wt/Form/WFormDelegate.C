@@ -9,6 +9,7 @@
 #include <Wt/WDateEdit.h>
 #include <Wt/WDateTime.h>
 #include <Wt/WDateValidator.h>
+#include <Wt/WDoubleValidator.h>
 #include <Wt/WIntValidator.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WLocale.h>
@@ -179,6 +180,51 @@ void WFormDelegate<int, void>::updateModelValue(Wt::WFormModel *model, Wt::WForm
 }
 
 void WFormDelegate<int, void>::updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  Wt::cpp17::any v = model->value(field);
+  if (v.type() != typeid(Wt::WValidator::Result)) {
+    edit->setValueText(Wt::asString(v));
+  }
+}
+
+WFormDelegate<double, void>::WFormDelegate()
+  : WAbstractFormDelegate()
+{
+}
+
+std::unique_ptr<Wt::WWidget> WFormDelegate<double, void>::createFormWidget()
+{
+  return std::make_unique<Wt::WLineEdit>();
+}
+
+std::shared_ptr<Wt::WValidator> WFormDelegate<double, void>::createValidator()
+{
+  return std::make_shared<Wt::WDoubleValidator>();
+}
+
+void WFormDelegate<double, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  if (!edit->valueText().empty()) {
+    double value = 0.0;
+    try {
+      value = Wt::WLocale::currentLocale().toDouble(edit->valueText());
+    } catch (std::exception& e) {
+      LOG_ERROR("Could not convert '" << edit->valueText() << "' to double: " << e.what());
+
+      std::shared_ptr<Wt::WValidator> validator = edit->validator();
+      if (validator) {
+        model->setValue(field, validator->validate(edit->valueText()));
+      }
+
+      return;
+    }
+    model->setValue(field, value);
+  } else {
+    model->setValue(field, 0.0);
+  }
+}
+
+void WFormDelegate<double, void>::updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
 {
   Wt::cpp17::any v = model->value(field);
   if (v.type() != typeid(Wt::WValidator::Result)) {
