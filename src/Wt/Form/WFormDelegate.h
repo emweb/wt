@@ -32,6 +32,32 @@ public:
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
 };
+
+/*! \brief Form delegate class for WDate
+ *
+ * This will create a WDateEdit to display the WDate value in the
+ * View
+ */
+template<>
+class WT_API WFormDelegate<Wt::WDate, void> : public WAbstractFormDelegate
+{
+public:
+  /*! \brief Create a form delegate
+   */
+  WFormDelegate();
+
+  /*! \brief Create WDateEdit to be used in the View
+   */
+  std::unique_ptr<Wt::WWidget> createFormWidget() override;
+
+  /*! \brief Create WDateValidator
+   */
+  std::shared_ptr<Wt::WValidator> createValidator() override;
+
+  /*! \brief Update the value in the Model
+   */
+  void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+};
   }
 }
 
