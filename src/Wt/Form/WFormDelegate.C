@@ -7,9 +7,11 @@
 
 #include <Wt/WCheckBox.h>
 #include <Wt/WDateEdit.h>
+#include <Wt/WDateTime.h>
 #include <Wt/WDateValidator.h>
 #include <Wt/WIntValidator.h>
 #include <Wt/WLineEdit.h>
+#include <Wt/WLocale.h>
 #include <Wt/WLogger.h>
 #include <Wt/WTimeEdit.h>
 #include <Wt/WTimeValidator.h>
@@ -77,6 +79,24 @@ void WFormDelegate<Wt::WTime, void>::updateModelValue(Wt::WFormModel *model, Wt:
     model->setValue(field, timeEdit->time());
   } else {
     LOG_ERROR("Could not cast edit to WTimeEdit!");
+  }
+}
+
+WFormDelegate<Wt::WDateTime, void>::WFormDelegate()
+  : WAbstractFormDelegate()
+{
+}
+
+std::unique_ptr<Wt::WWidget> WFormDelegate<Wt::WDateTime, void>::createFormWidget()
+{
+  return std::make_unique<Wt::WLineEdit>();
+}
+
+void WFormDelegate<Wt::WDateTime, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  if (!edit->valueText().empty()) {
+    Wt::WDateTime value = Wt::WDateTime::fromString(edit->valueText(), Wt::WLocale::currentLocale().dateTimeFormat());
+    model->setValue(field, value);
   }
 }
 
