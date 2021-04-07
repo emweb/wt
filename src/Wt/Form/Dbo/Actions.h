@@ -324,6 +324,71 @@ private:
     return formDelegates_.find(name) != formDelegates_.end();
   }
 };
+
+/*! \brief Class that automatically adds all database columns to the Model
+ *
+ * This action neither loads nor sets data in the database
+ */
+class ModelAction
+{
+public:
+  ModelAction(Wt::Dbo::Session& session, std::vector<std::string>& fields)
+    : session_(session),
+      fields_(fields)
+  {
+  }
+
+  template<typename V>
+  void actId(V& value, const std::string& name, int size)
+  {
+    insertField(name);
+  }
+
+  template<class C>
+  void actId(Wt::Dbo::ptr<C>& value, const std::string& name, int size, int fkConstraints)
+  {
+    insertField(name);
+  }
+
+  template<typename V>
+  void act(const Wt::Dbo::FieldRef<V>& ref)
+  {
+    insertField(ref.name());
+  }
+
+  template<class C>
+  void actPtr(const Wt::Dbo::PtrRef<C>& ref)
+  {
+    insertField(ref.name());
+  }
+
+  template<class C>
+  void actWeakPtr(const Wt::Dbo::WeakPtrRef<C>& ref)
+  {
+    insertField(ref.joinName());
+  }
+
+  template<class C>
+  void actCollection(const Wt::Dbo::CollectionRef<C>& ref)
+  {
+    insertField(ref.joinName());
+  }
+
+  bool getsValue() const { return false; }
+  bool setsValue() const { return false; }
+  bool isSchema() const { return false; }
+
+  Wt::Dbo::Session* session() const { return &session_; }
+
+private:
+  Wt::Dbo::Session& session_;
+  std::vector<std::string>& fields_;
+
+  void insertField(const std::string& name)
+  {
+    fields_.push_back(name);
+  }
+};
     }
   }
 }
