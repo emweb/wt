@@ -139,6 +139,103 @@ public:
   bool setsValue() const { return false; }
   bool isSchema() const { return false; }
 };
+
+/*! \brief Class that automatically saves data from the form to the database
+ *
+ * This class will be used together with Dbo's persist method to automatically
+ * push the data from the WFormModel to the database.
+ *
+ * This action modifies the data in the database.
+ */
+class SaveAction : public Action
+{
+public:
+  SaveAction(Wt::Dbo::Session& session, FormModelBase *model)
+    : Action(session, model)
+  {
+  }
+
+  /*
+   * This function will be called when Wt::Dbo::id is used
+   * in the persist method when specifying a natural primary key
+   */
+  template<typename V>
+  void actId(V& value, const std::string& name, int size)
+  {
+    if (hasDboField(name)) {
+      value = Wt::cpp17::any_cast<V>(model()->value(name.c_str()));
+    }
+  }
+
+  /*
+   * This function will be called when Wt::Dbo::id is used
+   * in the persist method when specifying a natural primary key
+   */
+  template<class C>
+  void actId(Wt::Dbo::ptr<C>& value, const std::string& name, int size, int fkConstraints)
+  {
+    if (hasDboField(name)) {
+      value = Wt::cpp17::any_cast<Wt::Dbo::ptr<C>>(model()->value(name.c_str()));
+    }
+  }
+
+  /*
+   * Assumes that the WFormModel returns the data types expected
+   * by the Dbo class like WString, WDate, ..
+   */
+  template<typename V>
+  void act(const Wt::Dbo::FieldRef<V>& ref)
+  {
+    if (hasDboField(ref.name())) {
+      ref.setValue(Wt::cpp17::any_cast<V>(model()->value(ref.name().c_str())));
+    }
+  }
+
+  /*
+   * Assumes that the WFormModel returns a Wt::Dbo::ptr
+   */
+  template<class C>
+  void actPtr(const Wt::Dbo::PtrRef<C>& ref)
+  {
+    if (hasDboField(ref.name())) {
+      ref.value() = Wt::cpp17::any_cast<Wt::Dbo::ptr<C>>(model()->value(ref.name().c_str()));
+    }
+  }
+
+  /*
+   * Assumes that the WFormModel returns a Wt::Dbo::ptr
+   */
+  template<class C>
+  void actWeakPtr(const Wt::Dbo::WeakPtrRef<C>& ref)
+  {
+    if (hasDboField(ref.joinName())) {
+      ref.value() = Wt::cpp17::any_cast<Wt::Dbo::ptr<C>>(model()->value(ref.joinName().c_str()));
+    }
+  }
+
+  /*
+   * Assumes that the WFormModel returns a std::vector
+   * of Wt::Dbo::ptr objects
+   */
+  template<class C>
+  void actCollection(const Wt::Dbo::CollectionRef<C>& ref)
+  {
+    if (hasDboField(ref.joinName())) {
+      Wt::Dbo::Transaction t(*session());
+
+      ref.value().clear();
+
+      std::vector<Wt::Dbo::ptr<C>> values = Wt::cpp17::any_cast<std::vector<Wt::Dbo::ptr<C>>>(model()->value(ref.joinName().c_str()));
+      for (const Wt::Dbo::ptr<C>& v : values) {
+        ref.value().insert(v);
+      }
+    }
+  }
+
+  bool getsValue() const { return false; }
+  bool setsValue() const { return true; }
+  bool isSchema() const { return false; }
+};
     }
   }
 }
