@@ -279,7 +279,8 @@ void WResource::setDispositionType(ContentDisposition dispositionType)
 
 void WResource::setChanged()
 {
-  generateUrl();
+  if (!currentUrl_.empty())
+    generateUrl();
 
   dataChanged_.emit();
 }
