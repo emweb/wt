@@ -225,7 +225,7 @@ public:
    * popup menu selection.
    *
    * The default value is \c true for a normal menu item, and \c false
-   * for a menu item that has a submenu.
+   * for a menu item that has a popup submenu.
    *
    * An item that is selectable but is disabled can still not be
    * selected.

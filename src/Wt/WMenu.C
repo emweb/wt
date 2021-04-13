@@ -298,7 +298,7 @@ void WMenu::select(int index, bool changePath)
 {
   if (parentItem_) {
     auto parentItemMenu = parentItem_->parentMenu();
-    if (parentItemMenu->currentItem() != parentItem_)
+    if (parentItemMenu->currentItem() != parentItem_ && parentItem_->isSelectable())
       parentItemMenu->select(parentItemMenu->indexOf(parentItem_), false);
   }
   
