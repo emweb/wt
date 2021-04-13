@@ -12,6 +12,7 @@
 #include <Wt/Dbo/Session.h>
 
 #include <Wt/Form/Dbo/FormModelBase.h>
+#include <Wt/Form/WFormDelegate.h>
 
 namespace Wt {
   namespace Form {
@@ -235,6 +236,93 @@ public:
   bool getsValue() const { return false; }
   bool setsValue() const { return true; }
   bool isSchema() const { return false; }
+};
+
+/*! \brief Class that automatically initializes the WFormDelegates to be used by the View
+ *
+ * This class will automatically generate the WFormDelegates based
+ * on the data type that's used in the Dbo class.
+ *
+ * This action neither loads nor sets data in the database
+ */
+class ViewAction : public Action
+{
+public:
+  ViewAction(Wt::Dbo::Session& session, FormModelBase *model,
+             std::map<std::string, std::shared_ptr<Wt::Form::WAbstractFormDelegate>>& formDelegates)
+    : Action(session, model),
+      formDelegates_(formDelegates)
+  {
+  }
+
+  template<typename V>
+  void actId(V& value, const std::string& name, int size)
+  {
+    if (!hasDelegate(name) && hasDboField(name)) {
+      insertFormDelegate(name, std::make_shared<Wt::Form::WFormDelegate<V>>());
+    }
+  }
+
+  template<class C>
+  void actId(Wt::Dbo::ptr<C>& value, const std::string& name, int size, int fkConstraints)
+  {
+    if (!hasDelegate(name) && hasDboField(name)) {
+      throw Wt::WException("Default WFormDelegate is not yet implemented for Wt::Dbo::ptr");
+    }
+  }
+
+  template<typename V>
+  void act(const Wt::Dbo::FieldRef<V>& ref)
+  {
+    if (!hasDelegate(ref.name()) && hasDboField(ref.name())) {
+      insertFormDelegate(ref.name(), std::make_shared<Wt::Form::WFormDelegate<V>>());
+    }
+  }
+
+  template<class C>
+  void actPtr(const Wt::Dbo::PtrRef<C>& ref)
+  {
+    if (!hasDelegate(ref.name()) && hasDboField(ref.name())) {
+      throw Wt::WException("Default WFormDelegate is not yet implemented for Wt::Dbo::ptr");
+    }
+  }
+
+  template<class C>
+  void actWeakPtr(const Wt::Dbo::WeakPtrRef<C>& ref)
+  {
+    if (!hasDelegate(ref.joinName()) && hasDboField(ref.joinName())) {
+      throw Wt::WException("Default WFormDelegate is not yet implemented for Wt::Dbo::ptr");
+    }
+  }
+
+  template<class C>
+  void actCollection(const Wt::Dbo::CollectionRef<C>& ref)
+  {
+    if (!hasDelegate(ref.joinName()) && hasDboField(ref.joinName())) {
+      throw Wt::WException("Default WFormDelegate is not yet implemented for Wt::Dbo::collection");
+    }
+  }
+
+  bool getsValue() const { return false; }
+  bool setsValue() const { return false; }
+  bool isSchema() const { return false; }
+
+private:
+  std::map<std::string, std::shared_ptr<Wt::Form::WAbstractFormDelegate>>& formDelegates_;
+
+  void insertFormDelegate(const std::string& name, std::shared_ptr<Wt::Form::WAbstractFormDelegate> delegate)
+  {
+    formDelegates_[name] = delegate;
+  }
+
+  /*
+   * Check if a custom delegate has been specified
+   * for this column
+   */
+  bool hasDelegate(const std::string& name)
+  {
+    return formDelegates_.find(name) != formDelegates_.end();
+  }
 };
     }
   }
