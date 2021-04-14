@@ -58,6 +58,32 @@ public:
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
 };
+
+/*! \brief Form delegate class for WTime
+ *
+ * This will create a WTimeEdit to display the WTime value in the
+ * View
+ */
+template<>
+class WT_API WFormDelegate<Wt::WTime, void> : public WAbstractFormDelegate
+{
+public:
+  /*! \brief Create a form delegate
+   */
+  WFormDelegate();
+
+  /*! \brief Create WTimeEdit to be used in the View
+   */
+  std::unique_ptr<Wt::WWidget> createFormWidget() override;
+
+  /*! \brief Create WTimeValidator
+   */
+  std::shared_ptr<Wt::WValidator> createValidator() override;
+
+  /*! \brief Update the value in the Model
+   */
+  void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+};
   }
 }
 

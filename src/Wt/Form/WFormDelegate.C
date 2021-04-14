@@ -9,6 +9,8 @@
 #include <Wt/WDateValidator.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WLogger.h>
+#include <Wt/WTimeEdit.h>
+#include <Wt/WTimeValidator.h>
 
 namespace Wt {
 LOGGER("WFormDelegate");
@@ -48,6 +50,31 @@ void WFormDelegate<Wt::WDate, void>::updateModelValue(Wt::WFormModel *model, Wt:
     model->setValue(field, dateEdit->date());
   } else {
     LOG_ERROR("Could not cast edit to WDateEdit!");
+  }
+}
+
+WFormDelegate<Wt::WTime, void>::WFormDelegate()
+  : WAbstractFormDelegate()
+{
+}
+
+std::unique_ptr<Wt::WWidget> WFormDelegate<Wt::WTime, void>::createFormWidget()
+{
+  return std::make_unique<Wt::WTimeEdit>();
+}
+
+std::shared_ptr<Wt::WValidator> WFormDelegate<Wt::WTime, void>::createValidator()
+{
+  return std::make_shared<Wt::WTimeValidator>();
+}
+
+void WFormDelegate<Wt::WTime, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  Wt::WTimeEdit *timeEdit = dynamic_cast<Wt::WTimeEdit *>(edit);
+  if (timeEdit) {
+    model->setValue(field, timeEdit->time());
+  } else {
+    LOG_ERROR("Could not cast edit to WTimeEdit!");
   }
 }
   }
