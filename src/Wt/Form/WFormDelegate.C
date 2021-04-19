@@ -33,6 +33,21 @@ std::unique_ptr<Wt::WWidget> WFormDelegate<Wt::WString, void>::createFormWidget(
   return std::make_unique<Wt::WLineEdit>();
 }
 
+WFormDelegate<std::string, void>::WFormDelegate()
+  : WAbstractFormDelegate()
+{
+}
+
+std::unique_ptr<Wt::WWidget> WFormDelegate<std::string, void>::createFormWidget()
+{
+  return std::make_unique<Wt::WLineEdit>();
+}
+
+void WFormDelegate<std::string, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  model->setValue(field, edit->valueText().toUTF8());
+}
+
 WFormDelegate<Wt::WDate, void>::WFormDelegate()
   : WAbstractFormDelegate()
 {

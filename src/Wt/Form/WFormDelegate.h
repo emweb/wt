@@ -33,6 +33,28 @@ public:
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
 };
 
+/*! \brief Form delegate class for std::string
+ *
+ * This will create a WLineEdit to display the std::string value
+ * in the View
+ */
+template<>
+class WT_API WFormDelegate<std::string, void> : public WAbstractFormDelegate
+{
+public:
+  /*! \brief Create a form delegate
+   */
+  WFormDelegate();
+
+  /*! \brief Create WLineEdit to be used in the View
+   */
+  std::unique_ptr<Wt::WWidget> createFormWidget() override;
+
+  /*! \brief Update the value in the Model
+   */
+  void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+};
+
 /*! \brief Form delegate class for WDate
  *
  * This will create a WDateEdit to display the WDate value in the
