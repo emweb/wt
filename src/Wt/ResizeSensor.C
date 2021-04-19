@@ -24,6 +24,7 @@ void ResizeSensor::applyIfNeeded(WWidget *w)
   if (!w->javaScriptMember(WWidget::WT_RESIZE_JS).empty()) {
     WApplication *app = WApplication::instance();
     loadJavaScript(app);
+    w->setJavaScriptMember(" ResizeSensor", ""); // #8335: force recreation
     w->setJavaScriptMember
 	(" ResizeSensor",
 	 "new " WT_CLASS ".ResizeSensor(" WT_CLASS "," + w->jsRef() + ")");
