@@ -459,6 +459,7 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
   } else {
     WText *noExpandIcon = nodeWidget_->resolve<WText *>("no-expand");
     if (!noExpandIcon) {
+      nodeWidget_->bindEmpty("expand");
       noExpandIcon
 	= nodeWidget_->bindWidget("no-expand", std::make_unique<WText>());
       noExpandIcon->setInline(false);
