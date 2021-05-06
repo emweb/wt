@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     git \
     build-essential \
     cmake \
+    ccache \
     libunwind-dev \
  && rm -rf /var/lib/apt/lists/*
 

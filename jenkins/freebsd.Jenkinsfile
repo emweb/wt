@@ -2,6 +2,8 @@ def thread_count = 1
 
 def wt_configure(Map args) {
     sh """cmake .. \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DBUILD_EXAMPLES=ON \
             -DBUILD_TESTS=ON \
             -DCONNECTOR_FCGI=OFF \

@@ -2,6 +2,8 @@ def user_id
 def user_name
 def group_id
 def group_name
+def container_ccache_dir
+def host_ccache_dir
 
 def thread_count = 5
 
@@ -10,10 +12,14 @@ node('docker') {
     user_name = sh(returnStdout: true, script: 'id -un').trim()
     group_id = sh(returnStdout: true, script: 'id -g').trim()
     group_name = sh(returnStdout: true, script: 'id -gn').trim()
+    container_ccache_dir = "/home/${user_name}/.ccache"
+    host_ccache_dir = "/local/home/${user_name}/.ccache"
 }
 
 def wt_configure(Map args) {
     sh """cmake .. \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DBUILD_EXAMPLES=ON \
             -DBUILD_TESTS=ON \
             -DCONNECTOR_FCGI=ON \
@@ -48,6 +54,7 @@ pipeline {
             label 'docker'
             dir 'jenkins'
             filename 'full.Dockerfile'
+            args "--env CCACHE_DIR=${container_ccache_dir} --env CCACHE_MAXSIZE=20G --volume ${host_ccache_dir}:${container_ccache_dir}:z"
             additionalBuildArgs """--build-arg USER_ID=${user_id} \
                                    --build-arg USER_NAME=${user_name} \
                                    --build-arg GROUP_ID=${group_id} \
