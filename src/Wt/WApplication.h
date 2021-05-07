@@ -7,6 +7,7 @@
 #ifndef WAPPLICATION_
 #define WAPPLICATION_
 
+#include <chrono>
 #include <vector>
 #include <string>
 #include <set>
@@ -2013,6 +2014,16 @@ public:
 
   void addGlobalWidget(WWidget *w); // from within constructor
   void removeGlobalWidget(WWidget *w); // from within destructor
+
+  /*! \brief Suspend the application.
+   *
+   * Keep this application alive for a certain amount of time, while
+   * allowing the user to navigate away from the page. This can be
+   * useful when using 3rd party login or payment providers.
+   * You can later return to the application with a url that includes
+   * the session ID as query parameter (see WApplication::url()).
+   */
+  void suspend(std::chrono::seconds duration);
 
 protected:
   /*! \brief Notifies an event to the application.

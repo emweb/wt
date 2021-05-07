@@ -766,8 +766,12 @@
                               this is randomly generated, which is sufficient for single-process
                               deployments, but for multi-process deployments the same value must
                               be used in all processes and thus needs to be pre-configured.
+             - oauth2-redirect-timeout: a timeout (in seconds) for when single-sign-on is used
+                                        without popup. If a user takes longer than this to login,
+                                        the application will be destroyed. The default is 10 minutes.
             -->
             <!-- <property name="oauth2-secret"></property> -->
+            <!-- <property name="oauth2-redirect-timeout">600</property> -->
 
             <!-- PayPal properties
 

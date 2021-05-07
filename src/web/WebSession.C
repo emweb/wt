@@ -333,6 +333,11 @@ std::string WebSession::docType() const
 
 void WebSession::setLoaded()
 {
+  if (state_ == State::Suspended &&
+      env_->ajax() && controller_->configuration().reloadIsNewSession()) {
+    app_->doJavaScript(WT_CLASS ".history.removeSessionId()");
+  }
+
   setState(State::Loaded, controller_->configuration().sessionTimeout());
 }
 
@@ -1381,6 +1386,7 @@ void WebSession::handleRequest(Handler& handler)
       && isEqual(request.requestMethod(), "GET")
       && !requestForResource
       && conf.reloadIsNewSession()
+      && !suspended()
       && wtdE && *wtdE == sessionId_) {
     LOG_SECURE("Unexpected GET request with wtd of existing Ajax session");
     serveError(403, handler, "Forbidden");
@@ -1541,7 +1547,8 @@ void WebSession::handleRequest(Handler& handler)
 	break;
       }
       case State::ExpectLoad:
-      case State::Loaded: {
+      case State::Loaded:
+      case State::Suspended: {
         if (conf.sessionTracking() == Configuration::Combined) {
           const std::string *signalE
             = handler.request()->getParameter("signal");
@@ -1696,10 +1703,12 @@ void WebSession::handleRequest(Handler& handler)
 
 	    if (env_->ajax()) {
 	      if (state_ != State::ExpectLoad &&
+                  state_ != State::Suspended &&
 		  handler.response()->responseType() == 
 		  WebResponse::ResponseType::Update)
 	        setLoaded();
 	    } else if (state_ != State::ExpectLoad &&
+                       state_ != State::Suspended &&
 		       !controller_->limitPlainHtmlSessions())
 	      setLoaded();	    
           }
@@ -1775,7 +1784,9 @@ void WebSession::flushBootStyleResponse()
 #ifndef WT_TARGET_JAVA
 void WebSession::handleWebSocketRequest(Handler& handler)
 {
-  if (state_ != State::Loaded && state_ != State::ExpectLoad) {
+  if (state_ != State::Loaded &&
+      state_ != State::ExpectLoad &&
+      state_ != State::Suspended) {
     handler.flushResponse();
     return;
   }
@@ -2307,6 +2318,7 @@ void WebSession::notify(const WEvent& event)
     break;
   case State::ExpectLoad:
   case State::Loaded:
+  case State::Suspended:
     /*
      * Excluding resources here ?
      */
@@ -2668,6 +2680,7 @@ EventType WebSession::getEventType(const WEvent& event) const
   switch (state_) {
   case State::ExpectLoad:
   case State::Loaded:
+  case State::Suspended:
     if (handler.response()->responseType() == WebResponse::ResponseType::Script)
       return EventType::Other;
     else {

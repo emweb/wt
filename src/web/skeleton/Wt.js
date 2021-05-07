@@ -1970,6 +1970,20 @@ if (html5History) {
     stateMap[w.location.pathname + w.location.search] = state;
   }
 
+  function stripParameter(q, name) {
+    if (q.length > 1)
+      q = q.substr(1);
+
+    var qp = q.split("&"), i, il;
+    q = "";
+
+    for (i=0, il = qp.length; i<il; ++i)
+      if (qp[i].split("=")[0] != name)
+	q += (q.length ? '&' : '?') + qp[i];
+
+    return q;
+  }
+
   return {
     _initialize: function() { },
 
@@ -2023,6 +2037,16 @@ _$_$endif_$_();
       }
     },
 
+    removeSessionId: function () {
+      var pathname = w.location.pathname;
+      var idx = pathname.indexOf(";jsessionid=");
+      if (idx != -1)
+        pathname = pathname.substr(0, idx);
+
+      var url = pathname + stripParameter(w.location.search, 'wtd');
+      w.history.replaceState(null, null, url);
+    },
+
     navigate: function (state, generateEvent) {
       //console.log("navigate: " + state);
       WT.resolveRelativeAnchors();
@@ -2037,21 +2061,7 @@ _$_$endif_$_();
       if (!ugly) {
 	url += window.location.search;
       } else {
-	function stripHashParameter(q) {
-	  if (q.length > 1)
-	    q = q.substr(1);
-
-	  var qp = q.split("&"), i, il;
-	  q = "";
-
-	  for (i=0, il = qp.length; i<il; ++i)
-	    if (qp[i].split("=")[0] != '_')
-	      q += (q.length ? '&' : '?') + qp[i];
-
-	  return q;
-	}
-
-	var q = stripHashParameter(window.location.search);
+	var q = stripParameter(window.location.search, '_');
 
 	if (q.length > 1) {
 	  if (q.length > 2 && q[0] == '?' && q[1] == '&')

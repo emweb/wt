@@ -458,6 +458,21 @@ public:
   virtual std::unique_ptr<OAuthProcess>
     createProcess(const std::string& scope) const = 0;
 
+  /*! \brief Configure if a popup should be used for the login.
+   *
+   * When set to false, the session will be suspended when the login starts,
+   * allowing the state to be restored when it completes.
+   * A timeout can be configured in wt_config.xml (see <tt>oauth2-redirect-timeout</tt>).
+   *
+   * The default value is true. When JavaScript is not available, a redirect without
+   * popup is always used.
+   */
+  void setPopupEnabled(bool enable);
+
+  /*! \brief Returns if a popup is used for the login.
+   */
+  bool popupEnabled() const;
+
   /*! \brief Returns the provider name.
    *
    * This is a short identifier.
@@ -619,6 +634,8 @@ private:
 
   struct Impl;
   std::unique_ptr<Impl> impl_;
+
+  bool usePopup_;
 };
 
   }

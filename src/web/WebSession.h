@@ -63,6 +63,7 @@ public:
     JustCreated,
     ExpectLoad,
     Loaded,
+    Suspended,
     Dead
   };
 
@@ -126,6 +127,7 @@ public:
 #endif // WT_TARGET_JAVA
 
   bool dead() { return state_ == State::Dead; }
+  bool suspended() { return state_ == State::Suspended; }
   State state() const { return state_; }
   void kill();
 

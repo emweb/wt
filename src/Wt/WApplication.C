@@ -784,6 +784,9 @@ WWidget *WApplication::findWidget(const std::string& name)
 
 void WApplication::doUnload()
 {
+  if (session_->suspended())
+    return;
+
   const Configuration& conf = environment().server()->configuration();
 
   if (conf.reloadIsNewSession())
@@ -795,6 +798,11 @@ void WApplication::doUnload()
 void WApplication::unload()
 {
   quit();
+}
+
+
+void WApplication::suspend(std::chrono::seconds duration) {
+  session_->setState(WebSession::State::Suspended, static_cast<int>(duration.count()));
 }
 
 void WApplication::doIdleTimeout()

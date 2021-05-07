@@ -48,7 +48,11 @@ public:
 		     + token.value());
 
 #ifndef WT_TARGET_JAVA
-    WApplication::instance()->deferRendering();
+    // Gives warning when not using popup since it's not called from the event
+    // loop. However, the application is currently suspended and will entirely
+    // rerender, so this will also work.
+    WApplication::UpdateLock lock(WApplication::instance());
+    WApplication::instance()->enableUpdates(true);
 #endif
   }
 
@@ -58,7 +62,7 @@ private:
   void handleMe(AsioWrapper::error_code err, const Http::Message& response)
   {
 #ifndef WT_TARGET_JAVA
-    WApplication::instance()->resumeRendering();
+    WApplication::UpdateLock lock(WApplication::instance());
 #endif
 
     if (!err && response.status() == 200) {
@@ -99,6 +103,9 @@ private:
 
       authenticated().emit(Identity::Invalid);
     }
+
+    WApplication::instance()->triggerUpdate();
+    WApplication::instance()->enableUpdates(false);
   }
 };
 
