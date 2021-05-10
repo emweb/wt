@@ -112,7 +112,7 @@ node('docker') {
         stage('Checkout') {
             checkout scm
         }
-        def image = docker.build("wt-full:${env.BUILD_ID}",
+        def image = docker.build("wt-full:${env.BRANCH_NAME}-${env.BUILD_ID}",
                                  """./jenkins \
                                     -f ./jenkins/full.Dockerfile \
                                     --build-arg USER_ID=${user_id} \
