@@ -110,8 +110,7 @@ def branch(Map args) {
 node('docker') {
     try {
         stage('Checkout') {
-            git branch: "${env.BRANCH_NAME}",
-                url: 'http://vierwerf/git/wt/.git'
+            checkout scm
         }
         def image = docker.build("wt-full:${env.BUILD_ID}",
                                  """./jenkins \
