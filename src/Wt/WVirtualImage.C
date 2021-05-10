@@ -189,7 +189,7 @@ void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)
 	      std::unique_ptr<WImage> img
 	        = createImage(i * gridImageSize_, j * gridImageSize_, width, height);
 
-	      img->setAttributeValue("draggable", "false");
+              img->mouseWentDown().preventDefaultAction(true);
 	      img->setPositionScheme(PositionScheme::Absolute);
 	      img->setOffsets((double)i * gridImageSize_, Side::Left);
 	      img->setOffsets((double)j * gridImageSize_, Side::Top);
