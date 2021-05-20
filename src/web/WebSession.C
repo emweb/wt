@@ -1554,11 +1554,7 @@ void WebSession::handleRequest(Handler& handler)
             = handler.request()->getParameter("signal");
           bool isKeepAlive = requestE && signalE && *signalE == "keepAlive";
           if (isKeepAlive || !env_->ajax()) {
-            if (request.isWebSocketMessage()) {
-              renderer().multiSessionCookieUpdateNeeded_ = true;
-            } else {
-              renderer().updateMultiSessionCookie(request);
-            }
+            renderer().updateMultiSessionCookie(request);
           }
         }
 

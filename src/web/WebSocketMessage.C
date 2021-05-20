@@ -84,8 +84,7 @@ void WebSocketMessage::setContentLength(::int64_t length)
 void WebSocketMessage::addHeader(const std::string& name,
 				 const std::string& value)
 {
-  if (name == "Set-Cookie")
-    out() << "document.cookie=" << WWebWidget::jsStringLiteral(value) << ";";
+  error("addHeader(): not supported");
 }
 
 const char *WebSocketMessage::envValue(const char *name) const

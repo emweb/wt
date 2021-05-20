@@ -4060,7 +4060,7 @@ function bindGlobal(event, id, f) {
     }, 0);
 }
 
-function refreshMultiSessionCookie() {
+function refreshCookie() {
   comm.sendUpdate('request=jsupdate&signal=keepAlive&ackId=' + ackUpdateId, false, ackUpdateId, -1);
 }
 
@@ -4125,7 +4125,7 @@ this._p_ = {
   setConnectionMonitor : setConnectionMonitor,
   updateGlobal: updateGlobal,
   bindGlobal: bindGlobal,
-  refreshCookie: refreshMultiSessionCookie,
+  refreshCookie: refreshCookie,
 
   propagateSize : propagateSize,
 
