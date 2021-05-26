@@ -14,11 +14,11 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/version.hpp>
 
-#include <ctype.h>
-#include <stdio.h>
+#include <cctype>
+#include <cfloat>
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
-#include <cfloat>
 
 #ifdef WT_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -26,7 +26,7 @@
 #include <windows.h>
 #define snprintf _snprintf
 #else
-#include <stdlib.h>
+#include <cstdlib>
 #endif // WIN32
 
 #if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700
