@@ -40,10 +40,15 @@ Transaction::~Transaction() noexcept(false)
   // Either this Transaction shell was not committed (first condition)
   // or the commit failed (we are still active and need to rollback)
   if (!committed_ || impl_->needsRollback_) {
+#if defined(__cpp_lib_uncaught_exceptions) && __cpp_lib_uncaught_exceptions >= 201411L
+    const bool uncaughtException = std::uncaught_exceptions() != 0;
+#else
+    const bool uncaughtException = std::uncaught_exception();
+#endif
     // A commit attempt failed (and thus we need to rollback) or we
     // are unwinding a stack while an exception is thrown
-    if (impl_->needsRollback_ || std::uncaught_exception()) {
-      bool canThrow = !std::uncaught_exception();
+    if (impl_->needsRollback_ || uncaughtException) {
+      bool canThrow = !uncaughtException;
       try {
 	rollback();
       } catch (...) {
