@@ -374,6 +374,19 @@ ELSE (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
   MESSAGE(FATAL_ERROR "WT_CPP17_ANY_IMPLEMENTATION must be one of thelink2012, experimental, or std")
 ENDIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
 
+SET(WT_CPP20_DATE_TZ_DEFAULT_IMPLEMENTATION "date")
+SET(WT_CPP20_DATE_TZ_IMPLEMENTATION ${WT_CPP20_DATE_TZ_DEFAULT_IMPLEMENTATION} CACHE STRING
+  "Implementation for Wt::cpp20::date. Defaults to \"date\": an included implementation of date and timezone support by Howard Hinnant. Use \"std\" for C++20's \"std::chrono\" implementation.")
+SET_PROPERTY(CACHE WT_CPP20_DATE_TZ_IMPLEMENTATION PROPERTY STRINGS date std)
+
+IF (${WT_CPP20_DATE_TZ_IMPLEMENTATION} STREQUAL "date")
+  SET(WT_DATE_TZ_USE_DATE ON)
+ELSEIF(${WT_CPP20_DATE_TZ_IMPLEMENTATION} STREQUAL "std")
+  SET(WT_DATE_TZ_USE_STD ON)
+ELSE()
+  MESSAGE(FATAL_ERROR "WT_CPP20_DATE_TZ_IMPLEMENTATION must be date or std")
+ENDIF()
+
 SET(WT_ASIO_DEFAULT_IMPLEMENTATION "boost")
 SET(WT_ASIO_IMPLEMENTATION ${WT_ASIO_DEFAULT_IMPLEMENTATION} CACHE STRING
 "Implementation of Asio to use. Defaults to \"boost\". Use \"standalone\" and provide its path in ASIO_PREFIX to use the standalone version.")

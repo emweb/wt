@@ -322,8 +322,7 @@ Wt/Chart/WSelection.h Wt/Chart/WSelection.C
 Wt/Core/observable.hpp Wt/Core/observable.cpp
 Wt/Core/observing_ptr.hpp Wt/Core/observing_ptr.cpp
 Wt/cpp17/any.hpp Wt/cpp17/any/any.hpp
-Wt/Date/date.h Wt/Date/include/date/date.h
-Wt/Date/tz.h Wt/Date/include/date/tz.h Wt/Date/src/tz.cpp
+Wt/cpp20/date.hpp Wt/cpp20/tz.hpp
 Wt/Json/Array.h Wt/Json/Array.C
 Wt/Json/Object.h Wt/Json/Object.C
 Wt/Json/Parser.h Wt/Json/Parser.C
@@ -399,23 +398,29 @@ AuthCssTheme_xml.C
 JQuery_js.C
 )
 
-set(_TZ_BUILD_DEFS "")
+IF (WT_CPP20_DATE_TZ_IMPLEMENTATION STREQUAL "date")
+  list(APPEND libsources
+    Wt/Date/date.h Wt/Date/include/date/date.h
+    Wt/Date/tz.h Wt/Date/include/date/tz.h Wt/Date/src/tz.cpp)
 
-IF (WIN32)
-  set(_TZ_BUILD_DEFS USE_OS_TZDB=0 HAS_REMOTE_API=0)
-ELSE (WIN32)
-  set(_TZ_BUILD_DEFS USE_OS_TZDB=1)
-ENDIF (WIN32)
+  set(_TZ_BUILD_DEFS "")
 
-IF (SHARED_LIBS)
-  list(APPEND _TZ_BUILD_DEFS DATE_BUILD_DLL)
-ELSE (SHARED_LIBS)
-  list(APPEND _TZ_BUILD_DEFS DATE_BUILD_LIB)
-ENDIF (SHARED_LIBS)
+  IF (WIN32)
+    set(_TZ_BUILD_DEFS USE_OS_TZDB=0 HAS_REMOTE_API=0)
+  ELSE (WIN32)
+    set(_TZ_BUILD_DEFS USE_OS_TZDB=1)
+  ENDIF (WIN32)
 
-set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS "${_TZ_BUILD_DEFS}")
+  IF (SHARED_LIBS)
+    list(APPEND _TZ_BUILD_DEFS DATE_BUILD_DLL)
+  ELSE (SHARED_LIBS)
+    list(APPEND _TZ_BUILD_DEFS DATE_BUILD_LIB)
+  ENDIF (SHARED_LIBS)
 
-unset(_TZ_BUILD_DEFS)
+  set_source_files_properties(Wt/Date/src/tz.cpp PROPERTIES COMPILE_DEFINITIONS "${_TZ_BUILD_DEFS}")
+
+  unset(_TZ_BUILD_DEFS)
+ENDIF ()
 
 ADD_DEFINITIONS(-DWT_BUILDING)
 

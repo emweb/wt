@@ -1,8 +1,6 @@
 #include "Wt/WApplication.h"
 #include "Wt/WLocale.h"
 
-#include "Wt/Date/tz.h"
-
 #include "WebUtils.h"
 
 #include <cctype>
@@ -85,7 +83,7 @@ void WLocale::setDateTimeFormat(const WT_USTRING& format)
   dateTimeFormat_ = format;
 }
 
-void WLocale::setTimeZone(const date::time_zone* zone)
+void WLocale::setTimeZone(const cpp20::date::time_zone* zone)
 {
   timeZone_ = zone;
 }

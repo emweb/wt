@@ -40,6 +40,9 @@
 #cmakedefine WT_ANY_IS_EXPERIMENTAL_ANY
 #cmakedefine WT_ANY_IS_STD_ANY
 
+#cmakedefine WT_DATE_TZ_USE_DATE
+#cmakedefine WT_DATE_TZ_USE_STD
+
 #cmakedefine WT_ASIO_IS_BOOST_ASIO
 #cmakedefine WT_ASIO_IS_STANDALONE_ASIO
 

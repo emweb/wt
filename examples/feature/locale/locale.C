@@ -15,7 +15,7 @@
 #include <Wt/WLocalDateTime.h>
 #include <Wt/WContainerWidget.h>
 
-#include <Wt/Date/tz.h>
+#include <Wt/cpp20/tz.hpp>
 
 #include <boost/algorithm/string.hpp>
 
@@ -38,10 +38,13 @@ public:
 
   void load()
   {
-    for (const date::time_zone& z: date::get_tzdb().zones) {
-      if(z.name().size() > 3 && z.name().find("Etc/") == std::string::npos)
-        if(std::any_of(std::begin(z.name()), std::end(z.name()), [](char c){return (islower(c));}))
-          ids_.push_back(z.name());
+    for (const Wt::cpp20::date::time_zone& z: Wt::cpp20::date::get_tzdb().zones) {
+      if (z.name().size() > 3 &&
+          z.name().find("Etc/") == std::string::npos &&
+          z.name().find("SystemV/") == std::string::npos &&
+          std::any_of(begin(z.name()), end(z.name()), [](char c) { return std::islower(c); })) {
+        ids_.push_back(std::string(z.name()));
+      }
     }
   }
 
@@ -67,7 +70,7 @@ public:
 
     for (unsigned i = 0; i < ids_.size(); ++i) {
       std::string id = ids_[i];
-      const date::time_zone* zone = date::locate_zone(id);
+      const Wt::cpp20::date::time_zone* zone = Wt::cpp20::date::locate_zone(id);
       auto zoneinfo = zone->get_info(nowUtc);
 
       if (zoneinfo.offset == currentOffset) {
@@ -114,7 +117,7 @@ public:
     switch (role.value()) {
     case Wt::ItemDataRole::Display: {
       if (showOffset_) {
-          const date::time_zone * zone = date::locate_zone(id);
+          const Wt::cpp20::date::time_zone * zone = Wt::cpp20::date::locate_zone(id);
           auto info = zone->get_info(std::chrono::system_clock::now());
           Wt::WTime t = Wt::WTime(0, 0, 0)
                   .addSecs(info.offset.count());
@@ -152,7 +155,7 @@ public:
 
 protected:
   virtual int computePreference(const std::string& id,
-                const date::time_zone* zone)
+                                const Wt::cpp20::date::time_zone* zone)
   {
     /*
      * We implement here the following heuristic:
@@ -217,7 +220,7 @@ public:
        .data(TimeZoneModel::NameTimeZoneRole));
 
     Wt::WLocale l = locale();
-    l.setTimeZone(date::locate_zone(tz));
+    l.setTimeZone(Wt::cpp20::date::locate_zone(tz));
     setLocale(l);
 
     Wt::WString format = "yyyy-MM-dd HH:mm:ss Z";
@@ -246,7 +249,7 @@ std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
 
 int main(int argc, char **argv)
 {
-#if !USE_OS_TZDB
+#if defined(WT_DATE_TZ_USE_DATE) && !USE_OS_TZDB
   date::set_install("./tzdata");
 #endif
 
