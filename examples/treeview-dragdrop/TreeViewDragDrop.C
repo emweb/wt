@@ -649,7 +649,7 @@ private:
     level1->appendRow(createFolderItem("Advisors", "ny-advisors"));
     folderModel_->appendRow(std::move(level1));
 
-    level1 = createFolderItem(WString(u8"Frankf\u00DCrt"));
+    level1 = createFolderItem(WString(reinterpret_cast<const char*>(u8"Frankf\u00DCrt")));
     level1->appendRow(createFolderItem("Sales", "frank-sales"));
     folderModel_->appendRow(std::move(level1));
 
