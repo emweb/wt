@@ -201,6 +201,7 @@ private:
   WTable *plainTable_;
 
   JSignal<int, int, std::string, std::string, WMouseEvent> dropEvent_;
+  JSignal<int, int, std::string, std::string, std::string, WMouseEvent> rowDropEvent_;
   JSignal<int, int, int, int> scrolled_;
   JSignal<WTouchEvent> itemTouchSelectEvent_;
 
@@ -315,6 +316,9 @@ private:
   void onDropEvent(int renderedRow, int columnId,
 		   std::string sourceId, std::string mimeType,
 		   WMouseEvent event);
+  void onRowDropEvent(int renderedRow, int columnId,
+                      std::string sourceId, std::string mimeType,
+                      std::string side, WMouseEvent event);
 
   void deleteItem(int row, int col, WWidget *widget);
 

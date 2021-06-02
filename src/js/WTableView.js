@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTableView",
  function(APP, el, contentsContainer, initialScrollTop, headerContainer, headerColumnsContainer,
-      selectedClass) {
+          selectedClass) {
    el.wtObj = this;
 
    var self = this;
@@ -34,6 +34,8 @@ WT_DECLARE_WT_MEMBER
    var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
    var scrollToPendingCount = 0;
    var initialScrollTopSet = initialScrollTop === 0;
+
+   var itemDropsEnabled = false, betweenRowsDropsEnabled = false;
 
    /*
     * We need to remember this for when going through a hide()
@@ -344,12 +346,66 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
+   this.setItemDropsEnabled = function(itemDrop) {
+     itemDropsEnabled = itemDrop;
+   };
+   this.setRowDropsEnabled = function(betweenRowsDrop) {
+     betweenRowsDropsEnabled = betweenRowsDrop;
+   }
+
+   function toggleRowDropVisual(item, side, show) {
+     if (show) {
+       var visual = document.createElement("div");
+       visual.className = "Wt-drop-site-" + side;
+       item.style.position = "relative";
+       item.appendChild(visual)
+       item.dropVisual = visual;
+     } else {
+       item.style.position = "";
+       item.dropVisual.remove();
+       item.dropVisual = undefined;
+     }
+   }
+
+   function toggleRowDropSite(row, side, show) {
+     if (row == -1) {
+       toggleRowDropVisual(headerContainer, 'bottom', show);
+       return;
+     }
+
+     // keep dropsite visual consistent by always displaying it at the bottom
+     if (side === 'top') {
+       if (row > 0) {
+         row -= 1;
+         side = 'bottom'
+       }
+     }
+
+     var columnContainer = contentsContainer.firstChild.firstChild;
+     for (var coli=0; coli < columnContainer.childNodes.length; coli++) {
+       col = columnContainer.childNodes[coli];
+       var item = col.childNodes[row]
+       toggleRowDropVisual(item, side, show);
+     }
+   }
+
+   function rowCount() {
+     var columnContainer = contentsContainer.firstChild.firstChild;
+     var col = columnContainer.firstChild;
+     return col ? col.childNodes.length : 0;
+   }
+
    var dropEl = null;
+   var dropRow = null;
 
    el.handleDragDrop = function(action, object, event, sourceId, mimeType) {
      if (dropEl) {
        dropEl.className = dropEl.classNameOrig;
        dropEl = null;
+     }
+     if (dropRow) {
+       toggleRowDropSite(dropRow.row, dropRow.side, false);
+       dropRow = null;
      }
 
      if (action == 'end')
@@ -357,7 +413,7 @@ WT_DECLARE_WT_MEMBER
 
      var item = getItem(event);
 
-     if (!item.selected && item.drop) {
+     if (!item.selected && item.drop && itemDropsEnabled) {
        if (action == 'drop') {
      APP.emit(el, { name: 'dropEvent', eventObject: object, event: event },
           item.rowIdx, item.columnId, sourceId, mimeType);
@@ -366,6 +422,28 @@ WT_DECLARE_WT_MEMBER
          dropEl = item.el;
          dropEl.classNameOrig = dropEl.className;
          dropEl.className = dropEl.className + ' Wt-drop-site';
+       }
+     } else if (!item.selected && betweenRowsDropsEnabled) {
+       if (!item.columnId) { // drop on the header gives rowIdx == 0
+         item.el = null;
+         item.rowIdx = -1;
+       }
+       var rowIdx = item.rowIdx;
+       var columnId = item.columnId;
+       var side = 'bottom';
+       if (item.el) {
+         var coords = WT.widgetCoordinates(item.el, event);
+         var side = (coords.y - item.el.clientHeight / 2) <= 0 ? 'top' : 'bottom';
+       }
+       
+       if (action == 'drop') {
+         APP.emit(el, { name: 'rowDropEvent', eventObject: object, event: event },
+                  rowIdx, columnId, sourceId, mimeType, side);
+       } else {
+         object.className = 'Wt-valid-drop';
+
+         dropRow = { row: item.el ? rowIdx : rowCount()-1, side: side};
+         toggleRowDropSite(dropRow.row, dropRow.side, true);
        }
      } else {
        object.className = '';

@@ -226,7 +226,6 @@ WAbstractItemView::WAbstractItemView()
     renderState_(RenderState::NeedRerender),
     currentSortColumn_(-1),
     dragEnabled_(false),
-    dropsEnabled_(false),
     selectionModel_(new WItemSelectionModel()),
     rowHeight_(20),
     headerLineHeight_(20),
@@ -575,10 +574,10 @@ void WAbstractItemView::dropEvent(const WDropEvent& e, const WModelIndex& index)
    * Here, we only handle standard drag&drop actions between abstract
    * item models.
    */
-  if (dropsEnabled_) {
+  if (enabledDropLocations_.test(DropLocation::OnItem)) {
     std::vector<std::string> acceptMimeTypes = model_->acceptDropMimeTypes();
 
-    for (unsigned i = 0; i < acceptMimeTypes.size(); ++i)
+    for (std::size_t i = 0; i < acceptMimeTypes.size(); ++i) {
       if (acceptMimeTypes[i] == e.mimeType()) {
 	// we define internal by sharing the same selection model...
 	// currently selection models cannot be shared
@@ -587,15 +586,31 @@ void WAbstractItemView::dropEvent(const WDropEvent& e, const WModelIndex& index)
 	DropAction action = internal ? 
 	  DropAction::Move : DropAction::Copy;
 
-	// TODO: (later) we need to interpret the event location
-	// (e.mouseEvent().widget().y) For now we will implement to
-	// add as a sibling before the index
 	model_->dropEvent(e, action,
 			  index.row(), index.column(), index.parent());
 
 	setSelectedIndexes(WModelIndexSet());
 	return;
       }
+    }
+  }
+
+  WCompositeWidget::dropEvent(e);
+}
+
+void WAbstractItemView::dropEvent(const WDropEvent& e, const WModelIndex& index, Side side)
+{
+  if (enabledDropLocations_.test(DropLocation::BetweenRows)) {
+    std::vector<std::string> acceptMimeTypes = model_->acceptDropMimeTypes();
+
+    for (std::size_t i = 0; i < acceptMimeTypes.size(); ++i) {
+      if (acceptMimeTypes[i] == e.mimeType()) {
+        model_->dropEvent(e, DropAction::Move, index, side);
+
+        setSelectedIndexes(WModelIndexSet());
+        return;
+      }
+    }
   }
 
   WCompositeWidget::dropEvent(e);
@@ -617,7 +632,7 @@ void WAbstractItemView::configureModelDragDrop()
   std::vector<std::string> acceptMimeTypes = model_->acceptDropMimeTypes();
 
   for (unsigned i = 0; i < acceptMimeTypes.size(); ++i)
-    if (dropsEnabled_)
+    if (!enabledDropLocations_.empty())
       acceptDrops(acceptMimeTypes[i], "Wt-drop-site");
     else
       stopAcceptDrops(acceptMimeTypes[i]);
@@ -626,11 +641,20 @@ void WAbstractItemView::configureModelDragDrop()
 
 void WAbstractItemView::setDropsEnabled(bool enable)
 {
-  if (dropsEnabled_ != enable) {
-    dropsEnabled_ = enable;
+  if (enable)
+    setEnabledDropLocations(DropLocation::OnItem);
+  else
+    setEnabledDropLocations(None);
+}
 
-    configureModelDragDrop();
-  }
+void WAbstractItemView::setEnabledDropLocations(WFlags<DropLocation> dropLocations) {
+  if (enabledDropLocations_ == dropLocations)
+    return;
+
+  enabledDropLocations_ = dropLocations;
+  configureModelDragDrop();
+
+  scheduleRender();
 }
 
 void WAbstractItemView::checkDragSelection()

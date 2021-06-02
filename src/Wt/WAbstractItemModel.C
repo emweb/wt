@@ -290,8 +290,6 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
 	}
 
 	++r;
-      } else {
-	  
       }
     }
 
@@ -306,6 +304,66 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
 	  LOG_ERROR("dropEvent(): could not removeRows()");
 	  return;
 	}
+      }
+    }
+  }
+}
+
+void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
+				   const WModelIndex& pindex, Wt::Side side)
+{
+  WItemSelectionModel *selectionModel
+    = dynamic_cast<WItemSelectionModel *>(e.source());
+  if (selectionModel) {
+    auto sourceModel = selectionModel->model();
+
+    const WModelIndex& parent = pindex.parent();
+    int row = !pindex.isValid() ? rowCount() :
+      side == Side::Bottom ? pindex.row()+1 : pindex.row();
+
+    /*
+     * (1) Insert new rows (or later: cells ?)
+     */
+    if (!insertRows(row, selectionModel->selectedIndexes().size(), parent)) {
+      LOG_ERROR("dropEvent(): could not insertRows()");
+      return;
+    }
+
+    /*
+     * (2) Copy data
+     */
+    WModelIndexSet selection = selectionModel->selectedIndexes();
+
+    int r = row;
+    for (WModelIndexSet::const_iterator i = selection.begin();
+	 i != selection.end(); ++i) {
+      WModelIndex sourceIndex = *i;
+      if (selectionModel->selectionBehavior() ==
+	  SelectionBehavior::Rows) {
+	WModelIndex sourceParent = sourceIndex.parent();
+
+	for (int col = 0; col < sourceModel->columnCount(sourceParent); ++col) {
+	  WModelIndex s = sourceModel->index(sourceIndex.row(), col,
+					     sourceParent);
+	  WModelIndex d = index(r, col, parent);
+	  copyData(sourceModel.get(), s, this, d);
+	}
+
+	++r;
+      }
+    }
+
+    /*
+     * (3) Remove original data
+     */
+    if (action == DropAction::Move) {
+      while (!selectionModel->selectedIndexes().empty()) {
+        WModelIndex i = Utils::last(selectionModel->selectedIndexes());
+
+        if (!sourceModel->removeRow(i.row(), i.parent())) {
+          LOG_ERROR("dropEvent(): could not removeRows()");
+          return;
+        }
       }
     }
   }

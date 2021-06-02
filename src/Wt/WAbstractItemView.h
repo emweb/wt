@@ -48,6 +48,13 @@ enum class ScrollHint {
   PositionAtCenter       //!< Positions the item at the center of the viewport
 };
 
+enum class DropLocation {
+  OnItem      = 0x1,     //!< Drop on items
+  BetweenRows = 0x2      //!< Drop between rows
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(DropLocation)
+
   class WAbstractItemDelegate;
   class WAbstractItemModel;
   class WApplication;
@@ -462,9 +469,38 @@ public:
    *
    * Drop events must be handled in dropEvent().
    *
+   * \deprecated Use setEnabledDropLocations() instead. This method
+   * now enables DropLocation::OnItem.
+   *
    * \sa setDragEnabled(), dropEvent()
    */
   void setDropsEnabled(bool enable);
+
+  /*! \brief Enables drop operations (drag & drop).
+   *
+   * When drop is enabled, the tree view will indicate that something
+   * may be dropped when the mime-type of the dragged object is
+   * compatible with one of the model's accepted drop mime-types (see
+   * WAbstractItemModel::acceptDropMimeTypes()) or this widget's
+   * accepted drop mime-types (see WWidget::acceptDrops()).
+   *
+   * When DropLocation::OnItem is enabled, the view will allow drops on
+   * items that have the ItemFlag::DropEnabled flag set. When
+   * DropLocation::BetweenRows is enabled, the view will indicate that
+   * something may be dropped between any two rows.
+   * When DropLocation::OnItem and DropLocation::BetweenRows are both enabled,
+   * the drop indication differs depending on whether ItemFlag::DropEnabled
+   * is set on the item.
+   *
+   * Drop events must be handled in dropEvent().
+   */
+  void setEnabledDropLocations(WFlags<DropLocation> droplocation);
+
+  /*! \brief Returns the enabled drop locations
+   */
+  WFlags<DropLocation> enabledDropLocations() const {
+    return enabledDropLocations_;
+  }
 
   /*! \brief Sets the row height.
    *
@@ -891,6 +927,27 @@ protected:
    */
   virtual void dropEvent(const WDropEvent& event, const WModelIndex& target);
 
+  /*! \brief Handles a drop event (drag & drop).
+   *
+   * The \p event object contains details about the drop
+   * operation, identifying the source (which provides the data) and
+   * the mime-type of the data. The drop was received relative to
+   * the \p index item and the \p side parameter will only be Wt::Top
+   * or Wt::Bottom.
+   *
+   * A drop below the lowest item or on an empty view will result in
+   * a call to this method with an invalid index and side Wt::Bottom.
+   *
+   * The drop event can be handled either by the view itself, or by
+   * the model. The default implementation checks if the mime-type is
+   * accepted by the model, and if so passes the drop event to the
+   * model as a DropAction::Move.
+   *
+   * \sa WAbstractItemModel::dropEvent()
+   */
+  virtual void dropEvent(const WDropEvent& event, const WModelIndex& index,
+                         Wt::Side side);
+
   using WWidget::dropEvent;
 
   /*! \brief Create an extra widget in the header.
@@ -965,7 +1022,8 @@ protected:
   mutable std::vector<ColumnInfo> columns_;
   int currentSortColumn_;
 
-  bool dragEnabled_, dropsEnabled_;
+  bool dragEnabled_;
+  WFlags<DropLocation> enabledDropLocations_;
   std::unique_ptr<WWidget> uDragWidget_;
   observing_ptr<WWidget> dragWidget_;
 

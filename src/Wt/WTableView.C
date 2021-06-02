@@ -58,6 +58,7 @@ WTableView::WTableView()
     headerColumnsContainer_(nullptr),
     plainTable_(nullptr),
     dropEvent_(impl_, "dropEvent"),
+    rowDropEvent_(impl_, "rowDropEvent"),
     scrolled_(impl_, "scrolled"),
     itemTouchSelectEvent_(impl_, "itemTouchSelectEvent"),
     firstColumn_(-1),
@@ -805,6 +806,9 @@ void WTableView::defineJavaScript()
   if (!dropEvent_.isConnected())
     dropEvent_.connect(this, &WTableView::onDropEvent);
 
+  if (!rowDropEvent_.isConnected())
+    rowDropEvent_.connect(this, &WTableView::onRowDropEvent);
+
   if (!scrolled_.isConnected())
     scrolled_.connect(this, &WTableView::onViewportChange);
 
@@ -893,6 +897,13 @@ void WTableView::render(WFlags<RenderFlag> flags)
       touchEndConnection_ = canvas_->touchEnded()
 	.connect(this, &WTableView::handleTouchEnded);
     }
+
+    WStringStream s;
+    s << jsRef() << ".wtObj.setItemDropsEnabled("
+       << enabledDropLocations_.test(DropLocation::OnItem) << ");";
+    s << jsRef() << ".wtObj.setRowDropsEnabled("
+       << enabledDropLocations_.test(DropLocation::BetweenRows) << ");";
+    doJavaScript(s.str());
   }
 
   if (model())
@@ -2030,6 +2041,20 @@ void WTableView::onDropEvent(int renderedRow, int columnId,
 				     columnById(columnId), rootIndex());
 
   dropEvent(e, index);
+}
+void WTableView::onRowDropEvent(int renderedRow, int columnId,
+                                std::string sourceId, std::string mimeType,
+                                std::string side, WMouseEvent event)
+{
+  WDropEvent e(WApplication::instance()->decodeObject(sourceId), mimeType,
+	       event);
+
+  WModelIndex index;
+  if (renderedRow >= 0)
+    index = model()->index(firstRow() + renderedRow,
+                           columnById(columnId), rootIndex());
+
+  dropEvent(e, index, side == "top" ? Side::Top : Side::Bottom);
 }
 
 void WTableView::setCurrentPage(int page)

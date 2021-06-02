@@ -555,6 +555,12 @@ public:
    * abstract item models. Source item data is copied (but not the
    * source item's flags).
    *
+   * This method is overloaded for handling drop events on top of items
+   * or drop events between items (see Wt::DropLocation). This overload
+   * handles drops on top of items, but note that due to historical
+   * reasons it will also insert the items in between when called with
+   * DropAction::Move.
+   *
    * The location in the model is indicated by the \p row and
    * \p column within the \p parent index. If \p row is
    * -1, then the item is appended to the \p parent. Otherwise,
@@ -574,6 +580,29 @@ public:
    */
   virtual void dropEvent(const WDropEvent& e, DropAction action,
 			 int row, int column, const WModelIndex& parent);
+
+  /*! \brief Handles a drop event.
+   *
+   * The default implementation only handles generic drag&drop between
+   * abstract item models. Source item data is copied (but not the
+   * source item's flags).
+   *
+   * This method is overloaded for handling drop events on top of items
+   * or drop events between items. This overload handles drops between
+   * items. The drop was received relative to the \p index item and the \p side
+   * parameter will only be Wt::Top or Wt::Bottom.
+   *
+   * You may want to reimplement this method if you want to handle
+   * other mime-type data, or if you want to refine how the drop event
+   * of an item selection must be interpreted.
+   *
+   * \note Currently, only row selections are handled by the default
+   *       implementation.
+   *
+   * \sa mimeType(), WItemSelectionModel
+   */
+  virtual void dropEvent(const WDropEvent& e, DropAction action,
+                         const WModelIndex& index, Wt::Side side);
 
   /*! \brief Inserts one column.
    *

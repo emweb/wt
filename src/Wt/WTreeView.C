@@ -957,7 +957,8 @@ WTreeView::WTreeView()
     firstRemovedRow_(0),
     removedHeight_(0),
     itemEvent_(impl_, "itemEvent"),
-    itemTouchEvent_(impl_, "itemTouchEvent")
+    itemTouchEvent_(impl_, "itemTouchEvent"),
+    rowDropEvent_(impl_, "rowDropEvent")
 {
   setSelectable(false);
 
@@ -1378,6 +1379,9 @@ void WTreeView::render(WFlags<RenderFlag> flags)
   if (flags.test(RenderFlag::Full)) {
     defineJavaScript();
 
+    if (!rowDropEvent_.isConnected())
+      rowDropEvent_.connect(this, &WTreeView::onRowDropEvent);
+
     if (!itemTouchEvent_.isConnected())
       itemTouchEvent_.connect(this, &WTreeView::onItemTouchEvent);
 
@@ -1460,11 +1464,16 @@ void WTreeView::render(WFlags<RenderFlag> flags)
     renderedNodesAdded_ = false;
   }
 
-  // update the rowHeight (needed for scrolling fix)
   WStringStream s;
+  // update the rowHeight (needed for scrolling fix)
   s << jsRef() << ".wtObj.setRowHeight("
     <<  static_cast<int>(this->rowHeight().toPixels())
     << ");";
+
+  s << jsRef() << ".wtObj.setItemDropsEnabled("
+    << enabledDropLocations_.test(DropLocation::OnItem) << ");";
+  s << jsRef() << ".wtObj.setRowDropsEnabled("
+    << enabledDropLocations_.test(DropLocation::BetweenRows) << ");";
 
   if (app->environment().ajax()) 
     doJavaScript(s.str());
@@ -1619,6 +1628,16 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
     WDropEvent e(WApplication::instance()->decodeObject(extra1), extra2, event);
     dropEvent(e, index);
   }
+}
+
+void WTreeView::onRowDropEvent(std::string nodeAndColumnId,
+                               std::string sourceId, std::string mimeType, std::string side,
+                               WMouseEvent event)
+{
+  WModelIndex index = calculateModelIndex(nodeAndColumnId);
+  WDropEvent e(WApplication::instance()->decodeObject(sourceId), mimeType, event);
+
+  dropEvent(e, index, side == "top" ? Side::Top : Side::Bottom);
 }
 
 void WTreeView::onItemTouchEvent(std::string nodeAndColumnId, std::string type, WTouchEvent event)

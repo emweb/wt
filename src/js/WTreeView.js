@@ -19,6 +19,8 @@ WT_DECLARE_WT_MEMBER
 
    var sizeSet = false;
 
+   var itemDropsEnabled = false, betweenRowsDropsEnabled = false;
+
    /** @const */ var EnsureVisible = 0;
    /** @const */ var PositionAtTop = 1;
    /** @const */ var PositionAtBottom = 2;
@@ -291,12 +293,48 @@ WT_DECLARE_WT_MEMBER
      setTimeout(doAdjustColumns, 0);
    };
 
+   this.setItemDropsEnabled = function(itemDrop) {
+     itemDropsEnabled = itemDrop;
+   };
+   this.setRowDropsEnabled = function(betweenRowsDrop) {
+     betweenRowsDropsEnabled = betweenRowsDrop;
+   }
+
    var dropEl = null;
+   var dropRow = null;
+
+   function showRowDropSite(node, side) {
+     // keep dropsite visual consistent by always displaying it at the bottom
+     if (side === "top") {
+       var prevSibling = node.previousSibling;
+       if (prevSibling) {
+         node = prevSibling;
+         side = "bottom";
+       }
+     }
+
+     var visual = document.createElement("div");
+     visual.className = "Wt-drop-site-" + side;
+     node.style.position = "relative";
+     node.appendChild(visual)
+     node.dropVisual = visual;
+
+     dropRow = node;
+   }
+   function hideRowDropSite(node) {
+     node.style.position = "";
+     node.dropVisual.remove();
+     node.dropVisual = undefined;
+   }
 
    el.handleDragDrop=function(action, object, event, sourceId, mimeType) {
      if (dropEl) {
        dropEl.className = dropEl.classNameOrig;
        dropEl = null;
+     }
+     if (dropRow) {
+       hideRowDropSite(dropRow);
+       dropRow = null;
      }
 
      if (action=='end')
@@ -304,7 +342,7 @@ WT_DECLARE_WT_MEMBER
 
      var item = getItem(event);
 
-     if (!item.selected && item.drop && item.columnId != -1) {
+     if (!item.selected && item.drop && itemDropsEnabled && item.columnId != -1) {
        if (action=='drop') {
 	 APP.emit(el, { name: 'itemEvent', eventObject: object, event: event },
 		  item.nodeId + ':' + item.columnId, 'drop', sourceId, mimeType);
@@ -313,6 +351,28 @@ WT_DECLARE_WT_MEMBER
          dropEl = item.el;
          dropEl.classNameOrig = dropEl.className;
          dropEl.className = dropEl.className + ' Wt-drop-site';
+       }
+     } else if (!item.selected && betweenRowsDropsEnabled) {
+       var node;
+       var side = 'bottom';
+       if (item.nodeId) {
+         node = $('#' + item.nodeId)[0];
+         var coords = WT.widgetCoordinates(node, event);
+         side = (coords.y - node.clientHeight / 2) <= 0 ? 'top' : 'bottom'
+       } else {
+         var root = contentsContainer.getElementsByClassName("Wt-tv-root");
+         if (root.length == 1)
+           node = root[0].lastChild;
+         else
+           node = headerContainer;
+       }
+
+       if (action == 'drop') {
+	 APP.emit(el, { name: 'rowDropEvent', eventObject: object, event: event },
+		  item.nodeId + ':' + item.columnId, sourceId, mimeType, side);
+       } else {
+         object.className = 'Wt-valid-drop';
+         showRowDropSite(node, side);
        }
      } else {
        object.className = '';
