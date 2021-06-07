@@ -271,6 +271,8 @@ public:
   void setOriginalIPHeader(const std::string &originalIPHeader);
   void setTrustedProxies(const std::vector<Network> &trustedProxies);
 
+  void setBootstrapMethod(BootstrapMethod method);
+
   std::string generateSessionId();
   bool registerSessionId(const std::string& oldId, const std::string& newId);
 

@@ -531,4 +531,63 @@ BOOST_AUTO_TEST_CASE( http_client_address_forward_for_includes_us_on_subnet )
   }
 }
 
+BOOST_AUTO_TEST_CASE( resource_invalid_after_changed )
+{
+  Server server;
+  server.configuration().setBootstrapMethod(Configuration::Progressive);
+
+  WApplication *app = nullptr;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&app] (const WEnvironment& env) {
+                         auto app_ = std::make_unique<WApplication>(env);
+                         app = app_.get();
+                         return app_;
+                       });
+  if (server.start()) {
+    // create application
+    Client client;
+    client.get("http://" + server.address());
+    client.waitDone();
+
+    // do resource test
+    std::shared_ptr<WResource> resource;
+    {
+      WApplication::UpdateLock lock(app);
+      resource = std::make_shared<TestResource>();
+      resource->generateUrl();
+    }
+
+    std::string resourceUrl = "http://" + server.address() + "/" + resource->url().substr(1);
+
+    Client client1;
+    client1.get(resourceUrl);
+    client1.waitDone();
+
+    BOOST_REQUIRE(!client1.err());
+    BOOST_REQUIRE(client1.message().status() == 200);
+    BOOST_REQUIRE(client1.message().body() == "Hello");
+
+    {
+      WApplication::UpdateLock lock(app);
+      resource->setChanged();
+    }
+
+    Client client2;
+    client2.get(resourceUrl);
+    client2.waitDone();
+
+    BOOST_REQUIRE(!client2.err());
+    BOOST_REQUIRE(client2.message().status() == 200);
+
+    resource->setInvalidAfterChanged(true);
+
+    Client client3;
+    client3.get(resourceUrl);
+    client3.waitDone();
+
+    BOOST_REQUIRE(!client3.err());
+    BOOST_REQUIRE(client3.message().status() == 404);
+  }
+}
+
 #endif // WT_THREADED

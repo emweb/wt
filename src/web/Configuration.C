@@ -976,6 +976,16 @@ void Configuration::setTrustedProxies(const std::vector<Network> &trustedProxies
   trustedProxies_ = trustedProxies;
 }
 
+void Configuration::setBootstrapMethod(BootstrapMethod method)
+{
+  bootstrapConfig_.clear();
+  if (method == Progressive) {
+    bootstrapConfig_.insert(bootstrapConfig_.begin(), BootstrapEntry());
+    bootstrapConfig_.front().prefix = true;
+    bootstrapConfig_.front().method = Progressive;
+  }
+}
+
 void Configuration::readApplicationSettings(xml_node<> *app)
 {
   xml_node<> *sess = singleChildElement(app, "session-management");
