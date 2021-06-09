@@ -10,6 +10,8 @@
 #include "Wt/WSplitButton.h"
 #include "Wt/WToolBar.h"
 
+#include "web/WebUtils.h"
+
 #include <algorithm>
 
 namespace Wt {
@@ -75,15 +77,14 @@ void WToolBar::addWidget(std::unique_ptr<WWidget> widget,
 
 std::unique_ptr<WWidget> WToolBar::removeWidget(WWidget *widget)
 {
-  auto it = std::find(widgets_.begin(), widgets_.end(), widget);
-  if (it != widgets_.end()) {
-    auto widget = *it;
+  auto idx = Utils::indexOf(widgets_, widget);
+  if (idx != -1) {
     auto parent = static_cast<WContainerWidget*>(widget->parent());
 
     auto retval = parent->removeWidget(widget);
     if (parent != impl_  && parent->count() == 0)
       impl_->removeWidget(parent);
-    widgets_.erase(it);
+    widgets_.erase(widgets_.begin() + idx);
 
     return retval;
   } else
