@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE( http_client_address_not_behind_reverse_proxy )
   }
 }
 
-BOOST_AUTO_TEST_CASE( http_client_address_forwarded_for )
+BOOST_AUTO_TEST_CASE( http_client_address_client_ip )
 {
   Server server;
   server.resource().clientAddressTest();
@@ -395,16 +395,19 @@ BOOST_AUTO_TEST_CASE( http_client_address_forwarded_for )
     BOOST_REQUIRE(!client.err());
     BOOST_REQUIRE(client.message().status() == 200);
 
-    // Should get IP address from X-Forwarded-For
-    BOOST_REQUIRE(client.message().body() == "198.51.100.1");
+    // Should get IP address from Client-IP
+    BOOST_REQUIRE(client.message().body() == "203.0.113.1");
   }
 }
 
-BOOST_AUTO_TEST_CASE( http_client_address_client_ip )
+BOOST_AUTO_TEST_CASE( http_client_address_forwarded_for )
 {
   Server server;
   server.resource().clientAddressTest();
-  server.configuration().setOriginalIPHeader("Client-IP");
+  server.configuration().setOriginalIPHeader("X-Forwarded-For");
+  server.configuration().setTrustedProxies({
+                                             Configuration::Network::fromString("127.0.0.1"),
+                                           });
 
   if (server.start()) {
     Client client;
@@ -421,7 +424,7 @@ BOOST_AUTO_TEST_CASE( http_client_address_client_ip )
     BOOST_REQUIRE(client.message().status() == 200);
 
     // Should get IP address from X-Forwarded-For
-    BOOST_REQUIRE(client.message().body() == "203.0.113.1");
+    BOOST_REQUIRE(client.message().body() == "198.51.100.1");
   }
 }
 
