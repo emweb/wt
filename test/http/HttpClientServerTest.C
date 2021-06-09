@@ -149,16 +149,40 @@ namespace {
     TestResource resource_;
   };
 
-  class Client : public Http::Client
-  {
+  class Client : public Wt::WObject {
   public:
     Client()
-      : done_(false),
+      : done_(true),
 	abortAfterHeaders_(false)
-    { 
-      done().connect(this, &Client::onDone);
-      headersReceived().connect(this, &Client::onHeadersReceived);
-      bodyDataReceived().connect(this, &Client::onDataReceived);
+    {
+      impl_.done().connect(this, &Client::onDone);
+      impl_.headersReceived().connect(this, &Client::onHeadersReceived);
+      impl_.bodyDataReceived().connect(this, &Client::onDataReceived);
+    }
+
+    bool get(const std::string &url)
+    {
+      done_ = false;
+      return impl_.get(url);
+    }
+
+    bool get(const std::string &url,
+             const std::vector<Http::Message::Header> &headers)
+    {
+      done_ = false;
+      return impl_.get(url, headers);
+    }
+
+    bool post(const std::string &url,
+              const Http::Message &message)
+    {
+      done_ = false;
+      return impl_.post(url, message);
+    }
+
+    void abort()
+    {
+      impl_.abort();
     }
 
     void abortAfterHeaders()
@@ -174,12 +198,7 @@ namespace {
 	doneCondition_.wait(guard);
     }
 
-    void reset() 
-    {
-      done_ = false;
-    }
-
-    bool isDone()
+    bool isDone() const
     {
       return done_;
     }
@@ -209,6 +228,7 @@ namespace {
     const Http::Message& message() { return message_; }
 
   private:
+    Http::Client impl_;
     bool done_;
     bool abortAfterHeaders_;
     std::condition_variable doneCondition_;
@@ -339,8 +359,6 @@ BOOST_AUTO_TEST_CASE( http_client_server_test5 )
       server.resource().haveMoreData();
 
       client.waitDone();
-
-      client.reset();
     }
   }
 }
