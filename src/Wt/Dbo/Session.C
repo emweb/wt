@@ -160,7 +160,7 @@ Session::~Session()
 
   while (!dirtyObjects_->empty()) {
     MetaDboBase *b = *dirtyObjects_->begin();
-    b->decRef();
+    discardChanges(b);
   }
 
   dirtyObjects_->clear();
