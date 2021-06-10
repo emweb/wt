@@ -415,7 +415,7 @@
 
            Deprecated: use trusted-proxy-config instead. If this option is
            set to true, Wt will take the first non-local IP address from the
-           X-Forwarded-For and Client-IP headers to determine the clientAddress().
+           Client-IP and X-Forwarded-For headers to determine the clientAddress().
 	  -->
         <!--<behind-reverse-proxy>false</behind-reverse-proxy>-->
 
