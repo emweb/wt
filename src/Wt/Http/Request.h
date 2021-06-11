@@ -277,6 +277,10 @@ public:
    */
   std::string path() const;
 
+#ifdef WT_TARGET_JAVA
+  std::string requestURI() const;
+#endif // WT_TARGET_JAVA
+
   /*! \brief Returns the request path info.
    *
    * Returns additional path information internal to the path().
