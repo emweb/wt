@@ -432,6 +432,10 @@ void WStandardItemModel::dropEvent(const WDropEvent& e, DropAction action,
       action == DropAction::Move) {
     WModelIndexSet selection = selectionModel->selectedIndexes();
     int r = row;
+    if (r < 0)
+      r = rowCount(parent);
+    WStandardItem *targetParentItem = itemFromIndex(parent);
+
     std::vector< std::vector<std::unique_ptr<WStandardItem> > > rows;
     for (WModelIndexSet::const_iterator i = selection.begin();
 	 i != selection.end(); ++i) {
@@ -439,15 +443,14 @@ void WStandardItemModel::dropEvent(const WDropEvent& e, DropAction action,
 
       // remove the row
       if (sourceIndex.parent() == parent &&
-	  sourceIndex.row() < row)
+	  sourceIndex.row() < r)
 	r--;
       WStandardItem* parentItem = itemFromIndex(sourceIndex.parent());
       rows.push_back(parentItem->takeRow(sourceIndex.row()));
     }
 
     for (unsigned i=0; i < rows.size(); i++) {
-      WStandardItem* parentItem = itemFromIndex(parent);
-      parentItem->insertRow(r+i, std::move(rows[i]));
+      targetParentItem->insertRow(r+i, std::move(rows[i]));
     }
   } else {
     WAbstractItemModel::dropEvent(e, action, row, column, parent);
