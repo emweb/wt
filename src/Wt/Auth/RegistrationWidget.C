@@ -263,9 +263,15 @@ void RegistrationWidget::confirmIsYou()
       confirmPasswordLogin_
 	->changed().connect(this, &RegistrationWidget::confirmedIsYou);
 
-      WDialog *dialog =
-	authWidget_->createPasswordPromptDialog(*confirmPasswordLogin_);
-      dialog->show();
+      isYouDialog_ = authWidget_->createPasswordPromptDialog(*confirmPasswordLogin_);
+      isYouDialog_->finished().connect
+        ([this] {
+#ifdef WT_TARGET_JAVA
+           delete isYouDialog_.release();
+#endif
+           isYouDialog_.reset();
+         });
+      isYouDialog_->show();
     }
 
     break;

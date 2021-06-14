@@ -239,9 +239,9 @@ std::unique_ptr<WWidget> AuthWidget
       promptPassword ? model_ : std::shared_ptr<AuthModel>()));
 }
 
-WDialog *AuthWidget::createPasswordPromptDialog(Login& login)
+std::unique_ptr<WDialog> AuthWidget::createPasswordPromptDialog(Login& login)
 {
-  return new PasswordPromptDialog(login, model_);
+  return std::make_unique<PasswordPromptDialog>(login, model_);
 }
 
 void AuthWidget::logout()

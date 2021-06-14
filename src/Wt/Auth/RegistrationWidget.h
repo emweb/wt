@@ -11,6 +11,8 @@
 #include <Wt/Auth/RegistrationModel.h>
 
 namespace Wt {
+class WDialog;
+
   namespace Auth {
 
 class AuthWidget;
@@ -106,6 +108,8 @@ private:
 
   bool created_;
   std::unique_ptr<Login> confirmPasswordLogin_;
+
+  std::unique_ptr<WDialog> isYouDialog_;
 
   void checkLoginName();
   void checkPassword();

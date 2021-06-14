@@ -256,7 +256,7 @@ public:
    *
    * The default implementation instantiates a PasswordPromptDialog.
    */
-  virtual WDialog *createPasswordPromptDialog(Login& login);
+  virtual std::unique_ptr<WDialog> createPasswordPromptDialog(Login& login);
 
   void attemptPasswordLogin();
 
