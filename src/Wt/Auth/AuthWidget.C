@@ -155,10 +155,17 @@ WDialog *AuthWidget::showDialog(const WString& title,
 
 void AuthWidget::closeDialog()
 {
-  if (dialog_)
+  if (dialog_) {
+#ifdef WT_TARGET_JAVA
+    delete dialog_.release();
+#endif
     dialog_.reset();
-  else
+  } else {
+#ifdef WT_TARGET_JAVA
+    delete messageBox_.release();
+#endif
     messageBox_.reset();
+  }
   
   /* Reset internal path */
   if (!basePath_.empty()) {
