@@ -1080,7 +1080,7 @@ public:
    *
    * This feature can be useful to implement infinite scroll, where a sentinel widget
    * placed at the bottom of the page causes more content to be loaded when it
-   * becomes visible, see the <tt>infinite-scroll</tt> example.
+   * becomes visible, see the <tt>scrollvisibility</tt> example.
    *
    * This feature can also be used to lazy load widgets when they become visible.
    *
