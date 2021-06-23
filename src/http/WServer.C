@@ -146,6 +146,8 @@ void WServer::setServerConfiguration(const std::string &applicationPath,
 
   impl_->serverConfiguration_->setOptions(applicationPath, args, serverConfigurationFile);
 
+  dedicatedProcessEnabled_ = impl_->serverConfiguration_->parentPort() != -1;
+
   configuration().setDefaultEntryPoint(impl_->serverConfiguration_
                                        ->deployPath());
 }
@@ -190,7 +192,6 @@ bool WServer::start()
     {
       impl_->server_->updateProcessSessionId(sessionId);
     };
-    dedicatedProcessEnabled_ = true;
   }
 
   try {

@@ -579,8 +579,11 @@ public:
   WT_API void initLogger(const std::string& logFile,
 			 const std::string& logConfig);
 
-  /*!
-   * \brief Reflects whether the current process is a dedicated session process
+  /*! \brief Reflects whether the current process is a dedicated session process
+   *
+   * \note This will only be accurate after the WServer has been configured, either
+   *       through setServerConfiguration() or one of the constructors that immediately
+   *       configures the server.
    */
   WT_API bool dedicatedSessionProcess() const;
 #endif // WT_TARGET_JAVA

@@ -196,9 +196,9 @@ void WServer::setServerConfiguration(const std::string &applicationPath,
     LOG_INFO_S(this, "initializing relay server");
     Server relayServer(*this, applicationPath, args);
     exit(relayServer.run());
-  } else {
-    if (args.size() >= 2)
-      impl_->sessionId_ = args[1];
+  } else if (args.size() >= 2) {
+    impl_->sessionId_ = args[1];
+    dedicatedProcessEnabled_ = true;
   }
 }
 
@@ -212,8 +212,6 @@ bool WServer::start()
   LOG_INFO_S(this, "initializing " <<
 	     (impl_->sessionId_.empty() ? "shared" : "dedicated") <<
 	     " wtfcgi session process");
-
-  dedicatedProcessEnabled_ = !impl_->sessionId_.empty();
 
   if (configuration().webSockets()) {
     LOG_ERROR_S(this, "FastCGI does not support web-sockets, disabling");
