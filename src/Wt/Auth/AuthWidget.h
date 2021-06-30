@@ -318,7 +318,7 @@ protected:
    * The default implementation adds an icon for each OAuth service
    * provider available.
    *
-   * There's alot to say about making a usable login mechanism for
+   * There's a lot to say about making a usable login mechanism for
    * OAuth (and federated login services in general), see
    * https://sites.google.com/site/oauthgoog/UXFedLogin.
    *
