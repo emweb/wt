@@ -316,7 +316,12 @@ protected:
   /*! \brief Creates a widget to login using OAuth.
    *
    * The default implementation adds an icon for each OAuth service
-   * provider available.
+   * provider available. The icon that will be used for each service
+   * is a PNG file with a path based on the
+   * \link OAuthService::name name \endlink of the service. If the
+   * name is is "myService", then the icon path will be "css/oauth-myService.png".
+   * Wt does not bundle any icons by default, so you should make sure that
+   * the icon is in place.
    *
    * There's a lot to say about making a usable login mechanism for
    * OAuth (and federated login services in general), see
