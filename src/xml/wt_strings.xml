@@ -87,6 +87,8 @@
   </message>
   <message id="Wt.WDateTime.null"></message>
 
+  <message id="Wt.WDateTimeEdit.Time">Time</message>
+
   <message id="Wt.WDateValidator.DateTooEarly">The date must be after {1}</message>
   <message id="Wt.WDateValidator.DateTooLate">The date must be before {1}</message>
   <message id="Wt.WDateValidator.WrongDateRange">The date must be between {1} and {2}</message>
@@ -105,6 +107,11 @@
   <message id="Wt.WTimeValidator.WrongStep">An invalid increment has been used</message>
   <message id="Wt.WTimeValidator.WrongStep-seconds">The time must be an increment of {1} second(s)</message>
   <message id="Wt.WTimeValidator.WrongStep-minutes">The time must be an increment of {1} minute(s)</message>
+
+  <message id="Wt.WDateTimeValidator.DateTimeTooEarly">The date and time must be after {1}</message>
+  <message id="Wt.WDateTimeValidator.DateTimeTooLate">The date and time must be before {1}</message>
+  <message id="Wt.WDateTimeValidator.WrongDateTimeRange">The date and time must be between {1} and {2}</message>
+  <message id="Wt.WDateTimeValidator.WrongFormat">The date and time must match the format '{1}'</message>
 
   <message id="Wt.WDefaultLoadingIndicator.Loading">Loading...</message>
 

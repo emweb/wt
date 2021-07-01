@@ -39,6 +39,7 @@ enum WidgetThemeRole {
   DatePickerIcon = 401,
   TimePickerPopup = 410,
   TimePickerPopupContent = 411,
+  DateTimePickerPopup = 420,
 
   PanelTitleBar = 500,
   PanelCollapseButton = 501,

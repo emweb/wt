@@ -72,6 +72,7 @@ namespace Wt {
   class WDateEdit;
   class WDatePicker;
   class WDateTime;
+  class WDateTimeEdit;
   class WDateValidator;
   class WDefaultLayout;
   class WDefaultLoadingIndicator;

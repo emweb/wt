@@ -222,7 +222,17 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     background-image: url('../../date.gif');
     background-repeat: no-repeat;
     background-position: right top;
-    padding-right: 40px;
+    padding-right: 16px;
+}
+
+/*
+ * WDateTimeEdit
+ */
+.Wt-datetimeedit {
+    background-image: url('../../datetime.gif');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 16px;
 }
 
 /*
@@ -232,7 +242,19 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     background-image: url('../../icon_clock.gif');
     background-repeat: no-repeat;
     background-position: right top;
-    padding-right: 40px;
+    padding-right: 16px;
+}
+
+
+/*
+ * WTimePicker
+ */
+.Wt-timepicker .Wt-spinbox {
+    width: 70px;
+}
+
+.Wt-timepicker select {
+    width: 90px;
 }
 
 /*
@@ -243,9 +265,41 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 /*
+ * WDateTimePicker
+ */
+.Wt-datetimepicker {
+    display: block;
+    background-color: white;
+    line-height: 0px;
+}
+
+.Wt-datetimepicker .Wt-cal {
+    justify-items: center;
+}
+
+.Wt-datetimepicker .Wt-datetimeedit-time {
+    justify-items: center;
+}
+
+.Wt-datetimepicker .Wt-datetimeedit-time .Wt-spinbox {
+    width: 23px;
+}
+
+.Wt-datetimepicker .Wt-datetimeedit-time select {
+    width: auto;
+}
+
+/*
  * Wt-dateedit
  */
 .Wt-dateedit::-ms-clear {
+    display:none
+}
+
+/*
+ * Wt-datetimeedit
+ */
+.Wt-datetimeedit::-ms-clear {
     display:none
 }
 

@@ -131,4 +131,12 @@
   <message id="Wt.WDialog.titlebar.default">
     <h4>${title}</h4>
   </message>
+
+  <message id="Wt.WDateTimeEdit.popup">
+    ${calendar}
+    <div class="Wt-datetimeedit-time">
+      <h4>${tr:Wt.WDateTimeEdit.Time}</h4>
+      ${timePicker}
+    </div>
+  </message>
 </messages>

@@ -317,6 +317,18 @@
 }
 
 /*
+ * WTimePicker
+ */
+.Wt-timepicker {
+  .Wt-spinbox {
+    width: 70px;
+  }
+  select {
+    width: 90px;
+  }
+}
+
+/*
  * WDateEdit
  */
 .Wt-dateedit {
@@ -347,6 +359,51 @@
   display: block;
   top: auto;
   left: auto;
+}
+
+/*
+ * WDateTimeEdit
+ */
+input[type="text"].Wt-datetimeedit {
+  background-image: url('datetime.svg');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
+
+  &:hover {
+    cursor: default;
+    background-position: right -30px;
+  }
+  &:active {
+    cursor: default;
+    background-position: right -60px;
+  }
+}
+
+.Wt-datetimeedit::-ms-clear {
+  display: none;
+}
+
+/*
+ * WDateTimePicker
+ */
+.Wt-datetimepicker {
+  display: block;
+
+  .Wt-cal {
+    justify-items: center;
+  }
+  .Wt-datetimeedit-time {
+    justify-items: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+
+    .Wt-spinbox {
+      width: 40px;
+    }
+    select {
+      width: auto;
+    }
+  }
 }
 
 /*

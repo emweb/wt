@@ -11,6 +11,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WCheckBox.h"
 #include "Wt/WDateEdit.h"
+#include "Wt/WDateTimeEdit.h"
 #include "Wt/WDatePicker.h"
 #include "Wt/WDialog.h"
 #include "Wt/WEnvironment.h"
@@ -269,6 +270,12 @@ void WBootstrap2Theme::apply(WWidget *widget,
         return;
       }
 
+      WDateTimeEdit *dateTimeEdit = resolveImplementation<WDateTimeEdit>(widget);
+      if (dateTimeEdit) {
+        element.addPropertyWord(Property::Class, "Wt-datetimeedit");
+        return;
+      }
+
       WTimeEdit *timeEdit = resolveImplementation<WTimeEdit>(widget);
       if (timeEdit && !timeEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-timeedit");
@@ -467,6 +474,11 @@ void WBootstrap2Theme::applyOptionalStyling(WT_MAYBE_UNUSED WWidget *widget,
       icon->resize(16, 16);
       break;
     }
+
+  case DateTimePickerPopup:
+    child->addStyleClass("Wt-datetimepicker");
+    break;
+
   case TimePickerPopup:
     child->addStyleClass("Wt-timepicker");
     break;

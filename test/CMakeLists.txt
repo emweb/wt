@@ -75,6 +75,7 @@ IF(ENABLE_LIBWTTEST)
     widgets/WCompositeWidgetTest.C
     widgets/WContainerWidgetTest.C
     widgets/WDateEditTest.C
+    widgets/WDateTimeEditTest.C
     widgets/WDialogTest.C
     widgets/WGroupBoxTest.C
     widgets/WLineEditTest.C

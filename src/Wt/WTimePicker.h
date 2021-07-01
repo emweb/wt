@@ -22,6 +22,8 @@ class WTimeEdit;
 class WT_API WTimePicker : public WCompositeWidget
 {
 public:
+    WTimePicker(WDateTimeEdit *DatetimeEdit);
+
     WTimePicker(WTimeEdit *timeEdit);
 
     WTime time() const;
@@ -60,6 +62,7 @@ private:
     WComboBox *cbAP_;
 
     WTimeEdit *timeEdit_;
+    WDateTimeEdit *dateTimeEdit_;
 
     void hourValueChanged();
     void minuteValueChanged();

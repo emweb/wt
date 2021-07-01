@@ -332,6 +332,27 @@
 }
 
 /*
+ * WDateTimeEdit
+ */
+.Wt-datetimeedit {
+    background-image: url('../../../datetime.svg');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 40px;
+}
+.Wt-datetimeedit:hover {
+  cursor: default;
+  background-position: right -34px;
+}
+.Wt-datetimeedit:active {
+  cursor: default;
+  background-position: right -68px;
+}
+.Wt-datetimeedit::-ms-clear {
+  display: none;
+}
+
+/*
  * WTimeEdit
  */
 
@@ -357,11 +378,52 @@
 }
 
 /*
+ * WTimePicker
+ */
+
+.Wt-timepicker .Wt-spinbox {
+  display: inline-block;
+  width: 70px;
+}
+
+.Wt-timepicker select {
+  display: inline-block;
+  width: 90px;
+}
+
+/*
  * WDatePicker
  */
 
 .Wt-datepicker input {
   display: inline;
+}
+
+/*
+ * WDateTimePicker
+ */
+
+.Wt-datetimepicker {
+  display: block;
+}
+
+.Wt-datetimepicker .Wt-cal {
+  justify-items: center;
+}
+
+.Wt-datetimepicker .Wt-datetimeedit-time {
+  justify-items: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.Wt-datetimepicker .Wt-datetimeedit-time .Wt-spinbox {
+  display: inline-block;
+  width: 60px;
+}
+
+.Wt-datetimepicker .Wt-datetimeedit-time select {
+  display: inline-block;
+  width: auto;
 }
 
 /*

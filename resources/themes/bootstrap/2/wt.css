@@ -330,6 +330,15 @@
   display: none;
 }
 /*
+ * WTimePicker
+ */
+.Wt-timepicker .Wt-spinbox {
+  width: 70px;
+}
+.Wt-timepicker select {
+  width: 90px;
+}
+/*
  * WDateEdit
  */
 .Wt-dateedit {
@@ -350,12 +359,51 @@
   display: none;
 }
 /*
+ * WDateTimeEdit
+ */
+input[type="text"].Wt-datetimeedit {
+    background-image: url('datetime.svg');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 40px;
+}
+.Wt-datetimeedit:hover {
+  cursor: default;
+  background-position: right -30px;
+}
+.Wt-datetimeedit:active {
+  cursor: default;
+  background-position: right -60px;
+}
+.Wt-datetimeedit::-ms-clear {
+  display: none;
+}
+/*
  * WDatePicker
  */
 .Wt-datepicker {
   display: block;
   top: auto;
   left: auto;
+}
+/*
+ * WDateTimePicker
+ */
+.Wt-datetimepicker {
+  display: block;
+}
+.Wt-datetimepicker .Wt-cal {
+  justify-items: center;
+}
+.Wt-datetimepicker .Wt-datetimeedit-time {
+  justify-items: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+.Wt-datetimepicker .Wt-datetimeedit-time .Wt-spinbox {
+  width: 40px;
+}
+.Wt-datetimepicker .Wt-datetimeedit-time select {
+  width: auto;
 }
 /*
  * WProgressBar

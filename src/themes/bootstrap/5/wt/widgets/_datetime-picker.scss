@@ -1,0 +1,20 @@
+.Wt-datetimepicker {
+  display: block;
+
+  .Wt-cal {
+    justify-items: center;
+  }
+  .Wt-datetimeedit-time {
+    justify-items: center;
+    border-top: 1px solid var(--bs-dropdown-border-color);
+
+    .Wt-spinbox {
+      width: 70px;
+    }
+
+    select {
+      width: auto;
+    }
+  }
+}
+

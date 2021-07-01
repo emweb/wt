@@ -1,5 +1,7 @@
 #include "WTimePicker.h"
 
+
+#include "WDateTimeEdit.h"
 #include "WStringStream.h"
 #include "WTemplate.h"
 #include "WLogger.h"
@@ -19,9 +21,17 @@
 namespace Wt {
 
 LOGGER("WTimePicker");
+WTimePicker::WTimePicker(WDateTimeEdit *dateTimeEdit)
+  : timeEdit_(nullptr),
+    dateTimeEdit_(dateTimeEdit),
+    toggleAmPm_(2, this)
+{
+  init();
+}
 
 WTimePicker::WTimePicker(WTimeEdit *timeEdit)
   : timeEdit_(timeEdit),
+    dateTimeEdit_(nullptr),
     toggleAmPm_(2, this)
 {
   init();
@@ -35,12 +45,12 @@ void WTimePicker::init(WT_MAYBE_UNUSED const WTime& time)
     container->setTemplateText(tr("Wt.WTimePicker.template"));
 
     sbhour_ = container->bindWidget("hour", std::make_unique<WSpinBox>());
-    sbhour_->setWidth(70);
+    //sbhour_->setWidth(70);
     sbhour_->setSingleStep(1);
     sbhour_->changed().connect(this, &WTimePicker::hourValueChanged);
 
     sbminute_ = container->bindWidget("minute", std::make_unique<WSpinBox>());
-    sbminute_->setWidth(70);
+    //sbminute_->setWidth(70);
     sbminute_->setRange(0, 59);
     sbminute_->setSingleStep(1);
     sbminute_->changed().connect(this, &WTimePicker::minuteValueChanged);
@@ -123,7 +133,7 @@ void WTimePicker::configure()
 
     if (formatS()) {
       sbsecond_ = container->bindWidget("second", std::make_unique<WSpinBox>());
-      sbsecond_->setWidth(70);
+      //sbsecond_->setWidth(70);
       sbsecond_->setRange(0, 59);
       sbsecond_->setSingleStep(1);
       sbsecond_->changed().connect(this, &WTimePicker::secondValueChanged);
@@ -140,7 +150,7 @@ void WTimePicker::configure()
     if (formatMs()) {
       if (!sbmillisecond_) {
         sbmillisecond_ = container->bindWidget("millisecond", std::make_unique<WSpinBox>());
-        sbmillisecond_->setWidth(70);
+        //sbmillisecond_->setWidth(70);
         sbmillisecond_->setRange(0, 999);
         sbmillisecond_->setSingleStep(1);
         sbmillisecond_->changed().connect(this, &WTimePicker::msecValueChanged);
@@ -158,7 +168,7 @@ void WTimePicker::configure()
     if (formatAp()) {
       if (!cbAP_) {
         cbAP_ = container->bindWidget("ampm", std::make_unique<WComboBox>());
-        cbAP_->setWidth(90);
+        //cbAP_->setWidth(90);
         cbAP_->addItem("AM");
         cbAP_->addItem("PM");
         cbAP_->changed().connect(this, &WTimePicker::ampmValueChanged);
@@ -250,23 +260,50 @@ void WTimePicker::ampmValueChanged()
 
 bool WTimePicker::formatAp() const
 {
-  return WTime::usesAmPm(timeEdit_->format());
+  if (timeEdit_)
+    return WTime::usesAmPm(timeEdit_->format());
+  if (dateTimeEdit_)
+    return WTime::usesAmPm(dateTimeEdit_->format());
+  LOG_ERROR("Neither DateTimeEdit_ or TimeEdit_ was set");
+  return false;
 }
 
 bool WTimePicker::formatMs() const
 {
-  WT_USTRING format = timeEdit_->format();
+  WT_USTRING format;
+  if (timeEdit_) {
+    format = timeEdit_->format();
 
-  return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
-                           format).msec() == 123;
+    return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
+                             format).msec() == 123;
+  }
+  if (dateTimeEdit_) {
+    format = dateTimeEdit_->format();
+
+    return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
+                             format).msec() == 123;
+  }
+  LOG_ERROR("Neither DateTimeEdit_ or TimeEdit_ was set");
+  return false;
 }
 
 bool WTimePicker::formatS() const
 {
-    WT_USTRING format = timeEdit_->format();
+  WT_USTRING format;
+  if (timeEdit_) {
+    format = timeEdit_->format();
 
     return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
                              format).second() == 6;
+  }
+  if (dateTimeEdit_) {
+    format = dateTimeEdit_->format();
+
+    return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
+                             format).second() == 6;
+  }
+  LOG_ERROR("Neither DateTimeEdit_ or TimeEdit_ was set");
+  return false;
 }
 
 void WTimePicker::setHourStep(int step)

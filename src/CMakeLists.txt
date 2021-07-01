@@ -126,6 +126,8 @@ Wt/WDate.h Wt/WDate.C
 Wt/WDateEdit.h Wt/WDateEdit.C
 Wt/WDatePicker.h Wt/WDatePicker.C
 Wt/WDateTime.h Wt/WDateTime.C
+Wt/WDateTimeEdit.h Wt/WDateTimeEdit.C
+Wt/WDateTimeValidator.h Wt/WDateTimeValidator.C
 Wt/WDateValidator.h Wt/WDateValidator.C
 Wt/WDefaultLoadingIndicator.h Wt/WDefaultLoadingIndicator.C
 Wt/WDialog.h Wt/WDialog.C

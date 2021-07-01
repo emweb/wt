@@ -1,0 +1,65 @@
+input[type="text"].Wt-datetimeedit,
+input[type="text"].Wt-datetimeedit.form-control {
+  background-image: escape-svg($wt-datetime-edit-icon);
+  background-repeat: no-repeat;
+  /*rtl:ignore*/
+  background-position: $wt-datetime-edit-bg-position;
+  background-size: $wt-datetime-edit-bg-size;
+  /*rtl:ignore*/
+  padding-right: calc(2em + 1.5rem);
+
+  &.hover {
+    background-image: escape-svg($wt-datetime-edit-icon-hover);
+  }
+
+  @if $enable-validation-icons {
+    &.form-control {
+      @each $state, $data in $form-validation-states {
+        @include form-validation-state-selector($state) {
+          padding-right: $wt-datetime-edit-feedback-icon-padding-end;
+          background-image: escape-svg($wt-datetime-edit-icon), escape-svg(map-get($data, "icon"));
+          /*rtl:ignore*/
+          background-position: $wt-datetime-edit-bg-position, $wt-datetime-edit-feedback-icon-position;
+          background-size: $wt-datetime-edit-bg-size, $wt-datetime-edit-feedback-icon-size;
+
+          &.hover {
+            background-image: escape-svg($wt-datetime-edit-icon-hover), escape-svg(map-get($data, "icon"));
+          }
+        }
+      }
+    }
+  }
+
+  &.hover,
+  &.active,
+  &:active {
+    cursor: default;
+  }
+}
+
+@include color-mode(dark) {
+  input[type="text"].Wt-datetimeedit,
+  input[type="text"].Wt-datetimeedit.form-control {
+    background-image: escape-svg($wt-datetime-edit-icon-dark);
+
+    &.hover:not([disabled]) {
+      background-image: escape-svg($wt-datetime-edit-icon-hover-dark);
+    }
+
+    @if $enable-validation-icons {
+      &.form-control {
+        @each $state, $data in $form-validation-states {
+          @include form-validation-state-selector($state) {
+            background-image: escape-svg($wt-datetime-edit-icon-dark), escape-svg(map-get($data, "icon"));
+
+            &.hover {
+              background-image: escape-svg($wt-datetime-edit-icon-hover-dark), escape-svg(map-get($data, "icon"));
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+

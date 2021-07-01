@@ -12,6 +12,7 @@
 #include "Wt/WCalendar.h"
 #include "Wt/WCssTheme.h"
 #include "Wt/WDateEdit.h"
+#include "Wt/WDateTimeEdit.h"
 #include "Wt/WDialog.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WLinkedCssStyleSheet.h"
@@ -176,6 +177,12 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
         return;
       }
 
+      WDateTimeEdit *dateTimeEdit = resolveImplementation<WDateTimeEdit>(widget);
+      if (dateTimeEdit) {
+        element.addPropertyWord(Property::Class, "Wt-datetimeedit");
+        return;
+      }
+
       WTimeEdit *timeEdit = resolveImplementation<WTimeEdit>(widget);
       if (timeEdit && !timeEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-timeedit");
@@ -336,6 +343,12 @@ void WCssTheme::applyOptionalStyling(WT_MAYBE_UNUSED WWidget *widget,
       icon->resize(16, 16);
       break;
     }
+  case DateTimePickerPopup:
+    child->addStyleClass("Wt-datetimepicker");
+    break;
+  case TimePickerPopup:
+    child->addStyleClass("Wt-timepicker");
+    break;
 
   case PanelTitleBar:
     child->addStyleClass("titlebar");
