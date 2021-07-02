@@ -151,7 +151,21 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
   if (!images_.empty()) {
     tmp << "var images=" << paintedWidgetObjRef << ".images;";
   }
-  tmp << "var ctx=" << canvasVar << ".getContext('2d');";
+
+  tmp << " var DpiAwareCanvas = function(canvas) {"
+      << " var dpr = window.devicePixelRatio || 1;"
+      << " var rect = canvas.getBoundingClientRect();"
+      << " canvas.width = rect.width * dpr;"
+      << "canvas.height = rect.height * dpr;"
+      << "var ctx = canvas.getContext('2d');"
+      << "ctx.scale(dpr, dpr);"
+      << "canvas.style.width = rect.width + 'px';"
+      << "canvas.style.height = rect.height + 'px'; "
+      << "return ctx;"
+      << "};";
+
+  tmp << "var ctx=DpiAwareCanvas(" << canvasVar << ");";
+
   // Older browsers don't have setLineDash
   tmp << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
 
@@ -222,7 +236,21 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 void WCanvasPaintDevice::renderPaintCommands(std::stringstream& js_target,
 					     const std::string& canvasElement)
 {
-  js_target << "var ctx=" << canvasElement << ".getContext('2d');";
+
+  js_target << " var DpiAwareCanvas = function(canvas) {"
+    << " var dpr = window.devicePixelRatio || 1;"
+    << " var rect = canvas.getBoundingClientRect();"
+    << " canvas.width = rect.width * dpr;"
+    << "canvas.height = rect.height * dpr;"
+    << "var ctx = canvas.getContext('2d');"
+    << "ctx.scale(dpr, dpr);"
+    << "canvas.style.width = rect.width + 'px';"
+    << "canvas.style.height = rect.height + 'px'; "
+    << "return ctx;"
+    << "};";
+
+
+  js_target << "var ctx=DpiAwareCanvas(" << canvasElement << ");";
   js_target << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
   js_target << "ctx.save();" << js_.str()
 	    << "ctx.restore();";

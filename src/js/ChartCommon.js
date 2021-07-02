@@ -362,4 +362,7 @@ WT_DECLARE_WT_MEMBER
      }
      return -1;
    }
- });
+;
+
+
+  });
