@@ -12,6 +12,7 @@
 #include "Wt/WNavigationBar.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WTheme.h"
+#include "Wt/WImage.h"
 
 #include <exception>
 
@@ -52,6 +53,7 @@ WNavigationBar::WNavigationBar()
 {
   bindEmpty("collapse-button");
   bindEmpty("expand-button");
+  bindEmpty("logo-link");
   bindEmpty("title-link");
   bindWidget("contents", std::unique_ptr<WWidget>(new NavContainer()));
 
@@ -73,6 +75,31 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
 
   titleLink->setText(title);
   titleLink->setLink(link);
+}
+
+void WNavigationBar::setLogo(const std::string &imageRef, const WLink &link)
+{
+  this->setLogo(cpp14::make_unique<WImage>(imageRef), link);
+}
+
+void WNavigationBar::setLogo(std::unique_ptr<WImage> logoImg, const WLink& link)
+{
+  WAnchor *logoLink = resolve<WAnchor *>("logo-link");
+
+  if (!logoLink) 
+  {
+    logoLink = bindWidget<WAnchor>("logo-link", cpp14::make_unique<WAnchor>());
+    wApp->theme()->apply(this, logoLink, WidgetThemeRole::NavBrand);
+  }
+  
+  if (logoImg)
+  {
+    logoImg->resize(34, 34);
+    logoImg->setMargin(-7, Wt::Side::Top);
+  }
+  
+  logoLink->setImage(std::move(logoImg));
+  logoLink->setLink(link);
 }
 
 void WNavigationBar::setResponsive(bool responsive)
