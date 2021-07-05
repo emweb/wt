@@ -42,6 +42,9 @@ RegistrationWidget::RegistrationWidget(AuthWidget *authWidget)
   app->theme()->apply(this, this, AuthWidgets);
 }
 
+RegistrationWidget::~RegistrationWidget()
+{ }
+
 void RegistrationWidget::setModel(std::unique_ptr<RegistrationModel> model)
 {
   if (!model_ && model)

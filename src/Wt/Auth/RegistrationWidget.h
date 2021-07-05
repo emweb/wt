@@ -41,6 +41,8 @@ public:
    */
   RegistrationWidget(AuthWidget *authWidget = nullptr);
 
+  ~RegistrationWidget();
+
   /*! \brief Sets the registration model.
    */
   void setModel(std::unique_ptr<RegistrationModel> model);
