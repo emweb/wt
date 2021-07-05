@@ -33,12 +33,15 @@ public:
   void stop();
 
   bool tryToIncrementSessionCount();
+
+  std::shared_ptr<SessionProcess> createSessionProcess();
   const std::shared_ptr<SessionProcess>& sessionProcess(std::string sessionId);
-  void addPendingSessionProcess(const std::shared_ptr<SessionProcess>& process);
-  void addSessionProcess(std::string sessionId,
-			 const std::shared_ptr<SessionProcess>& process);
+  void updateSessionId(std::string sessionId,
+                       const std::shared_ptr<SessionProcess>& process);
 
   std::vector<Wt::WServer::SessionInfo> sessions() const;
+
+  asio::io_service& ioService();
 
 private:
   void processDeadChildren(Wt::AsioWrapper::error_code ec);
@@ -52,6 +55,8 @@ private:
 #endif // WT_THREADED
   SessionProcessList pendingProcesses_; // Processes that have started up, but are not mapped to a session yet
   SessionMap sessions_;
+
+  asio::io_service &ioService_;
 #if !defined(WT_WIN32) && BOOST_VERSION >= 104700
   asio::signal_set signals_;
 #else

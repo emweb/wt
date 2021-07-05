@@ -3092,6 +3092,10 @@ void WebSession::generateNewSessionId()
     renderer().setCookie("Wt" + sessionIdCookie_, "1", WDateTime(), "", "",
 			 env_->urlScheme() == "https");
   }
+
+  if (controller_->server()->dedicatedSessionProcess()) {
+    controller_->server()->updateProcessSessionId(sessionId_);
+  }
 }
 #endif // WT_TARGET_JAVA
 

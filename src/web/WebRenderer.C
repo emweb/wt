@@ -572,13 +572,6 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
   cookiesToSet_.clear();
   cookieUpdateNeeded_ = false;
 
-#ifndef WT_TARGET_JAVA
-  const WServer *s = session_.controller()->server();
-  if (s->dedicatedSessionProcess()) {
-    response.addHeader("X-Wt-Session", session_.sessionId());
-  }
-#endif // WT_TARGET_JAVA
-
   response.setContentType(mimeType);
 }
 

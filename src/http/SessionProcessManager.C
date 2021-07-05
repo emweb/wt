@@ -36,7 +36,7 @@ namespace {
 
 SessionProcessManager::SessionProcessManager(asio::io_service &ioService,
 					     const Wt::Configuration &configuration)
-  : 
+  : ioService_(ioService),
 #ifdef SIGNAL_SET
     signals_(ioService, SIGCHLD),
 #else // !SIGNAL_SET
@@ -98,18 +98,19 @@ const std::shared_ptr<SessionProcess>& SessionProcessManager
   return nullProcessPtr;
 }
 
-void SessionProcessManager
-::addPendingSessionProcess(const std::shared_ptr<SessionProcess>& process)
+std::shared_ptr<SessionProcess> SessionProcessManager::createSessionProcess()
 {
 #ifdef WT_THREADED
   std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
-  LOG_DEBUG("addPendingSessionProcess()");
+
+  auto process = std::make_shared<SessionProcess>(this);
   pendingProcesses_.push_back(process);
+  return process;
 }
 
 void SessionProcessManager
-::addSessionProcess(std::string sessionId, 
+::updateSessionId(std::string sessionId,
 		    const std::shared_ptr<SessionProcess>& process)
 {
 #ifdef WT_THREADED
@@ -124,9 +125,14 @@ void SessionProcessManager
       break;
     }
   }
+
   if (!process->sessionId().empty()) {
     sessions_.erase(process->sessionId());
+    LOG_INFO("session id for child process " << process->pid()
+             << " changed from " << process->sessionId()
+             << " to " << sessionId);
   }
+
   process->setSessionId(sessionId);
   sessions_[sessionId] = process;
 }
@@ -149,6 +155,10 @@ std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
     result.push_back(sessionInfo);
   }
   return result;
+}
+
+asio::io_service& SessionProcessManager::ioService() {
+  return ioService_;
 }
 
 void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)

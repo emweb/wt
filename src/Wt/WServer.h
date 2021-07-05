@@ -552,6 +552,8 @@ public:
    */
   WTCONNECTOR_API std::vector<SessionInfo> sessions() const;
 
+  void updateProcessSessionId(const std::string& sessionId);
+
   /*! \brief Returns the logger instance.
    *
    * This is the logger class used in WApplication::log() and
@@ -641,6 +643,7 @@ private:
   std::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
 #ifndef WT_TARGET_JAVA
   std::function<void ()> stopCallback_;
+  std::function<void (const std::string& sessionId)> updateProcessSessionIdCallback_;
 #endif // WT_TARGET_JAVA
 };
 

@@ -69,6 +69,8 @@ public:
 
   SessionProcessManager *sessionManager() { return sessionManager_; }
 
+  void updateProcessSessionId(const std::string& sessionId);
+
 private:
   std::vector<asio::ip::address> resolveAddress(asio::ip::tcp::resolver &resolver,
                                                 const std::string &address);
@@ -96,16 +98,16 @@ private:
 
   /// Start to connect to a listening TCP socket of the parent
   /// Used for dedicated processes.
-  void startConnect(const std::shared_ptr<asio::ip::tcp::socket>& socket);
+  void startConnect();
 
   /// Connected to the parent, sends the listening port back
-  void handleConnected(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-                       const Wt::AsioWrapper::error_code& e);
+  void handleConnected(const Wt::AsioWrapper::error_code& e);
 
   /// The port has been sent to the parent, close the socket.
-  void handlePortSent(const std::shared_ptr<asio::ip::tcp::socket>& socket,
-                      const Wt::AsioWrapper::error_code& e,
-		      const std::shared_ptr<std::string>& /* buf */);
+  void handleMessageSent(const std::shared_ptr<std::string>& buf,
+                         const Wt::AsioWrapper::error_code& e);
+
+  void closeParentConnection();
 
   /// Handle completion of an asynchronous accept operation.
   void handleTcpAccept(TcpListener *listener, const Wt::AsioWrapper::error_code& e);
@@ -179,6 +181,8 @@ private:
   /// For dedicated process deployment: timer to periodically
   /// call WebController::expireSessions()
   asio::steady_timer expireSessionsTimer_;
+
+  std::unique_ptr<asio::ip::tcp::socket> parentSocket_;
 };
 
 } // namespace server

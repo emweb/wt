@@ -768,6 +768,10 @@ void WebController::handleRequest(WebRequest *request)
 
 	sessions_[sessionId] = session;
 	++plainHtmlSessions_;
+
+        if (server_.dedicatedSessionProcess()) {
+          server_.updateProcessSessionId(sessionId);
+        }
       } catch (std::exception& e) {
 	LOG_ERROR_S(&server_, "could not create new session: " << e.what());
 	request->flush(WebResponse::ResponseState::ResponseDone);

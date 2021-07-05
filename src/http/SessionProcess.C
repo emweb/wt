@@ -17,6 +17,10 @@
 #include "Wt/WConfig.h"
 #include "Wt/WLogger.h"
 
+#include "web/WebUtils.h"
+
+#include "SessionProcessManager.h"
+
 namespace Wt {
   LOGGER("wthttp/proxy");
 }
@@ -24,14 +28,15 @@ namespace Wt {
 namespace http {
 namespace server {
 
-SessionProcess::SessionProcess(asio::io_service &io_service)
-  : io_service_(io_service),
-    socket_(new asio::ip::tcp::socket(io_service)),
-    acceptor_(new asio::ip::tcp::acceptor(io_service)),
-    port_(-1)
+SessionProcess::SessionProcess(SessionProcessManager *manager)
+  : io_service_(manager->ioService()),
+    socket_(new asio::ip::tcp::socket(io_service_)),
+    acceptor_(new asio::ip::tcp::acceptor(io_service_)),
+    port_(-1),
 #ifndef WT_WIN32
-    ,pid_(0)
+    pid_(0),
 #endif // !WT_WIN32
+    manager_(manager)
 {
 #ifdef WT_WIN32
   ZeroMemory(&processInfo_, sizeof(processInfo_));
@@ -87,7 +92,7 @@ void SessionProcess::asyncExec(const Configuration &config,
 #endif // !WT_WIN32
   if (ec) {
     LOG_ERROR("Couldn't create listening socket: " << ec.message());
-    if (!onReady) {
+    if (onReady) {
       onReady(false);
       return;
     }
@@ -106,28 +111,73 @@ void SessionProcess::acceptHandler(const Wt::AsioWrapper::error_code& err,
 {
   if (!err) {
     acceptor_.reset();
-    asio::async_read
-      (*socket_, asio::buffer(buf_, 5),
-       std::bind(&SessionProcess::readPortHandler, shared_from_this(),
-		 std::placeholders::_1,
-		 std::placeholders::_2,
-		 onReady));
+
+    listeningCallback_ = onReady;
+    read();
   }
 }
 
-void SessionProcess::readPortHandler(const Wt::AsioWrapper::error_code& err,
-				     std::size_t transferred,
-				     const std::function<void (bool)>& onReady)
+void SessionProcess::read()
 {
-  if (!err || err == asio::error::eof || err == asio::error::shut_down) {
-    closeClientSocket();
-    buf_[transferred] = '\0';
-    port_ = atoi(buf_);
-    LOG_DEBUG("Child is listening on port " << port_);
-    if (onReady) {
-      onReady(true);
+  std::shared_ptr<std::string> buf(new std::string());
+  asio::async_read_until
+    (*socket_, asio::dynamic_buffer(*buf), '\n',
+     std::bind(&SessionProcess::readHandler, shared_from_this(),
+               buf,
+               std::placeholders::_1));
+}
+
+void SessionProcess::readHandler(std::shared_ptr<std::string> buf,
+                                 const Wt::AsioWrapper::error_code& err)
+{
+  if (!err) {
+    buf->resize(buf->size()-1);
+    if (!handleChildMessage(*buf)) {
+      closeClientSocket();
+      return;
+    } else if (port_ == -1) {
+      LOG_ERROR("could not read child process listening port");
+      closeClientSocket();
+      return;
+    } else if (listeningCallback_) {
+      LOG_DEBUG("Child is listening on port " << port_);
+      listeningCallback_(true);
+      listeningCallback_ = nullptr;
     }
+
+    read();
+  } else {
+    closeClientSocket();
   }
+}
+
+bool SessionProcess::handleChildMessage(const std::string& message)
+{
+  auto idx = message.find_first_of(':');
+  if (idx == std::string::npos) {
+    LOG_ERROR("received invalid message from child process: " << message);
+    return false;
+  }
+
+  auto key = message.substr(0, idx);
+  auto value = message.substr(idx+1);
+
+  if (key == "port") {
+    try {
+      port_ = Wt::Utils::stoi(value);
+    } catch (std::invalid_argument& e) {
+      LOG_ERROR("invalid listening port: " << e.what());
+      return false;
+    }
+  } else if (key == "session-id") {
+    if (manager_)
+      manager_->updateSessionId(value, shared_from_this());
+  } else {
+    LOG_ERROR("received invalid message from child process: " << message);
+    return false;
+  }
+
+  return true;
 }
 
 void SessionProcess::setSessionId(const std::string& sessionId)

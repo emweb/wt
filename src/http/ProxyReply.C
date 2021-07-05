@@ -183,8 +183,7 @@ bool ProxyReply::consumeData(const char *begin,
       if (sessionManager_.tryToIncrementSessionCount()) {
 	fwCertificates_ = true;
 	// Launch new child process
-	sessionProcess_.reset(
-	    new SessionProcess(connection()->server()->service()));
+        sessionProcess_ = sessionManager_.createSessionProcess();
 
 	sessionProcess_->asyncExec(
 	    configuration(),
@@ -193,7 +192,6 @@ bool ProxyReply::consumeData(const char *begin,
 	     (&ProxyReply::connectToChild,
 	      std::static_pointer_cast<ProxyReply>(shared_from_this()),
 	      std::placeholders::_1)));
-	sessionManager_.addPendingSessionProcess(sessionProcess_);
       } else {
 	LOG_ERROR("maximum amount of sessions reached!");
 	error(service_unavailable);
@@ -456,8 +454,6 @@ void ProxyReply::handleHeadersRead(const Wt::AsioWrapper::error_code &ec)
 	if (boost::icontains(value, "Upgrade")) {
 	  webSocketConnection = true;
 	}
-      } else if (boost::iequals(name, "X-Wt-Session")) {
-	sessionManager_.addSessionProcess(value, sessionProcess_);
       } else if (boost::iequals(name, "Upgrade")) {
 	// Remove hop-by-hop header
 	if (boost::icontains(value, "websocket")) {
