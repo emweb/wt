@@ -537,9 +537,26 @@ WT_DECLARE_WT_MEMBER_BIG
       });
     }
 
+
+
+
     function repaintOverlay() {
       if (!paintEnabled) return;
-      var ctx = overlay.getContext('2d');
+
+      function DpiAwareCanvas(canvas) {
+        var dpr = window.devicePixelRatio || 1;
+        var rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        var ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        return ctx;
+      };
+
+
+      var ctx = DpiAwareCanvas( overlay);
 
       ctx.clearRect(0, 0, overlay.width, overlay.height);
 

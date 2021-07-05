@@ -597,9 +597,11 @@ WT_DECLARE_WT_MEMBER
 	 };
 	 this.setClipPath = function(ctx, clipPath, clipPathTransform, clip) {
 	   if (clip) {
-	     ctx.setTransform.apply(ctx, clipPathTransform);
+             ctx.setTransform.apply(ctx, clipPathTransform);
+             ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
 	     self.drawPath(ctx, clipPath, false, false, true);
-	     ctx.setTransform(1, 0, 0, 1, 0, 0);
+             ctx.setTransform(1, 0, 0, 1, 0, 0);
+             ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
 	   }
 
 	   ctx.wtClipPath = clipPath;
