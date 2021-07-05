@@ -18,10 +18,10 @@ namespace Wt {
  * Use a socket notifier to integrate listening for socket events into
  * the %Wt event loop. In this way, you do not need a separate thread
  * to listen for socket activity. Socket activity is either the
- * availability of data to be read (\link WSocketNotifier::Read Read
+ * availability of data to be read (\link WSocketNotifier::Type::Read Read
  * event\endlink), possibility to write data (\link
- * WSocketNotifier::Write Write event\endlink), or an exception that
- * occurred (\link WSocketNotifier::Exception Exception
+ * WSocketNotifier::Type::Write Write event\endlink), or an exception that
+ * occurred (\link WSocketNotifier::Type::Exception Exception
  * event\endlink).
  *
  * When an event on a socket is available, the notifier emits the
@@ -42,7 +42,7 @@ namespace Wt {
  * void init() {
  *   ...
  *   int sock = ...
- *   notifier_ = std::make_unique<Wt::WSocketNotifier>(sock, Wt::WSocketNotifier::Read);
+ *   notifier_ = std::make_unique<Wt::WSocketNotifier>(sock, Wt::WSocketNotifier::Type::Read);
  *   notifier_->activated().connect(this, &HelloApplication::readData);
  * }
  *
