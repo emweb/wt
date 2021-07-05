@@ -709,7 +709,10 @@ void WCanvasPaintDevice::renderTransform(std::stringstream& s,
 {
   if (!(t.isIdentity() && lastTransformWasIdentity_)) {
     s << "ctx.wtTransform=" << t.jsRef() << ';';
-    s << "ctx.setTransform.apply(ctx, ctx.wtTransform);";
+    s << "ctx.wtTransform[4] =ctx.wtTransform[4] *(devicePixelRatio||1); " ;
+    s << "ctx.wtTransform[5] =ctx.wtTransform[5] *(devicePixelRatio||1); " ;
+    s << "ctx.setTransform.apply(ctx, ctx.wtTransform);" ;
+    s << "ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1); ";
   }
   lastTransformWasIdentity_ = t.isIdentity();
 }
