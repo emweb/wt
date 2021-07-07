@@ -72,11 +72,6 @@ WApplication::MetaLink::MetaLink(const std::string &aHref,
     sizes(aSizes), disabled(aDisabled)
 { }
 
-WApplication::ExposedResourceInfo::ExposedResourceInfo(WResource* resource,
-                                                       unsigned long sequence)
-  : resource(resource), sequence(sequence)
-{ }
-
 bool WApplication::ScriptLibrary::operator< (const ScriptLibrary& other) const
 {
   return uri < other.uri;
@@ -876,16 +871,8 @@ std::string WApplication::resourceMapKey(WResource *resource)
 
 std::string WApplication::addExposedResource(WResource *resource)
 {
-  ExposedResourceInfo exposedResourceInfo(resource);
-  std::string key = resourceMapKey(resource);
-
-  ResourceMap::const_iterator i = exposedResources_.find(key);
-  if (i != exposedResources_.end())
-    exposedResourceInfo = i->second;
-
-  exposedResourceInfo.sequence++;
-
-  exposedResources_[key] = exposedResourceInfo;
+  exposedResources_[resourceMapKey(resource)] = resource;
+  resource->incrementVersion();
 
   std::string fn = resource->suggestedFileName().toUTF8();
   if (!fn.empty() && fn[0] != '/')
@@ -894,7 +881,7 @@ std::string WApplication::addExposedResource(WResource *resource)
   if (resource->internalPath().empty())
     return session_->mostRelativeUrl(fn)
       + "&request=resource&resource=" + Utils::urlEncode(resource->id())
-      + "&ver=" + std::to_string(exposedResourceInfo.sequence);
+      + "&ver=" + std::to_string(resource->version());
   else {
     fn = resource->internalPath() + fn;
     if (!session_->applicationName().empty() && fn[0] != '/')
@@ -908,7 +895,7 @@ bool WApplication::removeExposedResource(WResource *resource)
   std::string key = resourceMapKey(resource);
   ResourceMap::iterator i = exposedResources_.find(key);
 
-  if (i != exposedResources_.end() && i->second.resource == resource) {
+  if (i != exposedResources_.end() && i->second == resource) {
 #ifndef WT_TARGET_JAVA
     exposedResources_.erase(i);
 #else
@@ -925,7 +912,7 @@ WResource *WApplication::decodeExposedResource(const std::string& resourceKey)
   ResourceMap::const_iterator i = exposedResources_.find(resourceKey);
   
   if (i != exposedResources_.end())
-    return i->second.resource;
+    return i->second;
   else {
     std::size_t j = resourceKey.rfind('/');
     if (j != std::string::npos && j > 1)
@@ -942,11 +929,11 @@ WResource *WApplication::decodeExposedResource(const std::string& resourceKey,
 
   WResource *resource = nullptr;
   if (i != exposedResources_.end())
-    resource = i->second.resource;
+    resource = i->second;
 
   if (resource
       && resource->invalidAfterChanged()
-      && (i->second.sequence != ver))
+      && (resource->version() != ver))
     resource = nullptr;
 
   return resource;

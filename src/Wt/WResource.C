@@ -70,6 +70,7 @@ WResource::WResource()
     takesUpdateLock_(false),
     invalidAfterChanged_(false),
     dispositionType_(ContentDisposition::None),
+    version_(0),
     app_(nullptr)
 { 
 #ifdef WT_THREADED
@@ -341,6 +342,16 @@ void WResource::write(WT_BOSTREAM& out,
 void WResource::setTakesUpdateLock(bool enabled)
 {
   takesUpdateLock_ = enabled;
+}
+
+unsigned long WResource::version() const
+{
+  return version_;
+}
+
+void WResource::incrementVersion()
+{
+  version_++;
 }
 
 }

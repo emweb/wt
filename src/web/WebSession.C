@@ -2438,11 +2438,11 @@ void WebSession::notify(const WEvent& event)
 	  handler.flushResponse();
 	} else {
 	  if (!resource) {
-            long ver = 0;
+            unsigned long ver = 0;
             try {
               if (verE)
-                ver = Utils::stol(*verE);
-            } catch (std::invalid_argument) {
+                ver = Utils::stoul(*verE);
+            } catch (std::exception& e) {
               ver = 0;
             }
 	    resource = app_->decodeExposedResource(*resourceE, ver);

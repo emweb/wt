@@ -436,6 +436,10 @@ public:
    */
   bool takesUpdateLock() const { return takesUpdateLock_; }
 
+  unsigned long version() const;
+
+  void incrementVersion();
+
 protected:
   /*! \brief Prepares the resource for deletion.
    *
@@ -484,6 +488,7 @@ private:
   ContentDisposition dispositionType_;
   std::string currentUrl_;
   std::string internalPath_;
+  unsigned long version_;
 
   WApplication *app_; // associated app (for non-static resources)
 

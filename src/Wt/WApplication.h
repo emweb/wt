@@ -2241,19 +2241,12 @@ private:
     bool disabled;
   };
 
-  struct ExposedResourceInfo {
-    ExposedResourceInfo(WResource* resource=nullptr, unsigned long sequence=0);
-
-    WResource* resource;
-    unsigned long sequence;
-  };
-
 #ifndef WT_TARGET_JAVA
   typedef std::map<std::string, EventSignalBase *> SignalMap;
-  typedef std::map<std::string, ExposedResourceInfo> ResourceMap;
+  typedef std::map<std::string, WResource*> ResourceMap;
 #else
   typedef std::weak_value_map<std::string, EventSignalBase *> SignalMap;
-  typedef std::weak_value_map<std::string, ExposedResourceInfo> ResourceMap;
+  typedef std::weak_value_map<std::string, WResource*> ResourceMap;
 #endif
   typedef std::map<std::string, WObject *> ObjectMap;
 
