@@ -27,6 +27,7 @@ FIND_LIBRARY(MYSQL_LIB
     NAMES
 	${MYSQL_LIBRARY}
     PATHS
+    ${MYSQL_PREFIX}
     ${MYSQL_PREFIX}/lib
     ${MYSQL_PREFIX}/lib/opt
     ${MYSQL_PREFIX}/lib/mysql
