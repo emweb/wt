@@ -119,20 +119,22 @@ void SessionProcess::acceptHandler(const Wt::AsioWrapper::error_code& err,
 
 void SessionProcess::read()
 {
-  std::shared_ptr<std::string> buf(new std::string());
   asio::async_read_until
-    (*socket_, asio::dynamic_buffer(*buf), '\n',
+    (*socket_, buf_, '\n',
      std::bind(&SessionProcess::readHandler, shared_from_this(),
-               buf,
-               std::placeholders::_1));
+               std::placeholders::_1,
+               std::placeholders::_2));
 }
 
-void SessionProcess::readHandler(std::shared_ptr<std::string> buf,
-                                 const Wt::AsioWrapper::error_code& err)
+void SessionProcess::readHandler(const Wt::AsioWrapper::error_code& err,
+                                 std::size_t bytes_transferred)
 {
   if (!err) {
-    buf->resize(buf->size()-1);
-    if (!handleChildMessage(*buf)) {
+    std::istream is(&buf_);
+    std::string msg;
+    std::getline(is, msg);
+
+    if (!handleChildMessage(msg)) {
       closeClientSocket();
       return;
     } else if (port_ == -1) {

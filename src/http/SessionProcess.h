@@ -65,14 +65,16 @@ private:
   void acceptHandler(const Wt::AsioWrapper::error_code& err,
 		     const std::function<void (bool)>& onReady);
   void read();
-  void readHandler(std::shared_ptr<std::string> buf,
-                   const Wt::AsioWrapper::error_code& err);
+  void readHandler(const Wt::AsioWrapper::error_code& err,
+                   std::size_t bytes_transferred);
   bool handleChildMessage(const std::string& message);
 
   // Short-lived objects during startup
   asio::io_service& io_service_;
   std::shared_ptr<asio::ip::tcp::socket> socket_;
   std::shared_ptr<asio::ip::tcp::acceptor> acceptor_;
+
+  asio::streambuf          buf_;
 
   int			   port_;
 
