@@ -1425,9 +1425,6 @@ void WApplication::enableUpdates(bool enabled)
 
 void WApplication::triggerUpdate()
 {
-  if (WebSession::Handler::instance()->request())
-    return;
-
   if (!serverPush_)
     LOG_WARN("WApplication::triggerUpdate(): updates not enabled?");
 
