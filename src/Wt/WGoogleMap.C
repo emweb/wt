@@ -357,9 +357,9 @@ void WGoogleMap::addCircle(const Coordinate& center, double radius,
             "  radius: " << radius << ", "
             "  center:  latLng  ,"
             "  fillOpacity: \"" << fillOpacity << "\","
-            "  fillColor: \"" << fillColor.cssText() << "\","
+            "  fillColor: \"" << fillColor.cssText(false) << "\","
             "  strokeWeight: " << strokeWidth << ","
-            "  strokeColor:\"" << strokeColor.cssText() << "\","
+            "  strokeColor:\"" << strokeColor.cssText(false) << "\","
             "  strokeOpacity: " << strokeOpacity <<
             "} "
             ");"
@@ -388,13 +388,13 @@ void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
 
   if (apiVersion_ == GoogleMapsVersion::v2) {
     strm << "var poly = new google.maps.Polyline(waypoints, \""
-	 << color.cssText() << "\", " << width << ", " << opacity << ");"
-	 << jsRef() << ".map.addOverlay(poly);";
+         << color.cssText(true) << "\", " << width << ", " << opacity << ");"
+         << jsRef() << ".map.addOverlay(poly);";
   } else {
     strm << 
       "var poly = new google.maps.Polyline({"
       "path: waypoints,"
-      "strokeColor: \"" << color.cssText() << "\"," <<
+      "strokeColor: \"" << color.cssText(true) << "\"," <<
       "strokeOpacity: " << opacity << "," << 
       "strokeWeight: " << width <<
       "});" <<

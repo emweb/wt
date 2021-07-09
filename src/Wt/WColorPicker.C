@@ -94,7 +94,7 @@ void WColorPicker::setFormData(const FormData& formData)
 
 WT_USTRING WColorPicker::valueText() const
 {
-  return color().cssText();
+  return color().cssText(false);
 }
 
 void WColorPicker::setValueText(const WT_USTRING& value)

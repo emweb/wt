@@ -153,9 +153,9 @@ public:
 
   /*! \brief Returns the color as a CSS property value.
    *
-   * This returns the color in rgb() or rgba() notation.
+   * This returns the color in rgb or rgba notation.
    */
-  const std::string cssText(bool withAlpha = false) const;
+  const std::string cssText(bool withAlpha = true) const;
 
   void toHSL(WT_ARRAY double hsl[3]) const;
   static WColor fromHSL(double h, double s, double l, int alpha);

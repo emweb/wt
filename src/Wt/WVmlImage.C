@@ -600,7 +600,7 @@ std::string WVmlImage::quote(double d)
 
 std::string WVmlImage::colorAttributes(const WColor& color)
 {
-  std::string result = " color=" + quote(color.cssText());
+  std::string result = " color=" + quote(color.cssText(false));
 
   if (color.alpha() != 255)
     result += " opacity=" + quote(color.alpha() / 255.);

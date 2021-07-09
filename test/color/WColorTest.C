@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
     BOOST_REQUIRE(c.green() == 136);
     BOOST_REQUIRE(c.blue() == 0);
     BOOST_REQUIRE(c.alpha() == 255); 
-    BOOST_REQUIRE(c.cssText() == "#f80");
+    BOOST_REQUIRE(c.cssText(false) == "#f80");
   }
 
   {
