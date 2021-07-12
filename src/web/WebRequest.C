@@ -75,6 +75,7 @@ struct WebRequest::AsyncEmulation {
 WebRequest::WebRequest()
   : entryPoint_(0),
     async_(0),
+    responseType_(ResponseType::Page),
     webSocketRequest_(false)
 {
 #ifndef BENCH
