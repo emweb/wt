@@ -178,7 +178,7 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
       }
 
       WDateTimeEdit *dateTimeEdit = resolveImplementation<WDateTimeEdit>(widget);
-      if (dateTimeEdit) {
+      if (dateTimeEdit && !dateTimeEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-datetimeedit");
         return;
       }

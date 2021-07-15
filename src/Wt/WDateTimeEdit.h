@@ -76,15 +76,48 @@ public:
    */
   virtual std::shared_ptr<WDateTimeValidator> dateTimeValidator() const;
 
+  /*! \brief Configures whether a native HTML5 control should be used.
+   *
+   * When enabled, the browser's native datetime input
+   * (<input type="datetime-local">) will be used if available.
+   * This should provide a better experience on mobile browsers.
+   *
+   * Setting native control to true limits the format to "yyyy-MM-ddThh:mm".
+   *
+   * There is no support for changing the native control after
+   * the widget is rendered.
+   *
+   * By default, this is set to the value of defaultNativeControl().
+   *
+   * \sa nativeControl(), setFormat()
+   */
+  void setNativeControl(bool nativeControl);
+
+  /*! \brief Returns whether a native HTML5 control is used, if supported.
+   *
+   * Taking into account the preference for a native control,
+   * configured using setNativeControl(), this method returns whether
+   * a native control is actually being used.
+   *
+   * \sa setNativeControl()
+   */
+  WT_NODISCARD bool nativeControl() const noexcept { return nativeControl_; }
+
   /*! \brief Sets the format used for representing the datetime.
    *
    * This sets the format in the validator.
+   *
+   * The default format is based on the current WLocale.
+   *
+   * The format is set and limited to "yyyy-MM-ddThh:mm" when using
+   * the native HTML5 control. Changing to another format has
+   * no effect.
    *
    * \note The WTimePicker does not support timezones, and
    *       consequentially this widget doesn't either. If supplied, it
    *       is removed.
    *
-   * \sa WDateTimeValidator::setFormat(), WDateTime::toString(), WTime::toString(), WDate::toString()
+   * \sa setNativeControl(), WDateTimeValidator::setFormat(), WDateTime::toString(), WTime::toString(), WDate::toString()
    */
   void setFormat(const WT_USTRING& dateTimeFormat);
 
@@ -129,6 +162,8 @@ public:
    * Displays the same month in the previous year.
    * This does not affect the selection.
    *
+   * This will not affect a native widget.
+   *
    * \sa WCalendar::browseToPreviousYear()
    */
   void browseToPreviousYear();
@@ -137,6 +172,8 @@ public:
    *
    * Displays the previous month.
    * This does not affect the selection.
+   *
+   * This will not affect a native widget.
    *
    * \sa WCalendar::browseToPreviousMonth()
    */
@@ -147,6 +184,8 @@ public:
    * Displays the same month in the next year.
    * This does not change the current selection.
    *
+   * This will not affect a native widget.
+   *
    * \sa WCalendar::browseToNextYear()
    */
   void browseToNextYear();
@@ -154,6 +193,8 @@ public:
   /*! \brief Browses to the next month.
    *
    * Displays the next month. This does not affect the selection.
+   *
+   * This will not affect a native widget.
    *
    * \sa WCalendar::browseToNextMonth()
    */
@@ -164,6 +205,8 @@ public:
    * Displays the month which contains the given date.
    * This does not change the current selection.
    *
+   * This will not affect a native widget.
+   *
    * \sa WCalendar::browseTo()
    */
   void browseTo(const WDate& date);
@@ -172,6 +215,8 @@ public:
    *
    * Returns the year that is currently displayed.
    *
+   * This will not work on a native widget.
+   *
    * \sa WCalendar::currentYear()
    */
   int currentYear() const;
@@ -179,6 +224,8 @@ public:
   /*! \brief Returns the current month displayed.
    *
    * Returns the month (1-12) that is currently displayed.
+   *
+   * This will not work on a native widget.
    *
    * \sa WCalendar::currentMonth()
    */
@@ -189,11 +236,15 @@ public:
    * The default horizontal header format is
    * \link Wt::CalendarHeaderFormat::ShortDayNames \endlink
    *
+   * This will have no effect on a native widget.
+   *
    * \sa WCalendar::SetHorizontalHeaderFormat()
    */
   void setHorizontalHeaderFormat(CalendarHeaderFormat format);
 
   /*! \brief Returns the horizontal header format.
+   *
+   * This will not work on a native widget.
    *
    * \sa setHoritonalHeaderFormat()
    */
@@ -203,6 +254,8 @@ public:
    *
    * Possible values are 1 to 7. The default value is 1 ("Monday").
    *
+   * This will have no effect on a native widget.
+   *
    * \sa WCalendar::setFirstDayOfWeek()
    */
   void setFirstDayOfWeek(int dayOfWeek);
@@ -211,11 +264,15 @@ public:
    *
    * This only impacts the time sections of the widget.
    *
+   * This will have no effect on a native widget.
+   *
    * \sa hourStep(), WTimeEdit::setHourStep()
    */
   void setHourStep(int step);
 
   /*! \brief Returns the step size for the hours
+   *
+   * This will have no effect on a native widget.
    *
    * \sa setHourStep(), WTimeEdit::hourStep()
    */
@@ -225,11 +282,15 @@ public:
    *
    * This only impacts the time sections of the widget.
    *
+   * This will have no effect on a native widget.
+   *
    * \sa minuteStep(), WTimeEdit::setMinuteStep()
    */
   void setMinuteStep(int step);
 
   /*! \brief Returns the step size for the minutes
+   *
+   * This will have no effect on a native widget.
    *
    * \sa setMinuteStep(), WTimeEdit::minuteStep()
    */
@@ -239,12 +300,15 @@ public:
    *
    * This only impacts the time sections of the widget.
    *
+   * This will have no effect on a native widget.
+   *
    * \sa secondStep(), WTimeEdit::setSecondStep()
    */
   void setSecondStep(int step);
 
   /*! \brief Returns the step size for the seconds
    *
+   * This will have no effect on a native widget.
    * \sa setSecondStep(), WTimeEdit::secondStep();
    */
   int secondStep() const;
@@ -253,11 +317,15 @@ public:
    *
    * This only impacts the time sections of the widget.
    *
+   * This will have no effect on a native widget.
+   *
    * \sa millisecondStep(), WTimeEdit::setMillisecondStep()
    */
   void setMillisecondStep(int step);
 
   /*! \brief Returns the step size for the milliseconds
+   *
+   * This will have no effect on a native widget.
    *
    * \sa setMillisecondStep(), WTimeEdit::millisecondStep()
    */
@@ -270,11 +338,15 @@ public:
    * wrap around to their lowest possible value when
    * exceeding their maximum value.
    *
+   * This will have no effect on a native widget.
+   *
    * \sa wrapAroundEnabled()
    */
   void setWrapAroundEnabled(bool rollover);
 
   /*! \brief Returns whether wraparound is enabled
+   *
+   * This will have no effect on a native widget.
    *
    * \sa setWrapAroundEnabled()
    */
@@ -292,6 +364,7 @@ protected:
   virtual void setFromLineEdit();
   void updateDom(DomElement& element, bool all) override;
   void validatorChanged() override;
+  std::string type() const noexcept override;
 
 private:
   std::unique_ptr<WPopupWidget> uPopup_;
@@ -300,6 +373,7 @@ private:
   std::unique_ptr<WTimePicker> uTimePicker_;
   WTimePicker *timePicker_;
   bool customFormat_;
+  bool nativeControl_;
 
   void defineJavaScript();
   void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);

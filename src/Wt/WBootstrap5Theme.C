@@ -323,7 +323,7 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
     }
 
     auto dateTimeEdit = resolveImplementation<WDateTimeEdit>(widget);
-    if (dateTimeEdit) {
+    if (dateTimeEdit && !dateTimeEdit->nativeControl()) {
       element.addPropertyWord(Property::Class, "Wt-datetimeedit");
       return;
     }

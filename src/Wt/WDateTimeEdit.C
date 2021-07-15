@@ -7,6 +7,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WDateTimeEdit.h"
 #include "Wt/WDateTimeValidator.h"
+#include "Wt/WEnvironment.h"
 #include "Wt/WLogger.h"
 #include "Wt/WTemplate.h"
 #include "Wt/WText.h"
@@ -20,6 +21,8 @@
 #endif
 
 namespace {
+  const char* YMD_HMS_FORMAT = "yyyy-MM-dd'T'HH:mm";
+
   inline WDate toDate(const WDateTime& dt) {
 #ifndef WT_TARGET_JAVA
     return dt.date();
@@ -34,7 +37,8 @@ namespace Wt {
 LOGGER("WDateTimeEdit");
 
 WDateTimeEdit::WDateTimeEdit()
-  : customFormat_(false)
+  : customFormat_(false),
+    nativeControl_(false)
 {
   changed().connect(this, &WDateTimeEdit::setFromLineEdit);
 
@@ -50,6 +54,10 @@ WDateTimeEdit::WDateTimeEdit()
   timePicker_ = uTimePicker_.get();
   timePicker_->selectionChanged().connect(this, &WDateTimeEdit::setFromTimePicker);
   timePicker_->setWrapAroundEnabled(true);
+
+  if (WWebWidget::defaultNativeControl()) {
+    setNativeControl(true);
+  }
 };
 
 WDateTimeEdit::~WDateTimeEdit()
@@ -82,6 +90,12 @@ std::shared_ptr<WDateTimeValidator> WDateTimeEdit::dateTimeValidator() const
   return std::dynamic_pointer_cast<WDateTimeValidator>(WLineEdit::validator());
 }
 
+void WDateTimeEdit::setNativeControl(bool nativeControl)
+{
+  setFormat(YMD_HMS_FORMAT);
+  nativeControl_ = nativeControl;
+}
+
 void WDateTimeEdit::setFormat(const WT_USTRING& format)
 {
   std::shared_ptr<WDateTimeValidator> dtv = dateTimeValidator();
@@ -94,11 +108,15 @@ void WDateTimeEdit::setFormat(const WT_USTRING& format)
   }
 
   if (dtv) {
-    WDateTime dt = this->dateTime();
-    dtv->setFormat(formatStr);
-    timePicker_->configure();
-    setDateTime(dt);
-    customFormat_ = true;
+    if (!nativeControl()) {
+      WDateTime dt = this->dateTime();
+      dtv->setFormat(formatStr);
+      timePicker_->configure();
+      setDateTime(dt);
+      customFormat_ = true;
+    } else {
+      LOG_WARN("setFormat() ignored since nativeControl() is true");
+    }
   } else {
     LOG_WARN("setFormat(): ignored since validator is not a WDateTimeValidator");
   }
@@ -316,7 +334,7 @@ void WDateTimeEdit::refresh()
 
 void WDateTimeEdit::render(WFlags<RenderFlag> flags)
 {
-  if (flags.test(RenderFlag::Full)) {
+  if (flags.test(RenderFlag::Full) && !nativeControl()) {
     defineJavaScript();
     std::shared_ptr<WDateTimeValidator> dtv = dateTimeValidator();
     if (dtv) {
@@ -324,26 +342,29 @@ void WDateTimeEdit::render(WFlags<RenderFlag> flags)
       setBottom(dtv->bottom());
     }
   }
-
   WLineEdit::render(flags);
 }
 
 void WDateTimeEdit::updateDom(DomElement& element, bool all)
 {
-  WLineEdit::updateDom(element, all);
-  if (all || !type().empty()) {
-    if (!dateTimeValidator()->bottom().isNull()) {
-      element.setAttribute("min", dateTimeValidator()->bottom().toString().toUTF8());
-    } else {
-      element.removeAttribute("min");
-    }
-
-    if (!dateTimeValidator()->top().isNull()) {
-      element.setAttribute("max", dateTimeValidator()->top().toString().toUTF8());
-    } else {
-      element.removeAttribute("max");
+  if (nativeControl() && hasValidatorChanged()) {
+    auto dtv = dateTimeValidator();
+    if (dtv) {
+      auto bottom = dtv->bottom();
+      if (bottom.isValid()) {
+        element.setAttribute("min", bottom.toString(YMD_HMS_FORMAT).toUTF8());
+      } else {
+        element.removeAttribute("min");
+      }
+      auto top = dtv->top();
+      if (top.isValid()) {
+        element.setAttribute("max", top.toString(YMD_HMS_FORMAT).toUTF8());
+      } else {
+        element.removeAttribute("max");
+      }
     }
   }
+  WLineEdit::updateDom(element, all);
 }
 
 void WDateTimeEdit::validatorChanged()
@@ -360,6 +381,11 @@ void WDateTimeEdit::validatorChanged()
   }
 
   WLineEdit::validatorChanged();
+}
+
+std::string WDateTimeEdit::type() const noexcept
+{
+  return nativeControl() ? "datetime-local" : WLineEdit::type();
 }
 
 void WDateTimeEdit::defineJavaScript()
@@ -427,6 +453,10 @@ void WDateTimeEdit::setFromTimePicker()
 
 void WDateTimeEdit::setFromLineEdit()
 {
+  if (nativeControl()) {
+    return;
+  }
+
   WDateTime dt = WDateTime::fromString(text(), format());
   WTime t = dt.time();
   WDate d = toDate(dt);

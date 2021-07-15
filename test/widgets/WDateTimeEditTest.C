@@ -5,10 +5,12 @@
  */
 #include "Wt/WCalendar.h"
 #include "Wt/WDateTime.h"
+#include "Wt/WLocale.h"
 #include "Wt/WWebWidget.h"
 #include <boost/test/unit_test.hpp>
 
 #include <Wt/WDateTimeEdit.h>
+#include <Wt/WDateTimeValidator.h>
 #include <Wt/Test/WTestEnvironment.h>
 
 #include <web/DomElement.h>
@@ -251,4 +253,120 @@ BOOST_AUTO_TEST_CASE( WDateTimeEdit_WTimeEdit_wrapAround )
   dateEdit->setWrapAroundEnabled(false);
 
   BOOST_REQUIRE(!dateEdit->wrapAroundEnabled());
+}
+
+BOOST_AUTO_TEST_CASE( WDateTimeEdit_setNativeControl_disable_with_validator )
+{
+  // Tests whether the non-native WDateTimeEdit has the right styleclass,
+  // format and min/max attributes.
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto dateTimeEdit = std::make_unique<Wt::WDateTimeEdit>();
+  auto currentDatetime = Wt::WDateTime::currentDateTime();
+  dateTimeEdit->setValidator(std::make_shared<Wt::WDateTimeValidator>("yyyy-MM-dd hh:mm", currentDatetime, currentDatetime.addMonths(12)));
+
+  // Simulate UI update
+  dateTimeEdit->load();
+  auto domElement = dateTimeEdit->createSDomElement(&app);
+
+  BOOST_REQUIRE(dateTimeEdit->styleClass() == "Wt-datetimeedit");
+  BOOST_REQUIRE(dateTimeEdit->format() == "yyyy-MM-dd hh:mm");
+  BOOST_REQUIRE(domElement->getAttribute("min") == "");
+  BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WDateTimeEdit_setNativeControl_disable_change_format )
+{
+  // Tests whether the non-native WDateTimeEdit has the right format.
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto dateTimeEdit = std::make_unique<Wt::WDateTimeEdit>();
+
+  // Simulate UI update
+  dateTimeEdit->load();
+  dateTimeEdit->createSDomElement(&app);
+
+  BOOST_REQUIRE(dateTimeEdit->format() == Wt::WLocale::currentLocale().dateTimeFormat());
+
+  dateTimeEdit->setFormat("hh:mm dd-MM-yyyy");
+
+  BOOST_REQUIRE(dateTimeEdit->format() == "hh:mm dd-MM-yyyy");
+}
+
+BOOST_AUTO_TEST_CASE( WDateTimeEdit_setNativeControl_enable_no_validator )
+{
+  // Tests whether the native WDateTimeEdit has the right styleclass,
+  // format and min/max attributes.
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto dateTimeEdit = std::make_unique<Wt::WDateTimeEdit>();
+  dateTimeEdit->setNativeControl(true);
+
+  // Simulate UI update
+  auto domElement = dateTimeEdit->createSDomElement(&app);
+
+  BOOST_REQUIRE(dateTimeEdit->styleClass() == "");
+  BOOST_REQUIRE(dateTimeEdit->format() == "yyyy-MM-dd'T'HH:mm");
+  BOOST_REQUIRE(domElement->getAttribute("min") == "");
+  BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WDateTimeEdit_setNativeControl_enable_with_validator )
+{
+  // Tests whether the native WDateTimeEdit has the right styleclass,
+  // format and min/max attributes.
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto dateTimeEdit = std::make_unique<Wt::WDateTimeEdit>();
+  auto currentDatetime = Wt::WDateTime::currentDateTime();
+  dateTimeEdit->setValidator(std::make_shared<Wt::WDateTimeValidator>(currentDatetime, currentDatetime.addMonths(12)));
+  dateTimeEdit->setNativeControl(true);
+
+  // Simulate UI update
+  auto domElement = dateTimeEdit->createSDomElement(&app);
+
+  BOOST_REQUIRE(dateTimeEdit->styleClass() == "");
+  BOOST_REQUIRE(dateTimeEdit->format() == "yyyy-MM-dd'T'HH:mm");
+  BOOST_REQUIRE(domElement->getAttribute("min") == currentDatetime.toString("yyyy-MM-dd'T'HH:mm"));
+  BOOST_REQUIRE(domElement->getAttribute("max") == currentDatetime.addMonths(12).toString("yyyy-MM-dd'T'HH:mm"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WDateTimeEdit_setNativeControl_enable_change_format )
+{
+  // Tests whether the native WDateTimeEdit has the right styleclass,
+  // format and min/max attributes.
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto dateTimeEdit = std::make_unique<Wt::WDateTimeEdit>();
+  dateTimeEdit->setNativeControl(true);
+
+  // Simulate UI update
+  auto domElement = dateTimeEdit->createSDomElement(&app);
+
+  BOOST_REQUIRE(dateTimeEdit->format() == "yyyy-MM-dd'T'HH:mm");
+  BOOST_REQUIRE(domElement->getAttribute("min") == "");
+  BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
+
+  dateTimeEdit->setFormat("hh:mm dd-MM-yyyy");
+
+  domElement = dateTimeEdit->createSDomElement(&app);
+
+  BOOST_REQUIRE(dateTimeEdit->format() == "yyyy-MM-dd'T'HH:mm");
+  BOOST_REQUIRE(domElement->getAttribute("min") == "");
+  BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
