@@ -1518,6 +1518,36 @@
       </div>
   </message>
 
+  <message id="dateTimeEdit-template">
+    <p>When do you want to rent a car?</p>
+    <div class="row g-3">
+
+      <div class="row row-fluid col-sm-12 span7">
+        <div class="col-sm-3 span3">
+          <label class="form-label"  for="${id:from}">
+            From (format ${from-format})
+          </label>
+          ${from}
+        </div>
+
+        <div class="col-sm-3 offset1 span3">
+          <label class="form-label" for="${id:to}">
+            To (format ${to-format})
+          </label>
+          ${to}
+        </div>
+      </div>
+
+      <div class="col-sm-12 span12">
+        ${save}
+      </div>
+
+      <div class="col-sm-12 span12">
+        ${out class="help-block"}
+      </div>
+    </div>
+  </message>
+
   <message id="lineEdit-template">
     <div class="row form-horizontal">
       <div class="col-xs-10 col-md-6 col-xl-4 span4">
@@ -1992,6 +2022,19 @@
         <legend>Example</legend>
         ${TimeEditNative}
         ${src TimeEditNative}
+    </fieldset>
+    <p><a href="#date-entry">Top</a></p>
+
+    <h3 id="datetime-edit">Datetime entry using a datetime edit</h3>
+    <p>
+      The ${doc-link WDateTimeEdit} widget is a line edit with support for
+      datetime entry.
+    </p>
+
+    <fieldset class="example">
+        <legend>Example</legend>
+        ${DateTimeEdit}
+        ${src DateTimeEdit}
     </fieldset>
     <p><a href="#date-entry">Top</a></p>
   </message>

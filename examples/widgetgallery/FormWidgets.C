@@ -182,6 +182,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::autoComplete()
 #include "examples/DateEditNative.cpp"
 #include "examples/TimeEdit.cpp"
 #include "examples/TimeEditNative.cpp"
+#include "examples/DateTimeEdit.cpp"
 
 std::unique_ptr<Wt::WWidget> FormWidgets::dateEntry()
 {
@@ -192,6 +193,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::dateEntry()
   result->bindWidget("DateEditNative", DateEditNative());
   result->bindWidget("TimeEdit", TimeEdit());
   result->bindWidget("TimeEditNative", TimeEditNative());
+  result->bindWidget("DateTimeEdit", DateTimeEdit());
 
   return std::move(result);
 }
