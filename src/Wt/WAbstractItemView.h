@@ -48,6 +48,10 @@ enum class ScrollHint {
   PositionAtCenter       //!< Positions the item at the center of the viewport
 };
 
+/*! \brief Enumeration that specifies the possible drop locations for drag/drop.
+ *
+ * \sa setEnabledDropLocations()
+ */
 enum class DropLocation {
   OnItem      = 0x1,     //!< Drop on items
   BetweenRows = 0x2      //!< Drop between rows
