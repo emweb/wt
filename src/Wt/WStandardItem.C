@@ -138,9 +138,14 @@ WStandardItem::~WStandardItem()
 { }
 
 WStandardItem::WStandardItem(const WStandardItem &other)
+#ifndef WT_TARGET_JAVA
   : data_(other.data_),
     flags_(other.flags_)
-{ }
+#else
+  : data_(DataMap(other.data_)),
+    flags_(WFlags<ItemFlag>(other.flags_))
+#endif
+{}
 
 WStandardItem& WStandardItem::operator=(const WStandardItem &other)
 {
