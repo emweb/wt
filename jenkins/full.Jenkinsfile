@@ -66,70 +66,62 @@ pipeline {
         pollSCM('@midnight')
     }
     stages {
-        stage('Build wthttp') {
-            parallel {
-                stage('Multithreaded, wthttp') {
-                    steps {
-                        dir('build-mt-http') {
-                            wt_configure(mt: 'ON', examplesConnector: 'wthttp')
-                            sh "make -k -j${thread_count}"
-                            sh "make -C examples -k -j${thread_count}"
-                        }
-                        dir('test') {
-                            warnError('mt wthttp test.wt failed') {
-                                sh "../build-mt-http/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_wthttp_test_log.xml"
-
-                            }
-                        }
-                    }
+        stage('Multithreaded, wthttp') {
+            steps {
+                dir('build-mt-http') {
+                    wt_configure(mt: 'ON', examplesConnector: 'wthttp')
+                    sh "make -k -j${thread_count}"
+                    sh "make -C examples -k -j${thread_count}"
                 }
-                stage('Non-multithreaded, wthttp') {
-                    steps {
-                        dir('build-st-http') {
-                            wt_configure(mt: 'OFF', examplesConnector: 'wthttp')
-                            sh "make -k -j${thread_count}"
-                            sh "make -C examples -k -j${thread_count}"
-                        }
-                        dir('test') {
-                            warnError('non-mt wthttp test.wt failed') {
-                                sh "../build-st-http/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_wthttp_test_log.xml"
+                dir('test') {
+                    warnError('mt wthttp test.wt failed') {
+                        sh "../build-mt-http/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_wthttp_test_log.xml"
 
-                            }
-                        }
                     }
                 }
             }
         }
-        stage('Build wtfcgi') {
-            parallel {
-                stage('Multithreaded, wtfcgi') {
-                    steps {
-                        dir('build-mt-fcgi') {
-                            wt_configure(mt: 'ON', examplesConnector: 'wtfcgi')
-                            sh "make -k -j${thread_count}"
-                            sh "make -C examples -k -j${thread_count}"
-                        }
-                        dir('test') {
-                            warnError('mt wtfcgi test.wt failed') {
-                                sh "../build-mt-fcgi/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_wtfcgi_test_log.xml"
+        stage('Non-multithreaded, wthttp') {
+            steps {
+                dir('build-st-http') {
+                    wt_configure(mt: 'OFF', examplesConnector: 'wthttp')
+                    sh "make -k -j${thread_count}"
+                    sh "make -C examples -k -j${thread_count}"
+                }
+                dir('test') {
+                    warnError('non-mt wthttp test.wt failed') {
+                        sh "../build-st-http/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_wthttp_test_log.xml"
 
-                            }
-                        }
                     }
                 }
-                stage('Non-multithreaded, wtfcgi') {
-                    steps {
-                        dir('build-st-fcgi') {
-                            wt_configure(mt: 'OFF', examplesConnector: 'wtfcgi')
-                            sh "make -k -j${thread_count}"
-                            sh "make -C examples -k -j${thread_count}"
-                        }
-                        dir('test') {
-                            warnError('non-mt wtfcgi test.wt failed') {
-                                sh "../build-st-fcgi/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_wtfcgi_test_log.xml"
+            }
+        }
+        stage('Multithreaded, wtfcgi') {
+            steps {
+                dir('build-mt-fcgi') {
+                    wt_configure(mt: 'ON', examplesConnector: 'wtfcgi')
+                    sh "make -k -j${thread_count}"
+                    sh "make -C examples -k -j${thread_count}"
+                }
+                dir('test') {
+                    warnError('mt wtfcgi test.wt failed') {
+                        sh "../build-mt-fcgi/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_wtfcgi_test_log.xml"
 
-                            }
-                        }
+                    }
+                }
+            }
+        }
+        stage('Non-multithreaded, wtfcgi') {
+            steps {
+                dir('build-st-fcgi') {
+                    wt_configure(mt: 'OFF', examplesConnector: 'wtfcgi')
+                    sh "make -k -j${thread_count}"
+                    sh "make -C examples -k -j${thread_count}"
+                }
+                dir('test') {
+                    warnError('non-mt wtfcgi test.wt failed') {
+                        sh "../build-st-fcgi/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_wtfcgi_test_log.xml"
+
                     }
                 }
             }
