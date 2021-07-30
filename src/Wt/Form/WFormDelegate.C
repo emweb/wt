@@ -8,6 +8,7 @@
 #include <Wt/WCheckBox.h>
 #include <Wt/WDateEdit.h>
 #include <Wt/WDateTime.h>
+#include <Wt/WDateTimeEdit.h>
 #include <Wt/WDateValidator.h>
 #include <Wt/WDoubleValidator.h>
 #include <Wt/WIntValidator.h>
@@ -114,14 +115,33 @@ void WFormDelegate<Wt::WTime, void>::updateViewValue(Wt::WFormModel *model, Wt::
 
 std::unique_ptr<Wt::WWidget> WFormDelegate<Wt::WDateTime, void>::createFormWidget()
 {
-  return std::make_unique<Wt::WLineEdit>();
+  return std::make_unique<Wt::WDateTimeEdit>();
 }
 
 void WFormDelegate<Wt::WDateTime, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
 {
   if (!edit->valueText().empty()) {
-    Wt::WDateTime value = Wt::WDateTime::fromString(edit->valueText(), Wt::WLocale::currentLocale().dateTimeFormat());
-    model->setValue(field, value);
+    Wt::WDateTime dateTime = Wt::WDateTime::fromString(edit->valueText(), Wt::WLocale::currentLocale().dateTimeFormat());
+    if (dateTime.isValid()) {
+      model->setValue(field, dateTime);
+    } else {
+      LOG_ERROR("Could not convert '" << edit->valueText() << "' to time");
+
+      std::shared_ptr<Wt::WValidator> validator = edit->validator();
+      if (validator) {
+        model->setValue(field, validator->validate(edit->valueText()));
+      }
+    }
+  } else {
+    model->setValue(field, Wt::WDateTime());
+  }
+}
+
+void WFormDelegate<Wt::WDateTime, void>::updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  Wt::cpp17::any v =  model->value(field);
+  if (v.type() != typeid(Wt::WValidator::Result)) {
+    edit->setValueText(Wt::asString(v));
   }
 }
 

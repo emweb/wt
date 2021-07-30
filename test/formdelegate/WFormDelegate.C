@@ -10,6 +10,7 @@
 #include "Wt/WCheckBox.h"
 #include "Wt/WDate.h"
 #include "Wt/WDateEdit.h"
+#include "Wt/WDateTimeValidator.h"
 #include "Wt/WDateValidator.h"
 #include "Wt/WDoubleValidator.h"
 #include "Wt/WFormModel.h"
@@ -662,8 +663,8 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateModelValue_valid_format )
 
 BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateModelValue_invalid_format )
 {
-  // Testing that invalid string input (incorrect format) results in the model containing
-  // a default constructed WDateTime object and that the value in the view remains unchanged.
+  // Testing that an invalid string input (incorrect datetime format) results in the model containing
+  // the validation result instead of a WDateTime object.
 
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
@@ -676,22 +677,22 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateModelValue_invalid_format )
   formModel->addField("datetime-field");
 
   auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValidator(std::make_shared<Wt::WDateTimeValidator>());
   edit->setValueText("24/05/2023 14:45:50");
 
   Wt::Form::WFormDelegate<Wt::WDateTime> formDelegate;
   formDelegate.updateModelValue(formModel.get(), "datetime-field", edit.get());
 
-  BOOST_TEST(formModel->valueText("datetime-field").empty());
-  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WDateTime>(formModel->value("datetime-field")) == Wt::WDateTime());
-  BOOST_CHECK(formModel->value("datetime-field").type() == typeid(Wt::WDateTime));
+  BOOST_CHECK(formModel->value("datetime-field").type() == typeid(Wt::WValidator::Result));
+  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WValidator::Result>(formModel->value("datetime-field")).state() == Wt::ValidationState::Invalid);
 
   BOOST_TEST(edit->valueText() == "24/05/2023 14:45:50");
 }
 
 BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateModelValue_widget_empty )
 {
-  // Testing that the value in the model remains unchanged when the widget is empty
-  // and that the value in the view remains unchanged.
+  // Testing that an empty string results in the model containing a default constructed
+  // WDateTime object.
 
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
@@ -709,8 +710,8 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateModelValue_widget_empty )
   Wt::Form::WFormDelegate<Wt::WDateTime> formDelegate;
   formDelegate.updateModelValue(formModel.get(), "datetime-field", edit.get());
 
-  BOOST_TEST(formModel->valueText("datetime-field") == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)).toString("yyyy-MM-dd HH:mm:ss"));
-  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WDateTime>(formModel->value("datetime-field")) == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)));
+  BOOST_TEST(formModel->valueText("datetime-field") == "");
+  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WDateTime>(formModel->value("datetime-field")) == Wt::WDateTime());
   BOOST_CHECK(formModel->value("datetime-field").type() == typeid(Wt::WDateTime));
 
   BOOST_TEST(edit->valueText().empty());
