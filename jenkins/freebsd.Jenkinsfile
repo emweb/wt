@@ -72,15 +72,15 @@ pipeline {
         cleanup {
             cleanWs()
         }
-        regression {
+        failure {
             mail to: env.EMAIL,
                  subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
                  body: "Something is wrong with ${env.BUILD_URL}"
         }
-        fixed {
+        unstable {
             mail to: env.EMAIL,
-                 subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-                 body: "Build ${env.BUILD_URL} is OK"
+                 subject: "Unstable Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "Something is wrong with ${env.BUILD_URL}"
         }
     }
 }

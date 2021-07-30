@@ -133,20 +133,17 @@ node('docker') {
         // Cleanup:
         sh 'docker volume prune -f'
         cleanWs()
-        def lastBuildStatus = currentBuild.previousBuild?.result ?: 'SUCCESS'
         // Mail on error:
         withCredentials([string(credentialsId: 'wt-dev-mail', variable: 'EMAIL')]) {
-            if (currentBuild.currentResult != 'SUCCESS' &&
-                lastBuildStatus == 'SUCCESS') {
+            if (currentBuild.currentResult == 'FAILURE') {
                 mail to: env.EMAIL,
                      subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
                      body: "Something is wrong with ${env.BUILD_URL}"
             }
-            if (currentBuild.currentResult == 'SUCCESS' &&
-                lastBuildStatus != 'SUCCESS') {
+            if (currentBuild.currentResult == 'UNSTABLE') {
                 mail to: env.EMAIL,
-                     subject: "Fixed Pipeline: ${currentBuild.fullDisplayName}",
-                     body: "Build ${env.BUILD_URL} is OK"
+                     subject: "Unstable Pipeline: ${currentBuild.fullDisplayName}",
+                     body: "Something is wrong with ${env.BUILD_URL}"
             }
         }
     }
