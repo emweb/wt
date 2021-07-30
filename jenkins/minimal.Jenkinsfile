@@ -7,6 +7,16 @@ def host_ccache_dir
 
 def thread_count = 5
 
+// This is a workaround because there is no proper way to abort earlier builds (yet).
+// See: https://stackoverflow.com/a/55818301 and https://www.jenkins.io/doc/pipeline/steps/pipeline-milestone-step/
+// A proper way to do this should be added in https://issues.jenkins.io/browse/JENKINS-43353
+// Keep an eye on https://github.com/jenkinsci/workflow-job-plugin/pull/200
+def buildNumber = env.BUILD_NUMBER as int;
+if (buildNumber > 1) {
+    milestone(buildNumber - 1);
+}
+milestone(buildNumber);
+
 node('docker') {
     user_id = sh(returnStdout: true, script: 'id -u').trim()
     user_name = sh(returnStdout: true, script: 'id -un').trim()
@@ -44,7 +54,6 @@ pipeline {
     }
     options {
         buildDiscarder logRotator(numToKeepStr: '20')
-        disableConcurrentBuilds()
     }
     agent {
         dockerfile {
