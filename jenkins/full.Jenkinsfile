@@ -7,7 +7,7 @@ def host_ccache_dir
 
 def thread_count = 5
 
-node('docker') {
+node('wt') {
     user_id = sh(returnStdout: true, script: 'id -u').trim()
     user_name = sh(returnStdout: true, script: 'id -un').trim()
     group_id = sh(returnStdout: true, script: 'id -g').trim()
@@ -51,7 +51,7 @@ pipeline {
     }
     agent {
         dockerfile {
-            label 'docker'
+            label 'wt'
             dir 'jenkins'
             filename 'full.Dockerfile'
             args "--env CCACHE_DIR=${container_ccache_dir} --env CCACHE_MAXSIZE=20G --volume ${host_ccache_dir}:${container_ccache_dir}:z"
