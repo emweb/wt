@@ -11,7 +11,7 @@ def group_name
 
 def thread_count = 5
 
-node('docker') {
+node('wt') {
     user_id = sh(returnStdout: true, script: 'id -u').trim()
     user_name = sh(returnStdout: true, script: 'id -un').trim()
     group_id = sh(returnStdout: true, script: 'id -g').trim()
@@ -110,7 +110,7 @@ def branch(Map args) {
     }
 }
 
-node('docker') {
+node('wt') {
     try {
         stage('Checkout') {
             checkout scm
