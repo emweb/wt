@@ -208,6 +208,33 @@ namespace Selenium {
       }
     }
 
+    //! Executes JavaScript and returns its boolean result.
+    bool executeScriptBool(const std::string& script)
+    {
+      if (!driver_) {
+        throw new APIException("Driver not initialized");
+      }
+
+      PyObject* executeMethod = PythonInterpreter::getAttribute(driver_, "execute_script");
+      if (!executeMethod) {
+        throw new APIException("Failed to get execute_script");
+      }
+
+      PyObject* scriptArg = PythonInterpreter::fromUTF8(script);
+      PyObject* result = PythonInterpreter::callFunction(executeMethod, scriptArg);
+      Py_DECREF(scriptArg);
+      Py_DECREF(executeMethod);
+      if (!result) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new APIException("Failed to execute JavaScript");
+      }
+
+      const bool value = PythonInterpreter::asBool(result);
+      Py_DECREF(result);
+      return value;
+    }
+
     //! Returns the correct locator for the strategy.
     PyObject* getLocator(FindBy findBy) const
     {

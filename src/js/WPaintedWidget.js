@@ -15,6 +15,8 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptConstructor, "WPaintedWidget", function(APP, 
   this.images = [];
   this.canvas = document.getElementById("c" + widget.id);
   this.repaint = function() {};
+  this.hasPaintUpdates = false;
+  this.dprRepaintPending = false;
   this.widget = widget;
   this.cancelPreloaders = function() {
     for (const imagePreloader of self.imagePreloaders) {
@@ -22,6 +24,23 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptConstructor, "WPaintedWidget", function(APP, 
     }
     self.imagePreloaders = [];
   };
+
+  APP.WT.gfxUtils.addDprChangeListener(
+    widget,
+    function() {
+      return self.canvas === document.getElementById("c" + widget.id);
+    },
+    function() {
+      if (self.hasPaintUpdates) {
+        if (!self.dprRepaintPending) {
+          self.dprRepaintPending = true;
+          APP.emit(widget, "repaintSignal");
+        }
+      } else {
+        self.repaint();
+      }
+    }
+  );
 });
 
 // This should be refactored to something, somewhere?
@@ -59,6 +78,143 @@ WT_DECLARE_WT_MEMBER(
 
     function Utils() {
       const self = this;
+
+      let dpr = currentDpr();
+      let dprListeners = [];
+      let dprMediaQuery = null;
+      let dprMediaQueryListener = null;
+
+      function currentDpr() {
+        const value = window.devicePixelRatio;
+        return typeof value === "number" && isFinite(value) && value > 0 ? value : 1;
+      }
+
+      function observeDpr() {
+        if (dprMediaQuery) {
+          if (dprMediaQuery.removeEventListener) {
+            dprMediaQuery.removeEventListener("change", dprMediaQueryListener);
+          } else {
+            dprMediaQuery.removeListener(dprMediaQueryListener);
+          }
+        }
+
+        if (!window.matchMedia) {
+          dprMediaQuery = null;
+          dprMediaQueryListener = null;
+          return;
+        }
+
+        dprMediaQuery = window.matchMedia(`(resolution: ${dpr}dppx)`);
+        dprMediaQueryListener = function() {
+          checkDpr();
+          observeDpr();
+        };
+        if (dprMediaQuery.addEventListener) {
+          dprMediaQuery.addEventListener("change", dprMediaQueryListener);
+        } else {
+          dprMediaQuery.addListener(dprMediaQueryListener);
+        }
+      }
+
+      function isConnected(target) {
+        return typeof target.isConnected === "boolean" ?
+          target.isConnected :
+          document.documentElement.contains(target);
+      }
+
+      function pruneDprListeners() {
+        dprListeners = dprListeners.filter(function(entry) {
+          return isConnected(entry.target) && entry.isActive();
+        });
+      }
+
+      function checkDpr() {
+        const newDpr = currentDpr();
+        if (newDpr === dpr) {
+          return;
+        }
+
+        dpr = newDpr;
+        pruneDprListeners();
+        for (const entry of dprListeners) {
+          entry.listener();
+        }
+      }
+
+      window.addEventListener("resize", function() {
+        pruneDprListeners();
+        const oldDpr = dpr;
+        checkDpr();
+        if (oldDpr !== dpr) {
+          observeDpr();
+        }
+      });
+      observeDpr();
+
+      if (window.MutationObserver && document.documentElement) {
+        new MutationObserver(pruneDprListeners).observe(document.documentElement, {
+          childList: true,
+          subtree: true,
+        });
+      }
+
+      this.addDprChangeListener = function(target, isActive, listener) {
+        pruneDprListeners();
+        dprListeners.push({ target: target, isActive: isActive, listener: listener });
+      };
+
+      this.setTransform = function(ctx, transform) {
+        const scaleX = ctx.wtScaleX || 1;
+        const scaleY = ctx.wtScaleY || 1;
+        ctx.wtTransform = transform;
+        ctx.setTransform(
+          scaleX * transform[M11],
+          scaleY * transform[M12],
+          scaleX * transform[M21],
+          scaleY * transform[M22],
+          scaleX * transform[M13],
+          scaleY * transform[M23]
+        );
+      };
+
+      this.prepareCanvas = function(canvas, width, height) {
+        const layoutWidth = canvas.wtLayoutWidth;
+        const layoutHeight = canvas.wtLayoutHeight;
+        if (typeof layoutWidth === "number") {
+          if (layoutWidth === width) {
+            delete canvas.wtLayoutWidth;
+          } else {
+            width = layoutWidth;
+          }
+        }
+        if (typeof layoutHeight === "number") {
+          if (layoutHeight === height) {
+            delete canvas.wtLayoutHeight;
+          } else {
+            height = layoutHeight;
+          }
+        }
+
+        const pixelWidth = Math.round(width * dpr);
+        const pixelHeight = Math.round(height * dpr);
+        const resized = canvas.width !== pixelWidth || canvas.height !== pixelHeight;
+
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        if (resized) {
+          canvas.width = pixelWidth;
+          canvas.height = pixelHeight;
+        }
+
+        const ctx = canvas.getContext("2d");
+        canvas.wtWidth = ctx.wtWidth = width;
+        canvas.wtHeight = ctx.wtHeight = height;
+        ctx.wtScaleX = width === 0 ? dpr : pixelWidth / width;
+        ctx.wtScaleY = height === 0 ? dpr : pixelHeight / height;
+        self.setTransform(ctx, [1, 0, 0, 1, 0, 0]);
+
+        return { context: ctx, resized: resized };
+      };
 
       this.path_crisp = function(path) {
         return path.map(
@@ -303,8 +459,8 @@ WT_DECLARE_WT_MEMBER(
                     const t_s = self.transform_mult(t, s);
                     const dx = x(t_s) - x(t_pos);
                     const dy = y(t_s) - y(t_pos);
-                    const w = ctx.canvas.width;
-                    const h = ctx.canvas.height;
+                    const w = typeof ctx.wtWidth === "undefined" ? ctx.canvas.width : ctx.wtWidth;
+                    const h = typeof ctx.wtHeight === "undefined" ? ctx.canvas.height : ctx.wtHeight;
                     const left = -MARGIN;
                     const right = w + MARGIN;
                     const top = -MARGIN;
@@ -681,9 +837,9 @@ WT_DECLARE_WT_MEMBER(
       };
       this.setClipPath = function(ctx, clipPath, clipPathTransform, clip) {
         if (clip) {
-          ctx.setTransform.apply(ctx, clipPathTransform);
+          self.setTransform(ctx, clipPathTransform);
           self.drawPath(ctx, clipPath, false, false, true);
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          self.setTransform(ctx, [1, 0, 0, 1, 0, 0]);
         }
 
         ctx.wtClipPath = clipPath;

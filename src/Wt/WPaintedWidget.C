@@ -123,6 +123,7 @@ WPaintedWidget::WPaintedWidget()
     repaintFlags_(None),
     renderWidth_(0),
     renderHeight_(0),
+    repaintSignal_(this, "repaintSignal"),
     repaintSlot_("function() {"
         "var o=" + this->objJsRef() + ";"
         "if(o){o.repaint();}"
@@ -139,6 +140,12 @@ WPaintedWidget::WPaintedWidget()
   }
 
   setInline(false);
+}
+
+void WPaintedWidget::repaintFromClient()
+{
+  repaintFlags_ = None;
+  update();
 }
 
 WPaintedWidget::~WPaintedWidget()
@@ -214,6 +221,11 @@ void WPaintedWidget::defineJavaScript()
   WApplication *app = WApplication::instance();
 
   if (getMethod() == RenderMethod::HtmlCanvas) {
+    // The widget id may be customized between construction and rendering.
+    if (!repaintSignal_.isConnected()) {
+      repaintSignal_.connect(this, &WPaintedWidget::repaintFromClient);
+    }
+
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs10);
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs11);
     if (jsObjects_.size() > 0) {
@@ -377,17 +389,19 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
     setLayoutSizeAware(true);
     setJavaScriptMember(WT_RESIZE_JS,
                         "function(self, w, h) {"
-                        """let u = self.querySelector('canvas, img');"
-                        """if (u === null) return;"
-                        """if (w >= 0) "
-                        ""  "u.style.width = `${w}px`;"
-                        """else "
-                        ""  "u.style.width = 'auto';"
-                        """if (h >= 0) "
-                        ""  "u.style.height = `${h}px`;"
-                        """else "
-                        ""  "u.style.height = 'auto';"
-                        "}");
+                         """let u = self.querySelector('canvas, img');"
+                         """if (u === null) return;"
+                         """if (w >= 0) {"
+                         ""  "u.style.width = `${w}px`;"
+                         ""  "u.wtLayoutWidth = w;"
+                         """} else "
+                         ""  "delete u.wtLayoutWidth;"
+                         """if (h >= 0) {"
+                         ""  "u.style.height = `${h}px`;"
+                         ""  "u.wtLayoutHeight = h;"
+                         """} else "
+                         ""  "delete u.wtLayoutHeight;"
+                         "}");
   }
 
   createPainter();
@@ -726,15 +740,7 @@ void WWidgetCanvasPainter
   WCanvasPaintDevice *canvasDevice
     = dynamic_cast<WCanvasPaintDevice *>(device.get());
 
-  if (widget_->sizeChanged_) {
-    DomElement *canvas = DomElement::getForUpdate('c' + widget_->id(),
-                                                  DomElementType::CANVAS);
-    canvas->setAttribute("width", std::to_string(widget_->renderWidth_));
-    canvas->setAttribute("height", std::to_string(widget_->renderHeight_));
-    result.push_back(canvas);
-
-    widget_->sizeChanged_ = false;
-  }
+  widget_->sizeChanged_ = false;
 
   bool domText = canvasDevice->textMethod() ==
     WCanvasPaintDevice::TextMethod::DomText;

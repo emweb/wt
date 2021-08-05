@@ -375,6 +375,7 @@ protected:
 
 private:
   void defineJavaScript();
+  void repaintFromClient();
 
   RenderMethod preferredMethod_;
   std::unique_ptr<WWidgetPainter> painter_;
@@ -384,6 +385,7 @@ private:
   int renderWidth_, renderHeight_;
   std::string botResourceId_;
 
+  JSignal<> repaintSignal_;
   JSlot repaintSlot_;
   WJavaScriptObjectStorage jsObjects_;
   bool              jsDefined_;

@@ -142,15 +142,26 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
   tmp << ";" // Extra ; to make sure that JavaScript interprets the next thing as
              // a separate statement (for when ; was forgotten in another doJavaScript call)
          "(function(){";
-  tmp << "var pF=function(){";
+  tmp << "var pF=function(images,previousRepaint){";
 
   tmp <<
     "if(" << canvasVar << ".getContext){";
 
-  if (!images_.empty()) {
-    tmp << "var images=" << paintedWidgetObjRef << ".images;";
+  tmp << "var canvasState=" << WT_CLASS << ".gfxUtils.prepareCanvas("
+      << canvasVar << ',' << width().value() << ',' << height().value() << ");"
+      << "var ctx=canvasState.context;";
+
+  if (paintUpdate_) {
+    tmp << "if(canvasState.resized){"
+        << canvasVar << ".wtLayoutWidth=ctx.wtWidth;"
+        << canvasVar << ".wtLayoutHeight=ctx.wtHeight;"
+        << "previousRepaint();"
+        << "canvasState=" << WT_CLASS << ".gfxUtils.prepareCanvas("
+        << canvasVar << ',' << width().value() << ',' << height().value() << ");"
+        << "ctx=canvasState.context;"
+        << '}';
   }
-  tmp << "var ctx=" << canvasVar << ".getContext('2d');";
+
   // Older browsers don't have setLineDash
   tmp << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
 
@@ -170,13 +181,6 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 
   tmp << "};";
 
-  if (!paintUpdate_) {
-    tmp << paintedWidgetObjRef << ".repaint=pF;";
-    tmp << "pF=function(){"
-        << paintedWidgetObjRef << ".repaint();"
-        << "};";
-  }
-
   tmp << "var o=" << paintedWidgetObjRef << ";";
   if (!paintUpdate_)
     tmp << "o.cancelPreloaders();";
@@ -191,26 +195,31 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
   }
 
   tmp << "],function(images){"
-           "if (!" << paintedWidgetJsRef << ")"
-             "return;"
-           "this.done = true;"
-           "var o=" << paintedWidgetObjRef << ";"
-           "if(o.imagePreloaders.length===0||"
-             "this===o.imagePreloaders[0]){"
-             "o.images=images;"
-             "pF();"
-             "o.imagePreloaders.shift();"
-           "}else{"
-             "while(o.imagePreloaders.length>0&&"
-                   "o.imagePreloaders[0].done){"
-               "o.imagePreloaders[0].callback(o.imagePreloaders[0].images);"
-             "}"
-           "}"
-         "});"
-         "if(!l.done)"
-           "o.imagePreloaders.push(l);"
-       "}"
-       "})();";
+      <<   "if(!" << paintedWidgetJsRef << ")return;"
+      <<   "this.done=true;"
+      <<   "var o=" << paintedWidgetObjRef << ";"
+      <<   "if(o.imagePreloaders.length===0||this===o.imagePreloaders[0]){"
+      <<     "o.images=images;";
+  if (paintUpdate_) {
+    tmp <<     "var previousRepaint=o.repaint;"
+               "pF(images,previousRepaint);"
+               "o.hasPaintUpdates=true;";
+  } else {
+    tmp <<     "pF(images);"
+               "o.repaint=function(){pF(images);};"
+               "o.hasPaintUpdates=false;"
+               "o.dprRepaintPending=false;";
+  }
+  tmp <<     "o.imagePreloaders.shift();"
+      <<   "}else{"
+      <<     "while(o.imagePreloaders.length>0&&o.imagePreloaders[0].done){"
+      <<       "o.imagePreloaders[0].callback(o.imagePreloaders[0].images);"
+      <<     "}"
+      <<   "}"
+      << "});"
+      <<   "if(!l.done)o.imagePreloaders.push(l);"
+      << "}"
+      << "})();";
 
   text->callJavaScript(tmp.str());
 
@@ -221,7 +230,12 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 void WCanvasPaintDevice::renderPaintCommands(std::stringstream& js_target,
                                              const std::string& canvasElement)
 {
-  js_target << "var ctx=" << canvasElement << ".getContext('2d');";
+  js_target << "var ctx=" << canvasElement << ".getContext('2d');"
+            << "ctx.wtWidth=" << canvasElement << ".width;"
+            << "ctx.wtHeight=" << canvasElement << ".height;"
+            << "ctx.wtScaleX=ctx.wtScaleY=1;"
+            << WT_CLASS << ".gfxUtils.setTransform(ctx,[1,0,0,1,0,0]);";
+
   js_target << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
   js_target << "ctx.save();" << js_.str()
             << "ctx.restore();";
@@ -697,8 +711,7 @@ void WCanvasPaintDevice::renderTransform(std::stringstream& s,
                                          const WTransform& t)
 {
   if (!(t.isIdentity() && lastTransformWasIdentity_)) {
-    s << "ctx.wtTransform=" << t.jsRef() << ';';
-    s << "ctx.setTransform.apply(ctx, ctx.wtTransform);";
+    s << WT_CLASS << ".gfxUtils.setTransform(ctx," << t.jsRef() << ");";
   }
   lastTransformWasIdentity_ = t.isIdentity();
 }

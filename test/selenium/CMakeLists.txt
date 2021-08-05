@@ -39,6 +39,7 @@ if(ENABLE_LIBWTTEST AND ENABLE_SELENIUM_TESTS)
     widgets/WCheckBox.C
     widgets/WDialog.C
     widgets/WMessageBox.C
+    widgets/WPaintedWidget.C
     widgets/WPopupMenu.C
     widgets/WStackedWidget.C
     widgets/WText.C
