@@ -563,9 +563,12 @@ WT_DECLARE_WT_MEMBER_BIG(
       if (!paintEnabled) {
         return;
       }
-      const ctx = overlay.getContext("2d");
 
-      ctx.clearRect(0, 0, overlay.width, overlay.height);
+      const width = typeof target.canvas.wtWidth === "undefined" ? target.canvas.width : target.canvas.wtWidth;
+      const height = typeof target.canvas.wtHeight === "undefined" ? target.canvas.height : target.canvas.wtHeight;
+      const ctx = utils.prepareCanvas(overlay, width, height).context;
+
+      ctx.clearRect(0, 0, width, height);
 
       ctx.save();
 
@@ -896,16 +899,9 @@ WT_DECLARE_WT_MEMBER_BIG(
     function init() {
       if (
         showCrosshair() &&
-        (overlay === null || target.canvas.width !== overlay.width || target.canvas.height !== overlay.height)
+        overlay === null
       ) {
-        if (overlay) {
-          overlay.parentNode.removeChild(overlay);
-          delete widget.wtOObj;
-          overlay = null;
-        }
         const c = document.createElement("canvas");
-        c.setAttribute("width", target.canvas.width);
-        c.setAttribute("height", target.canvas.height);
         c.style.position = "absolute";
         c.style.display = "block";
         c.style.left = "0";
@@ -1878,6 +1874,18 @@ WT_DECLARE_WT_MEMBER_BIG(
     };
 
     this.rangeChangedCallbacks = [];
+
+    utils.addDprChangeListener(
+      widget,
+      function() {
+        return widget.wtCObj === self;
+      },
+      function() {
+        if (showCrosshair()) {
+          repaintOverlay();
+        }
+      }
+    );
 
     this.updateConfig = function(newConfig) {
       for (const [key, value] of Object.entries(newConfig)) {
