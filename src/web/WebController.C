@@ -195,23 +195,17 @@ bool WebController::expireSessions()
     std::unique_lock<std::recursive_mutex> lock(mutex_);
 #endif // WT_THREADED
 
-    for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
+    for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
       std::shared_ptr<WebSession> session = i->second;
 
       int diff = session->expireTime() - now;
 
       if (diff < 1000 && configuration().sessionTimeout() != -1) {
 	toExpire.push_back(session);
-
-	if (session->env().ajax())
-	  --ajaxSessions_;
-	else
-	  --plainHtmlSessions_;
-
-	++zombieSessions_;
-	sessions_.erase(i++);
-      } else
-	++i;
+        // Note: the session is not yet removed from sessions_ map since
+        // we want to grab the UpdateLock to do this and grabbing it here
+        // might cause a deadlock.
+      }
     }
 
     result = !sessions_.empty();
@@ -223,6 +217,24 @@ bool WebController::expireSessions()
     LOG_INFO_S(session, "timeout: expiring");
     WebSession::Handler handler(session,
 				WebSession::Handler::LockOption::TakeLock);
+
+#ifdef WT_THREADED
+    std::unique_lock<std::recursive_mutex> lock(mutex_);
+#endif // WT_THREADED
+
+    // Another thread might have already removed it
+    if (sessions_.find(session->sessionId()) == sessions_.end())
+      continue;
+
+    if (session->env().ajax())
+      --ajaxSessions_;
+    else
+      --plainHtmlSessions_;
+
+    ++zombieSessions_;
+
+    sessions_.erase(session->sessionId());
+
     session->expire();
   }
 

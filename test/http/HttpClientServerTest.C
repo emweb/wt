@@ -591,4 +591,38 @@ BOOST_AUTO_TEST_CASE( resource_invalid_after_changed )
   }
 }
 
+
+BOOST_AUTO_TEST_CASE( application_expired_while_newid )
+{
+  Server server;
+  server.configuration().setBootstrapMethod(Configuration::Progressive);
+  auto& conf = server.configuration();
+  conf.setSessionTimeout(2);
+
+  WApplication *app = nullptr;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&app] (const WEnvironment& env) {
+                         auto app_ = std::make_unique<WApplication>(env);
+                         app = app_.get();
+                         return app_;
+                       });
+  if (server.start()) {
+    Client client;
+    client.get("http://" + server.address());
+    client.waitDone();
+
+    auto webSession = app->session();
+    auto controller = webSession->controller();
+    std::thread t([app] {
+                    WApplication::UpdateLock lock(app);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2200));
+                    app->changeSessionId();
+                  });
+    std::this_thread::sleep_for(std::chrono::milliseconds(2100));
+    controller->expireSessions();
+
+    t.join();
+  }
+}
+
 #endif // WT_THREADED
