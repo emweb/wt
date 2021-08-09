@@ -335,6 +335,7 @@ BOOST_AUTO_TEST_CASE( http_client_server_test4 )
     }
 
     for (unsigned i = 0; i < 1000; ++i) {
+      clients[i]->waitDone();
       delete clients[i];
     }
   }
