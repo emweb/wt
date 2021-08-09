@@ -500,7 +500,7 @@ public:
 private:
   Wt::AsioWrapper::asio::io_service *ioService_;
   class Impl;
-  std::shared_ptr<Impl> impl_;
+  std::weak_ptr<Impl> impl_;
   std::chrono::steady_clock::duration timeout_;
   std::size_t maximumResponseSize_;
   bool verifyEnabled_;

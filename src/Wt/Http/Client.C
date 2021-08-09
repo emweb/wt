@@ -15,10 +15,17 @@
 #include "Wt/WServer.h"
 #include "Wt/Utils.h"
 
+#include "web/WebController.h"
+#include "web/WebSession.h"
 #include "web/WebUtils.h"
 
+#include <memory>
 #include <sstream>
 #include <boost/algorithm/string.hpp>
+
+#ifdef WT_THREADED
+#include <mutex>
+#endif // WT_THREADED
 
 #ifdef WT_WITH_SSL
 
@@ -58,22 +65,32 @@ public:
     int parsePos;
   };
 
-  Impl(asio::io_service& ioService, WServer *server,
-       const std::string& sessionId)
+  Impl(Client *client,
+       const std::shared_ptr<WebSession>& session,
+       asio::io_service& ioService)
     : ioService_(ioService),
       strand_(ioService),
       resolver_(ioService_),
+      method_(Http::Method::Get),
+      client_(client),
+      session_(session),
       timer_(ioService_),
-      server_(server),
-      sessionId_(sessionId),
       timeout_(0),
       maximumResponseSize_(0),
       responseSize_(0),
-      aborted_(false),
-      headersOnly_(false)
+      postSignals_(session != nullptr),
+      aborted_(false)
   { }
 
   virtual ~Impl() { }
+
+  void removeClient()
+  {
+#ifdef WT_THREADED
+    std::lock_guard<std::mutex> lock(clientMutex_);
+#endif // WT_THREADED
+    client_ = nullptr;
+  }
 
   void setTimeout(std::chrono::steady_clock::duration timeout) { 
     timeout_ = timeout; 
@@ -83,14 +100,21 @@ public:
     maximumResponseSize_ = bytes;
   }
 
-  void request(const std::string& method, const std::string& protocol, const std::string& auth,
-	       const std::string& server, int port, const std::string& path,
+  void request(Http::Method method,
+               const std::string& protocol,
+               const std::string& auth,
+	       const std::string& server,
+	       int port,
+	       const std::string& path,
 	       const Message& message)
   {
-    headersOnly_ = (method == "HEAD");
+    const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD" };
+
+    method_ = method;
+    request_ = message;
 
     std::ostream request_stream(&requestBuf_);
-    request_stream << method << " " << path << " HTTP/1.1\r\n";
+    request_stream << methodNames_[static_cast<unsigned int>(method)] << " " << path << " HTTP/1.1\r\n";
     if ((protocol == "http" && port == 80) || (protocol == "https" && port == 443))
       request_stream << "Host: " << server << "\r\n";
     else
@@ -109,14 +133,14 @@ public:
       request_stream << h.name() << ": " << h.value() << "\r\n";
     }
 
-    if ((method == "POST" || method == "PUT" || method == "DELETE" || method == "PATCH") &&
+    if ((method == Http::Method::Post || method == Http::Method::Put || method == Http::Method::Delete || method == Http::Method::Patch) &&
 	!haveContentLength)
       request_stream << "Content-Length: " << message.body().length() 
 		     << "\r\n";
 
     request_stream << "\r\n";
 
-    if (method == "POST" || method == "PUT" || method == "DELETE" || method == "PATCH")
+    if (method == Http::Method::Post || method == Http::Method::Put || method == Http::Method::Delete || method == Http::Method::Patch)
       request_stream << message.body();
 
     tcp::resolver::query query(server, std::to_string(port));
@@ -130,17 +154,11 @@ public:
 			      std::placeholders::_2)));
   }
 
-  void asyncStop(std::shared_ptr<Impl> *impl)
+  void asyncStop()
   {
     ioService_.post
-      (strand_.wrap(std::bind(&Impl::stop, shared_from_this(), impl)));
+      (strand_.wrap(std::bind(&Impl::stop, shared_from_this())));
   }
-
-  Signal<AsioWrapper::error_code, Message>& done() { return done_; }
-  Signal<Message>& headersReceived() { return headersReceived_; }
-  Signal<std::string>& bodyDataReceived() { return bodyDataReceived_; }
-
-  bool hasServer() { return server_ != nullptr; }
 
 protected:
   typedef std::function<void(const AsioWrapper::error_code&)>
@@ -158,7 +176,7 @@ protected:
   virtual void asyncRead(const IOHandler& handler) = 0;
 
 private:
-  void stop(std::shared_ptr<Impl> *impl)
+  void stop()
   {
     /* Within strand */
 
@@ -173,9 +191,6 @@ private:
     } catch (std::exception& e) {
       LOG_INFO("Client::abort(), stop(), ignoring error: " << e.what());
     }
-
-    if (impl)
-      impl->reset();
   }
 
   void startTimer()
@@ -410,24 +425,27 @@ private:
 	    chunkState_.size = 0;
 	    chunkState_.parsePos = 0;
 	    chunkState_.state = ChunkState::State::Size;
-	  } else if (!headersOnly_ &&
+	  } else if (method_ != Http::Method::Head &&
                      boost::iequals(name, "Content-Length")) {
 	    std::stringstream ss(value);
 	    ss >> contentLength_;
 	  }
 	}
       }
-      
-      if (headersReceived_.isConnected()) {
-	if (server_)
-	  server_->post(sessionId_,
-			std::bind(&Impl::emitHeadersReceived,
-				  shared_from_this()));
-	else
-	  emitHeadersReceived();
+
+      if (postSignals_) {
+        auto session = session_.lock();
+        if (session) {
+          auto server = session->controller()->server();
+          server->post(session->sessionId(),
+                       std::bind(&Impl::emitHeadersReceived,
+                                 shared_from_this()));
+        }
+      } else {
+        emitHeadersReceived();
       }
 
-      bool done = headersOnly_ || response_.status() == STATUS_NO_CONTENT || contentLength_ == 0;
+      bool done = method_ == Http::Method::Head || response_.status() == STATUS_NO_CONTENT || contentLength_ == 0;
       // Write whatever content we already have to output.
       if (responseBuf_.size() > 0) {
 	std::stringstream ss;
@@ -624,37 +642,66 @@ private:
 
   void complete()
   {
-    stop(nullptr);
-    if (server_)
-      server_->post(sessionId_,
-		    std::bind(&Impl::emitDone, shared_from_this()));
-    else
+    stop();
+    if (postSignals_) {
+      auto session = session_.lock();
+      if (session) {
+        auto server = session->controller()->server();
+        server->post(session->sessionId(),
+                     std::bind(&Impl::emitDone, shared_from_this()));
+      }
+    } else {
       emitDone();
+    }
   }
 
   void haveBodyData(std::string text)
   {
-    if (bodyDataReceived_.isConnected()) {
-      if (server_)
-	server_->post(sessionId_,
-		      std::bind(&Impl::emitBodyReceived, shared_from_this(),
-				  text));
-      else
-	emitBodyReceived(text);
+    if (postSignals_) {
+      auto session = session_.lock();
+      if (session) {
+        auto server = session->controller()->server();
+        server->post(session->sessionId(),
+                     std::bind(&Impl::emitBodyReceived, shared_from_this(), text));
+      }
+    } else {
+      emitBodyReceived(text);
     }
   }
 
   void emitDone()
   {
-    done_.emit(err_, response_);
+#ifdef WT_THREADED
+    std::lock_guard<std::mutex> lock(clientMutex_);
+#endif // WT_THREADED
+    if (client_) {
+      if (client_->followRedirect()) {
+        client_->handleRedirect(method_,
+                                err_,
+                                response_,
+                                request_);
+      } else {
+        client_->emitDone(err_, response_);
+      }
+    }
   }
 
   void emitHeadersReceived() {
-    headersReceived_.emit(response_);
+#ifdef WT_THREADED
+    std::lock_guard<std::mutex> lock(clientMutex_);
+#endif // WT_THREADED
+    if (client_) {
+      client_->emitHeadersReceived(response_);
+    }
   }
 
-  void emitBodyReceived(std::string text) {
-    bodyDataReceived_.emit(text);
+  void emitBodyReceived(const std::string& text) {
+#ifdef WT_THREADED
+    std::lock_guard<std::mutex> lock(clientMutex_);
+#endif // WT_THREADED
+    if (client_) {
+      client_->emitBodyReceived(text);
+    }
   }
 
 protected:
@@ -663,11 +710,16 @@ protected:
   tcp::resolver resolver_;
   asio::streambuf requestBuf_;
   asio::streambuf responseBuf_;
+  Http::Message request_;
+  Http::Method method_;
 
 private:
+#ifdef WT_THREADED
+  std::mutex clientMutex_;
+#endif // WT_THREADED
+  Client *client_;
+  std::weak_ptr<WebSession> session_;
   asio::steady_timer timer_;
-  WServer *server_;
-  std::string sessionId_;
   std::chrono::steady_clock::duration timeout_;
   std::size_t maximumResponseSize_, responseSize_;
   bool chunkedResponse_;
@@ -675,19 +727,17 @@ private:
   int contentLength_;
   AsioWrapper::error_code err_;
   Message response_;
-  Signal<AsioWrapper::error_code, Message> done_;
-  Signal<Message> headersReceived_;
-  Signal<std::string> bodyDataReceived_;
+  bool postSignals_;
   bool aborted_;
-  bool headersOnly_;
 };
 
 class Client::TcpImpl final : public Client::Impl
 {
 public:
-  TcpImpl(asio::io_service& ioService, WServer *server,
-	  const std::string& sessionId)
-    : Impl(ioService, server, sessionId),
+  TcpImpl(Client *client,
+          const std::shared_ptr<WebSession>& session,
+          asio::io_service& ioService)
+    : Impl(client, session, ioService),
       socket_(ioService_)
   { }
 
@@ -734,11 +784,13 @@ private:
 class Client::SslImpl final : public Client::Impl
 {
 public:
-  SslImpl(asio::io_service& ioService, bool verifyEnabled,
-	  WServer *server,
-	  asio::ssl::context& context, const std::string& sessionId,
+  SslImpl(Client *client,
+          const std::shared_ptr<WebSession>& session,
+          asio::io_service& ioService,
+          bool verifyEnabled,
+	  asio::ssl::context& context,
 	  const std::string& hostName)
-    : Impl(ioService, server, sessionId),
+    : Impl(client, session, ioService),
       socket_(ioService_, context),
       verifyEnabled_(verifyEnabled),
       hostName_(hostName)
@@ -830,6 +882,10 @@ Client::Client(asio::io_service& ioService)
 Client::~Client()
 {
   abort();
+  auto impl = impl_.lock();
+  if (impl) {
+    impl->removeClient();
+  }
 }
 
 void Client::setSslCertificateVerificationEnabled(bool enabled)
@@ -839,16 +895,9 @@ void Client::setSslCertificateVerificationEnabled(bool enabled)
 
 void Client::abort()
 {
-  std::shared_ptr<Impl> impl = impl_;
+  std::shared_ptr<Impl> impl = impl_.lock();
   if (impl) {
-    if (impl->hasServer()) {
-      // handling of redirect happens in the WApplication
-      impl->asyncStop(nullptr);
-      impl_.reset();
-    } else {
-      // handling of redirect happens in the strand of impl
-      impl->asyncStop(&impl_);
-    }
+    impl->asyncStop();
   }
 }
 
@@ -919,24 +968,26 @@ bool Client::patch(const std::string& url, const Message& message)
 bool Client::request(Http::Method method, const std::string& url,
 		     const Message& message)
 {
-  std::string sessionId;
-
   asio::io_service *ioService = ioService_;
-  WServer *server = nullptr;
 
   WApplication *app = WApplication::instance();
 
-  if(impl_.get()) {
+  auto impl = impl_.lock();
+  if (impl) {
     LOG_ERROR("another request is in progress");
     return false;
   }
 
+  WebSession *session = nullptr;
+
   if (app && !ioService) {
-    sessionId = app->sessionId();
-    server = app->environment().server();
+    // Use WServer's IO service, and post events to WApplication
+    session = app->session();
+    auto server = session->controller()->server();
     ioService = &server->ioService();
   } else if (!ioService) {
-    server = WServer::instance();
+    // Take IO service from server
+    auto server = WServer::instance();
 
     if (server)
       ioService = &server->ioService();
@@ -944,8 +995,6 @@ bool Client::request(Http::Method method, const std::string& url,
       LOG_ERROR("requires a WIOService for async I/O");
       return false;
     }
-
-    server = nullptr;
   }
 
   URL parsedUrl;
@@ -954,7 +1003,8 @@ bool Client::request(Http::Method method, const std::string& url,
     return false;
 
   if (parsedUrl.protocol == "http") {
-    impl_.reset(new TcpImpl(*ioService, server, sessionId));
+    impl = std::make_shared<TcpImpl>(this, session ? session->shared_from_this() : nullptr, *ioService);
+    impl_ = impl;
 
 #ifdef WT_WITH_SSL
   } else if (parsedUrl.protocol == "https") {
@@ -967,11 +1017,13 @@ bool Client::request(Http::Method method, const std::string& url,
 	context.add_verify_path(verifyPath_);
     }
 
-    impl_.reset(new SslImpl(*ioService, verifyEnabled_,
-			    server, 
-			    context, 
-			    sessionId, 
-			    parsedUrl.host));
+    impl = std::make_shared<SslImpl>(this,
+                                     session ? session->shared_from_this() : nullptr,
+                                     *ioService,
+                                     verifyEnabled_,
+                                     context,
+                                     parsedUrl.host);
+    impl_ = impl;
 #endif // WT_WITH_SSL
 
   } else {
@@ -979,34 +1031,16 @@ bool Client::request(Http::Method method, const std::string& url,
     return false;
   }
 
-  if (followRedirect()) {
-    impl_->done().connect(std::bind(&Client::handleRedirect,
-				    this, method, std::placeholders::_1,
-				    std::placeholders::_2, message));
-  } else {
-    impl_->done().connect(this, &Client::emitDone);
-  }
+  impl->setTimeout(timeout_);
+  impl->setMaximumResponseSize(maximumResponseSize_);
 
-  if (headersReceived_.isConnected())
-    impl_->headersReceived().connect(this, &Client::emitHeadersReceived);
-
-  if (bodyDataReceived_.isConnected())
-    impl_->bodyDataReceived().connect(this, &Client::emitBodyReceived);
-
-  impl_->setTimeout(timeout_);
-  impl_->setMaximumResponseSize(maximumResponseSize_);
-
-  const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD" };
-
-  LOG_DEBUG(methodNames_[static_cast<unsigned int>(method)] << " " << url);
-
-  impl_->request(methodNames_[static_cast<unsigned int>(method)], 
-		 parsedUrl.protocol,
-		 parsedUrl.auth,
-		 parsedUrl.host, 
-		 parsedUrl.port, 
-		 parsedUrl.path, 
-		 message);
+  impl->request(method,
+                parsedUrl.protocol,
+                parsedUrl.auth,
+                parsedUrl.host,
+                parsedUrl.port,
+                parsedUrl.path,
+                message);
 
   return true;
 }
@@ -1035,10 +1069,6 @@ void Client::handleRedirect(Http::Method method,
 			    AsioWrapper::error_code err,
 			    const Message& response, const Message& request)
 {
-  if (!impl_) {
-    emitDone(err, response);
-    return;
-  }
   impl_.reset();
   int status = response.status();
   if (!err && (((status == STATUS_MOVED_PERMANENTLY ||
