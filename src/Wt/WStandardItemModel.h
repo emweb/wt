@@ -420,6 +420,9 @@ protected:
   void beginRemoveRows(const WModelIndex& parent, int first, int last);
 #endif // DOXYGEN_ONLY
 
+  virtual void copyData(const WModelIndex& sIndex,
+                        const WModelIndex& dIndex) override;
+
 private:
   typedef std::map<ItemDataRole, cpp17::any> HeaderData;
   ItemDataRole sortRole_;

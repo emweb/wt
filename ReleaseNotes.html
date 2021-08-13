@@ -34,6 +34,10 @@ behaviour.
   <li>
     Since Google Maps v2 is no longer available as of May 26 2021, Wt no longer supports v2.
   </li>
+  <li>
+    <tt><a href="https://redmine.webtoolkit.eu/issues/8782" target="_blank">Issue #8782</a></tt>:
+    When using drag/drop in combination with Wt::WStandardItemModel, the item flags are now copied. Since this was not the case before, after dragging an item one time the Wt::ItemFlag::DragEnabled flag would be lost and the item would no longer be draggable.
+  </li>
 </ul>
 
 <h2>Release 4.6.2 (February 15, 2022)</h2>

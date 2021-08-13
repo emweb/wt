@@ -907,6 +907,14 @@ protected:
    */
   void endRemoveRows();
 
+  /*! \brief Copy data to an index in this model.
+   *
+   * The source index can be any valid index. The destination
+   * index must be part of this model.
+   */
+  virtual void copyData(const WModelIndex& sIndex,
+                        const WModelIndex& dIndex);
+
 private:
   int first_, last_;
   WModelIndex parent_;
@@ -924,11 +932,6 @@ private:
   Signal<> layoutAboutToBeChanged_;
   Signal<> layoutChanged_;
   Signal<> modelReset_;
-
-  static void copyData(const WAbstractItemModel *source,
-		       const WModelIndex& sIndex,
-		       WAbstractItemModel *destination,
-		       const WModelIndex& dIndex);
 
   friend class WAbstractProxyModel;
 };

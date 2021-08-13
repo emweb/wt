@@ -3,11 +3,12 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WEvent.h"
-#include "Wt/WModelIndex.h"
 #include "Wt/WAbstractItemModel.h"
+#include "Wt/WEvent.h"
+#include "Wt/WException.h"
 #include "Wt/WItemSelectionModel.h"
 #include "Wt/WLogger.h"
+#include "Wt/WModelIndex.h"
 
 #include "WebUtils.h"
 
@@ -233,16 +234,18 @@ std::vector<std::string> WAbstractItemModel::acceptDropMimeTypes() const
   return result;
 }
 
-void WAbstractItemModel::copyData(const WAbstractItemModel *source,
-				  const WModelIndex& sIndex,
-				  WAbstractItemModel *destination,
+void WAbstractItemModel::copyData(const WModelIndex& sIndex,
 				  const WModelIndex& dIndex)
 {
-  DataMap values = destination->itemData(dIndex);
+  if (dIndex.model() != this)
+    throw WException("WAbstractItemModel::copyData(): dIndex must be an index of this model");
+
+  DataMap values = itemData(dIndex);
   for (DataMap::const_iterator i = values.begin(); i != values.end(); ++i)
-    destination->setData(dIndex, cpp17::any(), i->first);
-  
-  destination->setItemData(dIndex, source->itemData(sIndex));
+    setData(dIndex, cpp17::any(), i->first);
+
+  auto source = sIndex.model();
+  setItemData(dIndex, source->itemData(sIndex));
 }
 
 void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
@@ -286,7 +289,7 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
 	  WModelIndex s = sourceModel->index(sourceIndex.row(), col,
 					     sourceParent);
 	  WModelIndex d = index(r, col, parent);
-	  copyData(sourceModel.get(), s, this, d);
+	  copyData(s, d);
 	}
 
 	++r;
@@ -346,7 +349,7 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
 	  WModelIndex s = sourceModel->index(sourceIndex.row(), col,
 					     sourceParent);
 	  WModelIndex d = index(r, col, parent);
-	  copyData(sourceModel.get(), s, this, d);
+	  copyData(s, d);
 	}
 
 	++r;

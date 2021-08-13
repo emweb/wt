@@ -4,10 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WEvent.h"
+#include "Wt/WException.h"
+#include "Wt/WItemSelectionModel.h"
 #include "Wt/WStandardItem.h"
 #include "Wt/WStandardItemModel.h"
-#include "Wt/WEvent.h"
-#include "Wt/WItemSelectionModel.h"
 
 #ifndef DOXYGEN_ONLY
 
@@ -319,6 +320,22 @@ void WStandardItemModel::beginRemoveRows(const WModelIndex& parent,
 
   removeHeaderData(rowHeaderData_, rowHeaderFlags_, itemFromIndex(parent),
 		   first, last - first + 1);
+}
+
+void WStandardItemModel::copyData(const WModelIndex& sIndex,
+                                  const WModelIndex& dIndex)
+{
+  if (dIndex.model() != this)
+    throw WException("WStandardItemModel::copyData(): dIndex must be an index of this model");
+
+  auto source = dynamic_cast<const WStandardItemModel*>(sIndex.model());
+  if (source != nullptr) {
+    auto *sItem = source->itemFromIndex(sIndex);
+    auto *dItem = itemFromIndex(dIndex);
+
+    dItem->setFlags(sItem->flags());
+  }
+  WAbstractItemModel::copyData(sIndex, dIndex);
 }
 
 void WStandardItemModel::insertHeaderData(std::vector<HeaderData>& headerData,
