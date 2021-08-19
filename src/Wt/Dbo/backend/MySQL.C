@@ -281,9 +281,11 @@ class MySQLStatement final : public SqlStatement
 
       std::time_t t = std::chrono::system_clock::to_time_t(value);
       std::tm *tm = thread_local_gmtime(&t);
+#ifdef WT_DEBUG_ENABLED
       char mbstr[100];
       std::strftime(mbstr, sizeof(mbstr), "%Y-%b-%d %H:%M:%S", tm);
       LOG_DEBUG(this << " bind " << column << " " << mbstr);
+#endif
 
       MYSQL_TIME*  ts = (MYSQL_TIME*)malloc(sizeof(MYSQL_TIME));
 
@@ -305,8 +307,8 @@ class MySQLStatement final : public SqlStatement
         ts->minute = tm->tm_min;
         ts->second = tm->tm_sec;
         if(conn_.getFractionalSecondsPart() > 0){
-            std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch());
-            ts->second_part = (unsigned long) ms.count()%1000;
+            std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(value.time_since_epoch());
+            ts->second_part = (unsigned long) (us.count()%1000000);
         } else
             ts->second_part = 0;
       }
@@ -730,11 +732,15 @@ class MySQLStatement final : public SqlStatement
 	tm.tm_sec = ts->second;
 	std::time_t t = timegm(&tm);
 	*value = std::chrono::system_clock::from_time_t(t);
-	*value += std::chrono::milliseconds(ts->second_part);
+        auto msecs = date::floor<std::chrono::milliseconds>(
+          std::chrono::microseconds(ts->second_part));
+	*value += msecs;
       }
 
+#ifdef WT_DEBUG_ENABLED
       std::time_t t = std::chrono::system_clock::to_time_t(*value);
       LOG_DEBUG(this << " result time " << column << " " << std::ctime(&t));
+#endif
 
       return true;
     }
