@@ -267,7 +267,10 @@ void WResource::setInternalPath(const std::string& path)
 
   bool wasExposed = app && app->removeExposedResource(this);
 
-  internalPath_ = path;
+  if (!path.empty() && path[0] != '/') {
+    LOG_WARN("setInternalPath(): adding '/' to start of internal path: " + path);
+  }
+  internalPath_ = Utils::prepend(path, '/');
   currentUrl_.clear();
 
   if (wasExposed)
