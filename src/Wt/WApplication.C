@@ -1706,10 +1706,10 @@ void WApplication::streamJavaScriptPreamble(WStringStream& out, bool all)
     if (preamble.type == JavaScriptFunction) {
       out << scope << '.' << (char *)preamble.name
 	  << " = function() { return ("
-	  << (char *)preamble.src << ").apply(" << scope << ", arguments) };";
+	  << (char *)preamble.src << ").apply(" << scope << ", arguments) };\n";
     } else {
       out << scope << '.' << (char *)preamble.name
-	  << " = " << (char *)preamble.src << '\n';
+	  << " = " << (char *)preamble.src << ";\n";
     }
   }
 
