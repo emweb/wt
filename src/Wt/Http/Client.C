@@ -1008,7 +1008,7 @@ bool Client::request(Http::Method method, const std::string& url,
 
 #ifdef WT_WITH_SSL
   } else if (parsedUrl.protocol == "https") {
-    asio::ssl::context context = Ssl::createSslContext(*ioService_, verifyEnabled_);
+    asio::ssl::context context = Ssl::createSslContext(*ioService, verifyEnabled_);
 
     if (!verifyFile_.empty() || !verifyPath_.empty()) {
       if (!verifyFile_.empty())
