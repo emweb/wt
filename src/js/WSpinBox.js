@@ -151,14 +151,19 @@ WT_DECLARE_WT_MEMBER
      maxValue = newMaxValue;
      stepValue = newStepValue;
 
-     var Validator = (isDoubleSpinBox ||
-              typeof WT.WIntValidator === 'undefined') ?
-       WT.WDoubleValidator : WT.WIntValidator;
-
-     validator = new Validator(true, minValue, maxValue,
-                   NaNError, NaNError,
-                   tooSmallError + minValue,
-                   tooLargeError + maxValue);
+     var useDoubleValidator = (isDoubleSpinBox ||
+                               typeof WT.WIntValidator === 'undefined');
+     if (useDoubleValidator) {
+       validator = new WT.WDoubleValidator(true, false, minValue, maxValue,
+                                           '.', '', NaNError, NaNError,
+                                           tooSmallError + minValue,
+                                           tooLargeError + maxValue);
+     } else {
+       validator = new WT.WIntValidator(true, minValue, maxValue, '',
+                                        NaNError, NaNError,
+                                        tooSmallError + minValue,
+                                        tooLargeError + maxValue);
+     }
    };
 
    this.mouseOut = function(o, event) {
