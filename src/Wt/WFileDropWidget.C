@@ -406,6 +406,7 @@ bool WFileDropWidget::remove(File *file)
 {
   for (unsigned i=0; i < currentFileIdx_ && i < uploads_.size(); i++) {
     if (uploads_[i] == file) {
+      delete uploads_[i];
       uploads_.erase(uploads_.begin()+i);
       currentFileIdx_--;
       return true;
