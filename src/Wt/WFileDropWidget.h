@@ -120,6 +120,10 @@ public:
    */
   WFileDropWidget();
 
+  /*! \brief Destructor
+   */
+  ~WFileDropWidget();
+
   /*! \brief Returns the vector of uploads managed by this widget.
    *
    * The files in this vector are handled sequentially by the widget. All 

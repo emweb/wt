@@ -199,6 +199,12 @@ WFileDropWidget::WFileDropWidget()
   setup();
 }
 
+WFileDropWidget::~WFileDropWidget()
+{
+  delete resource_;
+  for (File* upload : uploads_)
+    delete upload;
+}
 void WFileDropWidget::enableAjax()
 {
   setup();
