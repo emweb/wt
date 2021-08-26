@@ -199,6 +199,21 @@ WFileDropWidget::WFileDropWidget()
   setup();
 }
 
+/* Destructor must be defined in implementation file, otherwise it is generated
+ * inline and a client will get a compiler error because WFileDropUploadResource
+ * is an incomplete type.
+ */
+WFileDropWidget::~WFileDropWidget() = default;
+
+std::vector<WFileDropWidget::File*> WFileDropWidget::uploads() const
+{
+  std::vector<WFileDropWidget::File*> copy;
+  for (auto& upload : uploads_) {
+    copy.push_back(upload.get());
+  }
+  return copy;
+}
+
 void WFileDropWidget::enableAjax()
 {
   setup();
@@ -271,9 +286,9 @@ void WFileDropWidget::handleDrop(const std::string& newDrops)
 	throw std::exception();
     }
     
-    File *file = new File(id, name, type, size, chunkSize_);
-    drops.push_back(file);
-    uploads_.push_back(file);
+    auto file = std::make_unique<File>(id, name, type, size, chunkSize_);
+    drops.push_back(file.get());
+    uploads_.push_back(std::move(file));
   }
   dropEvent_.emit(drops);
   doJavaScript(jsRef() + ".markForSending(" + newDrops + ");");
@@ -291,19 +306,19 @@ void WFileDropWidget::handleSendRequest(int id)
     if (uploads_[i]->uploadId() == id) {
       fileFound = true;
       currentFileIdx_ = i;
-      delete resource_;
-      resource_ = new WFileDropUploadResource(this, uploads_[currentFileIdx_]);
+      auto currentFile = uploads_[currentFileIdx_].get();
+      resource_ = std::make_unique<WFileDropUploadResource>(this, currentFile);
       resource_->dataReceived().connect(this, &WFileDropWidget::onData);
       resource_->dataExceeded().connect(this, &WFileDropWidget::onDataExceeded);
       doJavaScript(jsRef() + ".send('" + resource_->url() + "', "
-		   + (uploads_[i]->filterEnabled() ? "true" : "false")
+		   + (currentFile->filterEnabled() ? "true" : "false")
 		   + ");");
-      uploadStart_.emit(uploads_[currentFileIdx_]);
+      uploadStart_.emit(currentFile);
       break;
     } else {
       // If a previous upload was not cancelled, it must have failed
       if (!uploads_[i]->cancelled())
-	uploadFailed_.emit(uploads_[i]);
+	uploadFailed_.emit(uploads_[i].get());
     }
   }
 
@@ -323,7 +338,7 @@ void WFileDropWidget::handleTooLarge(::uint64_t size)
     // to go out of bounds
     return;
   }
-  tooLarge_.emit(uploads_[currentFileIdx_], size);
+  tooLarge_.emit(uploads_[currentFileIdx_].get(), size);
   currentFileIdx_++;
 }
   
@@ -332,7 +347,7 @@ void WFileDropWidget::stopReceiving()
   if (currentFileIdx_ < uploads_.size()) {
     for (unsigned i=currentFileIdx_; i < uploads_.size(); i++)
       if (!uploads_[i]->cancelled())
-	uploadFailed_.emit(uploads_[i]);
+	uploadFailed_.emit(uploads_[i].get());
     // std::cerr << "ERROR: file upload was still listening, "
     // 	      << "cancelling expected uploads"
     // 	      << std::endl;
@@ -366,7 +381,7 @@ void WFileDropWidget::proceedToNextFile()
 void WFileDropWidget::emitUploaded(int id)
 {
   for (unsigned i=0; i < currentFileIdx_ && i < uploads_.size(); i++) {
-    File *f = uploads_[i];
+    auto f = uploads_[i].get();
     if (f->uploadId() == id) {
       f->uploaded().emit();
       uploaded().emit(f);
@@ -399,7 +414,7 @@ void WFileDropWidget::cancelUpload(File *file)
 bool WFileDropWidget::remove(File *file)
 {
   for (unsigned i=0; i < currentFileIdx_ && i < uploads_.size(); i++) {
-    if (uploads_[i] == file) {
+    if (uploads_[i].get() == file) {
       uploads_.erase(uploads_.begin()+i);
       currentFileIdx_--;
       return true;
@@ -416,7 +431,7 @@ void WFileDropWidget::onData(::uint64_t current, ::uint64_t total)
     // to go out of bounds
     return;
   }
-  File *file = uploads_[currentFileIdx_];
+  auto file = uploads_[currentFileIdx_].get();
   file->emitDataReceived(current, total, filterSupported_);
 
   WApplication::instance()->triggerUpdate();
@@ -430,7 +445,7 @@ void WFileDropWidget::onDataExceeded(::uint64_t dataExceeded)
     // to go out of bounds
     return;
   }
-  tooLarge_.emit(uploads_[currentFileIdx_], dataExceeded);
+  tooLarge_.emit(uploads_[currentFileIdx_].get(), dataExceeded);
 
   WApplication *app = WApplication::instance();
   app->triggerUpdate();

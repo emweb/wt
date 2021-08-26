@@ -56,6 +56,10 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/9035" target="_blank">Issue #9035</a>:
     The <code>&lt;head-matter&gt;</code> configuration option did not work with <code>&lt;script&gt;</code> elements without content (eg. when using the <code>src</code> attribute). The parser would always turn this into a self-closing tag, which is not allowed in HTML.
   </li>
+  <li>
+    <tt><a href="https://redmine.webtoolkit.eu/issues/9056" target="_blank">Issue #9056</a></tt>:
+    There were memory leaks in Wt::WFileDropWidget. This was fixed by changing the class to use smart pointers for memory management. As a side effect, the method Wt::WFileDropWidget::uploads() now returns a copy instead of a const reference to the internal vector.
+  </li>
 </ul>
 
 <h2>Release 4.6.3 (March 10, 2022)</h2>
