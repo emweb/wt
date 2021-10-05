@@ -7,7 +7,8 @@
 #include <Wt/WApplication.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WHBoxLayout.h>
-#include <Wt/WBootstrapTheme.h>
+#include <Wt/WBootstrap2Theme.h>
+#include <Wt/WBootstrap3Theme.h>
 #include <Wt/WNavigationBar.h>
 #include <Wt/WStackedWidget.h>
 
@@ -40,15 +41,14 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
     theme = *themePtr;
 
   if (theme == "bootstrap3") {
-    auto bootstrapTheme = std::make_shared<WBootstrapTheme>();
-    bootstrapTheme->setVersion(BootstrapVersion::v3);
+    auto bootstrapTheme = std::make_shared<WBootstrap3Theme>();
     bootstrapTheme->setResponsive(true);
     app->setTheme(bootstrapTheme);
 
     // load the default bootstrap3 (sub-)theme
     app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
   } else if (theme == "bootstrap2") {
-    auto bootstrapTheme = std::make_shared<WBootstrapTheme>();
+    auto bootstrapTheme = std::make_shared<WBootstrap2Theme>();
     bootstrapTheme->setResponsive(true);
     app->setTheme(bootstrapTheme);
   } else

@@ -1066,12 +1066,12 @@ body.Wt-rtl .Wt-sbspacer {
 }
 
 .Wt-treeview .Wt-ctrl.expand {
-  background: url(../nav-plus.gif) no-repeat 0 center;
+  background: url(nav-plus.gif) no-repeat 0 center;
 }
 
 .Wt-treeview .Wt-ctrl.collapse {
   display: block;
-  background: url(../nav-minus.gif) no-repeat 0 center;
+  background: url(nav-minus.gif) no-repeat 0 center;
 }
 
 .Wt-treeview .Wt-ctrl.noexpand {
@@ -1126,11 +1126,11 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl {
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.expand {
-  background-image: url(../nav-plus-rtl.gif);
+  background-image: url(nav-plus-rtl.gif);
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.collapse {
-  background-image: url(../nav-minus-rtl.gif);
+  background-image: url(nav-minus-rtl.gif);
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {

@@ -87,6 +87,8 @@ Wt/WApplication.h Wt/WApplication.C
 Wt/WAudio.h Wt/WAudio.C
 Wt/WBatchEditProxyModel.h Wt/WBatchEditProxyModel.C
 Wt/WBootstrapTheme.h Wt/WBootstrapTheme.C
+Wt/WBootstrap2Theme.h Wt/WBootstrap2Theme.C
+Wt/WBootstrap3Theme.h Wt/WBootstrap3Theme.C
 Wt/WBorder.h Wt/WBorder.C
 Wt/WBorderLayout.h Wt/WBorderLayout.C
 Wt/WBoxLayout.h Wt/WBoxLayout.C
