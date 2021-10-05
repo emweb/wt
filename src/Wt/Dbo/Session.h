@@ -11,6 +11,8 @@
 #include <set>
 #include <string>
 #include <typeinfo>
+#include <thread>
+#include <unordered_map>
 
 #include <Wt/Dbo/ptr.h>
 #include <Wt/Dbo/Field.h>
@@ -565,7 +567,7 @@ private:
   std::vector<MetaDboBase*> objectsToAdd_;
   std::unique_ptr<SqlConnection> connection_;
   SqlConnectionPool *connectionPool_;
-  Transaction::Impl *transaction_;
+  std::unordered_map<std::thread::id, Transaction::Impl*> transactions_;
   FlushMode flushMode_;
 
   void initSchema() const;
