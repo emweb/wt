@@ -188,6 +188,9 @@ void WBootstrap3Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
   case InPlaceEditing:
     child->addStyleClass("input-group");
     break;
+  case InPlaceEditingButtonsContainer:
+    child->addStyleClass("input-group-btn");
+    break;
   case NavCollapse:
     child->addStyleClass("navbar-collapse");
     break;

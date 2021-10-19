@@ -67,10 +67,11 @@ void WInPlaceEdit::create()
   edit_->escapePressed().connect(this, &WInPlaceEdit::cancel);
   edit_->escapePressed().preventPropagation();
 
-  editing_->addWidget
-    (std::unique_ptr<WWidget>(buttons_ = new WContainerWidget()));
+  WApplication *app = WApplication::instance();
+
+  buttons_ = editing_->addNew<WContainerWidget>();
   buttons_->setInline(true);
-  buttons_->addStyleClass("input-group-btn"); // FIXME !!!!
+  app->theme()->apply(this, buttons_, InPlaceEditingButtonsContainer);
 
   setButtonsEnabled();
 }

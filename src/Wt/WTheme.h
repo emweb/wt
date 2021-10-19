@@ -45,6 +45,7 @@ enum WidgetThemeRole {
   AuthWidgets = 600,
 
   InPlaceEditing = 700,
+  InPlaceEditingButtonsContainer = 701,
 
   Navbar = 800,
   NavCollapse = 801,
