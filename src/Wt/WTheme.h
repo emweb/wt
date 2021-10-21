@@ -73,6 +73,7 @@ enum UtilityCssClassRole {
  */
 enum ElementThemeRole {
   MainElement = 0,
+  ToggleButtonRole = 1,
   ProgressBarBar = 100,
   ProgressBarLabel = 101
 };

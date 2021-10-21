@@ -342,7 +342,7 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
 
   case DomElementType::LABEL:
     {
-      if (elementRole == 1) {
+      if (elementRole == ToggleButtonRole) {
         WCheckBox *cb = dynamic_cast<WCheckBox *>(widget);
         WRadioButton *rb = nullptr;
 
