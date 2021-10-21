@@ -1294,7 +1294,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       const char *InlineBlock = "inline-block";
       const char *Block = "block";
       const char *Flex = "flex";
-      const char *FlexInline = "flex-inline";
+      const char *InlineFlex = "inline-flex";
       const char *Empty = "";
       const char *display = nullptr;
 
@@ -1324,7 +1324,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       }
 
       if (flags_.test(BIT_FLEX_BOX))
-	display = flags_.test(BIT_INLINE) ? FlexInline : Flex;
+	display = flags_.test(BIT_INLINE) ? InlineFlex : Flex;
       else if (flags_.test(BIT_FLEX_BOX_CHANGED) && !display)
         display = Empty;
 
