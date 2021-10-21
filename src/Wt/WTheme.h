@@ -141,6 +141,15 @@ public:
    */
   virtual std::vector<WLinkedCssStyleSheet> styleSheets() const = 0;
 
+  /*! \brief Called when the theme is assigned to a WApplication
+   *
+   * This allows the theme to do things like load resource bundles when it
+   * is added to an application using WApplication::setTheme().
+   *
+   * The default implementation does nothing.
+   */
+  virtual void init(WApplication *app) const;
+
   /*! \brief Applies the theme to a child of a composite widget.
    *
    * The \p widgetRole indicates the role that \p child has within the

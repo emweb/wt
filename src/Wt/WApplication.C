@@ -609,6 +609,7 @@ void WApplication::setCssTheme(const std::string& theme)
 void WApplication::setTheme(const std::shared_ptr<WTheme>& theme)
 {
   theme_ = theme;
+  theme_->init(this);
 }
 
 void WApplication::useStyleSheet(const WLink& link, const std::string& media)

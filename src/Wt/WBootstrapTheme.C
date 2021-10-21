@@ -39,6 +39,11 @@ std::vector<WLinkedCssStyleSheet> WBootstrapTheme::styleSheets() const
   return impl_->styleSheets();
 }
 
+void WBootstrapTheme::init(WApplication *app) const
+{
+  impl_->init(app);
+}
+
 void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
   const
 {

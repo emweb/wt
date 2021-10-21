@@ -51,12 +51,7 @@ LOGGER("WBootstrap2Theme");
 
 WBootstrap2Theme::WBootstrap2Theme()
   : responsive_(false)
-{
-  WApplication *app = WApplication::instance();
-
-  if (app)
-    app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
-}
+{ }
 
 WBootstrap2Theme::~WBootstrap2Theme()
 { }
@@ -89,6 +84,11 @@ std::vector<WLinkedCssStyleSheet> WBootstrap2Theme::styleSheets() const
                    (WLink(themeDir + "wt.css")));
 
   return result;
+}
+
+void WBootstrap2Theme::init(WApplication *app) const
+{
+  app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
 }
 
 void WBootstrap2Theme::apply(WWidget *widget,

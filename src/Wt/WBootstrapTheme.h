@@ -127,6 +127,7 @@ public:
   virtual std::string name() const override;
   virtual std::string resourcesUrl() const override;
   virtual std::vector<WLinkedCssStyleSheet> styleSheets() const override;
+  virtual void init(WApplication *app) const override;
   virtual void apply(WWidget *widget, WWidget *child, int widgetRole)
     const override;
   virtual void apply(WWidget *widget, DomElement& element, int elementRole)

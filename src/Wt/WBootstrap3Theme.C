@@ -68,14 +68,7 @@ LOGGER("WBootstrap3Theme");
 WBootstrap3Theme::WBootstrap3Theme()
   : responsive_(false),
     formControlStyle_(true)
-{
-  WApplication *app = WApplication::instance();
-
-  if (app) {
-    app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
-    app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap3Theme_xml1);
-  }
-}
+{ }
 
 WBootstrap3Theme::~WBootstrap3Theme()
 { }
@@ -114,7 +107,13 @@ std::vector<WLinkedCssStyleSheet> WBootstrap3Theme::styleSheets() const
   return result;
 }
 
-void WBootstrap3Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
+void WBootstrap3Theme::init(WApplication *app) const
+{
+  app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap3Theme_xml1);
+}
+
+  void WBootstrap3Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
   const
 {
   if (!widget->isThemeStyleEnabled())
