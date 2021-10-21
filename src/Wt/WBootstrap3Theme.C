@@ -169,6 +169,15 @@ void WBootstrap3Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
     child->addStyleClass("Wt-datepicker");
     break;
 
+  case DatePickerIcon:
+    {
+      auto icon = dynamic_cast<WImage*>(child);
+      icon->setImageLink(WApplication::relativeResourcesUrl() + "date.gif");
+      icon->setVerticalAlignment(AlignmentFlag::Middle);
+      icon->resize(16, 16);
+      break;
+    }
+
   case TimePickerPopup:
     child->addStyleClass("Wt-timepicker");
     break;

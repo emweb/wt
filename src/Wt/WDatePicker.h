@@ -222,7 +222,6 @@ private:
   Signal<> popupClosed_, changed_;
   JSlot positionJS_;
 
-  void createDefault(WLineEdit *forEdit);
   void create(std::unique_ptr<WInteractWidget> displayWidget,
 	      WLineEdit *forEdit);
 

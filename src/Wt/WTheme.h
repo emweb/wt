@@ -35,6 +35,7 @@ enum WidgetThemeRole {
   TableViewRowContainer = 300,
 
   DatePickerPopup = 400,
+  DatePickerIcon = 401,
   TimePickerPopup = 410,
 
   PanelTitleBar = 500,
