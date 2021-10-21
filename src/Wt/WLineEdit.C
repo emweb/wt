@@ -177,7 +177,7 @@ void WLineEdit::getDomChanges(std::vector<DomElement *>& result,
     DomElement *e = DomElement::getForUpdate(this, domElementType());
     DomElement *d = createDomElement(app);
 
-    app->theme()->apply(selfWidget(), *d, 0);
+    app->theme()->apply(selfWidget(), *d, MainElement);
 
     e->replaceWith(d);
     result.push_back(e);

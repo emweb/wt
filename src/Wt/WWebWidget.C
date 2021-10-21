@@ -2098,7 +2098,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	setRendered(true);
 	self->render(RenderFlag::Full);
 	DomElement *realElement = createDomElement(app);
-	app->theme()->apply(self, *realElement, 0);
+	app->theme()->apply(self, *realElement, MainElement);
 	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
 	result.push_back(stub);
       }
