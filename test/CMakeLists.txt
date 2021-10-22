@@ -10,6 +10,7 @@ IF(ENABLE_LIBWTTEST)
     json/JsonParserTest.C
     json/JsonSerializerTest.C
     json/JsonValueTest.C
+    http/CookieTest.C
     http/HttpClientTest.C
     mail/MailClientTest.C
     matrix/MatrixTest.C

@@ -169,8 +169,15 @@ WebSession::WebSession(WebController *controller,
   if (controller_->configuration().sessionIdCookie()) {
     sessionIdCookie_ = WRandom::generateId();
     sessionIdCookieChanged_ = true;
-    renderer().setCookie("Wt" + sessionIdCookie_, "1", Wt::WDateTime(), "", "",
-                         env_->urlScheme() == "https");
+
+    Http::Cookie cookie("Wt" + sessionIdCookie_, "1");
+    cookie.setSecure(env_->urlScheme() == "https");
+#ifndef WT_TARGET_JAVA
+    cookie.setSameSite(Http::Cookie::SameSite::Strict);
+#else
+    cookie.setHttpOnly(true);
+#endif
+    renderer().setCookie(cookie);
   }
 }
 
@@ -3109,15 +3116,22 @@ void WebSession::generateNewSessionId()
   LOG_INFO("new session id for " << oldId);
 
   if (!useUrlRewriting()) {
-    std::string cookieName = env_->deploymentPath();
-    renderer().setCookie(cookieName, sessionId_, WDateTime(), "", "", env_->urlScheme() == "https");
+    Http::Cookie cookie(env_->deploymentPath(), sessionId_);
+    cookie.setSecure(env_->urlScheme() == "https");
+#ifndef WT_TARGET_JAVA
+    cookie.setSameSite(Http::Cookie::SameSite::Strict);
+#else
+    cookie.setHttpOnly(true);
+#endif
+    renderer().setCookie(cookie);
   }
 
   if (controller_->configuration().sessionIdCookie()) {
     sessionIdCookie_ = WRandom::generateId();
     sessionIdCookieChanged_ = true;
-    renderer().setCookie("Wt" + sessionIdCookie_, "1", WDateTime(), "", "",
-                         env_->urlScheme() == "https");
+    Http::Cookie cookie("Wt" + sessionIdCookie_, "1");
+    cookie.setSecure(env_->urlScheme() == "https");
+    renderer().setCookie(cookie);
   }
 
   if (controller_->server()->dedicatedSessionProcess()) {

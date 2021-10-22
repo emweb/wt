@@ -244,6 +244,10 @@ private:
 
 class WebResponse : public WebRequest
 {
+#ifdef WT_TARGET_JAVA
+public:
+  void addCookie(const Http::Cookie& cookie);
+#endif
 };
 
 }

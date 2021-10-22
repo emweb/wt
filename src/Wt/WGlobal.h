@@ -293,6 +293,7 @@ namespace Wt {
 
   namespace Http {
     class Client;
+    class Cookie;
     class Message;
     class Request;
     class Response;

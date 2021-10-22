@@ -226,6 +226,11 @@ void WTestEnvironment::setInternalPath(const std::string& internalPath)
   WEnvironment::setInternalPath(internalPath);
 }
 
+void WTestEnvironment::setDeploymentPath(const std::string& deployPath)
+{
+  publicDeploymentPath_ = deployPath;
+}
+
 #ifndef WT_TARGET_JAVA
 void WTestEnvironment::setAppRoot(const std::string &appRoot)
 {

@@ -9,6 +9,7 @@
 #include <map>
 
 #include "Wt/WApplication.h"
+#include "Wt/WDate.h"
 #include "Wt/WLinkedCssStyleSheet.h"
 #include "Wt/WLoadingIndicator.h"
 #include "Wt/WContainerWidget.h"
@@ -71,6 +72,30 @@ namespace {
   void closeSpecial(Wt::EscapeOStream& s) {
     s << ">\n";
   }
+
+#ifndef WT_TARGET_JAVA
+  std::string renderExpiresString(const Wt::WDateTime& expires) {
+    if (expires.isNull())
+      return "";
+
+    std::string formatString = "ddd, dd-MMM-yyyy hh:mm:ss 'GMT'";
+    return expires.toString(Wt::WString::fromUTF8(formatString), false).toUTF8();
+  }
+
+  std::string renderPath(const Wt::Http::Cookie& cookie)
+  {
+    if (!cookie.path().empty()) {
+      return cookie.path();
+    } else {
+      auto app = Wt::WApplication::instance();
+      if (app) {
+        return app->environment().deploymentPath();
+      } else {
+        return "";
+      }
+    }
+  }
+#endif // WT_TARGET_JAVA
 }
 
 namespace skeletons {
@@ -85,22 +110,6 @@ namespace skeletons {
 namespace Wt {
 
 LOGGER("WebRenderer");
-
-WebRenderer::CookieValue::CookieValue()
-  : secure(false)
-{ }
-
-WebRenderer::CookieValue::CookieValue(const std::string& v,
-                                      const std::string& p,
-                                      const std::string& d,
-                                      const WDateTime& e,
-                                      bool s)
-  : value(v),
-    path(p),
-    domain(d),
-    expires(e),
-    secure(s)
-{ }
 
 WebRenderer::WebRenderer(WebSession& session)
   : session_(session),
@@ -498,12 +507,22 @@ void WebRenderer::serveError(int status, WebResponse& response,
   }
 }
 
-void WebRenderer::setCookie(const std::string name, const std::string value,
-                            const WDateTime& expires,
-                            const std::string domain, const std::string path,
-                            bool secure)
+void WebRenderer::setCookie(const Http::Cookie& cookie)
 {
-  cookiesToSet_[name] = CookieValue(value, path, domain, expires, secure);
+  cookiesToSet_.push_back(cookie);
+  cookieUpdateNeeded_ = true;
+}
+
+void WebRenderer::removeCookie(const Http::Cookie& cookie)
+{
+  Http::Cookie tmp(cookie);
+  tmp.setValue("deleted");
+#ifndef WT_TARGET_JAVA
+  tmp.setMaxAge(std::chrono::seconds(0));
+#else
+  tmp.setMaxAge(0);
+#endif
+  cookiesToSet_.push_back(tmp);
   cookieUpdateNeeded_ = true;
 }
 
@@ -516,52 +535,15 @@ void WebRenderer::addNoCacheHeaders(WebResponse& response)
 
 void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 {
-  for (std::map<std::string, CookieValue>::const_iterator
-         i = cookiesToSet_.begin(); i != cookiesToSet_.end(); ++i) {
-    const CookieValue& cookie = i->second;
-
-    WStringStream header;
-
-    std::string value = cookie.value;
-    if (value.empty())
-      value = "deleted";
-
-    header << Utils::urlEncode(i->first) << '=' << Utils::urlEncode(value)
-           << "; Version=1;";
-
-    if (!cookie.expires.isNull()) {
+  for (const auto& cookie : cookiesToSet_) {
 #ifndef WT_TARGET_JAVA
-      std::string formatString = "ddd, dd-MMM-yyyy hh:mm:ss 'GMT'";
+    response.addHeader("Set-Cookie", renderCookieHttpHeader(cookie));
 #else
-      std::string formatString = "EEE, dd-MMM-yyyy HH:mm:ss 'GMT'";
+    response.addCookie(cookie);
 #endif
-
-      std::string d
-        = cookie.expires.toString
-        (WString::fromUTF8(formatString), false).toUTF8();
-
-      header << "Expires=" << d << ';';
-    }
-
-    if (!cookie.domain.empty())
-      header << " Domain=" << cookie.domain << ';';
-
-    if (cookie.path.empty())
-      if (!session_.env().publicDeploymentPath_.empty())
-        header << " Path=" << session_.env().publicDeploymentPath_ << ';';
-      else
-        header << " Path=" << session_.env().deploymentPath() << ';';
-    else
-      header << " Path=" << cookie.path << ';';
-
-    header << " httponly;";
-
-    if (cookie.secure)
-      header << " secure;";
-
-    response.addHeader("Set-Cookie", header.str());
   }
   cookiesToSet_.clear();
+
   cookieUpdateNeeded_ = false;
 
   response.setContentType(mimeType);
@@ -649,11 +631,14 @@ void WebRenderer::renderWsRequestsDone(WStringStream &out)
 void WebRenderer::updateMultiSessionCookie(const WebRequest &request)
 {
   Configuration &conf = session_.controller()->configuration();
-  setCookie("ms" + request.scriptName(),
-            session_.multiSessionId(),
-            WDateTime::currentDateTime().addSecs(conf.multiSessionCookieTimeout()),
-            "", "",
-            session_.env().urlScheme() == "https");
+  Http::Cookie cookie("ms" + request.scriptName(), session_.multiSessionId());
+#ifndef WT_TARGET_JAVA
+  cookie.setMaxAge(std::chrono::seconds(conf.multiSessionCookieTimeout()));
+#else
+  cookie.setMaxAge(conf.multiSessionCookieTimeout());
+#endif
+  cookie.setSecure(session_.env().urlScheme() == "https");
+  setCookie(cookie);
 }
 
 void WebRenderer::renderCookieUpdate(WStringStream &out)
@@ -1272,6 +1257,50 @@ void WebRenderer::setJSSynced(bool invisibleToo)
 
   invisibleJS_.clear();
 }
+
+#ifndef WT_TARGET_JAVA
+std::string WebRenderer::renderCookieHttpHeader(const Http::Cookie& cookie)
+{
+  Wt::WStringStream header;
+
+  header << Utils::urlEncode(cookie.name()) << '=' << Wt::Utils::urlEncode(cookie.value())
+         << "; Version=1;";
+
+  if (!cookie.expires().isNull())
+    header << " Expires=" << renderExpiresString(cookie.expires()) << ';';
+  auto maxAgeSeconds = static_cast<long long>(cookie.maxAge().count());
+  if (maxAgeSeconds >= 0)
+    header << " Max-Age=" << maxAgeSeconds << ';';
+
+  if (!cookie.domain().empty()) {
+    header << " Domain=" << cookie.domain() << ';';
+  }
+
+  auto path = renderPath(cookie);
+  if (!path.empty())
+    header << " Path=" << path << ';';
+
+  if (cookie.httpOnly())
+    header << " httponly;";
+
+  if (cookie.secure())
+    header << " secure;";
+
+  switch (cookie.sameSite()) {
+  case Http::Cookie::SameSite::None:
+    header << " SameSite=None;";
+    break;
+  case Http::Cookie::SameSite::Lax:
+    header << " SameSite=Lax;";
+    break;
+  case Http::Cookie::SameSite::Strict:
+    header << " SameSite=Strict;";
+    break;
+  }
+
+  return header.str();
+}
+#endif // WT_TARGET_JAVA
 
 std::string WebRenderer::safeJsStringLiteral(const std::string& value)
 {

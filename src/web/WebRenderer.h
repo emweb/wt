@@ -14,6 +14,7 @@
 #include "Wt/WDateTime.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WStatelessSlot.h"
+#include "Wt/Http/Cookie.h"
 
 namespace Wt {
 
@@ -69,9 +70,8 @@ public:
                   const std::string& message);
   void serveLinkedCss(WebResponse& request);
 
-  void setCookie(const std::string name, const std::string value,
-                 const WDateTime& expires, const std::string domain,
-                 const std::string path, bool secure);
+  void setCookie(const Http::Cookie& cookie);
+  void removeCookie(const Http::Cookie& cookie);
 
   bool preLearning() const { return learning_; }
   void learningIncomplete();
@@ -96,19 +96,11 @@ public:
 
   void setStatelessSlotNotStateless() { currentStatelessSlotIsActuallyStateless_ = false; }
 
+#ifndef WT_TARGET_JAVA
+  static std::string renderCookieHttpHeader(const Http::Cookie& cookie);
+#endif
+
 private:
-  struct CookieValue {
-    std::string value;
-    std::string path;
-    std::string domain;
-    WDateTime expires;
-    bool secure;
-
-    CookieValue();
-    CookieValue(const std::string& v, const std::string& p,
-                const std::string& d, const WDateTime& e, bool secure);
-  };
-
   WebSession& session_;
 
   bool visibleOnly_, rendered_, initialStyleRendered_;
@@ -119,7 +111,7 @@ private:
 
   bool currentStatelessSlotIsActuallyStateless_;
 
-  std::map<std::string, CookieValue> cookiesToSet_;
+  std::vector<Http::Cookie> cookiesToSet_;
 
   FormObjectsMap currentFormObjects_;
   std::string currentFormObjectsList_;

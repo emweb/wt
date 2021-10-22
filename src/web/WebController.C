@@ -762,11 +762,12 @@ void WebController::handleRequest(WebRequest *request)
         }
 
         if (sessionTracking == Configuration::CookiesURL)
-          request->addHeader("Set-Cookie",
-                             appSessionCookie(request->scriptName())
-                             + "=" + sessionId + "; Version=1;"
-                             + " Path=" + session->env().deploymentPath()
-                             + "; httponly;" + (session->env().urlScheme() == "https" ? " secure;" : ""));
+	  request->addHeader("Set-Cookie",
+			     appSessionCookie(request->scriptName())
+			     + "=" + sessionId + "; Version=1;"
+			     + " Path=" + session->env().deploymentPath()
+			     + "; httponly;" + (session->env().urlScheme() == "https" ? " secure;" : "")
+                             + " SameSite=Strict;");
 
         sessions_[sessionId] = session;
         ++plainHtmlSessions_;

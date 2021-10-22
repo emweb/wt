@@ -338,6 +338,7 @@ Wt/Json/Serializer.h Wt/Json/Serializer.C
 Wt/Json/Value.h Wt/Json/Value.C
 Wt/Http/HttpUtils.h Wt/Http/HttpUtils.C
 Wt/Http/Client.h Wt/Http/Client.C
+Wt/Http/Cookie.h Wt/Http/Cookie.C
 Wt/Http/Message.h Wt/Http/Message.C
 Wt/Http/Request.h Wt/Http/Request.C
 Wt/Http/Response.h Wt/Http/Response.C

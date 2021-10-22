@@ -33,6 +33,10 @@ behaviour.
     <code>ENABLE_EXT</code>, <code>WT_NO_STD_LOCALE</code> and <code>WT_NO_STD_WSTRING</code>
     were removed.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7814" target="_blank">Issue #7814</a>:
+    The <code>SameSite</code> attribute of the <code>Set-Cookie</code> HTTP header is now rendered by Wt. To avoid adding yet another parameter to the <code>WApplication::setCookie()</code> method, the class <a href="classWt_1_1Http_1_1Cookie.html">Http::Cookie</a> was introducted that allows configuring all cookie attributes using setters. Objects of this type can be passed to the new <a href="classWt_1_1WApplication.html#a5a76e2ae72a7ba5624c3dc12897728f5">setCookie()</a> and <a href="classWt_1_1WApplication.html#add89ecede3de74cb2338337ca730b2dc">removeCookie()</a> methods in <code>WApplication</code>.
+  </li>
 </ul>
 
 <h2>Release 4.9.2 (TBD)</h2>

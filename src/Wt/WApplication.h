@@ -56,6 +56,10 @@ class RootContainer;
 class UpdateLockImpl;
 class SoundManager;
 
+  namespace Http {
+    class Cookie;
+  }
+
 /*! \brief Typedef for a function that creates WApplication objects.
  *
  * \sa WRun()
@@ -1637,6 +1641,27 @@ public:
    *
    * Use cookies to transfer information across different sessions
    * (e.g. a user name). In a subsequent session you will be able to
+   * read this cookie using WEnvironment::getCookie().  You cannot use
+   * a cookie to store information in the current session.
+   *
+   * For more information on how to configure cookies, see the Http::Cookie
+   * class.
+   *
+   * \if cpp
+   * \note %Wt provides session tracking automatically, and may be configured
+   *       to use a cookie for this. You only need to use cookies yourself
+   *       if you want to remember some information (like a logged in identity)
+   *       <i>across sessions</i>.
+   * \endif
+   *
+   * \sa WEnvironment::supportsCookies(), WEnvironment::getCookie()
+   */
+  void setCookie(const Http::Cookie& cookie);
+
+  /*! \brief Sets a new cookie.
+   *
+   * Use cookies to transfer information across different sessions
+   * (e.g. a user name). In a subsequent session you will be able to
    * read this cookie using WEnvironment::getCookie(). You cannot use
    * a cookie to store information in the current session.
    *
@@ -1657,7 +1682,10 @@ public:
    * \endif
    *
    * \sa WEnvironment::supportsCookies(), WEnvironment::getCookie()
+   *
+   * \deprecated Use setCookie(const Http::Cookie&) instead.
    */
+  WT_DEPRECATED("Use setCookie(const Http::Cookie&) instead, the Http::Cookie class allows easier configuration of cookie attributes.")
   void setCookie(const std::string& name, const std::string& value,
                  int maxAge, const std::string& domain = "",
                  const std::string& path = "", bool secure = false);
@@ -1670,10 +1698,22 @@ public:
 
   /*! \brief Removes a cookie.
    *
-   * \sa setCookie()
+   * The cookie will be removed if it has the same name, domain and path as the original
+   * cookie (RFC-6265, section 5.3.11).
+   *
+   * \sa setCookie(const Http::Cookie&)
    */
+  void removeCookie(const Http::Cookie& cookie);
+
+  /*! \brief Removes a cookie.
+   *
+   * \sa setCookie()
+   *
+   * \deprecated Use removeCookie(const Http::Cookie&) instead.
+   */
+  WT_DEPRECATED("Use removeCookie(const Http::Cookie&) instead, the Http::Cookie class allows easier configuration of cookie attributes.")
   void removeCookie(const std::string& name, const std::string& domain = "",
-                    const std::string& path = "");
+		    const std::string& path = "");
 
   /*! \brief Adds an HTML meta link.
    *

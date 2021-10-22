@@ -210,14 +210,14 @@ _$_$endif_$_();
 
     _$_$if_COOKIE_CHECKS_$_();
     // client-side cookie support
-    const testcookie = "jscookietest=valid";
+    const testcookie = "jscookietest=valid;SameSite=Lax";
     doc.cookie = testcookie;
     no_replace = no_replace ||
       (_$_USE_COOKIES_$_ && doc.cookie.indexOf(testcookie) !== -1);
-    doc.cookie = testcookie + ";expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    doc.cookie = testcookie + ";expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Lax";
 
     // server-side cookie support
-    doc.cookie = "WtTestCookie=ok;path=/;expires=" + inOneSecond.toGMTString();
+    doc.cookie = "WtTestCookie=ok;path=/;expires=" + inOneSecond.toGMTString() + ";SameSite=Lax";
     _$_$endif_$_();
 
     // hash to query
@@ -319,7 +319,7 @@ _$_$endif_$_();
       if (!htmlHistory && canonicalUrl.length > 1) {
         _$_$if_HYBRID_$_();
         const pathcookie = "WtInternalPath=" + escape(_$_INTERNAL_PATH_$_) +
-          ";path=/;expires=" + inOneSecond.toGMTString();
+          ";path=/;expires=" + inOneSecond.toGMTString() + ";SameSite=Lax";
         doc.cookie = pathcookie;
         _$_$endif_$_();
         /* Otherwise we do not get a page reload */

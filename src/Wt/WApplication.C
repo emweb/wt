@@ -18,6 +18,7 @@
 #include "Wt/WMemoryResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WTimer.h"
+#include "Wt/Http/Cookie.h"
 
 #include "WebSession.h"
 #include "DomElement.h"
@@ -1117,9 +1118,17 @@ void WApplication::setCookie(const std::string& name,
                              const std::string& path,
                              bool secure)
 {
-  WDateTime expires = WDateTime::currentDateTime();
-  expires = expires.addSecs(maxAge);
-  session_->renderer().setCookie(name, value, expires, domain, path, secure);
+  Http::Cookie cookie(name, value);
+#ifndef WT_TARGET_JAVA
+  cookie.setMaxAge(std::chrono::seconds(maxAge));
+#else
+  cookie.setMaxAge(maxAge);
+#endif
+  cookie.setDomain(domain);
+  cookie.setPath(path);
+  cookie.setSecure(secure);
+
+  session_->renderer().setCookie(cookie);
 }
 
 #ifndef WT_TARGET_JAVA
@@ -1130,17 +1139,40 @@ void WApplication::setCookie(const std::string& name,
                              const std::string& path,
                              bool secure)
 {
-  session_->renderer().setCookie(name, value, expires, domain, path, secure);
+  Http::Cookie cookie(name, value, expires);
+  cookie.setDomain(domain);
+  cookie.setPath(path);
+  cookie.setSecure(secure);
+
+  session_->renderer().setCookie(cookie);
 }
 #endif // WT_TARGET_JAVA
+
+void WApplication::setCookie(const Http::Cookie& cookie)
+{
+#ifndef WT_TARGET_JAVA
+  if (cookie.sameSite() == Http::Cookie::SameSite::None &&
+      !cookie.secure()) {
+    LOG_WARN("WApplication::setCookie: using SameSite value None, but not secure (cookie name: " << cookie.name() << ")");
+  }
+#endif // WT_TARGET_JAVA
+  session_->renderer().setCookie(cookie);
+}
+
+void WApplication::removeCookie(const Http::Cookie& cookie)
+{
+  session_->renderer().removeCookie(cookie);
+}
 
 void WApplication::removeCookie(const std::string& name,
                                 const std::string& domain,
                                 const std::string& path)
 {
-  session_->renderer().setCookie(name, std::string(),
-                                 WDateTime(WDate(1970,1,1)),
-                                 domain, path, false);
+  Http::Cookie rmCookie(name);
+  rmCookie.setDomain(domain);
+  rmCookie.setPath(path);
+
+  session_->renderer().removeCookie(rmCookie);
 }
 
 void WApplication::addMetaLink(const std::string &href,

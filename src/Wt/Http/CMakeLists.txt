@@ -1,5 +1,6 @@
 INSTALL(FILES
   Client.h
+  Cookie.h
   Message.h
   Method.h
   Request.h

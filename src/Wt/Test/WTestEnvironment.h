@@ -249,6 +249,14 @@ public:
    */
   void setInternalPath(const std::string& internalPath);
 
+  /*! \brief Sets the deployment path.
+   *
+   * The default value is "".
+   *
+   * \sa deploymentPath()
+   */
+  void setDeploymentPath(const std::string& deployPath);
+
 #ifndef WT_TARGET_JAVA
   /*! \brief Sets the server's appRoot
    *
