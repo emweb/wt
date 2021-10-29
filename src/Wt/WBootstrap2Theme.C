@@ -169,7 +169,13 @@ void WBootstrap2Theme::apply(WWidget *widget,
   case NavBrand:
     child->addStyleClass("brand");
     break;
-  case NavbarSearch:
+  case NavbarForm:
+    child->addStyleClass("navbar-form");
+    break;
+  case NavbarSearchForm:
+    child->addStyleClass("navbar-search");
+    break;
+  case NavbarSearchInput:
     child->addStyleClass("search-query");
     break;
   case NavbarAlignLeft:

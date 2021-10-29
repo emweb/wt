@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WApplication.h"
+#include "Wt/WBootstrap5Theme.h"
 #include "Wt/WInPlaceEdit.h"
 #include "Wt/WCssDecorationStyle.h"
 #include "Wt/WContainerWidget.h"
@@ -12,6 +13,8 @@
 #include "Wt/WText.h"
 #include "Wt/WTheme.h"
 #include "Wt/WLineEdit.h"
+
+#include <memory>
 
 namespace Wt {
 
@@ -67,11 +70,16 @@ void WInPlaceEdit::create()
   edit_->escapePressed().connect(this, &WInPlaceEdit::cancel);
   edit_->escapePressed().preventPropagation();
 
-  WApplication *app = WApplication::instance();
+  auto app = WApplication::instance();
+  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
 
-  buttons_ = editing_->addNew<WContainerWidget>();
-  buttons_->setInline(true);
-  app->theme()->apply(this, buttons_, InPlaceEditingButtonsContainer);
+  if (!bs5Theme) {
+    editing_->addWidget
+      (std::unique_ptr<WWidget>(buttons_ = new WContainerWidget()));
+    buttons_->setInline(true);
+
+    app->theme()->apply(this, buttons_, InPlaceEditingButtonsContainer);
+  }
 
   setButtonsEnabled();
 }
@@ -136,12 +144,25 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
   if (enabled && !save_) {
     c2_.disconnect();
 
-    buttons_->addWidget
-      (std::unique_ptr<WWidget>
+    auto app = WApplication::instance();
+    auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+
+    if (!bs5Theme) {
+      buttons_->addWidget
+        (std::unique_ptr<WWidget>
+         (save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"))));
+      buttons_->addWidget
+        (std::unique_ptr<WWidget>
+         (cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"))));
+    } else {
+      editing_->addWidget (std::unique_ptr<WWidget>
        (save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"))));
-    buttons_->addWidget
-      (std::unique_ptr<WWidget>
+      editing_->addWidget (std::unique_ptr<WWidget>
        (cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"))));
+    }
+
+    app->theme()->apply(this, save_, InPlaceEditingButton);
+    app->theme()->apply(this, cancel_, InPlaceEditingButton);
 
     save_->clicked().connect(edit_, &WFormWidget::disable);
     save_->clicked().connect(save_, &WFormWidget::disable);

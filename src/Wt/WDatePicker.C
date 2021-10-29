@@ -44,7 +44,9 @@ WDatePicker::~WDatePicker()
 void WDatePicker::create(std::unique_ptr<WInteractWidget> displayWidget,
 			 WLineEdit *forEdit)
 {
-  layout_ = setNewImplementation<WContainerWidget>();
+  auto layout = std::make_unique<WContainerWidget>();
+  layout_ = layout.get();
+  setImplementation(std::move(layout));
 
   if (!forEdit) {
     forEdit = layout_->addNew<Wt::WLineEdit>();

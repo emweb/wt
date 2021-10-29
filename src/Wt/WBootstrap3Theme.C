@@ -205,8 +205,11 @@ void WBootstrap3Theme::init(WApplication *app) const
   case NavBrand:
     child->addStyleClass("navbar-brand");
     break;
-  case NavbarSearch:
-    child->addStyleClass("navbar-search");
+  case NavbarForm:
+    child->addStyleClass("navbar-form");
+    break;
+  case NavbarSearchForm:
+    child->addStyleClass("navbar-form");
     break;
   case NavbarAlignLeft:
     child->addStyleClass("navbar-left");
@@ -459,6 +462,18 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
       }
     }
     break;
+
+    case DomElementType::FORM:
+    {
+      // WWebWidget will grab the style class from the DOM element and apply it to the widget.
+      // If we're using progressive bootstrap that means the form-control class previously applied to
+      // the input gets applied to the form when enableAjax() is called. To counteract what I think
+      // is mostly a hack in WWebWidget, we sadly have to add this hack.
+      if (elementRole == FileUploadForm) {
+        widget->removeStyleClass("form-control");
+      }
+    }
+
   default:
     break;
   }

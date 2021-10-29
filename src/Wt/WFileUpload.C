@@ -5,12 +5,14 @@
  */
 #include "Wt/WFileUpload.h"
 #include "Wt/WApplication.h"
+#include "Wt/WBootstrap5Theme.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WLogger.h"
 #include "Wt/WProgressBar.h"
 #include "Wt/WResource.h"
 #include "Wt/Http/Request.h"
 #include "Wt/Http/Response.h"
+#include "Wt/WTheme.h"
 
 #include "DomElement.h"
 #include "WebSession.h"
@@ -20,6 +22,8 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
+
+#include <memory>
 
 namespace Wt {
 
@@ -143,7 +147,15 @@ WFileUpload::WFileUpload()
     displayWidgetRedirect_(this),
     progressBar_(0)
 {
-  setInline(true);
+  auto app = Wt::WApplication::instance();
+  if (app) {
+    auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+    if (bs5Theme) {
+      WWebWidget::setInline(false);
+    } else {
+      WWebWidget::setInline(true);
+    }
+  }
   create();
 }
 
@@ -464,10 +476,13 @@ void WFileUpload::getDomChanges(std::vector<DomElement *>& result,
 DomElement *WFileUpload::createDomElement(WApplication *app)
 {
   DomElement *result = DomElement::createNew(domElementType());
-  if (result->type() == DomElementType::FORM)
+  if (result->type() == DomElementType::FORM) {
     result->setId(id());
-  else
+    app->theme()->apply(this, *result, FileUploadForm);
+  } else {
     result->setName(id());
+    app->theme()->apply(this, *result, FileUploadInput);
+  }
 
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
 
@@ -491,7 +506,6 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     form->setAttribute("method", "post");
     form->setAttribute("action", fileUploadTarget_->url());
     form->setAttribute("enctype", "multipart/form-data");
-    form->setProperty(Property::Style, "margin:0;padding:0;display:inline");
     form->setProperty(Property::Target, "if" + id());
 
     /*
@@ -504,6 +518,7 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     form->addChild(d);
 
     DomElement *input = DomElement::createNew(DomElementType::INPUT);
+    app->theme()->apply(this, *input, FileUploadInput);
     input->setAttribute("type", "file");
     if (flags_.test(BIT_MULTIPLE))
       input->setAttribute("multiple", "multiple");

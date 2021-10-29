@@ -11,9 +11,12 @@
 #include "Wt/WPainter.h"
 #include "Wt/WSlider.h"
 #include "Wt/WStringStream.h"
+#include "Wt/WBootstrap5Theme.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
+
+#include <memory>
 
 /*
  * FIXME: move styling to the theme classes
@@ -23,6 +26,8 @@ namespace Wt {
 const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks = None;
 const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
   = WSlider::TickPosition::TicksAbove | WSlider::TickPosition::TicksBelow;
+  
+const char *WSlider::INPUT_SIGNAL = "input";
 
 class PaintedSlider final : public WPaintedWidget
 {
@@ -44,7 +49,7 @@ private:
   WSlider *slider_;
 
   JSignal<int> sliderReleased_;
-  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_, handleClickedJS_;
+  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
 
   std::unique_ptr<WInteractWidget> handle_, fill_;
 
@@ -129,6 +134,9 @@ PaintedSlider::PaintedSlider(WSlider *slider)
 
   handle_->setPositionScheme(PositionScheme::Absolute);
   handle_->setStyleClass("handle");
+  
+  handle_->setCanReceiveFocus(true);
+  slider_->setCanReceiveFocus(true);
 
   connectSlots();
 }
@@ -142,7 +150,6 @@ void PaintedSlider::connectSlots()
     handle_->touchMoved().connect(mouseMovedJS_);
     handle_->mouseWentUp().connect(mouseUpJS_);
     handle_->touchEnded().connect(mouseUpJS_);
-    handle_->clicked().connect(handleClickedJS_);
 
     slider_->clicked().connect(this, &PaintedSlider::onSliderClick);
 
@@ -209,8 +216,7 @@ void PaintedSlider::updateState()
   WStringStream mouseDownJS;
   mouseDownJS << "obj.setAttribute('down', " WT_CLASS
 	      <<                     ".widgetCoordinates(obj, event)." << u
-	      <<                  ");"
-	      << WT_CLASS ".cancelEvent(event);";
+	      <<                  ");";
 
   WStringStream computeD; // = 'u' position relative to background, corrected for slider
   computeD << "var objh = " << handle_->jsRef() << ","
@@ -289,9 +295,6 @@ void PaintedSlider::updateState()
   mouseUpJS_.setJavaScript(std::string("function(obj, event) {") 
 			   + (enabled ? mouseUpJS.str() : "") 
 			   + "}");
-  handleClickedJS_.setJavaScript(std::string("function(obj, event) {")
-			     + WT_CLASS + ".cancelEvent(event,"
-			     + WT_CLASS + ".CancelPropagate); }");
 
   update();
   updateSliderPosition();
@@ -386,6 +389,7 @@ void PaintedSlider::updateSliderPosition()
     handle_->setOffsets(h() - slider_->handleWidth() - u, Side::Top);
     fill_->setHeight(u + slider_->handleWidth() / 2);
   }
+  handle_->setFocus(true);
 }
 
 WSlider::WSlider()
@@ -400,7 +404,7 @@ WSlider::WSlider()
     maximum_(99),
     value_(0),
     sliderMoved_(this, "moved", true)
-{ 
+{
   resize(150, 50);
 }
 
@@ -416,7 +420,7 @@ WSlider::WSlider(Orientation orientation)
     maximum_(99),
     value_(0),
     sliderMoved_(this, "moved", true)
-{ 
+{
   if (orientation == Orientation::Horizontal)
     resize(150, 50);
   else
@@ -426,6 +430,11 @@ WSlider::WSlider(Orientation orientation)
 WSlider::~WSlider()
 {
   manageWidget(paintedSlider_, std::unique_ptr<PaintedSlider>());
+}
+
+EventSignal<>& WSlider::input()
+{
+  return *voidEventSignal(INPUT_SIGNAL, true);
 }
 
 void WSlider::enableAjax()
@@ -451,7 +460,10 @@ bool WSlider::nativeControl() const
 	    static_cast<unsigned int>(UserAgent::Safari4))
 	|| (env.agentIsOpera() && 
 	    static_cast<unsigned int>(env.agent()) >=
-	    static_cast<unsigned int>(UserAgent::Opera10)))
+      static_cast<unsigned int>(UserAgent::Opera10))
+  || (env.agentIsGecko() &&
+      static_cast<unsigned int>(env.agent()) >=
+      static_cast<unsigned int>(UserAgent::Firefox5_0)))
       return true;
   }
 
@@ -460,7 +472,18 @@ bool WSlider::nativeControl() const
 
 void WSlider::resize(const WLength& width, const WLength& height)
 {
-  WFormWidget::resize(width, height);
+  // Quick transform rotate fix
+  if (orientation() == Orientation::Vertical) {
+    auto app = WApplication::instance();
+    auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+    if (bs5Theme) {
+      WLength w = width, h = height;
+      WLength size = WLength(std::max(w.toPixels(), h.toPixels()));
+      WFormWidget::resize(size, size);
+    }
+  } else {
+    WFormWidget::resize(width, height);
+  }
 
   if (paintedSlider_)
     paintedSlider_->sliderResized(width, height);
@@ -552,8 +575,10 @@ void WSlider::setValue(int value)
 
   if (paintedSlider_)
     paintedSlider_->updateSliderPosition();
-  else
+  else {
     update();
+    onChange();
+  }
 }
 
 void WSlider::signalConnectionsChanged()
@@ -586,11 +611,9 @@ void WSlider::render(WFlags<RenderFlag> flags)
     if (!useNative) {
       if (!paintedSlider_) {
         auto paintedSlider = std::make_unique<PaintedSlider>(this);
-	manageWidget(paintedSlider_, std::move(paintedSlider));
-	paintedSlider_->sliderResized(width(), height());
+        manageWidget(paintedSlider_, std::move(paintedSlider));
+        paintedSlider_->sliderResized(width(), height());
       }
-    } else {
-      manageWidget(paintedSlider_, std::unique_ptr<PaintedSlider>());
     }
 
     setLayoutSizeAware(!useNative);
@@ -614,7 +637,10 @@ void WSlider::updateDom(DomElement& element, bool all)
       if (!changedConnected_
 	  && (valueChanged_.isConnected() || sliderMoved_.isConnected())) {
 	changedConnected_ = true;
-	changed().connect(this, &WSlider::onChange);
+        changed().connect(this, &WSlider::onChange);
+      } else if (!inputConnected_ && (valueChanged_.isConnected() || sliderMoved_.isConnected())) {
+	changedConnected_ = true;
+	input().connect(this, &WSlider::onChange);
       }
 
       changed_ = false;

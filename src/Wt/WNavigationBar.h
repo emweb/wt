@@ -21,6 +21,12 @@ class WTable;
  *  \brief A navigation bar
  *
  * \note WNavigationBar is currently only styled in the Bootstrap themes.
+ *
+ * \note When using WBootstrap5Theme, no color schemes are applied by default.
+ * You will have to add a "bg-" style class, and "navbar-light" or "navbar-dark"
+ * yourself. See the
+ * [Bootstrap documentation on navbar color schemes](https://getbootstrap.com/docs/5.1/components/navbar/#color-schemes)
+ * for more info.
  */
 class WT_API WNavigationBar : public WTemplate
 {
@@ -40,6 +46,11 @@ public:
    * For screens that are less wide, the navigation bar can be
    * rendered different (more compact and allowing for vertical menu
    * layouts).
+   *
+   * \note When using WBootstrap5Theme the navigation bar is responsive by
+   * default. Setting this to false has no effect. You can change the collapsing behavior
+   * by setting one of the ".navbar-expand-" style classes, see the
+   * [Bootstrap documentation on navbars](https://getbootstrap.com/docs/5.1/components/navbar/) for more info.
    */
   void setResponsive(bool responsive);
 
@@ -51,6 +62,8 @@ public:
    *
    * The menu may be aligned to the left or to the right of the
    * navigation bar.
+   *
+   * \note WBootstrap5Theme ignores alignment. Use classes like "me-auto" and "ms-auto" for alignment instead.
    */
   WMenu *addMenu(std::unique_ptr<WMenu> menu,
                AlignmentFlag alignment = AlignmentFlag::Left);
@@ -59,6 +72,8 @@ public:
    *
    * In some cases, one may want to add a few form fields to the navigation
    * bar (e.g. for a compact login option).
+   *
+   * \note WBootstrap5Theme ignores alignment. Use classes like "me-auto" and "ms-auto" for alignment instead.
    */
   void addFormField(std::unique_ptr<WWidget> widget,
 		    AlignmentFlag alignment = AlignmentFlag::Left);
@@ -68,6 +83,8 @@ public:
    * This is not so different from addFormField(), except that the
    * form field may be styled differently to indicate a search
    * function.
+   *
+   * \note WBootstrap5Theme ignores alignment. Use classes like "me-auto" and "ms-auto" for alignment instead.
    */
   void addSearch(std::unique_ptr<WLineEdit> field,
 		 AlignmentFlag alignment = AlignmentFlag::Left);
@@ -76,6 +93,8 @@ public:
    *
    * Any other widget may be added to the navigation bar, although they may
    * require special CSS style to blend well with the navigation bar style.
+   *
+   * \note WBootstrap5Theme ignores alignment. Use classes like "me-auto" and "ms-auto" for alignment instead.
    */
   void addWidget(std::unique_ptr<WWidget> widget,
 		 AlignmentFlag alignment = AlignmentFlag::Left);
@@ -107,14 +126,12 @@ protected:
   std::unique_ptr<WInteractWidget> createExpandButton();
 
 private:
+  void toggleContents();
   void expandContents();
   void collapseContents();
   void undoExpandContents();
 
-  void addWrapped(std::unique_ptr<WWidget> widget, AlignmentFlag alignment,
-		  const char *wrapClass);
-  void addWrapped(std::unique_ptr<WWidget> widget, WWidget* parent, int role,
-                  AlignmentFlag alignment);
+  void addWrapped(std::unique_ptr<WWidget> widget, AlignmentFlag alignment, int role);
   void align(WWidget *widget, AlignmentFlag alignment);
 
   bool animatedResponsive() const;

@@ -37,9 +37,16 @@ WT_DECLARE_WT_MEMBER
 
      var $edit = $(edit);
 
+     var validClass = 'Wt-valid';
+     var invalidClass = 'Wt-invalid';
+     var theme = this.theme;
+     if (typeof theme === 'object') {
+       validClass = theme.classes.valid;
+       invalidClass = theme.classes.invalid;
+     }
      $edit
-       .toggleClass("Wt-valid", validStyle)
-       .toggleClass("Wt-invalid", invalidStyle);
+       .toggleClass(validClass, validStyle)
+       .toggleClass(invalidClass, invalidStyle);
 
      var controlGroup;
      var success;

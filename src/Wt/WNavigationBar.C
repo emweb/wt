@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WApplication.h"
+#include "Wt/WBootstrap5Theme.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WLineEdit.h"
 #include "Wt/WLogger.h"
@@ -14,6 +15,7 @@
 #include "Wt/WTheme.h"
 
 #include <exception>
+#include <memory>
 
 namespace Wt {
 
@@ -60,6 +62,12 @@ WNavigationBar::WNavigationBar()
 
   implementStateless(&WNavigationBar::expandContents,
                      &WNavigationBar::undoExpandContents);
+
+  auto app = WApplication::instance();
+  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+  if (bs5Theme) {
+    setResponsive(true);
+  }
 }
 
 void WNavigationBar::setTitle(const WString& title, const WLink& link)
@@ -68,7 +76,8 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
 
   if (!titleLink) {
     titleLink = bindWidget("title-link", std::make_unique<WAnchor>());
-    wApp->theme()->apply(this, titleLink, NavBrand);
+    auto app = WApplication::instance();
+    app->theme()->apply(this, titleLink, NavBrand);
   }
 
   titleLink->setText(title);
@@ -79,7 +88,34 @@ void WNavigationBar::setResponsive(bool responsive)
 {
   NavContainer *contents = resolve<NavContainer *>("contents");
 
-  if (responsive) {
+  auto app = WApplication::instance();
+  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+  if (bs5Theme) {
+    // We ignore responsive set to false, since we don't support that with Bootstrap 5,
+    // and we only want to do the changes below once
+    if (!responsive || resolve<WInteractWidget*>("collapse-button")) {
+      return;
+    }
+  }
+
+  if (bs5Theme) {
+    auto collapseButtonPtr = createCollapseButton();
+    auto collapseButton = collapseButtonPtr.get();
+    bindWidget("collapse-button", std::move(collapseButtonPtr));
+
+    collapseButton->clicked().connect(
+      "function(o){"
+      "" "let navbarCollapse = o.parentElement.querySelector('.navbar-collapse');"
+      "" "if (typeof navbarCollapse === 'null') return;"
+      "" "new bootstrap.Collapse(navbarCollapse);"
+      "}");
+
+    if (!app->environment().ajax()) {
+      collapseButton->clicked().connect(this, &WNavigationBar::toggleContents);
+    }
+
+    wApp->theme()->apply(this, contents, NavCollapse);
+  } else if (responsive) {
     WInteractWidget *collapseButton
       = resolve<WInteractWidget *>("collapse-button");
     WInteractWidget *expandButton
@@ -124,7 +160,8 @@ WMenu *WNavigationBar::addMenu(std::unique_ptr<WMenu> menu,
 {
   WMenu *m = menu.get();
   addWidget(std::move(menu), alignment);
-  wApp->theme()->apply(this, m, NavbarMenu);
+  auto app = WApplication::instance();
+  app->theme()->apply(this, m, NavbarMenu);
   return m;
 }
 
@@ -139,35 +176,23 @@ void WNavigationBar::addWidget(std::unique_ptr<WWidget> widget,
 {
   if (dynamic_cast<WMenu *>(widget.get())) {
     align(widget.get(), alignment);
-    WContainerWidget *contents = resolve<WContainerWidget *>("contents");
+    auto contents = resolve<WContainerWidget *>("contents");
     contents->addWidget(std::move(widget));
     contents->setLoadLaterWhenInvisible(false);
-  } else
-    addWrapped(std::move(widget), alignment, "navbar-form");
+  } else {
+    addWrapped(std::move(widget), alignment, NavbarForm);
+  }
 }
 
 void WNavigationBar::addWrapped(std::unique_ptr<WWidget> widget,
 				AlignmentFlag alignment,
-				const char *wrapClass)
+				int role)
 {
-  WContainerWidget *contents = resolve<WContainerWidget *>("contents");
+  auto contents = resolve<WContainerWidget *>("contents");
+  auto wrap = contents->addNew<WContainerWidget>();
 
-  WContainerWidget *wrap
-    = contents->addWidget(std::make_unique<WContainerWidget>());
-  wrap->setStyleClass(wrapClass);
-  align(wrap, alignment);
-  wrap->addWidget(std::move(widget));
-}
-
-void WNavigationBar::addWrapped(std::unique_ptr<WWidget> widget,
-				WWidget* parent, int role,
-				AlignmentFlag alignment)
-{
-  WContainerWidget *contents = resolve<WContainerWidget *>("contents");
-
-  WContainerWidget *wrap
-    = contents->addWidget(std::make_unique<WContainerWidget>());
-  wApp->theme()->apply(widget.get(), parent, role);
+  auto app = WApplication::instance();
+  app->theme()->apply(this, wrap, role);
   align(wrap, alignment);
   wrap->addWidget(std::move(widget));
 }
@@ -175,22 +200,44 @@ void WNavigationBar::addWrapped(std::unique_ptr<WWidget> widget,
 void WNavigationBar::addSearch(std::unique_ptr<WLineEdit> field,
                                AlignmentFlag alignment)
 {
-  wApp->theme()->apply(this, field.get(), NavbarSearch);
-  addWrapped(std::move(field), alignment, "navbar-form");
+  auto app = WApplication::instance();
+  app->theme()->apply(this, field.get(), NavbarSearchInput);
+  addWrapped(std::move(field), alignment, NavbarSearchForm);
 }
 
 void WNavigationBar::align(WWidget *widget, AlignmentFlag alignment)
 {
+  auto app = WApplication::instance();
   switch (alignment) {
   case AlignmentFlag::Left:
-    wApp->theme()->apply(this, widget, NavbarAlignLeft);
+    app->theme()->apply(this, widget, NavbarAlignLeft);
     break;
   case AlignmentFlag::Right:
-    wApp->theme()->apply(this, widget, NavbarAlignRight);
+    app->theme()->apply(this, widget, NavbarAlignRight);
     break;
   default:
     LOG_ERROR("addWidget(...): unsupported alignment "
               << static_cast<unsigned int>(alignment));
+  }
+}
+
+void WNavigationBar::toggleContents()
+{
+  auto app = Wt::WApplication::instance();
+  if (app->environment().ajax()) {
+    // We don't need to do these updates server side if we have JS support
+    return;
+  }
+
+  auto contents = resolve<WContainerWidget *>("contents");
+  auto collapseButton = resolve<WInteractWidget*>("collapse-button");
+
+  if (contents->hasStyleClass("show")) {
+    contents->removeStyleClass("show");
+    collapseButton->addStyleClass("collapsed");
+  } else {
+    contents->addStyleClass("show");
+    collapseButton->removeStyleClass("collapsed");
   }
 }
 
@@ -263,11 +310,11 @@ void WNavigationBar::undoExpandContents()
 
 std::unique_ptr<WInteractWidget> WNavigationBar::createExpandButton()
 {
-  std::unique_ptr<WPushButton> result
-    (new WPushButton(tr("Wt.WNavigationBar.expand-button")));
-  result->setTextFormat(TextFormat::XHTML);
-  wApp->theme()->apply(this, result.get(), NavbarBtn);
-  return std::move(result);
+   std::unique_ptr<WPushButton> result(new WPushButton(tr("Wt.WNavigationBar.expand-button")));
+   result->setTextFormat(TextFormat::XHTML);
+   auto app = Wt::WApplication::instance();
+   app->theme()->apply(this, result.get(), NavbarBtn);
+   return result;
 }
 
 std::unique_ptr<WInteractWidget> WNavigationBar::createCollapseButton()

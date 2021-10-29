@@ -240,6 +240,13 @@ public:
    * \sa setHandleWidth()
    */
   int handleWidth() const { return handleWidth_; }
+  
+  /*! \brief %Signal emitted when input was captured.
+   *
+   * The signal is only emitted when keyboard input (arrow keys)
+   * are captured.
+   */
+  EventSignal<>& input();
 
   virtual void setDisabled(bool disabled) override;
   virtual void resize(const WLength& width, const WLength& height) override;
@@ -248,6 +255,8 @@ public:
   virtual void enableAjax() override;
 
 protected:
+  static const char *INPUT_SIGNAL;
+  
   /*! \brief Paints a slider ticks (for a non-native widget)
    *
    * The default implementation draws ticks taking into account the
@@ -279,7 +288,7 @@ private:
   Orientation          orientation_;
   int                  tickInterval_;
   WFlags<TickPosition> tickPosition_;
-  bool                 preferNative_, changed_, changedConnected_;
+  bool                 preferNative_, changed_, changedConnected_, inputConnected_;
   int                  handleWidth_;
 
   int                  minimum_, maximum_;

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages xmlns:if="Wt.WTemplate.conditions">
+  <message id="Wt.Auth.field">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="form-group row">
+      <label for="${id:{1}}" class="col-form-label">
+        ${tr:Wt.Auth.{1}}
+      </label>
+      <div class="">
+        ${{1}}
+      </div>
+      <div class="form-text">
+        ${{1}-info}
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.field-check">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="form-group row">
+      <label for="${id:{1}}" class="col-form-label">
+        ${tr:Wt.Auth.{1}}
+      </label>
+      <div class="">
+        ${{1}}
+      </div>
+      <div class="form-text">
+        ${{1}-info}
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.field2">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="form-group row">
+      <label for="${id:{1}}" class="col-form-label">
+        ${{2}}
+      </label>
+      <div class="">
+        ${{1}}
+      </div>
+      <div class="form-text">
+        ${{1}-info}
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.field3">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="form-group row">
+      <label for="${id:{1}}" class="col-form-label">
+        ${{2}}
+      </label>
+      <div class="">
+        ${{1}}
+      </div>
+      <div class="form-text">
+        ${{1}-info} ${{3} class="btn-link"}
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.WNavigationBar.template">
+    <div class="container-fluid">
+      ${title-link}
+      ${collapse-button}
+      ${contents}
+    </div>
+  </message>
+
+  <message id="Wt.WNavigationBar.expand-button">
+    <span class="navbar-toggler-icon"></span>
+  </message>
+
+</messages>

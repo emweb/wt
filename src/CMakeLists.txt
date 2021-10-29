@@ -53,6 +53,8 @@ FILE_TO_STRING(xml/bootstrap_theme.xml
     BootstrapTheme_xml.C BootstrapTheme_xml)
 FILE_TO_STRING(xml/bootstrap3_theme.xml
     Bootstrap3Theme_xml.C Bootstrap3Theme_xml)
+FILE_TO_STRING(xml/bootstrap5_theme.xml
+    Bootstrap5Theme_xml.C Bootstrap5Theme_xml)
 FILE_TO_STRING(xml/auth_css_theme.xml
     AuthCssTheme_xml.C AuthCssTheme_xml)
 
@@ -89,6 +91,7 @@ Wt/WBatchEditProxyModel.h Wt/WBatchEditProxyModel.C
 Wt/WBootstrapTheme.h Wt/WBootstrapTheme.C
 Wt/WBootstrap2Theme.h Wt/WBootstrap2Theme.C
 Wt/WBootstrap3Theme.h Wt/WBootstrap3Theme.C
+Wt/WBootstrap5Theme.h Wt/WBootstrap5Theme.C
 Wt/WBorder.h Wt/WBorder.C
 Wt/WBorderLayout.h Wt/WBorderLayout.C
 Wt/WBoxLayout.h Wt/WBoxLayout.C
@@ -398,6 +401,7 @@ Wt_xml.C
 AuthStrings_xml.C
 BootstrapTheme_xml.C
 Bootstrap3Theme_xml.C
+Bootstrap5Theme_xml.C
 AuthCssTheme_xml.C
 JQuery_js.C
 )

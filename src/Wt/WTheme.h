@@ -37,25 +37,30 @@ enum WidgetThemeRole {
   DatePickerPopup = 400,
   DatePickerIcon = 401,
   TimePickerPopup = 410,
+  TimePickerPopupContent = 411,
 
   PanelTitleBar = 500,
   PanelCollapseButton = 501,
   PanelTitle = 502,
   PanelBody = 503,
+  PanelBodyContent = 504,
 
   AuthWidgets = 600,
 
   InPlaceEditing = 700,
   InPlaceEditingButtonsContainer = 701,
+  InPlaceEditingButton = 702,
 
   Navbar = 800,
   NavCollapse = 801,
   NavBrand = 802,
-  NavbarSearch = 803,
-  NavbarMenu = 804,
-  NavbarBtn = 805,
-  NavbarAlignLeft = 806,
-  NavbarAlignRight = 807
+  NavbarForm = 803,
+  NavbarSearchForm = 804,
+  NavbarSearchInput = 805,
+  NavbarMenu = 806,
+  NavbarBtn = 807,
+  NavbarAlignLeft = 808,
+  NavbarAlignRight = 809
 };
 
 /*! \brief Enumeration for the role of a css class (for theme support)
@@ -74,6 +79,15 @@ enum UtilityCssClassRole {
 enum ElementThemeRole {
   MainElement = 0,
   ToggleButtonRole = 1,
+  ToggleButtonInput = 2,
+  ToggleButtonSpan = 3,
+
+  FormLabel = 4,
+  FormText = 5,
+  FormButton = 6,
+  FileUploadForm = 7,
+  FileUploadInput = 8,
+
   ProgressBarBar = 100,
   ProgressBarLabel = 101
 };
@@ -165,6 +179,14 @@ public:
    */
   virtual void apply(WWidget *widget, DomElement& element, int elementRole)
     const = 0;
+
+  /*! \brief Sets the data target for a widget.
+   *
+   * The \p widget is a bootstrap element that requires a data-bs-target
+   * attribute to function (with Bootstrap JS). The \p target is the
+   * element that is targeted by the \p widget.
+   */
+  virtual void setDataTarget(WWidget *widget, WWidget *target) const {};
 
   /*! \brief Returns a generic CSS class name for a disabled element.
    */

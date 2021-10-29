@@ -219,6 +219,10 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
       element.setAttribute("title", v);
   }
 
+  app->theme()->apply(this, *input, ToggleButtonInput);
+  if (span)
+    app->theme()->apply(this, *span, ToggleButtonSpan);
+
   if (flags_.test(BIT_STATE_CHANGED) || all) {
     input->setProperty(Wt::Property::Checked,
 		       state_ == CheckState::Unchecked ?
