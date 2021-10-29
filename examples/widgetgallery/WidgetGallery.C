@@ -9,29 +9,26 @@
 #include "TreesTables.h"
 #include "WidgetGallery.h"
 
-#include <Wt/WHBoxLayout.h>
+#include <Wt/WApplication.h>
 #include <Wt/WMenu.h>
 #include <Wt/WNavigationBar.h>
+#include <Wt/WPushButton.h>
 #include <Wt/WStackedWidget.h>
 #include <Wt/WText.h>
-#include <Wt/WVBoxLayout.h>
+
+namespace {
+
+const std::string showMenuText = "<i class='fa fa-bars' aria-hidden='true'></i> Show menu";
+const std::string closeMenuText = "<i class='fa fa-bars' aria-hidden='true'></i> Close menu";
+
+}
 
 WidgetGallery::WidgetGallery()
-  : WContainerWidget()
+  : Wt::WTemplate(tr("tpl:widget-gallery")),
+    openMenuButton_(nullptr),
+    menuOpen_(false) // once applies when responsive UI
 {
-  setOverflow(Wt::Overflow::Hidden);
-
-  auto navigation = std::make_unique<Wt::WNavigationBar>();
-  navigation_ = navigation.get();
-
-  navigation_->addStyleClass("main-nav");
-  navigation_->setTitle("Wt Widget Gallery",
-			"https://www.webtoolkit.eu/widgets");
-  navigation_->setResponsive(true);
-
-  auto contentsStack
-      = std::make_unique<Wt::WStackedWidget>();
-  contentsStack_ = contentsStack.get();
+  contentsStack_ = bindNew<Wt::WStackedWidget>("contents");
 
   Wt::WAnimation animation(Wt::AnimationEffect::Fade,
 			   Wt::TimingFunction::Linear,
@@ -41,72 +38,91 @@ WidgetGallery::WidgetGallery()
   /*
    * Setup the top-level menu
    */
-  auto menu = std::make_unique<Wt::WMenu>(contentsStack_);
+  auto menu = bindNew<Wt::WMenu>("menu", contentsStack_);
+  menu->addStyleClass("flex-column");
   menu->setInternalPathEnabled();
   menu->setInternalBasePath("/");
 
-  addToMenu(menu.get(), "Layout", std::make_unique<Layout>());
-  addToMenu(menu.get(), "Forms", std::make_unique<FormWidgets>());
-  addToMenu(menu.get(), "Navigation", std::make_unique<Navigation>());
-  addToMenu(menu.get(), "Trees & Tables", std::make_unique<TreesTables>())
-    ->setPathComponent("trees-tables");
-  addToMenu(menu.get(), "Graphics & Charts", std::make_unique<GraphicsWidgets>())
-    ->setPathComponent("graphics-charts");
-  //addToMenu(menu.get(), "Events", std::make_unique<EventsDemo>());
-  addToMenu(menu.get(), "Media", std::make_unique<Media>());
-  navigation_->addMenu(std::move(menu));
+  openMenuButton_ = bindNew<Wt::WPushButton>("open-menu");
+  openMenuButton_->setTextFormat(Wt::TextFormat::UnsafeXHTML);
+  openMenuButton_->setText(showMenuText);
 
-  /*
-   * Add it all inside a layout
-   */
-  auto layout = this->setLayout(std::make_unique<Wt::WVBoxLayout>());
-  layout->addWidget(std::move(navigation), 0);
-  layout->addWidget(std::move(contentsStack), 1);
-  layout->setContentsMargins(0, 0, 0, 0);
+  openMenuButton_->clicked().connect(this, &WidgetGallery::toggleMenu);
+
+  auto contentsCover = bindNew<Wt::WContainerWidget>("contents-cover");
+  contentsCover->clicked().connect(this, &WidgetGallery::closeMenu);
+
+  addToMenu(menu, "Layout", std::make_unique<Layout>());
+  addToMenu(menu, "Forms", std::make_unique<FormWidgets>());
+  addToMenu(menu, "Navigation", std::make_unique<Navigation>());
+  addToMenu(menu, "Trees & Tables", std::make_unique<TreesTables>())
+    ->setPathComponent("trees-tables");
+  addToMenu(menu, "Graphics & Charts", std::make_unique<GraphicsWidgets>())
+    ->setPathComponent("graphics-charts");
+  //addToMenu(menu, "Events", std::make_unique<EventsDemo>());
+  addToMenu(menu, "Media", std::make_unique<Media>());
+
+  if (menu->currentIndex() < 0) {
+    menu->select(0);
+    menu->itemAt(0)->menu()->select(0);
+  }
 }
 
 Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,
 					const Wt::WString& name,
-					std::unique_ptr<TopicWidget> topic)
+                                        std::unique_ptr<Topic> topicPtr)
 {
-  auto topic_ = topic.get();
+#ifndef WT_TARGET_JAVA
+  auto topic = addChild(std::move(topicPtr));
+#else // WT_TARGET_JAVA
+  auto topic = topicPtr.release();
+#endif // WT_TARGET_JAVA
   auto result = std::make_unique<Wt::WContainerWidget>();
 
-  auto pane = std::make_unique<Wt::WContainerWidget>();
-  auto pane_ = pane.get();
+  auto subMenuPtr = std::make_unique<Wt::WMenu>(contentsStack_);
+  auto subMenu = subMenuPtr.get();
+  auto itemPtr = std::make_unique<Wt::WMenuItem>(name);
+  itemPtr->setMenu(std::move(subMenuPtr));
 
-  auto vLayout = result->setLayout(std::make_unique<Wt::WVBoxLayout>());
-  vLayout->setContentsMargins(0, 0, 0, 0);
-  vLayout->addWidget(std::move(topic));
-  vLayout->addWidget(std::move(pane), 1);
+  auto item = menu->addItem(std::move(itemPtr));
+  subMenu->addStyleClass("nav-stacked submenu");
 
-  auto hLayout = pane_->setLayout(std::make_unique<Wt::WHBoxLayout>());
+  subMenu->itemSelected().connect(this, &WidgetGallery::closeMenu);
 
-  auto item = std::make_unique<Wt::WMenuItem>(name, std::move(result));
-  auto item_ = menu->addItem(std::move(item));
+  subMenu->setInternalPathEnabled("/" + item->pathComponent());
 
-  auto subStack = std::make_unique<Wt::WStackedWidget>();
-  subStack->addStyleClass("contents");
+  topic->populateSubMenu(subMenu);
 
-  /*
-  WAnimation animation(AnimationEffect::Fade,
-                           TimingFunction::Linear,
-			   100);
-  subStack->setTransitionAnimation(animation, true);
-  */
+  return item;
+}
 
-  auto subMenu = std::make_unique<Wt::WMenu>(subStack.get());
-  auto subMenu_ = subMenu.get();
-  subMenu_->addStyleClass("nav-pills nav-stacked submenu");
-  subMenu_->setWidth(200);
+void WidgetGallery::toggleMenu()
+{
+  if (menuOpen_) {
+    closeMenu();
+  } else {
+    openMenu();
+  }
+}
 
-  hLayout->addWidget(std::move(subMenu));
-  hLayout->addWidget(std::move(subStack),1);
+void WidgetGallery::openMenu()
+{
+  if (menuOpen_)
+    return;
 
-  subMenu_->setInternalPathEnabled();
-  subMenu_->setInternalBasePath("/" + item_->pathComponent());
+  openMenuButton_->setText(closeMenuText);
+  addStyleClass("menu-open");
 
-  topic_->populateSubMenu(subMenu_);
+  menuOpen_ = true;
+}
 
-  return item_;
+void WidgetGallery::closeMenu()
+{
+  if (!menuOpen_)
+    return;
+
+  openMenuButton_->setText(showMenuText);
+  removeStyleClass("menu-open");
+
+  menuOpen_ = false;
 }

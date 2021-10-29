@@ -11,14 +11,16 @@
 #include <Wt/WString.h>
 
 FormWidgets::FormWidgets()
-  : TopicWidget()
 {
+#if 0
   addText(tr("formwidgets-intro"), this);
+#endif
 }
 
 void FormWidgets::populateSubMenu(Wt::WMenu *menu)
 {
-  menu->addItem("Introduction", introduction())->setPathComponent("");
+  menu->addItem("Introduction",
+                deferCreate([this]{ return introduction(); }))->setPathComponent("");
   menu->addItem("Line/Text editor",
                 deferCreate([this]{ return textEditors(); }));
   menu->addItem("Check boxes", 
@@ -61,11 +63,11 @@ std::unique_ptr<Wt::WWidget> FormWidgets::introduction()
 
   // Show the XML-templates as text
   result->bindString("simpleForm-template",
-		     reindent(tr("simpleForm-template")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("simpleForm-template")), Wt::TextFormat::Plain);
   result->bindString("form-field",
-		     reindent(tr("form-field")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("form-field")), Wt::TextFormat::Plain);
   result->bindString("userForm-template",
-		     reindent(tr("userForm-template")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("userForm-template")), Wt::TextFormat::Plain);
 
   return std::move(result);
 }
@@ -91,9 +93,9 @@ std::unique_ptr<Wt::WWidget> FormWidgets::textEditors()
   result->bindWidget("InputMask", InputMask());
 
   // Show the XML-template as text
-  result->bindString("lineEdit-template", reindent(tr("lineEdit-template")),
+  result->bindString("lineEdit-template", reindent(Wt::WString::tr("lineEdit-template")),
 		     Wt::TextFormat::Plain);
-  result->bindString("editSide-template", reindent(tr("editSide-template")),
+  result->bindString("editSide-template", reindent(Wt::WString::tr("editSide-template")),
 		     Wt::TextFormat::Plain);
   return std::move(result);
 }
@@ -261,14 +263,14 @@ std::unique_ptr<Wt::WWidget> FormWidgets::pushButton()
 
   // Show the XML-templates as text
   result->bindString("appendedDropdownButton-template",
-                     reindent(tr("appendedDropdownButton-template")),
+                     reindent(Wt::WString::tr("appendedDropdownButton-template")),
 		     Wt::TextFormat::Plain);
   result->bindString("pushButtonColor-template",
-		     reindent(tr("pushButtonColor-template")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("pushButtonColor-template")), Wt::TextFormat::Plain);
   result->bindString("pushButtonSize-template",
-		     reindent(tr("pushButtonSize-template")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("pushButtonSize-template")), Wt::TextFormat::Plain);
   result->bindString("pushButtonAction-template",
-		     reindent(tr("pushButtonAction-template")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("pushButtonAction-template")), Wt::TextFormat::Plain);
   return std::move(result);
 }
 
@@ -285,7 +287,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::validation()
   result->bindWidget("ValidationModel", ValidationModel());
 
   // Show the XML-template as text
-  result->bindString("validation-template", reindent(tr("validation-template")),
+  result->bindString("validation-template", reindent(Wt::WString::tr("validation-template")),
 		     Wt::TextFormat::Plain);
   return std::move(result);
 }
@@ -298,8 +300,8 @@ std::unique_ptr<Wt::WWidget> FormWidgets::example()
 
   // Show the XML-templates as text
   result->bindString("form-field",
-		     reindent(tr("form-field")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("form-field")), Wt::TextFormat::Plain);
   result->bindString("userForm-template",
-		     reindent(tr("userForm-template")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("userForm-template")), Wt::TextFormat::Plain);
   return std::move(result);
 }

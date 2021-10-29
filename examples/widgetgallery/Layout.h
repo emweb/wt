@@ -8,9 +8,9 @@
 #ifndef LAYOUT_H_
 #define LAYOUT_H_
 
-#include "TopicWidget.h"
+#include "Topic.h"
 
-class Layout : public TopicWidget
+class Layout : public Topic
 {
 public:
   Layout();

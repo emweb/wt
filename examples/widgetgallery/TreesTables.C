@@ -15,17 +15,19 @@
 
 #include <iostream>
 
-TreesTables::TreesTables():
-  TopicWidget()
+TreesTables::TreesTables()
 {
+#if 0
   addText(tr("mvc-intro"), this);
+#endif
 }
 
 void TreesTables::populateSubMenu(WMenu *menu)
 {
   menu->setInternalBasePath("/trees-tables");
 
-  menu->addItem("Tables", tables())->setPathComponent("");
+  menu->addItem("Tables",
+                deferCreate([this]{ return tables(); }))->setPathComponent("");
   menu->addItem("Trees",
                 deferCreate([this]{ return trees(); }));
   menu->addItem("Tree Tables",

@@ -10,8 +10,8 @@
   border-radius: 4px;
 }
 
-.CSS-example .table-condensed th,
-.CSS-example .table-condensed td {
+.CSS-example .table-sm th,
+.CSS-example .table-sm td {
   padding: 4px 5px;
 }
 

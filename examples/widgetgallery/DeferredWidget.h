@@ -22,7 +22,9 @@ public:
 
 private:
   void load() {
-    addWidget(f_());
+    auto w = f_();
+    w->addStyleClass("contents");
+    addWidget(std::move(w));
     Wt::WContainerWidget::load();
   }
 

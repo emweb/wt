@@ -8,11 +8,11 @@
 #ifndef MEDIA_H_
 #define MEDIA_H_
 
-#include "TopicWidget.h"
+#include "Topic.h"
 
 #include <vector>
 
-class Media : public TopicWidget
+class Media : public Topic
 {
 public:
   Media();

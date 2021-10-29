@@ -8,22 +8,26 @@
 #ifndef WIDGET_GALLERY_APPLICATION_H_
 #define WIDGET_GALLERY_APPLICATION_H_
 
-#include <Wt/WContainerWidget.h>
+#include <Wt/WTemplate.h>
 
-class TopicWidget;
+class Topic;
 
-class WidgetGallery : public Wt::WContainerWidget
+class WidgetGallery : public Wt::WTemplate
 {
 public:
   WidgetGallery();
 
 private:
-  Wt::WNavigationBar *navigation_;
   Wt::WStackedWidget *contentsStack_;
+  Wt::WPushButton *openMenuButton_;
+  bool menuOpen_;
 
   Wt::WMenuItem *addToMenu(Wt::WMenu *menu,
 			   const Wt::WString& name,
-                           std::unique_ptr<TopicWidget> topic);
+                           std::unique_ptr<Topic> topic);
+  void toggleMenu();
+  void openMenu();
+  void closeMenu();
 };
 
 #endif // WIDGET_GALLERY_H_

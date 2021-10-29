@@ -23,7 +23,7 @@ Wt::WPushButton *removeB = container->addNew<Wt::WPushButton>("Remove info class
 removeB->setMargin(10, Wt::Side::Left | Wt::Side::Right);
 removeB->disable();
 
-Wt::WPushButton *toggleB = container->addNew<Wt::WPushButton>("Toggle condensed");
+Wt::WPushButton *toggleB = container->addNew<Wt::WPushButton>("Toggle compact");
 toggleB->disable();
 
 Wt::WText *text = container->addNew<Wt::WText>();
@@ -61,12 +61,12 @@ removeB->clicked().connect([=] {
 });
 
 toggleB->clicked().connect([=] {
-    if (toggleB->text() == "Toggle condensed") {
-        table->toggleStyleClass("table-condensed", true);
+    if (toggleB->text() == "Toggle compact") {
+        table->toggleStyleClass("table-sm", true);
         toggleB->setText("Toggle expanded");
     } else {
-        table->toggleStyleClass("table-condensed", false);
-        toggleB->setText("Toggle condensed");
+        table->toggleStyleClass("table-sm", false);
+        toggleB->setText("Toggle compact");
     }
 });
 

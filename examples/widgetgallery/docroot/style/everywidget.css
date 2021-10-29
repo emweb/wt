@@ -1,10 +1,6 @@
-.main-nav {
-    margin-bottom: 0px;
-}
-
 tt {
-    font-family: andale mono;
-    color: #570;
+    font-family: "Ludica Console", Courier, monospace;
+    color: #6c757d;
     font-size: 97%;
 }
 
@@ -13,16 +9,10 @@ tt {
     line-height: 100%;
 }
 
-.contents h1 {
-    color: #528B12;
-}
-
-.contents h2 {
-    color: #528B12;
-}
-
+.contents h1,
+.contents h2,
 .contents h3 {
-    color: #528B12;
+    color: #007bff;
 }
 
 .submenu {
@@ -182,10 +172,10 @@ div.contents {
 }
 
 .example > legend {
-    width: auto;
     border-bottom: 0px;
     padding: 0px 5px;
     margin-bottom: -5px;
+    width: auto !important;
 }
 
 .example > p {

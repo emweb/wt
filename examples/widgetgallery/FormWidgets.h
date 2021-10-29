@@ -8,7 +8,7 @@
 #ifndef FORMWIDGETS_H_
 #define FORMWIDGETS_H_
 
-#include "TopicWidget.h"
+#include "Topic.h"
 
 #include "Wt/WStandardItemModel.h"
 
@@ -16,7 +16,7 @@
 
 class EventDisplayer;
 
-class FormWidgets : public TopicWidget
+class FormWidgets : public Topic
 {
 public:
   FormWidgets();

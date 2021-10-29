@@ -351,7 +351,7 @@
 <span class="n">removeB</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span>
 <span class="n">removeB</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span>
 
-<span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span> <span class="o">*</span><span class="n">toggleB</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Toggle condensed&quot;</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span> <span class="o">*</span><span class="n">toggleB</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Toggle compact&quot;</span><span class="p">);</span>
 <span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span> <span class="o">*</span><span class="n">text</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span>
@@ -389,12 +389,12 @@
 <span class="p">});</span>
 
 <span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;Toggle condensed&quot;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">table</span><span class="o">-&gt;</span><span class="n">toggleStyleClass</span><span class="p">(</span><span class="s">&quot;table-condensed&quot;</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;Toggle compact&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">toggleStyleClass</span><span class="p">(</span><span class="s">&quot;table-sm&quot;</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
         <span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Toggle expanded&quot;</span><span class="p">);</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">table</span><span class="o">-&gt;</span><span class="n">toggleStyleClass</span><span class="p">(</span><span class="s">&quot;table-condensed&quot;</span><span class="p">,</span> <span class="nb">false</span><span class="p">);</span>
-        <span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Toggle condensed&quot;</span><span class="p">);</span>
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">toggleStyleClass</span><span class="p">(</span><span class="s">&quot;table-sm&quot;</span><span class="p">,</span> <span class="nb">false</span><span class="p">);</span>
+        <span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Toggle compact&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">});</span>
 </pre></div>
@@ -1223,7 +1223,6 @@
 <span class="k">auto</span> <span class="n">container</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WFileUpload</span> <span class="o">*</span><span class="n">fu</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WFileUpload</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="n">fu</span><span class="o">-&gt;</span><span class="n">setFileTextSize</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span> <span class="c1">// Set the maximum file size to 50 kB.</span>
 <span class="n">fu</span><span class="o">-&gt;</span><span class="n">setProgressBar</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WProgressBar</span><span class="o">&gt;</span><span class="p">());</span>
 <span class="n">fu</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span>
 
@@ -2674,7 +2673,7 @@
 <span class="k">auto</span> <span class="n">contents</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WStackedWidget</span><span class="o">&gt;</span><span class="p">();</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WMenu</span> <span class="o">*</span><span class="n">menu</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMenu</span><span class="o">&gt;</span><span class="p">(</span><span class="n">contents</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
-<span class="n">menu</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;nav nav-pills nav-stacked&quot;</span><span class="p">);</span>
+<span class="n">menu</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;nav nav-pills flex-column&quot;</span><span class="p">);</span>
 <span class="n">menu</span><span class="o">-&gt;</span><span class="n">setWidth</span><span class="p">(</span><span class="mi">150</span><span class="p">);</span>
 
 <span class="c1">// Add menu items using the default lazy loading policy.</span>
@@ -2771,9 +2770,13 @@
 
 <span class="c1">// Create a navigation bar with a link to a web page.</span>
 <span class="n">Wt</span><span class="o">::</span><span class="n">WNavigationBar</span> <span class="o">*</span><span class="n">navigation</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WNavigationBar</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="c1">// It&#39;s not necessary to do this with WBootstrap5Theme, but we include it if</span>
+<span class="c1">// you want to use another theme.</span>
+<span class="n">navigation</span><span class="o">-&gt;</span><span class="n">setResponsive</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="c1">// WBootstrap5Theme applies no color scheme by default, so we have to add them here.</span>
+<span class="n">navigation</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;navbar-light bg-light&quot;</span><span class="p">);</span>
 <span class="n">navigation</span><span class="o">-&gt;</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;Corpy Inc.&quot;</span><span class="p">,</span>
 		     <span class="s">&quot;https://www.google.com/search?q=corpy+inc&quot;</span><span class="p">);</span>
-<span class="n">navigation</span><span class="o">-&gt;</span><span class="n">setResponsive</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WStackedWidget</span> <span class="o">*</span><span class="n">contentsStack</span> <span class="o">=</span> <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WStackedWidget</span><span class="o">&gt;</span><span class="p">();</span>
 <span class="n">contentsStack</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;contents&quot;</span><span class="p">);</span>
@@ -2789,10 +2792,24 @@
 <span class="n">leftMenu_</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;Layout&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Layout contents&quot;</span><span class="p">))</span>
     <span class="o">-&gt;</span><span class="n">setLink</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">LinkType</span><span class="o">::</span><span class="n">InternalPath</span><span class="p">,</span> <span class="s">&quot;/layout&quot;</span><span class="p">));</span>
 <span class="n">leftMenu_</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;Sales&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">searchResult</span><span class="p">));</span>
+<span class="n">leftMenu_</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;me-auto&quot;</span><span class="p">);</span>
+
+<span class="c1">// Add a Search control.</span>
+<span class="k">auto</span> <span class="n">editPtr</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="k">auto</span> <span class="n">edit</span> <span class="o">=</span> <span class="n">editPtr</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="n">edit</span><span class="o">-&gt;</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s">&quot;Enter a search item&quot;</span><span class="p">);</span>
+
+<span class="n">edit</span><span class="o">-&gt;</span><span class="n">enterPressed</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
+  <span class="n">leftMenu_</span><span class="o">-&gt;</span><span class="n">select</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">// is the index of the &quot;Sales&quot;</span>
+  <span class="n">searchResult_</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;Nothing found for {1}.&quot;</span><span class="p">)</span>
+                                 <span class="p">.</span><span class="n">arg</span><span class="p">(</span><span class="n">edit</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()));</span>
+<span class="p">});</span>
+
+<span class="n">navigation</span><span class="o">-&gt;</span><span class="n">addSearch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">editPtr</span><span class="p">));</span>
 
 <span class="c1">// Setup a Right-aligned menu.</span>
 <span class="k">auto</span> <span class="n">rightMenu</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMenu</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="k">auto</span> <span class="n">rightMenu_</span> <span class="o">=</span> <span class="n">navigation</span><span class="o">-&gt;</span><span class="n">addMenu</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">rightMenu</span><span class="p">),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">AlignmentFlag</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">rightMenu_</span> <span class="o">=</span> <span class="n">navigation</span><span class="o">-&gt;</span><span class="n">addMenu</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">rightMenu</span><span class="p">));</span>
 
 <span class="c1">// Create a popup submenu for the Help menu.</span>
 <span class="k">auto</span> <span class="n">popupPtr</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPopupMenu</span><span class="o">&gt;</span><span class="p">();</span>
@@ -2820,19 +2837,6 @@
 <span class="k">auto</span> <span class="n">item</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WMenuItem</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Help&quot;</span><span class="p">);</span>
 <span class="n">item</span><span class="o">-&gt;</span><span class="n">setMenu</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">popupPtr</span><span class="p">));</span>
 <span class="n">rightMenu_</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">));</span>
-
-<span class="c1">// Add a Search control.</span>
-<span class="k">auto</span> <span class="n">editPtr</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="k">auto</span> <span class="n">edit</span> <span class="o">=</span> <span class="n">editPtr</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
-<span class="n">edit</span><span class="o">-&gt;</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s">&quot;Enter a search item&quot;</span><span class="p">);</span>
-
-<span class="n">edit</span><span class="o">-&gt;</span><span class="n">enterPressed</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
-    <span class="n">leftMenu_</span><span class="o">-&gt;</span><span class="n">select</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">// is the index of the &quot;Sales&quot;</span>
-    <span class="n">searchResult_</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;Nothing found for {1}.&quot;</span><span class="p">)</span>
-                          <span class="p">.</span><span class="n">arg</span><span class="p">(</span><span class="n">edit</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()));</span>
-<span class="p">});</span>
-
-<span class="n">navigation</span><span class="o">-&gt;</span><span class="n">addSearch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">editPtr</span><span class="p">),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">AlignmentFlag</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span>
 </pre></div>
   </message>
   <message id="src-NestedLayout">
@@ -4277,7 +4281,6 @@
 
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">Wt</span><span class="p">;</span>
 
-
 <span class="k">auto</span> <span class="n">container</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span>
 
 <span class="k">auto</span> <span class="n">popupPtr</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPopupMenu</span><span class="o">&gt;</span><span class="p">();</span>
@@ -4456,12 +4459,12 @@
 <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span>
     <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WTemplate</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="o">::</span><span class="n">tr</span><span class="p">(</span><span class="s">&quot;pushButtonColor-template&quot;</span><span class="p">));</span>
 
-<span class="k">auto</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Default&quot;</span><span class="p">);</span>
-<span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-default&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
-
-<span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Primary&quot;</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Primary&quot;</span><span class="p">);</span>
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-primary&quot;</span><span class="p">);</span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-primary&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
+
+<span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Secondary&quot;</span><span class="p">);</span>
+<span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-secondary&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
 
 <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Info&quot;</span><span class="p">);</span>
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-info&quot;</span><span class="p">);</span>
@@ -4479,13 +4482,25 @@
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-danger&quot;</span><span class="p">);</span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-danger&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
 
-<span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Inverse&quot;</span><span class="p">);</span>
-<span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-inverse&quot;</span><span class="p">);</span>
-<span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-inverse&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
+<span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Light&quot;</span><span class="p">);</span>
+<span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-light&quot;</span><span class="p">);</span>
+<span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-light&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
+
+<span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Dark&quot;</span><span class="p">);</span>
+<span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-dark&quot;</span><span class="p">);</span>
+<span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-dark&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
+
+<span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Outline&quot;</span><span class="p">);</span>
+<span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-outline-primary&quot;</span><span class="p">);</span>
+<span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-outline&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
 
 <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Link&quot;</span><span class="p">);</span>
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-link&quot;</span><span class="p">);</span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-link&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
+
+<span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-close&quot;</span><span class="p">);</span>
+<span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-close&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
 </pre></div>
   </message>
   <message id="src-PushButtonDropdownAppended">
@@ -4597,10 +4612,6 @@
 <span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Small&quot;</span><span class="p">);</span>
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-sm&quot;</span><span class="p">);</span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-small&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
-
-<span class="n">button</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Mini&quot;</span><span class="p">);</span>
-<span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-xs&quot;</span><span class="p">);</span>
-<span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-mini&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span>
 </pre></div>
   </message>
   <message id="src-RadioButtonGroup">
@@ -5455,7 +5466,7 @@
         <span class="n">addNew</span><span class="o">&lt;</span><span class="n">WLineEdit</span><span class="o">&gt;</span><span class="p">(</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;{1}&quot;</span><span class="p">).</span><span class="n">arg</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">pay</span><span class="p">));</span>
 <span class="p">}</span>
 
-<span class="n">table_</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;table form-inline&quot;</span><span class="p">);</span>
+<span class="n">table_</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;table&quot;</span><span class="p">);</span>
 
 <span class="k">auto</span> <span class="n">resultPtr</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span>
 <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">resultPtr</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
@@ -5466,7 +5477,7 @@
 
 <span class="n">addOptionToggle</span><span class="p">(</span><span class="n">table_</span><span class="p">,</span> <span class="s">&quot;borders&quot;</span><span class="p">,</span> <span class="s">&quot;table-bordered&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
 <span class="n">addOptionToggle</span><span class="p">(</span><span class="n">table_</span><span class="p">,</span> <span class="s">&quot;hover&quot;</span><span class="p">,</span> <span class="s">&quot;table-hover&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
-<span class="n">addOptionToggle</span><span class="p">(</span><span class="n">table_</span><span class="p">,</span> <span class="s">&quot;condensed&quot;</span><span class="p">,</span> <span class="s">&quot;table-condensed&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+<span class="n">addOptionToggle</span><span class="p">(</span><span class="n">table_</span><span class="p">,</span> <span class="s">&quot;small&quot;</span><span class="p">,</span> <span class="s">&quot;table-sm&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
 <span class="n">addOptionToggle</span><span class="p">(</span><span class="n">table_</span><span class="p">,</span> <span class="s">&quot;stripes&quot;</span><span class="p">,</span> <span class="s">&quot;table-striped&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
 </pre></div>
   </message>
@@ -6335,21 +6346,6 @@
 <span class="p">}</span>
 </pre></div>
   </message>
-  <message id="src-pdfImageWrite">
-<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;Wt/Chart/WCartesianChart.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WPdfImage.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span> <span class="n">chart</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span><span class="o">&gt;</span><span class="p">();</span>
-
-<span class="n">WPdfImage</span> <span class="nf">pdfImage</span><span class="p">(</span><span class="s">&quot;4cm&quot;</span><span class="p">,</span> <span class="s">&quot;3cm&quot;</span><span class="p">);</span>
-<span class="p">{</span>
-    <span class="n">WPainter</span> <span class="n">p</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pdfImage</span><span class="p">);</span>
-    <span class="n">chart</span><span class="o">-&gt;</span><span class="n">paint</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">f</span><span class="p">(</span><span class="s">&quot;chart.pdf&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">out</span> <span class="o">|</span> <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span>
-<span class="n">pdfImage</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
-</pre></div>
-  </message>
   <message id="src-theme">
 <div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;Wt/WApplication.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WEnvironment.h&gt;</span><span class="cp"></span>
@@ -6416,8 +6412,8 @@
   <span class="k">border-radius</span><span class="p">:</span> <span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="p">.</span><span class="nc">CSS-example</span> <span class="p">.</span><span class="nc">table-condensed</span> <span class="nt">th</span><span class="o">,</span>
-<span class="p">.</span><span class="nc">CSS-example</span> <span class="p">.</span><span class="nc">table-condensed</span> <span class="nt">td</span> <span class="p">{</span>
+<span class="p">.</span><span class="nc">CSS-example</span> <span class="p">.</span><span class="nc">table-sm</span> <span class="nt">th</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">CSS-example</span> <span class="p">.</span><span class="nc">table-sm</span> <span class="nt">td</span> <span class="p">{</span>
   <span class="k">padding</span><span class="p">:</span> <span class="mi">4</span><span class="kt">px</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
 <span class="p">}</span>
 
@@ -6471,13 +6467,9 @@
 </pre></div>
   </message>
   <message id="src-everywidget">
-<div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">main-nav</span> <span class="p">{</span>
-    <span class="k">margin-bottom</span><span class="p">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="nt">tt</span> <span class="p">{</span>
-    <span class="k">font-family</span><span class="p">:</span> <span class="n">andale</span> <span class="n">mono</span><span class="p">;</span>
-    <span class="k">color</span><span class="p">:</span> <span class="mh">#570</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="nt">tt</span> <span class="p">{</span>
+    <span class="k">font-family</span><span class="p">:</span> <span class="s2">&quot;Ludica Console&quot;</span><span class="p">,</span> <span class="n">Courier</span><span class="p">,</span> <span class="kc">monospace</span><span class="p">;</span>
+    <span class="k">color</span><span class="p">:</span> <span class="mh">#6c757d</span><span class="p">;</span>
     <span class="k">font-size</span><span class="p">:</span> <span class="mi">97</span><span class="kt">%</span><span class="p">;</span>
 <span class="p">}</span>
 
@@ -6486,16 +6478,10 @@
     <span class="k">line-height</span><span class="p">:</span> <span class="mi">100</span><span class="kt">%</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="p">.</span><span class="nc">contents</span> <span class="nt">h1</span> <span class="p">{</span>
-    <span class="k">color</span><span class="p">:</span> <span class="mh">#528B12</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="p">.</span><span class="nc">contents</span> <span class="nt">h2</span> <span class="p">{</span>
-    <span class="k">color</span><span class="p">:</span> <span class="mh">#528B12</span><span class="p">;</span>
-<span class="p">}</span>
-
+<span class="p">.</span><span class="nc">contents</span> <span class="nt">h1</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">contents</span> <span class="nt">h2</span><span class="o">,</span>
 <span class="p">.</span><span class="nc">contents</span> <span class="nt">h3</span> <span class="p">{</span>
-    <span class="k">color</span><span class="p">:</span> <span class="mh">#528B12</span><span class="p">;</span>
+    <span class="k">color</span><span class="p">:</span> <span class="mh">#007bff</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="p">.</span><span class="nc">submenu</span> <span class="p">{</span>
@@ -6655,10 +6641,10 @@
 <span class="p">}</span>
 
 <span class="p">.</span><span class="nc">example</span> <span class="o">&gt;</span> <span class="nt">legend</span> <span class="p">{</span>
-    <span class="k">width</span><span class="p">:</span> <span class="kc">auto</span><span class="p">;</span>
     <span class="k">border-bottom</span><span class="p">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
     <span class="k">padding</span><span class="p">:</span> <span class="mi">0</span><span class="kt">px</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
     <span class="k">margin-bottom</span><span class="p">:</span> <span class="mi">-5</span><span class="kt">px</span><span class="p">;</span>
+    <span class="k">width</span><span class="p">:</span> <span class="kc">auto</span> <span class="cp">!important</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="p">.</span><span class="nc">example</span> <span class="o">&gt;</span> <span class="nt">p</span> <span class="p">{</span>
@@ -6858,6 +6844,125 @@
 <span class="p">.</span><span class="nc">highlight</span> <span class="p">.</span><span class="nc">vg</span> <span class="p">{</span> <span class="k">color</span><span class="p">:</span> <span class="mh">#19177C</span> <span class="p">}</span> <span class="c">/* Name.Variable.Global */</span>
 <span class="p">.</span><span class="nc">highlight</span> <span class="p">.</span><span class="nc">vi</span> <span class="p">{</span> <span class="k">color</span><span class="p">:</span> <span class="mh">#19177C</span> <span class="p">}</span> <span class="c">/* Name.Variable.Instance */</span>
 <span class="p">.</span><span class="nc">highlight</span> <span class="p">.</span><span class="nc">il</span> <span class="p">{</span> <span class="k">color</span><span class="p">:</span> <span class="mh">#666666</span> <span class="p">}</span> <span class="c">/* Literal.Number.Integer.Long */</span>
+</pre></div>
+  </message>
+  <message id="src-widgetgallery">
+<div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">wg-wrapper</span> <span class="p">{</span>
+  <span class="k">overflow-x</span><span class="p">:</span> <span class="kc">hidden</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-sidebar</span> <span class="p">{</span>
+  <span class="k">position</span><span class="p">:</span> <span class="kc">fixed</span><span class="p">;</span>
+  <span class="k">box-sizing</span><span class="p">:</span> <span class="kc">border-box</span><span class="p">;</span>
+  <span class="k">border-right</span><span class="p">:</span> <span class="mi">3</span><span class="kt">px</span> <span class="kc">solid</span> <span class="mh">#007bff</span><span class="p">;</span>
+  <span class="k">left</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">top</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">width</span><span class="p">:</span> <span class="mi">250</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">height</span><span class="p">:</span> <span class="mi">100</span><span class="kt">vh</span><span class="p">;</span>
+  <span class="k">overflow-x</span><span class="p">:</span> <span class="kc">hidden</span><span class="p">;</span>
+  <span class="k">overflow-y</span><span class="p">:</span> <span class="kc">auto</span><span class="p">;</span>
+  <span class="k">transform</span><span class="p">:</span> <span class="nb">translateX</span><span class="p">(</span><span class="mi">-100</span><span class="kt">%</span><span class="p">);</span>
+
+  <span class="k">transition</span><span class="p">:</span> <span class="kc">all</span> <span class="mf">0.3</span><span class="kt">s</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">menu-open</span> <span class="p">.</span><span class="nc">wg-sidebar</span> <span class="p">{</span>
+  <span class="k">transform</span><span class="p">:</span> <span class="nb">translateX</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-sidebar</span> <span class="p">.</span><span class="nc">nav</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">nav</span> <span class="p">{</span>
+  <span class="k">margin-left</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-sidebar</span> <span class="p">.</span><span class="nc">nav</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">nav</span> <span class="nt">a</span> <span class="p">{</span>
+  <span class="k">padding-left</span><span class="p">:</span> <span class="mi">40</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">transition</span><span class="p">:</span> <span class="kc">all</span> <span class="mf">0.8</span><span class="kt">s</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-sidebar</span> <span class="p">.</span><span class="nc">nav</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">nav</span> <span class="nt">a</span><span class="p">.</span><span class="nc">active</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">wg-sidebar</span> <span class="p">.</span><span class="nc">nav</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">nav</span> <span class="nt">a</span><span class="p">:</span><span class="nd">hover</span> <span class="p">{</span>
+  <span class="k">background-color</span><span class="p">:</span> <span class="mh">#eee</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-sidebar</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">nav</span> <span class="nt">a</span> <span class="p">{</span>
+  <span class="k">outline</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-logo</span> <span class="p">{</span>
+  <span class="k">margin</span><span class="p">:</span> <span class="mi">10</span><span class="kt">px</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">text-align</span><span class="p">:</span> <span class="kc">center</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-logo</span> <span class="nt">h1</span> <span class="p">{</span>
+  <span class="k">margin</span><span class="p">:</span> <span class="mi">10</span><span class="kt">px</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">font-size</span><span class="p">:</span> <span class="mi">24</span><span class="kt">px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-open-menu</span> <span class="p">{</span>
+  <span class="k">position</span><span class="p">:</span> <span class="kc">fixed</span><span class="p">;</span>
+  <span class="k">left</span><span class="p">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">top</span><span class="p">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">z-index</span><span class="p">:</span> <span class="mi">100001</span><span class="p">;</span>
+
+  <span class="k">transition</span><span class="p">:</span> <span class="kc">all</span> <span class="mf">0.3</span><span class="kt">s</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">menu-open</span> <span class="p">.</span><span class="nc">wg-open-menu</span> <span class="p">{</span>
+  <span class="k">left</span><span class="p">:</span> <span class="mi">250</span><span class="kt">px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-contents</span> <span class="p">{</span>
+  <span class="k">margin-left</span><span class="p">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">margin-top</span><span class="p">:</span> <span class="mi">40</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">box-sizing</span><span class="p">:</span> <span class="kc">border-box</span><span class="p">;</span>
+  <span class="k">padding</span><span class="p">:</span> <span class="mi">20</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">transform</span><span class="p">:</span> <span class="nb">translateX</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+  <span class="k">width</span><span class="p">:</span> <span class="mi">100</span><span class="kt">vw</span><span class="p">;</span>
+  <span class="k">overflow-x</span><span class="p">:</span> <span class="kc">auto</span><span class="p">;</span>
+
+  <span class="k">transition</span><span class="p">:</span> <span class="kc">all</span> <span class="mf">0.3</span><span class="kt">s</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">menu-open</span> <span class="p">.</span><span class="nc">wg-contents</span> <span class="p">{</span>
+  <span class="k">transform</span><span class="p">:</span> <span class="nb">translateX</span><span class="p">(</span><span class="mi">250</span><span class="kt">px</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">wg-contents-cover</span> <span class="p">{</span>
+  <span class="k">background-color</span><span class="p">:</span> <span class="nb">rgba</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">);</span>
+  <span class="k">z-index</span><span class="p">:</span> <span class="mi">100000</span><span class="p">;</span>
+  <span class="k">width</span><span class="p">:</span> <span class="mi">100</span><span class="kt">vw</span><span class="p">;</span>
+  <span class="k">height</span><span class="p">:</span> <span class="mi">100</span><span class="kt">vh</span><span class="p">;</span>
+  <span class="k">position</span><span class="p">:</span> <span class="kc">fixed</span><span class="p">;</span>
+  <span class="k">top</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">left</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">transform</span><span class="p">:</span> <span class="nb">translateX</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+  <span class="k">visibility</span><span class="p">:</span> <span class="kc">hidden</span><span class="p">;</span>
+
+  <span class="k">transition</span><span class="p">:</span> <span class="kc">all</span> <span class="mf">0.3</span><span class="kt">s</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">menu-open</span> <span class="p">.</span><span class="nc">wg-contents-cover</span> <span class="p">{</span>
+  <span class="k">background-color</span><span class="p">:</span> <span class="nb">rgba</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">);</span>
+  <span class="k">transform</span><span class="p">:</span> <span class="nb">translateX</span><span class="p">(</span><span class="mi">250</span><span class="kt">px</span><span class="p">);</span>
+  <span class="k">visibility</span><span class="p">:</span> <span class="kc">visible</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">@</span><span class="k">media</span> <span class="o">(</span><span class="nt">min-width</span><span class="o">:</span> <span class="nt">992px</span><span class="o">)</span> <span class="p">{</span>
+  <span class="p">.</span><span class="nc">wg-sidebar</span> <span class="p">{</span>
+    <span class="k">transform</span><span class="p">:</span> <span class="nb">translateX</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="p">.</span><span class="nc">wg-open-menu</span> <span class="p">{</span>
+    <span class="k">display</span><span class="p">:</span> <span class="kc">none</span><span class="p">;</span>
+    <span class="k">left</span><span class="p">:</span> <span class="mi">250</span><span class="kt">px</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="p">.</span><span class="nc">wg-contents</span> <span class="p">{</span>
+    <span class="k">margin-left</span><span class="p">:</span> <span class="mi">250</span><span class="kt">px</span><span class="p">;</span>
+    <span class="k">margin-top</span><span class="p">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
+    <span class="k">width</span><span class="p">:</span> <span class="kc">auto</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
   </message>
 </messages>

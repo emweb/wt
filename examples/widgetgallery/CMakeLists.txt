@@ -10,7 +10,7 @@ SET(WIDGETGALLERY_SOURCES
   Navigation.C
   # Services.C
   TopicTemplate.C
-  TopicWidget.C
+  Topic.C
   TreesTables.C
   WidgetGallery.C
   ../treeview-dragdrop/CsvUtil.C

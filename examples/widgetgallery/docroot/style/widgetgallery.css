@@ -1,0 +1,116 @@
+.wg-wrapper {
+  overflow-x: hidden;
+}
+
+.wg-sidebar {
+  position: fixed;
+  box-sizing: border-box;
+  border-right: 3px solid #007bff;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transform: translateX(-100%);
+
+  transition: all 0.3s;
+}
+
+.menu-open .wg-sidebar {
+  transform: translateX(0);
+}
+
+.wg-sidebar .nav > li > .nav {
+  margin-left: 0;
+}
+
+.wg-sidebar .nav > li > .nav a {
+  padding-left: 40px;
+  transition: all 0.8s;
+}
+
+.wg-sidebar .nav > li > .nav a.active,
+.wg-sidebar .nav > li > .nav a:hover {
+  background-color: #eee;
+}
+
+.wg-sidebar > .nav a {
+  outline: 0;
+}
+
+.wg-logo {
+  margin: 10px 0;
+  text-align: center;
+}
+
+.wg-logo h1 {
+  margin: 10px 0;
+  font-size: 24px;
+}
+
+.wg-open-menu {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  z-index: 100001;
+
+  transition: all 0.3s;
+}
+
+.menu-open .wg-open-menu {
+  left: 250px;
+}
+
+.wg-contents {
+  margin-left: 0px;
+  margin-top: 40px;
+  box-sizing: border-box;
+  padding: 20px;
+  transform: translateX(0);
+  width: 100vw;
+  overflow-x: auto;
+
+  transition: all 0.3s;
+}
+
+.menu-open .wg-contents {
+  transform: translateX(250px);
+}
+
+.wg-contents-cover {
+  background-color: rgba(30, 30, 30, 0.0);
+  z-index: 100000;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translateX(0);
+  visibility: hidden;
+
+  transition: all 0.3s;
+}
+
+.menu-open .wg-contents-cover {
+  background-color: rgba(30, 30, 30, 0.3);
+  transform: translateX(250px);
+  visibility: visible;
+}
+
+@media (min-width: 992px) {
+  .wg-sidebar {
+    transform: translateX(0);
+  }
+
+  .wg-open-menu {
+    display: none;
+    left: 250px;
+  }
+
+  .wg-contents {
+    margin-left: 250px;
+    margin-top: 0px;
+    width: auto;
+  }
+}

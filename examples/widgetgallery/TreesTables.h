@@ -8,9 +8,9 @@
 #ifndef TREE_TABLES_H_
 #define TREE_TABLES_H_
 
-#include "TopicWidget.h"
+#include "Topic.h"
 
-class TreesTables : public TopicWidget
+class TreesTables : public Topic
 {
 public:
   TreesTables();

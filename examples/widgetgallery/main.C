@@ -6,9 +6,11 @@
 
 #include <Wt/WApplication.h>
 #include <Wt/WEnvironment.h>
-#include <Wt/WHBoxLayout.h>
+#include <Wt/WFitLayout.h>
 #include <Wt/WBootstrap2Theme.h>
 #include <Wt/WBootstrap3Theme.h>
+#include <Wt/WBootstrap5Theme.h>
+#include <Wt/WLayout.h>
 #include <Wt/WNavigationBar.h>
 #include <Wt/WStackedWidget.h>
 
@@ -36,11 +38,14 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
   const std::string *themePtr = env.getParameter("theme");
   std::string theme;
   if (!themePtr)
-    theme = "bootstrap3";
+    theme = "bootstrap5";
   else
     theme = *themePtr;
 
-  if (theme == "bootstrap3") {
+  if (theme == "bootstrap5") {
+    auto bootstrapTheme = std::make_shared<WBootstrap5Theme>();
+    app->setTheme(bootstrapTheme);
+  } else if (theme == "bootstrap3") {
     auto bootstrapTheme = std::make_shared<WBootstrap3Theme>();
     bootstrapTheme->setResponsive(true);
     app->setTheme(bootstrapTheme);
@@ -58,16 +63,15 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
   // load text bundles (for the tr() function)
   app->messageResourceBundle().use(app->appRoot() + "report");
   app->messageResourceBundle().use(app->appRoot() + "text");
+  app->messageResourceBundle().use(app->appRoot() + "tpl");
   app->messageResourceBundle().use(app->appRoot() + "src");
  
-
-  auto layout =
-      app->root()->setLayout(std::make_unique<WHBoxLayout>());
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(std::make_unique<WidgetGallery>());
+  app->root()->addWidget(std::make_unique<WidgetGallery>());
 
   app->setTitle("Wt Widget Gallery");
 
+  app->useStyleSheet("resources/font-awesome/css/font-awesome.min.css");
+  app->useStyleSheet("style/widgetgallery.css");
   app->useStyleSheet("style/everywidget.css");
   app->useStyleSheet("style/dragdrop.css");
   app->useStyleSheet("style/combostyle.css");
@@ -80,5 +84,6 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
 
 int main(int argc, char **argv)
 {
+  //Wt::WLayout::setDefaultImplementation(Wt::LayoutImplementation::JavaScript);
   return WRun(argc, argv, &createApplication);
 }
