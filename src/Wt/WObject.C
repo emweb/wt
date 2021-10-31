@@ -57,7 +57,7 @@ const std::string WObject::uniqueId() const
 {
   char buf[20];
   buf[0] = 'o';
-  Utils::itoa(id_, buf + 1, 36);
+  Utils::utoa(id_, buf + 1, 36);
   return std::string(buf);
 }
 
