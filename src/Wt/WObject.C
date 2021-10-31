@@ -15,7 +15,11 @@
 
 namespace Wt {
 
-unsigned WObject::nextObjId_ = 0;
+#ifdef WT_THREADED
+  std::atomic<unsigned> WObject::nextObjId_ = 0;
+#else
+  unsigned WObject::nextObjId_ = 0;
+#endif // WT_THREADED
 
 void WObject::seedId(unsigned id)
 {

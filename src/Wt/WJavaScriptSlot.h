@@ -7,6 +7,10 @@
 #ifndef WJAVASCRIPTSLOT_H_
 #define WJAVASCRIPTSLOT_H_
 
+#ifdef WT_THREADED
+#include <atomic>
+#endif // WT_THREADED
+
 #include "Wt/WObject.h"
 
 namespace Wt {
@@ -205,8 +209,13 @@ private:
   WStatelessSlot* slotimp();
   void create();
 
-  int fid_;
-  static int nextFid_;
+  const unsigned fid_;
+
+#ifdef WT_THREADED
+  static std::atomic<unsigned> nextFid_;
+#else
+  static unsigned nextFid_;
+#endif // WT_THREADED
 
   int nbArgs_;
 
