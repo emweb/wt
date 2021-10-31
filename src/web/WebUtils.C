@@ -174,6 +174,23 @@ char *itoa(int value, char *result, int base) {
   return result;
 }
 
+char *utoa(unsigned int value, char* result, int base) {
+  char* out = result;
+  unsigned int quotient = value;
+
+  do {
+    *out =
+      "0123456789abcdefghijklmnopqrstuvwxyz"[quotient % base];
+    ++out;
+    quotient /= base;
+  } while (quotient);
+
+  std::reverse(result, out);
+  *out = 0;
+
+  return result;
+}
+
 char *lltoa(long long value, char *result, int base) {
   char* out = result;
   long long quotient = value;

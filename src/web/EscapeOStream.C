@@ -190,6 +190,13 @@ EscapeOStream& EscapeOStream::operator<< (int i)
   return *this;
 }
 
+EscapeOStream& EscapeOStream::operator<< (unsigned int i)
+{
+  stream_ << i;
+
+  return *this;
+}
+
 EscapeOStream& EscapeOStream::operator<< (long long i)
 {
   stream_ << i;

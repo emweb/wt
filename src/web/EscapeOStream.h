@@ -56,6 +56,7 @@ public:
 
   EscapeOStream& operator<< (const std::string& s);
   EscapeOStream& operator<< (int);
+  EscapeOStream& operator<< (unsigned int);
   EscapeOStream& operator<< (long long);
   EscapeOStream& operator<< (bool);
   EscapeOStream& operator<< (const EscapeOStream& other);

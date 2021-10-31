@@ -94,7 +94,7 @@ const std::string EventSignalBase::encodeCmd() const
 {
   char buf[20];
   buf[0] = 's';
-  Utils::itoa(id_, buf + 1, 16);
+  Utils::utoa(id_, buf + 1, 16);
   return std::string(buf);
 }
 
