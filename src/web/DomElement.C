@@ -153,7 +153,11 @@ static_assert(sizeof(defaultInline_) / sizeof(defaultInline_[0]) == static_cast<
 
 namespace Wt {
 
-int DomElement::nextId_ = 0;
+#ifdef WT_THREADED
+  std::atomic<unsigned> DomElement::nextId_ = 0;
+#else
+  unsigned DomElement::nextId_ = 0;
+#endif // WT_THREADED
 
 DomElement *DomElement::createNew(DomElementType type)
 {
@@ -734,7 +738,7 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
   // events on the dom root container are events received by the whole
   // document when no element has focus
 
-  int fid = nextId_++;
+  unsigned fid = nextId_++;
 
   out << "function f" << fid << "(event) { ";
 
@@ -1123,7 +1127,7 @@ std::string DomElement::createVar() const
 {
 #ifndef WT_TARGET_JAVA
   char buf[20];
-  std::sprintf(buf, "j%d", nextId_++);
+  std::sprintf(buf, "j%u", nextId_++);
   var_ = buf;
 #else // !WT_TARGET_JAVA
   var_ = "j" + std::to_string(nextId_++);

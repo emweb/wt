@@ -11,7 +11,11 @@
 
 namespace Wt {
 
-int JSlot::nextFid_ = 0;
+#ifdef WT_THREADED
+  std::atomic<unsigned> JSlot::nextFid_ = 0;
+#else
+  unsigned JSlot::nextFid_ = 0;
+#endif // WT_THREADED
 
 class WStatelessSlotImpl : public WStatelessSlot {
 public:
