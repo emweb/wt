@@ -59,7 +59,7 @@ bool EventSignalBase::StatelessConnection::ok() const
 }
 
 #ifdef WT_THREADED
-  std::atomic<unsigned> EventSignalBase::nextId_ = 0;
+  std::atomic<unsigned> EventSignalBase::nextId_(0);
 #else
   unsigned EventSignalBase::nextId_ = 0;
 #endif // WT_THREADED
