@@ -12,7 +12,7 @@
 namespace Wt {
 
 #ifdef WT_THREADED
-  std::atomic<unsigned> JSlot::nextFid_ = 0;
+  std::atomic<unsigned> JSlot::nextFid_(0);
 #else
   unsigned JSlot::nextFid_ = 0;
 #endif // WT_THREADED
