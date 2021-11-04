@@ -153,11 +153,11 @@ static_assert(sizeof(defaultInline_) / sizeof(defaultInline_[0]) == static_cast<
 
 namespace Wt {
 
-#ifdef WT_THREADED
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   std::atomic<unsigned> DomElement::nextId_(0);
 #else
   unsigned DomElement::nextId_ = 0;
-#endif // WT_THREADED
+#endif
 
 DomElement *DomElement::createNew(DomElementType type)
 {
