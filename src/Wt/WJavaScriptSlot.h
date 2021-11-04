@@ -7,9 +7,9 @@
 #ifndef WJAVASCRIPTSLOT_H_
 #define WJAVASCRIPTSLOT_H_
 
-#ifdef WT_THREADED
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 #include <atomic>
-#endif // WT_THREADED
+#endif
 
 #include "Wt/WObject.h"
 
@@ -211,11 +211,11 @@ private:
 
   const unsigned fid_;
 
-#ifdef WT_THREADED
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   static std::atomic<unsigned> nextFid_;
 #else
   static unsigned nextFid_;
-#endif // WT_THREADED
+#endif
 
   int nbArgs_;
 
