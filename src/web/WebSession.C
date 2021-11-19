@@ -339,6 +339,7 @@ void WebSession::setLoaded()
   if (wasSuspended) {
     if (env_->ajax() && controller_->configuration().reloadIsNewSession()) {
       app_->doJavaScript(WT_CLASS ".history.removeSessionId()");
+      sessionIdInUrl_ = false;
     }
     app_->unsuspended().emit();
   }
