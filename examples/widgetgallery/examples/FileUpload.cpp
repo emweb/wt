@@ -14,7 +14,6 @@ SAMPLE_BEGIN(FileUpload)
 auto container = std::make_unique<Wt::WContainerWidget>();
 
 Wt::WFileUpload *fu = container->addNew<Wt::WFileUpload>();
-fu->setFileTextSize(50); // Set the maximum file size to 50 kB.
 fu->setProgressBar(std::make_unique<Wt::WProgressBar>());
 fu->setMargin(10, Wt::Side::Right);
 
