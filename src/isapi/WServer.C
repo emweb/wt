@@ -158,6 +158,11 @@ int WServer::httpPort() const
   return -1;
 }
 
+std::string WServer::docRoot() const
+{
+  return "";
+}
+
 void WServer::stop()
 {
   if (!isRunning()) {
