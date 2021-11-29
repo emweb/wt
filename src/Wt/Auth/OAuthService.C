@@ -128,11 +128,14 @@ public:
     WApplication *app = WApplication::instance();
     if (app->environment().ajax()) {
       if (!process_->service_.popupEnabled()) {
+        {
 #ifndef WT_TARGET_JAVA
-        WApplication::UpdateLock lock(app);
+          WApplication::UpdateLock lock(app);
 #endif
-        process_->onOAuthDone();
-        
+          process_->doneCallbackConnection_ =
+            app->unsuspended().connect(process_, &OAuthProcess::onOAuthDone);
+        }
+
         o <<
           "<!DOCTYPE html>"
           "<html lang=\"en\" dir=\"ltr\">\n"
@@ -337,6 +340,9 @@ void OAuthProcess::onOAuthDone()
   else if (!WApplication::instance()->environment().javaScript())
     redirectEndpoint_->haveMoreData();
 #endif // WT_TARGET_JAVA
+
+  if (doneCallbackConnection_.isConnected())
+    doneCallbackConnection_.disconnect();
 }
 
 #ifndef WT_TARGET_JAVA

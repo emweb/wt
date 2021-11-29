@@ -335,6 +335,10 @@ private:
   std::unique_ptr<OAuthRedirectEndpoint> redirectEndpoint_;
   std::unique_ptr<Http::Client> httpClient_;
 
+  // onOAuthDone() gets called from WApplication::unsuspended(), keeping
+  // the connection object allows us to disconnect after it's done
+  Wt::Signals::connection doneCallbackConnection_;
+
   void requestToken(const std::string& authorizationCode);
   void handleToken(AsioWrapper::error_code err,
 		   const Http::Message& response);

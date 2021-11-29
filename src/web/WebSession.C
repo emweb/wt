@@ -333,12 +333,15 @@ std::string WebSession::docType() const
 
 void WebSession::setLoaded()
 {
-  if (state_ == State::Suspended &&
-      env_->ajax() && controller_->configuration().reloadIsNewSession()) {
-    app_->doJavaScript(WT_CLASS ".history.removeSessionId()");
-  }
-
+  bool wasSuspended = state_ == State::Suspended;
   setState(State::Loaded, controller_->configuration().sessionTimeout());
+
+  if (wasSuspended) {
+    if (env_->ajax() && controller_->configuration().reloadIsNewSession()) {
+      app_->doJavaScript(WT_CLASS ".history.removeSessionId()");
+    }
+    app_->unsuspended().emit();
+  }
 }
 
 void WebSession::setExpectLoad()
