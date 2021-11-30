@@ -58,17 +58,8 @@ IF(ENABLE_SQLITE)
       ${SQLITE3_LIBRARIES}
       ${WT_SQLITE3_THREAD_LIB}
       ${WT_MATH_LIBRARY}
-      )
-
-  IF(NOT WIN32)
-    FIND_LIBRARY(DL_LIB
-      NAMES
-      dl
-      )
-    IF(DL_LIB)
-      TARGET_LINK_LIBRARIES(wtdbosqlite3 PRIVATE ${DL_LIB})
-    ENDIF(DL_LIB)
-  ENDIF(NOT WIN32)
+      ${CMAKE_DL_LIBS}
+  )
 
   INSTALL(TARGETS wtdbosqlite3
     EXPORT wt-target-dbosqlite3
