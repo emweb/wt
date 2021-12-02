@@ -222,8 +222,13 @@ bool WComboBox::supportsNoSelection() const
 void WComboBox::updateDom(DomElement& element, bool all)
 {
   if (itemsChanged_ || all) {
-    if (!all)
+    if (!all) {
       element.removeAllChildren();
+
+      // For 'no selection', the index must be explicitly set after rerender
+      if (currentIndex_ == -1)
+        selectionChanged_ = true;
+    }
 
     DomElement *currentGroup = nullptr;
     bool groupDisabled = true;
