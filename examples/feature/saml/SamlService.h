@@ -11,9 +11,9 @@
 
 class SamlService final : public Wt::Auth::Saml::Service {
 public:
-  SamlService(Wt::Auth::AuthService &baseAuth);
+  explicit SamlService(Wt::Auth::AuthService &baseAuth);
 
   Wt::Auth::Identity assertionToIdentity(const Wt::Auth::Saml::Assertion &assertion) const override;
 };
 
-#endif // SSAML_SERVICE_H_
+#endif // SAML_SERVICE_H_

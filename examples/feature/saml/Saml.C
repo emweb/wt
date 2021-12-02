@@ -14,7 +14,7 @@
 
 class SamlApplication final : public Wt::WApplication {
 public:
-  SamlApplication(const Wt::WEnvironment &env);
+  explicit SamlApplication(const Wt::WEnvironment &env);
 
 private:
   Session session_;
