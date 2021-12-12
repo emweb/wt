@@ -174,7 +174,6 @@ std::unique_ptr<Wt::WWidget> FormWidgets::autoComplete()
 #include "examples/CalendarExtended.cpp"
 #include "examples/DateEdit.cpp"
 #include "examples/TimeEdit.cpp"
-#include "examples/DatePicker.cpp"
 
 std::unique_ptr<Wt::WWidget> FormWidgets::dateEntry()
 {
@@ -183,7 +182,6 @@ std::unique_ptr<Wt::WWidget> FormWidgets::dateEntry()
   result->bindWidget("CalendarExtended", CalendarExtended());
   result->bindWidget("DateEdit", DateEdit());
   result->bindWidget("TimeEdit", TimeEdit());
-  result->bindWidget("DatePicker", DatePicker());
 
   return std::move(result);
 }

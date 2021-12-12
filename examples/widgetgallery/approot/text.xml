@@ -1901,9 +1901,8 @@
   <message id="forms-dateEntry">
     <h2 id="date-entry">Date entry</h2>
     <p>
-      Wt provides to kinds of widgets to enter a date, namely
-      <a href="#date-calendar">WCalendar</a> and <a href="#date-picker">
-      WDatePicker</a>.
+      Wt supports several date entry methods, including a ${doc-link WCalendar},
+      ${doc-link WTimeEdit} and ${doc-link WDateEdit}.
     </p>
 
     <h3 id="date-calendar">Date entry using a calendar</h3>
@@ -1961,23 +1960,6 @@
         ${TimeEdit}
         ${src TimeEdit}
     </fieldset>
-    <p><a href="#date-entry">Top</a></p>
-
-    <h3 id="date-edit">Date entry using a date picker</h3>
-    <p>
-      The date picker offers about the same functionality as the newer
-      <tt>WDateEdit</tt>, but with a slightly different API. Most
-      importantly, the date editor is a form widget, and integrates
-      better with other parts in Wt. It is in general more convenient
-      to use the newer WDateEdit class instead.
-    </p>
-
-    <fieldset class="example">
-        <legend>Example</legend>
-        ${DatePicker}
-        ${src DatePicker}
-    </fieldset>
-
     <p><a href="#date-entry">Top</a></p>
   </message>
 

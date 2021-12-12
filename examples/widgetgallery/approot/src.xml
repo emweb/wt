@@ -1012,59 +1012,6 @@
 <span class="p">});</span>
 </pre></div>
   </message>
-  <message id="src-DatePicker">
-<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WCalendar.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WDate.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WDatePicker.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WLabel.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WLineEdit.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WPushButton.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;Wt/WTemplate.h&gt;</span><span class="cp"></span>
-
-
-<span class="k">auto</span> <span class="n">form</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WTemplate</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="o">::</span><span class="n">tr</span><span class="p">(</span><span class="s">&quot;dateEdit-template&quot;</span><span class="p">));</span>
-<span class="n">form</span><span class="o">-&gt;</span><span class="n">addFunction</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WTemplate</span><span class="o">::</span><span class="n">Functions</span><span class="o">::</span><span class="n">id</span><span class="p">);</span>
-
-<span class="k">auto</span> <span class="n">dp1</span> <span class="o">=</span> <span class="n">form</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;from&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WDatePicker</span><span class="o">&gt;</span><span class="p">());</span>
-<span class="n">dp1</span><span class="o">-&gt;</span><span class="n">setDate</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span><span class="o">::</span><span class="n">currentServerDate</span><span class="p">().</span><span class="n">addDays</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
-
-<span class="k">auto</span> <span class="n">dp2</span> <span class="o">=</span> <span class="n">form</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;to&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WDatePicker</span><span class="o">&gt;</span><span class="p">());</span>
-<span class="n">dp2</span><span class="o">-&gt;</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;dd MM yyyy&quot;</span><span class="p">);</span> <span class="c1">// Apply a different date format.</span>
-<span class="n">dp2</span><span class="o">-&gt;</span><span class="n">calendar</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">setHorizontalHeaderFormat</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">CalendarHeaderFormat</span><span class="o">::</span><span class="n">SingleLetterDayNames</span><span class="p">);</span>
-<span class="n">dp2</span><span class="o">-&gt;</span><span class="n">setBottom</span><span class="p">(</span><span class="n">dp1</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">());</span>
-
-<span class="k">auto</span> <span class="n">button</span> <span class="o">=</span> <span class="n">form</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;save&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Save&quot;</span><span class="p">));</span>
-
-<span class="k">auto</span> <span class="n">out</span> <span class="o">=</span> <span class="n">form</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;out&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">());</span>
-
-<span class="n">dp1</span><span class="o">-&gt;</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">changed</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
-    <span class="n">dp2</span><span class="o">-&gt;</span><span class="n">setBottom</span><span class="p">(</span><span class="n">dp1</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">());</span>
-    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Date picker 1 is changed.&quot;</span><span class="p">);</span>
-<span class="p">});</span>
-
-<span class="n">dp2</span><span class="o">-&gt;</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">changed</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
-    <span class="n">dp1</span><span class="o">-&gt;</span><span class="n">setTop</span><span class="p">(</span><span class="n">dp2</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">());</span>
-    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Date picker 2 is changed.&quot;</span><span class="p">);</span>
-<span class="p">});</span>
-
-<span class="n">button</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">dp1</span><span class="o">-&gt;</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">().</span><span class="n">empty</span><span class="p">()</span> <span class="o">||</span> <span class="n">dp2</span><span class="o">-&gt;</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">().</span><span class="n">empty</span><span class="p">())</span>
-        <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;You should enter two dates!&quot;</span><span class="p">);</span>
-    <span class="k">else</span> <span class="p">{</span>
-        <span class="kt">int</span> <span class="n">days</span> <span class="o">=</span> <span class="n">dp1</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">().</span><span class="n">daysTo</span><span class="p">(</span><span class="n">dp2</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-	<span class="k">if</span> <span class="p">(</span><span class="n">days</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-	    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;It&#39;s fine to take holiday just for one day!&quot;</span><span class="p">);</span>
-	<span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">days</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
-	    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;So, you want to take holiday for a period &quot;</span>
-				     <span class="s">&quot;of </span><span class="p">{</span><span class="mi">1</span><span class="p">}</span> <span class="n">days</span><span class="o">?</span><span class="p">...</span><span class="s">&quot;).arg(days));</span>
-	<span class="k">else</span>
-	    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Invalid period!&quot;</span><span class="p">);</span>
-   <span class="p">}</span>
-<span class="p">});</span>
-</pre></div>
-  </message>
   <message id="src-Dialog">
 <div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;Wt/WApplication.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;Wt/WBreak.h&gt;</span><span class="cp"></span>
