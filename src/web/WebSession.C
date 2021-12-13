@@ -1707,12 +1707,14 @@ void WebSession::handleRequest(Handler& handler)
 	      if (state_ != State::ExpectLoad &&
                   state_ != State::Suspended &&
 		  handler.response()->responseType() == 
-		  WebResponse::ResponseType::Update)
-	        setLoaded();
+		  WebResponse::ResponseType::Update) {
+                setLoaded();
+              }
 	    } else if (state_ != State::ExpectLoad &&
-                       state_ != State::Suspended &&
-		       !controller_->limitPlainHtmlSessions())
-	      setLoaded();	    
+                       !(state_ == State::Suspended && requestForResource) &&
+		       !controller_->limitPlainHtmlSessions()) {
+              setLoaded();
+            }
           }
         } else {
 #ifndef WT_TARGET_JAVA
