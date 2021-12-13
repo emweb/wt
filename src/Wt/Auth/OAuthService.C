@@ -39,7 +39,7 @@
 
 #define ERROR_MSG(e) WString::tr("Wt.Auth.OAuthService." e)
 
-#define REDIRECT_TIMEOUT_DEFAULT 600;
+#define REDIRECT_TIMEOUT_DEFAULT 600
 
 namespace Wt {
 
