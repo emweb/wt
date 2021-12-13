@@ -14,6 +14,7 @@
 #include <Wt/Auth/AuthService.h>
 #include <Wt/Auth/Identity.h>
 
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -222,6 +223,25 @@ public:
   static void initialize();
 #endif // WT_TARGET_JAVA
 
+  /*! \brief Configure if a popup should be used for the login.
+   *
+   * When JavaScript is available and this is set to true, a popup will
+   * open for the authentication. By default, this is disabled, the session
+   * will be suspended and a redirect is used instead.
+   *
+   * A timeout can be configured in wt_config.xml (see <tt>saml-redirect-timeout</tt>),
+   * or with setRedirectTimeout().
+   *
+   * \sa popupEnabled()
+   */
+  void setPopupEnabled(bool enable);
+
+  /*! \brief Returns if a popup is used for the login.
+   *
+   * \sa setPopupEnabled()
+   */
+  bool popupEnabled() const { return usePopup_; }
+
   /*! \brief Creates a new authorization process.
    *
    * The service needs to be correctly configured  and
@@ -308,6 +328,16 @@ public:
    * \sa decodeState()
    */
   void setSecret(const std::string &secret);
+
+  /*! \brief Sets the timeout to login when there is no popup.
+   *
+   * If the user does not return to the application in time, then the
+   * session is destroyed.
+   *
+   * By default the timeout is retrieved from the "saml-redirect-timeout" configuration property,
+   * or if that property is not present, the default timeout is equal to 10 minutes.
+   */
+  void setRedirectTimeout(std::chrono::seconds timeout);
 
   /*! \brief Sets the provider name.
    *
@@ -725,6 +755,7 @@ private:
 
   // configuration
   std::string secret_;
+  std::chrono::seconds redirectTimeout_;
   std::string name_;
   std::string description_;
   int popupWidth_;
@@ -753,6 +784,7 @@ private:
   SignaturePolicy signaturePolicy_;
   bool xmlValidationEnabled_;
   bool nameIdPolicyAllowCreate_;
+  bool usePopup_;
 
   void checkInitialized() const; // Throws if not initialized
   void checkConfig() const; // Throws if configuration is not ok

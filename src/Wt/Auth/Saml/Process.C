@@ -22,6 +22,8 @@
 #include "Wt/Http/Request.h"
 #include "Wt/Http/Response.h"
 
+#include "web/WebUtils.h"
+
 namespace Wt {
 
 LOGGER("Auth.Saml.Process");
@@ -103,7 +105,19 @@ void Process::PrivateAcsResource::handleRequest(const Http::Request &request,
     std::ostream o(response.out());
 #endif // WT_TARGET_JAVA
     WApplication *app = WApplication::instance();
-    if (app->environment().ajax()) {
+    const bool usePopup = app->environment().ajax() && process_.service_.popupEnabled();
+
+    if (!usePopup) {
+#ifndef WT_TARGET_JAVA
+      WApplication::UpdateLock lock(app);
+#endif
+      process_.doneCallbackConnection_ =
+        app->unsuspended().connect(&process_, &Process::onSamlDone);
+
+      std::string redirectTo = app->makeAbsoluteUrl(app->url(process_.startInternalPath_));
+      response.setStatus(303);
+      response.addHeader("Location", redirectTo);
+    } else {
       std::string appJs = app->javaScriptClass();
       o <<
         "<!DOCTYPE html>"
@@ -112,9 +126,9 @@ void Process::PrivateAcsResource::handleRequest(const Http::Request &request,
         "<script type=\"text/javascript\">\n"
         "function load() { "
         """if (window.opener." << appJs << ") {"
-                                           ""  "var " << appJs << "= window.opener." << appJs << ";"
+        ""  "var " << appJs << "= window.opener." << appJs << ";"
 #ifndef WT_TARGET_JAVA
-        <<  process_.redirected_.createCall({}) << ";"
+        << process_.redirected_.createCall({}) << ";"
 #else // WT_TARGET_JAVA
         <<  process_.redirected_.createCall() << ";"
 #endif // WT_TARGET_JAVA
@@ -123,11 +137,6 @@ void Process::PrivateAcsResource::handleRequest(const Http::Request &request,
         "}\n"
         "</script></head>"
         "<body onload=\"load();\"></body></html>";
-    } else {
-      std::string redirectTo = app->makeAbsoluteUrl(app->url(process_.startInternalPath_));
-      response.setStatus(303);
-      response.addHeader("Location", redirectTo);
-      // FIXME: notify that the authentication is done!
     }
   } else {
     response.setStatus(500);
@@ -154,13 +163,15 @@ Process::Process(const Service &service)
   redirected_.connect(this, &Process::onSamlDone);
 
 #ifndef WT_TARGET_JAVA
-  WStringStream js;
-  js << WT_CLASS << ".PopupWindow(" WT_CLASS
-    << "," << WWebWidget::jsStringLiteral(url)
-    << ", " << service.popupWidth()
-    << ", " << service.popupHeight() << ");";
+  if (service_.popupEnabled()) {
+    WStringStream js;
+    js << WT_CLASS << ".PopupWindow(" WT_CLASS
+       << "," << WWebWidget::jsStringLiteral(url)
+       << ", " << service.popupWidth()
+       << ", " << service.popupHeight() << ");";
 
-  implementJavaScript(&Process::startAuthenticate, js.str());
+    implementJavaScript(&Process::startAuthenticate, js.str());
+  }
 #endif
 }
 
@@ -170,10 +181,14 @@ Process::~Process()
 void Process::startAuthenticate()
 {
   WApplication *app = WApplication::instance();
-  if (!app->environment().javaScript()) {
-    startInternalPath_ = app->internalPath();
-    app->redirect(authnRequestResource_->url());
+  if (app->environment().javaScript() && service_.popupEnabled()) {
+    return;
   }
+
+  app->suspend(service_.redirectTimeout_);
+
+  startInternalPath_ = app->internalPath();
+  app->redirect(authnRequestResource_->url());
 }
 
 #ifdef WT_TARGET_JAVA
@@ -212,6 +227,9 @@ void Process::onSamlDone()
   bool success = error_.empty();
 
   authenticated().emit(success ? service_.assertionToIdentity(assertion_) : Identity());
+
+  if (doneCallbackConnection_.isConnected())
+    doneCallbackConnection_.disconnect();
 }
 
 std::string Process::privateAcsResourceUrl() const

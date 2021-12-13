@@ -23,6 +23,8 @@
 #include <Wt/Http/Request.h>
 #include <Wt/Http/Response.h>
 
+#include "web/WebUtils.h"
+
 #include <string>
 
 namespace {
@@ -176,6 +178,7 @@ void Service::MetadataResource::handleRequest(const Http::Request &request,
 
 Service::Service(const AuthService &baseAuth)
   : baseAuth_(baseAuth),
+    redirectTimeout_(std::chrono::minutes(10)),
     name_("SAML"),
     description_("SAML Single Sign-On"),
     popupWidth_(670),
@@ -188,7 +191,8 @@ Service::Service(const AuthService &baseAuth)
 #endif
     signaturePolicy_(SignaturePolicy::SignedResponseAndAssertion),
     xmlValidationEnabled_(true),
-    nameIdPolicyAllowCreate_(true)
+    nameIdPolicyAllowCreate_(true),
+    usePopup_(false)
 {
   nameIdPolicyFormat_ = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified";
 
@@ -196,6 +200,11 @@ Service::Service(const AuthService &baseAuth)
     secret_ = Service::configurationProperty("saml-secret");
   } catch (std::exception &e) {
     secret_ = WRandom::generateId(32);
+  }
+  try {
+    std::string redirectTimeoutStr = Service::configurationProperty("saml-redirect-timeout");
+    redirectTimeout_ = std::chrono::seconds(Wt::Utils::stoll(redirectTimeoutStr));
+  } catch (std::exception &e) {
   }
 
 #ifndef WT_TARGET_JAVA
@@ -231,6 +240,11 @@ void Service::initialize()
 #endif // WT_TARGET_JAVA
 }
 
+void Service::setPopupEnabled(bool enable)
+{
+  usePopup_ = enable;
+}
+
 #ifndef WT_TARGET_JAVA
 void Service::configureLogging()
 {
@@ -246,6 +260,11 @@ void Service::configureXmlSecurity()
 void Service::setSecret(const std::string &secret)
 {
   secret_ = secret;
+}
+
+void Service::setRedirectTimeout(std::chrono::seconds timeout)
+{
+  redirectTimeout_ = timeout;
 }
 
 void Service::setName(const std::string &name)

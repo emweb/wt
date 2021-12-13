@@ -100,6 +100,10 @@ private:
   WString error_;
   std::string startInternalPath_;
 
+  // onSamlDone() gets called from WApplication::unsuspended(), keeping
+  // the connection object allows us to disconnect after it's done
+  Wt::Signals::connection doneCallbackConnection_;
+
   // response is a response carrying a redirect to the SSO service with the AuthnRequest
   bool createAuthnRequest(Http::Response &response);
   // request is a request containing the SAMLResponse
