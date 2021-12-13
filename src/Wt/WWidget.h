@@ -838,7 +838,7 @@ public:
    *
    * During the life-time of a widget, this method may be called
    * multiple times, so you should make sure that you do a deferred
-   * initializiation only once.
+   * initialization only once.
    */
   virtual void load() = 0;
 
