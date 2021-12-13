@@ -97,7 +97,7 @@ private:
   std::string requestIdentifier_;
 
   Assertion assertion_;
-  WString error_; // TODO(Roel): error
+  WString error_;
   std::string startInternalPath_;
 
   // response is a response carrying a redirect to the SSO service with the AuthnRequest
