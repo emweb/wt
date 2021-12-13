@@ -126,55 +126,43 @@ public:
 #endif // WT_TARGET_JAVA
 
     WApplication *app = WApplication::instance();
-    if (app->environment().ajax()) {
-      if (!process_->service_.popupEnabled()) {
-        {
-#ifndef WT_TARGET_JAVA
-          WApplication::UpdateLock lock(app);
-#endif
-          process_->doneCallbackConnection_ =
-            app->unsuspended().connect(process_, &OAuthProcess::onOAuthDone);
-        }
+    const bool usePopup = app->environment().ajax() && process_->service_.popupEnabled();
 
-        o <<
-          "<!DOCTYPE html>"
-          "<html lang=\"en\" dir=\"ltr\">\n"
-          "<head><meta http-equiv=\"refresh\" content=\"0; url="
-          << app->makeAbsoluteUrl(app->url(process_->startInternalPath_)) << "\" /></head>\n"
-          "<body></body></html>";
-      } else {
-        std::string appJs = app->javaScriptClass();
-        o <<
-          "<!DOCTYPE html>"
-          "<html lang=\"en\" dir=\"ltr\">\n"
-          "<head><title></title>\n"
-          "<script type=\"text/javascript\">\n"
-          "function load() { "
-          """if (window.opener." << appJs << ") {"
-          ""  "var " << appJs << "= window.opener." << appJs << ";"
+    if (!usePopup) {
 #ifndef WT_TARGET_JAVA
-          <<  process_->redirected_.createCall({}) << ";"
-#else // WT_TARGET_JAVA
-          <<  process_->redirected_.createCall() << ";"
-#endif // WT_TARGET_JAVA
-          ""  "window.close();"
-          "}\n"
-          "}\n"
-          "</script></head>"
-          "<body onload=\"load();\"></body></html>";
-      }
-    } else {
-      // FIXME: it would be way cleaner if we can send a 302 response, but at
-      //        the moment there's no way to stall sending of status code and headers
-      //        when using continuations
+      WApplication::UpdateLock lock(app);
+#endif
+      process_->doneCallbackConnection_ =
+        app->unsuspended().connect(process_, &OAuthProcess::onOAuthDone);
+
       std::string redirectTo = app->makeAbsoluteUrl(app->url(process_->startInternalPath_));
       o <<
-	"<!DOCTYPE html>"
-	"<html lang=\"en\" dir=\"ltr\">\n"
-	"<head><meta http-equiv=\"refresh\" content=\"0; url="
-	<< redirectTo << "\" /></head>\n"
-	"<body><p><a href=\"" << redirectTo
-	<< "\"> Click here to continue</a></p></body></html>";
+        "<!DOCTYPE html>"
+        "<html lang=\"en\" dir=\"ltr\">\n"
+        "<head><meta http-equiv=\"refresh\" content=\"0; url="
+        << redirectTo << "\" /></head>\n"
+        "<body><p><a href=\"" << redirectTo
+        << "\"> Click here to continue</a></p></body></html>";
+    } else {
+      std::string appJs = app->javaScriptClass();
+      o <<
+        "<!DOCTYPE html>"
+        "<html lang=\"en\" dir=\"ltr\">\n"
+        "<head><title></title>\n"
+        "<script type=\"text/javascript\">\n"
+        "function load() { "
+        """if (window.opener." << appJs << ") {"
+        ""  "var " << appJs << "= window.opener." << appJs << ";"
+#ifndef WT_TARGET_JAVA
+        <<  process_->redirected_.createCall({}) << ";"
+#else // WT_TARGET_JAVA
+        <<  process_->redirected_.createCall() << ";"
+#endif // WT_TARGET_JAVA
+        ""  "window.close();"
+        "}\n"
+        "}\n"
+        "</script></head>"
+        "<body onload=\"load();\"></body></html>";
     }
   }
 
@@ -269,23 +257,21 @@ void OAuthProcess::startAuthorize()
   if (app->environment().javaScript() && service_.popupEnabled())
     return;
 
-  if (app->environment().javaScript()) {
-    redirectEndpoint_->url(); // Make sure it is exposed
+  redirectEndpoint_->url(); // Make sure it is exposed
 
-    int timeout = REDIRECT_TIMEOUT_DEFAULT;
+  int timeout = REDIRECT_TIMEOUT_DEFAULT;
 
-    std::string value;
-    if (app->readConfigurationProperty("oauth2-redirect-timeout", value)) {
-      try {
-        timeout = Wt::Utils::stoi(value);
-      } catch (std::exception& e) {
-        LOG_ERROR(ERROR_MSG("could not convert 'oauth2-redirect-timeout' to int: ") << value);
-      }
+  std::string value;
+  if (app->readConfigurationProperty("oauth2-redirect-timeout", value)) {
+    try {
+      timeout = Wt::Utils::stoi(value);
+    } catch (std::exception& e) {
+      LOG_ERROR(ERROR_MSG("could not convert 'oauth2-redirect-timeout' to int: ") << value);
     }
-
-    app->suspend(std::chrono::seconds(timeout));
   }
-  
+
+  app->suspend(std::chrono::seconds(timeout));
+
   startInternalPath_ = app->internalPath();
   app->redirect(authorizeUrl());
 }
