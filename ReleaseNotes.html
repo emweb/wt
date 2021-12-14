@@ -20,6 +20,38 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.5.2 (December 14, 2021)</h2>
+
+<p>Wt 4.5.2 is a bugfix release containing the following changes:</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9490" target="_blank">Issue #9490</a>: Fixed a possible
+    exception being thrown in the Postgres backend for Dbo when subnormal floating point numbers are retrieved
+    from the database.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9414" target="_blank">Issue #9414</a>: Fixed an error that
+    occurred when trying to link <code>libwtdbosqlite3</code> on Fedora 35.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9363" target="_blank">Issue #9363</a>: Added a workaround for
+    <a href="https://github.com/boostorg/spirit/issues/688" target="_blank">Boost Spirit issue #688</a>,
+    affecting versions of Boost &gte; 1.66.0.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9270" target="_blank">Issue #9270</a>: Fixed a possible but
+    very rarely occurring race condition
+    in the generation of ids that would make it possible to have two widgets with the same id in the same
+    <a href="classWt_1_1WApplication.html">WApplication</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9230" target="_blank">Issue #9230</a>: Fixed an issue where the 3-argument version
+    of <a href="classWt_1_1Dbo_1_1QueryModel.html#ac225ba823673dc46e47811631e3218fe">QueryModel::setHeaderData</a>
+    was no longer accessible.
+  </li>
+</ul>
+
 <h2>Release 4.5.1 (October 7, 2021)</h2>
 
 <p>Wt 4.5.1 is a bugfix release containing the following changes:</p>
@@ -181,7 +213,6 @@ behaviour.
     </ul>
   </li>
 </ul>
-
 
 <h2>Release 4.5.0 (December 15, 2020)</h2>
 
