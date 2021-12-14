@@ -3331,4 +3331,27 @@ BOOST_AUTO_TEST_CASE( dbo_test43 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test44 )
+{
+  // #9490: Postgres backend can throw exception when getting subnormal floats out of the database
+  DboFixture f;
+
+  const auto fl = std::nextafter(0.f, std::numeric_limits<float>::infinity());
+  const auto dbl = std::nextafter(0., std::numeric_limits<double>::infinity());
+
+  {
+    dbo::Transaction t(*f.session_);
+    auto a = f.session_->addNew<A>();
+    a.modify()->f = fl;
+    a.modify()->d = dbl;
+  }
+
+  {
+    dbo::Transaction t(*f.session_);
+    auto a = f.session_->find<A>().resultValue();
+    BOOST_REQUIRE_CLOSE_FRACTION(a->f, fl, 1E-7);
+    BOOST_REQUIRE_CLOSE_FRACTION(a->d, dbl, 1E-15);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
