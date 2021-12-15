@@ -725,13 +725,9 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
   dbo::Session *session_ = f.session_;
 
   A a1;
-  a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
+  a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31, 123));
   a1.date = Wt::WDate(1980, 12, 4);
   a1.time = Wt::WTime(12, 13, 14, 123);
-  // There is a bug in the implementation of milliseconds in mariadb c client
-#ifdef MYSQL
-  a1.time = Wt::WTime(13, 14, 15);
-#endif //MYSQL
   a1.timeduration = std::chrono::duration<int, std::milli>(0);
   a1.wstring = "Hello";
   a1.string = "There";
