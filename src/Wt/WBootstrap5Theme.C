@@ -405,7 +405,7 @@ std::string WBootstrap5Theme::utilityCssClass(int utilityCssClassRole) const
   case ToolTipInner:
     return "tooltip-inner";
   case ToolTipOuter:
-    return "tooltip fade top show position-absolute";
+    return "Wt-tooltip tooltip fade top show";
   default:
     return "";
   }

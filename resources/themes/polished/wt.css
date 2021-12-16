@@ -786,14 +786,16 @@ body.Wt-rtl .Wt-tabs li {
  * XHTML Tooltips
  */
 .Wt-tooltip {
-    position: absolute;
-    max-width: 700px;
+    display: inline-block;
     background-color: #ffffcc;
     border: 1px solid black;
     padding: 1px 2px;
     font-family: sans-serif;
     font-size: smaller;
     z-index: 1000;
+    overflow-y: auto;
+    width: fit-content;
+    height: fit-content;
 }
 
 /*

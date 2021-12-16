@@ -18,7 +18,7 @@ WT_DECLARE_WT_MEMBER(
 
     if (!obj) {
       el.toolTip = new function() {
-        let showTimer = null, checkInt = null, coords = null, toolTipEl = null;
+        let showTimer = null, checkInt = null, coords = null, toolTipEl = null, outerDiv = null;
         const MouseDistance = 10;
         const Delay = 500;
         const HideDelay = 200;
@@ -70,19 +70,13 @@ WT_DECLARE_WT_MEMBER(
             toolTipEl.className = ToolTipInnerStyle;
             toolTipEl.innerHTML = toolTipText;
 
-            const outerDiv = document.createElement("div");
+            outerDiv = document.createElement("div");
             outerDiv.className = ToolTipOuterStyle;
 
             document.body.appendChild(outerDiv);
             outerDiv.appendChild(toolTipEl);
 
-            if (forceShow) {
-              const x = el.offsetLeft + el.offsetWidth / 2, y = el.offsetTop + el.offsetHeight;
-              WT.fitToWindow(outerDiv, x + MouseDistance, y + 2 * MouseDistance, x - MouseDistance, y);
-            } else {
-              const x = coords.x, y = coords.y;
-              WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance, x - MouseDistance, y - MouseDistance);
-            }
+            positionToolTip();
 
             // bring tooltip to front if there are dialogs
             let maxz = 0;
@@ -95,10 +89,10 @@ WT_DECLARE_WT_MEMBER(
               }
             });
 
-            toolTipEl.addEventListener("mouseenter", function() {
+            outerDiv.addEventListener("mouseenter", function() {
               overTooltip = true;
             });
-            toolTipEl.addEventListener("mouseleave", function() {
+            outerDiv.addEventListener("mouseleave", function() {
               overTooltip = false;
             });
           }
@@ -120,10 +114,59 @@ WT_DECLARE_WT_MEMBER(
           }, HideDelay);
         }
 
+        function positionToolTip() {
+          const coordX = forceShow ? el.offsetLeft + el.offsetWidth / 2 : coords.x;
+          const coordY = forceShow ? el.offsetTop + el.offsetHeight : coords.y;
+
+          const x = coordX + MouseDistance,
+            y = coordY + MouseDistance,
+            rightx = coordX - MouseDistance;
+
+          let bottomy = coordY - MouseDistance;
+          const reserveWidth = outerDiv.offsetWidth,
+            reserveHeight = outerDiv.offsetHeight;
+          // using clientWidth/Height rather than WT.windowSize() to exclude the page scrollbars
+          const windowSize = { x: document.documentElement.clientWidth, y: document.documentElement.clientHeight };
+
+          let offsetX = 0, offsetFromLeft = true;
+          if (x + reserveWidth <= windowSize.x) {
+            // fits on the right
+            offsetX = x;
+          } else if (rightx >= reserveWidth || rightx > windowSize.x - x) {
+            // fits on the left OR more space on the left
+            offsetX = windowSize.x - rightx;
+            offsetFromLeft = false;
+          } else {
+            // more space on the right
+            offsetX = x;
+          }
+
+          let offsetY = 0, offsetFromTop = true;
+          if (y + reserveHeight <= windowSize.y) {
+            offsetY = y;
+          } else if (bottomy >= reserveHeight) {
+            if (bottomy > windowSize.y) {
+              bottomy = windowSize.y;
+            }
+            offsetY = windowSize.y - bottomy;
+            offsetFromTop = false;
+          } else if (reserveHeight < windowSize.y) {
+            offsetY = windowSize.y - reserveHeight;
+          }
+
+          outerDiv.style.position = "fixed";
+          outerDiv.style[offsetFromLeft ? "left" : "right"] = offsetX + "px";
+          outerDiv.style[offsetFromTop ? "top" : "bottom"] = offsetY + "px";
+
+          outerDiv.style.maxWidth = (offsetFromLeft ? (windowSize.x - x) : rightx) + "px";
+          outerDiv.style.maxHeight = document.documentElement.clientHeight + "px";
+        }
+
         function hideToolTip() {
-          if (toolTipEl) {
-            toolTipEl.parentElement.remove();
+          if (outerDiv) {
+            outerDiv.remove();
             toolTipEl = null;
+            outerDiv = null;
             clearInterval(checkInt);
             checkInt = null;
             overTooltip = false;
@@ -132,7 +175,7 @@ WT_DECLARE_WT_MEMBER(
 
         function resetTimer(e) {
           clearTimeout(showTimer);
-          coords = WT.pageCoordinates(e);
+          coords = e;
 
           if (!toolTipEl) {
             showTimer = setTimeout(function() {
