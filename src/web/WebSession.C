@@ -2757,7 +2757,7 @@ bool WebSession::resourceRequest(const WebRequest& request) const
     const std::string *resourceE = request.getParameter("resource");
     if (requestE && *requestE == "resource" && resourceE) {
       return true;
-    } else if (!requestE) { // check if resource is deployed on internal path
+    } else if (!requestE && app_) { // check if resource is deployed on internal path
       if (!request.pathInfo().empty() &&
           app_->decodeExposedResource("/path/" + Utils::prepend(request.pathInfo(), '/')) != nullptr)
         return true;
