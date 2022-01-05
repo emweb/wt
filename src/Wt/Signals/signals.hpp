@@ -118,14 +118,16 @@ private:
 	assert (ref_count > 0);
     }
 
-    void unlink()
+    void unlink(bool doDecref = true)
     {
       function = nullptr;
       if (next)
         next->prev = prev;
       if (prev)
         prev->next = next;
-      decref();
+      if (doDecref) {
+        decref();
+      }
       // leave intact ->next, ->prev for stale iterators
     }
 
@@ -234,7 +236,6 @@ public:
                            // being emitted, those slots added before the second emit will
                            // be executed.
       callback_ring->add_before(&end_link);
-      end_link.incref(); // Refcount = 2, see call to unlink() below for reason
 
       do {
         if (link->active()) {
@@ -243,9 +244,9 @@ public:
           } catch (...) {
             link->decref();
 
-            end_link.unlink();
+            end_link.unlink(false);
             assert(end_link.ref_count == 1);
-            end_link.ref_count = 0;
+            end_link.ref_count = 0; // satisfy assertion in end_link destructor
 
             if (callback_ring->ref_count < 2) {
               assert(callback_ring->ref_count == 1);
@@ -264,11 +265,9 @@ public:
         old->decref();
       } while (link != &end_link);
 
-      end_link.unlink(); // Refcount goes from 2 to 1 (if it were to go from 1 to 0,
-                         // delete this would be called, which we don't want, because
-                         // end_link is on the stack
+      end_link.unlink(false);
       assert(end_link.ref_count == 1);
-      end_link.ref_count = 0;
+      end_link.ref_count = 0; // satisfy assertion in end_link destructor
     }
 
     if (callback_ring->ref_count < 2) {
