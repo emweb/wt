@@ -443,4 +443,21 @@ std::string WebRequest::hostName(const Configuration &conf) const
   return host;
 }
 
+std::string WebRequest::urlScheme(const Configuration &conf) const
+{
+  if (conf.behindReverseProxy() ||
+      conf.isTrustedProxy(remoteAddr())) {
+    std::string forwardedProto = str(headerValue("X-Forwarded-Proto"));
+    if (!forwardedProto.empty()) {
+      std::string::size_type i = forwardedProto.rfind(',');
+      if (i == std::string::npos)
+        return forwardedProto;
+      else
+        return forwardedProto.substr(i+1);
+    }
+  }
+
+  return urlScheme();
+}
+
 }

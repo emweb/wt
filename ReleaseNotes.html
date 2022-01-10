@@ -46,6 +46,12 @@ behaviour.
       <li>Mails sent by Wt::Auth are now logged using Wt::WLogger. As a result, the logging can also be disabled by adding '-info:Auth.AuthService' to &lt;log-config&gt; in the wt configuration.</li>
     </ul>
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9591" target="_blank">Issue #9591</a>:
+    <a href="https://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Http_1_1Request.html#a970b7d266c6bead893ec6334520807bf">
+      Http::Request::urlScheme()
+    </a> now looks at <code>X-Forwarded-Proto</code> if Wt is behind a trusted reverse proxy.
+  </li>
 </ul>
 
 <h2>Release 4.6.3 (March 10, 2022)</h2>

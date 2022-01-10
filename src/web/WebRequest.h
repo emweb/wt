@@ -202,6 +202,8 @@ public:
 
   std::string hostName(const Configuration & conf) const;
 
+  std::string urlScheme(const Configuration & conf) const;
+
 protected:
   const EntryPoint *entryPoint_;
 

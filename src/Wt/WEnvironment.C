@@ -95,21 +95,9 @@ void WEnvironment::updateHostName(const WebRequest& request)
 
 void WEnvironment::updateUrlScheme(const WebRequest& request) 
 {
-  urlScheme_       = str(request.urlScheme());
-
   Configuration& conf = session_->controller()->configuration();
 
-  if (conf.behindReverseProxy() ||
-      conf.isTrustedProxy(request.remoteAddr())) {
-    std::string forwardedProto = str(request.headerValue("X-Forwarded-Proto"));
-    if (!forwardedProto.empty()) {
-      std::string::size_type i = forwardedProto.rfind(',');
-      if (i == std::string::npos)
-        urlScheme_ = forwardedProto;
-      else
-        urlScheme_ = forwardedProto.substr(i+1);
-    }
-  }
+  urlScheme_ = request.urlScheme(conf);
 }
 
 

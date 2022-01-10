@@ -296,6 +296,9 @@ public:
   /*! \brief Returns the url scheme used.
    *
    * This is either <tt>"http"</tt> or <tt>"https"</tt>
+   *
+   * If we're behind a trusted reverse proxy, the value of X-Forwarded-Proto
+   * will be used if it is present.
    */
   std::string urlScheme() const;
 

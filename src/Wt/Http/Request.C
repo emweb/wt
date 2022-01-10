@@ -169,7 +169,11 @@ std::string Request::queryString() const
 
 std::string Request::urlScheme() const
 {
-  return request_ ? request_->urlScheme() : std::string();
+  if (!request_)
+    return std::string();
+
+  WServer *server = WServer::instance();
+  return request_->urlScheme(server->configuration());
 }
 
 std::string Request::headerValue(const std::string& field) const
