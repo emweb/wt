@@ -103,9 +103,16 @@ bool AuthModel::validateField(Field field)
   User user = users().findWithIdentity(Identity::LoginName,
                                        valueText(LoginNameField));
   if (field == LoginNameField) {
-    if (user.isValid())
-      setValid(LoginNameField);
-    else {
+    if (user.isValid()) {
+      if (baseAuth()->emailVerificationRequired() &&
+        user.email().empty())
+      setValidation
+	(LoginNameField,
+	 WValidator::Result(ValidationState::Invalid,
+			    WString::tr("Wt.Auth.email-unverified")));
+      else
+        setValid(LoginNameField);
+    } else {
       setValidation
         (LoginNameField,
          WValidator::Result(ValidationState::Invalid,
