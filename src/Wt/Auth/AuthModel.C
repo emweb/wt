@@ -267,5 +267,16 @@ User AuthModel::processAuthToken()
   return User();
 }
 
+bool AuthModel::showResendEmailVerification() const
+{
+  if (!baseAuth()->emailVerificationRequired()) {
+    return false;
+  }
+
+  User user = users().findWithIdentity(Identity::LoginName,
+                                       valueText(LoginNameField));
+  return user.isValid() && user.email().empty();
+}
+
   }
 }

@@ -11,6 +11,7 @@
 #include "Wt/Auth/OAuthWidget.h"
 #include "Wt/Auth/PasswordPromptDialog.h"
 #include "Wt/Auth/RegistrationWidget.h"
+#include "Wt/Auth/ResendEmailVerificationWidget.h"
 #include "Wt/Auth/UpdatePasswordWidget.h"
 
 #include "Wt/Auth/OAuthService.h"
@@ -213,6 +214,21 @@ std::unique_ptr<WWidget> AuthWidget::createRegistrationView(const Identity& id)
   return std::move(w);
 }
 
+void AuthWidget::letResendEmailVerification()
+{
+  showDialog(tr("Wt.Auth.resend-verification-title"),
+             createResendEmailVerificationView());
+}
+
+std::unique_ptr<WWidget> AuthWidget::createResendEmailVerificationView()
+{
+  auto loginName = model_->valueText(AuthModel::LoginNameField);
+  User user = model_->users().findWithIdentity(Identity::LoginName, loginName);
+
+  return std::unique_ptr<WWidget>
+    (new ResendEmailVerificationWidget(user, *model_->baseAuth()));
+}
+
 void AuthWidget::handleLostPassword()
 {
   showDialog(tr("Wt.Auth.lostpassword"), createLostPasswordView());
@@ -401,6 +417,14 @@ void AuthWidget::updatePasswordLoginView()
         bindString("sep", " | ");
       else
         bindEmpty("sep");
+    }
+
+    if (model_->showResendEmailVerification()) {
+      auto resendAnchor = bindNew<WAnchor>("user-confirm-email");
+      resendAnchor->setText(WString::tr("Wt.Auth.resend-email-verification"));
+      resendAnchor->clicked().connect(this, &AuthWidget::letResendEmailVerification);
+    } else {
+      bindEmpty("user-confirm-email");
     }
 
     model_->updateThrottling(login);

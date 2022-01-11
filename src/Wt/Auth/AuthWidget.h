@@ -234,6 +234,35 @@ public:
    */
   virtual std::unique_ptr<WWidget> createRegistrationView(const Identity& id);
 
+  /*! \brief Lets the user resend the verification email.
+   *
+   * This creates a view to let the user resend the email to verify
+   * their email address.
+   *
+   * The default implementation creates a new view using
+   * createResendEmailVerificationView() and shows it in a dialog using
+   * showDialog().
+   */
+  virtual void letResendEmailVerification();
+
+  /*! \brief Creates a view to resend the email verification email.
+   *
+   * If AuthService::emailVerificationRequired() is \c true, a button will be
+   * shown next to the user name field to resend the verification email
+   * (if the email was not yet verified). This button will show a dialog
+   * containing the widget returned by this method. The default implementation
+   * instantiates a ResendEmailVerificationWidget.
+   *
+   * This creates the widget used to let the user chose a new
+   * password. The default implementation instantiates an
+   * UpdatePasswordWidget.
+   *
+   * Note that if email verification is optional, the application should
+   * provide its own mechanism to resend the verification email (e.g. in
+   * a user settings widget).
+   */
+  virtual std::unique_ptr<WWidget> createResendEmailVerificationView();
+
   /*! \brief Creates a view to update a user's password.
    *
    * If \p promptPassword is \c true, the user has to enter his current

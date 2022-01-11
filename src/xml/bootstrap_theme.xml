@@ -55,11 +55,11 @@
       <p>${tr:Wt.Auth.login-form-info}</p>
 
       <div class="form-horizontal">
-        ${<if:passwords>}
-          ${block:Wt.Auth.field2 user-name user-name-label}
-          ${block:Wt.Auth.field password}
-          ${block:Wt.Auth.field remember-me}
-        ${</if:passwords>}
+	${<if:passwords>}
+	  ${block:Wt.Auth.field3 user-name user-name-label user-confirm-email}
+	  ${block:Wt.Auth.field password}
+	  ${block:Wt.Auth.field remember-me}
+	${</if:passwords>}
 
         ${<if:oauth>}
           <div class="control-group">
@@ -120,6 +120,29 @@
 
         <div class="modal-footer">
           ${ok-button class="btn-primary"} ${cancel-button}
+        </div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.resend-email-verification">
+    <p>${tr:Wt.Auth.resend-verification-msg}</p>
+    <div class="Wt-form">
+      <div class="form-horizontal">
+        <div class="control-group">
+          <label for="${id:email}" class="control-label">
+            ${tr:Wt.Auth.email}
+          </label>
+          <div class="controls">
+            ${email}
+            <span class="help-inline">
+              <span>${email-info}</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="modal-footer"> <!-- assuming here we're in a dialog -->
+          ${send-button class="btn-primary"} ${cancel-button}
         </div>
       </div>
     </div>

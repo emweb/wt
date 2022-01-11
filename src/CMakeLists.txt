@@ -293,6 +293,7 @@ Wt/Auth/PasswordStrengthValidator.h Wt/Auth/PasswordStrengthValidator.C
 Wt/Auth/PasswordVerifier.h Wt/Auth/PasswordVerifier.C
 Wt/Auth/RegistrationModel.h Wt/Auth/RegistrationModel.C
 Wt/Auth/RegistrationWidget.h Wt/Auth/RegistrationWidget.C
+Wt/Auth/ResendEmailVerificationWidget.h Wt/Auth/ResendEmailVerificationWidget.C
 Wt/Auth/Token.h Wt/Auth/Token.C
 Wt/Auth/UpdatePasswordWidget.h Wt/Auth/UpdatePasswordWidget.C
 Wt/Auth/User.h Wt/Auth/User.C

@@ -88,6 +88,13 @@
   <message id="Wt.Auth.logout">Logout</message>
   <message id="Wt.Auth.throttle-retry">Retry in {1}s</message>
 
+  <message id="Wt.Auth.resend-email-verification">Resend?</message>
+  <message id="Wt.Auth.resend-verification-title">Resend Email Verification</message>
+  <message id="Wt.Auth.resend-verification-msg">Please enter your email address again below to resend the verification email. Make sure to check your spam folder in case the email does not show up in your inbox.</message>
+  <message id="Wt.Auth.resend-email-error">Email address does not match this user</message>
+  <message id="Wt.Auth.verification-sent-title">Email verification</message>
+
+
   <!-- RegistrationWidget -->
 
   <message id="Wt.Auth.registration-form-title">Registration</message>

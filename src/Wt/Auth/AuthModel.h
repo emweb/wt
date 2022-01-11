@@ -137,6 +137,14 @@ public:
    */
   virtual User processAuthToken();
 
+  /*! \brief Returns whether to allow resending the email verification.
+   *
+   * Returns true when email verification is required and the user was not
+   * yet verified. In this case, a user would be stuck if the verification
+   * email was lost.
+   */
+  bool showResendEmailVerification() const;
+
 private:
   int throttlingDelay_;
 };

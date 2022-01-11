@@ -20,6 +20,7 @@
         ${<if:passwords>}
           <label for="${id:user-name}">${user-name-label}
             ${user-name-info class="Wt-info"}
+            ${user-confirm-email class="Wt-info"}
           </label>
           ${user-name}
 
