@@ -265,10 +265,12 @@ void Message::encodeAttachment(const Attachment& attachment, std::ostream& out)
   out << "Content-Transfer-Encoding: base64\r\n"
       << "\r\n";
 
+  auto attBuf = attachment.data->rdbuf();
   std::istreambuf_iterator<char> eos;
-  std::istreambuf_iterator<char> iit(attachment.data->rdbuf());
+  std::istreambuf_iterator<char> iit(attBuf);
 
   base64::encode(iit, eos, std::ostreambuf_iterator<char>(out));
+  attBuf->pubseekpos(0);
   out << "\r\n";
 }
 
