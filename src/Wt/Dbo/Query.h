@@ -425,6 +425,32 @@ public:
    */
   Query<Result, BindStrategy>& join(const std::string& other);
 
+  /*! \brief Adds a join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>join</i> to the current query.
+   * The method uses the name supplied to Session::mapClass() as the
+   * table name for the template argument and the first method
+   * argument as an alias. The second argument is the condition
+   * following the "on" keyword.
+   *
+   * Usage example:
+   * \code
+   * // ...
+   * session->mapClass<A>("table_a");
+   * session->mapClass<B>("table_b");
+   * // ...
+   * using ResultType = std::tuple< Wt::Dbo::ptr<A>, Wt::Dbo::ptr<B> >;
+   * auto results = session.query<ResultType>("select a, b from \"table_a\" a")
+   *                  .join<B>("b", "a.b_id = b.id");
+   * \endcode
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  template <typename C>
+  Query<Result, BindStrategy>& join(const std::string& alias, const std::string& condition);
+
   /*! \brief Adds a left join.
    *
    * This is a convenience method for creating a SQL query, and
@@ -438,6 +464,32 @@ public:
    */
   Query<Result, BindStrategy>& leftJoin(const std::string& other);
 
+  /*! \brief Adds a left join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>left join</i> to the current query.
+   * The method uses the name supplied to Session::mapClass() as the
+   * table name for the template argument and the first method
+   * argument as an alias. The second argument is the condition
+   * following the "on" keyword.
+   *
+   * Usage example:
+   * \code
+   * // ...
+   * session->mapClass<A>("table_a");
+   * session->mapClass<B>("table_b");
+   * // ...
+   * using ResultType = std::tuple< Wt::Dbo::ptr<A>, Wt::Dbo::ptr<B> >;
+   * auto results = session.query<ResultType>("select a, b from \"table_a\" a")
+   *                  .leftJoin<B>("b", "a.b_id = b.id");
+   * \endcode
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  template <typename C>
+  Query<Result, BindStrategy>& leftJoin(const std::string& alias, const std::string& condition);
+
   /*! \brief Adds a right join.
    *
    * This is a convenience method for creating a SQL query, and
@@ -450,6 +502,32 @@ public:
    *       strategy.
    */
   Query<Result, BindStrategy>& rightJoin(const std::string& other);
+
+  /*! \brief Adds a right join.
+   *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>right join</i> to the current query.
+   * The method uses the name supplied to Session::mapClass() as the
+   * table name for the template argument and the first method
+   * argument as an alias. The second argument is the condition
+   * following the "on" keyword.
+   *
+   * Usage example:
+   * \code
+   * // ...
+   * session->mapClass<A>("table_a");
+   * session->mapClass<B>("table_b");
+   * // ...
+   * using ResultType = std::tuple< Wt::Dbo::ptr<A>, Wt::Dbo::ptr<B> >;
+   * auto results = session.query<ResultType>("select a, b from \"table_a\" a")
+   *                  .rightJoin<B>("b", "a.b_id = b.id");
+   * \endcode
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  template <typename C>
+  Query<Result, BindStrategy>& rightJoin(const std::string& alias, const std::string& condition);
 
   /*! \brief Adds a query condition.
    *
@@ -646,8 +724,11 @@ public:
   Query& operator= (const Query& other);
   template<typename T> Query<Result, DynamicBinding>& bind(const T& value);
   Query<Result, DynamicBinding>& join(const std::string& other);
+  template<typename C> Query<Result, DynamicBinding>& join(const std::string& alias, const std::string& condition);
   Query<Result, DynamicBinding>& leftJoin(const std::string& other);
+  template <typename C> Query<Result, DynamicBinding>& leftJoin(const std::string& alias, const std::string& condition);
   Query<Result, DynamicBinding>& rightJoin(const std::string& other);
+  template <typename C> Query<Result, DynamicBinding>& rightJoin(const std::string& alias, const std::string& condition);
   Query<Result, DynamicBinding>& where(const std::string& condition);
   Query<Result, DynamicBinding>& orWhere(const std::string& condition);
   Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);

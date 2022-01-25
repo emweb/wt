@@ -3415,4 +3415,77 @@ BOOST_AUTO_TEST_CASE( dbo_test45 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test46 )
+{
+  // Test join functions
+  DboFixture f;
+  dbo::Session &session = *f.session_;
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::ptr<A> a = session.addNew<A>();
+    a.modify()->i = 1;
+    dbo::ptr<A> a2 = session.addNew<A>();
+    a2.modify()->i = 2;
+    dbo::ptr<B> b = session.addNew<B>();
+    b.modify()->name = "Test";
+    dbo::ptr<B> b2 = session.addNew<B>();
+    b2.modify()->name = "Test2";
+
+    a.modify()->b = b;
+  }
+
+  using ResultType = std::tuple< dbo::ptr<A>, dbo::ptr<B> >;
+  {
+    dbo::Transaction t(session);
+
+    dbo::collection<ResultType> results = session.query<ResultType>("select a, b from \"table_a\" a")
+      .join<B>("b", "a.b_id = b.id");
+
+    BOOST_REQUIRE(results.size() == 1);
+
+    auto it = results.begin();
+
+    dbo::ptr<A> resultA = std::get<0>(*it);
+    BOOST_REQUIRE(resultA);
+    BOOST_REQUIRE(resultA->i == 1);
+    dbo::ptr<B> resultB = std::get<1>(*it);
+    BOOST_REQUIRE(resultB);
+    BOOST_REQUIRE(resultB->name == "Test");
+  }
+
+  {
+    dbo::Transaction t(session);
+
+    dbo::collection<ResultType> results = session.query<ResultType>("select a, b from \"table_a\" a")
+      .leftJoin<B>("b", "a.b_id = b.id")
+      .orderBy("a.id");
+
+    BOOST_REQUIRE(results.size() == 2);
+
+    auto it = results.begin();
+    BOOST_REQUIRE(std::get<0>(*it));
+    BOOST_REQUIRE(std::get<1>(*it));
+    it++;
+    BOOST_REQUIRE(std::get<0>(*it));
+    BOOST_REQUIRE(!std::get<1>(*it));
+
+#ifndef SQLITE3 // no support for right join
+    dbo::collection<ResultType> results2 = session.query<ResultType>("select a, b from \"table_a\" a")
+      .rightJoin<B>("b", "a.b_id = b.id")
+      .orderBy("a.id");
+
+    BOOST_REQUIRE(results2.size() == 2);
+
+    auto it2 = results2.begin();
+    BOOST_REQUIRE(std::get<0>(*it2));
+    BOOST_REQUIRE(std::get<1>(*it2));
+    it2++;
+    BOOST_REQUIRE(!std::get<0>(*it2));
+    BOOST_REQUIRE(std::get<1>(*it2));
+#endif
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

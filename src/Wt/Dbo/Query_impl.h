@@ -368,6 +368,13 @@ Query<Result, DynamicBinding>::join(const std::string& other)
   return *this;
 }
 
+template <class Result> template <typename C>
+Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::join(const std::string& alias, const std::string& condition)
+{
+  return join(session().template tableNameQuoted<C>() + " as " + alias + " on " + condition);
+}
+
 template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::leftJoin(const std::string& other)
@@ -377,6 +384,13 @@ Query<Result, DynamicBinding>::leftJoin(const std::string& other)
   return *this;
 }
 
+template <class Result> template <typename C>
+Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::leftJoin(const std::string& alias, const std::string& condition)
+{
+  return leftJoin(session().template tableNameQuoted<C>() + " as " + alias + " on " + condition);
+}
+
 template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::rightJoin(const std::string& other)
@@ -384,6 +398,13 @@ Query<Result, DynamicBinding>::rightJoin(const std::string& other)
   AbstractQuery::rightJoin(other);
 
   return *this;
+}
+
+template <class Result> template <typename C>
+Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::rightJoin(const std::string& alias, const std::string& condition)
+{
+  return rightJoin(session().template tableNameQuoted<C>() + " as " + alias + " on " + condition);
 }
 
 template <class Result>
