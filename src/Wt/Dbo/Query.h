@@ -52,6 +52,13 @@ namespace Wt {
         Session *session_;
         std::string sql_;
         SelectFieldLists selectFieldLists_;
+
+        std::string createQuerySelectSql(const std::string& join,
+                                         const std::string& where,
+                                         const std::string& groupBy,
+                                         const std::string& having,
+                                         const std::string& orderBy,
+                                         int limit, int offset) const;
       };
     }
 
@@ -270,6 +277,8 @@ protected:
   AbstractQuery(const AbstractQuery& other);
   AbstractQuery& operator= (const AbstractQuery& other);
   void bindParameters(Session *session, SqlStatement *statement) const;
+  AbstractQuery& bindSubqueryValues(const AbstractQuery& other);
+
 
   std::vector<Impl::ParameterBase *> parameters_;
 };
@@ -408,6 +417,43 @@ public:
    * This is a convenience conversion operator that calls resultList().
    */
   operator collection< Result > () const;
+
+  /*! \brief Returns the SQL of the query as a string.
+   *
+   * The returned string can be used as a subquery in another query. The
+   * bound values can be copied to the other query using Query::bindSubqueryValues().
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  std::string asString() const;
+
+  /*! \brief Copies all bound values of the argument to this query.
+   *
+   * This method should be used together with asString(). When
+   * a subquery is added, all of its bound values must be copied to
+   * this query.
+   *
+   * This can be used as follows (query all paintings more expensive than any Vermeer):
+   * \code
+   * auto maxPriceQuery = session.query<int>("select MAX(p.price) from \"painting\" as p")
+   *   .where("p.artist = ?").bind("Vermeer");
+   * auto q = session.query<dbo::ptr<Painting>>("select p from \"painting\" as p")
+   *   .where("p.price > (" + maxPriceQuery.asString() + ")").bindSubqueryValues(maxPriceQuery);
+   * \endcode
+   * which is equivalent to this code:
+   * \code
+   * auto q = session.query<dbo::ptr<Painting>>(
+   *   "select p from \"painting\" as p "
+   *   "where p.price > (select MAX(p.price) from \"painting\" as p "
+   *   "                 where p.artist = ?)")
+   *   .bind("Vermeer");
+   * \endcode
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& bindSubqueryValues(const AbstractQuery& other);
 
   /** @name Methods for composing a query (DynamicBinding only)
    */
@@ -740,6 +786,9 @@ public:
   collection< Result > resultList() const;
   operator Result () const;
   operator collection< Result > () const;
+
+  std::string asString() const;
+  Query<Result, DynamicBinding>& bindSubqueryValues(const AbstractQuery& other);
 
 private:
   Query(Session& session, const std::string& sql);

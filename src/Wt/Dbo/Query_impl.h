@@ -107,16 +107,13 @@ std::vector<FieldInfo> QueryBase<Result>::fields() const
 }
 
 template <class Result>
-std::pair<SqlStatement *, SqlStatement *>
-QueryBase<Result>::statements(const std::string& join,
-                              const std::string& where,
-                              const std::string& groupBy,
-                              const std::string& having,
-                              const std::string& orderBy,
-                              int limit, int offset) const
+std::string QueryBase<Result>::createQuerySelectSql(const std::string& join,
+                                                    const std::string& where,
+                                                    const std::string& groupBy,
+                                                    const std::string& having,
+                                                    const std::string& orderBy,
+                                                    int limit, int offset) const
 {
-  SqlStatement *statement, *countStatement;
-
   if (selectFieldLists_.empty()) {
     /*
      * sql_ is "from ..."
@@ -124,14 +121,9 @@ QueryBase<Result>::statements(const std::string& join,
     std::string sql;
 
     std::vector<FieldInfo> fs = this->fields();
-    sql = Impl::createQuerySelectSql(sql_, join, where, groupBy, having, orderBy,
-                                     limit, offset, fs,
-                                     this->session_->limitQueryMethod_);
-    statement = this->session_->getOrPrepareStatement(sql);
-
-    sql = Impl::createQueryCountSql(sql, this->session_->requireSubqueryAlias_);
-
-    countStatement = this->session_->getOrPrepareStatement(sql);
+    return Impl::createQuerySelectSql(sql_, join, where, groupBy, having, orderBy,
+                                      limit, offset, fs,
+                                      this->session_->limitQueryMethod_);
   } else {
     /*
      * sql_ is complete "[with ...] select ..."
@@ -149,16 +141,26 @@ QueryBase<Result>::statements(const std::string& join,
       Impl::substituteFields(list, fs, sql, sql_offset);
     }
 
-    sql = Impl::completeQuerySelectSql(sql, join, where, groupBy, having, orderBy,
-                                       limit, offset, fs,
-                                       this->session_->limitQueryMethod_);
-
-    statement = this->session_->getOrPrepareStatement(sql);
-
-    sql = Impl::createQueryCountSql(sql, this->session_->requireSubqueryAlias_);
-
-    countStatement = this->session_->getOrPrepareStatement(sql);
+    return Impl::completeQuerySelectSql(sql, join, where, groupBy, having, orderBy,
+                                        limit, offset, fs,
+                                        this->session_->limitQueryMethod_);
   }
+}
+
+template <class Result>
+std::pair<SqlStatement *, SqlStatement *>
+QueryBase<Result>::statements(const std::string& join,
+                              const std::string& where,
+                              const std::string& groupBy,
+                              const std::string& having,
+                              const std::string& orderBy,
+                              int limit, int offset) const
+{
+  std::string sql = createQuerySelectSql(join, where, groupBy, having, orderBy, limit, offset);
+  auto statement = this->session_->getOrPrepareStatement(sql);
+
+  sql = Impl::createQueryCountSql(sql, this->session_->requireSubqueryAlias_);
+  auto countStatement = this->session_->getOrPrepareStatement(sql);
 
   return std::make_pair(statement, countStatement);
 }
@@ -357,6 +359,22 @@ template <class Result>
 Query<Result, DynamicBinding>::~Query()
 {
   reset();
+}
+
+template <class Result>
+std::string Query<Result, DynamicBinding>::asString() const
+{
+  return this->createQuerySelectSql(join_, where_, groupBy_, having_,
+                                    orderBy_, limit_, offset_);
+}
+
+template <class Result>
+Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::bindSubqueryValues(const AbstractQuery& other)
+{
+  AbstractQuery::bindSubqueryValues(other);
+
+  return *this;
 }
 
 template <class Result>

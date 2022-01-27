@@ -85,6 +85,10 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/9442" target="_blank">Issue #9442</a>:
     Added overloads for <a href="classWt_1_1Dbo_1_1Query.html#ab99203f02889f09d5ba819eec1f96dfc">Query::join()</a>, <a href="classWt_1_1Dbo_1_1Query.html#af2b09a60768a3d9e84cf26316cb76dd9">Query::leftJoin()</a> and <a href="classWt_1_1Dbo_1_1Query.html#ac5e215165a41a010bd02f0496975955c">Query::rightJoin()</a> that have a template parameter for the type of the database table that needs to be joined. Since Wt knows the mapping between the type and the database table, it automatically fills in the name of the table.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9442" target="_blank">Issue #9442</a>:
+    Added functions <a href="classWt_1_1Dbo_1_1Query.html#aad47f25e7c86f927e0b2d86c4f519f8a">Query::asString()</a> and <a href="classWt_1_1Dbo_1_1Query.html#abd755ac8e896597a569ab202f5afa4d6">Query::bindSubqueryValues()</a>. These functions make it possible to embed one query in another by converting it to a string and moving all its bound parameters to the other query. See <a href="classWt_1_1Dbo_1_1Query.html#abd755ac8e896597a569ab202f5afa4d6">Query::bindSubqueryValues()</a> for a basic code example.
+  </li>
 </ul>
 
 <h2>Release 4.7.2 (May 12, 2022)</h2>

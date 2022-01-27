@@ -337,6 +337,14 @@ void AbstractQuery::reset()
   parameters_.clear();
 }
 
+AbstractQuery& AbstractQuery::bindSubqueryValues(const AbstractQuery& other)
+{
+  for (auto value : other.parameters_)
+    parameters_.push_back(value->clone());
+
+  return *this;
+}
+
 AbstractQuery::AbstractQuery()
   : limit_(-1),
     offset_(-1)
