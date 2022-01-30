@@ -7,7 +7,7 @@
 #include "web/FileUtils.h"
 
 #ifndef WT_HAVE_POSIX_FILEIO
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 #else //WT_HAVE_POSIX_FILEIO
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -52,7 +52,7 @@ namespace Wt {
     unsigned long long size(const std::string &file) 
     {
 #ifndef WT_HAVE_POSIX_FILEIO
-      return (unsigned long long) boost::filesystem::file_size(file);
+      return (unsigned long long) std::filesystem::file_size(file);
 #else //WT_HAVE_POSIX_FILEIO
       struct stat sb;
       if (stat(file.c_str(), &sb) == -1) {
@@ -78,7 +78,8 @@ namespace Wt {
     time_t lastWriteTime(const std::string &file) 
     {
 #ifndef WT_HAVE_POSIX_FILEIO
-      return (unsigned long long)boost::filesystem::last_write_time(file);
+      return std::chrono::duration_cast<std::chrono::seconds>(
+                  std::filesystem::last_write_time(file).time_since_epoch()).count()-11644473600;
 #else //WT_HAVE_POSIX_FILEIO
       struct stat sb;
       if (stat(file.c_str(), &sb) == -1) {
@@ -94,8 +95,8 @@ namespace Wt {
     bool exists(const std::string &file) 
     {
 #ifndef WT_HAVE_POSIX_FILEIO
-      boost::filesystem::path path(file);
-      return boost::filesystem::exists(path);
+      std::filesystem::path path(file);
+      return std::filesystem::exists(path);
 #else //WT_HAVE_POSIX_FILEIO
       struct stat sb;
       return stat(file.c_str(), &sb) != -1;
@@ -105,8 +106,8 @@ namespace Wt {
     bool isDirectory(const std::string &file) 
     {
 #ifndef WT_HAVE_POSIX_FILEIO
-      boost::filesystem::path path(file);
-      return boost::filesystem::is_directory(path);
+      std::filesystem::path path(file);
+      return std::filesystem::is_directory(path);
 #else //WT_HAVE_POSIX_FILEIO
       struct stat sb;
       stat(file.c_str(), &sb);
@@ -124,17 +125,17 @@ namespace Wt {
 		   std::vector<std::string> &files) 
     {
 #ifndef WT_HAVE_POSIX_FILEIO
-      boost::filesystem::path path(directory);
-      boost::filesystem::directory_iterator end_itr;
+      std::filesystem::path path(directory);
+      std::filesystem::directory_iterator end_itr;
 
-      if (!boost::filesystem::is_directory(path)) {
+      if (!std::filesystem::is_directory(path)) {
 	std::string error 
 	  = "listFiles: \"" + directory + "\" is not a directory";
 	LOG_ERROR(error);
 	throw WException(error);
       }
       
-      for (boost::filesystem::directory_iterator i(path); i != end_itr; ++i) {
+      for (std::filesystem::directory_iterator i(path); i != end_itr; ++i) {
 	std::string f = (*i).path().string();
 	files.push_back(f);
       }

@@ -34,7 +34,7 @@
 
 #ifndef WT_HAVE_POSIX_FILEIO
 // boost bug workaround: see WebController constructor
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #endif
 
 #include <algorithm>
@@ -91,7 +91,7 @@ WebController::WebController(WServer& server,
   // https://svn.boost.org/trac/boost/ticket/6737
   // Invoking the path constructor here should create the global variables
   // in boost.filesystem before the threads are started.
-  boost::filesystem::path bugFixFilePath("please-initialize-globals");
+  std::filesystem::path bugFixFilePath("please-initialize-globals");
 #endif
 
   start();
