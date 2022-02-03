@@ -8,9 +8,9 @@
 #ifndef NAVIGATION_H_
 #define NAVIGATION_H_
 
-#include "TopicWidget.h"
+#include "Topic.h"
 
-class Navigation : public TopicWidget
+class Navigation : public Topic
 {
 public:
   Navigation();

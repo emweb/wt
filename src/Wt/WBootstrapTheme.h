@@ -23,8 +23,15 @@ enum class BootstrapVersion {
   v3 = 3  //!< Bootstrap 3
 };
 
+class WBootstrap2Theme;
+class WBootstrap3Theme;
+
 /*! \class WBootstrapTheme Wt/WBootstrapTheme.h Wt/WBootstrapTheme.h
  *  \brief Theme based on the Twitter Bootstrap CSS framework.
+ *
+ * \deprecated WBootstrapTheme is deprecated. Use one of the concrete
+ *             versioned Bootstrap theme classes instead, like
+ *             WBootstrap2Theme and WBootstrap3Theme.
  *
  * This theme implements support for building a %Wt web application
  * that uses Twitter Bootstrap as a theme for its (layout and)
@@ -82,7 +89,7 @@ public:
    *
    * \sa setResponsive()
    */
-  bool responsive() const { return responsive_; }
+  bool responsive() const;
 
   /*! \brief Sets the bootstrap version.
    *
@@ -118,7 +125,9 @@ public:
   void setFormControlStyleEnabled(bool enabled);
 
   virtual std::string name() const override;
+  virtual std::string resourcesUrl() const override;
   virtual std::vector<WLinkedCssStyleSheet> styleSheets() const override;
+  virtual void init(WApplication *app) const override;
   virtual void apply(WWidget *widget, WWidget *child, int widgetRole)
     const override;
   virtual void apply(WWidget *widget, DomElement& element, int elementRole)
@@ -134,26 +143,9 @@ public:
   virtual bool canBorderBoxElement(const DomElement& element) const override;
 
 private:
+  std::unique_ptr<WTheme> impl_;
   BootstrapVersion version_;
-  bool responsive_, formControlStyle_;
-
-  std::string classBtn(WWidget *widget) const;
-  std::string classBar() const;
-  std::string classAccordion() const;
-  std::string classAccordionGroup() const;
-  std::string classAccordionHeading() const;
-  std::string classAccordionBody() const;
-  std::string classAccordionInner() const;
-  std::string classNavCollapse() const;
-  std::string classNavbar() const;
-  std::string classBrand() const;
-  std::string classNavbarSearch() const;
-  std::string classNavbarLeft() const;
-  std::string classNavbarRight() const;
-  std::string classNavbarMenu() const;
-  std::string classNavbarBtn() const;
-  bool hasButtonStyleClass(WWidget *widget) const;
-
+  bool formControlStyle_;
 };
 
 }

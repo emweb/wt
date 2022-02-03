@@ -262,10 +262,18 @@ void WTemplate::iterateChildren(const HandleWidgetMethod& method) const
   }
 }
 
-void WTemplate::bindWidget(const std::string& varName,
-			   std::unique_ptr<WWidget> widget)
+#ifndef WT_TARGET_JAVA
+void
+#else // WT_TARGET_JAVA
+WWidget*
+#endif // WT_TARGET_JAVA
+WTemplate::bindWidget(const std::string& varName,
+                      std::unique_ptr<WWidget> widget)
 {
   bool setNull = !widget;
+#ifdef WT_TARGET_JAVA
+  WWidget *widgetPtrCopy = widget.get();
+#endif // WT_TARGET_JAVA
 
   if (!setNull) {
     strings_.erase(varName);
@@ -281,8 +289,13 @@ void WTemplate::bindWidget(const std::string& varName,
     }
   } else {
     StringMap::const_iterator j = strings_.find(varName);
-    if (j != strings_.end() && j->second.empty())
+    if (j != strings_.end() && j->second.empty()) {
+#ifndef WT_TARGET_JAVA
       return;
+#else // WT_TARGET_JAVA
+      return widgetPtrCopy;
+#endif // WT_TARGET_JAVA
+    }
     strings_[varName] = WString();
   }
 
@@ -291,6 +304,10 @@ void WTemplate::bindWidget(const std::string& varName,
 
   changed_ = true;
   repaint(RepaintFlag::SizeAffected);  
+
+#ifdef WT_TARGET_JAVA
+  return widgetPtrCopy;
+#endif // WT_TARGET_JAVA
 }
 
 std::unique_ptr<WWidget> WTemplate::removeWidget(const std::string& varName)

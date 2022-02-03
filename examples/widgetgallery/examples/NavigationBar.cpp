@@ -13,9 +13,13 @@ auto container = std::make_unique<Wt::WContainerWidget>();
 
 // Create a navigation bar with a link to a web page.
 Wt::WNavigationBar *navigation = container->addNew<Wt::WNavigationBar>();
+// It's not necessary to do this with WBootstrap5Theme, but we include it if
+// you want to use another theme.
+navigation->setResponsive(true);
+// WBootstrap5Theme applies no color scheme by default, so we have to add them here.
+navigation->addStyleClass("navbar-light bg-light");
 navigation->setTitle("Corpy Inc.",
 		     "https://www.google.com/search?q=corpy+inc");
-navigation->setResponsive(true);
 
 Wt::WStackedWidget *contentsStack = container->addNew<Wt::WStackedWidget>();
 contentsStack->addStyleClass("contents");
@@ -31,10 +35,24 @@ leftMenu_->addItem("Home", std::make_unique<Wt::WText>("There is no better place
 leftMenu_->addItem("Layout", std::make_unique<Wt::WText>("Layout contents"))
     ->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/layout"));
 leftMenu_->addItem("Sales", std::move(searchResult));
+leftMenu_->addStyleClass("me-auto");
+
+// Add a Search control.
+auto editPtr = std::make_unique<Wt::WLineEdit>();
+auto edit = editPtr.get();
+edit->setPlaceholderText("Enter a search item");
+
+edit->enterPressed().connect([=] {
+  leftMenu_->select(2); // is the index of the "Sales"
+  searchResult_->setText(Wt::WString("Nothing found for {1}.")
+                                 .arg(edit->text()));
+});
+
+navigation->addSearch(std::move(editPtr));
 
 // Setup a Right-aligned menu.
 auto rightMenu = std::make_unique<Wt::WMenu>();
-auto rightMenu_ = navigation->addMenu(std::move(rightMenu), Wt::AlignmentFlag::Right);
+auto rightMenu_ = navigation->addMenu(std::move(rightMenu));
 
 // Create a popup submenu for the Help menu.
 auto popupPtr = std::make_unique<Wt::WPopupMenu>();
@@ -74,18 +92,5 @@ popup->itemSelected().connect([=] (Wt::WMenuItem *item) {
 auto item = std::make_unique<Wt::WMenuItem>("Help");
 item->setMenu(std::move(popupPtr));
 rightMenu_->addItem(std::move(item));
-
-// Add a Search control.
-auto editPtr = std::make_unique<Wt::WLineEdit>();
-auto edit = editPtr.get();
-edit->setPlaceholderText("Enter a search item");
-
-edit->enterPressed().connect([=] {
-    leftMenu_->select(2); // is the index of the "Sales"
-    searchResult_->setText(Wt::WString("Nothing found for {1}.")
-                          .arg(edit->text()));
-});
-
-navigation->addSearch(std::move(editPtr), Wt::AlignmentFlag::Right);
 
 SAMPLE_END(return std::move(container))

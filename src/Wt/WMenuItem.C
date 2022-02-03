@@ -6,6 +6,7 @@
 
 #include "Wt/WAnchor.h"
 #include "Wt/WApplication.h"
+#include "Wt/WBootstrap5Theme.h"
 #include "Wt/WCheckBox.h"
 #include "Wt/WContainerWidget.h"
 #include "Wt/WEnvironment.h"
@@ -23,6 +24,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <memory>
 
 namespace Wt {
 
@@ -379,11 +381,18 @@ void WMenuItem::renderSelected(bool selected)
 
   std::string active = app->theme()->activeClass();
 
+  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+
   if (active == "Wt-selected"){ // for CSS theme, our styles are messed up
     removeStyleClass(!selected ? "itemselected" : "item", true);
     addStyleClass(selected ? "itemselected" : "item", true);
-  } else
+  } else {
+    if (bs5Theme) {
+      auto a = anchor();
+      a->toggleStyleClass(active, selected, true);
+    }
     toggleStyleClass(active, selected, true);
+  }
 }
 
 void WMenuItem::selectNotLoaded()

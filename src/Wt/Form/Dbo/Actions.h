@@ -17,8 +17,14 @@
 
 namespace Wt {
   namespace Form {
+    /*! \brief Namespace that contain %Dbo specific classes within the Form module
+     */
     namespace Dbo {
 
+/*! \internal
+ *  \class Action Wt/Form/Dbo/Actions.h Wt/Form/Dbo/Actions.h
+ *  \brief Base class for customized actions
+ */
 class Action
 {
 public:
@@ -51,7 +57,9 @@ private:
   FormModelBase *model_;
 };
 
-/*! \brief Class that automatically loads data from the database
+/*! \internal
+ *  \class LoadAction Wt/Form/Dbo/Actions.h Wt/Form/Dbo/Actions.h
+ *  \brief Class that automatically loads data from the database
  *
  * This class will be used together with Dbo's persist method to
  * automatically initialize the WFormModel with data from the database
@@ -66,8 +74,7 @@ public:
   {
   }
 
-  /*
-   * This function will be called when Wt::Dbo::id is used
+  /*! \note This function will be called when Wt::Dbo::id is used
    * in the persist method when specifying a natural primary key
    */
   template<typename V>
@@ -78,8 +85,7 @@ public:
     }
   }
 
-  /*
-   * This function will be called when Wt::Dbo::id is used in
+  /*! \note This function will be called when Wt::Dbo::id is used in
    * the persist method when specifying a natural primary key
    */
   template<class C>
@@ -90,9 +96,8 @@ public:
     }
   }
 
-  /*
-   * Assumes that the WFormModel can handle the data types
-   * that are used in the Dbo class like WString, WDate, ..
+  /*! \note Assumes that the WFormModel can handle the data types
+   * that are used in the Dbo class like WString, WDate, ...
    */
   template<typename V>
   void act(const Wt::Dbo::FieldRef<V>& ref)
@@ -102,8 +107,7 @@ public:
     }
   }
 
-  /*
-   * Assumes that the WFormModel can handle Wt::Dbo::ptr
+  /*! \note Assumes that the WFormModel can handle Wt::Dbo::ptr
    */
   template<class C>
   void actPtr(const Wt::Dbo::PtrRef<C>& ref)
@@ -113,8 +117,7 @@ public:
     }
   }
 
-  /*
-   * Assumes that the WFormModel can handle Wt::Dbo::ptr
+  /*! \note Assumes that the WFormModel can handle Wt::Dbo::ptr
    */
   template<class C>
   void actWeakPtr(const Wt::Dbo::WeakPtrRef<C>& ref)
@@ -124,8 +127,7 @@ public:
     }
   }
 
-  /*
-   * Assumes that the WFormModel can handle a std::vector
+  /*! \note Assumes that the WFormModel can handle a std::vector
    * of Wt::Dbo::ptr objects.
    */
   template<class C>
@@ -142,7 +144,9 @@ public:
   bool isSchema() const { return false; }
 };
 
-/*! \brief Class that automatically saves data from the form to the database
+/*! \internal
+ *  \class SaveAction Wt/Form/Dbo/Actions.h Wt/Form/Dbo/Actions.h
+ *  \brief Class that automatically saves data from the form to the database
  *
  * This class will be used together with Dbo's persist method to automatically
  * push the data from the WFormModel to the database.
@@ -157,8 +161,7 @@ public:
   {
   }
 
-  /*
-   * This function will be called when Wt::Dbo::id is used
+  /*! \note This function will be called when Wt::Dbo::id is used
    * in the persist method when specifying a natural primary key
    */
   template<typename V>
@@ -169,8 +172,7 @@ public:
     }
   }
 
-  /*
-   * This function will be called when Wt::Dbo::id is used
+  /*! \note This function will be called when Wt::Dbo::id is used
    * in the persist method when specifying a natural primary key
    */
   template<class C>
@@ -181,9 +183,8 @@ public:
     }
   }
 
-  /*
-   * Assumes that the WFormModel returns the data types expected
-   * by the Dbo class like WString, WDate, ..
+  /*! \note Assumes that the WFormModel returns the data types expected
+   * by the Dbo class like WString, WDate, ...
    */
   template<typename V>
   void act(const Wt::Dbo::FieldRef<V>& ref)
@@ -193,8 +194,7 @@ public:
     }
   }
 
-  /*
-   * Assumes that the WFormModel returns a Wt::Dbo::ptr
+  /*! \note Assumes that the WFormModel returns a Wt::Dbo::ptr
    */
   template<class C>
   void actPtr(const Wt::Dbo::PtrRef<C>& ref)
@@ -204,8 +204,7 @@ public:
     }
   }
 
-  /*
-   * Assumes that the WFormModel returns a Wt::Dbo::ptr
+  /*! \note Assumes that the WFormModel returns a Wt::Dbo::ptr
    */
   template<class C>
   void actWeakPtr(const Wt::Dbo::WeakPtrRef<C>& ref)
@@ -215,8 +214,7 @@ public:
     }
   }
 
-  /*
-   * Assumes that the WFormModel returns a std::vector
+  /*! \note Assumes that the WFormModel returns a std::vector
    * of Wt::Dbo::ptr objects
    */
   template<class C>
@@ -239,7 +237,9 @@ public:
   bool isSchema() const { return false; }
 };
 
-/*! \brief Class that automatically initializes the WFormDelegates to be used by the View
+/*! \internal
+ *  \class ViewAction Wt/Form/Dbo/Actions.h Wt/Form/Dbo/Actions.h
+ *  \brief Class that automatically initializes the WFormDelegates to be used by the View
  *
  * This class will automatically generate the WFormDelegates based
  * on the data type that's used in the Dbo class.
@@ -326,7 +326,9 @@ private:
   }
 };
 
-/*! \brief Class that automatically adds all database columns to the Model
+/*! \internal
+ *  \class ModelAction Wt/Form/Dbo/Actions.h Wt/Form/Dbo/Actions.h
+ *  \brief Class that automatically adds all database columns to the Model
  *
  * This action neither loads nor sets data in the database
  */

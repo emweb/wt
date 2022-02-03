@@ -286,6 +286,16 @@ int WServer::httpPort() const
   return impl_->server_->httpPort();
 }
 
+std::string WServer::docRoot() const
+{
+  auto config = impl_->serverConfiguration_;
+  if (config) {
+    return config->docRoot();
+  } else {
+    return "";
+  }
+}
+
 std::vector<WServer::SessionInfo> WServer::sessions() const
 {
   if (configuration_->sessionPolicy() == Wt::Configuration::DedicatedProcess &&

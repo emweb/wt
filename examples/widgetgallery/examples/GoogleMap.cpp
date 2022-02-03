@@ -81,9 +81,6 @@ public:
 	addMapTypeControl("No control", Wt::MapTypeControl::None);
 	addMapTypeControl("Default", Wt::MapTypeControl::Default);
 	addMapTypeControl("Menu", Wt::MapTypeControl::Menu);
-	if (map_->apiVersion() == Wt::GoogleMapsVersion::v2)
-	    addMapTypeControl("Hierarchical",
-			      Wt::MapTypeControl::Hierarchical);
 	if (map_->apiVersion() == Wt::GoogleMapsVersion::v3)
 	    addMapTypeControl("Horizontal bar",
 			      Wt::MapTypeControl::HorizontalBar);

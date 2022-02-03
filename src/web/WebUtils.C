@@ -29,7 +29,7 @@
 #include <cstdlib>
 #endif // WIN32
 
-#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700
+#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700 && BOOST_VERSION < 107600
 #  define SPIRIT_FLOAT_FORMAT
 #endif
 
@@ -167,6 +167,23 @@ char *itoa(int value, char *result, int base) {
 
   if (value < 0 && base == 10)
     *out++ = '-';
+
+  std::reverse(result, out);
+  *out = 0;
+
+  return result;
+}
+
+char *utoa(unsigned int value, char* result, int base) {
+  char* out = result;
+  unsigned int quotient = value;
+
+  do {
+    *out =
+      "0123456789abcdefghijklmnopqrstuvwxyz"[quotient % base];
+    ++out;
+    quotient /= base;
+  } while (quotient);
 
   std::reverse(result, out);
   *out = 0;

@@ -11,7 +11,6 @@ using namespace Wt;
 #endif // WT_TARGET_JAVA
 
 SAMPLE_BEGIN(Popup)
-
 auto container = std::make_unique<Wt::WContainerWidget>();
 
 auto popupPtr = std::make_unique<Wt::WPopupMenu>();
@@ -115,5 +114,4 @@ container->addWidget(std::move(outPtr));
 container->addWidget(std::unique_ptr<Wt::WWidget>(status));
 container->addWidget(std::unique_ptr<Wt::WWidget>(out));
 #endif // WT_TARGET_JAVA
-
 SAMPLE_END(return std::move(container))

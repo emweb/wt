@@ -21,6 +21,9 @@ std::string WTheme::resourcesUrl() const
 WTheme::~WTheme()
 { }
 
+void WTheme::init(WApplication *app) const
+{ }
+
 void WTheme::serveCss(WStringStream& out) const
 {
   std::vector<WLinkedCssStyleSheet> sheets = styleSheets();

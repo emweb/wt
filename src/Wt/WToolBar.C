@@ -110,7 +110,7 @@ void WToolBar::setCompact(bool compact)
       setStyleClass("btn-toolbar");
       if (impl_->count() > 0) {
 	std::unique_ptr<WContainerWidget> group(new WContainerWidget());
-	group->setStyleClass("btn-group");
+	group->setStyleClass("btn-group me-2");
 	while (impl_->count() > 0) {
 	  auto w = impl_->removeWidget(impl_->widget(0));
 	  group->addWidget(std::move(w));
@@ -126,7 +126,7 @@ WContainerWidget *WToolBar::lastGroup()
 {
   if (!lastGroup_) {
     lastGroup_ = impl_->addWidget(std::make_unique<WContainerWidget>());
-    lastGroup_->addStyleClass("btn-group");
+    lastGroup_->addStyleClass("btn-group me-2");
   }
 
   return lastGroup_;

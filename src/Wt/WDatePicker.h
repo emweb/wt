@@ -47,6 +47,8 @@ class WTemplate;
  *
  * Internationalization of WDatePicker is mostly handled through
  * the internationalization mechanism of WDate.
+ *
+ * \deprecated The date picker is deprecated in favor of WDateEdit
  */
 class WT_API WDatePicker : public WCompositeWidget
 {
@@ -222,7 +224,6 @@ private:
   Signal<> popupClosed_, changed_;
   JSlot positionJS_;
 
-  void createDefault(WLineEdit *forEdit);
   void create(std::unique_ptr<WInteractWidget> displayWidget,
 	      WLineEdit *forEdit);
 

@@ -2025,6 +2025,14 @@ public:
    */
   void suspend(std::chrono::seconds duration);
 
+  /*! \brief Signal that is emitted when the application is no longer suspended.
+   *
+   * This can be used to apply changes which were difficult to do as a result of
+   * the application not being rendered.
+   * Eg. Wt uses this to trigger a login as a result of single sign-on.
+   */
+  Signal<>& unsuspended() { return unsuspended_; }
+
 protected:
   /*! \brief Notifies an event to the application.
    *
@@ -2214,6 +2222,7 @@ protected:
   virtual void handleJavaScriptError(const std::string& errorText);
 private:
   Signal< ::int64_t > requestTooLarge_;
+  Signal<> unsuspended_;
 
   struct ScriptLibrary {
     ScriptLibrary(const std::string& uri, const std::string& symbol);

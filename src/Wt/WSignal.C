@@ -58,7 +58,12 @@ bool EventSignalBase::StatelessConnection::ok() const
   return target == nullptr || connection.isConnected();
 }
 
-int EventSignalBase::nextId_ = 0;
+#ifdef WT_THREADED
+  std::atomic<unsigned> EventSignalBase::nextId_(0);
+#else
+  unsigned EventSignalBase::nextId_ = 0;
+#endif // WT_THREADED
+
 
 bool EventSignalBase::needsUpdate(bool all) const
 {
@@ -89,7 +94,7 @@ const std::string EventSignalBase::encodeCmd() const
 {
   char buf[20];
   buf[0] = 's';
-  Utils::itoa(id_, buf + 1, 16);
+  Utils::utoa(id_, buf + 1, 16);
   return std::string(buf);
 }
 

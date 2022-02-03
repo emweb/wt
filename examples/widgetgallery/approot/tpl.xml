@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="tpl:widget-gallery">
+    <div class="wg-wrapper">
+      <div class="wg-sidebar">
+        <div class="wg-logo">
+          <img src="/icons/wt.png" />
+          <h1>Widget Gallery</h1>
+        </div>
+        ${menu}
+      </div>
+      <div class="wg-open-menu">
+        ${open-menu}
+      </div>
+      <div class="wg-contents">
+        ${contents}
+      </div>
+      ${contents-cover class="wg-contents-cover"}
+    </div>
+  </message>
+</messages>

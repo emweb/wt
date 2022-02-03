@@ -31,6 +31,9 @@ namespace Wt {
    - <a href="../../tutorial/auth.html">Tutorial for Auth</a> - %Wt's
      Authentication module.
    - <a href="../../examples/html/modules.html">Examples documentation</a>.
+   - Setup info for SAML support:
+     - \ref saml_linux "Linux"
+     - \ref saml_windows "Windows"
 
    \page overview Library overview
   

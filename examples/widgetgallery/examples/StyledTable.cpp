@@ -70,7 +70,7 @@ for (unsigned i = 0; i < 3; ++i) {
 #endif // WT_TARGET_JAVA
 }
 
-table_->addStyleClass("table form-inline");
+table_->addStyleClass("table");
 
 #ifndef WT_TARGET_JAVA
 auto resultPtr = std::make_unique<WContainerWidget>();
@@ -89,7 +89,7 @@ result->addNew<WText>("Options:");
 
 addOptionToggle(table_, "borders", "table-bordered", result);
 addOptionToggle(table_, "hover", "table-hover", result);
-addOptionToggle(table_, "condensed", "table-condensed", result);
+addOptionToggle(table_, "small", "table-sm", result);
 addOptionToggle(table_, "stripes", "table-striped", result);
 
 #ifndef WT_TARGET_JAVA

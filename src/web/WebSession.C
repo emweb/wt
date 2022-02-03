@@ -333,12 +333,16 @@ std::string WebSession::docType() const
 
 void WebSession::setLoaded()
 {
-  if (state_ == State::Suspended &&
-      env_->ajax() && controller_->configuration().reloadIsNewSession()) {
-    app_->doJavaScript(WT_CLASS ".history.removeSessionId()");
-  }
-
+  bool wasSuspended = state_ == State::Suspended;
   setState(State::Loaded, controller_->configuration().sessionTimeout());
+
+  if (wasSuspended) {
+    if (env_->ajax() && controller_->configuration().reloadIsNewSession()) {
+      app_->doJavaScript(WT_CLASS ".history.removeSessionId()");
+      sessionIdInUrl_ = false;
+    }
+    app_->unsuspended().emit();
+  }
 }
 
 void WebSession::setExpectLoad()
@@ -1330,7 +1334,8 @@ void WebSession::handleRequest(Handler& handler)
   }
 
   const std::string *requestE = request.getParameter("request");
-  bool requestForResource = requestE && *requestE == "resource";
+  bool requestForResource = resourceRequest(request);
+  bool requestForStyle = requestE && *requestE == "style";
 
   if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {
     LOG_ERROR("invalid WebSocket request, ignoring");
@@ -1385,6 +1390,7 @@ void WebSession::handleRequest(Handler& handler)
   if (env_->ajax()
       && isEqual(request.requestMethod(), "GET")
       && !requestForResource
+      && !requestForStyle
       && conf.reloadIsNewSession()
       && !suspended()
       && wtdE && *wtdE == sessionId_) {
@@ -1510,7 +1516,7 @@ void WebSession::handleRequest(Handler& handler)
 	  }
 	  break; }
 	case EntryPointType::WidgetSet:
-	  if (requestForResource) {
+	  if (requestForResource || requestForStyle) {
 	    const std::string *resourceE = request.getParameter("resource");
 	    if (resourceE && *resourceE == "blank") {
 	      handler.response()->setContentType("text/html");
@@ -1518,7 +1524,7 @@ void WebSession::handleRequest(Handler& handler)
 		"<html><head><title>bhm</title></head>"
 		"<body> </body></html>";
 	    } else {
-	      LOG_INFO("not starting session for resource.");
+	      LOG_INFO("not starting session for unexpected request type.");
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
@@ -1701,12 +1707,14 @@ void WebSession::handleRequest(Handler& handler)
 	      if (state_ != State::ExpectLoad &&
                   state_ != State::Suspended &&
 		  handler.response()->responseType() == 
-		  WebResponse::ResponseType::Update)
-	        setLoaded();
+		  WebResponse::ResponseType::Update) {
+                setLoaded();
+              }
 	    } else if (state_ != State::ExpectLoad &&
-                       state_ != State::Suspended &&
-		       !controller_->limitPlainHtmlSessions())
-	      setLoaded();	    
+                       !(state_ == State::Suspended && requestForResource) &&
+		       !controller_->limitPlainHtmlSessions()) {
+              setLoaded();
+            }
           }
         } else {
 #ifndef WT_TARGET_JAVA
@@ -2687,19 +2695,14 @@ EventType WebSession::getEventType(const WEvent& event) const
   case State::ExpectLoad:
   case State::Loaded:
   case State::Suspended:
-    if (handler.response()->responseType() == WebResponse::ResponseType::Script)
+    if (handler.response()->responseType() == WebResponse::ResponseType::Script) {
       return EventType::Other;
-    else {
-      WResource *resource = nullptr;
-      if (!requestE && !request.pathInfo().empty())
-	resource = app_->decodeExposedResource("/path/" + request.pathInfo());
-
-      const std::string *resourceE = request.getParameter("resource");
+    } else if (resourceRequest(request)) {
+      return EventType::Resource;
+    } else {
       const std::string *signalE = getSignal(request, "");
 
-      if (resource || (requestE && *requestE == "resource" && resourceE))
-	return EventType::Resource;
-      else if (signalE) {
+      if (signalE) {
 	if (*signalE == "none" || *signalE == "load" || 
 	    *signalE == "hash" || *signalE == "poll" ||
 	    *signalE == "keepAlive")
@@ -2743,6 +2746,30 @@ EventType WebSession::getEventType(const WEvent& event) const
   default:
     return EventType::Other;
   }
+}
+
+bool WebSession::resourceRequest(const WebRequest& request) const
+{
+  if (state_ == State::ExpectLoad ||
+      state_ == State::Loaded ||
+      state_ == State::Suspended) {
+    const std::string *requestE = request.getParameter("request");
+    const std::string *resourceE = request.getParameter("resource");
+    if (requestE && *requestE == "resource" && resourceE) {
+      return true;
+    } else if (!requestE && app_) { // check if resource is deployed on internal path
+      if (!request.pathInfo().empty() &&
+          app_->decodeExposedResource("/path/" + Utils::prepend(request.pathInfo(), '/')) != nullptr)
+        return true;
+
+      const std::string *hashE = request.getParameter("_");
+      if (hashE &&
+          app_->decodeExposedResource("/path/" + *hashE) != nullptr)
+        return true;
+    }
+  }
+
+  return false;
 }
 
 void WebSession::render(Handler& handler)

@@ -101,15 +101,40 @@ WT_DECLARE_WT_MEMBER
      }
    }
 
+   function calcButtonWidth(edit) {
+     if (typeof WT.theme === 'object' &&
+       WT.theme.type === 'bootstrap' &&
+       WT.theme.version === 5) {
+       try {
+         var style = getComputedStyle(edit);
+         var widthPx = parseInt(style.backgroundSize.match(/^([0-9]+)px ([0-9]+)px$/)[1], 10);
+         var rightOffsetPx = parseInt(style.backgroundPositionX.match(/^calc[(]100% - ([0-9]+)px[)]$/)[1], 10);
+         return widthPx + rightOffsetPx;
+       } catch (e) {
+         return 28;
+       }
+     } else {
+       return 16;
+     }
+
+   }
+
    this.editMouseMove = function(edit, event) {
      if (!checkEdit(edit))
        return;
 
      var xy = WT.widgetCoordinates(edit, event);
-     if (xy.x > edit.offsetWidth - 16)
+     if (xy.x > edit.offsetWidth - calcButtonWidth(edit)) {
+       if (edit.classList) {
+         edit.classList.add('Wt-suggest-dropdown-hover');
+       }
        edit.style.cursor = 'default';
-     else
+     } else {
+       if (edit.classList) {
+         edit.classList.remove('Wt-suggest-dropdown-hover');
+       }
        edit.style.cursor = '';
+     }
    };
 
    this.showAt = function(edit, value) {
@@ -124,7 +149,7 @@ WT_DECLARE_WT_MEMBER
        return;
 
      var xy = WT.widgetCoordinates(edit, event);
-     if (xy.x > edit.offsetWidth - 16) {
+     if (xy.x > edit.offsetWidth - calcButtonWidth(edit)) {
        if (editId != edit.id || !visible()) {
 	 self.showAt(edit, '');
        } else {
@@ -238,6 +263,13 @@ WT_DECLARE_WT_MEMBER
 	 }
 	 if (n && WT.hasTag(n, 'LI')) {
            n.className = 'active';
+           if (typeof APP.theme === 'object' &&
+               APP.theme.type === 'bootstrap' &&
+               APP.theme.version >= 4) {
+            sel.firstChild.className =
+              sel.firstChild.className.replace('active', '');
+            n.firstChild.className += ' active';
+           }
            selId = n.id;
          }
 
@@ -350,6 +382,10 @@ WT_DECLARE_WT_MEMBER
 
        if (sel) {
 	 sel.className = 'active';
+         if (typeof WT.theme === 'object' &&
+             WT.theme.type === 'bootstrap' &&
+             WT.theme.version >= 4)
+          sel.firstChild.className += ' active';
 	 scrollToSelected(sel);
        }
      }

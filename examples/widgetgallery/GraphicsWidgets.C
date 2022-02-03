@@ -15,16 +15,18 @@
 #include <Wt/WStandardItemModel.h>
 
 GraphicsWidgets::GraphicsWidgets()
-    : TopicWidget()
 {
+#if 0
   addText(tr("graphics-intro"),this);
+#endif
 }
 
 void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
 {
   menu->setInternalBasePath("/graphics-charts");
 
-  menu->addItem("2D painting", painting2d())->setPathComponent("");
+  menu->addItem("2D painting",
+                deferCreate([this]{ return painting2d(); }))->setPathComponent("");
   menu->addItem("Paintbrush", 
                 deferCreate([this]{ return paintbrush(); }));
   menu->addItem("Category chart",
@@ -158,7 +160,7 @@ std::unique_ptr<Wt::WWidget> GraphicsWidgets::googleMap()
 
   // Show the XML-template as text
   result->bindString("GoogleMap-controls",
-                     reindent(tr("graphics-GoogleMap-controls")),
+                     reindent(Wt::WString::tr("graphics-GoogleMap-controls")),
                      TextFormat::Plain);
   return std::move(result);
 }

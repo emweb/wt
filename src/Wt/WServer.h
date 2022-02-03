@@ -426,6 +426,16 @@ public:
    */
   WT_API std::string appRoot() const;
 
+  /*! \brief Returns the docroot (if using wthttp)
+   *
+   * If you're using wthttp, this returns the location passed to the
+   * --docroot argument, just like WApplication::docRoot(). This allows access
+   * to this parameter outside of the context of a WApplication.
+   *
+   * If you're using any other connector, this returns the empty string.
+   */
+   WTCONNECTOR_API std::string docRoot() const;
+
   /*! \brief Posts a function to a session.
    *
    * This is a thread-safe method to post a particular event

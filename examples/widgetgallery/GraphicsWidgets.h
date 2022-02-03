@@ -8,9 +8,9 @@
 #ifndef GRAPHICS_WIDGETS_H_
 #define GRAPHICS_WIDGETS_H_
 
-#include "TopicWidget.h"
+#include "Topic.h"
 
-class GraphicsWidgets : public TopicWidget
+class GraphicsWidgets : public Topic
 {
 public:
   GraphicsWidgets();
@@ -31,7 +31,7 @@ private:
   std::unique_ptr<Wt::WWidget> catCharts3d();
 
   Wt::WAbstractItemModel *readCsvFile(const std::string &fname,
-		  WContainerWidget *parent);
+                                      Wt::WContainerWidget *parent);
 };
 
 #endif // GRAPHICS_WIDGETS_H_

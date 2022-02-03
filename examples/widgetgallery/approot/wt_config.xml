@@ -30,6 +30,8 @@
 
 	<bootstrap-method>
 	  <for path="*">progressive</for>
+	  <for path="/forms/check-boxes">default</for>
+	  <for path="/forms/slider">default</for>
 	  <for path="/forms/line_text-editor">default</for>
 	  <for path="/trees-tables/mvc-table-views">default</for>
 	  <for path="/trees-tables/mvc-tree-views">default</for>

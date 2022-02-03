@@ -408,8 +408,7 @@ template <typename Iterator>
 void CssGrammar<Iterator>::setCurrentSelectors
                                (const std::vector<SelectorImpl>& selectors)
 {
-  BOOST_FOREACH(const SelectorImpl& s, selectors)
-  {
+  for (const SelectorImpl& s : selectors) {
     RulesetImpl ruleset;
     ruleset.selector_ = s;
     currentRuleset_.push_back(ruleset);
@@ -420,15 +419,17 @@ template <typename Iterator>
 void CssGrammar<Iterator>::addDeclaration(const std::string& property,
                                           const Term& term)
 {
-  BOOST_FOREACH(RulesetImpl& r, currentRuleset_)
+  for (RulesetImpl& r : currentRuleset_) {
     r.block_.properties_.insert(std::make_pair(property, term));
+  }
 }
 
 template <typename Iterator>
 void CssGrammar<Iterator>::setDeclarationString(const std::string& rawstring)
 {
-  BOOST_FOREACH(RulesetImpl& r, currentRuleset_)
+  for (RulesetImpl& r : currentRuleset_) {
     r.block_.declarationString_ = rawstring;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

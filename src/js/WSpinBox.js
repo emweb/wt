@@ -151,14 +151,19 @@ WT_DECLARE_WT_MEMBER
      maxValue = newMaxValue;
      stepValue = newStepValue;
 
-     var Validator = (isDoubleSpinBox ||
-              typeof WT.WIntValidator === 'undefined') ?
-       WT.WDoubleValidator : WT.WIntValidator;
-
-     validator = new Validator(true, minValue, maxValue,
-                   NaNError, NaNError,
-                   tooSmallError + minValue,
-                   tooLargeError + maxValue);
+     var useDoubleValidator = (isDoubleSpinBox ||
+                               typeof WT.WIntValidator === 'undefined');
+     if (useDoubleValidator) {
+       validator = new WT.WDoubleValidator(true, false, minValue, maxValue,
+                                           '.', '', NaNError, NaNError,
+                                           tooSmallError + minValue,
+                                           tooLargeError + maxValue);
+     } else {
+       validator = new WT.WIntValidator(true, minValue, maxValue, '',
+                                        NaNError, NaNError,
+                                        tooSmallError + minValue,
+                                        tooLargeError + maxValue);
+     }
    };
 
    this.mouseOut = function(o, event) {
@@ -175,23 +180,41 @@ WT_DECLARE_WT_MEMBER
        if ($edit.hasClass(CLASS_DOWN) || $edit.hasClass(CLASS_UP))
      $edit.removeClass(CLASS_DOWN).removeClass(CLASS_UP);
 
-       if (xy.x > edit.offsetWidth - 16) {
-     var mid = edit.offsetHeight/2;
-     if (xy.y >= mid - 1 && xy.y <= mid + 1)
-       edit.style.cursor = CH;
-     else {
-       edit.style.cursor = 'default';
-       if (xy.y < mid - 1)
-         $edit.addClass(CLASS_UP);
-       else
-         $edit.addClass(CLASS_DOWN);
-     }
-       } else
-     if (edit.style.cursor != '')
-       edit.style.cursor = '';
+       var bootstrapVersion = -1;
+       if (typeof WT.theme === 'object' &&
+           WT.theme.type === 'bootstrap') {
+         bootstrapVersion = WT.theme.version;
+       }
+       if (bootstrapVersion >= 4 &&
+           xy.x > edit.offsetWidth - 30 &&
+           xy.x < edit.offsetWidth - 10) {
+          var mid = edit.offsetHeight/2;
+          if (xy.y >= mid - 3 && xy.y <= mid + 3)
+            edit.style.cursor = CH;
+          else {
+            edit.style.cursor = 'default';
+            if (xy.y < mid - 1)
+              $edit.addClass(CLASS_UP);
+            else
+              $edit.addClass(CLASS_DOWN);
+          }
+       } else if (bootstrapVersion < 4 && xy.x > edit.offsetWidth - 22) {
+         var mid = edit.offsetHeight/2;
+         if (xy.y >= mid - 3 && xy.y <= mid + 3)
+           edit.style.cursor = CH;
+         else {
+           edit.style.cursor = 'default';
+           if (xy.y < mid - 1)
+             $edit.addClass(CLASS_UP);
+           else
+             $edit.addClass(CLASS_DOWN);
+         }
+      } else {
+        if (edit.style.cursor != '')
+          edit.style.cursor = '';
+      }
      } else {
        var dy = WT.pageCoordinates(event).y - dragStartXY.y;
-
        var v = dragStartValue;
        if (v !== null) {
      v = v - dy*stepValue;
@@ -214,17 +237,33 @@ WT_DECLARE_WT_MEMBER
        dragStartValue = getValue();
      } else {
        var xy = WT.widgetCoordinates(edit, event);
-       if (xy.x > edit.offsetWidth - 16) {
-     // suppress selection, focus
-     WT.cancelEvent(event);
-     WT.capture(edit);
-     $edit.addClass(CLASS_UNSELECTABLE);
+       var bootstrapVersion = -1;
+       if (typeof WT.theme === 'object' &&
+           WT.theme.type === 'bootstrap') {
+         bootstrapVersion = WT.theme.version;
+       }
+       if (bootstrapVersion >= 5 && xy.x > edit.offsetWidth - 30 && xy.x < edit.offsetWidth - 10) {
+        // suppress selection, focus
+        WT.cancelEvent(event);
+        WT.capture(edit);
+        $edit.addClass(CLASS_UNSELECTABLE);
 
-     var mid = edit.offsetHeight/2;
-     if (xy.y < mid)
-       WT.eventRepeat(function() { inc(); });
-     else
-       WT.eventRepeat(function() { dec(); });
+        var mid = edit.offsetHeight/2;
+        if (xy.y < mid)
+          WT.eventRepeat(function() { inc(); });
+        else
+          WT.eventRepeat(function() { dec(); });
+       } else if (bootstrapVersion < 4 && xy.x > edit.offsetWidth - 22) {
+        // suppress selection, focus
+        WT.cancelEvent(event);
+        WT.capture(edit);
+        $edit.addClass(CLASS_UNSELECTABLE);
+
+        var mid = edit.offsetHeight/2;
+        if (xy.y < mid)
+          WT.eventRepeat(function() { inc(); });
+        else
+          WT.eventRepeat(function() { dec(); });
        }
      }
    };

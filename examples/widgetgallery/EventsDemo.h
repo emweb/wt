@@ -8,9 +8,9 @@
 #ifndef EVENTS_DEMO_H_
 #define EVENTS_DEMO_H_
 
-#include "TopicWidget.h"
+#include "Topic.h"
 
-class EventsDemo : public TopicWidget
+class EventsDemo : public Topic
 {
 public:
   EventsDemo();

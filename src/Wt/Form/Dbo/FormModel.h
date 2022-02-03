@@ -14,12 +14,27 @@
 namespace Wt {
   namespace Form {
     namespace Dbo {
-/* \brief A model class to represent database objects
+/*! \class FormModel Wt/Form/Dbo/FormModel.h Wt/Form/Dbo/FormModel.h
+ *  \brief A model class to represent database objects
+ *
+ * This implements field data and validation handling for database form-based views.
+ *
+ * The user needs to add all database columns to the model that they want to display
+ * in the view before initializing the model. During initialization the model will
+ * read the information from the database.
+ *
+ * \sa FormView
+ *
+ * \ingroup form
  */
 template<class C>
 class FormModel : public FormModelBase
 {
 public:
+  /*! \brief Constructor
+   *
+   * Creates a new form model
+   */
   explicit FormModel(Wt::Dbo::Session& session, Wt::Dbo::ptr<C> ptr = nullptr)
     : FormModelBase(),
       session_(session),
@@ -27,9 +42,9 @@ public:
   {
   }
 
-  /*! \brief Adds a Dbo column as a field
+  /*! \brief Adds a %Dbo column as a field
    *
-   * This method will throw an exception if it's called after initDboValues.
+   * \throws WException when the method is called after initDboValues
    */
   void addDboField(Wt::WFormModel::Field field)
   {
@@ -40,9 +55,9 @@ public:
     insertDboField(field);
   }
 
-  /*! \brief Adds a list of Dbo columns to the model
+  /*! \brief Adds a list of %Dbo columns to the model
    *
-   * This method will throw an exception if it's called after initDboValues.
+   * \throws WException when the method is called after initDboValues
    */
   void addDboFields(std::vector<Wt::WFormModel::Field> fields)
   {
@@ -55,9 +70,9 @@ public:
     }
   }
 
-  /*! \brief Adds all Dbo columns to the model
+  /*! \brief Adds all %Dbo columns to the model
    *
-   * This method will throw an exception if it's called after initDboValues.
+   * \throws WException when the method is called after initDboValues
    */
   void addAllDboColumnsAsFields(Wt::WFlags<FieldOptions> options = Wt::WFlags<FieldOptions>())
   {
@@ -124,6 +139,8 @@ public:
     return Wt::WFormModel::validateField(field);
   }
 
+  /*! \brief Returns the Session object used by this class
+   */
   Wt::Dbo::Session& session() const { return session_; }
 
 private:

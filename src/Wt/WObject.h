@@ -12,6 +12,10 @@
 #include <Wt/Core/observable.hpp>
 #include <Wt/Http/Request.h>
 
+#ifdef WT_THREADED
+#include <atomic>
+#endif // WT_THREADED
+
 #include <cassert>
 #include <map>
 #include <vector>
@@ -338,10 +342,14 @@ private:
   std::vector<std::unique_ptr<WStatelessSlot> > statelessSlots_;
   std::vector<std::unique_ptr<WObject> > children_;
 
-  unsigned id_;
+  const unsigned id_;
   std::string name_;
 
+#ifdef WT_THREADED
+  static std::atomic<unsigned> nextObjId_;
+#else
   static unsigned nextObjId_;
+#endif // WT_THREADED
 
   friend class EventSignalBase;
   friend class WApplication;

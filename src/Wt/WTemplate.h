@@ -453,7 +453,13 @@ public:
    * \sa bindString()
    * \sa resolveWidget()
    */
-  virtual void bindWidget(const std::string& varName,
+  virtual
+#ifndef WT_TARGET_JAVA
+  void
+#else // WT_TARGET_JAVA
+  WWidget*
+#endif // WT_TARGET_JAVA
+  bindWidget(const std::string& varName,
 			  std::unique_ptr<WWidget> widget);
 
   /*! \brief Binds a widget to a variable, returning a raw pointer.
@@ -502,6 +508,17 @@ public:
     bindWidget(varName, std::unique_ptr<WWidget>(std::move(w)));
     return result;
   }
+#else // WT_TARGET_JAVA
+  template <typename Widget>
+    Widget *bindNew(const std::string& varName);
+  template <typename Widget, typename Arg1>
+    Widget *bindNew(const std::string& varName, Arg1 arg1);
+  template <typename Widget, typename Arg1, typename Arg2>
+    Widget *bindNew(const std::string& varName, Arg1 arg1, Arg2 arg2);
+  template <typename Widget, typename Arg1, typename Arg2, typename Arg3>
+    Widget *bindNew(const std::string& varName, Arg1 arg1, Arg2 arg2, Arg3 arg3);
+  template <typename Widget, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+    Widget *bindNew(const std::string& varName, Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4);
 #endif // WT_TARGET_JAVA
 
   using WWidget::removeWidget;

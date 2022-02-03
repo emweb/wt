@@ -11,9 +11,10 @@
 #include <Wt/WMenu.h>
 
 Media::Media() 
-  : TopicWidget()
 {
+#if 0
   addText(tr("specialpurposewidgets-intro"), this);
+#endif
 }
 
 void Media::populateSubMenu(Wt::WMenu *menu)
@@ -139,6 +140,6 @@ std::unique_ptr<Wt::WWidget> Media::pdf()
 
   // Show the source code only for write to file example.
   result->bindString("PdfImageWrite",
-		     reindent(tr("media-PdfImageWrite")), Wt::TextFormat::Plain);
+                     reindent(Wt::WString::tr("media-PdfImageWrite")), Wt::TextFormat::Plain);
   return std::move(result);
 }

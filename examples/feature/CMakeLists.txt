@@ -21,3 +21,7 @@ SUBDIRS(
   video
   widgetset
 )
+
+if(WT_HAS_SAML)
+  add_subdirectory(saml)
+endif()

@@ -198,15 +198,15 @@
       In a template text, a <tt>$${<i>var</i>}</tt> indicates a place holder
       named <strong>var</strong> which is substituted with a widget or string
       that is bound to that variable. Other syntactical constructs are:
-      <dl class="dl-horizontal">
-        <dt>arguments</dt>
-        <dd><tt>$${<i>var arg1 arg2</i>}</tt></dd>
-        <dt>conditions</dt>
-        <dd><tt>$${&lt;<i>condition</i>&gt;} ...
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">arguments</dt>
+        <dd class="col-sm-10"><tt>$${<i>var arg1 arg2</i>}</tt></dd>
+        <dt class="col-sm-2 text-sm-end">conditions</dt>
+        <dd class="col-sm-10"><tt>$${&lt;<i>condition</i>&gt;} ...
         $${&lt;/<i>condition</i>&gt;}</tt>
         </dd>
-        <dt>functions</dt>
-        <dd><tt>$${<i>fun:arg1 arg2</i>}</tt></dd>
+        <dt class="col-sm-2 text-sm-end">functions</dt>
+        <dd class="col-sm-10"><tt>$${<i>fun:arg1 arg2</i>}</tt></dd>
       </dl>
     </p>
     <p>
@@ -331,7 +331,7 @@
     <p>
       ${doc-link WVBoxLayout} and ${doc-link WHBoxLayout} provide
       respectively vertical and horizontal layout of widgets inside a
-      <a href="#/layout/containers"><tt>WContainerWidget</tt></a>.
+      <a href="#/layout/containers">WContainerWidget</a>.
     </p>
     <p>
       In a horizontal box layout, widgets are given an appropriate
@@ -550,7 +550,7 @@
 <!--    <p>
       You can include an icon in a <tt>WMessageBox</tt>. You can choose from
       the following types:
-      <dl class="dl-horizontal">
+      <dl class="row">
         <dt>Information</dt>
         <dd>An information icon</dd>
         <dt>Warning</dt>
@@ -659,20 +659,20 @@
     <p>
       There are different techniques and technologies available to
       determine the size (width and height) of a rendered widget.
-      <dl class="dl-horizontal">
-        <dt>CSS</dt>
-        <dd>The browser uses CSS (Cascading Style Sheets) as a
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">CSS</dt>
+        <dd class="col-sm-10">The browser uses CSS (Cascading Style Sheets) as a
         technology for defining visual aspects, such as fonts, colors,
         border styles, but also for geometry.</dd>
-        <dt>Layout Managers</dt>
-        <dd>Whereas CSS (and browsers) were originally designed for
+        <dt class="col-sm-2 text-sm-end">Layout Managers</dt>
+        <dd class="col-sm-10">Whereas CSS (and browsers) were originally designed for
         the markup of documents, the requirements for web applications
         are in many ways different. <a
         href="#/layout/layout-managers">Layout Managers</a> are a
         common technique in desktop applications to layout a UI, and
         this is also available in Wt.</dd>
-        <dt>CSS Grids</dt>
-        <dd>A practical alternative to plain CSS, and to overcome some
+        <dt class="col-sm-2 text-sm-end">CSS Grids</dt>
+        <dd class="col-sm-10">A practical alternative to plain CSS, and to overcome some
         of its deficiencies which, are CSS frameworks which allow one
         to place widgets using a generic tag system. These typically
         divide the page in a virtual grid. When using Wt with the Bootstrap
@@ -696,18 +696,18 @@
 
     <p>
       Three ways to use CSS in Wt.
-      <dl class="dl-horizontal">
-        <dt>Inline CSS</dt>
-        <dd>A single widget's style properties can be modified directly using
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">Inline CSS</dt>
+        <dd class="col-sm-10">A single widget's style properties can be modified directly using
         C++ API</dd>
 
-        <dt>Internal StyleSheet</dt>
-        <dd>The internal stylesheet allows to use a C++ API to create,
+        <dt class="col-sm-2 text-sm-end">Internal StyleSheet</dt>
+        <dd class="col-sm-10">The internal stylesheet allows to use a C++ API to create,
         modify and remove CSS style rules that typically impact
         multiple widgets.</dd>
 
-        <dt>External StyleSheets</dt>
-        <dd>By far the most practical approach is to use external CSS
+        <dt class="col-sm-2 text-sm-end">External StyleSheets</dt>
+        <dd class="col-sm-10">By far the most practical approach is to use external CSS
         stylesheets that define styling rules, and apply them to Wt widgets
         using style classes.</dd>
       </dl>
@@ -931,33 +931,36 @@
     </p>
     <p>
       You can choose from three themes:
-      <dl class="dl-horizontal">
-        <dt>default</dt>
-        <dd>You don't have to do anything to use this theme from the
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">default</dt>
+        <dd class="col-sm-10">You don't have to do anything to use this theme from the
           ${doc-link WCssTheme} class as it is the default theme.
         </dd>
-        <dt>polished</dt>
-        <dd>This theme is also implemented by the ${doc-link WCssTheme} class.
+        <dt class="col-sm-2 text-sm-end">polished</dt>
+        <dd class="col-sm-10">This theme is also implemented by the ${doc-link WCssTheme} class.
           You can change to this CSS theme with <tt>setCssTheme("polished")</tt>
           in your ${doc-link WApplication}.
         </dd>
-        <dt>bootstrap</dt>
-        <dd>
+        <dt class="col-sm-2 text-sm-end">bootstrap</dt>
+        <dd class="col-sm-10">
 	  <p>
-	    This theme is implemented by the ${doc-link WBootstrapTheme}
-	    class, and relies on <a
-	    href="http://getbootstrap.com/">Twitter's Bootstrap CSS
-	    framework</a>. Use <tt>setTheme(new WBootstrapTheme())</tt>
-	    to use this theme.
+            There are three versions of this theme, implemented through the
+            ${doc-link WBootstrap5Theme}, ${doc-link WBootstrap3Theme}, and ${doc-link WBootstrap2Theme}
+            classes. They rely on the <a href="http://getbootstrap.com/">Bootstrap CSS framework</a>.
+            Use <tt>setTheme(std::make_shared&lt;WBootstrap5Theme&gt;())</tt> to use this theme.
 	  </p>
 	  <p>
-	    As of version 3.3.2, Bootstrap 2 and Bootstrap 3 versions
-	    are supported. The widget gallery has been restyled to use
-	    Bootstrap 3. While the theme makes sure that Wt's widgets
+	    As of version 4.6.0, Bootstrap versions 2, 3, and 5
+	    are supported. Prior to 4.6.0 there was ${doc-link WBootstrapTheme},
+            which is now deprecated in favor of ${doc-link WBootstrap2Theme},
+            ${doc-link WBootstrap3Theme}, ${doc-link WBootstrap4Theme}
+            and ${doc-link WBootstrap5Theme}.
+            The widget gallery has been restyled to use Bootstrap 5.<br/>
+	    While the theme makes sure that Wt's widgets
 	    are rendered with the markup expected by bootstrap, there
 	    are many features that are particular to the layout system
-	    of bootstrap (and chaned from version 2 to version
-	    3). Thus you need to know how bootstrap expects you to
+	    of bootstrap (and were changed between various versions of
+	    Bootstrap). Thus you need to know how bootstrap expects you to
 	    layout widgets in order to effectivily use this theme, for
 	    which we refer to the <a
 	    href="http://getbootstrap.com/">Bootstrap
@@ -1014,11 +1017,11 @@
       <p>
         Here is the corresponding XML template (with
         <tt>message id="simpleForm-template"</tt>) using style classes from the
-        <a href="http://twitter.github.com/bootstrap/base-css.html"
+        <a href="https://getbootstrap.com/docs/5.0/forms/overview/"
         target="blank">Bootstrap theme</a>.
         In order to apply validation style to any widget with invalid input,
         you should group the widgets in a div or span section and apply the
-        style <tt>form-group </tt> to it.
+        style <tt>input-group </tt> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -1055,26 +1058,26 @@
       invokes and reflects the validation status. For each model field, the
       view uses a number of conventional variable names to represent the
       label, editor, and validation messages in the template:
-      <dl class="dl-horizontal">
-        <dt>field</dt>
-        <dd>
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">field</dt>
+        <dd class="col-sm-10">
           This variable name refers to the <strong>form widget</strong> which
           contains the value. It is used by <tt>createFormWidget()</tt> at the
           moment that the form is created.
         </dd>
-        <dt>field-label</dt>
-        <dd>
+        <dt class="col-sm-2 text-sm-end">field-label</dt>
+        <dd class="col-sm-10">
           This variable name refers to the <strong>label</strong>. It is used
           by <tt>label()</tt>.
         </dd>
-        <dt>field-info</dt>
-        <dd>
+        <dt class="col-sm-2 text-sm-end">field-info</dt>
+        <dd class="col-sm-10">
           This variable name refers to <strong>details</strong> on the field. This
           could be input advice (e.g. the format or the range) or a validation
           message. It is used by <tt>addField()</tt> and <tt>validate()</tt>.
         </dd>
-        <dt>if:field</dt>
-        <dd>
+        <dt class="col-sm-2 text-sm-end">if:field</dt>
+        <dd class="col-sm-10">
           This variable name refers to a condition for the
           <strong>visibility</strong> of the field. It is used by
           <tt>isVisible()</tt>.
@@ -1135,119 +1138,109 @@
     <p><a href="#forms">Top</a></p>
 
   </message>
-
+  
   <message id="simpleForm-template">
-    <div class="form-inline">
-      <div class="form-group">
-          ${name}
+    <div class="row">
+      <div class="col-auto pe-0">
+        ${name}
       </div>
-      <div class="form-group">
-          ${button}
+      <div class="col-auto">
+        ${button}
       </div>
-      <div class="form-group">
-           ${out}
+      <div class="col-auto">
+        ${out class='form-control-plaintext'}
       </div>
     </div>
   </message>
 
   <message id="userForm-template">
     <legend>${title}</legend>
-    <div class="form-horizontal">
-      <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:first-name}">
+    <div class="row">
+      <div class="col-4">
+        <label class="form-label"  for="${id:first-name}">
           First name
         </label>
-        <div class="col-sm-5">
-          ${first-name}
-        </div>
-        <div class="help-block col-sm-5">
+        ${first-name}
+        <div class="form-text">
           ${first-name-info}
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:last-name}">
+      <div class="col-4">
+        <label class="form-label"  for="${id:last-name}">
           Last name
         </label>
-        <div class="col-sm-5">
-          ${last-name}
-        </div>
-        <div class="help-block col-sm-5">
+        ${last-name}
+        <div class="form-text">
           ${last-name-info}
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:country}">
+    </div>
+    
+    <div class="row">
+      <div class="col-4">
+        <label class="form-label"  for="${id:country}">
           Country
         </label>
-        <div class="col-sm-5">
-          ${country}
-        </div>
-        <div class="help-block col-sm-5">
+        ${country}
+        <div class="form-text">
           ${country-info}
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:city}">
+      <div class="col-4">
+        <label class="form-label"  for="${id:city}">
           City
         </label>
-        <div class="col-sm-5">
-          ${city}
-        </div>
-        <div class="help-block col-sm-5">
+        ${city}
+        <div class="form-text">
           ${city-info}
         </div>
       </div>
+    </div>
 
-      <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:birth}">
+    <div class="row">
+      <div class="col-4">
+        <label class="form-label"  for="${id:birth}">
           Birth date
         </label>
-        <div class="col-sm-5">
-          ${birth}
-        </div>
-        <div class="help-block col-sm-5">
+        ${birth}
+        <div class="form-text">
           ${birth-info}
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:children}">
+      <div class="col-4">
+        <label class="form-label"  for="${id:children}">
           Children
         </label>
-        <div class="col-sm-5">
-          ${children}
-        </div>
-        <div class="help-block col-sm-5">
+        ${children}
+        <div class="form-text">
           ${children-info}
         </div>
       </div>
+    </div>
 
-      <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:remarks}">
+    <div class="row">
+      <div class="col-8">
+        <label class="form-label"  for="${id:remarks}">
           Remarks
         </label>
-        <div class="col-sm-5">
-          ${remarks}
-        </div>
-        <div class="help-block col-sm-5">
+        ${remarks}
+        <div class="form-text">
           ${remarks-info}
         </div>
       </div>
-
-      <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-          ${submit-button} <span class="help-inline">${submit-info}</span>
-        </div>
+    </div>
+    
+    <div class="row">
+      <div class="col">
+        ${submit-button} <span class="help-inline">${submit-info}</span>
       </div>
     </div>
   </message>
 
   <message id="form-field">
     ${<if:field>}
-      <label class="control-label col-sm-2"  for="${id:field}">${field-label}</label>
+      <label class="form-label"  for="${id:field}">${field-label}</label>
       ${field} ${field-info}
     ${</if:field>}
   </message>
@@ -1286,7 +1279,7 @@
       <p>
         Here is the corresponding XML template (with
         <tt>message id="lineEdit-template"</tt>) using style classes from the
-        <a href="http://twitter.github.com/bootstrap/base-css.html"
+        <a href="https://getbootstrap.com/docs/5.0/forms/overview/"
         target="blank">Bootstrap theme</a>.
       </p>
       <fieldset class="src">
@@ -1302,7 +1295,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${LineEditEvent}
+      <div class="row">
+        <div class="col-auto">
+          ${LineEditEvent}
+        </div>
+      </div>
       ${src LineEditEvent}
     </fieldset>
 
@@ -1322,7 +1319,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${TextArea}
+      <div class="row">
+        <div class="col-auto">
+          ${TextArea}
+        </div>
+      </div>
       ${src TextArea}
     </fieldset>
 
@@ -1363,7 +1364,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${SpinBox}
+      <div class="row">
+        <div class="col-auto">
+          ${SpinBox}
+        </div>
+      </div>
       ${src SpinBox}
     </fieldset>
 
@@ -1392,16 +1397,16 @@
       <a href="http://twitter.github.com/bootstrap/base-css.html"
       target="blank">Bootstrap theme</a> includes other useful form components
       like prepended/appended inputs. You can add text or buttons before and/or
-      after any text-based input using the <tt>.input-prepend</tt> and
-      <tt>.input-prepend</tt> classes respectively. Note that select elements
-      are not supported.
+      after any text-based input using the <tt>.input-group-text</tt> class. Note
+      that select elements are not supported.
     </p>
 
     <h4>Adding text</h4>
     <p>
-      Wrap an <tt>.add-on</tt> and an input control with one of two classes to
-      prepend or append text to an input. You could also use both classes and
-      two instances of <tt>.add-on</tt> to prepend and append an input at once.
+      Wrap an <tt>.input-group-text</tt> and an input control with the
+      <tt>.input-group</tt> class to prepend or append text to an input.
+      To prepend and append an input at once you can also use two instances
+      of the <tt>.input-group-text</tt> before and after the input control.
     </p>
 
     <fieldset class="example">
@@ -1432,86 +1437,82 @@
 
   <message id="dateEdit-template">
     <p>When do you want to take your holiday?</p>
+    <div class="row g-3">
 
-    <div class="form-horizontal">
-      <div class="form-group">
-        <label class="control-label col-sm-3" for="${id:from}">From</label>
-        <div class="col-sm-4">${from}</div>
+      <div class="col-sm-3">
+        <label class="form-label"  for="${id:from}">
+          From
+        </label>
+        ${from}
       </div>
 
-      <div class="form-group">
-        <label class="control-label col-sm-3" for="${id:to}">
+      <div class="col-sm-3">
+        <label class="form-label" for="${id:to}">
           To (format dd MM yyyy)
         </label>
-        <div class="col-sm-4">${to}</div>
+        ${to}
       </div>
 
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-4">
-          ${save}
-        </div>
+      <div class="col-12">
+        ${save}
+      </div>
+
+      <div class="col-12">
+        ${out class="help-block"}
       </div>
     </div>
-
-    ${out class="help-block"}
-
   </message>
   
   <message id="timeEdit-template">
     <p>When do you want your package to be delivered?</p>
+    <div class="row g-3">
 
-    <div class="form-horizontal">
-      <div class="form-group">
-        <label class="control-label col-sm-3" for="${id:from}">From (format ${from-format})</label>
-        <div class="col-sm-4">${from}</div>
+      <div class="col-sm-3">
+        <label class="form-label"  for="${id:from}">
+          From (format ${from-format})
+        </label>
+        ${from}
       </div>
 
-      <div class="form-group">
-        <label class="control-label col-sm-3" for="${id:to}">
+      <div class="col-sm-3">
+        <label class="form-label" for="${id:to}">
           To (format ${to-format})
         </label>
-        <div class="col-sm-4">${to}</div>
+        ${to}
       </div>
 
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-4">
-          ${save}
-        </div>
+      <div class="col-12">
+        ${save}
+      </div>
+
+      <div class="col-12">
+        ${out class="help-block"}
       </div>
     </div>
-
-    ${out class="help-block"}
-
   </message>
 
   <message id="lineEdit-template">
-    <div class="form-inline">
-      <div class="form-group">
-        <label for="${id:edit}">${label}</label>
+    <div class="row">
+      <label class="col-1 col-form-label">${label}</label>
+      <div class="col-2">
         ${edit}
       </div>
     </div>
   </message>
 
   <message id="editSide-template">
-    <div class="form-group">
-      <div class="input-group">
-        <span class="input-group-addon">@</span>
-        ${name}
-      </div>
-    </div>      
-    <div class="form-group">
-      <div class="input-group">
-        ${amount1}
-        <span class="input-group-addon">.00</span>
-      </div>
-    </div>      
-    <div class="form-group">
-      <div class="input-group">
-        <span class="input-group-addon">$</span>
-        ${amount2}
-        <span class="input-group-addon">.00</span>
-        </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text">@</span>
+      ${name}
+    </div>  
+    <div class="input-group mb-3">
+      ${amount1}
+      <span class="input-group-text">.00</span>
+    </div>   
+    <div class="input-group mb-3">
+      <span class="input-group-text">$</span>
+      ${amount2}
+      <span class="input-group-text">.00</span>
     </div>
   </message>
 
@@ -1659,7 +1660,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${ComboBox}
+      <div class="row">
+        <div class="col-auto">
+          ${ComboBox}
+        </div>
+      </div>
       ${src ComboBox}
     </fieldset>
 
@@ -1679,7 +1684,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${ComboBoxActivated}
+      <div class="row">
+        <div class="col-auto">
+          ${ComboBoxActivated}
+        </div>
+      </div>
       ${src ComboBoxActivated}
     </fieldset>
 
@@ -1709,7 +1718,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${ComboBoxModel}
+      <div class="row">
+        <div class="col-auto">
+          ${ComboBoxModel}
+        </div>
+      </div>
       ${src ComboBoxModel}
     </fieldset>
 
@@ -1764,7 +1777,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${SelectionBoxSimple}
+      <div class="row">
+        <div class="col-auto">
+          ${SelectionBoxSimple}
+        </div>
+      </div>
       ${src SelectionBoxSimple}
     </fieldset>
 
@@ -1775,7 +1792,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${SelectionBoxExtended}
+      <div class="row">
+        <div class="col-auto">
+          ${SelectionBoxExtended}
+        </div>
+      </div>
       ${src SelectionBoxExtended}
     </fieldset>
 
@@ -1817,7 +1838,11 @@
 
     <fieldset class="example">
         <legend>Example</legend>
-        ${AutoComplete}
+        <div class="row">
+          <div class="col-sm-4">
+            ${AutoComplete}
+          </div>
+        </div>
         ${src AutoComplete}
     </fieldset>
 
@@ -1876,9 +1901,8 @@
   <message id="forms-dateEntry">
     <h2 id="date-entry">Date entry</h2>
     <p>
-      Wt provides to kinds of widgets to enter a date, namely
-      <a href="#date-calendar">WCalendar</a> and <a href="#date-picker">
-      WDatePicker</a>.
+      Wt supports several date entry methods, including a ${doc-link WCalendar},
+      ${doc-link WTimeEdit} and ${doc-link WDateEdit}.
     </p>
 
     <h3 id="date-calendar">Date entry using a calendar</h3>
@@ -1937,23 +1961,6 @@
         ${src TimeEdit}
     </fieldset>
     <p><a href="#date-entry">Top</a></p>
-
-    <h3 id="date-edit">Date entry using a date picker</h3>
-    <p>
-      The date picker offers about the same functionality as the newer
-      <tt>WDateEdit</tt>, but with a slightly different API. Most
-      importantly, the date editor is a form widget, and integrates
-      better with other parts in Wt. It is in general more convenient
-      to use the newer WDateEdit class instead.
-    </p>
-
-    <fieldset class="example">
-        <legend>Example</legend>
-        ${DatePicker}
-        ${src DatePicker}
-    </fieldset>
-
-    <p><a href="#date-entry">Top</a></p>
   </message>
 
   <message id="forms-inPlaceEdit">
@@ -1972,7 +1979,11 @@
 
     <fieldset class="example">
         <legend>Example</legend>
-        ${InPlaceEditButtons}
+        <div class="row">
+          <div class="col-auto">
+            ${InPlaceEditButtons}
+          </div>
+        </div>
         ${src InPlaceEditButtons}
     </fieldset>
 
@@ -1986,7 +1997,11 @@
 
     <fieldset class="example">
         <legend>Example</legend>
-        ${InPlaceEdit}
+        <div class="row">
+          <div class="col-auto">
+            ${InPlaceEdit}
+          </div>
+        </div>
         ${src InPlaceEdit}
     </fieldset>
 
@@ -2203,7 +2218,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${PushButtonDropdownAppended}
+      <div class="row">
+        <div class="col-auto">
+          ${PushButtonDropdownAppended}
+        </div>
+      </div>
       ${src PushButtonDropdownAppended}
       <p>
         Here is the corresponding XML template (with
@@ -2263,8 +2282,8 @@
     <h4 id="size">Button size</h4>
     <p>
       Instead of using the default size, you can apply a larger or smaller size
-      to a button. Add the style class <tt>.btn-large</tt>,
-      <tt>.btn-small</tt>,or <tt>.btn-mini</tt> to change the size.
+      to a button. Add the style class <tt>.btn-lg</tt> or
+      <tt>.btn-sm</tt> to change the size.
     </p>
 
     <fieldset class="example">
@@ -2305,10 +2324,8 @@
 
     <h4 id="action">Buttons in a form</h4>
     <p>
-      Usually, a form ends with a group of actions (buttons). You can make the
-      action section more striking compared to the upper input field section by
-      adding the style class <tt>.form-actions</tt>. When placed within a
-      <tt>.form-horizontal</tt>, the buttons will automatically indent to line
+      Usually, a form ends with a group of actions (buttons). When placed within a
+      <tt>.row</tt>, the buttons will automatically indent to line
       up with the form controls (See the example at
       <a href="#/forms/forms">Forms &gt; Form model</a>).
     </p>
@@ -2333,12 +2350,10 @@
   </message>
 
   <message id="appendedDropdownButton-template">
-  <div class="form-inline">
-    <div class="form-group">
-      ${input}
-    </div>
-    <div class="form-group">
-        ${appendedButton}
+  <div class="input-group">
+    ${input}
+    <div class="input-group-append">
+      ${appendedButton class="btn-outline-secondary"}
     </div>
   </div>
   </message>
@@ -2354,15 +2369,15 @@
         </thead>
         <tbody>
           <tr>
-            <td>${button-default}</td>
-            <td><tt></tt></td>
-            <td>Default style configured by the library (gray, with gradient)</td>
-          </tr>
-          <tr>
             <td>${button-primary}</td>
             <td><tt>btn-primary</tt></td>
             <td>Provides extra visual weight and identifies the primary action
                 in a set of buttons</td>
+          </tr>
+          <tr>
+            <td>${button-secondary}</td>
+            <td><tt>btn-secondary</tt></td>
+            <td>Default style configured by the library</td>
           </tr>
           <tr>
             <td>${button-info}</td>
@@ -2385,10 +2400,25 @@
             <td>Indicates a dangerous or potentially negative action</td>
           </tr>
           <tr>
-            <td>${button-inverse}</td>
-            <td><tt>btn-inverse</tt></td>
-            <td>Alternate dark gray button, not tied to a semantic action or
-                use</td>
+            <td>${button-close}</td>
+            <td><tt>btn-close</tt></td>
+            <td>Indicates a closing action can be performed</td>
+          </tr>
+          <tr>
+            <td>${button-light}</td>
+            <td><tt>btn-light</tt></td>
+            <td>A light button</td>
+          </tr>
+          <tr>
+            <td>${button-dark}</td>
+            <td><tt>btn-dark</tt></td>
+            <td>A dark button</td>
+          </tr>
+          <tr>
+            <td>${button-outline}</td>
+            <td><tt>btn-outline-primary</tt></td>
+            <td>A button with an outline. This can be used with all of the
+                button types listed before.</td>
           </tr>
           <tr>
             <td>${button-link}</td>
@@ -2402,16 +2432,17 @@
 
   <message id="pushButtonSize-template">
     <div>
-      ${button-large}
+      <p>${button-large}</p>
       <p>${button-default}</p>
       <p>${button-small}</p>
-      ${button-mini}
     </div>
   </message>
 
   <message id="pushButtonAction-template">
-    <div class="form-actions">
-      ${button-save} ${button-cancel}
+    <div class="row">
+      <div class="col-auto">
+        ${button-save} ${button-cancel}
+      </div>
     </div>
   </message>
 
@@ -2461,7 +2492,7 @@
         target="blank">Bootstrap theme</a>.
         In order to apply validation style if the input is not valid, you
         should surround the input widget in a div or span section and apply the
-        style <tt>form-group </tt> to it.
+        style <tt>input-group </tt> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -2537,37 +2568,33 @@
   </message>
 
   <message id="validation-template">
-    <div class="form-horizontal">
-      <div class="form-group">
-        <label class="control-label col-sm-3" for="${id:age}">
-          Please enter your age:
-        </label>
-        <div class="col-sm-2">${age}</div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-7">
-          ${button}
-        </div>
-      </div>
-      ${age-info}
+    <div class="input-group">
+      <label class="form-label col-sm-3" for="${id:age}">
+        Please enter your age:
+      </label>
+      <div class="col-sm-2">${age}</div>
     </div>
+    <div class="input-group">
+      <div class="col-sm-offset-3 col-sm-7">
+        ${button}
+      </div>
+    </div>
+    ${age-info}
   </message>
 
   <message id="date-template">
-    <div class="form-horizontal">
-      <div class="form-group">
-        <label class="control-label col-sm-3" for="${id:birth-date}">
-          Enter your birth-date:
-        </label>
-        <div class="col-sm-2">${birth-date}</div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-7">
-          ${button}
-        </div>
-      </div>
-      ${info}
+    <div class="input-group">
+      <label class="form-label col-sm-3" for="${id:birth-date}">
+        Enter your birth-date:
+      </label>
+      <div class="col-sm-2">${birth-date}</div>
     </div>
+    <div class="input-group">
+      <div class="col-sm-offset-3 col-sm-7">
+        ${button}
+      </div>
+    </div>
+    ${info}
   </message>
 
   <message id="forms-integration-example">
@@ -2592,7 +2619,7 @@
         target="blank">Bootstrap theme</a>.
         In order to apply validation style to any widget with invalid input,
         you should group the widgets in a div or span section and apply the
-        style <tt>form-group </tt> to it.
+        style <tt>input-group </tt> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -2700,7 +2727,7 @@
       left a second level.
     </p>
 
-    <blockquote>
+    <blockquote class="blockquote">
       <p>
         With the help of HTML5's History API, Wt provides a perfect
         illusion of a multi-page application, but within a single page!
@@ -2897,7 +2924,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${Stack}
+      <div class="row">
+        <div class="col-auto">
+          ${Stack}
+        </div>
+      </div>
       ${src Stack}
     </fieldset>
 
@@ -2920,7 +2951,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${Menu}
+      <div class="row">
+        <div class="col-auto">
+          ${Menu}
+        </div>
+      </div>
       ${src Menu}
     </fieldset>
 
@@ -2965,7 +3000,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${Tab}
+      <div class="row">
+        <div class="col-auto">
+          ${Tab}
+        </div>
+      </div>
       ${src Tab}
     </fieldset>
 
@@ -3195,15 +3234,15 @@
       table. These styles are enabled by adding the <tt>"table"</tt>
       style class, and other optional style classes. The other styling
       options are enabled by adding one of the following classes:
-      <dl class="dl-horizontal">
-        <dt>table-bordered</dt>
-        <dd>Adds borders</dd>
-        <dt>table-hover</dt>
-        <dd>Enables a row hover effect</dd>
-        <dt>table-condensed</dt>
-        <dd>Makes the table more compact</dd>
-        <dt>table-striped</dt>
-        <dd>Adds alternating row colors</dd>
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">table-bordered</dt>
+        <dd class="col-sm-10">Adds borders</dd>
+        <dt class="col-sm-2 text-sm-end">table-hover</dt>
+        <dd class="col-sm-10">Enables a row hover effect</dd>
+        <dt class="col-sm-2 text-sm-end">table-sm</dt>
+        <dd class="col-sm-10">Makes the table more compact</dd>
+        <dt class="col-sm-2 text-sm-end">table-striped</dt>
+        <dd class="col-sm-10">Adds alternating row colors</dd>
       </dl>
     </p>
 
@@ -3471,7 +3510,7 @@
 
     <h3>The model</h3>
 
-    <blockquote>
+    <blockquote class="blockquote">
       <p>An item model is essentially a table of items, where each
       item can be a parent to a nested table of items.</p>
     </blockquote>
@@ -3505,19 +3544,19 @@
       The built-in views will thus interpret
       subsets of this data to render a single item. In particular, the
       following data roles are commonly supported:
-      <dl class="dl-horizontal">
-        <dt>DisplayRole</dt>
-        <dd>Rendered as text</dd>
-        <dt>DecorationRole</dt>
-        <dd>Rendered as icons</dd>
-        <dt>CheckStateRole</dt>
-        <dd>Rendered as check box state</dd>
-        <dt>LinkRole</dt>
-        <dd>Rendered as links</dd>
-        <dt>ToolTipRole</dt>
-        <dd>Rendered as tool tips</dd>
-        <dt>StyleClassRole</dt>
-        <dd>Rendered as style classes</dd>
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">DisplayRole</dt>
+        <dd class="col-sm-10">Rendered as text</dd>
+        <dt class="col-sm-2 text-sm-end">DecorationRole</dt>
+        <dd class="col-sm-10">Rendered as icons</dd>
+        <dt class="col-sm-2 text-sm-end">CheckStateRole</dt>
+        <dd class="col-sm-10">Rendered as check box state</dd>
+        <dt class="col-sm-2 text-sm-end">LinkRole</dt>
+        <dd class="col-sm-10">Rendered as links</dd>
+        <dt class="col-sm-2 text-sm-end">ToolTipRole</dt>
+        <dd class="col-sm-10">Rendered as tool tips</dd>
+        <dt class="col-sm-2 text-sm-end">StyleClassRole</dt>
+        <dd class="col-sm-10">Rendered as style classes</dd>
       </dl>
 
       See the <a
@@ -3548,13 +3587,13 @@
       a ${doc-link WModelIndex} to uniquely identify an item. A model
       index is a data structucre containing:
 
-      <dl class="dl-horizontal no-clear">
-        <dt>row</dt>
-        <dd>The row number</dd>
-        <dt>column</dt>
-        <dd>The column number</dd>
-        <dt>parent</dt>
-        <dd>The parent model index</dd>
+      <dl class="row no-clear">
+        <dt class="col-sm-2 text-sm-end">row</dt>
+        <dd class="col-sm-10">The row number</dd>
+        <dt class="col-sm-2 text-sm-end">column</dt>
+        <dd class="col-sm-10">The column number</dd>
+        <dt class="col-sm-2 text-sm-end">parent</dt>
+        <dd class="col-sm-10">The parent model index</dd>
       </dl>
     </p>
 
@@ -3623,15 +3662,15 @@
     <p>
       As a minimum, a custom table model should reimplement the
       following methods from ${doc-link WAbstractTableModel}:
-      <dl class="dl-horizontal">
-        <dt>int rowCount()</dt>
-        <dd>Returns the table row count (only for the invalid parent!)</dd>
-        <dt>int columnCount()</dt>
-        <dd>Returns the table column count (only for the invalid parent!)</dd>
-        <dt>boost::any data()</dt>
-        <dd>Returns the data for an item, and a particular role</dd>
-        <dt>boost::any headerData()</dt>
-        <dd>Returns the header data for a column</dd>
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">int rowCount()</dt>
+        <dd class="col-sm-10">Returns the table row count (only for the invalid parent!)</dd>
+        <dt class="col-sm-2 text-sm-end">int columnCount()</dt>
+        <dd class="col-sm-10">Returns the table column count (only for the invalid parent!)</dd>
+        <dt class="col-sm-2 text-sm-end">boost::any data()</dt>
+        <dd class="col-sm-10">Returns the data for an item, and a particular role</dd>
+        <dt class="col-sm-2 text-sm-end">boost::any headerData()</dt>
+        <dd class="col-sm-10">Returns the header data for a column</dd>
       </dl>
     </p>
 
@@ -3665,20 +3704,20 @@
     <p>
       The following methods must be implemented for a minimally
       compliant hierarchical model:
-      <dl class="dl-horizontal">
-        <dt>int rowCount()</dt>
-        <dd>Returns the item children count</dd>
-        <dt>int columnCount()</dt>
-        <dd>Returns the column count (which is usually the same for
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">int rowCount()</dt>
+        <dd class="col-sm-10">Returns the item children count</dd>
+        <dt class="col-sm-2 text-sm-end">int columnCount()</dt>
+        <dd class="col-sm-10">Returns the column count (which is usually the same for
           each item in the first column)</dd>
-        <dt>boost::any data()</dt>
-        <dd>Returns the data for an item, and a particular role</dd>
-        <dt>boost::any headerData()</dt>
-        <dd>Returns the header data for a column</dd>
-        <dt>WModelIndex child()</dt>
-        <dd>Creates a child index</dd>
-        <dt>WModelIndex parent()</dt>
-        <dd>Creates a parent index</dd>
+        <dt class="col-sm-2 text-sm-end">boost::any data()</dt>
+        <dd class="col-sm-10">Returns the data for an item, and a particular role</dd>
+        <dt class="col-sm-2 text-sm-end">boost::any headerData()</dt>
+        <dd class="col-sm-10">Returns the header data for a column</dd>
+        <dt class="col-sm-2 text-sm-end">WModelIndex child()</dt>
+        <dd class="col-sm-10">Creates a child index</dd>
+        <dt class="col-sm-2 text-sm-end">WModelIndex parent()</dt>
+        <dd class="col-sm-10">Creates a parent index</dd>
       </dl>
     </p>
 
@@ -3711,9 +3750,9 @@
       can be implemented within the model itself.
     </p>
 
-    <dl class="dl-horizontal">
-      <dt>void sort()</dt>
-      <dd>Sorts the model according to one of its columns.</dd>
+    <dl class="row">
+      <dt class="col-sm-2 text-sm-end">void sort()</dt>
+      <dd class="col-sm-10">Sorts the model according to one of its columns.</dd>
     </dl>
     
     <p>
@@ -3747,18 +3786,18 @@
     <p>
       If a custom wants to support this editing API, it needs to reimplement the
       following methods from ${doc-link WAbstractTableModel}:
-      <dl class="dl-horizontal">
-        <dt>bool setData()</dt>
-        <dd>Updates data. Views typically use the <tt>EditRole</tt>
+      <dl class="row">
+        <dt class="col-sm-2 text-sm-end">bool setData()</dt>
+        <dd class="col-sm-10">Updates data. Views typically use the <tt>EditRole</tt>
         for the data used in editing</dd>
-        <dt>bool insertColumns()</dt>
-        <dd>Inserts one or more columns</dd>
-        <dt>bool insertRows()</dt>
-        <dd>Inserts one or more rows</dd>
-        <dt>bool removeColumns()</dt>
-        <dd>Removes one or more columns</dd>
-        <dt>bool removeRows()</dt>
-        <dd>Removes one or more rows</dd>
+        <dt class="col-sm-2 text-sm-end">bool insertColumns()</dt>
+        <dd class="col-sm-10">Inserts one or more columns</dd>
+        <dt class="col-sm-2 text-sm-end">bool insertRows()</dt>
+        <dd class="col-sm-10">Inserts one or more rows</dd>
+        <dt class="col-sm-2 text-sm-end">bool removeColumns()</dt>
+        <dd class="col-sm-10">Removes one or more columns</dd>
+        <dt class="col-sm-2 text-sm-end">bool removeRows()</dt>
+        <dd class="col-sm-10">Removes one or more rows</dd>
       </dl>
     </p>
 
@@ -4600,8 +4639,8 @@
   <message id="dataconfig.typeSelection">Chart type:</message>
 
   <message id="bs-controlgroup">
-    <div class="form-group">
-      <label class="control-label" for="${id:{1}}">${tr:dataconfig.{1}}</label>
+    <div class="input-group">
+      <label class="form-label" for="${id:{1}}">${tr:dataconfig.{1}}</label>
       <div class="controls">
         ${{1}}
       </div>
@@ -4621,13 +4660,13 @@
       <tr><td>X range min/max</td><td>${x-axisMin}</td><td>${x-axisMax}</td></tr>
       <tr><td>Y range min/max</td><td>${y-axisMin}</td><td>${y-axisMax}</td></tr>
       <tr><td>number of points X/Y</td><td>
-      <div class="form-group"><div class="controls">${nbXPoints}</div></div>
+      <div class="input-group"><div class="controls">${nbXPoints}</div></div>
       </td><td>
-      <div class="form-group"><div class="controls">${nbYPoints}</div></div>
+      <div class="input-group"><div class="controls">${nbYPoints}</div></div>
       </td></tr>
       <tr><td>pointsize</td><td>${pointSize}</td><td></td></tr>
     </table>
-    <form class="form-horizontal">
+    <form class="rowl">
       ${block:bs-controlgroup typeSelection}
       ${block:bs-controlgroup meshEnabled}
       ${block:bs-controlgroup hiddenEnabled}
@@ -5098,7 +5137,9 @@
       </p>
 
       <fieldset class="example">
-        ${src pdfImageWrite}
+        <!--<legend>Example</legend>
+        <${PdfImageWrite}-->
+        ${src PdfImageWrite}
       </fieldset>
     ${</if:cpp>}
 

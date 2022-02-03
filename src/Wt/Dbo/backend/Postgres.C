@@ -19,6 +19,7 @@
 #include "Wt/Dbo/StringStream.h"
 
 #include <libpq-fe.h>
+#include <algorithm>
 #include <cerrno>
 #include <cstdio>
 #include <iostream>
@@ -30,6 +31,8 @@
 
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/karma.hpp>
+#include <boost/spirit/include/qi_parse.hpp>
+#include <boost/spirit/include/qi_numeric.hpp>
 
 #include "Wt/Date/date.h"
 
@@ -45,6 +48,19 @@
 namespace karma = boost::spirit::karma;
 
 namespace {
+  template<typename ResultType, typename SpiritType>
+  ResultType convert(const char *fname, const SpiritType &t, const std::string& v)
+  {
+    auto is_space = [](char c) { return c == ' '; };
+    auto it = std::find_if_not(v.cbegin(), v.cend(), is_space);
+    ResultType result{0};
+    bool success = it < v.cend() &&
+                   boost::spirit::qi::parse(it, v.cend(), t, result) &&
+                   std::all_of(it, v.cend(), is_space);
+    if (!success)
+      throw std::invalid_argument(std::string(fname) + "() of " + v + " failed");
+    return result;
+  }
 
   inline struct timeval toTimeval(std::chrono::microseconds ms)
   {
@@ -537,7 +553,7 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = std::stof(PQgetvalue(result_, row_, column));
+    *value = convert<float>("stof", boost::spirit::float_, PQgetvalue(result_, row_, column));
 
     LOG_DEBUG(this << " result float " << column << " " << *value);
 
@@ -549,7 +565,7 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = std::stod(PQgetvalue(result_, row_, column));
+    *value = convert<double>("stod", boost::spirit::double_, PQgetvalue(result_, row_, column));
 
     LOG_DEBUG(this << " result double " << column << " " << *value);
 

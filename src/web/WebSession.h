@@ -289,6 +289,8 @@ private:
   void checkTimers();
   void hibernate();
 
+  bool resourceRequest(const WebRequest& request) const;
+
 #ifdef WT_BOOST_THREADS
   std::mutex mutex_;
   std::mutex eventQueueMutex_;

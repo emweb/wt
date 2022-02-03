@@ -53,6 +53,8 @@ FILE_TO_STRING(xml/bootstrap_theme.xml
     BootstrapTheme_xml.C BootstrapTheme_xml)
 FILE_TO_STRING(xml/bootstrap3_theme.xml
     Bootstrap3Theme_xml.C Bootstrap3Theme_xml)
+FILE_TO_STRING(xml/bootstrap5_theme.xml
+    Bootstrap5Theme_xml.C Bootstrap5Theme_xml)
 FILE_TO_STRING(xml/auth_css_theme.xml
     AuthCssTheme_xml.C AuthCssTheme_xml)
 
@@ -87,6 +89,9 @@ Wt/WApplication.h Wt/WApplication.C
 Wt/WAudio.h Wt/WAudio.C
 Wt/WBatchEditProxyModel.h Wt/WBatchEditProxyModel.C
 Wt/WBootstrapTheme.h Wt/WBootstrapTheme.C
+Wt/WBootstrap2Theme.h Wt/WBootstrap2Theme.C
+Wt/WBootstrap3Theme.h Wt/WBootstrap3Theme.C
+Wt/WBootstrap5Theme.h Wt/WBootstrap5Theme.C
 Wt/WBorder.h Wt/WBorder.C
 Wt/WBorderLayout.h Wt/WBorderLayout.C
 Wt/WBoxLayout.h Wt/WBoxLayout.C
@@ -396,6 +401,7 @@ Wt_xml.C
 AuthStrings_xml.C
 BootstrapTheme_xml.C
 Bootstrap3Theme_xml.C
+Bootstrap5Theme_xml.C
 AuthCssTheme_xml.C
 JQuery_js.C
 )
@@ -423,6 +429,23 @@ IF (WT_CPP20_DATE_TZ_IMPLEMENTATION STREQUAL "date")
 
   unset(_TZ_BUILD_DEFS)
 ENDIF ()
+
+IF(WT_HAS_SAML)
+  set(samlsources
+    Wt/Auth/Saml/Assertion.h Wt/Auth/Saml/Assertion.C
+    Wt/Auth/Saml/Process.h Wt/Auth/Saml/Process.C
+    Wt/Auth/Saml/ProcessImpl.h Wt/Auth/Saml/ProcessImpl.C
+    Wt/Auth/Saml/Service.h Wt/Auth/Saml/Service.C
+    Wt/Auth/Saml/ServiceImpl.h Wt/Auth/Saml/ServiceImpl.C
+    Wt/Auth/Saml/Widget.h Wt/Auth/Saml/Widget.C
+  )
+  set_source_files_properties(
+    ${samlsources} PROPERTIES
+    COMPILE_DEFINITIONS
+      XSEC_HAVE_OPENSSL=1
+  )
+  list(APPEND libsources ${samlsources})
+ENDIF(WT_HAS_SAML)
 
 ADD_DEFINITIONS(-DWT_BUILDING)
 
@@ -525,9 +548,14 @@ TARGET_LINK_LIBRARIES(wt
   PUBLIC
     ${WT_SOCKET_LIBRARY}
   PRIVATE
+    ${WT_SAML_LIBS}
     ${WT_MATH_LIBRARY}
     ${RT_LIBRARY}
     )
+
+IF(WT_HAS_SAML)
+  TARGET_LINK_LIBRARIES(wt PRIVATE Shibboleth::OpenSAML)
+ENDIF()
 
 IF(ENABLE_LIBWTTEST)
   ADD_LIBRARY(wttest

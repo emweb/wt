@@ -383,7 +383,7 @@ void WSvgImage::defineGradient(const WGradient& gradient, int id)
     offset += '%';
     shapes_ << "offset=\"" << offset << "\" ";
     shapes_ << "stop-color=\"" <<
-      gradient.colorstops()[i].color().cssText()
+      gradient.colorstops()[i].color().cssText(false)
 	    << "\" ";
     shapes_ << "stop-opacity=\"" <<
       Utils::round_css_str(gradient.colorstops()[i].color().alpha() / 255.,
@@ -630,7 +630,7 @@ void WSvgImage::drawText(const WRectF& rect,
   if (painter()->pen().color() != painter()->brush().color()
       || painter()->brush().style() == BrushStyle::None) {
     const WColor& color = painter()->pen().color();
-    style << "fill:" + color.cssText() << ';'
+    style << "fill:" + color.cssText(false) << ';'
 	  << "fill-opacity:" 
 	  << Utils::round_css_str(color.alpha() / 255., 3, buf)
 	  << ';';
@@ -783,7 +783,7 @@ std::string WSvgImage::fillStyle() const
   case BrushStyle::Solid:
     {
       const WColor& color = painter()->brush().color();
-      result += "fill:" + color.cssText() + ";";
+      result += "fill:" + color.cssText(false) + ";";
       if (color.alpha() != 255) {
 	result += "fill-opacity:";
 	result += Utils::round_css_str(color.alpha() / 255., 3, buf);
@@ -835,7 +835,7 @@ std::string WSvgImage::strokeStyle() const
 	     << std::to_string(currentStrokeGradientId_)
 	     << ");";
     } else {
-      result << "stroke:" << color.cssText() << ';';
+      result << "stroke:" << color.cssText(false) << ';';
       if (color.alpha() != 255)
 	result << "stroke-opacity:"
 	       << Utils::round_css_str(color.alpha() / 255., 2, buf) << ';';

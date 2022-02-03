@@ -940,12 +940,12 @@ body.Wt-rtl .Wt-sbspacer {
   width: 19px;
 }
 .Wt-treeview .Wt-ctrl.expand {
-  background-image: url(../nav-plus.gif);
+  background-image: url(nav-plus.gif);
   background-repeat: no-repeat;
   background-position: 0 center;
 }
 .Wt-treeview .Wt-ctrl.collapse {
-  background: url(../nav-minus.gif);
+  background: url(nav-minus.gif);
   background-repeat: no-repeat;
   background-position: 0 center;
 }
@@ -993,10 +993,10 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl {
   float: right;
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.expand {
-  background-image: url(../nav-plus-rtl.gif);
+  background-image: url(nav-plus-rtl.gif);
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.collapse {
-  background-image: url(../nav-minus-rtl.gif);
+  background-image: url(nav-minus-rtl.gif);
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
   background-image: url(../../../line-middle-rtl.gif);

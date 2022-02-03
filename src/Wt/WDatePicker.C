@@ -24,7 +24,7 @@ namespace Wt {
 
 WDatePicker::WDatePicker()
 {
-  createDefault(nullptr);
+  create(nullptr, nullptr);
 }
 
 WDatePicker::WDatePicker(std::unique_ptr<WInteractWidget> displayWidget,
@@ -35,32 +35,27 @@ WDatePicker::WDatePicker(std::unique_ptr<WInteractWidget> displayWidget,
 
 WDatePicker::WDatePicker(WLineEdit *forEdit)
 {
-  createDefault(forEdit);
+  create(nullptr, forEdit);
 }
 
 WDatePicker::~WDatePicker()
 { }
 
-void WDatePicker::createDefault(WLineEdit *forEdit)
-{
-  std::unique_ptr<WImage> icon
-    (new WImage(WApplication::relativeResourcesUrl() + "date.gif"));
-  icon->resize(16, 16);
-  icon->setVerticalAlignment(AlignmentFlag::Middle);
-
-  if (!forEdit) {
-    std::unique_ptr<WLineEdit> edit(new WLineEdit());
-    create(std::move(icon), edit.get());
-    layout_->insertWidget(0, std::move(edit));
-  } else
-    create(std::move(icon), forEdit);
-}
-
 void WDatePicker::create(std::unique_ptr<WInteractWidget> displayWidget,
 			 WLineEdit *forEdit)
 {
-  layout_ = new WContainerWidget();
-  setImplementation(std::unique_ptr<WContainerWidget>(layout_));
+  auto layout = std::make_unique<WContainerWidget>();
+  layout_ = layout.get();
+  setImplementation(std::move(layout));
+
+  if (!forEdit) {
+    forEdit = layout_->addNew<Wt::WLineEdit>();
+  }
+
+  if (!displayWidget) {
+    displayWidget = std::make_unique<WImage>();
+    WApplication::instance()->theme()->apply(this, displayWidget.get(), DatePickerIcon);
+  }
 
   displayWidget_ = displayWidget.get();
   forEdit_ = forEdit;

@@ -339,7 +339,7 @@ public:
    */
   virtual bool setHeaderData(int column, Orientation orientation,
 			     const cpp17::any& value,
-                             ItemDataRole role) override;
+                             ItemDataRole role = ItemDataRole::Edit) override;
 
   /*! \brief Returns header data.
    *

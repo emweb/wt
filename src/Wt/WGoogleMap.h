@@ -23,7 +23,6 @@ namespace Wt
 /*! \brief Google Maps API version
  */
 enum class GoogleMapsVersion {
-  v2, //!< API Version 2.x
   v3  //!< API Version 3.x
 };
 
@@ -32,13 +31,13 @@ enum class GoogleMapsVersion {
 enum class MapTypeControl {
   None,         //!< Show no maptype control
   Default,      //!< Show the default maptype control 
-                // (the behaviour depends on the Google Maps 
+                // (the behavior depends on the Google Maps
                 // API version)
-  Menu,         //!< Show the dropdown menu maptype control
-  Hierarchical, //!< Show the hierarchical maptype control 
-                // (only availble in Google Maps API v2)
+  Menu,         //!< Show the drop-down menu maptype control
+  Hierarchical, //!< Show the hierarchical maptype control
+                // (only available in Google Maps API v2)
   HorizontalBar //!< Show the horizontal bar maptype control
-                // (only availble in Google Maps API v3)
+                // (only available in Google Maps API v3)
 };
 
 /*! \class WGoogleMap Wt/WGoogleMap.h Wt/WGoogleMap.h

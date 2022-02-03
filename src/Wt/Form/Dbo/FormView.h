@@ -15,12 +15,26 @@
 namespace Wt {
   namespace Form {
     namespace Dbo {
-/*! \brief A view class to represent database objects
+/*! \class FormView Wt/Form/Dbo/FormView.h Wt/Form/Dbo/FormView.h
+ *  \brief A view class to represent database objects
+ *
+ * This class takes the database object as a template argument. Instead of having to manually
+ * define all the widgets, the system will automatically generate default widgets based on the
+ * data type used in the database. For example: a `WString` object will by default be represented
+ * by a `WLineEdit` in the UI.
+ *
+ * \sa FormModel
+ *
+ * \ingroup form
  */
 template<class C>
 class FormView : public Wt::WTemplateFormView
 {
 public:
+  /*! \brief Constructor
+   *
+   * \sa WTemplateFormView
+   */
   explicit FormView(const Wt::WString& text)
     : Wt::WTemplateFormView(text)
   {
@@ -30,6 +44,8 @@ public:
    *
    * This method will automatically generate the form delegates
    * and set the form widgets and model validators.
+   *
+   * \sa customizeFormWidget, customizeValidator
    */
   void setFormModel(std::shared_ptr<FormModel<C>> model)
   {
@@ -53,7 +69,7 @@ public:
    *
    * Overrides the default delegate for a given field
    *
-   * This method will throw an exception if it's called after setFormModel.
+   * \throws WException when this function is called after setFormModel
    */
   void setFormDelegate(Wt::WFormModel::Field field, std::shared_ptr<Wt::Form::WAbstractFormDelegate> delegate)
   {
@@ -73,6 +89,10 @@ public:
   }
 
   /*! \brief Updates a value in the Model
+   *
+   * The default implementation first calls updateModelValue(WFormModel *, WFormModel::Field, WWidget *).
+   * If that returns false, it will then call the updateModelValue function of WAbstractFormDelegate if there's
+   * a delegate defined for this field. If not, it will call the function of WTemplateFormView.
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override
   {
@@ -89,6 +109,9 @@ public:
   }
 
   /*! \brief Updates a value in the Model
+   *
+   * The default implementation calls the updateModelValue function of WAbstractFormDelegate if there's a
+   * delegate defined for this field. If not, it will call the function of WTemplateFormView.
    */
   bool updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WWidget *edit) override
   {
@@ -101,6 +124,10 @@ public:
   }
 
   /*! \brief Updates a value in the View
+   *
+   * The default implementation first calls updateViewValue(WFormModel *, WFormModel::Field, WWidget *).
+   * If that returns false, it will then call the updateViewValue function of WAbstractFormDelegate if there's
+   * a delegate defined for this field. If not, it will call the function of WTemplateFormView.
    */
   void updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override
   {
@@ -117,6 +144,9 @@ public:
   }
 
   /*! \brief Updates a value in the View
+   *
+   * The default implementation calls the updateViewValue function of WAbstractFormDelegate if there's a
+   * delegate defined for this field. If not, it will call the function of WTemplateFormView.
    */
   bool updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WWidget *edit) override
   {
@@ -128,6 +158,11 @@ public:
     }
   }
 
+  /*! \brief Saves the data to database
+   *
+   * First the data is validated. If the data in the model is valid, the data will be pushed to the database.
+   * If not, the validationFailed() signal will be emitted. On succesful save, the saved() signal will be emitted.
+   */
   void save()
   {
     updateModel(model_.get());
@@ -147,6 +182,9 @@ protected:
    *
    * Allows derived classes to customize the automatically generated widget
    * without having to customize an entire WFormDelegate.
+   *
+   * For example: the default widget for WString objects is a WLineEdit. This
+   * method allows a derived class to set the input mask for a specific input field.
    *
    * Base class implementation doesn't modify the widget
    */
@@ -168,11 +206,11 @@ protected:
   {
   }
 
-  /*! \brief Signal emitted when form is saved
+  /*! \brief %Signal emitted when form is saved
    */
   Wt::Signal<>& saved() { return saved_; }
 
-  /*! \brief Signal emitted when validation failed
+  /*! \brief %Signal emitted when validation failed
    *
    * This can be emitted when saving the form. The save action
    * will have failed because some fields are invalid.

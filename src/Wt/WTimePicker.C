@@ -10,7 +10,9 @@
 #include "WSpinBox.h"
 #include "WTimeValidator.h"
 #include "WTimeEdit.h"
+#include "WApplication.h"
 #include "WJavaScriptSlot.h"
+#include "WTheme.h"
 
 #include "WebUtils.h"
 
@@ -29,7 +31,7 @@ void WTimePicker::init(const WTime &time)
 {
     WTemplate *container = new WTemplate();
     setImplementation(std::unique_ptr<WTemplate>(container));
-    container->addStyleClass("form-inline");
+    WApplication::instance()->theme()->apply(this, container, TimePickerPopupContent);
     container->setTemplateText(tr("Wt.WTimePicker.template"));
 
     sbhour_ = container->bindWidget("hour", std::make_unique<WSpinBox>());

@@ -1,17 +1,15 @@
-<!DOCTYPE html PUBLIC
-          "-//W3C//DTD XHTML 1.0 Transitional//EN"
-          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
-<style type="text/css"> 
-  dt { font-weight: bold; }
-  h3 { text-decoration: underline; }
-  dd { margin-top: 10px; margin-bottom: 10px; }
-  dd p { margin-top: 0px; }
-  dd div { margin: 10px 0px; }
-</style>
-<title>Wt Release notes</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    dt { font-weight: bold; }
+    h3 { text-decoration: underline; }
+    dd { margin-top: 10px; margin-bottom: 10px; }
+    dd p { margin-top: 0; }
+    dd div { margin: 10px 0; }
+  </style>
+  <title>Wt Release notes</title>
 </head>
 <body>
 
@@ -21,6 +19,414 @@ This file lists important notes on migrating existing applications to
 newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
+
+<h2>Release 4.7.0 (March 10, 2022)</h2>
+
+<ul>
+  <li>
+    <tt><a href="https://redmine.webtoolkit.eu/issues/7434" target="_blank">Issue #7434</a></tt>:
+    Wt moved from rgb to rgba with the alpha value default opaque.
+    This change allows to you to set the background color and tranparency using
+    <tt>setBackgroundColor(Wt::WColor(255, 0, 0, 128));</tt>.
+    This change altered the default state of <tt>withAlpha</tt> from false to true in
+    <tt><a href="classWt_1_1WColor.html#a738c53d744ed38a448d1554f2a2f42cf">Wcolor::cssText(bool withAlpha=true)</a></tt>
+  </li>
+  <li>
+    Since Google Maps v2 is no longer available as of May 26 2021, Wt no longer supports v2.
+  </li>
+</ul>
+
+<h2>Release 4.6.1 (December 23, 2021)</h2>
+
+<p>
+  Wt 4.6.1 is a single bug fix release, fixing a regression
+  (<a href="https://redmine.webtoolkit.eu/issues/9523" target="_blank">issue #9523</a>).
+  A potential null pointer dereference would crash the Wt site or widget gallery every few days.
+</p>
+
+<h2>Release 4.6.0 (December 14, 2021)</h2>
+
+<p>
+  We know that this one took a bit longer than normal. Starting now we intend to make the Wt release cycle
+  more regular, with a release every three months, so we're planning to release Wt 4.7.0 in March 2022.
+  We've still been busy improving Wt though. Wt 4.6.0 introduces some major new features, including
+  Bootstrap 5 theming support, Dbo-based forms, and SAML support for Wt::Auth.
+</p>
+
+<h3>Bootstrap 5 theming support (<a href="https://redmine.webtoolkit.eu/issues/7418" target="_blank">issue #7418</a>)</h3>
+
+<p>
+  We split up <a href="classWt_1_1WBootstrapTheme.html">WBootstrapTheme</a> into
+  <a href="classWt_1_1WBootstrap2Theme.html">WBootstrap2Theme</a> and
+  <a href="classWt_1_1WBootstrap3Theme.html">WBootstrap3Theme</a>, and added
+  <a href="classWt_1_1WBootstrap5Theme.html">WBootstrap5Theme</a>. We found that the
+  different Bootstrap versions were distinct enough to warrant splitting each version of the theme up into its own class.
+</p>
+
+<p>
+  We abandoned development of <code>WBootstrap4Theme</code>, since there were still some unsolved
+  issues with it, and we didn't expect many users to be interested in it.
+</p>
+
+<p>
+  We also updated the design of the <a href="https://www.webtoolkit.eu/widgets" target="_blank">widget gallery</a>.
+  It now uses Bootstrap 5, and no longer uses box layouts, instead opting for a more responsive design featuring
+  a collapsible menu on narrow screens. This means that the widget gallery is finally usable on mobile phones!
+</p>
+
+<h3>Dbo-based forms (<a href="https://redmine.webtoolkit.eu/issues/8622" target="_blank">issue #8622</a>)</h3>
+
+<p>
+  We added a new feature that allows Wt to automatically generate a form for a Dbo class. Based on the data types
+  that are used by the Dbo class, Wt will generate <a href="classWt_1_1Form_1_1WAbstractFormDelegate.html">form delegates</a>.
+  These form delegates are responsible for creating the widget and optional validator for representing the data type in the UI.
+  For example:
+  <a href="classWt_1_1WString.html">WString</a> objects are by default represented by a
+  <a href="classWt_1_1WLineEdit.html">WLineEdit</a>,
+  <a href="classWt_1_1WDate.html">WDate</a> objects by
+  <a href="classWt_1_1WDateEdit.html">WDateEdit</a>, and so on.
+</p>
+
+<p>
+  The user is able to override the default behavior either by customizing the
+  <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html#aa60100980949a327483cec31c2963420">widgets</a> and/or
+  <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html#a55cb4e6750f29a4871686d19cf714042">validators</a> or by creating a new
+  form delegate for the specific field and <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html#a42cad48a1c44d319325be1732520ba83">adding</a>
+  it to the form.
+</p>
+
+<p>
+  All classes related to this new feature have been added to a new <a href="namespaceWt_1_1Form.html">Wt::Form</a> namespace.
+  Here's a short overview of the most important classes within that namespace:
+</p>
+
+<ul>
+  <li>
+    <a href="classWt_1_1Form_1_1Dbo_1_1FormModel.html">FormModel</a>: a model class that holds the data of the database object.
+  </li>
+  <li>
+    <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html">FormView</a>: a view class to represent the database object in the UI.
+  </li>
+  <li>
+    <a href="classWt_1_1Form_1_1WAbstractFormDelegate.html">WAbstractFormDelegate</a>: delegate for creating form widgets.
+  </li>
+</ul>
+
+<p>We also added a new <a href="https://github.com/emweb/wt/tree/master/examples/dbo-form" target="_blank">example</a> to display this new functionality.</p>
+
+<h3>SAML support for Wt::Auth (<a href="https://redmine.webtoolkit.eu/issues/8621" target="_blank">issue #8621</a>)</h3>
+
+<p>
+  We added SAML support for authentication with third party identity providers.
+  <a href="classWt_1_1Auth_1_1Saml_1_1Service.html">Wt::Auth::Saml::Service</a>
+  implements a minimal SAML 2.0 service provider for single sign on.
+</p>
+
+<p>
+  We added a <a href="https://github.com/emweb/wt/tree/master/examples/feature/saml" target="_blank">SAML</a>
+  feature example to demonstrate this.
+</p>
+
+<p>
+  Note: this implementation is based on <a href="https://www.shibboleth.net/" target="_blank">Shibboleth</a>'s
+  OpenSAML library. This library uses the Apache License Version 2.0. Due to incompatibility with the GNU General
+  Public License V2.0 used by Wt, <strong>a commercial Wt license is required to distribute derived works using SAML
+  authentication</strong>.
+</p>
+
+<h3>Other features and improvements</h3>
+
+<ul>
+  <li>
+    It is now possible to suspend the <a href="classWt_1_1WApplication.html">WApplication</a> using the
+    <a href="classWt_1_1WApplication.html#a5c811d91d3999ac881ce87bebaade864">suspend</a> function. Previously,
+    logging in using an external authentication provider required a popup, but this can now be done through a redirect
+    (<a href="classWt_1_1Auth_1_1OAuthService.html#a72f987f61e7a53636ac3f08b61bee2a5">OAuthService::setPopupEnabled()</a>
+    and
+    <a href="classWt_1_1Auth_1_1Saml_1_1Service.html#a89ae3fb932497cbe28ed8b032d447966">Saml::Service::setPopupEnabled()</a>).
+    This can also be useful for redirecting to payment providers.
+    (See <a href="https://redmine.webtoolkit.eu/issues/7742" target="_blank">issue #7742</a> and
+    <a href="https://redmine.webtoolkit.eu/issues/9439" target="_blank">issue #9439</a>.)</li>
+
+  <li>
+    Added <a href="classWt_1_1WServer.html#a28794f657a950e81c17e2c11fe4270b1">WServer::docRoot()</a>, which allows
+    access to the <code>--docroot</code> argument of wthttp.
+    (See <a href="https://redmine.webtoolkit.eu/issues/9391" target="_blank">issue #9391</a>.)
+  </li>
+
+  <li>
+    The Bootstrap themes now no longer need an active <a href="classWt_1_1WApplication.html">WApplication</a>
+    upon construction to properly function, through the addition of an <a href="classWt_1_1WTheme.html#ae15f579e5dfb0d50e909fd5e2c575f60">init()</a> function.
+    (See <a href="https://redmine.webtoolkit.eu/issues/9204" target="_blank">issue #9204</a>.)
+  </li>
+
+  <li>The <a href="classWt_1_1WAbstractItemView.html">WAbstractItemView</a> now allows drag/drop in between rows.
+    See <a href="classWt_1_1WAbstractItemView.html#a5469c23ea1e9066e98e832ec9da2af21">setEnabledDropLocations()</a>.
+    (See <a href="https://redmine.webtoolkit.eu/issues/8636" target="_blank">issue #8636</a>.)</li>
+
+  <li>With the latest version of Visual Studio supporting std::chrono's date and time zone support it is now possible
+    to use it when building Wt in C++20 mode
+    (<code>-DCMAKE_CXX_STANDARD=20 -DWT_CPP20_DATE_TZ_IMPLEMENTATION=std</code>). This means that when Wt is compiled
+    this way time zone support just works on Windows like it already did on Linux, instead of requiring you to
+    download the IANA time zone database.
+    (See <a href="https://redmine.webtoolkit.eu/issues/8595" target="_blank">issue #8595</a>.)</li>
+
+  <li>Updated the <code>date</code> library to commit <code>fb2554a7e00b24d23838b57a4db4121e148edb5c</code>.</li>
+
+  <li>Ability to change the row header count of <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a>
+    after it is rendered (see <a href="https://redmine.webtoolkit.eu/issues/8077" target="_blank">issue #8077</a>).</li>
+
+  <li>Splitting up updates to stay under the form data limit when many updates are rapidly generated
+    (<a href="https://redmine.webtoolkit.eu/issues/7990" target="_blank">issue #7990</a>).</li>
+
+  <li>Revert delay of <a href="classWt_1_1WWidget.html#a1ee433705523b2b79c4c3539e0852c92">WWidget::load()</a>.
+    Load now happens when a widget is added to the widget tree.
+    (See <a href="https://redmine.webtoolkit.eu/issues/7968" target="_blank">issue #7968</a>.)</li>
+
+  <li>Added option to not automatically select first suggestion of a
+    <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>.</li>
+
+  <li><a href="classWt_1_1Http_1_1Request.html#ad8a1199b8692854fefb76f494d793f93">Wt::Http::Request::hostName()</a>
+    now takes into account <code>X-Forwarded-Host</code>.</li>
+
+  <li>Updated the version of the included <code>SQLite</code> to version 3.35.5.</li>
+
+  <li>Added <code>doc/licenses.md</code> as an exhaustive list of the licenses used by Wt, source code from external
+    sources included in Wt and any external dependencies.</li>
+</ul>
+
+<h3>Bug fixes</h3>
+
+<ul>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8972" target="_blank">Issue #8972</a>: fixed a regression with
+    <a href="classWt_1_1WResource.html#a06bb9dbe3ae195c320cfed7b062d448a">WResource::setInternalPath()</a>.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8838" target="_blank">Issue #8838</a>:
+    <a href="classWt_1_1WIOService.html">WIOService</a> would block all signals in its worker threads. Now we let through
+    thread specific signals, so that signal handlers for them can be installed, e.g. by crashpad.
+  </li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8720" target="_blank">Issue #8720</a>:
+    fixed
+    <a href="classWt_1_1WServer.html#aa47d7a7af63b11ae5c49ea226401b5fa">WServer::dedicatedSessionProcess()</a>
+    so it's accurate after
+    <a href="classWt_1_1WServer.html#a6ef2c780a70eebc68707ea0d684b8509">WServer::setServerConfiguration()</a>.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8531" target="_blank">Issue #8531</a>:
+    fixed deletion/modification of remember me cookie when using websockets.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8518" target="_blank">Issue #8518</a>: fixed accessing freed memory
+    when <a href="classWt_1_1Dbo_1_1ptr.html">Wt::Dbo::ptr</a> exits at destruction of its session.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8392" target="_blank">Issue #8392</a>: fixed crash when using
+    <a href="classWt_1_1WToolBar.html#af18dca00ce4fb782c806272b6dfc1659">WToolBar::widget()</a>.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8336" target="_blank">Issue #8336</a>: fixed
+    <a href="classWt_1_1WNavigationBar.html">WNavigationBar</a> regression: popup menu remains selected.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8164" target="_blank">Issue #8164</a>: added protected copy
+    constructor to <a href="classWt_1_1WStandardItem.html">WStandardItem</a> to allow easier overriding of
+    <a href="classWt_1_1WStandardItem.html#a41a5f22630a4c876e3a4ba822c43a744">WStandardItem::clone()</a>.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8135" target="_blank">Issue #8135</a>:
+    <a href="classWt_1_1WMenu.html">WMenu</a> submenu selection not proparly propagated.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8025" target="_blank">Issue #8025</a>: text clipped in
+    <a href="classWt_1_1WRasterImage.html">WRasterImage</a> (GraphicsMagick) with Pango.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/7811" target="_blank">Issue #7811</a>: invalid ackId.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/7975" target="_blank">Issue #7975</a>: drag-drop icon under dialog.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8597" target="_blank">Issue #8597</a>: taking UpdateLock in
+    <a href="classWt_1_1WResource.html">WResource</a> sometimes fails.</li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/8838" target="_blank">Issue #8838</a>: breakpad/crashpad signal
+    handler doesn't work in <a href="classWt_1_1WIOService.html">WIOService</a> threads.</li>
+  <li>Fixed <a href="classWt_1_1WString.html#a233225f344af1b4a090f4a4dd76ec53d">WString::empty()</a> returning false
+    for <code>Wt::WString("{1}").arg("")</code>.</li>
+</ul>
+
+<h2>Release 4.5.2 (December 14, 2021)</h2>
+
+<p>Wt 4.5.2 is a bugfix release containing the following changes:</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9490" target="_blank">Issue #9490</a>: Fixed a possible
+    exception being thrown in the Postgres backend for Dbo when subnormal floating point numbers are retrieved
+    from the database.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9414" target="_blank">Issue #9414</a>: Fixed an error that
+    occurred when trying to link <code>libwtdbosqlite3</code> on Fedora 35.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9363" target="_blank">Issue #9363</a>: Added a workaround for
+    <a href="https://github.com/boostorg/spirit/issues/688" target="_blank">Boost Spirit issue #688</a>,
+    affecting versions of Boost &gte; 1.66.0.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9270" target="_blank">Issue #9270</a>: Fixed a possible but
+    very rarely occurring race condition
+    in the generation of ids that would make it possible to have two widgets with the same id in the same
+    <a href="classWt_1_1WApplication.html">WApplication</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9230" target="_blank">Issue #9230</a>: Fixed an issue where the 3-argument version
+    of <a href="classWt_1_1Dbo_1_1QueryModel.html#ac225ba823673dc46e47811631e3218fe">QueryModel::setHeaderData</a>
+    was no longer accessible.
+  </li>
+</ul>
+
+<h2>Release 4.5.1 (October 7, 2021)</h2>
+
+<p>Wt 4.5.1 is a bugfix release containing the following changes:</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9008" target="_blank">Issue #9008</a>:
+    Fixed possible JavaScript issues by appending a semicolon to all JavaScript statements when using
+    <a href="classWt_1_1WApplication.html#a2a92457b9212cef4057cb54e56183967">doJavaScript</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8964" target="_blank">Issue #8964</a>:
+    fixed Boost 1.77.0 compilation by modernizing the implementation of <code>WCssParser</code> to use
+    range-based for loops instead of <code>BOOST_FOREACH</code>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8677" target="_blank">Issue #8677</a>:
+    <a href="classWt_1_1WWidget.html#a5d403e0390841df77a23445b28044d5d">WWidget::setScrollVisibilityEnabled()</a>
+    now refers to the correct
+    <a href="https://github.com/emweb/wt/tree/master/examples/feature/scrollvisibility" target="_blank">scrollvisibility</a> example.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8577" target="_blank">Issue #8577</a>:
+    fixed some tests in <code>test.http</code> related to the handling of
+    <code>X-Forwarded-For</code> and <code>Client-IP</code> headers.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8467" target="_blank">Issue #8467</a>:
+    fixed compilation of <code>WTextRenderer.C</code> on some systems due to a missing <code>#include &lt;limits&gt;</code>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8407" target="_blank">Issue #8407</a>:
+    fixed an issue in <a href="classWt_1_1WTreeView.html">WTreeView</a> where the expand icon was not removed
+    when removing the last child.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8376" target="_blank">Issue #8376</a>:
+    made dragging and dropping icons work correctly in
+    <a href="classWt_1_1WAbstractItemView.html">WAbstractItemView</a> by
+    preventing the default action.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8335" target="_blank">Issue #8335</a>:
+    fixed an issue where
+    <a href="classWt_1_1WWidget.html#af432588db3d599f89b54121f2ede8d63">WWidget::layoutSizeChanged()</a> would
+    sometimes not be called.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8305" target="_blank">Issue #8305</a>:
+    fixed an issue that caused the
+    <a href="https://github.com/emweb/wt/tree/master/examples/style" target="_blank">style example</a>
+    to segfault.
+    <a href="classWt_1_1WRasterImage.html#a75dffbb4731d33ac6a2dc2fb8e9a4aec">WRasterImage::setChanged()</a> could
+    cause a crash if the image was not meant to be exposed as a resource.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8202" target="_blank">Issue #8202</a>:
+    fixed an issue where
+    <a href="classWt_1_1WServer.html#afd61307d5d869cfecea239dac720a86d">WServer::postAll()</a>
+    would also be handled by sessions that were not fully complete yet, which meant that
+    <a href="classWt_1_1WApplication.html#a38d922da0a0d83395519f3eaab85d0f6">WApplication::instance()</a>
+    would return <code>nullptr</code>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8194" target="_blank">Issue #8194</a>:
+    fixed an issue where
+    <a href="classWt_1_1WVirtualImage.html">WVirtualImage</a> would break if you added a
+    <a href="classWt_1_1WInteractWidget.html#a40c3643603fa861b1ec797eec794aa4c">mouseMoved()</a> handler to images.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8114" target="_blank">Issue #8114</a>:
+    fixed a possible JavaScript error in <a href="classWt_1_1WCanvasPaintDevice.html">WCanvasPaintDevice</a>
+    if an image load handler was executed after the painted widget was already removed.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8041" target="_blank">Issue #8041</a>:
+    fixed an inconsistency in how ellipses were rendered when using
+    <a href="classWt_1_1WPainter.html#aa79220ed9456f67a393009e5c5eea27e">drawArc()</a> with
+    wide <a href="classWt_1_1WPen.html">WPen</a> on an HTML canvas.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8039" target="_blank">Issue #8039</a>:
+    <a href="classWt_1_1WLocalDateTime.html#a08aaccd32fd329f4f696b07a060bcca1">WLocalDateTime::timeZoneOffset()</a> now throws if it was initialized without timezone
+    information, as opposed to crashing.
+    The <a href="https://github.com/emweb/wt/tree/master/examples/filetreetable" target="_blank">filetreetable example</a> was changed to use UTC so we don't need
+    timezones.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7998" target="_blank">Issue #7998</a>:
+    made sure the scroll position is preserved when a <a href="classWt_1_1WTreeView.html">WTreeView</a>
+    is sorted.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7996" target="_blank">Issue #7996</a>:
+    clarified the documentation of <a href="classWt_1_1WInteractWidget.html#ae11e050cce0d4a8f742afa3ef92bfe8c">WInteractWidget::clicked()</a>
+    to note that middle clicks do not emit the clicked event.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7985" target="_blank">Issue #7985</a>:
+    re-exposed two argument version of
+    <a href="classWt_1_1WAbstractItemModel.html#a0bccbb4373b4c1e8bce85573b933d53d">WAbstractItemModel::setHeaderData()</a>
+    in <a href="classWt_1_1Dbo_1_1QueryModel.html">QueryModel</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7957" target="_blank">Issue #7957</a>:
+    fixed behind reverse proxy behavior when using dedicated process mode.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7912" target="_blank">Issue #7912</a>:
+    fixed JavaScript errors when using <a href="classWt_1_1WPopupMenu.html">WPopupMenu</a>
+    in <a href="namespaceWt.html#af4b6ed5fd28b4f5fa141b153c1107349accf2281a355c2c9cd4698ac30bea7820">WidgetSet</a>
+    mode.
+  </li>
+  <li>
+    Added warning to the <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a> documentation: this widget should not be bound to a template.
+  </li>
+  <li>
+    Added missing virtual destructor to <a href="classWt_1_1WLogSink.html">WLogSink</a> (contributed by Pavlo Solntsev).
+  </li>
+  <li>
+    Fixed an issue where the
+    <a href="classWt_1_1WWidget.html#aa5ce605dd465e06f3e3c2dbce2a4098e">scrollVisibilityChanged()</a>
+    signal would not always be created.
+  </li>
+  <li>
+    Fixed a compilation issue on Windows with the latest MSVC and Boost in
+    <code>WebUtils.C</code>.
+  </li>
+  <li>
+    Various fixes to make Wt build properly with C++20:
+    <ul>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/7002" target="_blank">Issue #7002</a>:
+        made tests build with the new <code>char8_t</code> type.
+      </li>
+      <li>
+        Fixed infinite recursion in <a href="classWt_1_1WString.html">WString</a> comparison operator.
+      </li>
+      <li>
+        Fixed compilation of <a href="classWt_1_1Dbo_1_1Transaction.html">Dbo::Transaction</a> due
+        to the removal of <code>uncaught_exception</code>.
+      </li>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/8022" target="_blank">Issue #8022</a>:
+        fixed a compilation issue due to ambiguous <code>local_time</code> symbol with MSVC when using
+        <code>/std:c++latest</code>.
+      </li>
+    </ul>
+  </li>
+  <li>
+    Contributions by Steven K&ouml;hler:
+    <ul>
+      <li>Fixed a "size is not a function" issue when using jQuery 3.x</li>
+      <li>Fixed a warning when using <code>DBO_EXTERN_TEMPLATES</code> and <code>DBO_INSTANTIATE_TEMPLATES</code>.</li>
+      <li>Resolved C++17 <code>std::iterator</code> deprecation issue in <code>Wt::Dbo</code>.</li>
+      <li>Fixed an access violation in <code>Dbo::collection&lt;C&gt;::iterator</code>.</li>
+      <li>Added the missing function definition for <code>Dbo::collection&lt;C&gt;::const_iterator::operator=</code>.</li>
+      <li>Resolved/suppressed some type conversion warnings in <a href="classWt_1_1Dbo_1_1collection.html">Dbo::collection</a>.</li>
+    </ul>
+  </li>
+</ul>
 
 <h2>Release 4.5.0 (December 15, 2020)</h2>
 

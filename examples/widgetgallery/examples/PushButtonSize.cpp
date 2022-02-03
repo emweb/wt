@@ -16,8 +16,4 @@ button = std::make_unique<Wt::WPushButton>("Small");
 button->setStyleClass("btn-sm");
 result->bindWidget("button-small", std::move(button));
 
-button = std::make_unique<Wt::WPushButton>("Mini");
-button->setStyleClass("btn-xs");
-result->bindWidget("button-mini", std::move(button));
-
 SAMPLE_END(return std::move(result))

@@ -74,6 +74,7 @@ extern std::string addWord(const std::string& s, const std::string& w);
 
 // Fast integer to string in given buffer
 extern char *itoa(int value, char *result, int base = 10);
+extern char *utoa(unsigned int value, char* result, int base = 10);
 extern char *lltoa(long long value, char *result, int base = 10);
 
 // Fast integer to string in given buffer, zero padded to length
@@ -265,7 +266,7 @@ inline const T& last(const std::set<T>& s)
 extern char *round_css_str(double d, int digits, char *buf);
 
 // Fast round and format to string routine, JS compliant
-extern char *round_js_str(double d, int digits, char *buf);
+extern WT_API char *round_js_str(double d, int digits, char *buf);
 
 // Only for Java target
 extern std::string toHexString(int i);

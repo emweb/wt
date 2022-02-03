@@ -13,14 +13,16 @@
 #include <Wt/WText.h>
 
 Navigation::Navigation()
-  : TopicWidget()
 {
+#if 0
   addText(tr("navigation-intro"), this);
+#endif
 }
 
 void Navigation::populateSubMenu(Wt::WMenu *menu)
 {
-  menu->addItem("Internal paths", internalPaths())->setPathComponent("");
+  menu->addItem("Internal paths",
+                deferCreate([this]{ return internalPaths(); }))->setPathComponent("");
   menu->addItem("Anchor", 
                 deferCreate([this]{ return anchor(); }));
   menu->addItem("Stacked widget", 

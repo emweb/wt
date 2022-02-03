@@ -8,6 +8,7 @@
  */
 
 #include <Wt/WApplication.h>
+#include <Wt/WBootstrap5Theme.h>
 #include <Wt/WProgressBar.h>
 #include <Wt/WTheme.h>
 
@@ -25,6 +26,7 @@ WProgressBar::WProgressBar()
     changed_(false)
 {
   format_ = WString::fromUTF8("%.0f %%");
+  setFlexBox(true);
   setInline(true);
 }
 
@@ -126,24 +128,34 @@ void WProgressBar::updateDom(DomElement& element, bool all)
 {
   DomElement *bar = nullptr, *label = nullptr;
 
-  if (all) {
-    WApplication *app = WApplication::instance();
+  auto app = WApplication::instance();
+  auto bs5Theme = std::dynamic_pointer_cast<Wt::WBootstrap5Theme>(app->theme());
 
+  if (all) {
     bar = DomElement::createNew(DomElementType::DIV);
     bar->setId("bar" + id());
     bar->setProperty(Property::Class, valueStyleClass_);
     app->theme()->apply(this, *bar, ProgressBarBar);
 
-    label = DomElement::createNew(DomElementType::DIV);
-    label->setId("lbl" + id());
-    app->theme()->apply(this, *label, ProgressBarLabel);
+    if (bs5Theme) {
+      label = bar;
+    } else {
+      label = DomElement::createNew(DomElementType::DIV);
+      label->setId("lbl" + id());
+      app->theme()->apply(this, *label, ProgressBarLabel);
+    }
   }
 
   if (changed_ || all) {
     if (!bar)
       bar = DomElement::getForUpdate("bar" + id(), DomElementType::DIV);
-    if (!label)
-      label = DomElement::getForUpdate("lbl" + id(), DomElementType::DIV);
+    if (!label) {
+      if (bs5Theme) {
+        label = bar;
+      } else {
+        label = DomElement::getForUpdate("lbl" + id(), DomElementType::DIV);
+      }
+    }
 
     updateBar(*bar);
 
@@ -158,7 +170,7 @@ void WProgressBar::updateDom(DomElement& element, bool all)
   if (bar)
     element.addChild(bar);
 
-  if (label)
+  if (label && !bs5Theme)
     element.addChild(label);
 
   WInteractWidget::updateDom(element, all);

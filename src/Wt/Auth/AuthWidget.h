@@ -316,15 +316,36 @@ protected:
   /*! \brief Creates a widget to login using OAuth.
    *
    * The default implementation adds an icon for each OAuth service
-   * provider available.
+   * provider available. The icon that will be used for each service
+   * is a PNG file with a path based on the
+   * \link OAuthService::name name \endlink of the service. If the
+   * name is is "myService", then the icon path will be "css/oauth-myService.png".
+   * Wt does not bundle any icons by default, so you should make sure that
+   * the icon is in place.
    *
-   * There's alot to say about making a usable login mechanism for
+   * There's a lot to say about making a usable login mechanism for
    * OAuth (and federated login services in general), see
    * https://sites.google.com/site/oauthgoog/UXFedLogin.
    *
    * \sa createLoginView()
    */
   virtual void createOAuthLoginView();
+
+#ifdef WT_HAS_SAML
+  /*! \brief Creates a widget to login using SAML.
+   *
+   * The default implementation adds an icon for each SAML service
+   * provider available. The icon that will be used for each service
+   * is a PNG file with a path based on the
+   * \link Saml::Service::name name \endlink of the service. If the
+   * name is "myService", then the icon path will be "css/saml-myService.png".
+   * Wt does not bundle any icons by default, so you should make sure that
+   * the icon is in place.
+   *
+   * \sa createLoginView()
+   */
+  virtual void createSamlLoginView();
+#endif // WT_HAS_SAML
 
   /*! \brief Shows a dialog.
    *
@@ -373,6 +394,9 @@ private:
 
   void oAuthStateChange(OAuthProcess *process);
   void oAuthDone(OAuthProcess *process, const Identity& identity);
+#ifdef WT_HAS_SAML
+  void samlDone(Saml::Process *process, const Identity& identity);
+#endif // WT_HAS_SAML
   void updatePasswordLoginView();
 };
 

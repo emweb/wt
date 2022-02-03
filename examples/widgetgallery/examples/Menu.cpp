@@ -11,7 +11,7 @@ auto container = std::make_unique<Wt::WContainerWidget>();
 auto contents = std::make_unique<Wt::WStackedWidget>();
 
 Wt::WMenu *menu = container->addNew<Wt::WMenu>(contents.get());
-menu->setStyleClass("nav nav-pills nav-stacked");
+menu->setStyleClass("nav nav-pills flex-column");
 menu->setWidth(150);
 
 // Add menu items using the default lazy loading policy.

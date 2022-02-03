@@ -132,7 +132,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
   // Already apply theme here because it may determine its organization
   if (all)
-    app->theme()->apply(this, element, 1);
+    app->theme()->apply(this, element, ToggleButtonRole);
 
   if (element.type() == DomElementType::INPUT)
     input = &element;
@@ -218,6 +218,10 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     if (!v.empty())
       element.setAttribute("title", v);
   }
+
+  app->theme()->apply(this, *input, ToggleButtonInput);
+  if (span)
+    app->theme()->apply(this, *span, ToggleButtonSpan);
 
   if (flags_.test(BIT_STATE_CHANGED) || all) {
     input->setProperty(Wt::Property::Checked,

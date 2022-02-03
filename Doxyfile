@@ -32,7 +32,7 @@ PROJECT_NAME           = Wt
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 4.5.0
+PROJECT_NUMBER         = 4.6.1
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer
@@ -667,6 +667,7 @@ WARN_LOGFILE           =
 
 INPUT                  = src/Wt \
                          doc/main \
+                         doc/saml \
                          src/web
 
 # This tag can be used to specify the character encoding of the source files
@@ -1538,6 +1539,7 @@ INCLUDE_FILE_PATTERNS  =
 # instead of the = operator.
 
 PREDEFINED             = DOXYGEN_ONLY \
+                         WT_HAS_SAML \
                          WT_USTRING=WString \
                          WT_UCHAR=std::string \
                          WT_BOSTREAM=std::ostream \

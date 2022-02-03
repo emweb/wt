@@ -760,7 +760,7 @@
 
             <!-- OAuthService properties
 
-              These properties are used to configure OAuthService. There is currently one property:
+              These properties are used to configure OAuthService.
 
              - oauth2-secret: the secret used to create the OAuth2 'state' hash. By default,
                               this is randomly generated, which is sufficient for single-process
@@ -772,6 +772,21 @@
             -->
             <!-- <property name="oauth2-secret"></property> -->
             <!-- <property name="oauth2-redirect-timeout">600</property> -->
+
+            <!-- SAML properties
+
+              These properties are used to configure Saml::Service.
+
+              - saml-secret: the secret used to create the SAML 'RelayState'. By default,
+                             this is randomly generated, which is sufficient for single-process
+                             deployments, but for multi-process deployments the same value must
+                             be used in all processes and thus needs to be pre-configured.
+              - saml-redirect-timeout: a timeout (in seconds) for when single-sign-on is used
+                                       without popup. If a user takes longer than this to login,
+                                       the application will be destroyed. The default is 10 minutes.
+            -->
+            <!-- <property name="saml-secret"></property> -->
+            <!-- <property name="saml-redirect-timeout">600</property> -->
 
             <!-- PayPal properties
 

@@ -16,7 +16,7 @@
 #include "DragExample.h"
 
 EventsDemo::EventsDemo(EventDisplayer *ed)
-  : TopicWidget(ed),
+  : Topic(ed),
     keyEventRepeatCounter_(0)
 { }
 
