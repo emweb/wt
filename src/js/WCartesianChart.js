@@ -512,8 +512,8 @@ WT_DECLARE_WT_MEMBER_BIG
         for (i = 0; i < len(sliders()); ++i) {
           var o = $('#' + sliders()[i]);
           if (o) {
-            var sobj = o.data('sobj');
-            if (sobj && sobj.xAxis === xAx) {
+            var sobj = o[0].WtSObj;
+            if (sobj && sobj.xAxis() === xAx) {
               sobj.changeRange(u, v);
             }
           }
