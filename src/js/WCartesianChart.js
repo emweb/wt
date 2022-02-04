@@ -510,10 +510,10 @@ WT_DECLARE_WT_MEMBER_BIG
         }
         var i;
         for (i = 0; i < len(sliders()); ++i) {
-          var o = $('#' + sliders()[i]);
+          var o = document.getElementById(sliders()[i]);;
           if (o) {
-            var sobj = o.data('sobj');
-            if (sobj && sobj.xAxis === xAx) {
+            var sobj = o.wtSObj;
+            if (sobj && sobj.xAxis() === xAx) {
               sobj.changeRange(u, v);
             }
           }
