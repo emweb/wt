@@ -1913,9 +1913,6 @@
 	<span class="n">addMapTypeControl</span><span class="p">(</span><span class="s">&quot;No control&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">MapTypeControl</span><span class="o">::</span><span class="n">None</span><span class="p">);</span>
 	<span class="n">addMapTypeControl</span><span class="p">(</span><span class="s">&quot;Default&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">MapTypeControl</span><span class="o">::</span><span class="n">Default</span><span class="p">);</span>
 	<span class="n">addMapTypeControl</span><span class="p">(</span><span class="s">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">MapTypeControl</span><span class="o">::</span><span class="n">Menu</span><span class="p">);</span>
-	<span class="k">if</span> <span class="p">(</span><span class="n">map_</span><span class="o">-&gt;</span><span class="n">apiVersion</span><span class="p">()</span> <span class="o">==</span> <span class="n">Wt</span><span class="o">::</span><span class="n">GoogleMapsVersion</span><span class="o">::</span><span class="n">v2</span><span class="p">)</span>
-	    <span class="n">addMapTypeControl</span><span class="p">(</span><span class="s">&quot;Hierarchical&quot;</span><span class="p">,</span>
-			      <span class="n">Wt</span><span class="o">::</span><span class="n">MapTypeControl</span><span class="o">::</span><span class="n">Hierarchical</span><span class="p">);</span>
 	<span class="k">if</span> <span class="p">(</span><span class="n">map_</span><span class="o">-&gt;</span><span class="n">apiVersion</span><span class="p">()</span> <span class="o">==</span> <span class="n">Wt</span><span class="o">::</span><span class="n">GoogleMapsVersion</span><span class="o">::</span><span class="n">v3</span><span class="p">)</span>
 	    <span class="n">addMapTypeControl</span><span class="p">(</span><span class="s">&quot;Horizontal bar&quot;</span><span class="p">,</span>
 			      <span class="n">Wt</span><span class="o">::</span><span class="n">MapTypeControl</span><span class="o">::</span><span class="n">HorizontalBar</span><span class="p">);</span>
@@ -6291,6 +6288,21 @@
     <span class="c1">// the last constructor argument</span>
     <span class="n">container</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Text &quot;</span> <span class="o">+</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;&lt;/p&gt;&quot;</span><span class="p">));</span>
 <span class="p">}</span>
+</pre></div>
+  </message>
+  <message id="src-pdfImageWrite">
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;Wt/Chart/WCartesianChart.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;Wt/WPdfImage.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span> <span class="n">chart</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">WPdfImage</span> <span class="nf">pdfImage</span><span class="p">(</span><span class="s">&quot;4cm&quot;</span><span class="p">,</span> <span class="s">&quot;3cm&quot;</span><span class="p">);</span>
+<span class="p">{</span>
+    <span class="n">WPainter</span> <span class="n">p</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pdfImage</span><span class="p">);</span>
+    <span class="n">chart</span><span class="o">-&gt;</span><span class="n">paint</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">f</span><span class="p">(</span><span class="s">&quot;chart.pdf&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">out</span> <span class="o">|</span> <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span>
+<span class="n">pdfImage</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
 </pre></div>
   </message>
   <message id="src-theme">

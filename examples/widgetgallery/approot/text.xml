@@ -5137,9 +5137,7 @@
       </p>
 
       <fieldset class="example">
-        <!--<legend>Example</legend>
-        <${PdfImageWrite}-->
-        ${src PdfImageWrite}
+        ${src pdfImageWrite}
       </fieldset>
     ${</if:cpp>}
 
