@@ -36,7 +36,15 @@ behaviour.
   </li>
   <li>
     <tt><a href="https://redmine.webtoolkit.eu/issues/8782" target="_blank">Issue #8782</a></tt>:
-    When using drag/drop in combination with Wt::WStandardItemModel, the item flags are now copied. Since this was not the case before, after dragging an item one time the Wt::ItemFlag::DragEnabled flag would be lost and the item would no longer be draggable.
+    When using drag/drop in combination with Wt::WStandardItemModel, the item flags are now copied. Since this was
+    not the case before, after dragging an item one time the Wt::ItemFlag::DragEnabled flag would be lost and the item would no longer be draggable.
+  </li>
+  <li>
+    <tt><a href="https://redmine.webtoolkit.eu/issues/9562" target="_blank">Issue #9562</a></tt>:
+    <ul>
+      <li>If a Wt::Mail::Message was sent more than once, the attachments would be empty after the first time.</li>
+      <li>Mails sent by Wt::Auth are now logged using Wt::WLogger. As a result, the logging can also be disabled by adding '-info:Auth.AuthService' to &lt;log-config&gt; in the wt configuration.</li>
+    </ul>
   </li>
 </ul>
 
