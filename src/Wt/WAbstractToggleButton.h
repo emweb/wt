@@ -139,6 +139,13 @@ public:
    *
    * You can use the changed() signal to react to any change of the
    * button state.
+   *
+   * \remark This signal is not emitted for WRadioButton. In this case
+   * a button can only be unchecked because another button is checked.
+   * The browser will only generate an event for the button which was
+   * checked. Since EventSignal mirrors browser events, Wt will also
+   * not emit this signal. The function WButtonGroup::checkedChanged()
+   * might be easier to use in this case.
    */
   EventSignal<>& unChecked();
 
