@@ -20,19 +20,33 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.6.2 (February 10, 2022)</h2>
+<h2>Release 4.6.2 (February 15, 2022)</h2>
 
-<ul>
-  <li>
-    <tt><a href="https://redmine.webtoolkit.eu/issues/9424" target="_blank">Issue #9424</a></tt>:
-    The special 'no selection' status of Wt::WCombBox (where no item is selected rather than the first item) was lost if the items were rerendered (eg. if the model changed).
-  </li>
-  <li>
-    <tt><a href="https://redmine.webtoolkit.eu/issues/9721" target="_blank">Issue #9721</a></tt>:
-    Somewhere during the Bootstrap 5 transition, we accidentally removed some example code (<tt>pdfImageWrite.cpp</tt>) from the widget gallery.
-    We added it back.
-  </li>
-</ul>
+<p>
+  Wt 4.6.2 is a patch release that addresses the following issues:
+  <ul>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/9424" target="_blank">Issue #9424</a>:
+      The special "no selection" status of
+      <a href="classWt_1_1WComboBox.html">WComboBox</a>
+      was lost if the items were rerendered, e.g. if the model changed.
+    </li>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/9721" target="_blank">Issue #9721</a>:
+      Somewhere during the Bootstrap 5 transition, we accidentally removed some example code (<tt>pdfImageWrite.cpp</tt>) from the widget gallery.
+      We added it back.
+    </li>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/9572" target="_blank">Issue #9572</a>:
+      Some JSON serialization tests were temporarily disabled since Boost 1.76.0, since the workaround put
+      in place does not generate entirely the same result.
+    </li>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/9571" target="_blank">Issue #9571</a>:
+      Provided a fix for a false positive <tt>-Wfree-nonheap-object</tt> warning in <tt>Wt::Signals</tt>.
+    </li>
+  </ul>
+</p>
 
 <h2>Release 4.6.1 (December 23, 2021)</h2>
 
