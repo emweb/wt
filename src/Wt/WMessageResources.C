@@ -225,23 +225,6 @@ public :
 #endif //WT_NO_SPIRIT
 
 namespace {
-  void fixSelfClosingTags(xml_node<> *x_node)
-  {
-    for (xml_node<> *x_child = x_node->first_node(); x_child;
-	 x_child = x_child->next_sibling())
-      fixSelfClosingTags(x_child);
-
-    if (!x_node->first_node()
-	&& x_node->value_size() == 0
-	&& !Wt::DomElement::isSelfClosingTag
-	(std::string(x_node->name(), x_node->name_size()))) {
-      // We need to add an emtpy data node since <div /> is illegal HTML
-      // (but valid XML / XHTML)
-      xml_node<> *empty	= x_node->document()->allocate_node(node_data);
-      x_node->append_node(empty);
-    }
-  }
-
   char *copy_chars(const char *begin, const char *end, char *out)
   {
     while (begin != end)
@@ -263,7 +246,7 @@ namespace {
 	  ptr = copy_chars(x_child->value(),
 			   x_child->value() + x_child->value_size(), ptr);
 	} else {
-	  fixSelfClosingTags(x_child);
+	  Wt::Utils::fixSelfClosingTags(x_child);
 	  ptr = print(ptr, *x_child, print_no_indenting);
 	}
       }

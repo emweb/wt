@@ -52,6 +52,10 @@ behaviour.
       Http::Request::urlScheme()
     </a> now looks at <code>X-Forwarded-Proto</code> if Wt is behind a trusted reverse proxy.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9035" target="_blank">Issue #9035</a>:
+    The <code>&lt;head-matter&gt;</code> configuration option did not work with <code>&lt;script&gt;</code> elements without content (eg. when using the <code>src</code> attribute). The parser would always turn this into a self-closing tag, which is not allowed in HTML.
+  </li>
 </ul>
 
 <h2>Release 4.6.3 (March 10, 2022)</h2>

@@ -1290,6 +1290,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     std::stringstream ss;
     for (xml_node<> *r = headMatter->first_node(); r;
          r = r->next_sibling()) {
+      Wt::Utils::fixSelfClosingTags(r);
       rapidxml::print(static_cast<std::ostream&>(ss), *r);
     }
     headMatter_.push_back(HeadMatter(ss.str(), userAgent));

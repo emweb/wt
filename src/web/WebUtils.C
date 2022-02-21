@@ -490,6 +490,22 @@ float stof(const std::string& v)
   return convert<float>("stof", boost::spirit::float_, v);
 }
 
+void fixSelfClosingTags(Wt::rapidxml::xml_node<> *x_node)
+{
+  for (Wt::rapidxml::xml_node<> *x_child = x_node->first_node(); x_child;
+       x_child = x_child->next_sibling())
+    fixSelfClosingTags(x_child);
+
+  if (!x_node->first_node()
+      && x_node->value_size() == 0
+      && !Wt::DomElement::isSelfClosingTag
+      (std::string(x_node->name(), x_node->name_size()))) {
+    // We need to add an emtpy data node since <div /> is illegal HTML
+    // (but valid XML / XHTML)
+    Wt::rapidxml::xml_node<> *empty = x_node->document()->allocate_node(Wt::rapidxml::node_data);
+    x_node->append_node(empty);
+  }
+}
 
   }
 }

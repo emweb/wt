@@ -37,6 +37,7 @@ IF(ENABLE_LIBWTTEST)
     utils/EraseWord.C
     utils/ParseNumber.C
     utils/RoundJsString.C
+    utils/XmlUtils.C
     widgets/WContainerWidgetTest.C
     widgets/WSpinBoxTest.C
     widgets/WTreeViewTest.C
