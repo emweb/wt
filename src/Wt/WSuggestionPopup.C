@@ -106,7 +106,7 @@ void WSuggestionPopup::init()
    * We use display: none because logically, the popup is visible and
    * propagates signals
    */
-  setAttributeValue("style", "z-index: 10000; display: none; overflow: auto");
+  setAttributeValue("style", "display: none; overflow: auto");
 
   setModel(std::shared_ptr<WStringListModel>(new WStringListModel()));
 

@@ -47,6 +47,12 @@ behaviour.
     <code>WT_API</code> was missing from <a href="classWt_1_1Json_1_1TypeException.html">Json::TypeException</a>,
     which meant that its symbols were not exported from dynamic libraries.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9695" target="_blank">Issue #9695</a>:
+    If a <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a> was created before the dialog it appears in,
+    it would be displayed below the dialog. The <code>z-index</code> of
+    <code>WSuggestionPopup</code> is now calculated using javascript so it is always shown on top.
+  </li>
 </ul>
 
 <h2>Release 4.7.0 (March 11, 2022)</h2>

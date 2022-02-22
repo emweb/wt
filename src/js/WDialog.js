@@ -239,14 +239,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.bringToFront = function() {
-     var maxz = 0;
-     $('.Wt-dialog, .modal, .modal-dialog').each
-       (function(index, value)
-       {
-	 maxz = Math.max(maxz,$(value).css('z-index'));
-       }
-     );
-
+     var maxz = WT.maxZIndex();
      if (maxz > el.style['zIndex']) {
        var newZIndex = maxz + 1;
        el.style['zIndex'] = newZIndex;
