@@ -83,6 +83,7 @@ WT_DECLARE_WT_MEMBER
 
    this.showPopup = function(edit) {
      el.style.display = 'block';
+     self.bringToFront();
      selId = null;
      lastFilterValue = null;
      keyDownFun = edit.onkeydown;
@@ -90,6 +91,14 @@ WT_DECLARE_WT_MEMBER
        var e=event||window.event,o=this;
        self.editKeyDown(o, e);
      };
+   };
+
+   this.bringToFront = function() {
+     var maxz = WT.maxZIndex();
+     if (maxz > el.style['zIndex']) {
+       var newZIndex = maxz + 1;
+       el.style['zIndex'] = newZIndex;
+     }
    };
 
    function hidePopup() {

@@ -2367,6 +2367,18 @@ _$_$endif_$_();
 
 }
 
+this.maxZIndex = function() {
+  var maxz = 0;
+  $('.Wt-dialog, .modal, .modal-dialog').each
+  (function(index, value)
+   {
+     maxz = Math.max(maxz,$(value).css('z-index'));
+   }
+  );
+
+  return maxz;
+}
+
 })();
 
 if (window._$_APP_CLASS_$_ && window._$_APP_CLASS_$_._p_) {
