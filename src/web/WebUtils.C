@@ -254,7 +254,8 @@ namespace {
     }
 
     static int floatfield(T t) {
-      return (t != 0.0) && ((t < 0.001) || (t > 1E8)) ?
+      T abs_t = std::abs(t);
+      return (t != 0.0) && ((abs_t < 0.001) || (abs_t > 1E8)) ?
 	karma::real_policies<T>::fmtflags::scientific :
 	karma::real_policies<T>::fmtflags::fixed;
     }
