@@ -56,3 +56,35 @@ PUBLIC
 )
 
 ENDIF (BUILD_WTWITHQT5)
+
+IF (BUILD_WTWITHQT6)
+
+QT6_GENERATE_MOC (${CMAKE_CURRENT_SOURCE_DIR}/DispatchThread.h
+                  ${CMAKE_CURRENT_BINARY_DIR}/moccedDispatchThread6.C)
+
+ADD_LIBRARY(wtwithqt6 STATIC
+  WQApplication.C
+  DispatchThread.C
+
+  ${CMAKE_CURRENT_BINARY_DIR}/moccedDispatchThread6.C
+)
+
+#
+# If you have Wt installed somehwere, you should use the
+# installed Wt header files for your own Wt projects.
+# e.g. INCLUDE_DIRECTORIES(/usr/local/wt/include)
+# instead of the following:
+#
+TARGET_INCLUDE_DIRECTORIES(
+  wtwithqt6
+PRIVATE
+  ${WT_SOURCE_DIR}/src
+)
+
+TARGET_LINK_LIBRARIES(
+  wtwithqt6
+PUBLIC
+  Qt6::Core
+)
+
+ENDIF (BUILD_WTWITHQT6)
