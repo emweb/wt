@@ -48,8 +48,7 @@ bool WText::RichText::setFormat(TextFormat newFormat)
 
 bool WText::RichText::checkWellFormed()
 {
-  if (format == TextFormat::XHTML && 
-      (text.literal() || !text.args().empty())) {
+  if (format == TextFormat::XHTML && text.literal()) {
     return removeScript(text);
   } else
     return true;
@@ -57,7 +56,14 @@ bool WText::RichText::checkWellFormed()
 
 std::string WText::RichText::formattedText() const
 {
-  if (format == TextFormat::Plain)
+  if (format == TextFormat::XHTML && !text.literal()) {
+    WString copy = text;
+    if (removeScript(copy)) {
+      return copy.toXhtmlUTF8();
+    } else {
+      return escapeText(text, true).toUTF8();
+    }
+  } else if (format == TextFormat::Plain)
     return escapeText(text, true).toUTF8();
   else
     return text.toXhtmlUTF8();
