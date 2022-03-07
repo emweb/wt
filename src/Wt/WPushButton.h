@@ -131,6 +131,8 @@ public:
    * XML parser which discards malicious tags and attributes
    * silently. When the parser encounters an XML parse error, the
    * textFormat is changed to Wt::TextFormat::Plain.
+   * If \p text is not a literal, the same parser is applied only
+   * when the text is resolved.
    *
    * Returns whether the text could be set using the current
    * textFormat. A return value of \c false indicates that the text
