@@ -22,29 +22,27 @@ behaviour.
 
 <h2>Release 4.7.0 (March 10, 2022)</h2>
 
+<p>Wt 4.7.0 is a smaller release with no major new features to speak of, just some improvements and bug fixes here and there.</p>
+
+<h3>Notable changes in default behavior</h3>
+
+<p>These changes affect default behavior in Wt, and may require special attention:</p>
+
 <ul>
   <li>
-    <tt><a href="https://redmine.webtoolkit.eu/issues/7434" target="_blank">Issue #7434</a></tt>:
-    Wt moved from rgb to rgba with the alpha value default opaque.
-    This change allows to you to set the background color and tranparency using
-    <tt>setBackgroundColor(Wt::WColor(255, 0, 0, 128));</tt>.
-    This change altered the default state of <tt>withAlpha</tt> from false to true in
-    <tt><a href="classWt_1_1WColor.html#a738c53d744ed38a448d1554f2a2f42cf">Wcolor::cssText(bool withAlpha=true)</a></tt>
+    <a href="https://redmine.webtoolkit.eu/issues/7434" target="_blank">Issue #7434</a>:
+    <a href="classWt_1_1WColor.html#a738c53d744ed38a448d1554f2a2f42cf">WColor::cssText()</a> now outputs
+    the color in <code>rgba</code> format by default.
+    It is now possible to set the opacity using such functions as
+    <a href="classWt_1_1WCssDecorationStyle.html#ac6bd2a8b86c8092fc437329dac09b302">WCssDecorationStyle::setBackgroundColor()</a>.
   </li>
   <li>
-    Since Google Maps v2 is no longer available as of May 26 2021, Wt no longer supports v2.
-  </li>
-  <li>
-    <tt><a href="https://redmine.webtoolkit.eu/issues/8782" target="_blank">Issue #8782</a></tt>:
-    When using drag/drop in combination with Wt::WStandardItemModel, the item flags are now copied. Since this was
-    not the case before, after dragging an item one time the Wt::ItemFlag::DragEnabled flag would be lost and the item would no longer be draggable.
-  </li>
-  <li>
-    <tt><a href="https://redmine.webtoolkit.eu/issues/9562" target="_blank">Issue #9562</a></tt>:
-    <ul>
-      <li>If a Wt::Mail::Message was sent more than once, the attachments would be empty after the first time.</li>
-      <li>Mails sent by Wt::Auth are now logged using Wt::WLogger. As a result, the logging can also be disabled by adding '-info:Auth.AuthService' to &lt;log-config&gt; in the wt configuration.</li>
-    </ul>
+    <a href="https://redmine.webtoolkit.eu/issues/8782" target="_blank">Issue #8782</a>:
+    When using drag/drop in combination with
+    <a href="classWt_1_1WStandardItemModel.html">WStandardItemModel</a>,
+    the item flags are now copied. Previously, after dragging an item one time
+    the <a href="group__modelview.html#gga1d77c4de293aebfacbdde124de06b8b0a08ab0b568328fb06a466be97d62f5649">ItemFlag::DragEnabled</a>
+    flag would be lost and the item would no longer be draggable.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/9591" target="_blank">Issue #9591</a>:
@@ -53,12 +51,45 @@ behaviour.
     </a> now looks at <code>X-Forwarded-Proto</code> if Wt is behind a trusted reverse proxy.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/9035" target="_blank">Issue #9035</a>:
-    The <code>&lt;head-matter&gt;</code> configuration option did not work with <code>&lt;script&gt;</code> elements without content (eg. when using the <code>src</code> attribute). The parser would always turn this into a self-closing tag, which is not allowed in HTML.
+    <a href="https://redmine.webtoolkit.eu/issues/9056" target="_blank">Issue #9056</a>:
+    There were memory leaks in <a href="classWt_1_1WFileDropWidget.html">WFileDropWidget</a>. This was fixed by changing the class to use
+    smart pointers for memory management. As a side effect,
+    <a href="classWt_1_1WFileDropWidget.html#a1dbb3d29cfc84797148cd2758d5c0f6b">WFileDropWidget::uploads()</a> now returns a copy instead of a const reference to the internal vector.
+  </li>
+</ul>
+
+<h3>Removals</h3>
+
+<ul>
+  <li>
+    Since Google Maps v2 is no longer available as of May 26 2021, Wt no longer supports v2.
+  </li>
+</ul>
+
+<h3>Bug fixes</h3>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9562" target="_blank">Issue #9562</a>:
+    <ul>
+      <li>If a <a href="classWt_1_1Mail_1_1Message.html">Mail::Message</a> was sent more than once, the attachments would be empty after the first time.</li>
+      <li>Mails sent by <a href="namespaceWt_1_1Auth.html">Wt::Auth</a> are now logged using <a href="classWt_1_1WLogger.html">WLogger</a> instead of using <code>std::cout</code>.
+        As a result, the logging can also be disabled by adding <code>-info:Auth.AuthService</code> to <code>&lt;log-config&gt;</code> in <code>&lt;wt_config.xml&gt;</code>.</li>
+    </ul>
   </li>
   <li>
-    <tt><a href="https://redmine.webtoolkit.eu/issues/9056" target="_blank">Issue #9056</a></tt>:
-    There were memory leaks in Wt::WFileDropWidget. This was fixed by changing the class to use smart pointers for memory management. As a side effect, the method Wt::WFileDropWidget::uploads() now returns a copy instead of a const reference to the internal vector.
+    <a href="https://redmine.webtoolkit.eu/issues/9035" target="_blank">Issue #9035</a>:
+    The <code>&lt;head-matter&gt;</code> configuration option did not work with <code>&lt;script&gt;</code> elements without content (e.g. when using the <code>src</code> attribute).
+    The parser would always turn this into a self-closing tag, which is not allowed in HTML.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9271" target="_blank">Issue #9271</a>:
+    <a href="classWt_1_1Dbo_1_1backend_1_1MySQL.html">Dbo::backend::MySQL</a> now properly preserves the microsecond part of timestamps.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9264" target="_blank">Issue #9264</a>:
+    Added a remark to <a href="classWt_1_1WAbstractToggleButton.html#ae203379ba84c01935f68cd293f2a3eeb">WAbstractToggleButton::unChecked()</a> to clarify that it is not emitted
+    for <a href="classWt_1_1WRadioButton.html">WRadioButtons</a>.
   </li>
 </ul>
 
