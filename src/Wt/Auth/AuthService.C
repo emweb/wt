@@ -452,8 +452,10 @@ void AuthService::sendMail(const Mail::Message& message) const
 #endif
   }
 
-  std::ostringstream ss;
+  WT_BAOSTREAM ss;
+#ifndef WT_TARGET_JAVA
   ss.imbue(std::locale::classic());
+#endif
   m.write(ss);
   LOG_INFO("Sending Mail:\n" << ss.str());
 

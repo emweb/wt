@@ -53,12 +53,15 @@
 #define WT_USTRING Wt::WString
 #define WT_UCHAR std::string
 #define WT_BOSTREAM std::ostream
+#define WT_BAOSTREAM std::ostringstream
 #else
 #define WT_ARRAY volatile
 #define W_JAVA_COMPARATOR(type) : public Comparator<type>
 #define WT_USTRING std::string
 #define WT_UCHAR char
 #define WT_BOSTREAM std::bostream
+// ByteArrayOutputStream
+#define WT_BAOSTREAM std::baostream
 #endif
 
 #ifdef _MSC_VER

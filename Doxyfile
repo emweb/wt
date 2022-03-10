@@ -1543,6 +1543,7 @@ PREDEFINED             = DOXYGEN_ONLY \
                          WT_USTRING=WString \
                          WT_UCHAR=std::string \
                          WT_BOSTREAM=std::ostream \
+                         WT_BAOSTREAM=std::ostringstream \
                          WT_ARRAY=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
