@@ -106,7 +106,8 @@ WT_DECLARE_WT_MEMBER
 
    bodyDragEnter = function(e) {
      if (!(dropIndication || bodyDropForward)
-	 || !$(dropwidget).is(":visible"))
+	 || !$(dropwidget).is(":visible")
+         || !acceptDrops)
        return;
      
      dragState = 1;
