@@ -386,7 +386,7 @@ extern float WT_API stof(const std::string& v);
 // When parsing, rapidxml will collapse elements without content into
 // self-closing elements (eg. <div></div> into <div />), but this is not
 // always valid HTML. This function will add the closing tag if needed.
-void WT_API fixSelfClosingTags(Wt::rapidxml::xml_node<> *x_node);
+void WT_API fixSelfClosingTags(Wt::rapidxml::xml_node<char> *x_node);
 
   }
 }

@@ -199,11 +199,13 @@ WFileDropWidget::WFileDropWidget()
   setup();
 }
 
+#ifndef WT_TARGET_JAVA
 /* Destructor must be defined in implementation file, otherwise it is generated
  * inline and a client will get a compiler error because WFileDropUploadResource
  * is an incomplete type.
  */
 WFileDropWidget::~WFileDropWidget() = default;
+#endif
 
 std::vector<WFileDropWidget::File*> WFileDropWidget::uploads() const
 {

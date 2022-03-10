@@ -120,9 +120,11 @@ public:
    */
   WFileDropWidget();
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Destructor
    */
   ~WFileDropWidget();
+#endif
 
   /*! \brief Returns the vector of uploads managed by this widget.
    *
@@ -303,7 +305,7 @@ private:
   Signal< File*, ::uint64_t > tooLarge_;
   Signal<File*> uploadFailed_;
   
-  std::vector<std::unique_ptr<File>> uploads_;
+  std::vector<std::unique_ptr<File> > uploads_;
 
   static const int BIT_HOVERSTYLE_CHANGED  = 0;
   static const int BIT_ACCEPTDROPS_CHANGED = 1;
