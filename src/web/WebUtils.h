@@ -24,9 +24,10 @@
 #include <float.h>
 #endif
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
-
 namespace Wt {
+  namespace rapidxml {
+    template<class Ch> class xml_node;
+  }
 
   class WString;
   class EscapeOStream;
