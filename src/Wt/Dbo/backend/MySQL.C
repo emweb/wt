@@ -21,6 +21,7 @@
 #include "Wt/cpp20/date.hpp"
 
 #include <iostream>
+#include <locale>
 #include <vector>
 #include <sstream>
 #include <cstring>
@@ -258,7 +259,15 @@ class MySQLStatement final : public SqlStatement
       if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
-      LOG_DEBUG(this << " bind " << column << " " << value);
+#ifdef WT_DEBUG_ENABLED
+      if (WT_LOGGING("debug", WT_LOGGER)) {
+        using namespace cpp20::date;
+        std::ostringstream ss;
+        ss.imbue(std::locale::classic());
+        ss << value;
+        WT_LOG("debug") << WT_LOGGER << ": " << this << " bind " << column << " " << ss.str();
+      }
+#endif
 
       MYSQL_TIME*  ts = (MYSQL_TIME*)malloc(sizeof(MYSQL_TIME));
 
@@ -701,7 +710,16 @@ class MySQLStatement final : public SqlStatement
         *value = day_tp + std::chrono::duration_cast<std::chrono::system_clock::time_point::duration>(time);
       }
 
-      LOG_DEBUG(this << " result time " << column << " " << *value);
+
+#ifdef WT_DEBUG_ENABLED
+      if (WT_LOGGING("debug", WT_LOGGER)) {
+        using namespace cpp20::date;
+        std::ostringstream ss;
+        ss.imbue(std::locale::classic());
+        ss << *value;
+        WT_LOG("debug") << WT_LOGGER << ": " << this << " result time " << column << " " << ss.str();
+      }
+#endif
 
       return true;
     }

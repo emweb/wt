@@ -24,6 +24,7 @@ def wt_configure(Map args) {
             -DBUILD_TESTS=ON \
             -DCONNECTOR_FCGI=ON \
             -DCONNECTOR_HTTP=ON \
+            -DDEBUG=ON \
             -DEXAMPLES_CONNECTOR=${args.examplesConnector} \
             -DENABLE_HARU=ON \
             -DENABLE_PANGO=ON \

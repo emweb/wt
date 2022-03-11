@@ -8,6 +8,7 @@ def wt_configure(Map args) {
             -DBUILD_TESTS=ON \
             -DCONNECTOR_FCGI=OFF \
             -DCONNECTOR_HTTP=ON \
+            -DDEBUG=ON \
             -DEXAMPLES_CONNECTOR=wthttp \
             -DENABLE_HARU=OFF \
             -DENABLE_PANGO=OFF \
