@@ -25,5 +25,5 @@ BOOST_AUTO_TEST_CASE(fixSelfClosingTags_test1)
   std::string output;
   Wt::rapidxml::print(std::back_inserter(output), doc,
                       Wt::rapidxml::print_no_indenting);
-  BOOST_TEST(output == input);
+  BOOST_CHECK_EQUAL(output, input);
 }
