@@ -59,7 +59,7 @@ pipeline {
     agent {
         dockerfile {
             label 'wt'
-            dir 'jenkins'
+            dir 'jenkins/linux'
             filename 'minimal.Dockerfile'
             args "--env CCACHE_DIR=${container_ccache_dir} --env CCACHE_MAXSIZE=20G --volume ${host_ccache_dir}:${container_ccache_dir}:z"
             additionalBuildArgs """--build-arg USER_ID=${user_id} \
