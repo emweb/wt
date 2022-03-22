@@ -442,7 +442,7 @@ protected:
 private:
   WTemplate *impl_;
   WText *caption_;
-  WText *closeIcon_;
+  WInteractWidget *closeIcon_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
   WContainerWidget *layoutContainer_;

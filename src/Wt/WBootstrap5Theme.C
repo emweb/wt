@@ -164,8 +164,7 @@ void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
     break;
 
   case DialogCloseIcon:
-    child->addStyleClass("close");
-    ((WText *)child)->setText("&times;");
+    child->addStyleClass("btn-close");
     break;
 
   case TableViewRowContainer:

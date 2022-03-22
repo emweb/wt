@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WApplication.h"
+#include "Wt/WBootstrap5Theme.h"
 #include "Wt/WContainerWidget.h"
 #include "Wt/WDialog.h"
 #include "Wt/WEnvironment.h"
@@ -492,10 +493,13 @@ void WDialog::setClosable(bool closable)
 {
   if (closable) {
     if (!closeIcon_) {
-      std::unique_ptr<WText> closeIcon(closeIcon_ = new WText());
-      titleBar_->insertWidget(0, std::move(closeIcon));
-      WApplication::instance()->theme()->apply
-        (this, closeIcon_, DialogCloseIcon);
+      auto theme = WApplication::instance()->theme();
+      if (std::dynamic_pointer_cast<WBootstrap5Theme>(theme)) {
+        closeIcon_ = titleBar_->addNew<WPushButton>();
+      } else {
+        closeIcon_ = titleBar_->insertWidget(0, std::make_unique<WText>());
+      }
+      theme->apply(this, closeIcon_, DialogCloseIcon);
       closeIcon_->clicked().connect(this, &WDialog::reject);
     }
   } else {
