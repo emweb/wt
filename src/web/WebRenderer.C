@@ -164,7 +164,7 @@ bool WebRenderer::isDirty() const
     || !session_.app()->styleSheetsToRemove_.empty()
     || session_.app()->styleSheet().isDirty()
     || session_.app()->internalPathIsChanged_
-    || !collectedJS1_.empty()
+    || !(collectedJS1_.empty() || (collectedJS1_.length() == 2 && collectedJS1_.str() == "{}"))
     || !collectedJS2_.empty()
     || !invisibleJS_.empty()
     || !wsRequestsToHandle_.empty()
