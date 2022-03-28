@@ -164,7 +164,7 @@ bool WebRenderer::isDirty() const
     || !session_.app()->styleSheetsToRemove_.empty()
     || session_.app()->styleSheet().isDirty()
     || session_.app()->internalPathIsChanged_
-    || !(collectedJS1_.empty() || (collectedJS1_.length() == 2 && collectedJS1_.str() == "{}"))
+    || !collectedJS1_.empty()
     || !collectedJS2_.empty()
     || !invisibleJS_.empty()
     || !wsRequestsToHandle_.empty()
@@ -1673,8 +1673,6 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
 {
   WApplication *app = session_.app();
 
-  out << '{';
-
   try {
     if (session_.sessionIdChanged_) {
       if (session_.hasSessionIdInUrl()) {
@@ -1686,7 +1684,6 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
         } else {
           streamRedirectJS(out, app->url(app->internalPath()));
         }
-        out << '}';
         return;
       }
 
@@ -1732,13 +1729,10 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
 
     updateLoadIndicator(out, app, false);
   } catch (const std::exception &e) {
-    out << '}';
     RETHROW(e);
   } catch (...) {
-    out << '}';
     throw;
   }
-  out << '}';
 }
 
 void WebRenderer::updateFormObjects(WWebWidget *source, bool checkDescendants)
