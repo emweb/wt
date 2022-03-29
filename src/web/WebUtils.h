@@ -25,9 +25,11 @@
 #endif
 
 namespace Wt {
+#ifndef WT_TARGET_JAVA
   namespace rapidxml {
     template<class Ch> class xml_node;
   }
+#endif // WT_TARGET_JAVA
 
   class WString;
   class EscapeOStream;
@@ -384,10 +386,12 @@ extern int WT_API stoi(const std::string& v);
 extern double WT_API stod(const std::string& v);
 extern float WT_API stof(const std::string& v);
 
+#ifndef WT_TARGET_JAVA
 // When parsing, rapidxml will collapse elements without content into
 // self-closing elements (eg. <div></div> into <div />), but this is not
 // always valid HTML. This function will add the closing tag if needed.
 void WT_API fixSelfClosingTags(Wt::rapidxml::xml_node<char> *x_node);
+#endif // WT_TARGET_JAVA
 
   }
 }
