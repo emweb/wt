@@ -29,6 +29,12 @@ behaviour.
     Instead of discarding responses containing only <code>{}</code>, Wt now no longer delineates its JavaScript
     with curly brackets.
   </li>
+
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10003" target="_blank">Issue #10003</a>:
+    Calling <a href="classWt_1_1WApplication.html#a02b9d8aa1b6c2d0dc9edc1b9c63f86dc">WApplication::refresh()</a> in the application constructor (e.g. by setting the locale) would produce a JavaScript error if there was a <a href="classWt_1_1WSpinBox.html">WSpinBox</a> in the widget tree.
+  </li>
+
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/10248" target="_blank">Issue #10248</a>:
     Tabs have been replaced by spaces in the source code. Previously, we had a mix of tabs and spaces,

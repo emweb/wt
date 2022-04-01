@@ -241,11 +241,13 @@ ValidationState WAbstractSpinBox::validate()
 
 void WAbstractSpinBox::refresh()
 {
-  doJavaScript
-    (jsRef() + ".wtObj"
-     ".setLocale("
-     + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
-     + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");");
+  if (isRendered()) {
+    doJavaScript
+      (jsRef() + ".wtObj"
+       ".setLocale("
+       + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
+       + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");");
+  }
 
   WLineEdit::refresh();
 }
