@@ -20,7 +20,6 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-
 <h2>Release 4.7.2 (May 12, 2022)</h2>
 
 <p>
@@ -32,6 +31,12 @@ behaviour.
       Previously, the browser would send a close frame and not get a response back. On Firefox,
       these kinds of errors caused the creation of new WebSocket connections to the same
       endpoint to be delayed by up to one minute, making it seem like the application is hanging.
+    </li>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/10003" target="_blank">Issue #10003</a>:
+      Calling <a href="classWt_1_1WApplication.html#a02b9d8aa1b6c2d0dc9edc1b9c63f86dc">WApplication::refresh()</a>
+      in the application constructor (e.g. by setting the locale) would produce a JavaScript error if there was
+      a <a href="classWt_1_1WSpinBox.html">WSpinBox</a> in the widget tree.
     </li>
   </ul>
 </p>
