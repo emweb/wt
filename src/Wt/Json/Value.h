@@ -69,7 +69,7 @@ enum class Type {
  *
  * \ingroup json
  */
-class TypeException : public WException
+class WT_API TypeException : public WException
 {
 public:
   TypeException(const std::string& name, Type actualType, Type expectedType);
