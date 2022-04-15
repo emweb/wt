@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 def user_id
 def user_name
 def group_id

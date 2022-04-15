@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 def thread_count = 1
 
 def wt_configure(Map args) {
