@@ -20,29 +20,32 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.7.1 (April 14, 2022)</h2>
+<h2>Release 4.7.1 (April 15, 2022)</h2>
 
-<ul>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/9922" target="_blank">Issue #9922</a>:
-    Wt would send an update to the browser on every call to
-    <a href="classWt_1_1WApplication.html#a51f50e0641a6d702a7c6ab7f8dd5946a">WApplication::triggerUpdate()</a>
-    if server push was enabled.
-    This is because Wt thought the state was dirty when its JavaScript response buffer contained only <code>{}</code> (empty
-    block). This has been fixed by not sending a response if the buffer contains only <code>{}</code>.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10177" target="_blank">Issue #10177</a>:
-    <code>WT_API</code> was missing from <a href="classWt_1_1Json_1_1TypeException.html">Json::TypeException</a>,
-    which meant that its symbols were not exported from dynamic libraries.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/9695" target="_blank">Issue #9695</a>:
-    If a <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a> was created before the dialog it appears in,
-    it would be displayed below the dialog. The <code>z-index</code> of
-    <code>WSuggestionPopup</code> is now calculated using javascript so it is always shown on top.
-  </li>
-</ul>
+<p>
+  Wt 4.7.1 is a patch release that addresses the following issues:
+  <ul>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/9922" target="_blank">Issue #9922</a>:
+      Wt would send an update to the browser on every call to
+      <a href="classWt_1_1WApplication.html#a51f50e0641a6d702a7c6ab7f8dd5946a">WApplication::triggerUpdate()</a>
+      if server push was enabled.
+      This is because Wt thought the state was dirty when its JavaScript response buffer contained only <code>{}</code> (empty
+      block). This has been fixed by not sending a response if the buffer contains only <code>{}</code>.
+    </li>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/10177" target="_blank">Issue #10177</a>:
+      <code>WT_API</code> was missing from <a href="classWt_1_1Json_1_1TypeException.html">Json::TypeException</a>,
+      which meant that its symbols were not exported from dynamic libraries.
+    </li>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/9695" target="_blank">Issue #9695</a>:
+      If a <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a> was created before the dialog it appears in,
+      it would be displayed below the dialog. The <code>z-index</code> of
+      <code>WSuggestionPopup</code> is now calculated using javascript so it is always shown on top.
+    </li>
+  </ul>
+</p>
 
 <h2>Release 4.7.0 (March 11, 2022)</h2>
 
