@@ -30,7 +30,7 @@ pipeline {
     }
     options {
         buildDiscarder logRotator(numToKeepStr: '20')
-        disableConcurrentBuilds()
+        disableConcurrentBuilds abortPrevious: true
     }
     agent {
         label 'build-freebsd12-1'

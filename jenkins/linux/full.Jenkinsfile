@@ -50,7 +50,7 @@ pipeline {
     }
     options {
         buildDiscarder logRotator(numToKeepStr: '20')
-        disableConcurrentBuilds()
+        disableConcurrentBuilds abortPrevious: true
     }
     agent {
         dockerfile {
