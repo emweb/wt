@@ -72,7 +72,7 @@ pipeline {
                     sh "make -C examples -k -j${thread_count}"
                 }
                 dir('test') {
-                    warnError('non-mt test.wt failed') {
+                    warnError('st test.wt failed') {
                         sh "../build-st/test/test.wt"
                     }
                 }
