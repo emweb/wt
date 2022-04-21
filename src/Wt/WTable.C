@@ -118,9 +118,9 @@ WTableColumn* WTable::insertColumn(int column,
   if ((unsigned)column <= columns_.size()) {
     if (!tableColumn){
       tableColumn = createColumn(column);
-      tableColumn->setTable(this);
     }
 
+    tableColumn->setTable(this);
     columns_.insert(columns_.begin() + column, std::move(tableColumn));
   }
 
